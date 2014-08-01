@@ -212,3 +212,6 @@ $RECYCLE.BIN/
 *.msi
 *.msm
 *.msp
+
+# Ignore HotDog's client
+Endless Online V2/
