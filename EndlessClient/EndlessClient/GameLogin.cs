@@ -567,11 +567,13 @@ namespace EndlessClient
 			{
 				System.Windows.Forms.MessageBox.Show(wle.Message, "Error");
 				Exit();
+				return;
 			}
 			catch (Exception ex)
 			{
 				System.Windows.Forms.MessageBox.Show("Error initializing GFXLoader: " + ex.Message, "Error");
 				Exit();
+				return;
 			}
 
 			if(World.Instance.EIF.Version == 0)
@@ -593,6 +595,7 @@ namespace EndlessClient
 			{
 				System.Windows.Forms.MessageBox.Show(string.Format("There was an error loading GFX{0:000}.EGF : {1}. Place all .GFX files in .\\gfx\\", (int)curValue, curValue.ToString()), "Error");
 				Exit();
+				return;
 			}
 			
 			base.Initialize();
@@ -600,6 +603,9 @@ namespace EndlessClient
 
 		protected override void Dispose(bool disposing)
 		{
+			if (!World.Initialized)
+				return;
+
 			if (World.Instance.Client.Connected)
 				World.Instance.Client.Disconnect();
 			World.Instance.Client.Dispose();

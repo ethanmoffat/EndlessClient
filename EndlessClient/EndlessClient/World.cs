@@ -23,6 +23,8 @@ namespace EndlessClient
 		private static World inst = null;
 		private static readonly object locker = new object();
 
+		public static bool Initialized { get; private set; }
+
 		public static World Instance
 		{
 			get
@@ -67,6 +69,7 @@ namespace EndlessClient
 
 			m_player = new Player();
 			m_client = new EOClient();
+			World.Initialized = true;
 		}
 	}
 }
