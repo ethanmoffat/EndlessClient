@@ -4,7 +4,7 @@ EndlessClient
 An open source client for Endless Online written in C#
 
 Running the game
-================
+----------------
 
 You will need a copy of eoserv set up and running, or another Endless Online server to connect to. Go to eoserv.net and build/configure eoserv to run locally, or change the code to point to game.endless-online.com. This can be done in the misc.cs file by changing the address "127.0.0.1" to another IP or hostname.
 
@@ -13,7 +13,7 @@ You will also need a copy of **valid** GFX files put into bin\(Debug|Release)\GF
 In addition to GFX you will need the pub files. put into bin\(Debug|Release)\pub. There are 4 files in all, and they can be copied directly from the normal Endless Online client as well (pub directory).
 
 Rendering Hair
-==============
+--------------
 
 This client uses a special method of rendering hair to ensure that masks are rendered one way, hoods/helmets are rendered a second way, and hats that should clip hair are rendered a third way. In order to ensure that your pub file is up-to-date and can render this as designed, run BatchPub to use a batch-processing method of assigning the updated values to the selected items.
 
