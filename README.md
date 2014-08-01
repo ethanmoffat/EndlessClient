@@ -22,8 +22,8 @@ NOTE: this is only for connecting to servers where you a) already have any of th
 In step two, configure as follows: Set the field to SubType, and the value to FaceMask (for masks) or HideHair (for helmets/hoods)
 
 In step three, configure as follows: Check the checkbox, set the field to Name, set comparison to regex, and set the value to one of the following:
- - For helmets: ^[A-Za-z ]*[Hh]elm[A-Za-z ]*$
- - For hoods: ^[A-Za-z ]*[Hh]ood[A-Za-z ]*$
+ - For helmets: `^[A-Za-z ]*[Hh]elm[A-Za-z ]*$`
+ - For hoods: `^[A-Za-z ]*[Hh]ood[A-Za-z ]*$`
 Pirate hat (ID 314 in standard pubs) also needs to be updated to HideHair. Change search to ==, change the field to ID, and change the value to 314.
 
-For FaceMask updates, the following regex will update the correct items: ^((Frog Head)|([A-Za-z ]*[Mm]ask[A-Za-z ]*))$
+For FaceMask updates, the following regex will update the correct items: `^((Frog Head)|([A-Za-z ]*[Mm]ask[A-Za-z ]*))$`
