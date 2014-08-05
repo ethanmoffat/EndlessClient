@@ -173,7 +173,6 @@ namespace EndlessClient
 		public bool SendPacket(Packet pkt)
 		{
 			byte[] toSend = pkt.Get();
-
 			m_packetProcessor.Encode(ref toSend);
 
 			byte[] data = new byte[toSend.Length + 2];
@@ -274,6 +273,39 @@ namespace EndlessClient
 							byte[] data = wrap.Data;
 							m_packetProcessor.Decode(ref data);
 
+							//This block handles receipt of file data that is transferred to the client.
+							//It should make file transfer nuances pretty transparent to the client.
+							//The header for files stored in a Packet type is always as follows: FAMILY_INIT, ACTION_INIT, (InitReply)
+							//A 3-byte offset is found throughout the code that handles creating these files.
+							Packet pkt = new Packet(data);
+							if (pkt.Family == PacketFamily.Init && pkt.Action == PacketAction.Init)
+							{
+								Handlers.InitReply reply = (Handlers.InitReply)pkt.GetChar();
+								if (Enum.GetName(typeof(Handlers.InitReply), reply).Contains("_FILE_"))
+								{
+									int dataGrabbed = 0;
+									
+									int pktOffset = 0;
+									for (; pktOffset < data.Length; ++pktOffset)
+										if (data[pktOffset] == 0)
+											break;
+
+									do
+									{
+										byte[] fileBuffer = new byte[pkt.Length - pktOffset];
+										int nextGrabbed = m_sock.Receive(fileBuffer);
+										Array.Copy(fileBuffer, 0, data, dataGrabbed + 3, data.Length - (dataGrabbed + pktOffset));
+										dataGrabbed += nextGrabbed;
+									}
+									while (dataGrabbed < pkt.Length - pktOffset);
+
+									if(pktOffset > 3)
+										data = data.SubArray(0, pkt.Length - (pktOffset - 3));
+									
+									data[2] = (byte)reply; //rewrite the InitReply with the correct value (retrieved with GetChar, server sends with GetByte for other reply types)
+								}
+							}
+
 							ThreadPool.QueueUserWorkItem(_handle, new Packet(data));
 							SocketDataWrapper newWrap = new SocketDataWrapper();
 							m_sock.BeginReceive(newWrap.Data, 0, newWrap.Data.Length, SocketFlags.None, _recvCB, newWrap);
@@ -281,6 +313,8 @@ namespace EndlessClient
 						}
 					default:
 						{
+							Console.WriteLine("There was an error in the receive callback. Resetting to default state.");
+
 							SocketDataWrapper newWrap = new SocketDataWrapper();
 							m_sock.BeginReceive(newWrap.Data, 0, newWrap.Data.Length, SocketFlags.None, _recvCB, newWrap);
 							break;
@@ -314,6 +348,44 @@ namespace EndlessClient
 
 			m_sendLock.Set(); //send completed asyncronously. Allow pending sends to continue
 		}
+
+		//-----------------------------------
+		//Receive file from server
+		//-----------------------------------
+
+		//private static readonly object receivingFileLock = new object();
+		//private bool m_receivingFile = false;
+		//protected ManualResetEvent m_doneReceivingFile = new ManualResetEvent(false);
+
+		//public virtual void StartFileDownload()
+		//{
+		//	lock (receivingFileLock)
+		//	{
+		//		m_receivingFile = true;
+		//		m_doneReceivingFile.Reset();
+		//	}
+		//}
+
+		//public virtual bool WaitForFileDownload()
+		//{
+		//	lock (receivingFileLock)
+		//	{
+		//		//wait completely successfully when not receiving a file
+		//		if (!m_receivingFile)
+		//			return true;
+
+		//		m_doneReceivingFile.WaitOne();
+		//		if (m_receivingFile) //still receiving file means it was cancelled with CancelFileDownload();
+		//			return false;
+		//	}
+
+		//	return false;
+		//}
+
+		//public virtual void CancelFileDownload()
+		//{
+		//	m_doneReceivingFile.Set();
+		//}
 
 		//-----------------------------------
 		//dispose method

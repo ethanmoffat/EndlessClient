@@ -7,12 +7,13 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using XNAControls;
 using EOLib;
+using EOLib.Data;
 
 namespace EndlessClient
 {
 	public class EOCharacterRenderer : XNAControl
 	{
-		private CharacterData Data { get; set; }
+		private CharRenderData Data { get; set; }
 
 		//setting any of the character data will automatically load the required texture
 		private bool updateAll; //setting this will update all parameters at once
@@ -67,7 +68,8 @@ namespace EndlessClient
 				if (Data.shield != 0)
 				{
 					shield = EOSpriteSheet.GetShield(ArmorShieldSpriteType.Standing, Facing, Shield, Gender);
-					shieldInfo = World.Instance.EIF.Data.Find(x => x.DollGraphic == Data.shield && x.Type == EOLib.Data.ItemType.Shield);
+					if(World.Instance.EIF != null)
+						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
 				}
 			}
 		}
@@ -110,7 +112,8 @@ namespace EndlessClient
 				if (Data.hat != 0)
 				{
 					hat = EOSpriteSheet.GetHat(Facing, Hat, Gender);
-					hatInfo = World.Instance.EIF.Data.Find(x => x.DollGraphic == Data.hat && x.Type == EOLib.Data.ItemType.Hat);
+					if(World.Instance.EIF != null)
+						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
 				}
 				maskTheHair();
 			}
@@ -142,7 +145,7 @@ namespace EndlessClient
 
 		private EOLib.Data.ItemRecord shieldInfo/*, weaponInfo, bootsInfo, armorInfo*/, hatInfo;
 
-		public EOCharacterRenderer(Game encapsulatingGame, Vector2 drawLocation, CharacterData data, bool showInfo)
+		public EOCharacterRenderer(Game encapsulatingGame, Vector2 drawLocation, CharRenderData data, bool showInfo)
 			: base (encapsulatingGame, drawLocation, null)
 		{
 			//when this is a part of a dialog, the drawareaoffset will be set accordingly and is used in the draw method
@@ -196,7 +199,8 @@ namespace EndlessClient
 				if (Data.shield != 0)
 				{
 					shield = EOSpriteSheet.GetShield(ArmorShieldSpriteType.Standing, Facing, Shield, Gender);
-					shieldInfo = World.Instance.EIF.Data.Find(x => x.DollGraphic == Data.shield && x.Type == EOLib.Data.ItemType.Shield);
+					if(World.Instance.EIF != null)
+						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
 				}
 				//TODO: update ArmorShieldSpriteType to be dynamic based on the character's action!
 				//TODO: take ArmorShieldSpriteType into account for character's skin!
@@ -213,7 +217,8 @@ namespace EndlessClient
 				if (Data.hat != 0)
 				{
 					hat = EOSpriteSheet.GetHat(Facing, Hat, Gender);
-					hatInfo = World.Instance.EIF.Data.Find(x => x.DollGraphic == Data.hat && x.Type == EOLib.Data.ItemType.Hat);
+					if(World.Instance.EIF != null)
+						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
 				}
 
 				maskTheHair(); //this will set the combined hat/hair texture with proper data.
@@ -248,7 +253,7 @@ namespace EndlessClient
 			//if subtype for this item is wings or arrows, draw at bottom, otherwise draw on top of armor
 			//TODO: factor in Rotation to the order of drawing things...should only matter for arrows/bags
 			bool shieldDrawn = false;
-			if (shield != null && (shieldInfo.SubType == EOLib.Data.ItemSubType.Wings || shieldInfo.SubType == EOLib.Data.ItemSubType.Arrows))
+			if (shield != null && World.Instance.EIF != null && shieldInfo != null && (shieldInfo.SubType == EOLib.Data.ItemSubType.Wings || shieldInfo.SubType == EOLib.Data.ItemSubType.Arrows))
 			{
 				SpriteBatch.Draw(shield, new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7), Color.White);
 				shieldDrawn = true;
@@ -301,7 +306,7 @@ namespace EndlessClient
 			if (Data.hat == 0)
 				return;
 			
-			if (World.Instance.EIF.Version > 0)
+			if (World.Instance.EIF != null && World.Instance.EIF.Version > 0)
 			{
 				switch (hatInfo.SubType)
 				{

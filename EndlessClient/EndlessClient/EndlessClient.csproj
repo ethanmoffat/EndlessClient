@@ -46,6 +46,7 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <PlatformTarget>x86</PlatformTarget>
     <XnaCompressContent>false</XnaCompressContent>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
@@ -125,6 +126,7 @@
     <Compile Include="Handlers\Init.cs" />
     <Compile Include="Handlers\Login.cs" />
     <Compile Include="Handlers\TemplateHandler.cs" />
+    <Compile Include="Handlers\Welcome.cs" />
     <Compile Include="InputManager.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

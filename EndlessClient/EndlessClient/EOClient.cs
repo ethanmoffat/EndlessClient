@@ -23,19 +23,52 @@ namespace EndlessClient
 				act = action;
 			}
 		}
-		private Dictionary<FamilyActionPair, PacketHandler> handlers;
+		//this is a wrapper that serializes thread access to the handler method. This serialization can be overriden.
+		private class LockedHandlerMethod
+		{
+			private PacketHandler _handler;
+			private bool _override;
+
+			public PacketHandler Handler
+			{
+				get
+				{
+					if (!_override)
+						lock (locker)
+							return _handler;
+					else
+						return _handler;
+				}
+			}
+			private static readonly object locker = new object();
+
+			public LockedHandlerMethod(PacketHandler handler, bool overrideLock = false)
+			{
+				_override = overrideLock;
+				_handler = handler;
+			}
+		}
+		private Dictionary<FamilyActionPair, LockedHandlerMethod> handlers;
 		
 		public EOClient()
 			: base()
 		{
-			handlers = new Dictionary<FamilyActionPair, PacketHandler>();
+			handlers = new Dictionary<FamilyActionPair, LockedHandlerMethod>();
 
-			handlers.Add(new FamilyActionPair(PacketFamily.Account, PacketAction.Reply), Handlers.Account.AccountResponse);
-			handlers.Add(new FamilyActionPair(PacketFamily.Character, PacketAction.Player), Handlers.Character.CharacterPlayerResponse);
-			handlers.Add(new FamilyActionPair(PacketFamily.Character, PacketAction.Reply), Handlers.Character.CharacterResponse);
-			handlers.Add(new FamilyActionPair(PacketFamily.Connection, PacketAction.Player), Handlers.Connection.PingResponse);
-			handlers.Add(new FamilyActionPair(PacketFamily.Init, PacketAction.Init), Handlers.Init.InitResponse);
-			handlers.Add(new FamilyActionPair(PacketFamily.Login, PacketAction.Reply), Handlers.Login.LoginResponse);
+			handlers.Add(new FamilyActionPair(PacketFamily.Account, PacketAction.Reply), 
+				new LockedHandlerMethod(Handlers.Account.AccountResponse));
+			handlers.Add(new FamilyActionPair(PacketFamily.Character, PacketAction.Player), 
+				new LockedHandlerMethod(Handlers.Character.CharacterPlayerResponse));
+			handlers.Add(new FamilyActionPair(PacketFamily.Character, PacketAction.Reply), 
+				new LockedHandlerMethod(Handlers.Character.CharacterResponse));
+			handlers.Add(new FamilyActionPair(PacketFamily.Connection, PacketAction.Player), 
+				new LockedHandlerMethod(Handlers.Connection.PingResponse));
+			handlers.Add(new FamilyActionPair(PacketFamily.Init, PacketAction.Init), 
+				new LockedHandlerMethod(Handlers.Init.InitResponse));
+			handlers.Add(new FamilyActionPair(PacketFamily.Login, PacketAction.Reply), 
+				new LockedHandlerMethod(Handlers.Login.LoginResponse));
+			handlers.Add(new FamilyActionPair(PacketFamily.Welcome, PacketAction.Reply), 
+				new LockedHandlerMethod(Handlers.Welcome.WelcomeResponse));
 		}
 
 		public new void Disconnect()
@@ -51,7 +84,7 @@ namespace EndlessClient
 			FamilyActionPair pair = new FamilyActionPair(pkt.Family, pkt.Action);
 			if(handlers.ContainsKey(pair))
 			{
-				handlers[pair](pkt);
+				handlers[pair].Handler(pkt);
 			}
 		}
 
@@ -61,6 +94,7 @@ namespace EndlessClient
 			Handlers.Character.Cleanup();
 			Handlers.Init.Cleanup();
 			Handlers.Login.Cleanup();
+			Handlers.Welcome.Cleanup();
 
 			base.Dispose();
 		}

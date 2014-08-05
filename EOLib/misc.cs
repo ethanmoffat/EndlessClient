@@ -35,6 +35,7 @@ namespace EOLib
 	public static class Constants
 	{
 		public static readonly int ResponseTimeout = 5000;
+		public static readonly int ResponseFileTimeout = 10000;
 
 		public static readonly byte MajorVersion = 0;
 		public static readonly byte MinorVersion = 0;
@@ -44,5 +45,8 @@ namespace EOLib
 		public static readonly int Port = 8078;
 
 		public static readonly string ItemFilePath = "pub/dat001.eif";
+		public static readonly string NPCFilePath = "pub/dtn001.enf";
+		public static readonly string SpellFilePath = "pub/dsl001.esf";
+		public static readonly string ClassFilePath = "pub/dat001.ecf";
 	}
 }

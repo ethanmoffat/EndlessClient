@@ -66,8 +66,8 @@ namespace EOLib.Data
 		Size2x3,
 		Size2x4,
 	}
-	
-	enum NPCType
+
+	public enum NPCType
 	{
 		NPC,
 		Passive,
@@ -88,19 +88,19 @@ namespace EOLib.Data
 		NONE,
 	}
 
-	enum SpellType
+	public enum SpellType
 	{
-		Damage,
 		Heal,
+		Damage,
 		Bard
 	}
-	enum SpellTargetRestrict
+	public enum SpellTargetRestrict
 	{
-		Any,
+		NPCOnly,
 		Friendly,
 		Opponent
 	}
-	enum SpellTarget
+	public enum SpellTarget
 	{
 		Normal,
 		Self,
@@ -108,10 +108,72 @@ namespace EOLib.Data
 		Group
 	}
 
+	public abstract class EODataFile
+	{
+		public List<IDataRecord> Data { get; protected set; }
+		public string FilePath { get; protected set; }
+		public int Version { get; protected set; }
+		public int Rid { get; protected set; }
+		public short Len { get; protected set; }
+
+		public abstract void Load(string fName);
+
+		/// <summary>
+		/// Uses polymorphic features of the IDataType interface to save the different data types differently
+		/// Headers for all types of files match, save for the first 3 bytes, which use the file extension to
+		///		save the proper string.
+		/// </summary>
+		/// <param name="pubVersion">Version of the pub file to save. For Ethan's client, items should be 1, otherwise, this should be 0 (for now)</param>
+		/// <param name="error">ref parameter that provides the Exception.Message string on an error condition</param>
+		/// <returns>True if successful, false on failure. Use the 'error' parameter to check error message</returns>
+		public bool Save(int pubVersion, ref string error)
+		{
+			try
+			{
+				using (FileStream sw = File.Create(FilePath)) //throw exceptions on error
+				{
+					byte[] array = Encoding.ASCII.GetBytes(FilePath.Substring(FilePath.LastIndexOf('.') + 1));
+					if (array.Length != 3)
+						throw new ArgumentException("The filename of the data file must have a 3 letter extension.");
+
+					sw.Write(array, 0, 3); //E[I|N|S|C]F at beginning
+					sw.Write(Packet.EncodeNumber(Rid, 4), 0, 4); //rid
+					sw.Write(Packet.EncodeNumber(Data.Count, 2), 0, 2); //len
+
+					Version = pubVersion;
+					sw.WriteByte(Packet.EncodeNumber(Version, 1)[0]); //new version check courtesy of ME
+
+					for (int i = 1; i < Data.Count; ++i)
+					{
+						if ((Data[i] as ClassRecord).Name == "eof")
+							break;
+
+						byte[] toWrite = Data[i].SerializeToByteArray();
+						sw.Write(toWrite, 0, toWrite.Length);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				error = ex.Message;
+				return false;
+			}
+
+			error = "none";
+			return true;
+		}
+	}
+
+	public interface IDataRecord
+	{
+		byte[] SerializeToByteArray();
+		string ToString();
+	}
+
 	//biggest pain in the ass ever. And, I thought of a better way to do it as soon as I was done.
 	//I'm not going to just throw all that work away though ;P 
 	[StructLayout(LayoutKind.Explicit)] //porting the unions from C++ code in eoserv
-	public class ItemRecord
+	public class ItemRecord : IDataRecord
 	{
 		//FieldOffset attributes can't be used on C# Properties...
 		//So private members were added for each Property in the struct
@@ -270,7 +332,7 @@ namespace EOLib.Data
 
 		public byte[] SerializeToByteArray()
 		{
-			byte[] ret = new byte[59 + Name.Length];
+			byte[] ret = new byte[ItemFile.DATA_SIZE + 1 + Name.Length];
 			for (int i = 0; i < ret.Length; ++i)
 				ret[i] = 254;
 
@@ -332,47 +394,228 @@ namespace EOLib.Data
 		}
 	}
 
-	public class ItemFile
+	public class NPCRecord : IDataRecord
 	{
-		public List<ItemRecord> Data { get; private set; }
+		public int ID { get; set; }
+		public string Name { get; set; }
 
-		public string FilePath { get; private set; }
+		public int Graphic { get; set; }
 
-		public int Version { get; private set; }
+		public short Boss { get; set; }
+		public short Child { get; set; }
+		public NPCType Type { get; set; }
+
+		public short VendorID { get; set; }
+
+		public int HP { get; set; }
+		public ushort Exp { get; set; }
+		public short MinDam { get; set; }
+		public short MaxDam { get; set; }
+
+		public short Accuracy { get; set; }
+		public short Evade { get; set; }
+		public short Armor { get; set; }
+
+		public override string ToString()
+		{
+			return ID + ": " + Name;
+		}
+
+		public byte[] SerializeToByteArray()
+		{
+
+			byte[] ret = new byte[ClassFile.DATA_SIZE + 1 + Name.Length];
+			for (int i = 0; i < ret.Length; ++i)
+				ret[i] = 254;
+
+			using (MemoryStream mem = new MemoryStream(ret))
+			{
+				mem.WriteByte(Packet.EncodeNumber(Name.Length, 1)[0]);
+				byte[] name = Encoding.ASCII.GetBytes(Name);
+				mem.Write(name, 0, name.Length);
+				
+				mem.Write(Packet.EncodeNumber(Graphic, 2), 0, 2);
+
+				mem.Seek(3, SeekOrigin.Begin);
+				mem.Write(Packet.EncodeNumber(Boss, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(Child, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber((short)Type, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(VendorID, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(HP, 3), 0, 3);
+
+				mem.Seek(16, SeekOrigin.Begin);
+				mem.Write(Packet.EncodeNumber(MinDam, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(MaxDam, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(Accuracy, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(Evade, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(Armor, 2), 0, 2);
+
+				mem.Seek(36, SeekOrigin.Begin);
+				mem.Write(Packet.EncodeNumber(Exp, 2), 0, 2);
+			}
+
+			return ret;
+		}
+	}
+
+	public class SpellRecord : IDataRecord
+	{
+		public int ID { get; set; }
+		public string Name { get; set; }
+		public string Shout { get; set; }
+
+		public short Icon { get; set; }
+		public short Graphic { get; set; }
+
+		public short TP { get; set; }
+		public short SP { get; set; }
+
+		public byte CastTime { get; set; }
+
+		public SpellType Type { get; set; }
+		public SpellTargetRestrict TargetRestrict { get; set; }
+		public SpellTarget Target { get; set; }
+
+		public short MinDam { get; set; }
+		public short MaxDam { get; set; }
+		public short Accuracy { get; set; }
+		public short HP { get; set; }
+
+		public override string ToString()
+		{
+			return ID + ": " + Name;
+		}
+
+		public byte[] SerializeToByteArray()
+		{
+
+			byte[] ret = new byte[ClassFile.DATA_SIZE + 1 + Name.Length];
+			for (int i = 0; i < ret.Length; ++i)
+				ret[i] = 254;
+
+			using (MemoryStream mem = new MemoryStream(ret))
+			{
+				mem.WriteByte(Packet.EncodeNumber(Name.Length, 1)[0]);
+				mem.WriteByte(Packet.EncodeNumber(Shout.Length, 1)[0]);
+				byte[] name = Encoding.ASCII.GetBytes(Name);
+				byte[] shout = Encoding.ASCII.GetBytes(Shout); //shout, shout, let it all out!
+				mem.Write(name, 0, name.Length);
+				mem.Write(shout, 0, shout.Length);
+				
+				mem.Write(Packet.EncodeNumber(Icon, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(Graphic, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(TP, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(SP, 2), 0, 2);
+				mem.WriteByte(Packet.EncodeNumber(CastTime, 1)[0]);
+
+				mem.Seek(11, SeekOrigin.Begin);
+				mem.WriteByte(Packet.EncodeNumber((byte)Type, 1)[0]);
+
+				mem.Seek(17, SeekOrigin.Begin);
+				mem.WriteByte(Packet.EncodeNumber((byte)TargetRestrict, 1)[0]);
+				mem.WriteByte(Packet.EncodeNumber((byte)Target, 1)[0]);
+
+				mem.Seek(23, SeekOrigin.Begin);
+				mem.Write(Packet.EncodeNumber(MinDam, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(MaxDam, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(Accuracy, 2), 0, 2);
+				
+				mem.Seek(34, SeekOrigin.Begin);
+				mem.Write(Packet.EncodeNumber(HP, 2), 0, 2);
+			}
+
+			return ret;
+		}
+	}
+
+	public class ClassRecord : IDataRecord
+	{
+		public int ID { get; set; }
+		public string Name { get; set; }
+
+		public byte Base { get; set; }
+		public byte Type { get; set; }
+
+		public short Str { get; set; }
+		public short Int { get; set; }
+		public short Wis { get; set; }
+		public short Agi { get; set; }
+		public short Con { get; set; }
+		public short Cha { get; set; }
+
+		public override string ToString()
+		{
+			return ID + ": " + Name;
+		}
+
+		public byte[] SerializeToByteArray()
+		{
+			
+			byte[] ret = new byte[ClassFile.DATA_SIZE + 1 + Name.Length];
+			for (int i = 0; i < ret.Length; ++i)
+				ret[i] = 254;
+
+			using (MemoryStream mem = new MemoryStream(ret))
+			{
+				mem.WriteByte(Packet.EncodeNumber(Name.Length, 1)[0]);
+				byte[] name = Encoding.ASCII.GetBytes(Name);
+				mem.Write(name, 0, name.Length);
+
+				mem.WriteByte(Base);
+				mem.WriteByte(Type);
+
+				mem.Write(Packet.EncodeNumber(Str, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(Int, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(Wis, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(Agi, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(Con, 2), 0, 2);
+				mem.Write(Packet.EncodeNumber(Cha, 2), 0, 2);
+			}
+
+			return ret;
+		}
+	}
+
+	public class ItemFile : EODataFile
+	{
+		public const int DATA_SIZE = 58;
 
 		public ItemFile()
 		{
-			load(FilePath = Constants.ItemFilePath);
+			Load(FilePath = Constants.ItemFilePath);
 		}
 
 		public ItemFile(string path)
 		{
-			load(FilePath = path);
+			Load(FilePath = path);
 		}
 
-		private void load(string fPath)
+		public override void Load(string fPath)
 		{
 			using (FileStream sr = File.OpenRead(fPath)) //throw exceptions on error
 			{
 				sr.Seek(3, System.IO.SeekOrigin.Begin);
-				sr.Seek(4, SeekOrigin.Current); //skip over rid, it isn't used
+				
+				byte[] rid = new byte[4];
+				sr.Read(rid, 0, 4);
+				Rid = Packet.DecodeNumber(rid);
 
 				byte[] len = new byte[2];
 				sr.Read(len, 0, 2);
+				Len = (short)Packet.DecodeNumber(len);
 
-				int max = Packet.DecodeNumber(len);
-				Data = new List<ItemRecord>(max);
+				Data = new List<IDataRecord>(Len);
 				Data.Add(new ItemRecord()); //indices are 1-based
 
 				Version = Packet.DecodeNumber(new byte[] { (byte)sr.ReadByte() }); //this was originally seeked over
-				byte[] rawData = new byte[58];
+				byte[] rawData = new byte[DATA_SIZE];
 
 				//version 0/1 support: 
 				// 0 : Original EO spec
 				// 1 : Ethan's updates with the 2 added SubTypes for FaceMask and HatNoHair
 				if (Version == 0 || Version == 1)
 				{
-					for (int i = 1; i <= max; ++i)
+					for (int i = 1; i <= Len; ++i)
 					{
 						byte nameSize;
 						nameSize = (byte)Packet.DecodeNumber(new byte[] { (byte)sr.ReadByte() });
@@ -381,7 +624,7 @@ namespace EOLib.Data
 						sr.Read(rawName, 0, nameSize);
 						string name = Encoding.ASCII.GetString(rawName);
 
-						sr.Read(rawData, 0, 58);
+						sr.Read(rawData, 0, DATA_SIZE);
 						ItemRecord record = new ItemRecord()
 						{
 							ID = i,
@@ -444,42 +687,253 @@ namespace EOLib.Data
 				}
 				else
 				{
+					throw new FileLoadException("Unable to Load file with invalid version: " + Version);
+				}
+			}
+		}
+	}
+
+	public class NPCFile : EODataFile
+	{
+		public const int DATA_SIZE = 39;
+
+		public NPCFile()
+		{
+			Load(FilePath = Constants.NPCFilePath);
+		}
+
+		public NPCFile(string path)
+		{
+			Load(FilePath = path);
+		}
+
+		public override void Load(string fPath)
+		{
+			using (FileStream sr = File.OpenRead(fPath))
+			{
+				sr.Seek(3, SeekOrigin.Begin);
+
+				byte[] rid = new byte[4];
+				sr.Read(rid, 0, 4);
+				Rid = Packet.DecodeNumber(rid);
+
+				byte[] len = new byte[2];
+				sr.Read(len, 0, 2);
+				Len = (short)Packet.DecodeNumber(len);
+
+				Data = new List<IDataRecord>(Len);
+				Data.Add(new NPCRecord());
+
+				Version = Packet.DecodeNumber(new byte[] { (byte)sr.ReadByte() });
+				
+				byte[] rawData = new byte[DATA_SIZE];
+
+				if(Version == 0)
+				{
+					for (int i = 1; i <= Len; ++i)
+					{
+						byte nameSize;
+						nameSize = (byte)Packet.DecodeNumber(new byte[] { (byte)sr.ReadByte() });
+
+						byte[] rawName = new byte[nameSize];
+						sr.Read(rawName, 0, nameSize);
+						string name = Encoding.ASCII.GetString(rawName);
+
+						sr.Read(rawData, 0, DATA_SIZE);
+						NPCRecord record = new NPCRecord()
+						{
+							ID = i,
+							Name = name,
+							Graphic = Packet.DecodeNumber(rawData.SubArray(0,2)),
+							Boss = (short)Packet.DecodeNumber(rawData.SubArray(3,2)),
+							Child = (short)Packet.DecodeNumber(rawData.SubArray(5, 2)),
+							Type = (NPCType)Packet.DecodeNumber(rawData.SubArray(7,2)),
+							VendorID = (short)Packet.DecodeNumber(rawData.SubArray(9, 2)),
+							HP = Packet.DecodeNumber(rawData.SubArray(11,3)),
+							MinDam = (short)Packet.DecodeNumber(rawData.SubArray(16, 2)),
+							MaxDam = (short)Packet.DecodeNumber(rawData.SubArray(18, 2)),
+							Accuracy = (short)Packet.DecodeNumber(rawData.SubArray(20, 2)),
+							Evade = (short)Packet.DecodeNumber(rawData.SubArray(22, 2)),
+							Armor = (short)Packet.DecodeNumber(rawData.SubArray(24, 2)),
+							Exp = (ushort)Packet.DecodeNumber(rawData.SubArray(36, 2)),
+						};
+
+						if (record.Name != "eof")
+							Data.Add(record);
+
+						if (sr.Read(new byte[1], 0, 1) != 1)
+							break;
+						sr.Seek(-1, SeekOrigin.Current);
+					}
+				}
+				else
+				{
 					throw new FileLoadException("Unable to load file with invalid version: " + Version);
 				}
 			}
 		}
+	}
 
-		public bool Save(int pubVersion, ref string error)
+	public class SpellFile : EODataFile
+	{
+		public const int DATA_SIZE = 51;
+		public SpellFile()
 		{
-			try
+			Load(FilePath = Constants.SpellFilePath);
+		}
+		public SpellFile(string path)
+		{
+			Load(FilePath = path);
+		}
+
+		public override void Load(string fPath)
+		{
+			using (FileStream sr = File.OpenRead(fPath))
 			{
-				using (FileStream sw = File.Create(FilePath)) //throw exceptions on error
+				sr.Seek(3, SeekOrigin.Begin);
+
+				byte[] rid = new byte[4];
+				sr.Read(rid, 0, 4);
+				Rid = Packet.DecodeNumber(rid);
+
+				byte[] len = new byte[2];
+				sr.Read(len, 0, 2);
+				Len = (short)Packet.DecodeNumber(len);
+
+				Data = new List<IDataRecord>(Len);
+				Data.Add(new SpellRecord());
+
+				Version = Packet.DecodeNumber(new byte[] { (byte)sr.ReadByte() });
+
+				byte[] rawData = new byte[DATA_SIZE];
+
+				if (Version == 0)
 				{
-					sw.Write(new byte[] { (byte)'E', (byte)'I', (byte)'F' }, 0, 3); //EIF at beginning
-					sw.Write(new byte[] { (byte)0x1f, (byte)0xfe, (byte)0xfe, (byte)0xfe }, 0, 4); //rid
-					sw.Write(Packet.EncodeNumber(Data.Count, 2), 0, 2); //len
-
-					Version = pubVersion;
-					sw.WriteByte(Packet.EncodeNumber(Version, 1)[0]); //new version check courtesy of ME
-
-					for (int i = 1; i < Data.Count; ++i)
+					for (int i = 1; i <= Len; ++i)
 					{
-						if (Data[i].Name == "eof")
-							break;
+						byte nameSize;
+						nameSize = (byte)Packet.DecodeNumber(new byte[] { (byte)sr.ReadByte() });
+						byte shoutSize;
+						shoutSize = (byte)Packet.DecodeNumber(new byte[] { (byte)sr.ReadByte() });
 
-						byte[] toWrite = Data[i].SerializeToByteArray(); 
-						sw.Write(toWrite, 0, toWrite.Length);
+						byte[] rawName = new byte[nameSize], rawShout = new byte[shoutSize];
+						sr.Read(rawName, 0, nameSize);
+						sr.Read(rawShout, 0, shoutSize);
+						string name = Encoding.ASCII.GetString(rawName);
+						string shout = Encoding.ASCII.GetString(rawShout);
+
+						sr.Read(rawData, 0, DATA_SIZE);
+						SpellRecord record = new SpellRecord()
+						{
+							ID = i,
+							Name = name,
+							Shout = shout,
+
+							Icon = (short)Packet.DecodeNumber(rawData.SubArray(0, 2)),
+							Graphic = (short)Packet.DecodeNumber(rawData.SubArray(2, 2)),
+							TP = (short)Packet.DecodeNumber(rawData.SubArray(4, 2)),
+							SP = (short)Packet.DecodeNumber(rawData.SubArray(6, 2)),
+							CastTime = (byte)Packet.DecodeNumber(new byte[] { rawData[8] }),
+
+							Type = (SpellType)Packet.DecodeNumber(new byte[] { rawData[11] }),
+							TargetRestrict = (SpellTargetRestrict)Packet.DecodeNumber(new byte[] { rawData[17] }),
+							Target = (SpellTarget)Packet.DecodeNumber(new byte[] { rawData[18] }),
+
+							MinDam = (short)Packet.DecodeNumber(rawData.SubArray(23, 2)),
+							MaxDam = (short)Packet.DecodeNumber(rawData.SubArray(25, 2)),
+							Accuracy = (short)Packet.DecodeNumber(rawData.SubArray(27, 2)),
+							HP = (short)Packet.DecodeNumber(rawData.SubArray(34, 2))
+						};
+
+						if (record.Name != "eof")
+							Data.Add(record);
+
+						if (sr.Read(new byte[1], 0, 1) != 1)
+							break;
+						sr.Seek(-1, SeekOrigin.Current);
 					}
 				}
+				else
+				{
+					throw new FileLoadException("Unable to load file with invalid version: " + Version);
+				}
 			}
-			catch(Exception ex)
-			{
-				error = ex.Message;
-				return false;
-			}
+		}
+	}
 
-			error = "none";
-			return true;
+	public class ClassFile : EODataFile
+	{
+		public const int DATA_SIZE = 14;
+
+		public ClassFile()
+		{
+			Load(FilePath = Constants.ClassFilePath);
+		}
+		public ClassFile(string path)
+		{
+			Load(FilePath = path);
+		}
+
+		public override void Load(string fPath)
+		{
+			using (FileStream sr = File.OpenRead(fPath))
+			{
+				sr.Seek(3, SeekOrigin.Begin);
+
+				byte[] rid = new byte[4];
+				sr.Read(rid, 0, 4);
+				Rid = Packet.DecodeNumber(rid);
+
+				byte[] len = new byte[2];
+				sr.Read(len, 0, 2);
+				Len = (short)Packet.DecodeNumber(len);
+
+				Data = new List<IDataRecord>(Len);
+				Data.Add(new ClassRecord());
+
+				Version = Packet.DecodeNumber(new byte[] { (byte)sr.ReadByte() });
+
+				byte[] rawData = new byte[DATA_SIZE];
+
+				if (Version == 0)
+				{
+					for (int i = 1; i <= Len; ++i)
+					{
+						byte nameSize;
+						nameSize = (byte)Packet.DecodeNumber(new byte[] { (byte)sr.ReadByte() });
+
+						byte[] rawName = new byte[nameSize];
+						sr.Read(rawName, 0, nameSize);
+						string name = Encoding.ASCII.GetString(rawName);
+
+						sr.Read(rawData, 0, DATA_SIZE);
+						ClassRecord record = new ClassRecord()
+						{
+							ID = i,
+							Name = name,
+							Base = (byte)Packet.DecodeNumber(new byte[] {rawData[0]}),
+							Type = (byte)Packet.DecodeNumber(new byte[] {rawData[1]}),
+							Str = (short)Packet.DecodeNumber(rawData.SubArray(2, 2)),
+							Int = (short)Packet.DecodeNumber(rawData.SubArray(4,2)),
+							Wis = (short)Packet.DecodeNumber(rawData.SubArray(6,2)),
+							Agi = (short)Packet.DecodeNumber(rawData.SubArray(8,2)),
+							Con = (short)Packet.DecodeNumber(rawData.SubArray(10,2)),
+							Cha = (short)Packet.DecodeNumber(rawData.SubArray(12,2))
+						};
+
+						if (record.Name != "eof")
+							Data.Add(record);
+
+						if (sr.Read(new byte[1], 0, 1) != 1)
+							break;
+						sr.Seek(-1, SeekOrigin.Current);
+					}
+				}
+				else
+				{
+					throw new FileLoadException("Unable to load file with invalid version: " + Version);
+				}
+			}
 		}
 	}
 }

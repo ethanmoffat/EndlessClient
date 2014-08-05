@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -68,6 +69,15 @@ namespace EndlessClient
 					cancel = null;
 
 					dlgButtons.Add(ok);
+					break;
+				case XNADialogButtons.Cancel:
+					cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
+					cancel.OnClick += (object sender, EventArgs e) => { Close(true); };
+					cancel.SetParent(this);
+
+					ok = null;
+
+					dlgButtons.Add(cancel);
 					break;
 				case XNADialogButtons.OkCancel:
 					//implement this more fully when it is needed
@@ -544,7 +554,7 @@ namespace EndlessClient
 				arrowButtons[i] = btn;
 			}
 
-			charRender = new EOCharacterRenderer(encapsulatingGame, new Vector2(269, 83), new CharacterData() { gender = 0, hairstyle = 1, haircolor = 0, race = 0 }, false);
+			charRender = new EOCharacterRenderer(encapsulatingGame, new Vector2(269, 83), new CharRenderData() { gender = 0, hairstyle = 1, haircolor = 0, race = 0 }, false);
 			charRender.SetParent(this);
 			srcRects[0] = new Rectangle(0, 38, 23, 19);
 			srcRects[1] = new Rectangle(0, 19, 23, 19);
@@ -660,6 +670,141 @@ namespace EndlessClient
 			if (CloseAction != null)
 				CloseAction(true);
 			base.Close();
+		}
+	}
+
+	public class EOConnectingDialog : EODialogBase
+	{
+		//different captions as the dialog progresses through different states
+		const string wait = "Please wait";
+		const string map = "Updating map";
+		const string item = "Updating items";
+		const string npc = "Updating npc's";
+		const string skill = "Updating skills";
+		const string classes = "Updating classes";
+		const string loading = "Loading game";
+
+		Texture2D bgSprites;
+		int bgSrcIndex;
+		TimeSpan? timeOpened = null;
+
+		bool updatingFiles = false;
+
+		public EOConnectingDialog(Game encapsulatingGame)
+			: base (encapsulatingGame)
+		{
+			bgTexture = null; //don't use the built in bgtexture, we're going to use a sprite sheet for the BG
+			bgSprites = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 33, false);
+			this.DrawLocation = new Vector2(Game.GraphicsDevice.PresentationParameters.BackBufferWidth - (bgSprites.Width / 4) - 10, 
+				Game.GraphicsDevice.PresentationParameters.BackBufferHeight - bgSprites.Height - 10);
+			_setSize(bgSprites.Width / 4, bgSprites.Height);
+			bgSrcIndex = 0;
+
+			caption = new XNALabel(Game, new Rectangle(12, 9, 1, 1), "Arial", 10.0f);
+			caption.Text = wait;
+			caption.ForeColor = System.Drawing.Color.FromArgb(0xf0, 0xf0, 0xc8);
+			caption.SetParent(this);
+
+			message = new XNALabel(Game, new Rectangle(18, 61, 1, 1), "Arial", 8.0f);
+			message.TextWidth = 175; //there is a constraint on the size for this
+			message.ForeColor = System.Drawing.Color.FromArgb(0xb9, 0xb9, 0xb9);
+			//there are a number of messages that are shown, a static one will do for now
+			message.Text = "Make sure noone is watching your keyboard, while entering your password";
+			message.SetParent(this);
+
+
+			//normally would call base.endConstructor();
+			_fixDrawOrder();
+			XNAControl.ModalDialogs.Push(this);
+			Game.Components.Add(this);
+		}
+
+		public override void Update(GameTime gt)
+		{
+			if (timeOpened == null)
+				timeOpened = gt.TotalGameTime;
+
+			if(((int)gt.TotalGameTime.TotalMilliseconds - (int)(timeOpened.Value.TotalMilliseconds)) % 750 == 0) //every 750msec
+			{
+				//switch the background image to the next one
+				bgSrcIndex = bgSrcIndex == 3 ? 0 : bgSrcIndex + 1;
+			}
+
+			if (!updatingFiles && ((int)gt.TotalGameTime.TotalSeconds - (int)(timeOpened.Value.TotalSeconds)) >= 5) //I think the client waits 5 seconds?
+			{
+				updatingFiles = true;
+
+				new Thread(new ThreadStart(() =>
+				{
+					Console.WriteLine("Entering thread...");
+
+					if (World.Instance.NeedMap != -1)
+					{
+						caption.Text = map;
+						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Map))
+						{
+							Close();
+							return;
+						}
+					}
+
+					if (World.Instance.NeedEIF)
+					{
+						caption.Text = item;
+						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Item))
+						{
+							Close();
+							return;
+						}
+					}
+
+					if (World.Instance.NeedENF)
+					{
+						caption.Text = npc;
+						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Npc))
+						{
+							Close();
+							return;
+						}
+					}
+
+					if (World.Instance.NeedESF)
+					{
+						caption.Text = skill;
+						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Spell))
+						{
+							Close();
+							return;
+						}
+					}
+
+					if (World.Instance.NeedECF)
+					{
+						caption.Text = classes;
+						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Class))
+						{
+							Close();
+							return;
+						}
+					}
+
+					caption.Text = loading;
+					Thread.Sleep(1000);
+					Close();
+					CloseAction(true);
+				})).Start();
+			}
+
+			base.Update(gt);
+		}
+
+		public override void Draw(GameTime gt)
+		{
+			base.Draw(gt);
+
+			SpriteBatch.Begin();
+			SpriteBatch.Draw(bgSprites, DrawAreaWithOffset, new Rectangle(bgSrcIndex * (bgSprites.Width / 4), 0, bgSprites.Width / 4, bgSprites.Height), Color.White);
+			SpriteBatch.End();
 		}
 	}
 }

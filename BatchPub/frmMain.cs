@@ -98,8 +98,9 @@ namespace BatchPub
 				}
 
 				rtfOutput.Text += "Processing change: set " + pi.Name + "(" + pi.PropertyType.ToString() + ")=" + newValue.ToString() + " for all items...";
-				eif.Data.ForEach((ItemRecord rec) =>
+				eif.Data.ForEach((EOLib.Data.IDataRecord record) =>
 					{
+						ItemRecord rec = (ItemRecord)record;
 						System.Reflection.PropertyInfo prop = rec.GetType().GetProperty(pi.Name);
 						prop.SetValue(rec, Convert.ChangeType(newValue, pi.PropertyType));
 					});
@@ -172,8 +173,9 @@ namespace BatchPub
 				}
 
 
-				List<ItemRecord> filtered = eif.Data.Where((ItemRecord rec) =>
+				List<ItemRecord> filtered = eif.Data.Where((EOLib.Data.IDataRecord record) =>
 					{
+						ItemFile rec = (ItemFile)record;
 						System.Reflection.PropertyInfo comparePropertyInfo = (cmbStepThreeField.SelectedItem as PropInfo).PropertyInfo;
 						System.Reflection.PropertyInfo currentInfo = rec.GetType().GetProperty(comparePropertyInfo.Name);
 						switch (op)
@@ -199,14 +201,14 @@ namespace BatchPub
 							default:
 								return false;
 						}
-					}).ToList();
+					}).ToList().ConvertAll<ItemRecord>((recc) => { return (ItemRecord)recc; });
 
 				filtered.ForEach((ItemRecord rec) =>
 				{
 					if (!changes)
 						changes = true;
 
-					int index = eif.Data.FindIndex(x => x.ID == rec.ID);
+					int index = eif.Data.FindIndex(x => (x as ItemRecord).ID == rec.ID);
 
 					rtfOutput.Text += "Found matching item " + rec.Name + " (" + rec.ID + ")\n";
 					rtfOutput.Text += "  replacing " + pi.Name + " (currently " + pi.GetValue(rec).ToString() + ") with new value " + newValue.ToString() + "\n";

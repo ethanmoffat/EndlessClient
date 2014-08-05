@@ -10,9 +10,11 @@ namespace EndlessClient
 	public class Player
 	{
 		public int PlayerID { get; private set; }
-		public int GamePlayerID { get; private set; }
+		//not sure what GamePlayerID is so commenting it out...
+		//public int GamePlayerID { get; private set; }
 
-		public CharacterData[] CharData { get; private set; }
+		public CharRenderData[] CharData { get; private set; }
+		public Character ActiveCharacter { get; private set; }
 
 		public Player()
 		{
@@ -22,8 +24,9 @@ namespace EndlessClient
 		public void Logout()
 		{
 			PlayerID = 0;
-			GamePlayerID = 0;
+			//GamePlayerID = 0;
 			CharData = null;
+			ActiveCharacter = null;
 		}
 
 		public void SetPlayerID(int newId)
@@ -31,12 +34,29 @@ namespace EndlessClient
 			PlayerID = newId;
 		}
 
-		public void SetGamePlayerID(int newId)
+		//public void SetGamePlayerID(int newId)
+		//{
+		//	GamePlayerID = newId;
+		//}
+
+		public bool SetActiveCharacter(int id)
 		{
-			GamePlayerID = newId;
+			CharRenderData activeData = null;
+			foreach (CharRenderData d in CharData) //wants the D
+			{
+				if (d.id == id)
+				{
+					activeData = d;
+					break;
+				}
+			}
+			if (activeData == null)
+				return false;
+			ActiveCharacter = new Character(id, activeData);
+			return true;
 		}
 
-		public void SetCharacterData(CharacterData[] data)
+		public void SetCharacterData(CharRenderData[] data)
 		{
 			CharData = data;
 		}
@@ -47,11 +67,11 @@ namespace EndlessClient
 			pkt.GetByte();
 			pkt.GetByte();
 
-			CharacterData[] characters = new CharacterData[numCharacters];
+			CharRenderData[] characters = new CharRenderData[numCharacters];
 
 			for (int i = 0; i < numCharacters; ++i)
 			{
-				CharacterData nextData = new CharacterData()
+				CharRenderData nextData = new CharRenderData()
 				{
 					name = pkt.GetBreakString(),
 					id = pkt.GetInt(),

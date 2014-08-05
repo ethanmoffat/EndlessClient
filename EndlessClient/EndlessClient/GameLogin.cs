@@ -39,7 +39,11 @@ namespace EndlessClient
 		/// <summary>
 		/// Roll credits...
 		/// </summary>
-		ViewCredits
+		ViewCredits,
+		/// <summary>
+		/// In game
+		/// </summary>
+		PlayingTheGame
 	}
 
 	public class GameLogin : Game
@@ -170,6 +174,15 @@ namespace EndlessClient
 					EODialog dlg = new EODialog(this, "The game server could not be found. Please try again at a later time", "Could not find server");
 				}
 			}).Start();
+		}
+
+		private void LostConnectionDialog()
+		{
+			//Eventually these message strings should be loaded from the global constant class, or from dat files somehow. for now this method will do.
+			EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
+			if (World.Instance.Client.Connected)
+				World.Instance.Client.Disconnect();
+			doStateChange(GameLoginStates.Initial);
 		}
 
 		private void doShowCharacters()
@@ -315,10 +328,8 @@ namespace EndlessClient
 			else if (sender == backButton || sender == createButtons[1] || sender == loginButtons[1])
 			{
 				dispatch.Subscriber = null;
-				EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-				if (World.Instance.Client.Connected)
-					World.Instance.Client.Disconnect();
-				doStateChange(GameLoginStates.Initial);
+				LostConnectionDialog();
+				return;
 			}
 			else if (sender == loginButtons[0])
 			{
@@ -327,10 +338,7 @@ namespace EndlessClient
 
 				if (!Handlers.Login.LoginRequest(loginUsernameTextbox.Text, loginPasswordTextbox.Text))
 				{
-					EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-					if (World.Instance.Client.Connected)
-						World.Instance.Client.Disconnect();
-					doStateChange(GameLoginStates.Initial);
+					LostConnectionDialog();
 					return;
 				}
 
@@ -386,10 +394,7 @@ namespace EndlessClient
 							{
 								if (!Handlers.Account.AccountCheckName(accountCreateTextBoxes[0].Text))
 								{
-									EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-									if (World.Instance.Client.Connected)
-										World.Instance.Client.Disconnect();
-									doStateChange(GameLoginStates.Initial);
+									LostConnectionDialog();
 									return;
 								}
 
@@ -412,11 +417,7 @@ namespace EndlessClient
 											accountCreateTextBoxes[4].Text,
 											accountCreateTextBoxes[5].Text))
 										{
-											EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-											if (World.Instance.Client.Connected)
-												World.Instance.Client.Disconnect();
-
-											doStateChange(GameLoginStates.Initial);
+											LostConnectionDialog();
 											return;
 										}
 
@@ -440,10 +441,7 @@ namespace EndlessClient
 					//Character_create: clicked ok in create character dialog
 					if(!Handlers.Character.CharacterRequest())
 					{
-						EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-						if (World.Instance.Client.Connected)
-							World.Instance.Client.Disconnect();
-						doStateChange(GameLoginStates.Initial);
+						LostConnectionDialog();
 						return;
 					}
 
@@ -481,13 +479,35 @@ namespace EndlessClient
 			//Character_take: delete clicked, then dialog pops up
 			//Character_remove: click ok in yes/no dialog
 
+			//click login: send WELCOME_REQUEST, get WELCOME_REPLY
+			//Send WELCOME_AGREE for map/pubs if needed
+			//Send WELCOME_MSG, get WELCOME_REPLY
+			//log in if all okay
+
 			int index = 0;
 			if(loginCharButtons.Contains(sender))
 			{
 				index = loginCharButtons.ToList().FindIndex(x => x == sender);
 				if (World.Instance.MainPlayer.CharData.Length <= index)
 					return;
-				EODialog dlg = new EODialog(this, "Logging in with character " + World.Instance.MainPlayer.CharData[index].name, "Logging in");
+
+				if (!Handlers.Welcome.SelectCharacter(World.Instance.MainPlayer.CharData[index].id))
+				{
+					LostConnectionDialog();
+					return;
+				}
+
+				//shows the connecting window
+				EOConnectingDialog dlg = new EOConnectingDialog(this);
+				dlg.CloseAction = (b) =>
+					{
+						if (b)
+						{
+							//doStateChange(GameLoginStates.PlayingTheGame);
+							EODialog dlg2 = new EODialog(this, "It worked!", "Success");
+							dlg2.CloseAction = (b2) => { doStateChange(GameLoginStates.Initial); };
+						}
+					};
 			}
 			else if(deleteCharButtons.Contains(sender))
 			{
@@ -505,10 +525,7 @@ namespace EndlessClient
 				//delete character at that index, if it exists
 				if (!Handlers.Character.CharacterTake(World.Instance.MainPlayer.CharData[index].id))
 				{
-					EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-					if (World.Instance.Client.Connected)
-						World.Instance.Client.Disconnect();
-					doStateChange(GameLoginStates.Initial);
+					LostConnectionDialog();
 					return;
 				}
 
@@ -525,10 +542,7 @@ namespace EndlessClient
 					{
 						if (!Handlers.Character.CharacterRemove(World.Instance.MainPlayer.CharData[index].id))
 						{
-							EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-							if (World.Instance.Client.Connected)
-								World.Instance.Client.Disconnect();
-							doStateChange(GameLoginStates.Initial);
+							LostConnectionDialog();
 							return;
 						}
 
@@ -563,20 +577,20 @@ namespace EndlessClient
 				GFXLoader.Initialize(GraphicsDevice);
 				World w = World.Instance; //set up the world
 			}
-			catch (WorldLoadException wle)
+			catch (WorldLoadException wle) //could be thrown from World's constructor
 			{
 				System.Windows.Forms.MessageBox.Show(wle.Message, "Error");
 				Exit();
 				return;
 			}
-			catch (Exception ex)
+			catch (Exception ex) //could be thrown from GFXLoader.Initialize
 			{
 				System.Windows.Forms.MessageBox.Show("Error initializing GFXLoader: " + ex.Message, "Error");
 				Exit();
 				return;
 			}
 
-			if(World.Instance.EIF.Version == 0)
+			if(World.Instance.EIF != null && World.Instance.EIF.Version == 0)
 			{
 				System.Windows.Forms.MessageBox.Show("The item pub file you are using is using an older format of the EIF specification. Some features may not work properly. Run the file through a batch processor or use updated pub files.", "Warning");
 			}
