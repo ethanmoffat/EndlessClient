@@ -46,7 +46,9 @@ namespace EndlessClient
 			TryLoadNPCs();
 			TryLoadSpells();
 			TryLoadClasses();
-
+			
+			//initial capacity of 32: most players won't travel between too many maps in a gaming session
+			MapCache = new Dictionary<int, EOLib.MapFile>(32);
 			m_player = new Player();
 			m_client = new EOClient();
 			World.Initialized = true;
@@ -87,6 +89,38 @@ namespace EndlessClient
 			get { return m_classes; }
 		}
 
+		/// <summary>
+		/// Stores a list of MapFiles paired with/accessible by their IDs
+		/// </summary>
+		public Dictionary<int, EOLib.MapFile> MapCache { get; private set; }
+
+		/// <summary>
+		/// Returns a MapFile for the map the MainPlayer is on
+		/// </summary>
+		public EOLib.MapFile ActiveMap
+		{
+			get
+			{
+				if (!MapCache.ContainsKey(MainPlayer.ActiveCharacter.CurrentMap))
+					return null;
+				return MapCache[MainPlayer.ActiveCharacter.CurrentMap];
+			}
+		}
+
+		private EOMapRenderer m_mapRender = null;
+		/// <summary>
+		/// Returns a map rendering object encapsulating the map the MainPlayer is on
+		/// </summary>
+		public EOMapRenderer ActiveMapRenderer
+		{
+			get
+			{
+				if (m_mapRender == null || m_mapRender.MapRef.MapID != MainPlayer.ActiveCharacter.CurrentMap)
+					m_mapRender = new EOMapRenderer(ActiveMap);
+				return m_mapRender;
+			}
+		}
+
 		/*** Other things that should be singleton ***/
 
 		private readonly Player m_player;
@@ -94,25 +128,31 @@ namespace EndlessClient
 		{
 			get { return m_player; }
 		}
-
+		
 		private readonly AsyncClient m_client;
 		public AsyncClient Client
 		{
 			get { return m_client; }
 		}
 
+		/*** Functions for loading/checking the different pub/map files ***/
+
 		//tries to load the map that MainPlayer.ActiveCharacter is hanging out on
-		public bool TryLoadMap()
+		public bool TryLoadMap(int mapID = -1)
 		{
-			//try
-			//{
-			//	//TODO: construct new map object here
-			//}
-			//catch
-			//{
-			//	m_map = null;
-			//	return false;
-			//}
+			try
+			{
+				if (mapID < 0)
+					mapID = MainPlayer.ActiveCharacter.CurrentMap;
+
+				string mapFile = Path.Combine("maps", string.Format("{0,5:D5}.emf", mapID));
+
+				MapCache.Add(mapID, new EOLib.MapFile(mapFile));
+			}
+			catch
+			{
+				return false;
+			}
 
 			return true;
 		}
@@ -189,19 +229,25 @@ namespace EndlessClient
 			return true;
 		}
 
-		public void CheckMap(int mapID, int mapRid, int mapFileSize)
+		public void CheckMap(int mapID, byte[] mapRid, int mapFileSize)
 		{
 			NeedMap = -1;
 
 			string mapFile = string.Format("maps\\{0,5:D5}.emf", mapID);
-			if(!Directory.Exists("maps") || !File.Exists(mapFile))
+			if (!Directory.Exists("maps") || !File.Exists(mapFile))
 			{
 				Directory.CreateDirectory("maps");
 				NeedMap = mapID;
 				return;
 			}
 
-			//TODO: load map and check against the passed in rid and file size
+			//try to load the map if it isn't cached. on failure, set needmap
+			if (!MapCache.ContainsKey(mapID))
+				NeedMap = TryLoadMap(mapID) ? -1 : mapID;
+
+			//on success of file load, check the rid and the size of the file
+			if (MapCache.ContainsKey(mapID))
+				NeedMap = MapCache[mapID].Rid != mapRid || MapCache[mapID].FileSize != mapFileSize ? mapID : -1;
 		}
 
 		public void CheckPub(Handlers.InitFileType file, int rid, short len)

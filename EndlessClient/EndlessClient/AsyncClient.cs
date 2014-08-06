@@ -116,7 +116,7 @@ namespace EndlessClient
 
 				if(!Handlers.Init.CanProceed)
 				{
-					//pop up some dialogs when this fails (see GameLogin::TryConnectToServer)
+					//pop up some dialogs when this fails (see EOGame::TryConnectToServer)
 					m_sock.EndReceive(res);
 					return (m_connected = false);
 				}

@@ -119,23 +119,15 @@ namespace EndlessClient
 			}
 		}
 
-		private int rotation = 0;
-		public int Rotation
+		public EODirection Facing
 		{
-			get
-			{
-				return rotation;
-			}
-			set
-			{
-				if (value > (int)EODirection.DownRight)
-					value = (int)EODirection.DownLeft;
-				rotation = value;
-				updateAll = true;
+			get { return Data.facing; }
+			set {
+				if ((int)value > (int)EODirection.Right)
+					value = (EODirection)0;
+				Data.SetDirection(value); 
 			}
 		}
-		public EODirection Facing { get { return (EODirection)rotation; } }
-
 		private Texture2D shield, weapon, boots, armor, hat;
 		private Texture2D hair, characterSkin;
 
@@ -239,6 +231,8 @@ namespace EndlessClient
 		public override void Draw(GameTime gameTime)
 		{
 			base.Draw(gameTime);
+
+			int Rotation = (int)Facing;
 
 			bool rotated = (Rotation == 1 || Rotation == 2); //rotated if Rotation is set to 1 or 2
 			bool flipped = Rotation > 1; //flipped if Rotation is set to 2 or 3

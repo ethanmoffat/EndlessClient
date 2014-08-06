@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EOData.cs" />
+    <Compile Include="Map.cs" />
     <Compile Include="misc.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="PacketProcessor.cs" />

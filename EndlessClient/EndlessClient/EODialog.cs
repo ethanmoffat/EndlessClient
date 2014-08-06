@@ -645,7 +645,7 @@ namespace EndlessClient
 				(Mouse.GetState().RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)) &&
 				rotClickArea.ContainsPoint(Mouse.GetState().X, Mouse.GetState().Y))
 			{
-				charRender.Rotation++;
+				charRender.Facing++;
 			}
 
 			base.Update(gt);
@@ -746,6 +746,7 @@ namespace EndlessClient
 							Close();
 							return;
 						}
+						Thread.Sleep(1000); //computers are fast
 					}
 
 					if (World.Instance.NeedEIF)
@@ -756,6 +757,7 @@ namespace EndlessClient
 							Close();
 							return;
 						}
+						Thread.Sleep(1000);
 					}
 
 					if (World.Instance.NeedENF)
@@ -766,6 +768,7 @@ namespace EndlessClient
 							Close();
 							return;
 						}
+						Thread.Sleep(1000);
 					}
 
 					if (World.Instance.NeedESF)
@@ -776,6 +779,7 @@ namespace EndlessClient
 							Close();
 							return;
 						}
+						Thread.Sleep(1000);
 					}
 
 					if (World.Instance.NeedECF)
@@ -786,10 +790,17 @@ namespace EndlessClient
 							Close();
 							return;
 						}
+						Thread.Sleep(1000);
 					}
 
 					caption.Text = loading;
+					if(!Handlers.Welcome.WelcomeMessage(World.Instance.MainPlayer.ActiveCharacter.ID))
+					{
+						Close();
+						return;
+					}
 					Thread.Sleep(1000);
+
 					Close();
 					CloseAction(true);
 				})).Start();

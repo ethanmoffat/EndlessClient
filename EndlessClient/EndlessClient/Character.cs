@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
+using EOLib;
+
 namespace EndlessClient
 {
 	public enum AdminLevel
@@ -14,7 +16,14 @@ namespace EndlessClient
 		HGM
 	}
 
-	enum EquipLocation
+	public enum SitState
+	{
+		Standing,
+		Chair,
+		Floor
+	}
+
+	public enum EquipLocation
 	{
 		Boots = 0,
 		Accessory,
@@ -44,6 +53,10 @@ namespace EndlessClient
 		public int id;
 		public byte level, gender, hairstyle, haircolor, race, admin;
 		public short boots, armor, hat, shield, weapon;
+		
+		public EODirection facing;
+		public SitState sitting;
+		public bool hidden;
 
 		public CharRenderData() { name = ""; }
 
@@ -51,6 +64,10 @@ namespace EndlessClient
 		public void SetHairStyle(byte style) { hairstyle = style; }
 		public void SetRace(byte newrace) { race = newrace; }
 		public void SetGender(byte newgender) { gender = newgender; }
+
+		public void SetDirection(EODirection direction) { facing = direction; }
+		public void SetSitting(SitState sits) { sitting = sits; }
+		public void SetHidden(bool hiding) { hidden = hiding; }
 
 		public void SetShield(short newshield) { shield = newshield; }
 		public void SetArmor(short newarmor) { armor = newarmor; }
@@ -117,6 +134,21 @@ namespace EndlessClient
 		}
 	}
 
+	/// <summary>
+	/// Essentially just a key-value pair between an item and the amount of that item in the inventory
+	/// </summary>
+	public struct InventoryItem
+	{
+		public short id;
+		public int amount;
+	}
+
+	public struct CharacterSpell
+	{
+		public short id;
+		public short level;
+	}
+
 	public class Character
 	{
 		public int ID { get; private set; }
@@ -130,33 +162,30 @@ namespace EndlessClient
 		public string PaddedGuildTag { get; set; }
 		public AdminLevel AdminLevel { get; set; }
 
-		public short[] PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
+		public byte Weight { get; set; }
+		public byte MaxWeight { get; set; }
+		public short[] PaperDoll { get; set; }
+		public List<InventoryItem> Inventory { get; set; }
+		public List<CharacterSpell> Spells { get; set; }
 
 		public CharStatData Stats { get; set; }
 
-		public CharRenderData RenderData { get; private set; }
-		public short CurrentMap { get; private set; }
-		public bool MapIsPk { get; private set; }
-		public int X { get; private set; }
-		public int Y { get; private set; }
+		public CharRenderData RenderData { get; set; }
+		public short CurrentMap { get; set; }
+		public bool MapIsPk { get; set; }
+		public int X { get; set; }
+		public int Y { get; set; }
 
 		public byte GuildRankNum { get; set; }
-
+		
 		public Character(int id, CharRenderData data)
 		{
 			ID = id;
 			RenderData = data;
-		}
 
-		public void Welcome(short map, bool isMapPK)
-		{
-			MapIsPk = isMapPK;
-			CurrentMap = map;
-		}
-
-		public void Warp(short destMap, byte destX, byte destY/*, WarpAnim anim?*/)
-		{
-
+			Inventory = new List<InventoryItem>();
+			Spells = new List<CharacterSpell>();
+			PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
 		}
 	}
 }

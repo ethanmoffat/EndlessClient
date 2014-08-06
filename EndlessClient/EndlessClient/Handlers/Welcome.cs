@@ -20,6 +20,12 @@ namespace EndlessClient.Handlers
 
 		public static bool FirstTimePlayer { get; private set; }
 
+		private static List<string> m_news;
+		public static IList<string> News
+		{
+			get { return m_news.AsReadOnly(); }
+		}
+
 		//Sends WELCOME_REQUEST to server
 		public static bool SelectCharacter(int charID)
 		{
@@ -30,6 +36,29 @@ namespace EndlessClient.Handlers
 			response.Reset();
 
 			Packet builder = new Packet(PacketFamily.Welcome, PacketAction.Request);
+			builder.AddInt(charID);
+
+			if (!client.SendPacket(builder))
+				return false;
+
+			if (!response.WaitOne(Constants.ResponseTimeout))
+				return false;
+			response.Reset();
+
+			return true;
+		}
+
+		//Sends WELCOME_MSG to server
+		public static bool WelcomeMessage(int charID)
+		{
+			EOClient client = (EOClient)World.Instance.Client;
+			if (!client.Connected)
+				return false;
+
+			response.Reset();
+
+			Packet builder = new Packet(PacketFamily.Welcome, PacketAction.Message);
+			builder.AddThree(0x00123456); //?
 			builder.AddInt(charID);
 
 			if (!client.SendPacket(builder))
@@ -67,8 +96,9 @@ namespace EndlessClient.Handlers
 						short mapID = pkt.GetShort();
 						byte[] mapRid = pkt.GetBytes(4);
 						int mapFileSize = pkt.GetThree();
-						main.ActiveCharacter.Welcome(mapID, mapRid[0] == 0xFF && mapRid[1] == 0x01);
-						World.Instance.CheckMap(mapID, Packet.DecodeNumber(mapRid), mapFileSize);
+						main.ActiveCharacter.CurrentMap = mapID;
+						main.ActiveCharacter.MapIsPk = mapRid[0] == 0xFF && mapRid[1] == 0x01;
+						World.Instance.CheckMap(mapID, mapRid, mapFileSize);
 
 						byte[] eifRid = pkt.GetBytes(4);
 						byte[] eifLen = pkt.GetBytes(2);
@@ -136,8 +166,106 @@ namespace EndlessClient.Handlers
 					}
 					break;
 				case WelcomeReply.WelcomeMessage:
-					//the game screen is loading! get character info for other players, welcome message, etc.
-					//response for WELCOME_MSG packet (no method defined here yet)
+					{
+						if (pkt.GetByte() != 255) return; //error, something is off.
+
+						//get the server's news
+						m_news = new List<string>();
+						while(pkt.PeekByte() != 255)
+						{
+							m_news.Add(pkt.GetBreakString());
+						}
+						pkt.GetByte();
+
+						main.ActiveCharacter.Weight = pkt.GetChar();
+						main.ActiveCharacter.MaxWeight = pkt.GetChar();
+						while(pkt.PeekByte() != 255)
+						{
+							main.ActiveCharacter.Inventory.Add(new InventoryItem() { id = pkt.GetShort(), amount = pkt.GetInt() });
+						}
+						pkt.GetByte();
+
+						while(pkt.PeekByte() != 255)
+						{
+							main.ActiveCharacter.Spells.Add(new CharacterSpell { id = pkt.GetShort(), level = pkt.GetShort() });
+						}
+						pkt.GetByte();
+
+						//Get data for other characters
+						int numOtherCharacters = pkt.GetChar();
+						if (pkt.GetByte() != 255) return;
+						for(int i = 0; i < numOtherCharacters; ++i)
+						{
+							string charName = pkt.GetBreakString(); 
+							short playerID = pkt.GetShort();
+							EndlessClient.Character newGuy = new EndlessClient.Character(playerID, null);
+							newGuy.CurrentMap = pkt.GetShort();
+							newGuy.X = pkt.GetShort();
+							newGuy.Y = pkt.GetShort();
+							newGuy.RenderData.SetDirection((EODirection)pkt.GetChar());
+							pkt.GetChar(); //6 ?
+							newGuy.PaddedGuildTag = pkt.GetFixedString(3);
+
+							byte level = pkt.GetChar();
+							newGuy.RenderData.SetGender(pkt.GetChar());
+							newGuy.RenderData.SetHairStyle(pkt.GetChar());
+							newGuy.RenderData.SetHairColor(pkt.GetChar());
+							newGuy.RenderData.SetRace(pkt.GetChar());
+
+							short maxHP = pkt.GetShort(),
+								hp = pkt.GetShort(),
+								maxTP = pkt.GetShort(),
+								tp = pkt.GetShort();
+
+							newGuy.Stats = new CharStatData()
+							{
+								level = level,
+								hp = hp,
+								maxhp = maxHP,
+								tp = tp,
+								maxtp = maxTP
+							};
+
+							newGuy.RenderData.SetBoots(pkt.GetShort());
+							pkt.Skip(3 * sizeof(short)); //other paperdoll data is 0'd out
+							newGuy.RenderData.SetArmor(pkt.GetShort());
+							pkt.Skip(sizeof(short));
+							newGuy.RenderData.SetHat(pkt.GetShort());
+							newGuy.RenderData.SetShield(pkt.GetShort());
+							newGuy.RenderData.SetWeapon(pkt.GetShort());
+
+							newGuy.RenderData.SetSitting((SitState)pkt.GetChar());
+							newGuy.RenderData.SetHidden(pkt.GetChar() != 0);
+
+							if (pkt.GetByte() != 255)
+								return;
+
+							World.Instance.ActiveMapRenderer.OtherPlayers.Add(newGuy);
+						}
+
+						//get data for any npcs
+						while(pkt.PeekByte() != 255)
+						{
+							NPC newGuy = new NPC(pkt.GetChar(), pkt.GetShort(), pkt.GetChar(), pkt.GetChar(), (EODirection)pkt.GetChar());
+							World.Instance.ActiveMapRenderer.NPCs.Add(newGuy);
+						}
+						pkt.GetByte();
+
+						//get data for items on map
+						while(pkt.ReadPos < pkt.Length)
+						{
+							MapItem newItem = new MapItem()
+							{
+								uid = pkt.GetShort(),
+								id = pkt.GetShort(),
+								x = pkt.GetChar(),
+								y = pkt.GetChar(),
+								amount = pkt.GetThree()
+							};
+
+							World.Instance.ActiveMapRenderer.MapItems.Add(newItem);
+						}
+					}
 					break;
 			}
 			response.Set();

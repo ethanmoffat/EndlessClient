@@ -15,7 +15,7 @@ namespace EndlessClient
 
 		public CharRenderData[] CharData { get; private set; }
 		public Character ActiveCharacter { get; private set; }
-
+		
 		public Player()
 		{
 			Logout();

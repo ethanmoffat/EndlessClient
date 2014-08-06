@@ -8,6 +8,8 @@ using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Graphics;
 using XNA = Microsoft.Xna.Framework;
 
+using EOLib;
+
 namespace EndlessClient
 {
 	public class GFXLoadException : Exception
@@ -293,23 +295,14 @@ namespace EndlessClient
 		SitChar = 13,
 		SitGround = 15,
 	}
-
-	//basically, which corner of the screen is it pointing at
-	public enum EODirection
-	{
-		DownLeft,
-		UpLeft,
-		UpRight,
-		DownRight
-	}
-
+	
 	public static class EOSpriteSheet
 	{
 		public static Texture2D GetArmor(ArmorShieldSpriteType type, EODirection dir, short baseArmorValue, byte gender)
 		{
 			baseArmorValue = (short)((baseArmorValue - 1) * 50);
 			GFXTypes gfxFile = (gender == 0) ? GFXTypes.FemaleArmor : GFXTypes.MaleArmor;
-			int factor = (dir == EODirection.DownLeft || dir == EODirection.DownRight) ? 0 : 1; //multiplier for the direction faced
+			int factor = (dir == EODirection.Down || dir == EODirection.Right) ? 0 : 1; //multiplier for the direction faced
 			factor *= getFactor(type);
 			int gfxNumber = baseArmorValue + (int)type + factor;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
@@ -319,7 +312,7 @@ namespace EndlessClient
 		{
 			baseShieldValue = (short)((baseShieldValue - 1) * 50);
 			GFXTypes gfxFile = gender == 0 ? GFXTypes.FemaleBack : GFXTypes.MaleBack;
-			int factor = (dir == EODirection.DownLeft || dir == EODirection.DownRight) ? 0 : 1;
+			int factor = (dir == EODirection.Down || dir == EODirection.Right) ? 0 : 1;
 			factor *= getFactor(type);
 			int gfxNumber = baseShieldValue + (int)type + factor;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
@@ -329,7 +322,7 @@ namespace EndlessClient
 		{
 			baseWeaponValue = (short)((baseWeaponValue - 1) * 100);
 			GFXTypes gfxFile = gender == 0 ? GFXTypes.FemaleWeapons : GFXTypes.MaleWeapons;
-			int factor = (dir == EODirection.DownLeft || dir == EODirection.DownRight) ? 0 : 1;
+			int factor = (dir == EODirection.Down || dir == EODirection.Right) ? 0 : 1;
 			factor *= getFactor(type);
 			int gfxNumber = baseWeaponValue + (int)type + factor;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
@@ -339,7 +332,7 @@ namespace EndlessClient
 		{
 			baseBootsValue = (short)((baseBootsValue - 1) * 40);
 			GFXTypes gfxFile = gender == 0 ? GFXTypes.FemaleShoes : GFXTypes.MaleShoes;
-			int factor = (dir == EODirection.DownLeft || dir == EODirection.DownRight) ? 0 : 1;
+			int factor = (dir == EODirection.Down || dir == EODirection.Right) ? 0 : 1;
 			factor *= getFactor(type);
 			int gfxNumber = baseBootsValue + (int)type + factor;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
@@ -347,7 +340,7 @@ namespace EndlessClient
 
 		public static Texture2D GetHair(EODirection dir, short hairType, short hairColor, byte gender)
 		{
-			byte turnedOffset = (byte)((dir == EODirection.UpLeft || dir == EODirection.UpRight) ? 2 : 0);
+			byte turnedOffset = (byte)((dir == EODirection.Left || dir == EODirection.Up) ? 2 : 0);
 			GFXTypes gfxFile = (gender == 0) ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
 			int gfxNumber = 2 + ((hairType - 1) * 40) + (hairColor * 4) + turnedOffset;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
@@ -357,14 +350,14 @@ namespace EndlessClient
 		{
 			baseHatValue = (short)((baseHatValue - 1) * 10);
 			GFXTypes gfxFile = gender == 0 ? GFXTypes.FemaleHat : GFXTypes.MaleHat;
-			int factor = (dir == EODirection.DownLeft || dir == EODirection.DownRight) ? 0 : 2;
+			int factor = (dir == EODirection.Down || dir == EODirection.Right) ? 0 : 2;
 			int gfxNumber = baseHatValue + factor + 1;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
 		public static Texture2D GetSkin(EODirection dir, short race, byte gender)
 		{
-			bool rotated = dir == EODirection.UpLeft || dir == EODirection.UpRight;
+			bool rotated = dir == EODirection.Left || dir == EODirection.Up;
 			Texture2D sheet = GFXLoader.TextureFromResource(GFXTypes.SkinSprites, 1, true);
 			int heightDelta = sheet.Height / 7;
 			int widthDelta = sheet.Width / 4;
