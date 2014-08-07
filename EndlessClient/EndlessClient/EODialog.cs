@@ -45,15 +45,13 @@ namespace EndlessClient
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18, false);
 			_setSize(bgTexture.Width, bgTexture.Height);
 			
-			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1)); //label is auto-sized
-			message.Font = new System.Drawing.Font("Arial", 10.0f);
+			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1), "Arial", 10.0f); //label is auto-sized
 			message.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
 			message.Text = msgText;
 			message.TextWidth = 254;
 			message.SetParent(this);
 
-			caption = new XNALabel(encapsulatingGame, new Rectangle(59, 23, 1, 1));
-			caption.Font = new System.Drawing.Font("Arial", 10.0f);
+			caption = new XNALabel(encapsulatingGame, new Rectangle(59, 23, 1, 1), "Arial", 10.0f);
 			caption.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
 			caption.Text = captionText;
 			caption.SetParent(this);
@@ -254,7 +252,7 @@ namespace EndlessClient
 		{
 			if ((parent != null && !parent.Visible) || !Visible)
 				return;
-			base.Update(gt);
+			base.Draw(gt);
 		}
 	}
 
@@ -293,6 +291,9 @@ namespace EndlessClient
 
 		public override void Draw(GameTime gt)
 		{
+			if ((parent != null && !parent.Visible) || !Visible)
+				return;
+
 			base.Draw(gt);
 
 			scroll.UpdateDimensions(message.Texture.Height, (int)message.Font.GetHeight());
@@ -366,6 +367,9 @@ namespace EndlessClient
 
 		public override void Draw(GameTime gt)
 		{
+			if ((parent != null && !parent.Visible) || !Visible)
+				return;
+
 			base.Draw(gt);
 
 			SpriteBatch.Begin();
@@ -612,7 +616,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gt)
 		{
-			if (XNAControl.Dialogs.Count > 0 && XNAControl.Dialogs.Peek() != this)
+			if ((XNAControl.Dialogs.Count > 0 && XNAControl.Dialogs.Peek() != this) || !Visible)
 				return;
 
 			rotClickArea = new Rectangle(235 + DrawAreaWithOffset.X, 58 + DrawAreaWithOffset.Y, 99, 123);
@@ -629,6 +633,9 @@ namespace EndlessClient
 		
 		public override void Draw(GameTime gt)
 		{
+			if ((parent != null && !parent.Visible) || !Visible)
+				return;
+
 			base.Draw(gt);
 
 			SpriteBatch.Begin();
@@ -682,7 +689,7 @@ namespace EndlessClient
 			message.SetParent(this);
 
 
-			//normally would call base.endConstructor();
+			//normally would call base.endConstructor(); but don't want to center them
 			_fixDrawOrder();
 			XNAControl.Dialogs.Push(this);
 			Game.Components.Add(this);
@@ -779,6 +786,9 @@ namespace EndlessClient
 
 		public override void Draw(GameTime gt)
 		{
+			if ((parent != null && !parent.Visible) || !Visible)
+				return;
+
 			base.Draw(gt);
 
 			SpriteBatch.Begin();

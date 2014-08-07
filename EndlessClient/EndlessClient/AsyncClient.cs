@@ -180,8 +180,9 @@ namespace EndlessClient
 
 			Array.Copy(len, 0, data, 0, 2);
 			Array.Copy(toSend, 0, data, 2, toSend.Length);
-			
-			m_sendLock.WaitOne();//do one send at a time
+
+			if (!m_sendLock.WaitOne(Constants.ResponseTimeout))//do one send at a time
+				return false;
 
 			SocketDataWrapper wrap = new SocketDataWrapper();
 			wrap.Data = data;

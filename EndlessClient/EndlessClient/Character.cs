@@ -181,7 +181,8 @@ namespace EndlessClient
 		public Character(int id, CharRenderData data)
 		{
 			ID = id;
-			RenderData = data;
+			if (data == null)
+				RenderData = data;
 
 			Inventory = new List<InventoryItem>();
 			Spells = new List<CharacterSpell>();
