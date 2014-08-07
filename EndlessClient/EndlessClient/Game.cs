@@ -130,8 +130,8 @@ namespace EndlessClient
 			foreach (DrawableGameComponent component in Components)
 			{
 				//don't hide dialogs
-				if (XNAControl.ModalDialogs.Contains(component as XNAControl) ||
-					XNAControl.ModalDialogs.Contains((component as XNAControl).TopParent))
+				if (XNAControl.Dialogs.Contains(component as XNAControl) ||
+					XNAControl.Dialogs.Contains((component as XNAControl).TopParent))
 					continue;
 
 				if (component is EOCharacterRenderer)

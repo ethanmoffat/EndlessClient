@@ -28,7 +28,7 @@ namespace EndlessClient
 			//center dialog based on txtSize of background texture
 			Center(Game.GraphicsDevice);
 			_fixDrawOrder();
-			XNAControl.ModalDialogs.Push(this);
+			XNAControl.Dialogs.Push(this);
 
 			Game.Components.Add(this);
 		}
@@ -63,7 +63,7 @@ namespace EndlessClient
 			{
 				case XNADialogButtons.Ok:
 					ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
-					ok.OnClick += (object sender, EventArgs e) => { Close(); };
+					ok.OnClick += (object sender, EventArgs e) => { Close(ok, XNADialogResult.OK); };
 					ok.SetParent(this);
 
 					cancel = null;
@@ -72,7 +72,7 @@ namespace EndlessClient
 					break;
 				case XNADialogButtons.Cancel:
 					cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
-					cancel.OnClick += (object sender, EventArgs e) => { Close(true); };
+					cancel.OnClick += (object sender, EventArgs e) => { Close(cancel, XNADialogResult.Cancel); };
 					cancel.SetParent(this);
 
 					ok = null;
@@ -83,11 +83,11 @@ namespace EndlessClient
 					//implement this more fully when it is needed
 					//update draw location of ok button to be on left?
 					ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(89, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
-					ok.OnClick += (object sender, EventArgs e) => { Close(true); };
+					ok.OnClick += (object sender, EventArgs e) => { Close(ok, XNADialogResult.OK); };
 					ok.SetParent(this);
 
 					cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
-					cancel.OnClick += (s, e) => { Close(); };
+					cancel.OnClick += (s, e) => { Close(cancel, XNADialogResult.Cancel); };
 					cancel.SetParent(this);
 
 					dlgButtons.Add(ok);
@@ -96,14 +96,6 @@ namespace EndlessClient
 			}
 
 			base.endConstructor();
-		}
-
-		public void Close(bool okButtonWasPressed)
-		{
-			Close();
-
-			if (CloseAction != null)
-				CloseAction(true);
 		}
 	}
 
@@ -253,7 +245,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gt)
 		{
-			if ((parent != null && !parent.Visible) || !Visible || (XNAControl.ModalDialogs.Count != 0 && XNAControl.ModalDialogs.Peek() != TopParent as XNADialog))
+			if ((parent != null && !parent.Visible) || !Visible || (XNAControl.Dialogs.Count != 0 && XNAControl.Dialogs.Peek() != TopParent as XNADialog))
 				return;
 			base.Update(gt);
 		}
@@ -290,7 +282,7 @@ namespace EndlessClient
 			message.RowSpacing = 4;
 
 			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(138, 197), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
-			ok.OnClick += (sender, e) => { Close(); };
+			ok.OnClick += (sender, e) => { Close(ok, XNADialogResult.OK); };
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
@@ -343,7 +335,7 @@ namespace EndlessClient
 			caption.SetParent(this);
 
 			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
-			ok.OnClick += (sender, e) => { Close(false); };
+			ok.OnClick += (sender, e) => { Close(ok, XNADialogResult.Cancel); };
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
@@ -367,7 +359,7 @@ namespace EndlessClient
 
 			pbWidth = (int)Math.Round((pbPercent / 100.0f) * pbBackText.Width);
 			if (pbPercent >= 100)
-				Close(true);
+				Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 
 			base.Update(gt);
 		}
@@ -380,15 +372,6 @@ namespace EndlessClient
 			SpriteBatch.Draw(pbBackText, new Vector2(15 + DrawAreaWithOffset.X, 95 + DrawAreaWithOffset.Y), Color.White);
 			SpriteBatch.Draw(pbForeText, new Rectangle(18 + DrawAreaWithOffset.X, 98 + DrawAreaWithOffset.Y, pbWidth - 6, pbForeText.Height - 4), Color.White);
 			SpriteBatch.End();
-		}
-
-		//called with parameter finished=true when the progress bar reaches 100%
-		public void Close(bool finished)
-		{
-			this.Close();
-
-			if (CloseAction != null)
-				CloseAction(finished);
 		}
 	}
 
@@ -472,7 +455,7 @@ namespace EndlessClient
 
 				if (!Handlers.Account.AccountChangePassword(Username, OldPassword, NewPassword))
 				{
-					Close(true); //signal the game to return to the initial state
+					Close(null, XNADialogResult.NO_BUTTON_PRESSED); //signal the game to return to the initial state
 
 					EODialog errDlg = new EODialog(encapsulatingGame, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
 					if (World.Instance.Client.Connected)
@@ -488,7 +471,7 @@ namespace EndlessClient
 				}
 				else
 				{
-					Close();
+					Close(ok, XNADialogResult.OK);
 					EODialog response = new EODialog(encapsulatingGame, msg, caption);
 				}
 			};
@@ -497,18 +480,11 @@ namespace EndlessClient
 
 			XNAButton cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28));
 			cancel.Visible = true;
-			cancel.OnClick += (s, e) => { Close(); };
+			cancel.OnClick += (s, e) => { Close(cancel, XNADialogResult.Cancel); };
 			cancel.SetParent(this);
 			dlgButtons.Add(cancel);
 
 			base.endConstructor();
-		}
-
-		public void Close(bool finished)
-		{
-			if (CloseAction != null)
-				CloseAction(finished);
-			Close();
 		}
 	}
 
@@ -574,7 +550,7 @@ namespace EndlessClient
 
 				if(!Handlers.Character.CharacterCreate(charRender.Gender, charRender.HairType, charRender.HairColor, charRender.SkinColor, inputBox.Text))
 				{
-					Close(true); //tell game to reset to inital state
+					Close(null, XNADialogResult.NO_BUTTON_PRESSED); //tell game to reset to inital state
 					EODialog errDlg = new EODialog(encapsulatingGame, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
 					if (World.Instance.Client.Connected)
 						World.Instance.Client.Disconnect();
@@ -585,13 +561,13 @@ namespace EndlessClient
 				if(!Handlers.Character.CanProceed)
 				{
 					if (Handlers.Character.TooManyCharacters)
-						Close();
+						Close(ok, XNADialogResult.OK);
 					string caption, message = Handlers.Character.ResponseMessage(out caption);
 					EODialog fail = new EODialog(encapsulatingGame, message, caption);
 					return;
 				}
 				
-				Close();
+				Close(ok, XNADialogResult.OK);
 				EODialog dlg = new EODialog(encapsulatingGame, "Your character has been created and is ready to explore a new world.", "Character created");
 			};
 			ok.SetParent(this);
@@ -599,7 +575,7 @@ namespace EndlessClient
 
 			XNAButton cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28));
 			cancel.Visible = true;
-			cancel.OnClick += (s, e) => { Close(); };
+			cancel.OnClick += (s, e) => { Close(cancel, XNADialogResult.Cancel); };
 			cancel.SetParent(this);
 			dlgButtons.Add(cancel);
 
@@ -636,7 +612,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gt)
 		{
-			if (ModalDialogs.Count > 0 && ModalDialogs.Peek() != this)
+			if (XNAControl.Dialogs.Count > 0 && XNAControl.Dialogs.Peek() != this)
 				return;
 
 			rotClickArea = new Rectangle(235 + DrawAreaWithOffset.X, 58 + DrawAreaWithOffset.Y, 99, 123);
@@ -663,13 +639,6 @@ namespace EndlessClient
 			SpriteBatch.Draw(charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 165 + DrawAreaWithOffset.Y), srcRects[3], Color.White);
 
 			SpriteBatch.End();
-		}
-
-		public void Close(bool finished)
-		{
-			if (CloseAction != null)
-				CloseAction(true);
-			base.Close();
 		}
 	}
 
@@ -715,7 +684,7 @@ namespace EndlessClient
 
 			//normally would call base.endConstructor();
 			_fixDrawOrder();
-			XNAControl.ModalDialogs.Push(this);
+			XNAControl.Dialogs.Push(this);
 			Game.Components.Add(this);
 		}
 
@@ -743,7 +712,7 @@ namespace EndlessClient
 						caption.Text = map;
 						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Map))
 						{
-							Close();
+							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
 						Thread.Sleep(1000); //computers are fast
@@ -754,7 +723,7 @@ namespace EndlessClient
 						caption.Text = item;
 						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Item))
 						{
-							Close();
+							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
 						Thread.Sleep(1000);
@@ -765,7 +734,7 @@ namespace EndlessClient
 						caption.Text = npc;
 						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Npc))
 						{
-							Close();
+							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
 						Thread.Sleep(1000);
@@ -776,7 +745,7 @@ namespace EndlessClient
 						caption.Text = skill;
 						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Spell))
 						{
-							Close();
+							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
 						Thread.Sleep(1000);
@@ -787,7 +756,7 @@ namespace EndlessClient
 						caption.Text = classes;
 						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Class))
 						{
-							Close();
+							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
 						Thread.Sleep(1000);
@@ -796,13 +765,12 @@ namespace EndlessClient
 					caption.Text = loading;
 					if(!Handlers.Welcome.WelcomeMessage(World.Instance.MainPlayer.ActiveCharacter.ID))
 					{
-						Close();
+						Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 						return;
 					}
 					Thread.Sleep(1000);
 
-					Close();
-					CloseAction(true);
+					Close(null, XNADialogResult.OK); //using OK here to mean everything was successful. NO_BUTTON_PRESSED means unsuccessful.
 				})).Start();
 			}
 

@@ -293,9 +293,9 @@ namespace EndlessClient
 
 							//show progress bar for account creation pending and THEN create the account
 							EOProgressDialog dlg = new EOProgressDialog(this, "Please wait a few minutes for creation.", "Account accepted");
-							dlg.CloseAction = (bool finished) =>
+							dlg.DialogClosing += (dlg_S, dlg_E) =>
 							{
-								if (finished) //progress bar reached 100%
+								if (dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED) //NO_BUTTON_PRESSED indicates the progress bar reached 100%
 								{
 									if (!Handlers.Account.AccountCreate(accountCreateTextBoxes[0].Text,
 										accountCreateTextBoxes[1].Text,
@@ -338,13 +338,13 @@ namespace EndlessClient
 					}
 
 					EOCreateCharacterDialog createCharacter = new EOCreateCharacterDialog(this, textBoxTextures[3], dispatch);
-					createCharacter.CloseAction = (finished) =>
+					createCharacter.DialogClosing += (dlg_S, dlg_E) =>
 					{
-						if (finished)
+						if (dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED)
 						{
 							doStateChange(GameStates.Initial);
 						}
-						else
+						else if(dlg_E.Result == XNADialogResult.OK)
 						{
 							if (currentState == GameStates.LoggedIn)
 								doShowCharacters();
@@ -355,7 +355,11 @@ namespace EndlessClient
 			else if (sender == passwordChangeBtn)
 			{
 				EOChangePasswordDialog dlg = new EOChangePasswordDialog(this, textBoxTextures[3], dispatch);
-				dlg.CloseAction = (finished) => { if (finished) doStateChange(GameStates.Initial); };
+				dlg.DialogClosing += (dlg_S, dlg_E) =>
+				{
+					if (dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED)
+						doStateChange(GameStates.Initial);
+				};
 			}
 		}
 
@@ -385,13 +389,13 @@ namespace EndlessClient
 
 				//shows the connecting window
 				EOConnectingDialog dlg = new EOConnectingDialog(this);
-				dlg.CloseAction = (b) =>
+				dlg.DialogClosing += (dlg_S, dlg_E) =>
 				{
-					if (b)
+					if (dlg_E.Result == XNADialogResult.OK)
 					{
 						//doStateChange(GameStates.PlayingTheGame);
 						EODialog dlg2 = new EODialog(this, "It worked!", "Success");
-						dlg2.CloseAction = (b2) => { doStateChange(GameStates.Initial); };
+						dlg2.DialogClosing += (s2, e2) => { doStateChange(GameStates.Initial); };
 					}
 				};
 			}
@@ -421,10 +425,10 @@ namespace EndlessClient
 					return;
 				}
 
-				EODialog promptDialog = new EODialog(this, "Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' is going to be deleted. Are you sure?", "Delete character", XNADialog.XNADialogButtons.OkCancel);
-				promptDialog.CloseAction = (okClicked) =>
+				EODialog promptDialog = new EODialog(this, "Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' is going to be deleted. Are you sure?", "Delete character", XNADialogButtons.OkCancel);
+				promptDialog.DialogClosing += (dlg_S, dlg_E) =>
 				{
-					if (okClicked) //user clicked ok to delete their character. do the delete here.
+					if (dlg_E.Result == XNADialogResult.OK) //user clicked ok to delete their character. do the delete here.
 					{
 						if (!Handlers.Character.CharacterRemove(World.Instance.MainPlayer.CharData[index].id))
 						{
