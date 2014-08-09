@@ -46,13 +46,13 @@ namespace EndlessClient
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18, false);
 			_setSize(bgTexture.Width, bgTexture.Height);
 			
-			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1), "Arial", 10.0f); //label is auto-sized
+			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1), "Microsoft Sans Serif", 10.0f); //label is auto-sized
 			message.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
 			message.Text = msgText;
 			message.TextWidth = 254;
 			message.SetParent(this);
 
-			caption = new XNALabel(encapsulatingGame, new Rectangle(59, 23, 1, 1), "Arial", 10.0f);
+			caption = new XNALabel(encapsulatingGame, new Rectangle(59, 23, 1, 1), "Microsoft Sans Serif", 10.0f);
 			caption.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
 			caption.Text = captionText;
 			caption.SetParent(this);
@@ -272,7 +272,7 @@ namespace EndlessClient
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1)); //label is auto-sized
-			message.Font = new System.Drawing.Font("Arial", 8.0f);
+			message.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.0f);
 			message.ForeColor = System.Drawing.Color.FromArgb(255, 0xc8, 0xc8, 0xc8);
 			message.Text = msgText;
 			message.TextWidth = 293;
@@ -324,14 +324,14 @@ namespace EndlessClient
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1)); //label is auto-sized
-			message.Font = new System.Drawing.Font("Arial", 10.0f);
+			message.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.0f);
 			message.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
 			message.Text = msgText;
 			message.TextWidth = 254;
 			message.SetParent(this);
 
 			caption = new XNALabel(encapsulatingGame, new Rectangle(59, 23, 1, 1));
-			caption.Font = new System.Drawing.Font("Arial", 10.0f);
+			caption.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.0f);
 			caption.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
 			caption.Text = captionText;
 			caption.SetParent(this);
@@ -399,7 +399,7 @@ namespace EndlessClient
 
 			for(int i = 0; i < inputBoxes.Length; ++i)
 			{
-				XNATextBox tb = new XNATextBox(encapsulatingGame, new Rectangle(198, 60 + i * 30, 137, 19), cursorTexture, "Arial", 8.0f);
+				XNATextBox tb = new XNATextBox(encapsulatingGame, new Rectangle(198, 60 + i * 30, 137, 19), cursorTexture, "Microsoft Sans Serif", 8.0f);
 				tb.LeftPadding = 5;
 				tb.DefaultText = " ";
 				tb.MaxChars = i == 0 ? 16 : 12;
@@ -506,7 +506,7 @@ namespace EndlessClient
 
 			charCreateSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22, false);
 
-			inputBox = new XNATextBox(encapsulatingGame, new Rectangle(80, 57, 138, 19), cursorTexture, "Arial", 8.0f);
+			inputBox = new XNATextBox(encapsulatingGame, new Rectangle(80, 57, 138, 19), cursorTexture, "Microsoft Sans Serif", 8.0f);
 			inputBox.LeftPadding = 5;
 			inputBox.DefaultText = " ";
 			inputBox.MaxChars = 12;
@@ -648,12 +648,12 @@ namespace EndlessClient
 			_setSize(bgSprites.Width / 4, bgSprites.Height);
 			bgSrcIndex = 0;
 
-			caption = new XNALabel(Game, new Rectangle(12, 9, 1, 1), "Arial", 10.0f);
+			caption = new XNALabel(Game, new Rectangle(12, 9, 1, 1), "Microsoft Sans Serif", 10.0f);
 			caption.Text = wait;
 			caption.ForeColor = System.Drawing.Color.FromArgb(0xf0, 0xf0, 0xc8);
 			caption.SetParent(this);
 
-			message = new XNALabel(Game, new Rectangle(18, 61, 1, 1), "Arial", 8.0f);
+			message = new XNALabel(Game, new Rectangle(18, 61, 1, 1), "Microsoft Sans Serif", 8.0f);
 			message.TextWidth = 175; //there is a constraint on the size for this
 			message.ForeColor = System.Drawing.Color.FromArgb(0xb9, 0xb9, 0xb9);
 			//there are a number of messages that are shown, a static one will do for now

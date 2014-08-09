@@ -52,7 +52,7 @@ namespace EndlessClient
 			textBoxTextures[2] = Content.Load<Texture2D>("tbRight");
 			textBoxTextures[3] = Content.Load<Texture2D>("cursor");
 
-			loginUsernameTextbox = new XNATextBox(this, new Rectangle(402, 322, 140, textBoxTextures[0].Height), textBoxTextures, "Arial", 8.0f);
+			loginUsernameTextbox = new XNATextBox(this, new Rectangle(402, 322, 140, textBoxTextures[0].Height), textBoxTextures, "Microsoft Sans Serif", 8.0f);
 			loginUsernameTextbox.MaxChars = 16;
 			loginUsernameTextbox.OnTabPressed += OnTabPressed;
 			loginUsernameTextbox.Clicked += OnTextClicked;
@@ -61,7 +61,7 @@ namespace EndlessClient
 			loginUsernameTextbox.LeftPadding = 4;
 			dispatch.Subscriber = loginUsernameTextbox;
 
-			loginPasswordTextbox = new XNATextBox(this, new Rectangle(402, 358, 140, textBoxTextures[0].Height), textBoxTextures, "Arial", 8.0f);
+			loginPasswordTextbox = new XNATextBox(this, new Rectangle(402, 358, 140, textBoxTextures[0].Height), textBoxTextures, "Microsoft Sans Serif", 8.0f);
 			loginPasswordTextbox.MaxChars = 12;
 			loginPasswordTextbox.OnTabPressed += OnTabPressed;
 			loginPasswordTextbox.Clicked += OnTextClicked;
@@ -144,7 +144,7 @@ namespace EndlessClient
 
 			lblVersionInfo = new XNALabel(this, new Rectangle(30, 457, 1, 1));
 			lblVersionInfo.Text = string.Format("{0}.{1:000}.{2:000} - {3}", Constants.MajorVersion, Constants.MinorVersion, Constants.ClientVersion, Constants.Host);
-			lblVersionInfo.Font = new System.Drawing.Font("arial", 7.0f);
+			lblVersionInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.0f);
 			lblVersionInfo.ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c);
 
 			//login/delete buttons for each character

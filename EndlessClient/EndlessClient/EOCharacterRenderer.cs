@@ -153,13 +153,13 @@ namespace EndlessClient
 			if(showInfo)
 			{
 				//362, 167 abs loc
-				levelLabel = new XNALabel(encapsulatingGame, new Rectangle(-32, 75, 1, 1), "arial", 8.75f);
+				levelLabel = new XNALabel(encapsulatingGame, new Rectangle(-32, 75, 1, 1), "Microsoft Sans Serif", 8.75f);
 				levelLabel.ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c);
 				levelLabel.Text = data.level.ToString();
 				levelLabel.SetParent(this);
 
 				//504, 93 abs loc
-				nameLabel = new XNALabel(encapsulatingGame, new Rectangle(104, 2, 89, 22), "arial", 8.5f);
+				nameLabel = new XNALabel(encapsulatingGame, new Rectangle(104, 2, 89, 22), "Microsoft Sans Serif", 8.5f);
 				nameLabel.ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c);
 				nameLabel.Text = ((char)(data.name[0] - 32)) + data.name.Substring(1); //capitalize first letter
 				nameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
