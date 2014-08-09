@@ -247,7 +247,19 @@ namespace EndlessClient
 
 			//on success of file load, check the rid and the size of the file
 			if (MapCache.ContainsKey(mapID))
-				NeedMap = MapCache[mapID].Rid != mapRid || MapCache[mapID].FileSize != mapFileSize ? mapID : -1;
+			{
+				for (int i = 0; i < 4; ++i)
+				{
+					if(MapCache[mapID].Rid[i] != mapRid[i])
+					{
+						NeedMap = mapID;
+						break;
+					}
+				}
+
+				if (NeedMap == -1 && MapCache[mapID].FileSize != mapFileSize)
+					NeedMap = mapID;
+			}
 		}
 
 		public void CheckPub(Handlers.InitFileType file, int rid, short len)

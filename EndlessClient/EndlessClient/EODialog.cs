@@ -23,10 +23,11 @@ namespace EndlessClient
 			smallButtonSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
 		}
 
-		protected void endConstructor()
+		protected void endConstructor(bool centerDialog = true)
 		{
 			//center dialog based on txtSize of background texture
-			Center(Game.GraphicsDevice);
+			if (centerDialog)
+				Center(Game.GraphicsDevice);
 			_fixDrawOrder();
 			XNAControl.Dialogs.Push(this);
 
@@ -434,50 +435,35 @@ namespace EndlessClient
 			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(157, 195), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
 			ok.Visible = true;
 			ok.OnClick += (s, e) =>
-			{
-				//if account doesn't match logged in account: return (TODO)
-
+			{ //does some input validation before trying to call Close
 				//check that all fields are filled in, otherwise: return
 				foreach (XNATextBox tb in inputBoxes)
 				{
 					if (string.IsNullOrWhiteSpace(tb.Text))
+					{
 						return;
+					}
 				}
 
-				//check that passwords match, otherwise: return
-				if (inputBoxes[2].Text.Length != inputBoxes[3].Text.Length || inputBoxes[2].Text != inputBoxes[3].Text)
+				if (Username != World.Instance.MainPlayer.AccountName)
 				{
-					EODialog errDlg = new EODialog(encapsulatingGame, "The two passwords you provided are not the same, please try again.", "Wrong password");
+					EODialog errDlg = new EODialog(Game, "The username or password you specified is incorrect", "Wrong info");
+					return;
+
+				}//check that passwords match, otherwise: return
+				else if (inputBoxes[2].Text.Length != inputBoxes[3].Text.Length || inputBoxes[2].Text != inputBoxes[3].Text)
+				{
+					EODialog errDlg = new EODialog(Game, "The two passwords you provided are not the same, please try again.", "Wrong password");
 					return;
 				} //check that password is > 6 chars, otherwise: return
 				else if (inputBoxes[2].Text.Length < 6)
 				{
 					//Make sure passwords are good enough
-					EODialog errDlg = new EODialog(encapsulatingGame, "For your own safety use a longer password (try 6 or more characters)", "Wrong password");
+					EODialog errDlg = new EODialog(Game, "For your own safety use a longer password (try 6 or more characters)", "Wrong password");
 					return;
 				}
 
-				if (!Handlers.Account.AccountChangePassword(Username, OldPassword, NewPassword))
-				{
-					Close(null, XNADialogResult.NO_BUTTON_PRESSED); //signal the game to return to the initial state
-
-					EODialog errDlg = new EODialog(encapsulatingGame, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-					if (World.Instance.Client.Connected)
-						World.Instance.Client.Disconnect();
-					return;
-				}
-
-				string caption, msg = Handlers.Account.ResponseMessage(out caption);
-				if (!Handlers.Account.CanProceed)
-				{
-					EODialog response = new EODialog(encapsulatingGame, msg, caption);
-					return;
-				}
-				else
-				{
-					Close(ok, XNADialogResult.OK);
-					EODialog response = new EODialog(encapsulatingGame, msg, caption);
-				}
+				Close(ok, XNADialogResult.OK);
 			};
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
@@ -499,6 +485,12 @@ namespace EndlessClient
 		private XNAButton[] arrowButtons = new XNAButton[4];
 		private Rectangle[] srcRects = new Rectangle[4]; //these are rectangles for the sprite sheet with the different parameter colors (hair colors, styles, etc)
 		private EOCharacterRenderer charRender;
+
+		public byte Gender { get { return charRender.Gender; } }
+		public byte HairType { get { return charRender.HairType; } }
+		public byte HairColor { get { return charRender.HairColor; } }
+		public byte SkinColor { get { return charRender.SkinColor; } }
+		public string Name { get { return inputBox.Text; } }
 
 		private Rectangle rotClickArea;
 
@@ -552,27 +544,7 @@ namespace EndlessClient
 					return;
 				}
 
-				if(!Handlers.Character.CharacterCreate(charRender.Gender, charRender.HairType, charRender.HairColor, charRender.SkinColor, inputBox.Text))
-				{
-					Close(null, XNADialogResult.NO_BUTTON_PRESSED); //tell game to reset to inital state
-					EODialog errDlg = new EODialog(encapsulatingGame, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-					if (World.Instance.Client.Connected)
-						World.Instance.Client.Disconnect();
-					return;
-				}
-
-				//validate character name w/ server (todo)
-				if(!Handlers.Character.CanProceed)
-				{
-					if (Handlers.Character.TooManyCharacters)
-						Close(ok, XNADialogResult.OK);
-					string caption, message = Handlers.Character.ResponseMessage(out caption);
-					EODialog fail = new EODialog(encapsulatingGame, message, caption);
-					return;
-				}
-				
 				Close(ok, XNADialogResult.OK);
-				EODialog dlg = new EODialog(encapsulatingGame, "Your character has been created and is ready to explore a new world.", "Character created");
 			};
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
@@ -688,11 +660,7 @@ namespace EndlessClient
 			message.Text = "Make sure noone is watching your keyboard, while entering your password";
 			message.SetParent(this);
 
-
-			//normally would call base.endConstructor(); but don't want to center them
-			_fixDrawOrder();
-			XNAControl.Dialogs.Push(this);
-			Game.Components.Add(this);
+			base.endConstructor(false);
 		}
 
 		public override void Update(GameTime gt)
@@ -710,10 +678,9 @@ namespace EndlessClient
 			{
 				updatingFiles = true;
 
+				//I hate putting this on a new thread but otherwise the Update call would block while this is all happening...meaning the dialog would freeze
 				new Thread(new ThreadStart(() =>
 				{
-					Console.WriteLine("Entering thread...");
-
 					if (World.Instance.NeedMap != -1)
 					{
 						caption.Text = map;
@@ -722,7 +689,7 @@ namespace EndlessClient
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
-						Thread.Sleep(1000); //computers are fast
+						Thread.Sleep(1000); //computers are fast: I think the actual client sleeps at this point in its logic too because there is no way it should take as long as it does
 					}
 
 					if (World.Instance.NeedEIF)
@@ -789,11 +756,11 @@ namespace EndlessClient
 			if ((parent != null && !parent.Visible) || !Visible)
 				return;
 
-			base.Draw(gt);
-
 			SpriteBatch.Begin();
 			SpriteBatch.Draw(bgSprites, DrawAreaWithOffset, new Rectangle(bgSrcIndex * (bgSprites.Width / 4), 0, bgSprites.Width / 4, bgSprites.Height), Color.White);
 			SpriteBatch.End();
+
+			base.Draw(gt);
 		}
 	}
 }

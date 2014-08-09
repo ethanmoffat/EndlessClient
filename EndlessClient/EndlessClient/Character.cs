@@ -182,7 +182,7 @@ namespace EndlessClient
 		{
 			ID = id;
 			if (data == null)
-				RenderData = data;
+				RenderData = new CharRenderData();
 
 			Inventory = new List<InventoryItem>();
 			Spells = new List<CharacterSpell>();

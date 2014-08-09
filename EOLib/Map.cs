@@ -260,6 +260,8 @@ namespace EOLib
 			int innersize;
 
 			Packet file = new Packet(File.ReadAllBytes(fileName));
+			if (file.Length == 0)
+				throw new FileLoadException("The file is empty.");
 			file.ReadPos = 0; //use packet wrapper for convenience functions/decoding
 
 			if (file.GetFixedString(3) != "EMF")

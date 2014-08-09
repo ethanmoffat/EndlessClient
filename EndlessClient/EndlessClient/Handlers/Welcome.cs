@@ -171,11 +171,11 @@ namespace EndlessClient.Handlers
 
 						//get the server's news
 						m_news = new List<string>();
-						while(pkt.PeekByte() != 255)
+						for (int i = 0; i < 9; ++i )
 						{
 							m_news.Add(pkt.GetBreakString());
 						}
-						pkt.GetByte();
+						//pkt.GetByte();
 
 						main.ActiveCharacter.Weight = pkt.GetChar();
 						main.ActiveCharacter.MaxWeight = pkt.GetChar();

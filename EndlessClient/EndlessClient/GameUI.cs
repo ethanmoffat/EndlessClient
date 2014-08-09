@@ -241,85 +241,77 @@ namespace EndlessClient
 			{
 				if (currentState == GameStates.CreateAccount)
 				{
-					bool valid = true;
 					foreach (XNATextBox txt in accountCreateTextBoxes)
 					{
 						if (txt.Text.Length == 0)
 						{
 							EODialog errDlg = new EODialog(this, "Some of the fields are still empty. Fill in all the fields and try again.", "Wrong input");
-							valid = false;
-							break;
+							return;
 						}
 					}
 
-					if (valid && accountCreateTextBoxes[1].Text != accountCreateTextBoxes[2].Text)
+					if (accountCreateTextBoxes[1].Text != accountCreateTextBoxes[2].Text)
 					{
 						//Make sure passwords match
 						EODialog errDlg = new EODialog(this, "The two passwords you provided are not the same, please try again.", "Wrong password");
-						valid = false;
+						return;
 					}
 
-					if (valid && accountCreateTextBoxes[1].Text.Length < 6)
+					if (accountCreateTextBoxes[1].Text.Length < 6)
 					{
 						//Make sure passwords are good enough
 						EODialog errDlg = new EODialog(this, "For your own safety use a longer password (try 6 or more characters)", "Wrong password");
-						valid = false;
+						return;
 					}
 
-					if (valid && !System.Text.RegularExpressions.Regex.IsMatch(accountCreateTextBoxes[5].Text, //filter emails using regex
+					if (!System.Text.RegularExpressions.Regex.IsMatch(accountCreateTextBoxes[5].Text, //filter emails using regex
 						@"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b"))
 					{
 						EODialog errDlg = new EODialog(this, "Enter a valid email address.", "Wrong input");
-						valid = false;
+						return;
 					}
 
-					if (valid) //start trying to create the account if we pass all the tests
+					if (!Handlers.Account.AccountCheckName(accountCreateTextBoxes[0].Text))
 					{
-						//separate thread: ain't nobody got time for blocking the UI!
-						new System.Threading.Thread(new System.Threading.ThreadStart(() =>
+						LostConnectionDialog();
+						return;
+					}
+
+					if (!Handlers.Account.CanProceed)
+					{
+						string caption, msg = Handlers.Account.ResponseMessage(out caption);
+						EODialog errDlg = new EODialog(this, msg, caption);
+						return;
+					}
+
+					//show progress bar for account creation pending and THEN create the account
+					EOProgressDialog dlg = new EOProgressDialog(this, "Please wait a few minutes for creation.", "Account accepted");
+					dlg.DialogClosing += (dlg_S, dlg_E) =>
+					{
+						if (dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED) //NO_BUTTON_PRESSED indicates the progress bar reached 100%
 						{
-							if (!Handlers.Account.AccountCheckName(accountCreateTextBoxes[0].Text))
+							if (!Handlers.Account.AccountCreate(accountCreateTextBoxes[0].Text,
+								accountCreateTextBoxes[1].Text,
+								accountCreateTextBoxes[3].Text,
+								accountCreateTextBoxes[4].Text,
+								accountCreateTextBoxes[5].Text))
 							{
 								LostConnectionDialog();
 								return;
 							}
 
+							string _caption, _msg = Handlers.Account.ResponseMessage(out _caption);
 							if (!Handlers.Account.CanProceed)
 							{
-								string caption, msg = Handlers.Account.ResponseMessage(out caption);
-								EODialog errDlg = new EODialog(this, msg, caption);
+								EODialog errDlg = new EODialog(this, _msg, _caption);
 								return;
 							}
 
-							//show progress bar for account creation pending and THEN create the account
-							EOProgressDialog dlg = new EOProgressDialog(this, "Please wait a few minutes for creation.", "Account accepted");
-							dlg.DialogClosing += (dlg_S, dlg_E) =>
-							{
-								if (dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED) //NO_BUTTON_PRESSED indicates the progress bar reached 100%
-								{
-									if (!Handlers.Account.AccountCreate(accountCreateTextBoxes[0].Text,
-										accountCreateTextBoxes[1].Text,
-										accountCreateTextBoxes[3].Text,
-										accountCreateTextBoxes[4].Text,
-										accountCreateTextBoxes[5].Text))
-									{
-										LostConnectionDialog();
-										return;
-									}
+							doStateChange(GameStates.Initial);
+							EODialog success = new EODialog(this, _msg, _caption);
+						}
+					};
 
-									string _caption, _msg = Handlers.Account.ResponseMessage(out _caption);
-									if (!Handlers.Account.CanProceed)
-									{
-										EODialog errDlg = new EODialog(this, _msg, _caption);
-										return;
-									}
-
-									doStateChange(GameStates.Initial);
-									EODialog success = new EODialog(this, _msg, _caption);
-								}
-							};
-						})).Start();
-					}
 				}
 				else if (currentState == GameStates.LoggedIn)
 				{
@@ -340,14 +332,28 @@ namespace EndlessClient
 					EOCreateCharacterDialog createCharacter = new EOCreateCharacterDialog(this, textBoxTextures[3], dispatch);
 					createCharacter.DialogClosing += (dlg_S, dlg_E) =>
 					{
-						if (dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED)
+						if (dlg_E.Result == XNADialogResult.OK)
 						{
-							doStateChange(GameStates.Initial);
-						}
-						else if(dlg_E.Result == XNADialogResult.OK)
-						{
-							if (currentState == GameStates.LoggedIn)
-								doShowCharacters();
+							if (!Handlers.Character.CharacterCreate(createCharacter.Gender, createCharacter.HairType, createCharacter.HairColor, createCharacter.SkinColor, createCharacter.Name))
+							{
+								doStateChange(GameStates.Initial);
+								EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
+								if (World.Instance.Client.Connected)
+									World.Instance.Client.Disconnect();
+								return;
+							}
+
+							if (!Handlers.Character.CanProceed)
+							{
+								if (!Handlers.Character.TooManyCharacters)
+									dlg_E.CancelClose = true;
+								string caption, message = Handlers.Character.ResponseMessage(out caption);
+								EODialog fail = new EODialog(this, message, caption);
+								return;
+							}
+
+							EODialog dlg = new EODialog(this, "Your character has been created and is ready to explore a new world.", "Character created");
+							doShowCharacters();
 						}
 					};
 				}
@@ -357,8 +363,23 @@ namespace EndlessClient
 				EOChangePasswordDialog dlg = new EOChangePasswordDialog(this, textBoxTextures[3], dispatch);
 				dlg.DialogClosing += (dlg_S, dlg_E) =>
 				{
-					if (dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED)
+					if (!Handlers.Account.AccountChangePassword(dlg.Username, dlg.OldPassword, dlg.NewPassword))
+					{
 						doStateChange(GameStates.Initial);
+						EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
+						if (World.Instance.Client.Connected)
+							World.Instance.Client.Disconnect();
+						return;
+					}
+
+					string caption, msg = Handlers.Account.ResponseMessage(out caption);
+					EODialog response = new EODialog(this, msg, caption);
+					
+					if (!Handlers.Account.CanProceed)
+					{
+						dlg_E.CancelClose = true;
+						return;
+					}
 				};
 			}
 		}
@@ -395,7 +416,19 @@ namespace EndlessClient
 					{
 						//doStateChange(GameStates.PlayingTheGame);
 						EODialog dlg2 = new EODialog(this, "It worked!", "Success");
-						dlg2.DialogClosing += (s2, e2) => { doStateChange(GameStates.Initial); };
+						dlg2.DialogClosing += (s2, e2) =>
+						{
+							if (World.Instance.Client.Connected)
+								World.Instance.Client.Disconnect();
+							doStateChange(GameStates.Initial);
+						};
+					}
+					else if(dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED)
+					{
+						EODialog dlg2 = new EODialog(this, "Failed.", "Failed.");
+						if (World.Instance.Client.Connected)
+							World.Instance.Client.Disconnect();
+						doStateChange(GameStates.Initial);
 					}
 				};
 			}

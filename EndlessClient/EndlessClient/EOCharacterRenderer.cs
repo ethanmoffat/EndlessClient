@@ -121,11 +121,13 @@ namespace EndlessClient
 
 		public EODirection Facing
 		{
-			get { return Data.facing; }
+			get { return this.Data.facing; }
 			set {
-				if ((int)value > (int)EODirection.Right)
-					value = (EODirection)0;
-				Data.SetDirection(value); 
+				int val = (int)value;
+				if (val > 3)
+					val = 0;
+				this.Data.SetDirection((EODirection)val);
+				updateAll = true;
 			}
 		}
 		private Texture2D shield, weapon, boots, armor, hat;
@@ -151,15 +153,13 @@ namespace EndlessClient
 			if(showInfo)
 			{
 				//362, 167 abs loc
-				levelLabel = new XNALabel(encapsulatingGame, new Rectangle(-32, 75, 1, 1));
-				levelLabel.Font = new System.Drawing.Font("arial", 8.75f);
+				levelLabel = new XNALabel(encapsulatingGame, new Rectangle(-32, 75, 1, 1), "arial", 8.75f);
 				levelLabel.ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c);
 				levelLabel.Text = data.level.ToString();
 				levelLabel.SetParent(this);
 
 				//504, 93 abs loc
-				nameLabel = new XNALabel(encapsulatingGame, new Rectangle(104, 2, 89, 22));
-				nameLabel.Font = new System.Drawing.Font("arial", 8.5f);
+				nameLabel = new XNALabel(encapsulatingGame, new Rectangle(104, 2, 89, 22), "arial", 8.5f);
 				nameLabel.ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c);
 				nameLabel.Text = ((char)(data.name[0] - 32)) + data.name.Substring(1); //capitalize first letter
 				nameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -231,11 +231,8 @@ namespace EndlessClient
 		public override void Draw(GameTime gameTime)
 		{
 			base.Draw(gameTime);
-
-			int Rotation = (int)Facing;
-
-			bool rotated = (Rotation == 1 || Rotation == 2); //rotated if Rotation is set to 1 or 2
-			bool flipped = Rotation > 1; //flipped if Rotation is set to 2 or 3
+			
+			bool flipped = (int)Data.facing > 1; //flipped if direction is Up or Right (IE Facing > 1)
 			
 			SpriteBatch.Begin();
 

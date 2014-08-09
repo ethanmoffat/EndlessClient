@@ -40,6 +40,7 @@ namespace EndlessClient.Handlers
 			if (!response.WaitOne(Constants.ResponseTimeout))
 				return false;
 			response.Reset();
+			World.Instance.MainPlayer.SetAccountName(user);
 
 			return true;
 		}

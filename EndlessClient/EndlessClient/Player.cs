@@ -9,6 +9,7 @@ namespace EndlessClient
 {
 	public class Player
 	{
+		public string AccountName { get; private set; }
 		public int PlayerID { get; private set; }
 		//not sure what GamePlayerID is so commenting it out...
 		//public int GamePlayerID { get; private set; }
@@ -27,6 +28,11 @@ namespace EndlessClient
 			//GamePlayerID = 0;
 			CharData = null;
 			ActiveCharacter = null;
+		}
+
+		public void SetAccountName(string acc)
+		{
+			AccountName = acc;
 		}
 
 		public void SetPlayerID(int newId)
