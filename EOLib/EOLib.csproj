@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crc.cs" />
     <Compile Include="EOData.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="misc.cs" />

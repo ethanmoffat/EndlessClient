@@ -132,25 +132,69 @@ namespace EOLib.Data
 			{
 				using (FileStream sw = File.Create(FilePath)) //throw exceptions on error
 				{
-					byte[] array = Encoding.ASCII.GetBytes(FilePath.Substring(FilePath.LastIndexOf('.') + 1));
-					if (array.Length != 3)
-						throw new ArgumentException("The filename of the data file must have a 3 letter extension.");
+					if (FilePath.Length <= 4 || !FilePath.Contains('.'))
+						throw new ArgumentException("The filename of the data file must have a 3 letter extension. Use EIF, ENF, ESF, or ECF.");
 
-					sw.Write(array, 0, 3); //E[I|N|S|C]F at beginning
-					sw.Write(Packet.EncodeNumber(Rid, 4), 0, 4); //rid
-					sw.Write(Packet.EncodeNumber(Data.Count, 2), 0, 2); //len
+					//get the extension to write as the first 3 bytes
+					byte[] extension = Encoding.ASCII.GetBytes(FilePath.ToUpper().Substring(FilePath.LastIndexOf('.') + 1));
+					if (extension.Length != 3)
+						throw new ArgumentException("The filename of the data file must have a 3 letter extension. Use EIF, ENF, ESF, or ECF.");
 
-					Version = pubVersion;
-					sw.WriteByte(Packet.EncodeNumber(Version, 1)[0]); //new version check courtesy of ME
-
-					for (int i = 1; i < Data.Count; ++i)
+					//allocate the data array for all the data to be saved
+					//this is done based on the type of the Data items
+					byte[] allData;
+					if (Data.Count > 0)
 					{
-						if ((Data[i] as ClassRecord).Name == "eof")
-							break;
-
-						byte[] toWrite = Data[i].SerializeToByteArray();
-						sw.Write(toWrite, 0, toWrite.Length);
+						if (Data[0] is ItemRecord)
+						{
+							allData = new byte[10 + ItemFile.DATA_SIZE * Data.Count];
+						}
+						else if (Data[0] is NPCRecord)
+						{
+							allData = new byte[10 + NPCFile.DATA_SIZE * Data.Count];
+						}
+						else if (Data[0] is SpellRecord)
+						{
+							allData = new byte[10 + SpellFile.DATA_SIZE * Data.Count];
+						}
+						else if (Data[0] is ClassRecord)
+						{
+							allData = new byte[10 + ClassFile.DATA_SIZE * Data.Count];
+						}
+						else
+						{
+							throw new ArgumentException("The internal data container has records of invalid type. Memory is corrupted.");
+						}
 					}
+					else
+					{
+						throw new IndexOutOfRangeException("There are no data items to save!");
+					}
+
+					//write the file to memory first (wrapper around allData byte array)
+					using (MemoryStream mem = new MemoryStream(allData))
+					{
+						mem.Write(extension, 0, 3); //E[I|N|S|C]F at beginning
+						mem.Write(Packet.EncodeNumber(Rid, 4), 0, 4); //rid
+						mem.Write(Packet.EncodeNumber(Data.Count, 2), 0, 2); //len
+
+						Version = pubVersion;
+						mem.WriteByte(Packet.EncodeNumber(Version, 1)[0]); //new version check
+
+						for (int i = 1; i < Data.Count; ++i)
+						{
+							byte[] toWrite = Data[i].SerializeToByteArray();
+							mem.Write(toWrite, 0, toWrite.Length);
+						}
+					}
+
+					//write the data to the stream and overwrite whatever the rid is with the CRC
+					CRC32 crc = new CRC32();
+					uint newRid = crc.Check(allData, 7, (uint)allData.Length - 7);
+					Rid = (int)newRid;
+					sw.Write(allData, 0, allData.Length);
+					sw.Seek(4, SeekOrigin.Begin);
+					sw.Write(Packet.EncodeNumber(Rid, 4), 0, 4);
 				}
 			}
 			catch (Exception ex)
@@ -170,160 +214,68 @@ namespace EOLib.Data
 		string ToString();
 	}
 
-	//biggest pain in the ass ever. And, I thought of a better way to do it as soon as I was done.
-	//I'm not going to just throw all that work away though ;P 
-	[StructLayout(LayoutKind.Explicit)] //porting the unions from C++ code in eoserv
 	public class ItemRecord : IDataRecord
 	{
-		//FieldOffset attributes can't be used on C# Properties...
-		//So private members were added for each Property in the struct
-		[FieldOffset(0)]
-		private int _id;
-		public int ID { get { return _id; } set { _id = value; } }
-		[FieldOffset(4)]
-		private short _graphic;
-		public short Graphic { get { return _graphic; } set { _graphic = value; } }
-		[FieldOffset(6)]
-		private ItemType _type;
-		public ItemType Type { get { return _type; } set { _type = value; } }
-		[FieldOffset(7)]
-		private ItemSubType _subtype;
-		public ItemSubType SubType { get { return _subtype; } set { _subtype = value; } }
+		public int ID { get; set; }
+		public string Name { get; set; }
+		public short Graphic { get; set; }
+		public ItemType Type { get; set; }
+		public ItemSubType SubType { get; set; }
 
-		[FieldOffset(8)]
-		private ItemSpecial _special;
-		public ItemSpecial Special { get { return _special; } set { _special = value; } }
-		[FieldOffset(10)]
-		private short _hp;
-		public short HP { get { return _hp; } set { _hp = value; } }
-		[FieldOffset(12)]
-		private short _tp;
-		public short TP { get { return _tp; } set { _tp = value; } }
-		[FieldOffset(14)]
-		private short _mindam;
-		public short MinDam { get { return _mindam; } set { _mindam = value; } }
-		[FieldOffset(16)]
-		private short _maxdam;
-		public short MaxDam { get { return _maxdam; } set { _maxdam = value; } }
-		[FieldOffset(18)]
-		private short _accuracy;
-		public short Accuracy { get { return _accuracy; } set { _accuracy = value; } }
-		[FieldOffset(20)]
-		private short _evade;
-		public short Evade { get { return _evade; } set { _evade = value; } }
-		[FieldOffset(22)]
-		private short _armor;
-		public short Armor { get { return _armor; } set { _armor = value; } }
+		public ItemSpecial Special { get; set; }
+		public short HP { get; set; }
+		public short TP { get; set; }
+		public short MinDam { get; set; }
+		public short MaxDam { get; set; }
+		public short Accuracy { get; set; }
+		public short Evade { get; set; }
+		public short Armor { get; set; }
 
-		[FieldOffset(24)]
-		private byte _str;
-		public byte Str { get { return _str; } set { _str = value; } }
-		[FieldOffset(25)]
-		private byte _int;
-		public byte Int { get { return _int; } set { _int = value; } }
-		[FieldOffset(26)]
-		private byte _wis;
-		public byte Wis { get { return _wis; } set { _wis = value; } }
-		[FieldOffset(27)]
-		private byte _agi;
-		public byte Agi { get { return _agi; } set { _agi = value; } }
-		[FieldOffset(28)]
-		private byte _con;
-		public byte Con { get { return _con; } set { _con = value; } }
-		[FieldOffset(29)]
-		private byte _cha;
-		public byte Cha { get { return _cha; } set { _cha = value; } }
+		public byte Str { get; set; }
+		public byte Int { get; set; }
+		public byte Wis { get; set; }
+		public byte Agi { get; set; }
+		public byte Con { get; set; }
+		public byte Cha { get; set; }
 
-		[FieldOffset(30)]
-		private byte _light;
-		public byte Light { get { return _light; } set { _light = value; } }
-		[FieldOffset(31)]
-		private byte _dark;
-		public byte Dark { get { return _dark; } set { _dark = value; } }
-		[FieldOffset(32)]
-		private byte _earth;
-		public byte Earth { get { return _earth; } set { _earth = value; } }
-		[FieldOffset(33)]
-		private byte _air;
-		public byte Air { get { return _air; } set { _air = value; } }
-		[FieldOffset(34)]
-		private byte _water;
-		public byte Water { get { return _water; } set { _water= value; } }
-		[FieldOffset(35)]
-		private byte _fire;
-		public byte Fire { get { return _fire; } set { _fire = value; } }
+		public byte Light { get; set; }
+		public byte Dark { get; set; }
+		public byte Earth { get; set; }
+		public byte Air { get; set; }
+		public byte Water { get; set; }
+		public byte Fire { get; set; }
 
-		//THESE ALL POINT TO THE SAME MEMORY
-		//THIS IS BY DESIGN BECAUSE APPARENTLY EO IS LITERALLY RETARDED
-		[FieldOffset(36)]
-		private int _scrollmap;
-		public int ScrollMap { get { return _scrollmap; } set { _scrollmap = value; } }
-		[FieldOffset(36)]
-		private int _dollgraphic;
-		public int DollGraphic { get { return _dollgraphic; } set { _dollgraphic = value; } }
-		[FieldOffset(36)]
-		private int _expreward;
-		public int ExpReward { get { return _expreward; } set { _expreward = value; } }
-		[FieldOffset(36)]
-		private int _haircolor;
-		public int HairColor { get { return _haircolor; } set { _haircolor = value; } }
-		[FieldOffset(36)]
-		private int _effect;
-		public int Effect { get { return _effect; } set { _effect = value; } }
-		[FieldOffset(36)]
-		private int _key;
-		public int Key { get { return _key; } set { _key = value; } }
+		//Three item-specific parameters
+		//eoserv uses unions, but they can just point to the same private data member
+		private int itemSpecificParam1;
+		private byte itemSpecificParam2;
+		private byte itemSpecificParam3;
 
-		[FieldOffset(40)]
-		private byte _gender;
-		public byte Gender { get { return _gender; } set { _gender = value; } }
-		[FieldOffset(40)]
-		private byte _scrollx;
-		public byte ScrollX { get { return _scrollx; } set { _scrollx = value; } }
+		public int ScrollMap { get { return itemSpecificParam1; } set { itemSpecificParam1 = value; } }
+		public int DollGraphic { get { return itemSpecificParam1; } set { itemSpecificParam1 = value; } }
+		public int ExpReward { get { return itemSpecificParam1; } set { itemSpecificParam1 = value; } }
+		public int HairColor { get { return itemSpecificParam1; } set { itemSpecificParam1 = value; } }
+		public int Effect { get { return itemSpecificParam1; } set { itemSpecificParam1 = value; } }
+		public int Key { get { return itemSpecificParam1; } set { itemSpecificParam1 = value; } }
 
-		[FieldOffset(41)]
-		private byte _scrolly;
-		public byte ScrollY { get { return _scrolly; } set { _scrolly = value; } }
-		[FieldOffset(41)]
-		private byte _dualwielddollgraphic;
-		public byte DualWieldDollGraphic { get { return _dualwielddollgraphic; } set { _dualwielddollgraphic = value; } }
+		public byte Gender { get { return itemSpecificParam2; } set { itemSpecificParam2 = value; } }
+		public byte ScrollX { get { return itemSpecificParam2; } set { itemSpecificParam2 = value; } }
 
-		[FieldOffset(42)]
-		private short _levelreq;
-		public short LevelReq { get { return _levelreq; } set { _levelreq = value; } }
-		[FieldOffset(44)]
-		private short _classreq;
-		public short ClassReq { get { return _classreq; } set { _classreq = value; } }
-		[FieldOffset(46)]
-		private short _strreq;
-		public short StrReq { get { return _strreq; } set { _strreq = value; } }
-		[FieldOffset(48)]
-		private short _intreq;
-		public short IntReq { get { return _intreq; } set { _intreq = value; } }
-		[FieldOffset(50)]
-		private short _wisreq;
-		public short WisReq { get { return _wisreq; } set { _wisreq = value; } }
-		[FieldOffset(52)]
-		private short _agireq;
-		public short AgiReq { get { return _agireq; } set { _agireq = value; } }
-		[FieldOffset(54)]
-		private short _conreq;
-		public short ConReq { get { return _conreq; } set { _conreq = value; } }
-		[FieldOffset(56)]
-		private short _chareq;
-		public short ChaReq { get { return _chareq; } set { _chareq = value; } }
+		public byte ScrollY { get { return itemSpecificParam3; } set { itemSpecificParam3 = value; } }
+		public byte DualWieldDollGraphic { get { return itemSpecificParam3; } set { itemSpecificParam3 = value; } }
 
-		[FieldOffset(58)]
-		private byte _weight;
-		public byte Weight { get { return _weight; } set { _weight = value; } }
+		public short LevelReq { get; set; }
+		public short ClassReq { get; set; }
+		public short StrReq { get; set; }
+		public short IntReq { get; set; }
+		public short WisReq { get; set; }
+		public short AgiReq { get; set; }
+		public short ConReq { get; set; }
+		public short ChaReq { get; set; }
 
-		[FieldOffset(59)]
-		private ItemSize _size;
-		public ItemSize Size { get { return _size; } set { _size = value; } }
+		public byte Weight { get; set; }
 
-		[FieldOffset(60)]
-		private string _name;
-		public string Name { get { return _name; } set { _name = value; } } //name has to go last for field offsets to work
+		public ItemSize Size { get; set; }
 
 		public override string ToString()
 		{
