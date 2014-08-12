@@ -49,4 +49,9 @@ namespace EOLib
 		public static readonly string SpellFilePath = "pub/dsl001.esf";
 		public static readonly string ClassFilePath = "pub/dat001.ecf";
 	}
+
+	public static class ConfigStrings
+	{
+		//TODO: Add the string sections/keys for the configuration file here
+	}
 }

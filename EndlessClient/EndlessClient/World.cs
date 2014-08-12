@@ -10,11 +10,7 @@ namespace EndlessClient
 {
 	public class WorldLoadException : Exception
 	{
-		public WorldLoadException(string msg)
-			: base(msg)
-		{
-
-		}
+		public WorldLoadException(string msg) : base(msg) { }
 	}
 
 	//singleton pattern: provides global access to data files and network connection
@@ -51,6 +47,9 @@ namespace EndlessClient
 			MapCache = new Dictionary<int, EOLib.MapFile>(32);
 			m_player = new Player();
 			m_client = new EOClient();
+			m_config = new IniReader(@"settings\config.ini");
+			if (!m_config.Load())
+				throw new WorldLoadException("Unable to load the configuration file!");
 			World.Initialized = true;
 		}
 
@@ -133,6 +132,12 @@ namespace EndlessClient
 		public AsyncClient Client
 		{
 			get { return m_client; }
+		}
+
+		private readonly IniReader m_config;
+		public IniReader Configuration
+		{
+			get { return m_config; }
 		}
 
 		/*** Functions for loading/checking the different pub/map files ***/
