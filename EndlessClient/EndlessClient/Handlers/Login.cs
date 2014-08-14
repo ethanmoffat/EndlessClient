@@ -27,7 +27,7 @@ namespace EndlessClient.Handlers
 		public static bool LoginRequest(string user, string pass)
 		{
 			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.Connected)
+			if (!client.ConnectedAndInitialized)
 				return false;
 			response.Reset();
 

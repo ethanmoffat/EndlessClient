@@ -35,7 +35,7 @@ namespace EndlessClient.Handlers
 		public static bool AccountChangePassword(string username, string old_password, string new_password)
 		{
 			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.Connected)
+			if (!client.ConnectedAndInitialized)
 				return false;
 
 			response.Reset();
@@ -58,7 +58,7 @@ namespace EndlessClient.Handlers
 		public static bool AccountCheckName(string username)
 		{
 			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.Connected)
+			if (!client.ConnectedAndInitialized)
 				return false;
 
 			response.Reset();
@@ -80,7 +80,7 @@ namespace EndlessClient.Handlers
 		public static bool AccountCreate(string uName, string pass, string realName, string location, string email)
 		{
 			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.Connected)
+			if (!client.ConnectedAndInitialized)
 				return false;
 
 			response.Reset();

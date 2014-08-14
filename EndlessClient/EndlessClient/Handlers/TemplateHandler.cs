@@ -38,7 +38,7 @@ namespace EndlessClient.Handlers.Template
 		public static bool TemplateAction(string someParam)
 		{
 			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.Connected)
+			if (!client.ConnectedAndInitialized)
 				return false;
 
 			response.Reset();

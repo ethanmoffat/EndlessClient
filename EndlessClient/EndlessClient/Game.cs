@@ -62,14 +62,30 @@ namespace EndlessClient
 		Texture2D UIBackground;
 		Texture2D CharacterDisp, AccountCreateSheet, LoginUIScreen;
 
+		System.Threading.AutoResetEvent connectMutex;
+
 		//--------------------------
 		//***** HELPER METHODS *****
 		//--------------------------
 		private void TryConnectToServer(Action successAction)
 		{
-			if (World.Instance.Client.Connected)
+			//the mutex here should simulate the action of spamming the button.
+			//no matter what, it will only do it one at a time: the mutex is only released when the bg thread ends
+			if (connectMutex == null)
+			{
+				connectMutex = new System.Threading.AutoResetEvent(true);
+				if (!connectMutex.WaitOne(1))
+					return;
+			}
+			else if (!connectMutex.WaitOne(1))
+			{
+				return;
+			}
+
+			if (World.Instance.Client.ConnectedAndInitialized && World.Instance.Client.Connected)
 			{
 				successAction();
+				connectMutex.Set();
 				return;
 			}
 
@@ -81,6 +97,7 @@ namespace EndlessClient
 					{
 						string caption, msg = Handlers.Init.ResponseMessage(out caption);
 						EODialog err = new EODialog(this, msg, caption);
+						connectMutex.Set();
 						return;
 					}
 					successAction();
@@ -89,6 +106,8 @@ namespace EndlessClient
 				{
 					EODialog dlg = new EODialog(this, "The game server could not be found. Please try again at a later time", "Could not find server");
 				}
+
+				connectMutex.Set();
 			}).Start();
 		}
 
@@ -96,7 +115,7 @@ namespace EndlessClient
 		{
 			//Eventually these message strings should be loaded from the global constant class, or from dat files somehow. for now this method will do.
 			EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-			if (World.Instance.Client.Connected)
+			if (World.Instance.Client.ConnectedAndInitialized)
 				World.Instance.Client.Disconnect();
 			doStateChange(GameStates.Initial);
 		}
@@ -118,15 +137,26 @@ namespace EndlessClient
 			for (int i = 0; i < World.Instance.MainPlayer.CharData.Length; ++i)
 			{
 				//need to get actual draw location
+				int dOrder = 0;
+				if (render[i] != null)
+					dOrder = render[i].DrawOrder;
 				render[i] = new EOCharacterRenderer(this, new Vector2(395, 60 + i * 124), World.Instance.MainPlayer.CharData[i], true);
 			}
 		}
 		
 		private void doStateChange(GameStates newState)
 		{
+			GameStates prevState = currentState;
 			currentState = newState;
+
+			if(prevState == GameStates.PlayingTheGame && currentState != GameStates.PlayingTheGame)
+			{
+				hud.Dispose();
+				hud = null;
+				Components.Remove(hud);
+			}
 			
-			List<EOCharacterRenderer> toRemove = new List<EOCharacterRenderer>();
+			List<DrawableGameComponent> toRemove = new List<DrawableGameComponent>();
 			foreach (DrawableGameComponent component in Components)
 			{
 				//don't hide dialogs
@@ -134,20 +164,32 @@ namespace EndlessClient
 					XNAControl.Dialogs.Contains((component as XNAControl).TopParent))
 					continue;
 
-				if (component is EOCharacterRenderer)
-					toRemove.Add(component as EOCharacterRenderer); //this needs to be done separately because it's a foreach loop
+				if (prevState == GameStates.PlayingTheGame && currentState != GameStates.PlayingTheGame)
+				{
+					toRemove.Add(component);
+				}
+				else
+				{
+					if (component is EOCharacterRenderer)
+						toRemove.Add(component as EOCharacterRenderer); //this needs to be done separately because it's a foreach loop
 
-				if (component is XNATextBox)
-					(component as XNATextBox).Text = "";
-				
-				component.Visible = false;
+					if (component is XNATextBox)
+						(component as XNATextBox).Text = "";
+					component.Visible = false;
+				}
 			}
-			foreach (EOCharacterRenderer eor in toRemove)
+			foreach (DrawableGameComponent comp in toRemove)
 			{
-				eor.Close();
-				eor.Dispose();
+				if (comp is XNAControl)
+					(comp as XNAControl).Close();
+				comp.Dispose();
+				if (Components.Contains(comp))
+					Components.Remove(comp);
 			}
 			toRemove.Clear();
+
+			if (prevState == GameStates.PlayingTheGame && currentState != GameStates.PlayingTheGame)
+				InitializeControls(true); //reinitialize to defaults
 
 			switch (currentState)
 			{
@@ -195,7 +237,20 @@ namespace EndlessClient
 					doShowCharacters();
 					break;
 				case GameStates.PlayingTheGame:
-					hud.Visible = true;
+					for (int i = Components.Count - 1; i >= 0; --i)
+					{
+						IGameComponent comp = Components[i];
+						if (comp != backButton)
+						{
+							(comp as DrawableGameComponent).Dispose();
+							comp = null;
+							Components.Remove(comp);
+						}
+					}
+
+					hud = new HUD(this);
+					backButton.Visible = true;
+					Components.Add(hud);
 					break;
 			}
 		}
@@ -299,21 +354,13 @@ namespace EndlessClient
 			InitializeControls();
 		}
 
-		protected override void Update(GameTime gameTime)
-		{
-			// Allows the game to exit
-			if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-				this.Exit();
-			
-			base.Update(gameTime);
-		}
-
 		protected override void Draw(GameTime gameTime)
 		{
 			GraphicsDevice.Clear(Color.Black);
 			spriteBatch.Begin();
 
-			spriteBatch.Draw(UIBackground, new Rectangle(0, 0, WIDTH, HEIGHT), null, Color.White);
+			if(currentState != GameStates.PlayingTheGame)
+				spriteBatch.Draw(UIBackground, new Rectangle(0, 0, WIDTH, HEIGHT), null, Color.White);
 
 			Rectangle personOneRect = new Rectangle(229, 70, PeopleSetOne[currentPersonOne].Width, PeopleSetOne[currentPersonOne].Height);
 			Rectangle personTwoRect = new Rectangle(43, 140, PeopleSetTwo[currentPersonTwo].Width, PeopleSetTwo[currentPersonTwo].Height);
@@ -360,7 +407,7 @@ namespace EndlessClient
 			if (!World.Initialized)
 				return;
 
-			if (World.Instance.Client.Connected)
+			if (World.Instance.Client.ConnectedAndInitialized)
 				World.Instance.Client.Disconnect();
 			World.Instance.Client.Dispose();
 

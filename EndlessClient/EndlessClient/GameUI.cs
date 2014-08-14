@@ -44,7 +44,7 @@ namespace EndlessClient
 
 		HUD hud;
 
-		private void InitializeControls()
+		private void InitializeControls(bool reinit = false)
 		{
 			//set up text boxes for login
 			textBoxTextures[0] = Content.Load<Texture2D>("tbBack");
@@ -156,16 +156,21 @@ namespace EndlessClient
 				deleteCharButtons[i].OnClick += CharModButtonPress;
 			}
 
-			hud = new HUD(this);
-
 			//hide all the components to start with
 			foreach (DrawableGameComponent component in Components)
 			{
+				//don't hide dialogs if reinitializing
+				if (reinit && (XNAControl.Dialogs.Contains(component as XNAControl) || XNAControl.Dialogs.Contains((component as XNAControl).TopParent)))
+					continue;
+
 				//...except for the four main buttons
 				if (!mainButtons.Contains(component as XNAButton))
 					component.Visible = false;
 			}
 			lblVersionInfo.Visible = true;
+
+			XNAButton testingame = new XNAButton(this, new Vector2(5, 5), "in-game");
+			testingame.OnClick += (s, e) => doStateChange(GameStates.PlayingTheGame);
 		}
 
 		//Pretty much controls how states transition between one another
@@ -207,7 +212,7 @@ namespace EndlessClient
 			}
 			else if (sender == mainButtons[3])
 			{
-				if (World.Instance.Client.Connected)
+				if (World.Instance.Client.ConnectedAndInitialized)
 					World.Instance.Client.Disconnect();
 				this.Exit();
 			}
@@ -338,7 +343,7 @@ namespace EndlessClient
 							{
 								doStateChange(GameStates.Initial);
 								EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-								if (World.Instance.Client.Connected)
+								if (World.Instance.Client.ConnectedAndInitialized)
 									World.Instance.Client.Disconnect();
 								return;
 							}
@@ -367,7 +372,7 @@ namespace EndlessClient
 					{
 						doStateChange(GameStates.Initial);
 						EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
-						if (World.Instance.Client.Connected)
+						if (World.Instance.Client.ConnectedAndInitialized)
 							World.Instance.Client.Disconnect();
 						return;
 					}
@@ -414,19 +419,19 @@ namespace EndlessClient
 				{
 					if (dlg_E.Result == XNADialogResult.OK)
 					{
-						//doStateChange(GameStates.PlayingTheGame);
-						EODialog dlg2 = new EODialog(this, "It worked!", "Success");
-						dlg2.DialogClosing += (s2, e2) =>
-						{
-							if (World.Instance.Client.Connected)
-								World.Instance.Client.Disconnect();
-							doStateChange(GameStates.Initial);
-						};
+						doStateChange(GameStates.PlayingTheGame);
+						//EODialog dlg2 = new EODialog(this, "It worked!", "Success");
+						//dlg2.DialogClosing += (s2, e2) =>
+						//{
+						//	if (World.Instance.Client.ConnectedAndInitialized)
+						//		World.Instance.Client.Disconnect();
+						//	doStateChange(GameStates.Initial);
+						//};
 					}
 					else if(dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED)
 					{
 						EODialog dlg2 = new EODialog(this, "Failed.", "Failed.");
-						if (World.Instance.Client.Connected)
+						if (World.Instance.Client.ConnectedAndInitialized)
 							World.Instance.Client.Disconnect();
 						doStateChange(GameStates.Initial);
 					}

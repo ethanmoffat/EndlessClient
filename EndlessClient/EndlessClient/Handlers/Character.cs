@@ -46,7 +46,7 @@ namespace EndlessClient.Handlers
 		public static bool CharacterRequest()
 		{
 			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.Connected)
+			if (!client.ConnectedAndInitialized)
 				return false;
 
 			response.Reset();
@@ -67,7 +67,7 @@ namespace EndlessClient.Handlers
 		public static bool CharacterCreate(byte gender, byte hairStyle, byte hairColor, byte race, string name)
 		{
 			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.Connected)
+			if (!client.ConnectedAndInitialized)
 				return false;
 
 			response.Reset();
@@ -96,7 +96,7 @@ namespace EndlessClient.Handlers
 		public static bool CharacterTake(int id)
 		{
 			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.Connected)
+			if (!client.ConnectedAndInitialized)
 				return false;
 
 			response.Reset();
@@ -118,7 +118,7 @@ namespace EndlessClient.Handlers
 		public static bool CharacterRemove(int id)
 		{
 			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.Connected)
+			if (!client.ConnectedAndInitialized)
 				return false;
 
 			ServerResponse = CharacterReply.THIS_IS_WRONG;

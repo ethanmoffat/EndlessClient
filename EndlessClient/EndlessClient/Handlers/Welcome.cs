@@ -30,7 +30,7 @@ namespace EndlessClient.Handlers
 		public static bool SelectCharacter(int charID)
 		{
 			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.Connected)
+			if (!client.ConnectedAndInitialized)
 				return false;
 
 			response.Reset();
@@ -52,7 +52,7 @@ namespace EndlessClient.Handlers
 		public static bool WelcomeMessage(int charID)
 		{
 			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.Connected)
+			if (!client.ConnectedAndInitialized)
 				return false;
 
 			response.Reset();

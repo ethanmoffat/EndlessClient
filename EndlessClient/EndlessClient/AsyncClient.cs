@@ -41,12 +41,40 @@ namespace EndlessClient
 		private Socket m_sock;
 		private EndPoint m_serverEndpoint;
 		private bool m_disposing = false;
-		private bool m_connected = false;
+		private bool m_connectedAndInitialized = false;
 		private AutoResetEvent m_sendLock;
 
 		protected ClientPacketProcessor m_packetProcessor;
 
-		public bool Connected { get { return m_connected; } }
+		/// <summary>
+		/// Returns a flag that is set when the Connect() method returns successfully.
+		/// </summary>
+		public bool ConnectedAndInitialized { get { return m_connectedAndInitialized; } }
+
+		/// <summary>
+		/// Polls the socket for the connection status. Retrieves connection status based on underlying socket.
+		/// Sets ConnectedAndInitialized to 'false' if the socket cannot be polled.
+		/// </summary>
+		public bool Connected
+		{
+			get
+			{
+				try
+				{
+					bool c = !(m_sock.Poll(1000, SelectMode.SelectRead) && m_sock.Available == 0);
+					if(!c && ConnectedAndInitialized)
+					{
+						Disconnect();
+						m_connectedAndInitialized = false;
+					}
+					return c;
+				}
+				catch
+				{
+					return false;
+				}
+			}
+		}
 
 		//Set up socket to prepare for connection
 		public AsyncClient()
@@ -60,7 +88,7 @@ namespace EndlessClient
 		/// <returns>True if successful, false otherwise</returns>
 		public bool ConnectToServer(string ipOrHostname, int port)
 		{
-			if (m_connected)
+			if (m_connectedAndInitialized)
 			{
 				throw new Exception("Client has already connected to the server. Disconnect first before connecting again.");
 			}
@@ -92,7 +120,7 @@ namespace EndlessClient
 			{
 				if (m_sock != null && m_sock.Connected)
 				{
-					m_connected = true;
+					m_connectedAndInitialized = true;
 					return true;
 				}
 
@@ -110,15 +138,13 @@ namespace EndlessClient
 				m_sock.Connect(m_serverEndpoint);
 				SocketDataWrapper wrap = new SocketDataWrapper();
 				res = m_sock.BeginReceive(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _recvCB, wrap);
-				m_connected = true;
-
-				Handlers.Init.Initialize();
-
-				if(!Handlers.Init.CanProceed)
+				m_connectedAndInitialized = true;
+				
+				if(!Handlers.Init.Initialize() || !Handlers.Init.CanProceed)
 				{
 					//pop up some dialogs when this fails (see EOGame::TryConnectToServer)
 					m_sock.EndReceive(res);
-					return (m_connected = false);
+					return (m_connectedAndInitialized = false);
 				}
 
 				m_packetProcessor.SetMulti(Handlers.Init.Data.emulti_d, Handlers.Init.Data.emulti_e);
@@ -134,17 +160,17 @@ namespace EndlessClient
 				if(!SendPacket(confirm))
 				{
 					m_sock.EndReceive(res);
-					return (m_connected = false);
+					return (m_connectedAndInitialized = false);
 				}
 			}
 			catch
 			{
 				if(res != null)
 					m_sock.EndReceive(res);
-				m_connected = false;
+				m_connectedAndInitialized = false;
 			}
 
-			return m_connected;
+			return m_connectedAndInitialized;
 		}
 
 		/// <summary>
@@ -152,14 +178,14 @@ namespace EndlessClient
 		/// </summary>
 		public void Disconnect()
 		{
-			if (!m_connected)
+			if (!m_connectedAndInitialized)
 			{
 				throw new Exception("Unable to disconnect without connecting");
 			}
 
-			m_connected = false;
+			m_connectedAndInitialized = false;
 			m_sock.Shutdown(SocketShutdown.Both);
-			//m_sock.Disconnect(false);
+			//m_sock.Disconnect(false); //this seems to cause errors: a disconnected socket can only be reconnected asyncronously which is a pain in the ass
 			m_sock.Close();
 
 			Socket newSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -405,7 +431,7 @@ namespace EndlessClient
 			if (m_sendLock != null)
 				m_sendLock.Set();
 
-			if (m_connected)
+			if (m_connectedAndInitialized)
 				m_sock.Shutdown(SocketShutdown.Both);
 
 			m_sock.Close();
