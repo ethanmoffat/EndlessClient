@@ -181,7 +181,7 @@ namespace EndlessClient
 		/// <param name="file">File type to load from</param>
 		/// <param name="device">Graphics device in XNA game class</param>
 		/// <returns>Texture2D containing the image from the *.egf file</returns>
-		public static Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent)
+		public static Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false)
 		{
 			Texture2D ret;
 

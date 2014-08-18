@@ -47,7 +47,7 @@ namespace EndlessClient
 			MapCache = new Dictionary<int, EOLib.MapFile>(32);
 			m_player = new Player();
 			m_client = new EOClient();
-			m_config = new IniReader(@"settings\config.ini");
+			m_config = new IniReader(@"config\settings.ini");
 			if (!m_config.Load())
 				throw new WorldLoadException("Unable to load the configuration file!");
 			World.Initialized = true;

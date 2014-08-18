@@ -43,16 +43,32 @@ namespace EndlessClient
 		public EODialog(Game encapsulatingGame, string msgText, string captionText = "", XNADialogButtons whichButtons = XNADialogButtons.Ok, bool useSmallHeader = false)
 			: base(encapsulatingGame)
 		{
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18, false);
+			if (!useSmallHeader)
+				bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18);
+			else
+				bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 23);
 			_setSize(bgTexture.Width, bgTexture.Height);
 			
 			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1), "Microsoft Sans Serif", 10.0f); //label is auto-sized
+			if(useSmallHeader)
+			{
+				//179, 119
+				//caption 197, 128
+				//message 197, 156
+				//ok: 270, 201
+				//cancel: 363, 201
+				message.DrawLocation = new Vector2(18, 40);
+			}
 			message.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
 			message.Text = msgText;
 			message.TextWidth = 254;
 			message.SetParent(this);
 
 			caption = new XNALabel(encapsulatingGame, new Rectangle(59, 23, 1, 1), "Microsoft Sans Serif", 10.0f);
+			if(useSmallHeader)
+			{
+				caption.DrawLocation = new Vector2(18, 12);
+			}
 			caption.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
 			caption.Text = captionText;
 			caption.SetParent(this);
@@ -94,6 +110,12 @@ namespace EndlessClient
 					break;
 			}
 
+			if(useSmallHeader)
+			{
+				foreach (XNAButton btn in dlgButtons)
+					btn.DrawLocation = new Vector2(btn.DrawLocation.X, 82);
+			}
+
 			base.endConstructor();
 		}
 	}
@@ -125,7 +147,7 @@ namespace EndlessClient
 			DrawLocation = relativeLoc;
 			ScrollOffset = 0;
 
-			scrollSpriteSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 29, false);
+			scrollSpriteSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 29);
 			Rectangle[] upArrows = new Rectangle[2];
 			Rectangle[] downArrows = new Rectangle[2];
 			Rectangle scrollBox;
@@ -268,7 +290,7 @@ namespace EndlessClient
 		public EOScrollingDialog(Game encapsulatingGame, string msgText, string captionText = "")
 			: base(encapsulatingGame)
 		{
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 40, false);
+			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 40);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1)); //label is auto-sized
@@ -320,7 +342,7 @@ namespace EndlessClient
 		public EOProgressDialog(Game encapsulatingGame, string msgText, string captionText = "")
 			: base(encapsulatingGame)
 		{
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18, false);
+			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1)); //label is auto-sized
@@ -341,7 +363,7 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			pbBackText = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 19, false);
+			pbBackText = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 19);
 
 			pbForeText = new Texture2D(encapsulatingGame.GraphicsDevice, 1, pbBackText.Height - 2); //foreground texture is just a fill
 			Color[] pbForeFill = new Color[pbForeText.Width * pbForeText.Height];
@@ -394,7 +416,7 @@ namespace EndlessClient
 		{
 			dispatch = dispatcher;
 
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 21, false);
+			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 21);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			for(int i = 0; i < inputBoxes.Length; ++i)
@@ -501,10 +523,10 @@ namespace EndlessClient
 		{
 			dispatch = dispatcher;
 
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 20, false);
+			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 20);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			charCreateSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22, false);
+			charCreateSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22);
 
 			inputBox = new XNATextBox(encapsulatingGame, new Rectangle(80, 57, 138, 19), cursorTexture, "Microsoft Sans Serif", 8.0f);
 			inputBox.LeftPadding = 5;
@@ -642,7 +664,7 @@ namespace EndlessClient
 			: base (encapsulatingGame)
 		{
 			bgTexture = null; //don't use the built in bgtexture, we're going to use a sprite sheet for the BG
-			bgSprites = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 33, false);
+			bgSprites = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 33);
 			this.DrawLocation = new Vector2(Game.GraphicsDevice.PresentationParameters.BackBufferWidth - (bgSprites.Width / 4) - 10, 
 				Game.GraphicsDevice.PresentationParameters.BackBufferHeight - bgSprites.Height - 10);
 			_setSize(bgSprites.Width / 4, bgSprites.Height);

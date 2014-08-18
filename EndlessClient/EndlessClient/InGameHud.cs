@@ -31,6 +31,10 @@ namespace EndlessClient
 	{
 		private const int NUM_BTN = 11;
 		private Texture2D mainFrame, mainButtonTexture;
+		//might need to consider making an EOPanels file and deriving from XNAPanel
+		//	to support eo-specific functionality that I'm going to need...
+		XNAPanel pnlInventory, pnlActiveSpells, pnlPassiveSpells, pnlChat, pnlStats;
+		XNAPanel pnlNews, pnlOnline, pnlParty, pnlSettings, pnlHelp;
 		private XNAButton[] mainBtn;
 		private SpriteBatch SpriteBatch;
 		private InGameStates state;
@@ -39,8 +43,57 @@ namespace EndlessClient
 			: base(g)
 		{
 			mainFrame = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 1, true);
-			mainButtonTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 25, false);
+			mainButtonTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 25);
 			mainBtn = new XNAButton[NUM_BTN];
+
+			//set up panels
+			Texture2D invBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 44);
+			pnlInventory = new XNAPanel(g, new Rectangle(102, 330, invBG.Width, invBG.Height));
+			pnlInventory.BackgroundImage = invBG;
+			pnlInventory.Visible = false;
+
+			Texture2D spellsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 62);
+			pnlActiveSpells = new XNAPanel(g, new Rectangle(102, 330, spellsBG.Width, spellsBG.Height));
+			pnlActiveSpells.BackgroundImage = spellsBG;
+			pnlActiveSpells.Visible = false;
+
+			pnlPassiveSpells = new XNAPanel(g, new Rectangle(102, 330, spellsBG.Width, spellsBG.Height));
+			pnlPassiveSpells.BackgroundImage = spellsBG;
+			pnlPassiveSpells.Visible = false;
+
+			Texture2D chatBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 28);
+			pnlChat = new XNAPanel(g, new Rectangle(102, 330, chatBG.Width, chatBG.Height));
+			pnlChat.BackgroundImage = chatBG;
+			pnlChat.Visible = false;
+
+			Texture2D statsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 34);
+			pnlStats = new XNAPanel(g, new Rectangle(102, 330, statsBG.Width, statsBG.Height));
+			pnlStats.BackgroundImage = statsBG;
+			pnlStats.Visible = false;
+
+			Texture2D onlineBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 36);
+			pnlOnline = new XNAPanel(g, new Rectangle(102, 330, onlineBG.Width, onlineBG.Height));
+			pnlOnline.BackgroundImage = onlineBG;
+			pnlOnline.Visible = false;
+
+			Texture2D partyBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 42);
+			pnlParty = new XNAPanel(g, new Rectangle(102, 330, partyBG.Width, partyBG.Height));
+			pnlParty.BackgroundImage = partyBG;
+			pnlParty.Visible = false;
+
+			Texture2D settingsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 47);
+			pnlSettings = new XNAPanel(g, new Rectangle(102, 330, settingsBG.Width, settingsBG.Height));
+			pnlSettings.BackgroundImage = settingsBG;
+			pnlSettings.Visible = false;
+
+			Texture2D helpBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 63);
+			pnlHelp = new XNAPanel(g, new Rectangle(102, 330, helpBG.Width, helpBG.Height));
+			pnlHelp.BackgroundImage = helpBG;
+			pnlHelp.Visible = false;
+
+			Texture2D newsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 48);
+			pnlNews = new XNAPanel(g, new Rectangle(102, 330, newsBG.Width, newsBG.Height));
+			pnlNews.BackgroundImage = newsBG;
 
 			for (int i = 0; i < NUM_BTN; ++i)
 			{
@@ -103,10 +156,61 @@ namespace EndlessClient
 			base.Draw(gameTime);
 		}
 
+		#region HelperMethods
+		private void _doStateChange(InGameStates newGameState)
+		{
+			state = newGameState;
+
+			pnlNews.Visible = false;
+
+			pnlInventory.Visible = false;
+			pnlActiveSpells.Visible = false;
+			pnlPassiveSpells.Visible = false;
+			pnlChat.Visible = false;
+			pnlStats.Visible = false;
+
+			pnlOnline.Visible = false;
+			pnlParty.Visible = false;
+			pnlSettings.Visible = false;
+			pnlHelp.Visible = false;
+
+			switch(state)
+			{
+				case InGameStates.Inventory:
+					pnlInventory.Visible = true;
+					break;
+				case InGameStates.Active:
+					pnlActiveSpells.Visible = true;
+					break;
+				case InGameStates.Passive:
+					pnlPassiveSpells.Visible = true;
+					break;
+				case InGameStates.Chat:
+					pnlChat.Visible = true;
+					break;
+				case InGameStates.Stats:
+					pnlStats.Visible = true;
+					break;
+				case InGameStates.Online:
+					pnlOnline.Visible = true;
+					break;
+				case InGameStates.Party:
+					pnlParty.Visible = true;
+					break;
+				case InGameStates.Settings:
+					pnlSettings.Visible = true;
+					break;
+				case InGameStates.Help:
+					pnlHelp.Visible = true;
+					break;
+			}
+		}
+		#endregion
+
 		#region ButtonClickEventHandlers
 		private void OnViewInventory(object sender, EventArgs e)
 		{
-			state = InGameStates.Inventory;
+			_doStateChange(InGameStates.Inventory);
 		}
 
 		private void OnViewMap(object sender, EventArgs e)
@@ -117,44 +221,54 @@ namespace EndlessClient
 
 		private void OnViewActiveSkills(object sender, EventArgs e)
 		{
-			state = InGameStates.Active;
+			_doStateChange(InGameStates.Active);
 		}
 		private void OnViewPassiveSkills(object sender, EventArgs e)
 		{
-			state = InGameStates.Passive;
+			_doStateChange(InGameStates.Passive);
 		}
 		private void OnViewChat(object sender, EventArgs e)
 		{
-			state = InGameStates.Chat;
+			_doStateChange(InGameStates.Chat);
 		}
 		private void OnViewStats(object sender, EventArgs e)
 		{
-			state = InGameStates.Stats;
+			_doStateChange(InGameStates.Stats);
 		}
 		private void OnViewPlayers(object sender, EventArgs e)
 		{
-			state = InGameStates.Online;
+			_doStateChange(InGameStates.Online);
 		}
 		private void OnViewParty(object sender, EventArgs e)
 		{
-			state = InGameStates.Party;
+			_doStateChange(InGameStates.Party);
 		}
 		private void OnViewSettings(object sender, EventArgs e)
 		{
-			state = InGameStates.Settings;
+			_doStateChange(InGameStates.Settings);
 		}
 		private void OnViewHelp(object sender, EventArgs e)
 		{
 			/* pop up the help dialog */
+			_doStateChange(InGameStates.Help);
 		}
 		#endregion
 
 		protected override void Dispose(bool disposing)
 		{
 			foreach (XNAButton btn in mainBtn)
-				btn.Dispose();
+				btn.Close();
 
 			SpriteBatch.Dispose();
+
+			pnlInventory.Close();
+			pnlActiveSpells.Close();
+			pnlPassiveSpells.Close();
+			pnlChat.Close();
+			pnlStats.Close();
+			pnlOnline.Close();
+			pnlParty.Close();
+			pnlSettings.Close();
 
 			base.Dispose(disposing);
 		}

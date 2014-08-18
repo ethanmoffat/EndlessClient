@@ -165,7 +165,7 @@ namespace EndlessClient
 				nameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 				nameLabel.SetParent(this);
 
-				adminGraphic = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22, false);
+				adminGraphic = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22);
 				if(data.admin == 1)
 				{
 					adminRect = new Rectangle(252, 39, 17, 17);

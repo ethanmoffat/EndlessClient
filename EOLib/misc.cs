@@ -52,6 +52,8 @@ namespace EOLib
 
 	public static class ConfigStrings
 	{
-		//TODO: Add the string sections/keys for the configuration file here
+		public static readonly string Connection = "CONNECTION";
+		public static readonly string Host = "Host";
+		public static readonly string Port = "Port";
 	}
 }

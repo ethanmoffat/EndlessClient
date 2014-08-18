@@ -64,6 +64,9 @@ namespace EndlessClient
 
 		System.Threading.AutoResetEvent connectMutex;
 
+		string host;
+		int port;
+
 		//--------------------------
 		//***** HELPER METHODS *****
 		//--------------------------
@@ -93,7 +96,7 @@ namespace EndlessClient
 			{				
 				try
 				{
-					if (!World.Instance.Client.ConnectToServer(Constants.Host, Constants.Port))
+					if (!World.Instance.Client.ConnectToServer(host, port))
 					{
 						string caption, msg = Handlers.Init.ResponseMessage(out caption);
 						EODialog err = new EODialog(this, msg, caption);
@@ -318,6 +321,11 @@ namespace EndlessClient
 				Exit();
 				return;
 			}
+
+			if (!World.Instance.Configuration.GetValue(ConfigStrings.Connection, ConfigStrings.Host, out host))
+				host = Constants.Host;
+			if (!World.Instance.Configuration.GetValue(ConfigStrings.Connection, ConfigStrings.Port, out port))
+				port = Constants.Port;
 			
 			base.Initialize();
 		}
@@ -331,7 +339,7 @@ namespace EndlessClient
 
 			//texture for UI background image
 			Random gen = new Random();
-			UIBackground = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 30 + gen.Next(7), false);
+			UIBackground = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 30 + gen.Next(7));
 
 			PeopleSetOne = new Texture2D[4];
 			PeopleSetTwo = new Texture2D[8];
@@ -345,9 +353,9 @@ namespace EndlessClient
 			}
 			
 			//the username/password prompt background
-			LoginUIScreen = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 2, false);
+			LoginUIScreen = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 2);
 			//the character display background w/o login+delete buttons
-			CharacterDisp = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 11, false);
+			CharacterDisp = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 11);
 			//the account create sheet w/labels for text fields
 			AccountCreateSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 12, true);
 

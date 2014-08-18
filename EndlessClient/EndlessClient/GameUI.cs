@@ -143,7 +143,7 @@ namespace EndlessClient
 			lblCredits.Text = "Endless Online - C# Client\nDeveloped by Ethan Moffat\nBased on Endless Online --\n  Copyright Vult-R\n\nThanks to :\n--Sausage for eoserv + C# EO libs\n--eoserv.net community\n--Hotdog for Eodev client";
 
 			lblVersionInfo = new XNALabel(this, new Rectangle(30, 457, 1, 1));
-			lblVersionInfo.Text = string.Format("{0}.{1:000}.{2:000} - {3}", Constants.MajorVersion, Constants.MinorVersion, Constants.ClientVersion, Constants.Host);
+			lblVersionInfo.Text = string.Format("{0}.{1:000}.{2:000} - {3}:{4}", Constants.MajorVersion, Constants.MinorVersion, Constants.ClientVersion, host, port);
 			lblVersionInfo.Font = new System.Drawing.Font("Microsoft Sans Serif", 7.0f);
 			lblVersionInfo.ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c);
 
@@ -216,11 +216,25 @@ namespace EndlessClient
 					World.Instance.Client.Disconnect();
 				this.Exit();
 			}
-			else if (sender == backButton || sender == createButtons[1] || sender == loginButtons[1])
+			else if ((sender == backButton && currentState != GameStates.PlayingTheGame) || sender == createButtons[1] || sender == loginButtons[1])
 			{
 				dispatch.Subscriber = null;
 				LostConnectionDialog();
 				return;
+			}
+			else if (sender == backButton && currentState == GameStates.PlayingTheGame)
+			{
+				EODialog dlg = new EODialog(this, "Are you sure you want to exit the game?", "Exit game", XNADialogButtons.OkCancel, true);
+				dlg.DialogClosing += (ss, ee) =>
+					{
+						if(ee.Result == XNADialogResult.OK)
+						{
+							dispatch.Subscriber = null;
+							if (World.Instance.Client.ConnectedAndInitialized)
+								World.Instance.Client.Disconnect();
+							doStateChange(GameStates.Initial);
+						}
+					};
 			}
 			else if (sender == loginButtons[0])
 			{
@@ -379,7 +393,7 @@ namespace EndlessClient
 
 					string caption, msg = Handlers.Account.ResponseMessage(out caption);
 					EODialog response = new EODialog(this, msg, caption);
-					
+
 					if (!Handlers.Account.CanProceed)
 					{
 						dlg_E.CancelClose = true;
