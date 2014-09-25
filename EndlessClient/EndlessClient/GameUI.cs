@@ -434,17 +434,10 @@ namespace EndlessClient
 					if (dlg_E.Result == XNADialogResult.OK)
 					{
 						doStateChange(GameStates.PlayingTheGame);
-						//EODialog dlg2 = new EODialog(this, "It worked!", "Success");
-						//dlg2.DialogClosing += (s2, e2) =>
-						//{
-						//	if (World.Instance.Client.ConnectedAndInitialized)
-						//		World.Instance.Client.Disconnect();
-						//	doStateChange(GameStates.Initial);
-						//};
 					}
 					else if(dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED)
 					{
-						EODialog dlg2 = new EODialog(this, "Failed.", "Failed.");
+						EODialog dlg2 = new EODialog(this, "Login Failed.", "Error");
 						if (World.Instance.Client.ConnectedAndInitialized)
 							World.Instance.Client.Disconnect();
 						doStateChange(GameStates.Initial);

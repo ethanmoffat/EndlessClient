@@ -62,6 +62,7 @@ namespace EndlessClient
 		Texture2D UIBackground;
 		Texture2D CharacterDisp, AccountCreateSheet, LoginUIScreen;
 
+		bool exiting = false;
 		System.Threading.AutoResetEvent connectMutex;
 
 		string host;
@@ -93,7 +94,7 @@ namespace EndlessClient
 			}
 
 			new System.Threading.Thread(() =>
-			{				
+			{
 				try
 				{
 					if (!World.Instance.Client.ConnectToServer(host, port))
@@ -107,7 +108,10 @@ namespace EndlessClient
 				}
 				catch
 				{
-					EODialog dlg = new EODialog(this, "The game server could not be found. Please try again at a later time", "Could not find server");
+					if (!exiting)
+					{
+						EODialog dlg = new EODialog(this, "The game server could not be found. Please try again at a later time", "Could not find server");
+					}
 				}
 
 				connectMutex.Set();
@@ -252,6 +256,7 @@ namespace EndlessClient
 					}
 
 					hud = new HUD(this);
+					hud.SetNews(Handlers.Welcome.News);
 					backButton.Visible = true;
 					Components.Add(hud);
 					break;
@@ -442,6 +447,16 @@ namespace EndlessClient
 				btn.Dispose();
 
 			base.Dispose(disposing);
+		}
+
+		//make sure a pending connection request terminates properly without crashing the game
+		protected override void OnExiting(object sender, EventArgs args)
+		{
+			exiting = true;
+			if(connectMutex != null)
+				connectMutex.Set();
+			World.Instance.Client.Dispose(); //kill pending connection request on exit
+			base.OnExiting(sender, args);
 		}
 	}
 }

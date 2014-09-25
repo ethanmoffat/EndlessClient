@@ -121,6 +121,7 @@
     <Compile Include="EOClient.cs" />
     <Compile Include="EODialog.cs" />
     <Compile Include="EOMapRenderer.cs" />
+    <Compile Include="EOChatRenderer.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameUI.cs" />
     <Compile Include="Handlers\Account.cs" />

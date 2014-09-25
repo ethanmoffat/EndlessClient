@@ -184,9 +184,12 @@ namespace EndlessClient
 			}
 
 			m_connectedAndInitialized = false;
-			m_sock.Shutdown(SocketShutdown.Both);
-			//m_sock.Disconnect(false); //this seems to cause errors: a disconnected socket can only be reconnected asyncronously which is a pain in the ass
-			m_sock.Close();
+			if (m_sock != null)
+			{
+				m_sock.Shutdown(SocketShutdown.Both);
+				//m_sock.Disconnect(false); //this seems to cause errors: a disconnected socket can only be reconnected asyncronously which is a pain in the ass
+				m_sock.Close();
+			}
 
 			Socket newSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			m_sock = newSock;

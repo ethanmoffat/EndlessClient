@@ -10,6 +10,9 @@ namespace EndlessClient
 		/// </summary>
 		static void Main(string[] args)
 		{
+#if DEBUG
+			//XNAControls.XNAControl.DrawOrderVisible = true;
+#endif
 			using (EOGame game = new EOGame())
 			{
 				game.Run();

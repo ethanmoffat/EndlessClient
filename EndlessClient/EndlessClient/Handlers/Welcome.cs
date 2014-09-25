@@ -23,7 +23,7 @@ namespace EndlessClient.Handlers
 		private static List<string> m_news;
 		public static IList<string> News
 		{
-			get { return m_news.AsReadOnly(); }
+			get { return (m_news != null) ? m_news.AsReadOnly() : new List<string>().AsReadOnly(); } //will return empty list if log-in mechanics are skipped
 		}
 
 		//Sends WELCOME_REQUEST to server

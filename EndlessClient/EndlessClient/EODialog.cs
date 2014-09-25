@@ -139,7 +139,7 @@ namespace EndlessClient
 
 		private Texture2D scrollSpriteSheet;
 		
-		public EOScrollBar(Game encapsulatingGame, EOScrollingDialog parent, Vector2 relativeLoc, Vector2 size, ScrollColors palette)
+		public EOScrollBar(Game encapsulatingGame, XNAControl parent, Vector2 relativeLoc, Vector2 size, ScrollColors palette)
 			: base(encapsulatingGame, relativeLoc, new Rectangle((int)relativeLoc.X, (int)relativeLoc.Y, (int)size.X, (int)size.Y))
 		{
 			SetParent(parent);
@@ -216,9 +216,12 @@ namespace EndlessClient
 		//	 ScrollOffset provides a value that is used within the EOScrollDialog.Draw method.
 		//	 The Y coordinate for the scroll box determines where it is drawn.
 		private void arrowClicked(object btn, EventArgs e)
-		{
-			int step = (_totalHeight / 4) / _rowHeight;
-						
+		{ //holy fuck this doesn't work at all
+			if (_totalHeight < drawArea.Height)
+				return;
+
+			int step = _totalHeight / _rowHeight;
+
 			if (btn == up)
 			{
 				if (ScrollOffset <= 0)
@@ -238,14 +241,27 @@ namespace EndlessClient
 			}
 			else
 				return; //no other buttons should send this event
-			
+
+			if (ScrollOffset < 0)
+				ScrollOffset = 0;
+			else if (ScrollOffset > scrollArea.Height - scroll.DrawArea.Height)
+				ScrollOffset = scrollArea.Height - scroll.DrawArea.Height;
+
 			//update the y coordinate of the scroll button
-			int y = (int)((ScrollOffset / (float)(_totalHeight / 8)) * (scrollArea.Height - scroll.DrawArea.Height)) + up.DrawArea.Height;
+			//this function is basically reversed to solve for ScrollOffset in the scrollDragged event below
+			//the 2.5 is a magic constant that I'm not sure why it works.
+			int y = (int)((ScrollOffset / (float)(_totalHeight / 2.5)) * (scrollArea.Height - scroll.DrawArea.Height)) + up.DrawArea.Height;
 
 			if (y < up.DrawAreaWithOffset.Height)
 				y = up.DrawAreaWithOffset.Height + 1;
 			else if (y > scrollArea.Height - scroll.DrawArea.Height)
+			{
 				y = scrollArea.Height - scroll.DrawArea.Height;
+				if ((int)scroll.DrawLocation.Y == y)
+				{
+					ScrollOffset -= step; //undo the step if it is out of bounds so the text doesn't keep going after scroll has reached the bottom
+				}
+			}
 
 			scroll.DrawLocation = new Vector2(0, y);
 		}
@@ -261,7 +277,8 @@ namespace EndlessClient
 
 			scroll.DrawLocation = new Vector2(0, y);
 
-			ScrollOffset = (int)Math.Round(((float)_totalHeight / 8.0f) * ((y - up.DrawArea.Height) / (float)(scrollArea.Height - scroll.DrawArea.Height)));
+			if(_totalHeight > drawArea.Height) //only scroll the actual text if it is larger than the drawArea
+				ScrollOffset = (int)Math.Round(((float)_totalHeight / 2.5f) * ((y - up.DrawArea.Height) / (float)(scrollArea.Height - scroll.DrawArea.Height)));
 		}
 
 		public override void Update(GameTime gt)

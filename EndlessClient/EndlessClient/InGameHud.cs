@@ -23,7 +23,7 @@ namespace EndlessClient
 		Settings = 9,
 		Help = 10
 	}
-
+	
 	/// <summary>
 	/// Note that this is NOT an XNAControl - it is just a DrawableGameComponent
 	/// </summary>
@@ -33,11 +33,13 @@ namespace EndlessClient
 		private Texture2D mainFrame, mainButtonTexture;
 		//might need to consider making an EOPanels file and deriving from XNAPanel
 		//	to support eo-specific functionality that I'm going to need...
-		XNAPanel pnlInventory, pnlActiveSpells, pnlPassiveSpells, pnlChat, pnlStats;
-		XNAPanel pnlNews, pnlOnline, pnlParty, pnlSettings, pnlHelp;
+		private XNAPanel pnlInventory, pnlActiveSpells, pnlPassiveSpells, pnlChat, pnlStats;
+		private XNAPanel pnlNews, pnlOnline, pnlParty, pnlSettings, pnlHelp;
 		private XNAButton[] mainBtn;
 		private SpriteBatch SpriteBatch;
 		private InGameStates state;
+		private EOChatRenderer chatRenderer;
+		private ChatTab newsTab;
 
 		public HUD(Game g)
 			: base(g)
@@ -138,6 +140,19 @@ namespace EndlessClient
 			SpriteBatch = new SpriteBatch(g.GraphicsDevice);
 
 			state = InGameStates.News;
+
+			chatRenderer = new EOChatRenderer(g);
+			chatRenderer.SetParent(pnlChat);
+			//for (int i = 1; i <= 8; ++i)
+			//{
+			//	bool icon = (i == 1 || i == 4 || i == 5 || i == 6 || i == 8);
+			//	chatRenderer.AddTextToTab(ChatTabs.Local, string.Format("Player{0}", i), string.Format("Test string {1} {0}", i, "Local"), icon ? ChatType.Note : ChatType.None);
+			//	chatRenderer.AddTextToTab(ChatTabs.Global, string.Format("Player{0}", i), string.Format("Test string {1} {0}", i, "Global"), icon ? ChatType.Note : ChatType.None);
+			//	chatRenderer.AddTextToTab(ChatTabs.Group, string.Format("Player{0}", i), string.Format("Test string {1} {0}", i, "Group"), icon ? ChatType.Note : ChatType.None);
+			//	chatRenderer.AddTextToTab(ChatTabs.System, string.Format("Player{0}", i), string.Format("Test string {1} {0}", i, "System"), icon ? ChatType.Note : ChatType.None);
+			//}
+
+			newsTab = new ChatTab(g, pnlNews);
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -206,6 +221,28 @@ namespace EndlessClient
 			}
 		}
 		#endregion
+
+		public void SetNews(IList<string> lines)
+		{
+			if(lines.Count == 0)
+				return;
+
+			if(lines.Count == 1)
+			{
+				_doStateChange(InGameStates.Chat);
+			}
+			else
+			{
+				for(int i = 1; i < lines.Count; ++i)
+				{
+					newsTab.AddText(null, lines[i], ChatType.Note);
+					if(i != lines.Count - 1)
+						newsTab.AddText(null, " ");
+				}
+			}
+			
+			chatRenderer.AddTextToTab(ChatTabs.Local, "Server", lines[0], ChatType.Note, ChatColor.Server);
+		}
 
 		#region ButtonClickEventHandlers
 		private void OnViewInventory(object sender, EventArgs e)
