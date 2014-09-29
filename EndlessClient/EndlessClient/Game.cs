@@ -424,27 +424,47 @@ namespace EndlessClient
 				World.Instance.Client.Disconnect();
 			World.Instance.Client.Dispose();
 
-			loginUsernameTextbox.Dispose();
-			loginPasswordTextbox.Dispose();
+			if(loginUsernameTextbox != null)
+				loginUsernameTextbox.Dispose();
+			if(loginPasswordTextbox != null)
+				loginPasswordTextbox.Dispose();
 
 			foreach (XNAButton btn in mainButtons)
-				btn.Dispose();
+			{
+				if(btn != null)
+					btn.Dispose();
+			}
 			foreach (XNAButton btn in loginButtons)
-				btn.Dispose();
+			{
+				if(btn != null)
+					btn.Dispose();
+			}
 			foreach (XNAButton btn in createButtons)
-				btn.Dispose();
+			{
+				if(btn != null)
+					btn.Dispose();
+			}
 
 			foreach (XNAButton btn in loginCharButtons)
-				btn.Dispose();
+			{
+				if(btn != null)
+					btn.Dispose();
+			}
 
-			passwordChangeBtn.Dispose();
+			if(passwordChangeBtn != null)
+				passwordChangeBtn.Dispose();
 
-			backButton.Dispose();
+			if(backButton != null)
+				backButton.Dispose();
 
-			lblCredits.Dispose();
+			if(lblCredits != null)
+				lblCredits.Dispose();
 
 			foreach (XNATextBox btn in accountCreateTextBoxes)
-				btn.Dispose();
+			{
+				if(btn != null)
+					btn.Dispose();
+			}
 
 			base.Dispose(disposing);
 		}

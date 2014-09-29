@@ -93,7 +93,6 @@ namespace EndlessClient
 
 		private Rectangle? closeRect;
 		private EOScrollBar scrollBar;
-		private XNALabel message;
 
 		private struct ChatIndex : IComparable
 		{
@@ -138,11 +137,12 @@ namespace EndlessClient
 				}
 			}
 		}
-		private SortedList<ChatIndex, string> chatStrings;
+		private SortedList<ChatIndex, string> chatStrings = new SortedList<ChatIndex, string>();
 
 		private XNALabel tabLabel;
 		private SpriteFont font;
-		
+		private Vector2 relativeTextPos;
+
 		/// <summary>
 		/// This Constructor should be used for all values in ChatTabs
 		/// </summary>
@@ -150,9 +150,7 @@ namespace EndlessClient
 			: base(g, null, null, parentRenderer)
 		{
 			WhichTab = tab;
-
-			chatStrings = new SortedList<ChatIndex, string>();
-
+			
 			tabLabel = new XNALabel(g, new Rectangle(14, 2, 1, 1), "Microsoft Sans Serif", 8.0f);
 			tabLabel.SetParent(this);
 
@@ -168,6 +166,8 @@ namespace EndlessClient
 					break;
 			}
 			_selected = selected;
+
+			relativeTextPos = new Vector2(20, 3);
 
 			//enable close button based on which tab was specified
 			switch(WhichTab)
@@ -186,13 +186,7 @@ namespace EndlessClient
 						Visible = true;
 					} break;
 			}
-
-			message = new XNALabel(g, new Rectangle(20, 3, 1, 1)); //label is auto-sized
-			message.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.0f);
-			message.TextWidth = 440;
-			message.Visible = false; //the label doesn't handle its own drawing/updating: the chat tab does that so text is clipped
-			message.RowSpacing = 0;
-
+			
 			//568 331
 			scrollBar = new EOScrollBar(g, parentRenderer, new Vector2(467, 2), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed);
 			scrollBar.Visible = selected;
@@ -208,15 +202,9 @@ namespace EndlessClient
 		{
 			WhichTab = ChatTabs.None;
 			_selected = true;
-			chatStrings = new SortedList<ChatIndex, string>();
 			tabLabel = null;
 
-			message = new XNALabel(g, new Rectangle(20, 23, 1, 1)); //label is auto-sized
-			message.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.0f);
-			message.TextWidth = 440;
-			message.Visible = false; //the label doesn't handle its own drawing/updating: the chat tab does that so text is clipped
-			message.RowSpacing = 0;
-
+			relativeTextPos = new Vector2(20, 23);
 			//568 331
 			scrollBar = new EOScrollBar(g, parent, new Vector2(467, 20), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed);
 			scrollBar.Visible = true;
@@ -226,13 +214,61 @@ namespace EndlessClient
 
 		public void AddText(string who, string text, ChatType icon = ChatType.None, ChatColor col = ChatColor.Default)
 		{
-			chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), text);
-			if (message.Text.Length > 0)
-				message.Text += "\n";
-			if (string.IsNullOrEmpty(who))
-				message.Text += text;
-			else
-				message.Text += (who + "  " + text);
+			const int LINE_LEN = 415;
+
+			//special case: blank line, like in the news panel between news items
+			if (string.IsNullOrWhiteSpace(who) && string.IsNullOrWhiteSpace(text))
+			{
+				chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), " ");
+				return;
+			}
+			else if (font.MeasureString(text).X < LINE_LEN)
+			{
+				chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), text);
+				return;
+			}
+
+
+			string buffer = text, newLine = "";
+			string whoPadding = "";
+			if (who != null)
+			{
+				whoPadding = who.Aggregate("  ", (current, c) => current + " "); //pad with spaces for additional lines
+			}
+
+			List<string> chatStringsToAdd = new List<string>();
+			while (buffer.Length > 0)
+			{
+				try
+				{
+					int ind;
+					string nextWord = buffer.Substring(0, ind = buffer.IndexOfAny(new[] {' ', '\t', '\n'}));
+					buffer = buffer.Substring(ind + 1);
+					if (font.MeasureString(whoPadding + newLine).X >= LINE_LEN)
+					{
+						chatStringsToAdd.Add(newLine);
+						newLine = nextWord;
+					}
+					else
+					{
+						newLine += newLine.Length == 0 ? nextWord : " " + nextWord;
+					}
+				}
+				catch(ArgumentOutOfRangeException)
+				{
+					newLine += newLine.Length == 0 ? buffer : " " + buffer;
+					chatStringsToAdd.Add(newLine);
+					buffer = "";
+				}
+			}
+
+			for (int i = 0; i < chatStringsToAdd.Count; ++i)
+			{
+				if(i == 0)
+					chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), chatStringsToAdd[0]);
+				else
+					chatStrings.Add(new ChatIndex(chatStrings.Count, ChatType.None, whoPadding), chatStringsToAdd[i]);
+			}
 		}
 
 		public Texture2D GetChatIcon(ChatType type)
@@ -280,38 +316,27 @@ namespace EndlessClient
 		{
 			if (Selected) //only draw this tab if it is selected
 			{
-				int row;
 				if (scrollBar == null)
 					return;
-				scrollBar.UpdateDimensions(message.Texture.Height, row = (int)message.Font.GetHeight());
-				Texture2D msg = message.Texture;
-				Rectangle loc = new Rectangle(parent.DrawAreaWithOffset.X + message.DrawAreaWithOffset.X, parent.DrawAreaWithOffset.Y + message.DrawAreaWithOffset.Y, 445, 97);
-				Rectangle src = new Rectangle(0, scrollBar.ScrollOffset, loc.Width, loc.Height);
+				scrollBar.UpdateDimensions(chatStrings.Count);
 
 				SpriteBatch.Begin();
-				//Okay, this is really dumb, but I don't actually display the message label itself.
-				//I use the SpriteFont and spritebatch to draw the text strings and use the label for the scroll bar.
-				//Hopefully I can come up with a better way to do this in the future.
-				//SpriteBatch.Draw(msg, loc, src, Color.White);
-
 				//draw icons for the text strings based on the icon specified in the chatStrings Key of the pair
-				int step = message.Texture.Height / row; //this is the step used for each 'notch' of ScrollOffset
-				int start = scrollBar.ScrollOffset / step; //this is the start index in the chatStrings for drawing.
-				for (int i = start; i < start + 7; ++i) //draw 7 icons
+				for (int i = scrollBar.ScrollOffset; i < scrollBar.ScrollOffset + 7; ++i) //draw 7 icons
 				{
 					if (i >= chatStrings.Count)
 						break;
-					
-					Vector2 pos = new Vector2(parent.DrawAreaWithOffset.X + 3, loc.Y + (i - start) * 13);
-					int extra = (int)Math.Round(scrollBar.ScrollOffset / 13.0f); //figure out what this offset should be
-					SpriteBatch.Draw(GetChatIcon(chatStrings.Keys[i].Type), pos, Color.White);
+
+					Vector2 pos = new Vector2(parent.DrawAreaWithOffset.X, parent.DrawAreaWithOffset.Y + relativeTextPos.Y + (i - scrollBar.ScrollOffset)*13);
+					SpriteBatch.Draw(GetChatIcon(chatStrings.Keys[i].Type), new Vector2(pos.X + 3, pos.Y), Color.White);
 
 					string strToDraw = "";
 					if (string.IsNullOrEmpty(chatStrings.Keys[i].Who))
 						strToDraw = chatStrings.Values[i];
 					else
 						strToDraw = chatStrings.Keys[i].Who + "  " + chatStrings.Values[i];
-					SpriteBatch.DrawString(font, strToDraw, pos + new Vector2(message.DrawLocation.X, 0), chatStrings.Keys[i].GetColor());
+
+					SpriteBatch.DrawString(font, strToDraw, new Vector2(pos.X + 20, pos.Y), chatStrings.Keys[i].GetColor());
 				}
 
 				SpriteBatch.End();
@@ -364,12 +389,12 @@ namespace EndlessClient
 			SpriteBatch.Begin();
 			//264 16 43x16
 			//307 16 43x16
-			Color[] data;
-			Texture2D drawTexture = null;
 
 			//the parent renderer draws all the tabs
 			foreach (ChatTab t in tabs)
 			{
+				Texture2D drawTexture = null;
+				Color[] data;
 				switch (t.WhichTab)
 				{
 					case ChatTabs.Local: //391 433 need to see if this should be relative to top-left of existing chat panel or absolute from top-left of game screen
@@ -379,10 +404,7 @@ namespace EndlessClient
 						{
 							data = new Color[43 * 16];
 							drawTexture = new Texture2D(Game.GraphicsDevice, 43, 16);
-							if (t.Selected)
-								GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35, false).GetData<Color>(0, new Rectangle(307, 16, 43, 16), data, 0, data.Length);
-							else
-								GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35, false).GetData<Color>(0, new Rectangle(264, 16, 43, 16), data, 0, data.Length);
+							GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData<Color>(0, t.Selected ? new Rectangle(307, 16, 43, 16) : new Rectangle(264, 16, 43, 16), data, 0, data.Length);
 							drawTexture.SetData<Color>(data);
 						}
 						break;
@@ -393,10 +415,7 @@ namespace EndlessClient
 							{
 								data = new Color[132 * 16];
 								drawTexture = new Texture2D(Game.GraphicsDevice, 132, 16);
-								if (t.Selected)
-									GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35, false).GetData<Color>(0, new Rectangle(132, 16, 132, 16), data, 0, data.Length);
-								else
-									GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35, false).GetData<Color>(0, new Rectangle(0, 16, 132, 16), data, 0, data.Length);
+								GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData<Color>(0, t.Selected ? new Rectangle(132, 16, 132, 16) : new Rectangle(0, 16, 132, 16), data, 0, data.Length);
 								drawTexture.SetData<Color>(data);
 							}
 							else

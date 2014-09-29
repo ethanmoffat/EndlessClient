@@ -78,7 +78,7 @@ namespace EndlessClient
 			{
 				case XNADialogButtons.Ok:
 					ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
-					ok.OnClick += (object sender, EventArgs e) => { Close(ok, XNADialogResult.OK); };
+					ok.OnClick += (object sender, EventArgs e) => Close(ok, XNADialogResult.OK);
 					ok.SetParent(this);
 
 					cancel = null;
@@ -87,7 +87,7 @@ namespace EndlessClient
 					break;
 				case XNADialogButtons.Cancel:
 					cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
-					cancel.OnClick += (object sender, EventArgs e) => { Close(cancel, XNADialogResult.Cancel); };
+					cancel.OnClick += (object sender, EventArgs e) => Close(cancel, XNADialogResult.Cancel);
 					cancel.SetParent(this);
 
 					ok = null;
@@ -102,7 +102,7 @@ namespace EndlessClient
 					ok.SetParent(this);
 
 					cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
-					cancel.OnClick += (s, e) => { Close(cancel, XNADialogResult.Cancel); };
+					cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
 					cancel.SetParent(this);
 
 					dlgButtons.Add(ok);
@@ -138,7 +138,14 @@ namespace EndlessClient
 		private int _rowHeight, _totalHeight;
 
 		private Texture2D scrollSpriteSheet;
-		
+
+		private enum Mode
+		{
+			LineByLineRender,
+			LabelRender
+		}
+		private Mode _mode;
+
 		public EOScrollBar(Game encapsulatingGame, XNAControl parent, Vector2 relativeLoc, Vector2 size, ScrollColors palette)
 			: base(encapsulatingGame, relativeLoc, new Rectangle((int)relativeLoc.X, (int)relativeLoc.Y, (int)size.X, (int)size.Y))
 		{
@@ -203,12 +210,20 @@ namespace EndlessClient
 
 			_rowHeight = 20;
 			_totalHeight = DrawAreaWithOffset.Height;
+			_mode = Mode.LabelRender;
 		}
 
 		public void UpdateDimensions(int totalHeight, int rowHeight)
 		{
 			_totalHeight = totalHeight;
 			_rowHeight = rowHeight;
+			_mode = Mode.LabelRender;
+		}
+
+		public void UpdateDimensions(int numberOfLines)
+		{
+			_totalHeight = numberOfLines;
+			_mode = Mode.LineByLineRender;
 		}
 
 		//the point of arrowClicked and scrollDragged is to respond to input on the three buttons in such
@@ -216,54 +231,98 @@ namespace EndlessClient
 		//	 ScrollOffset provides a value that is used within the EOScrollDialog.Draw method.
 		//	 The Y coordinate for the scroll box determines where it is drawn.
 		private void arrowClicked(object btn, EventArgs e)
-		{ //holy fuck this doesn't work at all
-			if (_totalHeight < drawArea.Height)
-				return;
-
-			int step = _totalHeight / _rowHeight;
-
-			if (btn == up)
+		{
+			switch (_mode)
 			{
-				if (ScrollOffset <= 0)
+				case Mode.LabelRender:
 				{
-					ScrollOffset = 0;
-					return;
+					if (_totalHeight < drawArea.Height)
+						return;
+
+					int step = _totalHeight/_rowHeight;
+
+					if (btn == up)
+					{
+						if (ScrollOffset <= 0)
+						{
+							ScrollOffset = 0;
+							return;
+						}
+
+						ScrollOffset -= step;
+					}
+					else if (btn == down)
+					{
+						if (ScrollOffset >= scrollArea.Height - scroll.DrawArea.Height)
+							return;
+
+						ScrollOffset += step;
+					}
+					else
+						return; //no other buttons should send this event
+
+					if (ScrollOffset < 0)
+						ScrollOffset = 0;
+					else if (ScrollOffset > scrollArea.Height - scroll.DrawArea.Height)
+						ScrollOffset = scrollArea.Height - scroll.DrawArea.Height;
+
+					//update the y coordinate of the scroll button
+					//this function is basically reversed to solve for ScrollOffset in the scrollDragged event below
+					//the 2.5 is a magic constant that I'm not sure why it works.
+					int y = (int) ((ScrollOffset/(float) (_totalHeight/2.5))*(scrollArea.Height - scroll.DrawArea.Height)) +
+					        up.DrawArea.Height;
+
+					if (y < up.DrawAreaWithOffset.Height)
+						y = up.DrawAreaWithOffset.Height + 1;
+					else if (y > scrollArea.Height - scroll.DrawArea.Height)
+					{
+						y = scrollArea.Height - scroll.DrawArea.Height;
+						if ((int) scroll.DrawLocation.Y == y)
+						{
+							ScrollOffset -= step;
+							//undo the step if it is out of bounds so the text doesn't keep going after scroll has reached the bottom
+						}
+					}
+
+					scroll.DrawLocation = new Vector2(0, y);
 				}
-
-				ScrollOffset -= step;
-			}
-			else if (btn == down)
-			{
-				if (ScrollOffset >= scrollArea.Height - scroll.DrawArea.Height)
-					return;
-
-				ScrollOffset += step;
-			}
-			else
-				return; //no other buttons should send this event
-
-			if (ScrollOffset < 0)
-				ScrollOffset = 0;
-			else if (ScrollOffset > scrollArea.Height - scroll.DrawArea.Height)
-				ScrollOffset = scrollArea.Height - scroll.DrawArea.Height;
-
-			//update the y coordinate of the scroll button
-			//this function is basically reversed to solve for ScrollOffset in the scrollDragged event below
-			//the 2.5 is a magic constant that I'm not sure why it works.
-			int y = (int)((ScrollOffset / (float)(_totalHeight / 2.5)) * (scrollArea.Height - scroll.DrawArea.Height)) + up.DrawArea.Height;
-
-			if (y < up.DrawAreaWithOffset.Height)
-				y = up.DrawAreaWithOffset.Height + 1;
-			else if (y > scrollArea.Height - scroll.DrawArea.Height)
-			{
-				y = scrollArea.Height - scroll.DrawArea.Height;
-				if ((int)scroll.DrawLocation.Y == y)
+					break;
+				case Mode.LineByLineRender:
 				{
-					ScrollOffset -= step; //undo the step if it is out of bounds so the text doesn't keep going after scroll has reached the bottom
-				}
-			}
+					const int NUM_LINES_RENDERED = 7;
+					//_totalHeight contains the number of lines to render
+					//7 or less shouldn't scroll
+					if (_totalHeight <= NUM_LINES_RENDERED)
+						return;
 
-			scroll.DrawLocation = new Vector2(0, y);
+					if (btn == up)
+					{
+						if (ScrollOffset > 0)
+							ScrollOffset--;
+						else
+							return;
+					}
+					else if (btn == down)
+					{
+						if (ScrollOffset < _totalHeight - NUM_LINES_RENDERED)
+							ScrollOffset++;
+						else
+							return;
+					}
+					else
+					{
+						return;
+					}
+
+					float pixelsPerLine = (float)(scrollArea.Height - scroll.DrawArea.Height * 2) / (_totalHeight - NUM_LINES_RENDERED);
+					scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scroll.DrawArea.Height + pixelsPerLine * ScrollOffset);
+					if (scroll.DrawLocation.Y > scrollArea.Height - scroll.DrawArea.Height)
+					{
+						scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scrollArea.Height - scroll.DrawArea.Height);
+					}
+				}
+					break;
+			}
 		}
 
 		private void scrollDragged(object btn, EventArgs e)
@@ -277,8 +336,27 @@ namespace EndlessClient
 
 			scroll.DrawLocation = new Vector2(0, y);
 
-			if(_totalHeight > drawArea.Height) //only scroll the actual text if it is larger than the drawArea
-				ScrollOffset = (int)Math.Round(((float)_totalHeight / 2.5f) * ((y - up.DrawArea.Height) / (float)(scrollArea.Height - scroll.DrawArea.Height)));
+			switch (_mode)
+			{
+				case Mode.LabelRender:
+				{
+					if (_totalHeight > drawArea.Height) //only scroll the actual text if it is larger than the drawArea
+						ScrollOffset = (int)Math.Round((_totalHeight/2.5f)*((y - up.DrawArea.Height)/(float) (scrollArea.Height - scroll.DrawArea.Height)));
+				}
+					break;
+				case Mode.LineByLineRender:
+				{
+					const int NUM_LINES_RENDERED = 7;
+
+					if (_totalHeight <= NUM_LINES_RENDERED)
+						return;
+					
+					double pixelsPerLine = (double)(scrollArea.Height - scroll.DrawArea.Height * 2) / (_totalHeight - NUM_LINES_RENDERED);
+					//scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scroll.DrawArea.Height + pixelsPerLine * ScrollOffset);
+					ScrollOffset = (int)Math.Round((y - scroll.DrawArea.Height)/pixelsPerLine);
+				}
+					break;
+			}
 		}
 
 		public override void Update(GameTime gt)
@@ -320,7 +398,7 @@ namespace EndlessClient
 			message.RowSpacing = 4;
 
 			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(138, 197), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
-			ok.OnClick += (sender, e) => { Close(ok, XNADialogResult.OK); };
+			ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
@@ -376,7 +454,7 @@ namespace EndlessClient
 			caption.SetParent(this);
 
 			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
-			ok.OnClick += (sender, e) => { Close(ok, XNADialogResult.Cancel); };
+			ok.OnClick += (sender, e) => Close(ok, XNADialogResult.Cancel);
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
@@ -450,7 +528,7 @@ namespace EndlessClient
 				tb.OnTabPressed += (s, e) =>
 				{
 					List<XNATextBox> list = inputBoxes.ToList();
-					int tbIndex = list.FindIndex((txt) => { return txt == s; });
+					int tbIndex = list.FindIndex(txt => txt == s);
 
 					int next = tbIndex + 1 > 3 ? 0 : tbIndex + 1;
 					inputBoxes[tbIndex].Selected = false;
@@ -476,26 +554,23 @@ namespace EndlessClient
 			ok.OnClick += (s, e) =>
 			{ //does some input validation before trying to call Close
 				//check that all fields are filled in, otherwise: return
-				foreach (XNATextBox tb in inputBoxes)
-				{
-					if (string.IsNullOrWhiteSpace(tb.Text))
-					{
-						return;
-					}
-				}
+				if (inputBoxes.Any(tb => string.IsNullOrWhiteSpace(tb.Text))) return;
 
 				if (Username != World.Instance.MainPlayer.AccountName)
 				{
 					EODialog errDlg = new EODialog(Game, "The username or password you specified is incorrect", "Wrong info");
 					return;
-
-				}//check that passwords match, otherwise: return
-				else if (inputBoxes[2].Text.Length != inputBoxes[3].Text.Length || inputBoxes[2].Text != inputBoxes[3].Text)
+				}
+				
+				//check that passwords match, otherwise: return
+				if (inputBoxes[2].Text.Length != inputBoxes[3].Text.Length || inputBoxes[2].Text != inputBoxes[3].Text)
 				{
 					EODialog errDlg = new EODialog(Game, "The two passwords you provided are not the same, please try again.", "Wrong password");
 					return;
-				} //check that password is > 6 chars, otherwise: return
-				else if (inputBoxes[2].Text.Length < 6)
+				}
+				
+				//check that password is > 6 chars, otherwise: return
+				if (inputBoxes[2].Text.Length < 6)
 				{
 					//Make sure passwords are good enough
 					EODialog errDlg = new EODialog(Game, "For your own safety use a longer password (try 6 or more characters)", "Wrong password");
@@ -509,7 +584,7 @@ namespace EndlessClient
 
 			XNAButton cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28));
 			cancel.Visible = true;
-			cancel.OnClick += (s, e) => { Close(cancel, XNADialogResult.Cancel); };
+			cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
 			cancel.SetParent(this);
 			dlgButtons.Add(cancel);
 
@@ -590,7 +665,7 @@ namespace EndlessClient
 
 			XNAButton cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28));
 			cancel.Visible = true;
-			cancel.OnClick += (s, e) => { Close(cancel, XNADialogResult.Cancel); };
+			cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
 			cancel.SetParent(this);
 			dlgButtons.Add(cancel);
 
