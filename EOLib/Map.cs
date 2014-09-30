@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 using System.IO;
@@ -65,7 +64,7 @@ namespace EOLib
 		Quake = 3
 	}
 
-	public class MapNPC
+	public class NPCSpawn
 	{
 		public byte x;
 		public byte y;
@@ -188,7 +187,7 @@ namespace EOLib
 		public byte RelogY { get; private set; }
 		public byte Unknown2 { get; private set; }
 
-		public List<MapNPC> MapNpcs { get; set; }
+		public List<NPCSpawn> NPCSpawns { get; set; }
 		public List<byte[]> Unknowns { get; set; }
 
 		public List<MapChest> Chests { get; set; }
@@ -230,20 +229,21 @@ namespace EOLib
 		public MapFile(int id)
 		{
 			MapID = id;
-			Read(Path.Combine("maps\\{0,5:D5}.emf"));
+			Load(string.Format("maps\\{0,5:D5}.emf", MapID));
 		}
 
 		public MapFile(string fileName)
 		{
-			MapID = 0;
-			Read(fileName);
+			string id = fileName.Substring(fileName.IndexOf('\\') + 1, 5);
+			MapID = int.Parse(id);
+			Load(fileName);
 		}
 
-		public void Read(string fileName)
+		private void Load(string fileName)
 		{
 			Rid = new byte[4];
 			Name = String.Empty;
-			MapNpcs = new List<MapNPC>();
+			NPCSpawns = new List<NPCSpawn>();
 			Unknowns = new List<byte[]>();
 			Chests = new List<MapChest>();
 			TileRows = new List<TileRow>();
@@ -301,7 +301,7 @@ namespace EOLib
 
 			for (int i = 0; i < outersize; ++i)
 			{
-				MapNpcs.Add(new MapNPC()
+				NPCSpawns.Add(new NPCSpawn()
 				{
 					x = file.GetChar(),
 					y = file.GetChar(),

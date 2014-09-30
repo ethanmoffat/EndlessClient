@@ -30,72 +30,89 @@ namespace EndlessClient
 	public class HUD : DrawableGameComponent
 	{
 		private const int NUM_BTN = 11;
-		private Texture2D mainFrame, mainButtonTexture;
+		private readonly Texture2D mainFrame;
 		//might need to consider making an EOPanels file and deriving from XNAPanel
 		//	to support eo-specific functionality that I'm going to need...
-		private XNAPanel pnlInventory, pnlActiveSpells, pnlPassiveSpells, pnlChat, pnlStats;
-		private XNAPanel pnlNews, pnlOnline, pnlParty, pnlSettings, pnlHelp;
-		private XNAButton[] mainBtn;
-		private SpriteBatch SpriteBatch;
+		private readonly XNAPanel pnlInventory, pnlActiveSpells, pnlPassiveSpells, pnlChat, pnlStats;
+		private readonly XNAPanel pnlNews, pnlOnline, pnlParty, pnlSettings, pnlHelp;
+		private readonly XNAButton[] mainBtn;
+		private readonly SpriteBatch SpriteBatch;
 		private InGameStates state;
-		private EOChatRenderer chatRenderer;
-		private ChatTab newsTab;
+		private readonly EOChatRenderer chatRenderer;
+		private readonly ChatTab newsTab;
 
 		public HUD(Game g)
 			: base(g)
 		{
 			mainFrame = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 1, true);
-			mainButtonTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 25);
+			Texture2D mainButtonTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 25);
 			mainBtn = new XNAButton[NUM_BTN];
 
 			//set up panels
 			Texture2D invBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 44);
-			pnlInventory = new XNAPanel(g, new Rectangle(102, 330, invBG.Width, invBG.Height));
-			pnlInventory.BackgroundImage = invBG;
-			pnlInventory.Visible = false;
+			pnlInventory = new XNAPanel(g, new Rectangle(102, 330, invBG.Width, invBG.Height))
+			{
+				BackgroundImage = invBG,
+				Visible = false
+			};
 
 			Texture2D spellsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 62);
-			pnlActiveSpells = new XNAPanel(g, new Rectangle(102, 330, spellsBG.Width, spellsBG.Height));
-			pnlActiveSpells.BackgroundImage = spellsBG;
-			pnlActiveSpells.Visible = false;
+			pnlActiveSpells = new XNAPanel(g, new Rectangle(102, 330, spellsBG.Width, spellsBG.Height))
+			{
+				BackgroundImage = spellsBG,
+				Visible = false
+			};
 
-			pnlPassiveSpells = new XNAPanel(g, new Rectangle(102, 330, spellsBG.Width, spellsBG.Height));
-			pnlPassiveSpells.BackgroundImage = spellsBG;
-			pnlPassiveSpells.Visible = false;
+			pnlPassiveSpells = new XNAPanel(g, new Rectangle(102, 330, spellsBG.Width, spellsBG.Height))
+			{
+				BackgroundImage = spellsBG,
+				Visible = false
+			};
 
 			Texture2D chatBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 28);
-			pnlChat = new XNAPanel(g, new Rectangle(102, 330, chatBG.Width, chatBG.Height));
-			pnlChat.BackgroundImage = chatBG;
-			pnlChat.Visible = false;
+			pnlChat = new XNAPanel(g, new Rectangle(102, 330, chatBG.Width, chatBG.Height))
+			{
+				BackgroundImage = chatBG,
+				Visible = false
+			};
 
 			Texture2D statsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 34);
-			pnlStats = new XNAPanel(g, new Rectangle(102, 330, statsBG.Width, statsBG.Height));
-			pnlStats.BackgroundImage = statsBG;
-			pnlStats.Visible = false;
+			pnlStats = new XNAPanel(g, new Rectangle(102, 330, statsBG.Width, statsBG.Height))
+			{
+				BackgroundImage = statsBG,
+				Visible = false
+			};
 
 			Texture2D onlineBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 36);
-			pnlOnline = new XNAPanel(g, new Rectangle(102, 330, onlineBG.Width, onlineBG.Height));
-			pnlOnline.BackgroundImage = onlineBG;
-			pnlOnline.Visible = false;
+			pnlOnline = new XNAPanel(g, new Rectangle(102, 330, onlineBG.Width, onlineBG.Height))
+			{
+				BackgroundImage = onlineBG,
+				Visible = false
+			};
 
 			Texture2D partyBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 42);
-			pnlParty = new XNAPanel(g, new Rectangle(102, 330, partyBG.Width, partyBG.Height));
-			pnlParty.BackgroundImage = partyBG;
-			pnlParty.Visible = false;
+			pnlParty = new XNAPanel(g, new Rectangle(102, 330, partyBG.Width, partyBG.Height))
+			{
+				BackgroundImage = partyBG,
+				Visible = false
+			};
 
 			Texture2D settingsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 47);
-			pnlSettings = new XNAPanel(g, new Rectangle(102, 330, settingsBG.Width, settingsBG.Height));
-			pnlSettings.BackgroundImage = settingsBG;
-			pnlSettings.Visible = false;
+			pnlSettings = new XNAPanel(g, new Rectangle(102, 330, settingsBG.Width, settingsBG.Height))
+			{
+				BackgroundImage = settingsBG,
+				Visible = false
+			};
 
 			Texture2D helpBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 63);
-			pnlHelp = new XNAPanel(g, new Rectangle(102, 330, helpBG.Width, helpBG.Height));
-			pnlHelp.BackgroundImage = helpBG;
-			pnlHelp.Visible = false;
+			pnlHelp = new XNAPanel(g, new Rectangle(102, 330, helpBG.Width, helpBG.Height))
+			{
+				BackgroundImage = helpBG,
+				Visible = false
+			};
 
 			Texture2D newsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 48);
-			pnlNews = new XNAPanel(g, new Rectangle(102, 330, newsBG.Width, newsBG.Height));
-			pnlNews.BackgroundImage = newsBG;
+			pnlNews = new XNAPanel(g, new Rectangle(102, 330, newsBG.Width, newsBG.Height)) {BackgroundImage = newsBG};
 
 			for (int i = 0; i < NUM_BTN; ++i)
 			{
@@ -242,6 +259,11 @@ namespace EndlessClient
 			}
 			
 			chatRenderer.AddTextToTab(ChatTabs.Local, "Server", lines[0], ChatType.Note, ChatColor.Server);
+		}
+
+		public void AddChat(ChatTabs whichTab, string who, string message, ChatType chatType = ChatType.None, ChatColor chatColor = ChatColor.Default)
+		{
+			chatRenderer.AddTextToTab(whichTab, who, message, chatType, chatColor);
 		}
 
 		#region ButtonClickEventHandlers

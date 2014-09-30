@@ -1,16 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 
 using EOLib;
-using EOLib.Data;
 using XNAControls;
 
 namespace EndlessClient
@@ -42,7 +35,7 @@ namespace EndlessClient
 
 		XNATextBox[] accountCreateTextBoxes = new XNATextBox[6];
 
-		HUD hud;
+		public HUD Hud { get; private set; }
 
 		private void InitializeControls(bool reinit = false)
 		{
@@ -414,7 +407,7 @@ namespace EndlessClient
 			//Send WELCOME_MSG, get WELCOME_REPLY
 			//log in if all okay
 
-			int index = 0;
+			int index;
 			if (loginCharButtons.Contains(sender))
 			{
 				index = loginCharButtons.ToList().FindIndex(x => x == sender);
@@ -429,18 +422,21 @@ namespace EndlessClient
 
 				//shows the connecting window
 				EOConnectingDialog dlg = new EOConnectingDialog(this);
-				dlg.DialogClosing += (dlg_S, dlg_E) =>
+				dlg.DialogClosing += (dlgS, dlgE) =>
 				{
-					if (dlg_E.Result == XNADialogResult.OK)
+					switch (dlgE.Result)
 					{
-						doStateChange(GameStates.PlayingTheGame);
-					}
-					else if(dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED)
-					{
-						EODialog dlg2 = new EODialog(this, "Login Failed.", "Error");
-						if (World.Instance.Client.ConnectedAndInitialized)
-							World.Instance.Client.Disconnect();
-						doStateChange(GameStates.Initial);
+						case XNADialogResult.OK:
+							doStateChange(GameStates.PlayingTheGame);
+							break;
+						case XNADialogResult.NO_BUTTON_PRESSED:
+						{
+							EODialog dlg2 = new EODialog(this, "Login Failed.", "Error");
+							if (World.Instance.Client.ConnectedAndInitialized)
+								World.Instance.Client.Disconnect();
+							doStateChange(GameStates.Initial);
+						}
+							break;
 					}
 				};
 			}
@@ -471,9 +467,9 @@ namespace EndlessClient
 				}
 
 				EODialog promptDialog = new EODialog(this, "Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' is going to be deleted. Are you sure?", "Delete character", XNADialogButtons.OkCancel);
-				promptDialog.DialogClosing += (dlg_S, dlg_E) =>
+				promptDialog.DialogClosing += (dlgS, dlgE) =>
 				{
-					if (dlg_E.Result == XNADialogResult.OK) //user clicked ok to delete their character. do the delete here.
+					if (dlgE.Result == XNADialogResult.OK) //user clicked ok to delete their character. do the delete here.
 					{
 						if (!Handlers.Character.CharacterRemove(World.Instance.MainPlayer.CharData[index].id))
 						{

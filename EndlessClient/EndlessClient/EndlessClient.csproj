@@ -129,6 +129,8 @@
     <Compile Include="Handlers\Character.cs" />
     <Compile Include="Handlers\Init.cs" />
     <Compile Include="Handlers\Login.cs" />
+    <Compile Include="Handlers\Players.cs" />
+    <Compile Include="Handlers\Talk.cs" />
     <Compile Include="Handlers\TemplateHandler.cs" />
     <Compile Include="Handlers\Welcome.cs" />
     <Compile Include="InGameHud.cs" />

@@ -48,10 +48,16 @@ namespace EndlessClient
 
 	public partial class EOGame : Game
 	{
+		private static EOGame inst;
+		public static EOGame Instance
+		{
+			get { return inst ?? (inst = new EOGame()); }
+		}
+
 		const int WIDTH = 640;
 		const int HEIGHT = 480;
 
-		Random gen = new Random();
+		readonly Random gen = new Random();
 		int currentPersonOne, currentPersonTwo;
 		GameStates currentState;
 
@@ -158,9 +164,9 @@ namespace EndlessClient
 
 			if(prevState == GameStates.PlayingTheGame && currentState != GameStates.PlayingTheGame)
 			{
-				hud.Dispose();
-				hud = null;
-				Components.Remove(hud);
+				Hud.Dispose();
+				Hud = null;
+				Components.Remove(Hud);
 			}
 			
 			List<DrawableGameComponent> toRemove = new List<DrawableGameComponent>();
@@ -255,10 +261,10 @@ namespace EndlessClient
 						}
 					}
 
-					hud = new HUD(this);
-					hud.SetNews(Handlers.Welcome.News);
+					Hud = new HUD(this);
+					Hud.SetNews(Handlers.Welcome.News);
 					backButton.Visible = true;
-					Components.Add(hud);
+					Components.Add(Hud);
 					break;
 			}
 		}
@@ -273,7 +279,7 @@ namespace EndlessClient
 		//***** DEFAULT XNA STUFF *****
 		//-----------------------------
 
-		public EOGame()
+		private EOGame()
 		{
 			graphics = new GraphicsDeviceManager(this);
 			graphics.PreferredBackBufferWidth = WIDTH;

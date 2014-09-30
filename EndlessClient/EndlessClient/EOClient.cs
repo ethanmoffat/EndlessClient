@@ -53,22 +53,45 @@ namespace EndlessClient
 		public EOClient()
 			: base()
 		{
-			handlers = new Dictionary<FamilyActionPair, LockedHandlerMethod>();
-
-			handlers.Add(new FamilyActionPair(PacketFamily.Account, PacketAction.Reply), 
-				new LockedHandlerMethod(Handlers.Account.AccountResponse));
-			handlers.Add(new FamilyActionPair(PacketFamily.Character, PacketAction.Player), 
-				new LockedHandlerMethod(Handlers.Character.CharacterPlayerResponse));
-			handlers.Add(new FamilyActionPair(PacketFamily.Character, PacketAction.Reply), 
-				new LockedHandlerMethod(Handlers.Character.CharacterResponse));
-			handlers.Add(new FamilyActionPair(PacketFamily.Connection, PacketAction.Player), 
-				new LockedHandlerMethod(Handlers.Connection.PingResponse));
-			handlers.Add(new FamilyActionPair(PacketFamily.Init, PacketAction.Init), 
-				new LockedHandlerMethod(Handlers.Init.InitResponse));
-			handlers.Add(new FamilyActionPair(PacketFamily.Login, PacketAction.Reply), 
-				new LockedHandlerMethod(Handlers.Login.LoginResponse));
-			handlers.Add(new FamilyActionPair(PacketFamily.Welcome, PacketAction.Reply), 
-				new LockedHandlerMethod(Handlers.Welcome.WelcomeResponse));
+			handlers = new Dictionary<FamilyActionPair, LockedHandlerMethod>
+			{
+				{
+					new FamilyActionPair(PacketFamily.Account, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Account.AccountResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Character, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Character.CharacterPlayerResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Character, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Character.CharacterResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Connection, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Connection.PingResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Init, PacketAction.Init),
+					new LockedHandlerMethod(Handlers.Init.InitResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Login, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Login.LoginResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Players, PacketAction.Agree), 
+					new LockedHandlerMethod(Handlers.Players.PlayersAgree)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Player),
+ 					new LockedHandlerMethod(Handlers.Talk.TalkPlayer)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Welcome, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Welcome.WelcomeResponse)
+				}
+			};
 		}
 
 		public new void Disconnect()

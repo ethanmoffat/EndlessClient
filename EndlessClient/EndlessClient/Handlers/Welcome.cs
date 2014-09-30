@@ -196,12 +196,18 @@ namespace EndlessClient.Handlers
 						if (pkt.GetByte() != 255) return;
 						for(int i = 0; i < numOtherCharacters; ++i)
 						{
-							string charName = pkt.GetBreakString(); 
+							string charName = pkt.GetBreakString();
+							if(charName.Length > 1)
+								charName = char.ToUpper(charName[0]) + charName.Substring(1);
+
 							short playerID = pkt.GetShort();
-							EndlessClient.Character newGuy = new EndlessClient.Character(playerID, null);
-							newGuy.CurrentMap = pkt.GetShort();
-							newGuy.X = pkt.GetShort();
-							newGuy.Y = pkt.GetShort();
+							EndlessClient.Character newGuy = new EndlessClient.Character(playerID, null)
+							{
+								Name = charName,
+								CurrentMap = pkt.GetShort(),
+								X = pkt.GetShort(),
+								Y = pkt.GetShort()
+							};
 							newGuy.RenderData.SetDirection((EODirection)pkt.GetChar());
 							pkt.GetChar(); //6 ?
 							newGuy.PaddedGuildTag = pkt.GetFixedString(3);
@@ -240,7 +246,7 @@ namespace EndlessClient.Handlers
 							if (pkt.GetByte() != 255)
 								return;
 
-							World.Instance.ActiveMapRenderer.OtherPlayers.Add(newGuy);
+							World.Instance.ActiveMapRenderer.AddOtherPlayer(newGuy);
 						}
 
 						//get data for any npcs

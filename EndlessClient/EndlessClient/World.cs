@@ -18,7 +18,7 @@ namespace EndlessClient
 	public sealed class World
 	{
 		/*** STATIC MEMBERS AND SUCH FOR THE SINGLETON PATTERN ***/
-		private static World inst = null;
+		private static World inst;
 		private static readonly object locker = new object();
 
 		public static bool Initialized { get; private set; }
@@ -29,9 +29,7 @@ namespace EndlessClient
 			{
 				lock (locker)
 				{
-					if (inst == null)
-						inst = new World();
-					return inst;
+					return inst ?? (inst = new World());
 				}
 			}
 		}
@@ -50,7 +48,7 @@ namespace EndlessClient
 			m_config = new IniReader(@"config\settings.ini");
 			if (!m_config.Load())
 				throw new WorldLoadException("Unable to load the configuration file!");
-			World.Initialized = true;
+			Initialized = true;
 		}
 
 		/*** Instance Properties and such ***/
@@ -58,11 +56,11 @@ namespace EndlessClient
 		public short JailMap { get; set; }
 
 		//this is an int for the map id since there are multiple maps
-		public int NeedMap { get; set; }
-		public bool NeedEIF { get; set; }
-		public bool NeedENF { get; set; }
-		public bool NeedESF { get; set; }
-		public bool NeedECF { get; set; }
+		public int NeedMap { get; private set; }
+		public bool NeedEIF { get; private set; }
+		public bool NeedENF { get; private set; }
+		public bool NeedESF { get; private set; }
+		public bool NeedECF { get; private set; }
 
 		private ItemFile m_items;
 		public ItemFile EIF
@@ -106,7 +104,7 @@ namespace EndlessClient
 			}
 		}
 
-		private EOMapRenderer m_mapRender = null;
+		private EOMapRenderer m_mapRender;
 		/// <summary>
 		/// Returns a map rendering object encapsulating the map the MainPlayer is on
 		/// </summary>
@@ -114,8 +112,13 @@ namespace EndlessClient
 		{
 			get
 			{
-				if (m_mapRender == null || m_mapRender.MapRef.MapID != MainPlayer.ActiveCharacter.CurrentMap)
-					m_mapRender = new EOMapRenderer(ActiveMap);
+				if (m_mapRender == null)
+					m_mapRender = new EOMapRenderer(EOGame.Instance, ActiveMap);
+				if (m_mapRender.MapRef.MapID != MainPlayer.ActiveCharacter.CurrentMap)
+				{
+					m_mapRender.SetActiveMap(ActiveMap);
+				}
+
 				return m_mapRender;
 			}
 		}

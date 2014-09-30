@@ -78,7 +78,7 @@ namespace EndlessClient
 			{
 				case XNADialogButtons.Ok:
 					ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
-					ok.OnClick += (object sender, EventArgs e) => Close(ok, XNADialogResult.OK);
+					ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 					ok.SetParent(this);
 
 					cancel = null;
@@ -87,7 +87,7 @@ namespace EndlessClient
 					break;
 				case XNADialogButtons.Cancel:
 					cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
-					cancel.OnClick += (object sender, EventArgs e) => Close(cancel, XNADialogResult.Cancel);
+					cancel.OnClick += (sender, e) => Close(cancel, XNADialogResult.Cancel);
 					cancel.SetParent(this);
 
 					ok = null;
@@ -98,7 +98,7 @@ namespace EndlessClient
 					//implement this more fully when it is needed
 					//update draw location of ok button to be on left?
 					ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(89, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
-					ok.OnClick += (object sender, EventArgs e) => { Close(ok, XNADialogResult.OK); };
+					ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 					ok.SetParent(this);
 
 					cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
@@ -793,7 +793,7 @@ namespace EndlessClient
 				updatingFiles = true;
 
 				//I hate putting this on a new thread but otherwise the Update call would block while this is all happening...meaning the dialog would freeze
-				new Thread(new ThreadStart(() =>
+				new Thread(() =>
 				{
 					if (World.Instance.NeedMap != -1)
 					{
@@ -859,7 +859,7 @@ namespace EndlessClient
 					Thread.Sleep(1000);
 
 					Close(null, XNADialogResult.OK); //using OK here to mean everything was successful. NO_BUTTON_PRESSED means unsuccessful.
-				})).Start();
+				}).Start();
 			}
 
 			base.Update(gt);
