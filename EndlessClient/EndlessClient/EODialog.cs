@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 using Microsoft.Xna.Framework;
@@ -15,7 +14,7 @@ namespace EndlessClient
 {
 	public class EODialogBase : XNADialog
 	{
-		protected Texture2D smallButtonSheet;
+		protected readonly Texture2D smallButtonSheet;
 
 		protected EODialogBase(Game encapsulatingGame)
 			: base(encapsulatingGame)
@@ -80,18 +79,12 @@ namespace EndlessClient
 					ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
 					ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 					ok.SetParent(this);
-
-					cancel = null;
-
 					dlgButtons.Add(ok);
 					break;
 				case XNADialogButtons.Cancel:
 					cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
 					cancel.OnClick += (sender, e) => Close(cancel, XNADialogResult.Cancel);
 					cancel.SetParent(this);
-
-					ok = null;
-
 					dlgButtons.Add(cancel);
 					break;
 				case XNADialogButtons.OkCancel:
@@ -131,13 +124,11 @@ namespace EndlessClient
 		}
 
 		private Rectangle scrollArea; //area valid for scrolling: always 16 from top and 16 from bottom
-		public int ScrollOffset { get; set; }
+		public int ScrollOffset { get; private set; }
 
-		private XNAButton up, down, scroll; //buttons
+		private readonly XNAButton up, down, scroll; //buttons
 
 		private int _rowHeight, _totalHeight;
-
-		private Texture2D scrollSpriteSheet;
 
 		private enum Mode
 		{
@@ -154,10 +145,9 @@ namespace EndlessClient
 			DrawLocation = relativeLoc;
 			ScrollOffset = 0;
 
-			scrollSpriteSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 29);
+			Texture2D scrollSpriteSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 29);
 			Rectangle[] upArrows = new Rectangle[2];
 			Rectangle[] downArrows = new Rectangle[2];
-			Rectangle scrollBox;
 			int vertOff;
 			switch (palette)
 			{
@@ -166,7 +156,7 @@ namespace EndlessClient
 				case ScrollColors.LightOnDark: vertOff = 180; break;
 				case ScrollColors.DarkOnDark: vertOff = 255; break;
 				default:
-					throw new ArgumentOutOfRangeException("Unrecognized palette!");
+					throw new ArgumentOutOfRangeException("palette");
 			}
 
 			//regions based on verticle offset (which is based on the chosen palette)
@@ -174,7 +164,7 @@ namespace EndlessClient
 			upArrows[1] = new Rectangle(0, vertOff + 15 * 4, 16, 15);
 			downArrows[0] = new Rectangle(0, vertOff + 15, 16, 15);
 			downArrows[1] = new Rectangle(0, vertOff + 15 * 2, 16, 15);
-			scrollBox = new Rectangle(0, vertOff, 16, 15);
+			Rectangle scrollBox = new Rectangle(0, vertOff, 16, 15);
 
 			Texture2D[] upButton = new Texture2D[2];
 			Texture2D[] downButton = new Texture2D[2];
@@ -183,19 +173,19 @@ namespace EndlessClient
 			{
 				upButton[i] = new Texture2D(scrollSpriteSheet.GraphicsDevice, upArrows[i].Width, upArrows[i].Height);
 				Color[] upData = new Color[upArrows[i].Width * upArrows[i].Height];
-				scrollSpriteSheet.GetData<Color>(0, upArrows[i], upData, 0, upData.Length);
-				upButton[i].SetData<Color>(upData);
+				scrollSpriteSheet.GetData(0, upArrows[i], upData, 0, upData.Length);
+				upButton[i].SetData(upData);
 
 				downButton[i] = new Texture2D(scrollSpriteSheet.GraphicsDevice, downArrows[i].Width, downArrows[i].Height);
 				Color[] downData = new Color[downArrows[i].Width * downArrows[i].Height];
-				scrollSpriteSheet.GetData<Color>(0, downArrows[i], downData, 0, downData.Length);
-				downButton[i].SetData<Color>(downData);
+				scrollSpriteSheet.GetData(0, downArrows[i], downData, 0, downData.Length);
+				downButton[i].SetData(downData);
 
 				//same texture for hover, AFAIK
 				scrollButton[i] = new Texture2D(scrollSpriteSheet.GraphicsDevice, scrollBox.Width, scrollBox.Height);
 				Color[] scrollData = new Color[scrollBox.Width * scrollBox.Height];
-				scrollSpriteSheet.GetData<Color>(0, scrollBox, scrollData, 0, scrollData.Length);
-				scrollButton[i].SetData<Color>(scrollData);
+				scrollSpriteSheet.GetData(0, scrollBox, scrollData, 0, scrollData.Length);
+				scrollButton[i].SetData(scrollData);
 			}
 
 			up = new XNAButton(encapsulatingGame, upButton, new Vector2(0, 0));
@@ -224,6 +214,12 @@ namespace EndlessClient
 		{
 			_totalHeight = numberOfLines;
 			_mode = Mode.LineByLineRender;
+		}
+
+		public void ScrollToEnd()
+		{
+			while(ScrollOffset < _totalHeight - 7)
+				arrowClicked(down, new EventArgs());
 		}
 
 		//the point of arrowClicked and scrollDragged is to respond to input on the three buttons in such
@@ -380,22 +376,24 @@ namespace EndlessClient
 	/// </summary>
 	public class EOScrollingDialog : EODialogBase
 	{
-		private EOScrollBar scroll;
+		private readonly EOScrollBar scroll;
 
-		public EOScrollingDialog(Game encapsulatingGame, string msgText, string captionText = "")
+		public EOScrollingDialog(Game encapsulatingGame, string msgText)
 			: base(encapsulatingGame)
 		{
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 40);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1)); //label is auto-sized
-			message.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.0f);
-			message.ForeColor = System.Drawing.Color.FromArgb(255, 0xc8, 0xc8, 0xc8);
-			message.Text = msgText;
-			message.TextWidth = 293;
+			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1)) //label is auto-sized
+			{
+				Font = new System.Drawing.Font("Microsoft Sans Serif", 8.0f),
+				ForeColor = System.Drawing.Color.FromArgb(255, 0xc8, 0xc8, 0xc8),
+				Text = msgText,
+				TextWidth = 293,
+				Visible = false, //doesn't draw itself (hacky workaround in progress refactoring)
+				RowSpacing = 4
+			}; 
 			message.SetParent(this);
-			message.Visible = false; //the label doesn't handle its own drawing/updating: the dialog does that so text is clipped
-			message.RowSpacing = 4;
 
 			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(138, 197), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
 			ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
@@ -464,7 +462,7 @@ namespace EndlessClient
 			Color[] pbForeFill = new Color[pbForeText.Width * pbForeText.Height];
 			for (int i = 0; i < pbForeFill.Length; ++i)
 				pbForeFill[i] = Color.FromNonPremultiplied(0xb4, 0xdc, 0xe6, 255);
-			pbForeText.SetData<Color>(pbForeFill);
+			pbForeText.SetData(pbForeFill);
 
 			base.endConstructor();
 		}
@@ -499,8 +497,8 @@ namespace EndlessClient
 
 	public class EOChangePasswordDialog : EODialogBase
 	{
-		private XNATextBox[] inputBoxes = new XNATextBox[4];
-		private KeyboardDispatcher dispatch;
+		private readonly XNATextBox[] inputBoxes = new XNATextBox[4];
+		private readonly KeyboardDispatcher dispatch;
 
 		public string Username { get { return inputBoxes[0].Text; } }
 		public string OldPassword { get { return inputBoxes[1].Text; } }
@@ -516,14 +514,16 @@ namespace EndlessClient
 
 			for(int i = 0; i < inputBoxes.Length; ++i)
 			{
-				XNATextBox tb = new XNATextBox(encapsulatingGame, new Rectangle(198, 60 + i * 30, 137, 19), cursorTexture, "Microsoft Sans Serif", 8.0f);
-				tb.LeftPadding = 5;
-				tb.DefaultText = " ";
-				tb.MaxChars = i == 0 ? 16 : 12;
-				tb.PasswordBox = i > 1;
-				tb.Selected = i == 0;
-				tb.TextColor = System.Drawing.Color.FromArgb(0xff, 0xdc, 0xc8, 0xb4);
-				tb.Visible = true;
+				XNATextBox tb = new XNATextBox(encapsulatingGame, new Rectangle(198, 60 + i * 30, 137, 19), cursorTexture, "Microsoft Sans Serif", 8.0f)
+				{
+					LeftPadding = 5,
+					DefaultText = " ",
+					MaxChars = i == 0 ? 16 : 12,
+					PasswordBox = i > 1,
+					Selected = i == 0,
+					TextColor = System.Drawing.Color.FromArgb(0xff, 0xdc, 0xc8, 0xb4),
+					Visible = true
+				};
 
 				tb.OnTabPressed += (s, e) =>
 				{
@@ -540,7 +540,7 @@ namespace EndlessClient
 					{
 						dispatch.Subscriber.Selected = false;
 						dispatch.Subscriber = (s as XNATextBox);
-						(s as XNATextBox).Selected = true;
+						dispatcher.Subscriber.Selected = true;
 					};
 
 				tb.SetParent(this);
@@ -549,8 +549,10 @@ namespace EndlessClient
 
 			dispatch.Subscriber = inputBoxes[0];
 
-			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(157, 195), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
-			ok.Visible = true;
+			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(157, 195), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
+			{
+				Visible = true
+			};
 			ok.OnClick += (s, e) =>
 			{ //does some input validation before trying to call Close
 				//check that all fields are filled in, otherwise: return
@@ -594,11 +596,10 @@ namespace EndlessClient
 
 	public class EOCreateCharacterDialog : EODialogBase
 	{
-		private XNATextBox inputBox;
-		private KeyboardDispatcher dispatch;
-		private XNAButton[] arrowButtons = new XNAButton[4];
-		private Rectangle[] srcRects = new Rectangle[4]; //these are rectangles for the sprite sheet with the different parameter colors (hair colors, styles, etc)
-		private EOCharacterRenderer charRender;
+		private readonly XNATextBox inputBox;
+		private readonly XNAButton[] arrowButtons = new XNAButton[4];
+		private readonly Rectangle[] srcRects = new Rectangle[4]; //these are rectangles for the sprite sheet with the different parameter colors (hair colors, styles, etc)
+		private readonly EOCharacterRenderer charRender;
 
 		public byte Gender { get { return charRender.Gender; } }
 		public byte HairType { get { return charRender.HairType; } }
@@ -608,13 +609,11 @@ namespace EndlessClient
 
 		private Rectangle rotClickArea;
 
-		private Texture2D charCreateSheet;
+		private readonly Texture2D charCreateSheet;
 
 		public EOCreateCharacterDialog(Game encapsulatingGame, Texture2D cursorTexture, KeyboardDispatcher dispatcher)
 			: base(encapsulatingGame)
 		{
-			dispatch = dispatcher;
-
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 20);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
@@ -628,7 +627,7 @@ namespace EndlessClient
 			inputBox.TextColor = System.Drawing.Color.FromArgb(0xff, 0xdc, 0xc8, 0xb4);
 			inputBox.Visible = true;
 			inputBox.SetParent(this);
-			dispatch.Subscriber = inputBox;
+			dispatcher.Subscriber = inputBox;
 
 			//four arrow buttons
 			for(int i = 0; i < arrowButtons.Length; ++i)
@@ -640,7 +639,7 @@ namespace EndlessClient
 				arrowButtons[i] = btn;
 			}
 
-			charRender = new EOCharacterRenderer(encapsulatingGame, new Vector2(269, 83), new CharRenderData() { gender = 0, hairstyle = 1, haircolor = 0, race = 0 }, false);
+			charRender = new EOCharacterRenderer(encapsulatingGame, new Vector2(269, 83), new CharRenderData { gender = 0, hairstyle = 1, haircolor = 0, race = 0 }, false);
 			charRender.SetParent(this);
 			srcRects[0] = new Rectangle(0, 38, 23, 19);
 			srcRects[1] = new Rectangle(0, 19, 23, 19);
@@ -746,18 +745,18 @@ namespace EndlessClient
 		const string classes = "Updating classes";
 		const string loading = "Loading game";
 
-		Texture2D bgSprites;
-		int bgSrcIndex;
-		TimeSpan? timeOpened = null;
+		private readonly Texture2D bgSprites;
+		private int bgSrcIndex;
+		private TimeSpan? timeOpened;
 
-		bool updatingFiles = false;
+		private bool updatingFiles;
 
 		public EOConnectingDialog(Game encapsulatingGame)
 			: base (encapsulatingGame)
 		{
 			bgTexture = null; //don't use the built in bgtexture, we're going to use a sprite sheet for the BG
 			bgSprites = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 33);
-			this.DrawLocation = new Vector2(Game.GraphicsDevice.PresentationParameters.BackBufferWidth - (bgSprites.Width / 4) - 10, 
+			DrawLocation = new Vector2(Game.GraphicsDevice.PresentationParameters.BackBufferWidth - (bgSprites.Width / 4) - 10, 
 				Game.GraphicsDevice.PresentationParameters.BackBufferHeight - bgSprites.Height - 10);
 			_setSize(bgSprites.Width / 4, bgSprites.Height);
 			bgSrcIndex = 0;

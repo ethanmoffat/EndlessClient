@@ -8,24 +8,25 @@ using XNAControls;
 
 namespace EndlessClient
 {
-	public partial class EOGame : Game
+	public partial class EOGame
 	{
 		int charDeleteWarningShown = -1; //index of the character that we've shown a warning about deleting, set to -1 for no warning shown
 
-		GraphicsDeviceManager graphics;
+		readonly GraphicsDeviceManager graphics;
 		SpriteBatch spriteBatch;
 
 		XNATextBox loginUsernameTextbox;
 		XNATextBox loginPasswordTextbox;
-		Texture2D[] textBoxTextures = new Texture2D[4];
-		KeyboardDispatcher dispatch;
+		readonly Texture2D[] textBoxTextures = new Texture2D[4];
 
-		XNAButton[] mainButtons = new XNAButton[4];
-		XNAButton[] loginButtons = new XNAButton[2];
-		XNAButton[] createButtons = new XNAButton[2];
+		public KeyboardDispatcher Dispatcher { get; private set; }
 
-		XNAButton[] loginCharButtons = new XNAButton[3];
-		XNAButton[] deleteCharButtons = new XNAButton[3];
+		readonly XNAButton[] mainButtons = new XNAButton[4];
+		readonly XNAButton[] loginButtons = new XNAButton[2];
+		readonly XNAButton[] createButtons = new XNAButton[2];
+
+		readonly XNAButton[] loginCharButtons = new XNAButton[3];
+		readonly XNAButton[] deleteCharButtons = new XNAButton[3];
 
 		XNAButton passwordChangeBtn;
 
@@ -33,7 +34,7 @@ namespace EndlessClient
 
 		XNALabel lblCredits, lblVersionInfo;
 
-		XNATextBox[] accountCreateTextBoxes = new XNATextBox[6];
+		readonly XNATextBox[] accountCreateTextBoxes = new XNATextBox[6];
 
 		public HUD Hud { get; private set; }
 
@@ -45,23 +46,27 @@ namespace EndlessClient
 			textBoxTextures[2] = Content.Load<Texture2D>("tbRight");
 			textBoxTextures[3] = Content.Load<Texture2D>("cursor");
 
-			loginUsernameTextbox = new XNATextBox(this, new Rectangle(402, 322, 140, textBoxTextures[0].Height), textBoxTextures, "Microsoft Sans Serif", 8.0f);
-			loginUsernameTextbox.MaxChars = 16;
+			loginUsernameTextbox = new XNATextBox(this, new Rectangle(402, 322, 140, textBoxTextures[0].Height), textBoxTextures, "Microsoft Sans Serif", 8.0f)
+			{
+				MaxChars = 16,
+				DefaultText = "Username",
+				LeftPadding = 4
+			};
 			loginUsernameTextbox.OnTabPressed += OnTabPressed;
 			loginUsernameTextbox.Clicked += OnTextClicked;
-			loginUsernameTextbox.OnEnterPressed += (s, e) => { MainButtonPress(loginButtons[0], e); };
-			loginUsernameTextbox.DefaultText = "Username";
-			loginUsernameTextbox.LeftPadding = 4;
-			dispatch.Subscriber = loginUsernameTextbox;
+			loginUsernameTextbox.OnEnterPressed += (s, e) => MainButtonPress(loginButtons[0], e);
+			Dispatcher.Subscriber = loginUsernameTextbox;
 
-			loginPasswordTextbox = new XNATextBox(this, new Rectangle(402, 358, 140, textBoxTextures[0].Height), textBoxTextures, "Microsoft Sans Serif", 8.0f);
-			loginPasswordTextbox.MaxChars = 12;
+			loginPasswordTextbox = new XNATextBox(this, new Rectangle(402, 358, 140, textBoxTextures[0].Height), textBoxTextures, "Microsoft Sans Serif", 8.0f)
+			{
+				MaxChars = 12,
+				PasswordBox = true,
+				LeftPadding = 4,
+				DefaultText = "Password"
+			};
 			loginPasswordTextbox.OnTabPressed += OnTabPressed;
 			loginPasswordTextbox.Clicked += OnTextClicked;
-			loginPasswordTextbox.OnEnterPressed += (s, e) => { MainButtonPress(loginButtons[0], e); };
-			loginPasswordTextbox.PasswordBox = true;
-			loginPasswordTextbox.LeftPadding = 4;
-			loginPasswordTextbox.DefaultText = "Password";
+			loginPasswordTextbox.OnEnterPressed += (s, e) => MainButtonPress(loginButtons[0], e);
 
 			//set up primary four login buttons
 			Texture2D mainButtonSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 13, true);
@@ -92,12 +97,11 @@ namespace EndlessClient
 			//6 text boxes (by default) for creating a new account.
 			for (int i = 0; i < accountCreateTextBoxes.Length; ++i)
 			{
-				XNATextBox txt = accountCreateTextBoxes[i];
 				//holy fuck! magic numbers!
 				//basically, set the first  3 Y coord to start at 69  and move up by 51 each time
 				//			 set the second 3 Y coord to start at 260 and move up by 51 each time
 				int txtYCoord = (i < 3 ? 69 : 260) + (i < 3 ? i * 51 : (i - 3) * 51);
-				txt = new XNATextBox(this, new Rectangle(358, txtYCoord, 240, textBoxTextures[0].Height), textBoxTextures, "Latha");
+				XNATextBox txt = new XNATextBox(this, new Rectangle(358, txtYCoord, 240, textBoxTextures[0].Height), textBoxTextures, "Latha");
 
 				switch (i)
 				{
@@ -132,8 +136,18 @@ namespace EndlessClient
 			passwordChangeBtn = new XNAButton(this, secondaryButtons, new Vector2(454, 417), new Rectangle(0, 120, 120, 40), new Rectangle(120, 120, 120, 40));
 			passwordChangeBtn.OnClick += MainButtonPress;
 
-			lblCredits = new XNALabel(this, new Rectangle(300, 260, 1, 1));
-			lblCredits.Text = "Endless Online - C# Client\nDeveloped by Ethan Moffat\nBased on Endless Online --\n  Copyright Vult-R\n\nThanks to :\n--Sausage for eoserv + C# EO libs\n--eoserv.net community\n--Hotdog for Eodev client";
+			lblCredits = new XNALabel(this, new Rectangle(300, 260, 1, 1))
+			{
+				Text = @"Endless Online - C# Client
+Developed by Ethan Moffat
+Based on Endless Online --
+Copyright Vult-R
+
+Thanks to :
+--Sausage for eoserv + C# EO libs
+--eoserv.net community
+--Hotdog for Eodev client"
+			};
 
 			lblVersionInfo = new XNALabel(this, new Rectangle(30, 457, 1, 1));
 			lblVersionInfo.Text = string.Format("{0}.{1:000}.{2:000} - {3}:{4}", Constants.MajorVersion, Constants.MinorVersion, Constants.ClientVersion, host, port);
@@ -150,14 +164,16 @@ namespace EndlessClient
 			}
 
 			//hide all the components to start with
-			foreach (DrawableGameComponent component in Components)
+			foreach (IGameComponent iGameComp in Components)
 			{
+				DrawableGameComponent component = iGameComp as DrawableGameComponent;
 				//don't hide dialogs if reinitializing
-				if (reinit && (XNAControl.Dialogs.Contains(component as XNAControl) || XNAControl.Dialogs.Contains((component as XNAControl).TopParent)))
+				if (reinit && (XNAControl.Dialogs.Contains(component as XNAControl) || 
+					(component as XNAControl != null && XNAControl.Dialogs.Contains((component as XNAControl).TopParent))))
 					continue;
 
 				//...except for the four main buttons
-				if (!mainButtons.Contains(component as XNAButton))
+				if (component != null && !mainButtons.Contains(component as XNAButton))
 					component.Visible = false;
 			}
 			lblVersionInfo.Visible = true;
@@ -207,12 +223,14 @@ namespace EndlessClient
 			{
 				if (World.Instance.Client.ConnectedAndInitialized)
 					World.Instance.Client.Disconnect();
-				this.Exit();
+				Exit();
 			}
 			else if ((sender == backButton && currentState != GameStates.PlayingTheGame) || sender == createButtons[1] || sender == loginButtons[1])
 			{
-				dispatch.Subscriber = null;
+				Dispatcher.Subscriber = null;
 				LostConnectionDialog();
+				//disabled warning: in case I add code later below, need to remember that this should immediately return
+// ReSharper disable once RedundantJumpStatement
 				return;
 			}
 			else if (sender == backButton && currentState == GameStates.PlayingTheGame)
@@ -222,7 +240,7 @@ namespace EndlessClient
 					{
 						if(ee.Result == XNADialogResult.OK)
 						{
-							dispatch.Subscriber = null;
+							Dispatcher.Subscriber = null;
 							if (World.Instance.Client.ConnectedAndInitialized)
 								World.Instance.Client.Disconnect();
 							doStateChange(GameStates.Initial);
@@ -251,57 +269,56 @@ namespace EndlessClient
 			}
 			else if (sender == createButtons[0])
 			{
-				if (currentState == GameStates.CreateAccount)
+				switch (currentState)
 				{
-					foreach (XNATextBox txt in accountCreateTextBoxes)
+					case GameStates.CreateAccount:
 					{
-						if (txt.Text.Length == 0)
+						if (accountCreateTextBoxes.Any(txt => txt.Text.Length == 0))
 						{
 							EODialog errDlg = new EODialog(this, "Some of the fields are still empty. Fill in all the fields and try again.", "Wrong input");
 							return;
 						}
-					}
 
-					if (accountCreateTextBoxes[1].Text != accountCreateTextBoxes[2].Text)
-					{
-						//Make sure passwords match
-						EODialog errDlg = new EODialog(this, "The two passwords you provided are not the same, please try again.", "Wrong password");
-						return;
-					}
-
-					if (accountCreateTextBoxes[1].Text.Length < 6)
-					{
-						//Make sure passwords are good enough
-						EODialog errDlg = new EODialog(this, "For your own safety use a longer password (try 6 or more characters)", "Wrong password");
-						return;
-					}
-
-					if (!System.Text.RegularExpressions.Regex.IsMatch(accountCreateTextBoxes[5].Text, //filter emails using regex
-						@"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b"))
-					{
-						EODialog errDlg = new EODialog(this, "Enter a valid email address.", "Wrong input");
-						return;
-					}
-
-					if (!Handlers.Account.AccountCheckName(accountCreateTextBoxes[0].Text))
-					{
-						LostConnectionDialog();
-						return;
-					}
-
-					if (!Handlers.Account.CanProceed)
-					{
-						string caption, msg = Handlers.Account.ResponseMessage(out caption);
-						EODialog errDlg = new EODialog(this, msg, caption);
-						return;
-					}
-
-					//show progress bar for account creation pending and THEN create the account
-					EOProgressDialog dlg = new EOProgressDialog(this, "Please wait a few minutes for creation.", "Account accepted");
-					dlg.DialogClosing += (dlg_S, dlg_E) =>
-					{
-						if (dlg_E.Result == XNADialogResult.NO_BUTTON_PRESSED) //NO_BUTTON_PRESSED indicates the progress bar reached 100%
+						if (accountCreateTextBoxes[1].Text != accountCreateTextBoxes[2].Text)
 						{
+							//Make sure passwords match
+							EODialog errDlg = new EODialog(this, "The two passwords you provided are not the same, please try again.", "Wrong password");
+							return;
+						}
+
+						if (accountCreateTextBoxes[1].Text.Length < 6)
+						{
+							//Make sure passwords are good enough
+							EODialog errDlg = new EODialog(this, "For your own safety use a longer password (try 6 or more characters)", "Wrong password");
+							return;
+						}
+
+						if (!System.Text.RegularExpressions.Regex.IsMatch(accountCreateTextBoxes[5].Text, //filter emails using regex
+							@"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b"))
+						{
+							EODialog errDlg = new EODialog(this, "Enter a valid email address.", "Wrong input");
+							return;
+						}
+
+						if (!Handlers.Account.AccountCheckName(accountCreateTextBoxes[0].Text))
+						{
+							LostConnectionDialog();
+							return;
+						}
+
+						if (!Handlers.Account.CanProceed)
+						{
+							string caption, msg = Handlers.Account.ResponseMessage(out caption);
+							EODialog errDlg = new EODialog(this, msg, caption);
+							return;
+						}
+
+						//show progress bar for account creation pending and THEN create the account
+						EOProgressDialog dlg = new EOProgressDialog(this, "Please wait a few minutes for creation.", "Account accepted");
+						dlg.DialogClosing += (dlg_S, dlg_E) =>
+						{
+							if (dlg_E.Result != XNADialogResult.NO_BUTTON_PRESSED) return;
+
 							if (!Handlers.Account.AccountCreate(accountCreateTextBoxes[0].Text,
 								accountCreateTextBoxes[1].Text,
 								accountCreateTextBoxes[3].Text,
@@ -321,31 +338,31 @@ namespace EndlessClient
 
 							doStateChange(GameStates.Initial);
 							EODialog success = new EODialog(this, _msg, _caption);
-						}
-					};
+						};
 
-				}
-				else if (currentState == GameStates.LoggedIn)
-				{
-					//Character_request: show create character dialog
-					//Character_create: clicked ok in create character dialog
-					if (!Handlers.Character.CharacterRequest())
-					{
-						LostConnectionDialog();
-						return;
 					}
-
-					if (!Handlers.Character.CanProceed)
+						break;
+					case GameStates.LoggedIn:
 					{
-						EODialog errDlg = new EODialog(this, "Server is not allowing you to create a character right now. This could be a bug.", "Server error");
-						return;
-					}
-
-					EOCreateCharacterDialog createCharacter = new EOCreateCharacterDialog(this, textBoxTextures[3], dispatch);
-					createCharacter.DialogClosing += (dlg_S, dlg_E) =>
-					{
-						if (dlg_E.Result == XNADialogResult.OK)
+						//Character_request: show create character dialog
+						//Character_create: clicked ok in create character dialog
+						if (!Handlers.Character.CharacterRequest())
 						{
+							LostConnectionDialog();
+							return;
+						}
+
+						if (!Handlers.Character.CanProceed)
+						{
+							EODialog errDlg = new EODialog(this, "Server is not allowing you to create a character right now. This could be a bug.", "Server error");
+							return;
+						}
+
+						EOCreateCharacterDialog createCharacter = new EOCreateCharacterDialog(this, textBoxTextures[3], Dispatcher);
+						createCharacter.DialogClosing += (dlg_S, dlg_E) =>
+						{
+							if (dlg_E.Result != XNADialogResult.OK) return;
+
 							if (!Handlers.Character.CharacterCreate(createCharacter.Gender, createCharacter.HairType, createCharacter.HairColor, createCharacter.SkinColor, createCharacter.Name))
 							{
 								doStateChange(GameStates.Initial);
@@ -366,15 +383,18 @@ namespace EndlessClient
 
 							EODialog dlg = new EODialog(this, "Your character has been created and is ready to explore a new world.", "Character created");
 							doShowCharacters();
-						}
-					};
+						};
+					}
+						break;
 				}
 			}
 			else if (sender == passwordChangeBtn)
 			{
-				EOChangePasswordDialog dlg = new EOChangePasswordDialog(this, textBoxTextures[3], dispatch);
+				EOChangePasswordDialog dlg = new EOChangePasswordDialog(this, textBoxTextures[3], Dispatcher);
 				dlg.DialogClosing += (dlg_S, dlg_E) =>
 				{
+					if (dlg_E.Result != XNADialogResult.OK) return;
+
 					if (!Handlers.Account.AccountChangePassword(dlg.Username, dlg.OldPassword, dlg.NewPassword))
 					{
 						doStateChange(GameStates.Initial);
@@ -387,11 +407,8 @@ namespace EndlessClient
 					string caption, msg = Handlers.Account.ResponseMessage(out caption);
 					EODialog response = new EODialog(this, msg, caption);
 
-					if (!Handlers.Account.CanProceed)
-					{
-						dlg_E.CancelClose = true;
-						return;
-					}
+					if (Handlers.Account.CanProceed) return;
+					dlg_E.CancelClose = true;
 				};
 			}
 		}
@@ -494,13 +511,13 @@ namespace EndlessClient
 					if (sender == loginUsernameTextbox)
 					{
 						loginUsernameTextbox.Selected = false;
-						dispatch.Subscriber = loginPasswordTextbox;
+						Dispatcher.Subscriber = loginPasswordTextbox;
 						loginPasswordTextbox.Selected = true;
 					}
 					else
 					{
 						loginUsernameTextbox.Selected = true;
-						dispatch.Subscriber = loginUsernameTextbox;
+						Dispatcher.Subscriber = loginUsernameTextbox;
 						loginPasswordTextbox.Selected = false;
 					}
 					break;
@@ -511,7 +528,7 @@ namespace EndlessClient
 						{
 							accountCreateTextBoxes[i].Selected = false;
 							int next = (i == accountCreateTextBoxes.Length - 1) ? 0 : i + 1;
-							dispatch.Subscriber = accountCreateTextBoxes[next];
+							Dispatcher.Subscriber = accountCreateTextBoxes[next];
 							accountCreateTextBoxes[next].Selected = true;
 							break;
 						}

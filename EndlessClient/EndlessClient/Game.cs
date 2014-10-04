@@ -60,6 +60,7 @@ namespace EndlessClient
 		readonly Random gen = new Random();
 		int currentPersonOne, currentPersonTwo;
 		GameStates currentState;
+		public GameStates State { get { return currentState; } }
 
 		//Textures actually being drawn by this class (not as components)
 		//Components moved to GameUI.cs (partial class)
@@ -124,7 +125,7 @@ namespace EndlessClient
 			}).Start();
 		}
 
-		private void LostConnectionDialog()
+		public void LostConnectionDialog()
 		{
 			//Eventually these message strings should be loaded from the global constant class, or from dat files somehow. for now this method will do.
 			EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
@@ -187,7 +188,10 @@ namespace EndlessClient
 						toRemove.Add(component as EOCharacterRenderer); //this needs to be done separately because it's a foreach loop
 
 					if (component is XNATextBox)
+					{
 						(component as XNATextBox).Text = "";
+						(component as XNATextBox).Selected = false;
+					}
 					component.Visible = false;
 				}
 			}
@@ -219,7 +223,7 @@ namespace EndlessClient
 						btn.Visible = true;
 					createButtons[0].DrawLocation = new Vector2(359, 417);
 					backButton.Visible = true;
-					dispatch.Subscriber = accountCreateTextBoxes[0];
+					Dispatcher.Subscriber = accountCreateTextBoxes[0];
 					break;
 				case GameStates.Login:
 					loginUsernameTextbox.Visible = true;
@@ -228,7 +232,7 @@ namespace EndlessClient
 						btn.Visible = true;
 					foreach (XNAButton btn in mainButtons)
 						btn.Visible = true;
-					dispatch.Subscriber = loginUsernameTextbox;
+					Dispatcher.Subscriber = loginUsernameTextbox;
 					break;
 				case GameStates.ViewCredits:
 					foreach (XNAButton btn in mainButtons)
@@ -290,7 +294,7 @@ namespace EndlessClient
 		protected override void Initialize()
 		{
 			IsMouseVisible = true;
-			dispatch = new KeyboardDispatcher(this.Window);
+			Dispatcher = new KeyboardDispatcher(this.Window);
 			ResetPeopleIndices();
 			
 			try

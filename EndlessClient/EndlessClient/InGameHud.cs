@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
+using EndlessClient.Handlers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -40,6 +40,11 @@ namespace EndlessClient
 		private InGameStates state;
 		private readonly EOChatRenderer chatRenderer;
 		private readonly ChatTab newsTab;
+		
+		/// <summary>
+		/// the primary textbox for chat
+		/// </summary>
+		private readonly XNATextBox chatTextBox;
 
 		public HUD(Game g)
 			: base(g)
@@ -160,16 +165,24 @@ namespace EndlessClient
 
 			chatRenderer = new EOChatRenderer(g);
 			chatRenderer.SetParent(pnlChat);
-			//for (int i = 1; i <= 8; ++i)
-			//{
-			//	bool icon = (i == 1 || i == 4 || i == 5 || i == 6 || i == 8);
-			//	chatRenderer.AddTextToTab(ChatTabs.Local, string.Format("Player{0}", i), string.Format("Test string {1} {0}", i, "Local"), icon ? ChatType.Note : ChatType.None);
-			//	chatRenderer.AddTextToTab(ChatTabs.Global, string.Format("Player{0}", i), string.Format("Test string {1} {0}", i, "Global"), icon ? ChatType.Note : ChatType.None);
-			//	chatRenderer.AddTextToTab(ChatTabs.Group, string.Format("Player{0}", i), string.Format("Test string {1} {0}", i, "Group"), icon ? ChatType.Note : ChatType.None);
-			//	chatRenderer.AddTextToTab(ChatTabs.System, string.Format("Player{0}", i), string.Format("Test string {1} {0}", i, "System"), icon ? ChatType.Note : ChatType.None);
-			//}
 
 			newsTab = new ChatTab(g, pnlNews);
+
+			chatTextBox = new XNATextBox(g, new Rectangle(124, 308, 440, 19), g.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f);
+			chatTextBox.Selected = true;
+			chatTextBox.Visible = true;
+			chatTextBox.MaxChars = 140; //tweet size
+			chatTextBox.OnEnterPressed += _doTalk;
+			chatTextBox.Clicked += (s, e) =>
+			{
+				//make sure clicking on the textarea selects it (this is an annoying bug in the original client)
+				if ((g as EOGame).Dispatcher.Subscriber != null)
+					((g as EOGame).Dispatcher.Subscriber as XNATextBox).Selected = false;
+
+				(g as EOGame).Dispatcher.Subscriber = chatTextBox;
+				chatTextBox.Selected = true;
+			};
+			(g as EOGame).Dispatcher.Subscriber = chatTextBox;
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -237,8 +250,75 @@ namespace EndlessClient
 					break;
 			}
 		}
+
+		/// <summary>
+		/// Event for enter keypress of primary textbox. Does the chat
+		/// </summary>
+		private void _doTalk(object sender, EventArgs e)
+		{
+			if (chatTextBox.Text.Length <= 0)
+				return;
+
+			string chatText = chatTextBox.Text;
+			chatTextBox.Text = "";
+			switch (chatText[0])
+			{
+				case '$':  //admin command
+					//check character's admin level before issuing the command (forbidden text! or whatever)
+					goto default; //continue on if admin level is alright, otherwise fuck shit up
+				case '@':  //admin talk
+					break;
+				case '\'': //group talk
+					break;
+				case '&':  //guild talk
+					break;
+				case '~':  //global talk
+					break;
+				case '!':  //private talk
+				{
+					//TODO: Add the little icon that shows private/public/global etc
+					//TODO: handle case for when the private chat is selected and they use the shortcut ! without a character name
+
+					int firstSpace = chatText.IndexOf(' ');
+					if (firstSpace < 7) return; //character names should be 6, leading ! should be 1, 6+1=7 and THAT'S MATH
+
+					string character = chatText.Substring(1, firstSpace - 1);
+					string message = chatText.Substring(firstSpace + 1);
+					if (!Talk.Speak(TalkType.PM, message, character))
+						_returnToLogin();
+
+					ChatTabs whichPrivateChat = chatRenderer.StartConversation(character);
+					//the other player will have their messages rendered in Color.PM on scr
+					//this player will have their messages rendered in Color.PM on the PM tab
+					if(whichPrivateChat != ChatTabs.None)
+						AddChat(whichPrivateChat, World.Instance.MainPlayer.ActiveCharacter.Name, message, ChatType.Note, ChatColor.PM);
+				}
+					break;
+				case '#':  //local command
+					break;
+				default:
+				{
+					//send packet to the server
+					if (!Talk.Speak(TalkType.Local, chatText))
+					{
+						_returnToLogin();
+					}
+					//do the rendering
+					World.Instance.ActiveMapRenderer.RenderLocalChatMessage(chatText);
+					AddChat(ChatTabs.Local, World.Instance.MainPlayer.ActiveCharacter.Name, chatText);
+				}
+					break;
+			}
+		}
+
+		private void _returnToLogin()
+		{
+			//any other logic prior to disconnecting goes here
+			EOGame.Instance.LostConnectionDialog();
+		}
 		#endregion
 
+		#region Public Interface for classes outside HUD
 		public void SetNews(IList<string> lines)
 		{
 			if(lines.Count == 0)
@@ -265,6 +345,19 @@ namespace EndlessClient
 		{
 			chatRenderer.AddTextToTab(whichTab, who, message, chatType, chatColor);
 		}
+
+		public void PrivatePlayerNotFound(string character)
+		{
+			//add message to Sys and close the chat that was opened for 'character' (no good way to synchronize this because of how the packets are)
+			chatRenderer.ClosePrivateChat(character);
+			AddChat(ChatTabs.System, "", string.Format("{0} could not be found", character), ChatType.Error, ChatColor.Error);
+		}
+
+		public ChatTabs GetPrivateChatTab(string character)
+		{
+			return chatRenderer.StartConversation(character);
+		}
+		#endregion
 
 		#region ButtonClickEventHandlers
 		private void OnViewInventory(object sender, EventArgs e)

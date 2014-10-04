@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -89,32 +90,37 @@ namespace EndlessClient
 				tabLabel.ForeColor = _selected ? System.Drawing.Color.White : System.Drawing.Color.Black;
 			}
 		}
-		public ChatTabs WhichTab { get; protected set; }
+		public ChatTabs WhichTab { get; private set; }
 
 		private Rectangle? closeRect;
-		private EOScrollBar scrollBar;
+		private readonly EOScrollBar scrollBar;
 
 		private struct ChatIndex : IComparable
 		{
 			/// <summary>
 			/// Used for sorting the entries in the chat window
 			/// </summary>
-			public int Index;
+			public readonly int Index;
 			/// <summary>
 			/// Determines the type of special icon that should appear next to the chat message
 			/// </summary>
-			public ChatType Type;
+			public readonly ChatType Type;
 			/// <summary>
 			/// The entity that talked
 			/// </summary>
-			public string Who;
+			public readonly string Who;
 
-			public ChatColor col;
+			public readonly ChatColor col;
 
 			public ChatIndex(int index = 0, ChatType type = ChatType.None, string who = "", ChatColor color = ChatColor.Default)
 			{
 				Index = index;
 				Type = type;
+				if (who != null && who.Length >= 1)
+				{
+					//first character of the who string is capitalized: always!
+					who = who.Substring(0, 1).ToUpper() + who.Substring(1).ToLower();
+				}
 				Who = who;
 				col = color;
 			}
@@ -133,14 +139,25 @@ namespace EndlessClient
 					case ChatColor.Error: return Color.FromNonPremultiplied(0x7d, 0x0a, 0x0a, 0xff);
 					case ChatColor.PM: return Color.FromNonPremultiplied(0x5a, 0x3c, 0x00, 0xff);
 					case ChatColor.Server: return Color.FromNonPremultiplied(0xe6, 0xd2, 0xc8, 0xff);
-					default: throw new IndexOutOfRangeException("ChatColor enumeration unhandled for index " + Index.ToString());
+					default: throw new IndexOutOfRangeException("ChatColor enumeration unhandled for index " + Index.ToString(CultureInfo.InvariantCulture));
 				}
 			}
 		}
-		private SortedList<ChatIndex, string> chatStrings = new SortedList<ChatIndex, string>();
+		private readonly SortedList<ChatIndex, string> chatStrings = new SortedList<ChatIndex, string>();
 
-		private XNALabel tabLabel;
-		private SpriteFont font;
+		private readonly XNALabel tabLabel;
+		public string ChatCharacter
+		{
+			get { return WhichTab == ChatTabs.Private1 || WhichTab == ChatTabs.Private2 ? tabLabel.Text : null; }
+			set { tabLabel.Text = value; }
+		}
+
+		public bool PrivateChatUnused
+		{
+			get { return tabLabel.Text.Contains("[") || tabLabel.Text == ""; }
+		}
+
+		private readonly SpriteFont font;
 		private Vector2 relativeTextPos;
 
 		/// <summary>
@@ -162,7 +179,7 @@ namespace EndlessClient
 				case ChatTabs.System: tabLabel.Text = "sys"; break;
 				case ChatTabs.Private1:
 				case ChatTabs.Private2:
-					tabLabel.Text = "[priv " + ((int)WhichTab + 1).ToString() + "]";
+					tabLabel.Text = "[priv " + ((int)WhichTab + 1) + "]";
 					break;
 			}
 			_selected = selected;
@@ -188,8 +205,10 @@ namespace EndlessClient
 			}
 			
 			//568 331
-			scrollBar = new EOScrollBar(g, parentRenderer, new Vector2(467, 2), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed);
-			scrollBar.Visible = selected;
+			scrollBar = new EOScrollBar(g, parentRenderer, new Vector2(467, 2), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed)
+			{
+				Visible = selected
+			};
 
 			font = Game.Content.Load<SpriteFont>("dbg");
 		}
@@ -212,6 +231,13 @@ namespace EndlessClient
 			font = Game.Content.Load<SpriteFont>("dbg");
 		}
 
+		/// <summary>
+		/// Adds text to the tab. For multi-line text strings, does text wrapping. For text length > 415 pixels, does text wrapping
+		/// </summary>
+		/// <param name="who">Person that spoke</param>
+		/// <param name="text">Message that was spoken</param>
+		/// <param name="icon">Icon to display next to the chat</param>
+		/// <param name="col">Rendering color (enumerated value)</param>
 		public void AddText(string who, string text, ChatType icon = ChatType.None, ChatColor col = ChatColor.Default)
 		{
 			const int LINE_LEN = 415;
@@ -220,45 +246,75 @@ namespace EndlessClient
 			if (string.IsNullOrWhiteSpace(who) && string.IsNullOrWhiteSpace(text))
 			{
 				chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), " ");
+				scrollBar.UpdateDimensions(chatStrings.Count);
+				if (chatStrings.Count > 7 && WhichTab != ChatTabs.None)
+				{
+					scrollBar.ScrollToEnd();
+				}
+				if (!Selected)
+					tabLabel.ForeColor = System.Drawing.Color.White;
+				if (!Visible)
+					Visible = true;
 				return;
 			}
-			else if (font.MeasureString(text).X < LINE_LEN)
+			
+			//don't do multi-line processing if we don't need to
+			if (font.MeasureString(text).X < LINE_LEN)
 			{
 				chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), text);
+				scrollBar.UpdateDimensions(chatStrings.Count);
+				if (chatStrings.Count > 7 && WhichTab != ChatTabs.None)
+				{
+					scrollBar.ScrollToEnd();
+				}
+				if (!Selected)
+					tabLabel.ForeColor = System.Drawing.Color.White;
+				if (!Visible)
+					Visible = true;
 				return;
 			}
 
-
 			string buffer = text, newLine = "";
-			string whoPadding = "";
-			if (who != null)
-			{
-				whoPadding = who.Aggregate("  ", (current, c) => current + " "); //pad with spaces for additional lines
-			}
+			string whoPadding = ""; //padding string for additional lines if it is a multi-line message
+			if(!string.IsNullOrEmpty(who))
+				while (font.MeasureString(whoPadding).X < font.MeasureString(who).X)
+					whoPadding += " ";
 
 			List<string> chatStringsToAdd = new List<string>();
-			while (buffer.Length > 0)
+			char[] whiteSpace = {' ', '\t', '\n'};
+			string endOfLine = WhichTab == ChatTabs.None ? "" : "-";
+			string nextWord = "";
+			while (buffer.Length > 0) //keep going until the buffer is empty
 			{
-				try
+				//get the next word
+				bool endOfWord = true, lineOverFlow = true; //these are negative logic booleans: will be set to false when flagged
+				while (buffer.Length > 0 && (endOfWord = !whiteSpace.Contains(buffer[0])) &&
+				       (lineOverFlow = font.MeasureString(whoPadding + newLine + nextWord + endOfLine).X < LINE_LEN))
 				{
-					int ind;
-					string nextWord = buffer.Substring(0, ind = buffer.IndexOfAny(new[] {' ', '\t', '\n'}));
-					buffer = buffer.Substring(ind + 1);
-					if (font.MeasureString(whoPadding + newLine).X >= LINE_LEN)
-					{
-						chatStringsToAdd.Add(newLine);
-						newLine = nextWord;
-					}
-					else
-					{
-						newLine += newLine.Length == 0 ? nextWord : " " + nextWord;
-					}
+					nextWord += buffer[0];
+					buffer = buffer.Remove(0, 1);
 				}
-				catch(ArgumentOutOfRangeException)
+
+				//flip the bools so the program reads more logically
+				endOfWord = !endOfWord;
+				lineOverFlow = !lineOverFlow;
+
+				if (endOfWord)
 				{
-					newLine += newLine.Length == 0 ? buffer : " " + buffer;
+					newLine += nextWord + buffer[0];
+					buffer = buffer.Remove(0, 1);
+					nextWord = "";
+				}
+				else if (lineOverFlow)
+				{
+					newLine += nextWord + endOfLine;
 					chatStringsToAdd.Add(newLine);
-					buffer = "";
+					newLine = nextWord = "";
+				}
+				else
+				{
+					newLine += nextWord;
+					chatStringsToAdd.Add(newLine);
 				}
 			}
 
@@ -269,9 +325,27 @@ namespace EndlessClient
 				else
 					chatStrings.Add(new ChatIndex(chatStrings.Count, ChatType.None, whoPadding), chatStringsToAdd[i]);
 			}
+
+			scrollBar.UpdateDimensions(chatStrings.Count);
+			if (chatStrings.Count > 7 && WhichTab != ChatTabs.None)
+			{
+				scrollBar.ScrollToEnd();
+			}
+			if (!Selected)
+				tabLabel.ForeColor = System.Drawing.Color.White;
+			if (!Visible)
+				Visible = true;
 		}
 
-		public Texture2D GetChatIcon(ChatType type)
+		public void ClosePrivateChat()
+		{
+			Visible = Selected = false;
+			tabLabel.Text = "";
+			chatStrings.Clear();
+			(parent as EOChatRenderer).SetSelectedTab(ChatTabs.Local);
+		}
+
+		private Texture2D _getChatIcon(ChatType type)
 		{
 			Texture2D ret = new Texture2D(Game.GraphicsDevice, 13, 13);
 			if (type == ChatType.None)
@@ -286,25 +360,25 @@ namespace EndlessClient
 		
 		public override void Update(GameTime gameTime)
 		{
-			if (!this.Visible)
+			if (!Visible)
 				return;
 
 			MouseState mouseState = Mouse.GetState();
 			//this is our own button press handler
 			if (MouseOver && mouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed)
 			{
-				if (!this.Selected)
+				if (!Selected)
 				{
 					(parent as EOChatRenderer).SetSelectedTab(WhichTab);
 				}
 
+				//logic for handling the close button (not actually a button, was I high when I made this...?)
 				if ((WhichTab == ChatTabs.Private1 || WhichTab == ChatTabs.Private2) && closeRect != null)
 				{
 					Rectangle withOffset = new Rectangle(DrawAreaWithOffset.X + closeRect.Value.X, DrawAreaWithOffset.Y + closeRect.Value.Y, closeRect.Value.Width, closeRect.Value.Height);
 					if (withOffset.ContainsPoint(Mouse.GetState().X, Mouse.GetState().Y))
 					{
-						Visible = false;
-						(parent as EOChatRenderer).SetSelectedTab(ChatTabs.Local);
+						ClosePrivateChat();
 					}
 				}
 			}
@@ -316,19 +390,15 @@ namespace EndlessClient
 		{
 			if (Selected) //only draw this tab if it is selected
 			{
-				if (scrollBar == null)
-					return;
-				scrollBar.UpdateDimensions(chatStrings.Count);
-
 				SpriteBatch.Begin();
 				//draw icons for the text strings based on the icon specified in the chatStrings Key of the pair
-				for (int i = scrollBar.ScrollOffset; i < scrollBar.ScrollOffset + 7; ++i) //draw 7 icons
+				for (int i = scrollBar.ScrollOffset; i < scrollBar.ScrollOffset + 7; ++i) //draw 7 lines
 				{
 					if (i >= chatStrings.Count)
 						break;
 
 					Vector2 pos = new Vector2(parent.DrawAreaWithOffset.X, parent.DrawAreaWithOffset.Y + relativeTextPos.Y + (i - scrollBar.ScrollOffset)*13);
-					SpriteBatch.Draw(GetChatIcon(chatStrings.Keys[i].Type), new Vector2(pos.X + 3, pos.Y), Color.White);
+					SpriteBatch.Draw(_getChatIcon(chatStrings.Keys[i].Type), new Vector2(pos.X + 3, pos.Y), Color.White);
 
 					string strToDraw = "";
 					if (string.IsNullOrEmpty(chatStrings.Keys[i].Who))
@@ -431,6 +501,42 @@ namespace EndlessClient
 			SpriteBatch.End();
 
 			base.Draw(gameTime);
+		}
+
+		/// <summary>
+		/// Returns the first open PM tab for a character, or ChatTabs.None if both PM tabs are in use.
+		/// </summary>
+		/// <param name="character">Character for the conversation</param>
+		/// <returns>ChatTab to which text should be added</returns>
+		public ChatTabs StartConversation(string character)
+		{
+			int i;
+			if (tabs[i = (int) ChatTabs.Private1].PrivateChatUnused || tabs[i].ChatCharacter == character)
+			{
+				tabs[i].ChatCharacter = character;
+				return ChatTabs.Private1;
+			}
+
+			if (tabs[i = (int) ChatTabs.Private2].PrivateChatUnused || tabs[i].ChatCharacter == character)
+			{
+				tabs[i].ChatCharacter = character;
+				return ChatTabs.Private2;
+			}
+
+			return ChatTabs.None;
+		}
+
+		/// <summary>
+		/// Closes a private chat conversation (called if the response from the server is "not found" for a character)
+		/// </summary>
+		/// <param name="character">Character for the conversation</param>
+		public void ClosePrivateChat(string character)
+		{
+			int i;
+			if (tabs[i = (int) ChatTabs.Private1].ChatCharacter == character)
+				tabs[i].ClosePrivateChat();
+			else if (tabs[i = (int) ChatTabs.Private2].ChatCharacter == character)
+				tabs[i].ClosePrivateChat();
 		}
 	}
 }

@@ -55,6 +55,12 @@ namespace EndlessClient
 			//TODO: Add whatever magic is necessary to make chat bubble appear
 		}
 
+		//renders a chat message from the local mainplayer
+		public void RenderLocalChatMessage(string message)
+		{
+			//show just the speech bubble, since this should be called from the HUD and rendered there already
+		}
+
 		public void SetActiveMap(MapFile newActiveMap)
 		{
 			MapRef = newActiveMap;

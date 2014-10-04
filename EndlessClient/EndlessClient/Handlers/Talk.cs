@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+using System.Threading;
 using EOLib;
+using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Handlers
 {
@@ -20,21 +18,34 @@ namespace EndlessClient.Handlers
 
 	public static class Talk //rename to packet family
 	{
-		//sends all different types of Talk packets to server based on which chat type we're doing
-		public static bool Speak(TalkType chatType, string message)
+		/// <summary>
+		/// sends all different types of Talk packets to server based on which chat type we're doing
+		/// </summary>
+		/// <param name="chatType">Which type of chat message is being sent</param>
+		/// <param name="message">The message being sent</param>
+		/// <param name="character">The character (required for TalkType.PM)</param>
+		/// <returns></returns>
+		public static bool Speak(TalkType chatType, string message, string character = null)
 		{
 			EOClient client = (EOClient)World.Instance.Client;
 			if (!client.ConnectedAndInitialized)
 				return false;
 			
-			PacketAction action;
+			Packet builder;
 			switch (chatType)
 			{
-				case TalkType.Local: action = PacketAction.Report; break;
+				case TalkType.Local:
+					builder = new Packet(PacketFamily.Talk, PacketAction.Report);
+					break;
+				case TalkType.PM:
+					builder = new Packet(PacketFamily.Talk, PacketAction.Tell);
+					if (string.IsNullOrWhiteSpace(character))
+						return false;
+					builder.AddBreakString(character);
+					break;
 				default: throw new NotImplementedException();
 			}
 
-			Packet builder = new Packet(PacketFamily.Talk, action);
 			builder.AddString(message);
 
 			return client.SendPacket(builder);
@@ -48,7 +59,35 @@ namespace EndlessClient.Handlers
 			short fromPlayerID = pkt.GetShort();
 			string message = pkt.GetEndString();
 
-			World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.Local, fromPlayerID, message);
+			World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.Local, fromPlayerID, message, ChatType.SpeechBubble);
+		}
+
+		/// <summary>
+		/// Handler for the TALK_REPLY packet (sent in response to not-found for PMs sent from this end)
+		/// </summary>
+		public static void TalkReply(Packet pkt)
+		{
+			switch (pkt.GetShort())
+			{
+				//player is not found so a sys error needs to be displayed
+				case 1: //TALK_NOTFOUND response
+					EOGame.Instance.Hud.PrivatePlayerNotFound(pkt.GetEndString());
+					break;
+			}
+		}
+
+		/// <summary>
+		/// Handler for the TALK_TELL packet (sent in response to PM messages)
+		/// </summary>
+		public static void TalkTell(Packet pkt)
+		{
+			string from = pkt.GetBreakString();
+			string message = pkt.GetBreakString();
+
+			EOGame.Instance.Hud.AddChat(ChatTabs.Local, from, message, ChatType.Note, ChatColor.PM);
+			ChatTabs tab = EOGame.Instance.Hud.GetPrivateChatTab(from);
+			if(tab != ChatTabs.None)
+				EOGame.Instance.Hud.AddChat(tab, from, message, ChatType.Note, ChatColor.Default);
 		}
 	}
 }

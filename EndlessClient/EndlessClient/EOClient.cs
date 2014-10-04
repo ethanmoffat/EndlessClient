@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
 
@@ -12,6 +13,7 @@ namespace EndlessClient
 	{
 		private delegate void PacketHandler(Packet reader);
 
+		//I COULD just use tuple...but it is easier to type when I make a wrapper that basically is a tuple.
 		private struct FamilyActionPair
 		{
 			public PacketFamily fam;
@@ -23,35 +25,37 @@ namespace EndlessClient
 				act = action;
 			}
 		}
+		
 		//this is a wrapper that serializes thread access to the handler method. This serialization can be overriden.
 		private class LockedHandlerMethod
 		{
-			private PacketHandler _handler;
-			private bool _override;
+			private readonly PacketHandler _handler;
+			private readonly bool _override;
+			private readonly bool _inGameOnly;
 
 			public PacketHandler Handler
 			{
 				get
 				{
-					if (!_override)
-						lock (locker)
-							return _handler;
-					else
+					if(_inGameOnly && GameStates.PlayingTheGame != EOGame.Instance.State) //force ignore if the handler is an in-game only handler
+						return p => { };
+					if (_override) return _handler;
+					lock (locker)
 						return _handler;
 				}
 			}
 			private static readonly object locker = new object();
 
-			public LockedHandlerMethod(PacketHandler handler, bool overrideLock = false)
+			public LockedHandlerMethod(PacketHandler handler, bool inGameOnly = false, bool overrideLock = false)
 			{
 				_override = overrideLock;
 				_handler = handler;
+				_inGameOnly = inGameOnly;
 			}
 		}
-		private Dictionary<FamilyActionPair, LockedHandlerMethod> handlers;
+		private readonly Dictionary<FamilyActionPair, LockedHandlerMethod> handlers;
 		
 		public EOClient()
-			: base()
 		{
 			handlers = new Dictionary<FamilyActionPair, LockedHandlerMethod>
 			{
@@ -81,11 +85,19 @@ namespace EndlessClient
 				},
 				{
 					new FamilyActionPair(PacketFamily.Players, PacketAction.Agree), 
-					new LockedHandlerMethod(Handlers.Players.PlayersAgree)
+					new LockedHandlerMethod(Handlers.Players.PlayersAgree, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Player),
- 					new LockedHandlerMethod(Handlers.Talk.TalkPlayer)
+ 					new LockedHandlerMethod(Handlers.Talk.TalkPlayer, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Reply), 
+					new LockedHandlerMethod(Handlers.Talk.TalkReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Tell), 
+					new LockedHandlerMethod(Handlers.Talk.TalkTell, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Welcome, PacketAction.Reply),
