@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-
+using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -133,6 +133,9 @@ namespace EndlessClient
 		private enum Mode
 		{
 			LineByLineRender,
+			/// <summary>
+			/// LabelRender is being deprecated. Soon, mode will not exist and LabelRender will be gone
+			/// </summary>
 			LabelRender
 		}
 		private Mode _mode;
@@ -285,10 +288,9 @@ namespace EndlessClient
 					break;
 				case Mode.LineByLineRender:
 				{
-					const int NUM_LINES_RENDERED = 7;
 					//_totalHeight contains the number of lines to render
 					//7 or less shouldn't scroll
-					if (_totalHeight <= NUM_LINES_RENDERED)
+					if (_totalHeight <= Constants.NUM_LINES_RENDERED)
 						return;
 
 					if (btn == up)
@@ -300,7 +302,7 @@ namespace EndlessClient
 					}
 					else if (btn == down)
 					{
-						if (ScrollOffset < _totalHeight - NUM_LINES_RENDERED)
+						if (ScrollOffset < _totalHeight - Constants.NUM_LINES_RENDERED)
 							ScrollOffset++;
 						else
 							return;
@@ -310,7 +312,7 @@ namespace EndlessClient
 						return;
 					}
 
-					float pixelsPerLine = (float)(scrollArea.Height - scroll.DrawArea.Height * 2) / (_totalHeight - NUM_LINES_RENDERED);
+					float pixelsPerLine = (float)(scrollArea.Height - scroll.DrawArea.Height * 2) / (_totalHeight - Constants.NUM_LINES_RENDERED);
 					scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scroll.DrawArea.Height + pixelsPerLine * ScrollOffset);
 					if (scroll.DrawLocation.Y > scrollArea.Height - scroll.DrawArea.Height)
 					{
@@ -348,7 +350,6 @@ namespace EndlessClient
 						return;
 					
 					double pixelsPerLine = (double)(scrollArea.Height - scroll.DrawArea.Height * 2) / (_totalHeight - NUM_LINES_RENDERED);
-					//scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scroll.DrawArea.Height + pixelsPerLine * ScrollOffset);
 					ScrollOffset = (int)Math.Round((y - scroll.DrawArea.Height)/pixelsPerLine);
 				}
 					break;
@@ -359,6 +360,29 @@ namespace EndlessClient
 		{
 			if ((parent != null && !parent.Visible) || !Visible || (XNAControl.Dialogs.Count != 0 && XNAControl.Dialogs.Peek() != TopParent as XNADialog))
 				return;
+
+			//handle mouse wheel scrolling, but only if the cursor is over the parent control of the scroll bar
+			MouseState currentState = Mouse.GetState();
+			if (currentState.ScrollWheelValue != PreviousMouseState.ScrollWheelValue
+				&& parent != null && parent.MouseOver && parent.MouseOverPreviously
+				&& _mode == Mode.LineByLineRender
+				&& _totalHeight > Constants.NUM_LINES_RENDERED)
+			{
+				int dif = (currentState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue) / 120;
+				dif *= -1;//otherwise its that stupid-ass apple bullshit with the fucking natural scroll WHY IS IT EVEN A THING JESUS CHRIST APPLE
+				if ((dif < 0 && dif + ScrollOffset >= 0) || (dif > 0 && ScrollOffset + dif <= _totalHeight - Constants.NUM_LINES_RENDERED))
+				{
+					ScrollOffset += dif;
+					float pixelsPerLine = (float) (scrollArea.Height - scroll.DrawArea.Height*2)/
+					                      (_totalHeight - Constants.NUM_LINES_RENDERED);
+					scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scroll.DrawArea.Height + pixelsPerLine*ScrollOffset);
+					if (scroll.DrawLocation.Y > scrollArea.Height - scroll.DrawArea.Height)
+					{
+						scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scrollArea.Height - scroll.DrawArea.Height);
+					}
+				}
+			}
+			
 			base.Update(gt);
 		}
 

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-//miscellaneous extension functions and some constant values are defined here
+﻿//miscellaneous extension functions and some constant values are defined here
 
 namespace EOLib
 {
@@ -34,26 +29,28 @@ namespace EOLib
 	
 	public static class Constants
 	{
-		public static readonly int ResponseTimeout = 5000;
-		public static readonly int ResponseFileTimeout = 10000;
+		public const int ResponseTimeout = 5000;
+		public const int ResponseFileTimeout = 10000;
 
-		public static readonly byte MajorVersion = 0;
-		public static readonly byte MinorVersion = 0;
-		public static readonly byte ClientVersion = 28;
+		public const byte MajorVersion = 0;
+		public const byte MinorVersion = 0;
+		public const byte ClientVersion = 28;
 
-		public static readonly string Host = "127.0.0.1";
-		public static readonly int Port = 8078;
+		public const string Host = "127.0.0.1";
+		public const int Port = 8078;
+		
+		public const int NUM_LINES_RENDERED = 7;
 
-		public static readonly string ItemFilePath = "pub/dat001.eif";
-		public static readonly string NPCFilePath = "pub/dtn001.enf";
-		public static readonly string SpellFilePath = "pub/dsl001.esf";
-		public static readonly string ClassFilePath = "pub/dat001.ecf";
+		public const string ItemFilePath = "pub/dat001.eif";
+		public const string NPCFilePath = "pub/dtn001.enf";
+		public const string SpellFilePath = "pub/dsl001.esf";
+		public const string ClassFilePath = "pub/dat001.ecf";
 	}
 
 	public static class ConfigStrings
 	{
-		public static readonly string Connection = "CONNECTION";
-		public static readonly string Host = "Host";
-		public static readonly string Port = "Port";
+		public const string Connection = "CONNECTION";
+		public const string Host = "Host";
+		public const string Port = "Port";
 	}
 }
