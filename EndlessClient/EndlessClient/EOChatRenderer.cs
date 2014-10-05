@@ -23,6 +23,7 @@ namespace EndlessClient
 	}
 
 	/// <summary>
+	/// Represents the different icons displayed next to lines of chat text.
 	/// These go in numerical order for how they are in the sprite sheet in the GFX file
 	/// </summary>
 	public enum ChatType
@@ -52,6 +53,22 @@ namespace EndlessClient
 		WhatTheFuck,
 		Information,
 		NoteGenderThing
+	}
+
+	/// <summary>
+	/// Represents the graphic displayed next to the text in the chat bar
+	/// These go in numerical order for how they are in the sprite sheet in the GFX file
+	/// </summary>
+	public enum ChatMode
+	{
+		NoText,
+		Public,
+		Private,
+		Global,
+		Group,
+		Admin,
+		Muted,
+		Guild
 	}
 
 	public enum ChatColor

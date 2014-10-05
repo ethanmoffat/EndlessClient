@@ -37,10 +37,13 @@ namespace EndlessClient
 		private readonly XNAPanel pnlNews, pnlOnline, pnlParty, pnlSettings, pnlHelp;
 		private readonly XNAButton[] mainBtn;
 		private readonly SpriteBatch SpriteBatch;
-		private InGameStates state;
 		private readonly EOChatRenderer chatRenderer;
 		private readonly ChatTab newsTab;
-		
+
+		private InGameStates state;
+		private ChatMode currentChatMode;
+		private Texture2D modeTexture;
+		private bool modeTextureLoaded;
 		/// <summary>
 		/// the primary textbox for chat
 		/// </summary>
@@ -173,15 +176,38 @@ namespace EndlessClient
 			chatTextBox.Visible = true;
 			chatTextBox.MaxChars = 140; //tweet size
 			chatTextBox.OnEnterPressed += _doTalk;
-			chatTextBox.Clicked += (s, e) =>
+			chatTextBox.OnClicked += (s, e) =>
 			{
-				//make sure clicking on the textarea selects it (this is an annoying bug in the original client)
+				//make sure clicking on the textarea selects it (this is an annoying problem in the original client)
 				if ((g as EOGame).Dispatcher.Subscriber != null)
 					((g as EOGame).Dispatcher.Subscriber as XNATextBox).Selected = false;
 
 				(g as EOGame).Dispatcher.Subscriber = chatTextBox;
 				chatTextBox.Selected = true;
 			};
+			chatTextBox.OnTextChanged += (s, e) =>
+			{
+				if (chatTextBox.Text.Length <= 0)
+				{
+					modeTextureLoaded = false;
+					modeTexture.Dispose();
+					modeTexture = null;
+
+					currentChatMode = ChatMode.NoText;
+					return;
+				}
+
+				switch (chatTextBox.Text[0])
+				{
+					case '!': currentChatMode = ChatMode.Private; break;
+					case '~': currentChatMode = ChatMode.Global; break;
+					case '@': currentChatMode = ChatMode.Admin; break;
+					case '\'': currentChatMode = ChatMode.Group; break;
+					case '&': currentChatMode = ChatMode.Guild; break;
+					default: currentChatMode = ChatMode.Public; break;
+				}
+			};
+
 			(g as EOGame).Dispatcher.Subscriber = chatTextBox;
 		}
 
@@ -190,6 +216,23 @@ namespace EndlessClient
 			SpriteBatch.Begin();
 			SpriteBatch.Draw(mainFrame, new Vector2(0, 0), Color.White);
 
+			//show the little graphic next
+			if (currentChatMode != ChatMode.NoText && !modeTextureLoaded)
+			{
+				Texture2D chatModeTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 31);
+				int oneMode = chatModeTexture.Height/8;
+				Color[] data = new Color[chatModeTexture.Width*oneMode]; //there are 8 chat mode graphics in the texture
+				chatModeTexture.GetData(0, new Rectangle(0, (int) currentChatMode*oneMode, chatModeTexture.Width, oneMode), data, 0,
+					data.Length);
+				modeTexture = new Texture2D(Game.GraphicsDevice, chatModeTexture.Width, oneMode);
+				modeTexture.SetData(data);
+				modeTextureLoaded = true;
+			}
+
+			if(modeTextureLoaded && modeTexture != null)
+				SpriteBatch.Draw(modeTexture, new Vector2(16, 309), Color.White);
+
+			//TODO: probably going to put the code for rendering HUD elements (HP, TP, SP, TNL) here
 			switch(state)
 			{
 				default:
@@ -276,8 +319,8 @@ namespace EndlessClient
 					break;
 				case '!':  //private talk
 				{
-					//TODO: Add the little icon that shows private/public/global etc
-					//TODO: handle case for when the private chat is selected and they use the shortcut ! without a character name
+					//TODO: Handle right-clicking the chat line to start a pm
+					//TODO: Handle case for when the private chat is selected and they use the shortcut ! without a character name
 
 					int firstSpace = chatText.IndexOf(' ');
 					if (firstSpace < 7) return; //character names should be 6, leading ! should be 1, 6+1=7 and THAT'S MATH
@@ -359,6 +402,7 @@ namespace EndlessClient
 		}
 		#endregion
 
+		//TODO: make these into lambda expressions for each button to simplify the code
 		#region ButtonClickEventHandlers
 		private void OnViewInventory(object sender, EventArgs e)
 		{

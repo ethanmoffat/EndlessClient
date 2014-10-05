@@ -560,7 +560,7 @@ namespace EndlessClient
 					dispatch.Subscriber = inputBoxes[next];
 				};
 
-				tb.Clicked += (s, e) =>
+				tb.OnClicked += (s, e) =>
 					{
 						dispatch.Subscriber.Selected = false;
 						dispatch.Subscriber = (s as XNATextBox);

@@ -53,7 +53,7 @@ namespace EndlessClient
 				LeftPadding = 4
 			};
 			loginUsernameTextbox.OnTabPressed += OnTabPressed;
-			loginUsernameTextbox.Clicked += OnTextClicked;
+			loginUsernameTextbox.OnClicked += OnTextClicked;
 			loginUsernameTextbox.OnEnterPressed += (s, e) => MainButtonPress(loginButtons[0], e);
 			Dispatcher.Subscriber = loginUsernameTextbox;
 
@@ -65,7 +65,7 @@ namespace EndlessClient
 				DefaultText = "Password"
 			};
 			loginPasswordTextbox.OnTabPressed += OnTabPressed;
-			loginPasswordTextbox.Clicked += OnTextClicked;
+			loginPasswordTextbox.OnClicked += OnTextClicked;
 			loginPasswordTextbox.OnEnterPressed += (s, e) => MainButtonPress(loginButtons[0], e);
 
 			//set up primary four login buttons
@@ -121,7 +121,7 @@ namespace EndlessClient
 				txt.DefaultText = " ";
 
 				txt.OnTabPressed += OnTabPressed;
-				txt.Clicked += OnTextClicked;
+				txt.OnClicked += OnTextClicked;
 				accountCreateTextBoxes[i] = txt;
 			}
 
