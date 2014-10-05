@@ -322,11 +322,20 @@ namespace EndlessClient
 					//TODO: Handle right-clicking the chat line to start a pm
 					//TODO: Handle case for when the private chat is selected and they use the shortcut ! without a character name
 
-					int firstSpace = chatText.IndexOf(' ');
-					if (firstSpace < 7) return; //character names should be 6, leading ! should be 1, 6+1=7 and THAT'S MATH
+					string character, message;
+					if (chatRenderer.SelectedTab.WhichTab == ChatTabs.Private1 || chatRenderer.SelectedTab.WhichTab == ChatTabs.Private2)
+					{
+						character = chatRenderer.SelectedTab.ChatCharacter;
+						message = chatText.Substring(1);
+					}
+					else
+					{
+						int firstSpace = chatText.IndexOf(' ');
+						if (firstSpace < 7) return; //character names should be 6, leading ! should be 1, 6+1=7 and THAT'S MATH
+						character = chatText.Substring(1, firstSpace - 1);
+						message = chatText.Substring(firstSpace + 1);
+					}
 
-					string character = chatText.Substring(1, firstSpace - 1);
-					string message = chatText.Substring(firstSpace + 1);
 					if (!Talk.Speak(TalkType.PM, message, character))
 						_returnToLogin();
 

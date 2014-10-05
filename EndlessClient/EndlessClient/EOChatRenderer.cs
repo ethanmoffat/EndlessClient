@@ -222,7 +222,7 @@ namespace EndlessClient
 			}
 			
 			//568 331
-			scrollBar = new EOScrollBar(g, parentRenderer, new Vector2(467, 2), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed)
+			scrollBar = new EOScrollBar(g, parent, new Vector2(467, 2), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed)
 			{
 				Visible = selected
 			};
@@ -407,6 +407,8 @@ namespace EndlessClient
 		{
 			if (Selected) //only draw this tab if it is selected
 			{
+				if (scrollBar == null) return; //prevent nullreferenceexceptions
+
 				SpriteBatch.Begin();
 				//draw icons for the text strings based on the icon specified in the chatStrings Key of the pair
 				for (int i = scrollBar.ScrollOffset; i < scrollBar.ScrollOffset + 7; ++i) //draw 7 lines
@@ -438,7 +440,12 @@ namespace EndlessClient
 	public class EOChatRenderer : XNAControl
 	{
 		private int currentSelTab;
-		private ChatTab[] tabs;
+		private readonly ChatTab[] tabs;
+
+		public ChatTab SelectedTab
+		{
+			get { return tabs[currentSelTab]; }
+		}
 
 		public EOChatRenderer(Game g) : base(g)
 		{

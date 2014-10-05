@@ -363,8 +363,17 @@ namespace EndlessClient
 
 			//handle mouse wheel scrolling, but only if the cursor is over the parent control of the scroll bar
 			MouseState currentState = Mouse.GetState();
+
+			//scroll wheel will only work for news because it is constructed with a panel as the parent
+			//so for all other tabs, need to get the tab that it is being rendered in for mouseover to work properly
+			XNAControl tempParent;
+			if (parent is EOChatRenderer)
+				tempParent = parent.GetParent();
+			else
+				tempParent = parent;
+
 			if (currentState.ScrollWheelValue != PreviousMouseState.ScrollWheelValue
-				&& parent != null && parent.MouseOver && parent.MouseOverPreviously
+				&& tempParent != null && tempParent.MouseOver && tempParent.MouseOverPreviously
 				&& _mode == Mode.LineByLineRender
 				&& _totalHeight > Constants.NUM_LINES_RENDERED)
 			{
