@@ -50,6 +50,8 @@ namespace EndlessClient
 			//get the character name for the player ID that was received
 			string playerName = otherPlayers.Find(x => x.ID == playerID).Name;
 
+			if (EOGame.Instance.Hud == null)
+				return;
 			EOGame.Instance.Hud.AddChat(tab, playerName, message, chatType);
 
 			//TODO: Add whatever magic is necessary to make chat bubble appear

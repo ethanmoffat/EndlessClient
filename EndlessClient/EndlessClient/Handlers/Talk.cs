@@ -71,7 +71,9 @@ namespace EndlessClient.Handlers
 			{
 				//player is not found so a sys error needs to be displayed
 				case 1: //TALK_NOTFOUND response
-					EOGame.Instance.Hud.PrivatePlayerNotFound(pkt.GetEndString());
+					string from = pkt.GetEndString();
+					from = from.Substring(0, 1).ToUpper() + from.Substring(1).ToLower();
+					EOGame.Instance.Hud.PrivatePlayerNotFound(from);
 					break;
 			}
 		}
@@ -82,12 +84,13 @@ namespace EndlessClient.Handlers
 		public static void TalkTell(Packet pkt)
 		{
 			string from = pkt.GetBreakString();
+			from = from.Substring(0, 1).ToUpper() + from.Substring(1).ToLower();
 			string message = pkt.GetBreakString();
 
 			EOGame.Instance.Hud.AddChat(ChatTabs.Local, from, message, ChatType.Note, ChatColor.PM);
 			ChatTabs tab = EOGame.Instance.Hud.GetPrivateChatTab(from);
 			if(tab != ChatTabs.None)
-				EOGame.Instance.Hud.AddChat(tab, from, message, ChatType.Note, ChatColor.Default);
+				EOGame.Instance.Hud.AddChat(tab, from, message, ChatType.Note);
 		}
 	}
 }

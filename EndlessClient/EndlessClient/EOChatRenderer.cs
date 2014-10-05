@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-
+using EOLib;
 using XNAControls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -396,6 +396,19 @@ namespace EndlessClient
 					if (withOffset.ContainsPoint(Mouse.GetState().X, Mouse.GetState().Y))
 					{
 						ClosePrivateChat();
+					}
+				}
+			}
+			else if (Selected && mouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)
+			{
+				XNAControl tmpParent = parent.GetParent(); //get the panel containing this tab, the parent is the chatRenderer
+				if (tmpParent.DrawAreaWithOffset.Contains(mouseState.X, mouseState.Y))
+				{
+					int adjustedY = mouseState.Y - tmpParent.DrawAreaWithOffset.Y;
+					int level = (int)Math.Round(adjustedY / 13.0) - 1;
+					if (level >= 0 && scrollBar.ScrollOffset + level < chatStrings.Count)
+					{
+						EOGame.Instance.Hud.SetChatText("!" + chatStrings.Keys[scrollBar.ScrollOffset + level].Who + " ");
 					}
 				}
 			}

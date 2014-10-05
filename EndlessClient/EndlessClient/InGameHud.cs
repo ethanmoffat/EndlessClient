@@ -148,19 +148,19 @@ namespace EndlessClient
 			}
 
 			//left button onclick events
-			mainBtn[0].OnClick += OnViewInventory;
+			mainBtn[0].OnClick += (s,e) => _doStateChange(InGameStates.Inventory);
 			mainBtn[1].OnClick += OnViewMap;
-			mainBtn[2].OnClick += OnViewActiveSkills;
-			mainBtn[3].OnClick += OnViewPassiveSkills;
-			mainBtn[4].OnClick += OnViewChat;
-			mainBtn[5].OnClick += OnViewStats;
+			mainBtn[2].OnClick += (s,e) => _doStateChange(InGameStates.Active);
+			mainBtn[3].OnClick += (s, e) => _doStateChange(InGameStates.Passive);
+			mainBtn[4].OnClick += (s, e) => _doStateChange(InGameStates.Chat);
+			mainBtn[5].OnClick += (s, e) => _doStateChange(InGameStates.Stats);
 
 			//right button onclick events
-			mainBtn[6].OnClick += OnViewPlayers;
-			mainBtn[7].OnClick += OnViewParty;
+			mainBtn[6].OnClick += (s, e) => _doStateChange(InGameStates.Online);
+			mainBtn[7].OnClick += (s, e) => _doStateChange(InGameStates.Party);
 			//mainBtn[8].OnClick += OnViewMacro; //not implemented in EO client
-			mainBtn[9].OnClick += OnViewSettings;
-			mainBtn[10].OnClick += OnViewHelp;
+			mainBtn[9].OnClick += (s, e) => _doStateChange(InGameStates.Settings);
+			mainBtn[10].OnClick += (s, e) => _doStateChange(InGameStates.Help);
 
 			SpriteBatch = new SpriteBatch(g.GraphicsDevice);
 
@@ -319,9 +319,6 @@ namespace EndlessClient
 					break;
 				case '!':  //private talk
 				{
-					//TODO: Handle right-clicking the chat line to start a pm
-					//TODO: Handle case for when the private chat is selected and they use the shortcut ! without a character name
-
 					string character, message;
 					if (chatRenderer.SelectedTab.WhichTab == ChatTabs.Private1 || chatRenderer.SelectedTab.WhichTab == ChatTabs.Private2)
 					{
@@ -335,6 +332,8 @@ namespace EndlessClient
 						character = chatText.Substring(1, firstSpace - 1);
 						message = chatText.Substring(firstSpace + 1);
 					}
+
+					character = character.Substring(0, 1).ToUpper() + character.Substring(1).ToLower();
 
 					if (!Talk.Speak(TalkType.PM, message, character))
 						_returnToLogin();
@@ -409,53 +408,19 @@ namespace EndlessClient
 		{
 			return chatRenderer.StartConversation(character);
 		}
+
+		public void SetChatText(string text)
+		{
+			chatTextBox.Text = text;
+		}
 		#endregion
 
-		//TODO: make these into lambda expressions for each button to simplify the code
 		#region ButtonClickEventHandlers
-		private void OnViewInventory(object sender, EventArgs e)
-		{
-			_doStateChange(InGameStates.Inventory);
-		}
-
 		private void OnViewMap(object sender, EventArgs e)
 		{
 			/* Check if map file allows minimap viewing */
 			/* set flag accordingly */
-		}
-
-		private void OnViewActiveSkills(object sender, EventArgs e)
-		{
-			_doStateChange(InGameStates.Active);
-		}
-		private void OnViewPassiveSkills(object sender, EventArgs e)
-		{
-			_doStateChange(InGameStates.Passive);
-		}
-		private void OnViewChat(object sender, EventArgs e)
-		{
-			_doStateChange(InGameStates.Chat);
-		}
-		private void OnViewStats(object sender, EventArgs e)
-		{
-			_doStateChange(InGameStates.Stats);
-		}
-		private void OnViewPlayers(object sender, EventArgs e)
-		{
-			_doStateChange(InGameStates.Online);
-		}
-		private void OnViewParty(object sender, EventArgs e)
-		{
-			_doStateChange(InGameStates.Party);
-		}
-		private void OnViewSettings(object sender, EventArgs e)
-		{
-			_doStateChange(InGameStates.Settings);
-		}
-		private void OnViewHelp(object sender, EventArgs e)
-		{
-			/* pop up the help dialog */
-			_doStateChange(InGameStates.Help);
+			/* turn this into a lambda if it is short enough */
 		}
 		#endregion
 
