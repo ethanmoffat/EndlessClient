@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading;
-using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
+using Color = Microsoft.Xna.Framework.Color;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 #pragma warning disable 162
 
@@ -28,7 +30,7 @@ namespace EndlessClient
 			if (centerDialog)
 				Center(Game.GraphicsDevice);
 			_fixDrawOrder();
-			XNAControl.Dialogs.Push(this);
+			Dialogs.Push(this);
 
 			Game.Components.Add(this);
 		}
@@ -42,10 +44,7 @@ namespace EndlessClient
 		public EODialog(Game encapsulatingGame, string msgText, string captionText = "", XNADialogButtons whichButtons = XNADialogButtons.Ok, bool useSmallHeader = false)
 			: base(encapsulatingGame)
 		{
-			if (!useSmallHeader)
-				bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18);
-			else
-				bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 23);
+			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, useSmallHeader ? 23 : 18);
 			_setSize(bgTexture.Width, bgTexture.Height);
 			
 			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1), "Microsoft Sans Serif", 10.0f); //label is auto-sized
@@ -125,21 +124,12 @@ namespace EndlessClient
 
 		private Rectangle scrollArea; //area valid for scrolling: always 16 from top and 16 from bottom
 		public int ScrollOffset { get; private set; }
+		public int LinesToRender { get; set; }
 
 		private readonly XNAButton up, down, scroll; //buttons
 
-		private int _rowHeight, _totalHeight;
-
-		private enum Mode
-		{
-			LineByLineRender,
-			/// <summary>
-			/// LabelRender is being deprecated. Soon, mode will not exist and LabelRender will be gone
-			/// </summary>
-			LabelRender
-		}
-		private Mode _mode;
-
+		private int _totalHeight;
+		
 		public EOScrollBar(Game encapsulatingGame, XNAControl parent, Vector2 relativeLoc, Vector2 size, ScrollColors palette)
 			: base(encapsulatingGame, relativeLoc, new Rectangle((int)relativeLoc.X, (int)relativeLoc.Y, (int)size.X, (int)size.Y))
 		{
@@ -201,27 +191,17 @@ namespace EndlessClient
 			scroll.OnClickDrag += scrollDragged;
 			scroll.SetParent(this);
 
-			_rowHeight = 20;
 			_totalHeight = DrawAreaWithOffset.Height;
-			_mode = Mode.LabelRender;
 		}
-
-		public void UpdateDimensions(int totalHeight, int rowHeight)
-		{
-			_totalHeight = totalHeight;
-			_rowHeight = rowHeight;
-			_mode = Mode.LabelRender;
-		}
-
+		
 		public void UpdateDimensions(int numberOfLines)
 		{
 			_totalHeight = numberOfLines;
-			_mode = Mode.LineByLineRender;
 		}
 
 		public void ScrollToEnd()
 		{
-			while(ScrollOffset < _totalHeight - 7)
+			while(ScrollOffset < _totalHeight - LinesToRender)
 				arrowClicked(down, new EventArgs());
 		}
 
@@ -231,95 +211,35 @@ namespace EndlessClient
 		//	 The Y coordinate for the scroll box determines where it is drawn.
 		private void arrowClicked(object btn, EventArgs e)
 		{
-			switch (_mode)
+			//_totalHeight contains the number of lines to render
+			//any less than LinesToRender shouldn't scroll
+			if (_totalHeight <= LinesToRender)
+				return;
+
+			if (btn == up)
 			{
-				case Mode.LabelRender:
-				{
-					if (_totalHeight < drawArea.Height)
-						return;
+				if (ScrollOffset > 0)
+					ScrollOffset--;
+				else
+					return;
+			}
+			else if (btn == down)
+			{
+				if (ScrollOffset < _totalHeight - LinesToRender)
+					ScrollOffset++;
+				else
+					return;
+			}
+			else
+			{
+				return;
+			}
 
-					int step = _totalHeight/_rowHeight;
-
-					if (btn == up)
-					{
-						if (ScrollOffset <= 0)
-						{
-							ScrollOffset = 0;
-							return;
-						}
-
-						ScrollOffset -= step;
-					}
-					else if (btn == down)
-					{
-						if (ScrollOffset >= scrollArea.Height - scroll.DrawArea.Height)
-							return;
-
-						ScrollOffset += step;
-					}
-					else
-						return; //no other buttons should send this event
-
-					if (ScrollOffset < 0)
-						ScrollOffset = 0;
-					else if (ScrollOffset > scrollArea.Height - scroll.DrawArea.Height)
-						ScrollOffset = scrollArea.Height - scroll.DrawArea.Height;
-
-					//update the y coordinate of the scroll button
-					//this function is basically reversed to solve for ScrollOffset in the scrollDragged event below
-					//the 2.5 is a magic constant that I'm not sure why it works.
-					int y = (int) ((ScrollOffset/(float) (_totalHeight/2.5))*(scrollArea.Height - scroll.DrawArea.Height)) +
-					        up.DrawArea.Height;
-
-					if (y < up.DrawAreaWithOffset.Height)
-						y = up.DrawAreaWithOffset.Height + 1;
-					else if (y > scrollArea.Height - scroll.DrawArea.Height)
-					{
-						y = scrollArea.Height - scroll.DrawArea.Height;
-						if ((int) scroll.DrawLocation.Y == y)
-						{
-							ScrollOffset -= step;
-							//undo the step if it is out of bounds so the text doesn't keep going after scroll has reached the bottom
-						}
-					}
-
-					scroll.DrawLocation = new Vector2(0, y);
-				}
-					break;
-				case Mode.LineByLineRender:
-				{
-					//_totalHeight contains the number of lines to render
-					//7 or less shouldn't scroll
-					if (_totalHeight <= Constants.NUM_LINES_RENDERED)
-						return;
-
-					if (btn == up)
-					{
-						if (ScrollOffset > 0)
-							ScrollOffset--;
-						else
-							return;
-					}
-					else if (btn == down)
-					{
-						if (ScrollOffset < _totalHeight - Constants.NUM_LINES_RENDERED)
-							ScrollOffset++;
-						else
-							return;
-					}
-					else
-					{
-						return;
-					}
-
-					float pixelsPerLine = (float)(scrollArea.Height - scroll.DrawArea.Height * 2) / (_totalHeight - Constants.NUM_LINES_RENDERED);
-					scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scroll.DrawArea.Height + pixelsPerLine * ScrollOffset);
-					if (scroll.DrawLocation.Y > scrollArea.Height - scroll.DrawArea.Height)
-					{
-						scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scrollArea.Height - scroll.DrawArea.Height);
-					}
-				}
-					break;
+			float pixelsPerLine = (float) (scrollArea.Height - scroll.DrawArea.Height*2)/(_totalHeight - LinesToRender);
+			scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scroll.DrawArea.Height + pixelsPerLine*ScrollOffset);
+			if (scroll.DrawLocation.Y > scrollArea.Height - scroll.DrawArea.Height)
+			{
+				scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scrollArea.Height - scroll.DrawArea.Height);
 			}
 		}
 
@@ -333,32 +253,16 @@ namespace EndlessClient
 				y = scrollArea.Height - scroll.DrawArea.Height;
 
 			scroll.DrawLocation = new Vector2(0, y);
+			if (_totalHeight <= LinesToRender)
+				return;
 
-			switch (_mode)
-			{
-				case Mode.LabelRender:
-				{
-					if (_totalHeight > drawArea.Height) //only scroll the actual text if it is larger than the drawArea
-						ScrollOffset = (int)Math.Round((_totalHeight/2.5f)*((y - up.DrawArea.Height)/(float) (scrollArea.Height - scroll.DrawArea.Height)));
-				}
-					break;
-				case Mode.LineByLineRender:
-				{
-					const int NUM_LINES_RENDERED = 7;
-
-					if (_totalHeight <= NUM_LINES_RENDERED)
-						return;
-					
-					double pixelsPerLine = (double)(scrollArea.Height - scroll.DrawArea.Height * 2) / (_totalHeight - NUM_LINES_RENDERED);
-					ScrollOffset = (int)Math.Round((y - scroll.DrawArea.Height)/pixelsPerLine);
-				}
-					break;
-			}
+			double pixelsPerLine = (double) (scrollArea.Height - scroll.DrawArea.Height*2)/(_totalHeight - LinesToRender);
+			ScrollOffset = (int) Math.Round((y - scroll.DrawArea.Height)/pixelsPerLine);
 		}
 
 		public override void Update(GameTime gt)
 		{
-			if ((parent != null && !parent.Visible) || !Visible || (XNAControl.Dialogs.Count != 0 && XNAControl.Dialogs.Peek() != TopParent as XNADialog))
+			if ((parent != null && !parent.Visible) || !Visible || (Dialogs.Count != 0 && Dialogs.Peek() != TopParent as XNADialog))
 				return;
 
 			//handle mouse wheel scrolling, but only if the cursor is over the parent control of the scroll bar
@@ -374,16 +278,15 @@ namespace EndlessClient
 
 			if (currentState.ScrollWheelValue != PreviousMouseState.ScrollWheelValue
 				&& tempParent != null && tempParent.MouseOver && tempParent.MouseOverPreviously
-				&& _mode == Mode.LineByLineRender
-				&& _totalHeight > Constants.NUM_LINES_RENDERED)
+				&& _totalHeight > LinesToRender)
 			{
 				int dif = (currentState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue) / 120;
-				dif *= -1;//otherwise its that stupid-ass apple bullshit with the fucking natural scroll WHY IS IT EVEN A THING JESUS CHRIST APPLE
-				if ((dif < 0 && dif + ScrollOffset >= 0) || (dif > 0 && ScrollOffset + dif <= _totalHeight - Constants.NUM_LINES_RENDERED))
+				dif *= -1;//otherwise its that stupid-ass apple bullshit with the fucking natural scroll WHY IS IT EVEN A THING WHAT THE FUCK APPLE
+				if ((dif < 0 && dif + ScrollOffset >= 0) || (dif > 0 && ScrollOffset + dif <= _totalHeight - LinesToRender))
 				{
 					ScrollOffset += dif;
 					float pixelsPerLine = (float) (scrollArea.Height - scroll.DrawArea.Height*2)/
-					                      (_totalHeight - Constants.NUM_LINES_RENDERED);
+										  (_totalHeight - LinesToRender);
 					scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scroll.DrawArea.Height + pixelsPerLine*ScrollOffset);
 					if (scroll.DrawLocation.Y > scrollArea.Height - scroll.DrawArea.Height)
 					{
@@ -409,7 +312,93 @@ namespace EndlessClient
 	/// </summary>
 	public class EOScrollingDialog : EODialogBase
 	{
-		private readonly EOScrollBar scroll;
+		private readonly EOScrollBar scrollBar;
+		private readonly List<string> chatStrings = new List<string>();
+
+		private readonly SpriteFont font;
+		private const int LINE_LEN = 275;
+
+		private string _msg;
+		public new string MessageText
+		{
+			get { return _msg; }
+			set
+			{
+				chatStrings.Clear();
+				string tmp = value;
+
+				//special case: blank line, like in the news panel between news items
+				if (string.IsNullOrWhiteSpace(tmp))
+				{
+					chatStrings.Add(" ");
+					scrollBar.UpdateDimensions(chatStrings.Count);
+					return;
+				}
+
+				//don't do multi-line processing if we don't need to
+				if (font.MeasureString(tmp).X < LINE_LEN)
+				{
+					chatStrings.Add(tmp);
+					scrollBar.UpdateDimensions(chatStrings.Count);
+					return;
+				}
+
+				string buffer = tmp, newLine = "";
+
+				List<string> chatStringsToAdd = new List<string>();
+				char[] whiteSpace = { ' ', '\t', '\n' };
+				string nextWord = "";
+				while (buffer.Length > 0) //keep going until the buffer is empty
+				{
+					//get the next word
+					bool endOfWord = true, lineOverFlow = true; //these are negative logic booleans: will be set to false when flagged
+					while (buffer.Length > 0 && (endOfWord = !whiteSpace.Contains(buffer[0])) &&
+						   (lineOverFlow = font.MeasureString(newLine + nextWord).X < LINE_LEN))
+					{
+						nextWord += buffer[0];
+						buffer = buffer.Remove(0, 1);
+					}
+
+					//flip the bools so the program reads more logically
+					//because double negatives aren't never not fun
+					endOfWord = !endOfWord;
+					lineOverFlow = !lineOverFlow;
+
+					if (endOfWord)
+					{
+						newLine += nextWord + buffer[0];
+						buffer = buffer.Remove(0, 1);
+						nextWord = "";
+					}
+					else if (lineOverFlow)
+					{
+						//for line overflow: slightly different than chat, start the next line with the partial word
+						if (newLine.Contains('\n'))
+						{
+							chatStringsToAdd.AddRange(newLine.Split(new[] {'\n'}, StringSplitOptions.None));
+						}
+						else
+							chatStringsToAdd.Add(newLine);
+						newLine = nextWord;
+						nextWord = "";
+					}
+					else
+					{
+						newLine += nextWord;
+						chatStringsToAdd.Add(newLine);
+					}
+				}
+
+				foreach (string chatString in chatStringsToAdd)
+				{
+					chatStrings.Add(chatString);
+				}
+
+				scrollBar.UpdateDimensions(chatStrings.Count);
+				scrollBar.LinesToRender = (int)Math.Round(110.0f / 13); //draw area for the text is 117px, 13px per line
+				_msg = value;
+			}
+		}
 
 		public EOScrollingDialog(Game encapsulatingGame, string msgText)
 			: base(encapsulatingGame)
@@ -417,23 +406,15 @@ namespace EndlessClient
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 40);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1)) //label is auto-sized
-			{
-				Font = new System.Drawing.Font("Microsoft Sans Serif", 8.0f),
-				ForeColor = System.Drawing.Color.FromArgb(255, 0xc8, 0xc8, 0xc8),
-				Text = msgText,
-				TextWidth = 293,
-				Visible = false, //doesn't draw itself (hacky workaround in progress refactoring)
-				RowSpacing = 4
-			}; 
-			message.SetParent(this);
-
+			font = Game.Content.Load<SpriteFont>("dbg");
+			
 			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(138, 197), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
 			ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			scroll = new EOScrollBar(encapsulatingGame, this, new Vector2(320, 66), new Vector2(16, 119), EOScrollBar.ScrollColors.LightOnMed);
+			scrollBar = new EOScrollBar(encapsulatingGame, this, new Vector2(320, 66), new Vector2(16, 119), EOScrollBar.ScrollColors.LightOnMed);
+			MessageText = msgText;
 
 			base.endConstructor();
 		}
@@ -444,14 +425,21 @@ namespace EndlessClient
 				return;
 
 			base.Draw(gt);
-
-			scroll.UpdateDimensions(message.Texture.Height, (int)message.Font.GetHeight());
-			Texture2D msg = message.Texture;
-			Rectangle loc = new Rectangle(27 + (int)DrawLocation.X, 69 + (int)DrawLocation.Y, 293, 117);
-			Rectangle src = new Rectangle(0, scroll.ScrollOffset, loc.Width, loc.Height);
+			if (scrollBar == null) return; //prevent nullreferenceexceptions
 
 			SpriteBatch.Begin();
-			SpriteBatch.Draw(msg, loc, src, Color.White);
+			Vector2 pos = new Vector2(27 + (int)DrawLocation.X, 69 + (int)DrawLocation.Y);
+
+			for (int i = scrollBar.ScrollOffset; i < scrollBar.ScrollOffset + scrollBar.LinesToRender; ++i)
+			{
+				if (i >= chatStrings.Count)
+					break;
+				
+				string strToDraw = chatStrings[i];
+
+				SpriteBatch.DrawString(font, strToDraw, new Vector2(pos.X, pos.Y + (i - scrollBar.ScrollOffset) * 13), Color.FromNonPremultiplied(0xc8, 0xc8, 0xc8, 0xff));
+			}
+
 			SpriteBatch.End();
 		}
 	}
@@ -461,9 +449,9 @@ namespace EndlessClient
 	/// </summary>
 	public class EOProgressDialog : EODialogBase
 	{
-		TimeSpan? timeOpened;
-		Texture2D pbBackText, pbForeText;
-		int pbWidth;
+		private TimeSpan? timeOpened;
+		private readonly Texture2D pbBackText, pbForeText;
+		private int pbWidth;
 
 		public EOProgressDialog(Game encapsulatingGame, string msgText, string captionText = "")
 			: base(encapsulatingGame)
@@ -471,17 +459,21 @@ namespace EndlessClient
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1)); //label is auto-sized
-			message.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.0f);
-			message.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
-			message.Text = msgText;
-			message.TextWidth = 254;
+			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1))//label is auto-sized
+			{
+				Font = new Font("Microsoft Sans Serif", 10.0f),
+				ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8),
+				Text = msgText,
+				TextWidth = 254
+			}; 
 			message.SetParent(this);
 
-			caption = new XNALabel(encapsulatingGame, new Rectangle(59, 23, 1, 1));
-			caption.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.0f);
-			caption.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
-			caption.Text = captionText;
+			caption = new XNALabel(encapsulatingGame, new Rectangle(59, 23, 1, 1))
+			{
+				Font = new Font("Microsoft Sans Serif", 10.0f),
+				ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8),
+				Text = captionText
+			};
 			caption.SetParent(this);
 
 			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
@@ -617,8 +609,10 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			XNAButton cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28));
-			cancel.Visible = true;
+			XNAButton cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
+			{
+				Visible = true
+			};
 			cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
 			cancel.SetParent(this);
 			dlgButtons.Add(cancel);
@@ -652,21 +646,25 @@ namespace EndlessClient
 
 			charCreateSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22);
 
-			inputBox = new XNATextBox(encapsulatingGame, new Rectangle(80, 57, 138, 19), cursorTexture, "Microsoft Sans Serif", 8.0f);
-			inputBox.LeftPadding = 5;
-			inputBox.DefaultText = " ";
-			inputBox.MaxChars = 12;
-			inputBox.Selected = true;
-			inputBox.TextColor = System.Drawing.Color.FromArgb(0xff, 0xdc, 0xc8, 0xb4);
-			inputBox.Visible = true;
+			inputBox = new XNATextBox(encapsulatingGame, new Rectangle(80, 57, 138, 19), cursorTexture, "Microsoft Sans Serif", 8.0f)
+			{
+				LeftPadding = 5,
+				DefaultText = " ",
+				MaxChars = 12,
+				Selected = true,
+				TextColor = System.Drawing.Color.FromArgb(0xff, 0xdc, 0xc8, 0xb4),
+				Visible = true
+			};
 			inputBox.SetParent(this);
 			dispatcher.Subscriber = inputBox;
 
 			//four arrow buttons
 			for(int i = 0; i < arrowButtons.Length; ++i)
 			{
-				XNAButton btn = new XNAButton(encapsulatingGame, charCreateSheet, new Vector2(196, 85 + i * 26), new Rectangle(185, 38, 19, 19), new Rectangle(206, 38, 19, 19));
-				btn.Visible = true;
+				XNAButton btn = new XNAButton(encapsulatingGame, charCreateSheet, new Vector2(196, 85 + i * 26), new Rectangle(185, 38, 19, 19), new Rectangle(206, 38, 19, 19))
+				{
+					Visible = true
+				};
 				btn.OnClick += ArrowButtonClick;
 				btn.SetParent(this);
 				arrowButtons[i] = btn;
@@ -680,8 +678,10 @@ namespace EndlessClient
 			srcRects[3] = new Rectangle(46, 38, 23, 19);
 			
 			//ok/cancel buttons
-			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(157, 195), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
-			ok.Visible = true;
+			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(157, 195), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
+			{
+				Visible = true
+			};
 			ok.OnClick += (s, e) =>
 			{
 				if(inputBox.Text.Length < 4)
@@ -695,8 +695,10 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			XNAButton cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28));
-			cancel.Visible = true;
+			XNAButton cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
+			{
+				Visible = true
+			};
 			cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
 			cancel.SetParent(this);
 			dlgButtons.Add(cancel);
@@ -734,7 +736,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gt)
 		{
-			if ((XNAControl.Dialogs.Count > 0 && XNAControl.Dialogs.Peek() != this) || !Visible)
+			if ((Dialogs.Count > 0 && Dialogs.Peek() != this) || !Visible)
 				return;
 
 			rotClickArea = new Rectangle(235 + DrawAreaWithOffset.X, 58 + DrawAreaWithOffset.Y, 99, 123);
@@ -794,16 +796,20 @@ namespace EndlessClient
 			_setSize(bgSprites.Width / 4, bgSprites.Height);
 			bgSrcIndex = 0;
 
-			caption = new XNALabel(Game, new Rectangle(12, 9, 1, 1), "Microsoft Sans Serif", 10.0f);
-			caption.Text = wait;
-			caption.ForeColor = System.Drawing.Color.FromArgb(0xf0, 0xf0, 0xc8);
+			caption = new XNALabel(Game, new Rectangle(12, 9, 1, 1), "Microsoft Sans Serif", 10.0f)
+			{
+				Text = wait,
+				ForeColor = System.Drawing.Color.FromArgb(0xf0, 0xf0, 0xc8)
+			};
 			caption.SetParent(this);
 
-			message = new XNALabel(Game, new Rectangle(18, 61, 1, 1), "Microsoft Sans Serif", 8.0f);
-			message.TextWidth = 175; //there is a constraint on the size for this
-			message.ForeColor = System.Drawing.Color.FromArgb(0xb9, 0xb9, 0xb9);
+			message = new XNALabel(Game, new Rectangle(18, 61, 1, 1), "Microsoft Sans Serif", 8.0f)
+			{
+				TextWidth = 175,
+				ForeColor = System.Drawing.Color.FromArgb(0xb9, 0xb9, 0xb9),
+				Text = "Make sure noone is watching your keyboard, while entering your password"
+			};
 			//there are a number of messages that are shown, a static one will do for now
-			message.Text = "Make sure noone is watching your keyboard, while entering your password";
 			message.SetParent(this);
 
 			base.endConstructor(false);

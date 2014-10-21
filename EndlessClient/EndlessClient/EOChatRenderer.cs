@@ -222,7 +222,8 @@ namespace EndlessClient
 			//568 331
 			scrollBar = new EOScrollBar(g, parent, new Vector2(467, 2), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed)
 			{
-				Visible = selected
+				Visible = selected,
+				LinesToRender = 7
 			};
 
 			font = Game.Content.Load<SpriteFont>("dbg");
@@ -241,6 +242,7 @@ namespace EndlessClient
 			relativeTextPos = new Vector2(20, 23);
 			//568 331
 			scrollBar = new EOScrollBar(g, parent, new Vector2(467, 20), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed);
+			scrollBar.LinesToRender = 7;
 			scrollBar.Visible = true;
 
 			font = Game.Content.Load<SpriteFont>("dbg");
@@ -422,7 +424,7 @@ namespace EndlessClient
 
 				SpriteBatch.Begin();
 				//draw icons for the text strings based on the icon specified in the chatStrings Key of the pair
-				for (int i = scrollBar.ScrollOffset; i < scrollBar.ScrollOffset + 7; ++i) //draw 7 lines
+				for (int i = scrollBar.ScrollOffset; i < scrollBar.ScrollOffset + scrollBar.LinesToRender; ++i) //draw 7 lines
 				{
 					if (i >= chatStrings.Count)
 						break;
