@@ -168,6 +168,8 @@ namespace EndlessClient
 
 			chatRenderer = new EOChatRenderer(g);
 			chatRenderer.SetParent(pnlChat);
+			chatRenderer.AddTextToTab(ChatTabs.Global, "Server", "Begin your line with a '~' to send a message to everyone online!", ChatType.Note, ChatColor.Server);
+			chatRenderer.AddTextToTab(ChatTabs.Global, "Server", "Do not curse, harass or flood on the global channel, this is not allowed.", ChatType.Note, ChatColor.Server);
 
 			newsTab = new ChatTab(g, pnlNews);
 
@@ -201,9 +203,21 @@ namespace EndlessClient
 				{
 					case '!': currentChatMode = ChatMode.Private; break;
 					case '~': currentChatMode = ChatMode.Global; break;
-					case '@': currentChatMode = ChatMode.Admin; break;
+					case '@':
+					{
+						if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
+							goto default;
+						currentChatMode = ChatMode.Admin;
+					}
+						break;
 					case '\'': currentChatMode = ChatMode.Group; break;
-					case '&': currentChatMode = ChatMode.Guild; break;
+					case '&':
+					{
+						if (World.Instance.MainPlayer.ActiveCharacter.GuildName == "")
+							goto default;
+						currentChatMode = ChatMode.Guild;
+					}
+						break;
 					default: currentChatMode = ChatMode.Public; break;
 				}
 			};
@@ -306,16 +320,38 @@ namespace EndlessClient
 			chatTextBox.Text = "";
 			switch (chatText[0])
 			{
-				case '$':  //admin command
-					//check character's admin level before issuing the command (forbidden text! or whatever)
-					goto default; //continue on if admin level is alright, otherwise fuck shit up
 				case '@':  //admin talk
+					if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
+						goto default;
 					break;
 				case '\'': //group talk
+					if (!Talk.Speak(TalkType.Party, chatText.Substring(1)))
+					{
+						_returnToLogin();
+						break;
+					}
+					//TODO: additional processing as required. Check colors and icons.
+					//TODO: This should be a call to the map renderer showing the message
+					AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, chatText.Substring(1));
 					break;
 				case '&':  //guild talk
+					if (World.Instance.MainPlayer.ActiveCharacter.GuildName == "")
+						goto default;
+					if (!Talk.Speak(TalkType.Guild, chatText.Substring(1)))
+					{
+						_returnToLogin();
+						break;
+					}
+					//TODO: additional processing as required. Check colors and icons.
+					AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, chatText.Substring(1));
 					break;
 				case '~':  //global talk
+					if (!Talk.Speak(TalkType.Global, chatText.Substring(1)))
+					{
+						_returnToLogin();
+						break;
+					}
+					AddChat(ChatTabs.Global, World.Instance.MainPlayer.ActiveCharacter.Name, chatText.Substring(1));
 					break;
 				case '!':  //private talk
 				{
@@ -336,7 +372,10 @@ namespace EndlessClient
 					character = character.Substring(0, 1).ToUpper() + character.Substring(1).ToLower();
 
 					if (!Talk.Speak(TalkType.PM, message, character))
+					{
 						_returnToLogin();
+						break;
+					}
 
 					ChatTabs whichPrivateChat = chatRenderer.StartConversation(character);
 					//the other player will have their messages rendered in Color.PM on scr
@@ -353,6 +392,7 @@ namespace EndlessClient
 					if (!Talk.Speak(TalkType.Local, chatText))
 					{
 						_returnToLogin();
+						break;
 					}
 					//do the rendering
 					World.Instance.ActiveMapRenderer.RenderLocalChatMessage(chatText);

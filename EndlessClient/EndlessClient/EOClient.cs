@@ -87,6 +87,11 @@ namespace EndlessClient
 					new FamilyActionPair(PacketFamily.Players, PacketAction.Agree), 
 					new LockedHandlerMethod(Handlers.Players.PlayersAgree, true)
 				},
+				//TALK PACKETS
+				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Message),
+ 					new LockedHandlerMethod(Handlers.Talk.TalkMessage, true)
+				},
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Player),
  					new LockedHandlerMethod(Handlers.Talk.TalkPlayer, true)
@@ -96,9 +101,14 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Talk.TalkReply, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Request), 
+					new LockedHandlerMethod(Handlers.Talk.TalkRequest, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Tell), 
 					new LockedHandlerMethod(Handlers.Talk.TalkTell, true)
 				},
+				//
 				{
 					new FamilyActionPair(PacketFamily.Welcome, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Welcome.WelcomeResponse)

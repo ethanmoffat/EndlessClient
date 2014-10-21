@@ -43,6 +43,15 @@ namespace EndlessClient.Handlers
 						return false;
 					builder.AddBreakString(character);
 					break;
+				case TalkType.Global:
+					builder = new Packet(PacketFamily.Talk, PacketAction.Message);
+					break;
+				case TalkType.Guild:
+					builder = new Packet(PacketFamily.Talk, PacketAction.Request);
+					break;
+				case TalkType.Party:
+					builder = new Packet(PacketFamily.Talk, PacketAction.Open);
+					break;
 				default: throw new NotImplementedException();
 			}
 
@@ -91,6 +100,41 @@ namespace EndlessClient.Handlers
 			ChatTabs tab = EOGame.Instance.Hud.GetPrivateChatTab(from);
 			if(tab != ChatTabs.None)
 				EOGame.Instance.Hud.AddChat(tab, from, message, ChatType.Note);
+		}
+
+		/// <summary>
+		/// Handler for the TALK_MESSAGE packet (sent in response to global messages)
+		/// </summary>
+		public static void TalkMessage(Packet pkt)
+		{
+			string from = pkt.GetBreakString();
+			from = from.Substring(0, 1).ToUpper() + from.Substring(1).ToLower();
+			string message = pkt.GetBreakString();
+
+			EOGame.Instance.Hud.AddChat(ChatTabs.Global, from, message, ChatType.GlobalAnnounce);
+		}
+
+		/// <summary>
+		/// Handler for the TALK_REQUEST packet (sent in response to guild messages)
+		/// </summary>
+		public static void TalkRequest(Packet pkt)
+		{
+			string from = pkt.GetBreakString();
+			from = from.Substring(0, 1).ToUpper() + from.Substring(1).ToLower();
+			string message = pkt.GetBreakString();
+
+			EOGame.Instance.Hud.AddChat(ChatTabs.Group, from, message); //TODO: check that the icons/color don't need to be changed
+		}
+
+		/// <summary>
+		/// Handler for the TALK_OPEN packet (sent in response to party messages)
+		/// </summary>
+		public static void TalkOpen(Packet pkt)
+		{
+			short from = pkt.GetShort();
+			string message = pkt.GetBreakString();
+
+			World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.Party, from, message); //TODO: check that the icons/color don't need to be changed
 		}
 	}
 }

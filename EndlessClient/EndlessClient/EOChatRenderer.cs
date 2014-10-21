@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using EOLib;
 using XNAControls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -33,7 +31,7 @@ namespace EndlessClient
 		Note,
 		Error,
 		NoteLeftArrow,
-		Audio,
+		GlobalAnnounce,
 		Star,
 		Exclamation,
 		LookingDude,

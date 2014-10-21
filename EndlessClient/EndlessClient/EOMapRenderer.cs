@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using EndlessClient.Handlers;
 using EOLib;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient
 {
@@ -19,9 +19,23 @@ namespace EndlessClient
 	{
 		public List<MapItem> MapItems { get; set; }
 		private List<Character> otherPlayers = new List<Character>();
-		public List<NPC> NPCs { get; set; } 
+		public List<NPC> NPCs { get; set; }
 
-		public MapFile MapRef { get; set; }
+		public MapFile MapRef
+		{
+			get { return _mapRef; }
+			set
+			{
+				_mapRef = value;
+				mapNeedsRenderUpdate = true;
+			}
+		}
+
+		private MapFile _mapRef;
+		private RenderTarget2D mapRenderTarget;
+		private bool mapNeedsRenderUpdate;
+
+		private SpriteBatch sb;
 
 		public EOMapRenderer(EOGame g, MapFile mapObj)
 			: base(g)
@@ -32,6 +46,8 @@ namespace EndlessClient
 			MapRef = mapObj;
 			MapItems = new List<MapItem>();
 			NPCs = new List<NPC>();
+
+			sb = new SpriteBatch(Game.GraphicsDevice);
 		}
 
 		//super basic implementation for passing on chat to the game's actual HUD
@@ -42,8 +58,8 @@ namespace EndlessClient
 			ChatTabs tab;
 			switch (messageType)
 			{
-				case TalkType.Local: tab = ChatTabs.Local;
-					break;
+				case TalkType.Local: tab = ChatTabs.Local; break;
+				case TalkType.Party: tab = ChatTabs.Group; break;
 				default: throw new NotImplementedException();
 			}
 
@@ -54,7 +70,7 @@ namespace EndlessClient
 				return;
 			EOGame.Instance.Hud.AddChat(tab, playerName, message, chatType);
 
-			//TODO: Add whatever magic is necessary to make chat bubble appear
+			//TODO: Add whatever magic is necessary to make chat bubble appear (different colors/transparencies for group and public)
 		}
 
 		//renders a chat message from the local mainplayer
@@ -77,6 +93,41 @@ namespace EndlessClient
 				otherPlayers.Add(c);
 
 			//TODO: Add whatever magic is necessary to make the player appear all pretty (with animation)
+		}
+
+		public override void Draw(GameTime gameTime)
+		{
+			if (MapRef != null)
+			{
+				_drawImmutableMapObjects();
+			}
+
+			sb.Begin();
+			sb.Draw(mapRenderTarget, new Vector2(0, 0), Color.White);
+			sb.End();
+
+			base.Draw(gameTime);
+		}
+
+		private void _drawImmutableMapObjects()
+		{
+			if(mapRenderTarget == null)
+				mapRenderTarget = new RenderTarget2D(Game.GraphicsDevice, 
+					Game.GraphicsDevice.PresentationParameters.BackBufferWidth, 
+					Game.GraphicsDevice.PresentationParameters.BackBufferHeight,
+					false,
+					Game.GraphicsDevice.PresentationParameters.BackBufferFormat,
+					DepthFormat.Depth24);
+
+			if (!mapNeedsRenderUpdate) return;
+
+			mapNeedsRenderUpdate = false;
+			Game.GraphicsDevice.SetRenderTarget(mapRenderTarget);
+
+			
+
+
+			Game.GraphicsDevice.SetRenderTarget(null);
 		}
 	}
 }
