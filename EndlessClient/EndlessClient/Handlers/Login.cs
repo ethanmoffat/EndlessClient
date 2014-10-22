@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿using System.Threading;
 using EOLib;
 
 namespace EndlessClient.Handlers
@@ -19,7 +15,7 @@ namespace EndlessClient.Handlers
 
 	public static class Login
 	{
-		private static System.Threading.ManualResetEvent response = new System.Threading.ManualResetEvent(false);
+		private static readonly ManualResetEvent response = new ManualResetEvent(false);
 		private static LoginReply ServerResponse = LoginReply.THIS_IS_WRONG;
 
 		public static bool CanProceed { get { return ServerResponse == LoginReply.Ok; } }
@@ -77,7 +73,7 @@ namespace EndlessClient.Handlers
 				case LoginReply.WrongUserPass:
 					message = "The account or passsword you provided could not be found in our database.";
 					break;
-				case LoginReply.Ok:
+				//case LoginReply.Ok:
 				default:
 					caption = "";
 					message = "";

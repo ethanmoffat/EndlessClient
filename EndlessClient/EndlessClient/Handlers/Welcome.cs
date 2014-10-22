@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿using System.Collections.Generic;
+using System.Threading;
 using EOLib;
 
 namespace EndlessClient.Handlers
@@ -16,7 +13,7 @@ namespace EndlessClient.Handlers
 	public static class Welcome
 	{
 		//used to signal a response was received
-		private static System.Threading.ManualResetEvent response = new System.Threading.ManualResetEvent(false);
+		private static readonly ManualResetEvent response = new ManualResetEvent(false);
 
 		public static bool FirstTimePlayer { get; private set; }
 
@@ -124,7 +121,7 @@ namespace EndlessClient.Handlers
 						main.ActiveCharacter.PaddedGuildTag = pkt.GetFixedString(3); //padded guild tag is 3 characters
 						main.ActiveCharacter.AdminLevel = (AdminLevel)pkt.GetChar();
 
-						main.ActiveCharacter.Stats = new CharStatData()
+						main.ActiveCharacter.Stats = new CharStatData
 						{
 							level = pkt.GetChar(),
 							exp = pkt.GetInt(),
@@ -181,7 +178,7 @@ namespace EndlessClient.Handlers
 						main.ActiveCharacter.MaxWeight = pkt.GetChar();
 						while(pkt.PeekByte() != 255)
 						{
-							main.ActiveCharacter.Inventory.Add(new InventoryItem() { id = pkt.GetShort(), amount = pkt.GetInt() });
+							main.ActiveCharacter.Inventory.Add(new InventoryItem { id = pkt.GetShort(), amount = pkt.GetInt() });
 						}
 						pkt.GetByte();
 
@@ -223,7 +220,7 @@ namespace EndlessClient.Handlers
 								maxTP = pkt.GetShort(),
 								tp = pkt.GetShort();
 
-							newGuy.Stats = new CharStatData()
+							newGuy.Stats = new CharStatData
 							{
 								level = level,
 								hp = hp,
@@ -247,6 +244,7 @@ namespace EndlessClient.Handlers
 								return;
 
 							World.Instance.ActiveMapRenderer.AddOtherPlayer(newGuy);
+							World.Instance.MainPlayer.ActiveCharacter.ApplyData(newGuy);
 						}
 
 						//get data for any npcs
@@ -260,7 +258,7 @@ namespace EndlessClient.Handlers
 						//get data for items on map
 						while(pkt.ReadPos < pkt.Length)
 						{
-							MapItem newItem = new MapItem()
+							MapItem newItem = new MapItem
 							{
 								uid = pkt.GetShort(),
 								id = pkt.GetShort(),

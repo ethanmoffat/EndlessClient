@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using EOLib;
+﻿using EOLib;
 
 namespace EndlessClient.Handlers
 {
@@ -20,7 +15,7 @@ namespace EndlessClient.Handlers
 	public static class Character
 	{
 		//used to signal a response was received
-		private static System.Threading.ManualResetEvent response = new System.Threading.ManualResetEvent(false);
+		private static readonly System.Threading.ManualResetEvent response = new System.Threading.ManualResetEvent(false);
 
 		//used to store the response : add additional response variables here as necessary
 		private static CharacterReply ServerResponse = CharacterReply.THIS_IS_WRONG;
@@ -190,7 +185,6 @@ namespace EndlessClient.Handlers
 					message = "The character name you provided is not approved, try another name.";
 					caption = "Not approved";
 					break;
-				case CharacterReply.Deleted:
 				default:
 					message = caption = "";
 					break;

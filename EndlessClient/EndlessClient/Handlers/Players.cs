@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using EOLib;
+﻿using EOLib;
 
 namespace EndlessClient.Handlers
 {
@@ -20,11 +16,13 @@ namespace EndlessClient.Handlers
 				charName = char.ToUpper(charName[0]) + charName.Substring(1);
 			short id = pkt.GetShort();
 
-			EndlessClient.Character newGuy = new EndlessClient.Character(id, null);
-			newGuy.Name = charName;
-			newGuy.CurrentMap = pkt.GetShort();
-			newGuy.X = pkt.GetShort();
-			newGuy.Y = pkt.GetShort();
+			EndlessClient.Character newGuy = new EndlessClient.Character(id, null)
+			{
+				Name = charName,
+				CurrentMap = pkt.GetShort(),
+				X = pkt.GetShort(),
+				Y = pkt.GetShort()
+			};
 
 			EODirection direction = (EODirection) pkt.GetChar();
 			pkt.GetChar(); //value is always 6? unknown

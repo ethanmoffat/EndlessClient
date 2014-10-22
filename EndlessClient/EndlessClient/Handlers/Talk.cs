@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Threading;
 using EOLib;
-using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Handlers
 {

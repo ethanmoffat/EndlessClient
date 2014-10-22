@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using EOLib;
+﻿using EOLib;
 
 namespace EndlessClient.Handlers
 {
@@ -14,12 +9,12 @@ namespace EndlessClient.Handlers
 		Created = 3,
 		ChangeFailed = 5,
 		ChangeSuccess = 6,
-		Continue = 1000 // TODO: Check this for the real value
+		Continue = 1000
 	};
 
 	public static class Account
 	{
-		private static System.Threading.ManualResetEvent response = new System.Threading.ManualResetEvent(false);
+		private static readonly System.Threading.ManualResetEvent response = new System.Threading.ManualResetEvent(false);
 
 		private static AccountReply ServerResponse = AccountReply.Exists;
 
@@ -119,7 +114,7 @@ namespace EndlessClient.Handlers
 		//translates between a response from the server and what should be shown in a dialog box.
 		public static string ResponseMessage(out string caption)
 		{
-			string ret = "";
+			string ret;
 			switch (ServerResponse)
 			{
 				case AccountReply.Exists:
@@ -142,7 +137,7 @@ namespace EndlessClient.Handlers
 					ret = "Your password has changed, please use your new password next time you login.";
 					caption = "Password changed";
 					break;
-				case AccountReply.Continue: //no message associated with continue (i think?)
+				//no message associated with continue (i think?)
 				default:
 					ret = caption = "";
 					break;

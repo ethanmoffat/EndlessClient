@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
 
 using EOLib;
@@ -49,7 +46,7 @@ namespace EndlessClient.Handlers
 	
 	public static class Init
 	{
-		private static System.Threading.ManualResetEvent response = new System.Threading.ManualResetEvent(false);
+		private static readonly System.Threading.ManualResetEvent response = new System.Threading.ManualResetEvent(false);
 
 		private static InitReply ServerResponse = InitReply.THIS_IS_WRONG;
 		private static InitBanType BanType = InitBanType.THIS_IS_WRONG;
@@ -57,7 +54,7 @@ namespace EndlessClient.Handlers
 		private static byte BanMinsLeft = 255;
 
 		public static bool CanProceed { get { return ServerResponse == InitReply.INIT_OK; } }
-		public static InitData Data = new InitData(){ };
+		public static InitData Data;
 
 		public static bool Initialize()
 		{
@@ -139,7 +136,7 @@ namespace EndlessClient.Handlers
 					break;
 				case InitReply.INIT_OK:
 					{
-						Data = new InitData()
+						Data = new InitData
 						{
 							seq_1 = pkt.GetByte(),
 							seq_2 = pkt.GetByte(),
@@ -162,7 +159,7 @@ namespace EndlessClient.Handlers
 						if (!Directory.Exists(localDir))
 							Directory.CreateDirectory(localDir);
 
-						string filename = "";
+						string filename;
 						if (ServerResponse == InitReply.INIT_FILE_EIF)
 						{
 							filename = "dat001.eif";
@@ -192,13 +189,13 @@ namespace EndlessClient.Handlers
 						//if we are unable to load it, signal an error condition.
 						if (ServerResponse == InitReply.INIT_FILE_MAP && !World.Instance.TryLoadMap())
 							return;
-						else if (ServerResponse == InitReply.INIT_FILE_EIF && !World.Instance.TryLoadItems())
+						if (ServerResponse == InitReply.INIT_FILE_EIF && !World.Instance.TryLoadItems())
 							return;
-						else if (ServerResponse == InitReply.INIT_FILE_ENF && !World.Instance.TryLoadNPCs())
+						if (ServerResponse == InitReply.INIT_FILE_ENF && !World.Instance.TryLoadNPCs())
 							return;
-						else if (ServerResponse == InitReply.INIT_FILE_ESF && !World.Instance.TryLoadSpells())
+						if (ServerResponse == InitReply.INIT_FILE_ESF && !World.Instance.TryLoadSpells())
 							return;
-						else if (ServerResponse == InitReply.INIT_FILE_ECF && !World.Instance.TryLoadClasses())
+						if (ServerResponse == InitReply.INIT_FILE_ECF && !World.Instance.TryLoadClasses())
 							return;
 					}
 					break;
@@ -209,7 +206,7 @@ namespace EndlessClient.Handlers
 
 		public static string ResponseMessage(out string caption)
 		{
-			string msg = caption = "";
+			string msg;
 
 			switch(ServerResponse)
 			{
