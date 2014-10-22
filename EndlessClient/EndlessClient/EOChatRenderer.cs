@@ -399,7 +399,7 @@ namespace EndlessClient
 					}
 				}
 			}
-			else if (Selected && mouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)
+			else if (Selected && mouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed && WhichTab != ChatTabs.None)
 			{
 				XNAControl tmpParent = parent.GetParent(); //get the panel containing this tab, the parent is the chatRenderer
 				if (tmpParent.DrawAreaWithOffset.Contains(mouseState.X, mouseState.Y))
