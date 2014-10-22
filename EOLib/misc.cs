@@ -43,6 +43,8 @@ namespace EOLib
 		public const string NPCFilePath = "pub/dtn001.enf";
 		public const string SpellFilePath = "pub/dsl001.esf";
 		public const string ClassFilePath = "pub/dat001.ecf";
+
+		public const byte ViewLength = 12;
 	}
 
 	public static class ConfigStrings

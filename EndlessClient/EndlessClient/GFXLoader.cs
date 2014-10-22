@@ -41,7 +41,7 @@ namespace EndlessClient
 		/// <summary>
 		/// 005
 		/// </summary>
-		MapOveraly,
+		MapOverlay,
 		/// <summary>
 		/// 006
 		/// </summary>

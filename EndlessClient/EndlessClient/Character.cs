@@ -153,6 +153,19 @@ namespace EndlessClient
 	{
 		public int ID { get; private set; }
 
+		/// <summary>
+		/// Valid only for MainPlayer characters. Offset on-screen.
+		/// </summary>
+		public int OffsetX
+		{
+			get { return X*32 - Y*32; }
+		}
+
+		public int OffsetY
+		{
+			get { return X*16 + Y*16; }
+		}
+
 		//paperdoll info
 		public string Name { get; set; }
 		public string Title { get; set; }
@@ -187,6 +200,34 @@ namespace EndlessClient
 			Inventory = new List<InventoryItem>();
 			Spells = new List<CharacterSpell>();
 			PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
+		}
+
+		/// <summary>
+		/// Used to apply changes from Welcome packet to existing Active character.
+		/// </summary>
+		/// <param name="newGuy">Changes to MainPlayer.ActiveCharacter, contained in a Character object</param>
+		public void ApplyData(Character newGuy)
+		{
+			ID = newGuy.ID;
+			Name = newGuy.Name;
+			Title = newGuy.Title;
+			GuildName = newGuy.GuildName;
+			GuildRankStr = newGuy.GuildRankStr;
+			Class = newGuy.Class;
+			PaddedGuildTag = newGuy.PaddedGuildTag;
+			AdminLevel = newGuy.AdminLevel;
+			Weight = newGuy.Weight;
+			MaxWeight = newGuy.MaxWeight;
+			Array.Copy(newGuy.PaperDoll, PaperDoll, (int)EquipLocation.PAPERDOLL_MAX);
+			Inventory = new List<InventoryItem>(newGuy.Inventory);
+			Spells = new List<CharacterSpell>(newGuy.Spells);
+			Stats = new CharStatData(newGuy.Stats);
+			RenderData = newGuy.RenderData;
+			CurrentMap = newGuy.CurrentMap;
+			MapIsPk = newGuy.MapIsPk;
+			X = newGuy.X;
+			Y = newGuy.Y;
+			GuildRankNum = newGuy.GuildRankNum;
 		}
 	}
 }

@@ -112,12 +112,21 @@ namespace EndlessClient
 		{
 			get
 			{
+				//lazy initialization
 				if (m_mapRender == null)
+				{
 					m_mapRender = new EOMapRenderer(EOGame.Instance, ActiveMap);
+				}
+
+				//check for an update on the map file any time the Map renderer is accessed
 				if (m_mapRender.MapRef.MapID != MainPlayer.ActiveCharacter.CurrentMap)
 				{
 					m_mapRender.SetActiveMap(ActiveMap);
 				}
+
+				//make sure it's in the game's componenets
+				if(EOGame.Instance.State == GameStates.PlayingTheGame && !EOGame.Instance.Components.Contains(m_mapRender))
+					EOGame.Instance.Components.Add(m_mapRender);
 
 				return m_mapRender;
 			}

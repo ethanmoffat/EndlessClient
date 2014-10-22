@@ -223,6 +223,10 @@ namespace EndlessClient
 			};
 
 			(g as EOGame).Dispatcher.Subscriber = chatTextBox;
+
+			World.Instance.ActiveMapRenderer.Visible = true;
+			if(!Game.Components.Contains(World.Instance.ActiveMapRenderer))
+				Game.Components.Add(World.Instance.ActiveMapRenderer);
 		}
 
 		public override void Draw(GameTime gameTime)

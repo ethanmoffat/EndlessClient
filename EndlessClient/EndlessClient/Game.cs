@@ -174,8 +174,9 @@ namespace EndlessClient
 			foreach (DrawableGameComponent component in Components)
 			{
 				//don't hide dialogs
-				if (XNAControl.Dialogs.Contains(component as XNAControl) ||
-					XNAControl.Dialogs.Contains((component as XNAControl).TopParent))
+				if (component is XNAControl &&
+					(XNAControl.Dialogs.Contains(component as XNAControl) ||
+					XNAControl.Dialogs.Contains((component as XNAControl).TopParent)))
 					continue;
 
 				if (prevState == GameStates.PlayingTheGame && currentState != GameStates.PlayingTheGame)
