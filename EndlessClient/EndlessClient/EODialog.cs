@@ -670,7 +670,7 @@ namespace EndlessClient
 				arrowButtons[i] = btn;
 			}
 
-			charRender = new EOCharacterRenderer(encapsulatingGame, new Vector2(269, 83), new CharRenderData { gender = 0, hairstyle = 1, haircolor = 0, race = 0 }, false);
+			charRender = new EOCharacterRenderer(encapsulatingGame, new Vector2(269, 83), new CharRenderData { gender = 0, hairstyle = 1, haircolor = 0, race = 0 });
 			charRender.SetParent(this);
 			srcRects[0] = new Rectangle(0, 38, 23, 19);
 			srcRects[1] = new Rectangle(0, 19, 23, 19);
@@ -820,13 +820,18 @@ namespace EndlessClient
 			if (timeOpened == null)
 				timeOpened = gt.TotalGameTime;
 
-			if(((int)gt.TotalGameTime.TotalMilliseconds - (int)(timeOpened.Value.TotalMilliseconds)) % 750 == 0) //every 750msec
+			if(((int)gt.TotalGameTime.TotalMilliseconds - (int)(timeOpened.Value.TotalMilliseconds)) % 500 == 0) //every half a second
 			{
 				//switch the background image to the next one
 				bgSrcIndex = bgSrcIndex == 3 ? 0 : bgSrcIndex + 1;
 			}
 
-			if (!updatingFiles && ((int)gt.TotalGameTime.TotalSeconds - (int)(timeOpened.Value.TotalSeconds)) >= 5) //I think the client waits 5 seconds?
+#if DEBUG
+			const int waitTime = 0; //set to zero on debug builds
+#else
+			const int waitTime = 5; //I think the client waits 5 seconds?
+#endif
+			if (!updatingFiles && ((int)gt.TotalGameTime.TotalSeconds - (int)(timeOpened.Value.TotalSeconds)) >= waitTime)
 			{
 				updatingFiles = true;
 
@@ -841,7 +846,9 @@ namespace EndlessClient
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
+#if !DEBUG //only sleep on release builds!
 						Thread.Sleep(1000); //computers are fast: I think the actual client sleeps at this point in its logic too because there is no way it should take as long as it does
+#endif
 					}
 
 					if (World.Instance.NeedEIF)
@@ -852,7 +859,9 @@ namespace EndlessClient
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
+#if !DEBUG //only sleep on release builds!
 						Thread.Sleep(1000);
+#endif
 					}
 
 					if (World.Instance.NeedENF)
@@ -863,7 +872,9 @@ namespace EndlessClient
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
+#if !DEBUG //only sleep on release builds!
 						Thread.Sleep(1000);
+#endif
 					}
 
 					if (World.Instance.NeedESF)
@@ -874,7 +885,9 @@ namespace EndlessClient
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
+#if !DEBUG //only sleep on release builds!
 						Thread.Sleep(1000);
+#endif
 					}
 
 					if (World.Instance.NeedECF)
@@ -885,7 +898,9 @@ namespace EndlessClient
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
+#if !DEBUG //only sleep on release builds!
 						Thread.Sleep(1000);
+#endif
 					}
 
 					caption.Text = loading;
@@ -894,7 +909,9 @@ namespace EndlessClient
 						Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 						return;
 					}
+#if !DEBUG //only sleep on release builds!
 					Thread.Sleep(1000);
+#endif
 
 					Close(null, XNADialogResult.OK); //using OK here to mean everything was successful. NO_BUTTON_PRESSED means unsuccessful.
 				}).Start();
