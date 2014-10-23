@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -178,8 +179,21 @@ Thanks to :
 			}
 			lblVersionInfo.Visible = true;
 
+#if DEBUG
+			//testinggame will login as testuser and login as the first character
 			XNAButton testingame = new XNAButton(this, new Vector2(5, 5), "in-game");
-			testingame.OnClick += (s, e) => doStateChange(GameStates.PlayingTheGame);
+			testingame.OnClick += (s, e) => new Thread(() =>
+			{
+				MainButtonPress(mainButtons[1], e); //press login
+				Thread.Sleep(500);
+				loginUsernameTextbox.Text = "testuser";
+				loginPasswordTextbox.Text = "testuser";
+
+				MainButtonPress(loginButtons[0], e); //login as acc testuser
+				Thread.Sleep(500);
+				CharModButtonPress(loginCharButtons[0], e); //login as char testuser
+			}).Start();
+#endif
 		}
 
 		//Pretty much controls how states transition between one another
@@ -210,10 +224,7 @@ Thanks to :
 			{
 				//try connect
 				//if successful go to account login state
-				TryConnectToServer(() =>
-				{
-					doStateChange(GameStates.Login);
-				});
+				TryConnectToServer(() => doStateChange(GameStates.Login));
 			}
 			else if (sender == mainButtons[2])
 			{
