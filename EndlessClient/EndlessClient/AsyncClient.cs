@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
@@ -20,11 +17,15 @@ namespace EndlessClient
 			NoData
 		}
 
+// ReSharper disable ConvertToConstant.Global
+// ReSharper disable FieldCanBeMadeReadOnly.Global
 		public static int BUFFER_SIZE = 1;
+// ReSharper restore FieldCanBeMadeReadOnly.Global
+// ReSharper restore ConvertToConstant.Global
 
 		public byte[] Data;
 		public DataReceiveState State;
-		public byte[] RawLength;
+		public readonly byte[] RawLength;
 
 		public SocketDataWrapper()
 		{
@@ -40,16 +41,19 @@ namespace EndlessClient
 
 		private Socket m_sock;
 		private EndPoint m_serverEndpoint;
-		private bool m_disposing = false;
-		private bool m_connectedAndInitialized = false;
+		private bool m_disposing;
+		private bool m_connectedAndInitialized;
 		private AutoResetEvent m_sendLock;
 
-		protected ClientPacketProcessor m_packetProcessor;
+		private ClientPacketProcessor m_packetProcessor;
 
 		/// <summary>
 		/// Returns a flag that is set when the Connect() method returns successfully.
 		/// </summary>
-		public bool ConnectedAndInitialized { get { return m_connectedAndInitialized; } }
+		public bool ConnectedAndInitialized
+		{
+			get { return m_connectedAndInitialized; }
+		}
 
 		/// <summary>
 		/// Polls the socket for the connection status. Retrieves connection status based on underlying socket.
@@ -62,7 +66,7 @@ namespace EndlessClient
 				try
 				{
 					bool c = !(m_sock.Poll(1000, SelectMode.SelectRead) && m_sock.Available == 0);
-					if(!c && ConnectedAndInitialized)
+					if (!c && ConnectedAndInitialized)
 					{
 						Disconnect();
 						m_connectedAndInitialized = false;
@@ -77,7 +81,7 @@ namespace EndlessClient
 		}
 
 		//Set up socket to prepare for connection
-		public AsyncClient()
+		protected AsyncClient()
 		{
 			m_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		}
@@ -93,16 +97,16 @@ namespace EndlessClient
 				throw new Exception("Client has already connected to the server. Disconnect first before connecting again.");
 			}
 
-			if(m_serverEndpoint == null)
+			if (m_serverEndpoint == null)
 			{
 				IPAddress ip;
-				if (!System.Net.IPAddress.TryParse(ipOrHostname, out ip))
+				if (!IPAddress.TryParse(ipOrHostname, out ip))
 				{
-					System.Net.IPHostEntry entry = System.Net.Dns.GetHostEntry(ipOrHostname);
+					IPHostEntry entry = Dns.GetHostEntry(ipOrHostname);
 					if (entry.AddressList.Length == 0)
 						return false;
-					else
-						ipOrHostname = entry.AddressList[0].ToString();
+
+					ipOrHostname = entry.AddressList[0].ToString();
 				}
 
 				try
@@ -124,6 +128,11 @@ namespace EndlessClient
 					return true;
 				}
 
+				if (m_sock == null)
+				{
+					return m_connectedAndInitialized = false;
+				}
+
 				if (m_sendLock != null)
 				{
 					m_sendLock.Close();
@@ -139,33 +148,35 @@ namespace EndlessClient
 				SocketDataWrapper wrap = new SocketDataWrapper();
 				res = m_sock.BeginReceive(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _recvCB, wrap);
 				m_connectedAndInitialized = true;
-				
-				if(!Handlers.Init.Initialize() || !Handlers.Init.CanProceed)
+
+				if (!Handlers.Init.Initialize() || !Handlers.Init.CanProceed)
 				{
 					//pop up some dialogs when this fails (see EOGame::TryConnectToServer)
-					m_sock.EndReceive(res);
+					if (res != null)
+						m_sock.EndReceive(res);
 					return (m_connectedAndInitialized = false);
 				}
 
 				m_packetProcessor.SetMulti(Handlers.Init.Data.emulti_d, Handlers.Init.Data.emulti_e);
-				UpdateSequence(Handlers.Init.Data.seq_1 * 7 - 11 + Handlers.Init.Data.seq_2 - 2);
+				UpdateSequence(Handlers.Init.Data.seq_1*7 - 11 + Handlers.Init.Data.seq_2 - 2);
 				World.Instance.MainPlayer.SetPlayerID(Handlers.Init.Data.clientID);
-				
+
 				//send confirmation of init data to server
 				Packet confirm = new Packet(PacketFamily.Connection, PacketAction.Accept);
 				confirm.AddShort(m_packetProcessor.SendMulti);
 				confirm.AddShort(m_packetProcessor.RecvMulti);
 				confirm.AddShort(Handlers.Init.Data.clientID);
-				
-				if(!SendPacket(confirm))
+
+				if (!SendPacket(confirm))
 				{
-					m_sock.EndReceive(res);
+					if (res != null)
+						m_sock.EndReceive(res);
 					return (m_connectedAndInitialized = false);
 				}
 			}
 			catch
 			{
-				if(res != null)
+				if (res != null)
 					m_sock.EndReceive(res);
 				m_connectedAndInitialized = false;
 			}
@@ -210,16 +221,15 @@ namespace EndlessClient
 			Array.Copy(len, 0, data, 0, 2);
 			Array.Copy(toSend, 0, data, 2, toSend.Length);
 
-			if (!m_sendLock.WaitOne(Constants.ResponseTimeout))//do one send at a time
+			if (!m_sendLock.WaitOne(Constants.ResponseTimeout)) //do one send at a time
 				return false;
 
-			SocketDataWrapper wrap = new SocketDataWrapper();
-			wrap.Data = data;
+			SocketDataWrapper wrap = new SocketDataWrapper {Data = data};
 			try
 			{
 				m_sock.BeginSend(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _sendCB, wrap);
 			}
-			catch(SocketException)
+			catch (SocketException)
 			{
 				//connection aborted by hardware errors produce a socketexception.
 				return false;
@@ -230,17 +240,16 @@ namespace EndlessClient
 		public bool SendRaw(Packet pkt)
 		{
 			pkt.WritePos = 0;
-			pkt.AddShort((short)pkt.Length);
+			pkt.AddShort((short) pkt.Length);
 
 			m_sendLock.WaitOne();
 
-			SocketDataWrapper wrap = new SocketDataWrapper();
-			wrap.Data = pkt.Get();
+			SocketDataWrapper wrap = new SocketDataWrapper {Data = pkt.Get()};
 			try
 			{
 				m_sock.BeginSend(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _sendCB, wrap);
 			}
-			catch(SocketException)
+			catch (SocketException)
 			{
 				return false;
 			}
@@ -264,14 +273,17 @@ namespace EndlessClient
 				if (m_disposing)
 					return;
 
-			int bytes = 0;
-			SocketDataWrapper wrap = new SocketDataWrapper();
+			int bytes;
+			SocketDataWrapper wrap;
 			try
 			{
 				bytes = m_sock.EndReceive(res);
-				wrap = (SocketDataWrapper)res.AsyncState;
+				wrap = (SocketDataWrapper) res.AsyncState;
 			}
-			catch { return; }
+			catch
+			{
+				return;
+			}
 
 			if (bytes == 0)
 			{
@@ -283,79 +295,79 @@ namespace EndlessClient
 				switch (wrap.State)
 				{
 					case SocketDataWrapper.DataReceiveState.ReadLen1:
-						{
-							wrap.RawLength[0] = wrap.Data[0];
-							wrap.State = SocketDataWrapper.DataReceiveState.ReadLen2;
-							wrap.Data = new byte[SocketDataWrapper.BUFFER_SIZE];
-							m_sock.BeginReceive(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _recvCB, wrap);
-							break;
-						}
+					{
+						wrap.RawLength[0] = wrap.Data[0];
+						wrap.State = SocketDataWrapper.DataReceiveState.ReadLen2;
+						wrap.Data = new byte[SocketDataWrapper.BUFFER_SIZE];
+						m_sock.BeginReceive(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _recvCB, wrap);
+						break;
+					}
 					case SocketDataWrapper.DataReceiveState.ReadLen2:
-						{
-							wrap.RawLength[1] = wrap.Data[0];
-							wrap.State = SocketDataWrapper.DataReceiveState.ReadData;
-							wrap.Data = new byte[Packet.DecodeNumber(wrap.RawLength)];
-							m_sock.BeginReceive(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _recvCB, wrap);
-							break;
-						}
+					{
+						wrap.RawLength[1] = wrap.Data[0];
+						wrap.State = SocketDataWrapper.DataReceiveState.ReadData;
+						wrap.Data = new byte[Packet.DecodeNumber(wrap.RawLength)];
+						m_sock.BeginReceive(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _recvCB, wrap);
+						break;
+					}
 					case SocketDataWrapper.DataReceiveState.ReadData:
-						{
-							byte[] data = wrap.Data;
-							m_packetProcessor.Decode(ref data);
+					{
+						byte[] data = wrap.Data;
+						m_packetProcessor.Decode(ref data);
 
-							//This block handles receipt of file data that is transferred to the client.
-							//It should make file transfer nuances pretty transparent to the client.
-							//The header for files stored in a Packet type is always as follows: FAMILY_INIT, ACTION_INIT, (InitReply)
-							//A 3-byte offset is found throughout the code that handles creating these files.
-							Packet pkt = new Packet(data);
-							if (pkt.Family == PacketFamily.Init && pkt.Action == PacketAction.Init)
+						//This block handles receipt of file data that is transferred to the client.
+						//It should make file transfer nuances pretty transparent to the client.
+						//The header for files stored in a Packet type is always as follows: FAMILY_INIT, ACTION_INIT, (InitReply)
+						//A 3-byte offset is found throughout the code that handles creating these files.
+						Packet pkt = new Packet(data);
+						if (pkt.Family == PacketFamily.Init && pkt.Action == PacketAction.Init)
+						{
+							Handlers.InitReply reply = (Handlers.InitReply) pkt.GetChar();
+							string replyStr = Enum.GetName(typeof (Handlers.InitReply), reply);
+							if (replyStr != null && replyStr.Contains("_FILE_"))
 							{
-								Handlers.InitReply reply = (Handlers.InitReply)pkt.GetChar();
-								if (Enum.GetName(typeof(Handlers.InitReply), reply).Contains("_FILE_"))
+								int dataGrabbed = 0;
+
+								int pktOffset = 0;
+								for (; pktOffset < data.Length; ++pktOffset)
+									if (data[pktOffset] == 0)
+										break;
+
+								do
 								{
-									int dataGrabbed = 0;
-									
-									int pktOffset = 0;
-									for (; pktOffset < data.Length; ++pktOffset)
-										if (data[pktOffset] == 0)
-											break;
+									byte[] fileBuffer = new byte[pkt.Length - pktOffset];
+									int nextGrabbed = m_sock.Receive(fileBuffer);
+									Array.Copy(fileBuffer, 0, data, dataGrabbed + 3, data.Length - (dataGrabbed + pktOffset));
+									dataGrabbed += nextGrabbed;
+								} while (dataGrabbed < pkt.Length - pktOffset);
 
-									do
-									{
-										byte[] fileBuffer = new byte[pkt.Length - pktOffset];
-										int nextGrabbed = m_sock.Receive(fileBuffer);
-										Array.Copy(fileBuffer, 0, data, dataGrabbed + 3, data.Length - (dataGrabbed + pktOffset));
-										dataGrabbed += nextGrabbed;
-									}
-									while (dataGrabbed < pkt.Length - pktOffset);
+								if (pktOffset > 3)
+									data = data.SubArray(0, pkt.Length - (pktOffset - 3));
 
-									if(pktOffset > 3)
-										data = data.SubArray(0, pkt.Length - (pktOffset - 3));
-									
-									data[2] = (byte)reply; //rewrite the InitReply with the correct value (retrieved with GetChar, server sends with GetByte for other reply types)
-								}
+								data[2] = (byte) reply;
+								//rewrite the InitReply with the correct value (retrieved with GetChar, server sends with GetByte for other reply types)
 							}
-
-							ThreadPool.QueueUserWorkItem(_handle, new Packet(data));
-							SocketDataWrapper newWrap = new SocketDataWrapper();
-							m_sock.BeginReceive(newWrap.Data, 0, newWrap.Data.Length, SocketFlags.None, _recvCB, newWrap);
-							break;
 						}
+
+						ThreadPool.QueueUserWorkItem(_handle, new Packet(data));
+						SocketDataWrapper newWrap = new SocketDataWrapper();
+						m_sock.BeginReceive(newWrap.Data, 0, newWrap.Data.Length, SocketFlags.None, _recvCB, newWrap);
+						break;
+					}
 					default:
-						{
-							Console.WriteLine("There was an error in the receive callback. Resetting to default state.");
+					{
+						Console.WriteLine("There was an error in the receive callback. Resetting to default state.");
 
-							SocketDataWrapper newWrap = new SocketDataWrapper();
-							m_sock.BeginReceive(newWrap.Data, 0, newWrap.Data.Length, SocketFlags.None, _recvCB, newWrap);
-							break;
-						}
+						SocketDataWrapper newWrap = new SocketDataWrapper();
+						m_sock.BeginReceive(newWrap.Data, 0, newWrap.Data.Length, SocketFlags.None, _recvCB, newWrap);
+						break;
+					}
 				}
 			}
 			catch (SocketException se)
 			{
 				//in the process of disconnecting
 				Console.WriteLine("There was a SocketException with SocketErrorCode {0} in _recvCB", se.SocketErrorCode);
-				return;
 			}
 		}
 
@@ -369,7 +381,7 @@ namespace EndlessClient
 				}
 
 			int bytes = m_sock.EndSend(res);
-			SocketDataWrapper wrap = (SocketDataWrapper)res.AsyncState;
+			SocketDataWrapper wrap = (SocketDataWrapper) res.AsyncState;
 			if (bytes != wrap.Data.Length)
 			{
 				m_sendLock.Set();
@@ -378,44 +390,6 @@ namespace EndlessClient
 
 			m_sendLock.Set(); //send completed asyncronously. Allow pending sends to continue
 		}
-
-		//-----------------------------------
-		//Receive file from server
-		//-----------------------------------
-
-		//private static readonly object receivingFileLock = new object();
-		//private bool m_receivingFile = false;
-		//protected ManualResetEvent m_doneReceivingFile = new ManualResetEvent(false);
-
-		//public virtual void StartFileDownload()
-		//{
-		//	lock (receivingFileLock)
-		//	{
-		//		m_receivingFile = true;
-		//		m_doneReceivingFile.Reset();
-		//	}
-		//}
-
-		//public virtual bool WaitForFileDownload()
-		//{
-		//	lock (receivingFileLock)
-		//	{
-		//		//wait completely successfully when not receiving a file
-		//		if (!m_receivingFile)
-		//			return true;
-
-		//		m_doneReceivingFile.WaitOne();
-		//		if (m_receivingFile) //still receiving file means it was cancelled with CancelFileDownload();
-		//			return false;
-		//	}
-
-		//	return false;
-		//}
-
-		//public virtual void CancelFileDownload()
-		//{
-		//	m_doneReceivingFile.Set();
-		//}
 
 		//-----------------------------------
 		//dispose method
