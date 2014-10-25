@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 
 using EOLib;
+using Microsoft.Xna.Framework;
 
 namespace EndlessClient
 {
@@ -57,23 +58,24 @@ namespace EndlessClient
 		public EODirection facing;
 		public SitState sitting;
 		public bool hidden;
+		public bool update;
 
 		public CharRenderData() { name = ""; }
 
-		public void SetHairColor(byte color) { haircolor = color; }
-		public void SetHairStyle(byte style) { hairstyle = style; }
-		public void SetRace(byte newrace) { race = newrace; }
-		public void SetGender(byte newgender) { gender = newgender; }
+		public void SetHairColor(byte color) { haircolor = color; update = true; }
+		public void SetHairStyle(byte style) { hairstyle = style; update = true; }
+		public void SetRace(byte newrace) { race = newrace; update = true; }
+		public void SetGender(byte newgender) { gender = newgender; update = true; }
 
-		public void SetDirection(EODirection direction) { facing = direction; }
-		public void SetSitting(SitState sits) { sitting = sits; }
-		public void SetHidden(bool hiding) { hidden = hiding; }
+		public void SetDirection(EODirection direction) { facing = direction; update = true; }
+		public void SetSitting(SitState sits) { sitting = sits; update = true; }
+		public void SetHidden(bool hiding) { hidden = hiding; update = true; }
 
-		public void SetShield(short newshield) { shield = newshield; }
-		public void SetArmor(short newarmor) { armor = newarmor; }
-		public void SetWeapon(short newweap) { weapon = newweap; }
-		public void SetHat(short newhat) { hat = newhat; }
-		public void SetBoots(short newboots) { boots = newboots; }
+		public void SetShield(short newshield) { shield = newshield; update = true; }
+		public void SetArmor(short newarmor) { armor = newarmor; update = true; }
+		public void SetWeapon(short newweap) { weapon = newweap; update = true; }
+		public void SetHat(short newhat) { hat = newhat; update = true; }
+		public void SetBoots(short newboots) { boots = newboots; update = true; }
 	}
 
 	/// <summary>
@@ -149,13 +151,15 @@ namespace EndlessClient
 		public short level;
 	}
 
+	/// <summary>
+	/// Note: since a lot of calls are made asynchronously, there could be issues with
+	///	<para>data races to the properties that are here. However, since it is updating</para>
+	/// <para>and redrawing so fast, I don't think it will matter all that much.</para>
+	/// </summary>
 	public class Character
 	{
 		public int ID { get; private set; }
 
-		/// <summary>
-		/// Valid only for MainPlayer characters. Offset on-screen.
-		/// </summary>
 		public int OffsetX
 		{
 			get { return X*32 - Y*32; }
@@ -165,6 +169,8 @@ namespace EndlessClient
 		{
 			get { return X*16 + Y*16; }
 		}
+
+		public bool Walking { get; set; }
 
 		//paperdoll info
 		public string Name { get; set; }
@@ -228,6 +234,40 @@ namespace EndlessClient
 			X = newGuy.X;
 			Y = newGuy.Y;
 			GuildRankNum = newGuy.GuildRankNum;
+		}
+
+		public void Walk(EODirection direction)
+		{
+			//track a call to 'Walk' and return without doing anything if it is called again before the walk completes
+			//make the call to the character renderer associated with this character's id
+			//		either active character or look it up in the activemaprenderer
+			if (this == World.Instance.MainPlayer.ActiveCharacter && !Walking)
+			{
+				if (RenderData.facing != direction)
+				{
+					Face(direction);
+					return;
+				}
+				//World.Instance.MainPlayer.ActiveCharacter
+				switch (direction)
+				{
+					case EODirection.Up:
+						break;
+					case EODirection.Down:
+						break;
+					case EODirection.Right:
+						break;
+					case EODirection.Left:
+						break;
+				}
+			}
+		}
+
+		public void Face(EODirection direction)
+		{
+			//send packet to server: update client side if send was successful
+			if(Handlers.Face.FacePlayer(direction))
+				RenderData.SetDirection(direction); //updates the data in the character renderer as well
 		}
 	}
 }

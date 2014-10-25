@@ -186,6 +186,8 @@ Thanks to :
 			{
 				MainButtonPress(mainButtons[1], e); //press login
 				Thread.Sleep(500);
+				if (!World.Instance.Client.ConnectedAndInitialized)
+					return;
 				loginUsernameTextbox.Text = "testuser";
 				loginPasswordTextbox.Text = "testuser";
 
@@ -252,6 +254,7 @@ Thanks to :
 						if(ee.Result == XNADialogResult.OK)
 						{
 							Dispatcher.Subscriber = null;
+							World.Instance.ResetGameElements();
 							if (World.Instance.Client.ConnectedAndInitialized)
 								World.Instance.Client.Disconnect();
 							doStateChange(GameStates.Initial);

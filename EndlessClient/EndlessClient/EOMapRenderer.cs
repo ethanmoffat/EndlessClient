@@ -21,6 +21,7 @@ namespace EndlessClient
 	{
 		public List<MapItem> MapItems { get; set; }
 		private readonly List<Character> otherPlayers = new List<Character>();
+		private readonly List<EOCharacterRenderer> otherRenderers = new List<EOCharacterRenderer>();
 		public List<NPC> NPCs { get; set; }
 
 		public MapFile MapRef { get; set; }
@@ -29,11 +30,13 @@ namespace EndlessClient
 
 		private Rectangle _animSourceRect;
 
-		public EOMapRenderer(EOGame g, MapFile mapObj)
+		public EOMapRenderer(Game g, MapFile mapObj)
 			: base(g)
 		{
 			if(g == null)
 				throw new NullReferenceException("The game must not be null");
+			if(!(g is EOGame))
+				throw new ArgumentException("The game must be an EOGame instance");
 
 			MapRef = mapObj;
 			MapItems = new List<MapItem>();
@@ -86,10 +89,36 @@ namespace EndlessClient
 
 		public void AddOtherPlayer(Character c, WarpAnimation anim = WarpAnimation.None)
 		{
-			if(otherPlayers.Find(x => x.Name == c.Name && x.ID == c.ID) == null)
+			if (otherPlayers.Find(x => x.Name == c.Name && x.ID == c.ID) == null)
+			{
 				otherPlayers.Add(c);
+				otherRenderers.Add(new EOCharacterRenderer(Game, c));
+				otherRenderers[otherRenderers.Count - 1].Visible = true;
+			}
 
 			//TODO: Add whatever magic is necessary to make the player appear all pretty (with animation)
+		}
+
+		public void OtherPlayerFace(short ID, EODirection direction)
+		{
+			Character c;
+			if((c = otherPlayers.Find(cc => cc.ID == ID)) != null)
+			{
+				c.RenderData.SetDirection(direction);
+			}
+		}
+
+		public override void Update(GameTime gameTime)
+		{
+			IEnumerable<EOCharacterRenderer> toAdd = otherRenderers.Where(rend => !Game.Components.Contains(rend));
+			foreach (EOCharacterRenderer rend in toAdd)
+				Game.Components.Add(rend);
+
+			IEnumerable<EOCharacterRenderer> toShow = otherRenderers.Where(rend => !rend.Visible);
+			foreach (EOCharacterRenderer rend in toShow)
+				rend.Visible = true;
+
+			base.Update(gameTime);
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -126,7 +155,8 @@ namespace EndlessClient
 					{
 						//if (i > 0 && j > 0 && i <= MapRef.Height && j <= MapRef.Width)
 						//{
-							sb.Draw(GFXLoader.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true),_getDrawCoordinates(j, i, c), Color.White);
+						Vector2 pos = _getDrawCoordinates(j, i, c);
+						sb.Draw(GFXLoader.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true), new Vector2(pos.X - 1, pos.Y - 2), Color.White);
 						//}
 					}
 				}
@@ -142,10 +172,11 @@ namespace EndlessClient
 				{
 					//render tile.tile at tile.x, row.y
 					Texture2D nextTile = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
+					Vector2 pos = _getDrawCoordinates(tile.x, row.y, c);
 					if(nextTile.Width > 64)
-						sb.Draw(nextTile, _getDrawCoordinates(tile.x, row.y, c), _animSourceRect, Color.White);
+						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), _animSourceRect, Color.White);
 					else
-						sb.Draw(nextTile, _getDrawCoordinates(tile.x, row.y, c), Color.White);
+						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), Color.White);
 				}
 			}
 
@@ -184,7 +215,8 @@ namespace EndlessClient
 				List<GFX> overlayObj = row.tiles.Where(xGFXQuery).ToList();
 				foreach (GFX obj in overlayObj)
 				{
-					sb.Draw(GFXLoader.TextureFromResource(GFXTypes.MapOverlay, obj.tile, true), _getDrawCoordinates(obj.x, row.y, c), Color.White);
+					Vector2 pos = _getDrawCoordinates(obj.x, row.y, c);
+					sb.Draw(GFXLoader.TextureFromResource(GFXTypes.MapOverlay, obj.tile, true), new Vector2(pos.X + 16, pos.Y - 11), Color.White);
 				}
 			}
 
@@ -202,7 +234,7 @@ namespace EndlessClient
 					//		new Point((Gfx.x * 32) - (GfxRow.y * 32) + (288) - World.World.offset_x - Resource.GetBitmap(graphics, Resource.ResourceReader.Gfx006, Gfx.tile).Width / 2 + 46, 
 					//				  (GfxRow.y * 16) + (Gfx.x * 16) + (144) - World.World.offset_y - (Resource.GetBitmap(graphics, Resource.ResourceReader.Gfx006, Gfx.tile).Height - 33)),
 					//		Color.White);
-					sb.Draw(gfx, new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 46, loc.Y - (gfx.Height - 33)), Color.White);
+					sb.Draw(gfx, new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 47, loc.Y - (gfx.Height - 29)), Color.White);
 				}
 			}
 			List<GFXRow> wallRows2 = MapRef.GfxRows[3].Where(yGFXQuery).ToList();
@@ -213,7 +245,7 @@ namespace EndlessClient
 				{
 					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, obj.tile, true);
 					Vector2 loc = _getDrawCoordinates(obj.x, wallRow.y, c);
-					sb.Draw(gfx, new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 14, loc.Y - (gfx.Height - 33)), Color.White);
+					sb.Draw(gfx, new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 15, loc.Y - (gfx.Height - 29)), Color.White);
 				}
 			}
 
@@ -251,7 +283,7 @@ namespace EndlessClient
 				{
 					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, obj.tile, true);
 					Vector2 loc = _getDrawCoordinates(obj.x, mapObjRow.y, c);
-					sb.Draw(gfx, new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 28, loc.Y - (gfx.Height - 29)), Color.White);
+					sb.Draw(gfx, new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28)), Color.White);
 				}
 			}
 			

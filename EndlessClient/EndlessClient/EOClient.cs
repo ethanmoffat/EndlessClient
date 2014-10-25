@@ -76,6 +76,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Connection.PingResponse)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Face, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Face.FacePlayerResponse)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Init, PacketAction.Init),
 					new LockedHandlerMethod(Handlers.Init.InitResponse)
 				},

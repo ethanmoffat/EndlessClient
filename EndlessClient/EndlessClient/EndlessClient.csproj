@@ -127,6 +127,7 @@
     <Compile Include="Handlers\Account.cs" />
     <Compile Include="Handlers\Connection.cs" />
     <Compile Include="Handlers\Character.cs" />
+    <Compile Include="Handlers\Face.cs" />
     <Compile Include="Handlers\Init.cs" />
     <Compile Include="Handlers\Login.cs" />
     <Compile Include="Handlers\Players.cs" />

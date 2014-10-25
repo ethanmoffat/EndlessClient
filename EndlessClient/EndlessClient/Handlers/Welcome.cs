@@ -190,6 +190,7 @@ namespace EndlessClient.Handlers
 
 						//Get data for other characters
 						int numOtherCharacters = pkt.GetChar();
+						List<EndlessClient.Character> newChars = new List<EndlessClient.Character>(numOtherCharacters);
 						if (pkt.GetByte() != 255) return;
 						for(int i = 0; i < numOtherCharacters; ++i)
 						{
@@ -243,9 +244,15 @@ namespace EndlessClient.Handlers
 							if (pkt.GetByte() != 255)
 								return;
 
-							World.Instance.ActiveMapRenderer.AddOtherPlayer(newGuy);
-							World.Instance.MainPlayer.ActiveCharacter.ApplyData(newGuy);
+							if (newGuy.Name.ToLower() == World.Instance.MainPlayer.ActiveCharacter.Name.ToLower())
+								World.Instance.MainPlayer.ActiveCharacter.ApplyData(newGuy);
+							else
+								newChars.Add(newGuy);
 						}
+						
+						//ensure that the MainPlayer is added first
+						foreach(EndlessClient.Character newGuy in newChars)
+							World.Instance.ActiveMapRenderer.AddOtherPlayer(newGuy);
 
 						//get data for any npcs
 						while(pkt.PeekByte() != 255)

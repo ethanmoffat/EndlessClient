@@ -132,6 +132,31 @@ namespace EndlessClient
 			}
 		}
 
+		private EOCharacterRenderer m_charRender;
+
+		/// <summary>
+		/// Returns a reference to the primary EOCharacterRenderer associated with MainPlayer.ActiveCharacter
+		/// </summary>
+		public EOCharacterRenderer ActiveCharacterRenderer
+		{
+			get
+			{
+				//lazy initialization
+				EOCharacterRenderer ret = m_charRender ?? (m_charRender = new EOCharacterRenderer(EOGame.Instance, MainPlayer.ActiveCharacter));
+
+				//if player logs out and logs back in
+				if (ret.Character != MainPlayer.ActiveCharacter)
+				{
+					ret.Dispose();
+					ret = m_charRender = new EOCharacterRenderer(EOGame.Instance, MainPlayer.ActiveCharacter);
+					if (!EOGame.Instance.Components.Contains(ret))
+						EOGame.Instance.Components.Add(ret);
+				}
+
+				return ret;
+			}
+		}
+
 		/*** Other things that should be singleton ***/
 
 		private readonly Player m_player;
@@ -310,6 +335,17 @@ namespace EndlessClient
 				default:
 					return;
 			}
+		}
+
+		public void ResetGameElements()
+		{
+			m_mapRender.Dispose();
+			m_mapRender = null;
+
+			m_charRender.Dispose();
+			m_charRender = null;
+
+			MapCache.Clear();
 		}
 	}
 }

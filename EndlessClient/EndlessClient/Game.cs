@@ -154,7 +154,7 @@ namespace EndlessClient
 				int dOrder = 0;
 				if (render[i] != null)
 					dOrder = render[i].DrawOrder;
-				render[i] = new EOCharacterRenderer(this, new Vector2(395, 60 + i * 124), World.Instance.MainPlayer.CharData[i], true);
+				render[i] = new EOCharacterRenderer(this, new Vector2(395, 60 + i * 124), World.Instance.MainPlayer.CharData[i]);
 			}
 		}
 		

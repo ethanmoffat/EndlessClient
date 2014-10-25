@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using EndlessClient.Handlers;
+using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-
+using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient
@@ -48,7 +47,7 @@ namespace EndlessClient
 		/// the primary textbox for chat
 		/// </summary>
 		private readonly XNATextBox chatTextBox;
-
+		
 		public HUD(Game g)
 			: base(g)
 		{
@@ -134,16 +133,16 @@ namespace EndlessClient
 				Color[] _ovrBuf = new Color[_ovrRec.Width * _ovrRec.Height];
 
 				mainButtonTexture.GetData(0, _outRec, _outBuf, 0, _outBuf.Length);
-				_out.SetData<Color>(_outBuf);
+				_out.SetData(_outBuf);
 
 				mainButtonTexture.GetData(0, _ovrRec, _ovrBuf, 0, _ovrBuf.Length);
-				_ovr.SetData<Color>(_ovrBuf);
+				_ovr.SetData(_ovrBuf);
 
 				//0-5: left side, starting at 59, 327 with increments of 20
 				//6-10: right side, starting at 587, 347
 				Vector2 btnLoc = new Vector2(i < 6 ? 62 : 590, (i < 6 ? 330 : 350) + ((i < 6 ? i : i - 6) * 20));
 
-				mainBtn[i] = new XNAButton(g, new Texture2D[] { _out, _ovr }, btnLoc);
+				mainBtn[i] = new XNAButton(g, new [] { _out, _ovr }, btnLoc);
 				//mainBtn[i].Visible = false;
 			}
 
@@ -173,16 +172,18 @@ namespace EndlessClient
 
 			newsTab = new ChatTab(g, pnlNews);
 
-			chatTextBox = new XNATextBox(g, new Rectangle(124, 308, 440, 19), g.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f);
-			chatTextBox.Selected = true;
-			chatTextBox.Visible = true;
-			chatTextBox.MaxChars = 140; //tweet size
+			chatTextBox = new XNATextBox(g, new Rectangle(124, 308, 440, 19), g.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
+			{
+				Selected = true,
+				Visible = true,
+				MaxChars = 140
+			};
 			chatTextBox.OnEnterPressed += _doTalk;
 			chatTextBox.OnClicked += (s, e) =>
 			{
 				//make sure clicking on the textarea selects it (this is an annoying problem in the original client)
-				if ((g as EOGame).Dispatcher.Subscriber != null)
-					((g as EOGame).Dispatcher.Subscriber as XNATextBox).Selected = false;
+				if (((EOGame)g).Dispatcher.Subscriber != null)
+					((XNATextBox) (g as EOGame).Dispatcher.Subscriber).Selected = false;
 
 				(g as EOGame).Dispatcher.Subscriber = chatTextBox;
 				chatTextBox.Selected = true;
@@ -221,14 +222,22 @@ namespace EndlessClient
 					default: currentChatMode = ChatMode.Public; break;
 				}
 			};
-
-			(g as EOGame).Dispatcher.Subscriber = chatTextBox;
-
-			World.Instance.ActiveMapRenderer.Visible = true;
-			if(!Game.Components.Contains(World.Instance.ActiveMapRenderer))
-				Game.Components.Add(World.Instance.ActiveMapRenderer);
+			
+			((EOGame)g).Dispatcher.Subscriber = chatTextBox;
 		}
 
+		public override void Initialize()
+		{
+			World.Instance.ActiveMapRenderer.Visible = true;
+			if (!Game.Components.Contains(World.Instance.ActiveMapRenderer))
+				Game.Components.Add(World.Instance.ActiveMapRenderer);
+			World.Instance.ActiveCharacterRenderer.Visible = true;
+			if (!Game.Components.Contains(World.Instance.ActiveCharacterRenderer))
+				Game.Components.Add(World.Instance.ActiveCharacterRenderer);
+			
+			base.Initialize();
+		}
+		
 		public override void Draw(GameTime gameTime)
 		{
 			SpriteBatch.Begin();
@@ -251,11 +260,11 @@ namespace EndlessClient
 				SpriteBatch.Draw(modeTexture, new Vector2(16, 309), Color.White);
 
 			//TODO: probably going to put the code for rendering HUD elements (HP, TP, SP, TNL) here
-			switch(state)
-			{
-				default:
-					break;
-			}
+			//switch(state)
+			//{
+			//	default:
+			//		break;
+			//}
 
 			SpriteBatch.End();
 
