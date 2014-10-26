@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
@@ -89,7 +86,7 @@ namespace EndlessClient
 				{
 					shield = EOSpriteSheet.GetShield(ArmorShieldSpriteType.Standing, Facing, Shield, Gender);
 					if(World.Instance.EIF != null)
-						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
+						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
 				}
 			}
 		}
@@ -133,7 +130,7 @@ namespace EndlessClient
 				{
 					hat = EOSpriteSheet.GetHat(Facing, Hat, Gender);
 					if(World.Instance.EIF != null)
-						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
+						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
 				}
 				maskTheHair();
 			}
@@ -161,6 +158,7 @@ namespace EndlessClient
 
 		private KeyboardState _prevState;
 		private GameTime _startWalking;
+		private bool noLocUpdate;
 
 		public EOCharacterRenderer(Game g, Character charToRender)
 			: base(g)
@@ -171,13 +169,14 @@ namespace EndlessClient
 			if (_char != World.Instance.MainPlayer.ActiveCharacter)
 			{//These coordinates are a little bit off still
 				drawArea = new Rectangle(
-					_char.OffsetX + 310 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
-					_char.OffsetY + 106 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
+					_char.OffsetX + 304 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
+					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
 					tmpSkin.Width, tmpSkin.Height); //set based on size of the sprite and location of charToRender
 			}
 			else
 			{
 				drawArea = new Rectangle((618 - tmpSkin.Width) / 2 + 4, (298 - tmpSkin.Height) / 2 - 29, tmpSkin.Width, tmpSkin.Height);
+				noLocUpdate = true; //make sure not to update the drawArea rectangle in the update method
 			}
 			updateAll = true;
 			_prevState = Keyboard.GetState();
@@ -237,6 +236,12 @@ namespace EndlessClient
 				TimeSpan elapsedSinceLast = gameTime.TotalGameTime - _startWalking.TotalGameTime;
 			}
 
+			if (!noLocUpdate && characterSkin != null && _char != null && World.Instance.MainPlayer.ActiveCharacter != null)
+				drawArea = new Rectangle(
+					_char.OffsetX + 304 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
+					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
+					characterSkin.Width, characterSkin.Height); //update the draw location when the player isn't the MainPlayer
+
 			//refresh all the textures from the GFX files or image cache
 			if (updateAll)
 			{
@@ -244,7 +249,7 @@ namespace EndlessClient
 				{
 					shield = EOSpriteSheet.GetShield(ArmorShieldSpriteType.Standing, Facing, Shield, Gender);
 					if(World.Instance.EIF != null)
-						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
+						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
 				}
 				//TODO: update ArmorShieldSpriteType to be dynamic based on the character's action!
 				//TODO: take ArmorShieldSpriteType into account for character's skin!
@@ -262,7 +267,7 @@ namespace EndlessClient
 				{
 					hat = EOSpriteSheet.GetHat(Facing, Hat, Gender);
 					if(World.Instance.EIF != null)
-						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
+						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
 				}
 
 				maskTheHair(); //this will set the combined hat/hair texture with proper data.
@@ -316,12 +321,6 @@ namespace EndlessClient
 		// - hat  (rendertarget)
 		public override void Draw(GameTime gameTime)
 		{
-			if (characterSkin != null)
-				drawArea = new Rectangle(
-					_char.OffsetX + 310 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
-					_char.OffsetY + 106 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
-					characterSkin.Width, characterSkin.Height);
-
 			base.Draw(gameTime);
 			
 			bool flipped = (int)Data.facing > 1; //flipped if direction is Up or Right (IE Facing > 1)
