@@ -102,7 +102,6 @@ namespace EndlessClient.Handlers
 			//send the file request
 			Packet builder = new Packet(PacketFamily.Welcome, PacketAction.Agree);
 			builder.AddChar((byte)file);
-			builder.AddInt(0x10101010);//add some garbage data, client doesn't seem to like sending small packets?
 
 			if (!client.SendPacket(builder))
 				return false;
