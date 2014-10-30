@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using EndlessClient.Handlers;
 using EOLib;
 using Microsoft.Xna.Framework;
@@ -28,6 +29,23 @@ namespace EndlessClient
 	/// </summary>
 	public class HUD : DrawableGameComponent
 	{
+		private static readonly object clockLock = new object();
+
+		private static readonly string[] ButtonStatusStrings = 
+		{
+			"[ Button ] See the inventory",
+			"[ Button ] Look at the map",
+			"[ Button ] Active Skills",
+			"[ Button ] Passive Skills",
+			"[ Button ] Talk with other people",
+			"[ Button ] Character status",
+			"[ Button ] Who is online ?",
+			"[ Button ] Group with other people",
+			"[ Button ] Keyboard macro and hotkeys",
+			"[ Button ] Game settings and options",
+			"[ Button ] Game help"
+		};
+
 		private const int NUM_BTN = 11;
 		private readonly Texture2D mainFrame;
 		//might need to consider making an EOPanels file and deriving from XNAPanel
@@ -38,6 +56,10 @@ namespace EndlessClient
 		private readonly SpriteBatch SpriteBatch;
 		private readonly EOChatRenderer chatRenderer;
 		private readonly ChatTab newsTab;
+
+		private readonly XNALabel statusLabel; //label for status (mouse-over buttons)
+		private readonly XNALabel clockLabel; //label that is updated on a timer
+		private Timer clockTimer;
 
 		private InGameStates state;
 		private ChatMode currentChatMode;
@@ -148,7 +170,7 @@ namespace EndlessClient
 
 			//left button onclick events
 			mainBtn[0].OnClick += (s,e) => _doStateChange(InGameStates.Inventory);
-			mainBtn[1].OnClick += OnViewMap;
+			mainBtn[1].OnClick += (s,e) => World.Instance.ActiveMapRenderer.ToggleMapView();
 			mainBtn[2].OnClick += (s,e) => _doStateChange(InGameStates.Active);
 			mainBtn[3].OnClick += (s, e) => _doStateChange(InGameStates.Passive);
 			mainBtn[4].OnClick += (s, e) => _doStateChange(InGameStates.Chat);
@@ -224,6 +246,9 @@ namespace EndlessClient
 			};
 			
 			((EOGame)g).Dispatcher.Subscriber = chatTextBox;
+
+			statusLabel = new XNALabel(Game, new Rectangle(97, 455, 1, 1), "Microsoft Sans Serif", 7.0f);
+			clockLabel = new XNALabel(Game, new Rectangle(558, 455, 1, 1), "Microsoft Sans Serif", 7.0f);
 		}
 
 		public override void Initialize()
@@ -235,9 +260,38 @@ namespace EndlessClient
 			if (!Game.Components.Contains(World.Instance.ActiveCharacterRenderer))
 				Game.Components.Add(World.Instance.ActiveCharacterRenderer);
 			
+			clockTimer = new Timer(threadState =>
+			{
+				string fmt = string.Format("{0,2:D2}:{1,2:D2}:{2,2:D2}", DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+				lock(clockLock) clockLabel.Text = fmt;
+			}, null, 0, 1000);
+
 			base.Initialize();
 		}
-		
+
+		public override void Update(GameTime gameTime)
+		{
+			base.Update(gameTime);
+
+			//polling loop to set status label for mouseover event for buttons
+			//this is in lieu of creating a OnMouseOver/OnMouseEnter or whatever,
+			//some kind of event-driven mechanism in XNAControls (which should be
+			//done at some point since polling loops are bad and you should feel bad)
+			bool mouseOver = false;
+			for (int i = 0; i < mainBtn.Length; ++i)
+			{
+				XNAButton btn = mainBtn[i];
+				if (btn.MouseOver)
+				{
+					SetStatusLabel(ButtonStatusStrings[i]);
+					mouseOver = true;
+					break;
+				}
+			}
+
+			if(!mouseOver) SetStatusLabel("");
+		}
+
 		public override void Draw(GameTime gameTime)
 		{
 			SpriteBatch.Begin();
@@ -466,17 +520,13 @@ namespace EndlessClient
 		{
 			chatTextBox.Text = text;
 		}
-		#endregion
 
-		#region ButtonClickEventHandlers
-		private void OnViewMap(object sender, EventArgs e)
+		public void SetStatusLabel(string text)
 		{
-			/* Check if map file allows minimap viewing */
-			/* set flag accordingly */
-			/* turn this into a lambda if it is short enough */
+			statusLabel.Text = text;
 		}
 		#endregion
-
+		
 		protected override void Dispose(bool disposing)
 		{
 			foreach (XNAButton btn in mainBtn)
@@ -492,6 +542,16 @@ namespace EndlessClient
 			pnlOnline.Close();
 			pnlParty.Close();
 			pnlSettings.Close();
+
+			chatTextBox.Dispose();
+			statusLabel.Dispose();
+
+			lock (clockLock)
+			{
+				clockLabel.Dispose();
+				clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
+				clockTimer.Dispose();
+			}
 
 			base.Dispose(disposing);
 		}
