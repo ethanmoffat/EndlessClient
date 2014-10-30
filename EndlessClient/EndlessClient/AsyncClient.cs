@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
-
+using System.Windows.Forms.VisualStyles;
 using EOLib;
 
 namespace EndlessClient
@@ -191,7 +191,7 @@ namespace EndlessClient
 		{
 			if (!m_connectedAndInitialized)
 			{
-				throw new Exception("Unable to disconnect without connecting");
+				return;
 			}
 
 			m_connectedAndInitialized = false;
@@ -356,10 +356,8 @@ namespace EndlessClient
 					}
 					default:
 					{
-						Console.WriteLine("There was an error in the receive callback. Resetting to default state.");
-
-						SocketDataWrapper newWrap = new SocketDataWrapper();
-						m_sock.BeginReceive(newWrap.Data, 0, newWrap.Data.Length, SocketFlags.None, _recvCB, newWrap);
+						Console.WriteLine("There was an error in the receive callback. Closing connection.");
+						Disconnect();
 						break;
 					}
 				}
