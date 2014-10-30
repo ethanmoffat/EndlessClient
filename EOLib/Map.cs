@@ -88,6 +88,18 @@ namespace EOLib
 		public int amount;
 	}
 
+	public class MapItemComparer : IEqualityComparer<MapItem>
+	{
+		public bool Equals(MapItem mi1, MapItem mi2)
+		{
+			return mi1.uid == mi2.uid;
+		}
+
+		public int GetHashCode(MapItem mi)
+		{
+			return mi.uid;
+		}
+	}
 	public struct MapItem
 	{
 		public short uid;
