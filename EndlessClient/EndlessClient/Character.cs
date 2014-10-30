@@ -50,10 +50,13 @@ namespace EndlessClient
 	/// </summary>
 	public class CharRenderData
 	{
+		private static readonly object walkFrameLocker = new object();
 		public string name;
 		public int id;
 		public byte level, gender, hairstyle, haircolor, race, admin;
 		public short boots, armor, hat, shield, weapon;
+
+		public byte walkFrame;
 		
 		public EODirection facing;
 		public SitState sitting;
@@ -76,6 +79,9 @@ namespace EndlessClient
 		public void SetWeapon(short newweap) { weapon = newweap; update = true; }
 		public void SetHat(short newhat) { hat = newhat; update = true; }
 		public void SetBoots(short newboots) { boots = newboots; update = true; }
+
+		public void SetWalkFrame(byte wf) { lock(walkFrameLocker) walkFrame = wf; update = true; }
+		public void SetUpdate(bool shouldUpdate) { update = shouldUpdate; }
 	}
 
 	/// <summary>
@@ -160,6 +166,7 @@ namespace EndlessClient
 	{
 		public int ID { get; private set; }
 
+		//todo: Update this to account for the current WalkFrame (minor offsets inbetween tiles)
 		public int OffsetX
 		{
 			get { return X*32 - Y*32; }
@@ -200,16 +207,66 @@ namespace EndlessClient
 		public Character(int id, CharRenderData data)
 		{
 			ID = id;
-			if (data == null)
-				RenderData = new CharRenderData();
+			RenderData = data ?? new CharRenderData();
 
 			Inventory = new List<InventoryItem>();
 			Spells = new List<CharacterSpell>();
 			PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
 		}
 
+		//constructs a character from a packet sent from the server
+		public Character(Packet pkt)
+		{
+			//initialize lists
+			Inventory = new List<InventoryItem>();
+			Spells = new List<CharacterSpell>();
+			PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
+
+			Name = pkt.GetBreakString();
+			if (Name.Length > 1)
+				Name = char.ToUpper(Name[0]) + Name.Substring(1);
+			
+			ID = pkt.GetShort();
+			CurrentMap = pkt.GetShort();
+			X = pkt.GetShort();
+			Y = pkt.GetShort();
+
+			EODirection direction = (EODirection)pkt.GetChar();
+			pkt.GetChar(); //value is always 6? unknown
+			PaddedGuildTag = pkt.GetFixedString(3);
+
+			RenderData = new CharRenderData
+			{
+				facing = direction,
+				level = pkt.GetChar(),
+				gender = pkt.GetChar(),
+				hairstyle = pkt.GetChar(),
+				haircolor = pkt.GetChar(),
+				race = pkt.GetChar()
+			};
+
+			Stats = new CharStatData
+			{
+				maxhp = pkt.GetShort(),
+				hp = pkt.GetShort(),
+				maxtp = pkt.GetShort(),
+				tp = pkt.GetShort()
+			};
+
+			RenderData.SetBoots(pkt.GetShort());
+			pkt.Skip(3 * sizeof(short)); //other paperdoll data is 0'd out
+			RenderData.SetArmor(pkt.GetShort());
+			pkt.Skip(sizeof(short));
+			RenderData.SetHat(pkt.GetShort());
+			RenderData.SetShield(pkt.GetShort());
+			RenderData.SetWeapon(pkt.GetShort());
+
+			RenderData.SetSitting((SitState)pkt.GetChar());
+			RenderData.SetHidden(pkt.GetChar() != 0);
+		}
+
 		/// <summary>
-		/// Used to apply changes from Welcome packet to existing Active character.
+		/// Used to apply changes from Welcome packet to existing character.
 		/// </summary>
 		/// <param name="newGuy">Changes to MainPlayer.ActiveCharacter, contained in a Character object</param>
 		public void ApplyData(Character newGuy)
@@ -229,6 +286,8 @@ namespace EndlessClient
 			Spells = new List<CharacterSpell>(newGuy.Spells);
 			Stats = new CharStatData(newGuy.Stats);
 			RenderData = newGuy.RenderData;
+			RenderData.SetWalkFrame(0);
+			Walking = false;
 			CurrentMap = newGuy.CurrentMap;
 			MapIsPk = newGuy.MapIsPk;
 			X = newGuy.X;
@@ -236,31 +295,23 @@ namespace EndlessClient
 			GuildRankNum = newGuy.GuildRankNum;
 		}
 
-		public void Walk(EODirection direction)
+		/// <summary>
+		/// Called from EOCharacterRenderer.Update (in case of MainPlayer pressing an arrow key) or Handlers.Walk (in case of another character walking)
+		/// <para>The Character Renderer will automatically pick up that Walking == true and start a walk operation, limiting the character from walking again until it is complete</para>
+		/// </summary>
+		public void Walk(EODirection direction, byte destX, byte destY)
 		{
-			//track a call to 'Walk' and return without doing anything if it is called again before the walk completes
-			//make the call to the character renderer associated with this character's id
-			//		either active character or look it up in the activemaprenderer
-			if (this == World.Instance.MainPlayer.ActiveCharacter && !Walking)
-			{
-				if (RenderData.facing != direction)
-				{
-					Face(direction);
-					return;
-				}
-				//World.Instance.MainPlayer.ActiveCharacter
-				switch (direction)
-				{
-					case EODirection.Up:
-						break;
-					case EODirection.Down:
-						break;
-					case EODirection.Right:
-						break;
-					case EODirection.Left:
-						break;
-				}
-			}
+			if (Walking)
+				return;
+
+			if (this == World.Instance.MainPlayer.ActiveCharacter)
+				Handlers.Walk.PlayerWalk(direction, destX, destY, AdminLevel != AdminLevel.Player);
+			else if (RenderData.facing != direction) //if a packet WALK_PLAYER was received: face them the right way first otherwise this will look weird
+				RenderData.SetDirection(direction);
+
+			Walking = true;
+			X = destX;
+			Y = destY;
 		}
 
 		public void Face(EODirection direction)

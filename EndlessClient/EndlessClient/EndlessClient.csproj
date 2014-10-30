@@ -125,14 +125,17 @@
     <Compile Include="Game.cs" />
     <Compile Include="GameUI.cs" />
     <Compile Include="Handlers\Account.cs" />
+    <Compile Include="Handlers\Avatar.cs" />
     <Compile Include="Handlers\Connection.cs" />
     <Compile Include="Handlers\Character.cs" />
     <Compile Include="Handlers\Face.cs" />
     <Compile Include="Handlers\Init.cs" />
     <Compile Include="Handlers\Login.cs" />
     <Compile Include="Handlers\Players.cs" />
+    <Compile Include="Handlers\Refresh.cs" />
     <Compile Include="Handlers\Talk.cs" />
     <Compile Include="Handlers\TemplateHandler.cs" />
+    <Compile Include="Handlers\Walk.cs" />
     <Compile Include="Handlers\Welcome.cs" />
     <Compile Include="InGameHud.cs" />
     <Compile Include="NPC.cs" />

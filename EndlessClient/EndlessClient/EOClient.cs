@@ -64,6 +64,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Account.AccountResponse)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Avatar, PacketAction.Remove),
+					new LockedHandlerMethod(Handlers.Avatar.AvatarRemove, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Character, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.Character.CharacterPlayerResponse)
 				},
@@ -91,6 +95,10 @@ namespace EndlessClient
 					new FamilyActionPair(PacketFamily.Players, PacketAction.Agree), 
 					new LockedHandlerMethod(Handlers.Players.PlayersAgree, true)
 				},
+				{
+					new FamilyActionPair(PacketFamily.Refresh, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Refresh.RefreshReply, true)
+				},
 				//TALK PACKETS
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Message),
@@ -113,6 +121,14 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Talk.TalkTell, true)
 				},
 				//
+				{
+					new FamilyActionPair(PacketFamily.Walk, PacketAction.Reply), 
+					new LockedHandlerMethod(Handlers.Walk.WalkReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Walk, PacketAction.Player), 
+					new LockedHandlerMethod(Handlers.Walk.WalkPlayer, true)
+				},
 				{
 					new FamilyActionPair(PacketFamily.Welcome, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Welcome.WelcomeResponse)
@@ -143,6 +159,7 @@ namespace EndlessClient
 			Handlers.Character.Cleanup();
 			Handlers.Init.Cleanup();
 			Handlers.Login.Cleanup();
+			Handlers.Walk.Cleanup();
 			Handlers.Welcome.Cleanup();
 
 			base.Dispose();

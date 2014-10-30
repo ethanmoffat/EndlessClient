@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -16,8 +14,6 @@ namespace EndlessClient
 	{
 		public GFXLoadException(int resource, GFXTypes gfx)
 			: base(string.Format("Unable to load graphic {0} from file gfx{1:000}.egf", resource + 100, (int)gfx)) { }
-		public GFXLoadException(int resource, string imageDesc, GFXTypes gfx)
-			: base(string.Format("Unable to load graphic {0} ({1}) from file gfx{2:000}.egf", resource + 100, imageDesc, (int)gfx)) { }
 	}
 
 	public enum GFXTypes
@@ -139,8 +135,8 @@ namespace EndlessClient
 
 		private struct LibraryGraphicPair : IComparable
 		{
-			public int LibraryNumber;
-			public int GraphicNumber;
+			private readonly int LibraryNumber;
+			private readonly int GraphicNumber;
 
 			public LibraryGraphicPair(int lib, int gfx)
 			{
@@ -162,9 +158,9 @@ namespace EndlessClient
 			}
 		}
 
-		private static Dictionary<LibraryGraphicPair, Texture2D> cache = new Dictionary<LibraryGraphicPair, Texture2D>();
+		private static readonly Dictionary<LibraryGraphicPair, Texture2D> cache = new Dictionary<LibraryGraphicPair, Texture2D>();
 
-		private static GraphicsDevice device = null;
+		private static GraphicsDevice device;
 
 		public static void Initialize(GraphicsDevice dev)
 		{
@@ -179,7 +175,7 @@ namespace EndlessClient
 		/// </summary>
 		/// <param name="resourceVal">Name (number) of the image resource</param>
 		/// <param name="file">File type to load from</param>
-		/// <param name="device">Graphics device in XNA game class</param>
+		/// <param name="transparent">Whether or not to make the background black color transparent</param>
 		/// <returns>Texture2D containing the image from the *.egf file</returns>
 		public static Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false)
 		{
@@ -193,7 +189,7 @@ namespace EndlessClient
 
 			using (System.IO.MemoryStream mem = new System.IO.MemoryStream())
 			{
-				using (Bitmap i = GFXLoader.BitmapFromResource(file, resourceVal, transparent))
+				using (Bitmap i = BitmapFromResource(file, resourceVal, transparent))
 					i.Save(mem, System.Drawing.Imaging.ImageFormat.Png);
 
 				ret = Texture2D.FromStream(device, mem);
@@ -212,7 +208,7 @@ namespace EndlessClient
 			}
 
 			string number = ((int)file).ToString("D3");
-			string fName = System.IO.Path.Combine(new string[] { "gfx", "gfx" + number + ".egf" });
+			string fName = System.IO.Path.Combine(new [] { "gfx", "gfx" + number + ".egf" });
 
 			IntPtr library = LoadLibrary(fName);
 
@@ -228,7 +224,7 @@ namespace EndlessClient
 			{
 				throw new GFXLoadException(resourceVal, file);
 			}
-			Bitmap ret = Bitmap.FromHbitmap(image);
+			Bitmap ret = Image.FromHbitmap(image);
 
 			if (transparent)
 			{
@@ -296,85 +292,143 @@ namespace EndlessClient
 		SitGround = 15,
 	}
 	
-	public static class EOSpriteSheet
+	public class EOSpriteSheet
 	{
-		public static Texture2D GetArmor(ArmorShieldSpriteType type, EODirection dir, short baseArmorValue, byte gender)
+		private Character charRef;
+		public EOSpriteSheet(Character charToWatch)
 		{
-			baseArmorValue = (short)((baseArmorValue - 1) * 50);
-			GFXTypes gfxFile = (gender == 0) ? GFXTypes.FemaleArmor : GFXTypes.MaleArmor;
-			int factor = (dir == EODirection.Down || dir == EODirection.Right) ? 0 : 1; //multiplier for the direction faced
+			charRef = charToWatch;
+		}
+
+		private CharRenderData _data
+		{
+			get { return charRef.RenderData; }
+		}
+
+		public Texture2D GetArmor()
+		{
+			ArmorShieldSpriteType type = ArmorShieldSpriteType.Standing;
+			switch (_data.walkFrame)
+			{
+				case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
+				case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
+				case 3: type = ArmorShieldSpriteType.WalkFrame3; break;
+				case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
+			}
+			short baseArmorValue = (short)((_data.armor - 1) * 50);
+			GFXTypes gfxFile = (_data.gender == 0) ? GFXTypes.FemaleArmor : GFXTypes.MaleArmor;
+			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1; //multiplier for the direction faced
 			factor *= getFactor(type);
 			int gfxNumber = baseArmorValue + (int)type + factor;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public static Texture2D GetShield(ArmorShieldSpriteType type, EODirection dir, short baseShieldValue, byte gender)
+		public Texture2D GetShield()
 		{
-			baseShieldValue = (short)((baseShieldValue - 1) * 50);
-			GFXTypes gfxFile = gender == 0 ? GFXTypes.FemaleBack : GFXTypes.MaleBack;
-			int factor = (dir == EODirection.Down || dir == EODirection.Right) ? 0 : 1;
+			ArmorShieldSpriteType type = ArmorShieldSpriteType.Standing;
+			switch (_data.walkFrame)
+			{
+				case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
+				case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
+				case 3: type = ArmorShieldSpriteType.WalkFrame3; break;
+				case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
+			}
+			short baseShieldValue = (short)((_data.shield - 1) * 50);
+			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleBack : GFXTypes.MaleBack;
+			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
 			factor *= getFactor(type);
 			int gfxNumber = baseShieldValue + (int)type + factor;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public static Texture2D GetWeapon(WeaponSpriteType type, EODirection dir, short baseWeaponValue, byte gender)
+		public Texture2D GetWeapon()
 		{
-			baseWeaponValue = (short)((baseWeaponValue - 1) * 100);
-			GFXTypes gfxFile = gender == 0 ? GFXTypes.FemaleWeapons : GFXTypes.MaleWeapons;
-			int factor = (dir == EODirection.Down || dir == EODirection.Right) ? 0 : 1;
+			WeaponSpriteType type = WeaponSpriteType.Standing;
+			switch (_data.walkFrame)
+			{
+				case 1: type = WeaponSpriteType.WalkFrame1; break;
+				case 2: type = WeaponSpriteType.WalkFrame2; break;
+				case 3: type = WeaponSpriteType.WalkFrame3; break;
+				case 4: type = WeaponSpriteType.WalkFrame4; break;
+			}
+			short baseWeaponValue = (short)((_data.weapon - 1) * 100);
+			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleWeapons : GFXTypes.MaleWeapons;
+			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
 			factor *= getFactor(type);
 			int gfxNumber = baseWeaponValue + (int)type + factor;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public static Texture2D GetBoots(BootsSpriteType type, EODirection dir, short baseBootsValue, byte gender)
+		public Texture2D GetBoots()
 		{
-			baseBootsValue = (short)((baseBootsValue - 1) * 40);
-			GFXTypes gfxFile = gender == 0 ? GFXTypes.FemaleShoes : GFXTypes.MaleShoes;
-			int factor = (dir == EODirection.Down || dir == EODirection.Right) ? 0 : 1;
+			BootsSpriteType type = BootsSpriteType.Standing;
+			switch (_data.walkFrame)
+			{
+				case 1: type = BootsSpriteType.WalkFrame1; break;
+				case 2: type = BootsSpriteType.WalkFrame2; break;
+				case 3: type = BootsSpriteType.WalkFrame3; break;
+				case 4: type = BootsSpriteType.WalkFrame4; break;
+			}
+			short baseBootsValue = (short)((_data.boots - 1) * 40);
+			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleShoes : GFXTypes.MaleShoes;
+			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
 			factor *= getFactor(type);
 			int gfxNumber = baseBootsValue + (int)type + factor;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public static Texture2D GetHair(EODirection dir, short hairType, short hairColor, byte gender)
+		public Texture2D GetHair()
 		{
-			byte turnedOffset = (byte)((dir == EODirection.Left || dir == EODirection.Up) ? 2 : 0);
-			GFXTypes gfxFile = (gender == 0) ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
-			int gfxNumber = 2 + ((hairType - 1) * 40) + (hairColor * 4) + turnedOffset;
+			byte turnedOffset = (byte)((_data.facing == EODirection.Left || _data.facing == EODirection.Up) ? 2 : 0);
+			GFXTypes gfxFile = (_data.gender == 0) ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
+			int gfxNumber = 2 + ((_data.hairstyle - 1) * 40) + (_data.haircolor * 4) + turnedOffset;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public static Texture2D GetHat(EODirection dir, short baseHatValue, byte gender)
+		public Texture2D GetHat()
 		{
-			baseHatValue = (short)((baseHatValue - 1) * 10);
-			GFXTypes gfxFile = gender == 0 ? GFXTypes.FemaleHat : GFXTypes.MaleHat;
-			int factor = (dir == EODirection.Down || dir == EODirection.Right) ? 0 : 2;
+			short baseHatValue = (short)((_data.hat - 1) * 10);
+			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleHat : GFXTypes.MaleHat;
+			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 2;
 			int gfxNumber = baseHatValue + factor + 1;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public static Texture2D GetSkin(EODirection dir, short race, byte gender)
+		public Texture2D GetSkin()
 		{
-			bool rotated = dir == EODirection.Left || dir == EODirection.Up;
-			Texture2D sheet = GFXLoader.TextureFromResource(GFXTypes.SkinSprites, 1, true);
-			int heightDelta = sheet.Height / 7;
-			int widthDelta = sheet.Width / 4;
-			Microsoft.Xna.Framework.Rectangle characterSkin = new Microsoft.Xna.Framework.Rectangle(gender * widthDelta * 2 + (rotated ? widthDelta : 0),
-				race * heightDelta,
+			const byte sheetRows = 7;
+			byte sheetColumns = 4;
+			byte gfxNum = 1;
+
+			//change up which gfx resource to load, and the size of the resource, based on the _data
+			if (_data.walkFrame > 0)
+			{
+				//walking
+				gfxNum = 2;
+				sheetColumns = 16;
+			}
+			//similar if statements for attacking, spell, emote, etc
+
+			bool rotated = _data.facing == EODirection.Left || _data.facing == EODirection.Up;
+			Texture2D sheet = GFXLoader.TextureFromResource(GFXTypes.SkinSprites, gfxNum, true);
+			int heightDelta = sheet.Height / sheetRows;
+			int widthDelta = sheet.Width / sheetColumns;
+			int walkExtra = _data.walkFrame > 0 ? widthDelta*(_data.walkFrame - 1) : 0;
+			Microsoft.Xna.Framework.Rectangle characterSkin = new Microsoft.Xna.Framework.Rectangle(
+				_data.gender * widthDelta * (sheetColumns / 2) + (rotated ? widthDelta : 0) + walkExtra,
+				_data.race * heightDelta,
 				widthDelta,
 				heightDelta);
 
 			XNA.Color[] data = new XNA.Color[characterSkin.Width * characterSkin.Height];
-			sheet.GetData<XNA.Color>(0, characterSkin, data, 0, data.Length);
+			sheet.GetData(0, characterSkin, data, 0, data.Length);
 
 			Texture2D ret = new Texture2D(sheet.GraphicsDevice, characterSkin.Width, characterSkin.Height);
 			ret.SetData(data);
 			return ret;
 		}
 
-		private static int getFactor(ArmorShieldSpriteType type)
+		private int getFactor(ArmorShieldSpriteType type)
 		{
 			switch (type)
 			{
@@ -390,12 +444,12 @@ namespace EndlessClient
 			return 1;
 		}
 
-		private static int getFactor(WeaponSpriteType type)
+		private int getFactor(WeaponSpriteType type)
 		{
-			return 1; //figure these out later
+			return (int)(type + 1); //figure these out later
 		}
 
-		private static int getFactor(BootsSpriteType type)
+		private int getFactor(BootsSpriteType type)
 		{
 			switch (type)
 			{

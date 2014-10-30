@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using EndlessClient.Handlers;
 using EOLib;
@@ -29,6 +30,7 @@ namespace EndlessClient
 		private readonly SpriteBatch sb;
 
 		private Rectangle _animSourceRect;
+		private bool _playerShouldBeTransparent; //set in _doMapDrawing if the player coordinates are within a wall/roof draw area
 
 		public EOMapRenderer(Game g, MapFile mapObj)
 			: base(g)
@@ -89,14 +91,29 @@ namespace EndlessClient
 
 		public void AddOtherPlayer(Character c, WarpAnimation anim = WarpAnimation.None)
 		{
-			if (otherPlayers.Find(x => x.Name == c.Name && x.ID == c.ID) == null)
+			Character other;
+			if ((other = otherPlayers.Find(x => x.Name == c.Name && x.ID == c.ID)) == null)
 			{
 				otherPlayers.Add(c);
 				otherRenderers.Add(new EOCharacterRenderer(Game, c));
 				otherRenderers[otherRenderers.Count - 1].Visible = true;
 			}
+			else
+			{
+				other.ApplyData(c);
+			}
 
 			//TODO: Add whatever magic is necessary to make the player appear all pretty (with animation)
+		}
+
+		public void RemoveOtherPlayer(short id)
+		{
+			Character c;
+			if ((c = otherPlayers.Find(cc => cc.ID == id)) != null)
+			{
+				otherPlayers.Remove(c);
+				otherRenderers.RemoveAll(rend => rend.Character == c);
+			}
 		}
 
 		public void OtherPlayerFace(short ID, EODirection direction)
@@ -106,6 +123,62 @@ namespace EndlessClient
 			{
 				c.RenderData.SetDirection(direction);
 			}
+		}
+
+		public void OtherPlayerWalk(short ID, EODirection direction, byte x, byte y)
+		{
+			Character c;
+			if ((c = otherPlayers.Find(cc => cc.ID == ID)) != null)
+			{
+				c.Walk(direction, x, y);
+				EOCharacterRenderer renderer = otherRenderers.Where(rend => rend.Character == c).ElementAt(0);
+				if (renderer != null)
+				{
+					renderer.PlayerWalk();//do the actual drawing of the other player walking
+				}
+			}
+		}
+
+		public TileSpec CheckCoordinates(byte destX, byte destY, out bool otherPlayer, out bool otherNPC)
+		{
+			//TileSpec ts = MapRef.TileRows[destY].tiles[destX].spec;
+			//if(ts == ??) check which tilespecs should allow walking
+			otherPlayer = otherNPC = false;
+			if (NPCs.Any(npc => npc.X == destX && npc.Y == destY))
+			{
+				otherNPC = true;
+				return TileSpec.None;
+			}
+			if (otherPlayers.Any(player => player.X == destX && player.Y == destY))
+			{
+				otherPlayer = true;
+				return TileSpec.None;
+			}
+
+			List<TileRow> rows = MapRef.TileRows.FindAll(tr => tr.y == destY && tr.tiles.FindAll(t => t.x == destX).Count == 1);
+			if (rows.Count == 1) //should only be 1 result
+			{
+				Tile tile = rows[0].tiles.Find(tt => tt.x == destX);
+				if (rows[0].tiles.Count > 0 && tile.x != new Tile().x)
+				{
+					return tile.spec;
+				}
+			}
+
+			return destX > 0 && destX <= MapRef.Width && destY > 0 && destY <= MapRef.Height ? TileSpec.None : TileSpec.MapEdge;
+		}
+
+		public bool PlayerBehindSomething(Character _char)
+		{
+			if (_char != World.Instance.MainPlayer.ActiveCharacter)
+				return false;
+
+			return _playerShouldBeTransparent;
+		}
+
+		public void ToggleMapView()
+		{
+			//todo: determine whether or not the minimap is visible, toggle flag to draw the minimap
 		}
 
 		public override void Update(GameTime gameTime)
@@ -134,15 +207,14 @@ namespace EndlessClient
 		// Special Thanks: HotDog's client. Used heavily as a reference for numeric offsets/techniques
 		private void _doMapDrawing()
 		{
+			_playerShouldBeTransparent = false;
 			sb.Begin();
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 
 			// Queries (func) for the gfx items within range of the character's X coordinate
 			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength;
-			Func<GFX, bool> xGFXQuery3 = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength * 3;
 			// Queries (func) for the gfxrow items within range of the character's Y coordinate
 			Func<GFXRow, bool> yGFXQuery = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength;
-			Func<GFXRow, bool> yGFXQuery3 = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength * 3;
 
 			//render fill tile first
 			if (MapRef.FillTile > 0)
@@ -221,6 +293,7 @@ namespace EndlessClient
 			}
 
 			//walls - two layers: facing different directions
+			//this layer faces to the right
 			List<GFXRow> wallRows1 = MapRef.GfxRows[4].Where(yGFXQuery).ToList();
 			foreach(GFXRow wallRow in wallRows1)
 			{
@@ -228,15 +301,15 @@ namespace EndlessClient
 				foreach (GFX obj in walls)
 				{
 					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, obj.tile, true);
-					Vector2 loc = _getDrawCoordinates(obj.x, wallRow.y, c); 
-					//Ground.Draw2D(Resource.GetMapTexture(graphics, Resource.ResourceReader.Gfx006, Gfx.tile, true), 
-					//		new Point(0, 0), 0.0f, 
-					//		new Point((Gfx.x * 32) - (GfxRow.y * 32) + (288) - World.World.offset_x - Resource.GetBitmap(graphics, Resource.ResourceReader.Gfx006, Gfx.tile).Width / 2 + 46, 
-					//				  (GfxRow.y * 16) + (Gfx.x * 16) + (144) - World.World.offset_y - (Resource.GetBitmap(graphics, Resource.ResourceReader.Gfx006, Gfx.tile).Height - 33)),
-					//		Color.White);
-					sb.Draw(gfx, new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 47, loc.Y - (gfx.Height - 29)), Color.White);
+					Vector2 loc = _getDrawCoordinates(obj.x, wallRow.y, c);
+					loc = new Vector2(loc.X - (int) Math.Round(gfx.Width/2.0) + 47, loc.Y - (gfx.Height - 29));
+					sb.Draw(gfx, loc, Color.White);
+					//only hide the character if the player X is less than the graphic X (ie character is behind the wall)
+					if (new Rectangle((int)loc.X, (int)loc.Y, gfx.Width, gfx.Height).Intersects(World.Instance.ActiveCharacterRenderer.DrawAreaWithOffset) && c.X <= obj.x)
+						_playerShouldBeTransparent = true;
 				}
 			}
+			//this layer faces to the down
 			List<GFXRow> wallRows2 = MapRef.GfxRows[3].Where(yGFXQuery).ToList();
 			foreach (GFXRow wallRow in wallRows2)
 			{
@@ -245,7 +318,11 @@ namespace EndlessClient
 				{
 					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, obj.tile, true);
 					Vector2 loc = _getDrawCoordinates(obj.x, wallRow.y, c);
-					sb.Draw(gfx, new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 15, loc.Y - (gfx.Height - 29)), Color.White);
+					loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 15, loc.Y - (gfx.Height - 29));
+					sb.Draw(gfx, loc, Color.White);
+					//only hide the character if the player Y is lower than graphic Y (ie character is higher on the map, not in front of it
+					if (new Rectangle((int)loc.X, (int)loc.Y, gfx.Width, gfx.Height).Intersects(World.Instance.ActiveCharacterRenderer.DrawAreaWithOffset) && c.Y <= wallRow.y)
+						_playerShouldBeTransparent = true;
 				}
 			}
 
@@ -269,8 +346,12 @@ namespace EndlessClient
 				List<GFX> roofs = roofRow.tiles.Where(xGFXQuery).ToList();
 				foreach (GFX roof in roofs)
 				{
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, roof.tile, true);
 					Vector2 loc = _getDrawCoordinates(roof.x, roofRow.y, c);
-					sb.Draw(GFXLoader.TextureFromResource(GFXTypes.MapWallTop, roof.tile, true), new Vector2(loc.X - 2, loc.Y - 63), Color.White);
+					loc = new Vector2(loc.X - 2, loc.Y - 63);
+					sb.Draw(gfx, loc, Color.White);
+					if (new Rectangle((int)loc.X, (int)loc.Y, gfx.Width, gfx.Height).Intersects(World.Instance.ActiveCharacterRenderer.DrawAreaWithOffset))
+						_playerShouldBeTransparent = true;
 				}
 			}
 

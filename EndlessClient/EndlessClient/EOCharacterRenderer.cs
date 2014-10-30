@@ -1,5 +1,5 @@
 ﻿using System;
-
+using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -19,8 +19,7 @@ namespace EndlessClient
 		{
 			get
 			{
-				CharRenderData data = _char != null ? _char.RenderData : _data;
-				updateAll = data.update;
+				CharRenderData data = (_char != null ? _char.RenderData : _data) ?? new CharRenderData();
 				return data;
 			}
 			set
@@ -33,7 +32,8 @@ namespace EndlessClient
 		}
 
 		//setting any of the character data will automatically load the required texture
-		private bool updateAll; //setting this will update all parameters at once
+		private RenderTarget2D _charRenderTarget; //use a render target so that a transparency is applied to entire character image
+		private readonly EOSpriteSheet spriteSheet;
 
 		public byte HairColor
 		{
@@ -41,7 +41,7 @@ namespace EndlessClient
 			set
 			{
 				Data.SetHairColor(value);
-				hair = EOSpriteSheet.GetHair(Facing, HairType, HairColor, Gender);
+				hair = spriteSheet.GetHair();
 				maskTheHair();
 			}
 		}
@@ -51,7 +51,7 @@ namespace EndlessClient
 			set
 			{
 				Data.SetHairStyle(value);
-				hair = EOSpriteSheet.GetHair(Facing, HairType, HairColor, Gender);
+				hair = spriteSheet.GetHair();
 				maskTheHair();
 			}
 		}
@@ -61,7 +61,6 @@ namespace EndlessClient
 			set
 			{
 				Data.SetGender(value);
-				updateAll = true;
 			}
 		}
 		public byte SkinColor
@@ -72,10 +71,11 @@ namespace EndlessClient
 				Data.SetRace(value); 
 				if (characterSkin != null)
 					characterSkin.Dispose();
-				characterSkin = EOSpriteSheet.GetSkin(Facing, SkinColor, Gender); //method automatically clips sprite sheet, removing need for source rectangle
+				characterSkin = spriteSheet.GetSkin(); //method automatically clips sprite sheet, removing need for source rectangle
 			}
 		}
 
+		/*
 		public short Shield
 		{
 			get { return Data.shield; }
@@ -84,9 +84,10 @@ namespace EndlessClient
 				Data.SetShield(value);
 				if (Data.shield != 0)
 				{
-					shield = EOSpriteSheet.GetShield(ArmorShieldSpriteType.Standing, Facing, Shield, Gender);
+					shield = spriteSheet.GetShield(ArmorShieldSpriteType.Standing);
 					if(World.Instance.EIF != null)
 						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
+					updateAll = true;
 				}
 			}
 		}
@@ -95,9 +96,12 @@ namespace EndlessClient
 			get { return Data.weapon; }
 			set
 			{
-				Data.SetWeapon(value); 
+				Data.SetWeapon(value);
 				if (Data.weapon != 0)
-					weapon = EOSpriteSheet.GetWeapon(WeaponSpriteType.Standing, Facing, Weapon, Gender);
+				{
+					weapon = spriteSheet.GetWeapon(WeaponSpriteType.Standing);
+					updateAll = true;
+				}
 			}
 		}
 		public short Boots
@@ -107,7 +111,10 @@ namespace EndlessClient
 			{
 				Data.SetBoots(value);
 				if (Data.boots != 0)
-					boots = EOSpriteSheet.GetBoots(BootsSpriteType.Standing, Facing, Boots, Gender);
+				{
+					boots = spriteSheet.GetBoots(BootsSpriteType.Standing);
+					updateAll = true;
+				}
 			}
 		}
 		public short Armor
@@ -117,7 +124,10 @@ namespace EndlessClient
 			{
 				Data.SetArmor(value);
 				if (Data.armor != 0)
-					armor = EOSpriteSheet.GetArmor(ArmorShieldSpriteType.Standing, Facing, Armor, Gender);
+				{
+					armor = spriteSheet.GetArmor(ArmorShieldSpriteType.Standing);
+					updateAll = true;
+				}
 			}
 		}
 		public short Hat
@@ -128,14 +138,15 @@ namespace EndlessClient
 				Data.SetHat(value);
 				if (Data.hat != 0)
 				{
-					hat = EOSpriteSheet.GetHat(Facing, Hat, Gender);
+					hat = spriteSheet.GetHat();
 					if(World.Instance.EIF != null)
 						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
+					updateAll = true;
 				}
 				maskTheHair();
 			}
 		}
-
+		*/
 		public EODirection Facing
 		{
 			get { return Data.facing; }
@@ -144,7 +155,6 @@ namespace EndlessClient
 				if (val > 3)
 					val = 0;
 				Data.SetDirection((EODirection)val);
-				updateAll = true;
 			}
 		}
 		private Texture2D shield, weapon, boots, armor, hat;
@@ -157,15 +167,16 @@ namespace EndlessClient
 		private ItemRecord shieldInfo/*, weaponInfo, bootsInfo, armorInfo*/, hatInfo;
 
 		private KeyboardState _prevState;
-		private GameTime _startWalking;
-		private bool noLocUpdate;
+		private Timer _walkTimer;
+		private readonly bool noLocUpdate;
 
 		public EOCharacterRenderer(Game g, Character charToRender)
 			: base(g)
 		{
+			spriteSheet = new EOSpriteSheet(charToRender);
 			_char = charToRender;
 			_data = charToRender.RenderData;
-			Texture2D tmpSkin = EOSpriteSheet.GetSkin(0, Data.race, Data.gender);
+			Texture2D tmpSkin = spriteSheet.GetSkin();
 			if (_char != World.Instance.MainPlayer.ActiveCharacter)
 			{//These coordinates are a little bit off still
 				drawArea = new Rectangle(
@@ -178,19 +189,21 @@ namespace EndlessClient
 				drawArea = new Rectangle((618 - tmpSkin.Width) / 2 + 4, (298 - tmpSkin.Height) / 2 - 29, tmpSkin.Width, tmpSkin.Height);
 				noLocUpdate = true; //make sure not to update the drawArea rectangle in the update method
 			}
-			updateAll = true;
+			Data.SetUpdate(true);
 			_prevState = Keyboard.GetState();
 		}
 
 		public EOCharacterRenderer(Game encapsulatingGame, Vector2 drawLocation, CharRenderData data)
 			: base(encapsulatingGame, drawLocation, null)
 		{
+			noLocUpdate = true;
+			_char = new Character(-1, data);
+			spriteSheet = new EOSpriteSheet(_char);
 			//when this is a part of a dialog, the drawareaoffset will be set accordingly and is used in the draw method
 			//otherwise, it will just draw it at the absolute location specified by drawArea
 
 			drawArea = new Rectangle((int) drawLocation.X, (int) drawLocation.Y, 1, 1);
-			Data = data;
-			updateAll = true;
+			Data.SetUpdate(true);
 
 			if (data.name.Length > 0)
 			{
@@ -198,7 +211,9 @@ namespace EndlessClient
 				levelLabel = new XNALabel(encapsulatingGame, new Rectangle(-32, 75, 1, 1), "Microsoft Sans Serif", 8.75f)
 				{
 					ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c),
+// ReSharper disable SpecifyACultureInStringConversionExplicitly
 					Text = data.level.ToString()
+// ReSharper restore SpecifyACultureInStringConversionExplicitly
 				};
 				levelLabel.SetParent(this);
 
@@ -227,87 +242,147 @@ namespace EndlessClient
 			}
 		}
 
+		public override void Initialize()
+		{
+			base.Initialize();
+			_charRenderTarget = new RenderTarget2D(GraphicsDevice,
+				GraphicsDevice.PresentationParameters.BackBufferWidth,
+				GraphicsDevice.PresentationParameters.BackBufferHeight,
+				false,
+				SurfaceFormat.Color,
+				DepthFormat.None);
+
+			_walkTimer = new Timer(_walkTimerCallback); //time will not start on its own
+		}
+
+		protected override void UnloadContent()
+		{
+			if (_charRenderTarget != null)
+				_charRenderTarget.Dispose();
+			base.UnloadContent();
+		}
+
 		public override void Update(GameTime gameTime)
 		{
 			base.Update(gameTime);
-
-			if (_char != null && _char.Walking)
-			{
-				TimeSpan elapsedSinceLast = gameTime.TotalGameTime - _startWalking.TotalGameTime;
-			}
-
+			
+			//update the draw location when the player isn't the MainPlayer (so, if they walked)
 			if (!noLocUpdate && characterSkin != null && _char != null && World.Instance.MainPlayer.ActiveCharacter != null)
 				drawArea = new Rectangle(
 					_char.OffsetX + 304 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
 					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
-					characterSkin.Width, characterSkin.Height); //update the draw location when the player isn't the MainPlayer
+					characterSkin.Width, characterSkin.Height);
 
 			//refresh all the textures from the GFX files or image cache
-			if (updateAll)
+			if (Data.update)
 			{
 				if (Data.shield != 0)
 				{
-					shield = EOSpriteSheet.GetShield(ArmorShieldSpriteType.Standing, Facing, Shield, Gender);
+					shield = spriteSheet.GetShield();
 					if(World.Instance.EIF != null)
 						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
 				}
-				//TODO: update ArmorShieldSpriteType to be dynamic based on the character's action!
-				//TODO: take ArmorShieldSpriteType into account for character's skin!
+
 				if (Data.weapon != 0)
-					weapon = EOSpriteSheet.GetWeapon(WeaponSpriteType.Standing, Facing, Weapon, Gender);
+					weapon = spriteSheet.GetWeapon();
 				if (characterSkin != null)
 					characterSkin.Dispose();
-				characterSkin = EOSpriteSheet.GetSkin(Facing, SkinColor, Gender); //method automatically clips sprite sheet, removing need for source rectangle
+				characterSkin = spriteSheet.GetSkin(); //method automatically clips sprite sheet, removing need for source rectangle
 				if (Data.boots != 0)
-					boots = EOSpriteSheet.GetBoots(BootsSpriteType.Standing, Facing, Boots, Gender);
+					boots = spriteSheet.GetBoots();
 				if (Data.armor != 0)
-					armor = EOSpriteSheet.GetArmor(ArmorShieldSpriteType.Standing, Facing, Armor, Gender);
-				hair = EOSpriteSheet.GetHair(Facing, HairType, HairColor, Gender);
+					armor = spriteSheet.GetArmor();
+				hair = spriteSheet.GetHair();
 				if (Data.hat != 0)
 				{
-					hat = EOSpriteSheet.GetHat(Facing, Hat, Gender);
+					hat = spriteSheet.GetHat();
 					if(World.Instance.EIF != null)
 						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
 				}
 
 				maskTheHair(); //this will set the combined hat/hair texture with proper data.
-
-				updateAll = false;
+				
+				_drawCharToRenderTarget();
+				Data.SetUpdate(false);
 			}
 
 			//input handling for arrow keys done here
-			KeyboardState currentState = Keyboard.GetState();
-			
 			//only check for a keypress if not currently walking and the renderer is for the active character
-			if (_char != null && !_char.Walking && _char == World.Instance.MainPlayer.ActiveCharacter) 
+			//also only check every 1/2 of a second
+			KeyboardState currentState = Keyboard.GetState();
+			if (_char != null && _char == World.Instance.MainPlayer.ActiveCharacter && gameTime.TotalGameTime.Milliseconds % 100 <= 25)
 			{
+				EODirection direction; //first, get the direction we should try to move based on the key presses from the player
 				if (currentState.IsKeyDown(Keys.Up) && _prevState.IsKeyDown(Keys.Up))
-				{
-					_char.Walk(EODirection.Up);
-					updateAll = true;
-					_startWalking = gameTime;
-				}
+					direction = EODirection.Up;
 				else if (currentState.IsKeyDown(Keys.Down) && _prevState.IsKeyDown(Keys.Down))
-				{
-					_char.Walk(EODirection.Down);
-					updateAll = true;
-					_startWalking = gameTime;
-				}
+					direction = EODirection.Down;
 				else if (currentState.IsKeyDown(Keys.Left) && _prevState.IsKeyDown(Keys.Left))
-				{
-					_char.Walk(EODirection.Left);
-					updateAll = true;
-					_startWalking = gameTime;
-				}
+					direction = EODirection.Left;
 				else if (currentState.IsKeyDown(Keys.Right) && _prevState.IsKeyDown(Keys.Right))
+					direction = EODirection.Right;
+				else
+					direction = (EODirection)255;
+				
+				byte destX, destY;
+				switch (direction)
 				{
-					_char.Walk(EODirection.Right);
-					updateAll = true;
-					_startWalking = gameTime;
+					case EODirection.Up: destX = (byte)_char.X; destY = (byte)(_char.Y - 1); break;
+					case EODirection.Down: destX = (byte)_char.X; destY = (byte)(_char.Y + 1); break;
+					case EODirection.Right: destX = (byte)(_char.X + 1); destY = (byte)_char.Y; break;
+					case EODirection.Left: destX = (byte)(_char.X - 1); destY = (byte)_char.Y; break;
+					default:
+						if (!_char.Walking)
+							_prevState = currentState; //only set this when not walking already
+						return;
 				}
 
-				_prevState = currentState; //only set this when not walking already
+				//valid direction at this point
+				if (_char.RenderData.facing != direction)
+				{
+					_char.Face(direction);
+					return;
+				}
+
+				bool playerCollision, npcCollision;
+				TileSpec spec = World.Instance.ActiveMapRenderer.CheckCoordinates(destX, destY, out playerCollision, out npcCollision);
+				if (playerCollision) ;
+					//status bar: keep moving into player to walk through...
+				else if (npcCollision) ;
+					//do nothing? idk...
+				else
+				{
+					//see what the action of moving into the next tile should do
+					//	bank vaults should open vault
+					//	chest should open chest
+					//	chairs should sit
+					//	etc. etc.
+					bool walkValid = false;
+					switch (spec) //handle the tile specs differently
+					{
+						case TileSpec.None:
+						case TileSpec.NPCBoundary:
+						case TileSpec.FakeWall:
+							walkValid = true;
+							break;
+					}
+
+					if (!_char.Walking && walkValid)
+					{
+						_char.Walk(direction, destX, destY);
+						PlayerWalk();
+					}
+				}
+
+				if (!_char.Walking) _prevState = currentState; //only set this when not walking already
 			}
+		}
+
+		public void PlayerWalk()
+		{
+			const int walkTimer = 150;
+			Data.SetUpdate(true);
+			_walkTimer.Change(0, walkTimer);
 		}
 
 		//character is drawn in the following order:
@@ -323,24 +398,74 @@ namespace EndlessClient
 		{
 			base.Draw(gameTime);
 			
-			bool flipped = (int)Data.facing > 1; //flipped if direction is Up or Right (IE Facing > 1)
-			
-			SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-
 			if (adminRect != null)
 			{
+				SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 				SpriteBatch.Draw(adminGraphic, new Rectangle(DrawAreaWithOffset.X + 48, DrawAreaWithOffset.Y + 73, adminRect.Value.Width, adminRect.Value.Height), adminRect, Color.White);
+				SpriteBatch.End();
 			}
+			
+			Color drawFilter;
+			if (EOGame.Instance.State == GameStates.PlayingTheGame)
+				drawFilter = World.Instance.ActiveMapRenderer.PlayerBehindSomething(_char)
+					? Color.FromNonPremultiplied(255, 255, 255, 60)
+					: Color.White;
+			else
+				drawFilter = Color.White;
 
+			SpriteBatch.Begin();
+			SpriteBatch.Draw(_charRenderTarget, new Vector2(0, 0), drawFilter);
+			SpriteBatch.End();
+		}
+
+		//changes the frame for walking - used by the walk timer
+		private void _walkTimerCallback(object state)
+		{
+			if (_char == null || !_char.Walking) return;
+			
+			//change character frame
+			if (Data.walkFrame < 4)
+			{
+				Data.SetWalkFrame((byte)(Data.walkFrame + 1));
+			}
+			
+			if(Data.walkFrame == 4)
+			{
+				Data.SetWalkFrame(0);
+				_char.Walking = false; //this is the only place this should be set
+
+				_walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
+			}
+			Data.SetUpdate(true); //not concerned about multithreaded implications of this member
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if(levelLabel != null)
+				levelLabel.Dispose();
+			if(nameLabel != null)
+				nameLabel.Dispose();
+			if (_walkTimer != null)
+				_walkTimer.Dispose();
+			base.Dispose(disposing);
+		}
+
+		private void _drawCharToRenderTarget()
+		{
+			bool flipped = (int)Data.facing > 1; //flipped if direction is Up or Right (IE Facing > 1)
+
+			GraphicsDevice.SetRenderTarget(_charRenderTarget); //get rid of the flashing...
+			GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
+
+			SpriteBatch.Begin();
 			//if subtype for this item is wings or arrows, draw at bottom, otherwise draw on top of armor
-			//TODO: factor in Rotation to the order of drawing things...should only matter for arrows/bags
 			bool shieldDrawn = false;
 			if (shield != null && World.Instance.EIF != null && shieldInfo != null)
 			{
 				//draw it now if: shield type is Wings/Arrows/Bag && facing down/right
 				//also draw it now if: shield type is NOT Wings/Arrows/Bag && facing up/left (ie normal shields)
 				if (((Facing == EODirection.Down || Facing == EODirection.Right) && (shieldInfo.SubType == EOLib.Data.ItemSubType.Wings || shieldInfo.SubType == EOLib.Data.ItemSubType.Arrows))
-					|| ((Facing == EODirection.Left || Facing == EODirection.Up) && ! (shieldInfo.SubType == EOLib.Data.ItemSubType.Wings || shieldInfo.SubType == EOLib.Data.ItemSubType.Arrows)))
+					|| ((Facing == EODirection.Left || Facing == EODirection.Up) && !(shieldInfo.SubType == EOLib.Data.ItemSubType.Wings || shieldInfo.SubType == EOLib.Data.ItemSubType.Arrows)))
 				{
 					SpriteBatch.Draw(shield, new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7), null, Color.White, 0.0f,
 						Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
@@ -350,14 +475,14 @@ namespace EndlessClient
 
 			if (weapon != null)
 			{
-				Vector2 loc = (int) Facing > 1 ? new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7) : 
+				Vector2 loc = (int)Facing > 1 ? new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7) :
 					new Vector2(DrawAreaWithOffset.X - 28, DrawAreaWithOffset.Y - 7);
 
 				SpriteBatch.Draw(weapon, loc, null, Color.White, 0.0f,
 					Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 			}
 
-			if(characterSkin != null)
+			if (characterSkin != null)
 				SpriteBatch.Draw(characterSkin, new Vector2(6 + DrawAreaWithOffset.X, (Data.gender == 0 ? 12 : 13) + DrawAreaWithOffset.Y), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 
 			if (boots != null)
@@ -366,7 +491,7 @@ namespace EndlessClient
 			if (armor != null)
 				SpriteBatch.Draw(armor, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 
-			if(hatInfo != null && hatInfo.SubType == EOLib.Data.ItemSubType.FaceMask)
+			if (hatInfo != null && hatInfo.SubType == EOLib.Data.ItemSubType.FaceMask)
 			{
 				if (hat != null)
 					SpriteBatch.Draw(hat, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y - 3), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
@@ -385,15 +510,8 @@ namespace EndlessClient
 				SpriteBatch.Draw(shield, new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 
 			SpriteBatch.End();
-		}
-		
-		protected override void Dispose(bool disposing)
-		{
-			if(levelLabel != null)
-				levelLabel.Dispose();
-			if(nameLabel != null)
-				nameLabel.Dispose();
-			base.Dispose(disposing);
+
+			GraphicsDevice.SetRenderTarget(null);
 		}
 
 		private void maskTheHair()
