@@ -300,6 +300,8 @@ namespace EndlessClient
 			charRef = charToWatch;
 		}
 
+		//updated the class to use a Character reference instead of a CharRenderData value-type
+		//This is provided so I didn't have to retype a bunch of code and change it from _data.xxx to charRef.RenderData.xxx
 		private CharRenderData _data
 		{
 			get { return charRef.RenderData; }
@@ -411,11 +413,12 @@ namespace EndlessClient
 
 			bool rotated = _data.facing == EODirection.Left || _data.facing == EODirection.Up;
 			Texture2D sheet = GFXLoader.TextureFromResource(GFXTypes.SkinSprites, gfxNum, true);
-			int heightDelta = sheet.Height / sheetRows;
-			int widthDelta = sheet.Width / sheetColumns;
-			int walkExtra = _data.walkFrame > 0 ? widthDelta*(_data.walkFrame - 1) : 0;
+			int heightDelta = sheet.Height / sheetRows; //the height of one 'row' in the sheet
+			int widthDelta = sheet.Width / sheetColumns; //the width of one 'column' in the sheet
+			int section = sheet.Width/4; //each 'section' for a different set of graphics
+			int walkExtra = _data.walkFrame > 0 ? widthDelta * (_data.walkFrame - 1) : 0;
 			Microsoft.Xna.Framework.Rectangle characterSkin = new Microsoft.Xna.Framework.Rectangle(
-				_data.gender * widthDelta * (sheetColumns / 2) + (rotated ? widthDelta : 0) + walkExtra,
+				_data.gender * widthDelta * (sheetColumns / 2) + (rotated ? section : 0) + walkExtra,
 				_data.race * heightDelta,
 				widthDelta,
 				heightDelta);

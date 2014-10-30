@@ -41,8 +41,11 @@ namespace EndlessClient
 			set
 			{
 				Data.SetHairColor(value);
-				hair = spriteSheet.GetHair();
-				maskTheHair();
+				if (Data.hairstyle != 0)
+				{
+					hair = spriteSheet.GetHair();
+					maskTheHair();
+				}
 			}
 		}
 		public byte HairType
@@ -51,8 +54,11 @@ namespace EndlessClient
 			set
 			{
 				Data.SetHairStyle(value);
-				hair = spriteSheet.GetHair();
-				maskTheHair();
+				if (Data.hairstyle != 0)
+				{
+					hair = spriteSheet.GetHair();
+					maskTheHair();
+				}
 			}
 		}
 		public byte Gender
@@ -292,7 +298,8 @@ namespace EndlessClient
 					boots = spriteSheet.GetBoots();
 				if (Data.armor != 0)
 					armor = spriteSheet.GetArmor();
-				hair = spriteSheet.GetHair();
+				if(Data.hairstyle != 0)
+					hair = spriteSheet.GetHair();
 				if (Data.hat != 0)
 				{
 					hat = spriteSheet.GetHat();
@@ -454,7 +461,7 @@ namespace EndlessClient
 		{
 			bool flipped = (int)Data.facing > 1; //flipped if direction is Up or Right (IE Facing > 1)
 
-			GraphicsDevice.SetRenderTarget(_charRenderTarget); //get rid of the flashing...
+			GraphicsDevice.SetRenderTarget(_charRenderTarget);
 			GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
 
 			SpriteBatch.Begin();
@@ -483,7 +490,24 @@ namespace EndlessClient
 			}
 
 			if (characterSkin != null)
-				SpriteBatch.Draw(characterSkin, new Vector2(6 + DrawAreaWithOffset.X, (Data.gender == 0 ? 12 : 13) + DrawAreaWithOffset.Y), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+			{
+				int dirWalkingOffset = 0;
+				if (_data != null && _data.gender == 1) //male
+				{
+					switch (Facing)
+					{
+						case EODirection.Down:
+							dirWalkingOffset = -1;
+							break;
+						case EODirection.Right:
+							dirWalkingOffset = 1;
+							break;
+					}
+				}
+				Vector2 skinLoc = _char.Walking ? new Vector2(2 + DrawAreaWithOffset.X + dirWalkingOffset, (Data.gender == 0 ? 11 : 12) + DrawAreaWithOffset.Y)
+					: new Vector2(6 + DrawAreaWithOffset.X, (Data.gender == 0 ? 12 : 13) + DrawAreaWithOffset.Y);
+				SpriteBatch.Draw(characterSkin, skinLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+			}
 
 			if (boots != null)
 				SpriteBatch.Draw(boots, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y + 49), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
