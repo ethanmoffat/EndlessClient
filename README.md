@@ -8,16 +8,16 @@ An open source client for Endless Online written in C#
 What is there so far?
 ---------------------
 
-The primary thing that's been completely is the basic framework for running and displaying the game. I have a solid custom-built UI controls library, and make a HEAVY use of the XNA Game Component methodology. Socket connections for sending/receiving data to/from the server are all set up and surprisingly stable. The framework that is there also allows for easy addition of different Packet handlers, which means more features for the game client.
+The primary thing that's been completely is the basic framework for running and displaying the game. I have a solid custom-built UI controls library, and liberal use of the XNA Game Component model. Socket connections for sending/receiving data to/from the server are all set up and surprisingly stable (except for when the server closes a connection, but we're ignoring that for now). The framework that is there also allows for easy addition of different Packet handlers, which means more features for the game client can be added without much effort.
 
-**The game is not yet playable.** This is the most important thing you need to know. It is more than a sandbox, and less than a fully fledged game client. The primary thing is that all the pre-game menus work and do everything they're supposed to do, with the exception of scrolling credits. Additionally, the game allows you to log in and send public, global, and private chat messages to a server. It will also render the map you're loaded on. However, this is the very limit of what the client can do and describes some of the most recent changes that have been made to it: you can't walk, interact with anything, or actually play the game.
+**The game is not yet playable.** This is the most important thing you need to know. It is more than a foundation, and less than a fully fledged game. The primary thing is that all the pre-game menus work and do everything they're supposed to do, with the exception of scrolling credits (which were annoying anyway). Additionally, the game allows you to log in and send public, global, and private chat messages to a server. As of 10/30/14, the latest and greatest updates include the ability to walk around a map, and proper map rendering! However, this is the very limit of what the client can do and describes some of the most recent changes that have been made to it: you can't play the game like with the actual game client.
 
 What's Left to do?
 ------------------
 
 There is a HUGE list of things left to do. The client is in its infant stages and is a constantly evolving work in progress. What this means is that as features are implemented, I make an attempt to implement them as completely and accurately as possible before moving on to the next thing. The pre-game menus and UI are completely finished, besides a few small bugs that I'm sure to find. The framework for adding new components is there as well.
 
-As far as game features go, there isn't much I want to leave out or change. A lot of the heavy lifting that has to be done, and that I'm currently working on, involves making the game playable as a bare-bones client. Chatting is pretty solid and map rendering is **sort of** there, but the character can't move or interact with anything yet. That being said, there isn't much in the way of packets that have been handled - but the necessary ones for getting in-game are all there (and I think these are the most challenging to get right).
+As far as game features go, there isn't much I want to leave out or change. A lot of the heavy lifting that has to be done, and that I'm currently working on, involves making the game playable as a bare-bones client. Chat is there for the most part, and walking is just about complete. The map is rendered properly and next on my plate is to get started with NPCs. As soon as these basic elements are in, I can work on the features that involve interaction between players.
 
 Running the game
 ----------------
@@ -31,7 +31,7 @@ In addition to GFX you will need the pub files. put into bin\(Debug|Release)\pub
 Rendering Hair
 --------------
 
-This might seem like a weird topic to touch on, but trust me, it's important. Unlike the other features of the game, I've taken it upon myself to update the file format for the item files to better assist with hair rendering in the client.
+This might seem like a weird topic to touch on, but there are very subtle changes I've made to handling how hair is rendered for this client. Unlike the other features of the game, I've taken it upon myself to update the file format (GASP) for the item files to better assist with hair rendering in the client. I believe the original client had some hard-coded values for
 
 This client uses a special method of rendering hair to ensure that masks are rendered one way, hoods/helmets are rendered a second way, and hats that should clip hair are rendered a third way. In order to ensure that your pub file is up-to-date and can render this as designed, run BatchPub to use a batch-processing method of assigning the updated values to the selected items.
 
