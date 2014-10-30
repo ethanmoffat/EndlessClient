@@ -98,8 +98,10 @@ namespace EndlessClient
 		{
 			get
 			{
-				if (!MapCache.ContainsKey(MainPlayer.ActiveCharacter.CurrentMap))
-					return null;
+				if (MapCache.Count == 0 || !MapCache.ContainsKey(MainPlayer.ActiveCharacter.CurrentMap))
+				{
+					return TryLoadMap(MainPlayer.ActiveCharacter.CurrentMap) ? MapCache[MainPlayer.ActiveCharacter.CurrentMap] : null;
+				}
 				return MapCache[MainPlayer.ActiveCharacter.CurrentMap];
 			}
 		}
