@@ -1,5 +1,7 @@
 ﻿//miscellaneous extension functions and some constant values are defined here
 
+using System;
+
 namespace EOLib
 {
 	public static class Hashes
@@ -26,6 +28,14 @@ namespace EOLib
 			return ret;
 		}
 	}
+
+	public static class DateTimeExtension
+	{
+		public static int ToEOTimeStamp(this DateTime dt)
+		{
+			return dt.Hour * 360000 + dt.Minute * 6000 + dt.Second * 100 + dt.Millisecond / 10;
+		}
+	}
 	
 	public static class Constants
 	{
@@ -34,7 +44,7 @@ namespace EOLib
 
 		public const byte MajorVersion = 0;
 		public const byte MinorVersion = 0;
-		public const byte ClientVersion = 28;
+		public const byte ClientVersion = 43;
 
 		public const string Host = "127.0.0.1";
 		public const int Port = 8078;
