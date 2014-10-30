@@ -166,18 +166,20 @@ namespace EndlessClient
 	{
 		public int ID { get; private set; }
 
-		//todo: Update this to account for the current WalkFrame (minor offsets inbetween tiles)
 		public int OffsetX
 		{
-			get { return X*32 - Y*32; }
+			get { return X*32 - Y*32 + ViewAdjustX; }
 		}
 
 		public int OffsetY
 		{
-			get { return X*16 + Y*16; }
+			get { return X*16 + Y*16 + ViewAdjustY; }
 		}
 
-		public bool Walking { get; set; }
+		private byte destx, desty;
+		public int ViewAdjustX { get; set; }
+		public int ViewAdjustY { get; set; }
+		public bool Walking { get; private set; }
 
 		//paperdoll info
 		public string Name { get; set; }
@@ -309,9 +311,20 @@ namespace EndlessClient
 			else if (RenderData.facing != direction) //if a packet WALK_PLAYER was received: face them the right way first otherwise this will look weird
 				RenderData.SetDirection(direction);
 
+			destx = destX;
+			desty = destY;
 			Walking = true;
-			X = destX;
-			Y = destY;
+		}
+
+		public void DoneWalking()
+		{
+			Walking = false;
+			ViewAdjustX = 0;
+			ViewAdjustY = 0;
+			Walking = false; //this is the only place this should be set
+			X = destx;
+			Y = desty;
+			RenderData.SetWalkFrame(0);
 		}
 
 		public void Face(EODirection direction)

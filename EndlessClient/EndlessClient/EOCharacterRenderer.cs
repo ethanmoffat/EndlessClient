@@ -434,13 +434,23 @@ namespace EndlessClient
 			if (Data.walkFrame < 4)
 			{
 				Data.SetWalkFrame((byte)(Data.walkFrame + 1));
+				int xAdjust, yAdjust;
+				switch (Data.facing)
+				{
+					case EODirection.Down: xAdjust = -8; yAdjust = 4; break;
+					case EODirection.Left: xAdjust = -8; yAdjust = -4; break;
+					case EODirection.Up: xAdjust = 8; yAdjust = -4; break;
+					case EODirection.Right: xAdjust = 8; yAdjust = 4; break;
+					default:
+						return;
+				}
+				_char.ViewAdjustX += xAdjust;
+				_char.ViewAdjustY += yAdjust;
 			}
 			
 			if(Data.walkFrame == 4)
 			{
-				Data.SetWalkFrame(0);
-				_char.Walking = false; //this is the only place this should be set
-
+				_char.DoneWalking();
 				_walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
 			}
 			Data.SetUpdate(true); //not concerned about multithreaded implications of this member
@@ -464,7 +474,7 @@ namespace EndlessClient
 			GraphicsDevice.SetRenderTarget(_charRenderTarget);
 			GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
 
-			SpriteBatch.Begin();
+			SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 			//if subtype for this item is wings or arrows, draw at bottom, otherwise draw on top of armor
 			bool shieldDrawn = false;
 			if (shield != null && World.Instance.EIF != null && shieldInfo != null)
