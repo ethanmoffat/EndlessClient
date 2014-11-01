@@ -130,6 +130,14 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Walk.WalkPlayer, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Warp, PacketAction.Agree), 
+					new LockedHandlerMethod(Handlers.Warp.WarpAgree, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Warp, PacketAction.Request), 
+					new LockedHandlerMethod(Handlers.Warp.WarpRequest, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Welcome, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Welcome.WelcomeResponse)
 				}

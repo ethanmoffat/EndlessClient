@@ -257,6 +257,9 @@ namespace EndlessClient.Handlers
 						//get data for any npcs
 						while(pkt.PeekByte() != 255)
 						{
+							//TODO: create NPC constructor that takes a packet
+							//TODO: update above to use the constructor in Character
+							//TODO: make sure items/npcs/characters are properly cleared before updating them
 							NPC newGuy = new NPC(pkt.GetChar(), pkt.GetShort(), pkt.GetChar(), pkt.GetChar(), (EODirection)pkt.GetChar());
 							World.Instance.ActiveMapRenderer.NPCs.Add(newGuy);
 						}

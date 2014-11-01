@@ -139,6 +139,12 @@ namespace EndlessClient
 			}
 		}
 
+		public void UpdateOtherPlayers()
+		{
+			//when mainplayer walks, tell other players to update!
+			otherPlayers.ForEach(x => x.RenderData.SetUpdate(true));
+		}
+
 		public TileSpec CheckCoordinates(byte destX, byte destY, out bool otherPlayer, out bool otherNPC)
 		{
 			//TileSpec ts = MapRef.TileRows[destY].tiles[destX].spec;
@@ -212,9 +218,9 @@ namespace EndlessClient
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 
 			// Queries (func) for the gfx items within range of the character's X coordinate
-			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength;
+			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength && gfx.x <= MapRef.Width;
 			// Queries (func) for the gfxrow items within range of the character's Y coordinate
-			Func<GFXRow, bool> yGFXQuery = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength;
+			Func<GFXRow, bool> yGFXQuery = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength && row.y <= MapRef.Height;
 
 			//render fill tile first
 			if (MapRef.FillTile > 0)
@@ -277,10 +283,13 @@ namespace EndlessClient
 				}
 			}
 
+			//big change: otherPlayerRenderers need to all be drawn here. so they appear above tiles but behind map objects. pain in my ass game.
+			//smaller change: blend overlapped region of ActiveCharacterRenderer with whatever map objects are going on (kind of transparent type of thing going on? yeah?
+
 			//TODO: cursor (follows mouse pointer)
 			//sb.Draw(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true), );
 
-			//overlay objects
+			//overlay/mask  objects
 			List<GFXRow> overlayObjRows = MapRef.GfxRows[2].Where(yGFXQuery).ToList();
 			foreach (GFXRow row in overlayObjRows)
 			{
@@ -375,7 +384,7 @@ namespace EndlessClient
 				List<GFX> tiles = row.tiles.Where(xGFXQuery).ToList();
 				foreach (GFX tile in tiles)
 				{
-					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, tile.tile, true);
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
 					Vector2 loc = _getDrawCoordinates(tile.x, row.y, c);
 					sb.Draw(gfx, new Vector2(loc.X - 2, loc.Y - 31), Color.White);
 				}

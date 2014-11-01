@@ -121,7 +121,7 @@ namespace EndlessClient
 				}
 
 				//check for an update on the map file any time the Map renderer is accessed
-				if (m_mapRender.MapRef.MapID != MainPlayer.ActiveCharacter.CurrentMap)
+				if (m_mapRender.MapRef == null || m_mapRender.MapRef.MapID != MainPlayer.ActiveCharacter.CurrentMap)
 				{
 					m_mapRender.SetActiveMap(ActiveMap);
 				}

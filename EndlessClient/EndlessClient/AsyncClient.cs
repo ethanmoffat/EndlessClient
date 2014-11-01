@@ -320,11 +320,10 @@ namespace EndlessClient
 						//The header for files stored in a Packet type is always as follows: FAMILY_INIT, ACTION_INIT, (InitReply)
 						//A 3-byte offset is found throughout the code that handles creating these files.
 						Packet pkt = new Packet(data);
-						if (pkt.Family == PacketFamily.Init && pkt.Action == PacketAction.Init)
+						if ((pkt.Family == PacketFamily.Init && pkt.Action == PacketAction.Init))
 						{
 							Handlers.InitReply reply = (Handlers.InitReply) pkt.GetChar();
-							string replyStr = Enum.GetName(typeof (Handlers.InitReply), reply);
-							if (replyStr != null && replyStr.Contains("_FILE_"))
+							if (Handlers.Init.ExpectingFile)
 							{
 								int dataGrabbed = 0;
 

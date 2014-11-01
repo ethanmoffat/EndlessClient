@@ -414,9 +414,20 @@ namespace EndlessClient
 			
 			Color drawFilter;
 			if (EOGame.Instance.State == GameStates.PlayingTheGame)
+			{
 				drawFilter = World.Instance.ActiveMapRenderer.PlayerBehindSomething(_char)
 					? Color.FromNonPremultiplied(255, 255, 255, 60)
 					: Color.White;
+				if (this != World.Instance.ActiveCharacterRenderer)
+				{
+					//do something similar for npcs in relation to active character renderer, so they show up in the right order
+					if (World.Instance.MainPlayer.ActiveCharacter.X < _char.X &&
+					    World.Instance.MainPlayer.ActiveCharacter.Y < _char.Y)
+						DrawOrder = World.Instance.ActiveCharacterRenderer.DrawOrder + 1;
+					else
+						DrawOrder = World.Instance.ActiveCharacterRenderer.DrawOrder - 1;
+				}
+			}
 			else
 				drawFilter = Color.White;
 
@@ -453,6 +464,7 @@ namespace EndlessClient
 				_char.DoneWalking();
 				_walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
 			}
+			World.Instance.ActiveMapRenderer.UpdateOtherPlayers(); //SetUpdate(true) for all other character's renderdata
 			Data.SetUpdate(true); //not concerned about multithreaded implications of this member
 		}
 
@@ -523,7 +535,13 @@ namespace EndlessClient
 				SpriteBatch.Draw(boots, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y + 49), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 
 			if (armor != null)
-				SpriteBatch.Draw(armor, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+			{
+				int yAdjust = 0;
+				if (_char.Walking && _data != null && _data.gender == 0) //female
+					yAdjust = -1;
+				SpriteBatch.Draw(armor, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y + yAdjust), null, Color.White, 0.0f,
+					Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+			}
 
 			if (hatInfo != null && hatInfo.SubType == EOLib.Data.ItemSubType.FaceMask)
 			{

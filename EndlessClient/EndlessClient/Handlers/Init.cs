@@ -53,6 +53,8 @@ namespace EndlessClient.Handlers
 		
 		private static byte BanMinsLeft = 255;
 
+		public static bool ExpectingFile { get; private set; }
+
 		public static bool CanProceed { get { return ServerResponse == InitReply.INIT_OK; } }
 		public static InitData Data;
 
@@ -102,6 +104,31 @@ namespace EndlessClient.Handlers
 			//send the file request
 			Packet builder = new Packet(PacketFamily.Welcome, PacketAction.Agree);
 			builder.AddChar((byte)file);
+			ExpectingFile = true;
+
+			if (!client.SendPacket(builder))
+				return false;
+
+			if (!response.WaitOne(Constants.ResponseFileTimeout))
+				return false;
+			response.Reset();
+
+			return true;
+		}
+
+		//sends WARP_TAKE to server
+		//like request file above, does not send INIT family packet (same reasons)
+		public static bool WarpGetMap()
+		{
+			EOClient client = (EOClient)World.Instance.Client;
+			if (!client.ConnectedAndInitialized)
+				return false;
+
+			response.Reset();
+
+			//send the file request
+			Packet builder = new Packet(PacketFamily.Warp, PacketAction.Take);
+			ExpectingFile = true;
 
 			if (!client.SendPacket(builder))
 				return false;
@@ -120,86 +147,104 @@ namespace EndlessClient.Handlers
 			switch (ServerResponse)
 			{
 				case InitReply.INIT_BANNED:
+				{
+					//ok...this is SO dumb. Apparently the server sends INIT_BANNED in response to a WARP_TAKE packet. WTF.
+					if (ExpectingFile)
 					{
-						BanType = (InitBanType)pkt.GetByte();
-						if (BanType == InitBanType.INIT_BAN_TEMP)
-							BanMinsLeft = pkt.GetByte();
+						ExpectingFile = false;
+						ServerResponse = InitReply.INIT_FILE_MAP;
+						goto case InitReply.INIT_FILE_MAP;
 					}
+
+					BanType = (InitBanType) pkt.GetByte();
+					if (BanType == InitBanType.INIT_BAN_TEMP)
+						BanMinsLeft = pkt.GetByte();
+				}
 					break;
 				case InitReply.INIT_OUT_OF_DATE:
-					{
-						pkt.GetChar();
-						pkt.GetChar();
-						BanMinsLeft = pkt.GetChar();
-					}
+				{
+					pkt.GetChar();
+					pkt.GetChar();
+					BanMinsLeft = pkt.GetChar();
+				}
 					break;
 				case InitReply.INIT_OK:
+				{
+					Data = new InitData
 					{
-						Data = new InitData
-						{
-							seq_1 = pkt.GetByte(),
-							seq_2 = pkt.GetByte(),
-							emulti_d = pkt.GetByte(),
-							emulti_e = pkt.GetByte(),
-							clientID = pkt.GetShort(),
-							response = pkt.GetThree()
-						};
-					}
+						seq_1 = pkt.GetByte(),
+						seq_2 = pkt.GetByte(),
+						emulti_d = pkt.GetByte(),
+						emulti_e = pkt.GetByte(),
+						clientID = pkt.GetShort(),
+						response = pkt.GetThree()
+					};
+				}
 					break;
-				//file upload is all handled the same way
+					//file upload is all handled the same way
 				case InitReply.INIT_FILE_EIF:
 				case InitReply.INIT_FILE_ENF:
 				case InitReply.INIT_FILE_ESF:
 				case InitReply.INIT_FILE_ECF:
 				case InitReply.INIT_FILE_MAP:
+				{
+					short requestedMap;
+					if (!ExpectingFile && Warp.RequestedMap > 0) //condition under which a file was requested for a warp.
+						requestedMap = Warp.RequestedMap;
+					else
+						requestedMap = World.Instance.MainPlayer.ActiveCharacter.CurrentMap;
+
+					ExpectingFile = false;
+					string localDir = ServerResponse == InitReply.INIT_FILE_MAP ? "maps" : "pub";
+
+					if (!Directory.Exists(localDir))
+						Directory.CreateDirectory(localDir);
+
+					string filename;
+					if (ServerResponse == InitReply.INIT_FILE_EIF)
 					{
-						string localDir = ServerResponse == InitReply.INIT_FILE_MAP ? "maps" : "pub";
-
-						if (!Directory.Exists(localDir))
-							Directory.CreateDirectory(localDir);
-
-						string filename;
-						if (ServerResponse == InitReply.INIT_FILE_EIF)
-						{
-							filename = "dat001.eif";
-						}
-						else if (ServerResponse == InitReply.INIT_FILE_ENF)
-						{
-							filename = "dtn001.enf";
-						}
-						else if (ServerResponse == InitReply.INIT_FILE_ESF)
-						{
-							filename = "dsl001.esf";
-						}
-						else if (ServerResponse == InitReply.INIT_FILE_ECF)
-						{
-							filename = "dat001.ecf";
-						}
-						else
-							filename = string.Format("{0,5:D5}.emf", World.Instance.MainPlayer.ActiveCharacter.CurrentMap);
-
-						using (FileStream fs = File.Create(Path.Combine(localDir, filename)))
-						{
-							int dataLen = pkt.Length - 3;
-							fs.Write(pkt.GetBytes(dataLen), 0, dataLen);
-						}
-
-						//try to load the file that was just downloaded into the world
-						//if we are unable to load it, signal an error condition.
-						if (ServerResponse == InitReply.INIT_FILE_MAP && !World.Instance.TryLoadMap())
-							return;
-						if (ServerResponse == InitReply.INIT_FILE_EIF && !World.Instance.TryLoadItems())
-							return;
-						if (ServerResponse == InitReply.INIT_FILE_ENF && !World.Instance.TryLoadNPCs())
-							return;
-						if (ServerResponse == InitReply.INIT_FILE_ESF && !World.Instance.TryLoadSpells())
-							return;
-						if (ServerResponse == InitReply.INIT_FILE_ECF && !World.Instance.TryLoadClasses())
-							return;
+						filename = "dat001.eif";
 					}
+					else if (ServerResponse == InitReply.INIT_FILE_ENF)
+					{
+						filename = "dtn001.enf";
+					}
+					else if (ServerResponse == InitReply.INIT_FILE_ESF)
+					{
+						filename = "dsl001.esf";
+					}
+					else if (ServerResponse == InitReply.INIT_FILE_ECF)
+					{
+						filename = "dat001.ecf";
+					}
+					else
+						filename = string.Format("{0,5:D5}.emf", requestedMap);
+
+					using (FileStream fs = File.Create(Path.Combine(localDir, filename)))
+					{
+						int dataLen = pkt.Length - 3;
+						if (dataLen == 0)
+							throw new FileLoadException();
+						fs.Write(pkt.GetBytes(dataLen), 0, dataLen);
+					}
+
+					//try to load the file that was just downloaded into the world
+					//if we are unable to load it, signal an error condition.
+					if (ServerResponse == InitReply.INIT_FILE_MAP && !World.Instance.TryLoadMap())
+						return;
+					if (ServerResponse == InitReply.INIT_FILE_EIF && !World.Instance.TryLoadItems())
+						return;
+					if (ServerResponse == InitReply.INIT_FILE_ENF && !World.Instance.TryLoadNPCs())
+						return;
+					if (ServerResponse == InitReply.INIT_FILE_ESF && !World.Instance.TryLoadSpells())
+						return;
+					if (ServerResponse == InitReply.INIT_FILE_ECF && !World.Instance.TryLoadClasses())
+						return;
+				}
 					break;
 			}
 
+			ExpectingFile = false;
 			response.Set();
 		}
 

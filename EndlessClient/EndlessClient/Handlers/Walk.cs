@@ -61,12 +61,6 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static void WalkPlayer(Packet pkt)
 		{
-			/*
-	builder.AddShort(from->player->id);
-	builder.AddChar(direction);
-	builder.AddChar(from->x);
-	builder.AddChar(from->y);
-			*/
 			short playerID = pkt.GetShort();
 			EODirection dir = (EODirection) pkt.GetChar();
 			byte x = pkt.GetChar();
