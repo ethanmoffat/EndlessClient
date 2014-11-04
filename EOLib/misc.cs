@@ -1,6 +1,7 @@
 ﻿//miscellaneous extension functions and some constant values are defined here
 
 using System;
+using Microsoft.Xna.Framework;
 
 namespace EOLib
 {
@@ -34,6 +35,20 @@ namespace EOLib
 		public static int ToEOTimeStamp(this DateTime dt)
 		{
 			return dt.Hour * 360000 + dt.Minute * 6000 + dt.Second * 100 + dt.Millisecond / 10;
+		}
+	}
+
+	public static class RectExtension
+	{
+		/// <summary>
+		/// Returns a new rectangle with the position set to the specified location
+		/// </summary>
+		/// <param name="orig"></param>
+		/// <param name="loc">New position for the rectangle</param>
+		/// <returns></returns>
+		public static Rectangle SetPosition(this Rectangle orig, Vector2 loc)
+		{
+			return new Rectangle((int)loc.X, (int)loc.Y, orig.Width, orig.Height);
 		}
 	}
 	
