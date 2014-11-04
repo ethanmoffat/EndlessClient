@@ -61,6 +61,8 @@ namespace EndlessClient
 		private readonly XNALabel clockLabel; //label that is updated on a timer
 		private Timer clockTimer;
 
+		private DateTime? statusStartTime;
+
 		private InGameStates state;
 		private ChatMode currentChatMode;
 		private Texture2D modeTexture;
@@ -257,13 +259,17 @@ namespace EndlessClient
 			if (!Game.Components.Contains(World.Instance.ActiveMapRenderer))
 				Game.Components.Add(World.Instance.ActiveMapRenderer);
 			World.Instance.ActiveCharacterRenderer.Visible = true;
-			if (!Game.Components.Contains(World.Instance.ActiveCharacterRenderer))
-				Game.Components.Add(World.Instance.ActiveCharacterRenderer);
 			
 			clockTimer = new Timer(threadState =>
 			{
 				string fmt = string.Format("{0,2:D2}:{1,2:D2}:{2,2:D2}", DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
 				lock(clockLock) clockLabel.Text = fmt;
+
+				if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).Milliseconds > 3000)
+				{
+					SetStatusLabel("");
+				}
+
 			}, null, 0, 1000);
 
 			base.Initialize();
@@ -524,6 +530,7 @@ namespace EndlessClient
 		public void SetStatusLabel(string text)
 		{
 			statusLabel.Text = text;
+			statusStartTime = !string.IsNullOrEmpty(text) ? new DateTime?(DateTime.Now) : null;
 		}
 		#endregion
 		
