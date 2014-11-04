@@ -144,15 +144,21 @@ namespace EndlessClient
 			get
 			{
 				//lazy initialization
-				EOCharacterRenderer ret = m_charRender ?? (m_charRender = new EOCharacterRenderer(EOGame.Instance, MainPlayer.ActiveCharacter));
+				EOCharacterRenderer ret;
+				if (m_charRender == null)
+				{
+					m_charRender = new EOCharacterRenderer(EOGame.Instance, MainPlayer.ActiveCharacter);
+					m_charRender.Initialize();
+				}
+
+				ret = m_charRender;
 
 				//if player logs out and logs back in
 				if (ret.Character != MainPlayer.ActiveCharacter)
 				{
 					ret.Dispose();
 					ret = m_charRender = new EOCharacterRenderer(EOGame.Instance, MainPlayer.ActiveCharacter);
-					if (!EOGame.Instance.Components.Contains(ret))
-						EOGame.Instance.Components.Add(ret);
+					m_charRender.Initialize();
 				}
 
 				return ret;

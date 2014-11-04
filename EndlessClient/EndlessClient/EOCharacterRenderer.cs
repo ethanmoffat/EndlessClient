@@ -9,6 +9,14 @@ using EOLib.Data;
 
 namespace EndlessClient
 {
+	/// <summary>
+	/// REDESIGN WEIRDNESS WARNING
+	/// Never actually adding EOCharacterRenderer (in-game ones) to game components
+	/// Because of the weirdness with draw ordering in the map renderer
+	/// So, Draw is only called from EOMapRenderer._doMapDrawing :(
+	/// Update and initialize are also called from EOMapRenderer
+	/// todo: have this make some actual god damn sense
+	/// </summary>
 	public class EOCharacterRenderer : XNAControl
 	{
 		private readonly Character _char;
@@ -184,7 +192,7 @@ namespace EndlessClient
 			_data = charToRender.RenderData;
 			Texture2D tmpSkin = spriteSheet.GetSkin();
 			if (_char != World.Instance.MainPlayer.ActiveCharacter)
-			{//These coordinates are a little bit off still
+			{
 				drawArea = new Rectangle(
 					_char.OffsetX + 304 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
 					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
@@ -258,7 +266,7 @@ namespace EndlessClient
 				SurfaceFormat.Color,
 				DepthFormat.None);
 
-			_walkTimer = new Timer(_walkTimerCallback); //time will not start on its own
+			_walkTimer = new Timer(_walkTimerCallback); //wait a minute. I'm the leader. I'll say when it's time to start.
 		}
 
 		protected override void UnloadContent()
@@ -353,9 +361,9 @@ namespace EndlessClient
 
 				bool playerCollision, npcCollision;
 				TileSpec spec = World.Instance.ActiveMapRenderer.CheckCoordinates(destX, destY, out playerCollision, out npcCollision);
-				if (playerCollision) ;
+				if (playerCollision) EOGame.Instance.Hud.SetStatusLabel("OTHER PLAYER WAHHHHHHHHHH");
 					//status bar: keep moving into player to walk through...
-				else if (npcCollision) ;
+				else if (npcCollision) EOGame.Instance.Hud.SetStatusLabel("OTHER NPC WAHHHHHHHHHH");
 					//do nothing? idk...
 				else
 				{
@@ -389,7 +397,7 @@ namespace EndlessClient
 		{
 			const int walkTimer = 150;
 			Data.SetUpdate(true);
-			_walkTimer.Change(0, walkTimer);
+			_walkTimer.Change(0, walkTimer); //ok, it's time to start
 		}
 
 		//character is drawn in the following order:
@@ -476,6 +484,8 @@ namespace EndlessClient
 				nameLabel.Dispose();
 			if (_walkTimer != null)
 				_walkTimer.Dispose();
+			if (_charRenderTarget != null)
+				_charRenderTarget.Dispose();
 			base.Dispose(disposing);
 		}
 

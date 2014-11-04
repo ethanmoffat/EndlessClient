@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using EndlessClient.Handlers;
 using EOLib;
@@ -97,6 +96,7 @@ namespace EndlessClient
 				otherPlayers.Add(c);
 				otherRenderers.Add(new EOCharacterRenderer(Game, c));
 				otherRenderers[otherRenderers.Count - 1].Visible = true;
+				otherRenderers[otherRenderers.Count - 1].Initialize();
 			}
 			else
 			{
@@ -189,13 +189,10 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
+			World.Instance.ActiveCharacterRenderer.Update(gameTime);
 			IEnumerable<EOCharacterRenderer> toAdd = otherRenderers.Where(rend => !Game.Components.Contains(rend));
 			foreach (EOCharacterRenderer rend in toAdd)
-				Game.Components.Add(rend);
-
-			IEnumerable<EOCharacterRenderer> toShow = otherRenderers.Where(rend => !rend.Visible);
-			foreach (EOCharacterRenderer rend in toShow)
-				rend.Visible = true;
+				rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
 
 			base.Update(gameTime);
 		}
@@ -216,6 +213,7 @@ namespace EndlessClient
 			_playerShouldBeTransparent = false;
 			sb.Begin();
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
+			List<Character> otherChars = new List<Character>(otherPlayers); //copy of list
 
 			// Queries (func) for the gfx items within range of the character's X coordinate
 			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength && gfx.x <= MapRef.Width;
@@ -283,12 +281,11 @@ namespace EndlessClient
 				}
 			}
 
-			//big change: otherPlayerRenderers need to all be drawn here. so they appear above tiles but behind map objects. pain in my ass game.
-			//smaller change: blend overlapped region of ActiveCharacterRenderer with whatever map objects are going on (kind of transparent type of thing going on? yeah?
+			//todo: blend overlapped region of ActiveCharacterRenderer with whatever map objects are going on (kind of transparent type of thing going on? yeah?)
 
 			//TODO: cursor (follows mouse pointer)
 			//sb.Draw(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true), );
-
+			
 			//overlay/mask  objects
 			List<GFXRow> overlayObjRows = MapRef.GfxRows[2].Where(yGFXQuery).ToList();
 			foreach (GFXRow row in overlayObjRows)
@@ -296,8 +293,11 @@ namespace EndlessClient
 				List<GFX> overlayObj = row.tiles.Where(xGFXQuery).ToList();
 				foreach (GFX obj in overlayObj)
 				{
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, obj.tile, true);
 					Vector2 pos = _getDrawCoordinates(obj.x, row.y, c);
-					sb.Draw(GFXLoader.TextureFromResource(GFXTypes.MapOverlay, obj.tile, true), new Vector2(pos.X + 16, pos.Y - 11), Color.White);
+					pos = new Vector2(pos.X + 16, pos.Y - 11);
+					_drawIfBehindSomething(otherChars, obj.x, row.y, gfx.Bounds.SetPosition(pos));
+					sb.Draw(gfx, pos, Color.White);
 				}
 			}
 
@@ -311,11 +311,9 @@ namespace EndlessClient
 				{
 					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, obj.tile, true);
 					Vector2 loc = _getDrawCoordinates(obj.x, wallRow.y, c);
-					loc = new Vector2(loc.X - (int) Math.Round(gfx.Width/2.0) + 47, loc.Y - (gfx.Height - 29));
+					loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 47, loc.Y - (gfx.Height - 29));
+					_drawIfBehindSomething(otherChars, obj.x, wallRow.y, gfx.Bounds.SetPosition(loc));
 					sb.Draw(gfx, loc, Color.White);
-					//only hide the character if the player X is less than the graphic X (ie character is behind the wall)
-					if (new Rectangle((int)loc.X, (int)loc.Y, gfx.Width, gfx.Height).Intersects(World.Instance.ActiveCharacterRenderer.DrawAreaWithOffset) && c.X <= obj.x)
-						_playerShouldBeTransparent = true;
 				}
 			}
 			//this layer faces to the down
@@ -328,10 +326,8 @@ namespace EndlessClient
 					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, obj.tile, true);
 					Vector2 loc = _getDrawCoordinates(obj.x, wallRow.y, c);
 					loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 15, loc.Y - (gfx.Height - 29));
+					_drawIfBehindSomething(otherChars, obj.x, wallRow.y, gfx.Bounds.SetPosition(loc));
 					sb.Draw(gfx, loc, Color.White);
-					//only hide the character if the player Y is lower than graphic Y (ie character is higher on the map, not in front of it
-					if (new Rectangle((int)loc.X, (int)loc.Y, gfx.Width, gfx.Height).Intersects(World.Instance.ActiveCharacterRenderer.DrawAreaWithOffset) && c.Y <= wallRow.y)
-						_playerShouldBeTransparent = true;
 				}
 			}
 
@@ -358,9 +354,8 @@ namespace EndlessClient
 					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, roof.tile, true);
 					Vector2 loc = _getDrawCoordinates(roof.x, roofRow.y, c);
 					loc = new Vector2(loc.X - 2, loc.Y - 63);
+					_drawIfBehindSomething(otherChars, roof.x, roofRow.y, gfx.Bounds.SetPosition(loc));
 					sb.Draw(gfx, loc, Color.White);
-					if (new Rectangle((int)loc.X, (int)loc.Y, gfx.Width, gfx.Height).Intersects(World.Instance.ActiveCharacterRenderer.DrawAreaWithOffset))
-						_playerShouldBeTransparent = true;
 				}
 			}
 
@@ -373,11 +368,13 @@ namespace EndlessClient
 				{
 					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, obj.tile, true);
 					Vector2 loc = _getDrawCoordinates(obj.x, mapObjRow.y, c);
-					sb.Draw(gfx, new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28)), Color.White);
+					loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28));
+					_drawIfBehindSomething(otherChars, obj.x, mapObjRow.y, gfx.Bounds.SetPosition(loc));
+					sb.Draw(gfx, loc, Color.White);
 				}
 			}
 			
-			//overlay tiles
+			//overlay tiles (counters, etc)
 			List<GFXRow> rows = MapRef.GfxRows[6].Where(yGFXQuery).ToList();
 			foreach (GFXRow row in rows)
 			{
@@ -386,11 +383,25 @@ namespace EndlessClient
 				{
 					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
 					Vector2 loc = _getDrawCoordinates(tile.x, row.y, c);
-					sb.Draw(gfx, new Vector2(loc.X - 2, loc.Y - 31), Color.White);
+					loc = new Vector2(loc.X - 2, loc.Y - 31);
+					_drawIfBehindSomething(otherChars, tile.x, row.y, gfx.Bounds.SetPosition(loc));
+					sb.Draw(gfx,loc, Color.White);
 				}
 			}
 
 			sb.End();
+
+			//draw any remaining characters that weren't behind something
+			if (otherChars.Count > 0)
+			{
+				List<Character> drawBefore = otherChars.Where(_c => _c.X < c.X && _c.Y < c.Y).ToList();
+				otherChars.RemoveAll(drawBefore.Contains);
+				otherRenderers.Where(_r => drawBefore.Contains(_r.Character)).ToList().ForEach(_r => _r.Draw(null)); //draw before main player
+				World.Instance.ActiveCharacterRenderer.Draw(null); //draw main player
+				otherRenderers.Where(_r => otherChars.Contains(_r.Character)).ToList().ForEach(_r => _r.Draw(null)); //draw after main player
+			}
+			else
+				World.Instance.ActiveCharacterRenderer.Draw(null); //just draw main player
 		}
 
 		/// <summary>
@@ -401,6 +412,28 @@ namespace EndlessClient
 		private Vector2 _getDrawCoordinates(int x, int y, Character c)
 		{
 			return new Vector2((x * 32) - (y * 32) + 288 - c.OffsetX, (y * 16) + (x * 16) + 144 - c.OffsetY);
+		}
+
+		//This is a very specific helper method, must be called during _doMapDrawing in specific places
+		//Not really for other use, I just didn't want to have to copy/paste a lot of code
+		private void _drawIfBehindSomething(List<Character> otherChars, int objX, int objY, Rectangle textureBounds)
+		{
+
+			List<Character> clipChars = otherChars.FindAll(_c => _c.X <= objX && _c.Y <= objY);
+			List<EOCharacterRenderer> drawTime = otherRenderers.Where(_r => clipChars.Contains(_r.Character)).ToList();
+			foreach (EOCharacterRenderer _r in drawTime)
+			{
+				if (_r.DrawAreaWithOffset.Intersects(textureBounds))
+				{
+					sb.End();
+					//character is behind the texture to be rendered AND character overlaps with texture to be rendered
+					//so, draw character first and remove it from the list to be drawn
+					//any characters that aren't behind anything will be drawn at the end
+					_r.Draw(null);
+					sb.Begin();
+					otherChars.Remove(_r.Character);
+				}
+			}
 		}
 	}
 }
