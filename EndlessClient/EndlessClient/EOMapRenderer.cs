@@ -38,19 +38,19 @@ namespace EndlessClient
 
 	public class EOMapRenderer : DrawableGameComponent
 	{
-		public List<MapItem> MapItems { get; set; }
+		public List<MapItem> MapItems { get; private set; }
 		private readonly List<Character> otherPlayers = new List<Character>();
 		private readonly List<EOCharacterRenderer> otherRenderers = new List<EOCharacterRenderer>();
-		public List<NPC> NPCs { get; set; }
+		public List<NPC> NPCs { get; private set; }
 
-		public MapFile MapRef { get; set; }
+		public MapFile MapRef { get; private set; }
 		
 		private readonly SpriteBatch sb;
 
 		private Rectangle _animSourceRect;
 		private bool _playerShouldBeTransparent; //set in _doMapDrawing if the player coordinates are within a wall/roof draw area
 
-		private Timer _doorTimer;
+		private readonly Timer _doorTimer;
 		private EOLib.Warp _door;
 		private byte _doorY; //since y-coord not stored in Warp object...
 
@@ -111,6 +111,12 @@ namespace EndlessClient
 			MapItems.Clear();
 			otherPlayers.Clear();
 			NPCs.Clear();
+
+			//need to reset door-related parameters when changing maps.
+			_door.doorOpened = false;
+			_door = null;
+			_doorY = 0;
+			_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
 		}
 
 		public void AddOtherPlayer(Character c, WarpAnimation anim = WarpAnimation.None)

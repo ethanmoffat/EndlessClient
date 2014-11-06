@@ -265,7 +265,7 @@ namespace EndlessClient
 				string fmt = string.Format("{0,2:D2}:{1,2:D2}:{2,2:D2}", DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
 				lock(clockLock) clockLabel.Text = fmt;
 
-				if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).Milliseconds > 3000)
+				if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).TotalMilliseconds > 3000)
 				{
 					SetStatusLabel("");
 				}
@@ -283,19 +283,15 @@ namespace EndlessClient
 			//this is in lieu of creating a OnMouseOver/OnMouseEnter or whatever,
 			//some kind of event-driven mechanism in XNAControls (which should be
 			//done at some point since polling loops are bad and you should feel bad)
-			bool mouseOver = false;
 			for (int i = 0; i < mainBtn.Length; ++i)
 			{
 				XNAButton btn = mainBtn[i];
 				if (btn.MouseOver)
 				{
 					SetStatusLabel(ButtonStatusStrings[i]);
-					mouseOver = true;
 					break;
 				}
 			}
-
-			if(!mouseOver) SetStatusLabel("");
 		}
 
 		public override void Draw(GameTime gameTime)
