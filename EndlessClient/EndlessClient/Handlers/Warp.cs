@@ -66,6 +66,7 @@ namespace EndlessClient.Handlers
 			int numOtherCharacters = pkt.GetChar();
 			if (pkt.GetByte() != 255) return;
 
+			World.Instance.ActiveMapRenderer.ClearOtherPlayers();
 			List<EndlessClient.Character> otherCharacters = new List<EndlessClient.Character>(numOtherCharacters - 1);
 			for (int i = 0; i < numOtherCharacters; ++i)
 			{
@@ -76,16 +77,18 @@ namespace EndlessClient.Handlers
 					otherCharacters.Add(newChar);
 				if (pkt.GetByte() != 255) return;
 			}
+			foreach(EndlessClient.Character _c in otherCharacters)
+				World.Instance.ActiveMapRenderer.AddOtherPlayer(_c);
 
+			World.Instance.ActiveMapRenderer.NPCs.Clear();
 			while (pkt.PeekByte() != 255)
 			{
-				pkt.Skip(6);
-				//todo: npcs (see REFRESH_REPLY)
+				World.Instance.ActiveMapRenderer.NPCs.Add(new NPC(pkt));
 			}
-
 			if (pkt.GetByte() != 255) return;
 
-			while (pkt.ReadPos != pkt.Length)
+			World.Instance.ActiveMapRenderer.MapItems.Clear();
+			while (pkt.ReadPos < pkt.Length)
 			{
 				World.Instance.ActiveMapRenderer.MapItems.Add(new MapItem
 				{

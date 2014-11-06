@@ -80,6 +80,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Connection.PingResponse)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Door, PacketAction.Open), 
+					new LockedHandlerMethod(Handlers.Door.DoorOpenResponse, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Face, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.Face.FacePlayerResponse)
 				},

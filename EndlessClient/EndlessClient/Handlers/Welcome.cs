@@ -194,53 +194,7 @@ namespace EndlessClient.Handlers
 						if (pkt.GetByte() != 255) return;
 						for(int i = 0; i < numOtherCharacters; ++i)
 						{
-							string charName = pkt.GetBreakString();
-							if(charName.Length > 1)
-								charName = char.ToUpper(charName[0]) + charName.Substring(1);
-
-							short playerID = pkt.GetShort();
-							EndlessClient.Character newGuy = new EndlessClient.Character(playerID, null)
-							{
-								Name = charName,
-								CurrentMap = pkt.GetShort(),
-								X = pkt.GetShort(),
-								Y = pkt.GetShort()
-							};
-							newGuy.RenderData.SetDirection((EODirection)pkt.GetChar());
-							pkt.GetChar(); //6 ?
-							newGuy.PaddedGuildTag = pkt.GetFixedString(3);
-
-							byte level = pkt.GetChar();
-							newGuy.RenderData.SetGender(pkt.GetChar());
-							newGuy.RenderData.SetHairStyle(pkt.GetChar());
-							newGuy.RenderData.SetHairColor(pkt.GetChar());
-							newGuy.RenderData.SetRace(pkt.GetChar());
-
-							short maxHP = pkt.GetShort(),
-								hp = pkt.GetShort(),
-								maxTP = pkt.GetShort(),
-								tp = pkt.GetShort();
-
-							newGuy.Stats = new CharStatData
-							{
-								level = level,
-								hp = hp,
-								maxhp = maxHP,
-								tp = tp,
-								maxtp = maxTP
-							};
-
-							newGuy.RenderData.SetBoots(pkt.GetShort());
-							pkt.Skip(3 * sizeof(short)); //other paperdoll data is 0'd out
-							newGuy.RenderData.SetArmor(pkt.GetShort());
-							pkt.Skip(sizeof(short));
-							newGuy.RenderData.SetHat(pkt.GetShort());
-							newGuy.RenderData.SetShield(pkt.GetShort());
-							newGuy.RenderData.SetWeapon(pkt.GetShort());
-
-							newGuy.RenderData.SetSitting((SitState)pkt.GetChar());
-							newGuy.RenderData.SetHidden(pkt.GetChar() != 0);
-
+							EndlessClient.Character newGuy = new EndlessClient.Character(pkt);
 							if (pkt.GetByte() != 255)
 								return;
 
@@ -249,22 +203,22 @@ namespace EndlessClient.Handlers
 							else
 								newChars.Add(newGuy);
 						}
-						
+
+						World.Instance.ActiveMapRenderer.ClearOtherPlayers();
 						//ensure that the MainPlayer is added first
 						foreach(EndlessClient.Character newGuy in newChars)
 							World.Instance.ActiveMapRenderer.AddOtherPlayer(newGuy);
 
 						//get data for any npcs
+						World.Instance.ActiveMapRenderer.NPCs.Clear();
 						while(pkt.PeekByte() != 255)
 						{
-							//TODO: create NPC constructor that takes a packet
-							//TODO: update above to use the constructor in Character
-							//TODO: make sure items/npcs/characters are properly cleared before updating them
-							NPC newGuy = new NPC(pkt.GetChar(), pkt.GetShort(), pkt.GetChar(), pkt.GetChar(), (EODirection)pkt.GetChar());
+							NPC newGuy = new NPC(pkt);
 							World.Instance.ActiveMapRenderer.NPCs.Add(newGuy);
 						}
 						pkt.GetByte();
 
+						World.Instance.ActiveMapRenderer.MapItems.Clear();
 						//get data for items on map
 						while(pkt.ReadPos < pkt.Length)
 						{

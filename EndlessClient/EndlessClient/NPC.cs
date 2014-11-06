@@ -30,5 +30,15 @@ namespace EndlessClient
 			Y = y;
 			Direction = dir;
 		}
+
+		public NPC(Packet pkt)
+		{
+			Index = pkt.GetChar();
+			short id = pkt.GetShort();
+			Data = World.Instance.ENF.Data[id] as NPCRecord;
+			X = pkt.GetChar();
+			Y = pkt.GetChar();
+			Direction = (EODirection) pkt.GetChar();
+		}
 	}
 }

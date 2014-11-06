@@ -359,37 +359,70 @@ namespace EndlessClient
 					return;
 				}
 
-				bool playerCollision, npcCollision;
-				TileSpec spec = World.Instance.ActiveMapRenderer.CheckCoordinates(destX, destY, out playerCollision, out npcCollision);
-				if (playerCollision) EOGame.Instance.Hud.SetStatusLabel("OTHER PLAYER WAHHHHHHHHHH");
-					//status bar: keep moving into player to walk through...
-				else if (npcCollision) EOGame.Instance.Hud.SetStatusLabel("OTHER NPC WAHHHHHHHHHH");
-					//do nothing? idk...
-				else
+				TileInfo info = World.Instance.ActiveMapRenderer.CheckCoordinates(destX, destY);
+				if (info.ReturnValue.HasFlag(TileInfo.Flags.IsOtherPlayer)) EOGame.Instance.Hud.SetStatusLabel("OTHER PLAYER WAHHHHHHHHHH"); //todo: keep moving into player to walk through...
+				else if (info.ReturnValue.HasFlag(TileInfo.Flags.IsOtherNPC)) EOGame.Instance.Hud.SetStatusLabel("OTHER NPC WAHHHHHHHHHH"); //todo: idk what's supposed to happen here
+				else if (info.ReturnValue.HasFlag(TileInfo.Flags.IsWarpSpec))
 				{
-					//see what the action of moving into the next tile should do
-					//	bank vaults should open vault
-					//	chest should open chest
-					//	chairs should sit
-					//	etc. etc.
-					bool walkValid = false;
-					switch (spec) //handle the tile specs differently
+					//warp specs: check door/key, level requirement
+					//for doors: check for need of a key
+					//			 set dooropened appropriately
+					//			 set callback timer for closing the door, it seems to be about 3 seconds in EO
+					//			 send door packet
+					if (info.Warp.door != 0)
 					{
-						case TileSpec.None:
-						case TileSpec.NPCBoundary:
-						case TileSpec.FakeWall:
-							walkValid = true;
-							break;
+						if (!info.Warp.doorOpened && !info.Warp.backOff)
+						{
+							Handlers.Door.DoorOpen(destX, destY); //just do it...no checking yet, really
+							info.Warp.backOff = true; //set flag to prevent hella door packets from the client
+						}
+						else
+						{
+							//normal walking
+							_chkWalk(TileSpec.None, direction, destX, destY);
+						}
 					}
-
-					if (!_char.Walking && walkValid)
+					else if (info.Warp.levelRequirement != 0)
 					{
-						_char.Walk(direction, destX, destY);
-						PlayerWalk();
+						EOGame.Instance.Hud.SetStatusLabel("Level requirement : " + info.Warp.levelRequirement);
 					}
+					else
+					{
+						//normal walking
+						_chkWalk(TileSpec.None, direction, destX, destY);
+					}
+				}
+				else if (info.ReturnValue.HasFlag(TileInfo.Flags.IsTileSpec))
+				{
+					_chkWalk(info.Spec, direction, destX, destY);
 				}
 
 				if (!_char.Walking) _prevState = currentState; //only set this when not walking already
+			}
+		}
+
+		//convenience wrapper
+		private void _chkWalk(TileSpec spec, EODirection dir, byte destX, byte destY)
+		{
+			//see what the action of moving into the next tile should do
+			//	bank vaults should open vault
+			//	chest should open chest
+			//	chairs should sit
+			//	etc. etc.
+			bool walkValid = false;
+			switch (spec) //handle the tile specs differently
+			{
+				case TileSpec.None:
+				case TileSpec.NPCBoundary:
+				case TileSpec.FakeWall:
+					walkValid = true;
+					break;
+			}
+
+			if (!_char.Walking && walkValid)
+			{
+				_char.Walk(dir, destX, destY);
+				PlayerWalk();
 			}
 		}
 

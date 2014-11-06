@@ -14,15 +14,11 @@ namespace EndlessClient.Handlers
 
 			EndlessClient.Character newGuy = new EndlessClient.Character(pkt);
 
-			WarpAnimation anim = (WarpAnimation)pkt.GetChar();
+			WarpAnimation anim = (WarpAnimation) pkt.GetChar();
 			if (pkt.GetByte() != 255)
 				return;
-			if (pkt.GetChar() == 1) //0 for NPC, 1 for player
+			if (pkt.GetChar() == 1) //0 for NPC, 1 for player. In eoserv it is never 0.
 				World.Instance.ActiveMapRenderer.AddOtherPlayer(newGuy, anim);
-			else
-			{
-				//add other npc
-			}
 		}
 	}
 }

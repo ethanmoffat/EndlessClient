@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Data;
@@ -17,6 +18,24 @@ namespace EndlessClient
 		Invalid = 255
 	}
 
+	//returned from CheckCoordinates
+	//convenience wrapper
+	public struct TileInfo
+	{
+		public enum Flags
+		{
+			IsTileSpec = 0, //indicates that a normal tile spec is returned
+			IsWarpSpec = 1, //indicates that a normal warp spec is returned
+			IsOtherPlayer = 2, //other player is in the way, spec/warp are invalid
+			IsOtherNPC = 4 //other npc is in the way, spec/warp are invalid
+		}
+
+		public Flags ReturnValue;
+
+		public TileSpec Spec;
+		public EOLib.Warp Warp;
+	}
+
 	public class EOMapRenderer : DrawableGameComponent
 	{
 		public List<MapItem> MapItems { get; set; }
@@ -30,6 +49,10 @@ namespace EndlessClient
 
 		private Rectangle _animSourceRect;
 		private bool _playerShouldBeTransparent; //set in _doMapDrawing if the player coordinates are within a wall/roof draw area
+
+		private Timer _doorTimer;
+		private EOLib.Warp _door;
+		private byte _doorY; //since y-coord not stored in Warp object...
 
 		public EOMapRenderer(Game g, MapFile mapObj)
 			: base(g)
@@ -49,6 +72,8 @@ namespace EndlessClient
 
 			Visible = true;
 			g.Components.Add(this);
+
+			_doorTimer = new Timer(_doorTimerCallback);
 		}
 
 		//super basic implementation for passing on chat to the game's actual HUD
@@ -116,6 +141,12 @@ namespace EndlessClient
 			}
 		}
 
+		public void ClearOtherPlayers()
+		{
+			otherRenderers.Clear();
+			otherPlayers.Clear();
+		}
+
 		public void OtherPlayerFace(short ID, EODirection direction)
 		{
 			Character c;
@@ -145,20 +176,32 @@ namespace EndlessClient
 			otherPlayers.ForEach(x => x.RenderData.SetUpdate(true));
 		}
 
-		public TileSpec CheckCoordinates(byte destX, byte destY, out bool otherPlayer, out bool otherNPC)
+		public TileInfo CheckCoordinates(byte destX, byte destY)
 		{
 			//TileSpec ts = MapRef.TileRows[destY].tiles[destX].spec;
 			//if(ts == ??) check which tilespecs should allow walking
-			otherPlayer = otherNPC = false;
 			if (NPCs.Any(npc => npc.X == destX && npc.Y == destY))
 			{
-				otherNPC = true;
-				return TileSpec.None;
+				return new TileInfo {ReturnValue = TileInfo.Flags.IsOtherNPC};
 			}
 			if (otherPlayers.Any(player => player.X == destX && player.Y == destY))
 			{
-				otherPlayer = true;
-				return TileSpec.None;
+				return new TileInfo { ReturnValue = TileInfo.Flags.IsOtherPlayer };
+			}
+
+			List<WarpRow> warpRows = MapRef.WarpRows.FindAll(wr => wr.y == destY && wr.tiles.FindAll(t => t.x == destX).Count == 1);
+			if (warpRows.Count == 1)
+			{
+				EOLib.Warp warp = warpRows[0].tiles.Find(ww => ww.x == destX);
+				if (warpRows[0].tiles.Count > 0 && warp.x != EOLib.Warp.Empty.x)
+				{
+					TileInfo newInfo = new TileInfo
+					{
+						ReturnValue = TileInfo.Flags.IsWarpSpec,
+						Warp = warp
+					};
+					return newInfo;
+				}
 			}
 
 			List<TileRow> rows = MapRef.TileRows.FindAll(tr => tr.y == destY && tr.tiles.FindAll(t => t.x == destX).Count == 1);
@@ -167,11 +210,13 @@ namespace EndlessClient
 				Tile tile = rows[0].tiles.Find(tt => tt.x == destX);
 				if (rows[0].tiles.Count > 0 && tile.x != new Tile().x)
 				{
-					return tile.spec;
+					return new TileInfo { ReturnValue = TileInfo.Flags.IsTileSpec, Spec = tile.spec };
 				}
 			}
 
-			return destX > 0 && destX <= MapRef.Width && destY > 0 && destY <= MapRef.Height ? TileSpec.None : TileSpec.MapEdge;
+			return destX <= MapRef.Width && destY <= MapRef.Height //don't need to check zero bounds: because byte type is always positive (unsigned)
+				? new TileInfo {ReturnValue = TileInfo.Flags.IsTileSpec, Spec = TileSpec.None}
+				: new TileInfo {ReturnValue = TileInfo.Flags.IsTileSpec, Spec = TileSpec.MapEdge};
 		}
 
 		public bool PlayerBehindSomething(Character _char)
@@ -185,6 +230,35 @@ namespace EndlessClient
 		public void ToggleMapView()
 		{
 			//todo: determine whether or not the minimap is visible, toggle flag to draw the minimap
+		}
+
+		public void OpenDoor(byte x, short y)
+		{
+			if (_door != null && _door.doorOpened)
+			{
+				_door.doorOpened = false;
+				_door.backOff = false;
+				_doorY = 0;
+			}
+
+			WarpRow row;
+			if ((row = MapRef.WarpRows.Find(wr => wr.y == y)).tiles.Count > 0)
+			{
+				if ((_door = row.tiles.Find(w => w.x == x)) != null)
+				{
+					_door.doorOpened = true;
+					_doorY = (byte)y;
+					_doorTimer.Change(3000, 0);
+				}
+			}
+		}
+
+		private void _doorTimerCallback(object state)
+		{
+			_door.doorOpened = false;
+			_door.backOff = false; //back-off from sending a door packet.
+			_doorY = 0;
+			_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
 		}
 
 		public override void Update(GameTime gameTime)
@@ -223,17 +297,12 @@ namespace EndlessClient
 			//render fill tile first
 			if (MapRef.FillTile > 0)
 			{
-				//for (int i = c.Y - Constants.ViewLength; i < c.Y + Constants.ViewLength; ++i)
-				for (int i = 1; i <= MapRef.Height; ++i)
+				for (int i = 0; i <= MapRef.Height; ++i)
 				{
-					//for (int j = c.X - Constants.ViewLength; j < c.X - Constants.ViewLength; ++j)
-					for (int j = 1; j <= MapRef.Width; ++j)
+					for (int j = 0; j <= MapRef.Width; ++j)
 					{
-						//if (i > 0 && j > 0 && i <= MapRef.Height && j <= MapRef.Width)
-						//{
 						Vector2 pos = _getDrawCoordinates(j, i, c);
 						sb.Draw(GFXLoader.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true), new Vector2(pos.X - 1, pos.Y - 2), Color.White);
-						//}
 					}
 				}
 			}
@@ -261,15 +330,15 @@ namespace EndlessClient
 			foreach (MapItem item in items)
 			{
 				ItemRecord itemData = (ItemRecord)World.Instance.EIF.Data.Find(i => i is ItemRecord && (i as ItemRecord).ID == item.id);
-				Vector2 itemPos = _getDrawCoordinates(item.x, item.y, c);
+				Vector2 itemPos = _getDrawCoordinates(item.x + 1, item.y, c);
 				if (itemData.Type == ItemType.Money)
 				{
-					int moneyOffset = item.amount >= 1000 ? 4 : (
-						item.amount >= 100 ? 3 : (
-						item.amount >= 10 ? 2 : (
-						item.amount >= 3 ? 1 : 0)));
+					int gfx = item.amount >= 100000 ? 4 : (
+						item.amount >= 10000 ? 3 : (
+						item.amount >= 100 ? 2 : (
+						item.amount >= 2 ? 1 : 0)));
 
-					Texture2D moneyMoneyMan = GFXLoader.TextureFromResource(GFXTypes.Items, 269 + (2*moneyOffset), true);
+					Texture2D moneyMoneyMan = GFXLoader.TextureFromResource(GFXTypes.Items, 269 + 2 * gfx, true);
 					sb.Draw(moneyMoneyMan, 
 						new Vector2(itemPos.X - (int)Math.Round(moneyMoneyMan.Width / 2.0), itemPos.Y - (int)Math.Round(moneyMoneyMan.Height / 2.0)), 
 						Color.White);
@@ -309,7 +378,11 @@ namespace EndlessClient
 				List<GFX> walls = wallRow.tiles.Where(xGFXQuery).ToList();
 				foreach (GFX obj in walls)
 				{
-					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, obj.tile, true);
+					int gfxNum = obj.tile;
+					if (_door != null && _door.x == obj.x && _doorY == wallRow.y && _door.doorOpened)
+						gfxNum++;
+
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 					Vector2 loc = _getDrawCoordinates(obj.x, wallRow.y, c);
 					loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 47, loc.Y - (gfx.Height - 29));
 					_drawIfBehindSomething(otherChars, obj.x, wallRow.y, gfx.Bounds.SetPosition(loc));
@@ -323,9 +396,13 @@ namespace EndlessClient
 				List<GFX> walls = wallRow.tiles.Where(xGFXQuery).ToList();
 				foreach (GFX obj in walls)
 				{
-					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, obj.tile, true);
+					int gfxNum = obj.tile;
+					if (_door != null && _door.x == obj.x && _doorY == wallRow.y && _door.doorOpened)
+						gfxNum++;
+
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 					Vector2 loc = _getDrawCoordinates(obj.x, wallRow.y, c);
-					loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 15, loc.Y - (gfx.Height - 29));
+					loc = new Vector2(loc.X - (int) Math.Round(gfx.Width/2.0) + 15, loc.Y - (gfx.Height - 29));
 					_drawIfBehindSomething(otherChars, obj.x, wallRow.y, gfx.Bounds.SetPosition(loc));
 					sb.Draw(gfx, loc, Color.White);
 				}
@@ -343,22 +420,7 @@ namespace EndlessClient
 					sb.Draw(GFXLoader.TextureFromResource(GFXTypes.Shadows, shadow.tile, true), new Vector2(loc.X - 24, loc.Y - 12), Color.FromNonPremultiplied(255, 255, 255, 60));
 				}
 			}
-
-			//roofs
-			List<GFXRow> roofRows = MapRef.GfxRows[5].Where(yGFXQuery).ToList();
-			foreach (GFXRow roofRow in roofRows)
-			{
-				List<GFX> roofs = roofRow.tiles.Where(xGFXQuery).ToList();
-				foreach (GFX roof in roofs)
-				{
-					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, roof.tile, true);
-					Vector2 loc = _getDrawCoordinates(roof.x, roofRow.y, c);
-					loc = new Vector2(loc.X - 2, loc.Y - 63);
-					_drawIfBehindSomething(otherChars, roof.x, roofRow.y, gfx.Bounds.SetPosition(loc));
-					sb.Draw(gfx, loc, Color.White);
-				}
-			}
-
+			
 			//map objects
 			List<GFXRow> mapObjs = MapRef.GfxRows[1].Where(yGFXQuery).ToList();
 			foreach (GFXRow mapObjRow in mapObjs)
@@ -373,7 +435,22 @@ namespace EndlessClient
 					sb.Draw(gfx, loc, Color.White);
 				}
 			}
-			
+
+			//roofs (after objects - for outdoor maps, which actually have roofs, this makes more sense)
+			List<GFXRow> roofRows = MapRef.GfxRows[5].Where(yGFXQuery).ToList();
+			foreach (GFXRow roofRow in roofRows)
+			{
+				List<GFX> roofs = roofRow.tiles.Where(xGFXQuery).ToList();
+				foreach (GFX roof in roofs)
+				{
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, roof.tile, true);
+					Vector2 loc = _getDrawCoordinates(roof.x, roofRow.y, c);
+					loc = new Vector2(loc.X - 2, loc.Y - 63);
+					_drawIfBehindSomething(otherChars, roof.x, roofRow.y, gfx.Bounds.SetPosition(loc));
+					sb.Draw(gfx, loc, Color.White);
+				}
+			}
+
 			//overlay tiles (counters, etc)
 			List<GFXRow> rows = MapRef.GfxRows[6].Where(yGFXQuery).ToList();
 			foreach (GFXRow row in rows)
@@ -394,7 +471,7 @@ namespace EndlessClient
 			//draw any remaining characters that weren't behind something
 			if (otherChars.Count > 0)
 			{
-				List<Character> drawBefore = otherChars.Where(_c => _c.X < c.X && _c.Y < c.Y).ToList();
+				List<Character> drawBefore = otherChars.Where(_c => _c.X < c.X || _c.Y < c.Y).ToList();
 				otherChars.RemoveAll(drawBefore.Contains);
 				otherRenderers.Where(_r => drawBefore.Contains(_r.Character)).ToList().ForEach(_r => _r.Draw(null)); //draw before main player
 				World.Instance.ActiveCharacterRenderer.Draw(null); //draw main player
@@ -419,7 +496,7 @@ namespace EndlessClient
 		private void _drawIfBehindSomething(List<Character> otherChars, int objX, int objY, Rectangle textureBounds)
 		{
 
-			List<Character> clipChars = otherChars.FindAll(_c => _c.X <= objX && _c.Y <= objY);
+			List<Character> clipChars = otherChars.FindAll(_c => _c.X < objX && _c.Y < objY);
 			List<EOCharacterRenderer> drawTime = otherRenderers.Where(_r => clipChars.Contains(_r.Character)).ToList();
 			foreach (EOCharacterRenderer _r in drawTime)
 			{

@@ -36,7 +36,6 @@ namespace EndlessClient.Handlers
 		{
 			if (pkt.GetByte() != 255 || pkt.GetByte() != 255)
 				return;//something is off
-			World.Instance.ActiveMapRenderer.MapItems.Clear();
 			//response contains the map items that are now in range
 			int numberOfMapItems;
 			List<MapItem> newMapItems = new List<MapItem>(numberOfMapItems = (pkt.PeekEndString().Length / 9));

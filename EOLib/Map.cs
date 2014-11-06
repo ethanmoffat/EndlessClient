@@ -130,6 +130,7 @@ namespace EOLib
 		public byte levelRequirement;
 		public short door;
 		public bool doorOpened;
+		public bool backOff; //used in code only: determines whether a door packet was recently sent for this particular door (only valid for doors)
 
 		public static readonly Warp Empty = new Warp();
 	}
