@@ -34,7 +34,8 @@ namespace EndlessClient.Handlers
 					if (World.Instance.NeedMap == mapID)
 					{
 						RequestedMap = mapID;
-						Init.WarpGetMap(); //does the WARP_TAKE if missing the map we need
+						if (!Init.WarpGetMap()) //does the WARP_TAKE if missing the map we need
+							return; //wait for return value on file transfer!
 					}
 					WarpAccept(mapID); //WarpAgree response packet will make sure everything is dandy
 					break;

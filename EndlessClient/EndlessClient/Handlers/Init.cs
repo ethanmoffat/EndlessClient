@@ -230,7 +230,7 @@ namespace EndlessClient.Handlers
 
 					//try to load the file that was just downloaded into the world
 					//if we are unable to load it, signal an error condition.
-					if (ServerResponse == InitReply.INIT_FILE_MAP && !World.Instance.TryLoadMap())
+					if (ServerResponse == InitReply.INIT_FILE_MAP && !World.Instance.TryLoadMap(requestedMap))
 						return;
 					if (ServerResponse == InitReply.INIT_FILE_EIF && !World.Instance.TryLoadItems())
 						return;
