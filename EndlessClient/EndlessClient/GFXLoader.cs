@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
-
+using EOLib.Data;
 using Microsoft.Xna.Framework.Graphics;
 using XNA = Microsoft.Xna.Framework;
 
@@ -325,15 +326,18 @@ namespace EndlessClient
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public Texture2D GetShield()
+		public Texture2D GetShield(bool shieldIsOnBack)
 		{
 			ArmorShieldSpriteType type = ArmorShieldSpriteType.Standing;
-			switch (_data.walkFrame)
+			if (!shieldIsOnBack)
 			{
-				case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
-				case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
-				case 3: type = ArmorShieldSpriteType.WalkFrame3; break;
-				case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
+				switch (_data.walkFrame)
+				{
+					case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
+					case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
+					case 3: type = ArmorShieldSpriteType.WalkFrame3; break;
+					case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
+				}
 			}
 			short baseShieldValue = (short)((_data.shield - 1) * 50);
 			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleBack : GFXTypes.MaleBack;
