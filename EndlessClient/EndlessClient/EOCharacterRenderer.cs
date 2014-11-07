@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
@@ -171,6 +172,8 @@ namespace EndlessClient
 				Data.SetDirection((EODirection)val);
 			}
 		}
+
+		private static readonly object hatHairLock = new object();
 		private Texture2D shield, weapon, boots, armor, hat;
 		private Texture2D hair, characterSkin;
 
@@ -292,9 +295,9 @@ namespace EndlessClient
 			{
 				if (Data.shield != 0)
 				{
-					shield = spriteSheet.GetShield();
-					if(World.Instance.EIF != null)
+					if (World.Instance.EIF != null)
 						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
+					shield = spriteSheet.GetShield(shieldInfo.SubType == ItemSubType.Arrows || shieldInfo.SubType == ItemSubType.Wings);
 				}
 				else
 				{
@@ -308,17 +311,22 @@ namespace EndlessClient
 				characterSkin = spriteSheet.GetSkin(); //method automatically clips sprite sheet, removing need for source rectangle
 				boots = Data.boots != 0 ? spriteSheet.GetBoots() : null;
 				armor = Data.armor != 0 ? spriteSheet.GetArmor() : null;
-				hair = Data.hairstyle != 0 ? spriteSheet.GetHair() : null;
+				lock (hatHairLock)
+					hair = Data.hairstyle != 0 ? spriteSheet.GetHair() : null;
 				if (Data.hat != 0)
 				{
-					hat = spriteSheet.GetHat();
+					lock (hatHairLock)
+						hat = spriteSheet.GetHat();
 					if(World.Instance.EIF != null)
 						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
 				}
 				else
 				{
-					hat = null;
-					hatInfo = null;
+					lock (hatHairLock)
+					{
+						hat = null;
+						hatInfo = null;
+					}
 				}
 
 				maskTheHair(); //this will set the combined hat/hair texture with proper data.
@@ -451,45 +459,47 @@ namespace EndlessClient
 		public override void Draw(GameTime gameTime)
 		{
 			base.Draw(gameTime);
-			
+			Draw(SpriteBatch, gameTime); //framework: draw with this instance's spritebatch
+		}
+
+		//does the draw call with a particular spritebatch (CharacterRenderer.Draw uses this with instance spritebatch)
+		//started indicates that the spritebatch.begin call has already been made
+		public void Draw(SpriteBatch sb, GameTime gt, bool started = false)
+		{
 			if (adminRect != null)
 			{
-				SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-				SpriteBatch.Draw(adminGraphic, new Rectangle(DrawAreaWithOffset.X + 48, DrawAreaWithOffset.Y + 73, adminRect.Value.Width, adminRect.Value.Height), adminRect, Color.White);
-				SpriteBatch.End();
+				if(!started) sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+				sb.Draw(adminGraphic, new Rectangle(DrawAreaWithOffset.X + 48, DrawAreaWithOffset.Y + 73, adminRect.Value.Width, adminRect.Value.Height), adminRect, Color.White);
+				if(!started) sb.End();
 			}
-			
-			Color drawFilter;
-			if (EOGame.Instance.State == GameStates.PlayingTheGame)
-			{
-				drawFilter = World.Instance.ActiveMapRenderer.PlayerBehindSomething(_char)
-					? Color.FromNonPremultiplied(255, 255, 255, 60)
-					: Color.White;
-				if (this != World.Instance.ActiveCharacterRenderer)
-				{
-					//do something similar for npcs in relation to active character renderer, so they show up in the right order
-					if (World.Instance.MainPlayer.ActiveCharacter.X < _char.X &&
-					    World.Instance.MainPlayer.ActiveCharacter.Y < _char.Y)
-						DrawOrder = World.Instance.ActiveCharacterRenderer.DrawOrder + 1;
-					else
-						DrawOrder = World.Instance.ActiveCharacterRenderer.DrawOrder - 1;
-				}
-			}
-			else
-				drawFilter = Color.White;
 
-			SpriteBatch.Begin();
-			SpriteBatch.Draw(_charRenderTarget, new Vector2(0, 0), drawFilter);
-			SpriteBatch.End();
+			if (EOGame.Instance.State == GameStates.PlayingTheGame && this != World.Instance.ActiveCharacterRenderer)
+			{
+				//todo: something similar for npcs in relation to active character renderer, so they show up in the right order
+				if (World.Instance.MainPlayer.ActiveCharacter.X < _char.X &&
+					World.Instance.MainPlayer.ActiveCharacter.Y < _char.Y)
+					DrawOrder = World.Instance.ActiveCharacterRenderer.DrawOrder + 1;
+				else
+					DrawOrder = World.Instance.ActiveCharacterRenderer.DrawOrder - 1;
+			}
+
+			if(!started) sb.Begin();
+			sb.Draw(_charRenderTarget, new Vector2(0, 0), Color.White);
+			if(!started) sb.End();
 		}
 
 		//changes the frame for walking - used by the walk timer
 		private void _walkTimerCallback(object state)
 		{
 			if (_char == null || !_char.Walking) return;
-			
+
+			if (Data.walkFrame == 4)
+			{
+				_char.DoneWalking();
+				_walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
+			}
 			//change character frame
-			if (Data.walkFrame < 4)
+			else
 			{
 				Data.SetWalkFrame((byte)(Data.walkFrame + 1));
 				int xAdjust, yAdjust;
@@ -506,11 +516,6 @@ namespace EndlessClient
 				_char.ViewAdjustY += yAdjust;
 			}
 			
-			if(Data.walkFrame == 4)
-			{
-				_char.DoneWalking();
-				_walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
-			}
 			World.Instance.ActiveMapRenderer.UpdateOtherPlayers(); //SetUpdate(true) for all other character's renderdata
 			Data.SetUpdate(true); //not concerned about multithreaded implications of this member
 		}
@@ -585,31 +590,40 @@ namespace EndlessClient
 
 			if (armor != null)
 			{
-				int yAdjust = 0;
-				if (_char.Walking && _data != null && _data.gender == 0) //female
-					yAdjust = -1;
+				int yAdjust = _char.Walking ? -1: 0;
 				SpriteBatch.Draw(armor, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y + yAdjust), null, Color.White, 0.0f,
 					Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 			}
 
-			if (hatInfo != null && hatInfo.SubType == EOLib.Data.ItemSubType.FaceMask)
+			SpriteBatch.End();
+			lock (hatHairLock)
 			{
-				if (hat != null)
-					SpriteBatch.Draw(hat, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y - 3), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-				if (hair != null)
-					SpriteBatch.Draw(hair, new Vector2(DrawAreaWithOffset.X + (flipped ? 2 : 0), DrawAreaWithOffset.Y), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-			}
-			else
-			{
-				if (hair != null)
-					SpriteBatch.Draw(hair, new Vector2(DrawAreaWithOffset.X + (flipped ? 2 : 0), DrawAreaWithOffset.Y), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-				if (hat != null)
-					SpriteBatch.Draw(hat, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y - 3), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+				if (hatInfo != null && hatInfo.SubType == EOLib.Data.ItemSubType.FaceMask)
+				{
+					if (hat != null)
+						SpriteBatch.Draw(hat, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y - 3), null, Color.White, 0.0f,
+							Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+					if (hair != null)
+						SpriteBatch.Draw(hair, new Vector2(DrawAreaWithOffset.X + (flipped ? 2 : 0), DrawAreaWithOffset.Y), null,
+							Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+
+				}
+				else
+				{
+					if (hair != null)
+						SpriteBatch.Draw(hair, new Vector2(DrawAreaWithOffset.X + (flipped ? 2 : 0), DrawAreaWithOffset.Y), null,
+							Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+					if (hat != null)
+						SpriteBatch.Draw(hat, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y - 3), null, Color.White, 0.0f,
+							Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				}
+				SpriteBatch.End();
 			}
 
+			SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 			if (shield != null && !shieldDrawn)
 				SpriteBatch.Draw(shield, new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-
 			SpriteBatch.End();
 
 			GraphicsDevice.SetRenderTarget(null);
@@ -635,22 +649,27 @@ namespace EndlessClient
 			Color[] hatPixels = new Color[hat.Width * hat.Height], hairPixels = new Color[hair.Width * hair.Height];
 			hat.GetData(hatPixels, 0, hatPixels.Length);
 			hair.GetData(hairPixels, 0, hairPixels.Length);
-
-			for(int i = 1; i <= hat.Height; ++i)
+			
+			for(int i = 0; i <= hat.Height; ++i)
 			{
 				for(int j = 0; j < hat.Width; ++j)
 				{
-					if(hatPixels[i * j] == new Color(0, 0, 0))
+					Color val = hatPixels[i*j];
+					if(val.R == 0 && val.G == 0 && val.B == 0)
 					{
-						hatPixels[i * j].A = 0;
+						hatPixels[i * j] = new Color(0, 0, 0, 0);
 						if(i < hair.Height && j < hair.Width)
-							hairPixels[i * j].A = 0;
+							hairPixels[i * j] = new Color(0, 0, 0, 0);
 					}
 				}
 			}
 
-			hat.SetData(hatPixels);
-			hair.SetData(hairPixels);
+			lock (hatHairLock)
+			{
+				hat.SetData(hatPixels);
+				hair.SetData(hairPixels);
+			}
 		}
+
 	}
 }
