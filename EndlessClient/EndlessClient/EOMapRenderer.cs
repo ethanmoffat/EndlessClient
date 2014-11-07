@@ -22,15 +22,15 @@ namespace EndlessClient
 	//convenience wrapper
 	public struct TileInfo
 	{
-		public enum Flags
+		public enum ReturnType //this struct is used sort of like a union - different data returned in different cases
 		{
-			IsTileSpec = 0, //indicates that a normal tile spec is returned
-			IsWarpSpec = 1, //indicates that a normal warp spec is returned
-			IsOtherPlayer = 2, //other player is in the way, spec/warp are invalid
-			IsOtherNPC = 4 //other npc is in the way, spec/warp are invalid
+			IsTileSpec, //indicates that a normal tile spec is returned
+			IsWarpSpec, //indicates that a normal warp spec is returned
+			IsOtherPlayer, //other player is in the way, spec/warp are invalid
+			IsOtherNPC //other npc is in the way, spec/warp are invalid
 		}
 
-		public Flags ReturnValue;
+		public ReturnType ReturnValue;
 
 		public TileSpec Spec;
 		public EOLib.Warp Warp;
@@ -137,7 +137,7 @@ namespace EndlessClient
 			//TODO: Add whatever magic is necessary to make the player appear all pretty (with animation)
 		}
 
-		public void RemoveOtherPlayer(short id)
+		public void RemoveOtherPlayer(short id, WarpAnimation anim = WarpAnimation.None)
 		{
 			Character c;
 			if ((c = otherPlayers.Find(cc => cc.ID == id)) != null)
@@ -145,6 +145,8 @@ namespace EndlessClient
 				otherPlayers.Remove(c);
 				otherRenderers.RemoveAll(rend => rend.Character == c);
 			}
+
+			//TODO: Add warp animation when valid
 		}
 
 		public void ClearOtherPlayers()
@@ -182,17 +184,39 @@ namespace EndlessClient
 			otherPlayers.ForEach(x => x.RenderData.SetUpdate(true));
 		}
 
+		public void UpdateOtherPlayer(short playerId, bool sound, CharRenderData newRenderData)
+		{
+			Character c;
+			if ((c = otherPlayers.Find(cc => cc.ID == playerId)) != null)
+			{
+				c.RenderData.SetBoots(newRenderData.boots);
+				c.RenderData.SetArmor(newRenderData.armor);
+				c.RenderData.SetHat(newRenderData.hat);
+				c.RenderData.SetShield(newRenderData.shield);
+				c.RenderData.SetWeapon(newRenderData.weapon);
+				//todo: play sound?
+			}
+		}
+
+		public void UpdateOtherPlayer(short playerId, byte hairColor, byte hairStyle = 255)
+		{
+			Character c;
+			if ((c = otherPlayers.Find(cc => cc.ID == playerId)) != null)
+			{
+				c.RenderData.SetHairColor(hairColor);
+				if (hairStyle != 255) c.RenderData.SetHairStyle(hairStyle);
+			}
+		}
+
 		public TileInfo CheckCoordinates(byte destX, byte destY)
 		{
-			//TileSpec ts = MapRef.TileRows[destY].tiles[destX].spec;
-			//if(ts == ??) check which tilespecs should allow walking
 			if (NPCs.Any(npc => npc.X == destX && npc.Y == destY))
 			{
-				return new TileInfo {ReturnValue = TileInfo.Flags.IsOtherNPC};
+				return new TileInfo {ReturnValue = TileInfo.ReturnType.IsOtherNPC};
 			}
 			if (otherPlayers.Any(player => player.X == destX && player.Y == destY))
 			{
-				return new TileInfo { ReturnValue = TileInfo.Flags.IsOtherPlayer };
+				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsOtherPlayer };
 			}
 
 			List<WarpRow> warpRows = MapRef.WarpRows.FindAll(wr => wr.y == destY && wr.tiles.FindAll(t => t.x == destX).Count == 1);
@@ -203,7 +227,7 @@ namespace EndlessClient
 				{
 					TileInfo newInfo = new TileInfo
 					{
-						ReturnValue = TileInfo.Flags.IsWarpSpec,
+						ReturnValue = TileInfo.ReturnType.IsWarpSpec,
 						Warp = warp
 					};
 					return newInfo;
@@ -216,13 +240,13 @@ namespace EndlessClient
 				Tile tile = rows[0].tiles.Find(tt => tt.x == destX);
 				if (rows[0].tiles.Count > 0 && tile.x != new Tile().x)
 				{
-					return new TileInfo { ReturnValue = TileInfo.Flags.IsTileSpec, Spec = tile.spec };
+					return new TileInfo { ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = tile.spec };
 				}
 			}
 
 			return destX <= MapRef.Width && destY <= MapRef.Height //don't need to check zero bounds: because byte type is always positive (unsigned)
-				? new TileInfo {ReturnValue = TileInfo.Flags.IsTileSpec, Spec = TileSpec.None}
-				: new TileInfo {ReturnValue = TileInfo.Flags.IsTileSpec, Spec = TileSpec.MapEdge};
+				? new TileInfo {ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = TileSpec.None}
+				: new TileInfo {ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = TileSpec.MapEdge};
 		}
 
 		public bool PlayerBehindSomething(Character _char)

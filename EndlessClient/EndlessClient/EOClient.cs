@@ -64,6 +64,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Account.AccountResponse)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Avatar, PacketAction.Agree),
+					new LockedHandlerMethod(Handlers.Avatar.AvatarAgree, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Avatar, PacketAction.Remove),
 					new LockedHandlerMethod(Handlers.Avatar.AvatarRemove, true)
 				},
@@ -90,6 +94,18 @@ namespace EndlessClient
 				{
 					new FamilyActionPair(PacketFamily.Init, PacketAction.Init),
 					new LockedHandlerMethod(Handlers.Init.InitResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Add), 
+					new LockedHandlerMethod(Handlers.Item.ItemAddResponse, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Drop), 
+					new LockedHandlerMethod(Handlers.Item.ItemDropResponse, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Remove), 
+					new LockedHandlerMethod(Handlers.Item.ItemRemoveResponse, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Login, PacketAction.Reply),

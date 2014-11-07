@@ -296,23 +296,29 @@ namespace EndlessClient
 					if(World.Instance.EIF != null)
 						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
 				}
+				else
+				{
+					shield = null;
+					shieldInfo = null;
+				}
 
-				if (Data.weapon != 0)
-					weapon = spriteSheet.GetWeapon();
+				weapon = Data.weapon != 0 ? spriteSheet.GetWeapon() : null;
 				if (characterSkin != null)
 					characterSkin.Dispose();
 				characterSkin = spriteSheet.GetSkin(); //method automatically clips sprite sheet, removing need for source rectangle
-				if (Data.boots != 0)
-					boots = spriteSheet.GetBoots();
-				if (Data.armor != 0)
-					armor = spriteSheet.GetArmor();
-				if(Data.hairstyle != 0)
-					hair = spriteSheet.GetHair();
+				boots = Data.boots != 0 ? spriteSheet.GetBoots() : null;
+				armor = Data.armor != 0 ? spriteSheet.GetArmor() : null;
+				hair = Data.hairstyle != 0 ? spriteSheet.GetHair() : null;
 				if (Data.hat != 0)
 				{
 					hat = spriteSheet.GetHat();
 					if(World.Instance.EIF != null)
 						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
+				}
+				else
+				{
+					hat = null;
+					hatInfo = null;
 				}
 
 				maskTheHair(); //this will set the combined hat/hair texture with proper data.
@@ -360,41 +366,41 @@ namespace EndlessClient
 				}
 
 				TileInfo info = World.Instance.ActiveMapRenderer.CheckCoordinates(destX, destY);
-				if (info.ReturnValue.HasFlag(TileInfo.Flags.IsOtherPlayer)) EOGame.Instance.Hud.SetStatusLabel("OTHER PLAYER WAHHHHHHHHHH"); //todo: keep moving into player to walk through...
-				else if (info.ReturnValue.HasFlag(TileInfo.Flags.IsOtherNPC)) EOGame.Instance.Hud.SetStatusLabel("OTHER NPC WAHHHHHHHHHH"); //todo: idk what's supposed to happen here
-				else if (info.ReturnValue.HasFlag(TileInfo.Flags.IsWarpSpec))
+				switch (info.ReturnValue)
 				{
-					//warp specs: check door/key, level requirement
-					//for doors: check for need of a key
-					//			 set dooropened appropriately
-					//			 set callback timer for closing the door, it seems to be about 3 seconds in EO
-					//			 send door packet
-					if (info.Warp.door != 0)
-					{
-						if (!info.Warp.doorOpened && !info.Warp.backOff)
+					case TileInfo.ReturnType.IsOtherPlayer:
+						EOGame.Instance.Hud.SetStatusLabel("OTHER PLAYER WAHHHHHHHHHH"); //todo: keep moving into player to walk through...
+						break;
+					case TileInfo.ReturnType.IsOtherNPC:
+						EOGame.Instance.Hud.SetStatusLabel("OTHER NPC WAHHHHHHHHHH"); //todo: idk what's supposed to happen here
+						break;
+					case TileInfo.ReturnType.IsWarpSpec:
+						if (info.Warp.door != 0)
 						{
-							Handlers.Door.DoorOpen(destX, destY); //just do it...no checking yet, really
-							info.Warp.backOff = true; //set flag to prevent hella door packets from the client
+							if (!info.Warp.doorOpened && !info.Warp.backOff)
+							{
+								Handlers.Door.DoorOpen(destX, destY); //just do it...no checking yet, really
+								info.Warp.backOff = true; //set flag to prevent hella door packets from the client
+							}
+							else
+							{
+								//normal walking
+								_chkWalk(TileSpec.None, direction, destX, destY);
+							}
+						}
+						else if (info.Warp.levelRequirement != 0)
+						{
+							EOGame.Instance.Hud.SetStatusLabel("Level requirement : " + info.Warp.levelRequirement);
 						}
 						else
 						{
 							//normal walking
 							_chkWalk(TileSpec.None, direction, destX, destY);
 						}
-					}
-					else if (info.Warp.levelRequirement != 0)
-					{
-						EOGame.Instance.Hud.SetStatusLabel("Level requirement : " + info.Warp.levelRequirement);
-					}
-					else
-					{
-						//normal walking
-						_chkWalk(TileSpec.None, direction, destX, destY);
-					}
-				}
-				else if (info.ReturnValue.HasFlag(TileInfo.Flags.IsTileSpec))
-				{
-					_chkWalk(info.Spec, direction, destX, destY);
+						break;
+					case TileInfo.ReturnType.IsTileSpec:
+						_chkWalk(info.Spec, direction, destX, destY);
+						break;
 				}
 
 				if (!_char.Walking) _prevState = currentState; //only set this when not walking already

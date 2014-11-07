@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 
 using EOLib;
+using EOLib.Data;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient
@@ -333,6 +334,20 @@ namespace EndlessClient
 			//send packet to server: update client side if send was successful
 			if(Handlers.Face.FacePlayer(direction))
 				RenderData.SetDirection(direction); //updates the data in the character renderer as well
+		}
+
+		public void UpdateInventoryItem(short id, int characterAmount, byte characterWeight, byte characterMaxWeight)
+		{
+			InventoryItem rec;
+			if ((rec = Inventory.Find(item => item.id == id)).id == id)
+			{
+				InventoryItem newRec = new InventoryItem {amount = characterAmount, id = id};
+				if(!Inventory.Remove(rec))
+					throw new Exception("Unable to remove from inventory!");
+				if (newRec.amount > 0) Inventory.Add(newRec);
+				Weight = characterWeight;
+				MaxWeight = characterMaxWeight;
+			}
 		}
 	}
 }
