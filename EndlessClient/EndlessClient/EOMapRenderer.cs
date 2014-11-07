@@ -48,8 +48,7 @@ namespace EndlessClient
 		private readonly SpriteBatch sb;
 
 		private Rectangle _animSourceRect;
-		private RenderTarget2D _playerTransparentTarget; //set in _doMapDrawing if the player coordinates are within a wall/roof draw area
-		private BlendState _playerBlend;
+		private bool _playerShouldBeTransparent; //set in _doMapDrawing if the player coordinates are within a wall/roof draw area
 
 		private readonly Timer _doorTimer;
 		private EOLib.Warp _door;
@@ -114,13 +113,10 @@ namespace EndlessClient
 			NPCs.Clear();
 
 			//need to reset door-related parameters when changing maps.
-			if (_door != null)
-			{
-				_door.doorOpened = false;
-				_door = null;
-				_doorY = 0;
-				_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
-			}
+			_door.doorOpened = false;
+			_door = null;
+			_doorY = 0;
+			_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
 		}
 
 		public void AddOtherPlayer(Character c, WarpAnimation anim = WarpAnimation.None)
@@ -252,7 +248,15 @@ namespace EndlessClient
 				? new TileInfo {ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = TileSpec.None}
 				: new TileInfo {ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = TileSpec.MapEdge};
 		}
-		
+
+		public bool PlayerBehindSomething(Character _char)
+		{
+			if (_char != World.Instance.MainPlayer.ActiveCharacter)
+				return false;
+
+			return _playerShouldBeTransparent;
+		}
+
 		public void ToggleMapView()
 		{
 			//todo: determine whether or not the minimap is visible, toggle flag to draw the minimap
@@ -287,37 +291,12 @@ namespace EndlessClient
 			_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
 		}
 
-		public override void Initialize()
-		{
-			_playerTransparentTarget = new RenderTarget2D(Game.GraphicsDevice, 
-				Game.GraphicsDevice.PresentationParameters.BackBufferWidth, 
-				Game.GraphicsDevice.PresentationParameters.BackBufferHeight,
-				false,
-				SurfaceFormat.Color,
-				DepthFormat.None);
-
-			_playerBlend = new BlendState
-			{
-				BlendFactor = new Color(128,128,128,64),
-
-				AlphaSourceBlend = Blend.One,
-				AlphaDestinationBlend = Blend.One,
-				AlphaBlendFunction = BlendFunction.Add,
-
-				ColorSourceBlend = Blend.BlendFactor,
-				ColorDestinationBlend = Blend.One
-			};
-			base.Initialize();
-		}
-
 		public override void Update(GameTime gameTime)
 		{
 			World.Instance.ActiveCharacterRenderer.Update(gameTime);
 			IEnumerable<EOCharacterRenderer> toAdd = otherRenderers.Where(rend => !Game.Components.Contains(rend));
 			foreach (EOCharacterRenderer rend in toAdd)
 				rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
-
-			_doMapRenderTargetDrawing(); //if any player has been updated redraw the render target
 
 			base.Update(gameTime);
 		}
@@ -335,6 +314,7 @@ namespace EndlessClient
 		// Special Thanks: HotDog's client. Used heavily as a reference for numeric offsets/techniques
 		private void _doMapDrawing()
 		{
+			_playerShouldBeTransparent = false;
 			sb.Begin();
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 			List<Character> otherChars = new List<Character>(otherPlayers); //copy of list
@@ -399,182 +379,124 @@ namespace EndlessClient
 					sb.Draw(itemTexture, new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0), itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)), Color.White);
 				}
 			}
-			
+
+			//todo: blend overlapped region of ActiveCharacterRenderer with whatever map objects are going on (kind of transparent type of thing going on? yeah?)
+
 			//TODO: cursor (follows mouse pointer)
 			//sb.Draw(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true), );
-
-			sb.End();
 			
-			sb.Begin();
-			sb.Draw(_playerTransparentTarget, Vector2.Zero, Color.White);
-			sb.End();
-		}
-
-		//The map render target works as follows:
-		// 1. Clear render target as transparent
-		// 2. Draw all map objects to this render target
-		// 3. Draw any players (including main) to render target
-		//    a. other renderers are drawn inbetween objects as needed
-		//    b. main player is blended using special blendstate with any object it overlaps
-		private void _doMapRenderTargetDrawing()
-		{
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
-			List<Character> otherChars = new List<Character>(otherPlayers); //copy of list
-
-			// Queries (func) for the gfx items within range of the character's X coordinate
-			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength && gfx.x <= MapRef.Width;
-			// Queries (func) for the gfxrow items within range of the character's Y coordinate
-			Func<GFXRow, bool> yGFXQuery = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength && row.y <= MapRef.Height;
-			GraphicsDevice.SetRenderTarget(_playerTransparentTarget);
-			GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-			sb.Begin();
-
-			bool mainBehindSomething = false;
-			//Get all the row lists in-range of player up front. Retrieved here in order to be rendered
+			//overlay/mask  objects
 			List<GFXRow> overlayObjRows = MapRef.GfxRows[2].Where(yGFXQuery).ToList();
-			List<GFXRow> wallRowsRight = MapRef.GfxRows[4].Where(yGFXQuery).ToList();
-			List<GFXRow> wallRowsDown = MapRef.GfxRows[3].Where(yGFXQuery).ToList();
-			List<GFXRow> shadowRows = MapRef.GfxRows[7].Where(yGFXQuery).ToList();
-			List<GFXRow> mapObjRows = MapRef.GfxRows[1].Where(yGFXQuery).ToList();
-			List<GFXRow> roofRows = MapRef.GfxRows[5].Where(yGFXQuery).ToList();
-			List<GFXRow> overlayTileRows = MapRef.GfxRows[6].Where(yGFXQuery).ToList();
-
-			for (int rowIndex = 0; rowIndex <= MapRef.Height; ++rowIndex) //11-7-14: Changed rendering to do row by row for all layers
+			foreach (GFXRow row in overlayObjRows)
 			{
-				GFXRow row; //reused for each layer
-
-				//overlay/mask  objects
-				if ((row = overlayObjRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
+				List<GFX> overlayObj = row.tiles.Where(xGFXQuery).ToList();
+				foreach (GFX obj in overlayObj)
 				{
-					List<GFX> overlayObj = row.tiles.Where(xGFXQuery).ToList();
-					foreach (GFX obj in overlayObj)
-					{
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, obj.tile, true);
-						Vector2 pos = _getDrawCoordinates(obj.x, row.y, c);
-						pos = new Vector2(pos.X + 16, pos.Y - 11);
-						_drawIfBehindSomething(otherChars, obj.x, row.y, gfx.Bounds.SetPosition(pos));
-						sb.Draw(gfx, pos, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, obj.x, row.y,
-								gfx.Bounds.SetPosition(pos));
-					}
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, obj.tile, true);
+					Vector2 pos = _getDrawCoordinates(obj.x, row.y, c);
+					pos = new Vector2(pos.X + 16, pos.Y - 11);
+					_drawIfBehindSomething(otherChars, obj.x, row.y, gfx.Bounds.SetPosition(pos));
+					sb.Draw(gfx, pos, Color.White);
 				}
+			}
 
-				//walls - two layers: facing different directions
-				//this layer faces to the right
-				if ((row = wallRowsRight.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
+			//walls - two layers: facing different directions
+			//this layer faces to the right
+			List<GFXRow> wallRows1 = MapRef.GfxRows[4].Where(yGFXQuery).ToList();
+			foreach(GFXRow wallRow in wallRows1)
+			{
+				List<GFX> walls = wallRow.tiles.Where(xGFXQuery).ToList();
+				foreach (GFX obj in walls)
 				{
-					List<GFX> walls = row.tiles.Where(xGFXQuery).ToList();
-					foreach (GFX obj in walls)
-					{
-						int gfxNum = obj.tile;
-						if (_door != null && _door.x == obj.x && _doorY == row.y && _door.doorOpened)
-							gfxNum++;
+					int gfxNum = obj.tile;
+					if (_door != null && _door.x == obj.x && _doorY == wallRow.y && _door.doorOpened)
+						gfxNum++;
 
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
-						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
-						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 47, loc.Y - (gfx.Height - 29));
-						_drawIfBehindSomething(otherChars, obj.x, row.y, gfx.Bounds.SetPosition(loc));
-						sb.Draw(gfx, loc, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, obj.x, row.y,
-								gfx.Bounds.SetPosition(loc));
-					}
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
+					Vector2 loc = _getDrawCoordinates(obj.x, wallRow.y, c);
+					loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 47, loc.Y - (gfx.Height - 29));
+					_drawIfBehindSomething(otherChars, obj.x, wallRow.y, gfx.Bounds.SetPosition(loc));
+					sb.Draw(gfx, loc, Color.White);
 				}
-				//this layer faces to the down
-				if ((row = wallRowsDown.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
+			}
+			//this layer faces to the down
+			List<GFXRow> wallRows2 = MapRef.GfxRows[3].Where(yGFXQuery).ToList();
+			foreach (GFXRow wallRow in wallRows2)
+			{
+				List<GFX> walls = wallRow.tiles.Where(xGFXQuery).ToList();
+				foreach (GFX obj in walls)
 				{
-					List<GFX> walls = row.tiles.Where(xGFXQuery).ToList();
-					foreach (GFX obj in walls)
-					{
-						int gfxNum = obj.tile;
-						if (_door != null && _door.x == obj.x && _doorY == row.y && _door.doorOpened)
-							gfxNum++;
+					int gfxNum = obj.tile;
+					if (_door != null && _door.x == obj.x && _doorY == wallRow.y && _door.doorOpened)
+						gfxNum++;
 
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
-						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
-						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 15, loc.Y - (gfx.Height - 29));
-						_drawIfBehindSomething(otherChars, obj.x, row.y, gfx.Bounds.SetPosition(loc));
-						sb.Draw(gfx, loc, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, obj.x, row.y,
-								gfx.Bounds.SetPosition(loc));
-					}
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
+					Vector2 loc = _getDrawCoordinates(obj.x, wallRow.y, c);
+					loc = new Vector2(loc.X - (int) Math.Round(gfx.Width/2.0) + 15, loc.Y - (gfx.Height - 29));
+					_drawIfBehindSomething(otherChars, obj.x, wallRow.y, gfx.Bounds.SetPosition(loc));
+					sb.Draw(gfx, loc, Color.White);
 				}
+			}
 
-				//shadows
-				//TODO: Load configuration value determining whether or not to show shadows
-				if ((row = shadowRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
+			//shadows
+			//TODO: Load configuration value determining whether or not to show shadows
+			List<GFXRow> shadowRows = MapRef.GfxRows[7].Where(yGFXQuery).ToList();
+			foreach (GFXRow shadowRow in shadowRows)
+			{
+				List<GFX> shadows = shadowRow.tiles.Where(xGFXQuery).ToList();
+				foreach (GFX shadow in shadows)
 				{
-					List<GFX> shadows = row.tiles.Where(xGFXQuery).ToList();
-					foreach (GFX shadow in shadows)
-					{
-						Vector2 loc = _getDrawCoordinates(shadow.x, row.y, c);
-						sb.Draw(GFXLoader.TextureFromResource(GFXTypes.Shadows, shadow.tile, true), new Vector2(loc.X - 24, loc.Y - 12), Color.FromNonPremultiplied(255, 255, 255, 60));
-					}
+					Vector2 loc = _getDrawCoordinates(shadow.x, shadowRow.y, c);
+					sb.Draw(GFXLoader.TextureFromResource(GFXTypes.Shadows, shadow.tile, true), new Vector2(loc.X - 24, loc.Y - 12), Color.FromNonPremultiplied(255, 255, 255, 60));
 				}
-
-				//map objects
-				if ((row = mapObjRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
+			}
+			
+			//map objects
+			List<GFXRow> mapObjs = MapRef.GfxRows[1].Where(yGFXQuery).ToList();
+			foreach (GFXRow mapObjRow in mapObjs)
+			{
+				List<GFX> objs = mapObjRow.tiles.Where(xGFXQuery).ToList();
+				foreach (GFX obj in objs)
 				{
-					List<GFX> objs = row.tiles.Where(xGFXQuery).ToList();
-					foreach (GFX obj in objs)
-					{
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, obj.tile, true);
-						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
-						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28));
-						_drawIfBehindSomething(otherChars, obj.x, row.y, gfx.Bounds.SetPosition(loc));
-						sb.Draw(gfx, loc, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, obj.x, row.y,
-								gfx.Bounds.SetPosition(loc));
-					}
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, obj.tile, true);
+					Vector2 loc = _getDrawCoordinates(obj.x, mapObjRow.y, c);
+					loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28));
+					_drawIfBehindSomething(otherChars, obj.x, mapObjRow.y, gfx.Bounds.SetPosition(loc));
+					sb.Draw(gfx, loc, Color.White);
 				}
+			}
 
-				//roofs (after objects - for outdoor maps, which actually have roofs, this makes more sense)
-				if ((row = roofRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
+			//roofs (after objects - for outdoor maps, which actually have roofs, this makes more sense)
+			List<GFXRow> roofRows = MapRef.GfxRows[5].Where(yGFXQuery).ToList();
+			foreach (GFXRow roofRow in roofRows)
+			{
+				List<GFX> roofs = roofRow.tiles.Where(xGFXQuery).ToList();
+				foreach (GFX roof in roofs)
 				{
-					List<GFX> roofs = row.tiles.Where(xGFXQuery).ToList();
-					foreach (GFX roof in roofs)
-					{
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, roof.tile, true);
-						Vector2 loc = _getDrawCoordinates(roof.x, row.y, c);
-						loc = new Vector2(loc.X - 2, loc.Y - 63);
-						_drawIfBehindSomething(otherChars, roof.x, row.y, gfx.Bounds.SetPosition(loc));
-						sb.Draw(gfx, loc, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, roof.x, row.y,
-								gfx.Bounds.SetPosition(loc));
-					}
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, roof.tile, true);
+					Vector2 loc = _getDrawCoordinates(roof.x, roofRow.y, c);
+					loc = new Vector2(loc.X - 2, loc.Y - 63);
+					_drawIfBehindSomething(otherChars, roof.x, roofRow.y, gfx.Bounds.SetPosition(loc));
+					sb.Draw(gfx, loc, Color.White);
 				}
+			}
 
-				//overlay tiles (counters, etc)
-				if ((row = overlayTileRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
+			//overlay tiles (counters, etc)
+			List<GFXRow> rows = MapRef.GfxRows[6].Where(yGFXQuery).ToList();
+			foreach (GFXRow row in rows)
+			{
+				List<GFX> tiles = row.tiles.Where(xGFXQuery).ToList();
+				foreach (GFX tile in tiles)
 				{
-					List<GFX> tiles = row.tiles.Where(xGFXQuery).ToList();
-					foreach (GFX tile in tiles)
-					{
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
-						Vector2 loc = _getDrawCoordinates(tile.x, row.y, c);
-						loc = new Vector2(loc.X - 2, loc.Y - 31);
-						_drawIfBehindSomething(otherChars, tile.x, row.y, gfx.Bounds.SetPosition(loc));
-						sb.Draw(gfx, loc, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, tile.x, row.y,
-								gfx.Bounds.SetPosition(loc));
-					}
+					Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
+					Vector2 loc = _getDrawCoordinates(tile.x, row.y, c);
+					loc = new Vector2(loc.X - 2, loc.Y - 31);
+					_drawIfBehindSomething(otherChars, tile.x, row.y, gfx.Bounds.SetPosition(loc));
+					sb.Draw(gfx,loc, Color.White);
 				}
 			}
 
 			sb.End();
-
-			BlendState mainPlayerBlend = mainBehindSomething ? _playerBlend : BlendState.AlphaBlend;
 
 			//draw any remaining characters that weren't behind something
 			if (otherChars.Count > 0)
@@ -582,21 +504,11 @@ namespace EndlessClient
 				List<Character> drawBefore = otherChars.Where(_c => _c.X < c.X || _c.Y < c.Y).ToList();
 				otherChars.RemoveAll(drawBefore.Contains);
 				otherRenderers.Where(_r => drawBefore.Contains(_r.Character)).ToList().ForEach(_r => _r.Draw(null)); //draw before main player
-
-				sb.Begin(SpriteSortMode.Deferred, mainPlayerBlend);
-				World.Instance.ActiveCharacterRenderer.Draw(sb, null, true); //draw main player
-				sb.End();
-
+				World.Instance.ActiveCharacterRenderer.Draw(null); //draw main player
 				otherRenderers.Where(_r => otherChars.Contains(_r.Character)).ToList().ForEach(_r => _r.Draw(null)); //draw after main player
 			}
-			else //just draw main player
-			{
-				sb.Begin(SpriteSortMode.Deferred, mainPlayerBlend);
-				World.Instance.ActiveCharacterRenderer.Draw(sb, null, true);
-				sb.End();
-			}
-
-			GraphicsDevice.SetRenderTarget(null);
+			else
+				World.Instance.ActiveCharacterRenderer.Draw(null); //just draw main player
 		}
 
 		/// <summary>
@@ -613,12 +525,12 @@ namespace EndlessClient
 		//Not really for other use, I just didn't want to have to copy/paste a lot of code
 		private void _drawIfBehindSomething(List<Character> otherChars, int objX, int objY, Rectangle textureBounds)
 		{
-			//List<Character> clipChars = otherChars.FindAll(_c => _c.X < objX && _c.Y < objY);
-			//List<EOCharacterRenderer> drawTime = otherRenderers.Where(_r => clipChars.Contains(_r.Character)).ToList();
-			foreach (EOCharacterRenderer _r in otherRenderers/*drawTime*/)
+
+			List<Character> clipChars = otherChars.FindAll(_c => _c.X < objX && _c.Y < objY);
+			List<EOCharacterRenderer> drawTime = otherRenderers.Where(_r => clipChars.Contains(_r.Character)).ToList();
+			foreach (EOCharacterRenderer _r in drawTime)
 			{
-				//if (_r.DrawAreaWithOffset.Intersects(textureBounds))
-				if(otherChars.Contains(_r.Character) && _characterIsBehindSomething(_r, objX, objY, textureBounds))
+				if (_r.DrawAreaWithOffset.Intersects(textureBounds))
 				{
 					sb.End();
 					//character is behind the texture to be rendered AND character overlaps with texture to be rendered
@@ -629,11 +541,6 @@ namespace EndlessClient
 					otherChars.Remove(_r.Character);
 				}
 			}
-		}
-
-		private bool _characterIsBehindSomething(EOCharacterRenderer rend, int objX, int objY, Rectangle TextureBounds)
-		{
-			return (rend.Character.X <= objX || rend.Character.Y <= objY) && rend.DrawAreaWithOffset.Intersects(TextureBounds);
 		}
 	}
 }

@@ -120,7 +120,6 @@
     <Compile Include="EOCharacterRenderer.cs" />
     <Compile Include="EOClient.cs" />
     <Compile Include="EODialog.cs" />
-    <Compile Include="EOInventory.cs" />
     <Compile Include="EOMapRenderer.cs" />
     <Compile Include="EOChatRenderer.cs" />
     <Compile Include="Game.cs" />
