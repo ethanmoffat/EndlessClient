@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
@@ -52,7 +54,7 @@ namespace EndlessClient
 				Data.SetHairColor(value);
 				if (Data.hairstyle != 0)
 				{
-					hair = spriteSheet.GetHair();
+					hair = spriteSheet.GetHair(true);
 					maskTheHair();
 				}
 			}
@@ -65,7 +67,7 @@ namespace EndlessClient
 				Data.SetHairStyle(value);
 				if (Data.hairstyle != 0)
 				{
-					hair = spriteSheet.GetHair();
+					hair = spriteSheet.GetHair(true);
 					maskTheHair();
 				}
 			}
@@ -312,7 +314,7 @@ namespace EndlessClient
 				boots = Data.boots != 0 ? spriteSheet.GetBoots() : null;
 				armor = Data.armor != 0 ? spriteSheet.GetArmor() : null;
 				lock (hatHairLock)
-					hair = Data.hairstyle != 0 ? spriteSheet.GetHair() : null;
+					hair = Data.hairstyle != 0 ? spriteSheet.GetHair(Data.hairNeedRefresh) : null;
 				if (Data.hat != 0)
 				{
 					lock (hatHairLock)
@@ -333,6 +335,7 @@ namespace EndlessClient
 				
 				_drawCharToRenderTarget();
 				Data.SetUpdate(false);
+				Data.SetHairNeedRefresh(false);
 			}
 
 			//input handling for arrow keys done here
@@ -442,7 +445,7 @@ namespace EndlessClient
 
 		public void PlayerWalk()
 		{
-			const int walkTimer = 150;
+			const int walkTimer = 100;
 			Data.SetUpdate(true);
 			_walkTimer.Change(0, walkTimer); //ok, it's time to start
 		}
@@ -471,16 +474,6 @@ namespace EndlessClient
 				if(!started) sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 				sb.Draw(adminGraphic, new Rectangle(DrawAreaWithOffset.X + 48, DrawAreaWithOffset.Y + 73, adminRect.Value.Width, adminRect.Value.Height), adminRect, Color.White);
 				if(!started) sb.End();
-			}
-
-			if (EOGame.Instance.State == GameStates.PlayingTheGame && this != World.Instance.ActiveCharacterRenderer)
-			{
-				//todo: something similar for npcs in relation to active character renderer, so they show up in the right order
-				if (World.Instance.MainPlayer.ActiveCharacter.X < _char.X &&
-					World.Instance.MainPlayer.ActiveCharacter.Y < _char.Y)
-					DrawOrder = World.Instance.ActiveCharacterRenderer.DrawOrder + 1;
-				else
-					DrawOrder = World.Instance.ActiveCharacterRenderer.DrawOrder - 1;
 			}
 
 			if(!started) sb.Begin();
@@ -645,21 +638,34 @@ namespace EndlessClient
 						return;
 				}
 			}
+			
+			Color[] hatPixels;
+			if (Data.facing == EODirection.Left || Data.facing == EODirection.Up)
+			{
+				hatPixels = new Color[hat.Width * hat.Height];
+				hat.GetData(hatPixels);
+				for(int i = 0; i < hatPixels.Length; ++i)
+					if(hatPixels[i] == Color.Black) hatPixels[i] = Color.Transparent;
+				hat.SetData(hatPixels);
+				return; //don't clip if left or up - this game is so screwy. Make the black color transparent.
+			}
 
-			Color[] hatPixels = new Color[hat.Width * hat.Height], hairPixels = new Color[hair.Width * hair.Height];
+			hatPixels = new Color[hat.Width*hat.Height];
+			Color[] hairPixels = new Color[hair.Width * hair.Height];
 			hat.GetData(hatPixels, 0, hatPixels.Length);
 			hair.GetData(hairPixels, 0, hairPixels.Length);
 			
-			for(int i = 0; i <= hat.Height; ++i)
+			for (int i = 0; i < hat.Height; ++i)
 			{
-				for(int j = 0; j < hat.Width; ++j)
+				for (int j = 0; j < hat.Width; ++j)
 				{
-					Color val = hatPixels[i*j];
-					if(val.R == 0 && val.G == 0 && val.B == 0)
+					int _1d = i*hat.Width + j;
+					if (hatPixels[_1d].R == 0 && hatPixels[_1d].G == 0 && hatPixels[_1d].B == 0 && hatPixels[_1d].A != 0)
 					{
-						hatPixels[i * j] = new Color(0, 0, 0, 0);
-						if(i < hair.Height && j < hair.Width)
-							hairPixels[i * j] = new Color(0, 0, 0, 0);
+						hatPixels[_1d] = new Color(0, 0, 0, 0);
+						_1d = i*hair.Width + j;
+						if (_1d < hairPixels.Length)
+							hairPixels[_1d] = new Color(0, 0, 0, 0);
 					}
 				}
 			}

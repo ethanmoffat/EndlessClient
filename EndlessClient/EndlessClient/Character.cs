@@ -64,6 +64,7 @@ namespace EndlessClient
 		public SitState sitting;
 		public bool hidden;
 		public bool update;
+		public bool hairNeedRefresh;
 
 		public CharRenderData() { name = ""; }
 
@@ -79,11 +80,18 @@ namespace EndlessClient
 		public void SetShield(short newshield) { shield = newshield; update = true; }
 		public void SetArmor(short newarmor) { armor = newarmor; update = true; }
 		public void SetWeapon(short newweap) { weapon = newweap; update = true; }
-		public void SetHat(short newhat) { hat = newhat; update = true; }
+
+		public void SetHat(short newhat)
+		{
+			if (hat != 0 && newhat == 0)
+				hairNeedRefresh = true;
+			hat = newhat; update = true;
+		}
 		public void SetBoots(short newboots) { boots = newboots; update = true; }
 
 		public void SetWalkFrame(byte wf) { lock(walkFrameLocker) walkFrame = wf; update = true; }
 		public void SetUpdate(bool shouldUpdate) { update = shouldUpdate; }
+		public void SetHairNeedRefresh(bool shouldRefresh) { hairNeedRefresh = shouldRefresh; }
 	}
 
 	/// <summary>

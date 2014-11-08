@@ -178,14 +178,20 @@ namespace EndlessClient
 		/// <param name="file">File type to load from</param>
 		/// <param name="transparent">Whether or not to make the background black color transparent</param>
 		/// <returns>Texture2D containing the image from the *.egf file</returns>
-		public static Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false)
+		public static Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false, bool reloadFromFile = false)
 		{
 			Texture2D ret;
 
 			LibraryGraphicPair key = new LibraryGraphicPair((int)file, 100 + resourceVal);
-			if (cache.ContainsKey(key))
+			if (!reloadFromFile && cache.ContainsKey(key))
 			{
 				return cache[key];
+			}
+			
+			if (cache.ContainsKey(key) && reloadFromFile)
+			{
+				if (cache[key] != null) cache[key].Dispose();
+				cache.Remove(key);
 			}
 
 			using (System.IO.MemoryStream mem = new System.IO.MemoryStream())
@@ -383,12 +389,17 @@ namespace EndlessClient
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public Texture2D GetHair()
+		/// <summary>
+		/// Gets the hair texture from the GFX file based on gender, direction, style, and color
+		/// </summary>
+		/// <param name="refresh">True to refresh from the GFX file, false to use the hair texture cached in this EOSpriteSheet instance</param>
+		/// <returns>Texture2D with the hair data</returns>
+		public Texture2D GetHair(bool refresh)
 		{
 			byte turnedOffset = (byte)((_data.facing == EODirection.Left || _data.facing == EODirection.Up) ? 2 : 0);
 			GFXTypes gfxFile = (_data.gender == 0) ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
 			int gfxNumber = 2 + ((_data.hairstyle - 1) * 40) + (_data.haircolor * 4) + turnedOffset;
-			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
+			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true, refresh);
 		}
 
 		public Texture2D GetHat()

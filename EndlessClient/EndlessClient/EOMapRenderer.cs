@@ -298,7 +298,7 @@ namespace EndlessClient
 
 			_playerBlend = new BlendState
 			{
-				BlendFactor = new Color(128,128,128,64),
+				BlendFactor = new Color(255,255,255,64),
 
 				AlphaSourceBlend = Blend.One,
 				AlphaDestinationBlend = Blend.One,
@@ -633,7 +633,7 @@ namespace EndlessClient
 
 		private bool _characterIsBehindSomething(EOCharacterRenderer rend, int objX, int objY, Rectangle TextureBounds)
 		{
-			return (rend.Character.X <= objX || rend.Character.Y <= objY) && rend.DrawAreaWithOffset.Intersects(TextureBounds);
+			return (rend.Character.X < objX && rend.Character.Y < objY) && rend.DrawAreaWithOffset.Intersects(TextureBounds);
 		}
 	}
 }
