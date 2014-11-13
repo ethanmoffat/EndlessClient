@@ -241,7 +241,8 @@ namespace EndlessClient
 				{
 					ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c),
 					Text = ((char) (data.name[0] - 32)) + data.name.Substring(1),
-					TextAlign = System.Drawing.ContentAlignment.MiddleCenter
+					TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+					AutoSize = false
 				};
 				nameLabel.SetParent(this);
 

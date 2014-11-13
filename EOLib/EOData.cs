@@ -542,6 +542,11 @@ namespace EOLib.Data
 			Load(FilePath = path);
 		}
 
+		public ItemRecord GetItemRecordByID(int id)
+		{
+			return (ItemRecord)Data.Find(_rec => ((ItemRecord) _rec).ID == id);
+		}
+		
 		public override void Load(string fPath)
 		{
 			using (FileStream sr = File.OpenRead(fPath)) //throw exceptions on error

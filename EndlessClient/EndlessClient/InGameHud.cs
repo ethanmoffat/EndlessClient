@@ -55,6 +55,7 @@ namespace EndlessClient
 		private readonly XNAButton[] mainBtn;
 		private readonly SpriteBatch SpriteBatch;
 		private readonly EOChatRenderer chatRenderer;
+		private EOInventory inventory;
 		private readonly ChatTab newsTab;
 
 		private readonly XNALabel statusLabel; //label for status (mouse-over buttons)
@@ -271,6 +272,9 @@ namespace EndlessClient
 				}
 
 			}, null, 0, 1000);
+
+			inventory = new EOInventory(Game);
+			inventory.SetParent(pnlInventory);
 
 			base.Initialize();
 		}
@@ -527,6 +531,19 @@ namespace EndlessClient
 		{
 			statusLabel.Text = text;
 			statusStartTime = !string.IsNullOrEmpty(text) ? new DateTime?(DateTime.Now) : null;
+		}
+
+		public void UpdateInventory(InventoryItem item)
+		{
+			if (item.amount == 0)
+				inventory.RemoveItem(item.id);
+			else
+				inventory.UpdateItem(item);
+		}
+
+		public void UpdateWeightLabel()
+		{
+			inventory.UpdateWeightLabel();
 		}
 		#endregion
 		

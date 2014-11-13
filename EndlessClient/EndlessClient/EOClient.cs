@@ -112,6 +112,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Login.LoginResponse)
 				},
 				{
+					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Agree), 
+					new LockedHandlerMethod(Handlers.Paperdoll.PaperdollAgree, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Players, PacketAction.Agree), 
 					new LockedHandlerMethod(Handlers.Players.PlayersAgree, true)
 				},

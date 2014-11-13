@@ -120,6 +120,9 @@
     <Compile Include="EOCharacterRenderer.cs" />
     <Compile Include="EOClient.cs" />
     <Compile Include="EODialog.cs" />
+    <Compile Include="EOInventory.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="EOMapRenderer.cs" />
     <Compile Include="EOChatRenderer.cs" />
     <Compile Include="Game.cs" />
@@ -133,6 +136,7 @@
     <Compile Include="Handlers\Init.cs" />
     <Compile Include="Handlers\Item.cs" />
     <Compile Include="Handlers\Login.cs" />
+    <Compile Include="Handlers\Paperdoll.cs" />
     <Compile Include="Handlers\Players.cs" />
     <Compile Include="Handlers\Refresh.cs" />
     <Compile Include="Handlers\Talk.cs" />

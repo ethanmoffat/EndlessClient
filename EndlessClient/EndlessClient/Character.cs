@@ -285,17 +285,9 @@ namespace EndlessClient
 		{
 			ID = newGuy.ID;
 			Name = newGuy.Name;
-			Title = newGuy.Title;
-			GuildName = newGuy.GuildName;
-			GuildRankStr = newGuy.GuildRankStr;
-			Class = newGuy.Class;
 			PaddedGuildTag = newGuy.PaddedGuildTag;
 			AdminLevel = newGuy.AdminLevel;
-			Weight = newGuy.Weight;
-			MaxWeight = newGuy.MaxWeight;
 			Array.Copy(newGuy.PaperDoll, PaperDoll, (int)EquipLocation.PAPERDOLL_MAX);
-			Inventory = new List<InventoryItem>(newGuy.Inventory);
-			Spells = new List<CharacterSpell>(newGuy.Spells);
 			Stats = new CharStatData(newGuy.Stats);
 			RenderData = newGuy.RenderData;
 			RenderData.SetWalkFrame(0);
@@ -344,6 +336,22 @@ namespace EndlessClient
 				RenderData.SetDirection(direction); //updates the data in the character renderer as well
 		}
 
+		public void UpdateInventoryItem(short id, int characterAmount)
+		{
+			InventoryItem rec;
+			if ((rec = Inventory.Find(item => item.id == id)).id == id)
+			{
+				InventoryItem newRec = new InventoryItem {amount = characterAmount, id = id};
+				if (!Inventory.Remove(rec))
+					throw new Exception("Unable to remove from inventory!");
+				if (newRec.amount > 0)
+				{
+					Inventory.Add(newRec);
+				}
+				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(rec);
+			}
+		}
+
 		public void UpdateInventoryItem(short id, int characterAmount, byte characterWeight, byte characterMaxWeight)
 		{
 			InventoryItem rec;
@@ -352,9 +360,14 @@ namespace EndlessClient
 				InventoryItem newRec = new InventoryItem {amount = characterAmount, id = id};
 				if(!Inventory.Remove(rec))
 					throw new Exception("Unable to remove from inventory!");
-				if (newRec.amount > 0) Inventory.Add(newRec);
+				if (newRec.amount > 0)
+				{
+					Inventory.Add(newRec);
+				}
+				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(rec);
 				Weight = characterWeight;
 				MaxWeight = characterMaxWeight;
+				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateWeightLabel();
 			}
 		}
 	}

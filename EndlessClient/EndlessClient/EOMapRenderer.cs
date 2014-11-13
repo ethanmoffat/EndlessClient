@@ -190,8 +190,8 @@ namespace EndlessClient
 
 		public void UpdateOtherPlayer(short playerId, bool sound, CharRenderData newRenderData)
 		{
-			Character c;
-			if ((c = otherPlayers.Find(cc => cc.ID == playerId)) != null)
+			Character c =  playerId == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.MainPlayer.ActiveCharacter : otherPlayers.Find(cc => cc.ID == playerId);
+			if (c != null)
 			{
 				c.RenderData.SetBoots(newRenderData.boots);
 				c.RenderData.SetArmor(newRenderData.armor);
@@ -204,8 +204,8 @@ namespace EndlessClient
 
 		public void UpdateOtherPlayer(short playerId, byte hairColor, byte hairStyle = 255)
 		{
-			Character c;
-			if ((c = otherPlayers.Find(cc => cc.ID == playerId)) != null)
+			Character c = playerId == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.MainPlayer.ActiveCharacter : otherPlayers.Find(cc => cc.ID == playerId);
+			if (c != null)
 			{
 				c.RenderData.SetHairColor(hairColor);
 				if (hairStyle != 255) c.RenderData.SetHairStyle(hairStyle);
