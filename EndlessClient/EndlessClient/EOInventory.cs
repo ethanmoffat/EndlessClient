@@ -116,7 +116,7 @@ namespace EndlessClient
 				m_nameLabel.Visible = true;
 				EOGame.Instance.Hud.SetStatusLabel("[ Item ] " + m_nameLabel.Text);
 			}
-			else if (MouseOverPreviously && !MouseOver && !m_beingDragged)
+			else if (!MouseOver && !m_beingDragged)
 			{
 				m_nameLabel.Visible = false;
 			}
@@ -185,12 +185,7 @@ namespace EndlessClient
 
 		public void UpdateItemLocation(int newSlot)
 		{
-			int oldSlot = Slot;
-			Slot = newSlot;
-			if (!((EOInventory) parent).SaveItemLocation(this, oldSlot))
-			{
-				Slot = oldSlot;
-			}
+			if (Slot != newSlot && ((EOInventory) parent).MoveItem(this, newSlot)) Slot = newSlot;
 
 			//top-left grid slot in the inventory is 115, 339
 			//parent top-left is 103, 330
@@ -285,7 +280,6 @@ namespace EndlessClient
 	{
 		public const int INVENTORY_ROW_LENGTH = 14;
 
-		private readonly Dictionary<int, ItemRecord> m_regData = new Dictionary<int, ItemRecord>();
 		private readonly bool[,] m_filledSlots = new bool[4, INVENTORY_ROW_LENGTH]; //4 rows, 14 columns = 56 total in grid
 		private readonly RegistryKey m_inventoryKey;
 		private readonly List<EOInventoryItem> m_childItems = new List<EOInventoryItem>();
@@ -365,58 +359,59 @@ namespace EndlessClient
 		//-----------------------------------------------------
 		public bool AddItemToSlot(int slot, ItemRecord item, int count = 1)
 		{
-			// if the item is being moved, it is already in the inventory and must be cleared out/re-saved in new location
-			if (m_regData.ContainsValue(item))
-			{
-				RemoveItemFromSlot(m_regData.First(_x => _x.Value == item).Key);
-			}
-
-			if (slot < 0) return false;
-
-			//check the 'filled slots' array to see if the item can go in 'slot' based on its size
-			int y = slot / INVENTORY_ROW_LENGTH, x = slot % INVENTORY_ROW_LENGTH;
-			if (m_filledSlots[y, x]) return false;
-
-			int width, height;
-			_getItemSizeDeltas(item.Size, out width, out height);
-
-			List<Tuple<int, int>> points = new List<Tuple<int, int>>();
-			for (int row = y; row < height + y; ++row)
-			{
-				for (int col = x; col < width + x; ++col)
-				{
-					if (row >= 4 || col >= INVENTORY_ROW_LENGTH || m_filledSlots[row, col]) return false;
-					points.Add(new Tuple<int, int>(row, col));
-				}
-			}
+			//this is ADD item - don't allow adding items that have been added already
+			if (slot < 0 || m_childItems.Count(_item => _item.Slot == slot) > 0) return false;
+			
+			List<Tuple<int, int>> points;
+			if (!_fitsInSlot(slot, item.Size, out points)) return false;
 			points.ForEach(point => m_filledSlots[point.Item1, point.Item2] = true); //flag that the spaces are taken
 
-			m_regData.Add(slot, item); //add data mapping
 			m_inventoryKey.SetValue(string.Format("item{0}", slot), item.ID, RegistryValueKind.String); //update the registry
-			m_childItems.Add(new EOInventoryItem(Game, slot, item, new InventoryItem {amount = count, id = (short) item.ID}, this)); //add the control wrapper for the item
+			m_childItems.Add(new EOInventoryItem(Game, slot, item, new InventoryItem { amount = count, id = (short)item.ID }, this)); //add the control wrapper for the item
+			m_childItems.Last().DrawOrder = (int) ControlDrawLayer.BaseLayer + 2 + (INVENTORY_ROW_LENGTH - slot%INVENTORY_ROW_LENGTH);
+			children.Sort((x, y) => x.DrawOrder - y.DrawOrder);
 			return true;
 		}
 
 		public void RemoveItemFromSlot(int slot, int count = 1)
 		{
-			if (!m_regData.ContainsKey(slot) || slot < 0) return;
+			EOInventoryItem control = m_childItems.Find(_control => _control.Slot == slot);
+			if (control == null || slot < 0) return;
 
-			ItemSize sz = m_regData[slot].Size;
+			int numLeft = control.Inventory.amount - count;
 
-			int width, height;
-			_getItemSizeDeltas(sz, out width, out height);
-
-			for (int row = slot / INVENTORY_ROW_LENGTH; row < height + (slot / INVENTORY_ROW_LENGTH); ++row)
+			if (numLeft <= 0)
 			{
-				for (int col = slot/4; col < width + (slot/4); ++col)
-				{
-					m_filledSlots[row, col] = false;
-				}
-			}
+				ItemSize sz = control.ItemData.Size;
+				List<Tuple<int, int>> points = _getTakenSlots(control.Slot, sz);
+				points.ForEach(_p => m_filledSlots[_p.Item1, _p.Item2] = false);
 
-			m_regData.Remove(slot);
-			m_inventoryKey.SetValue(string.Format("item{0}", slot), 0, RegistryValueKind.String);
-			m_childItems.RemoveAll(_control => _control.Slot == slot);
+				m_inventoryKey.SetValue(string.Format("item{0}", slot), 0, RegistryValueKind.String);
+				m_childItems.Remove(control);
+				control.Close();
+			}
+			else
+				control.Inventory = new InventoryItem {amount = numLeft, id = control.Inventory.id};
+		}
+
+		public bool MoveItem(EOInventoryItem childItem, int newSlot)
+		{
+			if (childItem.Slot == newSlot) return true; // We did it, Reddit!
+
+			List<Tuple<int, int>> oldPoints = _getTakenSlots(childItem.Slot, childItem.ItemData.Size);
+			List<Tuple<int, int>> points;
+			if (!_fitsInSlot(newSlot, childItem.ItemData.Size, out points, oldPoints)) return false;
+
+			oldPoints.ForEach(_p => m_filledSlots[_p.Item1, _p.Item2] = false);
+			points.ForEach(_p => m_filledSlots[_p.Item1, _p.Item2] = true);
+
+			m_inventoryKey.SetValue(string.Format("item{0}", childItem.Slot), 0, RegistryValueKind.String);
+			m_inventoryKey.SetValue(string.Format("item{0}", newSlot), childItem.ItemData.ID, RegistryValueKind.String);
+
+			childItem.DrawOrder = (int)ControlDrawLayer.BaseLayer + 2 + (INVENTORY_ROW_LENGTH - childItem.Slot % INVENTORY_ROW_LENGTH);
+			children.Sort((x, y) => x.DrawOrder - y.DrawOrder);
+
+			return true;
 		}
 
 		public int GetNextOpenSlot(ItemSize size)
@@ -468,21 +463,6 @@ namespace EndlessClient
 			return m_childItems.Count(invItem => invItem.Dragging) == 0;
 		}
 
-		public bool SaveItemLocation(EOInventoryItem item, int oldSlot)
-		{
-			if (item.Slot == oldSlot) return true;
-
-			if (m_regData.ContainsKey(item.Slot) || 
-				m_filledSlots[item.Slot/INVENTORY_ROW_LENGTH, item.Slot%INVENTORY_ROW_LENGTH]) return false;
-
-			m_inventoryKey.SetValue("item" + oldSlot, 0, RegistryValueKind.String);
-			m_inventoryKey.SetValue(string.Format("item{0}", item.Slot), item.ItemData.ID, RegistryValueKind.String);
-			m_regData.Remove(oldSlot);
-			m_regData.Add(item.Slot, item.ItemData);
-
-			return true;
-		}
-
 		public void UpdateItem(InventoryItem item)
 		{
 			EOInventoryItem ctrl;
@@ -497,7 +477,7 @@ namespace EndlessClient
 			EOInventoryItem ctrl;
 			if ((ctrl = m_childItems.Find(_ctrl => _ctrl.ItemData.ID == id)) != null)
 			{
-				RemoveItemFromSlot(ctrl.Slot);
+				RemoveItemFromSlot(ctrl.Slot, ctrl.Inventory.amount);
 			}
 		}
 
@@ -536,6 +516,54 @@ namespace EndlessClient
 			return null;
 		}
 // ReSharper restore PossibleNullReferenceException
+
+		private List<Tuple<int, int>> _getTakenSlots(int slot, ItemSize sz)
+		{
+			var ret = new List<Tuple<int, int>>();
+
+			int width, height;
+			_getItemSizeDeltas(sz, out width, out height);
+			int y = slot / INVENTORY_ROW_LENGTH, x = slot % INVENTORY_ROW_LENGTH;
+			for (int row = y; row < height + y; ++row)
+			{
+				for (int col = x; col < width + x; ++col)
+				{
+					ret.Add(new Tuple<int, int>(row, col));
+				}
+			}
+
+			return ret;
+		}
+
+		/// <summary>
+		/// Returns whether or not a slot can support an item of the specified size
+		/// </summary>
+		/// <param name="slot">The slot to check</param>
+		/// <param name="sz">The size of the item we're trying to fit</param>
+		/// <param name="points">List of coordinates that the new item will take</param>
+		/// <param name="itemPoints">List of coordinates of the item that is moving</param>
+		/// <returns></returns>
+		private bool _fitsInSlot(int slot, ItemSize sz, out List<Tuple<int, int>> points, List<Tuple<int, int>> itemPoints = null)
+		{
+			points = new List<Tuple<int, int>>();
+
+			if (slot < 0 || slot >= 4*INVENTORY_ROW_LENGTH) return false;
+
+			//check the 'filled slots' array to see if the item can go in 'slot' based on its size
+			int y = slot / INVENTORY_ROW_LENGTH, x = slot % INVENTORY_ROW_LENGTH;
+			if (y >= 4 || x >= INVENTORY_ROW_LENGTH) return false;
+			if (itemPoints == null && m_filledSlots[y, x]) return false;
+
+			points = _getTakenSlots(slot, sz);
+			if (points.Count(_t => _t.Item1 < 0 || _t.Item1 > 3 || _t.Item2 < 0 || _t.Item2 >= INVENTORY_ROW_LENGTH) > 0)
+				return false; //some of the coordinates are out of bounds of the maximum inventory length
+
+			List<Tuple<int,int>> overLaps = points.FindAll(_pt => m_filledSlots[_pt.Item1, _pt.Item2]);
+			if (overLaps.Count > 0 && (itemPoints == null || overLaps.Count(itemPoints.Contains) != overLaps.Count))
+				return false; //more than one overlapping point, and the points in overLaps are not contained in itemPoints
+
+			return true;
+		}
 
 		//this is public because C# doesn't have a 'friend' keyword and I need it in EOInventoryItem
 		public static void _getItemSizeDeltas(ItemSize size, out int width, out int height)
