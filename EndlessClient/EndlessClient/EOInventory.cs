@@ -57,7 +57,7 @@ namespace EndlessClient
 			for (int i = 0; i < highlight.Length; ++i) { highlight[i] = Color.FromNonPremultiplied(200, 200, 200, 60); }
 			m_highlightBG.SetData(highlight);
 			
-			UpdateItemLabel(m_inventory);
+			_initItemLabel();
 
 			m_recentClickTimer = new Timer(
 				_state => { if (m_recentClickCount > 0) Interlocked.Decrement(ref m_recentClickCount); }, null, 0, 500);
@@ -127,6 +127,7 @@ namespace EndlessClient
 		public override void Draw(GameTime gameTime)
 		{
 			base.Draw(gameTime);
+			if (!Visible) return;
 
 			SpriteBatch.Begin();
 			if (MouseOver)
@@ -141,48 +142,7 @@ namespace EndlessClient
 			SpriteBatch.Draw(m_itemgfx, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y), Color.White);
 			SpriteBatch.End();
 		}
-
-		public void UpdateItemLabel(InventoryItem newInventory)
-		{
-			if (newInventory.id != m_inventory.id) return;
-			m_inventory = newInventory;
-
-			if (m_nameLabel != null) m_nameLabel.Dispose();
-
-			m_nameLabel = new XNALabel(Game, new Rectangle((int)DrawLocation.X + DrawArea.Width, (int)DrawLocation.Y, 150, 23), "Microsoft Sans MS", 8f)
-			{
-				Visible = false,
-				AutoSize = false,
-				TextAlign = ContentAlignment.MiddleCenter,
-				ForeColor = System.Drawing.Color.FromArgb(255, 200, 200, 200),
-				BackColor = System.Drawing.Color.FromArgb(160, 30, 30, 30)
-			};
-
-			switch (m_itemData.ID)
-			{
-				case 1: m_nameLabel.Text = string.Format("{0} {1}", m_inventory.amount, m_itemData.Name); break;
-				default:
-					if (m_inventory.amount == 1)
-						m_nameLabel.Text = m_itemData.Name;
-					else if (m_inventory.amount > 1)
-						m_nameLabel.Text = string.Format("{0} x{1}", m_itemData.Name, m_inventory.amount);
-					else
-						throw new Exception("There shouldn't be an item in the inventory with amount zero");
-					break;
-			}
-
-			switch (m_itemData.Special)
-			{
-				case ItemSpecial.Lore:
-					m_nameLabel.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xff, 0xf0, 0xa5);
-					break;
-				//other special types have different forecolors (rare items?)
-			}
-
-			m_nameLabel.SetParent(this);
-			m_nameLabel.ResizeBasedOnText(16, 9);
-		}
-
+		
 		public void UpdateItemLocation(int newSlot)
 		{
 			if (Slot != newSlot && ((EOInventory) parent).MoveItem(this, newSlot)) Slot = newSlot;
@@ -204,6 +164,22 @@ namespace EndlessClient
 			return (int)((DrawLocation.X - 13)/26) + EOInventory.INVENTORY_ROW_LENGTH * (int)((DrawLocation.Y - 9)/26);
 		}
 
+		public void UpdateItemLabel()
+		{
+			switch (m_itemData.ID)
+			{
+				case 1: m_nameLabel.Text = string.Format("{0} {1}", m_inventory.amount, m_itemData.Name); break;
+				default:
+					if (m_inventory.amount == 1)
+						m_nameLabel.Text = m_itemData.Name;
+					else if (m_inventory.amount > 1)
+						m_nameLabel.Text = string.Format("{0} x{1}", m_itemData.Name, m_inventory.amount);
+					else
+						throw new Exception("There shouldn't be an item in the inventory with amount zero");
+					break;
+			}
+		}
+
 		protected override void Dispose(bool disposing)
 		{
 			if(m_recentClickTimer != null) m_recentClickTimer.Dispose();
@@ -211,6 +187,33 @@ namespace EndlessClient
 			if(m_highlightBG != null) m_highlightBG.Dispose();
 
 			base.Dispose(disposing);
+		}
+
+		private void _initItemLabel()
+		{
+			if (m_nameLabel != null) m_nameLabel.Dispose();
+
+			m_nameLabel = new XNALabel(Game, new Rectangle((int)DrawLocation.X + DrawArea.Width, (int)DrawLocation.Y, 150, 23), "Microsoft Sans MS", 8f)
+			{
+				Visible = false,
+				AutoSize = false,
+				TextAlign = ContentAlignment.MiddleCenter,
+				ForeColor = System.Drawing.Color.FromArgb(255, 200, 200, 200),
+				BackColor = System.Drawing.Color.FromArgb(160, 30, 30, 30)
+			};
+			
+			UpdateItemLabel();
+
+			switch (m_itemData.Special)
+			{
+				case ItemSpecial.Lore:
+					m_nameLabel.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xff, 0xf0, 0xa5);
+					break;
+				//other special types have different forecolors (rare items?)
+			}
+
+			m_nameLabel.SetParent(this);
+			m_nameLabel.ResizeBasedOnText(16, 9);
 		}
 
 		private void _handleDoubleClick()
@@ -349,6 +352,7 @@ namespace EndlessClient
 		//-----------------------------------------------------
 		// Overrides / Control Interface
 		//-----------------------------------------------------
+
 		protected override void Dispose(bool disposing)
 		{
 			m_inventoryKey.Dispose();
@@ -388,6 +392,7 @@ namespace EndlessClient
 
 				m_inventoryKey.SetValue(string.Format("item{0}", slot), 0, RegistryValueKind.String);
 				m_childItems.Remove(control);
+				control.Visible = false;
 				control.Close();
 			}
 			else
@@ -469,6 +474,7 @@ namespace EndlessClient
 			if((ctrl = m_childItems.Find(_ctrl => _ctrl.ItemData.ID == item.id)) != null)
 			{
 				ctrl.Inventory = item;
+				ctrl.UpdateItemLabel();
 			}
 		}
 
