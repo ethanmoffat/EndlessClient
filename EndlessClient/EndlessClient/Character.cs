@@ -348,7 +348,7 @@ namespace EndlessClient
 				{
 					Inventory.Add(newRec);
 				}
-				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(rec);
+				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
 			}
 		}
 

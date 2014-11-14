@@ -70,8 +70,10 @@ namespace EndlessClient
 
 			if (MouseOverPreviously && MouseOver && PreviousMouseState.LeftButton == ButtonState.Pressed && currentState.LeftButton == ButtonState.Pressed)
 			{
+				//Conditions for starting are the mouse is over, the button is pressed, and no other items are being dragged
 				if (((EOInventory) parent).NoItemsDragging())
 				{
+					//start the drag operation and hide the item label
 					m_beingDragged = true;
 					m_nameLabel.Visible = false;
 				}
@@ -80,7 +82,7 @@ namespace EndlessClient
 			if (m_beingDragged && PreviousMouseState.LeftButton == ButtonState.Pressed &&
 			    currentState.LeftButton == ButtonState.Pressed)
 			{
-				//dragging has started. continue dragging until mouse is released.
+				//dragging has started. continue dragging until mouse is released, update position based on mouse location
 				DrawLocation = new Vector2(DrawLocation.X + (currentState.X - PreviousMouseState.X), DrawLocation.Y + (currentState.Y - PreviousMouseState.Y));
 			}
 			else if (m_beingDragged && PreviousMouseState.LeftButton == ButtonState.Pressed &&
@@ -105,85 +107,16 @@ namespace EndlessClient
 				Interlocked.Increment(ref m_recentClickCount);
 				if (m_recentClickCount == 2)
 				{
-					string whichAction = "";
-					//double-click!
-					switch (m_itemData.Type) //different types of items do different things when acted on
-					{
-						case ItemType.Accessory:
-						case ItemType.Armlet:
-						case ItemType.Armor:
-						case ItemType.Belt:
-						case ItemType.Boots:
-						case ItemType.Bracer:
-						case ItemType.Gloves:
-						case ItemType.Hat:
-						case ItemType.Necklace:
-						case ItemType.Ring:
-						case ItemType.Shield:
-						case ItemType.Weapon:
-							Paperdoll.EquipItem((short)m_itemData.ID);
-							break;
-						case ItemType.Beer:
-							whichAction = "Got hella drunk on";
-							break;
-						case ItemType.CureCurse:
-							whichAction = "Cured curse using";
-							break;
-						case ItemType.EXPReward:
-							whichAction = "Experience reward from ";
-							break;
-						case ItemType.EffectPotion:
-							whichAction = "Effect potion: ";
-							break;
-						case ItemType.HairDye:
-							whichAction = "Dyed hair with";
-							break;
-						case ItemType.Heal:
-							whichAction = "Restored health with";
-							break;
-						case ItemType.SkillReward:
-							whichAction = "Skill reward with";
-							break;
-						case ItemType.StatReward:
-							whichAction = "Stat reward with";
-							break;
-						case ItemType.Teleport:
-							whichAction = "Preparing to teleport using";
-							break;
-					}
-
-					if (whichAction != "")
-					{
-						EODialog tst = new EODialog(Game, whichAction + " item " + m_itemData.Name, "Equip action");
-						
-						if (false)
-						{
-							//todo: implement the 'use' action for item types
-
-							m_inventory = new InventoryItem
-							{
-								amount = m_inventory.amount - 1,
-								id = m_inventory.id
-							};
-
-							if (m_inventory.amount <= 0)
-							{
-								((EOInventory) parent).RemoveItemFromSlot(Slot);
-								Close();
-							}
-						}
-					}
-
-					m_recentClickCount = 0;
+					_handleDoubleClick();
 				}
 			}
 
-			if (!MouseOverPreviously && MouseOver)
+			if (!MouseOverPreviously && MouseOver && !m_beingDragged)
 			{
 				m_nameLabel.Visible = true;
 				EOGame.Instance.Hud.SetStatusLabel("[ Item ] " + m_nameLabel.Text);
 			}
-			else if (MouseOverPreviously && !MouseOver)
+			else if (MouseOverPreviously && !MouseOver && !m_beingDragged)
 			{
 				m_nameLabel.Visible = false;
 			}
@@ -254,6 +187,10 @@ namespace EndlessClient
 		{
 			int oldSlot = Slot;
 			Slot = newSlot;
+			if (!((EOInventory) parent).SaveItemLocation(this, oldSlot))
+			{
+				Slot = oldSlot;
+			}
 
 			//top-left grid slot in the inventory is 115, 339
 			//parent top-left is 103, 330
@@ -262,8 +199,6 @@ namespace EndlessClient
 			EOInventory._getItemSizeDeltas(m_itemData.Size, out width, out height);
 			drawArea = new Rectangle(13 + 26 * (Slot % EOInventory.INVENTORY_ROW_LENGTH),
 				9 + 26 * (Slot / EOInventory.INVENTORY_ROW_LENGTH), width * 26, height * 26);
-
-			((EOInventory) parent).SaveItemLocation(this, oldSlot);
 		}
 
 		public int ItemCurrentSlot()
@@ -281,6 +216,68 @@ namespace EndlessClient
 			if(m_highlightBG != null) m_highlightBG.Dispose();
 
 			base.Dispose(disposing);
+		}
+
+		private void _handleDoubleClick()
+		{
+			string whichAction = "";
+			//double-click!
+			switch (m_itemData.Type) //different types of items do different things when acted on
+			{
+				case ItemType.Accessory:
+				case ItemType.Armlet:
+				case ItemType.Armor:
+				case ItemType.Belt:
+				case ItemType.Boots:
+				case ItemType.Bracer:
+				case ItemType.Gloves:
+				case ItemType.Hat:
+				case ItemType.Necklace:
+				case ItemType.Ring:
+				case ItemType.Shield:
+				case ItemType.Weapon:
+					Paperdoll.EquipItem((short)m_itemData.ID);
+					break;
+				case ItemType.Beer:
+					whichAction = "Got hella drunk on";
+					break;
+				case ItemType.CureCurse:
+					whichAction = "Cured curse using";
+					break;
+				case ItemType.EXPReward:
+					whichAction = "Experience reward from ";
+					break;
+				case ItemType.EffectPotion:
+					whichAction = "Effect potion: ";
+					break;
+				case ItemType.HairDye:
+					whichAction = "Dyed hair with";
+					break;
+				case ItemType.Heal:
+					whichAction = "Restored health with";
+					break;
+				case ItemType.SkillReward:
+					whichAction = "Skill reward with";
+					break;
+				case ItemType.StatReward:
+					whichAction = "Stat reward with";
+					break;
+				case ItemType.Teleport:
+					whichAction = "Preparing to teleport using";
+					break;
+			}
+
+			if (whichAction != "")
+			{
+				EODialog tst = new EODialog(Game, whichAction + " item " + m_itemData.Name, "Equip action");
+
+				if (false)
+				{
+					//todo: implement the 'use' action for item types
+				}
+			}
+
+			m_recentClickCount = 0;
 		}
 	}
 
@@ -471,10 +468,19 @@ namespace EndlessClient
 			return m_childItems.Count(invItem => invItem.Dragging) == 0;
 		}
 
-		public void SaveItemLocation(EOInventoryItem item, int oldSlot)
+		public bool SaveItemLocation(EOInventoryItem item, int oldSlot)
 		{
+			if (item.Slot == oldSlot) return true;
+
+			if (m_regData.ContainsKey(item.Slot) || 
+				m_filledSlots[item.Slot/INVENTORY_ROW_LENGTH, item.Slot%INVENTORY_ROW_LENGTH]) return false;
+
 			m_inventoryKey.SetValue("item" + oldSlot, 0, RegistryValueKind.String);
 			m_inventoryKey.SetValue(string.Format("item{0}", item.Slot), item.ItemData.ID, RegistryValueKind.String);
+			m_regData.Remove(oldSlot);
+			m_regData.Add(item.Slot, item.ItemData);
+
+			return true;
 		}
 
 		public void UpdateItem(InventoryItem item)
