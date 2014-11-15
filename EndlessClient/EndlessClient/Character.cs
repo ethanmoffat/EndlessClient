@@ -352,19 +352,35 @@ namespace EndlessClient
 			}
 		}
 
-		public void UpdateInventoryItem(short id, int characterAmount, byte characterWeight, byte characterMaxWeight)
+		public void UpdateInventoryItem(short id, int characterAmount, byte characterWeight, byte characterMaxWeight, bool add = false)
 		{
 			InventoryItem rec;
 			if ((rec = Inventory.Find(item => item.id == id)).id == id)
 			{
-				InventoryItem newRec = new InventoryItem {amount = characterAmount, id = id};
-				if(!Inventory.Remove(rec))
+				InventoryItem newRec = new InventoryItem
+				{
+					amount = add ? characterAmount + rec.amount : characterAmount,
+					id = id
+				};
+				if (!Inventory.Remove(rec))
 					throw new Exception("Unable to remove from inventory!");
 				if (newRec.amount > 0)
 				{
 					Inventory.Add(newRec);
 				}
-				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(rec);
+				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
+				Weight = characterWeight;
+				MaxWeight = characterMaxWeight;
+				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateWeightLabel();
+			}
+			else
+			{
+				//for item_get packet, the item may not be in the inventory yet
+				InventoryItem newRec = new InventoryItem {amount = characterAmount, id = id};
+				if (newRec.amount <= 0) return;
+				
+				Inventory.Add(newRec);
+				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
 				Weight = characterWeight;
 				MaxWeight = characterMaxWeight;
 				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateWeightLabel();

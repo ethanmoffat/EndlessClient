@@ -4,6 +4,39 @@ namespace EndlessClient.Handlers
 {
 	public static class Item
 	{
+		public static void GetItem(short id, int amount)
+		{
+			//picking up an item from the map
+		}
+
+		public static void DropItem(short id, int amount, byte x = 255, byte y = 255) //255 means use character's current location
+		{
+			EOClient client = (EOClient) World.Instance.Client;
+			if (client == null || !client.ConnectedAndInitialized)
+				return;
+
+			Packet pkt = new Packet(PacketFamily.Item, PacketAction.Drop);
+			pkt.AddShort(id);
+			pkt.AddInt(amount);
+			pkt.AddByte(x);
+			pkt.AddByte(y);
+
+			client.SendPacket(pkt);
+		}
+
+		public static void JunkItem(short id, int amount)
+		{
+			EOClient client = (EOClient) World.Instance.Client;
+			if (client == null || !client.ConnectedAndInitialized)
+				return;
+			
+			Packet pkt = new Packet(PacketFamily.Item, PacketAction.Junk);
+			pkt.AddShort(id);
+			pkt.AddInt(amount);
+
+			client.SendPacket(pkt);
+		}
+
 		/// <summary>
 		/// Sent when an Item is dropped by the MainPlayer
 		/// See ItemAddResponse for when another player drops an item
@@ -28,7 +61,7 @@ namespace EndlessClient.Handlers
 		}
 
 		/// <summary>
-		/// Item is added to the map
+		/// Item is added to the map (sent when another player drops an item)
 		/// </summary>
 		public static void ItemAddResponse(Packet pkt)
 		{
@@ -43,6 +76,47 @@ namespace EndlessClient.Handlers
 			{
 				World.Instance.ActiveMapRenderer.MapItems.Remove(toRemove);
 			}
+		}
+
+		public static void ItemJunkResponse(Packet pkt)
+		{
+			short id = pkt.GetShort();
+			/*int amountRemoved = */pkt.GetThree();//don't really care - just math it
+			int amountRemaining = pkt.GetInt();
+			byte weight = pkt.GetChar();
+			byte maxWeight = pkt.GetChar();
+
+			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
+		}
+
+		public static void ItemGetResponse(Packet pkt)
+		{
+			short uid = pkt.GetShort();
+			short id = pkt.GetShort();
+			int amountTaken = pkt.GetThree();
+			byte weight = pkt.GetChar();
+			byte maxWeight = pkt.GetChar();
+
+			if (uid != 0)
+			{
+				MapItem toRemove;
+				if ((toRemove = World.Instance.ActiveMapRenderer.MapItems.Find(mi => mi.uid == uid)).uid == uid)
+				{
+					World.Instance.ActiveMapRenderer.MapItems.Remove(toRemove);
+					toRemove = new MapItem
+					{
+						amount = toRemove.amount - amountTaken,
+						uid = uid,
+						id = id,
+						x = toRemove.x,
+						y = toRemove.y
+					};
+					if (toRemove.amount > 0) World.Instance.ActiveMapRenderer.MapItems.Add(toRemove);
+				}
+			}
+
+			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);//true: adding amounts if item ID exists
+			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Info ] You picked up {0} {1}", amountTaken, World.Instance.EIF.GetItemRecordByID(id).Name));
 		}
 	}
 }

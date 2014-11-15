@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
-using EndlessClient.Handlers;
 using EOLib.Data;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
@@ -52,7 +52,7 @@ namespace EndlessClient
 
 			m_itemgfx = GFXLoader.TextureFromResource(GFXTypes.Items, 2 * itemData.Graphic, true);
 
-			m_highlightBG = new Texture2D(g.GraphicsDevice, drawArea.Width - 3, drawArea.Height - 3);
+			m_highlightBG = new Texture2D(g.GraphicsDevice, DrawArea.Width - 3, DrawArea.Height - 3);
 			Color[] highlight = new Color[(drawArea.Width - 3) * (drawArea.Height - 3)];
 			for (int i = 0; i < highlight.Length; ++i) { highlight[i] = Color.FromNonPremultiplied(200, 200, 200, 60); }
 			m_highlightBG.SetData(highlight);
@@ -60,7 +60,7 @@ namespace EndlessClient
 			_initItemLabel();
 
 			m_recentClickTimer = new Timer(
-				_state => { if (m_recentClickCount > 0) Interlocked.Decrement(ref m_recentClickCount); }, null, 0, 500);
+				_state => { if (m_recentClickCount > 0) Interlocked.Decrement(ref m_recentClickCount); }, null, 0, 750);
 		}
 
 		public override void Update(GameTime gameTime)
@@ -83,7 +83,7 @@ namespace EndlessClient
 			    currentState.LeftButton == ButtonState.Pressed)
 			{
 				//dragging has started. continue dragging until mouse is released, update position based on mouse location
-				DrawLocation = new Vector2(DrawLocation.X + (currentState.X - PreviousMouseState.X), DrawLocation.Y + (currentState.Y - PreviousMouseState.Y));
+				DrawLocation = new Vector2(currentState.X - (DrawArea.Width/2) - xOff, currentState.Y - (DrawArea.Height/2) - yOff); //xOff/yOff: included in calculations later
 			}
 			else if (m_beingDragged && PreviousMouseState.LeftButton == ButtonState.Pressed &&
 			         currentState.LeftButton == ButtonState.Released)
@@ -91,10 +91,29 @@ namespace EndlessClient
 				//need to check for: drop on map (drop action)
 				//					 drop on button junk/drop
 				//					 drop on grid (inventory move action)
-				if (true) //todo: how to check if on grid?
+
+				if (((EOInventory) parent).IsOverDrop())
 				{
-					UpdateItemLocation(ItemCurrentSlot());
+					//todo: if amount > 1 - ask how many to drop
+					if (m_itemData.Special == ItemSpecial.Lore)
+					{
+						EODialog dlg = new EODialog(Game, "It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
+					}
+					else
+					{
+						Handlers.Item.DropItem(m_inventory.id, 1);
+					}
 				}
+				else if (((EOInventory) parent).IsOverJunk())
+				{
+					//todo: if amount > 1 - ask how many to junk
+					Handlers.Item.JunkItem(m_inventory.id, 1);
+				}
+				/*todo: Add map drop check!*/
+				
+				//update the location - if it isn't on the grid, the bounds check will set it back to where it used to be originally
+				//Item amount will be updated or item will be removed in packet response to the drop operation
+				UpdateItemLocation(ItemCurrentSlot());
 
 				//mouse has been released. finish dragging.
 				m_beingDragged = false;
@@ -116,7 +135,7 @@ namespace EndlessClient
 				m_nameLabel.Visible = true;
 				EOGame.Instance.Hud.SetStatusLabel("[ Item ] " + m_nameLabel.Text);
 			}
-			else if (!MouseOver && !m_beingDragged)
+			else if (!MouseOver && !m_beingDragged && m_nameLabel != null && m_nameLabel.Visible)
 			{
 				m_nameLabel.Visible = false;
 			}
@@ -137,9 +156,12 @@ namespace EndlessClient
 					? new Vector2(xOff + 13 + 26*(currentSlot%EOInventory.INVENTORY_ROW_LENGTH),
 						yOff + 9 + 26*(currentSlot/EOInventory.INVENTORY_ROW_LENGTH)) //recalculate the top-left point for the highlight based on the current drag position
 					: new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y);
-				SpriteBatch.Draw(m_highlightBG, drawLoc, Color.White);
+
+				if (EOInventory.GRID_AREA.Contains(new Rectangle((int) drawLoc.X, (int) drawLoc.Y, DrawArea.Width, DrawArea.Height)))
+					SpriteBatch.Draw(m_highlightBG, drawLoc, Color.White);
 			}
-			SpriteBatch.Draw(m_itemgfx, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y), Color.White);
+			if(m_itemgfx != null)
+				SpriteBatch.Draw(m_itemgfx, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y), Color.White);
 			SpriteBatch.End();
 		}
 		
@@ -152,8 +174,16 @@ namespace EndlessClient
 			//grid size is 26*26 (w/o borders 23*23)
 			int width, height;
 			EOInventory._getItemSizeDeltas(m_itemData.Size, out width, out height);
-			drawArea = new Rectangle(13 + 26 * (Slot % EOInventory.INVENTORY_ROW_LENGTH),
-				9 + 26 * (Slot / EOInventory.INVENTORY_ROW_LENGTH), width * 26, height * 26);
+			DrawLocation = new Vector2(13 + 26 * (Slot % EOInventory.INVENTORY_ROW_LENGTH), 9 + 26 * (Slot / EOInventory.INVENTORY_ROW_LENGTH));
+			_setSize(width * 26, height * 26);
+
+			if (m_nameLabel != null) //fix the position of the name label too if we aren't creating the inventoryitem
+			{
+				m_nameLabel.DrawLocation = new Vector2(DrawArea.Width, 0);
+				if(!EOInventory.GRID_AREA.Contains(m_nameLabel.DrawAreaWithOffset))
+					m_nameLabel.DrawLocation = new Vector2(-m_nameLabel.DrawArea.Width, 0); //show on the right if it isn't in bounds!
+				m_nameLabel.ResizeBasedOnText(16, 9);
+			}
 		}
 
 		public int ItemCurrentSlot()
@@ -234,7 +264,7 @@ namespace EndlessClient
 				case ItemType.Ring:
 				case ItemType.Shield:
 				case ItemType.Weapon:
-					Paperdoll.EquipItem((short)m_itemData.ID);
+					Handlers.Paperdoll.EquipItem((short)m_itemData.ID);
 					break;
 				case ItemType.Beer:
 					whichAction = "Got hella drunk on";
@@ -281,14 +311,23 @@ namespace EndlessClient
 
 	public class EOInventory : XNAControl
 	{
+		/// <summary>
+		/// number of slots in an inventory row
+		/// </summary>
 		public const int INVENTORY_ROW_LENGTH = 14;
+
+		/// <summary>
+		/// Area of the grid portion of the inventory (uses absolute coordinates)
+		/// </summary>
+		public static Rectangle GRID_AREA = new Rectangle(115, 339, 367, 106);
 
 		private readonly bool[,] m_filledSlots = new bool[4, INVENTORY_ROW_LENGTH]; //4 rows, 14 columns = 56 total in grid
 		private readonly RegistryKey m_inventoryKey;
 		private readonly List<EOInventoryItem> m_childItems = new List<EOInventoryItem>();
 
 		private readonly XNALabel m_lblWeight;
-
+		private readonly XNAButton m_btnDrop, m_btnJunk, m_btnPaperdoll;
+		
 		public EOInventory(Game g)
 			: base(g)
 		{
@@ -298,7 +337,7 @@ namespace EndlessClient
 			if (m_inventoryKey != null)
 			{
 				const string itemFmt = "item{0}";
-				for (int i = 0; i < 56; ++i)
+				for (int i = 0; i < INVENTORY_ROW_LENGTH * 4; ++i)
 				{
 					int id;
 					try
@@ -338,20 +377,44 @@ namespace EndlessClient
 			m_lblWeight.SetParent(this);
 			UpdateWeightLabel();
 
-			Texture2D thatWeirdSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, true); //oh my gawd the offsets on this bish
+			Texture2D thatWeirdSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27); //oh my gawd the offsets on this bish
 
 			//(local variables, added to child controls)
 			//'paperdoll' button
-			XNAButton paperdoll = new XNAButton(g, thatWeirdSheet, new Vector2(385, 9), /*new Rectangle(39, 385, 88, 19)*/null, new Rectangle(126, 385, 88, 19));
-			paperdoll.SetParent(this);
-			paperdoll.OnClick += (s, e) => { }; //todo: make event handler that shows a paperdoll dialog
+			m_btnPaperdoll = new XNAButton(g, thatWeirdSheet, new Vector2(385, 9), /*new Rectangle(39, 385, 88, 19)*/null, new Rectangle(126, 385, 88, 19));
+			m_btnPaperdoll.SetParent(this);
+			m_btnPaperdoll.OnClick += (s, e) => { }; //todo: make event handler that shows a paperdoll dialog
 			//'drop' button
-			//'junk' button
+			//491, 398 -> 389, 68
+			//0,15,38,37
+			//0,52,38,37
+			m_btnDrop = new XNAButton(g, thatWeirdSheet, new Vector2(389, 68), new Rectangle(0, 15, 38, 37), new Rectangle(0, 52, 38, 37));
+			m_btnDrop.SetParent(this);
+			//'junk' button - 4 + 38 on the x away from drop
+			m_btnJunk = new XNAButton(g, thatWeirdSheet, new Vector2(431, 68), new Rectangle(0, 89, 38, 37), new Rectangle(0, 126, 38, 37));
+			m_btnJunk.SetParent(this);
 		}
 
 		//-----------------------------------------------------
 		// Overrides / Control Interface
 		//-----------------------------------------------------
+		public override void Update(GameTime gameTime)
+		{
+			if (IsOverDrop())
+			{
+				EOGame.Instance.Hud.SetStatusLabel("[ Button ] Drag an item to this button to drop it on the ground.");
+			}
+			else if (IsOverJunk())
+			{
+				EOGame.Instance.Hud.SetStatusLabel("[ Button ] Drag an item to this button to destroy it forever.");
+			}
+			else if (m_btnPaperdoll.MouseOver && !m_btnPaperdoll.MouseOverPreviously)
+			{
+				EOGame.Instance.Hud.SetStatusLabel("[ Button ] Click here to show your paperdoll.");
+			}
+
+			base.Update(gameTime);
+		}
 
 		protected override void Dispose(bool disposing)
 		{
@@ -476,6 +539,11 @@ namespace EndlessClient
 				ctrl.Inventory = item;
 				ctrl.UpdateItemLabel();
 			}
+			else
+			{
+				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+				AddItemToSlot(GetNextOpenSlot(rec.Size), rec, item.amount);
+			}
 		}
 
 		public void RemoveItem(int id)
@@ -485,6 +553,16 @@ namespace EndlessClient
 			{
 				RemoveItemFromSlot(ctrl.Slot, ctrl.Inventory.amount);
 			}
+		}
+
+		public bool IsOverDrop()
+		{
+			return m_btnDrop.MouseOver && m_btnDrop.MouseOverPreviously;
+		}
+
+		public bool IsOverJunk()
+		{
+			return m_btnJunk.MouseOver && m_btnJunk.MouseOverPreviously;
 		}
 
 		//-----------------------------------------------------

@@ -104,6 +104,14 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Item.ItemDropResponse, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Get), 
+					new LockedHandlerMethod(Handlers.Item.ItemGetResponse, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Junk), 
+					new LockedHandlerMethod(Handlers.Item.ItemJunkResponse, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Item, PacketAction.Remove), 
 					new LockedHandlerMethod(Handlers.Item.ItemRemoveResponse, true)
 				},
