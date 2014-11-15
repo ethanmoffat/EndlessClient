@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using EOLib;
+using EOLib.Data;
 
 namespace EndlessClient.Handlers
 {

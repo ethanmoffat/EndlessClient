@@ -26,26 +26,6 @@ namespace EndlessClient
 		Floor
 	}
 
-	public enum EquipLocation
-	{
-		Boots = 0,
-		Accessory,
-		Gloves,
-		Belt,
-		Armor,
-		Necklace,
-		Hat,
-		Shield,
-		Weapon,
-		Ring1,
-		Ring2,
-		Armlet1,
-		Armlet2,
-		Bracer1,
-		Bracer2,
-		PAPERDOLL_MAX = 15
-	}
-
 	/// <summary>
 	/// This is data used to render the character in EOCharacterRenderer.cs
 	/// The values represented here are for loading GFX and do NOT represent IDs of items, etc.
@@ -336,18 +316,24 @@ namespace EndlessClient
 				RenderData.SetDirection(direction); //updates the data in the character renderer as well
 		}
 
-		public void UpdateInventoryItem(short id, int characterAmount)
+		public void UpdateInventoryItem(short id, int characterAmount, bool add = false)
 		{
 			InventoryItem rec;
 			if ((rec = Inventory.Find(item => item.id == id)).id == id)
 			{
-				InventoryItem newRec = new InventoryItem {amount = characterAmount, id = id};
+				InventoryItem newRec = new InventoryItem {amount = add ? characterAmount + rec.amount : characterAmount, id = id};
 				if (!Inventory.Remove(rec))
 					throw new Exception("Unable to remove from inventory!");
 				if (newRec.amount > 0)
 				{
 					Inventory.Add(newRec);
 				}
+				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
+			}
+			else //if unequipping an item that isn't in the inventory yet
+			{
+				InventoryItem newRec = new InventoryItem {amount = characterAmount, id = id};
+				Inventory.Add(newRec);
 				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
 			}
 		}

@@ -635,5 +635,10 @@ namespace EndlessClient
 		{
 			return (rend.Character.X < objX && rend.Character.Y < objY) && rend.DrawAreaWithOffset.Intersects(TextureBounds);
 		}
+
+		public Character GetOtherPlayer(short playerId)
+		{
+			return otherPlayers.Find(_c => _c.ID == playerId);
+		}
 	}
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
+using EOLib;
+using EOLib.Data;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -930,6 +932,243 @@ namespace EndlessClient
 			SpriteBatch.End();
 
 			base.Draw(gt);
+		}
+	}
+
+	public class EOPaperdollItem : XNAControl
+	{
+		private ItemRecord m_info;
+		private Texture2D m_gfx;
+		private Rectangle m_area;
+
+		public EquipLocation EquipLoc { get; private set; }
+		public short ItemID { get { return (short)(m_info ?? new ItemRecord()).ID; } }
+
+		public EOPaperdollItem(Game g, Rectangle location, EOPaperdollDialog parent, ItemRecord info, EquipLocation locationEnum)
+			: base(g, null, null, parent)
+		{
+			SetInfo(location, info);
+			EquipLoc = locationEnum;
+		}
+
+		public override void Update(GameTime gameTime)
+		{
+			//At this time, not going to support drag/drop between inventory and paperdoll dialog.
+			//Benefit is not worth the work effort involved.
+
+			MouseState currentState = Mouse.GetState();
+
+			if (MouseOver && !MouseOverPreviously)
+			{
+				string typename = Enum.GetName(typeof (EquipLocation), EquipLoc);
+				if (string.IsNullOrEmpty(typename))
+					return;
+				if (typename.Contains("1") || typename.Contains("2"))
+					typename = typename.Substring(0, typename.Length - 1);
+
+				string toSet;
+				if (m_info != null)
+					toSet = "[ Information ] " + typename + " equipment, " + m_info.Name;
+				else
+					toSet = "[ Information ] " + typename + " equipment";
+				EOGame.Instance.Hud.SetStatusLabel(toSet);
+			}
+
+			if (m_info != null && MouseOver && currentState.RightButton == ButtonState.Released &&
+			    PreviousMouseState.RightButton == ButtonState.Pressed)
+			{
+				if (((EOPaperdollDialog) parent).CharRef == World.Instance.MainPlayer.ActiveCharacter)
+				{ //the parent dialog must show equipment for mainplayer
+					_setSize(m_area.Width, m_area.Height);
+					DrawLocation = new Vector2(m_area.X + (m_area.Width / 2 - DrawArea.Width / 2), m_area.Y + (m_area.Height / 2 - DrawArea.Height / 2));
+
+					//put back in the inventory by the packet handler response
+					string locName = Enum.GetName(typeof (EquipLocation), EquipLoc);
+					if(!string.IsNullOrEmpty(locName))
+						Handlers.Paperdoll.UnequipItem((short)m_info.ID, (byte)(locName.Contains("2") ? 1 : 0));
+
+					m_info = null;
+					m_gfx = null;
+				}
+			}
+
+			base.Update(gameTime);
+		}
+
+		public override void Draw(GameTime gameTime)
+		{
+			base.Draw(gameTime);
+			if (m_gfx == null) return;
+			SpriteBatch.Begin();
+			SpriteBatch.Draw(m_gfx, DrawAreaWithOffset, Color.White);
+			SpriteBatch.End();
+		}
+
+		public void SetInfo(Rectangle location, ItemRecord info)
+		{
+			m_info = info;
+			if (info != null)
+			{
+				m_gfx = GFXLoader.TextureFromResource(GFXTypes.Items, 2 * info.Graphic, true);
+			}
+			m_area = location;
+
+			if (m_gfx != null)
+				_setSize(m_gfx.Width, m_gfx.Height);
+			else
+				_setSize(location.Width, location.Height);
+
+			DrawLocation = new Vector2(location.X + (m_area.Width / 2 - DrawArea.Width / 2), location.Y + (m_area.Height / 2 - DrawArea.Height / 2));
+		}
+	}
+
+	public class EOPaperdollDialog : EODialogBase
+	{
+		public Character CharRef { get; private set; }
+
+		public EOPaperdollDialog(Game g, Character character, string home, string partner, string guild, string guildRank)
+			: base (g)
+		{
+			CharRef = character;
+
+			Texture2D bgSprites = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 49);
+			_setSize(bgSprites.Width, bgSprites.Height / 2);
+
+			Color[] dat = new Color[DrawArea.Width*DrawArea.Height];
+			bgTexture = new Texture2D(g.GraphicsDevice, DrawArea.Width, DrawArea.Height);
+			bgSprites.GetData(0, DrawArea.SetPosition(new Vector2(0, CharRef.RenderData.gender * DrawArea.Height)), dat, 0, dat.Length);
+			bgTexture.SetData(dat);
+
+			//not using caption/message since we have other shit to take care of
+
+			//ok button
+			XNAButton ok = new XNAButton(g, smallButtonSheet, new Vector2(276, 253), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28)) { Visible = true };
+			ok.OnClick += (s, e) => Close(ok, XNADialogResult.OK);
+			ok.SetParent(this);
+			dlgButtons.Add(ok);
+
+			//items
+			for (int i = (int) EquipLocation.Boots; i < (int) EquipLocation.PAPERDOLL_MAX; ++i)
+			{
+				ItemRecord info = World.Instance.EIF.GetItemRecordByID(CharRef.PaperDoll[i]);
+
+				Rectangle itemArea = GetEquipLocRectangle((EquipLocation) i); //todo: center within width/height of the total area
+
+				//create item using itemArea
+				if (CharRef.PaperDoll[i] > 0)
+				{
+					EOPaperdollItem nextItem = new EOPaperdollItem(g, itemArea, this, info, (EquipLocation)i); //auto-added as child of this dialog
+				}
+				else
+				{
+					EOPaperdollItem nextItem = new EOPaperdollItem(g, itemArea, this, null, (EquipLocation)i);
+				}
+			}
+
+			//labels next
+			XNALabel[] labels =
+			{
+				new XNALabel(g, new Rectangle(228, 22, 1, 1), "Microsoft Sans Serif", 8.5f)
+				{
+					Text = CharRef.Name.Length > 0 ? char.ToUpper(CharRef.Name[0]) + CharRef.Name.Substring(1) : ""
+				}, //name
+				new XNALabel(g, new Rectangle(228, 52, 1, 1), "Microsoft Sans Serif", 8.5f)
+				{
+					Text = home.Length > 0 ? char.ToUpper(home[0]) + home.Substring(1) : ""
+				}, //home
+				new XNALabel(g, new Rectangle(228, 82, 1, 1), "Microsoft Sans Serif", 8.5f)
+				{
+					Text = ((ClassRecord)(World.Instance.ECF.Data.Find(_dat => ((ClassRecord)_dat).ID == CharRef.Class) ?? new ClassRecord())).Name //Check for nulls, for teh lolz
+				}, //class
+				new XNALabel(g, new Rectangle(228, 112, 1, 1), "Microsoft Sans Serif", 8.5f)
+				{
+					Text = partner.Length > 0 ? char.ToUpper(partner[0]) + partner.Substring(1) : ""
+				}, //partner
+				new XNALabel(g, new Rectangle(228, 142, 1, 1), "Microsoft Sans Serif", 8.5f)
+				{
+					Text = CharRef.Title.Length > 0 ? char.ToUpper(CharRef.Title[0]) + CharRef.Title.Substring(1) : ""
+				}, //title
+				new XNALabel(g, new Rectangle(228, 202, 1, 1), "Microsoft Sans Serif", 8.5f)
+				{
+					Text = guild.Length > 0 ? char.ToUpper(guild[0]) + guild.Substring(1) : ""
+				}, //guild
+				new XNALabel(g, new Rectangle(228, 232, 1, 1), "Microsoft Sans Serif", 8.5f)
+				{
+					Text = guildRank.Length > 0 ? char.ToUpper(guild[0]) + guildRank.Substring(1) : ""
+				}, //rank
+			};
+
+			labels.ToList().ForEach(_l => { _l.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8); _l.SetParent(this); });
+
+			base.endConstructor();
+		}
+		
+		public void SetItem(EquipLocation loc, ItemRecord info)
+		{
+			EOPaperdollItem itemToUpdate = (EOPaperdollItem)children.Find(_ctrl =>
+			{
+				EOPaperdollItem item = _ctrl as EOPaperdollItem;
+				if (item == null) return false;
+				return item.EquipLoc == loc;
+			});
+			if(itemToUpdate != null)
+				itemToUpdate.SetInfo(GetEquipLocRectangle(loc), info);
+		}
+
+		public static Rectangle GetEquipLocRectangle(EquipLocation loc)
+		{
+			Rectangle itemArea;
+			switch (loc)
+			{
+				case EquipLocation.Boots:
+					itemArea = new Rectangle(87, 220, 56, 54);
+					break;
+				case EquipLocation.Accessory:
+					itemArea = new Rectangle(55, 250, 23, 23);
+					break;
+				case EquipLocation.Gloves:
+					itemArea = new Rectangle(22, 188, 56, 54);
+					break;
+				case EquipLocation.Belt:
+					itemArea = new Rectangle(87, 188, 56, 23);
+					break;
+				case EquipLocation.Armor:
+					itemArea = new Rectangle(86, 82, 56, 98);
+					break;
+				case EquipLocation.Necklace:
+					itemArea = new Rectangle(152, 51, 56, 23);
+					break;
+				case EquipLocation.Hat:
+					itemArea = new Rectangle(87, 21, 56, 54);
+					break;
+				case EquipLocation.Shield:
+					itemArea = new Rectangle(152, 82, 56, 98);
+					break;
+				case EquipLocation.Weapon:
+					itemArea = new Rectangle(22, 82, 56, 98);
+					break;
+				case EquipLocation.Ring1:
+					itemArea = new Rectangle(152, 190, 23, 23);
+					break;
+				case EquipLocation.Ring2:
+					itemArea = new Rectangle(185, 190, 23, 23);
+					break;
+				case EquipLocation.Armlet1:
+					itemArea = new Rectangle(152, 220, 23, 23);
+					break;
+				case EquipLocation.Armlet2:
+					itemArea = new Rectangle(185, 220, 23, 23);
+					break;
+				case EquipLocation.Bracer1:
+					itemArea = new Rectangle(152, 250, 23, 23);
+					break;
+				case EquipLocation.Bracer2:
+					itemArea = new Rectangle(185, 250, 23, 23);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("loc", "That is not a valid equipment location");
+			}
+			return itemArea;
 		}
 	}
 }

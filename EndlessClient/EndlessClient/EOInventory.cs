@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using EOLib.Data;
 using Microsoft.Win32;
@@ -97,7 +96,7 @@ namespace EndlessClient
 					//todo: if amount > 1 - ask how many to drop
 					if (m_itemData.Special == ItemSpecial.Lore)
 					{
-						EODialog dlg = new EODialog(Game, "It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
+						EODialog lastError = new EODialog(Game, "It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
 					}
 					else
 					{
@@ -223,7 +222,7 @@ namespace EndlessClient
 		{
 			if (m_nameLabel != null) m_nameLabel.Dispose();
 
-			m_nameLabel = new XNALabel(Game, new Rectangle((int)DrawLocation.X + DrawArea.Width, (int)DrawLocation.Y, 150, 23), "Microsoft Sans MS", 8f)
+			m_nameLabel = new XNALabel(Game, new Rectangle(DrawArea.Width, 0, 150, 23), "Microsoft Sans MS", 8f)
 			{
 				Visible = false,
 				AutoSize = false,
@@ -237,9 +236,12 @@ namespace EndlessClient
 			switch (m_itemData.Special)
 			{
 				case ItemSpecial.Lore:
+				case ItemSpecial.Unique:
 					m_nameLabel.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xff, 0xf0, 0xa5);
 					break;
-				//other special types have different forecolors (rare items?)
+				case ItemSpecial.Rare:
+					m_nameLabel.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xf5, 0xc8, 0x9c);
+					break;
 			}
 
 			m_nameLabel.SetParent(this);
@@ -248,9 +250,7 @@ namespace EndlessClient
 
 		private void _handleDoubleClick()
 		{
-			string whichAction = "";
-			//double-click!
-			switch (m_itemData.Type) //different types of items do different things when acted on
+			switch (m_itemData.Type)
 			{
 				case ItemType.Accessory:
 				case ItemType.Armlet:
@@ -267,42 +267,23 @@ namespace EndlessClient
 					Handlers.Paperdoll.EquipItem((short)m_itemData.ID);
 					break;
 				case ItemType.Beer:
-					whichAction = "Got hella drunk on";
 					break;
 				case ItemType.CureCurse:
-					whichAction = "Cured curse using";
 					break;
 				case ItemType.EXPReward:
-					whichAction = "Experience reward from ";
 					break;
 				case ItemType.EffectPotion:
-					whichAction = "Effect potion: ";
 					break;
 				case ItemType.HairDye:
-					whichAction = "Dyed hair with";
 					break;
 				case ItemType.Heal:
-					whichAction = "Restored health with";
 					break;
 				case ItemType.SkillReward:
-					whichAction = "Skill reward with";
 					break;
 				case ItemType.StatReward:
-					whichAction = "Stat reward with";
 					break;
 				case ItemType.Teleport:
-					whichAction = "Preparing to teleport using";
 					break;
-			}
-
-			if (whichAction != "")
-			{
-				EODialog tst = new EODialog(Game, whichAction + " item " + m_itemData.Name, "Equip action");
-
-				if (false)
-				{
-					//todo: implement the 'use' action for item types
-				}
 			}
 
 			m_recentClickCount = 0;
@@ -327,6 +308,8 @@ namespace EndlessClient
 
 		private readonly XNALabel m_lblWeight;
 		private readonly XNAButton m_btnDrop, m_btnJunk, m_btnPaperdoll;
+
+		public EOPaperdollDialog PaperdollDialogRef { get; set; }
 		
 		public EOInventory(Game g)
 			: base(g)
@@ -360,7 +343,7 @@ namespace EndlessClient
 				int slot = localItemSlotMap.ContainsValue(item.id)
 					? localItemSlotMap.First(_pair => _pair.Value == item.id).Key
 					: GetNextOpenSlot(rec.Size);
-				if (!AddItemToSlot(slot, rec, item.amount)) throw new Exception("Too many items in inventory! (they don't fit)");
+				AddItemToSlot(slot, rec, item.amount);/* removed error checking - no need really, the original client doesn't do it. */
 			}
 
 			//coordinates for parent of EOInventory: 102, 330 (pnlInventory in InGameHud)
@@ -383,7 +366,7 @@ namespace EndlessClient
 			//'paperdoll' button
 			m_btnPaperdoll = new XNAButton(g, thatWeirdSheet, new Vector2(385, 9), /*new Rectangle(39, 385, 88, 19)*/null, new Rectangle(126, 385, 88, 19));
 			m_btnPaperdoll.SetParent(this);
-			m_btnPaperdoll.OnClick += (s, e) => { }; //todo: make event handler that shows a paperdoll dialog
+			m_btnPaperdoll.OnClick += (s, e) => Handlers.Paperdoll.RequestPaperdoll((short)World.Instance.MainPlayer.ActiveCharacter.ID); //todo: make event handler that shows a paperdoll dialog
 			//'drop' button
 			//491, 398 -> 389, 68
 			//0,15,38,37
@@ -435,7 +418,7 @@ namespace EndlessClient
 
 			m_inventoryKey.SetValue(string.Format("item{0}", slot), item.ID, RegistryValueKind.String); //update the registry
 			m_childItems.Add(new EOInventoryItem(Game, slot, item, new InventoryItem { amount = count, id = (short)item.ID }, this)); //add the control wrapper for the item
-			m_childItems.Last().DrawOrder = (int) ControlDrawLayer.BaseLayer + 2 + (INVENTORY_ROW_LENGTH - slot%INVENTORY_ROW_LENGTH);
+			m_childItems.Last().DrawOrder = (int)ControlDrawLayer.BaseLayer + 2 + (INVENTORY_ROW_LENGTH - slot % INVENTORY_ROW_LENGTH);
 			children.Sort((x, y) => x.DrawOrder - y.DrawOrder);
 			return true;
 		}

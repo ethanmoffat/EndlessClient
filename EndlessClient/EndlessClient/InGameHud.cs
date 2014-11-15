@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using EndlessClient.Handlers;
-using EOLib;
+using EOLib.Data;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient
@@ -544,6 +543,22 @@ namespace EndlessClient
 		public void UpdateWeightLabel()
 		{
 			inventory.UpdateWeightLabel();
+		}
+
+		public void ShowEquippedInPaperdollDialog(ItemRecord item, EquipLocation loc)
+		{
+			if(inventory.PaperdollDialogRef != null)
+				inventory.PaperdollDialogRef.SetItem(loc, item);
+		}
+
+		public void SetPaperdollDialog(EOPaperdollDialog dlg)
+		{
+			inventory.PaperdollDialogRef = dlg;
+		}
+
+		public void ClearPaperdollDialog()
+		{
+			inventory.PaperdollDialogRef = null;
 		}
 		#endregion
 		
