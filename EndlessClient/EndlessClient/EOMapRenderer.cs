@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using EndlessClient.Handlers;
 using EOLib;
@@ -242,7 +243,7 @@ namespace EndlessClient
 			if (rows.Count == 1) //should only be 1 result
 			{
 				Tile tile = rows[0].tiles.Find(tt => tt.x == destX);
-				if (rows[0].tiles.Count > 0 && tile.x != new Tile().x)
+				if (rows[0].tiles.Count > 0)
 				{
 					return new TileInfo { ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = tile.spec };
 				}
@@ -351,8 +352,20 @@ namespace EndlessClient
 				{
 					for (int j = 0; j <= MapRef.Width; ++j)
 					{
+						TileRow tr;
+						if ((tr = MapRef.TileRows.Find(_tr => _tr.y == i)).y == i)
+						{
+							Tile t;
+							if (tr.tiles != null && (t = tr.tiles.Find(_t => _t.x == j)).x == j)
+							{
+								if (t.spec == TileSpec.MapEdge)
+									continue; //I just love checking for default values on value types! /sarcasm
+							}
+						}
+
 						Vector2 pos = _getDrawCoordinates(j, i, c);
-						sb.Draw(GFXLoader.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true), new Vector2(pos.X - 1, pos.Y - 2), Color.White);
+						sb.Draw(GFXLoader.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true), new Vector2(pos.X - 1, pos.Y - 2),
+							Color.White);
 					}
 				}
 			}
@@ -365,6 +378,17 @@ namespace EndlessClient
 				List<GFX> tiles = row.tiles.Where(xGFXQuery).ToList();
 				foreach (GFX tile in tiles)
 				{
+					TileRow tr;
+					if ((tr = MapRef.TileRows.Find(_tr => _tr.y == row.y)).y == row.y)
+					{
+						Tile t;
+						if (tr.tiles != null && (t = tr.tiles.Find(_t => _t.x == tile.x)).x == tile.x)
+						{
+							if (t.spec != TileSpec.None)
+								continue;
+						}
+					}
+
 					//render tile.tile at tile.x, row.y
 					Texture2D nextTile = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
 					Vector2 pos = _getDrawCoordinates(tile.x, row.y, c);
