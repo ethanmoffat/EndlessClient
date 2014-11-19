@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
-using System.Windows.Forms.VisualStyles;
 using EOLib;
 
 namespace EndlessClient
@@ -152,8 +151,6 @@ namespace EndlessClient
 				if (!Handlers.Init.Initialize() || !Handlers.Init.CanProceed)
 				{
 					//pop up some dialogs when this fails (see EOGame::TryConnectToServer)
-					if (res != null)
-						m_sock.EndReceive(res);
 					return (m_connectedAndInitialized = false);
 				}
 
@@ -169,15 +166,11 @@ namespace EndlessClient
 
 				if (!SendPacket(confirm))
 				{
-					if (res != null)
-						m_sock.EndReceive(res);
 					return (m_connectedAndInitialized = false);
 				}
 			}
 			catch
 			{
-				if (res != null)
-					m_sock.EndReceive(res);
 				m_connectedAndInitialized = false;
 			}
 
