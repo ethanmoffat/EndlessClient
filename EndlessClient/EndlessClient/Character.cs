@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-
+using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Data;
 using Microsoft.Xna.Framework;
@@ -245,16 +245,118 @@ namespace EndlessClient
 				tp = pkt.GetShort()
 			};
 
-			RenderData.SetBoots(pkt.GetShort());
+			EquipItem(ItemType.Boots, 0, pkt.GetShort(), true);
 			pkt.Skip(3 * sizeof(short)); //other paperdoll data is 0'd out
-			RenderData.SetArmor(pkt.GetShort());
+			EquipItem(ItemType.Armor, 0, pkt.GetShort(), true);
 			pkt.Skip(sizeof(short));
-			RenderData.SetHat(pkt.GetShort());
-			RenderData.SetShield(pkt.GetShort());
-			RenderData.SetWeapon(pkt.GetShort());
-
+			EquipItem(ItemType.Hat, 0, pkt.GetShort(), true);
+			EquipItem(ItemType.Shield, 0, pkt.GetShort(), true);
+			EquipItem(ItemType.Weapon, 0, pkt.GetShort(), true);
+			
 			RenderData.SetSitting((SitState)pkt.GetChar());
 			RenderData.SetHidden(pkt.GetChar() != 0);
+		}
+
+		public void UnequipItem(ItemType type, byte subLoc)
+		{
+			EquipItem(type, 0, 0, true, (sbyte)subLoc);
+		}
+
+		public bool EquipItem(ItemType type, short id = 0, short graphic = 0, bool rewrite = false, sbyte subloc = -1)
+		{
+			switch (type)
+			{
+				case ItemType.Weapon:
+					if (PaperDoll[(int)EquipLocation.Weapon] != 0 && !rewrite) return false;
+					PaperDoll[(int) EquipLocation.Weapon] = id;
+					RenderData.SetWeapon(graphic);
+					break;
+				case ItemType.Shield:
+					if (PaperDoll[(int)EquipLocation.Shield] != 0 && !rewrite) return false;
+					PaperDoll[(int) EquipLocation.Shield] = id;
+					RenderData.SetShield(graphic);
+					break;
+				case ItemType.Armor:
+					if (PaperDoll[(int)EquipLocation.Armor] != 0 && !rewrite) return false;
+					PaperDoll[(int) EquipLocation.Armor] = id;
+					RenderData.SetArmor(graphic);
+					break;
+				case ItemType.Hat:
+					if (PaperDoll[(int)EquipLocation.Hat] != 0 && !rewrite) return false;
+					PaperDoll[(int) EquipLocation.Hat] = id;
+					RenderData.SetHat(graphic);
+					break;
+				case ItemType.Boots:
+					if (PaperDoll[(int)EquipLocation.Boots] != 0 && !rewrite) return false;
+					PaperDoll[(int) EquipLocation.Boots] = id;
+					RenderData.SetBoots(graphic);
+					break;
+				case ItemType.Gloves:
+					if (PaperDoll[(int)EquipLocation.Gloves] != 0 && !rewrite) return false;
+					PaperDoll[(int) EquipLocation.Gloves] = id;
+					break;
+				case ItemType.Accessory:
+					if (PaperDoll[(int)EquipLocation.Accessory] != 0 && !rewrite) return false;
+					PaperDoll[(int) EquipLocation.Accessory] = id;
+					break;
+				case ItemType.Belt:
+					if (PaperDoll[(int)EquipLocation.Belt] != 0 && !rewrite) return false;
+					PaperDoll[(int) EquipLocation.Belt] = id;
+					break;
+				case ItemType.Necklace:
+					if (PaperDoll[(int) EquipLocation.Necklace] != 0 && !rewrite) return false;
+					PaperDoll[(int) EquipLocation.Necklace] = id;
+					break;
+				case ItemType.Ring:
+					if (subloc != -1)
+					{ //subloc was explicitly specified
+						if (!rewrite && PaperDoll[(int) EquipLocation.Ring1 + subloc] != 0)
+							return false;
+						PaperDoll[(int) EquipLocation.Ring1 + subloc] = id;
+					}
+
+					if (PaperDoll[(int) EquipLocation.Ring1] != 0 && PaperDoll[(int) EquipLocation.Ring2] != 0 && !rewrite)
+						return false;
+					if (PaperDoll[(int) EquipLocation.Ring1] != 0 && PaperDoll[(int) EquipLocation.Ring2] == 0)
+						PaperDoll[(int) EquipLocation.Ring2] = id;
+					else
+						PaperDoll[(int) EquipLocation.Ring1] = id;
+					break;
+				case ItemType.Armlet:
+					if (subloc != -1)
+					{ //subloc was explicitly specified
+						if (!rewrite && PaperDoll[(int)EquipLocation.Armlet1 + subloc] != 0)
+							return false;
+						PaperDoll[(int)EquipLocation.Armlet1 + subloc] = id;
+					}
+
+					if (PaperDoll[(int) EquipLocation.Armlet1] != 0 && PaperDoll[(int) EquipLocation.Armlet2] != 0 && !rewrite)
+						return false;
+					if (PaperDoll[(int)EquipLocation.Armlet1] != 0 && PaperDoll[(int)EquipLocation.Armlet2] == 0)
+						PaperDoll[(int)EquipLocation.Armlet2] = id;
+					else
+						PaperDoll[(int)EquipLocation.Armlet1] = id;
+					break;
+				case ItemType.Bracer:
+					if (subloc != -1)
+					{ //subloc was explicitly specified
+						if (!rewrite && PaperDoll[(int)EquipLocation.Bracer1 + subloc] != 0)
+							return false;
+						PaperDoll[(int)EquipLocation.Bracer1 + subloc] = id;
+					}
+
+					if (PaperDoll[(int)EquipLocation.Bracer1] != 0 && PaperDoll[(int)EquipLocation.Bracer2] != 0 && !rewrite)
+						return false;
+					if (PaperDoll[(int)EquipLocation.Bracer1] != 0 && PaperDoll[(int)EquipLocation.Bracer2] == 0)
+						PaperDoll[(int)EquipLocation.Bracer2] = id;
+					else
+						PaperDoll[(int)EquipLocation.Bracer1] = id;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("type", "Invalid item type for equip!");
+			}
+
+			return true;
 		}
 
 		/// <summary>
