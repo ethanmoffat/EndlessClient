@@ -36,13 +36,13 @@ namespace EndlessClient
 		Exclamation,
 		LookingDude,
 		Heart,
-		SingleGuyLight,
-		DoubleGuyLight,
-		DoubleGuyDark,
-		SingleAdminDark,
-		DoubleAdminDark,
-		SingleAdminLight,
-		DoubleAdminLight,
+		Player,
+		PlayerParty,
+		PlayerPartyDark,
+		GM,
+		GMParty,
+		HGM,
+		HGMParty,
 		DownArrow,
 		UpArrow,
 		DotDotDotDot,
@@ -362,9 +362,9 @@ namespace EndlessClient
 			(parent as EOChatRenderer).SetSelectedTab(ChatTabs.Local);
 		}
 
-		private Texture2D _getChatIcon(ChatType type)
+		public static Texture2D GetChatIcon(ChatType type)
 		{
-			Texture2D ret = new Texture2D(Game.GraphicsDevice, 13, 13);
+			Texture2D ret = new Texture2D(EOGame.Instance.GraphicsDevice, 13, 13);
 			if (type == ChatType.None)
 				return ret;
 
@@ -430,7 +430,7 @@ namespace EndlessClient
 						break;
 
 					Vector2 pos = new Vector2(parent.DrawAreaWithOffset.X, parent.DrawAreaWithOffset.Y + relativeTextPos.Y + (i - scrollBar.ScrollOffset)*13);
-					SpriteBatch.Draw(_getChatIcon(chatStrings.Keys[i].Type), new Vector2(pos.X + 3, pos.Y), Color.White);
+					SpriteBatch.Draw(GetChatIcon(chatStrings.Keys[i].Type), new Vector2(pos.X + 3, pos.Y), Color.White);
 
 					string strToDraw = "";
 					if (string.IsNullOrEmpty(chatStrings.Keys[i].Who))
