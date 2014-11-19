@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
+using System.Windows.Forms.VisualStyles;
 using EOLib;
 using EOLib.Data;
 using Microsoft.Xna.Framework;
@@ -977,6 +979,7 @@ namespace EndlessClient
 			if (m_info != null && MouseOver && currentState.RightButton == ButtonState.Released &&
 			    PreviousMouseState.RightButton == ButtonState.Pressed)
 			{
+				//todo: check for curse status on item data before unequipping!
 				if (((EOPaperdollDialog) parent).CharRef == World.Instance.MainPlayer.ActiveCharacter)
 				{ //the parent dialog must show equipment for mainplayer
 					_setSize(m_area.Width, m_area.Height);
@@ -1026,7 +1029,22 @@ namespace EndlessClient
 	{
 		public Character CharRef { get; private set; }
 
-		public EOPaperdollDialog(Game g, Character character, string home, string partner, string guild, string guildRank)
+		private Texture2D m_characterIcon;
+
+		private static readonly Rectangle m_characterIconRect = new Rectangle(227, 258, 44, 21);
+
+		public enum IconType
+		{
+			Normal = 0,
+			GM = 4,
+			HGM = 5,
+			Party = 6,
+			GMParty = 9,
+			HGMParty = 10,
+			SLNBot = 20
+		}
+
+		public EOPaperdollDialog(Game g, Character character, string home, string partner, string guild, string guildRank, IconType whichIcon)
 			: base (g)
 		{
 			CharRef = character;
@@ -1100,9 +1118,50 @@ namespace EndlessClient
 
 			labels.ToList().ForEach(_l => { _l.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8); _l.SetParent(this); });
 
+			ChatType iconType;
+			switch (whichIcon)
+			{
+				case IconType.Normal:
+					iconType = ChatType.Player;
+					break;
+				case IconType.GM:
+					iconType = ChatType.GM;
+					break;
+				case IconType.HGM:
+					iconType = ChatType.HGM;
+					break;
+				case IconType.Party:
+					iconType = ChatType.PlayerParty;
+					break;
+				case IconType.GMParty:
+					iconType = ChatType.GMParty;
+					break;
+				case IconType.HGMParty:
+					iconType = ChatType.HGMParty;
+					break;
+				case IconType.SLNBot:
+					iconType = ChatType.PlayerPartyDark;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("whichIcon", "Invalid Icon type specified.");
+			}
+			m_characterIcon = ChatTab.GetChatIcon(iconType);
+
 			base.endConstructor();
 		}
-		
+
+		public override void Draw(GameTime gt)
+		{
+			base.Draw(gt);
+			SpriteBatch.Begin();
+			SpriteBatch.Draw(m_characterIcon,
+				new Vector2(
+					DrawAreaWithOffset.X + m_characterIconRect.X + (m_characterIconRect.Width/2) - (m_characterIcon.Width/2),
+					DrawAreaWithOffset.Y + m_characterIconRect.Y + (m_characterIconRect.Height/2) - (m_characterIcon.Height/2)),
+				Color.White);
+			SpriteBatch.End();
+		}
+
 		public void SetItem(EquipLocation loc, ItemRecord info)
 		{
 			EOPaperdollItem itemToUpdate = (EOPaperdollItem)children.Find(_ctrl =>
@@ -1169,6 +1228,152 @@ namespace EndlessClient
 					throw new ArgumentOutOfRangeException("loc", "That is not a valid equipment location");
 			}
 			return itemArea;
+		}
+	}
+
+	public class EOItemTransferDialog : EODialogBase
+	{
+		public enum TransferType
+		{
+			DropItems,
+			JunkItems,
+			GiveItems,
+			TradeItems,
+			ShopTransfer,
+			BankTransfer
+		}
+
+		private Texture2D m_titleBarGfx;
+		private int m_totalAmount;
+
+		private XNATextBox m_amount;
+		public int SelectedAmount
+		{
+			get { return int.Parse(m_amount.Text); }
+		}
+
+		public EOItemTransferDialog(Game g, string itemName, TransferType transferType, int totalAmount)
+			: base(g)
+		{
+			Texture2D weirdSpriteSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27);
+			Rectangle sourceArea = new Rectangle(38, 0, 265, 170);
+			
+			//get bgTexture
+			Color[] textureData = new Color[sourceArea.Width*sourceArea.Height];
+			bgTexture = new Texture2D(g.GraphicsDevice, sourceArea.Width, sourceArea.Height);
+			weirdSpriteSheet.GetData(0, sourceArea, textureData, 0, textureData.Length);
+			bgTexture.SetData(textureData);
+
+			//get the title bar - for when it isn't drop items
+			if (transferType != TransferType.DropItems)
+			{
+				Rectangle titleBarArea = new Rectangle(39, 172 + ((int)transferType - 1) * 24, 243, 22);
+				Color[] titleBarData = new Color[titleBarArea.Width*titleBarArea.Height];
+				m_titleBarGfx = new Texture2D(g.GraphicsDevice, titleBarArea.Width, titleBarArea.Height);
+				weirdSpriteSheet.GetData(0, titleBarArea, titleBarData, 0, titleBarData.Length);
+				m_titleBarGfx.SetData(titleBarData);
+			}
+
+			//set the buttons here
+
+			//ok/cancel buttons
+			XNAButton ok = new XNAButton(g, smallButtonSheet, new Vector2(60, 125), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
+			{
+				Visible = true
+			};
+			ok.OnClick += (s, e) => Close(ok, XNADialogResult.OK);
+			ok.SetParent(this);
+			dlgButtons.Add(ok);
+
+			XNAButton cancel = new XNAButton(g, smallButtonSheet, new Vector2(153, 124), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
+			{
+				Visible = true
+			};
+			cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
+			cancel.SetParent(this);
+			dlgButtons.Add(cancel);
+
+			XNALabel descLabel = new XNALabel(g, new Rectangle(20, 42, 231, 33), "Microsoft Sans Serif", 10.0f)
+			{
+				ForeColor = System.Drawing.Color.FromArgb(0xe6, 0xe6, 0xd6),
+				TextWidth = 200
+			};
+
+			switch (transferType)
+			{
+				case TransferType.DropItems:
+					descLabel.Text = string.Format("How much {0} would you like to drop?", itemName);
+					break;
+				case TransferType.JunkItems:
+					descLabel.Text = string.Format("How much {0} would you like to junk?", itemName);
+					break;
+				default:
+					descLabel.Text = "(not implemented)";
+					break;
+			}
+			descLabel.SetParent(this);
+
+			//set the text box here
+			//starting coords are 163, 97
+			m_amount = new XNATextBox(g, new Rectangle(163, 95, 77, 19), g.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
+			{
+				Visible = true,
+				Enabled = true,
+				MaxChars = 8, //max drop/junk at a time will be 99,999,999
+				TextColor = System.Drawing.Color.FromArgb(0xdc, 0xC8, 0xb4),
+				Text = "1"
+			};
+			m_amount.OnTextChanged += (sender, args) =>
+			{
+				int amt;
+				if (m_amount.Text != "" && (!int.TryParse(m_amount.Text, out amt) || amt > m_totalAmount))
+				{
+					m_amount.Text = m_totalAmount.ToString(CultureInfo.InvariantCulture);
+				}
+			};
+			m_amount.SetParent(this);
+			(g as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = m_amount;
+
+			m_totalAmount = totalAmount;
+
+			//slider control
+			Texture2D src = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 29);
+			//5th index when 'out', 6th index when 'over'
+			Rectangle outText = new Rectangle(0, 15 * 5, 16, 15);
+			Rectangle ovrText = new Rectangle(0, 15 * 6, 16, 15);
+			Color[] outData = new Color[16*15];
+			Color[] ovrData = new Color[16*15];
+			Texture2D[] sliderTextures = new Texture2D[2];
+			
+			src.GetData(0, outText, outData, 0, outData.Length);
+			src.GetData(0, ovrText, ovrData, 0, ovrData.Length);
+			(sliderTextures[0] = new Texture2D(g.GraphicsDevice, 16, 15)).SetData(outData);
+			(sliderTextures[1] = new Texture2D(g.GraphicsDevice, 16, 15)).SetData(ovrData);
+
+			//starting coords are 25, 96; range rectangle is 122, 15
+			XNAButton slider = new XNAButton(g, sliderTextures, new Vector2(25, 96));
+			slider.OnClickDrag += (o, e) =>
+			{
+				MouseState st = Mouse.GetState();
+				DrawLocation = new Vector2((st.X - PreviousMouseState.X) + DrawLocation.X, DrawLocation.Y);
+			};
+			slider.SetParent(this);
+
+			_setSize(bgTexture.Width, bgTexture.Height);
+			DrawLocation = new Vector2(g.GraphicsDevice.PresentationParameters.BackBufferWidth/2 - bgTexture.Width/2, 40); //only centered horizontally
+			base.endConstructor(false);
+		}
+
+		public override void Draw(GameTime gt)
+		{
+			base.Draw(gt);
+
+			if (m_titleBarGfx != null)
+			{
+				SpriteBatch.Begin();
+				SpriteBatch.Draw(m_titleBarGfx, new Vector2(DrawAreaWithOffset.X + 10, DrawAreaWithOffset.Y + 10), Color.White);
+				SpriteBatch.End();
+			}
 		}
 	}
 }

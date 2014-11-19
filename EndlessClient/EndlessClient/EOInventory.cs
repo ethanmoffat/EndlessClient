@@ -93,10 +93,21 @@ namespace EndlessClient
 
 				if (((EOInventory) parent).IsOverDrop())
 				{
-					//todo: if amount > 1 - ask how many to drop
 					if (m_itemData.Special == ItemSpecial.Lore)
 					{
 						EODialog lastError = new EODialog(Game, "It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
+					}
+					else if (m_inventory.amount > 1)
+					{
+						IKeyboardSubscriber prevSub = (Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber;
+						EOItemTransferDialog dlg = new EOItemTransferDialog(Game, m_itemData.Name, EOItemTransferDialog.TransferType.DropItems,
+							m_inventory.amount);
+						dlg.DialogClosing += (sender, args) =>
+						{
+							if (args.Result == XNADialogResult.OK)
+								Handlers.Item.DropItem(m_inventory.id, dlg.SelectedAmount);
+							(Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = prevSub;
+						};
 					}
 					else
 					{
@@ -105,8 +116,22 @@ namespace EndlessClient
 				}
 				else if (((EOInventory) parent).IsOverJunk())
 				{
-					//todo: if amount > 1 - ask how many to junk
-					Handlers.Item.JunkItem(m_inventory.id, 1);
+					if (m_inventory.amount > 1)
+					{
+						IKeyboardSubscriber prevSub = (Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber;
+						EOItemTransferDialog dlg = new EOItemTransferDialog(Game, m_itemData.Name, EOItemTransferDialog.TransferType.JunkItems,
+							m_inventory.amount);
+						dlg.DialogClosing += (sender, args) =>
+						{
+							if (args.Result == XNADialogResult.OK)
+								Handlers.Item.JunkItem(m_inventory.id, dlg.SelectedAmount);
+							(Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = prevSub;
+						};
+					}
+					else
+					{
+						Handlers.Item.JunkItem(m_inventory.id, 1);
+					}
 				}
 				/*todo: Add map drop check!*/
 				
@@ -264,7 +289,24 @@ namespace EndlessClient
 				case ItemType.Ring:
 				case ItemType.Shield:
 				case ItemType.Weapon:
-					Handlers.Paperdoll.EquipItem((short)m_itemData.ID);
+					byte subLoc = 0;
+					if (m_itemData.Type == ItemType.Armlet || m_itemData.Type == ItemType.Ring || m_itemData.Type == ItemType.Bracer)
+					{
+						if (World.Instance.MainPlayer.ActiveCharacter.PaperDoll[(int) m_itemData.GetEquipLocation()] == 0)
+							subLoc = 0;
+						else if (World.Instance.MainPlayer.ActiveCharacter.PaperDoll[(int) m_itemData.GetEquipLocation() + 1] == 0)
+							subLoc = 1;
+						else
+						{
+							EOGame.Instance.Hud.SetStatusLabel("[ Information ] You already have an item of this type equipped.");
+							break;
+						}
+					}
+
+					if (World.Instance.MainPlayer.ActiveCharacter.EquipItem(m_itemData.Type, (short)m_itemData.ID, (short)m_itemData.DollGraphic))
+						Handlers.Paperdoll.EquipItem((short)m_itemData.ID, subLoc);
+					else
+						EOGame.Instance.Hud.SetStatusLabel("[ Information ] You already have an item of this type equipped.");
 					break;
 				case ItemType.Beer:
 					break;

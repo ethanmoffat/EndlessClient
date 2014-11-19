@@ -174,7 +174,7 @@ namespace EndlessClient.Handlers
 					{
 						seq_1 = pkt.GetByte(),
 						seq_2 = pkt.GetByte(),
-						emulti_d = pkt.GetByte(),
+						emulti_d = pkt.GetByte(), //These are switched around from the server: the server's encode function is the client's decode function (and vice versa)
 						emulti_e = pkt.GetByte(),
 						clientID = pkt.GetShort(),
 						response = pkt.GetThree()

@@ -48,7 +48,7 @@ namespace EndlessClient.Handlers
 
 			short itemId = pkt.GetShort();
 			int characterAmount = pkt.GetThree();
-			byte subLoc = pkt.GetByte();
+			byte subLoc = pkt.GetChar();
 			CharStatData data = new CharStatData
 			{
 				maxhp = pkt.GetShort(),
@@ -69,8 +69,8 @@ namespace EndlessClient.Handlers
 			EndlessClient.Character c;
 			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(itemId);
 			(c = World.Instance.MainPlayer.ActiveCharacter).UpdateInventoryItem(itemId, characterAmount);
-			c.PaperDoll[(int)rec.GetEquipLocation() + subLoc] = 0;
-			EOGame.Instance.Hud.ShowEquippedInPaperdollDialog(rec, rec.GetEquipLocation());
+			c.EquipItem(rec.Type, (short)rec.ID, (short)rec.DollGraphic, true, (sbyte)subLoc);
+			EOGame.Instance.Hud.ShowEquippedInPaperdollDialog(rec, rec.GetEquipLocation() + subLoc);
 		}
 
 		public static void PaperdollRemove(Packet pkt) //this is only ever sent to MainPlayer (avatar handles other players)
@@ -122,13 +122,13 @@ namespace EndlessClient.Handlers
 			}; //todo: apply the updated stats data to the character
 
 			EndlessClient.Character c = World.Instance.MainPlayer.ActiveCharacter;
-			c.RenderData.SetBoots(boots);
-			c.RenderData.SetHat(hat);
-			c.RenderData.SetShield(shield);
-			c.RenderData.SetWeapon(weapon);
-			c.RenderData.SetArmor(armor);
-			c.PaperDoll[(int)World.Instance.EIF.GetItemRecordByID(itemId).GetEquipLocation() + subLoc] = 0;
-			c.UpdateInventoryItem(itemId, 1, true); //add to existing quantity
+			c.EquipItem(ItemType.Boots, 0, boots, true);
+			c.EquipItem(ItemType.Armor, 0, armor, true);
+			c.EquipItem(ItemType.Hat, 0, hat, true);
+			c.EquipItem(ItemType.Shield, 0, shield, true);
+			c.EquipItem(ItemType.Weapon, 0, weapon, true);
+			c.UnequipItem(World.Instance.EIF.GetItemRecordByID(itemId).Type, subLoc);
+			c.UpdateInventoryItem(itemId, 1, true); //true: add to existing quantity
 		}
 
 		public static void PaperdollReply(Packet pkt) //sent when showing a paperdoll for a character
@@ -152,7 +152,7 @@ namespace EndlessClient.Handlers
 			for (int i = 0; i < (int) EquipLocation.PAPERDOLL_MAX; ++i)
 				paperdoll[i] = pkt.GetShort();
 
-			/*Party Icon type (group or not) = */pkt.GetChar();
+			var iconType = (EndlessClient.EOPaperdollDialog.IconType)pkt.GetChar();
 			
 			EndlessClient.Character c;
 			if (World.Instance.MainPlayer.ActiveCharacter.ID == playerID)
@@ -175,7 +175,7 @@ namespace EndlessClient.Handlers
 
 			if (c != null)
 			{
-				EOPaperdollDialog dlg = new EOPaperdollDialog(EOGame.Instance, c, home, partner, guild, rank);
+				EOPaperdollDialog dlg = new EOPaperdollDialog(EOGame.Instance, c, home, partner, guild, rank, iconType);
 				dlg.DialogClosing += (sender, args) => EOGame.Instance.Hud.ClearPaperdollDialog();
 				EOGame.Instance.Hud.SetPaperdollDialog(dlg);
 			}

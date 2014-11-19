@@ -194,11 +194,11 @@ namespace EndlessClient
 			Character c =  playerId == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.MainPlayer.ActiveCharacter : otherPlayers.Find(cc => cc.ID == playerId);
 			if (c != null)
 			{
-				c.RenderData.SetBoots(newRenderData.boots);
-				c.RenderData.SetArmor(newRenderData.armor);
-				c.RenderData.SetHat(newRenderData.hat);
-				c.RenderData.SetShield(newRenderData.shield);
-				c.RenderData.SetWeapon(newRenderData.weapon);
+				c.EquipItem(ItemType.Boots, 0, newRenderData.boots, true);
+				c.EquipItem(ItemType.Armor, 0, newRenderData.armor, true);
+				c.EquipItem(ItemType.Hat, 0, newRenderData.hat, true);
+				c.EquipItem(ItemType.Shield, 0, newRenderData.shield, true);
+				c.EquipItem(ItemType.Weapon, 0, newRenderData.weapon, true);
 				//todo: play sound?
 			}
 		}
