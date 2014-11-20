@@ -10,23 +10,21 @@ What is there so far?
 
 The primary thing that's been completely is the basic framework for running and displaying the game. I have a solid custom-built UI controls library, and liberal use of the XNA Game Component model. Socket connections for sending/receiving data to/from the server are all set up and surprisingly stable (except for when the server closes a connection, but we're ignoring that for now). The framework that is there also allows for easy addition of different Packet handlers, which means more features for the game client can be added without much effort.
 
-**The game is not yet playable.** This is the most important thing you need to know. It is more than a foundation, and less than a fully fledged game. The primary thing is that all the pre-game menus work and do everything they're supposed to do, with the exception of scrolling credits (which were annoying anyway). Additionally, the game allows you to log in and send public, global, and private chat messages to a server. As of 10/30/14, the latest and greatest updates include the ability to walk around a map, and proper map rendering! However, this is the very limit of what the client can do and describes some of the most recent changes that have been made to it: you can't play the game like with the actual game client.
+~~**The game is not yet playable.**~~ **The game is only slightly playable.** This is the most important thing you need to know. It is more than a foundation, and less than a fully fledged game. The primary thing is that all the pre-game menus work and do everything they're supposed to do, with the exception of scrolling credits (which were annoying anyway). Additionally, the game allows you to log in and send public, global, and private chat messages to a server. As of 10/30/14, the latest and greatest updates include the ability to walk around a map, and proper map rendering! However, this is the very limit of what the client can do and describes some of the most recent changes that have been made to it: you can't play the game like with the actual game client.
 
 What's Left to do?
 ------------------
 
 There is a HUGE list of things left to do. The client is in its infant stages and is a constantly evolving work in progress. What this means is that as features are implemented, I make an attempt to implement them as completely and accurately as possible before moving on to the next thing. The pre-game menus and UI are completely finished, besides a few small bugs that I'm sure to find. The framework for adding new components is there as well.
 
-As far as game features go, there isn't much I want to leave out or change. A lot of the heavy lifting that has to be done, and that I'm currently working on, involves making the game playable as a bare-bones client. Chat is there for the most part, and walking is just about complete. The map is rendered properly and next on my plate is to get started with NPCs. As soon as these basic elements are in, I can work on the features that involve interaction between players.
+As far as game features go, there isn't much I want to leave out or change. A lot of the heavy lifting that has to be done, and that I'm currently working on, involves making the game playable as a bare-bones client. Chat, map rendering, character rendering, item inventory, equipping and unequipping items, and dropping items are all paritally there. The next big implementation point is to get started with NPCs. As soon as the basic elements are in, I can work on the features that involve interaction between players - thus making the game playable.
 
 Running the game
 ----------------
 
-You will need a copy of eoserv set up and running, or another Endless Online server to connect to. Go to eoserv.net and build/configure eoserv to run locally, or change the code to point to game.endless-online.com. This can be done in the misc.cs file by changing the address "127.0.0.1" to another IP or hostname.
+You will need a copy of eoserv set up and running, or another Endless Online server to connect to. The client binary is now distributed with a config file that points at the eoserv instance I use for testing (ewmoffat.ddns.net:8078). You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server. You can also change the default serverer in the misc.cs file by changing the address "127.0.0.1" to another IP or hostname.
 
-You will also need a copy of **valid** GFX files put into bin\(Debug|Release)\GFX. There are 25 files in all, and they can be copied directly from the normal Endless Online client (gfx directory). This client is available for download at endless-online.com
-
-In addition to GFX you will need the pub files. put into bin\(Debug|Release)\pub. There are 4 files in all, and they can be copied directly from the normal Endless Online client as well (pub directory).
+GFX files are now distributed with the game client, and any map or pub files are loaded from the server during gameplay.
 
 Rendering Hair
 --------------
