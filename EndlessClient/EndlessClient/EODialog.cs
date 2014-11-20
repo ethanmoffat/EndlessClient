@@ -249,7 +249,7 @@ namespace EndlessClient
 
 		private void scrollDragged(object btn, EventArgs e)
 		{
-			int y = Mouse.GetState().Y - DrawAreaWithOffset.Y;
+			int y = Mouse.GetState().Y - (DrawAreaWithOffset.Y + scroll.DrawArea.Height / 2);
 
 			if (y < up.DrawAreaWithOffset.Height)
 				y = up.DrawAreaWithOffset.Height + 1;
@@ -1243,10 +1243,10 @@ namespace EndlessClient
 			BankTransfer
 		}
 
-		private Texture2D m_titleBarGfx;
-		private int m_totalAmount;
+		private readonly Texture2D m_titleBarGfx;
+		private readonly int m_totalAmount;
 
-		private XNATextBox m_amount;
+		private readonly XNATextBox m_amount;
 		public int SelectedAmount
 		{
 			get { return int.Parse(m_amount.Text); }
@@ -1267,7 +1267,7 @@ namespace EndlessClient
 			//get the title bar - for when it isn't drop items
 			if (transferType != TransferType.DropItems)
 			{
-				Rectangle titleBarArea = new Rectangle(39, 172 + ((int)transferType - 1) * 24, 243, 22);
+				Rectangle titleBarArea = new Rectangle(40, 172 + ((int)transferType - 1) * 24, 241, 22);
 				Color[] titleBarData = new Color[titleBarArea.Width*titleBarArea.Height];
 				m_titleBarGfx = new Texture2D(g.GraphicsDevice, titleBarArea.Width, titleBarArea.Height);
 				weirdSpriteSheet.GetData(0, titleBarArea, titleBarData, 0, titleBarData.Length);
@@ -1355,7 +1355,14 @@ namespace EndlessClient
 			slider.OnClickDrag += (o, e) =>
 			{
 				MouseState st = Mouse.GetState();
-				DrawLocation = new Vector2((st.X - PreviousMouseState.X) + DrawLocation.X, DrawLocation.Y);
+				Rectangle sliderArea = new Rectangle(25, 96, 122 - slider.DrawArea.Width, 15);
+				int newX = (st.X - PreviousMouseState.X) + (int)slider.DrawLocation.X;
+				if (newX < sliderArea.X) newX = sliderArea.X;
+				else if (newX > sliderArea.Width + sliderArea.X) newX = sliderArea.Width + sliderArea.X;
+				slider.DrawLocation = new Vector2(newX, slider.DrawLocation.Y); //unchanged y coordinate, slides along x-axis
+
+				float ratio = (newX - sliderArea.X)/(float)sliderArea.Width;
+				m_amount.Text = ((int) Math.Round(ratio*m_totalAmount) + 1).ToString(CultureInfo.InvariantCulture);
 			};
 			slider.SetParent(this);
 
