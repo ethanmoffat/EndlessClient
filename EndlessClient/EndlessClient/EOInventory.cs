@@ -169,7 +169,6 @@ namespace EndlessClient
 
 		public override void Draw(GameTime gameTime)
 		{
-			base.Draw(gameTime);
 			if (!Visible) return;
 
 			SpriteBatch.Begin();
@@ -187,6 +186,7 @@ namespace EndlessClient
 			if(m_itemgfx != null)
 				SpriteBatch.Draw(m_itemgfx, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y), Color.White);
 			SpriteBatch.End();
+			base.Draw(gameTime);
 		}
 		
 		public void UpdateItemLocation(int newSlot)
@@ -353,8 +353,8 @@ namespace EndlessClient
 
 		public EOPaperdollDialog PaperdollDialogRef { get; set; }
 		
-		public EOInventory(Game g)
-			: base(g)
+		public EOInventory(Game g, XNAPanel parent)
+			: base(g, null, null, parent)
 		{
 			//load info from registry
 			Dictionary<int, int> localItemSlotMap = new Dictionary<int, int>();
@@ -460,8 +460,7 @@ namespace EndlessClient
 
 			m_inventoryKey.SetValue(string.Format("item{0}", slot), item.ID, RegistryValueKind.String); //update the registry
 			m_childItems.Add(new EOInventoryItem(Game, slot, item, new InventoryItem { amount = count, id = (short)item.ID }, this)); //add the control wrapper for the item
-			m_childItems.Last().DrawOrder = (int)ControlDrawLayer.BaseLayer + 2 + (INVENTORY_ROW_LENGTH - slot % INVENTORY_ROW_LENGTH);
-			children.Sort((x, y) => x.DrawOrder - y.DrawOrder);
+			m_childItems[m_childItems.Count - 1].DrawOrder = (int) ControlDrawLayer.DialogLayer - (2 + slot%INVENTORY_ROW_LENGTH);
 			return true;
 		}
 
@@ -501,8 +500,7 @@ namespace EndlessClient
 			m_inventoryKey.SetValue(string.Format("item{0}", childItem.Slot), 0, RegistryValueKind.String);
 			m_inventoryKey.SetValue(string.Format("item{0}", newSlot), childItem.ItemData.ID, RegistryValueKind.String);
 
-			childItem.DrawOrder = (int)ControlDrawLayer.BaseLayer + 2 + (INVENTORY_ROW_LENGTH - childItem.Slot % INVENTORY_ROW_LENGTH);
-			children.Sort((x, y) => x.DrawOrder - y.DrawOrder);
+			childItem.DrawOrder = (int)ControlDrawLayer.DialogLayer - (2 + childItem.Slot % INVENTORY_ROW_LENGTH);
 
 			return true;
 		}

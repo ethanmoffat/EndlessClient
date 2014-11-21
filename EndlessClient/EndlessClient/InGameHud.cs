@@ -272,8 +272,9 @@ namespace EndlessClient
 
 			}, null, 0, 1000);
 
-			inventory = new EOInventory(Game);
-			inventory.SetParent(pnlInventory);
+			//the draw orders are adjusted for child items in the constructor.
+			//calling SetParent will break this.
+			inventory = new EOInventory(Game, pnlInventory);
 
 			base.Initialize();
 		}
