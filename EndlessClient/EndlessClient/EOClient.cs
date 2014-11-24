@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
@@ -64,6 +65,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Account.AccountResponse)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Appear, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.NPCPackets.AppearReply, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Avatar, PacketAction.Agree),
 					new LockedHandlerMethod(Handlers.Avatar.AvatarAgree, true)
 				},
@@ -118,6 +123,10 @@ namespace EndlessClient
 				{
 					new FamilyActionPair(PacketFamily.Login, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Login.LoginResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.NPC, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.NPCPackets.NPCPlayer, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Agree), 

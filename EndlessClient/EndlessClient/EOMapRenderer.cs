@@ -42,7 +42,7 @@ namespace EndlessClient
 		public List<MapItem> MapItems { get; private set; }
 		private readonly List<Character> otherPlayers = new List<Character>();
 		private readonly List<EOCharacterRenderer> otherRenderers = new List<EOCharacterRenderer>();
-		public List<NPC> NPCs { get; private set; }
+		private readonly List<NPC> npcList = new List<NPC>();
 
 		public MapFile MapRef { get; private set; }
 		
@@ -66,7 +66,6 @@ namespace EndlessClient
 
 			MapRef = mapObj;
 			MapItems = new List<MapItem>();
-			NPCs = new List<NPC>();
 
 			sb = new SpriteBatch(Game.GraphicsDevice);
 
@@ -112,7 +111,7 @@ namespace EndlessClient
 			MapRef = newActiveMap;
 			MapItems.Clear();
 			otherPlayers.Clear();
-			NPCs.Clear();
+			npcList.Clear();
 
 			//need to reset door-related parameters when changing maps.
 			if (_door != null)
@@ -175,8 +174,9 @@ namespace EndlessClient
 			if ((c = otherPlayers.Find(cc => cc.ID == ID)) != null)
 			{
 				c.Walk(direction, x, y);
-				EOCharacterRenderer renderer = otherRenderers.Where(rend => rend.Character == c).ElementAt(0);
-				if (renderer != null)
+				List<EOCharacterRenderer> rends = otherRenderers.Where(rend => rend.Character == c).ToList();
+				EOCharacterRenderer renderer;
+				if (rends.Count > 0 && (renderer = rends[0]) != null)
 				{
 					renderer.PlayerWalk();//do the actual drawing of the other player walking
 				}
@@ -213,9 +213,48 @@ namespace EndlessClient
 			}
 		}
 
+		public void AddOtherNPC(NPC newGuy)
+		{
+			NPC exists;
+			if ((exists = npcList.Find(_npc => _npc.Index == newGuy.Index)) == null)
+			{
+				newGuy.Initialize();
+				newGuy.Visible = true;
+				npcList.Add(newGuy);
+			}
+			else
+			{
+				npcList.Remove(exists);
+				newGuy.Initialize();
+				newGuy.Visible = true;
+				npcList.Add(newGuy);
+			}
+		}
+
+		public void RemoveOtherNPC(byte index)
+		{
+			NPC npc = npcList.Find(_npc => _npc.Index == index);
+			if (npc != null)
+				npcList.Remove(npc);
+		}
+
+		public void ClearOtherNPCs()
+		{
+			npcList.Clear();
+		}
+
+		public void NPCWalk(byte index, byte x, byte y, EODirection dir)
+		{
+			NPC toWalk;
+			if ((toWalk = npcList.Find(_npc => _npc.Index == index)) != null && !toWalk.Walking)
+			{
+				toWalk.Walk(x, y, dir); //does the rendering AND the data update (since it's coupled together for NPCs)
+			}
+		}
+
 		public TileInfo CheckCoordinates(byte destX, byte destY)
 		{
-			if (NPCs.Any(npc => npc.X == destX && npc.Y == destY))
+			if (npcList.Any(npc => npc.X == destX && npc.Y == destY))
 			{
 				return new TileInfo {ReturnValue = TileInfo.ReturnType.IsOtherNPC};
 			}
@@ -318,6 +357,8 @@ namespace EndlessClient
 			foreach (EOCharacterRenderer rend in toAdd)
 				rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
 
+			npcList.Where(_npc => !Game.Components.Contains(_npc)).ToList().ForEach(_n => _n.Update(gameTime));
+
 			_doMapRenderTargetDrawing(); //if any player has been updated redraw the render target
 
 			base.Update(gameTime);
@@ -332,13 +373,12 @@ namespace EndlessClient
 
 			base.Draw(gameTime);
 		}
-
+		
 		// Special Thanks: HotDog's client. Used heavily as a reference for numeric offsets/techniques
 		private void _doMapDrawing()
 		{
 			sb.Begin();
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
-			List<Character> otherChars = new List<Character>(otherPlayers); //copy of list
 
 			// Queries (func) for the gfx items within range of the character's X coordinate
 			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength && gfx.x <= MapRef.Width;
@@ -352,14 +392,14 @@ namespace EndlessClient
 				{
 					for (int j = 0; j <= MapRef.Width; ++j)
 					{
-						TileRow tr;
-						if ((tr = MapRef.TileRows.Find(_tr => _tr.y == i)).y == i)
+						GFXRow tr;
+						if ((tr = MapRef.GfxRows[0].Find(_tr => _tr.y == i)).y == i)
 						{
-							Tile t;
-							if (tr.tiles != null && (t = tr.tiles.Find(_t => _t.x == j)).x == j)
+							GFX t;
+							if (tr.tiles != null && (t = tr.tiles.Find(_t => _t.x == j)) != null && t.x == j)
 							{
-								if (t.spec == TileSpec.MapEdge)
-									continue; //I just love checking for default values on value types! /sarcasm
+								if (t.tile == 0)
+									continue;
 							}
 						}
 
@@ -378,16 +418,8 @@ namespace EndlessClient
 				List<GFX> tiles = row.tiles.Where(xGFXQuery).ToList();
 				foreach (GFX tile in tiles)
 				{
-					TileRow tr;
-					if ((tr = MapRef.TileRows.Find(_tr => _tr.y == row.y)).y == row.y)
-					{
-						Tile t;
-						if (tr.tiles != null && (t = tr.tiles.Find(_t => _t.x == tile.x)).x == tile.x)
-						{
-							if (t.spec != TileSpec.None)
-								continue;
-						}
-					}
+					if (tile.tile == 0)
+						continue;
 
 					//render tile.tile at tile.x, row.y
 					Texture2D nextTile = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
@@ -442,8 +474,13 @@ namespace EndlessClient
 		//    b. main player is blended using special blendstate with any object it overlaps
 		private void _doMapRenderTargetDrawing()
 		{
+			//todo: need to animate certain tiles! (spikes, wall flames, etc)
+			//also, certain spikes only appear when a player is over them...yikes.
+
+			if (MapRef == null) return;
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 			List<Character> otherChars = new List<Character>(otherPlayers); //copy of list
+			List<NPC> otherNpcs = new List<NPC>(npcList);
 
 			// Queries (func) for the gfx items within range of the character's X coordinate
 			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength && gfx.x <= MapRef.Width;
@@ -476,7 +513,7 @@ namespace EndlessClient
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, obj.tile, true);
 						Vector2 pos = _getDrawCoordinates(obj.x, row.y, c);
 						pos = new Vector2(pos.X + 16, pos.Y - 11);
-						_drawIfBehindSomething(otherChars, obj.x, row.y, gfx.Bounds.SetPosition(pos));
+						_drawIfBehindSomething(otherChars, otherNpcs, obj.x, row.y, gfx.Bounds.SetPosition(pos));
 						sb.Draw(gfx, pos, Color.White);
 
 						if (!mainBehindSomething)
@@ -499,7 +536,7 @@ namespace EndlessClient
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
 						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 47, loc.Y - (gfx.Height - 29));
-						_drawIfBehindSomething(otherChars, obj.x, row.y, gfx.Bounds.SetPosition(loc));
+						_drawIfBehindSomething(otherChars, otherNpcs, obj.x, row.y, gfx.Bounds.SetPosition(loc));
 						sb.Draw(gfx, loc, Color.White);
 
 						if (!mainBehindSomething)
@@ -520,7 +557,7 @@ namespace EndlessClient
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
 						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 15, loc.Y - (gfx.Height - 29));
-						_drawIfBehindSomething(otherChars, obj.x, row.y, gfx.Bounds.SetPosition(loc));
+						_drawIfBehindSomething(otherChars, otherNpcs, obj.x, row.y, gfx.Bounds.SetPosition(loc));
 						sb.Draw(gfx, loc, Color.White);
 
 						if (!mainBehindSomething)
@@ -550,7 +587,7 @@ namespace EndlessClient
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, obj.tile, true);
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
 						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28));
-						_drawIfBehindSomething(otherChars, obj.x, row.y, gfx.Bounds.SetPosition(loc));
+						_drawIfBehindSomething(otherChars, otherNpcs, obj.x, row.y, gfx.Bounds.SetPosition(loc));
 						sb.Draw(gfx, loc, Color.White);
 
 						if (!mainBehindSomething)
@@ -568,7 +605,7 @@ namespace EndlessClient
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, roof.tile, true);
 						Vector2 loc = _getDrawCoordinates(roof.x, row.y, c);
 						loc = new Vector2(loc.X - 2, loc.Y - 63);
-						_drawIfBehindSomething(otherChars, roof.x, row.y, gfx.Bounds.SetPosition(loc));
+						_drawIfBehindSomething(otherChars, otherNpcs, roof.x, row.y, gfx.Bounds.SetPosition(loc));
 						sb.Draw(gfx, loc, Color.White);
 
 						if (!mainBehindSomething)
@@ -586,7 +623,7 @@ namespace EndlessClient
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
 						Vector2 loc = _getDrawCoordinates(tile.x, row.y, c);
 						loc = new Vector2(loc.X - 2, loc.Y - 31);
-						_drawIfBehindSomething(otherChars, tile.x, row.y, gfx.Bounds.SetPosition(loc));
+						_drawIfBehindSomething(otherChars, otherNpcs, tile.x, row.y, gfx.Bounds.SetPosition(loc));
 						sb.Draw(gfx, loc, Color.White);
 
 						if (!mainBehindSomething)
@@ -600,18 +637,22 @@ namespace EndlessClient
 
 			BlendState mainPlayerBlend = mainBehindSomething ? _playerBlend : BlendState.AlphaBlend;
 
-			//draw any remaining characters that weren't behind something
-			if (otherChars.Count > 0)
+			//draw any remaining characters/npcs that weren't behind something
+			if (otherChars.Count > 0 || otherNpcs.Count > 0)
 			{
 				List<Character> drawBefore = otherChars.Where(_c => _c.X < c.X || _c.Y < c.Y).ToList();
+				List<NPC> drawNPCBefore = otherNpcs.Where(_n => _n.X < c.X || _n.Y < c.Y).ToList();
 				otherChars.RemoveAll(drawBefore.Contains);
+				otherNpcs.RemoveAll(drawNPCBefore.Contains);
 				otherRenderers.Where(_r => drawBefore.Contains(_r.Character)).ToList().ForEach(_r => _r.Draw(null)); //draw before main player
+				drawNPCBefore.ForEach(_n => _n.Draw(null));
 
 				sb.Begin(SpriteSortMode.Deferred, mainPlayerBlend);
 				World.Instance.ActiveCharacterRenderer.Draw(sb, null, true); //draw main player
 				sb.End();
 
 				otherRenderers.Where(_r => otherChars.Contains(_r.Character)).ToList().ForEach(_r => _r.Draw(null)); //draw after main player
+				otherNpcs.ForEach(_n => _n.Draw(null));
 			}
 			else //just draw main player
 			{
@@ -635,7 +676,7 @@ namespace EndlessClient
 
 		//This is a very specific helper method, must be called during _doMapDrawing in specific places
 		//Not really for other use, I just didn't want to have to copy/paste a lot of code
-		private void _drawIfBehindSomething(List<Character> otherChars, int objX, int objY, Rectangle textureBounds)
+		private void _drawIfBehindSomething(List<Character> otherChars, List<NPC> otherNPCs, int objX, int objY, Rectangle textureBounds)
 		{
 			//List<Character> clipChars = otherChars.FindAll(_c => _c.X < objX && _c.Y < objY);
 			//List<EOCharacterRenderer> drawTime = otherRenderers.Where(_r => clipChars.Contains(_r.Character)).ToList();
@@ -653,11 +694,28 @@ namespace EndlessClient
 					otherChars.Remove(_r.Character);
 				}
 			}
+
+			for(int i = otherNPCs.Count - 1; i >= 0; --i) //can't do foreach b/c modifying collection
+			{
+				NPC _n = otherNPCs[i];
+				if (_npcIsBehindSomething(_n, objX, objY, textureBounds))
+				{
+					sb.End();
+					_n.Draw(null);
+					sb.Begin();
+					otherNPCs.Remove(_n);
+				}
+			}
 		}
 
 		private bool _characterIsBehindSomething(EOCharacterRenderer rend, int objX, int objY, Rectangle TextureBounds)
 		{
 			return (rend.Character.X < objX && rend.Character.Y < objY) && rend.DrawAreaWithOffset.Intersects(TextureBounds);
+		}
+
+		private bool _npcIsBehindSomething(NPC npc, int objX, int objY, Rectangle TextureBounds)
+		{
+			return (npc.X < objX && npc.Y < objY) && npc.DrawArea.Intersects(TextureBounds);
 		}
 
 		public Character GetOtherPlayer(short playerId)

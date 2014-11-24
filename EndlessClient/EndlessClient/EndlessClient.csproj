@@ -136,6 +136,7 @@
     <Compile Include="Handlers\Init.cs" />
     <Compile Include="Handlers\Item.cs" />
     <Compile Include="Handlers\Login.cs" />
+    <Compile Include="Handlers\NPC.cs" />
     <Compile Include="Handlers\Paperdoll.cs" />
     <Compile Include="Handlers\Players.cs" />
     <Compile Include="Handlers\Refresh.cs" />

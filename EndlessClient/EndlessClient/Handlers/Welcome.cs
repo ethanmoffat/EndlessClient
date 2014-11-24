@@ -211,11 +211,11 @@ namespace EndlessClient.Handlers
 							World.Instance.ActiveMapRenderer.AddOtherPlayer(newGuy);
 
 						//get data for any npcs
-						World.Instance.ActiveMapRenderer.NPCs.Clear();
+						World.Instance.ActiveMapRenderer.ClearOtherNPCs();
 						while(pkt.PeekByte() != 255)
 						{
 							NPC newGuy = new NPC(pkt);
-							World.Instance.ActiveMapRenderer.NPCs.Add(newGuy);
+							World.Instance.ActiveMapRenderer.AddOtherNPC(newGuy);
 						}
 						pkt.GetByte();
 

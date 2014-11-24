@@ -253,7 +253,7 @@ namespace EndlessClient
 	}
 
 	//---------------------------------------------------
-	// SPRITE SHEET LAYER FOR CHARACTER RENDERING HELPER
+	// SPRITE SHEET LAYER FOR CHARACTER RENDERING HELPER (and NPCs :) )
 	//---------------------------------------------------
 
 	//enums are stored with values that are the actual numbers instead of being indexes.
@@ -478,6 +478,67 @@ namespace EndlessClient
 					return 4;
 			}
 			return 1;
+		}
+	}
+
+	public enum NPCFrame
+	{
+		//comments are example graphic numbers for goat
+		Standing, //341, 343
+		StandingFrame1, //DNE for goat - for witch/smith, 942/1062
+		WalkFrame1, //345, 349
+		WalkFrame2, //346, 350
+		WalkFrame3, //347, 351
+		WalkFrame4, //348, 352
+		Attack1, //353, 355
+		Attack2, //354, 356
+		//there may be an Attack3 frame, there are 2 extra graphics at this point
+	}
+
+	public class EONPCSpriteSheet
+	{
+		private NPC npc;
+
+		public EONPCSpriteSheet(NPC npcToWatch)
+		{
+			npc = npcToWatch;
+		}
+
+		public Texture2D GetNPCTexture(NPCFrame whichFrame, EODirection dir)
+		{
+			int baseGfx = (npc.Data.Graphic - 1)*40;
+			int offset;
+			switch (whichFrame)
+			{
+				case NPCFrame.Standing:
+					offset = dir == EODirection.Down || dir == EODirection.Right ? 1 : 3;
+					break;
+				case NPCFrame.StandingFrame1:
+					offset = dir == EODirection.Down || dir == EODirection.Right ? 2 : 4;
+					break;
+				case NPCFrame.WalkFrame1:
+					offset = dir == EODirection.Down || dir == EODirection.Right ? 5 : 9;
+					break;
+				case NPCFrame.WalkFrame2:
+					offset = dir == EODirection.Down || dir == EODirection.Right ? 6 : 10;
+					break;
+				case NPCFrame.WalkFrame3:
+					offset = dir == EODirection.Down || dir == EODirection.Right ? 7 : 11;
+					break;
+				case NPCFrame.WalkFrame4:
+					offset = dir == EODirection.Down || dir == EODirection.Right ? 8 : 12;
+					break;
+				case NPCFrame.Attack1:
+					offset = dir == EODirection.Down || dir == EODirection.Right ? 13 : 15;
+					break;
+				case NPCFrame.Attack2:
+					offset = dir == EODirection.Down || dir == EODirection.Right ? 14 : 16;
+					break;
+				default:
+					return null;
+			}
+
+			return GFXLoader.TextureFromResource(GFXTypes.NPC, baseGfx + offset, true);
 		}
 	}
 }

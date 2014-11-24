@@ -29,16 +29,17 @@ namespace EndlessClient.Handlers
 			}
 
 			World.Instance.ActiveMapRenderer.ClearOtherPlayers();
+			World.Instance.ActiveMapRenderer.ClearOtherNPCs();
+
 			foreach (EndlessClient.Character _c in newChars)
 			{
 				World.Instance.ActiveMapRenderer.AddOtherPlayer(_c);
 			}
 
-			World.Instance.ActiveMapRenderer.NPCs.Clear();
 			while (pkt.PeekByte() != 255)
 			{
 				NPC newGuy = new NPC(pkt);
-				World.Instance.ActiveMapRenderer.NPCs.Add(newGuy);
+				World.Instance.ActiveMapRenderer.AddOtherNPC(newGuy);
 			}
 			pkt.GetByte();
 

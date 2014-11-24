@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Data;
-using Microsoft.Xna.Framework;
 
 namespace EndlessClient
 {
@@ -391,7 +386,10 @@ namespace EndlessClient
 				return;
 
 			if (this == World.Instance.MainPlayer.ActiveCharacter)
-				Handlers.Walk.PlayerWalk(direction, destX, destY, AdminLevel != AdminLevel.Player);
+			{
+				if(!Handlers.Walk.PlayerWalk(direction, destX, destY, AdminLevel != AdminLevel.Player))
+					EOGame.Instance.LostConnectionDialog();
+			}
 			else if (RenderData.facing != direction) //if a packet WALK_PLAYER was received: face them the right way first otherwise this will look weird
 				RenderData.SetDirection(direction);
 
@@ -416,6 +414,8 @@ namespace EndlessClient
 			//send packet to server: update client side if send was successful
 			if(Handlers.Face.FacePlayer(direction))
 				RenderData.SetDirection(direction); //updates the data in the character renderer as well
+			else
+				EOGame.Instance.LostConnectionDialog();
 		}
 
 		public void UpdateInventoryItem(short id, int characterAmount, bool add = false)

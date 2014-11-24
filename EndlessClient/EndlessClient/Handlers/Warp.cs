@@ -81,10 +81,10 @@ namespace EndlessClient.Handlers
 			foreach(EndlessClient.Character _c in otherCharacters)
 				World.Instance.ActiveMapRenderer.AddOtherPlayer(_c);
 
-			World.Instance.ActiveMapRenderer.NPCs.Clear();
+			World.Instance.ActiveMapRenderer.ClearOtherNPCs();
 			while (pkt.PeekByte() != 255)
 			{
-				World.Instance.ActiveMapRenderer.NPCs.Add(new NPC(pkt));
+				World.Instance.ActiveMapRenderer.AddOtherNPC(new NPC(pkt));
 			}
 			if (pkt.GetByte() != 255) return;
 

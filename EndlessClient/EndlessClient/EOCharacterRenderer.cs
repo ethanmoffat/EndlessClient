@@ -429,13 +429,30 @@ namespace EndlessClient
 			//	chest should open chest
 			//	chairs should sit
 			//	etc. etc.
-			bool walkValid = false;
-			switch (spec) //handle the tile specs differently
+			bool walkValid = true;
+			switch (spec) //todo: handle the tile specs differently (based purely on walking action)
 			{
-				case TileSpec.None:
-				case TileSpec.NPCBoundary:
-				case TileSpec.FakeWall:
-					walkValid = true;
+				case TileSpec.Wall:
+				case TileSpec.ChairDown:
+				case TileSpec.ChairLeft:
+				case TileSpec.ChairRight:
+				case TileSpec.ChairUp:
+				case TileSpec.ChairDownRight:
+				case TileSpec.ChairUpLeft:
+				case TileSpec.ChairAll:
+				case TileSpec.Chest:
+				case TileSpec.BankVault:
+				case TileSpec.MapEdge:
+				case TileSpec.Board1:
+				case TileSpec.Board2:
+				case TileSpec.Board3:
+				case TileSpec.Board4:
+				case TileSpec.Board5:
+				case TileSpec.Board6:
+				case TileSpec.Board7:
+				case TileSpec.Board8:
+				case TileSpec.Jukebox:
+					walkValid = false;
 					break;
 			}
 
