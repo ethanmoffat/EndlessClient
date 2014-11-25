@@ -220,18 +220,7 @@ namespace EndlessClient
 
 		public void UpdateItemLabel()
 		{
-			switch (m_itemData.ID)
-			{
-				case 1: m_nameLabel.Text = string.Format("{0} {1}", m_inventory.amount, m_itemData.Name); break;
-				default:
-					if (m_inventory.amount == 1)
-						m_nameLabel.Text = m_itemData.Name;
-					else if (m_inventory.amount > 1)
-						m_nameLabel.Text = string.Format("{0} x{1}", m_itemData.Name, m_inventory.amount);
-					else
-						throw new Exception("There shouldn't be an item in the inventory with amount zero");
-					break;
-			}
+			m_nameLabel.Text = GetNameString(m_inventory.id, m_inventory.amount);
 		}
 
 		protected override void Dispose(bool disposing)
@@ -258,16 +247,7 @@ namespace EndlessClient
 			
 			UpdateItemLabel();
 
-			switch (m_itemData.Special)
-			{
-				case ItemSpecial.Lore:
-				case ItemSpecial.Unique:
-					m_nameLabel.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xff, 0xf0, 0xa5);
-					break;
-				case ItemSpecial.Rare:
-					m_nameLabel.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xf5, 0xc8, 0x9c);
-					break;
-			}
+			m_nameLabel.ForeColor = GetItemTextColor((short)m_itemData.ID);
 
 			m_nameLabel.SetParent(this);
 			m_nameLabel.ResizeBasedOnText(16, 9);
@@ -329,6 +309,37 @@ namespace EndlessClient
 			}
 
 			m_recentClickCount = 0;
+		}
+
+		public static System.Drawing.Color GetItemTextColor(short id) //also used in map renderer for mapitems
+		{
+			ItemRecord data = World.Instance.EIF.GetItemRecordByID(id);
+			switch (data.Special)
+			{
+				case ItemSpecial.Lore:
+				case ItemSpecial.Unique:
+					return System.Drawing.Color.FromArgb(0xff, 0xff, 0xf0, 0xa5);
+				case ItemSpecial.Rare:
+					return System.Drawing.Color.FromArgb(0xff, 0xf5, 0xc8, 0x9c);
+			}
+
+			return System.Drawing.Color.White;
+		}
+
+		public static string GetNameString(short id, int amount)
+		{
+			ItemRecord data = World.Instance.EIF.GetItemRecordByID(id);
+			switch (data.ID)
+			{
+				case 1:
+					return string.Format("{0} {1}", amount, data.Name);
+				default:
+					if (amount == 1)
+						return data.Name;
+					if (amount > 1)
+						return string.Format("{0} x{1}", data.Name, amount);
+					throw new Exception("There shouldn't be an item in the inventory with amount zero");
+			}
 		}
 	}
 

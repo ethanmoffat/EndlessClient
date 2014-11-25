@@ -4,9 +4,16 @@ namespace EndlessClient.Handlers
 {
 	public static class Item
 	{
-		public static void GetItem(short id, int amount)
+		public static bool GetItem(short uid)
 		{
-			//picking up an item from the map
+			EOClient client = (EOClient) World.Instance.Client;
+			if (client == null || !client.ConnectedAndInitialized)
+				return false;
+
+			Packet pkt = new Packet(PacketFamily.Item, PacketAction.Get);
+			pkt.AddShort(uid);
+
+			return client.SendPacket(pkt);
 		}
 
 		public static void DropItem(short id, int amount, byte x = 255, byte y = 255) //255 means use character's current location
