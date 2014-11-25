@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
 using System.Threading;
 using EOLib;
 using EOLib.Data;
@@ -17,11 +13,15 @@ namespace EndlessClient
 	//		Map Renderer handles all draw/update operations
 	public class NPC : DrawableGameComponent
 	{
-		public byte Index { get; set; }
-		public byte X { get; set; }
-		public byte Y { get; set; }
+		/* Default NPC speed table for eoserv, corresponding to the speed stored in the NPC spawn */
+		/* Not sure if this is ever transferred to the client at all, but it is a config value... */
+		private static readonly  int[] SPEED_TABLE = {900, 600, 1300, 1900, 3700, 7500, 15000, 0};
+
+		public byte Index { get; private set; }
+		public byte X { get; private set; }
+		public byte Y { get; private set; }
 		public EODirection Direction { get; set; }
-		public NPCRecord Data { get; set; }
+		public NPCRecord Data { get; private set; }
 
 		public Rectangle DrawArea;
 		public bool Walking { get; private set; }
@@ -46,28 +46,12 @@ namespace EndlessClient
 		private byte destX, destY;
 
 		//updated when NPC is walking
-		private int adjX;
-		private int adjY;
+		private int adjX, adjY;
 
-		public NPC(short ID)
-			: base(EOGame.Instance)
-		{
-			Data = World.Instance.ENF.Data[ID] as NPCRecord;
-			npcSheet = new EONPCSpriteSheet(this);
-		}
+		private bool hasStandFrame1;
 
-		public NPC(byte index, short id, byte x, byte y, EODirection dir)
-			: base(EOGame.Instance)
-		{
-			Data = World.Instance.ENF.Data[id] as NPCRecord;
-
-			Index = index;
-			X = x;
-			Y = y;
-			Direction = dir;
-
-			npcSheet = new EONPCSpriteSheet(this);
-		}
+		private static readonly object chatBubbleLock = new object();
+		private EOChatBubble m_chatBubble;
 
 		public NPC(Packet pkt)
 			: base(EOGame.Instance)
@@ -80,6 +64,10 @@ namespace EndlessClient
 			Direction = (EODirection)pkt.GetChar();
 
 			npcSheet = new EONPCSpriteSheet(this);
+			Texture2D tmp = npcSheet.GetNPCTexture(NPCFrame.StandingFrame1, Direction);
+			Color[] tmpData = new Color[tmp.Width * tmp.Height];
+			tmp.GetData(tmpData);
+			hasStandFrame1 = tmpData.Any(_c => _c.R != 0 || _c.G != 0 || _c.B != 0);
 		}
 
 		public override void Initialize()
@@ -109,17 +97,11 @@ namespace EndlessClient
 					 npcArea.Width, npcArea.Height);
 
 			//switch the standing animation for NPCs every 500ms, if they're standing still
-			if ((int) gameTime.TotalGameTime.TotalMilliseconds%500 == 0)
+			if (hasStandFrame1 && (int) gameTime.TotalGameTime.TotalMilliseconds%500 == 0)
 			{
 				if (npcFrame == NPCFrame.Standing)
 				{
-					Texture2D tmp = npcSheet.GetNPCTexture(NPCFrame.StandingFrame1, Direction);
-					Color[] tmpData = new Color[tmp.Width * tmp.Height];
-					tmp.GetData(tmpData);
-					if(tmpData.Any(_c => _c.R != 0 || _c.G != 0 || _c.B != 0))
-					{
-						npcFrame = NPCFrame.StandingFrame1;
-					}
+					npcFrame = NPCFrame.StandingFrame1;
 				}
 				else if (npcFrame == NPCFrame.StandingFrame1)
 				{
@@ -162,7 +144,7 @@ namespace EndlessClient
 		public void Walk(byte x, byte y, EODirection dir)
 		{
 			if (Walking) return;
-			walkTimer.Change(0, 100); //using 100ms for each walk frame now - I'm not sure what value stors the npc's move speed.
+			walkTimer.Change(0, 100); //use 100ms for now....
 			
 			//the direction is required for the walk callback
 			Direction = dir;
@@ -202,6 +184,22 @@ namespace EndlessClient
 					Y = destY;
 					adjX = adjY = 0;
 					break;
+			}
+		}
+
+		public void SetChatBubble(EOChatBubble bb)
+		{
+			lock (chatBubbleLock)
+			{
+				if (m_chatBubble != null)
+				{
+					m_chatBubble.Dispose();
+					m_chatBubble = null;
+				}
+
+				bb.Initialize();
+				bb.LoadContent();
+				m_chatBubble = bb;
 			}
 		}
 	}

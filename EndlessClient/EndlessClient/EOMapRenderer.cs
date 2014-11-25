@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Net.Mime;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Windows.Media;
 using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Data;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAControls;
+using Color = Microsoft.Xna.Framework.Color;
+using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace EndlessClient
 {
@@ -35,6 +41,171 @@ namespace EndlessClient
 
 		public TileSpec Spec;
 		public EOLib.Warp Warp;
+	}
+
+	public class EOChatBubble : DrawableGameComponent
+	{
+		private XNALabel m_label;
+		private DrawableGameComponent m_ref;
+		private bool isChar; //true if character, false if npc
+
+		private SpriteBatch sb;
+		private Timer goAway;
+
+		private Vector2 drawLoc;
+
+		private const int TL = 0, TM = 1, TR = 2;
+		private const int ML = 3, MM = 4, MR = 5;
+		private const int RL = 6, RM = 7, RR = 8, NUB = 9;
+		private static bool textsLoaded;
+		private static Texture2D[] texts;
+
+		private bool _disposing, _drawing;
+
+		public EOChatBubble(string message, EOCharacterRenderer following)
+			: base(EOGame.Instance)
+		{
+			m_ref = following;
+			isChar = true;
+			goAway = new Timer(_goAway, null, Constants.ChatBubbleTimeout, 0);
+			DrawOrder = following.DrawOrder + 1;
+			_initLabel(message);
+			EOGame.Instance.Components.Add(this);
+		}
+
+		public EOChatBubble(string message, NPC following)
+			: base(EOGame.Instance)
+		{
+			m_ref = following;
+			isChar = false;
+			goAway = new Timer(_goAway, null, Constants.ChatBubbleTimeout, 0);
+			DrawOrder = following.DrawOrder + 1;
+			_initLabel(message);
+			EOGame.Instance.Components.Add(this);
+		}
+
+		private void _initLabel(string message)
+		{
+			m_label = new XNALabel(EOGame.Instance, new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.5f)
+			{
+				Visible = true,
+				DrawOrder = DrawOrder + 1,
+				TextWidth = 165,
+				TextAlign = ContentAlignment.MiddleCenter,
+				ForeColor = System.Drawing.Color.Black,
+				AutoSize = true,
+				Text = message
+			};
+
+			_setLabelDrawLoc();
+		}
+
+		private void _setLabelDrawLoc()
+		{
+			Rectangle refArea = isChar ? ((EOCharacterRenderer) m_ref).DrawAreaWithOffset : ((NPC) m_ref).DrawArea;
+			int extra = textsLoaded ? texts[ML].Width : 0;
+			m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.Texture.Height);
+		}
+
+		public new void LoadContent()
+		{
+			sb = new SpriteBatch(GraphicsDevice);
+			if (!textsLoaded)
+			{
+				texts = new Texture2D[10];
+				texts[TL] = Game.Content.Load<Texture2D>("ChatBubble\\TL");
+				texts[TM] = Game.Content.Load<Texture2D>("ChatBubble\\TM");
+				texts[TR] = Game.Content.Load<Texture2D>("ChatBubble\\TR");
+				texts[ML] = Game.Content.Load<Texture2D>("ChatBubble\\ML");
+				texts[MM] = Game.Content.Load<Texture2D>("ChatBubble\\MM");
+				texts[MR] = Game.Content.Load<Texture2D>("ChatBubble\\MR");
+				//typed an R instead of a B. I'm tired; somehow bot=R made more sense than bot=B
+				texts[RL] = Game.Content.Load<Texture2D>("ChatBubble\\RL");
+				texts[RM] = Game.Content.Load<Texture2D>("ChatBubble\\RM");
+				texts[RR] = Game.Content.Load<Texture2D>("ChatBubble\\RR");
+				texts[NUB] = Game.Content.Load<Texture2D>("ChatBubble\\NUB");
+				textsLoaded = true;
+			}
+			base.LoadContent();
+		}
+
+		public override void Update(GameTime gameTime)
+		{
+			//if (!(m_ref is EOCharacterRenderer ||  m_ref is NPC)) //"It's over, Anakin, I have the high ground!" "Don't try it!"
+				//Dispose();
+
+			_setLabelDrawLoc();
+			drawLoc = m_label.DrawLocation - new Vector2(texts[TL].Width, texts[TL].Height);
+			//m_label.DrawLocation = drawLoc + new Vector2(texts[TL].Width * 2, texts[TL].Height * 2);
+			base.Update(gameTime);
+		}
+
+		public override void Draw(GameTime gameTime)
+		{
+			if (!_disposing)
+			{
+				_drawing = true;
+				int xCov = texts[TL].Width;
+				int yCov = texts[TL].Height;
+				sb.Begin();
+
+				//top row
+				sb.Draw(texts[TL], drawLoc, Color.White);
+				int xCur;
+				for (xCur = xCov; xCur < m_label.ActualWidth; xCur += texts[TM].Width)
+				{
+					sb.Draw(texts[TM], drawLoc + new Vector2(xCur, 0), Color.White);
+				}
+				sb.Draw(texts[TR], drawLoc + new Vector2(xCur, 0), Color.White);
+
+				//middle area
+				int y;
+				for (y = yCov; y < m_label.Texture.Height - (m_label.Texture.Height % texts[ML].Height); y += texts[ML].Height)
+				{
+					sb.Draw(texts[ML], drawLoc + new Vector2(0, y), Color.White);
+					int x;
+					for (x = xCov; x < xCur; x += texts[MM].Width)
+					{
+						sb.Draw(texts[MM], drawLoc + new Vector2(x, y), Color.White);
+					}
+					sb.Draw(texts[MR], drawLoc + new Vector2(xCur, y), Color.White);
+				}
+
+				//bottom row
+				sb.Draw(texts[RL], drawLoc + new Vector2(0, y), Color.White);
+				int x2;
+				for (x2 = xCov; x2 < xCur; x2 += texts[RM].Width)
+				{
+					sb.Draw(texts[RM], drawLoc + new Vector2(x2, y), Color.White);
+				}
+				sb.Draw(texts[RR], drawLoc + new Vector2(x2, y), Color.White);
+				y += texts[RM].Height;
+				sb.Draw(texts[NUB], drawLoc + new Vector2((x2 + texts[RR].Width - texts[NUB].Width) / 2f, y - 1), Color.White);
+
+				sb.End();
+				base.Draw(gameTime);
+				_drawing = false;
+			}
+		}
+
+		private void _goAway(object s)
+		{
+			_disposing = true;
+			goAway.Change(Timeout.Infinite, Timeout.Infinite);
+			if (EOGame.Instance.Components.Contains(this))
+				EOGame.Instance.Components.Remove(this);
+			Dispose();
+		}
+		protected override void Dispose(bool disposing)
+		{
+			while(_drawing) Thread.Sleep(100);
+
+			base.Dispose(disposing);
+			goAway.Dispose();
+			if(sb != null) //debugging
+				sb.Dispose();
+			m_label.Close();
+		}
 	}
 
 	public class EOMapRenderer : DrawableGameComponent
@@ -85,25 +256,50 @@ namespace EndlessClient
 			ChatTabs tab;
 			switch (messageType)
 			{
+				case TalkType.NPC:
 				case TalkType.Local: tab = ChatTabs.Local; break;
 				case TalkType.Party: tab = ChatTabs.Group; break;
 				default: throw new NotImplementedException();
 			}
 
-			//get the character name for the player ID that was received
-			string playerName = otherPlayers.Find(x => x.ID == playerID).Name;
+			DrawableGameComponent dgc;
+			string playerName = null;
+			if (messageType == TalkType.NPC)
+			{
+				dgc = npcList.Find(_npc => _npc.Index == playerID);
+				if (dgc != null)
+					playerName = ((NPC) dgc).Data.Name;
+			}
+			else
+			{
+				dgc = otherRenderers.Find(_rend => _rend.Character.ID == playerID);
+				if (dgc != null)
+					playerName = ((EOCharacterRenderer)dgc).Character.Name;
+			}
+
+			if (playerName == null) return;
+
+			if(playerName.Length > 1)
+				playerName = char.ToUpper(playerName[0]) + playerName.Substring(1);
 
 			if (EOGame.Instance.Hud == null)
 				return;
 			EOGame.Instance.Hud.AddChat(tab, playerName, message, chatType);
 
-			//TODO: Add whatever magic is necessary to make chat bubble appear (different colors/transparencies for group and public)
+			RenderLocalChatMessage(dgc, message);
 		}
 
 		//renders a chat message from the local mainplayer
-		public void RenderLocalChatMessage(string message)
+		public void RenderLocalChatMessage(DrawableGameComponent follow, string message)
 		{
+			if (follow == null)
+				follow = World.Instance.ActiveCharacterRenderer; /* Calling with null assumes Active Character */
+
 			//show just the speech bubble, since this should be called from the HUD and rendered there already
+			if (follow is EOCharacterRenderer)
+				((EOCharacterRenderer)follow).SetChatBubble(new EOChatBubble(message, (EOCharacterRenderer) follow));
+			else if (follow is NPC)
+				((NPC)follow).SetChatBubble(new EOChatBubble(message, (NPC) follow));
 		}
 
 		public void SetActiveMap(MapFile newActiveMap)
@@ -248,7 +444,7 @@ namespace EndlessClient
 			NPC toWalk;
 			if ((toWalk = npcList.Find(_npc => _npc.Index == index)) != null && !toWalk.Walking)
 			{
-				toWalk.Walk(x, y, dir); //does the rendering AND the data update (since it's coupled together for NPCs)
+				toWalk.Walk(x, y, dir);
 			}
 		}
 

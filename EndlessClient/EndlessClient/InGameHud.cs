@@ -468,7 +468,7 @@ namespace EndlessClient
 						break;
 					}
 					//do the rendering
-					World.Instance.ActiveMapRenderer.RenderLocalChatMessage(chatText);
+					World.Instance.ActiveMapRenderer.RenderLocalChatMessage(null, chatText);
 					AddChat(ChatTabs.Local, World.Instance.MainPlayer.ActiveCharacter.Name, chatText);
 				}
 					break;

@@ -60,7 +60,7 @@ namespace EndlessClient.Handlers
 					short index = pkt.GetShort();
 					byte msgLength = pkt.GetChar();
 					string msg = pkt.GetFixedString(msgLength);
-					//todo: do the chat (via map renderer)
+					World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.NPC, index, msg, ChatType.Note);
 				}
 					break;
 			}

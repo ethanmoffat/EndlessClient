@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading;
+﻿using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -188,6 +184,9 @@ namespace EndlessClient
 		private KeyboardState _prevState;
 		private Timer _walkTimer;
 		private readonly bool noLocUpdate;
+
+		private static readonly object chatBubbleLock = new object();
+		private EOChatBubble m_chatBubble;
 
 		public EOCharacterRenderer(Game g, Character charToRender)
 			: base(g)
@@ -697,5 +696,20 @@ namespace EndlessClient
 			}
 		}
 
+		public void SetChatBubble(EOChatBubble bb)
+		{
+			lock (chatBubbleLock)
+			{
+				if (m_chatBubble != null)
+				{
+					m_chatBubble.Dispose();
+					m_chatBubble = null;
+				}
+
+				bb.Initialize();
+				bb.LoadContent();
+				m_chatBubble = bb;
+			}
+		}
 	}
 }

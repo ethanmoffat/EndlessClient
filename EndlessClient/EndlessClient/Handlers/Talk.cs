@@ -11,7 +11,8 @@ namespace EndlessClient.Handlers
 		Global,
 		Guild,
 		Party,
-		System
+		System,
+		NPC
 	}
 
 	public static class Talk //rename to packet family
