@@ -91,8 +91,11 @@ namespace EndlessClient
 				//					 drop on button junk/drop
 				//					 drop on grid (inventory move action)
 
-				if (((EOInventory) parent).IsOverDrop())
+				if (((EOInventory) parent).IsOverDrop() || World.Instance.ActiveMapRenderer.MouseOver)
 				{
+					Microsoft.Xna.Framework.Point loc = World.Instance.ActiveMapRenderer.MouseOver ? World.Instance.ActiveMapRenderer.GridCoords:
+						new Microsoft.Xna.Framework.Point(World.Instance.MainPlayer.ActiveCharacter.X, World.Instance.MainPlayer.ActiveCharacter.Y);
+
 					if (m_itemData.Special == ItemSpecial.Lore)
 					{
 						EODialog lastError = new EODialog(Game, "It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
@@ -105,13 +108,13 @@ namespace EndlessClient
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result == XNADialogResult.OK)
-								Handlers.Item.DropItem(m_inventory.id, dlg.SelectedAmount);
+								Handlers.Item.DropItem(m_inventory.id, dlg.SelectedAmount, (byte)loc.X, (byte)loc.Y);
 							(Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = prevSub;
 						};
 					}
 					else
 					{
-						Handlers.Item.DropItem(m_inventory.id, 1);
+						Handlers.Item.DropItem(m_inventory.id, 1, (byte)loc.X, (byte)loc.Y);
 					}
 				}
 				else if (((EOInventory) parent).IsOverJunk())
@@ -133,8 +136,7 @@ namespace EndlessClient
 						Handlers.Item.JunkItem(m_inventory.id, 1);
 					}
 				}
-				/*todo: Add map drop check!*/
-				
+
 				//update the location - if it isn't on the grid, the bounds check will set it back to where it used to be originally
 				//Item amount will be updated or item will be removed in packet response to the drop operation
 				UpdateItemLocation(ItemCurrentSlot());

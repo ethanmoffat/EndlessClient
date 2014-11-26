@@ -208,11 +208,13 @@ namespace EndlessClient
 		{
 			while(_drawing) Thread.Sleep(100);
 
-			base.Dispose(disposing);
 			goAway.Dispose();
 			if(sb != null) //debugging
 				sb.Dispose();
-			m_label.Close();
+			if(m_label != null)
+				m_label.Close();
+
+			base.Dispose(disposing);
 		}
 	}
 
@@ -235,6 +237,20 @@ namespace EndlessClient
 		private Rectangle _cursorSourceRect;
 		private readonly XNALabel _mouseoverName;
 		private MouseState _prevState;
+
+		public bool MouseOver
+		{
+			get
+			{
+				MouseState ms = Mouse.GetState();
+				return ms.X > 0 && ms.Y > 0 && ms.X < 640 && ms.Y < 320;
+			}
+		}
+
+		public Point GridCoords
+		{
+			get { return new Point(gridX, gridY); }
+		}
 
 		private Rectangle _animSourceRect;
 		private RenderTarget2D _playerTransparentTarget; //set in _doMapDrawing if the player coordinates are within a wall/roof draw area
@@ -599,7 +615,7 @@ namespace EndlessClient
 			//pixY = (gridX * 16) + (gridY * 16) + 144 - c.OffsetY =>
 			//(pixY - (gridX * 16) - 144 + c.OffsetY) / 16 = gridY
 
-			if (ms.X > 0 && ms.Y > 0 && ms.X < 640 && ms.Y < 320) //bounds for map area
+			if (MouseOver) //bounds for map area
 			{
 				Character c = World.Instance.MainPlayer.ActiveCharacter;
 				//center the cursor on the mouse pointer

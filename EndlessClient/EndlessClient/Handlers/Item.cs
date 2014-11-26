@@ -25,8 +25,16 @@ namespace EndlessClient.Handlers
 			Packet pkt = new Packet(PacketFamily.Item, PacketAction.Drop);
 			pkt.AddShort(id);
 			pkt.AddInt(amount);
-			pkt.AddByte(x);
-			pkt.AddByte(y);
+			if (x == 255 && y == 255)
+			{
+				pkt.AddByte(x);
+				pkt.AddByte(y);
+			}
+			else
+			{
+				pkt.AddChar(x);
+				pkt.AddChar(y);
+			}
 
 			client.SendPacket(pkt);
 		}
