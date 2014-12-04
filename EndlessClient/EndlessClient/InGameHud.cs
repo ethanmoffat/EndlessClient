@@ -572,7 +572,8 @@ namespace EndlessClient
 			inventory.Dispose();
 			chatRenderer.Dispose();
 
-			modeTexture.Dispose();
+			if(modeTexture != null)
+				modeTexture.Dispose();
 			SpriteBatch.Dispose();
 
 			pnlInventory.Close();
@@ -589,9 +590,9 @@ namespace EndlessClient
 
 			lock (clockLock)
 			{
-				clockLabel.Dispose();
 				clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
 				clockTimer.Dispose();
+				clockLabel.Dispose();
 			}
 
 			base.Dispose(disposing);

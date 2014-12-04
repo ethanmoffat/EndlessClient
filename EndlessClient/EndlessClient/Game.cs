@@ -487,6 +487,8 @@ namespace EndlessClient
 
 			connectMutex.Dispose();
 
+			GFXLoader.Cleanup();
+
 			base.Dispose(disposing);
 		}
 

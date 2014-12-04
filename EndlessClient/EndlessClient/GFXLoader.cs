@@ -172,6 +172,18 @@ namespace EndlessClient
 		}
 
 		/// <summary>
+		/// Disposes all cached textures
+		/// </summary>
+		public static void Cleanup()
+		{
+			foreach (Texture2D text in cache.Values)
+			{
+				text.Dispose();
+			}
+			cache.Clear();
+		}
+
+		/// <summary>
 		/// Returns a byte array of image data from a single image within an endless online *.egf file
 		/// Image is specified by the library file (GFXTypes) and the resourceName (number)
 		/// </summary>
