@@ -457,6 +457,9 @@ namespace EndlessClient
 		protected override void Dispose(bool disposing)
 		{
 			m_inventoryKey.Dispose();
+			m_btnPaperdoll.Dispose();
+			m_btnJunk.Dispose();
+			m_btnDrop.Dispose();
 		}
 
 		//-----------------------------------------------------

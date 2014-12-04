@@ -70,7 +70,7 @@ namespace EOLib
 		public const string SpellFilePath = "pub/dsl001.esf";
 		public const string ClassFilePath = "pub/dat001.ecf";
 
-		public const byte ViewLength = 22;
+		public const byte ViewLength = 16;
 	}
 
 	public static class ConfigStrings

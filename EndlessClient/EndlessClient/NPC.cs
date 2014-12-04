@@ -43,12 +43,15 @@ namespace EndlessClient
 			get { return X * 16 + Y * 16 + adjY; }
 		}
 
-		private byte destX, destY;
+		public byte DestX { get; private set; }
+		public byte DestY { get; private set; }
 
 		//updated when NPC is walking
 		private int adjX, adjY;
 
-		private bool hasStandFrame1;
+		private readonly bool hasStandFrame1;
+		private bool _startFadeAway;
+		private int _fadeAwayAlpha = 255;
 
 		private static readonly object chatBubbleLock = new object();
 		private EOChatBubble m_chatBubble;
@@ -82,7 +85,7 @@ namespace EndlessClient
 
 			DrawArea = new Rectangle(
 					 offX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)((tmpText.Width / 6.4) * 3.2),
-					 offY + 176 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - tmpText.Height,
+					 offY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - tmpText.Height,
 					 npcArea.Width, npcArea.Height);
 			Walking = false;
 			walkTimer = new Timer(_walkCallback, null, Timeout.Infinite, Timeout.Infinite);
@@ -93,7 +96,7 @@ namespace EndlessClient
 			Texture2D tmpText = npcSheet.GetNPCTexture(NPCFrame.Standing, Direction);
 			DrawArea = new Rectangle(
 					 offX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)((tmpText.Width / 6.4) * 3.2),
-					 offY + 176 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - tmpText.Height,
+					 offY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - tmpText.Height,
 					 npcArea.Width, npcArea.Height);
 
 			//switch the standing animation for NPCs every 500ms, if they're standing still
@@ -114,22 +117,39 @@ namespace EndlessClient
 
 		public override void Draw(GameTime gameTime)
 		{
+			DrawToSpriteBatch(sb);
+			base.Draw(gameTime);
+		}
+
+		public void DrawToSpriteBatch(SpriteBatch batch, bool started = false)
+		{
 			SpriteEffects effects = Direction == EODirection.Left || Direction == EODirection.Down
 				? SpriteEffects.None
 				: SpriteEffects.FlipHorizontally;
 
-			sb.Begin();
-			sb.Draw(npcSheet.GetNPCTexture(npcFrame, Direction),
+			if(!started)
+				batch.Begin();
+
+			Color col = _startFadeAway ? Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha -= 3) : Color.White;
+
+			batch.Draw(npcSheet.GetNPCTexture(npcFrame, Direction),
 				DrawArea,
 				null,
-				Color.White,
+				col,
 				0f,
 				Vector2.Zero,
 				effects,
 				1f);
-			sb.End();
 
-			base.Draw(gameTime);
+			if (_startFadeAway && _fadeAwayAlpha <= 0)
+			{
+				if(!started) batch.End();
+				World.Instance.ActiveMapRenderer.RemoveOtherNPC(Index, false);
+				return;
+			}
+
+			if (!started)
+				batch.End();
 		}
 
 		protected override void Dispose(bool disposing)
@@ -137,6 +157,9 @@ namespace EndlessClient
 			walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
 			walkTimer.Dispose();
 			sb.Dispose();
+			lock(chatBubbleLock)
+				if (m_chatBubble != null)
+					m_chatBubble.Dispose();
 
 			base.Dispose(disposing);
 		}
@@ -148,8 +171,8 @@ namespace EndlessClient
 			
 			//the direction is required for the walk callback
 			Direction = dir;
-			destX = x;
-			destY = y;
+			DestX = x;
+			DestY = y;
 		}
 
 		private void _walkCallback(object state)
@@ -180,8 +203,8 @@ namespace EndlessClient
 				case NPCFrame.WalkFrame4:
 					npcFrame = NPCFrame.Standing;
 					walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
-					X = destX;
-					Y = destY;
+					X = DestX;
+					Y = DestY;
 					adjX = adjY = 0;
 					break;
 			}
@@ -201,6 +224,11 @@ namespace EndlessClient
 				bb.LoadContent();
 				m_chatBubble = bb;
 			}
+		}
+
+		public void FadeAway()
+		{
+			_startFadeAway = true;
 		}
 	}
 }

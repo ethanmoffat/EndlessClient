@@ -568,6 +568,11 @@ namespace EndlessClient
 			foreach (XNAButton btn in mainBtn)
 				btn.Close();
 
+			newsTab.Dispose();
+			inventory.Dispose();
+			chatRenderer.Dispose();
+
+			modeTexture.Dispose();
 			SpriteBatch.Dispose();
 
 			pnlInventory.Close();

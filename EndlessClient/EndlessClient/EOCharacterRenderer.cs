@@ -542,6 +542,9 @@ namespace EndlessClient
 				_walkTimer.Dispose();
 			if (_charRenderTarget != null)
 				_charRenderTarget.Dispose();
+			lock (chatBubbleLock)
+				if (m_chatBubble != null)
+					m_chatBubble.Dispose();
 			base.Dispose(disposing);
 		}
 

@@ -161,7 +161,8 @@ namespace EndlessClient
 			get { return X*16 + Y*16 + ViewAdjustY; }
 		}
 
-		private byte destx, desty;
+		public byte DestX { get; private set; }
+		public byte DestY { get; private set; }
 		public int ViewAdjustX { get; set; }
 		public int ViewAdjustY { get; set; }
 		public bool Walking { get; private set; }
@@ -393,8 +394,8 @@ namespace EndlessClient
 			else if (RenderData.facing != direction) //if a packet WALK_PLAYER was received: face them the right way first otherwise this will look weird
 				RenderData.SetDirection(direction);
 
-			destx = destX;
-			desty = destY;
+			DestX = destX;
+			DestY = destY;
 			Walking = true;
 		}
 
@@ -404,8 +405,8 @@ namespace EndlessClient
 			ViewAdjustX = 0;
 			ViewAdjustY = 0;
 			Walking = false; //this is the only place this should be set
-			X = destx;
-			Y = desty;
+			X = DestX;
+			Y = DestY;
 			RenderData.SetWalkFrame(0);
 		}
 

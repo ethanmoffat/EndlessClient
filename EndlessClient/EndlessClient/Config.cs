@@ -10,8 +10,8 @@ namespace EndlessClient
 {	
 	public class Config
 	{
-		[DllImport("kernel32.dll")]
-		private static extern long GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
+		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+		private static extern int GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
 
 		public static string GetHDDSerial()
 		{
@@ -22,9 +22,10 @@ namespace EndlessClient
 			uint VolFlags = 0;
 			StringBuilder FSName = new StringBuilder(256); // File System Name
 
-			long Ret = GetVolumeInformation(strDriveLetter, VolLabel, (UInt32)VolLabel.Capacity, ref serNum, ref maxCompLen, ref VolFlags, FSName, (UInt32)FSName.Capacity);
-
-			return Convert.ToString(serNum);
+			if(GetVolumeInformation(strDriveLetter, VolLabel, (UInt32)VolLabel.Capacity, ref serNum, ref maxCompLen, ref VolFlags, FSName, (UInt32)FSName.Capacity) != 0)
+				return Convert.ToString(serNum);
+			
+			return "";
 		}
 
 	}

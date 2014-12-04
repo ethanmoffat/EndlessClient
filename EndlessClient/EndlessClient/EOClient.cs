@@ -10,7 +10,7 @@ using EOLib;
 
 namespace EndlessClient
 {
-	public class EOClient : AsyncClient, IDisposable
+	public class EOClient : AsyncClient
 	{
 		private delegate void PacketHandler(Packet reader);
 
@@ -31,7 +31,6 @@ namespace EndlessClient
 		private class LockedHandlerMethod
 		{
 			private readonly PacketHandler _handler;
-			private readonly bool _override;
 			private readonly bool _inGameOnly;
 
 			public PacketHandler Handler
@@ -40,16 +39,13 @@ namespace EndlessClient
 				{
 					if(_inGameOnly && GameStates.PlayingTheGame != EOGame.Instance.State) //force ignore if the handler is an in-game only handler
 						return p => { };
-					if (_override) return _handler;
-					lock (locker)
-						return _handler;
+					lock (locker) return _handler;
 				}
 			}
 			private static readonly object locker = new object();
 
-			public LockedHandlerMethod(PacketHandler handler, bool inGameOnly = false, bool overrideLock = false)
+			public LockedHandlerMethod(PacketHandler handler, bool inGameOnly = false)
 			{
-				_override = overrideLock;
 				_handler = handler;
 				_inGameOnly = inGameOnly;
 			}
@@ -127,6 +123,10 @@ namespace EndlessClient
 				{
 					new FamilyActionPair(PacketFamily.NPC, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.NPCPackets.NPCPlayer, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.NPC, PacketAction.Spec),
+					new LockedHandlerMethod(Handlers.NPCPackets.NPCSpec, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Agree), 
@@ -210,16 +210,17 @@ namespace EndlessClient
 			}
 		}
 
-		public new void Dispose()
+		protected override void Dispose(bool disposing)
 		{
+			base.Dispose(disposing);
+			if (!disposing) return;
+
 			Handlers.Account.Cleanup();
 			Handlers.Character.Cleanup();
 			Handlers.Init.Cleanup();
 			Handlers.Login.Cleanup();
 			Handlers.Walk.Cleanup();
 			Handlers.Welcome.Cleanup();
-
-			base.Dispose();
 		}
 	}
 }

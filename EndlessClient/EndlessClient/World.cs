@@ -8,6 +8,7 @@ using EOLib.Data;
 
 namespace EndlessClient
 {
+	[Serializable]
 	public class WorldLoadException : Exception
 	{
 		public WorldLoadException(string msg) : base(msg) { }
@@ -15,7 +16,7 @@ namespace EndlessClient
 
 	//singleton pattern: provides global access to data files and network connection
 	//	without allowing for instantiation outside of the class or inheriting from it
-	public sealed class World
+	public sealed class World : IDisposable
 	{
 		/*** STATIC MEMBERS AND SUCH FOR THE SINGLETON PATTERN ***/
 		private static World inst;
@@ -354,6 +355,25 @@ namespace EndlessClient
 			m_charRender = null;
 
 			MapCache.Clear();
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+		}
+
+		private void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+
+			if(m_mapRender != null)
+				m_mapRender.Dispose();
+
+			if(m_charRender != null)
+				m_charRender.Dispose();
+
+			if(m_client != null)
+				m_client.Dispose();
 		}
 	}
 }

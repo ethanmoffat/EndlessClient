@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -69,8 +70,8 @@ namespace EndlessClient
 		Texture2D UIBackground;
 		Texture2D CharacterDisp, AccountCreateSheet, LoginUIScreen;
 
-		bool exiting = false;
-		System.Threading.AutoResetEvent connectMutex;
+		bool exiting;
+		AutoResetEvent connectMutex;
 
 		string host;
 		int port;
@@ -84,7 +85,7 @@ namespace EndlessClient
 			//no matter what, it will only do it one at a time: the mutex is only released when the bg thread ends
 			if (connectMutex == null)
 			{
-				connectMutex = new System.Threading.AutoResetEvent(true);
+				connectMutex = new AutoResetEvent(true);
 				if (!connectMutex.WaitOne(1))
 					return;
 			}
@@ -100,7 +101,7 @@ namespace EndlessClient
 				return;
 			}
 
-			new System.Threading.Thread(() =>
+			new Thread(() =>
 			{
 				try
 				{
@@ -200,7 +201,8 @@ namespace EndlessClient
 			{
 				if (comp is XNAControl)
 					(comp as XNAControl).Close();
-				comp.Dispose();
+				else
+					comp.Dispose();
 				if (Components.Contains(comp))
 					Components.Remove(comp);
 			}
@@ -476,6 +478,14 @@ namespace EndlessClient
 				if(btn != null)
 					btn.Dispose();
 			}
+
+			spriteBatch.Dispose();
+			((IDisposable)graphics).Dispose();
+			
+			if(lblVersionInfo != null)
+				lblVersionInfo.Dispose();
+
+			connectMutex.Dispose();
 
 			base.Dispose(disposing);
 		}

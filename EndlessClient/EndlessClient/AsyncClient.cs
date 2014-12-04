@@ -118,7 +118,6 @@ namespace EndlessClient
 				}
 			}
 
-			IAsyncResult res = null;
 			try
 			{
 				if (m_sock != null && m_sock.Connected)
@@ -145,7 +144,7 @@ namespace EndlessClient
 
 				m_sock.Connect(m_serverEndpoint);
 				SocketDataWrapper wrap = new SocketDataWrapper();
-				res = m_sock.BeginReceive(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _recvCB, wrap);
+				m_sock.BeginReceive(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _recvCB, wrap);
 				m_connectedAndInitialized = true;
 
 				if (!Handlers.Init.Initialize() || !Handlers.Init.CanProceed)
@@ -384,9 +383,16 @@ namespace EndlessClient
 		//-----------------------------------
 		//dispose method
 		//-----------------------------------
-
 		public void Dispose()
 		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+
 			lock (disposingLockObject)
 			{
 				if (m_disposing)
@@ -396,8 +402,10 @@ namespace EndlessClient
 			}
 
 			if (m_sendLock != null)
+			{
 				m_sendLock.Set();
-
+				m_sendLock.Close();
+			}
 			if (m_connectedAndInitialized)
 				m_sock.Shutdown(SocketShutdown.Both);
 

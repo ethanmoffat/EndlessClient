@@ -65,5 +65,26 @@ namespace EndlessClient.Handlers
 					break;
 			}
 		}
+
+		/// <summary>
+		/// Handler for NPC_SPEC packet, when NPC should be removed from view - either by dying or out of character range
+		/// </summary>
+		public static void NPCSpec(Packet pkt)
+		{
+			short playerID = pkt.GetShort();
+			byte direction = pkt.GetChar();
+			short deadNPC = pkt.GetShort();
+
+			World.Instance.ActiveMapRenderer.RemoveOtherNPC((byte)deadNPC, pkt.ReadPos < pkt.Length);
+			if (pkt.ReadPos == pkt.Length) return;
+
+			short droppedItemUID = pkt.GetShort();
+			short droppedItemID = pkt.GetShort();
+			byte x = pkt.GetChar();
+			byte y = pkt.GetChar();
+			int droppedAmount = pkt.GetInt();
+			int damage = pkt.GetThree();
+			//do whatever with this?
+		}
 	}
 }

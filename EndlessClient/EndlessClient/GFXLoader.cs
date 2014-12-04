@@ -11,6 +11,7 @@ using EOLib;
 
 namespace EndlessClient
 {
+	[Serializable]
 	public class GFXLoadException : Exception
 	{
 		public GFXLoadException(int resource, GFXTypes gfx)
@@ -121,13 +122,13 @@ namespace EndlessClient
 		SpellIcons
 	}
 
-	public class GFXLoader
+	public static class GFXLoader
 	{
 		/*** P/Invoke Stuff ***/
 		//lpszName is a uint because egf files use MAKEINTRESOURCE which casts the uint resource value to a string pointer
 		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		private static extern IntPtr LoadImage(IntPtr hinst, uint lpszName, uint uType, int cxDesired, int cyDesired, uint fuLoad);
-		[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+		[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
 		private static extern IntPtr LoadLibrary(string lpFileName);
 		[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
 		private static extern bool FreeLibrary(IntPtr hModule);
@@ -201,8 +202,12 @@ namespace EndlessClient
 
 				ret = Texture2D.FromStream(device, mem);
 			}
-
-			cache.Add(key, ret);
+			
+			//need to double-checkthat the key isn't already in the cache:
+			//  	multiple threads can enter this method simultaneously
+			//avoiding a lock because this method is used for every graphic
+			if(!cache.ContainsKey(key))
+				cache.Add(key, ret);
 
 			return ret;
 		}
