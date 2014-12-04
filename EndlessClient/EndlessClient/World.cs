@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-
 using EOLib.Data;
 
 namespace EndlessClient
@@ -50,7 +47,15 @@ namespace EndlessClient
 			if (!m_config.Load())
 				throw new WorldLoadException("Unable to load the configuration file!");
 			Initialized = true;
+
+			exp_table = new int[254];
+			for (int i = 1; i < exp_table.Length; ++i)
+			{
+				exp_table[i] = (int) Math.Round(Math.Pow(i, 3)*133.1);
+			}
 		}
+
+		public readonly int[] exp_table;
 
 		/*** Instance Properties and such ***/
 

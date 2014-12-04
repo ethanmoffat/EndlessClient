@@ -118,6 +118,7 @@
     <Compile Include="Character.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="EOCharacterRenderer.cs" />
+    <Compile Include="EOCharacterStats.cs" />
     <Compile Include="EOClient.cs" />
     <Compile Include="EODialog.cs" />
     <Compile Include="EOInventory.cs">
@@ -140,6 +141,7 @@
     <Compile Include="Handlers\Paperdoll.cs" />
     <Compile Include="Handlers\Players.cs" />
     <Compile Include="Handlers\Refresh.cs" />
+    <Compile Include="Handlers\StatSkill.cs" />
     <Compile Include="Handlers\Talk.cs" />
     <Compile Include="Handlers\TemplateHandler.cs" />
     <Compile Include="Handlers\Walk.cs" />

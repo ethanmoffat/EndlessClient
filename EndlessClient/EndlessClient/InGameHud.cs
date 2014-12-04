@@ -55,6 +55,7 @@ namespace EndlessClient
 		private readonly SpriteBatch SpriteBatch;
 		private readonly EOChatRenderer chatRenderer;
 		private EOInventory inventory;
+		private EOCharacterStats stats;
 		private readonly ChatTab newsTab;
 
 		private readonly XNALabel statusLabel; //label for status (mouse-over buttons)
@@ -276,6 +277,9 @@ namespace EndlessClient
 			//calling SetParent will break this.
 			inventory = new EOInventory(Game, pnlInventory);
 
+			stats = new EOCharacterStats(Game, pnlStats);
+			stats.Initialize();
+
 			base.Initialize();
 		}
 
@@ -364,6 +368,7 @@ namespace EndlessClient
 					pnlChat.Visible = true;
 					break;
 				case InGameStates.Stats:
+					stats.Refresh();
 					pnlStats.Visible = true;
 					break;
 				case InGameStates.Online:
@@ -561,6 +566,12 @@ namespace EndlessClient
 		{
 			inventory.PaperdollDialogRef = null;
 		}
+
+		public void RefreshStats()
+		{
+			inventory.UpdateWeightLabel();
+			stats.Refresh();
+		}
 		#endregion
 		
 		protected override void Dispose(bool disposing)
@@ -571,6 +582,7 @@ namespace EndlessClient
 			newsTab.Dispose();
 			inventory.Dispose();
 			chatRenderer.Dispose();
+			stats.Dispose();
 
 			if(modeTexture != null)
 				modeTexture.Dispose();

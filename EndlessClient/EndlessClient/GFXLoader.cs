@@ -481,7 +481,15 @@ namespace EndlessClient
 
 		private int getFactor(WeaponSpriteType type)
 		{
-			return (int)(type + 1); //figure these out later
+			switch (type)
+			{
+				case WeaponSpriteType.WalkFrame1:
+				case WeaponSpriteType.WalkFrame2:
+				case WeaponSpriteType.WalkFrame3:
+				case WeaponSpriteType.WalkFrame4:
+					return 4;
+			}
+			return 1;
 		}
 
 		private int getFactor(BootsSpriteType type)
@@ -514,18 +522,19 @@ namespace EndlessClient
 
 	public class EONPCSpriteSheet
 	{
-		private NPC npc;
+		private readonly NPC npc;
 
 		public EONPCSpriteSheet(NPC npcToWatch)
 		{
 			npc = npcToWatch;
 		}
 
-		public Texture2D GetNPCTexture(NPCFrame whichFrame, EODirection dir)
+		public Texture2D GetNPCTexture()
 		{
+			EODirection dir = npc.Direction;
 			int baseGfx = (npc.Data.Graphic - 1)*40;
 			int offset;
-			switch (whichFrame)
+			switch (npc.Frame)
 			{
 				case NPCFrame.Standing:
 					offset = dir == EODirection.Down || dir == EODirection.Right ? 1 : 3;

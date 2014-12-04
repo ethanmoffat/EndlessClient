@@ -72,7 +72,7 @@ namespace EndlessClient
 	/// <summary>
 	/// This is data used to track the stats of a player as a single, logically cohesive unit
 	/// </summary>
-	public struct CharStatData
+	public class CharStatData
 	{
 		public byte level;
 		public int exp;
@@ -100,6 +100,8 @@ namespace EndlessClient
 		public short disp_con;
 		public short disp_cha;
 
+		public CharStatData() { }
+
 		public CharStatData(CharStatData other)
 		{
 			level = other.level;
@@ -125,6 +127,22 @@ namespace EndlessClient
 			disp_con = other.disp_con;
 			disp_cha = other.disp_cha;
 		}
+
+		public void SetHP(short newHP) { hp = newHP; }
+		public void SetMaxHP(short newHP) { maxhp = newHP; }
+		public void SetTP(short newTP) { tp = newTP; }
+		public void SetMaxTP(short newTP) { maxtp = newTP; }
+		public void SetStr(short str) { disp_str = str; }
+		public void SetInt(short intl) { disp_int = intl; }
+		public void SetWis(short wis) { disp_wis = wis; }
+		public void SetAgi(short agi) { disp_agi = agi; }
+		public void SetCon(short con) { disp_con = con; }
+		public void SetCha(short cha) { disp_cha = cha; }
+		public void SetMinDam(short dam) { mindam = dam; }
+		public void SetMaxDam(short dam) { maxdam = dam; }
+		public void SetAccuracy(short acc) { accuracy= acc; }
+		public void SetEvade(short eva) { evade= eva; }
+		public void SetArmor(short arm) { armor = arm; }
 	}
 
 	/// <summary>
@@ -366,7 +384,10 @@ namespace EndlessClient
 			PaddedGuildTag = newGuy.PaddedGuildTag;
 			AdminLevel = newGuy.AdminLevel;
 			Array.Copy(newGuy.PaperDoll, PaperDoll, (int)EquipLocation.PAPERDOLL_MAX);
-			Stats = new CharStatData(newGuy.Stats);
+			Stats.SetHP(newGuy.Stats.hp);
+			Stats.SetMaxHP(newGuy.Stats.maxhp);
+			Stats.SetTP(newGuy.Stats.tp);
+			Stats.SetMaxTP(newGuy.Stats.maxtp);
 			RenderData = newGuy.RenderData;
 			RenderData.SetWalkFrame(0);
 			Walking = false;

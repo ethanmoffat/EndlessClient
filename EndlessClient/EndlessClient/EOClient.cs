@@ -148,6 +148,10 @@ namespace EndlessClient
 					new FamilyActionPair(PacketFamily.Refresh, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Refresh.RefreshReply, true)
 				},
+				{
+					new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Player), 
+					new LockedHandlerMethod(Handlers.StatSkill.StatSkillPlayer, true)
+				},
 				//TALK PACKETS
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Message),

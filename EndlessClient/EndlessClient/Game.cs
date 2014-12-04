@@ -485,7 +485,8 @@ namespace EndlessClient
 			if(lblVersionInfo != null)
 				lblVersionInfo.Dispose();
 
-			connectMutex.Dispose();
+			if(connectMutex != null)
+				connectMutex.Dispose();
 
 			GFXLoader.Cleanup();
 

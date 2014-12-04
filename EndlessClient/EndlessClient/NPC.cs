@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using EOLib;
 using EOLib.Data;
@@ -15,17 +14,17 @@ namespace EndlessClient
 	{
 		/* Default NPC speed table for eoserv, corresponding to the speed stored in the NPC spawn */
 		/* Not sure if this is ever transferred to the client at all, but it is a config value... */
-		private static readonly  int[] SPEED_TABLE = {900, 600, 1300, 1900, 3700, 7500, 15000, 0};
+		//private static readonly  int[] SPEED_TABLE = {900, 600, 1300, 1900, 3700, 7500, 15000, 0};
 
 		public byte Index { get; private set; }
 		public byte X { get; private set; }
 		public byte Y { get; private set; }
-		public EODirection Direction { get; set; }
+		public EODirection Direction { get; private set; }
 		public NPCRecord Data { get; private set; }
 
 		public Rectangle DrawArea;
 		public bool Walking { get; private set; }
-		public NPCFrame npcFrame { get; private set; }
+		public NPCFrame Frame { get; private set; }
 
 		private SpriteBatch sb;
 		private readonly EONPCSpriteSheet npcSheet;
@@ -43,7 +42,7 @@ namespace EndlessClient
 			get { return X * 16 + Y * 16 + adjY; }
 		}
 
-		public byte DestX { get; private set; }
+		private byte DestX { get; set; } //not needed outside this class (yet)
 		public byte DestY { get; private set; }
 
 		//updated when NPC is walking
@@ -55,6 +54,7 @@ namespace EndlessClient
 
 		private static readonly object chatBubbleLock = new object();
 		private EOChatBubble m_chatBubble;
+		private Texture2D baseFrame;
 
 		public NPC(Packet pkt)
 			: base(EOGame.Instance)
@@ -67,7 +67,8 @@ namespace EndlessClient
 			Direction = (EODirection)pkt.GetChar();
 
 			npcSheet = new EONPCSpriteSheet(this);
-			Texture2D tmp = npcSheet.GetNPCTexture(NPCFrame.StandingFrame1, Direction);
+			Frame = NPCFrame.StandingFrame1;
+			Texture2D tmp = npcSheet.GetNPCTexture();
 			Color[] tmpData = new Color[tmp.Width * tmp.Height];
 			tmp.GetData(tmpData);
 			hasStandFrame1 = tmpData.Any(_c => _c.R != 0 || _c.G != 0 || _c.B != 0);
@@ -78,14 +79,14 @@ namespace EndlessClient
 			base.Initialize();
 			sb = new SpriteBatch(GraphicsDevice);
 
-			npcFrame = NPCFrame.Standing;
+			Frame = NPCFrame.Standing;
 
-			Texture2D tmpText = npcSheet.GetNPCTexture(NPCFrame.Standing, EODirection.Down);
-			npcArea = new Rectangle(0, 0, tmpText.Width, tmpText.Height);
+			baseFrame = npcSheet.GetNPCTexture();
+			npcArea = new Rectangle(0, 0, baseFrame.Width, baseFrame.Height);
 
 			DrawArea = new Rectangle(
-					 offX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)((tmpText.Width / 6.4) * 3.2),
-					 offY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - tmpText.Height,
+					 offX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)((baseFrame.Width / 6.4) * 3.2),
+					 offY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - baseFrame.Height,
 					 npcArea.Width, npcArea.Height);
 			Walking = false;
 			walkTimer = new Timer(_walkCallback, null, Timeout.Infinite, Timeout.Infinite);
@@ -93,22 +94,21 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
-			Texture2D tmpText = npcSheet.GetNPCTexture(NPCFrame.Standing, Direction);
 			DrawArea = new Rectangle(
-					 offX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)((tmpText.Width / 6.4) * 3.2),
-					 offY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - tmpText.Height,
+					 offX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)((baseFrame.Width / 6.4) * 3.2),
+					 offY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - baseFrame.Height,
 					 npcArea.Width, npcArea.Height);
 
 			//switch the standing animation for NPCs every 500ms, if they're standing still
 			if (hasStandFrame1 && (int) gameTime.TotalGameTime.TotalMilliseconds%500 == 0)
 			{
-				if (npcFrame == NPCFrame.Standing)
+				if (Frame == NPCFrame.Standing)
 				{
-					npcFrame = NPCFrame.StandingFrame1;
+					Frame = NPCFrame.StandingFrame1;
 				}
-				else if (npcFrame == NPCFrame.StandingFrame1)
+				else if (Frame == NPCFrame.StandingFrame1)
 				{
-					npcFrame = NPCFrame.Standing;
+					Frame = NPCFrame.Standing;
 				}
 			}
 
@@ -132,7 +132,7 @@ namespace EndlessClient
 
 			Color col = _startFadeAway ? Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha -= 3) : Color.White;
 
-			batch.Draw(npcSheet.GetNPCTexture(npcFrame, Direction),
+			batch.Draw(npcSheet.GetNPCTexture(),
 				DrawArea,
 				null,
 				col,
@@ -185,23 +185,23 @@ namespace EndlessClient
 				case EODirection.Right: adjX += 8; adjY += 4; break;
 			}
 
-			switch (npcFrame)
+			switch (Frame)
 			{
 				case NPCFrame.Standing:
 				case NPCFrame.StandingFrame1:
-					npcFrame = NPCFrame.WalkFrame1;
+					Frame = NPCFrame.WalkFrame1;
 					break;
 				case NPCFrame.WalkFrame1:
-					npcFrame = NPCFrame.WalkFrame2;
+					Frame = NPCFrame.WalkFrame2;
 					break;
 				case NPCFrame.WalkFrame2:
-					npcFrame = NPCFrame.WalkFrame3;
+					Frame = NPCFrame.WalkFrame3;
 					break;
 				case NPCFrame.WalkFrame3:
-					npcFrame = NPCFrame.WalkFrame4;
+					Frame = NPCFrame.WalkFrame4;
 					break;
 				case NPCFrame.WalkFrame4:
-					npcFrame = NPCFrame.Standing;
+					Frame = NPCFrame.Standing;
 					walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
 					X = DestX;
 					Y = DestY;

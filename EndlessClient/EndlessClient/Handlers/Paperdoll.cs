@@ -64,13 +64,14 @@ namespace EndlessClient.Handlers
 				accuracy = pkt.GetShort(),
 				evade = pkt.GetShort(),
 				armor = pkt.GetShort()
-			}; //todo: apply the updated stats data to the character
+			};
 
 			EndlessClient.Character c;
 			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(itemId);
 			(c = World.Instance.MainPlayer.ActiveCharacter).UpdateInventoryItem(itemId, characterAmount);
 			c.EquipItem(rec.Type, (short)rec.ID, (short)rec.DollGraphic, true, (sbyte)subLoc);
 			EOGame.Instance.Hud.ShowEquippedInPaperdollDialog(rec, rec.GetEquipLocation() + subLoc);
+			UpdateStatsAfterEquip(c, data);
 		}
 
 		public static void PaperdollRemove(Packet pkt) //this is only ever sent to MainPlayer (avatar handles other players)
@@ -119,7 +120,7 @@ namespace EndlessClient.Handlers
 				accuracy = pkt.GetShort(),
 				evade = pkt.GetShort(),
 				armor = pkt.GetShort()
-			}; //todo: apply the updated stats data to the character
+			};
 
 			EndlessClient.Character c = World.Instance.MainPlayer.ActiveCharacter;
 			c.EquipItem(ItemType.Boots, 0, boots, true);
@@ -129,6 +130,7 @@ namespace EndlessClient.Handlers
 			c.EquipItem(ItemType.Weapon, 0, weapon, true);
 			c.UnequipItem(World.Instance.EIF.GetItemRecordByID(itemId).Type, subLoc);
 			c.UpdateInventoryItem(itemId, 1, true); //true: add to existing quantity
+			UpdateStatsAfterEquip(c, data);
 		}
 
 		public static void PaperdollReply(Packet pkt) //sent when showing a paperdoll for a character
@@ -152,7 +154,7 @@ namespace EndlessClient.Handlers
 			for (int i = 0; i < (int) EquipLocation.PAPERDOLL_MAX; ++i)
 				paperdoll[i] = pkt.GetShort();
 
-			var iconType = (EndlessClient.EOPaperdollDialog.IconType)pkt.GetChar();
+			var iconType = (EOPaperdollDialog.IconType)pkt.GetChar();
 			
 			EndlessClient.Character c;
 			if (World.Instance.MainPlayer.ActiveCharacter.ID == playerID)
@@ -179,6 +181,25 @@ namespace EndlessClient.Handlers
 				dlg.DialogClosing += (sender, args) => EOGame.Instance.Hud.ClearPaperdollDialog();
 				EOGame.Instance.Hud.SetPaperdollDialog(dlg);
 			}
+		}
+
+		private static void UpdateStatsAfterEquip(EndlessClient.Character c, CharStatData data)
+		{
+			c.Stats.SetMaxHP(data.maxhp);
+			c.Stats.SetMaxTP(data.maxtp);
+
+			c.Stats.SetStr(data.disp_str);
+			c.Stats.SetInt(data.disp_int);
+			c.Stats.SetWis(data.disp_wis);
+			c.Stats.SetAgi(data.disp_agi);
+			c.Stats.SetCon(data.disp_con);
+			c.Stats.SetCha(data.disp_cha);
+
+			c.Stats.SetMinDam(data.mindam);
+			c.Stats.SetMaxDam(data.maxdam);
+			c.Stats.SetAccuracy(data.accuracy);
+			c.Stats.SetEvade(data.evade);
+			c.Stats.SetArmor(data.armor);
 		}
 	}
 }
