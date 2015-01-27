@@ -241,9 +241,11 @@ namespace EndlessClient
 
 			relativeTextPos = new Vector2(20, 23);
 			//568 331
-			scrollBar = new EOScrollBar(parent, new Vector2(467, 20), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed);
-			scrollBar.LinesToRender = 7;
-			scrollBar.Visible = true;
+			scrollBar = new EOScrollBar(parent, new Vector2(467, 20), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed)
+			{
+				LinesToRender = 7,
+				Visible = true
+			};
 
 			font = Game.Content.Load<SpriteFont>("dbg");
 		}
@@ -359,7 +361,7 @@ namespace EndlessClient
 			Visible = Selected = false;
 			tabLabel.Text = "";
 			chatStrings.Clear();
-			(parent as EOChatRenderer).SetSelectedTab(ChatTabs.Local);
+			((EOChatRenderer)parent).SetSelectedTab(ChatTabs.Local);
 		}
 
 		public static Texture2D GetChatIcon(ChatType type)
@@ -386,7 +388,7 @@ namespace EndlessClient
 			{
 				if (!Selected)
 				{
-					(parent as EOChatRenderer).SetSelectedTab(WhichTab);
+					((EOChatRenderer)parent).SetSelectedTab(WhichTab);
 				}
 
 				//logic for handling the close button (not actually a button, was I high when I made this...?)
@@ -432,7 +434,7 @@ namespace EndlessClient
 					Vector2 pos = new Vector2(parent.DrawAreaWithOffset.X, parent.DrawAreaWithOffset.Y + relativeTextPos.Y + (i - scrollBar.ScrollOffset)*13);
 					SpriteBatch.Draw(GetChatIcon(chatStrings.Keys[i].Type), new Vector2(pos.X + 3, pos.Y), Color.White);
 
-					string strToDraw = "";
+					string strToDraw;
 					if (string.IsNullOrEmpty(chatStrings.Keys[i].Who))
 						strToDraw = chatStrings.Values[i];
 					else
@@ -465,15 +467,10 @@ namespace EndlessClient
 			tabs = new ChatTab[Enum.GetNames(typeof(ChatTabs)).Length - 1]; // -1 skips the 'none' tab which is used for news
 			for(int i = 0; i < tabs.Length; ++i)
 			{
-				tabs[i] = new ChatTab((ChatTabs)i, this, (ChatTabs)i == ChatTabs.Local);
-				if(i > (int)ChatTabs.Private2) //if it isn't private1 or private2
+				tabs[i] = new ChatTab((ChatTabs)i, this, (ChatTabs)i == ChatTabs.Local)
 				{
-					tabs[i].DrawLocation = new Vector2(289 + 44 * (i - 2), 102);
-				}
-				else
-				{
-					tabs[i].DrawLocation = new Vector2((ChatTabs)i == ChatTabs.Private1 ? 23 : 156, 102);
-				}
+					DrawLocation = i > (int) ChatTabs.Private2 ? new Vector2(289 + 44*(i - 2), 102) : new Vector2((ChatTabs) i == ChatTabs.Private1 ? 23 : 156, 102)
+				};
 			}
 
 			currentSelTab = (int)ChatTabs.Local;
@@ -500,7 +497,7 @@ namespace EndlessClient
 			//the parent renderer draws all the tabs
 			foreach (ChatTab t in tabs)
 			{
-				Texture2D drawTexture = null;
+				Texture2D drawTexture;
 				Color[] data;
 				switch (t.WhichTab)
 				{
@@ -511,8 +508,8 @@ namespace EndlessClient
 						{
 							data = new Color[43 * 16];
 							drawTexture = new Texture2D(Game.GraphicsDevice, 43, 16);
-							GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData<Color>(0, t.Selected ? new Rectangle(307, 16, 43, 16) : new Rectangle(264, 16, 43, 16), data, 0, data.Length);
-							drawTexture.SetData<Color>(data);
+							GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData(0, t.Selected ? new Rectangle(307, 16, 43, 16) : new Rectangle(264, 16, 43, 16), data, 0, data.Length);
+							drawTexture.SetData(data);
 						}
 						break;
 					case ChatTabs.Private1:
@@ -522,8 +519,8 @@ namespace EndlessClient
 							{
 								data = new Color[132 * 16];
 								drawTexture = new Texture2D(Game.GraphicsDevice, 132, 16);
-								GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData<Color>(0, t.Selected ? new Rectangle(132, 16, 132, 16) : new Rectangle(0, 16, 132, 16), data, 0, data.Length);
-								drawTexture.SetData<Color>(data);
+								GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData(0, t.Selected ? new Rectangle(132, 16, 132, 16) : new Rectangle(0, 16, 132, 16), data, 0, data.Length);
+								drawTexture.SetData(data);
 							}
 							else
 								drawTexture = null;
