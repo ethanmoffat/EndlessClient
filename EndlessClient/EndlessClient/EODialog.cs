@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using System.Windows.Forms.VisualStyles;
 using EOLib;
 using EOLib.Data;
 using Microsoft.Xna.Framework;
@@ -22,8 +21,7 @@ namespace EndlessClient
 	{
 		protected readonly Texture2D smallButtonSheet;
 
-		protected EODialogBase(Game encapsulatingGame)
-			: base(encapsulatingGame)
+		protected EODialogBase()
 		{
 			smallButtonSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
 		}
@@ -45,13 +43,12 @@ namespace EndlessClient
 	/// </summary>
 	public class EODialog : EODialogBase
 	{
-		public EODialog(Game encapsulatingGame, string msgText, string captionText = "", XNADialogButtons whichButtons = XNADialogButtons.Ok, bool useSmallHeader = false)
-			: base(encapsulatingGame)
+		public EODialog(string msgText, string captionText = "", XNADialogButtons whichButtons = XNADialogButtons.Ok, bool useSmallHeader = false)
 		{
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, useSmallHeader ? 23 : 18);
 			_setSize(bgTexture.Width, bgTexture.Height);
 			
-			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1), "Microsoft Sans Serif", 10.0f); //label is auto-sized
+			message = new XNALabel(new Rectangle(18, 57, 1, 1), "Microsoft Sans Serif", 10.0f); //label is auto-sized
 			if(useSmallHeader)
 			{
 				//179, 119
@@ -66,7 +63,7 @@ namespace EndlessClient
 			message.TextWidth = 254;
 			message.SetParent(this);
 
-			caption = new XNALabel(encapsulatingGame, new Rectangle(59, 23, 1, 1), "Microsoft Sans Serif", 10.0f);
+			caption = new XNALabel(new Rectangle(59, 23, 1, 1), "Microsoft Sans Serif", 10.0f);
 			if(useSmallHeader)
 			{
 				caption.DrawLocation = new Vector2(18, 12);
@@ -79,13 +76,13 @@ namespace EndlessClient
 			switch(whichButtons)
 			{
 				case XNADialogButtons.Ok:
-					ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
+					ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
 					ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 					ok.SetParent(this);
 					dlgButtons.Add(ok);
 					break;
 				case XNADialogButtons.Cancel:
-					cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
+					cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
 					cancel.OnClick += (sender, e) => Close(cancel, XNADialogResult.Cancel);
 					cancel.SetParent(this);
 					dlgButtons.Add(cancel);
@@ -93,11 +90,11 @@ namespace EndlessClient
 				case XNADialogButtons.OkCancel:
 					//implement this more fully when it is needed
 					//update draw location of ok button to be on left?
-					ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(89, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
+					ok = new XNAButton(smallButtonSheet, new Vector2(89, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
 					ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 					ok.SetParent(this);
 
-					cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
+					cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
 					cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
 					cancel.SetParent(this);
 
@@ -112,7 +109,7 @@ namespace EndlessClient
 					btn.DrawLocation = new Vector2(btn.DrawLocation.X, 82);
 			}
 
-			base.endConstructor();
+			endConstructor();
 		}
 	}
 
@@ -134,8 +131,8 @@ namespace EndlessClient
 
 		private int _totalHeight;
 		
-		public EOScrollBar(Game encapsulatingGame, XNAControl parent, Vector2 relativeLoc, Vector2 size, ScrollColors palette)
-			: base(encapsulatingGame, relativeLoc, new Rectangle((int)relativeLoc.X, (int)relativeLoc.Y, (int)size.X, (int)size.Y))
+		public EOScrollBar(XNAControl parent, Vector2 relativeLoc, Vector2 size, ScrollColors palette)
+			: base(relativeLoc, new Rectangle((int)relativeLoc.X, (int)relativeLoc.Y, (int)size.X, (int)size.Y))
 		{
 			SetParent(parent);
 			scrollArea = new Rectangle(0, 15, 0, (int)size.Y - 15);
@@ -185,13 +182,13 @@ namespace EndlessClient
 				scrollButton[i].SetData(scrollData);
 			}
 
-			up = new XNAButton(encapsulatingGame, upButton, new Vector2(0, 0));
+			up = new XNAButton(upButton, new Vector2(0, 0));
 			up.OnClick += arrowClicked;
 			up.SetParent(this);
-			down = new XNAButton(encapsulatingGame, downButton, new Vector2(0, size.Y - 15)); //update coordinates!!!!
+			down = new XNAButton(downButton, new Vector2(0, size.Y - 15)); //update coordinates!!!!
 			down.OnClick += arrowClicked;
 			down.SetParent(this);
-			scroll = new XNAButton(encapsulatingGame, scrollButton, new Vector2(0, 15)); //update coordinates!!!!
+			scroll = new XNAButton(scrollButton, new Vector2(0, 15)); //update coordinates!!!!
 			scroll.OnClickDrag += scrollDragged;
 			scroll.SetParent(this);
 
@@ -404,23 +401,22 @@ namespace EndlessClient
 			}
 		}
 
-		public EOScrollingDialog(Game encapsulatingGame, string msgText)
-			: base(encapsulatingGame)
+		public EOScrollingDialog(string msgText)
 		{
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 40);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			font = Game.Content.Load<SpriteFont>("dbg");
 			
-			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(138, 197), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(138, 197), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
 			ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			scrollBar = new EOScrollBar(encapsulatingGame, this, new Vector2(320, 66), new Vector2(16, 119), EOScrollBar.ScrollColors.LightOnMed);
+			scrollBar = new EOScrollBar(this, new Vector2(320, 66), new Vector2(16, 119), EOScrollBar.ScrollColors.LightOnMed);
 			MessageText = msgText;
 
-			base.endConstructor();
+			endConstructor();
 		}
 
 		public override void Draw(GameTime gt)
@@ -457,13 +453,12 @@ namespace EndlessClient
 		private readonly Texture2D pbBackText, pbForeText;
 		private int pbWidth;
 
-		public EOProgressDialog(Game encapsulatingGame, string msgText, string captionText = "")
-			: base(encapsulatingGame)
+		public EOProgressDialog(string msgText, string captionText = "")
 		{
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			message = new XNALabel(encapsulatingGame, new Rectangle(18, 57, 1, 1))//label is auto-sized
+			message = new XNALabel(new Rectangle(18, 57, 1, 1))//label is auto-sized
 			{
 				Font = new Font("Microsoft Sans Serif", 10.0f),
 				ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8),
@@ -472,7 +467,7 @@ namespace EndlessClient
 			}; 
 			message.SetParent(this);
 
-			caption = new XNALabel(encapsulatingGame, new Rectangle(59, 23, 1, 1))
+			caption = new XNALabel(new Rectangle(59, 23, 1, 1))
 			{
 				Font = new Font("Microsoft Sans Serif", 10.0f),
 				ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8),
@@ -480,20 +475,20 @@ namespace EndlessClient
 			};
 			caption.SetParent(this);
 
-			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
 			ok.OnClick += (sender, e) => Close(ok, XNADialogResult.Cancel);
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
 			pbBackText = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 19);
 
-			pbForeText = new Texture2D(encapsulatingGame.GraphicsDevice, 1, pbBackText.Height - 2); //foreground texture is just a fill
+			pbForeText = new Texture2D(Game.GraphicsDevice, 1, pbBackText.Height - 2); //foreground texture is just a fill
 			Color[] pbForeFill = new Color[pbForeText.Width * pbForeText.Height];
 			for (int i = 0; i < pbForeFill.Length; ++i)
 				pbForeFill[i] = Color.FromNonPremultiplied(0xb4, 0xdc, 0xe6, 255);
 			pbForeText.SetData(pbForeFill);
 
-			base.endConstructor();
+			endConstructor();
 		}
 
 		public override void Update(GameTime gt)
@@ -533,8 +528,7 @@ namespace EndlessClient
 		public string OldPassword { get { return inputBoxes[1].Text; } }
 		public string NewPassword { get { return inputBoxes[2].Text; } }
 
-		public EOChangePasswordDialog(Game encapsulatingGame, Texture2D cursorTexture, KeyboardDispatcher dispatcher)
-			: base(encapsulatingGame)
+		public EOChangePasswordDialog(Texture2D cursorTexture, KeyboardDispatcher dispatcher)
 		{
 			dispatch = dispatcher;
 
@@ -543,7 +537,7 @@ namespace EndlessClient
 
 			for(int i = 0; i < inputBoxes.Length; ++i)
 			{
-				XNATextBox tb = new XNATextBox(encapsulatingGame, new Rectangle(198, 60 + i * 30, 137, 19), cursorTexture, "Microsoft Sans Serif", 8.0f)
+				XNATextBox tb = new XNATextBox(new Rectangle(198, 60 + i * 30, 137, 19), cursorTexture, "Microsoft Sans Serif", 8.0f)
 				{
 					LeftPadding = 5,
 					DefaultText = " ",
@@ -578,7 +572,7 @@ namespace EndlessClient
 
 			dispatch.Subscriber = inputBoxes[0];
 
-			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(157, 195), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(157, 195), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
 			{
 				Visible = true
 			};
@@ -589,14 +583,14 @@ namespace EndlessClient
 
 				if (Username != World.Instance.MainPlayer.AccountName)
 				{
-					EODialog errDlg = new EODialog(Game, "The username or password you specified is incorrect", "Wrong info");
+					EODialog errDlg = new EODialog("The username or password you specified is incorrect", "Wrong info");
 					return;
 				}
 				
 				//check that passwords match, otherwise: return
 				if (inputBoxes[2].Text.Length != inputBoxes[3].Text.Length || inputBoxes[2].Text != inputBoxes[3].Text)
 				{
-					EODialog errDlg = new EODialog(Game, "The two passwords you provided are not the same, please try again.", "Wrong password");
+					EODialog errDlg = new EODialog("The two passwords you provided are not the same, please try again.", "Wrong password");
 					return;
 				}
 				
@@ -604,7 +598,7 @@ namespace EndlessClient
 				if (inputBoxes[2].Text.Length < 6)
 				{
 					//Make sure passwords are good enough
-					EODialog errDlg = new EODialog(Game, "For your own safety use a longer password (try 6 or more characters)", "Wrong password");
+					EODialog errDlg = new EODialog("For your own safety use a longer password (try 6 or more characters)", "Wrong password");
 					return;
 				}
 
@@ -613,7 +607,7 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			XNAButton cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
 			{
 				Visible = true
 			};
@@ -621,7 +615,7 @@ namespace EndlessClient
 			cancel.SetParent(this);
 			dlgButtons.Add(cancel);
 
-			base.endConstructor();
+			endConstructor();
 		}
 	}
 
@@ -642,15 +636,14 @@ namespace EndlessClient
 
 		private readonly Texture2D charCreateSheet;
 
-		public EOCreateCharacterDialog(Game encapsulatingGame, Texture2D cursorTexture, KeyboardDispatcher dispatcher)
-			: base(encapsulatingGame)
+		public EOCreateCharacterDialog(Texture2D cursorTexture, KeyboardDispatcher dispatcher)
 		{
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 20);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			charCreateSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22);
 
-			inputBox = new XNATextBox(encapsulatingGame, new Rectangle(80, 57, 138, 19), cursorTexture, "Microsoft Sans Serif", 8.0f)
+			inputBox = new XNATextBox(new Rectangle(80, 57, 138, 19), cursorTexture, "Microsoft Sans Serif", 8.0f)
 			{
 				LeftPadding = 5,
 				DefaultText = " ",
@@ -665,7 +658,7 @@ namespace EndlessClient
 			//four arrow buttons
 			for(int i = 0; i < arrowButtons.Length; ++i)
 			{
-				XNAButton btn = new XNAButton(encapsulatingGame, charCreateSheet, new Vector2(196, 85 + i * 26), new Rectangle(185, 38, 19, 19), new Rectangle(206, 38, 19, 19))
+				XNAButton btn = new XNAButton(charCreateSheet, new Vector2(196, 85 + i * 26), new Rectangle(185, 38, 19, 19), new Rectangle(206, 38, 19, 19))
 				{
 					Visible = true
 				};
@@ -674,7 +667,7 @@ namespace EndlessClient
 				arrowButtons[i] = btn;
 			}
 
-			charRender = new EOCharacterRenderer(encapsulatingGame, new Vector2(269, 83), new CharRenderData { gender = 0, hairstyle = 1, haircolor = 0, race = 0 });
+			charRender = new EOCharacterRenderer(new Vector2(269, 83), new CharRenderData { gender = 0, hairstyle = 1, haircolor = 0, race = 0 });
 			charRender.SetParent(this);
 			srcRects[0] = new Rectangle(0, 38, 23, 19);
 			srcRects[1] = new Rectangle(0, 19, 23, 19);
@@ -682,7 +675,7 @@ namespace EndlessClient
 			srcRects[3] = new Rectangle(46, 38, 23, 19);
 			
 			//ok/cancel buttons
-			XNAButton ok = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(157, 195), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(157, 195), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
 			{
 				Visible = true
 			};
@@ -690,7 +683,7 @@ namespace EndlessClient
 			{
 				if(inputBox.Text.Length < 4)
 				{
-					EODialog fail = new EODialog(encapsulatingGame, "The name you provided for this character is too short (try 4 or more characters)", "Wrong name");
+					EODialog fail = new EODialog("The name you provided for this character is too short (try 4 or more characters)", "Wrong name");
 					return;
 				}
 
@@ -699,7 +692,7 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			XNAButton cancel = new XNAButton(encapsulatingGame, smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
 			{
 				Visible = true
 			};
@@ -707,7 +700,7 @@ namespace EndlessClient
 			cancel.SetParent(this);
 			dlgButtons.Add(cancel);
 
-			base.endConstructor();
+			endConstructor();
 		}
 
 		private void ArrowButtonClick(object sender, EventArgs e)
@@ -790,8 +783,7 @@ namespace EndlessClient
 
 		private bool updatingFiles;
 
-		public EOConnectingDialog(Game encapsulatingGame)
-			: base (encapsulatingGame)
+		public EOConnectingDialog()
 		{
 			bgTexture = null; //don't use the built in bgtexture, we're going to use a sprite sheet for the BG
 			bgSprites = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 33);
@@ -800,14 +792,14 @@ namespace EndlessClient
 			_setSize(bgSprites.Width / 4, bgSprites.Height);
 			bgSrcIndex = 0;
 
-			caption = new XNALabel(Game, new Rectangle(12, 9, 1, 1), "Microsoft Sans Serif", 10.0f)
+			caption = new XNALabel(new Rectangle(12, 9, 1, 1), "Microsoft Sans Serif", 10.0f)
 			{
 				Text = wait,
 				ForeColor = System.Drawing.Color.FromArgb(0xf0, 0xf0, 0xc8)
 			};
 			caption.SetParent(this);
 
-			message = new XNALabel(Game, new Rectangle(18, 61, 1, 1), "Microsoft Sans Serif", 8.0f)
+			message = new XNALabel(new Rectangle(18, 61, 1, 1), "Microsoft Sans Serif", 8.0f)
 			{
 				TextWidth = 175,
 				ForeColor = System.Drawing.Color.FromArgb(0xb9, 0xb9, 0xb9),
@@ -816,7 +808,7 @@ namespace EndlessClient
 			//there are a number of messages that are shown, a static one will do for now
 			message.SetParent(this);
 
-			base.endConstructor(false);
+			endConstructor(false);
 		}
 
 		public override void Update(GameTime gt)
@@ -946,8 +938,8 @@ namespace EndlessClient
 		public EquipLocation EquipLoc { get; private set; }
 		public short ItemID { get { return (short)(m_info ?? new ItemRecord()).ID; } }
 
-		public EOPaperdollItem(Game g, Rectangle location, EOPaperdollDialog parent, ItemRecord info, EquipLocation locationEnum)
-			: base(g, null, null, parent)
+		public EOPaperdollItem(Rectangle location, EOPaperdollDialog parent, ItemRecord info, EquipLocation locationEnum)
+			: base(null, null, parent)
 		{
 			SetInfo(location, info);
 			EquipLoc = locationEnum;
@@ -1044,8 +1036,7 @@ namespace EndlessClient
 			SLNBot = 20
 		}
 
-		public EOPaperdollDialog(Game g, Character character, string home, string partner, string guild, string guildRank, IconType whichIcon)
-			: base (g)
+		public EOPaperdollDialog(Character character, string home, string partner, string guild, string guildRank, IconType whichIcon)
 		{
 			CharRef = character;
 
@@ -1053,14 +1044,14 @@ namespace EndlessClient
 			_setSize(bgSprites.Width, bgSprites.Height / 2);
 
 			Color[] dat = new Color[DrawArea.Width*DrawArea.Height];
-			bgTexture = new Texture2D(g.GraphicsDevice, DrawArea.Width, DrawArea.Height);
+			bgTexture = new Texture2D(Game.GraphicsDevice, DrawArea.Width, DrawArea.Height);
 			bgSprites.GetData(0, DrawArea.SetPosition(new Vector2(0, CharRef.RenderData.gender * DrawArea.Height)), dat, 0, dat.Length);
 			bgTexture.SetData(dat);
 
 			//not using caption/message since we have other shit to take care of
 
 			//ok button
-			XNAButton ok = new XNAButton(g, smallButtonSheet, new Vector2(276, 253), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28)) { Visible = true };
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(276, 253), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28)) { Visible = true };
 			ok.OnClick += (s, e) => Close(ok, XNADialogResult.OK);
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
@@ -1075,45 +1066,45 @@ namespace EndlessClient
 				//create item using itemArea
 				if (CharRef.PaperDoll[i] > 0)
 				{
-					EOPaperdollItem nextItem = new EOPaperdollItem(g, itemArea, this, info, (EquipLocation)i); //auto-added as child of this dialog
+					EOPaperdollItem nextItem = new EOPaperdollItem(itemArea, this, info, (EquipLocation)i); //auto-added as child of this dialog
 				}
 				else
 				{
-					EOPaperdollItem nextItem = new EOPaperdollItem(g, itemArea, this, null, (EquipLocation)i);
+					EOPaperdollItem nextItem = new EOPaperdollItem(itemArea, this, null, (EquipLocation)i);
 				}
 			}
 
 			//labels next
 			XNALabel[] labels =
 			{
-				new XNALabel(g, new Rectangle(228, 22, 1, 1), "Microsoft Sans Serif", 8.5f)
+				new XNALabel(new Rectangle(228, 22, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
 					Text = CharRef.Name.Length > 0 ? char.ToUpper(CharRef.Name[0]) + CharRef.Name.Substring(1) : ""
 				}, //name
-				new XNALabel(g, new Rectangle(228, 52, 1, 1), "Microsoft Sans Serif", 8.5f)
+				new XNALabel(new Rectangle(228, 52, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
 					Text = home.Length > 0 ? char.ToUpper(home[0]) + home.Substring(1) : ""
 				}, //home
-				new XNALabel(g, new Rectangle(228, 82, 1, 1), "Microsoft Sans Serif", 8.5f)
+				new XNALabel(new Rectangle(228, 82, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
 					Text = ((ClassRecord)(World.Instance.ECF.Data.Find(_dat => ((ClassRecord)_dat).ID == CharRef.Class) ?? new ClassRecord())).Name //Check for nulls, for teh lolz
 				}, //class
-				new XNALabel(g, new Rectangle(228, 112, 1, 1), "Microsoft Sans Serif", 8.5f)
+				new XNALabel(new Rectangle(228, 112, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
 					Text = partner.Length > 0 ? char.ToUpper(partner[0]) + partner.Substring(1) : ""
 				}, //partner
-				new XNALabel(g, new Rectangle(228, 142, 1, 1), "Microsoft Sans Serif", 8.5f)
+				new XNALabel(new Rectangle(228, 142, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
 					Text = CharRef.Title.Length > 0 ? char.ToUpper(CharRef.Title[0]) + CharRef.Title.Substring(1) : ""
 				}, //title
-				new XNALabel(g, new Rectangle(228, 202, 1, 1), "Microsoft Sans Serif", 8.5f)
+				new XNALabel(new Rectangle(228, 202, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
 					Text = guild.Length > 0 ? char.ToUpper(guild[0]) + guild.Substring(1) : ""
 				}, //guild
-				new XNALabel(g, new Rectangle(228, 232, 1, 1), "Microsoft Sans Serif", 8.5f)
+				new XNALabel(new Rectangle(228, 232, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
 					Text = guildRank.Length > 0 ? char.ToUpper(guild[0]) + guildRank.Substring(1) : ""
-				}, //rank
+				} //rank
 			};
 
 			labels.ToList().ForEach(_l => { _l.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8); _l.SetParent(this); });
@@ -1147,7 +1138,7 @@ namespace EndlessClient
 			}
 			m_characterIcon = ChatTab.GetChatIcon(iconType);
 
-			base.endConstructor();
+			endConstructor();
 		}
 
 		public override void Draw(GameTime gt)
@@ -1252,15 +1243,14 @@ namespace EndlessClient
 			get { return int.Parse(m_amount.Text); }
 		}
 
-		public EOItemTransferDialog(Game g, string itemName, TransferType transferType, int totalAmount)
-			: base(g)
+		public EOItemTransferDialog(string itemName, TransferType transferType, int totalAmount)
 		{
 			Texture2D weirdSpriteSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27);
 			Rectangle sourceArea = new Rectangle(38, 0, 265, 170);
 			
 			//get bgTexture
 			Color[] textureData = new Color[sourceArea.Width*sourceArea.Height];
-			bgTexture = new Texture2D(g.GraphicsDevice, sourceArea.Width, sourceArea.Height);
+			bgTexture = new Texture2D(Game.GraphicsDevice, sourceArea.Width, sourceArea.Height);
 			weirdSpriteSheet.GetData(0, sourceArea, textureData, 0, textureData.Length);
 			bgTexture.SetData(textureData);
 
@@ -1269,7 +1259,7 @@ namespace EndlessClient
 			{
 				Rectangle titleBarArea = new Rectangle(40, 172 + ((int)transferType - 1) * 24, 241, 22);
 				Color[] titleBarData = new Color[titleBarArea.Width*titleBarArea.Height];
-				m_titleBarGfx = new Texture2D(g.GraphicsDevice, titleBarArea.Width, titleBarArea.Height);
+				m_titleBarGfx = new Texture2D(Game.GraphicsDevice, titleBarArea.Width, titleBarArea.Height);
 				weirdSpriteSheet.GetData(0, titleBarArea, titleBarData, 0, titleBarData.Length);
 				m_titleBarGfx.SetData(titleBarData);
 			}
@@ -1277,7 +1267,7 @@ namespace EndlessClient
 			//set the buttons here
 
 			//ok/cancel buttons
-			XNAButton ok = new XNAButton(g, smallButtonSheet, new Vector2(60, 125), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(60, 125), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
 			{
 				Visible = true
 			};
@@ -1285,7 +1275,7 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			XNAButton cancel = new XNAButton(g, smallButtonSheet, new Vector2(153, 124), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(153, 124), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
 			{
 				Visible = true
 			};
@@ -1293,7 +1283,7 @@ namespace EndlessClient
 			cancel.SetParent(this);
 			dlgButtons.Add(cancel);
 
-			XNALabel descLabel = new XNALabel(g, new Rectangle(20, 42, 231, 33), "Microsoft Sans Serif", 10.0f)
+			XNALabel descLabel = new XNALabel(new Rectangle(20, 42, 231, 33), "Microsoft Sans Serif", 10.0f)
 			{
 				ForeColor = System.Drawing.Color.FromArgb(0xe6, 0xe6, 0xd6),
 				TextWidth = 200
@@ -1315,7 +1305,7 @@ namespace EndlessClient
 
 			//set the text box here
 			//starting coords are 163, 97
-			m_amount = new XNATextBox(g, new Rectangle(163, 95, 77, 19), g.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
+			m_amount = new XNATextBox(new Rectangle(163, 95, 77, 19), Game.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
 			{
 				Visible = true,
 				Enabled = true,
@@ -1332,7 +1322,7 @@ namespace EndlessClient
 				}
 			};
 			m_amount.SetParent(this);
-			(g as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = m_amount;
+			(Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = m_amount;
 
 			m_totalAmount = totalAmount;
 
@@ -1347,11 +1337,11 @@ namespace EndlessClient
 			
 			src.GetData(0, outText, outData, 0, outData.Length);
 			src.GetData(0, ovrText, ovrData, 0, ovrData.Length);
-			(sliderTextures[0] = new Texture2D(g.GraphicsDevice, 16, 15)).SetData(outData);
-			(sliderTextures[1] = new Texture2D(g.GraphicsDevice, 16, 15)).SetData(ovrData);
+			(sliderTextures[0] = new Texture2D(Game.GraphicsDevice, 16, 15)).SetData(outData);
+			(sliderTextures[1] = new Texture2D(Game.GraphicsDevice, 16, 15)).SetData(ovrData);
 
 			//starting coords are 25, 96; range rectangle is 122, 15
-			XNAButton slider = new XNAButton(g, sliderTextures, new Vector2(25, 96));
+			XNAButton slider = new XNAButton(sliderTextures, new Vector2(25, 96));
 			slider.OnClickDrag += (o, e) =>
 			{
 				MouseState st = Mouse.GetState();
@@ -1367,8 +1357,8 @@ namespace EndlessClient
 			slider.SetParent(this);
 
 			_setSize(bgTexture.Width, bgTexture.Height);
-			DrawLocation = new Vector2(g.GraphicsDevice.PresentationParameters.BackBufferWidth/2 - bgTexture.Width/2, 40); //only centered horizontally
-			base.endConstructor(false);
+			DrawLocation = new Vector2(Game.GraphicsDevice.PresentationParameters.BackBufferWidth/2 - bgTexture.Width/2, 40); //only centered horizontally
+			endConstructor(false);
 		}
 
 		public override void Draw(GameTime gt)

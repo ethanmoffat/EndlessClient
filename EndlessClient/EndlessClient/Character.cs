@@ -27,13 +27,13 @@ namespace EndlessClient
 	/// </summary>
 	public class CharRenderData
 	{
-		private static readonly object walkFrameLocker = new object();
+		private static readonly object walkFrameLocker = new object(), attackFrameLocker = new object();
 		public string name;
 		public int id;
 		public byte level, gender, hairstyle, haircolor, race, admin;
 		public short boots, armor, hat, shield, weapon;
 
-		public byte walkFrame;
+		public byte walkFrame, attackFrame;
 		
 		public EODirection facing;
 		public SitState sitting;
@@ -65,6 +65,7 @@ namespace EndlessClient
 		public void SetBoots(short newboots) { boots = newboots; update = true; }
 
 		public void SetWalkFrame(byte wf) { lock(walkFrameLocker) walkFrame = wf; update = true; }
+		public void SetAttackFrame(byte af) { lock (attackFrameLocker) attackFrame = af; update = true; }
 		public void SetUpdate(bool shouldUpdate) { update = shouldUpdate; }
 		public void SetHairNeedRefresh(bool shouldRefresh) { hairNeedRefresh = shouldRefresh; }
 	}
@@ -184,6 +185,8 @@ namespace EndlessClient
 		public int ViewAdjustX { get; set; }
 		public int ViewAdjustY { get; set; }
 		public bool Walking { get; private set; }
+		public bool Attacking { get; private set; }
+		public bool CanAttack { get { return Weight <= MaxWeight; } }
 
 		//paperdoll info
 		public string Name { get; set; }
@@ -404,7 +407,7 @@ namespace EndlessClient
 		/// </summary>
 		public void Walk(EODirection direction, byte destX, byte destY)
 		{
-			if (Walking)
+			if (Walking || Attacking)
 				return;
 
 			if (this == World.Instance.MainPlayer.ActiveCharacter)
@@ -422,13 +425,33 @@ namespace EndlessClient
 
 		public void DoneWalking()
 		{
-			Walking = false;
 			ViewAdjustX = 0;
 			ViewAdjustY = 0;
 			Walking = false; //this is the only place this should be set
 			X = DestX;
 			Y = DestY;
 			RenderData.SetWalkFrame(0);
+		}
+
+		public void Attack(EODirection direction)
+		{
+			if (Walking || Attacking) return;
+
+			if (this == World.Instance.MainPlayer.ActiveCharacter)
+			{
+				if(!Handlers.Attack.AttackUse(direction))
+					EOGame.Instance.LostConnectionDialog();
+			}
+			else if(RenderData.facing != direction)
+				RenderData.SetDirection(direction);
+
+			Attacking = true;
+		}
+
+		public void DoneAttacking()
+		{
+			Attacking = false;
+			RenderData.SetAttackFrame(0);
 		}
 
 		public void Face(EODirection direction)

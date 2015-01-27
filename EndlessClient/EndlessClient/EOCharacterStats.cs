@@ -31,8 +31,8 @@ namespace EndlessClient
 		private readonly Character c;
 		private bool m_training;
 
-		public EOCharacterStats(Game g, XNAPanel parent) 
-			: base(g, null, null, parent)
+		public EOCharacterStats(XNAPanel parent) 
+			: base(null, null, parent)
 		{
 			c = World.Instance.MainPlayer.ActiveCharacter;
 		}
@@ -44,14 +44,14 @@ namespace EndlessClient
 			//position for these: x=50, y = 8,26,44,...
 			for (int i = 0; i < m_basicStats.Length; ++i)
 			{
-				m_basicStats[i] = new XNALabel(Game, new Rectangle(50, 8 + i*18, 73, 13), "Microsoft Sans Serif", 8.5f)
+				m_basicStats[i] = new XNALabel(new Rectangle(50, 8 + i*18, 73, 13), "Microsoft Sans Serif", 8.5f)
 				{
 					Visible = true,
 					ForeColor = System.Drawing.Color.White,
 					AutoSize = false,
 				};
 				m_basicStats[i].SetParent(this);
-				m_arrows[i] = new XNAButton(Game, GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, true), new Vector2(106, 7 + i*18), new Rectangle(215, 386, 19, 15), new Rectangle(234, 386, 19, 15))
+				m_arrows[i] = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, true), new Vector2(106, 7 + i*18), new Rectangle(215, 386, 19, 15), new Rectangle(234, 386, 19, 15))
 				{
 					Visible = false, //for testing - this should only be visible when statpoints > 0
 					FlashSpeed = 500
@@ -61,7 +61,7 @@ namespace EndlessClient
 				{
 					if (!m_training)
 					{
-						EODialog dlg = new EODialog(Game, "Do you want to train?", "Character training", XNADialogButtons.OkCancel, true);
+						EODialog dlg = new EODialog("Do you want to train?", "Character training", XNADialogButtons.OkCancel, true);
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result != XNADialogResult.OK) return;
@@ -80,7 +80,7 @@ namespace EndlessClient
 			//x=158, y = 8, 26, 44, ...
 			for (int i = 0; i < m_characterStats.Length; ++i)
 			{
-				m_characterStats[i] = new XNALabel(Game, new Rectangle(158, 8 + i * 18, 73, 13), "Microsoft Sans Serif", 8.5f)
+				m_characterStats[i] = new XNALabel(new Rectangle(158, 8 + i * 18, 73, 13), "Microsoft Sans Serif", 8.5f)
 				{
 					Visible = true,
 					ForeColor = System.Drawing.Color.White,
@@ -91,7 +91,7 @@ namespace EndlessClient
 
 			for (int i = 0; i < m_otherInfo.Length; ++i)
 			{
-				m_otherInfo[i] = new XNALabel(Game, new Rectangle(i < 4 ? 280 : 379 , 44 + (i%4)*18, i < 4 ? 60 : 94, 13), "Microsoft Sans Serif", 8.5f)
+				m_otherInfo[i] = new XNALabel(new Rectangle(i < 4 ? 280 : 379 , 44 + (i%4)*18, i < 4 ? 60 : 94, 13), "Microsoft Sans Serif", 8.5f)
 				{
 					Visible = true,
 					ForeColor = System.Drawing.Color.White,
@@ -102,7 +102,7 @@ namespace EndlessClient
 
 			//these labels have non-standard sizes so they're done individually
 			//name= 280,8 144,13
-			m_charInfo[NAME] = new XNALabel(Game, new Rectangle(280, 8, 144, 13), "Microsoft Sans Serif", 8.5f)
+			m_charInfo[NAME] = new XNALabel(new Rectangle(280, 8, 144, 13), "Microsoft Sans Serif", 8.5f)
 			{
 				Visible = true,
 				ForeColor = System.Drawing.Color.White,
@@ -110,7 +110,7 @@ namespace EndlessClient
 				Text = c.Name
 			};
 			//guild = 280,26 193,13
-			m_charInfo[GUILD] = new XNALabel(Game, new Rectangle(280, 26, 193, 13), "Microsoft Sans Serif", 8.5f)
+			m_charInfo[GUILD] = new XNALabel(new Rectangle(280, 26, 193, 13), "Microsoft Sans Serif", 8.5f)
 			{
 				Visible = true,
 				ForeColor = System.Drawing.Color.White,
@@ -118,7 +118,7 @@ namespace EndlessClient
 				Text = c.GuildName
 			};
 			//level = 453,8, 20,13
-			m_charInfo[LEVEL] = new XNALabel(Game, new Rectangle(453, 8, 20, 13), "Microsoft Sans Serif", 8.5f)
+			m_charInfo[LEVEL] = new XNALabel(new Rectangle(453, 8, 20, 13), "Microsoft Sans Serif", 8.5f)
 			{
 				Visible = true,
 				ForeColor = System.Drawing.Color.White,

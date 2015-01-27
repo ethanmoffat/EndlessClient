@@ -182,14 +182,13 @@ namespace EndlessClient
 		private ItemRecord shieldInfo/*, weaponInfo, bootsInfo, armorInfo*/, hatInfo;
 
 		private KeyboardState _prevState;
-		private Timer _walkTimer;
+		private Timer _walkTimer, _attackTimer;
 		private readonly bool noLocUpdate;
 
 		private static readonly object chatBubbleLock = new object();
 		private EOChatBubble m_chatBubble;
 
-		public EOCharacterRenderer(Game g, Character charToRender)
-			: base(g)
+		public EOCharacterRenderer(Character charToRender)
 		{
 			spriteSheet = new EOSpriteSheet(charToRender);
 			_char = charToRender;
@@ -211,8 +210,8 @@ namespace EndlessClient
 			_prevState = Keyboard.GetState();
 		}
 
-		public EOCharacterRenderer(Game encapsulatingGame, Vector2 drawLocation, CharRenderData data)
-			: base(encapsulatingGame, drawLocation, null)
+		public EOCharacterRenderer(Vector2 drawLocation, CharRenderData data)
+			: base(drawLocation, null)
 		{
 			noLocUpdate = true;
 			_char = new Character(-1, data);
@@ -226,7 +225,7 @@ namespace EndlessClient
 			if (data.name.Length > 0)
 			{
 				//362, 167 abs loc
-				levelLabel = new XNALabel(encapsulatingGame, new Rectangle(-32, 75, 1, 1), "Microsoft Sans Serif", 8.75f)
+				levelLabel = new XNALabel(new Rectangle(-32, 75, 1, 1), "Microsoft Sans Serif", 8.75f)
 				{
 					ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c),
 // ReSharper disable SpecifyACultureInStringConversionExplicitly
@@ -236,7 +235,7 @@ namespace EndlessClient
 				levelLabel.SetParent(this);
 
 				//504, 93 abs loc
-				nameLabel = new XNALabel(encapsulatingGame, new Rectangle(104, 2, 89, 22), "Microsoft Sans Serif", 8.5f)
+				nameLabel = new XNALabel(new Rectangle(104, 2, 89, 22), "Microsoft Sans Serif", 8.5f)
 				{
 					ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c),
 					Text = ((char) (data.name[0] - 32)) + data.name.Substring(1),
@@ -272,6 +271,7 @@ namespace EndlessClient
 				DepthFormat.None);
 
 			_walkTimer = new Timer(_walkTimerCallback); //wait a minute. I'm the leader. I'll say when it's time to start.
+			_attackTimer = new Timer(_attackTimerCallback);
 		}
 
 		protected override void UnloadContent()
@@ -346,7 +346,8 @@ namespace EndlessClient
 			KeyboardState currentState = Keyboard.GetState();
 			if (_char != null && _char == World.Instance.MainPlayer.ActiveCharacter && gameTime.TotalGameTime.Milliseconds % 100 <= 25)
 			{
-				EODirection direction; //first, get the direction we should try to move based on the key presses from the player
+				EODirection direction = (EODirection)255; //first, get the direction we should try to move based on the key presses from the player
+				bool attacking = false;
 				if (currentState.IsKeyDown(Keys.Up) && _prevState.IsKeyDown(Keys.Up))
 					direction = EODirection.Up;
 				else if (currentState.IsKeyDown(Keys.Down) && _prevState.IsKeyDown(Keys.Down))
@@ -355,68 +356,90 @@ namespace EndlessClient
 					direction = EODirection.Left;
 				else if (currentState.IsKeyDown(Keys.Right) && _prevState.IsKeyDown(Keys.Right))
 					direction = EODirection.Right;
-				else
-					direction = (EODirection)255;
-				
-				byte destX, destY;
-				switch (direction)
+				else if ((currentState.IsKeyDown(Keys.LeftControl) || currentState.IsKeyDown(Keys.RightControl)) &&
+						 (_prevState.IsKeyDown(Keys.LeftControl) || _prevState.IsKeyDown(Keys.RightControl)))
+					attacking = true;
+
+				if (!attacking)
 				{
-					case EODirection.Up: destX = (byte)_char.X; destY = (byte)(_char.Y - 1); break;
-					case EODirection.Down: destX = (byte)_char.X; destY = (byte)(_char.Y + 1); break;
-					case EODirection.Right: destX = (byte)(_char.X + 1); destY = (byte)_char.Y; break;
-					case EODirection.Left: destX = (byte)(_char.X - 1); destY = (byte)_char.Y; break;
-					default:
-						if (!_char.Walking)
-							_prevState = currentState; //only set this when not walking already
+					byte destX, destY;
+					switch (direction)
+					{
+						case EODirection.Up:
+							destX = (byte) _char.X;
+							destY = (byte) (_char.Y - 1);
+							break;
+						case EODirection.Down:
+							destX = (byte) _char.X;
+							destY = (byte) (_char.Y + 1);
+							break;
+						case EODirection.Right:
+							destX = (byte) (_char.X + 1);
+							destY = (byte) _char.Y;
+							break;
+						case EODirection.Left:
+							destX = (byte) (_char.X - 1);
+							destY = (byte) _char.Y;
+							break;
+						default:
+							if (!_char.Walking)
+								_prevState = currentState; //only set this when not walking already
+							return;
+					}
+
+					//valid direction at this point
+					if (_char.RenderData.facing != direction)
+					{
+						_char.Face(direction);
 						return;
-				}
+					}
 
-				//valid direction at this point
-				if (_char.RenderData.facing != direction)
-				{
-					_char.Face(direction);
-					return;
-				}
-
-				TileInfo info = World.Instance.ActiveMapRenderer.CheckCoordinates(destX, destY);
-				switch (info.ReturnValue)
-				{
-					case TileInfo.ReturnType.IsOtherPlayer:
-						EOGame.Instance.Hud.SetStatusLabel("OTHER PLAYER WAHHHHHHHHHH"); //todo: keep moving into player to walk through...
-						break;
-					case TileInfo.ReturnType.IsOtherNPC:
-						EOGame.Instance.Hud.SetStatusLabel("OTHER NPC WAHHHHHHHHHH"); //todo: idk what's supposed to happen here
-						break;
-					case TileInfo.ReturnType.IsWarpSpec:
-						if (info.Warp.door != 0)
-						{
-							if (!info.Warp.doorOpened && !info.Warp.backOff)
+					TileInfo info = World.Instance.ActiveMapRenderer.CheckCoordinates(destX, destY);
+					switch (info.ReturnValue)
+					{
+						case TileInfo.ReturnType.IsOtherPlayer:
+							EOGame.Instance.Hud.SetStatusLabel("OTHER PLAYER WAHHHHHHHHHH");
+							//todo: keep moving into player to walk through...
+							break;
+						case TileInfo.ReturnType.IsOtherNPC:
+							EOGame.Instance.Hud.SetStatusLabel("OTHER NPC WAHHHHHHHHHH"); //todo: idk what's supposed to happen here
+							break;
+						case TileInfo.ReturnType.IsWarpSpec:
+							if (info.Warp.door != 0)
 							{
-								Handlers.Door.DoorOpen(destX, destY); //just do it...no checking yet, really
-								info.Warp.backOff = true; //set flag to prevent hella door packets from the client
+								if (!info.Warp.doorOpened && !info.Warp.backOff)
+								{
+									Handlers.Door.DoorOpen(destX, destY); //just do it...no checking yet, really
+									info.Warp.backOff = true; //set flag to prevent hella door packets from the client
+								}
+								else
+								{
+									//normal walking
+									_chkWalk(TileSpec.None, direction, destX, destY);
+								}
+							}
+							else if (info.Warp.levelRequirement != 0)
+							{
+								EOGame.Instance.Hud.SetStatusLabel("Level requirement : " + info.Warp.levelRequirement);
 							}
 							else
 							{
 								//normal walking
 								_chkWalk(TileSpec.None, direction, destX, destY);
 							}
-						}
-						else if (info.Warp.levelRequirement != 0)
-						{
-							EOGame.Instance.Hud.SetStatusLabel("Level requirement : " + info.Warp.levelRequirement);
-						}
-						else
-						{
-							//normal walking
-							_chkWalk(TileSpec.None, direction, destX, destY);
-						}
-						break;
-					case TileInfo.ReturnType.IsTileSpec:
-						_chkWalk(info.Spec, direction, destX, destY);
-						break;
+							break;
+						case TileInfo.ReturnType.IsTileSpec:
+							_chkWalk(info.Spec, direction, destX, destY);
+							break;
+					}
+				}
+				else if(!_char.Walking && !_char.Attacking && _char.CanAttack)
+				{
+					_char.Attack(Data.facing);
+					PlayerAttack();
 				}
 
-				if (!_char.Walking) _prevState = currentState; //only set this when not walking already
+				if (!_char.Walking && !_char.Attacking) _prevState = currentState; //only set this when not walking already
 			}
 		}
 
@@ -469,6 +492,13 @@ namespace EndlessClient
 			_walkTimer.Change(0, walkTimer); //ok, it's time to start
 		}
 
+		public void PlayerAttack()
+		{
+			const int attackTimer = 300;
+			Data.SetUpdate(true);
+			_attackTimer.Change(0, attackTimer);
+		}
+
 		//character is drawn in the following order:
 		// - shield (if wings/arrows)
 		// - weapon
@@ -503,7 +533,7 @@ namespace EndlessClient
 		//changes the frame for walking - used by the walk timer
 		private void _walkTimerCallback(object state)
 		{
-			if (_char == null || !_char.Walking) return;
+			if (_char == null || !_char.Walking || _char.Attacking) return;
 
 			if (Data.walkFrame == 4)
 			{
@@ -530,6 +560,23 @@ namespace EndlessClient
 			
 			World.Instance.ActiveMapRenderer.UpdateOtherPlayers(); //SetUpdate(true) for all other character's renderdata
 			Data.SetUpdate(true); //not concerned about multithreaded implications of this member
+		}
+
+		private void _attackTimerCallback(object state)
+		{
+			if (_char == null || !_char.Attacking || _char.Walking) return;
+
+			if (Data.attackFrame == 2)
+			{
+				_char.DoneAttacking();
+				_attackTimer.Change(Timeout.Infinite, Timeout.Infinite);
+			}
+			else
+			{
+				Data.SetAttackFrame((byte)(Data.attackFrame + 1));
+			}
+
+			Data.SetUpdate(true);
 		}
 
 		protected override void Dispose(bool disposing)

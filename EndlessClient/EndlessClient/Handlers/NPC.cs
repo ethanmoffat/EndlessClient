@@ -84,7 +84,25 @@ namespace EndlessClient.Handlers
 			byte y = pkt.GetChar();
 			int droppedAmount = pkt.GetInt();
 			int damage = pkt.GetThree();
-			//do whatever with this?
+			if (droppedItemID > 0)
+			{
+				World.Instance.ActiveMapRenderer.MapItems.Add(new MapItem
+				{
+					amount = droppedAmount,
+					id = droppedItemID,
+					uid = droppedItemUID,
+					x = x,
+					y = y
+				});
+			}
+		}
+
+		/// <summary>
+		/// Handler for NPC_REPLY packet, when NPC takes damage from an attack (spell cast or weapon) but is still alive
+		/// </summary>
+		public static void NPCReply(Packet pkt)
+		{
+			
 		}
 	}
 }

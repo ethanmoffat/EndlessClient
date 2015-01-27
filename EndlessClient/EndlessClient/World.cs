@@ -153,7 +153,7 @@ namespace EndlessClient
 				EOCharacterRenderer ret;
 				if (m_charRender == null)
 				{
-					m_charRender = new EOCharacterRenderer(EOGame.Instance, MainPlayer.ActiveCharacter);
+					m_charRender = new EOCharacterRenderer(MainPlayer.ActiveCharacter);
 					m_charRender.Initialize();
 				}
 
@@ -163,7 +163,7 @@ namespace EndlessClient
 				if (ret.Character != MainPlayer.ActiveCharacter)
 				{
 					ret.Dispose();
-					ret = m_charRender = new EOCharacterRenderer(EOGame.Instance, MainPlayer.ActiveCharacter);
+					ret = m_charRender = new EOCharacterRenderer(MainPlayer.ActiveCharacter);
 					m_charRender.Initialize();
 				}
 

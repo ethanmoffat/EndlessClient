@@ -2,16 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Windows.Forms;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
 
 using EOLib;
-using EOLib.Data;
 using XNAControls;
 
 namespace EndlessClient
@@ -50,6 +45,9 @@ namespace EndlessClient
 	public partial class EOGame : Game
 	{
 		private static EOGame inst;
+		/// <summary>
+		/// Singleton Instance: used/disposed from main in Program.cs
+		/// </summary>
 		public static EOGame Instance
 		{
 			get { return inst ?? (inst = new EOGame()); }
@@ -108,7 +106,7 @@ namespace EndlessClient
 					if (!World.Instance.Client.ConnectToServer(host, port))
 					{
 						string caption, msg = Handlers.Init.ResponseMessage(out caption);
-						EODialog err = new EODialog(this, msg, caption);
+						EODialog err = new EODialog(msg, caption);
 						connectMutex.Set();
 						return;
 					}
@@ -118,7 +116,7 @@ namespace EndlessClient
 				{
 					if (!exiting)
 					{
-						EODialog dlg = new EODialog(this, "The game server could not be found. Please try again at a later time", "Could not find server");
+						EODialog dlg = new EODialog("The game server could not be found. Please try again at a later time", "Could not find server");
 					}
 				}
 
@@ -129,7 +127,7 @@ namespace EndlessClient
 		public void LostConnectionDialog()
 		{
 			//Eventually these message strings should be loaded from the global constant class, or from dat files somehow. for now this method will do.
-			EODialog errDlg = new EODialog(this, "The connection to the game server was lost, please try again at a later time.", "Lost connection");
+			EODialog errDlg = new EODialog("The connection to the game server was lost, please try again at a later time.", "Lost connection");
 			if (World.Instance.Client.ConnectedAndInitialized)
 				World.Instance.Client.Disconnect();
 			doStateChange(GameStates.Initial);
@@ -152,10 +150,10 @@ namespace EndlessClient
 			for (int i = 0; i < World.Instance.MainPlayer.CharData.Length; ++i)
 			{
 				//need to get actual draw location
-				int dOrder = 0;
-				if (render[i] != null)
-					dOrder = render[i].DrawOrder;
-				render[i] = new EOCharacterRenderer(this, new Vector2(395, 60 + i * 124), World.Instance.MainPlayer.CharData[i]);
+				//int dOrder = 0; //for debugging
+				//if (render[i] != null)
+				//	dOrder = render[i].DrawOrder;
+				render[i] = new EOCharacterRenderer(new Vector2(395, 60 + i * 124), World.Instance.MainPlayer.CharData[i]);
 			}
 		}
 		
@@ -172,8 +170,11 @@ namespace EndlessClient
 			}
 			
 			List<DrawableGameComponent> toRemove = new List<DrawableGameComponent>();
-			foreach (DrawableGameComponent component in Components)
+			foreach (var comp in Components)
 			{
+				DrawableGameComponent component = comp as DrawableGameComponent;
+				if (comp == null) continue;
+
 				//don't hide dialogs
 				if (component is XNAControl &&
 					(XNAControl.Dialogs.Contains(component as XNAControl) ||
@@ -194,7 +195,7 @@ namespace EndlessClient
 						(component as XNATextBox).Text = "";
 						(component as XNATextBox).Selected = false;
 					}
-					component.Visible = false;
+					if (component != null) component.Visible = false;
 				}
 			}
 			foreach (DrawableGameComponent comp in toRemove)
@@ -260,10 +261,9 @@ namespace EndlessClient
 					for (int i = Components.Count - 1; i >= 0; --i)
 					{
 						IGameComponent comp = Components[i];
-						if (comp != backButton)
+						if (comp != backButton && comp is DrawableGameComponent)
 						{
 							(comp as DrawableGameComponent).Dispose();
-							comp = null;
 							Components.Remove(comp);
 						}
 					}
@@ -288,16 +288,26 @@ namespace EndlessClient
 
 		private EOGame()
 		{
-			graphics = new GraphicsDeviceManager(this);
-			graphics.PreferredBackBufferWidth = WIDTH;
-			graphics.PreferredBackBufferHeight = HEIGHT;
+			graphics = new GraphicsDeviceManager(this) {PreferredBackBufferWidth = WIDTH, PreferredBackBufferHeight = HEIGHT};
 			Content.RootDirectory = "Content";
 		}
 
 		protected override void Initialize()
 		{
+			try
+			{
+				//yup. class named the same as a namespace. #whut
+				XNAControls.XNAControls.Initialize(this);
+			}
+			catch (ArgumentNullException ex)
+			{
+				MessageBox.Show("Something super weird happened: " + ex.Message);
+				Exit();
+				return;
+			}
+
 			IsMouseVisible = true;
-			Dispatcher = new KeyboardDispatcher(this.Window);
+			Dispatcher = new KeyboardDispatcher(Window);
 			ResetPeopleIndices();
 			
 			try
@@ -307,35 +317,35 @@ namespace EndlessClient
 			}
 			catch (WorldLoadException wle) //could be thrown from World's constructor
 			{
-				System.Windows.Forms.MessageBox.Show(wle.Message, "Error");
+				MessageBox.Show(wle.Message, "Error");
 				Exit();
 				return;
 			}
 			catch (Exception ex) //could be thrown from GFXLoader.Initialize
 			{
-				System.Windows.Forms.MessageBox.Show("Error initializing GFXLoader: " + ex.Message, "Error");
+				MessageBox.Show("Error initializing GFXLoader: " + ex.Message, "Error");
 				Exit();
 				return;
 			}
 
 			if(World.Instance.EIF != null && World.Instance.EIF.Version == 0)
 			{
-				System.Windows.Forms.MessageBox.Show("The item pub file you are using is using an older format of the EIF specification. Some features may not work properly. Run the file through a batch processor or use updated pub files.", "Warning");
+				MessageBox.Show("The item pub file you are using is using an older format of the EIF specification. Some features may not work properly. Run the file through a batch processor or use updated pub files.", "Warning");
 			}
 
-			GFXTypes curValue = (GFXTypes)0;
+			GFXTypes curValue = 0;
 			try
 			{
 				Array values = Enum.GetValues(typeof(GFXTypes));
 				foreach (GFXTypes value in values)
 				{
 					curValue = value;
-					using (Texture2D throwAway = GFXLoader.TextureFromResource(value, -99, false)) { }
+					using (Texture2D throwAway = GFXLoader.TextureFromResource(value, -99)) { }
 				}
 			}
 			catch
 			{
-				System.Windows.Forms.MessageBox.Show(string.Format("There was an error loading GFX{0:000}.EGF : {1}. Place all .GFX files in .\\gfx\\", (int)curValue, curValue.ToString()), "Error");
+				MessageBox.Show(string.Format("There was an error loading GFX{0:000}.EGF : {1}. Place all .GFX files in .\\gfx\\", (int)curValue, curValue.ToString()), "Error");
 				Exit();
 				return;
 			}
@@ -356,7 +366,6 @@ namespace EndlessClient
 			spriteBatch = new SpriteBatch(GraphicsDevice);
 
 			//texture for UI background image
-			Random gen = new Random();
 			UIBackground = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 30 + gen.Next(7));
 
 			PeopleSetOne = new Texture2D[4];

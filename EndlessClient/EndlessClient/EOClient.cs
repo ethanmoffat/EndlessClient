@@ -65,6 +65,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.NPCPackets.AppearReply, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Attack, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Attack.AttackPlayerResponse, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Avatar, PacketAction.Agree),
 					new LockedHandlerMethod(Handlers.Avatar.AvatarAgree, true)
 				},

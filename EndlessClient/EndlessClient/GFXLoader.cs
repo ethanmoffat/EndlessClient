@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
+using EndlessClient.Handlers;
 using EOLib.Data;
 using Microsoft.Xna.Framework.Graphics;
 using XNA = Microsoft.Xna.Framework;
@@ -190,6 +191,7 @@ namespace EndlessClient
 		/// <param name="resourceVal">Name (number) of the image resource</param>
 		/// <param name="file">File type to load from</param>
 		/// <param name="transparent">Whether or not to make the background black color transparent</param>
+		/// <param name="reloadFromFile">True to force reload the gfx from the gfx file, false to use the in-memory cache</param>
 		/// <returns>Texture2D containing the image from the *.egf file</returns>
 		public static Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false, bool reloadFromFile = false)
 		{
@@ -215,7 +217,7 @@ namespace EndlessClient
 				ret = Texture2D.FromStream(device, mem);
 			}
 			
-			//need to double-checkthat the key isn't already in the cache:
+			//need to double-check that the key isn't already in the cache:
 			//  	multiple threads can enter this method simultaneously
 			//avoiding a lock because this method is used for every graphic
 			if(!cache.ContainsKey(key))
@@ -341,6 +343,12 @@ namespace EndlessClient
 				case 3: type = ArmorShieldSpriteType.WalkFrame3; break;
 				case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
 			}
+			switch (_data.attackFrame)
+			{
+				case 1: type = ArmorShieldSpriteType.PunchFrame1; break;
+				case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
+			}
+
 			short baseArmorValue = (short)((_data.armor - 1) * 50);
 			GFXTypes gfxFile = (_data.gender == 0) ? GFXTypes.FemaleArmor : GFXTypes.MaleArmor;
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1; //multiplier for the direction faced
@@ -362,6 +370,11 @@ namespace EndlessClient
 					case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
 				}
 			}
+			switch (_data.attackFrame)
+			{
+				case 1: type = ArmorShieldSpriteType.PunchFrame1; break;
+				case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
+			}
 			short baseShieldValue = (short)((_data.shield - 1) * 50);
 			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleBack : GFXTypes.MaleBack;
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
@@ -380,6 +393,11 @@ namespace EndlessClient
 				case 3: type = WeaponSpriteType.WalkFrame3; break;
 				case 4: type = WeaponSpriteType.WalkFrame4; break;
 			}
+			switch (_data.attackFrame)
+			{
+				case 1: type = WeaponSpriteType.SwingFrame1; break;
+				case 2: type = WeaponSpriteType.SwingFrame2; break;
+			}
 			short baseWeaponValue = (short)((_data.weapon - 1) * 100);
 			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleWeapons : GFXTypes.MaleWeapons;
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
@@ -397,6 +415,11 @@ namespace EndlessClient
 				case 2: type = BootsSpriteType.WalkFrame2; break;
 				case 3: type = BootsSpriteType.WalkFrame3; break;
 				case 4: type = BootsSpriteType.WalkFrame4; break;
+			}
+			switch (_data.attackFrame)
+			{
+				case 1:
+				case 2: type = BootsSpriteType.Attack; break;
 			}
 			short baseBootsValue = (short)((_data.boots - 1) * 40);
 			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleShoes : GFXTypes.MaleShoes;
@@ -441,7 +464,13 @@ namespace EndlessClient
 				gfxNum = 2;
 				sheetColumns = 16;
 			}
-			//similar if statements for attacking, spell, emote, etc
+			else if (_data.attackFrame > 0)
+			{
+				//attacking
+				gfxNum = 3;
+				sheetColumns = 8;
+			}
+			//similar if statements for spell, emote, etc
 
 			bool rotated = _data.facing == EODirection.Left || _data.facing == EODirection.Up;
 			Texture2D sheet = GFXLoader.TextureFromResource(GFXTypes.SkinSprites, gfxNum, true);
@@ -449,6 +478,7 @@ namespace EndlessClient
 			int widthDelta = sheet.Width / sheetColumns; //the width of one 'column' in the sheet
 			int section = sheet.Width/4; //each 'section' for a different set of graphics
 			int walkExtra = _data.walkFrame > 0 ? widthDelta * (_data.walkFrame - 1) : 0;
+			walkExtra = _data.attackFrame > 0 ? widthDelta*(_data.attackFrame - 1) : walkExtra;
 			Microsoft.Xna.Framework.Rectangle characterSkin = new Microsoft.Xna.Framework.Rectangle(
 				_data.gender * widthDelta * (sheetColumns / 2) + (rotated ? section : 0) + walkExtra,
 				_data.race * heightDelta,
@@ -488,6 +518,9 @@ namespace EndlessClient
 				case WeaponSpriteType.WalkFrame3:
 				case WeaponSpriteType.WalkFrame4:
 					return 4;
+				case WeaponSpriteType.SwingFrame1:
+				case WeaponSpriteType.SwingFrame2:
+					return 2;
 			}
 			return 1;
 		}

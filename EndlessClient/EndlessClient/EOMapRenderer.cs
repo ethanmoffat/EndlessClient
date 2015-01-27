@@ -85,7 +85,7 @@ namespace EndlessClient
 
 		private void _initLabel(string message)
 		{
-			m_label = new XNALabel(EOGame.Instance, new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.5f)
+			m_label = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.5f)
 			{
 				Visible = true,
 				DrawOrder = DrawOrder + 1,
@@ -279,7 +279,7 @@ namespace EndlessClient
 
 			mouseCursor = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
 			_cursorSourceRect = new Rectangle(0, 0, mouseCursor.Width / 5, mouseCursor.Height);
-			_mouseoverName = new XNALabel(g, new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
+			_mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
 			{
 				Visible = true,
 				Text = "",
@@ -425,7 +425,7 @@ namespace EndlessClient
 			if ((other = otherPlayers.Find(x => x.Name == c.Name && x.ID == c.ID)) == null)
 			{
 				otherPlayers.Add(c);
-				otherRenderers.Add(new EOCharacterRenderer(Game, c));
+				otherRenderers.Add(new EOCharacterRenderer(c));
 				otherRenderers[otherRenderers.Count - 1].Visible = true;
 				otherRenderers[otherRenderers.Count - 1].Initialize();
 			}
@@ -475,6 +475,21 @@ namespace EndlessClient
 				if (rends.Count > 0 && (renderer = rends[0]) != null)
 				{
 					renderer.PlayerWalk();//do the actual drawing of the other player walking
+				}
+			}
+		}
+
+		public void OtherPlayerAttack(short ID, EODirection direction)
+		{
+			Character c;
+			if ((c = otherPlayers.Find(cc => cc.ID == ID)) != null)
+			{
+				c.Attack(direction);
+				List<EOCharacterRenderer> rends = otherRenderers.Where(rend => rend.Character == c).ToList();
+				EOCharacterRenderer renderer;
+				if (rends.Count > 0 && (renderer = rends[0]) != null)
+				{
+					renderer.PlayerAttack();//do the actual drawing of the other player walking
 				}
 			}
 		}
@@ -1034,7 +1049,7 @@ namespace EndlessClient
 				List<NPC> thisRowNpcs = otherNpcs.Where(_npc => _npc.Walking ? _npc.DestY == rowIndex : _npc.Y == rowIndex).ToList();
 				thisRowNpcs.ForEach(_npc => _npc.DrawToSpriteBatch(sb, true));
 				List<EOCharacterRenderer> thisRowChars = otherChars.Where(_char => _char.Character.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex).ToList();
-				thisRowChars.ForEach(_char => _char.Draw(sb, null));
+				thisRowChars.ForEach(_char => _char.Draw(sb, null, true));
 			}
 
 			sb.End();

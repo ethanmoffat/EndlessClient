@@ -177,7 +177,7 @@ namespace EndlessClient.Handlers
 
 			if (c != null)
 			{
-				EOPaperdollDialog dlg = new EOPaperdollDialog(EOGame.Instance, c, home, partner, guild, rank, iconType);
+				EOPaperdollDialog dlg = new EOPaperdollDialog(c, home, partner, guild, rank, iconType);
 				dlg.DialogClosing += (sender, args) => EOGame.Instance.Hud.ClearPaperdollDialog();
 				EOGame.Instance.Hud.SetPaperdollDialog(dlg);
 			}

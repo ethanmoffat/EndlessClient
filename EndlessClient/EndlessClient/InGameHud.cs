@@ -82,69 +82,69 @@ namespace EndlessClient
 
 			//set up panels
 			Texture2D invBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 44);
-			pnlInventory = new XNAPanel(g, new Rectangle(102, 330, invBG.Width, invBG.Height))
+			pnlInventory = new XNAPanel(new Rectangle(102, 330, invBG.Width, invBG.Height))
 			{
 				BackgroundImage = invBG,
 				Visible = false
 			};
 
 			Texture2D spellsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 62);
-			pnlActiveSpells = new XNAPanel(g, new Rectangle(102, 330, spellsBG.Width, spellsBG.Height))
+			pnlActiveSpells = new XNAPanel(new Rectangle(102, 330, spellsBG.Width, spellsBG.Height))
 			{
 				BackgroundImage = spellsBG,
 				Visible = false
 			};
 
-			pnlPassiveSpells = new XNAPanel(g, new Rectangle(102, 330, spellsBG.Width, spellsBG.Height))
+			pnlPassiveSpells = new XNAPanel(new Rectangle(102, 330, spellsBG.Width, spellsBG.Height))
 			{
 				BackgroundImage = spellsBG,
 				Visible = false
 			};
 
 			Texture2D chatBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 28);
-			pnlChat = new XNAPanel(g, new Rectangle(102, 330, chatBG.Width, chatBG.Height))
+			pnlChat = new XNAPanel(new Rectangle(102, 330, chatBG.Width, chatBG.Height))
 			{
 				BackgroundImage = chatBG,
 				Visible = false
 			};
 
 			Texture2D statsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 34);
-			pnlStats = new XNAPanel(g, new Rectangle(102, 330, statsBG.Width, statsBG.Height))
+			pnlStats = new XNAPanel(new Rectangle(102, 330, statsBG.Width, statsBG.Height))
 			{
 				BackgroundImage = statsBG,
 				Visible = false
 			};
 
 			Texture2D onlineBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 36);
-			pnlOnline = new XNAPanel(g, new Rectangle(102, 330, onlineBG.Width, onlineBG.Height))
+			pnlOnline = new XNAPanel(new Rectangle(102, 330, onlineBG.Width, onlineBG.Height))
 			{
 				BackgroundImage = onlineBG,
 				Visible = false
 			};
 
 			Texture2D partyBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 42);
-			pnlParty = new XNAPanel(g, new Rectangle(102, 330, partyBG.Width, partyBG.Height))
+			pnlParty = new XNAPanel(new Rectangle(102, 330, partyBG.Width, partyBG.Height))
 			{
 				BackgroundImage = partyBG,
 				Visible = false
 			};
 
 			Texture2D settingsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 47);
-			pnlSettings = new XNAPanel(g, new Rectangle(102, 330, settingsBG.Width, settingsBG.Height))
+			pnlSettings = new XNAPanel(new Rectangle(102, 330, settingsBG.Width, settingsBG.Height))
 			{
 				BackgroundImage = settingsBG,
 				Visible = false
 			};
 
 			Texture2D helpBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 63);
-			pnlHelp = new XNAPanel(g, new Rectangle(102, 330, helpBG.Width, helpBG.Height))
+			pnlHelp = new XNAPanel(new Rectangle(102, 330, helpBG.Width, helpBG.Height))
 			{
 				BackgroundImage = helpBG,
 				Visible = false
 			};
 
 			Texture2D newsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 48);
-			pnlNews = new XNAPanel(g, new Rectangle(102, 330, newsBG.Width, newsBG.Height)) {BackgroundImage = newsBG};
+			pnlNews = new XNAPanel(new Rectangle(102, 330, newsBG.Width, newsBG.Height)) {BackgroundImage = newsBG};
 
 			for (int i = 0; i < NUM_BTN; ++i)
 			{
@@ -167,7 +167,7 @@ namespace EndlessClient
 				//6-10: right side, starting at 587, 347
 				Vector2 btnLoc = new Vector2(i < 6 ? 62 : 590, (i < 6 ? 330 : 350) + ((i < 6 ? i : i - 6) * 20));
 
-				mainBtn[i] = new XNAButton(g, new [] { _out, _ovr }, btnLoc);
+				mainBtn[i] = new XNAButton(new [] { _out, _ovr }, btnLoc);
 				//mainBtn[i].Visible = false;
 			}
 
@@ -190,14 +190,14 @@ namespace EndlessClient
 
 			state = InGameStates.News;
 
-			chatRenderer = new EOChatRenderer(g);
+			chatRenderer = new EOChatRenderer();
 			chatRenderer.SetParent(pnlChat);
 			chatRenderer.AddTextToTab(ChatTabs.Global, "Server", "Begin your line with a '~' to send a message to everyone online!", ChatType.Note, ChatColor.Server);
 			chatRenderer.AddTextToTab(ChatTabs.Global, "Server", "Do not curse, harass or flood on the global channel, this is not allowed.", ChatType.Note, ChatColor.Server);
 
-			newsTab = new ChatTab(g, pnlNews);
+			newsTab = new ChatTab(pnlNews);
 
-			chatTextBox = new XNATextBox(g, new Rectangle(124, 308, 440, 19), g.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
+			chatTextBox = new XNATextBox(new Rectangle(124, 308, 440, 19), g.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
 			{
 				Selected = true,
 				Visible = true,
@@ -250,8 +250,8 @@ namespace EndlessClient
 			
 			((EOGame)g).Dispatcher.Subscriber = chatTextBox;
 
-			statusLabel = new XNALabel(Game, new Rectangle(97, 455, 1, 1), "Microsoft Sans Serif", 7.0f);
-			clockLabel = new XNALabel(Game, new Rectangle(558, 455, 1, 1), "Microsoft Sans Serif", 7.0f);
+			statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), "Microsoft Sans Serif", 7.0f);
+			clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), "Microsoft Sans Serif", 7.0f);
 		}
 
 		public override void Initialize()
@@ -275,9 +275,9 @@ namespace EndlessClient
 
 			//the draw orders are adjusted for child items in the constructor.
 			//calling SetParent will break this.
-			inventory = new EOInventory(Game, pnlInventory);
+			inventory = new EOInventory(pnlInventory);
 
-			stats = new EOCharacterStats(Game, pnlStats);
+			stats = new EOCharacterStats(pnlStats);
 			stats.Initialize();
 
 			base.Initialize();

@@ -117,6 +117,7 @@
     <Compile Include="AsyncClient.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="DamageCounter.cs" />
     <Compile Include="EOCharacterRenderer.cs" />
     <Compile Include="EOCharacterStats.cs" />
     <Compile Include="EOClient.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Game.cs" />
     <Compile Include="GameUI.cs" />
     <Compile Include="Handlers\Account.cs" />
+    <Compile Include="Handlers\Attack.cs" />
     <Compile Include="Handlers\Avatar.cs" />
     <Compile Include="Handlers\Connection.cs" />
     <Compile Include="Handlers\Character.cs" />

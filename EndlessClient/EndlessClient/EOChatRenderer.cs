@@ -178,12 +178,12 @@ namespace EndlessClient
 		/// <summary>
 		/// This Constructor should be used for all values in ChatTabs
 		/// </summary>
-		public ChatTab(Game g, ChatTabs tab, EOChatRenderer parentRenderer, bool selected = false)
-			: base(g, null, null, parentRenderer)
+		public ChatTab(ChatTabs tab, EOChatRenderer parentRenderer, bool selected = false)
+			: base(null, null, parentRenderer)
 		{
 			WhichTab = tab;
 			
-			tabLabel = new XNALabel(g, new Rectangle(14, 2, 1, 1), "Microsoft Sans Serif", 8.0f);
+			tabLabel = new XNALabel(new Rectangle(14, 2, 1, 1), "Microsoft Sans Serif", 8.0f);
 			tabLabel.SetParent(this);
 
 			switch(WhichTab)
@@ -220,7 +220,7 @@ namespace EndlessClient
 			}
 			
 			//568 331
-			scrollBar = new EOScrollBar(g, parent, new Vector2(467, 2), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed)
+			scrollBar = new EOScrollBar(parent, new Vector2(467, 2), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed)
 			{
 				Visible = selected,
 				LinesToRender = 7
@@ -232,8 +232,8 @@ namespace EndlessClient
 		/// <summary>
 		/// This constructor should be used for the news rendering
 		/// </summary>
-		public ChatTab(Game g, XNAControl parentControl)
-			: base(g, null, null, parentControl)
+		public ChatTab(XNAControl parentControl)
+			: base(null, null, parentControl)
 		{
 			WhichTab = ChatTabs.None;
 			_selected = true;
@@ -241,7 +241,7 @@ namespace EndlessClient
 
 			relativeTextPos = new Vector2(20, 23);
 			//568 331
-			scrollBar = new EOScrollBar(g, parent, new Vector2(467, 20), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed);
+			scrollBar = new EOScrollBar(parent, new Vector2(467, 20), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed);
 			scrollBar.LinesToRender = 7;
 			scrollBar.Visible = true;
 
@@ -460,12 +460,12 @@ namespace EndlessClient
 			get { return tabs[currentSelTab]; }
 		}
 
-		public EOChatRenderer(Game g) : base(g)
+		public EOChatRenderer()
 		{
 			tabs = new ChatTab[Enum.GetNames(typeof(ChatTabs)).Length - 1]; // -1 skips the 'none' tab which is used for news
 			for(int i = 0; i < tabs.Length; ++i)
 			{
-				tabs[i] = new ChatTab(g, (ChatTabs)i, this, (ChatTabs)i == ChatTabs.Local);
+				tabs[i] = new ChatTab((ChatTabs)i, this, (ChatTabs)i == ChatTabs.Local);
 				if(i > (int)ChatTabs.Private2) //if it isn't private1 or private2
 				{
 					tabs[i].DrawLocation = new Vector2(289 + 44 * (i - 2), 102);

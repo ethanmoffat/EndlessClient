@@ -40,8 +40,8 @@ namespace EndlessClient
 		private int m_recentClickCount;
 		private readonly Timer m_recentClickTimer;
 
-		public EOInventoryItem(Game g, int slot, ItemRecord itemData, InventoryItem itemInventoryInfo, EOInventory inventory)
-			: base(g, null, null, inventory)
+		public EOInventoryItem(int slot, ItemRecord itemData, InventoryItem itemInventoryInfo, EOInventory inventory)
+			: base(null, null, inventory)
 		{
 			m_itemData = itemData;
 			m_inventory = itemInventoryInfo;
@@ -51,7 +51,7 @@ namespace EndlessClient
 
 			m_itemgfx = GFXLoader.TextureFromResource(GFXTypes.Items, 2 * itemData.Graphic, true);
 
-			m_highlightBG = new Texture2D(g.GraphicsDevice, DrawArea.Width - 3, DrawArea.Height - 3);
+			m_highlightBG = new Texture2D(Game.GraphicsDevice, DrawArea.Width - 3, DrawArea.Height - 3);
 			Color[] highlight = new Color[(drawArea.Width - 3) * (drawArea.Height - 3)];
 			for (int i = 0; i < highlight.Length; ++i) { highlight[i] = Color.FromNonPremultiplied(200, 200, 200, 60); }
 			m_highlightBG.SetData(highlight);
@@ -98,12 +98,12 @@ namespace EndlessClient
 
 					if (m_itemData.Special == ItemSpecial.Lore)
 					{
-						EODialog lastError = new EODialog(Game, "It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
+						EODialog lastError = new EODialog("It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
 					}
 					else if (m_inventory.amount > 1)
 					{
 						IKeyboardSubscriber prevSub = (Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber;
-						EOItemTransferDialog dlg = new EOItemTransferDialog(Game, m_itemData.Name, EOItemTransferDialog.TransferType.DropItems,
+						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.DropItems,
 							m_inventory.amount);
 						dlg.DialogClosing += (sender, args) =>
 						{
@@ -122,7 +122,7 @@ namespace EndlessClient
 					if (m_inventory.amount > 1)
 					{
 						IKeyboardSubscriber prevSub = (Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber;
-						EOItemTransferDialog dlg = new EOItemTransferDialog(Game, m_itemData.Name, EOItemTransferDialog.TransferType.JunkItems,
+						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.JunkItems,
 							m_inventory.amount);
 						dlg.DialogClosing += (sender, args) =>
 						{
@@ -238,7 +238,7 @@ namespace EndlessClient
 		{
 			if (m_nameLabel != null) m_nameLabel.Dispose();
 
-			m_nameLabel = new XNALabel(Game, new Rectangle(DrawArea.Width, 0, 150, 23), "Microsoft Sans MS", 8f)
+			m_nameLabel = new XNALabel(new Rectangle(DrawArea.Width, 0, 150, 23), "Microsoft Sans MS", 8f)
 			{
 				Visible = false,
 				AutoSize = false,
@@ -366,8 +366,8 @@ namespace EndlessClient
 
 		public EOPaperdollDialog PaperdollDialogRef { get; set; }
 		
-		public EOInventory(Game g, XNAPanel parent)
-			: base(g, null, null, parent)
+		public EOInventory(XNAPanel parent)
+			: base(null, null, parent)
 		{
 			//load info from registry
 			Dictionary<int, int> localItemSlotMap = new Dictionary<int, int>();
@@ -405,7 +405,7 @@ namespace EndlessClient
 			//extra in photoshop right now: 8, 31
 
 			//current weight label (member variable, needs to have text updated when item amounts change)
-			m_lblWeight = new XNALabel(g, new Rectangle(385, 37, 88, 18), "Microsoft Sans MS", 8f)
+			m_lblWeight = new XNALabel(new Rectangle(385, 37, 88, 18), "Microsoft Sans MS", 8f)
 			{
 				ForeColor = System.Drawing.Color.FromArgb(255, 0xc8, 0xc8, 0xc8),
 				TextAlign = ContentAlignment.MiddleCenter,
@@ -419,17 +419,17 @@ namespace EndlessClient
 
 			//(local variables, added to child controls)
 			//'paperdoll' button
-			m_btnPaperdoll = new XNAButton(g, thatWeirdSheet, new Vector2(385, 9), /*new Rectangle(39, 385, 88, 19)*/null, new Rectangle(126, 385, 88, 19));
+			m_btnPaperdoll = new XNAButton(thatWeirdSheet, new Vector2(385, 9), /*new Rectangle(39, 385, 88, 19)*/null, new Rectangle(126, 385, 88, 19));
 			m_btnPaperdoll.SetParent(this);
 			m_btnPaperdoll.OnClick += (s, e) => Handlers.Paperdoll.RequestPaperdoll((short)World.Instance.MainPlayer.ActiveCharacter.ID); //todo: make event handler that shows a paperdoll dialog
 			//'drop' button
 			//491, 398 -> 389, 68
 			//0,15,38,37
 			//0,52,38,37
-			m_btnDrop = new XNAButton(g, thatWeirdSheet, new Vector2(389, 68), new Rectangle(0, 15, 38, 37), new Rectangle(0, 52, 38, 37));
+			m_btnDrop = new XNAButton(thatWeirdSheet, new Vector2(389, 68), new Rectangle(0, 15, 38, 37), new Rectangle(0, 52, 38, 37));
 			m_btnDrop.SetParent(this);
 			//'junk' button - 4 + 38 on the x away from drop
-			m_btnJunk = new XNAButton(g, thatWeirdSheet, new Vector2(431, 68), new Rectangle(0, 89, 38, 37), new Rectangle(0, 126, 38, 37));
+			m_btnJunk = new XNAButton(thatWeirdSheet, new Vector2(431, 68), new Rectangle(0, 89, 38, 37), new Rectangle(0, 126, 38, 37));
 			m_btnJunk.SetParent(this);
 		}
 
@@ -475,7 +475,7 @@ namespace EndlessClient
 			points.ForEach(point => m_filledSlots[point.Item1, point.Item2] = true); //flag that the spaces are taken
 
 			m_inventoryKey.SetValue(string.Format("item{0}", slot), item.ID, RegistryValueKind.String); //update the registry
-			m_childItems.Add(new EOInventoryItem(Game, slot, item, new InventoryItem { amount = count, id = (short)item.ID }, this)); //add the control wrapper for the item
+			m_childItems.Add(new EOInventoryItem(slot, item, new InventoryItem { amount = count, id = (short)item.ID }, this)); //add the control wrapper for the item
 			m_childItems[m_childItems.Count - 1].DrawOrder = (int) ControlDrawLayer.DialogLayer - (2 + slot%INVENTORY_ROW_LENGTH);
 			return true;
 		}
