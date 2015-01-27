@@ -131,7 +131,7 @@ namespace EndlessClient
 
 		private int _totalHeight;
 		
-		public EOScrollBar(XNAControl parent, Vector2 relativeLoc, Vector2 size, ScrollColors palette)
+		public EOScrollBar(XNAControl parent, Vector2 relativeLoc, Vector2 size, ScrollColors palette, bool flash = false)
 			: base(relativeLoc, new Rectangle((int)relativeLoc.X, (int)relativeLoc.Y, (int)size.X, (int)size.Y))
 		{
 			SetParent(parent);
@@ -206,6 +206,11 @@ namespace EndlessClient
 				arrowClicked(down, new EventArgs());
 		}
 
+		public void SetDownArrowFlashSpeed(int milliseconds)
+		{
+			down.FlashSpeed = milliseconds;
+		}
+
 		//the point of arrowClicked and scrollDragged is to respond to input on the three buttons in such
 		//	 a way that ScrollOffset is updated and the Y coordinate for the scroll box is updated.
 		//	 ScrollOffset provides a value that is used within the EOScrollDialog.Draw method.
@@ -226,6 +231,9 @@ namespace EndlessClient
 			}
 			else if (btn == down)
 			{
+				if(down.FlashSpeed.HasValue)
+					down.FlashSpeed = null; //as soon as it is clicked, stop flashing
+
 				if (ScrollOffset < _totalHeight - LinesToRender)
 					ScrollOffset++;
 				else
@@ -246,6 +254,9 @@ namespace EndlessClient
 
 		private void scrollDragged(object btn, EventArgs e)
 		{
+			if (down.FlashSpeed.HasValue)
+				down.FlashSpeed = null; //as soon as we are dragged, stop flashing
+
 			int y = Mouse.GetState().Y - (DrawAreaWithOffset.Y + scroll.DrawArea.Height / 2);
 
 			if (y < up.DrawAreaWithOffset.Height)
@@ -397,6 +408,8 @@ namespace EndlessClient
 
 				scrollBar.UpdateDimensions(chatStrings.Count);
 				scrollBar.LinesToRender = (int)Math.Round(110.0f / 13); //draw area for the text is 117px, 13px per line
+				if(scrollBar.LinesToRender < chatStrings.Count)
+					scrollBar.SetDownArrowFlashSpeed(500);
 				_msg = value;
 			}
 		}

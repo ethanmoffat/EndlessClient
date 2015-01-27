@@ -447,6 +447,16 @@ namespace EndlessClient
 			}
 			base.Draw(gameTime); //draw child controls though
 		}
+
+		/// <summary>
+		/// Sets the down arrow flash speed to 500ms for the news tab if there are more lines to render than can be displayed at once
+		/// This should only be called from HUD::SetNews
+		/// </summary>
+		public void SetButtonFlash()
+		{
+			if(WhichTab == ChatTabs.None && chatStrings.Count > scrollBar.LinesToRender)
+				scrollBar.SetDownArrowFlashSpeed(500);
+		}
 	}
 
 	/// <summary>

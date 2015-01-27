@@ -503,8 +503,9 @@ namespace EndlessClient
 				{
 					newsTab.AddText(null, lines[i], ChatType.Note);
 					if(i != lines.Count - 1)
-						newsTab.AddText(null, " ");
+						newsTab.AddText(null, " "); //line breaks between entries
 				}
+				newsTab.SetButtonFlash();
 			}
 			
 			chatRenderer.AddTextToTab(ChatTabs.Local, "Server", lines[0], ChatType.Note, ChatColor.Server);
