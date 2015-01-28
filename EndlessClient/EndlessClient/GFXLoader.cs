@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
-using EndlessClient.Handlers;
-using EOLib.Data;
 using Microsoft.Xna.Framework.Graphics;
 using XNA = Microsoft.Xna.Framework;
 
@@ -320,7 +317,7 @@ namespace EndlessClient
 	
 	public class EOSpriteSheet
 	{
-		private Character charRef;
+		private readonly Character charRef;
 		public EOSpriteSheet(Character charToWatch)
 		{
 			charRef = charToWatch;

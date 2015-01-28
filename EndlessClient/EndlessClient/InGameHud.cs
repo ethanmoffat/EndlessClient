@@ -408,8 +408,7 @@ namespace EndlessClient
 						_returnToLogin();
 						break;
 					}
-					//TODO: additional processing as required. Check colors and icons.
-					//TODO: This should be a call to the map renderer showing the message
+					//note: more processing of colors/icons is needed here
 					AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, chatText.Substring(1));
 					break;
 				case '&':  //guild talk
@@ -420,7 +419,7 @@ namespace EndlessClient
 						_returnToLogin();
 						break;
 					}
-					//TODO: additional processing as required. Check colors and icons.
+					//note: more processing of colors/icons is needed here
 					AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, chatText.Substring(1));
 					break;
 				case '~':  //global talk

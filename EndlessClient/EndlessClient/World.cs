@@ -59,7 +59,9 @@ namespace EndlessClient
 
 		/*** Instance Properties and such ***/
 
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 		public short JailMap { get; set; }
+// ReSharper restore UnusedAutoPropertyAccessor.Global
 
 		//this is an int for the map id since there are multiple maps
 		public int NeedMap { get; private set; }
@@ -81,7 +83,9 @@ namespace EndlessClient
 		}
 
 		private SpellFile m_spells;
+// ReSharper disable MemberCanBePrivate.Global
 		public SpellFile ESF
+// ReSharper restore MemberCanBePrivate.Global
 		{
 			get { return m_spells; }
 		}
@@ -95,12 +99,12 @@ namespace EndlessClient
 		/// <summary>
 		/// Stores a list of MapFiles paired with/accessible by their IDs
 		/// </summary>
-		public Dictionary<int, EOLib.MapFile> MapCache { get; private set; }
+		private Dictionary<int, EOLib.MapFile> MapCache { get; set; }
 
 		/// <summary>
 		/// Returns a MapFile for the map the MainPlayer is on
 		/// </summary>
-		public EOLib.MapFile ActiveMap
+		private EOLib.MapFile ActiveMap
 		{
 			get
 			{
@@ -150,14 +154,13 @@ namespace EndlessClient
 			get
 			{
 				//lazy initialization
-				EOCharacterRenderer ret;
 				if (m_charRender == null)
 				{
 					m_charRender = new EOCharacterRenderer(MainPlayer.ActiveCharacter);
 					m_charRender.Initialize();
 				}
 
-				ret = m_charRender;
+				EOCharacterRenderer ret = m_charRender;
 
 				//if player logs out and logs back in
 				if (ret.Character != MainPlayer.ActiveCharacter)
@@ -217,10 +220,7 @@ namespace EndlessClient
 		{
 			try
 			{
-				if (string.IsNullOrEmpty(fileName))
-					m_items = new ItemFile();
-				else
-					m_items = new ItemFile(fileName);
+				m_items = string.IsNullOrEmpty(fileName) ? new ItemFile() : new ItemFile(fileName);
 			}
 			catch
 			{
@@ -235,10 +235,7 @@ namespace EndlessClient
 		{
 			try
 			{
-				if (string.IsNullOrEmpty(fileName))
-					m_npcs = new NPCFile();
-				else
-					m_npcs = new NPCFile(fileName);
+				m_npcs = string.IsNullOrEmpty(fileName) ? new NPCFile() : new NPCFile(fileName);
 			}
 			catch
 			{
@@ -253,10 +250,7 @@ namespace EndlessClient
 		{
 			try
 			{
-				if (string.IsNullOrEmpty(fileName))
-					m_spells = new SpellFile();
-				else
-					m_spells = new SpellFile(fileName);
+				m_spells = string.IsNullOrEmpty(fileName) ? new SpellFile() : new SpellFile(fileName);
 			}
 			catch
 			{
@@ -271,10 +265,7 @@ namespace EndlessClient
 		{
 			try
 			{
-				if (string.IsNullOrEmpty(fileName))
-					m_classes = new ClassFile();
-				else
-					m_classes = new ClassFile(fileName);
+				m_classes = string.IsNullOrEmpty(fileName) ? new ClassFile() : new ClassFile(fileName);
 			}
 			catch
 			{
@@ -320,7 +311,7 @@ namespace EndlessClient
 
 		public void CheckPub(Handlers.InitFileType file, int rid, short len)
 		{
-			string fName = "pub\\";
+			const string fName = "pub\\";
 			if (!Directory.Exists(fName))
 				Directory.CreateDirectory(fName);
 
@@ -353,13 +344,19 @@ namespace EndlessClient
 
 		public void ResetGameElements()
 		{
-			m_mapRender.Dispose();
-			m_mapRender = null;
+			if (m_mapRender != null)
+			{
+				m_mapRender.Dispose();
+				m_mapRender = null;
+			}
 
-			m_charRender.Dispose();
-			m_charRender = null;
+			if (m_charRender != null)
+			{
+				m_charRender.Dispose();
+				m_charRender = null;
+			}
 
-			MapCache.Clear();
+			if(MapCache != null) MapCache.Clear();
 		}
 
 		public void Dispose()

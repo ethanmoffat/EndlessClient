@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿using System.Linq;
 using EOLib;
 
 namespace EndlessClient
@@ -47,26 +43,13 @@ namespace EndlessClient
 
 		public bool SetActiveCharacter(int id)
 		{
-			CharRenderData activeData = null;
-			foreach (CharRenderData d in CharData) //wants the D
-			{
-				if (d.id == id)
-				{
-					activeData = d;
-					break;
-				}
-			}
+			CharRenderData activeData = CharData.FirstOrDefault(d => d.id == id);
 			if (activeData == null)
 				return false;
 			ActiveCharacter = new Character(id, activeData);
 			return true;
 		}
-
-		public void SetCharacterData(CharRenderData[] data)
-		{
-			CharData = data;
-		}
-
+		
 		public void ProcessCharacterData(Packet pkt)
 		{
 			byte numCharacters = pkt.GetChar();
@@ -77,7 +60,7 @@ namespace EndlessClient
 
 			for (int i = 0; i < numCharacters; ++i)
 			{
-				CharRenderData nextData = new CharRenderData()
+				CharRenderData nextData = new CharRenderData
 				{
 					name = pkt.GetBreakString(),
 					id = pkt.GetInt(),
@@ -98,7 +81,7 @@ namespace EndlessClient
 					break;
 			}
 
-			SetCharacterData(characters);
+			CharData = characters;
 		}
 	}
 }

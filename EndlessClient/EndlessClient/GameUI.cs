@@ -279,7 +279,7 @@ Thanks to :
 				if (!Handlers.Login.CanProceed)
 				{
 					string caption, msg = Handlers.Login.ResponseMessage(out caption);
-					EODialog errDlg = new EODialog(msg, caption);
+					EODialog.Show(msg, caption);
 					return;
 				}
 
@@ -293,28 +293,28 @@ Thanks to :
 					{
 						if (accountCreateTextBoxes.Any(txt => txt.Text.Length == 0))
 						{
-							EODialog errDlg = new EODialog("Some of the fields are still empty. Fill in all the fields and try again.", "Wrong input");
+							EODialog.Show("Some of the fields are still empty. Fill in all the fields and try again.", "Wrong input");
 							return;
 						}
 
 						if (accountCreateTextBoxes[1].Text != accountCreateTextBoxes[2].Text)
 						{
 							//Make sure passwords match
-							EODialog errDlg = new EODialog("The two passwords you provided are not the same, please try again.", "Wrong password");
+							EODialog.Show("The two passwords you provided are not the same, please try again.", "Wrong password");
 							return;
 						}
 
 						if (accountCreateTextBoxes[1].Text.Length < 6)
 						{
 							//Make sure passwords are good enough
-							EODialog errDlg = new EODialog("For your own safety use a longer password (try 6 or more characters)", "Wrong password");
+							EODialog.Show("For your own safety use a longer password (try 6 or more characters)", "Wrong password");
 							return;
 						}
 
 						if (!System.Text.RegularExpressions.Regex.IsMatch(accountCreateTextBoxes[5].Text, //filter emails using regex
 							@"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b"))
 						{
-							EODialog errDlg = new EODialog("Enter a valid email address.", "Wrong input");
+							EODialog.Show("Enter a valid email address.", "Wrong input");
 							return;
 						}
 
@@ -327,7 +327,7 @@ Thanks to :
 						if (!Handlers.Account.CanProceed)
 						{
 							string caption, msg = Handlers.Account.ResponseMessage(out caption);
-							EODialog errDlg = new EODialog(msg, caption);
+							EODialog.Show(msg, caption);
 							return;
 						}
 
@@ -350,12 +350,12 @@ Thanks to :
 							string _caption, _msg = Handlers.Account.ResponseMessage(out _caption);
 							if (!Handlers.Account.CanProceed)
 							{
-								EODialog errDlg = new EODialog(_msg, _caption);
+								EODialog.Show(_msg, _caption);
 								return;
 							}
 
 							doStateChange(GameStates.Initial);
-							EODialog success = new EODialog(_msg, _caption);
+							EODialog.Show(_msg, _caption);
 						};
 
 					}
@@ -372,7 +372,7 @@ Thanks to :
 
 						if (!Handlers.Character.CanProceed)
 						{
-							EODialog errDlg = new EODialog("Server is not allowing you to create a character right now. This could be a bug.", "Server error");
+							EODialog.Show("Server is not allowing you to create a character right now. This could be a bug.", "Server error");
 							return;
 						}
 
@@ -384,7 +384,7 @@ Thanks to :
 							if (!Handlers.Character.CharacterCreate(createCharacter.Gender, createCharacter.HairType, createCharacter.HairColor, createCharacter.SkinColor, createCharacter.Name))
 							{
 								doStateChange(GameStates.Initial);
-								EODialog errDlg = new EODialog("The connection to the game server was lost, please try again at a later time.", "Lost connection");
+								EODialog.Show("The connection to the game server was lost, please try again at a later time.", "Lost connection");
 								if (World.Instance.Client.ConnectedAndInitialized)
 									World.Instance.Client.Disconnect();
 								return;
@@ -395,11 +395,11 @@ Thanks to :
 								if (!Handlers.Character.TooManyCharacters)
 									dlg_E.CancelClose = true;
 								string caption, message = Handlers.Character.ResponseMessage(out caption);
-								EODialog fail = new EODialog(message, caption);
+								EODialog.Show(message, caption);
 								return;
 							}
 
-							EODialog dlg = new EODialog("Your character has been created and is ready to explore a new world.", "Character created");
+							EODialog.Show("Your character has been created and is ready to explore a new world.", "Character created");
 							doShowCharacters();
 						};
 					}
@@ -416,14 +416,14 @@ Thanks to :
 					if (!Handlers.Account.AccountChangePassword(dlg.Username, dlg.OldPassword, dlg.NewPassword))
 					{
 						doStateChange(GameStates.Initial);
-						EODialog errDlg = new EODialog("The connection to the game server was lost, please try again at a later time.", "Lost connection");
+						EODialog.Show("The connection to the game server was lost, please try again at a later time.", "Lost connection");
 						if (World.Instance.Client.ConnectedAndInitialized)
 							World.Instance.Client.Disconnect();
 						return;
 					}
 
 					string caption, msg = Handlers.Account.ResponseMessage(out caption);
-					EODialog response = new EODialog(msg, caption);
+					EODialog.Show(msg, caption);
 
 					if (Handlers.Account.CanProceed) return;
 					dlg_E.CancelClose = true;
@@ -466,7 +466,7 @@ Thanks to :
 							break;
 						case XNADialogResult.NO_BUTTON_PRESSED:
 						{
-							EODialog dlg2 = new EODialog("Login Failed.", "Error");
+							EODialog.Show("Login Failed.", "Error");
 							if (World.Instance.Client.ConnectedAndInitialized)
 								World.Instance.Client.Disconnect();
 							doStateChange(GameStates.Initial);
@@ -483,7 +483,7 @@ Thanks to :
 
 				if (charDeleteWarningShown != index)
 				{
-					EODialog warn = new EODialog("Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' is going to be deleted. Delete again to confirm.", "Delete character");
+					EODialog.Show("Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' is going to be deleted. Delete again to confirm.", "Delete character");
 					charDeleteWarningShown = index;
 					return;
 				}
@@ -497,7 +497,7 @@ Thanks to :
 
 				if (Handlers.Character.CharacterTakeID != World.Instance.MainPlayer.CharData[index].id)
 				{
-					EODialog warn = new EODialog("The server did not respond properly for deleting the character. Try again.", "Server error");
+					EODialog.Show("The server did not respond properly for deleting the character. Try again.", "Server error");
 					return;
 				}
 

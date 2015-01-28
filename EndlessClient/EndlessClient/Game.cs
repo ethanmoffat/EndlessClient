@@ -106,7 +106,7 @@ namespace EndlessClient
 					if (!World.Instance.Client.ConnectToServer(host, port))
 					{
 						string caption, msg = Handlers.Init.ResponseMessage(out caption);
-						EODialog err = new EODialog(msg, caption);
+						EODialog.Show(msg, caption);
 						connectMutex.Set();
 						return;
 					}
@@ -116,7 +116,7 @@ namespace EndlessClient
 				{
 					if (!exiting)
 					{
-						EODialog dlg = new EODialog("The game server could not be found. Please try again at a later time", "Could not find server");
+						EODialog.Show("The game server could not be found. Please try again at a later time", "Could not find server");
 					}
 				}
 
@@ -127,7 +127,7 @@ namespace EndlessClient
 		public void LostConnectionDialog()
 		{
 			//Eventually these message strings should be loaded from the global constant class, or from dat files somehow. for now this method will do.
-			EODialog errDlg = new EODialog("The connection to the game server was lost, please try again at a later time.", "Lost connection");
+			EODialog.Show("The connection to the game server was lost, please try again at a later time.", "Lost connection");
 			if (World.Instance.Client.ConnectedAndInitialized)
 				World.Instance.Client.Disconnect();
 			doStateChange(GameStates.Initial);
@@ -136,12 +136,7 @@ namespace EndlessClient
 		private void doShowCharacters()
 		{
 			//remove any existing character renderers
-			List<EOCharacterRenderer> toRemove = new List<EOCharacterRenderer>();
-			foreach(IGameComponent comp in Components)
-			{
-				if (comp is EOCharacterRenderer)
-					toRemove.Add(comp as EOCharacterRenderer);
-			}
+			List<EOCharacterRenderer> toRemove = Components.OfType<EOCharacterRenderer>().ToList();
 			foreach (EOCharacterRenderer eor in toRemove)
 				eor.Close();
 
@@ -296,7 +291,7 @@ namespace EndlessClient
 		{
 			try
 			{
-				//yup. class named the same as a namespace. #whut
+				//yup. class named the same as a namespace. #whut #rekt
 				XNAControls.XNAControls.Initialize(this);
 			}
 			catch (ArgumentNullException ex)
@@ -309,11 +304,12 @@ namespace EndlessClient
 			IsMouseVisible = true;
 			Dispatcher = new KeyboardDispatcher(Window);
 			ResetPeopleIndices();
-			
+
 			try
 			{
 				GFXLoader.Initialize(GraphicsDevice);
 				World w = World.Instance; //set up the world
+				w.ResetGameElements(); //no-op to keep resharper happy
 			}
 			catch (WorldLoadException wle) //could be thrown from World's constructor
 			{
@@ -340,7 +336,11 @@ namespace EndlessClient
 				foreach (GFXTypes value in values)
 				{
 					curValue = value;
-					using (Texture2D throwAway = GFXLoader.TextureFromResource(value, -99)) { }
+					//check for GFX files. Each file has a GFX 1.
+					using (Texture2D throwAway = GFXLoader.TextureFromResource(value, -99))
+					{
+						throwAway.Name = ""; //no-op to keep resharper happy
+					}
 				}
 			}
 			catch
