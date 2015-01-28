@@ -45,6 +45,8 @@ namespace EndlessClient
 	{
 		public EODialog(string msgText, string captionText = "", XNADialogButtons whichButtons = XNADialogButtons.Ok, bool useSmallHeader = false)
 		{
+			base.whichButtons = whichButtons;
+
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, useSmallHeader ? 23 : 18);
 			_setSize(bgTexture.Width, bgTexture.Height);
 			
