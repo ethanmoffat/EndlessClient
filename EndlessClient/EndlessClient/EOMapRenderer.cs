@@ -1049,7 +1049,7 @@ namespace EndlessClient
 				List<NPC> thisRowNpcs = otherNpcs.Where(_npc => _npc.Walking ? _npc.DestY == rowIndex : _npc.Y == rowIndex).ToList();
 				thisRowNpcs.ForEach(_npc => _npc.DrawToSpriteBatch(sb, true));
 				List<EOCharacterRenderer> thisRowChars = otherChars.Where(_char => _char.Character.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex).ToList();
-				thisRowChars.ForEach(_char => _char.Draw(sb, null, true));
+				thisRowChars.ForEach(_char => _char.Draw(sb, true));
 			}
 
 			sb.End();
@@ -1057,7 +1057,7 @@ namespace EndlessClient
 			BlendState mainPlayerBlend = mainBehindSomething ? _playerBlend : BlendState.AlphaBlend;
 
 			sb.Begin(SpriteSortMode.Deferred, mainPlayerBlend);
-			World.Instance.ActiveCharacterRenderer.Draw(sb, null, true);
+			World.Instance.ActiveCharacterRenderer.Draw(sb, true);
 			sb.End();
 
 			GraphicsDevice.SetRenderTarget(null);

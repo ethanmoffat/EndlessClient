@@ -111,6 +111,12 @@ namespace EndlessClient
 
 			endConstructor();
 		}
+
+		public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok, bool SmallHeader = false)
+		{
+// ReSharper disable once UnusedVariable
+			EODialog dlg = new EODialog(message, caption, buttons, SmallHeader);
+		}
 	}
 
 	public class EOScrollBar : XNAControl
@@ -131,7 +137,7 @@ namespace EndlessClient
 
 		private int _totalHeight;
 		
-		public EOScrollBar(XNAControl parent, Vector2 relativeLoc, Vector2 size, ScrollColors palette, bool flash = false)
+		public EOScrollBar(XNAControl parent, Vector2 relativeLoc, Vector2 size, ScrollColors palette)
 			: base(relativeLoc, new Rectangle((int)relativeLoc.X, (int)relativeLoc.Y, (int)size.X, (int)size.Y))
 		{
 			SetParent(parent);
@@ -330,10 +336,11 @@ namespace EndlessClient
 		private readonly SpriteFont font;
 		private const int LINE_LEN = 275;
 
-		private string _msg;
+		//private string _msg;
 		public new string MessageText
 		{
-			get { return _msg; }
+			//not in use: commenting out
+			//get { return _msg; }
 			set
 			{
 				chatStrings.Clear();
@@ -410,7 +417,7 @@ namespace EndlessClient
 				scrollBar.LinesToRender = (int)Math.Round(110.0f / 13); //draw area for the text is 117px, 13px per line
 				if(scrollBar.LinesToRender < chatStrings.Count)
 					scrollBar.SetDownArrowFlashSpeed(500);
-				_msg = value;
+				//_msg = value;
 			}
 		}
 
@@ -596,14 +603,14 @@ namespace EndlessClient
 
 				if (Username != World.Instance.MainPlayer.AccountName)
 				{
-					EODialog errDlg = new EODialog("The username or password you specified is incorrect", "Wrong info");
+					EODialog.Show("The username or password you specified is incorrect", "Wrong info");
 					return;
 				}
 				
 				//check that passwords match, otherwise: return
 				if (inputBoxes[2].Text.Length != inputBoxes[3].Text.Length || inputBoxes[2].Text != inputBoxes[3].Text)
 				{
-					EODialog errDlg = new EODialog("The two passwords you provided are not the same, please try again.", "Wrong password");
+					EODialog.Show("The two passwords you provided are not the same, please try again.", "Wrong password");
 					return;
 				}
 				
@@ -611,7 +618,7 @@ namespace EndlessClient
 				if (inputBoxes[2].Text.Length < 6)
 				{
 					//Make sure passwords are good enough
-					EODialog errDlg = new EODialog("For your own safety use a longer password (try 6 or more characters)", "Wrong password");
+					EODialog.Show("For your own safety use a longer password (try 6 or more characters)", "Wrong password");
 					return;
 				}
 
@@ -696,7 +703,7 @@ namespace EndlessClient
 			{
 				if(inputBox.Text.Length < 4)
 				{
-					EODialog fail = new EODialog("The name you provided for this character is too short (try 4 or more characters)", "Wrong name");
+					EODialog.Show("The name you provided for this character is too short (try 4 or more characters)", "Wrong name");
 					return;
 				}
 
@@ -949,7 +956,7 @@ namespace EndlessClient
 		private Rectangle m_area;
 
 		public EquipLocation EquipLoc { get; private set; }
-		public short ItemID { get { return (short)(m_info ?? new ItemRecord()).ID; } }
+		//public short ItemID { get { return (short)(m_info ?? new ItemRecord()).ID; } }
 
 		public EOPaperdollItem(Rectangle location, EOPaperdollDialog parent, ItemRecord info, EquipLocation locationEnum)
 			: base(null, null, parent)
@@ -981,22 +988,30 @@ namespace EndlessClient
 				EOGame.Instance.Hud.SetStatusLabel(toSet);
 			}
 
+			//unequipping an item via right-click
 			if (m_info != null && MouseOver && currentState.RightButton == ButtonState.Released &&
 			    PreviousMouseState.RightButton == ButtonState.Pressed)
 			{
-				//todo: check for curse status on item data before unequipping!
 				if (((EOPaperdollDialog) parent).CharRef == World.Instance.MainPlayer.ActiveCharacter)
 				{ //the parent dialog must show equipment for mainplayer
-					_setSize(m_area.Width, m_area.Height);
-					DrawLocation = new Vector2(m_area.X + (m_area.Width / 2 - DrawArea.Width / 2), m_area.Y + (m_area.Height / 2 - DrawArea.Height / 2));
+					if (m_info.Special == ItemSpecial.Cursed)
+					{
+						EODialog.Show("Oh no, this item is cursed! Only a cure potion/spell can remove it.", "Cursed Item");
+					}
+					else
+					{
+						_setSize(m_area.Width, m_area.Height);
+						DrawLocation = new Vector2(m_area.X + (m_area.Width/2 - DrawArea.Width/2),
+							m_area.Y + (m_area.Height/2 - DrawArea.Height/2));
 
-					//put back in the inventory by the packet handler response
-					string locName = Enum.GetName(typeof (EquipLocation), EquipLoc);
-					if(!string.IsNullOrEmpty(locName))
-						Handlers.Paperdoll.UnequipItem((short)m_info.ID, (byte)(locName.Contains("2") ? 1 : 0));
+						//put back in the inventory by the packet handler response
+						string locName = Enum.GetName(typeof (EquipLocation), EquipLoc);
+						if (!string.IsNullOrEmpty(locName))
+							Handlers.Paperdoll.UnequipItem((short) m_info.ID, (byte) (locName.Contains("2") ? 1 : 0));
 
-					m_info = null;
-					m_gfx = null;
+						m_info = null;
+						m_gfx = null;
+					}
 				}
 			}
 
@@ -1034,7 +1049,7 @@ namespace EndlessClient
 	{
 		public Character CharRef { get; private set; }
 
-		private Texture2D m_characterIcon;
+		private readonly Texture2D m_characterIcon;
 
 		private static readonly Rectangle m_characterIconRect = new Rectangle(227, 258, 44, 21);
 
@@ -1074,15 +1089,17 @@ namespace EndlessClient
 			{
 				ItemRecord info = World.Instance.EIF.GetItemRecordByID(CharRef.PaperDoll[i]);
 
-				Rectangle itemArea = GetEquipLocRectangle((EquipLocation) i); //todo: center within width/height of the total area
+				Rectangle itemArea = _getEquipLocRectangle((EquipLocation) i);
 
 				//create item using itemArea
 				if (CharRef.PaperDoll[i] > 0)
 				{
+// ReSharper disable once UnusedVariable
 					EOPaperdollItem nextItem = new EOPaperdollItem(itemArea, this, info, (EquipLocation)i); //auto-added as child of this dialog
 				}
 				else
 				{
+// ReSharper disable once UnusedVariable
 					EOPaperdollItem nextItem = new EOPaperdollItem(itemArea, this, null, (EquipLocation)i);
 				}
 			}
@@ -1151,7 +1168,12 @@ namespace EndlessClient
 			}
 			m_characterIcon = ChatTab.GetChatIcon(iconType);
 
-			endConstructor();
+			//should not be centered vertically: only display in game window
+			//first center in the game display window, then move it 15px from top, THEN call end constructor logic
+			//if not done in this order some items DrawAreaWithOffset field does not get updated properly when setting DrawLocation
+			Center(Game.GraphicsDevice);
+			DrawLocation = new Vector2(DrawLocation.X, 15);
+			endConstructor(false);
 		}
 
 		public override void Draw(GameTime gt)
@@ -1175,10 +1197,10 @@ namespace EndlessClient
 				return item.EquipLoc == loc;
 			});
 			if(itemToUpdate != null)
-				itemToUpdate.SetInfo(GetEquipLocRectangle(loc), info);
+				itemToUpdate.SetInfo(_getEquipLocRectangle(loc), info);
 		}
 
-		public static Rectangle GetEquipLocRectangle(EquipLocation loc)
+		private static Rectangle _getEquipLocRectangle(EquipLocation loc)
 		{
 			Rectangle itemArea;
 			switch (loc)
@@ -1241,10 +1263,12 @@ namespace EndlessClient
 		{
 			DropItems,
 			JunkItems,
+// ReSharper disable UnusedMember.Global
 			GiveItems,
 			TradeItems,
 			ShopTransfer,
 			BankTransfer
+// ReSharper restore UnusedMember.Global
 		}
 
 		private readonly Texture2D m_titleBarGfx;

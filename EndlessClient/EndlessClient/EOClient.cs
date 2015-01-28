@@ -1,10 +1,5 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
-using System.Runtime.Remoting.Messaging;
-using System.Text;
-using System.Threading;
 
 using EOLib;
 
@@ -15,15 +10,33 @@ namespace EndlessClient
 		private delegate void PacketHandler(Packet reader);
 
 		//I COULD just use tuple...but it is easier to type when I make a wrapper that basically is a tuple.
-		private struct FamilyActionPair
+		private struct FamilyActionPair : IEqualityComparer
 		{
-			public PacketFamily fam;
-			public PacketAction act;
+			private readonly PacketFamily fam;
+			private readonly PacketAction act;
 
 			public FamilyActionPair(PacketFamily family, PacketAction action)
 			{
 				fam = family;
 				act = action;
+			}
+
+			bool IEqualityComparer.Equals(object obj1, object obj2)
+			{
+				if (!(obj1 is FamilyActionPair) || !(obj2 is FamilyActionPair))
+					return false;
+
+				FamilyActionPair fap1 = (FamilyActionPair) obj1, fap2 = (FamilyActionPair) obj2;
+				return fap1.fam == fap2.fam && fap1.act == fap2.act;
+			}
+
+			public int GetHashCode(object obj)
+			{
+				if (!(obj is FamilyActionPair)) return 0;
+
+				FamilyActionPair fap /*lol*/ = (FamilyActionPair) obj;
+
+				return (int) fap.fam << 8 & (byte) fap.act;
 			}
 		}
 		
@@ -201,7 +214,7 @@ namespace EndlessClient
 			};
 		}
 
-		public new void Disconnect()
+		public override void Disconnect()
 		{
 			World.Instance.MainPlayer.Logout();
 			base.Disconnect();

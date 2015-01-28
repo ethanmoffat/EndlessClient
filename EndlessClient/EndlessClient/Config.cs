@@ -8,7 +8,7 @@ using System.IO;
 
 namespace EndlessClient
 {	
-	public class Config
+	public static class Config
 	{
 		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
 		private static extern int GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
@@ -32,10 +32,9 @@ namespace EndlessClient
 
 	public class IniReader
 	{
-		private SortedList<string, SortedList<string, object>> sections = new SortedList<string, SortedList<string, object>>();
+		private readonly SortedList<string, SortedList<string, object>> sections = new SortedList<string, SortedList<string, object>>();
 		public string Filename { get; private set; }
 
-		public IniReader() { Filename = string.Empty; }
 		public IniReader(string filename) { Filename = filename; }
 
 		public bool Load()
@@ -44,16 +43,16 @@ namespace EndlessClient
 			{
 				using (StreamReader str = new StreamReader(Filename))
 				{
-					string nextLine;
 					string header = "";
 					while (!str.EndOfStream)
 					{
-						nextLine = str.ReadLine();
+						string nextLine = str.ReadLine();
 						if (string.IsNullOrEmpty(nextLine) || nextLine[0] == '\'' || nextLine[0] == '#')
 						{
 							continue;
 						}
-						else if (nextLine.Contains('#')) //remove any comment from the header
+						
+						if (nextLine.Contains('#')) //remove any comment from the header
 						{
 							nextLine = nextLine.Remove(nextLine.IndexOf('#'));
 						}
@@ -91,7 +90,7 @@ namespace EndlessClient
 								nextLine = nextLine.Remove(dTypeStart - 1, dTypeLen + 2);
 							}
 							//get the pair of identifier/value
-							string[] pair = nextLine.Split(new char[] { '=' });
+							string[] pair = nextLine.Split(new [] { '=' });
 							if (pair.Length != 2)
 								continue;
 							//add to the database
@@ -109,7 +108,6 @@ namespace EndlessClient
 										continue;
 									sections[header].Add(pair[0], b_res);
 									break;
-								case "string":
 								default://default to string
 									sections[header].Add(pair[0], pair[1]);
 									break;

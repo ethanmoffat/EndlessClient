@@ -8,6 +8,7 @@ namespace EndlessClient
 	public enum AdminLevel
 	{
 		Player,
+// ReSharper disable UnusedMember.Global
 		Guide,
 		Guardian,
 		GM,
@@ -19,6 +20,7 @@ namespace EndlessClient
 		Standing,
 		Chair,
 		Floor
+// ReSharper restore UnusedMember.Global
 	}
 
 	/// <summary>
@@ -36,8 +38,10 @@ namespace EndlessClient
 		public byte walkFrame, attackFrame;
 		
 		public EODirection facing;
+// ReSharper disable MemberCanBePrivate.Global
 		public SitState sitting;
 		public bool hidden;
+// ReSharper restore MemberCanBePrivate.Global
 		public bool update;
 		public bool hairNeedRefresh;
 
@@ -192,26 +196,28 @@ namespace EndlessClient
 		public string Name { get; set; }
 		public string Title { get; set; }
 		public string GuildName { get; set; }
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 		public string GuildRankStr { get; set; }
+// ReSharper restore UnusedAutoPropertyAccessor.Global
 		public byte Class { get; set; }
-		public string PaddedGuildTag { get; set; }
+		public string PaddedGuildTag { private get; set; }
 		public AdminLevel AdminLevel { get; set; }
 
 		public byte Weight { get; set; }
 		public byte MaxWeight { get; set; }
 		public short[] PaperDoll { get; set; }
-		public List<InventoryItem> Inventory { get; set; }
-		public List<CharacterSpell> Spells { get; set; }
+		public List<InventoryItem> Inventory { get; private set; }
+		public List<CharacterSpell> Spells { get; private set; }
 
 		public CharStatData Stats { get; set; }
 
-		public CharRenderData RenderData { get; set; }
+		public CharRenderData RenderData { get; private set; }
 		public short CurrentMap { get; set; }
-		public bool MapIsPk { get; set; }
-		public int X { get; set; }
-		public int Y { get; set; }
+		public bool MapIsPk { private get; set; }
+		public int X { get; private set; }
+		public int Y { get; private set; }
 
-		public byte GuildRankNum { get; set; }
+		public byte GuildRankNum { private get; set; }
 		
 		public Character(int id, CharRenderData data)
 		{

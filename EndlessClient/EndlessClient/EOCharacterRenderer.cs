@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -9,19 +10,21 @@ using EOLib.Data;
 namespace EndlessClient
 {
 	/// <summary>
-	/// REDESIGN WEIRDNESS WARNING
-	/// Never actually adding EOCharacterRenderer (in-game ones) to game components
-	/// Because of the weirdness with draw ordering in the map renderer
-	/// So, Draw is only called from EOMapRenderer._doMapDrawing :(
-	/// Update and initialize are also called from EOMapRenderer
-	/// todo: have this make some actual god damn sense
+	/// HOW THIS WORKS IN-GAME
+	/// <para/>
+	/// <para>Character rendering in-game is controlled by the map renderer</para>
+	/// <para/>
+	/// <para>EOCharacterRenderer is never added to game components,
+	/// because of the draw ordering in EOMapRenderer.</para>
+	/// <para>So, Draw is only called from EOMapRenderer._doMapDrawing
+	/// (Update and initialize are also called from EOMapRenderer)</para>
 	/// </summary>
 	public class EOCharacterRenderer : XNAControl
 	{
 		private readonly Character _char;
 		public Character Character { get { return _char; } }
 
-		private CharRenderData _data;
+		private readonly CharRenderData _data;
 		private CharRenderData Data
 		{
 			get
@@ -29,13 +32,14 @@ namespace EndlessClient
 				CharRenderData data = (_char != null ? _char.RenderData : _data) ?? new CharRenderData();
 				return data;
 			}
-			set
-			{
-				if (_char != null)
-					_char.RenderData = value;
-				else
-					_data = value;
-			}
+			//set not used...commented out in case I need it later
+			//set
+			//{
+			//	if (_char != null)
+			//		_char.RenderData = value;
+			//	else
+			//		_data = value;
+			//}
 		}
 
 		//setting any of the character data will automatically load the required texture
@@ -188,6 +192,12 @@ namespace EndlessClient
 		private static readonly object chatBubbleLock = new object();
 		private EOChatBubble m_chatBubble;
 
+		private GameTime startWalkingThroughPlayerTime;
+
+		/// <summary>
+		/// Construct a character renderer in-game
+		/// </summary>
+		/// <param name="charToRender">The character data that should be wrapped by this renderer</param>
 		public EOCharacterRenderer(Character charToRender)
 		{
 			spriteSheet = new EOSpriteSheet(charToRender);
@@ -210,6 +220,11 @@ namespace EndlessClient
 			_prevState = Keyboard.GetState();
 		}
 
+		/// <summary>
+		/// Construct a character renderer pre-game (character creation dialog, character list)
+		/// </summary>
+		/// <param name="drawLocation">Where to draw it</param>
+		/// <param name="data">Render data to use for drawing</param>
 		public EOCharacterRenderer(Vector2 drawLocation, CharRenderData data)
 			: base(drawLocation, null)
 		{
@@ -334,12 +349,16 @@ namespace EndlessClient
 				}
 
 				maskTheHair(); //this will set the combined hat/hair texture with proper data.
-				
-				_drawCharToRenderTarget();
+
+				if (Data.sitting == SitState.Standing)
+					_drawCharToRenderTarget();
+				else
+					_drawCharToRenderTargetSitting(Data.sitting == SitState.Floor);
+
 				Data.SetUpdate(false);
 				Data.SetHairNeedRefresh(false);
 			}
-
+			
 			//input handling for arrow keys done here
 			//only check for a keypress if not currently walking and the renderer is for the active character
 			//also only check every 1/2 of a second
@@ -357,8 +376,15 @@ namespace EndlessClient
 				else if (currentState.IsKeyDown(Keys.Right) && _prevState.IsKeyDown(Keys.Right))
 					direction = EODirection.Right;
 				else if ((currentState.IsKeyDown(Keys.LeftControl) || currentState.IsKeyDown(Keys.RightControl)) &&
-						 (_prevState.IsKeyDown(Keys.LeftControl) || _prevState.IsKeyDown(Keys.RightControl)))
+				         (_prevState.IsKeyDown(Keys.LeftControl) || _prevState.IsKeyDown(Keys.RightControl)))
+				{
 					attacking = true;
+					startWalkingThroughPlayerTime = null;
+				}
+				else
+				{
+					startWalkingThroughPlayerTime = null;
+				}
 
 				if (!attacking)
 				{
@@ -398,11 +424,19 @@ namespace EndlessClient
 					switch (info.ReturnValue)
 					{
 						case TileInfo.ReturnType.IsOtherPlayer:
-							EOGame.Instance.Hud.SetStatusLabel("OTHER PLAYER WAHHHHHHHHHH");
-							//todo: keep moving into player to walk through...
+							EOGame.Instance.Hud.SetStatusLabel("Keep moving into the player to walk through them...");
+							if(startWalkingThroughPlayerTime == null)
+								startWalkingThroughPlayerTime = gameTime;
+							else if ((gameTime.TotalGameTime.TotalSeconds - startWalkingThroughPlayerTime.TotalGameTime.TotalSeconds) > 3)
+							{
+								startWalkingThroughPlayerTime = null;
+								goto case TileInfo.ReturnType.IsTileSpec;
+							}
 							break;
 						case TileInfo.ReturnType.IsOtherNPC:
-							EOGame.Instance.Hud.SetStatusLabel("OTHER NPC WAHHHHHHHHHH"); //todo: idk what's supposed to happen here
+#if DEBUG
+							EOGame.Instance.Hud.SetStatusLabel("OTHER NPC IS HERE"); //idk what's supposed to happen here, I think nothing?
+#endif
 							break;
 						case TileInfo.ReturnType.IsWarpSpec:
 							if (info.Warp.door != 0)
@@ -442,30 +476,29 @@ namespace EndlessClient
 				if (!_char.Walking && !_char.Attacking) _prevState = currentState; //only set this when not walking already
 			}
 		}
-
+		
 		//convenience wrapper
 		private void _chkWalk(TileSpec spec, EODirection dir, byte destX, byte destY)
 		{
-			//see what the action of moving into the next tile should do
-			//	bank vaults should open vault
-			//	chest should open chest
-			//	chairs should sit
-			//	etc. etc.
 			bool walkValid = true;
-			switch (spec) //todo: handle the tile specs differently (based purely on walking action)
+			switch (spec)
 			{
-				case TileSpec.Wall:
-				case TileSpec.ChairDown:
+				case TileSpec.ChairDown: //todo: make character sit in chairs
 				case TileSpec.ChairLeft:
 				case TileSpec.ChairRight:
 				case TileSpec.ChairUp:
 				case TileSpec.ChairDownRight:
 				case TileSpec.ChairUpLeft:
 				case TileSpec.ChairAll:
-				case TileSpec.Chest:
-				case TileSpec.BankVault:
-				case TileSpec.MapEdge:
-				case TileSpec.Board1:
+					walkValid = false;
+					break;
+				case TileSpec.Chest: //todo: open chest
+					walkValid = false;
+					break;
+				case TileSpec.BankVault: //todo: open bank vault
+					walkValid = false;
+					break;
+				case TileSpec.Board1: //todo: boards?
 				case TileSpec.Board2:
 				case TileSpec.Board3:
 				case TileSpec.Board4:
@@ -473,7 +506,13 @@ namespace EndlessClient
 				case TileSpec.Board6:
 				case TileSpec.Board7:
 				case TileSpec.Board8:
-				case TileSpec.Jukebox:
+					walkValid = false;
+					break;
+				case TileSpec.Jukebox: //todo: jukebox?
+					walkValid = false;
+					break;
+				case TileSpec.MapEdge:
+				case TileSpec.Wall:
 					walkValid = false;
 					break;
 			}
@@ -511,12 +550,12 @@ namespace EndlessClient
 		public override void Draw(GameTime gameTime)
 		{
 			base.Draw(gameTime);
-			Draw(SpriteBatch, gameTime); //framework: draw with this instance's spritebatch
+			Draw(SpriteBatch); //framework: draw with this instance's spritebatch
 		}
 
 		//does the draw call with a particular spritebatch (CharacterRenderer.Draw uses this with instance spritebatch)
 		//started indicates that the spritebatch.begin call has already been made
-		public void Draw(SpriteBatch sb, GameTime gt, bool started = false)
+		public void Draw(SpriteBatch sb, bool started = false)
 		{
 			if (adminRect != null)
 			{
@@ -524,6 +563,11 @@ namespace EndlessClient
 				sb.Draw(adminGraphic, new Rectangle(DrawAreaWithOffset.X + 48, DrawAreaWithOffset.Y + 73, adminRect.Value.Width, adminRect.Value.Height), adminRect, Color.White);
 				if(!started) sb.End();
 			}
+
+			//note: if character is hidden, only draw if a) they are not active character and b) the active character is admin
+			if (_char != World.Instance.MainPlayer.ActiveCharacter && _char.RenderData.hidden &&
+			    _char.AdminLevel == AdminLevel.Player)
+				return;
 
 			if(!started) sb.Begin();
 			sb.Draw(_charRenderTarget, new Vector2(0, 0), Color.White);
@@ -597,10 +641,13 @@ namespace EndlessClient
 
 		private void _drawCharToRenderTarget()
 		{
-			bool flipped = (int)Data.facing > 1; //flipped if direction is Up or Right (IE Facing > 1)
+			bool flipped = (int)Data.facing > 1; //flipped if direction is Up or Right
 
 			GraphicsDevice.SetRenderTarget(_charRenderTarget);
-			GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
+			if(Data.hidden && (_char == World.Instance.MainPlayer.ActiveCharacter || _char.AdminLevel != AdminLevel.Player))
+				GraphicsDevice.Clear(ClearOptions.Target, Color.FromNonPremultiplied(255,255,255,100), 1, 0); //hidden players should blend nicely
+			else
+				GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
 
 			SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 			//if subtype for this item is wings or arrows, draw at bottom, otherwise draw on top of armor
@@ -689,6 +736,16 @@ namespace EndlessClient
 			SpriteBatch.End();
 
 			GraphicsDevice.SetRenderTarget(null);
+		}
+
+		/// <summary>
+		/// Does character drawing if they are seated or on the floor.
+		/// </summary>
+		/// <param name="FloorSit">True if sitting on floor, false if sitting on chair</param>
+		private void _drawCharToRenderTargetSitting(bool FloorSit)
+		{
+			//need to get offsets for sitting and put them here. need to detect F11 keypress and set sit state when going into a chair.
+			throw new NotImplementedException();
 		}
 
 		private void maskTheHair()

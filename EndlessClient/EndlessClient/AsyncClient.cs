@@ -179,7 +179,7 @@ namespace EndlessClient
 		/// <summary>
 		/// Disconnects from the server and recreates the socket. 
 		/// </summary>
-		public void Disconnect()
+		public virtual void Disconnect()
 		{
 			if (!m_connectedAndInitialized)
 			{

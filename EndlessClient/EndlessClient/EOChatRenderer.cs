@@ -30,6 +30,7 @@ namespace EndlessClient
 		SpeechBubble = 0,
 		Note,
 		Error,
+// ReSharper disable UnusedMember.Global
 		NoteLeftArrow,
 		GlobalAnnounce,
 		Star,
@@ -68,6 +69,7 @@ namespace EndlessClient
 		Muted,
 		Guild
 	}
+// ReSharper restore UnusedMember.Global
 
 	public enum ChatColor
 	{
@@ -115,7 +117,7 @@ namespace EndlessClient
 			/// <summary>
 			/// Used for sorting the entries in the chat window
 			/// </summary>
-			public readonly int Index;
+			private readonly int _index;
 			/// <summary>
 			/// Determines the type of special icon that should appear next to the chat message
 			/// </summary>
@@ -125,11 +127,11 @@ namespace EndlessClient
 			/// </summary>
 			public readonly string Who;
 
-			public readonly ChatColor col;
+			private readonly ChatColor col;
 
 			public ChatIndex(int index = 0, ChatType type = ChatType.None, string who = "", ChatColor color = ChatColor.Default)
 			{
-				Index = index;
+				_index = index;
 				Type = type;
 				if (who != null && who.Length >= 1)
 				{
@@ -143,7 +145,7 @@ namespace EndlessClient
 			public int CompareTo(object other)
 			{
 				ChatIndex obj = (ChatIndex)other;
-				return Index - obj.Index;
+				return _index - obj._index;
 			}
 
 			public Color GetColor()
@@ -154,7 +156,7 @@ namespace EndlessClient
 					case ChatColor.Error: return Color.FromNonPremultiplied(0x7d, 0x0a, 0x0a, 0xff);
 					case ChatColor.PM: return Color.FromNonPremultiplied(0x5a, 0x3c, 0x00, 0xff);
 					case ChatColor.Server: return Color.FromNonPremultiplied(0xe6, 0xd2, 0xc8, 0xff);
-					default: throw new IndexOutOfRangeException("ChatColor enumeration unhandled for index " + Index.ToString(CultureInfo.InvariantCulture));
+					default: throw new IndexOutOfRangeException("ChatColor enumeration unhandled for index " + _index.ToString(CultureInfo.InvariantCulture));
 				}
 			}
 		}

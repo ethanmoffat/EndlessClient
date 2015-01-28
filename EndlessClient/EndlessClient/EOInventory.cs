@@ -98,7 +98,7 @@ namespace EndlessClient
 
 					if (m_itemData.Special == ItemSpecial.Lore)
 					{
-						EODialog lastError = new EODialog("It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
+						EODialog.Show("It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
 					}
 					else if (m_inventory.amount > 1)
 					{
@@ -190,8 +190,8 @@ namespace EndlessClient
 			SpriteBatch.End();
 			base.Draw(gameTime);
 		}
-		
-		public void UpdateItemLocation(int newSlot)
+
+		private void UpdateItemLocation(int newSlot)
 		{
 			if (Slot != newSlot && ((EOInventory) parent).MoveItem(this, newSlot)) Slot = newSlot;
 
@@ -212,7 +212,7 @@ namespace EndlessClient
 			}
 		}
 
-		public int ItemCurrentSlot()
+		private int ItemCurrentSlot()
 		{
 			if (!m_beingDragged) return Slot;
 
@@ -392,13 +392,18 @@ namespace EndlessClient
 			if (localInv.Find(_item => _item.id == 1).id != 1)
 				localInv.Insert(0, new InventoryItem {amount = 0, id = 1}); //add 0 gold if there isn't any gold
 
+			bool dialogShown = false;
 			foreach (InventoryItem item in localInv)
 			{
 				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
 				int slot = localItemSlotMap.ContainsValue(item.id)
 					? localItemSlotMap.First(_pair => _pair.Value == item.id).Key
 					: GetNextOpenSlot(rec.Size);
-				AddItemToSlot(slot, rec, item.amount);/* removed error checking - no need really, the original client doesn't do it. */
+				if (!dialogShown && !AddItemToSlot(slot, rec, item.amount))
+				{
+					dialogShown = true;
+					EODialog.Show("WARNING: Something doesn't fit in the inventory. Rearrange items or get rid of them.");
+				}
 			}
 
 			//coordinates for parent of EOInventory: 102, 330 (pnlInventory in InGameHud)
@@ -421,7 +426,7 @@ namespace EndlessClient
 			//'paperdoll' button
 			m_btnPaperdoll = new XNAButton(thatWeirdSheet, new Vector2(385, 9), /*new Rectangle(39, 385, 88, 19)*/null, new Rectangle(126, 385, 88, 19));
 			m_btnPaperdoll.SetParent(this);
-			m_btnPaperdoll.OnClick += (s, e) => Handlers.Paperdoll.RequestPaperdoll((short)World.Instance.MainPlayer.ActiveCharacter.ID); //todo: make event handler that shows a paperdoll dialog
+			m_btnPaperdoll.OnClick += (s, e) => Handlers.Paperdoll.RequestPaperdoll((short)World.Instance.MainPlayer.ActiveCharacter.ID);
 			//'drop' button
 			//491, 398 -> 389, 68
 			//0,15,38,37
@@ -462,10 +467,7 @@ namespace EndlessClient
 			m_btnDrop.Dispose();
 		}
 
-		//-----------------------------------------------------
-		// Public Access methods
-		//-----------------------------------------------------
-		public bool AddItemToSlot(int slot, ItemRecord item, int count = 1)
+		private bool AddItemToSlot(int slot, ItemRecord item, int count = 1)
 		{
 			//this is ADD item - don't allow adding items that have been added already
 			if (slot < 0 || m_childItems.Count(_item => _item.Slot == slot) > 0) return false;
@@ -480,7 +482,7 @@ namespace EndlessClient
 			return true;
 		}
 
-		public void RemoveItemFromSlot(int slot, int count = 1)
+		private void RemoveItemFromSlot(int slot, int count = 1)
 		{
 			EOInventoryItem control = m_childItems.Find(_control => _control.Slot == slot);
 			if (control == null || slot < 0) return;
@@ -521,7 +523,7 @@ namespace EndlessClient
 			return true;
 		}
 
-		public int GetNextOpenSlot(ItemSize size)
+		private int GetNextOpenSlot(ItemSize size)
 		{
 			int width, height;
 			_getItemSizeDeltas(size, out width, out height);
@@ -607,38 +609,19 @@ namespace EndlessClient
 		//-----------------------------------------------------
 		// Helper methods
 		//-----------------------------------------------------
-// ReSharper disable PossibleNullReferenceException
 		private static RegistryKey _tryGetCharacterRegKey()
 		{	
 			try
 			{
 				using (RegistryKey currentUser = Registry.CurrentUser)
 				{
-					using (RegistryKey software = currentUser.OpenSubKey("Software", true))
-					{
-						using (RegistryKey client = software.OpenSubKey("EndlessClient", true) ??
-						                            software.CreateSubKey("EndlessClient", RegistryKeyPermissionCheck.ReadWriteSubTree))
-						{
-							using (RegistryKey eoAccount = client.OpenSubKey(World.Instance.MainPlayer.AccountName, true) ??
-							                               client.CreateSubKey(World.Instance.MainPlayer.AccountName,
-								                               RegistryKeyPermissionCheck.ReadWriteSubTree))
-							{
-								using (RegistryKey character = eoAccount.OpenSubKey(World.Instance.MainPlayer.ActiveCharacter.Name, true) ??
-								       eoAccount.CreateSubKey(World.Instance.MainPlayer.ActiveCharacter.Name,
-									       RegistryKeyPermissionCheck.ReadWriteSubTree))
-								{
-									return character.OpenSubKey("inventory", true) ??
-									       character.CreateSubKey("inventory", RegistryKeyPermissionCheck.ReadWriteSubTree);
-								}
-							}
-						}
-					}
+					return currentUser.CreateSubKey(string.Format("Software\\EndlessClient\\{0}\\{1}\\inventory", World.Instance.MainPlayer.AccountName, World.Instance.MainPlayer.ActiveCharacter.Name),
+						RegistryKeyPermissionCheck.ReadWriteSubTree);
 				}
 			}
 			catch (NullReferenceException) { }
 			return null;
 		}
-// ReSharper restore PossibleNullReferenceException
 
 		private List<Tuple<int, int>> _getTakenSlots(int slot, ItemSize sz)
 		{
