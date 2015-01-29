@@ -162,6 +162,9 @@ namespace EndlessClient
 		}
 		private readonly SortedList<ChatIndex, string> chatStrings = new SortedList<ChatIndex, string>();
 
+		//this is here so we don't add more than one chat string at a time.
+		private static readonly object ChatStringsLock = new object();
+
 		private readonly XNALabel tabLabel;
 		public string ChatCharacter
 		{
@@ -266,7 +269,8 @@ namespace EndlessClient
 			//special case: blank line, like in the news panel between news items
 			if (string.IsNullOrWhiteSpace(who) && string.IsNullOrWhiteSpace(text))
 			{
-				chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), " ");
+				lock(ChatStringsLock)
+					chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), " ");
 				scrollBar.UpdateDimensions(chatStrings.Count);
 				if (chatStrings.Count > 7 && WhichTab != ChatTabs.None)
 				{
@@ -282,7 +286,8 @@ namespace EndlessClient
 			//don't do multi-line processing if we don't need to
 			if (font.MeasureString(text).X < LINE_LEN)
 			{
-				chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), text);
+				lock (ChatStringsLock)
+					chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), text);
 				scrollBar.UpdateDimensions(chatStrings.Count);
 				if (chatStrings.Count > 7 && WhichTab != ChatTabs.None)
 				{
@@ -341,10 +346,13 @@ namespace EndlessClient
 
 			for (int i = 0; i < chatStringsToAdd.Count; ++i)
 			{
-				if(i == 0)
-					chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), chatStringsToAdd[0]);
-				else
-					chatStrings.Add(new ChatIndex(chatStrings.Count, ChatType.None, whoPadding), chatStringsToAdd[i]);
+				lock (ChatStringsLock)
+				{
+					if (i == 0)
+						chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), chatStringsToAdd[0]);
+					else
+						chatStrings.Add(new ChatIndex(chatStrings.Count, ChatType.None, whoPadding), chatStringsToAdd[i]);
+				}
 			}
 
 			scrollBar.UpdateDimensions(chatStrings.Count);
