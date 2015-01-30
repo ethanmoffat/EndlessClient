@@ -253,10 +253,9 @@ namespace EndlessClient
 
 		//rendering members
 		//private Rectangle _animSourceRect; //this will become necessary when i get to drawing animated tiles..
-		private RenderTarget2D _playerTransparentTarget;
+		private RenderTarget2D _rtMapObjAbovePlayer, _rtMapObjBelowPlayer;
 		private BlendState _playerBlend;
 		private SpriteBatch sb;
-		private bool shouldRedrawGround;
 
 		//door members
 		private readonly Timer _doorTimer;
@@ -291,7 +290,6 @@ namespace EndlessClient
 			Visible = true;
 
 			_doorTimer = new Timer(_doorTimerCallback);
-			shouldRedrawGround = true;
 		}
 
 		/* PUBLIC INTERFACE -- CHAT + MAP RELATED */
@@ -368,8 +366,6 @@ namespace EndlessClient
 				_doorY = 0;
 				_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
 			}
-
-			shouldRedrawGround = true;
 		}
 
 		public TileInfo CheckCoordinates(byte destX, byte destY)
@@ -624,7 +620,14 @@ namespace EndlessClient
 		/* GAME COMPONENT DERIVED METHODS */
 		public override void Initialize()
 		{
-			_playerTransparentTarget = new RenderTarget2D(Game.GraphicsDevice, 
+			_rtMapObjAbovePlayer = new RenderTarget2D(Game.GraphicsDevice, 
+				Game.GraphicsDevice.PresentationParameters.BackBufferWidth, 
+				Game.GraphicsDevice.PresentationParameters.BackBufferHeight,
+				false,
+				SurfaceFormat.Color,
+				DepthFormat.None);
+
+			_rtMapObjBelowPlayer = new RenderTarget2D(Game.GraphicsDevice,
 				Game.GraphicsDevice.PresentationParameters.BackBufferWidth, 
 				Game.GraphicsDevice.PresentationParameters.BackBufferHeight,
 				false,
@@ -779,12 +782,6 @@ namespace EndlessClient
 					Game.Components.Add(_mouseoverName);
 			}
 
-			if (shouldRedrawGround)
-			{
-				_drawGroundLayer();
-				shouldRedrawGround = false;
-			}
-
 			_doMapRenderTargetDrawing(); //if any player has been updated redraw the render target
 
 			_prevState = ms;
@@ -804,7 +801,8 @@ namespace EndlessClient
 					sb.Draw(mouseCursor, cursorPos, _cursorSourceRect, Color.White);
 				
 				/*_drawPlayersNPCsAndMapObjects()*/
-				sb.Draw(_playerTransparentTarget, Vector2.Zero, Color.White);
+				sb.Draw(_rtMapObjAbovePlayer, Vector2.Zero, Color.White);
+				sb.Draw(_rtMapObjBelowPlayer, Vector2.Zero, Color.White);
 				sb.End();
 			}
 
@@ -820,10 +818,10 @@ namespace EndlessClient
 			int xMin = c.X - localViewLength < 0 ? 0 : c.X - localViewLength,
 				xMax = c.X + localViewLength > MapRef.Width ? MapRef.Width : c.X + localViewLength;
 			int yMin = c.Y - localViewLength < 0 ? 0 : c.Y - localViewLength,
-				yMax = c.Y + localViewLength > MapRef.Width ? MapRef.Width : c.Y + localViewLength;
+				yMax = c.Y + localViewLength > MapRef.Height ? MapRef.Height : c.Y + localViewLength;
 
-			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength && gfx.x <= MapRef.Width;
-			Func<GFXRow, bool> yGFXQuery = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength && row.y <= MapRef.Height;
+			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= xMin && gfx.x <= xMax && gfx.x <= MapRef.Width;
+			Func<GFXRow, bool> yGFXQuery = row => row.y >= yMin && row.y <= yMax && row.y <= MapRef.Height;
 
 			sb.Begin();
 			//render fill tile first
@@ -912,12 +910,6 @@ namespace EndlessClient
 			sb.End();
 		}
 
-		//The map render target works as follows:
-		// 1. Clear render target as transparent
-		// 2. Draw all map objects to this render target
-		// 3. Draw any players (including main) to render target
-		//    a. other renderers are drawn inbetween objects as needed
-		//    b. main player is blended using special blendstate with any object it overlaps
 		private void _doMapRenderTargetDrawing()
 		{
 			//todo: need to animate certain tiles! (spikes, wall flames, etc)
@@ -925,31 +917,44 @@ namespace EndlessClient
 
 			if (MapRef == null) return;
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
-			List<EOCharacterRenderer> otherChars = new List<EOCharacterRenderer>(otherRenderers); //copy of list
+			List<EOCharacterRenderer> otherChars = new List<EOCharacterRenderer>(otherRenderers); //copy of list (can remove items)
 			List<NPC> otherNpcs;
-			lock(npcListLock)
+			lock(npcListLock) //when drawing a frame, don't want to consider NPCs that are added/removed mid-draw - they will be taken care of on next update
 				otherNpcs = new List<NPC>(npcList);
 
-			// Queries (func) for the gfx items within range of the character's X coordinate
-			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength && gfx.x <= MapRef.Width;
-			// Queries (func) for the gfxrow items within range of the character's Y coordinate
-			Func<GFXRow, bool> yGFXQuery = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength && row.y <= MapRef.Height;
-			GraphicsDevice.SetRenderTarget(_playerTransparentTarget);
+			// Queries (func) for the items within range of the character's X coordinate, passed as expressions to list linq extensions
+			Func<GFX, int, bool> xGFXDistanceQuery = (gfx, dist) => gfx.x >= c.X - dist && gfx.x <= c.X + dist && gfx.x <= MapRef.Width;
+			Func<GFX, bool> xGFXQuery = gfx => xGFXDistanceQuery(gfx, Constants.ViewLength);
+			Func<GFXRow, int, bool> yGFXDistanceQuery = (row, dist) => row.y >= c.Y - dist && row.y <= c.Y + dist && row.y <= MapRef.Height;
+			Func<GFXRow, bool> yGFXQuery = row => yGFXDistanceQuery(row, Constants.ViewLength);
+
+			GraphicsDevice.SetRenderTarget(_rtMapObjAbovePlayer);
 			GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 			sb.Begin();
 
-			bool mainBehindSomething = false;
 			//Get all the row lists in-range of player up front. Retrieved here in order to be rendered
 			List<GFXRow> overlayObjRows = MapRef.GfxRows[2].Where(yGFXQuery).ToList();
 			List<GFXRow> wallRowsRight = MapRef.GfxRows[4].Where(yGFXQuery).ToList();
 			List<GFXRow> wallRowsDown = MapRef.GfxRows[3].Where(yGFXQuery).ToList();
 			List<GFXRow> shadowRows = MapRef.GfxRows[7].Where(yGFXQuery).ToList();
-			List<GFXRow> mapObjRows = MapRef.GfxRows[1].Where(yGFXQuery).ToList();
+			List<GFXRow> mapObjRows = MapRef.GfxRows[1].Where(_row => yGFXDistanceQuery(_row, 13)).ToList();
 			List<GFXRow> roofRows = MapRef.GfxRows[5].Where(yGFXQuery).ToList();
 			List<GFXRow> overlayTileRows = MapRef.GfxRows[6].Where(yGFXQuery).ToList();
 
-			for (int rowIndex = 0; rowIndex <= MapRef.Height; ++rowIndex) //11-7-14: Changed rendering to do row by row for all layers
+			bool targetChanged = false;
+			for (int rowIndex = 0; rowIndex <= MapRef.Height; ++rowIndex)
 			{
+				//any objects, NPCs and players with a Y coordinate <= player Y coordinate (ie above player) render to one target
+				//all others render 'below' player on separate target so blending works for only the objects below the player
+				if (!targetChanged && rowIndex >= c.Y) //need to figure out what the condition should be when a player is walking
+				{
+					sb.End();
+					GraphicsDevice.SetRenderTarget(_rtMapObjBelowPlayer);
+					GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+					sb.Begin();
+					targetChanged = true;
+				}
+
 				GFXRow row; //reused for each layer
 
 				//overlay/mask  objects
@@ -962,10 +967,6 @@ namespace EndlessClient
 						Vector2 pos = _getDrawCoordinates(obj.x, row.y, c);
 						pos = new Vector2(pos.X + 16, pos.Y - 11);
 						sb.Draw(gfx, pos, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, obj.x, row.y,
-								gfx.Bounds.SetPosition(pos));
 					}
 				}
 
@@ -984,10 +985,6 @@ namespace EndlessClient
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
 						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 47, loc.Y - (gfx.Height - 29));
 						sb.Draw(gfx, loc, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, obj.x, row.y,
-								gfx.Bounds.SetPosition(loc));
 					}
 				}
 				//this layer faces to the down
@@ -1004,10 +1001,6 @@ namespace EndlessClient
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
 						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 15, loc.Y - (gfx.Height - 29));
 						sb.Draw(gfx, loc, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, obj.x, row.y,
-								gfx.Bounds.SetPosition(loc));
 					}
 				}
 
@@ -1026,17 +1019,13 @@ namespace EndlessClient
 				//map objects
 				if ((row = mapObjRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
 				{
-					List<GFX> objs = row.tiles.Where(xGFXQuery).ToList();
+					List<GFX> objs = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 13)).ToList();
 					foreach (GFX obj in objs)
 					{
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, obj.tile, true);
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
 						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28));
 						sb.Draw(gfx, loc, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, obj.x, row.y,
-								gfx.Bounds.SetPosition(loc));
 					}
 				}
 
@@ -1050,10 +1039,6 @@ namespace EndlessClient
 						Vector2 loc = _getDrawCoordinates(roof.x, row.y, c);
 						loc = new Vector2(loc.X - 2, loc.Y - 63);
 						sb.Draw(gfx, loc, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, roof.x, row.y,
-								gfx.Bounds.SetPosition(loc));
 					}
 				}
 
@@ -1067,14 +1052,9 @@ namespace EndlessClient
 						Vector2 loc = _getDrawCoordinates(tile.x, row.y, c);
 						loc = new Vector2(loc.X - 2, loc.Y - 31);
 						sb.Draw(gfx, loc, Color.White);
-
-						if (!mainBehindSomething)
-							mainBehindSomething = _characterIsBehindSomething(World.Instance.ActiveCharacterRenderer, tile.x, row.y,
-								gfx.Bounds.SetPosition(loc));
 					}
 				}
 
-				//changed to draw other characters/npcs for this row here (12-2-14)
 				List<NPC> thisRowNpcs = otherNpcs.Where(_npc => _npc.Walking ? _npc.DestY == rowIndex : _npc.Y == rowIndex).ToList();
 				thisRowNpcs.ForEach(_npc => _npc.DrawToSpriteBatch(sb, true));
 				List<EOCharacterRenderer> thisRowChars = otherChars.Where(_char => _char.Character.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex).ToList();
@@ -1091,9 +1071,7 @@ namespace EndlessClient
 				sb = new SpriteBatch(Game.GraphicsDevice);
 			}
 
-			BlendState mainPlayerBlend = mainBehindSomething ? _playerBlend : BlendState.AlphaBlend;
-
-			sb.Begin(SpriteSortMode.Deferred, mainPlayerBlend);
+			sb.Begin(SpriteSortMode.Deferred, _playerBlend);
 			World.Instance.ActiveCharacterRenderer.Draw(sb, true);
 			sb.End();
 
@@ -1108,23 +1086,6 @@ namespace EndlessClient
 		private Vector2 _getDrawCoordinates(int x, int y, Character c)
 		{
 			return new Vector2((x * 32) - (y * 32) + 288 - c.OffsetX, (y * 16) + (x * 16) + 144 - c.OffsetY);
-		}
-
-		private bool _characterIsBehindSomething(EOCharacterRenderer rend, int objX, int objY, Rectangle TextureBounds)
-		{
-			int charX, charY;
-			if (rend.Character.Walking)
-			{
-				charX = rend.Character.DestX;
-				charY = rend.Character.DestY;
-			}
-			else
-			{
-				charX = rend.Character.X;
-				charY = rend.Character.Y;
-			}
-
-			return (charX < objX && charY < objY) && rend.DrawAreaWithOffset.Intersects(TextureBounds);
 		}
 	}
 }
