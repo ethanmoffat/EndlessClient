@@ -444,7 +444,6 @@ namespace EndlessClient
 
 			if (World.Instance.Client.ConnectedAndInitialized)
 				World.Instance.Client.Disconnect();
-			World.Instance.Client.Dispose();
 
 			if(loginUsernameTextbox != null)
 				loginUsernameTextbox.Dispose();
@@ -498,6 +497,8 @@ namespace EndlessClient
 				connectMutex.Dispose();
 
 			GFXLoader.Cleanup();
+
+			World.Instance.Dispose();
 
 			base.Dispose(disposing);
 		}

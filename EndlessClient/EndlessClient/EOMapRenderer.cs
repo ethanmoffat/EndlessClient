@@ -1089,5 +1089,33 @@ namespace EndlessClient
 
 			return (charX < objX && charY < objY) && rend.DrawAreaWithOffset.Intersects(TextureBounds);
 		}
+
+		public new void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (!disposing) return;
+
+			foreach (EOCharacterRenderer cr in otherRenderers)
+				cr.Dispose();
+
+			lock (npcListLock)
+			{
+				foreach (NPC npc in npcList)
+					npc.Dispose();
+			}
+
+			_mouseoverName.Dispose();
+			_playerTransparentTarget.Dispose();
+			_playerBlend.Dispose();
+			sb.Dispose();
+			_doorTimer.Dispose();
+
+			base.Dispose(true);
+		}
 	}
 }
