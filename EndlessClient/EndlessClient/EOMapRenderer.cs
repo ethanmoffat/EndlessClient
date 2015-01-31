@@ -920,9 +920,7 @@ namespace EndlessClient
 
 			// Queries (func) for the items within range of the character's X coordinate, passed as expressions to list linq extensions
 			Func<GFX, int, bool> xGFXDistanceQuery = (gfx, dist) => gfx.x >= c.X - dist && gfx.x <= c.X + dist && gfx.x <= MapRef.Width;
-			Func<GFX, bool> xGFXQuery = gfx => xGFXDistanceQuery(gfx, Constants.ViewLength);
 			Func<GFXRow, int, bool> yGFXDistanceQuery = (row, dist) => row.y >= c.Y - dist && row.y <= c.Y + dist && row.y <= MapRef.Height;
-			Func<GFXRow, bool> yGFXQuery = row => yGFXDistanceQuery(row, Constants.ViewLength);
 
 			GraphicsDevice.SetRenderTarget(_rtMapObjAbovePlayer);
 			GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
@@ -957,7 +955,7 @@ namespace EndlessClient
 				//overlay/mask  objects
 				if ((row = overlayObjRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
 				{
-					List<GFX> overlayObj = row.tiles.Where(xGFXQuery).ToList();
+					List<GFX> overlayObj = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 10)).ToList();
 					foreach (GFX obj in overlayObj)
 					{
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, obj.tile, true);
@@ -971,7 +969,7 @@ namespace EndlessClient
 				//this layer faces to the right
 				if ((row = wallRowsRight.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
 				{
-					List<GFX> walls = row.tiles.Where(xGFXQuery).ToList();
+					List<GFX> walls = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 20)).ToList();
 					foreach (GFX obj in walls)
 					{
 						int gfxNum = obj.tile;
@@ -987,7 +985,7 @@ namespace EndlessClient
 				//this layer faces to the down
 				if ((row = wallRowsDown.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
 				{
-					List<GFX> walls = row.tiles.Where(xGFXQuery).ToList();
+					List<GFX> walls = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 20)).ToList();
 					foreach (GFX obj in walls)
 					{
 						int gfxNum = obj.tile;
@@ -1005,7 +1003,7 @@ namespace EndlessClient
 				//TODO: Load configuration value determining whether or not to show shadows
 				if ((row = shadowRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
 				{
-					List<GFX> shadows = row.tiles.Where(xGFXQuery).ToList();
+					List<GFX> shadows = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 10)).ToList();
 					foreach (GFX shadow in shadows)
 					{
 						Vector2 loc = _getDrawCoordinates(shadow.x, row.y, c);
@@ -1029,7 +1027,7 @@ namespace EndlessClient
 				//roofs (after objects - for outdoor maps, which actually have roofs, this makes more sense)
 				if ((row = roofRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
 				{
-					List<GFX> roofs = row.tiles.Where(xGFXQuery).ToList();
+					List<GFX> roofs = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 10)).ToList();
 					foreach (GFX roof in roofs)
 					{
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, roof.tile, true);
@@ -1042,7 +1040,7 @@ namespace EndlessClient
 				//overlay tiles (counters, etc)
 				if ((row = overlayTileRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
 				{
-					List<GFX> tiles = row.tiles.Where(xGFXQuery).ToList();
+					List<GFX> tiles = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 10)).ToList();
 					foreach (GFX tile in tiles)
 					{
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
@@ -1052,10 +1050,19 @@ namespace EndlessClient
 					}
 				}
 
-				List<NPC> thisRowNpcs = otherNpcs.Where(_npc => _npc.Walking ? _npc.DestY == rowIndex : _npc.Y == rowIndex).ToList();
-				thisRowNpcs.ForEach(_npc => _npc.DrawToSpriteBatch(sb, true));
-				List<EOCharacterRenderer> thisRowChars = otherChars.Where(_char => _char.Character.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex).ToList();
-				thisRowChars.ForEach(_char => _char.Draw(sb, true));
+// ReSharper disable AccessToModifiedClosure
+				IEnumerable<NPC> thisRowNpcs = otherNpcs.Where(
+					_npc => (_npc.Walking ? _npc.DestY == rowIndex : _npc.Y == rowIndex) && 
+						_npc.X >= c.X - Constants.ViewLength && 
+						_npc.X <= c.X + Constants.ViewLength);
+				foreach(NPC npc in thisRowNpcs) npc.DrawToSpriteBatch(sb, true);
+
+				IEnumerable<EOCharacterRenderer> thisRowChars = otherChars.Where(
+					_char => (_char.Character.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex) && 
+						_char.Character.X >= c.X - Constants.ViewLength &&
+						_char.Character.X <= c.X + Constants.ViewLength);
+				foreach(EOCharacterRenderer _char in thisRowChars) _char.Draw(sb, true);
+// ReSharper restore AccessToModifiedClosure
 			}
 
 			try
@@ -1084,24 +1091,6 @@ namespace EndlessClient
 		{
 			return new Vector2((x * 32) - (y * 32) + 288 - c.OffsetX, (y * 16) + (x * 16) + 144 - c.OffsetY);
 		}
-<<<<<<< HEAD
-
-		private bool _characterIsBehindSomething(EOCharacterRenderer rend, int objX, int objY, Rectangle TextureBounds)
-		{
-			int charX, charY;
-			if (rend.Character.Walking)
-			{
-				charX = rend.Character.DestX;
-				charY = rend.Character.DestY;
-			}
-			else
-			{
-				charX = rend.Character.X;
-				charY = rend.Character.Y;
-			}
-
-			return (charX < objX && charY < objY) && rend.DrawAreaWithOffset.Intersects(TextureBounds);
-		}
 
 		public new void Dispose()
 		{
@@ -1123,14 +1112,13 @@ namespace EndlessClient
 			}
 
 			_mouseoverName.Dispose();
-			_playerTransparentTarget.Dispose();
+			_rtMapObjAbovePlayer.Dispose();
+			_rtMapObjBelowPlayer.Dispose();
 			_playerBlend.Dispose();
 			sb.Dispose();
 			_doorTimer.Dispose();
 
 			base.Dispose(true);
 		}
-=======
->>>>>>> EOMapRenderer
 	}
 }
