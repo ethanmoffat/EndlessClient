@@ -252,10 +252,14 @@ namespace EndlessClient
 		}
 
 		//rendering members
-		//private Rectangle _animSourceRect; //this will become necessary when i get to drawing animated tiles..
 		private RenderTarget2D _rtMapObjAbovePlayer, _rtMapObjBelowPlayer;
 		private BlendState _playerBlend;
 		private SpriteBatch sb;
+
+		//animated tile/wall members
+		private Vector2 _tileSrc;
+		private Vector2 _wallSrc;
+		private TimeSpan? lastAnimUpdate;
 
 		//door members
 		private readonly Timer _doorTimer;
@@ -659,6 +663,23 @@ namespace EndlessClient
 			lock(npcListLock)
 				npcList.Where(_npc => !Game.Components.Contains(_npc)).ToList().ForEach(_n => _n.Update(gameTime));
 
+			//lazy init
+			if (lastAnimUpdate == null) lastAnimUpdate = gameTime.TotalGameTime;
+
+			if ((gameTime.TotalGameTime - lastAnimUpdate.Value).TotalMilliseconds > 500)
+			{
+				_wallSrc = new Vector2(32 + _wallSrc.X, 0);
+				if(_wallSrc.X > 96)
+					_wallSrc = new Vector2(0, 0);
+
+				_tileSrc = new Vector2(64 + _tileSrc.X, 0);
+				if (_tileSrc.X > 192)
+					_tileSrc = Vector2.Zero;
+
+
+				lastAnimUpdate = gameTime.TotalGameTime;
+			}
+
 			MouseState ms = Mouse.GetState();
 			//need to solve this system of equations to get x, y on the grid
 			//edit: why didn't i take a linear algebra class....
@@ -861,8 +882,9 @@ namespace EndlessClient
 					//render tile.tile at tile.x, row.y
 					Texture2D nextTile = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
 					Vector2 pos = _getDrawCoordinates(tile.x, row.y, c);
+					Rectangle? src = nextTile.Width > 64 ? new Rectangle?(new Rectangle((int)_tileSrc.X, (int)_tileSrc.Y, nextTile.Width / 4, nextTile.Height)) : null;
 					if (nextTile.Width > 64)
-						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), new Rectangle(0, 0, 64, 32)/*_animSourceRect*/, Color.White);
+						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.White);
 					else
 						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), Color.White);
 				}
@@ -910,7 +932,6 @@ namespace EndlessClient
 
 		private void _doMapRenderTargetDrawing()
 		{
-			//todo: need to animate certain tiles! (spikes, wall flames, etc)
 			//also, certain spikes only appear when a player is over them...yikes.
 
 			if (MapRef == null) return;
@@ -980,8 +1001,9 @@ namespace EndlessClient
 
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
-						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 47, loc.Y - (gfx.Height - 29));
-						sb.Draw(gfx, loc, Color.White);
+						Rectangle? src = gfx.Width > 32 ? new Rectangle?(new Rectangle((int)_wallSrc.X, (int)_wallSrc.Y, gfx.Width / 4, gfx.Height)) : null;
+						loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfx.Width / 4.0 : gfx.Width) / 2.0) + 47, loc.Y - (gfx.Height - 29));
+						sb.Draw(gfx, loc, src, Color.White);
 					}
 				}
 				//this layer faces to the down
@@ -996,8 +1018,9 @@ namespace EndlessClient
 
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
-						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 15, loc.Y - (gfx.Height - 29));
-						sb.Draw(gfx, loc, Color.White);
+						Rectangle? src = gfx.Width > 32 ? new Rectangle?(new Rectangle((int)_wallSrc.X, (int)_wallSrc.Y, gfx.Width / 4, gfx.Height)): null;
+						loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfx.Width / 4.0 : gfx.Width) / 2.0) + 15, loc.Y - (gfx.Height - 29));
+						sb.Draw(gfx, loc, src, Color.White);
 					}
 				}
 
