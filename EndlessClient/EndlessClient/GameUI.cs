@@ -152,9 +152,7 @@ Thanks to :
 
 			lblVersionInfo = new XNALabel(new Rectangle(30, 457, 1, 1))
 			{
-				Text =
-					string.Format("{0}.{1:000}.{2:000} - {3}:{4}", Constants.MajorVersion, Constants.MinorVersion,
-						Constants.ClientVersion, host, port),
+				Text = string.Format("{0}.{1:000}.{2:000} - {3}:{4}", World.Instance.VersionMajor, World.Instance.VersionMinor, World.Instance.VersionClient, host, port),
 				Font = new System.Drawing.Font("Microsoft Sans Serif", 7.0f),
 				ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c)
 			};

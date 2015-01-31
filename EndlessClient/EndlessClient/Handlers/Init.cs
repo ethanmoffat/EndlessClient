@@ -72,9 +72,9 @@ namespace EndlessClient.Handlers
 
 			builder.AddThree(Hashes.stupid_hash(new Random().Next(6, 12)));
 
-			builder.AddChar(0); //unknown
-			builder.AddChar(0); //unknown
-			builder.AddChar(Constants.ClientVersion); //client version
+			builder.AddChar(World.Instance.VersionMajor); //unknown
+			builder.AddChar(World.Instance.VersionMinor); //unknown
+			builder.AddChar(World.Instance.VersionClient); //client version
 			builder.AddChar(112); //unknown
 			builder.AddChar((byte)(HDDserial.Length)); //unknown
 			builder.AddString(HDDserial);

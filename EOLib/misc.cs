@@ -78,5 +78,10 @@ namespace EOLib
 		public const string Connection = "CONNECTION";
 		public const string Host = "Host";
 		public const string Port = "Port";
+
+		public const string Version = "VERSION";
+		public const string Major = "Major";
+		public const string Minor = "Minor";
+		public const string Client = "Client";
 	}
 }

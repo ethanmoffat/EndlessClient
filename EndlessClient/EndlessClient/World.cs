@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using EOLib;
 using EOLib.Data;
 
 namespace EndlessClient
@@ -58,18 +59,32 @@ namespace EndlessClient
 			m_config = new IniReader(@"config\settings.ini");
 			if (!m_config.Load())
 				throw new WorldLoadException("Unable to load the configuration file!");
+		}
+
+		public void Init()
+		{
 			Initialized = true;
 
 			exp_table = new int[254];
 			for (int i = 1; i < exp_table.Length; ++i)
 			{
-				exp_table[i] = (int) Math.Round(Math.Pow(i, 3)*133.1);
+				exp_table[i] = (int)Math.Round(Math.Pow(i, 3) * 133.1);
 			}
+
+			int maj, min, cli;
+
+			VersionMajor = Configuration.GetValue(ConfigStrings.Version, ConfigStrings.Major, out maj) ? (byte)maj : Constants.MajorVersion;
+			VersionMinor = Configuration.GetValue(ConfigStrings.Version, ConfigStrings.Minor, out min) ? (byte)min : Constants.MinorVersion;
+			VersionClient = Configuration.GetValue(ConfigStrings.Version, ConfigStrings.Client, out cli) ? (byte)cli : Constants.ClientVersion;
 		}
 
-		public readonly int[] exp_table;
+		public int[] exp_table;
 
 		/*** Instance Properties and such ***/
+
+		public byte VersionMajor { get; set; }
+		public byte VersionMinor { get; set; }
+		public byte VersionClient { get; set; }
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 		public short JailMap { get; set; }

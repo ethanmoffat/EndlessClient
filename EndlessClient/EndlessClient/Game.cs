@@ -53,6 +53,16 @@ namespace EndlessClient
 			get { return inst ?? (inst = new EOGame()); }
 		}
 
+		private static readonly object ComponentsLock = new object();
+		public new GameComponentCollection Components
+		{
+			get
+			{
+				lock (ComponentsLock)
+					return base.Components;
+			}
+		}
+
 		const int WIDTH = 640;
 		const int HEIGHT = 480;
 
@@ -235,6 +245,7 @@ namespace EndlessClient
 					foreach (XNAButton btn in mainButtons)
 						btn.Visible = true;
 					Dispatcher.Subscriber = loginUsernameTextbox;
+					lblVersionInfo.Visible = true;
 					break;
 				case GameStates.ViewCredits:
 					foreach (XNAButton btn in mainButtons)
@@ -312,7 +323,7 @@ namespace EndlessClient
 			{
 				GFXLoader.Initialize(GraphicsDevice);
 				World w = World.Instance; //set up the world
-				w.ResetGameElements(); //no-op to keep resharper happy
+				w.Init();
 			}
 			catch (WorldLoadException wle) //could be thrown from World's constructor
 			{

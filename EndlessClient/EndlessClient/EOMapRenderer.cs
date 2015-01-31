@@ -633,10 +633,10 @@ namespace EndlessClient
 				false,
 				SurfaceFormat.Color,
 				DepthFormat.None);
-			
+
 			_playerBlend = new BlendState
 			{
-				BlendFactor = new Color(255,255,255,64),
+				BlendFactor = new Color(255, 255, 255, 64),
 
 				AlphaSourceBlend = Blend.One,
 				AlphaDestinationBlend = Blend.One,
@@ -645,6 +645,7 @@ namespace EndlessClient
 				ColorSourceBlend = Blend.BlendFactor,
 				ColorDestinationBlend = Blend.One
 			};
+
 			base.Initialize();
 		}
 
@@ -793,7 +794,8 @@ namespace EndlessClient
 			if (MapRef != null)
 			{
 				_drawGroundLayer();
-				_drawMapItems();
+				if(MapItems.Count > 0)
+					_drawMapItems();
 
 				sb.Begin();
 				/*_drawCursor()*/
@@ -941,7 +943,7 @@ namespace EndlessClient
 			{
 				//any objects, NPCs and players with a Y coordinate <= player Y coordinate (ie above player) render to one target
 				//all others render 'below' player on separate target so blending works for only the objects below the player
-				if (!targetChanged && rowIndex >= c.Y) //need to figure out what the condition should be when a player is walking
+				if (!targetChanged && ((!c.Walking && rowIndex >= c.Y) || (c.Walking && rowIndex >= c.DestY)))
 				{
 					sb.End();
 					GraphicsDevice.SetRenderTarget(_rtMapObjBelowPlayer);
@@ -1036,6 +1038,20 @@ namespace EndlessClient
 						sb.Draw(gfx, loc, Color.White);
 					}
 				}
+				
+// ReSharper disable AccessToModifiedClosure
+				IEnumerable<NPC> thisRowNpcs = otherNpcs.Where(
+					_npc => (_npc.Walking ? _npc.DestY == rowIndex : _npc.Y == rowIndex) &&
+					        _npc.X >= c.X - Constants.ViewLength &&
+					        _npc.X <= c.X + Constants.ViewLength);
+				foreach (NPC npc in thisRowNpcs) npc.DrawToSpriteBatch(sb, true);
+
+				IEnumerable<EOCharacterRenderer> thisRowChars = otherChars.Where(
+					_char => (_char.Character.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex) &&
+					         _char.Character.X >= c.X - Constants.ViewLength &&
+					         _char.Character.X <= c.X + Constants.ViewLength);
+				foreach (EOCharacterRenderer _char in thisRowChars) _char.Draw(sb, true);
+// ReSharper restore AccessToModifiedClosure
 
 				//overlay tiles (counters, etc)
 				if ((row = overlayTileRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
@@ -1050,19 +1066,6 @@ namespace EndlessClient
 					}
 				}
 
-// ReSharper disable AccessToModifiedClosure
-				IEnumerable<NPC> thisRowNpcs = otherNpcs.Where(
-					_npc => (_npc.Walking ? _npc.DestY == rowIndex : _npc.Y == rowIndex) && 
-						_npc.X >= c.X - Constants.ViewLength && 
-						_npc.X <= c.X + Constants.ViewLength);
-				foreach(NPC npc in thisRowNpcs) npc.DrawToSpriteBatch(sb, true);
-
-				IEnumerable<EOCharacterRenderer> thisRowChars = otherChars.Where(
-					_char => (_char.Character.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex) && 
-						_char.Character.X >= c.X - Constants.ViewLength &&
-						_char.Character.X <= c.X + Constants.ViewLength);
-				foreach(EOCharacterRenderer _char in thisRowChars) _char.Draw(sb, true);
-// ReSharper restore AccessToModifiedClosure
 			}
 
 			try
