@@ -174,11 +174,17 @@ namespace EndlessClient
 	{
 		public int ID { get; private set; }
 
+		/// <summary>
+		/// x*32 - y*32 + ViewAdjustX
+		/// </summary>
 		public int OffsetX
 		{
 			get { return X*32 - Y*32 + ViewAdjustX; }
 		}
 
+		/// <summary>
+		/// x*16 + y*16 + ViewAdjustY
+		/// </summary>
 		public int OffsetY
 		{
 			get { return X*16 + Y*16 + ViewAdjustY; }

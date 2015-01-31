@@ -766,7 +766,7 @@ namespace EndlessClient
 			}
 			
 			Color[] hatPixels;
-			if (Data.facing == EODirection.Left || Data.facing == EODirection.Up)
+			if (Data.facing == EODirection.Left || Data.facing == EODirection.Up || hair == null)
 			{
 				hatPixels = new Color[hat.Width * hat.Height];
 				hat.GetData(hatPixels);
