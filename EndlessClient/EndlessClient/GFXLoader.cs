@@ -156,6 +156,18 @@ namespace EndlessClient
 
 				return -1;
 			}
+
+			public override bool Equals(object obj)
+			{
+				if (!(obj is LibraryGraphicPair)) return false;
+				LibraryGraphicPair other = (LibraryGraphicPair) obj;
+				return other.GraphicNumber == GraphicNumber && other.LibraryNumber == LibraryNumber;
+			}
+
+			public override int GetHashCode()
+			{
+				return (LibraryNumber << 16) | GraphicNumber;
+			}
 		}
 
 		private static readonly Dictionary<LibraryGraphicPair, Texture2D> cache = new Dictionary<LibraryGraphicPair, Texture2D>();

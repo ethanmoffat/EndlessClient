@@ -803,6 +803,9 @@ namespace EndlessClient
 				/*_drawPlayersNPCsAndMapObjects()*/
 				sb.Draw(_rtMapObjAbovePlayer, Vector2.Zero, Color.White);
 				sb.Draw(_rtMapObjBelowPlayer, Vector2.Zero, Color.White);
+#if DEBUG
+				sb.DrawString(World.DBG, string.Format("FPS: {0}", World.FPS), new Vector2(30, 30), Color.White);
+#endif
 				sb.End();
 			}
 
@@ -823,38 +826,31 @@ namespace EndlessClient
 			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= xMin && gfx.x <= xMax && gfx.x <= MapRef.Width;
 			Func<GFXRow, bool> yGFXQuery = row => row.y >= yMin && row.y <= yMax && row.y <= MapRef.Height;
 
-			sb.Begin();
+			sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 			//render fill tile first
 			if (MapRef.FillTile > 0)
 			{
+				//only do the cache lookup once!
+				Texture2D fillTileRef = GFXLoader.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true);
 				for (int i = yMin; i <= yMax; ++i)
 				{
 					for (int j = xMin; j <= xMax; ++j)
 					{
-						GFXRow tr;
-						if ((tr = MapRef.GfxRows[0].Find(_tr => _tr.y == i)).y == i)
-						{
-							GFX t;
-							if (tr.tiles != null && (t = tr.tiles.Find(_t => _t.x == j)) != null && t.x == j)
-							{
-								//if the ground layer tile that will be rendered over this has value 0 then don't render this (empty space)
-								if (t.tile == 0)
-									continue;
-							}
-						}
+						//if the ground layer tile that will be rendered over this has value 0 then don't render this (empty space)
+						if (MapRef.GFXRows[0, i].column[j].tile == 0)
+							continue;
 
 						Vector2 pos = _getDrawCoordinates(j, i, c);
-						sb.Draw(GFXLoader.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true), new Vector2(pos.X - 1, pos.Y - 2),
-							Color.White);
+						sb.Draw(fillTileRef, new Vector2(pos.X - 1, pos.Y - 2), Color.White);
 					}
 				}
 			}
 
 			//ground layer next
-			List<GFXRow> ground = MapRef.GfxRows[0].Where(yGFXQuery).ToList();
+			IEnumerable<GFXRow> ground = MapRef.GfxRows[0].Where(yGFXQuery);
 			foreach (GFXRow row in ground)
 			{
-				List<GFX> tiles = row.tiles.Where(xGFXQuery).ToList();
+				IEnumerable<GFX> tiles = row.tiles.Where(xGFXQuery);
 				foreach (GFX tile in tiles)
 				{
 					if (tile.tile == 0)
@@ -874,7 +870,6 @@ namespace EndlessClient
 
 		private void _drawMapItems()
 		{
-			sb.Begin();
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 			
 			// Queries (func) for the gfx items within range of the character's X coordinate
@@ -883,7 +878,9 @@ namespace EndlessClient
 			Func<GFXRow, bool> yGFXQuery = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength && row.y <= MapRef.Height;
 
 			//items next!
-			List<MapItem> items = MapItems.Where(item => xGFXQuery(new GFX {x = item.x}) && yGFXQuery(new GFXRow {y = item.y})).ToList();
+			IEnumerable<MapItem> items = MapItems.Where(item => xGFXQuery(new GFX { x = item.x }) && yGFXQuery(new GFXRow { y = item.y }));
+
+			sb.Begin();
 			foreach (MapItem item in items)
 			{
 				ItemRecord itemData = (ItemRecord)World.Instance.EIF.Data.Find(i => i is ItemRecord && (i as ItemRecord).ID == item.id);
@@ -906,7 +903,6 @@ namespace EndlessClient
 					sb.Draw(itemTexture, new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0), itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)), Color.White);
 				}
 			}
-
 			sb.End();
 		}
 
@@ -933,16 +929,17 @@ namespace EndlessClient
 			sb.Begin();
 
 			//Get all the row lists in-range of player up front. Retrieved here in order to be rendered
-			List<GFXRow> overlayObjRows = MapRef.GfxRows[2].Where(yGFXQuery).ToList();
-			List<GFXRow> wallRowsRight = MapRef.GfxRows[4].Where(yGFXQuery).ToList();
-			List<GFXRow> wallRowsDown = MapRef.GfxRows[3].Where(yGFXQuery).ToList();
-			List<GFXRow> shadowRows = MapRef.GfxRows[7].Where(yGFXQuery).ToList();
-			List<GFXRow> mapObjRows = MapRef.GfxRows[1].Where(_row => yGFXDistanceQuery(_row, 13)).ToList();
-			List<GFXRow> roofRows = MapRef.GfxRows[5].Where(yGFXQuery).ToList();
-			List<GFXRow> overlayTileRows = MapRef.GfxRows[6].Where(yGFXQuery).ToList();
+			List<GFXRow> overlayObjRows = MapRef.GfxRows[2].Where(_row => yGFXDistanceQuery(_row, 10)).ToList();
+			List<GFXRow> wallRowsRight = MapRef.GfxRows[4].Where(_row => yGFXDistanceQuery(_row, 20)).ToList();
+			List<GFXRow> wallRowsDown = MapRef.GfxRows[3].Where(_row => yGFXDistanceQuery(_row, 20)).ToList();
+			List<GFXRow> shadowRows = MapRef.GfxRows[7].Where(_row => yGFXDistanceQuery(_row, 10)).ToList();
+			List<GFXRow> mapObjRows = MapRef.GfxRows[1].Where(_row => yGFXDistanceQuery(_row, 22)).ToList();
+			List<GFXRow> roofRows = MapRef.GfxRows[5].Where(_row => yGFXDistanceQuery(_row, 10)).ToList();
+			List<GFXRow> overlayTileRows = MapRef.GfxRows[6].Where(_row=>yGFXDistanceQuery(_row, 10)).ToList();
 
 			bool targetChanged = false;
-			for (int rowIndex = 0; rowIndex <= MapRef.Height; ++rowIndex)
+			//no need to iterate over the entire map rows if they won't be included in the render.
+			for (int rowIndex = Math.Max(c.Y - 22, 0); rowIndex <= Math.Min(c.Y + 22, MapRef.Height); ++rowIndex)
 			{
 				//any objects, NPCs and players with a Y coordinate <= player Y coordinate (ie above player) render to one target
 				//all others render 'below' player on separate target so blending works for only the objects below the player

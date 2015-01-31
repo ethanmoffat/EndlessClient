@@ -74,6 +74,9 @@ namespace EndlessClient
 		string host;
 		int port;
 
+		private TimeSpan? lastFPSRender;
+		private int localFPS;
+
 		//--------------------------
 		//***** HELPER METHODS *****
 		//--------------------------
@@ -430,6 +433,19 @@ namespace EndlessClient
 			}
 
 			spriteBatch.End();
+
+#if DEBUG
+			if (lastFPSRender == null)
+				lastFPSRender = gameTime.TotalGameTime;
+
+			localFPS++;
+			if (gameTime.TotalGameTime.TotalMilliseconds - lastFPSRender.Value.TotalMilliseconds > 1000)
+			{
+				World.FPS = localFPS;
+				localFPS = 0;
+				lastFPSRender = gameTime.TotalGameTime;
+			}
+#endif
 			base.Draw(gameTime);
 		}
 
