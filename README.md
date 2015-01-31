@@ -3,7 +3,7 @@ EndlessClient
 
 An open source client for Endless Online written in C#
 
-<img src="http://i.imgur.com/4NNDpJR.png" />
+![](http://i.imgur.com/XO4vJPm.png)
 
 What is there so far?
 ---------------------
