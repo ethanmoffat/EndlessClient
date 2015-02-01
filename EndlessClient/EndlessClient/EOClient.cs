@@ -74,6 +74,14 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Account.AccountResponse)
 				},
 				{
+					new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Agree),
+					new LockedHandlerMethod(Handlers.AdminInteract.AdminShow)
+				},
+				{
+					new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Remove),
+					new LockedHandlerMethod(Handlers.AdminInteract.AdminHide)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Appear, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.NPCPackets.AppearReply, true)
 				},

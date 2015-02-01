@@ -498,6 +498,15 @@ namespace EndlessClient
 			}
 		}
 
+		public void OtherPlayerHide(short ID, bool hidden)
+		{
+			Character c = otherPlayers.Find(_char => _char.ID == ID);
+			if (c != null)
+			{
+				c.RenderData.SetHidden(hidden);
+			}
+		}
+
 		public void UpdateOtherPlayers()
 		{
 			//when mainplayer walks, tell other players to update!
@@ -1101,7 +1110,7 @@ namespace EndlessClient
 				sb = new SpriteBatch(Game.GraphicsDevice);
 			}
 
-			sb.Begin(SpriteSortMode.Deferred, _playerBlend);
+			sb.Begin(SpriteSortMode.Deferred, World.Instance.MainPlayer.ActiveCharacter.RenderData.hidden ? BlendState.NonPremultiplied : _playerBlend);
 			World.Instance.ActiveCharacterRenderer.Draw(sb, true);
 			sb.End();
 

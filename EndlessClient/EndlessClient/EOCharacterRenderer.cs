@@ -575,11 +575,12 @@ namespace EndlessClient
 
 			//note: if character is hidden, only draw if a) they are not active character and b) the active character is admin
 			if (_char != World.Instance.MainPlayer.ActiveCharacter && _char.RenderData.hidden &&
-			    _char.AdminLevel == AdminLevel.Player)
+			    World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 				return;
 
 			if(!started) sb.Begin();
-			sb.Draw(_charRenderTarget, new Vector2(0, 0), Color.White);
+			sb.Draw(_charRenderTarget, new Vector2(0, 0),
+				_char.RenderData.hidden ? Color.FromNonPremultiplied(255, 255, 255, 128) : Color.White);
 			if(!started) sb.End();
 		}
 
