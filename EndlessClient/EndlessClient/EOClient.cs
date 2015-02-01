@@ -162,6 +162,18 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Players.PlayersAgree, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Players, PacketAction.Ping), 
+					new LockedHandlerMethod(Handlers.Players.PlayersPing, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Players, PacketAction.Pong), 
+					new LockedHandlerMethod(Handlers.Players.PlayersPong, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Players, PacketAction.Net3), 
+					new LockedHandlerMethod(Handlers.Players.PlayersNet3, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Refresh, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Refresh.RefreshReply, true)
 				},

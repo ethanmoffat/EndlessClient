@@ -260,9 +260,16 @@ namespace EndlessClient
 			if (!Game.Components.Contains(World.Instance.ActiveMapRenderer))
 				Game.Components.Add(World.Instance.ActiveMapRenderer);
 			World.Instance.ActiveCharacterRenderer.Visible = true;
-			
+
+			DateTime usageTracking = DateTime.Now;
 			clockTimer = new Timer(threadState =>
 			{
+				if ((DateTime.Now - usageTracking).TotalMinutes >= 1)
+				{
+					World.Instance.MainPlayer.ActiveCharacter.Stats.SetUsage(World.Instance.MainPlayer.ActiveCharacter.Stats.usage + 1);
+					usageTracking = DateTime.Now;
+				}
+
 				string fmt = string.Format("{0,2:D2}:{1,2:D2}:{2,2:D2}", DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
 				lock(clockLock) clockLabel.Text = fmt;
 
@@ -462,6 +469,32 @@ namespace EndlessClient
 				}
 					break;
 				case '#':  //local command
+				{
+					string cmd = chatText.Substring(1).ToLower().Trim();
+					string[] args = cmd.Split(new[] {' '});
+					
+					if (args.Length == 1 && args[0] == "nowall")
+					{
+						World.Instance.ActiveCharacterRenderer.NoWall = !World.Instance.ActiveCharacterRenderer.NoWall;
+					}
+					else if (args.Length == 2 && args[0] == "find")
+					{
+						Players.Find(args[1]);
+					}
+					else if (args.Length == 1 && args[0] == "loc")
+					{
+						AddChat(ChatTabs.Local, "System", string.Format("Your current location is at Map {0}  x:{1}  y:{2}",
+							World.Instance.ActiveMapRenderer.MapRef.MapID,
+							World.Instance.MainPlayer.ActiveCharacter.X,
+							World.Instance.MainPlayer.ActiveCharacter.Y),
+							ChatType.LookingDude);
+					}
+					else if (args.Length == 1 && cmd == "usage")
+					{
+						int usage = World.Instance.MainPlayer.ActiveCharacter.Stats.usage;
+						AddChat(ChatTabs.Local, "System", string.Format("[x] usage: {0}hrs. {1}min.", usage/60, usage%60));
+					}
+				}
 					break;
 				default:
 				{

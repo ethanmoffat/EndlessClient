@@ -175,6 +175,11 @@ namespace EndlessClient
 			}
 		}
 
+		/// <summary>
+		/// True if walls and map edges should be ignored, false otherwise
+		/// </summary>
+		public bool NoWall { get; set; }
+
 		private static readonly object hatHairLock = new object();
 		private Texture2D shield, weapon, boots, armor, hat;
 		private Texture2D hair, characterSkin;
@@ -424,6 +429,8 @@ namespace EndlessClient
 					switch (info.ReturnValue)
 					{
 						case TileInfo.ReturnType.IsOtherPlayer:
+							if (NoWall) goto case TileInfo.ReturnType.IsTileSpec;
+
 							EOGame.Instance.Hud.SetStatusLabel("Keep moving into the player to walk through them...");
 							if(startWalkingThroughPlayerTime == null)
 								startWalkingThroughPlayerTime = gameTime;
@@ -434,11 +441,13 @@ namespace EndlessClient
 							}
 							break;
 						case TileInfo.ReturnType.IsOtherNPC:
+							if (NoWall) goto case TileInfo.ReturnType.IsTileSpec;
 #if DEBUG
 							EOGame.Instance.Hud.SetStatusLabel("OTHER NPC IS HERE"); //idk what's supposed to happen here, I think nothing?
 #endif
 							break;
 						case TileInfo.ReturnType.IsWarpSpec:
+							if (NoWall) goto case TileInfo.ReturnType.IsTileSpec;
 							if (info.Warp.door != 0)
 							{
 								if (!info.Warp.doorOpened && !info.Warp.backOff)
@@ -490,13 +499,13 @@ namespace EndlessClient
 				case TileSpec.ChairDownRight:
 				case TileSpec.ChairUpLeft:
 				case TileSpec.ChairAll:
-					walkValid = false;
+					walkValid = NoWall;
 					break;
 				case TileSpec.Chest: //todo: open chest
-					walkValid = false;
+					walkValid = NoWall;
 					break;
 				case TileSpec.BankVault: //todo: open bank vault
-					walkValid = false;
+					walkValid = NoWall;
 					break;
 				case TileSpec.Board1: //todo: boards?
 				case TileSpec.Board2:
@@ -506,14 +515,14 @@ namespace EndlessClient
 				case TileSpec.Board6:
 				case TileSpec.Board7:
 				case TileSpec.Board8:
-					walkValid = false;
+					walkValid = NoWall;
 					break;
 				case TileSpec.Jukebox: //todo: jukebox?
-					walkValid = false;
+					walkValid = NoWall;
 					break;
 				case TileSpec.MapEdge:
 				case TileSpec.Wall:
-					walkValid = false;
+					walkValid = NoWall;
 					break;
 			}
 

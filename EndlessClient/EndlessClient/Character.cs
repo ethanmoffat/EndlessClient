@@ -148,6 +148,7 @@ namespace EndlessClient
 		public void SetAccuracy(short acc) { accuracy= acc; }
 		public void SetEvade(short eva) { evade= eva; }
 		public void SetArmor(short arm) { armor = arm; }
+		public void SetUsage(int use) { usage = use; }
 	}
 
 	/// <summary>
@@ -397,7 +398,6 @@ namespace EndlessClient
 			ID = newGuy.ID;
 			Name = newGuy.Name;
 			PaddedGuildTag = newGuy.PaddedGuildTag;
-			AdminLevel = newGuy.AdminLevel;
 			Array.Copy(newGuy.PaperDoll, PaperDoll, (int)EquipLocation.PAPERDOLL_MAX);
 			Stats.SetHP(newGuy.Stats.hp);
 			Stats.SetMaxHP(newGuy.Stats.maxhp);
