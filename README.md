@@ -46,6 +46,26 @@ You will need a copy of eoserv set up and running, or another Endless Online ser
 
 GFX files are now distributed with the game client, and any map or pub files are loaded from the server during gameplay.
 
+##### Config File
+
+Here is a sample configuration file with the available configuration settings that are currently being parsed by the client:
+
+```ini
+#Destination host/ip and port to connect to
+[CONNECTION]
+Host=ewmoffat.ddns.net
+Port=8078
+#override the version sent from the client to the server. For testing with multiple server versions.
+[VERSION]
+Major=0
+Minor=0
+Client=28
+#individual settings
+[SETTINGS]
+ShowShadows=true #show/hide shadows on map
+ShowTransition=true #enable/disable fancy transition on map (custom)
+```
+
 Rendering Hair
 --------------
 
