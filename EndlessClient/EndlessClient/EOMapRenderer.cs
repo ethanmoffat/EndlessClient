@@ -255,6 +255,10 @@ namespace EndlessClient
 		private RenderTarget2D _rtMapObjAbovePlayer, _rtMapObjBelowPlayer;
 		private BlendState _playerBlend;
 		private SpriteBatch sb;
+		private bool m_showShadows;
+
+		private DateTime? m_mapLoadTime;
+		private int m_transitionMetric;
 
 		//animated tile/wall members
 		private Vector2 _tileSrc;
@@ -274,12 +278,9 @@ namespace EndlessClient
 			if(!(g is EOGame))
 				throw new ArgumentException("The game must be an EOGame instance");
 
-			MapRef = mapObj;
 			MapItems = new List<MapItem>();
 
 			sb = new SpriteBatch(Game.GraphicsDevice);
-
-			//_animSourceRect = new Rectangle(0, 0, 64, 32);
 
 			mouseCursor = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
 			_cursorSourceRect = new Rectangle(0, 0, mouseCursor.Width / 5, mouseCursor.Height);
@@ -293,7 +294,12 @@ namespace EndlessClient
 
 			Visible = true;
 
+			//shadows on by default
+			if (!World.Instance.Configuration.GetValue(ConfigStrings.Settings, ConfigStrings.ShowShadows, out m_showShadows))
+				m_showShadows = true;
+
 			_doorTimer = new Timer(_doorTimerCallback);
+			SetActiveMap(mapObj);
 		}
 
 		/* PUBLIC INTERFACE -- CHAT + MAP RELATED */
@@ -370,6 +376,9 @@ namespace EndlessClient
 				_doorY = 0;
 				_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
 			}
+
+			m_mapLoadTime = DateTime.Now;
+			m_transitionMetric = 1;
 		}
 
 		public TileInfo CheckCoordinates(byte destX, byte destY)
@@ -473,7 +482,7 @@ namespace EndlessClient
 			Character c;
 			if ((c = otherPlayers.Find(cc => cc.ID == ID)) != null)
 			{
-				c.Walk(direction, x, y);
+				c.Walk(direction, x, y, false);
 				List<EOCharacterRenderer> rends = otherRenderers.Where(rend => rend.Character == c).ToList();
 				EOCharacterRenderer renderer;
 				if (rends.Count > 0 && (renderer = rends[0]) != null)
@@ -813,7 +822,7 @@ namespace EndlessClient
 					Game.Components.Add(_mouseoverName);
 			}
 
-			_doMapRenderTargetDrawing(); //if any player has been updated redraw the render target
+			_drawMapObjectsAndActors(); //if any player has been updated redraw the render target
 
 			_prevState = ms;
 			base.Update(gameTime);
@@ -826,6 +835,9 @@ namespace EndlessClient
 				_drawGroundLayer();
 				if(MapItems.Count > 0)
 					_drawMapItems();
+
+				if (m_mapLoadTime != null && (DateTime.Now - m_mapLoadTime.Value).TotalMilliseconds > 2000)
+					m_mapLoadTime = null;
 
 				sb.Begin();
 				/*_drawCursor()*/
@@ -868,12 +880,12 @@ namespace EndlessClient
 				{
 					for (int j = xMin; j <= xMax; ++j)
 					{
-						//if the ground layer tile that will be rendered over this has value 0 then don't render this (empty space)
-						if (MapRef.GFXRows[0, i].column[j].tile == 0)
+						//only render fill layer when the ground layer is not present!
+						if (MapRef.GFXRows[0, i].column[j].tile >= 0)
 							continue;
 
 						Vector2 pos = _getDrawCoordinates(j, i, c);
-						sb.Draw(fillTileRef, new Vector2(pos.X - 1, pos.Y - 2), Color.White);
+						sb.Draw(fillTileRef, new Vector2(pos.X - 1, pos.Y - 2), Color.FromNonPremultiplied(255,255,255,_getAlpha(j, i, c)));
 					}
 				}
 			}
@@ -887,15 +899,15 @@ namespace EndlessClient
 				{
 					if (tile.tile == 0)
 						continue;
-
+					
 					//render tile.tile at tile.x, row.y
 					Texture2D nextTile = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
 					Vector2 pos = _getDrawCoordinates(tile.x, row.y, c);
 					Rectangle? src = nextTile.Width > 64 ? new Rectangle?(new Rectangle((int)_tileSrc.X, (int)_tileSrc.Y, nextTile.Width / 4, nextTile.Height)) : null;
 					if (nextTile.Width > 64)
-						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.White);
+						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(tile.x, row.y, c)));
 					else
-						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), Color.White);
+						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), Color.FromNonPremultiplied(255, 255, 255, _getAlpha(tile.x, row.y, c)));
 				}
 			}
 			sb.End();
@@ -939,7 +951,7 @@ namespace EndlessClient
 			sb.End();
 		}
 
-		private void _doMapRenderTargetDrawing()
+		private void _drawMapObjectsAndActors()
 		{
 			//also, certain spikes only appear when a player is over them...yikes.
 
@@ -993,7 +1005,7 @@ namespace EndlessClient
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, obj.tile, true);
 						Vector2 pos = _getDrawCoordinates(obj.x, row.y, c);
 						pos = new Vector2(pos.X + 16, pos.Y - 11);
-						sb.Draw(gfx, pos, Color.White);
+						sb.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
 					}
 				}
 
@@ -1012,7 +1024,7 @@ namespace EndlessClient
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
 						Rectangle? src = gfx.Width > 32 ? new Rectangle?(new Rectangle((int)_wallSrc.X, (int)_wallSrc.Y, gfx.Width / 4, gfx.Height)) : null;
 						loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfx.Width / 4.0 : gfx.Width) / 2.0) + 47, loc.Y - (gfx.Height - 29));
-						sb.Draw(gfx, loc, src, Color.White);
+						sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
 					}
 				}
 				//this layer faces to the down
@@ -1029,13 +1041,12 @@ namespace EndlessClient
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
 						Rectangle? src = gfx.Width > 32 ? new Rectangle?(new Rectangle((int)_wallSrc.X, (int)_wallSrc.Y, gfx.Width / 4, gfx.Height)): null;
 						loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfx.Width / 4.0 : gfx.Width) / 2.0) + 15, loc.Y - (gfx.Height - 29));
-						sb.Draw(gfx, loc, src, Color.White);
+						sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
 					}
 				}
 
 				//shadows
-				//TODO: Load configuration value determining whether or not to show shadows
-				if ((row = shadowRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
+				if (m_showShadows && (row = shadowRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
 				{
 					List<GFX> shadows = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 10)).ToList();
 					foreach (GFX shadow in shadows)
@@ -1054,7 +1065,7 @@ namespace EndlessClient
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, obj.tile, true);
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
 						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28));
-						sb.Draw(gfx, loc, Color.White);
+						sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
 					}
 				}
 
@@ -1067,7 +1078,7 @@ namespace EndlessClient
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, roof.tile, true);
 						Vector2 loc = _getDrawCoordinates(roof.x, row.y, c);
 						loc = new Vector2(loc.X - 2, loc.Y - 63);
-						sb.Draw(gfx, loc, Color.White);
+						sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(roof.x, row.y, c)));
 					}
 				}
 				
@@ -1125,6 +1136,37 @@ namespace EndlessClient
 		private Vector2 _getDrawCoordinates(int x, int y, Character c)
 		{
 			return new Vector2((x * 32) - (y * 32) + 288 - c.OffsetX, (y * 16) + (x * 16) + 144 - c.OffsetY);
+		}
+		
+		private int _getAlpha(int objX, int objY, Character c)
+		{
+			bool enableTransition;
+			//[TRANSITION]
+			//Enabled=false #disable the fancy transition when changing maps
+			if (World.Instance.Configuration.GetValue(ConfigStrings.Settings, ConfigStrings.ShowTransition, out enableTransition) && !enableTransition)
+				return 255;
+
+			//get greater of deltas between the map object and the character
+			int metric = Math.Max(Math.Abs(objX - c.X), Math.Abs(objY - c.Y));
+			const double TRANSITION_TIME_MS = 250.0; //1/4 second for transition on each tile metric
+
+			int alpha;
+			if (m_mapLoadTime == null || metric < m_transitionMetric || metric == 0)
+				alpha = 255;
+			else if (metric == m_transitionMetric)
+			{
+				double ms = (DateTime.Now - m_mapLoadTime.Value).TotalMilliseconds;
+				alpha = (int)Math.Round((ms / TRANSITION_TIME_MS) * 255);
+				if (ms / TRANSITION_TIME_MS >= 1)
+				{
+					m_mapLoadTime = DateTime.Now;
+					m_transitionMetric++;
+				}
+			}
+			else
+				alpha = 0;
+
+			return alpha;
 		}
 
 		public new void Dispose()

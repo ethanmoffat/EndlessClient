@@ -83,5 +83,9 @@ namespace EOLib
 		public const string Major = "Major";
 		public const string Minor = "Minor";
 		public const string Client = "Client";
+
+		public const string Settings = "SETTINGS";
+		public const string ShowShadows = "ShowShadows";
+		public const string ShowTransition = "ShowTransition";
 	}
 }
