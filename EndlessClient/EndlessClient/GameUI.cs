@@ -444,7 +444,7 @@ Thanks to :
 			if (loginCharButtons.Contains(sender))
 			{
 				index = loginCharButtons.ToList().FindIndex(x => x == sender);
-				if (World.Instance.MainPlayer.CharData.Length <= index)
+				if (World.Instance.MainPlayer.CharData == null || World.Instance.MainPlayer.CharData.Length <= index)
 					return;
 
 				if (!Handlers.Welcome.SelectCharacter(World.Instance.MainPlayer.CharData[index].id))

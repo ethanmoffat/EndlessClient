@@ -417,14 +417,14 @@ namespace EndlessClient
 		/// Called from EOCharacterRenderer.Update (in case of MainPlayer pressing an arrow key) or Handlers.Walk (in case of another character walking)
 		/// <para>The Character Renderer will automatically pick up that Walking == true and start a walk operation, limiting the character from walking again until it is complete</para>
 		/// </summary>
-		public void Walk(EODirection direction, byte destX, byte destY)
+		public void Walk(EODirection direction, byte destX, byte destY, bool admin)
 		{
 			if (Walking || Attacking)
 				return;
 
 			if (this == World.Instance.MainPlayer.ActiveCharacter)
 			{
-				if(!Handlers.Walk.PlayerWalk(direction, destX, destY, AdminLevel != AdminLevel.Player))
+				if(!Handlers.Walk.PlayerWalk(direction, destX, destY, admin && AdminLevel != AdminLevel.Player))
 					EOGame.Instance.LostConnectionDialog();
 			}
 			else if (RenderData.facing != direction) //if a packet WALK_PLAYER was received: face them the right way first otherwise this will look weird

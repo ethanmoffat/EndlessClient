@@ -528,7 +528,7 @@ namespace EndlessClient
 
 			if (!_char.Walking && walkValid)
 			{
-				_char.Walk(dir, destX, destY);
+				_char.Walk(dir, destX, destY, NoWall);
 				PlayerWalk();
 			}
 		}
@@ -572,6 +572,8 @@ namespace EndlessClient
 				sb.Draw(adminGraphic, new Rectangle(DrawAreaWithOffset.X + 48, DrawAreaWithOffset.Y + 73, adminRect.Value.Width, adminRect.Value.Height), adminRect, Color.White);
 				if(!started) sb.End();
 			}
+
+			if (_char == null || _char.RenderData == null) return;
 
 			//note: if character is hidden, only draw if a) they are not active character and b) the active character is admin
 			if (_char != World.Instance.MainPlayer.ActiveCharacter && _char.RenderData.hidden &&

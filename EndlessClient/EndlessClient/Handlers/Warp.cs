@@ -15,7 +15,7 @@ namespace EndlessClient.Handlers
 	//client sends WARP_TAKE (immediately before WARP_ACCEPT) if it needs a map
 	public static class Warp
 	{
-		public static short RequestedMap { get; set; }
+		public static short RequestedMap { get; private set; }
 		/// <summary>
 		/// Sent by server when ActiveCharacter should warp
 		/// </summary>
