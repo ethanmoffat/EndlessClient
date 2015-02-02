@@ -10,14 +10,34 @@ What is there so far?
 
 The primary thing that's been completely is the basic framework for running and displaying the game. I have a solid custom-built UI controls library, and liberal use of the XNA Game Component model. Socket connections for sending/receiving data to/from the server are all set up and surprisingly stable (except for when the server closes a connection, but we're ignoring that for now). The framework that is there also allows for easy addition of different Packet handlers, which means more features for the game client can be added without much effort.
 
-~~**The game is not yet playable.**~~ **The game is only slightly playable.** This is the most important thing you need to know. It is more than a foundation, and less than a fully fledged game. The primary thing is that all the pre-game menus work and do everything they're supposed to do, with the exception of scrolling credits (which were annoying anyway). Additionally, the game allows you to log in and send public, global, and private chat messages to a server. As of 10/30/14, the latest and greatest updates include the ability to walk around a map, and proper map rendering! However, this is the very limit of what the client can do and describes some of the most recent changes that have been made to it: you can't play the game like with the actual game client.
+~~**The game is not yet playable.**~~ **The game is only slightly playable.** This is the most important thing you need to know. It is more than a foundation, and less than a fully fledged game. The primary thing is that all the pre-game menus work and do everything they're supposed to do, with the exception of scrolling credits (which were annoying anyway). 
+
+Here's a list of some basic things that can be done:
+ - Character rendering/walking
+ - NPC rendering/walking
+ - Map rendering/scrolling during walk
+ - Doors/warping to different maps
+ - Talking - global, local, player commands (#usage #find #loc)
+ - **Partial** attacking - the damage is done, NPCs are killed, and items may be dropped, but the damage counters and NPC attack animations don't work. Character clothes and weapons don't render properly during this either (WIP).
+ - Animated map tiles
+ - Item inventory and paperdoll display, equipping/unequipping items
+ - Stats display and leveling up stats (str/int/wis/agi/con/cha)
+ - All pre-game menus, logging in, creating/deleting characters, creating account, etc.
 
 What's Left to do?
 ------------------
 
 There is a HUGE list of things left to do. The client is in its infant stages and is a constantly evolving work in progress. What this means is that as features are implemented, I make an attempt to implement them as completely and accurately as possible before moving on to the next thing. The pre-game menus and UI are completely finished, besides a few small bugs that I'm sure to find. The framework for adding new components is there as well.
 
-As far as game features go, there isn't much I want to leave out or change. A lot of the heavy lifting that has to be done, and that I'm currently working on, involves making the game playable as a bare-bones client. Chat, map rendering, character rendering, item inventory, equipping and unequipping items, and dropping items are all paritally there. The next big implementation point is to get started with NPCs. As soon as the basic elements are in, I can work on the features that involve interaction between players - thus making the game playable.
+Here's a list of things I want to get to in the near future:
+ - Finish with attacking - requires damage counter/health bars and fixing animations to show up properly
+ - Map signs
+ - Map boards
+ - Map chests
+ - Map chairs
+ - Map bank vaults
+ - Player interaction - trading, paperdoll viewing
+ - Finishing HUD panels - online players, parties, spells, 'view minimap' toggle
 
 Running the game
 ----------------
