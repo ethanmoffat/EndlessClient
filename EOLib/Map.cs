@@ -113,6 +113,7 @@ namespace EOLib
 	{
 		public byte x;
 		public TileSpec spec;
+		public static Tile Empty = new Tile();
 	}
 
 	public struct TileRow
@@ -131,8 +132,6 @@ namespace EOLib
 		public short door;
 		public bool doorOpened;
 		public bool backOff; //used in code only: determines whether a door packet was recently sent for this particular door (only valid for doors)
-
-		public static readonly Warp Empty = new Warp();
 	}
 
 	public struct WarpRow
@@ -174,6 +173,11 @@ namespace EOLib
 	public class MapFile
 	{
 		public ESGFXRow[,] GFXRows;
+
+		//lookup tables for direct access so I don't need so many 'find's
+
+		public Warp[,] WarpLookup { get; set; }
+		public Tile[,] TileLookup { get; set; }
 		
 		private const int GFXLayers = 9;
 
@@ -310,6 +314,9 @@ namespace EOLib
 			RelogY = file.GetChar();
 			Unknown2 = file.GetChar();
 
+			WarpLookup = new Warp[Height + 1, Width + 1];
+			TileLookup = new Tile[Height + 1, Width + 1];
+
 			outersize = file.GetChar();
 
 			for (int i = 0; i < outersize; ++i)
@@ -363,11 +370,13 @@ namespace EOLib
 
 				for (int ii = 0; ii < innersize; ++ii)
 				{
-					row.tiles.Add(new Tile()
+					Tile t;
+					row.tiles.Add(t = new Tile
 					{
 						x = file.GetChar(),
 						spec = (TileSpec)file.GetChar()
 					});
+					TileLookup[row.y, t.x] = t;
 				}
 
 				TileRows.Add(row);
@@ -388,7 +397,8 @@ namespace EOLib
 
 				for (int ii = 0; ii < innersize; ++ii)
 				{
-					row.tiles.Add(new Warp()
+					Warp w;
+					row.tiles.Add(w = new Warp
 					{
 						x = file.GetChar(),
 						warpMap = file.GetShort(),
@@ -397,6 +407,8 @@ namespace EOLib
 						levelRequirement = file.GetChar(),
 						door = file.GetShort()
 					});
+
+					WarpLookup[row.y, w.x] = w;
 				}
 
 				WarpRows.Add(row);

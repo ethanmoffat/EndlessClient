@@ -233,7 +233,7 @@ namespace EndlessClient
 
 				string mapFile = Path.Combine("maps", string.Format("{0,5:D5}.emf", mapID));
 
-				MapCache.Add(mapID, new EOLib.MapFile(mapFile));
+				MapCache.Add(mapID, new MapFile(mapFile));
 			}
 			catch
 			{
