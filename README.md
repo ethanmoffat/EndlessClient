@@ -5,6 +5,8 @@ An open source client for Endless Online written in C#
 
 ![alt text](http://i.imgur.com/s0MpbG1.gif "Slow 9MB GIF incoming!")
 
+Note: glitches you can see that are displayed in the above GIF prove how much of a work in progress this is.
+
 What is there so far?
 ---------------------
 
@@ -42,7 +44,7 @@ Here's a list of things I want to get to in the near future (strikethrough means
 Running the game
 ----------------
 
-You will need a copy of eoserv set up and running, or another Endless Online server to connect to. The client binary is now distributed with a config file that points at the eoserv instance I use for testing (ewmoffat.ddns.net:8078). You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server. You can also change the default serverer in the misc.cs file by changing the address "127.0.0.1" to another IP or hostname.
+You will need a copy of eoserv set up and running, or another Endless Online server to connect to. The client binary is now distributed with a config file that points at the eoserv instance I use for testing (ewmoffat.ddns.net:8078). You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server. You can also change the default server in the misc.cs file by changing the address "127.0.0.1" to another IP or hostname.
 
 GFX files are now distributed with the game client, and any map or pub files are loaded from the server during gameplay.
 
@@ -66,14 +68,26 @@ ShowShadows=true #show/hide shadows on map
 ShowTransition=true #enable/disable fancy transition on map (custom)
 ```
 
-Rendering Hair
---------------
+Changes From Original Client (so far)
+-------------------------------------
 
-This might seem like a weird topic to touch on, but there are very subtle changes I've made to handling how hair is rendered for this client. Unlike the other features of the game, I've taken it upon myself to update the file format (GASP) for the item files to better assist with hair rendering in the client. I believe the original client had some hard-coded values for
+#### Version Numbers
 
-This client uses a special method of rendering hair to ensure that masks are rendered one way, hoods/helmets are rendered a second way, and hats that should clip hair are rendered a third way. In order to ensure that your pub file is up-to-date and can render this as designed, run BatchPub to use a batch-processing method of assigning the updated values to the selected items.
+To assist with debugging, I added a version number to the config file so it isn't limited to the hard-coded value that I upload here and can be changed more easily. This provides an easy debugging method for multiple servers that may have custom clients already with a hex-edited version number.
 
-NOTE: this is only for connecting to servers where you a) already have any of the relevant items and b) you want it to render properly. The pub files that are modified with this tool should be placed in the server's pub directory.
+#### Map Transitions
+
+Since the transition was pretty quick between maps, I added a cool little animation that slowly fades tiles in starting from the player and moving outward. This can be disabled in the config file if you don't like it.
+
+#### Rendering Hair
+
+There are very subtle changes I've made to handling how hair is rendered for this client. Unlike the other features of the game, I've taken it upon myself to update the file format (GASP) for the item files to better assist with hair rendering in the client. I believe the original client had some hard-coded values for certain items that should render a certain way.
+
+EndlessClient uses a special method of rendering hair to ensure that face masks are rendered one way, hoods/helmets are rendered a second way, and hats that should clip hair are rendered a third way. In order to ensure that your pub file is up-to-date and can render this as designed, run BatchPub to use a batch-processing method of assigning the updated values to the selected items. Otherwise, the default pubs will have some weird graphics showing up when hats are equipped.
+
+NOTE: this is only for connecting to servers where you a) already have any of the relevant items and b) you want it to render properly. The pub files that are modified with this tool should be placed in the server's pub directory. If a difference in PUB files is detected client-side, it will request new files from the server and overwrite your local changes.
+
+Open up BatchPub.
 
 In step two, configure as follows: Set the field to SubType, and the value to FaceMask (for masks) or HideHair (for helmets/hoods)
 
