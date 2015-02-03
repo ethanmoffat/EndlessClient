@@ -49,7 +49,6 @@ namespace EndlessClient
 		private readonly bool isChar; //true if character, false if npc
 
 		private SpriteBatch sb;
-		private readonly Timer goAway;
 
 		private Vector2 drawLoc;
 
@@ -58,30 +57,46 @@ namespace EndlessClient
 		private const int RL = 6, RM = 7, RR = 8, NUB = 9;
 		private static bool textsLoaded;
 		private static Texture2D[] texts;
+
+		private DateTime? m_startTime;
 		
-		public EOChatBubble(string message, EOCharacterRenderer following)
+		public EOChatBubble(EOCharacterRenderer following)
 			: base(EOGame.Instance)
 		{
 			m_ref = following;
 			isChar = true;
-			goAway = new Timer(_goAway, null, Constants.ChatBubbleTimeout, 0);
 			DrawOrder = following.DrawOrder + 1;
-			_initLabel(message);
+			_initLabel();
+			Visible = false;
 			EOGame.Instance.Components.Add(this);
 		}
 
-		public EOChatBubble(string message, NPC following)
+		public EOChatBubble(NPC following)
 			: base(EOGame.Instance)
 		{
 			m_ref = following;
 			isChar = false;
-			goAway = new Timer(_goAway, null, Constants.ChatBubbleTimeout, 0);
 			DrawOrder = following.DrawOrder + 1;
-			_initLabel(message);
+			_initLabel();
+			Visible = false;
 			EOGame.Instance.Components.Add(this);
 		}
 
-		private void _initLabel(string message)
+		public void SetMessage(string message)
+		{
+			m_label.Text = message;
+			m_label.Visible = true;
+			if(!Game.Components.Contains(m_label))
+				Game.Components.Add(m_label);
+
+			Visible = true;
+			if(!Game.Components.Contains(this))
+				Game.Components.Add(this);
+
+			m_startTime = DateTime.Now;
+		}
+
+		private void _initLabel()
 		{
 			m_label = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.5f)
 			{
@@ -91,7 +106,7 @@ namespace EndlessClient
 				TextAlign = ContentAlignment.MiddleCenter,
 				ForeColor = System.Drawing.Color.Black,
 				AutoSize = true,
-				Text = message
+				Text = ""
 			};
 
 			_setLabelDrawLoc();
@@ -106,7 +121,9 @@ namespace EndlessClient
 
 		public new void LoadContent()
 		{
-			sb = new SpriteBatch(GraphicsDevice);
+			if(sb == null)
+				sb = new SpriteBatch(GraphicsDevice);
+
 			if (!textsLoaded)
 			{
 				texts = new Texture2D[10];
@@ -123,13 +140,17 @@ namespace EndlessClient
 				texts[NUB] = Game.Content.Load<Texture2D>("ChatBubble\\NUB");
 				textsLoaded = true;
 			}
+
 			base.LoadContent();
 		}
 
 		public override void Update(GameTime gameTime)
 		{
-			if (!(m_ref is EOCharacterRenderer || m_ref is NPC)) //"It's over, Anakin, I have the high ground!" "Don't try it!"
-				Dispose();
+			if (!Visible)
+				return;
+
+			if (!(m_ref is EOCharacterRenderer || m_ref is NPC))
+				Dispose(); //"It's over, Anakin, I have the high ground!" "Don't try it!"
 
 			_setLabelDrawLoc();
 			try
@@ -140,12 +161,21 @@ namespace EndlessClient
 			{
 				return; //nullreference here means that the textures haven't been loaded yet...try it on the next pass
 			}
+
+			//This replaces the goAway timer.
+			if (m_startTime.HasValue && (DateTime.Now - m_startTime.Value).TotalMilliseconds > Constants.ChatBubbleTimeout)
+			{
+				Visible = false;
+				m_label.Visible = false;
+				m_startTime = null;
+			}
+
 			base.Update(gameTime);
 		}
 
 		public override void Draw(GameTime gameTime)
 		{
-			if (!textsLoaded) return;
+			if (!textsLoaded || !Visible) return;
 			int xCov = texts[TL].Width;
 			int yCov = texts[TL].Height;
 			if (sb == null) return;
@@ -185,16 +215,12 @@ namespace EndlessClient
 			y += texts[RM].Height;
 			sb.Draw(texts[NUB], drawLoc + new Vector2((x2 + texts[RR].Width - texts[NUB].Width)/2f, y - 1), Color.White);
 
-			sb.End();
+			try
+			{
+				sb.End();
+			}
+			catch (ObjectDisposedException) { }
 			base.Draw(gameTime);
-		}
-
-		private void _goAway(object s)
-		{
-			goAway.Change(Timeout.Infinite, Timeout.Infinite);
-			if (EOGame.Instance.Components.Contains(this))
-				EOGame.Instance.Components.Remove(this);
-			Dispose();
 		}
 
 		public new void Dispose()
@@ -206,9 +232,11 @@ namespace EndlessClient
 		{
 			if (disposing)
 			{
-				goAway.Dispose();
-				if (sb != null) //debugging
+				if (sb != null)
+				{
 					sb.Dispose();
+					sb = null;
+				}
 				if (m_label != null)
 					m_label.Close();
 			}
@@ -366,10 +394,13 @@ namespace EndlessClient
 				follow = World.Instance.ActiveCharacterRenderer; /* Calling with null assumes Active Character */
 
 			//show just the speech bubble, since this should be called from the HUD and rendered there already
+
+// ReSharper disable CanBeReplacedWithTryCastAndCheckForNull
 			if (follow is EOCharacterRenderer)
-				((EOCharacterRenderer)follow).SetChatBubble(new EOChatBubble(message, (EOCharacterRenderer) follow));
+				((EOCharacterRenderer)follow).SetChatBubbleText(message);
 			else if (follow is NPC)
-				((NPC)follow).SetChatBubble(new EOChatBubble(message, (NPC) follow));
+				((NPC)follow).SetChatBubbleText(message);
+// ReSharper restore CanBeReplacedWithTryCastAndCheckForNull
 		}
 
 		public void SetActiveMap(MapFile newActiveMap)

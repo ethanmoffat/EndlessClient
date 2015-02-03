@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using EOLib;
 using EOLib.Data;
@@ -52,8 +53,7 @@ namespace EndlessClient
 		private bool _startFadeAway;
 		private int _fadeAwayAlpha = 255;
 
-		private static readonly object chatBubbleLock = new object();
-		private EOChatBubble m_chatBubble;
+		private readonly EOChatBubble m_chatBubble;
 		private Texture2D baseFrame;
 
 		public NPC(Packet pkt)
@@ -66,12 +66,26 @@ namespace EndlessClient
 			Y = pkt.GetChar();
 			Direction = (EODirection)pkt.GetChar();
 
+			bool success = true;
 			npcSheet = new EONPCSpriteSheet(this);
-			Frame = NPCFrame.StandingFrame1;
-			Texture2D tmp = npcSheet.GetNPCTexture();
-			Color[] tmpData = new Color[tmp.Width * tmp.Height];
-			tmp.GetData(tmpData);
-			hasStandFrame1 = tmpData.Any(_c => _c.R != 0 || _c.G != 0 || _c.B != 0);
+			do
+			{
+				try
+				{
+					//attempt to get standing frame 1. It will have non-black pixels if it exists.
+					Frame = NPCFrame.StandingFrame1;
+					Texture2D tmp = npcSheet.GetNPCTexture();
+					Color[] tmpData = new Color[tmp.Width*tmp.Height];
+					tmp.GetData(tmpData);
+					hasStandFrame1 = tmpData.Any(_c => _c.R != 0 || _c.G != 0 || _c.B != 0);
+				} //this block throws errors sometimes..no idea why. Keep looping until it works.
+				catch(InvalidOperationException)
+				{
+					success = false;
+				}
+			} while (!success);
+
+			m_chatBubble = new EOChatBubble(this);
 		}
 
 		public override void Initialize()
@@ -90,6 +104,9 @@ namespace EndlessClient
 					 npcArea.Width, npcArea.Height);
 			Walking = false;
 			walkTimer = new Timer(_walkCallback, null, Timeout.Infinite, Timeout.Infinite);
+
+			m_chatBubble.Initialize();
+			m_chatBubble.LoadContent();
 		}
 
 		public override void Update(GameTime gameTime)
@@ -152,14 +169,27 @@ namespace EndlessClient
 				batch.End();
 		}
 
+		public new void Dispose()
+		{
+			Dispose(true);
+		}
+
 		protected override void Dispose(bool disposing)
 		{
-			walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
-			walkTimer.Dispose();
-			sb.Dispose();
-			lock(chatBubbleLock)
+			if (disposing)
+			{
+				if (walkTimer != null)
+				{
+					walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
+					walkTimer.Dispose();
+				}
+
+				if(sb != null)
+					sb.Dispose();
+
 				if (m_chatBubble != null)
 					m_chatBubble.Dispose();
+			}
 
 			base.Dispose(disposing);
 		}
@@ -210,20 +240,9 @@ namespace EndlessClient
 			}
 		}
 
-		public void SetChatBubble(EOChatBubble bb)
+		public void SetChatBubbleText(string message)
 		{
-			lock (chatBubbleLock)
-			{
-				if (m_chatBubble != null)
-				{
-					m_chatBubble.Dispose();
-					m_chatBubble = null;
-				}
-
-				bb.Initialize();
-				bb.LoadContent();
-				m_chatBubble = bb;
-			}
+			m_chatBubble.SetMessage(message);
 		}
 
 		public void FadeAway()

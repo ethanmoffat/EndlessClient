@@ -194,8 +194,7 @@ namespace EndlessClient
 		private Timer _walkTimer, _attackTimer;
 		private readonly bool noLocUpdate;
 
-		private static readonly object chatBubbleLock = new object();
-		private EOChatBubble m_chatBubble;
+		private readonly EOChatBubble m_chatBubble;
 
 		private GameTime startWalkingThroughPlayerTime;
 
@@ -223,6 +222,8 @@ namespace EndlessClient
 			}
 			Data.SetUpdate(true);
 			_prevState = Keyboard.GetState();
+
+			m_chatBubble = new EOChatBubble(this);
 		}
 
 		/// <summary>
@@ -292,6 +293,12 @@ namespace EndlessClient
 
 			_walkTimer = new Timer(_walkTimerCallback); //wait a minute. I'm the leader. I'll say when it's time to start.
 			_attackTimer = new Timer(_attackTimerCallback);
+
+			if (m_chatBubble != null) //this will be null when constructed during menu time
+			{
+				m_chatBubble.Initialize();
+				m_chatBubble.LoadContent();
+			}
 		}
 
 		protected override void UnloadContent()
@@ -645,9 +652,8 @@ namespace EndlessClient
 				_walkTimer.Dispose();
 			if (_charRenderTarget != null)
 				_charRenderTarget.Dispose();
-			lock (chatBubbleLock)
-				if (m_chatBubble != null)
-					m_chatBubble.Dispose();
+			if (m_chatBubble != null)
+				m_chatBubble.Dispose();
 			base.Dispose(disposing);
 		}
 
@@ -815,20 +821,9 @@ namespace EndlessClient
 			}
 		}
 
-		public void SetChatBubble(EOChatBubble bb)
+		public void SetChatBubbleText(string msg)
 		{
-			lock (chatBubbleLock)
-			{
-				if (m_chatBubble != null)
-				{
-					m_chatBubble.Dispose();
-					m_chatBubble = null;
-				}
-
-				bb.Initialize();
-				bb.LoadContent();
-				m_chatBubble = bb;
-			}
+			m_chatBubble.SetMessage(msg);
 		}
 	}
 }

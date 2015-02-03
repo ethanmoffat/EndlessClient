@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
@@ -267,10 +268,12 @@ namespace EndlessClient
 					doShowCharacters();
 					break;
 				case GameStates.PlayingTheGame:
+					FieldInfo[] fi = GetType().GetFields(BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic);
 					for (int i = Components.Count - 1; i >= 0; --i)
 					{
 						IGameComponent comp = Components[i];
-						if (comp != backButton && comp is DrawableGameComponent)
+						if (comp != backButton && (comp as DrawableGameComponent) != null && 
+							fi.Count(_fi => _fi.GetValue(this) == comp) == 1)
 						{
 							(comp as DrawableGameComponent).Dispose();
 							Components.Remove(comp);
