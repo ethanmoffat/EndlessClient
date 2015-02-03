@@ -1062,6 +1062,17 @@ namespace EndlessClient
 					}
 				}
 
+				//shadows
+				if (m_showShadows && (row = shadowRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
+				{
+					List<GFX> shadows = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 10)).ToList();
+					foreach (GFX shadow in shadows)
+					{
+						Vector2 loc = _getDrawCoordinates(shadow.x, row.y, c);
+						sb.Draw(GFXLoader.TextureFromResource(GFXTypes.Shadows, shadow.tile, true), new Vector2(loc.X - 24, loc.Y - 12), Color.FromNonPremultiplied(255, 255, 255, 60));
+					}
+				}
+
 				//walls - two layers: facing different directions
 				//this layer faces to the right
 				if ((row = wallRowsRight.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
@@ -1080,6 +1091,25 @@ namespace EndlessClient
 						sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
 					}
 				}
+
+				//UPDATE: NPCs and characters are not drawn after map objects, rather inbetween the wall directions.
+
+				// ReSharper disable AccessToModifiedClosure
+				IEnumerable<NPC> thisRowNpcs = otherNpcs.Where(
+					_npc => (_npc.Walking ? _npc.DestY == rowIndex : _npc.Y == rowIndex) &&
+							_npc.X >= c.X - Constants.ViewLength &&
+							_npc.X <= c.X + Constants.ViewLength);
+				foreach (NPC npc in thisRowNpcs) npc.DrawToSpriteBatch(sb, true);
+				// ReSharper restore AccessToModifiedClosure
+
+				// ReSharper disable AccessToModifiedClosure
+				IEnumerable<EOCharacterRenderer> thisRowChars = otherChars.Where(
+					_char => (_char.Character.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex) &&
+							 _char.Character.X >= c.X - Constants.ViewLength &&
+							 _char.Character.X <= c.X + Constants.ViewLength);
+				foreach (EOCharacterRenderer _char in thisRowChars) _char.Draw(sb, true);
+				// ReSharper restore AccessToModifiedClosure
+				
 				//this layer faces to the down
 				if ((row = wallRowsDown.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
 				{
@@ -1095,17 +1125,6 @@ namespace EndlessClient
 						Rectangle? src = gfx.Width > 32 ? new Rectangle?(new Rectangle((int)_wallSrc.X, (int)_wallSrc.Y, gfx.Width / 4, gfx.Height)): null;
 						loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfx.Width / 4.0 : gfx.Width) / 2.0) + 15, loc.Y - (gfx.Height - 29));
 						sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
-					}
-				}
-
-				//shadows
-				if (m_showShadows && (row = shadowRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
-				{
-					List<GFX> shadows = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 10)).ToList();
-					foreach (GFX shadow in shadows)
-					{
-						Vector2 loc = _getDrawCoordinates(shadow.x, row.y, c);
-						sb.Draw(GFXLoader.TextureFromResource(GFXTypes.Shadows, shadow.tile, true), new Vector2(loc.X - 24, loc.Y - 12), Color.FromNonPremultiplied(255, 255, 255, 60));
 					}
 				}
 
@@ -1135,20 +1154,6 @@ namespace EndlessClient
 					}
 				}
 				
-// ReSharper disable AccessToModifiedClosure
-				IEnumerable<NPC> thisRowNpcs = otherNpcs.Where(
-					_npc => (_npc.Walking ? _npc.DestY == rowIndex : _npc.Y == rowIndex) &&
-					        _npc.X >= c.X - Constants.ViewLength &&
-					        _npc.X <= c.X + Constants.ViewLength);
-				foreach (NPC npc in thisRowNpcs) npc.DrawToSpriteBatch(sb, true);
-
-				IEnumerable<EOCharacterRenderer> thisRowChars = otherChars.Where(
-					_char => (_char.Character.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex) &&
-					         _char.Character.X >= c.X - Constants.ViewLength &&
-					         _char.Character.X <= c.X + Constants.ViewLength);
-				foreach (EOCharacterRenderer _char in thisRowChars) _char.Draw(sb, true);
-// ReSharper restore AccessToModifiedClosure
-
 				//overlay tiles (counters, etc)
 				if ((row = overlayTileRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
 				{
