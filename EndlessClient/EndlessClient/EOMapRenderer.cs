@@ -315,6 +315,8 @@ namespace EndlessClient
 		private EOLib.Warp _door;
 		private byte _doorY; //since y-coord not stored in Warp object...
 
+		private ManualResetEventSlim m_eventChangeMap;
+
 		public EOMapRenderer(Game g, MapFile mapObj)
 			: base(g)
 		{
@@ -405,6 +407,15 @@ namespace EndlessClient
 
 		public void SetActiveMap(MapFile newActiveMap)
 		{
+			if (m_eventChangeMap == null)
+			{
+				m_eventChangeMap = new ManualResetEventSlim(true);
+			}
+			else
+			{
+				m_eventChangeMap.Wait();
+			}
+
 			MapRef = newActiveMap;
 			MapItems.Clear();
 			otherRenderers.ForEach(_rend => _rend.Dispose());
@@ -420,6 +431,7 @@ namespace EndlessClient
 			if (_door != null)
 			{
 				_door.doorOpened = false;
+				_door.backOff = false;
 				_door = null;
 				_doorY = 0;
 				_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -429,6 +441,8 @@ namespace EndlessClient
 			m_transitionMetric = 1;
 			if (MapRef.MapAvailable == 0)
 				m_showMiniMap = false;
+
+			m_eventChangeMap.Set();
 		}
 
 		public TileInfo CheckCoordinates(byte destX, byte destY)
@@ -883,6 +897,8 @@ namespace EndlessClient
 		{
 			if (MapRef != null)
 			{
+				m_eventChangeMap.Wait();
+
 				_drawGroundLayer();
 				if(MapItems.Count > 0)
 					_drawMapItems();
@@ -901,9 +917,12 @@ namespace EndlessClient
 #if DEBUG
 				sb.DrawString(World.DBG, string.Format("FPS: {0}", World.FPS), new Vector2(30, 30), Color.White);
 #endif
+				sb.End();
+
 				if(m_showMiniMap)
 					_drawMiniMap();
-				sb.End();
+
+				m_eventChangeMap.Set();
 			}
 
 			base.Draw(gameTime);
@@ -1191,6 +1210,7 @@ namespace EndlessClient
 			Texture2D miniMapText = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 45, true);
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 
+			sb.Begin();
 			for (int row = Math.Max(c.Y - 30, 0); row <= Math.Min(c.Y + 30, MapRef.Height); ++row)
 			{
 				for (int col = Math.Max(c.X - 30, 0); col <= Math.Min(c.Y + 30, MapRef.Width); ++col)
@@ -1270,6 +1290,7 @@ namespace EndlessClient
 					sb.Draw(miniMapText, loc, miniMapRect, Color.FromNonPremultiplied(255, 255, 255, 128));
 				}
 			}
+			sb.End();
 		}
 
 		/// <summary>
@@ -1297,7 +1318,7 @@ namespace EndlessClient
 
 			//get greater of deltas between the map object and the character
 			int metric = Math.Max(Math.Abs(objX - c.X), Math.Abs(objY - c.Y));
-			const double TRANSITION_TIME_MS = 250.0; //1/4 second for transition on each tile metric
+			const double TRANSITION_TIME_MS = 125.0; //1/8 second for transition on each tile metric
 
 			int alpha;
 			if (m_mapLoadTime == null || metric < m_transitionMetric || metric == 0)
@@ -1327,7 +1348,13 @@ namespace EndlessClient
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!disposing) return;
+			if (!disposing)
+			{
+				base.Dispose(false);return;
+			}
+
+			m_eventChangeMap.Dispose();
+			m_eventChangeMap = null;
 
 			foreach (EOCharacterRenderer cr in otherRenderers)
 				cr.Dispose();
