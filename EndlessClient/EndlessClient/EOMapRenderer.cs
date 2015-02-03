@@ -460,29 +460,16 @@ namespace EndlessClient
 				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsOtherPlayer };
 			}
 
-			List<WarpRow> warpRows = MapRef.WarpRows.FindAll(wr => wr.y == destY && wr.tiles.FindAll(t => t.x == destX).Count == 1);
-			if (warpRows.Count == 1)
+			EOLib.Warp warp = MapRef.WarpLookup[destY, destX];
+			if (warp != null)
 			{
-				EOLib.Warp warp = warpRows[0].tiles.Find(ww => ww.x == destX);
-				if (warpRows[0].tiles.Count > 0 && warp.x != EOLib.Warp.Empty.x)
-				{
-					TileInfo newInfo = new TileInfo
-					{
-						ReturnValue = TileInfo.ReturnType.IsWarpSpec,
-						Warp = warp
-					};
-					return newInfo;
-				}
+				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsWarpSpec, Warp = warp };
 			}
 
-			List<TileRow> rows = MapRef.TileRows.FindAll(tr => tr.y == destY && tr.tiles.FindAll(t => t.x == destX).Count == 1);
-			if (rows.Count == 1) //should only be 1 result
+			Tile tile = MapRef.TileLookup[destY, destX];
+			if (tile.x != Tile.Empty.x)
 			{
-				Tile tile = rows[0].tiles.Find(tt => tt.x == destX);
-				if (rows[0].tiles.Count > 0)
-				{
-					return new TileInfo { ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = tile.spec };
-				}
+				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = tile.spec };
 			}
 
 			return destX <= MapRef.Width && destY <= MapRef.Height //don't need to check zero bounds: because byte type is always positive (unsigned)
