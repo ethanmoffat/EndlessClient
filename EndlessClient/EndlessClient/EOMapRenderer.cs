@@ -58,9 +58,7 @@ namespace EndlessClient
 		private const int RL = 6, RM = 7, RR = 8, NUB = 9;
 		private static bool textsLoaded;
 		private static Texture2D[] texts;
-
-		private bool _disposing, _drawing;
-
+		
 		public EOChatBubble(string message, EOCharacterRenderer following)
 			: base(EOGame.Instance)
 		{
@@ -148,71 +146,72 @@ namespace EndlessClient
 		public override void Draw(GameTime gameTime)
 		{
 			if (!textsLoaded) return;
+			int xCov = texts[TL].Width;
+			int yCov = texts[TL].Height;
+			if (sb == null) return;
 
-			if (!_disposing)
+			sb.Begin();
+
+			//top row
+			sb.Draw(texts[TL], drawLoc, Color.White);
+			int xCur;
+			for (xCur = xCov; xCur < m_label.ActualWidth; xCur += texts[TM].Width)
 			{
-				_drawing = true;
-				int xCov = texts[TL].Width;
-				int yCov = texts[TL].Height;
-				if (sb == null) return;
-				sb.Begin();
-
-				//top row
-				sb.Draw(texts[TL], drawLoc, Color.White);
-				int xCur;
-				for (xCur = xCov; xCur < m_label.ActualWidth; xCur += texts[TM].Width)
-				{
-					sb.Draw(texts[TM], drawLoc + new Vector2(xCur, 0), Color.White);
-				}
-				sb.Draw(texts[TR], drawLoc + new Vector2(xCur, 0), Color.White);
-
-				//middle area
-				int y;
-				for (y = yCov; y < m_label.Texture.Height - (m_label.Texture.Height % texts[ML].Height); y += texts[ML].Height)
-				{
-					sb.Draw(texts[ML], drawLoc + new Vector2(0, y), Color.White);
-					int x;
-					for (x = xCov; x < xCur; x += texts[MM].Width)
-					{
-						sb.Draw(texts[MM], drawLoc + new Vector2(x, y), Color.White);
-					}
-					sb.Draw(texts[MR], drawLoc + new Vector2(xCur, y), Color.White);
-				}
-
-				//bottom row
-				sb.Draw(texts[RL], drawLoc + new Vector2(0, y), Color.White);
-				int x2;
-				for (x2 = xCov; x2 < xCur; x2 += texts[RM].Width)
-				{
-					sb.Draw(texts[RM], drawLoc + new Vector2(x2, y), Color.White);
-				}
-				sb.Draw(texts[RR], drawLoc + new Vector2(x2, y), Color.White);
-				y += texts[RM].Height;
-				sb.Draw(texts[NUB], drawLoc + new Vector2((x2 + texts[RR].Width - texts[NUB].Width) / 2f, y - 1), Color.White);
-
-				sb.End();
-				base.Draw(gameTime);
-				_drawing = false;
+				sb.Draw(texts[TM], drawLoc + new Vector2(xCur, 0), Color.White);
 			}
+			sb.Draw(texts[TR], drawLoc + new Vector2(xCur, 0), Color.White);
+
+			//middle area
+			int y;
+			for (y = yCov; y < m_label.Texture.Height - (m_label.Texture.Height%texts[ML].Height); y += texts[ML].Height)
+			{
+				sb.Draw(texts[ML], drawLoc + new Vector2(0, y), Color.White);
+				int x;
+				for (x = xCov; x < xCur; x += texts[MM].Width)
+				{
+					sb.Draw(texts[MM], drawLoc + new Vector2(x, y), Color.White);
+				}
+				sb.Draw(texts[MR], drawLoc + new Vector2(xCur, y), Color.White);
+			}
+
+			//bottom row
+			sb.Draw(texts[RL], drawLoc + new Vector2(0, y), Color.White);
+			int x2;
+			for (x2 = xCov; x2 < xCur; x2 += texts[RM].Width)
+			{
+				sb.Draw(texts[RM], drawLoc + new Vector2(x2, y), Color.White);
+			}
+			sb.Draw(texts[RR], drawLoc + new Vector2(x2, y), Color.White);
+			y += texts[RM].Height;
+			sb.Draw(texts[NUB], drawLoc + new Vector2((x2 + texts[RR].Width - texts[NUB].Width)/2f, y - 1), Color.White);
+
+			sb.End();
+			base.Draw(gameTime);
 		}
 
 		private void _goAway(object s)
 		{
-			_disposing = true;
 			goAway.Change(Timeout.Infinite, Timeout.Infinite);
 			if (EOGame.Instance.Components.Contains(this))
 				EOGame.Instance.Components.Remove(this);
 			Dispose();
 		}
 
+		public new void Dispose()
+		{
+			Dispose(true);
+		}
+
 		protected override void Dispose(bool disposing)
 		{
-			while(_drawing) Thread.Sleep(100);
-			goAway.Dispose();
-			if(sb != null) //debugging
-				sb.Dispose();
-			if(m_label != null)
-				m_label.Close();
+			if (disposing)
+			{
+				goAway.Dispose();
+				if (sb != null) //debugging
+					sb.Dispose();
+				if (m_label != null)
+					m_label.Close();
+			}
 
 			base.Dispose(disposing);
 		}
@@ -220,6 +219,23 @@ namespace EndlessClient
 
 	public class EOMapRenderer : DrawableGameComponent
 	{
+		/// <summary>
+		/// Indices of the mini map gfx in their single texture (for source rectangle offset)
+		/// </summary>
+		private enum MiniMapGfx
+		{
+			//for drawing the lines
+			UpLine,
+			LeftLine,
+			Corner,
+			Solid, //indicates wall or obstacle
+			Green, //other player
+			Red, //attackable npc
+			Orange, //you!
+			Blue, //tile that you can interact with
+			Purple //npc
+		}
+
 		//collections
 		public List<MapItem> MapItems { get; private set; }
 		private readonly List<Character> otherPlayers = new List<Character>();
@@ -256,6 +272,7 @@ namespace EndlessClient
 		private BlendState _playerBlend;
 		private SpriteBatch sb;
 		private bool m_showShadows;
+		private bool m_showMiniMap;
 
 		private DateTime? m_mapLoadTime;
 		private int m_transitionMetric;
@@ -368,7 +385,7 @@ namespace EndlessClient
 				npcList.Clear();
 			}
 
-			//need to reset door-related parameters when changing maps.
+			//need to reset door-related members when changing maps.
 			if (_door != null)
 			{
 				_door.doorOpened = false;
@@ -379,6 +396,8 @@ namespace EndlessClient
 
 			m_mapLoadTime = DateTime.Now;
 			m_transitionMetric = 1;
+			if (MapRef.MapAvailable == 0)
+				m_showMiniMap = false;
 		}
 
 		public TileInfo CheckCoordinates(byte destX, byte destY)
@@ -428,7 +447,8 @@ namespace EndlessClient
 
 		public void ToggleMapView()
 		{
-			//todo: determine whether or not the minimap is visible, toggle flag to draw the minimap
+			if(MapRef.MapAvailable != 0)
+				m_showMiniMap = !m_showMiniMap;
 		}
 
 		/* PUBLIC INTERFACE -- OTHER PLAYERS */
@@ -850,6 +870,8 @@ namespace EndlessClient
 #if DEBUG
 				sb.DrawString(World.DBG, string.Format("FPS: {0}", World.FPS), new Vector2(30, 30), Color.White);
 #endif
+				if(m_showMiniMap)
+					_drawMiniMap();
 				sb.End();
 			}
 
@@ -857,7 +879,7 @@ namespace EndlessClient
 		}
 
 		/* DRAWING-RELATED HELPER METHODS */
-		// Special Thanks: HotDog's client. Used heavily as a reference for numeric offsets/techniques
+		// Special Thanks: HotDog's client. Used heavily as a reference for numeric offsets/techniques, with some adjustments here and there.
 		private void _drawGroundLayer()
 		{
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
@@ -1128,6 +1150,92 @@ namespace EndlessClient
 			GraphicsDevice.SetRenderTarget(null);
 		}
 
+		private void _drawMiniMap()
+		{
+			Texture2D miniMapText = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 45, true);
+			Character c = World.Instance.MainPlayer.ActiveCharacter;
+
+			for (int row = Math.Max(c.Y - 30, 0); row <= Math.Min(c.Y + 30, MapRef.Height); ++row)
+			{
+				for (int col = Math.Max(c.X - 30, 0); col <= Math.Min(c.Y + 30, MapRef.Width); ++col)
+				{
+					Rectangle miniMapRect = new Rectangle(0, 0, miniMapText.Width / 9, miniMapText.Height);
+					bool isEdge = false;
+					Vector2 loc = _getMiniMapDrawCoordinates(col, row, c);
+					if (c.X == col && c.Y == row)
+					{
+						//draw orange thing
+						miniMapRect.Offset((int) MiniMapGfx.Orange*miniMapRect.Width, 0);
+					}
+					else
+					{
+						TileInfo info = CheckCoordinates((byte) col, (byte) row);
+						switch (info.ReturnValue)
+						{
+							case TileInfo.ReturnType.IsTileSpec:
+								switch (info.Spec)
+								{
+									case TileSpec.Wall:
+										miniMapRect.Offset((int)MiniMapGfx.Solid * miniMapRect.Width, 0);
+										//draw block
+										break;
+									case TileSpec.BankVault:
+									case TileSpec.ChairAll:
+									case TileSpec.ChairDown:
+									case TileSpec.ChairLeft:
+									case TileSpec.ChairRight:
+									case TileSpec.ChairUp:
+									case TileSpec.ChairDownRight:
+									case TileSpec.ChairUpLeft:
+									case TileSpec.Chest:
+										//draw exclamation
+										miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
+										break;
+									case TileSpec.MapEdge:
+										isEdge = true;
+										break;
+								}
+								break;
+							case TileInfo.ReturnType.IsOtherNPC:
+								//draw NPC - red or purple depending on type
+								NPC npc;
+								if ((npc = npcList.Find(_n => _n.X == col && _n.Y == row)) != null)
+								{
+									if (npc.Data.Type == NPCType.Aggressive || npc.Data.Type == NPCType.Passive)
+									{
+										miniMapRect.Offset((int)MiniMapGfx.Red * miniMapRect.Width, 0);
+									}
+									else
+									{
+										miniMapRect.Offset((int)MiniMapGfx.Purple * miniMapRect.Width, 0);
+									}
+								}
+								break;
+							case TileInfo.ReturnType.IsOtherPlayer:
+								miniMapRect.Offset((int)MiniMapGfx.Green * miniMapRect.Width, 0);
+								//draw Green
+								break;
+							case TileInfo.ReturnType.IsWarpSpec:
+								if(info.Warp.door != 0)
+									miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
+								break;
+						}
+					}
+
+					if (!isEdge)
+					{
+						sb.Draw(miniMapText, loc,
+							new Rectangle((int) MiniMapGfx.UpLine*miniMapRect.Width, 0, miniMapRect.Width, miniMapRect.Height),
+							Color.FromNonPremultiplied(255, 255, 255, 128));
+						sb.Draw(miniMapText, loc,
+							new Rectangle((int)MiniMapGfx.LeftLine * miniMapRect.Width, 0, miniMapRect.Width, miniMapRect.Height),
+							Color.FromNonPremultiplied(255, 255, 255, 128));
+					}
+					sb.Draw(miniMapText, loc, miniMapRect, Color.FromNonPremultiplied(255, 255, 255, 128));
+				}
+			}
+		}
+
 		/// <summary>
 		/// does the offset for tiles/items
 		/// <para>(x * 32 - y * 32 + 288 - c.OffsetX), (y * 16 + x * 16 + 144 - c.OffsetY)</para>
@@ -1136,6 +1244,11 @@ namespace EndlessClient
 		private Vector2 _getDrawCoordinates(int x, int y, Character c)
 		{
 			return new Vector2((x * 32) - (y * 32) + 288 - c.OffsetX, (y * 16) + (x * 16) + 144 - c.OffsetY);
+		}
+
+		private Vector2 _getMiniMapDrawCoordinates(int x, int y, Character c)
+		{
+			return new Vector2((x * 13) - (y * 13) + 288 - (c.X * 13 - c.Y * 13), (y * 7) + (x * 7) + 144 - (c.Y * 7 + c.X * 7));
 		}
 		
 		private int _getAlpha(int objX, int objY, Character c)
@@ -1169,6 +1282,7 @@ namespace EndlessClient
 			return alpha;
 		}
 
+		/* DISPOSABLE INTERFACE OVERRIDES AND STUFF */
 		public new void Dispose()
 		{
 			Dispose(true);
