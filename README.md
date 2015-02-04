@@ -5,7 +5,7 @@ An open source client for Endless Online written in C#
 
 ![alt text](http://i.imgur.com/s0MpbG1.gif "Slow 9MB GIF incoming!")
 
-Note: glitches you can see that are displayed in the above GIF prove how much of a work in progress this is.
+Note: any glitches you can find in the above GIF prove how much of a work in progress this is. But it looks pretty cool so far, amirite??
 
 What is there so far?
 ---------------------
@@ -32,14 +32,18 @@ What's Left to do?
 There is a HUGE list of things left to do. The client is in its infant stages and is a constantly evolving work in progress. What this means is that as features are implemented, I make an attempt to implement them as completely and accurately as possible before moving on to the next thing. The pre-game menus and UI are completely finished, besides a few small bugs that I'm sure to find. The framework for adding new components is there as well.
 
 Here's a list of things I want to get to in the near future (strikethrough means completed):
- - Finish with attacking - requires damage counter/health bars and fixing animations to show up properly
+ - Finish attacking - requires damage counter, health bars, and fixing animations to show up properly
  - Map signs
  - Map boards
  - Map chests
  - Map chairs
  - Map bank vaults
- - Player interaction - trading, paperdoll viewing
- - Finishing HUD panels - online players, parties, spells, ~~'view minimap' toggle~~
+ - Right-click players on map
+ - Cast spells and spell animations
+ - Finishing HUD panels -  ~~'view minimap' toggle~~, spells, online players, parties, spells, settings, help
+ - ~~HUD meters - HP/SP/TP/TNL~~
+ - HUD Quests/Exp info
+ - HUD Friend/Ignore lists
 
 Running the game
 ----------------
