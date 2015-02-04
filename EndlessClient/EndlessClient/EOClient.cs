@@ -182,6 +182,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Players.PlayersNet3, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Recover, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Recover.RecoverPlayer, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Refresh, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Refresh.RefreshReply, true)
 				},
