@@ -1,4 +1,5 @@
-﻿using EOLib;
+﻿using System;
+using EOLib;
 
 namespace EndlessClient.Handlers
 {
@@ -67,7 +68,11 @@ namespace EndlessClient.Handlers
 				amount = _amount,
 				uid = pkt.GetShort(),
 				x = pkt.GetChar(),
-				y = pkt.GetChar()
+				y = pkt.GetChar(),
+				//turn off drop protection since main player dropped it
+				time = DateTime.Now.AddSeconds(-5),
+				npcDrop = false,
+				playerID = World.Instance.MainPlayer.ActiveCharacter.ID
 			};
 			byte characterWeight = pkt.GetChar(), characterMaxWeight = pkt.GetChar(); //character adjusted weights
 
@@ -80,7 +85,17 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static void ItemAddResponse(Packet pkt)
 		{
-			World.Instance.ActiveMapRenderer.MapItems.Add(new MapItem { id = pkt.GetShort(), uid = pkt.GetShort(), amount = pkt.GetThree(), x = pkt.GetChar(), y = pkt.GetChar() });
+			World.Instance.ActiveMapRenderer.MapItems.Add(new MapItem
+			{
+				id = pkt.GetShort(),
+				uid = pkt.GetShort(),
+				amount = pkt.GetThree(),
+				x = pkt.GetChar(),
+				y = pkt.GetChar(),
+				time = DateTime.Now,
+				npcDrop = false,
+				playerID = -1 //unknown ID! so it will say Item is protected w/o "by player"
+			});
 		}
 
 		public static void ItemRemoveResponse(Packet pkt)
@@ -104,6 +119,9 @@ namespace EndlessClient.Handlers
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
 		}
 
+		/// <summary>
+		/// Main player is picking an item up off the map
+		/// </summary>
 		public static void ItemGetResponse(Packet pkt)
 		{
 			short uid = pkt.GetShort();
@@ -124,14 +142,16 @@ namespace EndlessClient.Handlers
 						uid = uid,
 						id = id,
 						x = toRemove.x,
-						y = toRemove.y
+						y = toRemove.y,
+						npcDrop = toRemove.npcDrop,
+						time = toRemove.time
 					};
 					if (toRemove.amount > 0) World.Instance.ActiveMapRenderer.MapItems.Add(toRemove);
 				}
 			}
 
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);//true: adding amounts if item ID exists
-			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Info ] You picked up {0} {1}", amountTaken, World.Instance.EIF.GetItemRecordByID(id).Name));
+			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You picked up {0} {1}", amountTaken, World.Instance.EIF.GetItemRecordByID(id).Name));
 		}
 	}
 }

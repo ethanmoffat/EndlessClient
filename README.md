@@ -31,7 +31,7 @@ What's Left to do?
 
 There is a HUGE list of things left to do. The client is in its infant stages and is a constantly evolving work in progress. What this means is that as features are implemented, I make an attempt to implement them as completely and accurately as possible before moving on to the next thing. The pre-game menus and UI are completely finished, besides a few small bugs that I'm sure to find. The framework for adding new components is there as well.
 
-Here's a list of things I want to get to in the near future (strikethrough means completed):
+Here's a working but incomplete list of things I want to get to in this client (strikethrough means completed):
  - Finish attacking - requires damage counter, health bars, and fixing animations to show up properly
  - Map signs
  - Map boards
@@ -44,11 +44,25 @@ Here's a list of things I want to get to in the near future (strikethrough means
  - ~~HUD meters - HP/SP/TP/TNL~~
  - HUD Quests/Exp info
  - HUD Friend/Ignore lists
+ - Player emotes
+ - NPC interaction on maps (shops, inns, quests)
+ 
+Here's a working list of things I want to add that would be additional features on top of the original client specs:
+ - Use built-in patching system prior to log-in to transfer files: help, gfx, pubs, maps, data, sounds, etc.
+ - More than 3 characters per account
+ - Unbounded display size
+ - Scale HUD with display size without blowing up graphics, so expand viewing range
+ - Trade items between characters before logging in or during game play, or shared bank vaults
+ - Timed map weather systems (planned for in original but never done)
+ - Passive skills (planned for in original but never done)
+ - In-game macros (planned for in original but never done)
+ 
+Most things on the above list would require changes to the server software which would significantly distance it from compatibility with eoserv and the original EO client, so they aren't top priority, but would still be pretty cool to have.
 
 Running the game
 ----------------
 
-You will need a copy of eoserv set up and running, or another Endless Online server to connect to. The client binary is now distributed with a config file that points at the eoserv instance I use for testing (ewmoffat.ddns.net:8078). You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server. You can also change the default server in the misc.cs file by changing the address "127.0.0.1" to another IP or hostname.
+You will need a copy of eoserv set up and running, or another Endless Online server to connect to. The client binary is now distributed with a config file that points at the eoserv instance I use for testing (ewmoffat.ddns.net:8078). You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server.
 
 GFX files are now distributed with the game client, and any map or pub files are loaded from the server during gameplay.
 
@@ -70,6 +84,10 @@ Client=28
 [SETTINGS]
 ShowShadows=true #show/hide shadows on map
 ShowTransition=true #enable/disable fancy transition on map (custom)
+[CUSTOM]
+#seconds after a drop that drop protection will stop (custom)
+NPCDropProtectTime=30
+PlayerDropProtectTime=5
 ```
 
 Changes From Original Client (so far)

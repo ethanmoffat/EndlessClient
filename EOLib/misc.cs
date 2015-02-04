@@ -71,6 +71,9 @@ namespace EOLib
 		public const string ClassFilePath = "pub/dat001.ecf";
 
 		public const byte ViewLength = 16;
+
+		public const int NPCDropProtectionSeconds = 30;
+		public const int PlayerDropProtectionSeconds = 5;
 	}
 
 	public static class ConfigStrings
@@ -87,5 +90,9 @@ namespace EOLib
 		public const string Settings = "SETTINGS";
 		public const string ShowShadows = "ShowShadows";
 		public const string ShowTransition = "ShowTransition";
+
+		public const string Custom = "CUSTOM";
+		public const string NPCDropProtectTime = "NPCDropProtectTime";
+		public const string PlayerDropProtectTime = "PlayerDropProtectTime";
 	}
 }

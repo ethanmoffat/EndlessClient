@@ -1,6 +1,5 @@
-﻿
+﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using EOLib;
 
 namespace EndlessClient.Handlers
@@ -97,7 +96,11 @@ namespace EndlessClient.Handlers
 					id = pkt.GetShort(),
 					x = pkt.GetByte(),
 					y = pkt.GetByte(),
-					amount = pkt.GetThree()
+					amount = pkt.GetThree(),
+					//turn off drop protection for items coming into view - server will validate
+					time = DateTime.Now.AddSeconds(-5),
+					npcDrop = false,
+					playerID = -1
 				});
 			}
 

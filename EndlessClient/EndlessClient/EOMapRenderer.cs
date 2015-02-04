@@ -299,7 +299,8 @@ namespace EndlessClient
 		private RenderTarget2D _rtMapObjAbovePlayer, _rtMapObjBelowPlayer;
 		private BlendState _playerBlend;
 		private SpriteBatch sb;
-		private bool m_showShadows;
+		private readonly bool m_showShadows;
+		private readonly int m_npcDropProtect, m_playerDropProtect;
 		private bool m_showMiniMap;
 
 		private DateTime? m_mapLoadTime;
@@ -344,6 +345,11 @@ namespace EndlessClient
 			//shadows on by default
 			if (!World.Instance.Configuration.GetValue(ConfigStrings.Settings, ConfigStrings.ShowShadows, out m_showShadows))
 				m_showShadows = true;
+
+			if (!World.Instance.Configuration.GetValue(ConfigStrings.Custom, ConfigStrings.NPCDropProtectTime, out m_npcDropProtect))
+				m_npcDropProtect = Constants.NPCDropProtectionSeconds;
+			if (!World.Instance.Configuration.GetValue(ConfigStrings.Custom, ConfigStrings.PlayerDropProtectTime, out m_playerDropProtect))
+				m_playerDropProtect = Constants.PlayerDropProtectionSeconds;
 
 			_doorTimer = new Timer(_doorTimerCallback);
 			SetActiveMap(mapObj);
@@ -865,9 +871,14 @@ namespace EndlessClient
 
 						if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
 						{
-							//todo: need to check if it is protected item (drop protection)
-							//		the server won't let you pick it up anyway, but need to set the status label somehow
-							if (!Item.GetItem(mi.uid))
+							if (World.Instance.MainPlayer.ActiveCharacter.ID != mi.playerID &&
+								(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= m_npcDropProtect) || 
+								(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= m_playerDropProtect))
+							{
+								Character charRef = otherPlayers.Find(_c => _c.ID == mi.id);
+								EOGame.Instance.Hud.SetStatusLabel("[ Information ] This item is protected" + (charRef != null ? string.Format(" by {0}.", charRef.Name) : "."));
+							}
+							else if (!Item.GetItem(mi.uid)) //server validates anyway
 								EOGame.Instance.LostConnectionDialog();
 						}
 					}

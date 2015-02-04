@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using EOLib;
 
 namespace EndlessClient.Handlers
@@ -71,19 +68,19 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static void NPCSpec(Packet pkt)
 		{
-			short playerID = pkt.GetShort();
+			short playerID = pkt.GetShort(); //player that is protecting the item
 			byte direction = pkt.GetChar();
 			short deadNPC = pkt.GetShort();
 
 			World.Instance.ActiveMapRenderer.RemoveOtherNPC((byte)deadNPC, pkt.ReadPos < pkt.Length);
-			if (pkt.ReadPos == pkt.Length) return;
+			if (pkt.ReadPos == pkt.Length) return; //just removing from range, packet ends here
 
 			short droppedItemUID = pkt.GetShort();
 			short droppedItemID = pkt.GetShort();
 			byte x = pkt.GetChar();
 			byte y = pkt.GetChar();
 			int droppedAmount = pkt.GetInt();
-			int damage = pkt.GetThree();
+			int damage = pkt.GetThree(); //damage done to NPC. show this in the damage counter
 			if (droppedItemID > 0)
 			{
 				World.Instance.ActiveMapRenderer.MapItems.Add(new MapItem
@@ -92,9 +89,18 @@ namespace EndlessClient.Handlers
 					id = droppedItemID,
 					uid = droppedItemUID,
 					x = x,
-					y = y
+					y = y,
+					time = DateTime.Now,
+					npcDrop = true,
+					playerID = playerID
 				});
 			}
+
+			if (pkt.ReadPos == pkt.Length) return; //just showing a dropped item, packet ends here
+
+			int newExp = pkt.GetInt(); //npc was killed - this handler was invoked from NPCAccept
+			World.Instance.MainPlayer.ActiveCharacter.Stats.exp = newExp;
+			EOGame.Instance.Hud.RefreshStats();
 		}
 
 		/// <summary>
@@ -102,7 +108,31 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static void NPCReply(Packet pkt)
 		{
-			
+		}
+
+		/// <summary>
+		/// Handler for NPC_ACCEPT packet, when character levels up from exp earned when killing an NPC
+		/// </summary>
+		/// <param name="pkt"></param>
+		public static void NPCAccept(Packet pkt)
+		{
+			NPCSpec(pkt); //same handler for the first part of the packet
+
+			byte level = World.Instance.MainPlayer.ActiveCharacter.RenderData.level = pkt.GetChar();
+			short statpts = pkt.GetShort();
+			short skillpts = pkt.GetShort();
+			short maxHP = pkt.GetShort();
+			short maxTP = pkt.GetShort();
+			short maxSP = pkt.GetShort();
+
+			//local reference for readability
+			CharStatData stats = World.Instance.MainPlayer.ActiveCharacter.Stats;
+			stats.level = level;
+			stats.statpoints = statpts;
+			stats.skillpoints = skillpts;
+			stats.SetMaxHP(maxHP);
+			stats.SetMaxTP(maxTP);
+			stats.SetMaxSP(maxSP);
 		}
 	}
 }

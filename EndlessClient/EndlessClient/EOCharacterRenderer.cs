@@ -192,6 +192,7 @@ namespace EndlessClient
 
 		private KeyboardState _prevState;
 		private Timer _walkTimer, _attackTimer;
+		private int attacksSinceGain;
 		private readonly bool noLocUpdate;
 
 		private readonly EOChatBubble m_chatBubble;
@@ -371,9 +372,10 @@ namespace EndlessClient
 				Data.SetHairNeedRefresh(false);
 			}
 
-			if(Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp && (int)gameTime.TotalGameTime.TotalMilliseconds % Character.Stats.disp_str == 0)
-				Character.Stats.SetSP((short)(Character.Stats.sp + 1)); //todo: investigate how this actually works!
-			
+			if(Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp && 
+				!Character.Attacking && (int)gameTime.TotalGameTime.TotalMilliseconds % 1000 == 0)
+				Character.Stats.SetSP((short)(Character.Stats.sp + 1));
+
 			//input handling for arrow keys done here
 			//only check for a keypress if not currently walking and the renderer is for the active character
 			//also only check every 1/2 of a second
@@ -491,6 +493,15 @@ namespace EndlessClient
 				}
 				else if(!_char.Walking && !_char.Attacking && _char.CanAttack)
 				{
+					if (Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp &&
+					    attacksSinceGain == Math.Max(5 - Character.Stats.level, 1))
+					{
+						Character.Stats.SetSP((short) (Character.Stats.sp + 1));
+						attacksSinceGain = 0;
+					}
+					else
+						attacksSinceGain++;
+
 					_char.Attack(Data.facing);
 					PlayerAttack();
 				}

@@ -107,6 +107,9 @@ namespace EOLib
 		public byte x;
 		public byte y;
 		public int amount;
+		public DateTime time;
+		public bool npcDrop;
+		public int playerID;
 	}
 
 	public class Tile
