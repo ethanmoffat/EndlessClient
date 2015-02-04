@@ -109,11 +109,10 @@ namespace EOLib
 		public int amount;
 	}
 
-	public struct Tile
+	public class Tile
 	{
 		public byte x;
 		public TileSpec spec;
-		public static Tile Empty = new Tile();
 	}
 
 	public struct TileRow

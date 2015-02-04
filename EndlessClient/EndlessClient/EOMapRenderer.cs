@@ -467,7 +467,7 @@ namespace EndlessClient
 			}
 
 			Tile tile = MapRef.TileLookup[destY, destX];
-			if (tile.x != Tile.Empty.x)
+			if (tile != null)
 			{
 				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = tile.spec };
 			}
@@ -765,115 +765,117 @@ namespace EndlessClient
 			{
 				Character c = World.Instance.MainPlayer.ActiveCharacter;
 				//center the cursor on the mouse pointer
-				int msX = ms.X - _cursorSourceRect.Width/2;
-				int msY = ms.Y - _cursorSourceRect.Height/2;
+				int msX = ms.X - _cursorSourceRect.Width / 2;
+				int msY = ms.Y - _cursorSourceRect.Height / 2;
 				/*align cursor to grid based on mouse position*/
-				gridX = (int) Math.Round((msX + 2*msY - 576 + c.OffsetX + 2*c.OffsetY)/64.0);
-				gridY = (int) Math.Round((msY - gridX*16 - 144 + c.OffsetY)/16.0);
+				gridX = (int)Math.Round((msX + 2 * msY - 576 + c.OffsetX + 2 * c.OffsetY) / 64.0);
+				gridY = (int)Math.Round((msY - gridX * 16 - 144 + c.OffsetY) / 16.0);
 				cursorPos = _getDrawCoordinates(gridX, gridY, c);
-				TileInfo ti = CheckCoordinates((byte)gridX, (byte)gridY);
-				switch (ti.ReturnValue)
+				if (gridX >= 0 && gridX <= MapRef.Width && gridY >= 0 && gridY <= MapRef.Height)
 				{
-					case TileInfo.ReturnType.IsOtherNPC:
-						_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
-						NPC npc;
-						lock(npcListLock)
-							if ((npc = npcList.Find(_npc => _npc.X == gridX && _npc.Y == gridY)) == null)
-								break;
-						_mouseoverName.Visible = true;
-						_mouseoverName.Text = npc.Data.Name;
-						_mouseoverName.ResizeBasedOnText();
-						_mouseoverName.ForeColor = System.Drawing.Color.White;
-						_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16, cursorPos.Y - 32/* - _mouseoverName.Texture.Height*/);
-						break;
-					case TileInfo.ReturnType.IsOtherPlayer:
-						_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
-						EOCharacterRenderer _rend;
-						_mouseoverName.Visible = true;
-						_mouseoverName.Text = (_rend = otherRenderers.Find(_p => _p.Character.X == gridX && _p.Character.Y == gridY) ?? World.Instance.ActiveCharacterRenderer).Character.Name;
-						_mouseoverName.ResizeBasedOnText();
-						_mouseoverName.ForeColor = System.Drawing.Color.White;
-						_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16 - _rend.DrawArea.Width / 2f, 
-							cursorPos.Y - _rend.DrawArea.Height - _mouseoverName.Texture.Height);
-						break;
-					default:
-						if (gridX == c.X && gridY == c.Y) goto case TileInfo.ReturnType.IsOtherPlayer; //same logic if it's the active character
-
-						_hideCursor = false;
-						if (ti.ReturnValue == TileInfo.ReturnType.IsTileSpec)
-						{
-							switch (ti.Spec)
-							{
-								case TileSpec.Wall:
-								case TileSpec.JammedDoor:
-								case TileSpec.MapEdge:
-								case TileSpec.FakeWall:
-									//hide cursor
-									_hideCursor = true;
-									break;
-								case TileSpec.ChairDown:
-								case TileSpec.ChairLeft:
-								case TileSpec.ChairRight:
-								case TileSpec.ChairUp:
-								case TileSpec.ChairDownRight:
-								case TileSpec.ChairUpLeft:
-								case TileSpec.ChairAll:
-								case TileSpec.Chest:
-								case TileSpec.BankVault:
-								case TileSpec.Board1:
-								case TileSpec.Board2:
-								case TileSpec.Board3:
-								case TileSpec.Board4:
-								case TileSpec.Board5:
-								case TileSpec.Board6:
-								case TileSpec.Board7:
-								case TileSpec.Board8:
-								case TileSpec.Jukebox:
-									//highlight cursor
-									_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
-									break;
-								case TileSpec.Jump:
-								case TileSpec.Water:
-								case TileSpec.Arena:
-								case TileSpec.AmbientSource:
-								case TileSpec.Spikes:
-								case TileSpec.SpikesTrap:
-								case TileSpec.SpikesTimed:
-								case TileSpec.None:
-									//normal cursor
-									_cursorSourceRect.Location = new Point(0, 0);
-									break;
-							}
-						}
-						else
-							_cursorSourceRect.Location = new Point(0, 0);
-						_mouseoverName.Text = "";
-						break;
-				}
-
-				MapItem mi; //value type...dumb comparisons needed since can't check for non-null
-				if ((mi = MapItems.Find(_mi => _mi.x == gridX && _mi.y == gridY)).x == gridX && mi.y == gridY && mi.x > 0 && mi.y > 0)
-				{
-					_cursorSourceRect.Location = new Point(2 * (mouseCursor.Width / 5), 0);
-					_mouseoverName.Visible = true;
-					_mouseoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
-					_mouseoverName.ResizeBasedOnText();
-					_mouseoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
-					_mouseoverName.DrawLocation = new Vector2(cursorPos.X, cursorPos.Y - 16 - _mouseoverName.Texture.Height);
-
-					if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
+					TileInfo ti = CheckCoordinates((byte)gridX, (byte)gridY);
+					switch (ti.ReturnValue)
 					{
-						//todo: need to check if it is protected item (drop protection)
-						//		the server won't let you pick it up anyway, but need to set the status label somehow
-						if (!Item.GetItem(mi.uid))
-							EOGame.Instance.LostConnectionDialog();
+						case TileInfo.ReturnType.IsOtherNPC:
+							_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
+							NPC npc;
+							lock (npcListLock)
+								if ((npc = npcList.Find(_npc => _npc.X == gridX && _npc.Y == gridY)) == null)
+									break;
+							_mouseoverName.Visible = true;
+							_mouseoverName.Text = npc.Data.Name;
+							_mouseoverName.ResizeBasedOnText();
+							_mouseoverName.ForeColor = System.Drawing.Color.White;
+							_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16, cursorPos.Y - 32/* - _mouseoverName.Texture.Height*/);
+							break;
+						case TileInfo.ReturnType.IsOtherPlayer:
+							_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
+							EOCharacterRenderer _rend;
+							_mouseoverName.Visible = true;
+							_mouseoverName.Text = (_rend = otherRenderers.Find(_p => _p.Character.X == gridX && _p.Character.Y == gridY) ?? World.Instance.ActiveCharacterRenderer).Character.Name;
+							_mouseoverName.ResizeBasedOnText();
+							_mouseoverName.ForeColor = System.Drawing.Color.White;
+							_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16 - _rend.DrawArea.Width / 2f,
+								cursorPos.Y - _rend.DrawArea.Height - _mouseoverName.Texture.Height);
+							break;
+						default:
+							if (gridX == c.X && gridY == c.Y) goto case TileInfo.ReturnType.IsOtherPlayer; //same logic if it's the active character
+
+							_hideCursor = false;
+							if (ti.ReturnValue == TileInfo.ReturnType.IsTileSpec)
+							{
+								switch (ti.Spec)
+								{
+									case TileSpec.Wall:
+									case TileSpec.JammedDoor:
+									case TileSpec.MapEdge:
+									case TileSpec.FakeWall:
+										//hide cursor
+										_hideCursor = true;
+										break;
+									case TileSpec.ChairDown:
+									case TileSpec.ChairLeft:
+									case TileSpec.ChairRight:
+									case TileSpec.ChairUp:
+									case TileSpec.ChairDownRight:
+									case TileSpec.ChairUpLeft:
+									case TileSpec.ChairAll:
+									case TileSpec.Chest:
+									case TileSpec.BankVault:
+									case TileSpec.Board1:
+									case TileSpec.Board2:
+									case TileSpec.Board3:
+									case TileSpec.Board4:
+									case TileSpec.Board5:
+									case TileSpec.Board6:
+									case TileSpec.Board7:
+									case TileSpec.Board8:
+									case TileSpec.Jukebox:
+										//highlight cursor
+										_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
+										break;
+									case TileSpec.Jump:
+									case TileSpec.Water:
+									case TileSpec.Arena:
+									case TileSpec.AmbientSource:
+									case TileSpec.Spikes:
+									case TileSpec.SpikesTrap:
+									case TileSpec.SpikesTimed:
+									case TileSpec.None:
+										//normal cursor
+										_cursorSourceRect.Location = new Point(0, 0);
+										break;
+								}
+							}
+							else
+								_cursorSourceRect.Location = new Point(0, 0);
+							_mouseoverName.Text = "";
+							break;
 					}
+
+					MapItem mi; //value type...dumb comparisons needed since can't check for non-null
+					if ((mi = MapItems.Find(_mi => _mi.x == gridX && _mi.y == gridY)).x == gridX && mi.y == gridY && mi.x > 0 && mi.y > 0)
+					{
+						_cursorSourceRect.Location = new Point(2 * (mouseCursor.Width / 5), 0);
+						_mouseoverName.Visible = true;
+						_mouseoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
+						_mouseoverName.ResizeBasedOnText();
+						_mouseoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
+						_mouseoverName.DrawLocation = new Vector2(cursorPos.X, cursorPos.Y - 16 - _mouseoverName.Texture.Height);
+
+						if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
+						{
+							//todo: need to check if it is protected item (drop protection)
+							//		the server won't let you pick it up anyway, but need to set the status label somehow
+							if (!Item.GetItem(mi.uid))
+								EOGame.Instance.LostConnectionDialog();
+						}
+					}
+
+					if (_mouseoverName.Text.Length > 0 && !Game.Components.Contains(_mouseoverName))
+						Game.Components.Add(_mouseoverName);
 				}
-
-				if(_mouseoverName.Text.Length > 0 && !Game.Components.Contains(_mouseoverName))
-					Game.Components.Add(_mouseoverName);
 			}
-
 			_drawMapObjectsAndActors(); //if any player has been updated redraw the render target
 
 			_prevState = ms;

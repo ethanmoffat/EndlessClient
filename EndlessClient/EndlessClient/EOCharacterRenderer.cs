@@ -432,6 +432,9 @@ namespace EndlessClient
 						return;
 					}
 
+					if (destX > World.Instance.ActiveMapRenderer.MapRef.Width || destY > World.Instance.ActiveMapRenderer.MapRef.Height)
+						return;
+
 					TileInfo info = World.Instance.ActiveMapRenderer.CheckCoordinates(destX, destY);
 					switch (info.ReturnValue)
 					{
