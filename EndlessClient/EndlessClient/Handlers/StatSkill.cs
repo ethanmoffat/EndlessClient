@@ -40,7 +40,7 @@ namespace EndlessClient.Handlers
 			c.Stats.SetCha(pkt.GetShort());
 			c.Stats.SetMaxHP(pkt.GetShort());
 			c.Stats.SetMaxTP(pkt.GetShort());
-			c.Stats.maxsp = pkt.GetShort();
+			c.Stats.sp = c.Stats.maxsp = pkt.GetShort();
 			c.MaxWeight = (byte)pkt.GetShort();
 			c.Stats.SetMinDam(pkt.GetShort());
 			c.Stats.SetMaxDam(pkt.GetShort());

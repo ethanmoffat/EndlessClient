@@ -72,6 +72,9 @@ namespace EndlessClient
 		/// the primary textbox for chat
 		/// </summary>
 		private readonly XNATextBox chatTextBox;
+
+		//HP, SP, TP, TNL (in that order)
+		private readonly HUDElement[] StatusBars = new HUDElement[4];
 		
 		public HUD(Game g)
 			: base(g)
@@ -252,6 +255,11 @@ namespace EndlessClient
 
 			statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), "Microsoft Sans Serif", 7.0f);
 			clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), "Microsoft Sans Serif", 7.0f);
+
+			StatusBars[0] = new HudElementHP();
+			StatusBars[1] = new HudElementTP();
+			StatusBars[2] = new HudElementSP();
+			StatusBars[3] = new HudElementTNL();
 		}
 
 		public override void Initialize()
@@ -329,13 +337,6 @@ namespace EndlessClient
 
 			if(modeTextureLoaded && modeTexture != null)
 				SpriteBatch.Draw(modeTexture, new Vector2(16, 309), Color.White);
-
-			//TODO: probably going to put the code for rendering HUD elements (HP, TP, SP, TNL) here
-			//switch(state)
-			//{
-			//	default:
-			//		break;
-			//}
 
 			SpriteBatch.End();
 

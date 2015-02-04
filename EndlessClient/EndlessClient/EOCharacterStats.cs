@@ -43,7 +43,7 @@ namespace EndlessClient
 				m_basicStats[i] = new XNALabel(new Rectangle(50, 8 + i*18, 73, 13), "Microsoft Sans Serif", 8.5f)
 				{
 					Visible = true,
-					ForeColor = System.Drawing.Color.White,
+					ForeColor = System.Drawing.Color.FromArgb(0xc8,0xc8,0xc8),
 					AutoSize = false,
 				};
 				m_basicStats[i].SetParent(this);
@@ -79,7 +79,7 @@ namespace EndlessClient
 				m_characterStats[i] = new XNALabel(new Rectangle(158, 8 + i * 18, 73, 13), "Microsoft Sans Serif", 8.5f)
 				{
 					Visible = true,
-					ForeColor = System.Drawing.Color.White,
+					ForeColor = System.Drawing.Color.FromArgb(0xc8, 0xc8, 0xc8),
 					AutoSize = false,
 				};
 				m_characterStats[i].SetParent(this);
@@ -90,7 +90,7 @@ namespace EndlessClient
 				m_otherInfo[i] = new XNALabel(new Rectangle(i < 4 ? 280 : 379 , 44 + (i%4)*18, i < 4 ? 60 : 94, 13), "Microsoft Sans Serif", 8.5f)
 				{
 					Visible = true,
-					ForeColor = System.Drawing.Color.White,
+					ForeColor = System.Drawing.Color.FromArgb(0xc8, 0xc8, 0xc8),
 					AutoSize = false,
 				};
 				m_otherInfo[i].SetParent(this);
@@ -101,7 +101,7 @@ namespace EndlessClient
 			m_charInfo[NAME] = new XNALabel(new Rectangle(280, 8, 144, 13), "Microsoft Sans Serif", 8.5f)
 			{
 				Visible = true,
-				ForeColor = System.Drawing.Color.White,
+				ForeColor = System.Drawing.Color.FromArgb(0xc8, 0xc8, 0xc8),
 				AutoSize = false,
 				Text = c.Name
 			};
@@ -109,7 +109,7 @@ namespace EndlessClient
 			m_charInfo[GUILD] = new XNALabel(new Rectangle(280, 26, 193, 13), "Microsoft Sans Serif", 8.5f)
 			{
 				Visible = true,
-				ForeColor = System.Drawing.Color.White,
+				ForeColor = System.Drawing.Color.FromArgb(0xc8, 0xc8, 0xc8),
 				AutoSize = false,
 				Text = c.GuildName
 			};
@@ -117,7 +117,7 @@ namespace EndlessClient
 			m_charInfo[LEVEL] = new XNALabel(new Rectangle(453, 8, 20, 13), "Microsoft Sans Serif", 8.5f)
 			{
 				Visible = true,
-				ForeColor = System.Drawing.Color.White,
+				ForeColor = System.Drawing.Color.FromArgb(0xc8, 0xc8, 0xc8),
 				AutoSize = false,
 			};
 			foreach(XNALabel lbl in m_charInfo) lbl.SetParent(this);

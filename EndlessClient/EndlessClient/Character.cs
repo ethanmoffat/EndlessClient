@@ -87,6 +87,7 @@ namespace EndlessClient
 		public short maxhp;
 		public short tp;
 		public short maxtp;
+		public short sp;
 		public short maxsp;
 
 		public short statpoints;
@@ -116,7 +117,7 @@ namespace EndlessClient
 			maxhp = other.maxhp;
 			tp = other.tp;
 			maxtp = other.maxtp;
-			maxsp = other.maxsp;
+			sp = maxsp = other.maxsp;
 			statpoints = other.statpoints;
 			skillpoints = other.skillpoints;
 			karma = other.karma;
@@ -137,6 +138,8 @@ namespace EndlessClient
 		public void SetMaxHP(short newHP) { maxhp = newHP; }
 		public void SetTP(short newTP) { tp = newTP; }
 		public void SetMaxTP(short newTP) { maxtp = newTP; }
+		public void SetSP(short newSP) { sp = newSP; }
+		public void SetMaxSP(short newSP) { maxsp = newSP; }
 		public void SetStr(short str) { disp_str = str; }
 		public void SetInt(short intl) { disp_int = intl; }
 		public void SetWis(short wis) { disp_wis = wis; }
@@ -197,7 +200,7 @@ namespace EndlessClient
 		public int ViewAdjustY { get; set; }
 		public bool Walking { get; private set; }
 		public bool Attacking { get; private set; }
-		public bool CanAttack { get { return Weight <= MaxWeight; } }
+		public bool CanAttack { get { return Weight <= MaxWeight && Stats.sp > 0; } }
 
 		//paperdoll info
 		public string Name { get; set; }
@@ -458,6 +461,7 @@ namespace EndlessClient
 				RenderData.SetDirection(direction);
 
 			Attacking = true;
+			Stats.sp--;
 		}
 
 		public void DoneAttacking()

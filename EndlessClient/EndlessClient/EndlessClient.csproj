@@ -150,6 +150,7 @@
     <Compile Include="Handlers\Walk.cs" />
     <Compile Include="Handlers\Warp.cs" />
     <Compile Include="Handlers\Welcome.cs" />
+    <Compile Include="HUDElement.cs" />
     <Compile Include="InGameHud.cs" />
     <Compile Include="NPC.cs" />
     <Compile Include="Player.cs" />

@@ -150,6 +150,8 @@ namespace EndlessClient.Handlers
 							disp_cha = pkt.GetShort()
 						};
 
+						main.ActiveCharacter.Stats.sp = main.ActiveCharacter.Stats.maxsp;
+
 						for (int i = 0; i < (int)EquipLocation.PAPERDOLL_MAX; ++i )
 						{
 							main.ActiveCharacter.PaperDoll[i] = pkt.GetShort();

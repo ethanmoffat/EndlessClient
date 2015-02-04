@@ -370,6 +370,9 @@ namespace EndlessClient
 				Data.SetUpdate(false);
 				Data.SetHairNeedRefresh(false);
 			}
+
+			if(Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp && (int)gameTime.TotalGameTime.TotalMilliseconds % Character.Stats.disp_str == 0)
+				Character.Stats.SetSP((short)(Character.Stats.sp + 1)); //todo: investigate how this actually works!
 			
 			//input handling for arrow keys done here
 			//only check for a keypress if not currently walking and the renderer is for the active character
