@@ -178,8 +178,8 @@ namespace EOLib
 
 		//instance things
 
-		public byte RecvMulti { get; private set; }
-		public byte SendMulti { get; private set; }
+		public byte RecvMulti { get; set; }
+		public byte SendMulti { get; set; }
 
 		protected PacketProcessor()
 		{
