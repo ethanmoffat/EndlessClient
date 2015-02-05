@@ -40,10 +40,11 @@ namespace EndlessClient
 		public EODirection facing;
 // ReSharper disable MemberCanBePrivate.Global
 		public SitState sitting;
-		public bool hidden;
 // ReSharper restore MemberCanBePrivate.Global
+		public bool hidden;
 		public bool update;
 		public bool hairNeedRefresh;
+		public bool dead;
 
 		public CharRenderData() { name = ""; }
 
@@ -72,6 +73,8 @@ namespace EndlessClient
 		public void SetAttackFrame(byte af) { lock (attackFrameLocker) attackFrame = af; update = true; }
 		public void SetUpdate(bool shouldUpdate) { update = shouldUpdate; }
 		public void SetHairNeedRefresh(bool shouldRefresh) { hairNeedRefresh = shouldRefresh; }
+		
+		public void SetDead(bool isDead) { dead = isDead; }
 	}
 
 	/// <summary>

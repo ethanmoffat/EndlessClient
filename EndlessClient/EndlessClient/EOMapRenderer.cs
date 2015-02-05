@@ -667,6 +667,36 @@ namespace EndlessClient
 			}
 		}
 
+		public void NPCAttack(byte index, bool isTargetPlayerDead, EODirection dir, short targetPlayerId, int damageToPlayer, int playerPctHealth)
+		{
+			NPC toAttack;
+			lock (npcListLock)
+				toAttack = npcList.Find(_npc => _npc.Index == index);
+			if (toAttack != null && !toAttack.Attacking)
+			{
+				toAttack.Attack(dir);
+			}
+
+			EOCharacterRenderer rend = targetPlayerId == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.ActiveCharacterRenderer : 
+				otherRenderers.Find(_rend => _rend.Character.ID == targetPlayerId);
+
+			if (damageToPlayer > 0)
+			{
+				//todo: show damage to player above player (numeric)
+				if (rend.Character == World.Instance.MainPlayer.ActiveCharacter)
+				{
+					//update health in UI
+					rend.Character.Stats.SetHP((short)Math.Max(rend.Character.Stats.hp - damageToPlayer, 0));
+					EOGame.Instance.Hud.RefreshStats();
+				}
+			}
+
+			//todo: show percent health in health bar above player
+
+			if (isTargetPlayerDead)
+				rend.Die();
+		}
+
 		/* PUBLIC INTERFACE -- DOORS */
 		public void OpenDoor(byte x, short y)
 		{

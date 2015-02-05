@@ -11,10 +11,10 @@ namespace EndlessClient
 	public abstract class HUDElement : XNAControl
 	{
 		protected readonly CharStatData m_stats;
-		protected XNALabel m_label;
+		protected readonly XNALabel m_label;
 		protected readonly Texture2D m_textSheet;
 		protected Rectangle m_elemSourceRect;
-		protected DateTime m_labelShowTime;
+		private DateTime m_labelShowTime;
 		
 		protected HUDElement()
 		{

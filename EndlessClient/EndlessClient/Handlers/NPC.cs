@@ -42,14 +42,14 @@ namespace EndlessClient.Handlers
 				case 1: /*npc attack!*/
 				{
 					byte index = pkt.GetChar();
-					bool isDead = pkt.GetChar() == 2; //2 if dead, 1 if alive
-					EODirection dir = (EODirection) pkt.GetChar();
+					bool isDead = pkt.GetChar() == 2; //2 if target player is dead, 1 if alive
+					EODirection dir = (EODirection) pkt.GetChar(); //NPC direction
 					short targetPlayerID = pkt.GetShort();
-					int damage = pkt.GetThree();
-					int pctHealth = pkt.GetThree(); //percentage of health remaining
+					int damage = pkt.GetThree(); //damage done to player
+					int pctHealth = pkt.GetThree(); //percentage of health remaining of target player
 					if (pkt.GetByte() != 255 || pkt.GetByte() != 255)
 						return;
-					//todo: do the attack (via map renderer)
+					World.Instance.ActiveMapRenderer.NPCAttack(index, isDead, dir, targetPlayerID, damage, pctHealth);
 				}
 					break;
 				case 2: /*npc talk!*/
@@ -108,6 +108,9 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static void NPCReply(Packet pkt)
 		{
+			int x = 5; //no-op for debugging
+			x++;
+			//todo: update NPC health and show damage and stuff
 		}
 
 		/// <summary>

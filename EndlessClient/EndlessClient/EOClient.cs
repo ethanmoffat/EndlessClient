@@ -154,6 +154,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.NPCPackets.NPCPlayer, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.NPC, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.NPCPackets.NPCReply, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.NPC, PacketAction.Spec),
 					new LockedHandlerMethod(Handlers.NPCPackets.NPCSpec, true)
 				},

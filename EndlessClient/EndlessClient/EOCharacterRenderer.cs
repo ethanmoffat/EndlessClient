@@ -198,6 +198,7 @@ namespace EndlessClient
 		private readonly EOChatBubble m_chatBubble;
 
 		private GameTime startWalkingThroughPlayerTime;
+		private DateTime? m_deadTime;
 
 		/// <summary>
 		/// Construct a character renderer in-game
@@ -320,7 +321,7 @@ namespace EndlessClient
 					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
 					characterSkin.Width, characterSkin.Height);
 
-			//refresh all the textures from the GFX files or image cache
+			#region refresh all the textures from the GFX files or image cache
 			if (Data.update)
 			{
 				if (Data.shield != 0)
@@ -371,14 +372,18 @@ namespace EndlessClient
 				Data.SetUpdate(false);
 				Data.SetHairNeedRefresh(false);
 			}
+			#endregion
 
-			if(Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp && 
-				!Character.Attacking && (int)gameTime.TotalGameTime.TotalMilliseconds % 1000 == 0)
-				Character.Stats.SetSP((short)(Character.Stats.sp + 1));
+			//bring back from the dead after 2 seconds
+			if (m_deadTime != null && Character.RenderData.dead && (DateTime.Now - m_deadTime.Value).TotalSeconds > 2)
+			{
+				m_deadTime = null;
+				Character.RenderData.SetDead(false);
+			}
 
-			//input handling for arrow keys done here
-			//only check for a keypress if not currently walking and the renderer is for the active character
-			//also only check every 1/2 of a second
+			//input handling for keyboard
+			//only check for a keypress if not currently acting and if this is the active character renderer
+			//also only check every 1/4 of a second
 			KeyboardState currentState = Keyboard.GetState();
 			if (_char != null && _char == World.Instance.MainPlayer.ActiveCharacter && gameTime.TotalGameTime.Milliseconds % 100 <= 25)
 			{
@@ -508,6 +513,11 @@ namespace EndlessClient
 
 				if (!_char.Walking && !_char.Attacking) _prevState = currentState; //only set this when not walking already
 			}
+
+			//adjust SP
+			if (Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp &&
+				!Character.Attacking && (int)gameTime.TotalGameTime.TotalMilliseconds % 1000 == 0)
+				Character.Stats.SetSP((short)(Character.Stats.sp + 1));
 		}
 		
 		//convenience wrapper
@@ -571,6 +581,13 @@ namespace EndlessClient
 			_attackTimer.Change(0, attackTimer);
 		}
 
+		public void Die()
+		{
+			//play death sound!
+			Character.RenderData.SetDead(true);
+			m_deadTime = DateTime.Now;
+		}
+
 		//character is drawn in the following order:
 		// - shield (if wings/arrows)
 		// - weapon
@@ -606,7 +623,7 @@ namespace EndlessClient
 
 			if(!started) sb.Begin();
 			sb.Draw(_charRenderTarget, new Vector2(0, 0),
-				_char.RenderData.hidden ? Color.FromNonPremultiplied(255, 255, 255, 128) : Color.White);
+				_char.RenderData.hidden || _char.RenderData.dead ? Color.FromNonPremultiplied(255, 255, 255, 128) : Color.White);
 			if(!started) sb.End();
 		}
 

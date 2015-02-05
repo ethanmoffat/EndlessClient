@@ -25,13 +25,14 @@ namespace EndlessClient
 
 		public Rectangle DrawArea;
 		public bool Walking { get; private set; }
+		public bool Attacking { get; private set; }
 		public NPCFrame Frame { get; private set; }
 
 		private SpriteBatch sb;
 		private readonly EONPCSpriteSheet npcSheet;
 		private Rectangle npcArea;
 
-		private Timer walkTimer;
+		private Timer walkTimer, attackTimer;
 
 		private int offX
 		{
@@ -68,6 +69,7 @@ namespace EndlessClient
 
 			bool success = true;
 			npcSheet = new EONPCSpriteSheet(this);
+			int tries = 0;
 			do
 			{
 				try
@@ -79,11 +81,15 @@ namespace EndlessClient
 					tmp.GetData(tmpData);
 					hasStandFrame1 = tmpData.Any(_c => _c.R != 0 || _c.G != 0 || _c.B != 0);
 				} //this block throws errors sometimes..no idea why. Keep looping until it works.
-				catch(InvalidOperationException)
+				catch (InvalidOperationException)
 				{
 					success = false;
+					tries++;
 				}
-			} while (!success);
+			} while (!success && tries < 3);
+
+			if(tries >= 3)
+				throw new InvalidOperationException("Something weird happened initializing this NPC.");
 
 			m_chatBubble = new EOChatBubble(this);
 		}
@@ -104,6 +110,8 @@ namespace EndlessClient
 					 npcArea.Width, npcArea.Height);
 			Walking = false;
 			walkTimer = new Timer(_walkCallback, null, Timeout.Infinite, Timeout.Infinite);
+			Attacking = false;
+			attackTimer = new Timer(_attackCallback, null, Timeout.Infinite, Timeout.Infinite);
 
 			m_chatBubble.Initialize();
 			m_chatBubble.LoadContent();
@@ -236,6 +244,31 @@ namespace EndlessClient
 					X = DestX;
 					Y = DestY;
 					adjX = adjY = 0;
+					break;
+			}
+		}
+
+		public void Attack(EODirection dir)
+		{
+			if (Attacking) return;
+			attackTimer.Change(0, 100);
+			Direction = dir;
+		}
+
+		private void _attackCallback(object state)
+		{
+			switch (Frame)
+			{
+				case NPCFrame.Standing:
+				case NPCFrame.StandingFrame1:
+					Frame = NPCFrame.Attack1;
+					break;
+				case NPCFrame.Attack1:
+					Frame = NPCFrame.Attack2;
+					break;
+				case NPCFrame.Attack2:
+					Frame = NPCFrame.Standing;
+					attackTimer.Change(Timeout.Infinite, Timeout.Infinite);
 					break;
 			}
 		}
