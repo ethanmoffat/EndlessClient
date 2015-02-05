@@ -98,8 +98,6 @@ namespace PacketDecoder
 			{
 				if (txt == txtLength)
 					m_dataLength = 0;
-				else
-					MessageBox.Show("Must be integer value.", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				return;
 			}
 
@@ -237,6 +235,29 @@ namespace PacketDecoder
 				txtLength.Text = selLen.ToString();
 				m_suppressEvent = false;
 			}
+		}
+
+		private void btnImportMultis_Click(object sender, EventArgs e)
+		{
+			string inp = Microsoft.VisualBasic.Interaction.InputBox("Paste the raw, colon-delimited packet data here: ", "Enter packet data");
+
+			if (inp.Length == 0)
+				return;
+
+			inp = inp.Replace(":", "");
+			if (inp.Length%2 != 0) return;
+			inp = inp.Substring(4);
+			byte[] data = new byte[inp.Length / 2];
+			for (int i = 0; i < inp.Length; i += 2)
+				data[i/2] = Convert.ToByte(inp.Substring(i, 2), 16);
+			
+			//no need to decrypt since it's init data
+			Packet pkt = new Packet(data);
+			pkt.Skip(3);
+			txtDMulti.Text = pkt.GetByte().ToString();
+			txtEMulti.Text = pkt.GetByte().ToString();
+			m_processor.RecvMulti = pkt.Get()[5];
+			m_processor.SendMulti = pkt.Get()[6];
 		}
 	}
 }

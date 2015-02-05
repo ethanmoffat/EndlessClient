@@ -30,26 +30,27 @@
 		{
 			this.txtEMulti = new System.Windows.Forms.TextBox();
 			this.grpMultiples = new System.Windows.Forms.GroupBox();
-			this.label1 = new System.Windows.Forms.Label();
 			this.label2 = new System.Windows.Forms.Label();
 			this.txtDMulti = new System.Windows.Forms.TextBox();
+			this.label1 = new System.Windows.Forms.Label();
 			this.grpData = new System.Windows.Forms.GroupBox();
-			this.label3 = new System.Windows.Forms.Label();
-			this.txtLength = new System.Windows.Forms.TextBox();
 			this.label4 = new System.Windows.Forms.Label();
 			this.txtOffset = new System.Windows.Forms.TextBox();
+			this.label3 = new System.Windows.Forms.Label();
+			this.txtLength = new System.Windows.Forms.TextBox();
 			this.grpInput = new System.Windows.Forms.GroupBox();
 			this.txtInputData = new System.Windows.Forms.TextBox();
 			this.grpOutput = new System.Windows.Forms.GroupBox();
-			this.label5 = new System.Windows.Forms.Label();
-			this.cmbOutputFmt = new System.Windows.Forms.ComboBox();
-			this.label6 = new System.Windows.Forms.Label();
-			this.txtOutput = new System.Windows.Forms.TextBox();
-			this.txtDecoded = new System.Windows.Forms.TextBox();
-			this.label7 = new System.Windows.Forms.Label();
-			this.lblPacketLength = new System.Windows.Forms.Label();
-			this.lblFamily = new System.Windows.Forms.Label();
 			this.lblAction = new System.Windows.Forms.Label();
+			this.lblFamily = new System.Windows.Forms.Label();
+			this.lblPacketLength = new System.Windows.Forms.Label();
+			this.label7 = new System.Windows.Forms.Label();
+			this.txtDecoded = new System.Windows.Forms.TextBox();
+			this.txtOutput = new System.Windows.Forms.TextBox();
+			this.label6 = new System.Windows.Forms.Label();
+			this.cmbOutputFmt = new System.Windows.Forms.ComboBox();
+			this.label5 = new System.Windows.Forms.Label();
+			this.btnImportMultis = new System.Windows.Forms.Button();
 			this.grpMultiples.SuspendLayout();
 			this.grpData.SuspendLayout();
 			this.grpInput.SuspendLayout();
@@ -77,15 +78,6 @@
 			this.grpMultiples.TabStop = false;
 			this.grpMultiples.Text = "Multiples";
 			// 
-			// label1
-			// 
-			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(6, 22);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(57, 13);
-			this.label1.TabIndex = 0;
-			this.label1.Text = "Encryption";
-			// 
 			// label2
 			// 
 			this.label2.AutoSize = true;
@@ -103,6 +95,15 @@
 			this.txtDMulti.TabIndex = 3;
 			this.txtDMulti.Leave += new System.EventHandler(this.intTextValidate);
 			// 
+			// label1
+			// 
+			this.label1.AutoSize = true;
+			this.label1.Location = new System.Drawing.Point(6, 22);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(57, 13);
+			this.label1.TabIndex = 0;
+			this.label1.Text = "Encryption";
+			// 
 			// grpData
 			// 
 			this.grpData.Controls.Add(this.label4);
@@ -113,6 +114,23 @@
 			this.grpData.TabIndex = 1;
 			this.grpData.TabStop = false;
 			this.grpData.Text = "Data";
+			// 
+			// label4
+			// 
+			this.label4.AutoSize = true;
+			this.label4.Location = new System.Drawing.Point(6, 22);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(35, 13);
+			this.label4.TabIndex = 0;
+			this.label4.Text = "Offset";
+			// 
+			// txtOffset
+			// 
+			this.txtOffset.Location = new System.Drawing.Point(69, 19);
+			this.txtOffset.Name = "txtOffset";
+			this.txtOffset.Size = new System.Drawing.Size(43, 20);
+			this.txtOffset.TabIndex = 1;
+			this.txtOffset.Leave += new System.EventHandler(this.intTextValidate);
 			// 
 			// label3
 			// 
@@ -132,23 +150,6 @@
 			this.txtLength.TabIndex = 4;
 			this.txtLength.TextChanged += new System.EventHandler(this.intTextValidate);
 			this.txtLength.Leave += new System.EventHandler(this.intTextValidate);
-			// 
-			// label4
-			// 
-			this.label4.AutoSize = true;
-			this.label4.Location = new System.Drawing.Point(6, 22);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(35, 13);
-			this.label4.TabIndex = 0;
-			this.label4.Text = "Offset";
-			// 
-			// txtOffset
-			// 
-			this.txtOffset.Location = new System.Drawing.Point(69, 19);
-			this.txtOffset.Name = "txtOffset";
-			this.txtOffset.Size = new System.Drawing.Size(43, 20);
-			this.txtOffset.TabIndex = 1;
-			this.txtOffset.Leave += new System.EventHandler(this.intTextValidate);
 			// 
 			// grpInput
 			// 
@@ -188,14 +189,70 @@
 			this.grpOutput.TabStop = false;
 			this.grpOutput.Text = "Output";
 			// 
-			// label5
+			// lblAction
 			// 
-			this.label5.AutoSize = true;
-			this.label5.Location = new System.Drawing.Point(7, 22);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(39, 13);
-			this.label5.TabIndex = 0;
-			this.label5.Text = "Format";
+			this.lblAction.AutoSize = true;
+			this.lblAction.Location = new System.Drawing.Point(126, 75);
+			this.lblAction.Name = "lblAction";
+			this.lblAction.Size = new System.Drawing.Size(43, 13);
+			this.lblAction.TabIndex = 9;
+			this.lblAction.Text = "Action: ";
+			// 
+			// lblFamily
+			// 
+			this.lblFamily.AutoSize = true;
+			this.lblFamily.Location = new System.Drawing.Point(7, 75);
+			this.lblFamily.Name = "lblFamily";
+			this.lblFamily.Size = new System.Drawing.Size(42, 13);
+			this.lblFamily.TabIndex = 8;
+			this.lblFamily.Text = "Family: ";
+			// 
+			// lblPacketLength
+			// 
+			this.lblPacketLength.AutoSize = true;
+			this.lblPacketLength.Location = new System.Drawing.Point(7, 48);
+			this.lblPacketLength.Name = "lblPacketLength";
+			this.lblPacketLength.Size = new System.Drawing.Size(83, 13);
+			this.lblPacketLength.TabIndex = 7;
+			this.lblPacketLength.Text = "Packet Length: ";
+			// 
+			// label7
+			// 
+			this.label7.AutoSize = true;
+			this.label7.Location = new System.Drawing.Point(7, 161);
+			this.label7.Name = "label7";
+			this.label7.Size = new System.Drawing.Size(88, 13);
+			this.label7.TabIndex = 6;
+			this.label7.Text = "Decoded Packet";
+			// 
+			// txtDecoded
+			// 
+			this.txtDecoded.HideSelection = false;
+			this.txtDecoded.Location = new System.Drawing.Point(6, 177);
+			this.txtDecoded.Multiline = true;
+			this.txtDecoded.Name = "txtDecoded";
+			this.txtDecoded.ReadOnly = true;
+			this.txtDecoded.Size = new System.Drawing.Size(240, 109);
+			this.txtDecoded.TabIndex = 1;
+			// 
+			// txtOutput
+			// 
+			this.txtOutput.Location = new System.Drawing.Point(50, 101);
+			this.txtOutput.Multiline = true;
+			this.txtOutput.Name = "txtOutput";
+			this.txtOutput.ReadOnly = true;
+			this.txtOutput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+			this.txtOutput.Size = new System.Drawing.Size(196, 57);
+			this.txtOutput.TabIndex = 5;
+			// 
+			// label6
+			// 
+			this.label6.AutoSize = true;
+			this.label6.Location = new System.Drawing.Point(7, 104);
+			this.label6.Name = "label6";
+			this.label6.Size = new System.Drawing.Size(37, 13);
+			this.label6.TabIndex = 1;
+			this.label6.Text = "Result";
 			// 
 			// cmbOutputFmt
 			// 
@@ -217,76 +274,31 @@
 			this.cmbOutputFmt.TabIndex = 2;
 			this.cmbOutputFmt.SelectedIndexChanged += new System.EventHandler(this.cmbOutputFmt_SelectedIndexChanged);
 			// 
-			// label6
+			// label5
 			// 
-			this.label6.AutoSize = true;
-			this.label6.Location = new System.Drawing.Point(7, 104);
-			this.label6.Name = "label6";
-			this.label6.Size = new System.Drawing.Size(37, 13);
-			this.label6.TabIndex = 1;
-			this.label6.Text = "Result";
+			this.label5.AutoSize = true;
+			this.label5.Location = new System.Drawing.Point(7, 22);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(39, 13);
+			this.label5.TabIndex = 0;
+			this.label5.Text = "Format";
 			// 
-			// txtOutput
+			// btnImportMultis
 			// 
-			this.txtOutput.Location = new System.Drawing.Point(50, 101);
-			this.txtOutput.Multiline = true;
-			this.txtOutput.Name = "txtOutput";
-			this.txtOutput.ReadOnly = true;
-			this.txtOutput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-			this.txtOutput.Size = new System.Drawing.Size(196, 57);
-			this.txtOutput.TabIndex = 5;
-			// 
-			// txtDecoded
-			// 
-			this.txtDecoded.HideSelection = false;
-			this.txtDecoded.Location = new System.Drawing.Point(6, 177);
-			this.txtDecoded.Multiline = true;
-			this.txtDecoded.Name = "txtDecoded";
-			this.txtDecoded.ReadOnly = true;
-			this.txtDecoded.Size = new System.Drawing.Size(240, 109);
-			this.txtDecoded.TabIndex = 1;
-			// 
-			// label7
-			// 
-			this.label7.AutoSize = true;
-			this.label7.Location = new System.Drawing.Point(7, 161);
-			this.label7.Name = "label7";
-			this.label7.Size = new System.Drawing.Size(88, 13);
-			this.label7.TabIndex = 6;
-			this.label7.Text = "Decoded Packet";
-			// 
-			// lblPacketLength
-			// 
-			this.lblPacketLength.AutoSize = true;
-			this.lblPacketLength.Location = new System.Drawing.Point(7, 48);
-			this.lblPacketLength.Name = "lblPacketLength";
-			this.lblPacketLength.Size = new System.Drawing.Size(83, 13);
-			this.lblPacketLength.TabIndex = 7;
-			this.lblPacketLength.Text = "Packet Length: ";
-			// 
-			// lblFamily
-			// 
-			this.lblFamily.AutoSize = true;
-			this.lblFamily.Location = new System.Drawing.Point(7, 75);
-			this.lblFamily.Name = "lblFamily";
-			this.lblFamily.Size = new System.Drawing.Size(42, 13);
-			this.lblFamily.TabIndex = 8;
-			this.lblFamily.Text = "Family: ";
-			// 
-			// lblAction
-			// 
-			this.lblAction.AutoSize = true;
-			this.lblAction.Location = new System.Drawing.Point(126, 75);
-			this.lblAction.Name = "lblAction";
-			this.lblAction.Size = new System.Drawing.Size(43, 13);
-			this.lblAction.TabIndex = 9;
-			this.lblAction.Text = "Action: ";
+			this.btnImportMultis.Location = new System.Drawing.Point(141, 68);
+			this.btnImportMultis.Name = "btnImportMultis";
+			this.btnImportMultis.Size = new System.Drawing.Size(123, 23);
+			this.btnImportMultis.TabIndex = 4;
+			this.btnImportMultis.Text = "Import Multiples";
+			this.btnImportMultis.UseVisualStyleBackColor = true;
+			this.btnImportMultis.Click += new System.EventHandler(this.btnImportMultis_Click);
 			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(275, 502);
+			this.Controls.Add(this.btnImportMultis);
 			this.Controls.Add(this.grpOutput);
 			this.Controls.Add(this.grpInput);
 			this.Controls.Add(this.grpData);
@@ -331,6 +343,7 @@
 		private System.Windows.Forms.Label lblPacketLength;
 		private System.Windows.Forms.Label lblAction;
 		private System.Windows.Forms.Label lblFamily;
+		private System.Windows.Forms.Button btnImportMultis;
 	}
 }
 

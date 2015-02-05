@@ -54,7 +54,7 @@ namespace EndlessClient.Handlers
 					break;
 				case 2: /*npc talk!*/
 				{
-					short index = pkt.GetShort();
+					byte index = pkt.GetChar();
 					byte msgLength = pkt.GetChar();
 					string msg = pkt.GetFixedString(msgLength);
 					World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.NPC, index, msg, ChatType.Note);
