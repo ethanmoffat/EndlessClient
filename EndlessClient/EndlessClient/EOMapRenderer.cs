@@ -853,7 +853,7 @@ namespace EndlessClient
 							_mouseoverName.Text = npc.Data.Name;
 							_mouseoverName.ResizeBasedOnText();
 							_mouseoverName.ForeColor = System.Drawing.Color.White;
-							_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16, cursorPos.Y - 32/* - _mouseoverName.Texture.Height*/);
+							_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16, cursorPos.Y - npc.TopPixel - _mouseoverName.Texture.Height);
 							break;
 						case TileInfo.ReturnType.IsOtherPlayer:
 							_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
@@ -928,7 +928,7 @@ namespace EndlessClient
 						_mouseoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
 						_mouseoverName.ResizeBasedOnText();
 						_mouseoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
-						_mouseoverName.DrawLocation = new Vector2(cursorPos.X, cursorPos.Y - 16 - _mouseoverName.Texture.Height);
+						_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16, cursorPos.Y - 16 - _mouseoverName.Texture.Height);
 
 						if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
 						{
