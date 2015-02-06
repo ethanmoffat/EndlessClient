@@ -37,11 +37,10 @@ namespace EndlessClient.Handlers
 			if (pkt.GetByte() != 255 || pkt.GetByte() != 255)
 				return;//something is off
 			//response contains the map items that are now in range
-			int numberOfMapItems;
-			List<MapItem> newMapItems = new List<MapItem>(numberOfMapItems = (pkt.PeekEndString().Length / 9));
+			int numberOfMapItems = pkt.PeekEndString().Length/9;
 			for (int i = 0; i < numberOfMapItems; ++i)
 			{
-				newMapItems.Add(new MapItem
+				World.Instance.ActiveMapRenderer.AddMapItem(new MapItem
 				{
 					uid = pkt.GetShort(),
 					id = pkt.GetShort(),
@@ -50,8 +49,6 @@ namespace EndlessClient.Handlers
 					amount = pkt.GetThree()
 				});
 			}
-
-			World.Instance.ActiveMapRenderer.MapItems.AddRange(newMapItems);
 		}
 
 		/// <summary>

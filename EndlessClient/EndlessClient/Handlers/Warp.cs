@@ -87,10 +87,10 @@ namespace EndlessClient.Handlers
 			}
 			if (pkt.GetByte() != 255) return;
 
-			World.Instance.ActiveMapRenderer.MapItems.Clear();
+			World.Instance.ActiveMapRenderer.ClearMapItems();
 			while (pkt.ReadPos < pkt.Length)
 			{
-				World.Instance.ActiveMapRenderer.MapItems.Add(new MapItem
+				World.Instance.ActiveMapRenderer.AddMapItem(new MapItem
 				{
 					uid = pkt.GetShort(),
 					id = pkt.GetShort(),

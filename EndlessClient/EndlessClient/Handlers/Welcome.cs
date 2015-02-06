@@ -222,7 +222,7 @@ namespace EndlessClient.Handlers
 						}
 						pkt.GetByte();
 
-						World.Instance.ActiveMapRenderer.MapItems.Clear();
+						World.Instance.ActiveMapRenderer.ClearMapItems();
 						//get data for items on map
 						while(pkt.ReadPos < pkt.Length)
 						{
@@ -239,7 +239,7 @@ namespace EndlessClient.Handlers
 								playerID = -1
 							};
 
-							World.Instance.ActiveMapRenderer.MapItems.Add(newItem);
+							World.Instance.ActiveMapRenderer.AddMapItem(newItem);
 						}
 					}
 					break;

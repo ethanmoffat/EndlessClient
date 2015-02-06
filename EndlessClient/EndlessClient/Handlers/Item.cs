@@ -76,7 +76,7 @@ namespace EndlessClient.Handlers
 			};
 			byte characterWeight = pkt.GetChar(), characterMaxWeight = pkt.GetChar(); //character adjusted weights
 
-			World.Instance.ActiveMapRenderer.MapItems.Add(item);
+			World.Instance.ActiveMapRenderer.AddMapItem(item);
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(_id, characterAmount, characterWeight, characterMaxWeight);
 		}
 
@@ -85,7 +85,7 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static void ItemAddResponse(Packet pkt)
 		{
-			World.Instance.ActiveMapRenderer.MapItems.Add(new MapItem
+			World.Instance.ActiveMapRenderer.AddMapItem(new MapItem
 			{
 				id = pkt.GetShort(),
 				uid = pkt.GetShort(),
@@ -101,11 +101,7 @@ namespace EndlessClient.Handlers
 		public static void ItemRemoveResponse(Packet pkt)
 		{
 			short itemUid = pkt.GetShort();
-			MapItem toRemove;
-			if ((toRemove = World.Instance.ActiveMapRenderer.MapItems.Find(mi => mi.uid == itemUid)).uid == itemUid)
-			{
-				World.Instance.ActiveMapRenderer.MapItems.Remove(toRemove);
-			}
+			World.Instance.ActiveMapRenderer.RemoveMapItem(itemUid);
 		}
 
 		public static void ItemJunkResponse(Packet pkt)
@@ -132,22 +128,7 @@ namespace EndlessClient.Handlers
 
 			if (uid != 0)
 			{
-				MapItem toRemove;
-				if ((toRemove = World.Instance.ActiveMapRenderer.MapItems.Find(mi => mi.uid == uid)).uid == uid)
-				{
-					World.Instance.ActiveMapRenderer.MapItems.Remove(toRemove);
-					toRemove = new MapItem
-					{
-						amount = toRemove.amount - amountTaken,
-						uid = uid,
-						id = id,
-						x = toRemove.x,
-						y = toRemove.y,
-						npcDrop = toRemove.npcDrop,
-						time = toRemove.time
-					};
-					if (toRemove.amount > 0) World.Instance.ActiveMapRenderer.MapItems.Add(toRemove);
-				}
+				World.Instance.ActiveMapRenderer.UpdateMapItemAmount(uid, amountTaken);
 			}
 
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);//true: adding amounts if item ID exists

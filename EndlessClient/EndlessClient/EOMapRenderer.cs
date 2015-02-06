@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using EndlessClient.Handlers;
 using EOLib;
@@ -266,7 +267,7 @@ namespace EndlessClient
 		}
 
 		//collections
-		public List<MapItem> MapItems { get; private set; }
+		private readonly Dictionary<Point, List<MapItem>> MapItems = new Dictionary<Point, List<MapItem>>();
 		private readonly List<Character> otherPlayers = new List<Character>();
 		private readonly List<EOCharacterRenderer> otherRenderers = new List<EOCharacterRenderer>();
 		private readonly List<NPC> npcList = new List<NPC>();
@@ -326,9 +327,7 @@ namespace EndlessClient
 				throw new NullReferenceException("The game must not be null");
 			if(!(g is EOGame))
 				throw new ArgumentException("The game must be an EOGame instance");
-
-			MapItems = new List<MapItem>();
-
+			
 			sb = new SpriteBatch(Game.GraphicsDevice);
 
 			mouseCursor = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
@@ -356,7 +355,7 @@ namespace EndlessClient
 			SetActiveMap(mapObj);
 		}
 
-		/* PUBLIC INTERFACE -- CHAT + MAP RELATED */
+		#region /* PUBLIC INTERFACE -- CHAT + MAP RELATED */
 		public void RenderChatMessage(TalkType messageType, int playerID, string message, ChatType chatType = ChatType.None)
 		{
 			//convert the messageType into a valid ChatTab to pass everything on to
@@ -491,7 +490,75 @@ namespace EndlessClient
 				m_showMiniMap = !m_showMiniMap;
 		}
 
-		/* PUBLIC INTERFACE -- OTHER PLAYERS */
+		public void AddMapItem(MapItem newItem)
+		{
+			Point key = new Point(newItem.x, newItem.y);
+			if(!MapItems.ContainsKey(key))
+				MapItems.Add(key, new List<MapItem>());
+			MapItems[key].Add(newItem);
+		}
+
+		public void RemoveMapItem(short uid)
+		{
+			List<Point> pts = MapItems.Keys.Where(_key => MapItems[_key].Find(_mi => _mi.uid == uid).uid == uid).ToList();
+			if(pts.Count > 1)
+				throw new AmbiguousMatchException("Multiple MapItems shared that uid. Something is wrong.");
+			//should only be one result
+			
+			List<MapItem> res = MapItems[pts[0]];
+			for (int i = res.Count - 1; i >= 0; --i)
+			{
+				if (res[i].uid == uid)
+				{
+					RemoveMapItem(res[i]);
+					break;
+				}
+			}
+		}
+
+		private void RemoveMapItem(MapItem oldItem)
+		{
+			Point key = new Point(oldItem.x, oldItem.y);
+			if (!MapItems.ContainsKey(key))
+				return;
+			MapItems[key].Remove(oldItem);
+			if (MapItems[key].Count == 0)
+				MapItems.Remove(key);
+		}
+
+		public void UpdateMapItemAmount(short uid, int amountTaken)
+		{
+			List<Point> pts = MapItems.Keys.Where(_key => MapItems[_key].Find(_mi => _mi.uid == uid).uid == uid).ToList();
+			if(pts.Count > 1)
+				throw new AmbiguousMatchException("Multiple MapItems shared that uid. Something is wrong.");
+
+			List<MapItem> res = MapItems[pts[0]];
+			MapItem toRemove = res.Find(_mi => _mi.uid == uid);
+			res.Remove(toRemove);
+			toRemove = new MapItem()
+			{
+				amount = toRemove.amount - amountTaken,
+				id = toRemove.id,
+				npcDrop = toRemove.npcDrop,
+				playerID = toRemove.playerID,
+				time = toRemove.time,
+				uid = toRemove.uid,
+				x = toRemove.x,
+				y = toRemove.y
+			};
+			//still some left. add it back.
+			if(toRemove.amount > 0)
+				res.Add(toRemove);
+		}
+
+		public void ClearMapItems()
+		{
+			MapItems.Clear();
+		}
+
+		#endregion
+
+		#region /* PUBLIC INTERFACE -- OTHER PLAYERS */
 		public void AddOtherPlayer(Character c, WarpAnimation anim = WarpAnimation.None)
 		{
 			Character other;
@@ -610,8 +677,9 @@ namespace EndlessClient
 		{
 			return otherPlayers.Find(_c => _c.ID == playerId);
 		}
+		#endregion
 
-		/* PUBLIC INTERFACE -- OTHER NPCS */
+		#region/* PUBLIC INTERFACE -- OTHER NPCS */
 		public void AddOtherNPC(NPC newGuy)
 		{
 			lock (npcListLock)
@@ -706,7 +774,7 @@ namespace EndlessClient
 				rend.Die();
 		}
 
-		internal void NPCTakeDamage(short npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth)
+		public void NPCTakeDamage(short npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth)
 		{
 			NPC toDamage;
 			lock (npcListLock)
@@ -727,8 +795,9 @@ namespace EndlessClient
 			if(rend.Character.RenderData.facing != fromDirection)
 				rend.Character.RenderData.SetDirection(fromDirection);
 		}
+		#endregion
 
-		/* PUBLIC INTERFACE -- DOORS */
+		#region /* PUBLIC INTERFACE -- DOORS */
 		public void OpenDoor(byte x, short y)
 		{
 			if (_door != null && _door.doorOpened)
@@ -757,6 +826,7 @@ namespace EndlessClient
 			_doorY = 0;
 			_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
 		}
+#endregion
 
 		/* GAME COMPONENT DERIVED METHODS */
 		public override void Initialize()
@@ -792,6 +862,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
+			//***update for all objects on map
 			World.Instance.ActiveCharacterRenderer.Update(gameTime);
 			IEnumerable<EOCharacterRenderer> toAdd = otherRenderers.Where(rend => !Game.Components.Contains(rend));
 			foreach (EOCharacterRenderer rend in toAdd)
@@ -800,9 +871,9 @@ namespace EndlessClient
 			lock(npcListLock)
 				npcList.Where(_npc => !Game.Components.Contains(_npc)).ToList().ForEach(_n => _n.Update(gameTime));
 
+			//***do the map animations
 			//lazy init
 			if (lastAnimUpdate == null) lastAnimUpdate = gameTime.TotalGameTime;
-
 			if ((gameTime.TotalGameTime - lastAnimUpdate.Value).TotalMilliseconds > 500)
 			{
 				_wallSrc = new Vector2(32 + _wallSrc.X, 0);
@@ -813,13 +884,26 @@ namespace EndlessClient
 				if (_tileSrc.X > 192)
 					_tileSrc = Vector2.Zero;
 
-
 				lastAnimUpdate = gameTime.TotalGameTime;
 			}
 
+			//***do the cursor stuff
 			MouseState ms = Mouse.GetState();
+			if (MouseOver) //checks bounds for map rendering area
+			{
+				_updateCursorInfo(ms);
+			}
+			
+			//draw stuff to the render target
+			_drawMapObjectsAndActors();
+
+			_prevState = ms;
+			base.Update(gameTime);
+		}
+
+		private void _updateCursorInfo(MouseState ms)
+		{
 			//need to solve this system of equations to get x, y on the grid
-			//edit: why didn't i take a linear algebra class....
 			//(x * 32) - (y * 32) + 288 - c.OffsetX, => pixX = 32x - 32y + 288 - c.OffsetX
 			//(y * 16) + (x * 16) + 144 - c.OffsetY  => 2pixY = 32y + 32x + 288 - 2c.OffsetY
 			//										 => 2pixY + pixX = 64x + 576 - c.OffsetX - 2c.OffsetY
@@ -828,130 +912,129 @@ namespace EndlessClient
 			//pixY = (gridX * 16) + (gridY * 16) + 144 - c.OffsetY =>
 			//(pixY - (gridX * 16) - 144 + c.OffsetY) / 16 = gridY
 
-			if (MouseOver) //checks bounds for map rendering area
+			Character c = World.Instance.MainPlayer.ActiveCharacter;
+			//center the cursor on the mouse pointer
+			int msX = ms.X - _cursorSourceRect.Width / 2;
+			int msY = ms.Y - _cursorSourceRect.Height / 2;
+			/*align cursor to grid based on mouse position*/
+			gridX = (int)Math.Round((msX + 2 * msY - 576 + c.OffsetX + 2 * c.OffsetY) / 64.0);
+			gridY = (int)Math.Round((msY - gridX * 16 - 144 + c.OffsetY) / 16.0);
+			cursorPos = _getDrawCoordinates(gridX, gridY, c);
+			if (gridX >= 0 && gridX <= MapRef.Width && gridY >= 0 && gridY <= MapRef.Height)
 			{
-				Character c = World.Instance.MainPlayer.ActiveCharacter;
-				//center the cursor on the mouse pointer
-				int msX = ms.X - _cursorSourceRect.Width / 2;
-				int msY = ms.Y - _cursorSourceRect.Height / 2;
-				/*align cursor to grid based on mouse position*/
-				gridX = (int)Math.Round((msX + 2 * msY - 576 + c.OffsetX + 2 * c.OffsetY) / 64.0);
-				gridY = (int)Math.Round((msY - gridX * 16 - 144 + c.OffsetY) / 16.0);
-				cursorPos = _getDrawCoordinates(gridX, gridY, c);
-				if (gridX >= 0 && gridX <= MapRef.Width && gridY >= 0 && gridY <= MapRef.Height)
+				TileInfo ti = CheckCoordinates((byte) gridX, (byte) gridY);
+				switch (ti.ReturnValue)
 				{
-					TileInfo ti = CheckCoordinates((byte)gridX, (byte)gridY);
-					switch (ti.ReturnValue)
-					{
-						case TileInfo.ReturnType.IsOtherNPC:
-							_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
-							NPC npc;
-							lock (npcListLock)
-								if ((npc = npcList.Find(_npc => _npc.X == gridX && _npc.Y == gridY)) == null)
-									break;
-							_mouseoverName.Visible = true;
-							_mouseoverName.Text = npc.Data.Name;
-							_mouseoverName.ResizeBasedOnText();
-							_mouseoverName.ForeColor = System.Drawing.Color.White;
-							_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16, cursorPos.Y - npc.TopPixel - _mouseoverName.Texture.Height);
-							break;
-						case TileInfo.ReturnType.IsOtherPlayer:
-							_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
-							EOCharacterRenderer _rend;
-							_mouseoverName.Visible = true;
-							_mouseoverName.Text = (_rend = otherRenderers.Find(_p => _p.Character.X == gridX && _p.Character.Y == gridY) ?? World.Instance.ActiveCharacterRenderer).Character.Name;
-							_mouseoverName.ResizeBasedOnText();
-							_mouseoverName.ForeColor = System.Drawing.Color.White;
-							_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16 - _rend.DrawArea.Width / 2f,
-								cursorPos.Y - _rend.DrawArea.Height - _mouseoverName.Texture.Height);
-							break;
-						default:
-							if (gridX == c.X && gridY == c.Y) goto case TileInfo.ReturnType.IsOtherPlayer; //same logic if it's the active character
-
-							_hideCursor = false;
-							if (ti.ReturnValue == TileInfo.ReturnType.IsTileSpec)
-							{
-								switch (ti.Spec)
-								{
-									case TileSpec.Wall:
-									case TileSpec.JammedDoor:
-									case TileSpec.MapEdge:
-									case TileSpec.FakeWall:
-										//hide cursor
-										_hideCursor = true;
-										break;
-									case TileSpec.ChairDown:
-									case TileSpec.ChairLeft:
-									case TileSpec.ChairRight:
-									case TileSpec.ChairUp:
-									case TileSpec.ChairDownRight:
-									case TileSpec.ChairUpLeft:
-									case TileSpec.ChairAll:
-									case TileSpec.Chest:
-									case TileSpec.BankVault:
-									case TileSpec.Board1:
-									case TileSpec.Board2:
-									case TileSpec.Board3:
-									case TileSpec.Board4:
-									case TileSpec.Board5:
-									case TileSpec.Board6:
-									case TileSpec.Board7:
-									case TileSpec.Board8:
-									case TileSpec.Jukebox:
-										//highlight cursor
-										_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
-										break;
-									case TileSpec.Jump:
-									case TileSpec.Water:
-									case TileSpec.Arena:
-									case TileSpec.AmbientSource:
-									case TileSpec.Spikes:
-									case TileSpec.SpikesTrap:
-									case TileSpec.SpikesTimed:
-									case TileSpec.None:
-										//normal cursor
-										_cursorSourceRect.Location = new Point(0, 0);
-										break;
-								}
-							}
-							else
-								_cursorSourceRect.Location = new Point(0, 0);
-							_mouseoverName.Text = "";
-							break;
-					}
-
-					MapItem mi; //value type...dumb comparisons needed since can't check for non-null
-					if ((mi = MapItems.Find(_mi => _mi.x == gridX && _mi.y == gridY)).x == gridX && mi.y == gridY && mi.x > 0 && mi.y > 0)
-					{
-						_cursorSourceRect.Location = new Point(2 * (mouseCursor.Width / 5), 0);
+					case TileInfo.ReturnType.IsOtherNPC:
+						_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
+						NPC npc;
+						lock (npcListLock)
+							if ((npc = npcList.Find(_npc => _npc.X == gridX && _npc.Y == gridY)) == null)
+								break;
 						_mouseoverName.Visible = true;
-						_mouseoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
+						_mouseoverName.Text = npc.Data.Name;
 						_mouseoverName.ResizeBasedOnText();
-						_mouseoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
-						_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16, cursorPos.Y - 16 - _mouseoverName.Texture.Height);
+						_mouseoverName.ForeColor = System.Drawing.Color.White;
+						_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16,
+							cursorPos.Y - npc.TopPixel - _mouseoverName.Texture.Height);
+						break;
+					case TileInfo.ReturnType.IsOtherPlayer:
+						_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
+						EOCharacterRenderer _rend;
+						_mouseoverName.Visible = true;
+						_mouseoverName.Text =
+							(_rend =
+								otherRenderers.Find(_p => _p.Character.X == gridX && _p.Character.Y == gridY) ??
+								World.Instance.ActiveCharacterRenderer).Character.Name;
+						_mouseoverName.ResizeBasedOnText();
+						_mouseoverName.ForeColor = System.Drawing.Color.White;
+						_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16 - _rend.DrawArea.Width/2f,
+							cursorPos.Y - _rend.DrawArea.Height - _mouseoverName.Texture.Height);
+						break;
+					default:
+						if (gridX == c.X && gridY == c.Y)
+							goto case TileInfo.ReturnType.IsOtherPlayer; //same logic if it's the active character
 
-						if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
+						_hideCursor = false;
+						if (ti.ReturnValue == TileInfo.ReturnType.IsTileSpec)
 						{
-							if (World.Instance.MainPlayer.ActiveCharacter.ID != mi.playerID &&
-								(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= m_npcDropProtect) || 
-								(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= m_playerDropProtect))
+							switch (ti.Spec)
 							{
-								Character charRef = otherPlayers.Find(_c => _c.ID == mi.id);
-								EOGame.Instance.Hud.SetStatusLabel("[ Information ] This item is protected" + (charRef != null ? string.Format(" by {0}.", charRef.Name) : "."));
+								case TileSpec.Wall:
+								case TileSpec.JammedDoor:
+								case TileSpec.MapEdge:
+								case TileSpec.FakeWall:
+									//hide cursor
+									_hideCursor = true;
+									break;
+								case TileSpec.ChairDown:
+								case TileSpec.ChairLeft:
+								case TileSpec.ChairRight:
+								case TileSpec.ChairUp:
+								case TileSpec.ChairDownRight:
+								case TileSpec.ChairUpLeft:
+								case TileSpec.ChairAll:
+								case TileSpec.Chest:
+								case TileSpec.BankVault:
+								case TileSpec.Board1:
+								case TileSpec.Board2:
+								case TileSpec.Board3:
+								case TileSpec.Board4:
+								case TileSpec.Board5:
+								case TileSpec.Board6:
+								case TileSpec.Board7:
+								case TileSpec.Board8:
+								case TileSpec.Jukebox:
+									//highlight cursor
+									_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
+									break;
+								case TileSpec.Jump:
+								case TileSpec.Water:
+								case TileSpec.Arena:
+								case TileSpec.AmbientSource:
+								case TileSpec.Spikes:
+								case TileSpec.SpikesTrap:
+								case TileSpec.SpikesTimed:
+								case TileSpec.None:
+									//normal cursor
+									_cursorSourceRect.Location = new Point(0, 0);
+									break;
 							}
-							else if (!Item.GetItem(mi.uid)) //server validates anyway
-								EOGame.Instance.LostConnectionDialog();
 						}
-					}
-
-					if (_mouseoverName.Text.Length > 0 && !Game.Components.Contains(_mouseoverName))
-						Game.Components.Add(_mouseoverName);
+						else
+							_cursorSourceRect.Location = new Point(0, 0);
+						_mouseoverName.Text = "";
+						break;
 				}
-			}
-			_drawMapObjectsAndActors(); //if any player has been updated redraw the render target
 
-			_prevState = ms;
-			base.Update(gameTime);
+				Point p;
+				if (MapItems.ContainsKey(p = new Point(gridX, gridY)) && MapItems[p].Count > 0)
+				{
+					MapItem mi = MapItems[p].Last(); //topmost item has label
+					_cursorSourceRect.Location = new Point(2 * (mouseCursor.Width / 5), 0);
+					_mouseoverName.Visible = true;
+					_mouseoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
+					_mouseoverName.ResizeBasedOnText();
+					_mouseoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
+					_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16, cursorPos.Y - 16 - _mouseoverName.Texture.Height);
+
+					if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
+					{
+						if (World.Instance.MainPlayer.ActiveCharacter.ID != mi.playerID &&
+							(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= m_npcDropProtect) ||
+							(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= m_playerDropProtect))
+						{
+							Character charRef = otherPlayers.Find(_c => _c.ID == mi.id);
+							EOGame.Instance.Hud.SetStatusLabel("[ Information ] This item is protected" + (charRef != null ? string.Format(" by {0}.", charRef.Name) : "."));
+						}
+						else if (!Item.GetItem(mi.uid)) //server validates anyway
+							EOGame.Instance.LostConnectionDialog();
+					}
+				}
+
+				if (_mouseoverName.Text.Length > 0 && !Game.Components.Contains(_mouseoverName))
+					Game.Components.Add(_mouseoverName);
+			}
 		}
 		
 		public override void Draw(GameTime gameTime)
@@ -1056,29 +1139,34 @@ namespace EndlessClient
 			Func<GFXRow, bool> yGFXQuery = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength && row.y <= MapRef.Height;
 
 			//items next! (changed to deep copy so I don't get "collection was modified, enumeration may not continued" errors)
-			List<MapItem> items = new List<MapItem>(MapItems.Where(item => xGFXQuery(new GFX { x = item.x }) && yGFXQuery(new GFXRow { y = item.y })));
+			List<Point> keys = new List<Point>(MapItems.Keys.Where(_key => xGFXQuery(new GFX {x = (byte) _key.X}) && yGFXQuery(new GFXRow {y = (byte) _key.Y})));
 
 			sb.Begin();
-			foreach (MapItem item in items)
+			foreach (Point pt in keys)
 			{
-				ItemRecord itemData = (ItemRecord)World.Instance.EIF.Data.Find(i => i is ItemRecord && (i as ItemRecord).ID == item.id);
-				Vector2 itemPos = _getDrawCoordinates(item.x + 1, item.y, c);
-				if (itemData.Type == ItemType.Money)
+				//deep copies!
+				List<MapItem> local = new List<MapItem>(MapItems[pt]);
+				foreach(MapItem item in local)
 				{
-					int gfx = item.amount >= 100000 ? 4 : (
-						item.amount >= 10000 ? 3 : (
-						item.amount >= 100 ? 2 : (
-						item.amount >= 2 ? 1 : 0)));
+					ItemRecord itemData = (ItemRecord)World.Instance.EIF.Data.Find(i => i is ItemRecord && (i as ItemRecord).ID == item.id);
+					Vector2 itemPos = _getDrawCoordinates(item.x + 1, item.y, c);
+					if (itemData.Type == ItemType.Money)
+					{
+						int gfx = item.amount >= 100000 ? 4 : (
+							item.amount >= 10000 ? 3 : (
+							item.amount >= 100 ? 2 : (
+							item.amount >= 2 ? 1 : 0)));
 
-					Texture2D moneyMoneyMan = GFXLoader.TextureFromResource(GFXTypes.Items, 269 + 2 * gfx, true);
-					sb.Draw(moneyMoneyMan, 
-						new Vector2(itemPos.X - (int)Math.Round(moneyMoneyMan.Width / 2.0), itemPos.Y - (int)Math.Round(moneyMoneyMan.Height / 2.0)), 
-						Color.White);
-				}
-				else
-				{
-					Texture2D itemTexture = GFXLoader.TextureFromResource(GFXTypes.Items, 2*itemData.Graphic - 1, true);
-					sb.Draw(itemTexture, new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0), itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)), Color.White);
+						Texture2D moneyMoneyMan = GFXLoader.TextureFromResource(GFXTypes.Items, 269 + 2 * gfx, true);
+						sb.Draw(moneyMoneyMan, 
+							new Vector2(itemPos.X - (int)Math.Round(moneyMoneyMan.Width / 2.0), itemPos.Y - (int)Math.Round(moneyMoneyMan.Height / 2.0)), 
+							Color.White);
+					}
+					else
+					{
+						Texture2D itemTexture = GFXLoader.TextureFromResource(GFXTypes.Items, 2*itemData.Graphic - 1, true);
+						sb.Draw(itemTexture, new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0), itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)), Color.White);
+					}
 				}
 			}
 			sb.End();

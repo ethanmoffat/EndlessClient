@@ -87,7 +87,7 @@ namespace EndlessClient.Handlers
 			World.Instance.ActiveMapRenderer.RemoveOtherNPC((byte)deadNPC, damage);
 			if (droppedItemID > 0)
 			{
-				World.Instance.ActiveMapRenderer.MapItems.Add(new MapItem
+				World.Instance.ActiveMapRenderer.AddMapItem(new MapItem
 				{
 					amount = droppedAmount,
 					id = droppedItemID,

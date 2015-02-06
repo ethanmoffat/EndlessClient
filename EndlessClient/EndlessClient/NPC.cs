@@ -90,8 +90,8 @@ namespace EndlessClient
 					tmpData = new Color[tmp.Width*tmp.Height];
 					tmp.GetData(tmpData);
 					int i = 0;
-					while (tmpData[i].A == 0) i++;
-					TopPixel = i/tmp.Height;
+					while (i < tmpData.Length && tmpData[i].A == 0) i++;
+					TopPixel = i == tmpData.Length - 1 ? 0 : i/tmp.Height;
 
 				} //this block throws errors sometimes..no idea why. Keep looping until it works.
 				catch (InvalidOperationException)
