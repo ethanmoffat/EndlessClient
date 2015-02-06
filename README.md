@@ -32,7 +32,7 @@ What's Left to do?
 There is a HUGE list of things left to do. The client is in its infant stages and is a constantly evolving work in progress. What this means is that as features are implemented, I make an attempt to implement them as completely and accurately as possible before moving on to the next thing. The pre-game menus and UI are completely finished, besides a few small bugs that I'm sure to find. The framework for adding new components is there as well.
 
 Here's a working but incomplete list of things I want to get to in this client (strikethrough means completed):
- - Finish attacking - requires damage counter, health bars, and fixing animations to show up properly
+ - Finish attacking - ~~requires damage counter~~, health bars, and fixing animations to show up properly
  - Map signs
  - Map boards
  - Map chests

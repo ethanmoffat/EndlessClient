@@ -1055,8 +1055,8 @@ namespace EndlessClient
 			// Queries (func) for the gfxrow items within range of the character's Y coordinate
 			Func<GFXRow, bool> yGFXQuery = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength && row.y <= MapRef.Height;
 
-			//items next!
-			IEnumerable<MapItem> items = MapItems.Where(item => xGFXQuery(new GFX { x = item.x }) && yGFXQuery(new GFXRow { y = item.y }));
+			//items next! (changed to deep copy so I don't get "collection was modified, enumeration may not continued" errors)
+			List<MapItem> items = new List<MapItem>(MapItems.Where(item => xGFXQuery(new GFX { x = item.x }) && yGFXQuery(new GFXRow { y = item.y })));
 
 			sb.Begin();
 			foreach (MapItem item in items)
