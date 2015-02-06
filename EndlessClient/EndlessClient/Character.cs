@@ -201,9 +201,9 @@ namespace EndlessClient
 		public byte DestY { get; private set; }
 		public int ViewAdjustX { get; set; }
 		public int ViewAdjustY { get; set; }
-		public bool Walking { get; private set; }
-		public bool Attacking { get; private set; }
 		public bool CanAttack { get { return Weight <= MaxWeight && Stats.sp > 0; } }
+
+		public CharacterActionState State { get; private set; }
 
 		//paperdoll info
 		public string Name { get; set; }
@@ -411,7 +411,7 @@ namespace EndlessClient
 			Stats.SetMaxTP(newGuy.Stats.maxtp);
 			RenderData = newGuy.RenderData;
 			RenderData.SetWalkFrame(0);
-			Walking = false;
+			State = RenderData.sitting == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
 			CurrentMap = newGuy.CurrentMap;
 			MapIsPk = newGuy.MapIsPk;
 			X = newGuy.X;
@@ -425,7 +425,7 @@ namespace EndlessClient
 		/// </summary>
 		public void Walk(EODirection direction, byte destX, byte destY, bool admin)
 		{
-			if (Walking || Attacking)
+			if (State != CharacterActionState.Standing)
 				return;
 
 			if (this == World.Instance.MainPlayer.ActiveCharacter)
@@ -438,14 +438,14 @@ namespace EndlessClient
 
 			DestX = destX;
 			DestY = destY;
-			Walking = true;
+			State = CharacterActionState.Walking;
 		}
 
 		public void DoneWalking()
 		{
 			ViewAdjustX = 0;
 			ViewAdjustY = 0;
-			Walking = false; //this is the only place this should be set
+			State = CharacterActionState.Standing;
 			X = DestX;
 			Y = DestY;
 			RenderData.SetWalkFrame(0);
@@ -453,7 +453,7 @@ namespace EndlessClient
 
 		public void Attack(EODirection direction, byte x = 255, byte y = 255)
 		{
-			if (Walking || Attacking) return;
+			if (State != CharacterActionState.Standing) return;
 
 			if (this == World.Instance.MainPlayer.ActiveCharacter)
 			{
@@ -474,13 +474,13 @@ namespace EndlessClient
 			else if(RenderData.facing != direction)
 				RenderData.SetDirection(direction);
 
-			Attacking = true;
+			State = CharacterActionState.Attacking;
 			Stats.sp--;
 		}
 
 		public void DoneAttacking()
 		{
-			Attacking = false;
+			State = CharacterActionState.Standing;
 			RenderData.SetAttackFrame(0);
 		}
 

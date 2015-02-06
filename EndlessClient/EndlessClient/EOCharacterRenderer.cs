@@ -10,6 +10,24 @@ using EOLib.Data;
 
 namespace EndlessClient
 {
+	public enum CharacterActionState
+	{
+		Standing,
+		Walking,
+		Attacking,
+		Sitting,
+		Emote0,
+		Emote1,
+		Emote2,
+		Emote3,
+		Emote4,
+		Emote5,
+		Emote6,
+		Emote7,
+		Emote8,
+		Emote9
+	}
+
 	/// <summary>
 	/// HOW THIS WORKS IN-GAME
 	/// <para/>
@@ -191,7 +209,7 @@ namespace EndlessClient
 
 		private ItemRecord shieldInfo/*, weaponInfo, bootsInfo, armorInfo*/, hatInfo;
 
-		private KeyboardState _prevState;
+		private KeyboardState _prevKeyState;
 		private Timer _walkTimer, _attackTimer;
 		private int attacksSinceGain;
 		private readonly bool noLocUpdate;
@@ -201,6 +219,11 @@ namespace EndlessClient
 
 		private GameTime startWalkingThroughPlayerTime;
 		private DateTime? m_deadTime;
+
+		private CharacterActionState State
+		{
+			get { return Character.State; }
+		}
 
 		/// <summary>
 		/// Construct a character renderer in-game
@@ -225,7 +248,7 @@ namespace EndlessClient
 				noLocUpdate = true; //make sure not to update the drawArea rectangle in the update method
 			}
 			Data.SetUpdate(true);
-			_prevState = Keyboard.GetState();
+			_prevKeyState = Keyboard.GetState();
 
 			m_chatBubble = new EOChatBubble(this);
 			m_damageCounter = new DamageCounter(this, GetType());
@@ -386,27 +409,27 @@ namespace EndlessClient
 
 			//adjust SP
 			if (Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp &&
-				!Character.Attacking && (int)gameTime.TotalGameTime.TotalMilliseconds % 1000 == 0)
+				State != CharacterActionState.Attacking  && (int)gameTime.TotalGameTime.TotalMilliseconds % 1000 == 0)
 				Character.Stats.SetSP((short)(Character.Stats.sp + 1));
 
 			//input handling for keyboard
 			//only check for a keypress if not currently acting and if this is the active character renderer
 			//also only check every 1/4 of a second
-			KeyboardState currentState = Keyboard.GetState();
+			KeyboardState currentKeyState = Keyboard.GetState();
 			if (_char != null && _char == World.Instance.MainPlayer.ActiveCharacter && gameTime.TotalGameTime.Milliseconds % 100 <= 25)
 			{
 				EODirection direction = (EODirection)255; //first, get the direction we should try to move based on the key presses from the player
 				bool attacking = false;
-				if (currentState.IsKeyDown(Keys.Up) && _prevState.IsKeyDown(Keys.Up))
+				if (currentKeyState.IsKeyDown(Keys.Up) && _prevKeyState.IsKeyDown(Keys.Up))
 					direction = EODirection.Up;
-				else if (currentState.IsKeyDown(Keys.Down) && _prevState.IsKeyDown(Keys.Down))
+				else if (currentKeyState.IsKeyDown(Keys.Down) && _prevKeyState.IsKeyDown(Keys.Down))
 					direction = EODirection.Down;
-				else if (currentState.IsKeyDown(Keys.Left) && _prevState.IsKeyDown(Keys.Left))
+				else if (currentKeyState.IsKeyDown(Keys.Left) && _prevKeyState.IsKeyDown(Keys.Left))
 					direction = EODirection.Left;
-				else if (currentState.IsKeyDown(Keys.Right) && _prevState.IsKeyDown(Keys.Right))
+				else if (currentKeyState.IsKeyDown(Keys.Right) && _prevKeyState.IsKeyDown(Keys.Right))
 					direction = EODirection.Right;
-				else if ((currentState.IsKeyDown(Keys.LeftControl) || currentState.IsKeyDown(Keys.RightControl)) &&
-				         (_prevState.IsKeyDown(Keys.LeftControl) || _prevState.IsKeyDown(Keys.RightControl)))
+				else if ((currentKeyState.IsKeyDown(Keys.LeftControl) || currentKeyState.IsKeyDown(Keys.RightControl)) &&
+				         (_prevKeyState.IsKeyDown(Keys.LeftControl) || _prevKeyState.IsKeyDown(Keys.RightControl)))
 				{
 					attacking = true;
 					direction = _char.RenderData.facing;
@@ -437,8 +460,8 @@ namespace EndlessClient
 							destY = (byte) _char.Y;
 							break;
 						default:
-							if (!_char.Walking)
-								_prevState = currentState; //only set this when not walking already
+							if (State != CharacterActionState.Walking)
+								_prevKeyState = currentKeyState; //only set this when not walking already
 							destX = destY = 255;
 							if(!attacking) return; //this block of code used to be in 'if(!attacking)'
 							break;
@@ -507,7 +530,7 @@ namespace EndlessClient
 							break;
 					}
 				}
-				else if(!_char.Walking && !_char.Attacking && _char.CanAttack)
+				else if(State == CharacterActionState.Standing && _char.CanAttack)
 				{
 					if (Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp &&
 					    attacksSinceGain == Math.Max(5 - Character.Stats.level, 1))
@@ -522,7 +545,7 @@ namespace EndlessClient
 					PlayerAttack();
 				}
 
-				if (!_char.Walking && !_char.Attacking) _prevState = currentState; //only set this when not walking already
+				if (State == CharacterActionState.Standing) _prevKeyState = currentKeyState; //only set this when not walking already
 			}
 		}
 		
@@ -566,7 +589,7 @@ namespace EndlessClient
 					break;
 			}
 
-			if (!_char.Walking && walkValid)
+			if (State != CharacterActionState.Walking && walkValid)
 			{
 				_char.Walk(dir, destX, destY, NoWall);
 				PlayerWalk();
@@ -636,7 +659,7 @@ namespace EndlessClient
 		//changes the frame for walking - used by the walk timer
 		private void _walkTimerCallback(object state)
 		{
-			if (_char == null || !_char.Walking || _char.Attacking) return;
+			if (_char == null || State != CharacterActionState.Walking) return;
 
 			if (Data.walkFrame == 4)
 			{
@@ -667,7 +690,7 @@ namespace EndlessClient
 
 		private void _attackTimerCallback(object state)
 		{
-			if (_char == null || !_char.Attacking || _char.Walking) return;
+			if (_char == null || State != CharacterActionState.Attacking) return;
 
 			if (Data.attackFrame == 2)
 			{
@@ -747,7 +770,7 @@ namespace EndlessClient
 							break;
 					}
 				}
-				Vector2 skinLoc = _char.Walking ? new Vector2(2 + DrawAreaWithOffset.X + dirWalkingOffset, (Data.gender == 0 ? 11 : 12) + DrawAreaWithOffset.Y)
+				Vector2 skinLoc = State == CharacterActionState.Walking ? new Vector2(2 + DrawAreaWithOffset.X + dirWalkingOffset, (Data.gender == 0 ? 11 : 12) + DrawAreaWithOffset.Y)
 					: new Vector2(6 + DrawAreaWithOffset.X, (Data.gender == 0 ? 12 : 13) + DrawAreaWithOffset.Y);
 				SpriteBatch.Draw(characterSkin, skinLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 			}
@@ -757,7 +780,7 @@ namespace EndlessClient
 
 			if (armor != null)
 			{
-				int yAdjust = _char.Walking ? -1: 0;
+				int yAdjust = State == CharacterActionState.Walking ? -1: 0;
 				SpriteBatch.Draw(armor, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y + yAdjust), null, Color.White, 0.0f,
 					Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 			}

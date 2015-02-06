@@ -1118,7 +1118,7 @@ namespace EndlessClient
 			{
 				//any objects, NPCs and players with a Y coordinate <= player Y coordinate (ie above player) render to one target
 				//all others render 'below' player on separate target so blending works for only the objects below the player
-				if (!targetChanged && ((!c.Walking && rowIndex >= c.Y) || (c.Walking && rowIndex >= c.DestY)))
+				if (!targetChanged && ((c.State != CharacterActionState.Walking && rowIndex >= c.Y) || (c.State == CharacterActionState.Walking && rowIndex >= c.DestY)))
 				{
 					sb.End();
 					GraphicsDevice.SetRenderTarget(_rtMapObjBelowPlayer);
@@ -1184,7 +1184,7 @@ namespace EndlessClient
 
 				// ReSharper disable AccessToModifiedClosure
 				IEnumerable<EOCharacterRenderer> thisRowChars = otherChars.Where(
-					_char => (_char.Character.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex) &&
+					_char => (_char.Character.State == CharacterActionState.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex) &&
 							 _char.Character.X >= c.X - Constants.ViewLength &&
 							 _char.Character.X <= c.X + Constants.ViewLength);
 				foreach (EOCharacterRenderer _char in thisRowChars) _char.Draw(sb, true);
