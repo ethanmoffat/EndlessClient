@@ -603,8 +603,10 @@ namespace EndlessClient
 
 		public void RefreshStats()
 		{
-			inventory.UpdateWeightLabel();
-			stats.Refresh();
+			if(inventory != null)
+				inventory.UpdateWeightLabel();
+			if(stats != null)
+				stats.Refresh();
 		}
 		#endregion
 		

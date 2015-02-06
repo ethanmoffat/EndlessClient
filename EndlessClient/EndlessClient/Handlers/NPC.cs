@@ -72,15 +72,19 @@ namespace EndlessClient.Handlers
 			byte direction = pkt.GetChar();
 			short deadNPC = pkt.GetShort();
 
-			World.Instance.ActiveMapRenderer.RemoveOtherNPC((byte)deadNPC, pkt.ReadPos < pkt.Length);
-			if (pkt.ReadPos == pkt.Length) return; //just removing from range, packet ends here
+			if (pkt.ReadPos == pkt.Length)
+			{
+				World.Instance.ActiveMapRenderer.RemoveOtherNPC((byte)deadNPC);
+				return; //just removing from range, packet ends here
+			}
 
 			short droppedItemUID = pkt.GetShort();
 			short droppedItemID = pkt.GetShort();
 			byte x = pkt.GetChar();
 			byte y = pkt.GetChar();
 			int droppedAmount = pkt.GetInt();
-			int damage = pkt.GetThree(); //damage done to NPC. show this in the damage counter
+			int damage = pkt.GetThree(); //damage done to NPC.
+			World.Instance.ActiveMapRenderer.RemoveOtherNPC((byte)deadNPC, damage);
 			if (droppedItemID > 0)
 			{
 				World.Instance.ActiveMapRenderer.MapItems.Add(new MapItem
@@ -99,7 +103,9 @@ namespace EndlessClient.Handlers
 			if (pkt.ReadPos == pkt.Length) return; //just showing a dropped item, packet ends here
 
 			int newExp = pkt.GetInt(); //npc was killed - this handler was invoked from NPCAccept
-			World.Instance.MainPlayer.ActiveCharacter.Stats.exp = newExp;
+			int expDif = newExp - World.Instance.MainPlayer.ActiveCharacter.Stats.exp;
+			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You earned {0} EXP", expDif));
+			World.Instance.MainPlayer.ActiveCharacter.Stats.exp += expDif;
 			EOGame.Instance.Hud.RefreshStats();
 		}
 
@@ -108,9 +114,15 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static void NPCReply(Packet pkt)
 		{
-			int x = 5; //no-op for debugging
-			x++;
-			//todo: update NPC health and show damage and stuff
+			short fromPlayerID = pkt.GetShort();
+			EODirection fromDirection = (EODirection)pkt.GetChar();
+			short npcIndex = pkt.GetShort();
+			int damageToNPC = pkt.GetThree();
+			int npcPctHealth = pkt.GetShort();
+			if (pkt.GetChar() != 1)
+				return;
+
+			World.Instance.ActiveMapRenderer.NPCTakeDamage(npcIndex, fromPlayerID, fromDirection, damageToNPC, npcPctHealth);
 		}
 
 		/// <summary>
@@ -136,6 +148,7 @@ namespace EndlessClient.Handlers
 			stats.SetMaxHP(maxHP);
 			stats.SetMaxTP(maxTP);
 			stats.SetMaxSP(maxSP);
+			EOGame.Instance.Hud.RefreshStats();
 		}
 	}
 }

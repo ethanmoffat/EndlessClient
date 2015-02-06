@@ -451,13 +451,24 @@ namespace EndlessClient
 			RenderData.SetWalkFrame(0);
 		}
 
-		public void Attack(EODirection direction)
+		public void Attack(EODirection direction, byte x = 255, byte y = 255)
 		{
 			if (Walking || Attacking) return;
 
 			if (this == World.Instance.MainPlayer.ActiveCharacter)
 			{
-				if(!Handlers.Attack.AttackUse(direction))
+				bool shouldSend = true;
+				//KS protection
+				if (!(x == 255 && y == 255))
+				{
+					TileInfo ti = World.Instance.ActiveMapRenderer.CheckCoordinates(x, y);
+					if (ti.ReturnValue == TileInfo.ReturnType.IsOtherNPC && ti.NPC.Opponent != null && ti.NPC.Opponent != this)
+					{
+						shouldSend = false;
+					}
+				}
+
+				if(shouldSend && !Handlers.Attack.AttackUse(direction))
 					EOGame.Instance.LostConnectionDialog();
 			}
 			else if(RenderData.facing != direction)

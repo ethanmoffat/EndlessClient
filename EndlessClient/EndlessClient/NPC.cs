@@ -46,6 +46,7 @@ namespace EndlessClient
 
 		private byte DestX { get; set; } //not needed outside this class (yet)
 		public byte DestY { get; private set; }
+		public Character Opponent { get; set; } //used for KS protection
 
 		//updated when NPC is walking
 		private int adjX, adjY;
@@ -55,6 +56,7 @@ namespace EndlessClient
 		private int _fadeAwayAlpha = 255;
 
 		private readonly EOChatBubble m_chatBubble;
+		private readonly DamageCounter m_damageCounter;
 		private Texture2D baseFrame;
 
 		public NPC(Packet pkt)
@@ -92,6 +94,7 @@ namespace EndlessClient
 				throw new InvalidOperationException("Something weird happened initializing this NPC.");
 
 			m_chatBubble = new EOChatBubble(this);
+			m_damageCounter = new DamageCounter(this, GetType());
 		}
 
 		public override void Initialize()
@@ -169,7 +172,7 @@ namespace EndlessClient
 			if (_startFadeAway && _fadeAwayAlpha <= 0)
 			{
 				if(!started) batch.End();
-				World.Instance.ActiveMapRenderer.RemoveOtherNPC(Index, false);
+				World.Instance.ActiveMapRenderer.RemoveOtherNPC(Index);
 				return;
 			}
 
@@ -276,6 +279,11 @@ namespace EndlessClient
 		public void SetChatBubbleText(string message)
 		{
 			m_chatBubble.SetMessage(message);
+		}
+
+		public void SetDamageCounterValue(int value)
+		{
+			m_damageCounter.SetValue(value); //NPCs don't know heal spells
 		}
 
 		public void FadeAway()

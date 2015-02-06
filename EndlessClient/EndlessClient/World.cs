@@ -189,6 +189,12 @@ namespace EndlessClient
 
 				EOCharacterRenderer ret = m_charRender;
 
+				if(ret.Character == null)
+				{
+					EOGame.Instance.LostConnectionDialog();
+					return null;
+				}
+
 				//if player logs out and logs back in
 				if (ret.Character != MainPlayer.ActiveCharacter)
 				{

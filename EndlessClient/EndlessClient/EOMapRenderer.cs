@@ -40,6 +40,7 @@ namespace EndlessClient
 
 		public TileSpec Spec;
 		public EOLib.Warp Warp;
+		public NPC NPC;
 	}
 
 	public class EOChatBubble : DrawableGameComponent
@@ -455,9 +456,10 @@ namespace EndlessClient
 		{
 			lock (npcListLock)
 			{
-				if (npcList.Any(npc => npc.X == destX && npc.Y == destY))
+				NPC npc;
+				if ((npc = npcList.Find(_npc => _npc.X == destX && _npc.Y == destY)) != null)
 				{
-					return new TileInfo {ReturnValue = TileInfo.ReturnType.IsOtherNPC};
+					return new TileInfo { ReturnValue = TileInfo.ReturnType.IsOtherNPC, NPC = npc };
 				}
 			}
 
@@ -632,16 +634,20 @@ namespace EndlessClient
 			}
 		}
 
-		public void RemoveOtherNPC(byte index, bool fadeOut)
+		public void RemoveOtherNPC(byte index, int damage = 0)
 		{
 			lock (npcListLock)
 			{
 				NPC npc = npcList.Find(_npc => _npc.Index == index);
 				if (npc != null)
 				{
-					if (fadeOut)
+					if (damage > 0) //npc was killed
+					{
 						npc.FadeAway();
-					else
+						npc.Opponent = null;
+						npc.SetDamageCounterValue(damage);
+					}
+					else //npc is out of view
 					{
 						npc.Dispose();
 						npcList.Remove(npc);
@@ -682,7 +688,6 @@ namespace EndlessClient
 
 			if (damageToPlayer > 0)
 			{
-				//todo: show damage to player above player (numeric)
 				if (rend.Character == World.Instance.MainPlayer.ActiveCharacter)
 				{
 					//update health in UI
@@ -691,10 +696,36 @@ namespace EndlessClient
 				}
 			}
 
+			if (rend == null) return; //couldn't find other player :(
+			
+			rend.SetDamageCounterValue(damageToPlayer);
+
 			//todo: show percent health in health bar above player
 
 			if (isTargetPlayerDead)
 				rend.Die();
+		}
+
+		internal void NPCTakeDamage(short npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth)
+		{
+			NPC toDamage;
+			lock (npcListLock)
+				toDamage = npcList.Find(_npc => _npc.Index == npcIndex);
+			if (toDamage == null) return;
+
+			toDamage.SetDamageCounterValue(damageToNPC);
+
+			//todo: show percent health in health bar above npc
+
+			EOCharacterRenderer rend = fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.ActiveCharacterRenderer
+				: otherRenderers.Find(_rend => _rend.Character.ID == fromPlayerID);
+
+			if (rend == null) return;
+
+			toDamage.Opponent = rend.Character; //for fighting protection, no KSing!
+
+			if(rend.Character.RenderData.facing != fromDirection)
+				rend.Character.RenderData.SetDirection(fromDirection);
 		}
 
 		/* PUBLIC INTERFACE -- DOORS */

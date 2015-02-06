@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using EndlessClient.Handlers;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -196,6 +197,7 @@ namespace EndlessClient
 		private readonly bool noLocUpdate;
 
 		private readonly EOChatBubble m_chatBubble;
+		private readonly DamageCounter m_damageCounter;
 
 		private GameTime startWalkingThroughPlayerTime;
 		private DateTime? m_deadTime;
@@ -226,6 +228,7 @@ namespace EndlessClient
 			_prevState = Keyboard.GetState();
 
 			m_chatBubble = new EOChatBubble(this);
+			m_damageCounter = new DamageCounter(this, GetType());
 		}
 
 		/// <summary>
@@ -381,6 +384,11 @@ namespace EndlessClient
 				Character.RenderData.SetDead(false);
 			}
 
+			//adjust SP
+			if (Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp &&
+				!Character.Attacking && (int)gameTime.TotalGameTime.TotalMilliseconds % 1000 == 0)
+				Character.Stats.SetSP((short)(Character.Stats.sp + 1));
+
 			//input handling for keyboard
 			//only check for a keypress if not currently acting and if this is the active character renderer
 			//also only check every 1/4 of a second
@@ -401,15 +409,14 @@ namespace EndlessClient
 				         (_prevState.IsKeyDown(Keys.LeftControl) || _prevState.IsKeyDown(Keys.RightControl)))
 				{
 					attacking = true;
+					direction = _char.RenderData.facing;
 					startWalkingThroughPlayerTime = null;
 				}
 				else
 				{
 					startWalkingThroughPlayerTime = null;
 				}
-
-				if (!attacking)
-				{
+				
 					byte destX, destY;
 					switch (direction)
 					{
@@ -432,18 +439,22 @@ namespace EndlessClient
 						default:
 							if (!_char.Walking)
 								_prevState = currentState; //only set this when not walking already
-							return;
+							destX = destY = 255;
+							if(!attacking) return; //this block of code used to be in 'if(!attacking)'
+							break;
 					}
 
+				if (destX > World.Instance.ActiveMapRenderer.MapRef.Width || destY > World.Instance.ActiveMapRenderer.MapRef.Height)
+					return;
+
+				if (!attacking)
+				{
 					//valid direction at this point
 					if (_char.RenderData.facing != direction)
 					{
 						_char.Face(direction);
 						return;
 					}
-
-					if (destX > World.Instance.ActiveMapRenderer.MapRef.Width || destY > World.Instance.ActiveMapRenderer.MapRef.Height)
-						return;
 
 					TileInfo info = World.Instance.ActiveMapRenderer.CheckCoordinates(destX, destY);
 					switch (info.ReturnValue)
@@ -507,17 +518,12 @@ namespace EndlessClient
 					else
 						attacksSinceGain++;
 
-					_char.Attack(Data.facing);
+					_char.Attack(Data.facing, destX, destY); //destX and destY validity check above
 					PlayerAttack();
 				}
 
 				if (!_char.Walking && !_char.Attacking) _prevState = currentState; //only set this when not walking already
 			}
-
-			//adjust SP
-			if (Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp &&
-				!Character.Attacking && (int)gameTime.TotalGameTime.TotalMilliseconds % 1000 == 0)
-				Character.Stats.SetSP((short)(Character.Stats.sp + 1));
 		}
 		
 		//convenience wrapper
@@ -858,6 +864,11 @@ namespace EndlessClient
 		public void SetChatBubbleText(string msg)
 		{
 			m_chatBubble.SetMessage(msg);
+		}
+
+		public void SetDamageCounterValue(int value, bool isHeal = false)
+		{
+			m_damageCounter.SetValue(value, isHeal);
 		}
 	}
 }
