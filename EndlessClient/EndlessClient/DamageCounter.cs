@@ -117,13 +117,13 @@ namespace EndlessClient
 				//misses should show dead center
 				if (m_isCharacter)
 				{
-					Rectangle tmp = ((EOCharacterRenderer)m_ref).DrawAreaWithOffset;
-					pos = new Vector2(tmp.X + tmp.Width / 2f - 15, tmp.Y - m_additionalOffset - 5);
+					Rectangle tmp = ((EOCharacterRenderer) m_ref).DrawAreaWithOffset;
+					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y - m_additionalOffset - 5);
 				}
 				else
 				{
-					Rectangle tmp = ((NPC)m_ref).DrawArea;
-					pos = new Vector2(tmp.X + tmp.Width / 2f - 15, tmp.Y - m_additionalOffset - 5);
+					Rectangle tmp = ((NPC) m_ref).DrawArea;
+					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - 15);
 				}
 			}
 			else
@@ -136,7 +136,7 @@ namespace EndlessClient
 				else
 				{
 					Rectangle tmp = ((NPC) m_ref).DrawArea;
-					pos = new Vector2(tmp.X + tmp.Width/2f - (nDigits*9)/2f, tmp.Y - m_additionalOffset - 5);
+					pos = new Vector2(tmp.X + tmp.Width/2f - (nDigits*9)/2f, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - 15);
 				}
 			}
 

@@ -24,6 +24,7 @@ namespace EndlessClient
 		public NPCRecord Data { get; private set; }
 
 		public Rectangle DrawArea;
+		public int TopPixel;
 		public bool Walking { get; private set; }
 		public bool Attacking { get; private set; }
 		public NPCFrame Frame { get; private set; }
@@ -82,6 +83,16 @@ namespace EndlessClient
 					Color[] tmpData = new Color[tmp.Width*tmp.Height];
 					tmp.GetData(tmpData);
 					hasStandFrame1 = tmpData.Any(_c => _c.R != 0 || _c.G != 0 || _c.B != 0);
+
+					//get the first non-transparent pixel to determine offsets for name labels and damage counters
+					Frame = NPCFrame.Standing;
+					tmp = npcSheet.GetNPCTexture();
+					tmpData = new Color[tmp.Width*tmp.Height];
+					tmp.GetData(tmpData);
+					int i = 0;
+					while (tmpData[i].A == 0) i++;
+					TopPixel = i/tmp.Height;
+
 				} //this block throws errors sometimes..no idea why. Keep looping until it works.
 				catch (InvalidOperationException)
 				{
