@@ -85,8 +85,10 @@ namespace EndlessClient
 		string host;
 		int port;
 
+#if DEBUG //don't do FPS render on release builds
 		private TimeSpan? lastFPSRender;
 		private int localFPS;
+#endif
 
 		//--------------------------
 		//***** HELPER METHODS *****
