@@ -77,7 +77,7 @@ namespace EOLib
 		public EODirection direction;
 	}
 	
-	public struct MapChest
+	public class MapChest
 	{
 		public byte x;
 		public byte y;
@@ -86,6 +86,7 @@ namespace EOLib
 		public short item;
 		public short time;
 		public int amount;
+		public bool backoff; //used in code only: determines whether a chest packet was recently sent for this particular chest
 	}
 
 	public class MapItemComparer : IEqualityComparer<MapItem>

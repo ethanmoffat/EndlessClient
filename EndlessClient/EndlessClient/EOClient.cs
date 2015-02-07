@@ -106,6 +106,18 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Character.CharacterResponse)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Chest, PacketAction.Agree),
+					new LockedHandlerMethod(Handlers.Chest.ChestAgreeResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Chest, PacketAction.Get),
+					new LockedHandlerMethod(Handlers.Chest.ChestGetResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Chest, PacketAction.Open),
+					new LockedHandlerMethod(Handlers.Chest.ChestOpenResponse)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Connection, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.Connection.PingResponse)
 				},

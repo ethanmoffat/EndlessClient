@@ -416,7 +416,7 @@ namespace EndlessClient
 			//only check for a keypress if not currently acting and if this is the active character renderer
 			//also only check every 1/4 of a second
 			KeyboardState currentKeyState = Keyboard.GetState();
-			if (_char != null && _char == World.Instance.MainPlayer.ActiveCharacter && gameTime.TotalGameTime.Milliseconds % 100 <= 25)
+			if (_char != null && _char == World.Instance.MainPlayer.ActiveCharacter && gameTime.TotalGameTime.Milliseconds % 100 <= 25 && Dialogs.Count == 0)
 			{
 				EODirection direction = (EODirection)255; //first, get the direction we should try to move based on the key presses from the player
 				bool attacking = false;
@@ -506,7 +506,7 @@ namespace EndlessClient
 							{
 								if (!info.Warp.doorOpened && !info.Warp.backOff)
 								{
-									Handlers.Door.DoorOpen(destX, destY); //just do it...no checking yet, really
+									Door.DoorOpen(destX, destY); //just do it...no checking yet, really
 									info.Warp.backOff = true; //set flag to prevent hella door packets from the client
 								}
 								else
@@ -564,8 +564,16 @@ namespace EndlessClient
 				case TileSpec.ChairAll:
 					walkValid = NoWall;
 					break;
-				case TileSpec.Chest: //todo: open chest
+				case TileSpec.Chest:
 					walkValid = NoWall;
+					if (!walkValid)
+					{
+						MapChest chest = World.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.x == destX && _c.y == destY);
+						if(!chest.backoff && chest.x == destX && chest.y == destY && !Chest.ChestOpen(destX, destY))
+							EOGame.Instance.LostConnectionDialog();
+						else if(!chest.backoff && chest.x == destX && chest.y == destY)
+							chest.backoff = true;
+					}
 					break;
 				case TileSpec.BankVault: //todo: open bank vault
 					walkValid = NoWall;

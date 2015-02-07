@@ -535,7 +535,7 @@ namespace EndlessClient
 			List<MapItem> res = MapItems[pts[0]];
 			MapItem toRemove = res.Find(_mi => _mi.uid == uid);
 			res.Remove(toRemove);
-			toRemove = new MapItem()
+			toRemove = new MapItem
 			{
 				amount = toRemove.amount - amountTaken,
 				id = toRemove.id,
@@ -922,6 +922,9 @@ namespace EndlessClient
 			cursorPos = _getDrawCoordinates(gridX, gridY, c);
 			if (gridX >= 0 && gridX <= MapRef.Width && gridY >= 0 && gridY <= MapRef.Height)
 			{
+				bool mouseClicked = ms.LeftButton == ButtonState.Released && _prevState.LeftButton == ButtonState.Pressed;
+				mouseClicked = mouseClicked && XNAControl.Dialogs.Count == 0; //don't handle mouse clicks for map if there is a dialog being shown
+
 				TileInfo ti = CheckCoordinates((byte) gridX, (byte) gridY);
 				switch (ti.ReturnValue)
 				{
@@ -967,6 +970,17 @@ namespace EndlessClient
 									//hide cursor
 									_hideCursor = true;
 									break;
+								case TileSpec.Chest:
+									//highlight cursor
+									_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
+									if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y)) //must be directly adjacent
+									{
+										MapChest chest = World.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.x == gridX && _c.y == gridY);
+										if (!chest.backoff && chest.x == gridX && chest.y == gridY && !Chest.ChestOpen((byte)gridX, (byte)gridY))
+											EOGame.Instance.LostConnectionDialog();
+										chest.backoff = true;
+									}
+									break;
 								case TileSpec.ChairDown:
 								case TileSpec.ChairLeft:
 								case TileSpec.ChairRight:
@@ -974,7 +988,6 @@ namespace EndlessClient
 								case TileSpec.ChairDownRight:
 								case TileSpec.ChairUpLeft:
 								case TileSpec.ChairAll:
-								case TileSpec.Chest:
 								case TileSpec.BankVault:
 								case TileSpec.Board1:
 								case TileSpec.Board2:
@@ -1086,7 +1099,7 @@ namespace EndlessClient
 			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= xMin && gfx.x <= xMax && gfx.x <= MapRef.Width;
 			Func<GFXRow, bool> yGFXQuery = row => row.y >= yMin && row.y <= yMax && row.y <= MapRef.Height;
 
-			sb.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
+			sb.Begin();
 			//render fill tile first
 			if (MapRef.FillTile > 0)
 			{
@@ -1148,7 +1161,7 @@ namespace EndlessClient
 				List<MapItem> local = new List<MapItem>(MapItems[pt]);
 				foreach(MapItem item in local)
 				{
-					ItemRecord itemData = (ItemRecord)World.Instance.EIF.Data.Find(i => i is ItemRecord && (i as ItemRecord).ID == item.id);
+					ItemRecord itemData = World.Instance.EIF.GetItemRecordByID(item.id);
 					Vector2 itemPos = _getDrawCoordinates(item.x + 1, item.y, c);
 					if (itemData.Type == ItemType.Money)
 					{

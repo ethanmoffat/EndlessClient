@@ -1412,4 +1412,231 @@ namespace EndlessClient
 			}
 		}
 	}
+
+	public class EOChestItem : XNAControl
+	{
+		public short ID { get; private set; }
+		public int Amount { get; private set; }
+		public int Index { get; set; }
+
+		private readonly ItemRecord m_rec;
+
+		private readonly XNALabel m_nameLabel;
+		private readonly XNALabel m_amountLabel;
+
+		private readonly Texture2D m_gfxPadThing;
+		private readonly Texture2D m_gfxItem;
+		private readonly Texture2D m_backgroundColor;
+		private bool m_drawBackground;
+
+		public EOChestItem(short id, int amount, int index, EOChestDialog parent)
+		{
+			ID = id;
+			Amount = amount;
+			Index = index;
+			m_rec = World.Instance.EIF.GetItemRecordByID(id);
+
+			DrawLocation = new Vector2(19, 25 + (index * 36));
+			_setSize(232, 36);
+
+			m_nameLabel = new XNALabel(new Rectangle(56, 5 + (index*36), 1, 1), "Microsoft Sans Serif", 8.5f)
+			{
+				AutoSize = true,
+				BackColor = System.Drawing.Color.Transparent,
+				ForeColor = System.Drawing.Color.FromArgb(255, 0xc8,0xc8,0xc8),
+				Text = m_rec.Name
+			};
+			m_nameLabel.ResizeBasedOnText();
+
+			m_amountLabel = new XNALabel(new Rectangle(56, 20 + (index * 36), 1, 1), "Microsoft Sans Serif", 8.5f)
+			{
+				AutoSize = true,
+				BackColor = m_nameLabel.BackColor,
+				ForeColor = m_nameLabel.ForeColor,
+				Text = string.Format("x {0}  {1}", Amount, m_rec.Type == ItemType.Armor ? (m_rec.Gender == 0 ? "Female" : "Male") : "")
+			};
+			m_amountLabel.ResizeBasedOnText();
+
+			m_gfxPadThing = GFXLoader.TextureFromResource(GFXTypes.MapTiles, 0, true);
+			m_gfxItem = GFXLoader.TextureFromResource(GFXTypes.Items, 2*m_rec.Graphic - 1, true);
+			m_backgroundColor = new Texture2D(Game.GraphicsDevice, 1, 1);
+			m_backgroundColor.SetData(new [] {Color.FromNonPremultiplied(0xff, 0xff, 0xff, 64)});
+
+			SetParent(parent);
+			m_amountLabel.SetParent(this);
+			m_nameLabel.SetParent(this);
+		}
+
+		public void ChangeAmount(int newAmount)
+		{
+			Amount = newAmount;
+			m_amountLabel.Text = string.Format("x {0}  {1}", Amount, m_rec.Type == ItemType.Armor ? (m_rec.Gender == 0 ? "Female" : "Male") : "");
+			m_amountLabel.ResizeBasedOnText();
+		}
+
+		public void ChangeIndex(int newIndex)
+		{
+			Index = newIndex;
+		}
+
+		public override void Update(GameTime gameTime)
+		{
+			MouseState ms = Mouse.GetState();
+
+			//right clicked this item
+			if (MouseOver && MouseOverPreviously)
+			{
+				m_drawBackground = true;
+				if (PreviousMouseState.RightButton == ButtonState.Pressed && ms.RightButton == ButtonState.Released)
+				{
+					EOChestDialog localParent = (EOChestDialog) parent;
+					if (!Handlers.Chest.ChestTake(localParent.CurrentChestX, localParent.CurrentChestY, ID))
+					{
+						localParent.Close();
+						EOGame.Instance.LostConnectionDialog();
+						return;
+					}
+				}
+			}
+			else
+			{
+				m_drawBackground = false;
+			}
+
+			base.Update(gameTime);
+		}
+
+		public override void Draw(GameTime gameTime)
+		{
+			SpriteBatch.Begin();
+			if (m_drawBackground)
+			{
+				SpriteBatch.Draw(m_backgroundColor, DrawAreaWithOffset, Color.White);
+			}
+			SpriteBatch.Draw(m_gfxPadThing, new Vector2(xOff + 19, yOff + 29 + 36*Index), Color.White);
+			SpriteBatch.Draw(m_gfxItem, new Vector2(xOff + 27, yOff + 24 + 36*Index), Color.White);
+			SpriteBatch.End();
+			base.Draw(gameTime);
+		}
+
+		public new void Dispose()
+		{
+			Dispose(true);
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				m_nameLabel.Dispose();
+				m_amountLabel.Dispose();
+				m_backgroundColor.Dispose();
+			}
+
+			base.Dispose(disposing);
+		}
+	}
+
+	public class EOChestDialog : EODialogBase
+	{
+		public static EOChestDialog Instance;
+
+		public byte CurrentChestX { get; private set; }
+		public byte CurrentChestY { get; private set; }
+
+		private EOChestItem[] m_items;
+
+		public EOChestDialog(byte chestX, byte chestY, List<Tuple<short, int>> initialItems)
+		{
+			if (Instance != null)
+				throw new InvalidOperationException("Chest is already open!");
+			
+			Instance = this;
+
+			InitializeItems(initialItems);
+
+			CurrentChestX = chestX;
+			CurrentChestY = chestY;
+
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(92, 227), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
+			cancel.OnClick += (sender, e) => Close(cancel, XNADialogResult.Cancel);
+			dlgButtons.Add(cancel);
+			whichButtons = XNADialogButtons.Cancel;
+
+			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 51);
+			_setSize(bgTexture.Width, bgTexture.Height);
+			
+			endConstructor(false);
+			DrawLocation = new Vector2((Game.GraphicsDevice.PresentationParameters.BackBufferWidth - DrawArea.Width) / 2f, 15);
+			cancel.SetParent(this);
+		}
+
+		public void InitializeItems(List<Tuple<short, int>> initialItems)
+		{
+			m_items = new EOChestItem[5];
+
+			if (initialItems.Count > 0)
+			{
+				for (int i = 0; i < initialItems.Count && i < 5; ++i)
+				{
+					Tuple<short, int> item = initialItems[i];
+					if (m_items[i] != null)
+					{
+						m_items[i].Close();
+						m_items[i] = null;
+					}
+
+					m_items[i] = new EOChestItem(item.Item1, item.Item2, i, this);
+				}
+			}
+		}
+
+		public void UpdateChestItemAmount(short id, int amountTaken)
+		{
+			int? moveToIndex = null;
+			for (int i = 0; i < m_items.Length; ++i)
+			{
+				if (m_items[i] == null) break;
+
+				EOChestItem item = m_items[i];
+				if (item.ID == id && item.Amount - amountTaken > 0)
+				{
+					item.ChangeAmount(item.Amount - amountTaken);
+				}
+				else
+				{
+					item.Close();
+					m_items[i] = null;
+					moveToIndex = i;
+					continue;
+				}
+
+				if (moveToIndex.HasValue)
+				{
+					m_items[moveToIndex.Value] = m_items[i];
+					m_items[moveToIndex.Value].ChangeIndex(moveToIndex.Value);
+					m_items[i] = null;
+				}
+			}
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				foreach (EOChestItem item in m_items)
+				{
+					if(item != null)
+						item.Dispose();
+				}
+
+				foreach(XNAButton btn in dlgButtons)
+					if(btn != null)
+						btn.Dispose();
+			}
+
+			base.Dispose(disposing);
+			Instance = null;
+		}
+	}
 }

@@ -515,30 +515,40 @@ namespace EndlessClient
 			}
 		}
 
-		public void UpdateInventoryItem(short id, int characterAmount, byte characterWeight, byte characterMaxWeight, bool add = false)
+		public void UpdateInventoryItem(short id, int characterAmount, byte characterWeight, byte characterMaxWeight, bool addToExistingAmount = false)
 		{
 			InventoryItem rec;
 			if ((rec = Inventory.Find(item => item.id == id)).id == id)
 			{
 				InventoryItem newRec = new InventoryItem
 				{
-					amount = add ? characterAmount + rec.amount : characterAmount,
+					amount = addToExistingAmount ? characterAmount + rec.amount : characterAmount,
 					id = id
 				};
+				if (this == World.Instance.MainPlayer.ActiveCharacter)
+				{
+					//false when AddItem fails to find a good spot
+					if (!EOGame.Instance.Hud.UpdateInventory(newRec))
+					{
+						EODialog.Show("You were unable to pick up this item because you don't have enough space!", "Warning");
+						return;
+					}
+				}
+
+				//if we can hold it, update local inventory and weight stats
 				if (!Inventory.Remove(rec))
 					throw new Exception("Unable to remove from inventory!");
 				if (newRec.amount > 0)
 				{
 					Inventory.Add(newRec);
 				}
-				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
 				Weight = characterWeight;
 				MaxWeight = characterMaxWeight;
-				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateWeightLabel();
+				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.RefreshStats();
 			}
 			else
 			{
-				//for item_get packet, the item may not be in the inventory yet
+				//for item_get/chest_get packets, the item may not be in the inventory yet
 				InventoryItem newRec = new InventoryItem {amount = characterAmount, id = id};
 				if (newRec.amount <= 0) return;
 				
@@ -546,7 +556,7 @@ namespace EndlessClient
 				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
 				Weight = characterWeight;
 				MaxWeight = characterMaxWeight;
-				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateWeightLabel();
+				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.RefreshStats();
 			}
 		}
 	}

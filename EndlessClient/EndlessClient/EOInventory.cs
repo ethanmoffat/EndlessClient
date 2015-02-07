@@ -572,7 +572,7 @@ namespace EndlessClient
 			return m_childItems.Count(invItem => invItem.Dragging) == 0;
 		}
 
-		public void UpdateItem(InventoryItem item)
+		public bool UpdateItem(InventoryItem item)
 		{
 			EOInventoryItem ctrl;
 			if((ctrl = m_childItems.Find(_ctrl => _ctrl.ItemData.ID == item.id)) != null)
@@ -583,8 +583,10 @@ namespace EndlessClient
 			else
 			{
 				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
-				AddItemToSlot(GetNextOpenSlot(rec.Size), rec, item.amount);
+				return AddItemToSlot(GetNextOpenSlot(rec.Size), rec, item.amount);
 			}
+
+			return true;
 		}
 
 		public void RemoveItem(int id)

@@ -572,12 +572,13 @@ namespace EndlessClient
 			statusStartTime = !string.IsNullOrEmpty(text) ? new DateTime?(DateTime.Now) : null;
 		}
 
-		public void UpdateInventory(InventoryItem item)
+		public bool UpdateInventory(InventoryItem item)
 		{
 			if (item.amount == 0)
 				inventory.RemoveItem(item.id);
 			else
-				inventory.UpdateItem(item);
+				return inventory.UpdateItem(item);
+			return true;
 		}
 
 		public void UpdateWeightLabel()
