@@ -7,7 +7,25 @@ An open source client for Endless Online written in C#
 
 Note: any glitches you can find in the above GIF prove how much of a work in progress this is. But it looks pretty cool so far, amirite??
 
-What is there so far?
+#### Jump to:
+ - [Download and Play](#Download)
+ - [What is there so far?](#SoFar)
+ - [What is left to do?](#ToDo)
+ - [Running the game - Additional Info](#AdditionalGameInfo)
+ - [Changes from the Original Client](#Changes)
+
+<a name="Download" />Download+Play
+-------------
+
+There is a [Release Binary ZIP](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) available for download for those not interested in building the source. It is up to date as of 2/7/15.
+
+You will need to install the [XNA Game Framework](http://www.microsoft.com/en-us/download/details.aspx?id=20914) and the [.NET framework 4.0](http://www.microsoft.com/en-us/download/details.aspx?id=17718) (if you don't have .NET installed already).
+
+Gameplay is pretty simple since you can't do much yet. Walking is done with the arrow keys. Attacking is done by holding left or right CTRL key. Mouse is used for interacting with items that drop on the map (single-click to pick up). You can click+drag items around the inventory as well.
+
+I encourage everyone to try and break things and file bug reports (see project "Issues"). The more testing the better!
+
+<a name="SoFar" />What is there so far?
 ---------------------
 
 The primary thing that's been completely is the basic framework for running and displaying the game. I have a solid custom-built UI controls library, and liberal use of the XNA Game Component model. Socket connections for sending/receiving data to/from the server are all set up and surprisingly stable (except for when the server closes a connection, but we're ignoring that for now). The framework that is there also allows for easy addition of different Packet handlers, which means more features for the game client can be added without much effort.
@@ -20,13 +38,15 @@ Here's a list of some basic things that can be done:
  - Map rendering/scrolling during walk
  - Doors/warping to different maps
  - Talking - global, local, player commands (#usage #find #loc)
- - **Partial** attacking - the damage is done, NPCs are killed, and items may be dropped, but the damage counters and NPC attack animations don't work. Character clothes and weapons don't render properly during this either (WIP).
+ - **Partial** attacking - the damage is done, NPCs are killed, and items may be dropped. Damage counters are shown, but no health bars yet. Character clothes and weapons don't render properly during this either (WIP).
  - Animated map tiles
  - Item inventory and paperdoll display, equipping/unequipping items
  - Stats display and leveling up stats (str/int/wis/agi/con/cha)
+ - Stat bars for main player in HUD (hp/tp/sp/tnl)
+ - **Partial** chest interaction - you can open/view items, but taking them crashes the game and you can't add them yet.
  - All pre-game menus, logging in, creating/deleting characters, creating account, etc.
 
-What's Left to do?
+<a name="ToDo" />What's Left to do?
 ------------------
 
 There is a HUGE list of things left to do. The client is in its infant stages and is a constantly evolving work in progress. What this means is that as features are implemented, I make an attempt to implement them as completely and accurately as possible before moving on to the next thing. The pre-game menus and UI are completely finished, besides a few small bugs that I'm sure to find. The framework for adding new components is there as well.
@@ -35,7 +55,7 @@ Here's a working but incomplete list of things I want to get to in this client (
  - Finish attacking - ~~requires damage counter~~, health bars, and fixing animations to show up properly
  - Map signs
  - Map boards
- - Map chests
+ - Map chests - Almost completed
  - Map chairs
  - Map bank vaults
  - Right-click players on map
@@ -59,7 +79,7 @@ Here's a working list of things I want to add that would be additional features 
  
 Most things on the above list would require changes to the server software which would significantly distance it from compatibility with eoserv and the original EO client, so they aren't top priority, but would still be pretty cool to have.
 
-Running the game
+<a name="AdditionalGameInfo" />Running the game - additional info
 ----------------
 
 You will need a copy of eoserv set up and running, or another Endless Online server to connect to. The client binary is now distributed with a config file that points at the eoserv instance I use for testing (ewmoffat.ddns.net:8078). You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server.
@@ -90,7 +110,7 @@ NPCDropProtectTime=30
 PlayerDropProtectTime=5
 ```
 
-Changes From Original Client (so far)
+<a name="Changes" />Changes From Original Client (so far)
 -------------------------------------
 
 #### Version Numbers
