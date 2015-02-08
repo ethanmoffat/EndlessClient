@@ -1415,6 +1415,9 @@ namespace EndlessClient
 
 	public class EOChestItem : XNAControl
 	{
+		private static readonly object disposingLock = new object();
+		private bool m_disposing;
+
 		public short ID { get; private set; }
 		public int Amount { get; private set; }
 		public int Index { get; set; }
@@ -1439,7 +1442,7 @@ namespace EndlessClient
 			DrawLocation = new Vector2(19, 25 + (index * 36));
 			_setSize(232, 36);
 
-			m_nameLabel = new XNALabel(new Rectangle(56, 5 + (index*36), 1, 1), "Microsoft Sans Serif", 8.5f)
+			m_nameLabel = new XNALabel(new Rectangle(56, 5, 1, 1), "Microsoft Sans Serif", 8.5f)
 			{
 				AutoSize = true,
 				BackColor = System.Drawing.Color.Transparent,
@@ -1448,7 +1451,7 @@ namespace EndlessClient
 			};
 			m_nameLabel.ResizeBasedOnText();
 
-			m_amountLabel = new XNALabel(new Rectangle(56, 20 + (index * 36), 1, 1), "Microsoft Sans Serif", 8.5f)
+			m_amountLabel = new XNALabel(new Rectangle(56, 20, 1, 1), "Microsoft Sans Serif", 8.5f)
 			{
 				AutoSize = true,
 				BackColor = m_nameLabel.BackColor,
@@ -1467,34 +1470,30 @@ namespace EndlessClient
 			m_nameLabel.SetParent(this);
 		}
 
-		public void ChangeAmount(int newAmount)
-		{
-			Amount = newAmount;
-			m_amountLabel.Text = string.Format("x {0}  {1}", Amount, m_rec.Type == ItemType.Armor ? (m_rec.Gender == 0 ? "Female" : "Male") : "");
-			m_amountLabel.ResizeBasedOnText();
-		}
-
-		public void ChangeIndex(int newIndex)
-		{
-			Index = newIndex;
-		}
-
 		public override void Update(GameTime gameTime)
 		{
 			MouseState ms = Mouse.GetState();
 
-			//right clicked this item
 			if (MouseOver && MouseOverPreviously)
 			{
 				m_drawBackground = true;
+				//right clicked this item
 				if (PreviousMouseState.RightButton == ButtonState.Pressed && ms.RightButton == ButtonState.Released)
 				{
-					EOChestDialog localParent = (EOChestDialog) parent;
-					if (!Handlers.Chest.ChestTake(localParent.CurrentChestX, localParent.CurrentChestY, ID))
+					if (!EOGame.Instance.Hud.InventoryFits(ID))
 					{
-						localParent.Close();
-						EOGame.Instance.LostConnectionDialog();
-						return;
+						EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, true);
+						PreviousMouseState = ms;
+					}
+					else
+					{
+						EOChestDialog localParent = (EOChestDialog) parent;
+						if (!Handlers.Chest.ChestTake(localParent.CurrentChestX, localParent.CurrentChestY, ID))
+						{
+							localParent.Close();
+							EOGame.Instance.LostConnectionDialog();
+							return;
+						}
 					}
 				}
 			}
@@ -1508,15 +1507,20 @@ namespace EndlessClient
 
 		public override void Draw(GameTime gameTime)
 		{
-			SpriteBatch.Begin();
-			if (m_drawBackground)
+			lock (disposingLock)
 			{
-				SpriteBatch.Draw(m_backgroundColor, DrawAreaWithOffset, Color.White);
+				if (m_disposing)
+					return;
+				SpriteBatch.Begin();
+				if (m_drawBackground)
+				{
+					SpriteBatch.Draw(m_backgroundColor, DrawAreaWithOffset, Color.White);
+				}
+				SpriteBatch.Draw(m_gfxPadThing, new Vector2(xOff + 19, yOff + 29 + 36*Index), Color.White);
+				SpriteBatch.Draw(m_gfxItem, new Vector2(xOff + 27, yOff + 24 + 36*Index), Color.White);
+				SpriteBatch.End();
+				base.Draw(gameTime);
 			}
-			SpriteBatch.Draw(m_gfxPadThing, new Vector2(xOff + 19, yOff + 29 + 36*Index), Color.White);
-			SpriteBatch.Draw(m_gfxItem, new Vector2(xOff + 27, yOff + 24 + 36*Index), Color.White);
-			SpriteBatch.End();
-			base.Draw(gameTime);
 		}
 
 		public new void Dispose()
@@ -1526,11 +1530,15 @@ namespace EndlessClient
 
 		protected override void Dispose(bool disposing)
 		{
-			if (disposing)
+			lock (disposingLock)
 			{
-				m_nameLabel.Dispose();
-				m_amountLabel.Dispose();
-				m_backgroundColor.Dispose();
+				m_disposing = true;
+				if (disposing)
+				{
+					m_nameLabel.Dispose();
+					m_amountLabel.Dispose();
+					m_backgroundColor.Dispose();
+				}
 			}
 
 			base.Dispose(disposing);
@@ -1573,11 +1581,13 @@ namespace EndlessClient
 
 		public void InitializeItems(List<Tuple<short, int>> initialItems)
 		{
-			m_items = new EOChestItem[5];
+			if(m_items == null)
+				m_items = new EOChestItem[5];
 
+			int i = 0;
 			if (initialItems.Count > 0)
 			{
-				for (int i = 0; i < initialItems.Count && i < 5; ++i)
+				for (; i < initialItems.Count && i < 5; ++i)
 				{
 					Tuple<short, int> item = initialItems[i];
 					if (m_items[i] != null)
@@ -1589,35 +1599,38 @@ namespace EndlessClient
 					m_items[i] = new EOChestItem(item.Item1, item.Item2, i, this);
 				}
 			}
-		}
 
-		public void UpdateChestItemAmount(short id, int amountTaken)
-		{
-			int? moveToIndex = null;
-			for (int i = 0; i < m_items.Length; ++i)
+			for (; i < m_items.Length; ++i)
 			{
-				if (m_items[i] == null) break;
-
-				EOChestItem item = m_items[i];
-				if (item.ID == id && item.Amount - amountTaken > 0)
+				if (m_items[i] != null)
 				{
-					item.ChangeAmount(item.Amount - amountTaken);
-				}
-				else
-				{
-					item.Close();
-					m_items[i] = null;
-					moveToIndex = i;
-					continue;
-				}
-
-				if (moveToIndex.HasValue)
-				{
-					m_items[moveToIndex.Value] = m_items[i];
-					m_items[moveToIndex.Value].ChangeIndex(moveToIndex.Value);
+					m_items[i].Close();
 					m_items[i] = null;
 				}
 			}
+		}
+
+		public override void Initialize()
+		{
+			foreach(XNAControl child in children)
+				child.SetParent(this);
+			base.Initialize();
+		}
+
+		public override void Update(GameTime gt)
+		{
+			if (EOGame.Instance.Hud.IsInventoryDragging())
+			{
+				shouldClickDrag = false;
+				SuppressParentClickDrag(true);
+			}
+			else
+			{
+				shouldClickDrag = true;
+				SuppressParentClickDrag(false);
+			}
+
+			base.Update(gt);
 		}
 
 		protected override void Dispose(bool disposing)

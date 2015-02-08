@@ -1040,8 +1040,15 @@ namespace EndlessClient
 							Character charRef = otherPlayers.Find(_c => _c.ID == mi.id);
 							EOGame.Instance.Hud.SetStatusLabel("[ Information ] This item is protected" + (charRef != null ? string.Format(" by {0}.", charRef.Name) : "."));
 						}
-						else if (!Item.GetItem(mi.uid)) //server validates anyway
-							EOGame.Instance.LostConnectionDialog();
+						else 
+						{
+							if (!EOGame.Instance.Hud.InventoryFits(mi.id))
+							{
+								EOGame.Instance.Hud.SetStatusLabel("[ Information ] You could not pick up this item because you have no more space left.");
+							}
+							else if (!Item.GetItem(mi.uid)) //server validates anyway
+								EOGame.Instance.LostConnectionDialog();
+						}
 					}
 				}
 

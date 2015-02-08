@@ -581,9 +581,9 @@ namespace EndlessClient
 			return true;
 		}
 
-		public void UpdateWeightLabel()
+		public bool IsInventoryDragging()
 		{
-			inventory.UpdateWeightLabel();
+			return !inventory.NoItemsDragging();
 		}
 
 		public void ShowEquippedInPaperdollDialog(ItemRecord item, EquipLocation loc)
@@ -645,6 +645,11 @@ namespace EndlessClient
 			}
 
 			base.Dispose(disposing);
+		}
+
+		public bool InventoryFits(short id)
+		{
+			return inventory.ItemFits(id);
 		}
 	}
 }

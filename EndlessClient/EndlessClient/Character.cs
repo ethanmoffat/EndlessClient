@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using EOLib;
 using EOLib.Data;
+using XNAControls;
 
 namespace EndlessClient
 {
@@ -530,7 +531,7 @@ namespace EndlessClient
 					//false when AddItem fails to find a good spot
 					if (!EOGame.Instance.Hud.UpdateInventory(newRec))
 					{
-						EODialog.Show("You were unable to pick up this item because you don't have enough space!", "Warning");
+						EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, true);
 						return;
 					}
 				}
@@ -553,7 +554,15 @@ namespace EndlessClient
 				if (newRec.amount <= 0) return;
 				
 				Inventory.Add(newRec);
-				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
+				if (this == World.Instance.MainPlayer.ActiveCharacter)
+				{
+					//false when AddItem fails to find a good spot
+					if (!EOGame.Instance.Hud.UpdateInventory(newRec))
+					{
+						EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, true);
+						return;
+					}
+				}
 				Weight = characterWeight;
 				MaxWeight = characterMaxWeight;
 				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.RefreshStats();

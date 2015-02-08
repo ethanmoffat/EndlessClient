@@ -118,6 +118,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Chest.ChestOpenResponse)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Chest, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Chest.ChestReply)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Connection, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.Connection.PingResponse)
 				},

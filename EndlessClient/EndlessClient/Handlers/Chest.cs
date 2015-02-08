@@ -14,6 +14,14 @@ namespace EndlessClient.Handlers
 			if (!client.ConnectedAndInitialized)
 				return false;
 
+			if(EOChestDialog.Instance != null)
+			{
+				if (lastX == x && lastY == y &&
+					EOChestDialog.Instance.CurrentChestX == x &&
+					EOChestDialog.Instance.CurrentChestY == y)
+					return true; //chest is already open, back the FUCK off
+			}
+
 			lastX = x;
 			lastY = y;
 
@@ -45,6 +53,7 @@ namespace EndlessClient.Handlers
 				update.backoff = false;
 			}
 
+// ReSharper disable once UnusedVariable
 			EOChestDialog chestDialog = new EOChestDialog(x, y, chestItems);
 			lastX = lastY = 255;
 		}
@@ -75,7 +84,7 @@ namespace EndlessClient.Handlers
 			byte characterWeight = pkt.GetChar();
 			byte characterMaxWeight = pkt.GetChar();
 
-			int numLeft = pkt.GetEndString().Length / 5;
+			int numLeft = pkt.PeekEndString().Length / 5;
 			List<Tuple<short, int>> newItems = new List<Tuple<short, int>>(numLeft);
 			for (int i = 0; i < numLeft; ++i)
 			{
@@ -83,7 +92,6 @@ namespace EndlessClient.Handlers
 			}
 
 			//update chest dialog
-			EOChestDialog.Instance.UpdateChestItemAmount(takenID, takenAmount);
 			EOChestDialog.Instance.InitializeItems(newItems);
 
 			//update item inventory
@@ -100,13 +108,43 @@ namespace EndlessClient.Handlers
 			//no need to do anything with the packet if the chest isn't open
 			if (EOChestDialog.Instance == null) return;
 
-			int numLeft = pkt.GetEndString().Length / 5;
+			int numLeft = pkt.PeekEndString().Length / 5;
 			List<Tuple<short, int>> newItems = new List<Tuple<short, int>>(numLeft);
 			for (int i = 0; i < numLeft; ++i)
 			{
 				newItems.Add(new Tuple<short, int>(pkt.GetShort(), pkt.GetThree()));
 			}
 			EOChestDialog.Instance.InitializeItems(newItems);
+		}
+
+		public static bool AddItem(short id, int amount)
+		{
+			EOClient client = (EOClient) World.Instance.Client;
+			if (!client.ConnectedAndInitialized || EOChestDialog.Instance == null)
+				return false;
+
+			Packet pkt = new Packet(PacketFamily.Chest, PacketAction.Add);
+			pkt.AddChar(EOChestDialog.Instance.CurrentChestX);
+			pkt.AddChar(EOChestDialog.Instance.CurrentChestY);
+			pkt.AddShort(id);
+			pkt.AddThree(amount);
+
+			return client.SendPacket(pkt);
+		}
+
+		/// <summary>
+		/// Handler for CHEST_REPLY packet, sent in response to main player adding an item to a chest
+		/// </summary>
+		public static void ChestReply(Packet pkt)
+		{
+			short id = pkt.GetShort();
+			int characterAmount = pkt.GetInt();
+			byte weight = pkt.GetChar();
+			byte maxWeight = pkt.GetChar();
+
+			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, characterAmount, weight, maxWeight);
+
+			ChestAgreeResponse(pkt);
 		}
 	}
 }

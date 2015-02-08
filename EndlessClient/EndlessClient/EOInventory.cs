@@ -90,8 +90,9 @@ namespace EndlessClient
 				//need to check for: drop on map (drop action)
 				//					 drop on button junk/drop
 				//					 drop on grid (inventory move action)
+				//					 drop on chest dialog (chest add action)
 
-				if (((EOInventory) parent).IsOverDrop() || World.Instance.ActiveMapRenderer.MouseOver)
+				if (((EOInventory) parent).IsOverDrop() || (World.Instance.ActiveMapRenderer.MouseOver && EOChestDialog.Instance == null))
 				{
 					Microsoft.Xna.Framework.Point loc = World.Instance.ActiveMapRenderer.MouseOver ? World.Instance.ActiveMapRenderer.GridCoords:
 						new Microsoft.Xna.Framework.Point(World.Instance.MainPlayer.ActiveCharacter.X, World.Instance.MainPlayer.ActiveCharacter.Y);
@@ -134,6 +135,28 @@ namespace EndlessClient
 					else
 					{
 						Handlers.Item.JunkItem(m_inventory.id, 1);
+					}
+				}
+				else if (EOChestDialog.Instance != null && EOChestDialog.Instance.MouseOver && EOChestDialog.Instance.MouseOverPreviously)
+				{
+					if (m_inventory.amount > 1)
+					{
+						IKeyboardSubscriber prevSub = (Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber;
+						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.DropItems, m_inventory.amount);
+						dlg.DialogClosing += (sender, args) =>
+						{
+							bool ret = true;
+							if (args.Result == XNADialogResult.OK)
+								ret = Handlers.Chest.AddItem(m_inventory.id, dlg.SelectedAmount);
+							(Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = prevSub;
+							if(!ret)
+								EOGame.Instance.LostConnectionDialog();
+						};
+					}
+					else
+					{
+						if(!Handlers.Chest.AddItem(m_inventory.id, 1))
+							EOGame.Instance.LostConnectionDialog();
 					}
 				}
 
@@ -402,7 +425,7 @@ namespace EndlessClient
 				if (!dialogShown && !AddItemToSlot(slot, rec, item.amount))
 				{
 					dialogShown = true;
-					EODialog.Show("WARNING: Something doesn't fit in the inventory. Rearrange items or get rid of them.");
+					EODialog.Show("Something doesn't fit in the inventory. Rearrange items or get rid of them.", "Warning", XNADialogButtons.Ok, true);
 				}
 			}
 
@@ -480,6 +503,18 @@ namespace EndlessClient
 			m_childItems.Add(new EOInventoryItem(slot, item, new InventoryItem { amount = count, id = (short)item.ID }, this)); //add the control wrapper for the item
 			m_childItems[m_childItems.Count - 1].DrawOrder = (int) ControlDrawLayer.DialogLayer - (2 + slot%INVENTORY_ROW_LENGTH);
 			return true;
+		}
+
+		public bool ItemFits(short id)
+		{
+			//it will fit if the inventory already has it.
+			if (m_childItems.Find(_i => _i.ItemData.ID == id) != null)
+				return true;
+
+			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(id);
+			int nextSlot = GetNextOpenSlot(rec.Size);
+			List<Tuple<int, int>> dummy;
+			return _fitsInSlot(nextSlot, rec.Size, out dummy);
 		}
 
 		private void RemoveItemFromSlot(int slot, int count = 1)
