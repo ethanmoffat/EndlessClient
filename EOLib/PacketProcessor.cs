@@ -8,6 +8,7 @@ namespace EOLib
 // ReSharper disable UnusedMember.Global
 	public enum PacketFamily : byte
 	{
+		Internal = 0,
 		Connection = (byte)1,
 		Account = (byte)2,
 		Character = (byte)3,

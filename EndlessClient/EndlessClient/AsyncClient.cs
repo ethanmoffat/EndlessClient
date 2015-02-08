@@ -204,6 +204,12 @@ namespace EndlessClient
 
 		public bool SendPacket(Packet pkt)
 		{
+			//for debugging: sometimes the server is getting PACKET_INTERNAL from this client
+			//I'm not sure why and it happens randomly so this check will allow me to examine
+			//	packet contents and the call stack to figure it out
+			if(pkt.Family == PacketFamily.Internal)
+				throw new ArgumentException("This is an invalid packet!");
+
 			byte[] toSend = pkt.Get();
 			m_packetProcessor.Encode(ref toSend);
 
