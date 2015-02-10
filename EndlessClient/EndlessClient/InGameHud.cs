@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading;
 using EndlessClient.Handlers;
-using EOLib.Data;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -149,6 +148,28 @@ namespace EndlessClient
 			Texture2D newsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 48);
 			pnlNews = new XNAPanel(new Rectangle(102, 330, newsBG.Width, newsBG.Height)) {BackgroundImage = newsBG};
 
+			//for easy update of all panels via foreach
+			List<XNAPanel> pnlCollection = new List<XNAPanel>(10)
+			{
+				pnlInventory,
+				pnlActiveSpells,
+				pnlPassiveSpells,
+				pnlChat,
+				pnlStats,
+				pnlOnline,
+				pnlParty,
+				pnlSettings,
+				pnlHelp,
+				pnlNews
+			};
+			//pnlCollection.Add(pnlMacro); //if this ever happens...
+
+			pnlCollection.ForEach(_pnl =>
+			{
+				_pnl.IgnoreDialog(typeof(EOPaperdollDialog));
+				_pnl.IgnoreDialog(typeof(EOChestDialog));
+			});
+
 			for (int i = 0; i < NUM_BTN; ++i)
 			{
 				Texture2D _out = new Texture2D(g.GraphicsDevice, mainButtonTexture.Width / 2, mainButtonTexture.Height / NUM_BTN);
@@ -171,7 +192,9 @@ namespace EndlessClient
 				Vector2 btnLoc = new Vector2(i < 6 ? 62 : 590, (i < 6 ? 330 : 350) + ((i < 6 ? i : i - 6) * 20));
 
 				mainBtn[i] = new XNAButton(new [] { _out, _ovr }, btnLoc);
-				//mainBtn[i].Visible = false;
+				mainBtn[i].IgnoreDialog(typeof(EOChestDialog));
+				mainBtn[i].IgnoreDialog(typeof(EOPaperdollDialog));
+				//mainBtn[i].ignoreDialog(typeof(EOTradingDialog)); //etc, etc for all other dialogs that should be ignored when they're top-most
 			}
 
 			//left button onclick events
@@ -206,6 +229,8 @@ namespace EndlessClient
 				Visible = true,
 				MaxChars = 140
 			};
+			chatTextBox.IgnoreDialog(typeof(EOPaperdollDialog));
+			chatTextBox.IgnoreDialog(typeof(EOChestDialog));
 			chatTextBox.OnEnterPressed += _doTalk;
 			chatTextBox.OnClicked += (s, e) =>
 			{

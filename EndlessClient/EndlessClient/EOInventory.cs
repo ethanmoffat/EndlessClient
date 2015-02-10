@@ -495,9 +495,13 @@ namespace EndlessClient
 			//0,52,38,37
 			m_btnDrop = new XNAButton(thatWeirdSheet, new Vector2(389, 68), new Rectangle(0, 15, 38, 37), new Rectangle(0, 52, 38, 37));
 			m_btnDrop.SetParent(this);
+			m_btnDrop.IgnoreDialog(typeof(EOPaperdollDialog));
+			m_btnDrop.IgnoreDialog(typeof(EOChestDialog));
 			//'junk' button - 4 + 38 on the x away from drop
 			m_btnJunk = new XNAButton(thatWeirdSheet, new Vector2(431, 68), new Rectangle(0, 89, 38, 37), new Rectangle(0, 126, 38, 37));
 			m_btnJunk.SetParent(this);
+			m_btnJunk.IgnoreDialog(typeof(EOPaperdollDialog));
+			m_btnJunk.IgnoreDialog(typeof(EOChestDialog));
 		}
 
 		//-----------------------------------------------------

@@ -230,6 +230,8 @@ namespace EndlessClient
 				Visible = selected,
 				LinesToRender = 7
 			};
+			scrollBar.IgnoreDialog(typeof(EOPaperdollDialog));
+			scrollBar.IgnoreDialog(typeof(EOChestDialog));
 
 			font = Game.Content.Load<SpriteFont>("dbg");
 		}
@@ -251,6 +253,8 @@ namespace EndlessClient
 				LinesToRender = 7,
 				Visible = true
 			};
+			scrollBar.IgnoreDialog(typeof(EOPaperdollDialog));
+			scrollBar.IgnoreDialog(typeof(EOChestDialog));
 
 			font = Game.Content.Load<SpriteFont>("dbg");
 		}

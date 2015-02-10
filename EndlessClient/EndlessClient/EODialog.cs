@@ -202,6 +202,14 @@ namespace EndlessClient
 
 			_totalHeight = DrawAreaWithOffset.Height;
 		}
+
+		public new void IgnoreDialog(Type t)
+		{
+			base.IgnoreDialog(t);
+			up.IgnoreDialog(t);
+			down.IgnoreDialog(t);
+			scroll.IgnoreDialog(t);
+		}
 		
 		public void UpdateDimensions(int numberOfLines)
 		{
@@ -282,7 +290,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gt)
 		{
-			if ((parent != null && !parent.Visible) || !Visible || (Dialogs.Count != 0 && Dialogs.Peek() != TopParent as XNADialog))
+			if ((parent != null && !parent.Visible) || !ShouldUpdate())
 				return;
 
 			//handle mouse wheel scrolling, but only if the cursor is over the parent control of the scroll bar
