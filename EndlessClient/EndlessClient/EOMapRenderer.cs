@@ -903,6 +903,10 @@ namespace EndlessClient
 
 		private void _updateCursorInfo(MouseState ms)
 		{
+			//don't do the cursor if there is a dialog open
+			if (EOPaperdollDialog.Instance != null || EOChestDialog.Instance != null)
+				return;
+
 			//need to solve this system of equations to get x, y on the grid
 			//(x * 32) - (y * 32) + 288 - c.OffsetX, => pixX = 32x - 32y + 288 - c.OffsetX
 			//(y * 16) + (x * 16) + 144 - c.OffsetY  => 2pixY = 32y + 32x + 288 - 2c.OffsetY

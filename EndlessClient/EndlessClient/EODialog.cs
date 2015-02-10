@@ -1049,6 +1049,8 @@ namespace EndlessClient
 
 	public class EOPaperdollDialog : EODialogBase
 	{
+		public static EOPaperdollDialog Instance;
+
 		public Character CharRef { get; private set; }
 
 		private readonly Texture2D m_characterIcon;
@@ -1068,6 +1070,10 @@ namespace EndlessClient
 
 		public EOPaperdollDialog(Character character, string home, string partner, string guild, string guildRank, IconType whichIcon)
 		{
+			if(Instance != null)
+				throw new InvalidOperationException("Paperdoll is already open!");
+			Instance = this;
+
 			CharRef = character;
 
 			Texture2D bgSprites = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 49);
@@ -1178,6 +1184,22 @@ namespace EndlessClient
 			endConstructor(false);
 		}
 
+		public override void Update(GameTime gt)
+		{
+			if (EOGame.Instance.Hud.IsInventoryDragging())
+			{
+				shouldClickDrag = false;
+				SuppressParentClickDrag(true);
+			}
+			else
+			{
+				shouldClickDrag = true;
+				SuppressParentClickDrag(false);
+			}
+
+			base.Update(gt);
+		}
+
 		public override void Draw(GameTime gt)
 		{
 			base.Draw(gt);
@@ -1200,6 +1222,12 @@ namespace EndlessClient
 			});
 			if(itemToUpdate != null)
 				itemToUpdate.SetInfo(_getEquipLocRectangle(loc), info);
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			base.Dispose(disposing);
+			Instance = null;
 		}
 
 		private static Rectangle _getEquipLocRectangle(EquipLocation loc)
@@ -1635,19 +1663,6 @@ namespace EndlessClient
 
 		protected override void Dispose(bool disposing)
 		{
-			if (disposing)
-			{
-				foreach (EOChestItem item in m_items)
-				{
-					if(item != null)
-						item.Dispose();
-				}
-
-				foreach(XNAButton btn in dlgButtons)
-					if(btn != null)
-						btn.Dispose();
-			}
-
 			base.Dispose(disposing);
 			Instance = null;
 		}

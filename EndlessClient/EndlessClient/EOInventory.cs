@@ -32,6 +32,9 @@ namespace EndlessClient
 		private XNALabel m_nameLabel;
 
 		private bool m_beingDragged;
+		private int m_alpha = 255;
+		private int m_preDragDrawOrder;
+		private XNAControl m_preDragParent;
 		public bool Dragging
 		{
 			get { return m_beingDragged; }
@@ -59,7 +62,7 @@ namespace EndlessClient
 			_initItemLabel();
 
 			m_recentClickTimer = new Timer(
-				_state => { if (m_recentClickCount > 0) Interlocked.Decrement(ref m_recentClickCount); }, null, 0, 750);
+				_state => { if (m_recentClickCount > 0) Interlocked.Decrement(ref m_recentClickCount); }, null, 0, 1000);
 		}
 
 		public override void Update(GameTime gameTime)
@@ -67,7 +70,7 @@ namespace EndlessClient
 			//check for drag-drop here
 			MouseState currentState = Mouse.GetState();
 
-			if (MouseOverPreviously && MouseOver && PreviousMouseState.LeftButton == ButtonState.Pressed && currentState.LeftButton == ButtonState.Pressed)
+			if (!m_beingDragged && MouseOverPreviously && MouseOver && PreviousMouseState.LeftButton == ButtonState.Pressed && currentState.LeftButton == ButtonState.Pressed)
 			{
 				//Conditions for starting are the mouse is over, the button is pressed, and no other items are being dragged
 				if (((EOInventory) parent).NoItemsDragging())
@@ -75,6 +78,11 @@ namespace EndlessClient
 					//start the drag operation and hide the item label
 					m_beingDragged = true;
 					m_nameLabel.Visible = false;
+					m_preDragDrawOrder = DrawOrder;
+					m_preDragParent = parent;
+					SetParent(null);
+					m_alpha = 128;
+					DrawOrder = 100; //arbitrarily large constant so drawn on top while dragging
 				}
 			}
 
@@ -92,16 +100,23 @@ namespace EndlessClient
 				//					 drop on grid (inventory move action)
 				//					 drop on chest dialog (chest add action)
 
-				if (((EOInventory) parent).IsOverDrop() || (World.Instance.ActiveMapRenderer.MouseOver && EOChestDialog.Instance == null))
+				DrawOrder = m_preDragDrawOrder;
+				m_alpha = 255;
+				SetParent(m_preDragParent);
+
+				if (((EOInventory) parent).IsOverDrop() || (World.Instance.ActiveMapRenderer.MouseOver && EOChestDialog.Instance == null && EOPaperdollDialog.Instance == null))
 				{
 					Microsoft.Xna.Framework.Point loc = World.Instance.ActiveMapRenderer.MouseOver ? World.Instance.ActiveMapRenderer.GridCoords:
 						new Microsoft.Xna.Framework.Point(World.Instance.MainPlayer.ActiveCharacter.X, World.Instance.MainPlayer.ActiveCharacter.Y);
+
+					//in range if maximum coordinate difference is <= 2 away
+					bool inRange = Math.Abs(Math.Max(World.Instance.MainPlayer.ActiveCharacter.X - loc.X, World.Instance.MainPlayer.ActiveCharacter.Y - loc.Y)) <= 2;
 
 					if (m_itemData.Special == ItemSpecial.Lore)
 					{
 						EODialog.Show("It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
 					}
-					else if (m_inventory.amount > 1)
+					else if (m_inventory.amount > 1 && inRange)
 					{
 						IKeyboardSubscriber prevSub = (Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber;
 						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.DropItems,
@@ -113,7 +128,7 @@ namespace EndlessClient
 							(Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = prevSub;
 						};
 					}
-					else
+					else if(inRange)
 					{
 						Handlers.Item.DropItem(m_inventory.id, 1, (byte)loc.X, (byte)loc.Y);
 					}
@@ -139,7 +154,11 @@ namespace EndlessClient
 				}
 				else if (EOChestDialog.Instance != null && EOChestDialog.Instance.MouseOver && EOChestDialog.Instance.MouseOverPreviously)
 				{
-					if (m_inventory.amount > 1)
+					if (m_itemData.Special == ItemSpecial.Lore)
+					{
+						EODialog.Show("It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
+					}
+					else if (m_inventory.amount > 1)
 					{
 						IKeyboardSubscriber prevSub = (Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber;
 						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.DropItems, m_inventory.amount);
@@ -157,6 +176,28 @@ namespace EndlessClient
 					{
 						if(!Handlers.Chest.AddItem(m_inventory.id, 1))
 							EOGame.Instance.LostConnectionDialog();
+					}
+				}
+				else if (EOPaperdollDialog.Instance != null && EOPaperdollDialog.Instance.MouseOver && EOPaperdollDialog.Instance.MouseOverPreviously)
+				{
+					//equipable items should be equipped
+					//other item types should do nothing
+					switch (m_itemData.Type)
+					{
+						case ItemType.Accessory:
+						case ItemType.Armlet:
+						case ItemType.Armor:
+						case ItemType.Belt:
+						case ItemType.Boots:
+						case ItemType.Bracer:
+						case ItemType.Gloves:
+						case ItemType.Hat:
+						case ItemType.Necklace:
+						case ItemType.Ring:
+						case ItemType.Shield:
+						case ItemType.Weapon:
+							_handleDoubleClick();
+							break;
 					}
 				}
 
@@ -209,7 +250,7 @@ namespace EndlessClient
 					SpriteBatch.Draw(m_highlightBG, drawLoc, Color.White);
 			}
 			if(m_itemgfx != null)
-				SpriteBatch.Draw(m_itemgfx, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y), Color.White);
+				SpriteBatch.Draw(m_itemgfx, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y), Color.FromNonPremultiplied(255, 255, 255, m_alpha));
 			SpriteBatch.End();
 			base.Draw(gameTime);
 		}
@@ -386,8 +427,6 @@ namespace EndlessClient
 
 		private readonly XNALabel m_lblWeight;
 		private readonly XNAButton m_btnDrop, m_btnJunk, m_btnPaperdoll;
-
-		public EOPaperdollDialog PaperdollDialogRef { get; set; }
 		
 		public EOInventory(XNAPanel parent)
 			: base(null, null, parent)

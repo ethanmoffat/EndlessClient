@@ -586,22 +586,6 @@ namespace EndlessClient
 			return !inventory.NoItemsDragging();
 		}
 
-		public void ShowEquippedInPaperdollDialog(ItemRecord item, EquipLocation loc)
-		{
-			if(inventory.PaperdollDialogRef != null)
-				inventory.PaperdollDialogRef.SetItem(loc, item);
-		}
-
-		public void SetPaperdollDialog(EOPaperdollDialog dlg)
-		{
-			inventory.PaperdollDialogRef = dlg;
-		}
-
-		public void ClearPaperdollDialog()
-		{
-			inventory.PaperdollDialogRef = null;
-		}
-
 		public void RefreshStats()
 		{
 			if(inventory != null)

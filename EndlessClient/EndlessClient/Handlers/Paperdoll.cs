@@ -33,6 +33,9 @@ namespace EndlessClient.Handlers
 
 		public static void RequestPaperdoll(short charId)
 		{
+			if (EOPaperdollDialog.Instance != null)
+				return;
+
 			EOClient client = (EOClient) World.Instance.Client;
 			if (!client.ConnectedAndInitialized) return;
 
@@ -44,6 +47,10 @@ namespace EndlessClient.Handlers
 
 		public static void PaperdollAgree(Packet pkt) //this is only ever sent to MainPlayer (avatar handles other players)
 		{
+			//don't handle if paperdoll dialog instance is null!
+			if (EOPaperdollDialog.Instance == null)
+				return;
+
 			Avatar.AvatarAgree(pkt); //same logic in the beginning of the packet
 
 			short itemId = pkt.GetShort();
@@ -70,7 +77,7 @@ namespace EndlessClient.Handlers
 			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(itemId);
 			(c = World.Instance.MainPlayer.ActiveCharacter).UpdateInventoryItem(itemId, characterAmount);
 			c.EquipItem(rec.Type, (short)rec.ID, (short)rec.DollGraphic, true, (sbyte)subLoc);
-			EOGame.Instance.Hud.ShowEquippedInPaperdollDialog(rec, rec.GetEquipLocation() + subLoc);
+			EOPaperdollDialog.Instance.SetItem(rec.GetEquipLocation() + subLoc, rec);
 			UpdateStatsAfterEquip(c, data);
 		}
 
@@ -177,9 +184,9 @@ namespace EndlessClient.Handlers
 
 			if (c != null)
 			{
+				//Sets EOPaperdollDialog.Instance field
+// ReSharper disable once UnusedVariable
 				EOPaperdollDialog dlg = new EOPaperdollDialog(c, home, partner, guild, rank, iconType);
-				dlg.DialogClosing += (sender, args) => EOGame.Instance.Hud.ClearPaperdollDialog();
-				EOGame.Instance.Hud.SetPaperdollDialog(dlg);
 			}
 		}
 
