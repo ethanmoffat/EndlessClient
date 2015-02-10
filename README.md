@@ -30,7 +30,7 @@ I encourage everyone to try and break things and file bug reports (see project "
 
 The primary thing that's been completely is the basic framework for running and displaying the game. I have a solid custom-built UI controls library, and liberal use of the XNA Game Component model. Socket connections for sending/receiving data to/from the server are all set up and surprisingly stable (except for when the server closes a connection, but we're ignoring that for now). The framework that is there also allows for easy addition of different Packet handlers, which means more features for the game client can be added without much effort.
 
-~~**The game is not yet playable.**~~ **The game is only slightly playable.** This is the most important thing you need to know. It is more than a foundation, and less than a fully fledged game. The primary thing is that all the pre-game menus work and do everything they're supposed to do, with the exception of scrolling credits (which were annoying anyway). 
+**The game is somewhat playable.** This is the most important thing you need to know. It is more than a foundation, and less than a fully fledged game. The important thing is that it is a work in progress and constantly being improved.
 
 Here's a list of some basic things that can be done:
  - Character rendering/walking
@@ -43,7 +43,7 @@ Here's a list of some basic things that can be done:
  - Item inventory and paperdoll display, equipping/unequipping items
  - Stats display and leveling up stats (str/int/wis/agi/con/cha)
  - Stat bars for main player in HUD (hp/tp/sp/tnl)
- - **Partial** chest interaction - you can open/view items, but taking them crashes the game and you can't add them yet.
+ - Map chest interaction
  - All pre-game menus, logging in, creating/deleting characters, creating account, etc.
 
 <a name="ToDo" />What's Left to do?
@@ -52,10 +52,10 @@ Here's a list of some basic things that can be done:
 There is a HUGE list of things left to do. The client is in its infant stages and is a constantly evolving work in progress. What this means is that as features are implemented, I make an attempt to implement them as completely and accurately as possible before moving on to the next thing. The pre-game menus and UI are completely finished, besides a few small bugs that I'm sure to find. The framework for adding new components is there as well.
 
 Here's a working but incomplete list of things I want to get to in this client (strikethrough means completed):
- - Finish attacking - ~~requires damage counter~~, health bars, and fixing animations to show up properly
+ - Finish attacking - requires ~~damage counter~~, health bars, and fixing animations to show up properly
  - Map signs
  - Map boards
- - Map chests - Almost completed
+ - ~~Map chests~~
  - Map chairs
  - Map bank vaults
  - Right-click players on map
