@@ -24,7 +24,11 @@ namespace EndlessClient
 		public NPCRecord Data { get; private set; }
 
 		public Rectangle DrawArea;
-		public int TopPixel;
+		/// <summary>
+		/// The Y coordinate of the first non-transparent pixel in the NPC's standing-still sprite sheet
+		/// <para>Used for calculating distance above the NPC's head</para>
+		/// </summary>
+		public int TopPixel { get; private set; }
 		public bool Walking { get; private set; }
 		public bool Attacking { get; private set; }
 		public NPCFrame Frame { get; private set; }
@@ -47,7 +51,8 @@ namespace EndlessClient
 
 		private byte DestX { get; set; } //not needed outside this class (yet)
 		public byte DestY { get; private set; }
-		public Character Opponent { get; set; } //used for KS protection
+		public Character Opponent { get; set; }
+		public int HP { get; set; }
 
 		//updated when NPC is walking
 		private int adjX, adjY;
@@ -65,10 +70,12 @@ namespace EndlessClient
 		{
 			Index = pkt.GetChar();
 			short id = pkt.GetShort();
-			Data = World.Instance.ENF.Data[id] as NPCRecord;
 			X = pkt.GetChar();
 			Y = pkt.GetChar();
 			Direction = (EODirection)pkt.GetChar();
+
+			Data = (NPCRecord)World.Instance.ENF.Data[id];
+			HP = Data.HP;
 
 			bool success = true;
 			npcSheet = new EONPCSpriteSheet(this);

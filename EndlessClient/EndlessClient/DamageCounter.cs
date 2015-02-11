@@ -17,10 +17,13 @@ namespace EndlessClient
 		private int m_value;
 		private bool m_isHeal;
 
-		private static Texture2D SpriteSheet;
+		private static Texture2D s_NumberSprites, s_HealthBarSprites;
+		private static readonly object gfx_init_lock = new object();
 
 		private readonly List<Rectangle> m_numbersToDraw;
 		private float m_additionalOffset;
+
+		private Vector2 m_healthBarPos;
 
 		/// <summary>
 		/// This constructor makes the DamageCounter follow 'actor' on the screen.
@@ -43,16 +46,29 @@ namespace EndlessClient
 				throw new ArgumentException("Invalid actor type. Use Character or NPC", "actorType");
 			}
 
-			//lazy init of spritesheet - static so same texture in use for all damage counters
-			//this sheet is a subsheet of GFX002/158 that has only the numbers and 'miss' text
-			if (SpriteSheet == null)
+			lock (gfx_init_lock)
 			{
 				Texture2D wholeSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
-				Color[] data = new Color[122*23];
-				wholeSheet.GetData(0, new Rectangle(41, 29, 122, 23), data, 0, data.Length);
+				//lazy init of spritesheet - static so same texture in use for all damage counters
+				//this sheet is a subsheet of GFX002/158 that has only the numbers and 'miss' text
+				if (s_NumberSprites == null)
+				{
+					Color[] data = new Color[122*23];
+					wholeSheet.GetData(0, new Rectangle(41, 29, 122, 23), data, 0, data.Length);
 
-				SpriteSheet = new Texture2D(Game.GraphicsDevice, 122, 23);
-				SpriteSheet.SetData(data);
+					s_NumberSprites = new Texture2D(Game.GraphicsDevice, 122, 23);
+					s_NumberSprites.SetData(data);
+				}
+
+				//same with health bars - subsheet of GFX002/158 that has only the health bars
+				if (s_HealthBarSprites == null)
+				{
+					Color[] data = new Color[40*35];
+					wholeSheet.GetData(0, new Rectangle(0, 28, 40, 35), data, 0, data.Length);
+
+					s_HealthBarSprites = new Texture2D(Game.GraphicsDevice, 40, 35);
+					s_HealthBarSprites.SetData(data);
+				}
 			}
 
 			m_numbersToDraw = new List<Rectangle>();
@@ -100,6 +116,17 @@ namespace EndlessClient
 			if (m_additionalOffset >= 4) //arbitrary. This will allow 40 updates to the offset before hiding this again.
 				Visible = false;
 
+			if (m_isCharacter)
+			{
+				Rectangle tmp = ((EOCharacterRenderer)m_ref).DrawAreaWithOffset;
+				m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f, tmp.Y - 10);
+			}
+			else
+			{
+				Rectangle tmp = ((NPC)m_ref).DrawArea;
+				m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f, tmp.Y + ((NPC)m_ref).TopPixel - 10);
+			}
+
 			base.Update(gameTime);
 		}
 
@@ -110,6 +137,7 @@ namespace EndlessClient
 			if (!Visible)
 				return;
 
+			//first, get the position that digits should start being drawn at
 			int nDigits = m_numbersToDraw.Count;
 			Vector2 pos;
 			if (m_value == 0)
@@ -118,12 +146,12 @@ namespace EndlessClient
 				if (m_isCharacter)
 				{
 					Rectangle tmp = ((EOCharacterRenderer) m_ref).DrawAreaWithOffset;
-					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y - m_additionalOffset - 5);
+					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y - m_additionalOffset - 9);
 				}
 				else
 				{
 					Rectangle tmp = ((NPC) m_ref).DrawArea;
-					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - 15);
+					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - 19);
 				}
 			}
 			else
@@ -131,12 +159,12 @@ namespace EndlessClient
 				if (m_isCharacter)
 				{
 					Rectangle tmp = ((EOCharacterRenderer) m_ref).DrawAreaWithOffset;
-					pos = new Vector2(tmp.X + tmp.Width/2f - (nDigits*9)/2f, tmp.Y - m_additionalOffset - 5);
+					pos = new Vector2(tmp.X + tmp.Width/2f - (nDigits*9)/2f, tmp.Y - m_additionalOffset - 9);
 				}
 				else
 				{
 					Rectangle tmp = ((NPC) m_ref).DrawArea;
-					pos = new Vector2(tmp.X + tmp.Width/2f - (nDigits*9)/2f, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - 15);
+					pos = new Vector2(tmp.X + tmp.Width/2f - (nDigits*9)/2f, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - 19);
 				}
 			}
 
@@ -145,13 +173,33 @@ namespace EndlessClient
 			if (pos.Y < 0)
 				return;
 
+			//then, draw the digits
 			SpriteBatch.Begin();
 			int ndx = 0;
 			foreach (Rectangle r in m_numbersToDraw)
 			{
-				SpriteBatch.Draw(SpriteSheet, pos + new Vector2(ndx * 9, 0), r, Color.White);
+				SpriteBatch.Draw(s_NumberSprites, pos + new Vector2(ndx * 9, 0), r, Color.White);
 				ndx++;
 			}
+
+			SpriteBatch.Draw(s_HealthBarSprites, m_healthBarPos, new Rectangle(0, 28, 40, 7), Color.White); //draw health bar background container
+
+			double pct;
+			if (m_isCharacter)
+				pct = ((EOCharacterRenderer) m_ref).Character.Stats.hp/(double)((EOCharacterRenderer) m_ref).Character.Stats.maxhp;
+			else
+				pct = ((NPC)m_ref).HP / (double)((NPC)m_ref).Data.HP;
+
+			Rectangle healthSrcRect;
+			if (pct >= .5)
+				healthSrcRect = new Rectangle(0, 7, (int)Math.Round(pct * 40), 7);
+			else if (pct >= .25)
+				healthSrcRect = new Rectangle(0, 14, (int)Math.Round(pct * 40), 7);
+			else
+				healthSrcRect = new Rectangle(0, 21, (int)Math.Round(pct * 40), 7);
+
+			SpriteBatch.Draw(s_HealthBarSprites, m_healthBarPos, healthSrcRect, Color.White);
+
 			SpriteBatch.End();
 			base.Draw(gameTime);
 		}

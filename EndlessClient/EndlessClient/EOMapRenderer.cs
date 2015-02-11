@@ -711,6 +711,7 @@ namespace EndlessClient
 				{
 					if (damage > 0) //npc was killed
 					{
+						npc.HP = Math.Max(npc.HP - damage, 0);
 						npc.FadeAway();
 						npc.Opponent = null;
 						npc.SetDamageCounterValue(damage);
@@ -756,10 +757,10 @@ namespace EndlessClient
 
 			if (damageToPlayer > 0)
 			{
+				rend.Character.Stats.SetHP((short)Math.Max(rend.Character.Stats.hp - damageToPlayer, 0));
 				if (rend.Character == World.Instance.MainPlayer.ActiveCharacter)
 				{
 					//update health in UI
-					rend.Character.Stats.SetHP((short)Math.Max(rend.Character.Stats.hp - damageToPlayer, 0));
 					EOGame.Instance.Hud.RefreshStats();
 				}
 			}
@@ -767,8 +768,6 @@ namespace EndlessClient
 			if (rend == null) return; //couldn't find other player :(
 			
 			rend.SetDamageCounterValue(damageToPlayer);
-
-			//todo: show percent health in health bar above player
 
 			if (isTargetPlayerDead)
 				rend.Die();
@@ -782,8 +781,7 @@ namespace EndlessClient
 			if (toDamage == null) return;
 
 			toDamage.SetDamageCounterValue(damageToNPC);
-
-			//todo: show percent health in health bar above npc
+			toDamage.HP -= damageToNPC;
 
 			EOCharacterRenderer rend = fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.ActiveCharacterRenderer
 				: otherRenderers.Find(_rend => _rend.Character.ID == fromPlayerID);
