@@ -119,7 +119,7 @@ namespace EndlessClient
 			if (m_isCharacter)
 			{
 				Rectangle tmp = ((EOCharacterRenderer)m_ref).DrawAreaWithOffset;
-				m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f, tmp.Y - 10);
+				m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f + 7, tmp.Y + ((EOCharacterRenderer)m_ref).TopPixel);
 			}
 			else
 			{
@@ -146,12 +146,12 @@ namespace EndlessClient
 				if (m_isCharacter)
 				{
 					Rectangle tmp = ((EOCharacterRenderer) m_ref).DrawAreaWithOffset;
-					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y - m_additionalOffset - 9);
+					pos = new Vector2(tmp.X + tmp.Width/2f - 8, tmp.Y + ((EOCharacterRenderer)m_ref).TopPixel - m_additionalOffset - 12);
 				}
 				else
 				{
 					Rectangle tmp = ((NPC) m_ref).DrawArea;
-					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - 19);
+					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - 22);
 				}
 			}
 			else
@@ -159,27 +159,27 @@ namespace EndlessClient
 				if (m_isCharacter)
 				{
 					Rectangle tmp = ((EOCharacterRenderer) m_ref).DrawAreaWithOffset;
-					pos = new Vector2(tmp.X + tmp.Width/2f - (nDigits*9)/2f, tmp.Y - m_additionalOffset - 9);
+					pos = new Vector2(tmp.X + tmp.Width / 2f - (nDigits * 9) / 2f + 7, tmp.Y + ((EOCharacterRenderer)m_ref).TopPixel - m_additionalOffset - 12);
 				}
 				else
 				{
 					Rectangle tmp = ((NPC) m_ref).DrawArea;
-					pos = new Vector2(tmp.X + tmp.Width/2f - (nDigits*9)/2f, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - 19);
+					pos = new Vector2(tmp.X + tmp.Width / 2f - (nDigits * 9) / 2f, tmp.Y + ((NPC)m_ref).TopPixel - m_additionalOffset - 22);
 				}
 			}
-
-			//don't bother drawing if we don't need to...
-			//tall NPCs will do this
-			if (pos.Y < 0)
-				return;
-
-			//then, draw the digits
+			
 			SpriteBatch.Begin();
-			int ndx = 0;
-			foreach (Rectangle r in m_numbersToDraw)
+			//don't bother drawing if we don't need to...
+			//tall NPCs will go less than zero on the numbers
+			if (pos.Y >= 0)
 			{
-				SpriteBatch.Draw(s_NumberSprites, pos + new Vector2(ndx * 9, 0), r, Color.White);
-				ndx++;
+				//then, draw the digits
+				int ndx = 0;
+				foreach (Rectangle r in m_numbersToDraw)
+				{
+					SpriteBatch.Draw(s_NumberSprites, pos + new Vector2(ndx*9, 0), r, Color.White);
+					ndx++;
+				}
 			}
 
 			SpriteBatch.Draw(s_HealthBarSprites, m_healthBarPos, new Rectangle(0, 28, 40, 7), Color.White); //draw health bar background container

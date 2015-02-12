@@ -337,7 +337,8 @@ namespace EndlessClient
 				Visible = true,
 				Text = "",
 				ForeColor = System.Drawing.Color.White,
-				DrawOrder = (int)ControlDrawLayer.BaseLayer + 3
+				DrawOrder = (int)ControlDrawLayer.BaseLayer + 3,
+				AutoSize = false
 			};
 
 			Visible = true;
@@ -940,8 +941,9 @@ namespace EndlessClient
 						_mouseoverName.Text = npc.Data.Name;
 						_mouseoverName.ResizeBasedOnText();
 						_mouseoverName.ForeColor = System.Drawing.Color.White;
-						_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16,
-							cursorPos.Y - npc.TopPixel - _mouseoverName.Texture.Height);
+						_mouseoverName.DrawLocation = new Vector2(
+							npc.DrawArea.X + (npc.DrawArea.Width - _mouseoverName.ActualWidth) /2f,
+							npc.DrawArea.Y + npc.TopPixel - _mouseoverName.Texture.Height - 4);
 						break;
 					case TileInfo.ReturnType.IsOtherPlayer:
 						_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
@@ -953,8 +955,9 @@ namespace EndlessClient
 								World.Instance.ActiveCharacterRenderer).Character.Name;
 						_mouseoverName.ResizeBasedOnText();
 						_mouseoverName.ForeColor = System.Drawing.Color.White;
-						_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16 - _rend.DrawArea.Width/2f,
-							cursorPos.Y - _rend.DrawArea.Height - _mouseoverName.Texture.Height);
+						_mouseoverName.DrawLocation = new Vector2(
+							_rend.DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
+							_rend.DrawAreaWithOffset.Y + _rend.TopPixel - _mouseoverName.Texture.Height - 7);
 						break;
 					default:
 						if (gridX == c.X && gridY == c.Y)
@@ -973,7 +976,7 @@ namespace EndlessClient
 									_hideCursor = true;
 									break;
 								case TileSpec.Chest:
-									//highlight cursor
+									//chest click action
 									_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
 									if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y)) //must be directly adjacent
 									{
@@ -1023,7 +1026,7 @@ namespace EndlessClient
 				}
 
 				Point p;
-				if (MapItems.ContainsKey(p = new Point(gridX, gridY)) && MapItems[p].Count > 0)
+				if (MapItems.ContainsKey(p = new Point(gridX, gridY)) && MapItems[p].Count > 0) //todo: conditional showing of mapitem text if character/npc on top of mapitem
 				{
 					MapItem mi = MapItems[p].Last(); //topmost item has label
 					_cursorSourceRect.Location = new Point(2 * (mouseCursor.Width / 5), 0);
@@ -1031,7 +1034,9 @@ namespace EndlessClient
 					_mouseoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
 					_mouseoverName.ResizeBasedOnText();
 					_mouseoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
-					_mouseoverName.DrawLocation = new Vector2(cursorPos.X + 16, cursorPos.Y - 16 - _mouseoverName.Texture.Height);
+					_mouseoverName.DrawLocation = new Vector2(
+						cursorPos.X + 32 - _mouseoverName.ActualWidth/2f,
+						cursorPos.Y - _mouseoverName.Texture.Height - 4);
 
 					if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
 					{

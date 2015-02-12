@@ -225,6 +225,8 @@ namespace EndlessClient
 			get { return Character.State; }
 		}
 
+		public int TopPixel { get; private set; }
+
 		/// <summary>
 		/// Construct a character renderer in-game
 		/// </summary>
@@ -249,6 +251,14 @@ namespace EndlessClient
 			}
 			Data.SetUpdate(true);
 			_prevKeyState = Keyboard.GetState();
+
+			//get the top pixel!
+			Color[] skinData = new Color[tmpSkin.Width * tmpSkin.Height];
+			tmpSkin.GetData(skinData);
+			int i = 0;
+			while (i < skinData.Length && skinData[i].A == 0) i++;
+			//account for adjustment in drawing the skin in the draw method
+			TopPixel = (Data.gender == 0 ? 12 : 13) + (i == skinData.Length - 1 ? 0 : i / tmpSkin.Height);
 
 			m_chatBubble = new EOChatBubble(this);
 			m_damageCounter = new DamageCounter(this, GetType());
