@@ -15,7 +15,7 @@ namespace EndlessClient.Handlers
 		NPC
 	}
 
-	public static class Talk //rename to packet family
+	public static class Talk
 	{
 		/// <summary>
 		/// sends all different types of Talk packets to server based on which chat type we're doing
@@ -134,6 +134,14 @@ namespace EndlessClient.Handlers
 			string message = pkt.GetBreakString();
 
 			World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.Party, from, message); //TODO: check that the icons/color don't need to be changed
+		}
+
+		public static void TalkServer(Packet pkt)
+		{
+			string msg = pkt.GetEndString();
+			EOGame.Instance.Hud.AddChat(ChatTabs.Local, "Server", msg, ChatType.Exclamation, ChatColor.Server);
+			EOGame.Instance.Hud.AddChat(ChatTabs.Global, "Server", msg, ChatType.Exclamation, ChatColor.ServerGlobal);
+			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", msg, ChatType.Exclamation, ChatColor.Server);
 		}
 	}
 }

@@ -232,6 +232,43 @@ namespace EndlessClient
 		public int Y { get; private set; }
 
 		public byte GuildRankNum { private get; set; }
+
+		public static string KarmaStringFromNum(int num)
+		{
+		   /* 0    - 100  = Demonic
+			* 101  - 500  = Doomed
+			* 501  - 750  = Cursed
+			* 751  - 900  = Evil
+			* 901  - 1099 = Neutral
+			* 1100 - 1249 = Good
+			* 1250 - 1499 = Blessed
+			* 1500 - 1899 = Saint
+			* 1900 - 2000 = Pure
+			*/
+			if (num >= 0)
+			{
+				if (num <= 100)
+					return "Demonic";
+				if (num <= 500)
+					return "Doomed";
+				if (num <= 750)
+					return "Cursed";
+				if (num <= 900)
+					return "Evil";
+				if (num <= 1099)
+					return "Neutral";
+				if (num <= 1249)
+					return "Good";
+				if (num <= 1499)
+					return "Blessed";
+				if (num <= 1899)
+					return "Saint";
+				if (num <= 2000)
+					return "Pure";
+			}
+
+			throw new ArgumentOutOfRangeException("num", num, "Karma values must be between 0-2000");
+		}
 		
 		public Character(int id, CharRenderData data)
 		{

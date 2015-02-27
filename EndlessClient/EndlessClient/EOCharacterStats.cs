@@ -207,8 +207,7 @@ namespace EndlessClient
 						m_otherInfo[i].Text = (World.Instance.exp_table[c.Stats.level + 1] - c.Stats.exp).ToString(CultureInfo.InvariantCulture);
 						break;
 					case KARMA:
-						//todo: figure out the different strings for karma values
-						m_otherInfo[i].Text = "Neutral";
+						m_otherInfo[i].Text = Character.KarmaStringFromNum(c.Stats.karma);
 						break;
 				}
 			}

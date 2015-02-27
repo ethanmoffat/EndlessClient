@@ -88,7 +88,11 @@ namespace EndlessClient
 		/// <summary>
 		/// 5a 3c 00
 		/// </summary>
-		PM
+		PM,
+		/// <summary>
+		/// f0 f0 c8
+		/// </summary>
+		ServerGlobal
 	}
 
 	/// <summary>
@@ -156,6 +160,7 @@ namespace EndlessClient
 					case ChatColor.Error: return Color.FromNonPremultiplied(0x7d, 0x0a, 0x0a, 0xff);
 					case ChatColor.PM: return Color.FromNonPremultiplied(0x5a, 0x3c, 0x00, 0xff);
 					case ChatColor.Server: return Color.FromNonPremultiplied(0xe6, 0xd2, 0xc8, 0xff);
+					case ChatColor.ServerGlobal: return Color.FromNonPremultiplied(0xf0, 0xf0, 0xc8, 0xff);
 					default: throw new IndexOutOfRangeException("ChatColor enumeration unhandled for index " + _index.ToString(CultureInfo.InvariantCulture));
 				}
 			}

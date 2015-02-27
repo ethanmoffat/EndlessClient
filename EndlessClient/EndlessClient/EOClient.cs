@@ -210,6 +210,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Recover.RecoverPlayer, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Recover, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Recover.RecoverReply, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Refresh, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Refresh.RefreshReply, true)
 				},
@@ -233,6 +237,10 @@ namespace EndlessClient
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Request), 
 					new LockedHandlerMethod(Handlers.Talk.TalkRequest, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Server), 
+					new LockedHandlerMethod(Handlers.Talk.TalkServer, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Tell), 
