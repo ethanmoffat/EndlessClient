@@ -73,6 +73,8 @@ namespace EOLib
 			}
 		}
 
+		public byte[] Data { get { return data.ToArray(); } }
+
 		public Packet(PacketFamily family, PacketAction action)
 		{
 			this.data = new List<byte>(2);

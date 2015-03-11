@@ -202,7 +202,7 @@ namespace EndlessClient
 		// Send a packet to the server
 		//---------------------------------------
 
-		public bool SendPacket(Packet pkt)
+		public virtual bool SendPacket(Packet pkt)
 		{
 			//for debugging: sometimes the server is getting PACKET_INTERNAL from this client
 			//I'm not sure why and it happens randomly so this check will allow me to examine
@@ -235,7 +235,7 @@ namespace EndlessClient
 			return true;
 		}
 
-		public bool SendRaw(Packet pkt)
+		public virtual bool SendRaw(Packet pkt)
 		{
 			pkt.WritePos = 0;
 			pkt.AddShort((short) pkt.Length);

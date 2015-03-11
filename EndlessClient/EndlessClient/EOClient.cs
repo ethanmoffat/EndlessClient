@@ -1,6 +1,6 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-
 using EOLib;
 
 namespace EndlessClient
@@ -280,11 +280,56 @@ namespace EndlessClient
 		{
 			Packet pkt = (Packet)state;
 
+			string logOpt;
 			FamilyActionPair pair = new FamilyActionPair(pkt.Family, pkt.Action);
 			if(handlers.ContainsKey(pair))
 			{
+				logOpt = "  handled";
 				handlers[pair].Handler(pkt);
 			}
+			else
+			{
+				logOpt = "UNHANDLED";
+			}
+
+			Logger.Log("RECV thread: Processing {0} packet Family={1,-13} Action={2,-8} sz={3,-5} data={4}",
+				logOpt,
+				Enum.GetName(typeof(PacketFamily), pkt.Family),
+				Enum.GetName(typeof(PacketAction), pkt.Action),
+				pkt.Length,
+				GetDataDisplayString(pkt.Data));
+		}
+
+		public override bool SendPacket(Packet pkt)
+		{
+			Logger.Log("SEND thread: Processing       ENC packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}", 
+				Enum.GetName(typeof(PacketFamily), pkt.Family),
+				Enum.GetName(typeof(PacketAction), pkt.Action),
+				pkt.Length,
+				GetDataDisplayString(pkt.Data));
+			return base.SendPacket(pkt);
+		}
+
+		public override bool SendRaw(Packet pkt)
+		{
+			Logger.Log("SEND thread: Processing       RAW packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
+				Enum.GetName(typeof(PacketFamily), pkt.Family),
+				Enum.GetName(typeof(PacketAction), pkt.Action),
+				pkt.Length,
+				GetDataDisplayString(pkt.Data));
+			return base.SendRaw(pkt);
+		}
+
+		private string GetDataDisplayString(byte[] data)
+		{
+			//This will log a string of data that will be usable by the PacketDecoder utility. colon-delimited 2-character hex values.
+			string result = "";
+// ReSharper disable once LoopCanBeConvertedToQuery
+			for (int i = 0; i < data.Length; ++i)
+				result += string.Format("{0}:", data[i].ToString("x2"));
+			if (result.Length > 1)
+				result = result.Substring(0, result.Length - 1);
+			return result;
 		}
 
 		protected override void Dispose(bool disposing)

@@ -74,6 +74,9 @@ namespace EOLib
 
 		public const int NPCDropProtectionSeconds = 30;
 		public const int PlayerDropProtectionSeconds = 5;
+
+		public const string LogFilePath = "log/debug.log";
+		public const string LogFileFmt  = "log/{0}-debug.log";
 	}
 
 	public static class ConfigStrings
@@ -90,6 +93,7 @@ namespace EOLib
 		public const string Settings = "SETTINGS";
 		public const string ShowShadows = "ShowShadows";
 		public const string ShowTransition = "ShowTransition";
+		public const string EnableLogging = "EnableLogging";
 
 		public const string Custom = "CUSTOM";
 		public const string NPCDropProtectTime = "NPCDropProtectTime";
