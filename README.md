@@ -104,6 +104,7 @@ Client=28
 [SETTINGS]
 ShowShadows=true #show/hide shadows on map
 ShowTransition=true #enable/disable fancy transition on map (custom)
+EnableLogging=true #enable/disable logging (Warning: this generates a lot of disk i/o and will cause performance loss)
 [CUSTOM]
 #seconds after a drop that drop protection will stop (custom)
 NPCDropProtectTime=30
