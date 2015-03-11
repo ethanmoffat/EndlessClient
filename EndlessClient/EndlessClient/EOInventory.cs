@@ -35,6 +35,7 @@ namespace EndlessClient
 		private int m_alpha = 255;
 		private int m_preDragDrawOrder;
 		private XNAControl m_preDragParent;
+		private int m_oldOffX, m_oldOffY;
 		public bool Dragging
 		{
 			get { return m_beingDragged; }
@@ -80,7 +81,13 @@ namespace EndlessClient
 					m_nameLabel.Visible = false;
 					m_preDragDrawOrder = DrawOrder;
 					m_preDragParent = parent;
+					
+					//make sure the offsets are maintained!
+					//required to enable dragging past bounds of the inventory panel
+					m_oldOffX = xOff;
+					m_oldOffY = yOff;
 					SetParent(null);
+					
 					m_alpha = 128;
 					DrawOrder = 100; //arbitrarily large constant so drawn on top while dragging
 				}
@@ -90,7 +97,7 @@ namespace EndlessClient
 			    currentState.LeftButton == ButtonState.Pressed)
 			{
 				//dragging has started. continue dragging until mouse is released, update position based on mouse location
-				DrawLocation = new Vector2(currentState.X - (DrawArea.Width/2) - xOff, currentState.Y - (DrawArea.Height/2) - yOff); //xOff/yOff: included in calculations later
+				DrawLocation = new Vector2(currentState.X - (DrawArea.Width/2), currentState.Y - (DrawArea.Height/2));
 			}
 			else if (m_beingDragged && PreviousMouseState.LeftButton == ButtonState.Pressed &&
 			         currentState.LeftButton == ButtonState.Released)
@@ -242,8 +249,8 @@ namespace EndlessClient
 			{
 				int currentSlot = ItemCurrentSlot();
 				Vector2 drawLoc = m_beingDragged
-					? new Vector2(xOff + 13 + 26*(currentSlot%EOInventory.INVENTORY_ROW_LENGTH),
-						yOff + 9 + 26*(currentSlot/EOInventory.INVENTORY_ROW_LENGTH)) //recalculate the top-left point for the highlight based on the current drag position
+					? new Vector2(m_oldOffX + 13 + 26*(currentSlot%EOInventory.INVENTORY_ROW_LENGTH),
+						m_oldOffY + 9 + 26*(currentSlot/EOInventory.INVENTORY_ROW_LENGTH)) //recalculate the top-left point for the highlight based on the current drag position
 					: new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y);
 
 				if (EOInventory.GRID_AREA.Contains(new Rectangle((int) drawLoc.X, (int) drawLoc.Y, DrawArea.Width, DrawArea.Height)))
@@ -281,7 +288,7 @@ namespace EndlessClient
 			if (!m_beingDragged) return Slot;
 
 			//convert the current draw area to a slot number (for when the item is dragged)
-			return (int)((DrawLocation.X - 13)/26) + EOInventory.INVENTORY_ROW_LENGTH * (int)((DrawLocation.Y - 9)/26);
+			return (int)((DrawLocation.X - m_oldOffX - 13)/26) + EOInventory.INVENTORY_ROW_LENGTH * (int)((DrawLocation.Y - m_oldOffY - 9)/26);
 		}
 
 		public void UpdateItemLabel()
