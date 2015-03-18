@@ -125,6 +125,7 @@
     <Compile Include="EOInventory.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="EOMapContextMenu.cs" />
     <Compile Include="EOMapRenderer.cs" />
     <Compile Include="EOChatRenderer.cs" />
     <Compile Include="Game.cs" />

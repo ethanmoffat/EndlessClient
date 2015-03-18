@@ -320,6 +320,8 @@ namespace EndlessClient
 
 		private ManualResetEventSlim m_eventChangeMap;
 
+		private EOMapContextMenu m_contextMenu;
+
 		public EOMapRenderer(Game g, MapFile mapObj)
 			: base(g)
 		{
@@ -856,6 +858,8 @@ namespace EndlessClient
 				ColorDestinationBlend = Blend.One
 			};
 
+			m_contextMenu = new EOMapContextMenu();
+
 			base.Initialize();
 		}
 
@@ -902,8 +906,9 @@ namespace EndlessClient
 
 		private void _updateCursorInfo(MouseState ms)
 		{
-			//don't do the cursor if there is a dialog open
-			if (EOPaperdollDialog.Instance != null || EOChestDialog.Instance != null)
+			//don't do the cursor if there is a dialog open or the mouse is over the context menu
+			if (EOPaperdollDialog.Instance != null || EOChestDialog.Instance != null ||
+				(m_contextMenu.Visible && m_contextMenu.MouseOver))
 				return;
 
 			//need to solve this system of equations to get x, y on the grid
@@ -926,7 +931,11 @@ namespace EndlessClient
 			if (gridX >= 0 && gridX <= MapRef.Width && gridY >= 0 && gridY <= MapRef.Height)
 			{
 				bool mouseClicked = ms.LeftButton == ButtonState.Released && _prevState.LeftButton == ButtonState.Pressed;
-				mouseClicked = mouseClicked && XNAControl.Dialogs.Count == 0; //don't handle mouse clicks for map if there is a dialog being shown
+				bool rightClicked = ms.RightButton == ButtonState.Released && _prevState.RightButton == ButtonState.Pressed;
+				
+				//don't handle mouse clicks for map if there is a dialog being shown
+				mouseClicked = mouseClicked && XNAControl.Dialogs.Count == 0;
+				rightClicked = rightClicked && XNAControl.Dialogs.Count == 0;
 
 				TileInfo ti = CheckCoordinates((byte) gridX, (byte) gridY);
 				switch (ti.ReturnValue)
@@ -946,6 +955,10 @@ namespace EndlessClient
 							npc.DrawArea.Y + npc.TopPixel - _mouseoverName.Texture.Height - 4);
 						break;
 					case TileInfo.ReturnType.IsOtherPlayer:
+						//todo: this needs to be moved into some mouseover shit for character renderer
+						//note: right-click and mouseover applies when mouse is over a character and that character
+						//	is front-most in a given pile of characters that the mouse could be over
+
 						_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
 						EOCharacterRenderer _rend;
 						_mouseoverName.Visible = true;
@@ -958,6 +971,20 @@ namespace EndlessClient
 						_mouseoverName.DrawLocation = new Vector2(
 							_rend.DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
 							_rend.DrawAreaWithOffset.Y + _rend.TopPixel - _mouseoverName.Texture.Height - 7);
+
+						//handle right-clicking a player. menu when not ActiveCharacter, paperdoll when ActiveCharacter
+						if (rightClicked)
+						{
+							if (_rend == World.Instance.ActiveCharacterRenderer)
+								Paperdoll.RequestPaperdoll((short) _rend.Character.ID);
+							else
+							{
+								//show the right-click menu
+								//make it a member instance since there is only one ever
+								m_contextMenu.SetCharacterRenderer(_rend);
+							}
+						}
+
 						break;
 					default:
 						if (gridX == c.X && gridY == c.Y)
@@ -1080,8 +1107,12 @@ namespace EndlessClient
 				sb.Begin();
 				/*_drawCursor()*/
 				if (!_hideCursor && gridX >= 0 && gridY >= 0 && gridX <= MapRef.Width && gridY <= MapRef.Height)
-					sb.Draw(mouseCursor, cursorPos, _cursorSourceRect, Color.White);
-				
+				{
+					//don't draw cursor if context menu is visible and the context menu has the mouse over it
+					if(!(m_contextMenu.Visible && m_contextMenu.MouseOver))
+						sb.Draw(mouseCursor, cursorPos, _cursorSourceRect, Color.White);
+				}
+
 				/*_drawPlayersNPCsAndMapObjects()*/
 				sb.Draw(_rtMapObjAbovePlayer, Vector2.Zero, Color.White);
 				sb.Draw(_rtMapObjBelowPlayer, Vector2.Zero, Color.White);
@@ -1547,6 +1578,8 @@ namespace EndlessClient
 			_playerBlend.Dispose();
 			sb.Dispose();
 			_doorTimer.Dispose();
+
+			m_contextMenu.Dispose();
 
 			base.Dispose(true);
 		}
