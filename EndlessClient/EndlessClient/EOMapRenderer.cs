@@ -58,6 +58,7 @@ namespace EndlessClient
 		private const int ML = 3, MM = 4, MR = 5;
 		private const int RL = 6, RM = 7, RR = 8, NUB = 9;
 		private static bool textsLoaded;
+		private static readonly object _textlocker_ = new object();
 		private static Texture2D[] texts;
 
 		private DateTime? m_startTime;
@@ -125,22 +126,26 @@ namespace EndlessClient
 		{
 			if(sb == null)
 				sb = new SpriteBatch(GraphicsDevice);
-
-			if (!textsLoaded)
+			
+			//race condition: if 2 speech bubbles are created simultaneously it may try to load textures twice
+			lock (_textlocker_)
 			{
-				texts = new Texture2D[10];
-				texts[TL] = Game.Content.Load<Texture2D>("ChatBubble\\TL");
-				texts[TM] = Game.Content.Load<Texture2D>("ChatBubble\\TM");
-				texts[TR] = Game.Content.Load<Texture2D>("ChatBubble\\TR");
-				texts[ML] = Game.Content.Load<Texture2D>("ChatBubble\\ML");
-				texts[MM] = Game.Content.Load<Texture2D>("ChatBubble\\MM");
-				texts[MR] = Game.Content.Load<Texture2D>("ChatBubble\\MR");
-				//typed an R instead of a B. I'm tired; somehow bot=R made more sense than bot=B
-				texts[RL] = Game.Content.Load<Texture2D>("ChatBubble\\RL");
-				texts[RM] = Game.Content.Load<Texture2D>("ChatBubble\\RM");
-				texts[RR] = Game.Content.Load<Texture2D>("ChatBubble\\RR");
-				texts[NUB] = Game.Content.Load<Texture2D>("ChatBubble\\NUB");
-				textsLoaded = true;
+				if (!textsLoaded)
+				{
+					texts = new Texture2D[10];
+					texts[TL] = Game.Content.Load<Texture2D>("ChatBubble\\TL");
+					texts[TM] = Game.Content.Load<Texture2D>("ChatBubble\\TM");
+					texts[TR] = Game.Content.Load<Texture2D>("ChatBubble\\TR");
+					texts[ML] = Game.Content.Load<Texture2D>("ChatBubble\\ML");
+					texts[MM] = Game.Content.Load<Texture2D>("ChatBubble\\MM");
+					texts[MR] = Game.Content.Load<Texture2D>("ChatBubble\\MR");
+					//typed an R instead of a B. I'm tired; somehow bot=R made more sense than bot=B
+					texts[RL] = Game.Content.Load<Texture2D>("ChatBubble\\RL");
+					texts[RM] = Game.Content.Load<Texture2D>("ChatBubble\\RM");
+					texts[RR] = Game.Content.Load<Texture2D>("ChatBubble\\RR");
+					texts[NUB] = Game.Content.Load<Texture2D>("ChatBubble\\NUB");
+					textsLoaded = true;
+				}
 			}
 
 			base.LoadContent();

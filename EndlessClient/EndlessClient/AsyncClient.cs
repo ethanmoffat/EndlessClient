@@ -341,8 +341,13 @@ namespace EndlessClient
 								if (pktOffset > 3)
 									data = data.SubArray(0, pkt.Length - (pktOffset - 3));
 
-								data[2] = (byte) reply;
 								//rewrite the InitReply with the correct value (retrieved with GetChar, server sends with GetByte for other reply types)
+								data[2] = (byte) reply;
+							}
+							else if (Handlers.Init.ExpectingPlayerList)
+							{
+								//online list sends a char... rewrite it with a byte so it is parsed correctly.
+								data[2] = (byte) reply;
 							}
 						}
 

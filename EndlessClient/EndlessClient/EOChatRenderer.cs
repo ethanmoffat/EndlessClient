@@ -601,5 +601,37 @@ namespace EndlessClient
 			else if (tabs[i = (int) ChatTabs.Private2].ChatCharacter == character)
 				tabs[i].ClosePrivateChat();
 		}
+
+		public static ChatType GetChatTypeFromPaperdollIcon(PaperdollIconType whichIcon)
+		{
+			ChatType iconType;
+			switch (whichIcon)
+			{
+				case PaperdollIconType.Normal:
+					iconType = ChatType.Player;
+					break;
+				case PaperdollIconType.GM:
+					iconType = ChatType.GM;
+					break;
+				case PaperdollIconType.HGM:
+					iconType = ChatType.HGM;
+					break;
+				case PaperdollIconType.Party:
+					iconType = ChatType.PlayerParty;
+					break;
+				case PaperdollIconType.GMParty:
+					iconType = ChatType.GMParty;
+					break;
+				case PaperdollIconType.HGMParty:
+					iconType = ChatType.HGMParty;
+					break;
+				case PaperdollIconType.SLNBot:
+					iconType = ChatType.PlayerPartyDark;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("whichIcon", "Invalid Icon type specified.");
+			}
+			return iconType;
+		}
 	}
 }

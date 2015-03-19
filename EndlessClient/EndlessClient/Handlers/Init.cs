@@ -54,6 +54,7 @@ namespace EndlessClient.Handlers
 		private static byte BanMinsLeft = 255;
 
 		public static bool ExpectingFile { get; private set; }
+		public static bool ExpectingPlayerList { get; private set; }
 
 		public static bool CanProceed { get { return ServerResponse == InitReply.INIT_OK; } }
 		public static InitData Data;
@@ -124,6 +125,9 @@ namespace EndlessClient.Handlers
 			if (!client.ConnectedAndInitialized)
 				return false;
 
+			if (ExpectingPlayerList && !response.WaitOne(Constants.ResponseTimeout))
+				return false;
+
 			response.Reset();
 
 			//send the file request
@@ -139,6 +143,26 @@ namespace EndlessClient.Handlers
 
 			return true;
 		}
+
+		//like warpgetmap above, does not send INIT family packet (same reasons)
+		//sends PLAYERS_REQUEST to server
+		public static void RequestOnlineList(bool isFriendList)
+		{
+			EOClient client = (EOClient)World.Instance.Client;
+			if (!client.ConnectedAndInitialized)
+				return;
+
+			//wait for file if it is in process
+			if (ExpectingFile && !response.WaitOne(Constants.ResponseFileTimeout))
+				return;
+
+			response.Reset();
+
+			ExpectingPlayerList = true;
+
+			Packet pkt = new Packet(PacketFamily.Players, isFriendList ? PacketAction.List : PacketAction.Request);
+			client.SendPacket(pkt);
+		}
 		
 		//this is the handler function for INIT_INIT
 		public static void InitResponse(Packet pkt)
@@ -146,6 +170,12 @@ namespace EndlessClient.Handlers
 			ServerResponse = (InitReply)pkt.GetByte();
 			switch (ServerResponse)
 			{
+				case InitReply.INIT_FRIEND_LIST_PLAYERS:
+				case InitReply.INIT_PLAYERS:
+					if (!ExpectingPlayerList)
+						break;
+					Players.HandlePlayerList(pkt, ServerResponse == InitReply.INIT_FRIEND_LIST_PLAYERS);
+					break;
 				case InitReply.INIT_BANNED:
 				{
 					//ok...this is SO dumb. Apparently the server sends INIT_BANNED in response to a WARP_TAKE packet. WTF.
@@ -245,6 +275,7 @@ namespace EndlessClient.Handlers
 			}
 
 			ExpectingFile = false;
+			ExpectingPlayerList = false;
 			response.Set();
 		}
 

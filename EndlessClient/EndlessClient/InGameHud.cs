@@ -55,6 +55,7 @@ namespace EndlessClient
 		private readonly EOChatRenderer chatRenderer;
 		private EOInventory inventory;
 		private EOCharacterStats stats;
+		private readonly EOOnlineList m_whoIsOnline;
 		private readonly ChatTab newsTab;
 
 		private readonly XNALabel statusLabel; //label for status (mouse-over buttons)
@@ -285,6 +286,8 @@ namespace EndlessClient
 			StatusBars[1] = new HudElementTP();
 			StatusBars[2] = new HudElementSP();
 			StatusBars[3] = new HudElementTNL();
+
+			m_whoIsOnline = new EOOnlineList(pnlOnline);
 		}
 
 		public override void Initialize()
@@ -405,6 +408,7 @@ namespace EndlessClient
 					pnlStats.Visible = true;
 					break;
 				case InGameStates.Online:
+					Init.RequestOnlineList(false);
 					pnlOnline.Visible = true;
 					break;
 				case InGameStates.Party:
@@ -605,10 +609,13 @@ namespace EndlessClient
 				return inventory.UpdateItem(item);
 			return true;
 		}
-
 		public bool IsInventoryDragging()
 		{
 			return !inventory.NoItemsDragging();
+		}
+		public bool InventoryFits(short id)
+		{
+			return inventory.ItemFits(id);
 		}
 
 		public void RefreshStats()
@@ -617,6 +624,13 @@ namespace EndlessClient
 				inventory.UpdateWeightLabel();
 			if(stats != null)
 				stats.Refresh();
+		}
+
+		public void SetOnlineList(List<OnlineEntry> onlinePlayers)
+		{
+			if (state != InGameStates.Online)
+				return;
+			m_whoIsOnline.SetOnlinePlayerList(onlinePlayers);
 		}
 		#endregion
 		
@@ -654,11 +668,6 @@ namespace EndlessClient
 			}
 
 			base.Dispose(disposing);
-		}
-
-		public bool InventoryFits(short id)
-		{
-			return inventory.ItemFits(id);
 		}
 	}
 }

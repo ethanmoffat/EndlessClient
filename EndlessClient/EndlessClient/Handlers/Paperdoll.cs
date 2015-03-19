@@ -161,7 +161,7 @@ namespace EndlessClient.Handlers
 			for (int i = 0; i < (int) EquipLocation.PAPERDOLL_MAX; ++i)
 				paperdoll[i] = pkt.GetShort();
 
-			var iconType = (EOPaperdollDialog.IconType)pkt.GetChar();
+			PaperdollIconType iconType = (PaperdollIconType)pkt.GetChar();
 			
 			EndlessClient.Character c;
 			if (World.Instance.MainPlayer.ActiveCharacter.ID == playerID)

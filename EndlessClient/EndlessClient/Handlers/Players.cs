@@ -1,4 +1,6 @@
-﻿using EOLib;
+﻿using System.Collections.Generic;
+using EOLib;
+using EOLib.Data;
 
 namespace EndlessClient.Handlers
 {
@@ -85,6 +87,64 @@ namespace EndlessClient.Handlers
 				"System",
 				string.Format("{0} is online somewhere in this world.", char.ToUpper(charName[0]) + charName.Substring(1)),
 				ChatType.LookingDude);
+		}
+
+		//this has nothing to do with init logic but uses an INIT packet family
+		//handles when the server sends a list of currently online players to the client
+		public static void HandlePlayerList(Packet pkt, bool isFriendList)
+		{
+			short numTotal = pkt.GetShort();
+			if (pkt.GetByte() != 255)
+				return;
+
+			List<OnlineEntry> onlinePlayers = new List<OnlineEntry>();
+			Dictionary<int, string> classCache = new Dictionary<int, string>();
+			for (int i = 0; i < numTotal; ++i)
+			{
+				string name = pkt.GetBreakString();
+
+				if (!isFriendList)
+				{
+					string title = pkt.GetBreakString();
+					if (pkt.GetChar() != 0)
+						return;
+					PaperdollIconType iconType = (PaperdollIconType) pkt.GetChar();
+					int clsId = pkt.GetChar();
+					string clss;
+					if (classCache.ContainsKey(clsId))
+					{
+						clss = classCache[clsId];
+					}
+					else
+					{
+						clss = ((ClassRecord)World.Instance.ECF.Data.Find(dat => ((ClassRecord)dat).ID == clsId)).Name;
+						classCache.Add(clsId, clss);
+					}
+					string guild = pkt.GetBreakString();
+
+					if (string.IsNullOrWhiteSpace(title))
+						title = "-";
+					if (string.IsNullOrWhiteSpace(clss))
+						clss = "-";
+					if (string.IsNullOrWhiteSpace(guild))
+						guild = "-";
+
+					name = char.ToUpper(name[0]) + name.Substring(1);
+					title = char.ToUpper(title[0]) + title.Substring(1);
+
+					onlinePlayers.Add(new OnlineEntry(name, title, guild, clss, iconType));
+				}
+				else
+				{
+					onlinePlayers.Add(new OnlineEntry(name, "", "", "", PaperdollIconType.Normal));
+				}
+			}
+
+			if (!isFriendList)
+			{
+				EOGame.Instance.Hud.SetOnlineList(onlinePlayers);
+			}
+			//todo: friend list add
 		}
 	}
 }

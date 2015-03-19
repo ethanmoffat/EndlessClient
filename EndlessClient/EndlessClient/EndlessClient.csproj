@@ -128,6 +128,7 @@
     <Compile Include="EOMapContextMenu.cs" />
     <Compile Include="EOMapRenderer.cs" />
     <Compile Include="EOChatRenderer.cs" />
+    <Compile Include="EOOnlineList.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameUI.cs" />
     <Compile Include="Handlers\Account.cs" />

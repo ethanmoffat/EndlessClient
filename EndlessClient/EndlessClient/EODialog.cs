@@ -17,6 +17,17 @@ using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace EndlessClient
 {
+	public enum PaperdollIconType
+	{
+		Normal = 0,
+		GM = 4,
+		HGM = 5,
+		Party = 6,
+		GMParty = 9,
+		HGMParty = 10,
+		SLNBot = 20
+	}
+
 	public class EODialogBase : XNADialog
 	{
 		protected readonly Texture2D smallButtonSheet;
@@ -1065,18 +1076,7 @@ namespace EndlessClient
 
 		private static readonly Rectangle m_characterIconRect = new Rectangle(227, 258, 44, 21);
 
-		public enum IconType
-		{
-			Normal = 0,
-			GM = 4,
-			HGM = 5,
-			Party = 6,
-			GMParty = 9,
-			HGMParty = 10,
-			SLNBot = 20
-		}
-
-		public EOPaperdollDialog(Character character, string home, string partner, string guild, string guildRank, IconType whichIcon)
+		public EOPaperdollDialog(Character character, string home, string partner, string guild, string guildRank, PaperdollIconType whichIcon)
 		{
 			if(Instance != null)
 				throw new InvalidOperationException("Paperdoll is already open!");
@@ -1155,33 +1155,7 @@ namespace EndlessClient
 
 			labels.ToList().ForEach(_l => { _l.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8); _l.SetParent(this); });
 
-			ChatType iconType;
-			switch (whichIcon)
-			{
-				case IconType.Normal:
-					iconType = ChatType.Player;
-					break;
-				case IconType.GM:
-					iconType = ChatType.GM;
-					break;
-				case IconType.HGM:
-					iconType = ChatType.HGM;
-					break;
-				case IconType.Party:
-					iconType = ChatType.PlayerParty;
-					break;
-				case IconType.GMParty:
-					iconType = ChatType.GMParty;
-					break;
-				case IconType.HGMParty:
-					iconType = ChatType.HGMParty;
-					break;
-				case IconType.SLNBot:
-					iconType = ChatType.PlayerPartyDark;
-					break;
-				default:
-					throw new ArgumentOutOfRangeException("whichIcon", "Invalid Icon type specified.");
-			}
+			ChatType iconType = EOChatRenderer.GetChatTypeFromPaperdollIcon(whichIcon);
 			m_characterIcon = ChatTab.GetChatIcon(iconType);
 
 			//should not be centered vertically: only display in game window
