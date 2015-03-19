@@ -21,7 +21,7 @@ There is a [Release Binary ZIP](https://github.com/ethanmoffat/EndlessClient/blo
 
 You will need to install the [XNA Game Framework](http://www.microsoft.com/en-us/download/details.aspx?id=20914) and the [.NET framework 4.0](http://www.microsoft.com/en-us/download/details.aspx?id=17718) (if you don't have .NET installed already).
 
-Gameplay is pretty simple since you can't do much yet. Walking is done with the arrow keys. Attacking is done by holding left or right CTRL key. Mouse is used for interacting with items that drop on the map (single-click to pick up). You can click+drag items around the inventory as well.
+Gameplay is pretty simple since you can't do much yet. Walking is done with the arrow keys. Attacking is done by holding left or right CTRL key. Mouse is used for interacting with items that drop on the map (single-click to pick up). You can click+drag items around the inventory as well. Double-click inventory items to equip them, or open the "Paperdoll" and drag+drop between the inventory and the active equipment. You can right-click other players to get a menu of interactive options for that player too.
 
 I encourage everyone to try and break things and file bug reports (see project "Issues"). The more testing the better!
 
@@ -32,7 +32,7 @@ The primary thing that's been completely is the basic framework for running and 
 
 **The game is somewhat playable.** This is the most important thing you need to know. It is more than a foundation, and less than a fully fledged game. The important thing is that it is a work in progress and constantly being improved.
 
-Here's a list of some basic things that can be done:
+Here's a list of some things that can be done:
  - Character rendering/walking
  - NPC rendering/walking
  - Map rendering/scrolling during walk
@@ -44,6 +44,7 @@ Here's a list of some basic things that can be done:
  - Stats display and leveling up stats (str/int/wis/agi/con/cha)
  - Stat bars for main player in HUD (hp/tp/sp/tnl)
  - Map chest interaction
+ - Interaction with other players via right-clicking them (limited)
  - All pre-game menus, logging in, creating/deleting characters, creating account, etc.
 
 <a name="ToDo" />What's Left to do?
@@ -58,7 +59,7 @@ Here's a working but incomplete list of things I want to get to in this client (
  - ~~Map chests~~
  - Map chairs
  - Map bank vaults
- - Right-click players on map
+ - ~~Right-click players on map~~
  - Cast spells and spell animations
  - Finishing HUD panels -  ~~'view minimap' toggle~~, spells, online players, parties, spells, settings, help
  - ~~HUD meters - HP/SP/TP/TNL~~
@@ -104,7 +105,7 @@ Client=28
 [SETTINGS]
 ShowShadows=true #show/hide shadows on map
 ShowTransition=true #enable/disable fancy transition on map (custom)
-EnableLogging=true #enable/disable logging (Warning: this generates a lot of disk i/o and will cause performance loss)
+EnableLogging=true #enable/disable logging (Warning: this causes a performance hit and should only be used for debugging purposes)
 [CUSTOM]
 #seconds after a drop that drop protection will stop (custom)
 NPCDropProtectTime=30
