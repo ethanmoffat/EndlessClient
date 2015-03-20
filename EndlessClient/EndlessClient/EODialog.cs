@@ -883,9 +883,7 @@ namespace EndlessClient
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
-#if !DEBUG //only sleep on release builds!
-						Thread.Sleep(1000); //computers are fast: I think the actual client sleeps at this point in its logic too because there is no way it should take as long as it does
-#endif
+						Thread.Sleep(1000);
 					}
 
 					if (World.Instance.NeedEIF)
@@ -896,9 +894,7 @@ namespace EndlessClient
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
-#if !DEBUG //only sleep on release builds!
 						Thread.Sleep(1000);
-#endif
 					}
 
 					if (World.Instance.NeedENF)
@@ -909,9 +905,7 @@ namespace EndlessClient
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
-#if !DEBUG //only sleep on release builds!
 						Thread.Sleep(1000);
-#endif
 					}
 
 					if (World.Instance.NeedESF)
@@ -922,9 +916,7 @@ namespace EndlessClient
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
-#if !DEBUG //only sleep on release builds!
 						Thread.Sleep(1000);
-#endif
 					}
 
 					if (World.Instance.NeedECF)
@@ -935,9 +927,7 @@ namespace EndlessClient
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
 						}
-#if !DEBUG //only sleep on release builds!
 						Thread.Sleep(1000);
-#endif
 					}
 
 					caption.Text = loading;
@@ -946,10 +936,7 @@ namespace EndlessClient
 						Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 						return;
 					}
-#if !DEBUG //only sleep on release builds!
 					Thread.Sleep(1000);
-#endif
-
 					Close(null, XNADialogResult.OK); //using OK here to mean everything was successful. NO_BUTTON_PRESSED means unsuccessful.
 				}).Start();
 			}
