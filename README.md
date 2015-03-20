@@ -9,6 +9,7 @@ Note: any glitches you can find in the above GIF prove how much of a work in pro
 
 #### Jump to:
  - [Download and Play](#Download)
+ - [Building the Source](#Source)
  - [What is there so far?](#SoFar)
  - [What is left to do?](#ToDo)
  - [Running the game - Additional Info](#AdditionalGameInfo)
@@ -24,6 +25,26 @@ You will need to install the [XNA Game Framework](http://www.microsoft.com/en-us
 Gameplay is pretty simple since you can't do much yet. Walking is done with the arrow keys. Attacking is done by holding left or right CTRL key. Mouse is used for interacting with items that drop on the map (single-click to pick up). You can click+drag items around the inventory as well. Double-click inventory items to equip them, or open the "Paperdoll" and drag+drop between the inventory and the active equipment. You can right-click other players to get a menu of interactive options for that player too.
 
 I encourage everyone to try and break things and file bug reports (see project "Issues"). The more testing the better!
+
+<a name="Source" />Building the Source
+---------------------
+
+There are a few prerequisites that need to be installed before the source can be built. Primary development environment for this project is VS 2013 w/ Update 2 on Win8.1 x64.
+
+These instructions have been tested in a Virtual Machine running Windows 7 Professional x64 With SP1.
+
+1. Install Windows and run windows update cyclically until there are no more
+2. Install Visual Studio 2013 ([the **free** Community Edition also works](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) if you don't have a licensed full version)
+3. Install the [XNA 4.0 Refresh](https://xnags.codeplex.com/releases/view/117230) visual studio extension and its dependencies. These are all included in the linked .zip file (four prereqs + the extension itself)
+4. Optionally: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/) (student licenses are **free**!)
+5. Install your favorite git client and fork the latest changes (I highly recommend [Atlassian SourceTree](http://www.sourcetreeapp.com/))
+6. Build the solution in VS 2013 and launch. You should be up and running!
+
+Note that the game client requires some additional files to be copied to the *bin* directory before the game will successfully launch:
+
+1. Download the Endless Online client from [www.endless-online.com](http://files.endless-online.com/EOzipped028.zip)
+2. Copy the files from the GFX folder in the linked zip archive above to a folder named GFX in the output bin directory. These files are required to run the game.
+3. Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory.
 
 <a name="SoFar" />What is there so far?
 ---------------------
@@ -61,7 +82,7 @@ Here's a working but incomplete list of things I want to get to in this client (
  - Map bank vaults
  - ~~Right-click players on map~~
  - Cast spells and spell animations
- - Finishing HUD panels -  ~~'view minimap' toggle~~, spells, online players, parties, spells, settings, help
+ - Finishing HUD panels -  ~~'view minimap' toggle~~, active spells, ~~online players~~, parties, settings, help
  - ~~HUD meters - HP/SP/TP/TNL~~
  - HUD Quests/Exp info
  - HUD Friend/Ignore lists
@@ -87,6 +108,7 @@ You will need a copy of eoserv set up and running, or another Endless Online ser
 
 GFX files are now distributed with the game client, and any map or pub files are loaded from the server during gameplay.
 
+<a name="SampleConfigFile" />
 ##### Config File
 
 Here is a sample configuration file with the available configuration settings that are currently being parsed by the client:
