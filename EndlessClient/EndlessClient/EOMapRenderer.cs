@@ -323,7 +323,7 @@ namespace EndlessClient
 		private EOLib.Warp _door;
 		private byte _doorY; //since y-coord not stored in Warp object...
 
-		private ManualResetEventSlim m_eventChangeMap;
+		private ManualResetEventSlim m_drawingEvent;
 
 		private EOMapContextMenu m_contextMenu;
 
@@ -348,6 +348,7 @@ namespace EndlessClient
 				AutoSize = false
 			};
 
+			m_drawingEvent = new ManualResetEventSlim(true);
 			Visible = true;
 
 			//shadows on by default
@@ -421,14 +422,8 @@ namespace EndlessClient
 
 		public void SetActiveMap(MapFile newActiveMap)
 		{
-			if (m_eventChangeMap == null)
-			{
-				m_eventChangeMap = new ManualResetEventSlim(true);
-			}
-			else
-			{
-				m_eventChangeMap.Wait();
-			}
+			m_drawingEvent.Wait();
+			m_drawingEvent.Reset();
 
 			MapRef = newActiveMap;
 			MapItems.Clear();
@@ -456,7 +451,7 @@ namespace EndlessClient
 			if (MapRef.MapAvailable == 0)
 				m_showMiniMap = false;
 
-			m_eventChangeMap.Set();
+			m_drawingEvent.Set();
 		}
 
 		public TileInfo CheckCoordinates(byte destX, byte destY)
@@ -1100,7 +1095,8 @@ namespace EndlessClient
 		{
 			if (MapRef != null)
 			{
-				m_eventChangeMap.Wait();
+				m_drawingEvent.Wait();
+				m_drawingEvent.Reset();
 
 				_drawGroundLayer();
 				if(MapItems.Count > 0)
@@ -1129,7 +1125,7 @@ namespace EndlessClient
 				if(m_showMiniMap)
 					_drawMiniMap();
 
-				m_eventChangeMap.Set();
+				m_drawingEvent.Set();
 			}
 
 			base.Draw(gameTime);
@@ -1145,6 +1141,8 @@ namespace EndlessClient
 				xMax = c.X + localViewLength > MapRef.Width ? MapRef.Width : c.X + localViewLength;
 			int yMin = c.Y - localViewLength < 0 ? 0 : c.Y - localViewLength,
 				yMax = c.Y + localViewLength > MapRef.Height ? MapRef.Height : c.Y + localViewLength;
+			
+			int cOffX = c.OffsetX, cOffY = c.OffsetY;
 
 			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= xMin && gfx.x <= xMax && gfx.x <= MapRef.Width;
 			Func<GFXRow, bool> yGFXQuery = row => row.y >= yMin && row.y <= yMax && row.y <= MapRef.Height;
@@ -1163,7 +1161,7 @@ namespace EndlessClient
 						if (MapRef.GFXRows[0, i].column[j].tile >= 0)
 							continue;
 
-						Vector2 pos = _getDrawCoordinates(j, i, c);
+						Vector2 pos = _getDrawCoordinates(j, i, cOffX, cOffY);
 						sb.Draw(fillTileRef, new Vector2(pos.X - 1, pos.Y - 2), Color.FromNonPremultiplied(255,255,255,_getAlpha(j, i, c)));
 					}
 				}
@@ -1181,7 +1179,7 @@ namespace EndlessClient
 					
 					//render tile.tile at tile.x, row.y
 					Texture2D nextTile = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
-					Vector2 pos = _getDrawCoordinates(tile.x, row.y, c);
+					Vector2 pos = _getDrawCoordinates(tile.x, row.y, cOffX, cOffY);
 					Rectangle? src = nextTile.Width > 64 ? new Rectangle?(new Rectangle((int)_tileSrc.X, (int)_tileSrc.Y, nextTile.Width / 4, nextTile.Height)) : null;
 					if (nextTile.Width > 64)
 						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(tile.x, row.y, c)));
@@ -1512,7 +1510,12 @@ namespace EndlessClient
 		/// </summary>
 		private Vector2 _getDrawCoordinates(int x, int y, Character c)
 		{
-			return new Vector2((x * 32) - (y * 32) + 288 - c.OffsetX, (y * 16) + (x * 16) + 144 - c.OffsetY);
+			return _getDrawCoordinates(x, y, c.OffsetX, c.OffsetY);
+		}
+
+		private Vector2 _getDrawCoordinates(int x, int y, int cOffX, int cOffY)
+		{
+			return new Vector2((x * 32) - (y * 32) + 288 - cOffX, (y * 16) + (x * 16) + 144 - cOffY);
 		}
 
 		private Vector2 _getMiniMapDrawCoordinates(int x, int y, Character c)
@@ -1562,11 +1565,12 @@ namespace EndlessClient
 		{
 			if (!disposing)
 			{
-				base.Dispose(false);return;
+				base.Dispose(false);
+				return;
 			}
 
-			m_eventChangeMap.Dispose();
-			m_eventChangeMap = null;
+			m_drawingEvent.Dispose();
+			m_drawingEvent = null;
 
 			foreach (EOCharacterRenderer cr in otherRenderers)
 				cr.Dispose();

@@ -325,6 +325,7 @@ namespace EndlessClient
 			//This will log a string of data that will be usable by the PacketDecoder utility. colon-delimited 2-character hex values.
 			string result = "";
 // ReSharper disable once LoopCanBeConvertedToQuery
+// ReSharper disable once ForCanBeConvertedToForeach
 			for (int i = 0; i < data.Length; ++i)
 				result += string.Format("{0}:", data[i].ToString("x2"));
 			if (result.Length > 1)

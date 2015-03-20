@@ -525,7 +525,7 @@ namespace EndlessClient
 									_chkWalk(TileSpec.None, direction, destX, destY);
 								}
 							}
-							else if (info.Warp.levelRequirement != 0)
+							else if (info.Warp.levelRequirement != 0 && Character.Stats.level < info.Warp.levelRequirement)
 							{
 								EOGame.Instance.Hud.SetStatusLabel("Level requirement : " + info.Warp.levelRequirement);
 							}
