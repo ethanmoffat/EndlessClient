@@ -120,13 +120,13 @@ namespace EndlessClient
 			switch(whichButtons)
 			{
 				case XNADialogButtons.Ok:
-					ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
+					ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
 					ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 					ok.SetParent(this);
 					dlgButtons.Add(ok);
 					break;
 				case XNADialogButtons.Cancel:
-					cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
+					cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
 					cancel.OnClick += (sender, e) => Close(cancel, XNADialogResult.Cancel);
 					cancel.SetParent(this);
 					dlgButtons.Add(cancel);
@@ -134,11 +134,11 @@ namespace EndlessClient
 				case XNADialogButtons.OkCancel:
 					//implement this more fully when it is needed
 					//update draw location of ok button to be on left?
-					ok = new XNAButton(smallButtonSheet, new Vector2(89, 113), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
+					ok = new XNAButton(smallButtonSheet, new Vector2(89, 113), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
 					ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 					ok.SetParent(this);
 
-					cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
+					cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
 					cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
 					cancel.SetParent(this);
 
@@ -479,8 +479,8 @@ namespace EndlessClient
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			font = Game.Content.Load<SpriteFont>("dbg");
-			
-			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(138, 197), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28));
+
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(138, 197), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
 			ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
@@ -547,7 +547,7 @@ namespace EndlessClient
 			};
 			caption.SetParent(this);
 
-			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
 			ok.OnClick += (sender, e) => Close(ok, XNADialogResult.Cancel);
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
@@ -644,7 +644,7 @@ namespace EndlessClient
 
 			dispatch.Subscriber = inputBoxes[0];
 
-			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(157, 195), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(157, 195), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok))
 			{
 				Visible = true
 			};
@@ -679,7 +679,7 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(250, 194), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel))
 			{
 				Visible = true
 			};
@@ -747,7 +747,7 @@ namespace EndlessClient
 			srcRects[3] = new Rectangle(46, 38, 23, 19);
 			
 			//ok/cancel buttons
-			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(157, 195), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(157, 195), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok))
 			{
 				Visible = true
 			};
@@ -764,7 +764,7 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(250, 194), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(250, 194), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel))
 			{
 				Visible = true
 			};
@@ -1113,7 +1113,7 @@ namespace EndlessClient
 			//not using caption/message since we have other shit to take care of
 
 			//ok button
-			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(276, 253), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28)) { Visible = true };
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(276, 253), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok)) { Visible = true };
 			ok.OnClick += (s, e) => Close(ok, XNADialogResult.OK);
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
@@ -1334,7 +1334,7 @@ namespace EndlessClient
 			//set the buttons here
 
 			//ok/cancel buttons
-			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(60, 125), new Rectangle(0, 116, 90, 28), new Rectangle(91, 116, 90, 28))
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(60, 125), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok))
 			{
 				Visible = true
 			};
@@ -1342,7 +1342,7 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(153, 124), new Rectangle(0, 28, 90, 28), new Rectangle(91, 28, 90, 28))
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(153, 124), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel))
 			{
 				Visible = true
 			};
@@ -1663,7 +1663,7 @@ namespace EndlessClient
 			CurrentChestX = chestX;
 			CurrentChestY = chestY;
 
-			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(92, 227), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(92, 227), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
 			cancel.OnClick += (sender, e) => Close(cancel, XNADialogResult.Cancel);
 			dlgButtons.Add(cancel);
 			whichButtons = XNADialogButtons.Cancel;
@@ -1831,10 +1831,7 @@ namespace EndlessClient
 			{
 				case ScrollingListDialogButtons.AddCancel:
 				{
-					XNAButton add = new XNAButton(smallButtonSheet, 
-						new Vector2(48, 252), 
-						new Rectangle(0, (smallButtonSheet.Height / 10) * 6, smallButtonSheet.Width / 2, smallButtonSheet.Height / 10),
-						new Rectangle(smallButtonSheet.Width / 2, (smallButtonSheet.Height / 10) * 6, smallButtonSheet.Width / 2, smallButtonSheet.Height / 10));
+					XNAButton add = new XNAButton(smallButtonSheet, new Vector2(48, 252), _getSmallButtonOut(SmallButton.Add), _getSmallButtonOver(SmallButton.Add));
 					add.SetParent(this);
 					add.OnClick += (o, e) =>
 					{
@@ -1857,10 +1854,7 @@ namespace EndlessClient
 							AddItemToList(newItem, true);
 						};
 					};
-					XNAButton cancel = new XNAButton(smallButtonSheet,
-						new Vector2(144, 252),
-						new Rectangle(0, smallButtonSheet.Height / 10, smallButtonSheet.Width / 2, smallButtonSheet.Height / 10),
-						new Rectangle(smallButtonSheet.Width / 2, smallButtonSheet.Height / 10, smallButtonSheet.Width / 2, smallButtonSheet.Height / 10));
+					XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(144, 252), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Cancel));
 					cancel.SetParent(this);
 					cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
 					
