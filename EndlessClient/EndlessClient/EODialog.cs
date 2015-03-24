@@ -51,6 +51,33 @@ namespace EndlessClient
 
 			Game.Components.Add(this);
 		}
+
+		protected enum SmallButton
+		{
+			Connect = 0,
+			Cancel,
+			Login,
+			Delete,
+			Ok,
+			Back,
+			Add,
+			Next,
+			History,
+			Progress,
+			NUM_BUTTONS
+		}
+		protected Rectangle _getSmallButtonOut(SmallButton whichOne)
+		{
+			int widthDelta = smallButtonSheet.Width/2;
+			int heightDelta = smallButtonSheet.Height/(int) SmallButton.NUM_BUTTONS;
+			return new Rectangle(0, heightDelta * (int)whichOne, widthDelta, heightDelta);
+		}
+		protected Rectangle _getSmallButtonOver(SmallButton whichOne)
+		{
+			int widthDelta = smallButtonSheet.Width / 2;
+			int heightDelta = smallButtonSheet.Height / (int)SmallButton.NUM_BUTTONS;
+			return new Rectangle(widthDelta, heightDelta * (int)whichOne, widthDelta, heightDelta);
+		}
 	}
 
 	/// <summary>
@@ -1742,6 +1769,11 @@ namespace EndlessClient
 		AddCancel,
 
 	}
+
+	public delegate EODialogListItem EODialogListItemFactoryDelegate(
+		EODialogBase parent, EODialogListItem.ListItemStyle style, string primaryText, string secondaryText = null,
+		Texture2D iconGraphic = null, int listIndex = -1);
+
 	/// <summary>
 	/// Implements a dialog that scrolls through a list of items and has a title and configurable buttons.
 	/// </summary>
@@ -1771,6 +1803,11 @@ namespace EndlessClient
 			set { m_titleText.Text = value; }
 		}
 
+		/// <summary>
+		/// When adding a new item to the list, specifies the factory function that is called to initialize a newly added list item
+		/// </summary>
+		public EODialogListItemFactoryDelegate ItemFactory { get; set; }
+
 		public EOScrollingListDialog(string title, ScrollingListDialogButtons whichButtons, EODialogListItem.ListItemStyle ListType)
 		{
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 52);
@@ -1799,6 +1836,27 @@ namespace EndlessClient
 						new Rectangle(0, (smallButtonSheet.Height / 10) * 6, smallButtonSheet.Width / 2, smallButtonSheet.Height / 10),
 						new Rectangle(smallButtonSheet.Width / 2, (smallButtonSheet.Height / 10) * 6, smallButtonSheet.Width / 2, smallButtonSheet.Height / 10));
 					add.SetParent(this);
+					add.OnClick += (o, e) =>
+					{
+						string prompt = Title.Contains("Friend") ? "Who do you want to make your friend?" : "Who do you want to ignore?";
+						EOInputDialog dlgInput = new EOInputDialog(prompt);
+						dlgInput.DialogClosing += (_o, _e) =>
+						{
+							if (_e.Result == XNADialogResult.Cancel) return;
+
+							if (dlgInput.ResponseText.Length < 4)
+							{
+								_e.CancelClose = true;
+								EODialog.Show("The name you provided for this character is too short (try 4 or more letters)", "Wrong name");
+								return;
+							}
+
+							EODialogListItem newItem = ItemFactory == null
+								? new EODialogListItem(this, EODialogListItem.ListItemStyle.Small, dlgInput.ResponseText)
+								: ItemFactory(this, EODialogListItem.ListItemStyle.Small, dlgInput.ResponseText);
+							AddItemToList(newItem, true);
+						};
+					};
 					XNAButton cancel = new XNAButton(smallButtonSheet,
 						new Vector2(144, 252),
 						new Rectangle(0, smallButtonSheet.Height / 10, smallButtonSheet.Width / 2, smallButtonSheet.Height / 10),
@@ -1834,9 +1892,15 @@ namespace EndlessClient
 			}
 		}
 
-		public void AddItemToList(EODialogListItem item)
+		public void AddItemToList(EODialogListItem item, bool sortList)
 		{
-			//todo
+			m_listItems.Add(item);
+			if(sortList)
+// ReSharper disable once StringCompareToIsCultureSpecific
+				m_listItems.Sort((item1, item2) => item1.Text.CompareTo(item2.Text));
+			for (int i = 0; i < m_listItems.Count; ++i)
+				m_listItems[i].Index = i;
+			m_scrollBar.UpdateDimensions(m_listItems.Count);
 		}
 
 		public void RemoveFromList(EODialogListItem item)
@@ -1860,7 +1924,7 @@ namespace EndlessClient
 		{
 			foreach (EODialogListItem item in m_listItems)
 			{
-				if (activeLabels.Contains(item.Text))
+				if (activeLabels.Select(x => x.ToLower()).Contains(item.Text.ToLower()))
 				{
 					item.SetActive();
 				}
@@ -1897,6 +1961,53 @@ namespace EndlessClient
 		}
 	}
 
+	public class EOInputDialog : EODialogBase
+	{
+		private readonly XNATextBox m_inputBox;
+
+		public string ResponseText { get { return m_inputBox.Text; } }
+
+		public EOInputDialog(string prompt)
+		{
+			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 54);
+			_setSize(bgTexture.Width, bgTexture.Height);
+
+			XNALabel lblPrompt = new XNALabel(new Rectangle(16, 20, 235, 49), "Microsoft Sans Serif", 10f)
+			{
+				AutoSize = false,
+				ForeColor = System.Drawing.Color.FromArgb(255, 0xe6, 0xe6, 0xe6),
+				TextWidth = 230,
+				RowSpacing = 3,
+				Text = prompt
+			};
+			lblPrompt.SetParent(this);
+
+			//set this back once the dialog is closed.
+			IKeyboardSubscriber previousSubscriber = EOGame.Instance.Dispatcher.Subscriber;
+			DialogClosing += (o, e) => EOGame.Instance.Dispatcher.Subscriber = previousSubscriber;
+
+			m_inputBox = new XNATextBox(new Rectangle(37, 74, 192, 19), EOGame.Instance.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
+			{
+				MaxChars = 12,
+				LeftPadding = 4,
+				TextColor = System.Drawing.Color.FromArgb(0xff, 0xdc, 0xc8, 0xb4)
+			};
+			m_inputBox.SetParent(this);
+			EOGame.Instance.Dispatcher.Subscriber = m_inputBox;
+
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(41, 103), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok)),
+				cancel = new XNAButton(smallButtonSheet, new Vector2(134, 103), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
+			ok.OnClick += (o, e) => Close(ok, XNADialogResult.OK);
+			cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
+			ok.SetParent(this);
+			cancel.SetParent(this);
+
+			Center(Game.GraphicsDevice);
+			DrawLocation = new Vector2(DrawLocation.X, 107);
+			endConstructor(false);
+		}
+	}
+
 	public static class EOFriendIgnoreListDialog
 	{
 		public static EOScrollingListDialog Instance { get; private set; }
@@ -1913,26 +2024,26 @@ namespace EndlessClient
 			if (Instance != null)
 				return;
 
-			string fileName = string.Format("config\\{0}.ini", isIgnoreList ? "ignore" : "friends");
-			List<string> allLines;
-			try
-			{
-				allLines = new List<string>(File.ReadAllLines(fileName));
-			}
-			catch (Exception)
-			{
-				allLines = new List<string>();
-			}
-
-			//each first letter is capitalized
-			allLines.RemoveAll(s => s.StartsWith("#") || string.IsNullOrWhiteSpace(s));
-			allLines = allLines.Select(s => char.ToUpper(s[0]) + s.Substring(1).ToLower()).Distinct().ToList();
+			List<string> allLines = isIgnoreList ? InteractList.LoadAllIgnore() : InteractList.LoadAllFriend();
 
 			string charName = World.Instance.MainPlayer.ActiveCharacter.Name;
 			charName = char.ToUpper(charName[0]) + charName.Substring(1);
 			string titleText = string.Format("{0}'s {2} List [{1}]", charName, allLines.Count, isIgnoreList ? "Ignore" : "Friend");
 
 			EOScrollingListDialog dlg = new EOScrollingListDialog(titleText, ScrollingListDialogButtons.AddCancel, EODialogListItem.ListItemStyle.Small);
+			dlg.ItemFactory = (parent, style, text, secondaryText, graphic, index) =>
+			{
+				//This method will be used to construct list items on an "Add" operation
+				dlg.Title = string.Format("{0}'s {2} List [{1}]", charName, dlg.NamesList.Count, isIgnoreList ? "Ignore" : "Friend");
+				EODialogListItem ret = new EODialogListItem(parent, style, text, secondaryText, graphic, index);
+				ret.OnLeftClick += (o, e) => EOGame.Instance.Hud.SetChatText("!" + ret.Text + " ");
+				ret.OnRightClick += (o, e) =>
+				{
+					dlg.RemoveFromList(ret);
+					dlg.Title = string.Format("{0}'s {2} List [{1}]", charName, dlg.NamesList.Count, isIgnoreList ? "Ignore" : "Friend");
+				};
+				return ret;
+			};
 
 			List<EODialogListItem> characters = allLines.Select(character => new EODialogListItem(dlg, EODialogListItem.ListItemStyle.Small, character)).ToList();
 			characters.ForEach(character =>
@@ -1949,20 +2060,10 @@ namespace EndlessClient
 			dlg.DialogClosing += (o, e) =>
 			{
 				Instance = null;
-				using (StreamWriter sw = new StreamWriter(fileName))
-				{
-					string friendOrIgnore = isIgnoreList ? "ignore" : "friend";
-					//header
-					sw.WriteLine("# Endless Online 0.28 [ {0} list ]", friendOrIgnore);
-					sw.WriteLine();
-					sw.WriteLine("# List of {0}{1} characters, use a new line for each name\n", friendOrIgnore, isIgnoreList ? "d" : "");
-					sw.WriteLine();
-
-					foreach (string s in dlg.NamesList)
-					{
-						sw.WriteLine(char.ToUpper(s[0]) + s.Substring(1).ToLower());
-					}
-				}
+				if (isIgnoreList)
+					InteractList.WriteIgnoreList(dlg.NamesList);
+				else
+					InteractList.WriteFriendList(dlg.NamesList);
 			};
 			
 			Instance = dlg;

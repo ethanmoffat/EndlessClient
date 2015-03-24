@@ -156,6 +156,7 @@
     <Compile Include="Handlers\Welcome.cs" />
     <Compile Include="HUDElement.cs" />
     <Compile Include="InGameHud.cs" />
+    <Compile Include="InteractList.cs" />
     <Compile Include="NPC.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

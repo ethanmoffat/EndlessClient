@@ -98,6 +98,8 @@ namespace EndlessClient
 				DrawLocation = new Vector2(drawLocation.X, 35);
 			}
 
+			EOGame.Instance.Hud.SetStatusLabel("[ Action ] Menu belongs to player " + m_rend.Character.Name);
+
 			Visible = true;
 		}
 
@@ -217,11 +219,13 @@ namespace EndlessClient
 		}
 		private void _eventAddFriend(object arg1, EventArgs arg2)
 		{
-			EODialog.Show("TODO: Add to friend list", "TODO ITEM", XNADialogButtons.Ok, true);
+			EOGame.Instance.Hud.SetStatusLabel("[ Action ] " + m_rend.Character.Name + " will be your friend.");
+			InteractList.WriteNewFriend(m_rend.Character.Name);
 		}
 		private void _eventAddIgnore(object arg1, EventArgs arg2)
 		{
-			EODialog.Show("TODO: Add to ignore list", "TODO ITEM", XNADialogButtons.Ok, true);
+			EOGame.Instance.Hud.SetStatusLabel("[ Action ] " + m_rend.Character.Name + " will be ignored.");
+			InteractList.WriteNewIgnore(m_rend.Character.Name);
 		}
 
 		/* DISPOSABLE PATTERN */
