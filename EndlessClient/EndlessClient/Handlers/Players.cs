@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using EOLib;
 using EOLib.Data;
 
@@ -144,7 +145,10 @@ namespace EndlessClient.Handlers
 			{
 				EOGame.Instance.Hud.SetOnlineList(onlinePlayers);
 			}
-			//todo: friend list add
+			else if(EOFriendIgnoreListDialog.Instance != null)
+			{
+				EOFriendIgnoreListDialog.SetActive(onlinePlayers.Select(x => x.Name).ToList());
+			}
 		}
 	}
 }

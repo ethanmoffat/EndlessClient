@@ -75,6 +75,9 @@ namespace EndlessClient
 
 		//HP, SP, TP, TNL (in that order)
 		private readonly HUDElement[] StatusBars = new HUDElement[4];
+
+		//friend/ignore lists
+		private readonly XNAButton m_friendList, m_ignoreList;
 		
 		public HUD(Game g)
 			: base(g)
@@ -288,6 +291,30 @@ namespace EndlessClient
 			StatusBars[3] = new HudElementTNL();
 
 			m_whoIsOnline = new EOOnlineList(pnlOnline);
+
+			m_friendList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
+				new Vector2(592, 312),
+				new Rectangle(0, 260, 17, 15),
+				new Rectangle(0, 276, 17, 15))
+			{
+				Visible = true,
+				Enabled = true
+			};
+			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(false);
+			m_friendList.OnMouseOver += (o, e) => SetStatusLabel("[Button] Friend List");
+			m_friendList.IgnoreDialog(typeof(EOFriendIgnoreListDialog)); //so that clicking it doesn't freeze in mouseover graphic
+
+			m_ignoreList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
+				new Vector2(609, 312),
+				new Rectangle(17, 260, 17, 15),
+				new Rectangle(17, 276, 17, 15))
+			{
+				Visible = true,
+				Enabled = true
+			};
+			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(true);
+			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel("[Button] Ignore List");
+			m_ignoreList.IgnoreDialog(typeof(EOFriendIgnoreListDialog));
 		}
 
 		public override void Initialize()
@@ -323,26 +350,13 @@ namespace EndlessClient
 			stats = new EOCharacterStats(pnlStats);
 			stats.Initialize();
 
-			base.Initialize();
-		}
-
-		public override void Update(GameTime gameTime)
-		{
-			base.Update(gameTime);
-
-			//polling loop to set status label for mouseover event for buttons
-			//this is in lieu of creating a OnMouseOver/OnMouseEnter or whatever,
-			//some kind of event-driven mechanism in XNAControls (which should be
-			//done at some point since polling loops are bad and you should feel bad)
 			for (int i = 0; i < mainBtn.Length; ++i)
 			{
-				XNAButton btn = mainBtn[i];
-				if (btn.MouseOver)
-				{
-					SetStatusLabel(ButtonStatusStrings[i]);
-					break;
-				}
+				string status = ButtonStatusStrings[i];
+				mainBtn[i].OnMouseOver += (o, e) => SetStatusLabel(status);
 			}
+
+			base.Initialize();
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -402,14 +416,17 @@ namespace EndlessClient
 					break;
 				case InGameStates.Chat:
 					pnlChat.Visible = true;
+					SetStatusLabel("[ Action ] Chat panel is now viewed");
 					break;
 				case InGameStates.Stats:
 					stats.Refresh();
 					pnlStats.Visible = true;
+					SetStatusLabel("[ Action ] Status panel is now viewed");
 					break;
 				case InGameStates.Online:
 					Init.RequestOnlineList(false);
 					pnlOnline.Visible = true;
+					SetStatusLabel("[ Action ] Online playerlist panel is now viewed");
 					break;
 				case InGameStates.Party:
 					pnlParty.Visible = true;
@@ -419,6 +436,7 @@ namespace EndlessClient
 					break;
 				case InGameStates.Help:
 					pnlHelp.Visible = true;
+					SetStatusLabel("[ Action ] Game help");
 					break;
 			}
 		}

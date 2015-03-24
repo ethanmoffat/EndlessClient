@@ -2,14 +2,18 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows.Forms;
+using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Data;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
+using ButtonState = Microsoft.Xna.Framework.Input.ButtonState;
 using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
@@ -878,7 +882,7 @@ namespace EndlessClient
 					if (World.Instance.NeedMap != -1)
 					{
 						caption.Text = map;
-						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Map))
+						if (!Init.RequestFile(InitFileType.Map))
 						{
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
@@ -889,7 +893,7 @@ namespace EndlessClient
 					if (World.Instance.NeedEIF)
 					{
 						caption.Text = item;
-						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Item))
+						if (!Init.RequestFile(InitFileType.Item))
 						{
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
@@ -900,7 +904,7 @@ namespace EndlessClient
 					if (World.Instance.NeedENF)
 					{
 						caption.Text = npc;
-						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Npc))
+						if (!Init.RequestFile(InitFileType.Npc))
 						{
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
@@ -911,7 +915,7 @@ namespace EndlessClient
 					if (World.Instance.NeedESF)
 					{
 						caption.Text = skill;
-						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Spell))
+						if (!Init.RequestFile(InitFileType.Spell))
 						{
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
@@ -922,7 +926,7 @@ namespace EndlessClient
 					if (World.Instance.NeedECF)
 					{
 						caption.Text = classes;
-						if (!Handlers.Init.RequestFile(Handlers.InitFileType.Class))
+						if (!Init.RequestFile(InitFileType.Class))
 						{
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
@@ -931,7 +935,7 @@ namespace EndlessClient
 					}
 
 					caption.Text = loading;
-					if(!Handlers.Welcome.WelcomeMessage(World.Instance.MainPlayer.ActiveCharacter.ID))
+					if(!Welcome.WelcomeMessage(World.Instance.MainPlayer.ActiveCharacter.ID))
 					{
 						Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 						return;
@@ -1015,7 +1019,7 @@ namespace EndlessClient
 						//put back in the inventory by the packet handler response
 						string locName = Enum.GetName(typeof (EquipLocation), EquipLoc);
 						if (!string.IsNullOrEmpty(locName))
-							Handlers.Paperdoll.UnequipItem((short) m_info.ID, (byte) (locName.Contains("2") ? 1 : 0));
+							Paperdoll.UnequipItem((short) m_info.ID, (byte) (locName.Contains("2") ? 1 : 0));
 
 						m_info = null;
 						m_gfx = null;
@@ -1410,61 +1414,126 @@ namespace EndlessClient
 		}
 	}
 
-	public class EOChestItem : XNAControl
+	public class EODialogListItem : XNAControl
 	{
 		private static readonly object disposingLock = new object();
 		private bool m_disposing;
 
-		public short ID { get; private set; }
-		public int Amount { get; private set; }
-		public int Index { get; set; }
+		/// <summary>
+		/// Optional identifier to use for this List Item Record
+		/// </summary>
+		public short ID { get; set; }
+		
+		private int m_index;
+		/// <summary>
+		/// Get or Set the index within the parent control. 
+		/// </summary>
+		public int Index
+		{
+			get { return m_index; }
+			set
+			{
+				m_index = value;
+				DrawLocation = new Vector2(19, OffsetY + (m_index * (Style == ListItemStyle.Large ? 36 : 16)));
+			}
+		}
 
-		private readonly ItemRecord m_rec;
+		private int OffsetY
+		{
+			get
+			{
+				switch (Style)
+				{
+					case ListItemStyle.Large: return 25;
+					case ListItemStyle.Small: return 45;
+					default: return 0;
+				}
+			}
+		}
 
-		private readonly XNALabel m_nameLabel;
-		private readonly XNALabel m_amountLabel;
+		/// <summary>
+		/// Style of the control - either small (single text row) or large (graphic w/two rows of text)
+		/// </summary>
+		public ListItemStyle Style { get; set; }
+
+		/// <summary>
+		/// Get or set the primary text
+		/// </summary>
+		public string Text
+		{
+			get { return m_primaryText.Text; }
+			set { m_primaryText.Text = value; }
+		}
+
+		/// <summary>
+		/// Get or set the secondary text
+		/// </summary>
+		public string SubText
+		{
+			get { return m_secondaryText.Text; }
+			set { m_secondaryText.Text = value; }
+		}
+
+		public event EventHandler OnRightClick;
+		public event EventHandler OnLeftClick;
+
+		private readonly XNALabel m_primaryText;
+		private readonly XNALabel m_secondaryText;
 
 		private readonly Texture2D m_gfxPadThing;
 		private readonly Texture2D m_gfxItem;
 		private readonly Texture2D m_backgroundColor;
 		private bool m_drawBackground;
+		private bool m_rightClicked;
 
-		public EOChestItem(short id, int amount, int index, EOChestDialog parent)
+		public enum ListItemStyle
 		{
-			ID = id;
-			Amount = amount;
-			Index = index;
-			m_rec = World.Instance.EIF.GetItemRecordByID(id);
+			Small,
+			Large
+		}
 
-			DrawLocation = new Vector2(19, 25 + (index * 36));
-			_setSize(232, 36);
+		public EODialogListItem(EODialogBase parent, ListItemStyle style, string primaryText, string secondaryText = null, Texture2D iconGraphic = null, int listIndex = -1)
+		{
+			Style = style;
+			if(listIndex >= 0)
+				Index = listIndex;
 
-			m_nameLabel = new XNALabel(new Rectangle(56, 5, 1, 1), "Microsoft Sans Serif", 8.5f)
+			_setSize(232, Style == ListItemStyle.Large ? 36 : 13);
+
+			int colorFactor = Style == ListItemStyle.Large ? 0xc8 : 0xb4;
+
+			m_primaryText = new XNALabel(new Rectangle(Style == ListItemStyle.Large ? 56 : 2, Style == ListItemStyle.Large ? 5 : 0, 1, 1), "Microsoft Sans Serif", 8.5f)
 			{
-				AutoSize = true,
+				AutoSize = false,
 				BackColor = System.Drawing.Color.Transparent,
-				ForeColor = System.Drawing.Color.FromArgb(255, 0xc8,0xc8,0xc8),
-				Text = m_rec.Name
+				ForeColor = System.Drawing.Color.FromArgb(255, colorFactor, colorFactor, colorFactor),
+				Text = primaryText,
+				TextAlign = ContentAlignment.TopLeft
 			};
-			m_nameLabel.ResizeBasedOnText();
+			m_primaryText.ResizeBasedOnText();
 
-			m_amountLabel = new XNALabel(new Rectangle(56, 20, 1, 1), "Microsoft Sans Serif", 8.5f)
+			if (Style == ListItemStyle.Large)
 			{
-				AutoSize = true,
-				BackColor = m_nameLabel.BackColor,
-				ForeColor = m_nameLabel.ForeColor,
-				Text = string.Format("x {0}  {1}", Amount, m_rec.Type == ItemType.Armor ? (m_rec.Gender == 0 ? "Female" : "Male") : "")
-			};
-			m_amountLabel.ResizeBasedOnText();
+				m_secondaryText = new XNALabel(new Rectangle(56, 20, 1, 1), "Microsoft Sans Serif", 8.5f)
+				{
+					AutoSize = true,
+					BackColor = m_primaryText.BackColor,
+					ForeColor = m_primaryText.ForeColor,
+					Text = secondaryText ?? ""
+				};
+				m_secondaryText.ResizeBasedOnText();
 
-			m_gfxPadThing = GFXLoader.TextureFromResource(GFXTypes.MapTiles, 0, true);
-			m_gfxItem = GFXLoader.TextureFromResource(GFXTypes.Items, 2*m_rec.Graphic - 1, true);
+				m_gfxPadThing = GFXLoader.TextureFromResource(GFXTypes.MapTiles, 0, true);
+				m_gfxItem = iconGraphic; //GFXLoader.TextureFromResource(GFXTypes.Items, 2*m_rec.Graphic - 1, true);
+			}
 			m_backgroundColor = new Texture2D(Game.GraphicsDevice, 1, 1);
 			m_backgroundColor.SetData(new [] {Color.FromNonPremultiplied(0xff, 0xff, 0xff, 64)});
 
 			SetParent(parent);
-			m_amountLabel.SetParent(this);
-			m_nameLabel.SetParent(this);
+			m_primaryText.SetParent(this);
+
+			if(Style == ListItemStyle.Large)
+				m_secondaryText.SetParent(this);
 		}
 
 		public override void Update(GameTime gameTime)
@@ -1474,24 +1543,19 @@ namespace EndlessClient
 			if (MouseOver && MouseOverPreviously)
 			{
 				m_drawBackground = true;
-				//right clicked this item
-				if (PreviousMouseState.RightButton == ButtonState.Pressed && ms.RightButton == ButtonState.Released)
+				if (ms.RightButton == ButtonState.Pressed)
 				{
-					if (!EOGame.Instance.Hud.InventoryFits(ID))
-					{
-						EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, true);
-						PreviousMouseState = ms;
-					}
-					else
-					{
-						EOChestDialog localParent = (EOChestDialog) parent;
-						if (!Handlers.Chest.ChestTake(localParent.CurrentChestX, localParent.CurrentChestY, ID))
-						{
-							localParent.Close();
-							EOGame.Instance.LostConnectionDialog();
-							return;
-						}
-					}
+					m_rightClicked = true;
+				}
+
+				if (m_rightClicked && ms.RightButton == ButtonState.Released && OnRightClick != null)
+				{
+					OnRightClick(this, null);
+					m_rightClicked = false;
+				}
+				else if (PreviousMouseState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released && OnLeftClick != null)
+				{
+					OnLeftClick(this, null);
 				}
 			}
 			else
@@ -1513,11 +1577,19 @@ namespace EndlessClient
 				{
 					SpriteBatch.Draw(m_backgroundColor, DrawAreaWithOffset, Color.White);
 				}
-				SpriteBatch.Draw(m_gfxPadThing, new Vector2(xOff + 19, yOff + 29 + 36*Index), Color.White);
-				SpriteBatch.Draw(m_gfxItem, new Vector2(xOff + 27, yOff + 24 + 36*Index), Color.White);
+				if (Style == ListItemStyle.Large)
+				{
+					SpriteBatch.Draw(m_gfxPadThing, new Vector2(xOff + 19, yOff + 29 + 36*Index), Color.White);
+					SpriteBatch.Draw(m_gfxItem, new Vector2(xOff + 27, yOff + 24 + 36*Index), Color.White);
+				}
 				SpriteBatch.End();
 				base.Draw(gameTime);
 			}
+		}
+
+		public void SetActive()
+		{
+			m_primaryText.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xf0, 0xf0, 0xf0);
 		}
 
 		public new void Dispose()
@@ -1532,8 +1604,9 @@ namespace EndlessClient
 				m_disposing = true;
 				if (disposing)
 				{
-					m_nameLabel.Dispose();
-					m_amountLabel.Dispose();
+					m_primaryText.Dispose();
+					if(Style == ListItemStyle.Large)
+						m_secondaryText.Dispose();
 					m_backgroundColor.Dispose();
 				}
 			}
@@ -1549,7 +1622,7 @@ namespace EndlessClient
 		public byte CurrentChestX { get; private set; }
 		public byte CurrentChestY { get; private set; }
 
-		private EOChestItem[] m_items;
+		private EODialogListItem[] m_items;
 
 		public EOChestDialog(byte chestX, byte chestY, List<Tuple<short, int>> initialItems)
 		{
@@ -1579,7 +1652,7 @@ namespace EndlessClient
 		public void InitializeItems(List<Tuple<short, int>> initialItems)
 		{
 			if(m_items == null)
-				m_items = new EOChestItem[5];
+				m_items = new EODialogListItem[5];
 
 			int i = 0;
 			if (initialItems.Count > 0)
@@ -1593,7 +1666,31 @@ namespace EndlessClient
 						m_items[i] = null;
 					}
 
-					m_items[i] = new EOChestItem(item.Item1, item.Item2, i, this);
+					ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.Item1);
+					string secondary = string.Format("x {0}  {1}", item.Item2, rec.Type == ItemType.Armor ? (rec.Gender == 0 ? "Female" : "Male") : "");
+
+					m_items[i] = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, rec.Name, secondary, GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true), i)
+					{
+						ID = item.Item1
+					};
+					m_items[i].OnRightClick += (o, e) =>
+					{
+						EODialogListItem sender = o as EODialogListItem;
+						if (sender == null) return;
+
+						if (!EOGame.Instance.Hud.InventoryFits(sender.ID))
+						{
+							EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, true);
+						}
+						else
+						{
+							if (!Chest.ChestTake(CurrentChestX, CurrentChestY, sender.ID))
+							{
+								Close();
+								EOGame.Instance.LostConnectionDialog();
+							}
+						}
+					};
 				}
 			}
 
@@ -1601,7 +1698,7 @@ namespace EndlessClient
 			{
 				if (m_items[i] != null)
 				{
-					m_items[i].Close();
+					m_items[i].Dispose();
 					m_items[i] = null;
 				}
 			}
@@ -1634,6 +1731,246 @@ namespace EndlessClient
 		{
 			base.Dispose(disposing);
 			Instance = null;
+		}
+	}
+
+	/// <summary>
+	/// Which buttons should be displayed at the bottom of the EOScrollingListDialog
+	/// </summary>
+	public enum ScrollingListDialogButtons
+	{
+		AddCancel,
+
+	}
+	/// <summary>
+	/// Implements a dialog that scrolls through a list of items and has a title and configurable buttons.
+	/// </summary>
+	public class EOScrollingListDialog : EODialogBase
+	{
+		//needs: - title label
+		//		 - scroll bar
+		//		 - lower buttons (configurable)
+		//		 - list of items (names, like friend list; items, like shop)
+		//EODialogListItem needs way to set width and offsets
+
+		private readonly List<EODialogListItem> m_listItems = new List<EODialogListItem>();
+		private readonly EOScrollBar m_scrollBar;
+
+		/// <summary>
+		/// List of strings containing the primary text field of each child item
+		/// </summary>
+		public List<string> NamesList
+		{
+			get { return m_listItems.Select(item => item.Text).ToList(); }
+		}
+
+		private readonly XNALabel m_titleText;
+		public string Title
+		{
+			get { return m_titleText.Text; }
+			set { m_titleText.Text = value; }
+		}
+
+		public EOScrollingListDialog(string title, ScrollingListDialogButtons whichButtons, EODialogListItem.ListItemStyle ListType)
+		{
+			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 52);
+			_setSize(bgTexture.Width, bgTexture.Height);
+
+			m_titleText = new XNALabel(new Rectangle(16, 15, 253, 19), "Microsoft Sans Serif", 8.75f)
+			{
+				AutoSize = false,
+				TextAlign = ContentAlignment.MiddleLeft,
+				ForeColor = System.Drawing.Color.FromArgb(0xff,0xc8,0xc8,0xc8),
+				Text = title
+			};
+			m_titleText.SetParent(this);
+
+			m_scrollBar = new EOScrollBar(this, new Vector2(252, 44), new Vector2(16, 199), EOScrollBar.ScrollColors.LightOnMed)
+			{
+				LinesToRender = ListType == EODialogListItem.ListItemStyle.Small ? 12 : 5
+			};
+
+			switch (whichButtons)
+			{
+				case ScrollingListDialogButtons.AddCancel:
+				{
+					XNAButton add = new XNAButton(smallButtonSheet, 
+						new Vector2(48, 252), 
+						new Rectangle(0, (smallButtonSheet.Height / 10) * 6, smallButtonSheet.Width / 2, smallButtonSheet.Height / 10),
+						new Rectangle(smallButtonSheet.Width / 2, (smallButtonSheet.Height / 10) * 6, smallButtonSheet.Width / 2, smallButtonSheet.Height / 10));
+					add.SetParent(this);
+					XNAButton cancel = new XNAButton(smallButtonSheet,
+						new Vector2(144, 252),
+						new Rectangle(0, smallButtonSheet.Height / 10, smallButtonSheet.Width / 2, smallButtonSheet.Height / 10),
+						new Rectangle(smallButtonSheet.Width / 2, smallButtonSheet.Height / 10, smallButtonSheet.Width / 2, smallButtonSheet.Height / 10));
+					cancel.SetParent(this);
+					cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
+					
+					dlgButtons.Add(add);
+					dlgButtons.Add(cancel);
+				}
+					break;
+			}
+
+			Center(Game.GraphicsDevice);
+			DrawLocation = new Vector2(DrawLocation.X, 15);
+			endConstructor(false);
+		}
+
+		public void SetItemList(List<EODialogListItem> itemList)
+		{
+			if (itemList.Count == 0) return;
+
+			m_scrollBar.UpdateDimensions(itemList.Count);
+
+			EODialogListItem.ListItemStyle firstStyle = itemList[0].Style;
+			for (int i = 0; i < itemList.Count; ++i)
+			{
+				m_listItems.Add(itemList[i]);
+				m_listItems[i].Style = firstStyle;
+				m_listItems[i].Index = i;
+				if (i > m_scrollBar.LinesToRender)
+					m_listItems[i].Visible = false;
+			}
+		}
+
+		public void AddItemToList(EODialogListItem item)
+		{
+			//todo
+		}
+
+		public void RemoveFromList(EODialogListItem item)
+		{
+			int ndx = m_listItems.FindIndex(_item => _item == item);
+			if (ndx < 0) return;
+
+			item.Close();
+			m_listItems.RemoveAt(ndx);
+
+			for (int i = ndx; i < m_listItems.Count; ++i)
+			{
+				//adjust indices
+				m_listItems[i].Index = i;
+			}
+
+			m_scrollBar.UpdateDimensions(m_listItems.Count);
+		}
+
+		public void SetActiveItemList(List<string> activeLabels)
+		{
+			foreach (EODialogListItem item in m_listItems)
+			{
+				if (activeLabels.Contains(item.Text))
+				{
+					item.SetActive();
+				}
+			}
+		}
+
+		public override void Update(GameTime gt)
+		{
+			//which items should we render?
+			if (m_listItems.Count > m_scrollBar.LinesToRender)
+			{
+				for (int i = 0; i < m_listItems.Count; ++i)
+				{
+					EODialogListItem curr = m_listItems[i];
+					if (i < m_scrollBar.ScrollOffset)
+					{
+						curr.Visible = false;
+						continue;
+					}
+
+					if (i < m_scrollBar.LinesToRender + m_scrollBar.ScrollOffset)
+					{
+						curr.Visible = true;
+						curr.Index = i - m_scrollBar.ScrollOffset;
+					}
+					else
+					{
+						curr.Visible = false;
+					}
+				}
+			}
+
+			base.Update(gt);
+		}
+	}
+
+	public static class EOFriendIgnoreListDialog
+	{
+		public static EOScrollingListDialog Instance { get; private set; }
+
+		public static void SetActive(List<string> onlinePlayers)
+		{
+			if (Instance == null) return;
+
+			Instance.SetActiveItemList(onlinePlayers);
+		}
+
+		public static void Show(bool isIgnoreList)
+		{
+			if (Instance != null)
+				return;
+
+			string fileName = string.Format("config\\{0}.ini", isIgnoreList ? "ignore" : "friends");
+			List<string> allLines;
+			try
+			{
+				allLines = new List<string>(File.ReadAllLines(fileName));
+			}
+			catch (Exception)
+			{
+				allLines = new List<string>();
+			}
+
+			//each first letter is capitalized
+			allLines.RemoveAll(s => s.StartsWith("#") || string.IsNullOrWhiteSpace(s));
+			allLines = allLines.Select(s => char.ToUpper(s[0]) + s.Substring(1).ToLower()).Distinct().ToList();
+
+			string charName = World.Instance.MainPlayer.ActiveCharacter.Name;
+			charName = char.ToUpper(charName[0]) + charName.Substring(1);
+			string titleText = string.Format("{0}'s {2} List [{1}]", charName, allLines.Count, isIgnoreList ? "Ignore" : "Friend");
+
+			EOScrollingListDialog dlg = new EOScrollingListDialog(titleText, ScrollingListDialogButtons.AddCancel, EODialogListItem.ListItemStyle.Small);
+
+			List<EODialogListItem> characters = allLines.Select(character => new EODialogListItem(dlg, EODialogListItem.ListItemStyle.Small, character)).ToList();
+			characters.ForEach(character =>
+			{
+				character.OnLeftClick += (o, e) => EOGame.Instance.Hud.SetChatText("!" + character.Text + " ");
+				character.OnRightClick += (o, e) =>
+				{
+					dlg.RemoveFromList(character);
+					dlg.Title = string.Format("{0}'s {2} List [{1}]", charName, dlg.NamesList.Count, isIgnoreList ? "Ignore" : "Friend");
+				};
+			});
+			dlg.SetItemList(characters);
+
+			dlg.DialogClosing += (o, e) =>
+			{
+				Instance = null;
+				using (StreamWriter sw = new StreamWriter(fileName))
+				{
+					string friendOrIgnore = isIgnoreList ? "ignore" : "friend";
+					//header
+					sw.WriteLine("# Endless Online 0.28 [ {0} list ]", friendOrIgnore);
+					sw.WriteLine();
+					sw.WriteLine("# List of {0}{1} characters, use a new line for each name\n", friendOrIgnore, isIgnoreList ? "d" : "");
+					sw.WriteLine();
+
+					foreach (string s in dlg.NamesList)
+					{
+						sw.WriteLine(char.ToUpper(s[0]) + s.Substring(1).ToLower());
+					}
+				}
+			};
+			
+			Instance = dlg;
+
+			Init.RequestOnlineList(true);
+
+			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Action ] {0} List (use right mouse click to delete from list)", isIgnoreList ? "Ignore" : "Friend"));
+			//show the dialog
 		}
 	}
 }
