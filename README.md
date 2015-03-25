@@ -73,7 +73,7 @@ Here's a list of some things that can be done:
 
 There is a HUGE list of things left to do. The client is in its infant stages and is a constantly evolving work in progress. What this means is that as features are implemented, I make an attempt to implement them as completely and accurately as possible before moving on to the next thing. The pre-game menus and UI are completely finished, besides a few small bugs that I'm sure to find. The framework for adding new components is there as well.
 
-Here's a working but incomplete list of things I want to get to in this client (strikethrough means completed):
+Here's a working but incomplete list of things I want to get to (strikethrough means completed):
  - Finish attacking - requires ~~damage counter~~, ~~health bars~~, and fixing animations to show up properly
  - Map signs
  - Map boards
@@ -85,9 +85,10 @@ Here's a working but incomplete list of things I want to get to in this client (
  - Finishing HUD panels -  ~~'view minimap' toggle~~, active spells, ~~online players~~, parties, settings, help
  - ~~HUD meters - HP/SP/TP/TNL~~
  - HUD Quests/Exp info
- - HUD Friend/Ignore lists
+ - ~~HUD Friend/Ignore lists~~
  - Player emotes
  - NPC interaction on maps (shops, inns, quests)
+ - Context menu options: trade, join (party), invite (party)
  
 Here's a working list of things I want to add that would be additional features on top of the original client specs:
  - Use built-in patching system prior to log-in to transfer files: help, gfx, pubs, maps, data, sounds, etc.
