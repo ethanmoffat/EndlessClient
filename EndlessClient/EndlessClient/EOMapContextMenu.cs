@@ -199,19 +199,19 @@ namespace EndlessClient
 		}
 		private void _eventShowBook(object arg1, EventArgs arg2)
 		{
-			EODialog.Show("TODO: Show quest info", "TODO ITEM", XNADialogButtons.Ok, true);
+			EODialog.Show("TODO: Show quest info", "TODO ITEM", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 		}
 		private void _eventJoinParty(object arg1, EventArgs arg2)
 		{
-			EODialog.Show("TODO: Join this player's party", "TODO ITEM", XNADialogButtons.Ok, true);
+			EODialog.Show("TODO: Join this player's party", "TODO ITEM", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 		}
 		private void _eventInviteToParty(object arg1, EventArgs arg2)
 		{
-			EODialog.Show("TODO: Invite this player to party", "TODO ITEM", XNADialogButtons.Ok, true);
+			EODialog.Show("TODO: Invite this player to party", "TODO ITEM", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 		}
 		private void _eventTrade(object arg1, EventArgs arg2)
 		{
-			EODialog.Show("TODO: Start trade with this player", "TODO ITEM", XNADialogButtons.Ok, true);
+			EODialog.Show("TODO: Start trade with this player", "TODO ITEM", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 		}
 		private void _eventPrivateMessage(object arg1, EventArgs arg2)
 		{

@@ -110,16 +110,30 @@ namespace EndlessClient
 		}
 	}
 
+	public enum EODialogStyle
+	{
+		SmallDialogLargeHeader,
+		SmallDialogSmallHeader,
+		LargeDialogSmallHeader
+	}
+
 	/// <summary>
 	/// EODialog is a basic dialog representation (like Windows MessageBox)
 	/// </summary>
 	public class EODialog : EODialogBase
 	{
-		public EODialog(string msgText, string captionText = "", XNADialogButtons whichButtons = XNADialogButtons.Ok, bool useSmallHeader = false)
+		public EODialog(string msgText, string captionText = "", XNADialogButtons whichButtons = XNADialogButtons.Ok, EODialogStyle style = EODialogStyle.SmallDialogLargeHeader)
 		{
 			base.whichButtons = whichButtons;
 
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, useSmallHeader ? 23 : 18);
+			bool useSmallHeader = style == EODialogStyle.LargeDialogSmallHeader || style == EODialogStyle.SmallDialogSmallHeader;
+
+			if(style == EODialogStyle.SmallDialogLargeHeader)
+				bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18);
+			else if (style == EODialogStyle.SmallDialogSmallHeader)
+				bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 23);
+			else if (style == EODialogStyle.LargeDialogSmallHeader)
+				bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 25);
 			_setSize(bgTexture.Width, bgTexture.Height);
 			
 			message = new XNALabel(new Rectangle(18, 57, 1, 1), "Microsoft Sans Serif", 10.0f); //label is auto-sized
@@ -179,17 +193,21 @@ namespace EndlessClient
 
 			if(useSmallHeader)
 			{
-				foreach (XNAButton btn in dlgButtons)
-					btn.DrawLocation = new Vector2(btn.DrawLocation.X, 82);
+				if(style == EODialogStyle.SmallDialogSmallHeader)
+					foreach (XNAButton btn in dlgButtons)
+						btn.DrawLocation = new Vector2(btn.DrawLocation.X, 82);
+				else
+					foreach (XNAButton btn in dlgButtons)
+						btn.DrawLocation = new Vector2(btn.DrawLocation.X, 148);
 			}
 
 			endConstructor();
 		}
 
-		public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok, bool SmallHeader = false, OnDialogClose closingEvent = null)
+		public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok, EODialogStyle style = EODialogStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
 		{
 // ReSharper disable once UnusedVariable
-			EODialog dlg = new EODialog(message, caption, buttons, SmallHeader);
+			EODialog dlg = new EODialog(message, caption, buttons, style);
 			if(closingEvent != null)
 				dlg.DialogClosing += closingEvent;
 		}
@@ -1750,7 +1768,7 @@ namespace EndlessClient
 
 						if (!EOGame.Instance.Hud.InventoryFits(sender.ID))
 						{
-							EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, true);
+							EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 						}
 						else
 						{
@@ -2226,7 +2244,7 @@ namespace EndlessClient
 			int sellNumInt = m_tradeItems.FindAll(x => World.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(item => item.id == x.ID) >= 0 && x.Sell > 0).Count;
 			if (newState == ShopState.Selling && sellNumInt <= 0)
 			{
-				EODialog.Show("This shop is not buying any of your items.", "Refused", XNADialogButtons.Ok, true);
+				EODialog.Show("This shop is not buying any of your items.", "Refused", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 				return;
 			}
 
@@ -2340,13 +2358,13 @@ namespace EndlessClient
 			{
 				if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
 				{
-					EODialog.Show("You have not enough space to complete this transaction!", "Warning", XNADialogButtons.Ok, true);
+					EODialog.Show("You have not enough space to complete this transaction!", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					return;
 				}
 
 				if (ii.amount < item.Buy)
 				{
-					EODialog.Show("You have not enough gold", "Warning", XNADialogButtons.Ok, true);
+					EODialog.Show("You have not enough gold", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					return;
 				}
 			}
@@ -2356,7 +2374,7 @@ namespace EndlessClient
 			if(!isBuying && ii.amount == 1)
 			{
 				string _message = string.Format("Sell 1 {0} for {1} gold?", rec.Name, item.Sell);
-				EODialog.Show(_message, "Sell Item(s)", XNADialogButtons.OkCancel, true, (oo, ee) =>
+				EODialog.Show(_message, "Sell Item(s)", XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader, (oo, ee) =>
 				{
 					if (ee.Result == XNADialogResult.OK && !Shop.SellItem((short)item.ID, 1))
 					{
@@ -2377,7 +2395,7 @@ namespace EndlessClient
 							(isBuying ? item.Buy : item.Sell) * dlg.SelectedAmount);
 						string _caption = string.Format("{0} Item(s)", isBuying ? "Buy" : "Sell");
 
-						EODialog.Show(_message, _caption, XNADialogButtons.OkCancel, true, (oo, ee) =>
+						EODialog.Show(_message, _caption, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader, (oo, ee) =>
 						{
 							if (ee.Result == XNADialogResult.OK)
 							{

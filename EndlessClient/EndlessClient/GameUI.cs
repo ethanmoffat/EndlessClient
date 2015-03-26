@@ -250,7 +250,7 @@ Thanks to :
 			}
 			else if (sender == backButton && currentState == GameStates.PlayingTheGame)
 			{
-				EODialog dlg = new EODialog("Are you sure you want to exit the game?", "Exit game", XNADialogButtons.OkCancel, true);
+				EODialog dlg = new EODialog("Are you sure you want to exit the game?", "Exit game", XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader);
 				dlg.DialogClosing += (ss, ee) =>
 					{
 						if(ee.Result == XNADialogResult.OK)

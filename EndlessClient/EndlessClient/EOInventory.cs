@@ -121,7 +121,7 @@ namespace EndlessClient
 
 					if (m_itemData.Special == ItemSpecial.Lore)
 					{
-						EODialog.Show("It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
+						EODialog.Show("It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					}
 					else if (m_inventory.amount > 1 && inRange)
 					{
@@ -163,7 +163,7 @@ namespace EndlessClient
 				{
 					if (m_itemData.Special == ItemSpecial.Lore)
 					{
-						EODialog.Show("It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, true);
+						EODialog.Show("It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					}
 					else if (m_inventory.amount > 1)
 					{
@@ -471,7 +471,7 @@ namespace EndlessClient
 				if (!dialogShown && !AddItemToSlot(slot, rec, item.amount))
 				{
 					dialogShown = true;
-					EODialog.Show("Something doesn't fit in the inventory. Rearrange items or get rid of them.", "Warning", XNADialogButtons.Ok, true);
+					EODialog.Show("Something doesn't fit in the inventory. Rearrange items or get rid of them.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 				}
 			}
 

@@ -59,7 +59,7 @@ namespace EndlessClient
 				{
 					if (!m_training)
 					{
-						EODialog dlg = new EODialog("Do you want to train?", "Character training", XNADialogButtons.OkCancel, true);
+						EODialog dlg = new EODialog("Do you want to train?", "Character training", XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader);
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result != XNADialogResult.OK) return;
