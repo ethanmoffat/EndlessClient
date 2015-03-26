@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Net;
 using System.Net.Sockets;
@@ -310,7 +311,8 @@ namespace EndlessClient
 					}
 					case SocketDataWrapper.DataReceiveState.ReadData:
 					{
-						byte[] data = wrap.Data;
+						byte[] data = new byte[wrap.Data.Length];
+						Array.Copy(wrap.Data, data, data.Length);
 						m_packetProcessor.Decode(ref data);
 
 						//This block handles receipt of file data that is transferred to the client.

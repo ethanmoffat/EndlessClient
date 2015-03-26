@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
@@ -45,7 +44,13 @@ namespace EndlessClient
 		{
 			//center dialog based on txtSize of background texture
 			if (centerDialog)
+			{
 				Center(Game.GraphicsDevice);
+				if (EOGame.Instance.State == GameStates.PlayingTheGame)
+				{
+					DrawLocation = new Vector2(DrawLocation.X, (330 - DrawArea.Height) / 2f);
+				}
+			}
 			_fixDrawOrder();
 			Dialogs.Push(this);
 
@@ -77,6 +82,31 @@ namespace EndlessClient
 			int widthDelta = smallButtonSheet.Width / 2;
 			int heightDelta = smallButtonSheet.Height / (int)SmallButton.NUM_BUTTONS;
 			return new Rectangle(widthDelta, heightDelta * (int)whichOne, widthDelta, heightDelta);
+		}
+
+		protected enum ListIcon
+		{
+			Buy,
+			Sell,
+			Bank1_unk,
+			Bank2_unk,
+			Craft,
+			//etc, as needed
+		}
+		protected Texture2D _getDlgIcon(ListIcon whichOne)
+		{
+			const int NUM_PER_ROW = 9;
+			const int ICON_SIZE = 31;
+
+			Texture2D weirdSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27);
+			Color[] dat = new Color[ICON_SIZE*ICON_SIZE];
+
+			Rectangle src = new Rectangle(((int) whichOne%NUM_PER_ROW)*ICON_SIZE, 291 + ((int) whichOne/NUM_PER_ROW)*ICON_SIZE, ICON_SIZE, ICON_SIZE);
+			weirdSheet.GetData(0, src, dat, 0, dat.Length);
+			
+			Texture2D ret = new Texture2D(EOGame.Instance.GraphicsDevice, ICON_SIZE, ICON_SIZE);
+			ret.SetData(dat);
+			return ret;
 		}
 	}
 
@@ -156,10 +186,12 @@ namespace EndlessClient
 			endConstructor();
 		}
 
-		public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok, bool SmallHeader = false)
+		public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok, bool SmallHeader = false, OnDialogClose closingEvent = null)
 		{
 // ReSharper disable once UnusedVariable
 			EODialog dlg = new EODialog(message, caption, buttons, SmallHeader);
+			if(closingEvent != null)
+				dlg.DialogClosing += closingEvent;
 		}
 	}
 
@@ -256,6 +288,13 @@ namespace EndlessClient
 		public void UpdateDimensions(int numberOfLines)
 		{
 			_totalHeight = numberOfLines;
+		}
+
+		public void ScrollToTop()
+		{
+			ScrollOffset = 0;
+			float pixelsPerLine = (float)(scrollArea.Height - scroll.DrawArea.Height * 2) / (_totalHeight - LinesToRender);
+			scroll.DrawLocation = new Vector2(scroll.DrawLocation.X, scroll.DrawArea.Height + pixelsPerLine * ScrollOffset);
 		}
 
 		public void ScrollToEnd()
@@ -1310,7 +1349,7 @@ namespace EndlessClient
 			get { return int.Parse(m_amount.Text); }
 		}
 
-		public EOItemTransferDialog(string itemName, TransferType transferType, int totalAmount)
+		public EOItemTransferDialog(string itemName, TransferType transferType, int totalAmount, bool transferIsSell = false)
 		{
 			Texture2D weirdSpriteSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27);
 			Rectangle sourceArea = new Rectangle(38, 0, 265, 170);
@@ -1342,7 +1381,7 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(153, 124), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel))
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(153, 125), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel))
 			{
 				Visible = true
 			};
@@ -1363,6 +1402,9 @@ namespace EndlessClient
 					break;
 				case TransferType.JunkItems:
 					descLabel.Text = string.Format("How much {0} would you like to junk?", itemName);
+					break;
+				case TransferType.ShopTransfer:
+					descLabel.Text = string.Format("How much {0} would you like to {1}?", itemName, transferIsSell ? "sell" : "buy");
 					break;
 				default:
 					descLabel.Text = "(not implemented)";
@@ -1465,23 +1507,17 @@ namespace EndlessClient
 			}
 		}
 
-		private int OffsetY
-		{
-			get
-			{
-				switch (Style)
-				{
-					case ListItemStyle.Large: return 25;
-					case ListItemStyle.Small: return 45;
-					default: return 0;
-				}
-			}
-		}
+		public int OffsetY { get; set; }
 
 		/// <summary>
 		/// Style of the control - either small (single text row) or large (graphic w/two rows of text)
 		/// </summary>
 		public ListItemStyle Style { get; set; }
+
+		/// <summary>
+		/// For Large style control, sets whether or not the item graphic has a background image (ie red pad thing)
+		/// </summary>
+		public bool ShowItemBackGround { get; set; }
 
 		/// <summary>
 		/// Get or set the primary text
@@ -1522,6 +1558,7 @@ namespace EndlessClient
 		public EODialogListItem(EODialogBase parent, ListItemStyle style, string primaryText, string secondaryText = null, Texture2D iconGraphic = null, int listIndex = -1)
 		{
 			Style = style;
+			OffsetY = Style == ListItemStyle.Large ? 25 : 45;
 			if(listIndex >= 0)
 				Index = listIndex;
 
@@ -1551,7 +1588,8 @@ namespace EndlessClient
 				m_secondaryText.ResizeBasedOnText();
 
 				m_gfxPadThing = GFXLoader.TextureFromResource(GFXTypes.MapTiles, 0, true);
-				m_gfxItem = iconGraphic; //GFXLoader.TextureFromResource(GFXTypes.Items, 2*m_rec.Graphic - 1, true);
+				m_gfxItem = iconGraphic;
+				ShowItemBackGround = true;
 			}
 			m_backgroundColor = new Texture2D(Game.GraphicsDevice, 1, 1);
 			m_backgroundColor.SetData(new [] {Color.FromNonPremultiplied(0xff, 0xff, 0xff, 64)});
@@ -1565,6 +1603,8 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
+			if (!Visible) return;
+
 			MouseState ms = Mouse.GetState();
 
 			if (MouseOver && MouseOverPreviously)
@@ -1595,6 +1635,8 @@ namespace EndlessClient
 
 		public override void Draw(GameTime gameTime)
 		{
+			if (!Visible) return;
+
 			lock (disposingLock)
 			{
 				if (m_disposing)
@@ -1606,8 +1648,9 @@ namespace EndlessClient
 				}
 				if (Style == ListItemStyle.Large)
 				{
-					SpriteBatch.Draw(m_gfxPadThing, new Vector2(xOff + 19, yOff + 29 + 36*Index), Color.White);
-					SpriteBatch.Draw(m_gfxItem, new Vector2(xOff + 27, yOff + 24 + 36*Index), Color.White);
+					if(ShowItemBackGround)
+						SpriteBatch.Draw(m_gfxPadThing, new Vector2(xOff + 19, yOff + (OffsetY + 4) + 36*Index), Color.White);
+					SpriteBatch.Draw(m_gfxItem, new Vector2(xOff + 27, yOff + (OffsetY - 1) + 36*Index), Color.White);
 				}
 				SpriteBatch.End();
 				base.Draw(gameTime);
@@ -1767,12 +1810,9 @@ namespace EndlessClient
 	public enum ScrollingListDialogButtons
 	{
 		AddCancel,
-
+		Cancel,
+		BackCancel,
 	}
-
-	public delegate EODialogListItem EODialogListItemFactoryDelegate(
-		EODialogBase parent, EODialogListItem.ListItemStyle style, string primaryText, string secondaryText = null,
-		Texture2D iconGraphic = null, int listIndex = -1);
 
 	/// <summary>
 	/// Implements a dialog that scrolls through a list of items and has a title and configurable buttons.
@@ -1803,11 +1843,6 @@ namespace EndlessClient
 			set { m_titleText.Text = value; }
 		}
 
-		/// <summary>
-		/// When adding a new item to the list, specifies the factory function that is called to initialize a newly added list item
-		/// </summary>
-		public EODialogListItemFactoryDelegate ItemFactory { get; set; }
-
 		public EOScrollingListDialog(string title, ScrollingListDialogButtons whichButtons, EODialogListItem.ListItemStyle ListType)
 		{
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 52);
@@ -1827,42 +1862,7 @@ namespace EndlessClient
 				LinesToRender = ListType == EODialogListItem.ListItemStyle.Small ? 12 : 5
 			};
 
-			switch (whichButtons)
-			{
-				case ScrollingListDialogButtons.AddCancel:
-				{
-					XNAButton add = new XNAButton(smallButtonSheet, new Vector2(48, 252), _getSmallButtonOut(SmallButton.Add), _getSmallButtonOver(SmallButton.Add));
-					add.SetParent(this);
-					add.OnClick += (o, e) =>
-					{
-						string prompt = Title.Contains("Friend") ? "Who do you want to make your friend?" : "Who do you want to ignore?";
-						EOInputDialog dlgInput = new EOInputDialog(prompt);
-						dlgInput.DialogClosing += (_o, _e) =>
-						{
-							if (_e.Result == XNADialogResult.Cancel) return;
-
-							if (dlgInput.ResponseText.Length < 4)
-							{
-								_e.CancelClose = true;
-								EODialog.Show("The name you provided for this character is too short (try 4 or more letters)", "Wrong name");
-								return;
-							}
-
-							EODialogListItem newItem = ItemFactory == null
-								? new EODialogListItem(this, EODialogListItem.ListItemStyle.Small, dlgInput.ResponseText)
-								: ItemFactory(this, EODialogListItem.ListItemStyle.Small, dlgInput.ResponseText);
-							AddItemToList(newItem, true);
-						};
-					};
-					XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(144, 252), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Cancel));
-					cancel.SetParent(this);
-					cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
-					
-					dlgButtons.Add(add);
-					dlgButtons.Add(cancel);
-				}
-					break;
-			}
+			_setButtons(whichButtons);
 
 			Center(Game.GraphicsDevice);
 			DrawLocation = new Vector2(DrawLocation.X, 15);
@@ -1922,6 +1922,60 @@ namespace EndlessClient
 				{
 					item.SetActive();
 				}
+			}
+		}
+
+		public void ClearItemList()
+		{
+			foreach (EODialogListItem item in m_listItems)
+			{
+				item.SetParent(null);
+				item.Close();
+			}
+			m_listItems.Clear();
+			m_scrollBar.UpdateDimensions(0);
+			m_scrollBar.ScrollToTop();
+		}
+
+		protected void _setButtons(ScrollingListDialogButtons _whichButtons)
+		{
+			if (dlgButtons.Count > 0)
+			{
+				dlgButtons.ForEach(_btn =>
+				{
+					_btn.SetParent(null);
+					_btn.Close();
+				});
+
+				dlgButtons.Clear();
+			}
+
+			switch (_whichButtons)
+			{
+				case ScrollingListDialogButtons.BackCancel:
+				case ScrollingListDialogButtons.AddCancel:
+				{
+					SmallButton which = _whichButtons == ScrollingListDialogButtons.BackCancel ? SmallButton.Back : SmallButton.Add;
+					XNAButton add = new XNAButton(smallButtonSheet, new Vector2(48, 252), _getSmallButtonOut(which), _getSmallButtonOver(which));
+					add.SetParent(this);
+					add.OnClick += (o, e) => Close(add, _whichButtons == ScrollingListDialogButtons.BackCancel ? XNADialogResult.Back : XNADialogResult.Add);
+					XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(144, 252), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
+					cancel.SetParent(this);
+					cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
+
+					dlgButtons.Add(add);
+					dlgButtons.Add(cancel);
+				}
+					break;
+				case ScrollingListDialogButtons.Cancel:
+				{
+					XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(96, 252), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
+					cancel.SetParent(this);
+					cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
+
+					dlgButtons.Add(cancel);
+				}
+					break;
 			}
 		}
 
@@ -2025,19 +2079,6 @@ namespace EndlessClient
 			string titleText = string.Format("{0}'s {2} List [{1}]", charName, allLines.Count, isIgnoreList ? "Ignore" : "Friend");
 
 			EOScrollingListDialog dlg = new EOScrollingListDialog(titleText, ScrollingListDialogButtons.AddCancel, EODialogListItem.ListItemStyle.Small);
-			dlg.ItemFactory = (parent, style, text, secondaryText, graphic, index) =>
-			{
-				//This method will be used to construct list items on an "Add" operation
-				dlg.Title = string.Format("{0}'s {2} List [{1}]", charName, dlg.NamesList.Count, isIgnoreList ? "Ignore" : "Friend");
-				EODialogListItem ret = new EODialogListItem(parent, style, text, secondaryText, graphic, index);
-				ret.OnLeftClick += (o, e) => EOGame.Instance.Hud.SetChatText("!" + ret.Text + " ");
-				ret.OnRightClick += (o, e) =>
-				{
-					dlg.RemoveFromList(ret);
-					dlg.Title = string.Format("{0}'s {2} List [{1}]", charName, dlg.NamesList.Count, isIgnoreList ? "Ignore" : "Friend");
-				};
-				return ret;
-			};
 
 			List<EODialogListItem> characters = allLines.Select(character => new EODialogListItem(dlg, EODialogListItem.ListItemStyle.Small, character)).ToList();
 			characters.ForEach(character =>
@@ -2053,11 +2094,44 @@ namespace EndlessClient
 
 			dlg.DialogClosing += (o, e) =>
 			{
-				Instance = null;
-				if (isIgnoreList)
-					InteractList.WriteIgnoreList(dlg.NamesList);
-				else
-					InteractList.WriteFriendList(dlg.NamesList);
+				if (e.Result == XNADialogResult.Cancel)
+				{
+					Instance = null;
+					if (isIgnoreList)
+						InteractList.WriteIgnoreList(dlg.NamesList);
+					else
+						InteractList.WriteFriendList(dlg.NamesList);
+				}
+				else if (e.Result == XNADialogResult.Add)
+				{
+					e.CancelClose = true;
+					string prompt = dlg.Title.Contains("Friend") ? "Who do you want to make your friend?" : "Who do you want to ignore?";
+					EOInputDialog dlgInput = new EOInputDialog(prompt);
+					dlgInput.DialogClosing += (_o, _e) =>
+					{
+						if (_e.Result == XNADialogResult.Cancel) return;
+
+						if (dlgInput.ResponseText.Length < 4)
+						{
+							_e.CancelClose = true;
+							EODialog.Show("The name you provided for this character is too short (try 4 or more letters)", "Wrong name");
+							return;
+						}
+
+						EODialogListItem newItem = new EODialogListItem(dlg, EODialogListItem.ListItemStyle.Small, dlgInput.ResponseText);
+						newItem.OnLeftClick += (oo, ee) => EOGame.Instance.Hud.SetChatText("!" + newItem.Text + " ");
+						newItem.OnRightClick += (oo, ee) =>
+						{
+							dlg.RemoveFromList(newItem);
+							dlg.Title = string.Format("{0}'s {2} List [{1}]", 
+								charName, 
+								dlg.NamesList.Count, 
+								isIgnoreList ? "Ignore" : "Friend");
+						};
+						dlg.AddItemToList(newItem, true);
+						dlg.Title = string.Format("{0}'s {2} List [{1}]", charName, dlg.NamesList.Count, isIgnoreList ? "Ignore" : "Friend");
+					};
+				}
 			};
 			
 			Instance = dlg;
@@ -2066,6 +2140,266 @@ namespace EndlessClient
 
 			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Action ] {0} List (use right mouse click to delete from list)", isIgnoreList ? "Ignore" : "Friend"));
 			//show the dialog
+		}
+	}
+
+	public class EOShopDialog : EOScrollingListDialog
+	{
+		/* STATIC INTERFACE */
+		public static EOShopDialog Instance { get; private set; }
+
+		public static void Show(NPC shopKeeper)
+		{
+			if (Instance != null)
+				return;
+
+			Instance = new EOShopDialog(shopKeeper.Data.ID);
+
+			//request from server is based on the map index
+			if(!Shop.RequestShop(shopKeeper.Index))
+				EOGame.Instance.LostConnectionDialog();
+		}
+
+		private enum ShopState
+		{
+			None,
+			Initial,
+			Buying,
+			Selling,
+			Crafting
+		}
+
+		public int ID { get; private set; }
+
+		private ShopState m_state;
+		private List<ShopItem> m_tradeItems;
+		private List<CraftItem> m_craftItems;
+
+		private static Texture2D BuyIcon, SellIcon, CraftIcon;
+
+		private EOShopDialog(int id)
+			: base("", ScrollingListDialogButtons.Cancel, EODialogListItem.ListItemStyle.Large)
+		{
+			ID = id;
+			DialogClosing += (o, e) =>
+			{
+				if (e.Result == XNADialogResult.Cancel)
+				{
+					Instance = null;
+					ID = 0;
+				}
+				else if (e.Result == XNADialogResult.Back)
+				{
+					e.CancelClose = true;
+					_setState(ShopState.Initial);
+				}
+			};
+			m_state = ShopState.None;
+
+			//note - may need to lock around these.
+			//other note - no good way to dispose static textures like this
+			if (BuyIcon == null || SellIcon == null || CraftIcon == null)
+			{
+				BuyIcon = _getDlgIcon(ListIcon.Buy);
+				SellIcon = _getDlgIcon(ListIcon.Sell);
+				CraftIcon = _getDlgIcon(ListIcon.Craft);
+			}
+		}
+
+		public void SetShopData(int id, string Name, List<ShopItem> tradeItems, List<CraftItem> craftItems)
+		{
+			if (Instance == null || this != Instance || ID != id) return;
+			Title = Name;
+
+			m_tradeItems = tradeItems;
+			m_craftItems = craftItems;
+
+			_setState(ShopState.Initial);
+		}
+
+		private void _setState(ShopState newState)
+		{
+			ShopState old = m_state;
+
+			if (old == newState) return;
+			
+			int sellNumInt = m_tradeItems.FindAll(x => World.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(item => item.id == x.ID) >= 0 && x.Sell > 0).Count;
+			if (newState == ShopState.Selling && sellNumInt <= 0)
+			{
+				EODialog.Show("This shop is not buying any of your items.", "Refused", XNADialogButtons.Ok, true);
+				return;
+			}
+
+			ClearItemList();
+			switch (newState)
+			{
+				case ShopState.Initial:
+				{
+					string buyNum = string.Format("{0} items in store.", m_tradeItems.FindAll(x => x.Buy > 0).Count);
+					string sellNum = string.Format("{0} items accepted.", sellNumInt);
+						
+					string craftNum = string.Format("{0} items accepted.", m_craftItems.Count);
+
+					EODialogListItem buy = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, "Buy Item(s)", buyNum, BuyIcon, 0);
+					buy.OnLeftClick += (o, e) => _setState(ShopState.Buying);
+					buy.OnRightClick += (o, e) => _setState(ShopState.Buying);
+					buy.ShowItemBackGround = false;
+					buy.OffsetY = 45;
+					AddItemToList(buy, false);
+					EODialogListItem sell = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, "Sell Items(s)", sellNum, SellIcon, 1);
+					sell.OnLeftClick += (o, e) => _setState(ShopState.Selling);
+					sell.OnRightClick += (o, e) => _setState(ShopState.Selling);
+					sell.ShowItemBackGround = false;
+					sell.OffsetY = 45;
+					AddItemToList(sell, false);
+					if (m_craftItems.Count > 0)
+					{
+						EODialogListItem craft = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, "Craft Item(s)", craftNum, CraftIcon, 2);
+						craft.OnLeftClick += (o, e) => _setState(ShopState.Crafting);
+						craft.OnRightClick += (o, e) => _setState(ShopState.Crafting);
+						craft.ShowItemBackGround = false;
+						craft.OffsetY = 45;
+						AddItemToList(craft, false);
+					}
+					_setButtons(ScrollingListDialogButtons.Cancel);
+				}
+					break;
+				case ShopState.Buying:
+				case ShopState.Selling:
+				{
+					//re-use the logic for Buying/Selling: it is almost identical
+					bool buying = newState == ShopState.Buying;
+
+					List<EODialogListItem> itemList = new List<EODialogListItem>();
+					foreach (ShopItem si in m_tradeItems)
+					{
+						if (si.ID <= 0 || (buying && si.Buy <= 0) || 
+							(!buying && (si.Sell <= 0 || World.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(inv => inv.id == si.ID) < 0)))
+							continue;
+
+						ShopItem localItem = si;
+						ItemRecord rec = World.Instance.EIF.GetItemRecordByID(si.ID);
+						string secondary = string.Format("Price: {0} {1}", buying ? si.Buy : si.Sell, rec.Type == ItemType.Armor ? (rec.Gender == 0 ? "(Female)" : "(Male)") : "");
+
+						EODialogListItem nextItem = new EODialogListItem(
+							this,
+							EODialogListItem.ListItemStyle.Large,
+							rec.Name,
+							secondary,
+							GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true));
+						nextItem.OnLeftClick += (o, e) => _buySellItem(localItem);
+						nextItem.OnRightClick += (o, e) => _buySellItem(localItem);
+						nextItem.OffsetY = 45;
+
+						itemList.Add(nextItem);
+					}
+					SetItemList(itemList);
+					_setButtons(ScrollingListDialogButtons.BackCancel);
+				}
+					break;
+				case ShopState.Crafting:
+				{
+					List<EODialogListItem> itemList = new List<EODialogListItem>(m_craftItems.Count);
+					foreach (CraftItem ci in m_craftItems)
+					{
+						if (ci.Ingredients.Count <= 0) continue;
+
+						CraftItem localItem = ci;
+						ItemRecord rec = World.Instance.EIF.GetItemRecordByID(ci.ID);
+						string secondary = string.Format("Ingredients: {0} {1}", ci.Ingredients.Count,  rec.Type == ItemType.Armor ? (rec.Gender == 0 ? "(Female)" : "(Male)") : "");
+
+						EODialogListItem nextItem = new EODialogListItem(
+							this,
+							EODialogListItem.ListItemStyle.Large,
+							rec.Name,
+							secondary,
+							GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true));
+						nextItem.OnLeftClick += (o, e) => _craftItem(localItem);
+						nextItem.OnRightClick += (o, e) => _craftItem(localItem);
+						nextItem.OffsetY = 45;
+
+						itemList.Add(nextItem);
+					}
+					SetItemList(itemList);
+					_setButtons(ScrollingListDialogButtons.BackCancel);
+				}
+					break;
+			}
+
+			m_state = newState;
+		}
+
+		private void _buySellItem(ShopItem item)
+		{
+			if (m_state != ShopState.Buying && m_state != ShopState.Selling)
+				return;
+			bool isBuying = m_state == ShopState.Buying;
+			
+			InventoryItem ii = World.Instance.MainPlayer.ActiveCharacter.Inventory.Find(x => (isBuying ? x.id == 1 : x.id == item.ID));
+			if (isBuying)
+			{
+				if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
+				{
+					EODialog.Show("You have not enough space to complete this transaction!", "Warning", XNADialogButtons.Ok, true);
+					return;
+				}
+
+				if (ii.amount < item.Buy)
+				{
+					EODialog.Show("You have not enough gold", "Warning", XNADialogButtons.Ok, true);
+					return;
+				}
+			}
+
+			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.ID);
+			//special case: no need for prompting if selling an item with count == 1 in inventory
+			if(!isBuying && ii.amount == 1)
+			{
+				string _message = string.Format("Sell 1 {0} for {1} gold?", rec.Name, item.Sell);
+				EODialog.Show(_message, "Sell Item(s)", XNADialogButtons.OkCancel, true, (oo, ee) =>
+				{
+					if (ee.Result == XNADialogResult.OK && !Shop.SellItem((short)item.ID, 1))
+					{
+						EOGame.Instance.LostConnectionDialog();
+					}
+				});
+			}
+			else
+			{
+				EOItemTransferDialog dlg = new EOItemTransferDialog(rec.Name, EOItemTransferDialog.TransferType.ShopTransfer, isBuying ? item.MaxBuy : ii.amount, !isBuying);
+				dlg.DialogClosing += (o, e) =>
+				{
+					if (e.Result == XNADialogResult.OK)
+					{
+						string _message = string.Format("{0} {1} {2} for {3} gold?",
+							isBuying ? "Buy" : "Sell",
+							dlg.SelectedAmount, rec.Name,
+							(isBuying ? item.Buy : item.Sell) * dlg.SelectedAmount);
+						string _caption = string.Format("{0} Item(s)", isBuying ? "Buy" : "Sell");
+
+						EODialog.Show(_message, _caption, XNADialogButtons.OkCancel, true, (oo, ee) =>
+						{
+							if (ee.Result == XNADialogResult.OK)
+							{
+								//only actually do the buy/sell if the user then clicks "OK" in the second prompt
+								if (isBuying && !Shop.BuyItem((short)item.ID, dlg.SelectedAmount) || !isBuying && !Shop.SellItem((short)item.ID, dlg.SelectedAmount))
+								{
+									EOGame.Instance.LostConnectionDialog();
+								}
+							}
+						});
+					}
+				};
+			}
+		}
+
+		private void _craftItem(CraftItem item)
+		{
+			//todo: 1. check state
+			//		2. check for ingredients in inventory (and dialog if req's not met)
+			//		3. check for space in inventory for new item
+			//		4. prompt are you sure
+			//		5. send packet
 		}
 	}
 }

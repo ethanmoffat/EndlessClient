@@ -218,17 +218,29 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Refresh.RefreshReply, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Buy), 
+					new LockedHandlerMethod(Handlers.Shop.ShopBuy, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Open), 
+					new LockedHandlerMethod(Handlers.Shop.ShopOpen, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Sell), 
+					new LockedHandlerMethod(Handlers.Shop.ShopSell, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Player), 
 					new LockedHandlerMethod(Handlers.StatSkill.StatSkillPlayer, true)
 				},
 				//TALK PACKETS
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Message),
- 					new LockedHandlerMethod(Handlers.Talk.TalkMessage, true)
+					new LockedHandlerMethod(Handlers.Talk.TalkMessage, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Player),
- 					new LockedHandlerMethod(Handlers.Talk.TalkPlayer, true)
+					new LockedHandlerMethod(Handlers.Talk.TalkPlayer, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Reply), 

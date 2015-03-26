@@ -953,6 +953,33 @@ namespace EndlessClient
 						_mouseoverName.DrawLocation = new Vector2(
 							npc.DrawArea.X + (npc.DrawArea.Width - _mouseoverName.ActualWidth) /2f,
 							npc.DrawArea.Y + npc.TopPixel - _mouseoverName.Texture.Height - 4);
+
+						if (mouseClicked)
+						{
+							switch (npc.Data.Type)
+							{
+								case NPCType.Shop:
+									EOShopDialog.Show(npc);
+									break;
+								case NPCType.Inn:
+									break;
+								case NPCType.Bank:
+									break;
+								case NPCType.Barber:
+									break;
+								case NPCType.Guild:
+									break;
+								case NPCType.Priest:
+									break;
+								case NPCType.Law:
+									break;
+								case NPCType.Skills:
+									break;
+								case NPCType.Quest:
+									break;
+							}
+						}
+
 						break;
 					case TileInfo.ReturnType.IsOtherPlayer:
 						//todo: this needs to be moved into some mouseover shit for character renderer

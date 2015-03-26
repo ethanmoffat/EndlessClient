@@ -172,6 +172,7 @@ namespace EndlessClient
 			{
 				_pnl.IgnoreDialog(typeof(EOPaperdollDialog));
 				_pnl.IgnoreDialog(typeof(EOChestDialog));
+				_pnl.IgnoreDialog(typeof(EOShopDialog));
 			});
 
 			for (int i = 0; i < NUM_BTN; ++i)
@@ -198,6 +199,7 @@ namespace EndlessClient
 				mainBtn[i] = new XNAButton(new [] { _out, _ovr }, btnLoc);
 				mainBtn[i].IgnoreDialog(typeof(EOChestDialog));
 				mainBtn[i].IgnoreDialog(typeof(EOPaperdollDialog));
+				mainBtn[i].IgnoreDialog(typeof(EOShopDialog));
 				//mainBtn[i].ignoreDialog(typeof(EOTradingDialog)); //etc, etc for all other dialogs that should be ignored when they're top-most
 			}
 
@@ -235,6 +237,7 @@ namespace EndlessClient
 			};
 			chatTextBox.IgnoreDialog(typeof(EOPaperdollDialog));
 			chatTextBox.IgnoreDialog(typeof(EOChestDialog));
+			chatTextBox.IgnoreDialog(typeof(EOShopDialog));
 			chatTextBox.OnEnterPressed += _doTalk;
 			chatTextBox.OnClicked += (s, e) =>
 			{
@@ -302,7 +305,6 @@ namespace EndlessClient
 			};
 			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(false);
 			m_friendList.OnMouseOver += (o, e) => SetStatusLabel("[Button] Friend List");
-			m_friendList.IgnoreDialog(typeof(EOFriendIgnoreListDialog)); //so that clicking it doesn't freeze in mouseover graphic
 
 			m_ignoreList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
 				new Vector2(609, 312),
@@ -314,7 +316,6 @@ namespace EndlessClient
 			};
 			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(true);
 			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel("[Button] Ignore List");
-			m_ignoreList.IgnoreDialog(typeof(EOFriendIgnoreListDialog));
 		}
 
 		public override void Initialize()
@@ -621,7 +622,7 @@ namespace EndlessClient
 
 		public bool UpdateInventory(InventoryItem item)
 		{
-			if (item.amount == 0)
+			if (item.amount <= 0)
 				inventory.RemoveItem(item.id);
 			else
 				return inventory.UpdateItem(item);
@@ -677,6 +678,9 @@ namespace EndlessClient
 
 			chatTextBox.Dispose();
 			statusLabel.Dispose();
+
+			m_friendList.Dispose();
+			m_ignoreList.Dispose();
 
 			lock (clockLock)
 			{

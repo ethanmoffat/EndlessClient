@@ -148,6 +148,7 @@
     <Compile Include="Handlers\Players.cs" />
     <Compile Include="Handlers\Recover.cs" />
     <Compile Include="Handlers\Refresh.cs" />
+    <Compile Include="Handlers\Shop.cs" />
     <Compile Include="Handlers\StatSkill.cs" />
     <Compile Include="Handlers\Talk.cs" />
     <Compile Include="Handlers\TemplateHandler.cs" />
