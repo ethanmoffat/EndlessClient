@@ -276,9 +276,6 @@ namespace EOLib
 				GfxRows[layer] = new List<GFXRow>();
 			}
 
-			int outersize;
-			int innersize;
-
 			Packet file = new Packet(File.ReadAllBytes(fileName));
 			if (file.Length == 0)
 				throw new FileLoadException("The file is empty.");
@@ -320,11 +317,12 @@ namespace EOLib
 			WarpLookup = new Warp[Height + 1, Width + 1];
 			TileLookup = new Tile[Height + 1, Width + 1];
 
-			outersize = file.GetChar();
+			int innersize;
+			int outersize = file.GetChar();
 
 			for (int i = 0; i < outersize; ++i)
 			{
-				NPCSpawns.Add(new NPCSpawn()
+				NPCSpawns.Add(new NPCSpawn
 				{
 					x = file.GetChar(),
 					y = file.GetChar(),
@@ -346,7 +344,7 @@ namespace EOLib
 
 			for (int i = 0; i < outersize; ++i)
 			{
-				Chests.Add(new MapChest()
+				Chests.Add(new MapChest
 				{
 					x = file.GetChar(),
 					y = file.GetChar(),
@@ -365,7 +363,7 @@ namespace EOLib
 				byte y = file.GetChar();
 				innersize = file.GetChar();
 
-				TileRow row = new TileRow()
+				TileRow row = new TileRow
 				{
 					y = y,
 					tiles = new List<Tile>(innersize)
@@ -392,11 +390,7 @@ namespace EOLib
 				byte y = file.GetChar();
 				innersize = file.GetChar();
 
-				WarpRow row = new WarpRow()
-				{
-					y = y,
-					tiles = new List<Warp>(innersize)
-				};
+				WarpRow row = new WarpRow { y = y, tiles = new List<Warp>(innersize) };
 
 				for (int ii = 0; ii < innersize; ++ii)
 				{
@@ -441,13 +435,7 @@ namespace EOLib
 					byte y = file.GetChar();
 					innersize = file.GetChar();
 
-					GFXRow row = new GFXRow()
-					{
-						y = y,
-						tiles = new List<GFX>(innersize)
-					};
-
-					row.tiles = new List<GFX>(innersize);
+					GFXRow row = new GFXRow { y = y, tiles = new List<GFX>(innersize) };
 
 					for (int ii = 0; ii < innersize; ++ii)
 					{
@@ -455,13 +443,9 @@ namespace EOLib
 						ushort temptile = (ushort)file.GetShort();
 						if (row.y <= Height && tempx <= Width)
 						{
-							GFXRows[layer, row.y].column[tempx].tile = (int)temptile;
+							GFXRows[layer, row.y].column[tempx].tile = temptile;
 						}
-						row.tiles.Add(new GFX()
-						{
-							x = tempx,
-							tile = temptile
-						});
+						row.tiles.Add(new GFX { x = tempx, tile = temptile });
 					}
 
 					GfxRows[layer].Add(row);
@@ -472,10 +456,8 @@ namespace EOLib
 
 			for (int i = 0; i < outersize; ++i)
 			{
-				MapSign sign = new MapSign();
+				MapSign sign = new MapSign {x = file.GetChar(), y = file.GetChar()};
 
-				sign.x = file.GetChar();
-				sign.y = file.GetChar();
 				int msgLength = file.GetShort() - 1;
 				string data = decodeEmfString(file.GetBytes(msgLength));
 				int titleLength = file.GetChar();
