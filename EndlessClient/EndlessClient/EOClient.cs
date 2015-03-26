@@ -222,6 +222,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Shop.ShopBuy, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Create), 
+					new LockedHandlerMethod(Handlers.Shop.ShopCreate, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Shop, PacketAction.Open), 
 					new LockedHandlerMethod(Handlers.Shop.ShopOpen, true)
 				},

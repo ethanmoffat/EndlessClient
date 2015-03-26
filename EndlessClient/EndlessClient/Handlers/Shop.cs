@@ -92,6 +92,21 @@ namespace EndlessClient.Handlers
 		}
 
 		/// <summary>
+		/// Craft an item with a shopkeeper
+		/// </summary>
+		public static bool CraftItem(short ItemID)
+		{
+			EOClient client = (EOClient)World.Instance.Client;
+			if (!client.ConnectedAndInitialized)
+				return false;
+
+			Packet pkt = new Packet(PacketFamily.Shop, PacketAction.Create);
+			pkt.AddShort(ItemID);
+
+			return client.SendPacket(pkt);
+		}
+
+		/// <summary>
 		/// Handles SHOP_OPEN from server, contains shop data for a shop dialog
 		/// </summary>
 		public static void ShopOpen(Packet pkt)
@@ -158,6 +173,25 @@ namespace EndlessClient.Handlers
 			EndlessClient.Character c = World.Instance.MainPlayer.ActiveCharacter;
 			c.UpdateInventoryItem(1, charGold);
 			c.UpdateInventoryItem(itemID, charNumLeft, weight, maxWeight);
+		}
+
+		/// <summary>
+		/// Handles SHOP_CREATE from server, response to crafting an item
+		/// </summary>
+		public static void ShopCreate(Packet pkt)
+		{
+			short itemID = pkt.GetShort();
+			byte weight = pkt.GetChar();
+			byte maxWeight = pkt.GetChar();
+
+			EndlessClient.Character c = World.Instance.MainPlayer.ActiveCharacter;
+			c.UpdateInventoryItem(itemID, 1, weight, maxWeight, true);
+			while (pkt.ReadPos != pkt.Length)
+			{
+				if (pkt.PeekShort() <= 0) break;
+
+				c.UpdateInventoryItem(pkt.GetShort(), pkt.GetInt());
+			}
 		}
 	}
 }

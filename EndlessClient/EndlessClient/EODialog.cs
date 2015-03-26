@@ -2413,11 +2413,47 @@ namespace EndlessClient
 
 		private void _craftItem(CraftItem item)
 		{
-			//todo: 1. check state
-			//		2. check for ingredients in inventory (and dialog if req's not met)
-			//		3. check for space in inventory for new item
-			//		4. prompt are you sure
-			//		5. send packet
+			if (m_state != ShopState.Crafting)
+				return;
+
+			if (!EOGame.Instance.Hud.InventoryFits((short) item.ID))
+			{
+				EODialog.Show("You have not enough space to complete this transaction!", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				return;
+			}
+
+			ItemRecord craftItemRec = World.Instance.EIF.GetItemRecordByID(item.ID);
+// ReSharper disable once LoopCanBeConvertedToQuery
+			foreach (var ingredient in item.Ingredients)
+			{
+				if (World.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(_item => _item.id == ingredient.Item1 && _item.amount >= ingredient.Item2) < 0)
+				{
+					string _message = "You don't have all the ingredients.\n\n";
+					foreach (var ingred in item.Ingredients)
+					{
+						ItemRecord localRec = World.Instance.EIF.GetItemRecordByID(ingred.Item1);
+						_message += string.Format("+  {0}  {1}\n", ingred.Item2, localRec.Name);
+					}
+					string _caption = string.Format("Ingredients for {0}", craftItemRec.Name);
+					EODialog.Show(_message, _caption, XNADialogButtons.Cancel, EODialogStyle.LargeDialogSmallHeader);
+					return;
+				}
+			}
+
+			string _message2 = "Put ingredients together?\n\n";
+			foreach (var ingred in item.Ingredients)
+			{
+				ItemRecord localRec = World.Instance.EIF.GetItemRecordByID(ingred.Item1);
+				_message2 += string.Format("+  {0}  {1}\n", ingred.Item2, localRec.Name);
+			}
+			string _caption2 = string.Format("Ingredients for {0}", craftItemRec.Name);
+			EODialog.Show(_message2, _caption2, XNADialogButtons.OkCancel, EODialogStyle.LargeDialogSmallHeader, (o, e) =>
+			{
+				if (e.Result == XNADialogResult.OK && !Shop.CraftItem((short)item.ID))
+				{
+					EOGame.Instance.LostConnectionDialog();
+				}
+			});
 		}
 	}
 }
