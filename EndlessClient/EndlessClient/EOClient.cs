@@ -158,6 +158,18 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Item.ItemRemoveResponse, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Locker, PacketAction.Get),
+					new LockedHandlerMethod(Handlers.Locker.LockerGet, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Locker, PacketAction.Open),
+					new LockedHandlerMethod(Handlers.Locker.LockerOpen, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Locker, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Locker.LockerReply, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Login, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Login.LoginResponse)
 				},

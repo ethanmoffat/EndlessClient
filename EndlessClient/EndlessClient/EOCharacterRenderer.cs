@@ -585,8 +585,15 @@ namespace EndlessClient
 							chest.backoff = true;
 					}
 					break;
-				case TileSpec.BankVault: //todo: open bank vault
+				case TileSpec.BankVault:
 					walkValid = NoWall;
+					if (!walkValid)
+					{
+						if (EOBankVaultDialog.Instance == null)
+						{
+							EOBankVaultDialog.Show(destX, destY);
+						}
+					}
 					break;
 				case TileSpec.Board1: //todo: boards?
 				case TileSpec.Board2:

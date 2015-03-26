@@ -1040,6 +1040,13 @@ namespace EndlessClient
 										chest.backoff = true;
 									}
 									break;
+								case TileSpec.BankVault:
+									_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
+									if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y))
+									{
+										EOBankVaultDialog.Show((byte)gridX, (byte)gridY);
+									}
+									break;
 								case TileSpec.ChairDown:
 								case TileSpec.ChairLeft:
 								case TileSpec.ChairRight:
@@ -1047,7 +1054,6 @@ namespace EndlessClient
 								case TileSpec.ChairDownRight:
 								case TileSpec.ChairUpLeft:
 								case TileSpec.ChairAll:
-								case TileSpec.BankVault:
 								case TileSpec.Board1:
 								case TileSpec.Board2:
 								case TileSpec.Board3:

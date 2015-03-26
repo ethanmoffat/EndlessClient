@@ -31,6 +31,23 @@ namespace EndlessClient
 		SLNBot = 20
 	}
 
+	/// <summary>
+	/// Which buttons should be displayed at the bottom of the EOScrollingListDialog
+	/// </summary>
+	public enum ScrollingListDialogButtons
+	{
+		AddCancel,
+		Cancel,
+		BackCancel,
+	}
+
+	public enum EODialogStyle
+	{
+		SmallDialogLargeHeader,
+		SmallDialogSmallHeader,
+		LargeDialogSmallHeader
+	}
+
 	public class EODialogBase : XNADialog
 	{
 		protected readonly Texture2D smallButtonSheet;
@@ -108,13 +125,6 @@ namespace EndlessClient
 			ret.SetData(dat);
 			return ret;
 		}
-	}
-
-	public enum EODialogStyle
-	{
-		SmallDialogLargeHeader,
-		SmallDialogSmallHeader,
-		LargeDialogSmallHeader
 	}
 
 	/// <summary>
@@ -1367,7 +1377,9 @@ namespace EndlessClient
 			get { return int.Parse(m_amount.Text); }
 		}
 
-		public EOItemTransferDialog(string itemName, TransferType transferType, int totalAmount, bool transferIsSell = false)
+		private readonly IKeyboardSubscriber m_prevSubscriber;
+
+		public EOItemTransferDialog(string itemName, TransferType transferType, int totalAmount, string shopTransferAction = "buy")
 		{
 			Texture2D weirdSpriteSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27);
 			Rectangle sourceArea = new Rectangle(38, 0, 265, 170);
@@ -1422,7 +1434,7 @@ namespace EndlessClient
 					descLabel.Text = string.Format("How much {0} would you like to junk?", itemName);
 					break;
 				case TransferType.ShopTransfer:
-					descLabel.Text = string.Format("How much {0} would you like to {1}?", itemName, transferIsSell ? "sell" : "buy");
+					descLabel.Text = string.Format("How much {0} would you like to {1}?", itemName, shopTransferAction);
 					break;
 				default:
 					descLabel.Text = "(not implemented)";
@@ -1449,7 +1461,9 @@ namespace EndlessClient
 				}
 			};
 			m_amount.SetParent(this);
-			(Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = m_amount;
+			m_prevSubscriber = EOGame.Instance.Dispatcher.Subscriber;
+			EOGame.Instance.Dispatcher.Subscriber = m_amount;
+			DialogClosing += (o, e) => EOGame.Instance.Dispatcher.Subscriber = m_prevSubscriber;
 
 			m_totalAmount = totalAmount;
 
@@ -1666,9 +1680,14 @@ namespace EndlessClient
 				}
 				if (Style == ListItemStyle.Large)
 				{
-					if(ShowItemBackGround)
-						SpriteBatch.Draw(m_gfxPadThing, new Vector2(xOff + 19, yOff + (OffsetY + 4) + 36*Index), Color.White);
-					SpriteBatch.Draw(m_gfxItem, new Vector2(xOff + 27, yOff + (OffsetY - 1) + 36*Index), Color.White);
+					//The area for showing these is 64x36px: center the icon and background accordingly
+					Vector2 offset = new Vector2(xOff + 14/*not sure of the significance of this offset*/, yOff + OffsetY + 36*Index);
+					if (ShowItemBackGround)
+						SpriteBatch.Draw(m_gfxPadThing, new Vector2(offset.X + ((64 - m_gfxPadThing.Width)/2f), offset.Y + (36 - m_gfxPadThing.Height)/2f), Color.White);
+					SpriteBatch.Draw(m_gfxItem, 
+						new Vector2((float)Math.Round(offset.X + ((64 - m_gfxItem.Width)/2f)), 
+							(float)Math.Round(offset.Y + (36 - m_gfxItem.Height)/2f)), 
+						Color.White);
 				}
 				SpriteBatch.End();
 				base.Draw(gameTime);
@@ -1794,6 +1813,7 @@ namespace EndlessClient
 
 		public override void Initialize()
 		{
+			//make sure the offsets are correct
 			foreach(XNAControl child in children)
 				child.SetParent(this);
 			base.Initialize();
@@ -1820,16 +1840,6 @@ namespace EndlessClient
 			base.Dispose(disposing);
 			Instance = null;
 		}
-	}
-
-	/// <summary>
-	/// Which buttons should be displayed at the bottom of the EOScrollingListDialog
-	/// </summary>
-	public enum ScrollingListDialogButtons
-	{
-		AddCancel,
-		Cancel,
-		BackCancel,
 	}
 
 	/// <summary>
@@ -2163,6 +2173,13 @@ namespace EndlessClient
 
 	public class EOShopDialog : EOScrollingListDialog
 	{
+		/* Process for this:
+		 * 1. Click shopkeeper, calls Show()
+		 * 2. Show constructs instance and sends packet
+		 * 3. When packet response is received, data is populated in dialog
+		 * 4. Dialog 'closing' event resets Instance to null
+		 */
+
 		/* STATIC INTERFACE */
 		public static EOShopDialog Instance { get; private set; }
 
@@ -2384,7 +2401,7 @@ namespace EndlessClient
 			}
 			else
 			{
-				EOItemTransferDialog dlg = new EOItemTransferDialog(rec.Name, EOItemTransferDialog.TransferType.ShopTransfer, isBuying ? item.MaxBuy : ii.amount, !isBuying);
+				EOItemTransferDialog dlg = new EOItemTransferDialog(rec.Name, EOItemTransferDialog.TransferType.ShopTransfer, isBuying ? item.MaxBuy : ii.amount, isBuying ? "buy" : "sell");
 				dlg.DialogClosing += (o, e) =>
 				{
 					if (e.Result == XNADialogResult.OK)
@@ -2454,6 +2471,97 @@ namespace EndlessClient
 					EOGame.Instance.LostConnectionDialog();
 				}
 			});
+		}
+	}
+
+	public class EOBankVaultDialog : EOScrollingListDialog
+	{
+		public static EOBankVaultDialog Instance { get; private set; }
+
+		public static void Show(byte x, byte y)
+		{
+			if (Instance != null) return;
+
+			Instance = new EOBankVaultDialog(x, y);
+
+			if(!Locker.OpenLocker(x, y))
+				EOGame.Instance.LostConnectionDialog();
+		}
+
+		private readonly static string TITLE_FMT = World.Instance.MainPlayer.ActiveCharacter.Name + "'s Private Locker [{0}]";
+
+		//map location of the currently open locker
+		public byte X { get; private set; }
+		public byte Y { get; private set; }
+
+		private EOBankVaultDialog(byte x, byte y)
+			: base(string.Format(TITLE_FMT, 0), ScrollingListDialogButtons.Cancel, EODialogListItem.ListItemStyle.Large)
+		{
+			X = x;
+			Y = y;
+			
+			DialogClosing += (o, e) => { Instance = null; X = 0; Y = 0; };
+		}
+
+		public void SetVaultData(List<InventoryItem> lockerItems)
+		{
+			ClearItemList();
+
+			Title = string.Format(TITLE_FMT, lockerItems.Count);
+
+			List<EODialogListItem> listItems = new List<EODialogListItem>();
+			foreach (InventoryItem item in lockerItems)
+			{
+				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+				int amount = item.amount;
+				EODialogListItem newItem = new EODialogListItem(
+					this, 
+					EODialogListItem.ListItemStyle.Large, 
+					rec.Name,
+					string.Format("x{0}  {1}", item.amount, rec.Type == ItemType.Armor ? (rec.Gender == 0 ? "(Female)" : "(Male)"): ""),
+					GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true)
+					);
+				newItem.OnRightClick += (o, e) => _removeItem(rec, amount);
+				newItem.OffsetY = 45;
+
+				listItems.Add(newItem);
+			}
+
+			SetItemList(listItems);
+		}
+
+		private void _removeItem(ItemRecord item, int amount)
+		{
+			if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
+			{
+				EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				return;
+			}
+
+			if (World.Instance.MainPlayer.ActiveCharacter.Weight + item.Weight*amount > World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
+			{
+				EODialog.Show("Its too heavy! You cannot carry any more weight.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				return;
+			}
+
+			if(!Locker.TakeItem((short)item.ID))
+				EOGame.Instance.LostConnectionDialog();
+		}
+
+		public override void Update(GameTime gt)
+		{
+			if (EOGame.Instance.Hud.IsInventoryDragging())
+			{
+				shouldClickDrag = false;
+				SuppressParentClickDrag(true);
+			}
+			else
+			{
+				shouldClickDrag = true;
+				SuppressParentClickDrag(false);
+			}
+
+			base.Update(gt);
 		}
 	}
 }

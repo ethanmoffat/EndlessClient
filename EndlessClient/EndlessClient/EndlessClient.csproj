@@ -142,6 +142,7 @@
     <Compile Include="Handlers\Face.cs" />
     <Compile Include="Handlers\Init.cs" />
     <Compile Include="Handlers\Item.cs" />
+    <Compile Include="Handlers\Locker.cs" />
     <Compile Include="Handlers\Login.cs" />
     <Compile Include="Handlers\NPC.cs" />
     <Compile Include="Handlers\Paperdoll.cs" />

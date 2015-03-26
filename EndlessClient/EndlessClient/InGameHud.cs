@@ -173,6 +173,7 @@ namespace EndlessClient
 				_pnl.IgnoreDialog(typeof(EOPaperdollDialog));
 				_pnl.IgnoreDialog(typeof(EOChestDialog));
 				_pnl.IgnoreDialog(typeof(EOShopDialog));
+				_pnl.IgnoreDialog(typeof(EOBankVaultDialog));
 			});
 
 			for (int i = 0; i < NUM_BTN; ++i)
@@ -200,6 +201,7 @@ namespace EndlessClient
 				mainBtn[i].IgnoreDialog(typeof(EOChestDialog));
 				mainBtn[i].IgnoreDialog(typeof(EOPaperdollDialog));
 				mainBtn[i].IgnoreDialog(typeof(EOShopDialog));
+				mainBtn[i].IgnoreDialog(typeof(EOBankVaultDialog));
 				//mainBtn[i].ignoreDialog(typeof(EOTradingDialog)); //etc, etc for all other dialogs that should be ignored when they're top-most
 			}
 
@@ -238,6 +240,7 @@ namespace EndlessClient
 			chatTextBox.IgnoreDialog(typeof(EOPaperdollDialog));
 			chatTextBox.IgnoreDialog(typeof(EOChestDialog));
 			chatTextBox.IgnoreDialog(typeof(EOShopDialog));
+			chatTextBox.IgnoreDialog(typeof(EOBankVaultDialog));
 			chatTextBox.OnEnterPressed += _doTalk;
 			chatTextBox.OnClicked += (s, e) =>
 			{

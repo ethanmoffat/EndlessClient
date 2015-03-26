@@ -111,7 +111,8 @@ namespace EndlessClient
 				m_alpha = 255;
 				SetParent(m_preDragParent);
 
-				if (((EOInventory) parent).IsOverDrop() || (World.Instance.ActiveMapRenderer.MouseOver && EOChestDialog.Instance == null && EOPaperdollDialog.Instance == null))
+				if (((EOInventory) parent).IsOverDrop() || (World.Instance.ActiveMapRenderer.MouseOver && 
+					EOChestDialog.Instance == null && EOPaperdollDialog.Instance == null && EOBankVaultDialog.Instance == null))
 				{
 					Microsoft.Xna.Framework.Point loc = World.Instance.ActiveMapRenderer.MouseOver ? World.Instance.ActiveMapRenderer.GridCoords:
 						new Microsoft.Xna.Framework.Point(World.Instance.MainPlayer.ActiveCharacter.X, World.Instance.MainPlayer.ActiveCharacter.Y);
@@ -125,14 +126,12 @@ namespace EndlessClient
 					}
 					else if (m_inventory.amount > 1 && inRange)
 					{
-						IKeyboardSubscriber prevSub = (Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber;
 						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.DropItems,
 							m_inventory.amount);
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result == XNADialogResult.OK)
 								Handlers.Item.DropItem(m_inventory.id, dlg.SelectedAmount, (byte)loc.X, (byte)loc.Y);
-							(Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = prevSub;
 						};
 					}
 					else if(inRange)
@@ -144,14 +143,12 @@ namespace EndlessClient
 				{
 					if (m_inventory.amount > 1)
 					{
-						IKeyboardSubscriber prevSub = (Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber;
 						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.JunkItems,
 							m_inventory.amount);
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result == XNADialogResult.OK)
 								Handlers.Item.JunkItem(m_inventory.id, dlg.SelectedAmount);
-							(Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = prevSub;
 						};
 					}
 					else
@@ -167,15 +164,10 @@ namespace EndlessClient
 					}
 					else if (m_inventory.amount > 1)
 					{
-						IKeyboardSubscriber prevSub = (Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber;
 						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.DropItems, m_inventory.amount);
 						dlg.DialogClosing += (sender, args) =>
 						{
-							bool ret = true;
-							if (args.Result == XNADialogResult.OK)
-								ret = Handlers.Chest.AddItem(m_inventory.id, dlg.SelectedAmount);
-							(Game as EOGame ?? EOGame.Instance).Dispatcher.Subscriber = prevSub;
-							if(!ret)
+							if (args.Result == XNADialogResult.OK && !Handlers.Chest.AddItem(m_inventory.id, dlg.SelectedAmount))
 								EOGame.Instance.LostConnectionDialog();
 						};
 					}
@@ -205,6 +197,31 @@ namespace EndlessClient
 						case ItemType.Weapon:
 							_handleDoubleClick();
 							break;
+					}
+				}
+				else if (EOBankVaultDialog.Instance != null && EOBankVaultDialog.Instance.MouseOver && EOBankVaultDialog.Instance.MouseOverPreviously)
+				{
+					if (m_inventory.id == 1)
+					{
+						//There was a localization error in the original client - it had the italian word for currency, "valuta"
+						EODialog.Show("Please deposit currency on your bank account.", "Refused", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					}
+					else if (m_inventory.amount > 1)
+					{
+						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.ShopTransfer, m_inventory.amount, "transfer");
+						dlg.DialogClosing += (sender, args) =>
+						{
+							if (args.Result == XNADialogResult.OK && !Handlers.Locker.AddItem(m_inventory.id, dlg.SelectedAmount))
+								EOGame.Instance.LostConnectionDialog();
+						};
+					}
+					else
+					{
+						if (!Handlers.Locker.AddItem(m_inventory.id, 1))
+						{
+							EOGame.Instance.LostConnectionDialog();
+							return;
+						}
 					}
 				}
 
