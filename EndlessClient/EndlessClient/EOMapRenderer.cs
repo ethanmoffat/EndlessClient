@@ -34,7 +34,8 @@ namespace EndlessClient
 			IsTileSpec, //indicates that a normal tile spec is returned
 			IsWarpSpec, //indicates that a normal warp spec is returned
 			IsOtherPlayer, //other player is in the way, spec/warp are invalid
-			IsOtherNPC //other npc is in the way, spec/warp are invalid
+			IsOtherNPC, //other npc is in the way, spec/warp are invalid
+			IsMapSign
 		}
 
 		public ReturnType ReturnValue;
@@ -42,6 +43,7 @@ namespace EndlessClient
 		public TileSpec Spec;
 		public EOLib.Warp Warp;
 		public NPC NPC;
+		public MapSign Sign;
 	}
 
 	public class EOChatBubble : DrawableGameComponent
@@ -474,6 +476,12 @@ namespace EndlessClient
 			if (warp != null)
 			{
 				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsWarpSpec, Warp = warp };
+			}
+
+			MapSign sign = MapRef.Signs.Find(_ms => _ms.x == destX && _ms.y == destY);
+			if (sign.x == destX && sign.y == destY)
+			{
+				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsMapSign, Sign = sign };
 			}
 
 			Tile tile = MapRef.TileLookup[destY, destX];
@@ -1077,6 +1085,14 @@ namespace EndlessClient
 									//normal cursor
 									_cursorSourceRect.Location = new Point(0, 0);
 									break;
+							}
+						}
+						else if (ti.ReturnValue == TileInfo.ReturnType.IsMapSign)
+						{
+							_hideCursor = true;
+							if (mouseClicked)
+							{
+								EODialog.Show(ti.Sign.message, ti.Sign.title, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 							}
 						}
 						else

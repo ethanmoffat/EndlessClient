@@ -59,13 +59,18 @@ Here's a list of some things that can be done:
  - Map rendering/scrolling during walk
  - Doors/warping to different maps
  - Talking - global, local, player commands (#usage #find #loc)
- - **Nearly completed** attacking - the damage is done, NPCs are killed, and items may be dropped. Damage dealt and health remaining are shown above the NPC/character being hit. Character clothes and weapons don't render properly during this yet.
+ - Attacking NPCs - complete, except Character clothes and weapons don't render properly
  - Animated map tiles
  - Item inventory and paperdoll display, equipping/unequipping items
  - Stats display and leveling up stats (str/int/wis/agi/con/cha)
  - Stat bars for main player in HUD (hp/tp/sp/tnl)
  - Map chest interaction
  - Interaction with other players via right-clicking them (limited)
+ - Friend/Ignore lists
+ - "Who is online?" list
+ - NPC shops - buying, selling, and crafting items
+ - Map signs
+ - Bank vault (aka Private Locker)
  - All pre-game menus, logging in, creating/deleting characters, creating account, etc.
 
 <a name="ToDo" />What's Left to do?
@@ -75,11 +80,11 @@ There is a HUGE list of things left to do. The client is in its infant stages an
 
 Here's a working but incomplete list of things I want to get to (strikethrough means completed):
  - Finish attacking - requires ~~damage counter~~, ~~health bars~~, and fixing animations to show up properly
- - Map signs
+ - ~~Map signs~~
  - Map boards
  - ~~Map chests~~
  - Map chairs
- - Map bank vaults
+ - ~~Map bank vaults~~
  - ~~Right-click players on map~~
  - Cast spells and spell animations
  - Finishing HUD panels -  ~~'view minimap' toggle~~, active spells, ~~online players~~, parties, settings, help
@@ -87,7 +92,7 @@ Here's a working but incomplete list of things I want to get to (strikethrough m
  - HUD Quests/Exp info
  - ~~HUD Friend/Ignore lists~~
  - Player emotes
- - NPC interaction on maps (shops, inns, quests)
+ - NPC interaction on maps (~~shops~~, inns, quests)
  - Context menu options: trade, join (party), invite (party)
  
 Here's a working list of things I want to add that would be additional features on top of the original client specs:
