@@ -155,16 +155,6 @@ namespace EOLib
 		public List<GFX> tiles;
 	}
 
-	public struct ESGFXColumn
-	{
-		public int tile;
-	}
-
-	public struct ESGFXRow
-	{
-		public ESGFXColumn[] column;
-	}
-
 	public struct MapSign
 	{
 		public byte x;
@@ -173,16 +163,27 @@ namespace EOLib
 		public string message;
 	}
 
+	public enum MapLayers
+	{
+		GroundTile = 0,
+		Objects = 1,
+		OverlayObjects = 2,
+		WallRowsDown = 3,
+		WallRowsRight = 4,
+		RoofTile = 5,
+		OverlayTile = 6,
+		Shadow = 7,
+		Unknown = 8,
+		NUM_LAYERS = 9
+	}
+
 	public class MapFile
 	{
-		public ESGFXRow[,] GFXRows;
-
 		//lookup tables for direct access so I don't need so many 'find's
 
-		public Warp[,] WarpLookup { get; set; }
-		public Tile[,] TileLookup { get; set; }
-		
-		private const int GFXLayers = 9;
+		public Warp[,] WarpLookup { get; private set; }
+		public Tile[,] TileLookup { get; private set; }
+		public List<int[,]> GFXLookup {get; private set; }
 
 		public int MapID { get; private set; }
 
@@ -205,18 +206,18 @@ namespace EOLib
 		public byte CanScroll { get; private set; }
 		public byte RelogX { get; private set; }
 		public byte RelogY { get; private set; }
-		public byte Unknown2 { get; private set; }
+		private byte Unknown2 { get; set; }
 
 		public List<NPCSpawn> NPCSpawns { get; set; }
 		public List<byte[]> Unknowns { get; set; }
 
-		public List<MapChest> Chests { get; set; }
-		public List<TileRow> TileRows { get; set; }
-		public List<WarpRow> WarpRows { get; set; }
-		public List<GFXRow>[] GfxRows { get; set; }
-		public List<MapSign> Signs { get; set; }
+		public List<MapChest> Chests { get; private set; }
+		public List<TileRow> TileRows { get; private set; }
+		public List<WarpRow> WarpRows { get; private set; }
+		public List<GFXRow>[] GfxRows { get; private set; }
+		public List<MapSign> Signs { get; private set; }
 		
-		private string decodeEmfString(byte[] chars)
+		private static string _decodeMapString(byte[] chars)
 		{
 			Array.Reverse(chars);
 
@@ -273,10 +274,10 @@ namespace EOLib
 			Chests = new List<MapChest>();
 			TileRows = new List<TileRow>();
 			WarpRows = new List<WarpRow>();
-			GfxRows = new List<GFXRow>[GFXLayers];
+			GfxRows = new List<GFXRow>[(int)MapLayers.NUM_LAYERS];
 			Signs = new List<MapSign>();
 
-			for (int layer = 0; layer < GFXLayers; ++layer)
+			for (int layer = 0; layer < (int)MapLayers.NUM_LAYERS; ++layer)
 			{
 				GfxRows[layer] = new List<GFXRow>();
 			}
@@ -293,7 +294,7 @@ namespace EOLib
 
 			Rid = file.GetBytes(4);
 			byte[] rawname = file.GetBytes(24);
-			Name = decodeEmfString(rawname);
+			Name = _decodeMapString(rawname);
 
 			IsPK = file.GetChar() == 3;
 			Effect = (MapEffect)file.GetChar();
@@ -406,21 +407,20 @@ namespace EOLib
 				WarpRows.Add(row);
 			}
 
-			GFXRows = new ESGFXRow[GFXLayers, Height + 1];
-
-			for (int l = 0; l < GFXLayers; l++)
+			GFXLookup = new List<int[,]>((int)MapLayers.NUM_LAYERS);
+			for (int i = 0; i < (int)MapLayers.NUM_LAYERS; ++i)
 			{
-				for (int i = 0; i <= Height; i++)
+				GFXLookup.Add(new int[Height + 1, Width + 1]);
+				for (int row = 0; row <= Height; row++)
 				{
-					GFXRows[l, i].column = new ESGFXColumn[Width + 1];
-					for (int ii = 0; ii <= Width; ii++)
+					for (int col = 0; col <= Width; col++)
 					{
-						GFXRows[l, i].column[ii].tile = -1;
+						GFXLookup[i][row, col] = -1;
 					}
 				}
 			}
 
-			for (int layer = 0; layer < GFXLayers; ++layer)
+			for (int layer = 0; layer < (int)MapLayers.NUM_LAYERS; ++layer)
 			{
 				outersize = file.GetChar();
 				GfxRows[layer] = new List<GFXRow>(outersize);
@@ -438,7 +438,7 @@ namespace EOLib
 						ushort temptile = (ushort)file.GetShort();
 						if (row.y <= Height && tempx <= Width)
 						{
-							GFXRows[layer, row.y].column[tempx].tile = temptile;
+							GFXLookup[layer][row.y, tempx] = temptile;
 						}
 						row.tiles.Add(new GFX { x = tempx, tile = temptile });
 					}
@@ -454,7 +454,7 @@ namespace EOLib
 				MapSign sign = new MapSign {x = file.GetChar(), y = file.GetChar()};
 
 				int msgLength = file.GetShort() - 1;
-				string data = decodeEmfString(file.GetBytes(msgLength));
+				string data = _decodeMapString(file.GetBytes(msgLength));
 				int titleLength = file.GetChar();
 				sign.title = data.Substring(0, titleLength);
 				sign.message = data.Substring(titleLength);

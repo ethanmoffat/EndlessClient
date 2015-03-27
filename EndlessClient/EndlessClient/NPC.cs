@@ -49,7 +49,7 @@ namespace EndlessClient
 			get { return X * 16 + Y * 16 + adjY; }
 		}
 
-		private byte DestX { get; set; } //not needed outside this class (yet)
+		public byte DestX { get; set; }
 		public byte DestY { get; private set; }
 		public Character Opponent { get; set; }
 		public int HP { get; set; }

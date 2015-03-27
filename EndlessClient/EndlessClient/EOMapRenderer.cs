@@ -1204,52 +1204,41 @@ namespace EndlessClient
 				xMax = c.X + localViewLength > MapRef.Width ? MapRef.Width : c.X + localViewLength;
 			int yMin = c.Y - localViewLength < 0 ? 0 : c.Y - localViewLength,
 				yMax = c.Y + localViewLength > MapRef.Height ? MapRef.Height : c.Y + localViewLength;
-			
 			int cOffX = c.OffsetX, cOffY = c.OffsetY;
 
-			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= xMin && gfx.x <= xMax && gfx.x <= MapRef.Width;
-			Func<GFXRow, bool> yGFXQuery = row => row.y >= yMin && row.y <= yMax && row.y <= MapRef.Height;
-
 			sb.Begin();
-			//render fill tile first
-			if (MapRef.FillTile > 0)
-			{
-				//only do the cache lookup once!
-				Texture2D fillTileRef = GFXLoader.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true);
-				for (int i = yMin; i <= yMax; ++i)
-				{
-					for (int j = xMin; j <= xMax; ++j)
-					{
-						//only render fill layer when the ground layer is not present!
-						if (MapRef.GFXRows[0, i].column[j].tile >= 0)
-							continue;
 
-						Vector2 pos = _getDrawCoordinates(j, i, cOffX, cOffY);
-						sb.Draw(fillTileRef, new Vector2(pos.X - 1, pos.Y - 2), Color.FromNonPremultiplied(255,255,255,_getAlpha(j, i, c)));
+			Texture2D fillTileRef = null;
+			for (int i = yMin; i <= yMax; ++i)
+			{
+				for (int j = xMin; j <= xMax; ++j)
+				{
+					Vector2 pos = _getDrawCoordinates(j, i, cOffX, cOffY);
+
+					//only render fill layer when the ground layer is not present!
+					if (MapRef.FillTile > 0 && MapRef.GFXLookup[0][i, j] < 0)
+					{
+						if (fillTileRef == null) //only do the cache lookup once!
+							fillTileRef = GFXLoader.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true);
+
+						sb.Draw(fillTileRef, new Vector2(pos.X - 1, pos.Y - 2),
+							Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
+					}
+
+					//ground layer next
+					int tile;
+					if ((tile = MapRef.GFXLookup[0][i, j]) > 0)
+					{
+						Texture2D nextTile = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile, true);
+						Rectangle? src = nextTile.Width > 64 ? new Rectangle?(new Rectangle((int)_tileSrc.X, (int)_tileSrc.Y, nextTile.Width / 4, nextTile.Height)) : null;
+						if (nextTile.Width > 64)
+							sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
+						else
+							sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
 					}
 				}
 			}
 
-			//ground layer next
-			IEnumerable<GFXRow> ground = MapRef.GfxRows[0].Where(yGFXQuery);
-			foreach (GFXRow row in ground)
-			{
-				IEnumerable<GFX> tiles = row.tiles.Where(xGFXQuery);
-				foreach (GFX tile in tiles)
-				{
-					if (tile.tile == 0)
-						continue;
-					
-					//render tile.tile at tile.x, row.y
-					Texture2D nextTile = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
-					Vector2 pos = _getDrawCoordinates(tile.x, row.y, cOffX, cOffY);
-					Rectangle? src = nextTile.Width > 64 ? new Rectangle?(new Rectangle((int)_tileSrc.X, (int)_tileSrc.Y, nextTile.Width / 4, nextTile.Height)) : null;
-					if (nextTile.Width > 64)
-						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(tile.x, row.y, c)));
-					else
-						sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), Color.FromNonPremultiplied(255, 255, 255, _getAlpha(tile.x, row.y, c)));
-				}
-			}
 			sb.End();
 		}
 
@@ -1299,172 +1288,149 @@ namespace EndlessClient
 		private void _drawMapObjectsAndActors()
 		{
 			//also, certain spikes only appear when a player is over them...yikes.
-
 			if (MapRef == null) return;
+
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 			List<EOCharacterRenderer> otherChars = new List<EOCharacterRenderer>(otherRenderers); //copy of list (can remove items)
 			List<NPC> otherNpcs;
 			lock(npcListLock) //when drawing a frame, don't want to consider NPCs that are added/removed mid-draw - they will be taken care of on next update
 				otherNpcs = new List<NPC>(npcList);
 
-			// Queries (func) for the items within range of the character's X coordinate, passed as expressions to list linq extensions
-			Func<GFX, int, bool> xGFXDistanceQuery = (gfx, dist) => gfx.x >= c.X - dist && gfx.x <= c.X + dist && gfx.x <= MapRef.Width;
-			Func<GFXRow, int, bool> yGFXDistanceQuery = (row, dist) => row.y >= c.Y - dist && row.y <= c.Y + dist && row.y <= MapRef.Height;
-
 			GraphicsDevice.SetRenderTarget(_rtMapObjAbovePlayer);
 			GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 			sb.Begin();
-
-			//Get all the row lists in-range of player up front. Retrieved here in order to be rendered
-			List<GFXRow> overlayObjRows = MapRef.GfxRows[2].Where(_row => yGFXDistanceQuery(_row, 10)).ToList();
-			List<GFXRow> wallRowsRight = MapRef.GfxRows[4].Where(_row => yGFXDistanceQuery(_row, 20)).ToList();
-			List<GFXRow> wallRowsDown = MapRef.GfxRows[3].Where(_row => yGFXDistanceQuery(_row, 20)).ToList();
-			List<GFXRow> shadowRows = MapRef.GfxRows[7].Where(_row => yGFXDistanceQuery(_row, 10)).ToList();
-			List<GFXRow> mapObjRows = MapRef.GfxRows[1].Where(_row => yGFXDistanceQuery(_row, 22)).ToList();
-			List<GFXRow> roofRows = MapRef.GfxRows[5].Where(_row => yGFXDistanceQuery(_row, 10)).ToList();
-			List<GFXRow> overlayTileRows = MapRef.GfxRows[6].Where(_row=>yGFXDistanceQuery(_row, 10)).ToList();
-
 			bool targetChanged = false;
+
 			//no need to iterate over the entire map rows if they won't be included in the render.
 			for (int rowIndex = Math.Max(c.Y - 22, 0); rowIndex <= Math.Min(c.Y + 22, MapRef.Height); ++rowIndex)
 			{
-				//any objects, NPCs and players with a Y coordinate <= player Y coordinate (ie above player) render to one target
-				//all others render 'below' player on separate target so blending works for only the objects below the player
-				if (!targetChanged && ((c.State != CharacterActionState.Walking && rowIndex >= c.Y) || (c.State == CharacterActionState.Walking && rowIndex >= c.DestY)))
+				for (int colIndex = Math.Max(c.X - 22, 0); colIndex <= Math.Min(c.X + 22, MapRef.Width); ++colIndex)
 				{
-					sb.End();
-					GraphicsDevice.SetRenderTarget(_rtMapObjBelowPlayer);
-					GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-					sb.Begin();
-					targetChanged = true;
-				}
-
-				GFXRow row; //reused for each layer
-
-				//overlay/mask  objects
-				if ((row = overlayObjRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
-				{
-					List<GFX> overlayObj = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 10)).ToList();
-					foreach (GFX obj in overlayObj)
+					//once we hit the main players (x, y) coordinate, we need to switch render targets
+					if (!targetChanged &&
+					    ((c.State != CharacterActionState.Walking && rowIndex == c.Y && colIndex == c.X) ||
+					     (c.State == CharacterActionState.Walking && rowIndex == c.DestY && colIndex == c.DestX)))
 					{
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, obj.tile, true);
-						Vector2 pos = _getDrawCoordinates(obj.x, row.y, c);
-						pos = new Vector2(pos.X + 16, pos.Y - 11);
-						sb.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
+						sb.End();
+						GraphicsDevice.SetRenderTarget(_rtMapObjBelowPlayer);
+						GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+						sb.Begin();
+						targetChanged = true;
+					}
+
+					Texture2D gfx;
+					int gfxNum;
+
+					//overlay and shadows: within 10 grid units
+					if (Math.Abs(c.X - colIndex) <= 10 && Math.Abs(c.Y - rowIndex) <= 10)
+					{
+						//overlay/mask  objects
+						if ((gfxNum = MapRef.GFXLookup[(int) MapLayers.OverlayObjects][rowIndex, colIndex]) > 0)
+						{
+							gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
+							Vector2 pos = _getDrawCoordinates(colIndex, rowIndex, c);
+							pos = new Vector2(pos.X + 16, pos.Y - 11);
+							sb.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+						}
+
+						//shadows
+						if (m_showShadows && (gfxNum = MapRef.GFXLookup[(int) MapLayers.Shadow][rowIndex, colIndex]) > 0)
+						{
+							gfx = GFXLoader.TextureFromResource(GFXTypes.Shadows, gfxNum, true);
+							Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+							sb.Draw(gfx, new Vector2(loc.X - 24, loc.Y - 12), Color.FromNonPremultiplied(255, 255, 255, 60));
+						}
+					}
+
+					if (Math.Abs(c.X - colIndex) <= 20 && Math.Abs(c.Y - rowIndex) <= 20)
+					{
+						//right-facing walls
+						if ((gfxNum = MapRef.GFXLookup[(int) MapLayers.WallRowsRight][rowIndex, colIndex]) > 0)
+						{
+							if (_door != null && _door.x == colIndex && _doorY == rowIndex && _door.doorOpened)
+								gfxNum++;
+
+							gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
+							Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+
+							int gfxWidthDelta = gfx.Width/4;
+							Rectangle? src = gfx.Width > 32
+								? new Rectangle?(new Rectangle(gfxWidthDelta*_wallSrcIndex, 0, gfxWidthDelta, gfx.Height))
+								: null;
+							loc = new Vector2(loc.X - (int) Math.Round((gfx.Width > 32 ? gfxWidthDelta : gfx.Width)/2.0) + 47,
+								loc.Y - (gfx.Height - 29));
+
+							sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+						}
+
+						//down-facing walls
+						if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.WallRowsDown][rowIndex, colIndex]) > 0)
+						{
+							if (_door != null && _door.x == colIndex && _doorY == rowIndex && _door.doorOpened)
+								gfxNum++;
+
+							gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
+							Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+
+							int gfxWidthDelta = gfx.Width / 4;
+							Rectangle? src = gfx.Width > 32
+								? new Rectangle?(new Rectangle(gfxWidthDelta * _wallSrcIndex, 0, gfxWidthDelta, gfx.Height))
+								: null;
+							loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfxWidthDelta : gfx.Width) / 2.0) + 15,
+								loc.Y - (gfx.Height - 29));
+
+							sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+						}
+					}
+
+					//npcs and characters with this {x, y} location
+					if (Math.Abs(rowIndex - c.Y) <= Constants.ViewLength && Math.Abs(colIndex - c.X) <= Constants.ViewLength)
+					{
+						int locrow = rowIndex;
+						int loccol = colIndex;
+
+						IEnumerable<NPC> thisLocNpcs = otherNpcs.Where(
+							_npc => (_npc.Walking ? _npc.DestY == locrow : _npc.Y == locrow) &&
+							        (_npc.Walking ? _npc.DestX == loccol : _npc.X == loccol));
+						foreach (NPC npc in thisLocNpcs) npc.DrawToSpriteBatch(sb, true);
+
+						IEnumerable<EOCharacterRenderer> thisLocChars = otherChars.Where(
+							_char => (_char.Character.State == CharacterActionState.Walking
+								? _char.Character.DestY == locrow && _char.Character.DestX == loccol
+								: _char.Character.Y == locrow && _char.Character.X == loccol));
+						foreach (EOCharacterRenderer _char in thisLocChars) _char.Draw(sb, true);
+					}
+
+					//map objects (no filter on distance since that is contained within the loop bounds)
+					if ((gfxNum = MapRef.GFXLookup[(int) MapLayers.Objects][rowIndex, colIndex]) > 0)
+					{
+						gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, gfxNum, true);
+						Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+						loc = new Vector2(loc.X - (int) Math.Round(gfx.Width/2.0) + 29, loc.Y - (gfx.Height - 28));
+						sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+					}
+
+					if (Math.Abs(c.X - colIndex) <= 10 && Math.Abs(c.Y - rowIndex) <= 10)
+					{
+						//roofs (after objects - for outdoor maps, which actually have roofs, this makes more sense)
+						if ((gfxNum = MapRef.GFXLookup[(int) MapLayers.RoofTile][rowIndex, colIndex]) > 0)
+						{
+							gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
+							Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+							loc = new Vector2(loc.X - 2, loc.Y - 63);
+							sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+						}
+
+						//overlay tiles (counters, etc)
+						if ((gfxNum = MapRef.GFXLookup[(int) MapLayers.OverlayTile][rowIndex, colIndex]) > 0)
+						{
+							gfx = GFXLoader.TextureFromResource(GFXTypes.MapTiles, gfxNum, true);
+							Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+							loc = new Vector2(loc.X - 2, loc.Y - 31);
+							sb.Draw(gfx, loc, Color.White);
+						}
 					}
 				}
-
-				//shadows
-				if (m_showShadows && (row = shadowRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
-				{
-					List<GFX> shadows = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 10)).ToList();
-					foreach (GFX shadow in shadows)
-					{
-						Vector2 loc = _getDrawCoordinates(shadow.x, row.y, c);
-						sb.Draw(GFXLoader.TextureFromResource(GFXTypes.Shadows, shadow.tile, true), new Vector2(loc.X - 24, loc.Y - 12), Color.FromNonPremultiplied(255, 255, 255, 60));
-					}
-				}
-
-				//walls - two layers: facing different directions
-				//this layer faces to the right
-				if ((row = wallRowsRight.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
-				{
-					List<GFX> walls = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 20)).ToList();
-					foreach (GFX obj in walls)
-					{
-						int gfxNum = obj.tile;
-						if (_door != null && _door.x == obj.x && _doorY == row.y && _door.doorOpened)
-							gfxNum++;
-
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
-						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
-
-						int gfxWidthDelta = gfx.Width/4;
-						Rectangle? src = gfx.Width > 32 ? new Rectangle?(new Rectangle(gfxWidthDelta * _wallSrcIndex, 0, gfxWidthDelta, gfx.Height)) : null;
-						loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfxWidthDelta : gfx.Width) / 2.0) + 47, loc.Y - (gfx.Height - 29));
-
-						sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
-					}
-				}
-
-				//UPDATE: NPCs and characters are not drawn after map objects, rather inbetween the wall directions.
-
-				// ReSharper disable AccessToModifiedClosure
-				IEnumerable<NPC> thisRowNpcs = otherNpcs.Where(
-					_npc => (_npc.Walking ? _npc.DestY == rowIndex : _npc.Y == rowIndex) &&
-							_npc.X >= c.X - Constants.ViewLength &&
-							_npc.X <= c.X + Constants.ViewLength);
-				foreach (NPC npc in thisRowNpcs) npc.DrawToSpriteBatch(sb, true);
-				// ReSharper restore AccessToModifiedClosure
-
-				// ReSharper disable AccessToModifiedClosure
-				IEnumerable<EOCharacterRenderer> thisRowChars = otherChars.Where(
-					_char => (_char.Character.State == CharacterActionState.Walking ? _char.Character.DestY == rowIndex : _char.Character.Y == rowIndex) &&
-							 _char.Character.X >= c.X - Constants.ViewLength &&
-							 _char.Character.X <= c.X + Constants.ViewLength);
-				foreach (EOCharacterRenderer _char in thisRowChars) _char.Draw(sb, true);
-				// ReSharper restore AccessToModifiedClosure
-				
-				//this layer faces to the down
-				if ((row = wallRowsDown.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
-				{
-					List<GFX> walls = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 20)).ToList();
-					foreach (GFX obj in walls)
-					{
-						int gfxNum = obj.tile;
-						if (_door != null && _door.x == obj.x && _doorY == row.y && _door.doorOpened)
-							gfxNum++;
-
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
-						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
-
-						int gfxWidthDelta = gfx.Width / 4;
-						Rectangle? src = gfx.Width > 32 ? new Rectangle?(new Rectangle(gfxWidthDelta * _wallSrcIndex, 0, gfxWidthDelta, gfx.Height)): null;
-						loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfxWidthDelta : gfx.Width) / 2.0) + 15, loc.Y - (gfx.Height - 29));
-
-						sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
-					}
-				}
-
-				//map objects
-				if ((row = mapObjRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
-				{
-					List<GFX> objs = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 13)).ToList();
-					foreach (GFX obj in objs)
-					{
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, obj.tile, true);
-						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
-						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28));
-						sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
-					}
-				}
-
-				//roofs (after objects - for outdoor maps, which actually have roofs, this makes more sense)
-				if ((row = roofRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
-				{
-					List<GFX> roofs = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 10)).ToList();
-					foreach (GFX roof in roofs)
-					{
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, roof.tile, true);
-						Vector2 loc = _getDrawCoordinates(roof.x, row.y, c);
-						loc = new Vector2(loc.X - 2, loc.Y - 63);
-						sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(roof.x, row.y, c)));
-					}
-				}
-				
-				//overlay tiles (counters, etc)
-				if ((row = overlayTileRows.Find(_row => _row.y == rowIndex)).y == rowIndex && row.tiles != null)
-				{
-					List<GFX> tiles = row.tiles.Where(_gfx => xGFXDistanceQuery(_gfx, 10)).ToList();
-					foreach (GFX tile in tiles)
-					{
-						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile.tile, true);
-						Vector2 loc = _getDrawCoordinates(tile.x, row.y, c);
-						loc = new Vector2(loc.X - 2, loc.Y - 31);
-						sb.Draw(gfx, loc, Color.White);
-					}
-				}
-
 			}
 
 			try
