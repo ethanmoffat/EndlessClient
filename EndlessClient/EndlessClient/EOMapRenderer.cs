@@ -309,7 +309,7 @@ namespace EndlessClient
 		private RenderTarget2D _rtMapObjAbovePlayer, _rtMapObjBelowPlayer;
 		private BlendState _playerBlend;
 		private SpriteBatch sb;
-		private readonly bool m_showShadows;
+		private readonly bool m_showShadows, m_enableTransition;
 		private readonly int m_npcDropProtect, m_playerDropProtect;
 		private bool m_showMiniMap;
 
@@ -362,6 +362,8 @@ namespace EndlessClient
 				m_npcDropProtect = Constants.NPCDropProtectionSeconds;
 			if (!World.Instance.Configuration.GetValue(ConfigStrings.Custom, ConfigStrings.PlayerDropProtectTime, out m_playerDropProtect))
 				m_playerDropProtect = Constants.PlayerDropProtectionSeconds;
+			if (!World.Instance.Configuration.GetValue(ConfigStrings.Settings, ConfigStrings.ShowTransition, out m_enableTransition))
+				m_enableTransition = false;
 
 			_doorTimer = new Timer(_doorTimerCallback);
 			SetActiveMap(mapObj);
@@ -920,7 +922,10 @@ namespace EndlessClient
 			}
 			
 			//draw stuff to the render target
+			m_drawingEvent.Wait(); //need to make sure that the map isn't being changed during a draw!
+			m_drawingEvent.Reset();
 			_drawMapObjectsAndActors();
+			m_drawingEvent.Set();
 
 			_prevState = ms;
 			base.Update(gameTime);
@@ -1560,10 +1565,7 @@ namespace EndlessClient
 		
 		private int _getAlpha(int objX, int objY, Character c)
 		{
-			bool enableTransition;
-			//[TRANSITION]
-			//Enabled=false #disable the fancy transition when changing maps
-			if (World.Instance.Configuration.GetValue(ConfigStrings.Settings, ConfigStrings.ShowTransition, out enableTransition) && !enableTransition)
+			if (!m_enableTransition)
 				return 255;
 
 			//get greater of deltas between the map object and the character
