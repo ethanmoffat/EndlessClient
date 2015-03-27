@@ -1,5 +1,6 @@
 ﻿using System;
 using EOLib;
+using EOLib.Data;
 
 namespace EndlessClient.Handlers
 {
@@ -78,6 +79,10 @@ namespace EndlessClient.Handlers
 
 			World.Instance.ActiveMapRenderer.AddMapItem(item);
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(_id, characterAmount, characterWeight, characterMaxWeight);
+
+			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(_id);
+			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("You dropped {0} {1}", _amount, rec.Name), ChatType.DownArrow);
+			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You dropped {0} {1}", _amount, rec.Name));
 		}
 
 		/// <summary>
@@ -107,12 +112,16 @@ namespace EndlessClient.Handlers
 		public static void ItemJunkResponse(Packet pkt)
 		{
 			short id = pkt.GetShort();
-			/*int amountRemoved = */pkt.GetThree();//don't really care - just math it
+			int amountRemoved = pkt.GetThree();//don't really care - just math it
 			int amountRemaining = pkt.GetInt();
 			byte weight = pkt.GetChar();
 			byte maxWeight = pkt.GetChar();
 
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
+
+			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(id);
+			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("You junked {0} {1}", amountRemoved, rec.Name), ChatType.DownArrow);
+			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You junked {0} {1}", amountRemoved, rec.Name));
 		}
 
 		/// <summary>
@@ -131,8 +140,11 @@ namespace EndlessClient.Handlers
 				World.Instance.ActiveMapRenderer.UpdateMapItemAmount(uid, amountTaken);
 			}
 
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);//true: adding amounts if item ID exists
-			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You picked up {0} {1}", amountTaken, World.Instance.EIF.GetItemRecordByID(id).Name));
+			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);
+
+			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(id);
+			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("You picked up {0} {1}", amountTaken, rec.Name), ChatType.UpArrow);
+			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You picked up {0} {1}", amountTaken, rec.Name));
 		}
 	}
 }

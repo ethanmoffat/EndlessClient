@@ -1,5 +1,6 @@
 ﻿using System;
 using EOLib;
+using EOLib.Data;
 
 namespace EndlessClient.Handlers
 {
@@ -69,7 +70,7 @@ namespace EndlessClient.Handlers
 		public static void NPCSpec(Packet pkt)
 		{
 			short playerID = pkt.GetShort(); //player that is protecting the item
-			byte direction = pkt.GetChar();
+			/*byte direction = */pkt.GetChar();
 			short deadNPC = pkt.GetShort();
 
 			if (pkt.ReadPos == pkt.Length)
@@ -100,13 +101,28 @@ namespace EndlessClient.Handlers
 				});
 			}
 
-			if (pkt.ReadPos == pkt.Length) return; //just showing a dropped item, packet ends here
+			if (pkt.ReadPos == pkt.Length) 
+			{
+				if (droppedItemID > 0)
+				{
+					ItemRecord rec = World.Instance.EIF.GetItemRecordByID(droppedItemID);
+					EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("The NPC dropped {0} {1}", droppedAmount, rec.Name), ChatType.DownArrow);
+				}
+				return; //just showing a dropped item, packet ends here
+			}
 
 			int newExp = pkt.GetInt(); //npc was killed - this handler was invoked from NPCAccept
 			int expDif = newExp - World.Instance.MainPlayer.ActiveCharacter.Stats.exp;
-			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You earned {0} EXP", expDif));
 			World.Instance.MainPlayer.ActiveCharacter.Stats.exp += expDif;
 			EOGame.Instance.Hud.RefreshStats();
+
+			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You earned {0} EXP", expDif));
+			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("You gained {0} EXP", expDif), ChatType.Star);
+			if (droppedItemID > 0)
+			{
+				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(droppedItemID);
+				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("The NPC dropped {0} {1}", droppedAmount, rec.Name), ChatType.DownArrow);
+			}
 		}
 
 		/// <summary>

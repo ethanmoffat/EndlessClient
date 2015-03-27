@@ -281,6 +281,7 @@ namespace EndlessClient
 		private static readonly object npcListLock = new object();
 
 		public MapFile MapRef { get; private set; }
+		private bool m_needDispMapName;
 		
 		//cursor members
 		private Vector2 cursorPos;
@@ -452,6 +453,14 @@ namespace EndlessClient
 			m_transitionMetric = 1;
 			if (MapRef.MapAvailable == 0)
 				m_showMiniMap = false;
+
+			if (MapRef.Name.Length > 0)
+			{
+				if (EOGame.Instance.Hud != null)
+					EOGame.Instance.Hud.AddChat(ChatTabs.System, "", "You entered " + MapRef.Name, ChatType.NoteLeftArrow);
+				else
+					m_needDispMapName = true;
+			}
 
 			m_drawingEvent.Set();
 		}
@@ -903,6 +912,12 @@ namespace EndlessClient
 			if (MouseOver) //checks bounds for map rendering area
 			{
 				_updateCursorInfo(ms);
+			}
+
+			if (m_needDispMapName && EOGame.Instance.Hud != null)
+			{
+				m_needDispMapName = false;
+				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", "You entered " + MapRef.Name, ChatType.NoteLeftArrow);
 			}
 			
 			//draw stuff to the render target

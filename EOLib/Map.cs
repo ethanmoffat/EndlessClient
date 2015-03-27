@@ -225,6 +225,11 @@ namespace EOLib
 			for (int i = 0; i < chars.Length; ++i)
 			{
 				byte c = chars[i];
+				if (c == 0xFF)
+				{
+					Array.Resize(ref chars, i);
+					break;
+				}
 
 				if (flippy)
 				{
@@ -243,7 +248,7 @@ namespace EOLib
 				flippy = !flippy;
 			}
 
-			return ASCIIEncoding.ASCII.GetString(chars);
+			return Encoding.ASCII.GetString(chars);
 		}
 
 		public MapFile(int id)
@@ -288,16 +293,6 @@ namespace EOLib
 
 			Rid = file.GetBytes(4);
 			byte[] rawname = file.GetBytes(24);
-
-			for (int i = 0; i < 24; ++i)
-			{
-				if (rawname[i] == 0xFF)
-				{
-					Array.Resize(ref rawname, i);
-					break;
-				}
-			}
-
 			Name = decodeEmfString(rawname);
 
 			IsPK = file.GetChar() == 3;
