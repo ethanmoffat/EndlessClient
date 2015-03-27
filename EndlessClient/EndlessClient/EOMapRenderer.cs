@@ -318,7 +318,7 @@ namespace EndlessClient
 
 		//animated tile/wall members
 		private Vector2 _tileSrc;
-		private Vector2 _wallSrc;
+		private int _wallSrcIndex;
 		private TimeSpan? lastAnimUpdate;
 
 		//door members
@@ -896,9 +896,8 @@ namespace EndlessClient
 			if (lastAnimUpdate == null) lastAnimUpdate = gameTime.TotalGameTime;
 			if ((gameTime.TotalGameTime - lastAnimUpdate.Value).TotalMilliseconds > 500)
 			{
-				_wallSrc = new Vector2(32 + _wallSrc.X, 0);
-				if(_wallSrc.X > 96)
-					_wallSrc = new Vector2(0, 0);
+				_wallSrcIndex++;
+				if(_wallSrcIndex == 4) _wallSrcIndex = 0;
 
 				_tileSrc = new Vector2(64 + _tileSrc.X, 0);
 				if (_tileSrc.X > 192)
@@ -1379,8 +1378,11 @@ namespace EndlessClient
 
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
-						Rectangle? src = gfx.Width > 32 ? new Rectangle?(new Rectangle((int)_wallSrc.X, (int)_wallSrc.Y, gfx.Width / 4, gfx.Height)) : null;
-						loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfx.Width / 4.0 : gfx.Width) / 2.0) + 47, loc.Y - (gfx.Height - 29));
+
+						int gfxWidthDelta = gfx.Width/4;
+						Rectangle? src = gfx.Width > 32 ? new Rectangle?(new Rectangle(gfxWidthDelta * _wallSrcIndex, 0, gfxWidthDelta, gfx.Height)) : null;
+						loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfxWidthDelta : gfx.Width) / 2.0) + 47, loc.Y - (gfx.Height - 29));
+
 						sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
 					}
 				}
@@ -1415,8 +1417,11 @@ namespace EndlessClient
 
 						Texture2D gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 						Vector2 loc = _getDrawCoordinates(obj.x, row.y, c);
-						Rectangle? src = gfx.Width > 32 ? new Rectangle?(new Rectangle((int)_wallSrc.X, (int)_wallSrc.Y, gfx.Width / 4, gfx.Height)): null;
-						loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfx.Width / 4.0 : gfx.Width) / 2.0) + 15, loc.Y - (gfx.Height - 29));
+
+						int gfxWidthDelta = gfx.Width / 4;
+						Rectangle? src = gfx.Width > 32 ? new Rectangle?(new Rectangle(gfxWidthDelta * _wallSrcIndex, 0, gfxWidthDelta, gfx.Height)): null;
+						loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfxWidthDelta : gfx.Width) / 2.0) + 15, loc.Y - (gfx.Height - 29));
+
 						sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(obj.x, row.y, c)));
 					}
 				}

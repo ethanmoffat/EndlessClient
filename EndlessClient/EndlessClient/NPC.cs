@@ -65,6 +65,8 @@ namespace EndlessClient
 		private readonly DamageCounter m_damageCounter;
 		private Texture2D baseFrame;
 
+		private TimeSpan? m_lastAnimUpdateTime;
+
 		public NPC(Packet pkt)
 			: base(EOGame.Instance)
 		{
@@ -146,7 +148,7 @@ namespace EndlessClient
 					 npcArea.Width, npcArea.Height);
 
 			//switch the standing animation for NPCs every 500ms, if they're standing still
-			if (hasStandFrame1 && (int) gameTime.TotalGameTime.TotalMilliseconds%500 == 0)
+			if (hasStandFrame1 && m_lastAnimUpdateTime.HasValue && (gameTime.TotalGameTime - m_lastAnimUpdateTime.Value).TotalMilliseconds > 250)
 			{
 				if (Frame == NPCFrame.Standing)
 				{
@@ -156,6 +158,11 @@ namespace EndlessClient
 				{
 					Frame = NPCFrame.Standing;
 				}
+				m_lastAnimUpdateTime = gameTime.TotalGameTime;
+			}
+			else if(!m_lastAnimUpdateTime.HasValue)
+			{
+				m_lastAnimUpdateTime = gameTime.TotalGameTime;
 			}
 
 			base.Update(gameTime);
