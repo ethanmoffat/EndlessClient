@@ -279,6 +279,9 @@ namespace EOLib.Data
 		public int Effect { get { return itemSpecificParam1; } set { itemSpecificParam1 = value; } }
 		public int Key { get { return itemSpecificParam1; } set { itemSpecificParam1 = value; } }
 
+		/// <summary>
+		/// 0 == female and 1 == male
+		/// </summary>
 		public byte Gender { get { return itemSpecificParam2; } set { itemSpecificParam2 = value; } }
 		public byte ScrollX { get { return itemSpecificParam2; } set { itemSpecificParam2 = value; } }
 

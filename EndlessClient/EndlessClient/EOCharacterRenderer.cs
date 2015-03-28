@@ -16,6 +16,7 @@ namespace EndlessClient
 		Walking,
 		Attacking,
 		Sitting,
+		SpellCast,
 		Emote0,
 		Emote1,
 		Emote2,
@@ -51,14 +52,6 @@ namespace EndlessClient
 				CharRenderData data = (_char != null ? _char.RenderData : _data) ?? new CharRenderData();
 				return data;
 			}
-			//set not used...commented out in case I need it later
-			//set
-			//{
-			//	if (_char != null)
-			//		_char.RenderData = value;
-			//	else
-			//		_data = value;
-			//}
 		}
 
 		//setting any of the character data will automatically load the required texture
@@ -104,85 +97,10 @@ namespace EndlessClient
 			get { return Data.race; }
 			set
 			{
-				Data.SetRace(value); 
-				if (characterSkin != null)
-					characterSkin.Dispose();
-				characterSkin = spriteSheet.GetSkin(); //method automatically clips sprite sheet, removing need for source rectangle
+				Data.SetRace(value);
+				characterSkin = spriteSheet.GetSkin(weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged, out m_skinSourceRect);
 			}
 		}
-
-		/*
-		public short Shield
-		{
-			get { return Data.shield; }
-			set
-			{
-				Data.SetShield(value);
-				if (Data.shield != 0)
-				{
-					shield = spriteSheet.GetShield(ArmorShieldSpriteType.Standing);
-					if(World.Instance.EIF != null)
-						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
-					updateAll = true;
-				}
-			}
-		}
-		public short Weapon
-		{
-			get { return Data.weapon; }
-			set
-			{
-				Data.SetWeapon(value);
-				if (Data.weapon != 0)
-				{
-					weapon = spriteSheet.GetWeapon(WeaponSpriteType.Standing);
-					updateAll = true;
-				}
-			}
-		}
-		public short Boots
-		{
-			get { return Data.boots; }
-			set
-			{
-				Data.SetBoots(value);
-				if (Data.boots != 0)
-				{
-					boots = spriteSheet.GetBoots(BootsSpriteType.Standing);
-					updateAll = true;
-				}
-			}
-		}
-		public short Armor
-		{
-			get { return Data.armor; }
-			set
-			{
-				Data.SetArmor(value);
-				if (Data.armor != 0)
-				{
-					armor = spriteSheet.GetArmor(ArmorShieldSpriteType.Standing);
-					updateAll = true;
-				}
-			}
-		}
-		public short Hat
-		{
-			get { return Data.hat; }
-			set
-			{
-				Data.SetHat(value);
-				if (Data.hat != 0)
-				{
-					hat = spriteSheet.GetHat();
-					if(World.Instance.EIF != null)
-						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
-					updateAll = true;
-				}
-				maskTheHair();
-			}
-		}
-		*/
 		public EODirection Facing
 		{
 			get { return Data.facing; }
@@ -199,7 +117,10 @@ namespace EndlessClient
 		/// </summary>
 		public bool NoWall { get; set; }
 
-		private static readonly object hatHairLock = new object();
+		//instance-specific lock for hat/hair textures
+		private readonly object hatHairLock = new object();
+
+		private Rectangle m_skinSourceRect;
 		private Texture2D shield, weapon, boots, armor, hat;
 		private Texture2D hair, characterSkin;
 
@@ -207,7 +128,7 @@ namespace EndlessClient
 		private Rectangle? adminRect;
 		private readonly Texture2D adminGraphic;
 
-		private ItemRecord shieldInfo/*, weaponInfo, bootsInfo, armorInfo*/, hatInfo;
+		private ItemRecord shieldInfo, weaponInfo/*, bootsInfo, armorInfo*/, hatInfo;
 
 		private KeyboardState _prevKeyState;
 		private Timer _walkTimer, _attackTimer;
@@ -236,29 +157,29 @@ namespace EndlessClient
 			spriteSheet = new EOSpriteSheet(charToRender);
 			_char = charToRender;
 			_data = charToRender.RenderData;
-			Texture2D tmpSkin = spriteSheet.GetSkin();
+			Texture2D tmpSkin = spriteSheet.GetSkin(false, out m_skinSourceRect);
 			if (_char != World.Instance.MainPlayer.ActiveCharacter)
 			{
 				drawArea = new Rectangle(
 					_char.OffsetX + 304 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
 					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
-					tmpSkin.Width, tmpSkin.Height); //set based on size of the sprite and location of charToRender
+					m_skinSourceRect.Width, m_skinSourceRect.Height); //set based on size of the sprite and location of charToRender
 			}
 			else
 			{
-				drawArea = new Rectangle((618 - tmpSkin.Width) / 2 + 4, (298 - tmpSkin.Height) / 2 - 29, tmpSkin.Width, tmpSkin.Height);
+				drawArea = new Rectangle((618 - m_skinSourceRect.Width) / 2 + 4, (298 - m_skinSourceRect.Height) / 2 - 29, m_skinSourceRect.Width, m_skinSourceRect.Height);
 				noLocUpdate = true; //make sure not to update the drawArea rectangle in the update method
 			}
 			Data.SetUpdate(true);
 			_prevKeyState = Keyboard.GetState();
 
 			//get the top pixel!
-			Color[] skinData = new Color[tmpSkin.Width * tmpSkin.Height];
-			tmpSkin.GetData(skinData);
+			Color[] skinData = new Color[m_skinSourceRect.Width * m_skinSourceRect.Height];
+			tmpSkin.GetData(0, m_skinSourceRect, skinData, 0, skinData.Length);
 			int i = 0;
 			while (i < skinData.Length && skinData[i].A == 0) i++;
 			//account for adjustment in drawing the skin in the draw method
-			TopPixel = (Data.gender == 0 ? 12 : 13) + (i == skinData.Length - 1 ? 0 : i / tmpSkin.Height);
+			TopPixel = (Data.gender == 0 ? 12 : 13) + (i == skinData.Length - 1 ? 0 : i / m_skinSourceRect.Height);
 
 			m_chatBubble = new EOChatBubble(this);
 			m_damageCounter = new DamageCounter(this, GetType());
@@ -374,12 +295,29 @@ namespace EndlessClient
 					shieldInfo = null;
 				}
 
-				weapon = Data.weapon != 0 ? spriteSheet.GetWeapon() : null;
-				if (characterSkin != null)
-					characterSkin.Dispose();
-				characterSkin = spriteSheet.GetSkin(); //method automatically clips sprite sheet, removing need for source rectangle
-				boots = Data.boots != 0 ? spriteSheet.GetBoots() : null;
-				armor = Data.armor != 0 ? spriteSheet.GetArmor() : null;
+				if (Data.weapon != 0)
+				{
+					if (World.Instance.EIF != null)
+					{
+						weaponInfo =
+							(ItemRecord)
+								World.Instance.EIF.Data.Find(
+									x =>
+										(x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.weapon &&
+										(x as ItemRecord).Type == ItemType.Weapon);
+						weapon = spriteSheet.GetWeapon(weaponInfo.SubType == ItemSubType.Ranged);
+					}
+				}
+				else
+				{
+					weapon = null;
+					weaponInfo = null;
+				}
+
+				bool isBow = weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
+				characterSkin = spriteSheet.GetSkin(isBow, out m_skinSourceRect);
+				boots = Data.boots != 0 ? spriteSheet.GetBoots(isBow) : null;
+				armor = Data.armor != 0 ? spriteSheet.GetArmor(isBow) : null;
 				lock (hatHairLock)
 					hair = Data.hairstyle != 0 ? spriteSheet.GetHair(Data.hairNeedRefresh) : null;
 				if (Data.hat != 0)
@@ -399,11 +337,8 @@ namespace EndlessClient
 				}
 
 				maskTheHair(); //this will set the combined hat/hair texture with proper data.
-
-				if (Data.sitting == SitState.Standing)
-					_drawCharToRenderTarget();
-				else
-					_drawCharToRenderTargetSitting(Data.sitting == SitState.Floor);
+				
+				_drawCharToRenderTarget();
 
 				Data.SetUpdate(false);
 				Data.SetHairNeedRefresh(false);
@@ -422,7 +357,7 @@ namespace EndlessClient
 				State != CharacterActionState.Attacking  && (int)gameTime.TotalGameTime.TotalMilliseconds % 1000 == 0)
 				Character.Stats.SetSP((short)(Character.Stats.sp + 1));
 
-			//input handling for keyboard
+#region input handling for keyboard
 			//only check for a keypress if not currently acting and if this is the active character renderer
 			//also only check every 1/4 of a second
 			KeyboardState currentKeyState = Keyboard.GetState();
@@ -450,32 +385,32 @@ namespace EndlessClient
 					startWalkingThroughPlayerTime = null;
 				}
 				
-					byte destX, destY;
-					switch (direction)
-					{
-						case EODirection.Up:
-							destX = (byte) _char.X;
-							destY = (byte) (_char.Y - 1);
-							break;
-						case EODirection.Down:
-							destX = (byte) _char.X;
-							destY = (byte) (_char.Y + 1);
-							break;
-						case EODirection.Right:
-							destX = (byte) (_char.X + 1);
-							destY = (byte) _char.Y;
-							break;
-						case EODirection.Left:
-							destX = (byte) (_char.X - 1);
-							destY = (byte) _char.Y;
-							break;
-						default:
-							if (State != CharacterActionState.Walking)
-								_prevKeyState = currentKeyState; //only set this when not walking already
-							destX = destY = 255;
-							if(!attacking) return; //this block of code used to be in 'if(!attacking)'
-							break;
-					}
+				byte destX, destY;
+				switch (direction)
+				{
+					case EODirection.Up:
+						destX = (byte) _char.X;
+						destY = (byte) (_char.Y - 1);
+						break;
+					case EODirection.Down:
+						destX = (byte) _char.X;
+						destY = (byte) (_char.Y + 1);
+						break;
+					case EODirection.Right:
+						destX = (byte) (_char.X + 1);
+						destY = (byte) _char.Y;
+						break;
+					case EODirection.Left:
+						destX = (byte) (_char.X - 1);
+						destY = (byte) _char.Y;
+						break;
+					default:
+						if (State != CharacterActionState.Walking)
+							_prevKeyState = currentKeyState; //only set this when not walking already
+						destX = destY = 255;
+						if(!attacking) return; //this block of code used to be in 'if(!attacking)'
+						break;
+				}
 
 				if (destX > World.Instance.ActiveMapRenderer.MapRef.Width || destY > World.Instance.ActiveMapRenderer.MapRef.Height)
 					return;
@@ -557,6 +492,7 @@ namespace EndlessClient
 
 				if (State == CharacterActionState.Standing) _prevKeyState = currentKeyState; //only set this when not walking already
 			}
+#endregion
 		}
 		
 		//convenience wrapper
@@ -630,27 +566,18 @@ namespace EndlessClient
 
 		public void PlayerAttack()
 		{
-			const int attackTimer = 300;
+			const int attackTimer = 250;
 			Data.SetUpdate(true);
 			_attackTimer.Change(0, attackTimer);
 		}
 
 		public void Die()
 		{
-			//play death sound!
+			//todo: play death sound!
 			Character.RenderData.SetDead(true);
 			m_deadTime = DateTime.Now;
 		}
 
-		//character is drawn in the following order:
-		// - shield (if wings/arrows)
-		// - weapon
-		// - character body sprite
-		// - boots
-		// - armor
-		// - shield (if not already drawn)
-		// - hair (rendertarget)
-		// - hat  (rendertarget)
 		public override void Draw(GameTime gameTime)
 		{
 			base.Draw(gameTime);
@@ -745,6 +672,15 @@ namespace EndlessClient
 			base.Dispose(disposing);
 		}
 
+		//character is drawn in the following order:
+		// - shield (if wings/arrows)
+		// - weapon
+		// - character body sprite
+		// - boots
+		// - armor
+		// - shield (if not already drawn)
+		// - hair
+		// - hat
 		private void _drawCharToRenderTarget()
 		{
 			bool flipped = (int)Data.facing > 1; //flipped if direction is Up or Right
@@ -797,7 +733,7 @@ namespace EndlessClient
 				}
 				Vector2 skinLoc = State == CharacterActionState.Walking ? new Vector2(2 + DrawAreaWithOffset.X + dirWalkingOffset, (Data.gender == 0 ? 11 : 12) + DrawAreaWithOffset.Y)
 					: new Vector2(6 + DrawAreaWithOffset.X, (Data.gender == 0 ? 12 : 13) + DrawAreaWithOffset.Y);
-				SpriteBatch.Draw(characterSkin, skinLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				SpriteBatch.Draw(characterSkin, skinLoc, m_skinSourceRect, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 			}
 
 			if (boots != null)
@@ -842,16 +778,6 @@ namespace EndlessClient
 			SpriteBatch.End();
 
 			GraphicsDevice.SetRenderTarget(null);
-		}
-
-		/// <summary>
-		/// Does character drawing if they are seated or on the floor.
-		/// </summary>
-		/// <param name="FloorSit">True if sitting on floor, false if sitting on chair</param>
-		private void _drawCharToRenderTargetSitting(bool FloorSit)
-		{
-			//need to get offsets for sitting and put them here. need to detect F11 keypress and set sit state when going into a chair.
-			throw new NotImplementedException();
 		}
 
 		private void maskTheHair()

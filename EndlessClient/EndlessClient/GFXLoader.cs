@@ -289,20 +289,23 @@ namespace EndlessClient
 
 	public enum ArmorShieldSpriteType
 	{
-		Standing = 1, //1/2
-		WalkFrame1 = 3, //3/7
-		WalkFrame2 = 4, //4/8
-		WalkFrame3 = 5, //5/9
-		WalkFrame4 = 6, //6/10
-		SpellCast = 11, //11/12
-		PunchFrame1 = 13, //13/15
-		PunchFrame2 = 14, //14/16
-		SitChar = 17, //17/18
-		SitGround = 19, //19/20
-		Bow = 21, //21/22
+							//dir1/dir2
+		Standing = 1,		//1/2
+		WalkFrame1 = 3,		//3/7
+		WalkFrame2 = 4,		//4/8
+		WalkFrame3 = 5,		//5/9
+		WalkFrame4 = 6,		//6/10
+		SpellCast = 11,		//11/12
+		PunchFrame1 = 13,	//13/15
+		PunchFrame2 = 14,	//14/16
+		
+		//not valid for shields:
+		SitChair = 17,		//17/18
+		SitGround = 19,		//19/20
+		Bow = 21,			//21/22
 	}
 
-	public enum WeaponSpriteType //rangedweaponspritetype?
+	public enum WeaponSpriteType
 	{
 		Standing = 1, //1/2
 		WalkFrame1 = 3, //3/7
@@ -312,19 +315,21 @@ namespace EndlessClient
 		SpellCast = 11, //11/12
 		SwingFrame1 = 13, //13/15
 		SwingFrame2 = 14, //14/16
-		//Ranged = ???
+		UnknownFrame = 17, //17 -- for melee i'm not sure what it does
+		//invalid for non-ranged weapons:
+		Shooting = 18, //18/19 AND 21/22 have same gfx
 	}
 
 	public enum BootsSpriteType
 	{
-		Standing = 1,
-		WalkFrame1 = 3,
-		WalkFrame2 = 4,
-		WalkFrame3 = 5,
-		WalkFrame4 = 6,
-		Attack = 11,
-		SitChar = 13,
-		SitGround = 15,
+		Standing = 1, //1/2
+		WalkFrame1 = 3, //3/7
+		WalkFrame2 = 4, //4/8
+		WalkFrame3 = 5, //5/9
+		WalkFrame4 = 6, //6/10
+		Attack = 11, //11/12
+		SitChair = 13, //13/14
+		SitGround = 15, //15/16
 	}
 	
 	public class EOSpriteSheet
@@ -335,27 +340,57 @@ namespace EndlessClient
 			charRef = charToWatch;
 		}
 
-		//updated the class to use a Character reference instead of a CharRenderData value-type
-		//This is provided so I didn't have to retype a bunch of code and change it from _data.xxx to charRef.RenderData.xxx
 		private CharRenderData _data
 		{
 			get { return charRef.RenderData; }
 		}
 
-		public Texture2D GetArmor()
+		public Texture2D GetArmor(bool isBow = false)
 		{
 			ArmorShieldSpriteType type = ArmorShieldSpriteType.Standing;
-			switch (_data.walkFrame)
+			switch(charRef.State)
 			{
-				case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
-				case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
-				case 3: type = ArmorShieldSpriteType.WalkFrame3; break;
-				case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
-			}
-			switch (_data.attackFrame)
-			{
-				case 1: type = ArmorShieldSpriteType.PunchFrame1; break;
-				case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
+				case CharacterActionState.Walking:
+					switch (_data.walkFrame)
+					{
+						case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
+						case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
+						case 3: type = ArmorShieldSpriteType.WalkFrame3; break;
+						case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
+					}
+					break;
+				case CharacterActionState.Attacking:
+					if(isBow)
+					{
+						switch (_data.attackFrame)
+						{
+							case 1: type = ArmorShieldSpriteType.Bow; break;
+							case 2: type = ArmorShieldSpriteType.Standing; break;
+						}
+					}
+					else
+					{
+						switch (_data.attackFrame)
+						{
+							case 1: type = ArmorShieldSpriteType.PunchFrame1; break;
+							case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
+						}
+					}
+					break;
+				case CharacterActionState.SpellCast:
+					type = ArmorShieldSpriteType.SpellCast;
+					break;
+				case CharacterActionState.Sitting:
+					switch (_data.sitting)
+					{
+						case SitState.Chair: 
+							type = ArmorShieldSpriteType.SitChair;
+							break;
+						case SitState.Floor:
+							type = ArmorShieldSpriteType.SitGround;
+							break;
+					}
+					break;
 			}
 
 			short baseArmorValue = (short)((_data.armor - 1) * 50);
@@ -368,45 +403,99 @@ namespace EndlessClient
 
 		public Texture2D GetShield(bool shieldIsOnBack)
 		{
+			//front shields have one size gfx, back arrows/wings have another size.
 			ArmorShieldSpriteType type = ArmorShieldSpriteType.Standing;
+			int factor;
 			if (!shieldIsOnBack)
 			{
-				switch (_data.walkFrame)
+				if(charRef.State == CharacterActionState.Walking)
 				{
-					case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
-					case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
-					case 3: type = ArmorShieldSpriteType.WalkFrame3; break;
-					case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
+					switch (_data.walkFrame)
+					{
+						case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
+						case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
+						case 3: type = ArmorShieldSpriteType.WalkFrame3; break;
+						case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
+					}
 				}
+				else if(charRef.State == CharacterActionState.Attacking)
+				{
+					switch (_data.attackFrame)
+					{
+						case 1: type = ArmorShieldSpriteType.PunchFrame1; break;
+						case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
+					}
+				}
+				else if (charRef.State == CharacterActionState.SpellCast)
+				{
+					type = ArmorShieldSpriteType.SpellCast;
+				}
+				else
+				{
+					//hide shield graphic when sitting
+					return null;
+				}
+
+				factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
+				factor *= getFactor(type);
 			}
-			switch (_data.attackFrame)
+			else
 			{
-				case 1: type = ArmorShieldSpriteType.PunchFrame1; break;
-				case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
+				//sitting is valid for arrows and wings and bag
+				//Standing = 1/2
+				//Attacking = 3/4
+				//Extra = 5 (unused?)
+				if (charRef.State == CharacterActionState.Attacking && _data.attackFrame == 1)
+				{
+					type = (ArmorShieldSpriteType)3;
+				}
+				factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
 			}
+
 			short baseShieldValue = (short)((_data.shield - 1) * 50);
 			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleBack : GFXTypes.MaleBack;
-			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
-			factor *= getFactor(type);
 			int gfxNumber = baseShieldValue + (int)type + factor;
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public Texture2D GetWeapon()
+		public Texture2D GetWeapon(bool isBow = false)
 		{
 			WeaponSpriteType type = WeaponSpriteType.Standing;
-			switch (_data.walkFrame)
+			switch(charRef.State)
 			{
-				case 1: type = WeaponSpriteType.WalkFrame1; break;
-				case 2: type = WeaponSpriteType.WalkFrame2; break;
-				case 3: type = WeaponSpriteType.WalkFrame3; break;
-				case 4: type = WeaponSpriteType.WalkFrame4; break;
+				case CharacterActionState.Walking:
+					switch (_data.walkFrame)
+					{
+						case 1: type = WeaponSpriteType.WalkFrame1; break;
+						case 2: type = WeaponSpriteType.WalkFrame2; break;
+						case 3: type = WeaponSpriteType.WalkFrame3; break;
+						case 4: type = WeaponSpriteType.WalkFrame4; break;
+					}
+					break;
+				case CharacterActionState.Attacking:
+					if (isBow)
+					{
+						switch (_data.attackFrame)
+						{
+							case 1: type = WeaponSpriteType.Shooting; break;
+							case 2: type = WeaponSpriteType.Standing; break;
+						}
+					}
+					else
+					{
+						switch (_data.attackFrame)
+						{
+							case 1: type = WeaponSpriteType.SwingFrame1; break;
+							case 2: type = WeaponSpriteType.SwingFrame2; break;
+						}
+					}
+					break;
+				case CharacterActionState.SpellCast:
+					type = WeaponSpriteType.SpellCast;
+					break;
+				case CharacterActionState.Sitting: return null; //no weapon when sitting
 			}
-			switch (_data.attackFrame)
-			{
-				case 1: type = WeaponSpriteType.SwingFrame1; break;
-				case 2: type = WeaponSpriteType.SwingFrame2; break;
-			}
+
 			short baseWeaponValue = (short)((_data.weapon - 1) * 100);
 			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleWeapons : GFXTypes.MaleWeapons;
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
@@ -415,20 +504,32 @@ namespace EndlessClient
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public Texture2D GetBoots()
+		public Texture2D GetBoots(bool isBow = false)
 		{
 			BootsSpriteType type = BootsSpriteType.Standing;
-			switch (_data.walkFrame)
+			switch(charRef.State)
 			{
-				case 1: type = BootsSpriteType.WalkFrame1; break;
-				case 2: type = BootsSpriteType.WalkFrame2; break;
-				case 3: type = BootsSpriteType.WalkFrame3; break;
-				case 4: type = BootsSpriteType.WalkFrame4; break;
-			}
-			switch (_data.attackFrame)
-			{
-				case 1:
-				case 2: type = BootsSpriteType.Attack; break;
+				case CharacterActionState.Walking:
+					switch (_data.walkFrame)
+					{
+						case 1: type = BootsSpriteType.WalkFrame1; break;
+						case 2: type = BootsSpriteType.WalkFrame2; break;
+						case 3: type = BootsSpriteType.WalkFrame3; break;
+						case 4: type = BootsSpriteType.WalkFrame4; break;
+					}
+					break;
+				case CharacterActionState.Attacking:
+					if(!isBow && _data.attackFrame > 0 || 
+						isBow && _data.attackFrame == 1)
+						type = BootsSpriteType.Attack;
+					break;
+				case CharacterActionState.Sitting:
+					switch (_data.sitting)
+					{
+						case SitState.Chair: type = BootsSpriteType.SitChair; break;
+						case SitState.Floor: type = BootsSpriteType.SitGround; break;
+					}
+					break;
 			}
 			short baseBootsValue = (short)((_data.boots - 1) * 40);
 			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleShoes : GFXTypes.MaleShoes;
@@ -460,24 +561,40 @@ namespace EndlessClient
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public Texture2D GetSkin()
+		public Texture2D GetSkin(bool isBow, out Microsoft.Xna.Framework.Rectangle skinRect)
 		{
 			const byte sheetRows = 7;
 			byte sheetColumns = 4;
 			byte gfxNum = 1;
 
 			//change up which gfx resource to load, and the size of the resource, based on the _data
-			if (_data.walkFrame > 0)
+			if (charRef.State == CharacterActionState.Walking && _data.walkFrame > 0)
 			{
 				//walking
 				gfxNum = 2;
 				sheetColumns = 16;
 			}
-			else if (_data.attackFrame > 0)
+			else if (charRef.State == CharacterActionState.Attacking && _data.attackFrame > 0)
 			{
-				//attacking
-				gfxNum = 3;
-				sheetColumns = 8;
+				if (!isBow)
+				{
+					//attacking
+					gfxNum = 3;
+					sheetColumns = 8;
+				}
+				else if(_data.attackFrame == 1) //only 1 frame of bow/gun animation
+				{
+					gfxNum = 7; //4 columns in this one too
+				}
+			}
+			else if (charRef.State == CharacterActionState.SpellCast)
+			{
+				gfxNum = 4;
+			}
+			else if (charRef.State == CharacterActionState.Sitting)
+			{
+				if (_data.sitting == SitState.Floor) gfxNum = 6;
+				else if (_data.sitting == SitState.Chair) gfxNum = 5;
 			}
 			//similar if statements for spell, emote, etc
 
@@ -486,20 +603,17 @@ namespace EndlessClient
 			int heightDelta = sheet.Height / sheetRows; //the height of one 'row' in the sheet
 			int widthDelta = sheet.Width / sheetColumns; //the width of one 'column' in the sheet
 			int section = sheet.Width/4; //each 'section' for a different set of graphics
+
 			int walkExtra = _data.walkFrame > 0 ? widthDelta * (_data.walkFrame - 1) : 0;
-			walkExtra = _data.attackFrame > 0 ? widthDelta*(_data.attackFrame - 1) : walkExtra;
-			Microsoft.Xna.Framework.Rectangle characterSkin = new Microsoft.Xna.Framework.Rectangle(
+			walkExtra = !isBow && _data.attackFrame > 0 ? widthDelta*(_data.attackFrame - 1) : walkExtra;
+
+			skinRect = new Microsoft.Xna.Framework.Rectangle(
 				_data.gender * widthDelta * (sheetColumns / 2) + (rotated ? section : 0) + walkExtra,
 				_data.race * heightDelta,
 				widthDelta,
 				heightDelta);
 
-			XNA.Color[] data = new XNA.Color[characterSkin.Width * characterSkin.Height];
-			sheet.GetData(0, characterSkin, data, 0, data.Length);
-
-			Texture2D ret = new Texture2D(sheet.GraphicsDevice, characterSkin.Width, characterSkin.Height);
-			ret.SetData(data);
-			return ret;
+			return sheet;
 		}
 
 		private int getFactor(ArmorShieldSpriteType type)

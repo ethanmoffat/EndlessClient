@@ -30,10 +30,14 @@ namespace EndlessClient
 	/// </summary>
 	public class CharRenderData
 	{
-		private static readonly object walkFrameLocker = new object(), attackFrameLocker = new object();
+		private readonly object walkFrameLocker = new object(), attackFrameLocker = new object();
 		public string name;
 		public int id;
-		public byte level, gender, hairstyle, haircolor, race, admin;
+		public byte level, hairstyle, haircolor, race, admin;
+		/// <summary>
+		/// 0 == female and 1 == male
+		/// </summary>
+		public byte gender;
 		public short boots, armor, hat, shield, weapon;
 
 		public byte walkFrame, attackFrame;
