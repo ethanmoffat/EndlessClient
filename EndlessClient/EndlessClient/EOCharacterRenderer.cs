@@ -154,6 +154,13 @@ namespace EndlessClient
 		/// <param name="charToRender">The character data that should be wrapped by this renderer</param>
 		public EOCharacterRenderer(Character charToRender)
 		{
+			//this has been happening when shit gets disconnected due to invalid sequence or internal packet id
+			if (charToRender == null)
+			{
+				EOGame.Instance.LostConnectionDialog();
+				return;
+			}
+
 			spriteSheet = new EOSpriteSheet(charToRender);
 			_char = charToRender;
 			_data = charToRender.RenderData;
@@ -566,7 +573,7 @@ namespace EndlessClient
 
 		public void PlayerAttack()
 		{
-			const int attackTimer = 250;
+			const int attackTimer = 285;
 			Data.SetUpdate(true);
 			_attackTimer.Change(0, attackTimer);
 		}
@@ -651,7 +658,7 @@ namespace EndlessClient
 			}
 			else
 			{
-				Data.SetAttackFrame((byte)(Data.attackFrame + 1));
+				Data.SetAttackFrame((byte) (Data.attackFrame + 1));
 			}
 
 			Data.SetUpdate(true);
@@ -693,7 +700,7 @@ namespace EndlessClient
 
 			SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 			//if subtype for this item is wings or arrows, draw at bottom, otherwise draw on top of armor
-			bool shieldDrawn = false;
+			bool shieldDrawn = false, weaponDrawn = false;
 			if (shield != null && World.Instance.EIF != null && shieldInfo != null)
 			{
 				//draw it now if: shield type is Wings/Arrows/Bag && facing down/right
@@ -707,44 +714,24 @@ namespace EndlessClient
 				}
 			}
 
-			if (weapon != null)
+			if (weapon != null && !(Data != null && Data.attackFrame == 2 && (Facing == EODirection.Down || Facing == EODirection.Right)))
 			{
-				Vector2 loc = (int)Facing > 1 ? new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7) :
-					new Vector2(DrawAreaWithOffset.X - 28, DrawAreaWithOffset.Y - 7);
-
-				SpriteBatch.Draw(weapon, loc, null, Color.White, 0.0f,
-					Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				_drawWeapon(flipped);
+				weaponDrawn = true;
 			}
 
 			if (characterSkin != null)
 			{
-				int dirWalkingOffset = 0;
-				if (_data != null && _data.gender == 1) //male
-				{
-					switch (Facing)
-					{
-						case EODirection.Down:
-							dirWalkingOffset = -1;
-							break;
-						case EODirection.Right:
-							dirWalkingOffset = 1;
-							break;
-					}
-				}
-				Vector2 skinLoc = State == CharacterActionState.Walking ? new Vector2(2 + DrawAreaWithOffset.X + dirWalkingOffset, (Data.gender == 0 ? 11 : 12) + DrawAreaWithOffset.Y)
-					: new Vector2(6 + DrawAreaWithOffset.X, (Data.gender == 0 ? 12 : 13) + DrawAreaWithOffset.Y);
-				SpriteBatch.Draw(characterSkin, skinLoc, m_skinSourceRect, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				_drawSkin(flipped);
 			}
+
+			_drawArmor(flipped);
+
+			if (weapon != null && !weaponDrawn)
+				_drawWeapon(flipped);
 
 			if (boots != null)
 				SpriteBatch.Draw(boots, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y + 49), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-
-			if (armor != null)
-			{
-				int yAdjust = State == CharacterActionState.Walking ? -1: 0;
-				SpriteBatch.Draw(armor, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y + yAdjust), null, Color.White, 0.0f,
-					Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-			}
 
 			SpriteBatch.End();
 			lock (hatHairLock)
@@ -778,6 +765,103 @@ namespace EndlessClient
 			SpriteBatch.End();
 
 			GraphicsDevice.SetRenderTarget(null);
+		}
+
+		private void _drawSkin(bool flipped)
+		{
+			int skinXOff = 0, skinYOff = 0;
+			Vector2 skinLoc = new Vector2(6 + DrawAreaWithOffset.X, (Data.gender == 0 ? 12 : 13) + DrawAreaWithOffset.Y);
+			if (Data != null)
+			{
+				switch (State)
+				{
+					case CharacterActionState.Walking:
+						if (_data != null && _data.gender == 1)
+						{
+							switch (Facing)
+							{
+								case EODirection.Down: skinXOff = -1; break;
+								case EODirection.Right: skinXOff = 1; break;
+							}
+						}
+						skinLoc = new Vector2(2 + DrawAreaWithOffset.X + skinXOff, (Data.gender == 0 ? 11 : 12) + DrawAreaWithOffset.Y);
+						break;
+					case CharacterActionState.Attacking:
+						//What is working:
+						// - Attacking for all directions for both genders
+						//Next up:
+						// - Attacking with a ranged weapon (offsets are different)
+						switch (Facing)
+						{
+							case EODirection.Up:
+							case EODirection.Right:
+								skinXOff = Data.gender == 1 ? -1 : -2;
+								if (Data.attackFrame == 2)
+								{
+									skinXOff += Data.gender == 1 ? 2 : 4;
+									skinYOff += 1;
+									if (Facing == EODirection.Up) skinYOff += -2;
+								}
+								break;
+							case EODirection.Down:
+							case EODirection.Left:
+								skinXOff = Data.gender == 1 ? -5 : -4;
+								if(Data.attackFrame == 2)
+								{
+									skinXOff += Data.gender == 1 ? -2 : -4;
+									skinYOff += -1;
+									if (Facing == EODirection.Down) skinYOff += 2;
+								}
+								break;
+						}
+						skinLoc = new Vector2(skinLoc.X + skinXOff, skinLoc.Y + skinYOff);
+						break;
+				}
+			}
+			SpriteBatch.Draw(characterSkin, skinLoc, m_skinSourceRect, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+		}
+
+		private void _drawWeapon(bool flipped)
+		{
+			int xOffLoc = 0;
+			if (Data != null && Data.attackFrame == 2)
+			{
+				if (Facing == EODirection.Up || Facing == EODirection.Right)
+					xOffLoc = Data.gender == 0 ? 2 : 4;
+				if (Facing == EODirection.Down || Facing == EODirection.Left)
+					xOffLoc = Data.gender == 0 ? -2 : -4;
+			}
+			Vector2 loc = (int)Facing > 1 ? new Vector2(DrawAreaWithOffset.X - 10 + xOffLoc, DrawAreaWithOffset.Y - 7):
+				new Vector2(DrawAreaWithOffset.X - 28 + xOffLoc, DrawAreaWithOffset.Y - 7);
+
+			SpriteBatch.Draw(weapon, loc, null, Color.White, 0.0f,
+				Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+		}
+
+		private void _drawArmor(bool flipped)
+		{
+			if (armor != null)
+			{
+				int xAdjust = 0;
+				int yAdjust = State == CharacterActionState.Walking ? -1 : 0;
+				if (Data != null && Data.attackFrame == 2)
+				{
+					switch (Facing)
+					{
+						case EODirection.Up:
+						case EODirection.Right:
+							xAdjust = Data.gender == 1 ? 4 : 2;
+							yAdjust -= (Data.gender == 1 ? 1 : 0);
+							break;
+						case EODirection.Left:
+						case EODirection.Down:
+							xAdjust = Data.gender == 1 ? -4 : 1;
+							break;
+					}
+				}
+				SpriteBatch.Draw(armor, new Vector2(DrawAreaWithOffset.X - 2 + xAdjust, DrawAreaWithOffset.Y + yAdjust), null, Color.White, 0.0f,
+					Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+			}
 		}
 
 		private void maskTheHair()

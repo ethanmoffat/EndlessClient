@@ -315,7 +315,7 @@ namespace EndlessClient
 		SpellCast = 11, //11/12
 		SwingFrame1 = 13, //13/15
 		SwingFrame2 = 14, //14/16
-		UnknownFrame = 17, //17 -- for melee i'm not sure what it does
+		SwingFrame2Spec = 17, //17 - special frame so that it shows well in the hand
 		//invalid for non-ranged weapons:
 		Shooting = 18, //18/19 AND 21/22 have same gfx
 	}
@@ -486,7 +486,11 @@ namespace EndlessClient
 						switch (_data.attackFrame)
 						{
 							case 1: type = WeaponSpriteType.SwingFrame1; break;
-							case 2: type = WeaponSpriteType.SwingFrame2; break;
+							case 2:
+								type = _data.facing == EODirection.Down || _data.facing == EODirection.Right
+									? WeaponSpriteType.SwingFrame2Spec
+									: WeaponSpriteType.SwingFrame2;
+									break;
 						}
 					}
 					break;
@@ -519,7 +523,7 @@ namespace EndlessClient
 					}
 					break;
 				case CharacterActionState.Attacking:
-					if(!isBow && _data.attackFrame > 0 || 
+					if(!isBow && _data.attackFrame == 2 || 
 						isBow && _data.attackFrame == 1)
 						type = BootsSpriteType.Attack;
 					break;
