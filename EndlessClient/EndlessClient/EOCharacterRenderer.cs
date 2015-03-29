@@ -117,7 +117,6 @@ namespace EndlessClient
 		/// </summary>
 		public bool NoWall { get; set; }
 
-		//instance-specific lock for hat/hair textures
 		private readonly object hatHairLock = new object();
 
 		private Rectangle m_skinSourceRect;
@@ -681,10 +680,11 @@ namespace EndlessClient
 
 		//character is drawn in the following order:
 		// - shield (if wings/arrows)
-		// - weapon
+		// - weapon (if not melee attack frame 2 in certain directions)
 		// - character body sprite
 		// - boots
 		// - armor
+		// - weapon (if not already drawn)
 		// - shield (if not already drawn)
 		// - hair
 		// - hat
@@ -714,7 +714,7 @@ namespace EndlessClient
 				}
 			}
 
-			if (weapon != null && !(Data != null && Data.attackFrame == 2 && (Facing == EODirection.Down || Facing == EODirection.Right)))
+			if (weapon != null && !_drawWeaponLater())
 			{
 				_drawWeapon(flipped);
 				weaponDrawn = true;
@@ -725,13 +725,13 @@ namespace EndlessClient
 				_drawSkin(flipped);
 			}
 
+			if (boots != null)
+				SpriteBatch.Draw(boots, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y + 49), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+
 			_drawArmor(flipped);
 
 			if (weapon != null && !weaponDrawn)
 				_drawWeapon(flipped);
-
-			if (boots != null)
-				SpriteBatch.Draw(boots, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y + 49), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 
 			SpriteBatch.End();
 			lock (hatHairLock)
@@ -787,32 +787,52 @@ namespace EndlessClient
 						skinLoc = new Vector2(2 + DrawAreaWithOffset.X + skinXOff, (Data.gender == 0 ? 11 : 12) + DrawAreaWithOffset.Y);
 						break;
 					case CharacterActionState.Attacking:
-						//What is working:
-						// - Attacking for all directions for both genders
-						//Next up:
-						// - Attacking with a ranged weapon (offsets are different)
-						switch (Facing)
+						if (weaponInfo != null && weaponInfo.SubType != ItemSubType.Ranged)
 						{
-							case EODirection.Up:
-							case EODirection.Right:
-								skinXOff = Data.gender == 1 ? -1 : -2;
-								if (Data.attackFrame == 2)
-								{
-									skinXOff += Data.gender == 1 ? 2 : 4;
-									skinYOff += 1;
-									if (Facing == EODirection.Up) skinYOff += -2;
-								}
-								break;
-							case EODirection.Down:
-							case EODirection.Left:
-								skinXOff = Data.gender == 1 ? -5 : -4;
-								if(Data.attackFrame == 2)
-								{
-									skinXOff += Data.gender == 1 ? -2 : -4;
-									skinYOff += -1;
-									if (Facing == EODirection.Down) skinYOff += 2;
-								}
-								break;
+							switch (Facing)
+							{
+								case EODirection.Up:
+								case EODirection.Right:
+									skinXOff = Data.gender == 1 ? -1 : -2;
+									if (Data.attackFrame == 2)
+									{
+										skinXOff += Data.gender == 1 ? 2 : 4;
+										skinYOff += 1;
+										if (Facing == EODirection.Up) skinYOff += -2;
+									}
+									break;
+								case EODirection.Down:
+								case EODirection.Left:
+									skinXOff = Data.gender == 1 ? -5 : -4;
+									if (Data.attackFrame == 2)
+									{
+										skinXOff += Data.gender == 1 ? -2 : -4;
+										skinYOff += -1;
+										if (Facing == EODirection.Down) skinYOff += 2;
+									}
+									break;
+							}
+						}
+						else if(weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged && Data.attackFrame == 1)
+						{
+							switch(Facing)
+							{
+								case EODirection.Up:
+									skinXOff += Data.gender == 1 ? 2 : 1;
+									//skinYOff += Data.gender == 1 ? 0 : 0;
+									break;
+								case EODirection.Right:
+									skinXOff += Data.gender == 1 ? 4 : 3;
+									skinYOff += 1;//Data.gender == 1 ? 1 : 1;
+									break;
+								case EODirection.Left:
+									skinXOff += Data.gender == 1 ? -9 : -8;
+									break;
+								case EODirection.Down:
+									skinXOff += Data.gender == 1 ? -11 : -10;
+									skinYOff += 1;//Data.gender == 1 ? 1 : 1;
+									break;
+							}
 						}
 						skinLoc = new Vector2(skinLoc.X + skinXOff, skinLoc.Y + skinYOff);
 						break;
@@ -821,10 +841,23 @@ namespace EndlessClient
 			SpriteBatch.Draw(characterSkin, skinLoc, m_skinSourceRect, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 		}
 
+		private bool _drawWeaponLater()
+		{
+			// weapon will be drawn later if:
+			//  - attack frame is 2 (or data is NULL in which case ignore)
+			//  - Direction is right or down
+			//  - Weapon subtype is not Ranged (or weapon info is NULL in which case ignore)
+			bool pass1 = Data == null || Data.attackFrame == 2;
+			bool pass2 = Facing == EODirection.Down || Facing == EODirection.Right;
+			bool pass3 = weaponInfo == null || weaponInfo.SubType != ItemSubType.Ranged;
+
+			return pass1 && pass2 && pass3;
+		}
+
 		private void _drawWeapon(bool flipped)
 		{
 			int xOffLoc = 0;
-			if (Data != null && Data.attackFrame == 2)
+			if (Data != null && Data.attackFrame == 2 && weaponInfo.SubType != ItemSubType.Ranged)
 			{
 				if (Facing == EODirection.Up || Facing == EODirection.Right)
 					xOffLoc = Data.gender == 0 ? 2 : 4;
