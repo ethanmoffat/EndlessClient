@@ -47,10 +47,6 @@ namespace EndlessClient.Handlers
 
 		public static void PaperdollAgree(Packet pkt) //this is only ever sent to MainPlayer (avatar handles other players)
 		{
-			//don't handle if paperdoll dialog instance is null!
-			if (EOPaperdollDialog.Instance == null)
-				return;
-
 			Avatar.AvatarAgree(pkt); //same logic in the beginning of the packet
 
 			short itemId = pkt.GetShort();
@@ -77,7 +73,8 @@ namespace EndlessClient.Handlers
 			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(itemId);
 			(c = World.Instance.MainPlayer.ActiveCharacter).UpdateInventoryItem(itemId, characterAmount);
 			c.EquipItem(rec.Type, (short)rec.ID, (short)rec.DollGraphic, true, (sbyte)subLoc);
-			EOPaperdollDialog.Instance.SetItem(rec.GetEquipLocation() + subLoc, rec);
+			if (EOPaperdollDialog.Instance != null)
+				EOPaperdollDialog.Instance.SetItem(rec.GetEquipLocation() + subLoc, rec);
 			UpdateStatsAfterEquip(c, data);
 		}
 

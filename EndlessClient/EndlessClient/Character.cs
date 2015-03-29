@@ -387,48 +387,57 @@ namespace EndlessClient
 					break;
 				case ItemType.Ring:
 					if (subloc != -1)
-					{ //subloc was explicitly specified
+					{
+						//subloc was explicitly specified
 						if (!rewrite && PaperDoll[(int) EquipLocation.Ring1 + subloc] != 0)
 							return false;
 						PaperDoll[(int) EquipLocation.Ring1 + subloc] = id;
 					}
-
-					if (PaperDoll[(int) EquipLocation.Ring1] != 0 && PaperDoll[(int) EquipLocation.Ring2] != 0 && !rewrite)
-						return false;
-					if (PaperDoll[(int) EquipLocation.Ring1] != 0 && PaperDoll[(int) EquipLocation.Ring2] == 0)
-						PaperDoll[(int) EquipLocation.Ring2] = id;
 					else
-						PaperDoll[(int) EquipLocation.Ring1] = id;
+					{
+						if (PaperDoll[(int) EquipLocation.Ring1] != 0 && PaperDoll[(int) EquipLocation.Ring2] != 0 && !rewrite)
+							return false;
+						if (PaperDoll[(int) EquipLocation.Ring1] != 0 && PaperDoll[(int) EquipLocation.Ring2] == 0)
+							PaperDoll[(int) EquipLocation.Ring2] = id;
+						else
+							PaperDoll[(int) EquipLocation.Ring1] = id;
+					}
 					break;
 				case ItemType.Armlet:
 					if (subloc != -1)
-					{ //subloc was explicitly specified
-						if (!rewrite && PaperDoll[(int)EquipLocation.Armlet1 + subloc] != 0)
+					{
+						//subloc was explicitly specified
+						if (!rewrite && PaperDoll[(int) EquipLocation.Armlet1 + subloc] != 0)
 							return false;
-						PaperDoll[(int)EquipLocation.Armlet1 + subloc] = id;
+						PaperDoll[(int) EquipLocation.Armlet1 + subloc] = id;
 					}
-
-					if (PaperDoll[(int) EquipLocation.Armlet1] != 0 && PaperDoll[(int) EquipLocation.Armlet2] != 0 && !rewrite)
-						return false;
-					if (PaperDoll[(int)EquipLocation.Armlet1] != 0 && PaperDoll[(int)EquipLocation.Armlet2] == 0)
-						PaperDoll[(int)EquipLocation.Armlet2] = id;
 					else
-						PaperDoll[(int)EquipLocation.Armlet1] = id;
+					{
+						if (PaperDoll[(int) EquipLocation.Armlet1] != 0 && PaperDoll[(int) EquipLocation.Armlet2] != 0 && !rewrite)
+							return false;
+						if (PaperDoll[(int) EquipLocation.Armlet1] != 0 && PaperDoll[(int) EquipLocation.Armlet2] == 0)
+							PaperDoll[(int) EquipLocation.Armlet2] = id;
+						else
+							PaperDoll[(int) EquipLocation.Armlet1] = id;
+					}
 					break;
 				case ItemType.Bracer:
 					if (subloc != -1)
-					{ //subloc was explicitly specified
-						if (!rewrite && PaperDoll[(int)EquipLocation.Bracer1 + subloc] != 0)
+					{
+						//subloc was explicitly specified
+						if (!rewrite && PaperDoll[(int) EquipLocation.Bracer1 + subloc] != 0)
 							return false;
-						PaperDoll[(int)EquipLocation.Bracer1 + subloc] = id;
+						PaperDoll[(int) EquipLocation.Bracer1 + subloc] = id;
 					}
-
-					if (PaperDoll[(int)EquipLocation.Bracer1] != 0 && PaperDoll[(int)EquipLocation.Bracer2] != 0 && !rewrite)
-						return false;
-					if (PaperDoll[(int)EquipLocation.Bracer1] != 0 && PaperDoll[(int)EquipLocation.Bracer2] == 0)
-						PaperDoll[(int)EquipLocation.Bracer2] = id;
 					else
-						PaperDoll[(int)EquipLocation.Bracer1] = id;
+					{
+						if (PaperDoll[(int) EquipLocation.Bracer1] != 0 && PaperDoll[(int) EquipLocation.Bracer2] != 0 && !rewrite)
+							return false;
+						if (PaperDoll[(int) EquipLocation.Bracer1] != 0 && PaperDoll[(int) EquipLocation.Bracer2] == 0)
+							PaperDoll[(int) EquipLocation.Bracer2] = id;
+						else
+							PaperDoll[(int) EquipLocation.Bracer1] = id;
+					}
 					break;
 				default:
 					throw new ArgumentOutOfRangeException("type", "Invalid item type for equip!");
