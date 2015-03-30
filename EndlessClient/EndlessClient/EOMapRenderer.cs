@@ -286,7 +286,7 @@ namespace EndlessClient
 		//cursor members
 		private Vector2 cursorPos;
 		private int gridX, gridY;
-		private readonly Texture2D mouseCursor;
+		private readonly Texture2D mouseCursor, statusIcons;
 		private Rectangle _cursorSourceRect;
 		private readonly XNALabel _mouseoverName;
 		private MouseState _prevState;
@@ -341,6 +341,7 @@ namespace EndlessClient
 			sb = new SpriteBatch(Game.GraphicsDevice);
 
 			mouseCursor = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
+			statusIcons = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 46, true);
 			_cursorSourceRect = new Rectangle(0, 0, mouseCursor.Width / 5, mouseCursor.Height);
 			_mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
 			{
@@ -686,11 +687,7 @@ namespace EndlessClient
 			Character c =  playerId == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.MainPlayer.ActiveCharacter : otherPlayers.Find(cc => cc.ID == playerId);
 			if (c != null)
 			{
-				c.EquipItem(ItemType.Boots, 0, newRenderData.boots, true);
-				c.EquipItem(ItemType.Armor, 0, newRenderData.armor, true);
-				c.EquipItem(ItemType.Hat, 0, newRenderData.hat, true);
-				c.EquipItem(ItemType.Shield, 0, newRenderData.shield, true);
-				c.EquipItem(ItemType.Weapon, 0, newRenderData.weapon, true);
+				c.SetDisplayItemsFromRenderData(newRenderData);
 				//todo: play sound?
 			}
 		}
@@ -1198,6 +1195,32 @@ namespace EndlessClient
 #if DEBUG
 				sb.DrawString(World.DBG, string.Format("FPS: {0}", World.FPS), new Vector2(30, 30), Color.White);
 #endif
+				Character c;
+				if ((c = World.Instance.MainPlayer.ActiveCharacter) != null)
+				{
+					int widthDelta = statusIcons.Width/4;
+					int heightDelta = statusIcons.Height/2;
+					int extraOffset = 0; //changes based on presence or absence of other icons
+					Color col = Color.FromNonPremultiplied(0x9e, 0x9f, 0x9e, 0xff);
+					if (MapRef.IsPK || c.MapIsPk)
+					{
+						sb.Draw(statusIcons, new Vector2(14, 285), new Rectangle(widthDelta * 3, 0, widthDelta, heightDelta), col);
+						extraOffset += 24;
+					}
+					if (c.SpellPrimed)
+					{
+						sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta * 2, 0, widthDelta, heightDelta), col);
+						extraOffset += 24;
+					}
+					if (c.PaperDoll[(int) EquipLocation.Weapon] != 0)
+					{
+						sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(0, 0, widthDelta, heightDelta), col);
+						extraOffset += 24;
+					}
+					if (c.PaperDoll[(int) EquipLocation.Shield] != 0)
+						sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta, 0, widthDelta, heightDelta), col);
+				}
+
 				sb.End();
 
 				if(m_showMiniMap)

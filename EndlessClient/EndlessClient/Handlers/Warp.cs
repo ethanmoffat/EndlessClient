@@ -72,7 +72,7 @@ namespace EndlessClient.Handlers
 			{
 				EndlessClient.Character newChar = new EndlessClient.Character(pkt);
 				if(newChar.ID == World.Instance.MainPlayer.ActiveCharacter.ID)
-					World.Instance.MainPlayer.ActiveCharacter.ApplyData(newChar);
+					World.Instance.MainPlayer.ActiveCharacter.ApplyData(newChar, false);
 				else
 					otherCharacters.Add(newChar);
 				if (pkt.GetByte() != 255) return;

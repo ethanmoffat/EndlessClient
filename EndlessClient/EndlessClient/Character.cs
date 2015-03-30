@@ -258,9 +258,12 @@ namespace EndlessClient
 
 		public CharRenderData RenderData { get; private set; }
 		public short CurrentMap { get; set; }
-		public bool MapIsPk { private get; set; }
+		public bool MapIsPk { get; set; }
 		public int X { get; private set; }
 		public int Y { get; private set; }
+
+// ReSharper disable once UnusedAutoPropertyAccessor.Local
+		public bool SpellPrimed { get; private set; }
 
 		public byte GuildRankNum { private get; set; }
 
@@ -477,12 +480,14 @@ namespace EndlessClient
 		/// Used to apply changes from Welcome packet to existing character.
 		/// </summary>
 		/// <param name="newGuy">Changes to MainPlayer.ActiveCharacter, contained in a Character object</param>
-		public void ApplyData(Character newGuy)
+		/// <param name="copyPaperdoll">Set to true if paperdoll data from newGuy should be applied to this character</param>
+		public void ApplyData(Character newGuy, bool copyPaperdoll = true)
 		{
 			ID = newGuy.ID;
 			Name = newGuy.Name;
 			PaddedGuildTag = newGuy.PaddedGuildTag;
-			Array.Copy(newGuy.PaperDoll, PaperDoll, (int)EquipLocation.PAPERDOLL_MAX);
+			if(copyPaperdoll)
+				Array.Copy(newGuy.PaperDoll, PaperDoll, (int)EquipLocation.PAPERDOLL_MAX);
 			Stats.SetHP(newGuy.Stats.hp);
 			Stats.SetMaxHP(newGuy.Stats.maxhp);
 			Stats.SetTP(newGuy.Stats.tp);
@@ -666,6 +671,15 @@ namespace EndlessClient
 				MaxWeight = characterMaxWeight;
 				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.RefreshStats();
 			}
+		}
+
+		public void SetDisplayItemsFromRenderData(CharRenderData newRenderData)
+		{
+			EquipItem(ItemType.Boots,  (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Boots,  newRenderData.boots)  ?? new ItemRecord()).ID, newRenderData.boots,  true);
+			EquipItem(ItemType.Armor,  (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Armor,  newRenderData.armor)  ?? new ItemRecord()).ID, newRenderData.armor,  true);
+			EquipItem(ItemType.Hat,    (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Hat,    newRenderData.hat)    ?? new ItemRecord()).ID, newRenderData.hat,    true);
+			EquipItem(ItemType.Shield, (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Shield, newRenderData.shield) ?? new ItemRecord()).ID, newRenderData.shield, true);
+			EquipItem(ItemType.Weapon, (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Weapon, newRenderData.weapon) ?? new ItemRecord()).ID, newRenderData.weapon, true);
 		}
 	}
 }

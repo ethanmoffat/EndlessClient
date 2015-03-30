@@ -91,7 +91,7 @@ Here's a working but incomplete list of things I want to get to (strikethrough m
  - ~~HUD meters - HP/SP/TP/TNL~~
  - HUD Quests/Exp info
  - ~~HUD Friend/Ignore lists~~
- - Player emotes
+ - ~~Player emotes~~
  - NPC interaction on maps (~~shops~~, inns, quests)
  - Context menu options: trade, join (party), invite (party)
  

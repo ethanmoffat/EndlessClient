@@ -127,11 +127,14 @@ namespace EndlessClient.Handlers
 			};
 
 			EndlessClient.Character c = World.Instance.MainPlayer.ActiveCharacter;
-			c.EquipItem(ItemType.Boots, 0, boots, true);
-			c.EquipItem(ItemType.Armor, 0, armor, true);
-			c.EquipItem(ItemType.Hat, 0, hat, true);
-			c.EquipItem(ItemType.Shield, 0, shield, true);
-			c.EquipItem(ItemType.Weapon, 0, weapon, true);
+			c.SetDisplayItemsFromRenderData(new CharRenderData
+			{
+				boots = boots,
+				hat = hat,
+				armor = armor,
+				shield = shield,
+				weapon = weapon
+			});
 			c.UnequipItem(World.Instance.EIF.GetItemRecordByID(itemId).Type, subLoc);
 			c.UpdateInventoryItem(itemId, 1, true); //true: add to existing quantity
 			UpdateStatsAfterEquip(c, data);

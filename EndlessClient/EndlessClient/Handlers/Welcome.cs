@@ -203,7 +203,7 @@ namespace EndlessClient.Handlers
 								return;
 
 							if (newGuy.Name.ToLower() == World.Instance.MainPlayer.ActiveCharacter.Name.ToLower())
-								World.Instance.MainPlayer.ActiveCharacter.ApplyData(newGuy);
+								World.Instance.MainPlayer.ActiveCharacter.ApplyData(newGuy, false); //paperdoll data should already have been applied
 							else
 								newChars.Add(newGuy);
 						}

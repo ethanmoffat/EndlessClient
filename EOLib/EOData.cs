@@ -603,6 +603,10 @@ namespace EOLib.Data
 		{
 			return (ItemRecord)Data.Find(_rec => ((ItemRecord) _rec).ID == id);
 		}
+		public ItemRecord GetItemRecordByDollGraphic(ItemType type, short dollGraphic)
+		{
+			return (ItemRecord) Data.Find(_rec => ((ItemRecord) _rec).DollGraphic == dollGraphic && ((ItemRecord) _rec).Type == type);
+		}
 		
 		public override void Load(string fPath)
 		{
