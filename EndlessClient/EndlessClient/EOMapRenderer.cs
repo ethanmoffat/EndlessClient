@@ -656,6 +656,16 @@ namespace EndlessClient
 			}
 		}
 
+		public void OtherPlayerEmote(short playerID, Emote emote)
+		{
+			EOCharacterRenderer rend;
+			if ((rend = otherRenderers.Find(cc => cc.Character.ID == playerID)) != null)
+			{
+				rend.Character.Emote(emote);
+				rend.PlayerEmote();
+			}
+		}
+
 		public void OtherPlayerHide(short ID, bool hidden)
 		{
 			Character c = otherPlayers.Find(_char => _char.ID == ID);

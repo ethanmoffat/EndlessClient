@@ -71,7 +71,7 @@ namespace EndlessClient
 		/// <summary>
 		/// the primary textbox for chat
 		/// </summary>
-		private readonly XNATextBox chatTextBox;
+		private readonly ChatTextBox chatTextBox;
 
 		//HP, SP, TP, TNL (in that order)
 		private readonly HUDElement[] StatusBars = new HUDElement[4];
@@ -231,7 +231,7 @@ namespace EndlessClient
 
 			newsTab = new ChatTab(pnlNews);
 
-			chatTextBox = new XNATextBox(new Rectangle(124, 308, 440, 19), g.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
+			chatTextBox = new ChatTextBox(new Rectangle(124, 308, 440, 19), g.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
 			{
 				Selected = true,
 				Visible = true,

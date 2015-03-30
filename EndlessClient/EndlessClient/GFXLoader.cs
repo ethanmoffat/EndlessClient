@@ -565,7 +565,7 @@ namespace EndlessClient
 			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
-		public Texture2D GetSkin(bool isBow, out Microsoft.Xna.Framework.Rectangle skinRect)
+		public Texture2D GetSkin(bool isBow, out XNA.Rectangle skinRect)
 		{
 			const byte sheetRows = 7;
 			byte sheetColumns = 4;
@@ -611,13 +611,78 @@ namespace EndlessClient
 			int walkExtra = _data.walkFrame > 0 ? widthDelta * (_data.walkFrame - 1) : 0;
 			walkExtra = !isBow && _data.attackFrame > 0 ? widthDelta*(_data.attackFrame - 1) : walkExtra;
 
-			skinRect = new Microsoft.Xna.Framework.Rectangle(
+			skinRect = new XNA.Rectangle(
 				_data.gender * widthDelta * (sheetColumns / 2) + (rotated ? section : 0) + walkExtra,
 				_data.race * heightDelta,
 				widthDelta,
 				heightDelta);
 
 			return sheet;
+		}
+
+		public Texture2D GetFace(out XNA.Rectangle faceRect)
+		{
+			if (charRef.State != CharacterActionState.Emote ||
+			    _data.emote == Emote.Drunk || _data.emote == Emote.Trade || _data.emote == Emote.LevelUp)
+			{
+				faceRect = new XNA.Rectangle();
+				return null;
+			}
+
+			//14 rows (7 female - 7 male) / 11 columns
+			const int ROWS = 14;
+			const int COLS = 11;
+			
+			Texture2D face = GFXLoader.TextureFromResource(GFXTypes.SkinSprites, 8, true);
+
+			int widthDelta = face.Width/COLS;
+			int heightDelta = face.Height/ROWS;
+			int genderOffset = (face.Height/2)*_data.gender;
+			//'playful' is the last face in the gfx (ndx 10), even though it has enum value of 14 (ndx 13)
+			int emote = _data.emote == Emote.Playful ? 10 : (int)_data.emote - 1;
+
+			faceRect = new XNA.Rectangle(widthDelta*emote, heightDelta*_data.race + genderOffset, widthDelta, heightDelta);
+
+			return face;
+		}
+
+		public Texture2D GetEmote(out XNA.Rectangle emoteRect)
+		{
+			emoteRect = new XNA.Rectangle();
+			if (charRef.State != CharacterActionState.Emote)
+				return null;
+
+			const int NUM_EMOTES = 15;
+			const int NUM_FRAMES = 4;
+
+			int convertedEmote = 0;
+			switch (_data.emote)
+			{
+				case Emote.Happy: /*0*/break;
+				case Emote.Depressed: convertedEmote = 7; break;
+				case Emote.Sad: convertedEmote = 1; break;
+				case Emote.Angry: convertedEmote = 5; break;
+				case Emote.Confused: convertedEmote = 3; break;
+				case Emote.Surprised: convertedEmote = 2; break;
+				case Emote.Hearts: convertedEmote = 6; break;
+				case Emote.Moon: convertedEmote = 4; break;
+				case Emote.Suicidal: convertedEmote = 9; break;
+				case Emote.Embarassed: convertedEmote = 8; break;
+				case Emote.Drunk:
+				case Emote.Trade:
+				case Emote.LevelUp:
+				case Emote.Playful: convertedEmote = (int)_data.emote - 1; break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			Texture2D emote = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 38, true);
+			int eachSet = emote.Width/NUM_EMOTES;
+			int eachFrame = emote.Width/(NUM_EMOTES*NUM_FRAMES);
+
+			emoteRect = new XNA.Rectangle((convertedEmote * eachSet) + (_data.emoteFrame * eachFrame), 0, eachFrame, emote.Height);
+
+			return emote;
 		}
 
 		private int getFactor(ArmorShieldSpriteType type)

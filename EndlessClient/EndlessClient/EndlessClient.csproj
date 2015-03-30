@@ -116,6 +116,7 @@
   <ItemGroup>
     <Compile Include="AsyncClient.cs" />
     <Compile Include="Character.cs" />
+    <Compile Include="ChatTextBox.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DamageCounter.cs" />
     <Compile Include="EOCharacterRenderer.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="Handlers\Connection.cs" />
     <Compile Include="Handlers\Character.cs" />
     <Compile Include="Handlers\Door.cs" />
+    <Compile Include="Handlers\Emote.cs" />
     <Compile Include="Handlers\Face.cs" />
     <Compile Include="Handlers\Init.cs" />
     <Compile Include="Handlers\Item.cs" />

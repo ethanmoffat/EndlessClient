@@ -126,8 +126,12 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Connection.PingResponse)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Door, PacketAction.Open), 
+					new FamilyActionPair(PacketFamily.Door, PacketAction.Open),
 					new LockedHandlerMethod(Handlers.Door.DoorOpenResponse, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Emote, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Emote.EmotePlayer, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Face, PacketAction.Player),
@@ -138,23 +142,23 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Init.InitResponse)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Item, PacketAction.Add), 
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Add),
 					new LockedHandlerMethod(Handlers.Item.ItemAddResponse, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Item, PacketAction.Drop), 
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Drop),
 					new LockedHandlerMethod(Handlers.Item.ItemDropResponse, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Item, PacketAction.Get), 
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Get),
 					new LockedHandlerMethod(Handlers.Item.ItemGetResponse, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Item, PacketAction.Junk), 
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Junk),
 					new LockedHandlerMethod(Handlers.Item.ItemJunkResponse, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Item, PacketAction.Remove), 
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Remove),
 					new LockedHandlerMethod(Handlers.Item.ItemRemoveResponse, true)
 				},
 				{
@@ -190,31 +194,31 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.NPCPackets.NPCSpec, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Agree), 
+					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Agree),
 					new LockedHandlerMethod(Handlers.Paperdoll.PaperdollAgree, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Remove), 
+					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Remove),
 					new LockedHandlerMethod(Handlers.Paperdoll.PaperdollRemove, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Reply), 
+					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Paperdoll.PaperdollReply, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Players, PacketAction.Agree), 
+					new FamilyActionPair(PacketFamily.Players, PacketAction.Agree),
 					new LockedHandlerMethod(Handlers.Players.PlayersAgree, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Players, PacketAction.Ping), 
+					new FamilyActionPair(PacketFamily.Players, PacketAction.Ping),
 					new LockedHandlerMethod(Handlers.Players.PlayersPing, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Players, PacketAction.Pong), 
+					new FamilyActionPair(PacketFamily.Players, PacketAction.Pong),
 					new LockedHandlerMethod(Handlers.Players.PlayersPong, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Players, PacketAction.Net3), 
+					new FamilyActionPair(PacketFamily.Players, PacketAction.Net3),
 					new LockedHandlerMethod(Handlers.Players.PlayersNet3, true)
 				},
 				{
@@ -230,23 +234,23 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Refresh.RefreshReply, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Shop, PacketAction.Buy), 
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Buy),
 					new LockedHandlerMethod(Handlers.Shop.ShopBuy, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Shop, PacketAction.Create), 
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Create),
 					new LockedHandlerMethod(Handlers.Shop.ShopCreate, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Shop, PacketAction.Open), 
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Open),
 					new LockedHandlerMethod(Handlers.Shop.ShopOpen, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Shop, PacketAction.Sell), 
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Sell),
 					new LockedHandlerMethod(Handlers.Shop.ShopSell, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Player), 
+					new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.StatSkill.StatSkillPlayer, true)
 				},
 				//TALK PACKETS
@@ -259,36 +263,36 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Talk.TalkPlayer, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Talk, PacketAction.Reply), 
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Talk.TalkReply, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Talk, PacketAction.Request), 
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Request),
 					new LockedHandlerMethod(Handlers.Talk.TalkRequest, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Talk, PacketAction.Server), 
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Server),
 					new LockedHandlerMethod(Handlers.Talk.TalkServer, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Talk, PacketAction.Tell), 
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Tell),
 					new LockedHandlerMethod(Handlers.Talk.TalkTell, true)
 				},
 				//
 				{
-					new FamilyActionPair(PacketFamily.Walk, PacketAction.Reply), 
+					new FamilyActionPair(PacketFamily.Walk, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Walk.WalkReply, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Walk, PacketAction.Player), 
+					new FamilyActionPair(PacketFamily.Walk, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.Walk.WalkPlayer, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Warp, PacketAction.Agree), 
+					new FamilyActionPair(PacketFamily.Warp, PacketAction.Agree),
 					new LockedHandlerMethod(Handlers.Warp.WarpAgree, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Warp, PacketAction.Request), 
+					new FamilyActionPair(PacketFamily.Warp, PacketAction.Request),
 					new LockedHandlerMethod(Handlers.Warp.WarpRequest, true)
 				},
 				{

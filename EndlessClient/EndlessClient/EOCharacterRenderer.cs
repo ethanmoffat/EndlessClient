@@ -17,16 +17,7 @@ namespace EndlessClient
 		Attacking,
 		Sitting,
 		SpellCast,
-		Emote0,
-		Emote1,
-		Emote2,
-		Emote3,
-		Emote4,
-		Emote5,
-		Emote6,
-		Emote7,
-		Emote8,
-		Emote9
+		Emote
 	}
 
 	/// <summary>
@@ -130,7 +121,7 @@ namespace EndlessClient
 		private ItemRecord shieldInfo, weaponInfo/*, bootsInfo, armorInfo*/, hatInfo;
 
 		private KeyboardState _prevKeyState;
-		private Timer _walkTimer, _attackTimer;
+		private Timer _walkTimer, _attackTimer, _emoteTimer;
 		private int attacksSinceGain;
 		private readonly bool noLocUpdate;
 
@@ -138,7 +129,8 @@ namespace EndlessClient
 		private readonly DamageCounter m_damageCounter;
 
 		private GameTime startWalkingThroughPlayerTime;
-		private DateTime? m_deadTime;
+		private DateTime? m_deadTime, m_lastEmoteTime;
+		private DateTime m_lastActTime;
 
 		private CharacterActionState State
 		{
@@ -258,12 +250,15 @@ namespace EndlessClient
 
 			_walkTimer = new Timer(_walkTimerCallback); //wait a minute. I'm the leader. I'll say when it's time to start.
 			_attackTimer = new Timer(_attackTimerCallback);
+			_emoteTimer = new Timer(_emoteTimerCallback);
 
 			if (m_chatBubble != null) //this will be null when constructed during menu time
 			{
 				m_chatBubble.Initialize();
 				m_chatBubble.LoadContent();
 			}
+
+			m_lastActTime = DateTime.Now;
 		}
 
 		protected override void UnloadContent()
@@ -363,6 +358,15 @@ namespace EndlessClient
 				State != CharacterActionState.Attacking  && (int)gameTime.TotalGameTime.TotalMilliseconds % 1000 == 0)
 				Character.Stats.SetSP((short)(Character.Stats.sp + 1));
 
+			//5-minute timeout: start sending emotes every minute
+			if ((DateTime.Now - m_lastActTime).TotalMilliseconds > 300000 && 
+				(m_lastEmoteTime == null || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > 60000))
+			{
+				m_lastEmoteTime = DateTime.Now;
+				_char.Emote(Emote.Moon);
+				PlayerEmote();
+			}
+
 #region input handling for keyboard
 			//only check for a keypress if not currently acting and if this is the active character renderer
 			//also only check every 1/4 of a second
@@ -388,6 +392,8 @@ namespace EndlessClient
 				}
 				else
 				{
+					//on 'else': code path should return without doing anything
+					_checkAndHandleEmote(currentKeyState);
 					startWalkingThroughPlayerTime = null;
 				}
 				
@@ -414,12 +420,19 @@ namespace EndlessClient
 						if (State != CharacterActionState.Walking)
 							_prevKeyState = currentKeyState; //only set this when not walking already
 						destX = destY = 255;
-						if(!attacking) return; //this block of code used to be in 'if(!attacking)'
 						break;
 				}
 
 				if (destX > World.Instance.ActiveMapRenderer.MapRef.Width || destY > World.Instance.ActiveMapRenderer.MapRef.Height)
+				{
+					//this will execute when the direction above is invalid.
+					//so, if not attacking and not walking we will hit this.
 					return;
+				}
+				
+				//reset the sleeping emote time trackers
+				m_lastActTime = DateTime.Now;
+				m_lastEmoteTime = null;
 
 				if (!attacking)
 				{
@@ -563,6 +576,82 @@ namespace EndlessClient
 			}
 		}
 
+		//convenience wrapper - update block is getting unruly
+		private void _checkAndHandleEmote(KeyboardState state)
+		{
+			if (State != CharacterActionState.Standing)
+				return;
+
+			Emote em;
+			if (state.IsKeyUp(Keys.NumPad0) && _prevKeyState.IsKeyDown(Keys.NumPad0))
+			{
+				em = Emote.Playful;
+				_char.Emote(em);
+				PlayerEmote();
+			}
+			else if (state.IsKeyUp(Keys.NumPad1) && _prevKeyState.IsKeyDown(Keys.NumPad1))
+			{
+				em = (Emote) 1;
+				_char.Emote(em);
+				PlayerEmote();
+			}
+			else if (state.IsKeyUp(Keys.NumPad2) && _prevKeyState.IsKeyDown(Keys.NumPad2))
+			{
+				em = (Emote) 2;
+				_char.Emote(em);
+				PlayerEmote();
+			}
+			else if (state.IsKeyUp(Keys.NumPad3) && _prevKeyState.IsKeyDown(Keys.NumPad3))
+			{
+				em = (Emote) 3;
+				_char.Emote(em);
+				PlayerEmote();
+			}
+			else if (state.IsKeyUp(Keys.NumPad4) && _prevKeyState.IsKeyDown(Keys.NumPad4))
+			{
+				em = (Emote) 4;
+				_char.Emote(em);
+				PlayerEmote();
+			}
+			else if (state.IsKeyUp(Keys.NumPad5) && _prevKeyState.IsKeyDown(Keys.NumPad5))
+			{
+				em = (Emote) 5;
+				_char.Emote(em);
+				PlayerEmote();
+			}
+			else if (state.IsKeyUp(Keys.NumPad6) && _prevKeyState.IsKeyDown(Keys.NumPad6))
+			{
+				em = (Emote) 6;
+				_char.Emote(em);
+				PlayerEmote();
+			}
+			else if (state.IsKeyUp(Keys.NumPad7) && _prevKeyState.IsKeyDown(Keys.NumPad7))
+			{
+				em = (Emote) 7;
+				_char.Emote(em);
+				PlayerEmote();
+			}
+			else if (state.IsKeyUp(Keys.NumPad8) && _prevKeyState.IsKeyDown(Keys.NumPad8))
+			{
+				em = (Emote) 8;
+				_char.Emote(em);
+				PlayerEmote();
+			}
+			else if (state.IsKeyUp(Keys.NumPad9) && _prevKeyState.IsKeyDown(Keys.NumPad9))
+			{
+				em = (Emote) 9;
+				_char.Emote(em);
+				PlayerEmote();
+			}
+			//The Decimal enumeration is 110, which is the Virtual Key code (VK_XXXX) for the 'del'/'.' key on the numpad
+			else if (state.IsKeyUp(Keys.Decimal) && _prevKeyState.IsKeyDown(Keys.Decimal))
+			{
+				em = Emote.Embarassed;
+				_char.Emote(em);
+				PlayerEmote();
+			}
+		}
+
 		public void PlayerWalk()
 		{
 			const int walkTimer = 100;
@@ -577,9 +666,15 @@ namespace EndlessClient
 			_attackTimer.Change(0, attackTimer);
 		}
 
+		public void PlayerEmote()
+		{
+			const int EmoteTimeBetweenFrames = 250;
+			Data.SetUpdate(true);
+			_emoteTimer.Change(0, EmoteTimeBetweenFrames);
+		}
+
 		public void Die()
 		{
-			//todo: play death sound!
 			Character.RenderData.SetDead(true);
 			m_deadTime = DateTime.Now;
 		}
@@ -663,18 +758,43 @@ namespace EndlessClient
 			Data.SetUpdate(true);
 		}
 
+		private void _emoteTimerCallback(object state)
+		{
+			if (_char == null || State != CharacterActionState.Emote) return;
+
+			if (Data.emoteFrame == 3)
+			{
+				_char.DoneEmote();
+				_emoteTimer.Change(Timeout.Infinite, Timeout.Infinite);
+			}
+			else
+			{
+				Data.SetEmoteFrame((byte) (Data.emoteFrame + 1));
+			}
+
+			Data.SetUpdate(true);
+		}
+
 		protected override void Dispose(bool disposing)
 		{
-			if(levelLabel != null)
-				levelLabel.Dispose();
-			if(nameLabel != null)
-				nameLabel.Dispose();
-			if (_walkTimer != null)
-				_walkTimer.Dispose();
-			if (_charRenderTarget != null)
-				_charRenderTarget.Dispose();
-			if (m_chatBubble != null)
-				m_chatBubble.Dispose();
+			if (disposing)
+			{
+				if (levelLabel != null)
+					levelLabel.Dispose();
+				if (nameLabel != null)
+					nameLabel.Dispose();
+				if (_walkTimer != null)
+					_walkTimer.Dispose();
+				if (_attackTimer != null)
+					_attackTimer.Dispose();
+				if (_emoteTimer != null)
+					_emoteTimer.Dispose();
+				if (_charRenderTarget != null)
+					_charRenderTarget.Dispose();
+				if (m_chatBubble != null)
+					m_chatBubble.Dispose();
+			}
+
 			base.Dispose(disposing);
 		}
 
@@ -745,7 +865,6 @@ namespace EndlessClient
 					if (hair != null)
 						SpriteBatch.Draw(hair, new Vector2(DrawAreaWithOffset.X + (flipped ? 2 : 0), DrawAreaWithOffset.Y), null,
 							Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-
 				}
 				else
 				{
@@ -838,7 +957,31 @@ namespace EndlessClient
 						break;
 				}
 			}
-			SpriteBatch.Draw(characterSkin, skinLoc, m_skinSourceRect, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+
+			SpriteBatch.Draw(characterSkin, skinLoc, m_skinSourceRect, Color.White, 0f, Vector2.Zero, 1f,
+				flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+
+			//get face and draw
+			if (State == CharacterActionState.Emote)
+			{
+				Rectangle faceRect, emoteRect;
+				Texture2D face = spriteSheet.GetFace(out faceRect), 
+					emote = spriteSheet.GetEmote(out emoteRect);
+
+				if (face != null && Facing == EODirection.Down || Facing == EODirection.Right)
+				{
+					Vector2 facePos = new Vector2(skinLoc.X + (Facing == EODirection.Down ? 2 : 3), 
+						skinLoc.Y + (_data != null ? (_data.gender == 0 ? 2 : 0) : 0));
+					SpriteBatch.Draw(face, facePos, faceRect,
+						Color.White, 0f, Vector2.Zero, 1f,
+						flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+				}
+				if (emote != null)
+				{
+					Vector2 emotePos = new Vector2(skinLoc.X - 15, DrawAreaWithOffset.Y - emote.Height + 10);
+					SpriteBatch.Draw(emote, emotePos, emoteRect, Color.FromNonPremultiplied(0xff,0xff,0xff,128));
+				}
+			}
 		}
 
 		private bool _drawWeaponLater()

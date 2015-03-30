@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using EOLib;
 using EOLib.Data;
+using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient
@@ -24,13 +25,37 @@ namespace EndlessClient
 // ReSharper restore UnusedMember.Global
 	}
 
+	public enum Emote
+	{
+		Happy = 1,
+		Depressed = 2,
+		Sad = 3,
+		Angry = 4,
+		Confused = 5,
+		Surprised = 6,
+		Hearts = 7,
+		Moon = 8,
+		Suicidal = 9,
+		/// <summary>
+		/// DEL or . key
+		/// </summary>
+		Embarassed = 10,
+		Drunk = 11,
+		Trade = 12,
+		LevelUp = 13,
+		/// <summary>
+		/// 0 key
+		/// </summary>
+		Playful = 14
+	}
+
 	/// <summary>
 	/// This is data used to render the character in EOCharacterRenderer.cs
 	/// The values represented here are for loading GFX and do NOT represent IDs of items, etc.
 	/// </summary>
 	public class CharRenderData
 	{
-		private readonly object walkFrameLocker = new object(), attackFrameLocker = new object();
+		private readonly object frameLocker = new object();
 		public string name;
 		public int id;
 		public byte level, hairstyle, haircolor, race, admin;
@@ -40,16 +65,16 @@ namespace EndlessClient
 		public byte gender;
 		public short boots, armor, hat, shield, weapon;
 
-		public byte walkFrame, attackFrame;
+		public byte walkFrame, attackFrame, emoteFrame;
 		
 		public EODirection facing;
-// ReSharper disable MemberCanBePrivate.Global
 		public SitState sitting;
-// ReSharper restore MemberCanBePrivate.Global
 		public bool hidden;
 		public bool update;
 		public bool hairNeedRefresh;
 		public bool dead;
+
+		public Emote emote;
 
 		public CharRenderData() { name = ""; }
 
@@ -74,12 +99,14 @@ namespace EndlessClient
 		}
 		public void SetBoots(short newboots) { boots = newboots; update = true; }
 
-		public void SetWalkFrame(byte wf) { lock(walkFrameLocker) walkFrame = wf; update = true; }
-		public void SetAttackFrame(byte af) { lock (attackFrameLocker) attackFrame = af; update = true; }
+		public void SetWalkFrame(byte wf)     { lock (frameLocker) walkFrame = wf; update = true; }
+		public void SetAttackFrame(byte af)   { lock (frameLocker) attackFrame = af; update = true; }
+		public void SetEmoteFrame(byte frame) { lock (frameLocker) emoteFrame = frame; update = true; }
 		public void SetUpdate(bool shouldUpdate) { update = shouldUpdate; }
 		public void SetHairNeedRefresh(bool shouldRefresh) { hairNeedRefresh = shouldRefresh; }
 		
-		public void SetDead(bool isDead) { dead = isDead; }
+		public void SetDead(bool isDead) { dead = isDead; update = true; }
+		public void SetEmote(Emote which) { emote = which; update = true; }
 	}
 
 	/// <summary>
@@ -533,6 +560,28 @@ namespace EndlessClient
 		{
 			State = CharacterActionState.Standing;
 			RenderData.SetAttackFrame(0);
+		}
+
+		public void Emote(Emote whichEmote)
+		{
+			if (this == World.Instance.MainPlayer.ActiveCharacter)
+			{
+				//todo: level up and trading are handled differently.
+				if (Handlers.Emote.ReportEmote(whichEmote))
+					RenderData.SetEmote(whichEmote);
+				else
+					EOGame.Instance.LostConnectionDialog();
+			}
+
+			State = CharacterActionState.Emote;
+			RenderData.SetEmoteFrame(0);
+			RenderData.SetEmote(whichEmote);
+		}
+
+		public void DoneEmote()
+		{
+			State = CharacterActionState.Standing;
+			RenderData.SetEmoteFrame(0);
 		}
 
 		public void Face(EODirection direction)
