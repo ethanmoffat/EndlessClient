@@ -286,6 +286,12 @@ namespace EndlessClient
 					Hud.SetNews(Handlers.Welcome.News);
 					backButton.Visible = true;
 					Components.Add(Hud);
+
+					if(Handlers.Welcome.FirstTimePlayer)
+					{
+						EODialog.Show("Admins will NEVER ask for your password or items.", "Safety comment (once)", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					}
+
 					break;
 			}
 		}
