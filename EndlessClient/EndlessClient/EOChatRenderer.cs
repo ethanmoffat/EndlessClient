@@ -238,7 +238,11 @@ namespace EndlessClient
 			scrollBar.IgnoreDialog(typeof(EOPaperdollDialog));
 			scrollBar.IgnoreDialog(typeof(EOChestDialog));
 
-			font = Game.Content.Load<SpriteFont>("dbg");
+			try
+			{
+				font = Game.Content.Load<SpriteFont>("dbg");
+			}
+			catch (ArgumentException) { }
 		}
 
 		/// <summary>

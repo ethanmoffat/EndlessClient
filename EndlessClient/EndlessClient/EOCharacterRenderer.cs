@@ -968,7 +968,7 @@ namespace EndlessClient
 				Texture2D face = spriteSheet.GetFace(out faceRect), 
 					emote = spriteSheet.GetEmote(out emoteRect);
 
-				if (face != null && Facing == EODirection.Down || Facing == EODirection.Right)
+				if (face != null && (Facing == EODirection.Down || Facing == EODirection.Right))
 				{
 					Vector2 facePos = new Vector2(skinLoc.X + (Facing == EODirection.Down ? 2 : 3), 
 						skinLoc.Y + (_data != null ? (_data.gender == 0 ? 2 : 0) : 0));

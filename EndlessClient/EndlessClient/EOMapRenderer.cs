@@ -1421,6 +1421,15 @@ namespace EndlessClient
 						}
 					}
 
+					//map objects (no filter on distance since that is contained within the loop bounds)
+					if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.Objects][rowIndex, colIndex]) > 0)
+					{
+						gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, gfxNum, true);
+						Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+						loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28));
+						sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+					}
+
 					//npcs and characters with this {x, y} location
 					if (Math.Abs(rowIndex - c.Y) <= Constants.ViewLength && Math.Abs(colIndex - c.X) <= Constants.ViewLength)
 					{
@@ -1437,15 +1446,6 @@ namespace EndlessClient
 								? _char.Character.DestY == locrow && _char.Character.DestX == loccol
 								: _char.Character.Y == locrow && _char.Character.X == loccol));
 						foreach (EOCharacterRenderer _char in thisLocChars) _char.Draw(sb, true);
-					}
-
-					//map objects (no filter on distance since that is contained within the loop bounds)
-					if ((gfxNum = MapRef.GFXLookup[(int) MapLayers.Objects][rowIndex, colIndex]) > 0)
-					{
-						gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, gfxNum, true);
-						Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
-						loc = new Vector2(loc.X - (int) Math.Round(gfx.Width/2.0) + 29, loc.Y - (gfx.Height - 28));
-						sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
 					}
 
 					if (Math.Abs(c.X - colIndex) <= 10 && Math.Abs(c.Y - rowIndex) <= 10)

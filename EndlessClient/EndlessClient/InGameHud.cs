@@ -45,7 +45,7 @@ namespace EndlessClient
 		};
 
 		private const int NUM_BTN = 11;
-		private readonly Texture2D mainFrame;
+		private readonly Texture2D mainFrame, topLeft, sidebar, topBar, filler;
 		//might need to consider making an EOPanels file and deriving from XNAPanel
 		//	to support eo-specific functionality that I'm going to need...
 		private readonly XNAPanel pnlInventory, pnlActiveSpells, pnlPassiveSpells, pnlChat, pnlStats;
@@ -77,12 +77,18 @@ namespace EndlessClient
 		private readonly HUDElement[] StatusBars = new HUDElement[4];
 
 		//friend/ignore lists
-		private readonly XNAButton m_friendList, m_ignoreList;
+		private readonly XNAButton m_friendList, m_ignoreList, m_expInfo, m_questInfo;
 		
 		public HUD(Game g)
 			: base(g)
 		{
 			mainFrame = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 1, true);
+			topLeft = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 21, true);
+			sidebar = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 22, true);
+			topBar = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 23, true);
+			filler = new Texture2D(g.GraphicsDevice, 1, 1);
+			filler.SetData(new[] {Color.FromNonPremultiplied(8, 8, 8, 255)});
+
 			Texture2D mainButtonTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 25);
 			mainBtn = new XNAButton[NUM_BTN];
 
@@ -319,6 +325,16 @@ namespace EndlessClient
 			};
 			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(true);
 			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel("[Button] Ignore List");
+
+			m_expInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
+				new Vector2(55, 0),
+				new Rectangle(331, 30, 22, 14),
+				new Rectangle(331, 30, 22, 14));
+			//m_expInfo.OnClick += 
+			m_questInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
+				new Vector2(77, 0),
+				new Rectangle(353, 30, 22, 14),
+				new Rectangle(353, 30, 22, 14));
 		}
 
 		public override void Initialize()
@@ -366,7 +382,15 @@ namespace EndlessClient
 		public override void Draw(GameTime gameTime)
 		{
 			SpriteBatch.Begin();
-			SpriteBatch.Draw(mainFrame, new Vector2(0, 0), Color.White);
+			SpriteBatch.Draw(topBar, new Vector2(49, 7), Color.White);
+			SpriteBatch.Draw(mainFrame, Vector2.Zero, Color.White);
+			SpriteBatch.Draw(topLeft, Vector2.Zero, Color.White);
+			SpriteBatch.Draw(sidebar, new Vector2(7, 53), Color.White);
+			SpriteBatch.Draw(sidebar, new Vector2(629, 53), new Rectangle(3, 0, 1, sidebar.Height), Color.White);
+			//fill in some extra holes with black lines
+			SpriteBatch.Draw(filler, new Rectangle(542, 0, 1, 8), Color.White);
+			SpriteBatch.Draw(filler, new Rectangle(14, 329, 1, 142), Color.White);
+			SpriteBatch.Draw(filler, new Rectangle(98, 479, 445, 1), Color.White);
 
 			//show the little graphic next
 			if (currentChatMode != ChatMode.NoText && !modeTextureLoaded)
@@ -666,6 +690,7 @@ namespace EndlessClient
 			chatRenderer.Dispose();
 			stats.Dispose();
 
+			filler.Dispose();
 			if(modeTexture != null)
 				modeTexture.Dispose();
 			SpriteBatch.Dispose();
@@ -684,6 +709,9 @@ namespace EndlessClient
 
 			m_friendList.Dispose();
 			m_ignoreList.Dispose();
+
+			m_expInfo.Dispose();
+			m_questInfo.Dispose();
 
 			lock (clockLock)
 			{
