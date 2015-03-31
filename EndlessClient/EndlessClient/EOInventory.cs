@@ -68,6 +68,8 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
+			if (!Game.IsActive) return;
+
 			//check for drag-drop here
 			MouseState currentState = Mouse.GetState();
 
@@ -533,6 +535,8 @@ namespace EndlessClient
 		//-----------------------------------------------------
 		public override void Update(GameTime gameTime)
 		{
+			if (!Game.IsActive) return;
+
 			if (IsOverDrop())
 			{
 				EOGame.Instance.Hud.SetStatusLabel("[ Button ] Drag an item to this button to drop it on the ground.");

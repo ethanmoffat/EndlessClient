@@ -297,7 +297,7 @@ namespace EndlessClient
 			get
 			{
 				MouseState ms = Mouse.GetState();
-				return ms.X > 0 && ms.Y > 0 && ms.X < 640 && ms.Y < 320;
+				return EOGame.Instance.IsActive && ms.X > 0 && ms.Y > 0 && ms.X < 640 && ms.Y < 320;
 			}
 		}
 		public Point GridCoords

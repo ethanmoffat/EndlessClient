@@ -398,7 +398,7 @@ namespace EndlessClient
 		
 		public override void Update(GameTime gameTime)
 		{
-			if (!Visible)
+			if (!Visible || !EOGame.Instance.IsActive)
 				return;
 
 			MouseState mouseState = Mouse.GetState();

@@ -125,7 +125,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
-			if (!Visible)
+			if (!Visible || !Game.IsActive)
 				return;
 
 			MouseState curState = Mouse.GetState();

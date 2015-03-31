@@ -48,6 +48,8 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
+			if (!Game.IsActive) return;
+
 			MouseState currentState = Mouse.GetState();
 			if (MouseOver && MouseOverPreviously && 
 				currentState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed)

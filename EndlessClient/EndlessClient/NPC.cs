@@ -147,6 +147,8 @@ namespace EndlessClient
 					 offY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - baseFrame.Height,
 					 npcArea.Width, npcArea.Height);
 
+			if (!Game.IsActive) return;
+
 			//switch the standing animation for NPCs every 500ms, if they're standing still
 			if (hasStandFrame1 && m_lastAnimUpdateTime.HasValue && (gameTime.TotalGameTime - m_lastAnimUpdateTime.Value).TotalMilliseconds > 250)
 			{

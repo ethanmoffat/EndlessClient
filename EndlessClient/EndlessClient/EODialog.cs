@@ -872,7 +872,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gt)
 		{
-			if ((Dialogs.Count > 0 && Dialogs.Peek() != this) || !Visible)
+			if ((Dialogs.Count > 0 && Dialogs.Peek() != this) || !Visible || !Game.IsActive)
 				return;
 
 			rotClickArea = new Rectangle(235 + DrawAreaWithOffset.X, 58 + DrawAreaWithOffset.Y, 99, 123);
@@ -1073,8 +1073,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
-			//At this time, not going to support drag/drop between inventory and paperdoll dialog.
-			//Benefit is not worth the work effort involved.
+			if (!Game.IsActive) return;
 
 			MouseState currentState = Mouse.GetState();
 
@@ -1253,6 +1252,8 @@ namespace EndlessClient
 
 		public override void Update(GameTime gt)
 		{
+			if (!Game.IsActive) return;
+
 			if (EOGame.Instance.Hud.IsInventoryDragging())
 			{
 				shouldClickDrag = false;
@@ -1635,7 +1636,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
-			if (!Visible) return;
+			if (!Visible || !Game.IsActive) return;
 
 			MouseState ms = Mouse.GetState();
 
@@ -1821,6 +1822,8 @@ namespace EndlessClient
 
 		public override void Update(GameTime gt)
 		{
+			if (!Game.IsActive) return;
+
 			if (EOGame.Instance.Hud.IsInventoryDragging())
 			{
 				shouldClickDrag = false;
@@ -2550,6 +2553,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gt)
 		{
+			if (!Game.IsActive) return;
 			if (EOGame.Instance.Hud.IsInventoryDragging())
 			{
 				shouldClickDrag = false;

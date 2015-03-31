@@ -105,7 +105,7 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
-			if (!Visible)
+			if (!Visible || !Game.IsActive)
 				return;
 
 			//get the X and Y to check: take DrawAreaWithOffset into account
