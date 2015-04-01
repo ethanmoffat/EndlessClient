@@ -543,13 +543,14 @@ namespace EndlessClient
 
 			if (this == World.Instance.MainPlayer.ActiveCharacter)
 			{
+				//KS protection - vanilla eoserv does not support this!
 				bool shouldSend = true;
-				//KS protection
 				if (!(x == 255 && y == 255))
 				{
 					TileInfo ti = World.Instance.ActiveMapRenderer.CheckCoordinates(x, y);
 					if (ti.ReturnValue == TileInfo.ReturnType.IsOtherNPC && ti.NPC.Opponent != null && ti.NPC.Opponent != this)
 					{
+						EOGame.Instance.Hud.SetStatusLabel("[ Information ] Unable to attack, this is not your battle!");
 						shouldSend = false;
 					}
 				}

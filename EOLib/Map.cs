@@ -202,8 +202,8 @@ namespace EOLib
 		public byte Height { get; private set; }
 
 		public short FillTile { get; private set; }
-		public byte MapAvailable { get; private set; }
-		public byte CanScroll { get; private set; }
+		public bool MapAvailable { get; private set; }
+		public bool CanScroll { get; private set; }
 		public byte RelogX { get; private set; }
 		public byte RelogY { get; private set; }
 		private byte Unknown2 { get; set; }
@@ -304,8 +304,8 @@ namespace EOLib
 			Width = file.GetChar();
 			Height = file.GetChar();
 			FillTile = file.GetShort();
-			MapAvailable = file.GetChar();
-			CanScroll = file.GetChar();
+			MapAvailable = file.GetChar() == 1;
+			CanScroll = file.GetChar() == 1;
 			RelogX = file.GetChar();
 			RelogY = file.GetChar();
 			Unknown2 = file.GetChar();

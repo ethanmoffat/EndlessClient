@@ -44,5 +44,15 @@ namespace EndlessClient.Handlers
 			localStats.SetArmor(pkt.GetShort());
 			EOGame.Instance.Hud.RefreshStats();
 		}
+
+		public static void RecoverAgree(Packet pkt)
+		{
+			//when a heal item is used
+			short playerID = pkt.GetShort();
+			int hpGain = pkt.GetInt();
+			byte playerPctHealth = pkt.GetChar();
+
+			World.Instance.ActiveMapRenderer.OtherPlayerHeal(playerID, hpGain, playerPctHealth);
+		}
 	}
 }

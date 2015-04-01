@@ -121,7 +121,7 @@ namespace EndlessClient
 			if (m_isCharacter)
 			{
 				Rectangle tmp = ((EOCharacterRenderer)m_ref).DrawAreaWithOffset;
-				m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f + 7, tmp.Y + ((EOCharacterRenderer)m_ref).TopPixel);
+				m_healthBarPos = new Vector2(tmp.X - 3, tmp.Y - 5);
 			}
 			else
 			{
@@ -148,7 +148,7 @@ namespace EndlessClient
 				if (m_isCharacter)
 				{
 					Rectangle tmp = ((EOCharacterRenderer) m_ref).DrawAreaWithOffset;
-					pos = new Vector2(tmp.X + tmp.Width/2f - 8, tmp.Y + ((EOCharacterRenderer)m_ref).TopPixel - m_additionalOffset - 12);
+					pos = new Vector2(tmp.X + 1, tmp.Y - m_additionalOffset - 20);
 				}
 				else
 				{
@@ -161,7 +161,7 @@ namespace EndlessClient
 				if (m_isCharacter)
 				{
 					Rectangle tmp = ((EOCharacterRenderer) m_ref).DrawAreaWithOffset;
-					pos = new Vector2(tmp.X + tmp.Width / 2f - (nDigits * 9) / 2f + 7, tmp.Y + ((EOCharacterRenderer)m_ref).TopPixel - m_additionalOffset - 12);
+					pos = new Vector2(tmp.X + 16 - (nDigits * 9) / 2f, tmp.Y - m_additionalOffset - 20);
 				}
 				else
 				{

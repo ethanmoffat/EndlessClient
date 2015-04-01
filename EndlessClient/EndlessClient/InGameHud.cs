@@ -59,6 +59,7 @@ namespace EndlessClient
 		private readonly ChatTab newsTab;
 
 		private readonly XNALabel statusLabel; //label for status (mouse-over buttons)
+		private bool m_statusRecentlySet;
 		private readonly XNALabel clockLabel; //label that is updated on a timer
 		private Timer clockTimer;
 
@@ -361,6 +362,8 @@ namespace EndlessClient
 				if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).TotalMilliseconds > 3000)
 				{
 					SetStatusLabel("");
+					m_statusRecentlySet = false;
+					statusStartTime = null;
 				}
 
 			}, null, 0, 1000);
@@ -375,7 +378,14 @@ namespace EndlessClient
 			for (int i = 0; i < mainBtn.Length; ++i)
 			{
 				string status = ButtonStatusStrings[i];
-				mainBtn[i].OnMouseOver += (o, e) => SetStatusLabel(status);
+				mainBtn[i].OnMouseOver += (o, e) =>
+				{
+					if (!m_statusRecentlySet)
+					{
+						SetStatusLabel(status);
+						m_statusRecentlySet = false;
+					}
+				};
 			}
 
 			SessionStartTime = DateTime.Now;
@@ -574,6 +584,10 @@ namespace EndlessClient
 						int usage = World.Instance.MainPlayer.ActiveCharacter.Stats.usage;
 						AddChat(ChatTabs.Local, "System", string.Format("[x] usage: {0}hrs. {1}min.", usage/60, usage%60));
 					}
+					else if (args.Length == 1 && cmd == "ping")
+					{
+						Message.Ping();
+					}
 				}
 					break;
 				default:
@@ -649,6 +663,7 @@ namespace EndlessClient
 		{
 			statusLabel.Text = text;
 			statusStartTime = !string.IsNullOrEmpty(text) ? new DateTime?(DateTime.Now) : null;
+			m_statusRecentlySet = true;
 		}
 
 		public bool UpdateInventory(InventoryItem item)

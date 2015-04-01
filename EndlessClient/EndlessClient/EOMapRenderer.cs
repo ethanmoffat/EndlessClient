@@ -262,15 +262,15 @@ namespace EndlessClient
 		private enum MiniMapGfx
 		{
 			//for drawing the lines
-			UpLine,
-			LeftLine,
-			Corner,
-			Solid, //indicates wall or obstacle
-			Green, //other player
-			Red, //attackable npc
-			Orange, //you!
-			Blue, //tile that you can interact with
-			Purple //npc
+			UpLine = 0,
+			LeftLine = 1,
+			//Corner,
+			Solid = 3, //indicates wall or obstacle
+			Green = 4, //other player
+			Red = 5, //attackable npc
+			Orange = 6, //you!
+			Blue = 7, //tile that you can interact with
+			Purple = 8 //npc
 		}
 
 		//collections
@@ -454,7 +454,7 @@ namespace EndlessClient
 
 			m_mapLoadTime = DateTime.Now;
 			m_transitionMetric = 1;
-			if (MapRef.MapAvailable == 0)
+			if (!MapRef.MapAvailable)
 				m_showMiniMap = false;
 
 			if (MapRef.Name.Length > 0)
@@ -509,8 +509,10 @@ namespace EndlessClient
 
 		public void ToggleMapView()
 		{
-			if(MapRef.MapAvailable != 0)
+			if(MapRef.MapAvailable)
 				m_showMiniMap = !m_showMiniMap;
+			else
+				EOGame.Instance.Hud.SetStatusLabel("[ Warning ] There is no map of this area!");
 		}
 
 		public void AddMapItem(MapItem newItem)
@@ -676,6 +678,25 @@ namespace EndlessClient
 			}
 		}
 
+		public void OtherPlayerHeal(short ID, int healAmount, int pctHealth)
+		{
+			EOCharacterRenderer rend = ID == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.ActiveCharacterRenderer :
+				otherRenderers.Find(_rend => _rend.Character.ID == ID);
+
+			if (rend == null) return; //couldn't find other player :(
+
+			if (healAmount > 0)
+			{
+				rend.Character.Stats.SetHP((short)Math.Max(rend.Character.Stats.hp + healAmount, rend.Character.Stats.maxhp));
+				if (rend.Character == World.Instance.MainPlayer.ActiveCharacter)
+				{
+					//update health in UI
+					EOGame.Instance.Hud.RefreshStats();
+				}
+				rend.SetDamageCounterValue(healAmount, pctHealth, true);
+			}
+		}
+
 		public void UpdateOtherPlayers()
 		{
 			//when mainplayer walks, tell other players to update!
@@ -784,18 +805,14 @@ namespace EndlessClient
 			EOCharacterRenderer rend = targetPlayerId == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.ActiveCharacterRenderer : 
 				otherRenderers.Find(_rend => _rend.Character.ID == targetPlayerId);
 
-			if (damageToPlayer > 0)
-			{
-				rend.Character.Stats.SetHP((short)Math.Max(rend.Character.Stats.hp - damageToPlayer, 0));
-				if (rend.Character == World.Instance.MainPlayer.ActiveCharacter)
-				{
-					//update health in UI
-					EOGame.Instance.Hud.RefreshStats();
-				}
-			}
-
 			if (rend == null) return; //couldn't find other player :(
-			
+
+			rend.Character.Stats.SetHP((short)Math.Max(rend.Character.Stats.hp - damageToPlayer, 0));
+			if (rend.Character == World.Instance.MainPlayer.ActiveCharacter)
+			{
+				//update health in UI
+				EOGame.Instance.Hud.RefreshStats();
+			}
 			rend.SetDamageCounterValue(damageToPlayer, playerPctHealth);
 
 			if (isTargetPlayerDead)

@@ -349,6 +349,7 @@ namespace EndlessClient
 		{
 			switch (m_itemData.Type)
 			{
+			//equippable items
 				case ItemType.Accessory:
 				case ItemType.Armlet:
 				case ItemType.Armor:
@@ -380,6 +381,28 @@ namespace EndlessClient
 					else
 						EOGame.Instance.Hud.SetStatusLabel("[ Information ] You already have an item of this type equipped.");
 					break;
+			//usable items
+				case ItemType.Teleport:
+					if (!World.Instance.ActiveMapRenderer.MapRef.CanScroll)
+					{
+						EOGame.Instance.Hud.SetStatusLabel("[ Action ] Nothing happened..");
+						break;
+					}
+					if (m_itemData.ScrollMap == World.Instance.MainPlayer.ActiveCharacter.CurrentMap &&
+					    m_itemData.ScrollX == World.Instance.MainPlayer.ActiveCharacter.X &&
+					    m_itemData.ScrollY == World.Instance.MainPlayer.ActiveCharacter.Y)
+						break; //already there - no need to scroll!
+					if (!Handlers.Item.ItemUse((short) m_itemData.ID))
+						EOGame.Instance.LostConnectionDialog();
+					break;
+				case ItemType.Heal:
+					if (!Handlers.Item.ItemUse((short) m_itemData.ID))
+						EOGame.Instance.LostConnectionDialog();
+					break;
+				case ItemType.HairDye:
+					if (!Handlers.Item.ItemUse((short) m_itemData.ID))
+						EOGame.Instance.LostConnectionDialog();
+					break;
 				case ItemType.Beer:
 					break;
 				case ItemType.CureCurse:
@@ -388,15 +411,9 @@ namespace EndlessClient
 					break;
 				case ItemType.EffectPotion:
 					break;
-				case ItemType.HairDye:
-					break;
-				case ItemType.Heal:
-					break;
 				case ItemType.SkillReward:
 					break;
 				case ItemType.StatReward:
-					break;
-				case ItemType.Teleport:
 					break;
 			}
 

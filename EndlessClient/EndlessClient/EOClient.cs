@@ -162,6 +162,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Item.ItemRemoveResponse, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Item.ItemReply, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Locker, PacketAction.Get),
 					new LockedHandlerMethod(Handlers.Locker.LockerGet, true)
 				},
@@ -176,6 +180,10 @@ namespace EndlessClient
 				{
 					new FamilyActionPair(PacketFamily.Login, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Login.LoginResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Message, PacketAction.Pong), 
+					new LockedHandlerMethod(Handlers.Message.Pong)
 				},
 				{
 					new FamilyActionPair(PacketFamily.NPC, PacketAction.Accept),
@@ -220,6 +228,10 @@ namespace EndlessClient
 				{
 					new FamilyActionPair(PacketFamily.Players, PacketAction.Net3),
 					new LockedHandlerMethod(Handlers.Players.PlayersNet3, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Recover, PacketAction.Agree),
+					new LockedHandlerMethod(Handlers.Recover.RecoverAgree, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Recover, PacketAction.List),

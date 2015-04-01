@@ -146,5 +146,58 @@ namespace EndlessClient.Handlers
 			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("You picked up {0} {1}", amountTaken, rec.Name), ChatType.UpArrow);
 			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You picked up {0} {1}", amountTaken, rec.Name));
 		}
+
+		public static bool ItemUse(short itemID)
+		{
+			EOClient client = (EOClient) World.Instance.Client;
+			if (!client.ConnectedAndInitialized)
+				return false;
+
+			Packet pkt = new Packet(PacketFamily.Item, PacketAction.Use);
+			pkt.AddShort(itemID);
+
+			return client.SendPacket(pkt);
+		}
+		/// <summary>
+		/// Handles ITEM_REPLY (ITEM_USE response)
+		/// </summary>
+		public static void ItemReply(Packet pkt)
+		{
+			ItemType type = (ItemType) pkt.GetChar();
+			short itemID = pkt.GetShort();
+			int itemCountRemaining = pkt.GetInt();
+			byte weight = pkt.GetChar();
+			byte maxWeight = pkt.GetChar();
+			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(itemID, itemCountRemaining, weight, maxWeight);
+
+			//format differs based on item type
+			//(keeping this in order with how eoserv ITEM_USE handler is ordered
+			switch (type)
+			{
+				case ItemType.Teleport: /*Warp packet handles the rest!*/ break;
+				case ItemType.Heal:
+				{
+					int hpGain = pkt.GetInt();
+					short hp = pkt.GetShort();
+					short tp = pkt.GetShort();
+
+					World.Instance.MainPlayer.ActiveCharacter.Stats.SetHP(hp);
+					World.Instance.MainPlayer.ActiveCharacter.Stats.SetTP(tp);
+
+					int percent = (int)Math.Round(100.0 * ((double)hp / World.Instance.MainPlayer.ActiveCharacter.Stats.maxhp));
+
+					if(hpGain > 0)
+						World.Instance.ActiveCharacterRenderer.SetDamageCounterValue(hpGain, percent, true);
+					EOGame.Instance.Hud.RefreshStats();
+				}
+					break;
+				case ItemType.HairDye:
+				{
+					byte hairColor = pkt.GetChar();
+					World.Instance.MainPlayer.ActiveCharacter.RenderData.SetHairColor(hairColor);
+				}
+					break;
+			}
+		}
 	}
 }
