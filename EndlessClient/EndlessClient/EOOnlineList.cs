@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Runtime.Remoting.Messaging;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -76,11 +78,14 @@ namespace EndlessClient
 		private readonly Rectangle m_filterClick;
 		private Filter m_filter;
 		private readonly Texture2D[] m_filterTextures = new Texture2D[4]; //there are 4 filter textures
+		private List<string> m_friendList = new List<string>();
 
 		public EOOnlineList(XNAPanel parent)
 			: base(null, null, parent)
 		{
 			m_onlineList = new List<OnlineEntry>();
+			//this enables scrolling with mouse wheel and mouseover for parent
+			_setSize(parent.BackgroundImage.Width, parent.BackgroundImage.Height);
 
 			m_totalNumPlayers = new XNALabel(new Rectangle(455, 2, 27, 14), "Microsoft Sans Serif", 8.5f)
 			{
@@ -119,8 +124,11 @@ namespace EndlessClient
 		{
 			m_onlineList.Clear();
 			m_onlineList.AddRange(onlineList);
+// ReSharper disable once StringCompareToIsCultureSpecific
+			m_onlineList.Sort((x, y) => x.Name.CompareTo(y.Name));
 			m_totalNumPlayers.Text = onlineList.Count.ToString(CultureInfo.CurrentCulture);
 			m_scrollBar.UpdateDimensions(onlineList.Count);
+			m_friendList = InteractList.LoadAllFriend();
 		}
 
 		public override void Update(GameTime gameTime)
@@ -135,6 +143,7 @@ namespace EndlessClient
 				m_filter++;
 				if (m_filter == Filter.Max)
 					m_filter = Filter.All;
+				m_scrollBar.ScrollToTop();
 			}
 
 			base.Update(gameTime);
@@ -151,38 +160,46 @@ namespace EndlessClient
 
 			SpriteBatch.Draw(m_filterTextures[(int) m_filter], new Vector2(DrawAreaWithOffset.X + 4, DrawAreaWithOffset.Y + 2), Color.White);
 
-			for (int i = scrollOff; i < scrollOff + m_scrollBar.LinesToRender && i < m_onlineList.Count; ++i)
+			List<OnlineEntry> filtered = m_onlineList;
+			if (m_filter != Filter.All)
 			{
-				if (m_filter != Filter.All)
+				switch (m_filter)
 				{
-					switch (m_filter)
-					{
-						case Filter.Friends: continue; //no friends list yet, so hide all todo: add friends list!
-						case Filter.Admins: //show admins only for the admins view: other types will be continue'd
-							switch (m_onlineList[i].Icon)
+					case Filter.Friends:
+						filtered = m_onlineList.Where(oe => m_friendList.Contains(oe.Name)).ToList();
+						break;
+					case Filter.Admins: //show admins only for the admins view: other types will be continue'd
+						filtered = m_onlineList.Where(oe =>
+						{
+							switch (oe.Icon)
 							{
 								case PaperdollIconType.Normal:
 								case PaperdollIconType.Party:
 								case PaperdollIconType.SLNBot:
-									continue;
+									return false;
 							}
-							break;
-						default:
-							throw new ArgumentOutOfRangeException();
-					}
+							return true;
+						}).ToList();
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
 				}
+			}
+
+			for (int i = scrollOff; i < scrollOff + m_scrollBar.LinesToRender && i < filtered.Count; ++i)
+			{
 
 				int yCoord = DRAW_OFFSET_Y + DrawAreaWithOffset.Y + (i - m_scrollBar.ScrollOffset)*13;
 				//draw icon
-				SpriteBatch.Draw(ChatTab.GetChatIcon(EOChatRenderer.GetChatTypeFromPaperdollIcon(m_onlineList[i].Icon)), new Vector2(DrawAreaWithOffset.X + DRAW_ICON_X, yCoord), Color.White);
+				SpriteBatch.Draw(ChatTab.GetChatIcon(EOChatRenderer.GetChatTypeFromPaperdollIcon(filtered[i].Icon)), new Vector2(DrawAreaWithOffset.X + DRAW_ICON_X, yCoord), Color.White);
 				//drawtext name
-				SpriteBatch.DrawString(font, m_onlineList[i].Name, new Vector2(DrawAreaWithOffset.X + DRAW_NAME_X, yCoord), Color.Black);
+				SpriteBatch.DrawString(font, filtered[i].Name, new Vector2(DrawAreaWithOffset.X + DRAW_NAME_X, yCoord), Color.Black);
 				//drawtext title
-				SpriteBatch.DrawString(font, m_onlineList[i].Title, new Vector2(DrawAreaWithOffset.X + DRAW_TITLE_X, yCoord), Color.Black);
+				SpriteBatch.DrawString(font, filtered[i].Title, new Vector2(DrawAreaWithOffset.X + DRAW_TITLE_X, yCoord), Color.Black);
 				//drawtext guild
-				SpriteBatch.DrawString(font, m_onlineList[i].Guild, new Vector2(DrawAreaWithOffset.X + DRAW_GUILD_X, yCoord), Color.Black);
+				SpriteBatch.DrawString(font, filtered[i].Guild, new Vector2(DrawAreaWithOffset.X + DRAW_GUILD_X, yCoord), Color.Black);
 				//drawtext class
-				SpriteBatch.DrawString(font, m_onlineList[i].Class, new Vector2(DrawAreaWithOffset.X + DRAW_CLASS_X, yCoord), Color.Black);
+				SpriteBatch.DrawString(font, filtered[i].Class, new Vector2(DrawAreaWithOffset.X + DRAW_CLASS_X, yCoord), Color.Black);
 			}
 			SpriteBatch.End();
 
