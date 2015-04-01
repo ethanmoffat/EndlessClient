@@ -308,9 +308,9 @@ namespace EndlessClient
 			m_chatBubble.SetMessage(message);
 		}
 
-		public void SetDamageCounterValue(int value)
+		public void SetDamageCounterValue(int value, int pctHealth)
 		{
-			m_damageCounter.SetValue(value); //NPCs don't know heal spells
+			m_damageCounter.SetValue(value, pctHealth); //NPCs don't know heal spells
 		}
 
 		public void FadeAway()

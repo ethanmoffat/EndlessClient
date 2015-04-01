@@ -121,8 +121,7 @@ namespace EndlessClient
 		private ItemRecord shieldInfo, weaponInfo/*, bootsInfo, armorInfo*/, hatInfo;
 
 		private KeyboardState _prevKeyState;
-		private Timer _walkTimer, _attackTimer, _emoteTimer;
-		private int attacksSinceGain;
+		private Timer _walkTimer, _attackTimer, _emoteTimer, _spTimer;
 		private readonly bool noLocUpdate;
 
 		private readonly EOChatBubble m_chatBubble;
@@ -251,6 +250,15 @@ namespace EndlessClient
 			_walkTimer = new Timer(_walkTimerCallback); //wait a minute. I'm the leader. I'll say when it's time to start.
 			_attackTimer = new Timer(_attackTimerCallback);
 			_emoteTimer = new Timer(_emoteTimerCallback);
+			if (Character == World.Instance.MainPlayer.ActiveCharacter)
+			{
+				_spTimer = new Timer(o =>
+				{
+					if (Character != null && Character.Stats != null &&
+						Character.Stats.sp < Character.Stats.maxsp)
+						Character.Stats.sp += 2;
+				}, null, 0, 1000);
+			}
 
 			if (m_chatBubble != null) //this will be null when constructed during menu time
 			{
@@ -499,15 +507,6 @@ namespace EndlessClient
 				}
 				else if(State == CharacterActionState.Standing && _char.CanAttack)
 				{
-					if (Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp &&
-					    attacksSinceGain == Math.Max(5 - Character.Stats.level, 1))
-					{
-						Character.Stats.SetSP((short) (Character.Stats.sp + 1));
-						attacksSinceGain = 0;
-					}
-					else
-						attacksSinceGain++;
-
 					_char.Attack(Data.facing, destX, destY); //destX and destY validity check above
 					PlayerAttack();
 				}
@@ -792,6 +791,8 @@ namespace EndlessClient
 					_attackTimer.Dispose();
 				if (_emoteTimer != null)
 					_emoteTimer.Dispose();
+				if (_spTimer != null)
+					_spTimer.Dispose();
 				if (_charRenderTarget != null)
 					_charRenderTarget.Dispose();
 				if (m_chatBubble != null)
@@ -1103,9 +1104,9 @@ namespace EndlessClient
 			m_chatBubble.SetMessage(msg);
 		}
 
-		public void SetDamageCounterValue(int value, bool isHeal = false)
+		public void SetDamageCounterValue(int value, int pctHealth, bool isHeal = false)
 		{
-			m_damageCounter.SetValue(value, isHeal);
+			m_damageCounter.SetValue(value, pctHealth, isHeal);
 		}
 	}
 }

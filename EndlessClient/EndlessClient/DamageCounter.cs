@@ -14,7 +14,7 @@ namespace EndlessClient
 	{
 		private readonly bool m_isCharacter;
 		private readonly DrawableGameComponent m_ref;
-		private int m_value;
+		private int m_value, m_percentHealth;
 		private bool m_isHeal;
 
 		private static Texture2D s_NumberSprites, s_HealthBarSprites;
@@ -81,10 +81,12 @@ namespace EndlessClient
 		/// Call this function to show a number above the player/npc
 		/// </summary>
 		/// <param name="val">damage</param>
+		/// <param name="pctHealth">percent health remaining</param>
 		/// <param name="isHeal">if it is a heal spell</param>
-		public void SetValue(int val, bool isHeal = false)
+		public void SetValue(int val, int pctHealth, bool isHeal = false)
 		{
 			m_value = val;
+			m_percentHealth = pctHealth;
 			m_isHeal = isHeal;
 			m_additionalOffset = 0;
 			Visible = true;
@@ -184,19 +186,16 @@ namespace EndlessClient
 
 			SpriteBatch.Draw(s_HealthBarSprites, m_healthBarPos, new Rectangle(0, 28, 40, 7), Color.White); //draw health bar background container
 
-			double pct;
-			if (m_isCharacter)
-				pct = ((EOCharacterRenderer) m_ref).Character.Stats.hp/(double)((EOCharacterRenderer) m_ref).Character.Stats.maxhp;
-			else
-				pct = ((NPC)m_ref).HP / (double)((NPC)m_ref).Data.HP;
-
+			//the percent health is represented as an int 0-100.
+			//Need to divide by 100 to get decimal and multiply by 40 (max width of health bar)
+			//(x / 100) * 40 == x * .4
 			Rectangle healthSrcRect;
-			if (pct >= .5)
-				healthSrcRect = new Rectangle(0, 7, (int)Math.Round(pct * 40), 7);
-			else if (pct >= .25)
-				healthSrcRect = new Rectangle(0, 14, (int)Math.Round(pct * 40), 7);
+			if (m_percentHealth >= 50)
+				healthSrcRect = new Rectangle(0, 7, (int)Math.Round(m_percentHealth * .4), 7);
+			else if (m_percentHealth >= 25)
+				healthSrcRect = new Rectangle(0, 14, (int)Math.Round(m_percentHealth * .4), 7);
 			else
-				healthSrcRect = new Rectangle(0, 21, (int)Math.Round(pct * 40), 7);
+				healthSrcRect = new Rectangle(0, 21, (int)Math.Round(m_percentHealth * .4), 7);
 
 			SpriteBatch.Draw(s_HealthBarSprites, m_healthBarPos, healthSrcRect, Color.White);
 

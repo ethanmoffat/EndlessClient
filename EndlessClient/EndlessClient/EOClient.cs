@@ -222,6 +222,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Players.PlayersNet3, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Recover, PacketAction.List),
+					new LockedHandlerMethod(Handlers.Recover.RecoverList, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Recover, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.Recover.RecoverPlayer, true)
 				},

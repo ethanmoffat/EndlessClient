@@ -743,7 +743,7 @@ namespace EndlessClient
 						npc.HP = Math.Max(npc.HP - damage, 0);
 						npc.FadeAway();
 						npc.Opponent = null;
-						npc.SetDamageCounterValue(damage);
+						npc.SetDamageCounterValue(damage, 0);
 					}
 					else //npc is out of view
 					{
@@ -796,7 +796,7 @@ namespace EndlessClient
 
 			if (rend == null) return; //couldn't find other player :(
 			
-			rend.SetDamageCounterValue(damageToPlayer);
+			rend.SetDamageCounterValue(damageToPlayer, playerPctHealth);
 
 			if (isTargetPlayerDead)
 				rend.Die();
@@ -809,7 +809,7 @@ namespace EndlessClient
 				toDamage = npcList.Find(_npc => _npc.Index == npcIndex);
 			if (toDamage == null) return;
 
-			toDamage.SetDamageCounterValue(damageToNPC);
+			toDamage.SetDamageCounterValue(damageToNPC, npcPctHealth);
 			toDamage.HP -= damageToNPC;
 
 			EOCharacterRenderer rend = fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.ActiveCharacterRenderer
