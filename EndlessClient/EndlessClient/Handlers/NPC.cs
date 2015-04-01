@@ -113,7 +113,7 @@ namespace EndlessClient.Handlers
 
 			int newExp = pkt.GetInt(); //npc was killed - this handler was invoked from NPCAccept
 			int expDif = newExp - World.Instance.MainPlayer.ActiveCharacter.Stats.exp;
-			World.Instance.MainPlayer.ActiveCharacter.Stats.exp += expDif;
+			World.Instance.MainPlayer.ActiveCharacter.GainExp(expDif);
 			EOGame.Instance.Hud.RefreshStats();
 
 			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You earned {0} EXP", expDif));
@@ -155,6 +155,9 @@ namespace EndlessClient.Handlers
 			short maxHP = pkt.GetShort();
 			short maxTP = pkt.GetShort();
 			short maxSP = pkt.GetShort();
+
+			World.Instance.MainPlayer.ActiveCharacter.Emote(EndlessClient.Emote.LevelUp);
+			World.Instance.ActiveCharacterRenderer.PlayerEmote();
 
 			//local reference for readability
 			CharStatData stats = World.Instance.MainPlayer.ActiveCharacter.Stats;

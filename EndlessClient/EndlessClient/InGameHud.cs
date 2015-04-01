@@ -78,6 +78,8 @@ namespace EndlessClient
 
 		//friend/ignore lists
 		private readonly XNAButton m_friendList, m_ignoreList, m_expInfo, m_questInfo;
+
+		public DateTime SessionStartTime { get; private set; }
 		
 		public HUD(Game g)
 			: base(g)
@@ -330,7 +332,7 @@ namespace EndlessClient
 				new Vector2(55, 0),
 				new Rectangle(331, 30, 22, 14),
 				new Rectangle(331, 30, 22, 14));
-			//m_expInfo.OnClick += 
+			m_expInfo.OnClick += (o, e) => EOSessionExpDialog.Show();
 			m_questInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
 				new Vector2(77, 0),
 				new Rectangle(353, 30, 22, 14),
@@ -375,6 +377,8 @@ namespace EndlessClient
 				string status = ButtonStatusStrings[i];
 				mainBtn[i].OnMouseOver += (o, e) => SetStatusLabel(status);
 			}
+
+			SessionStartTime = DateTime.Now;
 
 			base.Initialize();
 		}

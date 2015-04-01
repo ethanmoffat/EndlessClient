@@ -2568,4 +2568,108 @@ namespace EndlessClient
 			base.Update(gt);
 		}
 	}
+
+	public class EOSessionExpDialog : EODialogBase
+	{
+		private static EOSessionExpDialog inst;
+		public static void Show()
+		{
+			if (inst != null) return;
+
+			inst = new EOSessionExpDialog();
+			inst.DialogClosing += (o, e) => inst = null;
+		}
+
+		private readonly Texture2D m_icons;
+		private readonly Rectangle m_signal;
+		private readonly Rectangle m_icon;
+
+		private EOSessionExpDialog()
+		{
+			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 61);
+			_setSize(bgTexture.Width, bgTexture.Height);
+
+			m_icons = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 68, true);
+			m_signal = new Rectangle(0, 15, 15, 15);
+			m_icon = new Rectangle(0, 0, 15, 15);
+
+			XNAButton okButton = new XNAButton(smallButtonSheet, new Vector2(98, 214), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
+			okButton.OnClick += (sender, args) => Close(okButton, XNADialogResult.OK);
+			okButton.SetParent(this);
+
+			XNALabel title = new XNALabel(new Rectangle(20, 17, 1, 1), "Microsoft Sans Serif", 8.5f)
+			{
+				AutoSize = false,
+				Text = "Performance",
+				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
+			};
+			title.SetParent(this);
+
+			XNALabel[] leftSide = new XNALabel[8], rightSide = new XNALabel[8];
+			for (int i = 48; i <= 160; i += 16)
+			{
+				leftSide[(i - 48)/16] = new XNALabel(new Rectangle(38, i, 1, 1), "Microsoft Sans Serif", 8.5f)
+				{
+					AutoSize = false,
+					ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
+				};
+				leftSide[(i - 48) / 16].SetParent(this);
+				rightSide[(i - 48) / 16] = new XNALabel(new Rectangle(158, i, 1, 1), "Microsoft Sans Serif", 8.5f)
+				{
+					AutoSize = false,
+					ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
+				};
+				rightSide[(i - 48) / 16].SetParent(this);
+			}
+
+			leftSide[0].Text = "Total exp";
+			leftSide[1].Text = "Next level";
+			leftSide[2].Text = "Exp needed";
+			leftSide[3].Text = "Today exp";
+			leftSide[4].Text = "Total avg/hr";
+			leftSide[5].Text = "Today avg/hr";
+			leftSide[6].Text = "Best kill";
+			leftSide[7].Text = "Last kill";
+			Character c = World.Instance.MainPlayer.ActiveCharacter;
+			rightSide[0].Text = string.Format("{0}", c.Stats.exp);
+			rightSide[1].Text = string.Format("{0}", World.Instance.exp_table[c.Stats.level + 1]);
+			rightSide[2].Text = string.Format("{0}", World.Instance.exp_table[c.Stats.level + 1] - c.Stats.exp);
+			rightSide[3].Text = string.Format("{0}", c.TodayExp);
+			rightSide[4].Text = string.Format("{0}", (int) (c.Stats.exp/(c.Stats.usage/60.0)));
+			int sessionTime = (int)(DateTime.Now - EOGame.Instance.Hud.SessionStartTime).TotalMinutes;
+			rightSide[5].Text = string.Format("{0}", sessionTime > 0 ? (c.TodayExp/sessionTime) : 0);
+			rightSide[6].Text = string.Format("{0}", c.TodayBestKill);
+			rightSide[7].Text = string.Format("{0}", c.TodayLastKill);
+
+			Array.ForEach(leftSide, lbl=>lbl.ResizeBasedOnText());
+			Array.ForEach(rightSide, lbl => lbl.ResizeBasedOnText());
+
+			Center(Game.GraphicsDevice);
+			DrawLocation = new Vector2(DrawLocation.X, 15);
+			endConstructor(false);
+		}
+
+		public override void Draw(GameTime gt)
+		{
+			//base draw logic handles drawing the background + child controls
+			base.Draw(gt);
+
+			SpriteBatch.Begin();
+			//icons next to labels
+			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 22, DrawAreaWithOffset.Y + 48), m_icon, Color.White);
+			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 22, DrawAreaWithOffset.Y + 64), m_icon, Color.White);
+			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 22, DrawAreaWithOffset.Y + 80), m_icon, Color.White);
+			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 22, DrawAreaWithOffset.Y + 96), m_icon, Color.White);
+			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 22, DrawAreaWithOffset.Y + 112), m_icon, Color.White);
+			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 22, DrawAreaWithOffset.Y + 128), m_icon, Color.White);
+			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 22, DrawAreaWithOffset.Y + 144), m_icon, Color.White);
+			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 22, DrawAreaWithOffset.Y + 160), m_icon, Color.White);
+
+			//signal next to exp labels
+			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 142, DrawAreaWithOffset.Y + 48), m_signal, Color.White);
+			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 142, DrawAreaWithOffset.Y + 64), m_signal, Color.White);
+			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 142, DrawAreaWithOffset.Y + 80), m_signal, Color.White);
+			SpriteBatch.End();
+		}
+	}
 }

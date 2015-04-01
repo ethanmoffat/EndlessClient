@@ -353,21 +353,24 @@ namespace EndlessClient
 				Character.RenderData.SetDead(false);
 			}
 
-			//adjust SP
-			if (Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp &&
-				State != CharacterActionState.Attacking  && (int)gameTime.TotalGameTime.TotalMilliseconds % 1000 == 0)
-				Character.Stats.SetSP((short)(Character.Stats.sp + 1));
-
-			//5-minute timeout: start sending emotes every minute
-			if ((DateTime.Now - m_lastActTime).TotalMilliseconds > 300000 && 
-				(m_lastEmoteTime == null || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > 60000))
+			if (EOGame.Instance.State == GameStates.PlayingTheGame && this == World.Instance.ActiveCharacterRenderer)
 			{
-				m_lastEmoteTime = DateTime.Now;
-				_char.Emote(Emote.Moon);
-				PlayerEmote();
+				//adjust SP
+				if (Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp &&
+				    State != CharacterActionState.Attacking && (int) gameTime.TotalGameTime.TotalMilliseconds%1000 == 0)
+					Character.Stats.SetSP((short) (Character.Stats.sp + 1));
+
+				//5-minute timeout: start sending emotes every minute
+				if ((DateTime.Now - m_lastActTime).TotalMilliseconds > 300000 &&
+				    (m_lastEmoteTime == null || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > 60000))
+				{
+					m_lastEmoteTime = DateTime.Now;
+					Character.Emote(Emote.Moon);
+					PlayerEmote();
+				}
 			}
 
-#region input handling for keyboard
+			#region input handling for keyboard
 			//only check for a keypress if not currently acting and if this is the active character renderer
 			//also only check every 1/4 of a second
 			KeyboardState currentKeyState = Keyboard.GetState();

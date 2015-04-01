@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using EOLib;
 using EOLib.Data;
-using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient
@@ -266,6 +265,10 @@ namespace EndlessClient
 		public bool SpellPrimed { get; private set; }
 
 		public byte GuildRankNum { private get; set; }
+
+		public int TodayExp { get; set; }
+		public int TodayBestKill { get; set; }
+		public int TodayLastKill { get; set; }
 
 		public static string KarmaStringFromNum(int num)
 		{
@@ -569,9 +572,10 @@ namespace EndlessClient
 
 		public void Emote(Emote whichEmote)
 		{
-			if (this == World.Instance.MainPlayer.ActiveCharacter)
+			if (this == World.Instance.MainPlayer.ActiveCharacter &&
+				whichEmote != EndlessClient.Emote.LevelUp &&
+				whichEmote != EndlessClient.Emote.Trade)
 			{
-				//todo: level up and trading are handled differently.
 				if (Handlers.Emote.ReportEmote(whichEmote))
 					RenderData.SetEmote(whichEmote);
 				else
@@ -680,6 +684,15 @@ namespace EndlessClient
 			EquipItem(ItemType.Hat,    (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Hat,    newRenderData.hat)    ?? new ItemRecord()).ID, newRenderData.hat,    true);
 			EquipItem(ItemType.Shield, (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Shield, newRenderData.shield) ?? new ItemRecord()).ID, newRenderData.shield, true);
 			EquipItem(ItemType.Weapon, (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Weapon, newRenderData.weapon) ?? new ItemRecord()).ID, newRenderData.weapon, true);
+		}
+
+		public void GainExp(int amount)
+		{
+			TodayLastKill = amount;
+			if (amount > TodayBestKill)
+				TodayBestKill = amount;
+			TodayExp += amount;
+			Stats.exp += amount;
 		}
 	}
 }

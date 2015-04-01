@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using EOLib;
 using EOLib.Data;
 
@@ -239,7 +240,10 @@ namespace EndlessClient
 
 				string mapFile = Path.Combine("maps", string.Format("{0,5:D5}.emf", mapID));
 
-				MapCache.Add(mapID, new MapFile(mapFile));
+				if(!MapCache.ContainsKey(mapID))
+					MapCache.Add(mapID, new MapFile(mapFile));
+				else
+					MapCache[mapID] = new MapFile(mapFile);
 			}
 			catch
 			{
