@@ -347,6 +347,7 @@ namespace EndlessClient
 
 		private void _handleDoubleClick()
 		{
+			bool useItem = false;
 			switch (m_itemData.Type)
 			{
 			//equippable items
@@ -392,18 +393,12 @@ namespace EndlessClient
 					    m_itemData.ScrollX == World.Instance.MainPlayer.ActiveCharacter.X &&
 					    m_itemData.ScrollY == World.Instance.MainPlayer.ActiveCharacter.Y)
 						break; //already there - no need to scroll!
-					if (!Handlers.Item.ItemUse((short) m_itemData.ID))
-						EOGame.Instance.LostConnectionDialog();
+					useItem = true;
 					break;
 				case ItemType.Heal:
-					if (!Handlers.Item.ItemUse((short) m_itemData.ID))
-						EOGame.Instance.LostConnectionDialog();
-					break;
 				case ItemType.HairDye:
-					if (!Handlers.Item.ItemUse((short) m_itemData.ID))
-						EOGame.Instance.LostConnectionDialog();
-					break;
 				case ItemType.Beer:
+					useItem = true;
 					break;
 				case ItemType.CureCurse:
 					break;
@@ -416,6 +411,9 @@ namespace EndlessClient
 				case ItemType.StatReward:
 					break;
 			}
+
+			if (useItem && !Handlers.Item.ItemUse((short) m_itemData.ID))
+				EOGame.Instance.LostConnectionDialog();
 
 			m_recentClickCount = 0;
 		}

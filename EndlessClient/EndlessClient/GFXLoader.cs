@@ -623,7 +623,7 @@ namespace EndlessClient
 		public Texture2D GetFace(out XNA.Rectangle faceRect)
 		{
 			if (charRef.State != CharacterActionState.Emote ||
-			    _data.emote == Emote.Drunk || _data.emote == Emote.Trade || _data.emote == Emote.LevelUp)
+			    _data.emote == Emote.Trade || _data.emote == Emote.LevelUp)
 			{
 				faceRect = new XNA.Rectangle();
 				return null;
@@ -639,7 +639,7 @@ namespace EndlessClient
 			int heightDelta = face.Height/ROWS;
 			int genderOffset = (face.Height/2)*_data.gender;
 			//'playful' is the last face in the gfx (ndx 10), even though it has enum value of 14 (ndx 13)
-			int emote = _data.emote == Emote.Playful ? 10 : (int)_data.emote - 1;
+			int emote = _data.emote == Emote.Playful || _data.emote == Emote.Drunk ? 10 : (int)_data.emote - 1;
 
 			faceRect = new XNA.Rectangle(widthDelta*emote, heightDelta*_data.race + genderOffset, widthDelta, heightDelta);
 

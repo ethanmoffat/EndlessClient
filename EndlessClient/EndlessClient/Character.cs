@@ -266,9 +266,11 @@ namespace EndlessClient
 
 		public byte GuildRankNum { private get; set; }
 
-		public int TodayExp { get; set; }
-		public int TodayBestKill { get; set; }
-		public int TodayLastKill { get; set; }
+		public int TodayExp { get; private set; }
+		public int TodayBestKill { get; private set; }
+		public int TodayLastKill { get; private set; }
+
+		public bool IsDrunk { get; set; }
 
 		public static string KarmaStringFromNum(int num)
 		{

@@ -131,6 +131,9 @@ namespace EndlessClient
 		private DateTime? m_deadTime, m_lastEmoteTime;
 		private DateTime m_lastActTime;
 
+		private DateTime? m_drunkTime;
+		private int m_drunkOffset;
+
 		private CharacterActionState State
 		{
 			get { return Character.State; }
@@ -375,6 +378,24 @@ namespace EndlessClient
 					m_lastEmoteTime = DateTime.Now;
 					Character.Emote(Emote.Moon);
 					PlayerEmote();
+				}
+
+				if (m_drunkTime.HasValue && Character.IsDrunk)
+				{
+					//note: these timer values (between 1-6 seconds and 30 seconds) are completely arbitrary
+					if (!m_lastEmoteTime.HasValue || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > m_drunkOffset)
+					{
+						m_lastEmoteTime = DateTime.Now;
+						Character.Emote(Emote.Drunk);
+						PlayerEmote();
+						m_drunkOffset = (new Random()).Next(1000, 6000); //between 1-6 seconds 
+					}
+
+					if ((DateTime.Now - m_drunkTime.Value).TotalMilliseconds >= 30000)
+					{
+						m_drunkTime = null;
+						Character.IsDrunk = false;
+					}
 				}
 			}
 
@@ -1107,6 +1128,12 @@ namespace EndlessClient
 		public void SetDamageCounterValue(int value, int pctHealth, bool isHeal = false)
 		{
 			m_damageCounter.SetValue(value, pctHealth, isHeal);
+		}
+
+		public void MakeDrunk()
+		{
+			m_drunkTime = DateTime.Now;
+			Character.IsDrunk = true;
 		}
 	}
 }

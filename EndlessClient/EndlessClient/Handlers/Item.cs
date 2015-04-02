@@ -197,6 +197,10 @@ namespace EndlessClient.Handlers
 					World.Instance.MainPlayer.ActiveCharacter.RenderData.SetHairColor(hairColor);
 				}
 					break;
+				case ItemType.Beer:
+					World.Instance.ActiveCharacterRenderer.MakeDrunk();
+					EOGame.Instance.Hud.SetStatusLabel("[ Warning ] You feel drunk");
+					break;
 			}
 		}
 	}
