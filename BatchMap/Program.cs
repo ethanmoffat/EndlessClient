@@ -165,6 +165,33 @@ namespace BatchMap
 						Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is out of map bounds. Removing.", lastPart, npc.x, npc.y, npcRec.Name);
 						EMF.NPCSpawns.RemoveAt(i);
 						changesMade = true;
+						continue;
+					}
+
+					if (!CheckTile(EMF, npc.x, npc.y))
+					{
+						Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is invalid...", lastPart, npc.x, npc.y, npcRec.Name);
+						bool found = false;
+						for (int row = npc.y - 2; row < npc.y + 2; ++row)
+						{
+							if (found) break;
+							for (int col = npc.x - 2; col < npc.x + 2; ++col)
+							{
+								if (found) break;
+								if (CheckTile(EMF, col, row))
+								{
+									Console.WriteLine("[MAP {0}] Found valid spawn point. Continuing.", lastPart);
+									found = true;
+								}
+							}
+						}
+
+						if (!found)
+						{
+							Console.WriteLine("[MAP {0}] NPC couldn't spawn anywhere valid! Removing.");
+							EMF.NPCSpawns.RemoveAt(i);
+							changesMade = true;
+						}
 					}
 				}
 
@@ -203,6 +230,43 @@ namespace BatchMap
 
 				EMF.Save(Path.Combine(dst, lastPart));
 			}
+		}
+
+		private static bool CheckTile(MapFile EMF, int x, int y)
+		{
+			if (EMF.WarpLookup[y, x] != null)
+				return false;
+
+			if (EMF.TileLookup[y, x] != null)
+			{
+				switch (EMF.TileLookup[y, x].spec)
+				{
+					case TileSpec.Wall:
+					case TileSpec.ChairDown:
+					case TileSpec.ChairLeft:
+					case TileSpec.ChairRight:
+					case TileSpec.ChairUp:
+					case TileSpec.ChairDownRight:
+					case TileSpec.ChairUpLeft:
+					case TileSpec.ChairAll:
+					case TileSpec.Chest:
+					case TileSpec.BankVault:
+					case TileSpec.NPCBoundary:
+					case TileSpec.MapEdge:
+					case TileSpec.Board1:
+					case TileSpec.Board2:
+					case TileSpec.Board3:
+					case TileSpec.Board4:
+					case TileSpec.Board5:
+					case TileSpec.Board6:
+					case TileSpec.Board7:
+					case TileSpec.Board8:
+					case TileSpec.Jukebox:
+						return false;
+				}
+			}
+
+			return true;
 		}
 	}
 }
