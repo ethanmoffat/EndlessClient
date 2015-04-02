@@ -363,7 +363,7 @@ namespace EOLib
 
 			for (int i = 0; i < outersize; ++i)
 			{
-				Unknowns.Add(file.GetBytes(5));
+				Unknowns.Add(file.GetBytes(4));
 			}
 
 			outersize = file.GetChar();
@@ -431,7 +431,8 @@ namespace EOLib
 						door = file.GetShort()
 					});
 
-					WarpLookup[row.y, w.x] = w;
+					if (row.y <= Height && w.x <= Width)
+						WarpLookup[row.y, w.x] = w;
 				}
 
 				WarpRows.Add(row);
