@@ -192,6 +192,7 @@ namespace EOLib
 		public string Name { get; private set; }
 
 		public bool IsPK { get; private set; }
+		private byte pkByte;
 		public MapEffect Effect { get; private set; }
 
 		public byte Music { get; private set; }
@@ -203,7 +204,9 @@ namespace EOLib
 
 		public short FillTile { get; private set; }
 		public bool MapAvailable { get; private set; }
+		private byte availByte;
 		public bool CanScroll { get; private set; }
+		private byte scrollByte;
 		public byte RelogX { get; private set; }
 		public byte RelogY { get; private set; }
 		private byte Unknown2 { get; set; }
@@ -252,6 +255,33 @@ namespace EOLib
 			return Encoding.ASCII.GetString(chars);
 		}
 
+		private static byte[] _encodeMapString(string s)
+		{
+			byte[] chars = Encoding.ASCII.GetBytes(s);
+			bool flippy = (chars.Length % 2) == 1;
+			int i;
+			for (i = 0; i < chars.Length; ++i)
+			{
+				byte c = chars[i];
+				if (flippy)
+				{
+					if (c >= 0x22 && c <= 0x4F)
+						c = (byte) (0x71 - c);
+					else if (c >= 0x50 && c <= 0x7E)
+						c = (byte) (0xCD - c);
+				}
+				else
+				{
+					if (c >= 0x22 && c <= 0x7E)
+						c = (byte) (0x9F - c);
+				}
+				chars[i] = c;
+				flippy = !flippy;
+			}
+			Array.Reverse(chars);
+			return chars;
+		}
+
 		public MapFile(int id)
 		{
 			MapID = id;
@@ -260,7 +290,7 @@ namespace EOLib
 
 		public MapFile(string fileName)
 		{
-			string id = fileName.Substring(fileName.IndexOf('\\') + 1, 5);
+			string id = fileName.Substring(fileName.LastIndexOf('\\') + 1, 5);
 			MapID = int.Parse(id);
 			Load(fileName);
 		}
@@ -296,7 +326,7 @@ namespace EOLib
 			byte[] rawname = file.GetBytes(24);
 			Name = _decodeMapString(rawname);
 
-			IsPK = file.GetChar() == 3;
+			IsPK = (pkByte = file.GetChar()) == 3;
 			Effect = (MapEffect)file.GetChar();
 			Music = file.GetChar();
 			MusicExtra = file.GetChar();
@@ -304,8 +334,8 @@ namespace EOLib
 			Width = file.GetChar();
 			Height = file.GetChar();
 			FillTile = file.GetShort();
-			MapAvailable = file.GetChar() == 1;
-			CanScroll = file.GetChar() == 1;
+			MapAvailable = (availByte = file.GetChar()) == 1;
+			CanScroll = (scrollByte = file.GetChar()) == 1;
 			RelogX = file.GetChar();
 			RelogY = file.GetChar();
 			Unknown2 = file.GetChar();
@@ -461,6 +491,130 @@ namespace EOLib
 
 				Signs.Add(sign);
 			}
+		}
+
+		public void Save(string fileName)
+		{
+			Packet file = new Packet(PacketFamily.Internal, PacketAction.Server) {ReadPos = 0, WritePos = 0};
+
+			//map header
+			file.AddString("EMF");
+			file.AddBytes(Rid);
+
+			byte[] tmpName = _encodeMapString(Name);
+			byte[] rawName = new byte[24];
+			for (int i = rawName.Length - 1; i >= 0; --i) rawName[i] = 0xFF;
+			Array.Copy(tmpName, 0, rawName, rawName.Length - tmpName.Length, tmpName.Length);
+			file.AddBytes(rawName);
+
+			file.AddChar(pkByte);
+			file.AddChar((byte)Effect);
+			file.AddChar(Music);
+			file.AddChar(MusicExtra);
+			file.AddShort(AmbientNoise);
+			file.AddChar(Width);
+			file.AddChar(Height);
+			file.AddShort(FillTile);
+			file.AddChar(availByte);
+			file.AddChar(scrollByte);
+			file.AddChar(RelogX);
+			file.AddChar(RelogY);
+			file.AddChar(Unknown2);
+
+			//NPC Spawns
+			file.AddChar((byte)NPCSpawns.Count);
+			foreach (NPCSpawn spawn in NPCSpawns)
+			{
+				file.AddChar(spawn.x);
+				file.AddChar(spawn.y);
+				file.AddShort(spawn.id);
+				file.AddChar(spawn.spawnType);
+				file.AddShort(spawn.spawnTime);
+				file.AddChar(spawn.amount);
+			}
+
+			//unknowns
+			file.AddChar((byte)Unknowns.Count);
+			foreach(byte[] b in Unknowns)
+				file.AddBytes(b);
+
+			//chests
+			file.AddChar((byte)Chests.Count);
+			foreach (MapChest chest in Chests)
+			{
+				file.AddChar(chest.x);
+				file.AddChar(chest.y);
+				file.AddShort(chest.key);
+				file.AddChar(chest.slot);
+				file.AddShort(chest.item);
+				file.AddShort(chest.time);
+				file.AddThree(chest.amount);
+			}
+
+			//tile specs
+			file.AddChar((byte)TileRows.Count);
+			foreach (TileRow tr in TileRows)
+			{
+				file.AddChar(tr.y);
+				file.AddChar((byte)tr.tiles.Count);
+				foreach (Tile tt in tr.tiles)
+				{
+					file.AddChar(tt.x);
+					file.AddChar((byte)tt.spec);
+				}
+			}
+
+			//warps
+			file.AddChar((byte)WarpRows.Count);
+			foreach (WarpRow wr in WarpRows)
+			{
+				file.AddChar(wr.y);
+				file.AddChar((byte)wr.tiles.Count);
+				foreach (Warp ww in wr.tiles)
+				{
+					file.AddChar(ww.x);
+					file.AddShort(ww.warpMap);
+					file.AddChar(ww.warpX);
+					file.AddChar(ww.warpY);
+					file.AddChar(ww.levelRequirement);
+					file.AddShort(ww.door);
+				}
+			}
+
+			//gfx
+			for (int layer = 0; layer < (int) MapLayers.NUM_LAYERS; ++layer)
+			{
+				file.AddChar((byte)GfxRows[layer].Count);
+				foreach (GFXRow row in GfxRows[layer])
+				{
+					file.AddChar(row.y);
+					file.AddChar((byte)row.tiles.Count);
+					foreach (GFX gfx in row.tiles)
+					{
+						file.AddChar(gfx.x);
+						file.AddShort((short)gfx.tile);
+					}
+				}
+			}
+
+			//signs
+			file.AddChar((byte)Signs.Count);
+			foreach (MapSign sign in Signs)
+			{
+				file.AddChar(sign.x);
+				file.AddChar(sign.y);
+				file.AddShort((short)(sign.message.Length + sign.title.Length + 1));
+				
+				byte[] fileMsg = new byte[sign.message.Length + sign.title.Length];
+				byte[] rawTitle = _encodeMapString(sign.title);
+				byte[] rawMessage = _encodeMapString(sign.message);
+				Array.Copy(rawTitle, fileMsg, fileMsg.Length);
+				Array.Copy(rawMessage, 0, fileMsg, rawTitle.Length, rawMessage.Length);
+				file.AddBytes(fileMsg);
+				file.AddChar((byte)rawTitle.Length);
+			}
+
+			File.WriteAllBytes(fileName, file.Data);
 		}
 	}
 }
