@@ -779,7 +779,7 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(250, 194), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel))
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(250, 195), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel))
 			{
 				Visible = true
 			};
@@ -864,7 +864,7 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(250, 194), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel))
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(250, 195), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel))
 			{
 				Visible = true
 			};

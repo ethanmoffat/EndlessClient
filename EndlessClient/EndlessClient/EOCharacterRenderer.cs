@@ -290,6 +290,14 @@ namespace EndlessClient
 					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
 					characterSkin.Width, characterSkin.Height);
 
+			//update when the control is being dragged (when not in-game)
+			if (EOGame.Instance.State != GameStates.PlayingTheGame &&
+			    PreviousMouseState.LeftButton == ButtonState.Pressed &&
+			    Mouse.GetState().LeftButton == ButtonState.Pressed)
+			{
+				Data.SetUpdate(true);
+			}
+
 			#region refresh all the textures from the GFX files or image cache
 			if (Data.update)
 			{

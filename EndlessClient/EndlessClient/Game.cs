@@ -292,7 +292,7 @@ namespace EndlessClient
 
 					if(Handlers.Welcome.FirstTimePlayer)
 					{
-						EODialog.Show(DATCONST1.WARNING_FIRST_TIME_PLAYERS, XNADialogButtons.Ok, EODialogStyle.LargeDialogSmallHeader);
+						EODialog.Show(DATCONST1.WARNING_FIRST_TIME_PLAYERS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					}
 
 					break;
