@@ -130,6 +130,10 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Door.DoorOpenResponse, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Effect, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Effect.EffectPlayer, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Emote, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.Emote.EmotePlayer, true)
 				},

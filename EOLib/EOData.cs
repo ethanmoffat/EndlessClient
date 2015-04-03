@@ -959,7 +959,7 @@ namespace EOLib.Data
 
 		public Dictionary<int, string> Data { get; private set; } 
 
-		public EDFFile(string fileName)
+		public EDFFile(string fileName, DataFiles whichFile)
 		{
 			if(!File.Exists(fileName))
 				throw new FileNotFoundException("File does not exist!", fileName);
@@ -971,14 +971,33 @@ namespace EOLib.Data
 			ID = int.Parse(fileName.Substring(lastSlash < 0 ? 0 : lastSlash + 4, 3));
 			Data = new Dictionary<int, string>();
 
-			string[] lines = File.ReadAllLines(fileName);
-			int i = 0;
-			foreach(string encoded in lines)
-				Data.Add(i++, _decodeDatString(encoded));
+			if (whichFile == DataFiles.CurseFilter)
+			{
+				string[] lines = File.ReadAllLines(fileName);
+				int i = 0;
+				foreach (string encoded in lines)
+				{
+					string decoded = _decodeDatString(encoded, whichFile);
+					string[] curses = decoded.Split(new[] {':'});
+					foreach(string curse in curses)
+						Data.Add(i++, curse);
+				}
+			}
+			else
+			{
+				string[] lines = File.ReadAllLines(fileName);
+				int i = 0;
+				foreach (string encoded in lines)
+					Data.Add(i++, _decodeDatString(encoded, whichFile));
+			}
 		}
 
-		private string _decodeDatString(string input)
+		private string _decodeDatString(string input, DataFiles whichFile)
 		{
+			//unencrypted
+			if (whichFile == DataFiles.Credits || whichFile == DataFiles.Checksum)
+				return input;
+
 			string ret = "";
 
 			for (int i = 0; i < input.Length; i += 2)
@@ -990,6 +1009,8 @@ namespace EOLib.Data
 			for (int i = startIndex; i >= 0; i -= 2)
 				ret += input[i];
 
+			if (whichFile == DataFiles.CurseFilter)
+				return ret;
 
 			StringBuilder sb = new StringBuilder(ret);
 			//additional unscrambling (testing/WIP!)

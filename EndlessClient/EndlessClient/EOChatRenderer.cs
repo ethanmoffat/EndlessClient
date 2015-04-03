@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using EOLib;
 using XNAControls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -636,6 +637,32 @@ namespace EndlessClient
 					throw new ArgumentOutOfRangeException("whichIcon", "Invalid Icon type specified.");
 			}
 			return iconType;
+		}
+
+		public static string Filter(string text, bool isMainPlayer)
+		{
+			if (World.Instance.StrictFilterEnabled || World.Instance.CurseFilterEnabled)
+			{
+				foreach (string curse in World.Instance.DataFiles[DataFiles.CurseFilter].Data.Values)
+				{
+					if (text.Contains(curse))
+					{
+						if (World.Instance.StrictFilterEnabled && isMainPlayer)
+						{
+							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.YOUR_MIND_PREVENTS_YOU_TO_SAY);
+						}
+						else if (World.Instance.StrictFilterEnabled)
+						{
+							return null;
+						}
+						else if (World.Instance.CurseFilterEnabled)
+						{
+							text = text.Replace(curse, "****");
+						}
+					}
+				}
+			}
+			return text;
 		}
 	}
 }

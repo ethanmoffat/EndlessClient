@@ -107,8 +107,12 @@ namespace EndlessClient
 
 			for (DataFiles file = (DataFiles) 1; file <= (DataFiles) 12; ++file)
 			{
-				DataFiles.Add(file, new EDFFile(files[(int) file - 1]));
+				DataFiles.Add(file, new EDFFile(files[(int) file - 1], file));
 			}
+
+			bool filter, strict;
+			CurseFilterEnabled = Configuration.GetValue(ConfigStrings.Chat, ConfigStrings.Filter, out filter) && filter;
+			StrictFilterEnabled = Configuration.GetValue(ConfigStrings.Chat, ConfigStrings.FilterAll, out strict) && strict;
 		}
 
 		public int[] exp_table;
@@ -166,6 +170,9 @@ namespace EndlessClient
 		public EOLanguage Language { get; private set; }
 		public DataFiles Localized1 { get; private set; }
 		public DataFiles Localized2 { get; private set; }
+
+		public bool CurseFilterEnabled { get; private set; }
+		public bool StrictFilterEnabled { get; private set; }
 
 		/// <summary>
 		/// Returns a MapFile for the map the MainPlayer is on

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using EndlessClient.Handlers;
+using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -28,21 +29,6 @@ namespace EndlessClient
 	public class HUD : DrawableGameComponent
 	{
 		private static readonly object clockLock = new object();
-
-		private static readonly string[] ButtonStatusStrings = 
-		{
-			"[ Button ] See the inventory",
-			"[ Button ] Look at the map",
-			"[ Button ] Active Skills",
-			"[ Button ] Passive Skills",
-			"[ Button ] Talk with other people",
-			"[ Button ] Character status",
-			"[ Button ] Who is online ?",
-			"[ Button ] Group with other people",
-			"[ Button ] Keyboard macro and hotkeys",
-			"[ Button ] Game settings and options",
-			"[ Button ] Game help"
-		};
 
 		private const int NUM_BTN = 11;
 		private readonly Texture2D mainFrame, topLeft, sidebar, topBar, filler;
@@ -235,8 +221,12 @@ namespace EndlessClient
 
 			chatRenderer = new EOChatRenderer();
 			chatRenderer.SetParent(pnlChat);
-			chatRenderer.AddTextToTab(ChatTabs.Global, "Server", "Begin your line with a '~' to send a message to everyone online!", ChatType.Note, ChatColor.Server);
-			chatRenderer.AddTextToTab(ChatTabs.Global, "Server", "Do not curse, harass or flood on the global channel, this is not allowed.", ChatType.Note, ChatColor.Server);
+			chatRenderer.AddTextToTab(ChatTabs.Global, "Server",
+				World.Instance.DataFiles[World.Instance.Localized2].Data[(int) DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_1],
+				ChatType.Note, ChatColor.Server);
+			chatRenderer.AddTextToTab(ChatTabs.Global, "Server",
+				World.Instance.DataFiles[World.Instance.Localized2].Data[(int)DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_2],
+				ChatType.Note, ChatColor.Server);
 
 			newsTab = new ChatTab(pnlNews);
 
@@ -297,8 +287,8 @@ namespace EndlessClient
 			
 			((EOGame)g).Dispatcher.Subscriber = chatTextBox;
 
-			statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), "Microsoft Sans Serif", 7.0f);
-			clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), "Microsoft Sans Serif", 7.0f);
+			statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), "Microsoft Sans Serif", 7f);
+			clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), "Microsoft Sans Serif", 7f);
 
 			StatusBars[0] = new HudElementHP();
 			StatusBars[1] = new HudElementTP();
@@ -316,7 +306,7 @@ namespace EndlessClient
 				Enabled = true
 			};
 			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(false);
-			m_friendList.OnMouseOver += (o, e) => SetStatusLabel("[Button] Friend List");
+			m_friendList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_FRIEND_LIST);
 
 			m_ignoreList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
 				new Vector2(609, 312),
@@ -327,7 +317,7 @@ namespace EndlessClient
 				Enabled = true
 			};
 			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(true);
-			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel("[Button] Ignore List");
+			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_IGNORE_LIST);
 
 			m_expInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
 				new Vector2(55, 0),
@@ -377,12 +367,12 @@ namespace EndlessClient
 
 			for (int i = 0; i < mainBtn.Length; ++i)
 			{
-				string status = ButtonStatusStrings[i];
+				int offset = i; //prevent access to modified closure warning
 				mainBtn[i].OnMouseOver += (o, e) =>
 				{
 					if (!m_statusRecentlySet)
 					{
-						SetStatusLabel(status);
+						SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + offset);
 						m_statusRecentlySet = false;
 					}
 				};
@@ -458,17 +448,17 @@ namespace EndlessClient
 					break;
 				case InGameStates.Chat:
 					pnlChat.Visible = true;
-					SetStatusLabel("[ Action ] Chat panel is now viewed");
+					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_CHAT_PANEL_NOW_VIEWED);
 					break;
 				case InGameStates.Stats:
 					stats.Refresh();
 					pnlStats.Visible = true;
-					SetStatusLabel("[ Action ] Status panel is now viewed");
+					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_STATS_PANEL_NOW_VIEWED);
 					break;
 				case InGameStates.Online:
 					Init.RequestOnlineList(false);
 					pnlOnline.Visible = true;
-					SetStatusLabel("[ Action ] Online playerlist panel is now viewed");
+					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_ONLINE_PLAYERS_NOW_VIEWED);
 					break;
 				case InGameStates.Party:
 					pnlParty.Visible = true;
@@ -478,7 +468,7 @@ namespace EndlessClient
 					break;
 				case InGameStates.Help:
 					pnlHelp.Visible = true;
-					SetStatusLabel("[ Action ] Game help");
+					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_LAST);
 					break;
 			}
 		}
@@ -491,7 +481,7 @@ namespace EndlessClient
 			if (chatTextBox.Text.Length <= 0)
 				return;
 
-			string chatText = chatTextBox.Text;
+			string chatText = chatTextBox.Text, filtered;
 			chatTextBox.Text = "";
 			switch (chatText[0])
 			{
@@ -500,32 +490,45 @@ namespace EndlessClient
 						goto default;
 					break;
 				case '\'': //group talk
-					if (!Talk.Speak(TalkType.Party, chatText.Substring(1)))
+					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
+					if (filtered != null)
 					{
-						_returnToLogin();
-						break;
+						if (!Talk.Speak(TalkType.Party, chatText.Substring(1)))
+						{
+							_returnToLogin();
+							break;
+						}
+						//note: more processing of colors/icons is needed here
+						AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, filtered);
 					}
-					//note: more processing of colors/icons is needed here
-					AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, chatText.Substring(1));
 					break;
 				case '&':  //guild talk
 					if (World.Instance.MainPlayer.ActiveCharacter.GuildName == "")
 						goto default;
-					if (!Talk.Speak(TalkType.Guild, chatText.Substring(1)))
+					
+					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
+					if (filtered != null)
 					{
-						_returnToLogin();
-						break;
+						if (!Talk.Speak(TalkType.Guild, chatText.Substring(1)))
+						{
+							_returnToLogin();
+							break;
+						}
+						//note: more processing of colors/icons is needed here
+						AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, filtered);
 					}
-					//note: more processing of colors/icons is needed here
-					AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, chatText.Substring(1));
 					break;
 				case '~':  //global talk
-					if (!Talk.Speak(TalkType.Global, chatText.Substring(1)))
+					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
+					if (filtered != null)
 					{
-						_returnToLogin();
-						break;
+						if (!Talk.Speak(TalkType.Global, chatText.Substring(1)))
+						{
+							_returnToLogin();
+							break;
+						}
+						AddChat(ChatTabs.Global, World.Instance.MainPlayer.ActiveCharacter.Name, filtered);
 					}
-					AddChat(ChatTabs.Global, World.Instance.MainPlayer.ActiveCharacter.Name, chatText.Substring(1));
 					break;
 				case '!':  //private talk
 				{
@@ -545,17 +548,23 @@ namespace EndlessClient
 
 					character = character.Substring(0, 1).ToUpper() + character.Substring(1).ToLower();
 
-					if (!Talk.Speak(TalkType.PM, message, character))
+					filtered = EOChatRenderer.Filter(message.Substring(1), true);
+					if (filtered != null)
 					{
-						_returnToLogin();
-						break;
-					}
+						if (!Talk.Speak(TalkType.PM, message, character))
+						{
+							_returnToLogin();
+							break;
+						}
 
-					ChatTabs whichPrivateChat = chatRenderer.StartConversation(character);
-					//the other player will have their messages rendered in Color.PM on scr
-					//this player will have their messages rendered in Color.PM on the PM tab
-					if(whichPrivateChat != ChatTabs.None)
-						AddChat(whichPrivateChat, World.Instance.MainPlayer.ActiveCharacter.Name, message, ChatType.Note, ChatColor.PM);
+						ChatTabs whichPrivateChat = chatRenderer.StartConversation(character);
+						//the other player will have their messages rendered in Color.PM on scr
+						//this player will have their messages rendered in Color.PM on the PM tab
+						if (whichPrivateChat != ChatTabs.None)
+						{
+							AddChat(whichPrivateChat, World.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.Note, ChatColor.PM);
+						}
+					}
 				}
 					break;
 				case '#':  //local command
@@ -573,7 +582,8 @@ namespace EndlessClient
 					}
 					else if (args.Length == 1 && args[0] == "loc")
 					{
-						AddChat(ChatTabs.Local, "System", string.Format("Your current location is at Map {0}  x:{1}  y:{2}",
+						string firstPart = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) DATCONST2.STATUS_LABEL_YOUR_LOCATION_IS_AT];
+						AddChat(ChatTabs.Local, "System", string.Format(firstPart + " {0}  x:{1}  y:{2}",
 							World.Instance.ActiveMapRenderer.MapRef.MapID,
 							World.Instance.MainPlayer.ActiveCharacter.X,
 							World.Instance.MainPlayer.ActiveCharacter.Y),
@@ -592,15 +602,20 @@ namespace EndlessClient
 					break;
 				default:
 				{
-					//send packet to the server
-					if (!Talk.Speak(TalkType.Local, chatText))
+					filtered = EOChatRenderer.Filter(chatText, true);
+					if (filtered != null)
 					{
-						_returnToLogin();
-						break;
+						//send packet to the server
+						if (!Talk.Speak(TalkType.Local, chatText))
+						{
+							_returnToLogin();
+							break;
+						}
+
+						//do the rendering
+						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, chatText);
+						AddChat(ChatTabs.Local, World.Instance.MainPlayer.ActiveCharacter.Name, filtered);
 					}
-					//do the rendering
-					World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, chatText);
-					AddChat(ChatTabs.Local, World.Instance.MainPlayer.ActiveCharacter.Name, chatText);
 				}
 					break;
 			}
@@ -644,9 +659,11 @@ namespace EndlessClient
 
 		public void PrivatePlayerNotFound(string character)
 		{
-			//add message to Sys and close the chat that was opened for 'character' (no good way to synchronize this because of how the packets are)
+			string endPart = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) DATCONST2.SYS_CHAT_PM_PLAYER_COULD_NOT_BE_FOUND];
+			//add message to Sys and close the chat that was opened for 'character'
+			//this is how original client does it - you can see the PM tab open/close really quickly
 			chatRenderer.ClosePrivateChat(character);
-			AddChat(ChatTabs.System, "", string.Format("{0} could not be found", character), ChatType.Error, ChatColor.Error);
+			AddChat(ChatTabs.System, "", string.Format("{0} " + endPart, character), ChatType.Error, ChatColor.Error);
 		}
 
 		public ChatTabs GetPrivateChatTab(string character)
@@ -664,6 +681,29 @@ namespace EndlessClient
 			statusLabel.Text = text;
 			statusStartTime = !string.IsNullOrEmpty(text) ? new DateTime?(DateTime.Now) : null;
 			m_statusRecentlySet = true;
+		}
+
+		public void SetStatusLabel(DATCONST2 message)
+		{
+			SetStatusLabel(World.Instance.DataFiles[World.Instance.Localized2].Data[(int) message]);
+		}
+
+		public void SetStatusLabel(DATCONST2 type, DATCONST2 message)
+		{
+			switch (type)
+			{
+				case DATCONST2.STATUS_LABEL_TYPE_ACTION:
+				case DATCONST2.STATUS_LABEL_TYPE_BUTTON:
+				case DATCONST2.STATUS_LABEL_TYPE_INFORMATION:
+				case DATCONST2.STATUS_LABEL_TYPE_WARNING:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("type", "Use either ACTION, BUTTION, INFORMATION, or WARNING for this.");
+			}
+
+			string typeText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) type];
+			string messageText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) message];
+			SetStatusLabel(string.Format("[ {0} ] {1}", typeText, messageText));
 		}
 
 		public bool UpdateInventory(InventoryItem item)

@@ -406,9 +406,14 @@ namespace EndlessClient
 
 			if (EOGame.Instance.Hud == null)
 				return;
-			EOGame.Instance.Hud.AddChat(tab, playerName, message, chatType);
 
-			MakeSpeechBubble(dgc, message);
+			message = EOChatRenderer.Filter(message, false);
+
+			if (message != null)
+			{
+				EOGame.Instance.Hud.AddChat(tab, playerName, message, chatType);
+				MakeSpeechBubble(dgc, message);
+			}
 		}
 
 		public void MakeSpeechBubble(DrawableGameComponent follow, string message)
@@ -587,10 +592,11 @@ namespace EndlessClient
 		public void AddOtherPlayer(Character c, WarpAnimation anim = WarpAnimation.None)
 		{
 			Character other;
+			EOCharacterRenderer otherRend = null;
 			if ((other = otherPlayers.Find(x => x.Name == c.Name && x.ID == c.ID)) == null)
 			{
 				otherPlayers.Add(c);
-				otherRenderers.Add(new EOCharacterRenderer(c));
+				otherRenderers.Add(otherRend = new EOCharacterRenderer(c));
 				otherRenderers[otherRenderers.Count - 1].Visible = true;
 				otherRenderers[otherRenderers.Count - 1].Initialize();
 			}
@@ -599,7 +605,10 @@ namespace EndlessClient
 				other.ApplyData(c);
 			}
 
-			//TODO: Add whatever magic is necessary to make the player appear all pretty (with animation)
+			if (anim == WarpAnimation.Admin && otherRend != null)
+			{
+				//otherRend.ShowEffect(12);
+			}
 		}
 
 		public void RemoveOtherPlayer(short id, WarpAnimation anim = WarpAnimation.None)
@@ -695,6 +704,15 @@ namespace EndlessClient
 				}
 				rend.SetDamageCounterValue(healAmount, pctHealth, true);
 			}
+		}
+
+		public void OtherPlayerEffect(short ID, int effect)
+		{
+			EOCharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
+
+			if (rend == null) return;
+
+			//rend.ShowEffect(effect);
 		}
 
 		public void UpdateOtherPlayers()

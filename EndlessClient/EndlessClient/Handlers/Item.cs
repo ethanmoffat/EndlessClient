@@ -201,6 +201,14 @@ namespace EndlessClient.Handlers
 					World.Instance.ActiveCharacterRenderer.MakeDrunk();
 					EOGame.Instance.Hud.SetStatusLabel("[ Warning ] You feel drunk");
 					break;
+				case ItemType.EffectPotion:
+				{
+					short effect = pkt.GetShort();
+					//World.Instance.ActiveCharacterRenderer.ShowEffect(effect);
+					//todo: it appears effects are hard-coded into the original client. this is gross. 
+					//	I'm thinking about re-compiling the resources from gfx024 into a new file with better numbers.
+				}
+					break;
 			}
 		}
 	}

@@ -792,4 +792,36 @@ namespace EndlessClient
 			return GFXLoader.TextureFromResource(GFXTypes.NPC, baseGfx + offset, true);
 		}
 	}
+
+	public static class EffectSprite
+	{
+		//mapping of potion effect numbers to actual GFX values in the file.
+		public static int ConvertItemEffectToGFX(int itemEffectNum, out bool multiGfx)
+		{
+			multiGfx = false;
+			switch (itemEffectNum)
+			{
+				case 0: multiGfx = true; return 1;
+				case 1: return 6;
+				case 4: return 15;
+				case 5: multiGfx = true; return 17;
+				case 6: return 19;
+				case 7: return 22;
+			}
+
+			return 0;
+		}
+
+		//mapping of warp animations to actual GFX values in the file.
+		public static int ConvertWarpAnimToGFX(WarpAnimation anim, out bool multiGfx)
+		{
+			multiGfx = false;
+
+			if (anim == WarpAnimation.Admin)
+				return 9; //12 is also the same
+			//todo: other warp animations?
+
+			return 0;
+		}
+	}
 }

@@ -140,6 +140,7 @@
     <Compile Include="Handlers\Connection.cs" />
     <Compile Include="Handlers\Character.cs" />
     <Compile Include="Handlers\Door.cs" />
+    <Compile Include="Handlers\Effect.cs" />
     <Compile Include="Handlers\Emote.cs" />
     <Compile Include="Handlers\Face.cs" />
     <Compile Include="Handlers\Init.cs" />

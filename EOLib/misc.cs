@@ -103,5 +103,9 @@ namespace EOLib
 
 		public const string LANGUAGE = "LANGUAGE";
 		public const string Language = "Language";
+
+		public const string Chat = "CHAT";
+		public const string Filter = "Filter";
+		public const string FilterAll = "FilterAll";
 	}
 }

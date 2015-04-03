@@ -294,6 +294,7 @@ namespace EndlessClient
 					{
 						EODialog.Show(DATCONST1.WARNING_FIRST_TIME_PLAYERS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					}
+					Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.LOADING_GAME_HINT_FIRST);
 
 					break;
 			}

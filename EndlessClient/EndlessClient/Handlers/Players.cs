@@ -56,9 +56,11 @@ namespace EndlessClient.Handlers
 			string charName = pkt.GetEndString();
 			if (charName.Length == 0) return;
 
+			string lastPart = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) DATCONST2.STATUS_LABEL_IS_ONLINE_NOT_FOUND];
+
 			EOGame.Instance.Hud.AddChat(ChatTabs.Local,
 				"System", 
-				string.Format("{0} was nowhere to be found.", char.ToUpper(charName[0]) + charName.Substring(1)), 
+				string.Format("{0} " + lastPart, char.ToUpper(charName[0]) + charName.Substring(1)), 
 				ChatType.LookingDude);
 		}
 
@@ -70,9 +72,11 @@ namespace EndlessClient.Handlers
 			string charName = pkt.GetEndString();
 			if (charName.Length == 0) return;
 
+			string lastPart = World.Instance.DataFiles[World.Instance.Localized2].Data[(int)DATCONST2.STATUS_LABEL_IS_ONLINE_SAME_MAP];
+
 			EOGame.Instance.Hud.AddChat(ChatTabs.Local,
 				"System",
-				string.Format("{0} is online and on the same map.", char.ToUpper(charName[0]) + charName.Substring(1)),
+				string.Format("{0} " + lastPart, char.ToUpper(charName[0]) + charName.Substring(1)),
 				ChatType.LookingDude);
 		}
 
@@ -84,9 +88,11 @@ namespace EndlessClient.Handlers
 			string charName = pkt.GetEndString();
 			if (charName.Length == 0) return;
 
+			string lastPart = World.Instance.DataFiles[World.Instance.Localized2].Data[(int)DATCONST2.STATUS_LABEL_IS_ONLINE_IN_THIS_WORLD];
+
 			EOGame.Instance.Hud.AddChat(ChatTabs.Local,
 				"System",
-				string.Format("{0} is online somewhere in this world.", char.ToUpper(charName[0]) + charName.Substring(1)),
+				string.Format("{0} " + lastPart, char.ToUpper(charName[0]) + charName.Substring(1)),
 				ChatType.LookingDude);
 		}
 

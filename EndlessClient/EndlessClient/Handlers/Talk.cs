@@ -93,12 +93,15 @@ namespace EndlessClient.Handlers
 		{
 			string from = pkt.GetBreakString();
 			from = from.Substring(0, 1).ToUpper() + from.Substring(1).ToLower();
-			string message = pkt.GetBreakString();
+			string message = EOChatRenderer.Filter(pkt.GetBreakString(), false);
 
-			EOGame.Instance.Hud.AddChat(ChatTabs.Local, from, message, ChatType.Note, ChatColor.PM);
-			ChatTabs tab = EOGame.Instance.Hud.GetPrivateChatTab(from);
-			if(tab != ChatTabs.None)
-				EOGame.Instance.Hud.AddChat(tab, from, message, ChatType.Note);
+			if (message != null)
+			{
+				EOGame.Instance.Hud.AddChat(ChatTabs.Local, from, message, ChatType.Note, ChatColor.PM);
+				ChatTabs tab = EOGame.Instance.Hud.GetPrivateChatTab(from);
+				if (tab != ChatTabs.None)
+					EOGame.Instance.Hud.AddChat(tab, from, message, ChatType.Note);
+			}
 		}
 
 		/// <summary>
@@ -108,9 +111,10 @@ namespace EndlessClient.Handlers
 		{
 			string from = pkt.GetBreakString();
 			from = from.Substring(0, 1).ToUpper() + from.Substring(1).ToLower();
-			string message = pkt.GetBreakString();
+			string message = EOChatRenderer.Filter(pkt.GetBreakString(), false);
 
-			EOGame.Instance.Hud.AddChat(ChatTabs.Global, from, message, ChatType.GlobalAnnounce);
+			if(message != null)
+				EOGame.Instance.Hud.AddChat(ChatTabs.Global, from, message, ChatType.GlobalAnnounce);
 		}
 
 		/// <summary>
@@ -120,9 +124,10 @@ namespace EndlessClient.Handlers
 		{
 			string from = pkt.GetBreakString();
 			from = from.Substring(0, 1).ToUpper() + from.Substring(1).ToLower();
-			string message = pkt.GetBreakString();
+			string message = EOChatRenderer.Filter(pkt.GetBreakString(), false);
 
-			EOGame.Instance.Hud.AddChat(ChatTabs.Group, from, message); //TODO: check that the icons/color don't need to be changed
+			if(message != null)
+				EOGame.Instance.Hud.AddChat(ChatTabs.Group, from, message); //TODO: check that the icons/color don't need to be changed
 		}
 
 		/// <summary>
@@ -131,9 +136,10 @@ namespace EndlessClient.Handlers
 		public static void TalkOpen(Packet pkt)
 		{
 			short from = pkt.GetShort();
-			string message = pkt.GetBreakString();
+			string message = EOChatRenderer.Filter(pkt.GetBreakString(), false);
 
-			World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.Party, from, message); //TODO: check that the icons/color don't need to be changed
+			if(message != null)
+				World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.Party, from, message); //TODO: check that the icons/color don't need to be changed
 		}
 
 		public static void TalkServer(Packet pkt)
