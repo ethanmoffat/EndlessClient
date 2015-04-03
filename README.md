@@ -44,7 +44,8 @@ Note that the game client requires some additional files to be copied to the *bi
 
 1. Download the Endless Online client from [www.endless-online.com](http://files.endless-online.com/EOzipped028.zip)
 2. Copy the files from the GFX folder in the linked zip archive above to a folder named GFX in the output bin directory. These files are required to run the game.
-3. Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory.
+3. Copy the files from the data folder in the linked zip archive above to a folder named data in the output bin directory. These files are required to run the game (as of 4/2/15).
+4. Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory.
 
 <a name="SoFar" />What is there so far?
 ---------------------
@@ -61,7 +62,7 @@ Here's a list of some things that can be done:
  - Talking - global, local, player commands (#usage #find #loc)
  - Attacking NPCs - complete, except Character clothes and weapons don't render properly
  - Animated map tiles
- - Item inventory and paperdoll display, equipping/unequipping items
+ - Item inventory and paperdoll display, equipping/unequipping items, some item usage (limited at this time)
  - Stats display and leveling up stats (str/int/wis/agi/con/cha)
  - Stat bars for main player in HUD (hp/tp/sp/tnl)
  - Map chest interaction
@@ -72,6 +73,7 @@ Here's a list of some things that can be done:
  - Map signs
  - Bank vault (aka Private Locker)
  - All pre-game menus, logging in, creating/deleting characters, creating account, etc.
+ - Data file (EDF) loading
 
 <a name="ToDo" />What's Left to do?
 ------------------
@@ -138,6 +140,9 @@ EnableLogging=true #enable/disable logging (Warning: this causes a performance h
 #seconds after a drop that drop protection will stop (custom)
 NPCDropProtectTime=30
 PlayerDropProtectTime=5
+[LANGUAGE]
+#0=english 1=dutch 2=swedish 3=portuguese (defaults to english)
+Language=0
 ```
 
 <a name="Changes" />Changes From Original Client (so far)
