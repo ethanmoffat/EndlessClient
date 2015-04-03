@@ -55,28 +55,22 @@ namespace EndlessClient.Handlers
 			response.Set();
 		}
 
-		public static string ResponseMessage(out string caption)
+		public static DATCONST1 ResponseMessage()
 		{
-			string message;
-			caption = "Login refused";
+			DATCONST1 message = DATCONST1.NICE_TRY_HAXOR;
 			switch(ServerResponse)
 			{
 				case LoginReply.LoggedIn:
-					message = "This account is already logged on. Please try again in a few minutes.";
+					message = DATCONST1.LOGIN_ACCOUNT_ALREADY_LOGGED_ON;
 					break;
 				case LoginReply.Busy:
-					message = "The server is currently full. Please try again in a few minutes.";
+					message = DATCONST1.CONNECTION_SERVER_IS_FULL;
 					break;
 				case LoginReply.WrongUser:
-					message = "The account name you provided does not exist in our database.";
+					message = DATCONST1.LOGIN_ACCOUNT_NAME_NOT_FOUND;
 					break;
 				case LoginReply.WrongUserPass:
-					message = "The account or passsword you provided could not be found in our database.";
-					break;
-				//case LoginReply.Ok:
-				default:
-					caption = "";
-					message = "";
+					message = DATCONST1.LOGIN_ACCOUNT_NAME_OR_PASSWORD_NOT_FOUND;
 					break;
 			}
 

@@ -112,34 +112,25 @@ namespace EndlessClient.Handlers
 		}
 
 		//translates between a response from the server and what should be shown in a dialog box.
-		public static string ResponseMessage(out string caption)
+		public static DATCONST1 ResponseMessage()
 		{
-			string ret;
+			DATCONST1 ret = DATCONST1.NICE_TRY_HAXOR;
 			switch (ServerResponse)
 			{
 				case AccountReply.Exists:
-					ret = "The account name you provided already exist in our database, use another.";
-					caption = "Already exist";
+					ret = DATCONST1.ACCOUNT_CREATE_NAME_EXISTS;
 					break;
 				case AccountReply.NotApproved:
-					ret = "The account name you provided is not approved, use another.";
-					caption = "Not approved";
+					ret = DATCONST1.ACCOUNT_CREATE_NAME_NOT_APPROVED;
 					break;
 				case AccountReply.Created:
-					ret = "Use your new account name and password to login to the game.";
-					caption = "Welcome";
+					ret = DATCONST1.ACCOUNT_CREATE_SUCCESS_WELCOME;
 					break;
 				case AccountReply.ChangeFailed:
-					ret = "The account name or old password you provided do not match with our database.";
-					caption = "Request denied";
+					ret = DATCONST1.CHANGE_PASSWORD_MISMATCH;
 					break;
 				case AccountReply.ChangeSuccess:
-					ret = "Your password has changed, please use your new password next time you login.";
-					caption = "Password changed";
-					break;
-				//no message associated with continue (i think?)
-				default:
-					ret = caption = "";
+					ret = DATCONST1.CHANGE_PASSWORD_SUCCESS;
 					break;
 			}
 			return ret;

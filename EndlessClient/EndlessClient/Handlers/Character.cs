@@ -164,29 +164,22 @@ namespace EndlessClient.Handlers
 			response.Set();
 		}
 
-		public static string ResponseMessage(out string caption)
+		public static DATCONST1 ResponseMessage()
 		{
-			string message;
+			DATCONST1 message = DATCONST1.NICE_TRY_HAXOR;
 			switch (ServerResponse)
 			{
 				case CharacterReply.Ok:
-					message = "Your character has been created and is ready to explore a new world";
-					caption = "Character created";
+					message = DATCONST1.CHARACTER_CREATE_SUCCESS;
 					break;
 				case CharacterReply.Full:
-					message = "You can only have 3 characters. Please delete a character and try again.";
-					caption = "Request denied";
+					message = DATCONST1.CHARACTER_CREATE_TOO_MANY_CHARS;
 					break;
 				case CharacterReply.Exists:
-					message = "The character name you provided already exists in our database, use another.";
-					caption = "Already exists";
+					message = DATCONST1.CHARACTER_CREATE_NAME_EXISTS;
 					break;
 				case CharacterReply.NotApproved:
-					message = "The character name you provided is not approved, try another name.";
-					caption = "Not approved";
-					break;
-				default:
-					message = caption = "";
+					message = DATCONST1.CHARACTER_CREATE_NAME_NOT_APPROVED;
 					break;
 			}
 			return message;

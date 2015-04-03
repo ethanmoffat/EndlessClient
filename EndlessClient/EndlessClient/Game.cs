@@ -121,8 +121,9 @@ namespace EndlessClient
 				{
 					if (!World.Instance.Client.ConnectToServer(host, port))
 					{
-						string caption, msg = Handlers.Init.ResponseMessage(out caption);
-						EODialog.Show(msg, caption);
+						string extra;
+						DATCONST1 msg = Handlers.Init.ResponseMessage(out extra);
+						EODialog.Show(msg, extra);
 						connectMutex.Set();
 						return;
 					}
@@ -132,7 +133,7 @@ namespace EndlessClient
 				{
 					if (!exiting)
 					{
-						EODialog.Show("The game server could not be found. Please try again at a later time", "Could not find server");
+						EODialog.Show(DATCONST1.CONNECTION_SERVER_NOT_FOUND);
 					}
 				}
 
@@ -142,8 +143,10 @@ namespace EndlessClient
 
 		public void LostConnectionDialog()
 		{
-			//Eventually these message strings should be loaded from the global constant class, or from dat files somehow. for now this method will do.
-			EODialog.Show("The connection to the game server was lost, please try again at a later time.", "Lost connection");
+			EODialog.Show(currentState == GameStates.PlayingTheGame
+				? DATCONST1.CONNECTION_LOST_IN_GAME
+				: DATCONST1.CONNECTION_LOST_CONNECTION);
+
 			if (World.Instance.Client.ConnectedAndInitialized)
 				World.Instance.Client.Disconnect();
 			doStateChange(GameStates.Initial);
@@ -289,7 +292,7 @@ namespace EndlessClient
 
 					if(Handlers.Welcome.FirstTimePlayer)
 					{
-						EODialog.Show("Admins will NEVER ask for your password or items.", "Safety comment (once)", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						EODialog.Show(DATCONST1.WARNING_FIRST_TIME_PLAYERS, XNADialogButtons.Ok, EODialogStyle.LargeDialogSmallHeader);
 					}
 
 					break;
@@ -525,7 +528,8 @@ namespace EndlessClient
 					btn.Dispose();
 			}
 
-			spriteBatch.Dispose();
+			if(spriteBatch != null)
+				spriteBatch.Dispose();
 			((IDisposable)graphics).Dispose();
 			
 			if(lblVersionInfo != null)

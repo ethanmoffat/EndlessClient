@@ -279,31 +279,32 @@ namespace EndlessClient.Handlers
 			response.Set();
 		}
 
-		public static string ResponseMessage(out string caption)
+		public static DATCONST1 ResponseMessage(out string extra)
 		{
-			string msg;
+			DATCONST1 msg;
 
 			switch(ServerResponse)
 			{
 				case InitReply.INIT_BANNED:
-					if(BanType == InitBanType.INIT_BAN_PERM)
+					if(BanType == InitBanType.INIT_BAN_TEMP)
 					{
-						msg = "The server dropped the connection, reason: temporary ip ban. " + BanMinsLeft + " minutes.";
+						msg = DATCONST1.CONNECTION_IP_BAN_TEMP;
+						extra = " " + BanMinsLeft + " minutes.";
 					}
 					else
 					{
-						msg = "The server dropped the connection, reason: permanent ip ban.";
+						msg = DATCONST1.CONNECTION_IP_BAN_PERM;
+						extra = "";
 					}
-					caption = "Connection is blocked";
 
 					break;
 				case InitReply.INIT_OUT_OF_DATE:
-					msg = "The client you are using is out of date. This server requires version 0.000.0" + BanMinsLeft;
-					caption = "Connection refused";
+					msg = DATCONST1.CONNECTION_CLIENT_OUT_OF_DATE;
+					extra = " 0.000.0" + BanMinsLeft;
 					break;
 				default:
-					msg = "The game server could not be found. Please try again at a later time";
-					caption = "Could not find server";
+					msg = DATCONST1.CONNECTION_SERVER_NOT_FOUND;
+					extra = "";
 					break;
 			}
 

@@ -216,10 +216,44 @@ namespace EndlessClient
 
 		public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok, EODialogStyle style = EODialogStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
 		{
-// ReSharper disable once UnusedVariable
 			EODialog dlg = new EODialog(message, caption, buttons, style);
 			if(closingEvent != null)
 				dlg.DialogClosing += closingEvent;
+		}
+
+		public static void Show(DATCONST1 resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
+			EODialogStyle style = EODialogStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
+		{
+			if(!World.Initialized)
+				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
+
+			EDFFile file = World.Instance.DataFiles[World.Instance.Localized1];
+
+			Show(file.Data[(int)resource + 1], file.Data[(int)resource], whichButtons, style, closingEvent);
+		}
+
+		public static void Show(string prependData, DATCONST1 resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
+			EODialogStyle style = EODialogStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
+		{
+			if (!World.Initialized)
+				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
+
+			EDFFile file = World.Instance.DataFiles[World.Instance.Localized1];
+
+			string message = prependData + file.Data[(int) resource + 1];
+			Show(message, file.Data[(int)resource], whichButtons, style, closingEvent);
+		}
+
+		public static void Show(DATCONST1 resource, string extraData, XNADialogButtons whichButtons = XNADialogButtons.Ok,
+			EODialogStyle style = EODialogStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
+		{
+			if (!World.Initialized)
+				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
+
+			EDFFile file = World.Instance.DataFiles[World.Instance.Localized1];
+
+			string message = file.Data[(int)resource + 1] + extraData;
+			Show(message, file.Data[(int)resource], whichButtons, style, closingEvent);
 		}
 	}
 
@@ -729,15 +763,14 @@ namespace EndlessClient
 				//check that passwords match, otherwise: return
 				if (inputBoxes[2].Text.Length != inputBoxes[3].Text.Length || inputBoxes[2].Text != inputBoxes[3].Text)
 				{
-					EODialog.Show("The two passwords you provided are not the same, please try again.", "Wrong password");
+					EODialog.Show(DATCONST1.CHANGE_PASSWORD_MISMATCH);
 					return;
 				}
 				
 				//check that password is > 6 chars, otherwise: return
 				if (inputBoxes[2].Text.Length < 6)
 				{
-					//Make sure passwords are good enough
-					EODialog.Show("For your own safety use a longer password (try 6 or more characters)", "Wrong password");
+					EODialog.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
 					return;
 				}
 
@@ -822,7 +855,7 @@ namespace EndlessClient
 			{
 				if(inputBox.Text.Length < 4)
 				{
-					EODialog.Show("The name you provided for this character is too short (try 4 or more characters)", "Wrong name");
+					EODialog.Show(DATCONST1.CHARACTER_CREATE_NAME_TOO_SHORT);
 					return;
 				}
 
@@ -908,13 +941,12 @@ namespace EndlessClient
 	public class EOConnectingDialog : EODialogBase
 	{
 		//different captions as the dialog progresses through different states
-		const string wait = "Please wait";
-		const string map = "Updating map";
-		const string item = "Updating items";
-		const string npc = "Updating npc's";
-		const string skill = "Updating skills";
-		const string classes = "Updating classes";
-		const string loading = "Loading game";
+		private readonly string map;
+		private readonly string item;
+		private readonly string npc;
+		private readonly string skill;
+		private readonly string classes;
+		private readonly string loading;
 
 		private readonly Texture2D bgSprites;
 		private int bgSrcIndex;
@@ -931,20 +963,30 @@ namespace EndlessClient
 			_setSize(bgSprites.Width / 4, bgSprites.Height);
 			bgSrcIndex = 0;
 
+			EDFFile file = World.Instance.DataFiles[World.Instance.Localized2];
+			map = file.Data[(int) DATCONST2.LOADING_GAME_UPDATING_MAP];
+			item = file.Data[(int) DATCONST2.LOADING_GAME_UPDATING_ITEMS];
+			npc = file.Data[(int) DATCONST2.LOADING_GAME_UPDATING_NPCS];
+			skill = file.Data[(int) DATCONST2.LOADING_GAME_UPDATING_SKILLS];
+			classes = file.Data[(int) DATCONST2.LOADING_GAME_UPDATING_CLASSES];
+			loading = file.Data[(int) DATCONST2.LOADING_GAME_LOADING_GAME];
+
 			caption = new XNALabel(new Rectangle(12, 9, 1, 1), "Microsoft Sans Serif", 10.0f)
 			{
-				Text = wait,
+				Text = file.Data[(int) DATCONST2.LOADING_GAME_PLEASE_WAIT],
 				ForeColor = System.Drawing.Color.FromArgb(0xf0, 0xf0, 0xc8)
 			};
 			caption.SetParent(this);
+
+			Random gen = new Random();
+			int msgTxt = gen.Next((int) DATCONST2.LOADING_GAME_HINT_FIRST, (int) DATCONST2.LOADING_GAME_HINT_LAST);
 
 			message = new XNALabel(new Rectangle(18, 61, 1, 1), "Microsoft Sans Serif", 8.0f)
 			{
 				TextWidth = 175,
 				ForeColor = System.Drawing.Color.FromArgb(0xb9, 0xb9, 0xb9),
-				Text = "Make sure noone is watching your keyboard, while entering your password"
+				Text = file.Data[msgTxt]
 			};
-			//there are a number of messages that are shown, a static one will do for now
 			message.SetParent(this);
 
 			endConstructor(false);

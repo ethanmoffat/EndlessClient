@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using EOLib;
 using EOLib.Data;
 
@@ -54,7 +53,8 @@ namespace EndlessClient
 			TryLoadClasses();
 			
 			//initial capacity of 32: most players won't travel between too many maps in a gaming session
-			MapCache = new Dictionary<int, EOLib.MapFile>(32);
+			MapCache = new Dictionary<int, MapFile>(32);
+			DataFiles = new Dictionary<DataFiles, EDFFile>(12); //12 files total
 			m_player = new Player();
 			m_client = new EOClient();
 			m_config = new IniReader(@"config\settings.ini");
@@ -72,20 +72,52 @@ namespace EndlessClient
 				exp_table[i] = (int)Math.Round(Math.Pow(i, 3) * 133.1);
 			}
 
-			int maj, min, cli;
+			int maj, min, cli, lang;
 
 			VersionMajor = Configuration.GetValue(ConfigStrings.Version, ConfigStrings.Major, out maj) ? (byte)maj : Constants.MajorVersion;
 			VersionMinor = Configuration.GetValue(ConfigStrings.Version, ConfigStrings.Minor, out min) ? (byte)min : Constants.MinorVersion;
 			VersionClient = Configuration.GetValue(ConfigStrings.Version, ConfigStrings.Client, out cli) ? (byte)cli : Constants.ClientVersion;
+			
+			Language = Configuration.GetValue(ConfigStrings.LANGUAGE, ConfigStrings.Language, out lang) ? (EOLanguage) lang : EOLanguage.English;
+			switch (Language)
+			{
+				case EOLanguage.English:
+					Localized1 = EOLib.DataFiles.EnglishStatus1;
+					Localized2 = EOLib.DataFiles.EnglishStatus2;
+					break;
+				case EOLanguage.Dutch:
+					Localized1 = EOLib.DataFiles.DutchStatus1;
+					Localized2 = EOLib.DataFiles.DutchStatus2;
+					break;
+				case EOLanguage.Swedish:
+					Localized1 = EOLib.DataFiles.SwedishStatus1;
+					Localized2 = EOLib.DataFiles.SwedishStatus2;
+					break;
+				case EOLanguage.Portuguese:
+					Localized1 = EOLib.DataFiles.PortugueseStatus1;
+					Localized2 = EOLib.DataFiles.PortugueseStatus2;
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			string[] files;
+			if(!Directory.Exists(Constants.DataFilePath) || (files = Directory.GetFiles(Constants.DataFilePath, "*.edf")).Length != 12)
+				throw new WorldLoadException("Unable to find data files! Check that the data directory exists and has ALL the edf files copied over");
+
+			for (DataFiles file = (DataFiles) 1; file <= (DataFiles) 12; ++file)
+			{
+				DataFiles.Add(file, new EDFFile(files[(int) file - 1]));
+			}
 		}
 
 		public int[] exp_table;
 
 		/*** Instance Properties and such ***/
 
-		public byte VersionMajor { get; set; }
-		public byte VersionMinor { get; set; }
-		public byte VersionClient { get; set; }
+		public byte VersionMajor { get; private set; }
+		public byte VersionMinor { get; private set; }
+		public byte VersionClient { get; private set; }
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 		public short JailMap { get; set; }
@@ -127,12 +159,18 @@ namespace EndlessClient
 		/// <summary>
 		/// Stores a list of MapFiles paired with/accessible by their IDs
 		/// </summary>
-		private Dictionary<int, EOLib.MapFile> MapCache { get; set; }
+		private Dictionary<int, MapFile> MapCache { get; set; }
+
+		public Dictionary<DataFiles, EDFFile> DataFiles { get; private set; }
+
+		public EOLanguage Language { get; private set; }
+		public DataFiles Localized1 { get; private set; }
+		public DataFiles Localized2 { get; private set; }
 
 		/// <summary>
 		/// Returns a MapFile for the map the MainPlayer is on
 		/// </summary>
-		private EOLib.MapFile ActiveMap
+		private MapFile ActiveMap
 		{
 			get
 			{

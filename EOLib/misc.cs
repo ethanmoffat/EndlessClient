@@ -70,6 +70,8 @@ namespace EOLib
 		public const string SpellFilePath = "pub/dsl001.esf";
 		public const string ClassFilePath = "pub/dat001.ecf";
 
+		public const string DataFilePath = "data/";
+
 		public const byte ViewLength = 16;
 
 		public const int NPCDropProtectionSeconds = 30;
@@ -98,5 +100,8 @@ namespace EOLib
 		public const string Custom = "CUSTOM";
 		public const string NPCDropProtectTime = "NPCDropProtectTime";
 		public const string PlayerDropProtectTime = "PlayerDropProtectTime";
+
+		public const string LANGUAGE = "LANGUAGE";
+		public const string Language = "Language";
 	}
 }
