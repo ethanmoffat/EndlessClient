@@ -305,12 +305,20 @@ namespace EndlessClient
 			if (!sections[section].ContainsKey(identifier))
 				return false;
 
-			value = sections[section][identifier];
+			try
+			{
+				value = sections[section][identifier];
+			}
+			catch (FormatException)
+			{
+				return false;
+			}
+			catch (InvalidCastException)
+			{
+				return false;
+			}
+
 			return true;
-		}
-		public bool GetValue(string identifier, out object value)
-		{
-			return GetValue("", identifier, out value);
 		}
 
 		public bool GetValue(string section, string identifier, out string value)
@@ -321,13 +329,19 @@ namespace EndlessClient
 			if (!sections[section].ContainsKey(identifier))
 				return false;
 
-			value = sections[section][identifier] as string;
-
+			try
+			{
+				value = sections[section][identifier] as string;
+			}
+			catch (FormatException)
+			{
+				return false;
+			}
+			catch (InvalidCastException)
+			{
+				return false;
+			}
 			return true;
-		}
-		public bool GetValue(string identifier, out string value)
-		{
-			return GetValue("", identifier, out value);
 		}
 
 		public bool GetValue(string section, string identifier, out int value)
@@ -338,13 +352,20 @@ namespace EndlessClient
 			if (!sections[section].ContainsKey(identifier))
 				return false;
 
-			value = Convert.ToInt32(sections[section][identifier]);
+			try
+			{
+				value = Convert.ToInt32(sections[section][identifier]);
+			}
+			catch (FormatException)
+			{
+				return false;
+			}
+			catch (InvalidCastException)
+			{
+				return false;
+			}
 
 			return true;
-		}
-		public bool GetValue(string identifier, out int value)
-		{
-			return GetValue("general", identifier, out value);
 		}
 
 		public bool GetValue(string section, string identifier, out bool value)
@@ -355,13 +376,40 @@ namespace EndlessClient
 			if (!sections[section].ContainsKey(identifier))
 				return false;
 
-			value = Convert.ToBoolean((sections[section][identifier]));
+			//convert possible strings into true/false values that can be parsed
+			object toConvert = sections[section][identifier];
+			if (toConvert is string)
+			{
+				string s = toConvert as string;
+				switch (s.ToLower())
+				{
+					case "yes":
+					case "1":
+					case "on":
+						toConvert = "true";
+						break;
+					case "no":
+					case "0":
+					case "off":
+						toConvert = "false";
+						break;
+				}
+			}
+
+			try
+			{
+				value = Convert.ToBoolean(toConvert);
+			}
+			catch (FormatException)
+			{
+				return false;
+			}
+			catch (InvalidCastException)
+			{
+				return false;
+			}
 
 			return true;
-		}
-		public bool GetValue(string identifier, out bool value)
-		{
-			return GetValue("general", identifier, out value);
 		}
 	}
 }
