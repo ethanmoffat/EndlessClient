@@ -613,7 +613,7 @@ namespace EndlessClient
 						}
 
 						//do the rendering
-						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, chatText);
+						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered);
 						AddChat(ChatTabs.Local, World.Instance.MainPlayer.ActiveCharacter.Name, filtered);
 					}
 				}

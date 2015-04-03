@@ -645,17 +645,21 @@ namespace EndlessClient
 			{
 				foreach (string curse in World.Instance.DataFiles[DataFiles.CurseFilter].Data.Values)
 				{
+					if (string.IsNullOrWhiteSpace(curse))
+						continue;
+
 					if (text.Contains(curse))
 					{
 						if (World.Instance.StrictFilterEnabled && isMainPlayer)
 						{
 							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.YOUR_MIND_PREVENTS_YOU_TO_SAY);
+							return null;
 						}
-						else if (World.Instance.StrictFilterEnabled)
+						if (World.Instance.StrictFilterEnabled)
 						{
 							return null;
 						}
-						else if (World.Instance.CurseFilterEnabled)
+						if (World.Instance.CurseFilterEnabled)
 						{
 							text = text.Replace(curse, "****");
 						}
