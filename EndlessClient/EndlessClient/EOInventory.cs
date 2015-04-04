@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading;
+using EOLib;
 using EOLib.Data;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
@@ -124,7 +125,7 @@ namespace EndlessClient
 
 					if (m_itemData.Special == ItemSpecial.Lore)
 					{
-						EODialog.Show("It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						EODialog.Show(DATCONST1.ITEM_IS_LORE_ITEM, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					}
 					else if (m_inventory.amount > 1 && inRange)
 					{
@@ -140,13 +141,18 @@ namespace EndlessClient
 					{
 						Handlers.Item.DropItem(m_inventory.id, 1, (byte)loc.X, (byte)loc.Y);
 					}
+
+					if (!inRange)
+					{
+						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
+					}
 				}
 				else if (((EOInventory) parent).IsOverJunk())
 				{
 					if (m_inventory.amount > 1)
 					{
 						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.JunkItems,
-							m_inventory.amount);
+							m_inventory.amount, DATCONST2.DIALOG_TRANSFER_JUNK);
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result == XNADialogResult.OK)
@@ -162,7 +168,7 @@ namespace EndlessClient
 				{
 					if (m_itemData.Special == ItemSpecial.Lore)
 					{
-						EODialog.Show("It is not possible to drop or trade this item.", "Lore Item", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						EODialog.Show(DATCONST1.ITEM_IS_LORE_ITEM, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					}
 					else if (m_inventory.amount > 1)
 					{
@@ -205,12 +211,11 @@ namespace EndlessClient
 				{
 					if (m_inventory.id == 1)
 					{
-						//There was a localization error in the original client - it had the italian word for currency, "valuta"
-						EODialog.Show("Please deposit currency on your bank account.", "Refused", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						EODialog.Show(DATCONST1.LOCKER_DEPOSIT_GOLD_ERROR, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					}
 					else if (m_inventory.amount > 1)
 					{
-						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.ShopTransfer, m_inventory.amount, "transfer");
+						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.ShopTransfer, m_inventory.amount, DATCONST2.DIALOG_TRANSFER_TRANSFER);
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result == XNADialogResult.OK && !Handlers.Locker.AddItem(m_inventory.id, dlg.SelectedAmount))
@@ -249,7 +254,7 @@ namespace EndlessClient
 			if (!MouseOverPreviously && MouseOver && !m_beingDragged)
 			{
 				m_nameLabel.Visible = true;
-				EOGame.Instance.Hud.SetStatusLabel("[ Item ] " + m_nameLabel.Text);
+				EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ITEM, m_nameLabel.Text);
 			}
 			else if (!MouseOver && !m_beingDragged && m_nameLabel != null && m_nameLabel.Visible)
 			{
@@ -372,7 +377,7 @@ namespace EndlessClient
 							subLoc = 1;
 						else
 						{
-							EOGame.Instance.Hud.SetStatusLabel("[ Information ] You already have an item of this type equipped.");
+							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
 							break;
 						}
 					}
@@ -380,13 +385,13 @@ namespace EndlessClient
 					if (World.Instance.MainPlayer.ActiveCharacter.EquipItem(m_itemData.Type, (short)m_itemData.ID, (short)m_itemData.DollGraphic))
 						Handlers.Paperdoll.EquipItem((short)m_itemData.ID, subLoc);
 					else
-						EOGame.Instance.Hud.SetStatusLabel("[ Information ] You already have an item of this type equipped.");
+						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
 					break;
 			//usable items
 				case ItemType.Teleport:
 					if (!World.Instance.ActiveMapRenderer.MapRef.CanScroll)
 					{
-						EOGame.Instance.Hud.SetStatusLabel("[ Action ] Nothing happened..");
+						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_NOTHING_HAPPENED);
 						break;
 					}
 					if (m_itemData.ScrollMap == World.Instance.MainPlayer.ActiveCharacter.CurrentMap &&
@@ -554,15 +559,15 @@ namespace EndlessClient
 
 			if (IsOverDrop())
 			{
-				EOGame.Instance.Hud.SetStatusLabel("[ Button ] Drag an item to this button to drop it on the ground.");
+				EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_INVENTORY_DROP_BUTTON);
 			}
 			else if (IsOverJunk())
 			{
-				EOGame.Instance.Hud.SetStatusLabel("[ Button ] Drag an item to this button to destroy it forever.");
+				EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_INVENTORY_JUNK_BUTTON);
 			}
 			else if (m_btnPaperdoll.MouseOver && !m_btnPaperdoll.MouseOverPreviously)
 			{
-				EOGame.Instance.Hud.SetStatusLabel("[ Button ] Click here to show your paperdoll.");
+				EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_INVENTORY_SHOW_YOUR_PAPERDOLL);
 			}
 
 			base.Update(gameTime);

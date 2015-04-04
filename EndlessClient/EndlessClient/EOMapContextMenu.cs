@@ -98,7 +98,7 @@ namespace EndlessClient
 				DrawLocation = new Vector2(drawLocation.X, 35);
 			}
 
-			EOGame.Instance.Hud.SetStatusLabel("[ Action ] Menu belongs to player " + m_rend.Character.Name);
+			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_MENU_BELONGS_TO_PLAYER, m_rend.Character.Name);
 
 			Visible = true;
 		}
@@ -219,12 +219,12 @@ namespace EndlessClient
 		}
 		private void _eventAddFriend(object arg1, EventArgs arg2)
 		{
-			EOGame.Instance.Hud.SetStatusLabel("[ Action ] " + m_rend.Character.Name + " will be your friend.");
+			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, DATCONST2.STATUS_LABEL_WILL_BE_YOUR_FRIEND);
 			InteractList.WriteNewFriend(m_rend.Character.Name);
 		}
 		private void _eventAddIgnore(object arg1, EventArgs arg2)
 		{
-			EOGame.Instance.Hud.SetStatusLabel("[ Action ] " + m_rend.Character.Name + " will be ignored.");
+			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, DATCONST2.STATUS_LABEL_WILL_BE_IGNORED);
 			InteractList.WriteNewIgnore(m_rend.Character.Name);
 		}
 

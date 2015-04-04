@@ -465,7 +465,7 @@ namespace EndlessClient
 			if (MapRef.Name.Length > 0)
 			{
 				if (EOGame.Instance.Hud != null)
-					EOGame.Instance.Hud.AddChat(ChatTabs.System, "", "You entered " + MapRef.Name, ChatType.NoteLeftArrow);
+					EOGame.Instance.Hud.AddChat(ChatTabs.System, "", World.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Name, ChatType.NoteLeftArrow);
 				else
 					m_needDispMapName = true;
 			}
@@ -517,7 +517,7 @@ namespace EndlessClient
 			if(MapRef.MapAvailable)
 				m_showMiniMap = !m_showMiniMap;
 			else
-				EOGame.Instance.Hud.SetStatusLabel("[ Warning ] There is no map of this area!");
+				EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_NO_MAP_OF_AREA);
 		}
 
 		public void AddMapItem(MapItem newItem)
@@ -960,7 +960,7 @@ namespace EndlessClient
 			if (m_needDispMapName && EOGame.Instance.Hud != null)
 			{
 				m_needDispMapName = false;
-				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", "You entered " + MapRef.Name, ChatType.NoteLeftArrow);
+				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", World.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Name, ChatType.NoteLeftArrow);
 			}
 			
 			//draw stuff to the render target
@@ -1103,10 +1103,7 @@ namespace EndlessClient
 									_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
 									if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y)) //must be directly adjacent
 									{
-										MapChest chest = World.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.x == gridX && _c.y == gridY);
-										if (!chest.backoff && chest.x == gridX && chest.y == gridY && !Chest.ChestOpen((byte)gridX, (byte)gridY))
-											EOGame.Instance.LostConnectionDialog();
-										chest.backoff = true;
+										EOChestDialog.Show((byte)gridX, (byte)gridY);
 									}
 									break;
 								case TileSpec.BankVault:
@@ -1182,13 +1179,17 @@ namespace EndlessClient
 							(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= m_playerDropProtect))
 						{
 							Character charRef = otherPlayers.Find(_c => _c.ID == mi.id);
-							EOGame.Instance.Hud.SetStatusLabel("[ Information ] This item is protected" + (charRef != null ? string.Format(" by {0}.", charRef.Name) : "."));
+							DATCONST2 msg = charRef == null
+								? DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED
+								: DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
+							string extra = charRef == null ? "" : charRef.Name;
+							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
 						}
 						else 
 						{
 							if (!EOGame.Instance.Hud.InventoryFits(mi.id))
 							{
-								EOGame.Instance.Hud.SetStatusLabel("[ Information ] You could not pick up this item because you have no more space left.");
+								EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
 							}
 							else if (!Item.GetItem(mi.uid)) //server validates anyway
 								EOGame.Instance.LostConnectionDialog();

@@ -756,14 +756,14 @@ namespace EndlessClient
 
 				if (Username != World.Instance.MainPlayer.AccountName)
 				{
-					EODialog.Show("The username or password you specified is incorrect", "Wrong info");
+					EODialog.Show(DATCONST1.CHANGE_PASSWORD_MISMATCH);
 					return;
 				}
 				
 				//check that passwords match, otherwise: return
 				if (inputBoxes[2].Text.Length != inputBoxes[3].Text.Length || inputBoxes[2].Text != inputBoxes[3].Text)
 				{
-					EODialog.Show(DATCONST1.CHANGE_PASSWORD_MISMATCH);
+					EODialog.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_MISMATCH);
 					return;
 				}
 				
@@ -1121,18 +1121,31 @@ namespace EndlessClient
 
 			if (MouseOver && !MouseOverPreviously)
 			{
-				string typename = Enum.GetName(typeof (EquipLocation), EquipLoc);
-				if (string.IsNullOrEmpty(typename))
-					return;
-				if (typename.Contains("1") || typename.Contains("2"))
-					typename = typename.Substring(0, typename.Length - 1);
+				DATCONST2 msg;
+				switch (EquipLoc)
+				{
+					case EquipLocation.Boots: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_BOOTS_EQUIPMENT; break;
+					case EquipLocation.Accessory: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_MISC_EQUIPMENT; break;
+					case EquipLocation.Gloves: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_GLOVES_EQUIPMENT; break;
+					case EquipLocation.Belt: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_BELT_EQUIPMENT; break;
+					case EquipLocation.Armor: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_ARMOR_EQUIPMENT; break;
+					case EquipLocation.Necklace: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_NECKLACE_EQUIPMENT; break;
+					case EquipLocation.Hat: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_HAT_EQUIPMENT; break;
+					case EquipLocation.Shield: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_SHIELD_EQUIPMENT; break;
+					case EquipLocation.Weapon: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_WEAPON_EQUIPMENT; break;
+					case EquipLocation.Ring1:
+					case EquipLocation.Ring2: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_RING_EQUIPMENT; break;
+					case EquipLocation.Armlet1:
+					case EquipLocation.Armlet2: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_ARMLET_EQUIPMENT; break;
+					case EquipLocation.Bracer1:
+					case EquipLocation.Bracer2: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_BRACER_EQUIPMENT; break;
+					default: throw new ArgumentOutOfRangeException();
+				}
 
-				string toSet;
 				if (m_info != null)
-					toSet = "[ Information ] " + typename + " equipment, " + m_info.Name;
+					EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, msg, ", " + m_info.Name);
 				else
-					toSet = "[ Information ] " + typename + " equipment";
-				EOGame.Instance.Hud.SetStatusLabel(toSet);
+					EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, msg);
 			}
 
 			//unequipping an item via right-click
@@ -1143,7 +1156,7 @@ namespace EndlessClient
 				{ //the parent dialog must show equipment for mainplayer
 					if (m_info.Special == ItemSpecial.Cursed)
 					{
-						EODialog.Show("Oh no, this item is cursed! Only a cure potion/spell can remove it.", "Cursed Item");
+						EODialog.Show(DATCONST1.ITEM_IS_CURSED_ITEM);
 					}
 					else
 					{
@@ -1403,12 +1416,10 @@ namespace EndlessClient
 		{
 			DropItems,
 			JunkItems,
-// ReSharper disable UnusedMember.Global
 			GiveItems,
 			TradeItems,
 			ShopTransfer,
 			BankTransfer
-// ReSharper restore UnusedMember.Global
 		}
 
 		private readonly Texture2D m_titleBarGfx;
@@ -1422,8 +1433,17 @@ namespace EndlessClient
 
 		private readonly IKeyboardSubscriber m_prevSubscriber;
 
-		public EOItemTransferDialog(string itemName, TransferType transferType, int totalAmount, string shopTransferAction = "buy")
+		/// <summary>
+		/// Create a new item transfer dialog
+		/// </summary>
+		/// <param name="itemName">Name of the item to be displayed</param>
+		/// <param name="transferType">Which transfer is being done (controls title)</param>
+		/// <param name="totalAmount">Maximum amount that can be transferred</param>
+		/// <param name="message">Resource ID of message to control displayed text</param>
+		public EOItemTransferDialog(string itemName, TransferType transferType, int totalAmount, DATCONST2 message = DATCONST2.DIALOG_TRANSFER_DROP)
 		{
+			_validateMessage(message);
+
 			Texture2D weirdSpriteSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27);
 			Rectangle sourceArea = new Rectangle(38, 0, 265, 170);
 			
@@ -1468,21 +1488,9 @@ namespace EndlessClient
 				TextWidth = 200
 			};
 
-			switch (transferType)
-			{
-				case TransferType.DropItems:
-					descLabel.Text = string.Format("How much {0} would you like to drop?", itemName);
-					break;
-				case TransferType.JunkItems:
-					descLabel.Text = string.Format("How much {0} would you like to junk?", itemName);
-					break;
-				case TransferType.ShopTransfer:
-					descLabel.Text = string.Format("How much {0} would you like to {1}?", itemName, shopTransferAction);
-					break;
-				default:
-					descLabel.Text = "(not implemented)";
-					break;
-			}
+			string descLabelTxt = string.Format("{0} {1} ", World.GetString(DATCONST2.DIALOG_TRANSFER_HOW_MUCH), itemName);
+			descLabelTxt += World.Instance.DataFiles[World.Instance.Localized2].Data[(int) message];
+			descLabel.Text = descLabelTxt;
 			descLabel.SetParent(this);
 
 			//set the text box here
@@ -1554,6 +1562,21 @@ namespace EndlessClient
 				SpriteBatch.Begin();
 				SpriteBatch.Draw(m_titleBarGfx, new Vector2(DrawAreaWithOffset.X + 10, DrawAreaWithOffset.Y + 10), Color.White);
 				SpriteBatch.End();
+			}
+		}
+
+		private void _validateMessage(DATCONST2 msg)
+		{
+			switch (msg)
+			{
+				case DATCONST2.DIALOG_TRANSFER_DROP:
+				case DATCONST2.DIALOG_TRANSFER_GIVE:
+				case DATCONST2.DIALOG_TRANSFER_JUNK:
+				case DATCONST2.DIALOG_TRANSFER_BUY:
+				case DATCONST2.DIALOG_TRANSFER_SELL:
+				case DATCONST2.DIALOG_TRANSFER_TRANSFER:
+					break;
+				default: throw new ArgumentOutOfRangeException("msg", "Use one of the approved messages.");
 			}
 		}
 	}
@@ -1767,22 +1790,30 @@ namespace EndlessClient
 
 	public class EOChestDialog : EODialogBase
 	{
-		public static EOChestDialog Instance;
+		public static EOChestDialog Instance { get; private set; }
+
+		public static void Show(byte chestX, byte chestY)
+		{
+			if (Instance != null)
+				return;
+
+			Instance = new EOChestDialog(chestX, chestY);
+			Instance.DialogClosing += (o, e) => Instance = null;
+
+			if (!Chest.ChestOpen(chestX, chestY))
+			{
+				Instance.Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+				EOGame.Instance.LostConnectionDialog();
+			}
+		}
 
 		public byte CurrentChestX { get; private set; }
 		public byte CurrentChestY { get; private set; }
 
 		private EODialogListItem[] m_items;
 
-		public EOChestDialog(byte chestX, byte chestY, List<Tuple<short, int>> initialItems)
+		private EOChestDialog(byte chestX, byte chestY)
 		{
-			if (Instance != null)
-				throw new InvalidOperationException("Chest is already open!");
-			
-			Instance = this;
-
-			InitializeItems(initialItems);
-
 			CurrentChestX = chestX;
 			CurrentChestY = chestY;
 
@@ -1797,6 +1828,9 @@ namespace EndlessClient
 			endConstructor(false);
 			DrawLocation = new Vector2((Game.GraphicsDevice.PresentationParameters.BackBufferWidth - DrawArea.Width) / 2f, 15);
 			cancel.SetParent(this);
+
+			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_CHEST_YOU_OPENED,
+				World.GetString(DATCONST2.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
 		}
 
 		public void InitializeItems(List<Tuple<short, int>> initialItems)
@@ -1817,7 +1851,8 @@ namespace EndlessClient
 					}
 
 					ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.Item1);
-					string secondary = string.Format("x {0}  {1}", item.Item2, rec.Type == ItemType.Armor ? (rec.Gender == 0 ? "Female" : "Male") : "");
+					string secondary = string.Format("x {0}  ({1})", item.Item2, 
+						rec.Type == ItemType.Armor ? (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) : "");
 
 					m_items[i] = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, rec.Name, secondary, GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true), i)
 					{
@@ -1830,7 +1865,16 @@ namespace EndlessClient
 
 						if (!EOGame.Instance.Hud.InventoryFits(sender.ID))
 						{
-							EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+							string _message = World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
+							string _caption = World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING);
+							EODialog.Show(_message, _caption, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						}
+						else if (rec.Weight*item.Item2 + World.Instance.MainPlayer.ActiveCharacter.Weight >
+						         World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
+						{
+							EODialog.Show(World.GetString(DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT),
+								World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+								XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 						}
 						else
 						{
@@ -1878,12 +1922,6 @@ namespace EndlessClient
 			}
 
 			base.Update(gt);
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			base.Dispose(disposing);
-			Instance = null;
 		}
 	}
 
@@ -2149,7 +2187,8 @@ namespace EndlessClient
 
 			string charName = World.Instance.MainPlayer.ActiveCharacter.Name;
 			charName = char.ToUpper(charName[0]) + charName.Substring(1);
-			string titleText = string.Format("{0}'s {2} List [{1}]", charName, allLines.Count, isIgnoreList ? "Ignore" : "Friend");
+			string titleText = string.Format("{0}'s {2} [{1}]", charName, allLines.Count,
+				World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
 
 			EOScrollingListDialog dlg = new EOScrollingListDialog(titleText, ScrollingListDialogButtons.AddCancel, EODialogListItem.ListItemStyle.Small);
 
@@ -2160,7 +2199,8 @@ namespace EndlessClient
 				character.OnRightClick += (o, e) =>
 				{
 					dlg.RemoveFromList(character);
-					dlg.Title = string.Format("{0}'s {2} List [{1}]", charName, dlg.NamesList.Count, isIgnoreList ? "Ignore" : "Friend");
+					dlg.Title = string.Format("{0}'s {2} [{1}]", charName, dlg.NamesList.Count,
+						World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
 				};
 			});
 			dlg.SetItemList(characters);
@@ -2178,7 +2218,7 @@ namespace EndlessClient
 				else if (e.Result == XNADialogResult.Add)
 				{
 					e.CancelClose = true;
-					string prompt = dlg.Title.Contains("Friend") ? "Who do you want to make your friend?" : "Who do you want to ignore?";
+					string prompt = World.GetString(isIgnoreList ? DATCONST2.DIALOG_WHO_TO_MAKE_IGNORE : DATCONST2.DIALOG_WHO_TO_MAKE_FRIEND);
 					EOInputDialog dlgInput = new EOInputDialog(prompt);
 					dlgInput.DialogClosing += (_o, _e) =>
 					{
@@ -2187,7 +2227,7 @@ namespace EndlessClient
 						if (dlgInput.ResponseText.Length < 4)
 						{
 							_e.CancelClose = true;
-							EODialog.Show("The name you provided for this character is too short (try 4 or more letters)", "Wrong name");
+							EODialog.Show(DATCONST1.CHARACTER_CREATE_NAME_TOO_SHORT);
 							return;
 						}
 
@@ -2196,13 +2236,14 @@ namespace EndlessClient
 						newItem.OnRightClick += (oo, ee) =>
 						{
 							dlg.RemoveFromList(newItem);
-							dlg.Title = string.Format("{0}'s {2} List [{1}]", 
-								charName, 
-								dlg.NamesList.Count, 
-								isIgnoreList ? "Ignore" : "Friend");
+							dlg.Title = string.Format("{0}'s {2} [{1}]",
+								charName,
+								dlg.NamesList.Count,
+								World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
 						};
 						dlg.AddItemToList(newItem, true);
-						dlg.Title = string.Format("{0}'s {2} List [{1}]", charName, dlg.NamesList.Count, isIgnoreList ? "Ignore" : "Friend");
+						dlg.Title = string.Format("{0}'s {2} [{1}]", charName, dlg.NamesList.Count,
+							World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
 					};
 				}
 			};
@@ -2211,7 +2252,8 @@ namespace EndlessClient
 
 			Init.RequestOnlineList(true);
 
-			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Action ] {0} List (use right mouse click to delete from list)", isIgnoreList ? "Ignore" : "Friend"));
+			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST, 
+				World.GetString(DATCONST2.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));
 			//show the dialog
 		}
 	}
@@ -2306,7 +2348,7 @@ namespace EndlessClient
 			int sellNumInt = m_tradeItems.FindAll(x => World.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(item => item.id == x.ID) >= 0 && x.Sell > 0).Count;
 			if (newState == ShopState.Selling && sellNumInt <= 0)
 			{
-				EODialog.Show("This shop is not buying any of your items.", "Refused", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				EODialog.Show(DATCONST1.SHOP_NOT_BUYING_YOUR_ITEMS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 				return;
 			}
 
@@ -2315,18 +2357,17 @@ namespace EndlessClient
 			{
 				case ShopState.Initial:
 				{
-					string buyNum = string.Format("{0} items in store.", m_tradeItems.FindAll(x => x.Buy > 0).Count);
-					string sellNum = string.Format("{0} items accepted.", sellNumInt);
-						
-					string craftNum = string.Format("{0} items accepted.", m_craftItems.Count);
+					string buyNum = string.Format("{0} {1}", m_tradeItems.FindAll(x => x.Buy > 0).Count, World.GetString(DATCONST2.DIALOG_SHOP_ITEMS_IN_STORE));
+					string sellNum = string.Format("{0} {1}", sellNumInt, World.GetString(DATCONST2.DIALOG_SHOP_ITEMS_ACCEPTED));
+					string craftNum = string.Format("{0} {1}", m_craftItems.Count, World.GetString(DATCONST2.DIALOG_SHOP_ITEMS_ACCEPTED));
 
-					EODialogListItem buy = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, "Buy Item(s)", buyNum, BuyIcon, 0);
+					EODialogListItem buy = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_SHOP_BUY_ITEMS), buyNum, BuyIcon, 0);
 					buy.OnLeftClick += (o, e) => _setState(ShopState.Buying);
 					buy.OnRightClick += (o, e) => _setState(ShopState.Buying);
 					buy.ShowItemBackGround = false;
 					buy.OffsetY = 45;
 					AddItemToList(buy, false);
-					EODialogListItem sell = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, "Sell Items(s)", sellNum, SellIcon, 1);
+					EODialogListItem sell = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_SHOP_SELL_ITEMS), sellNum, SellIcon, 1);
 					sell.OnLeftClick += (o, e) => _setState(ShopState.Selling);
 					sell.OnRightClick += (o, e) => _setState(ShopState.Selling);
 					sell.ShowItemBackGround = false;
@@ -2334,7 +2375,7 @@ namespace EndlessClient
 					AddItemToList(sell, false);
 					if (m_craftItems.Count > 0)
 					{
-						EODialogListItem craft = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, "Craft Item(s)", craftNum, CraftIcon, 2);
+						EODialogListItem craft = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_SHOP_CRAFT_ITEMS), craftNum, CraftIcon, 2);
 						craft.OnLeftClick += (o, e) => _setState(ShopState.Crafting);
 						craft.OnRightClick += (o, e) => _setState(ShopState.Crafting);
 						craft.ShowItemBackGround = false;
@@ -2359,7 +2400,9 @@ namespace EndlessClient
 
 						ShopItem localItem = si;
 						ItemRecord rec = World.Instance.EIF.GetItemRecordByID(si.ID);
-						string secondary = string.Format("Price: {0} {1}", buying ? si.Buy : si.Sell, rec.Type == ItemType.Armor ? (rec.Gender == 0 ? "(Female)" : "(Male)") : "");
+						string secondary = string.Format("{2}: {0} ({1})", buying ? si.Buy : si.Sell,
+							rec.Type == ItemType.Armor ? (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) : "",
+							World.GetString(DATCONST2.DIALOG_SHOP_PRICE));
 
 						EODialogListItem nextItem = new EODialogListItem(
 							this,
@@ -2386,7 +2429,9 @@ namespace EndlessClient
 
 						CraftItem localItem = ci;
 						ItemRecord rec = World.Instance.EIF.GetItemRecordByID(ci.ID);
-						string secondary = string.Format("Ingredients: {0} {1}", ci.Ingredients.Count,  rec.Type == ItemType.Armor ? (rec.Gender == 0 ? "(Female)" : "(Male)") : "");
+						string secondary = string.Format("{2}: {0} ({1})", ci.Ingredients.Count,
+							rec.Type == ItemType.Armor ? (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) : "",
+							World.GetString(DATCONST2.DIALOG_SHOP_CRAFT_INGREDIENTS));
 
 						EODialogListItem nextItem = new EODialogListItem(
 							this,
@@ -2414,60 +2459,80 @@ namespace EndlessClient
 			if (m_state != ShopState.Buying && m_state != ShopState.Selling)
 				return;
 			bool isBuying = m_state == ShopState.Buying;
-			
+
 			InventoryItem ii = World.Instance.MainPlayer.ActiveCharacter.Inventory.Find(x => (isBuying ? x.id == 1 : x.id == item.ID));
+			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.ID);
 			if (isBuying)
 			{
 				if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
 				{
-					EODialog.Show("You have not enough space to complete this transaction!", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					EODialog.Show(World.GetString(DATCONST2.DIALOG_SHOP_NOT_ENOUGH_SPACE),
+						World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+						XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					return;
+				}
+
+				if (rec.Weight + World.Instance.MainPlayer.ActiveCharacter.Weight >
+				    World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
+				{
+					EODialog.Show(World.GetString(DATCONST2.DIALOG_SHOP_NOT_ENOUGH_WEIGHT), 
+						World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+						XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					return;
 				}
 
 				if (ii.amount < item.Buy)
 				{
-					EODialog.Show("You have not enough gold", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					EODialog.Show(DATCONST1.WARNING_YOU_HAVE_NOT_ENOUGH, " gold.", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					return;
 				}
 			}
 
-			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.ID);
 			//special case: no need for prompting if selling an item with count == 1 in inventory
 			if(!isBuying && ii.amount == 1)
 			{
-				string _message = string.Format("Sell 1 {0} for {1} gold?", rec.Name, item.Sell);
-				EODialog.Show(_message, "Sell Item(s)", XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader, (oo, ee) =>
-				{
-					if (ee.Result == XNADialogResult.OK && !Shop.SellItem((short)item.ID, 1))
+				string _message = string.Format("{0} 1 {1} {2} {3} gold?", 
+					World.GetString(DATCONST2.DIALOG_TRANSFER_SELL),
+					rec.Name,
+					World.GetString(DATCONST2.DIALOG_WORD_FOR),
+					item.Sell);
+				EODialog.Show(_message, World.GetString(DATCONST2.DIALOG_SHOP_SELL_ITEMS), XNADialogButtons.OkCancel,
+					EODialogStyle.SmallDialogSmallHeader, (oo, ee) =>
 					{
-						EOGame.Instance.LostConnectionDialog();
-					}
-				});
+						if (ee.Result == XNADialogResult.OK && !Shop.SellItem((short) item.ID, 1))
+						{
+							EOGame.Instance.LostConnectionDialog();
+						}
+					});
 			}
 			else
 			{
-				EOItemTransferDialog dlg = new EOItemTransferDialog(rec.Name, EOItemTransferDialog.TransferType.ShopTransfer, isBuying ? item.MaxBuy : ii.amount, isBuying ? "buy" : "sell");
+				EOItemTransferDialog dlg = new EOItemTransferDialog(rec.Name, EOItemTransferDialog.TransferType.ShopTransfer,
+					isBuying ? item.MaxBuy : ii.amount, isBuying ? DATCONST2.DIALOG_TRANSFER_BUY : DATCONST2.DIALOG_TRANSFER_SELL);
 				dlg.DialogClosing += (o, e) =>
 				{
 					if (e.Result == XNADialogResult.OK)
 					{
-						string _message = string.Format("{0} {1} {2} for {3} gold?",
-							isBuying ? "Buy" : "Sell",
+						string _message = string.Format("{0} {1} {2} {3} {4} gold?",
+							World.GetString(isBuying ? DATCONST2.DIALOG_TRANSFER_BUY : DATCONST2.DIALOG_TRANSFER_SELL),
 							dlg.SelectedAmount, rec.Name,
+							World.GetString(DATCONST2.DIALOG_WORD_FOR),
 							(isBuying ? item.Buy : item.Sell) * dlg.SelectedAmount);
-						string _caption = string.Format("{0} Item(s)", isBuying ? "Buy" : "Sell");
 
-						EODialog.Show(_message, _caption, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader, (oo, ee) =>
-						{
-							if (ee.Result == XNADialogResult.OK)
+						EODialog.Show(_message,
+							World.GetString(isBuying ? DATCONST2.DIALOG_SHOP_BUY_ITEMS : DATCONST2.DIALOG_SHOP_SELL_ITEMS),
+							XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader, (oo, ee) =>
 							{
-								//only actually do the buy/sell if the user then clicks "OK" in the second prompt
-								if (isBuying && !Shop.BuyItem((short)item.ID, dlg.SelectedAmount) || !isBuying && !Shop.SellItem((short)item.ID, dlg.SelectedAmount))
+								if (ee.Result == XNADialogResult.OK)
 								{
-									EOGame.Instance.LostConnectionDialog();
+									//only actually do the buy/sell if the user then clicks "OK" in the second prompt
+									if (isBuying && !Shop.BuyItem((short) item.ID, dlg.SelectedAmount) ||
+									    !isBuying && !Shop.SellItem((short) item.ID, dlg.SelectedAmount))
+									{
+										EOGame.Instance.LostConnectionDialog();
+									}
 								}
-							}
-						});
+							});
 					}
 				};
 			}
@@ -2480,7 +2545,9 @@ namespace EndlessClient
 
 			if (!EOGame.Instance.Hud.InventoryFits((short) item.ID))
 			{
-				EODialog.Show("You have not enough space to complete this transaction!", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				EODialog.Show(World.GetString(DATCONST2.DIALOG_SHOP_NOT_ENOUGH_SPACE),
+					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+					XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 				return;
 			}
 
@@ -2490,25 +2557,29 @@ namespace EndlessClient
 			{
 				if (World.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(_item => _item.id == ingredient.Item1 && _item.amount >= ingredient.Item2) < 0)
 				{
-					string _message = "You don't have all the ingredients.\n\n";
+					string _message = World.GetString(DATCONST2.DIALOG_SHOP_CRAFT_MISSING_INGREDIENTS) + "\n\n";
 					foreach (var ingred in item.Ingredients)
 					{
 						ItemRecord localRec = World.Instance.EIF.GetItemRecordByID(ingred.Item1);
 						_message += string.Format("+  {0}  {1}\n", ingred.Item2, localRec.Name);
 					}
-					string _caption = string.Format("Ingredients for {0}", craftItemRec.Name);
+					string _caption = string.Format("{0} {1} {2}", World.GetString(DATCONST2.DIALOG_SHOP_CRAFT_INGREDIENTS),
+						World.GetString(DATCONST2.DIALOG_WORD_FOR),
+						craftItemRec.Name);
 					EODialog.Show(_message, _caption, XNADialogButtons.Cancel, EODialogStyle.LargeDialogSmallHeader);
 					return;
 				}
 			}
 
-			string _message2 = "Put ingredients together?\n\n";
+			string _message2 = World.GetString(DATCONST2.DIALOG_SHOP_CRAFT_PUT_INGREDIENTS_TOGETHER) + "\n\n";
 			foreach (var ingred in item.Ingredients)
 			{
 				ItemRecord localRec = World.Instance.EIF.GetItemRecordByID(ingred.Item1);
 				_message2 += string.Format("+  {0}  {1}\n", ingred.Item2, localRec.Name);
 			}
-			string _caption2 = string.Format("Ingredients for {0}", craftItemRec.Name);
+			string _caption2 = string.Format("{0} {1} {2}", World.GetString(DATCONST2.DIALOG_SHOP_CRAFT_INGREDIENTS),
+				World.GetString(DATCONST2.DIALOG_WORD_FOR),
+				craftItemRec.Name);
 			EODialog.Show(_message2, _caption2, XNADialogButtons.OkCancel, EODialogStyle.LargeDialogSmallHeader, (o, e) =>
 			{
 				if (e.Result == XNADialogResult.OK && !Shop.CraftItem((short)item.ID))
@@ -2533,7 +2604,7 @@ namespace EndlessClient
 				EOGame.Instance.LostConnectionDialog();
 		}
 
-		private readonly static string TITLE_FMT = World.Instance.MainPlayer.ActiveCharacter.Name + "'s Private Locker [{0}]";
+		private static readonly string TITLE_FMT = World.Instance.MainPlayer.ActiveCharacter.Name + "'s " + World.GetString(DATCONST2.DIALOG_TITLE_PRIVATE_LOCKER) + " [{0}]";
 
 		//map location of the currently open locker
 		public byte X { get; private set; }
@@ -2560,11 +2631,14 @@ namespace EndlessClient
 				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
 				int amount = item.amount;
 				EODialogListItem newItem = new EODialogListItem(
-					this, 
-					EODialogListItem.ListItemStyle.Large, 
+					this,
+					EODialogListItem.ListItemStyle.Large,
 					rec.Name,
-					string.Format("x{0}  {1}", item.amount, rec.Type == ItemType.Armor ? (rec.Gender == 0 ? "(Female)" : "(Male)"): ""),
-					GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true)
+					string.Format("x{0}  ({1})", item.amount,
+						rec.Type == ItemType.Armor
+							? (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE))
+							: ""),
+					GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true)
 					);
 				newItem.OnRightClick += (o, e) => _removeItem(rec, amount);
 				newItem.OffsetY = 45;
@@ -2579,13 +2653,17 @@ namespace EndlessClient
 		{
 			if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
 			{
-				EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				EODialog.Show(World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+					XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 				return;
 			}
 
 			if (World.Instance.MainPlayer.ActiveCharacter.Weight + item.Weight*amount > World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
 			{
-				EODialog.Show("Its too heavy! You cannot carry any more weight.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				EODialog.Show(World.GetString(DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT),
+					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+					XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 				return;
 			}
 
@@ -2642,7 +2720,7 @@ namespace EndlessClient
 			XNALabel title = new XNALabel(new Rectangle(20, 17, 1, 1), "Microsoft Sans Serif", 8.5f)
 			{
 				AutoSize = false,
-				Text = "Performance",
+				Text = World.GetString(DATCONST2.DIALOG_TITLE_PERFORMANCE),
 				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
 			};
 			title.SetParent(this);
@@ -2664,14 +2742,14 @@ namespace EndlessClient
 				rightSide[(i - 48) / 16].SetParent(this);
 			}
 
-			leftSide[0].Text = "Total exp";
-			leftSide[1].Text = "Next level";
-			leftSide[2].Text = "Exp needed";
-			leftSide[3].Text = "Today exp";
-			leftSide[4].Text = "Total avg/hr";
-			leftSide[5].Text = "Today avg/hr";
-			leftSide[6].Text = "Best kill";
-			leftSide[7].Text = "Last kill";
+			leftSide[0].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_TOTALEXP);
+			leftSide[1].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_NEXT_LEVEL);
+			leftSide[2].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_EXP_NEEDED);
+			leftSide[3].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_TODAY_EXP);
+			leftSide[4].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_TOTAL_AVG);
+			leftSide[5].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_TODAY_AVG);
+			leftSide[6].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_BEST_KILL);
+			leftSide[7].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_LAST_KILL);
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 			rightSide[0].Text = string.Format("{0}", c.Stats.exp);
 			rightSide[1].Text = string.Format("{0}", World.Instance.exp_table[c.Stats.level + 1]);

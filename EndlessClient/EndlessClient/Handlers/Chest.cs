@@ -14,14 +14,6 @@ namespace EndlessClient.Handlers
 			if (!client.ConnectedAndInitialized)
 				return false;
 
-			if(EOChestDialog.Instance != null)
-			{
-				if (lastX == x && lastY == y &&
-					EOChestDialog.Instance.CurrentChestX == x &&
-					EOChestDialog.Instance.CurrentChestY == y)
-					return true; //chest is already open, back the FUCK off
-			}
-
 			lastX = x;
 			lastY = y;
 
@@ -34,6 +26,8 @@ namespace EndlessClient.Handlers
 
 		public static void ChestOpenResponse(Packet pkt)
 		{
+			if (EOChestDialog.Instance == null) return;
+
 			byte x = pkt.GetChar();
 			byte y = pkt.GetChar();
 
@@ -47,15 +41,7 @@ namespace EndlessClient.Handlers
 				chestItems.Add(new Tuple<short, int>(pkt.GetShort(), pkt.GetThree()));
 			}
 
-			MapChest update = World.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.x == x && _c.y == y);
-			if (update != null)
-			{
-				update.backoff = false;
-			}
-
-// ReSharper disable once UnusedVariable
-			EOChestDialog chestDialog = new EOChestDialog(x, y, chestItems);
-			lastX = lastY = 255;
+			EOChestDialog.Instance.InitializeItems(chestItems);
 		}
 
 		public static bool ChestTake(byte x, byte y, short itemID)

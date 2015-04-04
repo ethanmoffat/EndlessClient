@@ -81,8 +81,8 @@ namespace EndlessClient.Handlers
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(_id, characterAmount, characterWeight, characterMaxWeight);
 
 			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(_id);
-			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("You dropped {0} {1}", _amount, rec.Name), ChatType.DownArrow);
-			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You dropped {0} {1}", _amount, rec.Name));
+			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), _amount, rec.Name), ChatType.DownArrow);
+			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED, string.Format(" {0} {1}", _amount, rec.Name));
 		}
 
 		/// <summary>
@@ -120,8 +120,8 @@ namespace EndlessClient.Handlers
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
 
 			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(id);
-			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("You junked {0} {1}", amountRemoved, rec.Name), ChatType.DownArrow);
-			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You junked {0} {1}", amountRemoved, rec.Name));
+			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED), amountRemoved, rec.Name), ChatType.DownArrow);
+			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED, string.Format(" {0} {1}", amountRemoved, rec.Name));
 		}
 
 		/// <summary>
@@ -143,8 +143,8 @@ namespace EndlessClient.Handlers
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);
 
 			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(id);
-			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("You picked up {0} {1}", amountTaken, rec.Name), ChatType.UpArrow);
-			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You picked up {0} {1}", amountTaken, rec.Name));
+			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP), amountTaken, rec.Name), ChatType.UpArrow);
+			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP, string.Format(" {0} {1}", amountTaken, rec.Name));
 		}
 
 		public static bool ItemUse(short itemID)
@@ -199,7 +199,7 @@ namespace EndlessClient.Handlers
 					break;
 				case ItemType.Beer:
 					World.Instance.ActiveCharacterRenderer.MakeDrunk();
-					EOGame.Instance.Hud.SetStatusLabel("[ Warning ] You feel drunk");
+					EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_ITEM_USE_DRUNK);
 					break;
 				case ItemType.EffectPotion:
 				{

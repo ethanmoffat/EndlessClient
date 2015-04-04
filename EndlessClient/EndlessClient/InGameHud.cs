@@ -688,7 +688,33 @@ namespace EndlessClient
 			SetStatusLabel(World.Instance.DataFiles[World.Instance.Localized2].Data[(int) message]);
 		}
 
-		public void SetStatusLabel(DATCONST2 type, DATCONST2 message)
+		public void SetStatusLabel(DATCONST2 type, DATCONST2 message, string extra = "")
+		{
+			_setStatusLabelCheckType(type);
+
+			string typeText = World.GetString(type);
+			string messageText = World.GetString(message);
+			SetStatusLabel(string.Format("[ {0} ] {1} {2}", typeText, messageText, extra));
+		}
+
+		public void SetStatusLabel(DATCONST2 type, string extra, DATCONST2 message)
+		{
+			_setStatusLabelCheckType(type);
+
+			string typeText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int)type];
+			string messageText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int)message];
+			SetStatusLabel(string.Format("[ {0} ] {1} {2}", typeText, extra, messageText));
+		}
+
+		public void SetStatusLabel(DATCONST2 type, string detail)
+		{
+			_setStatusLabelCheckType(type);
+
+			string typeText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) type];
+			SetStatusLabel(string.Format("[ {0} ] {1}", typeText, detail));
+		}
+
+		private void _setStatusLabelCheckType(DATCONST2 type)
 		{
 			switch (type)
 			{
@@ -696,14 +722,11 @@ namespace EndlessClient
 				case DATCONST2.STATUS_LABEL_TYPE_BUTTON:
 				case DATCONST2.STATUS_LABEL_TYPE_INFORMATION:
 				case DATCONST2.STATUS_LABEL_TYPE_WARNING:
+				case DATCONST2.STATUS_LABEL_TYPE_ITEM:
 					break;
 				default:
-					throw new ArgumentOutOfRangeException("type", "Use either ACTION, BUTTION, INFORMATION, or WARNING for this.");
+					throw new ArgumentOutOfRangeException("type", "Use either ACTION, BUTTION, INFORMATION, WARNING, or ITEM for this.");
 			}
-
-			string typeText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) type];
-			string messageText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) message];
-			SetStatusLabel(string.Format("[ {0} ] {1}", typeText, messageText));
 		}
 
 		public bool UpdateInventory(InventoryItem item)

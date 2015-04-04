@@ -106,7 +106,9 @@ namespace EndlessClient.Handlers
 				if (droppedItemID > 0)
 				{
 					ItemRecord rec = World.Instance.EIF.GetItemRecordByID(droppedItemID);
-					EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("The NPC dropped {0} {1}", droppedAmount, rec.Name), ChatType.DownArrow);
+					EOGame.Instance.Hud.AddChat(ChatTabs.System, "",
+						string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_THE_NPC_DROPPED), droppedAmount, rec.Name),
+						ChatType.DownArrow);
 				}
 				return; //just showing a dropped item, packet ends here
 			}
@@ -116,12 +118,12 @@ namespace EndlessClient.Handlers
 			World.Instance.MainPlayer.ActiveCharacter.GainExp(expDif);
 			EOGame.Instance.Hud.RefreshStats();
 
-			EOGame.Instance.Hud.SetStatusLabel(string.Format("[ Information ] You earned {0} EXP", expDif));
-			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("You gained {0} EXP", expDif), ChatType.Star);
+			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_YOU_GAINED_EXP, string.Format(" {0} EXP", expDif));
+			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} EXP", World.GetString(DATCONST2.STATUS_LABEL_YOU_GAINED_EXP), expDif), ChatType.Star);
 			if (droppedItemID > 0)
 			{
 				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(droppedItemID);
-				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("The NPC dropped {0} {1}", droppedAmount, rec.Name), ChatType.DownArrow);
+				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_THE_NPC_DROPPED), droppedAmount, rec.Name), ChatType.DownArrow);
 			}
 		}
 

@@ -80,6 +80,7 @@ namespace EndlessClient
 			bool isIgnoreList = fileName == FILE_IGNORE;
 			using (StreamWriter sw = new StreamWriter(fileName))
 			{
+				//this is not localized because the original client has it in english in the files
 				string friendOrIgnore = isIgnoreList ? "ignore" : "friend";
 				//header
 				sw.WriteLine("# Endless Online 0.28 [ {0} list ]", friendOrIgnore);

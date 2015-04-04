@@ -45,6 +45,16 @@ namespace EndlessClient
 			}
 		}
 
+		public static string GetString(DATCONST1 id)
+		{
+			return Instance.DataFiles[Instance.Localized1].Data[(int) id];
+		}
+
+		public static string GetString(DATCONST2 id)
+		{
+			return Instance.DataFiles[Instance.Localized2].Data[(int)id];
+		}
+
 		private World() //don't allow construction of the world using 'new'
 		{
 			TryLoadItems();

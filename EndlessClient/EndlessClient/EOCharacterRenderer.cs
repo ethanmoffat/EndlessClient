@@ -489,7 +489,7 @@ namespace EndlessClient
 						case TileInfo.ReturnType.IsOtherPlayer:
 							if (NoWall) goto case TileInfo.ReturnType.IsTileSpec;
 
-							EOGame.Instance.Hud.SetStatusLabel("Keep moving into the player to walk through them...");
+							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
 							if(startWalkingThroughPlayerTime == null)
 								startWalkingThroughPlayerTime = gameTime;
 							else if ((gameTime.TotalGameTime.TotalSeconds - startWalkingThroughPlayerTime.TotalGameTime.TotalSeconds) > 3)
@@ -521,7 +521,9 @@ namespace EndlessClient
 							}
 							else if (info.Warp.levelRequirement != 0 && Character.Stats.level < info.Warp.levelRequirement)
 							{
-								EOGame.Instance.Hud.SetStatusLabel("Level requirement : " + info.Warp.levelRequirement);
+								EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, 
+									DATCONST2.STATUS_LABEL_NOT_READY_TO_USE_ENTRANCE,
+									" - LVL " + info.Warp.levelRequirement);
 							}
 							else
 							{
@@ -565,20 +567,15 @@ namespace EndlessClient
 					if (!walkValid)
 					{
 						MapChest chest = World.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.x == destX && _c.y == destY);
-						if(!chest.backoff && chest.x == destX && chest.y == destY && !Chest.ChestOpen(destX, destY))
-							EOGame.Instance.LostConnectionDialog();
-						else if(!chest.backoff && chest.x == destX && chest.y == destY)
-							chest.backoff = true;
+						if(chest.x == destX && chest.y == destY)
+							EOChestDialog.Show(chest.x, chest.y);
 					}
 					break;
 				case TileSpec.BankVault:
 					walkValid = NoWall;
 					if (!walkValid)
 					{
-						if (EOBankVaultDialog.Instance == null)
-						{
-							EOBankVaultDialog.Show(destX, destY);
-						}
+						EOBankVaultDialog.Show(destX, destY);
 					}
 					break;
 				case TileSpec.Board1: //todo: boards?

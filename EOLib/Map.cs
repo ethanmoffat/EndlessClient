@@ -86,7 +86,6 @@ namespace EOLib
 		public short item;
 		public short time;
 		public int amount;
-		public bool backoff; //used in code only: determines whether a chest packet was recently sent for this particular chest
 	}
 
 	public class MapItemComparer : IEqualityComparer<MapItem>

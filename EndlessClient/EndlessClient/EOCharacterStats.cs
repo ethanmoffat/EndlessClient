@@ -61,6 +61,7 @@ namespace EndlessClient
 				{
 					if (!m_training)
 					{
+						//apparently this is NOT stored in the edf files...
 						EODialog dlg = new EODialog("Do you want to train?", "Character training", XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader);
 						dlg.DialogClosing += (sender, args) =>
 						{

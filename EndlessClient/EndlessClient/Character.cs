@@ -552,7 +552,7 @@ namespace EndlessClient
 					TileInfo ti = World.Instance.ActiveMapRenderer.CheckCoordinates(x, y);
 					if (ti.ReturnValue == TileInfo.ReturnType.IsOtherNPC && ti.NPC.Opponent != null && ti.NPC.Opponent != this)
 					{
-						EOGame.Instance.Hud.SetStatusLabel("[ Information ] Unable to attack, this is not your battle!");
+						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_UNABLE_TO_ATTACK);
 						shouldSend = false;
 					}
 				}
@@ -642,7 +642,9 @@ namespace EndlessClient
 					//false when AddItem fails to find a good spot
 					if (!EOGame.Instance.Hud.UpdateInventory(newRec))
 					{
-						EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						EODialog.Show(World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+							World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+							XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 						return;
 					}
 				}
@@ -670,7 +672,9 @@ namespace EndlessClient
 					//false when AddItem fails to find a good spot
 					if (!EOGame.Instance.Hud.UpdateInventory(newRec))
 					{
-						EODialog.Show("You could not pick up this item because you have no more space left.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						EODialog.Show(World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+							World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+							XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 						return;
 					}
 				}
