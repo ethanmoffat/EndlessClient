@@ -133,6 +133,9 @@ Minor=0
 Client=28
 #individual settings
 [SETTINGS]
+Music=off #enable/disable background music
+Sound=off #enable/disable sound effects
+ShowBaloons=on #show/hide chat bubbles on map
 ShowShadows=true #show/hide shadows on map
 ShowTransition=true #enable/disable fancy transition on map (custom)
 EnableLogging=true #enable/disable logging (Warning: this causes a performance hit and should only be used for debugging purposes)
@@ -143,6 +146,14 @@ PlayerDropProtectTime=5
 [LANGUAGE]
 #0=english 1=dutch 2=swedish 3=portuguese (defaults to english)
 Language=0
+#note - different keyboard layouts are not going to be supported
+[CHAT]
+Filter=off
+FilterAll=on
+LogChat=off
+LogFile=CHATLOG.TXT
+HearWhisper=on
+Interaction=on
 ```
 
 <a name="Changes" />Changes From Original Client (so far)

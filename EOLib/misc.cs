@@ -96,6 +96,9 @@ namespace EOLib
 		public const string ShowShadows = "ShowShadows";
 		public const string ShowTransition = "ShowTransition";
 		public const string EnableLogging = "EnableLogging";
+		public const string Music = "Music";
+		public const string Sound = "Sound";
+		public const string ShowBaloons = "ShowBaloons";
 
 		public const string Custom = "CUSTOM";
 		public const string NPCDropProtectTime = "NPCDropProtectTime";
@@ -107,5 +110,8 @@ namespace EOLib
 		public const string Chat = "CHAT";
 		public const string Filter = "Filter";
 		public const string FilterAll = "FilterAll";
+		public const string HearWhisper = "HearWhisper";
+		public const string Interaction = "Interaction";
+		public const string LogChat = "LogChat";
 	}
 }

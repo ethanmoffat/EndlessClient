@@ -32,6 +32,15 @@ namespace EndlessClient
 
 	}
 
+	public class ConfigStringLoadException : Exception
+	{
+		public string WhichString { get; private set; }
+		public ConfigStringLoadException(string whichConfigString)
+		{
+			WhichString = whichConfigString;
+		}
+	}
+
 	public class Logger : IDisposable
 	{
 		private const int FLUSH_TIME_MS = 30000;
@@ -107,10 +116,7 @@ namespace EndlessClient
 					m_isOpen = false;
 				}
 
-				if (!World.Instance.Configuration.GetValue(ConfigStrings.Settings, ConfigStrings.EnableLogging, out m_isEnabled))
-				{
-					m_isEnabled = false; //default disable logging! must be explicitly 'on'
-				}
+				m_isEnabled = World.Instance.EnableLog;
 
 				if (m_isEnabled && m_isOpen)
 				{

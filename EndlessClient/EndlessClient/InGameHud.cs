@@ -328,6 +328,11 @@ namespace EndlessClient
 				new Vector2(77, 0),
 				new Rectangle(353, 30, 22, 14),
 				new Rectangle(353, 30, 22, 14));
+
+			//no need to make this a member variable
+			//it does not have any resources to dispose and it is automatically disposed by the framework
+// ReSharper disable once UnusedVariable
+			EOSettingsPanel settings = new EOSettingsPanel(pnlSettings);
 		}
 
 		public override void Initialize()
@@ -548,7 +553,7 @@ namespace EndlessClient
 
 					character = character.Substring(0, 1).ToUpper() + character.Substring(1).ToLower();
 
-					filtered = EOChatRenderer.Filter(message.Substring(1), true);
+					filtered = EOChatRenderer.Filter(message, true);
 					if (filtered != null)
 					{
 						if (!Talk.Speak(TalkType.PM, message, character))

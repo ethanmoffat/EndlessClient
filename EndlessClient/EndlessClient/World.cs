@@ -45,17 +45,17 @@ namespace EndlessClient
 			}
 		}
 
+		//Gets a localized string based on the selected language
 		public static string GetString(DATCONST1 id)
 		{
 			return Instance.DataFiles[Instance.Localized1].Data[(int) id];
 		}
-
 		public static string GetString(DATCONST2 id)
 		{
 			return Instance.DataFiles[Instance.Localized2].Data[(int)id];
 		}
 
-		private World() //don't allow construction of the world using 'new'
+		private World() //private: don't allow construction of the world using 'new'
 		{
 			TryLoadItems();
 			TryLoadNPCs();
@@ -82,56 +82,125 @@ namespace EndlessClient
 				exp_table[i] = (int)Math.Round(Math.Pow(i, 3) * 133.1);
 			}
 
-			int maj, min, cli, lang;
-
-			VersionMajor = Configuration.GetValue(ConfigStrings.Version, ConfigStrings.Major, out maj) ? (byte)maj : Constants.MajorVersion;
-			VersionMinor = Configuration.GetValue(ConfigStrings.Version, ConfigStrings.Minor, out min) ? (byte)min : Constants.MinorVersion;
-			VersionClient = Configuration.GetValue(ConfigStrings.Version, ConfigStrings.Client, out cli) ? (byte)cli : Constants.ClientVersion;
-			
-			Language = Configuration.GetValue(ConfigStrings.LANGUAGE, ConfigStrings.Language, out lang) ? (EOLanguage) lang : EOLanguage.English;
-			switch (Language)
-			{
-				case EOLanguage.English:
-					Localized1 = EOLib.DataFiles.EnglishStatus1;
-					Localized2 = EOLib.DataFiles.EnglishStatus2;
-					break;
-				case EOLanguage.Dutch:
-					Localized1 = EOLib.DataFiles.DutchStatus1;
-					Localized2 = EOLib.DataFiles.DutchStatus2;
-					break;
-				case EOLanguage.Swedish:
-					Localized1 = EOLib.DataFiles.SwedishStatus1;
-					Localized2 = EOLib.DataFiles.SwedishStatus2;
-					break;
-				case EOLanguage.Portuguese:
-					Localized1 = EOLib.DataFiles.PortugueseStatus1;
-					Localized2 = EOLib.DataFiles.PortugueseStatus2;
-					break;
-				default:
-					throw new ArgumentOutOfRangeException();
-			}
-
 			string[] files;
-			if(!Directory.Exists(Constants.DataFilePath) || (files = Directory.GetFiles(Constants.DataFilePath, "*.edf")).Length != 12)
+			if (!Directory.Exists(Constants.DataFilePath) || (files = Directory.GetFiles(Constants.DataFilePath, "*.edf")).Length != 12)
 				throw new WorldLoadException("Unable to find data files! Check that the data directory exists and has ALL the edf files copied over");
 
-			for (DataFiles file = (DataFiles) 1; file <= (DataFiles) 12; ++file)
-			{
-				DataFiles.Add(file, new EDFFile(files[(int) file - 1], file));
-			}
+			for (DataFiles file = (DataFiles)1; file <= (DataFiles)12; ++file)
+				DataFiles.Add(file, new EDFFile(files[(int)file - 1], file));
 
+			int maj, min, cli, lang, dropProtect;
+			VersionMajor = m_config.GetValue(ConfigStrings.Version, ConfigStrings.Major, out maj) ? (byte)maj : Constants.MajorVersion;
+			VersionMinor = m_config.GetValue(ConfigStrings.Version, ConfigStrings.Minor, out min) ? (byte)min : Constants.MinorVersion;
+			VersionClient = m_config.GetValue(ConfigStrings.Version, ConfigStrings.Client, out cli) ? (byte)cli : Constants.ClientVersion;
+			Language = m_config.GetValue(ConfigStrings.LANGUAGE, ConfigStrings.Language, out lang) ? (EOLanguage)lang : EOLanguage.English;
+
+			PlayerDropProtectTime = m_config.GetValue(ConfigStrings.Custom, ConfigStrings.PlayerDropProtectTime, out dropProtect)
+				? dropProtect
+				: Constants.PlayerDropProtectionSeconds;
+			NPCDropProtectTime = m_config.GetValue(ConfigStrings.Custom, ConfigStrings.NPCDropProtectTime, out dropProtect)
+				? dropProtect
+				: Constants.NPCDropProtectionSeconds;
+			
 			bool filter, strict;
-			CurseFilterEnabled = Configuration.GetValue(ConfigStrings.Chat, ConfigStrings.Filter, out filter) && filter;
-			StrictFilterEnabled = Configuration.GetValue(ConfigStrings.Chat, ConfigStrings.FilterAll, out strict) && strict;
+			CurseFilterEnabled = m_config.GetValue(ConfigStrings.Chat, ConfigStrings.Filter, out filter) && filter;
+			StrictFilterEnabled = m_config.GetValue(ConfigStrings.Chat, ConfigStrings.FilterAll, out strict) && strict;
+
+			bool shadows, transitions, music, sound, bubbles;
+			ShowShadows = !m_config.GetValue(ConfigStrings.Settings, ConfigStrings.ShowShadows, out shadows) || shadows;
+			ShowTransition = !m_config.GetValue(ConfigStrings.Settings, ConfigStrings.ShowTransition, out transitions) || transitions;
+			MusicEnabled = m_config.GetValue(ConfigStrings.Settings, ConfigStrings.Music, out music) && music;
+			SoundEnabled = m_config.GetValue(ConfigStrings.Settings, ConfigStrings.Sound, out sound) && sound;
+			ShowChatBubbles = !m_config.GetValue(ConfigStrings.Settings, ConfigStrings.ShowBaloons, out bubbles) || bubbles;
+
+			bool logging, whispers, interaction, logChat;
+			EnableLog = m_config.GetValue(ConfigStrings.Settings, ConfigStrings.EnableLogging, out logging) && logging;
+			HearWhispers = !m_config.GetValue(ConfigStrings.Chat, ConfigStrings.HearWhisper, out whispers) || whispers;
+			Interaction = !m_config.GetValue(ConfigStrings.Chat, ConfigStrings.Interaction, out interaction) || interaction;
+			LogChatToFile = m_config.GetValue(ConfigStrings.Chat, ConfigStrings.LogChat, out logChat) && logChat;
+
+			//do these last and throw non-fatal exceptions (default will be used)
+			string host;
+			int port;
+			if (!m_config.GetValue(ConfigStrings.Connection, ConfigStrings.Host, out host))
+			{
+				Host = Constants.Host;
+				throw new ConfigStringLoadException(ConfigStrings.Host);
+			}
+			Host = host;
+			if (!m_config.GetValue(ConfigStrings.Connection, ConfigStrings.Port, out port))
+			{
+				Port = Constants.Port;
+				throw new ConfigStringLoadException(ConfigStrings.Port);
+			}
+			Port = port;
 		}
 
 		public int[] exp_table;
 
-		/*** Instance Properties and such ***/
+		/*** Settings loaded from configuration ***/
+		/*** Those with private setters are custom config options that can't be changed in-game ***/
+		private readonly IniReader m_config;
 
 		public byte VersionMajor { get; private set; }
 		public byte VersionMinor { get; private set; }
 		public byte VersionClient { get; private set; }
+
+		private EOLanguage m_lang;
+		public EOLanguage Language
+		{
+			get { return m_lang; }
+			set
+			{
+				m_lang = value;
+				switch (m_lang)
+				{
+					case EOLanguage.English:
+						Localized1 = EOLib.DataFiles.EnglishStatus1;
+						Localized2 = EOLib.DataFiles.EnglishStatus2;
+						break;
+					case EOLanguage.Dutch:
+						Localized1 = EOLib.DataFiles.DutchStatus1;
+						Localized2 = EOLib.DataFiles.DutchStatus2;
+						break;
+					case EOLanguage.Swedish:
+						Localized1 = EOLib.DataFiles.SwedishStatus1;
+						Localized2 = EOLib.DataFiles.SwedishStatus2;
+						break;
+					case EOLanguage.Portuguese:
+						Localized1 = EOLib.DataFiles.PortugueseStatus1;
+						Localized2 = EOLib.DataFiles.PortugueseStatus2;
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
+		}
+		public DataFiles Localized1 { get; private set; }
+		public DataFiles Localized2 { get; private set; }
+
+		public bool CurseFilterEnabled { get; set; }
+		public bool StrictFilterEnabled { get; set; }
+
+		public bool ShowShadows { get; set; }
+		public bool ShowChatBubbles { get; set; }
+		public bool ShowTransition { get; private set; }
+		public int PlayerDropProtectTime { get; private set; }
+		public int NPCDropProtectTime { get; private set; }
+
+		public bool MusicEnabled { get; set; }
+		public bool SoundEnabled { get; set; }
+
+		public string Host { get; private set; }
+		public int Port { get; private set; }
+
+		public bool HearWhispers { get; set; }
+		public bool Interaction { get; set; }
+		public bool LogChatToFile { get; set; }
+
+		public bool EnableLog { get; private set; }
+
+		/*** Instance Properties and such ***/
 
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 		public short JailMap { get; set; }
@@ -176,13 +245,6 @@ namespace EndlessClient
 		private Dictionary<int, MapFile> MapCache { get; set; }
 
 		public Dictionary<DataFiles, EDFFile> DataFiles { get; private set; }
-
-		public EOLanguage Language { get; private set; }
-		public DataFiles Localized1 { get; private set; }
-		public DataFiles Localized2 { get; private set; }
-
-		public bool CurseFilterEnabled { get; private set; }
-		public bool StrictFilterEnabled { get; private set; }
 
 		/// <summary>
 		/// Returns a MapFile for the map the MainPlayer is on
@@ -275,12 +337,6 @@ namespace EndlessClient
 		public AsyncClient Client
 		{
 			get { return m_client; }
-		}
-
-		private readonly IniReader m_config;
-		public IniReader Configuration
-		{
-			get { return m_config; }
 		}
 
 		/*** Functions for loading/checking the different pub/map files ***/

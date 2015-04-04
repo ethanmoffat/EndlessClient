@@ -985,7 +985,7 @@ namespace EOLib.Data
 			}
 			else
 			{
-				string[] lines = File.ReadAllLines(fileName);
+				string[] lines = File.ReadAllLines(fileName, Encoding.Default);
 				int i = 0;
 				foreach (string encoded in lines)
 					Data.Add(i++, _decodeDatString(encoded, whichFile));

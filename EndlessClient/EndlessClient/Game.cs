@@ -339,6 +339,9 @@ namespace EndlessClient
 				GFXLoader.Initialize(GraphicsDevice);
 				World w = World.Instance; //set up the world
 				w.Init();
+
+				host = World.Instance.Host;
+				port = World.Instance.Port;
 			}
 			catch (WorldLoadException wle) //could be thrown from World's constructor
 			{
@@ -346,7 +349,31 @@ namespace EndlessClient
 				Exit();
 				return;
 			}
-			catch (Exception ex) //could be thrown from GFXLoader.Initialize
+			catch (ConfigStringLoadException csle)
+			{
+				host = World.Instance.Host;
+				port = World.Instance.Port;
+				switch (csle.WhichString)
+				{
+					case ConfigStrings.Host:
+						MessageBox.Show(
+							string.Format("There was an error loading the host/port from the config file. Defaults will be used: {0}:{1}",
+								host, port),
+							"Config Load Failed",
+							MessageBoxButtons.OK,
+							MessageBoxIcon.Warning);
+						break;
+					case ConfigStrings.Port:
+						MessageBox.Show(
+							string.Format("There was an error loading the port from the config file. Default will be used: {0}:{1}",
+								host, port),
+							"Config Load Failed",
+							MessageBoxButtons.OK,
+							MessageBoxIcon.Warning);
+						break;
+				}
+			}
+			catch (ArgumentException ex) //could be thrown from GFXLoader.Initialize
 			{
 				MessageBox.Show("Error initializing GFXLoader: " + ex.Message, "Error");
 				Exit();
@@ -378,11 +405,6 @@ namespace EndlessClient
 				Exit();
 				return;
 			}
-
-			if (!World.Instance.Configuration.GetValue(ConfigStrings.Connection, ConfigStrings.Host, out host))
-				host = Constants.Host;
-			if (!World.Instance.Configuration.GetValue(ConfigStrings.Connection, ConfigStrings.Port, out port))
-				port = Constants.Port;
 			
 			base.Initialize();
 		}

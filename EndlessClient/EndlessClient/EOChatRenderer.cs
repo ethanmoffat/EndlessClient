@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Windows.Input;
 using EOLib;
 using XNAControls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
+using Mouse = Microsoft.Xna.Framework.Input.Mouse;
 
 namespace EndlessClient
 {
@@ -513,6 +515,19 @@ namespace EndlessClient
 
 		public void SetSelectedTab(ChatTabs tabToSelect)
 		{
+			if ((ChatTabs) currentSelTab == ChatTabs.Global && tabToSelect != ChatTabs.Global)
+			{
+				Packet pkt = new Packet(PacketFamily.Global, PacketAction.Close);
+				pkt.AddChar((byte) 'n');
+				World.Instance.Client.SendPacket(pkt);
+			}
+			else if(tabToSelect == ChatTabs.Global && (ChatTabs)currentSelTab != ChatTabs.Global)
+			{
+				Packet pkt = new Packet(PacketFamily.Global, PacketAction.Open);
+				pkt.AddChar((byte) 'y');
+				World.Instance.Client.SendPacket(pkt);
+			}
+
 			tabs[currentSelTab].Selected = false;
 			tabs[currentSelTab = (int)tabToSelect].Selected = true;
 		}

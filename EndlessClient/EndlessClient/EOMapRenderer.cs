@@ -309,8 +309,6 @@ namespace EndlessClient
 		private RenderTarget2D _rtMapObjAbovePlayer, _rtMapObjBelowPlayer;
 		private BlendState _playerBlend;
 		private SpriteBatch sb;
-		private readonly bool m_showShadows, m_enableTransition;
-		private readonly int m_npcDropProtect, m_playerDropProtect;
 		private bool m_showMiniMap;
 
 		private DateTime? m_mapLoadTime;
@@ -354,17 +352,6 @@ namespace EndlessClient
 
 			m_drawingEvent = new ManualResetEventSlim(true);
 			Visible = true;
-
-			//shadows on by default
-			if (!World.Instance.Configuration.GetValue(ConfigStrings.Settings, ConfigStrings.ShowShadows, out m_showShadows))
-				m_showShadows = true;
-
-			if (!World.Instance.Configuration.GetValue(ConfigStrings.Custom, ConfigStrings.NPCDropProtectTime, out m_npcDropProtect))
-				m_npcDropProtect = Constants.NPCDropProtectionSeconds;
-			if (!World.Instance.Configuration.GetValue(ConfigStrings.Custom, ConfigStrings.PlayerDropProtectTime, out m_playerDropProtect))
-				m_playerDropProtect = Constants.PlayerDropProtectionSeconds;
-			if (!World.Instance.Configuration.GetValue(ConfigStrings.Settings, ConfigStrings.ShowTransition, out m_enableTransition))
-				m_enableTransition = false;
 
 			_doorTimer = new Timer(_doorTimerCallback);
 			SetActiveMap(mapObj);
@@ -418,6 +405,9 @@ namespace EndlessClient
 
 		public void MakeSpeechBubble(DrawableGameComponent follow, string message)
 		{
+			if (!World.Instance.ShowChatBubbles)
+				return;
+
 			if (follow == null)
 				follow = World.Instance.ActiveCharacterRenderer; /* Calling with null assumes Active Character */
 
@@ -1175,8 +1165,8 @@ namespace EndlessClient
 					if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
 					{
 						if (World.Instance.MainPlayer.ActiveCharacter.ID != mi.playerID &&
-							(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= m_npcDropProtect) ||
-							(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= m_playerDropProtect))
+							(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) ||
+							(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
 						{
 							Character charRef = otherPlayers.Find(_c => _c.ID == mi.id);
 							DATCONST2 msg = charRef == null
@@ -1408,7 +1398,7 @@ namespace EndlessClient
 						}
 
 						//shadows
-						if (m_showShadows && (gfxNum = MapRef.GFXLookup[(int) MapLayers.Shadow][rowIndex, colIndex]) > 0)
+						if (World.Instance.ShowShadows && (gfxNum = MapRef.GFXLookup[(int) MapLayers.Shadow][rowIndex, colIndex]) > 0)
 						{
 							gfx = GFXLoader.TextureFromResource(GFXTypes.Shadows, gfxNum, true);
 							Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
@@ -1634,7 +1624,7 @@ namespace EndlessClient
 		
 		private int _getAlpha(int objX, int objY, Character c)
 		{
-			if (!m_enableTransition)
+			if (!World.Instance.ShowTransition)
 				return 255;
 
 			//get greater of deltas between the map object and the character
