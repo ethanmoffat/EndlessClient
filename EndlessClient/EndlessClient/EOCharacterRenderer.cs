@@ -536,10 +536,17 @@ namespace EndlessClient
 							break;
 					}
 				}
-				else if(State == CharacterActionState.Standing && _char.CanAttack)
+				else if(State == CharacterActionState.Standing)
 				{
-					_char.Attack(Data.facing, destX, destY); //destX and destY validity check above
-					PlayerAttack();
+					if (Character.CanAttack)
+					{
+						Character.Attack(Data.facing, destX, destY); //destX and destY validity check above
+						PlayerAttack();
+					}
+					else if(Character.Weight > Character.MaxWeight)
+					{
+						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_CANNOT_ATTACK_OVERWEIGHT);
+					}
 				}
 
 				if (State == CharacterActionState.Standing) _prevKeyState = currentKeyState; //only set this when not walking already

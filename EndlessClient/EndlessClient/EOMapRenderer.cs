@@ -1181,6 +1181,10 @@ namespace EndlessClient
 							{
 								EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
 							}
+							else if (c.Weight >= c.MaxWeight)
+							{
+								EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
+							}
 							else if (!Item.GetItem(mi.uid)) //server validates anyway
 								EOGame.Instance.LostConnectionDialog();
 						}
