@@ -52,7 +52,7 @@ Note that the game client requires some additional files to be copied to the *bi
 
 The primary thing that's been completely is the basic framework for running and displaying the game. I have a solid custom-built UI controls library, and liberal use of the XNA Game Component model. Socket connections for sending/receiving data to/from the server are all set up and surprisingly stable (except for when the server closes a connection, but we're ignoring that for now). The framework that is there also allows for easy addition of different Packet handlers, which means more features for the game client can be added without much effort.
 
-**The game is somewhat playable.** This is the most important thing you need to know. It is more than a foundation, and less than a fully fledged game. The important thing is that it is a work in progress and constantly being improved.
+**The game is mostly there.** This is the most important thing you need to know. Most of the required components to get a working game are there and working. The important thing is that it is a work in progress and constantly being improved.
 
 Here's a list of some things that can be done:
  - Character rendering/walking
@@ -74,6 +74,8 @@ Here's a list of some things that can be done:
  - Bank vault (aka Private Locker)
  - All pre-game menus, logging in, creating/deleting characters, creating account, etc.
  - Data file (EDF) loading
+ - Character Emotes
+ - All settings from original client loaded
 
 <a name="ToDo" />What's Left to do?
 ------------------
@@ -89,7 +91,7 @@ Here's a working but incomplete list of things I want to get to (strikethrough m
  - ~~Map bank vaults~~
  - ~~Right-click players on map~~
  - Cast spells and spell animations
- - Finishing HUD panels -  ~~'view minimap' toggle~~, active spells, ~~online players~~, parties, settings, help
+ - Finishing HUD panels -  ~~'view minimap' toggle~~, active spells, ~~online players~~, parties, ~~settings~~, help
  - ~~HUD meters - HP/SP/TP/TNL~~
  - HUD Quests/Exp info
  - ~~HUD Friend/Ignore lists~~
