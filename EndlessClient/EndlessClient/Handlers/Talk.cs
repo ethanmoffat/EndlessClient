@@ -145,8 +145,8 @@ namespace EndlessClient.Handlers
 		public static void TalkServer(Packet pkt)
 		{
 			string msg = pkt.GetEndString();
-			EOGame.Instance.Hud.AddChat(ChatTabs.Local, "Server", msg, ChatType.Exclamation, ChatColor.Server);
-			EOGame.Instance.Hud.AddChat(ChatTabs.Global, "Server", msg, ChatType.Exclamation, ChatColor.ServerGlobal);
+			EOGame.Instance.Hud.AddChat(ChatTabs.Local, World.GetString(DATCONST2.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.Server);
+			EOGame.Instance.Hud.AddChat(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.ServerGlobal);
 			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", msg, ChatType.Exclamation, ChatColor.Server);
 		}
 	}

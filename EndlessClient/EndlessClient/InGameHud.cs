@@ -221,11 +221,11 @@ namespace EndlessClient
 
 			chatRenderer = new EOChatRenderer();
 			chatRenderer.SetParent(pnlChat);
-			chatRenderer.AddTextToTab(ChatTabs.Global, "Server",
-				World.Instance.DataFiles[World.Instance.Localized2].Data[(int) DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_1],
+			chatRenderer.AddTextToTab(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER),
+				World.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_1),
 				ChatType.Note, ChatColor.Server);
-			chatRenderer.AddTextToTab(ChatTabs.Global, "Server",
-				World.Instance.DataFiles[World.Instance.Localized2].Data[(int)DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_2],
+			chatRenderer.AddTextToTab(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER),
+				World.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_2),
 				ChatType.Note, ChatColor.Server);
 
 			newsTab = new ChatTab(pnlNews);
@@ -654,7 +654,7 @@ namespace EndlessClient
 				newsTab.SetButtonFlash();
 			}
 			
-			chatRenderer.AddTextToTab(ChatTabs.Local, "Server", lines[0], ChatType.Note, ChatColor.Server);
+			chatRenderer.AddTextToTab(ChatTabs.Local, World.GetString(DATCONST2.STRING_SERVER), lines[0], ChatType.Note, ChatColor.Server);
 		}
 
 		public void AddChat(ChatTabs whichTab, string who, string message, ChatType chatType = ChatType.None, ChatColor chatColor = ChatColor.Default)
