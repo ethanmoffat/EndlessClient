@@ -634,11 +634,13 @@ namespace EndlessClient
 			if ((c = otherPlayers.Find(cc => cc.ID == ID)) != null)
 			{
 				c.Walk(direction, x, y, false);
-				List<EOCharacterRenderer> rends = otherRenderers.Where(rend => rend.Character == c).ToList();
-				EOCharacterRenderer renderer;
-				if (rends.Count > 0 && (renderer = rends[0]) != null)
+				EOCharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character == c);
+				if (rend != null)
 				{
-					renderer.PlayerWalk();//do the actual drawing of the other player walking
+					TileInfo ti = CheckCoordinates(c.DestX, c.DestY);
+					
+					//do the actual drawing of the other player walking
+					rend.PlayerWalk(ti.ReturnValue == TileInfo.ReturnType.IsTileSpec && ti.Spec == TileSpec.Water);
 				}
 			}
 		}

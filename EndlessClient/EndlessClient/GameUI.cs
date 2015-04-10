@@ -38,6 +38,7 @@ namespace EndlessClient
 		readonly XNATextBox[] accountCreateTextBoxes = new XNATextBox[6];
 
 		public HUD Hud { get; private set; }
+		public EOSoundManager SoundManager { get; private set; }
 
 		private void InitializeControls(bool reinit = false)
 		{
@@ -205,6 +206,11 @@ Thanks to :
 		{
 			if (!IsActive)
 				return;
+
+			if (World.Instance.SoundEnabled && mainButtons.Contains(sender))
+			{
+				SoundManager.GetSoundEffectRef(SoundEffectID.ButtonClick).Play();
+			}
 
 			//switch on sender
 			if (sender == mainButtons[0])

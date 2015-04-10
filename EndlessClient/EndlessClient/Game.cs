@@ -405,6 +405,17 @@ namespace EndlessClient
 				Exit();
 				return;
 			}
+
+			try
+			{
+				SoundManager = new EOSoundManager();
+			}
+			catch
+			{
+				MessageBox.Show(string.Format("There was an error initializing the sound manager."), "Error");
+				Exit();
+				return;
+			}
 			
 			base.Initialize();
 		}

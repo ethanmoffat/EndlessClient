@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
+using EOLib;
 using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Media;
 
 namespace EndlessClient
 {
@@ -88,14 +91,80 @@ namespace EndlessClient
 
 	public class EOSoundManager : IDisposable
 	{
+		private class SoundInfo : IDisposable
+		{
+			private readonly SoundEffect m_effect;
+
+			private readonly List<SoundEffectInstance> m_instances;
+
+			public SoundInfo(SoundEffect toWrap)
+			{
+				if (toWrap == null) return;
+
+				m_effect = toWrap;
+				m_instances = new List<SoundEffectInstance> { toWrap.CreateInstance() };
+			}
+
+			public SoundEffectInstance GetNextAvailableInstance()
+			{
+				if (m_effect == null) return null;
+
+				SoundEffectInstance ret = m_instances.Find(_sei => _sei.State == SoundState.Stopped);
+				if(ret == null)
+					m_instances.Add(ret = m_effect.CreateInstance());
+				return ret;
+			}
+
+			public void Dispose()
+			{
+				Dispose(true);
+			}
+
+			private void Dispose(bool disposing)
+			{
+				if (disposing)
+				{
+					m_instances.ForEach(_inst =>
+					{
+						_inst.Stop();
+						_inst.Dispose();
+					});
+					m_effect.Dispose();
+				}
+				GC.SuppressFinalize(this);
+			}
+		}
+
+		//some of the original SFX files will fail to load because the file length is stored incorrectly in the WAV header.
+		//this method fixes those in-place. make sure to have backups! :)
+		private void _correctTheFileLength(string filename)
+		{
+			byte[] wav = File.ReadAllBytes(filename);
+
+			string riff = Encoding.ASCII.GetString(wav.SubArray(0, 4));
+			if (riff != "RIFF" || wav.Length < 8) //check for RIFF tag and length
+				return;
+
+			int reportedLength = wav[4] + wav[5]*256 + wav[6]*65536 + wav[7]*16777216;
+			int actualLength = wav.Length - 8;
+
+			if (reportedLength != actualLength)
+			{
+				wav[4] = (byte) (actualLength & 0xFF);
+				wav[5] = (byte) ((actualLength >> 8) & 0xFF);
+				wav[6] = (byte) ((actualLength >> 16) & 0xFF);
+				wav[7] = (byte) ((actualLength >> 24) & 0xFF);
+				File.WriteAllBytes(filename, wav);
+			}
+		}
+
 		private const string SFX_DIR = "sfx";
 		private const string MFX_DIR = "mfx";
 
-		private List<SoundEffectInstance> m_sounds;
-		private List<SoundEffectInstance> m_guitarSounds;
-		private List<SoundEffectInstance> m_harpSounds;
-		private List<SoundEffectInstance> m_music;
-		private List<SoundEffect> m_effects;
+		private List<SoundInfo> m_sounds;
+		private List<SoundInfo> m_guitarSounds;
+		private List<SoundInfo> m_harpSounds;
+		private List<Song> m_music;
 
 		//singleton pattern -- any newly constructed instance is copied from the 'instance'
 		private static readonly object _construction_locker_ = new object();
@@ -119,36 +188,37 @@ namespace EndlessClient
 				string[] musicFiles = Directory.GetFiles(MFX_DIR, "*.mid");
 				Array.Sort(musicFiles);
 
-				m_sounds = new List<SoundEffectInstance>(81);
-				m_guitarSounds = new List<SoundEffectInstance>(36);
-				m_harpSounds = new List<SoundEffectInstance>(36);
-				m_music = new List<SoundEffectInstance>(musicFiles.Length);
-				m_effects = new List<SoundEffect>(soundFiles.Length + musicFiles.Length);
+				m_sounds = new List<SoundInfo>(81);
+				m_guitarSounds = new List<SoundInfo>(36);
+				m_harpSounds = new List<SoundInfo>(36);
+				m_music = new List<Song>(musicFiles.Length);
 
 				foreach (string sfx in soundFiles)
 				{
-					using (FileStream fs = new FileStream(sfx, FileMode.Open))
+					_correctTheFileLength(sfx);
+
+					using (FileStream fs = new FileStream(sfx, FileMode.Open, FileAccess.Read, FileShare.Read))
 					{
+						//Note: this MAY throw InvalidOperationException if the file is invalid. However, _correctTheFileLength fixes
+						//	this for the original sfx files.
 						SoundEffect nextEffect = SoundEffect.FromStream(fs);
-						if(sfx.ToLower().Contains("gui"))
-							m_guitarSounds.Add(nextEffect.CreateInstance());
-						else if(sfx.ToLower().Contains("har"))
-							m_harpSounds.Add(nextEffect.CreateInstance());
+
+						if (sfx.ToLower().Contains("gui"))
+							m_guitarSounds.Add(nextEffect == null ? null : new SoundInfo(nextEffect));
+						else if (sfx.ToLower().Contains("har"))
+							m_harpSounds.Add(nextEffect == null ? null : new SoundInfo(nextEffect));
 						else
-							m_sounds.Add(nextEffect.CreateInstance());
-						m_effects.Add(nextEffect);
+							m_sounds.Add(nextEffect == null ? null : new SoundInfo(nextEffect));
 					}
 				}
 
 				foreach (string mfx in musicFiles)
 				{
-					using (FileStream fs = new FileStream(mfx, FileMode.Open))
-					{
-						SoundEffect nextEffect = SoundEffect.FromStream(fs);
-						m_music.Add(nextEffect.CreateInstance());
-						m_effects.Add(nextEffect);
-					}
+					Song nextSong = Song.FromUri(mfx, new Uri(mfx, UriKind.Relative));
+					m_music.Add(nextSong);
 				}
+
+				MediaPlayer.IsRepeating = true;
 
 				inst = this;
 			}
@@ -161,27 +231,39 @@ namespace EndlessClient
 			m_guitarSounds = other.m_guitarSounds;
 			m_harpSounds = other.m_harpSounds;
 			m_music = other.m_music;
-			m_effects = other.m_effects;
 		}
 
 		public SoundEffectInstance GetGuitarSoundRef(Note which)
 		{
-			return m_guitarSounds[(int) which];
+			return m_guitarSounds[(int) which].GetNextAvailableInstance();
 		}
 
 		public SoundEffectInstance GetHarpSoundRef(Note which)
 		{
-			return m_harpSounds[(int) which];
+			return m_harpSounds[(int) which].GetNextAvailableInstance();
 		}
 
 		public SoundEffectInstance GetSoundEffectRef(SoundEffectID whichSoundEffect)
 		{
-			return m_sounds[(int) whichSoundEffect];
+			return m_sounds[(int)whichSoundEffect].GetNextAvailableInstance();
 		}
 
-		public SoundEffectInstance GetMusicEffectRef(MusicEffectID whichMusicEffect)
+		public bool PlaySong(MusicEffectID whichMusicEffect)
 		{
-			return m_music[(int) whichMusicEffect];
+			MediaPlayer.Stop();
+			try
+			{
+				MediaPlayer.Play(m_music[(int) whichMusicEffect]);
+			}
+			catch (ArgumentNullException)
+			{
+				return false;
+			}
+			catch (InvalidOperationException)
+			{
+				return false;
+			}
+			return true;
 		}
 
 		~EOSoundManager()
@@ -193,7 +275,7 @@ namespace EndlessClient
 			}
 		}
 
-		public virtual void Dispose()
+		public void Dispose()
 		{
 			if (this != inst)
 				return;
@@ -205,35 +287,24 @@ namespace EndlessClient
 		{
 			if (disposing)
 			{
-				foreach (SoundEffectInstance mfx in m_music)
+				foreach (Song mfx in m_music)
 				{
-					mfx.Stop();
+					MediaPlayer.Stop();
 					mfx.Dispose();
 				}
 
-				foreach (SoundEffectInstance sfx in m_sounds)
-				{
-					sfx.Stop();
+				foreach (var sfx in m_sounds)
 					sfx.Dispose();
-				}
 
-				foreach (SoundEffectInstance gui in m_guitarSounds)
-				{
-					gui.Stop();
+				foreach (var gui in m_guitarSounds)
 					gui.Dispose();
-				}
 
-				foreach (SoundEffectInstance har in m_harpSounds)
-				{
-					har.Stop();
+				foreach (var har in m_harpSounds)
 					har.Dispose();
-				}
-
-				foreach(SoundEffect sfx in m_effects)
-					sfx.Dispose();
 			}
 
 			IsDisposed = true;
+			GC.SuppressFinalize(this);
 		}
 	}
 }

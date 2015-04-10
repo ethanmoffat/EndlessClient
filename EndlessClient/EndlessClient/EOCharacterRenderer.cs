@@ -607,7 +607,7 @@ namespace EndlessClient
 			if (State != CharacterActionState.Walking && walkValid)
 			{
 				_char.Walk(dir, destX, destY, NoWall);
-				PlayerWalk();
+				PlayerWalk(spec == TileSpec.Water);
 			}
 		}
 
@@ -621,76 +621,87 @@ namespace EndlessClient
 			if (state.IsKeyUp(Keys.NumPad0) && _prevKeyState.IsKeyDown(Keys.NumPad0))
 			{
 				em = Emote.Playful;
-				_char.Emote(em);
+				Character.Emote(em);
 				PlayerEmote();
 			}
 			else if (state.IsKeyUp(Keys.NumPad1) && _prevKeyState.IsKeyDown(Keys.NumPad1))
 			{
 				em = (Emote) 1;
-				_char.Emote(em);
+				Character.Emote(em);
 				PlayerEmote();
 			}
 			else if (state.IsKeyUp(Keys.NumPad2) && _prevKeyState.IsKeyDown(Keys.NumPad2))
 			{
 				em = (Emote) 2;
-				_char.Emote(em);
+				Character.Emote(em);
 				PlayerEmote();
 			}
 			else if (state.IsKeyUp(Keys.NumPad3) && _prevKeyState.IsKeyDown(Keys.NumPad3))
 			{
 				em = (Emote) 3;
-				_char.Emote(em);
+				Character.Emote(em);
 				PlayerEmote();
 			}
 			else if (state.IsKeyUp(Keys.NumPad4) && _prevKeyState.IsKeyDown(Keys.NumPad4))
 			{
 				em = (Emote) 4;
-				_char.Emote(em);
+				Character.Emote(em);
 				PlayerEmote();
 			}
 			else if (state.IsKeyUp(Keys.NumPad5) && _prevKeyState.IsKeyDown(Keys.NumPad5))
 			{
 				em = (Emote) 5;
-				_char.Emote(em);
+				Character.Emote(em);
 				PlayerEmote();
 			}
 			else if (state.IsKeyUp(Keys.NumPad6) && _prevKeyState.IsKeyDown(Keys.NumPad6))
 			{
 				em = (Emote) 6;
-				_char.Emote(em);
+				Character.Emote(em);
 				PlayerEmote();
 			}
 			else if (state.IsKeyUp(Keys.NumPad7) && _prevKeyState.IsKeyDown(Keys.NumPad7))
 			{
 				em = (Emote) 7;
-				_char.Emote(em);
+				Character.Emote(em);
 				PlayerEmote();
 			}
 			else if (state.IsKeyUp(Keys.NumPad8) && _prevKeyState.IsKeyDown(Keys.NumPad8))
 			{
 				em = (Emote) 8;
-				_char.Emote(em);
+				Character.Emote(em);
 				PlayerEmote();
 			}
 			else if (state.IsKeyUp(Keys.NumPad9) && _prevKeyState.IsKeyDown(Keys.NumPad9))
 			{
 				em = (Emote) 9;
-				_char.Emote(em);
+				Character.Emote(em);
 				PlayerEmote();
 			}
 			//The Decimal enumeration is 110, which is the Virtual Key code (VK_XXXX) for the 'del'/'.' key on the numpad
 			else if (state.IsKeyUp(Keys.Decimal) && _prevKeyState.IsKeyDown(Keys.Decimal))
 			{
 				em = Emote.Embarassed;
-				_char.Emote(em);
+				Character.Emote(em);
 				PlayerEmote();
 			}
 		}
 
-		public void PlayerWalk()
+		public void PlayerWalk(bool isWaterTile)
 		{
 			const int walkTimer = 100;
 			Data.SetUpdate(true);
+
+			if (World.Instance.SoundEnabled && NoWall)
+			{
+				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.NoWallWalk).Play();
+			}
+
+			if (World.Instance.SoundEnabled && isWaterTile)
+			{
+				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Water).Play();
+			}
+
 			_walkTimer.Change(0, walkTimer); //ok, it's time to start
 		}
 
@@ -698,11 +709,41 @@ namespace EndlessClient
 		{
 			const int attackTimer = 285;
 			Data.SetUpdate(true);
+
+			if (World.Instance.SoundEnabled)
+			{
+				if (weaponInfo != null)
+				{
+					if (weaponInfo.SubType == ItemSubType.Ranged)
+					{
+						if (weaponInfo.Name.ToLower().Contains("gun"))
+							EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Gun).Play();
+						else
+							EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.AttackBow).Play();
+					}
+					else if (weaponInfo.Name.ToLower().Contains("harp"))
+					{
+						EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Harp1 + (new Random()).Next(0, 3)).Play();
+					}
+					else if (weaponInfo.Name.ToLower().Contains("guitar"))
+					{
+						EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Guitar1 + (new Random()).Next(0, 3)).Play();
+					}
+					else
+						EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.MeleeWeaponAttack).Play();
+				}
+				else
+					EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.PunchAttack).Play();
+			}
+
 			_attackTimer.Change(0, attackTimer);
 		}
 
 		public void PlayerEmote()
 		{
+			if (World.Instance.SoundEnabled && Character.RenderData.emote == Emote.LevelUp)
+				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.LevelUp).Play();
+
 			const int EmoteTimeBetweenFrames = 250;
 			Data.SetUpdate(true);
 			_emoteTimer.Change(0, EmoteTimeBetweenFrames);
@@ -710,6 +751,8 @@ namespace EndlessClient
 
 		public void Die()
 		{
+			if(World.Instance.SoundEnabled)
+				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Dead).Play();
 			Character.RenderData.SetDead(true);
 			m_deadTime = DateTime.Now;
 		}
