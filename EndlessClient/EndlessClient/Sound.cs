@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Windows.Media;
+using System.Windows.Threading;
 using EOLib;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Media;
@@ -78,12 +81,6 @@ namespace EndlessClient
 		//map noises seem to fade out as you change maps or get farther away from them
 	}
 
-	//mfx001 will be ID int 0
-	public enum MusicEffectID
-	{
-		
-	}
-
 	public enum Note
 	{
 		
@@ -97,12 +94,15 @@ namespace EndlessClient
 
 			private readonly List<SoundEffectInstance> m_instances;
 
+			private SoundEffectInstance m_loopingInstance; //there SHOULD only be one of these...
+
 			public SoundInfo(SoundEffect toWrap)
 			{
 				if (toWrap == null) return;
 
 				m_effect = toWrap;
 				m_instances = new List<SoundEffectInstance> { toWrap.CreateInstance() };
+				m_loopingInstance = null;
 			}
 
 			public SoundEffectInstance GetNextAvailableInstance()
@@ -115,6 +115,26 @@ namespace EndlessClient
 				return ret;
 			}
 
+			public void PlayLoopingInstance()
+			{
+				if (m_effect == null) return;
+
+				if (m_loopingInstance == null)
+				{
+					m_loopingInstance = m_effect.CreateInstance();
+					m_loopingInstance.IsLooped = true;
+				}
+
+				m_loopingInstance.Play();
+			}
+
+			public void StopLoopingInstance()
+			{
+				if (m_loopingInstance == null) return;
+
+				m_loopingInstance.Stop(true);
+			}
+
 			public void Dispose()
 			{
 				Dispose(true);
@@ -124,6 +144,9 @@ namespace EndlessClient
 			{
 				if (disposing)
 				{
+					if(m_loopingInstance != null)
+						m_loopingInstance.Dispose();
+
 					m_instances.ForEach(_inst =>
 					{
 						_inst.Stop();
@@ -164,7 +187,10 @@ namespace EndlessClient
 		private List<SoundInfo> m_sounds;
 		private List<SoundInfo> m_guitarSounds;
 		private List<SoundInfo> m_harpSounds;
-		private List<Song> m_music;
+
+		private readonly System.Windows.Media.MediaPlayer m_songPlayer;
+		private Dispatcher m_dispatcher;
+		private List<Uri> m_music;
 
 		//singleton pattern -- any newly constructed instance is copied from the 'instance'
 		private static readonly object _construction_locker_ = new object();
@@ -191,7 +217,7 @@ namespace EndlessClient
 				m_sounds = new List<SoundInfo>(81);
 				m_guitarSounds = new List<SoundInfo>(36);
 				m_harpSounds = new List<SoundInfo>(36);
-				m_music = new List<Song>(musicFiles.Length);
+				m_music = new List<Uri>(musicFiles.Length);
 
 				foreach (string sfx in soundFiles)
 				{
@@ -212,13 +238,12 @@ namespace EndlessClient
 					}
 				}
 
-				foreach (string mfx in musicFiles)
-				{
-					Song nextSong = Song.FromUri(mfx, new Uri(mfx, UriKind.Relative));
-					m_music.Add(nextSong);
-				}
+				m_songPlayer = new System.Windows.Media.MediaPlayer();
+				m_dispatcher = Dispatcher.CurrentDispatcher;
+				m_songPlayer.MediaEnded += (o, e) => m_songPlayer.Position = new TimeSpan(0);
 
-				MediaPlayer.IsRepeating = true;
+				foreach (string mfx in musicFiles)
+					m_music.Add(new Uri(mfx, UriKind.Relative));
 
 				inst = this;
 			}
@@ -248,22 +273,53 @@ namespace EndlessClient
 			return m_sounds[(int)whichSoundEffect].GetNextAvailableInstance();
 		}
 
-		public bool PlaySong(MusicEffectID whichMusicEffect)
+		public void PlayLoopingSoundEffect(int sfxID)
 		{
-			MediaPlayer.Stop();
-			try
+			if (sfxID < 1 || sfxID > m_sounds.Count)
+				throw new ArgumentOutOfRangeException("sfxID", "Out of range -- use a 1-based index for sfx id");
+
+			m_sounds[sfxID - 1].PlayLoopingInstance();
+		}
+
+		public void StopLoopingSoundEffect(int sfxID)
+		{
+			if (sfxID < 1 || sfxID > m_sounds.Count)
+				throw new ArgumentOutOfRangeException("sfxID", "Out of range -- use a 1-based index for sfx id");
+
+			m_sounds[sfxID - 1].StopLoopingInstance();
+		}
+
+		public void PlayBackgroundMusic(int mfxID)
+		{
+			if(mfxID < 1 || mfxID >= m_music.Count)
+				throw new ArgumentOutOfRangeException("mfxID", "The MFX id is out of range. Use the 1-based index that matches the number in the file name.");
+
+			Action _func = () =>
 			{
-				MediaPlayer.Play(m_music[(int) whichMusicEffect]);
-			}
-			catch (ArgumentNullException)
-			{
-				return false;
-			}
-			catch (InvalidOperationException)
-			{
-				return false;
-			}
-			return true;
+				m_songPlayer.Stop();
+				m_songPlayer.Close();
+				m_songPlayer.Open(m_music[mfxID - 1]);
+				m_songPlayer.Play();
+			};
+
+			//when changing the map, the background music will be played from a different thread than the main
+			//	one since it is all being done in a callback from the received network data. This requires a
+			//	dispatcher to invoke the song change on the m_songPlayer, otherwise an exception is thrown because
+			//	the thread does not 'own' the m_songPlayer object.
+			if (m_dispatcher.Thread != Thread.CurrentThread)
+				m_dispatcher.BeginInvoke(_func);
+			else
+				_func();
+		}
+
+		public void StopBackgroundMusic()
+		{
+			Action _func = () => m_songPlayer.Stop();
+
+			if (m_dispatcher.Thread != Thread.CurrentThread)
+				m_dispatcher.BeginInvoke(_func);
+			else
+				_func();
 		}
 
 		~EOSoundManager()
@@ -287,10 +343,10 @@ namespace EndlessClient
 		{
 			if (disposing)
 			{
-				foreach (Song mfx in m_music)
+				if (m_songPlayer.HasAudio)
 				{
-					MediaPlayer.Stop();
-					mfx.Dispose();
+					m_songPlayer.Stop();
+					m_songPlayer.Close();
 				}
 
 				foreach (var sfx in m_sounds)

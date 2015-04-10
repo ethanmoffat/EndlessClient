@@ -94,13 +94,18 @@ namespace EndlessClient
 							{
 								m_soundChanged = true;
 								w.SoundEnabled = !w.SoundEnabled;
+								World.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
 								m_leftSide[0].Text = World.GetString(w.SoundEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 							}
 						});
 				}
 				else
 				{
+					if (!m_soundChanged)
+						m_soundChanged = true;
+
 					w.SoundEnabled = !w.SoundEnabled;
+					World.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
 					m_leftSide[0].Text = World.GetString(w.SoundEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 				}
 			}
@@ -115,13 +120,18 @@ namespace EndlessClient
 							{
 								m_musicChanged = true;
 								w.MusicEnabled = !w.MusicEnabled;
+								World.Instance.ActiveMapRenderer.PlayOrStopBackgroundMusic();
 								m_leftSide[1].Text = World.GetString(w.MusicEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 							}
 						});
 				}
 				else
 				{
+					if (!m_musicChanged)
+						m_musicChanged = true;
+
 					w.MusicEnabled = !w.MusicEnabled;
+					World.Instance.ActiveMapRenderer.PlayOrStopBackgroundMusic();
 					m_leftSide[1].Text = World.GetString(w.MusicEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 				}
 			}

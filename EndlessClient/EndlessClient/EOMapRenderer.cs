@@ -426,6 +426,9 @@ namespace EndlessClient
 			m_drawingEvent.Wait();
 			m_drawingEvent.Reset();
 
+			if(MapRef != null && MapRef.AmbientNoise != 0)
+				EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.AmbientNoise);
+
 			MapRef = newActiveMap;
 			MapItems.Clear();
 			otherRenderers.ForEach(_rend => _rend.Dispose());
@@ -459,6 +462,9 @@ namespace EndlessClient
 				else
 					m_needDispMapName = true;
 			}
+
+			PlayOrStopBackgroundMusic();
+			PlayOrStopAmbientNoise();
 
 			m_drawingEvent.Set();
 		}
@@ -574,6 +580,38 @@ namespace EndlessClient
 		public void ClearMapItems()
 		{
 			MapItems.Clear();
+		}
+
+		public void PlayOrStopBackgroundMusic()
+		{
+			if (!World.Instance.MusicEnabled)
+			{
+				EOGame.Instance.SoundManager.StopBackgroundMusic();
+				return;
+			}
+
+			//not sure what MusicExtra field is supposed to be for
+			if (MapRef.Music > 0)
+			{
+				//sound manager accounts for zero-based indices when playing music
+				EOGame.Instance.SoundManager.PlayBackgroundMusic(MapRef.Music);
+			}
+			else
+			{
+				EOGame.Instance.SoundManager.StopBackgroundMusic();
+			}
+		}
+
+		public void PlayOrStopAmbientNoise()
+		{
+			if (!World.Instance.SoundEnabled)
+			{
+				EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.AmbientNoise);
+				return;
+			}
+
+			if(MapRef.AmbientNoise > 0)
+				EOGame.Instance.SoundManager.PlayLoopingSoundEffect(MapRef.AmbientNoise);
 		}
 
 		#endregion

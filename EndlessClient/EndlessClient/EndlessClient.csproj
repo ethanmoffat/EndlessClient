@@ -109,6 +109,7 @@
     <Reference Include="System.Net">
       <Private>False</Private>
     </Reference>
+    <Reference Include="WindowsBase" />
     <Reference Include="XNAControls">
       <HintPath>..\..\XNAControls.dll</HintPath>
     </Reference>

@@ -416,6 +416,11 @@ namespace EndlessClient
 				Exit();
 				return;
 			}
+
+			if (World.Instance.MusicEnabled)
+			{
+				SoundManager.PlayBackgroundMusic(1); //mfx001 == main menu theme
+			}
 			
 			base.Initialize();
 		}
