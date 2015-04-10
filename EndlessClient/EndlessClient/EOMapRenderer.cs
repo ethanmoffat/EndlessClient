@@ -606,7 +606,8 @@ namespace EndlessClient
 		{
 			if (!World.Instance.SoundEnabled)
 			{
-				EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.AmbientNoise);
+				if(MapRef.AmbientNoise > 0)
+					EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.AmbientNoise);
 				return;
 			}
 
