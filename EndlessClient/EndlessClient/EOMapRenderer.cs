@@ -273,6 +273,54 @@ namespace EndlessClient
 			Purple = 8 //npc
 		}
 
+		private class WaterEffect
+		{
+			public static readonly Texture2D WaterTexture = GFXLoader.TextureFromResource(GFXTypes.Spells, EffectSprite.EFFECT_GFX_WATER_TILE, true);
+			private static readonly int WidthDelta = WaterTexture.Width/EffectSprite.EFFECT_GFX_WATER_FRAMES;
+
+			private DateTime LastUpdate;
+			private int Frame;
+
+			public Rectangle SourceRectangle { get; private set; }
+			public int X { get; private set; }
+			public int Y { get; private set; }
+
+			public WaterEffect(int x, int y)
+			{
+				X = x;
+				Y = y;
+				LastUpdate = DateTime.Now;
+				
+				Frame = 0;
+				SourceRectangle = new Rectangle(0, 0, WidthDelta, WaterTexture.Height);
+			}
+
+			public void IncrementFrameIfNeeded()
+			{
+				if ((DateTime.Now - LastUpdate).TotalMilliseconds >= 100)
+				{
+					Frame++;
+					if (Frame >= EffectSprite.EFFECT_GFX_WATER_FRAMES)
+					{
+						return;
+					}
+
+					SourceRectangle = new Rectangle(Frame * WidthDelta, 0, WidthDelta, WaterTexture.Height);
+					LastUpdate = DateTime.Now;
+				}
+			}
+
+			public bool DoneAnimating()
+			{
+				return Frame >= EffectSprite.EFFECT_GFX_WATER_FRAMES;
+			}
+
+			public void ResetFrameCounter()
+			{
+				Frame = 0;
+			}
+		}
+
 		//collections
 		private readonly Dictionary<Point, List<MapItem>> MapItems = new Dictionary<Point, List<MapItem>>();
 		private readonly List<Character> otherPlayers = new List<Character>();
@@ -318,6 +366,7 @@ namespace EndlessClient
 		private Vector2 _tileSrc;
 		private int _wallSrcIndex;
 		private TimeSpan? lastAnimUpdate;
+		private readonly Dictionary<Point, WaterEffect> _waterTiles = new Dictionary<Point,WaterEffect>();
 
 		//door members
 		private readonly Timer _doorTimer;
@@ -776,6 +825,16 @@ namespace EndlessClient
 		{
 			return otherPlayers.Find(_c => _c.ID == playerId);
 		}
+
+		//shows the water splashies at the 'x, y' coordinates specified
+		public void NewWaterEffect(byte x, byte y)
+		{
+			Point pt = new Point(x, y);
+			if (_waterTiles.ContainsKey(pt))
+				_waterTiles[pt].ResetFrameCounter();
+			else
+				_waterTiles.Add(pt, new WaterEffect(x, y));
+		}
 		#endregion
 
 		#region/* PUBLIC INTERFACE -- OTHER NPCS */
@@ -979,6 +1038,15 @@ namespace EndlessClient
 					_tileSrc = Vector2.Zero;
 
 				lastAnimUpdate = gameTime.TotalGameTime;
+			}
+
+			for (int i = _waterTiles.Values.Count - 1; i >= 0; --i)
+			{
+				WaterEffect eff = _waterTiles.Values.ElementAt(i);
+				if (eff.DoneAnimating())
+					_waterTiles.Remove(new Point(eff.X, eff.Y));
+				else
+					eff.IncrementFrameIfNeeded();
 			}
 
 			//***do the cursor stuff
@@ -1344,6 +1412,12 @@ namespace EndlessClient
 							sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
 						else
 							sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
+					}
+
+					Point loc = new Point(j, i);
+					if (_waterTiles.ContainsKey(loc))
+					{
+						sb.Draw(WaterEffect.WaterTexture, new Vector2(pos.X - 1, pos.Y - 72), _waterTiles[loc].SourceRectangle, Color.White);
 					}
 				}
 			}

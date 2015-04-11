@@ -701,6 +701,9 @@ namespace EndlessClient
 			{
 				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Water).Play();
 			}
+			
+			if(isWaterTile)
+				World.Instance.ActiveMapRenderer.NewWaterEffect(Character.DestX, Character.DestY);
 
 			_walkTimer.Change(0, walkTimer); //ok, it's time to start
 		}

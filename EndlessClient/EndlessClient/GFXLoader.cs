@@ -795,6 +795,9 @@ namespace EndlessClient
 
 	public static class EffectSprite
 	{
+		public const int EFFECT_GFX_WATER_TILE = 25;
+		public const int EFFECT_GFX_WATER_FRAMES = 6;
+
 		//mapping of potion effect numbers to actual GFX values in the file.
 		public static int ConvertItemEffectToGFX(int itemEffectNum, out bool multiGfx)
 		{
