@@ -485,8 +485,6 @@ namespace EndlessClient
 	{
 		private readonly EOScrollBar scrollBar;
 		private readonly List<string> chatStrings = new List<string>();
-
-		private readonly SpriteFont font;
 		private const int LINE_LEN = 275;
 
 		//private string _msg;
@@ -508,7 +506,7 @@ namespace EndlessClient
 				}
 
 				//don't do multi-line processing if we don't need to
-				if (font.MeasureString(tmp).X < LINE_LEN)
+				if (EOGame.Instance.DBGFont.MeasureString(tmp).X < LINE_LEN)
 				{
 					chatStrings.Add(tmp);
 					scrollBar.UpdateDimensions(chatStrings.Count);
@@ -525,7 +523,7 @@ namespace EndlessClient
 					//get the next word
 					bool endOfWord = true, lineOverFlow = true; //these are negative logic booleans: will be set to false when flagged
 					while (buffer.Length > 0 && (endOfWord = !whiteSpace.Contains(buffer[0])) &&
-						   (lineOverFlow = font.MeasureString(newLine + nextWord).X < LINE_LEN))
+						   (lineOverFlow = EOGame.Instance.DBGFont.MeasureString(newLine + nextWord).X < LINE_LEN))
 					{
 						nextWord += buffer[0];
 						buffer = buffer.Remove(0, 1);
@@ -579,8 +577,6 @@ namespace EndlessClient
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 40);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			font = Game.Content.Load<SpriteFont>("dbg");
-
 			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(138, 197), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
 			ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
 			ok.SetParent(this);
@@ -610,7 +606,7 @@ namespace EndlessClient
 				
 				string strToDraw = chatStrings[i];
 
-				SpriteBatch.DrawString(font, strToDraw, new Vector2(pos.X, pos.Y + (i - scrollBar.ScrollOffset) * 13), Color.FromNonPremultiplied(0xc8, 0xc8, 0xc8, 0xff));
+				SpriteBatch.DrawString(EOGame.Instance.DBGFont, strToDraw, new Vector2(pos.X, pos.Y + (i - scrollBar.ScrollOffset) * 13), Color.FromNonPremultiplied(0xc8, 0xc8, 0xc8, 0xff));
 			}
 
 			SpriteBatch.End();

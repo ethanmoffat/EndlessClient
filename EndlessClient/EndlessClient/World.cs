@@ -17,15 +17,6 @@ namespace EndlessClient
 	public sealed class World : IDisposable
 	{
 #if DEBUG
-		private static Microsoft.Xna.Framework.Graphics.SpriteFont dbg;
-		public static Microsoft.Xna.Framework.Graphics.SpriteFont DBG
-		{
-			get
-			{
-				if (EOGame.Instance == null) return null;
-				return dbg ?? (dbg = EOGame.Instance.Content.Load<Microsoft.Xna.Framework.Graphics.SpriteFont>("dbg"));
-			}
-		}
 		public static int FPS { get; set; }
 #endif
 		/*** STATIC MEMBERS AND SUCH FOR THE SINGLETON PATTERN ***/

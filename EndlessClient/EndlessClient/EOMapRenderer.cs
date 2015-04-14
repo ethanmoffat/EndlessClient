@@ -718,40 +718,32 @@ namespace EndlessClient
 
 		public void OtherPlayerWalk(short ID, EODirection direction, byte x, byte y)
 		{
-			Character c;
-			if ((c = otherPlayers.Find(cc => cc.ID == ID)) != null)
+			EOCharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
+			if (rend != null)
 			{
-				c.Walk(direction, x, y, false);
-				EOCharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character == c);
-				if (rend != null)
-				{
-					TileInfo ti = CheckCoordinates(c.DestX, c.DestY);
-					
-					//do the actual drawing of the other player walking
-					rend.PlayerWalk(ti.ReturnValue == TileInfo.ReturnType.IsTileSpec && ti.Spec == TileSpec.Water);
-				}
+				rend.Character.Walk(direction, x, y, false);
+
+				TileInfo ti = CheckCoordinates(rend.Character.DestX, rend.Character.DestY);
+				rend.PlayerWalk(ti.ReturnValue == TileInfo.ReturnType.IsTileSpec && ti.Spec == TileSpec.Water);
 			}
 		}
 
 		public void OtherPlayerAttack(short ID, EODirection direction)
 		{
-			Character c;
-			if ((c = otherPlayers.Find(cc => cc.ID == ID)) != null)
+			EOCharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
+			if (rend != null)
 			{
-				c.Attack(direction);
-				List<EOCharacterRenderer> rends = otherRenderers.Where(rend => rend.Character == c).ToList();
-				EOCharacterRenderer renderer;
-				if (rends.Count > 0 && (renderer = rends[0]) != null)
-				{
-					renderer.PlayerAttack();//do the actual drawing of the other player walking
-				}
+				rend.Character.Attack(direction);
+
+				TileInfo info = CheckCoordinates((byte) rend.Character.X, (byte) rend.Character.Y);
+				rend.PlayerAttack(info.ReturnValue == TileInfo.ReturnType.IsTileSpec && info.Spec == TileSpec.Water);
 			}
 		}
 
 		public void OtherPlayerEmote(short playerID, Emote emote)
 		{
-			EOCharacterRenderer rend;
-			if ((rend = otherRenderers.Find(cc => cc.Character.ID == playerID)) != null)
+			EOCharacterRenderer rend = otherRenderers.Find(cc => cc.Character.ID == playerID);
+			if (rend != null)
 			{
 				rend.Character.Emote(emote);
 				rend.PlayerEmote();
@@ -1332,7 +1324,7 @@ namespace EndlessClient
 				sb.Draw(_rtMapObjAbovePlayer, Vector2.Zero, Color.White);
 				sb.Draw(_rtMapObjBelowPlayer, Vector2.Zero, Color.White);
 #if DEBUG
-				sb.DrawString(World.DBG, string.Format("FPS: {0}", World.FPS), new Vector2(30, 30), Color.White);
+				sb.DrawString(EOGame.Instance.DBGFont, string.Format("FPS: {0}", World.FPS), new Vector2(30, 30), Color.White);
 #endif
 				Character c;
 				if ((c = World.Instance.MainPlayer.ActiveCharacter) != null)
@@ -1417,7 +1409,7 @@ namespace EndlessClient
 					Point loc = new Point(j, i);
 					if (_waterTiles.ContainsKey(loc))
 					{
-						sb.Draw(WaterEffect.WaterTexture, new Vector2(pos.X - 1, pos.Y - 72), _waterTiles[loc].SourceRectangle, Color.White);
+						sb.Draw(WaterEffect.WaterTexture, new Vector2(pos.X - 1, pos.Y - 65), _waterTiles[loc].SourceRectangle, Color.White);
 					}
 				}
 			}

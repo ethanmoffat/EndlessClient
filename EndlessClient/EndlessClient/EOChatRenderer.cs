@@ -185,7 +185,6 @@ namespace EndlessClient
 			get { return tabLabel.Text.Contains("[") || tabLabel.Text == ""; }
 		}
 
-		private readonly SpriteFont font;
 		private Vector2 relativeTextPos;
 
 		/// <summary>
@@ -240,12 +239,6 @@ namespace EndlessClient
 			};
 			scrollBar.IgnoreDialog(typeof(EOPaperdollDialog));
 			scrollBar.IgnoreDialog(typeof(EOChestDialog));
-
-			try
-			{
-				font = Game.Content.Load<SpriteFont>("dbg");
-			}
-			catch (ArgumentException) { }
 		}
 
 		/// <summary>
@@ -267,8 +260,6 @@ namespace EndlessClient
 			};
 			scrollBar.IgnoreDialog(typeof(EOPaperdollDialog));
 			scrollBar.IgnoreDialog(typeof(EOChestDialog));
-
-			font = Game.Content.Load<SpriteFont>("dbg");
 		}
 
 		/// <summary>
@@ -300,7 +291,7 @@ namespace EndlessClient
 			}
 			
 			//don't do multi-line processing if we don't need to
-			if (font.MeasureString(text).X < LINE_LEN)
+			if (EOGame.Instance.DBGFont.MeasureString(text).X < LINE_LEN)
 			{
 				lock (ChatStringsLock)
 					chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), text);
@@ -319,7 +310,7 @@ namespace EndlessClient
 			string buffer = text, newLine = "";
 			string whoPadding = ""; //padding string for additional lines if it is a multi-line message
 			if(!string.IsNullOrEmpty(who))
-				while (font.MeasureString(whoPadding).X < font.MeasureString(who).X)
+				while (EOGame.Instance.DBGFont.MeasureString(whoPadding).X < EOGame.Instance.DBGFont.MeasureString(who).X)
 					whoPadding += " ";
 
 			List<string> chatStringsToAdd = new List<string>();
@@ -331,7 +322,7 @@ namespace EndlessClient
 				//get the next word
 				bool endOfWord = true, lineOverFlow = true; //these are negative logic booleans: will be set to false when flagged
 				while (buffer.Length > 0 && (endOfWord = !whiteSpace.Contains(buffer[0])) &&
-				       (lineOverFlow = font.MeasureString(whoPadding + newLine + nextWord + endOfLine).X < LINE_LEN))
+					   (lineOverFlow = EOGame.Instance.DBGFont.MeasureString(whoPadding + newLine + nextWord + endOfLine).X < LINE_LEN))
 				{
 					nextWord += buffer[0];
 					buffer = buffer.Remove(0, 1);
@@ -466,7 +457,7 @@ namespace EndlessClient
 					else
 						strToDraw = chatStrings.Keys[i].Who + "  " + chatStrings.Values[i];
 
-					SpriteBatch.DrawString(font, strToDraw, new Vector2(pos.X + 20, pos.Y), chatStrings.Keys[i].GetColor());
+					SpriteBatch.DrawString(EOGame.Instance.DBGFont, strToDraw, new Vector2(pos.X + 20, pos.Y), chatStrings.Keys[i].GetColor());
 				}
 
 				SpriteBatch.End();

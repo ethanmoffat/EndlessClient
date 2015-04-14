@@ -66,7 +66,6 @@ namespace EndlessClient
 		private readonly List<OnlineEntry> m_onlineList;
 		private readonly EOScrollBar m_scrollBar;
 		private readonly XNALabel m_totalNumPlayers;
-		private readonly SpriteFont font;
 
 		private const int DRAW_ICON_X = 4,
 			DRAW_NAME_X = 18,
@@ -103,8 +102,6 @@ namespace EndlessClient
 			m_scrollBar.SetParent(this);
 			m_scrollBar.IgnoreDialog(typeof(EOPaperdollDialog));
 			m_scrollBar.IgnoreDialog(typeof(EOChestDialog));
-
-			font = Game.Content.Load<SpriteFont>("dbg");
 
 			m_filterClick = new Rectangle(2 + DrawAreaWithOffset.X, 2 + DrawAreaWithOffset.Y, 14, 14);
 
@@ -188,18 +185,17 @@ namespace EndlessClient
 
 			for (int i = scrollOff; i < scrollOff + m_scrollBar.LinesToRender && i < filtered.Count; ++i)
 			{
-
 				int yCoord = DRAW_OFFSET_Y + DrawAreaWithOffset.Y + (i - m_scrollBar.ScrollOffset)*13;
 				//draw icon
 				SpriteBatch.Draw(ChatTab.GetChatIcon(EOChatRenderer.GetChatTypeFromPaperdollIcon(filtered[i].Icon)), new Vector2(DrawAreaWithOffset.X + DRAW_ICON_X, yCoord), Color.White);
 				//drawtext name
-				SpriteBatch.DrawString(font, filtered[i].Name, new Vector2(DrawAreaWithOffset.X + DRAW_NAME_X, yCoord), Color.Black);
+				SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Name, new Vector2(DrawAreaWithOffset.X + DRAW_NAME_X, yCoord), Color.Black);
 				//drawtext title
-				SpriteBatch.DrawString(font, filtered[i].Title, new Vector2(DrawAreaWithOffset.X + DRAW_TITLE_X, yCoord), Color.Black);
+				SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Title, new Vector2(DrawAreaWithOffset.X + DRAW_TITLE_X, yCoord), Color.Black);
 				//drawtext guild
-				SpriteBatch.DrawString(font, filtered[i].Guild, new Vector2(DrawAreaWithOffset.X + DRAW_GUILD_X, yCoord), Color.Black);
+				SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Guild, new Vector2(DrawAreaWithOffset.X + DRAW_GUILD_X, yCoord), Color.Black);
 				//drawtext class
-				SpriteBatch.DrawString(font, filtered[i].Class, new Vector2(DrawAreaWithOffset.X + DRAW_CLASS_X, yCoord), Color.Black);
+				SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Class, new Vector2(DrawAreaWithOffset.X + DRAW_CLASS_X, yCoord), Color.Black);
 			}
 			SpriteBatch.End();
 

@@ -64,6 +64,8 @@ namespace EndlessClient
 			}
 		}
 
+		public SpriteFont DBGFont { get; private set; }
+
 		const int WIDTH = 640;
 		const int HEIGHT = 480;
 
@@ -431,6 +433,8 @@ namespace EndlessClient
 			//maybe split it off into separate "helper" functions for organization? :-/
 
 			spriteBatch = new SpriteBatch(GraphicsDevice);
+
+			DBGFont = Content.Load<SpriteFont>("dbg");
 
 			//texture for UI background image
 			UIBackground = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 30 + gen.Next(7));

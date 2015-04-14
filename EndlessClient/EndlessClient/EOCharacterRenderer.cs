@@ -540,8 +540,9 @@ namespace EndlessClient
 				{
 					if (Character.CanAttack)
 					{
+						TileInfo info = World.Instance.ActiveMapRenderer.CheckCoordinates((byte)Character.X, (byte)Character.Y);
 						Character.Attack(Data.facing, destX, destY); //destX and destY validity check above
-						PlayerAttack();
+						PlayerAttack(info.ReturnValue == TileInfo.ReturnType.IsTileSpec && info.Spec == TileSpec.Water);
 					}
 					else if(Character.Weight > Character.MaxWeight)
 					{
@@ -708,7 +709,7 @@ namespace EndlessClient
 			_walkTimer.Change(0, walkTimer); //ok, it's time to start
 		}
 
-		public void PlayerAttack()
+		public void PlayerAttack(bool isWaterTile)
 		{
 			const int attackTimer = 285;
 			Data.SetUpdate(true);
@@ -738,6 +739,9 @@ namespace EndlessClient
 				else
 					EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.PunchAttack).Play();
 			}
+
+			if (isWaterTile)
+				World.Instance.ActiveMapRenderer.NewWaterEffect((byte)Character.X, (byte)Character.Y);
 
 			_attackTimer.Change(0, attackTimer);
 		}
