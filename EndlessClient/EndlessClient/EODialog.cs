@@ -1852,8 +1852,9 @@ namespace EndlessClient
 					}
 
 					ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.Item1);
-					string secondary = string.Format("x {0}  ({1})", item.Item2, 
-						rec.Type == ItemType.Armor ? (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) : "");
+					string secondary = rec.Type == ItemType.Armor
+						? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")"
+						: "";
 
 					m_items[i] = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, rec.Name, secondary, GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true), i)
 					{
@@ -2405,8 +2406,8 @@ namespace EndlessClient
 
 						ShopItem localItem = si;
 						ItemRecord rec = World.Instance.EIF.GetItemRecordByID(si.ID);
-						string secondary = string.Format("{2}: {0} ({1})", buying ? si.Buy : si.Sell,
-							rec.Type == ItemType.Armor ? (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) : "",
+						string secondary = string.Format("{2}: {0} {1}", buying ? si.Buy : si.Sell,
+							rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")" : "",
 							World.GetString(DATCONST2.DIALOG_SHOP_PRICE));
 
 						EODialogListItem nextItem = new EODialogListItem(
@@ -2434,8 +2435,8 @@ namespace EndlessClient
 
 						CraftItem localItem = ci;
 						ItemRecord rec = World.Instance.EIF.GetItemRecordByID(ci.ID);
-						string secondary = string.Format("{2}: {0} ({1})", ci.Ingredients.Count,
-							rec.Type == ItemType.Armor ? (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) : "",
+						string secondary = string.Format("{2}: {0} {1}", ci.Ingredients.Count,
+							rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")" : "",
 							World.GetString(DATCONST2.DIALOG_SHOP_CRAFT_INGREDIENTS));
 
 						EODialogListItem nextItem = new EODialogListItem(
@@ -2639,9 +2640,9 @@ namespace EndlessClient
 					this,
 					EODialogListItem.ListItemStyle.Large,
 					rec.Name,
-					string.Format("x{0}  ({1})", item.amount,
+					string.Format("x{0}  {1}", item.amount,
 						rec.Type == ItemType.Armor
-							? (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE))
+							? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")"
 							: ""),
 					GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true)
 					);

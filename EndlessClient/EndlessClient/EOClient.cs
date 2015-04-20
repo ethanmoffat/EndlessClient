@@ -69,26 +69,43 @@ namespace EndlessClient
 		}
 		
 		//this is a wrapper that serializes thread access to the handler method. This serialization can be overriden.
-		private class LockedHandlerMethod
+		private sealed class LockedHandlerMethod : IDisposable
 		{
 			private readonly PacketHandler _handler;
 			private readonly bool _inGameOnly;
-
-			public PacketHandler Handler
-			{
-				get
-				{
-					if(_inGameOnly && GameStates.PlayingTheGame != EOGame.Instance.State) //force ignore if the handler is an in-game only handler
-						return p => { };
-					lock (locker) return _handler;
-				}
-			}
-			private static readonly object locker = new object();
+			private AutoResetEvent _lock;
+			private bool m_disposed;
 
 			public LockedHandlerMethod(PacketHandler handler, bool inGameOnly = false)
 			{
 				_handler = handler;
 				_inGameOnly = inGameOnly;
+				_lock = new AutoResetEvent(true);
+			}
+
+			public void InvokeHandler(Packet pkt)
+			{ //force ignore if the handler is an in-game only handler
+				if (_inGameOnly && GameStates.PlayingTheGame != EOGame.Instance.State)
+					return;
+
+				if (m_disposed || _lock == null)
+					return;
+				_lock.WaitOne(Constants.ResponseTimeout);
+				if (m_disposed)
+					return;
+				_handler(pkt);
+				if(_lock != null)
+					_lock.Set();
+			}
+
+			public void Dispose()
+			{
+				if (m_disposed || _lock == null)
+					return;
+				_lock.WaitOne();
+				m_disposed = true;
+				_lock.Dispose();
+				_lock = null;
 			}
 		}
 		private readonly Dictionary<FamilyActionPair, LockedHandlerMethod> handlers;
@@ -546,7 +563,7 @@ namespace EndlessClient
 			if (handlers.ContainsKey(pair))
 			{
 				logOpt = "  handled";
-				handlers[pair].Handler(pkt);
+				handlers[pair].InvokeHandler(pkt);
 			}
 			else
 			{
@@ -576,15 +593,20 @@ namespace EndlessClient
 
 		protected override void Dispose(bool disposing)
 		{
-			base.Dispose(disposing);
-			if (!disposing) return;
+			if (disposing)
+			{
+				Handlers.Account.Cleanup();
+				Handlers.Character.Cleanup();
+				Handlers.Init.Cleanup();
+				Handlers.Login.Cleanup();
+				Handlers.Walk.Cleanup();
+				Handlers.Welcome.Cleanup();
 
-			Handlers.Account.Cleanup();
-			Handlers.Character.Cleanup();
-			Handlers.Init.Cleanup();
-			Handlers.Login.Cleanup();
-			Handlers.Walk.Cleanup();
-			Handlers.Welcome.Cleanup();
+				foreach(LockedHandlerMethod method in handlers.Values)
+					method.Dispose();
+			}
+
+			base.Dispose(disposing);
 		}
 	}
 }
