@@ -583,7 +583,7 @@ namespace EndlessClient
 					walkValid = NoWall;
 					if (!walkValid)
 					{
-						EOBankVaultDialog.Show(destX, destY);
+						EOLockerDialog.Show(destX, destY);
 					}
 					break;
 				case TileSpec.Board1: //todo: boards?

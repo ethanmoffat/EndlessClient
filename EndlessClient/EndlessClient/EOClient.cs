@@ -98,6 +98,14 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Avatar.AvatarRemove, true)
 				},
 				{
+					new FamilyActionPair(PacketFamily.Bank, PacketAction.Open), 
+					new LockedHandlerMethod(Handlers.Bank.BankOpenReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Bank, PacketAction.Reply), 
+					new LockedHandlerMethod(Handlers.Bank.BankReply, true)
+				},
+				{
 					new FamilyActionPair(PacketFamily.Character, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.Character.CharacterPlayerResponse)
 				},
@@ -168,6 +176,10 @@ namespace EndlessClient
 				{
 					new FamilyActionPair(PacketFamily.Item, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Item.ItemReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Locker, PacketAction.Buy),
+					new LockedHandlerMethod(Handlers.Locker.LockerBuy, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Locker, PacketAction.Get),

@@ -13,7 +13,7 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static bool OpenLocker(byte x, byte y)
 		{
-			if (EOBankVaultDialog.Instance == null) return true;
+			if (EOLockerDialog.Instance == null) return true;
 
 			EOClient client = (EOClient)World.Instance.Client;
 			if (!client.ConnectedAndInitialized)
@@ -31,15 +31,15 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static bool AddItem(short id, int amount)
 		{
-			if (EOBankVaultDialog.Instance == null) return true;
+			if (EOLockerDialog.Instance == null) return true;
 
 			EOClient client = (EOClient)World.Instance.Client;
 			if (!client.ConnectedAndInitialized)
 				return false;
 
 			Packet pkt = new Packet(PacketFamily.Locker, PacketAction.Add);
-			pkt.AddChar(EOBankVaultDialog.Instance.X);
-			pkt.AddChar(EOBankVaultDialog.Instance.Y);
+			pkt.AddChar(EOLockerDialog.Instance.X);
+			pkt.AddChar(EOLockerDialog.Instance.Y);
 			pkt.AddShort(id);
 			pkt.AddThree(amount);
 
@@ -51,15 +51,15 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static bool TakeItem(short id)
 		{
-			if (EOBankVaultDialog.Instance == null) return true;
+			if (EOLockerDialog.Instance == null) return true;
 
 			EOClient client = (EOClient)World.Instance.Client;
 			if (!client.ConnectedAndInitialized)
 				return false;
 
 			Packet pkt = new Packet(PacketFamily.Locker, PacketAction.Take);
-			pkt.AddChar(EOBankVaultDialog.Instance.X);
-			pkt.AddChar(EOBankVaultDialog.Instance.Y);
+			pkt.AddChar(EOLockerDialog.Instance.X);
+			pkt.AddChar(EOLockerDialog.Instance.Y);
 			pkt.AddShort(id);
 
 			return client.SendPacket(pkt);
@@ -70,12 +70,12 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static void LockerOpen(Packet pkt)
 		{
-			if (EOBankVaultDialog.Instance == null) return;
+			if (EOLockerDialog.Instance == null) return;
 
 			byte x = pkt.GetChar();
 			byte y = pkt.GetChar();
 
-			if (EOBankVaultDialog.Instance.X != x || EOBankVaultDialog.Instance.Y != y)
+			if (EOLockerDialog.Instance.X != x || EOLockerDialog.Instance.Y != y)
 				return;
 
 			List<InventoryItem> items = new List<InventoryItem>();
@@ -84,7 +84,7 @@ namespace EndlessClient.Handlers
 				items.Add(new InventoryItem {id = pkt.GetShort(), amount = pkt.GetThree()});
 			}
 
-			EOBankVaultDialog.Instance.SetVaultData(items);
+			EOLockerDialog.Instance.SetLockerData(items);
 		}
 
 		/// <summary>
@@ -92,7 +92,7 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static void LockerReply(Packet pkt)
 		{
-			if (EOBankVaultDialog.Instance == null) return;
+			if (EOLockerDialog.Instance == null) return;
 
 			//inventory info for amount remaining for character
 			short itemID = pkt.GetShort();
@@ -107,7 +107,7 @@ namespace EndlessClient.Handlers
 			{
 				items.Add(new InventoryItem {id = pkt.GetShort(), amount = pkt.GetThree()});
 			}
-			EOBankVaultDialog.Instance.SetVaultData(items);
+			EOLockerDialog.Instance.SetLockerData(items);
 		}
 
 		/// <summary>
@@ -115,7 +115,7 @@ namespace EndlessClient.Handlers
 		/// </summary>
 		public static void LockerGet(Packet pkt)
 		{
-			if (EOBankVaultDialog.Instance == null) return;
+			if (EOLockerDialog.Instance == null) return;
 
 			short itemID = pkt.GetShort();
 			int amount = pkt.GetThree();
@@ -129,7 +129,23 @@ namespace EndlessClient.Handlers
 			{
 				items.Add(new InventoryItem {id = pkt.GetShort(), amount = pkt.GetThree()});
 			}
-			EOBankVaultDialog.Instance.SetVaultData(items);
+			EOLockerDialog.Instance.SetLockerData(items);
+		}
+
+		/// <summary>
+		/// Handles LOCKER_BUY from server when buying a locker unit upgrade
+		/// </summary>
+		/// <param name="pkt"></param>
+		public static void LockerBuy(Packet pkt)
+		{
+			if (EOBankAccountDialog.Instance == null)
+				return;
+
+			int characterGold = pkt.GetInt();
+			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, characterGold);
+			EOBankAccountDialog.Instance.LockerUpgrades = pkt.GetChar();
+
+			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_LOCKER_SPACE_INCREASED);
 		}
 	}
 }

@@ -137,6 +137,7 @@
     <Compile Include="Handlers\AdminInteract.cs" />
     <Compile Include="Handlers\Attack.cs" />
     <Compile Include="Handlers\Avatar.cs" />
+    <Compile Include="Handlers\Bank.cs" />
     <Compile Include="Handlers\Chest.cs" />
     <Compile Include="Handlers\Connection.cs" />
     <Compile Include="Handlers\Character.cs" />

@@ -1124,6 +1124,7 @@ namespace EndlessClient
 								case NPCType.Inn:
 									break;
 								case NPCType.Bank:
+									EOBankAccountDialog.Show(npc.Index);
 									break;
 								case NPCType.Barber:
 									break;
@@ -1201,7 +1202,7 @@ namespace EndlessClient
 									_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
 									if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y))
 									{
-										EOBankVaultDialog.Show((byte)gridX, (byte)gridY);
+										EOLockerDialog.Show((byte)gridX, (byte)gridY);
 									}
 									break;
 								case TileSpec.ChairDown:

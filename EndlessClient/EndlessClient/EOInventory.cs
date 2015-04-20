@@ -115,7 +115,7 @@ namespace EndlessClient
 				SetParent(m_preDragParent);
 
 				if (((EOInventory) parent).IsOverDrop() || (World.Instance.ActiveMapRenderer.MouseOver && 
-					EOChestDialog.Instance == null && EOPaperdollDialog.Instance == null && EOBankVaultDialog.Instance == null))
+					EOChestDialog.Instance == null && EOPaperdollDialog.Instance == null && EOLockerDialog.Instance == null))
 				{
 					Microsoft.Xna.Framework.Point loc = World.Instance.ActiveMapRenderer.MouseOver ? World.Instance.ActiveMapRenderer.GridCoords:
 						new Microsoft.Xna.Framework.Point(World.Instance.MainPlayer.ActiveCharacter.X, World.Instance.MainPlayer.ActiveCharacter.Y);
@@ -207,7 +207,7 @@ namespace EndlessClient
 							break;
 					}
 				}
-				else if (EOBankVaultDialog.Instance != null && EOBankVaultDialog.Instance.MouseOver && EOBankVaultDialog.Instance.MouseOverPreviously)
+				else if (EOLockerDialog.Instance != null && EOLockerDialog.Instance.MouseOver && EOLockerDialog.Instance.MouseOverPreviously)
 				{
 					if (m_inventory.id == 1)
 					{
@@ -229,6 +229,31 @@ namespace EndlessClient
 							EOGame.Instance.LostConnectionDialog();
 							return;
 						}
+					}
+				}
+				else if (EOBankAccountDialog.Instance != null && EOBankAccountDialog.Instance.MouseOver && EOBankAccountDialog.Instance.MouseOverPreviously && m_inventory.id == 1)
+				{
+					if (m_inventory.amount == 0)
+					{
+						EODialog.Show(DATCONST1.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					}
+					else if (m_inventory.amount > 1)
+					{
+						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.BankTransfer,
+							m_inventory.amount, DATCONST2.DIALOG_TRANSFER_DEPOSIT);
+						dlg.DialogClosing += (o, e) =>
+						{
+							if (e.Result == XNADialogResult.Cancel)
+								return;
+
+							if (!Handlers.Bank.BankDeposit(dlg.SelectedAmount))
+								EOGame.Instance.LostConnectionDialog();
+						};
+					}
+					else
+					{
+						if (!Handlers.Bank.BankDeposit(1))
+							EOGame.Instance.LostConnectionDialog();
 					}
 				}
 

@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
-using System.Windows.Forms;
 using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Data;
@@ -105,9 +104,10 @@ namespace EndlessClient
 		{
 			Buy,
 			Sell,
-			Bank1_unk,
-			Bank2_unk,
+			BankDeposit,
+			BankWithdraw,
 			Craft,
+			BankLockerUpgrade,
 			//etc, as needed
 		}
 		protected Texture2D _getDlgIcon(ListIcon whichOne)
@@ -1571,6 +1571,8 @@ namespace EndlessClient
 				case DATCONST2.DIALOG_TRANSFER_BUY:
 				case DATCONST2.DIALOG_TRANSFER_SELL:
 				case DATCONST2.DIALOG_TRANSFER_TRANSFER:
+				case DATCONST2.DIALOG_TRANSFER_DEPOSIT:
+				case DATCONST2.DIALOG_TRANSFER_WITHDRAW:
 					break;
 				default: throw new ArgumentOutOfRangeException("msg", "Use one of the approved messages.");
 			}
@@ -1601,6 +1603,9 @@ namespace EndlessClient
 			}
 		}
 
+		/// <summary>
+		/// Starting Y Offset to draw list item controls
+		/// </summary>
 		public int OffsetY { get; set; }
 
 		/// <summary>
@@ -2274,8 +2279,12 @@ namespace EndlessClient
 			Instance = new EOShopDialog(shopKeeper.Data.ID);
 
 			//request from server is based on the map index
-			if(!Shop.RequestShop(shopKeeper.Index))
+			if (!Shop.RequestShop(shopKeeper.Index))
+			{
+				Instance.Close();
+				Instance = null;
 				EOGame.Instance.LostConnectionDialog();
+			}
 		}
 
 		private enum ShopState
@@ -2586,15 +2595,15 @@ namespace EndlessClient
 		}
 	}
 
-	public class EOBankVaultDialog : EOScrollingListDialog
+	public class EOLockerDialog : EOScrollingListDialog
 	{
-		public static EOBankVaultDialog Instance { get; private set; }
+		public static EOLockerDialog Instance { get; private set; }
 
 		public static void Show(byte x, byte y)
 		{
 			if (Instance != null) return;
 
-			Instance = new EOBankVaultDialog(x, y);
+			Instance = new EOLockerDialog(x, y);
 
 			if(!Locker.OpenLocker(x, y))
 				EOGame.Instance.LostConnectionDialog();
@@ -2606,7 +2615,7 @@ namespace EndlessClient
 		public byte X { get; private set; }
 		public byte Y { get; private set; }
 
-		private EOBankVaultDialog(byte x, byte y)
+		private EOLockerDialog(byte x, byte y)
 			: base(string.Format(TITLE_FMT, 0), ScrollingListDialogButtons.Cancel, EODialogListItem.ListItemStyle.Large)
 		{
 			X = x;
@@ -2615,7 +2624,7 @@ namespace EndlessClient
 			DialogClosing += (o, e) => { Instance = null; X = 0; Y = 0; };
 		}
 
-		public void SetVaultData(List<InventoryItem> lockerItems)
+		public void SetLockerData(List<InventoryItem> lockerItems)
 		{
 			ClearItemList();
 
@@ -2786,6 +2795,179 @@ namespace EndlessClient
 			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 142, DrawAreaWithOffset.Y + 64), m_signal, Color.White);
 			SpriteBatch.Draw(m_icons, new Vector2(DrawAreaWithOffset.X + 142, DrawAreaWithOffset.Y + 80), m_signal, Color.White);
 			SpriteBatch.End();
+		}
+	}
+
+	public class EOBankAccountDialog : EODialogBase
+	{
+		public static EOBankAccountDialog Instance { get; private set; }
+
+		public static void Show(short npcID)
+		{
+			if (Instance != null)
+				return;
+
+			Instance = new EOBankAccountDialog();
+
+			if (!Bank.BankOpen(npcID))
+			{
+				Instance.Close();
+				Instance = null;
+				EOGame.Instance.LostConnectionDialog();
+			}
+		}
+
+		private readonly XNALabel m_accountBalance;
+
+		public string AccountBalance
+		{
+			get { return m_accountBalance.Text; }
+			set { m_accountBalance.Text = value; }
+		}
+
+		public int LockerUpgrades { get; set; }
+
+		private EOBankAccountDialog()
+		{
+			//this uses EODialogListItems but does not inherit from EOScrollingListDialog since it is a different size
+			//offsety 50
+			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 53);
+			_setSize(bgTexture.Width, bgTexture.Height);
+
+			m_accountBalance = new XNALabel(new Rectangle(129, 20, 121, 16), "Microsoft Sans Serif", 8.5f)
+			{
+				ForeColor = System.Drawing.Color.FromArgb(255, 0xc8, 0xc8, 0xc8),
+				Text = "",
+				TextAlign = ContentAlignment.MiddleRight,
+				AutoSize = false
+			};
+			m_accountBalance.SetParent(this);
+
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(92, 191), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
+			cancel.SetParent(this);
+			cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
+
+			EODialogListItem deposit = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_BANK_DEPOSIT),
+				string.Format("{0} gold {1}", World.GetString(DATCONST2.DIALOG_BANK_TRANSFER), World.GetString(DATCONST2.DIALOG_BANK_TO_ACCOUNT)), _getDlgIcon(ListIcon.BankDeposit));
+			deposit.OnLeftClick += (o, e) => _deposit();
+			deposit.OnRightClick += (o, e) => _deposit();
+			deposit.OffsetY = 55;
+			deposit.Index = 0;
+			deposit.ShowItemBackGround = false;
+			EODialogListItem withdraw = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_BANK_WITHDRAW),
+				string.Format("{0} gold {1}", World.GetString(DATCONST2.DIALOG_BANK_TAKE), World.GetString(DATCONST2.DIALOG_BANK_FROM_ACCOUNT)), _getDlgIcon(ListIcon.BankWithdraw));
+			withdraw.OnLeftClick += (o, e) => _withdraw();
+			withdraw.OnRightClick += (o, e) => _withdraw();
+			withdraw.OffsetY = 55;
+			withdraw.Index = 1;
+			withdraw.ShowItemBackGround = false;
+			EODialogListItem upgrade = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_BANK_LOCKER_UPGRADE), 
+				World.GetString(DATCONST2.DIALOG_BANK_MORE_SPACE), _getDlgIcon(ListIcon.BankLockerUpgrade));
+			upgrade.OnLeftClick += (o, e) => _upgrade();
+			upgrade.OnRightClick += (o, e) => _upgrade();
+			upgrade.OffsetY = 55;
+			upgrade.Index = 2;
+			upgrade.ShowItemBackGround = false;
+
+			DialogClosing += (o, e) => { Instance = null; };
+			
+			Center(Game.GraphicsDevice);
+			DrawLocation = new Vector2(DrawLocation.X, 50);
+			endConstructor(false);
+		}
+
+		private void _deposit()
+		{
+			InventoryItem item = World.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.id == 1);
+			if (item.amount == 0)
+			{
+				EODialog.Show(DATCONST1.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				return;
+			}
+			if (item.amount == 1)
+			{
+				if (!Bank.BankDeposit(1))
+				{
+					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+					EOGame.Instance.LostConnectionDialog();
+				}
+				return;
+			}
+
+			EOItemTransferDialog dlg = new EOItemTransferDialog(World.Instance.EIF.GetItemRecordByID(1).Name,
+				EOItemTransferDialog.TransferType.BankTransfer, item.amount, DATCONST2.DIALOG_TRANSFER_DEPOSIT);
+			dlg.DialogClosing += (o, e) =>
+			{
+				if (e.Result == XNADialogResult.Cancel)
+					return;
+
+				if (!Bank.BankDeposit(dlg.SelectedAmount))
+				{
+					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+					EOGame.Instance.LostConnectionDialog();
+				}
+			};
+		}
+
+		private void _withdraw()
+		{
+			int balance = int.Parse(AccountBalance);
+			if(balance == 0)
+			{
+				EODialog.Show(DATCONST1.BANK_ACCOUNT_UNABLE_TO_WITHDRAW, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				return;
+			}
+			if (balance == 1)
+			{
+				if (!Bank.BankWithdraw(1))
+				{
+					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+					EOGame.Instance.LostConnectionDialog();
+				}
+				return;
+			}
+
+			EOItemTransferDialog dlg = new EOItemTransferDialog(World.Instance.EIF.GetItemRecordByID(1).Name,
+				EOItemTransferDialog.TransferType.BankTransfer, balance, DATCONST2.DIALOG_TRANSFER_WITHDRAW);
+			dlg.DialogClosing += (o, e) =>
+			{
+				if (e.Result == XNADialogResult.Cancel)
+					return;
+
+				if (!Bank.BankWithdraw(dlg.SelectedAmount))
+				{
+					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+					EOGame.Instance.LostConnectionDialog();
+				}
+			};
+		}
+
+		private void _upgrade()
+		{
+			if (LockerUpgrades == 7)
+			{
+				EODialog.Show(DATCONST1.LOCKER_UPGRADE_IMPOSSIBLE, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				return;
+			}
+
+			int requiredGold = (LockerUpgrades + 1)*1000;
+			InventoryItem item = World.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.id == 1);
+			if (item.amount < requiredGold)
+			{
+				EODialog.Show(DATCONST1.WARNING_YOU_HAVE_NOT_ENOUGH, "gold", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				return;
+			}
+
+			EODialog.Show(DATCONST1.LOCKER_UPGRADE_UNIT, string.Format("{0} gold?", requiredGold), XNADialogButtons.OkCancel,
+				EODialogStyle.SmallDialogSmallHeader,
+				(o, e) =>
+				{
+					if (e.Result == XNADialogResult.Cancel)
+						return;
+
+					Packet pkt = new Packet(PacketFamily.Locker, PacketAction.Buy);
+					World.Instance.Client.SendPacket(pkt);
+				});
 		}
 	}
 }

@@ -55,7 +55,7 @@ namespace EndlessClient
 				m_arrows[i].SetParent(this);
 				m_arrows[i].IgnoreDialog(typeof(EOChestDialog));
 				m_arrows[i].IgnoreDialog(typeof(EOPaperdollDialog));
-				m_arrows[i].IgnoreDialog(typeof(EOBankVaultDialog));
+				m_arrows[i].IgnoreDialog(typeof(EOLockerDialog));
 				m_arrows[i].IgnoreDialog(typeof(EOFriendIgnoreListDialog));
 				m_arrows[i].OnClick += (s, e) =>
 				{
