@@ -18,7 +18,7 @@ Note: any glitches you can find in the above GIF prove how much of a work in pro
 <a name="Download" />Download+Play
 -------------
 
-There is a [Release Binary ZIP](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) available for download for those not interested in building the source. It is up to date as of 2/7/15.
+There is a [Release Binary ZIP](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) available for download for those not interested in building the source. It is up to date as of 4/20/15.
 
 You will need to install the [XNA Game Framework](http://www.microsoft.com/en-us/download/details.aspx?id=20914) and the [.NET framework 4.0](http://www.microsoft.com/en-us/download/details.aspx?id=17718) (if you don't have .NET installed already).
 
