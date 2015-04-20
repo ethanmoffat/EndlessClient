@@ -10,7 +10,7 @@ namespace EndlessClient.Handlers
 		{
 			short seq_1 = pkt.GetShort();
 			byte seq_2 = pkt.GetChar();
-			World.Instance.Client.UpdateSequence(seq_1 - seq_2);
+			((EOClient)World.Instance.Client).UpdateSequence(seq_1 - seq_2);
 
 			Packet reply = new Packet(PacketFamily.Connection, PacketAction.Ping);
 			World.Instance.Client.SendPacket(reply);

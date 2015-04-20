@@ -1,15 +1,43 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Sockets;
+using System.Threading;
 using EOLib;
 
 namespace EndlessClient
 {
-	public class EOClient : AsyncClient
+	public class EODataChunk : DataChunk
+	{
+		//endless online uses different states of receiving data
+		//	Send 1 byte of length[0] (ReadLen1)
+		//	Send 1 byte of length[1] (ReadLen2)
+		//	Combine length[0]+length[1] to get total length
+		//	Receive bytes until we have total length (ReadData)
+		//NoData is an error state
+		public enum DataReceiveState
+		{
+			ReadLen1,
+			ReadLen2,
+			ReadData,
+			NoData
+		}
+
+		public const int BUFFER_SIZE = 1;
+
+		public DataReceiveState State;
+		public byte[] RawLength { get; private set; }
+
+		public EODataChunk()
+			: base(BUFFER_SIZE)
+		{
+			State = DataReceiveState.ReadLen1;
+			RawLength = new byte[2];
+		}
+	}
+	public partial class EOClient : AsyncClient
 	{
 		private delegate void PacketHandler(Packet reader);
-
-		//I COULD just use tuple...but it is easier to type when I make a wrapper that basically is a tuple.
 		private struct FamilyActionPair : IEqualityComparer
 		{
 			private readonly PacketFamily fam;
@@ -64,9 +92,12 @@ namespace EndlessClient
 			}
 		}
 		private readonly Dictionary<FamilyActionPair, LockedHandlerMethod> handlers;
-		
+
+		private ClientPacketProcessor m_packetProcessor;
+
 		public EOClient()
 		{
+			#region HANDLERS
 			handlers = new Dictionary<FamilyActionPair, LockedHandlerMethod>
 			{
 				{
@@ -332,6 +363,7 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Welcome.WelcomeResponse)
 				}
 			};
+			#endregion
 		}
 
 		public override void Disconnect()
@@ -340,13 +372,178 @@ namespace EndlessClient
 			base.Disconnect();
 		}
 
-		protected override void _handle(object state)
+		public void UpdateSequence(int newVal)
 		{
-			Packet pkt = (Packet)state;
+			m_packetProcessor.SequenceStart = newVal;
+		}
 
+		protected override void OnConnect()
+		{
+			EODataChunk wrap = new EODataChunk();
+			StartDataReceive(wrap);
+
+			m_packetProcessor = new ClientPacketProcessor(); //reset the packet processor to allow for new multis
+
+			if (!Handlers.Init.Initialize() || !Handlers.Init.CanProceed)
+			{
+				//pop up some dialogs when this fails (see EOGame::TryConnectToServer)
+				m_connectedAndInitialized = false;
+				return;
+			}
+
+			m_packetProcessor.SetMulti(Handlers.Init.Data.emulti_d, Handlers.Init.Data.emulti_e);
+			UpdateSequence(Handlers.Init.Data.seq_1*7 - 11 + Handlers.Init.Data.seq_2 - 2);
+			World.Instance.MainPlayer.SetPlayerID(Handlers.Init.Data.clientID);
+
+			//send confirmation of init data to server
+			Packet confirm = new Packet(PacketFamily.Connection, PacketAction.Accept);
+			confirm.AddShort(m_packetProcessor.SendMulti);
+			confirm.AddShort(m_packetProcessor.RecvMulti);
+			confirm.AddShort(Handlers.Init.Data.clientID);
+
+			if (!SendPacket(confirm))
+			{
+				m_connectedAndInitialized = false;
+			}
+		}
+
+		protected override void OnSendData(Packet pkt, out byte[] toSend)
+		{
+			//for debugging: sometimes the server is getting PACKET_INTERNAL from this client
+			//I'm not sure why and it happens randomly so this check will allow me to examine
+			//	packet contents and the call stack to figure it out
+			if (pkt.Family == PacketFamily.Internal)
+				throw new ArgumentException("This is an invalid packet!");
+
+			//encode the packet bytes (also prepends seq number: 2 bytes)
+			byte[] packetBytes = pkt.Get();
+			m_packetProcessor.Encode(ref packetBytes);
+
+			//prepend the 2 bytes of length data to the packet data
+			byte[] len = Packet.EncodeNumber(packetBytes.Length, 2);
+
+			toSend = new byte[packetBytes.Length + 2];
+			Array.Copy(len, 0, toSend, 0, 2);
+			Array.Copy(packetBytes, 0, toSend, 2, packetBytes.Length);
+
+			//at this point, toSend should be 4 bytes longer than the original packet data
+			//this includes 2 bytes of len, 2 bytes of seq, and then packet payload
+
+			Logger.Log("SEND thread: Processing       ENC packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
+				Enum.GetName(typeof(PacketFamily), pkt.Family),
+				Enum.GetName(typeof(PacketAction), pkt.Action),
+				pkt.Length,
+				_convertDataToHexString(pkt.Data));
+		}
+
+		protected override void OnSendRawData(Packet pkt, out byte[] toSend)
+		{
+			pkt.WritePos = 0;
+			pkt.AddShort((short)pkt.Length);
+			toSend = pkt.Get();
+
+			Logger.Log("SEND thread: Processing       RAW packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
+				Enum.GetName(typeof(PacketFamily), pkt.Family),
+				Enum.GetName(typeof(PacketAction), pkt.Action),
+				pkt.Length,
+				_convertDataToHexString(pkt.Data));
+		}
+
+		protected override void OnReceiveData(DataChunk state)
+		{
+			EODataChunk wrap = (EODataChunk)state;
+			if (wrap.Data.Length == 0)
+				wrap.State = EODataChunk.DataReceiveState.NoData;
+			try
+			{
+				switch (wrap.State)
+				{
+					case EODataChunk.DataReceiveState.ReadLen1:
+						{
+							wrap.RawLength[0] = wrap.Data[0];
+							wrap.State = EODataChunk.DataReceiveState.ReadLen2;
+							wrap.Data = new byte[EODataChunk.BUFFER_SIZE];
+							StartDataReceive(wrap);
+							break;
+						}
+					case EODataChunk.DataReceiveState.ReadLen2:
+						{
+							wrap.RawLength[1] = wrap.Data[0];
+							wrap.State = EODataChunk.DataReceiveState.ReadData;
+							wrap.Data = new byte[Packet.DecodeNumber(wrap.RawLength)];
+							StartDataReceive(wrap);
+							break;
+						}
+					case EODataChunk.DataReceiveState.ReadData:
+						{
+							byte[] data = new byte[wrap.Data.Length];
+							Array.Copy(wrap.Data, data, data.Length);
+							m_packetProcessor.Decode(ref data);
+
+							//This block handles receipt of file data that is transferred to the client.
+							//It should make file transfer nuances pretty transparent to the client.
+							//The header for files stored in a Packet type is always as follows: FAMILY_INIT, ACTION_INIT, (InitReply)
+							//A 3-byte offset is found throughout the code that handles creating these files.
+							Packet pkt = new Packet(data);
+							if ((pkt.Family == PacketFamily.Init && pkt.Action == PacketAction.Init))
+							{
+								Handlers.InitReply reply = (Handlers.InitReply)pkt.GetChar();
+								if (Handlers.Init.ExpectingFile)
+								{
+									int dataGrabbed = 0;
+
+									int pktOffset = 0;
+									for (; pktOffset < data.Length; ++pktOffset)
+										if (data[pktOffset] == 0)
+											break;
+
+									do
+									{
+										byte[] fileBuffer = new byte[pkt.Length - pktOffset];
+										int nextGrabbed = ReceiveRaw(ref fileBuffer);
+										Array.Copy(fileBuffer, 0, data, dataGrabbed + 3, data.Length - (dataGrabbed + pktOffset));
+										dataGrabbed += nextGrabbed;
+									} while (dataGrabbed < pkt.Length - pktOffset);
+
+									if (pktOffset > 3)
+										data = data.SubArray(0, pkt.Length - (pktOffset - 3));
+
+									//rewrite the InitReply with the correct value (retrieved with GetChar, server sends with GetByte for other reply types)
+									data[2] = (byte)reply;
+								}
+								else if (Handlers.Init.ExpectingPlayerList)
+								{
+									//online list sends a char... rewrite it with a byte so it is parsed correctly.
+									data[2] = (byte)reply;
+								}
+							}
+
+							ThreadPool.QueueUserWorkItem(_handlePacket, new Packet(data));
+							EODataChunk newWrap = new EODataChunk();
+							StartDataReceive(newWrap);
+							break;
+						}
+					default:
+						{
+							Console.WriteLine("There was an error in the receive callback. Closing connection.");
+							Disconnect();
+							break;
+						}
+				}
+			}
+			catch (SocketException se)
+			{
+				//in the process of disconnecting
+				Console.WriteLine("There was a SocketException with SocketErrorCode {0} in _recvCB", se.SocketErrorCode);
+			}
+		}
+
+		private void _handlePacket(object state)
+		{
+			Packet pkt = (Packet) state;
 			string logOpt;
 			FamilyActionPair pair = new FamilyActionPair(pkt.Family, pkt.Action);
-			if(handlers.ContainsKey(pair))
+			if (handlers.ContainsKey(pair))
 			{
 				logOpt = "  handled";
 				handlers[pair].Handler(pkt);
@@ -361,30 +558,10 @@ namespace EndlessClient
 				Enum.GetName(typeof(PacketFamily), pkt.Family),
 				Enum.GetName(typeof(PacketAction), pkt.Action),
 				pkt.Length,
-				GetDataDisplayString(pkt.Data));
+				_convertDataToHexString(pkt.Data));
 		}
 
-		public override bool SendPacket(Packet pkt)
-		{
-			Logger.Log("SEND thread: Processing       ENC packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}", 
-				Enum.GetName(typeof(PacketFamily), pkt.Family),
-				Enum.GetName(typeof(PacketAction), pkt.Action),
-				pkt.Length,
-				GetDataDisplayString(pkt.Data));
-			return base.SendPacket(pkt);
-		}
-
-		public override bool SendRaw(Packet pkt)
-		{
-			Logger.Log("SEND thread: Processing       RAW packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
-				Enum.GetName(typeof(PacketFamily), pkt.Family),
-				Enum.GetName(typeof(PacketAction), pkt.Action),
-				pkt.Length,
-				GetDataDisplayString(pkt.Data));
-			return base.SendRaw(pkt);
-		}
-
-		private string GetDataDisplayString(byte[] data)
+		private string _convertDataToHexString(byte[] data)
 		{
 			//This will log a string of data that will be usable by the PacketDecoder utility. colon-delimited 2-character hex values.
 			string result = "";
