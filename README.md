@@ -5,7 +5,7 @@ An open source client for Endless Online written in C#
 
 ![alt text](http://i.imgur.com/s0MpbG1.gif "Slow 9MB GIF incoming!")
 
-Note: any glitches you can find in the above GIF prove how much of a work in progress this is. But it looks pretty cool so far, amirite??
+Note: the above GIF is as of 2/7/15 - the egregious display bugs in map rendering have since been fixed
 
 #### Jump to:
  - [Download and Play](#Download)
@@ -38,74 +38,69 @@ These instructions have been tested in a Virtual Machine running Windows 7 Profe
 3. Install the [XNA 4.0 Refresh](https://xnags.codeplex.com/releases/view/117230) visual studio extension and its dependencies. These are all included in the linked .zip file (four prereqs + the extension itself)
 4. Optionally: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/) (student licenses are **free**!)
 5. Install your favorite git client and fork the latest changes (I highly recommend [Atlassian SourceTree](http://www.sourcetreeapp.com/))
-6. Build the solution in VS 2013 and launch. You should be up and running!
+6. Build the solution in VS 2013. Copy the required files to the bin\x86\debug\ or bin\x86\release\ folder (see below)
 
 Note that the game client requires some additional files to be copied to the *bin* directory before the game will successfully launch:
 
 1. Download the Endless Online client from [www.endless-online.com](http://files.endless-online.com/EOzipped028.zip)
-2. Copy the files from the GFX folder in the linked zip archive above to a folder named GFX in the output bin directory. These files are required to run the game.
-3. Copy the files from the data folder in the linked zip archive above to a folder named data in the output bin directory. These files are required to run the game (as of 4/2/15).
-4. Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory.
+2. Copy the data, gfx, mfx, and sfx folders from the linked ZIP archive to the output bin directory before running the game. Otherwise it will fail to launch.
+3. Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory. Note that the original client had a setup.ini; this has been renamed to settings.ini.
+4. Any other files will be downloaded or created as needed (pub, maps, and friend.ini/ignore.ini)
 
 <a name="SoFar" />What is there so far?
 ---------------------
 
-The primary thing that's been completely is the basic framework for running and displaying the game. I have a solid custom-built UI controls library, and liberal use of the XNA Game Component model. Socket connections for sending/receiving data to/from the server are all set up and surprisingly stable (except for when the server closes a connection, but we're ignoring that for now). The framework that is there also allows for easy addition of different Packet handlers, which means more features for the game client can be added without much effort.
+The client is largely complete. There is a pretty full feature set that allows for many of the original game's operations to be done in the same way. However, there is still a lot left out that has not been integrated into this client as of yet.
 
-**The game is mostly there.** This is the most important thing you need to know. Most of the required components to get a working game are there and working. The important thing is that it is a work in progress and constantly being improved.
-
-Here's a list of some things that can be done:
- - Character rendering/walking
- - NPC rendering/walking
- - Map rendering/scrolling during walk
- - Doors/warping to different maps
- - Talking - global, local, player commands (#usage #find #loc)
- - Attacking NPCs - complete, except Character clothes and weapons don't render properly
- - Animated map tiles
- - Item inventory and paperdoll display, equipping/unequipping items, some item usage (limited at this time)
- - Stats display and leveling up stats (str/int/wis/agi/con/cha)
+Some of the more important features that have been implemented are:
+ - Complete implementation of pre-game menus and operations. This includes account creation, logging in, creating/deleting characters, and changing password
+ - Character rendering and movement (via arrow keys)
+ - Character attacking (rendering for this is work in progress)
+ - NPC rendering, movement, talking, and attacking
+ - Map rendering, including animated wall and floor tiles
+ - Rendering of minimap
+ - Warps between maps, and doors that open/shut
+ - Chat - global, local, player commands (such as #loc #usage)
+ - Item inventory management, item equipping (armor), item use (potions), and interaction with map (dropping)
+ - Stats display and leveling up or 'training'
  - Stat bars for main player in HUD (hp/tp/sp/tnl)
- - Map chest interaction
- - Interaction with other players via right-clicking them (limited)
+ - Chests and private lockers on maps
+ - Right-click menus for other players (limited)
  - Friend/Ignore lists
  - "Who is online?" list
- - NPC shops - buying, selling, and crafting items
- - Map signs
- - Bank vault (aka Private Locker)
- - All pre-game menus, logging in, creating/deleting characters, creating account, etc.
- - Data file (EDF) loading
- - Character Emotes
- - All settings from original client loaded
+ - NPC interaction on maps - limited to shops and bank bob
+ - Sound effects and background music (still work in progress, but partially there)
 
 <a name="ToDo" />What's Left to do?
 ------------------
 
-There is a HUGE list of things left to do. The client is in its infant stages and is a constantly evolving work in progress. What this means is that as features are implemented, I make an attempt to implement them as completely and accurately as possible before moving on to the next thing. The pre-game menus and UI are completely finished, besides a few small bugs that I'm sure to find. The framework for adding new components is there as well.
+Since most of the major components are there that make the game playable, I'm working primarily on resolving bugs, refactoring code, and enhancing usability. 
 
-Here's a working but incomplete list of things I want to get to (strikethrough means completed):
- - Finish attacking - requires ~~damage counter~~, ~~health bars~~, and fixing animations to show up properly
- - ~~Map signs~~
- - Map boards
- - ~~Map chests~~
- - Map chairs
- - ~~Map bank vaults~~
- - ~~Right-click players on map~~
- - Cast spells and spell animations
- - Finishing HUD panels -  ~~'view minimap' toggle~~, active spells, ~~online players~~, parties, ~~settings~~, help
- - ~~HUD meters - HP/SP/TP/TNL~~
- - HUD Quests/Exp info
- - ~~HUD Friend/Ignore lists~~
- - ~~Player emotes~~
- - NPC interaction on maps (~~shops~~, inns, quests)
- - Context menu options: trade, join (party), invite (party)
+As far as bugs are concerned, character rendering during attack is not being done properly. This is the most obvious bug that needs to be fixed, but requires a LOT of manual tinkering and is really quite tedious to get 100% right.
+
+Concerning refactoring code, I would like to remove all dependencies on singleton instances of World and EOGame if possible and use a more object-driven approach for the packet handler framework. This would require huge sweeping changes so I may just leave things the way they are since there is no real benefit past the code being cleaner.
+
+Here's the actual to-do list:
+ - Character rendering during attack
+ - Effects and spells (including skillmasters)
+ - Item use actions
+ - Party/group
+ - Trading
+ - Guilds
+ - Quests
+ - Innkeepers
+ - Marriage/Law
+ - Sitting - floor and chairs
+ - Boards
+ - Jukeboxes
+ - "Jump" tiles
  
 Here's a working list of things I want to add that would be additional features on top of the original client specs:
  - Use built-in patching system prior to log-in to transfer files: help, gfx, pubs, maps, data, sounds, etc.
  - More than 3 characters per account
- - Unbounded display size
- - Scale HUD with display size without blowing up graphics, so expand viewing range
- - Trade items between characters before logging in or during game play, or shared bank vaults
- - Timed map weather systems (planned for in original but never done)
+ - Trading items between characters on the same account (with restrictions)
+ - Unbounded display size, including scaling HUD with display size
+ - Timed map weather systems
  - Passive skills (planned for in original but never done)
  - In-game macros (planned for in original but never done)
  
@@ -150,12 +145,12 @@ PlayerDropProtectTime=5
 Language=0
 #note - different keyboard layouts are not going to be supported
 [CHAT]
-Filter=off
-FilterAll=on
-LogChat=off
+Filter=off  #normal curse filter
+FilterAll=on #strict curse filter
+LogChat=off  #chat logging is currently not supported
 LogFile=CHATLOG.TXT
 HearWhisper=on
-Interaction=on
+Interaction=on #I honestly am not sure what this even changes, more testing required
 ```
 
 <a name="Changes" />Changes From Original Client (so far)
@@ -168,6 +163,12 @@ To assist with debugging, I added a version number to the config file so it isn'
 #### Map Transitions
 
 Since the transition was pretty quick between maps, I added a cool little animation that slowly fades tiles in starting from the player and moving outward. This can be disabled in the config file if you don't like it.
+
+#### Sound Files
+
+Some of the audio files (sfx) from the original client are malformed. The WAV format includes in the header a length of the file in bytes - and for certain files, this length was different than the actual length of the audio data. The original client was able to read these without a problem, as were programs such as Windows Media Player and Audacity. However, the C# code for loading sound in XNA was throwing an exception for these audio files because of the improper length.
+
+Part of the sound processing involves reading the audio data and rewriting the length to the WAV file if the length in the file is incorrect. This modification will occur for any invalid WAV files.
 
 #### Rendering Hair
 
