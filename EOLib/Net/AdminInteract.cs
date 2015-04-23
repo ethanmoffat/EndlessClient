@@ -4,6 +4,9 @@ namespace EOLib.Net
 {
 	partial class PacketAPI
 	{
+		/// <summary>
+		/// Occurs when the hidden state of an admin changes. Includes short PlayerID and bool Hidden (true if player is hiding, false if visible).
+		/// </summary>
 		public event Action<short, bool> OnAdminHiddenChange;
 
 		private void _createAdminInteractMembers()

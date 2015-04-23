@@ -540,7 +540,7 @@ namespace EndlessClient
 					}
 				}
 
-				if(shouldSend && !Handlers.Attack.AttackUse(direction))
+				if(shouldSend && !m_packetAPI.AttackUse(direction))
 					EOGame.Instance.LostConnectionDialog();
 			}
 			else if(RenderData.facing != direction)

@@ -127,6 +127,9 @@ namespace EndlessClient
 					if (World.Instance.Client.ConnectToServer(host, port))
 					{
 						m_packetAPI = new PacketAPI((EOClient)World.Instance.Client);
+						
+						//set up event packet handling event bindings: 
+						//	some events are triggered by the server regardless of action by the client
 						m_packetAPI.OnWarpRequestNewMap += World.Instance.CheckMap;
 						m_packetAPI.OnWarpAgree += World.Instance.WarpAgreeAction;
 						m_packetAPI.OnPlayerEnterMap += (_data, _anim) => World.Instance.ActiveMapRenderer.AddOtherPlayer(_data, _anim);
@@ -140,6 +143,7 @@ namespace EndlessClient
 							else
 								World.Instance.ActiveMapRenderer.OtherPlayerHide(id, hidden);
 						};
+						m_packetAPI.OnOtherPlayerAttack += (id, dir) => World.Instance.ActiveMapRenderer.OtherPlayerAttack(id, dir);
 
 						((EOClient) World.Instance.Client).EventDisconnect += () => m_packetAPI.Disconnect();
 

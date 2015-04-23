@@ -113,8 +113,8 @@ namespace EOLib.Net
 				{
 					uid = pkt.GetShort(),
 					id = pkt.GetShort(),
-					x = pkt.GetByte(),
-					y = pkt.GetByte(),
+					x = pkt.GetChar(),
+					y = pkt.GetChar(),
 					amount = pkt.GetThree(),
 					//turn off drop protection for items coming into view - server will validate
 					time = DateTime.Now.AddSeconds(-5),
