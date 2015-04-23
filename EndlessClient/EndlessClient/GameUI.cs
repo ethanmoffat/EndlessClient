@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -461,20 +462,34 @@ Thanks to :
 				if (World.Instance.MainPlayer.CharData == null || World.Instance.MainPlayer.CharData.Length <= index)
 					return;
 
-				if (!Handlers.Welcome.SelectCharacter(World.Instance.MainPlayer.CharData[index].id))
+				WelcomeRequestData data;
+				if (!m_packetAPI.SelectCharacter(World.Instance.MainPlayer.CharData[index].id, out data))
 				{
 					LostConnectionDialog();
 					return;
 				}
 
+				//handles the WelcomeRequestData object
+				World.Instance.ApplyWelcomeRequest(data);
+
 				//shows the connecting window
-				EOConnectingDialog dlg = new EOConnectingDialog();
+				EOConnectingDialog dlg = new EOConnectingDialog(m_packetAPI);
 				dlg.DialogClosing += (dlgS, dlgE) =>
 				{
 					switch (dlgE.Result)
 					{
 						case XNADialogResult.OK:
 							doStateChange(GameStates.PlayingTheGame);
+							
+							World.Instance.ApplyWelcomeMessage(dlg.WelcomeData);
+							
+							Hud = new HUD(this, m_packetAPI);
+							Components.Add(Hud);
+							Hud.SetNews(dlg.WelcomeData.News);
+							Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.LOADING_GAME_HINT_FIRST);
+							
+							if(data.FirstTimePlayer)
+								EODialog.Show(DATCONST1.WARNING_FIRST_TIME_PLAYERS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 							break;
 						case XNADialogResult.NO_BUTTON_PRESSED:
 						{

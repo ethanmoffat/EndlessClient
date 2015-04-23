@@ -9,11 +9,11 @@ namespace EndlessClient.Handlers
 		/// <summary>
 		/// Handler for the APPEAR_REPLY packet, when an NPC comes into view
 		/// </summary>
-		public static void AppearReply(Packet pkt)
-		{
-			if (pkt.Length - pkt.ReadPos != 8 || pkt.GetChar() != 0 || pkt.GetByte() != 255) return; //malformed packet
-			World.Instance.ActiveMapRenderer.AddOtherNPC(new NPC(pkt));
-		}
+		//public static void AppearReply(Packet pkt)
+		//{
+		//	if (pkt.Length - pkt.ReadPos != 8 || pkt.GetChar() != 0 || pkt.GetByte() != 255) return; //malformed packet
+		//	World.Instance.ActiveMapRenderer.AddOtherNPC(new NPC(pkt));
+		//}
 
 		/// <summary>
 		/// Handler for NPC_PLAYER packet, when NPC walks or talks

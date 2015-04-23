@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using EOLib;
+using EOLib.Net;
 
 namespace EndlessClient.Handlers
 {

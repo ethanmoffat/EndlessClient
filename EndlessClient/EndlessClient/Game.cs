@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -86,6 +87,7 @@ namespace EndlessClient
 
 		string host;
 		int port;
+		private PacketAPI m_packetAPI;
 
 #if DEBUG //don't do FPS render on release builds
 		private TimeSpan? lastFPSRender;
@@ -117,19 +119,49 @@ namespace EndlessClient
 				return;
 			}
 
+			//execute this logic on a separate thread so the game doesn't lock up while it's trying to connect to the server
 			new Thread(() =>
 			{
 				try
 				{
-					if (!World.Instance.Client.ConnectToServer(host, port))
+					if (World.Instance.Client.ConnectToServer(host, port))
 					{
-						string extra;
-						DATCONST1 msg = Handlers.Init.ResponseMessage(out extra);
-						EODialog.Show(msg, extra);
-						connectMutex.Set();
-						return;
+						m_packetAPI = new PacketAPI((EOClient)World.Instance.Client);
+						m_packetAPI.OnWarpRequestNewMap += World.Instance.CheckMap;
+						m_packetAPI.OnWarpAgree += World.Instance.WarpAgreeAction;
+						m_packetAPI.OnPlayerEnterMap += (_data, _anim) => World.Instance.ActiveMapRenderer.AddOtherPlayer(_data, _anim);
+						m_packetAPI.OnNPCEnterMap += _data => World.Instance.ActiveMapRenderer.AddOtherNPC(_data);
+						((EOClient) World.Instance.Client).EventDisconnect += () => m_packetAPI.Disconnect();
+
+						InitData data;
+						if (m_packetAPI.Initialize(World.Instance.VersionMajor,
+							World.Instance.VersionMinor, 
+							World.Instance.VersionClient,
+							Config.GetHDDSerial(), 
+							out data))
+						{
+							((EOClient) World.Instance.Client).SetInitData(data);
+
+							if (!m_packetAPI.ConfirmInit(data.emulti_e, data.emulti_d, data.clientID))
+							{
+								throw new Exception(); //connection failed!
+							}
+
+							World.Instance.MainPlayer.SetPlayerID(data.clientID);
+							successAction();
+						}
+						else
+						{
+							string extra;
+							DATCONST1 msg = m_packetAPI.GetInitResponseMessage(out extra);
+							EODialog.Show(msg, extra);
+						}
 					}
-					successAction();
+					else
+					{
+						//show connection not found
+						throw new Exception();
+					}
 				}
 				catch
 				{
@@ -287,16 +319,8 @@ namespace EndlessClient
 						}
 					}
 
-					Hud = new HUD(this);
-					Hud.SetNews(Handlers.Welcome.News);
 					backButton.Visible = true;
-					Components.Add(Hud);
-
-					if(Handlers.Welcome.FirstTimePlayer)
-					{
-						EODialog.Show(DATCONST1.WARNING_FIRST_TIME_PLAYERS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
-					}
-					Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.LOADING_GAME_HINT_FIRST);
+					//note: HUD construction moved to successful welcome message in EOConnectingDialog close event handler
 
 					break;
 			}

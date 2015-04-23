@@ -7,6 +7,7 @@ using System.Threading;
 using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Data;
+using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -17,14 +18,6 @@ using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace EndlessClient
 {
-	public enum WarpAnimation
-	{
-		None,
-		Scroll,
-		Admin,
-		Invalid = 255
-	}
-
 	//returned from CheckCoordinates
 	//convenience wrapper
 	public struct TileInfo
@@ -667,14 +660,14 @@ namespace EndlessClient
 		#endregion
 
 		#region /* PUBLIC INTERFACE -- OTHER PLAYERS */
-		public void AddOtherPlayer(Character c, WarpAnimation anim = WarpAnimation.None)
+		public void AddOtherPlayer(CharacterData c, WarpAnimation anim = WarpAnimation.None)
 		{
 			Character other;
 			EOCharacterRenderer otherRend = null;
 			if ((other = otherPlayers.Find(x => x.Name == c.Name && x.ID == c.ID)) == null)
 			{
-				otherPlayers.Add(c);
-				otherRenderers.Add(otherRend = new EOCharacterRenderer(c));
+				otherPlayers.Add(other = new Character(c));
+				otherRenderers.Add(otherRend = new EOCharacterRenderer(other));
 				otherRenderers[otherRenderers.Count - 1].Visible = true;
 				otherRenderers[otherRenderers.Count - 1].Initialize();
 			}
@@ -830,25 +823,24 @@ namespace EndlessClient
 		#endregion
 
 		#region/* PUBLIC INTERFACE -- OTHER NPCS */
-		public void AddOtherNPC(NPC newGuy)
+		public void AddOtherNPC(NPCData data)
 		{
 			lock (npcListLock)
 			{
 				NPC exists;
-				if ((exists = npcList.Find(_npc => _npc.Index == newGuy.Index)) == null)
+				if ((exists = npcList.Find(_npc => _npc.Index == data.Index)) == null)
 				{
-					newGuy.Initialize();
-					newGuy.Visible = true;
-					npcList.Add(newGuy);
+					exists = new NPC(data);
 				}
 				else
 				{
 					exists.Dispose();
 					npcList.Remove(exists);
-					newGuy.Initialize();
-					newGuy.Visible = true;
-					npcList.Add(newGuy);
 				}
+				
+				exists.Initialize();
+				exists.Visible = true;
+				npcList.Add(exists);
 			}
 		}
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using EndlessClient.Handlers;
+using EOLib.Net;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;

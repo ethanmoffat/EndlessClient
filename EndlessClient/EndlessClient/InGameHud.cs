@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using EndlessClient.Handlers;
 using EOLib;
+using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -29,6 +30,8 @@ namespace EndlessClient
 	public class HUD : DrawableGameComponent
 	{
 		private static readonly object clockLock = new object();
+
+		private readonly PacketAPI m_packetAPI;
 
 		private const int NUM_BTN = 11;
 		private readonly Texture2D mainFrame, topLeft, sidebar, topBar, filler;
@@ -68,9 +71,13 @@ namespace EndlessClient
 
 		public DateTime SessionStartTime { get; private set; }
 		
-		public HUD(Game g)
+		public HUD(Game g, PacketAPI api)
 			: base(g)
 		{
+			if(!api.Initialized)
+				throw new ArgumentException("Need to initialize connection before the in-game stuff will work");
+			m_packetAPI = api;
+
 			mainFrame = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 1, true);
 			topLeft = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 21, true);
 			sidebar = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 22, true);
@@ -305,7 +312,7 @@ namespace EndlessClient
 				Visible = true,
 				Enabled = true
 			};
-			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(false);
+			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(m_packetAPI, false);
 			m_friendList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_FRIEND_LIST);
 
 			m_ignoreList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
@@ -316,7 +323,7 @@ namespace EndlessClient
 				Visible = true,
 				Enabled = true
 			};
-			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(true);
+			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(m_packetAPI, true);
 			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_IGNORE_LIST);
 
 			m_expInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
@@ -461,7 +468,10 @@ namespace EndlessClient
 					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_STATS_PANEL_NOW_VIEWED);
 					break;
 				case InGameStates.Online:
-					Init.RequestOnlineList(false);
+					List<OnlineEntry> onlineList;
+					if (!m_packetAPI.RequestOnlinePlayers(true, out onlineList))
+						EOGame.Instance.LostConnectionDialog();
+					SetOnlineList(onlineList);
 					pnlOnline.Visible = true;
 					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_ONLINE_PLAYERS_NOW_VIEWED);
 					break;
@@ -769,42 +779,47 @@ namespace EndlessClient
 		
 		protected override void Dispose(bool disposing)
 		{
-			foreach (XNAButton btn in mainBtn)
-				btn.Close();
-
-			newsTab.Dispose();
-			inventory.Dispose();
-			chatRenderer.Dispose();
-			stats.Dispose();
-
-			filler.Dispose();
-			if(modeTexture != null)
-				modeTexture.Dispose();
-			SpriteBatch.Dispose();
-
-			pnlInventory.Close();
-			pnlActiveSpells.Close();
-			pnlPassiveSpells.Close();
-			pnlChat.Close();
-			pnlStats.Close();
-			pnlOnline.Close();
-			pnlParty.Close();
-			pnlSettings.Close();
-
-			chatTextBox.Dispose();
-			statusLabel.Dispose();
-
-			m_friendList.Dispose();
-			m_ignoreList.Dispose();
-
-			m_expInfo.Dispose();
-			m_questInfo.Dispose();
-
-			lock (clockLock)
+			if (disposing)
 			{
-				clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
-				clockTimer.Dispose();
-				clockLabel.Dispose();
+				m_packetAPI.Dispose();
+
+				foreach (XNAButton btn in mainBtn)
+					btn.Close();
+
+				newsTab.Dispose();
+				inventory.Dispose();
+				chatRenderer.Dispose();
+				stats.Dispose();
+
+				filler.Dispose();
+				if (modeTexture != null)
+					modeTexture.Dispose();
+				SpriteBatch.Dispose();
+
+				pnlInventory.Close();
+				pnlActiveSpells.Close();
+				pnlPassiveSpells.Close();
+				pnlChat.Close();
+				pnlStats.Close();
+				pnlOnline.Close();
+				pnlParty.Close();
+				pnlSettings.Close();
+
+				chatTextBox.Dispose();
+				statusLabel.Dispose();
+
+				m_friendList.Dispose();
+				m_ignoreList.Dispose();
+
+				m_expInfo.Dispose();
+				m_questInfo.Dispose();
+
+				lock (clockLock)
+				{
+					clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
+					clockTimer.Dispose();
+					clockLabel.Dispose();
+				}
 			}
 
 			base.Dispose(disposing);

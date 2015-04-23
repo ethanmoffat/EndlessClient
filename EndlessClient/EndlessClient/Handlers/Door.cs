@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using EOLib;
+﻿using EOLib;
+using EOLib.Net;
 
 namespace EndlessClient.Handlers
 {

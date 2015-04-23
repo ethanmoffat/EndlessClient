@@ -1,10 +1,7 @@
 ﻿
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
 using EOLib;
-using Microsoft.Xna.Framework;
+using EOLib.Net;
 
 namespace EndlessClient.Handlers
 {

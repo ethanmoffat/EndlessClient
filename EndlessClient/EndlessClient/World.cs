@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using EOLib;
 using EOLib.Data;
+using EOLib.Net;
 
 namespace EndlessClient
 {
@@ -57,10 +58,29 @@ namespace EndlessClient
 			MapCache = new Dictionary<int, MapFile>(32);
 			DataFiles = new Dictionary<DataFiles, EDFFile>(12); //12 files total
 			m_player = new Player();
-			m_client = new EOClient();
 			m_config = new IniReader(@"config\settings.ini");
 			if (!m_config.Load())
 				throw new WorldLoadException("Unable to load the configuration file!");
+
+			//client construction: logging for when packets are sent/received
+			m_client = new EOClient(_getPacketHandlerDictionary());
+			((EOClient) m_client).EventSendData +=
+				dte => Logger.Log("SEND thread: Processing       {4} packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
+					Enum.GetName(typeof (PacketFamily), dte.PacketFamily),
+					Enum.GetName(typeof (PacketAction), dte.PacketAction),
+					dte.RawByteData.Length,
+					dte.ByteDataHexString,
+					dte.Type == DataTransferEventArgs.TransferType.Send
+						? "ENC"
+						: dte.Type == DataTransferEventArgs.TransferType.SendRaw ? "RAW" : "ERR");
+			((EOClient) m_client).EventReceiveData +=
+				dte => Logger.Log("RECV thread: Processing {0} packet Family={1,-13} Action={2,-8} sz={3,-5} data={4}",
+					dte.PacketHandled ? "  handled" : "UNHANDLED",
+					Enum.GetName(typeof (PacketFamily), dte.PacketFamily),
+					Enum.GetName(typeof (PacketAction), dte.PacketAction),
+					dte.RawByteData.Length,
+					dte.ByteDataHexString);
+			((EOClient) m_client).EventDisconnect += () => MainPlayer.Logout();
 		}
 
 		public void Init()
@@ -415,7 +435,7 @@ namespace EndlessClient
 			return true;
 		}
 
-		public void CheckMap(int mapID, byte[] mapRid, int mapFileSize)
+		public bool CheckMap(short mapID, byte[] mapRid, int mapFileSize)
 		{
 			NeedMap = -1;
 
@@ -424,7 +444,7 @@ namespace EndlessClient
 			{
 				Directory.CreateDirectory("maps");
 				NeedMap = mapID;
-				return;
+				return false;
 			}
 
 			//try to load the map if it isn't cached. on failure, set needmap
@@ -446,9 +466,11 @@ namespace EndlessClient
 				if (NeedMap == -1 && MapCache[mapID].FileSize != mapFileSize)
 					NeedMap = mapID;
 			}
+			//return true if the map is not needed
+			return NeedMap == -1;
 		}
 
-		public void CheckPub(Handlers.InitFileType file, int rid, short len)
+		public void CheckPub(InitFileType file, int rid, short len)
 		{
 			const string fName = "pub\\";
 			if (!Directory.Exists(fName))
@@ -456,22 +478,22 @@ namespace EndlessClient
 
 			switch (file)
 			{
-				case Handlers.InitFileType.Item:
+				case InitFileType.Item:
 					NeedEIF = !TryLoadItems();
 					if(EIF != null)
 						NeedEIF = rid != EIF.Rid || len != EIF.Len;
 					break;
-				case Handlers.InitFileType.Npc:
+				case InitFileType.Npc:
 					NeedENF = !TryLoadNPCs();
 					if (ENF != null)
 						NeedENF = rid != ENF.Rid || len != ENF.Len;
 					break;
-				case Handlers.InitFileType.Spell:
+				case InitFileType.Spell:
 					NeedESF = !TryLoadSpells();
 					if (ESF != null)
 						NeedESF = rid != ESF.Rid || len != ESF.Len;
 					break;
-				case Handlers.InitFileType.Class:
+				case InitFileType.Class:
 					NeedECF = !TryLoadClasses();
 					if (ECF != null)
 						NeedECF = rid != ECF.Rid || len != ECF.Len;
@@ -479,6 +501,110 @@ namespace EndlessClient
 				default:
 					return;
 			}
+		}
+
+		public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<MapItem> items)
+		{
+			ActiveMapRenderer.ClearOtherPlayers();
+			ActiveMapRenderer.ClearOtherNPCs();
+			ActiveMapRenderer.ClearMapItems();
+
+			foreach (var data in chars)
+			{
+				if (data.ID == MainPlayer.ActiveCharacter.ID)
+					MainPlayer.ActiveCharacter.ApplyData(data);
+				else
+					ActiveMapRenderer.AddOtherPlayer(data);
+			}
+
+			foreach (var data in npcs)
+				ActiveMapRenderer.AddOtherNPC(data);
+
+			foreach (MapItem mi in items)
+				ActiveMapRenderer.AddMapItem(mi);
+		}
+
+		public void ApplyWelcomeRequest(WelcomeRequestData data)
+		{
+			MainPlayer.SetPlayerID(data.PlayerID);
+			MainPlayer.SetActiveCharacter(data.ActiveCharacterID);
+			MainPlayer.ActiveCharacter.CurrentMap = data.MapID;
+			MainPlayer.ActiveCharacter.MapIsPk = data.MapIsPK;
+
+			CheckMap(data.MapID, data.MapRID, data.MapLen);
+			CheckPub(InitFileType.Item, data.EifRid, data.EifLen);
+			CheckPub(InitFileType.Npc, data.EnfRid, data.EnfLen);
+			CheckPub(InitFileType.Spell, data.EsfRid, data.EsfLen);
+			CheckPub(InitFileType.Class, data.EcfRid, data.EcfLen);
+
+			MainPlayer.ActiveCharacter.Name = data.Name;
+			MainPlayer.ActiveCharacter.Title = data.Title;
+			MainPlayer.ActiveCharacter.GuildName = data.GuildName;
+			MainPlayer.ActiveCharacter.GuildRankStr = data.GuildRankStr;
+			MainPlayer.ActiveCharacter.GuildRankNum = data.GuildRankNum;
+			MainPlayer.ActiveCharacter.Class = data.ClassID;
+			MainPlayer.ActiveCharacter.PaddedGuildTag = data.PaddedGuildTag;
+			MainPlayer.ActiveCharacter.AdminLevel = data.AdminLevel;
+
+			MainPlayer.ActiveCharacter.Stats = new CharStatData
+			{
+				level = data.Level,
+				exp = data.Exp,
+				usage = data.Usage,
+
+				hp = data.HP,
+				maxhp = data.MaxHP,
+				tp = data.TP,
+				maxtp = data.MaxTP,
+				sp = data.MaxSP,
+				maxsp = data.MaxSP,
+
+				statpoints = data.StatPoints,
+				skillpoints = data.SkillPoints,
+				mindam = data.MinDam,
+				maxdam = data.MaxDam,
+				karma = data.Karma,
+				accuracy = data.Accuracy,
+				evade = data.Evade,
+				armor = data.Armor,
+				disp_str = data.DispStr,
+				disp_int = data.DispInt,
+				disp_wis = data.DispWis,
+				disp_agi = data.DispAgi,
+				disp_con = data.DispCon,
+				disp_cha = data.DispCha
+			};
+
+			Array.Copy(data.PaperDoll, MainPlayer.ActiveCharacter.PaperDoll, (int) EquipLocation.PAPERDOLL_MAX);
+			JailMap = data.JailMap;
+		}
+
+		public void ApplyWelcomeMessage(WelcomeMessageData data)
+		{
+			MainPlayer.ActiveCharacter.Weight = data.Weight;
+			MainPlayer.ActiveCharacter.MaxWeight = data.MaxWeight;
+
+			MainPlayer.ActiveCharacter.Inventory.Clear();
+			MainPlayer.ActiveCharacter.Inventory.AddRange(data.Inventory);
+			MainPlayer.ActiveCharacter.Spells.Clear();
+			MainPlayer.ActiveCharacter.Spells.AddRange(data.Spells);
+
+			ActiveMapRenderer.ClearOtherPlayers();
+			ActiveMapRenderer.ClearOtherNPCs();
+			ActiveMapRenderer.ClearMapItems();
+
+			foreach (var character in data.CharacterData)
+			{
+				if (character.Name.ToLower() == MainPlayer.ActiveCharacter.Name.ToLower())
+					MainPlayer.ActiveCharacter.ApplyData(character, false); //do NOT copy paperdoll data over the existing!
+				else
+					ActiveMapRenderer.AddOtherPlayer(character);
+			}
+
+			foreach (var npc in data.NPCData)
+				ActiveMapRenderer.AddOtherNPC(npc);
+			foreach (var item in data.MapItemData)
+				ActiveMapRenderer.AddMapItem(item);
 		}
 
 		public void ResetGameElements()
@@ -505,16 +631,267 @@ namespace EndlessClient
 
 		private void Dispose(bool disposing)
 		{
-			if (!disposing) return;
+			if (disposing)
+			{
+				if (m_mapRender != null)
+					m_mapRender.Dispose();
 
-			if(m_mapRender != null)
-				m_mapRender.Dispose();
+				if (m_charRender != null)
+					m_charRender.Dispose();
 
-			if(m_charRender != null)
-				m_charRender.Dispose();
+				if (m_client != null)
+					m_client.Dispose();
 
-			if(m_client != null)
-				m_client.Dispose();
+				Handlers.Account.Cleanup();
+				Handlers.Character.Cleanup();
+				Handlers.Login.Cleanup();
+				Handlers.Walk.Cleanup();
+			}
+		}
+
+		private Dictionary<FamilyActionPair, LockedHandlerMethod> _getPacketHandlerDictionary()
+		{
+			return new Dictionary<FamilyActionPair, LockedHandlerMethod>
+			{
+				{
+					new FamilyActionPair(PacketFamily.Account, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Account.AccountResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Agree),
+					new LockedHandlerMethod(Handlers.AdminInteract.AdminShow)
+				},
+				{
+					new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Remove),
+					new LockedHandlerMethod(Handlers.AdminInteract.AdminHide)
+				},
+				//{
+				//	new FamilyActionPair(PacketFamily.Appear, PacketAction.Reply),
+				//	new LockedHandlerMethod(Handlers.NPCPackets.AppearReply, true)
+				//},
+				{
+					new FamilyActionPair(PacketFamily.Attack, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Attack.AttackPlayerResponse, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Avatar, PacketAction.Agree),
+					new LockedHandlerMethod(Handlers.Avatar.AvatarAgree, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Avatar, PacketAction.Remove),
+					new LockedHandlerMethod(Handlers.Avatar.AvatarRemove, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Bank, PacketAction.Open), 
+					new LockedHandlerMethod(Handlers.Bank.BankOpenReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Bank, PacketAction.Reply), 
+					new LockedHandlerMethod(Handlers.Bank.BankReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Character, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Character.CharacterPlayerResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Character, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Character.CharacterResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Chest, PacketAction.Agree),
+					new LockedHandlerMethod(Handlers.Chest.ChestAgreeResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Chest, PacketAction.Get),
+					new LockedHandlerMethod(Handlers.Chest.ChestGetResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Chest, PacketAction.Open),
+					new LockedHandlerMethod(Handlers.Chest.ChestOpenResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Chest, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Chest.ChestReply)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Connection, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Connection.PingResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Door, PacketAction.Open),
+					new LockedHandlerMethod(Handlers.Door.DoorOpenResponse, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Effect, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Effect.EffectPlayer, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Emote, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Emote.EmotePlayer, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Face, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Face.FacePlayerResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Add),
+					new LockedHandlerMethod(Handlers.Item.ItemAddResponse, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Drop),
+					new LockedHandlerMethod(Handlers.Item.ItemDropResponse, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Get),
+					new LockedHandlerMethod(Handlers.Item.ItemGetResponse, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Junk),
+					new LockedHandlerMethod(Handlers.Item.ItemJunkResponse, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Remove),
+					new LockedHandlerMethod(Handlers.Item.ItemRemoveResponse, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Item, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Item.ItemReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Locker, PacketAction.Buy),
+					new LockedHandlerMethod(Handlers.Locker.LockerBuy, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Locker, PacketAction.Get),
+					new LockedHandlerMethod(Handlers.Locker.LockerGet, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Locker, PacketAction.Open),
+					new LockedHandlerMethod(Handlers.Locker.LockerOpen, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Locker, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Locker.LockerReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Login, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Login.LoginResponse)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Message, PacketAction.Pong), 
+					new LockedHandlerMethod(Handlers.Message.Pong)
+				},
+				{
+					new FamilyActionPair(PacketFamily.NPC, PacketAction.Accept),
+					new LockedHandlerMethod(Handlers.NPCPackets.NPCAccept, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.NPC, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.NPCPackets.NPCPlayer, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.NPC, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.NPCPackets.NPCReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.NPC, PacketAction.Spec),
+					new LockedHandlerMethod(Handlers.NPCPackets.NPCSpec, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Agree),
+					new LockedHandlerMethod(Handlers.Paperdoll.PaperdollAgree, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Remove),
+					new LockedHandlerMethod(Handlers.Paperdoll.PaperdollRemove, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Paperdoll.PaperdollReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Players, PacketAction.Ping),
+					new LockedHandlerMethod(Handlers.Players.PlayersPing, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Players, PacketAction.Pong),
+					new LockedHandlerMethod(Handlers.Players.PlayersPong, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Players, PacketAction.Net3),
+					new LockedHandlerMethod(Handlers.Players.PlayersNet3, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Recover, PacketAction.Agree),
+					new LockedHandlerMethod(Handlers.Recover.RecoverAgree, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Recover, PacketAction.List),
+					new LockedHandlerMethod(Handlers.Recover.RecoverList, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Recover, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Recover.RecoverPlayer, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Recover, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Recover.RecoverReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Buy),
+					new LockedHandlerMethod(Handlers.Shop.ShopBuy, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Create),
+					new LockedHandlerMethod(Handlers.Shop.ShopCreate, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Open),
+					new LockedHandlerMethod(Handlers.Shop.ShopOpen, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Shop, PacketAction.Sell),
+					new LockedHandlerMethod(Handlers.Shop.ShopSell, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.StatSkill.StatSkillPlayer, true)
+				},
+				//TALK PACKETS
+				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Message),
+					new LockedHandlerMethod(Handlers.Talk.TalkMessage, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Talk.TalkPlayer, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Talk.TalkReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Request),
+					new LockedHandlerMethod(Handlers.Talk.TalkRequest, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Server),
+					new LockedHandlerMethod(Handlers.Talk.TalkServer, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Talk, PacketAction.Tell),
+					new LockedHandlerMethod(Handlers.Talk.TalkTell, true)
+				},
+				//
+				{
+					new FamilyActionPair(PacketFamily.Walk, PacketAction.Reply),
+					new LockedHandlerMethod(Handlers.Walk.WalkReply, true)
+				},
+				{
+					new FamilyActionPair(PacketFamily.Walk, PacketAction.Player),
+					new LockedHandlerMethod(Handlers.Walk.WalkPlayer, true)
+				}
+			};
 		}
 	}
 }

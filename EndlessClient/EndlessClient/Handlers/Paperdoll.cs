@@ -1,6 +1,6 @@
-﻿
-using EOLib;
+﻿using EOLib;
 using EOLib.Data;
+using EOLib.Net;
 
 namespace EndlessClient.Handlers
 {

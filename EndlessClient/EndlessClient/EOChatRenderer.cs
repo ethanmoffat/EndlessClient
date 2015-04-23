@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows.Input;
 using EOLib;
+using EOLib.Net;
 using XNAControls;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;

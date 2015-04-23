@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using EOLib;
 using EOLib.Data;
+using EOLib.Net;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

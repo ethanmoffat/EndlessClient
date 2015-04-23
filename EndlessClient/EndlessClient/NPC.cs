@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading;
 using EOLib;
 using EOLib.Data;
+using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -67,16 +68,15 @@ namespace EndlessClient
 
 		private TimeSpan? m_lastAnimUpdateTime;
 
-		public NPC(Packet pkt)
+		public NPC(NPCData data)
 			: base(EOGame.Instance)
 		{
-			Index = pkt.GetChar();
-			short id = pkt.GetShort();
-			X = pkt.GetChar();
-			Y = pkt.GetChar();
-			Direction = (EODirection)pkt.GetChar();
+			Index = data.Index;
+			X = data.X;
+			Y = data.Y;
+			Direction = data.Direction;
 
-			Data = (NPCRecord)World.Instance.ENF.Data[id];
+			Data = (NPCRecord)World.Instance.ENF.Data[data.ID];
 			HP = Data.HP;
 
 			bool success = true;

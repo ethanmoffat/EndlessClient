@@ -48,6 +48,17 @@
     <Compile Include="EOData.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="misc.cs" />
+    <Compile Include="Net\AsyncClient.cs" />
+    <Compile Include="Net\Character.cs" />
+    <Compile Include="Net\Connection.cs" />
+    <Compile Include="Net\EOClient.cs" />
+    <Compile Include="Net\Init.cs" />
+    <Compile Include="Net\NPC.cs" />
+    <Compile Include="Net\PacketAPI.cs" />
+    <Compile Include="Net\Players.cs" />
+    <Compile Include="Net\Refresh.cs" />
+    <Compile Include="Net\Warp.cs" />
+    <Compile Include="Net\Welcome.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="PacketProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -7,6 +7,7 @@ using System.Threading;
 using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Data;
+using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -19,17 +20,6 @@ using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace EndlessClient
 {
-	public enum PaperdollIconType
-	{
-		Normal = 0,
-		GM = 4,
-		HGM = 5,
-		Party = 6,
-		GMParty = 9,
-		HGMParty = 10,
-		SLNBot = 20
-	}
-
 	/// <summary>
 	/// Which buttons should be displayed at the bottom of the EOScrollingListDialog
 	/// </summary>
@@ -50,9 +40,16 @@ namespace EndlessClient
 	public class EODialogBase : XNADialog
 	{
 		protected readonly Texture2D smallButtonSheet;
+		protected readonly PacketAPI m_api;
 
-		protected EODialogBase()
+		protected EODialogBase(PacketAPI apiHandle = null)
 		{
+			if (apiHandle != null)
+			{
+				if (!apiHandle.Initialized)
+					throw new ArgumentException("The API is not initialzied. Data transfer will not work.");
+				m_api = apiHandle;
+			}
 			smallButtonSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
 		}
 
@@ -950,7 +947,10 @@ namespace EndlessClient
 
 		private bool updatingFiles;
 
-		public EOConnectingDialog()
+		public WelcomeMessageData WelcomeData { get; private set; }
+
+		public EOConnectingDialog(PacketAPI apiHandle)
+			: base(apiHandle)
 		{
 			bgTexture = null; //don't use the built in bgtexture, we're going to use a sprite sheet for the BG
 			bgSprites = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 33);
@@ -1014,7 +1014,7 @@ namespace EndlessClient
 					if (World.Instance.NeedMap != -1)
 					{
 						caption.Text = map;
-						if (!Init.RequestFile(InitFileType.Map))
+						if (!m_api.RequestFile(InitFileType.Map, World.Instance.MainPlayer.ActiveCharacter.CurrentMap))
 						{
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
@@ -1025,7 +1025,7 @@ namespace EndlessClient
 					if (World.Instance.NeedEIF)
 					{
 						caption.Text = item;
-						if (!Init.RequestFile(InitFileType.Item))
+						if (!m_api.RequestFile(InitFileType.Item))
 						{
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
@@ -1036,7 +1036,7 @@ namespace EndlessClient
 					if (World.Instance.NeedENF)
 					{
 						caption.Text = npc;
-						if (!Init.RequestFile(InitFileType.Npc))
+						if (!m_api.RequestFile(InitFileType.Npc))
 						{
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
@@ -1047,7 +1047,7 @@ namespace EndlessClient
 					if (World.Instance.NeedESF)
 					{
 						caption.Text = skill;
-						if (!Init.RequestFile(InitFileType.Spell))
+						if (!m_api.RequestFile(InitFileType.Spell))
 						{
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
@@ -1058,7 +1058,7 @@ namespace EndlessClient
 					if (World.Instance.NeedECF)
 					{
 						caption.Text = classes;
-						if (!Init.RequestFile(InitFileType.Class))
+						if (!m_api.RequestFile(InitFileType.Class))
 						{
 							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 							return;
@@ -1067,11 +1067,14 @@ namespace EndlessClient
 					}
 
 					caption.Text = loading;
-					if(!Welcome.WelcomeMessage(World.Instance.MainPlayer.ActiveCharacter.ID))
+					WelcomeMessageData data;
+					if(!m_api.WelcomeMessage(World.Instance.MainPlayer.ActiveCharacter.ID, out data))
 					{
 						Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 						return;
 					}
+					WelcomeData = data;
+
 					Thread.Sleep(1000);
 					Close(null, XNADialogResult.OK); //using OK here to mean everything was successful. NO_BUTTON_PRESSED means unsuccessful.
 				}).Start();
@@ -2171,16 +2174,9 @@ namespace EndlessClient
 
 	public static class EOFriendIgnoreListDialog
 	{
-		public static EOScrollingListDialog Instance { get; private set; }
+		private static EOScrollingListDialog Instance;
 
-		public static void SetActive(List<string> onlinePlayers)
-		{
-			if (Instance == null) return;
-
-			Instance.SetActiveItemList(onlinePlayers);
-		}
-
-		public static void Show(bool isIgnoreList)
+		public static void Show(PacketAPI apiHandle, bool isIgnoreList)
 		{
 			if (Instance != null)
 				return;
@@ -2252,7 +2248,9 @@ namespace EndlessClient
 			
 			Instance = dlg;
 
-			Init.RequestOnlineList(true);
+			List<OnlineEntry> onlineList;
+			apiHandle.RequestOnlinePlayers(false, out onlineList);
+			Instance.SetActiveItemList(onlineList.Select(_oe => _oe.Name).ToList());
 
 			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST, 
 				World.GetString(DATCONST2.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));

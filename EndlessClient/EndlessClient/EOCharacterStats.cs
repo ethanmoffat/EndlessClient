@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Linq;
+using EOLib.Net;
 using Microsoft.Xna.Framework;
 using XNAControls;
 

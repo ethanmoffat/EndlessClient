@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using EOLib;
+using EOLib.Net;
 
 namespace EndlessClient.Handlers
 {

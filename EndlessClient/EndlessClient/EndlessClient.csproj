@@ -115,14 +115,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncClient.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="ChatTextBox.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="DamageCounter.cs" />
     <Compile Include="EOCharacterRenderer.cs" />
     <Compile Include="EOCharacterStats.cs" />
-    <Compile Include="EOClient.cs" />
     <Compile Include="EODialog.cs" />
     <Compile Include="EOInventory.cs">
       <SubType>Code</SubType>

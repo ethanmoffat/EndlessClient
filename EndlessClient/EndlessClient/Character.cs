@@ -2,27 +2,11 @@
 using System.Collections.Generic;
 using EOLib;
 using EOLib.Data;
+using EOLib.Net;
 using XNAControls;
 
 namespace EndlessClient
 {
-	public enum AdminLevel
-	{
-		Player,
-// ReSharper disable UnusedMember.Global
-		Guide,
-		Guardian,
-		GM,
-		HGM
-	}
-
-	public enum SitState
-	{
-		Standing,
-		Chair,
-		Floor
-// ReSharper restore UnusedMember.Global
-	}
 
 	public enum Emote
 	{
@@ -189,21 +173,6 @@ namespace EndlessClient
 	}
 
 	/// <summary>
-	/// Essentially just a key-value pair between an item and the amount of that item in the inventory
-	/// </summary>
-	public struct InventoryItem
-	{
-		public short id;
-		public int amount;
-	}
-
-	public struct CharacterSpell
-	{
-		public short id;
-		public short level;
-	}
-
-	/// <summary>
 	/// Note: since a lot of calls are made asynchronously, there could be issues with
 	///	<para>data races to the properties that are here. However, since it is updating</para>
 	/// <para>and redrawing so fast, I don't think it will matter all that much.</para>
@@ -320,54 +289,48 @@ namespace EndlessClient
 		}
 
 		//constructs a character from a packet sent from the server
-		public Character(Packet pkt)
+		public Character(CharacterData data)
 		{
 			//initialize lists
 			Inventory = new List<InventoryItem>();
 			Spells = new List<CharacterSpell>();
 			PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
 
-			Name = pkt.GetBreakString();
-			if (Name.Length > 1)
-				Name = char.ToUpper(Name[0]) + Name.Substring(1);
+			Name = data.Name;
 			
-			ID = pkt.GetShort();
-			CurrentMap = pkt.GetShort();
-			X = pkt.GetShort();
-			Y = pkt.GetShort();
+			ID = data.ID;
+			CurrentMap = data.Map;
+			X = data.X;
+			Y = data.Y;
 
-			EODirection direction = (EODirection)pkt.GetChar();
-			pkt.GetChar(); //value is always 6? unknown
-			PaddedGuildTag = pkt.GetFixedString(3);
+			PaddedGuildTag = data.GuildTag;
 
 			RenderData = new CharRenderData
 			{
-				facing = direction,
-				level = pkt.GetChar(),
-				gender = pkt.GetChar(),
-				hairstyle = pkt.GetChar(),
-				haircolor = pkt.GetChar(),
-				race = pkt.GetChar()
+				facing = data.Direction,
+				level = data.Level,
+				gender = data.Gender,
+				hairstyle = data.HairStyle,
+				haircolor = data.HairColor,
+				race = data.Race
 			};
 
 			Stats = new CharStatData
 			{
-				maxhp = pkt.GetShort(),
-				hp = pkt.GetShort(),
-				maxtp = pkt.GetShort(),
-				tp = pkt.GetShort()
+				maxhp = data.MaxHP,
+				hp = data.HP,
+				maxtp = data.MaxTP,
+				tp = data.TP
 			};
 
-			EquipItem(ItemType.Boots, 0, pkt.GetShort(), true);
-			pkt.Skip(3 * sizeof(short)); //other paperdoll data is 0'd out
-			EquipItem(ItemType.Armor, 0, pkt.GetShort(), true);
-			pkt.Skip(sizeof(short));
-			EquipItem(ItemType.Hat, 0, pkt.GetShort(), true);
-			EquipItem(ItemType.Shield, 0, pkt.GetShort(), true);
-			EquipItem(ItemType.Weapon, 0, pkt.GetShort(), true);
+			EquipItem(ItemType.Boots, 0, data.Boots, true);
+			EquipItem(ItemType.Armor, 0, data.Armor, true);
+			EquipItem(ItemType.Hat, 0, data.Hat, true);
+			EquipItem(ItemType.Shield, 0, data.Shield, true);
+			EquipItem(ItemType.Weapon, 0, data.Weapon, true);
 			
-			RenderData.SetSitting((SitState)pkt.GetChar());
-			RenderData.SetHidden(pkt.GetChar() != 0);
+			RenderData.SetSitting(data.Sitting);
+			RenderData.SetHidden(data.Hidden);
 		}
 
 		public void UnequipItem(ItemType type, byte subLoc)
@@ -484,27 +447,42 @@ namespace EndlessClient
 		/// <summary>
 		/// Used to apply changes from Welcome packet to existing character.
 		/// </summary>
-		/// <param name="newGuy">Changes to MainPlayer.ActiveCharacter, contained in a Character object</param>
+		/// <param name="newGuy">Changes to MainPlayer.ActiveCharacter, contained in a CharacterData object</param>
 		/// <param name="copyPaperdoll">Set to true if paperdoll data from newGuy should be applied to this character</param>
-		public void ApplyData(Character newGuy, bool copyPaperdoll = true)
+		public void ApplyData(CharacterData newGuy, bool copyPaperdoll = true)
 		{
 			ID = newGuy.ID;
 			Name = newGuy.Name;
-			PaddedGuildTag = newGuy.PaddedGuildTag;
-			if(copyPaperdoll)
-				Array.Copy(newGuy.PaperDoll, PaperDoll, (int)EquipLocation.PAPERDOLL_MAX);
-			Stats.SetHP(newGuy.Stats.hp);
-			Stats.SetMaxHP(newGuy.Stats.maxhp);
-			Stats.SetTP(newGuy.Stats.tp);
-			Stats.SetMaxTP(newGuy.Stats.maxtp);
-			RenderData = newGuy.RenderData;
+			PaddedGuildTag = newGuy.GuildTag;
+			if (copyPaperdoll)
+			{
+				//todo: is this sufficient? need to check refresh-reply
+				EquipItem(ItemType.Boots, 0, newGuy.Boots, true);
+				EquipItem(ItemType.Armor, 0, newGuy.Armor, true);
+				EquipItem(ItemType.Hat, 0, newGuy.Hat, true);
+				EquipItem(ItemType.Shield, 0, newGuy.Shield, true);
+				EquipItem(ItemType.Weapon, 0, newGuy.Weapon, true);
+			}
+			Stats.SetHP(newGuy.HP);
+			Stats.SetMaxHP(newGuy.MaxHP);
+			Stats.SetTP(newGuy.TP);
+			Stats.SetMaxTP(newGuy.MaxTP);
+
+			//todo: is this enough for render data to be correct after call to ApplyData?
+			RenderData.SetDirection(newGuy.Direction);
+			RenderData.SetHairStyle(newGuy.HairStyle);
+			RenderData.SetHairColor(newGuy.HairColor);
+			RenderData.SetGender(newGuy.Gender);
+			RenderData.SetRace(newGuy.Race);
+			RenderData.SetSitting(newGuy.Sitting);
+			RenderData.level = newGuy.Level;
 			RenderData.SetWalkFrame(0);
 			State = RenderData.sitting == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
-			CurrentMap = newGuy.CurrentMap;
-			MapIsPk = newGuy.MapIsPk;
+			CurrentMap = newGuy.Map;
+			//MapIsPk = newGuy.MapIsPk; //todo: ???
 			X = newGuy.X;
 			Y = newGuy.Y;
-			GuildRankNum = newGuy.GuildRankNum;
+			//GuildRankNum = newGuy.GuildRankNum; //todo: ???
 		}
 
 		/// <summary>

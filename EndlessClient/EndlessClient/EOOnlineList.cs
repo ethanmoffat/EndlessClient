@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
+using EOLib.Data;
+using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -11,46 +12,17 @@ using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace EndlessClient
 {
-	public struct OnlineEntry
+	public class ClientOnlineEntry : OnlineEntry
 	{
-		private readonly string m_name, m_title, m_guild, m_class;
-		private readonly PaperdollIconType m_iconType;
-
-		public string Name
+		public ClientOnlineEntry(string name, string title, string guild, int clss, PaperdollIconType icon)
+			: base(name, title, guild, clss, icon)
 		{
-			get { return m_name; }
+			ClassRecord record = (ClassRecord) World.Instance.ECF.Data.Find(rec => ((ClassRecord) rec).ID == clss);
+			ClassString = record == null ? "-" : record.Name;
 		}
 
-		public string Title
-		{
-			get { return m_title; }
-		}
-
-		public string Guild
-		{
-			get { return m_guild; }
-		}
-
-		public string Class
-		{
-			get { return m_class; }
-		}
-
-		public PaperdollIconType Icon
-		{
-			get { return m_iconType; }
-		}
-
-		public OnlineEntry(string name, string title, string guild, string clss, PaperdollIconType icon)
-		{
-			m_name = name;
-			m_title = title;
-			m_guild = guild;
-			m_class = clss;
-			m_iconType = icon;
-		}
+		public string ClassString { get; private set; }
 	}
-
 	public class EOOnlineList : XNAControl
 	{
 		//there may be more filters: these will be supported by default
@@ -63,7 +35,7 @@ namespace EndlessClient
 			Max
 		}
 
-		private readonly List<OnlineEntry> m_onlineList;
+		private List<ClientOnlineEntry> m_onlineList;
 		private readonly EOScrollBar m_scrollBar;
 		private readonly XNALabel m_totalNumPlayers;
 
@@ -82,7 +54,7 @@ namespace EndlessClient
 		public EOOnlineList(XNAPanel parent)
 			: base(null, null, parent)
 		{
-			m_onlineList = new List<OnlineEntry>();
+			m_onlineList = new List<ClientOnlineEntry>();
 			//this enables scrolling with mouse wheel and mouseover for parent
 			_setSize(parent.BackgroundImage.Width, parent.BackgroundImage.Height);
 
@@ -120,7 +92,9 @@ namespace EndlessClient
 		public void SetOnlinePlayerList(List<OnlineEntry> onlineList)
 		{
 			m_onlineList.Clear();
-			m_onlineList.AddRange(onlineList);
+			m_onlineList =
+				onlineList.Select(_oe => new ClientOnlineEntry(_oe.Name, _oe.Title, _oe.Guild, _oe.ClassID, _oe.Icon))
+					.ToList();
 // ReSharper disable once StringCompareToIsCultureSpecific
 			m_onlineList.Sort((x, y) => x.Name.CompareTo(y.Name));
 			m_totalNumPlayers.Text = onlineList.Count.ToString(CultureInfo.CurrentCulture);
@@ -157,7 +131,7 @@ namespace EndlessClient
 
 			SpriteBatch.Draw(m_filterTextures[(int) m_filter], new Vector2(DrawAreaWithOffset.X + 4, DrawAreaWithOffset.Y + 2), Color.White);
 
-			List<OnlineEntry> filtered = m_onlineList;
+			List<ClientOnlineEntry> filtered = m_onlineList;
 			if (m_filter != Filter.All)
 			{
 				switch (m_filter)
@@ -195,7 +169,7 @@ namespace EndlessClient
 				//drawtext guild
 				SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Guild, new Vector2(DrawAreaWithOffset.X + DRAW_GUILD_X, yCoord), Color.Black);
 				//drawtext class
-				SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Class, new Vector2(DrawAreaWithOffset.X + DRAW_CLASS_X, yCoord), Color.Black);
+				SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].ClassString, new Vector2(DrawAreaWithOffset.X + DRAW_CLASS_X, yCoord), Color.Black);
 			}
 			SpriteBatch.End();
 
