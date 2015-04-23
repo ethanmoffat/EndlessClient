@@ -144,6 +144,29 @@ namespace EndlessClient
 								World.Instance.ActiveMapRenderer.OtherPlayerHide(id, hidden);
 						};
 						m_packetAPI.OnOtherPlayerAttack += (id, dir) => World.Instance.ActiveMapRenderer.OtherPlayerAttack(id, dir);
+						m_packetAPI.OnPlayerAvatarRemove += (id, anim) => World.Instance.ActiveMapRenderer.RemoveOtherPlayer(id, anim);
+						m_packetAPI.OnPlayerAvatarChange += _data =>
+						{
+							switch (_data.Slot)
+							{
+								case AvatarSlot.Clothes:
+									World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.Sound, new CharRenderData
+									{
+										boots = _data.Boots,
+										armor = _data.Armor,
+										hat = _data.Hat,
+										shield = _data.Shield,
+										weapon = _data.Weapon
+									});
+									break;
+								case AvatarSlot.Hair:
+									World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.HairColor, _data.HairStyle);
+									break;
+								case AvatarSlot.HairColor:
+									World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.HairColor);
+									break;
+							}
+						};
 
 						((EOClient) World.Instance.Client).EventDisconnect += () => m_packetAPI.Disconnect();
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Data;
 using EOLib.Net;
@@ -651,14 +652,6 @@ namespace EndlessClient
 		{
 			return new Dictionary<FamilyActionPair, LockedHandlerMethod>
 			{
-				{
-					new FamilyActionPair(PacketFamily.Avatar, PacketAction.Agree),
-					new LockedHandlerMethod(Handlers.Avatar.AvatarAgree, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Avatar, PacketAction.Remove),
-					new LockedHandlerMethod(Handlers.Avatar.AvatarRemove, true)
-				},
 				{
 					new FamilyActionPair(PacketFamily.Bank, PacketAction.Open), 
 					new LockedHandlerMethod(Handlers.Bank.BankOpenReply, true)

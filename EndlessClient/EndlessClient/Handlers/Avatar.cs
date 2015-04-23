@@ -1,32 +1,28 @@
 ﻿
+using System;
 using EOLib;
 using EOLib.Net;
 
 namespace EndlessClient.Handlers
 {
-	enum AvatarSlot : byte
-	{
-		Clothes = 1,
-		Hair = 2,
-		HairColor = 3
-	};
 
 	public static class Avatar
 	{
-		/// <summary>
-		/// Remove a player from view (sent by server when someone is out of range)
-		/// </summary>
-		public static void AvatarRemove(Packet pkt)
-		{
-			short id = pkt.GetShort();
-			WarpAnimation anim = (WarpAnimation) (pkt.Length > pkt.ReadPos ? pkt.GetChar() : 0);
-			World.Instance.ActiveMapRenderer.RemoveOtherPlayer(id, anim);
-		}
+//		/// <summary>
+//		/// Remove a player from view (sent by server when someone is out of range)
+//		/// </summary>
+//		public static void AvatarRemove(Packet pkt)
+//		{
+//			short id = pkt.GetShort();
+//			WarpAnimation anim = (WarpAnimation) (pkt.Length > pkt.ReadPos ? pkt.GetChar() : 0);
+//			World.Instance.ActiveMapRenderer.RemoveOtherPlayer(id, anim);
+//		}
 
 		/// <summary>
 		/// Player changes appearance (clothes, hair, etc)
 		/// </summary>>
-		public static void AvatarAgree(Packet pkt)
+		[Obsolete("This is obsolete and will soon be removed. Use PacketAPI instead")]
+		public static void AvatarAgree(Packet pkt) //required for processing paperdoll packet
 		{
 			short playerID = pkt.GetShort();
 			AvatarSlot slot = (AvatarSlot) pkt.GetChar();
