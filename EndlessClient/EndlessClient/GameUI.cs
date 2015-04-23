@@ -275,15 +275,19 @@ Thanks to :
 				if (loginUsernameTextbox.Text == "" || loginPasswordTextbox.Text == "")
 					return;
 
-				if (!Handlers.Login.LoginRequest(loginUsernameTextbox.Text, loginPasswordTextbox.Text))
+				LoginReply reply;
+				CharacterRenderData[] dataArray;
+				if (!m_packetAPI.LoginRequest(loginUsernameTextbox.Text, loginPasswordTextbox.Text, out reply, out dataArray))
 				{
 					LostConnectionDialog();
 					return;
 				}
+				World.Instance.MainPlayer.SetAccountName(loginUsernameTextbox.Text);
+				World.Instance.MainPlayer.ProcessCharacterData(dataArray);
 
-				if (!Handlers.Login.CanProceed)
+				if (reply != LoginReply.Ok)
 				{
-					EODialog.Show(Handlers.Login.ResponseMessage());
+					EODialog.Show(m_packetAPI.LoginResponseMessage());
 					return;
 				}
 
@@ -388,13 +392,14 @@ Thanks to :
 					{
 						//Character_request: show create character dialog
 						//Character_create: clicked ok in create character dialog
-						if (!Handlers.Character.CharacterRequest())
+						CharacterReply reply;
+						if (!m_packetAPI.CharacterRequest(out reply))
 						{
 							LostConnectionDialog();
 							return;
 						}
 
-						if (!Handlers.Character.CanProceed)
+						if (reply != CharacterReply.Ok)
 						{
 							EODialog.Show("Server is not allowing you to create a character right now. This could be a bug.", "Server error");
 							return;
@@ -405,21 +410,23 @@ Thanks to :
 						{
 							if (dlg_E.Result != XNADialogResult.OK) return;
 
-							if (!Handlers.Character.CharacterCreate(createCharacter.Gender, createCharacter.HairType, createCharacter.HairColor, createCharacter.SkinColor, createCharacter.Name))
+							CharacterRenderData[] dataArray;
+							if (!m_packetAPI.CharacterCreate(createCharacter.Gender, createCharacter.HairType, createCharacter.HairColor, createCharacter.SkinColor, createCharacter.Name, out reply, out dataArray))
 							{
 								LostConnectionDialog();
 								return;
 							}
 
-							if (!Handlers.Character.CanProceed)
+							if (reply != CharacterReply.Ok)
 							{
-								if (!Handlers.Character.TooManyCharacters)
+								if (reply != CharacterReply.Full)
 									dlg_E.CancelClose = true;
-								EODialog.Show(Handlers.Character.ResponseMessage());
+								EODialog.Show(m_packetAPI.CharacterResponseMessage());
 								return;
 							}
 
 							EODialog.Show(DATCONST1.CHARACTER_CREATE_SUCCESS);
+							World.Instance.MainPlayer.ProcessCharacterData(dataArray);
 							doShowCharacters();
 						};
 					}
@@ -520,13 +527,14 @@ Thanks to :
 				}
 
 				//delete character at that index, if it exists
-				if (!Handlers.Character.CharacterTake(World.Instance.MainPlayer.CharData[index].id))
+				int takeID;
+				if (!m_packetAPI.CharacterTake(World.Instance.MainPlayer.CharData[index].id, out takeID))
 				{
 					LostConnectionDialog();
 					return;
 				}
 
-				if (Handlers.Character.CharacterTakeID != World.Instance.MainPlayer.CharData[index].id)
+				if (takeID != World.Instance.MainPlayer.CharData[index].id)
 				{
 					EODialog.Show("The server did not respond properly for deleting the character. Try again.", "Server error");
 					return;
@@ -538,12 +546,14 @@ Thanks to :
 					{
 						if (dlgE.Result == XNADialogResult.OK) //user clicked ok to delete their character. do the delete here.
 						{
-							if (!Handlers.Character.CharacterRemove(World.Instance.MainPlayer.CharData[index].id))
+							CharacterRenderData[] dataArray;
+							if (!m_packetAPI.CharacterRemove(World.Instance.MainPlayer.CharData[index].id, out dataArray))
 							{
 								LostConnectionDialog();
 								return;
 							}
 
+							World.Instance.MainPlayer.ProcessCharacterData(dataArray);
 							doShowCharacters();
 						}
 					});

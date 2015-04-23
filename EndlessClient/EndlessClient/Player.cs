@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using EOLib;
+using EOLib.Net;
 
 namespace EndlessClient
 {
@@ -50,38 +51,28 @@ namespace EndlessClient
 			return true;
 		}
 		
-		public void ProcessCharacterData(Packet pkt)
+		public void ProcessCharacterData(CharacterRenderData[] dataArray)
 		{
-			byte numCharacters = pkt.GetChar();
-			pkt.GetByte();
-			pkt.GetByte();
-
-			CharRenderData[] characters = new CharRenderData[numCharacters];
-
-			for (int i = 0; i < numCharacters; ++i)
+			CharData = new CharRenderData[dataArray.Length];
+			for (int i = 0; i < CharData.Length; ++i)
 			{
-				CharRenderData nextData = new CharRenderData
+				CharData[i] = new CharRenderData
 				{
-					name = pkt.GetBreakString(),
-					id = pkt.GetInt(),
-					level = pkt.GetChar(),
-					gender = pkt.GetChar(),
-					hairstyle = pkt.GetChar(),
-					haircolor = pkt.GetChar(),
-					race = pkt.GetChar(),
-					admin = pkt.GetChar(),
-					boots = pkt.GetShort(),
-					armor = pkt.GetShort(),
-					hat = pkt.GetShort(),
-					shield = pkt.GetShort(),
-					weapon = pkt.GetShort()
+					name = dataArray[i].Name,
+					id = dataArray[i].ID,
+					level = dataArray[i].Level,
+					gender = dataArray[i].Gender,
+					hairstyle = dataArray[i].HairStyle,
+					haircolor = dataArray[i].HairColor,
+					race = dataArray[i].Race,
+					admin = (byte)dataArray[i].AdminLevel,
+					boots = dataArray[i].Boots,
+					armor = dataArray[i].Armor,
+					hat = dataArray[i].Hat,
+					shield = dataArray[i].Shield,
+					weapon = dataArray[i].Weapon
 				};
-				characters[i] = nextData;
-				if (255 != pkt.GetByte())
-					break;
 			}
-
-			CharData = characters;
 		}
 	}
 }

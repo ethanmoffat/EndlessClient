@@ -642,8 +642,6 @@ namespace EndlessClient
 				if (m_client != null)
 					m_client.Dispose();
 
-				Handlers.Character.Cleanup();
-				Handlers.Login.Cleanup();
 				Handlers.Walk.Cleanup();
 			}
 		}
@@ -679,14 +677,6 @@ namespace EndlessClient
 				{
 					new FamilyActionPair(PacketFamily.Bank, PacketAction.Reply), 
 					new LockedHandlerMethod(Handlers.Bank.BankReply, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Character, PacketAction.Player),
-					new LockedHandlerMethod(Handlers.Character.CharacterPlayerResponse)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Character, PacketAction.Reply),
-					new LockedHandlerMethod(Handlers.Character.CharacterResponse)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Chest, PacketAction.Agree),
@@ -763,10 +753,6 @@ namespace EndlessClient
 				{
 					new FamilyActionPair(PacketFamily.Locker, PacketAction.Reply),
 					new LockedHandlerMethod(Handlers.Locker.LockerReply, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Login, PacketAction.Reply),
-					new LockedHandlerMethod(Handlers.Login.LoginResponse)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Message, PacketAction.Pong), 

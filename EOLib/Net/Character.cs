@@ -1,7 +1,17 @@
-﻿using EOLib.Data;
+﻿using System.Threading;
 
 namespace EOLib.Net
 {
+	public enum CharacterReply : short
+	{
+		Exists = 1,
+		Full = 2,
+		NotApproved = 4,
+		Ok = 5,
+		Deleted = 6,
+		THIS_IS_WRONG = 255
+	}
+
 	public enum AdminLevel
 	{
 		Player,
@@ -101,6 +111,213 @@ namespace EOLib.Net
 
 			m_sit = (SitState)pkt.GetChar();
 			m_hidden = pkt.GetChar() != 0;
+		}
+	}
+
+	/// <summary>
+	/// Represents render data for a single character
+	/// </summary>
+	public struct CharacterRenderData
+	{
+		private readonly string name;
+		private readonly int id;
+		private readonly byte level, gender, hairstyle, haircolor, race;
+		private readonly AdminLevel admin;
+		private readonly short boots, armor, hat, shield, weapon;
+
+		public string Name { get { return name; } }
+		public int ID { get { return id; } }
+		public byte Level { get { return level; } }
+		public byte Gender { get { return gender; } }
+		public byte HairStyle { get { return hairstyle; } }
+		public byte HairColor { get { return haircolor; }}
+		public byte Race { get { return race; } }
+		public AdminLevel AdminLevel { get { return admin; } }
+		public short Boots { get { return boots; } }
+		public short Armor { get { return armor; } }
+		public short Hat { get { return hat; } }
+		public short Shield { get { return shield; } }
+		public short Weapon { get { return weapon; } }
+
+		internal CharacterRenderData(Packet pkt)
+		{
+			name = pkt.GetBreakString();
+			id = pkt.GetInt();
+			level = pkt.GetChar();
+			gender = pkt.GetChar();
+			hairstyle = pkt.GetChar();
+			haircolor = pkt.GetChar();
+			race = pkt.GetChar();
+			admin = (AdminLevel)pkt.GetChar();
+			boots = pkt.GetShort();
+			armor = pkt.GetShort();
+			hat = pkt.GetShort();
+			shield = pkt.GetShort();
+			weapon = pkt.GetShort();
+		}
+	}
+
+	partial class PacketAPI
+	{
+		private AutoResetEvent m_character_responseEvent;
+		private CharacterReply m_character_reply;
+		private CharacterRenderData[] m_character_data;
+		private int m_character_takeID;
+
+		private void _createCharacterMembers()
+		{
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Character, PacketAction.Player), _handleCharacterPlayer, false);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Character, PacketAction.Reply), _handleCharacterReply, false);
+
+			m_character_responseEvent = new AutoResetEvent(false);
+			m_character_reply = CharacterReply.THIS_IS_WRONG;
+			m_character_takeID = -1;
+			m_character_data = null;
+		}
+
+		private void _disposeCharacterMembers()
+		{
+			if (m_character_responseEvent != null)
+			{
+				m_character_responseEvent.Dispose();
+				m_character_responseEvent = null;
+			}
+		}
+
+		public bool CharacterRequest(out CharacterReply reply)
+		{
+			reply = CharacterReply.THIS_IS_WRONG;
+			if (!m_client.ConnectedAndInitialized || !Initialized)
+				return false;
+
+			Packet builder = new Packet(PacketFamily.Character, PacketAction.Request);
+
+			if (!m_client.SendPacket(builder) || !m_character_responseEvent.WaitOne(Constants.ResponseTimeout))
+				return false;
+
+			reply = CharacterReply.Ok;
+
+			return true;
+		}
+
+		public bool CharacterCreate(byte gender, byte hairStyle, byte hairColor, byte race, string name, out CharacterReply reply, out CharacterRenderData[] data)
+		{
+			data = null;
+			reply = CharacterReply.THIS_IS_WRONG;
+			if (!m_client.ConnectedAndInitialized || !Initialized)
+				return false;
+
+			Packet builder = new Packet(PacketFamily.Character, PacketAction.Create);
+			builder.AddShort(255);
+			builder.AddShort(gender);
+			builder.AddShort(hairStyle);
+			builder.AddShort(hairColor);
+			builder.AddShort(race);
+			builder.AddByte(255);
+			builder.AddBreakString(name);
+
+			if (!m_client.SendPacket(builder) || !m_character_responseEvent.WaitOne(Constants.ResponseTimeout))
+				return false;
+
+			reply = m_character_reply;
+
+			if (reply == CharacterReply.THIS_IS_WRONG || m_character_data == null || m_character_data.Length == 0)
+				return false;
+
+			data = m_character_data;
+
+			return true;
+		}
+
+		public bool CharacterTake(int id, out int takeID)
+		{
+			takeID = -1;
+			if (!m_client.ConnectedAndInitialized || !Initialized)
+				return false;
+
+			Packet builder = new Packet(PacketFamily.Character, PacketAction.Take);
+			builder.AddInt(id);
+
+			if (!m_client.SendPacket(builder) || !m_character_responseEvent.WaitOne(Constants.ResponseTimeout))
+				return false;
+
+			takeID = m_character_takeID;
+
+			return true;
+		}
+
+		public bool CharacterRemove(int id, out CharacterRenderData[] data)
+		{
+			data = null;
+			if (!m_client.ConnectedAndInitialized || !Initialized)
+				return false;
+
+			Packet builder = new Packet(PacketFamily.Character, PacketAction.Remove);
+			builder.AddShort(255);
+			builder.AddInt(id);
+
+			if (!m_client.SendPacket(builder) || !m_character_responseEvent.WaitOne(Constants.ResponseTimeout))
+				return false;
+
+			if (m_character_reply != CharacterReply.Deleted || m_character_data == null)
+				return false;
+
+			data = m_character_data;
+
+			return true;
+		}
+
+		private void _handleCharacterReply(Packet pkt)
+		{
+			m_character_reply = (CharacterReply)pkt.GetShort();
+
+			if (m_character_reply == CharacterReply.Ok || m_character_reply == CharacterReply.Deleted)
+			{
+				byte numCharacters = pkt.GetChar();
+				pkt.GetByte();
+				pkt.GetByte();
+
+				m_character_data = new CharacterRenderData[numCharacters];
+
+				for (int i = 0; i < numCharacters; ++i)
+				{
+					CharacterRenderData nextData = new CharacterRenderData(pkt);
+					m_character_data[i] = nextData;
+					if (255 != pkt.GetByte())
+						return; //malformed packet - time out and signal error
+				}
+			}
+
+			m_character_responseEvent.Set();
+		}
+
+		//handler function for when server sends CHARACTER_PLAYER (in response to CHARACTER_TAKE)
+		private void _handleCharacterPlayer(Packet pkt)
+		{
+			pkt.Skip(2);
+			m_character_takeID = pkt.GetInt();
+			m_character_responseEvent.Set();
+		}
+
+		public DATCONST1 CharacterResponseMessage()
+		{
+			DATCONST1 message = DATCONST1.NICE_TRY_HAXOR;
+			switch (m_character_reply)
+			{
+				case CharacterReply.Ok:
+					message = DATCONST1.CHARACTER_CREATE_SUCCESS;
+					break;
+				case CharacterReply.Full:
+					message = DATCONST1.CHARACTER_CREATE_TOO_MANY_CHARS;
+					break;
+				case CharacterReply.Exists:
+					message = DATCONST1.CHARACTER_CREATE_NAME_EXISTS;
+					break;
+				case CharacterReply.NotApproved:
+					message = DATCONST1.CHARACTER_CREATE_NAME_NOT_APPROVED;
+					break;
+			}
+			return message;
 		}
 	}
 }
