@@ -652,14 +652,6 @@ namespace EndlessClient
 			return new Dictionary<FamilyActionPair, LockedHandlerMethod>
 			{
 				{
-					new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Agree),
-					new LockedHandlerMethod(Handlers.AdminInteract.AdminShow)
-				},
-				{
-					new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Remove),
-					new LockedHandlerMethod(Handlers.AdminInteract.AdminHide)
-				},
-				{
 					new FamilyActionPair(PacketFamily.Attack, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.Attack.AttackPlayerResponse, true)
 				},

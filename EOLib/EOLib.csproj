@@ -49,6 +49,7 @@
     <Compile Include="Map.cs" />
     <Compile Include="misc.cs" />
     <Compile Include="Net\Account.cs" />
+    <Compile Include="Net\AdminInteract.cs" />
     <Compile Include="Net\AsyncClient.cs" />
     <Compile Include="Net\Character.cs" />
     <Compile Include="Net\Connection.cs" />

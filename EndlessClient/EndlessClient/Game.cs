@@ -133,6 +133,14 @@ namespace EndlessClient
 						m_packetAPI.OnNPCEnterMap += _data => World.Instance.ActiveMapRenderer.AddOtherNPC(_data);
 						m_packetAPI.OnMainPlayerWalk += _list => { foreach (var item in _list) World.Instance.ActiveMapRenderer.AddMapItem(item); };
 						m_packetAPI.OnOtherPlayerWalk += (a, b, c, d) => World.Instance.ActiveMapRenderer.OtherPlayerWalk(a, b, c, d);
+						m_packetAPI.OnAdminHiddenChange += (id, hidden) =>
+						{
+							if (World.Instance.MainPlayer.ActiveCharacter.ID == id)
+								World.Instance.MainPlayer.ActiveCharacter.RenderData.SetHidden(hidden);
+							else
+								World.Instance.ActiveMapRenderer.OtherPlayerHide(id, hidden);
+						};
+
 						((EOClient) World.Instance.Client).EventDisconnect += () => m_packetAPI.Disconnect();
 
 						InitData data;

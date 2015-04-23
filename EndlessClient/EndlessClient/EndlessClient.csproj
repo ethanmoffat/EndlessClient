@@ -131,7 +131,6 @@
     <Compile Include="EOOnlineList.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameUI.cs" />
-    <Compile Include="Handlers\AdminInteract.cs" />
     <Compile Include="Handlers\Attack.cs" />
     <Compile Include="Handlers\Avatar.cs" />
     <Compile Include="Handlers\Bank.cs" />
@@ -151,7 +150,6 @@
     <Compile Include="Handlers\Shop.cs" />
     <Compile Include="Handlers\StatSkill.cs" />
     <Compile Include="Handlers\Talk.cs" />
-    <Compile Include="Handlers\Walk.cs" />
     <Compile Include="HUDElement.cs" />
     <Compile Include="InGameHud.cs" />
     <Compile Include="InteractList.cs" />

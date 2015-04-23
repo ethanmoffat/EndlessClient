@@ -20,6 +20,7 @@ namespace EOLib.Net
 			m_client = client;
 
 			_createAccountMembers();
+			_createAdminInteractMembers();
 			_createCharacterMembers();
 			_createInitMembers();
 			_createLoginMembers();
