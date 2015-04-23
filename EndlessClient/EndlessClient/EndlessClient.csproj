@@ -137,14 +137,12 @@
     <Compile Include="Handlers\Bank.cs" />
     <Compile Include="Handlers\Chest.cs" />
     <Compile Include="Handlers\Connection.cs" />
-    <Compile Include="Handlers\Character.cs" />
     <Compile Include="Handlers\Door.cs" />
     <Compile Include="Handlers\Effect.cs" />
     <Compile Include="Handlers\Emote.cs" />
     <Compile Include="Handlers\Face.cs" />
     <Compile Include="Handlers\Item.cs" />
     <Compile Include="Handlers\Locker.cs" />
-    <Compile Include="Handlers\Login.cs" />
     <Compile Include="Handlers\Message.cs" />
     <Compile Include="Handlers\NPC.cs" />
     <Compile Include="Handlers\Paperdoll.cs" />
@@ -153,7 +151,6 @@
     <Compile Include="Handlers\Shop.cs" />
     <Compile Include="Handlers\StatSkill.cs" />
     <Compile Include="Handlers\Talk.cs" />
-    <Compile Include="Handlers\TemplateHandler.cs" />
     <Compile Include="Handlers\Walk.cs" />
     <Compile Include="HUDElement.cs" />
     <Compile Include="InGameHud.cs" />

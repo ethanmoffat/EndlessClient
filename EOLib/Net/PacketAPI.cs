@@ -26,6 +26,7 @@ namespace EOLib.Net
 			_createPlayersMembers();
 			_createNPCMembers();
 			_createRefreshMembers();
+			_createWalkMembers();
 			_createWarpMembers();
 			_createWelcomeMembers();
 		}

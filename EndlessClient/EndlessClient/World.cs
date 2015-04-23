@@ -283,7 +283,7 @@ namespace EndlessClient
 				//lazy initialization
 				if (m_mapRender == null)
 				{
-					m_mapRender = new EOMapRenderer(EOGame.Instance, ActiveMap);
+					m_mapRender = new EOMapRenderer(EOGame.Instance, ActiveMap, m_api);
 				}
 
 				//check for an update on the map file any time the Map renderer is accessed
@@ -349,6 +349,9 @@ namespace EndlessClient
 		{
 			get { return m_client; }
 		}
+
+		private PacketAPI m_api;
+		public void SetAPIHandle(PacketAPI api) { m_api = api; }
 
 		/*** Functions for loading/checking the different pub/map files ***/
 
@@ -524,10 +527,10 @@ namespace EndlessClient
 				ActiveMapRenderer.AddMapItem(mi);
 		}
 
-		public void ApplyWelcomeRequest(WelcomeRequestData data)
+		public void ApplyWelcomeRequest(PacketAPI api, WelcomeRequestData data)
 		{
 			MainPlayer.SetPlayerID(data.PlayerID);
-			MainPlayer.SetActiveCharacter(data.ActiveCharacterID);
+			MainPlayer.SetActiveCharacter(api, data.ActiveCharacterID);
 			MainPlayer.ActiveCharacter.CurrentMap = data.MapID;
 			MainPlayer.ActiveCharacter.MapIsPk = data.MapIsPK;
 
@@ -641,8 +644,6 @@ namespace EndlessClient
 
 				if (m_client != null)
 					m_client.Dispose();
-
-				Handlers.Walk.Cleanup();
 			}
 		}
 
@@ -860,14 +861,6 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Talk.TalkTell, true)
 				},
 				//
-				{
-					new FamilyActionPair(PacketFamily.Walk, PacketAction.Reply),
-					new LockedHandlerMethod(Handlers.Walk.WalkReply, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Walk, PacketAction.Player),
-					new LockedHandlerMethod(Handlers.Walk.WalkPlayer, true)
-				}
 			};
 		}
 	}

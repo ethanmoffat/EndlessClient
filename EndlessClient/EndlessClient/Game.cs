@@ -131,6 +131,8 @@ namespace EndlessClient
 						m_packetAPI.OnWarpAgree += World.Instance.WarpAgreeAction;
 						m_packetAPI.OnPlayerEnterMap += (_data, _anim) => World.Instance.ActiveMapRenderer.AddOtherPlayer(_data, _anim);
 						m_packetAPI.OnNPCEnterMap += _data => World.Instance.ActiveMapRenderer.AddOtherNPC(_data);
+						m_packetAPI.OnMainPlayerWalk += _list => { foreach (var item in _list) World.Instance.ActiveMapRenderer.AddMapItem(item); };
+						m_packetAPI.OnOtherPlayerWalk += (a, b, c, d) => World.Instance.ActiveMapRenderer.OtherPlayerWalk(a, b, c, d);
 						((EOClient) World.Instance.Client).EventDisconnect += () => m_packetAPI.Disconnect();
 
 						InitData data;
@@ -148,6 +150,7 @@ namespace EndlessClient
 							}
 
 							World.Instance.MainPlayer.SetPlayerID(data.clientID);
+							World.Instance.SetAPIHandle(m_packetAPI);
 							successAction();
 						}
 						else

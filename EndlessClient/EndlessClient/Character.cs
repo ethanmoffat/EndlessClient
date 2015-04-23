@@ -277,9 +277,12 @@ namespace EndlessClient
 
 			throw new ArgumentOutOfRangeException("num", num, "Karma values must be between 0-2000");
 		}
-		
-		public Character(int id, CharRenderData data)
+
+		private PacketAPI m_packetAPI;
+
+		public Character(PacketAPI api, int id, CharRenderData data)
 		{
+			m_packetAPI = api;
 			ID = id;
 			RenderData = data ?? new CharRenderData();
 
@@ -289,9 +292,11 @@ namespace EndlessClient
 		}
 
 		//constructs a character from a packet sent from the server
-		public Character(CharacterData data)
+		public Character(PacketAPI api, CharacterData data)
 		{
 			//initialize lists
+			m_packetAPI = api;
+
 			Inventory = new List<InventoryItem>();
 			Spells = new List<CharacterSpell>();
 			PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
@@ -496,7 +501,7 @@ namespace EndlessClient
 
 			if (this == World.Instance.MainPlayer.ActiveCharacter)
 			{
-				if(!Handlers.Walk.PlayerWalk(direction, destX, destY, admin && AdminLevel != AdminLevel.Player))
+				if(!m_packetAPI.PlayerWalk(direction, destX, destY, admin && AdminLevel != AdminLevel.Player))
 					EOGame.Instance.LostConnectionDialog();
 			}
 			else if (RenderData.facing != direction) //if a packet WALK_PLAYER was received: face them the right way first otherwise this will look weird

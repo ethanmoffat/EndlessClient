@@ -59,6 +59,7 @@
     <Compile Include="Net\PacketAPI.cs" />
     <Compile Include="Net\Players.cs" />
     <Compile Include="Net\Refresh.cs" />
+    <Compile Include="Net\Walk.cs" />
     <Compile Include="Net\Warp.cs" />
     <Compile Include="Net\Welcome.cs" />
     <Compile Include="Packet.cs" />

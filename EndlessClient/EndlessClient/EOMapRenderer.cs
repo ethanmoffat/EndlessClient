@@ -34,7 +34,7 @@ namespace EndlessClient
 		public ReturnType ReturnValue;
 
 		public TileSpec Spec;
-		public EOLib.Warp Warp;
+		public Warp Warp;
 		public NPC NPC;
 		public MapSign Sign;
 	}
@@ -363,21 +363,25 @@ namespace EndlessClient
 
 		//door members
 		private readonly Timer _doorTimer;
-		private EOLib.Warp _door;
+		private Warp _door;
 		private byte _doorY; //since y-coord not stored in Warp object...
 
 		private ManualResetEventSlim m_drawingEvent;
-
 		private EOMapContextMenu m_contextMenu;
 
-		public EOMapRenderer(Game g, MapFile mapObj)
+		private readonly PacketAPI m_api;
+
+		public EOMapRenderer(Game g, MapFile mapObj, PacketAPI apiHandle)
 			: base(g)
 		{
 			if(g == null)
 				throw new NullReferenceException("The game must not be null");
 			if(!(g is EOGame))
 				throw new ArgumentException("The game must be an EOGame instance");
-			
+			if(apiHandle == null || !apiHandle.Initialized)
+				throw new ArgumentException("Invalid PacketAPI object");
+			m_api = apiHandle;
+
 			sb = new SpriteBatch(Game.GraphicsDevice);
 
 			mouseCursor = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
@@ -527,7 +531,7 @@ namespace EndlessClient
 				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsOtherPlayer };
 			}
 
-			EOLib.Warp warp = MapRef.WarpLookup[destY, destX];
+			Warp warp = MapRef.WarpLookup[destY, destX];
 			if (warp != null)
 			{
 				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsWarpSpec, Warp = warp };
@@ -563,7 +567,10 @@ namespace EndlessClient
 			Point key = new Point(newItem.x, newItem.y);
 			if(!MapItems.ContainsKey(key))
 				MapItems.Add(key, new List<MapItem>());
-			MapItems[key].Add(newItem);
+
+			int index = MapItems[key].FindIndex(_mi => _mi.uid == newItem.uid);
+			if (index < 0)
+				MapItems[key].Add(newItem);
 		}
 
 		public void RemoveMapItem(short uid)
@@ -666,7 +673,7 @@ namespace EndlessClient
 			EOCharacterRenderer otherRend = null;
 			if ((other = otherPlayers.Find(x => x.Name == c.Name && x.ID == c.ID)) == null)
 			{
-				otherPlayers.Add(other = new Character(c));
+				otherPlayers.Add(other = new Character(m_api, c));
 				otherRenderers.Add(otherRend = new EOCharacterRenderer(other));
 				otherRenderers[otherRenderers.Count - 1].Visible = true;
 				otherRenderers[otherRenderers.Count - 1].Initialize();

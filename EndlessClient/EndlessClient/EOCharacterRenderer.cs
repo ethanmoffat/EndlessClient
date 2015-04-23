@@ -195,7 +195,7 @@ namespace EndlessClient
 			: base(drawLocation, null)
 		{
 			noLocUpdate = true;
-			_char = new Character(-1, data);
+			_char = new Character(null, -1, data);
 			spriteSheet = new EOSpriteSheet(_char);
 			//when this is a part of a dialog, the drawareaoffset will be set accordingly and is used in the draw method
 			//otherwise, it will just draw it at the absolute location specified by drawArea

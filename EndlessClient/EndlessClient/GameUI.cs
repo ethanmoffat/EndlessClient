@@ -481,7 +481,7 @@ Thanks to :
 				}
 
 				//handles the WelcomeRequestData object
-				World.Instance.ApplyWelcomeRequest(data);
+				World.Instance.ApplyWelcomeRequest(m_packetAPI, data);
 
 				//shows the connecting window
 				EOConnectingDialog dlg = new EOConnectingDialog(m_packetAPI);

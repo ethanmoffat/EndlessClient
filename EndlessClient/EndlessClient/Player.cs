@@ -13,7 +13,7 @@ namespace EndlessClient
 
 		public CharRenderData[] CharData { get; private set; }
 		public Character ActiveCharacter { get; private set; }
-		
+
 		public Player()
 		{
 			Logout();
@@ -42,12 +42,12 @@ namespace EndlessClient
 		//	GamePlayerID = newId;
 		//}
 
-		public bool SetActiveCharacter(int id)
+		public bool SetActiveCharacter(PacketAPI api, int id)
 		{
 			CharRenderData activeData = CharData.FirstOrDefault(d => d.id == id);
 			if (activeData == null)
 				return false;
-			ActiveCharacter = new Character(id, activeData);
+			ActiveCharacter = new Character(api, id, activeData);
 			return true;
 		}
 		
