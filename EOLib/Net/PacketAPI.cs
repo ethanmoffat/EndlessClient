@@ -19,6 +19,7 @@ namespace EOLib.Net
 			}
 			m_client = client;
 
+			_createAccountMembers();
 			_createInitMembers();
 			_createPlayersMembers();
 			_createNPCMembers();
@@ -41,6 +42,7 @@ namespace EOLib.Net
 		{
 			if (disposing)
 			{
+				_disposeAccountMembers();
 				_disposeInitMembers();
 				_disposeWelcomeMembers();
 			}

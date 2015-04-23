@@ -642,7 +642,6 @@ namespace EndlessClient
 				if (m_client != null)
 					m_client.Dispose();
 
-				Handlers.Account.Cleanup();
 				Handlers.Character.Cleanup();
 				Handlers.Login.Cleanup();
 				Handlers.Walk.Cleanup();
@@ -654,10 +653,6 @@ namespace EndlessClient
 			return new Dictionary<FamilyActionPair, LockedHandlerMethod>
 			{
 				{
-					new FamilyActionPair(PacketFamily.Account, PacketAction.Reply),
-					new LockedHandlerMethod(Handlers.Account.AccountResponse)
-				},
-				{
 					new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Agree),
 					new LockedHandlerMethod(Handlers.AdminInteract.AdminShow)
 				},
@@ -665,10 +660,6 @@ namespace EndlessClient
 					new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Remove),
 					new LockedHandlerMethod(Handlers.AdminInteract.AdminHide)
 				},
-				//{
-				//	new FamilyActionPair(PacketFamily.Appear, PacketAction.Reply),
-				//	new LockedHandlerMethod(Handlers.NPCPackets.AppearReply, true)
-				//},
 				{
 					new FamilyActionPair(PacketFamily.Attack, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.Attack.AttackPlayerResponse, true)

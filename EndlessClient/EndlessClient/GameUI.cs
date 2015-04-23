@@ -338,15 +338,16 @@ Thanks to :
 							return;
 						}
 
-						if (!Handlers.Account.AccountCheckName(accountCreateTextBoxes[0].Text))
+						AccountReply reply;
+						if (!m_packetAPI.AccountCheckName(accountCreateTextBoxes[0].Text, out reply))
 						{
 							LostConnectionDialog();
 							return;
 						}
 
-						if (!Handlers.Account.CanProceed)
+						if (reply != AccountReply.Continue)
 						{
-							EODialog.Show(Handlers.Account.ResponseMessage());
+							EODialog.Show(m_packetAPI.AccountResponseMessage());
 							return;
 						}
 
@@ -358,18 +359,20 @@ Thanks to :
 						{
 							if (dlg_E.Result != XNADialogResult.NO_BUTTON_PRESSED) return;
 
-							if (!Handlers.Account.AccountCreate(accountCreateTextBoxes[0].Text,
+							if (!m_packetAPI.AccountCreate(accountCreateTextBoxes[0].Text,
 								accountCreateTextBoxes[1].Text,
 								accountCreateTextBoxes[3].Text,
 								accountCreateTextBoxes[4].Text,
-								accountCreateTextBoxes[5].Text))
+								accountCreateTextBoxes[5].Text,
+								Config.GetHDDSerial(),
+								out reply))
 							{
 								LostConnectionDialog();
 								return;
 							}
 
-							DATCONST1 resource = Handlers.Account.ResponseMessage();
-							if (!Handlers.Account.CanProceed)
+							DATCONST1 resource = m_packetAPI.AccountResponseMessage();
+							if (reply != AccountReply.Created)
 							{
 								EODialog.Show(resource);
 								return;
@@ -430,15 +433,16 @@ Thanks to :
 				{
 					if (dlg_E.Result != XNADialogResult.OK) return;
 
-					if (!Handlers.Account.AccountChangePassword(dlg.Username, dlg.OldPassword, dlg.NewPassword))
+					AccountReply reply;
+					if (!m_packetAPI.AccountChangePassword(dlg.Username, dlg.OldPassword, dlg.NewPassword, out reply))
 					{
 						LostConnectionDialog();
 						return;
 					}
 
-					EODialog.Show(Handlers.Account.ResponseMessage());
+					EODialog.Show(m_packetAPI.AccountResponseMessage());
 
-					if (Handlers.Account.CanProceed) return;
+					if (reply == AccountReply.ChangeSuccess) return;
 					dlg_E.CancelClose = true;
 				};
 			}
