@@ -55,6 +55,8 @@ namespace EndlessClient
 		public Character Opponent { get; set; }
 		public int HP { get; set; }
 
+		public bool Dying { get { return _startFadeAway; } }
+
 		//updated when NPC is walking
 		private int adjX, adjY;
 

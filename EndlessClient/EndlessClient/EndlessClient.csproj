@@ -131,7 +131,6 @@
     <Compile Include="EOOnlineList.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameUI.cs" />
-    <Compile Include="Handlers\Avatar.cs" />
     <Compile Include="Handlers\Bank.cs" />
     <Compile Include="Handlers\Chest.cs" />
     <Compile Include="Handlers\Connection.cs" />
@@ -143,7 +142,6 @@
     <Compile Include="Handlers\Locker.cs" />
     <Compile Include="Handlers\Message.cs" />
     <Compile Include="Handlers\NPC.cs" />
-    <Compile Include="Handlers\Paperdoll.cs" />
     <Compile Include="Handlers\Players.cs" />
     <Compile Include="Handlers\Recover.cs" />
     <Compile Include="Handlers\Shop.cs" />

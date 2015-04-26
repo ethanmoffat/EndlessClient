@@ -520,7 +520,7 @@ namespace EndlessClient
 			lock (npcListLock)
 			{
 				NPC npc;
-				if ((npc = npcList.Find(_npc => _npc.X == destX && _npc.Y == destY)) != null)
+				if ((npc = npcList.Find(_npc => _npc.X == destX && _npc.Y == destY)) != null && !npc.Dying)
 				{
 					return new TileInfo { ReturnValue = TileInfo.ReturnType.IsOtherNPC, NPC = npc };
 				}
@@ -1476,6 +1476,8 @@ namespace EndlessClient
 			sb.Begin();
 			bool targetChanged = false;
 
+			Dictionary<Point, Texture2D> drawRoofLater = new Dictionary<Point, Texture2D>();
+
 			//no need to iterate over the entire map rows if they won't be included in the render.
 			for (int rowIndex = Math.Max(c.Y - 22, 0); rowIndex <= Math.Min(c.Y + 22, MapRef.Height); ++rowIndex)
 			{
@@ -1588,12 +1590,17 @@ namespace EndlessClient
 					if (Math.Abs(c.X - colIndex) <= 10 && Math.Abs(c.Y - rowIndex) <= 10)
 					{
 						//roofs (after objects - for outdoor maps, which actually have roofs, this makes more sense)
-						if ((gfxNum = MapRef.GFXLookup[(int) MapLayers.RoofTile][rowIndex, colIndex]) > 0)
+						if ((gfxNum = MapRef.GFXLookup[(int) MapLayers.Roof][rowIndex, colIndex]) > 0)
 						{
-							gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
-							Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
-							loc = new Vector2(loc.X - 2, loc.Y - 63);
-							sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+							gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
+							if (gfx.Width > 64 && gfx.Height > 64) //draw large roof objects at the end
+								drawRoofLater.Add(new Point(colIndex, rowIndex), gfx);
+							else
+							{
+								Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+								loc = new Vector2(loc.X - 2, loc.Y - 63);
+								sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+							}
 						}
 
 						//overlay tiles (counters, etc)
@@ -1606,6 +1613,13 @@ namespace EndlessClient
 						}
 					}
 				}
+			}
+
+			foreach (var kvp in drawRoofLater)
+			{
+				Vector2 loc = _getDrawCoordinates(kvp.Key.X, kvp.Key.Y, c);
+				loc = new Vector2(loc.X - kvp.Value.Width/2f + 30, loc.Y - kvp.Value.Height + 28);
+				sb.Draw(kvp.Value, loc, Color.White);
 			}
 
 			try

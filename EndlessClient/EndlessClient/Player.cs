@@ -21,6 +21,8 @@ namespace EndlessClient
 
 		public void Logout()
 		{
+			if (ActiveCharacter != null)
+				Logger.Log("Logging out MainPlayer. Setting ActiveCharacter = null.");
 			PlayerID = 0;
 			//GamePlayerID = 0;
 			CharData = null;
@@ -44,6 +46,8 @@ namespace EndlessClient
 
 		public bool SetActiveCharacter(PacketAPI api, int id)
 		{
+			if (ActiveCharacter != null)
+				Logger.Log("Setting Active Character to new ID {0}", id);
 			CharRenderData activeData = CharData.FirstOrDefault(d => d.id == id);
 			if (activeData == null)
 				return false;

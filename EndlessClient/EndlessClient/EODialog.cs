@@ -2553,14 +2553,6 @@ namespace EndlessClient
 			if (m_state != ShopState.Crafting)
 				return;
 
-			if (!EOGame.Instance.Hud.InventoryFits((short) item.ID))
-			{
-				EODialog.Show(World.GetString(DATCONST2.DIALOG_SHOP_NOT_ENOUGH_SPACE),
-					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
-					XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
-				return;
-			}
-
 			ItemRecord craftItemRec = World.Instance.EIF.GetItemRecordByID(item.ID);
 // ReSharper disable once LoopCanBeConvertedToQuery
 			foreach (var ingredient in item.Ingredients)
@@ -2579,6 +2571,14 @@ namespace EndlessClient
 					EODialog.Show(_message, _caption, XNADialogButtons.Cancel, EODialogStyle.LargeDialogSmallHeader);
 					return;
 				}
+			}
+
+			if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
+			{
+				EODialog.Show(World.GetString(DATCONST2.DIALOG_SHOP_NOT_ENOUGH_SPACE),
+					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+					XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				return;
 			}
 
 			string _message2 = World.GetString(DATCONST2.DIALOG_SHOP_CRAFT_PUT_INGREDIENTS_TOGETHER) + "\n\n";

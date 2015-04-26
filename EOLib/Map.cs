@@ -169,10 +169,10 @@ namespace EOLib
 		OverlayObjects = 2,
 		WallRowsDown = 3,
 		WallRowsRight = 4,
-		RoofTile = 5,
+		Unknown = 5,
 		OverlayTile = 6,
 		Shadow = 7,
-		Unknown = 8,
+		Roof = 8,
 		NUM_LAYERS = 9
 	}
 

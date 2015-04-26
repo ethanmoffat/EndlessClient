@@ -327,20 +327,6 @@ namespace EOLib.Net
 								throw new FileLoadException();
 							fs.Write(pkt.GetBytes(dataLen), 0, dataLen);
 						}
-
-						//todo: move this to client stuff - no file loading should be done in the API
-						//try to load the file that was just downloaded into the world
-						//if we are unable to load it, signal an error condition.
-						//if (response == InitReply.INIT_FILE_MAP && !World.Instance.TryLoadMap(requestedMap))
-						//	return;
-						//if (m_init_serverResponse == InitReply.INIT_FILE_EIF && !World.Instance.TryLoadItems())
-						//	return;
-						//if (m_init_serverResponse == InitReply.INIT_FILE_ENF && !World.Instance.TryLoadNPCs())
-						//	return;
-						//if (m_init_serverResponse == InitReply.INIT_FILE_ESF && !World.Instance.TryLoadSpells())
-						//	return;
-						//if (m_init_serverResponse == InitReply.INIT_FILE_ECF && !World.Instance.TryLoadClasses())
-						//	return;
 					}
 					break;
 			}

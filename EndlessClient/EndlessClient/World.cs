@@ -287,12 +287,6 @@ namespace EndlessClient
 					m_mapRender = new EOMapRenderer(EOGame.Instance, ActiveMap, m_api);
 				}
 
-				//check for an update on the map file any time the Map renderer is accessed
-				if (m_mapRender.MapRef == null || m_mapRender.MapRef.MapID != MainPlayer.ActiveCharacter.CurrentMap)
-				{
-					m_mapRender.SetActiveMap(ActiveMap);
-				}
-
 				//make sure it's in the game's componenets
 				if(EOGame.Instance.State == GameStates.PlayingTheGame && !EOGame.Instance.Components.Contains(m_mapRender))
 					EOGame.Instance.Components.Add(m_mapRender);
@@ -509,6 +503,12 @@ namespace EndlessClient
 
 		public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<MapItem> items)
 		{
+			if (!TryLoadMap(mapID))
+				throw new IOException("Something was wrong with the map file...");
+			
+			MainPlayer.ActiveCharacter.CurrentMap = mapID;
+			ActiveMapRenderer.SetActiveMap(ActiveMap);
+
 			ActiveMapRenderer.ClearOtherPlayers();
 			ActiveMapRenderer.ClearOtherNPCs();
 			ActiveMapRenderer.ClearMapItems();
