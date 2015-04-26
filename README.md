@@ -35,7 +35,7 @@ These instructions have been tested in a Virtual Machine running Windows 7 Profe
 
 1. Install Windows and run windows update cyclically until there are no more
 2. Install Visual Studio 2013 ([the **free** Community Edition also works](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) if you don't have a licensed full version)
-3. Install the [XNA 4.0 Refresh](https://xnags.codeplex.com/releases/view/117230) visual studio extension and its dependencies. These are all included in the linked .zip file (four prereqs + the extension itself)
+3. Install the [XNA 4.0 Refresh](https://mxa.codeplex.com/releases/view/117230) visual studio extension and its dependencies. These are all included in the linked .zip file (four prereqs + the extension itself)
 4. Optionally: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/) (student licenses are **free**!)
 5. Install your favorite git client and fork the latest changes (I highly recommend [Atlassian SourceTree](http://www.sourcetreeapp.com/))
 6. Build the solution in VS 2013. Copy the required files to the bin\x86\debug\ or bin\x86\release\ folder (see below)
