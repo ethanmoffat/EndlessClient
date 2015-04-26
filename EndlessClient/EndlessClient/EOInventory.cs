@@ -406,21 +406,28 @@ namespace EndlessClient
 							subLoc = 1;
 						else
 						{
-							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
+							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
+								DATCONST2.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
 							break;
 						}
 					}
-					else if (m_itemData.Type == ItemType.Armor && m_itemData.Gender != World.Instance.MainPlayer.ActiveCharacter.RenderData.gender)
+					else if (m_itemData.Type == ItemType.Armor &&
+					         m_itemData.Gender != World.Instance.MainPlayer.ActiveCharacter.RenderData.gender)
 					{
-						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_ITEM_EQUIP_DOES_NOT_FIT_GENDER);
+						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
+							DATCONST2.STATUS_LABEL_ITEM_EQUIP_DOES_NOT_FIT_GENDER);
 						break;
 					}
 
-					if (World.Instance.MainPlayer.ActiveCharacter.EquipItem(m_itemData.Type, (short)m_itemData.ID, (short)m_itemData.DollGraphic))
-						if(!m_api.EquipItem((short)m_itemData.ID, subLoc))
+					if (World.Instance.MainPlayer.ActiveCharacter.EquipItem(m_itemData.Type, (short) m_itemData.ID,
+						(short) m_itemData.DollGraphic))
+					{
+						if (!m_api.EquipItem((short) m_itemData.ID, subLoc))
 							EOGame.Instance.LostConnectionDialog();
+					}
 					else
-						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
+						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
+							DATCONST2.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
 
 					break;
 			//usable items
