@@ -84,8 +84,6 @@ namespace EOLib.Net
 		// Player changes appearance (clothes, hair, etc)
 		private void _handleAvatarAgree(Packet pkt)
 		{
-			if (OnPlayerAvatarChange == null) return;
-
 			short playerID = pkt.GetShort();
 			AvatarSlot slot = (AvatarSlot)pkt.GetChar();
 			switch (slot)
@@ -102,21 +100,24 @@ namespace EOLib.Net
 							pkt.GetShort(),      //weapon
 							pkt.GetShort()       //shield
 						);
-						OnPlayerAvatarChange(newRenderData);
+						if (OnPlayerAvatarChange != null)
+							OnPlayerAvatarChange(newRenderData);
 					}
 					break;
 				case AvatarSlot.Hair:
 					{
 						if (pkt.GetChar() != 0) return; //subloc -- not sure what this does
 						AvatarData data = new AvatarData(playerID, slot, pkt.GetChar(), pkt.GetChar());
-						OnPlayerAvatarChange(data);
+						if (OnPlayerAvatarChange != null)
+							OnPlayerAvatarChange(data);
 					}
 					break;
 				case AvatarSlot.HairColor:
 					{
 						if (pkt.GetChar() != 0) return; //subloc -- not sure what this does
 						AvatarData data = new AvatarData(playerID, slot, 0, pkt.GetChar());
-						OnPlayerAvatarChange(data);
+						if (OnPlayerAvatarChange != null)
+							OnPlayerAvatarChange(data);
 					}
 					break;
 			}

@@ -46,9 +46,12 @@ namespace EndlessClient
 		private int m_recentClickCount;
 		private readonly Timer m_recentClickTimer;
 
-		public EOInventoryItem(int slot, ItemRecord itemData, InventoryItem itemInventoryInfo, EOInventory inventory)
+		private readonly PacketAPI m_api;
+
+		public EOInventoryItem(PacketAPI api, int slot, ItemRecord itemData, InventoryItem itemInventoryInfo, EOInventory inventory)
 			: base(null, null, inventory)
 		{
+			m_api = api;
 			m_itemData = itemData;
 			m_inventory = itemInventoryInfo;
 			Slot = slot;
@@ -407,11 +410,18 @@ namespace EndlessClient
 							break;
 						}
 					}
+					else if (m_itemData.Type == ItemType.Armor && m_itemData.Gender != World.Instance.MainPlayer.ActiveCharacter.RenderData.gender)
+					{
+						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_ITEM_EQUIP_DOES_NOT_FIT_GENDER);
+						break;
+					}
 
 					if (World.Instance.MainPlayer.ActiveCharacter.EquipItem(m_itemData.Type, (short)m_itemData.ID, (short)m_itemData.DollGraphic))
-						Handlers.Paperdoll.EquipItem((short)m_itemData.ID, subLoc);
+						if(!m_api.EquipItem((short)m_itemData.ID, subLoc))
+							EOGame.Instance.LostConnectionDialog();
 					else
 						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
+
 					break;
 			//usable items
 				case ItemType.Teleport:
@@ -499,10 +509,14 @@ namespace EndlessClient
 
 		private readonly XNALabel m_lblWeight;
 		private readonly XNAButton m_btnDrop, m_btnJunk, m_btnPaperdoll;
+
+		private readonly PacketAPI m_api;
 		
-		public EOInventory(XNAPanel parent)
+		public EOInventory(XNAPanel parent, PacketAPI api)
 			: base(null, null, parent)
 		{
+			m_api = api;
+
 			//load info from registry
 			Dictionary<int, int> localItemSlotMap = new Dictionary<int, int>();
 			m_inventoryKey = _tryGetCharacterRegKey();
@@ -560,7 +574,7 @@ namespace EndlessClient
 			//'paperdoll' button
 			m_btnPaperdoll = new XNAButton(thatWeirdSheet, new Vector2(385, 9), /*new Rectangle(39, 385, 88, 19)*/null, new Rectangle(126, 385, 88, 19));
 			m_btnPaperdoll.SetParent(this);
-			m_btnPaperdoll.OnClick += (s, e) => Handlers.Paperdoll.RequestPaperdoll((short)World.Instance.MainPlayer.ActiveCharacter.ID);
+			m_btnPaperdoll.OnClick += (s, e) => m_api.RequestPaperdoll((short)World.Instance.MainPlayer.ActiveCharacter.ID);
 			//'drop' button
 			//491, 398 -> 389, 68
 			//0,15,38,37
@@ -617,7 +631,7 @@ namespace EndlessClient
 			points.ForEach(point => m_filledSlots[point.Item1, point.Item2] = true); //flag that the spaces are taken
 
 			m_inventoryKey.SetValue(string.Format("item{0}", slot), item.ID, RegistryValueKind.String); //update the registry
-			m_childItems.Add(new EOInventoryItem(slot, item, new InventoryItem { amount = count, id = (short)item.ID }, this)); //add the control wrapper for the item
+			m_childItems.Add(new EOInventoryItem(m_api, slot, item, new InventoryItem { amount = count, id = (short)item.ID }, this)); //add the control wrapper for the item
 			m_childItems[m_childItems.Count - 1].DrawOrder = (int) ControlDrawLayer.DialogLayer - (2 + slot%INVENTORY_ROW_LENGTH);
 			return true;
 		}

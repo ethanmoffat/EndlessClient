@@ -757,18 +757,6 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.NPCPackets.NPCSpec, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Agree),
-					new LockedHandlerMethod(Handlers.Paperdoll.PaperdollAgree, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Remove),
-					new LockedHandlerMethod(Handlers.Paperdoll.PaperdollRemove, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.PaperDoll, PacketAction.Reply),
-					new LockedHandlerMethod(Handlers.Paperdoll.PaperdollReply, true)
-				},
-				{
 					new FamilyActionPair(PacketFamily.Players, PacketAction.Ping),
 					new LockedHandlerMethod(Handlers.Players.PlayersPing, true)
 				},

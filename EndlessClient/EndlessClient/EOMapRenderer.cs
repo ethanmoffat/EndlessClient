@@ -1000,7 +1000,7 @@ namespace EndlessClient
 				ColorDestinationBlend = Blend.One
 			};
 
-			m_contextMenu = new EOMapContextMenu();
+			m_contextMenu = new EOMapContextMenu(m_api);
 
 			base.Initialize();
 		}
@@ -1163,7 +1163,7 @@ namespace EndlessClient
 						if (rightClicked)
 						{
 							if (_rend == World.Instance.ActiveCharacterRenderer)
-								Paperdoll.RequestPaperdoll((short) _rend.Character.ID);
+								m_api.RequestPaperdoll((short) _rend.Character.ID);
 							else
 							{
 								//show the right-click menu

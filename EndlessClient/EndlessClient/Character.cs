@@ -684,5 +684,24 @@ namespace EndlessClient
 			TodayExp += amount;
 			Stats.exp += amount;
 		}
+
+		public void UpdateStatsAfterEquip(PaperdollEquipData data)
+		{
+			Stats.SetMaxHP(data.MaxHP);
+			Stats.SetMaxTP(data.MaxTP);
+
+			Stats.SetStr(data.Str);
+			Stats.SetInt(data.Int);
+			Stats.SetWis(data.Wis);
+			Stats.SetAgi(data.Agi);
+			Stats.SetCon(data.Con);
+			Stats.SetCha(data.Cha);
+
+			Stats.SetMinDam(data.MinDam);
+			Stats.SetMaxDam(data.MaxDam);
+			Stats.SetAccuracy(data.Accuracy);
+			Stats.SetEvade(data.Evade);
+			Stats.SetArmor(data.Armor);
+		}
 	}
 }

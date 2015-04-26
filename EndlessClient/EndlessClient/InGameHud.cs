@@ -372,7 +372,7 @@ namespace EndlessClient
 
 			//the draw orders are adjusted for child items in the constructor.
 			//calling SetParent will break this.
-			inventory = new EOInventory(pnlInventory);
+			inventory = new EOInventory(pnlInventory, m_packetAPI);
 
 			stats = new EOCharacterStats(pnlStats);
 			stats.Initialize();

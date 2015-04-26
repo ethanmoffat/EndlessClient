@@ -1105,9 +1105,12 @@ namespace EndlessClient
 		public EquipLocation EquipLoc { get; private set; }
 		//public short ItemID { get { return (short)(m_info ?? new ItemRecord()).ID; } }
 
-		public EOPaperdollItem(Rectangle location, EOPaperdollDialog parent, ItemRecord info, EquipLocation locationEnum)
+		private readonly PacketAPI m_api;
+
+		public EOPaperdollItem(PacketAPI api, Rectangle location, EOPaperdollDialog parent, ItemRecord info, EquipLocation locationEnum)
 			: base(null, null, parent)
 		{
+			m_api = api;
 			SetInfo(location, info);
 			EquipLoc = locationEnum;
 		}
@@ -1166,7 +1169,7 @@ namespace EndlessClient
 						//put back in the inventory by the packet handler response
 						string locName = Enum.GetName(typeof (EquipLocation), EquipLoc);
 						if (!string.IsNullOrEmpty(locName))
-							Paperdoll.UnequipItem((short) m_info.ID, (byte) (locName.Contains("2") ? 1 : 0));
+							m_api.UnequipItem((short) m_info.ID, (byte) (locName.Contains("2") ? 1 : 0));
 
 						m_info = null;
 						m_gfx = null;
@@ -1206,7 +1209,15 @@ namespace EndlessClient
 
 	public class EOPaperdollDialog : EODialogBase
 	{
-		public static EOPaperdollDialog Instance;
+		public static EOPaperdollDialog Instance { get; private set; }
+
+		public static void Show(PacketAPI api, Character character, PaperdollDisplayData data)
+		{
+			if (Instance != null)
+				return;
+			Instance = new EOPaperdollDialog(api, character, data);
+			Instance.DialogClosing += (o, e) => Instance = null;
+		}
 
 		public Character CharRef { get; private set; }
 
@@ -1214,7 +1225,8 @@ namespace EndlessClient
 
 		private static readonly Rectangle m_characterIconRect = new Rectangle(227, 258, 44, 21);
 
-		public EOPaperdollDialog(Character character, string home, string partner, string guild, string guildRank, PaperdollIconType whichIcon)
+		private EOPaperdollDialog(PacketAPI api, Character character, PaperdollDisplayData data)
+			: base(api)
 		{
 			if(Instance != null)
 				throw new InvalidOperationException("Paperdoll is already open!");
@@ -1249,12 +1261,12 @@ namespace EndlessClient
 				if (CharRef.PaperDoll[i] > 0)
 				{
 // ReSharper disable once UnusedVariable
-					EOPaperdollItem nextItem = new EOPaperdollItem(itemArea, this, info, (EquipLocation)i); //auto-added as child of this dialog
+					EOPaperdollItem nextItem = new EOPaperdollItem(m_api, itemArea, this, info, (EquipLocation)i); //auto-added as child of this dialog
 				}
 				else
 				{
 // ReSharper disable once UnusedVariable
-					EOPaperdollItem nextItem = new EOPaperdollItem(itemArea, this, null, (EquipLocation)i);
+					EOPaperdollItem nextItem = new EOPaperdollItem(m_api, itemArea, this, null, (EquipLocation)i);
 				}
 			}
 
@@ -1267,7 +1279,7 @@ namespace EndlessClient
 				}, //name
 				new XNALabel(new Rectangle(228, 52, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
-					Text = home.Length > 0 ? char.ToUpper(home[0]) + home.Substring(1) : ""
+					Text = data.Home.Length > 0 ? char.ToUpper(data.Home[0]) + data.Home.Substring(1) : ""
 				}, //home
 				new XNALabel(new Rectangle(228, 82, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
@@ -1275,7 +1287,7 @@ namespace EndlessClient
 				}, //class
 				new XNALabel(new Rectangle(228, 112, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
-					Text = partner.Length > 0 ? char.ToUpper(partner[0]) + partner.Substring(1) : ""
+					Text = data.Partner.Length > 0 ? char.ToUpper(data.Partner[0]) + data.Partner.Substring(1) : ""
 				}, //partner
 				new XNALabel(new Rectangle(228, 142, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
@@ -1283,17 +1295,17 @@ namespace EndlessClient
 				}, //title
 				new XNALabel(new Rectangle(228, 202, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
-					Text = guild.Length > 0 ? char.ToUpper(guild[0]) + guild.Substring(1) : ""
+					Text = data.Guild.Length > 0 ? char.ToUpper(data.Guild[0]) + data.Guild.Substring(1) : ""
 				}, //guild
 				new XNALabel(new Rectangle(228, 232, 1, 1), "Microsoft Sans Serif", 8.5f)
 				{
-					Text = guildRank.Length > 0 ? char.ToUpper(guild[0]) + guildRank.Substring(1) : ""
+					Text = data.Rank.Length > 0 ? char.ToUpper(data.Rank[0]) + data.Rank.Substring(1) : ""
 				} //rank
 			};
 
 			labels.ToList().ForEach(_l => { _l.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8); _l.SetParent(this); });
 
-			ChatType iconType = EOChatRenderer.GetChatTypeFromPaperdollIcon(whichIcon);
+			ChatType iconType = EOChatRenderer.GetChatTypeFromPaperdollIcon(data.Icon);
 			m_characterIcon = ChatTab.GetChatIcon(iconType);
 
 			//should not be centered vertically: only display in game window
@@ -1344,12 +1356,6 @@ namespace EndlessClient
 			});
 			if(itemToUpdate != null)
 				itemToUpdate.SetInfo(_getEquipLocRectangle(loc), info);
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			base.Dispose(disposing);
-			Instance = null;
 		}
 
 		private static Rectangle _getEquipLocRectangle(EquipLocation loc)

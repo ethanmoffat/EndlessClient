@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using EndlessClient.Handlers;
 using EOLib;
+using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -38,8 +39,11 @@ namespace EndlessClient
 		private Rectangle? m_overRect; //rectangle for hover region
 		private EOCharacterRenderer m_rend;
 
-		public EOMapContextMenu()
+		private readonly PacketAPI m_api;
+
+		public EOMapContextMenu(PacketAPI api)
 		{
+			m_api = api;
 			//first, load up the images. split in half: the right half is the 'over' text
 			Texture2D bgImage = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 41, true);
 
@@ -195,7 +199,7 @@ namespace EndlessClient
 		//todo: finish the todo items below
 		private void _eventShowPaperdoll(object sender, EventArgs e)
 		{
-			Paperdoll.RequestPaperdoll((short)m_rend.Character.ID);
+			m_api.RequestPaperdoll((short)m_rend.Character.ID);
 		}
 		private void _eventShowBook(object arg1, EventArgs arg2)
 		{
