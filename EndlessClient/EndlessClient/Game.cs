@@ -604,9 +604,6 @@ namespace EndlessClient
 						spriteBatch.Draw(AccountCreateSheet, lblpos, new Rectangle(0, srcYIndex * (srcYIndex < 2 ? 14 : 15), 149, 15), Color.White);
 					}
 					break;
-				case GameStates.ViewCredits:
-					lblCredits.Visible = true;
-					break;
 				case GameStates.LoggedIn:
 					//334, 36
 					//334 160

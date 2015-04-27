@@ -239,7 +239,7 @@ Thanks to :
 			}
 			else if (sender == mainButtons[2])
 			{
-				currentState = GameStates.ViewCredits;
+				doStateChange(GameStates.ViewCredits);
 			}
 			else if (sender == mainButtons[3])
 			{
