@@ -451,6 +451,23 @@ namespace EndlessClient
 			};
 			m_packetAPI.OnServerPingReply += timeout => Hud.AddChat(ChatTabs.Local, "System", string.Format("[x] Current ping to the server is: {0} ms.", timeout), ChatType.LookingDude);
 			m_packetAPI.OnPlayerFace += (playerId, dir) => World.Instance.ActiveMapRenderer.OtherPlayerFace(playerId, dir);
+			m_packetAPI.OnPlayerFindCommandReply += (online, sameMap, charName) =>
+			{
+				if (charName.Length == 0) return;
+
+				string lastPart;
+				if(online && !sameMap)
+					lastPart = World.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_IN_THIS_WORLD);
+				else if (online)
+					lastPart = World.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_SAME_MAP);
+				else
+					lastPart = World.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_NOT_FOUND);
+
+				Hud.AddChat(ChatTabs.Local,
+					"System",
+					string.Format("{0} " + lastPart, char.ToUpper(charName[0]) + charName.Substring(1)),
+					ChatType.LookingDude);
+			};
 		}
 
 		//-----------------------------

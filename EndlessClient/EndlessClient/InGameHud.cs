@@ -604,7 +604,8 @@ namespace EndlessClient
 					}
 					else if (args.Length == 2 && args[0] == "find")
 					{
-						Players.Find(args[1]);
+						if(!m_packetAPI.FindPlayer(args[1]))
+							((EOGame)Game).LostConnectionDialog();
 					}
 					else if (args.Length == 1 && args[0] == "loc")
 					{
@@ -622,7 +623,8 @@ namespace EndlessClient
 					}
 					else if (args.Length == 1 && cmd == "ping")
 					{
-						m_packetAPI.PingServer();
+						if (!m_packetAPI.PingServer())
+							((EOGame) Game).LostConnectionDialog();
 					}
 				}
 					break;
