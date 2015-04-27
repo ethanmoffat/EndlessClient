@@ -1593,14 +1593,15 @@ namespace EndlessClient
 						if ((gfxNum = MapRef.GFXLookup[(int) MapLayers.Roof][rowIndex, colIndex]) > 0)
 						{
 							gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
-							if (gfx.Width > 64 && gfx.Height > 64) //draw large roof objects at the end
-								drawRoofLater.Add(new Point(colIndex, rowIndex), gfx);
-							else
-							{
-								Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
-								loc = new Vector2(loc.X - 2, loc.Y - 63);
-								sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
-							}
+							drawRoofLater.Add(new Point(colIndex, rowIndex), gfx);
+						}
+
+						if((gfxNum = MapRef.GFXLookup[(int)MapLayers.Unknown][rowIndex, colIndex]) > 0)
+						{
+							gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
+							Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+							loc = new Vector2(loc.X, loc.Y - 65);
+							sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
 						}
 
 						//overlay tiles (counters, etc)
