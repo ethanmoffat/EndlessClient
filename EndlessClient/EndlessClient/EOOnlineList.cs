@@ -18,7 +18,7 @@ namespace EndlessClient
 			: base(name, title, guild, clss, icon)
 		{
 			ClassRecord record = (ClassRecord) World.Instance.ECF.Data.Find(rec => ((ClassRecord) rec).ID == clss);
-			ClassString = record == null ? "-" : record.Name;
+			ClassString = record.ID == 0 ? "-" : record.Name;
 		}
 
 		public string ClassString { get; private set; }
