@@ -47,6 +47,7 @@ namespace EndlessClient
 		private readonly Timer m_recentClickTimer;
 
 		private readonly PacketAPI m_api;
+		private static bool safetyCommentHasBeenShown;
 
 		public EOInventoryItem(PacketAPI api, int slot, ItemRecord itemData, InventoryItem itemInventoryInfo, EOInventory inventory)
 			: base(null, null, inventory)
@@ -144,7 +145,14 @@ namespace EndlessClient
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result == XNADialogResult.OK)
-								Handlers.Item.DropItem(m_inventory.id, dlg.SelectedAmount, (byte)loc.X, (byte)loc.Y);
+							{
+								//note: not sure of the actual limit. 10000 is arbitrary here
+								if (dlg.SelectedAmount > 10000 && m_inventory.id == 1 && !safetyCommentHasBeenShown)
+									EODialog.Show(DATCONST1.DROP_MANY_GOLD_ON_GROUND, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader,
+										(o, e) => { safetyCommentHasBeenShown = true; });
+								else
+									Handlers.Item.DropItem(m_inventory.id, dlg.SelectedAmount, (byte) loc.X, (byte) loc.Y);
+							}
 						};
 					}
 					else if (inRange)
