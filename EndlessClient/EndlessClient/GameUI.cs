@@ -282,14 +282,14 @@ Thanks to :
 					LostConnectionDialog();
 					return;
 				}
-				World.Instance.MainPlayer.SetAccountName(loginUsernameTextbox.Text);
-				World.Instance.MainPlayer.ProcessCharacterData(dataArray);
 
 				if (reply != LoginReply.Ok)
 				{
 					EODialog.Show(m_packetAPI.LoginResponseMessage());
 					return;
 				}
+				World.Instance.MainPlayer.SetAccountName(loginUsernameTextbox.Text);
+				World.Instance.MainPlayer.ProcessCharacterData(dataArray);
 
 				doStateChange(GameStates.LoggedIn);
 			}
