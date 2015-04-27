@@ -184,13 +184,15 @@ namespace EndlessClient
 						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.DropItems, m_inventory.amount);
 						dlg.DialogClosing += (sender, args) =>
 						{
-							if (args.Result == XNADialogResult.OK && !Handlers.Chest.AddItem(m_inventory.id, dlg.SelectedAmount))
+							if (args.Result == XNADialogResult.OK &&
+							    !m_api.ChestAddItem(EOChestDialog.Instance.CurrentChestX, EOChestDialog.Instance.CurrentChestY,
+								    m_inventory.id, dlg.SelectedAmount))
 								EOGame.Instance.LostConnectionDialog();
 						};
 					}
 					else
 					{
-						if(!Handlers.Chest.AddItem(m_inventory.id, 1))
+						if (!m_api.ChestAddItem(EOChestDialog.Instance.CurrentChestX, EOChestDialog.Instance.CurrentChestY, m_inventory.id, 1))
 							EOGame.Instance.LostConnectionDialog();
 					}
 				}

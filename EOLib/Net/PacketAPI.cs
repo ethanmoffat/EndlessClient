@@ -25,7 +25,9 @@ namespace EOLib.Net
 			_createAttackMembers();
 			_createAvatarMembers();
 			_createCharacterMembers();
+			_createChestMembers();
 			_createConnectionMembers();
+			_createDoorMembers();
 			_createInitMembers();
 			_createLoginMembers();
 			_createPaperdollMembers();

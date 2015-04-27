@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using EndlessClient.Handlers;
 using EOLib.Net;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
@@ -507,17 +506,40 @@ namespace EndlessClient
 							break;
 						case TileInfo.ReturnType.IsWarpSpec:
 							if (NoWall) goto case TileInfo.ReturnType.IsTileSpec;
-							if (info.Warp.door != 0)
+							if (info.Warp.door != DoorSpec.NoDoor)
 							{
+								DoorSpec doorOpened;
 								if (!info.Warp.doorOpened && !info.Warp.backOff)
 								{
-									Door.DoorOpen(destX, destY); //just do it...no checking yet, really
-									info.Warp.backOff = true; //set flag to prevent hella door packets from the client
+									if ((doorOpened = Character.CanOpenDoor(info.Warp)) == DoorSpec.Door)
+										World.Instance.ActiveMapRenderer.StartOpenDoor(info.Warp, destX, destY);
 								}
 								else
 								{
 									//normal walking
-									_chkWalk(TileSpec.None, direction, destX, destY);
+									if ((doorOpened = Character.CanOpenDoor(info.Warp)) == DoorSpec.Door)
+										_chkWalk(TileSpec.None, direction, destX, destY);
+								}
+
+								if (doorOpened != DoorSpec.Door)
+								{
+									string strWhichKey = "[error key?]";
+									switch (doorOpened)
+									{
+										case DoorSpec.LockedCrystal:
+											strWhichKey = "Crystal Key";
+											break;
+										case DoorSpec.LockedSilver:
+											strWhichKey = "Silver Key";
+											break;
+										case DoorSpec.LockedWraith:
+											strWhichKey = "Wraith Key";
+											break;
+									}
+
+									EODialog.Show(DATCONST1.DOOR_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+									((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
+										" - " + strWhichKey);
 								}
 							}
 							else if (info.Warp.levelRequirement != 0 && Character.Stats.level < info.Warp.levelRequirement)
@@ -576,8 +598,25 @@ namespace EndlessClient
 					if (!walkValid)
 					{
 						MapChest chest = World.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.x == destX && _c.y == destY);
-						if(chest.x == destX && chest.y == destY)
-							EOChestDialog.Show(chest.x, chest.y);
+						string requiredKey = null;
+						switch (Character.CanOpenChest(chest))
+						{
+							case ChestKey.Normal: requiredKey = "Normal Key"; break;
+							case ChestKey.Silver: requiredKey = "Silver Key"; break;
+							case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
+							case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
+							default:
+								if (chest != null)
+									EOChestDialog.Show(((EOGame)Game).API, chest.x, chest.y);
+								break;
+						}
+
+						if (requiredKey != null)
+						{
+							EODialog.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+							((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
+								" - " + requiredKey);
+						}
 					}
 					break;
 				case TileSpec.BankVault:

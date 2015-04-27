@@ -64,6 +64,24 @@ namespace EOLib
 		Quake = 3
 	}
 
+	public enum DoorSpec : short
+	{
+		NoDoor,
+		Door,
+		LockedSilver,
+		LockedCrystal,
+		LockedWraith
+	}
+
+	public enum ChestKey : short
+	{
+		None,
+		Normal,
+		Silver,
+		Crystal,
+		Wraith
+	}
+
 	public class NPCSpawn
 	{
 		public byte x;
@@ -81,25 +99,13 @@ namespace EOLib
 	{
 		public byte x;
 		public byte y;
-		public short key;
+		public ChestKey key;
 		public byte slot;
 		public short item;
 		public short time;
 		public int amount;
 	}
 
-	public class MapItemComparer : IEqualityComparer<MapItem>
-	{
-		public bool Equals(MapItem mi1, MapItem mi2)
-		{
-			return mi1.uid == mi2.uid;
-		}
-
-		public int GetHashCode(MapItem mi)
-		{
-			return mi.uid;
-		}
-	}
 	public struct MapItem
 	{
 		public short uid;
@@ -131,7 +137,7 @@ namespace EOLib
 		public byte warpX;
 		public byte warpY;
 		public byte levelRequirement;
-		public short door;
+		public DoorSpec door;
 		public bool doorOpened;
 		public bool backOff; //used in code only: determines whether a door packet was recently sent for this particular door (only valid for doors)
 	}
@@ -210,8 +216,8 @@ namespace EOLib
 		public byte RelogY { get; private set; }
 		private byte Unknown2 { get; set; }
 
-		public List<NPCSpawn> NPCSpawns { get; set; }
-		public List<byte[]> Unknowns { get; set; }
+		public List<NPCSpawn> NPCSpawns { get; private set; }
+		private List<byte[]> Unknowns { get; set; }
 
 		public List<MapChest> Chests { get; private set; }
 		public List<TileRow> TileRows { get; private set; }
@@ -281,12 +287,6 @@ namespace EOLib
 			return chars;
 		}
 
-		public MapFile(int id)
-		{
-			MapID = id;
-			Load(string.Format("maps\\{0,5:D5}.emf", MapID));
-		}
-
 		public MapFile(string fileName)
 		{
 			string id = fileName.Substring(fileName.LastIndexOf('\\') + 1, 5);
@@ -306,7 +306,7 @@ namespace EOLib
 			GfxRows = new List<GFXRow>[(int)MapLayers.NUM_LAYERS];
 			Signs = new List<MapSign>();
 
-			for (int layer = 0; layer < (int)MapLayers.NUM_LAYERS; ++layer)
+			for (int layer = (int)MapLayers.GroundTile; layer < (int)MapLayers.NUM_LAYERS; ++layer)
 			{
 				GfxRows[layer] = new List<GFXRow>();
 			}
@@ -373,7 +373,7 @@ namespace EOLib
 				{
 					x = file.GetChar(),
 					y = file.GetChar(),
-					key = file.GetShort(),
+					key = (ChestKey)file.GetShort(),
 					slot = file.GetChar(),
 					item = file.GetShort(),
 					time = file.GetShort(),
@@ -427,7 +427,7 @@ namespace EOLib
 						warpX = file.GetChar(),
 						warpY = file.GetChar(),
 						levelRequirement = file.GetChar(),
-						door = file.GetShort()
+						door = (DoorSpec)file.GetShort()
 					});
 
 					if (row.y <= Height && w.x <= Width)
@@ -452,6 +452,9 @@ namespace EOLib
 
 			for (int layer = 0; layer < (int)MapLayers.NUM_LAYERS; ++layer)
 			{
+				if (file.ReadPos == file.Length)
+					break;
+
 				outersize = file.GetChar();
 				GfxRows[layer] = new List<GFXRow>(outersize);
 
@@ -476,6 +479,9 @@ namespace EOLib
 					GfxRows[layer].Add(row);
 				}
 			}
+
+			if (file.ReadPos == file.Length)
+				return;
 
 			outersize = file.GetChar();
 
@@ -544,7 +550,7 @@ namespace EOLib
 			{
 				file.AddChar(chest.x);
 				file.AddChar(chest.y);
-				file.AddShort(chest.key);
+				file.AddShort((short)chest.key);
 				file.AddChar(chest.slot);
 				file.AddShort(chest.item);
 				file.AddShort(chest.time);
@@ -577,7 +583,7 @@ namespace EOLib
 					file.AddChar(ww.warpX);
 					file.AddChar(ww.warpY);
 					file.AddChar(ww.levelRequirement);
-					file.AddShort(ww.door);
+					file.AddShort((short)ww.door);
 				}
 			}
 

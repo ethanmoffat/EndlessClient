@@ -1802,15 +1802,15 @@ namespace EndlessClient
 	{
 		public static EOChestDialog Instance { get; private set; }
 
-		public static void Show(byte chestX, byte chestY)
+		public static void Show(PacketAPI apiHandle, byte chestX, byte chestY)
 		{
 			if (Instance != null)
 				return;
 
-			Instance = new EOChestDialog(chestX, chestY);
+			Instance = new EOChestDialog(apiHandle, chestX, chestY);
 			Instance.DialogClosing += (o, e) => Instance = null;
 
-			if (!Chest.ChestOpen(chestX, chestY))
+			if (!apiHandle.ChestOpen(chestX, chestY))
 			{
 				Instance.Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 				EOGame.Instance.LostConnectionDialog();
@@ -1822,7 +1822,8 @@ namespace EndlessClient
 
 		private EODialogListItem[] m_items;
 
-		private EOChestDialog(byte chestX, byte chestY)
+		private EOChestDialog(PacketAPI api, byte chestX, byte chestY)
+			: base(api)
 		{
 			CurrentChestX = chestX;
 			CurrentChestY = chestY;
@@ -1843,7 +1844,7 @@ namespace EndlessClient
 				World.GetString(DATCONST2.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
 		}
 
-		public void InitializeItems(List<Tuple<short, int>> initialItems)
+		public void InitializeItems(IList<Tuple<short, int>> initialItems)
 		{
 			if(m_items == null)
 				m_items = new EODialogListItem[5];
@@ -1861,9 +1862,9 @@ namespace EndlessClient
 					}
 
 					ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.Item1);
-					string secondary = rec.Type == ItemType.Armor
+					string secondary = string.Format("x {0}  {1}", item.Item2, rec.Type == ItemType.Armor
 						? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")"
-						: "";
+						: "");
 
 					m_items[i] = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, rec.Name, secondary, GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true), i)
 					{
@@ -1889,7 +1890,7 @@ namespace EndlessClient
 						}
 						else
 						{
-							if (!Chest.ChestTake(CurrentChestX, CurrentChestY, sender.ID))
+							if (!m_api.ChestTakeItem(CurrentChestX, CurrentChestY, sender.ID))
 							{
 								Close();
 								EOGame.Instance.LostConnectionDialog();

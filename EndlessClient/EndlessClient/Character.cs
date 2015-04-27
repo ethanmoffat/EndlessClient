@@ -278,7 +278,7 @@ namespace EndlessClient
 			throw new ArgumentOutOfRangeException("num", num, "Karma values must be between 0-2000");
 		}
 
-		private PacketAPI m_packetAPI;
+		private readonly PacketAPI m_packetAPI;
 
 		public Character(PacketAPI api, int id, CharRenderData data)
 		{
@@ -702,6 +702,74 @@ namespace EndlessClient
 			Stats.SetAccuracy(data.Accuracy);
 			Stats.SetEvade(data.Evade);
 			Stats.SetArmor(data.Armor);
+		}
+
+		/// <summary>
+		/// Gets the permission of the current character to open the specified door
+		/// </summary>
+		/// <param name="warp">The Warp containing the door to check</param>
+		/// <returns>Returns DoorSpec.Door if this character may open the door. Otherwise, returns the type of door restricting access</returns>
+		public DoorSpec CanOpenDoor(Warp warp)
+		{
+			DoorSpec permission = warp.door;
+
+			ItemRecord rec;
+			switch (warp.door) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
+			{
+				case DoorSpec.LockedCrystal:
+					rec = (ItemRecord) World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord) _rec).Name.ToLower() == "crystal key");
+					break;
+				case DoorSpec.LockedSilver:
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "silver key");
+					break;
+				case DoorSpec.LockedWraith:
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "wraith key");
+					break;
+				default:
+					return permission;
+			}
+
+			if(rec != null && Inventory.FindIndex(_ii => _ii.id == rec.ID) >= 0)
+				permission = DoorSpec.Door;
+			else if (rec == null) //show a warning saying that this door is perma-locked. Non-standard pub files will cause this.
+				EODialog.Show(
+					string.Format("Unable to find key for {0} in EIF. This door will never be opened!",
+						Enum.GetName(typeof (DoorSpec), permission)), "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+
+			return permission;
+		}
+
+		public ChestKey CanOpenChest(MapChest chest)
+		{
+			ChestKey permission = chest.key;
+
+			ItemRecord rec;
+			switch (permission) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
+			{
+				case ChestKey.Normal:
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "normal key");
+					break;
+				case ChestKey.Crystal:
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "crystal key");
+					break;
+				case ChestKey.Silver:
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "silver key");
+					break;
+				case ChestKey.Wraith:
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "wraith key");
+					break;
+				default:
+					return permission;
+			}
+
+			if (rec != null && Inventory.FindIndex(_ii => _ii.id == rec.ID) >= 0)
+				permission = ChestKey.None;
+			else if (rec == null) //show a warning saying that this chest is perma-locked. Non-standard pub files will cause this.
+				EODialog.Show(
+					string.Format("Unable to find key for {0} in EIF. This chest will never be opened!",
+						Enum.GetName(typeof(ChestKey), permission)), "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+
+			return permission;
 		}
 	}
 }

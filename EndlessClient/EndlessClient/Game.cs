@@ -89,6 +89,7 @@ namespace EndlessClient
 		string host;
 		int port;
 		private PacketAPI m_packetAPI;
+		public PacketAPI API { get { return m_packetAPI; } }
 
 #if DEBUG //don't do FPS render on release builds
 		private TimeSpan? lastFPSRender;
@@ -131,96 +132,7 @@ namespace EndlessClient
 
 						//set up event packet handling event bindings: 
 						//	some events are triggered by the server regardless of action by the client
-						m_packetAPI.OnWarpRequestNewMap += World.Instance.CheckMap;
-						m_packetAPI.OnWarpAgree += World.Instance.WarpAgreeAction;
-						m_packetAPI.OnPlayerEnterMap += (_data, _anim) => World.Instance.ActiveMapRenderer.AddOtherPlayer(_data, _anim);
-						m_packetAPI.OnNPCEnterMap += _data => World.Instance.ActiveMapRenderer.AddOtherNPC(_data);
-						m_packetAPI.OnMainPlayerWalk +=
-							_list => { foreach (var item in _list) World.Instance.ActiveMapRenderer.AddMapItem(item); };
-						m_packetAPI.OnOtherPlayerWalk += (a, b, c, d) => World.Instance.ActiveMapRenderer.OtherPlayerWalk(a, b, c, d);
-						m_packetAPI.OnAdminHiddenChange += (id, hidden) =>
-						{
-							if (World.Instance.MainPlayer.ActiveCharacter.ID == id)
-								World.Instance.MainPlayer.ActiveCharacter.RenderData.SetHidden(hidden);
-							else
-								World.Instance.ActiveMapRenderer.OtherPlayerHide(id, hidden);
-						};
-						m_packetAPI.OnOtherPlayerAttack += (id, dir) => World.Instance.ActiveMapRenderer.OtherPlayerAttack(id, dir);
-						m_packetAPI.OnPlayerAvatarRemove += (id, anim) => World.Instance.ActiveMapRenderer.RemoveOtherPlayer(id, anim);
-						m_packetAPI.OnPlayerAvatarChange += _data =>
-						{
-							switch (_data.Slot)
-							{
-								case AvatarSlot.Clothes:
-									World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.Sound, new CharRenderData
-									{
-										boots = _data.Boots,
-										armor = _data.Armor,
-										hat = _data.Hat,
-										shield = _data.Shield,
-										weapon = _data.Weapon
-									});
-									break;
-								case AvatarSlot.Hair:
-									World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.HairColor, _data.HairStyle);
-									break;
-								case AvatarSlot.HairColor:
-									World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.HairColor);
-									break;
-							}
-						};
-						m_packetAPI.OnPlayerPaperdollChange += _data =>
-						{
-							Character c;
-							if (!_data.ItemWasUnequipped)
-							{
-								ItemRecord rec = World.Instance.EIF.GetItemRecordByID(_data.ItemID);
-								//update inventory
-								(c = World.Instance.MainPlayer.ActiveCharacter).UpdateInventoryItem(_data.ItemID, _data.ItemAmount);
-								//equip item
-								c.EquipItem(rec.Type, (short) rec.ID, (short) rec.DollGraphic, true, (sbyte) _data.SubLoc);
-								//add to paperdoll dialog
-								if (EOPaperdollDialog.Instance != null)
-									EOPaperdollDialog.Instance.SetItem(rec.GetEquipLocation() + _data.SubLoc, rec);
-							}
-							else
-							{
-								c = World.Instance.MainPlayer.ActiveCharacter;
-								//update inventory
-								c.UpdateInventoryItem(_data.ItemID, 1, true); //true: add to existing quantity
-								//unequip item
-								c.UnequipItem(World.Instance.EIF.GetItemRecordByID(_data.ItemID).Type, _data.SubLoc);
-							}
-							c.UpdateStatsAfterEquip(_data);
-						};
-						m_packetAPI.OnViewPaperdoll += _data =>
-						{
-							if (EOPaperdollDialog.Instance != null) return;
-
-							Character c;
-							if (World.Instance.MainPlayer.ActiveCharacter.ID == _data.PlayerID)
-							{
-								//paperdoll requested for main player, all info should be up to date
-								c = World.Instance.MainPlayer.ActiveCharacter;
-								Array.Copy(_data.Paperdoll.ToArray(), c.PaperDoll, (int) EquipLocation.PAPERDOLL_MAX);
-							}
-							else
-							{
-								if ((c = World.Instance.ActiveMapRenderer.GetOtherPlayer(_data.PlayerID)) != null)
-								{
-									c.Class = _data.Class;
-									c.RenderData.SetGender(_data.Gender);
-									c.Title = _data.Title;
-									c.GuildName = _data.Guild;
-									Array.Copy(_data.Paperdoll.ToArray(), c.PaperDoll, (int) EquipLocation.PAPERDOLL_MAX);
-								}
-							}
-
-							if (c != null)
-							{
-								EOPaperdollDialog.Show(m_packetAPI, c, _data);
-							}
-						};
+						_setupPacketAPIEventHandlers();
 
 						((EOClient) World.Instance.Client).EventDisconnect += () => m_packetAPI.Disconnect();
 
@@ -422,6 +334,121 @@ namespace EndlessClient
 		{
 			currentPersonOne = gen.Next(4);
 			currentPersonTwo = gen.Next(8);
+		}
+
+		private void _setupPacketAPIEventHandlers()
+		{
+			m_packetAPI.OnWarpRequestNewMap += World.Instance.CheckMap;
+			m_packetAPI.OnWarpAgree += World.Instance.WarpAgreeAction;
+			m_packetAPI.OnPlayerEnterMap += (_data, _anim) => World.Instance.ActiveMapRenderer.AddOtherPlayer(_data, _anim);
+			m_packetAPI.OnNPCEnterMap += _data => World.Instance.ActiveMapRenderer.AddOtherNPC(_data);
+			m_packetAPI.OnMainPlayerWalk +=
+				_list => { foreach (var item in _list) World.Instance.ActiveMapRenderer.AddMapItem(item); };
+			m_packetAPI.OnOtherPlayerWalk += (a, b, c, d) => World.Instance.ActiveMapRenderer.OtherPlayerWalk(a, b, c, d);
+			m_packetAPI.OnAdminHiddenChange += (id, hidden) =>
+			{
+				if (World.Instance.MainPlayer.ActiveCharacter.ID == id)
+					World.Instance.MainPlayer.ActiveCharacter.RenderData.SetHidden(hidden);
+				else
+					World.Instance.ActiveMapRenderer.OtherPlayerHide(id, hidden);
+			};
+			m_packetAPI.OnOtherPlayerAttack += (id, dir) => World.Instance.ActiveMapRenderer.OtherPlayerAttack(id, dir);
+			m_packetAPI.OnPlayerAvatarRemove += (id, anim) => World.Instance.ActiveMapRenderer.RemoveOtherPlayer(id, anim);
+			m_packetAPI.OnPlayerAvatarChange += _data =>
+			{
+				switch (_data.Slot)
+				{
+					case AvatarSlot.Clothes:
+						World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.Sound, new CharRenderData
+						{
+							boots = _data.Boots,
+							armor = _data.Armor,
+							hat = _data.Hat,
+							shield = _data.Shield,
+							weapon = _data.Weapon
+						});
+						break;
+					case AvatarSlot.Hair:
+						World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.HairColor, _data.HairStyle);
+						break;
+					case AvatarSlot.HairColor:
+						World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.HairColor);
+						break;
+				}
+			};
+			m_packetAPI.OnPlayerPaperdollChange += _data =>
+			{
+				Character c;
+				if (!_data.ItemWasUnequipped)
+				{
+					ItemRecord rec = World.Instance.EIF.GetItemRecordByID(_data.ItemID);
+					//update inventory
+					(c = World.Instance.MainPlayer.ActiveCharacter).UpdateInventoryItem(_data.ItemID, _data.ItemAmount);
+					//equip item
+					c.EquipItem(rec.Type, (short)rec.ID, (short)rec.DollGraphic, true, (sbyte)_data.SubLoc);
+					//add to paperdoll dialog
+					if (EOPaperdollDialog.Instance != null)
+						EOPaperdollDialog.Instance.SetItem(rec.GetEquipLocation() + _data.SubLoc, rec);
+				}
+				else
+				{
+					c = World.Instance.MainPlayer.ActiveCharacter;
+					//update inventory
+					c.UpdateInventoryItem(_data.ItemID, 1, true); //true: add to existing quantity
+					//unequip item
+					c.UnequipItem(World.Instance.EIF.GetItemRecordByID(_data.ItemID).Type, _data.SubLoc);
+				}
+				c.UpdateStatsAfterEquip(_data);
+			};
+			m_packetAPI.OnViewPaperdoll += _data =>
+			{
+				if (EOPaperdollDialog.Instance != null) return;
+
+				Character c;
+				if (World.Instance.MainPlayer.ActiveCharacter.ID == _data.PlayerID)
+				{
+					//paperdoll requested for main player, all info should be up to date
+					c = World.Instance.MainPlayer.ActiveCharacter;
+					Array.Copy(_data.Paperdoll.ToArray(), c.PaperDoll, (int)EquipLocation.PAPERDOLL_MAX);
+				}
+				else
+				{
+					if ((c = World.Instance.ActiveMapRenderer.GetOtherPlayer(_data.PlayerID)) != null)
+					{
+						c.Class = _data.Class;
+						c.RenderData.SetGender(_data.Gender);
+						c.Title = _data.Title;
+						c.GuildName = _data.Guild;
+						Array.Copy(_data.Paperdoll.ToArray(), c.PaperDoll, (int)EquipLocation.PAPERDOLL_MAX);
+					}
+				}
+
+				if (c != null)
+				{
+					EOPaperdollDialog.Show(m_packetAPI, c, _data);
+				}
+			};
+			m_packetAPI.OnDoorOpen += (x, y) => World.Instance.ActiveMapRenderer.OnDoorOpened(x, y);
+			m_packetAPI.OnChestOpened += data =>
+			{
+				if (EOChestDialog.Instance == null || data.X != EOChestDialog.Instance.CurrentChestX || data.Y != EOChestDialog.Instance.CurrentChestY)
+					return;
+
+				EOChestDialog.Instance.InitializeItems(data.Items);
+			};
+			m_packetAPI.OnChestAgree += data => EOChestDialog.Instance.InitializeItems(data.Items);
+			m_packetAPI.OnChestAddItem += (id, amount, weight, maxWeight, data) =>
+			{
+				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight);
+				EOChestDialog.Instance.InitializeItems(data.Items);
+				Hud.RefreshStats();
+			};
+			m_packetAPI.OnChestGetItem += (id, amount, weight, maxWeight, data) =>
+			{
+				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight);
+				EOChestDialog.Instance.InitializeItems(data.Items);
+				Hud.RefreshStats();
+			};
 		}
 
 		//-----------------------------

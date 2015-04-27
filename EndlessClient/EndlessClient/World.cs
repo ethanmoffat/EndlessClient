@@ -503,11 +503,14 @@ namespace EndlessClient
 
 		public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<MapItem> items)
 		{
-			if (!_tryLoadMap(mapID))
-				throw new IOException("Something was wrong with the map file...");
-			
-			MainPlayer.ActiveCharacter.CurrentMap = mapID;
-			ActiveMapRenderer.SetActiveMap(ActiveMap);
+			if (mapID >= 0)
+			{
+				if (!_tryLoadMap(mapID))
+					throw new IOException("Something was wrong with the map file...");
+
+				MainPlayer.ActiveCharacter.CurrentMap = mapID;
+				ActiveMapRenderer.SetActiveMap(ActiveMap);
+			}
 
 			ActiveMapRenderer.ClearOtherPlayers();
 			ActiveMapRenderer.ClearOtherNPCs();
@@ -659,26 +662,6 @@ namespace EndlessClient
 				{
 					new FamilyActionPair(PacketFamily.Bank, PacketAction.Reply), 
 					new LockedHandlerMethod(Bank.BankReply, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Chest, PacketAction.Agree),
-					new LockedHandlerMethod(Chest.ChestAgreeResponse)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Chest, PacketAction.Get),
-					new LockedHandlerMethod(Chest.ChestGetResponse)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Chest, PacketAction.Open),
-					new LockedHandlerMethod(Chest.ChestOpenResponse)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Chest, PacketAction.Reply),
-					new LockedHandlerMethod(Chest.ChestReply)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Door, PacketAction.Open),
-					new LockedHandlerMethod(Door.DoorOpenResponse, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Effect, PacketAction.Player),

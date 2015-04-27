@@ -54,7 +54,9 @@
     <Compile Include="Net\Attack.cs" />
     <Compile Include="Net\Avatar.cs" />
     <Compile Include="Net\Character.cs" />
+    <Compile Include="Net\Chest.cs" />
     <Compile Include="Net\Connection.cs" />
+    <Compile Include="Net\Door.cs" />
     <Compile Include="Net\EOClient.cs" />
     <Compile Include="Net\Init.cs" />
     <Compile Include="Net\Login.cs" />

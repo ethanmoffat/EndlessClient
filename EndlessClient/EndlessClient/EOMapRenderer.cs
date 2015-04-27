@@ -941,7 +941,21 @@ namespace EndlessClient
 		#endregion
 
 		#region /* PUBLIC INTERFACE -- DOORS */
-		public void OpenDoor(byte x, short y)
+
+		/// <summary>
+		/// Sends the initial DOOR_OPEN packet to the server for a certain Warp. Sets the warpRef.backOff = true
+		/// </summary>
+		public void StartOpenDoor(Warp warpRef, byte x, byte y)
+		{
+			warpRef.backOff = true; //set flag to prevent hella door packets from the client
+			if(!m_api.DoorOpen(x, y))
+				((EOGame)Game).LostConnectionDialog();
+		}
+
+		/// <summary>
+		/// Handles the opening of the door (event handler for when the DOOR_OPEN packet is received)
+		/// </summary>
+		public void OnDoorOpened(byte x, byte y)
 		{
 			if (_door != null && _door.doorOpened)
 			{
@@ -949,21 +963,19 @@ namespace EndlessClient
 				_door.backOff = false;
 				_doorY = 0;
 			}
+			//todo: play door open sound
 
-			WarpRow row;
-			if ((row = MapRef.WarpRows.Find(wr => wr.y == y)).tiles.Count > 0)
+			if ((_door = MapRef.WarpLookup[y, x]) != null)
 			{
-				if ((_door = row.tiles.Find(w => w.x == x)) != null)
-				{
-					_door.doorOpened = true;
-					_doorY = (byte)y;
-					_doorTimer.Change(3000, 0);
-				}
+				_door.doorOpened = true;
+				_doorY = y;
+				_doorTimer.Change(3000, 0);
 			}
 		}
 
 		private void _doorTimerCallback(object state)
 		{
+			//todo: play door close sound
 			_door.doorOpened = false;
 			_door.backOff = false; //back-off from sending a door packet.
 			_doorY = 0;
@@ -1067,6 +1079,7 @@ namespace EndlessClient
 		{
 			//don't do the cursor if there is a dialog open or the mouse is over the context menu
 			if (EOPaperdollDialog.Instance != null || EOChestDialog.Instance != null ||
+				EOLockerDialog.Instance != null || EOBankAccountDialog.Instance != null ||
 				(m_contextMenu.Visible && m_contextMenu.MouseOver))
 				return;
 
@@ -1194,7 +1207,27 @@ namespace EndlessClient
 									_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
 									if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y)) //must be directly adjacent
 									{
-										EOChestDialog.Show((byte)gridX, (byte)gridY);
+										MapChest chest = MapRef.Chests.Find(_mc => _mc.x == gridX && _mc.y == gridY);
+										if (chest == null) break;
+
+										string requiredKey = null;
+										switch (World.Instance.MainPlayer.ActiveCharacter.CanOpenChest(chest))
+										{
+											case ChestKey.Normal: requiredKey = "Normal Key"; break;
+											case ChestKey.Silver: requiredKey = "Silver Key"; break;
+											case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
+											case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
+											default:
+												EOChestDialog.Show(m_api, chest.x, chest.y);
+												break;
+										}
+
+										if (requiredKey != null)
+										{
+											EODialog.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+											((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
+												" - " + requiredKey);
+										}
 									}
 									break;
 								case TileSpec.BankVault:
