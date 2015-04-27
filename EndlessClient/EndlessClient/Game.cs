@@ -449,6 +449,7 @@ namespace EndlessClient
 				EOChestDialog.Instance.InitializeItems(data.Items);
 				Hud.RefreshStats();
 			};
+			m_packetAPI.OnServerPingReply += timeout => Hud.AddChat(ChatTabs.Local, "System", string.Format("[x] Current ping to the server is: {0} ms.", timeout), ChatType.LookingDude);
 		}
 
 		//-----------------------------

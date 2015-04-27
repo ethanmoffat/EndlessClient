@@ -716,10 +716,6 @@ namespace EndlessClient
 					new LockedHandlerMethod(Locker.LockerReply, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Message, PacketAction.Pong), 
-					new LockedHandlerMethod(Message.Pong)
-				},
-				{
 					new FamilyActionPair(PacketFamily.NPC, PacketAction.Accept),
 					new LockedHandlerMethod(NPCPackets.NPCAccept, true)
 				},

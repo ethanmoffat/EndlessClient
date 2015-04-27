@@ -622,7 +622,7 @@ namespace EndlessClient
 					}
 					else if (args.Length == 1 && cmd == "ping")
 					{
-						Message.Ping();
+						m_packetAPI.PingServer();
 					}
 				}
 					break;

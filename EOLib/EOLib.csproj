@@ -60,6 +60,7 @@
     <Compile Include="Net\EOClient.cs" />
     <Compile Include="Net\Init.cs" />
     <Compile Include="Net\Login.cs" />
+    <Compile Include="Net\Message.cs" />
     <Compile Include="Net\NPC.cs" />
     <Compile Include="Net\PacketAPI.cs" />
     <Compile Include="Net\Paperdoll.cs" />
