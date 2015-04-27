@@ -468,6 +468,42 @@ namespace EndlessClient
 					string.Format("{0} " + lastPart, char.ToUpper(charName[0]) + charName.Substring(1)),
 					ChatType.LookingDude);
 			};
+			m_packetAPI.OnPlayerRecover += (hp, tp) =>
+			{
+				World.Instance.MainPlayer.ActiveCharacter.Stats.SetHP(hp);
+				World.Instance.MainPlayer.ActiveCharacter.Stats.SetTP(tp);
+				Hud.RefreshStats();
+			};
+			m_packetAPI.OnRecoverReply += (exp, karma, level) =>
+			{
+				World.Instance.MainPlayer.ActiveCharacter.Stats.exp = exp;
+				World.Instance.MainPlayer.ActiveCharacter.Stats.karma = karma;
+				if (level > 0)
+					World.Instance.MainPlayer.ActiveCharacter.Stats.level = level;
+				Hud.RefreshStats();
+			};
+			m_packetAPI.OnRecoverStatList += _data =>
+			{
+				CharStatData localStats = World.Instance.MainPlayer.ActiveCharacter.Stats;
+				World.Instance.MainPlayer.ActiveCharacter.Class = _data.Class;
+				localStats.SetStr(_data.Str);
+				localStats.SetInt(_data.Int);
+				localStats.SetWis(_data.Wis);
+				localStats.SetAgi(_data.Agi);
+				localStats.SetCon(_data.Con);
+				localStats.SetCha(_data.Cha);
+				localStats.SetMaxHP(_data.MaxHP);
+				localStats.SetMaxTP(_data.MaxTP);
+				localStats.SetMaxSP(_data.MaxSP);
+				World.Instance.MainPlayer.ActiveCharacter.MaxWeight = _data.MaxWeight;
+				localStats.SetMinDam(_data.MinDam);
+				localStats.SetMaxDam(_data.MaxDam);
+				localStats.SetAccuracy(_data.Accuracy);
+				localStats.SetEvade(_data.Evade);
+				localStats.SetArmor(_data.Armor);
+				Hud.RefreshStats();
+			};
+			m_packetAPI.OnPlayerHeal += (playerID, hpGain, playerPctHealth) => World.Instance.ActiveMapRenderer.OtherPlayerHeal(playerID, hpGain, playerPctHealth);
 		}
 
 		//-----------------------------

@@ -1,0 +1,99 @@
+﻿using System;
+
+namespace EOLib.Net
+{
+	public struct RecoverStatData
+	{
+		private readonly byte m_class, m_maxWeight;
+		private readonly short m_str, m_int, m_wis, m_agi, m_con, m_cha;
+		private readonly short m_hp, m_tp, m_sp;
+		private readonly short m_mindam, m_maxdam;
+		private readonly short m_accuracy, m_evade, m_armor;
+
+		public byte Class { get { return m_class; } }
+		public byte MaxWeight { get { return m_maxWeight; } }
+
+		public short Str { get { return m_str; } }
+		public short Int { get { return m_int; } }
+		public short Wis { get { return m_wis; } }
+		public short Agi { get { return m_agi; } }
+		public short Con { get { return m_con; } }
+		public short Cha { get { return m_cha; } }
+
+		public short MaxHP { get { return m_hp; } }
+		public short MaxTP { get { return m_tp; } }
+		public short MaxSP { get { return m_sp; } }
+
+		public short MinDam { get { return m_mindam; } }
+		public short MaxDam { get { return m_maxdam; } }
+
+		public short Accuracy { get { return m_accuracy; } }
+		public short Evade { get { return m_evade; } }
+		public short Armor { get { return m_armor; } }
+
+		internal RecoverStatData(Packet pkt)
+		{
+			m_class = (byte)pkt.GetShort();
+			m_str = pkt.GetShort();
+			m_int = pkt.GetShort();
+			m_wis = pkt.GetShort();
+			m_agi = pkt.GetShort();
+			m_con = pkt.GetShort();
+			m_cha = pkt.GetShort();
+			m_hp = pkt.GetShort();
+			m_tp = pkt.GetShort();
+			m_sp = pkt.GetShort();
+			m_maxWeight = (byte)pkt.GetShort();
+			m_mindam = pkt.GetShort();
+			m_maxdam = pkt.GetShort();
+			m_accuracy = pkt.GetShort();
+			m_evade = pkt.GetShort();
+			m_armor = pkt.GetShort();
+		}
+	}
+	partial class PacketAPI
+	{
+		public delegate void PlayerRecoverEvent(short HP, short TP);
+		public delegate void RecoverReplyEvent(int exp, short karma, byte level);
+		public delegate void PlayerHealEvent(short playerID, int healAmount, byte percentHealth);
+
+		public event PlayerRecoverEvent OnPlayerRecover;
+		public event RecoverReplyEvent OnRecoverReply;
+		public event PlayerHealEvent OnPlayerHeal;
+		public event Action<RecoverStatData> OnRecoverStatList;
+
+		private void _createRecoverMembers()
+		{
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Recover, PacketAction.Player), _handleRecoverPlayer, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Recover, PacketAction.Reply), _handleRecoverReply, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Recover, PacketAction.List), _handleRecoverList, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Recover, PacketAction.Agree), _handleRecoverAgree, true);
+		}
+
+		private void _handleRecoverPlayer(Packet pkt)
+		{
+			if (OnPlayerRecover != null)
+				OnPlayerRecover(pkt.GetShort(), pkt.GetShort()); //HP - TP
+		}
+
+		private void _handleRecoverReply(Packet pkt)
+		{
+			if (OnRecoverReply != null)
+				OnRecoverReply(pkt.GetInt(), pkt.GetShort(), pkt.GetChar()); //exp - karma - level
+		}
+
+		private void _handleRecoverList(Packet pkt)
+		{
+			//almost identical to STATSKILL_PLAYER packet
+			if (OnRecoverStatList != null)
+				OnRecoverStatList(new RecoverStatData(pkt));
+		}
+
+		private void _handleRecoverAgree(Packet pkt)
+		{
+			//when a heal item is used by another player
+			if (OnPlayerHeal != null)
+				OnPlayerHeal(pkt.GetShort(), pkt.GetInt(), pkt.GetChar()); //player id - hp gain - percent heal
+		}
+	}
+}

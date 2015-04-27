@@ -728,22 +728,6 @@ namespace EndlessClient
 					new LockedHandlerMethod(NPCPackets.NPCSpec, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Recover, PacketAction.Agree),
-					new LockedHandlerMethod(Recover.RecoverAgree, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Recover, PacketAction.List),
-					new LockedHandlerMethod(Recover.RecoverList, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Recover, PacketAction.Player),
-					new LockedHandlerMethod(Recover.RecoverPlayer, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Recover, PacketAction.Reply),
-					new LockedHandlerMethod(Recover.RecoverReply, true)
-				},
-				{
 					new FamilyActionPair(PacketFamily.Shop, PacketAction.Buy),
 					new LockedHandlerMethod(Shop.ShopBuy, true)
 				},

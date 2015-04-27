@@ -35,6 +35,7 @@ namespace EOLib.Net
 			_createPaperdollMembers();
 			_createPlayersMembers();
 			_createNPCMembers();
+			_createRecoverMembers();
 			_createRefreshMembers();
 			_createWalkMembers();
 			_createWarpMembers();
