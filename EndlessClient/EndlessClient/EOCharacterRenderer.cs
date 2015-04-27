@@ -900,7 +900,15 @@ namespace EndlessClient
 		{
 			bool flipped = (int)Data.facing > 1; //flipped if direction is Up or Right
 
-			GraphicsDevice.SetRenderTarget(_charRenderTarget);
+			try
+			{
+				GraphicsDevice.SetRenderTarget(_charRenderTarget);
+			}
+			catch (ObjectDisposedException)
+			{
+				return;
+			}
+
 			if(Data.hidden && (_char == World.Instance.MainPlayer.ActiveCharacter || _char.AdminLevel != AdminLevel.Player))
 				GraphicsDevice.Clear(ClearOptions.Target, Color.FromNonPremultiplied(255,255,255,100), 1, 0); //hidden players should blend nicely
 			else
