@@ -58,6 +58,7 @@
     <Compile Include="Net\Connection.cs" />
     <Compile Include="Net\Door.cs" />
     <Compile Include="Net\EOClient.cs" />
+    <Compile Include="Net\Face.cs" />
     <Compile Include="Net\Init.cs" />
     <Compile Include="Net\Login.cs" />
     <Compile Include="Net\Message.cs" />

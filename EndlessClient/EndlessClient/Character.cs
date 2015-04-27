@@ -582,7 +582,7 @@ namespace EndlessClient
 		public void Face(EODirection direction)
 		{
 			//send packet to server: update client side if send was successful
-			if(Handlers.Face.FacePlayer(direction))
+			if(m_packetAPI.FacePlayer(direction))
 				RenderData.SetDirection(direction); //updates the data in the character renderer as well
 			else
 				EOGame.Instance.LostConnectionDialog();

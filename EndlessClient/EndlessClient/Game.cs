@@ -450,6 +450,7 @@ namespace EndlessClient
 				Hud.RefreshStats();
 			};
 			m_packetAPI.OnServerPingReply += timeout => Hud.AddChat(ChatTabs.Local, "System", string.Format("[x] Current ping to the server is: {0} ms.", timeout), ChatType.LookingDude);
+			m_packetAPI.OnPlayerFace += (playerId, dir) => World.Instance.ActiveMapRenderer.OtherPlayerFace(playerId, dir);
 		}
 
 		//-----------------------------

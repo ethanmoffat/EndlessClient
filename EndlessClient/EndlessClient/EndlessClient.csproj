@@ -134,10 +134,8 @@
     <Compile Include="Handlers\Bank.cs" />
     <Compile Include="Handlers\Effect.cs" />
     <Compile Include="Handlers\Emote.cs" />
-    <Compile Include="Handlers\Face.cs" />
     <Compile Include="Handlers\Item.cs" />
     <Compile Include="Handlers\Locker.cs" />
-    <Compile Include="Handlers\Message.cs" />
     <Compile Include="Handlers\NPC.cs" />
     <Compile Include="Handlers\Players.cs" />
     <Compile Include="Handlers\Recover.cs" />

@@ -672,10 +672,6 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Emote.EmotePlayer, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Face, PacketAction.Player),
-					new LockedHandlerMethod(Face.FacePlayerResponse)
-				},
-				{
 					new FamilyActionPair(PacketFamily.Item, PacketAction.Add),
 					new LockedHandlerMethod(Item.ItemAddResponse, true)
 				},
