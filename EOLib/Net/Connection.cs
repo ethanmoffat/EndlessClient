@@ -27,5 +27,20 @@
 
 			return false;
 		}
+
+		private void _createConnectionMembers()
+		{
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Connection, PacketAction.Player), _handleConnectionPlayer, false);
+		}
+
+		private void _handleConnectionPlayer(Packet pkt)
+		{
+			short seq_1 = pkt.GetShort();
+			byte seq_2 = pkt.GetChar();
+			m_client.UpdateSequence(seq_1 - seq_2);
+
+			Packet reply = new Packet(PacketFamily.Connection, PacketAction.Ping);
+			m_client.SendPacket(reply);
+		}
 	}
 }

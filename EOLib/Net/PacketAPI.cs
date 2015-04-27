@@ -19,11 +19,13 @@ namespace EOLib.Net
 			}
 			m_client = client;
 
+			//each of these sets up members of the partial PacketAPI class relevant to a particular packet family
 			_createAccountMembers();
 			_createAdminInteractMembers();
 			_createAttackMembers();
 			_createAvatarMembers();
 			_createCharacterMembers();
+			_createConnectionMembers();
 			_createInitMembers();
 			_createLoginMembers();
 			_createPaperdollMembers();

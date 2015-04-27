@@ -39,10 +39,10 @@ namespace EndlessClient
 		}
 
 		//Gets a localized string based on the selected language
-		public static string GetString(DATCONST1 id)
-		{
-			return Instance.DataFiles[Instance.Localized1].Data[(int) id];
-		}
+		//public static string GetString(DATCONST1 id)
+		//{
+		//	return Instance.DataFiles[Instance.Localized1].Data[(int) id];
+		//}
 		public static string GetString(DATCONST2 id)
 		{
 			return Instance.DataFiles[Instance.Localized2].Data[(int)id];
@@ -50,10 +50,10 @@ namespace EndlessClient
 
 		private World() //private: don't allow construction of the world using 'new'
 		{
-			TryLoadItems();
-			TryLoadNPCs();
-			TryLoadSpells();
-			TryLoadClasses();
+			_tryLoadItems();
+			_tryLoadNPCs();
+			_tryLoadSpells();
+			_tryLoadClasses();
 			
 			//initial capacity of 32: most players won't travel between too many maps in a gaming session
 			MapCache = new Dictionary<int, MapFile>(32);
@@ -267,7 +267,7 @@ namespace EndlessClient
 			{
 				if (MapCache.Count == 0 || !MapCache.ContainsKey(MainPlayer.ActiveCharacter.CurrentMap))
 				{
-					return TryLoadMap(MainPlayer.ActiveCharacter.CurrentMap) ? MapCache[MainPlayer.ActiveCharacter.CurrentMap] : null;
+					return _tryLoadMap(MainPlayer.ActiveCharacter.CurrentMap) ? MapCache[MainPlayer.ActiveCharacter.CurrentMap] : null;
 				}
 				return MapCache[MainPlayer.ActiveCharacter.CurrentMap];
 			}
@@ -351,7 +351,7 @@ namespace EndlessClient
 		/*** Functions for loading/checking the different pub/map files ***/
 
 		//tries to load the map that MainPlayer.ActiveCharacter is hanging out on
-		public bool TryLoadMap(int mapID = -1)
+		private bool _tryLoadMap(int mapID = -1)
 		{
 			try
 			{
@@ -373,7 +373,7 @@ namespace EndlessClient
 			return true;
 		}
 
-		public bool TryLoadItems(string fileName = null)
+		private bool _tryLoadItems(string fileName = null)
 		{
 			try
 			{
@@ -388,7 +388,7 @@ namespace EndlessClient
 			return true;
 		}
 
-		public bool TryLoadNPCs(string fileName = null)
+		private bool _tryLoadNPCs(string fileName = null)
 		{
 			try
 			{
@@ -403,7 +403,7 @@ namespace EndlessClient
 			return true;
 		}
 
-		public bool TryLoadSpells(string fileName = null)
+		private bool _tryLoadSpells(string fileName = null)
 		{
 			try
 			{
@@ -418,7 +418,7 @@ namespace EndlessClient
 			return true;
 		}
 
-		public bool TryLoadClasses(string fileName = null)
+		private bool _tryLoadClasses(string fileName = null)
 		{
 			try
 			{
@@ -447,7 +447,7 @@ namespace EndlessClient
 
 			//try to load the map if it isn't cached. on failure, set needmap
 			if (!MapCache.ContainsKey(mapID))
-				NeedMap = TryLoadMap(mapID) ? -1 : mapID;
+				NeedMap = _tryLoadMap(mapID) ? -1 : mapID;
 
 			//on success of file load, check the rid and the size of the file
 			if (MapCache.ContainsKey(mapID))
@@ -468,7 +468,7 @@ namespace EndlessClient
 			return NeedMap == -1;
 		}
 
-		public void CheckPub(InitFileType file, int rid, short len)
+		private void _checkPub(InitFileType file, int rid, short len)
 		{
 			const string fName = "pub\\";
 			if (!Directory.Exists(fName))
@@ -477,22 +477,22 @@ namespace EndlessClient
 			switch (file)
 			{
 				case InitFileType.Item:
-					NeedEIF = !TryLoadItems();
+					NeedEIF = !_tryLoadItems();
 					if(EIF != null)
 						NeedEIF = rid != EIF.Rid || len != EIF.Len;
 					break;
 				case InitFileType.Npc:
-					NeedENF = !TryLoadNPCs();
+					NeedENF = !_tryLoadNPCs();
 					if (ENF != null)
 						NeedENF = rid != ENF.Rid || len != ENF.Len;
 					break;
 				case InitFileType.Spell:
-					NeedESF = !TryLoadSpells();
+					NeedESF = !_tryLoadSpells();
 					if (ESF != null)
 						NeedESF = rid != ESF.Rid || len != ESF.Len;
 					break;
 				case InitFileType.Class:
-					NeedECF = !TryLoadClasses();
+					NeedECF = !_tryLoadClasses();
 					if (ECF != null)
 						NeedECF = rid != ECF.Rid || len != ECF.Len;
 					break;
@@ -503,7 +503,7 @@ namespace EndlessClient
 
 		public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<MapItem> items)
 		{
-			if (!TryLoadMap(mapID))
+			if (!_tryLoadMap(mapID))
 				throw new IOException("Something was wrong with the map file...");
 			
 			MainPlayer.ActiveCharacter.CurrentMap = mapID;
@@ -536,10 +536,10 @@ namespace EndlessClient
 			MainPlayer.ActiveCharacter.MapIsPk = data.MapIsPK;
 
 			CheckMap(data.MapID, data.MapRID, data.MapLen);
-			CheckPub(InitFileType.Item, data.EifRid, data.EifLen);
-			CheckPub(InitFileType.Npc, data.EnfRid, data.EnfLen);
-			CheckPub(InitFileType.Spell, data.EsfRid, data.EsfLen);
-			CheckPub(InitFileType.Class, data.EcfRid, data.EcfLen);
+			_checkPub(InitFileType.Item, data.EifRid, data.EifLen);
+			_checkPub(InitFileType.Npc, data.EnfRid, data.EnfLen);
+			_checkPub(InitFileType.Spell, data.EsfRid, data.EsfLen);
+			_checkPub(InitFileType.Class, data.EcfRid, data.EcfLen);
 
 			MainPlayer.ActiveCharacter.Name = data.Name;
 			MainPlayer.ActiveCharacter.Title = data.Title;
@@ -654,39 +654,35 @@ namespace EndlessClient
 			{
 				{
 					new FamilyActionPair(PacketFamily.Bank, PacketAction.Open), 
-					new LockedHandlerMethod(Handlers.Bank.BankOpenReply, true)
+					new LockedHandlerMethod(Bank.BankOpenReply, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Bank, PacketAction.Reply), 
-					new LockedHandlerMethod(Handlers.Bank.BankReply, true)
+					new LockedHandlerMethod(Bank.BankReply, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Chest, PacketAction.Agree),
-					new LockedHandlerMethod(Handlers.Chest.ChestAgreeResponse)
+					new LockedHandlerMethod(Chest.ChestAgreeResponse)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Chest, PacketAction.Get),
-					new LockedHandlerMethod(Handlers.Chest.ChestGetResponse)
+					new LockedHandlerMethod(Chest.ChestGetResponse)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Chest, PacketAction.Open),
-					new LockedHandlerMethod(Handlers.Chest.ChestOpenResponse)
+					new LockedHandlerMethod(Chest.ChestOpenResponse)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Chest, PacketAction.Reply),
-					new LockedHandlerMethod(Handlers.Chest.ChestReply)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Connection, PacketAction.Player),
-					new LockedHandlerMethod(Handlers.Connection.PingResponse)
+					new LockedHandlerMethod(Chest.ChestReply)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Door, PacketAction.Open),
-					new LockedHandlerMethod(Handlers.Door.DoorOpenResponse, true)
+					new LockedHandlerMethod(Door.DoorOpenResponse, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Effect, PacketAction.Player),
-					new LockedHandlerMethod(Handlers.Effect.EffectPlayer, true)
+					new LockedHandlerMethod(Effect.EffectPlayer, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Emote, PacketAction.Player),
@@ -694,140 +690,140 @@ namespace EndlessClient
 				},
 				{
 					new FamilyActionPair(PacketFamily.Face, PacketAction.Player),
-					new LockedHandlerMethod(Handlers.Face.FacePlayerResponse)
+					new LockedHandlerMethod(Face.FacePlayerResponse)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Item, PacketAction.Add),
-					new LockedHandlerMethod(Handlers.Item.ItemAddResponse, true)
+					new LockedHandlerMethod(Item.ItemAddResponse, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Item, PacketAction.Drop),
-					new LockedHandlerMethod(Handlers.Item.ItemDropResponse, true)
+					new LockedHandlerMethod(Item.ItemDropResponse, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Item, PacketAction.Get),
-					new LockedHandlerMethod(Handlers.Item.ItemGetResponse, true)
+					new LockedHandlerMethod(Item.ItemGetResponse, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Item, PacketAction.Junk),
-					new LockedHandlerMethod(Handlers.Item.ItemJunkResponse, true)
+					new LockedHandlerMethod(Item.ItemJunkResponse, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Item, PacketAction.Remove),
-					new LockedHandlerMethod(Handlers.Item.ItemRemoveResponse, true)
+					new LockedHandlerMethod(Item.ItemRemoveResponse, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Item, PacketAction.Reply),
-					new LockedHandlerMethod(Handlers.Item.ItemReply, true)
+					new LockedHandlerMethod(Item.ItemReply, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Locker, PacketAction.Buy),
-					new LockedHandlerMethod(Handlers.Locker.LockerBuy, true)
+					new LockedHandlerMethod(Locker.LockerBuy, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Locker, PacketAction.Get),
-					new LockedHandlerMethod(Handlers.Locker.LockerGet, true)
+					new LockedHandlerMethod(Locker.LockerGet, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Locker, PacketAction.Open),
-					new LockedHandlerMethod(Handlers.Locker.LockerOpen, true)
+					new LockedHandlerMethod(Locker.LockerOpen, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Locker, PacketAction.Reply),
-					new LockedHandlerMethod(Handlers.Locker.LockerReply, true)
+					new LockedHandlerMethod(Locker.LockerReply, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Message, PacketAction.Pong), 
-					new LockedHandlerMethod(Handlers.Message.Pong)
+					new LockedHandlerMethod(Message.Pong)
 				},
 				{
 					new FamilyActionPair(PacketFamily.NPC, PacketAction.Accept),
-					new LockedHandlerMethod(Handlers.NPCPackets.NPCAccept, true)
+					new LockedHandlerMethod(NPCPackets.NPCAccept, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.NPC, PacketAction.Player),
-					new LockedHandlerMethod(Handlers.NPCPackets.NPCPlayer, true)
+					new LockedHandlerMethod(NPCPackets.NPCPlayer, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.NPC, PacketAction.Reply),
-					new LockedHandlerMethod(Handlers.NPCPackets.NPCReply, true)
+					new LockedHandlerMethod(NPCPackets.NPCReply, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.NPC, PacketAction.Spec),
-					new LockedHandlerMethod(Handlers.NPCPackets.NPCSpec, true)
+					new LockedHandlerMethod(NPCPackets.NPCSpec, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Players, PacketAction.Ping),
-					new LockedHandlerMethod(Handlers.Players.PlayersPing, true)
+					new LockedHandlerMethod(Players.PlayersPing, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Players, PacketAction.Pong),
-					new LockedHandlerMethod(Handlers.Players.PlayersPong, true)
+					new LockedHandlerMethod(Players.PlayersPong, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Players, PacketAction.Net3),
-					new LockedHandlerMethod(Handlers.Players.PlayersNet3, true)
+					new LockedHandlerMethod(Players.PlayersNet3, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Recover, PacketAction.Agree),
-					new LockedHandlerMethod(Handlers.Recover.RecoverAgree, true)
+					new LockedHandlerMethod(Recover.RecoverAgree, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Recover, PacketAction.List),
-					new LockedHandlerMethod(Handlers.Recover.RecoverList, true)
+					new LockedHandlerMethod(Recover.RecoverList, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Recover, PacketAction.Player),
-					new LockedHandlerMethod(Handlers.Recover.RecoverPlayer, true)
+					new LockedHandlerMethod(Recover.RecoverPlayer, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Recover, PacketAction.Reply),
-					new LockedHandlerMethod(Handlers.Recover.RecoverReply, true)
+					new LockedHandlerMethod(Recover.RecoverReply, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Shop, PacketAction.Buy),
-					new LockedHandlerMethod(Handlers.Shop.ShopBuy, true)
+					new LockedHandlerMethod(Shop.ShopBuy, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Shop, PacketAction.Create),
-					new LockedHandlerMethod(Handlers.Shop.ShopCreate, true)
+					new LockedHandlerMethod(Shop.ShopCreate, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Shop, PacketAction.Open),
-					new LockedHandlerMethod(Handlers.Shop.ShopOpen, true)
+					new LockedHandlerMethod(Shop.ShopOpen, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Shop, PacketAction.Sell),
-					new LockedHandlerMethod(Handlers.Shop.ShopSell, true)
+					new LockedHandlerMethod(Shop.ShopSell, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Player),
-					new LockedHandlerMethod(Handlers.StatSkill.StatSkillPlayer, true)
+					new LockedHandlerMethod(StatSkill.StatSkillPlayer, true)
 				},
 				//TALK PACKETS
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Message),
-					new LockedHandlerMethod(Handlers.Talk.TalkMessage, true)
+					new LockedHandlerMethod(Talk.TalkMessage, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Player),
-					new LockedHandlerMethod(Handlers.Talk.TalkPlayer, true)
+					new LockedHandlerMethod(Talk.TalkPlayer, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Reply),
-					new LockedHandlerMethod(Handlers.Talk.TalkReply, true)
+					new LockedHandlerMethod(Talk.TalkReply, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Request),
-					new LockedHandlerMethod(Handlers.Talk.TalkRequest, true)
+					new LockedHandlerMethod(Talk.TalkRequest, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Server),
-					new LockedHandlerMethod(Handlers.Talk.TalkServer, true)
+					new LockedHandlerMethod(Talk.TalkServer, true)
 				},
 				{
 					new FamilyActionPair(PacketFamily.Talk, PacketAction.Tell),
-					new LockedHandlerMethod(Handlers.Talk.TalkTell, true)
+					new LockedHandlerMethod(Talk.TalkTell, true)
 				},
 				//
 			};
