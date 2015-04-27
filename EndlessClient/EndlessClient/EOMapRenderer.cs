@@ -1619,7 +1619,7 @@ namespace EndlessClient
 			{
 				Vector2 loc = _getDrawCoordinates(kvp.Key.X, kvp.Key.Y, c);
 				loc = new Vector2(loc.X - kvp.Value.Width/2f + 30, loc.Y - kvp.Value.Height + 28);
-				sb.Draw(kvp.Value, loc, Color.White);
+				sb.Draw(kvp.Value, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(kvp.Key.X, kvp.Key.Y, c)));
 			}
 
 			try
