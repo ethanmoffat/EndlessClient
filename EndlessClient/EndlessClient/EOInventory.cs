@@ -131,6 +131,12 @@ namespace EndlessClient
 					{
 						EODialog.Show(DATCONST1.ITEM_IS_LORE_ITEM, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					}
+					else if (World.Instance.JailMap == World.Instance.MainPlayer.ActiveCharacter.CurrentMap)
+					{
+						EODialog.Show(World.GetString(DATCONST2.JAIL_WARNING_CANNOT_DROP_ITEMS),
+							World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+							XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					}
 					else if (m_inventory.amount > 1 && inRange)
 					{
 						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.DropItems,
@@ -141,12 +147,11 @@ namespace EndlessClient
 								Handlers.Item.DropItem(m_inventory.id, dlg.SelectedAmount, (byte)loc.X, (byte)loc.Y);
 						};
 					}
-					else if(inRange)
+					else if (inRange)
 					{
-						Handlers.Item.DropItem(m_inventory.id, 1, (byte)loc.X, (byte)loc.Y);
+						Handlers.Item.DropItem(m_inventory.id, 1, (byte) loc.X, (byte) loc.Y);
 					}
-
-					if (!inRange)
+					else /*if (!inRange)*/
 					{
 						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
 					}

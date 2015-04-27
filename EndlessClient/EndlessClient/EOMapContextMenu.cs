@@ -215,7 +215,13 @@ namespace EndlessClient
 		}
 		private void _eventTrade(object arg1, EventArgs arg2)
 		{
-			EODialog.Show("TODO: Start trade with this player", "TODO ITEM", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+			if (World.Instance.MainPlayer.ActiveCharacter.CurrentMap == World.Instance.JailMap)
+				EODialog.Show(World.GetString(DATCONST2.JAIL_WARNING_CANNOT_TRADE),
+					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+					XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+			else
+				EODialog.Show("TODO: Start trade with this player", "TODO ITEM", XNADialogButtons.Ok,
+					EODialogStyle.SmallDialogSmallHeader);
 		}
 		private void _eventPrivateMessage(object arg1, EventArgs arg2)
 		{

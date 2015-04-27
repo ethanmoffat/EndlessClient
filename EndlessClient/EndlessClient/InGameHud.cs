@@ -261,11 +261,22 @@ namespace EndlessClient
 			{
 				if (chatTextBox.Text.Length <= 0)
 				{
-					modeTextureLoaded = false;
-					modeTexture.Dispose();
-					modeTexture = null;
+					if (modeTextureLoaded && modeTexture != null)
+					{
+						modeTextureLoaded = false;
+						modeTexture.Dispose();
+						modeTexture = null;
 
-					currentChatMode = ChatMode.NoText;
+						currentChatMode = ChatMode.NoText;
+					}
+					return;
+				}
+
+				if (chatTextBox.Text.Length == 1 && chatTextBox.Text[0] == '~' &&
+				    World.Instance.MainPlayer.ActiveCharacter.CurrentMap == World.Instance.JailMap)
+				{
+					chatTextBox.Text = "";
+					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.JAIL_WARNING_CANNOT_USE_GLOBAL);
 					return;
 				}
 
