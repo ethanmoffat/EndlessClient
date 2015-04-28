@@ -504,6 +504,117 @@ namespace EndlessClient
 				Hud.RefreshStats();
 			};
 			m_packetAPI.OnPlayerHeal += (playerID, hpGain, playerPctHealth) => World.Instance.ActiveMapRenderer.OtherPlayerHeal(playerID, hpGain, playerPctHealth);
+			m_packetAPI.OnGetItemFromMap += (uid, id, amountTaken, weight, maxWeight) =>
+			{
+				if (uid != 0) //$si command has uid of 0 since we're creating a new item from nothing
+				{
+					World.Instance.ActiveMapRenderer.UpdateMapItemAmount(uid, amountTaken);
+				}
+
+				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);
+
+				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(id);
+				Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP), amountTaken, rec.Name), ChatType.UpArrow);
+				Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP, string.Format(" {0} {1}", amountTaken, rec.Name));
+			};
+			m_packetAPI.OnRemoveItemFromMap += uid => World.Instance.ActiveMapRenderer.RemoveMapItem(uid);
+			m_packetAPI.OnJunkItem += (id, amountRemoved, amountRemaining, weight, maxWeight) =>
+			{
+				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
+
+				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(id);
+				Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED), amountRemoved, rec.Name), ChatType.DownArrow);
+				Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED, string.Format(" {0} {1}", amountRemoved, rec.Name));
+			};
+			m_packetAPI.OnDropItem += (characterAmount, weight, maxWeight, item) =>
+			{
+				World.Instance.ActiveMapRenderer.AddMapItem(item);
+				if (characterAmount >= 0) //will be -1 when another player drops
+				{
+					World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(item.id, characterAmount, weight, maxWeight);
+
+					ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+					Hud.AddChat(ChatTabs.System, "",
+						string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), item.amount, rec.Name),
+						ChatType.DownArrow);
+					Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED,
+						string.Format(" {0} {1}", item.amount, rec.Name));
+				}
+			};
+			m_packetAPI.OnUseItem += data =>
+			{
+				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(data.ItemID, data.CharacterAmount, data.Weight, data.MaxWeight);
+				switch (data.Type)
+				{
+					case ItemType.Teleport: /*Warp packet handles the rest!*/ break;
+					case ItemType.Heal:
+						{
+							World.Instance.MainPlayer.ActiveCharacter.Stats.SetHP(data.HP);
+							World.Instance.MainPlayer.ActiveCharacter.Stats.SetTP(data.TP);
+
+							int percent = (int)Math.Round(100.0 * ((double)data.HP / World.Instance.MainPlayer.ActiveCharacter.Stats.maxhp));
+
+							if (data.HPGain > 0)
+								World.Instance.ActiveCharacterRenderer.SetDamageCounterValue(data.HPGain, percent, true);
+							Hud.RefreshStats();
+						}
+						break;
+					case ItemType.HairDye:
+						{
+							World.Instance.MainPlayer.ActiveCharacter.RenderData.SetHairColor(data.HairColor);
+						}
+						break;
+					case ItemType.Beer:
+						World.Instance.ActiveCharacterRenderer.MakeDrunk();
+						Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_ITEM_USE_DRUNK);
+						break;
+					case ItemType.EffectPotion:
+						{
+							//World.Instance.ActiveCharacterRenderer.ShowEffect(data.EffectID);
+							//todo: get effects working
+						}
+						break;
+					case ItemType.CureCurse:
+					{
+						//actually remove the item(s) from the main character
+						Character c = World.Instance.MainPlayer.ActiveCharacter;
+						for (int i = 0; i < (int) EquipLocation.PAPERDOLL_MAX; ++i)
+						{
+							int nextID = c.PaperDoll[i];
+							if (nextID > 0 && World.Instance.EIF.GetItemRecordByID(nextID).Special == ItemSpecial.Cursed)
+							{
+								c.PaperDoll[i] = 0;
+								switch ((EquipLocation) i)
+								{
+									case EquipLocation.Boots: c.RenderData.SetBoots(0); break;
+									case EquipLocation.Armor: c.RenderData.SetArmor(0); break;
+									case EquipLocation.Hat: c.RenderData.SetHat(0); break;
+									case EquipLocation.Shield: c.RenderData.SetShield(0); break;
+									case EquipLocation.Weapon: c.RenderData.SetWeapon(0); break;
+								}
+							}
+						}
+
+						//update main character's stats
+						CharStatData s = c.Stats;
+						s.SetMaxHP(data.Stats.MaxHP);
+						s.SetMaxTP(data.Stats.MaxTP);
+						s.SetStr(data.Stats.Str);
+						s.SetInt(data.Stats.Int);
+						s.SetWis(data.Stats.Wis);
+						s.SetAgi(data.Stats.Agi);
+						s.SetCon(data.Stats.Con);
+						s.SetCha(data.Stats.Cha);
+						s.SetMinDam(data.Stats.MinDam);
+						s.SetMaxDam(data.Stats.MaxDam);
+						s.SetAccuracy(data.Stats.Accuracy);
+						s.SetEvade(data.Stats.Evade);
+						s.SetArmor(data.Stats.Armor);
+						Hud.RefreshStats();
+					}
+						break;
+				}
+			};
 		}
 
 		//-----------------------------

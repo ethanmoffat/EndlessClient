@@ -76,6 +76,7 @@ namespace EOLib
 
 		public const int NPCDropProtectionSeconds = 30;
 		public const int PlayerDropProtectionSeconds = 5;
+		public const int LockerMaxSingleItemAmount = 200;
 
 		public const string LogFilePath = "log/debug.log";
 		public const string LogFileFmt  = "log/{0}-debug.log";

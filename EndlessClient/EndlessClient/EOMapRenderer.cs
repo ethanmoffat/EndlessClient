@@ -1298,7 +1298,7 @@ namespace EndlessClient
 
 					if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
 					{
-						if (World.Instance.MainPlayer.ActiveCharacter.ID != mi.playerID &&
+						if ((World.Instance.MainPlayer.ActiveCharacter.ID != mi.playerID && mi.playerID != 0) &&
 							(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) ||
 							(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
 						{
@@ -1319,7 +1319,7 @@ namespace EndlessClient
 							{
 								EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
 							}
-							else if (!Item.GetItem(mi.uid)) //server validates anyway
+							else if (!m_api.GetItem(mi.uid)) //server validates anyway
 								EOGame.Instance.LostConnectionDialog();
 						}
 					}

@@ -77,16 +77,18 @@
 		WARNING_KEEP_PASSWORD_SAFE = 92,
 		TRADE_DO_YOU_AGREE = 94,
 		TRADE_ABORTED_OFFER_CHANGED = 96,
-		SHOP_BUY_ITEM_SOLD_OUT = 98,
+		SHOP_BUY_ITEM_SOLD_OUT = 98, //???
 		BANK_ACCOUNT_UNABLE_TO_WITHDRAW = 100,
 		BANK_ACCOUNT_UNABLE_TO_DEPOSIT = 102,
 		SHOP_NOTHING_IS_FOR_SALE = 104,
-		SHOP_NOT_BUYING_USED_ITEMS = 106,
+// ReSharper disable once UnusedMember.Global
+		SHOP_NOT_BUYING_USED_ITEMS = 106, //confirmed (AFAIK) that the client does not show this message separately from NOT_BUYING_YOUR_ITEMS message
 		SHOP_NOT_BUYING_YOUR_ITEMS = 108,
 		WARNING_YOU_HAVE_NOT_ENOUGH = 110,
 		SHOP_DOES_NOT_BUY = 112,
 		LOCKER_FULL_SINGLE_ITEM_MAX = 114,
-		LOCKER_FULL_DIFF_ITEMS_MAX = 116,
+// ReSharper disable once UnusedMember.Global
+		LOCKER_FULL_DIFF_ITEMS_MAX = 116, //confirmed (AFAIK) that the client does not show a message when you hit the max (unless the server is missing a message for this)
 		LOCKER_DEPOSIT_GOLD_ERROR = 118,
 		DROP_MANY_GOLD_ON_GROUND = 120,
 		WARNING_FIRST_TIME_PLAYERS = 122,

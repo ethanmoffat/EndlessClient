@@ -134,7 +134,6 @@
     <Compile Include="Handlers\Bank.cs" />
     <Compile Include="Handlers\Effect.cs" />
     <Compile Include="Handlers\Emote.cs" />
-    <Compile Include="Handlers\Item.cs" />
     <Compile Include="Handlers\Locker.cs" />
     <Compile Include="Handlers\NPC.cs" />
     <Compile Include="Handlers\Shop.cs" />

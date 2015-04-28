@@ -672,30 +672,6 @@ namespace EndlessClient
 					new LockedHandlerMethod(Handlers.Emote.EmotePlayer, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Item, PacketAction.Add),
-					new LockedHandlerMethod(Item.ItemAddResponse, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Item, PacketAction.Drop),
-					new LockedHandlerMethod(Item.ItemDropResponse, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Item, PacketAction.Get),
-					new LockedHandlerMethod(Item.ItemGetResponse, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Item, PacketAction.Junk),
-					new LockedHandlerMethod(Item.ItemJunkResponse, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Item, PacketAction.Remove),
-					new LockedHandlerMethod(Item.ItemRemoveResponse, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Item, PacketAction.Reply),
-					new LockedHandlerMethod(Item.ItemReply, true)
-				},
-				{
 					new FamilyActionPair(PacketFamily.Locker, PacketAction.Buy),
 					new LockedHandlerMethod(Locker.LockerBuy, true)
 				},

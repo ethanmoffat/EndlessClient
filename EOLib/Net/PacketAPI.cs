@@ -30,6 +30,7 @@ namespace EOLib.Net
 			_createDoorMembers();
 			_createFaceMembers();
 			_createInitMembers();
+			_createItemMembers();
 			_createLoginMembers();
 			_createMessageMembers();
 			_createPaperdollMembers();

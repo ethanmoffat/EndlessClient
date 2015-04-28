@@ -150,14 +150,15 @@ namespace EndlessClient
 								if (dlg.SelectedAmount > 10000 && m_inventory.id == 1 && !safetyCommentHasBeenShown)
 									EODialog.Show(DATCONST1.DROP_MANY_GOLD_ON_GROUND, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader,
 										(o, e) => { safetyCommentHasBeenShown = true; });
-								else
-									Handlers.Item.DropItem(m_inventory.id, dlg.SelectedAmount, (byte) loc.X, (byte) loc.Y);
+								else if (!m_api.DropItem(m_inventory.id, dlg.SelectedAmount, (byte) loc.X, (byte) loc.Y))
+									((EOGame) Game).LostConnectionDialog();
 							}
 						};
 					}
 					else if (inRange)
 					{
-						Handlers.Item.DropItem(m_inventory.id, 1, (byte) loc.X, (byte) loc.Y);
+						if (!m_api.DropItem(m_inventory.id, 1, (byte)loc.X, (byte)loc.Y))
+							((EOGame)Game).LostConnectionDialog();
 					}
 					else /*if (!inRange)*/
 					{
@@ -172,14 +173,12 @@ namespace EndlessClient
 							m_inventory.amount, DATCONST2.DIALOG_TRANSFER_JUNK);
 						dlg.DialogClosing += (sender, args) =>
 						{
-							if (args.Result == XNADialogResult.OK)
-								Handlers.Item.JunkItem(m_inventory.id, dlg.SelectedAmount);
+							if (args.Result == XNADialogResult.OK && !m_api.JunkItem(m_inventory.id, dlg.SelectedAmount))
+								((EOGame)Game).LostConnectionDialog();
 						};
 					}
-					else
-					{
-						Handlers.Item.JunkItem(m_inventory.id, 1);
-					}
+					else if (!m_api.JunkItem(m_inventory.id, 1))
+						((EOGame) Game).LostConnectionDialog();
 				}
 				else if (EOChestDialog.Instance != null && EOChestDialog.Instance.MouseOver && EOChestDialog.Instance.MouseOverPreviously)
 				{
@@ -237,17 +236,21 @@ namespace EndlessClient
 						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.ShopTransfer, m_inventory.amount, DATCONST2.DIALOG_TRANSFER_TRANSFER);
 						dlg.DialogClosing += (sender, args) =>
 						{
-							if (args.Result == XNADialogResult.OK && !Handlers.Locker.AddItem(m_inventory.id, dlg.SelectedAmount))
-								EOGame.Instance.LostConnectionDialog();
+							if (args.Result == XNADialogResult.OK)
+							{
+								if (EOLockerDialog.Instance.GetNewItemAmount(m_inventory.id, dlg.SelectedAmount) > Constants.LockerMaxSingleItemAmount)
+									EODialog.Show(DATCONST1.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+								else if (!Handlers.Locker.AddItem(m_inventory.id, dlg.SelectedAmount))
+									EOGame.Instance.LostConnectionDialog();
+							}
 						};
 					}
 					else
 					{
-						if (!Handlers.Locker.AddItem(m_inventory.id, 1))
-						{
+						if (EOLockerDialog.Instance.GetNewItemAmount(m_inventory.id, 1) > Constants.LockerMaxSingleItemAmount)
+							EODialog.Show(DATCONST1.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						else if (!Handlers.Locker.AddItem(m_inventory.id, 1))
 							EOGame.Instance.LostConnectionDialog();
-							return;
-						}
 					}
 				}
 				else if (EOBankAccountDialog.Instance != null && EOBankAccountDialog.Instance.MouseOver && EOBankAccountDialog.Instance.MouseOverPreviously && m_inventory.id == 1)
@@ -464,6 +467,19 @@ namespace EndlessClient
 					useItem = true;
 					break;
 				case ItemType.CureCurse:
+					//note: don't actually set the useItem bool here. Call API.UseItem if the dialog result is OK.
+					if (World.Instance.MainPlayer.ActiveCharacter.PaperDoll.Select(id => World.Instance.EIF.GetItemRecordByID(id))
+						.Any(rec => rec.Special == ItemSpecial.Cursed)) //only do the use if the player has a cursed item equipped
+					{
+						EODialog.Show(DATCONST1.ITEM_CURSE_REMOVE_PROMPT, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader,
+							(o, e) =>
+							{
+								if (e.Result == XNADialogResult.OK && !m_api.UseItem((short)m_itemData.ID))
+								{
+									((EOGame)Game).LostConnectionDialog();
+								}
+							});
+					}
 					break;
 				case ItemType.EXPReward:
 					break;
@@ -475,8 +491,8 @@ namespace EndlessClient
 					break;
 			}
 
-			if (useItem && !Handlers.Item.ItemUse((short) m_itemData.ID))
-				EOGame.Instance.LostConnectionDialog();
+			if (useItem && !m_api.UseItem((short) m_itemData.ID))
+				((EOGame)Game).LostConnectionDialog();
 
 			m_recentClickCount = 0;
 		}

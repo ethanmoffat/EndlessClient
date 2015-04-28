@@ -2356,7 +2356,15 @@ namespace EndlessClient
 
 			if (old == newState) return;
 			
+			int buyNumInt = m_tradeItems.FindAll(x => World.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(item => item.id == x.ID) >= 0 && x.Buy > 0).Count;
 			int sellNumInt = m_tradeItems.FindAll(x => World.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(item => item.id == x.ID) >= 0 && x.Sell > 0).Count;
+
+			if (newState == ShopState.Buying && buyNumInt <= 0)
+			{
+				EODialog.Show(DATCONST1.SHOP_NOTHING_IS_FOR_SALE, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				return;
+			}
+
 			if (newState == ShopState.Selling && sellNumInt <= 0)
 			{
 				EODialog.Show(DATCONST1.SHOP_NOT_BUYING_YOUR_ITEMS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
@@ -2621,6 +2629,8 @@ namespace EndlessClient
 		public byte X { get; private set; }
 		public byte Y { get; private set; }
 
+		private List<InventoryItem> items = new List<InventoryItem>(); 
+
 		private EOLockerDialog(byte x, byte y)
 			: base(string.Format(TITLE_FMT, 0), ScrollingListDialogButtons.Cancel, EODialogListItem.ListItemStyle.Large)
 		{
@@ -2633,7 +2643,7 @@ namespace EndlessClient
 		public void SetLockerData(List<InventoryItem> lockerItems)
 		{
 			ClearItemList();
-
+			items = lockerItems;
 			Title = string.Format(TITLE_FMT, lockerItems.Count);
 
 			List<EODialogListItem> listItems = new List<EODialogListItem>();
@@ -2658,6 +2668,13 @@ namespace EndlessClient
 			}
 
 			SetItemList(listItems);
+		}
+
+		public int GetNewItemAmount(short id, int amount)
+		{
+			int matchIndex = items.FindIndex(_ii => _ii.id == id);
+			if (matchIndex < 0) return amount;
+			return items[matchIndex].amount + amount;
 		}
 
 		private void _removeItem(ItemRecord item, int amount)
