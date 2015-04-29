@@ -1971,7 +1971,7 @@ namespace EndlessClient
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 52);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			m_titleText = new XNALabel(new Rectangle(16, 15, 253, 19), "Microsoft Sans Serif", 8.75f)
+			m_titleText = new XNALabel(new Rectangle(16, 13, 253, 19), "Microsoft Sans Serif", 8.75f)
 			{
 				AutoSize = false,
 				TextAlign = ContentAlignment.MiddleLeft,
@@ -2025,16 +2025,18 @@ namespace EndlessClient
 			int ndx = m_listItems.FindIndex(_item => _item == item);
 			if (ndx < 0) return;
 
-			item.Close();
 			m_listItems.RemoveAt(ndx);
-
-			for (int i = ndx; i < m_listItems.Count; ++i)
-			{
-				//adjust indices
-				m_listItems[i].Index = i;
-			}
+			item.Close();
 
 			m_scrollBar.UpdateDimensions(m_listItems.Count);
+			if (m_listItems.Count <= m_scrollBar.LinesToRender)
+				m_scrollBar.ScrollToTop();
+
+			for (int i = 0; i < m_listItems.Count; ++i)
+			{
+				//adjust indices (determines drawing position)
+				m_listItems[i].Index = i;
+			}
 		}
 
 		public void SetActiveItemList(List<string> activeLabels)
@@ -2127,6 +2129,8 @@ namespace EndlessClient
 					}
 				}
 			}
+			else if (m_listItems.Any(_item => !_item.Visible))
+				m_listItems.ForEach(_item => _item.Visible = true); //all items visible if less than # lines to render
 
 			base.Update(gt);
 		}
@@ -2135,6 +2139,7 @@ namespace EndlessClient
 	public class EOInputDialog : EODialogBase
 	{
 		private readonly XNATextBox m_inputBox;
+		private readonly IKeyboardSubscriber previousSubscriber;
 
 		public string ResponseText { get { return m_inputBox.Text; } }
 
@@ -2154,8 +2159,8 @@ namespace EndlessClient
 			lblPrompt.SetParent(this);
 
 			//set this back once the dialog is closed.
-			IKeyboardSubscriber previousSubscriber = EOGame.Instance.Dispatcher.Subscriber;
-			DialogClosing += (o, e) => EOGame.Instance.Dispatcher.Subscriber = previousSubscriber;
+			previousSubscriber = ((EOGame)Game).Dispatcher.Subscriber;
+			DialogClosing += (o, e) => ((EOGame)Game).Dispatcher.Subscriber = previousSubscriber;
 
 			m_inputBox = new XNATextBox(new Rectangle(37, 74, 192, 19), EOGame.Instance.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
 			{
@@ -2177,11 +2182,17 @@ namespace EndlessClient
 			DrawLocation = new Vector2(DrawLocation.X, 107);
 			endConstructor(false);
 		}
+
+		public void SetAsKeyboardSubscriber()
+		{
+			((EOGame) Game).Dispatcher.Subscriber = m_inputBox;
+		}
 	}
 
 	public static class EOFriendIgnoreListDialog
 	{
 		private static EOScrollingListDialog Instance;
+		private static readonly object _remove_locker_ = new object();
 
 		public static void Show(PacketAPI apiHandle, bool isIgnoreList)
 		{
@@ -2233,6 +2244,15 @@ namespace EndlessClient
 						{
 							_e.CancelClose = true;
 							EODialog.Show(DATCONST1.CHARACTER_CREATE_NAME_TOO_SHORT);
+							dlgInput.SetAsKeyboardSubscriber();
+							return;
+						}
+
+						if (dlg.NamesList.FindIndex(name => name.ToLower() == dlgInput.ResponseText.ToLower()) >= 0)
+						{
+							_e.CancelClose = true;
+							EODialog.Show("You are already friends with that person!", "Invalid entry!", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+							dlgInput.SetAsKeyboardSubscriber();
 							return;
 						}
 
@@ -2240,11 +2260,14 @@ namespace EndlessClient
 						newItem.OnLeftClick += (oo, ee) => EOGame.Instance.Hud.SetChatText("!" + newItem.Text + " ");
 						newItem.OnRightClick += (oo, ee) =>
 						{
-							dlg.RemoveFromList(newItem);
-							dlg.Title = string.Format("{0}'s {2} [{1}]",
-								charName,
-								dlg.NamesList.Count,
-								World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
+							lock (_remove_locker_)
+							{
+								dlg.RemoveFromList(newItem);
+								dlg.Title = string.Format("{0}'s {2} [{1}]",
+									charName,
+									dlg.NamesList.Count,
+									World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
+							}
 						};
 						dlg.AddItemToList(newItem, true);
 						dlg.Title = string.Format("{0}'s {2} [{1}]", charName, dlg.NamesList.Count,
