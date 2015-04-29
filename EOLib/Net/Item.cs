@@ -43,6 +43,32 @@ namespace EOLib.Net
 			}
 		}
 
+		public struct ExpRewardStats
+		{
+			private readonly int exp;
+			private readonly byte level;
+			private readonly short stat, skill, maxhp, maxtp, maxsp;
+
+			public int Exp { get { return exp; } }
+			public byte Level { get { return level; } }
+			public short StatPoints { get { return stat; } }
+			public short SkillPoints { get { return skill; } }
+			public short MaxHP { get { return maxhp; } }
+			public short MaxTP { get { return maxtp; } }
+			public short MaxSP { get { return maxsp; } }
+
+			internal ExpRewardStats(Packet pkt)
+			{
+				exp = pkt.GetInt();
+				level = pkt.GetChar();
+				stat = pkt.GetShort();
+				skill = pkt.GetShort();
+				maxhp = pkt.GetShort();
+				maxtp = pkt.GetShort();
+				maxsp = pkt.GetShort();
+			}
+		}
+
 		//in every packet
 		private readonly ItemType type;
 		private readonly short itemID;
@@ -70,8 +96,12 @@ namespace EOLib.Net
 		public short EffectID { get { return effect; } }
 
 		//curecurse type
-		private readonly CureCurseStats? stats;
-		public CureCurseStats Stats { get { return stats.HasValue ? stats.Value : new CureCurseStats(); } }
+		private readonly CureCurseStats? curecurse_stats;
+		public CureCurseStats CureStats { get { return curecurse_stats.HasValue ? curecurse_stats.Value : new CureCurseStats(); } }
+
+		//expreward type
+		private readonly ExpRewardStats? expreward_stats;
+		public ExpRewardStats RewardStats { get { return expreward_stats.HasValue ? expreward_stats.Value : new ExpRewardStats(); } }
 
 		internal ItemUseData(Packet pkt)
 		{
@@ -85,7 +115,8 @@ namespace EOLib.Net
 			hairColor = 0;
 			effect = 0;
 
-			stats = null;
+			curecurse_stats = null;
+			expreward_stats = null;
 
 			//format differs based on item type
 			//(keeping this in order with how eoserv ITEM_USE handler is ordered
@@ -112,12 +143,14 @@ namespace EOLib.Net
 					break;
 				case ItemType.CureCurse:
 					{
-						stats = new CureCurseStats(pkt);
+						curecurse_stats = new CureCurseStats(pkt);
 					}
 					break;
 				case ItemType.EXPReward:
 					{
-						//note: server also sends an ITEM_ACCEPT packet on level-up?
+						//note: server packets may be incorrect at this point (src/handlers/Item.cpp) because of unused builder in eoserv
+						//note: server also sends an ITEM_ACCEPT packet to surrounding players on level-up?
+						expreward_stats = new ExpRewardStats(pkt);
 					}
 					break;
 			}

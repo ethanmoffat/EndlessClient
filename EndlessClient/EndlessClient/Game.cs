@@ -598,20 +598,38 @@ namespace EndlessClient
 
 						//update main character's stats
 						CharStatData s = c.Stats;
-						s.SetMaxHP(data.Stats.MaxHP);
-						s.SetMaxTP(data.Stats.MaxTP);
-						s.SetStr(data.Stats.Str);
-						s.SetInt(data.Stats.Int);
-						s.SetWis(data.Stats.Wis);
-						s.SetAgi(data.Stats.Agi);
-						s.SetCon(data.Stats.Con);
-						s.SetCha(data.Stats.Cha);
-						s.SetMinDam(data.Stats.MinDam);
-						s.SetMaxDam(data.Stats.MaxDam);
-						s.SetAccuracy(data.Stats.Accuracy);
-						s.SetEvade(data.Stats.Evade);
-						s.SetArmor(data.Stats.Armor);
+						s.SetMaxHP(data.CureStats.MaxHP);
+						s.SetMaxTP(data.CureStats.MaxTP);
+						s.SetStr(data.CureStats.Str);
+						s.SetInt(data.CureStats.Int);
+						s.SetWis(data.CureStats.Wis);
+						s.SetAgi(data.CureStats.Agi);
+						s.SetCon(data.CureStats.Con);
+						s.SetCha(data.CureStats.Cha);
+						s.SetMinDam(data.CureStats.MinDam);
+						s.SetMaxDam(data.CureStats.MaxDam);
+						s.SetAccuracy(data.CureStats.Accuracy);
+						s.SetEvade(data.CureStats.Evade);
+						s.SetArmor(data.CureStats.Armor);
 						Hud.RefreshStats();
+					}
+						break;
+					case ItemType.EXPReward:
+					{
+						CharStatData s = World.Instance.MainPlayer.ActiveCharacter.Stats;
+						if(s.level < data.RewardStats.Level)
+						{
+							//level up!
+							World.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
+							World.Instance.ActiveCharacterRenderer.PlayerEmote();
+							s.level = data.RewardStats.Level;
+						}
+						s.exp = data.RewardStats.Exp;
+						s.statpoints = data.RewardStats.StatPoints;
+						s.skillpoints = data.RewardStats.SkillPoints;
+						s.maxhp = data.RewardStats.MaxHP;
+						s.maxtp = data.RewardStats.MaxTP;
+						s.maxsp = data.RewardStats.MaxSP;
 					}
 						break;
 				}

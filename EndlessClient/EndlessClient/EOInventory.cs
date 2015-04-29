@@ -482,13 +482,17 @@ namespace EndlessClient
 					}
 					break;
 				case ItemType.EXPReward:
+					useItem = true;
 					break;
 				case ItemType.EffectPotion:
+					//todo: get effects working
+					//useItem = true;
 					break;
-				case ItemType.SkillReward:
-					break;
-				case ItemType.StatReward:
-					break;
+				//Not implemented server-side
+				//case ItemType.SkillReward:
+				//	break;
+				//case ItemType.StatReward:
+				//	break;
 			}
 
 			if (useItem && !m_api.UseItem((short) m_itemData.ID))
