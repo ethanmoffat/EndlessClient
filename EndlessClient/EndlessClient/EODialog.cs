@@ -2192,7 +2192,6 @@ namespace EndlessClient
 	public static class EOFriendIgnoreListDialog
 	{
 		private static EOScrollingListDialog Instance;
-		private static readonly object _remove_locker_ = new object();
 
 		public static void Show(PacketAPI apiHandle, bool isIgnoreList)
 		{
@@ -2260,14 +2259,11 @@ namespace EndlessClient
 						newItem.OnLeftClick += (oo, ee) => EOGame.Instance.Hud.SetChatText("!" + newItem.Text + " ");
 						newItem.OnRightClick += (oo, ee) =>
 						{
-							lock (_remove_locker_)
-							{
-								dlg.RemoveFromList(newItem);
-								dlg.Title = string.Format("{0}'s {2} [{1}]",
-									charName,
-									dlg.NamesList.Count,
-									World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
-							}
+							dlg.RemoveFromList(newItem);
+							dlg.Title = string.Format("{0}'s {2} [{1}]",
+								charName,
+								dlg.NamesList.Count,
+								World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
 						};
 						dlg.AddItemToList(newItem, true);
 						dlg.Title = string.Format("{0}'s {2} [{1}]", charName, dlg.NamesList.Count,
