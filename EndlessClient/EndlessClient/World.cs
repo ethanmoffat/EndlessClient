@@ -751,5 +751,13 @@ namespace EndlessClient
 				//
 			};
 		}
+
+		public void Remap()
+		{
+			MapCache.Remove(MainPlayer.ActiveCharacter.CurrentMap);
+			if (!_tryLoadMap())
+				throw new FileLoadException("Unable to load remapped map file!");
+			ActiveMapRenderer.SetActiveMap(MapCache[MainPlayer.ActiveCharacter.CurrentMap]);
+		}
 	}
 }

@@ -110,6 +110,8 @@ namespace EOLib.Net
 		private int m_init_requestedMap;
 		private List<OnlineEntry> m_init_onlinePlayerList;
 
+		public event Action OnMapMutation;
+
 		private void _createInitMembers()
 		{
 			m_init_responseEvent = new AutoResetEvent(false);
@@ -253,81 +255,90 @@ namespace EOLib.Net
 					_handlePlayerList(pkt, response == InitReply.INIT_FRIEND_LIST_PLAYERS);
 					break;
 				case InitReply.INIT_BANNED:
+				{
+					//sends INIT_BANNED in response to WARP_TAKE packet
+					if (m_client.ExpectingFile)
 					{
-						//sends INIT_BANNED in response to WARP_TAKE packet
-						if (m_client.ExpectingFile)
-						{
-							response = InitReply.INIT_FILE_MAP;
-							goto case InitReply.INIT_FILE_MAP;
-						}
-
-						InitBanType BanType = (InitBanType)pkt.GetByte();
-						byte BanMinsLeft = 0;
-						if (BanType == InitBanType.INIT_BAN_TEMP)
-							BanMinsLeft = pkt.GetByte();
-
-						m_init_initData = new InitData {ServerResponse = response, BanType = BanType, BanMinsLeft = BanMinsLeft};
+						response = InitReply.INIT_FILE_MAP;
+						goto case InitReply.INIT_FILE_MAP;
 					}
+
+					InitBanType BanType = (InitBanType) pkt.GetByte();
+					byte BanMinsLeft = 0;
+					if (BanType == InitBanType.INIT_BAN_TEMP)
+						BanMinsLeft = pkt.GetByte();
+
+					m_init_initData = new InitData {ServerResponse = response, BanType = BanType, BanMinsLeft = BanMinsLeft};
+				}
 					break;
 				case InitReply.INIT_OUT_OF_DATE:
+				{
+					pkt.GetChar(); //always 0
+					pkt.GetChar(); //always 0
+					m_init_initData = new InitData
 					{
-						pkt.GetChar(); //always 0
-						pkt.GetChar(); //always 0
-						m_init_initData = new InitData
-						{
-							ServerResponse = response,
-							RequiredVersionNumber = pkt.GetChar() //actual version number required
-						};
-					}
+						ServerResponse = response,
+						RequiredVersionNumber = pkt.GetChar() //actual version number required
+					};
+				}
 					break;
 				case InitReply.INIT_OK:
+				{
+					m_init_initData = new InitData
 					{
-						m_init_initData = new InitData
-						{
-							ServerResponse = response,
-							seq_1 = pkt.GetByte(),
-							seq_2 = pkt.GetByte(),
-							//These are switched around from the server: 
-							//	the server's encode function is the client's decode function (and vice versa)
-							emulti_d = pkt.GetByte(),
-							emulti_e = pkt.GetByte(),
-							clientID = pkt.GetShort(),
-							response = pkt.GetThree()
-						};
-					}
+						ServerResponse = response,
+						seq_1 = pkt.GetByte(),
+						seq_2 = pkt.GetByte(),
+						//These are switched around from the server: 
+						//	the server's encode function is the client's decode function (and vice versa)
+						emulti_d = pkt.GetByte(),
+						emulti_e = pkt.GetByte(),
+						clientID = pkt.GetShort(),
+						response = pkt.GetThree()
+					};
+				}
 					break;
-				//file transfer is all handled the same way
+					//file transfer is all handled the same way
 				case InitReply.INIT_FILE_EIF:
 				case InitReply.INIT_FILE_ENF:
 				case InitReply.INIT_FILE_ESF:
 				case InitReply.INIT_FILE_ECF:
 				case InitReply.INIT_FILE_MAP:
+				case InitReply.INIT_MAP_MUTATION:
+				{
+					string localDir = response == InitReply.INIT_FILE_MAP || response == InitReply.INIT_MAP_MUTATION ? "maps" : "pub";
+
+					if (response == InitReply.INIT_MAP_MUTATION)
+						m_init_requestedMap = 0;
+
+					if (!Directory.Exists(localDir))
+						Directory.CreateDirectory(localDir);
+
+					string filename;
+					if (response == InitReply.INIT_FILE_EIF)
+						filename = "dat001.eif";
+					else if (response == InitReply.INIT_FILE_ENF)
+						filename = "dtn001.enf";
+					else if (response == InitReply.INIT_FILE_ESF)
+						filename = "dsl001.esf";
+					else if (response == InitReply.INIT_FILE_ECF)
+						filename = "dat001.ecf";
+					else
+						filename = string.Format("{0,5:D5}.emf", m_init_requestedMap);
+
+					using (FileStream fs = File.Create(Path.Combine(localDir, filename)))
 					{
-						string localDir = response == InitReply.INIT_FILE_MAP ? "maps" : "pub";
-
-						if (!Directory.Exists(localDir))
-							Directory.CreateDirectory(localDir);
-
-						string filename;
-						if (response == InitReply.INIT_FILE_EIF)
-							filename = "dat001.eif";
-						else if (response == InitReply.INIT_FILE_ENF)
-							filename = "dtn001.enf";
-						else if (response == InitReply.INIT_FILE_ESF)
-							filename = "dsl001.esf";
-						else if (response == InitReply.INIT_FILE_ECF)
-							filename = "dat001.ecf";
-						else
-							filename = string.Format("{0,5:D5}.emf", m_init_requestedMap);
-
-						using (FileStream fs = File.Create(Path.Combine(localDir, filename)))
-						{
-							int dataLen = pkt.Length - 3;
-							if (dataLen == 0)
-								throw new FileLoadException();
-							fs.Write(pkt.GetBytes(dataLen), 0, dataLen);
-						}
+						int dataLen = pkt.Length - 3;
+						if (dataLen == 0)
+							throw new FileLoadException();
+						fs.Write(pkt.GetBytes(dataLen), 0, dataLen);
 					}
+
+					if (response == InitReply.INIT_MAP_MUTATION && OnMapMutation != null)
+					{
+						OnMapMutation();
+					}
+				}
 					break;
 			}
 

@@ -273,7 +273,7 @@ namespace EOLib.Net
 							{
 								Packet pkt = new Packet(data);
 								byte reply = pkt.GetChar();
-								if (ExpectingFile)
+								if (ExpectingFile || reply == (byte)InitReply.INIT_MAP_MUTATION) //handle the map mutation: should work with the byte/char weirdness
 								{
 									int dataGrabbed = 0;
 

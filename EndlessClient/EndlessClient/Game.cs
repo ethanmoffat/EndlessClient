@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -614,6 +615,20 @@ namespace EndlessClient
 					}
 						break;
 				}
+			};
+
+			m_packetAPI.OnMapMutation += () =>
+			{
+				if (File.Exists("maps\\00000.emf"))
+				{
+					string fmt = string.Format("maps\\{0,5:D5}.emf", World.Instance.MainPlayer.ActiveCharacter.CurrentMap);
+					if (File.Exists(fmt))
+						File.Delete(fmt);
+					File.Move("maps\\00000.emf", fmt);
+					World.Instance.Remap();
+				}
+				else
+					throw new FileNotFoundException("Unable to remap the file, something broke");
 			};
 		}
 
