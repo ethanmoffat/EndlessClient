@@ -564,6 +564,14 @@ namespace EndlessClient
 
 		public void AddMapItem(MapItem newItem)
 		{
+			if (newItem.npcDrop && newItem.id > 0)
+			{
+				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(newItem.id);
+				EOGame.Instance.Hud.AddChat(ChatTabs.System, "",
+					string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_THE_NPC_DROPPED), newItem.amount, rec.Name),
+					ChatType.DownArrow);
+			}
+
 			Point key = new Point(newItem.x, newItem.y);
 			if(!MapItems.ContainsKey(key))
 				MapItems.Add(key, new List<MapItem>());

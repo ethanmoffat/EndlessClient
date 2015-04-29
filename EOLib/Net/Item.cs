@@ -3,6 +3,34 @@ using EOLib.Data;
 
 namespace EOLib.Net
 {
+	public struct LevelUpStats
+	{
+		private readonly int exp;
+		private readonly byte level;
+		private readonly short stat, skill, maxhp, maxtp, maxsp;
+
+		public int Exp { get { return exp; } }
+		public byte Level { get { return level; } }
+		public short StatPoints { get { return stat; } }
+		public short SkillPoints { get { return skill; } }
+		public short MaxHP { get { return maxhp; } }
+		public short MaxTP { get { return maxtp; } }
+		public short MaxSP { get { return maxsp; } }
+
+		internal LevelUpStats(Packet pkt, bool includeExp)
+		{
+			//includeExp will be false when leveling up from NPC, true from EXPReward
+			//NPC handler happens slightly differently
+			exp = includeExp ? pkt.GetInt() : 0;
+			level = pkt.GetChar();
+			stat = pkt.GetShort();
+			skill = pkt.GetShort();
+			maxhp = pkt.GetShort();
+			maxtp = pkt.GetShort();
+			maxsp = pkt.GetShort();
+		}
+	}
+
 	public struct ItemUseData
 	{
 		public struct CureCurseStats
@@ -43,32 +71,6 @@ namespace EOLib.Net
 			}
 		}
 
-		public struct ExpRewardStats
-		{
-			private readonly int exp;
-			private readonly byte level;
-			private readonly short stat, skill, maxhp, maxtp, maxsp;
-
-			public int Exp { get { return exp; } }
-			public byte Level { get { return level; } }
-			public short StatPoints { get { return stat; } }
-			public short SkillPoints { get { return skill; } }
-			public short MaxHP { get { return maxhp; } }
-			public short MaxTP { get { return maxtp; } }
-			public short MaxSP { get { return maxsp; } }
-
-			internal ExpRewardStats(Packet pkt)
-			{
-				exp = pkt.GetInt();
-				level = pkt.GetChar();
-				stat = pkt.GetShort();
-				skill = pkt.GetShort();
-				maxhp = pkt.GetShort();
-				maxtp = pkt.GetShort();
-				maxsp = pkt.GetShort();
-			}
-		}
-
 		//in every packet
 		private readonly ItemType type;
 		private readonly short itemID;
@@ -100,8 +102,8 @@ namespace EOLib.Net
 		public CureCurseStats CureStats { get { return curecurse_stats.HasValue ? curecurse_stats.Value : new CureCurseStats(); } }
 
 		//expreward type
-		private readonly ExpRewardStats? expreward_stats;
-		public ExpRewardStats RewardStats { get { return expreward_stats.HasValue ? expreward_stats.Value : new ExpRewardStats(); } }
+		private readonly LevelUpStats? expreward_stats;
+		public LevelUpStats RewardStats { get { return expreward_stats.HasValue ? expreward_stats.Value : new LevelUpStats(); } }
 
 		internal ItemUseData(Packet pkt)
 		{
@@ -150,7 +152,7 @@ namespace EOLib.Net
 					{
 						//note: server packets may be incorrect at this point (src/handlers/Item.cpp) because of unused builder in eoserv
 						//note: server also sends an ITEM_ACCEPT packet to surrounding players on level-up?
-						expreward_stats = new ExpRewardStats(pkt);
+						expreward_stats = new LevelUpStats(pkt, true);
 					}
 					break;
 			}

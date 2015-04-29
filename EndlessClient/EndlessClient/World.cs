@@ -688,22 +688,6 @@ namespace EndlessClient
 					new LockedHandlerMethod(Locker.LockerReply, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.NPC, PacketAction.Accept),
-					new LockedHandlerMethod(NPCPackets.NPCAccept, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.NPC, PacketAction.Player),
-					new LockedHandlerMethod(NPCPackets.NPCPlayer, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.NPC, PacketAction.Reply),
-					new LockedHandlerMethod(NPCPackets.NPCReply, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.NPC, PacketAction.Spec),
-					new LockedHandlerMethod(NPCPackets.NPCSpec, true)
-				},
-				{
 					new FamilyActionPair(PacketFamily.Shop, PacketAction.Buy),
 					new LockedHandlerMethod(Shop.ShopBuy, true)
 				},

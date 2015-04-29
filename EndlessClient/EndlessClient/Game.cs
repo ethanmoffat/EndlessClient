@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
+using EndlessClient.Handlers;
 using EOLib.Data;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
@@ -339,6 +340,7 @@ namespace EndlessClient
 
 		private void _setupPacketAPIEventHandlers()
 		{
+			//todo: create actual methods instead of all this anonymous lambda crap
 			m_packetAPI.OnWarpRequestNewMap += World.Instance.CheckMap;
 			m_packetAPI.OnWarpAgree += World.Instance.WarpAgreeAction;
 			m_packetAPI.OnPlayerEnterMap += (_data, _anim) => World.Instance.ActiveMapRenderer.AddOtherPlayer(_data, _anim);
@@ -647,6 +649,35 @@ namespace EndlessClient
 				}
 				else
 					throw new FileNotFoundException("Unable to remap the file, something broke");
+			};
+
+			m_packetAPI.OnNPCWalk += (index, x, y, dir) => World.Instance.ActiveMapRenderer.NPCWalk(index, x, y, dir);
+			m_packetAPI.OnNPCAttack += (index, dead, dir, id, damage, health) => World.Instance.ActiveMapRenderer.NPCAttack(index, dead, dir, id, damage, health);
+			m_packetAPI.OnNPCChat += (index, msg) => World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.NPC, index, msg, ChatType.Note);
+			m_packetAPI.OnNPCLeaveMap += (index, damage) => World.Instance.ActiveMapRenderer.RemoveOtherNPC(index, damage);
+			m_packetAPI.OnNPCKilled += newExp =>
+			{
+				int expDif = newExp - World.Instance.MainPlayer.ActiveCharacter.Stats.exp;
+				World.Instance.MainPlayer.ActiveCharacter.GainExp(expDif);
+				Hud.RefreshStats();
+
+				Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_YOU_GAINED_EXP, string.Format(" {0} EXP", expDif));
+				Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} EXP", World.GetString(DATCONST2.STATUS_LABEL_YOU_GAINED_EXP), expDif), ChatType.Star);
+			};
+			m_packetAPI.OnNPCTakeDamage += (index, id, direction, npc, health) => World.Instance.ActiveMapRenderer.NPCTakeDamage(index, id, direction, npc, health);
+			m_packetAPI.OnPlayerLevelUp += _stats => //level up due to killed NPC
+			{
+				World.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
+				World.Instance.ActiveCharacterRenderer.PlayerEmote();
+
+				CharStatData stats = World.Instance.MainPlayer.ActiveCharacter.Stats;
+				stats.level = _stats.Level;
+				stats.statpoints = _stats.StatPoints;
+				stats.skillpoints = _stats.SkillPoints;
+				stats.SetMaxHP(_stats.MaxHP);
+				stats.SetMaxTP(_stats.MaxTP);
+				stats.SetMaxSP(_stats.MaxSP);
+				Hud.RefreshStats();
 			};
 		}
 
