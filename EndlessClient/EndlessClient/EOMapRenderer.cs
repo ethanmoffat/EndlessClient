@@ -838,16 +838,15 @@ namespace EndlessClient
 				if ((exists = npcList.Find(_npc => _npc.Index == data.Index)) == null)
 				{
 					exists = new NPC(data);
+					exists.Initialize();
+					npcList.Add(exists);
 				}
 				else
 				{
-					exists.Dispose();
-					npcList.Remove(exists);
+					exists.ApplyData(data);
 				}
 				
-				exists.Initialize();
 				exists.Visible = true;
-				npcList.Add(exists);
 			}
 		}
 
@@ -865,10 +864,9 @@ namespace EndlessClient
 						npc.Opponent = null;
 						npc.SetDamageCounterValue(damage, 0);
 					}
-					else //npc is out of view
+					else //npc is out of view or done fading away
 					{
-						npc.Dispose();
-						npcList.Remove(npc);
+						npc.Visible = false;
 					}
 				}
 			}
@@ -876,29 +874,38 @@ namespace EndlessClient
 
 		public void ClearOtherNPCs()
 		{
-			lock(npcListLock)
+			lock (npcListLock)
+			{
+				foreach (NPC n in npcList)
+				{
+					n.Visible = false;
+					n.Dispose();
+				}
 				npcList.Clear();
+			}
 		}
 
 		public void NPCWalk(byte index, byte x, byte y, EODirection dir)
 		{
-			NPC toWalk;
-			lock(npcListLock)
-				toWalk = npcList.Find(_npc => _npc.Index == index);
-			if (toWalk != null && !toWalk.Walking)
+			lock (npcListLock)
 			{
-				toWalk.Walk(x, y, dir);
+				NPC toWalk = npcList.Find(_npc => _npc.Index == index);
+				if (toWalk != null && !toWalk.Walking)
+				{
+					toWalk.Walk(x, y, dir);
+				}
 			}
 		}
 
 		public void NPCAttack(byte index, bool isTargetPlayerDead, EODirection dir, short targetPlayerId, int damageToPlayer, int playerPctHealth)
 		{
-			NPC toAttack;
 			lock (npcListLock)
-				toAttack = npcList.Find(_npc => _npc.Index == index);
-			if (toAttack != null && !toAttack.Attacking)
 			{
-				toAttack.Attack(dir);
+				NPC toAttack = npcList.Find(_npc => _npc.Index == index);
+				if (toAttack != null && !toAttack.Attacking)
+				{
+					toAttack.Attack(dir);
+				}
 			}
 
 			EOCharacterRenderer rend = targetPlayerId == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.ActiveCharacterRenderer : 
@@ -920,23 +927,25 @@ namespace EndlessClient
 
 		public void NPCTakeDamage(short npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth)
 		{
-			NPC toDamage;
 			lock (npcListLock)
-				toDamage = npcList.Find(_npc => _npc.Index == npcIndex);
-			if (toDamage == null) return;
+			{
+				NPC toDamage = npcList.Find(_npc => _npc.Index == npcIndex);
+				if (toDamage == null) return;
 
-			toDamage.SetDamageCounterValue(damageToNPC, npcPctHealth);
-			toDamage.HP -= damageToNPC;
+				toDamage.SetDamageCounterValue(damageToNPC, npcPctHealth);
+				toDamage.HP -= damageToNPC;
 
-			EOCharacterRenderer rend = fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.ActiveCharacterRenderer
-				: otherRenderers.Find(_rend => _rend.Character.ID == fromPlayerID);
+				EOCharacterRenderer rend = fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID
+					? World.Instance.ActiveCharacterRenderer
+					: otherRenderers.Find(_rend => _rend.Character.ID == fromPlayerID);
 
-			if (rend == null) return;
+				if (rend == null) return;
 
-			toDamage.Opponent = rend.Character; //for fighting protection, no KSing!
+				toDamage.Opponent = rend.Character; //for fighting protection, no KSing!
 
-			if(rend.Character.RenderData.facing != fromDirection)
-				rend.Character.RenderData.SetDirection(fromDirection);
+				if (rend.Character.RenderData.facing != fromDirection)
+					rend.Character.RenderData.SetDirection(fromDirection);
+			}
 		}
 		#endregion
 

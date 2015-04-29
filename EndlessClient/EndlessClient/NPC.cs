@@ -73,14 +73,7 @@ namespace EndlessClient
 		public NPC(NPCData data)
 			: base(EOGame.Instance)
 		{
-			Index = data.Index;
-			X = data.X;
-			Y = data.Y;
-			Direction = data.Direction;
-
-			Data = (NPCRecord)World.Instance.ENF.Data[data.ID];
-			HP = Data.HP;
-
+			ApplyData(data);
 			bool success = true;
 			npcSheet = new EONPCSpriteSheet(this);
 			int tries = 0;
@@ -144,6 +137,8 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
+			if (!Visible) return;
+
 			DrawArea = new Rectangle(
 					 offX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)((baseFrame.Width / 6.4) * 3.2),
 					 offY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - baseFrame.Height,
@@ -174,6 +169,8 @@ namespace EndlessClient
 
 		public override void Draw(GameTime gameTime)
 		{
+			if (!Visible) return;
+
 			DrawToSpriteBatch(sb);
 			base.Draw(gameTime);
 		}
@@ -318,6 +315,20 @@ namespace EndlessClient
 		public void FadeAway()
 		{
 			_startFadeAway = true;
+		}
+
+		public void ApplyData(NPCData data)
+		{
+			Index = data.Index;
+			X = data.X;
+			Y = data.Y;
+			Direction = data.Direction;
+
+			Data = (NPCRecord)World.Instance.ENF.Data[data.ID];
+			HP = Data.HP;
+
+			_startFadeAway = false;
+			_fadeAwayAlpha = 255;
 		}
 	}
 }
