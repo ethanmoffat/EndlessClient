@@ -115,7 +115,6 @@ namespace EndlessClient
 				//					 drop on grid (inventory move action)
 				//					 drop on chest dialog (chest add action)
 
-				DrawOrder = m_preDragDrawOrder;
 				m_alpha = 255;
 				SetParent(m_preDragParent);
 
@@ -286,6 +285,7 @@ namespace EndlessClient
 				//mouse has been released. finish dragging.
 				m_beingDragged = false;
 				m_nameLabel.Visible = true;
+				DrawOrder = m_preDragDrawOrder;
 			}
 
 			if (!m_beingDragged && PreviousMouseState.LeftButton == ButtonState.Pressed &&
