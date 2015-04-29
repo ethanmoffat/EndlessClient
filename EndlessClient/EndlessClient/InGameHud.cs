@@ -78,6 +78,8 @@ namespace EndlessClient
 				throw new ArgumentException("Need to initialize connection before the in-game stuff will work");
 			m_packetAPI = api;
 
+			DrawOrder = 5;
+
 			mainFrame = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 1, true);
 			topLeft = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 21, true);
 			sidebar = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 22, true);
