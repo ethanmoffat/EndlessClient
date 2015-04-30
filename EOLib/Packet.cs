@@ -94,11 +94,13 @@ namespace EOLib
 		{
 			for (int index = 0; index < b.Length; ++index)
 			{
-				if (b[index] == 0 || b[index] == 254)
-					b[index] = 0;
-				else
-					--b[index];
+				if (b[index] == 254)
+					b[index] = 1;
+				else if (b[index] == 0)
+					b[index] = 128;
+				--b[index];
 			}
+
 			int num = 0;
 			for (int index = b.Length - 1; index >= 1; --index)
 				num += b[index] * Max[index - 1];
