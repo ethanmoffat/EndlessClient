@@ -701,6 +701,15 @@ namespace EndlessClient
 						Hud.AddChat(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.ServerGlobal);
 						Hud.AddChat(ChatTabs.System, "", msg, ChatType.Exclamation, ChatColor.Server);
 						break;
+					case TalkType.Admin:
+						Hud.AddChat(ChatTabs.Group, name, msg, ChatType.HGM, ChatColor.Admin);
+						break;
+					case TalkType.Announce:
+						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, msg);
+						Hud.AddChat(ChatTabs.Local, name, msg, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
+						Hud.AddChat(ChatTabs.Global, name, msg, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
+						Hud.AddChat(ChatTabs.Group, name, msg, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
+						break;
 				}
 			};
 			m_packetAPI.OnPMRecipientNotFound += name => Hud.PrivatePlayerNotFound(name);

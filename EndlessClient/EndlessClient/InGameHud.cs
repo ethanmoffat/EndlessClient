@@ -287,8 +287,13 @@ namespace EndlessClient
 				switch (chatTextBox.Text[0])
 				{
 					case '!': currentChatMode = ChatMode.Private; break;
+					case '@': //should show global if admin, otherwise, public/normal chat
+						if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
+							goto default;
+						currentChatMode = ChatMode.Global;
+						break;
 					case '~': currentChatMode = ChatMode.Global; break;
-					case '@':
+					case '+':
 					{
 						if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 							goto default;
@@ -515,9 +520,37 @@ namespace EndlessClient
 			chatTextBox.Text = "";
 			switch (chatText[0])
 			{
-				case '@':  //admin talk
+				case '+':  //admin talk
 					if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 						goto default;
+					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
+					if (filtered != null)
+					{
+						if (!m_packetAPI.Speak(TalkType.Admin, chatText.Substring(1)))
+						{
+							_returnToLogin();
+							break;
+						}
+						AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.HGM, ChatColor.Admin);
+					}
+					break;
+				case '@': //system talk (admin)
+					if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
+						goto default;
+					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
+					if (filtered != null)
+					{
+						if (!m_packetAPI.Speak(TalkType.Announce, chatText.Substring(1)))
+						{
+							_returnToLogin();
+							break;
+						}
+						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered);
+						string name = World.Instance.MainPlayer.ActiveCharacter.Name;
+						AddChat(ChatTabs.Local, name, filtered, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
+						AddChat(ChatTabs.Global, name, filtered, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
+						AddChat(ChatTabs.Group, name, filtered, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
+					}
 					break;
 				case '\'': //group talk
 					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);

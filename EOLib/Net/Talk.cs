@@ -5,12 +5,12 @@ namespace EOLib.Net
 	public enum TalkType
 	{
 		Admin,
-		PM, //private message
-		Local, //local chat
-		Global,//global chat
-		Guild, //guild chat
-		Party, //party chat
-		System,
+		PM, //private message: !
+		Local, //local chat: no prefix
+		Global,//global chat: ~
+		Guild, //guild chat: &
+		Party, //party chat: '
+		Announce, //global chat: @
 		NPC, //npc is saying something
 		Server //server is saying something
 	}
@@ -32,6 +32,8 @@ namespace EOLib.Net
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Message), _handleTalkMessage, true);
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Open), _handleTalkOpen, true);
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Server), _handleTalkServer, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Admin), _handleTalkAdmin, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Announce), _handleTalkAnnounce, true);
 		}
 
 		public bool Speak(TalkType chatType, string message, string character = null)
@@ -59,6 +61,12 @@ namespace EOLib.Net
 					break;
 				case TalkType.Party:
 					builder = new Packet(PacketFamily.Talk, PacketAction.Open);
+					break;
+				case TalkType.Admin:
+					builder = new Packet(PacketFamily.Talk, PacketAction.Admin);
+					break;
+				case TalkType.Announce:
+					builder = new Packet(PacketFamily.Talk, PacketAction.Announce);
 					break;
 				default: throw new NotImplementedException();
 			}
@@ -158,6 +166,28 @@ namespace EOLib.Net
 
 			string msg = pkt.GetEndString();
 			OnPlayerChatByName(TalkType.Server, null, msg);
+		}
+
+		private void _handleTalkAdmin(Packet pkt)
+		{
+			if (OnPlayerChatByName == null) return;
+
+			string name = pkt.GetBreakString();
+			name = char.ToUpper(name[0]) + name.Substring(1);
+			string msg = pkt.GetBreakString();
+
+			OnPlayerChatByName(TalkType.Admin, name, msg);
+		}
+
+		private void _handleTalkAnnounce(Packet pkt)
+		{
+			if (OnPlayerChatByName == null) return;
+
+			string name = pkt.GetBreakString();
+			name = char.ToUpper(name[0]) + name.Substring(1);
+			string msg = pkt.GetBreakString();
+
+			OnPlayerChatByName(TalkType.Announce, name, msg);
 		}
 	}
 }
