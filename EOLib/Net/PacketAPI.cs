@@ -38,6 +38,7 @@ namespace EOLib.Net
 			_createNPCMembers();
 			_createRecoverMembers();
 			_createRefreshMembers();
+			_createTalkMembers();
 			_createWalkMembers();
 			_createWarpMembers();
 			_createWelcomeMembers();

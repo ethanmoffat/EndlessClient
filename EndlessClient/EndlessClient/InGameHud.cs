@@ -521,7 +521,7 @@ namespace EndlessClient
 					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
 					if (filtered != null)
 					{
-						if (!Talk.Speak(TalkType.Party, chatText.Substring(1)))
+						if (!m_packetAPI.Speak(TalkType.Party, chatText.Substring(1)))
 						{
 							_returnToLogin();
 							break;
@@ -537,7 +537,7 @@ namespace EndlessClient
 					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
 					if (filtered != null)
 					{
-						if (!Talk.Speak(TalkType.Guild, chatText.Substring(1)))
+						if (!m_packetAPI.Speak(TalkType.Guild, chatText.Substring(1)))
 						{
 							_returnToLogin();
 							break;
@@ -550,7 +550,7 @@ namespace EndlessClient
 					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
 					if (filtered != null)
 					{
-						if (!Talk.Speak(TalkType.Global, chatText.Substring(1)))
+						if (!m_packetAPI.Speak(TalkType.Global, chatText.Substring(1)))
 						{
 							_returnToLogin();
 							break;
@@ -579,7 +579,7 @@ namespace EndlessClient
 					filtered = EOChatRenderer.Filter(message, true);
 					if (filtered != null)
 					{
-						if (!Talk.Speak(TalkType.PM, message, character))
+						if (!m_packetAPI.Speak(TalkType.PM, message, character))
 						{
 							_returnToLogin();
 							break;
@@ -636,7 +636,7 @@ namespace EndlessClient
 					if (filtered != null)
 					{
 						//send packet to the server
-						if (!Talk.Speak(TalkType.Local, chatText))
+						if (!m_packetAPI.Speak(TalkType.Local, chatText))
 						{
 							_returnToLogin();
 							break;

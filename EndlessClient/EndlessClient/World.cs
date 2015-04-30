@@ -706,33 +706,7 @@ namespace EndlessClient
 				{
 					new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Player),
 					new LockedHandlerMethod(StatSkill.StatSkillPlayer, true)
-				},
-				//TALK PACKETS
-				{
-					new FamilyActionPair(PacketFamily.Talk, PacketAction.Message),
-					new LockedHandlerMethod(Talk.TalkMessage, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Talk, PacketAction.Player),
-					new LockedHandlerMethod(Talk.TalkPlayer, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Talk, PacketAction.Reply),
-					new LockedHandlerMethod(Talk.TalkReply, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Talk, PacketAction.Request),
-					new LockedHandlerMethod(Talk.TalkRequest, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Talk, PacketAction.Server),
-					new LockedHandlerMethod(Talk.TalkServer, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Talk, PacketAction.Tell),
-					new LockedHandlerMethod(Talk.TalkTell, true)
-				},
-				//
+				}
 			};
 		}
 

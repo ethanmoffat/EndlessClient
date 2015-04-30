@@ -679,6 +679,31 @@ namespace EndlessClient
 				stats.SetMaxSP(_stats.MaxSP);
 				Hud.RefreshStats();
 			};
+
+			m_packetAPI.OnPlayerChatByID += (type, id, message) => World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.Local, id, message, ChatType.SpeechBubble);
+			m_packetAPI.OnPlayerChatByName += (type, name, msg) =>
+			{
+				switch (type)
+				{
+					//invalid types
+					case TalkType.Local:
+					case TalkType.Party:
+						break;
+					case TalkType.PM: 
+						Hud.AddChat(ChatTabs.Local, name, msg, ChatType.Note, ChatColor.PM);
+						ChatTabs tab = Hud.GetPrivateChatTab(name);
+						Hud.AddChat(tab, name, msg, ChatType.Note);
+						break;
+					case TalkType.Global: Hud.AddChat(ChatTabs.Global, name, msg, ChatType.GlobalAnnounce); break;
+					case TalkType.Guild: Hud.AddChat(ChatTabs.Group, name, msg); break;
+					case TalkType.Server:
+						Hud.AddChat(ChatTabs.Local, World.GetString(DATCONST2.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.Server);
+						Hud.AddChat(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.ServerGlobal);
+						Hud.AddChat(ChatTabs.System, "", msg, ChatType.Exclamation, ChatColor.Server);
+						break;
+				}
+			};
+			m_packetAPI.OnPMRecipientNotFound += name => Hud.PrivatePlayerNotFound(name);
 		}
 
 		//-----------------------------
