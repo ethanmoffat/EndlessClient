@@ -2375,7 +2375,7 @@ namespace EndlessClient
 
 			if (old == newState) return;
 			
-			int buyNumInt = m_tradeItems.FindAll(x => World.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(item => item.id == x.ID) >= 0 && x.Buy > 0).Count;
+			int buyNumInt = m_tradeItems.FindAll(x => x.Buy > 0).Count;
 			int sellNumInt = m_tradeItems.FindAll(x => World.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(item => item.id == x.ID) >= 0 && x.Sell > 0).Count;
 
 			if (newState == ShopState.Buying && buyNumInt <= 0)
