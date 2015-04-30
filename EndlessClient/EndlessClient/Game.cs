@@ -439,7 +439,7 @@ namespace EndlessClient
 
 				EOChestDialog.Instance.InitializeItems(data.Items);
 			};
-			m_packetAPI.OnChestAgree += data => EOChestDialog.Instance.InitializeItems(data.Items);
+			m_packetAPI.OnChestAgree += data => { if (EOChestDialog.Instance != null) EOChestDialog.Instance.InitializeItems(data.Items); };
 			m_packetAPI.OnChestAddItem += (id, amount, weight, maxWeight, data) =>
 			{
 				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight);
@@ -1013,7 +1013,6 @@ namespace EndlessClient
 			if(connectMutex != null)
 				connectMutex.Set();
 			World.Instance.Client.Dispose(); //kill pending connection request on exit
-			Logger.Close();
 			base.OnExiting(sender, args);
 		}
 	}
