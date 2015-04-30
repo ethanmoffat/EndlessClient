@@ -267,13 +267,13 @@ namespace EndlessClient
 							if (e.Result == XNADialogResult.Cancel)
 								return;
 
-							if (!Handlers.Bank.BankDeposit(dlg.SelectedAmount))
+							if (!m_api.BankDeposit(dlg.SelectedAmount))
 								EOGame.Instance.LostConnectionDialog();
 						};
 					}
 					else
 					{
-						if (!Handlers.Bank.BankDeposit(1))
+						if (!m_api.BankDeposit(1))
 							EOGame.Instance.LostConnectionDialog();
 					}
 				}
@@ -365,6 +365,7 @@ namespace EndlessClient
 		public void UpdateItemLabel()
 		{
 			m_nameLabel.Text = GetNameString(m_inventory.id, m_inventory.amount);
+			m_nameLabel.ResizeBasedOnText(16, 9);
 		}
 
 		protected override void Dispose(bool disposing)
@@ -697,7 +698,7 @@ namespace EndlessClient
 
 			int numLeft = control.Inventory.amount - count;
 
-			if (numLeft <= 0)
+			if (numLeft <= 0 && control.Inventory.id != 1)
 			{
 				ItemSize sz = control.ItemData.Size;
 				List<Tuple<int, int>> points = _getTakenSlots(control.Slot, sz);
@@ -709,7 +710,10 @@ namespace EndlessClient
 				control.Close();
 			}
 			else
+			{
 				control.Inventory = new InventoryItem {amount = numLeft, id = control.Inventory.id};
+				control.UpdateItemLabel();
+			}
 		}
 
 		public bool MoveItem(EOInventoryItem childItem, int newSlot)

@@ -2844,14 +2844,14 @@ namespace EndlessClient
 	{
 		public static EOBankAccountDialog Instance { get; private set; }
 
-		public static void Show(short npcID)
+		public static void Show(PacketAPI api, short npcID)
 		{
 			if (Instance != null)
 				return;
 
-			Instance = new EOBankAccountDialog();
+			Instance = new EOBankAccountDialog(api);
 
-			if (!Bank.BankOpen(npcID))
+			if (!api.BankOpen(npcID))
 			{
 				Instance.Close();
 				Instance = null;
@@ -2869,7 +2869,8 @@ namespace EndlessClient
 
 		public int LockerUpgrades { get; set; }
 
-		private EOBankAccountDialog()
+		private EOBankAccountDialog(PacketAPI api)
+			: base(api)
 		{
 			//this uses EODialogListItems but does not inherit from EOScrollingListDialog since it is a different size
 			//offsety 50
@@ -2928,7 +2929,7 @@ namespace EndlessClient
 			}
 			if (item.amount == 1)
 			{
-				if (!Bank.BankDeposit(1))
+				if (!m_api.BankDeposit(1))
 				{
 					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 					EOGame.Instance.LostConnectionDialog();
@@ -2943,7 +2944,7 @@ namespace EndlessClient
 				if (e.Result == XNADialogResult.Cancel)
 					return;
 
-				if (!Bank.BankDeposit(dlg.SelectedAmount))
+				if (!m_api.BankDeposit(dlg.SelectedAmount))
 				{
 					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 					EOGame.Instance.LostConnectionDialog();
@@ -2961,7 +2962,7 @@ namespace EndlessClient
 			}
 			if (balance == 1)
 			{
-				if (!Bank.BankWithdraw(1))
+				if (!m_api.BankWithdraw(1))
 				{
 					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 					EOGame.Instance.LostConnectionDialog();
@@ -2976,7 +2977,7 @@ namespace EndlessClient
 				if (e.Result == XNADialogResult.Cancel)
 					return;
 
-				if (!Bank.BankWithdraw(dlg.SelectedAmount))
+				if (!m_api.BankWithdraw(dlg.SelectedAmount))
 				{
 					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 					EOGame.Instance.LostConnectionDialog();
@@ -3010,6 +3011,24 @@ namespace EndlessClient
 					Packet pkt = new Packet(PacketFamily.Locker, PacketAction.Buy);
 					World.Instance.Client.SendPacket(pkt);
 				});
+		}
+
+		public override void Update(GameTime gt)
+		{
+			if (!Game.IsActive) return;
+
+			if (EOGame.Instance.Hud.IsInventoryDragging())
+			{
+				shouldClickDrag = false;
+				SuppressParentClickDrag(true);
+			}
+			else
+			{
+				shouldClickDrag = true;
+				SuppressParentClickDrag(false);
+			}
+
+			base.Update(gt);
 		}
 	}
 }

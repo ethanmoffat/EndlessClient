@@ -24,6 +24,7 @@ namespace EOLib.Net
 			_createAdminInteractMembers();
 			_createAttackMembers();
 			_createAvatarMembers();
+			_createBankMembers();
 			_createCharacterMembers();
 			_createChestMembers();
 			_createConnectionMembers();

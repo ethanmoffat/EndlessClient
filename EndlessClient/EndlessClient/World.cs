@@ -506,7 +506,10 @@ namespace EndlessClient
 			if (mapID >= 0)
 			{
 				if (!_tryLoadMap(mapID))
-					throw new IOException("Something was wrong with the map file...");
+				{
+					EOGame.Instance.LostConnectionDialog();
+					EODialog.Show("Something went wrong when loading the map. Try logging in again.", "Map Load Error");
+				}
 
 				MainPlayer.ActiveCharacter.CurrentMap = mapID;
 				ActiveMapRenderer.SetActiveMap(ActiveMap);
@@ -655,14 +658,6 @@ namespace EndlessClient
 		{
 			return new Dictionary<FamilyActionPair, LockedHandlerMethod>
 			{
-				{
-					new FamilyActionPair(PacketFamily.Bank, PacketAction.Open), 
-					new LockedHandlerMethod(Bank.BankOpenReply, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Bank, PacketAction.Reply), 
-					new LockedHandlerMethod(Bank.BankReply, true)
-				},
 				{
 					new FamilyActionPair(PacketFamily.Effect, PacketAction.Player),
 					new LockedHandlerMethod(Effect.EffectPlayer, true)

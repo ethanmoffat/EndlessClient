@@ -1153,7 +1153,7 @@ namespace EndlessClient
 								case NPCType.Inn:
 									break;
 								case NPCType.Bank:
-									EOBankAccountDialog.Show(npc.Index);
+									EOBankAccountDialog.Show(m_api, npc.Index);
 									break;
 								case NPCType.Barber:
 									break;

@@ -704,6 +704,20 @@ namespace EndlessClient
 				}
 			};
 			m_packetAPI.OnPMRecipientNotFound += name => Hud.PrivatePlayerNotFound(name);
+
+			m_packetAPI.OnBankOpen += (gold, upgrades) =>
+			{
+				if (EOBankAccountDialog.Instance == null) return;
+				EOBankAccountDialog.Instance.AccountBalance = string.Format("{0}", gold);
+				EOBankAccountDialog.Instance.LockerUpgrades = upgrades;
+			};
+			m_packetAPI.OnBankChange += (gold, bankGold) =>
+			{
+				if (EOBankAccountDialog.Instance == null) return;
+
+				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
+				EOBankAccountDialog.Instance.AccountBalance = string.Format("{0}", bankGold);
+			};
 		}
 
 		//-----------------------------

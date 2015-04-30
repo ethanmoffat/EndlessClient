@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
@@ -178,6 +177,7 @@ namespace EndlessClient
 				_pnl.IgnoreDialog(typeof(EOChestDialog));
 				_pnl.IgnoreDialog(typeof(EOShopDialog));
 				_pnl.IgnoreDialog(typeof(EOLockerDialog));
+				_pnl.IgnoreDialog(typeof(EOBankAccountDialog));
 			});
 
 			for (int i = 0; i < NUM_BTN; ++i)
@@ -206,6 +206,7 @@ namespace EndlessClient
 				mainBtn[i].IgnoreDialog(typeof(EOPaperdollDialog));
 				mainBtn[i].IgnoreDialog(typeof(EOShopDialog));
 				mainBtn[i].IgnoreDialog(typeof(EOLockerDialog));
+				mainBtn[i].IgnoreDialog(typeof(EOBankAccountDialog));
 				//mainBtn[i].ignoreDialog(typeof(EOTradingDialog)); //etc, etc for all other dialogs that should be ignored when they're top-most
 			}
 
@@ -249,6 +250,7 @@ namespace EndlessClient
 			chatTextBox.IgnoreDialog(typeof(EOChestDialog));
 			chatTextBox.IgnoreDialog(typeof(EOShopDialog));
 			chatTextBox.IgnoreDialog(typeof(EOLockerDialog));
+			chatTextBox.IgnoreDialog(typeof(EOBankAccountDialog));
 			chatTextBox.OnEnterPressed += _doTalk;
 			chatTextBox.OnClicked += (s, e) =>
 			{
