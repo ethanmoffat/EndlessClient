@@ -1013,7 +1013,6 @@ namespace EndlessClient
 			if(connectMutex != null)
 				connectMutex.Set();
 			World.Instance.Client.Dispose(); //kill pending connection request on exit
-			Logger.Close();
 			base.OnExiting(sender, args);
 		}
 	}

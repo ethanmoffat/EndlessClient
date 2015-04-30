@@ -598,24 +598,30 @@ namespace EndlessClient
 					if (!walkValid)
 					{
 						MapChest chest = World.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.x == destX && _c.y == destY);
-						string requiredKey = null;
-						switch (Character.CanOpenChest(chest))
+						if (chest != null)
 						{
-							case ChestKey.Normal: requiredKey = "Normal Key"; break;
-							case ChestKey.Silver: requiredKey = "Silver Key"; break;
-							case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
-							case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
-							default:
-								if (chest != null)
+							string requiredKey = null;
+							switch (Character.CanOpenChest(chest))
+							{
+								case ChestKey.Normal: requiredKey = "Normal Key"; break;
+								case ChestKey.Silver: requiredKey = "Silver Key"; break;
+								case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
+								case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
+								default:
 									EOChestDialog.Show(((EOGame)Game).API, chest.x, chest.y);
-								break;
-						}
+									break;
+							}
 
-						if (requiredKey != null)
+							if (requiredKey != null)
+							{
+								EODialog.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+								((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
+									" - " + requiredKey);
+							}
+						}
+						else
 						{
-							EODialog.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
-							((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
-								" - " + requiredKey);
+							EOChestDialog.Show(((EOGame)Game).API, destX, destY);
 						}
 					}
 					break;
