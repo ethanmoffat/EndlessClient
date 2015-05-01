@@ -134,7 +134,6 @@
     <Compile Include="Handlers\Effect.cs" />
     <Compile Include="Handlers\Emote.cs" />
     <Compile Include="Handlers\Locker.cs" />
-    <Compile Include="Handlers\Shop.cs" />
     <Compile Include="Handlers\StatSkill.cs" />
     <Compile Include="HUDElement.cs" />
     <Compile Include="InGameHud.cs" />
