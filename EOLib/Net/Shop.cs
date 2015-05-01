@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using EOLib;
-using EOLib.Net;
+using System.Text;
 
-namespace EndlessClient.Handlers
+namespace EOLib.Net
 {
 	public struct ShopItem
 	{
@@ -41,81 +40,86 @@ namespace EndlessClient.Handlers
 		}
 	}
 
-	public static class Shop
+	partial class PacketAPI
 	{
-		/// <summary>
-		/// Sends SHOP_OPEN to server, opening a "Shop" dialog
-		/// </summary>
-		/// <returns>false on connection problems, true otherwise</returns>
-		public static bool RequestShop(short NpcID)
+		public delegate void ShopOpenEvent(int shopID, string name, List<ShopItem> tradeItems, List<CraftItem> craftItems);
+		public delegate void ShopTradeEvent(int goldRemaining, short itemID, int amount, byte weight, byte maxWeight, bool isBuy);
+		public delegate void ShopCraftEvent(short itemID, byte weight, byte maxWeight, List<InventoryItem> ingredients);
+		public event ShopOpenEvent OnShopOpen;
+		public event ShopTradeEvent OnShopTradeItem;
+		public event ShopCraftEvent OnShopCraftItem;
+
+		private void _createShopMembers()
 		{
-			EOClient client = (EOClient) World.Instance.Client;
-			if (!client.ConnectedAndInitialized)
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Shop, PacketAction.Open), _handleShopOpen, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Shop, PacketAction.Buy), _handleShopBuy, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Shop, PacketAction.Sell), _handleShopSell, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Shop, PacketAction.Create), _handleShopCreate, true);
+		}
+
+		public bool RequestShop(short npcIndex)
+		{
+			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
 			Packet pkt = new Packet(PacketFamily.Shop, PacketAction.Open);
-			pkt.AddShort(NpcID);
+			pkt.AddShort(npcIndex);
 
-			return client.SendPacket(pkt);
+			return m_client.SendPacket(pkt);
 		}
 
 		/// <summary>
 		/// Buy an item from a shopkeeper
 		/// </summary>
-		public static bool BuyItem(short ItemID, int amount)
+		public bool BuyItem(short ItemID, int amount)
 		{
-			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.ConnectedAndInitialized)
+			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
 			Packet pkt = new Packet(PacketFamily.Shop, PacketAction.Buy);
 			pkt.AddShort(ItemID);
 			pkt.AddInt(amount);
 
-			return client.SendPacket(pkt);
+			return m_client.SendPacket(pkt);
 		}
 
 		/// <summary>
 		/// Sell an item to a shopkeeper
 		/// </summary>
-		public static bool SellItem(short ItemID, int amount)
+		public bool SellItem(short ItemID, int amount)
 		{
-			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.ConnectedAndInitialized)
+			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
 			Packet pkt = new Packet(PacketFamily.Shop, PacketAction.Sell);
 			pkt.AddShort(ItemID);
 			pkt.AddInt(amount);
 
-			return client.SendPacket(pkt);
+			return m_client.SendPacket(pkt);
 		}
 
 		/// <summary>
 		/// Craft an item with a shopkeeper
 		/// </summary>
-		public static bool CraftItem(short ItemID)
+		public bool CraftItem(short ItemID)
 		{
-			EOClient client = (EOClient)World.Instance.Client;
-			if (!client.ConnectedAndInitialized)
+			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
 			Packet pkt = new Packet(PacketFamily.Shop, PacketAction.Create);
 			pkt.AddShort(ItemID);
 
-			return client.SendPacket(pkt);
+			return m_client.SendPacket(pkt);
 		}
-
+		
 		/// <summary>
 		/// Handles SHOP_OPEN from server, contains shop data for a shop dialog
 		/// </summary>
-		public static void ShopOpen(Packet pkt)
+		private void _handleShopOpen(Packet pkt)
 		{
-			if (EOShopDialog.Instance == null) return;
+			if (OnShopOpen == null) return;
 
 			int shopKeeperID = pkt.GetShort();
-			if (shopKeeperID != EOShopDialog.Instance.ID) return;
-
 			string shopName = pkt.GetBreakString();
 
 			List<ShopItem> tradeItems = new List<ShopItem>();
@@ -140,58 +144,61 @@ namespace EndlessClient.Handlers
 			}
 			pkt.GetByte();
 
-			EOShopDialog.Instance.SetShopData(shopKeeperID, shopName, tradeItems, craftItems);
+			OnShopOpen(shopKeeperID, shopName, tradeItems, craftItems);
 		}
 
 		/// <summary>
 		/// Handles SHOP_BUY from server, response to buying an item
 		/// </summary>
-		public static void ShopBuy(Packet pkt)
+		private void _handleShopBuy(Packet pkt)
 		{
+			if (OnShopTradeItem == null) return;
+
 			int charGoldLeft = pkt.GetInt();
 			short itemID = pkt.GetShort();
 			int amount = pkt.GetInt();
-			byte charWeight = pkt.GetChar();
-			byte charMaxWeight = pkt.GetChar();
+			byte weight = pkt.GetChar();
+			byte maxWeight = pkt.GetChar();
 
-			EndlessClient.Character c = World.Instance.MainPlayer.ActiveCharacter;
-			c.UpdateInventoryItem(1, charGoldLeft);
-			c.UpdateInventoryItem(itemID, amount, charWeight, charMaxWeight, true);
+			OnShopTradeItem(charGoldLeft, itemID, amount, weight, maxWeight, true);
 		}
 
 		/// <summary>
 		/// Handles SHOP_SELL from server, response to selling an item
 		/// </summary>
-		public static void ShopSell(Packet pkt)
+		private void _handleShopSell(Packet pkt)
 		{
+			if (OnShopTradeItem == null) return;
+
 			int charNumLeft = pkt.GetInt();
 			short itemID = pkt.GetShort();
 			int charGold = pkt.GetInt();
 			byte weight = pkt.GetChar();
 			byte maxWeight = pkt.GetChar();
 
-			EndlessClient.Character c = World.Instance.MainPlayer.ActiveCharacter;
-			c.UpdateInventoryItem(1, charGold);
-			c.UpdateInventoryItem(itemID, charNumLeft, weight, maxWeight);
+			OnShopTradeItem(charGold, itemID, charNumLeft, weight, maxWeight, false);
 		}
 
 		/// <summary>
 		/// Handles SHOP_CREATE from server, response to crafting an item
 		/// </summary>
-		public static void ShopCreate(Packet pkt)
+		private void _handleShopCreate(Packet pkt)
 		{
+			if (OnShopCraftItem == null) return;
+
 			short itemID = pkt.GetShort();
 			byte weight = pkt.GetChar();
 			byte maxWeight = pkt.GetChar();
 
-			EndlessClient.Character c = World.Instance.MainPlayer.ActiveCharacter;
-			c.UpdateInventoryItem(itemID, 1, weight, maxWeight, true);
+			List<InventoryItem> inventoryItems = new List<InventoryItem>(4);
 			while (pkt.ReadPos != pkt.Length)
 			{
 				if (pkt.PeekShort() <= 0) break;
 
-				c.UpdateInventoryItem(pkt.GetShort(), pkt.GetInt());
+				inventoryItems.Add(new InventoryItem {id = pkt.GetShort(), amount = pkt.GetInt()});
 			}
+
+			OnShopCraftItem(itemID, weight, maxWeight, inventoryItems);
 		}
 	}
 }

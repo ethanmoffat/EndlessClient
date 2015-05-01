@@ -70,6 +70,7 @@
     <Compile Include="Net\Players.cs" />
     <Compile Include="Net\Recover.cs" />
     <Compile Include="Net\Refresh.cs" />
+    <Compile Include="Net\Shop.cs" />
     <Compile Include="Net\Talk.cs" />
     <Compile Include="Net\Walk.cs" />
     <Compile Include="Net\Warp.cs" />

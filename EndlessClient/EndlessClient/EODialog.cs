@@ -1966,7 +1966,8 @@ namespace EndlessClient
 			set { m_titleText.Text = value; }
 		}
 
-		public EOScrollingListDialog(string title, ScrollingListDialogButtons whichButtons, EODialogListItem.ListItemStyle ListType)
+		public EOScrollingListDialog(string title, ScrollingListDialogButtons whichButtons, EODialogListItem.ListItemStyle ListType, PacketAPI api = null)
+			: base(api)
 		{
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 52);
 			_setSize(bgTexture.Width, bgTexture.Height);
@@ -2296,15 +2297,15 @@ namespace EndlessClient
 		/* STATIC INTERFACE */
 		public static EOShopDialog Instance { get; private set; }
 
-		public static void Show(NPC shopKeeper)
+		public static void Show(PacketAPI api, NPC shopKeeper)
 		{
 			if (Instance != null)
 				return;
 
-			Instance = new EOShopDialog(shopKeeper.Data.ID);
+			Instance = new EOShopDialog(api, shopKeeper.Data.ID);
 
 			//request from server is based on the map index
-			if (!Shop.RequestShop(shopKeeper.Index))
+			if (!api.RequestShop(shopKeeper.Index))
 			{
 				Instance.Close();
 				Instance = null;
@@ -2329,8 +2330,8 @@ namespace EndlessClient
 
 		private static Texture2D BuyIcon, SellIcon, CraftIcon;
 
-		private EOShopDialog(int id)
-			: base("", ScrollingListDialogButtons.Cancel, EODialogListItem.ListItemStyle.Large)
+		private EOShopDialog(PacketAPI api, int id)
+			: base("", ScrollingListDialogButtons.Cancel, EODialogListItem.ListItemStyle.Large, api)
 		{
 			ID = id;
 			DialogClosing += (o, e) =>
@@ -2530,14 +2531,14 @@ namespace EndlessClient
 			if(!isBuying && ii.amount == 1)
 			{
 				string _message = string.Format("{0} 1 {1} {2} {3} gold?", 
-					World.GetString(DATCONST2.DIALOG_TRANSFER_SELL),
+					World.GetString(DATCONST2.DIALOG_WORD_SELL),
 					rec.Name,
 					World.GetString(DATCONST2.DIALOG_WORD_FOR),
 					item.Sell);
 				EODialog.Show(_message, World.GetString(DATCONST2.DIALOG_SHOP_SELL_ITEMS), XNADialogButtons.OkCancel,
 					EODialogStyle.SmallDialogSmallHeader, (oo, ee) =>
 					{
-						if (ee.Result == XNADialogResult.OK && !Shop.SellItem((short) item.ID, 1))
+						if (ee.Result == XNADialogResult.OK && !m_api.SellItem((short) item.ID, 1))
 						{
 							EOGame.Instance.LostConnectionDialog();
 						}
@@ -2552,7 +2553,7 @@ namespace EndlessClient
 					if (e.Result == XNADialogResult.OK)
 					{
 						string _message = string.Format("{0} {1} {2} {3} {4} gold?",
-							World.GetString(isBuying ? DATCONST2.DIALOG_TRANSFER_BUY : DATCONST2.DIALOG_TRANSFER_SELL),
+							World.GetString(isBuying ? DATCONST2.DIALOG_WORD_BUY : DATCONST2.DIALOG_WORD_SELL),
 							dlg.SelectedAmount, rec.Name,
 							World.GetString(DATCONST2.DIALOG_WORD_FOR),
 							(isBuying ? item.Buy : item.Sell) * dlg.SelectedAmount);
@@ -2564,8 +2565,8 @@ namespace EndlessClient
 								if (ee.Result == XNADialogResult.OK)
 								{
 									//only actually do the buy/sell if the user then clicks "OK" in the second prompt
-									if (isBuying && !Shop.BuyItem((short) item.ID, dlg.SelectedAmount) ||
-									    !isBuying && !Shop.SellItem((short) item.ID, dlg.SelectedAmount))
+									if (isBuying && !m_api.BuyItem((short) item.ID, dlg.SelectedAmount) ||
+									    !isBuying && !m_api.SellItem((short) item.ID, dlg.SelectedAmount))
 									{
 										EOGame.Instance.LostConnectionDialog();
 									}
@@ -2620,7 +2621,7 @@ namespace EndlessClient
 				craftItemRec.Name);
 			EODialog.Show(_message2, _caption2, XNADialogButtons.OkCancel, EODialogStyle.LargeDialogSmallHeader, (o, e) =>
 			{
-				if (e.Result == XNADialogResult.OK && !Shop.CraftItem((short)item.ID))
+				if (e.Result == XNADialogResult.OK && !m_api.CraftItem((short)item.ID))
 				{
 					EOGame.Instance.LostConnectionDialog();
 				}

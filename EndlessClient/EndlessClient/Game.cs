@@ -727,6 +727,24 @@ namespace EndlessClient
 				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
 				EOBankAccountDialog.Instance.AccountBalance = string.Format("{0}", bankGold);
 			};
+
+			m_packetAPI.OnShopOpen += (id, name, items, craftItems) =>
+			{
+				if (EOShopDialog.Instance == null) return;
+				EOShopDialog.Instance.SetShopData(id, name, items, craftItems);
+			};
+			m_packetAPI.OnShopTradeItem += (gold, itemID, amount, weight, maxWeight, isBuy) =>
+			{
+				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
+				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(itemID, amount, weight, maxWeight, isBuy);
+			};
+			m_packetAPI.OnShopCraftItem += (id, weight, maxWeight, ingredients) =>
+			{
+				Character c = World.Instance.MainPlayer.ActiveCharacter;
+				c.UpdateInventoryItem(id, 1, weight, maxWeight, true);
+				foreach (var ingred in ingredients)
+					c.UpdateInventoryItem(ingred.id, ingred.amount);
+			};
 		}
 
 		//-----------------------------

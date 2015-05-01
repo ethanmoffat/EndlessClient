@@ -683,22 +683,6 @@ namespace EndlessClient
 					new LockedHandlerMethod(Locker.LockerReply, true)
 				},
 				{
-					new FamilyActionPair(PacketFamily.Shop, PacketAction.Buy),
-					new LockedHandlerMethod(Shop.ShopBuy, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Shop, PacketAction.Create),
-					new LockedHandlerMethod(Shop.ShopCreate, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Shop, PacketAction.Open),
-					new LockedHandlerMethod(Shop.ShopOpen, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.Shop, PacketAction.Sell),
-					new LockedHandlerMethod(Shop.ShopSell, true)
-				},
-				{
 					new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Player),
 					new LockedHandlerMethod(StatSkill.StatSkillPlayer, true)
 				}

@@ -1148,7 +1148,7 @@ namespace EndlessClient
 							switch (npc.Data.Type)
 							{
 								case NPCType.Shop:
-									EOShopDialog.Show(npc);
+									EOShopDialog.Show(m_api, npc);
 									break;
 								case NPCType.Inn:
 									break;
