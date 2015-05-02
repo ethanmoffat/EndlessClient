@@ -3,9 +3,9 @@ EndlessClient
 
 An open source client for Endless Online written in C#
 
-![alt text](http://i.imgur.com/s0MpbG1.gif "Slow 9MB GIF incoming!")
+![alt text](http://i.imgur.com/GTQbwrS.gif "11MB GIF incoming!")
 
-Note: the above GIF is as of 2/7/15 - the egregious display bugs in map rendering have since been fixed
+Here is a link to [an older gif with less features](http://i.imgur.com/s0MpbG1.gif).
 
 #### Jump to:
  - [Download and Play](#Download)
