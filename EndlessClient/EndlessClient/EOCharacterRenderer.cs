@@ -994,32 +994,24 @@ namespace EndlessClient
 			if (weapon != null && !weaponDrawn)
 				_drawWeapon(flipped);
 
-			SpriteBatch.End();
 			lock (hatHairLock)
 			{
-				SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 				if (hatInfo != null && hatInfo.SubType == EOLib.Data.ItemSubType.FaceMask)
 				{
 					if (hat != null)
 						SpriteBatch.Draw(hat, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y - 3), null, Color.White, 0.0f,
 							Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-					if (hair != null)
-						SpriteBatch.Draw(hair, new Vector2(DrawAreaWithOffset.X + (flipped ? 2 : 0), DrawAreaWithOffset.Y), null,
-							Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+					_drawHair(flipped);
 				}
 				else
 				{
-					if (hair != null)
-						SpriteBatch.Draw(hair, new Vector2(DrawAreaWithOffset.X + (flipped ? 2 : 0), DrawAreaWithOffset.Y), null,
-							Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+					_drawHair(flipped);
 					if (hat != null)
 						SpriteBatch.Draw(hat, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y - 3), null, Color.White, 0.0f,
 							Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 				}
-				SpriteBatch.End();
 			}
 
-			SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 			if (shield != null && !shieldDrawn)
 				SpriteBatch.Draw(shield, new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 			SpriteBatch.End();
@@ -1047,7 +1039,7 @@ namespace EndlessClient
 						skinLoc = new Vector2(2 + DrawAreaWithOffset.X + skinXOff, (Data.gender == 0 ? 11 : 12) + DrawAreaWithOffset.Y);
 						break;
 					case CharacterActionState.Attacking:
-						if (weaponInfo != null && weaponInfo.SubType != ItemSubType.Ranged)
+						if (weaponInfo == null || (weaponInfo != null && weaponInfo.SubType != ItemSubType.Ranged))
 						{
 							switch (Facing)
 							{
@@ -1079,7 +1071,6 @@ namespace EndlessClient
 							{
 								case EODirection.Up:
 									skinXOff += Data.gender == 1 ? 2 : 1;
-									//skinYOff += Data.gender == 1 ? 0 : 0;
 									break;
 								case EODirection.Right:
 									skinXOff += Data.gender == 1 ? 4 : 3;
@@ -1094,6 +1085,16 @@ namespace EndlessClient
 									break;
 							}
 						}
+						//else if (weaponInfo == null)
+						//{
+						//	switch (Facing)
+						//	{
+						//		case EODirection.Up:
+						//		case EODirection.Right:
+						//			skinXOff += Data.gender == 1 ? -1 : 0;
+						//			break;
+						//	}
+						//}
 						skinLoc = new Vector2(skinLoc.X + skinXOff, skinLoc.Y + skinYOff);
 						break;
 				}
@@ -1179,6 +1180,35 @@ namespace EndlessClient
 				SpriteBatch.Draw(armor, new Vector2(DrawAreaWithOffset.X - 2 + xAdjust, DrawAreaWithOffset.Y + yAdjust), null, Color.White, 0.0f,
 					Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 			}
+		}
+
+		private void _drawHair(bool flipped)
+		{
+			if (hair == null) return;
+
+			int hairOffX = 0, hairOffY = 0;
+			Vector2 hairLoc = new Vector2(DrawAreaWithOffset.X + (flipped ? 2 : 0), DrawAreaWithOffset.Y);
+			if(Data != null && State == CharacterActionState.Attacking && Data.attackFrame == 2)
+			{
+				switch (Facing)
+				{
+					case EODirection.Down:
+						hairOffX = -8;
+						hairOffY = Data.gender == 1 ? 5 : 6;
+						break;
+					case EODirection.Right:
+						hairOffX = 8;
+						hairOffY = Data.gender == 1 ? 5 : 6;
+						break;
+					case EODirection.Up:
+						hairOffX = Data.gender == 1 ? 6 : 8;
+						break;
+					case EODirection.Left:
+						hairOffX = Data.gender == 1 ? -6 : -8;
+						break;
+				}
+			}
+			SpriteBatch.Draw(hair, new Vector2(hairLoc.X + hairOffX, hairLoc.Y + hairOffY), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 		}
 
 		private void maskTheHair()
