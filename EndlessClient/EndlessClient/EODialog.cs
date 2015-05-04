@@ -2633,13 +2633,13 @@ namespace EndlessClient
 	{
 		public static EOLockerDialog Instance { get; private set; }
 
-		public static void Show(byte x, byte y)
+		public static void Show(PacketAPI api, byte x, byte y)
 		{
 			if (Instance != null) return;
 
-			Instance = new EOLockerDialog(x, y);
+			Instance = new EOLockerDialog(api, x, y);
 
-			if(!Locker.OpenLocker(x, y))
+			if(!api.OpenLocker(x, y))
 				EOGame.Instance.LostConnectionDialog();
 		}
 
@@ -2651,8 +2651,8 @@ namespace EndlessClient
 
 		private List<InventoryItem> items = new List<InventoryItem>(); 
 
-		private EOLockerDialog(byte x, byte y)
-			: base(string.Format(TITLE_FMT, 0), ScrollingListDialogButtons.Cancel, EODialogListItem.ListItemStyle.Large)
+		private EOLockerDialog(PacketAPI api, byte x, byte y)
+			: base(string.Format(TITLE_FMT, 0), ScrollingListDialogButtons.Cancel, EODialogListItem.ListItemStyle.Large, api)
 		{
 			X = x;
 			Y = y;
@@ -2715,7 +2715,7 @@ namespace EndlessClient
 				return;
 			}
 
-			if(!Locker.TakeItem((short)item.ID))
+			if(!m_api.LockerTakeItem(X, Y, (short)item.ID))
 				EOGame.Instance.LostConnectionDialog();
 		}
 

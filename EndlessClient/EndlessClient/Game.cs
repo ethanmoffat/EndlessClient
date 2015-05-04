@@ -745,6 +745,27 @@ namespace EndlessClient
 				foreach (var ingred in ingredients)
 					c.UpdateInventoryItem(ingred.id, ingred.amount);
 			};
+
+			m_packetAPI.OnLockerOpen += (x, y, items) =>
+			{
+				if (EOLockerDialog.Instance == null || EOLockerDialog.Instance.X != x || EOLockerDialog.Instance.Y != y)
+					return;
+				EOLockerDialog.Instance.SetLockerData(items);
+			};
+			m_packetAPI.OnLockerItemChange += (id, amount, weight, maxWeight, existingAmount, items) =>
+			{
+				if (EOLockerDialog.Instance == null) return;
+				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, existingAmount);
+				EOLockerDialog.Instance.SetLockerData(items);
+			};
+			m_packetAPI.OnLockerUpgrade += (remaining, upgrades) =>
+			{
+				if (EOBankAccountDialog.Instance == null) return;
+				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
+				EOBankAccountDialog.Instance.LockerUpgrades = upgrades;
+				Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_LOCKER_SPACE_INCREASED);
+			};
+
 		}
 
 		//-----------------------------

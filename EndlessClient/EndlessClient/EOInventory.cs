@@ -226,6 +226,8 @@ namespace EndlessClient
 				}
 				else if (EOLockerDialog.Instance != null && EOLockerDialog.Instance.MouseOver && EOLockerDialog.Instance.MouseOverPreviously)
 				{
+					byte x = EOLockerDialog.Instance.X;
+					byte y = EOLockerDialog.Instance.Y;
 					if (m_inventory.id == 1)
 					{
 						EODialog.Show(DATCONST1.LOCKER_DEPOSIT_GOLD_ERROR, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
@@ -239,7 +241,7 @@ namespace EndlessClient
 							{
 								if (EOLockerDialog.Instance.GetNewItemAmount(m_inventory.id, dlg.SelectedAmount) > Constants.LockerMaxSingleItemAmount)
 									EODialog.Show(DATCONST1.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
-								else if (!Handlers.Locker.AddItem(m_inventory.id, dlg.SelectedAmount))
+								else if (!m_api.LockerAddItem(x, y, m_inventory.id, dlg.SelectedAmount))
 									EOGame.Instance.LostConnectionDialog();
 							}
 						};
@@ -248,7 +250,7 @@ namespace EndlessClient
 					{
 						if (EOLockerDialog.Instance.GetNewItemAmount(m_inventory.id, 1) > Constants.LockerMaxSingleItemAmount)
 							EODialog.Show(DATCONST1.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
-						else if (!Handlers.Locker.AddItem(m_inventory.id, 1))
+						else if (!m_api.LockerAddItem(x, y, m_inventory.id, 1))
 							EOGame.Instance.LostConnectionDialog();
 					}
 				}

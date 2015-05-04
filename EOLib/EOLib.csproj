@@ -62,6 +62,7 @@
     <Compile Include="Net\Face.cs" />
     <Compile Include="Net\Init.cs" />
     <Compile Include="Net\Item.cs" />
+    <Compile Include="Net\Locker.cs" />
     <Compile Include="Net\Login.cs" />
     <Compile Include="Net\Message.cs" />
     <Compile Include="Net\NPC.cs" />

@@ -1251,7 +1251,7 @@ namespace EndlessClient
 									_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
 									if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y))
 									{
-										EOLockerDialog.Show((byte)gridX, (byte)gridY);
+										EOLockerDialog.Show(m_api, (byte)gridX, (byte)gridY);
 									}
 									break;
 								case TileSpec.ChairDown:

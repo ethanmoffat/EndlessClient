@@ -629,7 +629,7 @@ namespace EndlessClient
 					walkValid = NoWall;
 					if (!walkValid)
 					{
-						EOLockerDialog.Show(destX, destY);
+						EOLockerDialog.Show(((EOGame)Game).API, destX, destY);
 					}
 					break;
 				case TileSpec.Board1: //todo: boards?

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace EOLib.Net
+﻿namespace EOLib.Net
 {
 	partial class PacketAPI
 	{
@@ -62,7 +57,7 @@ namespace EOLib.Net
 			return m_client.SendPacket(pkt);
 		}
 
-		public void _handleBankReply(Packet pkt)
+		private void _handleBankReply(Packet pkt)
 		{
 			int characterGold = pkt.GetInt();
 			int bankAmount = pkt.GetInt();

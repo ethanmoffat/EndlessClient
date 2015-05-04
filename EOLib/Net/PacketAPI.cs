@@ -32,6 +32,7 @@ namespace EOLib.Net
 			_createFaceMembers();
 			_createInitMembers();
 			_createItemMembers();
+			_createLockerMembers();
 			_createLoginMembers();
 			_createMessageMembers();
 			_createPaperdollMembers();
