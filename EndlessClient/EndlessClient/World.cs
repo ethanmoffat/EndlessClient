@@ -659,16 +659,8 @@ namespace EndlessClient
 			return new Dictionary<FamilyActionPair, LockedHandlerMethod>
 			{
 				{
-					new FamilyActionPair(PacketFamily.Effect, PacketAction.Player),
-					new LockedHandlerMethod(Effect.EffectPlayer, true)
-				},
-				{
 					new FamilyActionPair(PacketFamily.Emote, PacketAction.Player),
 					new LockedHandlerMethod(Handlers.Emote.EmotePlayer, true)
-				},
-				{
-					new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Player),
-					new LockedHandlerMethod(StatSkill.StatSkillPlayer, true)
 				}
 			};
 		}

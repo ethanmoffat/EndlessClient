@@ -2,15 +2,24 @@
 
 namespace EOLib.Net
 {
-	public struct RecoverStatData
+	public struct DisplayStats
 	{
-		private readonly byte m_class, m_maxWeight;
+		private readonly bool m_statsData;
+		private readonly short m_class;
+
+		private readonly byte m_maxWeight;
 		private readonly short m_str, m_int, m_wis, m_agi, m_con, m_cha;
 		private readonly short m_hp, m_tp, m_sp;
 		private readonly short m_mindam, m_maxdam;
 		private readonly short m_accuracy, m_evade, m_armor;
 
-		public byte Class { get { return m_class; } }
+		//m_class is either a 'Class' id (for Recover_List) or the number
+		//	of statpoints remaining (for StatSkill_Player). Check IsStatsData
+		//	before using these objects.
+		public byte Class { get { return (byte)m_class; } }
+		public short StatPoints { get { return m_class; } }
+		public bool IsStatsData { get { return m_statsData; } }
+
 		public byte MaxWeight { get { return m_maxWeight; } }
 
 		public short Str { get { return m_str; } }
@@ -31,9 +40,10 @@ namespace EOLib.Net
 		public short Evade { get { return m_evade; } }
 		public short Armor { get { return m_armor; } }
 
-		internal RecoverStatData(Packet pkt)
+		internal DisplayStats(Packet pkt, bool isStatsData)
 		{
-			m_class = (byte)pkt.GetShort();
+			m_statsData = isStatsData;
+			m_class = pkt.GetShort();
 			m_str = pkt.GetShort();
 			m_int = pkt.GetShort();
 			m_wis = pkt.GetShort();
@@ -60,7 +70,7 @@ namespace EOLib.Net
 		public event PlayerRecoverEvent OnPlayerRecover;
 		public event RecoverReplyEvent OnRecoverReply;
 		public event PlayerHealEvent OnPlayerHeal;
-		public event Action<RecoverStatData> OnRecoverStatList;
+		public event Action<DisplayStats> OnStatsList;
 
 		private void _createRecoverMembers()
 		{
@@ -85,8 +95,8 @@ namespace EOLib.Net
 		private void _handleRecoverList(Packet pkt)
 		{
 			//almost identical to STATSKILL_PLAYER packet
-			if (OnRecoverStatList != null)
-				OnRecoverStatList(new RecoverStatData(pkt));
+			if (OnStatsList != null)
+				OnStatsList(new DisplayStats(pkt, false));
 		}
 
 		private void _handleRecoverAgree(Packet pkt)

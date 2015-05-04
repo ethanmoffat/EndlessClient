@@ -41,6 +41,7 @@ namespace EOLib.Net
 			_createRecoverMembers();
 			_createRefreshMembers();
 			_createShopMembers();
+			_createStatSkillMembers();
 			_createTalkMembers();
 			_createWalkMembers();
 			_createWarpMembers();

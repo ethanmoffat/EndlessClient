@@ -73,7 +73,7 @@ namespace EndlessClient
 					else
 					{
 						short index = (short)(m_arrows.ToList().FindIndex(_btn => _btn == s) + 1); //1-based index (server-side)
-						if(!Handlers.StatSkill.AddStatPoint(index))
+						if(!((EOGame)Game).API.AddStatPoint(index))
 							EOGame.Instance.LostConnectionDialog();
 					}
 				};

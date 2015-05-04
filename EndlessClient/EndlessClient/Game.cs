@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
-using EndlessClient.Handlers;
 using EOLib.Data;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
@@ -485,10 +484,13 @@ namespace EndlessClient
 					World.Instance.MainPlayer.ActiveCharacter.Stats.level = level;
 				Hud.RefreshStats();
 			};
-			m_packetAPI.OnRecoverStatList += _data =>
+			m_packetAPI.OnStatsList += _data =>
 			{
 				CharStatData localStats = World.Instance.MainPlayer.ActiveCharacter.Stats;
-				World.Instance.MainPlayer.ActiveCharacter.Class = _data.Class;
+				if (_data.IsStatsData)
+					localStats.statpoints = _data.StatPoints;
+				else
+					World.Instance.MainPlayer.ActiveCharacter.Class = _data.Class;
 				localStats.SetStr(_data.Str);
 				localStats.SetInt(_data.Int);
 				localStats.SetWis(_data.Wis);
@@ -497,6 +499,7 @@ namespace EndlessClient
 				localStats.SetCha(_data.Cha);
 				localStats.SetMaxHP(_data.MaxHP);
 				localStats.SetMaxTP(_data.MaxTP);
+				localStats.SetSP(_data.MaxSP);
 				localStats.SetMaxSP(_data.MaxSP);
 				World.Instance.MainPlayer.ActiveCharacter.MaxWeight = _data.MaxWeight;
 				localStats.SetMinDam(_data.MinDam);

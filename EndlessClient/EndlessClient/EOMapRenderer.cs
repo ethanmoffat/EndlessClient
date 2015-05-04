@@ -786,15 +786,6 @@ namespace EndlessClient
 			}
 		}
 
-		public void OtherPlayerEffect(short ID, int effect)
-		{
-			EOCharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
-
-			if (rend == null) return;
-
-			//rend.ShowEffect(effect);
-		}
-
 		public void UpdateOtherPlayers()
 		{
 			//when mainplayer walks, tell other players to update!
