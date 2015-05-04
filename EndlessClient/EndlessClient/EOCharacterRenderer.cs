@@ -960,19 +960,13 @@ namespace EndlessClient
 				GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
 
 			SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
-			//if subtype for this item is wings or arrows, draw at bottom, otherwise draw on top of armor
+			
 			bool shieldDrawn = false, weaponDrawn = false;
-			if (shield != null && World.Instance.EIF != null && shieldInfo != null)
+			if (shield != null && !_drawShieldLater())
 			{
-				//draw it now if: shield type is Wings/Arrows/Bag && facing down/right
-				//also draw it now if: shield type is NOT Wings/Arrows/Bag && facing up/left (ie normal shields)
-				if (((Facing == EODirection.Down || Facing == EODirection.Right) && (shieldInfo.SubType == EOLib.Data.ItemSubType.Wings || shieldInfo.SubType == EOLib.Data.ItemSubType.Arrows))
-					|| ((Facing == EODirection.Left || Facing == EODirection.Up) && !(shieldInfo.SubType == EOLib.Data.ItemSubType.Wings || shieldInfo.SubType == EOLib.Data.ItemSubType.Arrows)))
-				{
-					SpriteBatch.Draw(shield, new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7), null, Color.White, 0.0f,
-						Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-					shieldDrawn = true;
-				}
+				SpriteBatch.Draw(shield, new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7), null, Color.White, 0.0f,
+					Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				shieldDrawn = true;
 			}
 
 			if (weapon != null && !_drawWeaponLater())
@@ -986,9 +980,7 @@ namespace EndlessClient
 				_drawSkin(flipped);
 			}
 
-			if (boots != null)
-				SpriteBatch.Draw(boots, new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y + 49), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-
+			_drawBoots(flipped);
 			_drawArmor(flipped);
 
 			if (weapon != null && !weaponDrawn)
@@ -996,24 +988,12 @@ namespace EndlessClient
 
 			lock (hatHairLock)
 			{
-				if (hatInfo != null && hatInfo.SubType == EOLib.Data.ItemSubType.FaceMask)
-				{
-					if (hat != null)
-						SpriteBatch.Draw(hat, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y - 3), null, Color.White, 0.0f,
-							Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-					_drawHair(flipped);
-				}
-				else
-				{
-					_drawHair(flipped);
-					if (hat != null)
-						SpriteBatch.Draw(hat, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y - 3), null, Color.White, 0.0f,
-							Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-				}
+				_drawHatHair(flipped, hatInfo == null || hatInfo.SubType != EOLib.Data.ItemSubType.FaceMask);
 			}
 
 			if (shield != null && !shieldDrawn)
-				SpriteBatch.Draw(shield, new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				SpriteBatch.Draw(shield, new Vector2(DrawAreaWithOffset.X - 10, DrawAreaWithOffset.Y - 7), null, Color.White, 0.0f,
+					Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 			SpriteBatch.End();
 
 			GraphicsDevice.SetRenderTarget(null);
@@ -1139,6 +1119,19 @@ namespace EndlessClient
 			return pass1 && pass2 && pass3;
 		}
 
+		private bool _drawShieldLater()
+		{
+			//draw the shield last if:
+			//  - Direction is up or left and shield is wings or arrows
+			//  - OR shield is not wings or errors
+
+			bool upLeft = Facing == EODirection.Left || Facing == EODirection.Up;
+			//bool downRight = Facing == EODirection.Down || Facing == EODirection.Right;
+			bool arrowsWings = shieldInfo != null && (shieldInfo.SubType == ItemSubType.Wings || shieldInfo.SubType == ItemSubType.Arrows);
+
+			return (upLeft && arrowsWings) || !arrowsWings;
+		}
+
 		private void _drawWeapon(bool flipped)
 		{
 			int xOffLoc = 0;
@@ -1158,37 +1151,66 @@ namespace EndlessClient
 
 		private void _drawArmor(bool flipped)
 		{
-			if (armor != null)
+			if (armor == null) return;
+
+			int xAdjust = 0;
+			int yAdjust = State == CharacterActionState.Walking ? -1 : 0;
+			bool weaponIsMelee = weaponInfo == null || (weaponInfo != null && weaponInfo.SubType != ItemSubType.Ranged);
+			if (weaponIsMelee && Data != null && Data.attackFrame == 2)
 			{
-				int xAdjust = 0;
-				int yAdjust = State == CharacterActionState.Walking ? -1 : 0;
-				if (Data != null && Data.attackFrame == 2)
+				switch (Facing)
 				{
-					switch (Facing)
-					{
-						case EODirection.Up:
-						case EODirection.Right:
-							xAdjust = Data.gender == 1 ? 4 : 2;
-							yAdjust -= (Data.gender == 1 ? 1 : 0);
-							break;
-						case EODirection.Left:
-						case EODirection.Down:
-							xAdjust = Data.gender == 1 ? -4 : 1;
-							break;
-					}
+					case EODirection.Up:
+						xAdjust = Data.gender == 1 ? 6 : 7;
+						yAdjust += -1;
+						break;
+					case EODirection.Right:
+						xAdjust = Data.gender == 1 ? 6 : 7;
+						yAdjust += 1;
+						break;
+					case EODirection.Down:
+						xAdjust = Data.gender == 1 ? -6 : -7;
+						yAdjust += 1;
+						break;
+					case EODirection.Left:
+						xAdjust = Data.gender == 1 ? -6 : -7;
+						yAdjust += -1;
+						break;
 				}
-				SpriteBatch.Draw(armor, new Vector2(DrawAreaWithOffset.X - 2 + xAdjust, DrawAreaWithOffset.Y + yAdjust), null, Color.White, 0.0f,
-					Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 			}
+			else if(!weaponIsMelee && Data != null && Data.attackFrame == 1)
+			{
+				switch (Facing)
+				{
+					case EODirection.Up:
+						xAdjust = 4;
+						break;
+					case EODirection.Right:
+						xAdjust = 6;
+						yAdjust += 1;
+						break;
+					case EODirection.Down:
+						xAdjust = -6;
+						yAdjust += 1;
+						break;
+					case EODirection.Left:
+						xAdjust = -4;
+						break;
+				}
+			}
+			SpriteBatch.Draw(armor, new Vector2(DrawAreaWithOffset.X - 2 + xAdjust, DrawAreaWithOffset.Y + yAdjust), null, Color.White, 0.0f,
+				Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 		}
 
-		private void _drawHair(bool flipped)
+		private void _drawHatHair(bool flipped, bool drawHairFirst)
 		{
-			if (hair == null) return;
+			if (hair == null && hat == null) return;
 
+			bool weaponIsMelee = weaponInfo == null || (weaponInfo != null && weaponInfo.SubType != ItemSubType.Ranged);
 			int hairOffX = 0, hairOffY = 0;
 			Vector2 hairLoc = new Vector2(DrawAreaWithOffset.X + (flipped ? 2 : 0), DrawAreaWithOffset.Y);
-			if(Data != null && State == CharacterActionState.Attacking && Data.attackFrame == 2)
+			Vector2 hatLoc = new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y - 3);
+			if(weaponIsMelee && Data != null && Data.attackFrame == 2)
 			{
 				switch (Facing)
 				{
@@ -1208,7 +1230,96 @@ namespace EndlessClient
 						break;
 				}
 			}
-			SpriteBatch.Draw(hair, new Vector2(hairLoc.X + hairOffX, hairLoc.Y + hairOffY), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+			else if (!weaponIsMelee && Data != null && Data.attackFrame == 1)
+			{
+				switch (Facing)
+				{
+					case EODirection.Down:
+						hairOffX = Data.gender == 1 ? -3 : -1;
+						hairOffY = Data.gender == 1 ? 1 : 0;
+						break;
+					case EODirection.Right:
+						hairOffX = Data.gender == 1 ? 3 : 1;
+						hairOffY = Data.gender == 1 ? 1 : 0;
+						break;
+					case EODirection.Up:
+						hairOffX = Data.gender == 1 ? 3 : 1;
+						break;
+					case EODirection.Left:
+						hairOffX = Data.gender == 1 ? -3 : -1;
+						break;
+				}
+			}
+
+			if (drawHairFirst)
+			{
+				if (hair != null)
+					SpriteBatch.Draw(hair, new Vector2(hairLoc.X + hairOffX, hairLoc.Y + hairOffY), null, Color.White, 0.0f,
+						Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				if (hat != null)
+					SpriteBatch.Draw(hat, new Vector2(hatLoc.X + hairOffX, hatLoc.Y + hairOffY), null, Color.White, 0.0f, Vector2.Zero,
+						1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+			}
+			else
+			{
+				if (hat != null)
+					SpriteBatch.Draw(hat, new Vector2(hatLoc.X + hairOffX, hatLoc.Y + hairOffY), null, Color.White, 0.0f, Vector2.Zero,
+						1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				if (hair != null)
+					SpriteBatch.Draw(hair, new Vector2(hairLoc.X + hairOffX, hairLoc.Y + hairOffY), null, Color.White, 0.0f,
+						Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+			}
+		}
+
+		private void _drawBoots(bool flipped)
+		{
+			if (boots == null) return;
+
+			bool weaponIsMelee = weaponInfo == null || (weaponInfo != null && weaponInfo.SubType != ItemSubType.Ranged);
+			int bootsOffX = 0, bootsOffY = 0;
+			Vector2 drawLoc = new Vector2(DrawAreaWithOffset.X - 2, DrawAreaWithOffset.Y + 49);
+			if (weaponIsMelee && Data != null && Data.attackFrame == 2)
+			{
+				switch (Facing)
+				{
+					case EODirection.Down:
+						bootsOffX = -6;
+						break;
+					case EODirection.Right:
+						bootsOffX = 6;
+						break;
+					case EODirection.Up:
+						bootsOffX = 6;
+						bootsOffY = Data.gender == 1 ? -1 : 0;
+						break;
+					case EODirection.Left:
+						bootsOffX = -6;
+						bootsOffY = Data.gender == 1 ? -1 : 0;
+						break;
+				}
+			}
+			else if(!weaponIsMelee && Data != null && Data.attackFrame == 1)
+			{
+				switch (Facing)
+				{
+					case EODirection.Down:
+						bootsOffX = -6;
+						bootsOffY = 1;
+						break;
+					case EODirection.Right:
+						bootsOffX = 6;
+						bootsOffY = 1;
+						break;
+					case EODirection.Up:
+						bootsOffX = Data.gender == 1 ? 7 : 3;
+						break;
+					case EODirection.Left:
+						bootsOffX = Data.gender == 1 ? -7 : -3;
+						break;
+				}
+			}
+
+			SpriteBatch.Draw(boots, new Vector2(drawLoc.X + bootsOffX, drawLoc.Y + bootsOffY), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 		}
 
 		private void maskTheHair()
