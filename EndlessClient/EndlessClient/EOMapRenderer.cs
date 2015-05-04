@@ -4,7 +4,6 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
-using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Data;
 using EOLib.Net;

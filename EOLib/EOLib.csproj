@@ -58,6 +58,7 @@
     <Compile Include="Net\Chest.cs" />
     <Compile Include="Net\Connection.cs" />
     <Compile Include="Net\Door.cs" />
+    <Compile Include="Net\Emote.cs" />
     <Compile Include="Net\EOClient.cs" />
     <Compile Include="Net\Face.cs" />
     <Compile Include="Net\Init.cs" />

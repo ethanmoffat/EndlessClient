@@ -29,6 +29,7 @@ namespace EOLib.Net
 			_createChestMembers();
 			_createConnectionMembers();
 			_createDoorMembers();
+			_createEmoteMembers();
 			_createFaceMembers();
 			_createInitMembers();
 			_createItemMembers();

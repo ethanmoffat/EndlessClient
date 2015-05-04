@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Data;
 using EOLib.Net;
@@ -64,7 +63,7 @@ namespace EndlessClient
 				throw new WorldLoadException("Unable to load the configuration file!");
 
 			//client construction: logging for when packets are sent/received
-			m_client = new EOClient(_getPacketHandlerDictionary());
+			m_client = new EOClient();
 			((EOClient) m_client).EventSendData +=
 				dte => Logger.Log("SEND thread: Processing       {4} packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
 					Enum.GetName(typeof (PacketFamily), dte.PacketFamily),
@@ -652,17 +651,6 @@ namespace EndlessClient
 				if (m_client != null)
 					m_client.Dispose();
 			}
-		}
-
-		private Dictionary<FamilyActionPair, LockedHandlerMethod> _getPacketHandlerDictionary()
-		{
-			return new Dictionary<FamilyActionPair, LockedHandlerMethod>
-			{
-				{
-					new FamilyActionPair(PacketFamily.Emote, PacketAction.Player),
-					new LockedHandlerMethod(Handlers.Emote.EmotePlayer, true)
-				}
-			};
 		}
 
 		public void Remap()

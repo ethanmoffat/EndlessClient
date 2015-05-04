@@ -168,9 +168,9 @@ namespace EOLib.Net
 		/// </summary>
 		internal bool ExpectingPlayerList { get; set; }
 
-		public EOClient(Dictionary<FamilyActionPair, LockedHandlerMethod> handlers)
+		public EOClient()
 		{
-			m_handlers = handlers;
+			m_handlers = new Dictionary<FamilyActionPair, LockedHandlerMethod>(128);
 		}
 
 		public void SetInitData(InitData data)

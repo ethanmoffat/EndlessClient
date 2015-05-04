@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using EndlessClient.Handlers;
 using EOLib;
 using EOLib.Net;
 using Microsoft.Xna.Framework;

@@ -7,31 +7,6 @@ using XNAControls;
 
 namespace EndlessClient
 {
-
-	public enum Emote
-	{
-		Happy = 1,
-		Depressed = 2,
-		Sad = 3,
-		Angry = 4,
-		Confused = 5,
-		Surprised = 6,
-		Hearts = 7,
-		Moon = 8,
-		Suicidal = 9,
-		/// <summary>
-		/// DEL or . key
-		/// </summary>
-		Embarassed = 10,
-		Drunk = 11,
-		Trade = 12,
-		LevelUp = 13,
-		/// <summary>
-		/// 0 key
-		/// </summary>
-		Playful = 14
-	}
-
 	/// <summary>
 	/// This is data used to render the character in EOCharacterRenderer.cs
 	/// The values represented here are for loading GFX and do NOT represent IDs of items, etc.
@@ -559,10 +534,10 @@ namespace EndlessClient
 		public void Emote(Emote whichEmote)
 		{
 			if (this == World.Instance.MainPlayer.ActiveCharacter &&
-				whichEmote != EndlessClient.Emote.LevelUp &&
-				whichEmote != EndlessClient.Emote.Trade)
+				whichEmote != EOLib.Net.Emote.LevelUp &&
+				whichEmote != EOLib.Net.Emote.Trade)
 			{
-				if (Handlers.Emote.ReportEmote(whichEmote))
+				if (m_packetAPI.ReportEmote(whichEmote))
 					RenderData.SetEmote(whichEmote);
 				else
 					EOGame.Instance.LostConnectionDialog();

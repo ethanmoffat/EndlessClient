@@ -769,6 +769,11 @@ namespace EndlessClient
 				Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_LOCKER_SPACE_INCREASED);
 			};
 
+			m_packetAPI.OnOtherPlayerEmote += (playerID, emote) =>
+			{
+				if (playerID != World.Instance.MainPlayer.ActiveCharacter.ID)
+					World.Instance.ActiveMapRenderer.OtherPlayerEmote(playerID, emote);
+			};
 		}
 
 		//-----------------------------
