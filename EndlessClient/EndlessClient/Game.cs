@@ -683,7 +683,8 @@ namespace EndlessClient
 				Hud.RefreshStats();
 			};
 
-			m_packetAPI.OnPlayerChatByID += (type, id, message) => World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.Local, id, message, ChatType.SpeechBubble);
+			m_packetAPI.OnPlayerChatByID += (type, id, message) => World.Instance.ActiveMapRenderer.RenderChatMessage(type, id, message,
+				type == TalkType.Party ? ChatType.PlayerPartyDark : ChatType.SpeechBubble);
 			m_packetAPI.OnPlayerChatByName += (type, name, msg) =>
 			{
 				switch (type)
@@ -708,7 +709,7 @@ namespace EndlessClient
 						Hud.AddChat(ChatTabs.Group, name, msg, ChatType.HGM, ChatColor.Admin);
 						break;
 					case TalkType.Announce:
-						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, msg);
+						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, msg, false);
 						Hud.AddChat(ChatTabs.Local, name, msg, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
 						Hud.AddChat(ChatTabs.Global, name, msg, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
 						Hud.AddChat(ChatTabs.Group, name, msg, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);

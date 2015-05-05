@@ -547,7 +547,7 @@ namespace EndlessClient
 							_returnToLogin();
 							break;
 						}
-						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered);
+						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, false);
 						string name = World.Instance.MainPlayer.ActiveCharacter.Name;
 						AddChat(ChatTabs.Local, name, filtered, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
 						AddChat(ChatTabs.Global, name, filtered, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
@@ -555,6 +555,8 @@ namespace EndlessClient
 					}
 					break;
 				case '\'': //group talk
+					if (!m_party.PlayerIsMember((short) World.Instance.MainPlayer.ActiveCharacter.ID))
+						break; //not in a party, cancel the talk
 					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
 					if (filtered != null)
 					{
@@ -563,8 +565,9 @@ namespace EndlessClient
 							_returnToLogin();
 							break;
 						}
-						//note: more processing of colors/icons is needed here
-						AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, filtered);
+						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, true);
+						AddChat(ChatTabs.Local, World.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.PlayerPartyDark, ChatColor.PM);
+						AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.PlayerPartyDark);
 					}
 					break;
 				case '&':  //guild talk
@@ -680,7 +683,7 @@ namespace EndlessClient
 						}
 
 						//do the rendering
-						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered);
+						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, false);
 						AddChat(ChatTabs.Local, World.Instance.MainPlayer.ActiveCharacter.Name, filtered);
 					}
 				}

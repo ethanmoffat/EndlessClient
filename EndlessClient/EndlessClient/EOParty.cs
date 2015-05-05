@@ -70,7 +70,10 @@ namespace EndlessClient
 			if (memberList.TrueForAll(_member => _member.IsFullData))
 			{
 				if(m_members == null || m_members.Count == 0)
+				{
 					((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_PARTY_YOU_JOINED);
+					((EOGame)Game).Hud.AddChat(ChatTabs.System, "", World.GetString(DATCONST2.STATUS_LABEL_PARTY_YOU_JOINED), ChatType.PlayerParty, ChatColor.PM);
+				}
 
 				Visible = true;
 				m_numMembers.Text = string.Format("{0}", memberList.Count);

@@ -1377,9 +1377,9 @@ namespace EndlessClient
 			}
 		}
 
-		public void SetChatBubbleText(string msg)
+		public void SetChatBubbleText(string msg, bool isGroupChat)
 		{
-			m_chatBubble.SetMessage(msg);
+			m_chatBubble.SetMessage(msg, isGroupChat);
 		}
 
 		public void SetDamageCounterValue(int value, int pctHealth, bool isHeal = false)

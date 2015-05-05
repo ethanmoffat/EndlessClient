@@ -43,6 +43,7 @@ namespace EndlessClient
 		private XNALabel m_label;
 		private readonly DrawableGameComponent m_ref;
 		private readonly bool isChar; //true if character, false if npc
+		private bool m_useGroupChatColor;
 
 		private SpriteBatch sb;
 
@@ -79,7 +80,7 @@ namespace EndlessClient
 			EOGame.Instance.Components.Add(this);
 		}
 
-		public void SetMessage(string message)
+		public void SetMessage(string message, bool useGroupChatColor)
 		{
 			m_label.Text = message;
 			m_label.Visible = true;
@@ -91,6 +92,7 @@ namespace EndlessClient
 				Game.Components.Add(this);
 
 			m_startTime = DateTime.Now;
+			m_useGroupChatColor = useGroupChatColor;
 		}
 
 		private void _initLabel()
@@ -181,40 +183,42 @@ namespace EndlessClient
 			int yCov = texts[TL].Height;
 			if (sb == null) return;
 
+			Color col = m_useGroupChatColor ? Color.Tan : Color.White;
+
 			sb.Begin();
 
 			//top row
-			sb.Draw(texts[TL], drawLoc, Color.White);
+			sb.Draw(texts[TL], drawLoc, col);
 			int xCur;
 			for (xCur = xCov; xCur < m_label.ActualWidth; xCur += texts[TM].Width)
 			{
-				sb.Draw(texts[TM], drawLoc + new Vector2(xCur, 0), Color.White);
+				sb.Draw(texts[TM], drawLoc + new Vector2(xCur, 0), col);
 			}
-			sb.Draw(texts[TR], drawLoc + new Vector2(xCur, 0), Color.White);
+			sb.Draw(texts[TR], drawLoc + new Vector2(xCur, 0), col);
 
 			//middle area
 			int y;
 			for (y = yCov; y < m_label.Texture.Height - (m_label.Texture.Height%texts[ML].Height); y += texts[ML].Height)
 			{
-				sb.Draw(texts[ML], drawLoc + new Vector2(0, y), Color.White);
+				sb.Draw(texts[ML], drawLoc + new Vector2(0, y), col);
 				int x;
 				for (x = xCov; x < xCur; x += texts[MM].Width)
 				{
-					sb.Draw(texts[MM], drawLoc + new Vector2(x, y), Color.White);
+					sb.Draw(texts[MM], drawLoc + new Vector2(x, y), col);
 				}
-				sb.Draw(texts[MR], drawLoc + new Vector2(xCur, y), Color.White);
+				sb.Draw(texts[MR], drawLoc + new Vector2(xCur, y), col);
 			}
 
 			//bottom row
-			sb.Draw(texts[RL], drawLoc + new Vector2(0, y), Color.White);
+			sb.Draw(texts[RL], drawLoc + new Vector2(0, y), col);
 			int x2;
 			for (x2 = xCov; x2 < xCur; x2 += texts[RM].Width)
 			{
-				sb.Draw(texts[RM], drawLoc + new Vector2(x2, y), Color.White);
+				sb.Draw(texts[RM], drawLoc + new Vector2(x2, y), col);
 			}
-			sb.Draw(texts[RR], drawLoc + new Vector2(x2, y), Color.White);
+			sb.Draw(texts[RR], drawLoc + new Vector2(x2, y), col);
 			y += texts[RM].Height;
-			sb.Draw(texts[NUB], drawLoc + new Vector2((x2 + texts[RR].Width - texts[NUB].Width)/2f, y - 1), Color.White);
+			sb.Draw(texts[NUB], drawLoc + new Vector2((x2 + texts[RR].Width - texts[NUB].Width)/2f, y - 1), col);
 
 			try
 			{
@@ -444,11 +448,16 @@ namespace EndlessClient
 			if (message != null)
 			{
 				EOGame.Instance.Hud.AddChat(tab, playerName, message, chatType);
-				MakeSpeechBubble(dgc, message);
+				if (messageType == TalkType.Party)
+				{
+					//party chat also adds to local with the PM color
+					EOGame.Instance.Hud.AddChat(ChatTabs.Local, playerName, message, chatType, ChatColor.PM);
+				}
+				MakeSpeechBubble(dgc, message, messageType == TalkType.Party);
 			}
 		}
 
-		public void MakeSpeechBubble(DrawableGameComponent follow, string message)
+		public void MakeSpeechBubble(DrawableGameComponent follow, string message, bool groupChat)
 		{
 			if (!World.Instance.ShowChatBubbles)
 				return;
@@ -460,9 +469,9 @@ namespace EndlessClient
 
 // ReSharper disable CanBeReplacedWithTryCastAndCheckForNull
 			if (follow is EOCharacterRenderer)
-				((EOCharacterRenderer)follow).SetChatBubbleText(message);
+				((EOCharacterRenderer)follow).SetChatBubbleText(message, groupChat);
 			else if (follow is NPC)
-				((NPC)follow).SetChatBubbleText(message);
+				((NPC)follow).SetChatBubbleText(message, groupChat);
 // ReSharper restore CanBeReplacedWithTryCastAndCheckForNull
 		}
 
