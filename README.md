@@ -69,7 +69,7 @@ Some of the more important features that have been implemented are:
  - Friend/Ignore lists
  - "Who is online?" list
  - NPC interaction on maps - limited to shops and bank bob
- - Sound effects and background music (still work in progress, but partially there)
+ - Sound effects and background music. Not all sound effects have been hooked to actual in-game events yet, but the framework is there.
 
 <a name="ToDo" />What's Left to do?
 ------------------
@@ -78,7 +78,7 @@ Since most of the major components are there that make the game playable, I'm wo
 
 As far as bugs are concerned, character rendering during attack is not being done properly. This is the most obvious bug that needs to be fixed, but requires a LOT of manual tinkering and is really quite tedious to get 100% right.
 
-Concerning refactoring code, I would like to remove all dependencies on singleton instances of World and EOGame if possible and use a more object-driven approach for the packet handler framework. This would require huge sweeping changes so I may just leave things the way they are since there is no real benefit past the code being cleaner.
+Concerning refactoring code, I would like to remove all dependencies on singleton instances of World and EOGame if possible. This would require huge sweeping changes so I may just leave things the way they are since there is no real benefit past the code being cleaner.
 
 Here's the actual to-do list:
  - Character rendering during attack

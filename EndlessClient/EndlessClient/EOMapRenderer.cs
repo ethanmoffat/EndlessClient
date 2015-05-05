@@ -684,6 +684,7 @@ namespace EndlessClient
 				otherRenderers.Add(otherRend = new EOCharacterRenderer(other));
 				otherRenderers[otherRenderers.Count - 1].Visible = true;
 				otherRenderers[otherRenderers.Count - 1].Initialize();
+				other.RenderData.SetUpdate(true);
 			}
 			else
 			{

@@ -37,6 +37,7 @@ namespace EOLib.Net
 			_createLoginMembers();
 			_createMessageMembers();
 			_createPaperdollMembers();
+			_createPartyMembers();
 			_createPlayersMembers();
 			_createNPCMembers();
 			_createRecoverMembers();

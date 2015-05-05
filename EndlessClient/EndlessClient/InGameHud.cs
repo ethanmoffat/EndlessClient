@@ -45,6 +45,7 @@ namespace EndlessClient
 		private EOCharacterStats stats;
 		private readonly EOOnlineList m_whoIsOnline;
 		private readonly ChatTab newsTab;
+		private readonly EOPartyPanel m_party;
 
 		private readonly XNALabel statusLabel; //label for status (mouse-over buttons)
 		private bool m_statusRecentlySet;
@@ -323,6 +324,7 @@ namespace EndlessClient
 			StatusBars[3] = new HudElementTNL();
 
 			m_whoIsOnline = new EOOnlineList(pnlOnline);
+			m_party = new EOPartyPanel(pnlParty);
 
 			m_friendList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
 				new Vector2(592, 312),
@@ -491,7 +493,7 @@ namespace EndlessClient
 					List<OnlineEntry> onlineList;
 					if (!m_packetAPI.RequestOnlinePlayers(true, out onlineList))
 						EOGame.Instance.LostConnectionDialog();
-					SetOnlineList(onlineList);
+					m_whoIsOnline.SetOnlinePlayerList(onlineList);
 					pnlOnline.Visible = true;
 					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_ONLINE_PLAYERS_NOW_VIEWED);
 					break;
@@ -819,12 +821,11 @@ namespace EndlessClient
 				stats.Refresh();
 		}
 
-		public void SetOnlineList(List<OnlineEntry> onlinePlayers)
-		{
-			if (state != InGameStates.Online)
-				return;
-			m_whoIsOnline.SetOnlinePlayerList(onlinePlayers);
-		}
+		public void SetPartyData(List<PartyMember> party) { m_party.SetData(party); }
+		public void AddPartyMember(PartyMember member) { m_party.AddMember(member); }
+		public void RemovePartyMember(short memberID) { m_party.RemoveMember(memberID); }
+		public void CloseParty() { m_party.CloseParty(); }
+		public bool PlayerIsPartyMember(short playerID) { return m_party.PlayerIsMember(playerID); }
 		#endregion
 		
 		protected override void Dispose(bool disposing)

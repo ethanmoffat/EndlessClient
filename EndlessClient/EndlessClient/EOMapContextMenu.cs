@@ -12,7 +12,6 @@ namespace EndlessClient
 {
 	public class EOMapContextMenu : XNAControl
 	{
-
 		private enum MenuAction
 		{
 			Paperdoll,
@@ -37,6 +36,8 @@ namespace EndlessClient
 		private Action<object, EventArgs> m_clickEvent; //event for when a 'click' is done
 		private Rectangle? m_overRect; //rectangle for hover region
 		private EOCharacterRenderer m_rend;
+
+		private DateTime? m_lastPartyRequestedTime;
 
 		private readonly PacketAPI m_api;
 
@@ -198,7 +199,8 @@ namespace EndlessClient
 		//todo: finish the todo items below
 		private void _eventShowPaperdoll(object sender, EventArgs e)
 		{
-			m_api.RequestPaperdoll((short)m_rend.Character.ID);
+			if (!m_api.RequestPaperdoll((short) m_rend.Character.ID))
+				EOGame.Instance.LostConnectionDialog();
 		}
 		private void _eventShowBook(object arg1, EventArgs arg2)
 		{
@@ -206,11 +208,41 @@ namespace EndlessClient
 		}
 		private void _eventJoinParty(object arg1, EventArgs arg2)
 		{
-			EODialog.Show("TODO: Join this player's party", "TODO ITEM", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+			if (((EOGame) Game).Hud.PlayerIsPartyMember((short)m_rend.Character.ID))
+			{
+				((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, m_rend.Character.Name, DATCONST2.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER);
+				return;
+			}
+
+			if (m_lastPartyRequestedTime != null && (DateTime.Now - m_lastPartyRequestedTime.Value).TotalSeconds < Constants.PartyRequestTimeoutSeconds)
+			{
+				((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_PARTY_RECENTLY_REQUESTED);
+				return;
+			}
+
+			if (!m_api.PartyRequest(PartyRequestType.Join, (short) m_rend.Character.ID))
+				EOGame.Instance.LostConnectionDialog();
+			m_lastPartyRequestedTime = DateTime.Now;
+			((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_PARTY_REQUESTED_TO_JOIN);
 		}
 		private void _eventInviteToParty(object arg1, EventArgs arg2)
 		{
-			EODialog.Show("TODO: Invite this player to party", "TODO ITEM", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+			if (((EOGame)Game).Hud.PlayerIsPartyMember((short)m_rend.Character.ID))
+			{
+				((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, m_rend.Character.Name, DATCONST2.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER);
+				return;
+			}
+
+			if (m_lastPartyRequestedTime != null && (DateTime.Now - m_lastPartyRequestedTime.Value).TotalSeconds < Constants.PartyRequestTimeoutSeconds)
+			{
+				((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_PARTY_RECENTLY_REQUESTED);
+				return;
+			}
+
+			if (!m_api.PartyRequest(PartyRequestType.Invite, (short)m_rend.Character.ID))
+				EOGame.Instance.LostConnectionDialog();
+			m_lastPartyRequestedTime = DateTime.Now;
+			((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, DATCONST2.STATUS_LABEL_PARTY_IS_INVITED);
 		}
 		private void _eventTrade(object arg1, EventArgs arg2)
 		{

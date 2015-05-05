@@ -135,6 +135,7 @@
     <Compile Include="InGameHud.cs" />
     <Compile Include="InteractList.cs" />
     <Compile Include="NPC.cs" />
+    <Compile Include="EOParty.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Program.cs" />

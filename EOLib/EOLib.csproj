@@ -69,6 +69,7 @@
     <Compile Include="Net\NPC.cs" />
     <Compile Include="Net\PacketAPI.cs" />
     <Compile Include="Net\Paperdoll.cs" />
+    <Compile Include="Net\Party.cs" />
     <Compile Include="Net\Players.cs" />
     <Compile Include="Net\Recover.cs" />
     <Compile Include="Net\Refresh.cs" />

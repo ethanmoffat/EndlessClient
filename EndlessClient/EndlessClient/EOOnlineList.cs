@@ -74,6 +74,9 @@ namespace EndlessClient
 			m_scrollBar.SetParent(this);
 			m_scrollBar.IgnoreDialog(typeof(EOPaperdollDialog));
 			m_scrollBar.IgnoreDialog(typeof(EOChestDialog));
+			m_scrollBar.IgnoreDialog(typeof(EOBankAccountDialog));
+			m_scrollBar.IgnoreDialog(typeof(EOLockerDialog));
+			m_scrollBar.IgnoreDialog(typeof(EOShopDialog));
 
 			m_filterClick = new Rectangle(2 + DrawAreaWithOffset.X, 2 + DrawAreaWithOffset.Y, 14, 14);
 

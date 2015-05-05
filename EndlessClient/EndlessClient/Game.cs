@@ -774,6 +774,22 @@ namespace EndlessClient
 				if (playerID != World.Instance.MainPlayer.ActiveCharacter.ID)
 					World.Instance.ActiveMapRenderer.OtherPlayerEmote(playerID, emote);
 			};
+
+			m_packetAPI.OnPartyClose += () => Hud.CloseParty();
+			m_packetAPI.OnPartyDataRefresh += list => Hud.SetPartyData(list);
+			m_packetAPI.OnPartyRequest += (type, id, name) => EODialog.Show(name + " ",
+				type == PartyRequestType.Join ? DATCONST1.PARTY_GROUP_REQUEST_TO_JOIN : DATCONST1.PARTY_GROUP_SEND_INVITATION,
+				XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader,
+				(o, e) =>
+				{
+					if (e.Result == XNADialogResult.OK)
+					{
+						if (!m_packetAPI.PartyAcceptRequest(type, id))
+							LostConnectionDialog();
+					}
+				});
+			m_packetAPI.OnPartyMemberJoin += member => Hud.AddPartyMember(member);
+			m_packetAPI.OnPartyMemberLeave += id => Hud.RemovePartyMember(id);
 		}
 
 		//-----------------------------
