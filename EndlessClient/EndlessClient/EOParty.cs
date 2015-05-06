@@ -128,6 +128,9 @@ namespace EndlessClient
 			m_scrollBar.UpdateDimensions(m_members.Count);
 
 			_addRemoveButtonForMember(member);
+
+			((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, member.Name, DATCONST2.STATUS_LABEL_PARTY_JOINED_YOUR);
+			((EOGame)Game).Hud.AddChat(ChatTabs.System, "", member.Name + " " + World.GetString(DATCONST2.STATUS_LABEL_PARTY_JOINED_YOUR), ChatType.PlayerParty, ChatColor.PM);
 		}
 
 		public void RemoveMember(short memberID)
@@ -138,9 +141,21 @@ namespace EndlessClient
 
 			if (!((EOGame) Game).API.PartyRemovePlayer(m_members[memberIndex].ID))
 				((EOGame) Game).LostConnectionDialog();
+
+			string name = m_members[memberIndex].Name;
+
 			m_members.RemoveAt(memberIndex);
+			m_buttons[memberIndex].SetParent(null);
 			m_buttons[memberIndex].Close();
 			m_buttons.RemoveAt(memberIndex);
+
+			m_numMembers.Text = "" + m_members.Count;
+			m_scrollBar.UpdateDimensions(m_members.Count);
+			if (m_members.Count <= m_scrollBar.LinesToRender)
+				m_scrollBar.ScrollToTop();
+
+			((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, name, DATCONST2.STATUS_LABEL_PARTY_LEFT_YOUR);
+			((EOGame)Game).Hud.AddChat(ChatTabs.System, "", name + " " + World.GetString(DATCONST2.STATUS_LABEL_PARTY_LEFT_YOUR), ChatType.PlayerPartyDark, ChatColor.PM);
 		}
 
 		public void CloseParty()
@@ -185,7 +200,7 @@ namespace EndlessClient
 			if(m_members != null)
 			{
 				SpriteBatch.Begin();
-				for (int i = m_scrollBar.ScrollOffset; i < m_scrollBar.LinesToRender && i < m_members.Count; ++i)
+				for (int i = m_scrollBar.ScrollOffset; i < m_scrollBar.LinesToRender + m_scrollBar.ScrollOffset && i < m_members.Count; ++i)
 				{
 					PartyMember member = m_members[i];
 					int yCoord = DRAW_OFFSET_Y + DrawAreaWithOffset.Y + (i - m_scrollBar.ScrollOffset) * 13;
