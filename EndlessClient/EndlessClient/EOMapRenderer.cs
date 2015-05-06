@@ -63,7 +63,7 @@ namespace EndlessClient
 		{
 			m_ref = following;
 			isChar = true;
-			DrawOrder = following.DrawOrder + 1;
+			DrawOrder = following.Character.ID + (int)ControlDrawLayer.BaseLayer + 1; //use ID for draw order
 			_initLabel();
 			Visible = false;
 			EOGame.Instance.Components.Add(this);
@@ -74,10 +74,17 @@ namespace EndlessClient
 		{
 			m_ref = following;
 			isChar = false;
-			DrawOrder = following.DrawOrder + 1;
+			DrawOrder = following.Index + (int)ControlDrawLayer.BaseLayer + 1; //use index for draw order
 			_initLabel();
 			Visible = false;
 			EOGame.Instance.Components.Add(this);
+		}
+
+		public void HideBubble()
+		{
+			Visible = false;
+			m_label.Text = "";
+			m_label.Visible = false;
 		}
 
 		public void SetMessage(string message, bool useGroupChatColor)
@@ -100,7 +107,7 @@ namespace EndlessClient
 			m_label = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.5f)
 			{
 				Visible = true,
-				DrawOrder = DrawOrder + 1,
+				DrawOrder = DrawOrder + 1, //will be based on either NPC index or character renderer ID
 				TextWidth = 165,
 				TextAlign = ContentAlignment.MiddleCenter,
 				ForeColor = System.Drawing.Color.Black,
@@ -115,7 +122,7 @@ namespace EndlessClient
 		{
 			Rectangle refArea = isChar ? ((EOCharacterRenderer) m_ref).DrawAreaWithOffset : ((NPC) m_ref).DrawArea;
 			int extra = textsLoaded ? texts[ML].Width : 0;
-			m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.Texture.Height);
+			m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.Texture.Height / 1.5f);
 		}
 
 		public new void LoadContent()
@@ -712,7 +719,9 @@ namespace EndlessClient
 			if ((c = otherPlayers.Find(cc => cc.ID == id)) != null)
 			{
 				otherPlayers.Remove(c);
-				otherRenderers.RemoveAll(rend => rend.Character == c);
+				int ndx = otherRenderers.FindIndex(rend => rend.Character == c);
+				otherRenderers[ndx].HideChatBubble();
+				otherRenderers.RemoveAt(ndx);
 			}
 
 			//TODO: Add warp animation when valid
@@ -720,6 +729,7 @@ namespace EndlessClient
 
 		public void ClearOtherPlayers()
 		{
+			otherRenderers.ForEach(_rend => _rend.HideChatBubble());
 			otherRenderers.Clear();
 			otherPlayers.Clear();
 		}
@@ -875,6 +885,7 @@ namespace EndlessClient
 					else //npc is out of view or done fading away
 					{
 						npc.Visible = false;
+						npc.HideChatBubble();
 					}
 				}
 			}

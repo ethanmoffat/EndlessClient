@@ -288,7 +288,7 @@ namespace EndlessClient
 				drawArea = new Rectangle(
 					_char.OffsetX + 304 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
 					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
-					characterSkin.Width, characterSkin.Height);
+					m_skinSourceRect.Width, m_skinSourceRect.Height);
 
 			//update when the control is being dragged (when not in-game)
 			if (EOGame.Instance.State != GameStates.PlayingTheGame &&
@@ -1380,6 +1380,11 @@ namespace EndlessClient
 		public void SetChatBubbleText(string msg, bool isGroupChat)
 		{
 			m_chatBubble.SetMessage(msg, isGroupChat);
+		}
+
+		public void HideChatBubble()
+		{
+			m_chatBubble.HideBubble();
 		}
 
 		public void SetDamageCounterValue(int value, int pctHealth, bool isHeal = false)
