@@ -141,7 +141,7 @@ namespace EndlessClient
 						if (m_packetAPI.Initialize(World.Instance.VersionMajor,
 							World.Instance.VersionMinor,
 							World.Instance.VersionClient,
-							Config.GetHDDSerial(),
+							Win32.GetHDDSerial(),
 							out data))
 						{
 							((EOClient) World.Instance.Client).SetInitData(data);

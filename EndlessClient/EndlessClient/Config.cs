@@ -10,28 +10,6 @@ using EOLib;
 
 namespace EndlessClient
 {
-	public static class Config
-	{
-		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-		private static extern int GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
-
-		public static string GetHDDSerial()
-		{
-			string strDriveLetter = System.Windows.Forms.Application.UserAppDataPath[0] + ":\\";
-			StringBuilder VolLabel = new StringBuilder(256); // Label
-			uint serNum = 0;
-			uint maxCompLen = 0;
-			uint VolFlags = 0;
-			StringBuilder FSName = new StringBuilder(256); // File System Name
-
-			if(GetVolumeInformation(strDriveLetter, VolLabel, (UInt32)VolLabel.Capacity, ref serNum, ref maxCompLen, ref VolFlags, FSName, (UInt32)FSName.Capacity) != 0)
-				return Convert.ToString(serNum);
-			
-			return "";
-		}
-
-	}
-
 	public class ConfigStringLoadException : Exception
 	{
 		public string WhichString { get; private set; }

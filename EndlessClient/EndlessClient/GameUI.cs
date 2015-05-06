@@ -368,7 +368,7 @@ Thanks to :
 								accountCreateTextBoxes[3].Text,
 								accountCreateTextBoxes[4].Text,
 								accountCreateTextBoxes[5].Text,
-								Config.GetHDDSerial(),
+								Win32.GetHDDSerial(),
 								out reply))
 							{
 								LostConnectionDialog();
