@@ -1159,6 +1159,10 @@ namespace EndlessClient
 					{
 						EODialog.Show(DATCONST1.ITEM_IS_CURSED_ITEM);
 					}
+					else if (!((EOGame) Game).Hud.InventoryFits((short) m_info.ID))
+					{
+						((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_ITEM_UNEQUIP_NO_SPACE_LEFT);
+					}
 					else
 					{
 						_setSize(m_area.Width, m_area.Height);
