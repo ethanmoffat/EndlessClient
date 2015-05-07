@@ -144,22 +144,30 @@ namespace EndlessClient
 							Win32.GetHDDSerial(),
 							out data))
 						{
-							((EOClient) World.Instance.Client).SetInitData(data);
-
-							if (!m_packetAPI.ConfirmInit(data.emulti_e, data.emulti_d, data.clientID))
+							switch (data.ServerResponse)
 							{
-								throw new Exception(); //connection failed!
-							}
+								case InitReply.INIT_OK:
+									((EOClient) World.Instance.Client).SetInitData(data);
 
-							World.Instance.MainPlayer.SetPlayerID(data.clientID);
-							World.Instance.SetAPIHandle(m_packetAPI);
-							successAction();
+									if (!m_packetAPI.ConfirmInit(data.emulti_e, data.emulti_d, data.clientID))
+									{
+										throw new Exception(); //connection failed!
+									}
+
+									World.Instance.MainPlayer.SetPlayerID(data.clientID);
+									World.Instance.SetAPIHandle(m_packetAPI);
+									successAction();
+									break;
+								default:
+									string extra;
+									DATCONST1 msg = m_packetAPI.GetInitResponseMessage(out extra);
+									EODialog.Show(msg, extra);
+									break;
+							}
 						}
 						else
 						{
-							string extra;
-							DATCONST1 msg = m_packetAPI.GetInitResponseMessage(out extra);
-							EODialog.Show(msg, extra);
+							throw new Exception(); //connection failed!
 						}
 					}
 					else

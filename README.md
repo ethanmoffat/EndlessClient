@@ -14,6 +14,7 @@ I made a newer GIF but the image embed isn't working. Here is a link to [the new
  - [What is left to do?](#ToDo)
  - [Running the game - Additional Info](#AdditionalGameInfo)
  - [Changes from the Original Client](#Changes)
+ - [Included Utility Projects](#Utility)
 
 <a name="Download" />Download+Play
 -------------
@@ -61,7 +62,7 @@ Some of the more important features that have been implemented are:
  - Rendering of minimap
  - Warps between maps, and doors that open/shut
  - Chat - global, local, player commands (such as #loc #usage)
- - Item inventory management, item equipping (armor), item use (potions), and interaction with map (dropping)
+ - Item inventory management, item equipping (armor), item use, and interaction with map (dropping)
  - Stats display and leveling up or 'training'
  - Stat bars for main player in HUD (hp/tp/sp/tnl)
  - Chests and private lockers on maps
@@ -70,6 +71,7 @@ Some of the more important features that have been implemented are:
  - "Who is online?" list
  - NPC interaction on maps - limited to shops and bank bob
  - Sound effects and background music. Not all sound effects have been hooked to actual in-game events yet, but the framework is there.
+ - Party / group
 
 <a name="ToDo" />What's Left to do?
 ------------------
@@ -83,8 +85,6 @@ Concerning refactoring code, I would like to remove all dependencies on singleto
 Here's the actual to-do list:
  - Character rendering during attack
  - Effects and spells (including skillmasters)
- - Item use actions
- - Party/group
  - Trading
  - Guilds
  - Quests
@@ -94,6 +94,8 @@ Here's the actual to-do list:
  - Boards
  - Jukeboxes
  - "Jump" tiles
+ - Map Effect (quake, HP/TP drain)
+ - Map Spikes
  
 Here's a working list of things I want to add that would be additional features on top of the original client specs:
  - Use built-in patching system prior to log-in to transfer files: help, gfx, pubs, maps, data, sounds, etc.
@@ -188,3 +190,43 @@ In step three, configure as follows: Check the checkbox, set the field to Name, 
 Pirate hat (ID 314 in standard pubs) also needs to be updated to HideHair. Change search to ==, change the field to ID, and change the value to 314.
 
 For FaceMask updates, the following regex will update the correct items: `^((Frog Head)|([A-Za-z ]*[Mm]ask[A-Za-z ]*))$`
+
+<a name="Utility" />Included Utility Projects
+-------------
+
+There are a few other projects included with the EndlessClient solution that are designed to make the development process much easier.
+
+#### Core
+
+The core projects are EndlessClient, EndlessClientContent and EOLib. They are the only required projects in order for the game to run.
+
+#### BatchMap
+
+BatchMap is designed to do batch processing and error correction on the original EMF files. When running EOSERV, a number of warning messages during map loading popped up. I created BatchMap to process map files and correct these errors so that the output of EOSERV was much less verbose when starting up.
+
+BatchMap corrects for a number of errors, including:
+ - Tiles out of map bounds
+ - Warps out of map bounds
+ - NPC spawn using non-existent NPC
+ - NPC spawn out of map bounds
+ - NPC spawn is invalid (ie NPC may not be able to spawn in area)
+ - Chest spawn using non-existent item
+ - Chest spawn pointing to non-chest
+ 
+#### BatchPub
+
+BatchPub is designed to do batch processing of items within the EIF file. The goal behind this was to change all items matching a certain criteria to have the same updated property (for instance, when rendering hair).
+
+#### EOBot
+
+EOBot launches a number of "bot" connections to a server that a) create accounts if they don't exist, b) login, c) create characters if they don't exist, and d) get the characters in game.
+
+Once the characters are in-game further code can be added to make them do whatever. Currently, they will send a party request to 'testuser' (if testuser is logged in) which was being used to test functionality of large parties.
+
+In the future I would like to be able to have a script processing system in place that allows an interpreter to control the bots that are being run. Anywhere from 1-25 bots can be launched.
+
+#### PacketDecoder
+
+PacketDecoder is built for analysing raw WireShark packet data. It provides a way to decode the raw data and convert the byte stream into values used in EO.
+
+The idea is to be able to copy/paste an init packet (to determine the encrypt/decrypt multiples) and then copy/paste the packet data that needs to be decoded for analysis.
