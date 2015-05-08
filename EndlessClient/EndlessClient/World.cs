@@ -213,9 +213,7 @@ namespace EndlessClient
 
 		/*** Instance Properties and such ***/
 
-// ReSharper disable UnusedAutoPropertyAccessor.Global
-		public short JailMap { get; set; }
-// ReSharper restore UnusedAutoPropertyAccessor.Global
+		public short JailMap { get; private set; }
 
 		//this is an int for the map id since there are multiple maps
 		public int NeedMap { get; private set; }

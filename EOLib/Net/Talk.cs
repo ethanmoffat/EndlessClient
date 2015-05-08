@@ -22,6 +22,7 @@ namespace EOLib.Net
 		public event ReceivePublicChatEvent OnPlayerChatByID; //chat event that should be shown in some kind of speech bubble and chat panel
 		public event ReceiveOtherChatEvent OnPlayerChatByName; //chat event that should only be shown in the chat panel
 		public event Action<string> OnPMRecipientNotFound;
+		public event Action<string> OnMuted;
 
 		private void _createTalkMembers()
 		{
@@ -34,6 +35,7 @@ namespace EOLib.Net
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Server), _handleTalkServer, true);
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Admin), _handleTalkAdmin, true);
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Announce), _handleTalkAnnounce, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Spec), _handleTalkSpec, true);
 		}
 
 		public bool Speak(TalkType chatType, string message, string character = null)
@@ -188,6 +190,12 @@ namespace EOLib.Net
 			string msg = pkt.GetBreakString();
 
 			OnPlayerChatByName(TalkType.Announce, name, msg);
+		}
+
+		private void _handleTalkSpec(Packet pkt)
+		{
+			if (OnMuted != null)
+				OnMuted(pkt.GetEndString());
 		}
 	}
 }

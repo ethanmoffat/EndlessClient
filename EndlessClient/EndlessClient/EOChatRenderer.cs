@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Windows.Input;
 using EOLib;
 using EOLib.Net;
 using XNAControls;
@@ -34,7 +33,6 @@ namespace EndlessClient
 		SpeechBubble = 0,
 		Note,
 		Error,
-// ReSharper disable UnusedMember.Global
 		NoteLeftArrow,
 		GlobalAnnounce,
 		Star,
@@ -73,7 +71,6 @@ namespace EndlessClient
 		Muted,
 		Guild
 	}
-// ReSharper restore UnusedMember.Global
 
 	public enum ChatColor
 	{

@@ -725,6 +725,13 @@ namespace EndlessClient
 				}
 			};
 			m_packetAPI.OnPMRecipientNotFound += name => Hud.PrivatePlayerNotFound(name);
+			m_packetAPI.OnMuted += adminName =>
+			{
+				string message = World.GetString(DATCONST2.CHAT_MESSAGE_MUTED_BY) + " " + adminName;
+				Hud.AddChat(ChatTabs.Local, World.GetString(DATCONST2.STRING_SERVER), message, ChatType.Exclamation, ChatColor.Server);
+				Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, "" + Constants.MuteDefaultTimeMinutes, DATCONST2.STATUS_LABEL_MINUTES_MUTED);
+				Hud.SetMuted();
+			};
 
 			m_packetAPI.OnBankOpen += (gold, upgrades) =>
 			{

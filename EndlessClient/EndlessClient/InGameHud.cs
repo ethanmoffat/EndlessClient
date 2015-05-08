@@ -50,7 +50,7 @@ namespace EndlessClient
 		private readonly XNALabel statusLabel; //label for status (mouse-over buttons)
 		private bool m_statusRecentlySet;
 		private readonly XNALabel clockLabel; //label that is updated on a timer
-		private Timer clockTimer;
+		private Timer clockTimer, m_muteTimer;
 
 		private DateTime? statusStartTime;
 
@@ -314,6 +314,13 @@ namespace EndlessClient
 			};
 			
 			((EOGame)g).Dispatcher.Subscriber = chatTextBox;
+
+			m_muteTimer = new Timer(s =>
+			{
+				chatTextBox.IgnoreAllInput = false;
+				currentChatMode = ChatMode.NoText;
+				m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
+			}, null, Timeout.Infinite, Timeout.Infinite);
 
 			statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), "Microsoft Sans Serif", 7f);
 			clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), "Microsoft Sans Serif", 7f);
@@ -736,6 +743,13 @@ namespace EndlessClient
 			AddChat(ChatTabs.System, "", string.Format("{0} " + endPart, character), ChatType.Error, ChatColor.Error);
 		}
 
+		public void SetMuted()
+		{
+			currentChatMode = ChatMode.Muted;
+			chatTextBox.IgnoreAllInput = true;
+			m_muteTimer.Change(Constants.MuteDefaultTimeMinutes*60000, 0);
+		}
+
 		public ChatTabs GetPrivateChatTab(string character)
 		{
 			return chatRenderer.StartConversation(character);
@@ -873,6 +887,13 @@ namespace EndlessClient
 					clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
 					clockTimer.Dispose();
 					clockLabel.Dispose();
+				}
+
+				if (m_muteTimer != null)
+				{
+					m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
+					m_muteTimer.Dispose();
+					m_muteTimer = null;
 				}
 			}
 

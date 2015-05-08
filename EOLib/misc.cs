@@ -103,6 +103,7 @@ namespace EOLib
 		public const int PlayerDropProtectionSeconds = 5;
 		public const int LockerMaxSingleItemAmount = 200;
 		public const int PartyRequestTimeoutSeconds = 15;
+		public const int MuteDefaultTimeMinutes = 5;
 
 		public const string LogFilePath = "log/debug.log";
 		public const string LogFileFmt  = "log/{0}-debug.log";

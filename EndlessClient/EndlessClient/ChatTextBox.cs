@@ -17,11 +17,15 @@ namespace EndlessClient
 	{
 		private bool m_ignoreNextInput;
 
+		public bool IgnoreAllInput { get; set; }
+
 		public ChatTextBox(Rectangle area, Texture2D cursorTexture, string fontFamily, float fontSize)
 			: base(area, cursorTexture, fontFamily, fontSize) { }
 
 		public override void ReceiveTextInput(char inp)
 		{
+			if (IgnoreAllInput) return;
+
 			if (!m_ignoreNextInput)
 				base.ReceiveTextInput(inp);
 			else
@@ -29,6 +33,8 @@ namespace EndlessClient
 		}
 		public override void ReceiveTextInput(string inp)
 		{
+			if (IgnoreAllInput) return;
+
 			if (!m_ignoreNextInput)
 				base.ReceiveTextInput(inp);
 			else
@@ -36,6 +42,8 @@ namespace EndlessClient
 		}
 		public override void ReceiveSpecialInput(Keys key)
 		{
+			if (IgnoreAllInput) return;
+
 			//ignore the emote input keys!
 			if (key >= Keys.NumPad0 && key <= Keys.NumPad9 || key == Keys.Decimal)
 			{
