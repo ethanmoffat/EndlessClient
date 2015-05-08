@@ -3035,4 +3035,85 @@ namespace EndlessClient
 			base.Update(gt);
 		}
 	}
+
+	public class EOTradeDialog : EODialogBase
+	{
+		//dialog has:
+		// - 2 lists of items on each side
+		// - 2 scroll bars (1 each side)
+		// - 2 name labels (1 each side)
+		// - 2 agree/trading labels (1 each side)
+		// - Ok/cancel buttons
+
+		private short m_leftPlayerID, m_rightPlayerID;
+		private readonly XNALabel m_leftPlayerName, m_rightPlayerName;
+		private readonly XNALabel m_leftPlayerStatus, m_rightPlayerStatus;
+		private readonly EOScrollBar m_leftScroll, m_rightScroll;
+		private bool m_leftAgrees, m_rightAgrees;
+		private readonly List<EODialogListItem> m_leftItems, m_rightItems;
+
+		private readonly Character m_main; //local reference
+
+		public static EOTradeDialog Instance { get; private set; }
+
+		public EOTradeDialog(PacketAPI apiHandle)
+			: base(apiHandle)
+		{
+			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 50);
+			_setSize(bgTexture.Width, bgTexture.Height);
+
+			Instance = this;
+			DialogClosing += (sender, args) => Instance = null;
+			m_main = World.Instance.MainPlayer.ActiveCharacter;
+
+			m_leftItems = new List<EODialogListItem>();
+			m_rightItems = new List<EODialogListItem>();
+
+			m_leftPlayerID = 0;
+			m_rightPlayerID = 0;
+
+			//left name 15,14,166,20
+			//right name 280, 14, 166, 20
+			//left agree 190, 14, 79, 20
+			//right agree 457, 14, 79, 20
+			//left scroll 251, 44, 18, 201
+			//right scroll 517, 44, 18, 201
+
+			Center(Game.GraphicsDevice);
+			DrawLocation = new Vector2(DrawLocation.X, 30);
+			endConstructor(false);
+		}
+
+		public void InitPlayerInfo(short player1, string player1Name, short player2, string player2Name)
+		{
+			
+		}
+
+		public void SetPlayerItems(short playerID, List<InventoryItem> items)
+		{
+			
+		}
+
+		public void SetPlayerAgree(short playerID, bool agrees)
+		{
+			if (playerID == m_leftPlayerID)
+				m_leftAgrees = agrees;
+			else if (playerID == m_rightPlayerID)
+				m_rightAgrees = agrees;
+			else
+				throw new ArgumentException("Invalid Player ID for trade session!", "playerID");
+		}
+
+		private void _buttonOkClicked(object sender, EventArgs e)
+		{
+			if (m_leftAgrees && m_leftPlayerID == m_main.ID ||
+			    m_rightAgrees && m_rightPlayerID == m_main.ID)
+				return; //main player already agrees
+		}
+
+		private void _buttonCancelClicked(object sender, EventArgs e)
+		{
+
+		}
+	}
 }

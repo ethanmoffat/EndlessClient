@@ -76,6 +76,7 @@
     <Compile Include="Net\Shop.cs" />
     <Compile Include="Net\StatSkill.cs" />
     <Compile Include="Net\Talk.cs" />
+    <Compile Include="Net\Trade.cs" />
     <Compile Include="Net\Walk.cs" />
     <Compile Include="Net\Warp.cs" />
     <Compile Include="Net\Welcome.cs" />

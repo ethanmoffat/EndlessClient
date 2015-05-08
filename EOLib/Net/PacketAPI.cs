@@ -45,6 +45,7 @@ namespace EOLib.Net
 			_createShopMembers();
 			_createStatSkillMembers();
 			_createTalkMembers();
+			_createTradeMembers();
 			_createWalkMembers();
 			_createWarpMembers();
 			_createWelcomeMembers();
