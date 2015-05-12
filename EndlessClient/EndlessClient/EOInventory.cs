@@ -113,13 +113,14 @@ namespace EndlessClient
 				//need to check for: drop on map (drop action)
 				//					 drop on button junk/drop
 				//					 drop on grid (inventory move action)
-				//					 drop on chest dialog (chest add action)
+				//					 drop on [x] dialog ([x] add action)
 
 				m_alpha = 255;
 				SetParent(m_preDragParent);
 
 				if (((EOInventory) parent).IsOverDrop() || (World.Instance.ActiveMapRenderer.MouseOver && 
-					EOChestDialog.Instance == null && EOPaperdollDialog.Instance == null && EOLockerDialog.Instance == null))
+					EOChestDialog.Instance == null && EOPaperdollDialog.Instance == null && EOLockerDialog.Instance == null
+					&& EOBankAccountDialog.Instance == null && EOTradeDialog.Instance == null))
 				{
 					Microsoft.Xna.Framework.Point loc = World.Instance.ActiveMapRenderer.MouseOver ? World.Instance.ActiveMapRenderer.GridCoords:
 						new Microsoft.Xna.Framework.Point(World.Instance.MainPlayer.ActiveCharacter.X, World.Instance.MainPlayer.ActiveCharacter.Y);
@@ -277,6 +278,34 @@ namespace EndlessClient
 					{
 						if (!m_api.BankDeposit(1))
 							EOGame.Instance.LostConnectionDialog();
+					}
+				}
+				else if (EOTradeDialog.Instance != null && EOTradeDialog.Instance.MouseOver && EOTradeDialog.Instance.MouseOverPreviously
+					&& !EOTradeDialog.Instance.MainPlayerAgrees)
+				{
+					if (m_itemData.Special == ItemSpecial.Lore)
+					{
+						EODialog.Show(DATCONST1.ITEM_IS_LORE_ITEM);
+					}
+					else if (m_inventory.amount > 1)
+					{
+						EOItemTransferDialog dlg = new EOItemTransferDialog(m_itemData.Name, EOItemTransferDialog.TransferType.TradeItems,
+							m_inventory.amount, DATCONST2.DIALOG_TRANSFER_OFFER);
+						dlg.DialogClosing += (o, e) =>
+						{
+							if (e.Result != XNADialogResult.OK) return;
+
+							if (!m_api.TradeAddItem(m_inventory.id, dlg.SelectedAmount))
+							{
+								EOTradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
+								((EOGame)Game).LostConnectionDialog();
+							}
+						};
+					}
+					else if(!m_api.TradeAddItem(m_inventory.id, 1))
+					{
+						EOTradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
+						((EOGame)Game).LostConnectionDialog();
 					}
 				}
 
@@ -591,8 +620,8 @@ namespace EndlessClient
 				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
 				int slot = localItemSlotMap.ContainsValue(item.id)
 					? localItemSlotMap.First(_pair => _pair.Value == item.id).Key
-					: GetNextOpenSlot(rec.Size);
-				if (!dialogShown && !AddItemToSlot(slot, rec, item.amount))
+					: _getNextOpenSlot(rec.Size);
+				if (!dialogShown && !_addItemToSlot(slot, rec, item.amount))
 				{
 					dialogShown = true;
 					EODialog.Show("Something doesn't fit in the inventory. Rearrange items or get rid of them.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
@@ -626,13 +655,11 @@ namespace EndlessClient
 			//0,52,38,37
 			m_btnDrop = new XNAButton(thatWeirdSheet, new Vector2(389, 68), new Rectangle(0, 15, 38, 37), new Rectangle(0, 52, 38, 37));
 			m_btnDrop.SetParent(this);
-			m_btnDrop.IgnoreDialog(typeof(EOPaperdollDialog));
-			m_btnDrop.IgnoreDialog(typeof(EOChestDialog));
+			World.IgnoreDialogs(m_btnDrop);
 			//'junk' button - 4 + 38 on the x away from drop
 			m_btnJunk = new XNAButton(thatWeirdSheet, new Vector2(431, 68), new Rectangle(0, 89, 38, 37), new Rectangle(0, 126, 38, 37));
 			m_btnJunk.SetParent(this);
-			m_btnJunk.IgnoreDialog(typeof(EOPaperdollDialog));
-			m_btnJunk.IgnoreDialog(typeof(EOChestDialog));
+			World.IgnoreDialogs(m_btnJunk);
 		}
 
 		//-----------------------------------------------------
@@ -666,14 +693,19 @@ namespace EndlessClient
 			m_btnDrop.Dispose();
 		}
 
-		private bool AddItemToSlot(int slot, ItemRecord item, int count = 1)
+		private bool _addItemToSlot(int slot, ItemRecord item, int count = 1)
+		{
+			return _addItemToSlot(m_filledSlots, slot, item, count);
+		}
+
+		private bool _addItemToSlot(bool[,] filledSlots, int slot, ItemRecord item, int count = 1)
 		{
 			//this is ADD item - don't allow adding items that have been added already
 			if (slot < 0 || m_childItems.Count(_item => _item.Slot == slot) > 0) return false;
 			
 			List<Tuple<int, int>> points;
-			if (!_fitsInSlot(slot, item.Size, out points)) return false;
-			points.ForEach(point => m_filledSlots[point.Item1, point.Item2] = true); //flag that the spaces are taken
+			if (!_fitsInSlot(filledSlots, slot, item.Size, out points)) return false;
+			points.ForEach(point => filledSlots[point.Item1, point.Item2] = true); //flag that the spaces are taken
 
 			m_inventoryKey.SetValue(string.Format("item{0}", slot), item.ID, RegistryValueKind.String); //update the registry
 			m_childItems.Add(new EOInventoryItem(m_api, slot, item, new InventoryItem { amount = count, id = (short)item.ID }, this)); //add the control wrapper for the item
@@ -688,12 +720,63 @@ namespace EndlessClient
 				return true;
 
 			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(id);
-			int nextSlot = GetNextOpenSlot(rec.Size);
+			int nextSlot = _getNextOpenSlot(rec.Size);
 			List<Tuple<int, int>> dummy;
 			return _fitsInSlot(nextSlot, rec.Size, out dummy);
 		}
 
-		private void RemoveItemFromSlot(int slot, int count = 1)
+		/// <summary>
+		/// Checks if a list of Item IDs will fit in the inventory based on their item record sizes. Does not modify current inventory.
+		/// </summary>
+		/// <param name="newItems">List of Items to check</param>
+		/// <param name="oldItems">Optional list of items to remove from filled slots before checking new IDs (ie items that will be traded)</param>
+		/// <returns>True if everything fits, false otherwise.</returns>
+		public bool ItemsFit(List<InventoryItem> newItems, List<InventoryItem> oldItems = null)
+		{
+			bool[,] tempFilledSlots = new bool[4, INVENTORY_ROW_LENGTH];
+			for (int row = 0; row < 4; ++row)
+			{
+				for (int col = 0; col < INVENTORY_ROW_LENGTH; ++col)
+				{
+					tempFilledSlots[row, col] = m_filledSlots[row, col];
+				}
+			}
+
+			if(oldItems != null)
+				foreach (InventoryItem item in oldItems)
+				{
+					EOInventoryItem control = m_childItems.Find(_item => _item.ItemData.ID == item.id);
+					if (control != null && control.Inventory.amount - item.amount <= 0)
+						_unmarkItemSlots(tempFilledSlots, _getTakenSlots(control.Slot, control.ItemData.Size));
+				}
+
+			foreach (InventoryItem item in newItems)
+			{
+				if (oldItems != null && oldItems.FindIndex(_itm => _itm.id == item.id) < 0)
+				{
+					if (item.id == 1 || m_childItems.Find(_item => _item.ItemData.ID == item.id) != null)
+						continue; //already in inventory: skip, since it isn't a new item
+				}
+
+				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+
+				int nextSlot = _getNextOpenSlot(tempFilledSlots, rec.Size);
+				List<Tuple<int, int>> points;
+				if (nextSlot < 0 || !_fitsInSlot(tempFilledSlots, nextSlot, rec.Size, out points))
+					return false;
+
+				foreach (var pt in points)
+					tempFilledSlots[pt.Item1, pt.Item2] = true;
+			}
+			return true;
+		}
+
+		private void _unmarkItemSlots(bool[,] slots, List<Tuple<int, int>> points)
+		{
+			points.ForEach(_p => slots[_p.Item1, _p.Item2] = false);
+		}
+
+		private void _removeItemFromSlot(int slot, int count = 1)
 		{
 			EOInventoryItem control = m_childItems.Find(_control => _control.Slot == slot);
 			if (control == null || slot < 0) return;
@@ -703,8 +786,7 @@ namespace EndlessClient
 			if (numLeft <= 0 && control.Inventory.id != 1)
 			{
 				ItemSize sz = control.ItemData.Size;
-				List<Tuple<int, int>> points = _getTakenSlots(control.Slot, sz);
-				points.ForEach(_p => m_filledSlots[_p.Item1, _p.Item2] = false);
+				_unmarkItemSlots(m_filledSlots, _getTakenSlots(control.Slot, sz));
 
 				m_inventoryKey.SetValue(string.Format("item{0}", slot), 0, RegistryValueKind.String);
 				m_childItems.Remove(control);
@@ -737,7 +819,12 @@ namespace EndlessClient
 			return true;
 		}
 
-		private int GetNextOpenSlot(ItemSize size)
+		private int _getNextOpenSlot(ItemSize size)
+		{
+			return _getNextOpenSlot(m_filledSlots, size);
+		}
+
+		private int _getNextOpenSlot(bool[,] slots, ItemSize size)
 		{
 			int width, height;
 			_getItemSizeDeltas(size, out width, out height);
@@ -747,9 +834,9 @@ namespace EndlessClient
 			{
 				for (int col = 0; col < INVENTORY_ROW_LENGTH; ++col)
 				{
-					if (m_filledSlots[row, col]) continue;
+					if (slots[row, col]) continue;
 
-					if (!m_filledSlots[row, col] && size == ItemSize.Size1x1)
+					if (!slots[row, col] && size == ItemSize.Size1x1)
 						return row*INVENTORY_ROW_LENGTH + col;
 
 					//inner loops: iterating over grid spaces starting at (row, col) for the item size (width, height)
@@ -762,7 +849,7 @@ namespace EndlessClient
 							continue;
 						}
 						for (int x = col; x < col + width; ++x)
-							if (x >= INVENTORY_ROW_LENGTH || m_filledSlots[y, x]) ok = false;
+							if (x >= INVENTORY_ROW_LENGTH || slots[y, x]) ok = false;
 					}
 
 					if (ok) return row*INVENTORY_ROW_LENGTH + col;
@@ -797,7 +884,7 @@ namespace EndlessClient
 			else
 			{
 				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
-				return AddItemToSlot(GetNextOpenSlot(rec.Size), rec, item.amount);
+				return _addItemToSlot(_getNextOpenSlot(rec.Size), rec, item.amount);
 			}
 
 			return true;
@@ -808,7 +895,7 @@ namespace EndlessClient
 			EOInventoryItem ctrl;
 			if ((ctrl = m_childItems.Find(_ctrl => _ctrl.ItemData.ID == id)) != null)
 			{
-				RemoveItemFromSlot(ctrl.Slot, ctrl.Inventory.amount);
+				_removeItemFromSlot(ctrl.Slot, ctrl.Inventory.amount);
 			}
 		}
 
@@ -857,15 +944,12 @@ namespace EndlessClient
 			return ret;
 		}
 
-		/// <summary>
-		/// Returns whether or not a slot can support an item of the specified size
-		/// </summary>
-		/// <param name="slot">The slot to check</param>
-		/// <param name="sz">The size of the item we're trying to fit</param>
-		/// <param name="points">List of coordinates that the new item will take</param>
-		/// <param name="itemPoints">List of coordinates of the item that is moving</param>
-		/// <returns></returns>
 		private bool _fitsInSlot(int slot, ItemSize sz, out List<Tuple<int, int>> points, List<Tuple<int, int>> itemPoints = null)
+		{
+			return _fitsInSlot(m_filledSlots, slot, sz, out points, itemPoints);
+		}
+
+		private bool _fitsInSlot(bool[,] slots, int slot, ItemSize sz, out List<Tuple<int, int>> points, List<Tuple<int, int>> itemPoints = null)
 		{
 			points = new List<Tuple<int, int>>();
 
@@ -874,13 +958,13 @@ namespace EndlessClient
 			//check the 'filled slots' array to see if the item can go in 'slot' based on its size
 			int y = slot / INVENTORY_ROW_LENGTH, x = slot % INVENTORY_ROW_LENGTH;
 			if (y >= 4 || x >= INVENTORY_ROW_LENGTH) return false;
-			if (itemPoints == null && m_filledSlots[y, x]) return false;
+			if (itemPoints == null && slots[y, x]) return false;
 
 			points = _getTakenSlots(slot, sz);
 			if (points.Count(_t => _t.Item1 < 0 || _t.Item1 > 3 || _t.Item2 < 0 || _t.Item2 >= INVENTORY_ROW_LENGTH) > 0)
 				return false; //some of the coordinates are out of bounds of the maximum inventory length
 
-			List<Tuple<int,int>> overLaps = points.FindAll(_pt => m_filledSlots[_pt.Item1, _pt.Item2]);
+			List<Tuple<int, int>> overLaps = points.FindAll(_pt => slots[_pt.Item1, _pt.Item2]);
 			if (overLaps.Count > 0 && (itemPoints == null || overLaps.Count(itemPoints.Contains) != overLaps.Count))
 				return false; //more than one overlapping point, and the points in overLaps are not contained in itemPoints
 

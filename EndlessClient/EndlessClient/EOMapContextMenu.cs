@@ -37,7 +37,7 @@ namespace EndlessClient
 		private Rectangle? m_overRect; //rectangle for hover region
 		private EOCharacterRenderer m_rend;
 
-		private DateTime? m_lastPartyRequestedTime;
+		private DateTime? m_lastPartyRequestedTime, m_lastTradeRequestedTime;
 
 		private readonly PacketAPI m_api;
 
@@ -251,8 +251,18 @@ namespace EndlessClient
 					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
 					XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 			else
-				EODialog.Show("TODO: Start trade with this player", "TODO ITEM", XNADialogButtons.Ok,
-					EODialogStyle.SmallDialogSmallHeader);
+			{
+				if(m_lastTradeRequestedTime != null && (DateTime.Now - m_lastTradeRequestedTime.Value).TotalSeconds < Constants.TradeRequestTimeoutSeconds)
+				{
+					((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_TRADE_RECENTLY_REQUESTED);
+					return;
+				}
+				m_lastTradeRequestedTime = DateTime.Now;
+				if (!m_api.TradeRequest((short)m_rend.Character.ID))
+					((EOGame)Game).LostConnectionDialog();
+				//todo: is this correct text?
+				((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_TRADE_REQUESTED_TO_TRADE);
+			}
 		}
 		private void _eventPrivateMessage(object arg1, EventArgs arg2)
 		{

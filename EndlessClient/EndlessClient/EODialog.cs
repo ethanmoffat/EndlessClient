@@ -130,6 +130,7 @@ namespace EndlessClient
 	{
 		public EODialog(string msgText, string captionText = "", XNADialogButtons whichButtons = XNADialogButtons.Ok, EODialogStyle style = EODialogStyle.SmallDialogLargeHeader)
 		{
+			// ReSharper disable once RedundantBaseQualifier
 			base.whichButtons = whichButtons;
 
 			bool useSmallHeader = style == EODialogStyle.LargeDialogSmallHeader || style == EODialogStyle.SmallDialogSmallHeader;
@@ -330,6 +331,8 @@ namespace EndlessClient
 			down.SetParent(this);
 			scroll = new XNAButton(scrollButton, new Vector2(0, 15)); //update coordinates!!!!
 			scroll.OnClickDrag += scrollDragged;
+			scroll.OnMouseEnter += (o, e) => { SuppressParentClickDrag(true); };
+			scroll.OnMouseLeave += (o, e) => { SuppressParentClickDrag(false); };
 			scroll.SetParent(this);
 
 			_totalHeight = DrawAreaWithOffset.Height;
@@ -420,6 +423,7 @@ namespace EndlessClient
 				y = scrollArea.Height - scroll.DrawArea.Height;
 
 			scroll.DrawLocation = new Vector2(0, y);
+
 			if (_totalHeight <= LinesToRender)
 				return;
 
@@ -447,8 +451,7 @@ namespace EndlessClient
 				&& tempParent != null && tempParent.MouseOver && tempParent.MouseOverPreviously
 				&& _totalHeight > LinesToRender)
 			{
-				int dif = (currentState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue) / 120;
-				dif *= -1;//otherwise its that stupid-ass apple bullshit with the fucking natural scroll WHY IS IT EVEN A THING WHAT THE FUCK APPLE
+				int dif = (currentState.ScrollWheelValue - PreviousMouseState.ScrollWheelValue) / -120; //otherwise you get "Natural" scroll. We'll have none of that.
 				if ((dif < 0 && dif + ScrollOffset >= 0) || (dif > 0 && ScrollOffset + dif <= _totalHeight - LinesToRender))
 				{
 					ScrollOffset += dif;
@@ -1493,12 +1496,9 @@ namespace EndlessClient
 			XNALabel descLabel = new XNALabel(new Rectangle(20, 42, 231, 33), "Microsoft Sans Serif", 10.0f)
 			{
 				ForeColor = System.Drawing.Color.FromArgb(0xe6, 0xe6, 0xd6),
-				TextWidth = 200
+				TextWidth = 200,
+				Text = string.Format("{0} {1} {2}", World.GetString(DATCONST2.DIALOG_TRANSFER_HOW_MUCH), itemName, World.GetString(message))
 			};
-
-			string descLabelTxt = string.Format("{0} {1} ", World.GetString(DATCONST2.DIALOG_TRANSFER_HOW_MUCH), itemName);
-			descLabelTxt += World.Instance.DataFiles[World.Instance.Localized2].Data[(int) message];
-			descLabel.Text = descLabelTxt;
 			descLabel.SetParent(this);
 
 			//set the text box here
@@ -1585,6 +1585,7 @@ namespace EndlessClient
 				case DATCONST2.DIALOG_TRANSFER_TRANSFER:
 				case DATCONST2.DIALOG_TRANSFER_DEPOSIT:
 				case DATCONST2.DIALOG_TRANSFER_WITHDRAW:
+				case DATCONST2.DIALOG_TRANSFER_OFFER:
 					break;
 				default: throw new ArgumentOutOfRangeException("msg", "Use one of the approved messages.");
 			}
@@ -1597,9 +1598,13 @@ namespace EndlessClient
 		private bool m_disposing;
 
 		/// <summary>
-		/// Optional identifier to use for this List Item Record
+		/// Optional item ID to use for this List Item Record
 		/// </summary>
 		public short ID { get; set; }
+		/// <summary>
+		/// Optional item amount to use for this List Item Record
+		/// </summary>
+		public int Amount { get; set; }
 		
 		private int m_index;
 		/// <summary>
@@ -1611,14 +1616,42 @@ namespace EndlessClient
 			set
 			{
 				m_index = value;
-				DrawLocation = new Vector2(19, OffsetY + (m_index * (Style == ListItemStyle.Large ? 36 : 16)));
+				DrawLocation = new Vector2(DrawLocation.X, OffsetY + (m_index * (Style == ListItemStyle.Large ? 36 : 16)));
+			}
+		}
+
+		private int m_xOffset, m_yOffset;
+
+		public int OffsetX
+		{
+			get
+			{
+				return m_xOffset;
+			}
+			set
+			{
+				int oldOff = m_xOffset;
+				m_xOffset = value;
+				DrawLocation = DrawLocation + new Vector2(m_xOffset - oldOff, 0);
 			}
 		}
 
 		/// <summary>
 		/// Starting Y Offset to draw list item controls
 		/// </summary>
-		public int OffsetY { get; set; }
+		public int OffsetY
+		{
+			get
+			{
+				return m_yOffset;
+			}
+			set
+			{
+				int oldOff = m_yOffset;
+				m_yOffset = value;
+				DrawLocation = DrawLocation + new Vector2(0, m_yOffset - oldOff);
+			}
+		}
 
 		/// <summary>
 		/// Style of the control - either small (single text row) or large (graphic w/two rows of text)
@@ -1668,8 +1701,9 @@ namespace EndlessClient
 
 		public EODialogListItem(EODialogBase parent, ListItemStyle style, string primaryText, string secondaryText = null, Texture2D iconGraphic = null, int listIndex = -1)
 		{
+			DrawLocation = new Vector2(19, DrawLocation.Y); //the base X coordinate is 19 - this can be adjusted with OffsetX property
+
 			Style = style;
-			OffsetY = Style == ListItemStyle.Large ? 25 : 45;
 			if(listIndex >= 0)
 				Index = listIndex;
 
@@ -1710,6 +1744,7 @@ namespace EndlessClient
 
 			if(Style == ListItemStyle.Large)
 				m_secondaryText.SetParent(this);
+			OffsetY = Style == ListItemStyle.Large ? 25 : 45;
 		}
 
 		public override void Update(GameTime gameTime)
@@ -1755,12 +1790,13 @@ namespace EndlessClient
 				SpriteBatch.Begin();
 				if (m_drawBackground)
 				{
+					//Rectangle backgroundRect = new Rectangle(DrawAreaWithOffset.X + OffsetX, DrawAreaWithOffset.Y + OffsetY, DrawAreaWithOffset.Width, DrawAreaWithOffset.Height);
 					SpriteBatch.Draw(m_backgroundColor, DrawAreaWithOffset, Color.White);
 				}
 				if (Style == ListItemStyle.Large)
 				{
 					//The area for showing these is 64x36px: center the icon and background accordingly
-					Vector2 offset = new Vector2(xOff + 14/*not sure of the significance of this offset*/, yOff + OffsetY + 36*Index);
+					Vector2 offset = new Vector2(xOff + OffsetX + 14/*not sure of the significance of this offset*/, yOff + OffsetY + 36*Index);
 					if (ShowItemBackGround)
 						SpriteBatch.Draw(m_gfxPadThing, new Vector2(offset.X + ((64 - m_gfxPadThing.Width)/2f), offset.Y + (36 - m_gfxPadThing.Height)/2f), Color.White);
 					SpriteBatch.Draw(m_gfxItem, 
@@ -2508,7 +2544,7 @@ namespace EndlessClient
 			{
 				if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
 				{
-					EODialog.Show(World.GetString(DATCONST2.DIALOG_SHOP_NOT_ENOUGH_SPACE),
+					EODialog.Show(World.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
 						World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
 						XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					return;
@@ -2517,7 +2553,7 @@ namespace EndlessClient
 				if (rec.Weight + World.Instance.MainPlayer.ActiveCharacter.Weight >
 				    World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
 				{
-					EODialog.Show(World.GetString(DATCONST2.DIALOG_SHOP_NOT_ENOUGH_WEIGHT), 
+					EODialog.Show(World.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT), 
 						World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
 						XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					return;
@@ -2607,7 +2643,7 @@ namespace EndlessClient
 
 			if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
 			{
-				EODialog.Show(World.GetString(DATCONST2.DIALOG_SHOP_NOT_ENOUGH_SPACE),
+				EODialog.Show(World.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
 					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
 					XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 				return;
@@ -3046,6 +3082,7 @@ namespace EndlessClient
 		// - Ok/cancel buttons
 
 		private short m_leftPlayerID, m_rightPlayerID;
+		private string m_leftNameStr, m_rightNameStr;
 		private readonly XNALabel m_leftPlayerName, m_rightPlayerName;
 		private readonly XNALabel m_leftPlayerStatus, m_rightPlayerStatus;
 		private readonly EOScrollBar m_leftScroll, m_rightScroll;
@@ -3054,7 +3091,18 @@ namespace EndlessClient
 
 		private readonly Character m_main; //local reference
 
+		private int m_recentPartnerRemoves;
+
 		public static EOTradeDialog Instance { get; private set; }
+
+		public bool MainPlayerAgrees
+		{
+			get
+			{
+				return (m_main.ID == m_leftPlayerID && m_leftAgrees) ||
+				       (m_main.ID == m_rightPlayerID && m_rightAgrees);
+			}
+		}
 
 		public EOTradeDialog(PacketAPI apiHandle)
 			: base(apiHandle)
@@ -3072,12 +3120,69 @@ namespace EndlessClient
 			m_leftPlayerID = 0;
 			m_rightPlayerID = 0;
 
-			//left name 15,14,166,20
-			//right name 280, 14, 166, 20
-			//left agree 190, 14, 79, 20
-			//right agree 457, 14, 79, 20
-			//left scroll 251, 44, 18, 201
-			//right scroll 517, 44, 18, 201
+			m_leftPlayerName = new XNALabel(new Rectangle(20, 14, 166, 20), "Microsoft Sans Serif", 8.5f)
+			{
+				AutoSize = false,
+				TextAlign = ContentAlignment.MiddleLeft,
+				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
+			};
+			m_leftPlayerName.SetParent(this);
+			m_rightPlayerName = new XNALabel(new Rectangle(285, 14, 166, 20), "Microsoft Sans Serif", 8.5f)
+			{
+				AutoSize = false,
+				TextAlign = ContentAlignment.MiddleLeft,
+				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
+			};
+			m_rightPlayerName.SetParent(this);
+			m_leftPlayerStatus = new XNALabel(new Rectangle(195, 14, 79, 20), "Microsoft Sans Serif", 8.5f)
+			{
+				AutoSize = false,
+				TextAlign = ContentAlignment.MiddleLeft,
+				Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
+				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
+			};
+			m_leftPlayerStatus.SetParent(this);
+			m_rightPlayerStatus = new XNALabel(new Rectangle(462, 14, 79, 20), "Microsoft Sans Serif", 8.5f)
+			{
+				AutoSize = false,
+				TextAlign = ContentAlignment.MiddleLeft,
+				Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
+				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
+			};
+			m_rightPlayerStatus.SetParent(this);
+
+			m_leftScroll = new EOScrollBar(this, new Vector2(252, 44), new Vector2(16, 199), EOScrollBar.ScrollColors.LightOnMed) { LinesToRender = 5 };
+			m_rightScroll = new EOScrollBar(this, new Vector2(518, 44), new Vector2(16, 199), EOScrollBar.ScrollColors.LightOnMed) { LinesToRender = 5 };
+
+			//BUTTONSSSS
+			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(356, 252), _getSmallButtonOut(SmallButton.Ok),
+				_getSmallButtonOver(SmallButton.Ok));
+			ok.OnClick += _buttonOkClicked;
+			ok.SetParent(this);
+			dlgButtons.Add(ok);
+			XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(449, 252), _getSmallButtonOut(SmallButton.Cancel),
+				_getSmallButtonOver(SmallButton.Cancel));
+			cancel.OnClick += _buttonCancelClicked;
+			cancel.SetParent(this);
+			dlgButtons.Add(cancel);
+
+			Timer localTimer = new Timer(state =>
+			{
+				if (m_recentPartnerRemoves > 0)
+					m_recentPartnerRemoves--;
+			}, null, 0, 5000);
+
+			DialogClosing += (o, e) =>
+			{
+				if (e.Result == XNADialogResult.Cancel)
+				{
+					if(!m_api.TradeClose())
+						((EOGame)Game).LostConnectionDialog();
+					((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_TRADE_ABORTED);
+				}
+
+				localTimer.Dispose();
+			};
 
 			Center(Game.GraphicsDevice);
 			DrawLocation = new Vector2(DrawLocation.X, 30);
@@ -3086,34 +3191,305 @@ namespace EndlessClient
 
 		public void InitPlayerInfo(short player1, string player1Name, short player2, string player2Name)
 		{
-			
+			m_leftPlayerID = player1;
+			m_rightPlayerID = player2;
+			m_leftNameStr = m_leftPlayerName.Text = char.ToUpper(player1Name[0]) + player1Name.Substring(1);
+			m_rightNameStr = m_rightPlayerName.Text = char.ToUpper(player2Name[0]) + player2Name.Substring(1);
 		}
 
 		public void SetPlayerItems(short playerID, List<InventoryItem> items)
 		{
-			
-		}
+			int xOffset;
+			List<EODialogListItem> collectionRef;
+			EOScrollBar scrollRef;
 
-		public void SetPlayerAgree(short playerID, bool agrees)
-		{
 			if (playerID == m_leftPlayerID)
-				m_leftAgrees = agrees;
+			{
+				collectionRef = m_leftItems;
+				scrollRef = m_leftScroll;
+				xOffset = -3;
+				m_leftPlayerName.Text = string.Format("{0} {1}", m_leftNameStr, items.Count > 0 ? "[" + items.Count + "]" : "");
+
+				if (m_leftAgrees)
+				{
+					m_leftAgrees = false;
+					m_leftPlayerStatus.Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
+				}
+
+				//left player is NOT main, and right player (ie main) agrees, and the item count is different for left player
+				//cancel the offer for the main player since the other player changed the offer
+				if (m_main.ID != playerID && m_rightAgrees && collectionRef.Count != items.Count)
+				{
+					m_rightAgrees = false;
+					m_rightPlayerStatus.Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
+					EODialog.Show(DATCONST1.TRADE_ABORTED_OFFER_CHANGED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_TRADE_OTHER_PLAYER_CHANGED_OFFER);
+				}
+			}
 			else if (playerID == m_rightPlayerID)
-				m_rightAgrees = agrees;
+			{
+				collectionRef = m_rightItems;
+				scrollRef = m_rightScroll;
+				xOffset = 263;
+				m_rightPlayerName.Text = string.Format("{0} {1}", m_rightNameStr, items.Count > 0 ? "[" + items.Count + "]" : "");
+
+				if (m_rightAgrees)
+				{
+					m_rightAgrees = false;
+					m_rightPlayerStatus.Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
+				}
+
+				//right player is NOT main, and left player (ie main) agrees, and the item count is different for right player
+				//cancel the offer for the main player since the other player changed the offer
+				if (m_main.ID != playerID && m_leftAgrees && collectionRef.Count != items.Count)
+				{
+					m_leftAgrees = false;
+					m_leftPlayerStatus.Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
+					EODialog.Show(DATCONST1.TRADE_ABORTED_OFFER_CHANGED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_TRADE_OTHER_PLAYER_CHANGED_OFFER);
+				}
+			}
 			else
 				throw new ArgumentException("Invalid Player ID for trade session!", "playerID");
+
+			if (m_main.ID != playerID && collectionRef.Count > items.Count)
+				m_recentPartnerRemoves++;
+			if (m_recentPartnerRemoves == 3)
+			{
+				EODialog.Show(DATCONST1.TRADE_OTHER_PLAYER_TRICK_YOU, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				m_recentPartnerRemoves = -1000; //this will prevent the message from showing more than once (I'm too lazy to find something more elegant)
+			}
+
+			foreach (var oldItem in collectionRef) oldItem.Close();
+			collectionRef.Clear();
+
+			int index = 0;
+			foreach (InventoryItem item in items)
+			{
+				int localID = item.id;
+
+				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+				string secondary = string.Format("x {0}  {1}", item.amount, rec.Type == ItemType.Armor
+					? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")"
+					: "");
+
+				int gfxNum = item.id == 1
+					? 269 + 2*(item.amount >= 100000 ? 4 : (item.amount >= 10000? 3 : (item.amount >= 100 ? 2 : (item.amount >= 2 ? 1 : 0))))
+					: 2*rec.Graphic - 1;
+
+				var nextItem = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, rec.Name, secondary,
+					GFXLoader.TextureFromResource(GFXTypes.Items, gfxNum, true), index++)
+				{
+					ID = item.id,
+					Amount = item.amount,
+					OffsetX = xOffset,
+					OffsetY = 46
+				};
+				if (playerID == m_main.ID)
+					nextItem.OnRightClick += (sender, args) => _removeItem(localID);
+				collectionRef.Add(nextItem);
+			}
+
+			scrollRef.UpdateDimensions(collectionRef.Count);
+		}
+
+		public void SetPlayerAgree(bool isMain, bool agrees)
+		{
+			short playerID = isMain ? (short)m_main.ID : (m_leftPlayerID == m_main.ID ? m_rightPlayerID : m_leftPlayerID);
+			if (playerID == m_leftPlayerID)
+			{
+				if (agrees && !m_leftAgrees)
+					((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION,
+						isMain ? DATCONST2.STATUS_LABEL_TRADE_YOU_ACCEPT : DATCONST2.STATUS_LABEL_TRADE_OTHER_ACCEPT);
+				else if (!agrees && m_leftAgrees)
+					((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION,
+						isMain ? DATCONST2.STATUS_LABEL_TRADE_YOU_CANCEL : DATCONST2.STATUS_LABEL_TRADE_OTHER_CANCEL);
+
+				m_leftAgrees = agrees;
+				m_leftPlayerStatus.Text =
+					World.GetString(agrees ? DATCONST2.DIALOG_TRADE_WORD_AGREE : DATCONST2.DIALOG_TRADE_WORD_TRADING);
+			}
+			else if (playerID == m_rightPlayerID)
+			{
+				if (agrees && !m_rightAgrees)
+					((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION,
+						isMain ? DATCONST2.STATUS_LABEL_TRADE_YOU_ACCEPT : DATCONST2.STATUS_LABEL_TRADE_OTHER_ACCEPT);
+				else if (!agrees && m_rightAgrees)
+					((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION,
+						isMain ? DATCONST2.STATUS_LABEL_TRADE_YOU_CANCEL : DATCONST2.STATUS_LABEL_TRADE_OTHER_CANCEL);
+
+				m_rightAgrees = agrees;
+				m_rightPlayerStatus.Text =
+					World.GetString(agrees ? DATCONST2.DIALOG_TRADE_WORD_AGREE : DATCONST2.DIALOG_TRADE_WORD_TRADING);
+			}
+			else
+				throw new ArgumentException("Invalid Player ID for trade session!");
+		}
+
+		public void CompleteTrade(short p1, List<InventoryItem> p1items, short p2, List<InventoryItem> p2items)
+		{
+			List<InventoryItem> mainCollection, otherCollection;
+			if (p1 == m_main.ID)
+			{
+				mainCollection = p1items;
+				otherCollection = p2items;
+			}
+			else
+			{
+				mainCollection = p2items;
+				otherCollection = p1items;
+			}
+
+			foreach (var item in mainCollection)
+				m_main.UpdateInventoryItem(item.id, -item.amount, true);
+			foreach (var item in otherCollection)
+				m_main.UpdateInventoryItem(item.id, item.amount, true);
+
+			Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+			EODialog.Show(DATCONST1.TRADE_SUCCESS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 		}
 
 		private void _buttonOkClicked(object sender, EventArgs e)
 		{
-			if (m_leftAgrees && m_leftPlayerID == m_main.ID ||
-			    m_rightAgrees && m_rightPlayerID == m_main.ID)
-				return; //main player already agrees
+			if (m_leftPlayerID == m_main.ID)
+			{
+				if (m_leftAgrees) return; //main already agrees
+			}
+			else if (m_rightPlayerID == m_main.ID)
+			{
+				if (m_rightAgrees) return; //main already agrees
+			}
+			else
+				throw new InvalidOperationException("Invalid Player ID for trade session!");
+
+			if (m_leftItems.Count == 0 || m_rightItems.Count == 0)
+			{
+				EODialog.Show(World.GetString(DATCONST2.DIALOG_TRADE_BOTH_PLAYERS_OFFER_ONE_ITEM),
+					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok,
+					EODialogStyle.SmallDialogSmallHeader);
+				((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_TRADE_BOTH_PLAYERS_OFFER_ONE_ITEM);
+				return;
+			}
+
+			List<EODialogListItem> mainCollection = m_main.ID == m_leftPlayerID ? m_leftItems : m_rightItems;
+			List<EODialogListItem> otherCollection = m_main.ID == m_leftPlayerID ? m_rightItems : m_leftItems;
+
+			//make sure that the items will fit!
+			if (!((EOGame) Game).Hud.ItemsFit(
+					otherCollection.Select(_item => new InventoryItem {id = _item.ID, amount = _item.Amount}).ToList(),
+					mainCollection.Select(_item => new InventoryItem {id = _item.ID, amount = _item.Amount}).ToList()))
+			{
+				EODialog.Show(World.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
+					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				return;
+			}
+
+			//make sure the change in weight + existing weight is not greater than the max weight!
+			int weightDelta = otherCollection.Sum(itemRef => (World.Instance.EIF.GetItemRecordByID(itemRef.ID).Weight*itemRef.Amount));
+			weightDelta = mainCollection.Aggregate(weightDelta, (current, itemRef) => current - (World.Instance.EIF.GetItemRecordByID(itemRef.ID).Weight*itemRef.Amount));
+			if (weightDelta + m_main.Weight > m_main.MaxWeight)
+			{
+				EODialog.Show(World.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT),
+					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				return;
+			}
+
+			EODialog.Show(DATCONST1.TRADE_DO_YOU_AGREE, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader,
+				(o, dlgArgs) =>
+				{
+					if (dlgArgs.Result == XNADialogResult.OK && !m_api.TradeAgree(true))
+					{
+						Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+						((EOGame) Game).LostConnectionDialog();
+					}
+				});
 		}
 
 		private void _buttonCancelClicked(object sender, EventArgs e)
 		{
+			if (m_main.ID == m_leftPlayerID)
+			{
+				if (!m_leftAgrees) //just quit
+					Close(dlgButtons[1], XNADialogResult.Cancel);
+				else if (!m_api.TradeAgree(false)) //cancel agreement
+					((EOGame) Game).LostConnectionDialog();
+			}
+			else if (m_main.ID == m_rightPlayerID)
+			{
+				if (!m_rightAgrees) //just quit
+					Close(dlgButtons[1], XNADialogResult.Cancel);
+				else if (!m_api.TradeAgree(false))
+						((EOGame)Game).LostConnectionDialog();
+			}
+			else
+				throw new InvalidOperationException("Invalid player ID for trade session!");
+		}
 
+		//item right-click event handler
+		private void _removeItem(int id)
+		{
+			if (!m_api.TradeRemoveItem((short) id))
+			{
+				Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+				((EOGame)Game).LostConnectionDialog();
+			}
+		}
+
+		public override void Update(GameTime gt)
+		{
+			if (EOGame.Instance.Hud.IsInventoryDragging())
+			{
+				shouldClickDrag = false;
+				SuppressParentClickDrag(true);
+			}
+			else
+			{
+				shouldClickDrag = true;
+				SuppressParentClickDrag(false);
+			}
+
+			//do the hiding logic for both sides
+			List<EOScrollBar> scrollBars = new List<EOScrollBar> {m_leftScroll, m_rightScroll};
+			List<List<EODialogListItem>> lists = new List<List<EODialogListItem>> {m_leftItems, m_rightItems};
+			for (int ndx = 0; ndx < 2; ++ndx)
+			{
+				var list = lists[ndx];
+				var scroll = scrollBars[ndx];
+
+				//which items should we render?
+				if (list.Count > scroll.LinesToRender)
+				{
+					for (int i = 0; i < list.Count; ++i)
+					{
+						EODialogListItem curr = list[i];
+						if (i < scroll.ScrollOffset)
+						{
+							curr.Visible = false;
+							continue;
+						}
+
+						if (i < scroll.LinesToRender + scroll.ScrollOffset)
+						{
+							curr.Visible = true;
+							curr.Index = i - scroll.ScrollOffset;
+						}
+						else
+						{
+							curr.Visible = false;
+						}
+					}
+				}
+				else if (list.Any(_item => !_item.Visible))
+					list.ForEach(_item => _item.Visible = true); //all items visible if less than # lines to render
+			}
+
+			base.Update(gt);
+		}
+
+		public void Close(XNADialogResult result)
+		{
+			Close(null, result);
+			Close();
 		}
 	}
 }

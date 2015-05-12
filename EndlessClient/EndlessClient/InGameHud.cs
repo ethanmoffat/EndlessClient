@@ -172,14 +172,7 @@ namespace EndlessClient
 			};
 			//pnlCollection.Add(pnlMacro); //if this ever happens...
 
-			pnlCollection.ForEach(_pnl =>
-			{
-				_pnl.IgnoreDialog(typeof(EOPaperdollDialog));
-				_pnl.IgnoreDialog(typeof(EOChestDialog));
-				_pnl.IgnoreDialog(typeof(EOShopDialog));
-				_pnl.IgnoreDialog(typeof(EOLockerDialog));
-				_pnl.IgnoreDialog(typeof(EOBankAccountDialog));
-			});
+			pnlCollection.ForEach(_pnl => World.IgnoreDialogs(_pnl));
 
 			for (int i = 0; i < NUM_BTN; ++i)
 			{
@@ -203,12 +196,7 @@ namespace EndlessClient
 				Vector2 btnLoc = new Vector2(i < 6 ? 62 : 590, (i < 6 ? 330 : 350) + ((i < 6 ? i : i - 6) * 20));
 
 				mainBtn[i] = new XNAButton(new [] { _out, _ovr }, btnLoc);
-				mainBtn[i].IgnoreDialog(typeof(EOChestDialog));
-				mainBtn[i].IgnoreDialog(typeof(EOPaperdollDialog));
-				mainBtn[i].IgnoreDialog(typeof(EOShopDialog));
-				mainBtn[i].IgnoreDialog(typeof(EOLockerDialog));
-				mainBtn[i].IgnoreDialog(typeof(EOBankAccountDialog));
-				//mainBtn[i].ignoreDialog(typeof(EOTradingDialog)); //etc, etc for all other dialogs that should be ignored when they're top-most
+				World.IgnoreDialogs(mainBtn[i]);
 			}
 
 			//left button onclick events
@@ -247,11 +235,7 @@ namespace EndlessClient
 				Visible = true,
 				MaxChars = 140
 			};
-			chatTextBox.IgnoreDialog(typeof(EOPaperdollDialog));
-			chatTextBox.IgnoreDialog(typeof(EOChestDialog));
-			chatTextBox.IgnoreDialog(typeof(EOShopDialog));
-			chatTextBox.IgnoreDialog(typeof(EOLockerDialog));
-			chatTextBox.IgnoreDialog(typeof(EOBankAccountDialog));
+			World.IgnoreDialogs(chatTextBox);
 			chatTextBox.OnEnterPressed += _doTalk;
 			chatTextBox.OnClicked += (s, e) =>
 			{
@@ -828,6 +812,10 @@ namespace EndlessClient
 		public bool InventoryFits(short id)
 		{
 			return inventory.ItemFits(id);
+		}
+		public bool ItemsFit(List<InventoryItem> newItems, List<InventoryItem> oldItems = null)
+		{
+			return inventory.ItemsFit(newItems, oldItems);
 		}
 
 		public void RefreshStats()

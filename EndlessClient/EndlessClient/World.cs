@@ -4,6 +4,7 @@ using System.IO;
 using EOLib;
 using EOLib.Data;
 using EOLib.Net;
+using XNAControls;
 
 namespace EndlessClient
 {
@@ -657,6 +658,17 @@ namespace EndlessClient
 			if (!_tryLoadMap())
 				throw new FileLoadException("Unable to load remapped map file!");
 			ActiveMapRenderer.SetActiveMap(MapCache[MainPlayer.ActiveCharacter.CurrentMap]);
+		}
+
+		public static void IgnoreDialogs(XNAControl control)
+		{
+			control.IgnoreDialog(typeof(EOPaperdollDialog));
+			control.IgnoreDialog(typeof(EOChestDialog));
+			control.IgnoreDialog(typeof(EOShopDialog));
+			control.IgnoreDialog(typeof(EOBankAccountDialog));
+			control.IgnoreDialog(typeof(EOLockerDialog));
+			control.IgnoreDialog(typeof(EOTradeDialog));
+			control.IgnoreDialog(typeof(EOFriendIgnoreListDialog));
 		}
 	}
 }

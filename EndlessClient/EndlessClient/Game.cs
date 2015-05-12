@@ -806,6 +806,62 @@ namespace EndlessClient
 				});
 			m_packetAPI.OnPartyMemberJoin += member => Hud.AddPartyMember(member);
 			m_packetAPI.OnPartyMemberLeave += id => Hud.RemovePartyMember(id);
+
+			m_packetAPI.OnTradeRequested += (playerID, name) =>
+			{
+				EODialog.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DATCONST1.TRADE_REQUEST, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader, (o, e) =>
+				{
+					if (e.Result == XNADialogResult.OK && !m_packetAPI.TradeAcceptRequest(playerID))
+						LostConnectionDialog();
+				});
+			};
+			m_packetAPI.OnTradeOpen += (p1, p1name, p2, p2name) =>
+			{
+				EOTradeDialog dlg = new EOTradeDialog(m_packetAPI);
+				dlg.InitPlayerInfo(p1, p1name, p2, p2name);
+
+				string otherName;
+				if (p1 == World.Instance.MainPlayer.ActiveCharacter.ID)
+					otherName = p2name;
+				else if (p2 == World.Instance.MainPlayer.ActiveCharacter.ID)
+					otherName = p1name;
+				else
+					throw new ArgumentException("Invalid player ID for this trade session!", "p1");
+
+				Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_TRADE_YOU_ARE_TRADING_WITH,
+					otherName + " " + World.GetString(DATCONST2.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
+			};
+			m_packetAPI.OnTradeCancel += cancelID =>
+			{
+				if (EOTradeDialog.Instance == null) return;
+				EOTradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
+				Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_TRADE_ABORTED);
+			};
+			m_packetAPI.OnTradeOtherPlayerAgree += (playerID, agree) =>
+			{
+				if (EOTradeDialog.Instance == null) return;
+				EOTradeDialog.Instance.SetPlayerAgree(false, agree);
+				//todo: status label message
+			};
+			m_packetAPI.OnTradeYouAgree += agree =>
+			{
+				if (EOTradeDialog.Instance == null) return;
+				EOTradeDialog.Instance.SetPlayerAgree(true, agree);
+				//todo: status label message
+			};
+			m_packetAPI.OnTradeOfferUpdate += (id1, items1, id2, items2) =>
+			{
+				if (EOTradeDialog.Instance == null) return;
+				EOTradeDialog.Instance.SetPlayerItems(id1, items1);
+				EOTradeDialog.Instance.SetPlayerItems(id2, items2);
+				//todo: status label message
+			};
+			m_packetAPI.OnTradeCompleted += (id1, items1, id2, items2) =>
+			{
+				if (EOTradeDialog.Instance == null) return;
+				EOTradeDialog.Instance.CompleteTrade(id1, items1, id2, items2);
+				//todo: status label
+			};
 		}
 
 		//-----------------------------

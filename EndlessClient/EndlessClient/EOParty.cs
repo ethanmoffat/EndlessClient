@@ -58,11 +58,7 @@ namespace EndlessClient
 				Visible = true
 			};
 			m_scrollBar.SetParent(this);
-			m_scrollBar.IgnoreDialog(typeof(EOPaperdollDialog));
-			m_scrollBar.IgnoreDialog(typeof(EOChestDialog));
-			m_scrollBar.IgnoreDialog(typeof(EOBankAccountDialog));
-			m_scrollBar.IgnoreDialog(typeof(EOLockerDialog));
-			m_scrollBar.IgnoreDialog(typeof(EOShopDialog));
+			World.IgnoreDialogs(m_scrollBar);
 		}
 
 		public void SetData(List<PartyMember> memberList)
