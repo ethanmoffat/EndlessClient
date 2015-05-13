@@ -70,6 +70,8 @@ namespace EndlessClient
 		private readonly XNAButton m_friendList, m_ignoreList, m_expInfo, m_questInfo;
 
 		public DateTime SessionStartTime { get; private set; }
+
+		private FunctionKeyListener m_fnListener;
 		
 		public HUD(Game g, PacketAPI api)
 			: base(g)
@@ -404,6 +406,9 @@ namespace EndlessClient
 			}
 
 			SessionStartTime = DateTime.Now;
+
+			m_fnListener = new FunctionKeyListener();
+			Game.Components.Add(m_fnListener);
 
 			base.Initialize();
 		}
@@ -882,6 +887,12 @@ namespace EndlessClient
 					m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
 					m_muteTimer.Dispose();
 					m_muteTimer = null;
+				}
+
+				if (m_fnListener != null)
+				{
+					m_fnListener.Dispose();
+					m_fnListener = null;
 				}
 			}
 

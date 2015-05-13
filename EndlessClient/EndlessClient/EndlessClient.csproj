@@ -129,6 +129,7 @@
     <Compile Include="EOMapRenderer.cs" />
     <Compile Include="EOChatRenderer.cs" />
     <Compile Include="EOOnlineList.cs" />
+    <Compile Include="FunctionKeyListener.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameUI.cs" />
     <Compile Include="HUDElement.cs" />

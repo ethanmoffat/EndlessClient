@@ -1919,6 +1919,7 @@ namespace EndlessClient
 							string _message = World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
 							string _caption = World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING);
 							EODialog.Show(_message, _caption, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+							((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
 						}
 						else if (rec.Weight*item.Item2 + World.Instance.MainPlayer.ActiveCharacter.Weight >
 						         World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
@@ -3334,16 +3335,27 @@ namespace EndlessClient
 				mainCollection = p1items;
 				otherCollection = p2items;
 			}
-			else
+			else if (p2 == m_main.ID)
 			{
 				mainCollection = p2items;
 				otherCollection = p1items;
 			}
+			else
+				throw new ArgumentException("Invalid player ID for trade session!");
 
+			int weightDelta = 0;
 			foreach (var item in mainCollection)
+			{
 				m_main.UpdateInventoryItem(item.id, -item.amount, true);
+				weightDelta -= World.Instance.EIF.GetItemRecordByID(item.id).Weight*item.amount;
+			}
 			foreach (var item in otherCollection)
+			{
 				m_main.UpdateInventoryItem(item.id, item.amount, true);
+				weightDelta += World.Instance.EIF.GetItemRecordByID(item.id).Weight*item.amount;
+			}
+			m_main.Weight += (byte) weightDelta;
+			((EOGame) Game).Hud.RefreshStats();
 
 			Close(null, XNADialogResult.NO_BUTTON_PRESSED);
 			EODialog.Show(DATCONST1.TRADE_SUCCESS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
