@@ -325,7 +325,8 @@ namespace EOLib
 			byte[] rawname = file.GetBytes(24);
 			Name = _decodeMapString(rawname);
 
-			IsPK = (pkByte = file.GetChar()) == 3;
+			//account for override in Rid to make a map PK - byte 0 is 0xff and byte 1 is 0x01
+			IsPK = (pkByte = file.GetChar()) == 3 || (Rid[0] == 0xff && Rid[1] == 0x01);
 			Effect = (MapEffect)file.GetChar();
 			Music = file.GetChar();
 			MusicExtra = file.GetChar();

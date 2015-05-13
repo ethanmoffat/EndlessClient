@@ -1394,7 +1394,7 @@ namespace EndlessClient
 					int heightDelta = statusIcons.Height/2;
 					int extraOffset = 0; //changes based on presence or absence of other icons
 					Color col = Color.FromNonPremultiplied(0x9e, 0x9f, 0x9e, 0xff);
-					if (MapRef.IsPK || c.MapIsPk)
+					if (MapRef.IsPK)
 					{
 						sb.Draw(statusIcons, new Vector2(14, 285), new Rectangle(widthDelta * 3, 0, widthDelta, heightDelta), col);
 						extraOffset += 24;

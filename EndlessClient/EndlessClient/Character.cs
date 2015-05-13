@@ -201,7 +201,6 @@ namespace EndlessClient
 
 		public CharRenderData RenderData { get; private set; }
 		public short CurrentMap { get; set; }
-		public bool MapIsPk { get; set; }
 		public int X { get; private set; }
 		public int Y { get; private set; }
 
@@ -436,19 +435,18 @@ namespace EndlessClient
 			PaddedGuildTag = newGuy.GuildTag;
 			if (copyPaperdoll)
 			{
-				//todo: is this sufficient? need to check refresh-reply
-				EquipItem(ItemType.Boots, 0, newGuy.Boots, true);
-				EquipItem(ItemType.Armor, 0, newGuy.Armor, true);
-				EquipItem(ItemType.Hat, 0, newGuy.Hat, true);
-				EquipItem(ItemType.Shield, 0, newGuy.Shield, true);
-				EquipItem(ItemType.Weapon, 0, newGuy.Weapon, true);
+				//only set the doll graphic info in render data - don't change the paperdoll info!
+				RenderData.SetBoots(newGuy.Boots);
+				RenderData.SetArmor(newGuy.Armor);
+				RenderData.SetHat(newGuy.Hat);
+				RenderData.SetShield(newGuy.Shield);
+				RenderData.SetWeapon(newGuy.Weapon);
 			}
 			Stats.SetHP(newGuy.HP);
 			Stats.SetMaxHP(newGuy.MaxHP);
 			Stats.SetTP(newGuy.TP);
 			Stats.SetMaxTP(newGuy.MaxTP);
 
-			//todo: is this enough for render data to be correct after call to ApplyData?
 			RenderData.SetDirection(newGuy.Direction);
 			RenderData.SetHairStyle(newGuy.HairStyle);
 			RenderData.SetHairColor(newGuy.HairColor);
@@ -459,7 +457,6 @@ namespace EndlessClient
 			RenderData.SetWalkFrame(0);
 			State = RenderData.sitting == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
 			CurrentMap = newGuy.Map;
-			//MapIsPk = newGuy.MapIsPk; //todo: ???
 			X = newGuy.X;
 			Y = newGuy.Y;
 			//GuildRankNum = newGuy.GuildRankNum; //todo: ???

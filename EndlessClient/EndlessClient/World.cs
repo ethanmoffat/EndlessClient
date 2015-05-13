@@ -537,7 +537,6 @@ namespace EndlessClient
 			MainPlayer.SetPlayerID(data.PlayerID);
 			MainPlayer.SetActiveCharacter(api, data.ActiveCharacterID);
 			MainPlayer.ActiveCharacter.CurrentMap = data.MapID;
-			MainPlayer.ActiveCharacter.MapIsPk = data.MapIsPK;
 
 			CheckMap(data.MapID, data.MapRID, data.MapLen);
 			_checkPub(InitFileType.Item, data.EifRid, data.EifLen);
