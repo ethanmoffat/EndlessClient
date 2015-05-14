@@ -355,7 +355,7 @@ namespace EndlessClient
 						m_oldOffY + 9 + 26*(currentSlot/EOInventory.INVENTORY_ROW_LENGTH)) //recalculate the top-left point for the highlight based on the current drag position
 					: new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y);
 
-				if (EOInventory.GRID_AREA.Contains(new Rectangle((int) drawLoc.X, (int) drawLoc.Y, DrawArea.Width, DrawArea.Height)))
+				if (EOInventory.GRID_AREA.Contains(DrawAreaWithOffset))
 					SpriteBatch.Draw(m_highlightBG, drawLoc, Color.White);
 			}
 			if(m_itemgfx != null)

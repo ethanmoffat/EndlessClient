@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using EOLib;
 using EOLib.Net;
@@ -706,6 +707,7 @@ namespace EndlessClient
 			}
 			else
 			{
+				lines = lines.Where(_line => !string.IsNullOrWhiteSpace(_line)).ToList();
 				for(int i = 1; i < lines.Count; ++i)
 				{
 					newsTab.AddText(null, lines[i], ChatType.Note);
