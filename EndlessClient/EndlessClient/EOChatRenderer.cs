@@ -260,8 +260,7 @@ namespace EndlessClient
 				LinesToRender = 7,
 				Visible = true
 			};
-			scrollBar.IgnoreDialog(typeof(EOPaperdollDialog));
-			scrollBar.IgnoreDialog(typeof(EOChestDialog));
+			World.IgnoreDialogs(scrollBar);
 		}
 
 		/// <summary>

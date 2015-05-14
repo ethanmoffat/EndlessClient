@@ -575,7 +575,7 @@ namespace EndlessClient
 		/// <summary>
 		/// Area of the grid portion of the inventory (uses absolute coordinates)
 		/// </summary>
-		public static Rectangle GRID_AREA = new Rectangle(115, 339, 367, 106);
+		public static Rectangle GRID_AREA = new Rectangle(110, 334, 377, 116);
 
 		private readonly bool[,] m_filledSlots = new bool[4, INVENTORY_ROW_LENGTH]; //4 rows, 14 columns = 56 total in grid
 		private readonly RegistryKey m_inventoryKey;
