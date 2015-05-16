@@ -1444,6 +1444,8 @@ namespace EndlessClient
 
 		private readonly IKeyboardSubscriber m_prevSubscriber;
 
+		private static bool s_sliderDragging;
+
 		/// <summary>
 		/// Create a new item transfer dialog
 		/// </summary>
@@ -1511,14 +1513,6 @@ namespace EndlessClient
 				TextColor = System.Drawing.Color.FromArgb(0xdc, 0xC8, 0xb4),
 				Text = "1"
 			};
-			m_amount.OnTextChanged += (sender, args) =>
-			{
-				int amt;
-				if (m_amount.Text != "" && (!int.TryParse(m_amount.Text, out amt) || amt > m_totalAmount))
-				{
-					m_amount.Text = m_totalAmount.ToString(CultureInfo.InvariantCulture);
-				}
-			};
 			m_amount.SetParent(this);
 			m_prevSubscriber = EOGame.Instance.Dispatcher.Subscriber;
 			EOGame.Instance.Dispatcher.Subscriber = m_amount;
@@ -1544,6 +1538,7 @@ namespace EndlessClient
 			XNAButton slider = new XNAButton(sliderTextures, new Vector2(25, 96));
 			slider.OnClickDrag += (o, e) =>
 			{
+				s_sliderDragging = true; //ignores updates to slider location during text change
 				MouseState st = Mouse.GetState();
 				Rectangle sliderArea = new Rectangle(25, 96, 122 - slider.DrawArea.Width, 15);
 				int newX = (st.X - PreviousMouseState.X) + (int)slider.DrawLocation.X;
@@ -1553,8 +1548,37 @@ namespace EndlessClient
 
 				float ratio = (newX - sliderArea.X)/(float)sliderArea.Width;
 				m_amount.Text = ((int) Math.Round(ratio*m_totalAmount) + 1).ToString(CultureInfo.InvariantCulture);
+				s_sliderDragging = false;
 			};
 			slider.SetParent(this);
+
+			m_amount.OnTextChanged += (sender, args) =>
+			{
+				int amt = 0;
+				if (m_amount.Text != "" && (!int.TryParse(m_amount.Text, out amt) || amt > m_totalAmount))
+				{
+					amt = m_totalAmount;
+					m_amount.Text = string.Format("{0}", m_totalAmount);
+				}
+				else if (m_amount.Text != "" && amt <= 0)
+				{
+					amt = 1;
+					m_amount.Text = string.Format("{0}", amt);
+				}
+
+				if (s_sliderDragging) return; //slider is being dragged - don't move its position
+
+				//adjust the slider (created after m_amount) when the text changes
+				if (amt <= 1) //NOT WORKING
+				{
+					slider.DrawLocation = new Vector2(25, 96);
+				}
+				else
+				{
+					int xCoord = (int)Math.Round((amt / (double)m_totalAmount) * (122 - slider.DrawArea.Width));
+					slider.DrawLocation = new Vector2(25 + xCoord, 96);
+				}
+			};
 
 			_setSize(bgTexture.Width, bgTexture.Height);
 			DrawLocation = new Vector2(Game.GraphicsDevice.PresentationParameters.BackBufferWidth/2 - bgTexture.Width/2, 40); //only centered horizontally

@@ -72,6 +72,7 @@ Some of the more important features that have been implemented are:
  - NPC interaction on maps - limited to shops and bank bob
  - Sound effects and background music. Not all sound effects have been hooked to actual in-game events yet, but the framework is there.
  - Party / group
+ - Trading with other players
 
 <a name="ToDo" />What's Left to do?
 ------------------
@@ -85,7 +86,6 @@ Concerning refactoring code, I would like to remove all dependencies on singleto
 Here's the actual to-do list:
  - Character rendering during attack
  - Effects and spells (including skillmasters)
- - Trading
  - Guilds
  - Quests
  - Innkeepers
