@@ -160,38 +160,9 @@ namespace EOLib.Data
 						throw new ArgumentException("The filename of the data file must have a 3 letter extension. Use EIF, ENF, ESF, or ECF.");
 
 					//allocate the data array for all the data to be saved
-					//this is done based on the type of the Data items
 					byte[] allData;
-					if (Data.Count > 0)
-					{
-						if (Data[0] is ItemRecord)
-						{
-							allData = new byte[10 + ItemFile.DATA_SIZE * Data.Count];
-						}
-						else if (Data[0] is NPCRecord)
-						{
-							allData = new byte[10 + NPCFile.DATA_SIZE * Data.Count];
-						}
-						else if (Data[0] is SpellRecord)
-						{
-							allData = new byte[10 + SpellFile.DATA_SIZE * Data.Count];
-						}
-						else if (Data[0] is ClassRecord)
-						{
-							allData = new byte[10 + ClassFile.DATA_SIZE * Data.Count];
-						}
-						else
-						{
-							throw new ArgumentException("The internal data container has records of invalid type. Memory is corrupted.");
-						}
-					}
-					else
-					{
-						throw new IndexOutOfRangeException("There are no data items to save!");
-					}
-
-					//write the file to memory first (wrapper around allData byte array)
-					using (MemoryStream mem = new MemoryStream(allData))
+					//write the file to memory first
+					using (MemoryStream mem = new MemoryStream())
 					{
 						mem.Write(extension, 0, 3); //E[I|N|S|C]F at beginning
 						mem.Write(Packet.EncodeNumber(Rid, 4), 0, 4); //rid
@@ -205,6 +176,7 @@ namespace EOLib.Data
 							byte[] toWrite = Data[i].SerializeToByteArray();
 							mem.Write(toWrite, 0, toWrite.Length);
 						}
+						allData = mem.ToArray(); //get all data bytes
 					}
 
 					//write the data to the stream and overwrite whatever the rid is with the CRC
@@ -212,8 +184,8 @@ namespace EOLib.Data
 					uint newRid = crc.Check(allData, 7, (uint)allData.Length - 7);
 					Rid = (int)newRid;
 					sw.Write(allData, 0, allData.Length);
-					sw.Seek(4, SeekOrigin.Begin);
-					sw.Write(Packet.EncodeNumber(Rid, 4), 0, 4);
+					sw.Seek(3, SeekOrigin.Begin); //skip first 3 bytes
+					sw.Write(Packet.EncodeNumber(Rid, 4), 0, 4); //overwrite the 4 RID (revision ID) bytes
 				}
 			}
 			catch (Exception ex)

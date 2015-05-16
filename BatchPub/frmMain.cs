@@ -172,10 +172,11 @@ namespace BatchPub
 					}
 				}
 
-
-				List<ItemRecord> filtered = eif.Data.Where((EOLib.Data.IDataRecord record) =>
+				List<ItemRecord> filtered = eif.Data.Where(record =>
 					{
-						ItemFile rec = (ItemFile)record;
+						ItemRecord rec = (ItemRecord)record;
+						if (rec == null || rec.ID == 0) return false;
+
 						System.Reflection.PropertyInfo comparePropertyInfo = (cmbStepThreeField.SelectedItem as PropInfo).PropertyInfo;
 						System.Reflection.PropertyInfo currentInfo = rec.GetType().GetProperty(comparePropertyInfo.Name);
 						switch (op)
@@ -352,6 +353,12 @@ namespace BatchPub
 			cmbCompareValue.Visible = true;
 			txtCompareValue.Enabled = false;
 			txtCompareValue.Visible = false;
+
+			if (cmbStepThreeField.SelectedItem == null)
+			{
+				ResumeLayout();
+				return;
+			}
 
 			switch ((cmbStepThreeField.SelectedItem as PropInfo).PropertyInfo.Name)
 			{
