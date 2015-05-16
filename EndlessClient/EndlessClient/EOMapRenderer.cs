@@ -122,7 +122,7 @@ namespace EndlessClient
 		{
 			Rectangle refArea = isChar ? ((EOCharacterRenderer) m_ref).DrawAreaWithOffset : ((NPC) m_ref).DrawArea;
 			int extra = textsLoaded ? texts[ML].Width : 0;
-			m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.Texture.Height / 1.5f);
+			m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.Texture.Height - 5);
 		}
 
 		public new void LoadContent()

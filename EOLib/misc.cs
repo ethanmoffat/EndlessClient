@@ -79,7 +79,7 @@ namespace EOLib
 	
 	public static class Constants
 	{
-		public const int ChatBubbleTimeout = 3000;
+		public const int ChatBubbleTimeout = 4000;
 		public const int ResponseTimeout = 5000;
 		public const int ResponseFileTimeout = 10000;
 

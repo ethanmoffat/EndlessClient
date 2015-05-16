@@ -341,9 +341,14 @@ namespace EndlessClient
 				}
 				else if (lineOverFlow)
 				{
-					newLine += nextWord + endOfLine;
+					if (endOfLine.Length > 0)
+					{
+						newLine += nextWord;
+						nextWord = "";
+					}
+					newLine += endOfLine;
 					chatStringsToAdd.Add(newLine);
-					newLine = nextWord = "";
+					newLine = "";
 				}
 				else
 				{
