@@ -1175,6 +1175,7 @@ namespace EndlessClient
 								case NPCType.Law:
 									break;
 								case NPCType.Skills:
+									EOSkillmasterDialog.Show(m_api, npc.Index);
 									break;
 								case NPCType.Quest:
 									break;

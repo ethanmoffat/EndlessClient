@@ -1326,20 +1326,36 @@ namespace EndlessClient
 		{
 			if (Data.hat == 0)
 				return;
-			
+
+			Color[] hatPixels;
 			if (World.Instance.EIF != null && World.Instance.EIF.Version > 0)
 			{
 				switch (hatInfo.SubType)
 				{
 					case EOLib.Data.ItemSubType.HideHair: //anything matching ^[A-Za-z ]*[Hh]elm[A-Za-z ]*$ or ^[A-Za-z ]*[Hh]ood[A-Za-z ]*$, or id=314 (pirate hat)
 						hair = null;
+						if (hat != null)
+						{
+							hatPixels = new Color[hat.Width * hat.Height];
+							hat.GetData(hatPixels);
+							for (int i = 0; i < hatPixels.Length; ++i)
+								if (hatPixels[i] == Color.Black) hatPixels[i] = Color.Transparent;
+							hat.SetData(hatPixels);
+						}
 						return;
-					case EOLib.Data.ItemSubType.FaceMask: //Frog Head and Dragon Mask (anything with mask in the name, really)
+					case EOLib.Data.ItemSubType.FaceMask: //Frog Head, glasses, and Dragon Mask (anything with mask in the name, really)
+						if (hatInfo.Name.ToLower() == "glasses")
+						{ //special case for glasses, hooray hard-coding :/
+							Color[] glassesData = new Color[hat.Width * hat.Height];
+							hat.GetData(glassesData);
+							for (int i = 0; i < glassesData.Length; ++i)
+								if (glassesData[i] == Color.Black) glassesData[i] = Color.Transparent;
+							hat.SetData(glassesData);
+						}
 						return;
 				}
 			}
 			
-			Color[] hatPixels;
 			if (Data.facing == EODirection.Left || Data.facing == EODirection.Up || hair == null)
 			{
 				hatPixels = new Color[hat.Width * hat.Height];

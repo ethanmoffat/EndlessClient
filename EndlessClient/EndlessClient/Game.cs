@@ -808,13 +808,12 @@ namespace EndlessClient
 			m_packetAPI.OnPartyMemberLeave += id => Hud.RemovePartyMember(id);
 
 			m_packetAPI.OnTradeRequested += (playerID, name) =>
-			{
-				EODialog.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DATCONST1.TRADE_REQUEST, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader, (o, e) =>
-				{
-					if (e.Result == XNADialogResult.OK && !m_packetAPI.TradeAcceptRequest(playerID))
-						LostConnectionDialog();
-				});
-			};
+				EODialog.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DATCONST1.TRADE_REQUEST, XNADialogButtons.OkCancel,
+					EODialogStyle.SmallDialogSmallHeader, (o, e) =>
+					{
+						if (e.Result == XNADialogResult.OK && !m_packetAPI.TradeAcceptRequest(playerID))
+							LostConnectionDialog();
+					});
 			m_packetAPI.OnTradeOpen += (p1, p1name, p2, p2name) =>
 			{
 				EOTradeDialog dlg = new EOTradeDialog(m_packetAPI);
@@ -841,27 +840,50 @@ namespace EndlessClient
 			{
 				if (EOTradeDialog.Instance == null) return;
 				EOTradeDialog.Instance.SetPlayerAgree(false, agree);
-				//todo: status label message
 			};
 			m_packetAPI.OnTradeYouAgree += agree =>
 			{
 				if (EOTradeDialog.Instance == null) return;
 				EOTradeDialog.Instance.SetPlayerAgree(true, agree);
-				//todo: status label message
 			};
 			m_packetAPI.OnTradeOfferUpdate += (id1, items1, id2, items2) =>
 			{
 				if (EOTradeDialog.Instance == null) return;
 				EOTradeDialog.Instance.SetPlayerItems(id1, items1);
 				EOTradeDialog.Instance.SetPlayerItems(id2, items2);
-				//todo: status label message
 			};
 			m_packetAPI.OnTradeCompleted += (id1, items1, id2, items2) =>
 			{
 				if (EOTradeDialog.Instance == null) return;
 				EOTradeDialog.Instance.CompleteTrade(id1, items1, id2, items2);
-				//todo: status label
 			};
+
+			m_packetAPI.OnSkillmasterOpen += data =>
+			{
+				if (EOSkillmasterDialog.Instance != null)
+					EOSkillmasterDialog.Instance.SetSkillmasterData(data);
+			};
+			m_packetAPI.OnSpellLearnError += (reply, id) =>
+			{
+				switch (reply)
+				{
+					//not sure if this will ever actually be sent because client validates data before trying to learn a skill
+					case SkillMasterReply.ErrorWrongClass:
+						EODialog.Show(DATCONST1.SKILL_LEARN_WRONG_CLASS, " " + ((ClassRecord)World.Instance.ECF.Data[id]).Name + "!", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						break;
+					case SkillMasterReply.ErrorRemoveItems:
+						EODialog.Show(DATCONST1.SKILL_RESET_CHARACTER_CLEAR_PAPERDOLL, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						break;
+				}
+			};
+			m_packetAPI.OnSpellLearnSuccess += (id, remaining) =>
+			{
+				World.Instance.MainPlayer.ActiveCharacter.Spells.Add(new CharacterSpell {id = id, level = 0});
+				if (EOSkillmasterDialog.Instance != null)
+					EOSkillmasterDialog.Instance.RemoveSkillByIDFromLearnList(id);
+				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
+			};
+			//spellforget and spelltrain are only other events for spells 
 		}
 
 		//-----------------------------

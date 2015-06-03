@@ -4,6 +4,8 @@ using System.IO;
 using EOLib;
 using EOLib.Data;
 using EOLib.Net;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
 namespace EndlessClient
@@ -668,6 +670,19 @@ namespace EndlessClient
 			control.IgnoreDialog(typeof(EOLockerDialog));
 			control.IgnoreDialog(typeof(EOTradeDialog));
 			control.IgnoreDialog(typeof(EOFriendIgnoreListDialog));
+			control.IgnoreDialog(typeof(EOSkillmasterDialog));
+		}
+
+		public static Texture2D GetSpellIcon(short icon, bool hover)
+		{
+			Texture2D fullTexture = GFXLoader.TextureFromResource(GFXTypes.SpellIcons, icon);
+			Texture2D ret = new Texture2D(fullTexture.GraphicsDevice, fullTexture.Width / 2, fullTexture.Height);
+
+			Color[] data = new Color[ret.Width * ret.Height];
+			fullTexture.GetData(0, new Rectangle(hover ? ret.Width : 0, 0, ret.Width, ret.Height), data, 0, data.Length);
+			ret.SetData(data);
+
+			return ret;
 		}
 	}
 }
