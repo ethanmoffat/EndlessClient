@@ -41,10 +41,10 @@ namespace EndlessClient
 		}
 
 		//Gets a localized string based on the selected language
-		//public static string GetString(DATCONST1 id)
-		//{
-		//	return Instance.DataFiles[Instance.Localized1].Data[(int) id];
-		//}
+		public static string GetString(DATCONST1 id, bool getTitle)
+		{
+			return Instance.DataFiles[Instance.Localized1].Data[(int)id + (getTitle ? 0 : 1)];
+		}
 		public static string GetString(DATCONST2 id)
 		{
 			return Instance.DataFiles[Instance.Localized2].Data[(int)id];

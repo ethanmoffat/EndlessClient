@@ -487,20 +487,17 @@ namespace EndlessClient
 	{
 		private readonly EOScrollBar scrollBar;
 		private readonly List<string> chatStrings = new List<string>();
-		private const int LINE_LEN = 275;
+		private readonly TextSplitter textSplitter;
 
-		//private string _msg;
 		public new string MessageText
 		{
-			//not in use: commenting out
-			//get { return _msg; }
 			set
 			{
 				chatStrings.Clear();
-				string tmp = value;
+				textSplitter.Text = value;
 
 				//special case: blank line, like in the news panel between news items
-				if (string.IsNullOrWhiteSpace(tmp))
+				if (string.IsNullOrWhiteSpace(value))
 				{
 					chatStrings.Add(" ");
 					scrollBar.UpdateDimensions(chatStrings.Count);
@@ -508,74 +505,26 @@ namespace EndlessClient
 				}
 
 				//don't do multi-line processing if we don't need to
-				if (EOGame.Instance.DBGFont.MeasureString(tmp).X < LINE_LEN)
+				if (!textSplitter.NeedsProcessing)
 				{
-					chatStrings.Add(tmp);
+					chatStrings.Add(value);
 					scrollBar.UpdateDimensions(chatStrings.Count);
 					return;
 				}
 
-				string buffer = tmp, newLine = "";
-
-				List<string> chatStringsToAdd = new List<string>();
-				char[] whiteSpace = { ' ', '\t', '\n' };
-				string nextWord = "";
-				while (buffer.Length > 0) //keep going until the buffer is empty
-				{
-					//get the next word
-					bool endOfWord = true, lineOverFlow = true; //these are negative logic booleans: will be set to false when flagged
-					while (buffer.Length > 0 && (endOfWord = !whiteSpace.Contains(buffer[0])) &&
-						   (lineOverFlow = EOGame.Instance.DBGFont.MeasureString(newLine + nextWord).X < LINE_LEN))
-					{
-						nextWord += buffer[0];
-						buffer = buffer.Remove(0, 1);
-					}
-
-					//flip the bools so the program reads more logically
-					//because double negatives aren't never not fun
-					endOfWord = !endOfWord;
-					lineOverFlow = !lineOverFlow;
-
-					if (endOfWord)
-					{
-						newLine += nextWord + buffer[0];
-						buffer = buffer.Remove(0, 1);
-						nextWord = "";
-					}
-					else if (lineOverFlow)
-					{
-						//for line overflow: slightly different than chat, start the next line with the partial word
-						if (newLine.Contains('\n'))
-						{
-							chatStringsToAdd.AddRange(newLine.Split(new[] {'\n'}, StringSplitOptions.None));
-						}
-						else
-							chatStringsToAdd.Add(newLine);
-						newLine = nextWord;
-						nextWord = "";
-					}
-					else
-					{
-						newLine += nextWord;
-						chatStringsToAdd.Add(newLine);
-					}
-				}
-
-				foreach (string chatString in chatStringsToAdd)
-				{
-					chatStrings.Add(chatString);
-				}
+				chatStrings.AddRange(textSplitter.SplitIntoLines());
 
 				scrollBar.UpdateDimensions(chatStrings.Count);
 				scrollBar.LinesToRender = (int)Math.Round(110.0f / 13); //draw area for the text is 117px, 13px per line
 				if(scrollBar.LinesToRender < chatStrings.Count)
 					scrollBar.SetDownArrowFlashSpeed(500);
-				//_msg = value;
 			}
 		}
 
 		public EOScrollingDialog(string msgText)
 		{
+			textSplitter = new TextSplitter("", EOGame.Instance.DBGFont) { LineLength = 275 };
+
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 40);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
@@ -1711,7 +1660,7 @@ namespace EndlessClient
 		public event EventHandler OnRightClick;
 		public event EventHandler OnLeftClick;
 
-		private readonly XNALabel m_primaryText;
+		private XNALabel m_primaryText;
 		private XNALabel m_secondaryText;
 
 		private readonly Texture2D m_gfxPadThing;
@@ -1774,6 +1723,27 @@ namespace EndlessClient
 			OffsetY = Style == ListItemStyle.Large ? 25 : 45;
 		}
 
+		//turns the primary text into a link that performs the specified action
+		public void SetPrimaryTextLink(Action onClickAction)
+		{
+			if (m_primaryText == null)
+				return;
+			XNALabel oldText = m_primaryText;
+			m_primaryText = new XNAHyperLink(oldText.DrawArea, oldText.Font.FontFamily.Name, 8.5f)
+			{
+				AutoSize = false,
+				BackColor = oldText.BackColor,
+				ForeColor = oldText.ForeColor,
+				HighlightColor = oldText.ForeColor,
+				Text = oldText.Text,
+				Style = FontStyle.Underline
+			};
+			m_primaryText.ResizeBasedOnText();
+			((XNAHyperLink) m_primaryText).OnClick += (o, e) => onClickAction();
+			m_primaryText.SetParent(this);
+			oldText.Close();
+		}
+
 		//turns the subtext into a link that performs the specified action
 		public void SetSubtextLink(Action onClickAction)
 		{
@@ -1799,36 +1769,42 @@ namespace EndlessClient
 		{
 			if (!Visible || !Game.IsActive) return;
 
-			MouseState ms = Mouse.GetState();
-
-			if (MouseOver && MouseOverPreviously)
+			lock (disposingLock)
 			{
-				m_drawBackground = true;
-				if (ms.RightButton == ButtonState.Pressed)
+				if (m_disposing) return;
+
+				MouseState ms = Mouse.GetState();
+
+				if (MouseOver && MouseOverPreviously)
 				{
-					m_rightClicked = true;
+					m_drawBackground = true;
+					if (ms.RightButton == ButtonState.Pressed)
+					{
+						m_rightClicked = true;
+					}
+
+					if (m_rightClicked && ms.RightButton == ButtonState.Released && OnRightClick != null)
+					{
+						OnRightClick(this, null);
+						m_rightClicked = false;
+					}
+					else if (PreviousMouseState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released &&
+					         OnLeftClick != null)
+					{
+						//If the sub text is a hyperlink and the mouse is over it do the click event for the sub text and not for this item
+						if (m_secondaryText is XNAHyperLink && m_secondaryText.MouseOver)
+							((XNAHyperLink) m_secondaryText).Click();
+						else
+							OnLeftClick(this, null);
+					}
+				}
+				else
+				{
+					m_drawBackground = false;
 				}
 
-				if (m_rightClicked && ms.RightButton == ButtonState.Released && OnRightClick != null)
-				{
-					OnRightClick(this, null);
-					m_rightClicked = false;
-				}
-				else if (PreviousMouseState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released && OnLeftClick != null)
-				{
-					//If the sub text is a hyperlink and the mouse is over it do the click event for the sub text and not for this item
-					if (m_secondaryText is XNAHyperLink && m_secondaryText.MouseOver)
-						((XNAHyperLink) m_secondaryText).Click();
-					else
-						OnLeftClick(this, null);
-				}
+				base.Update(gameTime);
 			}
-			else
-			{
-				m_drawBackground = false;
-			}
-
-			base.Update(gameTime);
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -1878,9 +1854,6 @@ namespace EndlessClient
 				m_disposing = true;
 				if (disposing)
 				{
-					m_primaryText.Dispose();
-					if(Style == ListItemStyle.Large)
-						m_secondaryText.Dispose();
 					m_backgroundColor.Dispose();
 				}
 			}
@@ -2241,7 +2214,7 @@ namespace EndlessClient
 
 		public string ResponseText { get { return m_inputBox.Text; } }
 
-		public EOInputDialog(string prompt)
+		public EOInputDialog(string prompt, int maxInputChars = 12)
 		{
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 54);
 			_setSize(bgTexture.Width, bgTexture.Height);
@@ -2249,7 +2222,7 @@ namespace EndlessClient
 			XNALabel lblPrompt = new XNALabel(new Rectangle(16, 20, 235, 49), "Microsoft Sans Serif", 10f)
 			{
 				AutoSize = false,
-				ForeColor = System.Drawing.Color.FromArgb(255, 0xe6, 0xe6, 0xe6),
+				ForeColor = System.Drawing.Color.FromArgb(255, 0xe6, 0xe6, 0xd6),
 				TextWidth = 230,
 				RowSpacing = 3,
 				Text = prompt
@@ -2262,7 +2235,7 @@ namespace EndlessClient
 
 			m_inputBox = new XNATextBox(new Rectangle(37, 74, 192, 19), EOGame.Instance.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
 			{
-				MaxChars = 12,
+				MaxChars = maxInputChars,
 				LeftPadding = 4,
 				TextColor = System.Drawing.Color.FromArgb(0xff, 0xdc, 0xc8, 0xb4)
 			};
@@ -3698,7 +3671,7 @@ namespace EndlessClient
 					_setButtons(ScrollingListDialogButtons.Cancel);
 				}
 					break;
-					case SkillState.Learn:
+				case SkillState.Learn:
 				{
 					int index = 0;
 					for (int i = 0; i < m_skills.Count; ++i)
@@ -3724,6 +3697,44 @@ namespace EndlessClient
 						//really should have done an event processing queue sort of thing...
 					}
 
+					_setButtons(ScrollingListDialogButtons.BackCancel);
+				}
+					break;
+				case SkillState.Forget:
+				{
+					EOInputDialog input = new EOInputDialog(World.GetString(DATCONST1.SKILL_PROMPT_TO_FORGET, false), 32);
+					input.SetAsKeyboardSubscriber();
+					input.DialogClosing += (sender, args) =>
+					{
+						if (args.Result == XNADialogResult.Cancel) return;
+						bool found =
+							World.Instance.MainPlayer.ActiveCharacter.Spells.Any(
+								_spell => ((SpellRecord) World.Instance.ESF.Data[_spell.id]).Name.ToLower() == input.ResponseText.ToLower());
+
+						if (!found)
+						{
+							args.CancelClose = true;
+							EODialog.Show(DATCONST1.SKILL_FORGET_ERROR_NOT_LEARNED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+							input.SetAsKeyboardSubscriber();
+						}
+
+						if (!m_api.ForgetSpell(
+								World.Instance.MainPlayer.ActiveCharacter.Spells.Find(
+									_spell => ((SpellRecord) World.Instance.ESF.Data[_spell.id]).Name.ToLower() == input.ResponseText.ToLower()).id))
+						{
+							Close();
+							((EOGame)Game).LostConnectionDialog();
+						}
+					};
+
+					//should show initial info in the actual dialog since this uses a pop-up input box
+					//	to select a skill to remove
+					newState = SkillState.Initial;
+					goto case SkillState.Initial;
+				}
+				case SkillState.ForgetAll:
+				{
+					_showForgetAllMessage(_forgetAllAction);
 					_setButtons(ScrollingListDialogButtons.BackCancel);
 				}
 					break;
@@ -3766,6 +3777,21 @@ namespace EndlessClient
 					{
 						Close();
 						((EOGame)Game).LostConnectionDialog();
+					}
+				});
+		}
+
+		private void _forgetAllAction()
+		{
+			EODialog.Show(DATCONST1.SKILL_RESET_CHARACTER_CONFIRMATION, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader,
+				(sender, args) =>
+				{
+					if (args.Result == XNADialogResult.Cancel) return;
+
+					if (!m_api.ResetCharacterStatSkill())
+					{
+						Close();
+						((EOGame) Game).LostConnectionDialog();
 					}
 				});
 		}
@@ -3828,6 +3854,54 @@ namespace EndlessClient
 			full += string.Format("{0} Gold, {1}", skill.GoldReq, ((ClassRecord) World.Instance.ECF.Data[skill.ClassReq]).Name);
 
 			((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, full);
+		}
+
+		private void _showForgetAllMessage(Action forgetAllAction)
+		{
+			List<string> drawStrings = new List<string>();
+
+			using (Font f = new Font("Microsoft Sans Serif", 8.5f))
+			{
+				string[] messages =
+				{
+					World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL),
+					World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_1),
+					World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_2),
+					World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_3),
+					World.GetString(DATCONST2.SKILLMASTER_CLICK_HERE_TO_FORGET_ALL)
+				};
+
+				TextSplitter ts = new TextSplitter("", f) { LineLength = 200 };
+				foreach (string s in messages)
+				{
+					ts.Text = s;
+					if (!ts.NeedsProcessing)
+					{
+						//no text clipping needed
+						drawStrings.Add(s);
+						drawStrings.Add(" ");
+						continue;
+					}
+
+					drawStrings.AddRange(ts.SplitIntoLines());
+					drawStrings.Add(" ");
+				}
+			}
+
+			//now need to take the processed draw strings and make an EODialogListItem for each one
+			foreach (string s in drawStrings)
+			{
+				string next = s;
+				bool link = false;
+				if (next.Length > 0 && next[0] == '*')
+				{
+					next = next.Remove(0, 1);
+					link = true;
+				}
+				EODialogListItem nextItem = new EODialogListItem(this, EODialogListItem.ListItemStyle.Small, next);
+				if (link) nextItem.SetPrimaryTextLink(forgetAllAction);
+				AddItemToList(nextItem, false);
+			}
 		}
 	}
 }

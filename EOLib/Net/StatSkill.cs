@@ -85,6 +85,58 @@ namespace EOLib.Net
 		}
 	}
 
+	public struct StatResetData
+	{
+		private readonly short m_statpts, m_skillpts, m_hp, m_maxhp, m_tp, m_maxtp, m_maxsp;
+		private readonly short m_str, m_int, m_wis, m_agi, m_con, m_cha;
+		private readonly short m_mindam, m_maxdam, m_acc, m_evade, m_armor;
+
+		public short StatPoints { get { return m_statpts; } }
+		public short SkillPoints { get { return m_skillpts; } }
+		public short HP { get { return m_hp; } }
+		public short MaxHP { get { return m_maxhp; } }
+		public short TP { get { return m_tp; } }
+		public short MaxTP { get { return m_maxtp; } }
+		public short MaxSP { get { return m_maxsp; } }
+
+		public short Str { get { return m_str; } }
+		public short Int { get { return m_int; } }
+		public short Wis { get { return m_wis; } }
+		public short Agi { get { return m_agi; } }
+		public short Con { get { return m_con; } }
+		public short Cha { get { return m_cha; } }
+
+		public short MinDam { get { return m_mindam; } }
+		public short MaxDam { get { return m_maxdam; } }
+		public short Accuracy { get { return m_acc; } }
+		public short Evade { get { return m_evade; } }
+		public short Armor { get { return m_armor; } }
+
+		internal StatResetData(Packet pkt)
+		{
+			m_statpts = pkt.GetShort();
+			m_skillpts = pkt.GetShort();
+			m_hp = pkt.GetShort();
+			m_maxhp = pkt.GetShort();
+			m_tp = pkt.GetShort();
+			m_maxtp = pkt.GetShort();
+			m_maxsp = pkt.GetShort();
+
+			m_str = pkt.GetShort();
+			m_int = pkt.GetShort();
+			m_wis = pkt.GetShort();
+			m_agi = pkt.GetShort();
+			m_con = pkt.GetShort();
+			m_cha = pkt.GetShort();
+
+			m_mindam = pkt.GetShort();
+			m_maxdam = pkt.GetShort();
+			m_acc = pkt.GetShort();
+			m_evade = pkt.GetShort();
+			m_armor = pkt.GetShort();
+		}
+	}
+
 	public delegate void SpellLearnErrorEvent(SkillMasterReply reply, short classID);
 	public delegate void SpellLearnSuccessEvent(short spellID, int goldRemaining);
 	public delegate void SpellForgetEvent(short spellID);
@@ -97,6 +149,7 @@ namespace EOLib.Net
 		public event SpellLearnSuccessEvent OnSpellLearnSuccess;
 		public event SpellForgetEvent OnSpellForget;
 		public event SpellTrainEvent OnSpellTrain;
+		public event Action<StatResetData> OnCharacterStatsReset;
 
 		private void _createStatSkillMembers()
 		{
@@ -106,6 +159,7 @@ namespace EOLib.Net
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Remove), _handleStatSkillRemove, true);
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Player), _handleStatSkillPlayer, true);
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Accept), _handleStatSkillAccept, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Junk), _handleStatSkillJunk, true);
 		}
 
 		public bool RequestSkillmaster(short skillmasterIndex)
@@ -157,7 +211,7 @@ namespace EOLib.Net
 		{
 			Packet pkt = new Packet(PacketFamily.StatSkill, PacketAction.Junk);
 			pkt.AddInt(1234); //shop ID, ignored by eoserv - eomain may require this to be correct
-			return !m_client.ConnectedAndInitialized || !Initialized || !m_client.SendPacket(pkt);
+			return !m_client.ConnectedAndInitialized || !Initialized || m_client.SendPacket(pkt);
 		}
 
 		private bool _trainStatShared(short id, TrainType type)
@@ -221,6 +275,13 @@ namespace EOLib.Net
 			//short - spell level
 			if (OnSpellTrain != null)
 				OnSpellTrain(pkt.GetShort(), pkt.GetShort(), pkt.GetShort());
+		}
+
+		//reset character
+		private void _handleStatSkillJunk(Packet pkt)
+		{
+			if (OnCharacterStatsReset != null)
+				OnCharacterStatsReset(new StatResetData(pkt));
 		}
 	}
 }

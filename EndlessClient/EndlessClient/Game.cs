@@ -883,7 +883,37 @@ namespace EndlessClient
 					EOSkillmasterDialog.Instance.RemoveSkillByIDFromLearnList(id);
 				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
 			};
-			//spellforget and spelltrain are only other events for spells 
+			m_packetAPI.OnSpellForget += id =>
+			{
+				World.Instance.MainPlayer.ActiveCharacter.Spells.RemoveAll(_spell => _spell.id == id);
+				EODialog.Show(DATCONST1.SKILL_FORGET_SUCCESS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+			};
+			//todo: spelltrain event
+			m_packetAPI.OnCharacterStatsReset += data =>
+			{
+				Character c;
+				(c = World.Instance.MainPlayer.ActiveCharacter).Spells.Clear();
+				EODialog.Show(DATCONST1.SKILL_RESET_CHARACTER_COMPLETE, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+				c.Stats.statpoints = data.StatPoints;
+				c.Stats.skillpoints = data.SkillPoints;
+				c.Stats.SetHP(data.HP);
+				c.Stats.SetMaxHP(data.MaxHP);
+				c.Stats.SetTP(data.TP);
+				c.Stats.SetMaxTP(data.MaxTP);
+				c.Stats.SetMaxSP(data.MaxSP);
+				c.Stats.SetStr(data.Str);
+				c.Stats.SetInt(data.Int);
+				c.Stats.SetWis(data.Wis);
+				c.Stats.SetAgi(data.Agi);
+				c.Stats.SetCon(data.Con);
+				c.Stats.SetCha(data.Cha);
+				c.Stats.SetMinDam(data.MinDam);
+				c.Stats.SetMaxDam(data.MaxDam);
+				c.Stats.SetAccuracy(data.Accuracy);
+				c.Stats.SetEvade(data.Evade);
+				c.Stats.SetArmor(data.Armor);
+				Hud.RefreshStats();
+			};
 		}
 
 		//-----------------------------

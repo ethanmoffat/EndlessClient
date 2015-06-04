@@ -290,9 +290,21 @@ namespace EndlessClient
 					Visible = true;
 				return;
 			}
-			
+
+			string whoPadding = ""; //padding string for additional lines if it is a multi-line message
+			if (!string.IsNullOrEmpty(who))
+				while (EOGame.Instance.DBGFont.MeasureString(whoPadding).X < EOGame.Instance.DBGFont.MeasureString(who).X)
+					whoPadding += " ";
+
+			TextSplitter ts = new TextSplitter(text, EOGame.Instance.DBGFont)
+			{
+				LineLength = LINE_LEN,
+				LineEnd = WhichTab == ChatTabs.None ? "" : "-",
+				LineStart = whoPadding
+			};
+
 			//don't do multi-line processing if we don't need to
-			if (EOGame.Instance.DBGFont.MeasureString(text).X < LINE_LEN)
+			if (!ts.NeedsProcessing)
 			{
 				lock (ChatStringsLock)
 					chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), text);
@@ -308,54 +320,7 @@ namespace EndlessClient
 				return;
 			}
 
-			string buffer = text, newLine = "";
-			string whoPadding = ""; //padding string for additional lines if it is a multi-line message
-			if(!string.IsNullOrEmpty(who))
-				while (EOGame.Instance.DBGFont.MeasureString(whoPadding).X < EOGame.Instance.DBGFont.MeasureString(who).X)
-					whoPadding += " ";
-
-			List<string> chatStringsToAdd = new List<string>();
-			char[] whiteSpace = {' ', '\t', '\n'};
-			string endOfLine = WhichTab == ChatTabs.None ? "" : "-";
-			string nextWord = "";
-			while (buffer.Length > 0) //keep going until the buffer is empty
-			{
-				//get the next word
-				bool endOfWord = true, lineOverFlow = true; //these are negative logic booleans: will be set to false when flagged
-				while (buffer.Length > 0 && (endOfWord = !whiteSpace.Contains(buffer[0])) &&
-					   (lineOverFlow = EOGame.Instance.DBGFont.MeasureString(whoPadding + newLine + nextWord + endOfLine).X < LINE_LEN))
-				{
-					nextWord += buffer[0];
-					buffer = buffer.Remove(0, 1);
-				}
-
-				//flip the bools so the program reads more logically
-				endOfWord = !endOfWord;
-				lineOverFlow = !lineOverFlow;
-
-				if (endOfWord)
-				{
-					newLine += nextWord + buffer[0];
-					buffer = buffer.Remove(0, 1);
-					nextWord = "";
-				}
-				else if (lineOverFlow)
-				{
-					if (endOfLine.Length > 0)
-					{
-						newLine += nextWord;
-						nextWord = "";
-					}
-					newLine += endOfLine;
-					chatStringsToAdd.Add(newLine);
-					newLine = "";
-				}
-				else
-				{
-					newLine += nextWord;
-					chatStringsToAdd.Add(newLine);
-				}
-			}
+			List<string> chatStringsToAdd = ts.SplitIntoLines();
 
 			for (int i = 0; i < chatStringsToAdd.Count; ++i)
 			{
