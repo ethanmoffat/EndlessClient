@@ -159,15 +159,10 @@ namespace EndlessClient
 			for (int i = scrollOff; i < scrollOff + m_scrollBar.LinesToRender && i < filtered.Count; ++i)
 			{
 				int yCoord = DRAW_OFFSET_Y + DrawAreaWithOffset.Y + (i - m_scrollBar.ScrollOffset)*13;
-				//draw icon
 				SpriteBatch.Draw(ChatTab.GetChatIcon(EOChatRenderer.GetChatTypeFromPaperdollIcon(filtered[i].Icon)), new Vector2(DrawAreaWithOffset.X + DRAW_ICON_X, yCoord), Color.White);
-				//drawtext name
 				SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Name, new Vector2(DrawAreaWithOffset.X + DRAW_NAME_X, yCoord), Color.Black);
-				//drawtext title
 				SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Title, new Vector2(DrawAreaWithOffset.X + DRAW_TITLE_X, yCoord), Color.Black);
-				//drawtext guild
 				SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Guild, new Vector2(DrawAreaWithOffset.X + DRAW_GUILD_X, yCoord), Color.Black);
-				//drawtext class
 				SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].ClassString, new Vector2(DrawAreaWithOffset.X + DRAW_CLASS_X, yCoord), Color.Black);
 			}
 			SpriteBatch.End();

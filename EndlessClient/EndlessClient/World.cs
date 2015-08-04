@@ -258,21 +258,6 @@ namespace EndlessClient
 
 		public Dictionary<DataFiles, EDFFile> DataFiles { get; private set; }
 
-		/// <summary>
-		/// Returns a MapFile for the map the MainPlayer is on
-		/// </summary>
-		private MapFile ActiveMap
-		{
-			get
-			{
-				if (MapCache.Count == 0 || !MapCache.ContainsKey(MainPlayer.ActiveCharacter.CurrentMap))
-				{
-					return _tryLoadMap(MainPlayer.ActiveCharacter.CurrentMap) ? MapCache[MainPlayer.ActiveCharacter.CurrentMap] : null;
-				}
-				return MapCache[MainPlayer.ActiveCharacter.CurrentMap];
-			}
-		}
-
 		private EOMapRenderer m_mapRender;
 		/// <summary>
 		/// Returns a map rendering object encapsulating the map the MainPlayer is on
@@ -281,12 +266,6 @@ namespace EndlessClient
 		{
 			get
 			{
-				//lazy initialization
-				if (m_mapRender == null)
-				{
-					m_mapRender = new EOMapRenderer(EOGame.Instance, ActiveMap, m_api);
-				}
-
 				//make sure it's in the game's componenets
 				if(EOGame.Instance.State == GameStates.PlayingTheGame && !EOGame.Instance.Components.Contains(m_mapRender))
 					EOGame.Instance.Components.Add(m_mapRender);
@@ -364,6 +343,9 @@ namespace EndlessClient
 					MapCache.Add(mapID, new MapFile(mapFile));
 				else
 					MapCache[mapID] = new MapFile(mapFile);
+
+				//map renderer construction moved to be more closely coupled to loading of the map
+				(m_mapRender ?? (m_mapRender = new EOMapRenderer(EOGame.Instance, m_api))).SetActiveMap(MapCache[mapID]);
 			}
 			catch
 			{
@@ -512,7 +494,12 @@ namespace EndlessClient
 				}
 
 				MainPlayer.ActiveCharacter.CurrentMap = mapID;
-				ActiveMapRenderer.SetActiveMap(ActiveMap);
+				if (!_tryLoadMap(mapID))
+				{
+					EOGame.Instance.LostConnectionDialog();
+					return;
+				}
+				ActiveMapRenderer.SetActiveMap(MapCache[mapID]);
 			}
 
 			ActiveMapRenderer.ClearOtherPlayers();

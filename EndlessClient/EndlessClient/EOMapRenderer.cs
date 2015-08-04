@@ -381,7 +381,7 @@ namespace EndlessClient
 
 		private readonly PacketAPI m_api;
 
-		public EOMapRenderer(Game g, MapFile mapObj, PacketAPI apiHandle)
+		public EOMapRenderer(Game g, PacketAPI apiHandle)
 			: base(g)
 		{
 			if(g == null)
@@ -407,10 +407,9 @@ namespace EndlessClient
 			};
 
 			m_drawingEvent = new ManualResetEventSlim(true);
-			Visible = true;
+			Visible = false;
 
 			_doorTimer = new Timer(_doorTimerCallback);
-			SetActiveMap(mapObj);
 		}
 
 		#region /* PUBLIC INTERFACE -- CHAT + MAP RELATED */
