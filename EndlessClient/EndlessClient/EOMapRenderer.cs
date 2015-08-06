@@ -990,10 +990,10 @@ namespace EndlessClient
 				_door.backOff = false;
 				_doorY = 0;
 			}
-			//todo: play door open sound
 
 			if ((_door = MapRef.WarpLookup[y, x]) != null)
 			{
+				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorOpen).Play();
 				_door.doorOpened = true;
 				_doorY = y;
 				_doorTimer.Change(3000, 0);
@@ -1002,7 +1002,15 @@ namespace EndlessClient
 
 		private void _doorTimerCallback(object state)
 		{
-			//todo: play door close sound
+			if (_door == null)
+			{
+				_doorY = 0;
+				return;
+			}
+
+			if (_door.doorOpened)
+				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorClose).Play();
+
 			_door.doorOpened = false;
 			_door.backOff = false; //back-off from sending a door packet.
 			_doorY = 0;
@@ -1343,7 +1351,7 @@ namespace EndlessClient
 							{
 								EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
 							}
-							else if (c.Weight + (World.Instance.EIF.GetItemRecordByID(mi.id).Weight * mi.amount) >= c.MaxWeight)
+							else if (c.Weight + (World.Instance.EIF.GetItemRecordByID(mi.id).Weight * mi.amount) > c.MaxWeight)
 							{
 								EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
 							}
