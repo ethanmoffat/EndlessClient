@@ -267,7 +267,7 @@ namespace EndlessClient
 			get
 			{
 				//make sure it's in the game's componenets
-				if(EOGame.Instance.State == GameStates.PlayingTheGame && !EOGame.Instance.Components.Contains(m_mapRender))
+				if(m_mapRender != null && EOGame.Instance.State == GameStates.PlayingTheGame && !EOGame.Instance.Components.Contains(m_mapRender))
 					EOGame.Instance.Components.Add(m_mapRender);
 
 				return m_mapRender;
