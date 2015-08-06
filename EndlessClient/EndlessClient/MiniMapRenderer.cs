@@ -1,0 +1,157 @@
+﻿using System;
+using EOLib;
+using EOLib.Data;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+
+namespace EndlessClient
+{
+	public class MiniMapRenderer
+	{
+		/// <summary>
+		/// Indices of the mini map gfx in their single texture (for source rectangle offset)
+		/// </summary>
+		private enum MiniMapGfx
+		{
+			//for drawing the lines
+			UpLine = 0,
+			LeftLine = 1,
+			//Corner,
+			Solid = 3, //indicates wall or obstacle
+			Green = 4, //other player
+			Red = 5, //attackable npc
+			Orange = 6, //you!
+			Blue = 7, //tile that you can interact with
+			Purple = 8 //npc
+		}
+
+		public MapFile Map { get; set; }
+
+		public bool Visible { get; set; }
+
+		private readonly SpriteBatch _spriteBatch;
+		private readonly EOMapRenderer _parentRenderer;
+
+		public MiniMapRenderer(MapFile mapRef, SpriteBatch spriteBatch, EOMapRenderer parentRenderer)
+		{
+			Map = mapRef;
+			_spriteBatch = spriteBatch;
+			_parentRenderer = parentRenderer;
+		}
+
+		public void Draw(GameTime gameTime)
+		{
+			if (Visible)
+			{
+				_drawMiniMap();
+			}
+		}
+
+		private void _drawMiniMap()
+		{
+			Texture2D miniMapText = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 45, true);
+			Character c = World.Instance.MainPlayer.ActiveCharacter;
+
+			_spriteBatch.Begin();
+			for (int row = Math.Max(c.Y - 30, 0); row <= Math.Min(c.Y + 30, Map.Height); ++row)
+			{
+				for (int col = Math.Max(c.X - 30, 0); col <= Math.Min(c.Y + 30, Map.Width); ++col)
+				{
+					Rectangle miniMapRectSrc = new Rectangle(0, 0, miniMapText.Width / 9, miniMapText.Height);
+					bool isEdge = false;
+					Vector2 loc = _getMiniMapDrawCoordinates(col, row, c);
+					if (c.X == col && c.Y == row)
+					{
+						//draw orange thing
+						miniMapRectSrc.Offset((int)MiniMapGfx.Orange * miniMapRectSrc.Width, 0);
+					}
+					else
+					{
+						isEdge = _drawObjectAndActorIcons(col, row, ref miniMapRectSrc);
+					}
+
+					_drawGridBox(isEdge, miniMapText, loc, miniMapRectSrc);
+				}
+			}
+			_spriteBatch.End();
+		}
+
+		private bool _drawObjectAndActorIcons(int col, int row, ref Rectangle miniMapRect)
+		{
+			bool isEdge = false;
+
+			TileInfo info = _parentRenderer.CheckCoordinates((byte)col, (byte)row);
+			switch (info.ReturnValue)
+			{
+				case TileInfo.ReturnType.IsTileSpec:
+					switch (info.Spec)
+					{
+						case TileSpec.Wall:
+							miniMapRect.Offset((int)MiniMapGfx.Solid * miniMapRect.Width, 0);
+							//draw block
+							break;
+						case TileSpec.BankVault:
+						case TileSpec.ChairAll:
+						case TileSpec.ChairDown:
+						case TileSpec.ChairLeft:
+						case TileSpec.ChairRight:
+						case TileSpec.ChairUp:
+						case TileSpec.ChairDownRight:
+						case TileSpec.ChairUpLeft:
+						case TileSpec.Chest:
+							//draw exclamation
+							miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
+							break;
+						case TileSpec.MapEdge:
+							isEdge = true;
+							break;
+					}
+					break;
+				case TileInfo.ReturnType.IsOtherNPC:
+					//draw NPC - red or purple depending on type
+					NPC npc;
+					if ((npc = _parentRenderer.GetNPCAt(col, row)) != null)
+					{
+						if (npc.Data.Type == NPCType.Aggressive || npc.Data.Type == NPCType.Passive)
+						{
+							miniMapRect.Offset((int)MiniMapGfx.Red * miniMapRect.Width, 0);
+						}
+						else
+						{
+							miniMapRect.Offset((int)MiniMapGfx.Purple * miniMapRect.Width, 0);
+						}
+					}
+					break;
+				case TileInfo.ReturnType.IsOtherPlayer:
+					miniMapRect.Offset((int)MiniMapGfx.Green * miniMapRect.Width, 0);
+					//draw Green
+					break;
+				case TileInfo.ReturnType.IsWarpSpec:
+					if (info.Warp.door != 0)
+						miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
+					break;
+			}
+
+			return isEdge;
+		}
+
+		private void _drawGridBox(bool isEdge, Texture2D miniMapText, Vector2 loc, Rectangle miniMapRect)
+		{
+			if (!isEdge)
+			{
+				_spriteBatch.Draw(miniMapText, loc,
+					new Rectangle((int)MiniMapGfx.UpLine * miniMapRect.Width, 0, miniMapRect.Width, miniMapRect.Height),
+					Color.FromNonPremultiplied(255, 255, 255, 128));
+				_spriteBatch.Draw(miniMapText, loc,
+					new Rectangle((int)MiniMapGfx.LeftLine * miniMapRect.Width, 0, miniMapRect.Width, miniMapRect.Height),
+					Color.FromNonPremultiplied(255, 255, 255, 128));
+			}
+			_spriteBatch.Draw(miniMapText, loc, miniMapRect, Color.FromNonPremultiplied(255, 255, 255, 128));
+		}
+
+		private Vector2 _getMiniMapDrawCoordinates(int x, int y, Character c)
+		{
+			return new Vector2((x * 13) - (y * 13) + 288 - (c.X * 13 - c.Y * 13), (y * 7) + (x * 7) + 144 - (c.Y * 7 + c.X * 7));
+		}
+	}
+}

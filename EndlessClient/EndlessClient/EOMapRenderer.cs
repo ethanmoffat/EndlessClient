@@ -38,244 +38,8 @@ namespace EndlessClient
 		public MapSign Sign;
 	}
 
-	public class EOChatBubble : DrawableGameComponent
-	{
-		private XNALabel m_label;
-		private readonly DrawableGameComponent m_ref;
-		private readonly bool isChar; //true if character, false if npc
-		private bool m_useGroupChatColor;
-
-		private SpriteBatch sb;
-
-		private Vector2 drawLoc;
-
-		private const int TL = 0, TM = 1, TR = 2;
-		private const int ML = 3, MM = 4, MR = 5;
-		private const int RL = 6, RM = 7, RR = 8, NUB = 9;
-		private static bool textsLoaded;
-		private static readonly object _textlocker_ = new object();
-		private static Texture2D[] texts;
-
-		private DateTime? m_startTime;
-		
-		public EOChatBubble(EOCharacterRenderer following)
-			: base(EOGame.Instance)
-		{
-			m_ref = following;
-			isChar = true;
-			DrawOrder = following.Character.ID + (int)ControlDrawLayer.BaseLayer + 1; //use ID for draw order
-			_initLabel();
-			Visible = false;
-			EOGame.Instance.Components.Add(this);
-		}
-
-		public EOChatBubble(NPC following)
-			: base(EOGame.Instance)
-		{
-			m_ref = following;
-			isChar = false;
-			DrawOrder = following.Index + (int)ControlDrawLayer.BaseLayer + 1; //use index for draw order
-			_initLabel();
-			Visible = false;
-			EOGame.Instance.Components.Add(this);
-		}
-
-		public void HideBubble()
-		{
-			Visible = false;
-			m_label.Text = "";
-			m_label.Visible = false;
-		}
-
-		public void SetMessage(string message, bool useGroupChatColor)
-		{
-			m_label.Text = message;
-			m_label.Visible = true;
-			if(!Game.Components.Contains(m_label))
-				Game.Components.Add(m_label);
-
-			Visible = true;
-			if(!Game.Components.Contains(this))
-				Game.Components.Add(this);
-
-			m_startTime = DateTime.Now;
-			m_useGroupChatColor = useGroupChatColor;
-		}
-
-		private void _initLabel()
-		{
-			m_label = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.5f)
-			{
-				Visible = true,
-				DrawOrder = DrawOrder + 1, //will be based on either NPC index or character renderer ID
-				TextWidth = 165,
-				TextAlign = ContentAlignment.MiddleCenter,
-				ForeColor = System.Drawing.Color.Black,
-				AutoSize = true,
-				Text = ""
-			};
-
-			_setLabelDrawLoc();
-		}
-
-		private void _setLabelDrawLoc()
-		{
-			Rectangle refArea = isChar ? ((EOCharacterRenderer) m_ref).DrawAreaWithOffset : ((NPC) m_ref).DrawArea;
-			int extra = textsLoaded ? texts[ML].Width : 0;
-			m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.Texture.Height - 5);
-		}
-
-		public new void LoadContent()
-		{
-			if(sb == null)
-				sb = new SpriteBatch(GraphicsDevice);
-			
-			//race condition: if 2 speech bubbles are created simultaneously it may try to load textures twice
-			lock (_textlocker_)
-			{
-				if (!textsLoaded)
-				{
-					texts = new Texture2D[10];
-					texts[TL] = Game.Content.Load<Texture2D>("ChatBubble\\TL");
-					texts[TM] = Game.Content.Load<Texture2D>("ChatBubble\\TM");
-					texts[TR] = Game.Content.Load<Texture2D>("ChatBubble\\TR");
-					texts[ML] = Game.Content.Load<Texture2D>("ChatBubble\\ML");
-					texts[MM] = Game.Content.Load<Texture2D>("ChatBubble\\MM");
-					texts[MR] = Game.Content.Load<Texture2D>("ChatBubble\\MR");
-					//typed an R instead of a B. I'm tired; somehow bot=R made more sense than bot=B
-					texts[RL] = Game.Content.Load<Texture2D>("ChatBubble\\RL");
-					texts[RM] = Game.Content.Load<Texture2D>("ChatBubble\\RM");
-					texts[RR] = Game.Content.Load<Texture2D>("ChatBubble\\RR");
-					texts[NUB] = Game.Content.Load<Texture2D>("ChatBubble\\NUB");
-					textsLoaded = true;
-				}
-			}
-
-			base.LoadContent();
-		}
-
-		public override void Update(GameTime gameTime)
-		{
-			if (!Visible)
-				return;
-
-			if (!(m_ref is EOCharacterRenderer || m_ref is NPC))
-				Dispose(); //"It's over, Anakin, I have the high ground!" "Don't try it!"
-
-			_setLabelDrawLoc();
-			try
-			{
-				drawLoc = m_label.DrawLocation - new Vector2(texts[TL].Width, texts[TL].Height);
-			}
-			catch (NullReferenceException)
-			{
-				return; //nullreference here means that the textures haven't been loaded yet...try it on the next pass
-			}
-
-			//This replaces the goAway timer.
-			if (m_startTime.HasValue && (DateTime.Now - m_startTime.Value).TotalMilliseconds > Constants.ChatBubbleTimeout)
-			{
-				Visible = false;
-				m_label.Visible = false;
-				m_startTime = null;
-			}
-
-			base.Update(gameTime);
-		}
-
-		public override void Draw(GameTime gameTime)
-		{
-			if (!textsLoaded || !Visible) return;
-			int xCov = texts[TL].Width;
-			int yCov = texts[TL].Height;
-			if (sb == null) return;
-
-			Color col = m_useGroupChatColor ? Color.Tan : Color.White;
-
-			sb.Begin();
-
-			//top row
-			sb.Draw(texts[TL], drawLoc, col);
-			int xCur;
-			for (xCur = xCov; xCur < m_label.ActualWidth; xCur += texts[TM].Width)
-			{
-				sb.Draw(texts[TM], drawLoc + new Vector2(xCur, 0), col);
-			}
-			sb.Draw(texts[TR], drawLoc + new Vector2(xCur, 0), col);
-
-			//middle area
-			int y;
-			for (y = yCov; y < m_label.Texture.Height - (m_label.Texture.Height%texts[ML].Height); y += texts[ML].Height)
-			{
-				sb.Draw(texts[ML], drawLoc + new Vector2(0, y), col);
-				int x;
-				for (x = xCov; x < xCur; x += texts[MM].Width)
-				{
-					sb.Draw(texts[MM], drawLoc + new Vector2(x, y), col);
-				}
-				sb.Draw(texts[MR], drawLoc + new Vector2(xCur, y), col);
-			}
-
-			//bottom row
-			sb.Draw(texts[RL], drawLoc + new Vector2(0, y), col);
-			int x2;
-			for (x2 = xCov; x2 < xCur; x2 += texts[RM].Width)
-			{
-				sb.Draw(texts[RM], drawLoc + new Vector2(x2, y), col);
-			}
-			sb.Draw(texts[RR], drawLoc + new Vector2(x2, y), col);
-			y += texts[RM].Height;
-			sb.Draw(texts[NUB], drawLoc + new Vector2((x2 + texts[RR].Width - texts[NUB].Width)/2f, y - 1), col);
-
-			try
-			{
-				sb.End();
-			}
-			catch (ObjectDisposedException) { }
-			base.Draw(gameTime);
-		}
-
-		public new void Dispose()
-		{
-			Dispose(true);
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				if (sb != null)
-				{
-					sb.Dispose();
-					sb = null;
-				}
-				if (m_label != null)
-					m_label.Close();
-			}
-
-			base.Dispose(disposing);
-		}
-	}
-
 	public class EOMapRenderer : DrawableGameComponent
 	{
-		/// <summary>
-		/// Indices of the mini map gfx in their single texture (for source rectangle offset)
-		/// </summary>
-		private enum MiniMapGfx
-		{
-			//for drawing the lines
-			UpLine = 0,
-			LeftLine = 1,
-			//Corner,
-			Solid = 3, //indicates wall or obstacle
-			Green = 4, //other player
-			Red = 5, //attackable npc
-			Orange = 6, //you!
-			Blue = 7, //tile that you can interact with
-			Purple = 8 //npc
-		}
-
 		private class WaterEffect
 		{
 			public static readonly Texture2D WaterTexture = GFXLoader.TextureFromResource(GFXTypes.Spells, EffectSprite.EFFECT_GFX_WATER_TILE, true);
@@ -360,7 +124,6 @@ namespace EndlessClient
 		private RenderTarget2D _rtMapObjAbovePlayer, _rtMapObjBelowPlayer;
 		private BlendState _playerBlend;
 		private SpriteBatch sb;
-		private bool m_showMiniMap;
 
 		private DateTime? m_mapLoadTime;
 		private int m_transitionMetric;
@@ -380,6 +143,8 @@ namespace EndlessClient
 		private EOMapContextMenu m_contextMenu;
 
 		private readonly PacketAPI m_api;
+
+		private MiniMapRenderer m_miniMapRenderer;
 
 		public EOMapRenderer(Game g, PacketAPI apiHandle)
 			: base(g)
@@ -483,6 +248,9 @@ namespace EndlessClient
 
 		public void SetActiveMap(MapFile newActiveMap)
 		{
+			if(newActiveMap == null)
+				throw new ArgumentNullException("newActiveMap", "The active map may not be null!");
+
 			m_drawingEvent.Wait();
 			m_drawingEvent.Reset();
 
@@ -490,6 +258,12 @@ namespace EndlessClient
 				EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.AmbientNoise);
 
 			MapRef = newActiveMap;
+
+			if (m_miniMapRenderer == null)
+				m_miniMapRenderer = new MiniMapRenderer(MapRef, sb, this);
+			else
+				m_miniMapRenderer.Map = MapRef;
+
 			MapItems.Clear();
 			otherRenderers.ForEach(_rend => _rend.Dispose());
 			otherRenderers.Clear();
@@ -513,7 +287,7 @@ namespace EndlessClient
 			m_mapLoadTime = DateTime.Now;
 			m_transitionMetric = 1;
 			if (!MapRef.MapAvailable)
-				m_showMiniMap = false;
+				m_miniMapRenderer.Visible = false;
 
 			if (MapRef.Name.Length > 0)
 			{
@@ -571,7 +345,7 @@ namespace EndlessClient
 		public void ToggleMapView()
 		{
 			if(MapRef.MapAvailable)
-				m_showMiniMap = !m_showMiniMap;
+				m_miniMapRenderer.Visible = !m_miniMapRenderer.Visible;
 			else
 				EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_NO_MAP_OF_AREA);
 		}
@@ -847,6 +621,12 @@ namespace EndlessClient
 		#endregion
 
 		#region/* PUBLIC INTERFACE -- OTHER NPCS */
+
+		public NPC GetNPCAt(int x, int y)
+		{
+			return npcList.Find(_npc => _npc.X == x && _npc.Y == y);
+		}
+
 		public void AddOtherNPC(NPCData data)
 		{
 			lock (npcListLock)
@@ -1381,13 +1161,8 @@ namespace EndlessClient
 					m_mapLoadTime = null;
 
 				sb.Begin();
-				/*_drawCursor()*/
-				if (!_hideCursor && gridX >= 0 && gridY >= 0 && gridX <= MapRef.Width && gridY <= MapRef.Height)
-				{
-					//don't draw cursor if context menu is visible and the context menu has the mouse over it
-					if(!(m_contextMenu.Visible && m_contextMenu.MouseOver))
-						sb.Draw(mouseCursor, cursorPos, _cursorSourceRect, Color.White);
-				}
+
+				_drawCursor();
 
 				/*_drawPlayersNPCsAndMapObjects()*/
 				sb.Draw(_rtMapObjAbovePlayer, Vector2.Zero, Color.White);
@@ -1395,41 +1170,56 @@ namespace EndlessClient
 #if DEBUG
 				sb.DrawString(EOGame.Instance.DBGFont, string.Format("FPS: {0}", World.FPS), new Vector2(30, 30), Color.White);
 #endif
-				Character c;
-				if ((c = World.Instance.MainPlayer.ActiveCharacter) != null)
-				{
-					int widthDelta = statusIcons.Width/4;
-					int heightDelta = statusIcons.Height/2;
-					int extraOffset = 0; //changes based on presence or absence of other icons
-					Color col = Color.FromNonPremultiplied(0x9e, 0x9f, 0x9e, 0xff);
-					if (MapRef.IsPK)
-					{
-						sb.Draw(statusIcons, new Vector2(14, 285), new Rectangle(widthDelta * 3, 0, widthDelta, heightDelta), col);
-						extraOffset += 24;
-					}
-					if (c.SpellPrimed)
-					{
-						sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta * 2, 0, widthDelta, heightDelta), col);
-						extraOffset += 24;
-					}
-					if (c.PaperDoll[(int) EquipLocation.Weapon] != 0)
-					{
-						sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(0, 0, widthDelta, heightDelta), col);
-						extraOffset += 24;
-					}
-					if (c.PaperDoll[(int) EquipLocation.Shield] != 0)
-						sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta, 0, widthDelta, heightDelta), col);
-				}
+				_drawPlayerEquipIcons();
 
 				sb.End();
 
-				if(m_showMiniMap)
-					_drawMiniMap();
+				if (m_miniMapRenderer.Visible)
+					m_miniMapRenderer.Draw(gameTime);
 
 				m_drawingEvent.Set();
 			}
 
 			base.Draw(gameTime);
+		}
+
+		private void _drawPlayerEquipIcons()
+		{
+			Character c;
+			if ((c = World.Instance.MainPlayer.ActiveCharacter) != null)
+			{
+				int widthDelta = statusIcons.Width/4;
+				int heightDelta = statusIcons.Height/2;
+				int extraOffset = 0; //changes based on presence or absence of other icons
+				Color col = Color.FromNonPremultiplied(0x9e, 0x9f, 0x9e, 0xff);
+				if (MapRef.IsPK)
+				{
+					sb.Draw(statusIcons, new Vector2(14, 285), new Rectangle(widthDelta*3, 0, widthDelta, heightDelta), col);
+					extraOffset += 24;
+				}
+				if (c.SpellPrimed)
+				{
+					sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta*2, 0, widthDelta, heightDelta), col);
+					extraOffset += 24;
+				}
+				if (c.PaperDoll[(int) EquipLocation.Weapon] != 0)
+				{
+					sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(0, 0, widthDelta, heightDelta), col);
+					extraOffset += 24;
+				}
+				if (c.PaperDoll[(int) EquipLocation.Shield] != 0)
+					sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta, 0, widthDelta, heightDelta), col);
+			}
+		}
+
+		private void _drawCursor()
+		{
+			if (!_hideCursor && gridX >= 0 && gridY >= 0 && gridX <= MapRef.Width && gridY <= MapRef.Height)
+			{
+				//don't draw cursor if context menu is visible and the context menu has the mouse over it
+				if (!(m_contextMenu.Visible && m_contextMenu.MouseOver))
+					sb.Draw(mouseCursor, cursorPos, _cursorSourceRect, Color.White);
+			}
 		}
 
 		/* DRAWING-RELATED HELPER METHODS */
@@ -1709,94 +1499,6 @@ namespace EndlessClient
 			GraphicsDevice.SetRenderTarget(null);
 		}
 
-		private void _drawMiniMap()
-		{
-			Texture2D miniMapText = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 45, true);
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
-
-			sb.Begin();
-			for (int row = Math.Max(c.Y - 30, 0); row <= Math.Min(c.Y + 30, MapRef.Height); ++row)
-			{
-				for (int col = Math.Max(c.X - 30, 0); col <= Math.Min(c.Y + 30, MapRef.Width); ++col)
-				{
-					Rectangle miniMapRect = new Rectangle(0, 0, miniMapText.Width / 9, miniMapText.Height);
-					bool isEdge = false;
-					Vector2 loc = _getMiniMapDrawCoordinates(col, row, c);
-					if (c.X == col && c.Y == row)
-					{
-						//draw orange thing
-						miniMapRect.Offset((int) MiniMapGfx.Orange*miniMapRect.Width, 0);
-					}
-					else
-					{
-						TileInfo info = CheckCoordinates((byte) col, (byte) row);
-						switch (info.ReturnValue)
-						{
-							case TileInfo.ReturnType.IsTileSpec:
-								switch (info.Spec)
-								{
-									case TileSpec.Wall:
-										miniMapRect.Offset((int)MiniMapGfx.Solid * miniMapRect.Width, 0);
-										//draw block
-										break;
-									case TileSpec.BankVault:
-									case TileSpec.ChairAll:
-									case TileSpec.ChairDown:
-									case TileSpec.ChairLeft:
-									case TileSpec.ChairRight:
-									case TileSpec.ChairUp:
-									case TileSpec.ChairDownRight:
-									case TileSpec.ChairUpLeft:
-									case TileSpec.Chest:
-										//draw exclamation
-										miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
-										break;
-									case TileSpec.MapEdge:
-										isEdge = true;
-										break;
-								}
-								break;
-							case TileInfo.ReturnType.IsOtherNPC:
-								//draw NPC - red or purple depending on type
-								NPC npc;
-								if ((npc = npcList.Find(_n => _n.X == col && _n.Y == row)) != null)
-								{
-									if (npc.Data.Type == NPCType.Aggressive || npc.Data.Type == NPCType.Passive)
-									{
-										miniMapRect.Offset((int)MiniMapGfx.Red * miniMapRect.Width, 0);
-									}
-									else
-									{
-										miniMapRect.Offset((int)MiniMapGfx.Purple * miniMapRect.Width, 0);
-									}
-								}
-								break;
-							case TileInfo.ReturnType.IsOtherPlayer:
-								miniMapRect.Offset((int)MiniMapGfx.Green * miniMapRect.Width, 0);
-								//draw Green
-								break;
-							case TileInfo.ReturnType.IsWarpSpec:
-								if(info.Warp.door != 0)
-									miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
-								break;
-						}
-					}
-
-					if (!isEdge)
-					{
-						sb.Draw(miniMapText, loc,
-							new Rectangle((int) MiniMapGfx.UpLine*miniMapRect.Width, 0, miniMapRect.Width, miniMapRect.Height),
-							Color.FromNonPremultiplied(255, 255, 255, 128));
-						sb.Draw(miniMapText, loc,
-							new Rectangle((int)MiniMapGfx.LeftLine * miniMapRect.Width, 0, miniMapRect.Width, miniMapRect.Height),
-							Color.FromNonPremultiplied(255, 255, 255, 128));
-					}
-					sb.Draw(miniMapText, loc, miniMapRect, Color.FromNonPremultiplied(255, 255, 255, 128));
-				}
-			}
-			sb.End();
-		}
-
 		/// <summary>
 		/// does the offset for tiles/items
 		/// <para>(x * 32 - y * 32 + 288 - c.OffsetX), (y * 16 + x * 16 + 144 - c.OffsetY)</para>
@@ -1810,11 +1512,6 @@ namespace EndlessClient
 		private Vector2 _getDrawCoordinates(int x, int y, int cOffX, int cOffY)
 		{
 			return new Vector2((x * 32) - (y * 32) + 288 - cOffX, (y * 16) + (x * 16) + 144 - cOffY);
-		}
-
-		private Vector2 _getMiniMapDrawCoordinates(int x, int y, Character c)
-		{
-			return new Vector2((x * 13) - (y * 13) + 288 - (c.X * 13 - c.Y * 13), (y * 7) + (x * 7) + 144 - (c.Y * 7 + c.X * 7));
 		}
 		
 		private int _getAlpha(int objX, int objY, Character c)

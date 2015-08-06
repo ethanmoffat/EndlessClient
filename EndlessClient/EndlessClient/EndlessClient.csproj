@@ -140,6 +140,7 @@
     <Compile Include="DamageCounter.cs" />
     <Compile Include="EOCharacterRenderer.cs" />
     <Compile Include="EOCharacterStats.cs" />
+    <Compile Include="EOChatBubble.cs" />
     <Compile Include="EODialog.cs" />
     <Compile Include="EOInventory.cs">
       <SubType>Code</SubType>
@@ -154,6 +155,7 @@
     <Compile Include="HUDElement.cs" />
     <Compile Include="InGameHud.cs" />
     <Compile Include="InteractList.cs" />
+    <Compile Include="MiniMapRenderer.cs" />
     <Compile Include="NPC.cs" />
     <Compile Include="EOParty.cs" />
     <Compile Include="PacketAPICallbackManager.cs" />
