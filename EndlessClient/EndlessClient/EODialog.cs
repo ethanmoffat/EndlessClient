@@ -5,6 +5,7 @@ using System.Drawing.Text;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using EOLib;
 using EOLib.Data;
 using EOLib.Net;
@@ -942,96 +943,32 @@ namespace EndlessClient
 			endConstructor(false);
 		}
 
-		public override void Update(GameTime gt)
+		public override async void Update(GameTime gt)
 		{
 			if (timeOpened == null)
-				timeOpened = gt.TotalGameTime;
-
-			if(((int)gt.TotalGameTime.TotalMilliseconds - (int)(timeOpened.Value.TotalMilliseconds)) % 500 == 0) //every half a second
 			{
-				//switch the background image to the next one
-				bgSrcIndex = bgSrcIndex == 3 ? 0 : bgSrcIndex + 1;
+				timeOpened = gt.TotalGameTime;
 			}
 
 #if DEBUG
-			const int waitTime = 0; //set to zero on debug builds
+			const int intialTimeDelay = 0; //set to zero on debug builds
 #else
-			const int waitTime = 5; //I think the client waits 5 seconds?
+			const int intialTimeDelay = 5; //I think the client waits 5 seconds?
 #endif
-			if (!updatingFiles && ((int)gt.TotalGameTime.TotalSeconds - (int)(timeOpened.Value.TotalSeconds)) >= waitTime)
+
+			if (!updatingFiles && ((int) gt.TotalGameTime.TotalSeconds - (int) (timeOpened.Value.TotalSeconds)) >= intialTimeDelay)
 			{
 				updatingFiles = true;
 
-				//I hate putting this on a new thread but otherwise the Update call would block while this is all happening...meaning the dialog would freeze
-				new Thread(() =>
-				{
-					if (World.Instance.NeedMap != -1)
-					{
-						caption.Text = map;
-						if (!m_api.RequestFile(InitFileType.Map, World.Instance.MainPlayer.ActiveCharacter.CurrentMap))
-						{
-							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-							return;
-						}
-						Thread.Sleep(1000);
-					}
+				bool result = await FetchFilesAsync();
+				Close(null, result ? XNADialogResult.OK : XNADialogResult.NO_BUTTON_PRESSED);
+			}
 
-					if (World.Instance.NeedEIF)
-					{
-						caption.Text = item;
-						if (!m_api.RequestFile(InitFileType.Item))
-						{
-							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-							return;
-						}
-						Thread.Sleep(1000);
-					}
-
-					if (World.Instance.NeedENF)
-					{
-						caption.Text = npc;
-						if (!m_api.RequestFile(InitFileType.Npc))
-						{
-							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-							return;
-						}
-						Thread.Sleep(1000);
-					}
-
-					if (World.Instance.NeedESF)
-					{
-						caption.Text = skill;
-						if (!m_api.RequestFile(InitFileType.Spell))
-						{
-							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-							return;
-						}
-						Thread.Sleep(1000);
-					}
-
-					if (World.Instance.NeedECF)
-					{
-						caption.Text = classes;
-						if (!m_api.RequestFile(InitFileType.Class))
-						{
-							Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-							return;
-						}
-						Thread.Sleep(1000);
-					}
-
-					caption.Text = loading;
-					WelcomeMessageData data;
-					if(!m_api.WelcomeMessage(World.Instance.MainPlayer.ActiveCharacter.ID, out data))
-					{
-						Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-						return;
-					}
-					WelcomeData = data;
-
-					Thread.Sleep(1000);
-					Close(null, XNADialogResult.OK); //using OK here to mean everything was successful. NO_BUTTON_PRESSED means unsuccessful.
-				}).Start();
+			//every half a second
+			if (((int) gt.TotalGameTime.TotalMilliseconds - (int) (timeOpened.Value.TotalMilliseconds))%500 == 0)
+			{
+				//switch the background image to the next one
+				bgSrcIndex = bgSrcIndex == 3 ? 0 : bgSrcIndex + 1;
 			}
 
 			base.Update(gt);
@@ -1048,6 +985,93 @@ namespace EndlessClient
 
 			base.Draw(gt);
 		}
+
+		private async Task<bool> FetchFilesAsync()
+		{
+			if (!await _getMapTask())
+				return false;
+			if (!await _getEIFTask())
+				return false;
+			if (!await _getENFTask())
+				return false;
+			if (!await _getESFTask())
+				return false;
+			if (!await _getECFTask())
+				return false;
+
+			caption.Text = loading;
+			WelcomeMessageData data;
+			if (!m_api.WelcomeMessage(World.Instance.MainPlayer.ActiveCharacter.ID, out data))
+				return false;
+			WelcomeData = data;
+
+			await TaskEx.Delay(1000);
+			return true;
+		}
+
+		#region Task Methods
+
+		private async Task<bool> _getECFTask()
+		{
+			if (World.Instance.NeedECF)
+			{
+				caption.Text = classes;
+				if (!m_api.RequestFile(InitFileType.Class))
+					return false;
+				await TaskEx.Delay(1000);
+			}
+			return true;
+		}
+
+		private async Task<bool> _getESFTask()
+		{
+			if (World.Instance.NeedESF)
+			{
+				caption.Text = skill;
+				if (!m_api.RequestFile(InitFileType.Spell))
+					return false;
+				await TaskEx.Delay(1000);
+			}
+			return true;
+		}
+
+		private async Task<bool> _getENFTask()
+		{
+			if (World.Instance.NeedENF)
+			{
+				caption.Text = npc;
+				if (!m_api.RequestFile(InitFileType.Npc))
+					return false;
+				await TaskEx.Delay(1000);
+			}
+			return true;
+		}
+
+		private async Task<bool> _getEIFTask()
+		{
+			if (World.Instance.NeedEIF)
+			{
+				caption.Text = item;
+				if (!m_api.RequestFile(InitFileType.Item))
+					return false;
+				await TaskEx.Delay(1000);
+			}
+			return true;
+		}
+
+		private async Task<bool> _getMapTask()
+		{
+			if (World.Instance.NeedMap != -1)
+			{
+				caption.Text = map;
+				if (!m_api.RequestFile(InitFileType.Map, World.Instance.MainPlayer.ActiveCharacter.CurrentMap))
+					return false;
+				await TaskEx.Delay(1000);
+			}
+			return true;
+		}
+
+		#endregion
 	}
 
 	public class EOPaperdollItem : XNAControl

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -186,24 +187,26 @@ Thanks to :
 #if DEBUG
 			//testinggame will login as testuser and login as the first character
 			XNAButton testingame = new XNAButton(new Vector2(5, 5), "in-game");
-			testingame.OnClick += (s, e) => new Thread(() =>
-			{
-				MainButtonPress(mainButtons[1], e); //press login
-				Thread.Sleep(500);
-				if (!World.Instance.Client.ConnectedAndInitialized)
-					return;
-				loginUsernameTextbox.Text = "testuser";
-				loginPasswordTextbox.Text = "testuser";
-
-				MainButtonPress(loginButtons[0], e); //login as acc testuser
-				Thread.Sleep(500);
-				CharModButtonPress(loginCharButtons[0], e); //login as char testuser
-			}).Start();
+			testingame.OnClick += testingame_click;
 #endif
 		}
 
+		private async void testingame_click(object sender, EventArgs e)
+		{
+			MainButtonPress(mainButtons[1], e); //press login
+			await TaskEx.Delay(500);
+			if (!World.Instance.Client.ConnectedAndInitialized)
+				return;
+			loginUsernameTextbox.Text = "testuser";
+			loginPasswordTextbox.Text = "testuser";
+
+			MainButtonPress(loginButtons[0], e); //login as acc testuser
+			await TaskEx.Delay(500);
+			CharModButtonPress(loginCharButtons[0], e); //login as char testuser
+		}
+
 		//Pretty much controls how states transition between one another
-		private void MainButtonPress(object sender, EventArgs e)
+		private async void MainButtonPress(object sender, EventArgs e)
 		{
 			if (!IsActive)
 				return;
@@ -218,7 +221,7 @@ Thanks to :
 			{
 				//try connect
 				//if successful go to account creation state
-				TryConnectToServer(() =>
+				await TryConnectToServer(() =>
 				{
 					doStateChange(GameStates.CreateAccount);
 
@@ -235,7 +238,7 @@ Thanks to :
 			{
 				//try connect
 				//if successful go to account login state
-				TryConnectToServer(() => doStateChange(GameStates.Login));
+				await TryConnectToServer(() => doStateChange(GameStates.Login));
 			}
 			else if (sender == mainButtons[2])
 			{

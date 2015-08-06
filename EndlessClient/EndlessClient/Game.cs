@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using EOLib.Data;
 using EOLib.Net;
@@ -100,17 +101,17 @@ namespace EndlessClient
 		//--------------------------
 		//***** HELPER METHODS *****
 		//--------------------------
-		private void TryConnectToServer(Action successAction)
+		private async Task TryConnectToServer(Action successAction)
 		{
 			//the mutex here should simulate the action of spamming the button.
 			//no matter what, it will only do it one at a time: the mutex is only released when the bg thread ends
 			if (connectMutex == null)
 			{
 				connectMutex = new AutoResetEvent(true);
-				if (!connectMutex.WaitOne(1))
+				if (!connectMutex.WaitOne(0))
 					return;
 			}
-			else if (!connectMutex.WaitOne(1))
+			else if (!connectMutex.WaitOne(0))
 			{
 				return;
 			}
@@ -121,9 +122,9 @@ namespace EndlessClient
 				connectMutex.Set();
 				return;
 			}
-
+			
 			//execute this logic on a separate thread so the game doesn't lock up while it's trying to connect to the server
-			new Thread(() =>
+			await TaskEx.Run(() =>
 			{
 				try
 				{
@@ -185,7 +186,7 @@ namespace EndlessClient
 				}
 
 				connectMutex.Set();
-			}).Start();
+			});
 		}
 
 		public void LostConnectionDialog()
