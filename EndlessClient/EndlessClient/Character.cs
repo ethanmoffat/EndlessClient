@@ -504,8 +504,8 @@ namespace EndlessClient
 				bool shouldSend = true;
 				if (!(x == 255 && y == 255))
 				{
-					TileInfo ti = World.Instance.ActiveMapRenderer.CheckCoordinates(x, y);
-					if (ti.ReturnValue == TileInfo.ReturnType.IsOtherNPC && ti.NPC.Opponent != null && ti.NPC.Opponent != this)
+					TileInfo ti = World.Instance.ActiveMapRenderer.GetTileInfo(x, y);
+					if (ti.ReturnType == TileInfoReturnType.IsOtherNPC && ti.NPC.Opponent != null && ti.NPC.Opponent != this)
 					{
 						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_UNABLE_TO_ATTACK);
 						shouldSend = false;

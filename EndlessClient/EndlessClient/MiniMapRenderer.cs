@@ -80,10 +80,10 @@ namespace EndlessClient
 		{
 			bool isEdge = false;
 
-			TileInfo info = _parentRenderer.CheckCoordinates((byte)col, (byte)row);
-			switch (info.ReturnValue)
+			TileInfo info = _parentRenderer.GetTileInfo((byte)col, (byte)row);
+			switch (info.ReturnType)
 			{
-				case TileInfo.ReturnType.IsTileSpec:
+				case TileInfoReturnType.IsTileSpec:
 					switch (info.Spec)
 					{
 						case TileSpec.Wall:
@@ -107,7 +107,7 @@ namespace EndlessClient
 							break;
 					}
 					break;
-				case TileInfo.ReturnType.IsOtherNPC:
+				case TileInfoReturnType.IsOtherNPC:
 					//draw NPC - red or purple depending on type
 					NPC npc;
 					if ((npc = _parentRenderer.GetNPCAt(col, row)) != null)
@@ -122,11 +122,11 @@ namespace EndlessClient
 						}
 					}
 					break;
-				case TileInfo.ReturnType.IsOtherPlayer:
+				case TileInfoReturnType.IsOtherPlayer:
 					miniMapRect.Offset((int)MiniMapGfx.Green * miniMapRect.Width, 0);
 					//draw Green
 					break;
-				case TileInfo.ReturnType.IsWarpSpec:
+				case TileInfoReturnType.IsWarpSpec:
 					if (info.Warp.door != 0)
 						miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
 					break;

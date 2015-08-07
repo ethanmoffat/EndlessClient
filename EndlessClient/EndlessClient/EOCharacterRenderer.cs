@@ -483,11 +483,11 @@ namespace EndlessClient
 						return;
 					}
 
-					TileInfo info = World.Instance.ActiveMapRenderer.CheckCoordinates(destX, destY);
-					switch (info.ReturnValue)
+					TileInfo info = World.Instance.ActiveMapRenderer.GetTileInfo(destX, destY);
+					switch (info.ReturnType)
 					{
-						case TileInfo.ReturnType.IsOtherPlayer:
-							if (NoWall) goto case TileInfo.ReturnType.IsTileSpec;
+						case TileInfoReturnType.IsOtherPlayer:
+							if (NoWall) goto case TileInfoReturnType.IsTileSpec;
 
 							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
 							if(startWalkingThroughPlayerTime == null)
@@ -495,17 +495,17 @@ namespace EndlessClient
 							else if ((gameTime.TotalGameTime.TotalSeconds - startWalkingThroughPlayerTime.TotalGameTime.TotalSeconds) > 3)
 							{
 								startWalkingThroughPlayerTime = null;
-								goto case TileInfo.ReturnType.IsTileSpec;
+								goto case TileInfoReturnType.IsTileSpec;
 							}
 							break;
-						case TileInfo.ReturnType.IsOtherNPC:
-							if (NoWall) goto case TileInfo.ReturnType.IsTileSpec;
+						case TileInfoReturnType.IsOtherNPC:
+							if (NoWall) goto case TileInfoReturnType.IsTileSpec;
 #if DEBUG
 							EOGame.Instance.Hud.SetStatusLabel("OTHER NPC IS HERE"); //idk what's supposed to happen here, I think nothing?
 #endif
 							break;
-						case TileInfo.ReturnType.IsWarpSpec:
-							if (NoWall) goto case TileInfo.ReturnType.IsTileSpec;
+						case TileInfoReturnType.IsWarpSpec:
+							if (NoWall) goto case TileInfoReturnType.IsTileSpec;
 							if (info.Warp.door != DoorSpec.NoDoor)
 							{
 								DoorSpec doorOpened;
@@ -554,7 +554,7 @@ namespace EndlessClient
 								_chkWalk(TileSpec.None, direction, destX, destY);
 							}
 							break;
-						case TileInfo.ReturnType.IsTileSpec:
+						case TileInfoReturnType.IsTileSpec:
 							_chkWalk(info.Spec, direction, destX, destY);
 							break;
 					}
@@ -563,9 +563,9 @@ namespace EndlessClient
 				{
 					if (Character.CanAttack)
 					{
-						TileInfo info = World.Instance.ActiveMapRenderer.CheckCoordinates((byte)Character.X, (byte)Character.Y);
+						TileInfo info = World.Instance.ActiveMapRenderer.GetTileInfo((byte)Character.X, (byte)Character.Y);
 						Character.Attack(Data.facing, destX, destY); //destX and destY validity check above
-						PlayerAttack(info.ReturnValue == TileInfo.ReturnType.IsTileSpec && info.Spec == TileSpec.Water);
+						PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec && info.Spec == TileSpec.Water);
 					}
 					else if(Character.Weight > Character.MaxWeight)
 					{

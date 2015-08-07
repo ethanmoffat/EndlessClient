@@ -173,7 +173,7 @@ namespace EndlessClient
 			switch (_data.Slot)
 			{
 				case AvatarSlot.Clothes:
-					World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.Sound, new CharRenderData
+					World.Instance.ActiveMapRenderer.UpdateOtherPlayerRenderData(_data.ID, _data.Sound, new CharRenderData
 					{
 						boots = _data.Boots,
 						armor = _data.Armor,
@@ -183,10 +183,10 @@ namespace EndlessClient
 					});
 					break;
 				case AvatarSlot.Hair:
-					World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.HairColor, _data.HairStyle);
+					World.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(_data.ID, _data.HairColor, _data.HairStyle);
 					break;
 				case AvatarSlot.HairColor:
-					World.Instance.ActiveMapRenderer.UpdateOtherPlayer(_data.ID, _data.HairColor);
+					World.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(_data.ID, _data.HairColor);
 					break;
 			}
 		}
@@ -229,7 +229,7 @@ namespace EndlessClient
 			}
 			else
 			{
-				if ((c = World.Instance.ActiveMapRenderer.GetOtherPlayer(_data.PlayerID)) != null)
+				if ((c = World.Instance.ActiveMapRenderer.GetOtherPlayerByID(_data.PlayerID)) != null)
 				{
 					c.Class = _data.Class;
 					c.RenderData.SetGender(_data.Gender);

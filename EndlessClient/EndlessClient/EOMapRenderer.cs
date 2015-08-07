@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using EOLib;
 using EOLib.Data;
@@ -17,24 +17,30 @@ using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace EndlessClient
 {
-	//returned from CheckCoordinates
-	//convenience wrapper
+	public enum TileInfoReturnType
+	{
+		IsTileSpec, //indicates that a normal tile spec is returned
+		IsWarpSpec, //indicates that a normal warp spec is returned
+		IsOtherPlayer, //other player is in the way, spec/warp are invalid
+		IsOtherNPC, //other npc is in the way, spec/warp are invalid
+		IsMapSign
+	}
+
+	[StructLayout(LayoutKind.Explicit)]
 	public struct TileInfo
 	{
-		public enum ReturnType //this struct is used sort of like a union - different data returned in different cases
-		{
-			IsTileSpec, //indicates that a normal tile spec is returned
-			IsWarpSpec, //indicates that a normal warp spec is returned
-			IsOtherPlayer, //other player is in the way, spec/warp are invalid
-			IsOtherNPC, //other npc is in the way, spec/warp are invalid
-			IsMapSign
-		}
+		[FieldOffset(0)]
+		public TileInfoReturnType ReturnType;
 
-		public ReturnType ReturnValue;
-
+		//only one of these is valid at a time
+		[FieldOffset(4)]
 		public TileSpec Spec;
+
+		[FieldOffset(8)]
 		public Warp Warp;
+		[FieldOffset(8)]
 		public NPC NPC;
+		[FieldOffset(8)]
 		public MapSign Sign;
 	}
 
@@ -93,7 +99,7 @@ namespace EndlessClient
 		private readonly List<Character> otherPlayers = new List<Character>();
 		private readonly List<EOCharacterRenderer> otherRenderers = new List<EOCharacterRenderer>();
 		private readonly List<NPC> npcList = new List<NPC>();
-		private static readonly object npcListLock = new object();
+		private readonly object npcListLock = new object();
 
 		public MapFile MapRef { get; private set; }
 		private bool m_needDispMapName;
@@ -303,43 +309,43 @@ namespace EndlessClient
 			m_drawingEvent.Set();
 		}
 
-		public TileInfo CheckCoordinates(byte destX, byte destY)
+		public TileInfo GetTileInfo(byte destX, byte destY)
 		{
 			lock (npcListLock)
 			{
 				NPC npc;
 				if ((npc = npcList.Find(_npc => _npc.X == destX && _npc.Y == destY)) != null && !npc.Dying)
 				{
-					return new TileInfo { ReturnValue = TileInfo.ReturnType.IsOtherNPC, NPC = npc };
+					return new TileInfo { ReturnType = TileInfoReturnType.IsOtherNPC, NPC = npc };
 				}
 			}
 
 			if (otherPlayers.Any(player => player.X == destX && player.Y == destY))
 			{
-				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsOtherPlayer };
+				return new TileInfo { ReturnType = TileInfoReturnType.IsOtherPlayer };
 			}
 
 			Warp warp = MapRef.WarpLookup[destY, destX];
 			if (warp != null)
 			{
-				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsWarpSpec, Warp = warp };
+				return new TileInfo { ReturnType = TileInfoReturnType.IsWarpSpec, Warp = warp };
 			}
 
 			MapSign sign = MapRef.Signs.Find(_ms => _ms.x == destX && _ms.y == destY);
 			if (sign.x == destX && sign.y == destY)
 			{
-				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsMapSign, Sign = sign };
+				return new TileInfo { ReturnType = TileInfoReturnType.IsMapSign, Sign = sign };
 			}
 
 			Tile tile = MapRef.TileLookup[destY, destX];
 			if (tile != null)
 			{
-				return new TileInfo { ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = tile.spec };
+				return new TileInfo { ReturnType = TileInfoReturnType.IsTileSpec, Spec = tile.spec };
 			}
 
 			return destX <= MapRef.Width && destY <= MapRef.Height //don't need to check zero bounds: because byte type is always positive (unsigned)
-				? new TileInfo { ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = TileSpec.None }
-				: new TileInfo { ReturnValue = TileInfo.ReturnType.IsTileSpec, Spec = TileSpec.MapEdge };
+				? new TileInfo { ReturnType = TileInfoReturnType.IsTileSpec, Spec = TileSpec.None }
+				: new TileInfo { ReturnType = TileInfoReturnType.IsTileSpec, Spec = TileSpec.MapEdge };
 		}
 
 		public void ToggleMapView()
@@ -523,8 +529,8 @@ namespace EndlessClient
 			{
 				rend.Character.Walk(direction, x, y, false);
 
-				TileInfo ti = CheckCoordinates(rend.Character.DestX, rend.Character.DestY);
-				rend.PlayerWalk(ti.ReturnValue == TileInfo.ReturnType.IsTileSpec && ti.Spec == TileSpec.Water);
+				TileInfo ti = GetTileInfo(rend.Character.DestX, rend.Character.DestY);
+				rend.PlayerWalk(ti.ReturnType == TileInfoReturnType.IsTileSpec && ti.Spec == TileSpec.Water);
 			}
 		}
 
@@ -535,8 +541,8 @@ namespace EndlessClient
 			{
 				rend.Character.Attack(direction);
 
-				TileInfo info = CheckCoordinates((byte) rend.Character.X, (byte) rend.Character.Y);
-				rend.PlayerAttack(info.ReturnValue == TileInfo.ReturnType.IsTileSpec && info.Spec == TileSpec.Water);
+				TileInfo info = GetTileInfo((byte) rend.Character.X, (byte) rend.Character.Y);
+				rend.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec && info.Spec == TileSpec.Water);
 			}
 		}
 
@@ -584,7 +590,7 @@ namespace EndlessClient
 			otherPlayers.ForEach(x => x.RenderData.SetUpdate(true));
 		}
 
-		public void UpdateOtherPlayer(short playerId, bool sound, CharRenderData newRenderData)
+		public void UpdateOtherPlayerRenderData(short playerId, bool sound, CharRenderData newRenderData)
 		{
 			Character c =  playerId == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.MainPlayer.ActiveCharacter : otherPlayers.Find(cc => cc.ID == playerId);
 			if (c != null)
@@ -594,7 +600,7 @@ namespace EndlessClient
 			}
 		}
 
-		public void UpdateOtherPlayer(short playerId, byte hairColor, byte hairStyle = 255)
+		public void UpdateOtherPlayerHairData(short playerId, byte hairColor, byte hairStyle = 255)
 		{
 			Character c = playerId == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.MainPlayer.ActiveCharacter : otherPlayers.Find(cc => cc.ID == playerId);
 			if (c != null)
@@ -604,7 +610,7 @@ namespace EndlessClient
 			}
 		}
 
-		public Character GetOtherPlayer(short playerId)
+		public Character GetOtherPlayerByID(short playerId)
 		{
 			return otherPlayers.Find(_c => _c.ID == playerId);
 		}
@@ -773,7 +779,8 @@ namespace EndlessClient
 
 			if ((_door = MapRef.WarpLookup[y, x]) != null)
 			{
-				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorOpen).Play();
+				if(World.Instance.SoundEnabled)
+					((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorOpen).Play();
 				_door.doorOpened = true;
 				_doorY = y;
 				_doorTimer.Change(3000, 0);
@@ -788,7 +795,7 @@ namespace EndlessClient
 				return;
 			}
 
-			if (_door.doorOpened)
+			if (_door.doorOpened && World.Instance.SoundEnabled)
 				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorClose).Play();
 
 			_door.doorOpened = false;
@@ -835,37 +842,12 @@ namespace EndlessClient
 		public override void Update(GameTime gameTime)
 		{
 			//***update for all objects on map
-			World.Instance.ActiveCharacterRenderer.Update(gameTime);
-			IEnumerable<EOCharacterRenderer> toAdd = otherRenderers.Where(rend => !Game.Components.Contains(rend));
-			foreach (EOCharacterRenderer rend in toAdd)
-				rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
-
-			lock(npcListLock)
-				npcList.Where(_npc => !Game.Components.Contains(_npc)).ToList().ForEach(_n => _n.Update(gameTime));
+			_updateCharacters(gameTime);
+			_updateNPCs(gameTime);
 
 			//***do the map animations
-			//lazy init
-			if (lastAnimUpdate == null) lastAnimUpdate = gameTime.TotalGameTime;
-			if ((gameTime.TotalGameTime - lastAnimUpdate.Value).TotalMilliseconds > 500)
-			{
-				_wallSrcIndex++;
-				if(_wallSrcIndex == 4) _wallSrcIndex = 0;
-
-				_tileSrc = new Vector2(64 + _tileSrc.X, 0);
-				if (_tileSrc.X > 192)
-					_tileSrc = Vector2.Zero;
-
-				lastAnimUpdate = gameTime.TotalGameTime;
-			}
-
-			for (int i = _waterTiles.Values.Count - 1; i >= 0; --i)
-			{
-				WaterEffect eff = _waterTiles.Values.ElementAt(i);
-				if (eff.DoneAnimating())
-					_waterTiles.Remove(new Point(eff.X, eff.Y));
-				else
-					eff.IncrementFrameIfNeeded();
-			}
+			_animateWallTiles(gameTime);
+			_animateWaterEffect();
 
 			//***do the cursor stuff
 			MouseState ms = Mouse.GetState();
@@ -881,6 +863,7 @@ namespace EndlessClient
 			}
 			
 			//draw stuff to the render target
+			//this is done in update instead of draw because I'm using render targets
 			m_drawingEvent.Wait(); //need to make sure that the map isn't being changed during a draw!
 			m_drawingEvent.Reset();
 			_drawMapObjectsAndActors();
@@ -890,31 +873,60 @@ namespace EndlessClient
 			base.Update(gameTime);
 		}
 
+		private void _updateCharacters(GameTime gameTime)
+		{
+			World.Instance.ActiveCharacterRenderer.Update(gameTime);
+			IEnumerable<EOCharacterRenderer> toAdd = otherRenderers.Where(rend => !Game.Components.Contains(rend));
+			foreach (EOCharacterRenderer rend in toAdd)
+				rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
+		}
+
+		private void _updateNPCs(GameTime gameTime)
+		{
+			lock (npcListLock)
+				npcList.Where(_npc => !Game.Components.Contains(_npc)).ToList().ForEach(_n => _n.Update(gameTime));
+		}
+
+		private void _animateWallTiles(GameTime gameTime)
+		{
+			//lazy init
+			if (lastAnimUpdate == null) lastAnimUpdate = gameTime.TotalGameTime;
+			if ((gameTime.TotalGameTime - lastAnimUpdate.Value).TotalMilliseconds > 500)
+			{
+				_wallSrcIndex++;
+				if (_wallSrcIndex == 4) _wallSrcIndex = 0;
+
+				_tileSrc = new Vector2(64 + _tileSrc.X, 0);
+				if (_tileSrc.X > 192)
+					_tileSrc = Vector2.Zero;
+
+				lastAnimUpdate = gameTime.TotalGameTime;
+			}
+		}
+
+		private void _animateWaterEffect()
+		{
+			for (int i = _waterTiles.Values.Count - 1; i >= 0; --i)
+			{
+				WaterEffect eff = _waterTiles.Values.ElementAt(i);
+				if (eff.DoneAnimating())
+					_waterTiles.Remove(new Point(eff.X, eff.Y));
+				else
+					eff.IncrementFrameIfNeeded();
+			}
+		}
+
 		private void _updateCursorInfo(MouseState ms)
 		{
 			//don't do the cursor if there is a dialog open or the mouse is over the context menu
-			if (EOPaperdollDialog.Instance != null || EOChestDialog.Instance != null ||
-				EOLockerDialog.Instance != null || EOBankAccountDialog.Instance != null ||
-				(m_contextMenu.Visible && m_contextMenu.MouseOver))
+			if (XNAControl.Dialogs.Count > 0 || (m_contextMenu.Visible && m_contextMenu.MouseOver))
 				return;
 
-			//need to solve this system of equations to get x, y on the grid
-			//(x * 32) - (y * 32) + 288 - c.OffsetX, => pixX = 32x - 32y + 288 - c.OffsetX
-			//(y * 16) + (x * 16) + 144 - c.OffsetY  => 2pixY = 32y + 32x + 288 - 2c.OffsetY
-			//										 => 2pixY + pixX = 64x + 576 - c.OffsetX - 2c.OffsetY
-			//										 => 2pixY + pixX - 576 + c.OffsetX + 2c.OffsetY = 64x
-			//										 => gridX = (pixX + 2pixY - 576 + c.OffsetX + 2c.OffsetY) / 64; <=
-			//pixY = (gridX * 16) + (gridY * 16) + 144 - c.OffsetY =>
-			//(pixY - (gridX * 16) - 144 + c.OffsetY) / 16 = gridY
-
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
-			//center the cursor on the mouse pointer
-			int msX = ms.X - _cursorSourceRect.Width / 2;
-			int msY = ms.Y - _cursorSourceRect.Height / 2;
-			/*align cursor to grid based on mouse position*/
-			gridX = (int)Math.Round((msX + 2 * msY - 576 + c.OffsetX + 2 * c.OffsetY) / 64.0);
-			gridY = (int)Math.Round((msY - gridX * 16 - 144 + c.OffsetY) / 16.0);
+
+			_getGridCoordsFromMousePosition(ms, _cursorSourceRect, c, out gridX, out gridY);
 			cursorPos = _getDrawCoordinates(gridX, gridY, c);
+
 			if (gridX >= 0 && gridX <= MapRef.Width && gridY >= 0 && gridY <= MapRef.Height)
 			{
 				bool mouseClicked = ms.LeftButton == ButtonState.Released && _prevState.LeftButton == ButtonState.Pressed;
@@ -924,228 +936,278 @@ namespace EndlessClient
 				mouseClicked = mouseClicked && XNAControl.Dialogs.Count == 0;
 				rightClicked = rightClicked && XNAControl.Dialogs.Count == 0;
 
-				TileInfo ti = CheckCoordinates((byte) gridX, (byte) gridY);
-				switch (ti.ReturnValue)
+				TileInfo ti = GetTileInfo((byte) gridX, (byte) gridY);
+				switch (ti.ReturnType)
 				{
-					case TileInfo.ReturnType.IsOtherNPC:
-						_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
-						NPC npc;
-						lock (npcListLock)
-							if ((npc = npcList.Find(_npc => _npc.X == gridX && _npc.Y == gridY)) == null)
-								break;
-						_mouseoverName.Visible = true;
-						_mouseoverName.Text = npc.Data.Name;
-						_mouseoverName.ResizeBasedOnText();
-						_mouseoverName.ForeColor = System.Drawing.Color.White;
-						_mouseoverName.DrawLocation = new Vector2(
-							npc.DrawArea.X + (npc.DrawArea.Width - _mouseoverName.ActualWidth) /2f,
-							npc.DrawArea.Y + npc.TopPixel - _mouseoverName.Texture.Height - 4);
-
-						if (mouseClicked)
-						{
-							switch (npc.Data.Type)
-							{
-								case NPCType.Shop:
-									EOShopDialog.Show(m_api, npc);
-									break;
-								case NPCType.Inn:
-									break;
-								case NPCType.Bank:
-									EOBankAccountDialog.Show(m_api, npc.Index);
-									break;
-								case NPCType.Barber:
-									break;
-								case NPCType.Guild:
-									break;
-								case NPCType.Priest:
-									break;
-								case NPCType.Law:
-									break;
-								case NPCType.Skills:
-									EOSkillmasterDialog.Show(m_api, npc.Index);
-									break;
-								case NPCType.Quest:
-									break;
-							}
-						}
+					case TileInfoReturnType.IsOtherNPC:
+						_updateDisplayedNPCName(mouseClicked);
 
 						break;
-					case TileInfo.ReturnType.IsOtherPlayer:
-						//todo: this needs to be moved into some mouseover shit for character renderer
-						//note: right-click and mouseover applies when mouse is over a character and that character
-						//	is front-most in a given pile of characters that the mouse could be over
-
-						_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
-						EOCharacterRenderer _rend;
-						_mouseoverName.Visible = true;
-						_mouseoverName.Text =
-							(_rend =
-								otherRenderers.Find(_p => _p.Character.X == gridX && _p.Character.Y == gridY) ??
-								World.Instance.ActiveCharacterRenderer).Character.Name;
-						_mouseoverName.ResizeBasedOnText();
-						_mouseoverName.ForeColor = System.Drawing.Color.White;
-						_mouseoverName.DrawLocation = new Vector2(
-							_rend.DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
-							_rend.DrawAreaWithOffset.Y + _rend.TopPixel - _mouseoverName.Texture.Height - 7);
-
-						//handle right-clicking a player. menu when not ActiveCharacter, paperdoll when ActiveCharacter
-						if (rightClicked)
-						{
-							if (_rend == World.Instance.ActiveCharacterRenderer)
-								m_api.RequestPaperdoll((short) _rend.Character.ID);
-							else
-							{
-								//show the right-click menu
-								//make it a member instance since there is only one ever
-								m_contextMenu.SetCharacterRenderer(_rend);
-							}
-						}
+					case TileInfoReturnType.IsOtherPlayer:
+						_updateDisplayedPlayerName(rightClicked);
 
 						break;
-					default:
+					default: //TileSpec, warp, sign
 						if (gridX == c.X && gridY == c.Y)
-							goto case TileInfo.ReturnType.IsOtherPlayer; //same logic if it's the active character
+							goto case TileInfoReturnType.IsOtherPlayer; //same logic if it's the active character
 
 						_hideCursor = false;
-						if (ti.ReturnValue == TileInfo.ReturnType.IsTileSpec)
+						if (ti.ReturnType == TileInfoReturnType.IsTileSpec)
 						{
-							switch (ti.Spec)
-							{
-								case TileSpec.Wall:
-								case TileSpec.JammedDoor:
-								case TileSpec.MapEdge:
-								case TileSpec.FakeWall:
-									//hide cursor
-									_hideCursor = true;
-									break;
-								case TileSpec.Chest:
-									//chest click action
-									_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
-									if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y)) //must be directly adjacent
-									{
-										MapChest chest = MapRef.Chests.Find(_mc => _mc.x == gridX && _mc.y == gridY);
-										if (chest == null) break;
-
-										string requiredKey = null;
-										switch (World.Instance.MainPlayer.ActiveCharacter.CanOpenChest(chest))
-										{
-											case ChestKey.Normal: requiredKey = "Normal Key"; break;
-											case ChestKey.Silver: requiredKey = "Silver Key"; break;
-											case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
-											case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
-											default:
-												EOChestDialog.Show(m_api, chest.x, chest.y);
-												break;
-										}
-
-										if (requiredKey != null)
-										{
-											EODialog.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
-											((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
-												" - " + requiredKey);
-										}
-									}
-									break;
-								case TileSpec.BankVault:
-									_cursorSourceRect.Location = new Point(mouseCursor.Width / 5, 0);
-									if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y))
-									{
-										EOLockerDialog.Show(m_api, (byte)gridX, (byte)gridY);
-									}
-									break;
-								case TileSpec.ChairDown:
-								case TileSpec.ChairLeft:
-								case TileSpec.ChairRight:
-								case TileSpec.ChairUp:
-								case TileSpec.ChairDownRight:
-								case TileSpec.ChairUpLeft:
-								case TileSpec.ChairAll:
-								case TileSpec.Board1:
-								case TileSpec.Board2:
-								case TileSpec.Board3:
-								case TileSpec.Board4:
-								case TileSpec.Board5:
-								case TileSpec.Board6:
-								case TileSpec.Board7:
-								case TileSpec.Board8:
-								case TileSpec.Jukebox:
-									//highlight cursor
-									_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
-									break;
-								case TileSpec.Jump:
-								case TileSpec.Water:
-								case TileSpec.Arena:
-								case TileSpec.AmbientSource:
-								case TileSpec.Spikes:
-								case TileSpec.SpikesTrap:
-								case TileSpec.SpikesTimed:
-								case TileSpec.None:
-									//normal cursor
-									_cursorSourceRect.Location = new Point(0, 0);
-									break;
-							}
+							_updateCursorForTileSpec(ti, mouseClicked, c);
 						}
-						else if (ti.ReturnValue == TileInfo.ReturnType.IsMapSign)
+						else if (ti.ReturnType == TileInfoReturnType.IsMapSign)
 						{
 							_hideCursor = true;
 							if (mouseClicked)
-							{
 								EODialog.Show(ti.Sign.message, ti.Sign.title, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
-							}
 						}
 						else
 							_cursorSourceRect.Location = new Point(0, 0);
+
 						_mouseoverName.Text = "";
 						break;
 				}
 
-				Point p;
-				if (MapItems.ContainsKey(p = new Point(gridX, gridY)) && MapItems[p].Count > 0) //todo: conditional showing of mapitem text if character/npc on top of mapitem
-				{
-					MapItem mi = MapItems[p].Last(); //topmost item has label
-					_cursorSourceRect.Location = new Point(2 * (mouseCursor.Width / 5), 0);
-					_mouseoverName.Visible = true;
-					_mouseoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
-					_mouseoverName.ResizeBasedOnText();
-					_mouseoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
-					_mouseoverName.DrawLocation = new Vector2(
-						cursorPos.X + 32 - _mouseoverName.ActualWidth/2f,
-						cursorPos.Y - _mouseoverName.Texture.Height - 4);
-
-					if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
-					{
-						if ((World.Instance.MainPlayer.ActiveCharacter.ID != mi.playerID && mi.playerID != 0) &&
-							(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) ||
-							(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
-						{
-							Character charRef = otherPlayers.Find(_c => _c.ID == mi.id);
-							DATCONST2 msg = charRef == null
-								? DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED
-								: DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
-							string extra = charRef == null ? "" : charRef.Name;
-							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
-						}
-						else 
-						{
-							if (!EOGame.Instance.Hud.InventoryFits(mi.id))
-							{
-								EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
-							}
-							else if (c.Weight + (World.Instance.EIF.GetItemRecordByID(mi.id).Weight * mi.amount) > c.MaxWeight)
-							{
-								EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
-							}
-							else if (!m_api.GetItem(mi.uid)) //server validates anyway
-								EOGame.Instance.LostConnectionDialog();
-						}
-					}
-				}
+				_updateDisplayedMapItemName(ms, c);
 
 				if (_mouseoverName.Text.Length > 0 && !Game.Components.Contains(_mouseoverName))
 					Game.Components.Add(_mouseoverName);
 			}
 		}
-		
+
+		private void _updateDisplayedMapItemName(MouseState ms, Character c)
+		{
+			Point p;
+			if (MapItems.ContainsKey(p = new Point(gridX, gridY)) && MapItems[p].Count > 0)
+				//todo: conditional showing of mapitem text if character/npc on top of mapitem
+			{
+				MapItem mi = MapItems[p].Last(); //topmost item has label
+				_cursorSourceRect.Location = new Point(2*(mouseCursor.Width/5), 0);
+				_mouseoverName.Visible = true;
+				_mouseoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
+				_mouseoverName.ResizeBasedOnText();
+				_mouseoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
+				_mouseoverName.DrawLocation = new Vector2(
+					cursorPos.X + 32 - _mouseoverName.ActualWidth/2f,
+					cursorPos.Y - _mouseoverName.Texture.Height - 4);
+
+				if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
+				{
+					if ((World.Instance.MainPlayer.ActiveCharacter.ID != mi.playerID && mi.playerID != 0) &&
+					    (mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) ||
+					    (!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
+					{
+						Character charRef = otherPlayers.Find(_c => _c.ID == mi.id);
+						DATCONST2 msg = charRef == null
+							? DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED
+							: DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
+						string extra = charRef == null ? "" : charRef.Name;
+						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
+					}
+					else
+					{
+						if (!EOGame.Instance.Hud.InventoryFits(mi.id))
+						{
+							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
+								DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
+						}
+						else if (c.Weight + (World.Instance.EIF.GetItemRecordByID(mi.id).Weight*mi.amount) > c.MaxWeight)
+						{
+							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
+						}
+						else if (!m_api.GetItem(mi.uid)) //server validates anyway
+							EOGame.Instance.LostConnectionDialog();
+					}
+				}
+			}
+		}
+
+		private void _updateCursorForTileSpec(TileInfo ti, bool mouseClicked, Character c)
+		{
+			switch (ti.Spec)
+			{
+				case TileSpec.Wall:
+				case TileSpec.JammedDoor:
+				case TileSpec.MapEdge:
+				case TileSpec.FakeWall:
+					//hide cursor
+					_hideCursor = true;
+					break;
+				case TileSpec.Chest:
+					//chest click action
+					_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
+					if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y))
+						//must be directly adjacent
+					{
+						MapChest chest = MapRef.Chests.Find(_mc => _mc.x == gridX && _mc.y == gridY);
+						if (chest == null) break;
+
+						string requiredKey = null;
+						switch (World.Instance.MainPlayer.ActiveCharacter.CanOpenChest(chest))
+						{
+							case ChestKey.Normal:
+								requiredKey = "Normal Key";
+								break;
+							case ChestKey.Silver:
+								requiredKey = "Silver Key";
+								break;
+							case ChestKey.Crystal:
+								requiredKey = "Crystal Key";
+								break;
+							case ChestKey.Wraith:
+								requiredKey = "Wraith Key";
+								break;
+							default:
+								EOChestDialog.Show(m_api, chest.x, chest.y);
+								break;
+						}
+
+						if (requiredKey != null)
+						{
+							EODialog.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+							((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
+								DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
+								" - " + requiredKey);
+						}
+					}
+					break;
+				case TileSpec.BankVault:
+					_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
+					if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y))
+					{
+						EOLockerDialog.Show(m_api, (byte) gridX, (byte) gridY);
+					}
+					break;
+				case TileSpec.ChairDown:
+				case TileSpec.ChairLeft:
+				case TileSpec.ChairRight:
+				case TileSpec.ChairUp:
+				case TileSpec.ChairDownRight:
+				case TileSpec.ChairUpLeft:
+				case TileSpec.ChairAll:
+				case TileSpec.Board1:
+				case TileSpec.Board2:
+				case TileSpec.Board3:
+				case TileSpec.Board4:
+				case TileSpec.Board5:
+				case TileSpec.Board6:
+				case TileSpec.Board7:
+				case TileSpec.Board8:
+				case TileSpec.Jukebox:
+					//highlight cursor
+					_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
+					break;
+				case TileSpec.Jump:
+				case TileSpec.Water:
+				case TileSpec.Arena:
+				case TileSpec.AmbientSource:
+				case TileSpec.Spikes:
+				case TileSpec.SpikesTrap:
+				case TileSpec.SpikesTimed:
+				case TileSpec.None:
+					//normal cursor
+					_cursorSourceRect.Location = new Point(0, 0);
+					break;
+			}
+		}
+
+		private void _updateDisplayedNPCName(bool mouseClicked)
+		{
+			_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
+			NPC npc;
+			lock (npcListLock)
+				if ((npc = npcList.Find(_npc => _npc.X == gridX && _npc.Y == gridY)) == null)
+					return;
+			_mouseoverName.Visible = true;
+			_mouseoverName.Text = npc.Data.Name;
+			_mouseoverName.ResizeBasedOnText();
+			_mouseoverName.ForeColor = System.Drawing.Color.White;
+			_mouseoverName.DrawLocation = new Vector2(
+				npc.DrawArea.X + (npc.DrawArea.Width - _mouseoverName.ActualWidth)/2f,
+				npc.DrawArea.Y + npc.TopPixel - _mouseoverName.Texture.Height - 4);
+
+			if (mouseClicked)
+			{
+				switch (npc.Data.Type)
+				{
+					case NPCType.Shop:
+						EOShopDialog.Show(m_api, npc);
+						break;
+					case NPCType.Inn:
+						break;
+					case NPCType.Bank:
+						EOBankAccountDialog.Show(m_api, npc.Index);
+						break;
+					case NPCType.Barber:
+						break;
+					case NPCType.Guild:
+						break;
+					case NPCType.Priest:
+						break;
+					case NPCType.Law:
+						break;
+					case NPCType.Skills:
+						EOSkillmasterDialog.Show(m_api, npc.Index);
+						break;
+					case NPCType.Quest:
+						break;
+				}
+			}
+		}
+
+		private void _updateDisplayedPlayerName(bool rightClicked)
+		{
+			//todo: this needs to be moved into some mouseover shit for character renderer
+			//note: right-click and mouseover applies when mouse is over a character and that character
+			//	is front-most in a given pile of characters that the mouse could be over
+
+			_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
+			EOCharacterRenderer _rend;
+			_mouseoverName.Visible = true;
+			_mouseoverName.Text =
+				(_rend =
+					otherRenderers.Find(_p => _p.Character.X == gridX && _p.Character.Y == gridY) ??
+					World.Instance.ActiveCharacterRenderer).Character.Name;
+			_mouseoverName.ResizeBasedOnText();
+			_mouseoverName.ForeColor = System.Drawing.Color.White;
+			_mouseoverName.DrawLocation = new Vector2(
+				_rend.DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
+				_rend.DrawAreaWithOffset.Y + _rend.TopPixel - _mouseoverName.Texture.Height - 7);
+
+			//handle right-clicking a player. menu when not ActiveCharacter, paperdoll when ActiveCharacter
+			if (rightClicked)
+			{
+				if (_rend == World.Instance.ActiveCharacterRenderer)
+					m_api.RequestPaperdoll((short) _rend.Character.ID);
+				else
+				{
+					//show the right-click menu
+					//make it a member instance since there is only one ever
+					m_contextMenu.SetCharacterRenderer(_rend);
+				}
+			}
+		}
+
+		private static void _getGridCoordsFromMousePosition(MouseState ms, Rectangle _cursorSourceRect, Character c, out int gridx, out int gridy)
+		{
+			//need to solve this system of equations to get x, y on the grid
+			//(x * 32) - (y * 32) + 288 - c.OffsetX, => pixX = 32x - 32y + 288 - c.OffsetX
+			//(y * 16) + (x * 16) + 144 - c.OffsetY  => 2pixY = 32y + 32x + 288 - 2c.OffsetY
+			//										 => 2pixY + pixX = 64x + 576 - c.OffsetX - 2c.OffsetY
+			//										 => 2pixY + pixX - 576 + c.OffsetX + 2c.OffsetY = 64x
+			//										 => gridX = (pixX + 2pixY - 576 + c.OffsetX + 2c.OffsetY) / 64; <=
+			//pixY = (gridX * 16) + (gridY * 16) + 144 - c.OffsetY =>
+			//(pixY - (gridX * 16) - 144 + c.OffsetY) / 16 = gridY
+
+			//center the cursor on the mouse pointer
+			int msX = ms.X - _cursorSourceRect.Width/2;
+			int msY = ms.Y - _cursorSourceRect.Height/2;
+			//align cursor to grid based on mouse position
+			gridx = (int) Math.Round((msX + 2*msY - 576 + c.OffsetX + 2*c.OffsetY)/64.0);
+			gridy = (int) Math.Round((msY - gridx*16 - 144 + c.OffsetY)/16.0);
+		}
+
 		public override void Draw(GameTime gameTime)
 		{
 			if (MapRef != null)
