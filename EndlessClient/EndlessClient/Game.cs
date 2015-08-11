@@ -355,7 +355,7 @@ namespace EndlessClient
 		private EOGame()
 		{
 			graphics = new GraphicsDeviceManager(this) {PreferredBackBufferWidth = WIDTH, PreferredBackBufferHeight = HEIGHT};
-			Content.RootDirectory = "Content";
+            Content.RootDirectory = "Content";
 		}
 
 		protected override void Initialize()

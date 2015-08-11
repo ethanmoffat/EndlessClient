@@ -1554,19 +1554,32 @@ namespace EndlessClient
 				sb = new SpriteBatch(Game.GraphicsDevice);
 			}
 
-			sb.Begin(SpriteSortMode.Deferred, World.Instance.MainPlayer.ActiveCharacter.RenderData.hidden ? BlendState.NonPremultiplied : _playerBlend);
+			sb.Begin(SpriteSortMode.Deferred, this.alphaBlend);
 			World.Instance.ActiveCharacterRenderer.Draw(sb, true);
 			sb.End();
 
 			GraphicsDevice.SetRenderTarget(null);
 		}
 
-		/// <summary>
-		/// does the offset for tiles/items
-		/// <para>(x * 32 - y * 32 + 288 - c.OffsetX), (y * 16 + x * 16 + 144 - c.OffsetY)</para>
-		/// <para>Additional offsets for some gfx will need to be made - this Vector2 is a starting point with calculations required for ALL gfx</para>
-		/// </summary>
-		private Vector2 _getDrawCoordinates(int x, int y, Character c)
+        private BlendState alphaBlend = new BlendState()
+        {
+            AlphaBlendFunction = BlendFunction.Add,
+            AlphaDestinationBlend = Blend.InverseSourceAlpha,
+            AlphaSourceBlend = Blend.One,
+            ColorBlendFunction = BlendFunction.Add,
+            ColorDestinationBlend = Blend.InverseSourceAlpha,
+            ColorSourceBlend = Blend.One,
+            BlendFactor = Color.White,
+            ColorWriteChannels = ColorWriteChannels.All,
+            MultiSampleMask = -1
+        };
+
+        /// <summary>
+        /// does the offset for tiles/items
+        /// <para>(x * 32 - y * 32 + 288 - c.OffsetX), (y * 16 + x * 16 + 144 - c.OffsetY)</para>
+        /// <para>Additional offsets for some gfx will need to be made - this Vector2 is a starting point with calculations required for ALL gfx</para>
+        /// </summary>
+        private Vector2 _getDrawCoordinates(int x, int y, Character c)
 		{
 			return _getDrawCoordinates(x, y, c.OffsetX, c.OffsetY);
 		}
