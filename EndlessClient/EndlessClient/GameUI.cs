@@ -153,12 +153,12 @@ Thanks to :
 --Hotdog for Eodev client"
 			};
 
-			lblVersionInfo = new XNALabel(new Rectangle(30, 457, 1, 1))
+			lblVersionInfo = new XNALabel(new Rectangle(25, 453, 1, 1))
 			{
 				Text = string.Format("{0}.{1:000}.{2:000} - {3}:{4}", World.Instance.VersionMajor, World.Instance.VersionMinor, World.Instance.VersionClient, host, port),
-				Font = new System.Drawing.Font("Microsoft Sans Serif", 7.0f),
+				Font = new System.Drawing.Font("Segoe UI", 7.0f),
 				ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c)
-			};
+            };
 
 			//login/delete buttons for each character
 			for (int i = 0; i < 3; ++i)
