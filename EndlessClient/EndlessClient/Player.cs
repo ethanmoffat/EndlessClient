@@ -1,18 +1,33 @@
 ﻿using System.Linq;
-using EOLib;
 using EOLib.Net;
 
 namespace EndlessClient
 {
 	public class Player
 	{
+		private Character _activeCharacter;
 		public string AccountName { get; private set; }
 		public int PlayerID { get; private set; }
-		//not sure what GamePlayerID is so commenting it out...
-		//public int GamePlayerID { get; private set; }
 
 		public CharRenderData[] CharData { get; private set; }
-		public Character ActiveCharacter { get; private set; }
+
+		public Character ActiveCharacter
+		{
+			get
+			{
+				//This (theoretically) prevents a race condition in which a background thread calls "Logout"
+				//	and sets _activeCharacter to null. By recreating a dummy character we are able to prevent
+				//	the crashes that cause null reference exceptions (again, theoretically)
+
+				if (_activeCharacter == null)
+				{
+					return new Character();
+				}
+
+				return _activeCharacter;
+			}
+			private set { _activeCharacter = value; }
+		}
 
 		public Player()
 		{
@@ -21,10 +36,9 @@ namespace EndlessClient
 
 		public void Logout()
 		{
-			if (ActiveCharacter != null)
+			if (World.Initialized && ActiveCharacter != null)
 				Logger.Log("Logging out MainPlayer. Setting ActiveCharacter = null.");
 			PlayerID = 0;
-			//GamePlayerID = 0;
 			CharData = null;
 			ActiveCharacter = null;
 		}
@@ -39,14 +53,9 @@ namespace EndlessClient
 			PlayerID = newId;
 		}
 
-		//public void SetGamePlayerID(int newId)
-		//{
-		//	GamePlayerID = newId;
-		//}
-
 		public bool SetActiveCharacter(PacketAPI api, int id)
 		{
-			if (ActiveCharacter != null)
+			if (World.Initialized && ActiveCharacter != null)
 				Logger.Log("Setting Active Character to new ID {0}", id);
 			CharRenderData activeData = CharData.FirstOrDefault(d => d.id == id);
 			if (activeData == null)

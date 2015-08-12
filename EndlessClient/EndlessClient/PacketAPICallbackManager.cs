@@ -11,8 +11,6 @@ namespace EndlessClient
 {
 	public sealed class PacketAPICallbackManager
 	{
-		private static bool s_hasBeenSetup;
-
 		private readonly PacketAPI m_packetAPI;
 		private readonly EOGame m_game;
 
@@ -24,10 +22,6 @@ namespace EndlessClient
 
 		public void AssignCallbacks()
 		{
-			//this should only be done once, otherwise each event will get set again!
-			if (s_hasBeenSetup) return;
-			s_hasBeenSetup = true;
-
 			m_packetAPI.OnWarpRequestNewMap += World.Instance.CheckMap;
 			m_packetAPI.OnWarpAgree += World.Instance.WarpAgreeAction;
 
@@ -137,6 +131,7 @@ namespace EndlessClient
 
 		private void _npcEnterMap(NPCData obj)
 		{
+			if (World.Instance.ActiveMapRenderer == null) return;
 			World.Instance.ActiveMapRenderer.AddOtherNPC(obj);
 		}
 
@@ -509,6 +504,7 @@ namespace EndlessClient
 
 		private void _npcWalk(byte index, byte x, byte y, EODirection dir)
 		{
+			if (World.Instance.ActiveMapRenderer == null) return;
 			World.Instance.ActiveMapRenderer.NPCWalk(index, x, y, dir);
 		}
 
@@ -519,11 +515,13 @@ namespace EndlessClient
 
 		private void _npcChat(byte index, string message)
 		{
+			if (World.Instance.ActiveMapRenderer == null) return;
 			World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.NPC, index, message, ChatType.Note);
 		}
 
 		private void _npcLeaveView(byte index, int damage)
 		{
+			if (World.Instance.ActiveMapRenderer == null) return;
 			World.Instance.ActiveMapRenderer.RemoveOtherNPC(index, damage);
 		}
 

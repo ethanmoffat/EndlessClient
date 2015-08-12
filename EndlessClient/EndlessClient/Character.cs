@@ -254,6 +254,20 @@ namespace EndlessClient
 
 		private readonly PacketAPI m_packetAPI;
 
+		public Character()
+		{
+			//mock all members with non-null fields
+			//PacketAPI cannot be mocked...
+			Inventory = new List<InventoryItem>();
+			Spells = new List<CharacterSpell>();
+			PaperDoll = new short[1];
+
+			Stats = new CharStatData();
+			RenderData = new CharRenderData();
+
+			Name = PaddedGuildTag = GuildName = GuildRankStr = "";
+		}
+
 		public Character(PacketAPI api, int id, CharRenderData data)
 		{
 			m_packetAPI = api;

@@ -134,7 +134,8 @@ namespace EOLib.Net
 			byte y = pkt.GetChar();
 			int droppedAmount = pkt.GetInt();
 			int damage = pkt.GetThree(); //damage done to NPC.
-			OnNPCLeaveMap((byte)deadNPC, damage);
+			if(OnNPCLeaveMap != null)
+				OnNPCLeaveMap((byte)deadNPC, damage);
 			
 			//just showing a dropped item, packet ends here
 			if (pkt.ReadPos == pkt.Length)
