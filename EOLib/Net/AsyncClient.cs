@@ -83,16 +83,20 @@ namespace EOLib.Net
 				IPAddress ip;
 				if (!IPAddress.TryParse(ipOrHostname, out ip))
 				{
-					IPHostEntry entry = Dns.GetHostEntry(ipOrHostname);
-					if (entry.AddressList.Length == 0)
-						return false;
+					IPAddress[] ipv4Addresses = Array.FindAll(Dns.GetHostEntry(ipOrHostname).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork);
 
-					ipOrHostname = entry.AddressList[0].ToString();
+					if (ipv4Addresses.Length == 0)
+					{
+						// throw new NotSupportedException("No IPv4 addresses found for the hostname '" + ipOrHostname + "'. IPv6 is not currently supported by EOSERV.");
+						return false;
+					}
+
+					ip = ipv4Addresses[0];
 				}
 
 				try
 				{
-					m_serverEndpoint = new IPEndPoint(IPAddress.Parse(ipOrHostname), port);
+					m_serverEndpoint = new IPEndPoint(ip, port);
 				}
 				catch
 				{
