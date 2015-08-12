@@ -40,6 +40,10 @@ These instructions have been tested in a Virtual Machine running Windows 7 Profe
 4. Optionally: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/) (student licenses are **free**!)
 5. Install your favorite git client and fork the latest changes (I highly recommend [Atlassian SourceTree](http://www.sourcetreeapp.com/))
 6. Build the solution in VS 2013. Copy the required files to the bin\x86\debug\ or bin\x86\release\ folder (see below)
+7. (untested) I recently added support for async/await - this requires use of the Microsoft.BCL.Async package from NuGet. You may or may not need to follow these steps. Steps to install as follows:
+ 1. Open EndlessClient.sln in Visual Studio and set EndlessClient as the active/startup project.
+ 2. Go to Tools->NuGet Package Manager->Package Manager Console
+ 3. In the Package Manager Console, type Install-Package Microsoft.Bcl.Async
 
 Note that the game client requires some additional files to be copied to the *bin* directory before the game will successfully launch:
 
