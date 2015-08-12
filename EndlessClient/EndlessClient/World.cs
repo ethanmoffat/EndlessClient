@@ -446,6 +446,10 @@ namespace EndlessClient
 				if (NeedMap == -1 && MapCache[mapID].FileSize != mapFileSize)
 					NeedMap = mapID;
 			}
+			else
+			{
+				throw new NotImplementedException("User needs map " + mapID + " but manual download map function isn't implemented yet.");
+			}
 			//return true if the map is not needed
 			return NeedMap == -1;
 		}
@@ -584,6 +588,11 @@ namespace EndlessClient
 			MainPlayer.ActiveCharacter.Inventory.AddRange(data.Inventory);
 			MainPlayer.ActiveCharacter.Spells.Clear();
 			MainPlayer.ActiveCharacter.Spells.AddRange(data.Spells);
+
+			if (ActiveMapRenderer == null)
+			{
+				throw new NotImplementedException("Map Renderer hasn't been initialized"); // can it be related to missing map above?
+			}
 
 			ActiveMapRenderer.ClearOtherPlayers();
 			ActiveMapRenderer.ClearOtherNPCs();
