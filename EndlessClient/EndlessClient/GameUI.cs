@@ -153,7 +153,7 @@ Thanks to :
 --Hotdog for Eodev client"
 			};
 
-			lblVersionInfo = new XNALabel(new Rectangle(30, 457, 1, 1))
+			lblVersionInfo = new XNALabel(new Rectangle(25, 453, 1, 1))
 			{
 				Text = string.Format("{0}.{1:000}.{2:000} - {3}:{4}", World.Instance.VersionMajor, World.Instance.VersionMinor, World.Instance.VersionClient, host, port),
 				Font = new System.Drawing.Font("Microsoft Sans Serif", 7.0f),

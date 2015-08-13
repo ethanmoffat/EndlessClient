@@ -1,10 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndlessClient", "EndlessClient\EndlessClient\EndlessClient.csproj", "{AE53FAA2-5359-4DC4-9F5A-51D86344805B}"
 	ProjectSection(ProjectDependencies) = postProject
+		{EA2FBA5A-4CCA-47B8-80E1-489FFC707123} = {EA2FBA5A-4CCA-47B8-80E1-489FFC707123}
 		{34EC2870-4B44-49A1-801D-54B73E62CA99} = {34EC2870-4B44-49A1-801D-54B73E62CA99}
 	EndProjectSection
 EndProject
@@ -19,6 +20,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BatchMap", "BatchMap\BatchMap.csproj", "{09B4B9F7-64AF-4E6A-AAE1-52C41201179A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOBot", "EOBot\EOBot.csproj", "{2B7C000B-FA6D-441F-85E9-A8A05ADED423}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XNAControls", "XNAControls\XNAControls.csproj", "{EA2FBA5A-4CCA-47B8-80E1-489FFC707123}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -80,6 +83,14 @@ Global
 		{2B7C000B-FA6D-441F-85E9-A8A05ADED423}.Release|Any CPU.Build.0 = Release|Any CPU
 		{2B7C000B-FA6D-441F-85E9-A8A05ADED423}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{2B7C000B-FA6D-441F-85E9-A8A05ADED423}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{EA2FBA5A-4CCA-47B8-80E1-489FFC707123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA2FBA5A-4CCA-47B8-80E1-489FFC707123}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA2FBA5A-4CCA-47B8-80E1-489FFC707123}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{EA2FBA5A-4CCA-47B8-80E1-489FFC707123}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{EA2FBA5A-4CCA-47B8-80E1-489FFC707123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA2FBA5A-4CCA-47B8-80E1-489FFC707123}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA2FBA5A-4CCA-47B8-80E1-489FFC707123}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{EA2FBA5A-4CCA-47B8-80E1-489FFC707123}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
