@@ -129,9 +129,6 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="XNAControls">
-      <HintPath>..\..\XNAControls.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Character.cs" />
@@ -176,6 +173,10 @@
     <ProjectReference Include="..\..\EOLib\EOLib.csproj">
       <Project>{34ec2870-4b44-49a1-801d-54b73e62ca99}</Project>
       <Name>EOLib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\XNAControls\XNAControls.csproj">
+      <Project>{ea2fba5a-4cca-47b8-80e1-489ffc707123}</Project>
+      <Name>XNAControls</Name>
     </ProjectReference>
     <ProjectReference Include="..\EndlessClientContent\EndlessClientContent.contentproj">
       <Name>EndlessClientContent</Name>
