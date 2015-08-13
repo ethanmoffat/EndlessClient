@@ -64,6 +64,7 @@ namespace EndlessClient
 				exTextBox1.Dock = DockStyle.Fill;
 				exTextBox1.Multiline = true;
 				exTextBox1.ReadOnly = true;
+				exTextBox1.ScrollBars = ScrollBars.Vertical;
 				exTextBox1.Text = ex.ToString();
 
 				exForm.Controls.Add(exTextBox1);
