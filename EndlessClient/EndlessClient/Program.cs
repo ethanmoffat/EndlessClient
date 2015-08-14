@@ -25,46 +25,45 @@ namespace EndlessClient
 			{
 				Application.EnableVisualStyles();
 
-				Form exForm = new Form();
-				exForm.Width = 350;
-				exForm.Height = 200;
-				exForm.MaximizeBox = false;
-				exForm.MinimizeBox = false;
-				exForm.Padding = new Padding(10);
-				exForm.Text = "Application Error";
-				exForm.BackColor = System.Drawing.Color.White;
-				exForm.Icon = System.Drawing.SystemIcons.Error;
-				exForm.StartPosition = FormStartPosition.CenterScreen;
-				exForm.MinimumSize = new System.Drawing.Size(350, 200);
-				exForm.FormClosed += (object sender, FormClosedEventArgs e) => {
-					// Report the Exception?
-					Environment.Exit(1);
+				Form exForm = new Form
+				{
+					Width = 350,
+					Height = 200,
+					MaximizeBox = false,
+					MinimizeBox = false,
+					Padding = new Padding(10),
+					Text = "Application Error",
+					BackColor = System.Drawing.Color.White,
+					Icon = System.Drawing.SystemIcons.Error,
+					StartPosition = FormStartPosition.CenterScreen,
+					MinimumSize = new System.Drawing.Size(350, 200)
 				};
+				exForm.FormClosed += (sender, e) => Environment.Exit(1);
 
-				Label exLabel1 = new Label();
-				exLabel1.AutoEllipsis = true;
-				exLabel1.Dock = DockStyle.Top;
+				Label exLabel1 = new Label {AutoEllipsis = true, Dock = DockStyle.Top};
 				exLabel1.Font = new System.Drawing.Font(exLabel1.Font, System.Drawing.FontStyle.Bold);
 				exLabel1.Text = "An unhandled exception has caused the game to crash:";
 
-				Label exLabel2 = new Label();
-				exLabel2.AutoEllipsis = true;
-				exLabel2.Dock = DockStyle.Top;
-				exLabel2.Padding = new Padding(5, 0, 0, 0);
-				exLabel2.Text = ex.Message;
+				Label exLabel2 = new Label
+				{
+					AutoEllipsis = true,
+					Dock = DockStyle.Top,
+					Padding = new Padding(5, 0, 0, 0),
+					Text = ex.Message
+				};
 
-				Label exLabel3 = new Label();
-				exLabel3.AutoEllipsis = true;
-				exLabel3.Dock = DockStyle.Top;
+				Label exLabel3 = new Label {AutoEllipsis = true, Dock = DockStyle.Top};
 				exLabel3.Font = new System.Drawing.Font(exLabel3.Font, System.Drawing.FontStyle.Bold);
 				exLabel3.Text = "Stack trace:";
 
-				TextBox exTextBox1 = new TextBox();
-				exTextBox1.Dock = DockStyle.Fill;
-				exTextBox1.Multiline = true;
-				exTextBox1.ReadOnly = true;
-				exTextBox1.ScrollBars = ScrollBars.Vertical;
-				exTextBox1.Text = ex.ToString();
+				TextBox exTextBox1 = new TextBox
+				{
+					Dock = DockStyle.Fill,
+					Multiline = true,
+					ReadOnly = true,
+					ScrollBars = ScrollBars.Vertical,
+					Text = ex.StackTrace
+				};
 
 				exForm.Controls.Add(exTextBox1);
 				exForm.Controls.Add(exLabel3);
