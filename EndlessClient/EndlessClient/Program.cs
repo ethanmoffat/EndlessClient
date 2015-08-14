@@ -17,9 +17,9 @@ namespace EndlessClient
 				using (EOGame.Instance)
 				{
 #endif
-			EOGame.Instance.Run();
+					EOGame.Instance.Run();
 #if !DEBUG
-		}
+				}
 			}
 			catch (Exception ex)
 			{
@@ -40,9 +40,13 @@ namespace EndlessClient
 				};
 				exForm.FormClosed += (sender, e) => Environment.Exit(1);
 
-				Label exLabel1 = new Label {AutoEllipsis = true, Dock = DockStyle.Top};
-				exLabel1.Font = new System.Drawing.Font(exLabel1.Font, System.Drawing.FontStyle.Bold);
-				exLabel1.Text = "An unhandled exception has caused the game to crash:";
+				Label exLabel1 = new Label
+				{
+					AutoEllipsis = true,
+					Dock = DockStyle.Top,
+					Font = new System.Drawing.Font(Control.DefaultFont, System.Drawing.FontStyle.Bold),
+					Text = "An unhandled exception has caused the game to crash:"
+				};
 
 				Label exLabel2 = new Label
 				{
@@ -52,9 +56,13 @@ namespace EndlessClient
 					Text = ex.Message
 				};
 
-				Label exLabel3 = new Label {AutoEllipsis = true, Dock = DockStyle.Top};
-				exLabel3.Font = new System.Drawing.Font(exLabel3.Font, System.Drawing.FontStyle.Bold);
-				exLabel3.Text = "Stack trace:";
+				Label exLabel3 = new Label
+				{
+					AutoEllipsis = true,
+					Dock = DockStyle.Top,
+					Font = new System.Drawing.Font(Control.DefaultFont, System.Drawing.FontStyle.Bold),
+					Text = "Stack trace:"
+				};
 
 				TextBox exTextBox1 = new TextBox
 				{
