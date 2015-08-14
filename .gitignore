@@ -185,7 +185,8 @@ FakesAssemblies/
 .LSOverride
 
 # Icon must ends with two \r.
-Icon
+Icon
+
 
 # Thumbnails
 ._*
@@ -215,3 +216,4 @@ $RECYCLE.BIN/
 
 # Ignore HotDog's client
 Endless Online V2/
+EndlessClient-Mono/Content/EndlessClient/

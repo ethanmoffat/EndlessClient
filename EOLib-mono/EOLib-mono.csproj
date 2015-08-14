@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{EDB5AD93-303D-4B07-9FAD-F6A8295D2390}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>EOLib_mono</RootNamespace>
+    <AssemblyName>EOLib-mono</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;MONO</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MonoGame.Framework, Version=3.4.0.456, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\EOLib\Crc.cs">
+      <Link>Crc.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\DataFileConstants.cs">
+      <Link>DataFileConstants.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\EOData.cs">
+      <Link>EOData.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Map.cs">
+      <Link>Map.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\misc.cs">
+      <Link>misc.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Account.cs">
+      <Link>Net\Account.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\AdminInteract.cs">
+      <Link>Net\AdminInteract.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\AsyncClient.cs">
+      <Link>Net\AsyncClient.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Attack.cs">
+      <Link>Net\Attack.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Avatar.cs">
+      <Link>Net\Avatar.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Bank.cs">
+      <Link>Net\Bank.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Character.cs">
+      <Link>Net\Character.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Chest.cs">
+      <Link>Net\Chest.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Connection.cs">
+      <Link>Net\Connection.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Door.cs">
+      <Link>Net\Door.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Emote.cs">
+      <Link>Net\Emote.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\EOClient.cs">
+      <Link>Net\EOClient.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Face.cs">
+      <Link>Net\Face.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Init.cs">
+      <Link>Net\Init.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Item.cs">
+      <Link>Net\Item.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Locker.cs">
+      <Link>Net\Locker.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Login.cs">
+      <Link>Net\Login.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Message.cs">
+      <Link>Net\Message.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\NPC.cs">
+      <Link>Net\NPC.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\PacketAPI.cs">
+      <Link>Net\PacketAPI.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Paperdoll.cs">
+      <Link>Net\Paperdoll.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Party.cs">
+      <Link>Net\Party.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Players.cs">
+      <Link>Net\Players.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Recover.cs">
+      <Link>Net\Recover.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Refresh.cs">
+      <Link>Net\Refresh.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Shop.cs">
+      <Link>Net\Shop.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\StatSkill.cs">
+      <Link>Net\StatSkill.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Talk.cs">
+      <Link>Net\Talk.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Trade.cs">
+      <Link>Net\Trade.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Walk.cs">
+      <Link>Net\Walk.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Warp.cs">
+      <Link>Net\Warp.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\Welcome.cs">
+      <Link>Net\Welcome.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Packet.cs">
+      <Link>Packet.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\PacketProcessor.cs">
+      <Link>PacketProcessor.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\TaskWrapper.cs">
+      <Link>TaskWrapper.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

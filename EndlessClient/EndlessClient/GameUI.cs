@@ -194,14 +194,14 @@ Thanks to :
 		private async void testingame_click(object sender, EventArgs e)
 		{
 			MainButtonPress(mainButtons[1], e); //press login
-			await TaskEx.Delay(500);
+			await TaskFramework.Delay(500);
 			if (!World.Instance.Client.ConnectedAndInitialized)
 				return;
 			loginUsernameTextbox.Text = "testuser";
 			loginPasswordTextbox.Text = "testuser";
 
 			MainButtonPress(loginButtons[0], e); //login as acc testuser
-			await TaskEx.Delay(500);
+			await TaskFramework.Delay(500);
 			CharModButtonPress(loginCharButtons[0], e); //login as char testuser
 		}
 

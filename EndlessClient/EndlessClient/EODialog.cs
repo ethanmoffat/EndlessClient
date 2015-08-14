@@ -1005,7 +1005,7 @@ namespace EndlessClient
 				return false;
 			WelcomeData = data;
 
-			await TaskEx.Delay(1000);
+			await TaskFramework.Delay(1000);
 			return true;
 		}
 
@@ -1018,7 +1018,7 @@ namespace EndlessClient
 				caption.Text = classes;
 				if (!m_api.RequestFile(InitFileType.Class))
 					return false;
-				await TaskEx.Delay(1000);
+				await TaskFramework.Delay(1000);
 			}
 			return true;
 		}
@@ -1030,7 +1030,7 @@ namespace EndlessClient
 				caption.Text = skill;
 				if (!m_api.RequestFile(InitFileType.Spell))
 					return false;
-				await TaskEx.Delay(1000);
+				await TaskFramework.Delay(1000);
 			}
 			return true;
 		}
@@ -1042,7 +1042,7 @@ namespace EndlessClient
 				caption.Text = npc;
 				if (!m_api.RequestFile(InitFileType.Npc))
 					return false;
-				await TaskEx.Delay(1000);
+				await TaskFramework.Delay(1000);
 			}
 			return true;
 		}
@@ -1054,7 +1054,7 @@ namespace EndlessClient
 				caption.Text = item;
 				if (!m_api.RequestFile(InitFileType.Item))
 					return false;
-				await TaskEx.Delay(1000);
+				await TaskFramework.Delay(1000);
 			}
 			return true;
 		}
@@ -1066,7 +1066,7 @@ namespace EndlessClient
 				caption.Text = map;
 				if (!m_api.RequestFile(InitFileType.Map, World.Instance.MainPlayer.ActiveCharacter.CurrentMap))
 					return false;
-				await TaskEx.Delay(1000);
+				await TaskFramework.Delay(1000);
 			}
 			return true;
 		}

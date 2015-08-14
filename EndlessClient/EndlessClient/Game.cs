@@ -125,7 +125,7 @@ namespace EndlessClient
 			}
 			
 			//execute this logic on a separate thread so the game doesn't lock up while it's trying to connect to the server
-			await TaskEx.Run(() =>
+			await TaskFramework.Run(() =>
 			{
 				try
 				{
