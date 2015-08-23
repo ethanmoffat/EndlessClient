@@ -151,6 +151,9 @@ namespace EndlessClient
 		private readonly PacketAPI m_api;
 
 		private MiniMapRenderer m_miniMapRenderer;
+		
+		private bool _disposed;
+		private readonly object _disposingLockObject = new object();
 
 		public EOMapRenderer(Game g, PacketAPI apiHandle)
 			: base(g)
@@ -861,7 +864,9 @@ namespace EndlessClient
 				m_needDispMapName = false;
 				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", World.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Name, ChatType.NoteLeftArrow);
 			}
-			
+
+			if (m_drawingEvent == null) return;
+
 			//draw stuff to the render target
 			//this is done in update instead of draw because I'm using render targets
 			m_drawingEvent.Wait(); //need to make sure that the map isn't being changed during a draw!
@@ -1613,34 +1618,40 @@ namespace EndlessClient
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!disposing)
+			lock (_disposingLockObject)
 			{
-				base.Dispose(false);
-				return;
+				if (_disposed) return;
+
+				if (!disposing)
+				{
+					base.Dispose(false);
+					return;
+				}
+
+				m_drawingEvent.Dispose();
+				m_drawingEvent = null;
+
+				foreach (EOCharacterRenderer cr in otherRenderers)
+					cr.Dispose();
+
+				lock (npcListLock)
+				{
+					foreach (NPC npc in npcList)
+						npc.Dispose();
+				}
+
+				_mouseoverName.Dispose();
+				_rtMapObjAbovePlayer.Dispose();
+				_rtMapObjBelowPlayer.Dispose();
+				_playerBlend.Dispose();
+				sb.Dispose();
+				_doorTimer.Dispose();
+
+				m_contextMenu.Dispose();
+
+				base.Dispose(true);
+				_disposed = true;
 			}
-
-			m_drawingEvent.Dispose();
-			m_drawingEvent = null;
-
-			foreach (EOCharacterRenderer cr in otherRenderers)
-				cr.Dispose();
-
-			lock (npcListLock)
-			{
-				foreach (NPC npc in npcList)
-					npc.Dispose();
-			}
-
-			_mouseoverName.Dispose();
-			_rtMapObjAbovePlayer.Dispose();
-			_rtMapObjBelowPlayer.Dispose();
-			_playerBlend.Dispose();
-			sb.Dispose();
-			_doorTimer.Dispose();
-
-			m_contextMenu.Dispose();
-
-			base.Dispose(true);
 		}
 	}
 }
