@@ -29,7 +29,7 @@ namespace EndlessClient
 	/// </summary>
 	public class HUD : DrawableGameComponent
 	{
-		private static readonly object clockLock = new object();
+		private readonly object clockLock = new object();
 
 		private readonly PacketAPI m_packetAPI;
 
@@ -175,7 +175,7 @@ namespace EndlessClient
 			};
 			//pnlCollection.Add(pnlMacro); //if this ever happens...
 
-			pnlCollection.ForEach(_pnl => World.IgnoreDialogs(_pnl));
+			pnlCollection.ForEach(World.IgnoreDialogs);
 
 			for (int i = 0; i < NUM_BTN; ++i)
 			{

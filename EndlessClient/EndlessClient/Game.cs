@@ -13,6 +13,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 using EOLib;
 using XNAControls;
+using CONTROLSINIT = XNAControls.XNAControls;
 
 namespace EndlessClient
 {
@@ -362,8 +363,9 @@ namespace EndlessClient
 		{
 			try
 			{
-				//yup. class named the same as a namespace. #whut #rekt
-				XNAControls.XNAControls.Initialize(this);
+				CONTROLSINIT.Initialize(this);
+				CONTROLSINIT.IgnoreEnterForDialogs = true;
+				CONTROLSINIT.IgnoreEscForDialogs = true;
 			}
 			catch (ArgumentNullException ex)
 			{
