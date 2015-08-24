@@ -562,6 +562,10 @@ namespace EndlessClient
 
 		private void _chatByPlayerName(TalkType type, string name, string msg)
 		{
+			//possible that HUD hasn't been initialized yet and a chat message could come in
+			if (m_game.Hud == null)
+				return;
+
 			switch (type)
 			{
 				//invalid types
