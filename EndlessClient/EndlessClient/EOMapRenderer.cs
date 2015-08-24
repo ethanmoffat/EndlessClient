@@ -316,10 +316,13 @@ namespace EndlessClient
 		{
 			lock (npcListLock)
 			{
-				NPC npc;
-				if ((npc = npcList.Find(_npc => _npc.X == destX && _npc.Y == destY)) != null && !npc.Dying)
+				int ndx;
+				if ((ndx = npcList.FindIndex(_npc => (!_npc.Walking && _npc.X == destX && _npc.Y == destY)
+					|| _npc.Walking && _npc.DestX == destX && _npc.DestY == destY)) >= 0)
 				{
-					return new TileInfo { ReturnType = TileInfoReturnType.IsOtherNPC, NPC = npc };
+					NPC retNPC = npcList[ndx];
+					if(!retNPC.Dying)
+						return new TileInfo { ReturnType = TileInfoReturnType.IsOtherNPC, NPC = retNPC };
 				}
 			}
 
