@@ -368,22 +368,24 @@ namespace EndlessClient
 			DateTime usageTracking = DateTime.Now;
 			clockTimer = new Timer(threadState =>
 			{
-				if ((DateTime.Now - usageTracking).TotalMinutes >= 1)
+				lock (clockLock)
 				{
-					World.Instance.MainPlayer.ActiveCharacter.Stats.SetUsage(World.Instance.MainPlayer.ActiveCharacter.Stats.usage + 1);
-					usageTracking = DateTime.Now;
+					if ((DateTime.Now - usageTracking).TotalMinutes >= 1)
+					{
+						World.Instance.MainPlayer.ActiveCharacter.Stats.SetUsage(World.Instance.MainPlayer.ActiveCharacter.Stats.usage + 1);
+						usageTracking = DateTime.Now;
+					}
+
+					string fmt = string.Format("{0,2:D2}:{1,2:D2}:{2,2:D2}", DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
+					clockLabel.Text = fmt;
+
+					if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).TotalMilliseconds > 3000)
+					{
+						SetStatusLabel("");
+						m_statusRecentlySet = false;
+						statusStartTime = null;
+					}
 				}
-
-				string fmt = string.Format("{0,2:D2}:{1,2:D2}:{2,2:D2}", DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
-				lock(clockLock) clockLabel.Text = fmt;
-
-				if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).TotalMilliseconds > 3000)
-				{
-					SetStatusLabel("");
-					m_statusRecentlySet = false;
-					statusStartTime = null;
-				}
-
 			}, null, 0, 1000);
 
 			//the draw orders are adjusted for child items in the constructor.
@@ -844,6 +846,9 @@ namespace EndlessClient
 		{
 			if (disposing)
 			{
+				lock(clockLock)
+					clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
 				m_packetAPI.Dispose();
 
 				foreach (XNAButton btn in mainBtn)
@@ -879,7 +884,6 @@ namespace EndlessClient
 
 				lock (clockLock)
 				{
-					clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
 					clockTimer.Dispose();
 					clockLabel.Dispose();
 				}
