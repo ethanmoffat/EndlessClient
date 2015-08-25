@@ -84,6 +84,7 @@ namespace EOLib
 		Drop = (byte)24,
 		Junk = (byte)25,
 		Get = (byte)27,
+		TargetOther = (byte)31,
 		Exp = (byte)33,
 		Ping = (byte)240,
 		Pong = (byte)241,

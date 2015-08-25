@@ -76,7 +76,7 @@ namespace EOLib
 			return new Rectangle((int)loc.X, (int)loc.Y, orig.Width, orig.Height);
 		}
 	}
-	
+
 	public static class Constants
 	{
 		public const int ChatBubbleTimeout = 4000;
@@ -107,7 +107,11 @@ namespace EOLib
 		public const int MuteDefaultTimeMinutes = 5;
 
 		public const string LogFilePath = "log/debug.log";
-		public const string LogFileFmt  = "log/{0}-debug.log";
+		public const string LogFileFmt = "log/{0}-debug.log";
+
+		//Should be easily customizable between different clients (based on graphics)
+		//not a config option because this shouldn't be exposed at the user level
+		public static readonly int[] TrapSpikeGFXObjectIDs = {449, 450, 451, 452};
 	}
 
 	public static class ConfigStrings

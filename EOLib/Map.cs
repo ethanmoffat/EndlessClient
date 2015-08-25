@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 using System.IO;
@@ -49,9 +50,9 @@ namespace EOLib
 		Water = 30,
 		Arena = 32,
 		AmbientSource = 33,
-		Spikes = 34,
-		SpikesTrap = 35,
-		SpikesTimed = 36,
+		SpikesTimed = 34,
+		SpikesStatic = 35,
+		SpikesTrap = 36,
 
 		None = 255
 	}
@@ -224,6 +225,8 @@ namespace EOLib
 		public List<WarpRow> WarpRows { get; private set; }
 		public List<GFXRow>[] GfxRows { get; private set; }
 		public List<MapSign> Signs { get; private set; }
+
+		public bool HasTimedSpikes { get; private set; }
 		
 		private static string _decodeMapString(byte[] chars)
 		{
@@ -403,6 +406,8 @@ namespace EOLib
 						x = file.GetChar(),
 						spec = (TileSpec)file.GetChar()
 					});
+					if (t.spec == TileSpec.SpikesTimed)
+						HasTimedSpikes = true;
 					TileLookup[row.y, t.x] = t;
 				}
 

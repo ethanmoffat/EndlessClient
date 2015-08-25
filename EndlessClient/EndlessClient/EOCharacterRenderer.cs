@@ -108,6 +108,11 @@ namespace EndlessClient
 		/// </summary>
 		public bool NoWall { get; set; }
 
+		/// <summary>
+		/// True to signal update loop in map renderer that this character is dead and should be removed
+		/// </summary>
+		public bool CompleteDeath { get; private set; }
+
 		private readonly object hatHairLock = new object();
 
 		private Rectangle m_skinSourceRect;
@@ -133,6 +138,8 @@ namespace EndlessClient
 
 		private DateTime? m_drunkTime;
 		private int m_drunkOffset;
+
+		private bool _playerIsOnSpikeTrap;
 
 		private CharacterActionState State
 		{
@@ -370,6 +377,7 @@ namespace EndlessClient
 			{
 				m_deadTime = null;
 				Character.RenderData.SetDead(false);
+				CompleteDeath = true;
 			}
 
 			if (EOGame.Instance.State == GameStates.PlayingTheGame && this == World.Instance.ActiveCharacterRenderer)
@@ -632,6 +640,9 @@ namespace EndlessClient
 						EOLockerDialog.Show(((EOGame)Game).API, destX, destY);
 					}
 					break;
+				case TileSpec.SpikesTrap:
+					World.Instance.ActiveMapRenderer.AddVisibleSpikeTrap(destX, destY);
+					break;
 				case TileSpec.Board1: //todo: boards?
 				case TileSpec.Board2:
 				case TileSpec.Board3:
@@ -654,7 +665,7 @@ namespace EndlessClient
 			if (State != CharacterActionState.Walking && walkValid)
 			{
 				_char.Walk(dir, destX, destY, NoWall);
-				PlayerWalk(spec == TileSpec.Water);
+				PlayerWalk(spec == TileSpec.Water, spec == TileSpec.SpikesTrap);
 			}
 		}
 
@@ -734,10 +745,15 @@ namespace EndlessClient
 			}
 		}
 
-		public void PlayerWalk(bool isWaterTile)
+		public void PlayerWalk(bool isWaterTile, bool isSpikeTrap)
 		{
 			const int walkTimer = 100;
 			Data.SetUpdate(true);
+
+			if (_playerIsOnSpikeTrap)
+			{
+				World.Instance.ActiveMapRenderer.RemoveVisibleSpikeTrap(Character.X, Character.Y);
+			}
 
 			if (World.Instance.SoundEnabled && NoWall)
 			{
@@ -748,9 +764,15 @@ namespace EndlessClient
 			{
 				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Water).Play();
 			}
+
+			//todo: spike sound?
 			
 			if(isWaterTile)
 				World.Instance.ActiveMapRenderer.NewWaterEffect(Character.DestX, Character.DestY);
+
+			_playerIsOnSpikeTrap = isSpikeTrap;
+			if (_playerIsOnSpikeTrap)
+				World.Instance.ActiveMapRenderer.AddVisibleSpikeTrap(Character.DestX, Character.DestY);
 
 			_walkTimer.Change(0, walkTimer); //ok, it's time to start
 		}

@@ -85,6 +85,9 @@
     <Compile Include="..\EOLib\Net\Door.cs">
       <Link>Net\Door.cs</Link>
     </Compile>
+    <Compile Include="..\EOLib\Net\Effect.cs">
+      <Link>Net\Effect.cs</Link>
+    </Compile>
     <Compile Include="..\EOLib\Net\Emote.cs">
       <Link>Net\Emote.cs</Link>
     </Compile>

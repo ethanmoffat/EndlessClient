@@ -122,6 +122,13 @@ namespace EndlessClient
 			m_packetAPI.OnSpellForget += _statskillForgetSpell;
 			//todo: spelltrain event
 			m_packetAPI.OnCharacterStatsReset += _statskillReset;
+
+			//map effects
+			m_packetAPI.OnTimedSpike += _timedSpike;
+			m_packetAPI.OnPlayerTakeSpikeDamage += _mainPlayerSpikeDamage;
+			m_packetAPI.OnOtherPlayerTakeSpikeDamage += _otherPlayerSpikeDamage;
+			m_packetAPI.OnTimedMapDrainHP += _mapDrainHP;
+			m_packetAPI.OnTimedMapDrainTP += _mapDrainTP;
 		}
 
 		private void _playerEnterMap(CharacterData data, WarpAnimation anim)
@@ -824,6 +831,31 @@ namespace EndlessClient
 			c.Stats.SetEvade(data.Evade);
 			c.Stats.SetArmor(data.Armor);
 			m_game.Hud.RefreshStats();
+		}
+
+		private void _timedSpike()
+		{
+			World.Instance.ActiveMapRenderer.SyncTimedSpikeAnimation();
+		}
+
+		private void _mainPlayerSpikeDamage(short damage, short hp, short maxhp)
+		{
+			World.Instance.ActiveMapRenderer.SpikeDamage(damage, hp, maxhp);
+		}
+
+		private void _otherPlayerSpikeDamage(short playerid, byte playerPercentHealth, bool isPlayerDead, int damageAmount)
+		{
+			World.Instance.ActiveMapRenderer.SpikeDamage(playerid, playerPercentHealth, isPlayerDead, damageAmount);
+		}
+
+		private void _mapDrainHP(short damage, short hp, short maxhp, List<TimedMapHPDrainData> othercharacterdata)
+		{
+			World.Instance.ActiveMapRenderer.DrainHPFromPlayers(damage, hp, maxhp, othercharacterdata);
+		}
+
+		private void _mapDrainTP(short amount, short tp, short maxtp)
+		{
+			World.Instance.ActiveMapRenderer.DrainTPFromMainPlayer(amount, tp, maxtp);
 		}
 	}
 }
