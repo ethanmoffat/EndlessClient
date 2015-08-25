@@ -377,7 +377,11 @@ namespace EndlessClient
 					}
 
 					string fmt = string.Format("{0,2:D2}:{1,2:D2}:{2,2:D2}", DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
-					clockLabel.Text = fmt;
+					try
+					{
+						clockLabel.Text = fmt;
+					}
+					catch { return; }
 
 					if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).TotalMilliseconds > 3000)
 					{

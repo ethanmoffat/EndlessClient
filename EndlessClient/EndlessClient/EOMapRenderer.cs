@@ -855,12 +855,12 @@ namespace EndlessClient
 
 		#region /* PUBLIC INTERFACE -- MAP EFFECTS */
 
-		public void SyncTimedSpikeAnimation()
+		public void PlayTimedSpikeSoundEffect()
 		{
 			if (!MapRef.HasTimedSpikes) return;
-			//todo: is this what the packet is supposed to be doing?
-			//try it with original client...
-			//todo: sound?
+
+			if (World.Instance.SoundEnabled)
+				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
 		}
 
 		public void SpikeDamage(short damage, short hp, short maxhp)
@@ -929,8 +929,6 @@ namespace EndlessClient
 			mainRend.SetDamageCounterValue(damage, percentHealth);
 			
 			((EOGame)Game).Hud.RefreshStats();
-			//if (hp == 0) //todo: is this needed?
-			//	mainRend.Die();
 
 			lock (rendererListLock)
 			{
@@ -941,10 +939,9 @@ namespace EndlessClient
 
 					var rend = otherRenderers[ndx];
 					rend.SetDamageCounterValue(other.DamageDealt, other.PlayerPercentHealth);
-					//todo: call rend.Die() on 0 hp?
 				}
 			}
-			//todo: sound?
+			//todo: sound effect
 		}
 
 		public void DrainTPFromMainPlayer(short amount, short tp, short maxtp)
@@ -954,8 +951,7 @@ namespace EndlessClient
 			World.Instance.MainPlayer.ActiveCharacter.Stats.SetTP(tp);
 			World.Instance.MainPlayer.ActiveCharacter.Stats.SetMaxTP(maxtp);
 			((EOGame)Game).Hud.RefreshStats();
-			//todo: verify behavior of original client - does it show anything other than updating the value in hud?
-			//todo: sound?
+			//todo: sound
 		}
 
 		#endregion

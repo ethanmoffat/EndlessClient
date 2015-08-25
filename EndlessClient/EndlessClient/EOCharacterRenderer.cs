@@ -755,18 +755,16 @@ namespace EndlessClient
 				World.Instance.ActiveMapRenderer.RemoveVisibleSpikeTrap(Character.X, Character.Y);
 			}
 
-			if (World.Instance.SoundEnabled && NoWall)
+			if (World.Instance.SoundEnabled)
 			{
-				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.NoWallWalk).Play();
+				if (NoWall)
+					EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.NoWallWalk).Play();
+				if (isWaterTile)
+					EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Water).Play();
+				if (isSpikeTrap)
+					EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
 			}
 
-			if (World.Instance.SoundEnabled && isWaterTile)
-			{
-				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Water).Play();
-			}
-
-			//todo: spike sound?
-			
 			if(isWaterTile)
 				World.Instance.ActiveMapRenderer.NewWaterEffect(Character.DestX, Character.DestY);
 

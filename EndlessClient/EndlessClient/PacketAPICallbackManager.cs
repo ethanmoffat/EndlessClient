@@ -835,7 +835,7 @@ namespace EndlessClient
 
 		private void _timedSpike()
 		{
-			World.Instance.ActiveMapRenderer.SyncTimedSpikeAnimation();
+			World.Instance.ActiveMapRenderer.PlayTimedSpikeSoundEffect();
 		}
 
 		private void _mainPlayerSpikeDamage(short damage, short hp, short maxhp)
