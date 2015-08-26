@@ -646,6 +646,10 @@ namespace EndlessClient
 			MapCache.Remove(MainPlayer.ActiveCharacter.CurrentMap);
 			if (!_tryLoadMap())
 				throw new FileLoadException("Unable to load remapped map file!");
+
+			EOGame.Instance.Hud.AddChat(ChatTabs.Local, GetString(DATCONST2.STRING_SERVER), GetString(DATCONST2.SERVER_MESSAGE_MAP_MUTATION), ChatType.Exclamation, ChatColor.Server);
+			EOGame.Instance.Hud.AddChat(ChatTabs.System, GetString(DATCONST2.STRING_SERVER), GetString(DATCONST2.SERVER_MESSAGE_MAP_MUTATION), ChatType.Exclamation, ChatColor.Server);
+
 			ActiveMapRenderer.SetActiveMap(MapCache[MainPlayer.ActiveCharacter.CurrentMap]);
 		}
 
