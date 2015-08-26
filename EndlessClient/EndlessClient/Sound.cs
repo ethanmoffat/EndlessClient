@@ -76,6 +76,8 @@ namespace EndlessClient
 		BouldersSpell,
 		HeavenSpell = 60,
 		//there's another ice blast spell in here
+		MapEffectHPDrain = 69,
+		MapEffectTPDrain = 70,
 		Spikes = 71,
 		//not sure what the remaining sounds are but I think map ambient noises start eventually
 		//map noises seem to fade out as you change maps or get farther away from them

@@ -77,6 +77,8 @@ Some of the more important features that have been implemented are:
  - Sound effects and background music. Not all sound effects have been hooked to actual in-game events yet, but the framework is there.
  - Party / group
  - Trading with other players
+ - Spikes - timed, trap, and static
+ - Map Effects - HP/TP drain
 
 <a name="ToDo" />What's Left to do?
 ------------------
@@ -89,7 +91,7 @@ Concerning refactoring code, I would like to remove all dependencies on singleto
 
 Here's the actual to-do list:
  - Character rendering during attack
- - Effects and spells (including skillmasters)
+ - Effects and spells
  - Guilds
  - Quests
  - Innkeepers
@@ -98,8 +100,7 @@ Here's the actual to-do list:
  - Boards
  - Jukeboxes
  - "Jump" tiles
- - Map Effect (quake, HP/TP drain)
- - Map Spikes
+ - Map Effect - quake
  
 Here's a working list of things I want to add that would be additional features on top of the original client specs:
  - Use built-in patching system prior to log-in to transfer files: help, gfx, pubs, maps, data, sounds, etc.

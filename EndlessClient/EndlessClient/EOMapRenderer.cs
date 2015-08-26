@@ -941,17 +941,21 @@ namespace EndlessClient
 					rend.SetDamageCounterValue(other.DamageDealt, other.PlayerPercentHealth);
 				}
 			}
-			//todo: sound effect
+
+			if (World.Instance.SoundEnabled)
+				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.MapEffectHPDrain).Play();
 		}
 
 		public void DrainTPFromMainPlayer(short amount, short tp, short maxtp)
 		{
-			if (MapRef.Effect != MapEffect.TPDrain) return;
+			if (MapRef.Effect != MapEffect.TPDrain || amount == 0) return;
 
 			World.Instance.MainPlayer.ActiveCharacter.Stats.SetTP(tp);
 			World.Instance.MainPlayer.ActiveCharacter.Stats.SetMaxTP(maxtp);
 			((EOGame)Game).Hud.RefreshStats();
-			//todo: sound
+
+			if (World.Instance.SoundEnabled)
+				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.MapEffectTPDrain).Play();
 		}
 
 		#endregion
