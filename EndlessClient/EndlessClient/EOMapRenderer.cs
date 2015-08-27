@@ -682,19 +682,10 @@ namespace EndlessClient
 		{
 			lock (npcListLock)
 			{
-				NPC exists;
-				if ((exists = npcList.Find(_npc => _npc.Index == data.Index)) == null)
-				{
-					exists = new NPC(data);
-					exists.Initialize();
-					npcList.Add(exists);
-				}
-				else
-				{
-					exists.ApplyData(data);
-				}
-				
+				NPC exists = new NPC(data);
+				exists.Initialize();
 				exists.Visible = true;
+				npcList.Add(exists);
 			}
 		}
 
@@ -705,7 +696,7 @@ namespace EndlessClient
 				NPC npc = npcList.Find(_npc => _npc.Index == index);
 				if (npc != null)
 				{
-					if (damage > 0) //npc was killed
+					if (damage > 0) //npc was killed - will do cleanup later
 					{
 						npc.HP = Math.Max(npc.HP - damage, 0);
 						npc.FadeAway();
@@ -716,6 +707,8 @@ namespace EndlessClient
 					{
 						npc.Visible = false;
 						npc.HideChatBubble();
+						npc.Dispose();
+						npcList.Remove(npc);
 					}
 				}
 			}
@@ -1039,8 +1032,7 @@ namespace EndlessClient
 			World.Instance.ActiveCharacterRenderer.Update(gameTime);
 			lock (rendererListLock)
 			{
-				IEnumerable<EOCharacterRenderer> toAdd = otherRenderers.Where(rend => !Game.Components.Contains(rend));
-				foreach (EOCharacterRenderer rend in toAdd)
+				foreach (EOCharacterRenderer rend in otherRenderers)
 					rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
 
 				var deadRenderers = otherRenderers.Where(x => x.CompleteDeath).ToList();
@@ -1060,7 +1052,16 @@ namespace EndlessClient
 		private void _updateNPCs(GameTime gameTime)
 		{
 			lock (npcListLock)
-				npcList.Where(_npc => !Game.Components.Contains(_npc)).ToList().ForEach(_n => _n.Update(gameTime));
+			{
+				foreach (var npc in npcList)
+					npc.Update(gameTime);
+
+				var deadNPCs = npcList.Where(x => x.CompleteDeath).ToList();
+				foreach (var npc in deadNPCs)
+				{
+					RemoveOtherNPC(npc.Index);
+				}
+			}
 		}
 
 		private void _animateWallTiles(GameTime gameTime)

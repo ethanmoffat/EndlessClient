@@ -850,8 +850,12 @@ namespace EndlessClient
 		{
 			if (disposing)
 			{
-				lock(clockLock)
-					clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
+				try
+				{
+					lock (clockLock)
+						clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
+				}
+				catch (ObjectDisposedException) { }
 
 				m_packetAPI.Dispose();
 

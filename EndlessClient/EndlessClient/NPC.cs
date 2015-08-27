@@ -56,6 +56,7 @@ namespace EndlessClient
 		public int HP { get; set; }
 
 		public bool Dying { get { return _startFadeAway; } }
+		public bool CompleteDeath { get; private set; }
 
 		//updated when NPC is walking
 		private int adjX, adjY;
@@ -198,7 +199,7 @@ namespace EndlessClient
 			if (_startFadeAway && _fadeAwayAlpha <= 0)
 			{
 				if(!started) batch.End();
-				World.Instance.ActiveMapRenderer.RemoveOtherNPC(Index);
+				CompleteDeath = true;
 				return;
 			}
 
