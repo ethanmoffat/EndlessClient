@@ -19,12 +19,9 @@ namespace EndlessClient
 
 		public static void Show(PacketAPI api, short npcIndex, short questID, string name)
 		{
-			if (Instance != null)
-				return;
-
-			SetupInstance(api);
-
 			NPCName = name;
+
+			//note: dialog is created in packet callback! sometimes talking to the quest NPC does nothing (if you already completed)!
 
 			if (!api.TalkToQuestNPC(npcIndex, questID))
 				EOGame.Instance.LostConnectionDialog();
