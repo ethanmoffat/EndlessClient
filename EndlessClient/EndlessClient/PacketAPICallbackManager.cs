@@ -129,6 +129,12 @@ namespace EndlessClient
 			m_packetAPI.OnOtherPlayerTakeSpikeDamage += _otherPlayerSpikeDamage;
 			m_packetAPI.OnTimedMapDrainHP += _mapDrainHP;
 			m_packetAPI.OnTimedMapDrainTP += _mapDrainTP;
+
+			//quests
+			m_packetAPI.OnQuestDialog += _questDialog;
+			m_packetAPI.OnViewQuestProgress += _questProgress;
+			m_packetAPI.OnViewQuestHistory += _questHistory;
+			m_packetAPI.OnStatusMessage += _setStatusLabel;
 		}
 
 		private void _playerEnterMap(CharacterData data, WarpAnimation anim)
@@ -856,6 +862,32 @@ namespace EndlessClient
 		private void _mapDrainTP(short amount, short tp, short maxtp)
 		{
 			World.Instance.ActiveMapRenderer.DrainTPFromMainPlayer(amount, tp, maxtp);
+		}
+
+		private void _questDialog(QuestState stateinfo, Dictionary<short, string> dialognames, List<string> pages, Dictionary<short, string> links)
+		{
+			if (EOQuestDialog.Instance == null)
+				EOQuestDialog.SetupInstance(m_packetAPI);
+
+			if (EOQuestDialog.Instance == null)
+				throw new InvalidOperationException("Something went wrong creating the instance");
+
+			EOQuestDialog.Instance.SetDisplayData(stateinfo, dialognames, pages, links);
+		}
+
+		private void _questProgress(short numquests, List<InProgressQuestData> questinfo)
+		{
+			throw new NotImplementedException();
+		}
+
+		private void _questHistory(short numquests, List<string> completedquestnames)
+		{
+			throw new NotImplementedException();
+		}
+
+		private void _setStatusLabel(string message)
+		{
+			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, message);
 		}
 	}
 }

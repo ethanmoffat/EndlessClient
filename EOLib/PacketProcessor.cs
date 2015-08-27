@@ -86,6 +86,7 @@ namespace EOLib
 		Get = (byte)27,
 		TargetOther = (byte)31,
 		Exp = (byte)33,
+		Dialog = (byte)34,
 		Ping = (byte)240,
 		Pong = (byte)241,
 		Net3 = (byte)242,

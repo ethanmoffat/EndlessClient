@@ -121,6 +121,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\Program.cs">
       <Link>Program.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\QuestDialog.cs">
+      <Link>QuestDialog.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Settings.cs">
       <Link>Settings.cs</Link>
     </Compile>

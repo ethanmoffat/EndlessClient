@@ -41,6 +41,7 @@ namespace EOLib.Net
 			_createPartyMembers();
 			_createPlayersMembers();
 			_createNPCMembers();
+			_createQuestMembers();
 			_createRecoverMembers();
 			_createRefreshMembers();
 			_createShopMembers();

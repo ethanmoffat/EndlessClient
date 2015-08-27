@@ -9,10 +9,12 @@ namespace EOLib.Net
 		private Random gen;
 
 		public event Action<int> OnServerPingReply;
+		public event Action<string> OnStatusMessage;
 
 		private void _createMessageMembers()
 		{
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Message, PacketAction.Pong), _handleMessagePong, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Message, PacketAction.Open), _handleMessageOpen, true);
 		}
 
 		public bool PingServer()
@@ -50,6 +52,12 @@ namespace EOLib.Net
 
 			if (OnServerPingReply != null)
 				OnServerPingReply(ms);
+		}
+
+		private void _handleMessageOpen(Packet pkt)
+		{
+			if (OnStatusMessage != null)
+				OnStatusMessage(pkt.GetEndString());
 		}
 	}
 }

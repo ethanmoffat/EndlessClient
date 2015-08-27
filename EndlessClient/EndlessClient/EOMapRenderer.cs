@@ -290,7 +290,8 @@ namespace EndlessClient
 				npcList.ForEach(_npc => _npc.Dispose());
 				npcList.Clear();
 			}
-			_visibleSpikeTraps.Clear();
+			lock (_spikeTrapsLock)
+				_visibleSpikeTraps.Clear();
 
 			//need to reset door-related members when changing maps.
 			if (_door != null)
@@ -671,7 +672,10 @@ namespace EndlessClient
 
 		public NPC GetNPCAt(int x, int y)
 		{
-			return npcList.Find(_npc => _npc.X == x && _npc.Y == y);
+			lock (npcListLock)
+			{
+				return npcList.Find(_npc => _npc.X == x && _npc.Y == y);
+			}
 		}
 
 		public void AddOtherNPC(NPCData data)
@@ -1038,16 +1042,17 @@ namespace EndlessClient
 				IEnumerable<EOCharacterRenderer> toAdd = otherRenderers.Where(rend => !Game.Components.Contains(rend));
 				foreach (EOCharacterRenderer rend in toAdd)
 					rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
-			}
 
-			var deadRenderers = otherRenderers.Where(x => x.CompleteDeath).ToList();
-			foreach (var rend in deadRenderers)
-			{
-				RemoveOtherPlayer((short) rend.Character.ID);
-				if (_visibleSpikeTraps.Contains(new Point(rend.Character.X, rend.Character.Y)) &&
-				    !otherPlayers.Any(player => player.X == rend.Character.X && player.Y == rend.Character.Y))
+				var deadRenderers = otherRenderers.Where(x => x.CompleteDeath).ToList();
+				foreach (var rend in deadRenderers)
 				{
-					RemoveVisibleSpikeTrap(rend.Character.X, rend.Character.Y);
+					RemoveOtherPlayer((short) rend.Character.ID);
+
+					if (_visibleSpikeTraps.Contains(new Point(rend.Character.X, rend.Character.Y)) &&
+					    !otherPlayers.Any(player => player.X == rend.Character.X && player.Y == rend.Character.Y))
+					{
+						RemoveVisibleSpikeTrap(rend.Character.X, rend.Character.Y);
+					}
 				}
 			}
 		}
@@ -1322,6 +1327,7 @@ namespace EndlessClient
 						EOSkillmasterDialog.Show(m_api, npc.Index);
 						break;
 					case NPCType.Quest:
+						EOQuestDialog.Show(m_api, npc.Index, npc.Data.VendorID, npc.Data.Name);
 						break;
 				}
 			}

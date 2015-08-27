@@ -1731,7 +1731,7 @@ namespace EndlessClient
 				BackColor = System.Drawing.Color.Transparent,
 				ForeColor = System.Drawing.Color.FromArgb(255, colorFactor, colorFactor, colorFactor),
 				TextAlign = ContentAlignment.TopLeft,
-				Visible = false
+				Text = " "
 			};
 			m_primaryText.ResizeBasedOnText();
 
@@ -1742,7 +1742,7 @@ namespace EndlessClient
 					AutoSize = true,
 					BackColor = m_primaryText.BackColor,
 					ForeColor = m_primaryText.ForeColor,
-					Visible = false
+					Text = " "
 				};
 				m_secondaryText.ResizeBasedOnText();
 
@@ -1754,16 +1754,17 @@ namespace EndlessClient
 
 			SetParent(parent);
 			m_primaryText.SetParent(this);
-			m_primaryText.Visible = true;
 			if (Style == ListItemStyle.Large)
 			{
 				m_secondaryText.SetParent(this);
-				m_secondaryText.Visible = true;
 			}
 			OffsetY = Style == ListItemStyle.Large ? 25 : 45;
 		}
 
-		//turns the primary text into a link that performs the specified action
+		/// <summary>
+		/// turns the primary text into a link that performs the specified action. When Style is Small, the entire item becomes clickable.
+		/// </summary>
+		/// <param name="onClickAction">The action to perform</param>
 		public void SetPrimaryTextLink(Action onClickAction)
 		{
 			if (m_primaryText == null)
@@ -1782,6 +1783,9 @@ namespace EndlessClient
 			((XNAHyperLink) m_primaryText).OnClick += (o, e) => onClickAction();
 			m_primaryText.SetParent(this);
 			oldText.Close();
+
+			if (Style == ListItemStyle.Small)
+				OnLeftClick += (o, e) => onClickAction();
 		}
 
 		//turns the subtext into a link that performs the specified action
@@ -2053,7 +2057,7 @@ namespace EndlessClient
 		//EODialogListItem needs way to set width and offsets
 
 		private readonly List<EODialogListItem> m_listItems = new List<EODialogListItem>();
-		private readonly EOScrollBar m_scrollBar;
+		protected EOScrollBar m_scrollBar;
 
 		/// <summary>
 		/// List of strings containing the primary text field of each child item
@@ -2152,7 +2156,7 @@ namespace EndlessClient
 		public void AddItemToList(EODialogListItem item, bool sortList)
 		{
 			if (m_listItems.Count == 0)
-				m_scrollBar.LinesToRender = item.Style == EODialogListItem.ListItemStyle.Large ? 5 : 12;
+				m_scrollBar.LinesToRender = item.Style == EODialogListItem.ListItemStyle.Large ? LargeItemStyleMaxItemDisplay : SmallItemStyleMaxItemDisplay;
 			m_listItems.Add(item);
 			if (sortList)
 				m_listItems.Sort((item1, item2) => item1.Text.CompareTo(item2.Text));
@@ -2250,11 +2254,6 @@ namespace EndlessClient
 				}
 					break;
 			}
-		}
-
-		protected void _setTitleLabelPosition(Vector2 loc)
-		{
-			m_titleText.DrawLocation = loc;
 		}
 
 		public override void Update(GameTime gt)

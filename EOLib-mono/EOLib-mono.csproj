@@ -127,6 +127,9 @@
     <Compile Include="..\EOLib\Net\Players.cs">
       <Link>Net\Players.cs</Link>
     </Compile>
+    <Compile Include="..\EOLib\Net\Quest.cs">
+      <Link>Net\Quest.cs</Link>
+    </Compile>
     <Compile Include="..\EOLib\Net\Recover.cs">
       <Link>Net\Recover.cs</Link>
     </Compile>
