@@ -1669,7 +1669,11 @@ namespace EndlessClient
 		public string Text
 		{
 			get { return m_primaryText.Text; }
-			set { m_primaryText.Text = value; }
+			set
+			{
+				m_primaryText.Text = value;
+				m_primaryText.ResizeBasedOnText();
+			}
 		}
 
 		/// <summary>
@@ -1678,7 +1682,17 @@ namespace EndlessClient
 		public string SubText
 		{
 			get { return m_secondaryText.Text; }
-			set { m_secondaryText.Text = value; }
+			set
+			{
+				m_secondaryText.Text = value;
+				m_secondaryText.ResizeBasedOnText();
+			}
+		}
+
+		public Texture2D IconGraphic
+		{
+			get { return m_gfxItem; }
+			set { m_gfxItem = value; }
 		}
 
 		public event EventHandler OnRightClick;
@@ -1688,7 +1702,7 @@ namespace EndlessClient
 		private XNALabel m_secondaryText;
 
 		private readonly Texture2D m_gfxPadThing;
-		private readonly Texture2D m_gfxItem;
+		private Texture2D m_gfxItem;
 		private readonly Texture2D m_backgroundColor;
 		private bool m_drawBackground;
 		private bool m_rightClicked;
@@ -1699,10 +1713,10 @@ namespace EndlessClient
 			Large
 		}
 
-		public EODialogListItem(EODialogBase parent, ListItemStyle style, string primaryText, string secondaryText = null, Texture2D iconGraphic = null, int listIndex = -1)
+		public EODialogListItem(EODialogBase parent, ListItemStyle style, int listIndex = -1)
 		{
-			DrawLocation = new Vector2(17, DrawLocation.Y); //the base X coordinate is 19 - this can be adjusted with OffsetX property
-
+			DrawLocation = new Vector2(17, DrawLocation.Y); //the base X coordinate is 17 - this can be adjusted with OffsetX property
+			
 			Style = style;
 			if(listIndex >= 0)
 				Index = listIndex;
@@ -1716,8 +1730,8 @@ namespace EndlessClient
 				AutoSize = false,
 				BackColor = System.Drawing.Color.Transparent,
 				ForeColor = System.Drawing.Color.FromArgb(255, colorFactor, colorFactor, colorFactor),
-				Text = primaryText,
-				TextAlign = ContentAlignment.TopLeft
+				TextAlign = ContentAlignment.TopLeft,
+				Visible = false
 			};
 			m_primaryText.ResizeBasedOnText();
 
@@ -1728,12 +1742,11 @@ namespace EndlessClient
 					AutoSize = true,
 					BackColor = m_primaryText.BackColor,
 					ForeColor = m_primaryText.ForeColor,
-					Text = secondaryText ?? ""
+					Visible = false
 				};
 				m_secondaryText.ResizeBasedOnText();
 
 				m_gfxPadThing = GFXLoader.TextureFromResource(GFXTypes.MapTiles, 0, true);
-				m_gfxItem = iconGraphic;
 				ShowItemBackGround = true;
 			}
 			m_backgroundColor = new Texture2D(Game.GraphicsDevice, 1, 1);
@@ -1741,9 +1754,12 @@ namespace EndlessClient
 
 			SetParent(parent);
 			m_primaryText.SetParent(this);
-
-			if(Style == ListItemStyle.Large)
+			m_primaryText.Visible = true;
+			if (Style == ListItemStyle.Large)
+			{
 				m_secondaryText.SetParent(this);
+				m_secondaryText.Visible = true;
+			}
 			OffsetY = Style == ListItemStyle.Large ? 25 : 45;
 		}
 
@@ -1851,10 +1867,11 @@ namespace EndlessClient
 					Vector2 offset = new Vector2(xOff + OffsetX + 14/*not sure of the significance of this offset*/, yOff + OffsetY + 36*Index);
 					if (ShowItemBackGround)
 						SpriteBatch.Draw(m_gfxPadThing, new Vector2(offset.X + ((64 - m_gfxPadThing.Width)/2f), offset.Y + (36 - m_gfxPadThing.Height)/2f), Color.White);
-					SpriteBatch.Draw(m_gfxItem, 
-						new Vector2((float)Math.Round(offset.X + ((64 - m_gfxItem.Width)/2f)), 
-							(float)Math.Round(offset.Y + (36 - m_gfxItem.Height)/2f)), 
-						Color.White);
+					if (m_gfxItem != null)
+						SpriteBatch.Draw(m_gfxItem,
+							new Vector2((float) Math.Round(offset.X + ((64 - m_gfxItem.Width)/2f)),
+								(float) Math.Round(offset.Y + (36 - m_gfxItem.Height)/2f)),
+							Color.White);
 				}
 				SpriteBatch.End();
 				base.Draw(gameTime);
@@ -1864,11 +1881,6 @@ namespace EndlessClient
 		public void SetActive()
 		{
 			m_primaryText.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xf0, 0xf0, 0xf0);
-		}
-
-		public new void Dispose()
-		{
-			Dispose(true);
 		}
 
 		protected override void Dispose(bool disposing)
@@ -1954,8 +1966,11 @@ namespace EndlessClient
 						? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")"
 						: "");
 
-					m_items[i] = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, rec.Name, secondary, GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true), i)
+					m_items[i] = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, i)
 					{
+						Text = rec.Name,
+						SubText = secondary,
+						IconGraphic = GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true),
 						ID = item.Item1
 					};
 					m_items[i].OnRightClick += (o, e) =>
@@ -1993,7 +2008,7 @@ namespace EndlessClient
 			{
 				if (m_items[i] != null)
 				{
-					m_items[i].Dispose();
+					m_items[i].Close();
 					m_items[i] = null;
 				}
 			}
@@ -2049,33 +2064,65 @@ namespace EndlessClient
 		}
 
 		private readonly XNALabel m_titleText;
+		private EODialogListItem.ListItemStyle _listItemType;
+		private ScrollingListDialogButtons _buttons;
+
 		public string Title
 		{
 			get { return m_titleText.Text; }
 			set { m_titleText.Text = value; }
 		}
 
-		public EOScrollingListDialog(string title, ScrollingListDialogButtons whichButtons, EODialogListItem.ListItemStyle ListType, PacketAPI api = null)
+		/// <summary>
+		/// The number of items to display in the scrolling view at one time when ListItemType is Large
+		/// </summary>
+		public int LargeItemStyleMaxItemDisplay { get; set; }
+
+		/// <summary>
+		/// The number of items to display in the scrolling view at one time when ListItemType is Small
+		/// </summary>
+		public int SmallItemStyleMaxItemDisplay { get; set; }
+
+		public EODialogListItem.ListItemStyle ListItemType
+		{
+			get { return _listItemType; }
+			set
+			{
+				_listItemType = value;
+				m_scrollBar.LinesToRender = ListItemType == EODialogListItem.ListItemStyle.Small
+					? SmallItemStyleMaxItemDisplay
+					: LargeItemStyleMaxItemDisplay;
+			}
+		}
+
+		public ScrollingListDialogButtons Buttons
+		{
+			get { return _buttons; }
+			set
+			{
+				_buttons = value;
+				_setButtons(_buttons);
+			}
+		}
+
+		public EOScrollingListDialog(PacketAPI api = null)
 			: base(api)
 		{
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 52);
-			_setSize(bgTexture.Width, bgTexture.Height);
+			_setBackgroundTexture(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 52));
+
+			//defaults
+			LargeItemStyleMaxItemDisplay = 5;
+			SmallItemStyleMaxItemDisplay = 12;
 
 			m_titleText = new XNALabel(new Rectangle(16, 13, 253, 19), "Microsoft Sans Serif", 8.75f)
 			{
 				AutoSize = false,
 				TextAlign = ContentAlignment.MiddleLeft,
-				ForeColor = System.Drawing.Color.FromArgb(0xff,0xc8,0xc8,0xc8),
-				Text = title
+				ForeColor = System.Drawing.Color.FromArgb(0xff,0xc8,0xc8,0xc8)
 			};
 			m_titleText.SetParent(this);
 
-			m_scrollBar = new EOScrollBar(this, new Vector2(252, 44), new Vector2(16, 199), EOScrollBar.ScrollColors.LightOnMed)
-			{
-				LinesToRender = ListType == EODialogListItem.ListItemStyle.Small ? 12 : 5
-			};
-
-			_setButtons(whichButtons);
+			m_scrollBar = new EOScrollBar(this, new Vector2(252, 44), new Vector2(16, 199), EOScrollBar.ScrollColors.LightOnMed);
 
 			Center(Game.GraphicsDevice);
 			DrawLocation = new Vector2(DrawLocation.X, 15);
@@ -2107,8 +2154,7 @@ namespace EndlessClient
 			if (m_listItems.Count == 0)
 				m_scrollBar.LinesToRender = item.Style == EODialogListItem.ListItemStyle.Large ? 5 : 12;
 			m_listItems.Add(item);
-			if(sortList)
-// ReSharper disable once StringCompareToIsCultureSpecific
+			if (sortList)
 				m_listItems.Sort((item1, item2) => item1.Text.CompareTo(item2.Text));
 			for (int i = 0; i < m_listItems.Count; ++i)
 				m_listItems[i].Index = i;
@@ -2157,7 +2203,13 @@ namespace EndlessClient
 			m_scrollBar.ScrollToTop();
 		}
 
-		protected void _setButtons(ScrollingListDialogButtons _whichButtons)
+		protected void _setBackgroundTexture(Texture2D text)
+		{
+			bgTexture = text;
+			_setSize(bgTexture.Width, bgTexture.Height);
+		}
+
+		protected void _setButtons(ScrollingListDialogButtons setButtons)
 		{
 			if (dlgButtons.Count > 0)
 			{
@@ -2170,15 +2222,16 @@ namespace EndlessClient
 				dlgButtons.Clear();
 			}
 
-			switch (_whichButtons)
+			_buttons = setButtons;
+			switch (setButtons)
 			{
 				case ScrollingListDialogButtons.BackCancel:
 				case ScrollingListDialogButtons.AddCancel:
 				{
-					SmallButton which = _whichButtons == ScrollingListDialogButtons.BackCancel ? SmallButton.Back : SmallButton.Add;
+					SmallButton which = setButtons == ScrollingListDialogButtons.BackCancel ? SmallButton.Back : SmallButton.Add;
 					XNAButton add = new XNAButton(smallButtonSheet, new Vector2(48, 252), _getSmallButtonOut(which), _getSmallButtonOver(which));
 					add.SetParent(this);
-					add.OnClick += (o, e) => Close(add, _whichButtons == ScrollingListDialogButtons.BackCancel ? XNADialogResult.Back : XNADialogResult.Add);
+					add.OnClick += (o, e) => Close(add, setButtons == ScrollingListDialogButtons.BackCancel ? XNADialogResult.Back : XNADialogResult.Add);
 					XNAButton cancel = new XNAButton(smallButtonSheet, new Vector2(144, 252), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
 					cancel.SetParent(this);
 					cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
@@ -2197,6 +2250,11 @@ namespace EndlessClient
 				}
 					break;
 			}
+		}
+
+		protected void _setTitleLabelPosition(Vector2 loc)
+		{
+			m_titleText.DrawLocation = loc;
 		}
 
 		public override void Update(GameTime gt)
@@ -2300,9 +2358,14 @@ namespace EndlessClient
 			string titleText = string.Format("{0}'s {2} [{1}]", charName, allLines.Count,
 				World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
 
-			EOScrollingListDialog dlg = new EOScrollingListDialog(titleText, ScrollingListDialogButtons.AddCancel, EODialogListItem.ListItemStyle.Small);
+			EOScrollingListDialog dlg = new EOScrollingListDialog
+			{
+				Title = titleText,
+				Buttons = ScrollingListDialogButtons.AddCancel,
+				ListItemType = EODialogListItem.ListItemStyle.Small
+			};
 
-			List<EODialogListItem> characters = allLines.Select(character => new EODialogListItem(dlg, EODialogListItem.ListItemStyle.Small, character)).ToList();
+			List<EODialogListItem> characters = allLines.Select(character => new EODialogListItem(dlg, EODialogListItem.ListItemStyle.Small) { Text= character }).ToList();
 			characters.ForEach(character =>
 			{
 				character.OnLeftClick += (o, e) => EOGame.Instance.Hud.SetChatText("!" + character.Text + " ");
@@ -2350,7 +2413,10 @@ namespace EndlessClient
 							return;
 						}
 
-						EODialogListItem newItem = new EODialogListItem(dlg, EODialogListItem.ListItemStyle.Small, dlgInput.ResponseText);
+						EODialogListItem newItem = new EODialogListItem(dlg, EODialogListItem.ListItemStyle.Small)
+						{
+							Text = dlgInput.ResponseText
+						};
 						newItem.OnLeftClick += (oo, ee) => EOGame.Instance.Hud.SetChatText("!" + newItem.Text + " ");
 						newItem.OnRightClick += (oo, ee) =>
 						{
@@ -2425,8 +2491,11 @@ namespace EndlessClient
 		private static Texture2D BuyIcon, SellIcon, CraftIcon;
 
 		private EOShopDialog(PacketAPI api, int id)
-			: base("", ScrollingListDialogButtons.Cancel, EODialogListItem.ListItemStyle.Large, api)
+			: base(api)
 		{
+			Buttons = ScrollingListDialogButtons.Cancel;
+			ListItemType = EODialogListItem.ListItemStyle.Large;
+
 			ID = id;
 			DialogClosing += (o, e) =>
 			{
@@ -2494,25 +2563,40 @@ namespace EndlessClient
 					string sellNum = string.Format("{0} {1}", sellNumInt, World.GetString(DATCONST2.DIALOG_SHOP_ITEMS_ACCEPTED));
 					string craftNum = string.Format("{0} {1}", m_craftItems.Count, World.GetString(DATCONST2.DIALOG_SHOP_ITEMS_ACCEPTED));
 
-					EODialogListItem buy = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_SHOP_BUY_ITEMS), buyNum, BuyIcon, 0);
+					EODialogListItem buy = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, 0)
+					{
+						Text = World.GetString(DATCONST2.DIALOG_SHOP_BUY_ITEMS),
+						SubText = buyNum,
+						IconGraphic = BuyIcon,
+						OffsetY = 45
+					};
 					buy.OnLeftClick += (o, e) => _setState(ShopState.Buying);
 					buy.OnRightClick += (o, e) => _setState(ShopState.Buying);
 					buy.ShowItemBackGround = false;
-					buy.OffsetY = 45;
 					AddItemToList(buy, false);
-					EODialogListItem sell = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_SHOP_SELL_ITEMS), sellNum, SellIcon, 1);
+					EODialogListItem sell = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, 1)
+					{
+						Text = World.GetString(DATCONST2.DIALOG_SHOP_SELL_ITEMS),
+						SubText = sellNum,
+						IconGraphic = SellIcon,
+						OffsetY = 45
+					};
 					sell.OnLeftClick += (o, e) => _setState(ShopState.Selling);
 					sell.OnRightClick += (o, e) => _setState(ShopState.Selling);
 					sell.ShowItemBackGround = false;
-					sell.OffsetY = 45;
 					AddItemToList(sell, false);
 					if (m_craftItems.Count > 0)
 					{
-						EODialogListItem craft = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_SHOP_CRAFT_ITEMS), craftNum, CraftIcon, 2);
+						EODialogListItem craft = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, 2) 
+						{
+							Text = World.GetString(DATCONST2.DIALOG_SHOP_CRAFT_ITEMS),
+							SubText = craftNum,
+							IconGraphic = CraftIcon,
+							OffsetY = 45
+						};
 						craft.OnLeftClick += (o, e) => _setState(ShopState.Crafting);
 						craft.OnRightClick += (o, e) => _setState(ShopState.Crafting);
 						craft.ShowItemBackGround = false;
-						craft.OffsetY = 45;
 						AddItemToList(craft, false);
 					}
 					_setButtons(ScrollingListDialogButtons.Cancel);
@@ -2537,15 +2621,15 @@ namespace EndlessClient
 							rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")" : "",
 							World.GetString(DATCONST2.DIALOG_SHOP_PRICE));
 
-						EODialogListItem nextItem = new EODialogListItem(
-							this,
-							EODialogListItem.ListItemStyle.Large,
-							rec.Name,
-							secondary,
-							GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true));
+						EODialogListItem nextItem = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large)
+						{
+							Text = rec.Name,
+							SubText = secondary,
+							IconGraphic = GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true),
+							OffsetY = 45
+						};
 						nextItem.OnLeftClick += (o, e) => _buySellItem(localItem);
 						nextItem.OnRightClick += (o, e) => _buySellItem(localItem);
-						nextItem.OffsetY = 45;
 
 						itemList.Add(nextItem);
 					}
@@ -2566,15 +2650,15 @@ namespace EndlessClient
 							rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")" : "",
 							World.GetString(DATCONST2.DIALOG_SHOP_CRAFT_INGREDIENTS));
 
-						EODialogListItem nextItem = new EODialogListItem(
-							this,
-							EODialogListItem.ListItemStyle.Large,
-							rec.Name,
-							secondary,
-							GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true));
+						EODialogListItem nextItem = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large)
+						{
+							Text = rec.Name,
+							SubText = secondary,
+							IconGraphic = GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true),
+							OffsetY = 45
+						};
 						nextItem.OnLeftClick += (o, e) => _craftItem(localItem);
 						nextItem.OnRightClick += (o, e) => _craftItem(localItem);
-						nextItem.OffsetY = 45;
 
 						itemList.Add(nextItem);
 					}
@@ -2746,8 +2830,11 @@ namespace EndlessClient
 		private List<InventoryItem> items = new List<InventoryItem>(); 
 
 		private EOLockerDialog(PacketAPI api, byte x, byte y)
-			: base(string.Format(TITLE_FMT, 0), ScrollingListDialogButtons.Cancel, EODialogListItem.ListItemStyle.Large, api)
+			: base(api)
 		{
+			Title = string.Format(TITLE_FMT, 0);
+			Buttons = ScrollingListDialogButtons.Cancel;
+			ListItemType = EODialogListItem.ListItemStyle.Large;
 			X = x;
 			Y = y;
 			
@@ -2765,18 +2852,17 @@ namespace EndlessClient
 			{
 				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
 				int amount = item.amount;
-				EODialogListItem newItem = new EODialogListItem(
-					this,
-					EODialogListItem.ListItemStyle.Large,
-					rec.Name,
-					string.Format("x{0}  {1}", item.amount,
+				EODialogListItem newItem = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large)
+				{
+					Text = rec.Name,
+					SubText = string.Format("x{0}  {1}", item.amount,
 						rec.Type == ItemType.Armor
 							? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")"
 							: ""),
-					GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true)
-					);
+					IconGraphic = GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true),
+					OffsetY = 45
+				};
 				newItem.OnRightClick += (o, e) => _removeItem(rec, amount);
-				newItem.OffsetY = 45;
 
 				listItems.Add(newItem);
 			}
@@ -2985,27 +3071,38 @@ namespace EndlessClient
 			cancel.SetParent(this);
 			cancel.OnClick += (o, e) => Close(cancel, XNADialogResult.Cancel);
 
-			EODialogListItem deposit = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_BANK_DEPOSIT),
-				string.Format("{0} gold {1}", World.GetString(DATCONST2.DIALOG_BANK_TRANSFER), World.GetString(DATCONST2.DIALOG_BANK_TO_ACCOUNT)), _getDlgIcon(ListIcon.BankDeposit));
+			EODialogListItem deposit = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, 0)
+			{
+				Text = World.GetString(DATCONST2.DIALOG_BANK_DEPOSIT),
+				SubText = string.Format("{0} gold {1}", World.GetString(DATCONST2.DIALOG_BANK_TRANSFER),
+					World.GetString(DATCONST2.DIALOG_BANK_TO_ACCOUNT)),
+				IconGraphic = _getDlgIcon(ListIcon.BankDeposit),
+				OffsetY = 55,
+				ShowItemBackGround = false
+			};
 			deposit.OnLeftClick += (o, e) => _deposit();
 			deposit.OnRightClick += (o, e) => _deposit();
-			deposit.OffsetY = 55;
-			deposit.Index = 0;
-			deposit.ShowItemBackGround = false;
-			EODialogListItem withdraw = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_BANK_WITHDRAW),
-				string.Format("{0} gold {1}", World.GetString(DATCONST2.DIALOG_BANK_TAKE), World.GetString(DATCONST2.DIALOG_BANK_FROM_ACCOUNT)), _getDlgIcon(ListIcon.BankWithdraw));
+			EODialogListItem withdraw = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, 1)
+			{
+				Text = World.GetString(DATCONST2.DIALOG_BANK_WITHDRAW),
+				SubText = string.Format("{0} gold {1}", World.GetString(DATCONST2.DIALOG_BANK_TAKE),
+					World.GetString(DATCONST2.DIALOG_BANK_FROM_ACCOUNT)),
+				IconGraphic = _getDlgIcon(ListIcon.BankWithdraw),
+				OffsetY = 55,
+				ShowItemBackGround = false
+			};
 			withdraw.OnLeftClick += (o, e) => _withdraw();
 			withdraw.OnRightClick += (o, e) => _withdraw();
-			withdraw.OffsetY = 55;
-			withdraw.Index = 1;
-			withdraw.ShowItemBackGround = false;
-			EODialogListItem upgrade = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, World.GetString(DATCONST2.DIALOG_BANK_LOCKER_UPGRADE), 
-				World.GetString(DATCONST2.DIALOG_BANK_MORE_SPACE), _getDlgIcon(ListIcon.BankLockerUpgrade));
+			EODialogListItem upgrade = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, 2)
+			{
+				Text = World.GetString(DATCONST2.DIALOG_BANK_LOCKER_UPGRADE),
+				SubText = World.GetString(DATCONST2.DIALOG_BANK_MORE_SPACE),
+				IconGraphic = _getDlgIcon(ListIcon.BankLockerUpgrade),
+				OffsetY = 55,
+				ShowItemBackGround = false
+			};
 			upgrade.OnLeftClick += (o, e) => _upgrade();
 			upgrade.OnRightClick += (o, e) => _upgrade();
-			upgrade.OffsetY = 55;
-			upgrade.Index = 2;
-			upgrade.ShowItemBackGround = false;
 
 			DialogClosing += (o, e) => { Instance = null; };
 			
@@ -3332,9 +3429,11 @@ namespace EndlessClient
 					? 269 + 2*(item.amount >= 100000 ? 4 : (item.amount >= 10000? 3 : (item.amount >= 100 ? 2 : (item.amount >= 2 ? 1 : 0))))
 					: 2*rec.Graphic - 1;
 
-				var nextItem = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, rec.Name, secondary,
-					GFXLoader.TextureFromResource(GFXTypes.Items, gfxNum, true), index++)
+				var nextItem = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, index++)
 				{
+					Text = rec.Name,
+					SubText = secondary,
+					IconGraphic = GFXLoader.TextureFromResource(GFXTypes.Items, gfxNum, true),
 					ID = item.id,
 					Amount = item.amount,
 					OffsetX = xOffset,
@@ -3594,8 +3693,10 @@ namespace EndlessClient
 		private static Texture2D LearnIcon, ForgetIcon;
 
 		private EOSkillmasterDialog(PacketAPI api)
-			: base("", ScrollingListDialogButtons.Cancel, EODialogListItem.ListItemStyle.Large, api)
+			: base(api)
 		{
+			Buttons = ScrollingListDialogButtons.Cancel;
+			ListItemType = EODialogListItem.ListItemStyle.Large;
 			DialogClosing += (o, e) =>
 			{
 				if (e.Result == XNADialogResult.Cancel)
@@ -3667,29 +3768,40 @@ namespace EndlessClient
 					string learnNum = string.Format("{0}{1}", numToLearn, World.GetString(DATCONST2.SKILLMASTER_ITEMS_TO_LEARN));
 					string forgetNum = string.Format("{0}{1}", numToForget, World.GetString(DATCONST2.SKILLMASTER_ITEMS_LEARNED));
 
-					EODialogListItem learn = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large,
-						World.GetString(DATCONST2.SKILLMASTER_WORD_LEARN), learnNum, LearnIcon, 0);
+					EODialogListItem learn = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, 0)
+					{
+						Text = World.GetString(DATCONST2.SKILLMASTER_WORD_LEARN),
+						SubText = learnNum,
+						IconGraphic = LearnIcon,
+						ShowItemBackGround = false,
+						OffsetY = 45
+					};
 					learn.OnLeftClick += (o, e) => _setState(SkillState.Learn);
 					learn.OnRightClick += (o, e) => _setState(SkillState.Learn);
-					learn.ShowItemBackGround = false;
-					learn.OffsetY = 45;
 					AddItemToList(learn, false);
 
-					EODialogListItem forget = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large,
-						World.GetString(DATCONST2.SKILLMASTER_WORD_FORGET), forgetNum, ForgetIcon, 1);
+					EODialogListItem forget = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, 1)
+					{
+						Text = World.GetString(DATCONST2.SKILLMASTER_WORD_FORGET),
+						SubText = forgetNum,
+						IconGraphic = ForgetIcon,
+						ShowItemBackGround = false,
+						OffsetY = 45
+					};
 					forget.OnLeftClick += (o, e) => _setState(SkillState.Forget);
 					forget.OnRightClick += (o, e) => _setState(SkillState.Forget);
-					forget.ShowItemBackGround = false;
-					forget.OffsetY = 45;
 					AddItemToList(forget, false);
 
-					EODialogListItem forgetAll = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large,
-						World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL), World.GetString(DATCONST2.SKILLMASTER_RESET_YOUR_CHARACTER),
-						ForgetIcon, 2);
+					EODialogListItem forgetAll = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, 2)
+					{
+						Text = World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL),
+						SubText = World.GetString(DATCONST2.SKILLMASTER_RESET_YOUR_CHARACTER),
+						IconGraphic = ForgetIcon,
+						ShowItemBackGround = false,
+						OffsetY = 45
+					};
 					forgetAll.OnLeftClick += (o, e) => _setState(SkillState.ForgetAll);
 					forgetAll.OnRightClick += (o, e) => _setState(SkillState.ForgetAll);
-					forgetAll.ShowItemBackGround = false;
-					forgetAll.OffsetY = 45;
 					AddItemToList(forgetAll, false);
 
 					_setButtons(ScrollingListDialogButtons.Cancel);
@@ -3706,19 +3818,21 @@ namespace EndlessClient
 
 						SpellRecord spellData = (SpellRecord) World.Instance.ESF.Data[m_skills[localI].ID];
 
-						EODialogListItem nextListItem = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, spellData.Name,
-							World.GetString(DATCONST2.SKILLMASTER_WORD_REQUIREMENTS), World.GetSpellIcon(spellData.Icon, false), index++);
+						EODialogListItem nextListItem = new EODialogListItem(this, EODialogListItem.ListItemStyle.Large, index++)
+						{
+							Visible = false,
+							Text = spellData.Name,
+							SubText = World.GetString(DATCONST2.SKILLMASTER_WORD_REQUIREMENTS),
+							IconGraphic = World.GetSpellIcon(spellData.Icon, false),
+							ShowItemBackGround = false,
+							OffsetY = 45,
+							ID = m_skills[localI].ID
+						};
 						nextListItem.OnLeftClick += (o, e) => _learn(m_skills[localI]);
 						nextListItem.OnRightClick += (o, e) => _learn(m_skills[localI]);
 						nextListItem.OnMouseEnter += (o, e) => _showRequirementsLabel(m_skills[localI]);
-						nextListItem.ShowItemBackGround = false;
-						nextListItem.OffsetY = 45;
-						nextListItem.ID = m_skills[localI].ID;
 						nextListItem.SetSubtextLink(() => _showRequirements(m_skills[localI]));
 						AddItemToList(nextListItem, false);
-						//not sure how to get the hyperlink for requirements to work
-						//it will also trigger the event for the EODialogListItem
-						//really should have done an event processing queue sort of thing...
 					}
 
 					_setButtons(ScrollingListDialogButtons.BackCancel);
@@ -3785,7 +3899,7 @@ namespace EndlessClient
 				return;
 			}
 
-			if (c.Class != skill.ClassReq)
+			if (skill.ClassReq > 0 && c.Class != skill.ClassReq)
 			{
 				EODialog.Show(DATCONST1.SKILL_LEARN_WRONG_CLASS, " " + ((ClassRecord)World.Instance.ECF.Data[skill.ClassReq]).Name + "!", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 				return;
@@ -3827,7 +3941,7 @@ namespace EndlessClient
 
 			List<string> drawStrings = new List<string>(15)
 			{
-				((SpellRecord) World.Instance.ESF.Data[skill.ID]).Name + " [" + ((ClassRecord) World.Instance.ECF.Data[skill.ClassReq]).Name + "]",
+				((SpellRecord) World.Instance.ESF.Data[skill.ID]).Name + (skill.ClassReq > 0 ? " [" + ((ClassRecord) World.Instance.ECF.Data[skill.ClassReq]).Name + "]" : ""),
 				" "
 			};
 			if (skill.SkillReq.Any(x => x != 0))
@@ -3855,7 +3969,7 @@ namespace EndlessClient
 
 			foreach (string s in drawStrings)
 			{
-				EODialogListItem nextLine = new EODialogListItem(this, EODialogListItem.ListItemStyle.Small, s);
+				EODialogListItem nextLine = new EODialogListItem(this, EODialogListItem.ListItemStyle.Small) { Text = s };
 				AddItemToList(nextLine, false);
 			}
 		}
@@ -3875,7 +3989,10 @@ namespace EndlessClient
 				full += string.Format("{0} CON, ", skill.ConReq);
 			if (skill.ChaReq > 0)
 				full += string.Format("{0} CHA, ", skill.ChaReq);
-			full += string.Format("{0} Gold, {1}", skill.GoldReq, ((ClassRecord) World.Instance.ECF.Data[skill.ClassReq]).Name);
+			if (skill.GoldReq > 0)
+				full += string.Format("{0} Gold", skill.GoldReq);
+			if (skill.ClassReq > 0)
+				full += string.Format(", {0}", ((ClassRecord) World.Instance.ECF.Data[skill.ClassReq]).Name);
 
 			((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, full);
 		}
@@ -3922,7 +4039,7 @@ namespace EndlessClient
 					next = next.Remove(0, 1);
 					link = true;
 				}
-				EODialogListItem nextItem = new EODialogListItem(this, EODialogListItem.ListItemStyle.Small, next);
+				EODialogListItem nextItem = new EODialogListItem(this, EODialogListItem.ListItemStyle.Small) { Text = next };
 				if (link) nextItem.SetPrimaryTextLink(forgetAllAction);
 				AddItemToList(nextItem, false);
 			}
