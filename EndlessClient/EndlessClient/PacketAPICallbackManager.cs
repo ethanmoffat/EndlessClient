@@ -65,6 +65,7 @@ namespace EndlessClient
 			m_packetAPI.OnJunkItem += _junkItem;
 			m_packetAPI.OnDropItem += _dropItem;
 			m_packetAPI.OnUseItem += _useItem;
+			m_packetAPI.OnItemChange += _itemChange;
 
 			m_packetAPI.OnMapMutation += _mapMutate;
 
@@ -135,6 +136,8 @@ namespace EndlessClient
 			m_packetAPI.OnViewQuestProgress += _questProgress;
 			m_packetAPI.OnViewQuestHistory += _questHistory;
 			m_packetAPI.OnStatusMessage += _setStatusLabel;
+
+			m_packetAPI.OnPlaySoundEffect += _playSoundEffect;
 		}
 
 		private void _playerEnterMap(CharacterData data, WarpAnimation anim)
@@ -322,12 +325,16 @@ namespace EndlessClient
 			m_game.Hud.RefreshStats();
 		}
 
-		private void _recoverReply(int exp, short karma, byte level)
+		private void _recoverReply(int exp, short karma, byte level, short statpoints, short skillpoints)
 		{
 			World.Instance.MainPlayer.ActiveCharacter.Stats.exp = exp;
 			World.Instance.MainPlayer.ActiveCharacter.Stats.karma = karma;
 			if (level > 0)
 				World.Instance.MainPlayer.ActiveCharacter.Stats.level = level;
+
+			World.Instance.MainPlayer.ActiveCharacter.Stats.statpoints = statpoints;
+			World.Instance.MainPlayer.ActiveCharacter.Stats.skillpoints = skillpoints;
+
 			m_game.Hud.RefreshStats();
 		}
 
@@ -494,6 +501,12 @@ namespace EndlessClient
 					}
 					break;
 			}
+		}
+
+		private void _itemChange(bool wasItemObtained, short id, int amount, byte weight)
+		{
+			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight,
+				World.Instance.MainPlayer.ActiveCharacter.MaxWeight, wasItemObtained);
 		}
 
 		private void _removeItemFromMap(short itemuid)
@@ -697,6 +710,9 @@ namespace EndlessClient
 
 		private void _partyRequest(PartyRequestType type, short id, string name)
 		{
+			if (!World.Instance.Interaction)
+				return;
+
 			EODialog.Show(name + " ",
 				   type == PartyRequestType.Join ? DATCONST1.PARTY_GROUP_REQUEST_TO_JOIN : DATCONST1.PARTY_GROUP_SEND_INVITATION,
 				   XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader,
@@ -722,6 +738,9 @@ namespace EndlessClient
 
 		private void _tradeRequested(short playerID, string name)
 		{
+			if (!World.Instance.Interaction)
+				return;
+
 			EODialog.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DATCONST1.TRADE_REQUEST, XNADialogButtons.OkCancel,
 					EODialogStyle.SmallDialogSmallHeader, (o, e) =>
 					{
@@ -888,6 +907,17 @@ namespace EndlessClient
 		private void _setStatusLabel(string message)
 		{
 			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, message);
+			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", message, ChatType.QuestMessage, ChatColor.Server);
+		}
+
+		private void _playSoundEffect(int effectID)
+		{
+			try
+			{
+				if (World.Instance.SoundEnabled)
+					EOGame.Instance.SoundManager.GetSoundEffectRef((SoundEffectID) effectID).Play();
+			}
+			catch { /* Ignore errors when the sound effect ID from the server is invalid */ }
 		}
 	}
 }

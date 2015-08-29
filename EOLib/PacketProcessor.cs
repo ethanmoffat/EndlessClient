@@ -33,6 +33,7 @@ namespace EOLib
 		Refresh = (byte)25,
 		NPC = (byte)26,
 		AutoRefresh = (byte)27,
+		AutoRefresh2 = (byte)28,
 		Appear = (byte)29,
 		PaperDoll = (byte)30,
 		Effect = (byte)31,
@@ -44,9 +45,11 @@ namespace EOLib
 		Locker = (byte)37,
 		Barber = (byte)38,
 		Guild = (byte)39,
+		Music = (byte)40,
 		Sit = (byte)41,
 		Recover = (byte)42,
 		Board = (byte)43,
+		Cast = (byte)44,
 		Arena = (byte)45,
 		Priest = (byte)46,
 		Marriage = (byte)47,
@@ -83,14 +86,18 @@ namespace EOLib
 		Server = (byte)23,
 		Drop = (byte)24,
 		Junk = (byte)25,
+		Obtain = (byte)26,
 		Get = (byte)27,
+		Kick = (byte)28,
+		Rank = (byte)29,
+		TargetSelf = (byte)30,
 		TargetOther = (byte)31,
-		Exp = (byte)33,
+		Exp = (byte)33, //PACKET_TARGET_GROUP
 		Dialog = (byte)34,
 		Ping = (byte)240,
 		Pong = (byte)241,
 		Net3 = (byte)242,
-		Init = (byte)255,
+		Init = (byte)255
 	}
 	public class PacketProcessor
 	{

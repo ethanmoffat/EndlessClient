@@ -112,6 +112,9 @@
     <Compile Include="..\EOLib\Net\Message.cs">
       <Link>Net\Message.cs</Link>
     </Compile>
+    <Compile Include="..\EOLib\Net\Music.cs">
+      <Link>Net\Music.cs</Link>
+    </Compile>
     <Compile Include="..\EOLib\Net\NPC.cs">
       <Link>Net\NPC.cs</Link>
     </Compile>

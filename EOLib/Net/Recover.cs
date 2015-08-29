@@ -61,12 +61,13 @@ namespace EOLib.Net
 			m_armor = pkt.GetShort();
 		}
 	}
+
+	public delegate void PlayerRecoverEvent(short HP, short TP);
+	public delegate void RecoverReplyEvent(int exp, short karma, byte level, short statpoints = 0, short skillpoints = 0);
+	public delegate void PlayerHealEvent(short playerID, int healAmount, byte percentHealth);
+
 	partial class PacketAPI
 	{
-		public delegate void PlayerRecoverEvent(short HP, short TP);
-		public delegate void RecoverReplyEvent(int exp, short karma, byte level);
-		public delegate void PlayerHealEvent(short playerID, int healAmount, byte percentHealth);
-
 		public event PlayerRecoverEvent OnPlayerRecover;
 		public event RecoverReplyEvent OnRecoverReply;
 		public event PlayerHealEvent OnPlayerHeal;
@@ -88,8 +89,21 @@ namespace EOLib.Net
 
 		private void _handleRecoverReply(Packet pkt)
 		{
-			if (OnRecoverReply != null)
-				OnRecoverReply(pkt.GetInt(), pkt.GetShort(), pkt.GetChar()); //exp - karma - level
+			if (OnRecoverReply == null) return;
+
+			int exp = pkt.GetInt();
+			short karma = pkt.GetShort();
+			byte level = pkt.GetChar();
+
+			if (pkt.ReadPos == pkt.Length)
+				OnRecoverReply(exp, karma, level);
+			else
+			{
+				short statpoints = pkt.GetShort();
+				short skillpoints = pkt.GetShort();
+
+				OnRecoverReply(exp, karma, level, statpoints, skillpoints);
+			}
 		}
 
 		private void _handleRecoverList(Packet pkt)

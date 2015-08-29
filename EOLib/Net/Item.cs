@@ -99,11 +99,11 @@ namespace EOLib.Net
 
 		//curecurse type
 		private readonly CureCurseStats? curecurse_stats;
-		public CureCurseStats CureStats { get { return curecurse_stats.HasValue ? curecurse_stats.Value : new CureCurseStats(); } }
+		public CureCurseStats CureStats { get { return curecurse_stats ?? new CureCurseStats(); } }
 
 		//expreward type
 		private readonly LevelUpStats? expreward_stats;
-		public LevelUpStats RewardStats { get { return expreward_stats.HasValue ? expreward_stats.Value : new LevelUpStats(); } }
+		public LevelUpStats RewardStats { get { return expreward_stats ?? new LevelUpStats(); } }
 
 		internal ItemUseData(Packet pkt)
 		{
@@ -159,13 +159,15 @@ namespace EOLib.Net
 		}
 	}
 
+	public delegate void PlayerItemDropEvent(int characterAmount, byte weight, byte maxWeight, MapItem item);
+	public delegate void RemoveMapItemEvent(short itemUID);
+	public delegate void JunkItemEvent(short itemID, int numJunked, int numRemaining, byte weight, byte maxWeight);
+	public delegate void GetItemEvent(short itemUID, short itemID, int amountTaken, byte weight, byte maxWeight);
+	public delegate void UseItemEvent(ItemUseData data);
+	public delegate void ItemChangeEvent(bool newItemObtained, short id, int amount, byte weight);
+
 	partial class PacketAPI
 	{
-		public delegate void PlayerItemDropEvent(int characterAmount, byte weight, byte maxWeight, MapItem item);
-		public delegate void RemoveMapItemEvent(short itemUID);
-		public delegate void JunkItemEvent(short itemID, int numJunked, int numRemaining, byte weight, byte maxWeight);
-		public delegate void GetItemEvent(short itemUID, short itemID, int amountTaken, byte weight, byte maxWeight);
-		public delegate void UseItemEvent(ItemUseData data);
 		/// <summary>
 		/// Occurs when any player drops an item - if characterAmount == -1, this means the item was dropped by a player other than MainPlayer
 		/// </summary>
@@ -174,6 +176,7 @@ namespace EOLib.Net
 		public event JunkItemEvent OnJunkItem;
 		public event GetItemEvent OnGetItemFromMap;
 		public event UseItemEvent OnUseItem;
+		public event ItemChangeEvent OnItemChange;
 
 		private void _createItemMembers()
 		{
@@ -183,6 +186,9 @@ namespace EOLib.Net
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Junk), _handleItemJunk, true);
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Get), _handleItemGet, true);
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Reply), _handleItemReply, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Obtain), _handleItemObtain, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Kick), _handleItemKick, true);
+			//todo: handle ITEM_ACCEPT (ExpReward item type) (I think it shows the level up animation?)
 		}
 
 		/// <summary>
@@ -317,6 +323,28 @@ namespace EOLib.Net
 		{
 			if (OnUseItem != null)
 				OnUseItem(new ItemUseData(pkt));
+		}
+
+		private void _handleItemObtain(Packet pkt)
+		{
+			if (OnItemChange == null) return;
+
+			short id = pkt.GetShort();
+			int amount = pkt.GetThree();
+			byte weight = pkt.GetChar();
+
+			OnItemChange(true, id, amount, weight);
+		}
+
+		private void _handleItemKick(Packet pkt)
+		{
+			if (OnItemChange == null) return;
+
+			short id = pkt.GetShort();
+			int amount = pkt.GetThree();
+			byte weight = pkt.GetChar();
+
+			OnItemChange(false, id, amount, weight);
 		}
 	}
 }
