@@ -70,7 +70,7 @@ Some of the more important features that have been implemented are:
  - Stats display and leveling up or 'training'
  - Stat bars for main player in HUD (hp/tp/sp/tnl)
  - Chests and private lockers on maps
- - Right-click menus for other players (limited)
+ - Right-click menus for other players (missing 'book' action)
  - Friend/Ignore lists
  - "Who is online?" list
  - NPC interaction on maps - limited to shops and bank bob
@@ -79,7 +79,7 @@ Some of the more important features that have been implemented are:
  - Trading with other players
  - Spikes - timed, trap, and static
  - Map Effects - HP/TP drain
- - Quest NPC dialogs
+ - Quest NPC dialogs, as well as progress and history (no book for other players yet)
 
 <a name="ToDo" />What's Left to do?
 ------------------
@@ -94,7 +94,7 @@ Here's the actual to-do list:
  - Character rendering during attack
  - Effects and spells
  - Guilds
- - Quests - history and progress pages, book
+ - Quest book
  - Innkeepers
  - Marriage/Law
  - Sitting - floor and chairs
