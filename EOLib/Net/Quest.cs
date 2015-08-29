@@ -22,6 +22,14 @@ namespace EOLib.Net
 		History
 	}
 
+	public enum BookIcon : byte
+	{
+		Item = 3,
+		Talk = 5,
+		Kill = 8,
+		Step = 10
+	}
+
 	/// <summary>
 	/// State object for quest transactions with server
 	/// </summary>
@@ -54,21 +62,50 @@ namespace EOLib.Net
 	{
 		private readonly string _name;
 		private readonly string _description;
-		private readonly short _icon;
+		private readonly BookIcon _icon;
 		private readonly short _progress;
 		private readonly short _target;
 
 		public string Name { get { return _name; } }
 		public string Description { get { return _description; } }
-		public short Icon { get { return _icon; } }
-		public short Progress { get { return _progress; } }
-		public short Target { get { return _target; } }
+		public BookIcon Icon { get { return _icon; } }
+
+		public int IconIndex
+		{
+			get
+			{
+				//these are probably wrong. can't really tell what it's supposed to be from original
+				switch (Icon)
+				{
+					case BookIcon.Item:
+						return 2;
+					case BookIcon.Talk:
+						return 1;
+					case BookIcon.Kill:
+						return 3;
+					case BookIcon.Step:
+						return 4;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
+			}
+		}
+
+		public short Progress
+		{
+			get { return _progress; }
+		}
+
+		public short Target
+		{
+			get { return _target; }
+		}
 
 		internal InProgressQuestData(Packet pkt)
 		{
 			_name = pkt.GetBreakString();
 			_description = pkt.GetBreakString();
-			_icon = pkt.GetShort();
+			_icon = (BookIcon) pkt.GetShort();
 			_progress = pkt.GetShort();
 			_target = pkt.GetShort();
 			if (pkt.GetByte() != 255)
@@ -77,7 +114,9 @@ namespace EOLib.Net
 	}
 
 	public delegate void QuestDialogEvent(QuestState stateInfo, Dictionary<short, string> dialogNames, List<string> pages, Dictionary<short, string> links);
+
 	public delegate void ViewQuestProgressEvent(short numQuests, List<InProgressQuestData> questInfo);
+
 	public delegate void ViewQuestHistoryEvent(short numQuests, List<string> completedQuestNames);
 
 	partial class PacketAPI
@@ -114,8 +153,8 @@ namespace EOLib.Net
 			pkt.AddShort(state.DialogID); //dialog ID - ignored by default EOSERV
 			pkt.AddShort(state.QuestID);
 			pkt.AddShort(state.NPCIndex); //npc index - ignored by default EOSERV
-			pkt.AddChar((byte)reply);
-			if(reply == DialogReply.Link)
+			pkt.AddChar((byte) reply);
+			if (reply == DialogReply.Link)
 				pkt.AddChar(action);
 
 			return m_client.SendPacket(pkt);
@@ -127,7 +166,7 @@ namespace EOLib.Net
 				return false;
 
 			Packet pkt = new Packet(PacketFamily.Quest, PacketAction.List);
-			pkt.AddChar((byte)page);
+			pkt.AddChar((byte) page);
 
 			return m_client.SendPacket(pkt);
 		}

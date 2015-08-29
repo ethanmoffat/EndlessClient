@@ -53,7 +53,7 @@ namespace EndlessClient
 		Skeleton,
 		WhatTheFuck,
 		Information,
-		NoteGenderThing
+		QuestMessage
 	}
 
 	/// <summary>

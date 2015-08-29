@@ -896,12 +896,16 @@ namespace EndlessClient
 
 		private void _questProgress(short numquests, List<InProgressQuestData> questinfo)
 		{
-			throw new NotImplementedException();
+			if (EOQuestProgressDialog.Instance == null) return;
+
+			EOQuestProgressDialog.Instance.SetInProgressDisplayData(numquests, questinfo);
 		}
 
 		private void _questHistory(short numquests, List<string> completedquestnames)
 		{
-			throw new NotImplementedException();
+			if (EOQuestProgressDialog.Instance == null) return;
+
+			EOQuestProgressDialog.Instance.SetHistoryDisplayData(numquests, completedquestnames);
 		}
 
 		private void _setStatusLabel(string message)

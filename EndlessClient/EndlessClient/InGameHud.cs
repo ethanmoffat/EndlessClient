@@ -243,10 +243,10 @@ namespace EndlessClient
 			chatTextBox.OnClicked += (s, e) =>
 			{
 				//make sure clicking on the textarea selects it (this is an annoying problem in the original client)
-				if (((EOGame)g).Dispatcher.Subscriber != null)
-					((XNATextBox) (g as EOGame).Dispatcher.Subscriber).Selected = false;
+				if (((EOGame) g).Dispatcher.Subscriber != null)
+					((XNATextBox) ((EOGame) g).Dispatcher.Subscriber).Selected = false;
 
-				(g as EOGame).Dispatcher.Subscriber = chatTextBox;
+				((EOGame) g).Dispatcher.Subscriber = chatTextBox;
 				chatTextBox.Selected = true;
 			};
 			chatTextBox.OnTextChanged += (s, e) =>
@@ -328,7 +328,7 @@ namespace EndlessClient
 				Visible = true,
 				Enabled = true
 			};
-			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(m_packetAPI, false);
+			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: false, apiHandle: m_packetAPI);
 			m_friendList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_FRIEND_LIST);
 
 			m_ignoreList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
@@ -339,7 +339,7 @@ namespace EndlessClient
 				Visible = true,
 				Enabled = true
 			};
-			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(m_packetAPI, true);
+			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: true, apiHandle: m_packetAPI);
 			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_IGNORE_LIST);
 
 			m_expInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
@@ -351,6 +351,7 @@ namespace EndlessClient
 				new Vector2(77, 0),
 				new Rectangle(353, 30, 22, 14),
 				new Rectangle(353, 30, 22, 14));
+			m_questInfo.OnClick += (o, e) => EOQuestProgressDialog.Show(m_packetAPI);
 
 			//no need to make this a member variable
 			//it does not have any resources to dispose and it is automatically disposed by the framework
@@ -641,7 +642,7 @@ namespace EndlessClient
 				case '#':  //local command
 				{
 					string cmd = chatText.Substring(1).ToLower().Trim();
-					string[] args = cmd.Split(new[] {' '});
+					string[] args = cmd.Split(' ');
 					
 					if (args.Length == 1 && args[0] == "nowall")
 					{

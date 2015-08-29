@@ -1697,8 +1697,8 @@ namespace EndlessClient
 		public event EventHandler OnRightClick;
 		public event EventHandler OnLeftClick;
 
-		private XNALabel m_primaryText;
-		private XNALabel m_secondaryText;
+		protected XNALabel m_primaryText;
+		protected XNALabel m_secondaryText;
 
 		private readonly Texture2D m_gfxPadThing;
 		private Texture2D m_gfxItem;
@@ -2071,7 +2071,7 @@ namespace EndlessClient
 			}
 		}
 
-		private readonly XNALabel m_titleText;
+		protected XNALabel m_titleText;
 		private EODialogListItem.ListItemStyle _listItemType;
 		private ScrollingListDialogButtons _buttons;
 

@@ -79,6 +79,7 @@ Some of the more important features that have been implemented are:
  - Trading with other players
  - Spikes - timed, trap, and static
  - Map Effects - HP/TP drain
+ - Quest NPC dialogs
 
 <a name="ToDo" />What's Left to do?
 ------------------
@@ -93,7 +94,7 @@ Here's the actual to-do list:
  - Character rendering during attack
  - Effects and spells
  - Guilds
- - Quests
+ - Quests - history and progress pages, book
  - Innkeepers
  - Marriage/Law
  - Sitting - floor and chairs
@@ -157,7 +158,7 @@ FilterAll=on #strict curse filter
 LogChat=off  #chat logging is currently not supported
 LogFile=CHATLOG.TXT
 HearWhisper=on
-Interaction=on #I honestly am not sure what this even changes, more testing required
+Interaction=on
 ```
 
 <a name="Changes" />Changes From Original Client (so far)
