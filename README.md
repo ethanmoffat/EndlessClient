@@ -27,6 +27,8 @@ Gameplay is pretty simple since you can't do much yet. Walking is done with the 
 
 I encourage everyone to try and break things and file bug reports (see project "Issues"). The more testing the better!
 
+**Special Note**: Copyrighted sound, graphics, and other data files are not included in the release zip. Instructions for getting these files are included at the end of the "Building the Source" section below.
+
 <a name="Source" />Building the Source
 ---------------------
 
@@ -47,7 +49,7 @@ These instructions have been tested in a Virtual Machine running Windows 7 Profe
 
 Note that the game client requires some additional files to be copied to the *bin* directory before the game will successfully launch:
 
-1. Download the Endless Online client from [www.endless-online.com](http://files.endless-online.com/EOzipped028.zip)
+1. Download the Endless Online client from [www.endless-online.com](http://cache.tehsausage.com/EOzipped028.zip) - link changed due to recent "upheaval" / database hack of main server
 2. Copy the data, gfx, mfx, and sfx folders from the linked ZIP archive to the output bin directory before running the game. Otherwise it will fail to launch.
 3. Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory. Note that the original client had a setup.ini; this has been renamed to settings.ini.
 4. Any other files will be downloaded or created as needed (pub, maps, and friend.ini/ignore.ini)
@@ -129,7 +131,7 @@ Here is a sample configuration file with the available configuration settings th
 ```ini
 #Destination host/ip and port to connect to
 [CONNECTION]
-Host=ewmoffat.ddns.net
+Host=ewmoffat.ddns.net #or use game.eoserv.net, enhanced clone of original main server
 Port=8078
 #override the version sent from the client to the server. For testing with multiple server versions.
 [VERSION]
