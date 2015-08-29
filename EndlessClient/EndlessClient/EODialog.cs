@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Text;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -2057,6 +2056,7 @@ namespace EndlessClient
 		//EODialogListItem needs way to set width and offsets
 
 		private readonly List<EODialogListItem> m_listItems = new List<EODialogListItem>();
+		private readonly object m_listItemLock = new object();
 		protected EOScrollBar m_scrollBar;
 
 		/// <summary>
@@ -2064,7 +2064,11 @@ namespace EndlessClient
 		/// </summary>
 		public List<string> NamesList
 		{
-			get { return m_listItems.Select(item => item.Text).ToList(); }
+			get
+			{
+				lock(m_listItemLock)
+					return m_listItems.Select(item => item.Text).ToList();
+			}
 		}
 
 		private readonly XNALabel m_titleText;
@@ -2143,66 +2147,80 @@ namespace EndlessClient
 			m_scrollBar.UpdateDimensions(itemList.Count);
 
 			EODialogListItem.ListItemStyle firstStyle = itemList[0].Style;
-			for (int i = 0; i < itemList.Count; ++i)
-			{
-				m_listItems.Add(itemList[i]);
-				m_listItems[i].Style = firstStyle;
-				m_listItems[i].Index = i;
-				if (i > m_scrollBar.LinesToRender)
-					m_listItems[i].Visible = false;
-			}
+			lock (m_listItemLock)
+				for (int i = 0; i < itemList.Count; ++i)
+				{
+					m_listItems.Add(itemList[i]);
+					m_listItems[i].Style = firstStyle;
+					m_listItems[i].Index = i;
+					if (i > m_scrollBar.LinesToRender)
+						m_listItems[i].Visible = false;
+				}
 		}
 
 		public void AddItemToList(EODialogListItem item, bool sortList)
 		{
 			if (m_listItems.Count == 0)
 				m_scrollBar.LinesToRender = item.Style == EODialogListItem.ListItemStyle.Large ? LargeItemStyleMaxItemDisplay : SmallItemStyleMaxItemDisplay;
-			m_listItems.Add(item);
-			if (sortList)
-				m_listItems.Sort((item1, item2) => item1.Text.CompareTo(item2.Text));
-			for (int i = 0; i < m_listItems.Count; ++i)
-				m_listItems[i].Index = i;
+			lock (m_listItemLock)
+			{
+				m_listItems.Add(item);
+				if (sortList)
+					m_listItems.Sort((item1, item2) => item1.Text.CompareTo(item2.Text));
+				for (int i = 0; i < m_listItems.Count; ++i)
+					m_listItems[i].Index = i;
+			}
 			m_scrollBar.UpdateDimensions(m_listItems.Count);
 		}
 
 		public void RemoveFromList(EODialogListItem item)
 		{
-			int ndx = m_listItems.FindIndex(_item => _item == item);
+			int ndx;
+			lock (m_listItemLock)
+				ndx = m_listItems.FindIndex(_item => _item == item);
 			if (ndx < 0) return;
 
 			item.Close();
-			m_listItems.RemoveAt(ndx);
 
-			m_scrollBar.UpdateDimensions(m_listItems.Count);
-			if (m_listItems.Count <= m_scrollBar.LinesToRender)
-				m_scrollBar.ScrollToTop();
-
-			for (int i = 0; i < m_listItems.Count; ++i)
+			lock (m_listItemLock)
 			{
-				//adjust indices (determines drawing position)
-				m_listItems[i].Index = i;
+				m_listItems.RemoveAt(ndx);
+
+				m_scrollBar.UpdateDimensions(m_listItems.Count);
+				if (m_listItems.Count <= m_scrollBar.LinesToRender)
+					m_scrollBar.ScrollToTop();
+
+				for (int i = 0; i < m_listItems.Count; ++i)
+				{
+					//adjust indices (determines drawing position)
+					m_listItems[i].Index = i;
+				}
 			}
 		}
 
 		public void SetActiveItemList(List<string> activeLabels)
 		{
-			foreach (EODialogListItem item in m_listItems)
-			{
-				if (activeLabels.Select(x => x.ToLower()).Contains(item.Text.ToLower()))
+			lock (m_listItemLock)
+				foreach (EODialogListItem item in m_listItems)
 				{
-					item.SetActive();
+					if (activeLabels.Select(x => x.ToLower()).Contains(item.Text.ToLower()))
+					{
+						item.SetActive();
+					}
 				}
-			}
 		}
 
-		public void ClearItemList()
+		protected void ClearItemList()
 		{
-			foreach (EODialogListItem item in m_listItems)
+			lock (m_listItemLock)
 			{
-				item.SetParent(null);
-				item.Close();
+				foreach (EODialogListItem item in m_listItems)
+				{
+					item.SetParent(null);
+					item.Close();
+				}
+				m_listItems.Clear();
 			}
-			m_listItems.Clear();
 			m_scrollBar.UpdateDimensions(0);
 			m_scrollBar.ScrollToTop();
 		}
@@ -2259,30 +2277,33 @@ namespace EndlessClient
 		public override void Update(GameTime gt)
 		{
 			//which items should we render?
-			if (m_listItems.Count > m_scrollBar.LinesToRender)
+			lock (m_listItemLock)
 			{
-				for (int i = 0; i < m_listItems.Count; ++i)
+				if (m_listItems.Count > m_scrollBar.LinesToRender)
 				{
-					EODialogListItem curr = m_listItems[i];
-					if (i < m_scrollBar.ScrollOffset)
+					for (int i = 0; i < m_listItems.Count; ++i)
 					{
-						curr.Visible = false;
-						continue;
-					}
+						EODialogListItem curr = m_listItems[i];
+						if (i < m_scrollBar.ScrollOffset)
+						{
+							curr.Visible = false;
+							continue;
+						}
 
-					if (i < m_scrollBar.LinesToRender + m_scrollBar.ScrollOffset)
-					{
-						curr.Visible = true;
-						curr.Index = i - m_scrollBar.ScrollOffset;
-					}
-					else
-					{
-						curr.Visible = false;
+						if (i < m_scrollBar.LinesToRender + m_scrollBar.ScrollOffset)
+						{
+							curr.Visible = true;
+							curr.Index = i - m_scrollBar.ScrollOffset;
+						}
+						else
+						{
+							curr.Visible = false;
+						}
 					}
 				}
+				else if (m_listItems.Any(_item => !_item.Visible))
+					m_listItems.ForEach(_item => _item.Visible = true); //all items visible if less than # lines to render
 			}
-			else if (m_listItems.Any(_item => !_item.Visible))
-				m_listItems.ForEach(_item => _item.Visible = true); //all items visible if less than # lines to render
 
 			base.Update(gt);
 		}
