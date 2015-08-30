@@ -260,7 +260,7 @@ namespace EndlessClient
 			//PacketAPI cannot be mocked...
 			Inventory = new List<InventoryItem>();
 			Spells = new List<CharacterSpell>();
-			PaperDoll = new short[1];
+			PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
 
 			Stats = new CharStatData();
 			RenderData = new CharRenderData();

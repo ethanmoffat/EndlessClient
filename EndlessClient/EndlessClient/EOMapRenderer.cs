@@ -397,6 +397,7 @@ namespace EndlessClient
 			if(pts.Count > 1)
 				throw new AmbiguousMatchException("Multiple MapItems shared that uid. Something is wrong.");
 			//should only be one result
+			if (pts.Count == 0) return;
 			
 			List<MapItem> res = MapItems[pts[0]];
 			for (int i = res.Count - 1; i >= 0; --i)
@@ -1392,6 +1393,9 @@ namespace EndlessClient
 		{
 			if (MapRef != null)
 			{
+				if (m_drawingEvent == null)
+					m_drawingEvent = new ManualResetEventSlim(true);
+
 				m_drawingEvent.Wait();
 				m_drawingEvent.Reset();
 

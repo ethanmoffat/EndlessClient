@@ -235,7 +235,7 @@ namespace EndlessClient
 
 		public void Walk(byte x, byte y, EODirection dir)
 		{
-			if (Walking) return;
+			if (Walking || walkTimer == null) return;
 			walkTimer.Change(0, 100); //use 100ms for now....
 			
 			//the direction is required for the walk callback
