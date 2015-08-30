@@ -115,7 +115,10 @@ namespace EndlessClient
 		private void _setDialogTitle()
 		{
 			string title = NPCName;
-			title += " - " + _dialogNames[_stateInfo.VendorID];
+			if (!_dialogNames.ContainsKey(_stateInfo.VendorID) && _dialogNames.Count == 1)
+				title += " - " + _dialogNames.First();
+			else if(_dialogNames.ContainsKey(_stateInfo.VendorID))
+				title += " - " + _dialogNames[_stateInfo.VendorID];
 
 			caption.Text = title;
 			caption.ResizeBasedOnText();

@@ -220,6 +220,7 @@ namespace EndlessClient
 				{
 					walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
 					walkTimer.Dispose();
+					walkTimer = null;
 				}
 
 				if(sb != null)

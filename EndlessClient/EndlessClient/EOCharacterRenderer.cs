@@ -313,7 +313,7 @@ namespace EndlessClient
 					if (World.Instance.EIF != null)
 					{
 						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
-						shield = spriteSheet.GetShield(shieldInfo.SubType == ItemSubType.Arrows || shieldInfo.SubType == ItemSubType.Wings);
+						shield = spriteSheet.GetShield(shieldInfo.Name == "Bag" || shieldInfo.SubType == ItemSubType.Arrows || shieldInfo.SubType == ItemSubType.Wings);
 					}
 				}
 				else
@@ -1271,24 +1271,33 @@ namespace EndlessClient
 				}
 			}
 
-			if (drawHairFirst)
+			SpriteBatch.End();
+
+			lock (hatHairLock)
 			{
-				if (hair != null)
-					SpriteBatch.Draw(hair, new Vector2(hairLoc.X + hairOffX, hairLoc.Y + hairOffY), null, Color.White, 0.0f,
-						Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-				if (hat != null)
-					SpriteBatch.Draw(hat, new Vector2(hatLoc.X + hairOffX, hatLoc.Y + hairOffY), null, Color.White, 0.0f, Vector2.Zero,
-						1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				SpriteBatch.Begin();
+				if (drawHairFirst)
+				{
+					if (hair != null)
+						SpriteBatch.Draw(hair, new Vector2(hairLoc.X + hairOffX, hairLoc.Y + hairOffY), null, Color.White, 0.0f,
+							Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+					if (hat != null)
+						SpriteBatch.Draw(hat, new Vector2(hatLoc.X + hairOffX, hatLoc.Y + hairOffY), null, Color.White, 0.0f, Vector2.Zero,
+							1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				}
+				else
+				{
+					if (hat != null)
+						SpriteBatch.Draw(hat, new Vector2(hatLoc.X + hairOffX, hatLoc.Y + hairOffY), null, Color.White, 0.0f, Vector2.Zero,
+							1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+					if (hair != null)
+						SpriteBatch.Draw(hair, new Vector2(hairLoc.X + hairOffX, hairLoc.Y + hairOffY), null, Color.White, 0.0f,
+							Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+				}
+				SpriteBatch.End();
 			}
-			else
-			{
-				if (hat != null)
-					SpriteBatch.Draw(hat, new Vector2(hatLoc.X + hairOffX, hatLoc.Y + hairOffY), null, Color.White, 0.0f, Vector2.Zero,
-						1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-				if (hair != null)
-					SpriteBatch.Draw(hair, new Vector2(hairLoc.X + hairOffX, hairLoc.Y + hairOffY), null, Color.White, 0.0f,
-						Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
-			}
+
+			SpriteBatch.Begin();
 		}
 
 		private void _drawBoots(bool flipped)
@@ -1378,11 +1387,14 @@ namespace EndlessClient
 			
 			if (Data.facing == EODirection.Left || Data.facing == EODirection.Up || hair == null)
 			{
-				hatPixels = new Color[hat.Width * hat.Height];
-				hat.GetData(hatPixels);
-				for(int i = 0; i < hatPixels.Length; ++i)
-					if(hatPixels[i] == Color.Black) hatPixels[i] = Color.Transparent;
-				hat.SetData(hatPixels);
+				lock (hatHairLock)
+				{
+					hatPixels = new Color[hat.Width*hat.Height];
+					hat.GetData(hatPixels);
+					for (int i = 0; i < hatPixels.Length; ++i)
+						if (hatPixels[i] == Color.Black) hatPixels[i] = Color.Transparent;
+					hat.SetData(hatPixels);
+				}
 				return; //don't clip if left or up - this game is so screwy. Make the black color transparent.
 			}
 
@@ -1406,11 +1418,15 @@ namespace EndlessClient
 				}
 			}
 
-			lock (hatHairLock)
+			try
 			{
-				hat.SetData(hatPixels);
-				hair.SetData(hairPixels);
+				lock (hatHairLock)
+				{
+					hat.SetData(hatPixels);
+					hair.SetData(hairPixels);
+				}
 			}
+			catch (InvalidOperationException) { }
 		}
 
 		public void SetChatBubbleText(string msg, bool isGroupChat)

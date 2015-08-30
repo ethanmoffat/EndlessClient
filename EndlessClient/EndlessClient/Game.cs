@@ -445,7 +445,7 @@ namespace EndlessClient
 			}
 			catch
 			{
-				MessageBox.Show(string.Format("There was an error loading GFX{0:000}.EGF : {1}. Place all .GFX files in .\\gfx\\", (int)curValue, curValue.ToString()), "Error");
+				MessageBox.Show(string.Format("There was an error loading GFX{0:000}.EGF : {1}. Place all .GFX files in .\\gfx\\", (int)curValue, curValue), "Error");
 				Exit();
 				return;
 			}
@@ -454,9 +454,11 @@ namespace EndlessClient
 			{
 				SoundManager = new EOSoundManager();
 			}
-			catch
+			catch(Exception ex)
 			{
-				MessageBox.Show(string.Format("There was an error initializing the sound manager."), "Error");
+				MessageBox.Show(
+					string.Format("There was an error (type: {2}) initializing the sound manager: {0}\n\nCall Stack:\n {1}", ex.Message,
+						ex.StackTrace, ex.GetType()), "Sound Manager Error");
 				Exit();
 				return;
 			}

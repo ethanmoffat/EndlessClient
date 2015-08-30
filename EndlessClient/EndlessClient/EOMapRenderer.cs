@@ -520,6 +520,8 @@ namespace EndlessClient
 				lock (rendererListLock)
 				{
 					int ndx = otherRenderers.FindIndex(rend => rend.Character == c);
+					if (ndx < 0) return;
+
 					otherRenderers[ndx].HideChatBubble();
 					otherRenderers[ndx].Visible = false;
 					otherRenderers[ndx].Close();
@@ -682,10 +684,10 @@ namespace EndlessClient
 		{
 			lock (npcListLock)
 			{
-				NPC exists = new NPC(data);
-				exists.Initialize();
-				exists.Visible = true;
-				npcList.Add(exists);
+				NPC newNPC = new NPC(data);
+				newNPC.Initialize();
+				newNPC.Visible = true;
+				npcList.Add(newNPC);
 			}
 		}
 
@@ -1574,7 +1576,6 @@ namespace EndlessClient
 
 			GraphicsDevice.SetRenderTarget(_rtMapObjAbovePlayer);
 			GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-			sb.Begin();
 			bool targetChanged = false;
 
 			Dictionary<Point, Texture2D> drawRoofLater = new Dictionary<Point, Texture2D>();
@@ -1582,6 +1583,7 @@ namespace EndlessClient
 			//no need to iterate over the entire map rows if they won't be included in the render.
 			for (int rowIndex = Math.Max(c.Y - 22, 0); rowIndex <= Math.Min(c.Y + 22, MapRef.Height); ++rowIndex)
 			{
+				sb.Begin();
 				for (int colIndex = Math.Max(c.X - 22, 0); colIndex <= Math.Min(c.X + 22, MapRef.Width); ++colIndex)
 				{
 					//once we hit the main players (x, y) coordinate, we need to switch render targets
@@ -1700,7 +1702,7 @@ namespace EndlessClient
 						foreach (EOCharacterRenderer _char in thisLocChars) _char.Draw(sb, true);
 					}
 
-					if (Math.Abs(c.X - colIndex) <= 10 && Math.Abs(c.Y - rowIndex) <= 10)
+					if (Math.Abs(c.X - colIndex) <= 12 && Math.Abs(c.Y - rowIndex) <= 12)
 					{
 						//roofs (after objects - for outdoor maps, which actually have roofs, this makes more sense)
 						if ((gfxNum = MapRef.GFXLookup[(int) MapLayers.Roof][rowIndex, colIndex]) > 0)
@@ -1727,7 +1729,19 @@ namespace EndlessClient
 						}
 					}
 				}
+
+				try
+				{
+					sb.End();
+				}
+				catch (InvalidOperationException)
+				{
+					sb.Dispose();
+					sb = new SpriteBatch(Game.GraphicsDevice);
+				}
 			}
+
+			sb.Begin();
 
 			foreach (var kvp in drawRoofLater)
 			{
@@ -1740,7 +1754,7 @@ namespace EndlessClient
 			{
 				sb.End();
 			}
-			catch(InvalidOperationException)
+			catch (InvalidOperationException)
 			{
 				sb.Dispose();
 				sb = new SpriteBatch(Game.GraphicsDevice);
