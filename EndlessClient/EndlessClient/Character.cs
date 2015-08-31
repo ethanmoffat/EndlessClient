@@ -515,18 +515,20 @@ namespace EndlessClient
 			if (this == World.Instance.MainPlayer.ActiveCharacter)
 			{
 				//KS protection - vanilla eoserv does not support this!
-				bool shouldSend = true;
-				if (!(x == 255 && y == 255))
-				{
-					TileInfo ti = World.Instance.ActiveMapRenderer.GetTileInfo(x, y);
-					if (ti.ReturnType == TileInfoReturnType.IsOtherNPC && ti.NPC.Opponent != null && ti.NPC.Opponent != this)
-					{
-						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_UNABLE_TO_ATTACK);
-						shouldSend = false;
-					}
-				}
+				//This has been turned off for now
+				//bool shouldSend = true;
 
-				if(shouldSend && !m_packetAPI.AttackUse(direction))
+				//if (!(x == 255 && y == 255))
+				//{
+				//	TileInfo ti = World.Instance.ActiveMapRenderer.GetTileInfo(x, y);
+				//	if (ti.ReturnType == TileInfoReturnType.IsOtherNPC && ti.NPC.Opponent != null && ti.NPC.Opponent != this)
+				//	{
+				//		EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_UNABLE_TO_ATTACK);
+				//		shouldSend = false;
+				//	}
+				//}
+
+				if(/*shouldSend &&*/ !m_packetAPI.AttackUse(direction))
 					EOGame.Instance.LostConnectionDialog();
 			}
 			else if(RenderData.facing != direction)
