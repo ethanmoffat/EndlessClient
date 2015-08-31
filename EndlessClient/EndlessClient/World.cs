@@ -488,19 +488,12 @@ namespace EndlessClient
 		{
 			if (mapID >= 0)
 			{
+				MainPlayer.ActiveCharacter.CurrentMap = mapID;
 				if (!_tryLoadMap(mapID))
 				{
 					EOGame.Instance.LostConnectionDialog();
 					EODialog.Show("Something went wrong when loading the map. Try logging in again.", "Map Load Error");
 				}
-
-				MainPlayer.ActiveCharacter.CurrentMap = mapID;
-				if (!_tryLoadMap(mapID))
-				{
-					EOGame.Instance.LostConnectionDialog();
-					return;
-				}
-				ActiveMapRenderer.SetActiveMap(MapCache[mapID]);
 			}
 
 			ActiveMapRenderer.ClearOtherPlayers();
