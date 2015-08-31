@@ -450,7 +450,14 @@ namespace EndlessClient
 			if(modeTextureLoaded && modeTexture != null)
 				SpriteBatch.Draw(modeTexture, new Vector2(16, 309), Color.White);
 
-			SpriteBatch.End();
+			try
+			{
+				SpriteBatch.End();
+			}
+			catch (ObjectDisposedException)
+			{
+				return;
+			}
 
 			base.Draw(gameTime);
 		}

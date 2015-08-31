@@ -285,7 +285,7 @@ namespace EndlessClient
 
 		private void _chestGetItem(short id, int amount, byte weight, byte maxWeight, ChestData data)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight);
+			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, true);
 			EOChestDialog.Instance.InitializeItems(data.Items);
 			m_game.Hud.RefreshStats();
 		}
