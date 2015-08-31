@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using EOLib.Data;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -229,9 +227,14 @@ namespace EndlessClient
 
 			if(prevState == GameStates.PlayingTheGame && currentState != GameStates.PlayingTheGame)
 			{
-				Hud.Dispose();
-				Hud = null;
-				Components.Remove(Hud);
+				int ndx = Components.ToList().FindIndex(x => x is XNADialog);
+				var dlg = ndx < 0 ? null : Components[ndx];
+
+				Components.ToList().ForEach(x => ((IDisposable)x).Dispose());
+				Components.Clear();
+				Components.Add(dlg);
+
+				InitializeControls();
 			}
 			
 			List<DrawableGameComponent> toRemove = new List<DrawableGameComponent>();
