@@ -1535,7 +1535,7 @@ namespace EndlessClient
 					amt = m_totalAmount;
 					m_amount.Text = string.Format("{0}", m_totalAmount);
 				}
-				else if (m_amount.Text != "" && amt <= 0)
+				else if (m_amount.Text != "" && amt < 0)
 				{
 					amt = 1;
 					m_amount.Text = string.Format("{0}", amt);
@@ -2724,6 +2724,8 @@ namespace EndlessClient
 					return;
 				}
 			}
+			else if (ii.amount == 0)
+				return; //can't sell if amount of item is 0
 
 			//special case: no need for prompting if selling an item with count == 1 in inventory
 			if(!isBuying && ii.amount == 1)
