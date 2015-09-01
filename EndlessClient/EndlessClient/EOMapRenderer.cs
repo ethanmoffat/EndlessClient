@@ -810,7 +810,7 @@ namespace EndlessClient
 		{
 			warpRef.backOff = true; //set flag to prevent hella door packets from the client
 			if(!m_api.DoorOpen(x, y))
-				((EOGame)Game).LostConnectionDialog();
+				((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 
 		/// <summary>
@@ -1197,7 +1197,7 @@ namespace EndlessClient
 							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
 						}
 						else if (!m_api.GetItem(mi.uid)) //server validates anyway
-							EOGame.Instance.LostConnectionDialog();
+							EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				}
 			}
@@ -1628,6 +1628,7 @@ namespace EndlessClient
 
 					if (Math.Abs(c.X - colIndex) <= 20 && Math.Abs(c.Y - rowIndex) <= 20)
 					{
+						const int WALL_FRAME_WIDTH = 33;
 						//right-facing walls
 						if ((gfxNum = MapRef.GFXLookup[(int) MapLayers.WallRowsRight][rowIndex, colIndex]) > 0)
 						{
@@ -1638,10 +1639,10 @@ namespace EndlessClient
 							Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
 
 							int gfxWidthDelta = gfx.Width/4;
-							Rectangle? src = gfx.Width > 32
+							Rectangle? src = gfx.Width > WALL_FRAME_WIDTH
 								? new Rectangle?(new Rectangle(gfxWidthDelta*_wallSrcIndex, 0, gfxWidthDelta, gfx.Height))
 								: null;
-							loc = new Vector2(loc.X - (int) Math.Round((gfx.Width > 32 ? gfxWidthDelta : gfx.Width)/2.0) + 47,
+							loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > WALL_FRAME_WIDTH ? gfxWidthDelta : gfx.Width) / 2.0) + 47,
 								loc.Y - (gfx.Height - 29));
 
 							sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
@@ -1657,10 +1658,10 @@ namespace EndlessClient
 							Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
 
 							int gfxWidthDelta = gfx.Width / 4;
-							Rectangle? src = gfx.Width > 32
+							Rectangle? src = gfx.Width > WALL_FRAME_WIDTH
 								? new Rectangle?(new Rectangle(gfxWidthDelta * _wallSrcIndex, 0, gfxWidthDelta, gfx.Height))
 								: null;
-							loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > 32 ? gfxWidthDelta : gfx.Width) / 2.0) + 15,
+							loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > WALL_FRAME_WIDTH ? gfxWidthDelta : gfx.Width) / 2.0) + 15,
 								loc.Y - (gfx.Height - 29));
 
 							sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));

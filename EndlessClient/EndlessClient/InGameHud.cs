@@ -503,7 +503,7 @@ namespace EndlessClient
 				case InGameStates.Online:
 					List<OnlineEntry> onlineList;
 					if (!m_packetAPI.RequestOnlinePlayers(true, out onlineList))
-						EOGame.Instance.LostConnectionDialog();
+						EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 					m_whoIsOnline.SetOnlinePlayerList(onlineList);
 					pnlOnline.Visible = true;
 					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_ONLINE_PLAYERS_NOW_VIEWED);
@@ -658,7 +658,7 @@ namespace EndlessClient
 					else if (args.Length == 2 && args[0] == "find")
 					{
 						if(!m_packetAPI.FindPlayer(args[1]))
-							((EOGame)Game).LostConnectionDialog();
+							((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 					else if (args.Length == 1 && args[0] == "loc")
 					{
@@ -677,7 +677,7 @@ namespace EndlessClient
 					else if (args.Length == 1 && cmd == "ping")
 					{
 						if (!m_packetAPI.PingServer())
-							((EOGame) Game).LostConnectionDialog();
+							((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				}
 					break;
@@ -705,7 +705,7 @@ namespace EndlessClient
 		private void _returnToLogin()
 		{
 			//any other logic prior to disconnecting goes here
-			EOGame.Instance.LostConnectionDialog();
+			EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 		#endregion
 

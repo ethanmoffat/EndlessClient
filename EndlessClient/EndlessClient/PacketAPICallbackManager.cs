@@ -721,7 +721,7 @@ namespace EndlessClient
 					   if (e.Result == XNADialogResult.OK)
 					   {
 						   if (!m_packetAPI.PartyAcceptRequest(type, id))
-							   m_game.LostConnectionDialog();
+							   m_game.DoShowLostConnectionDialogAndReturnToMainMenu();
 					   }
 				   });
 		}
@@ -745,7 +745,7 @@ namespace EndlessClient
 					EODialogStyle.SmallDialogSmallHeader, (o, e) =>
 					{
 						if (e.Result == XNADialogResult.OK && !m_packetAPI.TradeAcceptRequest(playerID))
-							m_game.LostConnectionDialog();
+							m_game.DoShowLostConnectionDialogAndReturnToMainMenu();
 					});
 		}
 

@@ -190,15 +190,36 @@ namespace EndlessClient
 			});
 		}
 
-		public void LostConnectionDialog()
+		public void ShowLostConnectionDialog()
 		{
 			EODialog.Show(currentState == GameStates.PlayingTheGame
 				? DATCONST1.CONNECTION_LOST_IN_GAME
 				: DATCONST1.CONNECTION_LOST_CONNECTION);
+			
+		}
 
+		public void ResetWorldElements()
+		{
+			World.Instance.ResetGameElements();
+		}
+
+		public void DisconnectFromGameServer()
+		{
 			if (World.Instance.Client.ConnectedAndInitialized)
 				World.Instance.Client.Disconnect();
+		}
+
+		public void SetInitialGameState()
+		{
 			doStateChange(GameStates.Initial);
+		}
+
+		public void DoShowLostConnectionDialogAndReturnToMainMenu()
+		{
+			ShowLostConnectionDialog();
+			ResetWorldElements();
+			DisconnectFromGameServer();
+			SetInitialGameState();
 		}
 
 		private void doShowCharacters()
@@ -227,14 +248,14 @@ namespace EndlessClient
 
 			if(prevState == GameStates.PlayingTheGame && currentState != GameStates.PlayingTheGame)
 			{
-				int ndx = Components.ToList().FindIndex(x => x is XNADialog);
-				var dlg = ndx < 0 ? null : Components[ndx];
-
 				Components.ToList().ForEach(x => ((IDisposable)x).Dispose());
 				Components.Clear();
-				Components.Add(dlg);
 
-				InitializeControls();
+				foreach (var dlg in XNAControl.Dialogs)
+				{
+					dlg.Visible = true;
+					Components.Add(dlg);
+				}
 			}
 			
 			List<DrawableGameComponent> toRemove = new List<DrawableGameComponent>();

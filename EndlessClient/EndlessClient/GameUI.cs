@@ -253,7 +253,7 @@ Thanks to :
 			else if ((sender == backButton && currentState != GameStates.PlayingTheGame) || sender == createButtons[1] || sender == loginButtons[1])
 			{
 				Dispatcher.Subscriber = null;
-				LostConnectionDialog();
+				DoShowLostConnectionDialogAndReturnToMainMenu();
 				//disabled warning: in case I add code later below, need to remember that this should immediately return
 // ReSharper disable once RedundantJumpStatement
 				return;
@@ -282,7 +282,7 @@ Thanks to :
 				CharacterRenderData[] dataArray;
 				if (!m_packetAPI.LoginRequest(loginUsernameTextbox.Text, loginPasswordTextbox.Text, out reply, out dataArray))
 				{
-					LostConnectionDialog();
+					DoShowLostConnectionDialogAndReturnToMainMenu();
 					return;
 				}
 
@@ -348,7 +348,7 @@ Thanks to :
 						AccountReply reply;
 						if (!m_packetAPI.AccountCheckName(accountCreateTextBoxes[0].Text, out reply))
 						{
-							LostConnectionDialog();
+							DoShowLostConnectionDialogAndReturnToMainMenu();
 							return;
 						}
 
@@ -374,7 +374,7 @@ Thanks to :
 								Win32.GetHDDSerial(),
 								out reply))
 							{
-								LostConnectionDialog();
+								DoShowLostConnectionDialogAndReturnToMainMenu();
 								return;
 							}
 
@@ -398,7 +398,7 @@ Thanks to :
 						CharacterReply reply;
 						if (!m_packetAPI.CharacterRequest(out reply))
 						{
-							LostConnectionDialog();
+							DoShowLostConnectionDialogAndReturnToMainMenu();
 							return;
 						}
 
@@ -416,7 +416,7 @@ Thanks to :
 							CharacterRenderData[] dataArray;
 							if (!m_packetAPI.CharacterCreate(createCharacter.Gender, createCharacter.HairType, createCharacter.HairColor, createCharacter.SkinColor, createCharacter.Name, out reply, out dataArray))
 							{
-								LostConnectionDialog();
+								DoShowLostConnectionDialogAndReturnToMainMenu();
 								return;
 							}
 
@@ -446,7 +446,7 @@ Thanks to :
 					AccountReply reply;
 					if (!m_packetAPI.AccountChangePassword(dlg.Username, dlg.OldPassword, dlg.NewPassword, out reply))
 					{
-						LostConnectionDialog();
+						DoShowLostConnectionDialogAndReturnToMainMenu();
 						return;
 					}
 
@@ -479,7 +479,7 @@ Thanks to :
 				WelcomeRequestData data;
 				if (!m_packetAPI.SelectCharacter(World.Instance.MainPlayer.CharData[index].id, out data))
 				{
-					LostConnectionDialog();
+					DoShowLostConnectionDialogAndReturnToMainMenu();
 					return;
 				}
 
@@ -533,7 +533,7 @@ Thanks to :
 				int takeID;
 				if (!m_packetAPI.CharacterTake(World.Instance.MainPlayer.CharData[index].id, out takeID))
 				{
-					LostConnectionDialog();
+					DoShowLostConnectionDialogAndReturnToMainMenu();
 					return;
 				}
 
@@ -552,7 +552,7 @@ Thanks to :
 							CharacterRenderData[] dataArray;
 							if (!m_packetAPI.CharacterRemove(World.Instance.MainPlayer.CharData[index].id, out dataArray))
 							{
-								LostConnectionDialog();
+								DoShowLostConnectionDialogAndReturnToMainMenu();
 								return;
 							}
 

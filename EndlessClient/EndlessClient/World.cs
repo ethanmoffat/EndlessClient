@@ -83,7 +83,13 @@ namespace EndlessClient
 					Enum.GetName(typeof (PacketAction), dte.PacketAction),
 					dte.RawByteData.Length,
 					dte.ByteDataHexString);
-			((EOClient) m_client).EventDisconnect += () => MainPlayer.Logout();
+
+			((EOClient) m_client).EventDisconnect += () =>
+			{
+				EOGame.Instance.ShowLostConnectionDialog();
+				EOGame.Instance.ResetWorldElements();
+				EOGame.Instance.SetInitialGameState();
+			};
 		}
 
 		public void Init()
@@ -294,7 +300,7 @@ namespace EndlessClient
 
 				if(ret.Character == null)
 				{
-					EOGame.Instance.LostConnectionDialog();
+					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 					return null;
 				}
 
@@ -345,7 +351,8 @@ namespace EndlessClient
 					MapCache[mapID] = new MapFile(mapFile);
 
 				//map renderer construction moved to be more closely coupled to loading of the map
-				(m_mapRender ?? (m_mapRender = new EOMapRenderer(EOGame.Instance, m_api))).SetActiveMap(MapCache[mapID]);
+				if (m_mapRender == null)
+					m_mapRender = new EOMapRenderer(EOGame.Instance, m_api);
 			}
 			catch
 			{
@@ -486,15 +493,17 @@ namespace EndlessClient
 
 		public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<MapItem> items)
 		{
-			if (mapID >= 0)
+			if (!_tryLoadMap(mapID))
 			{
-				MainPlayer.ActiveCharacter.CurrentMap = mapID;
-				if (!_tryLoadMap(mapID))
-				{
-					EOGame.Instance.LostConnectionDialog();
-					EODialog.Show("Something went wrong when loading the map. Try logging in again.", "Map Load Error");
-				}
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+				EODialog.Show("Something went wrong when loading the map. Try logging in again.", "Map Load Error");
 			}
+
+			if(mapID > 0)
+				MainPlayer.ActiveCharacter.CurrentMap = mapID;
+
+			if(ActiveMapRenderer.MapRef != MapCache[MainPlayer.ActiveCharacter.CurrentMap])
+				ActiveMapRenderer.SetActiveMap(MapCache[MainPlayer.ActiveCharacter.CurrentMap]);
 
 			ActiveMapRenderer.ClearOtherPlayers();
 			ActiveMapRenderer.ClearOtherNPCs();
@@ -578,6 +587,9 @@ namespace EndlessClient
 			MainPlayer.ActiveCharacter.Inventory.AddRange(data.Inventory);
 			MainPlayer.ActiveCharacter.Spells.Clear();
 			MainPlayer.ActiveCharacter.Spells.AddRange(data.Spells);
+
+			if (ActiveMapRenderer.MapRef == null)
+				ActiveMapRenderer.SetActiveMap(MapCache[MainPlayer.ActiveCharacter.CurrentMap]);
 
 			ActiveMapRenderer.ClearOtherPlayers();
 			ActiveMapRenderer.ClearOtherNPCs();

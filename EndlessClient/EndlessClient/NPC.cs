@@ -271,6 +271,7 @@ namespace EndlessClient
 					break;
 				case NPCFrame.WalkFrame4:
 					Frame = NPCFrame.Standing;
+					if (walkTimer == null) return;
 					walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
 					X = DestX;
 					Y = DestY;

@@ -151,14 +151,14 @@ namespace EndlessClient
 									EODialog.Show(DATCONST1.DROP_MANY_GOLD_ON_GROUND, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader,
 										(o, e) => { safetyCommentHasBeenShown = true; });
 								else if (!m_api.DropItem(m_inventory.id, dlg.SelectedAmount, (byte) loc.X, (byte) loc.Y))
-									((EOGame) Game).LostConnectionDialog();
+									((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 							}
 						};
 					}
 					else if (inRange)
 					{
 						if (!m_api.DropItem(m_inventory.id, 1, (byte)loc.X, (byte)loc.Y))
-							((EOGame)Game).LostConnectionDialog();
+							((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 					else /*if (!inRange)*/
 					{
@@ -174,11 +174,11 @@ namespace EndlessClient
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result == XNADialogResult.OK && !m_api.JunkItem(m_inventory.id, dlg.SelectedAmount))
-								((EOGame)Game).LostConnectionDialog();
+								((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 						};
 					}
 					else if (!m_api.JunkItem(m_inventory.id, 1))
-						((EOGame) Game).LostConnectionDialog();
+						((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 				}
 				else if (EOChestDialog.Instance != null && EOChestDialog.Instance.MouseOver && EOChestDialog.Instance.MouseOverPreviously)
 				{
@@ -194,13 +194,13 @@ namespace EndlessClient
 							if (args.Result == XNADialogResult.OK &&
 							    !m_api.ChestAddItem(EOChestDialog.Instance.CurrentChestX, EOChestDialog.Instance.CurrentChestY,
 								    m_inventory.id, dlg.SelectedAmount))
-								EOGame.Instance.LostConnectionDialog();
+								EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 						};
 					}
 					else
 					{
 						if (!m_api.ChestAddItem(EOChestDialog.Instance.CurrentChestX, EOChestDialog.Instance.CurrentChestY, m_inventory.id, 1))
-							EOGame.Instance.LostConnectionDialog();
+							EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				}
 				else if (EOPaperdollDialog.Instance != null && EOPaperdollDialog.Instance.MouseOver && EOPaperdollDialog.Instance.MouseOverPreviously)
@@ -243,7 +243,7 @@ namespace EndlessClient
 								if (EOLockerDialog.Instance.GetNewItemAmount(m_inventory.id, dlg.SelectedAmount) > Constants.LockerMaxSingleItemAmount)
 									EODialog.Show(DATCONST1.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 								else if (!m_api.LockerAddItem(x, y, m_inventory.id, dlg.SelectedAmount))
-									EOGame.Instance.LostConnectionDialog();
+									EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 							}
 						};
 					}
@@ -252,7 +252,7 @@ namespace EndlessClient
 						if (EOLockerDialog.Instance.GetNewItemAmount(m_inventory.id, 1) > Constants.LockerMaxSingleItemAmount)
 							EODialog.Show(DATCONST1.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 						else if (!m_api.LockerAddItem(x, y, m_inventory.id, 1))
-							EOGame.Instance.LostConnectionDialog();
+							EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				}
 				else if (EOBankAccountDialog.Instance != null && EOBankAccountDialog.Instance.MouseOver && EOBankAccountDialog.Instance.MouseOverPreviously && m_inventory.id == 1)
@@ -271,13 +271,13 @@ namespace EndlessClient
 								return;
 
 							if (!m_api.BankDeposit(dlg.SelectedAmount))
-								EOGame.Instance.LostConnectionDialog();
+								EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 						};
 					}
 					else
 					{
 						if (!m_api.BankDeposit(1))
-							EOGame.Instance.LostConnectionDialog();
+							EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				}
 				else if (EOTradeDialog.Instance != null && EOTradeDialog.Instance.MouseOver && EOTradeDialog.Instance.MouseOverPreviously
@@ -298,14 +298,14 @@ namespace EndlessClient
 							if (!m_api.TradeAddItem(m_inventory.id, dlg.SelectedAmount))
 							{
 								EOTradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
-								((EOGame)Game).LostConnectionDialog();
+								((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 							}
 						};
 					}
 					else if(!m_api.TradeAddItem(m_inventory.id, 1))
 					{
 						EOTradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
-						((EOGame)Game).LostConnectionDialog();
+						((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				}
 
@@ -473,7 +473,7 @@ namespace EndlessClient
 						(short) m_itemData.DollGraphic))
 					{
 						if (!m_api.EquipItem((short) m_itemData.ID, subLoc))
-							EOGame.Instance.LostConnectionDialog();
+							EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 					else
 						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
@@ -508,7 +508,7 @@ namespace EndlessClient
 							{
 								if (e.Result == XNADialogResult.OK && !m_api.UseItem((short)m_itemData.ID))
 								{
-									((EOGame)Game).LostConnectionDialog();
+									((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 								}
 							});
 					}
@@ -528,7 +528,7 @@ namespace EndlessClient
 			}
 
 			if (useItem && !m_api.UseItem((short) m_itemData.ID))
-				((EOGame)Game).LostConnectionDialog();
+				((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 
 			m_recentClickCount = 0;
 		}

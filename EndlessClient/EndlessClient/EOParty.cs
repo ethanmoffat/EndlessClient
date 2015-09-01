@@ -136,7 +136,7 @@ namespace EndlessClient
 				return;
 
 			if (!((EOGame) Game).API.PartyRemovePlayer(m_members[memberIndex].ID))
-				((EOGame) Game).LostConnectionDialog();
+				((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 
 			string name = m_members[memberIndex].Name;
 
@@ -226,7 +226,7 @@ namespace EndlessClient
 		protected override void OnVisibleChanged(object sender, EventArgs args)
 		{
 			if (Visible && m_members.Count > 0 && !((EOGame) Game).API.PartyListMembers())
-				((EOGame) Game).LostConnectionDialog();
+				((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 
 			base.OnVisibleChanged(sender, args);
 		}

@@ -86,6 +86,7 @@ namespace EndlessClient
 				case TileInfoReturnType.IsTileSpec:
 					switch (info.Spec)
 					{
+						case TileSpec.FakeWall:
 						case TileSpec.Wall:
 							miniMapRect.Offset((int)MiniMapGfx.Solid * miniMapRect.Width, 0);
 							//draw block

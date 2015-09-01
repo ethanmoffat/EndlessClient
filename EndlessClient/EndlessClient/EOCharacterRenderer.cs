@@ -157,7 +157,7 @@ namespace EndlessClient
 			//this has been happening when shit gets disconnected due to invalid sequence or internal packet id
 			if (charToRender == null)
 			{
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 				return;
 			}
 
@@ -326,12 +326,7 @@ namespace EndlessClient
 				{
 					if (World.Instance.EIF != null)
 					{
-						weaponInfo =
-							(ItemRecord)
-								World.Instance.EIF.Data.Find(
-									x =>
-										(x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.weapon &&
-										(x as ItemRecord).Type == ItemType.Weapon);
+						weaponInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.weapon && (x as ItemRecord).Type == ItemType.Weapon);
 						weapon = spriteSheet.GetWeapon(weaponInfo.SubType == ItemSubType.Ranged);
 					}
 				}

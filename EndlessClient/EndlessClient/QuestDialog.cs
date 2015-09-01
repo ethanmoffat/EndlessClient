@@ -24,7 +24,7 @@ namespace EndlessClient
 			//note: dialog is created in packet callback! sometimes talking to the quest NPC does nothing (if you already completed)!
 
 			if (!api.TalkToQuestNPC(npcIndex, questID))
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 
 		public static void SetupInstance(PacketAPI api)
@@ -50,7 +50,7 @@ namespace EndlessClient
 				if (e.Result == XNADialogResult.OK)
 				{
 					if (!m_api.RespondToQuestDialog(_stateInfo, DialogReply.Ok))
-						((EOGame) Game).LostConnectionDialog();
+						((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 				}
 				Instance = null;
 			};
@@ -243,7 +243,7 @@ namespace EndlessClient
 			if (!m_api.RespondToQuestDialog(_stateInfo, DialogReply.Link, linkID))
 			{
 				Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-				((EOGame)Game).LostConnectionDialog();
+				((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 
 			Close(null, XNADialogResult.Cancel);
@@ -441,7 +441,7 @@ namespace EndlessClient
 			if (!api.RequestQuestHistory(QuestPage.Progress))
 			{
 				Instance.Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 		}
 
@@ -601,7 +601,7 @@ namespace EndlessClient
 				if (!m_api.RequestQuestHistory(QuestPage.History))
 				{
 					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-					((EOGame) Game).LostConnectionDialog();
+					((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 				}
 				_historyRequested = true;
 			}

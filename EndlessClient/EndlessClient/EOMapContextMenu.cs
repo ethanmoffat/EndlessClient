@@ -200,7 +200,7 @@ namespace EndlessClient
 		private void _eventShowPaperdoll(object sender, EventArgs e)
 		{
 			if (!m_api.RequestPaperdoll((short) m_rend.Character.ID))
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 		private void _eventShowBook(object arg1, EventArgs arg2)
 		{
@@ -221,7 +221,7 @@ namespace EndlessClient
 			}
 
 			if (!m_api.PartyRequest(PartyRequestType.Join, (short) m_rend.Character.ID))
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			m_lastPartyRequestedTime = DateTime.Now;
 			((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_PARTY_REQUESTED_TO_JOIN);
 		}
@@ -240,7 +240,7 @@ namespace EndlessClient
 			}
 
 			if (!m_api.PartyRequest(PartyRequestType.Invite, (short)m_rend.Character.ID))
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			m_lastPartyRequestedTime = DateTime.Now;
 			((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, DATCONST2.STATUS_LABEL_PARTY_IS_INVITED);
 		}
@@ -259,7 +259,7 @@ namespace EndlessClient
 				}
 				m_lastTradeRequestedTime = DateTime.Now;
 				if (!m_api.TradeRequest((short)m_rend.Character.ID))
-					((EOGame)Game).LostConnectionDialog();
+					((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 				//todo: is this correct text?
 				((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_TRADE_REQUESTED_TO_TRADE);
 			}

@@ -1916,7 +1916,7 @@ namespace EndlessClient
 			if (!apiHandle.ChestOpen(chestX, chestY))
 			{
 				Instance.Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 		}
 
@@ -2000,7 +2000,7 @@ namespace EndlessClient
 							if (!m_api.ChestTakeItem(CurrentChestX, CurrentChestY, sender.ID))
 							{
 								Close();
-								EOGame.Instance.LostConnectionDialog();
+								EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 							}
 						}
 					};
@@ -2489,7 +2489,7 @@ namespace EndlessClient
 			{
 				Instance.Close();
 				Instance = null;
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 		}
 
@@ -2740,7 +2740,7 @@ namespace EndlessClient
 					{
 						if (ee.Result == XNADialogResult.OK && !m_api.SellItem((short) item.ID, 1))
 						{
-							EOGame.Instance.LostConnectionDialog();
+							EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 						}
 					});
 			}
@@ -2768,7 +2768,7 @@ namespace EndlessClient
 									if (isBuying && !m_api.BuyItem((short) item.ID, dlg.SelectedAmount) ||
 									    !isBuying && !m_api.SellItem((short) item.ID, dlg.SelectedAmount))
 									{
-										EOGame.Instance.LostConnectionDialog();
+										EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 									}
 								}
 							});
@@ -2823,7 +2823,7 @@ namespace EndlessClient
 			{
 				if (e.Result == XNADialogResult.OK && !m_api.CraftItem((short)item.ID))
 				{
-					EOGame.Instance.LostConnectionDialog();
+					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 				}
 			});
 		}
@@ -2840,7 +2840,7 @@ namespace EndlessClient
 			Instance = new EOLockerDialog(api, x, y);
 
 			if(!api.OpenLocker(x, y))
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 
 		private static readonly string TITLE_FMT = World.Instance.MainPlayer.ActiveCharacter.Name + "'s " + World.GetString(DATCONST2.DIALOG_TITLE_PRIVATE_LOCKER) + " [{0}]";
@@ -2918,7 +2918,7 @@ namespace EndlessClient
 			}
 
 			if(!m_api.LockerTakeItem(X, Y, (short)item.ID))
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 
 		public override void Update(GameTime gt)
@@ -3058,7 +3058,7 @@ namespace EndlessClient
 			{
 				Instance.Close();
 				Instance = null;
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 		}
 
@@ -3146,7 +3146,7 @@ namespace EndlessClient
 				if (!m_api.BankDeposit(1))
 				{
 					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-					EOGame.Instance.LostConnectionDialog();
+					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 				}
 				return;
 			}
@@ -3161,7 +3161,7 @@ namespace EndlessClient
 				if (!m_api.BankDeposit(dlg.SelectedAmount))
 				{
 					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-					EOGame.Instance.LostConnectionDialog();
+					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 				}
 			};
 		}
@@ -3179,7 +3179,7 @@ namespace EndlessClient
 				if (!m_api.BankWithdraw(1))
 				{
 					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-					EOGame.Instance.LostConnectionDialog();
+					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 				}
 				return;
 			}
@@ -3194,7 +3194,7 @@ namespace EndlessClient
 				if (!m_api.BankWithdraw(dlg.SelectedAmount))
 				{
 					Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-					EOGame.Instance.LostConnectionDialog();
+					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 				}
 			};
 		}
@@ -3351,7 +3351,7 @@ namespace EndlessClient
 				if (e.Result == XNADialogResult.Cancel)
 				{
 					if(!m_api.TradeClose())
-						((EOGame)Game).LostConnectionDialog();
+						((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 					((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_TRADE_ABORTED);
 				}
 
@@ -3587,7 +3587,7 @@ namespace EndlessClient
 					if (dlgArgs.Result == XNADialogResult.OK && !m_api.TradeAgree(true))
 					{
 						Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-						((EOGame) Game).LostConnectionDialog();
+						((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				});
 		}
@@ -3599,14 +3599,14 @@ namespace EndlessClient
 				if (!m_leftAgrees) //just quit
 					Close(dlgButtons[1], XNADialogResult.Cancel);
 				else if (!m_api.TradeAgree(false)) //cancel agreement
-					((EOGame) Game).LostConnectionDialog();
+					((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 			else if (m_main.ID == m_rightPlayerID)
 			{
 				if (!m_rightAgrees) //just quit
 					Close(dlgButtons[1], XNADialogResult.Cancel);
 				else if (!m_api.TradeAgree(false))
-						((EOGame)Game).LostConnectionDialog();
+						((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 			else
 				throw new InvalidOperationException("Invalid player ID for trade session!");
@@ -3618,7 +3618,7 @@ namespace EndlessClient
 			if (!m_api.TradeRemoveItem((short) id))
 			{
 				Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-				((EOGame)Game).LostConnectionDialog();
+				((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 		}
 
@@ -3695,7 +3695,7 @@ namespace EndlessClient
 			{
 				Instance.Close();
 				Instance = null;
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 		}
 
@@ -3883,7 +3883,7 @@ namespace EndlessClient
 									_spell => ((SpellRecord) World.Instance.ESF.Data[_spell.id]).Name.ToLower() == input.ResponseText.ToLower()).id))
 						{
 							Close();
-							((EOGame)Game).LostConnectionDialog();
+							((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 						}
 					};
 
@@ -3936,7 +3936,7 @@ namespace EndlessClient
 					if (!m_api.LearnSpell(skill.ID))
 					{
 						Close();
-						((EOGame)Game).LostConnectionDialog();
+						((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				});
 		}
@@ -3951,7 +3951,7 @@ namespace EndlessClient
 					if (!m_api.ResetCharacterStatSkill())
 					{
 						Close();
-						((EOGame) Game).LostConnectionDialog();
+						((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				});
 		}

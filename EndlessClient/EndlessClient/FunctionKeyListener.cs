@@ -30,7 +30,7 @@ namespace EndlessClient
 		private void _handleF12()
 		{
 			if (!((EOGame) Game).API.RequestRefresh())
-				((EOGame) Game).LostConnectionDialog();
+				((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 	}
 }

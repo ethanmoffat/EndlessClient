@@ -488,7 +488,7 @@ namespace EndlessClient
 			if (this == World.Instance.MainPlayer.ActiveCharacter)
 			{
 				if(!m_packetAPI.PlayerWalk(direction, destX, destY, admin && AdminLevel != AdminLevel.Player))
-					EOGame.Instance.LostConnectionDialog();
+					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 			else if (RenderData.facing != direction) //if a packet WALK_PLAYER was received: face them the right way first otherwise this will look weird
 				RenderData.SetDirection(direction);
@@ -529,7 +529,7 @@ namespace EndlessClient
 				//}
 
 				if(/*shouldSend &&*/ !m_packetAPI.AttackUse(direction))
-					EOGame.Instance.LostConnectionDialog();
+					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 			else if(RenderData.facing != direction)
 				RenderData.SetDirection(direction);
@@ -553,7 +553,7 @@ namespace EndlessClient
 				if (m_packetAPI.ReportEmote(whichEmote))
 					RenderData.SetEmote(whichEmote);
 				else
-					EOGame.Instance.LostConnectionDialog();
+					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 
 			State = CharacterActionState.Emote;
@@ -573,7 +573,7 @@ namespace EndlessClient
 			if(m_packetAPI.FacePlayer(direction))
 				RenderData.SetDirection(direction); //updates the data in the character renderer as well
 			else
-				EOGame.Instance.LostConnectionDialog();
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 
 		public void UpdateInventoryItem(short id, int characterAmount, bool add = false)

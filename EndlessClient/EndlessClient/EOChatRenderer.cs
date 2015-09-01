@@ -329,7 +329,7 @@ namespace EndlessClient
 					if (i == 0)
 						chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), chatStringsToAdd[0]);
 					else
-						chatStrings.Add(new ChatIndex(chatStrings.Count, ChatType.None, whoPadding), chatStringsToAdd[i]);
+						chatStrings.Add(new ChatIndex(chatStrings.Count, ChatType.None, whoPadding, col), chatStringsToAdd[i]);
 				}
 			}
 
