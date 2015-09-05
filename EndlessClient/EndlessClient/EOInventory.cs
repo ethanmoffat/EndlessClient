@@ -621,7 +621,7 @@ namespace EndlessClient
 				int slot = localItemSlotMap.ContainsValue(item.id)
 					? localItemSlotMap.First(_pair => _pair.Value == item.id).Key
 					: _getNextOpenSlot(rec.Size);
-				if (!dialogShown && !_addItemToSlot(slot, rec, item.amount))
+				if (!_addItemToSlot(slot, rec, item.amount) && !dialogShown)
 				{
 					dialogShown = true;
 					EODialog.Show("Something doesn't fit in the inventory. Rearrange items or get rid of them.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
@@ -667,7 +667,7 @@ namespace EndlessClient
 		//-----------------------------------------------------
 		public override void Update(GameTime gameTime)
 		{
-			if (!Game.IsActive) return;
+			if (!Visible || !Game.IsActive) return;
 
 			if (IsOverDrop())
 			{
@@ -926,7 +926,7 @@ namespace EndlessClient
 			return null;
 		}
 
-		private List<Tuple<int, int>> _getTakenSlots(int slot, ItemSize sz)
+		private static List<Tuple<int, int>> _getTakenSlots(int slot, ItemSize sz)
 		{
 			var ret = new List<Tuple<int, int>>();
 

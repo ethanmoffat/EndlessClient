@@ -142,6 +142,9 @@
     <Compile Include="..\EOLib\Net\Shop.cs">
       <Link>Net\Shop.cs</Link>
     </Compile>
+    <Compile Include="..\EOLib\Net\Spell.cs">
+      <Link>Net\Spell.cs</Link>
+    </Compile>
     <Compile Include="..\EOLib\Net\StatSkill.cs">
       <Link>Net\StatSkill.cs</Link>
     </Compile>

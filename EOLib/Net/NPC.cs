@@ -1,5 +1,4 @@
 ﻿using System;
-using EOLib.Data;
 
 namespace EOLib.Net
 {
@@ -25,30 +24,41 @@ namespace EOLib.Net
 		}
 	}
 
+	public delegate void NPCWalkEvent(byte index, byte x, byte y, EODirection dir);
+	public delegate void NPCAttackEvent(byte index, bool targetPlayerIsDead, EODirection dir, short targetPlayerID, int damage, int percentHealth);
+	public delegate void NPCChatEvent(byte index, string message);
+	public delegate void NPCLeaveMapEvent(byte index, int damageToNPC, short playerID, EODirection playerDirection, short tpRemaining = -1, short spellID = -1);
+	public delegate void NPCKilledEvent(int exp);
+	public delegate void NPCTakeDamageEvent(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID = -1, short fromTP = -1);
+
 	partial class PacketAPI
 	{
-		public delegate void NPCWalkEvent(byte index, byte x, byte y, EODirection dir);
-		public delegate void NPCAttackEvent(byte index, bool targetPlayerIsDead, EODirection dir, short targetPlayerID, int damage, int percentHealth);
-		public delegate void NPCChatEvent(byte index, string message);
-		public delegate void NPCLeaveMapEvent(byte index, int damage = 0);
-		public delegate void NPCTakeDamageEvent(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth);
-		
 		public event Action<NPCData> OnNPCEnterMap;
 		public event NPCWalkEvent OnNPCWalk;
 		public event NPCAttackEvent OnNPCAttack;
 		public event NPCChatEvent OnNPCChat;
 		public event NPCLeaveMapEvent OnNPCLeaveMap;
-		public event Action<int> OnNPCKilled; //int is the experience gained
+		public event NPCKilledEvent OnNPCKilled; //int is the experience gained
 		public event NPCTakeDamageEvent OnNPCTakeDamage;
 		public event Action<LevelUpStats> OnPlayerLevelUp;
+		public event Action<short> OnRemoveChildNPCs;
 
 		private void _createNPCMembers()
 		{
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Appear, PacketAction.Reply), _handleAppearReply, true);
+
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.NPC, PacketAction.Accept), _handleNPCAccept, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Cast, PacketAction.Accept), _handleNPCAccept, true);
+
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.NPC, PacketAction.Player), _handleNPCPlayer, true);
+
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.NPC, PacketAction.Reply), _handleNPCReply, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Cast, PacketAction.Reply), _handleNPCReply, true);
+
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.NPC, PacketAction.Spec), _handleNPCSpec, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Cast, PacketAction.Spec), _handleNPCSpec, true);
+
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.NPC, PacketAction.Junk), _handleNPCJunk, true);
 		}
 
 		private void _handleAppearReply(Packet pkt)
@@ -116,15 +126,18 @@ namespace EOLib.Net
 		/// </summary>
 		private void _handleNPCSpec(Packet pkt)
 		{
+			short spellID = -1;
+			if (pkt.Family == PacketFamily.Cast)
+				spellID = pkt.GetShort();
+
 			short playerID = pkt.GetShort(); //player that is protecting the item
-			/*byte direction = */
-			pkt.GetChar();
-			short deadNPC = pkt.GetShort();
+			EODirection playerDirection = (EODirection)pkt.GetChar();
+			short deadNPCIndex = pkt.GetShort();
 
 			if (pkt.ReadPos == pkt.Length)
 			{
 				if (OnNPCLeaveMap != null)
-					OnNPCLeaveMap((byte) deadNPC);
+					OnNPCLeaveMap((byte) deadNPCIndex, 0, playerID, playerDirection);
 				return; //just removing from range, packet ends here
 			}
 
@@ -133,27 +146,19 @@ namespace EOLib.Net
 			byte x = pkt.GetChar();
 			byte y = pkt.GetChar();
 			int droppedAmount = pkt.GetInt();
-			int damage = pkt.GetThree(); //damage done to NPC.
+			int damageDoneToNPC = pkt.GetThree();
+
+			short characterTPRemaining = -1;
+			if (pkt.Family == PacketFamily.Cast)
+				characterTPRemaining = pkt.GetShort();
+
 			if(OnNPCLeaveMap != null)
-				OnNPCLeaveMap((byte)deadNPC, damage);
-			
+				OnNPCLeaveMap((byte)deadNPCIndex, damageDoneToNPC, playerID, playerDirection, characterTPRemaining, spellID);
+
 			//just showing a dropped item, packet ends here
 			if (pkt.ReadPos == pkt.Length)
 			{
-				if (droppedItemID > 0 && OnDropItem != null)
-				{
-					OnDropItem(-1, 0, 0, new MapItem
-					{
-						amount = droppedAmount,
-						id = droppedItemID,
-						uid = droppedItemUID,
-						x = x,
-						y = y,
-						time = DateTime.Now,
-						npcDrop = true,
-						playerID = playerID
-					});
-				}
+				_showDroppedItemIfNeeded(playerID, droppedItemID, droppedAmount, droppedItemUID, x, y);
 				return;
 			}
 
@@ -163,6 +168,11 @@ namespace EOLib.Net
 
 			//the order in the original client is: 'you gained {x} EXP' and then 'The NPC dropped {x}'
 			//Otherwise, I would just do the drop item logic once above
+			_showDroppedItemIfNeeded(playerID, droppedItemID, droppedAmount, droppedItemUID, x, y);
+		}
+
+		private void _showDroppedItemIfNeeded(short playerID, short droppedItemID, int droppedAmount, short droppedItemUID, byte x, byte y)
+		{
 			if (droppedItemID > 0 && OnDropItem != null)
 			{
 				OnDropItem(-1, 0, 0, new MapItem
@@ -186,14 +196,23 @@ namespace EOLib.Net
 		{
 			if (OnNPCTakeDamage == null) return;
 
+			short spellID = -1;
+			if (pkt.Family == PacketFamily.Cast)
+				spellID = pkt.GetShort();
+
 			short fromPlayerID = pkt.GetShort();
 			EODirection fromDirection = (EODirection)pkt.GetChar();
 			short npcIndex = pkt.GetShort();
 			int damageToNPC = pkt.GetThree();
 			int npcPctHealth = pkt.GetShort();
-			if (pkt.GetChar() != 1)
+
+			short fromTP = -1;
+			if (pkt.Family == PacketFamily.Cast)
+				fromTP = pkt.GetShort();
+			else if (pkt.GetChar() != 1) //some constant 1 in EOSERV
 				return;
-			OnNPCTakeDamage((byte)npcIndex, fromPlayerID, fromDirection, damageToNPC, npcPctHealth);
+
+			OnNPCTakeDamage((byte)npcIndex, fromPlayerID, fromDirection, damageToNPC, npcPctHealth, spellID, fromTP);
 		}
 
 		/// <summary>
@@ -205,6 +224,12 @@ namespace EOLib.Net
 
 			if (OnPlayerLevelUp != null)
 				OnPlayerLevelUp(new LevelUpStats(pkt, false));
+		}
+
+		private void _handleNPCJunk(Packet pkt)
+		{
+			if (OnRemoveChildNPCs != null)
+				OnRemoveChildNPCs(pkt.GetShort());
 		}
 	}
 }

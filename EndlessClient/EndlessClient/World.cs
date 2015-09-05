@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using EOLib;
 using EOLib.Data;
 using EOLib.Net;
@@ -547,31 +548,31 @@ namespace EndlessClient
 
 			MainPlayer.ActiveCharacter.Stats = new CharStatData
 			{
-				level = data.Level,
-				exp = data.Exp,
-				usage = data.Usage,
+				Level = data.Level,
+				Experience = data.Exp,
+				Usage = data.Usage,
 
-				hp = data.HP,
-				maxhp = data.MaxHP,
-				tp = data.TP,
-				maxtp = data.MaxTP,
-				sp = data.MaxSP,
-				maxsp = data.MaxSP,
+				HP = data.HP,
+				MaxHP = data.MaxHP,
+				TP = data.TP,
+				MaxTP = data.MaxTP,
+				SP = data.MaxSP,
+				MaxSP = data.MaxSP,
 
-				statpoints = data.StatPoints,
-				skillpoints = data.SkillPoints,
-				mindam = data.MinDam,
-				maxdam = data.MaxDam,
-				karma = data.Karma,
-				accuracy = data.Accuracy,
-				evade = data.Evade,
-				armor = data.Armor,
-				disp_str = data.DispStr,
-				disp_int = data.DispInt,
-				disp_wis = data.DispWis,
-				disp_agi = data.DispAgi,
-				disp_con = data.DispCon,
-				disp_cha = data.DispCha
+				StatPoints = data.StatPoints,
+				SkillPoints = data.SkillPoints,
+				MinDam = data.MinDam,
+				MaxDam = data.MaxDam,
+				Karma = data.Karma,
+				Accuracy = data.Accuracy,
+				Evade = data.Evade,
+				Armor = data.Armor,
+				Str = data.DispStr,
+				Int = data.DispInt,
+				Wis = data.DispWis,
+				Agi = data.DispAgi,
+				Con = data.DispCon,
+				Cha = data.DispCha
 			};
 
 			Array.Copy(data.PaperDoll, MainPlayer.ActiveCharacter.PaperDoll, (int) EquipLocation.PAPERDOLL_MAX);
@@ -595,14 +596,13 @@ namespace EndlessClient
 			ActiveMapRenderer.ClearOtherNPCs();
 			ActiveMapRenderer.ClearMapItems();
 
-			foreach (var character in data.CharacterData)
-			{
-				if (character.Name.ToLower() == MainPlayer.ActiveCharacter.Name.ToLower())
-					MainPlayer.ActiveCharacter.ApplyData(character, false); //do NOT copy paperdoll data over the existing!
-				else
-					ActiveMapRenderer.AddOtherPlayer(character);
-			}
+			var characterList = data.CharacterData.ToList();
+			var mainCharacter = characterList.Find(x => x.Name.ToLower() == MainPlayer.ActiveCharacter.Name.ToLower());
+			MainPlayer.ActiveCharacter.ApplyData(mainCharacter, false); //do NOT copy paperdoll data over the existing!
+			characterList.Remove(mainCharacter);
 
+			foreach (var character in characterList)
+				ActiveMapRenderer.AddOtherPlayer(character);
 			foreach (var npc in data.NPCData)
 				ActiveMapRenderer.AddOtherNPC(npc);
 			foreach (var item in data.MapItemData)

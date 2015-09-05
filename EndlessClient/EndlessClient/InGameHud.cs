@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using EOLib;
+using EOLib.Data;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -47,6 +48,7 @@ namespace EndlessClient
 		private readonly EOOnlineList m_whoIsOnline;
 		private readonly ChatTab newsTab;
 		private readonly EOPartyPanel m_party;
+		private ActiveSpells activeSpells; 
 
 		private readonly XNALabel statusLabel; //label for status (mouse-over buttons)
 		private bool m_statusRecentlySet;
@@ -373,7 +375,7 @@ namespace EndlessClient
 				{
 					if ((DateTime.Now - usageTracking).TotalMinutes >= 1)
 					{
-						World.Instance.MainPlayer.ActiveCharacter.Stats.SetUsage(World.Instance.MainPlayer.ActiveCharacter.Stats.usage + 1);
+						World.Instance.MainPlayer.ActiveCharacter.Stats.Usage = World.Instance.MainPlayer.ActiveCharacter.Stats.Usage + 1;
 						usageTracking = DateTime.Now;
 					}
 
@@ -400,14 +402,19 @@ namespace EndlessClient
 			stats = new EOCharacterStats(pnlStats);
 			stats.Initialize();
 
+			activeSpells = new ActiveSpells(pnlActiveSpells, m_packetAPI);
+			activeSpells.Initialize();
+
 			for (int i = 0; i < mainBtn.Length; ++i)
 			{
-				int offset = i; //prevent access to modified closure warning
+				int offset = i;
 				mainBtn[i].OnMouseOver += (o, e) =>
 				{
 					if (!m_statusRecentlySet)
 					{
-						SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + offset);
+						SetStatusLabel(
+							DATCONST2.STATUS_LABEL_TYPE_BUTTON,
+							DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + offset);
 						m_statusRecentlySet = false;
 					}
 				};
@@ -671,7 +678,7 @@ namespace EndlessClient
 					}
 					else if (args.Length == 1 && cmd == "usage")
 					{
-						int usage = World.Instance.MainPlayer.ActiveCharacter.Stats.usage;
+						int usage = World.Instance.MainPlayer.ActiveCharacter.Stats.Usage;
 						AddChat(ChatTabs.Local, "System", string.Format("[x] usage: {0}hrs. {1}min.", usage/60, usage%60));
 					}
 					else if (args.Length == 1 && cmd == "ping")
@@ -852,6 +859,16 @@ namespace EndlessClient
 		public void RemovePartyMember(short memberID) { m_party.RemoveMember(memberID); }
 		public void CloseParty() { m_party.CloseParty(); }
 		public bool PlayerIsPartyMember(short playerID) { return m_party.PlayerIsMember(playerID); }
+
+		public SpellRecord GetSpellFromIndex(int index)
+		{
+			return activeSpells.GetSpellRecordBySlot(index);
+		}
+
+		public void SetSelectedSpell(int index)
+		{
+			activeSpells.SetActiveSpellBySlot(index);
+		}
 		#endregion
 		
 		protected override void Dispose(bool disposing)

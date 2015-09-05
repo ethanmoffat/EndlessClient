@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using EOLib;
 using EOLib.Data;
 using EOLib.Net;
+using Microsoft.Xna.Framework;
 using XNAControls;
 
 namespace EndlessClient
@@ -72,79 +73,32 @@ namespace EndlessClient
 	/// </summary>
 	public class CharStatData
 	{
-		public byte level;
-		public int exp;
-		public int usage;
+		public byte Level { get; set; }
+		public int Experience { get; set; }
+		public int Usage { get; set; }
 
-		public short hp;
-		public short maxhp;
-		public short tp;
-		public short maxtp;
-		public short sp;
-		public short maxsp;
+		public short HP { get; set; }
+		public short MaxHP { get; set; }
+		public short TP { get; set; }
+		public short MaxTP { get; set; }
+		public short SP { get; set; }
+		public short MaxSP { get; set; }
 
-		public short statpoints;
-		public short skillpoints;
-		public short karma;
-		public short mindam;
-		public short maxdam;
-		public short accuracy;
-		public short evade;
-		public short armor;
+		public short StatPoints { get; set; }
+		public short SkillPoints { get; set; }
+		public short Karma { get; set; }
+		public short MinDam { get; set; }
+		public short MaxDam { get; set; }
+		public short Accuracy { get; set; }
+		public short Evade { get; set; }
+		public short Armor { get; set; }
 
-		public short disp_str;
-		public short disp_int;
-		public short disp_wis;
-		public short disp_agi;
-		public short disp_con;
-		public short disp_cha;
-
-		public CharStatData() { }
-
-		public CharStatData(CharStatData other)
-		{
-			level = other.level;
-			exp = other.exp;
-			usage = other.usage;
-			hp = other.hp;
-			maxhp = other.maxhp;
-			tp = other.tp;
-			maxtp = other.maxtp;
-			sp = maxsp = other.maxsp;
-			statpoints = other.statpoints;
-			skillpoints = other.skillpoints;
-			karma = other.karma;
-			mindam = other.mindam;
-			maxdam = other.maxdam;
-			accuracy = other.accuracy;
-			evade = other.evade;
-			armor = other.armor;
-			disp_str = other.disp_str;
-			disp_int = other.disp_int;
-			disp_wis = other.disp_wis;
-			disp_agi = other.disp_agi;
-			disp_con = other.disp_con;
-			disp_cha = other.disp_cha;
-		}
-
-		public void SetHP(short newHP) { hp = newHP; }
-		public void SetMaxHP(short newHP) { maxhp = newHP; }
-		public void SetTP(short newTP) { tp = newTP; }
-		public void SetMaxTP(short newTP) { maxtp = newTP; }
-		public void SetSP(short newSP) { sp = newSP; }
-		public void SetMaxSP(short newSP) { maxsp = newSP; }
-		public void SetStr(short str) { disp_str = str; }
-		public void SetInt(short intl) { disp_int = intl; }
-		public void SetWis(short wis) { disp_wis = wis; }
-		public void SetAgi(short agi) { disp_agi = agi; }
-		public void SetCon(short con) { disp_con = con; }
-		public void SetCha(short cha) { disp_cha = cha; }
-		public void SetMinDam(short dam) { mindam = dam; }
-		public void SetMaxDam(short dam) { maxdam = dam; }
-		public void SetAccuracy(short acc) { accuracy= acc; }
-		public void SetEvade(short eva) { evade= eva; }
-		public void SetArmor(short arm) { armor = arm; }
-		public void SetUsage(int use) { usage = use; }
+		public short Str { get; set; }
+		public short Int { get; set; }
+		public short Wis { get; set; }
+		public short Agi { get; set; }
+		public short Con { get; set; }
+		public short Cha { get; set; }
 	}
 
 	/// <summary>
@@ -176,7 +130,7 @@ namespace EndlessClient
 		public byte DestY { get; private set; }
 		public int ViewAdjustX { get; set; }
 		public int ViewAdjustY { get; set; }
-		public bool CanAttack { get { return Weight <= MaxWeight && Stats.sp > 0; } }
+		public bool CanAttack { get { return Weight <= MaxWeight && Stats.SP > 0; } }
 
 		public CharacterActionState State { get; private set; }
 
@@ -193,19 +147,28 @@ namespace EndlessClient
 
 		public byte Weight { get; set; }
 		public byte MaxWeight { get; set; }
-		public short[] PaperDoll { get; set; }
+		public short[] PaperDoll { get; private set; }
 		public List<InventoryItem> Inventory { get; private set; }
 		public List<CharacterSpell> Spells { get; private set; }
 
 		public CharStatData Stats { get; set; }
-
 		public CharRenderData RenderData { get; private set; }
+
 		public short CurrentMap { get; set; }
 		public int X { get; private set; }
 		public int Y { get; private set; }
 
-// ReSharper disable once UnusedAutoPropertyAccessor.Local
-		public bool SpellPrimed { get; private set; }
+		public int SelectedSpell { get; private set; }
+		public bool NeedsSpellTarget
+		{
+			get
+			{
+				return SelectedSpell > 0 &&
+				       World.Instance.ESF.GetSpellRecordByID((short) SelectedSpell).Target == SpellTarget.Normal &&
+				       _spellTarget == null;
+			}
+		}
+		private DrawableGameComponent _spellTarget;
 
 		public byte GuildRankNum { private get; set; }
 
@@ -310,10 +273,10 @@ namespace EndlessClient
 
 			Stats = new CharStatData
 			{
-				maxhp = data.MaxHP,
-				hp = data.HP,
-				maxtp = data.MaxTP,
-				tp = data.TP
+				MaxHP = data.MaxHP,
+				HP = data.HP,
+				MaxTP = data.MaxTP,
+				TP = data.TP
 			};
 
 			EquipItem(ItemType.Boots, 0, data.Boots, true);
@@ -456,10 +419,10 @@ namespace EndlessClient
 				RenderData.SetShield(newGuy.Shield);
 				RenderData.SetWeapon(newGuy.Weapon);
 			}
-			Stats.SetHP(newGuy.HP);
-			Stats.SetMaxHP(newGuy.MaxHP);
-			Stats.SetTP(newGuy.TP);
-			Stats.SetMaxTP(newGuy.MaxTP);
+			Stats.HP = newGuy.HP;
+			Stats.MaxHP = newGuy.MaxHP;
+			Stats.TP = newGuy.TP;
+			Stats.MaxTP = newGuy.MaxTP;
 
 			RenderData.SetDirection(newGuy.Direction);
 			RenderData.SetHairStyle(newGuy.HairStyle);
@@ -535,7 +498,7 @@ namespace EndlessClient
 				RenderData.SetDirection(direction);
 
 			State = CharacterActionState.Attacking;
-			Stats.sp--;
+			Stats.SP--;
 		}
 
 		public void DoneAttacking()
@@ -670,26 +633,26 @@ namespace EndlessClient
 			if (amount > TodayBestKill)
 				TodayBestKill = amount;
 			TodayExp += amount;
-			Stats.exp += amount;
+			Stats.Experience += amount;
 		}
 
 		public void UpdateStatsAfterEquip(PaperdollEquipData data)
 		{
-			Stats.SetMaxHP(data.MaxHP);
-			Stats.SetMaxTP(data.MaxTP);
+			Stats.MaxHP = data.MaxHP;
+			Stats.MaxTP = data.MaxTP;
 
-			Stats.SetStr(data.Str);
-			Stats.SetInt(data.Int);
-			Stats.SetWis(data.Wis);
-			Stats.SetAgi(data.Agi);
-			Stats.SetCon(data.Con);
-			Stats.SetCha(data.Cha);
+			Stats.Str = data.Str;
+			Stats.Int = data.Int;
+			Stats.Wis = data.Wis;
+			Stats.Agi = data.Agi;
+			Stats.Con = data.Con;
+			Stats.Cha = data.Cha;
 
-			Stats.SetMinDam(data.MinDam);
-			Stats.SetMaxDam(data.MaxDam);
-			Stats.SetAccuracy(data.Accuracy);
-			Stats.SetEvade(data.Evade);
-			Stats.SetArmor(data.Armor);
+			Stats.MinDam = data.MinDam;
+			Stats.MaxDam = data.MaxDam;
+			Stats.Accuracy = data.Accuracy;
+			Stats.Evade = data.Evade;
+			Stats.Armor = data.Armor;
 		}
 
 		/// <summary>
@@ -758,6 +721,79 @@ namespace EndlessClient
 						Enum.GetName(typeof(ChestKey), permission)), "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 
 			return permission;
+		}
+
+		public void SelectSpell(int id)
+		{
+			//right now this is just a setter for SelectedSpell
+			if (SelectedSpell != id)
+			{
+				SelectedSpell = id;
+			}
+		}
+
+		public void PrepareSpell(int id)
+		{
+			if (SelectedSpell <= 0)
+				return;
+
+			if (!m_packetAPI.PrepareCastSpell((short) id))
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+		}
+
+		public void CastSpell(int id)
+		{
+			if (SelectedSpell <= 0)
+				return;
+
+			SpellRecord data = World.Instance.ESF.GetSpellRecordByID((short)id);
+			bool result = false;
+			switch (data.Target)
+			{
+				case SpellTarget.Normal:
+					var targetAsNPC = _spellTarget as NPC;
+					var targetAsChar = _spellTarget as EOCharacterRenderer;
+					if (targetAsNPC != null)
+						result = m_packetAPI.DoCastTargetSpell((short) id, true, targetAsNPC.Index);
+					else if (targetAsChar != null)
+						result = m_packetAPI.DoCastTargetSpell((short) id, false, (short) targetAsChar.Character.ID);
+					break;
+				case SpellTarget.Self:
+					result = m_packetAPI.DoCastSelfSpell((short) id);
+					break;
+				case SpellTarget.Unknown1:
+					throw new Exception("What even is this");
+				case SpellTarget.Group:
+					result = m_packetAPI.DoCastGroupSpell((short) id);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException();
+			}
+
+			SetSpellCastStart();
+
+			if (!result)
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+		}
+
+		public void SetSpellTarget(DrawableGameComponent target)
+		{
+			if (target != null && !(target is NPC || target is EOCharacterRenderer)) //don't set target when it isn't valid!
+				return;
+
+			_spellTarget = target;
+		}
+
+		public void SetSpellCastStart()
+		{
+			State = CharacterActionState.SpellCast;
+			RenderData.SetUpdate(true);
+		}
+
+		public void SetSpellCastComplete()
+		{
+			State = CharacterActionState.Standing;
+			RenderData.SetUpdate(true);
 		}
 	}
 }

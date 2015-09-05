@@ -99,7 +99,7 @@ namespace EndlessClient
 		private readonly List<Character> otherPlayers = new List<Character>();
 		private readonly List<EOCharacterRenderer> otherRenderers = new List<EOCharacterRenderer>();
 		private readonly List<NPC> npcList = new List<NPC>();
-		private readonly object npcListLock = new object(), rendererListLock = new object();
+		private readonly object _npcListLock = new object(), _rendererListLock = new object();
 
 		public MapFile MapRef { get; private set; }
 		private bool m_needDispMapName;
@@ -109,7 +109,7 @@ namespace EndlessClient
 		private int gridX, gridY;
 		private readonly Texture2D mouseCursor, statusIcons;
 		private Rectangle _cursorSourceRect;
-		private readonly XNALabel _mouseoverName;
+		private readonly XNALabel _itemHoverName;
 		private MouseState _prevState;
 		private bool _hideCursor;
 		//public cursor members
@@ -173,7 +173,7 @@ namespace EndlessClient
 			mouseCursor = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
 			statusIcons = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 46, true);
 			_cursorSourceRect = new Rectangle(0, 0, mouseCursor.Width / 5, mouseCursor.Height);
-			_mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
+			_itemHoverName = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
 			{
 				Visible = true,
 				Text = "",
@@ -205,14 +205,14 @@ namespace EndlessClient
 			string playerName = null;
 			if (messageType == TalkType.NPC)
 			{
-				lock(npcListLock)
+				lock(_npcListLock)
 					dgc = npcList.Find(_npc => _npc.Index == playerID);
 				if (dgc != null)
 					playerName = ((NPC) dgc).Data.Name;
 			}
 			else
 			{
-				lock (rendererListLock)
+				lock (_rendererListLock)
 				{
 					dgc = otherRenderers.Find(_rend => _rend.Character.ID == playerID);
 					if (dgc != null)
@@ -279,13 +279,13 @@ namespace EndlessClient
 				m_miniMapRenderer.Map = MapRef;
 
 			MapItems.Clear();
-			lock (rendererListLock)
+			lock (_rendererListLock)
 			{
 				otherRenderers.ForEach(_rend => _rend.Dispose());
 				otherRenderers.Clear();
 			}
 			otherPlayers.Clear();
-			lock (npcListLock)
+			lock (_npcListLock)
 			{
 				npcList.ForEach(_npc => _npc.Dispose());
 				npcList.Clear();
@@ -324,7 +324,7 @@ namespace EndlessClient
 
 		public TileInfo GetTileInfo(byte destX, byte destY)
 		{
-			lock (npcListLock)
+			lock (_npcListLock)
 			{
 				int ndx;
 				if ((ndx = npcList.FindIndex(_npc => (!_npc.Walking && _npc.X == destX && _npc.Y == destY)
@@ -493,7 +493,7 @@ namespace EndlessClient
 			if ((other = otherPlayers.Find(x => x.Name == c.Name && x.ID == c.ID)) == null)
 			{
 				otherPlayers.Add(other = new Character(m_api, c));
-				lock (rendererListLock)
+				lock (_rendererListLock)
 				{
 					otherRenderers.Add(otherRend = new EOCharacterRenderer(other));
 					otherRenderers[otherRenderers.Count - 1].Visible = true;
@@ -518,7 +518,7 @@ namespace EndlessClient
 			if ((c = otherPlayers.Find(cc => cc.ID == id)) != null)
 			{
 				otherPlayers.Remove(c);
-				lock (rendererListLock)
+				lock (_rendererListLock)
 				{
 					int ndx = otherRenderers.FindIndex(rend => rend.Character == c);
 					if (ndx < 0) return;
@@ -535,7 +535,7 @@ namespace EndlessClient
 
 		public void ClearOtherPlayers()
 		{
-			lock (rendererListLock)
+			lock (_rendererListLock)
 			{
 				otherRenderers.ForEach(_rend => _rend.HideChatBubble());
 				otherRenderers.Clear();
@@ -554,7 +554,7 @@ namespace EndlessClient
 
 		public void OtherPlayerWalk(short ID, EODirection direction, byte x, byte y)
 		{
-			lock (rendererListLock)
+			lock (_rendererListLock)
 			{
 				EOCharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
 				if (rend != null)
@@ -571,7 +571,7 @@ namespace EndlessClient
 
 		public void OtherPlayerAttack(short ID, EODirection direction)
 		{
-			lock (rendererListLock)
+			lock (_rendererListLock)
 			{
 				EOCharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
 				if (rend != null)
@@ -586,7 +586,7 @@ namespace EndlessClient
 
 		public void OtherPlayerEmote(short playerID, Emote emote)
 		{
-			lock (rendererListLock)
+			lock (_rendererListLock)
 			{
 				EOCharacterRenderer rend = otherRenderers.Find(cc => cc.Character.ID == playerID);
 				if (rend != null)
@@ -608,7 +608,7 @@ namespace EndlessClient
 
 		public void OtherPlayerHeal(short ID, int healAmount, int pctHealth)
 		{
-			lock (rendererListLock)
+			lock (_rendererListLock)
 			{
 				EOCharacterRenderer rend = ID == World.Instance.MainPlayer.ActiveCharacter.ID
 					? World.Instance.ActiveCharacterRenderer
@@ -618,13 +618,118 @@ namespace EndlessClient
 
 				if (healAmount > 0)
 				{
-					rend.Character.Stats.SetHP((short) Math.Max(rend.Character.Stats.hp + healAmount, rend.Character.Stats.maxhp));
+					rend.Character.Stats.HP = (short) Math.Max(rend.Character.Stats.HP + healAmount, rend.Character.Stats.MaxHP);
 					if (rend.Character == World.Instance.MainPlayer.ActiveCharacter)
 					{
 						//update health in UI
 						EOGame.Instance.Hud.RefreshStats();
 					}
 					rend.SetDamageCounterValue(healAmount, pctHealth, true);
+				}
+			}
+		}
+
+		public void OtherPlayerShoutSpell(short playerID, short spellID)
+		{
+			string shoutName = World.Instance.ESF.GetSpellRecordByID(spellID).Name;
+
+			lock (_rendererListLock)
+			{
+				var renderer = otherRenderers.Find(x => x.Character.ID == playerID);
+				if (renderer != null)
+					renderer.SetSpellShout(shoutName);
+			}
+		}
+
+		public void PlayerCastSpellSelf(short fromPlayerID, short spellID, int spellHP, byte percentHealth)
+		{
+			lock (_rendererListLock)
+			{
+				var renderer = otherRenderers.Find(x => x.Character.ID == fromPlayerID);
+				if (renderer != null)
+				{
+					//todo: render using graphic from spellID
+					renderer.StopShouting(true);
+					renderer.StartCastingSpell();
+					renderer.SetDamageCounterValue(spellHP, percentHealth, true);
+				}
+				else if (fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
+				{
+					renderer = World.Instance.ActiveCharacterRenderer;
+					renderer.SetDamageCounterValue(spellHP, percentHealth, true);
+				}
+			}
+		}
+
+		public void PlayerCastSpellTarget(short fromPlayerID, short targetPlayerID, EODirection fromPlayerDirection, short spellID, int recoveredHP, byte targetPercentHealth)
+		{
+			lock (_rendererListLock)
+			{
+				bool fromIsMain = false;
+				var fromRenderer = otherRenderers.Find(x => x.Character.ID == fromPlayerID);
+				var toRenderer = otherRenderers.Find(x => x.Character.ID == targetPlayerID);
+
+				if (fromRenderer == null && fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
+				{
+					fromIsMain = true;
+					fromRenderer = World.Instance.ActiveCharacterRenderer;
+				}
+
+				if (toRenderer == null && targetPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
+					toRenderer = World.Instance.ActiveCharacterRenderer;
+
+				if (fromRenderer != null) //do source renderer stuff
+				{
+					if (!fromIsMain)
+					{
+						fromRenderer.StopShouting(true);
+						fromRenderer.StartCastingSpell();
+					}
+					fromRenderer.Character.RenderData.SetDirection(fromPlayerDirection);
+				}
+
+				if (toRenderer != null) //do target renderer stuff
+				{
+					//todo: render using graphic from spellID
+					toRenderer.SetDamageCounterValue(recoveredHP, targetPercentHealth, true);
+				}
+			}
+		}
+
+		public void PlayerCastSpellGroup(short fromPlayerID, short spellID, short spellHPgain, List<GroupSpellTarget> spellTargets)
+		{
+			lock (_rendererListLock)
+			{
+				bool fromIsMain = false;
+				var fromRenderer = otherRenderers.Find(x => x.Character.ID == fromPlayerID);
+				if (fromRenderer == null && fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
+				{
+					fromIsMain = true;
+					fromRenderer = World.Instance.ActiveCharacterRenderer;
+				}
+
+				if (fromRenderer != null && !fromIsMain)
+				{
+					fromRenderer.StopShouting(true);
+					fromRenderer.StartCastingSpell();
+				}
+
+				foreach (var target in spellTargets)
+				{
+					bool targetIsMain = false;
+					var targetRenderer = otherRenderers.Find(x => x.Character.ID == target.MemberID);
+					if (targetRenderer == null && target.MemberID == World.Instance.MainPlayer.ActiveCharacter.ID)
+					{
+						targetIsMain = true;
+						targetRenderer = World.Instance.ActiveCharacterRenderer;
+					}
+
+					if (targetRenderer == null) continue;
+
+					if (targetIsMain)
+						targetRenderer.Character.Stats.HP = target.MemberHP;
+					targetRenderer.SetDamageCounterValue(spellHPgain, target.MemberPercentHealth, true);
+					//todo: render using graphic from spellID
 				}
 			}
 		}
@@ -669,13 +774,18 @@ namespace EndlessClient
 			else
 				_waterTiles.Add(pt, new WaterEffect(x, y));
 		}
+
+		public void ShowContextMenu(EOCharacterRenderer player)
+		{
+			m_contextMenu.SetCharacterRenderer(player);
+		}
 		#endregion
 
 		#region/* PUBLIC INTERFACE -- OTHER NPCS */
 
 		public NPC GetNPCAt(int x, int y)
 		{
-			lock (npcListLock)
+			lock (_npcListLock)
 			{
 				return npcList.Find(_npc => _npc.X == x && _npc.Y == y);
 			}
@@ -683,7 +793,7 @@ namespace EndlessClient
 
 		public void AddOtherNPC(NPCData data)
 		{
-			lock (npcListLock)
+			lock (_npcListLock)
 			{
 				NPC newNPC = new NPC(data);
 				newNPC.Initialize();
@@ -692,9 +802,9 @@ namespace EndlessClient
 			}
 		}
 
-		public void RemoveOtherNPC(byte index, int damage = 0)
+		public void RemoveOtherNPC(byte index, int damage = 0, short playerID = 0, EODirection playerDirection = (EODirection)0, short spellID = -1)
 		{
-			lock (npcListLock)
+			lock (_npcListLock)
 			{
 				NPC npc = npcList.Find(_npc => _npc.Index == index);
 				if (npc != null)
@@ -705,6 +815,8 @@ namespace EndlessClient
 						npc.FadeAway();
 						npc.Opponent = null;
 						npc.SetDamageCounterValue(damage, 0);
+
+						//todo: render spellID on NPC that is dying
 					}
 					else //npc is out of view or done fading away
 					{
@@ -715,11 +827,35 @@ namespace EndlessClient
 					}
 				}
 			}
+
+			if (playerID > 0)
+			{
+				lock (_rendererListLock)
+				{
+					var renderer = otherRenderers.Find(x => x.Character.ID == playerID);
+					if (renderer != null)
+					{
+						renderer.Character.RenderData.SetDirection(playerDirection);
+						renderer.StopShouting(true);
+						renderer.StartCastingSpell();
+					}
+					else if (playerID == World.Instance.MainPlayer.ActiveCharacter.ID)
+						World.Instance.ActiveCharacterRenderer.Character.RenderData.SetDirection(playerDirection);
+				}
+			}
+		}
+
+		public void RemoveNPCsWhere(Func<NPC, bool> predicate)
+		{
+			List<byte> indexes;
+			lock (_npcListLock)
+				indexes = npcList.Where(predicate).Select(x => x.Index).ToList();
+			indexes.ForEach(x => RemoveOtherNPC(x));
 		}
 
 		public void ClearOtherNPCs()
 		{
-			lock (npcListLock)
+			lock (_npcListLock)
 			{
 				foreach (NPC n in npcList)
 				{
@@ -732,7 +868,7 @@ namespace EndlessClient
 
 		public void NPCWalk(byte index, byte x, byte y, EODirection dir)
 		{
-			lock (npcListLock)
+			lock (_npcListLock)
 			{
 				NPC toWalk = npcList.Find(_npc => _npc.Index == index);
 				if (toWalk != null && !toWalk.Walking)
@@ -744,7 +880,7 @@ namespace EndlessClient
 
 		public void NPCAttack(byte index, bool isTargetPlayerDead, EODirection dir, short targetPlayerId, int damageToPlayer, int playerPctHealth)
 		{
-			lock (npcListLock)
+			lock (_npcListLock)
 			{
 				NPC toAttack = npcList.Find(_npc => _npc.Index == index);
 				if (toAttack != null && !toAttack.Attacking)
@@ -753,7 +889,7 @@ namespace EndlessClient
 				}
 			}
 
-			lock (rendererListLock)
+			lock (_rendererListLock)
 			{
 				EOCharacterRenderer rend = targetPlayerId == World.Instance.MainPlayer.ActiveCharacter.ID
 					? World.Instance.ActiveCharacterRenderer
@@ -761,8 +897,8 @@ namespace EndlessClient
 
 				if (rend == null) return; //couldn't find other player :(
 
-				rend.Character.Stats.SetHP((short) Math.Max(rend.Character.Stats.hp - damageToPlayer, 0));
-				if (rend.Character == World.Instance.MainPlayer.ActiveCharacter)
+				rend.Character.Stats.HP = (short) Math.Max(rend.Character.Stats.HP - damageToPlayer, 0);
+				if (rend.Character == World.Instance.MainPlayer.ActiveCharacter && ((EOGame) Game).Hud != null)
 				{
 					//update health in UI
 					((EOGame) Game).Hud.RefreshStats();
@@ -776,7 +912,7 @@ namespace EndlessClient
 
 		public void NPCTakeDamage(short npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth)
 		{
-			lock (npcListLock)
+			lock (_npcListLock)
 			{
 				NPC toDamage = npcList.Find(_npc => _npc.Index == npcIndex);
 				if (toDamage == null) return;
@@ -866,8 +1002,8 @@ namespace EndlessClient
 		public void SpikeDamage(short damage, short hp, short maxhp)
 		{
 			var rend = World.Instance.ActiveCharacterRenderer;
-			rend.Character.Stats.SetHP(hp);
-			rend.Character.Stats.SetMaxHP(maxhp);
+			rend.Character.Stats.HP = hp;
+			rend.Character.Stats.MaxHP = maxhp;
 			((EOGame)Game).Hud.RefreshStats();
 
 			int percentHealth = (int)Math.Round(((double)hp / maxhp) * 100.0);
@@ -877,7 +1013,7 @@ namespace EndlessClient
 
 		public void SpikeDamage(short playerID, int percentHealth, bool isPlayerDead, int damageAmount)
 		{
-			lock (rendererListLock)
+			lock (_rendererListLock)
 			{
 				int ndx = otherRenderers.FindIndex(_rend => _rend.Character.ID == playerID);
 				if (ndx < 0) return;
@@ -924,13 +1060,13 @@ namespace EndlessClient
 			int percentHealth = (int)Math.Round(((double)hp / maxhp) * 100.0);
 
 			var mainRend = World.Instance.ActiveCharacterRenderer;
-			mainRend.Character.Stats.SetHP(hp);
-			mainRend.Character.Stats.SetMaxHP(maxhp);
+			mainRend.Character.Stats.HP = hp;
+			mainRend.Character.Stats.MaxHP = maxhp;
 			mainRend.SetDamageCounterValue(damage, percentHealth);
 			
 			((EOGame)Game).Hud.RefreshStats();
 
-			lock (rendererListLock)
+			lock (_rendererListLock)
 			{
 				foreach (var other in otherCharacterData)
 				{
@@ -950,8 +1086,8 @@ namespace EndlessClient
 		{
 			if (MapRef.Effect != MapEffect.TPDrain || amount == 0) return;
 
-			World.Instance.MainPlayer.ActiveCharacter.Stats.SetTP(tp);
-			World.Instance.MainPlayer.ActiveCharacter.Stats.SetMaxTP(maxtp);
+			World.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
+			World.Instance.MainPlayer.ActiveCharacter.Stats.MaxTP = maxtp;
 			((EOGame)Game).Hud.RefreshStats();
 
 			if (World.Instance.SoundEnabled)
@@ -1033,7 +1169,7 @@ namespace EndlessClient
 		private void _updateCharacters(GameTime gameTime)
 		{
 			World.Instance.ActiveCharacterRenderer.Update(gameTime);
-			lock (rendererListLock)
+			lock (_rendererListLock)
 			{
 				foreach (EOCharacterRenderer rend in otherRenderers)
 					rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
@@ -1054,7 +1190,7 @@ namespace EndlessClient
 
 		private void _updateNPCs(GameTime gameTime)
 		{
-			lock (npcListLock)
+			lock (_npcListLock)
 			{
 				foreach (var npc in npcList)
 					npc.Update(gameTime);
@@ -1110,22 +1246,18 @@ namespace EndlessClient
 			if (gridX >= 0 && gridX <= MapRef.Width && gridY >= 0 && gridY <= MapRef.Height)
 			{
 				bool mouseClicked = ms.LeftButton == ButtonState.Released && _prevState.LeftButton == ButtonState.Pressed;
-				bool rightClicked = ms.RightButton == ButtonState.Released && _prevState.RightButton == ButtonState.Pressed;
+				//bool rightClicked = ms.RightButton == ButtonState.Released && _prevState.RightButton == ButtonState.Pressed;
 				
 				//don't handle mouse clicks for map if there is a dialog being shown
-				mouseClicked = mouseClicked && XNAControl.Dialogs.Count == 0;
-				rightClicked = rightClicked && XNAControl.Dialogs.Count == 0;
+				mouseClicked &= XNAControl.Dialogs.Count == 0;
+				//rightClicked &= XNAControl.Dialogs.Count == 0;
 
 				TileInfo ti = GetTileInfo((byte) gridX, (byte) gridY);
 				switch (ti.ReturnType)
 				{
-					case TileInfoReturnType.IsOtherNPC:
-						_updateDisplayedNPCName(mouseClicked);
-
-						break;
 					case TileInfoReturnType.IsOtherPlayer:
-						_updateDisplayedPlayerName(rightClicked);
-
+					case TileInfoReturnType.IsOtherNPC:
+						_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
 						break;
 					default: //TileSpec, warp, sign
 						if (gridX == c.X && gridY == c.Y)
@@ -1145,40 +1277,46 @@ namespace EndlessClient
 						else
 							_cursorSourceRect.Location = new Point(0, 0);
 
-						_mouseoverName.Text = "";
+						if (mouseClicked && World.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
+						{
+							//cancel spell targeting if an invalid target was selected
+							World.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
+						}
+
 						break;
 				}
 
-				_updateDisplayedMapItemName(ms, c);
+				_updateDisplayedMapItemName(mouseClicked);
 
-				if (_mouseoverName.Text.Length > 0 && !Game.Components.Contains(_mouseoverName))
-					Game.Components.Add(_mouseoverName);
+				if (_itemHoverName.Text.Length > 0 && !Game.Components.Contains(_itemHoverName))
+					Game.Components.Add(_itemHoverName);
 			}
 		}
 
-		private void _updateDisplayedMapItemName(MouseState ms, Character c)
+		private void _updateDisplayedMapItemName(bool mouseClicked)
 		{
+			Character c = World.Instance.MainPlayer.ActiveCharacter;
+
 			Point p;
 			if (MapItems.ContainsKey(p = new Point(gridX, gridY)) && MapItems[p].Count > 0)
-				//todo: conditional showing of mapitem text if character/npc on top of mapitem
 			{
 				MapItem mi = MapItems[p].Last(); //topmost item has label
 				_cursorSourceRect.Location = new Point(2*(mouseCursor.Width/5), 0);
-				_mouseoverName.Visible = true;
-				_mouseoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
-				_mouseoverName.ResizeBasedOnText();
-				_mouseoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
-				_mouseoverName.DrawLocation = new Vector2(
-					cursorPos.X + 32 - _mouseoverName.ActualWidth/2f,
-					cursorPos.Y - _mouseoverName.Texture.Height - 4);
+				_itemHoverName.Visible = true;
+				_itemHoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
+				_itemHoverName.ResizeBasedOnText();
+				_itemHoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
+				_itemHoverName.DrawLocation = new Vector2(
+					cursorPos.X + 32 - _itemHoverName.ActualWidth/2f,
+					cursorPos.Y - _itemHoverName.Texture.Height - 4);
 
-				if (_prevState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released)
+				if (mouseClicked)
 				{
 					if ((World.Instance.MainPlayer.ActiveCharacter.ID != mi.playerID && mi.playerID != 0) &&
 					    (mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) ||
 					    (!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
 					{
-						Character charRef = otherPlayers.Find(_c => _c.ID == mi.id);
+						Character charRef = otherPlayers.Find(_c => _c.ID == mi.playerID);
 						DATCONST2 msg = charRef == null
 							? DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED
 							: DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
@@ -1196,10 +1334,15 @@ namespace EndlessClient
 						{
 							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
 						}
-						else if (!m_api.GetItem(mi.uid)) //server validates anyway
+						else if (!m_api.GetItem(mi.uid)) //server validates drop protection anyway
 							EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				}
+			}
+			else
+			{
+				_itemHoverName.Visible = false;
+				_itemHoverName.Text = " ";
 			}
 		}
 
@@ -1292,84 +1435,6 @@ namespace EndlessClient
 			}
 		}
 
-		private void _updateDisplayedNPCName(bool mouseClicked)
-		{
-			_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
-			NPC npc;
-			lock (npcListLock)
-				if ((npc = npcList.Find(_npc => _npc.X == gridX && _npc.Y == gridY)) == null)
-					return;
-			_mouseoverName.Visible = true;
-			_mouseoverName.Text = npc.Data.Name;
-			_mouseoverName.ResizeBasedOnText();
-			_mouseoverName.ForeColor = System.Drawing.Color.White;
-			_mouseoverName.DrawLocation = new Vector2(
-				npc.DrawArea.X + (npc.DrawArea.Width - _mouseoverName.ActualWidth)/2f,
-				npc.DrawArea.Y + npc.TopPixel - _mouseoverName.Texture.Height - 4);
-
-			if (mouseClicked)
-			{
-				switch (npc.Data.Type)
-				{
-					case NPCType.Shop:
-						EOShopDialog.Show(m_api, npc);
-						break;
-					case NPCType.Inn:
-						break;
-					case NPCType.Bank:
-						EOBankAccountDialog.Show(m_api, npc.Index);
-						break;
-					case NPCType.Barber:
-						break;
-					case NPCType.Guild:
-						break;
-					case NPCType.Priest:
-						break;
-					case NPCType.Law:
-						break;
-					case NPCType.Skills:
-						EOSkillmasterDialog.Show(m_api, npc.Index);
-						break;
-					case NPCType.Quest:
-						EOQuestDialog.Show(m_api, npc.Index, npc.Data.VendorID, npc.Data.Name);
-						break;
-				}
-			}
-		}
-
-		private void _updateDisplayedPlayerName(bool rightClicked)
-		{
-			//todo: this needs to be moved into some mouseover shit for character renderer
-			//note: right-click and mouseover applies when mouse is over a character and that character
-			//	is front-most in a given pile of characters that the mouse could be over
-
-			_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
-			EOCharacterRenderer _rend;
-			_mouseoverName.Visible = true;
-			_mouseoverName.Text =
-				(_rend =
-					otherRenderers.Find(_p => _p.Character.X == gridX && _p.Character.Y == gridY) ??
-					World.Instance.ActiveCharacterRenderer).Character.Name;
-			_mouseoverName.ResizeBasedOnText();
-			_mouseoverName.ForeColor = System.Drawing.Color.White;
-			_mouseoverName.DrawLocation = new Vector2(
-				_rend.DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
-				_rend.DrawAreaWithOffset.Y + _rend.TopPixel - _mouseoverName.Texture.Height - 7);
-
-			//handle right-clicking a player. menu when not ActiveCharacter, paperdoll when ActiveCharacter
-			if (rightClicked)
-			{
-				if (_rend == World.Instance.ActiveCharacterRenderer)
-					m_api.RequestPaperdoll((short) _rend.Character.ID);
-				else
-				{
-					//show the right-click menu
-					//make it a member instance since there is only one ever
-					m_contextMenu.SetCharacterRenderer(_rend);
-				}
-			}
-		}
-
 		private static void _getGridCoordsFromMousePosition(MouseState ms, Rectangle _cursorSourceRect, Character c, out int gridx, out int gridy)
 		{
 			//need to solve this system of equations to get x, y on the grid
@@ -1443,7 +1508,7 @@ namespace EndlessClient
 					sb.Draw(statusIcons, new Vector2(14, 285), new Rectangle(widthDelta*3, 0, widthDelta, heightDelta), col);
 					extraOffset += 24;
 				}
-				if (c.SpellPrimed)
+				if (c.SelectedSpell > 0)
 				{
 					sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta*2, 0, widthDelta, heightDelta), col);
 					extraOffset += 24;
@@ -1572,10 +1637,10 @@ namespace EndlessClient
 
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 			List<EOCharacterRenderer> otherChars;
-			lock (rendererListLock)
+			lock (_rendererListLock)
 				otherChars = new List<EOCharacterRenderer>(otherRenderers); //copy of list (can remove items)
 			List<NPC> otherNpcs;
-			lock(npcListLock) //when drawing a frame, don't want to consider NPCs that are added/removed mid-draw - they will be taken care of on next update
+			lock(_npcListLock) //when drawing a frame, don't want to consider NPCs that are added/removed mid-draw - they will be taken care of on next update
 				otherNpcs = new List<NPC>(npcList);
 
 			GraphicsDevice.SetRenderTarget(_rtMapObjAbovePlayer);
@@ -1839,17 +1904,17 @@ namespace EndlessClient
 					return;
 				}
 
-				lock(rendererListLock)
+				lock(_rendererListLock)
 					foreach (EOCharacterRenderer cr in otherRenderers)
 						cr.Dispose();
 
-				lock (npcListLock)
+				lock (_npcListLock)
 				{
 					foreach (NPC npc in npcList)
 						npc.Dispose();
 				}
 
-				_mouseoverName.Dispose();
+				_itemHoverName.Dispose();
 				_rtMapObjAbovePlayer.Dispose();
 				_rtMapObjBelowPlayer.Dispose();
 				_playerBlend.Dispose();

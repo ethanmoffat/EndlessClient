@@ -847,6 +847,11 @@ namespace EOLib.Data
 				}
 			}
 		}
+
+		public SpellRecord GetSpellRecordByID(short id)
+		{
+			return (SpellRecord) Data.Find(x => ((SpellRecord) x).ID == id);
+		}
 	}
 
 	public class ClassFile : EODataFile

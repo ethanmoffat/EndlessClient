@@ -34,6 +34,7 @@ namespace EndlessClient
 		XNAButton passwordChangeBtn;
 
 		XNAButton backButton;
+		private bool _backButtonPressed; //workaround so the lost connection dialog doesn't show from the client disconnect event
 
 		XNALabel lblCredits, lblVersionInfo;
 
@@ -265,11 +266,13 @@ Thanks to :
 					{
 						if(ee.Result == XNADialogResult.OK)
 						{
+							_backButtonPressed = true;
 							Dispatcher.Subscriber = null;
 							World.Instance.ResetGameElements();
 							if (World.Instance.Client.ConnectedAndInitialized)
 								World.Instance.Client.Disconnect();
 							doStateChange(GameStates.Initial);
+							_backButtonPressed = false;
 						}
 					});
 			}

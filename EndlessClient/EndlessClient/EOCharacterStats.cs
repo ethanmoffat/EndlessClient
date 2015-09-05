@@ -133,22 +133,22 @@ namespace EndlessClient
 				switch (i)
 				{
 					case STR:
-						m_basicStats[i].Text = c.Stats.disp_str.ToString(CultureInfo.InvariantCulture);
+						m_basicStats[i].Text = c.Stats.Str.ToString(CultureInfo.InvariantCulture);
 						break;
 					case INT:
-						m_basicStats[i].Text = c.Stats.disp_int.ToString(CultureInfo.InvariantCulture);
+						m_basicStats[i].Text = c.Stats.Int.ToString(CultureInfo.InvariantCulture);
 						break;
 					case WIS:
-						m_basicStats[i].Text = c.Stats.disp_wis.ToString(CultureInfo.InvariantCulture);
+						m_basicStats[i].Text = c.Stats.Wis.ToString(CultureInfo.InvariantCulture);
 						break;
 					case AGI:
-						m_basicStats[i].Text = c.Stats.disp_agi.ToString(CultureInfo.InvariantCulture);
+						m_basicStats[i].Text = c.Stats.Agi.ToString(CultureInfo.InvariantCulture);
 						break;
 					case CON:
-						m_basicStats[i].Text = c.Stats.disp_con.ToString(CultureInfo.InvariantCulture);
+						m_basicStats[i].Text = c.Stats.Con.ToString(CultureInfo.InvariantCulture);
 						break;
 					case CHA:
-						m_basicStats[i].Text = c.Stats.disp_cha.ToString(CultureInfo.InvariantCulture);
+						m_basicStats[i].Text = c.Stats.Cha.ToString(CultureInfo.InvariantCulture);
 						break;
 				}
 			}
@@ -158,22 +158,22 @@ namespace EndlessClient
 				switch (i)
 				{
 					case HP:
-						m_characterStats[i].Text = c.Stats.hp.ToString(CultureInfo.InvariantCulture);
+						m_characterStats[i].Text = c.Stats.HP.ToString(CultureInfo.InvariantCulture);
 						break;
 					case TP:
-						m_characterStats[i].Text = c.Stats.tp.ToString(CultureInfo.InvariantCulture);
+						m_characterStats[i].Text = c.Stats.TP.ToString(CultureInfo.InvariantCulture);
 						break;
 					case DAM:
-						m_characterStats[i].Text = string.Format("{0} - {1}", c.Stats.mindam, c.Stats.maxdam);
+						m_characterStats[i].Text = string.Format("{0} - {1}", c.Stats.MinDam, c.Stats.MaxDam);
 						break;
 					case ACC:
-						m_characterStats[i].Text = c.Stats.accuracy.ToString(CultureInfo.InvariantCulture);
+						m_characterStats[i].Text = c.Stats.Accuracy.ToString(CultureInfo.InvariantCulture);
 						break;
 					case ARM:
-						m_characterStats[i].Text = c.Stats.evade.ToString(CultureInfo.InvariantCulture);
+						m_characterStats[i].Text = c.Stats.Evade.ToString(CultureInfo.InvariantCulture);
 						break;
 					case EVA:
-						m_characterStats[i].Text = c.Stats.armor.ToString(CultureInfo.InvariantCulture);
+						m_characterStats[i].Text = c.Stats.Armor.ToString(CultureInfo.InvariantCulture);
 						break;
 				}
 			}
@@ -186,10 +186,10 @@ namespace EndlessClient
 						m_otherInfo[i].Text = string.Format("{0} / {1}", c.Weight, c.MaxWeight);
 						break;
 					case STATPTS:
-						m_otherInfo[i].Text = c.Stats.statpoints.ToString(CultureInfo.InvariantCulture);
+						m_otherInfo[i].Text = c.Stats.StatPoints.ToString(CultureInfo.InvariantCulture);
 						break;
 					case SKILLPTS:
-						m_otherInfo[i].Text = c.Stats.skillpoints.ToString(CultureInfo.InvariantCulture);
+						m_otherInfo[i].Text = c.Stats.SkillPoints.ToString(CultureInfo.InvariantCulture);
 						break;
 					case ELEM:
 						//m_otherInfo[i].Text = "";
@@ -202,20 +202,20 @@ namespace EndlessClient
 						}
 						break;
 					case EXP:
-						m_otherInfo[i].Text = c.Stats.exp.ToString(CultureInfo.InvariantCulture);
+						m_otherInfo[i].Text = c.Stats.Experience.ToString(CultureInfo.InvariantCulture);
 						break;
 					case TNL:
-						m_otherInfo[i].Text = (World.Instance.exp_table[c.Stats.level + 1] - c.Stats.exp).ToString(CultureInfo.InvariantCulture);
+						m_otherInfo[i].Text = (World.Instance.exp_table[c.Stats.Level + 1] - c.Stats.Experience).ToString(CultureInfo.InvariantCulture);
 						break;
 					case KARMA:
-						m_otherInfo[i].Text = Character.KarmaStringFromNum(c.Stats.karma);
+						m_otherInfo[i].Text = Character.KarmaStringFromNum(c.Stats.Karma);
 						break;
 				}
 			}
 
-			m_charInfo[LEVEL].Text = c.Stats.level.ToString(CultureInfo.InvariantCulture);
+			m_charInfo[LEVEL].Text = c.Stats.Level.ToString(CultureInfo.InvariantCulture);
 
-			if (c.Stats.statpoints > 0)
+			if (c.Stats.StatPoints > 0)
 			{
 				foreach (XNAButton btn in m_arrows) btn.Visible = true;
 			}

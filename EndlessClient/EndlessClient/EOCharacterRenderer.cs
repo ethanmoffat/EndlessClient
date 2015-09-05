@@ -126,7 +126,7 @@ namespace EndlessClient
 		private ItemRecord shieldInfo, weaponInfo/*, bootsInfo, armorInfo*/, hatInfo;
 
 		private KeyboardState _prevKeyState;
-		private Timer _walkTimer, _attackTimer, _emoteTimer, _spTimer;
+		private Timer _walkTimer, _attackTimer, _emoteTimer, _spTimer, _spellCastTimer;
 		private readonly bool noLocUpdate;
 
 		private readonly EOChatBubble m_chatBubble;
@@ -140,6 +140,10 @@ namespace EndlessClient
 		private int m_drunkOffset;
 
 		private bool _playerIsOnSpikeTrap;
+
+		private readonly BlinkingLabel _mouseoverName;
+		private string _shoutName;
+		private DateTime? _spellInvocationStartTime;
 
 		private CharacterActionState State
 		{
@@ -190,6 +194,19 @@ namespace EndlessClient
 
 			m_chatBubble = new EOChatBubble(this);
 			m_damageCounter = new DamageCounter(this, GetType());
+
+			_mouseoverName = new BlinkingLabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
+			{
+				Visible = false,
+				Text = Character.Name,
+				ForeColor = System.Drawing.Color.White,
+				DrawOrder = (int)ControlDrawLayer.BaseLayer + 3,
+				AutoSize = false
+			};
+			_mouseoverName.DrawLocation = new Vector2(
+				DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
+				DrawAreaWithOffset.Y + TopPixel - _mouseoverName.Texture.Height - 7);
+			_mouseoverName.ResizeBasedOnText();
 		}
 
 		/// <summary>
@@ -264,10 +281,17 @@ namespace EndlessClient
 			{
 				_spTimer = new Timer(o =>
 				{
-					if (Character != null && Character.Stats != null &&
-						Character.Stats.sp < Character.Stats.maxsp)
-						Character.Stats.sp += 2;
+					if (Character != null && Character.Stats != null)
+					{
+						if (Character.Stats.SP < Character.Stats.MaxSP)
+							Character.Stats.SP += 2;
+						if (Character.Stats.SP > Character.Stats.MaxSP)
+							Character.Stats.SP = Character.Stats.MaxSP;
+					}
+
 				}, null, 0, 1000);
+				
+				_spellCastTimer = new Timer(_endSpellCast, null, Timeout.Infinite, Timeout.Infinite);
 			}
 
 			if (m_chatBubble != null) //this will be null when constructed during menu time
@@ -288,128 +312,26 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
+			_checkMouseoverState();
+			_checkMouseClickState();
+
 			base.Update(gameTime);
 			
-			//update the draw location when the player isn't the MainPlayer (so, if they walked)
-			if (!noLocUpdate && characterSkin != null && _char != null && World.Instance.MainPlayer.ActiveCharacter != null)
-				drawArea = new Rectangle(
-					_char.OffsetX + 304 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
-					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
-					m_skinSourceRect.Width, m_skinSourceRect.Height);
-
-			//update when the control is being dragged (when not in-game)
-			if (EOGame.Instance.State != GameStates.PlayingTheGame &&
-			    PreviousMouseState.LeftButton == ButtonState.Pressed &&
-			    Mouse.GetState().LeftButton == ButtonState.Pressed)
-			{
-				Data.SetUpdate(true);
-			}
-
-			#region refresh all the textures from the GFX files or image cache
+			_checkUpdateDrawArea();
+			_checkUpdateOnClickDrag();
 			if (Data.update)
-			{
-				if (Data.shield != 0)
-				{
-					if (World.Instance.EIF != null)
-					{
-						shieldInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.shield && (x as ItemRecord).Type == ItemType.Shield);
-						shield = spriteSheet.GetShield(shieldInfo.Name == "Bag" || shieldInfo.SubType == ItemSubType.Arrows || shieldInfo.SubType == ItemSubType.Wings);
-					}
-				}
-				else
-				{
-					shield = null;
-					shieldInfo = null;
-				}
-
-				if (Data.weapon != 0)
-				{
-					if (World.Instance.EIF != null)
-					{
-						weaponInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.weapon && (x as ItemRecord).Type == ItemType.Weapon);
-						weapon = spriteSheet.GetWeapon(weaponInfo.SubType == ItemSubType.Ranged);
-					}
-				}
-				else
-				{
-					weapon = null;
-					weaponInfo = null;
-				}
-
-				bool isBow = weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
-				characterSkin = spriteSheet.GetSkin(isBow, out m_skinSourceRect);
-				boots = Data.boots != 0 ? spriteSheet.GetBoots(isBow) : null;
-				armor = Data.armor != 0 ? spriteSheet.GetArmor(isBow) : null;
-				lock (hatHairLock)
-					hair = Data.hairstyle != 0 ? spriteSheet.GetHair(Data.hairNeedRefresh) : null;
-				if (Data.hat != 0)
-				{
-					lock (hatHairLock)
-						hat = spriteSheet.GetHat();
-					if(World.Instance.EIF != null)
-						hatInfo = (ItemRecord)World.Instance.EIF.Data.Find(x => (x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
-				}
-				else
-				{
-					lock (hatHairLock)
-					{
-						hat = null;
-						hatInfo = null;
-					}
-				}
-
-				maskTheHair(); //this will set the combined hat/hair texture with proper data.
-				
-				_drawCharToRenderTarget();
-
-				Data.SetUpdate(false);
-				Data.SetHairNeedRefresh(false);
-			}
-			#endregion
-
-			//bring back from the dead after 2 seconds
-			if (m_deadTime != null && Character.RenderData.dead && (DateTime.Now - m_deadTime.Value).TotalSeconds > 2)
-			{
-				m_deadTime = null;
-				Character.RenderData.SetDead(false);
-				CompleteDeath = true;
-			}
+				_updateDisplayDataSprites();
+			_checkBringBackFromDead();
+			_checkResetCharacterStateAfterSpell();
 
 			if (EOGame.Instance.State == GameStates.PlayingTheGame && this == World.Instance.ActiveCharacterRenderer)
 			{
-				//adjust SP
-				if (Character.Stats != null && Character.Stats.sp < Character.Stats.maxsp &&
-				    State != CharacterActionState.Attacking && (int) gameTime.TotalGameTime.TotalMilliseconds%1000 == 0)
-					Character.Stats.SetSP((short) (Character.Stats.sp + 1));
-
-				//5-minute timeout: start sending emotes every minute
-				if ((DateTime.Now - m_lastActTime).TotalMilliseconds > 300000 &&
-				    (m_lastEmoteTime == null || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > 60000))
-				{
-					m_lastEmoteTime = DateTime.Now;
-					Character.Emote(Emote.Moon);
-					PlayerEmote();
-				}
-
-				if (m_drunkTime.HasValue && Character.IsDrunk)
-				{
-					//note: these timer values (between 1-6 seconds and 30 seconds) are completely arbitrary
-					if (!m_lastEmoteTime.HasValue || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > m_drunkOffset)
-					{
-						m_lastEmoteTime = DateTime.Now;
-						Character.Emote(Emote.Drunk);
-						PlayerEmote();
-						m_drunkOffset = (new Random()).Next(1000, 6000); //between 1-6 seconds 
-					}
-
-					if ((DateTime.Now - m_drunkTime.Value).TotalMilliseconds >= 30000)
-					{
-						m_drunkTime = null;
-						Character.IsDrunk = false;
-					}
-				}
+				_adjustSP(gameTime);
+				_checkAFKCharacter();
+				_checkHandleDrunkCharacter();
 			}
 
+			//todo: move keyboard handling into separate game component (and adjust input limiting to use DateTime)
 			#region input handling for keyboard
 			//only check for a keypress if not currently acting and if this is the active character renderer
 			//also only check every 1/4 of a second
@@ -545,7 +467,7 @@ namespace EndlessClient
 										" - " + strWhichKey);
 								}
 							}
-							else if (info.Warp.levelRequirement != 0 && Character.Stats.level < info.Warp.levelRequirement)
+							else if (info.Warp.levelRequirement != 0 && Character.Stats.Level < info.Warp.levelRequirement)
 							{
 								EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, 
 									DATCONST2.STATUS_LABEL_NOT_READY_TO_USE_ENTRANCE,
@@ -580,8 +502,164 @@ namespace EndlessClient
 			}
 #endregion
 		}
-		
-		//convenience wrapper
+
+		private void _checkUpdateDrawArea()
+		{
+			//update the draw location when the player isn't the MainPlayer (so, if they walked)
+			if (!noLocUpdate && characterSkin != null && _char != null && World.Instance.MainPlayer.ActiveCharacter != null)
+				drawArea = new Rectangle(
+					_char.OffsetX + 304 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
+					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
+					m_skinSourceRect.Width, m_skinSourceRect.Height);
+		}
+
+		private void _checkUpdateOnClickDrag()
+		{
+			//update when the control is being dragged (when not in-game)
+			if (EOGame.Instance.State != GameStates.PlayingTheGame &&
+				PreviousMouseState.LeftButton == ButtonState.Pressed &&
+				Mouse.GetState().LeftButton == ButtonState.Pressed)
+			{
+				Data.SetUpdate(true);
+			}
+		}
+
+		private void _updateDisplayDataSprites()
+		{
+			if (Data.shield != 0)
+			{
+				if (World.Instance.EIF != null)
+				{
+					shieldInfo =
+						(ItemRecord)
+							World.Instance.EIF.Data.Find(
+								x =>
+									(x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.shield &&
+									(x as ItemRecord).Type == ItemType.Shield);
+					if(shieldInfo != null)
+						shield = spriteSheet.GetShield(shieldInfo.Name == "Bag" || shieldInfo.SubType == ItemSubType.Arrows || shieldInfo.SubType == ItemSubType.Wings);
+				}
+			}
+			else
+			{
+				shield = null;
+				shieldInfo = null;
+			}
+
+			if (Data.weapon != 0)
+			{
+				if (World.Instance.EIF != null)
+				{
+					weaponInfo =
+						(ItemRecord)
+							World.Instance.EIF.Data.Find(
+								x =>
+									(x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.weapon &&
+									(x as ItemRecord).Type == ItemType.Weapon);
+					if(weaponInfo != null)
+						weapon = spriteSheet.GetWeapon(weaponInfo.SubType == ItemSubType.Ranged);
+				}
+			}
+			else
+			{
+				weapon = null;
+				weaponInfo = null;
+			}
+
+			bool isBow = weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
+			characterSkin = spriteSheet.GetSkin(isBow, out m_skinSourceRect);
+			boots = Data.boots != 0 ? spriteSheet.GetBoots(isBow) : null;
+			armor = Data.armor != 0 ? spriteSheet.GetArmor(isBow) : null;
+			lock (hatHairLock)
+				hair = Data.hairstyle != 0 ? spriteSheet.GetHair(Data.hairNeedRefresh) : null;
+			if (Data.hat != 0)
+			{
+				lock (hatHairLock)
+					hat = spriteSheet.GetHat();
+				if (World.Instance.EIF != null)
+					hatInfo =
+						(ItemRecord)
+							World.Instance.EIF.Data.Find(
+								x =>
+									(x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
+			}
+			else
+			{
+				lock (hatHairLock)
+				{
+					hat = null;
+					hatInfo = null;
+				}
+			}
+
+			maskTheHair(); //this will set the combined hat/hair texture with proper data.
+
+			_drawCharToRenderTarget();
+
+			Data.SetUpdate(false);
+			Data.SetHairNeedRefresh(false);
+		}
+
+		private void _checkBringBackFromDead()
+		{
+			if (m_deadTime != null && Character.RenderData.dead && (DateTime.Now - m_deadTime.Value).TotalSeconds > 2)
+			{
+				m_deadTime = null;
+				Character.RenderData.SetDead(false);
+				CompleteDeath = true;
+			}
+		}
+
+		private void _checkResetCharacterStateAfterSpell()
+		{
+			if (_spellInvocationStartTime != null && (DateTime.Now - _spellInvocationStartTime.Value).TotalMilliseconds > 280)
+			{
+				Character.SetSpellCastComplete();
+				_spellInvocationStartTime = null;
+			}
+		}
+
+		private void _adjustSP(GameTime gameTime)
+		{
+			//adjust SP
+			if (Character.Stats != null && Character.Stats.SP < Character.Stats.MaxSP &&
+				State != CharacterActionState.Attacking && (int)gameTime.TotalGameTime.TotalMilliseconds % 1000 == 0)
+				Character.Stats.SP = (short)(Character.Stats.SP + 1);
+		}
+
+		private void _checkAFKCharacter()
+		{
+			//5-minute timeout: start sending emotes every minute
+			if ((DateTime.Now - m_lastActTime).TotalMilliseconds > 300000 &&
+				(m_lastEmoteTime == null || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > 60000))
+			{
+				m_lastEmoteTime = DateTime.Now;
+				Character.Emote(Emote.Moon);
+				PlayerEmote();
+			}
+		}
+
+		private void _checkHandleDrunkCharacter()
+		{
+			if (m_drunkTime.HasValue && Character.IsDrunk)
+			{
+				//note: these timer values (between 1-6 seconds and 30 seconds) are completely arbitrary
+				if (!m_lastEmoteTime.HasValue || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > m_drunkOffset)
+				{
+					m_lastEmoteTime = DateTime.Now;
+					Character.Emote(Emote.Drunk);
+					PlayerEmote();
+					m_drunkOffset = (new Random()).Next(1000, 6000); //between 1-6 seconds 
+				}
+
+				if ((DateTime.Now - m_drunkTime.Value).TotalMilliseconds >= 30000)
+				{
+					m_drunkTime = null;
+					Character.IsDrunk = false;
+				}
+			}
+		}
+
 		private void _chkWalk(TileSpec spec, EODirection dir, byte destX, byte destY)
 		{
 			bool walkValid = true;
@@ -664,7 +742,6 @@ namespace EndlessClient
 			}
 		}
 
-		//convenience wrapper - update block is getting unruly
 		private void _checkAndHandleEmote(KeyboardState state)
 		{
 			if (State != CharacterActionState.Standing)
@@ -740,8 +817,91 @@ namespace EndlessClient
 			}
 		}
 
+		private bool _getMouseOverActual()
+		{
+			var skinDrawLoc = _getSkinDrawLoc();
+			var actualDrawAreaRect = new Rectangle((int)skinDrawLoc.X, (int)skinDrawLoc.Y, m_skinSourceRect.Width,
+				m_skinSourceRect.Height);
+			bool mouseOverActual = actualDrawAreaRect.ContainsPoint(Mouse.GetState().X, Mouse.GetState().Y);
+			return mouseOverActual;
+		}
+
+		private void _checkMouseoverState()
+		{
+			if (_mouseoverName == null) return;
+
+			bool shouting = !string.IsNullOrEmpty(_shoutName);
+
+			if (_getMouseOverActual())
+			{
+				_mouseoverName.BlinkRate = null;
+				_mouseoverName.Text = Character.Name;
+				_mouseoverName.ResizeBasedOnText();
+				_mouseoverName.Visible = true;
+			}
+			else if (shouting)
+			{
+				_mouseoverName.BlinkRate = 250; //one cycle is 500ms
+				_mouseoverName.Text = _shoutName;
+				_mouseoverName.ResizeBasedOnText();
+			}
+			else
+			{
+				_mouseoverName.Visible = false;
+				_mouseoverName.BlinkRate = null;
+				_mouseoverName.Text = Character.Name;
+				_mouseoverName.ResizeBasedOnText();
+			}
+
+			_mouseoverName.DrawLocation = new Vector2(
+				DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
+				DrawAreaWithOffset.Y + TopPixel - _mouseoverName.Texture.Height - 12);
+		}
+
+		private void _checkMouseClickState()
+		{
+			if (!_getMouseOverActual()) return; //ignore clicks when mouse isn't over
+
+			var currentState = Mouse.GetState();
+
+			bool leftClicked = PreviousMouseState.LeftButton == ButtonState.Pressed &&
+			                   currentState.LeftButton == ButtonState.Released;
+			bool rightClicked = PreviousMouseState.RightButton == ButtonState.Pressed &&
+			                    currentState.RightButton == ButtonState.Released;
+
+			if (leftClicked)
+			{
+				if (World.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
+				{
+					SpellRecord data = World.Instance.ESF.GetSpellRecordByID((short) World.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
+					if (data.TargetRestrict == SpellTargetRestrict.NPCOnly || 
+						data.TargetRestrict == SpellTargetRestrict.Opponent && !World.Instance.ActiveMapRenderer.MapRef.IsPK)
+					{
+						//todo: status label message "(something something cannot attack player)"
+						World.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
+					}
+					else
+					{
+						World.Instance.ActiveCharacterRenderer.SetSpellTarget(this);
+						World.Instance.ActiveCharacterRenderer._prepareSpell();
+					}
+				}
+			}
+			//handle right-clicking a player. menu when not ActiveCharacter, paperdoll when ActiveCharacter
+			else if (rightClicked)
+			{
+				if (this == World.Instance.ActiveCharacterRenderer)
+					((EOGame) Game).API.RequestPaperdoll((short) Character.ID);
+				else
+					World.Instance.ActiveMapRenderer.ShowContextMenu(this);
+			}
+		}
+
 		public void PlayerWalk(bool isWaterTile, bool isSpikeTrap)
 		{
+			if (!string.IsNullOrEmpty(_shoutName))
+				_cancelSpell(false);
+
 			const int walkTimer = 100;
 			Data.SetUpdate(true);
 
@@ -767,11 +927,18 @@ namespace EndlessClient
 			if (_playerIsOnSpikeTrap)
 				World.Instance.ActiveMapRenderer.AddVisibleSpikeTrap(Character.DestX, Character.DestY);
 
-			_walkTimer.Change(0, walkTimer); //ok, it's time to start
+			try
+			{
+				_walkTimer.Change(0, walkTimer); //ok, it's time to start
+			}
+			catch(ObjectDisposedException) { Visible = false; }
 		}
 
 		public void PlayerAttack(bool isWaterTile)
 		{
+			if (!string.IsNullOrEmpty(_shoutName))
+				_cancelSpell(false);
+
 			const int attackTimer = 285;
 			Data.SetUpdate(true);
 
@@ -811,14 +978,23 @@ namespace EndlessClient
 		{
 			if (World.Instance.SoundEnabled && Character.RenderData.emote == Emote.LevelUp)
 				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.LevelUp).Play();
+			else if (!string.IsNullOrEmpty(_shoutName))
+				_cancelSpell(false);
 
 			const int EmoteTimeBetweenFrames = 250;
 			Data.SetUpdate(true);
-			_emoteTimer.Change(0, EmoteTimeBetweenFrames);
+			try
+			{
+				_emoteTimer.Change(0, EmoteTimeBetweenFrames);
+			}
+			catch (ObjectDisposedException) { }
 		}
 
 		public void Die()
 		{
+			if (!string.IsNullOrEmpty(_shoutName))
+				_cancelSpell(false);
+
 			if(World.Instance.SoundEnabled)
 				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Dead).Play();
 			Character.RenderData.SetDead(true);
@@ -941,6 +1117,8 @@ namespace EndlessClient
 					_charRenderTarget.Dispose();
 				if (m_chatBubble != null)
 					m_chatBubble.Dispose();
+				if (_mouseoverName != null)
+					_mouseoverName.Close();
 			}
 
 			base.Dispose(disposing);
@@ -1016,19 +1194,56 @@ namespace EndlessClient
 
 		private void _drawSkin(bool flipped)
 		{
+			var skinLoc = _getSkinDrawLoc();
+
+			SpriteBatch.Draw(characterSkin, skinLoc, m_skinSourceRect, Color.White, 0f, Vector2.Zero, 1f,
+				flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+
+			//get face and draw
+			if (State == CharacterActionState.Emote)
+			{
+				Rectangle faceRect, emoteRect;
+				Texture2D face = spriteSheet.GetFace(out faceRect), 
+					emote = spriteSheet.GetEmote(out emoteRect);
+
+				if (face != null && (Facing == EODirection.Down || Facing == EODirection.Right))
+				{
+					Vector2 facePos = new Vector2(skinLoc.X + (Facing == EODirection.Down ? 2 : 3), 
+						skinLoc.Y + (_data != null ? (_data.gender == 0 ? 2 : 0) : 0));
+					SpriteBatch.Draw(face, facePos, faceRect,
+						Color.White, 0f, Vector2.Zero, 1f,
+						flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
+				}
+				if (emote != null)
+				{
+					Vector2 emotePos = new Vector2(skinLoc.X - 15, DrawAreaWithOffset.Y - emote.Height + 10);
+					SpriteBatch.Draw(emote, emotePos, emoteRect, Color.FromNonPremultiplied(0xff,0xff,0xff,128));
+				}
+			}
+		}
+
+		private Vector2 _getSkinDrawLoc()
+		{
 			int skinXOff = 0, skinYOff = 0;
 			Vector2 skinLoc = new Vector2(6 + DrawAreaWithOffset.X, (Data.gender == 0 ? 12 : 13) + DrawAreaWithOffset.Y);
 			if (Data != null)
 			{
 				switch (State)
 				{
+					case CharacterActionState.SpellCast:
+						skinLoc = new Vector2(skinLoc.X, skinLoc.Y - 4);
+						break;
 					case CharacterActionState.Walking:
 						if (_data != null && _data.gender == 1)
 						{
 							switch (Facing)
 							{
-								case EODirection.Down: skinXOff = -1; break;
-								case EODirection.Right: skinXOff = 1; break;
+								case EODirection.Down:
+									skinXOff = -1;
+									break;
+								case EODirection.Right:
+									skinXOff = 1;
+									break;
 							}
 						}
 						skinLoc = new Vector2(2 + DrawAreaWithOffset.X + skinXOff, (Data.gender == 0 ? 11 : 12) + DrawAreaWithOffset.Y);
@@ -1060,23 +1275,23 @@ namespace EndlessClient
 									break;
 							}
 						}
-						else if(weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged && Data.attackFrame == 1)
+						else if (weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged && Data.attackFrame == 1)
 						{
-							switch(Facing)
+							switch (Facing)
 							{
 								case EODirection.Up:
 									skinXOff += Data.gender == 1 ? 2 : 1;
 									break;
 								case EODirection.Right:
 									skinXOff += Data.gender == 1 ? 4 : 3;
-									skinYOff += 1;//Data.gender == 1 ? 1 : 1;
+									skinYOff += 1; //Data.gender == 1 ? 1 : 1;
 									break;
 								case EODirection.Left:
 									skinXOff += Data.gender == 1 ? -9 : -8;
 									break;
 								case EODirection.Down:
 									skinXOff += Data.gender == 1 ? -11 : -10;
-									skinYOff += 1;//Data.gender == 1 ? 1 : 1;
+									skinYOff += 1; //Data.gender == 1 ? 1 : 1;
 									break;
 							}
 						}
@@ -1094,31 +1309,7 @@ namespace EndlessClient
 						break;
 				}
 			}
-
-			SpriteBatch.Draw(characterSkin, skinLoc, m_skinSourceRect, Color.White, 0f, Vector2.Zero, 1f,
-				flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
-
-			//get face and draw
-			if (State == CharacterActionState.Emote)
-			{
-				Rectangle faceRect, emoteRect;
-				Texture2D face = spriteSheet.GetFace(out faceRect), 
-					emote = spriteSheet.GetEmote(out emoteRect);
-
-				if (face != null && (Facing == EODirection.Down || Facing == EODirection.Right))
-				{
-					Vector2 facePos = new Vector2(skinLoc.X + (Facing == EODirection.Down ? 2 : 3), 
-						skinLoc.Y + (_data != null ? (_data.gender == 0 ? 2 : 0) : 0));
-					SpriteBatch.Draw(face, facePos, faceRect,
-						Color.White, 0f, Vector2.Zero, 1f,
-						flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
-				}
-				if (emote != null)
-				{
-					Vector2 emotePos = new Vector2(skinLoc.X - 15, DrawAreaWithOffset.Y - emote.Height + 10);
-					SpriteBatch.Draw(emote, emotePos, emoteRect, Color.FromNonPremultiplied(0xff,0xff,0xff,128));
-				}
-			}
+			return skinLoc;
 		}
 
 		private bool _drawWeaponLater()
@@ -1149,6 +1340,9 @@ namespace EndlessClient
 
 		private void _drawWeapon(bool flipped)
 		{
+			if (State == CharacterActionState.Sitting || State == CharacterActionState.SpellCast)
+				return;
+
 			int xOffLoc = 0;
 			if (Data != null && Data.attackFrame == 2 && weaponInfo.SubType != ItemSubType.Ranged)
 			{
@@ -1443,6 +1637,106 @@ namespace EndlessClient
 		{
 			m_drunkTime = DateTime.Now;
 			Character.IsDrunk = true;
+		}
+
+		//Workflow for spells (main player):
+		// - F-key pressed, calls SelectSpell
+		// - Goes into target mode - on target select, calls _prepareSpell
+		// - Prepare spell starts shout and timer callback (_beginSpellCast)
+		// - end of timer callback does actual spell cast
+		// - attacking, moving, emoting, or dying cancel the spell cast (_cancelSpell)
+		/*Workflow for other players:
+		   - Spell request packet - show shout name
+		   - Spell cast packet - show animation
+		   - other logic for different spell types, etc.
+		*/
+		public void SelectSpell(int spellIndex)
+		{
+			SpellRecord toCast = ((EOGame)Game).Hud.GetSpellFromIndex(spellIndex);
+			if (toCast == null) return;
+
+			Character.SelectSpell(toCast.ID);
+			if (toCast.Target == SpellTarget.Self)
+				_prepareSpell();
+		}
+
+		public void SetSpellTarget(DrawableGameComponent target)
+		{
+			Character.SetSpellTarget(target);
+			_prepareSpell();
+		}
+
+		private void _cancelSpell(bool completedPrep)
+		{
+			_spellCastTimer.Change(Timeout.Infinite, Timeout.Infinite);
+			Character.SelectSpell(-1);
+			Character.SetSpellTarget(null);
+
+			//if completedPrep is true make it darker briefly and then hide it
+			StopShouting(completedPrep);
+		}
+
+		private void _prepareSpell()
+		{
+			if (Character.SelectedSpell <= 0)
+				throw new InvalidOperationException("You must call SelectSpell before calling _prepareSpell");
+
+			SpellRecord toCast = World.Instance.ESF.GetSpellRecordByID((short) Character.SelectedSpell);
+
+			Character.PrepareSpell(toCast.ID);
+			_beginSpellCast(toCast);
+
+			SetSpellShout(toCast.Name);
+		}
+
+		private void _beginSpellCast(SpellRecord spell)
+		{
+			if (Character.SelectedSpell <= 0)
+				throw new InvalidOperationException("You must have a selected spell before casting (race condition?");
+
+			var castTime = (int)(Math.Round(spell.CastTime / 2.0 * 950)); //this probably needs different math
+			_spellCastTimer.Change(castTime, Timeout.Infinite);
+		}
+
+		private void _endSpellCast(object state)
+		{
+			if (Character.SelectedSpell <= 0)
+				return;
+
+			Character.CastSpell(Character.SelectedSpell);
+			_cancelSpell(true);
+			_spellInvocationStartTime = DateTime.Now;
+		}
+
+		public void SetSpellShout(string shoutName)
+		{
+			//starts shouting (see checkMouseoverState method)
+			_mouseoverName.ForeColor = System.Drawing.Color.White;
+			_shoutName = shoutName;
+		}
+
+		public void StopShouting(bool isSpellBeingCast)
+		{
+			_mouseoverName.BlinkRate = null;
+
+			if (!isSpellBeingCast)
+			{
+				_mouseoverName.Text = Character.Name;
+				_mouseoverName.ForeColor = System.Drawing.Color.White;
+				_mouseoverName.Visible = false;
+				_shoutName = null;
+				return;
+			}
+
+			_mouseoverName.Visible = true;
+			_mouseoverName.ForeColor = System.Drawing.Color.Bisque; //todo: figure out color
+			_mouseoverName.SetCallback(600, () => StopShouting(false));
+		}
+
+		public void StartCastingSpell()
+		{
+			_spellInvocationStartTime = DateTime.Now;
+			Character.SetSpellCastStart();
 		}
 	}
 }

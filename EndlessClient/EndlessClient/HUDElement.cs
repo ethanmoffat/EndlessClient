@@ -96,12 +96,12 @@ namespace EndlessClient
 
 		protected override void updateLabelText()
 		{
-			m_label.Text = string.Format("{0}/{1}", m_stats.hp, m_stats.maxhp);
+			m_label.Text = string.Format("{0}/{1}", m_stats.HP, m_stats.MaxHP);
 		}
 
 		protected override void drawHudElement()
 		{
-			int srcWidth = 25+(int) Math.Round((m_stats.hp/(double) m_stats.maxhp)*79);
+			int srcWidth = 25+(int) Math.Round((m_stats.HP/(double) m_stats.MaxHP)*79);
 			Rectangle maskSrc = new Rectangle(m_elemSourceRect.X, m_elemSourceRect.Height, srcWidth, m_elemSourceRect.Height);
 
 			SpriteBatch.Begin();
@@ -122,12 +122,12 @@ namespace EndlessClient
 
 		protected override void updateLabelText()
 		{
-			m_label.Text = string.Format("{0}/{1}", m_stats.tp, m_stats.maxtp);
+			m_label.Text = string.Format("{0}/{1}", m_stats.TP, m_stats.MaxTP);
 		}
 
 		protected override void drawHudElement()
 		{
-			int srcWidth = 24+(int) Math.Round((m_stats.tp/(double) m_stats.maxtp)*79);
+			int srcWidth = 24+(int) Math.Round((m_stats.TP/(double) m_stats.MaxTP)*79);
 			Rectangle maskSrc = new Rectangle(m_elemSourceRect.X, m_elemSourceRect.Height, srcWidth, m_elemSourceRect.Height);
 
 			SpriteBatch.Begin();
@@ -148,12 +148,12 @@ namespace EndlessClient
 
 		protected override void updateLabelText()
 		{
-			m_label.Text = string.Format("{0}/{1}", m_stats.sp, m_stats.maxsp);
+			m_label.Text = string.Format("{0}/{1}", m_stats.SP, m_stats.MaxSP);
 		}
 
 		protected override void drawHudElement()
 		{
-			int srcWidth = 25 + (int) Math.Round((m_stats.sp/(double) m_stats.maxsp)*79);
+			int srcWidth = 25 + (int) Math.Round((m_stats.SP/(double) m_stats.MaxSP)*79);
 			Rectangle maskSrc = new Rectangle(m_elemSourceRect.X, m_elemSourceRect.Height, srcWidth, m_elemSourceRect.Height);
 
 			SpriteBatch.Begin();
@@ -174,14 +174,14 @@ namespace EndlessClient
 
 		protected override void updateLabelText()
 		{
-			m_label.Text = string.Format("{0}", World.Instance.exp_table[m_stats.level + 1] - m_stats.exp);
+			m_label.Text = string.Format("{0}", World.Instance.exp_table[m_stats.Level + 1] - m_stats.Experience);
 		}
 
 		protected override void drawHudElement()
 		{
-			int thisLevel = World.Instance.exp_table[m_stats.level];
-			int nextLevel = World.Instance.exp_table[m_stats.level + 1];
-			int srcWidth = 25 + (int) Math.Round(((m_stats.exp - thisLevel)/(double)(nextLevel-thisLevel))*79);
+			int thisLevel = World.Instance.exp_table[m_stats.Level];
+			int nextLevel = World.Instance.exp_table[m_stats.Level + 1];
+			int srcWidth = 25 + (int) Math.Round(((m_stats.Experience - thisLevel)/(double)(nextLevel-thisLevel))*79);
 			Rectangle maskSrc = new Rectangle(m_elemSourceRect.X, m_elemSourceRect.Height, srcWidth, m_elemSourceRect.Height);
 
 			SpriteBatch.Begin();

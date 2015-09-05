@@ -77,6 +77,7 @@ namespace EndlessClient
 			m_packetAPI.OnNPCKilled += _npcKilled;
 			m_packetAPI.OnNPCTakeDamage += _npcTakeDamage;
 			m_packetAPI.OnPlayerLevelUp += _playerLevelUp;
+			m_packetAPI.OnRemoveChildNPCs += _removeChildNPCs;
 
 			//chat related
 			m_packetAPI.OnPlayerChatByID += _chatByPlayerID;
@@ -138,6 +139,13 @@ namespace EndlessClient
 			m_packetAPI.OnStatusMessage += _setStatusLabel;
 
 			m_packetAPI.OnPlaySoundEffect += _playSoundEffect;
+
+			//spell casting
+			m_packetAPI.OnOtherPlayerStartCastSpell += _playerStartCastSpell;
+			m_packetAPI.OnOtherPlayerCastSpellSelf += _otherPlayerCastSpellSelf;
+			m_packetAPI.OnCastSpellSelf += _mainPlayerCastSpellSelf;
+			m_packetAPI.OnCastSpellTargetOther += _playerCastTargetSpell;
+			m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
 		}
 
 		private void _playerEnterMap(CharacterData data, WarpAnimation anim)
@@ -320,20 +328,20 @@ namespace EndlessClient
 
 		private void _playerRecover(short hp, short tp)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.Stats.SetHP(hp);
-			World.Instance.MainPlayer.ActiveCharacter.Stats.SetTP(tp);
+			World.Instance.MainPlayer.ActiveCharacter.Stats.HP = hp;
+			World.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
 			m_game.Hud.RefreshStats();
 		}
 
 		private void _recoverReply(int exp, short karma, byte level, short statpoints, short skillpoints)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.Stats.exp = exp;
-			World.Instance.MainPlayer.ActiveCharacter.Stats.karma = karma;
+			World.Instance.MainPlayer.ActiveCharacter.Stats.Experience = exp;
+			World.Instance.MainPlayer.ActiveCharacter.Stats.Karma = karma;
 			if (level > 0)
-				World.Instance.MainPlayer.ActiveCharacter.Stats.level = level;
+				World.Instance.MainPlayer.ActiveCharacter.Stats.Level = level;
 
-			World.Instance.MainPlayer.ActiveCharacter.Stats.statpoints = statpoints;
-			World.Instance.MainPlayer.ActiveCharacter.Stats.skillpoints = skillpoints;
+			World.Instance.MainPlayer.ActiveCharacter.Stats.StatPoints = statpoints;
+			World.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints = skillpoints;
 
 			m_game.Hud.RefreshStats();
 		}
@@ -343,25 +351,25 @@ namespace EndlessClient
 
 			CharStatData localStats = World.Instance.MainPlayer.ActiveCharacter.Stats;
 			if (_data.IsStatsData)
-				localStats.statpoints = _data.StatPoints;
+				localStats.StatPoints = _data.StatPoints;
 			else
 				World.Instance.MainPlayer.ActiveCharacter.Class = _data.Class;
-			localStats.SetStr(_data.Str);
-			localStats.SetInt(_data.Int);
-			localStats.SetWis(_data.Wis);
-			localStats.SetAgi(_data.Agi);
-			localStats.SetCon(_data.Con);
-			localStats.SetCha(_data.Cha);
-			localStats.SetMaxHP(_data.MaxHP);
-			localStats.SetMaxTP(_data.MaxTP);
-			localStats.SetSP(_data.MaxSP);
-			localStats.SetMaxSP(_data.MaxSP);
+			localStats.Str = _data.Str;
+			localStats.Int = _data.Int;
+			localStats.Wis = _data.Wis;
+			localStats.Agi = _data.Agi;
+			localStats.Con = _data.Con;
+			localStats.Cha = _data.Cha;
+			localStats.MaxHP = _data.MaxHP;
+			localStats.MaxTP = _data.MaxTP;
+			localStats.SP = _data.MaxSP;
+			localStats.MaxSP = _data.MaxSP;
 			World.Instance.MainPlayer.ActiveCharacter.MaxWeight = _data.MaxWeight;
-			localStats.SetMinDam(_data.MinDam);
-			localStats.SetMaxDam(_data.MaxDam);
-			localStats.SetAccuracy(_data.Accuracy);
-			localStats.SetEvade(_data.Evade);
-			localStats.SetArmor(_data.Armor);
+			localStats.MinDam = _data.MinDam;
+			localStats.MaxDam = _data.MaxDam;
+			localStats.Accuracy = _data.Accuracy;
+			localStats.Evade = _data.Evade;
+			localStats.Armor = _data.Armor;
 			m_game.Hud.RefreshStats();
 		}
 
@@ -418,10 +426,10 @@ namespace EndlessClient
 				case ItemType.Teleport: /*Warp packet handles the rest!*/ break;
 				case ItemType.Heal:
 					{
-						World.Instance.MainPlayer.ActiveCharacter.Stats.SetHP(data.HP);
-						World.Instance.MainPlayer.ActiveCharacter.Stats.SetTP(data.TP);
+						World.Instance.MainPlayer.ActiveCharacter.Stats.HP = data.HP;
+						World.Instance.MainPlayer.ActiveCharacter.Stats.TP = data.TP;
 
-						int percent = (int)Math.Round(100.0 * ((double)data.HP / World.Instance.MainPlayer.ActiveCharacter.Stats.maxhp));
+						int percent = (int)Math.Round(100.0 * ((double)data.HP / World.Instance.MainPlayer.ActiveCharacter.Stats.MaxHP));
 
 						if (data.HPGain > 0)
 							World.Instance.ActiveCharacterRenderer.SetDamageCounterValue(data.HPGain, percent, true);
@@ -466,38 +474,38 @@ namespace EndlessClient
 
 						//update main character's stats
 						CharStatData s = c.Stats;
-						s.SetMaxHP(data.CureStats.MaxHP);
-						s.SetMaxTP(data.CureStats.MaxTP);
-						s.SetStr(data.CureStats.Str);
-						s.SetInt(data.CureStats.Int);
-						s.SetWis(data.CureStats.Wis);
-						s.SetAgi(data.CureStats.Agi);
-						s.SetCon(data.CureStats.Con);
-						s.SetCha(data.CureStats.Cha);
-						s.SetMinDam(data.CureStats.MinDam);
-						s.SetMaxDam(data.CureStats.MaxDam);
-						s.SetAccuracy(data.CureStats.Accuracy);
-						s.SetEvade(data.CureStats.Evade);
-						s.SetArmor(data.CureStats.Armor);
+						s.MaxHP = data.CureStats.MaxHP;
+						s.MaxTP = data.CureStats.MaxTP;
+						s.Str = data.CureStats.Str;
+						s.Int = data.CureStats.Int;
+						s.Wis = data.CureStats.Wis;
+						s.Agi = data.CureStats.Agi;
+						s.Con = data.CureStats.Con;
+						s.Cha = data.CureStats.Cha;
+						s.MinDam = data.CureStats.MinDam;
+						s.MaxDam = data.CureStats.MaxDam;
+						s.Accuracy = data.CureStats.Accuracy;
+						s.Evade = data.CureStats.Evade;
+						s.Armor = data.CureStats.Armor;
 						m_game.Hud.RefreshStats();
 					}
 					break;
 				case ItemType.EXPReward:
 					{
 						CharStatData s = World.Instance.MainPlayer.ActiveCharacter.Stats;
-						if (s.level < data.RewardStats.Level)
+						if (s.Level < data.RewardStats.Level)
 						{
 							//level up!
 							World.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
 							World.Instance.ActiveCharacterRenderer.PlayerEmote();
-							s.level = data.RewardStats.Level;
+							s.Level = data.RewardStats.Level;
 						}
-						s.exp = data.RewardStats.Exp;
-						s.statpoints = data.RewardStats.StatPoints;
-						s.skillpoints = data.RewardStats.SkillPoints;
-						s.maxhp = data.RewardStats.MaxHP;
-						s.maxtp = data.RewardStats.MaxTP;
-						s.maxsp = data.RewardStats.MaxSP;
+						s.Experience = data.RewardStats.Exp;
+						s.StatPoints = data.RewardStats.StatPoints;
+						s.SkillPoints = data.RewardStats.SkillPoints;
+						s.MaxHP = data.RewardStats.MaxHP;
+						s.MaxTP = data.RewardStats.MaxTP;
+						s.MaxSP = data.RewardStats.MaxSP;
 					}
 					break;
 			}
@@ -542,28 +550,41 @@ namespace EndlessClient
 		private void _npcChat(byte index, string message)
 		{
 			if (World.Instance.ActiveMapRenderer == null) return;
+
 			World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.NPC, index, message, ChatType.Note);
 		}
 
-		private void _npcLeaveView(byte index, int damage)
+		private void _npcLeaveView(byte index, int damageToNPC, short playerID, EODirection playerDirection, short playerTP = -1, short spellID = -1)
 		{
 			if (World.Instance.ActiveMapRenderer == null) return;
-			World.Instance.ActiveMapRenderer.RemoveOtherNPC(index, damage);
+
+			World.Instance.ActiveMapRenderer.RemoveOtherNPC(index, damageToNPC, playerID, playerDirection, spellID);
+
+			if (playerTP >= 0)
+				World.Instance.MainPlayer.ActiveCharacter.Stats.TP = playerTP;
+			m_game.Hud.RefreshStats();
 		}
 
 		private void _npcKilled(int newExp)
 		{
-			int expDif = newExp - World.Instance.MainPlayer.ActiveCharacter.Stats.exp;
+			int expDif = newExp - World.Instance.MainPlayer.ActiveCharacter.Stats.Experience;
 			World.Instance.MainPlayer.ActiveCharacter.GainExp(expDif);
-			m_game.Hud.RefreshStats();
 
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_YOU_GAINED_EXP, string.Format(" {0} EXP", expDif));
 			m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} EXP", World.GetString(DATCONST2.STATUS_LABEL_YOU_GAINED_EXP), expDif), ChatType.Star);
 		}
 
-		private void _npcTakeDamage(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth)
+		private void _npcTakeDamage(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID, short fromTP)
 		{
 			World.Instance.ActiveMapRenderer.NPCTakeDamage(npcIndex, fromPlayerID, fromDirection, damageToNPC, npcPctHealth);
+
+			if (fromTP >= 0)
+			{
+				World.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromTP;
+				m_game.Hud.RefreshStats();
+			}
+
+			//todo: support for rendering spellID on NPC
 		}
 
 		private void _playerLevelUp(LevelUpStats _stats)
@@ -572,13 +593,18 @@ namespace EndlessClient
 			World.Instance.ActiveCharacterRenderer.PlayerEmote();
 
 			CharStatData stats = World.Instance.MainPlayer.ActiveCharacter.Stats;
-			stats.level = _stats.Level;
-			stats.statpoints = _stats.StatPoints;
-			stats.skillpoints = _stats.SkillPoints;
-			stats.SetMaxHP(_stats.MaxHP);
-			stats.SetMaxTP(_stats.MaxTP);
-			stats.SetMaxSP(_stats.MaxSP);
+			stats.Level = _stats.Level;
+			stats.StatPoints = _stats.StatPoints;
+			stats.SkillPoints = _stats.SkillPoints;
+			stats.MaxHP = _stats.MaxHP;
+			stats.MaxTP = _stats.MaxTP;
+			stats.MaxSP = _stats.MaxSP;
 			m_game.Hud.RefreshStats();
+		}
+
+		private void _removeChildNPCs(short childNPCID)
+		{
+			World.Instance.ActiveMapRenderer.RemoveNPCsWhere(x => x.Data.ID == childNPCID);
 		}
 
 		private void _chatByPlayerID(TalkType type, int id, string message)
@@ -837,24 +863,25 @@ namespace EndlessClient
 			Character c;
 			(c = World.Instance.MainPlayer.ActiveCharacter).Spells.Clear();
 			EODialog.Show(DATCONST1.SKILL_RESET_CHARACTER_COMPLETE, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
-			c.Stats.statpoints = data.StatPoints;
-			c.Stats.skillpoints = data.SkillPoints;
-			c.Stats.SetHP(data.HP);
-			c.Stats.SetMaxHP(data.MaxHP);
-			c.Stats.SetTP(data.TP);
-			c.Stats.SetMaxTP(data.MaxTP);
-			c.Stats.SetMaxSP(data.MaxSP);
-			c.Stats.SetStr(data.Str);
-			c.Stats.SetInt(data.Int);
-			c.Stats.SetWis(data.Wis);
-			c.Stats.SetAgi(data.Agi);
-			c.Stats.SetCon(data.Con);
-			c.Stats.SetCha(data.Cha);
-			c.Stats.SetMinDam(data.MinDam);
-			c.Stats.SetMaxDam(data.MaxDam);
-			c.Stats.SetAccuracy(data.Accuracy);
-			c.Stats.SetEvade(data.Evade);
-			c.Stats.SetArmor(data.Armor);
+			c.Stats.StatPoints = data.StatPoints;
+			c.Stats.SkillPoints = data.SkillPoints;
+			c.Stats.HP = data.HP;
+			c.Stats.MaxHP = data.MaxHP;
+			c.Stats.TP = data.TP;
+			c.Stats.MaxTP = data.MaxTP;
+			c.Stats.SP = data.MaxSP;
+			c.Stats.MaxSP = data.MaxSP;
+			c.Stats.Str = data.Str;
+			c.Stats.Int = data.Int;
+			c.Stats.Wis = data.Wis;
+			c.Stats.Agi = data.Agi;
+			c.Stats.Con = data.Con;
+			c.Stats.Cha = data.Cha;
+			c.Stats.MinDam = data.MinDam;
+			c.Stats.MaxDam = data.MaxDam;
+			c.Stats.Accuracy = data.Accuracy;
+			c.Stats.Evade = data.Evade;
+			c.Stats.Armor = data.Armor;
 			m_game.Hud.RefreshStats();
 		}
 
@@ -910,8 +937,8 @@ namespace EndlessClient
 
 		private void _setStatusLabel(string message)
 		{
-			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, message);
-			EOGame.Instance.Hud.AddChat(ChatTabs.System, "", message, ChatType.QuestMessage, ChatColor.Server);
+			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, message);
+			m_game.Hud.AddChat(ChatTabs.System, "", message, ChatType.QuestMessage, ChatColor.Server);
 		}
 
 		private void _playSoundEffect(int effectID)
@@ -919,9 +946,49 @@ namespace EndlessClient
 			try
 			{
 				if (World.Instance.SoundEnabled)
-					EOGame.Instance.SoundManager.GetSoundEffectRef((SoundEffectID) effectID).Play();
+					m_game.SoundManager.GetSoundEffectRef((SoundEffectID) effectID).Play();
 			}
 			catch { /* Ignore errors when the sound effect ID from the server is invalid */ }
+		}
+
+		private void _playerStartCastSpell(short fromplayerid, short spellid)
+		{
+			World.Instance.ActiveMapRenderer.OtherPlayerShoutSpell(fromplayerid, spellid);
+		}
+
+		private void _otherPlayerCastSpellSelf(short fromplayerid, short spellid, int spellhp, byte percenthealth)
+		{
+			World.Instance.ActiveMapRenderer.PlayerCastSpellSelf(fromplayerid, spellid, spellhp, percenthealth);
+		}
+
+		private void _mainPlayerCastSpellSelf(short fromplayerid, short spellid, int spellhp, byte percenthealth, short hp, short tp)
+		{
+			World.Instance.ActiveMapRenderer.PlayerCastSpellSelf(fromplayerid, spellid, spellhp, percenthealth);
+			World.Instance.MainPlayer.ActiveCharacter.Stats.HP = hp;
+			World.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
+			m_game.Hud.RefreshStats();
+		}
+
+		private void _playerCastTargetSpell(short targetPlayerID, short fromPlayerID, EODirection sourcePlayerDirection, short spellID, int recoveredHP, byte targetPercentHealth, short targetPlayerCurrentHP)
+		{
+			World.Instance.ActiveMapRenderer.PlayerCastSpellTarget(fromPlayerID, targetPlayerID, sourcePlayerDirection, spellID, recoveredHP, targetPercentHealth);
+
+			if (targetPlayerCurrentHP > 0)
+			{
+				World.Instance.MainPlayer.ActiveCharacter.Stats.HP = targetPlayerCurrentHP;
+				m_game.Hud.RefreshStats();
+			}
+		}
+
+		private void _playerCastGroupSpell(short spellID, short fromPlayerID, short fromPlayerTP, short spellHPgain, List<GroupSpellTarget> spellTargets)
+		{
+			World.Instance.ActiveMapRenderer.PlayerCastSpellGroup(fromPlayerID, spellID, spellHPgain, spellTargets);
+
+			if (fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
+			{
+				World.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromPlayerTP;
+				m_game.Hud.RefreshStats();
+			}
 		}
 	}
 }

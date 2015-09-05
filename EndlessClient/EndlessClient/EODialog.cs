@@ -3001,11 +3001,11 @@ namespace EndlessClient
 			leftSide[6].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_BEST_KILL);
 			leftSide[7].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_LAST_KILL);
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
-			rightSide[0].Text = string.Format("{0}", c.Stats.exp);
-			rightSide[1].Text = string.Format("{0}", World.Instance.exp_table[c.Stats.level + 1]);
-			rightSide[2].Text = string.Format("{0}", World.Instance.exp_table[c.Stats.level + 1] - c.Stats.exp);
+			rightSide[0].Text = string.Format("{0}", c.Stats.Experience);
+			rightSide[1].Text = string.Format("{0}", World.Instance.exp_table[c.Stats.Level + 1]);
+			rightSide[2].Text = string.Format("{0}", World.Instance.exp_table[c.Stats.Level + 1] - c.Stats.Experience);
 			rightSide[3].Text = string.Format("{0}", c.TodayExp);
-			rightSide[4].Text = string.Format("{0}", (int) (c.Stats.exp/(c.Stats.usage/60.0)));
+			rightSide[4].Text = string.Format("{0}", (int) (c.Stats.Experience/(c.Stats.Usage/60.0)));
 			int sessionTime = (int)(DateTime.Now - EOGame.Instance.Hud.SessionStartTime).TotalMinutes;
 			rightSide[5].Text = string.Format("{0}", sessionTime > 0 ? (c.TodayExp/sessionTime) : 0);
 			rightSide[6].Text = string.Format("{0}", c.TodayBestKill);
@@ -3913,9 +3913,9 @@ namespace EndlessClient
 					skillReqsMet = false;
 
 			//check the requirements
-			if (c.Stats.disp_str < skill.StrReq || c.Stats.disp_int < skill.IntReq || c.Stats.disp_wis < skill.WisReq ||
-			    c.Stats.disp_agi < skill.AgiReq || c.Stats.disp_con < skill.ConReq || c.Stats.disp_cha < skill.ChaReq ||
-			    c.Stats.level < skill.LevelReq || c.Inventory.Find(_ii => _ii.id == 1).amount < skill.GoldReq || !skillReqsMet)
+			if (c.Stats.Str < skill.StrReq || c.Stats.Int < skill.IntReq || c.Stats.Wis < skill.WisReq ||
+			    c.Stats.Agi < skill.AgiReq || c.Stats.Con < skill.ConReq || c.Stats.Cha < skill.ChaReq ||
+			    c.Stats.Level < skill.LevelReq || c.Inventory.Find(_ii => _ii.id == 1).amount < skill.GoldReq || !skillReqsMet)
 			{
 				EODialog.Show(DATCONST1.SKILL_LEARN_REQS_NOT_MET, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 				return;

@@ -192,10 +192,10 @@ namespace EndlessClient
 
 		public void ShowLostConnectionDialog()
 		{
+			if (_backButtonPressed) return;
 			EODialog.Show(currentState == GameStates.PlayingTheGame
 				? DATCONST1.CONNECTION_LOST_IN_GAME
-				: DATCONST1.CONNECTION_LOST_CONNECTION);
-			
+				: DATCONST1.CONNECTION_LOST_CONNECTION);	
 		}
 
 		public void ResetWorldElements()

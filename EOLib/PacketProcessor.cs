@@ -92,6 +92,7 @@ namespace EOLib
 		Rank = (byte)29,
 		TargetSelf = (byte)30,
 		TargetOther = (byte)31,
+		TargetGroup = (byte)33,
 		Exp = (byte)33, //PACKET_TARGET_GROUP
 		Dialog = (byte)34,
 		Ping = (byte)240,

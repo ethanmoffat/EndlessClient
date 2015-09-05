@@ -6,6 +6,8 @@ using EOLib.Data;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using XNAControls;
 
 namespace EndlessClient
 {
@@ -50,7 +52,7 @@ namespace EndlessClient
 			get { return X * 16 + Y * 16 + adjY; }
 		}
 
-		public byte DestX { get; set; }
+		public byte DestX { get; private set; }
 		public byte DestY { get; private set; }
 		public Character Opponent { get; set; }
 		public int HP { get; set; }
@@ -70,6 +72,9 @@ namespace EndlessClient
 		private Texture2D baseFrame;
 
 		private TimeSpan? m_lastAnimUpdateTime;
+
+		private XNALabel _mouseoverName;
+		private MouseState m_prevState, m_currState;
 
 		public NPC(NPCData data)
 			: base(EOGame.Instance)
@@ -111,6 +116,18 @@ namespace EndlessClient
 
 			m_chatBubble = new EOChatBubble(this);
 			m_damageCounter = new DamageCounter(this, GetType());
+			_mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
+			{
+				Visible = false,
+				Text = Data.Name,
+				ForeColor = System.Drawing.Color.White,
+				AutoSize = false,
+				DrawOrder = (int) ControlDrawLayer.BaseLayer + 3
+			};
+			_mouseoverName.DrawLocation = new Vector2(
+				DrawArea.X + (DrawArea.Width - _mouseoverName.ActualWidth)/2f,
+				DrawArea.Y + TopPixel - _mouseoverName.Texture.Height - 4);
+			_mouseoverName.ResizeBasedOnText();
 		}
 
 		public override void Initialize()
@@ -165,7 +182,74 @@ namespace EndlessClient
 				m_lastAnimUpdateTime = gameTime.TotalGameTime;
 			}
 
+			m_currState = Mouse.GetState();
+			_checkMouseoverState();
+			_checkMouseClickState();
+			m_prevState = m_currState;
+
 			base.Update(gameTime);
+		}
+
+		private void _checkMouseoverState()
+		{
+			if (_mouseoverName == null) return;
+
+			_mouseoverName.Visible = DrawArea.ContainsPoint(m_currState.X, m_currState.Y);
+			_mouseoverName.DrawLocation = new Vector2(
+				DrawArea.X + (DrawArea.Width - _mouseoverName.ActualWidth) / 2f,
+				DrawArea.Y + TopPixel - _mouseoverName.Texture.Height - 4);
+		}
+
+		private void _checkMouseClickState()
+		{
+			bool mouseClicked = m_currState.LeftButton == ButtonState.Released
+			                    && m_prevState.LeftButton == ButtonState.Pressed;
+
+			if (mouseClicked && DrawArea.ContainsPoint(m_currState.X, m_currState.Y))
+			{
+				if (World.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
+				{
+					SpellRecord data = World.Instance.ESF.GetSpellRecordByID((short) World.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
+					if (data.TargetRestrict != SpellTargetRestrict.Friendly)
+					{
+						World.Instance.ActiveCharacterRenderer.SetSpellTarget(this);
+					}
+					else
+					{
+						//todo status label message "you cannot attack this NPC"
+						World.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
+					}
+
+					return; //don't process regular click on NPC while targeting a spell
+				}
+
+				PacketAPI api = ((EOGame) Game).API;
+				switch (Data.Type)
+				{
+					case NPCType.Shop:
+						EOShopDialog.Show(api, this);
+						break;
+					case NPCType.Inn:
+						break;
+					case NPCType.Bank:
+						EOBankAccountDialog.Show(api, Index);
+						break;
+					case NPCType.Barber:
+						break;
+					case NPCType.Guild:
+						break;
+					case NPCType.Priest:
+						break;
+					case NPCType.Law:
+						break;
+					case NPCType.Skills:
+						EOSkillmasterDialog.Show(api, Index);
+						break;
+					case NPCType.Quest:
+						EOQuestDialog.Show(api, Index, Data.VendorID, Data.Name);
+						break;
+				}
+			}
 		}
 
 		public override void Draw(GameTime gameTime)
@@ -323,6 +407,12 @@ namespace EndlessClient
 		public void FadeAway()
 		{
 			_startFadeAway = true;
+
+			if (_mouseoverName != null)
+			{
+				_mouseoverName.Close();
+				_mouseoverName = null;
+			}
 		}
 
 		public void ApplyData(NPCData data)

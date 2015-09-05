@@ -43,6 +43,12 @@
     </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\EndlessClient\EndlessClient\ActiveSpells.cs">
+      <Link>ActiveSpells.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\BlinkingLabel.cs">
+      <Link>BlinkingLabel.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Character.cs">
       <Link>Character.cs</Link>
     </Compile>

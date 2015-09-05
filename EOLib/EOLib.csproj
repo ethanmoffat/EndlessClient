@@ -66,6 +66,7 @@
     <Compile Include="Net\Effect.cs" />
     <Compile Include="Net\Music.cs" />
     <Compile Include="Net\Quest.cs" />
+    <Compile Include="Net\Spell.cs" />
     <Compile Include="TaskWrapper.cs" />
     <Compile Include="DataFileConstants.cs" />
     <Compile Include="EOData.cs" />

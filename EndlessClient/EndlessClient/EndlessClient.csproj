@@ -134,6 +134,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActiveSpells.cs" />
+    <Compile Include="BlinkingLabel.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="ChatTextBox.cs" />
     <Compile Include="Config.cs" />
