@@ -649,7 +649,7 @@ namespace EndlessClient
 				if (renderer != null)
 				{
 					//todo: render using graphic from spellID
-					renderer.StopShouting(true);
+					renderer.StopShouting(false);
 					renderer.StartCastingSpell();
 					renderer.SetDamageCounterValue(spellHP, percentHealth, true);
 				}
@@ -682,7 +682,8 @@ namespace EndlessClient
 				{
 					if (!fromIsMain)
 					{
-						fromRenderer.StopShouting(true);
+						bool showShoutName = fromRenderer != toRenderer;
+						fromRenderer.StopShouting(showShoutName);
 						fromRenderer.StartCastingSpell();
 					}
 					fromRenderer.Character.RenderData.SetDirection(fromPlayerDirection);
@@ -710,7 +711,7 @@ namespace EndlessClient
 
 				if (fromRenderer != null && !fromIsMain)
 				{
-					fromRenderer.StopShouting(true);
+					fromRenderer.StopShouting(false);
 					fromRenderer.StartCastingSpell();
 				}
 

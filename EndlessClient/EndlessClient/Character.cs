@@ -140,9 +140,9 @@ namespace EndlessClient
 		public string GuildName { get; set; }
 // ReSharper disable UnusedAutoPropertyAccessor.Global
 		public string GuildRankStr { get; set; }
-// ReSharper restore UnusedAutoPropertyAccessor.Global
 		public byte Class { get; set; }
-		public string PaddedGuildTag { private get; set; }
+		public string PaddedGuildTag { get; set; }
+// ReSharper restore UnusedAutoPropertyAccessor.Global
 		public AdminLevel AdminLevel { get; set; }
 
 		public byte Weight { get; set; }
@@ -164,11 +164,11 @@ namespace EndlessClient
 			get
 			{
 				return SelectedSpell > 0 &&
-				       World.Instance.ESF.GetSpellRecordByID((short) SelectedSpell).Target == SpellTarget.Normal &&
-				       _spellTarget == null;
+				       World.Instance.ESF.GetSpellRecordByID((short) SelectedSpell).Target == EOLib.Data.SpellTarget.Normal &&
+				       SpellTarget == null;
 			}
 		}
-		private DrawableGameComponent _spellTarget;
+		public DrawableGameComponent SpellTarget { get; private set; }
 
 		public byte GuildRankNum { private get; set; }
 
@@ -750,20 +750,20 @@ namespace EndlessClient
 			bool result = false;
 			switch (data.Target)
 			{
-				case SpellTarget.Normal:
-					var targetAsNPC = _spellTarget as NPC;
-					var targetAsChar = _spellTarget as EOCharacterRenderer;
+				case EOLib.Data.SpellTarget.Normal:
+					var targetAsNPC = SpellTarget as NPC;
+					var targetAsChar = SpellTarget as EOCharacterRenderer;
 					if (targetAsNPC != null)
 						result = m_packetAPI.DoCastTargetSpell((short) id, true, targetAsNPC.Index);
 					else if (targetAsChar != null)
 						result = m_packetAPI.DoCastTargetSpell((short) id, false, (short) targetAsChar.Character.ID);
 					break;
-				case SpellTarget.Self:
+				case EOLib.Data.SpellTarget.Self:
 					result = m_packetAPI.DoCastSelfSpell((short) id);
 					break;
-				case SpellTarget.Unknown1:
+				case EOLib.Data.SpellTarget.Unknown1:
 					throw new Exception("What even is this");
-				case SpellTarget.Group:
+				case EOLib.Data.SpellTarget.Group:
 					result = m_packetAPI.DoCastGroupSpell((short) id);
 					break;
 				default:
@@ -781,7 +781,7 @@ namespace EndlessClient
 			if (target != null && !(target is NPC || target is EOCharacterRenderer)) //don't set target when it isn't valid!
 				return;
 
-			_spellTarget = target;
+			SpellTarget = target;
 		}
 
 		public void SetSpellCastStart()

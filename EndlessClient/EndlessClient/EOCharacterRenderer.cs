@@ -971,7 +971,11 @@ namespace EndlessClient
 			if (isWaterTile)
 				World.Instance.ActiveMapRenderer.NewWaterEffect((byte)Character.X, (byte)Character.Y);
 
-			_attackTimer.Change(0, attackTimer);
+			try
+			{
+				_attackTimer.Change(0, attackTimer);
+			}
+			catch (ObjectDisposedException) { }
 		}
 
 		public void PlayerEmote()
@@ -1669,11 +1673,11 @@ namespace EndlessClient
 		private void _cancelSpell(bool completedPrep)
 		{
 			_spellCastTimer.Change(Timeout.Infinite, Timeout.Infinite);
-			Character.SelectSpell(-1);
-			Character.SetSpellTarget(null);
-
 			//if completedPrep is true make it darker briefly and then hide it
 			StopShouting(completedPrep);
+
+			Character.SelectSpell(-1);
+			Character.SetSpellTarget(null);
 		}
 
 		private void _prepareSpell()
@@ -1712,15 +1716,14 @@ namespace EndlessClient
 		{
 			//starts shouting (see checkMouseoverState method)
 			_mouseoverName.ForeColor = System.Drawing.Color.White;
-			_shoutName = shoutName;
+			_shoutName = shoutName.ToLower();
 		}
 
 		public void StopShouting(bool isSpellBeingCast)
 		{
-			_mouseoverName.BlinkRate = null;
-
-			if (!isSpellBeingCast)
+			if (!isSpellBeingCast || World.Instance.ESF.GetSpellRecordByID((short)Character.SelectedSpell).Target == SpellTarget.Self || Character.SpellTarget == this)
 			{
+				_mouseoverName.BlinkRate = null;
 				_mouseoverName.Text = Character.Name;
 				_mouseoverName.ForeColor = System.Drawing.Color.White;
 				_mouseoverName.Visible = false;
@@ -1729,7 +1732,8 @@ namespace EndlessClient
 			}
 
 			_mouseoverName.Visible = true;
-			_mouseoverName.ForeColor = System.Drawing.Color.Bisque; //todo: figure out color
+			_mouseoverName.BlinkRate = null;
+			_mouseoverName.ForeColor = System.Drawing.Color.FromArgb(255, 0xf5, 0xc8, 0x9c);
 			_mouseoverName.SetCallback(600, () => StopShouting(false));
 		}
 
