@@ -431,6 +431,8 @@ namespace EndlessClient
 
 		private void _handleDoubleClick()
 		{
+			Character c = World.Instance.MainPlayer.ActiveCharacter;
+
 			bool useItem = false;
 			switch (m_itemData.Type)
 			{
@@ -450,9 +452,9 @@ namespace EndlessClient
 					byte subLoc = 0;
 					if (m_itemData.Type == ItemType.Armlet || m_itemData.Type == ItemType.Ring || m_itemData.Type == ItemType.Bracer)
 					{
-						if (World.Instance.MainPlayer.ActiveCharacter.PaperDoll[(int) m_itemData.GetEquipLocation()] == 0)
+						if (c.PaperDoll[(int) m_itemData.GetEquipLocation()] == 0)
 							subLoc = 0;
-						else if (World.Instance.MainPlayer.ActiveCharacter.PaperDoll[(int) m_itemData.GetEquipLocation() + 1] == 0)
+						else if (c.PaperDoll[(int) m_itemData.GetEquipLocation() + 1] == 0)
 							subLoc = 1;
 						else
 						{
@@ -462,14 +464,37 @@ namespace EndlessClient
 						}
 					}
 					else if (m_itemData.Type == ItemType.Armor &&
-					         m_itemData.Gender != World.Instance.MainPlayer.ActiveCharacter.RenderData.gender)
+					         m_itemData.Gender != c.RenderData.gender)
 					{
 						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
 							DATCONST2.STATUS_LABEL_ITEM_EQUIP_DOES_NOT_FIT_GENDER);
 						break;
 					}
+					
+					//check stat requirements
+					int[] reqs = new int[6];
+					string[] reqNames = {"STR", "INT", "WIS", "AGI", "CON", "CHA"};
+					if ((reqs[0] = m_itemData.StrReq) > c.Stats.Str || (reqs[1] = m_itemData.IntReq) > c.Stats.Int
+				     || (reqs[2] = m_itemData.WisReq) > c.Stats.Wis || (reqs[3] = m_itemData.AgiReq) > c.Stats.Agi
+				     || (reqs[4] = m_itemData.ConReq) > c.Stats.Con || (reqs[5] = m_itemData.ChaReq) > c.Stats.Cha)
+					{
+						int reqIndex = reqs.ToList().FindIndex(x => x > 0);
 
-					if (World.Instance.MainPlayer.ActiveCharacter.EquipItem(m_itemData.Type, (short) m_itemData.ID,
+						((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
+							DATCONST2.STATUS_LABEL_ITEM_EQUIP_THIS_ITEM_REQUIRES,
+							string.Format(" {0} {1}", reqs[reqIndex], reqNames[reqIndex]));
+						break;
+					}
+					//check class requirement
+					if (m_itemData.ClassReq > 0 && m_itemData.ClassReq != c.Class)
+					{
+						((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
+							DATCONST2.STATUS_LABEL_ITEM_EQUIP_CAN_ONLY_BE_USED_BY,
+							((ClassRecord) World.Instance.ECF.Data.Find(x => ((ClassRecord) x).ID == m_itemData.ClassReq)).Name);
+						break;
+					}
+
+					if (c.EquipItem(m_itemData.Type, (short) m_itemData.ID,
 						(short) m_itemData.DollGraphic))
 					{
 						if (!m_api.EquipItem((short) m_itemData.ID, subLoc))
@@ -500,7 +525,7 @@ namespace EndlessClient
 					break;
 				case ItemType.CureCurse:
 					//note: don't actually set the useItem bool here. Call API.UseItem if the dialog result is OK.
-					if (World.Instance.MainPlayer.ActiveCharacter.PaperDoll.Select(id => World.Instance.EIF.GetItemRecordByID(id))
+					if (c.PaperDoll.Select(id => World.Instance.EIF.GetItemRecordByID(id))
 						.Any(rec => rec.Special == ItemSpecial.Cursed)) //only do the use if the player has a cursed item equipped
 					{
 						EODialog.Show(DATCONST1.ITEM_CURSE_REMOVE_PROMPT, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader,
@@ -621,6 +646,11 @@ namespace EndlessClient
 				int slot = localItemSlotMap.ContainsValue(item.id)
 					? localItemSlotMap.First(_pair => _pair.Value == item.id).Key
 					: _getNextOpenSlot(rec.Size);
+
+				List<Tuple<int, int>> points;
+				if (!_fitsInSlot(slot, rec.Size, out points))
+					slot = _getNextOpenSlot(rec.Size);
+
 				if (!_addItemToSlot(slot, rec, item.amount) && !dialogShown)
 				{
 					dialogShown = true;

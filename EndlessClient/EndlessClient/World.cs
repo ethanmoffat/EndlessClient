@@ -107,8 +107,18 @@ namespace EndlessClient
 			if (!Directory.Exists(Constants.DataFilePath) || (files = Directory.GetFiles(Constants.DataFilePath, "*.edf")).Length != 12)
 				throw new WorldLoadException("Unable to find data files! Check that the data directory exists and has ALL the edf files copied over");
 
-			for (DataFiles file = (DataFiles)1; file <= (DataFiles)12; ++file)
-				DataFiles.Add(file, new EDFFile(files[(int)file - 1], file));
+			for (DataFiles file = (DataFiles) 1; file <= (DataFiles) 12; ++file)
+			{
+				DataFiles.Add(file, new EDFFile(files[(int) file - 1], file));
+
+				//uncomment to write out the english status messages to files in the bin directory
+				//if (file == EOLib.DataFiles.EnglishStatus1 || file == EOLib.DataFiles.EnglishStatus2)
+				//{
+				//	using(StreamWriter sw = new StreamWriter("test" + ((int)file) + ".txt"))
+				//		foreach(var kvp in DataFiles.Last().Value.Data)
+				//			sw.WriteLine("{0,3}: {1}", kvp.Key, kvp.Value);
+				//}
+			}
 
 			int maj, min, cli, lang, dropProtect;
 			VersionMajor = m_config.GetValue(ConfigStrings.Version, ConfigStrings.Major, out maj) ? (byte)maj : Constants.MajorVersion;

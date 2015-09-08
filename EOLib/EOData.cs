@@ -955,7 +955,7 @@ namespace EOLib.Data
 				foreach (string encoded in lines)
 				{
 					string decoded = _decodeDatString(encoded, whichFile);
-					string[] curses = decoded.Split(new[] {':'});
+					string[] curses = decoded.Split(':');
 					foreach(string curse in curses)
 						Data.Add(i++, curse);
 				}
