@@ -1661,10 +1661,17 @@ namespace EndlessClient
 					    ((c.State != CharacterActionState.Walking && rowIndex == c.Y && colIndex == c.X) ||
 					     (c.State == CharacterActionState.Walking && rowIndex == c.DestY && colIndex == c.DestX)))
 					{
-						sb.End();
-						GraphicsDevice.SetRenderTarget(_rtMapObjBelowPlayer);
-						GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-						sb.Begin();
+						try
+						{
+							sb.End();
+							GraphicsDevice.SetRenderTarget(_rtMapObjBelowPlayer);
+							GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+							sb.Begin();
+						}
+						catch (ObjectDisposedException)
+						{
+							return;
+						}
 						targetChanged = true;
 					}
 

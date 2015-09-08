@@ -198,8 +198,8 @@ Thanks to :
 			await TaskFramework.Delay(500);
 			if (!World.Instance.Client.ConnectedAndInitialized)
 				return;
-			loginUsernameTextbox.Text = "testuser";
-			loginPasswordTextbox.Text = "testuser";
+			loginUsernameTextbox.Text = "ethanmoffat";
+			loginPasswordTextbox.Text = "a0009817701a";
 
 			MainButtonPress(loginButtons[0], e); //login as acc testuser
 			await TaskFramework.Delay(500);

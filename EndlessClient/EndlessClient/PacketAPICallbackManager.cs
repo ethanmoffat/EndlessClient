@@ -561,8 +561,10 @@ namespace EndlessClient
 			World.Instance.ActiveMapRenderer.RemoveOtherNPC(index, damageToNPC, playerID, playerDirection, spellID);
 
 			if (playerTP >= 0)
+			{
 				World.Instance.MainPlayer.ActiveCharacter.Stats.TP = playerTP;
-			m_game.Hud.RefreshStats();
+				m_game.Hud.RefreshStats();
+			}
 		}
 
 		private void _npcKilled(int newExp)

@@ -312,6 +312,12 @@ namespace EndlessClient
 
 				if (m_chatBubble != null)
 					m_chatBubble.Dispose();
+
+				if (_mouseoverName != null)
+				{
+					_mouseoverName.Close();
+					_mouseoverName = null;
+				}
 			}
 
 			base.Dispose(disposing);
