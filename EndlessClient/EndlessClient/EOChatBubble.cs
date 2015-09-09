@@ -221,7 +221,10 @@ namespace EndlessClient
 					sb = null;
 				}
 				if (m_label != null)
+				{
 					m_label.Close();
+					m_label = null;
+				}
 			}
 
 			base.Dispose(disposing);

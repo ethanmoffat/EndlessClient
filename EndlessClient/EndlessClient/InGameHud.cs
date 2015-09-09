@@ -384,7 +384,12 @@ namespace EndlessClient
 					{
 						clockLabel.Text = fmt;
 					}
-					catch { return; }
+					catch (NullReferenceException)
+					{
+						if (clockTimer != null)
+							clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
+						return;
+					}
 
 					if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).TotalMilliseconds > 3000)
 					{

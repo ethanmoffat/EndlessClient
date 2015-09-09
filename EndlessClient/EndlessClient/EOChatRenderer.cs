@@ -412,13 +412,13 @@ namespace EndlessClient
 			{
 				if (scrollBar == null) return; //prevent nullreferenceexceptions
 
-				SpriteBatch.Begin();
 				//draw icons for the text strings based on the icon specified in the chatStrings Key of the pair
 				for (int i = scrollBar.ScrollOffset; i < scrollBar.ScrollOffset + scrollBar.LinesToRender; ++i) //draw 7 lines
 				{
 					if (i >= chatStrings.Count)
 						break;
 
+					SpriteBatch.Begin();
 					Vector2 pos = new Vector2(parent.DrawAreaWithOffset.X, parent.DrawAreaWithOffset.Y + relativeTextPos.Y + (i - scrollBar.ScrollOffset)*13);
 					SpriteBatch.Draw(GetChatIcon(chatStrings.Keys[i].Type), new Vector2(pos.X + 3, pos.Y), Color.White);
 
@@ -429,9 +429,9 @@ namespace EndlessClient
 						strToDraw = chatStrings.Keys[i].Who + "  " + chatStrings.Values[i];
 
 					SpriteBatch.DrawString(EOGame.Instance.DBGFont, strToDraw, new Vector2(pos.X + 20, pos.Y), chatStrings.Keys[i].GetColor());
+					SpriteBatch.End();
 				}
 
-				SpriteBatch.End();
 			}
 			base.Draw(gameTime); //draw child controls though
 		}
