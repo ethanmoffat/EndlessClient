@@ -834,12 +834,15 @@ namespace EndlessClient
 
 			if (_getMouseOverActual())
 			{
-				_mouseoverName.BlinkRate = null;
-				_mouseoverName.Text = Character.Name;
-				_mouseoverName.ResizeBasedOnText();
+				if (_mouseoverName.Text != Character.Name)
+				{
+					_mouseoverName.BlinkRate = null;
+					_mouseoverName.Text = Character.Name;
+					_mouseoverName.ResizeBasedOnText();
+				}
 				_mouseoverName.Visible = true;
 			}
-			else if (shouting)
+			else if (shouting && _mouseoverName.Text != _shoutName)
 			{
 				_mouseoverName.BlinkRate = 250; //one cycle is 500ms
 				_mouseoverName.Text = _shoutName;
@@ -848,9 +851,12 @@ namespace EndlessClient
 			else
 			{
 				_mouseoverName.Visible = false;
-				_mouseoverName.BlinkRate = null;
-				_mouseoverName.Text = Character.Name;
-				_mouseoverName.ResizeBasedOnText();
+				if (_mouseoverName.Text != Character.Name)
+				{
+					_mouseoverName.BlinkRate = null;
+					_mouseoverName.Text = Character.Name;
+					_mouseoverName.ResizeBasedOnText();
+				}
 			}
 
 			_mouseoverName.DrawLocation = new Vector2(
