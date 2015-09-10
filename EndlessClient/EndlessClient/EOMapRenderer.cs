@@ -1964,7 +1964,7 @@ namespace EndlessClient
 					return;
 				}
 
-				lock(_rendererListLock)
+				lock (_rendererListLock)
 					foreach (EOCharacterRenderer cr in otherRenderers)
 						cr.Dispose();
 
@@ -1975,9 +1975,12 @@ namespace EndlessClient
 				}
 
 				_itemHoverName.Dispose();
-				_rtMapObjAbovePlayer.Dispose();
-				_rtMapObjBelowPlayer.Dispose();
-				_playerBlend.Dispose();
+				if (_rtMapObjAbovePlayer != null)
+					_rtMapObjAbovePlayer.Dispose();
+				if (_rtMapObjBelowPlayer != null)
+					_rtMapObjBelowPlayer.Dispose();
+				if (_playerBlend != null)
+					_playerBlend.Dispose();
 				sb.Dispose();
 				_doorTimer.Dispose();
 

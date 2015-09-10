@@ -74,7 +74,7 @@ namespace EndlessClient
 
 		public DateTime SessionStartTime { get; private set; }
 
-		private FunctionKeyListener m_fnListener;
+		private List<InputKeyListenerBase> m_inputListeners;
 		
 		public HUD(Game g, PacketAPI api)
 			: base(g)
@@ -427,8 +427,14 @@ namespace EndlessClient
 
 			SessionStartTime = DateTime.Now;
 
-			m_fnListener = new FunctionKeyListener();
-			Game.Components.Add(m_fnListener);
+			m_inputListeners = new List<InputKeyListenerBase>(4)
+			{
+				new FunctionKeyListener(),
+				new ArrowKeyListener(),
+				new ControlKeyListener(),
+				new NumPadListener()
+			};
+			m_inputListeners.ForEach(x => x.InputTimeUpdated += World.Instance.ActiveCharacterRenderer.UpdateInputTime);
 
 			base.Initialize();
 		}
@@ -933,10 +939,10 @@ namespace EndlessClient
 					m_muteTimer = null;
 				}
 
-				if (m_fnListener != null)
+				if (m_inputListeners.Count > 0)
 				{
-					m_fnListener.Dispose();
-					m_fnListener = null;
+					m_inputListeners.ForEach(x => x.Dispose());
+					m_inputListeners.Clear();
 				}
 			}
 

@@ -1,35 +1,41 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using System.Linq;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient
 {
-	public class FunctionKeyListener : GameComponent
+	public class FunctionKeyListener : InputKeyListenerBase
 	{
-		private KeyboardState m_prevState;
-
-		public FunctionKeyListener() : base(EOGame.Instance)
+		public FunctionKeyListener()
 		{
-			m_prevState = Keyboard.GetState();
+			if (Game.Components.Any(x => x is FunctionKeyListener))
+				throw new InvalidOperationException("The game already contains an arrow key listener");
+			Game.Components.Add(this);
 		}
 
 		public override void Update(GameTime gameTime)
 		{
 			KeyboardState currState = Keyboard.GetState();
-
-			//F1-F8 should be handled the same way: invoke the spell
-			for (int key = (int) Keys.F1; key <= (int) Keys.F8; ++key)
+			if (!IgnoreInput && Character.State == CharacterActionState.Standing && 
+				Character.SelectedSpell <= 0 && !Character.NeedsSpellTarget)
 			{
-				if (currState.IsKeyUp((Keys) key) && m_prevState.IsKeyDown((Keys) key))
+				UpdateInputTime();
+
+				//F1-F8 should be handled the same way: invoke the spell
+				for (int key = (int) Keys.F1; key <= (int) Keys.F8; ++key)
 				{
-					_handleSpellFunc(key - (int) Keys.F1);
-					break;
+					if (IsKeyPressed((Keys) key, currState))
+					{
+						_handleSpellFunc(key - (int) Keys.F1);
+						break;
+					}
 				}
 			}
 
-			if (currState.IsKeyUp(Keys.F12) && m_prevState.IsKeyDown(Keys.F12))
+			if (IsKeyPressedOnce(Keys.F12, currState))
 				_handleF12();
 
-			m_prevState = currState;
 			base.Update(gameTime);
 		}
 

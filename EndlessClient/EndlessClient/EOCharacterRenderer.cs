@@ -125,14 +125,12 @@ namespace EndlessClient
 
 		private ItemRecord shieldInfo, weaponInfo/*, bootsInfo, armorInfo*/, hatInfo;
 
-		private KeyboardState _prevKeyState;
 		private Timer _walkTimer, _attackTimer, _emoteTimer, _spTimer, _spellCastTimer;
 		private readonly bool noLocUpdate;
 
 		private readonly EOChatBubble m_chatBubble;
 		private readonly DamageCounter m_damageCounter;
 
-		private GameTime startWalkingThroughPlayerTime;
 		private DateTime? m_deadTime, m_lastEmoteTime;
 		private DateTime m_lastActTime;
 
@@ -182,7 +180,6 @@ namespace EndlessClient
 				noLocUpdate = true; //make sure not to update the drawArea rectangle in the update method
 			}
 			Data.SetUpdate(true);
-			_prevKeyState = Keyboard.GetState();
 
 			//get the top pixel!
 			Color[] skinData = new Color[m_skinSourceRect.Width * m_skinSourceRect.Height];
@@ -193,7 +190,7 @@ namespace EndlessClient
 			TopPixel = (Data.gender == 0 ? 12 : 13) + (i == skinData.Length - 1 ? 0 : i / m_skinSourceRect.Height);
 
 			m_chatBubble = new EOChatBubble(this);
-			m_damageCounter = new DamageCounter(this, GetType());
+			m_damageCounter = new DamageCounter(this);
 
 			_mouseoverName = new BlinkingLabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
 			{
@@ -330,177 +327,6 @@ namespace EndlessClient
 				_checkAFKCharacter();
 				_checkHandleDrunkCharacter();
 			}
-
-			//todo: move keyboard handling into separate game component (and adjust input limiting to use DateTime)
-			#region input handling for keyboard
-			//only check for a keypress if not currently acting and if this is the active character renderer
-			//also only check every 1/4 of a second
-			KeyboardState currentKeyState = Keyboard.GetState();
-			if (Game.IsActive && _char != null && _char == World.Instance.MainPlayer.ActiveCharacter && gameTime.TotalGameTime.Milliseconds % 100 <= 25 && Dialogs.Count == 0)
-			{
-				EODirection direction = (EODirection)255; //first, get the direction we should try to move based on the key presses from the player
-				bool attacking = false;
-				if (currentKeyState.IsKeyDown(Keys.Up) && _prevKeyState.IsKeyDown(Keys.Up))
-					direction = EODirection.Up;
-				else if (currentKeyState.IsKeyDown(Keys.Down) && _prevKeyState.IsKeyDown(Keys.Down))
-					direction = EODirection.Down;
-				else if (currentKeyState.IsKeyDown(Keys.Left) && _prevKeyState.IsKeyDown(Keys.Left))
-					direction = EODirection.Left;
-				else if (currentKeyState.IsKeyDown(Keys.Right) && _prevKeyState.IsKeyDown(Keys.Right))
-					direction = EODirection.Right;
-				else if ((currentKeyState.IsKeyDown(Keys.LeftControl) || currentKeyState.IsKeyDown(Keys.RightControl)) &&
-				         (_prevKeyState.IsKeyDown(Keys.LeftControl) || _prevKeyState.IsKeyDown(Keys.RightControl)))
-				{
-					attacking = true;
-					direction = _char.RenderData.facing;
-					startWalkingThroughPlayerTime = null;
-				}
-				else
-				{
-					//on 'else': code path should return without doing anything
-					_checkAndHandleEmote(currentKeyState);
-					startWalkingThroughPlayerTime = null;
-				}
-				
-				byte destX, destY;
-				switch (direction)
-				{
-					case EODirection.Up:
-						destX = (byte) _char.X;
-						destY = (byte) (_char.Y - 1);
-						break;
-					case EODirection.Down:
-						destX = (byte) _char.X;
-						destY = (byte) (_char.Y + 1);
-						break;
-					case EODirection.Right:
-						destX = (byte) (_char.X + 1);
-						destY = (byte) _char.Y;
-						break;
-					case EODirection.Left:
-						destX = (byte) (_char.X - 1);
-						destY = (byte) _char.Y;
-						break;
-					default:
-						if (State != CharacterActionState.Walking)
-							_prevKeyState = currentKeyState; //only set this when not walking already
-						destX = destY = 255;
-						break;
-				}
-
-				if (destX > World.Instance.ActiveMapRenderer.MapRef.Width || destY > World.Instance.ActiveMapRenderer.MapRef.Height)
-				{
-					//this will execute when the direction above is invalid.
-					//so, if not attacking and not walking we will hit this.
-					return;
-				}
-				
-				//reset the sleeping emote time trackers
-				m_lastActTime = DateTime.Now;
-				m_lastEmoteTime = null;
-
-				if (!attacking)
-				{
-					//valid direction at this point
-					if (_char.RenderData.facing != direction)
-					{
-						_char.Face(direction);
-						return;
-					}
-
-					TileInfo info = World.Instance.ActiveMapRenderer.GetTileInfo(destX, destY);
-					switch (info.ReturnType)
-					{
-						case TileInfoReturnType.IsOtherPlayer:
-							if (NoWall) goto case TileInfoReturnType.IsTileSpec;
-
-							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
-							if(startWalkingThroughPlayerTime == null)
-								startWalkingThroughPlayerTime = gameTime;
-							else if ((gameTime.TotalGameTime.TotalSeconds - startWalkingThroughPlayerTime.TotalGameTime.TotalSeconds) > 3)
-							{
-								startWalkingThroughPlayerTime = null;
-								goto case TileInfoReturnType.IsTileSpec;
-							}
-							break;
-						case TileInfoReturnType.IsOtherNPC:
-							if (NoWall) goto case TileInfoReturnType.IsTileSpec;
-#if DEBUG
-							EOGame.Instance.Hud.SetStatusLabel("OTHER NPC IS HERE"); //idk what's supposed to happen here, I think nothing?
-#endif
-							break;
-						case TileInfoReturnType.IsWarpSpec:
-							if (NoWall) goto case TileInfoReturnType.IsTileSpec;
-							if (info.Warp.door != DoorSpec.NoDoor)
-							{
-								DoorSpec doorOpened;
-								if (!info.Warp.doorOpened && !info.Warp.backOff)
-								{
-									if ((doorOpened = Character.CanOpenDoor(info.Warp)) == DoorSpec.Door)
-										World.Instance.ActiveMapRenderer.StartOpenDoor(info.Warp, destX, destY);
-								}
-								else
-								{
-									//normal walking
-									if ((doorOpened = Character.CanOpenDoor(info.Warp)) == DoorSpec.Door)
-										_chkWalk(TileSpec.None, direction, destX, destY);
-								}
-
-								if (doorOpened != DoorSpec.Door)
-								{
-									string strWhichKey = "[error key?]";
-									switch (doorOpened)
-									{
-										case DoorSpec.LockedCrystal:
-											strWhichKey = "Crystal Key";
-											break;
-										case DoorSpec.LockedSilver:
-											strWhichKey = "Silver Key";
-											break;
-										case DoorSpec.LockedWraith:
-											strWhichKey = "Wraith Key";
-											break;
-									}
-
-									EODialog.Show(DATCONST1.DOOR_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
-									((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
-										" - " + strWhichKey);
-								}
-							}
-							else if (info.Warp.levelRequirement != 0 && Character.Stats.Level < info.Warp.levelRequirement)
-							{
-								EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, 
-									DATCONST2.STATUS_LABEL_NOT_READY_TO_USE_ENTRANCE,
-									" - LVL " + info.Warp.levelRequirement);
-							}
-							else
-							{
-								//normal walking
-								_chkWalk(TileSpec.None, direction, destX, destY);
-							}
-							break;
-						case TileInfoReturnType.IsTileSpec:
-							_chkWalk(info.Spec, direction, destX, destY);
-							break;
-					}
-				}
-				else if(State == CharacterActionState.Standing)
-				{
-					if (Character.CanAttack)
-					{
-						TileInfo info = World.Instance.ActiveMapRenderer.GetTileInfo((byte)Character.X, (byte)Character.Y);
-						Character.Attack(Data.facing, destX, destY); //destX and destY validity check above
-						PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec && info.Spec == TileSpec.Water);
-					}
-					else if(Character.Weight > Character.MaxWeight)
-					{
-						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_CANNOT_ATTACK_OVERWEIGHT);
-					}
-				}
-
-				if (State == CharacterActionState.Standing) _prevKeyState = currentKeyState; //only set this when not walking already
-			}
-#endregion
 		}
 
 		private void _checkUpdateDrawArea()
@@ -630,8 +456,8 @@ namespace EndlessClient
 		private void _checkAFKCharacter()
 		{
 			//5-minute timeout: start sending emotes every minute
-			if ((DateTime.Now - m_lastActTime).TotalMilliseconds > 300000 &&
-				(m_lastEmoteTime == null || (DateTime.Now - m_lastEmoteTime.Value).TotalMilliseconds > 60000))
+			if ((DateTime.Now - m_lastActTime).TotalMinutes > 5 &&
+				(m_lastEmoteTime == null || (DateTime.Now - m_lastEmoteTime.Value).TotalMinutes > 1))
 			{
 				m_lastEmoteTime = DateTime.Now;
 				Character.Emote(Emote.Moon);
@@ -657,163 +483,6 @@ namespace EndlessClient
 					m_drunkTime = null;
 					Character.IsDrunk = false;
 				}
-			}
-		}
-
-		private void _chkWalk(TileSpec spec, EODirection dir, byte destX, byte destY)
-		{
-			bool walkValid = true;
-			switch (spec)
-			{
-				case TileSpec.ChairDown: //todo: make character sit in chairs
-				case TileSpec.ChairLeft:
-				case TileSpec.ChairRight:
-				case TileSpec.ChairUp:
-				case TileSpec.ChairDownRight:
-				case TileSpec.ChairUpLeft:
-				case TileSpec.ChairAll:
-					walkValid = NoWall;
-					break;
-				case TileSpec.Chest:
-					walkValid = NoWall;
-					if (!walkValid)
-					{
-						MapChest chest = World.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.x == destX && _c.y == destY);
-						if (chest != null)
-						{
-							string requiredKey = null;
-							switch (Character.CanOpenChest(chest))
-							{
-								case ChestKey.Normal: requiredKey = "Normal Key"; break;
-								case ChestKey.Silver: requiredKey = "Silver Key"; break;
-								case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
-								case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
-								default:
-									EOChestDialog.Show(((EOGame)Game).API, chest.x, chest.y);
-									break;
-							}
-
-							if (requiredKey != null)
-							{
-								EODialog.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
-								((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
-									" - " + requiredKey);
-							}
-						}
-						else
-						{
-							EOChestDialog.Show(((EOGame)Game).API, destX, destY);
-						}
-					}
-					break;
-				case TileSpec.BankVault:
-					walkValid = NoWall;
-					if (!walkValid)
-					{
-						EOLockerDialog.Show(((EOGame)Game).API, destX, destY);
-					}
-					break;
-				case TileSpec.SpikesTrap:
-					World.Instance.ActiveMapRenderer.AddVisibleSpikeTrap(destX, destY);
-					break;
-				case TileSpec.Board1: //todo: boards?
-				case TileSpec.Board2:
-				case TileSpec.Board3:
-				case TileSpec.Board4:
-				case TileSpec.Board5:
-				case TileSpec.Board6:
-				case TileSpec.Board7:
-				case TileSpec.Board8:
-					walkValid = NoWall;
-					break;
-				case TileSpec.Jukebox: //todo: jukebox?
-					walkValid = NoWall;
-					break;
-				case TileSpec.MapEdge:
-				case TileSpec.Wall:
-					walkValid = NoWall;
-					break;
-			}
-
-			if (State != CharacterActionState.Walking && walkValid)
-			{
-				_char.Walk(dir, destX, destY, NoWall);
-				PlayerWalk(spec == TileSpec.Water, spec == TileSpec.SpikesTrap);
-			}
-		}
-
-		private void _checkAndHandleEmote(KeyboardState state)
-		{
-			if (State != CharacterActionState.Standing)
-				return;
-
-			Emote em;
-			if (state.IsKeyUp(Keys.NumPad0) && _prevKeyState.IsKeyDown(Keys.NumPad0))
-			{
-				em = Emote.Playful;
-				Character.Emote(em);
-				PlayerEmote();
-			}
-			else if (state.IsKeyUp(Keys.NumPad1) && _prevKeyState.IsKeyDown(Keys.NumPad1))
-			{
-				em = (Emote) 1;
-				Character.Emote(em);
-				PlayerEmote();
-			}
-			else if (state.IsKeyUp(Keys.NumPad2) && _prevKeyState.IsKeyDown(Keys.NumPad2))
-			{
-				em = (Emote) 2;
-				Character.Emote(em);
-				PlayerEmote();
-			}
-			else if (state.IsKeyUp(Keys.NumPad3) && _prevKeyState.IsKeyDown(Keys.NumPad3))
-			{
-				em = (Emote) 3;
-				Character.Emote(em);
-				PlayerEmote();
-			}
-			else if (state.IsKeyUp(Keys.NumPad4) && _prevKeyState.IsKeyDown(Keys.NumPad4))
-			{
-				em = (Emote) 4;
-				Character.Emote(em);
-				PlayerEmote();
-			}
-			else if (state.IsKeyUp(Keys.NumPad5) && _prevKeyState.IsKeyDown(Keys.NumPad5))
-			{
-				em = (Emote) 5;
-				Character.Emote(em);
-				PlayerEmote();
-			}
-			else if (state.IsKeyUp(Keys.NumPad6) && _prevKeyState.IsKeyDown(Keys.NumPad6))
-			{
-				em = (Emote) 6;
-				Character.Emote(em);
-				PlayerEmote();
-			}
-			else if (state.IsKeyUp(Keys.NumPad7) && _prevKeyState.IsKeyDown(Keys.NumPad7))
-			{
-				em = (Emote) 7;
-				Character.Emote(em);
-				PlayerEmote();
-			}
-			else if (state.IsKeyUp(Keys.NumPad8) && _prevKeyState.IsKeyDown(Keys.NumPad8))
-			{
-				em = (Emote) 8;
-				Character.Emote(em);
-				PlayerEmote();
-			}
-			else if (state.IsKeyUp(Keys.NumPad9) && _prevKeyState.IsKeyDown(Keys.NumPad9))
-			{
-				em = (Emote) 9;
-				Character.Emote(em);
-				PlayerEmote();
-			}
-			//The Decimal enumeration is 110, which is the Virtual Key code (VK_XXXX) for the 'del'/'.' key on the numpad
-			else if (state.IsKeyUp(Keys.Decimal) && _prevKeyState.IsKeyDown(Keys.Decimal))
-			{
-				em = Emote.Embarassed;
-				Character.Emote(em);
-				PlayerEmote();
 			}
 		}
 
@@ -848,7 +517,7 @@ namespace EndlessClient
 				_mouseoverName.Text = _shoutName;
 				_mouseoverName.ResizeBasedOnText();
 			}
-			else
+			else if(!shouting)
 			{
 				_mouseoverName.Visible = false;
 				if (_mouseoverName.Text != Character.Name)
@@ -861,7 +530,7 @@ namespace EndlessClient
 
 			_mouseoverName.DrawLocation = new Vector2(
 				DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
-				DrawAreaWithOffset.Y + TopPixel - _mouseoverName.Texture.Height - 12);
+				DrawAreaWithOffset.Y + TopPixel - _mouseoverName.Texture.Height - 7);
 		}
 
 		private void _checkMouseClickState()
@@ -998,6 +667,11 @@ namespace EndlessClient
 				_emoteTimer.Change(0, EmoteTimeBetweenFrames);
 			}
 			catch (ObjectDisposedException) { }
+		}
+
+		public void UpdateInputTime(DateTime lastInputTime)
+		{
+			m_lastActTime = lastInputTime;
 		}
 
 		public void Die()

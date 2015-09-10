@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -12,6 +11,9 @@ namespace EndlessClient
 	/// </summary>
 	public class DamageCounter : XNAControl
 	{
+		private const int CHR_ADDITIONAL_OFFSET = 30;
+		private const int NPC_ADDITIONAL_OFFSET = 32;
+
 		private readonly bool m_isCharacter;
 		private readonly DrawableGameComponent m_ref;
 		private int m_value, m_percentHealth;
@@ -29,21 +31,20 @@ namespace EndlessClient
 		/// This constructor makes the DamageCounter follow 'actor' on the screen.
 		/// </summary>
 		/// <param name="actor">EOCharacterRenderer or NPC</param>
-		/// <param name="actorType">actor.GetType()</param>
-		public DamageCounter(DrawableGameComponent actor, Type actorType)
+		public DamageCounter(DrawableGameComponent actor)
 		{
 			m_ref = actor;
-			if (actorType == typeof (NPC))
+			if (m_ref is NPC)
 			{
 				m_isCharacter = false;
 			}
-			else if (actorType == typeof (EOCharacterRenderer))
+			else if (m_ref is EOCharacterRenderer)
 			{
 				m_isCharacter = true;
 			}
 			else
 			{
-				throw new ArgumentException("Invalid actor type. Use Character or NPC", "actorType");
+				throw new ArgumentException("Invalid actor type. Use Character or NPC", "actor");
 			}
 
 			lock (gfx_init_lock)
@@ -53,10 +54,10 @@ namespace EndlessClient
 				//this sheet is a subsheet of GFX002/158 that has only the numbers and 'miss' text
 				if (s_NumberSprites == null)
 				{
-					Color[] data = new Color[122*23];
-					wholeSheet.GetData(0, new Rectangle(41, 29, 122, 23), data, 0, data.Length);
+					Color[] data = new Color[123*24];
+					wholeSheet.GetData(0, new Rectangle(40, 28, 123, 24), data, 0, data.Length);
 
-					s_NumberSprites = new Texture2D(Game.GraphicsDevice, 122, 23);
+					s_NumberSprites = new Texture2D(Game.GraphicsDevice, 123, 24);
 					s_NumberSprites.SetData(data);
 				}
 
@@ -121,12 +122,12 @@ namespace EndlessClient
 			if (m_isCharacter)
 			{
 				Rectangle tmp = ((EOCharacterRenderer)m_ref).DrawAreaWithOffset;
-				m_healthBarPos = new Vector2(tmp.X - 3, tmp.Y - 5);
+				m_healthBarPos = new Vector2(tmp.X - 3, tmp.Y - 15);
 			}
 			else
 			{
 				Rectangle tmp = ((NPC)m_ref).DrawArea;
-				m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f, tmp.Y + ((NPC)m_ref).TopPixel - 10);
+				m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f, tmp.Y + ((NPC)m_ref).TopPixel - 20);
 			}
 
 			base.Update(gameTime);
@@ -148,12 +149,12 @@ namespace EndlessClient
 				if (m_isCharacter)
 				{
 					Rectangle tmp = ((EOCharacterRenderer) m_ref).DrawAreaWithOffset;
-					pos = new Vector2(tmp.X + 1, tmp.Y - m_additionalOffset - 20);
+					pos = new Vector2(tmp.X + 1, tmp.Y - m_additionalOffset - CHR_ADDITIONAL_OFFSET);
 				}
 				else
 				{
 					Rectangle tmp = ((NPC) m_ref).DrawArea;
-					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - 22);
+					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - NPC_ADDITIONAL_OFFSET);
 				}
 			}
 			else
@@ -161,12 +162,12 @@ namespace EndlessClient
 				if (m_isCharacter)
 				{
 					Rectangle tmp = ((EOCharacterRenderer) m_ref).DrawAreaWithOffset;
-					pos = new Vector2(tmp.X + 16 - (nDigits * 9) / 2f, tmp.Y - m_additionalOffset - 20);
+					pos = new Vector2(tmp.X + 16 - (nDigits * 9) / 2f, tmp.Y - m_additionalOffset - CHR_ADDITIONAL_OFFSET);
 				}
 				else
 				{
 					Rectangle tmp = ((NPC) m_ref).DrawArea;
-					pos = new Vector2(tmp.X + tmp.Width / 2f - (nDigits * 9) / 2f, tmp.Y + ((NPC)m_ref).TopPixel - m_additionalOffset - 22);
+					pos = new Vector2(tmp.X + tmp.Width / 2f - (nDigits * 9) / 2f, tmp.Y + ((NPC)m_ref).TopPixel - m_additionalOffset - NPC_ADDITIONAL_OFFSET);
 				}
 			}
 			
@@ -202,14 +203,5 @@ namespace EndlessClient
 			SpriteBatch.End();
 			base.Draw(gameTime);
 		}
-	}
-
-	/// <summary>
-	/// Health bar shows red, yellow, or green health bar above the actor based on their percentage of health
-	/// <para>Shows only when actor takes damage</para>
-	/// </summary>
-	public class HealthBar : XNAControl
-	{
-		
 	}
 }

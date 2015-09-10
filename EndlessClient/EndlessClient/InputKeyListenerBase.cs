@@ -1,0 +1,67 @@
+﻿using System;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
+using XNAControls;
+
+namespace EndlessClient
+{
+	public class InputKeyListenerBase : GameComponent
+	{
+		private KeyboardState _prevKeyState;
+		private DateTime? _lastInputTime;
+
+		protected Character Character { get { return World.Instance.MainPlayer.ActiveCharacter; } }
+		protected EOCharacterRenderer Renderer { get { return World.Instance.ActiveCharacterRenderer; } }
+
+		public event Action<DateTime> InputTimeUpdated;
+
+		/// <summary>
+		/// Returns true if input handling for a key listener should be ignored
+		/// </summary>
+		protected bool IgnoreInput
+		{
+			get
+			{
+				return
+					!Game.IsActive ||
+					(_lastInputTime != null && (DateTime.Now - _lastInputTime.Value).TotalMilliseconds < 250) ||
+					XNAControl.Dialogs.Count > 0 ||
+					Character == null || Renderer == null;
+			}
+		}
+
+		protected InputKeyListenerBase() : base(EOGame.Instance)
+		{
+			_prevKeyState = Keyboard.GetState();
+		}
+
+		protected bool IsKeyPressed(Keys key, KeyboardState? currentState = null)
+		{
+			if (!currentState.HasValue)
+				currentState = Keyboard.GetState();
+
+			return _prevKeyState.IsKeyDown(key) && currentState.Value.IsKeyDown(key);
+		}
+
+		protected bool IsKeyPressedOnce(Keys key, KeyboardState? currentState = null)
+		{
+			if (!currentState.HasValue)
+				currentState = Keyboard.GetState();
+
+			return _prevKeyState.IsKeyDown(key) && currentState.Value.IsKeyUp(key);
+		}
+
+		protected void UpdateInputTime()
+		{
+			_lastInputTime = DateTime.Now;
+			if (InputTimeUpdated != null)
+				InputTimeUpdated(_lastInputTime ?? DateTime.Now);
+		}
+
+		public override void Update(GameTime gameTime)
+		{
+			_prevKeyState = Keyboard.GetState();
+			base.Update(gameTime);
+		}
+	}
+}

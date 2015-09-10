@@ -46,6 +46,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\ActiveSpells.cs">
       <Link>ActiveSpells.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\ArrowKeyListener.cs">
+      <Link>ArrowKeyListener.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\BlinkingLabel.cs">
       <Link>BlinkingLabel.cs</Link>
     </Compile>
@@ -57,6 +60,9 @@
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Config.cs">
       <Link>Config.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\ControlKeyListener.cs">
+      <Link>ControlKeyListener.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\DamageCounter.cs">
       <Link>DamageCounter.cs</Link>
@@ -109,6 +115,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\InGameHud.cs">
       <Link>InGameHud.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\InputKeyListenerBase.cs">
+      <Link>InputKeyListenerBase.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\InteractList.cs">
       <Link>InteractList.cs</Link>
     </Compile>
@@ -117,6 +126,9 @@
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\NPC.cs">
       <Link>NPC.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\NumPadListener.cs">
+      <Link>NumPadListener.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\PacketAPICallbackManager.cs">
       <Link>PacketAPICallbackManager.cs</Link>

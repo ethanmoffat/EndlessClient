@@ -678,6 +678,7 @@ namespace EndlessClient
 			control.IgnoreDialog(typeof(EOTradeDialog));
 			control.IgnoreDialog(typeof(EOFriendIgnoreListDialog));
 			control.IgnoreDialog(typeof(EOSkillmasterDialog));
+			control.IgnoreDialog(typeof (EOQuestDialog));
 		}
 
 		public static Texture2D GetSpellIcon(short icon, bool hover)

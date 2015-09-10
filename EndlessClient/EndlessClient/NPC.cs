@@ -115,7 +115,7 @@ namespace EndlessClient
 				throw new InvalidOperationException("Something weird happened initializing this NPC.");
 
 			m_chatBubble = new EOChatBubble(this);
-			m_damageCounter = new DamageCounter(this, GetType());
+			m_damageCounter = new DamageCounter(this);
 			_mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
 			{
 				Visible = false,

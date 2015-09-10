@@ -18,7 +18,8 @@ namespace EOLib
 		Down = 0,
 		Left,
 		Up,
-		Right
+		Right,
+		Invalid = 255
 	}
 
 	public enum TileSpec : byte
