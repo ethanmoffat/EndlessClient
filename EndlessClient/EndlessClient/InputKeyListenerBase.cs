@@ -7,6 +7,9 @@ namespace EndlessClient
 {
 	public class InputKeyListenerBase : GameComponent
 	{
+		//input will be rate-limited to once every {x} MS
+		private const int INPUT_RATE_LIMIT_MS = 200;
+
 		private KeyboardState _prevKeyState;
 		private DateTime? _lastInputTime;
 
@@ -24,7 +27,7 @@ namespace EndlessClient
 			{
 				return
 					!Game.IsActive ||
-					(_lastInputTime != null && (DateTime.Now - _lastInputTime.Value).TotalMilliseconds < 250) ||
+					(_lastInputTime != null && (DateTime.Now - _lastInputTime.Value).TotalMilliseconds < INPUT_RATE_LIMIT_MS) ||
 					XNAControl.Dialogs.Count > 0 ||
 					Character == null || Renderer == null;
 			}
