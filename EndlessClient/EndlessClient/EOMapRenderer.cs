@@ -262,9 +262,6 @@ namespace EndlessClient
 
 		public void SetActiveMap(MapFile newActiveMap)
 		{
-			if(newActiveMap == null)
-				throw new ArgumentNullException("newActiveMap", "The active map may not be null!");
-
 			m_drawingEvent.Wait();
 			m_drawingEvent.Reset();
 
@@ -324,6 +321,7 @@ namespace EndlessClient
 
 		public TileInfo GetTileInfo(byte destX, byte destY)
 		{
+			TileInfo? t = null;
 			lock (_npcListLock)
 			{
 				int ndx;
@@ -332,36 +330,43 @@ namespace EndlessClient
 				{
 					NPC retNPC = npcList[ndx];
 					if(!retNPC.Dying)
-						return new TileInfo { ReturnType = TileInfoReturnType.IsOtherNPC, NPC = retNPC };
+						t = new TileInfo { ReturnType = TileInfoReturnType.IsOtherNPC, NPC = retNPC };
 				}
 			}
 
-			if (otherPlayers.Any(player => player.X == destX && player.Y == destY))
+			if (!t.HasValue && otherPlayers.Any(player => player.X == destX && player.Y == destY))
+				t = new TileInfo { ReturnType = TileInfoReturnType.IsOtherPlayer };
+
+			if (!t.HasValue && destX <= MapRef.Width && destY <= MapRef.Height)
 			{
-				return new TileInfo { ReturnType = TileInfoReturnType.IsOtherPlayer };
+				Warp warp = MapRef.WarpLookup[destY, destX];
+				if (warp != null)
+					t = new TileInfo {ReturnType = TileInfoReturnType.IsWarpSpec, Warp = warp};
 			}
 
-			Warp warp = MapRef.WarpLookup[destY, destX];
-			if (warp != null)
+			if (!t.HasValue)
 			{
-				return new TileInfo { ReturnType = TileInfoReturnType.IsWarpSpec, Warp = warp };
+				MapSign sign = MapRef.Signs.Find(_ms => _ms.x == destX && _ms.y == destY);
+				if (sign.x == destX && sign.y == destY)
+					t = new TileInfo {ReturnType = TileInfoReturnType.IsMapSign, Sign = sign};
 			}
 
-			MapSign sign = MapRef.Signs.Find(_ms => _ms.x == destX && _ms.y == destY);
-			if (sign.x == destX && sign.y == destY)
+			if (!t.HasValue)
 			{
-				return new TileInfo { ReturnType = TileInfoReturnType.IsMapSign, Sign = sign };
+				if(destX <= MapRef.Width && destY <= MapRef.Height)
+				{
+					Tile tile = MapRef.TileLookup[destY, destX];
+					if (tile != null)
+						t = new TileInfo {ReturnType = TileInfoReturnType.IsTileSpec, Spec = tile.spec};
+				}
 			}
 
-			Tile tile = MapRef.TileLookup[destY, destX];
-			if (tile != null)
-			{
-				return new TileInfo { ReturnType = TileInfoReturnType.IsTileSpec, Spec = tile.spec };
-			}
+			if (!t.HasValue)
+				t = destX <= MapRef.Width && destY <= MapRef.Height //don't need to check zero bounds: because byte type is always positive (unsigned)
+					? new TileInfo {ReturnType = TileInfoReturnType.IsTileSpec, Spec = TileSpec.None}
+					: new TileInfo {ReturnType = TileInfoReturnType.IsTileSpec, Spec = TileSpec.MapEdge};
 
-			return destX <= MapRef.Width && destY <= MapRef.Height //don't need to check zero bounds: because byte type is always positive (unsigned)
-				? new TileInfo { ReturnType = TileInfoReturnType.IsTileSpec, Spec = TileSpec.None }
-				: new TileInfo { ReturnType = TileInfoReturnType.IsTileSpec, Spec = TileSpec.MapEdge };
+			return t.Value;
 		}
 
 		public void ToggleMapView()
@@ -1759,7 +1764,7 @@ namespace EndlessClient
 		private void _drawWallAtLoc(int rowIndex, int colIndex, Character c)
 		{
 			int gfxNum;
-			const int WALL_FRAME_WIDTH = 33;
+			const int WALL_FRAME_WIDTH = 68;
 			//right-facing walls
 			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.WallRowsRight][rowIndex, colIndex]) > 0)
 			{
@@ -1954,6 +1959,8 @@ namespace EndlessClient
 
 		protected override void Dispose(bool disposing)
 		{
+			m_drawingEvent.Wait();
+
 			lock (_disposingLockObject)
 			{
 				if (_disposed) return;
