@@ -363,7 +363,10 @@ namespace EndlessClient
 
 				//map renderer construction moved to be more closely coupled to loading of the map
 				if (m_mapRender == null)
+				{
 					m_mapRender = new EOMapRenderer(EOGame.Instance, m_api);
+					Console.WriteLine("Map Renderer constructed: value {0}", m_mapRender == null ? "null" : "not null");
+				}
 			}
 			catch
 			{
@@ -437,7 +440,7 @@ namespace EndlessClient
 		{
 			NeedMap = -1;
 
-			string mapFile = string.Format("maps\\{0,5:D5}.emf", mapID);
+			string mapFile = string.Format(Constants.MapFileFormatString, mapID);
 			if (!Directory.Exists("maps") || !File.Exists(mapFile))
 			{
 				Directory.CreateDirectory("maps");
@@ -507,7 +510,7 @@ namespace EndlessClient
 			if (!_tryLoadMap(mapID))
 			{
 				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-				EODialog.Show("Something went wrong when loading the map. Try logging in again.", "Map Load Error");
+				return;
 			}
 
 			if(mapID > 0)
@@ -660,7 +663,10 @@ namespace EndlessClient
 		{
 			MapCache.Remove(MainPlayer.ActiveCharacter.CurrentMap);
 			if (!_tryLoadMap())
-				throw new FileLoadException("Unable to load remapped map file!");
+			{
+				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+				return;
+			}
 
 			EOGame.Instance.Hud.AddChat(ChatTabs.Local, GetString(DATCONST2.STRING_SERVER), GetString(DATCONST2.SERVER_MESSAGE_MAP_MUTATION), ChatType.Exclamation, ChatColor.Server);
 			EOGame.Instance.Hud.AddChat(ChatTabs.System, GetString(DATCONST2.STRING_SERVER), GetString(DATCONST2.SERVER_MESSAGE_MAP_MUTATION), ChatType.Exclamation, ChatColor.Server);

@@ -330,7 +330,8 @@ namespace EndlessClient
 		{
 			World.Instance.MainPlayer.ActiveCharacter.Stats.HP = hp;
 			World.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
-			m_game.Hud.RefreshStats();
+			if (m_game.Hud != null)
+				m_game.Hud.RefreshStats();
 		}
 
 		private void _recoverReply(int exp, short karma, byte level, short statpoints, short skillpoints)

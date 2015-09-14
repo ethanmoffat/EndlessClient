@@ -330,7 +330,7 @@ namespace EOLib.Net
 					{
 						int dataLen = pkt.Length - 3;
 						if (dataLen == 0)
-							throw new FileLoadException();
+							return; //trigger error by not setting response event
 						fs.Write(pkt.GetBytes(dataLen), 0, dataLen);
 					}
 

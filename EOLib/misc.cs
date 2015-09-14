@@ -90,6 +90,7 @@ namespace EOLib
 		public const string Host = "127.0.0.1";
 		public const int Port = 8078;
 
+		public const string MapFileFormatString = "maps\\{0,5:D5}.emf";
 		public const string ItemFilePath = "pub/dat001.eif";
 		public const string NPCFilePath = "pub/dtn001.enf";
 		public const string SpellFilePath = "pub/dsl001.esf";

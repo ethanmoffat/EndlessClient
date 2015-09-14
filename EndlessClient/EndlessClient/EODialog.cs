@@ -1010,37 +1010,20 @@ namespace EndlessClient
 
 		#region Task Methods
 
-		private async Task<bool> _getECFTask()
+		private async Task<bool> _getMapTask()
 		{
-			if (World.Instance.NeedECF)
+			if (World.Instance.NeedMap != -1)
 			{
-				caption.Text = classes;
-				if (!m_api.RequestFile(InitFileType.Class))
-					return false;
-				await TaskFramework.Delay(1000);
-			}
-			return true;
-		}
+				caption.Text = map;
+				int tries = 0;
+				do
+				{
+					if (tries++ == 3)
+						return false;
 
-		private async Task<bool> _getESFTask()
-		{
-			if (World.Instance.NeedESF)
-			{
-				caption.Text = skill;
-				if (!m_api.RequestFile(InitFileType.Spell))
-					return false;
-				await TaskFramework.Delay(1000);
-			}
-			return true;
-		}
-
-		private async Task<bool> _getENFTask()
-		{
-			if (World.Instance.NeedENF)
-			{
-				caption.Text = npc;
-				if (!m_api.RequestFile(InitFileType.Npc))
-					return false;
+					if (!m_api.RequestFile(InitFileType.Map, World.Instance.MainPlayer.ActiveCharacter.CurrentMap))
+						return false;
+				} while (!_isMapValid());
 				await TaskFramework.Delay(1000);
 			}
 			return true;
@@ -1051,22 +1034,122 @@ namespace EndlessClient
 			if (World.Instance.NeedEIF)
 			{
 				caption.Text = item;
-				if (!m_api.RequestFile(InitFileType.Item))
-					return false;
+				int tries = 0;
+				do
+				{
+					if (tries++ == 3)
+						return false;
+
+					if (!m_api.RequestFile(InitFileType.Item))
+						return false;
+				} while (!_isPubValid(InitFileType.Item));
 				await TaskFramework.Delay(1000);
 			}
 			return true;
 		}
 
-		private async Task<bool> _getMapTask()
+		private async Task<bool> _getENFTask()
 		{
-			if (World.Instance.NeedMap != -1)
+			if (World.Instance.NeedENF)
 			{
-				caption.Text = map;
-				if (!m_api.RequestFile(InitFileType.Map, World.Instance.MainPlayer.ActiveCharacter.CurrentMap))
-					return false;
+				caption.Text = npc;
+				int tries = 0;
+				do
+				{
+					if (tries++ == 3)
+						return false;
+
+					if (!m_api.RequestFile(InitFileType.Npc))
+						return false;
+				} while (!_isPubValid(InitFileType.Npc));
 				await TaskFramework.Delay(1000);
 			}
+			return true;
+		}
+
+		private async Task<bool> _getESFTask()
+		{
+			if (World.Instance.NeedESF)
+			{
+				caption.Text = skill;
+				int tries = 0;
+				do
+				{
+					if (tries++ == 3)
+						return false;
+
+					if (!m_api.RequestFile(InitFileType.Spell))
+						return false;
+				} while (!_isPubValid(InitFileType.Spell));
+				await TaskFramework.Delay(1000);
+			}
+			return true;
+		}
+
+		private async Task<bool> _getECFTask()
+		{
+			if (World.Instance.NeedECF)
+			{
+				caption.Text = classes;
+				int tries = 0;
+				do
+				{
+					if (tries++ == 3)
+						return false;
+
+					if (!m_api.RequestFile(InitFileType.Class))
+						return false;
+				} while (!_isPubValid(InitFileType.Class));
+				await TaskFramework.Delay(1000);
+			}
+			return true;
+		}
+
+		#endregion
+
+		#region File Validation
+
+		private static bool _isMapValid()
+		{
+			try
+			{
+				MapFile mapFile = new MapFile(string.Format(Constants.MapFileFormatString, World.Instance.NeedMap));
+			}
+			catch { return false; }
+
+			return true;
+		}
+
+		private static bool _isPubValid(InitFileType fileType)
+		{
+			try
+			{
+				EODataFile file;
+				switch (fileType)
+				{
+					case InitFileType.Item:
+						file = new ItemFile();
+						break;
+					case InitFileType.Npc:
+						file = new NPCFile();
+						break;
+					case InitFileType.Spell:
+						file = new SpellFile();
+						break;
+					case InitFileType.Class:
+						file = new ClassFile();
+						break;
+					default:
+						return false;
+				}
+
+				if (file.Data.Count <= 1) return false;
+			}
+			catch
+			{
+				return false;
+			}
+
 			return true;
 		}
 

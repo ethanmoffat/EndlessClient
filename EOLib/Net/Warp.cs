@@ -54,7 +54,7 @@ namespace EOLib.Net
 				case WarpReply.WarpSameMap: _warpAccept(pkt.GetShort()); break; //pkt.GetChar() x2 for x,y coords
 				case WarpReply.WarpNewMap:
 					if (OnWarpRequestNewMap == null)
-						throw new InvalidOperationException("Error: attempted to warp to a new map without a valid map check handler");
+						return;
 
 					short mapID = pkt.GetShort();
 					byte[] mapRid = pkt.GetBytes(4);
