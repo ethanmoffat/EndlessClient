@@ -97,7 +97,7 @@ namespace EndlessClient
 					SetParent(null);
 					
 					m_alpha = 128;
-					DrawOrder = 100; //arbitrarily large constant so drawn on top while dragging
+					DrawOrder = 200; //arbitrarily large constant so drawn on top while dragging
 				}
 			}
 

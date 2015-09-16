@@ -35,6 +35,7 @@ namespace EndlessClient
 		private readonly PacketAPI m_packetAPI;
 
 		private const int NUM_BTN = 11;
+		private const int HUD_CONTROL_DRAW_ORDER = 101;
 		private readonly Texture2D mainFrame, topLeft, sidebar, topBar, filler;
 		//might need to consider making an EOPanels file and deriving from XNAPanel
 		//	to support eo-specific functionality that I'm going to need...
@@ -83,7 +84,7 @@ namespace EndlessClient
 				throw new ArgumentException("Need to initialize connection before the in-game stuff will work");
 			m_packetAPI = api;
 
-			DrawOrder = 5;
+			DrawOrder = 100;
 
 			mainFrame = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 1, true);
 			topLeft = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 21, true);
@@ -100,66 +101,79 @@ namespace EndlessClient
 			pnlInventory = new XNAPanel(new Rectangle(102, 330, invBG.Width, invBG.Height))
 			{
 				BackgroundImage = invBG,
-				Visible = false
+				Visible = false,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
 			Texture2D spellsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 62);
 			pnlActiveSpells = new XNAPanel(new Rectangle(102, 330, spellsBG.Width, spellsBG.Height))
 			{
 				BackgroundImage = spellsBG,
-				Visible = false
+				Visible = false,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
 			pnlPassiveSpells = new XNAPanel(new Rectangle(102, 330, spellsBG.Width, spellsBG.Height))
 			{
 				BackgroundImage = spellsBG,
-				Visible = false
+				Visible = false,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
 			Texture2D chatBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 28);
 			pnlChat = new XNAPanel(new Rectangle(102, 330, chatBG.Width, chatBG.Height))
 			{
 				BackgroundImage = chatBG,
-				Visible = false
+				Visible = false,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
 			Texture2D statsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 34);
 			pnlStats = new XNAPanel(new Rectangle(102, 330, statsBG.Width, statsBG.Height))
 			{
 				BackgroundImage = statsBG,
-				Visible = false
+				Visible = false,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
 			Texture2D onlineBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 36);
 			pnlOnline = new XNAPanel(new Rectangle(102, 330, onlineBG.Width, onlineBG.Height))
 			{
 				BackgroundImage = onlineBG,
-				Visible = false
+				Visible = false,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
 			Texture2D partyBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 42);
 			pnlParty = new XNAPanel(new Rectangle(102, 330, partyBG.Width, partyBG.Height))
 			{
 				BackgroundImage = partyBG,
-				Visible = false
+				Visible = false,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
 			Texture2D settingsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 47);
 			pnlSettings = new XNAPanel(new Rectangle(102, 330, settingsBG.Width, settingsBG.Height))
 			{
 				BackgroundImage = settingsBG,
-				Visible = false
+				Visible = false,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
 			Texture2D helpBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 63);
 			pnlHelp = new XNAPanel(new Rectangle(102, 330, helpBG.Width, helpBG.Height))
 			{
 				BackgroundImage = helpBG,
-				Visible = false
+				Visible = false,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
 			Texture2D newsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 48);
-			pnlNews = new XNAPanel(new Rectangle(102, 330, newsBG.Width, newsBG.Height)) {BackgroundImage = newsBG};
+			pnlNews = new XNAPanel(new Rectangle(102, 330, newsBG.Width, newsBG.Height))
+			{
+				BackgroundImage = newsBG,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
+			};
 
 			//for easy update of all panels via foreach
 			List<XNAPanel> pnlCollection = new List<XNAPanel>(10)
@@ -200,7 +214,10 @@ namespace EndlessClient
 				//6-10: right side, starting at 587, 347
 				Vector2 btnLoc = new Vector2(i < 6 ? 62 : 590, (i < 6 ? 330 : 350) + ((i < 6 ? i : i - 6) * 20));
 
-				mainBtn[i] = new XNAButton(new [] { _out, _ovr }, btnLoc);
+				mainBtn[i] = new XNAButton(new [] { _out, _ovr }, btnLoc)
+				{
+					DrawOrder = HUD_CONTROL_DRAW_ORDER
+				};
 				World.IgnoreDialogs(mainBtn[i]);
 			}
 
@@ -238,7 +255,8 @@ namespace EndlessClient
 			{
 				Selected = true,
 				Visible = true,
-				MaxChars = 140
+				MaxChars = 140,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 			World.IgnoreDialogs(chatTextBox);
 			chatTextBox.OnEnterPressed += _doTalk;
@@ -311,13 +329,13 @@ namespace EndlessClient
 				m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
 			}, null, Timeout.Infinite, Timeout.Infinite);
 
-			statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), "Microsoft Sans Serif", 7f);
-			clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), "Microsoft Sans Serif", 7f);
+			statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), "Microsoft Sans Serif", 7f){DrawOrder = HUD_CONTROL_DRAW_ORDER};
+			clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), "Microsoft Sans Serif", 7f){DrawOrder = HUD_CONTROL_DRAW_ORDER};
 
-			StatusBars[0] = new HudElementHP();
-			StatusBars[1] = new HudElementTP();
-			StatusBars[2] = new HudElementSP();
-			StatusBars[3] = new HudElementTNL();
+			StatusBars[0] = new HudElementHP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
+			StatusBars[1] = new HudElementTP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
+			StatusBars[2] = new HudElementSP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
+			StatusBars[3] = new HudElementTNL {DrawOrder = HUD_CONTROL_DRAW_ORDER};
 
 			m_whoIsOnline = new EOOnlineList(pnlOnline);
 			m_party = new EOPartyPanel(pnlParty);
@@ -328,7 +346,8 @@ namespace EndlessClient
 				new Rectangle(0, 276, 17, 15))
 			{
 				Visible = true,
-				Enabled = true
+				Enabled = true,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: false, apiHandle: m_packetAPI);
 			m_friendList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_FRIEND_LIST);
@@ -339,7 +358,8 @@ namespace EndlessClient
 				new Rectangle(17, 276, 17, 15))
 			{
 				Visible = true,
-				Enabled = true
+				Enabled = true,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: true, apiHandle: m_packetAPI);
 			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_IGNORE_LIST);
@@ -347,17 +367,17 @@ namespace EndlessClient
 			m_expInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
 				new Vector2(55, 0),
 				new Rectangle(331, 30, 22, 14),
-				new Rectangle(331, 30, 22, 14));
+				new Rectangle(331, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
 			m_expInfo.OnClick += (o, e) => EOSessionExpDialog.Show();
 			m_questInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
 				new Vector2(77, 0),
 				new Rectangle(353, 30, 22, 14),
-				new Rectangle(353, 30, 22, 14));
+				new Rectangle(353, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
 			m_questInfo.OnClick += (o, e) => EOQuestProgressDialog.Show(m_packetAPI);
 
 			//no need to make this a member variable
 			//it does not have any resources to dispose and it is automatically disposed by the framework
-// ReSharper disable once UnusedVariable
+			// ReSharper disable once UnusedVariable
 			EOSettingsPanel settings = new EOSettingsPanel(pnlSettings);
 		}
 
@@ -472,10 +492,7 @@ namespace EndlessClient
 			{
 				SpriteBatch.End();
 			}
-			catch (ObjectDisposedException)
-			{
-				return;
-			}
+			catch (ObjectDisposedException) { return; }
 
 			base.Draw(gameTime);
 		}

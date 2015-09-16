@@ -88,7 +88,7 @@ namespace EndlessClient
 			//the button in the top-right for going back a screen
 			Texture2D back = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 24, true);
 			backButton = new XNAButton(back, new Vector2(589, 0), new Rectangle(0, 0, back.Width, back.Height / 2),
-				new Rectangle(0, back.Height / 2, back.Width, back.Height / 2));
+				new Rectangle(0, back.Height / 2, back.Width, back.Height / 2)) { DrawOrder = 100 };
 			backButton.OnClick += MainButtonPress;
 			backButton.ClickArea = new Rectangle(4, 16, 16, 16);
 

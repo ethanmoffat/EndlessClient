@@ -65,6 +65,7 @@ namespace EndlessClient
 				}
 			}
 			_fixDrawOrder();
+			DrawOrder += 100;
 			Dialogs.Push(this);
 
 			Game.Components.Add(this);
