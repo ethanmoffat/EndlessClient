@@ -96,7 +96,6 @@ namespace EndlessClient
 
 		//collections
 		private readonly Dictionary<Point, List<MapItem>> MapItems = new Dictionary<Point, List<MapItem>>();
-		private readonly List<Character> otherPlayers = new List<Character>();
 		private readonly List<EOCharacterRenderer> otherRenderers = new List<EOCharacterRenderer>();
 		private readonly List<NPC> npcList = new List<NPC>();
 		private readonly object _npcListLock = new object(), _rendererListLock = new object();
@@ -267,11 +266,11 @@ namespace EndlessClient
 
 			if(MapRef != null && MapRef.AmbientNoise != 0)
 				EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.AmbientNoise);
-
+			
 			MapRef = newActiveMap;
 
 			if (m_miniMapRenderer == null)
-				m_miniMapRenderer = new MiniMapRenderer(MapRef, sb, this);
+				m_miniMapRenderer = new MiniMapRenderer(this);
 			else
 				m_miniMapRenderer.Map = MapRef;
 
@@ -281,7 +280,7 @@ namespace EndlessClient
 				otherRenderers.ForEach(_rend => _rend.Dispose());
 				otherRenderers.Clear();
 			}
-			otherPlayers.Clear();
+
 			lock (_npcListLock)
 			{
 				npcList.ForEach(_npc => _npc.Dispose());
@@ -334,8 +333,11 @@ namespace EndlessClient
 				}
 			}
 
-			if (!t.HasValue && otherPlayers.Any(player => player.X == destX && player.Y == destY))
-				t = new TileInfo { ReturnType = TileInfoReturnType.IsOtherPlayer };
+			lock (_rendererListLock)
+			{
+				if (!t.HasValue && otherRenderers.Select(x => x.Character).Any(player => player.X == destX && player.Y == destY))
+					t = new TileInfo {ReturnType = TileInfoReturnType.IsOtherPlayer};
+			}
 
 			if (!t.HasValue && destX <= MapRef.Width && destY <= MapRef.Height)
 			{
@@ -493,22 +495,25 @@ namespace EndlessClient
 		#region /* PUBLIC INTERFACE -- OTHER PLAYERS */
 		public void AddOtherPlayer(CharacterData c, WarpAnimation anim = WarpAnimation.None)
 		{
-			Character other;
 			EOCharacterRenderer otherRend = null;
-			if ((other = otherPlayers.Find(x => x.Name == c.Name && x.ID == c.ID)) == null)
+			lock (_rendererListLock)
 			{
-				otherPlayers.Add(other = new Character(m_api, c));
-				lock (_rendererListLock)
+				Character other;
+				if ((other = otherRenderers.Select(x => x.Character).ToList().Find(x => x.Name == c.Name && x.ID == c.ID)) == null)
 				{
-					otherRenderers.Add(otherRend = new EOCharacterRenderer(other));
-					otherRenderers[otherRenderers.Count - 1].Visible = true;
-					otherRenderers[otherRenderers.Count - 1].Initialize();
+					other = new Character(m_api, c);
+					lock (_rendererListLock)
+					{
+						otherRenderers.Add(otherRend = new EOCharacterRenderer(other));
+						otherRenderers[otherRenderers.Count - 1].Visible = true;
+						otherRenderers[otherRenderers.Count - 1].Initialize();
+					}
+					other.RenderData.SetUpdate(true);
 				}
-				other.RenderData.SetUpdate(true);
-			}
-			else
-			{
-				other.ApplyData(c);
+				else
+				{
+					other.ApplyData(c);
+				}
 			}
 
 			if (anim == WarpAnimation.Admin && otherRend != null)
@@ -519,23 +524,18 @@ namespace EndlessClient
 
 		public void RemoveOtherPlayer(short id, WarpAnimation anim = WarpAnimation.None)
 		{
-			Character c;
-			if ((c = otherPlayers.Find(cc => cc.ID == id)) != null)
+			lock (_rendererListLock)
 			{
-				otherPlayers.Remove(c);
-				lock (_rendererListLock)
+				int ndx;
+				if ((ndx = otherRenderers.FindIndex(cc => cc.Character.ID == id)) >= 0)
 				{
-					int ndx = otherRenderers.FindIndex(rend => rend.Character == c);
-					if (ndx < 0) return;
-
+					//TODO: Add warp animation when valid
 					otherRenderers[ndx].HideChatBubble();
 					otherRenderers[ndx].Visible = false;
 					otherRenderers[ndx].Close();
 					otherRenderers.RemoveAt(ndx);
 				}
 			}
-
-			//TODO: Add warp animation when valid
 		}
 
 		public void ClearOtherPlayers()
@@ -545,15 +545,15 @@ namespace EndlessClient
 				otherRenderers.ForEach(_rend => _rend.HideChatBubble());
 				otherRenderers.Clear();
 			}
-			otherPlayers.Clear();
 		}
 
 		public void OtherPlayerFace(short ID, EODirection direction)
 		{
-			Character c;
-			if((c = otherPlayers.Find(cc => cc.ID == ID)) != null)
+			lock (_rendererListLock)
 			{
-				c.RenderData.SetDirection(direction);
+				int ndx;
+				if ((ndx = otherRenderers.FindIndex(x => x.Character.ID == ID)) >= 0)
+					otherRenderers[ndx].Character.RenderData.SetDirection(direction);
 			}
 		}
 
@@ -604,10 +604,13 @@ namespace EndlessClient
 
 		public void OtherPlayerHide(short ID, bool hidden)
 		{
-			Character c = otherPlayers.Find(_char => _char.ID == ID);
-			if (c != null)
+			lock (_rendererListLock)
 			{
-				c.RenderData.SetHidden(hidden);
+				int ndx;
+				if ((ndx = otherRenderers.FindIndex(x => x.Character.ID == ID)) >= 0)
+				{
+					otherRenderers[ndx].Character.RenderData.SetHidden(hidden);
+				}
 			}
 		}
 
@@ -743,12 +746,16 @@ namespace EndlessClient
 		public void UpdateOtherPlayers()
 		{
 			//when mainplayer walks, tell other players to update!
-			otherPlayers.ForEach(x => x.RenderData.SetUpdate(true));
+			lock (_rendererListLock)
+				otherRenderers.Select(x => x.Character).ToList().ForEach(x => x.RenderData.SetUpdate(true));
 		}
 
 		public void UpdateOtherPlayerRenderData(short playerId, bool sound, CharRenderData newRenderData)
 		{
-			Character c =  playerId == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.MainPlayer.ActiveCharacter : otherPlayers.Find(cc => cc.ID == playerId);
+			Character c = playerId == World.Instance.MainPlayer.ActiveCharacter.ID
+				? World.Instance.MainPlayer.ActiveCharacter
+				: GetOtherPlayerByID(playerId);
+
 			if (c != null)
 			{
 				c.SetDisplayItemsFromRenderData(newRenderData);
@@ -758,7 +765,10 @@ namespace EndlessClient
 
 		public void UpdateOtherPlayerHairData(short playerId, byte hairColor, byte hairStyle = 255)
 		{
-			Character c = playerId == World.Instance.MainPlayer.ActiveCharacter.ID ? World.Instance.MainPlayer.ActiveCharacter : otherPlayers.Find(cc => cc.ID == playerId);
+			Character c = playerId == World.Instance.MainPlayer.ActiveCharacter.ID
+				? World.Instance.MainPlayer.ActiveCharacter
+				: GetOtherPlayerByID(playerId);
+
 			if (c != null)
 			{
 				c.RenderData.SetHairColor(hairColor);
@@ -768,10 +778,15 @@ namespace EndlessClient
 
 		public Character GetOtherPlayerByID(short playerId)
 		{
-			return otherPlayers.Find(_c => _c.ID == playerId);
+			Character retChar;
+			lock (_rendererListLock)
+				retChar = otherRenderers.Find(_c => _c.Character.ID == playerId).Character;
+			return retChar;
 		}
 
-		//shows the water splashies at the 'x, y' coordinates specified
+		/// <summary>
+		/// Adds a water effect (splashies) on the tile at the specified coordinates
+		/// </summary>
 		public void NewWaterEffect(byte x, byte y)
 		{
 			Point pt = new Point(x, y);
@@ -1186,7 +1201,8 @@ namespace EndlessClient
 					RemoveOtherPlayer((short) rend.Character.ID);
 
 					if (_visibleSpikeTraps.Contains(new Point(rend.Character.X, rend.Character.Y)) &&
-					    !otherPlayers.Any(player => player.X == rend.Character.X && player.Y == rend.Character.Y))
+					    !otherRenderers.Select(x => x.Character)
+						    .Any(player => player.X == rend.Character.X && player.Y == rend.Character.Y))
 					{
 						RemoveVisibleSpikeTrap(rend.Character.X, rend.Character.Y);
 					}
@@ -1327,7 +1343,7 @@ namespace EndlessClient
 					    (mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) ||
 					    (!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
 					{
-						Character charRef = otherPlayers.Find(_c => _c.ID == mi.playerID);
+						Character charRef = GetOtherPlayerByID((short)mi.playerID);
 						DATCONST2 msg = charRef == null
 							? DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED
 							: DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
