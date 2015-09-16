@@ -13,27 +13,28 @@ namespace EndlessClient
 	{
 		private XNALabel m_label;
 		private readonly DrawableGameComponent m_ref;
-		private readonly bool isChar; //true if character, false if npc
+		private readonly bool m_isChar; //true if character, false if npc
 		private bool m_useGroupChatColor;
 
-		private SpriteBatch sb;
+		private SpriteBatch m_sb;
 
-		private Vector2 drawLoc;
+		private Vector2 m_drawLoc;
 
+		private DateTime? m_startTime;
+
+		//texture stuff
 		private const int TL = 0, TM = 1, TR = 2;
 		private const int ML = 3, MM = 4, MR = 5;
 		private const int RL = 6, RM = 7, RR = 8, NUB = 9;
-		private static bool textsLoaded;
-		private static readonly object _textlocker_ = new object();
-		private static Texture2D[] texts;
-
-		private DateTime? m_startTime;
+		private static bool s_textsLoaded;
+		private static readonly object s_textlocker = new object();
+		private static Texture2D[] s_textures;
 
 		public EOChatBubble(EOCharacterRenderer following)
 			: base(EOGame.Instance)
 		{
 			m_ref = following;
-			isChar = true;
+			m_isChar = true;
 			DrawOrder = following.Character.ID + (int)ControlDrawLayer.BaseLayer + 1; //use ID for draw order
 			_initLabel();
 			Visible = false;
@@ -44,7 +45,7 @@ namespace EndlessClient
 			: base(EOGame.Instance)
 		{
 			m_ref = following;
-			isChar = false;
+			m_isChar = false;
 			DrawOrder = following.Index + (int)ControlDrawLayer.BaseLayer + 1; //use index for draw order
 			_initLabel();
 			Visible = false;
@@ -91,34 +92,35 @@ namespace EndlessClient
 
 		private void _setLabelDrawLoc()
 		{
-			Rectangle refArea = isChar ? ((EOCharacterRenderer)m_ref).DrawAreaWithOffset : ((NPC)m_ref).DrawArea;
-			int extra = textsLoaded ? texts[ML].Width : 0;
-			m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.Texture.Height - 5);
+			Rectangle refArea = m_isChar ? ((EOCharacterRenderer)m_ref).DrawAreaWithOffset : ((NPC)m_ref).DrawArea;
+			int extra = s_textsLoaded ? s_textures[ML].Width : 0;
+			if(m_label != null) //really missing the ?. operator :-/
+				m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.Texture.Height - 5);
 		}
 
 		public new void LoadContent()
 		{
-			if (sb == null)
-				sb = new SpriteBatch(GraphicsDevice);
+			if (m_sb == null)
+				m_sb = new SpriteBatch(GraphicsDevice);
 
 			//race condition: if 2 speech bubbles are created simultaneously it may try to load textures twice
-			lock (_textlocker_)
+			lock (s_textlocker)
 			{
-				if (!textsLoaded)
+				if (!s_textsLoaded)
 				{
-					texts = new Texture2D[10];
-					texts[TL] = Game.Content.Load<Texture2D>("ChatBubble\\TL");
-					texts[TM] = Game.Content.Load<Texture2D>("ChatBubble\\TM");
-					texts[TR] = Game.Content.Load<Texture2D>("ChatBubble\\TR");
-					texts[ML] = Game.Content.Load<Texture2D>("ChatBubble\\ML");
-					texts[MM] = Game.Content.Load<Texture2D>("ChatBubble\\MM");
-					texts[MR] = Game.Content.Load<Texture2D>("ChatBubble\\MR");
+					s_textures = new Texture2D[10];
+					s_textures[TL] = Game.Content.Load<Texture2D>("ChatBubble\\TL");
+					s_textures[TM] = Game.Content.Load<Texture2D>("ChatBubble\\TM");
+					s_textures[TR] = Game.Content.Load<Texture2D>("ChatBubble\\TR");
+					s_textures[ML] = Game.Content.Load<Texture2D>("ChatBubble\\ML");
+					s_textures[MM] = Game.Content.Load<Texture2D>("ChatBubble\\MM");
+					s_textures[MR] = Game.Content.Load<Texture2D>("ChatBubble\\MR");
 					//typed an R instead of a B. I'm tired; somehow bot=R made more sense than bot=B
-					texts[RL] = Game.Content.Load<Texture2D>("ChatBubble\\RL");
-					texts[RM] = Game.Content.Load<Texture2D>("ChatBubble\\RM");
-					texts[RR] = Game.Content.Load<Texture2D>("ChatBubble\\RR");
-					texts[NUB] = Game.Content.Load<Texture2D>("ChatBubble\\NUB");
-					textsLoaded = true;
+					s_textures[RL] = Game.Content.Load<Texture2D>("ChatBubble\\RL");
+					s_textures[RM] = Game.Content.Load<Texture2D>("ChatBubble\\RM");
+					s_textures[RR] = Game.Content.Load<Texture2D>("ChatBubble\\RR");
+					s_textures[NUB] = Game.Content.Load<Texture2D>("ChatBubble\\NUB");
+					s_textsLoaded = true;
 				}
 			}
 
@@ -127,21 +129,11 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
-			if (!Visible)
+			if (!Visible || m_ref == null || !s_textsLoaded || m_label == null)
 				return;
 
-			if (!(m_ref is EOCharacterRenderer || m_ref is NPC))
-				Dispose(); //"It's over, Anakin, I have the high ground!" "Don't try it!"
-
 			_setLabelDrawLoc();
-			try
-			{
-				drawLoc = m_label.DrawLocation - new Vector2(texts[TL].Width, texts[TL].Height);
-			}
-			catch (NullReferenceException)
-			{
-				return; //nullreference here means that the textures haven't been loaded yet...try it on the next pass
-			}
+			m_drawLoc = m_label.DrawLocation - new Vector2(s_textures[TL].Width, s_textures[TL].Height);
 
 			//This replaces the goAway timer.
 			if (m_startTime.HasValue && (DateTime.Now - m_startTime.Value).TotalMilliseconds > Constants.ChatBubbleTimeout)
@@ -156,51 +148,51 @@ namespace EndlessClient
 
 		public override void Draw(GameTime gameTime)
 		{
-			if (!textsLoaded || !Visible) return;
-			int xCov = texts[TL].Width;
-			int yCov = texts[TL].Height;
-			if (sb == null) return;
+			if (!s_textsLoaded || !Visible) return;
+			int xCov = s_textures[TL].Width;
+			int yCov = s_textures[TL].Height;
+			if (m_sb == null) return;
 
-			Color col = m_useGroupChatColor ? Color.Tan : Color.White;
+			Color col = m_useGroupChatColor ? Color.Tan : Color.FromNonPremultiplied(255, 255, 255, 232);
 
-			sb.Begin();
+			m_sb.Begin();
 
 			//top row
-			sb.Draw(texts[TL], drawLoc, col);
+			m_sb.Draw(s_textures[TL], m_drawLoc, col);
 			int xCur;
-			for (xCur = xCov; xCur < m_label.ActualWidth; xCur += texts[TM].Width)
+			for (xCur = xCov; xCur < m_label.ActualWidth; xCur += s_textures[TM].Width)
 			{
-				sb.Draw(texts[TM], drawLoc + new Vector2(xCur, 0), col);
+				m_sb.Draw(s_textures[TM], m_drawLoc + new Vector2(xCur, 0), col);
 			}
-			sb.Draw(texts[TR], drawLoc + new Vector2(xCur, 0), col);
+			m_sb.Draw(s_textures[TR], m_drawLoc + new Vector2(xCur, 0), col);
 
 			//middle area
 			int y;
-			for (y = yCov; y < m_label.Texture.Height - (m_label.Texture.Height % texts[ML].Height); y += texts[ML].Height)
+			for (y = yCov; y < m_label.Texture.Height - (m_label.Texture.Height % s_textures[ML].Height); y += s_textures[ML].Height)
 			{
-				sb.Draw(texts[ML], drawLoc + new Vector2(0, y), col);
+				m_sb.Draw(s_textures[ML], m_drawLoc + new Vector2(0, y), col);
 				int x;
-				for (x = xCov; x < xCur; x += texts[MM].Width)
+				for (x = xCov; x < xCur; x += s_textures[MM].Width)
 				{
-					sb.Draw(texts[MM], drawLoc + new Vector2(x, y), col);
+					m_sb.Draw(s_textures[MM], m_drawLoc + new Vector2(x, y), col);
 				}
-				sb.Draw(texts[MR], drawLoc + new Vector2(xCur, y), col);
+				m_sb.Draw(s_textures[MR], m_drawLoc + new Vector2(xCur, y), col);
 			}
 
 			//bottom row
-			sb.Draw(texts[RL], drawLoc + new Vector2(0, y), col);
+			m_sb.Draw(s_textures[RL], m_drawLoc + new Vector2(0, y), col);
 			int x2;
-			for (x2 = xCov; x2 < xCur; x2 += texts[RM].Width)
+			for (x2 = xCov; x2 < xCur; x2 += s_textures[RM].Width)
 			{
-				sb.Draw(texts[RM], drawLoc + new Vector2(x2, y), col);
+				m_sb.Draw(s_textures[RM], m_drawLoc + new Vector2(x2, y), col);
 			}
-			sb.Draw(texts[RR], drawLoc + new Vector2(x2, y), col);
-			y += texts[RM].Height;
-			sb.Draw(texts[NUB], drawLoc + new Vector2((x2 + texts[RR].Width - texts[NUB].Width) / 2f, y - 1), col);
+			m_sb.Draw(s_textures[RR], m_drawLoc + new Vector2(x2, y), col);
+			y += s_textures[RM].Height;
+			m_sb.Draw(s_textures[NUB], m_drawLoc + new Vector2((x2 + s_textures[RR].Width - s_textures[NUB].Width) / 2f, y - 1), col);
 
 			try
 			{
-				sb.End();
+				m_sb.End();
 			}
 			catch (ObjectDisposedException) { }
 			base.Draw(gameTime);
@@ -215,10 +207,10 @@ namespace EndlessClient
 		{
 			if (disposing)
 			{
-				if (sb != null)
+				if (m_sb != null)
 				{
-					sb.Dispose();
-					sb = null;
+					m_sb.Dispose();
+					m_sb = null;
 				}
 				if (m_label != null)
 				{
