@@ -12,7 +12,7 @@ namespace EndlessClient
 	public class DamageCounter : XNAControl
 	{
 		private const int CHR_ADDITIONAL_OFFSET = 30;
-		private const int NPC_ADDITIONAL_OFFSET = 32;
+		private const int NPC_ADDITIONAL_OFFSET = 22;
 
 		private readonly bool m_isCharacter;
 		private readonly DrawableGameComponent m_ref;
@@ -127,7 +127,7 @@ namespace EndlessClient
 			else
 			{
 				Rectangle tmp = ((NPC)m_ref).DrawArea;
-				m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f, tmp.Y + ((NPC)m_ref).TopPixel - 20);
+				m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f, tmp.Y + ((NPC)m_ref).TopPixel - 10);
 			}
 
 			base.Update(gameTime);
