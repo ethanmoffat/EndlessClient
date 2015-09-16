@@ -92,6 +92,9 @@ namespace EndlessClient
 		private void _checkSpecAndWalkIfValid(byte destX, byte destY, EODirection direction)
 		{
 			TileInfo info = World.Instance.ActiveMapRenderer.GetTileInfo(destX, destY);
+			var tileAtDest = World.Instance.ActiveMapRenderer.MapRef.TileLookup[destY, destX];
+			var specAtDest = tileAtDest != null ? tileAtDest.spec : TileSpec.None;
+
 			switch (info.ReturnType)
 			{
 				case TileInfoReturnType.IsOtherPlayer:
@@ -101,11 +104,10 @@ namespace EndlessClient
 						DATCONST2.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
 					if (_startWalkingThroughPlayerTime == null)
 						_startWalkingThroughPlayerTime = DateTime.Now;
-					else if ((DateTime.Now - _startWalkingThroughPlayerTime.Value).TotalSeconds > 3)
+					else if ((DateTime.Now - _startWalkingThroughPlayerTime.Value).TotalSeconds > 5)
 					{
 						_startWalkingThroughPlayerTime = null;
-						//note: need to get valid spec since TileInfoReturnType is 'IsOtherPlayer'
-						_walkIfValid(World.Instance.ActiveMapRenderer.MapRef.TileLookup[destY, destX].spec, direction, destX, destY);
+						goto case TileInfoReturnType.IsTileSpec;
 					}
 					break;
 				case TileInfoReturnType.IsOtherNPC:
@@ -163,7 +165,7 @@ namespace EndlessClient
 					}
 					break;
 				case TileInfoReturnType.IsTileSpec:
-					_walkIfValid(info.Spec, direction, destX, destY);
+					_walkIfValid(specAtDest, direction, destX, destY);
 					break;
 			}
 		}
