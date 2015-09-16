@@ -16,8 +16,7 @@ namespace EndlessClient
 		Walking,
 		Attacking,
 		Sitting,
-		SpellCast,
-		Emote
+		SpellCast
 	}
 
 	/// <summary>
@@ -766,7 +765,7 @@ namespace EndlessClient
 
 		private void _emoteTimerCallback(object state)
 		{
-			if (_char == null || State != CharacterActionState.Emote) return;
+			if (_char == null) return;
 
 			if (Data.emoteFrame == 3)
 			{
@@ -775,7 +774,7 @@ namespace EndlessClient
 			}
 			else
 			{
-				Data.SetEmoteFrame((byte) (Data.emoteFrame + 1));
+				Data.SetEmoteFrame(Data.emoteFrame + 1);
 			}
 
 			Data.SetUpdate(true);
@@ -884,7 +883,7 @@ namespace EndlessClient
 				flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
 
 			//get face and draw
-			if (State == CharacterActionState.Emote)
+			if (Character.RenderData.emoteFrame >= 0)
 			{
 				Rectangle faceRect, emoteRect;
 				Texture2D face = spriteSheet.GetFace(out faceRect), 
@@ -901,7 +900,7 @@ namespace EndlessClient
 				if (emote != null)
 				{
 					Vector2 emotePos = new Vector2(skinLoc.X - 15, DrawAreaWithOffset.Y - emote.Height + 10);
-					SpriteBatch.Draw(emote, emotePos, emoteRect, Color.FromNonPremultiplied(0xff,0xff,0xff,128));
+					SpriteBatch.Draw(emote, emotePos, emoteRect, Color.FromNonPremultiplied(0xff, 0xff, 0xff, 128));
 				}
 			}
 		}

@@ -24,7 +24,7 @@ namespace EndlessClient
 		public byte gender;
 		public short boots, armor, hat, shield, weapon;
 
-		public byte walkFrame, attackFrame, emoteFrame;
+		public int walkFrame, attackFrame, emoteFrame = -1;
 		
 		public EODirection facing;
 		public SitState sitting;
@@ -58,9 +58,9 @@ namespace EndlessClient
 		}
 		public void SetBoots(short newboots) { boots = newboots; update = true; }
 
-		public void SetWalkFrame(byte wf)     { lock (frameLocker) walkFrame = wf; update = true; }
-		public void SetAttackFrame(byte af)   { lock (frameLocker) attackFrame = af; update = true; }
-		public void SetEmoteFrame(byte frame) { lock (frameLocker) emoteFrame = frame; update = true; }
+		public void SetWalkFrame(int wf)     { lock (frameLocker) walkFrame = wf; update = true; }
+		public void SetAttackFrame(int af)   { lock (frameLocker) attackFrame = af; update = true; }
+		public void SetEmoteFrame(int ef) { lock (frameLocker) emoteFrame = ef; update = true; }
 		public void SetUpdate(bool shouldUpdate) { update = shouldUpdate; }
 		public void SetHairNeedRefresh(bool shouldRefresh) { hairNeedRefresh = shouldRefresh; }
 		
@@ -519,15 +519,13 @@ namespace EndlessClient
 					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 
-			State = CharacterActionState.Emote;
 			RenderData.SetEmoteFrame(0);
 			RenderData.SetEmote(whichEmote);
 		}
 
 		public void DoneEmote()
 		{
-			State = CharacterActionState.Standing;
-			RenderData.SetEmoteFrame(0);
+			RenderData.SetEmoteFrame(-1);
 		}
 
 		public void Face(EODirection direction)

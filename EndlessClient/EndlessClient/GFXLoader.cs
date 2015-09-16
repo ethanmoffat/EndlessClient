@@ -623,7 +623,7 @@ namespace EndlessClient
 
 		public Texture2D GetFace(out XNA.Rectangle faceRect)
 		{
-			if (charRef.State != CharacterActionState.Emote ||
+			if (_data.emoteFrame < 0 ||
 			    _data.emote == Emote.Trade || _data.emote == Emote.LevelUp)
 			{
 				faceRect = new XNA.Rectangle();
@@ -650,7 +650,7 @@ namespace EndlessClient
 		public Texture2D GetEmote(out XNA.Rectangle emoteRect)
 		{
 			emoteRect = new XNA.Rectangle();
-			if (charRef.State != CharacterActionState.Emote)
+			if (_data.emoteFrame < 0)
 				return null;
 
 			const int NUM_EMOTES = 15;
