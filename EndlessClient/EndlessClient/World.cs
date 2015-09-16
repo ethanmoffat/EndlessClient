@@ -347,7 +347,7 @@ namespace EndlessClient
 		/*** Functions for loading/checking the different pub/map files ***/
 
 		//tries to load the map that MainPlayer.ActiveCharacter is hanging out on
-		private bool _tryLoadMap(int mapID = -1)
+		private bool _tryLoadMap(int mapID, bool forceReload)
 		{
 			try
 			{
@@ -358,7 +358,7 @@ namespace EndlessClient
 
 				if(!MapCache.ContainsKey(mapID))
 					MapCache.Add(mapID, new MapFile(mapFile));
-				else
+				else if(forceReload)
 					MapCache[mapID] = new MapFile(mapFile);
 
 				//map renderer construction moved to be more closely coupled to loading of the map
@@ -450,7 +450,7 @@ namespace EndlessClient
 
 			//try to load the map if it isn't cached. on failure, set needmap
 			if (!MapCache.ContainsKey(mapID))
-				NeedMap = _tryLoadMap(mapID) ? -1 : mapID;
+				NeedMap = _tryLoadMap(mapID, true) ? -1 : mapID;
 
 			//on success of file load, check the rid and the size of the file
 			if (MapCache.ContainsKey(mapID))
@@ -507,7 +507,7 @@ namespace EndlessClient
 
 		public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<MapItem> items)
 		{
-			if (!_tryLoadMap(mapID))
+			if (!_tryLoadMap(mapID, false))
 			{
 				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 				return;
@@ -662,7 +662,7 @@ namespace EndlessClient
 		public void Remap()
 		{
 			MapCache.Remove(MainPlayer.ActiveCharacter.CurrentMap);
-			if (!_tryLoadMap())
+			if (!_tryLoadMap(-1, true))
 			{
 				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 				return;
