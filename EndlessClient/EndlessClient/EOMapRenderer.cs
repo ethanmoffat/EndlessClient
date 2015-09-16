@@ -1991,7 +1991,10 @@ namespace EndlessClient
 				sb.Dispose();
 				_doorTimer.Dispose();
 
-				m_contextMenu.Dispose();
+				if (m_contextMenu != null)
+					m_contextMenu.Dispose();
+
+				m_miniMapRenderer.Dispose();
 
 				base.Dispose(true);
 				_disposed = true;

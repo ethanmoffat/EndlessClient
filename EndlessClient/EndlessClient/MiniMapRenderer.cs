@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient
 {
-	public class MiniMapRenderer
+	public class MiniMapRenderer : IDisposable
 	{
 		/// <summary>
 		/// Indices of the mini map gfx in their single texture (for source rectangle offset)
@@ -29,13 +29,13 @@ namespace EndlessClient
 
 		public bool Visible { get; set; }
 
-		private readonly SpriteBatch _spriteBatch;
+		private SpriteBatch _spriteBatch;
 		private readonly EOMapRenderer _parentRenderer;
 
-		public MiniMapRenderer(MapFile mapRef, SpriteBatch spriteBatch, EOMapRenderer parentRenderer)
+		public MiniMapRenderer(EOMapRenderer parentRenderer)
 		{
-			Map = mapRef;
-			_spriteBatch = spriteBatch;
+			Map = parentRenderer.MapRef;
+			_spriteBatch = new SpriteBatch(EOGame.Instance.GraphicsDevice);
 			_parentRenderer = parentRenderer;
 		}
 
@@ -153,6 +153,27 @@ namespace EndlessClient
 		private Vector2 _getMiniMapDrawCoordinates(int x, int y, Character c)
 		{
 			return new Vector2((x * 13) - (y * 13) + 288 - (c.X * 13 - c.Y * 13), (y * 7) + (x * 7) + 144 - (c.Y * 7 + c.X * 7));
+		}
+
+		~MiniMapRenderer()
+		{
+			Dispose(false);
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (_spriteBatch != null)
+					_spriteBatch.Dispose();
+				_spriteBatch = null;
+			}
 		}
 	}
 }
