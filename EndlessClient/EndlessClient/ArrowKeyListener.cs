@@ -91,8 +91,12 @@ namespace EndlessClient
 
 		private void _checkSpecAndWalkIfValid(byte destX, byte destY, EODirection direction)
 		{
-			TileInfo info = World.Instance.ActiveMapRenderer.GetTileInfo(destX, destY);
-			var tileAtDest = World.Instance.ActiveMapRenderer.MapRef.TileLookup[destY, destX];
+			var mapRend = World.Instance.ActiveMapRenderer;
+			TileInfo info = mapRend.GetTileInfo(destX, destY);
+
+			Tile tileAtDest = null;
+			if (destY <= mapRend.MapRef.Height && destX <= mapRend.MapRef.Width)
+				tileAtDest = mapRend.MapRef.TileLookup[destY, destX];
 			var specAtDest = tileAtDest != null ? tileAtDest.spec : TileSpec.None;
 
 			switch (info.ReturnType)
@@ -121,7 +125,7 @@ namespace EndlessClient
 						if (!info.Warp.doorOpened && !info.Warp.backOff)
 						{
 							if ((doorOpened = Character.CanOpenDoor(info.Warp)) == DoorSpec.Door)
-								World.Instance.ActiveMapRenderer.StartOpenDoor(info.Warp, destX, destY);
+								mapRend.StartOpenDoor(info.Warp, destX, destY);
 						}
 						else
 						{
