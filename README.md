@@ -39,10 +39,12 @@ These instructions have been tested in a Virtual Machine running Windows 7 Profe
 1. Install Windows and run windows update cyclically until there are no more
 2. Install Visual Studio 2013 ([the **free** Community Edition also works](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) if you don't have a licensed full version)
 3. Install the [XNA 4.0 Refresh](https://mxa.codeplex.com/releases/view/117230) visual studio extension and its dependencies. These are all included in the linked .zip file (four prereqs + the extension itself also, [take a look at this](https://bitbucket.org/rbwhitaker/xna-beyond-vs-2010/src/))
+ 1. Follow the [instructions here](https://stackoverflow.com/questions/28008970/how-to-install-xna-in-visual-studio-2015-preview/28009075) to get the VSIX installed on Visual Studio 2015
 4. Optionally: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/) (student licenses are **free**!)
 5. Install your favorite git client and fork the latest changes (I highly recommend [Atlassian SourceTree](http://www.sourcetreeapp.com/))
-6. Build the solution in VS 2013. Copy the required files to the bin\x86\debug\ or bin\x86\release\ folder (see below)
-7. (untested) I recently added support for async/await - this requires use of the Microsoft.BCL.Async package from NuGet. You may or may not need to follow these steps. Steps to install as follows:
+6. If you would like to build the mono project, download and install the [MonoGame framework](http://www.monogame.net/downloads/)
+7. Build the solution in VS 2013. Copy the required files to the bin\x86\debug\ or bin\x86\release\ folder (see below)
+8. I recently added support for async/await - this requires use of the Microsoft.BCL.Async package from NuGet. You may or may not need to follow these steps; Visual Studio should automatically pull the required packages for you. Steps to install as follows:
  1. Open EndlessClient.sln in Visual Studio and set EndlessClient as the active/startup project.
  2. Go to Tools->NuGet Package Manager->Package Manager Console
  3. In the Package Manager Console, type Install-Package Microsoft.Bcl.Async
