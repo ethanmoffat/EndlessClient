@@ -52,8 +52,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArgumentsParser.cs" />
+    <Compile Include="BotBase.cs" />
+    <Compile Include="BotFramework.cs" />
+    <Compile Include="IBot.cs" />
+    <Compile Include="NamesList.cs" />
+    <Compile Include="PartyBot.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Win32.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
