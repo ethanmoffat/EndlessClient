@@ -98,7 +98,8 @@ namespace EOBot
 			if (disposing)
 			{
 				Terminate();
-				_workerThread.Join();
+				if (_workerThread != null)
+					_workerThread.Join();
 
 				if (_terminationEvent != null)
 				{

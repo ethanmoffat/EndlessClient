@@ -8,7 +8,7 @@ namespace EOBot
 		event Action WorkCompleted;
 
 		void Initialize();
-		void Run(bool waitForCompletion);
+		void Run(bool waitForTermination);
 		void Terminate();
 	}
 }

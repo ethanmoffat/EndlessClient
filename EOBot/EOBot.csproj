@@ -54,8 +54,11 @@
   <ItemGroup>
     <Compile Include="ArgumentsParser.cs" />
     <Compile Include="BotBase.cs" />
+    <Compile Include="BotConsoleOutputHandler.cs" />
+    <Compile Include="BotException.cs" />
     <Compile Include="BotFramework.cs" />
     <Compile Include="IBot.cs" />
+    <Compile Include="IBotFrameworkOutputHandler.cs" />
     <Compile Include="NamesList.cs" />
     <Compile Include="PartyBot.cs" />
     <Compile Include="Program.cs" />

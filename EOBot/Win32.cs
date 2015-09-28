@@ -9,11 +9,11 @@ namespace EOBot
 
 		public enum CtrlTypes : uint
 		{
-			CTRL_C_EVENT = 0,
-			CTRL_BREAK_EVENT,
-			CTRL_CLOSE_EVENT,
-			CTRL_LOGOFF_EVENT = 5,
-			CTRL_SHUTDOWN_EVENT
+			Ctrl_C = 0,
+			Ctrl_Break,
+			Close_Console,
+			Logoff = 5,
+			Shutdown
 		}
 
 		[DllImport("kernel32.dll")]
