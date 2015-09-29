@@ -11,40 +11,10 @@ namespace EOBot
 	/// </summary>
 	class PartyBot : BotBase
 	{
-		private readonly string _host;
-		private readonly int _port;
-		private readonly int _index;
+		private Timer _speechTimer;
 
-		private EOClient _client;
-		private PacketAPI _api;
-
-		public PartyBot(int index, string host, int port)
-		{
-			_host = host;
-			_port = port;
-			_index = index + 1;
-		}
-
-		public override void Initialize()
-		{
-			base.Initialize();
-
-			_client = new EOClient();
-			if (!_client.ConnectToServer(_host, _port))
-				throw new ArgumentException(string.Format("Bot {2}: Unable to connect to server! Host={0} Port={1}", _host, _port, _index));
-			_api = new PacketAPI(_client);
-
-			InitData data;
-			if (!_api.Initialize(0, 0, 28, EOLib.Win32.GetHDDSerial(), out data))
-				throw new TimeoutException(string.Format("Bot {0}: Failed initialization handshake with server!", _index));
-			_client.SetInitData(data);
-
-			if (!_api.ConfirmInit(data.emulti_e, data.emulti_d, data.clientID))
-				throw new TimeoutException(string.Format("Bot {0}: Failed initialization handshake with server!", _index));
-
-			if (!_api.Initialized || !_client.ConnectedAndInitialized || data.ServerResponse != InitReply.INIT_OK)
-				throw new InvalidOperationException(string.Format("Bot {0}: Invalid response from server or connection failed! Must receive an OK reply.", _index));
-		}
+		public PartyBot(int botIndex, string host, int port)
+			: base(botIndex + 1, host, port) { }
 
 		protected override void DoWork(CancellationToken ct)
 		{
@@ -156,28 +126,24 @@ namespace EOBot
 				PartyRequest(_api, charlist[testuserNdx].ID);
 			}
 
-			Timer speechTimer = new Timer(state => _api.Speak(TalkType.Local, name + " standing by!"), null, rand.Next(15000, 30000), rand.Next(15000, 30000));
-			speechTimer.Dispose();
+			_speechTimer = new Timer(state => _api.Speak(TalkType.Local, name + " standing by!"), null, rand.Next(15000, 30000), rand.Next(15000, 30000));
 		}
 
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing)
-			{
-				if (_client != null)
-				{
-					_client.Dispose();
-					_client = null;
-				}
-				if (_api != null)
-				{
-					_api.Dispose();
-					_api = null;
-				}
+			{ //note: partybot will dispose of the event after the first one is disposed so it better not be used after that!
+				//yes, this implementation sucks.
 				if (s_partyEvent != null)
 				{
 					s_partyEvent.Dispose();
 					s_partyEvent = null;
+				}
+
+				if (_speechTimer != null)
+				{
+					_speechTimer.Dispose();
+					_speechTimer = null;
 				}
 			}
 
@@ -194,6 +160,7 @@ namespace EOBot
 
 			Console.WriteLine("Error - {0}. Quitting {1}.", msg, _index);
 		}
+
 
 		private static AutoResetEvent s_partyEvent = new AutoResetEvent(true);
 		private static void PartyRequest(PacketAPI api, short id)

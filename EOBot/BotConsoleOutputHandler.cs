@@ -16,7 +16,7 @@ namespace EOBot
 
 		public void OutputAllBotsAreRunning(bool waitingForTermination)
 		{
-			Console.WriteLine("Bot framework run has started. {0}",
+			Console.WriteLine("\nBot framework run has started. {0}\n",
 				waitingForTermination ? "Waiting for CTRL+C" : "Application will terminate when all bots finish running.");
 		}
 

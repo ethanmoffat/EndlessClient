@@ -37,14 +37,14 @@ namespace EOBot
 			}
 			catch (Exception ex)
 			{
-				Console.WriteLine("Unhandled error: {0}", ex.Message);
+				Console.WriteLine("\nUnhandled error: {0}", ex.Message);
 			}
 		}
 
 		static bool HandleCtrl(Win32.CtrlTypes type)
 		{
 			var name = Enum.GetName(type.GetType(), type);
-			Console.WriteLine("Exiting due to {0} event from system!", name);
+			Console.WriteLine("\nExiting due to {0} event from system!\n", name);
 
 			if (f != null)
 				f.TerminateBots();
