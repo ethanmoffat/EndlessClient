@@ -62,8 +62,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Class.cs" />
     <Compile Include="Crc.cs" />
+    <Compile Include="Data\ClassRecordFactory.cs" />
+    <Compile Include="Data\EDFFile.cs" />
     <Compile Include="Data\EOData.cs" />
+    <Compile Include="Data\IDataRecordFactory.cs" />
+    <Compile Include="Data\Item.cs" />
+    <Compile Include="Data\ItemRecordFactory.cs" />
+    <Compile Include="Data\NPC.cs" />
+    <Compile Include="Data\NPCRecordFactory.cs" />
+    <Compile Include="Data\Spell.cs" />
+    <Compile Include="Data\SpellRecordFactory.cs" />
     <Compile Include="Net\Effect.cs" />
     <Compile Include="Net\Music.cs" />
     <Compile Include="Net\Quest.cs" />

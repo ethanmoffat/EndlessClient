@@ -46,8 +46,38 @@
     <Compile Include="..\EOLib\DataFileConstants.cs">
       <Link>DataFileConstants.cs</Link>
     </Compile>
-    <Compile Include="..\EOLib\EOData.cs">
-      <Link>EOData.cs</Link>
+    <Compile Include="..\EOLib\Data\Class.cs">
+      <Link>Data\Class.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\ClassRecordFactory.cs">
+      <Link>Data\ClassRecordFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\EDFFile.cs">
+      <Link>Data\EDFFile.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\EOData.cs">
+      <Link>Data\EOData.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\IDataRecordFactory.cs">
+      <Link>Data\IDataRecordFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\Item.cs">
+      <Link>Data\Item.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\ItemRecordFactory.cs">
+      <Link>Data\ItemRecordFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\NPC.cs">
+      <Link>Data\NPC.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\NPCRecordFactory.cs">
+      <Link>Data\NPCRecordFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\Spell.cs">
+      <Link>Data\Spell.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\SpellRecordFactory.cs">
+      <Link>Data\SpellRecordFactory.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\Map.cs">
       <Link>Map.cs</Link>
