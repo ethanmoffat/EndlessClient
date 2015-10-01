@@ -67,6 +67,9 @@
     <Compile Include="..\EOLib\Data\ItemRecordFactory.cs">
       <Link>Data\ItemRecordFactory.cs</Link>
     </Compile>
+    <Compile Include="..\EOLib\Data\Map.cs">
+      <Link>Data\Map.cs</Link>
+    </Compile>
     <Compile Include="..\EOLib\Data\NPC.cs">
       <Link>Data\NPC.cs</Link>
     </Compile>
@@ -78,9 +81,6 @@
     </Compile>
     <Compile Include="..\EOLib\Data\SpellRecordFactory.cs">
       <Link>Data\SpellRecordFactory.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Map.cs">
-      <Link>Map.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\misc.cs">
       <Link>misc.cs</Link>

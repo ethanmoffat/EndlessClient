@@ -6,7 +6,7 @@ using EOLib.Net;
 using Microsoft.Xna.Framework.Graphics;
 using XNA = Microsoft.Xna.Framework;
 
-using EOLib;
+using EOLib.Data;
 
 namespace EndlessClient
 {

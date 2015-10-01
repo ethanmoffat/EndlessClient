@@ -1,4 +1,5 @@
 ﻿using System;
+using EOLib.Data;
 
 namespace EOLib.Net
 {

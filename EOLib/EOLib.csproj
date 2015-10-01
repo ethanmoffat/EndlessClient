@@ -70,6 +70,7 @@
     <Compile Include="Data\IDataRecordFactory.cs" />
     <Compile Include="Data\Item.cs" />
     <Compile Include="Data\ItemRecordFactory.cs" />
+    <Compile Include="Data\Map.cs" />
     <Compile Include="Data\NPC.cs" />
     <Compile Include="Data\NPCRecordFactory.cs" />
     <Compile Include="Data\Spell.cs" />
@@ -80,7 +81,6 @@
     <Compile Include="Net\Spell.cs" />
     <Compile Include="TaskWrapper.cs" />
     <Compile Include="DataFileConstants.cs" />
-    <Compile Include="Map.cs" />
     <Compile Include="misc.cs" />
     <Compile Include="Net\Account.cs" />
     <Compile Include="Net\AdminInteract.cs" />
