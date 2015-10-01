@@ -74,20 +74,20 @@ namespace EOLib.Data
 		{
 			if (version != 0)
 				throw new FileLoadException("Unable to Load file with invalid version: " + version);
-			Icon = (short)Packet.DecodeNumber(rawData.SubArray(0, 2));
-			Graphic = (short)Packet.DecodeNumber(rawData.SubArray(2, 2));
-			TP = (short)Packet.DecodeNumber(rawData.SubArray(4, 2));
-			SP = (short)Packet.DecodeNumber(rawData.SubArray(6, 2));
-			CastTime = (byte)Packet.DecodeNumber(new[] { rawData[8] });
+			Icon = (short) Packet.DecodeNumber(rawData[0], rawData[1]);
+			Graphic = (short) Packet.DecodeNumber(rawData[2], rawData[3]);
+			TP = (short) Packet.DecodeNumber(rawData[4], rawData[5]);
+			SP = (short) Packet.DecodeNumber(rawData[6], rawData[7]);
+			CastTime = (byte) Packet.DecodeNumber(rawData[8]);
 
-			Type = (SpellType)Packet.DecodeNumber(new[] { rawData[11] });
-			TargetRestrict = (SpellTargetRestrict)Packet.DecodeNumber(new[] { rawData[17] });
-			Target = (SpellTarget)Packet.DecodeNumber(new[] { rawData[18] });
+			Type = (SpellType) Packet.DecodeNumber(rawData[11]);
+			TargetRestrict = (SpellTargetRestrict) Packet.DecodeNumber(rawData[17]);
+			Target = (SpellTarget) Packet.DecodeNumber(rawData[18]);
 
-			MinDam = (short)Packet.DecodeNumber(rawData.SubArray(23, 2));
-			MaxDam = (short)Packet.DecodeNumber(rawData.SubArray(25, 2));
-			Accuracy = (short)Packet.DecodeNumber(rawData.SubArray(27, 2));
-			HP = (short)Packet.DecodeNumber(rawData.SubArray(34, 2));
+			MinDam = (short) Packet.DecodeNumber(rawData[23], rawData[24]);
+			MaxDam = (short) Packet.DecodeNumber(rawData[25], rawData[26]);
+			Accuracy = (short) Packet.DecodeNumber(rawData[27], rawData[28]);
+			HP = (short) Packet.DecodeNumber(rawData[34], rawData[35]);
 		}
 
 		public byte[] SerializeToByteArray()

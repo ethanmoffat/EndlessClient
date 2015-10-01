@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using System.IO;
 
 namespace EOLib.Data
 {
@@ -65,7 +65,7 @@ namespace EOLib.Data
 				//indices are 1-based
 				Data = new List<IDataRecord>(Len) {_factory.CreateRecord(0)};
 
-				Version = Packet.DecodeNumber(new[] {(byte) sr.ReadByte()}); //this was originally seeked over
+				Version = Packet.DecodeNumber((byte) sr.ReadByte()); //this was originally seeked over
 
 				byte[] rawData = new byte[GetDataSize()];
 
@@ -76,7 +76,7 @@ namespace EOLib.Data
 					var nameLengths = new List<int>(2);
 					for (int j = 0; j < record.NameCount; ++j)
 					{
-						var nameSize = Packet.DecodeNumber(new[] {(byte) sr.ReadByte()});
+						var nameSize = Packet.DecodeNumber((byte) sr.ReadByte());
 						nameLengths.Add(nameSize);
 					}
 

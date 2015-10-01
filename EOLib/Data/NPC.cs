@@ -72,18 +72,18 @@ namespace EOLib.Data
 			if (version != 0)
 				throw new FileLoadException("Unable to Load file with invalid version: " + version);
 
-			Graphic = Packet.DecodeNumber(rawData.SubArray(0, 2));
-			Boss = (short) Packet.DecodeNumber(rawData.SubArray(3, 2));
-			Child = (short) Packet.DecodeNumber(rawData.SubArray(5, 2));
-			Type = (NPCType) Packet.DecodeNumber(rawData.SubArray(7, 2));
-			VendorID = (short) Packet.DecodeNumber(rawData.SubArray(9, 2));
-			HP = Packet.DecodeNumber(rawData.SubArray(11, 3));
-			MinDam = (short) Packet.DecodeNumber(rawData.SubArray(16, 2));
-			MaxDam = (short) Packet.DecodeNumber(rawData.SubArray(18, 2));
-			Accuracy = (short) Packet.DecodeNumber(rawData.SubArray(20, 2));
-			Evade = (short) Packet.DecodeNumber(rawData.SubArray(22, 2));
-			Armor = (short) Packet.DecodeNumber(rawData.SubArray(24, 2));
-			Exp = (ushort) Packet.DecodeNumber(rawData.SubArray(36, 2));
+			Graphic = Packet.DecodeNumber(rawData[0], rawData[1]);
+			Boss = (short) Packet.DecodeNumber(rawData[3], rawData[4]);
+			Child = (short) Packet.DecodeNumber(rawData[5], rawData[6]);
+			Type = (NPCType) Packet.DecodeNumber(rawData[7], rawData[8]);
+			VendorID = (short) Packet.DecodeNumber(rawData[9], rawData[10]);
+			HP = Packet.DecodeNumber(rawData[11], rawData[12], rawData[13]);
+			MinDam = (short) Packet.DecodeNumber(rawData[16], rawData[17]);
+			MaxDam = (short) Packet.DecodeNumber(rawData[18], rawData[19]);
+			Accuracy = (short) Packet.DecodeNumber(rawData[20], rawData[21]);
+			Evade = (short) Packet.DecodeNumber(rawData[22], rawData[23]);
+			Armor = (short) Packet.DecodeNumber(rawData[24], rawData[25]);
+			Exp = (ushort) Packet.DecodeNumber(rawData[36], rawData[37]);
 		}
 
 		public byte[] SerializeToByteArray()

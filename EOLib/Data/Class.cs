@@ -43,14 +43,14 @@ namespace EOLib.Data
 			if (version != 0)
 				throw new FileLoadException("Unable to Load file with invalid version: " + version);
 
-			Base = (byte) Packet.DecodeNumber(new[] {rawData[0]});
-			Type = (byte) Packet.DecodeNumber(new[] {rawData[1]});
-			Str = (short) Packet.DecodeNumber(rawData.SubArray(2, 2));
-			Int = (short) Packet.DecodeNumber(rawData.SubArray(4, 2));
-			Wis = (short) Packet.DecodeNumber(rawData.SubArray(6, 2));
-			Agi = (short) Packet.DecodeNumber(rawData.SubArray(8, 2));
-			Con = (short) Packet.DecodeNumber(rawData.SubArray(10, 2));
-			Cha = (short) Packet.DecodeNumber(rawData.SubArray(12, 2));
+			Base = (byte) Packet.DecodeNumber(rawData[0]);
+			Type = (byte) Packet.DecodeNumber(rawData[1]);
+			Str = (short) Packet.DecodeNumber(rawData[2], rawData[3]);
+			Int = (short) Packet.DecodeNumber(rawData[4], rawData[5]);
+			Wis = (short) Packet.DecodeNumber(rawData[6], rawData[7]);
+			Agi = (short) Packet.DecodeNumber(rawData[8], rawData[9]);
+			Con = (short) Packet.DecodeNumber(rawData[10], rawData[11]);
+			Cha = (short) Packet.DecodeNumber(rawData[12], rawData[13]);
 		}
 
 		public byte[] SerializeToByteArray()

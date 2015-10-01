@@ -86,7 +86,7 @@ namespace EOLib.Data
 		Size2x1,
 		Size2x2,
 		Size2x3,
-		Size2x4,
+		Size2x4
 	}
 
 	#endregion
@@ -186,49 +186,49 @@ namespace EOLib.Data
 
 			if (version == 0 || version == 1)
 			{
-				Graphic = (short)Packet.DecodeNumber(rawData.SubArray(0, 2));
-				Type = (ItemType)Packet.DecodeNumber(rawData.SubArray(2, 1));
-				SubType = (ItemSubType)Packet.DecodeNumber(rawData.SubArray(3, 1));
+				Graphic = (short) Packet.DecodeNumber(rawData[0], rawData[1]);
+				Type = (ItemType) Packet.DecodeNumber(rawData[2]);
+				SubType = (ItemSubType) Packet.DecodeNumber(rawData[3]);
 
-				Special = (ItemSpecial)Packet.DecodeNumber(rawData.SubArray(4, 1));
-				HP = (short)Packet.DecodeNumber(rawData.SubArray(5, 2));
-				TP = (short)Packet.DecodeNumber(rawData.SubArray(7, 2));
-				MinDam = (short)Packet.DecodeNumber(rawData.SubArray(9, 2));
-				MaxDam = (short)Packet.DecodeNumber(rawData.SubArray(11, 2));
-				Accuracy = (short)Packet.DecodeNumber(rawData.SubArray(13, 2));
-				Evade = (short)Packet.DecodeNumber(rawData.SubArray(15, 2));
-				Armor = (short)Packet.DecodeNumber(rawData.SubArray(17, 2));
+				Special = (ItemSpecial) Packet.DecodeNumber(rawData[4]);
+				HP = (short) Packet.DecodeNumber(rawData[5], rawData[6]);
+				TP = (short) Packet.DecodeNumber(rawData[7], rawData[8]);
+				MinDam = (short) Packet.DecodeNumber(rawData[9], rawData[10]);
+				MaxDam = (short) Packet.DecodeNumber(rawData[11], rawData[12]);
+				Accuracy = (short) Packet.DecodeNumber(rawData[13], rawData[14]);
+				Evade = (short) Packet.DecodeNumber(rawData[15], rawData[16]);
+				Armor = (short) Packet.DecodeNumber(rawData[17], rawData[18]);
 
-				Str = (byte)Packet.DecodeNumber(rawData.SubArray(20, 1));
-				Int = (byte)Packet.DecodeNumber(rawData.SubArray(21, 1));
-				Wis = (byte)Packet.DecodeNumber(rawData.SubArray(22, 1));
-				Agi = (byte)Packet.DecodeNumber(rawData.SubArray(23, 1));
-				Con = (byte)Packet.DecodeNumber(rawData.SubArray(24, 1));
-				Cha = (byte)Packet.DecodeNumber(rawData.SubArray(25, 1));
+				Str = (byte) Packet.DecodeNumber(rawData[20]);
+				Int = (byte) Packet.DecodeNumber(rawData[21]);
+				Wis = (byte) Packet.DecodeNumber(rawData[22]);
+				Agi = (byte) Packet.DecodeNumber(rawData[23]);
+				Con = (byte) Packet.DecodeNumber(rawData[24]);
+				Cha = (byte) Packet.DecodeNumber(rawData[25]);
 
-				Light = (byte)Packet.DecodeNumber(rawData.SubArray(26, 1));
-				Dark = (byte)Packet.DecodeNumber(rawData.SubArray(27, 1));
-				Earth = (byte)Packet.DecodeNumber(rawData.SubArray(28, 1));
-				Air = (byte)Packet.DecodeNumber(rawData.SubArray(29, 1));
-				Water = (byte)Packet.DecodeNumber(rawData.SubArray(30, 1));
-				Fire = (byte)Packet.DecodeNumber(rawData.SubArray(31, 1));
+				Light = (byte) Packet.DecodeNumber(rawData[26]);
+				Dark = (byte) Packet.DecodeNumber(rawData[27]);
+				Earth = (byte) Packet.DecodeNumber(rawData[28]);
+				Air = (byte) Packet.DecodeNumber(rawData[29]);
+				Water = (byte) Packet.DecodeNumber(rawData[30]);
+				Fire = (byte) Packet.DecodeNumber(rawData[31]);
 
-				ScrollMap = Packet.DecodeNumber(rawData.SubArray(32, 3));
-				ScrollX = (byte)Packet.DecodeNumber(rawData.SubArray(35, 1));
-				ScrollY = (byte)Packet.DecodeNumber(rawData.SubArray(36, 1));
+				ScrollMap = Packet.DecodeNumber(rawData[32], rawData[33], rawData[34]);
+				ScrollX = (byte) Packet.DecodeNumber(rawData[35]);
+				ScrollY = (byte) Packet.DecodeNumber(rawData[36]);
 
-				LevelReq = (short)Packet.DecodeNumber(rawData.SubArray(37, 2));
-				ClassReq = (short)Packet.DecodeNumber(rawData.SubArray(39, 2));
+				LevelReq = (short) Packet.DecodeNumber(rawData[37], rawData[38]);
+				ClassReq = (short) Packet.DecodeNumber(rawData[39], rawData[40]);
 
-				StrReq = (short)Packet.DecodeNumber(rawData.SubArray(41, 2));
-				IntReq = (short)Packet.DecodeNumber(rawData.SubArray(43, 2));
-				WisReq = (short)Packet.DecodeNumber(rawData.SubArray(45, 2));
-				AgiReq = (short)Packet.DecodeNumber(rawData.SubArray(47, 2));
-				ConReq = (short)Packet.DecodeNumber(rawData.SubArray(49, 2));
-				ChaReq = (short)Packet.DecodeNumber(rawData.SubArray(51, 2));
+				StrReq = (short) Packet.DecodeNumber(rawData[41], rawData[42]);
+				IntReq = (short) Packet.DecodeNumber(rawData[43], rawData[44]);
+				WisReq = (short) Packet.DecodeNumber(rawData[45], rawData[46]);
+				AgiReq = (short) Packet.DecodeNumber(rawData[47], rawData[48]);
+				ConReq = (short) Packet.DecodeNumber(rawData[49], rawData[50]);
+				ChaReq = (short) Packet.DecodeNumber(rawData[51], rawData[52]);
 
-				Weight = (byte)Packet.DecodeNumber(rawData.SubArray(55, 1));
-				Size = (ItemSize)Packet.DecodeNumber(rawData.SubArray(57, 1));
+				Weight = (byte) Packet.DecodeNumber(rawData[55]);
+				Size = (ItemSize) Packet.DecodeNumber(rawData[57]);
 
 				if (ID == 365 && Name == "Gun")
 					SubType = ItemSubType.Ranged;
