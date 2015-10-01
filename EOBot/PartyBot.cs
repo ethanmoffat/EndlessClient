@@ -11,122 +11,55 @@ namespace EOBot
 	/// </summary>
 	class PartyBot : BotBase
 	{
-		private Timer _speechTimer;
+		private readonly string _name;
+		private readonly Random _rand;
+		private readonly Timer _speechTimer;
 
-		public PartyBot(int botIndex, string host, int port)
-			: base(botIndex + 1, host, port) { }
+		public PartyBot(int botIndex, string host, int port, string name)
+			: base(botIndex, host, port)
+		{
+			_name = name;
+
+			_rand = new Random();
+			_speechTimer = new Timer(SpeakYourMind, null, _rand.Next(15000, 30000), _rand.Next(15000, 30000));
+		}
 
 		protected override void DoWork(CancellationToken ct)
 		{
-			string name = NamesList.Get(_index - 1);
-
-			//create account if needed
-			AccountReply accReply;
-			bool res = _api.AccountCheckName(name, out accReply);
-			if (res && accReply != AccountReply.Exists)
-			{
-				if (ct.IsCancellationRequested)
-					return;
-				Thread.Sleep(500);
-
-				if (_api.AccountCreate(name, name, name + " " + name, "COMPY-" + name, name + "@BOT.COM", EOLib.Win32.GetHDDSerial(), out accReply))
-				{
-					Console.WriteLine("Created account {0}", name);
-				}
-				else
-				{
-					_errorMessage();
-					return;
-				}
-			}
-			else if (!res)
-			{
-				_errorMessage();
-				return;
-			}
-
-			if (ct.IsCancellationRequested) return;
-			Thread.Sleep(500);
-
-			//log in
-			LoginReply loginReply;
 			CharacterRenderData[] loginData;
-			res = _api.LoginRequest(name, name, out loginReply, out loginData);
-			if (!res)
-			{
-				_errorMessage();
-				return;
-			}
-			if (loginReply != LoginReply.Ok)
-			{
-				_errorMessage("Login reply was invalid");
-				return;
-			}
-
-			if (ct.IsCancellationRequested) return;
-			Thread.Sleep(500);
-
-			//create character if needed
-			if (loginData == null || loginData.Length == 0)
-			{
-				CharacterReply charReply;
-				res = _api.CharacterRequest(out charReply);
-
-				if (!res || charReply != CharacterReply.Ok)
-				{
-					_errorMessage("Character create request failed");
-					return;
-				}
-
-				Random gen = new Random();
-				res = _api.CharacterCreate((byte)gen.Next(1), (byte)gen.Next(0, 20), (byte)gen.Next(0, 9), (byte)gen.Next(0, 5), name, out charReply, out loginData);
-				if (!res || charReply != CharacterReply.Ok || loginData == null || loginData.Length == 0)
-				{
-					_errorMessage("Character create failed");
-					return;
-				}
-
-				Console.WriteLine("Created character {0}", name);
-
-				if (ct.IsCancellationRequested) return;
-				Thread.Sleep(500);
-			}
-
 			WelcomeRequestData welcomeReqData;
-			res = _api.SelectCharacter(loginData[0].ID, out welcomeReqData);
-			if (!res)
-			{
-				_errorMessage();
-				return;
-			}
+			WelcomeMessageData welcomeMsgData;
 
-			//should check file status for maps and pubs here
+			var h = new BotHelper(_api, Console.WriteLine, _errorMessage);
 
-			if (ct.IsCancellationRequested) return;
+			if (!h.CreateAccountIfNeeded(_name, _name) || ct.IsCancellationRequested) return;
 			Thread.Sleep(500);
 
-			WelcomeMessageData welcomeMsgData;
-			res = _api.WelcomeMessage(welcomeReqData.ActiveCharacterID, out welcomeMsgData);
-			if (!res)
-			{
-				_errorMessage();
-				return;
-			}
+			if (!h.LoginToAccount(_name, _name, out loginData) || ct.IsCancellationRequested) return;
+			Thread.Sleep(500);
 
-			Console.WriteLine("{0} logged in and executing.", name);
-			//should be logged in and good to go at this point
+			if (!h.CreateCharacterIfNeeded(_name, ref loginData) || ct.IsCancellationRequested) return;
 
-			Random rand = new Random();
+			if (!h.DoWelcomePacketsForFirstCharacter(loginData, out welcomeReqData, out welcomeMsgData) || ct.IsCancellationRequested) return;
+
+			Console.WriteLine("{0} logged in and executing.", _name);
 
 			var charlist = welcomeMsgData.CharacterData.ToList();
 			int testuserNdx = charlist.FindIndex(_data => _data.Name.ToLower() == "testuser");
 			if (testuserNdx >= 0)
 			{
-				//testing party stuff - large parties
 				PartyRequest(_api, charlist[testuserNdx].ID);
 			}
+		}
 
-			_speechTimer = new Timer(state => _api.Speak(TalkType.Local, name + " standing by!"), null, rand.Next(15000, 30000), rand.Next(15000, 30000));
+		private void SpeakYourMind(object state)
+		{
+			_api.Speak(TalkType.Local, _name + " standing by!");
+
+			if (_speechTimer != null)
+			{
+				_speechTimer.Change(_rand.Next(15000, 30000), _rand.Next(15000, 30000));
+			}
 		}
 
 		protected override void Dispose(bool disposing)
@@ -139,12 +72,8 @@ namespace EOBot
 					s_partyEvent.Dispose();
 					s_partyEvent = null;
 				}
-
-				if (_speechTimer != null)
-				{
-					_speechTimer.Dispose();
-					_speechTimer = null;
-				}
+				
+				_speechTimer.Dispose();
 			}
 
 			base.Dispose(disposing);
@@ -160,7 +89,6 @@ namespace EOBot
 
 			Console.WriteLine("Error - {0}. Quitting {1}.", msg, _index);
 		}
-
 
 		private static AutoResetEvent s_partyEvent = new AutoResetEvent(true);
 		private static void PartyRequest(PacketAPI api, short id)

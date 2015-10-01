@@ -44,7 +44,7 @@ namespace EOBot
 			_doneSignal = new Semaphore(simultaneousBots, simultaneousBots);
 		}
 
-		public void Initialize(int delayBetweenInitsMS = 1100)
+		public void Initialize(IBotFactory botFactory, int delayBetweenInitsMS = 1100)
 		{
 			if (_initialized)
 				throw new InvalidOperationException("Unable to initialize bot framework a second time.");
@@ -57,7 +57,7 @@ namespace EOBot
 
 				try
 				{
-					IBot bot = new PartyBot(i, _host, _port);
+					var bot = botFactory.CreateBot(i, _host, _port);
 					bot.WorkCompleted += () => _doneSignal.Release();
 					bot.Initialize();
 					_botsList.Add(bot);

@@ -24,7 +24,7 @@ namespace EOBot
 			{
 				using (f = new BotFramework(new BotConsoleOutputHandler(), parsedArgs))
 				{
-					f.Initialize(parsedArgs.InitDelay);
+					f.Initialize(new PartyBotFactory(), parsedArgs.InitDelay);
 					f.Run(parsedArgs.WaitForTermination);
 					f.WaitForBotsToComplete();
 				}
