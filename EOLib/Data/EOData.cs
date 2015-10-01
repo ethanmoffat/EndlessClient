@@ -41,7 +41,7 @@ namespace EOLib.Data
 
 		private readonly IDataRecordFactory _factory;
 
-		protected EODataFile(IDataRecordFactory factory)
+		internal EODataFile(IDataRecordFactory factory)
 		{
 			_factory = factory;
 		}

@@ -1,6 +1,6 @@
 ﻿namespace EOLib.Data
 {
-	class ItemRecordFactory : IDataRecordFactory
+	internal class ItemRecordFactory : IDataRecordFactory
 	{
 		public IDataRecord CreateRecord(int id)
 		{

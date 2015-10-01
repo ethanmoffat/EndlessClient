@@ -1,6 +1,6 @@
 ﻿namespace EOLib.Data
 {
-	public interface IDataRecordFactory
+	internal interface IDataRecordFactory
 	{
 		IDataRecord CreateRecord(int id);
 	}
