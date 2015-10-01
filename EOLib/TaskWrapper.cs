@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace EOLib
 {
 #if !MONO
-	public class TaskFramework
+	public static class TaskFramework
 	{
 		public static async Task Delay(int timeToDelay)
 		{
@@ -20,7 +20,7 @@ namespace EOLib
 #endif
 
 #if MONO
-	public class TaskFramework
+	public static class TaskFramework
 	{
 		public static async Task Delay(int timeToDelay)
 		{
