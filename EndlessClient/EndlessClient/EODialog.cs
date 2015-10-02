@@ -1346,7 +1346,7 @@ namespace EndlessClient
                 }, //home
 				new XNALabel(new Rectangle(228, 82, 1, 1), Constants.FontSize08pt5)
 				{
-					Text = ((ClassRecord)(World.Instance.ECF.Data.Find(_dat => ((ClassRecord)_dat).ID == CharRef.Class) ?? new ClassRecord())).Name
+					Text = ((ClassRecord)(World.Instance.ECF.Data.Find(_dat => ((ClassRecord)_dat).ID == CharRef.Class) ?? new ClassRecord(0))).Name
 				}, //class
 				new XNALabel(new Rectangle(228, 112, 1, 1), Constants.FontSize08pt5)
 				{
