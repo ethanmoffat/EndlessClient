@@ -115,7 +115,7 @@ namespace EndlessClient
 				tabLabel.ForeColor = _selected ? Color.White : Color.Black;
 			}
 		}
-		public ChatTabs WhichTab { get; }
+		public ChatTabs WhichTab { get; private set; }
 
 		private Rectangle? closeRect;
 		private readonly EOScrollBar scrollBar;
@@ -301,29 +301,29 @@ namespace EndlessClient
 				LineEnd = "",
 				LineIndent = whoPadding
 			};
-            
-		    if (!ts.NeedsProcessing)
-		    {
-		        lock (ChatStringsLock)
-		            chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), text);
-		    }
-		    else
-		    {
-		        List<string> chatStringsToAdd = ts.SplitIntoLines();
+			
+			if (!ts.NeedsProcessing)
+			{
+				lock (ChatStringsLock)
+					chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), text);
+			}
+			else
+			{
+				List<string> chatStringsToAdd = ts.SplitIntoLines();
 
-		        for (int i = 0; i < chatStringsToAdd.Count; ++i)
-		        {
-		            lock (ChatStringsLock)
-		            {
-		                if (i == 0)
-		                    chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), chatStringsToAdd[0]);
-		                else
-		                    chatStrings.Add(new ChatIndex(chatStrings.Count, ChatType.None, "", col), chatStringsToAdd[i]);
-		            }
-		        }
-		    }
+				for (int i = 0; i < chatStringsToAdd.Count; ++i)
+				{
+					lock (ChatStringsLock)
+					{
+						if (i == 0)
+							chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), chatStringsToAdd[0]);
+						else
+							chatStrings.Add(new ChatIndex(chatStrings.Count, ChatType.None, "", col), chatStringsToAdd[i]);
+					}
+				}
+			}
 
-		    scrollBar.UpdateDimensions(chatStrings.Count);
+			scrollBar.UpdateDimensions(chatStrings.Count);
 			if (chatStrings.Count > 7 && WhichTab != ChatTabs.None)
 			{
 				scrollBar.ScrollToEnd();
@@ -338,8 +338,8 @@ namespace EndlessClient
 		{
 			Visible = Selected = false;
 			tabLabel.Text = "";
-		    lock (ChatStringsLock)
-		        chatStrings.Clear();
+			lock (ChatStringsLock)
+				chatStrings.Clear();
 			((EOChatRenderer)parent).SetSelectedTab(ChatTabs.Local);
 		}
 
