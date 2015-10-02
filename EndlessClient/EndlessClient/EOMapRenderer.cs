@@ -2010,7 +2010,8 @@ namespace EndlessClient
 				if (m_contextMenu != null)
 					m_contextMenu.Dispose();
 
-				m_miniMapRenderer.Dispose();
+                if(m_miniMapRenderer != null)
+                    m_miniMapRenderer.Dispose();
 
 				base.Dispose(true);
 				_disposed = true;

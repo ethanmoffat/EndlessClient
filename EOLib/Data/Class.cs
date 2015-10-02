@@ -7,8 +7,9 @@ namespace EOLib.Data
 	public class ClassRecord : IDataRecord
 	{
 		public int ID { get; set; }
-		public string Name { get; set; }
-		public int NameCount { get; private set; }
+
+        public int NameCount { get { return 1; } }
+        public string Name { get; set; }
 
 		public byte Base { get; set; }
 		public byte Type { get; set; }
