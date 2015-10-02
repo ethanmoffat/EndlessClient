@@ -50,7 +50,7 @@ namespace BatchPub
 			cmbStepTwoField.Items.Clear();
 			cmbStepThreeField.Items.Clear();
 
-			Type eifType = (new ItemRecord()).GetType();
+			var eifType = typeof (ItemRecord);
 			foreach(System.Reflection.PropertyInfo prop in eifType.GetProperties())
 			{
 				cmbStepTwoField.Items.Add(new PropInfo(prop));
@@ -415,10 +415,10 @@ namespace BatchPub
 				{
 					MessageBox.Show("Saving using this tool will update the version of the EIF file.");
 
-					success = eif.Save(1, ref msg);
+					success = eif.Save(1, out msg);
 				}
 				else
-					success = eif.Save(eif.Version, ref msg);
+					success = eif.Save(eif.Version, out msg);
 
 				MessageBox.Show(success ? "Changes saved." : "Error saving changes to the file:\n" + msg);
 			}

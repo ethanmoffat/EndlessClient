@@ -1,0 +1,117 @@
+﻿using System;
+using System.Threading;
+using EOLib.Net;
+
+namespace EOBot
+{
+	delegate void DisplayMessageFunc(string message = "");
+
+	class BotHelper
+	{
+		private readonly PacketAPI _api;
+		private readonly DisplayMessageFunc _outputFunc;
+		private readonly DisplayMessageFunc _errorMessage;
+
+		public BotHelper(PacketAPI api, DisplayMessageFunc outputFunc, DisplayMessageFunc errorMessageFunc)
+		{
+			_api = api;
+			_outputFunc = outputFunc;
+			_errorMessage = errorMessageFunc;
+		}
+
+		public bool CreateAccountIfNeeded(string name, string password)
+		{
+			AccountReply accReply;
+			bool res = _api.AccountCheckName(name, out accReply);
+			if (res && accReply != AccountReply.Exists)
+			{
+				if (_api.AccountCreate(name, password, name + " " + name, "COMPY-" + name, name + "@BOT.COM",
+					EOLib.Win32.GetHDDSerial(), out accReply))
+				{
+					_outputFunc(string.Format("Created account {0}", name));
+				}
+				else
+				{
+					_errorMessage();
+					return false;
+				}
+			}
+			else if (!res)
+			{
+				_errorMessage();
+				return false;
+			}
+
+			return true;
+		}
+
+		public bool LoginToAccount(string name, string password, out CharacterRenderData[] loginData)
+		{
+			LoginReply loginReply;
+			var res = _api.LoginRequest(name, password, out loginReply, out loginData);
+			if (!res)
+			{
+				_errorMessage();
+				return false;
+			}
+			if (loginReply != LoginReply.Ok)
+			{
+				_errorMessage("Login reply was invalid");
+				return false;
+			}
+			return true;
+		}
+
+		public bool CreateCharacterIfNeeded(string name, ref CharacterRenderData[] loginData)
+		{
+			if (loginData == null || loginData.Length == 0)
+			{
+				CharacterReply charReply;
+				var res = _api.CharacterRequest(out charReply);
+
+				if (!res || charReply != CharacterReply.Ok)
+				{
+					_errorMessage("Character create request failed");
+					return false;
+				}
+
+				var rand = new Random();
+
+				res = _api.CharacterCreate((byte)rand.Next(1), (byte)rand.Next(0, 20), (byte)rand.Next(0, 9), (byte)rand.Next(0, 5),
+					name, out charReply, out loginData);
+				if (!res || charReply != CharacterReply.Ok || loginData == null || loginData.Length == 0)
+				{
+					_errorMessage("Character create failed");
+					return false;
+				}
+
+				_outputFunc(string.Format("Created character {0}", name));
+
+				Thread.Sleep(500);
+			}
+			return true;
+		}
+
+		public bool DoWelcomePacketsForFirstCharacter(CharacterRenderData[] loginData, out WelcomeRequestData welcomeReqData, out WelcomeMessageData welcomeMsgData)
+		{
+			welcomeMsgData = null;
+
+			var res = _api.SelectCharacter(loginData[0].ID, out welcomeReqData);
+			if (!res)
+			{
+				_errorMessage();
+				return false;
+			}
+
+			Thread.Sleep(500);
+
+			res = _api.WelcomeMessage(welcomeReqData.ActiveCharacterID, out welcomeMsgData);
+			if (!res)
+			{
+				_errorMessage();
+				return false;
+			}
+			return true;
+		}
+	}
+}

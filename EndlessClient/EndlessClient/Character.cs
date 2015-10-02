@@ -618,11 +618,11 @@ namespace EndlessClient
 
 		public void SetDisplayItemsFromRenderData(CharRenderData newRenderData)
 		{
-			EquipItem(ItemType.Boots,  (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Boots,  newRenderData.boots)  ?? new ItemRecord()).ID, newRenderData.boots,  true);
-			EquipItem(ItemType.Armor,  (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Armor,  newRenderData.armor)  ?? new ItemRecord()).ID, newRenderData.armor,  true);
-			EquipItem(ItemType.Hat,    (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Hat,    newRenderData.hat)    ?? new ItemRecord()).ID, newRenderData.hat,    true);
-			EquipItem(ItemType.Shield, (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Shield, newRenderData.shield) ?? new ItemRecord()).ID, newRenderData.shield, true);
-			EquipItem(ItemType.Weapon, (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Weapon, newRenderData.weapon) ?? new ItemRecord()).ID, newRenderData.weapon, true);
+			EquipItem(ItemType.Boots,  (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Boots,  newRenderData.boots)  ?? new ItemRecord(0)).ID, newRenderData.boots,  true);
+			EquipItem(ItemType.Armor,  (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Armor,  newRenderData.armor)  ?? new ItemRecord(0)).ID, newRenderData.armor,  true);
+			EquipItem(ItemType.Hat,    (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Hat,    newRenderData.hat)    ?? new ItemRecord(0)).ID, newRenderData.hat,    true);
+			EquipItem(ItemType.Shield, (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Shield, newRenderData.shield) ?? new ItemRecord(0)).ID, newRenderData.shield, true);
+			EquipItem(ItemType.Weapon, (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Weapon, newRenderData.weapon) ?? new ItemRecord(0)).ID, newRenderData.weapon, true);
 		}
 
 		public void GainExp(int amount)

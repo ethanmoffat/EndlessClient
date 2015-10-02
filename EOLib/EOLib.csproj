@@ -62,15 +62,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\Class.cs" />
     <Compile Include="Crc.cs" />
+    <Compile Include="Data\ClassRecordFactory.cs" />
+    <Compile Include="Data\EDFFile.cs" />
+    <Compile Include="Data\EOData.cs" />
+    <Compile Include="Data\IDataRecordFactory.cs" />
+    <Compile Include="Data\Item.cs" />
+    <Compile Include="Data\ItemRecordFactory.cs" />
+    <Compile Include="Data\Map.cs" />
+    <Compile Include="Data\NPC.cs" />
+    <Compile Include="Data\NPCRecordFactory.cs" />
+    <Compile Include="Data\Spell.cs" />
+    <Compile Include="Data\SpellRecordFactory.cs" />
     <Compile Include="Net\Effect.cs" />
     <Compile Include="Net\Music.cs" />
     <Compile Include="Net\Quest.cs" />
     <Compile Include="Net\Spell.cs" />
     <Compile Include="TaskWrapper.cs" />
     <Compile Include="DataFileConstants.cs" />
-    <Compile Include="EOData.cs" />
-    <Compile Include="Map.cs" />
     <Compile Include="misc.cs" />
     <Compile Include="Net\Account.cs" />
     <Compile Include="Net\AdminInteract.cs" />
@@ -112,6 +122,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets" Condition="Exists('..\packages\Microsoft.Bcl.Build.1.0.14\tools\Microsoft.Bcl.Build.targets')" />
   <Target Name="EnsureBclBuildImported" BeforeTargets="BeforeBuild" Condition="'$(BclBuildImported)' == ''">

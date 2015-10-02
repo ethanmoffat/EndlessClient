@@ -1,14 +1,23 @@
 ﻿using System;
 using System.Threading;
+using EOLib.Net;
 
 namespace EOBot
 {
 	internal abstract class BotBase : IBot
 	{
+		//base class implementation - should not be modified in derived classes
 		private Thread _workerThread;
 		private AutoResetEvent _terminationEvent;
 		private CancellationTokenSource _cancelTokenSource;
 		private bool _initialized;
+
+		//derived classes can modify this part
+		protected readonly int _index;
+		private readonly string _host;
+		private readonly int _port;
+		private EOClient _client;
+		protected PacketAPI _api;
 
 		//unneeded for now
 		///// <summary>
@@ -21,14 +30,35 @@ namespace EOBot
 		/// </summary>
 		public event Action WorkCompleted;
 
-		protected BotBase()
+		protected BotBase(int botIndex, string host, int port)
 		{
+			_index = botIndex;
+			_host = host;
+			_port = port;
+
 			_terminationEvent = new AutoResetEvent(false);
 			_cancelTokenSource = new CancellationTokenSource();
 		}
 
+		//all bots are going to want to do the init handshake with the server
 		public virtual void Initialize()
 		{
+			_client = new EOClient();
+			if (!_client.ConnectToServer(_host, _port))
+				throw new ArgumentException(string.Format("Bot {0}: Unable to connect to server! Host={1} Port={2}", _index, _host, _port));
+			_api = new PacketAPI(_client);
+
+			InitData data;
+			if (!_api.Initialize(0, 0, 28, EOLib.Win32.GetHDDSerial(), out data))
+				throw new TimeoutException(string.Format("Bot {0}: Failed initialization handshake with server!", _index));
+			_client.SetInitData(data);
+
+			if (!_api.ConfirmInit(data.emulti_e, data.emulti_d, data.clientID))
+				throw new TimeoutException(string.Format("Bot {0}: Failed initialization handshake with server!", _index));
+
+			if (!_api.Initialized || !_client.ConnectedAndInitialized || data.ServerResponse != InitReply.INIT_OK)
+				throw new InvalidOperationException(string.Format("Bot {0}: Invalid response from server or connection failed! Must receive an OK reply.", _index));
+
 			_initialized = true;
 		}
 
@@ -98,7 +128,21 @@ namespace EOBot
 			if (disposing)
 			{
 				Terminate();
-				_workerThread.Join();
+
+				if (_workerThread != null)
+					_workerThread.Join();
+
+				if (_client != null)
+				{
+					_client.Dispose();
+					_client = null;
+				}
+
+				if (_api != null)
+				{
+					_api.Dispose();
+					_api = null;
+				}
 
 				if (_terminationEvent != null)
 				{

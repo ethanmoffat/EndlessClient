@@ -1,17 +1,15 @@
 ﻿//****************************************************************************************************
 //* Credit for this file goes to DeathX/Exile Studios
 //* Source taken from https://www.assembla.com/code/eo-dev-sharp/subversion/nodes (see Data/EMF.cs)
-//* Refactored a little bit to meet some coding standards of mine
+//* Heavily refactored and improved from there
 //****************************************************************************************************
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text;
 
-using System.IO;
-
-namespace EOLib
+namespace EOLib.Data
 {
 	public enum EODirection : byte
 	{

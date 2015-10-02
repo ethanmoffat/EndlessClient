@@ -90,7 +90,7 @@ namespace EOLib
 			return numArray;
 		}
 
-		public static int DecodeNumber(byte[] b)
+		public static int DecodeNumber(params byte[] b)
 		{
 			for (int index = 0; index < b.Length; ++index)
 			{
