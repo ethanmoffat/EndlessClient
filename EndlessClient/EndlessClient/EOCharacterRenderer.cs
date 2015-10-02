@@ -239,7 +239,7 @@ namespace EndlessClient
 				{
 					ForeColor = Constants.BeigeText,
 					Text = ((char) (data.name[0] - 32)) + data.name.Substring(1),
-					TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
+					TextAlign = LabelAlignment.MiddleCenter,
 					AutoSize = false
                 };
 				nameLabel.SetParent(this);

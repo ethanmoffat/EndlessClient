@@ -81,7 +81,7 @@ namespace EndlessClient
 				Visible = true,
 				DrawOrder = DrawOrder + 1, //will be based on either NPC index or character renderer ID
 				TextWidth = 165,
-				TextAlign = ContentAlignment.MiddleCenter,
+				TextAlign = LabelAlignment.MiddleCenter,
 				ForeColor = Color.Black,
 				AutoSize = true,
 				Text = ""

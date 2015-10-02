@@ -162,7 +162,7 @@ namespace EndlessClient
 			message.TextWidth = 254;
 			message.SetParent(this);
 
-		    caption = new XNALabel(new Rectangle(59, 23, 1, 1), Constants.FontSize10);
+			caption = new XNALabel(new Rectangle(59, 23, 1, 1), Constants.FontSize10);
 			if(useSmallHeader)
 			{
 				caption.DrawLocation = new Vector2(18, 12);
@@ -591,7 +591,7 @@ namespace EndlessClient
 			{
 				ForeColor = Constants.LightYellowText,
 				Text = captionText
-            };
+			};
 			caption.SetParent(this);
 
 			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
@@ -924,7 +924,7 @@ namespace EndlessClient
 			{
 				Text = file.Data[(int) DATCONST2.LOADING_GAME_PLEASE_WAIT],
 				ForeColor = Constants.LightYellowText
-            };
+			};
 			caption.SetParent(this);
 
 			Random gen = new Random();
@@ -935,7 +935,7 @@ namespace EndlessClient
 				TextWidth = 175,
 				ForeColor = Color.FromNonPremultiplied(0xb9, 0xb9, 0xb9, 0xff),
 				Text = file.Data[msgTxt]
-            };
+			};
 			message.SetParent(this);
 
 			endConstructor(false);
@@ -1211,7 +1211,7 @@ namespace EndlessClient
 
 			//unequipping an item via right-click
 			if (m_info != null && MouseOver && currentState.RightButton == ButtonState.Released &&
-			    PreviousMouseState.RightButton == ButtonState.Pressed)
+				PreviousMouseState.RightButton == ButtonState.Pressed)
 			{
 				if (((EOPaperdollDialog) parent).CharRef == World.Instance.MainPlayer.ActiveCharacter)
 				{ //the parent dialog must show equipment for mainplayer
@@ -1339,11 +1339,11 @@ namespace EndlessClient
 				new XNALabel(new Rectangle(228, 22, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = CharRef.Name.Length > 0 ? char.ToUpper(CharRef.Name[0]) + CharRef.Name.Substring(1) : ""
-                }, //name
+				}, //name
 				new XNALabel(new Rectangle(228, 52, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = data.Home.Length > 0 ? char.ToUpper(data.Home[0]) + data.Home.Substring(1) : ""
-                }, //home
+				}, //home
 				new XNALabel(new Rectangle(228, 82, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = ((ClassRecord)(World.Instance.ECF.Data.Find(_dat => ((ClassRecord)_dat).ID == CharRef.Class) ?? new ClassRecord(0))).Name
@@ -1351,19 +1351,19 @@ namespace EndlessClient
 				new XNALabel(new Rectangle(228, 112, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = data.Partner.Length > 0 ? char.ToUpper(data.Partner[0]) + data.Partner.Substring(1) : ""
-                }, //partner
+				}, //partner
 				new XNALabel(new Rectangle(228, 142, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = CharRef.Title.Length > 0 ? char.ToUpper(CharRef.Title[0]) + CharRef.Title.Substring(1) : ""
-                }, //title
+				}, //title
 				new XNALabel(new Rectangle(228, 202, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = data.Guild.Length > 0 ? char.ToUpper(data.Guild[0]) + data.Guild.Substring(1) : ""
-                }, //guild
+				}, //guild
 				new XNALabel(new Rectangle(228, 232, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = data.Rank.Length > 0 ? char.ToUpper(data.Rank[0]) + data.Rank.Substring(1) : ""
-                } //rank
+				} //rank
 			};
 
 			labels.ToList().ForEach(_l => { _l.ForeColor = Constants.LightGrayText; _l.SetParent(this); });
@@ -1811,9 +1811,9 @@ namespace EndlessClient
 				AutoSize = false,
 				BackColor = Color.Transparent,
 				ForeColor = Color.FromNonPremultiplied(colorFactor, colorFactor, colorFactor, 0xff),
-				TextAlign = ContentAlignment.TopLeft,
+				TextAlign = LabelAlignment.TopLeft,
 				Text = " "
-            };
+			};
 			m_primaryText.ResizeBasedOnText();
 
 			if (Style == ListItemStyle.Large)
@@ -1824,7 +1824,7 @@ namespace EndlessClient
 					BackColor = m_primaryText.BackColor,
 					ForeColor = m_primaryText.ForeColor,
 					Text = " "
-                };
+				};
 				m_secondaryText.ResizeBasedOnText();
 
 				m_gfxPadThing = GFXLoader.TextureFromResource(GFXTypes.MapTiles, 0, true);
@@ -1859,7 +1859,7 @@ namespace EndlessClient
 				HighlightColor = oldText.ForeColor,
 				Text = oldText.Text,
 				Underline = true
-            };
+			};
 			m_primaryText.ResizeBasedOnText();
 			((XNAHyperLink) m_primaryText).OnClick += (o, e) => onClickAction();
 			m_primaryText.SetParent(this);
@@ -1882,8 +1882,8 @@ namespace EndlessClient
 				ForeColor = oldText.ForeColor,
 				HighlightColor = oldText.ForeColor,
 				Text = oldText.Text,
-                Underline = true
-            };
+				Underline = true
+			};
 			m_secondaryText.ResizeBasedOnText();
 			((XNAHyperLink) m_secondaryText).OnClick += (o, e) => onClickAction();
 			m_secondaryText.SetParent(this);
@@ -1914,7 +1914,7 @@ namespace EndlessClient
 						m_rightClicked = false;
 					}
 					else if (PreviousMouseState.LeftButton == ButtonState.Pressed && ms.LeftButton == ButtonState.Released &&
-					         OnLeftClick != null)
+							 OnLeftClick != null)
 					{
 						//If the sub text is a hyperlink and the mouse is over it do the click event for the sub text and not for this item
 						if (m_secondaryText is XNAHyperLink && m_secondaryText.MouseOver)
@@ -2071,7 +2071,7 @@ namespace EndlessClient
 							((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
 						}
 						else if (rec.Weight*item.Item2 + World.Instance.MainPlayer.ActiveCharacter.Weight >
-						         World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
+								 World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
 						{
 							EODialog.Show(World.GetString(DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT),
 								World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
@@ -2207,7 +2207,7 @@ namespace EndlessClient
 			m_titleText = new XNALabel(new Rectangle(16, 13, 253, 19), Constants.FontSize08pt75)
 			{
 				AutoSize = false,
-				TextAlign = ContentAlignment.MiddleLeft,
+				TextAlign = LabelAlignment.MiddleLeft,
 				ForeColor = Constants.LightGrayText
 			};
 			m_titleText.SetParent(this);
@@ -2410,7 +2410,7 @@ namespace EndlessClient
 				TextWidth = 230,
 				RowSpacing = 3,
 				Text = prompt
-            };
+			};
 			lblPrompt.SetParent(this);
 
 			//set this back once the dialog is closed.
@@ -2422,7 +2422,7 @@ namespace EndlessClient
 				MaxChars = maxInputChars,
 				LeftPadding = 4,
 				TextColor = Constants.LightBeigeText
-            };
+			};
 			m_inputBox.SetParent(this);
 			EOGame.Instance.Dispatcher.Subscriber = m_inputBox;
 
@@ -2792,7 +2792,7 @@ namespace EndlessClient
 				}
 
 				if (rec.Weight + World.Instance.MainPlayer.ActiveCharacter.Weight >
-				    World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
+					World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
 				{
 					EODialog.Show(World.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT), 
 						World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
@@ -2848,7 +2848,7 @@ namespace EndlessClient
 								{
 									//only actually do the buy/sell if the user then clicks "OK" in the second prompt
 									if (isBuying && !m_api.BuyItem((short) item.ID, dlg.SelectedAmount) ||
-									    !isBuying && !m_api.SellItem((short) item.ID, dlg.SelectedAmount))
+										!isBuying && !m_api.SellItem((short) item.ID, dlg.SelectedAmount))
 									{
 										EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 									}
@@ -3053,7 +3053,7 @@ namespace EndlessClient
 			{
 				AutoSize = false,
 				Text = World.GetString(DATCONST2.DIALOG_TITLE_PERFORMANCE),
-                ForeColor = Constants.LightGrayText
+				ForeColor = Constants.LightGrayText
 			};
 			title.SetParent(this);
 
@@ -3064,13 +3064,13 @@ namespace EndlessClient
 				{
 					AutoSize = false,
 					ForeColor = Constants.LightGrayText
-                };
+				};
 				leftSide[(i - 48) / 16].SetParent(this);
 				rightSide[(i - 48) / 16] = new XNALabel(new Rectangle(158, i, 1, 1), Constants.FontSize08pt5)
 				{
 					AutoSize = false,
-                    ForeColor = Constants.LightGrayText
-                };
+					ForeColor = Constants.LightGrayText
+				};
 				rightSide[(i - 48) / 16].SetParent(this);
 			}
 
@@ -3166,7 +3166,7 @@ namespace EndlessClient
 			{
 				ForeColor = Constants.LightGrayText,
 				Text = "",
-				TextAlign = ContentAlignment.MiddleRight,
+				TextAlign = LabelAlignment.MiddleRight,
 				AutoSize = false
 			};
 			m_accountBalance.SetParent(this);
@@ -3356,7 +3356,7 @@ namespace EndlessClient
 			get
 			{
 				return (m_main.ID == m_leftPlayerID && m_leftAgrees) ||
-				       (m_main.ID == m_rightPlayerID && m_rightAgrees);
+					   (m_main.ID == m_rightPlayerID && m_rightAgrees);
 			}
 		}
 
@@ -3379,32 +3379,32 @@ namespace EndlessClient
 			m_leftPlayerName = new XNALabel(new Rectangle(20, 14, 166, 20), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
-				TextAlign = ContentAlignment.MiddleLeft,
+				TextAlign = LabelAlignment.MiddleLeft,
 				ForeColor = Constants.LightGrayText
 			};
 			m_leftPlayerName.SetParent(this);
 			m_rightPlayerName = new XNALabel(new Rectangle(285, 14, 166, 20), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
-				TextAlign = ContentAlignment.MiddleLeft,
-                ForeColor = Constants.LightGrayText
-            };
+				TextAlign = LabelAlignment.MiddleLeft,
+				ForeColor = Constants.LightGrayText
+			};
 			m_rightPlayerName.SetParent(this);
 			m_leftPlayerStatus = new XNALabel(new Rectangle(195, 14, 79, 20), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
-				TextAlign = ContentAlignment.MiddleLeft,
+				TextAlign = LabelAlignment.MiddleLeft,
 				Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
-                ForeColor = Constants.LightGrayText
-            };
+				ForeColor = Constants.LightGrayText
+			};
 			m_leftPlayerStatus.SetParent(this);
 			m_rightPlayerStatus = new XNALabel(new Rectangle(462, 14, 79, 20), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
-				TextAlign = ContentAlignment.MiddleLeft,
+				TextAlign = LabelAlignment.MiddleLeft,
 				Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
-                ForeColor = Constants.LightGrayText
-            };
+				ForeColor = Constants.LightGrayText
+			};
 			m_rightPlayerStatus.SetParent(this);
 
 			m_leftScroll = new EOScrollBar(this, new Vector2(252, 44), new Vector2(16, 199), EOScrollBar.ScrollColors.LightOnMed) { LinesToRender = 5 };
@@ -3996,8 +3996,8 @@ namespace EndlessClient
 
 			//check the requirements
 			if (c.Stats.Str < skill.StrReq || c.Stats.Int < skill.IntReq || c.Stats.Wis < skill.WisReq ||
-			    c.Stats.Agi < skill.AgiReq || c.Stats.Con < skill.ConReq || c.Stats.Cha < skill.ChaReq ||
-			    c.Stats.Level < skill.LevelReq || c.Inventory.Find(_ii => _ii.id == 1).amount < skill.GoldReq || !skillReqsMet)
+				c.Stats.Agi < skill.AgiReq || c.Stats.Con < skill.ConReq || c.Stats.Cha < skill.ChaReq ||
+				c.Stats.Level < skill.LevelReq || c.Inventory.Find(_ii => _ii.id == 1).amount < skill.GoldReq || !skillReqsMet)
 			{
 				EODialog.Show(DATCONST1.SKILL_LEARN_REQS_NOT_MET, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 				return;
@@ -4105,32 +4105,29 @@ namespace EndlessClient
 		{
 			List<string> drawStrings = new List<string>();
 
-			using (var f = new Font("Microsoft Sans Serif", 8.5f))
+			string[] messages =
 			{
-				string[] messages =
-				{
-					World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL),
-					World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_1),
-					World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_2),
-					World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_3),
-					World.GetString(DATCONST2.SKILLMASTER_CLICK_HERE_TO_FORGET_ALL)
-				};
+				World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL),
+				World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_1),
+				World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_2),
+				World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_3),
+				World.GetString(DATCONST2.SKILLMASTER_CLICK_HERE_TO_FORGET_ALL)
+			};
 
-				TextSplitter ts = new TextSplitter("", f) { LineLength = 200 };
-				foreach (string s in messages)
+			TextSplitter ts = new TextSplitter("", Game.Content.Load<SpriteFont>(Constants.FontSize08pt5)) { LineLength = 200 };
+			foreach (string s in messages)
+			{
+				ts.Text = s;
+				if (!ts.NeedsProcessing)
 				{
-					ts.Text = s;
-					if (!ts.NeedsProcessing)
-					{
-						//no text clipping needed
-						drawStrings.Add(s);
-						drawStrings.Add(" ");
-						continue;
-					}
-
-					drawStrings.AddRange(ts.SplitIntoLines());
+					//no text clipping needed
+					drawStrings.Add(s);
 					drawStrings.Add(" ");
+					continue;
 				}
+
+				drawStrings.AddRange(ts.SplitIntoLines());
+				drawStrings.Add(" ");
 			}
 
 			//now need to take the processed draw strings and make an EODialogListItem for each one

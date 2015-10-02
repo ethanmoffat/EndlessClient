@@ -416,7 +416,7 @@ namespace EndlessClient
 			{
 				Visible = false,
 				AutoSize = false,
-				TextAlign = ContentAlignment.MiddleCenter,
+				TextAlign = LabelAlignment.MiddleCenter,
 				ForeColor = Color.FromNonPremultiplied(200, 200, 200, 255),
 				BackColor = Color.FromNonPremultiplied(30, 30, 30, 160)
 			};
@@ -665,7 +665,7 @@ namespace EndlessClient
 			m_lblWeight = new XNALabel(new Rectangle(385, 37, 88, 18), Constants.FontSize08pt5)
 			{
 				ForeColor = Constants.LightGrayText,
-				TextAlign = ContentAlignment.MiddleCenter,
+				TextAlign = LabelAlignment.MiddleCenter,
 				Visible = true,
 				AutoSize = false
 			};

@@ -1,15 +1,11 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using EOLib;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using Color = Microsoft.Xna.Framework.Color;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace EndlessClient
 {
@@ -64,7 +60,7 @@ namespace EndlessClient
 			caption = new XNALabel(new Rectangle(16, 16, 255, 18), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
-				TextAlign = ContentAlignment.MiddleLeft,
+				TextAlign = LabelAlignment.MiddleLeft,
 				ForeColor = Constants.LightGrayText
 			};
 			caption.SetParent(this);
@@ -129,16 +125,12 @@ namespace EndlessClient
 			ClearItemList();
 
 			List<string> rows = new List<string>();
-			using (Font f = new Font("Microsoft Sans Serif", 8.5f))
-			{
-				TextSplitter ts = new TextSplitter(_pages[_pageIndex], f);
-				if (!ts.NeedsProcessing)
-					rows.Add(_pages[_pageIndex]);
-				else
-				{
-					rows.AddRange(ts.SplitIntoLines());
-				}
-			}
+
+			TextSplitter ts = new TextSplitter(_pages[_pageIndex], Game.Content.Load<SpriteFont>(Constants.FontSize08pt5));
+			if (!ts.NeedsProcessing)
+				rows.Add(_pages[_pageIndex]);
+			else
+				rows.AddRange(ts.SplitIntoLines());
 
 			int index = 0;
 			foreach (var row in rows)
@@ -312,7 +304,7 @@ namespace EndlessClient
 				BackColor = m_primaryText.BackColor,
 				ForeColor = m_primaryText.ForeColor,
 				Text = " "
-            };
+			};
 			m_secondaryText.SetParent(this);
 			m_progress = new XNALabel(new Rectangle(353, (int) m_primaryText.DrawLocation.Y, 1, 1), Constants.FontSize08pt5)
 			{
@@ -320,7 +312,7 @@ namespace EndlessClient
 				BackColor = m_primaryText.BackColor,
 				ForeColor = m_primaryText.ForeColor,
 				Text = " "
-            };
+			};
 			m_progress.SetParent(this);
 
 			_constructorFinished = true;
@@ -391,7 +383,7 @@ namespace EndlessClient
 				BackColor = m_primaryText.BackColor,
 				ForeColor = m_primaryText.ForeColor,
 				Text = World.GetString(DATCONST2.QUEST_COMPLETED)
-            };
+			};
 			m_secondaryText.SetParent(this);
 
 			_constructorFinished = true;
@@ -484,10 +476,10 @@ namespace EndlessClient
 			m_titleText = new XNALabel(new Rectangle(18, 14, 452, 19), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
-				TextAlign = ContentAlignment.MiddleLeft,
+				TextAlign = LabelAlignment.MiddleLeft,
 				ForeColor = Constants.LightGrayText,
 				Text = " "
-            };
+			};
 			m_titleText.SetParent(this);
 
 			m_scrollBar.DrawLocation = new Vector2(449, 44);

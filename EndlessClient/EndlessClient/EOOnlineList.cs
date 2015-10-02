@@ -63,7 +63,7 @@ namespace EndlessClient
 			{
 				AutoSize = false,
 				ForeColor = Constants.LightGrayText,
-				TextAlign = System.Drawing.ContentAlignment.MiddleRight
+				TextAlign = LabelAlignment.MiddleRight
 			};
 			m_totalNumPlayers.SetParent(this);
 
