@@ -113,6 +113,18 @@ namespace EOLib
 		//Should be easily customizable between different clients (based on graphics)
 		//not a config option because this shouldn't be exposed at the user level
 		public static readonly int[] TrapSpikeGFXObjectIDs = {449, 450, 451, 452};
+
+	    public const string FontSize07 = @"Fonts\InGame_Main_07";
+        public const string FontSize08 = @"Fonts\InGame_Main_08";
+        public const string FontSize08pt5 = @"Fonts\InGame_Main_08pt5";
+        public const string FontSize08pt75 = @"Fonts\InGame_Main_08pt75";
+        public const string FontSize10 = @"Fonts\InGame_Main_10";
+
+	    public static readonly Color LightGrayText = Color.FromNonPremultiplied(0xc8, 0xc8, 0xc8, 0xff);
+        public static readonly Color LightYellowText = Color.FromNonPremultiplied(0xf0, 0xf0, 0xc8, 0xff);
+	    public static readonly Color BeigeText = Color.FromNonPremultiplied(0xb4, 0xa0, 0x8c, 0xff);
+	    public static readonly Color LightBeigeText = Color.FromNonPremultiplied(0xdc, 0xc8, 0xb4, 0xff);
+	    public static readonly Color s = Color.FromNonPremultiplied(0xe6, 0xe6, 0xd6, 0xff);
 	}
 
 	public static class ConfigStrings

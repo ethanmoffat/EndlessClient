@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using EOLib;
 using EOLib.Net;
 using XNAControls;
@@ -113,10 +112,10 @@ namespace EndlessClient
 			{
 				_selected = value;
 				scrollBar.Visible = _selected;
-				tabLabel.ForeColor = _selected ? System.Drawing.Color.White : System.Drawing.Color.Black;
+				tabLabel.ForeColor = _selected ? Color.White : Color.Black;
 			}
 		}
-		public ChatTabs WhichTab { get; private set; }
+		public ChatTabs WhichTab { get; }
 
 		private Rectangle? closeRect;
 		private readonly EOScrollBar scrollBar;
@@ -165,7 +164,7 @@ namespace EndlessClient
 					case ChatColor.Error: return Color.FromNonPremultiplied(0x7d, 0x0a, 0x0a, 0xff);
 					case ChatColor.PM: return Color.FromNonPremultiplied(0x5a, 0x3c, 0x00, 0xff);
 					case ChatColor.Server: return Color.FromNonPremultiplied(0xe6, 0xd2, 0xc8, 0xff);
-					case ChatColor.ServerGlobal: return Color.FromNonPremultiplied(0xf0, 0xf0, 0xc8, 0xff);
+					case ChatColor.ServerGlobal: return Constants.LightYellowText;
 					case ChatColor.Admin: return Color.FromNonPremultiplied(0xc8, 0xaa, 0x96, 0xff);
 					default: throw new IndexOutOfRangeException("ChatColor enumeration unhandled for index " + _index.ToString(CultureInfo.InvariantCulture));
 				}
@@ -198,7 +197,7 @@ namespace EndlessClient
 		{
 			WhichTab = tab;
 			
-			tabLabel = new XNALabel(new Rectangle(14, 2, 1, 1), "Microsoft Sans Serif", 8.0f);
+			tabLabel = new XNALabel(new Rectangle(14, 2, 1, 1), Constants.FontSize08);
 			tabLabel.SetParent(this);
 
 			switch(WhichTab)
@@ -272,7 +271,7 @@ namespace EndlessClient
 		/// <param name="col">Rendering color (enumerated value)</param>
 		public void AddText(string who, string text, ChatType icon = ChatType.None, ChatColor col = ChatColor.Default)
 		{
-			const int LINE_LEN = 415;
+			const int LINE_LEN = 380;
 
 			//special case: blank line, like in the news panel between news items
 			if (string.IsNullOrWhiteSpace(who) && string.IsNullOrWhiteSpace(text))
@@ -285,13 +284,13 @@ namespace EndlessClient
 					scrollBar.ScrollToEnd();
 				}
 				if (!Selected)
-					tabLabel.ForeColor = System.Drawing.Color.White;
+					tabLabel.ForeColor = Color.White;
 				if (!Visible)
 					Visible = true;
 				return;
 			}
 
-			string whoPadding = ""; //padding string for additional lines if it is a multi-line message
+			string whoPadding = "  "; //padding string for additional lines if it is a multi-line message
 			if (!string.IsNullOrEmpty(who))
 				while (EOGame.Instance.DBGFont.MeasureString(whoPadding).X < EOGame.Instance.DBGFont.MeasureString(who).X)
 					whoPadding += " ";
@@ -299,47 +298,38 @@ namespace EndlessClient
 			TextSplitter ts = new TextSplitter(text, EOGame.Instance.DBGFont)
 			{
 				LineLength = LINE_LEN,
-				LineEnd = WhichTab == ChatTabs.None ? "" : "-",
-				LineStart = whoPadding
+				LineEnd = "",
+				LineIndent = whoPadding
 			};
+            
+		    if (!ts.NeedsProcessing)
+		    {
+		        lock (ChatStringsLock)
+		            chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), text);
+		    }
+		    else
+		    {
+		        List<string> chatStringsToAdd = ts.SplitIntoLines();
 
-			//don't do multi-line processing if we don't need to
-			if (!ts.NeedsProcessing)
-			{
-				lock (ChatStringsLock)
-					chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), text);
-				scrollBar.UpdateDimensions(chatStrings.Count);
-				if (chatStrings.Count > 7 && WhichTab != ChatTabs.None)
-				{
-					scrollBar.ScrollToEnd();
-				}
-				if (!Selected)
-					tabLabel.ForeColor = System.Drawing.Color.White;
-				if (!Visible)
-					Visible = true;
-				return;
-			}
+		        for (int i = 0; i < chatStringsToAdd.Count; ++i)
+		        {
+		            lock (ChatStringsLock)
+		            {
+		                if (i == 0)
+		                    chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), chatStringsToAdd[0]);
+		                else
+		                    chatStrings.Add(new ChatIndex(chatStrings.Count, ChatType.None, "", col), chatStringsToAdd[i]);
+		            }
+		        }
+		    }
 
-			List<string> chatStringsToAdd = ts.SplitIntoLines();
-
-			for (int i = 0; i < chatStringsToAdd.Count; ++i)
-			{
-				lock (ChatStringsLock)
-				{
-					if (i == 0)
-						chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), chatStringsToAdd[0]);
-					else
-						chatStrings.Add(new ChatIndex(chatStrings.Count, ChatType.None, whoPadding, col), chatStringsToAdd[i]);
-				}
-			}
-
-			scrollBar.UpdateDimensions(chatStrings.Count);
+		    scrollBar.UpdateDimensions(chatStrings.Count);
 			if (chatStrings.Count > 7 && WhichTab != ChatTabs.None)
 			{
 				scrollBar.ScrollToEnd();
 			}
 			if (!Selected)
-				tabLabel.ForeColor = System.Drawing.Color.White;
+				tabLabel.ForeColor = Color.White;
 			if (!Visible)
 				Visible = true;
 		}
@@ -348,7 +338,8 @@ namespace EndlessClient
 		{
 			Visible = Selected = false;
 			tabLabel.Text = "";
-			chatStrings.Clear();
+		    lock (ChatStringsLock)
+		        chatStrings.Clear();
 			((EOChatRenderer)parent).SetSelectedTab(ChatTabs.Local);
 		}
 

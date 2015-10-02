@@ -251,7 +251,7 @@ namespace EndlessClient
 
 			newsTab = new ChatTab(pnlNews);
 
-			chatTextBox = new ChatTextBox(new Rectangle(124, 308, 440, 19), g.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
+			chatTextBox = new ChatTextBox(new Rectangle(124, 308, 440, 19), g.Content.Load<Texture2D>("cursor"), Constants.FontSize08)
 			{
 				Selected = true,
 				Visible = true,
@@ -329,10 +329,10 @@ namespace EndlessClient
 				m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
 			}, null, Timeout.Infinite, Timeout.Infinite);
 
-			statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), "Microsoft Sans Serif", 7f){DrawOrder = HUD_CONTROL_DRAW_ORDER};
-			clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), "Microsoft Sans Serif", 7f){DrawOrder = HUD_CONTROL_DRAW_ORDER};
+		    statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
+		    clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
 
-			StatusBars[0] = new HudElementHP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
+            StatusBars[0] = new HudElementHP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
 			StatusBars[1] = new HudElementTP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
 			StatusBars[2] = new HudElementSP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
 			StatusBars[3] = new HudElementTNL {DrawOrder = HUD_CONTROL_DRAW_ORDER};

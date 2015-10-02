@@ -172,11 +172,11 @@ namespace EndlessClient
 			mouseCursor = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
 			statusIcons = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 46, true);
 			_cursorSourceRect = new Rectangle(0, 0, mouseCursor.Width / 5, mouseCursor.Height);
-			_itemHoverName = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
+			_itemHoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
 			{
 				Visible = true,
 				Text = "",
-				ForeColor = System.Drawing.Color.White,
+				ForeColor = Color.White,
 				DrawOrder = (int)ControlDrawLayer.BaseLayer + 3,
 				AutoSize = false
 			};
@@ -1335,7 +1335,7 @@ namespace EndlessClient
 				}
 				_itemHoverName.DrawLocation = new Vector2(
 					cursorPos.X + 32 - _itemHoverName.ActualWidth/2f,
-					cursorPos.Y - _itemHoverName.Texture.Height - 4);
+					cursorPos.Y - _itemHoverName.ActualHeight - 4);
 
 				if (mouseClicked)
 				{

@@ -44,10 +44,10 @@ namespace EndlessClient
 			m_healthBar[HP_YELLOW] = Game.Content.Load<Texture2D>("Party\\hp-yellow");
 			m_healthBar[HP_GREEN] = Game.Content.Load<Texture2D>("Party\\hp-green");
 
-			m_numMembers = new XNALabel(new Rectangle(455, 2, 27, 14), "Microsoft Sans Serif", 8.5f)
+			m_numMembers = new XNALabel(new Rectangle(455, 2, 27, 14), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
-				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8),
+				ForeColor = Constants.LightGrayText,
 				TextAlign = System.Drawing.ContentAlignment.MiddleRight
 			};
 			m_numMembers.SetParent(this);

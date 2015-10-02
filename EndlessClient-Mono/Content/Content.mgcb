@@ -217,3 +217,33 @@
 /processorParam:TextureFormat=Color
 /build:../../EndlessClient/EndlessClientContent/tbRight.png
 
+#begin ../../EndlessClient/EndlessClientContent/Fonts/InGame_Main_07.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:../../EndlessClient/EndlessClientContent/Fonts/InGame_Main_07.spritefont
+
+#begin ../../EndlessClient/EndlessClientContent/Fonts/InGame_Main_08.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:../../EndlessClient/EndlessClientContent/Fonts/InGame_Main_08.spritefont
+
+#begin ../../EndlessClient/EndlessClientContent/Fonts/InGame_Main_08pt5.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:../../EndlessClient/EndlessClientContent/Fonts/InGame_Main_08pt5.spritefont
+
+#begin ../../EndlessClient/EndlessClientContent/Fonts/InGame_Main_08pt75.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:../../EndlessClient/EndlessClientContent/Fonts/InGame_Main_08pt75.spritefont
+
+#begin ../../EndlessClient/EndlessClientContent/Fonts/InGame_Main_10.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:TextureFormat=Compressed
+/build:../../EndlessClient/EndlessClientContent/Fonts/InGame_Main_10.spritefont
+

@@ -412,13 +412,13 @@ namespace EndlessClient
 		{
 			if (m_nameLabel != null) m_nameLabel.Dispose();
 
-			m_nameLabel = new XNALabel(new Rectangle(DrawArea.Width, 0, 150, 23), "Microsoft Sans MS", 8f)
+			m_nameLabel = new XNALabel(new Rectangle(DrawArea.Width, 0, 150, 23), Constants.FontSize08)
 			{
 				Visible = false,
 				AutoSize = false,
 				TextAlign = ContentAlignment.MiddleCenter,
-				ForeColor = System.Drawing.Color.FromArgb(255, 200, 200, 200),
-				BackColor = System.Drawing.Color.FromArgb(160, 30, 30, 30)
+				ForeColor = Color.FromNonPremultiplied(200, 200, 200, 255),
+				BackColor = Color.FromNonPremultiplied(30, 30, 30, 160)
 			};
 			
 			UpdateItemLabel();
@@ -558,19 +558,19 @@ namespace EndlessClient
 			m_recentClickCount = 0;
 		}
 
-		public static System.Drawing.Color GetItemTextColor(short id) //also used in map renderer for mapitems
+		public static Color GetItemTextColor(short id) //also used in map renderer for mapitems
 		{
 			ItemRecord data = World.Instance.EIF.GetItemRecordByID(id);
 			switch (data.Special)
 			{
 				case ItemSpecial.Lore:
 				case ItemSpecial.Unique:
-					return System.Drawing.Color.FromArgb(0xff, 0xff, 0xf0, 0xa5);
+					return Color.FromNonPremultiplied(0xff, 0xf0, 0xa5, 0xff);
 				case ItemSpecial.Rare:
-					return System.Drawing.Color.FromArgb(0xff, 0xf5, 0xc8, 0x9c);
+					return Color.FromNonPremultiplied(0xf5, 0xc8, 0x9c, 0xff);
 			}
 
-			return System.Drawing.Color.White;
+			return Color.White;
 		}
 
 		public static string GetNameString(short id, int amount)
@@ -662,9 +662,9 @@ namespace EndlessClient
 			//extra in photoshop right now: 8, 31
 
 			//current weight label (member variable, needs to have text updated when item amounts change)
-			m_lblWeight = new XNALabel(new Rectangle(385, 37, 88, 18), "Microsoft Sans MS", 8f)
+			m_lblWeight = new XNALabel(new Rectangle(385, 37, 88, 18), Constants.FontSize08pt5)
 			{
-				ForeColor = System.Drawing.Color.FromArgb(255, 0xc8, 0xc8, 0xc8),
+				ForeColor = Constants.LightGrayText,
 				TextAlign = ContentAlignment.MiddleCenter,
 				Visible = true,
 				AutoSize = false

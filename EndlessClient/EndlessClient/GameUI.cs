@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -51,7 +49,7 @@ namespace EndlessClient
 			textBoxTextures[2] = Content.Load<Texture2D>("tbRight");
 			textBoxTextures[3] = Content.Load<Texture2D>("cursor");
 
-			loginUsernameTextbox = new XNATextBox(new Rectangle(402, 322, 140, textBoxTextures[0].Height), textBoxTextures, "Microsoft Sans Serif", 8.0f)
+			loginUsernameTextbox = new XNATextBox(new Rectangle(402, 322, 140, textBoxTextures[0].Height), textBoxTextures, Constants.FontSize08)
 			{
 				MaxChars = 16,
 				DefaultText = "Username",
@@ -62,7 +60,7 @@ namespace EndlessClient
 			loginUsernameTextbox.OnEnterPressed += (s, e) => MainButtonPress(loginButtons[0], e);
 			Dispatcher.Subscriber = loginUsernameTextbox;
 
-			loginPasswordTextbox = new XNATextBox(new Rectangle(402, 358, 140, textBoxTextures[0].Height), textBoxTextures, "Microsoft Sans Serif", 8.0f)
+			loginPasswordTextbox = new XNATextBox(new Rectangle(402, 358, 140, textBoxTextures[0].Height), textBoxTextures, Constants.FontSize08)
 			{
 				MaxChars = 12,
 				PasswordBox = true,
@@ -106,9 +104,9 @@ namespace EndlessClient
 				//basically, set the first  3 Y coord to start at 69  and move up by 51 each time
 				//			 set the second 3 Y coord to start at 260 and move up by 51 each time
 				int txtYCoord = (i < 3 ? 69 : 260) + (i < 3 ? i * 51 : (i - 3) * 51);
-				XNATextBox txt = new XNATextBox(new Rectangle(358, txtYCoord, 240, textBoxTextures[0].Height), textBoxTextures, "Microsoft Sans Serif", 8.5f);
+				XNATextBox txt = new XNATextBox(new Rectangle(358, txtYCoord, 240, textBoxTextures[0].Height), textBoxTextures, Constants.FontSize08) { LeftPadding = 4 };
 
-				switch (i)
+                switch (i)
 				{
 					case 0:
 						txt.MaxChars = 16;
@@ -141,7 +139,7 @@ namespace EndlessClient
 			passwordChangeBtn = new XNAButton(secondaryButtons, new Vector2(454, 417), new Rectangle(0, 120, 120, 40), new Rectangle(120, 120, 120, 40));
 			passwordChangeBtn.OnClick += MainButtonPress;
 
-			lblCredits = new XNALabel(new Rectangle(300, 260, 1, 1))
+			lblCredits = new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10)
 			{
 				Text = @"Endless Online - C# Client
 Developed by Ethan Moffat
@@ -154,11 +152,10 @@ Thanks to :
 --Hotdog for Eodev client"
 			};
 
-			lblVersionInfo = new XNALabel(new Rectangle(25, 453, 1, 1))
+			lblVersionInfo = new XNALabel(new Rectangle(25, 453, 1, 1), Constants.FontSize07)
 			{
 				Text = string.Format("{0}.{1:000}.{2:000} - {3}:{4}", World.Instance.VersionMajor, World.Instance.VersionMinor, World.Instance.VersionClient, host, port),
-				Font = new System.Drawing.Font("Microsoft Sans Serif", 7.0f),
-				ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c)
+				ForeColor = Constants.BeigeText
 			};
 
 			//login/delete buttons for each character
@@ -187,12 +184,13 @@ Thanks to :
 
 #if DEBUG
 			//testinggame will login as testuser and login as the first character
-			XNAButton testingame = new XNAButton(new Vector2(5, 5), "in-game");
+			XNAButton testingame = new XNAButton(new Vector2(5, 5), "in-game", Constants.FontSize10);
 			testingame.OnClick += testingame_click;
 #endif
 		}
 
-		private async void testingame_click(object sender, EventArgs e)
+#if DEBUG
+        private async void testingame_click(object sender, EventArgs e)
 		{
 			MainButtonPress(mainButtons[1], e); //press login
 			await TaskFramework.Delay(500);
@@ -205,9 +203,10 @@ Thanks to :
 			await TaskFramework.Delay(500);
 			CharModButtonPress(loginCharButtons[0], e); //login as char testuser
 		}
+#endif
 
-		//Pretty much controls how states transition between one another
-		private async void MainButtonPress(object sender, EventArgs e)
+        //Pretty much controls how states transition between one another
+        private async void MainButtonPress(object sender, EventArgs e)
 		{
 			if (!IsActive)
 				return;

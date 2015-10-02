@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.Eventing.Reader;
-using System.Linq;
-using System.Text;
 using EOLib;
 using Microsoft.Xna.Framework;
 using XNAControls;
@@ -32,14 +28,14 @@ namespace EndlessClient
 
 			for (int i = 0; i < m_leftSide.Length; ++i)
 			{
-				m_leftSide[i] = new XNALabel(new Rectangle(117, 25 + (18*i), 100, 15), "Microsoft Sans Serif", 8.5f)
+				m_leftSide[i] = new XNALabel(new Rectangle(117, 25 + (18*i), 100, 15), Constants.FontSize08pt5)
 				{
-					ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
+					ForeColor = Constants.LightGrayText
 				};
 				m_leftSide[i].SetParent(this);
-				m_rightSide[i] = new XNALabel(new Rectangle(356, 25 + (18*i), 100, 15), "Microsoft Sans Serif", 8.5f)
+				m_rightSide[i] = new XNALabel(new Rectangle(356, 25 + (18*i), 100, 15), Constants.FontSize08pt5)
 				{
-					ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
+					ForeColor = Constants.LightGrayText
 				};
 				m_rightSide[i].SetParent(this);
 			}

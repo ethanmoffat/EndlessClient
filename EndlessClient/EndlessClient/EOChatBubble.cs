@@ -76,13 +76,13 @@ namespace EndlessClient
 
 		private void _initLabel()
 		{
-			m_label = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.5f)
+			m_label = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt5)
 			{
 				Visible = true,
 				DrawOrder = DrawOrder + 1, //will be based on either NPC index or character renderer ID
 				TextWidth = 165,
 				TextAlign = ContentAlignment.MiddleCenter,
-				ForeColor = System.Drawing.Color.Black,
+				ForeColor = Color.Black,
 				AutoSize = true,
 				Text = ""
 			};
@@ -95,7 +95,7 @@ namespace EndlessClient
 			Rectangle refArea = m_isChar ? ((EOCharacterRenderer)m_ref).DrawAreaWithOffset : ((NPC)m_ref).DrawArea;
 			int extra = s_textsLoaded ? s_textures[ML].Width : 0;
 			if(m_label != null) //really missing the ?. operator :-/
-				m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.Texture.Height - 5);
+				m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.ActualHeight - 5);
 		}
 
 		public new void LoadContent()
@@ -160,7 +160,7 @@ namespace EndlessClient
 			//top row
 			m_sb.Draw(s_textures[TL], m_drawLoc, col);
 			int xCur;
-			for (xCur = xCov; xCur < m_label.ActualWidth; xCur += s_textures[TM].Width)
+			for (xCur = xCov; xCur < m_label.ActualWidth + 6; xCur += s_textures[TM].Width)
 			{
 				m_sb.Draw(s_textures[TM], m_drawLoc + new Vector2(xCur, 0), col);
 			}
@@ -168,7 +168,7 @@ namespace EndlessClient
 
 			//middle area
 			int y;
-			for (y = yCov; y < m_label.Texture.Height - (m_label.Texture.Height % s_textures[ML].Height); y += s_textures[ML].Height)
+			for (y = yCov; y < m_label.ActualHeight; y += s_textures[ML].Height)
 			{
 				m_sb.Draw(s_textures[ML], m_drawLoc + new Vector2(0, y), col);
 				int x;

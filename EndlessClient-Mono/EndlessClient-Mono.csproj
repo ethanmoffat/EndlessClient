@@ -148,9 +148,6 @@
     <Compile Include="..\EndlessClient\EndlessClient\Sound.cs">
       <Link>Sound.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\TextSplitter.cs">
-      <Link>TextSplitter.cs</Link>
-    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\World.cs">
       <Link>World.cs</Link>
     </Compile>

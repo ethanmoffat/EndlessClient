@@ -8,7 +8,7 @@ using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using Color = System.Drawing.Color;
+using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace EndlessClient
@@ -61,11 +61,11 @@ namespace EndlessClient
 
 			_setBackgroundTexture(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 67));
 
-			caption = new XNALabel(new Rectangle(16, 16, 255, 18), "Microsoft Sans Serif", 8.5f)
+			caption = new XNALabel(new Rectangle(16, 16, 255, 18), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
 				TextAlign = ContentAlignment.MiddleLeft,
-				ForeColor = Color.FromArgb(255, 0xc8, 0xc8, 0xc8)
+				ForeColor = Constants.LightGrayText
 			};
 			caption.SetParent(this);
 
@@ -306,21 +306,21 @@ namespace EndlessClient
 			_setSize(427, 16);
 
 			m_primaryText.DrawLocation = new Vector2(m_primaryText.DrawLocation.X + 25, m_primaryText.DrawLocation.Y);
-			m_secondaryText = new XNALabel(new Rectangle(169, (int) m_primaryText.DrawLocation.Y, 1, 1), "Microsoft Sans Serif", 8.5f)
+			m_secondaryText = new XNALabel(new Rectangle(169, (int) m_primaryText.DrawLocation.Y, 1, 1), Constants.FontSize08pt5)
 			{
 				AutoSize = true,
 				BackColor = m_primaryText.BackColor,
 				ForeColor = m_primaryText.ForeColor,
 				Text = " "
-			};
+            };
 			m_secondaryText.SetParent(this);
-			m_progress = new XNALabel(new Rectangle(353, (int) m_primaryText.DrawLocation.Y, 1, 1), "Microsoft Sans Serif", 8.5f)
+			m_progress = new XNALabel(new Rectangle(353, (int) m_primaryText.DrawLocation.Y, 1, 1), Constants.FontSize08pt5)
 			{
 				AutoSize = true,
 				BackColor = m_primaryText.BackColor,
 				ForeColor = m_primaryText.ForeColor,
 				Text = " "
-			};
+            };
 			m_progress.SetParent(this);
 
 			_constructorFinished = true;
@@ -337,13 +337,13 @@ namespace EndlessClient
 
 				SpriteBatch.Draw(m_iconTexture,
 					m_firstIconLocation + new Vector2(17 + OffsetX + xOff, OffsetY + yOff + (DrawArea.Height*Index)),
-					GetIconSourceRectangle(0), Microsoft.Xna.Framework.Color.White);
+					GetIconSourceRectangle(0), Color.White);
 				SpriteBatch.Draw(m_iconTexture,
 					m_secondIconLocation + new Vector2(17 + OffsetX + xOff, OffsetY + yOff + (DrawArea.Height*Index)),
-					GetIconSourceRectangle(QuestContextIcon), Microsoft.Xna.Framework.Color.White);
+					GetIconSourceRectangle(QuestContextIcon), Color.White);
 				SpriteBatch.Draw(m_iconTexture,
 					m_signalLocation + new Vector2(17 + OffsetX + xOff, OffsetY + yOff + (DrawArea.Height*Index)),
-					GetSignalSourceRectangle(), Microsoft.Xna.Framework.Color.White);
+					GetSignalSourceRectangle(), Color.White);
 
 				SpriteBatch.End();
 			}
@@ -385,13 +385,13 @@ namespace EndlessClient
 			_setSize(427, 16);
 
 			m_primaryText.DrawLocation = new Vector2(m_primaryText.DrawLocation.X + 25, m_primaryText.DrawLocation.Y);
-			m_secondaryText = new XNALabel(new Rectangle(290, (int)m_primaryText.DrawLocation.Y, 1, 1), "Microsoft Sans Serif", 8.5f)
+			m_secondaryText = new XNALabel(new Rectangle(290, (int)m_primaryText.DrawLocation.Y, 1, 1), Constants.FontSize08pt5)
 			{
 				AutoSize = true,
 				BackColor = m_primaryText.BackColor,
 				ForeColor = m_primaryText.ForeColor,
 				Text = World.GetString(DATCONST2.QUEST_COMPLETED)
-			};
+            };
 			m_secondaryText.SetParent(this);
 
 			_constructorFinished = true;
@@ -405,10 +405,10 @@ namespace EndlessClient
 
 			SpriteBatch.Draw(m_iconTexture,
 				m_firstIconLocation + new Vector2(17 + OffsetX + xOff, OffsetY + yOff + (DrawArea.Height*Index)),
-				GetIconSourceRectangle(), Microsoft.Xna.Framework.Color.White);
+				GetIconSourceRectangle(), Color.White);
 			SpriteBatch.Draw(m_iconTexture,
 				m_signalLocation + new Vector2(17 + OffsetX + xOff, OffsetY + yOff + (DrawArea.Height*Index)),
-				GetSignalSourceRectangle(), Microsoft.Xna.Framework.Color.White);
+				GetSignalSourceRectangle(), Color.White);
 
 			SpriteBatch.End();
 
@@ -481,13 +481,13 @@ namespace EndlessClient
 
 			dlgButtons.AddRange(new[] {m_history, ok});
 
-			m_titleText = new XNALabel(new Rectangle(18, 14, 452, 19), "Microsoft Sans Serif", 8.5f)
+			m_titleText = new XNALabel(new Rectangle(18, 14, 452, 19), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
 				TextAlign = ContentAlignment.MiddleLeft,
-				ForeColor = Color.FromArgb(255, 0xc8, 0xc8, 0xc8),
+				ForeColor = Constants.LightGrayText,
 				Text = " "
-			};
+            };
 			m_titleText.SetParent(this);
 
 			m_scrollBar.DrawLocation = new Vector2(449, 44);
@@ -499,7 +499,7 @@ namespace EndlessClient
 		{
 			Texture2D wholeBgText = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 59);
 			Texture2D bgText = new Texture2D(Game.GraphicsDevice, wholeBgText.Width, wholeBgText.Height / 2);
-			Microsoft.Xna.Framework.Color[] data = new Microsoft.Xna.Framework.Color[bgText.Width * bgText.Height];
+			Color[] data = new Color[bgText.Width * bgText.Height];
 
 			wholeBgText.GetData(0, new Rectangle(0, 0, bgText.Width, bgText.Height), data, 0, data.Length);
 			bgText.SetData(data);

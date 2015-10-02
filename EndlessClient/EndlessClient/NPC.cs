@@ -116,17 +116,17 @@ namespace EndlessClient
 
 			m_chatBubble = new EOChatBubble(this);
 			m_damageCounter = new DamageCounter(this);
-			_mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
+			_mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
 			{
 				Visible = false,
 				Text = Data.Name,
-				ForeColor = System.Drawing.Color.White,
+				ForeColor = Color.White,
 				AutoSize = false,
 				DrawOrder = (int) ControlDrawLayer.BaseLayer + 3
 			};
 			_mouseoverName.DrawLocation = new Vector2(
 				DrawArea.X + (DrawArea.Width - _mouseoverName.ActualWidth)/2f,
-				DrawArea.Y + TopPixel - _mouseoverName.Texture.Height - 4);
+				DrawArea.Y + TopPixel - _mouseoverName.ActualHeight - 4);
 			_mouseoverName.ResizeBasedOnText();
 		}
 
@@ -197,7 +197,7 @@ namespace EndlessClient
 			_mouseoverName.Visible = DrawArea.ContainsPoint(m_currState.X, m_currState.Y);
 			_mouseoverName.DrawLocation = new Vector2(
 				DrawArea.X + (DrawArea.Width - _mouseoverName.ActualWidth) / 2f,
-				DrawArea.Y + TopPixel - _mouseoverName.Texture.Height - 4);
+				DrawArea.Y + TopPixel - _mouseoverName.ActualHeight - 4);
 		}
 
 		private void _checkMouseClickState()

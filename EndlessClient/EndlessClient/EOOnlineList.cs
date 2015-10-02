@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using EOLib;
 using EOLib.Data;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
@@ -58,10 +59,10 @@ namespace EndlessClient
 			//this enables scrolling with mouse wheel and mouseover for parent
 			_setSize(parent.BackgroundImage.Width, parent.BackgroundImage.Height);
 
-			m_totalNumPlayers = new XNALabel(new Rectangle(455, 2, 27, 14), "Microsoft Sans Serif", 8.5f)
+			m_totalNumPlayers = new XNALabel(new Rectangle(455, 2, 27, 14), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
-				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8),
+				ForeColor = Constants.LightGrayText,
 				TextAlign = System.Drawing.ContentAlignment.MiddleRight
 			};
 			m_totalNumPlayers.SetParent(this);

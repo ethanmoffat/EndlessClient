@@ -172,7 +172,6 @@
     <Compile Include="QuestDialog.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Sound.cs" />
-    <Compile Include="TextSplitter.cs" />
     <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>

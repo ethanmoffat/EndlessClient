@@ -18,8 +18,8 @@ namespace EndlessClient
 
 		public bool IgnoreAllInput { get; set; }
 
-		public ChatTextBox(Rectangle area, Texture2D cursorTexture, string fontFamily, float fontSize)
-			: base(area, cursorTexture, fontFamily, fontSize) { }
+		public ChatTextBox(Rectangle area, Texture2D cursorTexture, string spriteFontContentName)
+			: base(area, cursorTexture, spriteFontContentName) { }
 
 		public override void ReceiveTextInput(char inp)
 		{

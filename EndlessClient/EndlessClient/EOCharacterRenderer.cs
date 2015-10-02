@@ -191,17 +191,17 @@ namespace EndlessClient
 			m_chatBubble = new EOChatBubble(this);
 			m_damageCounter = new DamageCounter(this);
 
-			_mouseoverName = new BlinkingLabel(new Rectangle(1, 1, 1, 1), "Microsoft Sans Serif", 8.75f)
+			_mouseoverName = new BlinkingLabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
 			{
 				Visible = false,
 				Text = Character.Name,
-				ForeColor = System.Drawing.Color.White,
+				ForeColor = Color.White,
 				DrawOrder = (int)ControlDrawLayer.BaseLayer + 3,
 				AutoSize = false
 			};
 			_mouseoverName.DrawLocation = new Vector2(
 				DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
-				DrawAreaWithOffset.Y + TopPixel - _mouseoverName.Texture.Height - 7);
+				DrawAreaWithOffset.Y + TopPixel - _mouseoverName.ActualHeight - 7);
 			_mouseoverName.ResizeBasedOnText();
 		}
 
@@ -225,23 +225,23 @@ namespace EndlessClient
 			if (data.name.Length > 0)
 			{
 				//362, 167 abs loc
-				levelLabel = new XNALabel(new Rectangle(-32, 75, 1, 1), "Microsoft Sans Serif", 8.75f)
+				levelLabel = new XNALabel(new Rectangle(-32, 75, 1, 1), Constants.FontSize08pt75)
 				{
-					ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c),
+					ForeColor = Constants.BeigeText,
 // ReSharper disable SpecifyACultureInStringConversionExplicitly
 					Text = data.level.ToString()
 // ReSharper restore SpecifyACultureInStringConversionExplicitly
-				};
+                };
 				levelLabel.SetParent(this);
 
 				//504, 93 abs loc
-				nameLabel = new XNALabel(new Rectangle(104, 2, 89, 22), "Microsoft Sans Serif", 8.5f)
+				nameLabel = new XNALabel(new Rectangle(104, 2, 89, 22), Constants.FontSize08pt5)
 				{
-					ForeColor = System.Drawing.Color.FromArgb(0xFF, 0xb4, 0xa0, 0x8c),
+					ForeColor = Constants.BeigeText,
 					Text = ((char) (data.name[0] - 32)) + data.name.Substring(1),
 					TextAlign = System.Drawing.ContentAlignment.MiddleCenter,
 					AutoSize = false
-				};
+                };
 				nameLabel.SetParent(this);
 
 				adminGraphic = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22);
@@ -529,7 +529,7 @@ namespace EndlessClient
 
 			_mouseoverName.DrawLocation = new Vector2(
 				DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
-				DrawAreaWithOffset.Y + TopPixel - _mouseoverName.Texture.Height - 7);
+				DrawAreaWithOffset.Y + TopPixel - _mouseoverName.ActualHeight - 7);
 		}
 
 		private void _checkMouseClickState()
@@ -1394,7 +1394,7 @@ namespace EndlessClient
 		public void SetSpellShout(string shoutName)
 		{
 			//starts shouting (see checkMouseoverState method)
-			_mouseoverName.ForeColor = System.Drawing.Color.White;
+			_mouseoverName.ForeColor = Color.White;
 			_shoutName = shoutName.ToLower();
 		}
 
@@ -1404,7 +1404,7 @@ namespace EndlessClient
 			{
 				_mouseoverName.BlinkRate = null;
 				_mouseoverName.Text = Character.Name;
-				_mouseoverName.ForeColor = System.Drawing.Color.White;
+				_mouseoverName.ForeColor = Color.White;
 				_mouseoverName.Visible = false;
 				_shoutName = null;
 				return;
@@ -1412,7 +1412,7 @@ namespace EndlessClient
 
 			_mouseoverName.Visible = true;
 			_mouseoverName.BlinkRate = null;
-			_mouseoverName.ForeColor = System.Drawing.Color.FromArgb(255, 0xf5, 0xc8, 0x9c);
+			_mouseoverName.ForeColor = Color.FromNonPremultiplied(0xf5, 0xc8, 0x9c, 0xff);
 			_mouseoverName.SetCallback(600, () => StopShouting(false));
 		}
 

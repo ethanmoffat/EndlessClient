@@ -26,11 +26,11 @@ namespace EndlessClient
 			if(!Game.Components.Contains(this))
 				Game.Components.Add(this);
 		
-			m_label = new XNALabel(drawArea.SetPosition(new Vector2(2, 14)), "Microsoft Sans Serif", 8.0f)
+			m_label = new XNALabel(drawArea.SetPosition(new Vector2(2, 14)), Constants.FontSize08)
 			{
 				AutoSize = false,
-				BackColor = System.Drawing.Color.Transparent,
-				ForeColor = System.Drawing.Color.FromArgb(0xc8, 0xc8, 0xc8),
+				BackColor = Color.Transparent,
+				ForeColor = Constants.LightGrayText,
 				Visible = false
 			};
 			m_label.SetParent(this);

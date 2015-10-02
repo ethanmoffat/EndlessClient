@@ -19,8 +19,8 @@ namespace EndlessClient
 		private DateTime _lastToggleTime;
 		private Action _callback;
 
-		public BlinkingLabel(Rectangle location, string fontFamily, float fontSize)
-			: base(location, fontFamily, fontSize)
+		public BlinkingLabel(Rectangle location, string spriteFontContentName)
+			: base(location, spriteFontContentName)
 		{
 			_lastToggleTime = DateTime.Now;
 		}

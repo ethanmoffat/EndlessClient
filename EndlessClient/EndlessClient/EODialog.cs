@@ -147,7 +147,7 @@ namespace EndlessClient
 				bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 25);
 			_setSize(bgTexture.Width, bgTexture.Height);
 			
-			message = new XNALabel(new Rectangle(18, 57, 1, 1), "Microsoft Sans Serif", 10.0f); //label is auto-sized
+			message = new XNALabel(new Rectangle(18, 57, 1, 1), Constants.FontSize10);
 			if(useSmallHeader)
 			{
 				//179, 119
@@ -157,17 +157,17 @@ namespace EndlessClient
 				//cancel: 363, 201
 				message.DrawLocation = new Vector2(18, 40);
 			}
-			message.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
+			message.ForeColor = Constants.LightYellowText;
 			message.Text = msgText;
 			message.TextWidth = 254;
 			message.SetParent(this);
 
-			caption = new XNALabel(new Rectangle(59, 23, 1, 1), "Microsoft Sans Serif", 10.0f);
+		    caption = new XNALabel(new Rectangle(59, 23, 1, 1), Constants.FontSize10);
 			if(useSmallHeader)
 			{
 				caption.DrawLocation = new Vector2(18, 12);
 			}
-			caption.ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8);
+			caption.ForeColor = Constants.LightYellowText;
 			caption.Text = captionText;
 			caption.SetParent(this);
 
@@ -558,7 +558,7 @@ namespace EndlessClient
 				
 				string strToDraw = chatStrings[i];
 
-				SpriteBatch.DrawString(EOGame.Instance.DBGFont, strToDraw, new Vector2(pos.X, pos.Y + (i - scrollBar.ScrollOffset) * 13), Color.FromNonPremultiplied(0xc8, 0xc8, 0xc8, 0xff));
+				SpriteBatch.DrawString(EOGame.Instance.DBGFont, strToDraw, new Vector2(pos.X, pos.Y + (i - scrollBar.ScrollOffset) * 13), Constants.LightGrayText);
 			}
 
 			SpriteBatch.End();
@@ -579,21 +579,19 @@ namespace EndlessClient
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			message = new XNALabel(new Rectangle(18, 57, 1, 1))//label is auto-sized
+			message = new XNALabel(new Rectangle(18, 57, 1, 1), Constants.FontSize10)
 			{
-				Font = new Font("Microsoft Sans Serif", 10.0f),
-				ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8),
+				ForeColor = Constants.LightYellowText,
 				Text = msgText,
 				TextWidth = 254
 			}; 
 			message.SetParent(this);
 
-			caption = new XNALabel(new Rectangle(59, 23, 1, 1))
+			caption = new XNALabel(new Rectangle(59, 23, 1, 1), Constants.FontSize10)
 			{
-				Font = new Font("Microsoft Sans Serif", 10.0f),
-				ForeColor = System.Drawing.Color.FromArgb(255, 0xf0, 0xf0, 0xc8),
+				ForeColor = Constants.LightYellowText,
 				Text = captionText
-			};
+            };
 			caption.SetParent(this);
 
 			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
@@ -606,7 +604,7 @@ namespace EndlessClient
 			pbForeText = new Texture2D(Game.GraphicsDevice, 1, pbBackText.Height - 2); //foreground texture is just a fill
 			Color[] pbForeFill = new Color[pbForeText.Width * pbForeText.Height];
 			for (int i = 0; i < pbForeFill.Length; ++i)
-				pbForeFill[i] = Color.FromNonPremultiplied(0xb4, 0xdc, 0xe6, 255);
+				pbForeFill[i] = Color.FromNonPremultiplied(0xb4, 0xdc, 0xe6, 0xff);
 			pbForeText.SetData(pbForeFill);
 
 			endConstructor();
@@ -658,14 +656,14 @@ namespace EndlessClient
 
 			for(int i = 0; i < inputBoxes.Length; ++i)
 			{
-				XNATextBox tb = new XNATextBox(new Rectangle(198, 60 + i * 30, 137, 19), cursorTexture, "Microsoft Sans Serif", 8.0f)
+				XNATextBox tb = new XNATextBox(new Rectangle(198, 60 + i * 30, 137, 19), cursorTexture, Constants.FontSize08)
 				{
 					LeftPadding = 5,
 					DefaultText = " ",
 					MaxChars = i == 0 ? 16 : 12,
 					PasswordBox = i > 1,
 					Selected = i == 0,
-					TextColor = System.Drawing.Color.FromArgb(0xff, 0xdc, 0xc8, 0xb4),
+					TextColor = Constants.LightBeigeText,
 					Visible = true
 				};
 
@@ -763,13 +761,13 @@ namespace EndlessClient
 
 			charCreateSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22);
 
-			inputBox = new XNATextBox(new Rectangle(80, 57, 138, 19), cursorTexture, "Microsoft Sans Serif", 8.0f)
+			inputBox = new XNATextBox(new Rectangle(80, 57, 138, 19), cursorTexture, Constants.FontSize08)
 			{
 				LeftPadding = 5,
 				DefaultText = " ",
 				MaxChars = 12,
 				Selected = true,
-				TextColor = System.Drawing.Color.FromArgb(0xff, 0xdc, 0xc8, 0xb4),
+				TextColor = Constants.LightBeigeText,
 				Visible = true
 			};
 			inputBox.SetParent(this);
@@ -922,22 +920,22 @@ namespace EndlessClient
 			classes = file.Data[(int) DATCONST2.LOADING_GAME_UPDATING_CLASSES];
 			loading = file.Data[(int) DATCONST2.LOADING_GAME_LOADING_GAME];
 
-			caption = new XNALabel(new Rectangle(12, 9, 1, 1), "Microsoft Sans Serif", 10.0f)
+			caption = new XNALabel(new Rectangle(12, 9, 1, 1), Constants.FontSize10)
 			{
 				Text = file.Data[(int) DATCONST2.LOADING_GAME_PLEASE_WAIT],
-				ForeColor = System.Drawing.Color.FromArgb(0xf0, 0xf0, 0xc8)
-			};
+				ForeColor = Constants.LightYellowText
+            };
 			caption.SetParent(this);
 
 			Random gen = new Random();
 			int msgTxt = gen.Next((int) DATCONST2.LOADING_GAME_HINT_FIRST, (int) DATCONST2.LOADING_GAME_HINT_LAST);
 
-			message = new XNALabel(new Rectangle(18, 61, 1, 1), "Microsoft Sans Serif", 8.0f)
+			message = new XNALabel(new Rectangle(18, 61, 1, 1), Constants.FontSize08)
 			{
 				TextWidth = 175,
-				ForeColor = System.Drawing.Color.FromArgb(0xb9, 0xb9, 0xb9),
+				ForeColor = Color.FromNonPremultiplied(0xb9, 0xb9, 0xb9, 0xff),
 				Text = file.Data[msgTxt]
-			};
+            };
 			message.SetParent(this);
 
 			endConstructor(false);
@@ -1338,37 +1336,37 @@ namespace EndlessClient
 			//labels next
 			XNALabel[] labels =
 			{
-				new XNALabel(new Rectangle(228, 22, 1, 1), "Microsoft Sans Serif", 8.5f)
+				new XNALabel(new Rectangle(228, 22, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = CharRef.Name.Length > 0 ? char.ToUpper(CharRef.Name[0]) + CharRef.Name.Substring(1) : ""
-				}, //name
-				new XNALabel(new Rectangle(228, 52, 1, 1), "Microsoft Sans Serif", 8.5f)
+                }, //name
+				new XNALabel(new Rectangle(228, 52, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = data.Home.Length > 0 ? char.ToUpper(data.Home[0]) + data.Home.Substring(1) : ""
-				}, //home
-				new XNALabel(new Rectangle(228, 82, 1, 1), "Microsoft Sans Serif", 8.5f)
+                }, //home
+				new XNALabel(new Rectangle(228, 82, 1, 1), Constants.FontSize08pt5)
 				{
-					Text = ((ClassRecord)(World.Instance.ECF.Data.Find(_dat => ((ClassRecord)_dat).ID == CharRef.Class) ?? new ClassRecord())).Name //Check for nulls, for teh lolz
+					Text = ((ClassRecord)(World.Instance.ECF.Data.Find(_dat => ((ClassRecord)_dat).ID == CharRef.Class) ?? new ClassRecord())).Name
 				}, //class
-				new XNALabel(new Rectangle(228, 112, 1, 1), "Microsoft Sans Serif", 8.5f)
+				new XNALabel(new Rectangle(228, 112, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = data.Partner.Length > 0 ? char.ToUpper(data.Partner[0]) + data.Partner.Substring(1) : ""
-				}, //partner
-				new XNALabel(new Rectangle(228, 142, 1, 1), "Microsoft Sans Serif", 8.5f)
+                }, //partner
+				new XNALabel(new Rectangle(228, 142, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = CharRef.Title.Length > 0 ? char.ToUpper(CharRef.Title[0]) + CharRef.Title.Substring(1) : ""
-				}, //title
-				new XNALabel(new Rectangle(228, 202, 1, 1), "Microsoft Sans Serif", 8.5f)
+                }, //title
+				new XNALabel(new Rectangle(228, 202, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = data.Guild.Length > 0 ? char.ToUpper(data.Guild[0]) + data.Guild.Substring(1) : ""
-				}, //guild
-				new XNALabel(new Rectangle(228, 232, 1, 1), "Microsoft Sans Serif", 8.5f)
+                }, //guild
+				new XNALabel(new Rectangle(228, 232, 1, 1), Constants.FontSize08pt5)
 				{
 					Text = data.Rank.Length > 0 ? char.ToUpper(data.Rank[0]) + data.Rank.Substring(1) : ""
-				} //rank
+                } //rank
 			};
 
-			labels.ToList().ForEach(_l => { _l.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8); _l.SetParent(this); });
+			labels.ToList().ForEach(_l => { _l.ForeColor = Constants.LightGrayText; _l.SetParent(this); });
 
 			ChatType iconType = EOChatRenderer.GetChatTypeFromPaperdollIcon(data.Icon);
 			m_characterIcon = ChatTab.GetChatIcon(iconType);
@@ -1554,9 +1552,9 @@ namespace EndlessClient
 			cancel.SetParent(this);
 			dlgButtons.Add(cancel);
 
-			XNALabel descLabel = new XNALabel(new Rectangle(20, 42, 231, 33), "Microsoft Sans Serif", 10.0f)
+			XNALabel descLabel = new XNALabel(new Rectangle(20, 42, 231, 33), Constants.FontSize10)
 			{
-				ForeColor = System.Drawing.Color.FromArgb(0xe6, 0xe6, 0xd6),
+				ForeColor = Color.FromNonPremultiplied(0xe6, 0xe6, 0xd6, 0xff),
 				TextWidth = 200,
 				Text = string.Format("{0} {1} {2}", World.GetString(DATCONST2.DIALOG_TRANSFER_HOW_MUCH), itemName, World.GetString(message))
 			};
@@ -1564,12 +1562,12 @@ namespace EndlessClient
 
 			//set the text box here
 			//starting coords are 163, 97
-			m_amount = new XNATextBox(new Rectangle(163, 95, 77, 19), Game.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
+			m_amount = new XNATextBox(new Rectangle(163, 95, 77, 19), Game.Content.Load<Texture2D>("cursor"), Constants.FontSize08)
 			{
 				Visible = true,
 				Enabled = true,
 				MaxChars = 8, //max drop/junk at a time will be 99,999,999
-				TextColor = System.Drawing.Color.FromArgb(0xdc, 0xC8, 0xb4),
+				TextColor = Constants.LightBeigeText,
 				Text = "1"
 			};
 			m_amount.SetParent(this);
@@ -1808,25 +1806,25 @@ namespace EndlessClient
 
 			int colorFactor = Style == ListItemStyle.Large ? 0xc8 : 0xb4;
 
-			m_primaryText = new XNALabel(new Rectangle(Style == ListItemStyle.Large ? 56 : 2, Style == ListItemStyle.Large ? 5 : 0, 1, 1), "Microsoft Sans Serif", 8.5f)
+			m_primaryText = new XNALabel(new Rectangle(Style == ListItemStyle.Large ? 56 : 2, Style == ListItemStyle.Large ? 5 : 0, 1, 1), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
-				BackColor = System.Drawing.Color.Transparent,
-				ForeColor = System.Drawing.Color.FromArgb(255, colorFactor, colorFactor, colorFactor),
+				BackColor = Color.Transparent,
+				ForeColor = Color.FromNonPremultiplied(colorFactor, colorFactor, colorFactor, 0xff),
 				TextAlign = ContentAlignment.TopLeft,
 				Text = " "
-			};
+            };
 			m_primaryText.ResizeBasedOnText();
 
 			if (Style == ListItemStyle.Large)
 			{
-				m_secondaryText = new XNALabel(new Rectangle(56, 20, 1, 1), "Microsoft Sans Serif", 8.5f)
+				m_secondaryText = new XNALabel(new Rectangle(56, 20, 1, 1), Constants.FontSize08pt5)
 				{
 					AutoSize = true,
 					BackColor = m_primaryText.BackColor,
 					ForeColor = m_primaryText.ForeColor,
 					Text = " "
-				};
+                };
 				m_secondaryText.ResizeBasedOnText();
 
 				m_gfxPadThing = GFXLoader.TextureFromResource(GFXTypes.MapTiles, 0, true);
@@ -1853,15 +1851,15 @@ namespace EndlessClient
 			if (m_primaryText == null)
 				return;
 			XNALabel oldText = m_primaryText;
-			m_primaryText = new XNAHyperLink(oldText.DrawArea, oldText.Font.FontFamily.Name, 8.5f)
+			m_primaryText = new XNAHyperLink(oldText.DrawArea, Constants.FontSize08pt5)
 			{
 				AutoSize = false,
 				BackColor = oldText.BackColor,
 				ForeColor = oldText.ForeColor,
 				HighlightColor = oldText.ForeColor,
 				Text = oldText.Text,
-				Style = FontStyle.Underline
-			};
+				Underline = true
+            };
 			m_primaryText.ResizeBasedOnText();
 			((XNAHyperLink) m_primaryText).OnClick += (o, e) => onClickAction();
 			m_primaryText.SetParent(this);
@@ -1877,15 +1875,15 @@ namespace EndlessClient
 			if (m_secondaryText == null || Style == ListItemStyle.Small)
 				return;
 			XNALabel oldText = m_secondaryText;
-			m_secondaryText = new XNAHyperLink(oldText.DrawArea, oldText.Font.FontFamily.Name, 8.5f)
+			m_secondaryText = new XNAHyperLink(oldText.DrawArea, Constants.FontSize08pt5)
 			{
 				AutoSize = false,
 				BackColor = oldText.BackColor,
 				ForeColor = oldText.ForeColor,
 				HighlightColor = oldText.ForeColor,
 				Text = oldText.Text,
-				Style = FontStyle.Underline
-			};
+                Underline = true
+            };
 			m_secondaryText.ResizeBasedOnText();
 			((XNAHyperLink) m_secondaryText).OnClick += (o, e) => onClickAction();
 			m_secondaryText.SetParent(this);
@@ -1967,7 +1965,7 @@ namespace EndlessClient
 
 		public void SetActive()
 		{
-			m_primaryText.ForeColor = System.Drawing.Color.FromArgb(0xff, 0xf0, 0xf0, 0xf0);
+			m_primaryText.ForeColor = Color.FromNonPremultiplied(0xf0, 0xf0, 0xf0, 0xff);
 		}
 
 		protected override void Dispose(bool disposing)
@@ -2206,11 +2204,11 @@ namespace EndlessClient
 			LargeItemStyleMaxItemDisplay = 5;
 			SmallItemStyleMaxItemDisplay = 12;
 
-			m_titleText = new XNALabel(new Rectangle(16, 13, 253, 19), "Microsoft Sans Serif", 8.75f)
+			m_titleText = new XNALabel(new Rectangle(16, 13, 253, 19), Constants.FontSize08pt75)
 			{
 				AutoSize = false,
 				TextAlign = ContentAlignment.MiddleLeft,
-				ForeColor = System.Drawing.Color.FromArgb(0xff,0xc8,0xc8,0xc8)
+				ForeColor = Constants.LightGrayText
 			};
 			m_titleText.SetParent(this);
 
@@ -2405,26 +2403,26 @@ namespace EndlessClient
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 54);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			XNALabel lblPrompt = new XNALabel(new Rectangle(16, 20, 235, 49), "Microsoft Sans Serif", 10f)
+			XNALabel lblPrompt = new XNALabel(new Rectangle(16, 20, 235, 49), Constants.FontSize10)
 			{
 				AutoSize = false,
-				ForeColor = System.Drawing.Color.FromArgb(255, 0xe6, 0xe6, 0xd6),
+				ForeColor = Color.FromNonPremultiplied(0xe6, 0xe6, 0xd6, 0xff),
 				TextWidth = 230,
 				RowSpacing = 3,
 				Text = prompt
-			};
+            };
 			lblPrompt.SetParent(this);
 
 			//set this back once the dialog is closed.
 			previousSubscriber = ((EOGame)Game).Dispatcher.Subscriber;
 			DialogClosing += (o, e) => ((EOGame)Game).Dispatcher.Subscriber = previousSubscriber;
 
-			m_inputBox = new XNATextBox(new Rectangle(37, 74, 192, 19), EOGame.Instance.Content.Load<Texture2D>("cursor"), "Microsoft Sans Serif", 8.0f)
+			m_inputBox = new XNATextBox(new Rectangle(37, 74, 192, 19), EOGame.Instance.Content.Load<Texture2D>("cursor"), Constants.FontSize08)
 			{
 				MaxChars = maxInputChars,
 				LeftPadding = 4,
-				TextColor = System.Drawing.Color.FromArgb(0xff, 0xdc, 0xc8, 0xb4)
-			};
+				TextColor = Constants.LightBeigeText
+            };
 			m_inputBox.SetParent(this);
 			EOGame.Instance.Dispatcher.Subscriber = m_inputBox;
 
@@ -3051,28 +3049,28 @@ namespace EndlessClient
 			okButton.OnClick += (sender, args) => Close(okButton, XNADialogResult.OK);
 			okButton.SetParent(this);
 
-			XNALabel title = new XNALabel(new Rectangle(20, 17, 1, 1), "Microsoft Sans Serif", 8.5f)
+			XNALabel title = new XNALabel(new Rectangle(20, 17, 1, 1), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
 				Text = World.GetString(DATCONST2.DIALOG_TITLE_PERFORMANCE),
-				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
+                ForeColor = Constants.LightGrayText
 			};
 			title.SetParent(this);
 
 			XNALabel[] leftSide = new XNALabel[8], rightSide = new XNALabel[8];
 			for (int i = 48; i <= 160; i += 16)
 			{
-				leftSide[(i - 48)/16] = new XNALabel(new Rectangle(38, i, 1, 1), "Microsoft Sans Serif", 8.5f)
+				leftSide[(i - 48)/16] = new XNALabel(new Rectangle(38, i, 1, 1), Constants.FontSize08pt5)
 				{
 					AutoSize = false,
-					ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
-				};
+					ForeColor = Constants.LightGrayText
+                };
 				leftSide[(i - 48) / 16].SetParent(this);
-				rightSide[(i - 48) / 16] = new XNALabel(new Rectangle(158, i, 1, 1), "Microsoft Sans Serif", 8.5f)
+				rightSide[(i - 48) / 16] = new XNALabel(new Rectangle(158, i, 1, 1), Constants.FontSize08pt5)
 				{
 					AutoSize = false,
-					ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
-				};
+                    ForeColor = Constants.LightGrayText
+                };
 				rightSide[(i - 48) / 16].SetParent(this);
 			}
 
@@ -3164,9 +3162,9 @@ namespace EndlessClient
 			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 53);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			m_accountBalance = new XNALabel(new Rectangle(129, 20, 121, 16), "Microsoft Sans Serif", 8.5f)
+			m_accountBalance = new XNALabel(new Rectangle(129, 20, 121, 16), Constants.FontSize08pt5)
 			{
-				ForeColor = System.Drawing.Color.FromArgb(255, 0xc8, 0xc8, 0xc8),
+				ForeColor = Constants.LightGrayText,
 				Text = "",
 				TextAlign = ContentAlignment.MiddleRight,
 				AutoSize = false
@@ -3378,35 +3376,35 @@ namespace EndlessClient
 			m_leftPlayerID = 0;
 			m_rightPlayerID = 0;
 
-			m_leftPlayerName = new XNALabel(new Rectangle(20, 14, 166, 20), "Microsoft Sans Serif", 8.5f)
+			m_leftPlayerName = new XNALabel(new Rectangle(20, 14, 166, 20), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
 				TextAlign = ContentAlignment.MiddleLeft,
-				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
+				ForeColor = Constants.LightGrayText
 			};
 			m_leftPlayerName.SetParent(this);
-			m_rightPlayerName = new XNALabel(new Rectangle(285, 14, 166, 20), "Microsoft Sans Serif", 8.5f)
+			m_rightPlayerName = new XNALabel(new Rectangle(285, 14, 166, 20), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
 				TextAlign = ContentAlignment.MiddleLeft,
-				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
-			};
+                ForeColor = Constants.LightGrayText
+            };
 			m_rightPlayerName.SetParent(this);
-			m_leftPlayerStatus = new XNALabel(new Rectangle(195, 14, 79, 20), "Microsoft Sans Serif", 8.5f)
+			m_leftPlayerStatus = new XNALabel(new Rectangle(195, 14, 79, 20), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
 				TextAlign = ContentAlignment.MiddleLeft,
 				Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
-				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
-			};
+                ForeColor = Constants.LightGrayText
+            };
 			m_leftPlayerStatus.SetParent(this);
-			m_rightPlayerStatus = new XNALabel(new Rectangle(462, 14, 79, 20), "Microsoft Sans Serif", 8.5f)
+			m_rightPlayerStatus = new XNALabel(new Rectangle(462, 14, 79, 20), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
 				TextAlign = ContentAlignment.MiddleLeft,
 				Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
-				ForeColor = System.Drawing.Color.FromArgb(0xff, 0xc8, 0xc8, 0xc8)
-			};
+                ForeColor = Constants.LightGrayText
+            };
 			m_rightPlayerStatus.SetParent(this);
 
 			m_leftScroll = new EOScrollBar(this, new Vector2(252, 44), new Vector2(16, 199), EOScrollBar.ScrollColors.LightOnMed) { LinesToRender = 5 };
@@ -4107,7 +4105,7 @@ namespace EndlessClient
 		{
 			List<string> drawStrings = new List<string>();
 
-			using (Font f = new Font("Microsoft Sans Serif", 8.5f))
+			using (var f = new Font("Microsoft Sans Serif", 8.5f))
 			{
 				string[] messages =
 				{
