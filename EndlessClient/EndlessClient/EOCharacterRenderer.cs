@@ -231,7 +231,7 @@ namespace EndlessClient
 // ReSharper disable SpecifyACultureInStringConversionExplicitly
 					Text = data.level.ToString()
 // ReSharper restore SpecifyACultureInStringConversionExplicitly
-                };
+				};
 				levelLabel.SetParent(this);
 
 				//504, 93 abs loc
@@ -241,7 +241,7 @@ namespace EndlessClient
 					Text = ((char) (data.name[0] - 32)) + data.name.Substring(1),
 					TextAlign = LabelAlignment.MiddleCenter,
 					AutoSize = false
-                };
+				};
 				nameLabel.SetParent(this);
 
 				adminGraphic = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22);
@@ -355,12 +355,7 @@ namespace EndlessClient
 			{
 				if (World.Instance.EIF != null)
 				{
-					shieldInfo =
-						(ItemRecord)
-							World.Instance.EIF.Data.Find(
-								x =>
-									(x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.shield &&
-									(x as ItemRecord).Type == ItemType.Shield);
+					shieldInfo = World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Shield, Data.shield);
 					if(shieldInfo != null)
 						shield = spriteSheet.GetShield(shieldInfo.Name == "Bag" || shieldInfo.SubType == ItemSubType.Arrows || shieldInfo.SubType == ItemSubType.Wings);
 				}
@@ -375,12 +370,7 @@ namespace EndlessClient
 			{
 				if (World.Instance.EIF != null)
 				{
-					weaponInfo =
-						(ItemRecord)
-							World.Instance.EIF.Data.Find(
-								x =>
-									(x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.weapon &&
-									(x as ItemRecord).Type == ItemType.Weapon);
+					weaponInfo = World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Weapon, Data.weapon);
 					if(weaponInfo != null)
 						weapon = spriteSheet.GetWeapon(weaponInfo.SubType == ItemSubType.Ranged);
 				}
@@ -402,11 +392,7 @@ namespace EndlessClient
 				lock (hatHairLock)
 					hat = spriteSheet.GetHat();
 				if (World.Instance.EIF != null)
-					hatInfo =
-						(ItemRecord)
-							World.Instance.EIF.Data.Find(
-								x =>
-									(x as ItemRecord != null) && (x as ItemRecord).DollGraphic == Data.hat && (x as ItemRecord).Type == ItemType.Hat);
+					hatInfo = World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Hat, Data.hat);
 			}
 			else
 			{
@@ -539,9 +525,9 @@ namespace EndlessClient
 			var currentState = Mouse.GetState();
 
 			bool leftClicked = PreviousMouseState.LeftButton == ButtonState.Pressed &&
-			                   currentState.LeftButton == ButtonState.Released;
+							   currentState.LeftButton == ButtonState.Released;
 			bool rightClicked = PreviousMouseState.RightButton == ButtonState.Pressed &&
-			                    currentState.RightButton == ButtonState.Released;
+								currentState.RightButton == ButtonState.Released;
 
 			if (leftClicked)
 			{
@@ -705,7 +691,7 @@ namespace EndlessClient
 
 			//note: if character is hidden, only draw if a) they are not active character and b) the active character is admin
 			if (_char != World.Instance.MainPlayer.ActiveCharacter && _char.RenderData.hidden &&
-			    World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
+				World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 				return;
 
 			if(!started) sb.Begin();

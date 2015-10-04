@@ -11,9 +11,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
-using Color = Microsoft.Xna.Framework.Color;
-using Point = Microsoft.Xna.Framework.Point;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace EndlessClient
 {
@@ -400,13 +397,9 @@ namespace EndlessClient
 
 		public void RemoveMapItem(short uid)
 		{
-			List<Point> pts = MapItems.Keys.Where(_key => MapItems[_key].Find(_mi => _mi.uid == uid).uid == uid).ToList();
-			if(pts.Count > 1)
-				throw new AmbiguousMatchException("Multiple MapItems shared that uid. Something is wrong.");
-			//should only be one result
-			if (pts.Count == 0) return;
+			var locationContainingItemUID = MapItems.Keys.FirstOrDefault(_key => MapItems[_key].Find(_mi => _mi.uid == uid).uid == uid);
 			
-			List<MapItem> res = MapItems[pts[0]];
+			List<MapItem> res = MapItems[locationContainingItemUID];
 			for (int i = res.Count - 1; i >= 0; --i)
 			{
 				if (res[i].uid == uid)
@@ -498,8 +491,8 @@ namespace EndlessClient
 			EOCharacterRenderer otherRend = null;
 			lock (_rendererListLock)
 			{
-				Character other;
-				if ((other = otherRenderers.Select(x => x.Character).ToList().Find(x => x.Name == c.Name && x.ID == c.ID)) == null)
+				Character other = otherRenderers.Select(x => x.Character).FirstOrDefault(x => x.Name == c.Name && x.ID == c.ID);
+				if (other == null)
 				{
 					other = new Character(m_api, c);
 					lock (_rendererListLock)
@@ -1195,14 +1188,14 @@ namespace EndlessClient
 				foreach (EOCharacterRenderer rend in otherRenderers)
 					rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
 
-				var deadRenderers = otherRenderers.Where(x => x.CompleteDeath).ToList();
+				var deadRenderers = otherRenderers.Where(x => x.CompleteDeath);
 				foreach (var rend in deadRenderers)
 				{
 					RemoveOtherPlayer((short) rend.Character.ID);
 
 					if (_visibleSpikeTraps.Contains(new Point(rend.Character.X, rend.Character.Y)) &&
-					    !otherRenderers.Select(x => x.Character)
-						    .Any(player => player.X == rend.Character.X && player.Y == rend.Character.Y))
+						!otherRenderers.Select(x => x.Character)
+							.Any(player => player.X == rend.Character.X && player.Y == rend.Character.Y))
 					{
 						RemoveVisibleSpikeTrap(rend.Character.X, rend.Character.Y);
 					}
@@ -1340,8 +1333,8 @@ namespace EndlessClient
 				if (mouseClicked)
 				{
 					if ((World.Instance.MainPlayer.ActiveCharacter.ID != mi.playerID && mi.playerID != 0) &&
-					    (mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) ||
-					    (!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
+						(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) ||
+						(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
 					{
 						Character charRef = GetOtherPlayerByID((short)mi.playerID);
 						DATCONST2 msg = charRef == null
@@ -1692,8 +1685,8 @@ namespace EndlessClient
 					var colDelta = Math.Abs(c.X - colIndex);
 					//once we hit the main players (x, y) coordinate, we need to switch render targets
 					if (!targetChanged &&
-					    ((c.State != CharacterActionState.Walking && rowIndex == c.Y && colIndex == c.X) ||
-					     (c.State == CharacterActionState.Walking && rowIndex == c.DestY && colIndex == c.DestX)))
+						((c.State != CharacterActionState.Walking && rowIndex == c.Y && colIndex == c.X) ||
+						 (c.State == CharacterActionState.Walking && rowIndex == c.DestY && colIndex == c.DestX)))
 					{
 						try
 						{
@@ -2010,8 +2003,8 @@ namespace EndlessClient
 				if (m_contextMenu != null)
 					m_contextMenu.Dispose();
 
-                if(m_miniMapRenderer != null)
-                    m_miniMapRenderer.Dispose();
+				if(m_miniMapRenderer != null)
+					m_miniMapRenderer.Dispose();
 
 				base.Dispose(true);
 				_disposed = true;

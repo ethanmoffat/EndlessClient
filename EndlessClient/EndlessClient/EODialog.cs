@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
@@ -933,7 +932,7 @@ namespace EndlessClient
 			message = new XNALabel(new Rectangle(18, 61, 1, 1), Constants.FontSize08)
 			{
 				TextWidth = 175,
-				ForeColor = Color.FromNonPremultiplied(0xb9, 0xb9, 0xb9, 0xff),
+				ForeColor = Constants.MediumGrayText,
 				Text = file.Data[msgTxt]
 			};
 			message.SetParent(this);
@@ -1112,7 +1111,8 @@ namespace EndlessClient
 		{
 			try
 			{
-				MapFile mapFile = new MapFile(string.Format(Constants.MapFileFormatString, World.Instance.NeedMap));
+				// ReSharper disable once UnusedVariable
+				var map = new MapFile(string.Format(Constants.MapFileFormatString, World.Instance.NeedMap));
 			}
 			catch { return false; }
 
@@ -1554,7 +1554,7 @@ namespace EndlessClient
 
 			XNALabel descLabel = new XNALabel(new Rectangle(20, 42, 231, 33), Constants.FontSize10)
 			{
-				ForeColor = Color.FromNonPremultiplied(0xe6, 0xe6, 0xd6, 0xff),
+				ForeColor = Constants.LightGrayDialogMessage,
 				TextWidth = 200,
 				Text = string.Format("{0} {1} {2}", World.GetString(DATCONST2.DIALOG_TRANSFER_HOW_MUCH), itemName, World.GetString(message))
 			};
@@ -2406,7 +2406,7 @@ namespace EndlessClient
 			XNALabel lblPrompt = new XNALabel(new Rectangle(16, 20, 235, 49), Constants.FontSize10)
 			{
 				AutoSize = false,
-				ForeColor = Color.FromNonPremultiplied(0xe6, 0xe6, 0xd6, 0xff),
+				ForeColor = Constants.LightGrayDialogMessage,
 				TextWidth = 230,
 				RowSpacing = 3,
 				Text = prompt
@@ -3844,7 +3844,7 @@ namespace EndlessClient
 		{
 			if (Instance == null || this != Instance) return;
 
-			EODialogListItem itemToRemove = children.Find(_x => _x is EODialogListItem && (_x as EODialogListItem).ID == id) as EODialogListItem;
+			EODialogListItem itemToRemove = children.OfType<EODialogListItem>().FirstOrDefault(_x => _x.ID == id);
 			if(itemToRemove != null)
 				RemoveFromList(itemToRemove);
 		}
