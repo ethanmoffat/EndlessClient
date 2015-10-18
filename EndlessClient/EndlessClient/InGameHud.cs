@@ -37,10 +37,16 @@ namespace EndlessClient
 		private const int NUM_BTN = 11;
 		private const int HUD_CONTROL_DRAW_ORDER = 101;
 		private readonly Texture2D mainFrame, topLeft, sidebar, topBar, filler;
-		//might need to consider making an EOPanels file and deriving from XNAPanel
-		//	to support eo-specific functionality that I'm going to need...
-		private readonly XNAPanel pnlInventory, pnlActiveSpells, pnlPassiveSpells, pnlChat, pnlStats;
-		private readonly XNAPanel pnlNews, pnlOnline, pnlParty, pnlSettings, pnlHelp;
+		private XNAPanel pnlInventory;
+		private XNAPanel pnlActiveSpells;
+		private XNAPanel pnlPassiveSpells;
+		private XNAPanel pnlChat;
+		private XNAPanel pnlStats;
+		private XNAPanel pnlNews;
+		private XNAPanel pnlOnline;
+		private XNAPanel pnlParty;
+		private XNAPanel pnlSettings;
+		private XNAPanel pnlHelp;
 		private readonly XNAButton[] mainBtn;
 		private readonly SpriteBatch SpriteBatch;
 		private readonly EOChatRenderer chatRenderer;
@@ -65,7 +71,7 @@ namespace EndlessClient
 		/// <summary>
 		/// the primary textbox for chat
 		/// </summary>
-		private readonly ChatTextBox chatTextBox;
+		private ChatTextBox chatTextBox;
 
 		//HP, SP, TP, TNL (in that order)
 		private readonly HUDElement[] StatusBars = new HUDElement[4];
@@ -77,8 +83,7 @@ namespace EndlessClient
 
 		private List<InputKeyListenerBase> m_inputListeners;
 		
-		public HUD(Game g, PacketAPI api)
-			: base(g)
+		public HUD(Game g, PacketAPI api) : base(g)
 		{
 			if(!api.Initialized)
 				throw new ArgumentException("Need to initialize connection before the in-game stuff will work");
@@ -96,7 +101,89 @@ namespace EndlessClient
 			Texture2D mainButtonTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 25);
 			mainBtn = new XNAButton[NUM_BTN];
 
-			//set up panels
+			CreatePanels();
+			CreateMainButtons(g, mainButtonTexture);
+
+			SpriteBatch = new SpriteBatch(g.GraphicsDevice);
+
+			state = InGameStates.News;
+
+			chatRenderer = new EOChatRenderer();
+			chatRenderer.SetParent(pnlChat);
+			chatRenderer.AddTextToTab(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER),
+				World.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_1),
+				ChatType.Note, ChatColor.Server);
+			chatRenderer.AddTextToTab(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER),
+				World.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_2),
+				ChatType.Note, ChatColor.Server);
+
+			newsTab = new ChatTab(pnlNews);
+
+			CreateChatTextbox();
+
+			m_muteTimer = new Timer(s =>
+			{
+				chatTextBox.IgnoreAllInput = false;
+				currentChatMode = ChatMode.NoText;
+				m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
+			}, null, Timeout.Infinite, Timeout.Infinite);
+
+		    statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
+		    clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
+
+            StatusBars[0] = new HudElementHP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
+			StatusBars[1] = new HudElementTP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
+			StatusBars[2] = new HudElementSP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
+			StatusBars[3] = new HudElementTNL {DrawOrder = HUD_CONTROL_DRAW_ORDER};
+
+			m_whoIsOnline = new EOOnlineList(pnlOnline);
+			m_party = new EOPartyPanel(pnlParty);
+
+			m_friendList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
+				new Vector2(592, 312),
+				new Rectangle(0, 260, 17, 15),
+				new Rectangle(0, 276, 17, 15))
+			{
+				Visible = true,
+				Enabled = true,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
+			};
+			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: false, apiHandle: m_packetAPI);
+			m_friendList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_FRIEND_LIST);
+
+			m_ignoreList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
+				new Vector2(609, 312),
+				new Rectangle(17, 260, 17, 15),
+				new Rectangle(17, 276, 17, 15))
+			{
+				Visible = true,
+				Enabled = true,
+				DrawOrder = HUD_CONTROL_DRAW_ORDER
+			};
+			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: true, apiHandle: m_packetAPI);
+			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_IGNORE_LIST);
+
+			m_expInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
+				new Vector2(55, 0),
+				new Rectangle(331, 30, 22, 14),
+				new Rectangle(331, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
+			m_expInfo.OnClick += (o, e) => EOSessionExpDialog.Show();
+			m_questInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
+				new Vector2(77, 0),
+				new Rectangle(353, 30, 22, 14),
+				new Rectangle(353, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
+			m_questInfo.OnClick += (o, e) => EOQuestProgressDialog.Show(m_packetAPI);
+
+			//no need to make this a member variable
+			//it does not have any resources to dispose and it is automatically disposed by the framework
+			// ReSharper disable once UnusedVariable
+			EOSettingsPanel settings = new EOSettingsPanel(pnlSettings);
+		}
+
+		#region Constructor Helpers
+
+		private void CreatePanels()
+		{
 			Texture2D invBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 44);
 			pnlInventory = new XNAPanel(new Rectangle(102, 330, invBG.Width, invBG.Height))
 			{
@@ -192,7 +279,10 @@ namespace EndlessClient
 			//pnlCollection.Add(pnlMacro); //if this ever happens...
 
 			pnlCollection.ForEach(World.IgnoreDialogs);
+		}
 
+		private void CreateMainButtons(Game g, Texture2D mainButtonTexture)
+		{
 			for (int i = 0; i < NUM_BTN; ++i)
 			{
 				Texture2D _out = new Texture2D(g.GraphicsDevice, mainButtonTexture.Width / 2, mainButtonTexture.Height / NUM_BTN);
@@ -214,7 +304,7 @@ namespace EndlessClient
 				//6-10: right side, starting at 587, 347
 				Vector2 btnLoc = new Vector2(i < 6 ? 62 : 590, (i < 6 ? 330 : 350) + ((i < 6 ? i : i - 6) * 20));
 
-				mainBtn[i] = new XNAButton(new [] { _out, _ovr }, btnLoc)
+				mainBtn[i] = new XNAButton(new[] { _out, _ovr }, btnLoc)
 				{
 					DrawOrder = HUD_CONTROL_DRAW_ORDER
 				};
@@ -222,9 +312,9 @@ namespace EndlessClient
 			}
 
 			//left button onclick events
-			mainBtn[0].OnClick += (s,e) => _doStateChange(InGameStates.Inventory);
-			mainBtn[1].OnClick += (s,e) => World.Instance.ActiveMapRenderer.ToggleMapView();
-			mainBtn[2].OnClick += (s,e) => _doStateChange(InGameStates.Active);
+			mainBtn[0].OnClick += (s, e) => _doStateChange(InGameStates.Inventory);
+			mainBtn[1].OnClick += (s, e) => World.Instance.ActiveMapRenderer.ToggleMapView();
+			mainBtn[2].OnClick += (s, e) => _doStateChange(InGameStates.Active);
 			mainBtn[3].OnClick += (s, e) => _doStateChange(InGameStates.Passive);
 			mainBtn[4].OnClick += (s, e) => _doStateChange(InGameStates.Chat);
 			mainBtn[5].OnClick += (s, e) => _doStateChange(InGameStates.Stats);
@@ -235,23 +325,12 @@ namespace EndlessClient
 			//mainBtn[8].OnClick += OnViewMacro; //not implemented in EO client
 			mainBtn[9].OnClick += (s, e) => _doStateChange(InGameStates.Settings);
 			mainBtn[10].OnClick += (s, e) => _doStateChange(InGameStates.Help);
+		}
 
-			SpriteBatch = new SpriteBatch(g.GraphicsDevice);
-
-			state = InGameStates.News;
-
-			chatRenderer = new EOChatRenderer();
-			chatRenderer.SetParent(pnlChat);
-			chatRenderer.AddTextToTab(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER),
-				World.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_1),
-				ChatType.Note, ChatColor.Server);
-			chatRenderer.AddTextToTab(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER),
-				World.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_2),
-				ChatType.Note, ChatColor.Server);
-
-			newsTab = new ChatTab(pnlNews);
-
-			chatTextBox = new ChatTextBox(new Rectangle(124, 308, 440, 19), g.Content.Load<Texture2D>("cursor"), Constants.FontSize08)
+		private void CreateChatTextbox()
+		{
+			chatTextBox = new ChatTextBox(new Rectangle(124, 308, 440, 19), Game.Content.Load<Texture2D>("cursor"),
+				Constants.FontSize08)
 			{
 				Selected = true,
 				Visible = true,
@@ -263,10 +342,10 @@ namespace EndlessClient
 			chatTextBox.OnClicked += (s, e) =>
 			{
 				//make sure clicking on the textarea selects it (this is an annoying problem in the original client)
-				if (((EOGame) g).Dispatcher.Subscriber != null)
-					((XNATextBox) ((EOGame) g).Dispatcher.Subscriber).Selected = false;
+				if (((EOGame) Game).Dispatcher.Subscriber != null)
+					((XNATextBox) ((EOGame) Game).Dispatcher.Subscriber).Selected = false;
 
-				((EOGame) g).Dispatcher.Subscriber = chatTextBox;
+				((EOGame) Game).Dispatcher.Subscriber = chatTextBox;
 				chatTextBox.Selected = true;
 			};
 			chatTextBox.OnTextChanged += (s, e) =>
@@ -294,13 +373,17 @@ namespace EndlessClient
 
 				switch (chatTextBox.Text[0])
 				{
-					case '!': currentChatMode = ChatMode.Private; break;
+					case '!':
+						currentChatMode = ChatMode.Private;
+						break;
 					case '@': //should show global if admin, otherwise, public/normal chat
 						if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 							goto default;
 						currentChatMode = ChatMode.Global;
 						break;
-					case '~': currentChatMode = ChatMode.Global; break;
+					case '~':
+						currentChatMode = ChatMode.Global;
+						break;
 					case '+':
 					{
 						if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
@@ -308,7 +391,9 @@ namespace EndlessClient
 						currentChatMode = ChatMode.Admin;
 					}
 						break;
-					case '\'': currentChatMode = ChatMode.Group; break;
+					case '\'':
+						currentChatMode = ChatMode.Group;
+						break;
 					case '&':
 					{
 						if (World.Instance.MainPlayer.ActiveCharacter.GuildName == "")
@@ -316,70 +401,16 @@ namespace EndlessClient
 						currentChatMode = ChatMode.Guild;
 					}
 						break;
-					default: currentChatMode = ChatMode.Public; break;
+					default:
+						currentChatMode = ChatMode.Public;
+						break;
 				}
 			};
-			
-			((EOGame)g).Dispatcher.Subscriber = chatTextBox;
 
-			m_muteTimer = new Timer(s =>
-			{
-				chatTextBox.IgnoreAllInput = false;
-				currentChatMode = ChatMode.NoText;
-				m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
-			}, null, Timeout.Infinite, Timeout.Infinite);
-
-		    statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
-		    clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
-
-            StatusBars[0] = new HudElementHP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-			StatusBars[1] = new HudElementTP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-			StatusBars[2] = new HudElementSP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-			StatusBars[3] = new HudElementTNL {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-
-			m_whoIsOnline = new EOOnlineList(pnlOnline);
-			m_party = new EOPartyPanel(pnlParty);
-
-			m_friendList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
-				new Vector2(592, 312),
-				new Rectangle(0, 260, 17, 15),
-				new Rectangle(0, 276, 17, 15))
-			{
-				Visible = true,
-				Enabled = true,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: false, apiHandle: m_packetAPI);
-			m_friendList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_FRIEND_LIST);
-
-			m_ignoreList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
-				new Vector2(609, 312),
-				new Rectangle(17, 260, 17, 15),
-				new Rectangle(17, 276, 17, 15))
-			{
-				Visible = true,
-				Enabled = true,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: true, apiHandle: m_packetAPI);
-			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_IGNORE_LIST);
-
-			m_expInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
-				new Vector2(55, 0),
-				new Rectangle(331, 30, 22, 14),
-				new Rectangle(331, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-			m_expInfo.OnClick += (o, e) => EOSessionExpDialog.Show();
-			m_questInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
-				new Vector2(77, 0),
-				new Rectangle(353, 30, 22, 14),
-				new Rectangle(353, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-			m_questInfo.OnClick += (o, e) => EOQuestProgressDialog.Show(m_packetAPI);
-
-			//no need to make this a member variable
-			//it does not have any resources to dispose and it is automatically disposed by the framework
-			// ReSharper disable once UnusedVariable
-			EOSettingsPanel settings = new EOSettingsPanel(pnlSettings);
+			((EOGame) Game).Dispatcher.Subscriber = chatTextBox;
 		}
+
+		#endregion
 
 		public override void Initialize()
 		{
@@ -934,19 +965,19 @@ namespace EndlessClient
 				pnlParty.Close();
 				pnlSettings.Close();
 
-				chatTextBox.Dispose();
-				statusLabel.Dispose();
+				chatTextBox.Close();
+				statusLabel.Close();
 
-				m_friendList.Dispose();
-				m_ignoreList.Dispose();
+				m_friendList.Close();
+				m_ignoreList.Close();
 
-				m_expInfo.Dispose();
-				m_questInfo.Dispose();
+				m_expInfo.Close();
+				m_questInfo.Close();
 
 				lock (clockLock)
 				{
 					clockTimer.Dispose();
-					clockLabel.Dispose();
+					clockLabel.Close();
 				}
 
 				if (m_muteTimer != null)
