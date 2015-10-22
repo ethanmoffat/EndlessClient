@@ -1,7 +1,7 @@
 ﻿//****************************************************************************************************
-//* Credit for this file goes to DeathX/Exile Studios
-//* Source taken from https://www.assembla.com/code/eo-dev-sharp/subversion/nodes (see Data/EMF.cs)
-//* Heavily refactored and improved from there
+//* This is a modified version of an original work licensed under the GPL v3.0
+//* Original unmodifeid source is available at https://www.assembla.com/code/eo-dev-sharp/subversion/nodes (see Data/EMF.cs)
+//* For additional details on GPL v3.0 see the file GPL3License.txt
 //****************************************************************************************************
 
 using System;

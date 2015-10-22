@@ -1,5 +1,8 @@
-﻿/* Most of this file was taken straight from EOSERV source code with modifications to convert it to C# */
-/* Some of this file was reverse engineered from EOHax C# Dlls using a decompiler */
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+// Some of this work is reverse-engineered from 
+//	 EOHAX C# DLLs written by Sausage (www.tehsausage.com)
+// This file is subject to the GPL v2 License
+// For additional details, see the LICENSE file
 
 using System;
 

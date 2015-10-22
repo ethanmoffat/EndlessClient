@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+// This file is subject to the GPL v2 License
+// For additional details, see the LICENSE file
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -128,10 +132,10 @@ namespace EndlessClient
 				m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
 			}, null, Timeout.Infinite, Timeout.Infinite);
 
-		    statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
-		    clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
+			statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
+			clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
 
-            StatusBars[0] = new HudElementHP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
+			StatusBars[0] = new HudElementHP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
 			StatusBars[1] = new HudElementTP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
 			StatusBars[2] = new HudElementSP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
 			StatusBars[3] = new HudElementTNL {DrawOrder = HUD_CONTROL_DRAW_ORDER};
@@ -364,7 +368,7 @@ namespace EndlessClient
 				}
 
 				if (chatTextBox.Text.Length == 1 && chatTextBox.Text[0] == '~' &&
-				    World.Instance.MainPlayer.ActiveCharacter.CurrentMap == World.Instance.JailMap)
+					World.Instance.MainPlayer.ActiveCharacter.CurrentMap == World.Instance.JailMap)
 				{
 					chatTextBox.Text = "";
 					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.JAIL_WARNING_CANNOT_USE_GLOBAL);

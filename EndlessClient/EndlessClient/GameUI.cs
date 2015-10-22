@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+// This file is subject to the GPL v2 License
+// For additional details, see the LICENSE file
+
+using System;
 using System.Linq;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
@@ -106,7 +110,7 @@ namespace EndlessClient
 				int txtYCoord = (i < 3 ? 69 : 260) + (i < 3 ? i * 51 : (i - 3) * 51);
 				XNATextBox txt = new XNATextBox(new Rectangle(358, txtYCoord, 240, textBoxTextures[0].Height), textBoxTextures, Constants.FontSize08) { LeftPadding = 4 };
 
-                switch (i)
+				switch (i)
 				{
 					case 0:
 						txt.MaxChars = 16;
@@ -190,7 +194,7 @@ Thanks to :
 		}
 
 #if DEBUG
-        private async void testingame_click(object sender, EventArgs e)
+		private async void testingame_click(object sender, EventArgs e)
 		{
 			MainButtonPress(mainButtons[1], e); //press login
 			await TaskFramework.Delay(500);
@@ -205,8 +209,8 @@ Thanks to :
 		}
 #endif
 
-        //Pretty much controls how states transition between one another
-        private async void MainButtonPress(object sender, EventArgs e)
+		//Pretty much controls how states transition between one another
+		private async void MainButtonPress(object sender, EventArgs e)
 		{
 			if (!IsActive)
 				return;

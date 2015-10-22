@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+// This file is subject to the GPL v2 License
+// For additional details, see the LICENSE file
+
+using System;
 using System.Windows.Forms;
 
 namespace BatchPub
