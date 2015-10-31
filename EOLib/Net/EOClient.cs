@@ -103,7 +103,7 @@ namespace EOLib.Net
 
 			FamilyActionPair fappingIsBad /*Jesus told me to*/ = (FamilyActionPair)obj;
 
-			return (int)fap.fam << 8 & (byte)fap.act;
+			return (int)fappingIsBad.fam << 8 & (byte)fappingIsBad.act;
 		}
 	}
 
