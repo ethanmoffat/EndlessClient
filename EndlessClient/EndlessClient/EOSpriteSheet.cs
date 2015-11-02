@@ -3,290 +3,17 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Runtime.InteropServices;
 using EOLib.Net;
 using Microsoft.Xna.Framework.Graphics;
 using XNA = Microsoft.Xna.Framework;
 
 using EOLib.Data;
+using EOLib.Graphics;
 
 namespace EndlessClient
 {
-	[Serializable]
-	public class GFXLoadException : Exception
-	{
-		public GFXLoadException(int resource, GFXTypes gfx)
-			: base(string.Format("Unable to load graphic {0} from file gfx{1:000}.egf", resource + 100, (int)gfx)) { }
-	}
-
-	public enum GFXTypes
-	{
-		/// <summary>
-		/// 001
-		/// </summary>
-		PreLoginUI = 1,
-		/// <summary>
-		/// 002
-		/// </summary>
-		PostLoginUI,
-		/// <summary>
-		/// 003
-		/// </summary>
-		MapTiles,
-		/// <summary>
-		/// 004
-		/// </summary>
-		MapObjects,
-		/// <summary>
-		/// 005
-		/// </summary>
-		MapOverlay,
-		/// <summary>
-		/// 006
-		/// </summary>
-		MapWalls,
-		/// <summary>
-		/// 007
-		/// </summary>
-		MapWallTop,
-		/// <summary>
-		/// 008
-		/// </summary>
-		SkinSprites,
-		/// <summary>
-		/// 009
-		/// </summary>
-		MaleHair,
-		/// <summary>
-		/// 010
-		/// </summary>
-		FemaleHair,
-		/// <summary>
-		/// 011
-		/// </summary>
-		MaleShoes,
-		/// <summary>
-		/// 012
-		/// </summary>
-		FemaleShoes,
-		/// <summary>
-		/// 013
-		/// </summary>
-		MaleArmor,
-		/// <summary>
-		/// 014
-		/// </summary>
-		FemaleArmor,
-		/// <summary>
-		/// 015
-		/// </summary>
-		MaleHat,
-		/// <summary>
-		/// 016
-		/// </summary>
-		FemaleHat,
-		/// <summary>
-		/// 017
-		/// </summary>
-		MaleWeapons,
-		/// <summary>
-		/// 018
-		/// </summary>
-		FemaleWeapons,
-		/// <summary>
-		/// 019
-		/// </summary>
-		MaleBack,
-		/// <summary>
-		/// 020
-		/// </summary>
-		FemaleBack,
-		/// <summary>
-		/// 021
-		/// </summary>
-		NPC,
-		/// <summary>
-		/// 022
-		/// </summary>
-		Shadows,
-		/// <summary>
-		/// 023
-		/// </summary>
-		Items,
-		/// <summary>
-		/// 024
-		/// </summary>
-		Spells,
-		/// <summary>
-		/// 025
-		/// </summary>
-		SpellIcons
-	}
-
-	public static class GFXLoader
-	{
-		/*** P/Invoke Stuff ***/
-		//lpszName is a uint because egf files use MAKEINTRESOURCE which casts the uint resource value to a string pointer
-		[DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-		private static extern IntPtr LoadImage(IntPtr hinst, uint lpszName, uint uType, int cxDesired, int cyDesired, uint fuLoad);
-		[DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-		private static extern IntPtr LoadLibrary(string lpFileName);
-		[DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-		private static extern bool FreeLibrary(IntPtr hModule);
-		[DllImport("gdi32.dll")]
-		private static extern bool DeleteObject(IntPtr hObject);
-
-		private struct LibraryGraphicPair : IComparable
-		{
-			private readonly int LibraryNumber;
-			private readonly int GraphicNumber;
-
-			public LibraryGraphicPair(int lib, int gfx)
-			{
-				LibraryNumber = lib;
-				GraphicNumber = gfx;
-			}
-
-			public int CompareTo(object other)
-			{
-				if (!(other is LibraryGraphicPair))
-					return -1;
-
-				LibraryGraphicPair rhs = (LibraryGraphicPair)other;
-
-				if (rhs.LibraryNumber == LibraryNumber && rhs.GraphicNumber == GraphicNumber)
-					return 0;
-
-				return -1;
-			}
-
-			public override bool Equals(object obj)
-			{
-				if (!(obj is LibraryGraphicPair)) return false;
-				LibraryGraphicPair other = (LibraryGraphicPair) obj;
-				return other.GraphicNumber == GraphicNumber && other.LibraryNumber == LibraryNumber;
-			}
-
-			public override int GetHashCode()
-			{
-				return (LibraryNumber << 16) | GraphicNumber;
-			}
-		}
-
-		private static readonly Dictionary<LibraryGraphicPair, Texture2D> cache = new Dictionary<LibraryGraphicPair, Texture2D>();
-
-		private static GraphicsDevice device;
-
-		public static void Initialize(GraphicsDevice dev)
-		{
-			if (device != null)
-				throw new ArgumentException("The GFX loader has already been initialized once.");
-			device = dev;
-		}
-
-		/// <summary>
-		/// Disposes all cached textures
-		/// </summary>
-		public static void Cleanup()
-		{
-			foreach (Texture2D text in cache.Values)
-			{
-				text.Dispose();
-			}
-			cache.Clear();
-		}
-
-		/// <summary>
-		/// Returns a byte array of image data from a single image within an endless online *.egf file
-		/// Image is specified by the library file (GFXTypes) and the resourceName (number)
-		/// </summary>
-		/// <param name="resourceVal">Name (number) of the image resource</param>
-		/// <param name="file">File type to load from</param>
-		/// <param name="transparent">Whether or not to make the background black color transparent</param>
-		/// <param name="reloadFromFile">True to force reload the gfx from the gfx file, false to use the in-memory cache</param>
-		/// <returns>Texture2D containing the image from the *.egf file</returns>
-		public static Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false, bool reloadFromFile = false)
-		{
-			Texture2D ret;
-
-			LibraryGraphicPair key = new LibraryGraphicPair((int)file, 100 + resourceVal);
-			if (!reloadFromFile && cache.ContainsKey(key))
-			{
-				return cache[key];
-			}
-			
-			if (cache.ContainsKey(key) && reloadFromFile)
-			{
-				if (cache[key] != null) cache[key].Dispose();
-				cache.Remove(key);
-			}
-
-			using (System.IO.MemoryStream mem = new System.IO.MemoryStream())
-			{
-				using (Bitmap i = BitmapFromResource(file, resourceVal, transparent))
-					i.Save(mem, System.Drawing.Imaging.ImageFormat.Png);
-
-				ret = Texture2D.FromStream(device, mem);
-			}
-			
-			//need to double-check that the key isn't already in the cache:
-			//  	multiple threads can enter this method simultaneously
-			//avoiding a lock because this method is used for every graphic
-			if(!cache.ContainsKey(key))
-				cache.Add(key, ret);
-
-			return ret;
-		}
-
-		private static Bitmap BitmapFromResource(GFXTypes file, int resourceVal, bool transparent)
-		{
-			if (device == null)
-			{
-				throw new NullReferenceException("The GFX loader must be initialized with a graphics device by calling GFXLoader.Initialize() in your game class.");
-			}
-
-			string number = ((int)file).ToString("D3");
-			string fName = System.IO.Path.Combine(new [] { "gfx", "gfx" + number + ".egf" });
-
-			IntPtr library = LoadLibrary(fName);
-
-			if (library == IntPtr.Zero)
-			{
-				int err = Marshal.GetLastWin32Error();
-				throw new Exception(string.Format("Error {1} when loading library {0}\n{2}", number, err, new System.ComponentModel.Win32Exception(err).Message));
-			}
-
-			IntPtr image = LoadImage(library, (uint)(100 + resourceVal), 0 /*IMAGE_BITMAP*/, 0, 0, 0x00008000 | 0x00002000 /*LR_DEFAULT*/);
-
-			if (image == IntPtr.Zero)
-			{
-				throw new GFXLoadException(resourceVal, file);
-			}
-			Bitmap ret = Image.FromHbitmap(image);
-
-			if (transparent)
-			{
-				if (file != GFXTypes.FemaleHat && file != GFXTypes.MaleHat)
-					ret.MakeTransparent(Color.Black);
-
-				// for hats: 0x080000 is transparent, 0x000000 is supposed to clip hair below it
-				if (file == GFXTypes.FemaleHat || file == GFXTypes.MaleHat)
-				{
-					//ret.MakeTransparent(Color.Black);
-					ret.MakeTransparent(Color.FromArgb(0xFF, 0x08, 0x00, 0x00));
-				}
-			}
-
-			FreeLibrary(library);
-			DeleteObject(image);
-			return ret;
-		}
-	}
-
 	//---------------------------------------------------
-	// SPRITE SHEET LAYER FOR CHARACTER RENDERING HELPER (and NPCs :) )
+	// SPRITE SHEET LAYER FOR CHARACTER RENDERING HELPER (and NPCs)
 	//---------------------------------------------------
 
 	//enums are stored with values that are the actual numbers instead of being indexes.
@@ -339,21 +66,24 @@ namespace EndlessClient
 	
 	public class EOSpriteSheet
 	{
-		private readonly Character charRef;
-		public EOSpriteSheet(Character charToWatch)
+		private readonly GFXLoader _gfxLoader;
+		private readonly Character _charRef;
+
+		public EOSpriteSheet(GFXLoader gfxLoader, Character charToWatch)
 		{
-			charRef = charToWatch;
+			_gfxLoader = gfxLoader;
+			_charRef = charToWatch;
 		}
 
 		private CharRenderData _data
 		{
-			get { return charRef.RenderData; }
+			get { return _charRef.RenderData; }
 		}
 
 		public Texture2D GetArmor(bool isBow = false)
 		{
 			ArmorShieldSpriteType type = ArmorShieldSpriteType.Standing;
-			switch(charRef.State)
+			switch(_charRef.State)
 			{
 				case CharacterActionState.Walking:
 					switch (_data.walkFrame)
@@ -403,7 +133,7 @@ namespace EndlessClient
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1; //multiplier for the direction faced
 			factor *= getFactor(type);
 			int gfxNumber = baseArmorValue + (int)type + factor;
-			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
+			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
 		public Texture2D GetShield(bool shieldIsOnBack)
@@ -413,7 +143,7 @@ namespace EndlessClient
 			int factor;
 			if (!shieldIsOnBack)
 			{
-				if(charRef.State == CharacterActionState.Walking)
+				if(_charRef.State == CharacterActionState.Walking)
 				{
 					switch (_data.walkFrame)
 					{
@@ -423,7 +153,7 @@ namespace EndlessClient
 						case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
 					}
 				}
-				else if(charRef.State == CharacterActionState.Attacking)
+				else if(_charRef.State == CharacterActionState.Attacking)
 				{
 					switch (_data.attackFrame)
 					{
@@ -431,7 +161,7 @@ namespace EndlessClient
 						case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
 					}
 				}
-				else if (charRef.State == CharacterActionState.SpellCast)
+				else if (_charRef.State == CharacterActionState.SpellCast)
 				{
 					type = ArmorShieldSpriteType.SpellCast;
 				}
@@ -450,7 +180,7 @@ namespace EndlessClient
 				//Standing = 1/2
 				//Attacking = 3/4
 				//Extra = 5 (unused?)
-				if (charRef.State == CharacterActionState.Attacking && _data.attackFrame == 1)
+				if (_charRef.State == CharacterActionState.Attacking && _data.attackFrame == 1)
 				{
 					type = (ArmorShieldSpriteType)3;
 				}
@@ -460,13 +190,13 @@ namespace EndlessClient
 			short baseShieldValue = (short)((_data.shield - 1) * 50);
 			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleBack : GFXTypes.MaleBack;
 			int gfxNumber = baseShieldValue + (int)type + factor;
-			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
+			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
 		public Texture2D GetWeapon(bool isBow = false)
 		{
 			WeaponSpriteType type = WeaponSpriteType.Standing;
-			switch(charRef.State)
+			switch(_charRef.State)
 			{
 				case CharacterActionState.Walking:
 					switch (_data.walkFrame)
@@ -510,13 +240,13 @@ namespace EndlessClient
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
 			factor *= getFactor(type);
 			int gfxNumber = baseWeaponValue + (int)type + factor;
-			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
+			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
 		public Texture2D GetBoots(bool isBow = false)
 		{
 			BootsSpriteType type = BootsSpriteType.Standing;
-			switch(charRef.State)
+			switch(_charRef.State)
 			{
 				case CharacterActionState.Walking:
 					switch (_data.walkFrame)
@@ -545,7 +275,7 @@ namespace EndlessClient
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
 			factor *= getFactor(type);
 			int gfxNumber = baseBootsValue + (int)type + factor;
-			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
+			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
 		/// <summary>
@@ -558,7 +288,7 @@ namespace EndlessClient
 			byte turnedOffset = (byte)((_data.facing == EODirection.Left || _data.facing == EODirection.Up) ? 2 : 0);
 			GFXTypes gfxFile = (_data.gender == 0) ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
 			int gfxNumber = 2 + ((_data.hairstyle - 1) * 40) + (_data.haircolor * 4) + turnedOffset;
-			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true, refresh);
+			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true, refresh);
 		}
 
 		public Texture2D GetHat()
@@ -567,7 +297,7 @@ namespace EndlessClient
 			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleHat : GFXTypes.MaleHat;
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 2;
 			int gfxNumber = baseHatValue + factor + 1;
-			return GFXLoader.TextureFromResource(gfxFile, gfxNumber, true);
+			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
 		public Texture2D GetSkin(bool isBow, out XNA.Rectangle skinRect)
@@ -577,13 +307,13 @@ namespace EndlessClient
 			byte gfxNum = 1;
 
 			//change up which gfx resource to load, and the size of the resource, based on the _data
-			if (charRef.State == CharacterActionState.Walking && _data.walkFrame > 0)
+			if (_charRef.State == CharacterActionState.Walking && _data.walkFrame > 0)
 			{
 				//walking
 				gfxNum = 2;
 				sheetColumns = 16;
 			}
-			else if (charRef.State == CharacterActionState.Attacking && _data.attackFrame > 0)
+			else if (_charRef.State == CharacterActionState.Attacking && _data.attackFrame > 0)
 			{
 				if (!isBow)
 				{
@@ -596,11 +326,11 @@ namespace EndlessClient
 					gfxNum = 7; //4 columns in this one too
 				}
 			}
-			else if (charRef.State == CharacterActionState.SpellCast)
+			else if (_charRef.State == CharacterActionState.SpellCast)
 			{
 				gfxNum = 4;
 			}
-			else if (charRef.State == CharacterActionState.Sitting)
+			else if (_charRef.State == CharacterActionState.Sitting)
 			{
 				if (_data.sitting == SitState.Floor) gfxNum = 6;
 				else if (_data.sitting == SitState.Chair) gfxNum = 5;
@@ -608,7 +338,7 @@ namespace EndlessClient
 			//similar if statements for spell, emote, etc
 
 			bool rotated = _data.facing == EODirection.Left || _data.facing == EODirection.Up;
-			Texture2D sheet = GFXLoader.TextureFromResource(GFXTypes.SkinSprites, gfxNum, true);
+			Texture2D sheet = _gfxLoader.TextureFromResource(GFXTypes.SkinSprites, gfxNum, true);
 			int heightDelta = sheet.Height / sheetRows; //the height of one 'row' in the sheet
 			int widthDelta = sheet.Width / sheetColumns; //the width of one 'column' in the sheet
 			int section = sheet.Width/4; //each 'section' for a different set of graphics
@@ -637,8 +367,8 @@ namespace EndlessClient
 			//14 rows (7 female - 7 male) / 11 columns
 			const int ROWS = 14;
 			const int COLS = 11;
-			
-			Texture2D face = GFXLoader.TextureFromResource(GFXTypes.SkinSprites, 8, true);
+
+			Texture2D face = _gfxLoader.TextureFromResource(GFXTypes.SkinSprites, 8, true);
 
 			int widthDelta = face.Width/COLS;
 			int heightDelta = face.Height/ROWS;
@@ -681,7 +411,7 @@ namespace EndlessClient
 					throw new ArgumentOutOfRangeException();
 			}
 
-			Texture2D emote = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 38, true);
+			Texture2D emote = _gfxLoader.TextureFromResource(GFXTypes.PostLoginUI, 38, true);
 			int eachSet = emote.Width/NUM_EMOTES;
 			int eachFrame = emote.Width/(NUM_EMOTES*NUM_FRAMES);
 
@@ -752,19 +482,21 @@ namespace EndlessClient
 
 	public class EONPCSpriteSheet
 	{
-		private readonly NPC npc;
+		private readonly GFXLoader _gfxLoader;
+		private readonly NPC _npc;
 
-		public EONPCSpriteSheet(NPC npcToWatch)
+		public EONPCSpriteSheet(GFXLoader gfxLoader, NPC npcToWatch)
 		{
-			npc = npcToWatch;
+			_gfxLoader = gfxLoader;
+			_npc = npcToWatch;
 		}
 
 		public Texture2D GetNPCTexture()
 		{
-			EODirection dir = npc.Direction;
-			int baseGfx = (npc.Data.Graphic - 1)*40;
+			EODirection dir = _npc.Direction;
+			int baseGfx = (_npc.Data.Graphic - 1)*40;
 			int offset;
-			switch (npc.Frame)
+			switch (_npc.Frame)
 			{
 				case NPCFrame.Standing:
 					offset = dir == EODirection.Down || dir == EODirection.Right ? 1 : 3;
@@ -794,7 +526,7 @@ namespace EndlessClient
 					return null;
 			}
 
-			return GFXLoader.TextureFromResource(GFXTypes.NPC, baseGfx + offset, true);
+			return _gfxLoader.TextureFromResource(GFXTypes.NPC, baseGfx + offset, true);
 		}
 	}
 

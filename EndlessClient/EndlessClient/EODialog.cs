@@ -10,6 +10,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EOLib;
 using EOLib.Data;
+using EOLib.Graphics;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -53,7 +54,7 @@ namespace EndlessClient
 					throw new ArgumentException("The API is not initialzied. Data transfer will not work.");
 				m_api = apiHandle;
 			}
-			smallButtonSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
+			smallButtonSheet = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
 		}
 
 		protected void endConstructor(bool centerDialog = true)
@@ -118,7 +119,7 @@ namespace EndlessClient
 			const int NUM_PER_ROW = 9;
 			const int ICON_SIZE = 31;
 
-			Texture2D weirdSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27);
+			Texture2D weirdSheet = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27);
 			Color[] dat = new Color[ICON_SIZE*ICON_SIZE];
 
 			Rectangle src = new Rectangle(((int) whichOne%NUM_PER_ROW)*ICON_SIZE, 291 + ((int) whichOne/NUM_PER_ROW)*ICON_SIZE, ICON_SIZE, ICON_SIZE);
@@ -143,11 +144,11 @@ namespace EndlessClient
 			bool useSmallHeader = style == EODialogStyle.LargeDialogSmallHeader || style == EODialogStyle.SmallDialogSmallHeader;
 
 			if(style == EODialogStyle.SmallDialogLargeHeader)
-				bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18);
+				bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18);
 			else if (style == EODialogStyle.SmallDialogSmallHeader)
-				bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 23);
+				bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 23);
 			else if (style == EODialogStyle.LargeDialogSmallHeader)
-				bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 25);
+				bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 25);
 			_setSize(bgTexture.Width, bgTexture.Height);
 			
 			message = new XNALabel(new Rectangle(18, 57, 1, 1), Constants.FontSize10);
@@ -287,7 +288,7 @@ namespace EndlessClient
 			DrawLocation = relativeLoc;
 			ScrollOffset = 0;
 
-			Texture2D scrollSpriteSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 29);
+			Texture2D scrollSpriteSheet = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 29);
 			Rectangle[] upArrows = new Rectangle[2];
 			Rectangle[] downArrows = new Rectangle[2];
 			int vertOff;
@@ -529,7 +530,7 @@ namespace EndlessClient
 		{
 			textSplitter = new TextSplitter("", EOGame.Instance.DBGFont) { LineLength = 275 };
 
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 40);
+			bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 40);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(138, 197), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
@@ -579,7 +580,7 @@ namespace EndlessClient
 
 		public EOProgressDialog(string msgText, string captionText = "")
 		{
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18);
+			bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 18);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			message = new XNALabel(new Rectangle(18, 57, 1, 1), Constants.FontSize10)
@@ -602,7 +603,7 @@ namespace EndlessClient
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			pbBackText = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 19);
+			pbBackText = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 19);
 
 			pbForeText = new Texture2D(Game.GraphicsDevice, 1, pbBackText.Height - 2); //foreground texture is just a fill
 			Color[] pbForeFill = new Color[pbForeText.Width * pbForeText.Height];
@@ -654,7 +655,7 @@ namespace EndlessClient
 		{
 			dispatch = dispatcher;
 
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 21);
+			bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 21);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			for(int i = 0; i < inputBoxes.Length; ++i)
@@ -759,10 +760,10 @@ namespace EndlessClient
 
 		public EOCreateCharacterDialog(Texture2D cursorTexture, KeyboardDispatcher dispatcher)
 		{
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 20);
+			bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 20);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			charCreateSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22);
+			charCreateSheet = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22);
 
 			inputBox = new XNATextBox(new Rectangle(80, 57, 138, 19), cursorTexture, Constants.FontSize08)
 			{
@@ -909,7 +910,7 @@ namespace EndlessClient
 			: base(apiHandle)
 		{
 			bgTexture = null; //don't use the built in bgtexture, we're going to use a sprite sheet for the BG
-			bgSprites = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 33);
+			bgSprites = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 33);
 			DrawLocation = new Vector2(Game.GraphicsDevice.PresentationParameters.BackBufferWidth - (bgSprites.Width / 4) - 10, 
 				Game.GraphicsDevice.PresentationParameters.BackBufferHeight - bgSprites.Height - 10);
 			_setSize(bgSprites.Width / 4, bgSprites.Height);
@@ -1261,7 +1262,7 @@ namespace EndlessClient
 			m_info = info;
 			if (info != null)
 			{
-				m_gfx = GFXLoader.TextureFromResource(GFXTypes.Items, 2 * info.Graphic, true);
+				m_gfx = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.Items, 2 * info.Graphic, true);
 			}
 			m_area = location;
 
@@ -1301,7 +1302,7 @@ namespace EndlessClient
 
 			CharRef = character;
 
-			Texture2D bgSprites = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 49);
+			Texture2D bgSprites = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 49);
 			_setSize(bgSprites.Width, bgSprites.Height / 2);
 
 			Color[] dat = new Color[DrawArea.Width*DrawArea.Height];
@@ -1518,7 +1519,7 @@ namespace EndlessClient
 		{
 			_validateMessage(message);
 
-			Texture2D weirdSpriteSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27);
+			Texture2D weirdSpriteSheet = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27);
 			Rectangle sourceArea = new Rectangle(38, 0, 265, 170);
 			
 			//get bgTexture
@@ -1582,7 +1583,7 @@ namespace EndlessClient
 			m_totalAmount = totalAmount;
 
 			//slider control
-			Texture2D src = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 29);
+			Texture2D src = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 29);
 			//5th index when 'out', 6th index when 'over'
 			Rectangle outText = new Rectangle(0, 15 * 5, 16, 15);
 			Rectangle ovrText = new Rectangle(0, 15 * 6, 16, 15);
@@ -1831,7 +1832,7 @@ namespace EndlessClient
 				};
 				m_secondaryText.ResizeBasedOnText();
 
-				m_gfxPadThing = GFXLoader.TextureFromResource(GFXTypes.MapTiles, 0, true);
+				m_gfxPadThing = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.MapTiles, 0, true);
 				ShowItemBackGround = true;
 			}
 			m_backgroundColor = new Texture2D(Game.GraphicsDevice, 1, 1);
@@ -2022,7 +2023,7 @@ namespace EndlessClient
 			dlgButtons.Add(cancel);
 			whichButtons = XNADialogButtons.Cancel;
 
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 51);
+			bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 51);
 			_setSize(bgTexture.Width, bgTexture.Height);
 			
 			endConstructor(false);
@@ -2059,7 +2060,7 @@ namespace EndlessClient
 					{
 						Text = rec.Name,
 						SubText = secondary,
-						IconGraphic = GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true),
+						IconGraphic = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true),
 						ID = item.Item1
 					};
 					m_items[i].OnRightClick += (o, e) =>
@@ -2202,7 +2203,7 @@ namespace EndlessClient
 		public EOScrollingListDialog(PacketAPI api = null)
 			: base(api)
 		{
-			_setBackgroundTexture(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 52));
+			_setBackgroundTexture(((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 52));
 
 			//defaults
 			LargeItemStyleMaxItemDisplay = 5;
@@ -2404,7 +2405,7 @@ namespace EndlessClient
 
 		public EOInputDialog(string prompt, int maxInputChars = 12)
 		{
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 54);
+			bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 54);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			XNALabel lblPrompt = new XNALabel(new Rectangle(16, 20, 235, 49), Constants.FontSize10)
@@ -2731,7 +2732,7 @@ namespace EndlessClient
 						{
 							Text = rec.Name,
 							SubText = secondary,
-							IconGraphic = GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true),
+							IconGraphic = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true),
 							OffsetY = 45
 						};
 						nextItem.OnLeftClick += (o, e) => _buySellItem(localItem);
@@ -2760,7 +2761,7 @@ namespace EndlessClient
 						{
 							Text = rec.Name,
 							SubText = secondary,
-							IconGraphic = GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true),
+							IconGraphic = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true),
 							OffsetY = 45
 						};
 						nextItem.OnLeftClick += (o, e) => _craftItem(localItem);
@@ -2967,7 +2968,7 @@ namespace EndlessClient
 						rec.Type == ItemType.Armor
 							? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")"
 							: ""),
-					IconGraphic = GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true),
+					IconGraphic = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.Items, 2*rec.Graphic - 1, true),
 					OffsetY = 45
 				};
 				newItem.OnRightClick += (o, e) => _removeItem(rec, amount);
@@ -3042,10 +3043,10 @@ namespace EndlessClient
 
 		private EOSessionExpDialog()
 		{
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 61);
+			bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 61);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
-			m_icons = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 68, true);
+			m_icons = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 68, true);
 			m_signal = new Rectangle(0, 15, 15, 15);
 			m_icon = new Rectangle(0, 0, 15, 15);
 
@@ -3163,7 +3164,7 @@ namespace EndlessClient
 		{
 			//this uses EODialogListItems but does not inherit from EOScrollingListDialog since it is a different size
 			//offsety 50
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 53);
+			bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 53);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			m_accountBalance = new XNALabel(new Rectangle(129, 20, 121, 16), Constants.FontSize08pt5)
@@ -3367,7 +3368,7 @@ namespace EndlessClient
 		public EOTradeDialog(PacketAPI apiHandle)
 			: base(apiHandle)
 		{
-			bgTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 50);
+			bgTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 50);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
 			Instance = this;
@@ -3541,7 +3542,7 @@ namespace EndlessClient
 				{
 					Text = rec.Name,
 					SubText = secondary,
-					IconGraphic = GFXLoader.TextureFromResource(GFXTypes.Items, gfxNum, true),
+					IconGraphic = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.Items, gfxNum, true),
 					ID = item.id,
 					Amount = item.amount,
 					OffsetX = xOffset,

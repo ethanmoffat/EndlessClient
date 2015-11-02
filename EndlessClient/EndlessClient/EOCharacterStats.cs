@@ -5,6 +5,7 @@
 using System.Globalization;
 using System.Linq;
 using EOLib;
+using EOLib.Graphics;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using XNAControls;
@@ -53,7 +54,7 @@ namespace EndlessClient
 					AutoSize = false
 				};
 				m_basicStats[i].SetParent(this);
-				m_arrows[i] = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, true), new Vector2(106, 7 + i*18), new Rectangle(215, 386, 19, 15), new Rectangle(234, 386, 19, 15))
+				m_arrows[i] = new XNAButton(((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, true), new Vector2(106, 7 + i*18), new Rectangle(215, 386, 19, 15), new Rectangle(234, 386, 19, 15))
 				{
 					Visible = false, //for testing - this should only be visible when statpoints > 0
 					FlashSpeed = 500

@@ -5,6 +5,7 @@
 using System;
 using EOLib;
 using EOLib.Data;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -53,7 +54,7 @@ namespace EndlessClient
 
 		private void _drawMiniMap()
 		{
-			Texture2D miniMapText = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 45, true);
+			Texture2D miniMapText = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 45, true);
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 
 			_spriteBatch.Begin();
@@ -170,7 +171,7 @@ namespace EndlessClient
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			if (disposing)
 			{

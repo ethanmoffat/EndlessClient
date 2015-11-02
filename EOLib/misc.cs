@@ -4,17 +4,13 @@
 
 using System;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Text;
 using Microsoft.Xna.Framework;
 
 namespace EOLib
 {
-	public static class Win32
+	public static class HDDSerial
 	{
-		[DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-		private static extern int GetVolumeInformation(string PathName, StringBuilder VolumeNameBuffer, UInt32 VolumeNameSize, ref UInt32 VolumeSerialNumber, ref UInt32 MaximumComponentLength, ref UInt32 FileSystemFlags, StringBuilder FileSystemNameBuffer, UInt32 FileSystemNameSize);
-
 		public static string GetHDDSerial()
 		{
 			string strDriveLetter = DriveInfo.GetDrives()[0].Name;
@@ -24,12 +20,11 @@ namespace EOLib
 			uint VolFlags = 0;
 			StringBuilder FSName = new StringBuilder(256); // File System Name
 
-			if (GetVolumeInformation(strDriveLetter, VolLabel, (UInt32)VolLabel.Capacity, ref serNum, ref maxCompLen, ref VolFlags, FSName, (UInt32)FSName.Capacity) != 0)
+			if (Win32.GetVolumeInformation(strDriveLetter, VolLabel, (UInt32)VolLabel.Capacity, ref serNum, ref maxCompLen, ref VolFlags, FSName, (UInt32)FSName.Capacity) != 0)
 				return Convert.ToString(serNum);
 
 			return "";
 		}
-
 	}
 
 	public static class Hashes

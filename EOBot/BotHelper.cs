@@ -30,7 +30,7 @@ namespace EOBot
 			if (res && accReply != AccountReply.Exists)
 			{
 				if (_api.AccountCreate(name, password, name + " " + name, "COMPY-" + name, name + "@BOT.COM",
-					EOLib.Win32.GetHDDSerial(), out accReply))
+					EOLib.HDDSerial.GetHDDSerial(), out accReply))
 				{
 					_outputFunc(string.Format("Created account {0}", name));
 				}

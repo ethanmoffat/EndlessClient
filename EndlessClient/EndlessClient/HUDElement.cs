@@ -4,6 +4,7 @@
 
 using System;
 using EOLib;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -24,7 +25,7 @@ namespace EndlessClient
 		{
 			m_stats = World.Instance.MainPlayer.ActiveCharacter.Stats;
 			
-			m_textSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
+			m_textSheet = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
 			m_elemSourceRect = new Rectangle(0, 0, 110, 14);
 
 			if(!Game.Components.Contains(this))

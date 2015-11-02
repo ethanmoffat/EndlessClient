@@ -14,6 +14,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using EOLib;
+using EOLib.Graphics;
 using XNAControls;
 using CONTROLSINIT = XNAControls.XNAControls;
 
@@ -96,6 +97,7 @@ namespace EndlessClient
 		private PacketAPI m_packetAPI;
 		private PacketAPICallbackManager m_callbackManager;
 		public PacketAPI API { get { return m_packetAPI; } }
+		public GFXLoader GFXLoader { get; private set; }
 
 #if DEBUG //don't do FPS render on release builds
 		private TimeSpan? lastFPSRender;
@@ -147,7 +149,7 @@ namespace EndlessClient
 						if (m_packetAPI.Initialize(World.Instance.VersionMajor,
 							World.Instance.VersionMinor,
 							World.Instance.VersionClient,
-							Win32.GetHDDSerial(),
+							HDDSerial.GetHDDSerial(),
 							out data))
 						{
 							switch (data.ServerResponse)
@@ -408,7 +410,7 @@ namespace EndlessClient
 
 			try
 			{
-				GFXLoader.Initialize(GraphicsDevice);
+				GFXLoader = new GFXLoader(GraphicsDevice);
 				World w = World.Instance; //set up the world
 				w.Init();
 
@@ -650,7 +652,7 @@ namespace EndlessClient
 			if(connectMutex != null)
 				connectMutex.Dispose();
 
-			GFXLoader.Cleanup();
+			GFXLoader.Dispose();
 
 			World.Instance.Dispose();
 

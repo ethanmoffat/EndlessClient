@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EOLib;
+using EOLib.Graphics;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -59,7 +60,7 @@ namespace EndlessClient
 			_links = new Dictionary<short, string>();
 			_pages = new List<string>();
 
-			_setBackgroundTexture(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 67));
+			_setBackgroundTexture(((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 67));
 
 			caption = new XNALabel(new Rectangle(16, 16, 255, 18), Constants.FontSize08pt5)
 			{
@@ -296,7 +297,7 @@ namespace EndlessClient
 		public QuestProgressDialogListItem(EOScrollingListDialog parent, int index = -1)
 			: base(parent, ListItemStyle.Small, index)
 		{
-			m_iconTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 68, true);
+			m_iconTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 68, true);
 			ShowIcons = true;
 
 			_setSize(427, 16);
@@ -376,7 +377,7 @@ namespace EndlessClient
 		public QuestHistoryDialogListItem(EOScrollingListDialog parent, int index = -1)
 			: base(parent, ListItemStyle.Small, index)
 		{
-			m_iconTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 68, true);
+			m_iconTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 68, true);
 
 			_setSize(427, 16);
 
@@ -493,7 +494,7 @@ namespace EndlessClient
 
 		private void _setupBGTexture()
 		{
-			Texture2D wholeBgText = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 59);
+			Texture2D wholeBgText = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 59);
 			Texture2D bgText = new Texture2D(Game.GraphicsDevice, wholeBgText.Width, wholeBgText.Height / 2);
 			Color[] data = new Color[bgText.Width * bgText.Height];
 

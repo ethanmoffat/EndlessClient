@@ -4,6 +4,7 @@
 
 using System;
 using EOLib;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -49,7 +50,7 @@ namespace EndlessClient
 			m_buttons = new XNAButton[10];
 			for (int i = 0; i < m_buttons.Length; ++i)
 			{
-				m_buttons[i] = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, true),
+				m_buttons[i] = new XNAButton(((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, true),
 					new Vector2(i < 5 ? 215 : 454, 25 + (18*(i%5))), 
 					new Rectangle(0, 0, 19, 15), 
 					new Rectangle(19, 0, 19, 15));

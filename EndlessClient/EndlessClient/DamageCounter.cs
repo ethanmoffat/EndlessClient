@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -53,7 +54,7 @@ namespace EndlessClient
 
 			lock (gfx_init_lock)
 			{
-				Texture2D wholeSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
+				Texture2D wholeSheet = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
 				//lazy init of spritesheet - static so same texture in use for all damage counters
 				//this sheet is a subsheet of GFX002/158 that has only the numbers and 'miss' text
 				if (s_NumberSprites == null)

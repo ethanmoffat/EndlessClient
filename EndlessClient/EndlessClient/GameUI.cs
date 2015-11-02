@@ -9,6 +9,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using EOLib;
+using EOLib.Graphics;
 using XNAControls;
 
 namespace EndlessClient
@@ -377,7 +378,7 @@ Thanks to :
 								accountCreateTextBoxes[3].Text,
 								accountCreateTextBoxes[4].Text,
 								accountCreateTextBoxes[5].Text,
-								Win32.GetHDDSerial(),
+								HDDSerial.GetHDDSerial(),
 								out reply))
 							{
 								DoShowLostConnectionDialogAndReturnToMainMenu();

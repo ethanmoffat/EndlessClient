@@ -53,7 +53,7 @@ namespace EOBot
 			_api = new PacketAPI(_client);
 
 			InitData data;
-			if (!_api.Initialize(0, 0, 28, EOLib.Win32.GetHDDSerial(), out data))
+			if (!_api.Initialize(0, 0, 28, EOLib.HDDSerial.GetHDDSerial(), out data))
 				throw new TimeoutException(string.Format("Bot {0}: Failed initialization handshake with server!", _index));
 			_client.SetInitData(data);
 

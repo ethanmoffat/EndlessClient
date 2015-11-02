@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using EOLib;
 using EOLib.Data;
+using EOLib.Graphics;
 using EOLib.Net;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
@@ -63,7 +64,7 @@ namespace EndlessClient
 
 			UpdateItemLocation(Slot);
 
-			m_itemgfx = GFXLoader.TextureFromResource(GFXTypes.Items, 2 * itemData.Graphic, true);
+			m_itemgfx = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.Items, 2 * itemData.Graphic, true);
 
 			m_highlightBG = new Texture2D(Game.GraphicsDevice, DrawArea.Width - 3, DrawArea.Height - 3);
 			Color[] highlight = new Color[(drawArea.Width - 3) * (drawArea.Height - 3)];
@@ -676,7 +677,7 @@ namespace EndlessClient
 			m_lblWeight.SetParent(this);
 			UpdateWeightLabel();
 
-			Texture2D thatWeirdSheet = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27); //oh my gawd the offsets on this bish
+			Texture2D thatWeirdSheet = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27); //oh my gawd the offsets on this bish
 
 			//(local variables, added to child controls)
 			//'paperdoll' button

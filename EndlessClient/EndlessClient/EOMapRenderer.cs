@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using EOLib;
 using EOLib.Data;
+using EOLib.Graphics;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -49,7 +50,7 @@ namespace EndlessClient
 	{
 		private class WaterEffect
 		{
-			public static readonly Texture2D WaterTexture = GFXLoader.TextureFromResource(GFXTypes.Spells, EffectSprite.EFFECT_GFX_WATER_TILE, true);
+			public static readonly Texture2D WaterTexture = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.Spells, EffectSprite.EFFECT_GFX_WATER_TILE, true);
 			private static readonly int WidthDelta = WaterTexture.Width/EffectSprite.EFFECT_GFX_WATER_FRAMES;
 
 			private DateTime LastUpdate;
@@ -170,8 +171,8 @@ namespace EndlessClient
 
 			sb = new SpriteBatch(Game.GraphicsDevice);
 
-			mouseCursor = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
-			statusIcons = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 46, true);
+			mouseCursor = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
+			statusIcons = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 46, true);
 			_cursorSourceRect = new Rectangle(0, 0, mouseCursor.Width / 5, mouseCursor.Height);
 			_itemHoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
 			{
@@ -1582,7 +1583,7 @@ namespace EndlessClient
 					if (MapRef.FillTile > 0 && MapRef.GFXLookup[0][i, j] < 0)
 					{
 						if (fillTileRef == null) //only do the cache lookup once!
-							fillTileRef = GFXLoader.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true);
+							fillTileRef = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true);
 
 						sb.Draw(fillTileRef, new Vector2(pos.X - 1, pos.Y - 2),
 							Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
@@ -1592,7 +1593,7 @@ namespace EndlessClient
 					int tile;
 					if ((tile = MapRef.GFXLookup[0][i, j]) > 0)
 					{
-						Texture2D nextTile = GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile, true);
+						Texture2D nextTile = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.MapTiles, tile, true);
 						Rectangle? src = nextTile.Width > 64 ? new Rectangle?(new Rectangle((int)_tileSrc.X, (int)_tileSrc.Y, nextTile.Width / 4, nextTile.Height)) : null;
 						if (nextTile.Width > 64)
 							sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
@@ -1639,14 +1640,14 @@ namespace EndlessClient
 							item.amount >= 100 ? 2 : (
 							item.amount >= 2 ? 1 : 0)));
 
-						Texture2D moneyMoneyMan = GFXLoader.TextureFromResource(GFXTypes.Items, 269 + 2 * gfx, true);
+						Texture2D moneyMoneyMan = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.Items, 269 + 2 * gfx, true);
 						sb.Draw(moneyMoneyMan, 
 							new Vector2(itemPos.X - (int)Math.Round(moneyMoneyMan.Width / 2.0), itemPos.Y - (int)Math.Round(moneyMoneyMan.Height / 2.0)), 
 							Color.White);
 					}
 					else
 					{
-						Texture2D itemTexture = GFXLoader.TextureFromResource(GFXTypes.Items, 2*itemData.Graphic - 1, true);
+						Texture2D itemTexture = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.Items, 2 * itemData.Graphic - 1, true);
 						sb.Draw(itemTexture, new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0), itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)), Color.White);
 					}
 				}
@@ -1755,7 +1756,7 @@ namespace EndlessClient
 			//overlay/mask  objects
 			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.OverlayObjects][rowIndex, colIndex]) > 0)
 			{
-				var gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
+				var gfx = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
 				Vector2 pos = _getDrawCoordinates(colIndex, rowIndex, c);
 				pos = new Vector2(pos.X + 16, pos.Y - 11);
 				sb.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
@@ -1768,7 +1769,7 @@ namespace EndlessClient
 			int gfxNum;
 			if (World.Instance.ShowShadows && (gfxNum = MapRef.GFXLookup[(int)MapLayers.Shadow][rowIndex, colIndex]) > 0)
 			{
-				var gfx = GFXLoader.TextureFromResource(GFXTypes.Shadows, gfxNum, true);
+				var gfx = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.Shadows, gfxNum, true);
 				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
 				sb.Draw(gfx, new Vector2(loc.X - 24, loc.Y - 12), Color.FromNonPremultiplied(255, 255, 255, 60));
 			}
@@ -1784,7 +1785,7 @@ namespace EndlessClient
 				if (_door != null && _door.x == colIndex && _doorY == rowIndex && _door.doorOpened)
 					gfxNum++;
 
-				var gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
+				var gfx = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
 
 				int gfxWidthDelta = gfx.Width / 4;
@@ -1803,7 +1804,7 @@ namespace EndlessClient
 				if (_door != null && _door.x == colIndex && _doorY == rowIndex && _door.doorOpened)
 					gfxNum++;
 
-				var gfx = GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
+				var gfx = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
 				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
 
 				int gfxWidthDelta = gfx.Width / 4;
@@ -1833,7 +1834,7 @@ namespace EndlessClient
 
 				if (shouldDrawObject)
 				{
-					var gfx = GFXLoader.TextureFromResource(GFXTypes.MapObjects, gfxNum, true);
+					var gfx = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.MapObjects, gfxNum, true);
 					Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
 					loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28));
 					sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
@@ -1862,7 +1863,7 @@ namespace EndlessClient
 			//roofs (after objects - for outdoor maps, which actually have roofs, this makes more sense)
 			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.Roof][rowIndex, colIndex]) > 0)
 			{
-				var gfx = GFXLoader.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
+				var gfx = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
 				drawRoofLater.Add(new Point(colIndex, rowIndex), gfx);
 			}
 		}
@@ -1872,7 +1873,7 @@ namespace EndlessClient
 			int gfxNum;
 			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.Unknown][rowIndex, colIndex]) > 0)
 			{
-				var gfx = GFXLoader.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
+				var gfx = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
 				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
 				loc = new Vector2(loc.X, loc.Y - 65);
 				sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
@@ -1885,7 +1886,7 @@ namespace EndlessClient
 			//overlay tiles (counters, etc)
 			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.OverlayTile][rowIndex, colIndex]) > 0)
 			{
-				var gfx = GFXLoader.TextureFromResource(GFXTypes.MapTiles, gfxNum, true);
+				var gfx = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.MapTiles, gfxNum, true);
 				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
 				loc = new Vector2(loc.X - 2, loc.Y - 31);
 				sb.Draw(gfx, loc, Color.White);

@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using EOLib;
 using EOLib.Data;
+using EOLib.Graphics;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -693,7 +694,7 @@ namespace EndlessClient
 
 		public static Texture2D GetSpellIcon(short icon, bool hover)
 		{
-			Texture2D fullTexture = GFXLoader.TextureFromResource(GFXTypes.SpellIcons, icon);
+			Texture2D fullTexture = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.SpellIcons, icon);
 			Texture2D ret = new Texture2D(fullTexture.GraphicsDevice, fullTexture.Width / 2, fullTexture.Height);
 
 			Color[] data = new Color[ret.Width * ret.Height];

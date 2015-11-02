@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using EOLib;
 using EOLib.Data;
+using EOLib.Graphics;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -95,14 +96,14 @@ namespace EndlessClient
 
 			DrawOrder = 100;
 
-			mainFrame = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 1, true);
-			topLeft = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 21, true);
-			sidebar = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 22, true);
-			topBar = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 23, true);
+			mainFrame = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 1, true);
+			topLeft = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 21, true);
+			sidebar = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 22, true);
+			topBar = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 23, true);
 			filler = new Texture2D(g.GraphicsDevice, 1, 1);
 			filler.SetData(new[] {Color.FromNonPremultiplied(8, 8, 8, 255)});
 
-			Texture2D mainButtonTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 25);
+			Texture2D mainButtonTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 25);
 			mainBtn = new XNAButton[NUM_BTN];
 
 			CreatePanels();
@@ -143,7 +144,7 @@ namespace EndlessClient
 			m_whoIsOnline = new EOOnlineList(pnlOnline);
 			m_party = new EOPartyPanel(pnlParty);
 
-			m_friendList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
+			m_friendList = new XNAButton(((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
 				new Vector2(592, 312),
 				new Rectangle(0, 260, 17, 15),
 				new Rectangle(0, 276, 17, 15))
@@ -155,7 +156,7 @@ namespace EndlessClient
 			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: false, apiHandle: m_packetAPI);
 			m_friendList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_FRIEND_LIST);
 
-			m_ignoreList = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
+			m_ignoreList = new XNAButton(((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
 				new Vector2(609, 312),
 				new Rectangle(17, 260, 17, 15),
 				new Rectangle(17, 276, 17, 15))
@@ -167,12 +168,12 @@ namespace EndlessClient
 			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: true, apiHandle: m_packetAPI);
 			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_IGNORE_LIST);
 
-			m_expInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
+			m_expInfo = new XNAButton(((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
 				new Vector2(55, 0),
 				new Rectangle(331, 30, 22, 14),
 				new Rectangle(331, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
 			m_expInfo.OnClick += (o, e) => EOSessionExpDialog.Show();
-			m_questInfo = new XNAButton(GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
+			m_questInfo = new XNAButton(((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 58),
 				new Vector2(77, 0),
 				new Rectangle(353, 30, 22, 14),
 				new Rectangle(353, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
@@ -188,7 +189,7 @@ namespace EndlessClient
 
 		private void CreatePanels()
 		{
-			Texture2D invBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 44);
+			Texture2D invBG = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 44);
 			pnlInventory = new XNAPanel(new Rectangle(102, 330, invBG.Width, invBG.Height))
 			{
 				BackgroundImage = invBG,
@@ -196,7 +197,7 @@ namespace EndlessClient
 				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
-			Texture2D spellsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 62);
+			Texture2D spellsBG = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 62);
 			pnlActiveSpells = new XNAPanel(new Rectangle(102, 330, spellsBG.Width, spellsBG.Height))
 			{
 				BackgroundImage = spellsBG,
@@ -211,7 +212,7 @@ namespace EndlessClient
 				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
-			Texture2D chatBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 28);
+			Texture2D chatBG = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 28);
 			pnlChat = new XNAPanel(new Rectangle(102, 330, chatBG.Width, chatBG.Height))
 			{
 				BackgroundImage = chatBG,
@@ -219,7 +220,7 @@ namespace EndlessClient
 				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
-			Texture2D statsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 34);
+			Texture2D statsBG = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 34);
 			pnlStats = new XNAPanel(new Rectangle(102, 330, statsBG.Width, statsBG.Height))
 			{
 				BackgroundImage = statsBG,
@@ -227,7 +228,7 @@ namespace EndlessClient
 				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
-			Texture2D onlineBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 36);
+			Texture2D onlineBG = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 36);
 			pnlOnline = new XNAPanel(new Rectangle(102, 330, onlineBG.Width, onlineBG.Height))
 			{
 				BackgroundImage = onlineBG,
@@ -235,7 +236,7 @@ namespace EndlessClient
 				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
-			Texture2D partyBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 42);
+			Texture2D partyBG = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 42);
 			pnlParty = new XNAPanel(new Rectangle(102, 330, partyBG.Width, partyBG.Height))
 			{
 				BackgroundImage = partyBG,
@@ -243,7 +244,7 @@ namespace EndlessClient
 				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
-			Texture2D settingsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 47);
+			Texture2D settingsBG = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 47);
 			pnlSettings = new XNAPanel(new Rectangle(102, 330, settingsBG.Width, settingsBG.Height))
 			{
 				BackgroundImage = settingsBG,
@@ -251,7 +252,7 @@ namespace EndlessClient
 				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
-			Texture2D helpBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 63);
+			Texture2D helpBG = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 63);
 			pnlHelp = new XNAPanel(new Rectangle(102, 330, helpBG.Width, helpBG.Height))
 			{
 				BackgroundImage = helpBG,
@@ -259,7 +260,7 @@ namespace EndlessClient
 				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
 
-			Texture2D newsBG = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 48);
+			Texture2D newsBG = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 48);
 			pnlNews = new XNAPanel(new Rectangle(102, 330, newsBG.Width, newsBG.Height))
 			{
 				BackgroundImage = newsBG,
@@ -510,7 +511,7 @@ namespace EndlessClient
 			//show the little graphic next
 			if (currentChatMode != ChatMode.NoText && !modeTextureLoaded)
 			{
-				Texture2D chatModeTexture = GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 31);
+				Texture2D chatModeTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 31);
 				int oneMode = chatModeTexture.Height/8;
 				Color[] data = new Color[chatModeTexture.Width*oneMode]; //there are 8 chat mode graphics in the texture
 				chatModeTexture.GetData(0, new Rectangle(0, (int) currentChatMode*oneMode, chatModeTexture.Width, oneMode), data, 0,

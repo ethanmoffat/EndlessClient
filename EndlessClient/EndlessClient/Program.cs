@@ -18,12 +18,12 @@ namespace EndlessClient
 #if !DEBUG
 			try
 			{
+#endif
 				using (EOGame.Instance)
 				{
-#endif
 					EOGame.Instance.Run();
-#if !DEBUG
 				}
+#if !DEBUG
 			}
 			catch (Exception ex)
 			{

@@ -97,6 +97,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\EOParty.cs">
       <Link>EOParty.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\EOSpriteSheet.cs">
+      <Link>EOSpriteSheet.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\FunctionKeyListener.cs">
       <Link>FunctionKeyListener.cs</Link>
     </Compile>
@@ -105,9 +108,6 @@
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\GameUI.cs">
       <Link>GameUI.cs</Link>
-    </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\GFXLoader.cs">
-      <Link>GFXLoader.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\HUDElement.cs">
       <Link>HUDElement.cs</Link>
