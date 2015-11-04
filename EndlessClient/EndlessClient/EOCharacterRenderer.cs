@@ -167,7 +167,7 @@ namespace EndlessClient
 				return;
 			}
 
-			spriteSheet = new EOSpriteSheet(((EOGame)Game).GFXLoader, charToRender);
+			spriteSheet = new EOSpriteSheet(((EOGame)Game).GFXManager, charToRender);
 			_char = charToRender;
 			_data = charToRender.RenderData;
 			Texture2D tmpSkin = spriteSheet.GetSkin(false, out m_skinSourceRect);
@@ -220,7 +220,7 @@ namespace EndlessClient
 		{
 			noLocUpdate = true;
 			_char = new Character(null, -1, data);
-			spriteSheet = new EOSpriteSheet(((EOGame)Game).GFXLoader, _char);
+			spriteSheet = new EOSpriteSheet(((EOGame)Game).GFXManager, _char);
 			//when this is a part of a dialog, the drawareaoffset will be set accordingly and is used in the draw method
 			//otherwise, it will just draw it at the absolute location specified by drawArea
 
@@ -249,7 +249,7 @@ namespace EndlessClient
 				};
 				nameLabel.SetParent(this);
 
-				adminGraphic = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 22);
+				adminGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
 				if (data.admin == 1)
 				{
 					adminRect = new Rectangle(252, 39, 17, 17);

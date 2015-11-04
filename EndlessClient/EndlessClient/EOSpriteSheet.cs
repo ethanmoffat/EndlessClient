@@ -66,12 +66,12 @@ namespace EndlessClient
 	
 	public class EOSpriteSheet
 	{
-		private readonly GFXLoader _gfxLoader;
+		private readonly GFXManager _gfxManager;
 		private readonly Character _charRef;
 
-		public EOSpriteSheet(GFXLoader gfxLoader, Character charToWatch)
+		public EOSpriteSheet(GFXManager gfxManager, Character charToWatch)
 		{
-			_gfxLoader = gfxLoader;
+			_gfxManager = gfxManager;
 			_charRef = charToWatch;
 		}
 
@@ -133,7 +133,7 @@ namespace EndlessClient
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1; //multiplier for the direction faced
 			factor *= getFactor(type);
 			int gfxNumber = baseArmorValue + (int)type + factor;
-			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true);
+			return _gfxManager.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
 		public Texture2D GetShield(bool shieldIsOnBack)
@@ -190,7 +190,7 @@ namespace EndlessClient
 			short baseShieldValue = (short)((_data.shield - 1) * 50);
 			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleBack : GFXTypes.MaleBack;
 			int gfxNumber = baseShieldValue + (int)type + factor;
-			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true);
+			return _gfxManager.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
 		public Texture2D GetWeapon(bool isBow = false)
@@ -240,7 +240,7 @@ namespace EndlessClient
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
 			factor *= getFactor(type);
 			int gfxNumber = baseWeaponValue + (int)type + factor;
-			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true);
+			return _gfxManager.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
 		public Texture2D GetBoots(bool isBow = false)
@@ -275,7 +275,7 @@ namespace EndlessClient
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 1;
 			factor *= getFactor(type);
 			int gfxNumber = baseBootsValue + (int)type + factor;
-			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true);
+			return _gfxManager.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
 		/// <summary>
@@ -288,7 +288,7 @@ namespace EndlessClient
 			byte turnedOffset = (byte)((_data.facing == EODirection.Left || _data.facing == EODirection.Up) ? 2 : 0);
 			GFXTypes gfxFile = (_data.gender == 0) ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
 			int gfxNumber = 2 + ((_data.hairstyle - 1) * 40) + (_data.haircolor * 4) + turnedOffset;
-			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true, refresh);
+			return _gfxManager.TextureFromResource(gfxFile, gfxNumber, true, refresh);
 		}
 
 		public Texture2D GetHat()
@@ -297,7 +297,7 @@ namespace EndlessClient
 			GFXTypes gfxFile = _data.gender == 0 ? GFXTypes.FemaleHat : GFXTypes.MaleHat;
 			int factor = (_data.facing == EODirection.Down || _data.facing == EODirection.Right) ? 0 : 2;
 			int gfxNumber = baseHatValue + factor + 1;
-			return _gfxLoader.TextureFromResource(gfxFile, gfxNumber, true);
+			return _gfxManager.TextureFromResource(gfxFile, gfxNumber, true);
 		}
 
 		public Texture2D GetSkin(bool isBow, out XNA.Rectangle skinRect)
@@ -338,7 +338,7 @@ namespace EndlessClient
 			//similar if statements for spell, emote, etc
 
 			bool rotated = _data.facing == EODirection.Left || _data.facing == EODirection.Up;
-			Texture2D sheet = _gfxLoader.TextureFromResource(GFXTypes.SkinSprites, gfxNum, true);
+			Texture2D sheet = _gfxManager.TextureFromResource(GFXTypes.SkinSprites, gfxNum, true);
 			int heightDelta = sheet.Height / sheetRows; //the height of one 'row' in the sheet
 			int widthDelta = sheet.Width / sheetColumns; //the width of one 'column' in the sheet
 			int section = sheet.Width/4; //each 'section' for a different set of graphics
@@ -368,7 +368,7 @@ namespace EndlessClient
 			const int ROWS = 14;
 			const int COLS = 11;
 
-			Texture2D face = _gfxLoader.TextureFromResource(GFXTypes.SkinSprites, 8, true);
+			Texture2D face = _gfxManager.TextureFromResource(GFXTypes.SkinSprites, 8, true);
 
 			int widthDelta = face.Width/COLS;
 			int heightDelta = face.Height/ROWS;
@@ -411,7 +411,7 @@ namespace EndlessClient
 					throw new ArgumentOutOfRangeException();
 			}
 
-			Texture2D emote = _gfxLoader.TextureFromResource(GFXTypes.PostLoginUI, 38, true);
+			Texture2D emote = _gfxManager.TextureFromResource(GFXTypes.PostLoginUI, 38, true);
 			int eachSet = emote.Width/NUM_EMOTES;
 			int eachFrame = emote.Width/(NUM_EMOTES*NUM_FRAMES);
 
@@ -482,12 +482,12 @@ namespace EndlessClient
 
 	public class EONPCSpriteSheet
 	{
-		private readonly GFXLoader _gfxLoader;
+		private readonly GFXManager _gfxManager;
 		private readonly NPC _npc;
 
-		public EONPCSpriteSheet(GFXLoader gfxLoader, NPC npcToWatch)
+		public EONPCSpriteSheet(GFXManager gfxManager, NPC npcToWatch)
 		{
-			_gfxLoader = gfxLoader;
+			_gfxManager = gfxManager;
 			_npc = npcToWatch;
 		}
 
@@ -526,7 +526,7 @@ namespace EndlessClient
 					return null;
 			}
 
-			return _gfxLoader.TextureFromResource(GFXTypes.NPC, baseGfx + offset, true);
+			return _gfxManager.TextureFromResource(GFXTypes.NPC, baseGfx + offset, true);
 		}
 	}
 

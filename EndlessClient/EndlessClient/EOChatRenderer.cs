@@ -355,7 +355,7 @@ namespace EndlessClient
 				return ret;
 
 			Color[] data = new Color[169]; //each icon is 13x13
-			EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 32, true).GetData(0, new Rectangle(0, (int)type * 13, 13, 13), data, 0, 169);
+			EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true).GetData(0, new Rectangle(0, (int)type * 13, 13, 13), data, 0, 169);
 			ret.SetData(data);
 
 			return ret;
@@ -515,7 +515,7 @@ namespace EndlessClient
 						{
 							data = new Color[43 * 16];
 							drawTexture = new Texture2D(Game.GraphicsDevice, 43, 16);
-							((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData(0, t.Selected ? new Rectangle(307, 16, 43, 16) : new Rectangle(264, 16, 43, 16), data, 0, data.Length);
+							((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData(0, t.Selected ? new Rectangle(307, 16, 43, 16) : new Rectangle(264, 16, 43, 16), data, 0, data.Length);
 							drawTexture.SetData(data);
 						}
 						break;
@@ -526,7 +526,7 @@ namespace EndlessClient
 							{
 								data = new Color[132 * 16];
 								drawTexture = new Texture2D(Game.GraphicsDevice, 132, 16);
-								((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData(0, t.Selected ? new Rectangle(132, 16, 132, 16) : new Rectangle(0, 16, 132, 16), data, 0, data.Length);
+								((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData(0, t.Selected ? new Rectangle(132, 16, 132, 16) : new Rectangle(0, 16, 132, 16), data, 0, data.Length);
 								drawTexture.SetData(data);
 							}
 							else

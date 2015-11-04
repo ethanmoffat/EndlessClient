@@ -50,7 +50,7 @@ namespace EndlessClient
 		{
 			m_api = api;
 			//first, load up the images. split in half: the right half is the 'over' text
-			Texture2D bgImage = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 41, true);
+			Texture2D bgImage = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 41, true);
 
 			//this GFX is stupid. a bunch of white space throws off coordinates so I have to use hard-coded values
 			const int W = 96, H = 137;

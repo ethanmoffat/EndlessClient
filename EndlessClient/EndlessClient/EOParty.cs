@@ -39,7 +39,7 @@ namespace EndlessClient
 		{
 			_setSize(parent.BackgroundImage.Width, parent.BackgroundImage.Height);
 
-			m_removeTexture = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 43);
+			m_removeTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 43);
 			m_buttons = new List<XNAButton>();
 			
 			//will tint this different colors for health bar and fill a rectangle

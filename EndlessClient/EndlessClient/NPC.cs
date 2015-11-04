@@ -85,7 +85,7 @@ namespace EndlessClient
 		{
 			ApplyData(data);
 			bool success = true;
-			npcSheet = new EONPCSpriteSheet(((EOGame)Game).GFXLoader, this);
+			npcSheet = new EONPCSpriteSheet(((EOGame)Game).GFXManager, this);
 			int tries = 0;
 			do
 			{

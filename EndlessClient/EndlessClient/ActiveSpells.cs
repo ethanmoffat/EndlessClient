@@ -56,7 +56,7 @@ namespace EndlessClient
 			Slot = 0;
 			SpellData = data;
 
-			m_spellGraphic = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.SpellIcons, SpellData.Icon);
+			m_spellGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.SpellIcons, SpellData.Icon);
 			m_highlightColor = new Texture2D(Game.GraphicsDevice, 1, 1);
 			//todo: figure out color of background
 			m_highlightColor.SetData(new[] {Color.FromNonPremultiplied(0, 0, 0, 0)});

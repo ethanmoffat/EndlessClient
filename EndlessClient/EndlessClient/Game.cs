@@ -97,7 +97,7 @@ namespace EndlessClient
 		private PacketAPI m_packetAPI;
 		private PacketAPICallbackManager m_callbackManager;
 		public PacketAPI API { get { return m_packetAPI; } }
-		public GFXLoader GFXLoader { get; private set; }
+		public GFXManager GFXManager { get; private set; }
 
 #if DEBUG //don't do FPS render on release builds
 		private TimeSpan? lastFPSRender;
@@ -410,7 +410,7 @@ namespace EndlessClient
 
 			try
 			{
-				GFXLoader = new GFXLoader(GraphicsDevice);
+				GFXManager = new GFXManager(GraphicsDevice);
 				World w = World.Instance; //set up the world
 				w.Init();
 
@@ -447,9 +447,9 @@ namespace EndlessClient
 						break;
 				}
 			}
-			catch (ArgumentException ex) //could be thrown from GFXLoader.Initialize
+			catch (ArgumentException ex) //could be thrown from GFXManager.Initialize
 			{
-				MessageBox.Show("Error initializing GFXLoader: " + ex.Message, "Error");
+				MessageBox.Show("Error initializing GFXManager: " + ex.Message, "Error");
 				Exit();
 				return;
 			}
@@ -467,7 +467,7 @@ namespace EndlessClient
 				{
 					curValue = value;
 					//check for GFX files. Each file has a GFX 1.
-					using (Texture2D throwAway = GFXLoader.TextureFromResource(value, -99))
+					using (Texture2D throwAway = GFXManager.TextureFromResource(value, -99))
 					{
 						throwAway.Name = ""; //no-op to keep resharper happy
 					}
@@ -511,25 +511,25 @@ namespace EndlessClient
 			DBGFont = Content.Load<SpriteFont>("dbg");
 
 			//texture for UI background image
-			UIBackground = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 30 + gen.Next(7));
+			UIBackground = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 30 + gen.Next(7));
 
 			PeopleSetOne = new Texture2D[4];
 			PeopleSetTwo = new Texture2D[8];
 			//the large character drawings
 			for (int i = 1; i <= 4; ++i)
 			{
-				PeopleSetOne[i - 1] = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 40 + i, true);
+				PeopleSetOne[i - 1] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 40 + i, true);
 				//8 graphics in the second set of people: 61-68
-				PeopleSetTwo[i - 1] = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 60 + i, true);
-				PeopleSetTwo[i + 3] = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 64 + i, true);
+				PeopleSetTwo[i - 1] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 60 + i, true);
+				PeopleSetTwo[i + 3] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 64 + i, true);
 			}
 			
 			//the username/password prompt background
-			LoginUIScreen = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 2);
+			LoginUIScreen = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 2);
 			//the character display background w/o login+delete buttons
-			CharacterDisp = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 11);
+			CharacterDisp = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 11);
 			//the account create sheet w/labels for text fields
-			AccountCreateSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 12, true);
+			AccountCreateSheet = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 12, true);
 
 			InitializeControls();
 		}
@@ -652,7 +652,7 @@ namespace EndlessClient
 			if(connectMutex != null)
 				connectMutex.Dispose();
 
-			GFXLoader.Dispose();
+			GFXManager.Dispose();
 
 			World.Instance.Dispose();
 

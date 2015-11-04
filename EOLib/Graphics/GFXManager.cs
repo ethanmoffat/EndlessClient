@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+// This file is subject to the GPL v2 License
+// For additional details, see the LICENSE file
+
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -14,50 +18,13 @@ namespace EOLib.Graphics
 			: base(string.Format("Unable to load graphic {0} from file gfx{1:000}.egf", resource + 100, (int)gfx)) { }
 	}
 
-	public sealed class GFXLoader : IGraphicsLoader
+	public sealed class GFXManager : INativeGraphicsManager
 	{
-		private struct LibraryGraphicPair : IComparable
-		{
-			private readonly int LibraryNumber;
-			private readonly int GraphicNumber;
-
-			public LibraryGraphicPair(int lib, int gfx)
-			{
-				LibraryNumber = lib;
-				GraphicNumber = gfx;
-			}
-
-			public int CompareTo(object other)
-			{
-				if (!(other is LibraryGraphicPair))
-					return -1;
-
-				LibraryGraphicPair rhs = (LibraryGraphicPair)other;
-
-				if (rhs.LibraryNumber == LibraryNumber && rhs.GraphicNumber == GraphicNumber)
-					return 0;
-
-				return -1;
-			}
-
-			public override bool Equals(object obj)
-			{
-				if (!(obj is LibraryGraphicPair)) return false;
-				LibraryGraphicPair other = (LibraryGraphicPair)obj;
-				return other.GraphicNumber == GraphicNumber && other.LibraryNumber == LibraryNumber;
-			}
-
-			public override int GetHashCode()
-			{
-				return (LibraryNumber << 16) | GraphicNumber;
-			}
-		}
-
 		private readonly Dictionary<LibraryGraphicPair, Texture2D> cache = new Dictionary<LibraryGraphicPair, Texture2D>();
 
 		private readonly GraphicsDevice _device;
 
-		public GFXLoader(GraphicsDevice dev)
+		public GFXManager(GraphicsDevice dev)
 		{
 			if (_device != null)
 				throw new ArgumentException("The GFX loader has already been initialized once.");

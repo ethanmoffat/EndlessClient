@@ -82,7 +82,7 @@ namespace EndlessClient
 
 			m_filterClick = new Rectangle(2 + DrawAreaWithOffset.X, 2 + DrawAreaWithOffset.Y, 14, 14);
 
-			Texture2D weirdOffsets = ((EOGame)Game).GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 27, true);
+			Texture2D weirdOffsets = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 27, true);
 			for (int i = 0; i < m_filterTextures.Length; ++i)
 			{
 				Rectangle offsetsSource = new Rectangle(i % 2 == 0 ? 0 : 12, i >= 2 ? 246 : 233, 12, 13);

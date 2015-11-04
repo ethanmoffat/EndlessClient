@@ -77,7 +77,7 @@ namespace EndlessClient
 			loginPasswordTextbox.OnEnterPressed += (s, e) => MainButtonPress(loginButtons[0], e);
 
 			//set up primary four login buttons
-			Texture2D mainButtonSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 13, true);
+			Texture2D mainButtonSheet = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 13, true);
 			for (int i = 0; i < mainButtons.Length; ++i)
 			{
 				int widthFactor = mainButtonSheet.Width / 2; //2: mouseOut and mouseOver textures
@@ -89,14 +89,14 @@ namespace EndlessClient
 			}
 
 			//the button in the top-right for going back a screen
-			Texture2D back = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 24, true);
+			Texture2D back = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 24, true);
 			backButton = new XNAButton(back, new Vector2(589, 0), new Rectangle(0, 0, back.Width, back.Height / 2),
 				new Rectangle(0, back.Height / 2, back.Width, back.Height / 2)) { DrawOrder = 100 };
 			backButton.OnClick += MainButtonPress;
 			backButton.ClickArea = new Rectangle(4, 16, 16, 16);
 
 			//Login/Cancel buttons for logging in
-			Texture2D smallButtonSheet = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
+			Texture2D smallButtonSheet = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
 			loginButtons[0] = new XNAButton(smallButtonSheet, new Vector2(361, 389), new Rectangle(0, 0, 91, 29), new Rectangle(91, 0, 91, 29));
 			loginButtons[1] = new XNAButton(smallButtonSheet, new Vector2(453, 389), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
 			loginButtons[0].OnClick += MainButtonPress;
@@ -135,7 +135,7 @@ namespace EndlessClient
 
 
 			//create account / cancel
-			Texture2D secondaryButtons = GFXLoader.TextureFromResource(GFXTypes.PreLoginUI, 14, true);
+			Texture2D secondaryButtons = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 14, true);
 			createButtons[0] = new XNAButton(secondaryButtons, new Vector2(359, 417), new Rectangle(0, 0, 120, 40), new Rectangle(120, 0, 120, 40));
 			createButtons[1] = new XNAButton(secondaryButtons, new Vector2(481, 417), new Rectangle(0, 40, 120, 40), new Rectangle(120, 40, 120, 40));
 			createButtons[0].OnClick += MainButtonPress;

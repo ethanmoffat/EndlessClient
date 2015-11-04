@@ -54,7 +54,7 @@ namespace EndlessClient
 
 		private void _drawMiniMap()
 		{
-			Texture2D miniMapText = EOGame.Instance.GFXLoader.TextureFromResource(GFXTypes.PostLoginUI, 45, true);
+			Texture2D miniMapText = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 45, true);
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 
 			_spriteBatch.Begin();
