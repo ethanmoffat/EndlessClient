@@ -77,8 +77,10 @@
     <Compile Include="Data\NPCRecordFactory.cs" />
     <Compile Include="Data\Spell.cs" />
     <Compile Include="Data\SpellRecordFactory.cs" />
+    <Compile Include="Graphics\GFXLoader.cs" />
     <Compile Include="Graphics\GFXManager.cs" />
     <Compile Include="Graphics\GFXTypes.cs" />
+    <Compile Include="Graphics\INativeGraphicsLoader.cs" />
     <Compile Include="Graphics\INativeGraphicsManager.cs" />
     <Compile Include="Graphics\LibraryGraphicPair.cs" />
     <Compile Include="Net\Effect.cs" />

@@ -83,11 +83,17 @@
     <Compile Include="..\EOLib\Data\SpellRecordFactory.cs">
       <Link>Data\SpellRecordFactory.cs</Link>
     </Compile>
+    <Compile Include="..\EOLib\Graphics\GFXLoader.cs">
+      <Link>Graphics\GFXLoader.cs</Link>
+    </Compile>
     <Compile Include="..\EOLib\Graphics\GFXManager.cs">
       <Link>Graphics\GFXManager.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\Graphics\GFXTypes.cs">
       <Link>Graphics\GFXTypes.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Graphics\INativeGraphicsLoader.cs">
+      <Link>Graphics\INativeGraphicsLoader.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\Graphics\INativeGraphicsManager.cs">
       <Link>Graphics\INativeGraphicsManager.cs</Link>

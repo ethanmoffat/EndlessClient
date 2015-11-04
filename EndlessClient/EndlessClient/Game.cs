@@ -410,7 +410,7 @@ namespace EndlessClient
 
 			try
 			{
-				GFXManager = new GFXManager(GraphicsDevice);
+				GFXManager = new GFXManager(new GFXLoader(), GraphicsDevice);
 				World w = World.Instance; //set up the world
 				w.Init();
 
@@ -447,7 +447,7 @@ namespace EndlessClient
 						break;
 				}
 			}
-			catch (ArgumentException ex) //could be thrown from GFXManager.Initialize
+			catch (ArgumentNullException ex)
 			{
 				MessageBox.Show("Error initializing GFXManager: " + ex.Message, "Error");
 				Exit();

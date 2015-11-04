@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework.Graphics;
 using Color = System.Drawing.Color;
 
@@ -22,12 +21,15 @@ namespace EOLib.Graphics
 	{
 		private readonly Dictionary<LibraryGraphicPair, Texture2D> cache = new Dictionary<LibraryGraphicPair, Texture2D>();
 
+		private readonly INativeGraphicsLoader _gfxLoader;
 		private readonly GraphicsDevice _device;
 
-		public GFXManager(GraphicsDevice dev)
+		public GFXManager(INativeGraphicsLoader gfxLoader, GraphicsDevice dev)
 		{
-			if (_device != null)
-				throw new ArgumentException("The GFX loader has already been initialized once.");
+			if(gfxLoader == null) throw new ArgumentNullException("gfxLoader");
+			if (dev == null) throw new ArgumentNullException("dev");
+
+			_gfxLoader = gfxLoader;
 			_device = dev;
 		}
 
@@ -66,24 +68,7 @@ namespace EOLib.Graphics
 
 		private Bitmap BitmapFromResource(GFXTypes file, int resourceVal, bool transparent)
 		{
-			var number = ((int)file).ToString("D3");
-			var fName = System.IO.Path.Combine(new[] { "gfx", "gfx" + number + ".egf" });
-
-			var library = Win32.LoadLibrary(fName);
-
-			if (library == IntPtr.Zero)
-			{
-				int err = Marshal.GetLastWin32Error();
-				throw new Exception(string.Format("Error {1} when loading library {0}\n{2}", number, err, new System.ComponentModel.Win32Exception(err).Message));
-			}
-
-			var image = Win32.LoadImage(library, (uint)(100 + resourceVal), 0 /*IMAGE_BITMAP*/, 0, 0, 0x00008000 | 0x00002000 /*LR_DEFAULT*/);
-
-			if (image == IntPtr.Zero)
-			{
-				throw new GFXLoadException(resourceVal, file);
-			}
-			Bitmap ret = Image.FromHbitmap(image);
+			var ret = _gfxLoader.LoadGFX(file, resourceVal);
 
 			if (transparent)
 			{
@@ -98,8 +83,6 @@ namespace EOLib.Graphics
 				}
 			}
 
-			Win32.FreeLibrary(library);
-			Win32.DeleteObject(image);
 			return ret;
 		}
 
