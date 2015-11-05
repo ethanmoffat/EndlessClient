@@ -10,6 +10,7 @@
 #include <msclr\marshal.h>
 
 using namespace System;
+using namespace System::Collections::Generic;
 using namespace System::Drawing;
 using namespace EOLib::Graphics;
 
@@ -18,10 +19,17 @@ namespace EOCLI
 	public ref class GFXLoaderCLI : INativeGraphicsLoader
 	{
 	public:
+		GFXLoaderCLI();
+		~GFXLoaderCLI();
+		!GFXLoaderCLI();
+
 		virtual Bitmap^ LoadGFX(GFXTypes file, int resourceVal);
 
 	private:
 		HANDLE LoadLibraryModule(GFXTypes file);
 		HANDLE LoadLibraryImage(GFXTypes file, HANDLE library, int resourceVal);
+
+		Dictionary<GFXTypes, int>^ m_libraries;
+		bool m_isDisposed;
 	};
 }

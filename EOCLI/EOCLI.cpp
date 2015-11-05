@@ -12,15 +12,48 @@ using namespace msclr::interop;
 
 namespace EOCLI
 {
+	GFXLoaderCLI::GFXLoaderCLI()
+	{
+		m_libraries = gcnew Dictionary<GFXTypes, int>();
+		GFXTypes dummy = (GFXTypes)0;
+		auto libraries = Enum::GetValues(dummy.GetType());
+
+		for each (auto library in libraries)
+		{
+			auto value = (int)LoadLibraryModule((GFXTypes)library);
+			m_libraries->Add((GFXTypes)library, value);
+		}
+	}
+
+	GFXLoaderCLI::~GFXLoaderCLI()
+	{
+		if (m_isDisposed)
+			return;
+
+		this->!GFXLoaderCLI();
+
+		m_isDisposed = true;
+	}
+
+	GFXLoaderCLI::!GFXLoaderCLI()
+	{
+		for each (auto library in m_libraries->Values)
+		{
+			::FreeLibrary((HMODULE)library);
+		}
+
+		m_libraries->Clear();
+		delete m_libraries;
+	}
+
 	Bitmap^ GFXLoaderCLI::LoadGFX(GFXTypes file, int resourceVal)
 	{
-		auto library = LoadLibraryModule(file);
+		auto library = (HANDLE)m_libraries[file];
 		auto image = LoadLibraryImage(file, library, resourceVal);
 		IntPtr imagePtr(image);
 
 		auto retVal = Bitmap::FromHbitmap(imagePtr);
 
-		::FreeLibrary((HMODULE)library);
 		::DeleteObject(image);
 
 		return retVal;
