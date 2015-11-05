@@ -97,6 +97,12 @@ namespace EndlessClient
 		private PacketAPI m_packetAPI;
 		private PacketAPICallbackManager m_callbackManager;
 		public PacketAPI API { get { return m_packetAPI; } }
+
+#if MONO
+		private readonly INativeGraphicsLoader _gfxLoader = new GFXLoader();
+#else
+		private readonly INativeGraphicsLoader _gfxLoader = new EOCLI.GFXLoaderCLI();
+#endif
 		public GFXManager GFXManager { get; private set; }
 
 #if DEBUG //don't do FPS render on release builds
@@ -410,12 +416,7 @@ namespace EndlessClient
 
 			try
 			{
-#if MONO
-				INativeGraphicsLoader loader = new GFXLoader();
-#else
-				INativeGraphicsLoader loader = new EOCLI.GFXLoaderCLI();
-#endif
-				GFXManager = new GFXManager(loader, GraphicsDevice);
+				GFXManager = new GFXManager(_gfxLoader, GraphicsDevice);
 				World w = World.Instance; //set up the world
 				w.Init();
 
@@ -658,6 +659,7 @@ namespace EndlessClient
 				connectMutex.Dispose();
 
 			GFXManager.Dispose();
+			_gfxLoader.Dispose();
 
 			World.Instance.Dispose();
 

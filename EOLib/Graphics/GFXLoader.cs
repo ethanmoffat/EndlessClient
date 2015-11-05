@@ -3,7 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace EOLib.Graphics
@@ -21,14 +23,50 @@ namespace EOLib.Graphics
 
 	public class GFXLoader : INativeGraphicsLoader
 	{
+		private Dictionary<GFXTypes, IntPtr> _modules;
+
+		public GFXLoader()
+		{
+			_modules = new Dictionary<GFXTypes, IntPtr>();
+
+			var values = Enum.GetValues(typeof (GFXTypes)).OfType<GFXTypes>();
+			foreach (var gfx in values)
+			{
+				_modules.Add(gfx, LoadLibraryModule(gfx));
+			}
+		}
+
+		~GFXLoader()
+		{
+			Dispose(false);
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		protected virtual void Dispose(bool disposing)
+		{
+			//no managed resources
+			if (disposing) { }
+
+			foreach (var file in _modules.Values)
+			{
+				Win32.FreeLibrary(file);
+			}
+
+			_modules.Clear();
+		}
+
 		public Bitmap LoadGFX(GFXTypes file, int resourceVal)
 		{
-			var library = LoadLibraryModule(file);
+			var library = _modules[file];
 			var image = LoadLibraryImage(file, library, resourceVal);
 			
 			Bitmap ret = Image.FromHbitmap(image);
 
-			Win32.FreeLibrary(library);
 			Win32.DeleteObject(image);
 
 			return ret;
