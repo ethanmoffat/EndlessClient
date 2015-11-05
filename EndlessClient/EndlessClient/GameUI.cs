@@ -16,32 +16,32 @@ namespace EndlessClient
 {
 	public partial class EOGame
 	{
-		int charDeleteWarningShown = -1; //index of the character that we've shown a warning about deleting, set to -1 for no warning shown
+		private int _charDeleteWarningIndex = -1; //index of the character that we've shown a warning about deleting, set to -1 for no warning shown
 
-		readonly GraphicsDeviceManager graphics;
-		SpriteBatch spriteBatch;
+		private readonly GraphicsDeviceManager _graphicsDeviceManager;
+		private SpriteBatch _spriteBatch;
 
-		XNATextBox loginUsernameTextbox;
-		XNATextBox loginPasswordTextbox;
-		readonly Texture2D[] textBoxTextures = new Texture2D[4];
+		private XNATextBox _loginUsernameTextbox;
+		private XNATextBox _loginPasswordTextbox;
+		private readonly Texture2D[] _textBoxTextures = new Texture2D[4];
 
 		public KeyboardDispatcher Dispatcher { get; private set; }
 
-		readonly XNAButton[] mainButtons = new XNAButton[4];
-		readonly XNAButton[] loginButtons = new XNAButton[2];
-		readonly XNAButton[] createButtons = new XNAButton[2];
+		private readonly XNAButton[] _mainButtons = new XNAButton[4];
+		private readonly XNAButton[] _loginButtons = new XNAButton[2];
+		private readonly XNAButton[] _createButtons = new XNAButton[2];
 
-		readonly XNAButton[] loginCharButtons = new XNAButton[3];
-		readonly XNAButton[] deleteCharButtons = new XNAButton[3];
+		private readonly XNAButton[] _loginCharButtons = new XNAButton[3];
+		private readonly XNAButton[] _deleteCharButtons = new XNAButton[3];
 
-		XNAButton passwordChangeBtn;
+		private XNAButton _passwordChangeBtn;
 
-		XNAButton backButton;
+		private XNAButton _backButton;
 		private bool _backButtonPressed; //workaround so the lost connection dialog doesn't show from the client disconnect event
 
-		XNALabel lblCredits, lblVersionInfo;
+		private XNALabel _lblCredits, _lblVersionInfo;
 
-		readonly XNATextBox[] accountCreateTextBoxes = new XNATextBox[6];
+		private readonly XNATextBox[] _accountCreateTextBoxes = new XNATextBox[6];
 
 		public HUD Hud { get; private set; }
 		public EOSoundManager SoundManager { get; private set; }
@@ -49,67 +49,67 @@ namespace EndlessClient
 		private void InitializeControls(bool reinit = false)
 		{
 			//set up text boxes for login
-			textBoxTextures[0] = Content.Load<Texture2D>("tbBack");
-			textBoxTextures[1] = Content.Load<Texture2D>("tbLeft");
-			textBoxTextures[2] = Content.Load<Texture2D>("tbRight");
-			textBoxTextures[3] = Content.Load<Texture2D>("cursor");
+			_textBoxTextures[0] = Content.Load<Texture2D>("tbBack");
+			_textBoxTextures[1] = Content.Load<Texture2D>("tbLeft");
+			_textBoxTextures[2] = Content.Load<Texture2D>("tbRight");
+			_textBoxTextures[3] = Content.Load<Texture2D>("cursor");
 
-			loginUsernameTextbox = new XNATextBox(new Rectangle(402, 322, 140, textBoxTextures[0].Height), textBoxTextures, Constants.FontSize08)
+			_loginUsernameTextbox = new XNATextBox(new Rectangle(402, 322, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
 			{
 				MaxChars = 16,
 				DefaultText = "Username",
 				LeftPadding = 4
 			};
-			loginUsernameTextbox.OnTabPressed += OnTabPressed;
-			loginUsernameTextbox.OnClicked += OnTextClicked;
-			loginUsernameTextbox.OnEnterPressed += (s, e) => MainButtonPress(loginButtons[0], e);
-			Dispatcher.Subscriber = loginUsernameTextbox;
+			_loginUsernameTextbox.OnTabPressed += OnTabPressed;
+			_loginUsernameTextbox.OnClicked += OnTextClicked;
+			_loginUsernameTextbox.OnEnterPressed += (s, e) => MainButtonPress(_loginButtons[0], e);
+			Dispatcher.Subscriber = _loginUsernameTextbox;
 
-			loginPasswordTextbox = new XNATextBox(new Rectangle(402, 358, 140, textBoxTextures[0].Height), textBoxTextures, Constants.FontSize08)
+			_loginPasswordTextbox = new XNATextBox(new Rectangle(402, 358, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
 			{
 				MaxChars = 12,
 				PasswordBox = true,
 				LeftPadding = 4,
 				DefaultText = "Password"
 			};
-			loginPasswordTextbox.OnTabPressed += OnTabPressed;
-			loginPasswordTextbox.OnClicked += OnTextClicked;
-			loginPasswordTextbox.OnEnterPressed += (s, e) => MainButtonPress(loginButtons[0], e);
+			_loginPasswordTextbox.OnTabPressed += OnTabPressed;
+			_loginPasswordTextbox.OnClicked += OnTextClicked;
+			_loginPasswordTextbox.OnEnterPressed += (s, e) => MainButtonPress(_loginButtons[0], e);
 
 			//set up primary four login buttons
 			Texture2D mainButtonSheet = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 13, true);
-			for (int i = 0; i < mainButtons.Length; ++i)
+			for (int i = 0; i < _mainButtons.Length; ++i)
 			{
 				int widthFactor = mainButtonSheet.Width / 2; //2: mouseOut and mouseOver textures
-				int heightFactor = mainButtonSheet.Height / mainButtons.Length; //1 row per button
+				int heightFactor = mainButtonSheet.Height / _mainButtons.Length; //1 row per button
 				Rectangle outSource = new Rectangle(0, i * heightFactor, widthFactor, heightFactor);
 				Rectangle overSource = new Rectangle(widthFactor, i * heightFactor, widthFactor, heightFactor);
-				mainButtons[i] = new XNAButton(mainButtonSheet, new Vector2(26, 278 + i * 40), outSource, overSource);
-				mainButtons[i].OnClick += MainButtonPress;
+				_mainButtons[i] = new XNAButton(mainButtonSheet, new Vector2(26, 278 + i * 40), outSource, overSource);
+				_mainButtons[i].OnClick += MainButtonPress;
 			}
 
 			//the button in the top-right for going back a screen
 			Texture2D back = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 24, true);
-			backButton = new XNAButton(back, new Vector2(589, 0), new Rectangle(0, 0, back.Width, back.Height / 2),
+			_backButton = new XNAButton(back, new Vector2(589, 0), new Rectangle(0, 0, back.Width, back.Height / 2),
 				new Rectangle(0, back.Height / 2, back.Width, back.Height / 2)) { DrawOrder = 100 };
-			backButton.OnClick += MainButtonPress;
-			backButton.ClickArea = new Rectangle(4, 16, 16, 16);
+			_backButton.OnClick += MainButtonPress;
+			_backButton.ClickArea = new Rectangle(4, 16, 16, 16);
 
 			//Login/Cancel buttons for logging in
 			Texture2D smallButtonSheet = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
-			loginButtons[0] = new XNAButton(smallButtonSheet, new Vector2(361, 389), new Rectangle(0, 0, 91, 29), new Rectangle(91, 0, 91, 29));
-			loginButtons[1] = new XNAButton(smallButtonSheet, new Vector2(453, 389), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
-			loginButtons[0].OnClick += MainButtonPress;
-			loginButtons[1].OnClick += MainButtonPress;
+			_loginButtons[0] = new XNAButton(smallButtonSheet, new Vector2(361, 389), new Rectangle(0, 0, 91, 29), new Rectangle(91, 0, 91, 29));
+			_loginButtons[1] = new XNAButton(smallButtonSheet, new Vector2(453, 389), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
+			_loginButtons[0].OnClick += MainButtonPress;
+			_loginButtons[1].OnClick += MainButtonPress;
 
 			//6 text boxes (by default) for creating a new account.
-			for (int i = 0; i < accountCreateTextBoxes.Length; ++i)
+			for (int i = 0; i < _accountCreateTextBoxes.Length; ++i)
 			{
 				//holy fuck! magic numbers!
 				//basically, set the first  3 Y coord to start at 69  and move up by 51 each time
 				//			 set the second 3 Y coord to start at 260 and move up by 51 each time
 				int txtYCoord = (i < 3 ? 69 : 260) + (i < 3 ? i * 51 : (i - 3) * 51);
-				XNATextBox txt = new XNATextBox(new Rectangle(358, txtYCoord, 240, textBoxTextures[0].Height), textBoxTextures, Constants.FontSize08) { LeftPadding = 4 };
+				XNATextBox txt = new XNATextBox(new Rectangle(358, txtYCoord, 240, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08) { LeftPadding = 4 };
 
 				switch (i)
 				{
@@ -130,21 +130,21 @@ namespace EndlessClient
 
 				txt.OnTabPressed += OnTabPressed;
 				txt.OnClicked += OnTextClicked;
-				accountCreateTextBoxes[i] = txt;
+				_accountCreateTextBoxes[i] = txt;
 			}
 
 
 			//create account / cancel
 			Texture2D secondaryButtons = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 14, true);
-			createButtons[0] = new XNAButton(secondaryButtons, new Vector2(359, 417), new Rectangle(0, 0, 120, 40), new Rectangle(120, 0, 120, 40));
-			createButtons[1] = new XNAButton(secondaryButtons, new Vector2(481, 417), new Rectangle(0, 40, 120, 40), new Rectangle(120, 40, 120, 40));
-			createButtons[0].OnClick += MainButtonPress;
-			createButtons[1].OnClick += MainButtonPress;
+			_createButtons[0] = new XNAButton(secondaryButtons, new Vector2(359, 417), new Rectangle(0, 0, 120, 40), new Rectangle(120, 0, 120, 40));
+			_createButtons[1] = new XNAButton(secondaryButtons, new Vector2(481, 417), new Rectangle(0, 40, 120, 40), new Rectangle(120, 40, 120, 40));
+			_createButtons[0].OnClick += MainButtonPress;
+			_createButtons[1].OnClick += MainButtonPress;
 
-			passwordChangeBtn = new XNAButton(secondaryButtons, new Vector2(454, 417), new Rectangle(0, 120, 120, 40), new Rectangle(120, 120, 120, 40));
-			passwordChangeBtn.OnClick += MainButtonPress;
+			_passwordChangeBtn = new XNAButton(secondaryButtons, new Vector2(454, 417), new Rectangle(0, 120, 120, 40), new Rectangle(120, 120, 120, 40));
+			_passwordChangeBtn.OnClick += MainButtonPress;
 
-			lblCredits = new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10)
+			_lblCredits = new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10)
 			{
 				Text = @"Endless Online - C# Client
 Developed by Ethan Moffat
@@ -157,7 +157,7 @@ Thanks to :
 --Hotdog for Eodev client"
 			};
 
-			lblVersionInfo = new XNALabel(new Rectangle(25, 453, 1, 1), Constants.FontSize07)
+			_lblVersionInfo = new XNALabel(new Rectangle(25, 453, 1, 1), Constants.FontSize07)
 			{
 				Text = string.Format("{0}.{1:000}.{2:000} - {3}:{4}", World.Instance.VersionMajor, World.Instance.VersionMinor, World.Instance.VersionClient, host, port),
 				ForeColor = Constants.BeigeText
@@ -166,10 +166,10 @@ Thanks to :
 			//login/delete buttons for each character
 			for (int i = 0; i < 3; ++i)
 			{
-				loginCharButtons[i] = new XNAButton(smallButtonSheet, new Vector2(495, 93 + i * 124), new Rectangle(0, 58, 91, 29), new Rectangle(91, 58, 91, 29));
-				loginCharButtons[i].OnClick += CharModButtonPress;
-				deleteCharButtons[i] = new XNAButton(smallButtonSheet, new Vector2(495, 121 + i * 124), new Rectangle(0, 87, 91, 29), new Rectangle(91, 87, 91, 29));
-				deleteCharButtons[i].OnClick += CharModButtonPress;
+				_loginCharButtons[i] = new XNAButton(smallButtonSheet, new Vector2(495, 93 + i * 124), new Rectangle(0, 58, 91, 29), new Rectangle(91, 58, 91, 29));
+				_loginCharButtons[i].OnClick += CharModButtonPress;
+				_deleteCharButtons[i] = new XNAButton(smallButtonSheet, new Vector2(495, 121 + i * 124), new Rectangle(0, 87, 91, 29), new Rectangle(91, 87, 91, 29));
+				_deleteCharButtons[i].OnClick += CharModButtonPress;
 			}
 
 			//hide all the components to start with
@@ -182,31 +182,31 @@ Thanks to :
 					continue;
 
 				//...except for the four main buttons
-				if (component != null && !mainButtons.Contains(component as XNAButton))
+				if (component != null && !_mainButtons.Contains(component as XNAButton))
 					component.Visible = false;
 			}
-			lblVersionInfo.Visible = true;
+			_lblVersionInfo.Visible = true;
 
 #if DEBUG
 			//testinggame will login as testuser and login as the first character
 			XNAButton testingame = new XNAButton(new Vector2(5, 5), "in-game", Constants.FontSize10);
-			testingame.OnClick += testingame_click;
+			testingame.OnClick += testInGame_click;
 #endif
 		}
 
 #if DEBUG
-		private async void testingame_click(object sender, EventArgs e)
+		private async void testInGame_click(object sender, EventArgs e)
 		{
-			MainButtonPress(mainButtons[1], e); //press login
+			MainButtonPress(_mainButtons[1], e); //press login
 			await TaskFramework.Delay(500);
 			if (!World.Instance.Client.ConnectedAndInitialized)
 				return;
-			loginUsernameTextbox.Text = "ethanmoffat";
-			loginPasswordTextbox.Text = "a0009817701a";
+			_loginUsernameTextbox.Text = "ethanmoffat";
+			_loginPasswordTextbox.Text = "a0009817701a";
 
-			MainButtonPress(loginButtons[0], e); //login as acc testuser
+			MainButtonPress(_loginButtons[0], e); //login as acc testuser
 			await TaskFramework.Delay(500);
-			CharModButtonPress(loginCharButtons[0], e); //login as char testuser
+			CharModButtonPress(_loginCharButtons[0], e); //login as char testuser
 		}
 #endif
 
@@ -216,13 +216,13 @@ Thanks to :
 			if (!IsActive)
 				return;
 
-			if (World.Instance.SoundEnabled && mainButtons.Contains(sender))
+			if (World.Instance.SoundEnabled && _mainButtons.Contains(sender))
 			{
 				SoundManager.GetSoundEffectRef(SoundEffectID.ButtonClick).Play();
 			}
 
 			//switch on sender
-			if (sender == mainButtons[0])
+			if (sender == _mainButtons[0])
 			{
 				//try connect
 				//if successful go to account creation state
@@ -239,23 +239,23 @@ Thanks to :
 					createAccountDlg.MessageText = message;
 				});
 			}
-			else if (sender == mainButtons[1])
+			else if (sender == _mainButtons[1])
 			{
 				//try connect
 				//if successful go to account login state
 				await TryConnectToServer(() => doStateChange(GameStates.Login));
 			}
-			else if (sender == mainButtons[2])
+			else if (sender == _mainButtons[2])
 			{
 				doStateChange(GameStates.ViewCredits);
 			}
-			else if (sender == mainButtons[3])
+			else if (sender == _mainButtons[3])
 			{
 				if (World.Instance.Client.ConnectedAndInitialized)
 					World.Instance.Client.Disconnect();
 				Exit();
 			}
-			else if ((sender == backButton && currentState != GameStates.PlayingTheGame) || sender == createButtons[1] || sender == loginButtons[1])
+			else if ((sender == _backButton && State != GameStates.PlayingTheGame) || sender == _createButtons[1] || sender == _loginButtons[1])
 			{
 				Dispatcher.Subscriber = null;
 				DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -263,7 +263,7 @@ Thanks to :
 // ReSharper disable once RedundantJumpStatement
 				return;
 			}
-			else if (sender == backButton && currentState == GameStates.PlayingTheGame)
+			else if (sender == _backButton && State == GameStates.PlayingTheGame)
 			{
 				EODialog.Show(DATCONST1.EXIT_GAME_ARE_YOU_SURE, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader, 
 					(ss, ee) =>
@@ -280,14 +280,14 @@ Thanks to :
 						}
 					});
 			}
-			else if (sender == loginButtons[0])
+			else if (sender == _loginButtons[0])
 			{
-				if (loginUsernameTextbox.Text == "" || loginPasswordTextbox.Text == "")
+				if (_loginUsernameTextbox.Text == "" || _loginPasswordTextbox.Text == "")
 					return;
 
 				LoginReply reply;
 				CharacterRenderData[] dataArray;
-				if (!m_packetAPI.LoginRequest(loginUsernameTextbox.Text, loginPasswordTextbox.Text, out reply, out dataArray))
+				if (!_packetAPI.LoginRequest(_loginUsernameTextbox.Text, _loginPasswordTextbox.Text, out reply, out dataArray))
 				{
 					DoShowLostConnectionDialogAndReturnToMainMenu();
 					return;
@@ -295,57 +295,57 @@ Thanks to :
 
 				if (reply != LoginReply.Ok)
 				{
-					EODialog.Show(m_packetAPI.LoginResponseMessage());
+					EODialog.Show(_packetAPI.LoginResponseMessage());
 					return;
 				}
-				World.Instance.MainPlayer.SetAccountName(loginUsernameTextbox.Text);
+				World.Instance.MainPlayer.SetAccountName(_loginUsernameTextbox.Text);
 				World.Instance.MainPlayer.ProcessCharacterData(dataArray);
 
 				doStateChange(GameStates.LoggedIn);
 			}
-			else if (sender == createButtons[0])
+			else if (sender == _createButtons[0])
 			{
-				switch (currentState)
+				switch (State)
 				{
 					case GameStates.CreateAccount:
 					{
-						if (accountCreateTextBoxes.Any(txt => txt.Text.Length == 0))
+						if (_accountCreateTextBoxes.Any(txt => txt.Text.Length == 0))
 						{
 							EODialog.Show(DATCONST1.ACCOUNT_CREATE_FIELDS_STILL_EMPTY);
 							return;
 						}
 
-						if (accountCreateTextBoxes[0].Text.Length < 4)
+						if (_accountCreateTextBoxes[0].Text.Length < 4)
 						{
 							EODialog.Show(DATCONST1.ACCOUNT_CREATE_NAME_TOO_SHORT);
 							return;
 						}
 
-						if (accountCreateTextBoxes[0].Text.Distinct().Count() < 3)
+						if (_accountCreateTextBoxes[0].Text.Distinct().Count() < 3)
 						{
 							EODialog.Show(DATCONST1.ACCOUNT_CREATE_NAME_TOO_OBVIOUS);
 							return;
 						}
 
-						if (accountCreateTextBoxes[1].Text != accountCreateTextBoxes[2].Text)
+						if (_accountCreateTextBoxes[1].Text != _accountCreateTextBoxes[2].Text)
 						{
 							EODialog.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_MISMATCH);
 							return;
 						}
 
-						if (accountCreateTextBoxes[1].Text.Length < 6)
+						if (_accountCreateTextBoxes[1].Text.Length < 6)
 						{
 							EODialog.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
 							return;
 						}
 
-						if (accountCreateTextBoxes[1].Text.Distinct().Count() < 3)
+						if (_accountCreateTextBoxes[1].Text.Distinct().Count() < 3)
 						{
 							EODialog.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_OBVIOUS);
 							return;
 						}
 
-						if (!System.Text.RegularExpressions.Regex.IsMatch(accountCreateTextBoxes[5].Text, //filter emails using regex
+						if (!System.Text.RegularExpressions.Regex.IsMatch(_accountCreateTextBoxes[5].Text, //filter emails using regex
 							@"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b"))
 						{
 							EODialog.Show(DATCONST1.ACCOUNT_CREATE_EMAIL_INVALID);
@@ -353,7 +353,7 @@ Thanks to :
 						}
 
 						AccountReply reply;
-						if (!m_packetAPI.AccountCheckName(accountCreateTextBoxes[0].Text, out reply))
+						if (!_packetAPI.AccountCheckName(_accountCreateTextBoxes[0].Text, out reply))
 						{
 							DoShowLostConnectionDialogAndReturnToMainMenu();
 							return;
@@ -361,7 +361,7 @@ Thanks to :
 
 						if (reply != AccountReply.Continue)
 						{
-							EODialog.Show(m_packetAPI.AccountResponseMessage());
+							EODialog.Show(_packetAPI.AccountResponseMessage());
 							return;
 						}
 
@@ -373,11 +373,11 @@ Thanks to :
 						{
 							if (dlg_E.Result != XNADialogResult.NO_BUTTON_PRESSED) return;
 
-							if (!m_packetAPI.AccountCreate(accountCreateTextBoxes[0].Text,
-								accountCreateTextBoxes[1].Text,
-								accountCreateTextBoxes[3].Text,
-								accountCreateTextBoxes[4].Text,
-								accountCreateTextBoxes[5].Text,
+							if (!_packetAPI.AccountCreate(_accountCreateTextBoxes[0].Text,
+								_accountCreateTextBoxes[1].Text,
+								_accountCreateTextBoxes[3].Text,
+								_accountCreateTextBoxes[4].Text,
+								_accountCreateTextBoxes[5].Text,
 								HDDSerial.GetHDDSerial(),
 								out reply))
 							{
@@ -385,7 +385,7 @@ Thanks to :
 								return;
 							}
 
-							DATCONST1 resource = m_packetAPI.AccountResponseMessage();
+							DATCONST1 resource = _packetAPI.AccountResponseMessage();
 							if (reply != AccountReply.Created)
 							{
 								EODialog.Show(resource);
@@ -403,7 +403,7 @@ Thanks to :
 						//Character_request: show create character dialog
 						//Character_create: clicked ok in create character dialog
 						CharacterReply reply;
-						if (!m_packetAPI.CharacterRequest(out reply))
+						if (!_packetAPI.CharacterRequest(out reply))
 						{
 							DoShowLostConnectionDialogAndReturnToMainMenu();
 							return;
@@ -415,13 +415,13 @@ Thanks to :
 							return;
 						}
 
-						EOCreateCharacterDialog createCharacter = new EOCreateCharacterDialog(textBoxTextures[3], Dispatcher);
+						EOCreateCharacterDialog createCharacter = new EOCreateCharacterDialog(_textBoxTextures[3], Dispatcher);
 						createCharacter.DialogClosing += (dlg_S, dlg_E) =>
 						{
 							if (dlg_E.Result != XNADialogResult.OK) return;
 
 							CharacterRenderData[] dataArray;
-							if (!m_packetAPI.CharacterCreate(createCharacter.Gender, createCharacter.HairType, createCharacter.HairColor, createCharacter.SkinColor, createCharacter.Name, out reply, out dataArray))
+							if (!_packetAPI.CharacterCreate(createCharacter.Gender, createCharacter.HairType, createCharacter.HairColor, createCharacter.SkinColor, createCharacter.Name, out reply, out dataArray))
 							{
 								DoShowLostConnectionDialogAndReturnToMainMenu();
 								return;
@@ -431,7 +431,7 @@ Thanks to :
 							{
 								if (reply != CharacterReply.Full)
 									dlg_E.CancelClose = true;
-								EODialog.Show(m_packetAPI.CharacterResponseMessage());
+								EODialog.Show(_packetAPI.CharacterResponseMessage());
 								return;
 							}
 
@@ -443,21 +443,21 @@ Thanks to :
 						break;
 				}
 			}
-			else if (sender == passwordChangeBtn)
+			else if (sender == _passwordChangeBtn)
 			{
-				EOChangePasswordDialog dlg = new EOChangePasswordDialog(textBoxTextures[3], Dispatcher);
+				EOChangePasswordDialog dlg = new EOChangePasswordDialog(_textBoxTextures[3], Dispatcher);
 				dlg.DialogClosing += (dlg_S, dlg_E) =>
 				{
 					if (dlg_E.Result != XNADialogResult.OK) return;
 
 					AccountReply reply;
-					if (!m_packetAPI.AccountChangePassword(dlg.Username, dlg.OldPassword, dlg.NewPassword, out reply))
+					if (!_packetAPI.AccountChangePassword(dlg.Username, dlg.OldPassword, dlg.NewPassword, out reply))
 					{
 						DoShowLostConnectionDialogAndReturnToMainMenu();
 						return;
 					}
 
-					EODialog.Show(m_packetAPI.AccountResponseMessage());
+					EODialog.Show(_packetAPI.AccountResponseMessage());
 
 					if (reply == AccountReply.ChangeSuccess) return;
 					dlg_E.CancelClose = true;
@@ -477,24 +477,24 @@ Thanks to :
 			//log in if all okay
 
 			int index;
-			if (loginCharButtons.Contains(sender))
+			if (_loginCharButtons.Contains(sender))
 			{
-				index = loginCharButtons.ToList().FindIndex(x => x == sender);
+				index = _loginCharButtons.ToList().FindIndex(x => x == sender);
 				if (World.Instance.MainPlayer.CharData == null || World.Instance.MainPlayer.CharData.Length <= index)
 					return;
 
 				WelcomeRequestData data;
-				if (!m_packetAPI.SelectCharacter(World.Instance.MainPlayer.CharData[index].id, out data))
+				if (!_packetAPI.SelectCharacter(World.Instance.MainPlayer.CharData[index].id, out data))
 				{
 					DoShowLostConnectionDialogAndReturnToMainMenu();
 					return;
 				}
 
 				//handles the WelcomeRequestData object
-				World.Instance.ApplyWelcomeRequest(m_packetAPI, data);
+				World.Instance.ApplyWelcomeRequest(_packetAPI, data);
 
 				//shows the connecting window
-				EOConnectingDialog dlg = new EOConnectingDialog(m_packetAPI);
+				EOConnectingDialog dlg = new EOConnectingDialog(_packetAPI);
 				dlg.DialogClosing += (dlgS, dlgE) =>
 				{
 					switch (dlgE.Result)
@@ -504,7 +504,7 @@ Thanks to :
 							
 							World.Instance.ApplyWelcomeMessage(dlg.WelcomeData);
 							
-							Hud = new HUD(this, m_packetAPI);
+							Hud = new HUD(this, _packetAPI);
 							Components.Add(Hud);
 							Hud.SetNews(dlg.WelcomeData.News);
 							Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.LOADING_GAME_HINT_FIRST);
@@ -523,22 +523,22 @@ Thanks to :
 					}
 				};
 			}
-			else if (deleteCharButtons.Contains(sender))
+			else if (_deleteCharButtons.Contains(sender))
 			{
-				index = deleteCharButtons.ToList().FindIndex(x => x == sender);
+				index = _deleteCharButtons.ToList().FindIndex(x => x == sender);
 				if (World.Instance.MainPlayer.CharData.Length <= index)
 					return;
 
-				if (charDeleteWarningShown != index)
+				if (_charDeleteWarningIndex != index)
 				{
 					EODialog.Show("Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' ", DATCONST1.CHARACTER_DELETE_FIRST_CHECK);
-					charDeleteWarningShown = index;
+					_charDeleteWarningIndex = index;
 					return;
 				}
 
 				//delete character at that index, if it exists
 				int takeID;
-				if (!m_packetAPI.CharacterTake(World.Instance.MainPlayer.CharData[index].id, out takeID))
+				if (!_packetAPI.CharacterTake(World.Instance.MainPlayer.CharData[index].id, out takeID))
 				{
 					DoShowLostConnectionDialogAndReturnToMainMenu();
 					return;
@@ -557,7 +557,7 @@ Thanks to :
 						if (dlgE.Result == XNADialogResult.OK) //user clicked ok to delete their character. do the delete here.
 						{
 							CharacterRenderData[] dataArray;
-							if (!m_packetAPI.CharacterRemove(World.Instance.MainPlayer.CharData[index].id, out dataArray))
+							if (!_packetAPI.CharacterRemove(World.Instance.MainPlayer.CharData[index].id, out dataArray))
 							{
 								DoShowLostConnectionDialogAndReturnToMainMenu();
 								return;
@@ -575,31 +575,31 @@ Thanks to :
 			if (!IsActive)
 				return;
 			//for loginClickedGameState
-			switch (currentState)
+			switch (State)
 			{
 				case GameStates.Login:
-					if (sender == loginUsernameTextbox)
+					if (sender == _loginUsernameTextbox)
 					{
-						loginUsernameTextbox.Selected = false;
-						Dispatcher.Subscriber = loginPasswordTextbox;
-						loginPasswordTextbox.Selected = true;
+						_loginUsernameTextbox.Selected = false;
+						Dispatcher.Subscriber = _loginPasswordTextbox;
+						_loginPasswordTextbox.Selected = true;
 					}
 					else
 					{
-						loginUsernameTextbox.Selected = true;
-						Dispatcher.Subscriber = loginUsernameTextbox;
-						loginPasswordTextbox.Selected = false;
+						_loginUsernameTextbox.Selected = true;
+						Dispatcher.Subscriber = _loginUsernameTextbox;
+						_loginPasswordTextbox.Selected = false;
 					}
 					break;
 				case GameStates.CreateAccount:
-					for (int i = 0; i < accountCreateTextBoxes.Length; ++i)
+					for (int i = 0; i < _accountCreateTextBoxes.Length; ++i)
 					{
-						if (sender == accountCreateTextBoxes[i])
+						if (sender == _accountCreateTextBoxes[i])
 						{
-							accountCreateTextBoxes[i].Selected = false;
-							int next = (i == accountCreateTextBoxes.Length - 1) ? 0 : i + 1;
-							Dispatcher.Subscriber = accountCreateTextBoxes[next];
-							accountCreateTextBoxes[next].Selected = true;
+							_accountCreateTextBoxes[i].Selected = false;
+							int next = (i == _accountCreateTextBoxes.Length - 1) ? 0 : i + 1;
+							Dispatcher.Subscriber = _accountCreateTextBoxes[next];
+							_accountCreateTextBoxes[next].Selected = true;
 							break;
 						}
 					}
@@ -609,25 +609,25 @@ Thanks to :
 
 		private void OnTextClicked(object sender, EventArgs e)
 		{
-			switch (currentState)
+			switch (State)
 			{
 				case GameStates.Login:
-					if (sender == loginUsernameTextbox)
+					if (sender == _loginUsernameTextbox)
 					{
-						OnTabPressed(loginPasswordTextbox, null);
+						OnTabPressed(_loginPasswordTextbox, null);
 					}
-					else if (sender == loginPasswordTextbox)
+					else if (sender == _loginPasswordTextbox)
 					{
-						OnTabPressed(loginUsernameTextbox, null);
+						OnTabPressed(_loginUsernameTextbox, null);
 					}
 					break;
 				case GameStates.CreateAccount:
-					for (int i = 0; i < accountCreateTextBoxes.Length; ++i)
+					for (int i = 0; i < _accountCreateTextBoxes.Length; ++i)
 					{
-						if (sender == accountCreateTextBoxes[i])
+						if (sender == _accountCreateTextBoxes[i])
 						{
-							int prev = (i == 0) ? accountCreateTextBoxes.Length - 1 : i - 1;
-							OnTabPressed(accountCreateTextBoxes[prev], null);
+							int prev = (i == 0) ? _accountCreateTextBoxes.Length - 1 : i - 1;
+							OnTabPressed(_accountCreateTextBoxes[prev], null);
 							break;
 						}
 					}

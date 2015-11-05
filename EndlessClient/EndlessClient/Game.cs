@@ -62,47 +62,30 @@ namespace EndlessClient
 			get { return inst ?? (inst = new EOGame()); }
 		}
 
-		private static readonly object ComponentsLock = new object();
-		public new GameComponentCollection Components
-		{
-			get
-			{
-				lock (ComponentsLock)
-					return base.Components;
-			}
-		}
-
 		public SpriteFont DBGFont { get; private set; }
 
-		const int WIDTH = 640;
-		const int HEIGHT = 480;
+		private const int WIDTH = 640;
+		private const int HEIGHT = 480;
 
-		readonly Random gen = new Random();
-		int currentPersonOne, currentPersonTwo;
-		GameStates currentState;
-		public GameStates State { get { return currentState; } }
+		private readonly Random _randGenerator;
+		private int _currentPersonOne, _currentPersonTwo;
+		public GameStates State { get; private set; }
 
-		//Textures actually being drawn by this class (not as components)
-		//Components moved to GameUI.cs (partial class)
-		Texture2D[] PeopleSetOne;
-		Texture2D[] PeopleSetTwo;
-		Texture2D UIBackground;
-		Texture2D CharacterDisp, AccountCreateSheet, LoginUIScreen;
+		private Texture2D[] _peopleSetOne;
+		private Texture2D[] _peopleSetTwo;
+		private Texture2D _backgroundTexture;
+		private Texture2D _characterSelectBackground, _accountCreateTextures, _userPassLoginPromptBackground;
 
-		bool exiting;
-		AutoResetEvent connectMutex;
+		private bool _exiting;
+		private AutoResetEvent _connectMutex;
 
-		string host;
-		int port;
-		private PacketAPI m_packetAPI;
-		private PacketAPICallbackManager m_callbackManager;
-		public PacketAPI API { get { return m_packetAPI; } }
+		private string host;
+		private int port;
+		private PacketAPI _packetAPI;
+		private PacketAPICallbackManager _callbackManager;
+		public PacketAPI API { get { return _packetAPI; } }
 
-#if MONO
-		private readonly INativeGraphicsLoader _gfxLoader = new GFXLoader();
-#else
-		private readonly INativeGraphicsLoader _gfxLoader = new EOCLI.GFXLoaderCLI();
-#endif
+		private INativeGraphicsLoader _gfxLoader;
 		public GFXManager GFXManager { get; private set; }
 
 #if DEBUG //don't do FPS render on release builds
@@ -117,13 +100,13 @@ namespace EndlessClient
 		{
 			//the mutex here should simulate the action of spamming the button.
 			//no matter what, it will only do it one at a time: the mutex is only released when the bg thread ends
-			if (connectMutex == null)
+			if (_connectMutex == null)
 			{
-				connectMutex = new AutoResetEvent(true);
-				if (!connectMutex.WaitOne(0))
+				_connectMutex = new AutoResetEvent(true);
+				if (!_connectMutex.WaitOne(0))
 					return;
 			}
-			else if (!connectMutex.WaitOne(0))
+			else if (!_connectMutex.WaitOne(0))
 			{
 				return;
 			}
@@ -131,7 +114,7 @@ namespace EndlessClient
 			if (World.Instance.Client.ConnectedAndInitialized && World.Instance.Client.Connected)
 			{
 				successAction();
-				connectMutex.Set();
+				_connectMutex.Set();
 				return;
 			}
 			
@@ -142,17 +125,17 @@ namespace EndlessClient
 				{
 					if (World.Instance.Client.ConnectToServer(host, port))
 					{
-						m_packetAPI = new PacketAPI((EOClient) World.Instance.Client);
+						_packetAPI = new PacketAPI((EOClient) World.Instance.Client);
 
 						//set up event packet handling event bindings: 
 						//	some events are triggered by the server regardless of action by the client
-						m_callbackManager = new PacketAPICallbackManager(m_packetAPI, this);
-						m_callbackManager.AssignCallbacks();
+						_callbackManager = new PacketAPICallbackManager(_packetAPI, this);
+						_callbackManager.AssignCallbacks();
 
-						((EOClient) World.Instance.Client).EventDisconnect += () => m_packetAPI.Disconnect();
+						((EOClient) World.Instance.Client).EventDisconnect += () => _packetAPI.Disconnect();
 
 						InitData data;
-						if (m_packetAPI.Initialize(World.Instance.VersionMajor,
+						if (_packetAPI.Initialize(World.Instance.VersionMajor,
 							World.Instance.VersionMinor,
 							World.Instance.VersionClient,
 							HDDSerial.GetHDDSerial(),
@@ -163,18 +146,18 @@ namespace EndlessClient
 								case InitReply.INIT_OK:
 									((EOClient) World.Instance.Client).SetInitData(data);
 
-									if (!m_packetAPI.ConfirmInit(data.emulti_e, data.emulti_d, data.clientID))
+									if (!_packetAPI.ConfirmInit(data.emulti_e, data.emulti_d, data.clientID))
 									{
 										throw new Exception(); //connection failed!
 									}
 
 									World.Instance.MainPlayer.SetPlayerID(data.clientID);
-									World.Instance.SetAPIHandle(m_packetAPI);
+									World.Instance.SetAPIHandle(_packetAPI);
 									successAction();
 									break;
 								default:
 									string extra;
-									DATCONST1 msg = m_packetAPI.GetInitResponseMessage(out extra);
+									DATCONST1 msg = _packetAPI.GetInitResponseMessage(out extra);
 									EODialog.Show(msg, extra);
 									break;
 							}
@@ -192,20 +175,20 @@ namespace EndlessClient
 				}
 				catch
 				{
-					if (!exiting)
+					if (!_exiting)
 					{
 						EODialog.Show(DATCONST1.CONNECTION_SERVER_NOT_FOUND);
 					}
 				}
 
-				connectMutex.Set();
+				_connectMutex.Set();
 			});
 		}
 
 		public void ShowLostConnectionDialog()
 		{
 			if (_backButtonPressed) return;
-			EODialog.Show(currentState == GameStates.PlayingTheGame
+			EODialog.Show(State == GameStates.PlayingTheGame
 				? DATCONST1.CONNECTION_LOST_IN_GAME
 				: DATCONST1.CONNECTION_LOST_CONNECTION);	
 		}
@@ -237,30 +220,26 @@ namespace EndlessClient
 		private void doShowCharacters()
 		{
 			//remove any existing character renderers
-			List<EOCharacterRenderer> toRemove = Components.OfType<EOCharacterRenderer>().ToList();
+			var toRemove = Components.OfType<EOCharacterRenderer>();
 			foreach (EOCharacterRenderer eor in toRemove)
 				eor.Close();
 
 			//show the new data
 			EOCharacterRenderer[] render = new EOCharacterRenderer[World.Instance.MainPlayer.CharData.Length];
 			for (int i = 0; i < World.Instance.MainPlayer.CharData.Length; ++i)
-			{
-				//need to get actual draw location
-				//int dOrder = 0; //for debugging
-				//if (render[i] != null)
-				//	dOrder = render[i].DrawOrder;
 				render[i] = new EOCharacterRenderer(new Vector2(395, 60 + i * 124), World.Instance.MainPlayer.CharData[i]);
-			}
 		}
 		
 		private void doStateChange(GameStates newState)
 		{
-			GameStates prevState = currentState;
-			currentState = newState;
+			GameStates prevState = State;
+			State = newState;
 
-			if(prevState == GameStates.PlayingTheGame && currentState != GameStates.PlayingTheGame)
+			if(prevState == GameStates.PlayingTheGame && State != GameStates.PlayingTheGame)
 			{
-				Components.ToList().ForEach(x => ((IDisposable)x).Dispose());
+				Components.OfType<IDisposable>()
+						  .ToList()
+						  .ForEach(x => x.Dispose());
 				Components.Clear();
 
 				foreach (var dlg in XNAControl.Dialogs)
@@ -271,18 +250,15 @@ namespace EndlessClient
 			}
 			
 			List<DrawableGameComponent> toRemove = new List<DrawableGameComponent>();
-			foreach (var comp in Components)
+			foreach (var component in Components.OfType<DrawableGameComponent>())
 			{
-				DrawableGameComponent component = comp as DrawableGameComponent;
-				if (comp == null) continue;
-
 				//don't hide dialogs
 				if (component is XNAControl &&
 					(XNAControl.Dialogs.Contains(component as XNAControl) ||
 					XNAControl.Dialogs.Contains((component as XNAControl).TopParent)))
 					continue;
 
-				if (prevState == GameStates.PlayingTheGame && currentState != GameStates.PlayingTheGame)
+				if (prevState == GameStates.PlayingTheGame && State != GameStates.PlayingTheGame)
 				{
 					toRemove.Add(component);
 				}
@@ -310,52 +286,52 @@ namespace EndlessClient
 			}
 			toRemove.Clear();
 
-			if (prevState == GameStates.PlayingTheGame && currentState != GameStates.PlayingTheGame)
+			if (prevState == GameStates.PlayingTheGame && State != GameStates.PlayingTheGame)
 				InitializeControls(true); //reinitialize to defaults
 
-			switch (currentState)
+			switch (State)
 			{
 				case GameStates.Initial:
 					ResetPeopleIndices();
-					foreach (XNAButton btn in mainButtons)
+					foreach (XNAButton btn in _mainButtons)
 						btn.Visible = true;
-					lblVersionInfo.Visible = true;
+					_lblVersionInfo.Visible = true;
 					break;
 				case GameStates.CreateAccount:
-					foreach (XNATextBox txt in accountCreateTextBoxes)
+					foreach (XNATextBox txt in _accountCreateTextBoxes)
 						txt.Visible = true;
-					foreach (XNAButton btn in createButtons)
+					foreach (XNAButton btn in _createButtons)
 						btn.Visible = true;
-					createButtons[0].DrawLocation = new Vector2(359, 417);
-					backButton.Visible = true;
-					Dispatcher.Subscriber = accountCreateTextBoxes[0];
+					_createButtons[0].DrawLocation = new Vector2(359, 417);
+					_backButton.Visible = true;
+					Dispatcher.Subscriber = _accountCreateTextBoxes[0];
 					break;
 				case GameStates.Login:
-					loginUsernameTextbox.Visible = true;
-					loginPasswordTextbox.Visible = true;
-					foreach (XNAButton btn in loginButtons)
+					_loginUsernameTextbox.Visible = true;
+					_loginPasswordTextbox.Visible = true;
+					foreach (XNAButton btn in _loginButtons)
 						btn.Visible = true;
-					foreach (XNAButton btn in mainButtons)
+					foreach (XNAButton btn in _mainButtons)
 						btn.Visible = true;
-					Dispatcher.Subscriber = loginUsernameTextbox;
-					lblVersionInfo.Visible = true;
+					Dispatcher.Subscriber = _loginUsernameTextbox;
+					_lblVersionInfo.Visible = true;
 					break;
 				case GameStates.ViewCredits:
-					foreach (XNAButton btn in mainButtons)
+					foreach (XNAButton btn in _mainButtons)
 						btn.Visible = true;
-					lblCredits.Visible = true;
+					_lblCredits.Visible = true;
 					break;
 				case GameStates.LoggedIn:
-					backButton.Visible = true;
-					createButtons[0].Visible = true;
-					createButtons[0].DrawLocation = new Vector2(334, 417);
+					_backButton.Visible = true;
+					_createButtons[0].Visible = true;
+					_createButtons[0].DrawLocation = new Vector2(334, 417);
 
-					foreach (XNAButton x in loginCharButtons)
+					foreach (XNAButton x in _loginCharButtons)
 						x.Visible = true;
-					foreach (XNAButton x in deleteCharButtons)
+					foreach (XNAButton x in _deleteCharButtons)
 						x.Visible = true;
 
-					passwordChangeBtn.Visible = true;
+					_passwordChangeBtn.Visible = true;
 
 					doShowCharacters();
 					break;
@@ -364,7 +340,7 @@ namespace EndlessClient
 					for (int i = Components.Count - 1; i >= 0; --i)
 					{
 						IGameComponent comp = Components[i];
-						if (comp != backButton && (comp as DrawableGameComponent) != null && 
+						if (comp != _backButton && (comp as DrawableGameComponent) != null && 
 							fi.Count(_fi => _fi.GetValue(this) == comp) == 1)
 						{
 							(comp as DrawableGameComponent).Dispose();
@@ -372,7 +348,7 @@ namespace EndlessClient
 						}
 					}
 
-					backButton.Visible = true;
+					_backButton.Visible = true;
 					//note: HUD construction moved to successful welcome message in EOConnectingDialog close event handler
 
 					break;
@@ -381,8 +357,8 @@ namespace EndlessClient
 
 		private void ResetPeopleIndices()
 		{
-			currentPersonOne = gen.Next(4);
-			currentPersonTwo = gen.Next(8);
+			_currentPersonOne = _randGenerator.Next(4);
+			_currentPersonTwo = _randGenerator.Next(8);
 		}
 
 		//-----------------------------
@@ -391,11 +367,110 @@ namespace EndlessClient
 
 		private EOGame()
 		{
-			graphics = new GraphicsDeviceManager(this) {PreferredBackBufferWidth = WIDTH, PreferredBackBufferHeight = HEIGHT};
+			_randGenerator = new Random();
+			_graphicsDeviceManager = new GraphicsDeviceManager(this)
+			{
+				PreferredBackBufferWidth = WIDTH,
+				PreferredBackBufferHeight = HEIGHT
+			};
 			Content.RootDirectory = "Content";
 		}
 
 		protected override void Initialize()
+		{
+			IsMouseVisible = true;
+			Dispatcher = new KeyboardDispatcher(Window);
+			ResetPeopleIndices();
+
+			if (!InitializeXNAControls() ||
+				!InitializeGFXManager() ||
+				!InitializeWorld() || 
+				!InitializeSoundManager())
+				return;
+
+			base.Initialize();
+		}
+
+		protected override void LoadContent()
+		{
+			_spriteBatch = new SpriteBatch(GraphicsDevice);
+
+			DBGFont = Content.Load<SpriteFont>("dbg");
+
+			_backgroundTexture = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 30 + _randGenerator.Next(7));
+
+			_peopleSetOne = new Texture2D[4];
+			_peopleSetTwo = new Texture2D[8];
+
+			for (int i = 1; i <= 4; ++i)
+			{
+				_peopleSetOne[i - 1] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 40 + i, true);
+				_peopleSetTwo[i - 1] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 60 + i, true);
+				_peopleSetTwo[i + 3] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 64 + i, true);
+			}
+			
+			_userPassLoginPromptBackground = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 2);
+			_characterSelectBackground = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 11);
+			_accountCreateTextures = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 12, true);
+
+			InitializeControls();
+		}
+
+		protected override void Draw(GameTime gameTime)
+		{
+			GraphicsDevice.Clear(Color.Black);
+			_spriteBatch.Begin();
+
+			if(State != GameStates.PlayingTheGame)
+				_spriteBatch.Draw(_backgroundTexture, new Rectangle(0, 0, WIDTH, HEIGHT), null, Color.White);
+
+			Rectangle personOneRect = new Rectangle(229, 70, _peopleSetOne[_currentPersonOne].Width, _peopleSetOne[_currentPersonOne].Height);
+			Rectangle personTwoRect = new Rectangle(43, 140, _peopleSetTwo[_currentPersonTwo].Width, _peopleSetTwo[_currentPersonTwo].Height);
+			switch (State)
+			{
+				case GameStates.Login:
+					_spriteBatch.Draw(_peopleSetOne[_currentPersonOne], personOneRect, Color.White);
+					_spriteBatch.Draw(_userPassLoginPromptBackground, new Vector2(266, 291), Color.White);
+					break;
+				case GameStates.Initial:
+					_spriteBatch.Draw(_peopleSetOne[_currentPersonOne], personOneRect, Color.White);
+					break;
+				case GameStates.CreateAccount:
+					_spriteBatch.Draw(_peopleSetTwo[_currentPersonTwo], personTwoRect, Color.White);
+					//there are six labels
+					for (int srcYIndex = 0; srcYIndex < 6; ++srcYIndex)
+					{
+						Vector2 lblpos = new Vector2(358, (srcYIndex < 3 ? 50 : 241) + (srcYIndex < 3 ? srcYIndex * 51 : (srcYIndex - 3) * 51));
+						_spriteBatch.Draw(_accountCreateTextures, lblpos, new Rectangle(0, srcYIndex * (srcYIndex < 2 ? 14 : 15), 149, 15), Color.White);
+					}
+					break;
+				case GameStates.LoggedIn:
+					//334, 36
+					//334 160
+					_spriteBatch.Draw(_peopleSetTwo[_currentPersonTwo], personTwoRect, Color.White);
+					for (int i = 0; i < 3; ++i)
+						_spriteBatch.Draw(_characterSelectBackground, new Vector2(334, 36 + i * 124), Color.White);
+					break;
+			}
+
+			_spriteBatch.End();
+
+#if DEBUG
+			if (lastFPSRender == null)
+				lastFPSRender = gameTime.TotalGameTime;
+
+			localFPS++;
+			if (gameTime.TotalGameTime.TotalMilliseconds - lastFPSRender.Value.TotalMilliseconds > 1000)
+			{
+				World.FPS = localFPS;
+				localFPS = 0;
+				lastFPSRender = gameTime.TotalGameTime;
+			}
+#endif
+			base.Draw(gameTime);
+		}
+
+		private bool InitializeXNAControls()
 		{
 			try
 			{
@@ -407,27 +482,62 @@ namespace EndlessClient
 			{
 				MessageBox.Show("Something super weird happened: " + ex.Message);
 				Exit();
-				return;
+				return false;
 			}
 
-			IsMouseVisible = true;
-			Dispatcher = new KeyboardDispatcher(Window);
-			ResetPeopleIndices();
+			return true;
+		}
 
+		private bool InitializeGFXManager()
+		{
 			try
 			{
+#if MONO
+				_gfxLoader = new GFXLoader();
+#else
+				_gfxLoader = new EOCLI.GFXLoaderCLI();
+#endif
 				GFXManager = new GFXManager(_gfxLoader, GraphicsDevice);
-				World w = World.Instance; //set up the world
+			}
+			catch (LibraryLoadException lle)
+			{
+				MessageBox.Show(
+					string.Format(
+						"There was an error loading GFX{0:000}.EGF : {1}. Place all .GFX files in .\\gfx\\. The error message is:\n\n\"{2}\"",
+						(int)lle.WhichGFX,
+						lle.WhichGFX,
+						lle.Message),
+					"GFX Load Error",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Error);
+				Exit();
+				return false;
+			}
+			catch (ArgumentNullException ex)
+			{
+				MessageBox.Show("Error initializing GFXManager: " + ex.Message, "Error");
+				Exit();
+				return false;
+			}
+
+			return true;
+		}
+
+		private bool InitializeWorld()
+		{
+			try
+			{
+				World w = World.Instance;
 				w.Init();
 
-				host = World.Instance.Host;
-				port = World.Instance.Port;
+				host = w.Host;
+				port = w.Port;
 			}
-			catch (WorldLoadException wle) //could be thrown from World's constructor
+			catch (WorldLoadException wle)
 			{
 				MessageBox.Show(wle.Message, "Error");
 				Exit();
-				return;
+				return false;
 			}
 			catch (ConfigStringLoadException csle)
 			{
@@ -452,146 +562,30 @@ namespace EndlessClient
 							MessageBoxIcon.Warning);
 						break;
 				}
-			}
-			catch (ArgumentNullException ex)
-			{
-				MessageBox.Show("Error initializing GFXManager: " + ex.Message, "Error");
-				Exit();
-				return;
+				return false;
 			}
 
-			if(World.Instance.EIF != null && World.Instance.EIF.Version == 0)
-			{
-				MessageBox.Show("The item pub file you are using is using an older format of the EIF specification. Some features may not work properly. Run the file through a batch processor or use updated pub files.", "Warning");
-			}
+			return true;
+		}
 
-			GFXTypes curValue = 0;
-			try
-			{
-				Array values = Enum.GetValues(typeof(GFXTypes));
-				foreach (GFXTypes value in values)
-				{
-					curValue = value;
-					//check for GFX files. Each file has a GFX 1.
-					using (Texture2D throwAway = GFXManager.TextureFromResource(value, -99))
-					{
-						throwAway.Name = ""; //no-op to keep resharper happy
-					}
-				}
-			}
-			catch
-			{
-				MessageBox.Show(string.Format("There was an error loading GFX{0:000}.EGF : {1}. Place all .GFX files in .\\gfx\\", (int)curValue, curValue), "Error");
-				Exit();
-				return;
-			}
-
+		private bool InitializeSoundManager()
+		{
 			try
 			{
 				SoundManager = new EOSoundManager();
 			}
-			catch(Exception ex)
+			catch (Exception ex)
 			{
 				MessageBox.Show(
 					string.Format("There was an error (type: {2}) initializing the sound manager: {0}\n\nCall Stack:\n {1}", ex.Message,
 						ex.StackTrace, ex.GetType()), "Sound Manager Error");
 				Exit();
-				return;
+				return false;
 			}
 
 			if (World.Instance.MusicEnabled)
-			{
 				SoundManager.PlayBackgroundMusic(1); //mfx001 == main menu theme
-			}
-			
-			base.Initialize();
-		}
-
-		protected override void LoadContent()
-		{
-			//the content (pun intended) of this method is organized by the control being instantiated
-			//maybe split it off into separate "helper" functions for organization? :-/
-
-			spriteBatch = new SpriteBatch(GraphicsDevice);
-
-			DBGFont = Content.Load<SpriteFont>("dbg");
-
-			//texture for UI background image
-			UIBackground = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 30 + gen.Next(7));
-
-			PeopleSetOne = new Texture2D[4];
-			PeopleSetTwo = new Texture2D[8];
-			//the large character drawings
-			for (int i = 1; i <= 4; ++i)
-			{
-				PeopleSetOne[i - 1] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 40 + i, true);
-				//8 graphics in the second set of people: 61-68
-				PeopleSetTwo[i - 1] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 60 + i, true);
-				PeopleSetTwo[i + 3] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 64 + i, true);
-			}
-			
-			//the username/password prompt background
-			LoginUIScreen = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 2);
-			//the character display background w/o login+delete buttons
-			CharacterDisp = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 11);
-			//the account create sheet w/labels for text fields
-			AccountCreateSheet = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 12, true);
-
-			InitializeControls();
-		}
-
-		protected override void Draw(GameTime gameTime)
-		{
-			GraphicsDevice.Clear(Color.Black);
-			spriteBatch.Begin();
-
-			if(currentState != GameStates.PlayingTheGame)
-				spriteBatch.Draw(UIBackground, new Rectangle(0, 0, WIDTH, HEIGHT), null, Color.White);
-
-			Rectangle personOneRect = new Rectangle(229, 70, PeopleSetOne[currentPersonOne].Width, PeopleSetOne[currentPersonOne].Height);
-			Rectangle personTwoRect = new Rectangle(43, 140, PeopleSetTwo[currentPersonTwo].Width, PeopleSetTwo[currentPersonTwo].Height);
-			switch (currentState)
-			{
-				case GameStates.Login:
-					spriteBatch.Draw(PeopleSetOne[currentPersonOne], personOneRect, Color.White);
-					spriteBatch.Draw(LoginUIScreen, new Vector2(266, 291), Color.White);
-					break;
-				case GameStates.Initial:
-					spriteBatch.Draw(PeopleSetOne[currentPersonOne], personOneRect, Color.White);
-					break;
-				case GameStates.CreateAccount:
-					spriteBatch.Draw(PeopleSetTwo[currentPersonTwo], personTwoRect, Color.White);
-					//there are six labels
-					for (int srcYIndex = 0; srcYIndex < 6; ++srcYIndex)
-					{
-						Vector2 lblpos = new Vector2(358, (srcYIndex < 3 ? 50 : 241) + (srcYIndex < 3 ? srcYIndex * 51 : (srcYIndex - 3) * 51));
-						spriteBatch.Draw(AccountCreateSheet, lblpos, new Rectangle(0, srcYIndex * (srcYIndex < 2 ? 14 : 15), 149, 15), Color.White);
-					}
-					break;
-				case GameStates.LoggedIn:
-					//334, 36
-					//334 160
-					spriteBatch.Draw(PeopleSetTwo[currentPersonTwo], personTwoRect, Color.White);
-					for (int i = 0; i < 3; ++i)
-						spriteBatch.Draw(CharacterDisp, new Vector2(334, 36 + i * 124), Color.White);
-					break;
-			}
-
-			spriteBatch.End();
-
-#if DEBUG
-			if (lastFPSRender == null)
-				lastFPSRender = gameTime.TotalGameTime;
-
-			localFPS++;
-			if (gameTime.TotalGameTime.TotalMilliseconds - lastFPSRender.Value.TotalMilliseconds > 1000)
-			{
-				World.FPS = localFPS;
-				localFPS = 0;
-				lastFPSRender = gameTime.TotalGameTime;
-			}
-#endif
-			base.Draw(gameTime);
+			return true;
 		}
 
 		//-------------------
@@ -606,57 +600,57 @@ namespace EndlessClient
 			if (World.Instance.Client.ConnectedAndInitialized)
 				World.Instance.Client.Disconnect();
 
-			if(loginUsernameTextbox != null)
-				loginUsernameTextbox.Dispose();
-			if(loginPasswordTextbox != null)
-				loginPasswordTextbox.Dispose();
+			if(_loginUsernameTextbox != null)
+				_loginUsernameTextbox.Close();
+			if(_loginPasswordTextbox != null)
+				_loginPasswordTextbox.Close();
 
-			foreach (XNAButton btn in mainButtons)
+			foreach (XNAButton btn in _mainButtons)
 			{
 				if(btn != null)
-					btn.Dispose();
+					btn.Close();
 			}
-			foreach (XNAButton btn in loginButtons)
+			foreach (XNAButton btn in _loginButtons)
 			{
 				if(btn != null)
-					btn.Dispose();
+					btn.Close();
 			}
-			foreach (XNAButton btn in createButtons)
+			foreach (XNAButton btn in _createButtons)
 			{
 				if(btn != null)
-					btn.Dispose();
+					btn.Close();
 			}
 
-			foreach (XNAButton btn in loginCharButtons)
+			foreach (XNAButton btn in _loginCharButtons)
 			{
 				if(btn != null)
-					btn.Dispose();
+					btn.Close();
 			}
 
-			if(passwordChangeBtn != null)
-				passwordChangeBtn.Dispose();
+			if(_passwordChangeBtn != null)
+				_passwordChangeBtn.Close();
 
-			if(backButton != null)
-				backButton.Dispose();
+			if(_backButton != null)
+				_backButton.Close();
 
-			if(lblCredits != null)
-				lblCredits.Dispose();
+			if(_lblCredits != null)
+				_lblCredits.Close();
 
-			foreach (XNATextBox btn in accountCreateTextBoxes)
+			foreach (XNATextBox btn in _accountCreateTextBoxes)
 			{
 				if(btn != null)
-					btn.Dispose();
+					btn.Close();
 			}
 
-			if(spriteBatch != null)
-				spriteBatch.Dispose();
-			((IDisposable)graphics).Dispose();
+			if(_spriteBatch != null)
+				_spriteBatch.Dispose();
+			((IDisposable)_graphicsDeviceManager).Dispose();
 			
-			if(lblVersionInfo != null)
-				lblVersionInfo.Dispose();
+			if(_lblVersionInfo != null)
+				_lblVersionInfo.Close();
 
-			if(connectMutex != null)
-				connectMutex.Dispose();
+			if(_connectMutex != null)
+				_connectMutex.Dispose();
 
 			GFXManager.Dispose();
 			_gfxLoader.Dispose();
@@ -669,9 +663,9 @@ namespace EndlessClient
 		//make sure a pending connection request terminates properly without crashing the game
 		protected override void OnExiting(object sender, EventArgs args)
 		{
-			exiting = true;
-			if(connectMutex != null)
-				connectMutex.Set();
+			_exiting = true;
+			if(_connectMutex != null)
+				_connectMutex.Set();
 			World.Instance.Client.Dispose(); //kill pending connection request on exit
 			base.OnExiting(sender, args);
 		}
