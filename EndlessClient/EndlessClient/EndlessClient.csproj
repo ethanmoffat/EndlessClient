@@ -179,6 +179,10 @@
     <Content Include="GameThumbnail.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\EOCLI\EOCLI.vcxproj">
+      <Project>{860a09ee-4df0-4e63-b59d-77a398200c01}</Project>
+      <Name>EOCLI</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\EOLib\EOLib.csproj">
       <Project>{34ec2870-4b44-49a1-801d-54b73e62ca99}</Project>
       <Name>EOLib</Name>

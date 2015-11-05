@@ -37,7 +37,7 @@ namespace EOLib.Graphics
 		private IntPtr LoadLibraryModule(GFXTypes file)
 		{
 			var number = ((int)file).ToString("D3");
-			var fName = System.IO.Path.Combine(new[] { "gfx", "gfx" + number + ".egf" });
+			var fName = System.IO.Path.Combine("gfx", "gfx" + number + ".egf");
 
 			var library = Win32.LoadLibrary(fName);
 

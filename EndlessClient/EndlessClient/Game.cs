@@ -410,7 +410,12 @@ namespace EndlessClient
 
 			try
 			{
-				GFXManager = new GFXManager(new GFXLoader(), GraphicsDevice);
+#if MONO
+				INativeGraphicsLoader loader = new GFXLoader();
+#else
+				INativeGraphicsLoader loader = new EOCLI.GFXLoaderCLI();
+#endif
+				GFXManager = new GFXManager(loader, GraphicsDevice);
 				World w = World.Instance; //set up the world
 				w.Init();
 
