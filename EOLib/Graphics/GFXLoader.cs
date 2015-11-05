@@ -12,18 +12,21 @@ namespace EOLib.Graphics
 {
 	public class LibraryLoadException : Exception
 	{
-		public LibraryLoadException(string libraryNumber)
+		public GFXTypes WhichGFX { get; private set; }
+
+		public LibraryLoadException(string libraryNumber, GFXTypes which)
 			: base(string.Format("Error {1} when loading library {0}\n{2}",
 				libraryNumber,
 				Marshal.GetLastWin32Error(),
 				new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error()).Message))
 		{
+			WhichGFX = which;
 		}
 	}
 
-	public class GFXLoader : INativeGraphicsLoader
+	public sealed class GFXLoader : INativeGraphicsLoader
 	{
-		private Dictionary<GFXTypes, IntPtr> _modules;
+		private readonly Dictionary<GFXTypes, IntPtr> _modules;
 
 		public GFXLoader()
 		{
@@ -47,7 +50,7 @@ namespace EOLib.Graphics
 			GC.SuppressFinalize(this);
 		}
 
-		protected virtual void Dispose(bool disposing)
+		private void Dispose(bool disposing)
 		{
 			//no managed resources
 			if (disposing) { }
@@ -80,7 +83,7 @@ namespace EOLib.Graphics
 			var library = Win32.LoadLibrary(fName);
 
 			if (library == IntPtr.Zero)
-				throw new LibraryLoadException(number);
+				throw new LibraryLoadException(number, file);
 
 			return library;
 		}

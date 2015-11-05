@@ -68,7 +68,7 @@ namespace EOCLI
 		HANDLE library = ::LoadLibrary(context.marshal_as<LPCTSTR>(fName));
 
 		if (!library || library == INVALID_HANDLE_VALUE)
-			throw gcnew LibraryLoadException(number);
+			throw gcnew LibraryLoadException(number, file);
 
 		return library;
 	}
