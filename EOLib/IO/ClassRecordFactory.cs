@@ -2,13 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EOLib.Data
+namespace EOLib.IO
 {
-	internal class SpellRecordFactory : IDataRecordFactory
+	internal class ClassRecordFactory : IDataRecordFactory
 	{
 		public IDataRecord CreateRecord(int id)
 		{
-			return new SpellRecord(id);
+			return new ClassRecord(id);
 		}
 	}
 }

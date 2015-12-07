@@ -5,7 +5,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using EOLib.Data;
+using EOLib.IO;
 
 namespace BatchMap
 {

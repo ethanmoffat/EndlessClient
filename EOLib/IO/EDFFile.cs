@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace EOLib.Data
+namespace EOLib.IO
 {
 	public class EDFFile
 	{

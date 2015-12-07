@@ -5,7 +5,7 @@
 using System;
 using System.Linq;
 using EOLib;
-using EOLib.Data;
+using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 

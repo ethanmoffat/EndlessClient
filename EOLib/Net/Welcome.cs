@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using EOLib.Data;
+using EOLib.IO;
 
 namespace EOLib.Net
 {

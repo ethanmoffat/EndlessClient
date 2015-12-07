@@ -5,8 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EOLib.Data;
 using EOLib.Graphics;
+using EOLib.IO;
 using EOLib.Net;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;

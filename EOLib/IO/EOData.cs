@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace EOLib.Data
+namespace EOLib.IO
 {
 	public interface IDataRecord
 	{

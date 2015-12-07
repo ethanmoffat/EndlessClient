@@ -3,9 +3,8 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib;
-using EOLib.Data;
 using EOLib.Graphics;
+using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

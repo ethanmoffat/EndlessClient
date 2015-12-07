@@ -5,7 +5,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using EOLib.Data;
+using EOLib.IO;
 
 namespace EOLib.Net
 {

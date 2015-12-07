@@ -10,8 +10,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 using EOLib;
-using EOLib.Data;
 using EOLib.Graphics;
+using EOLib.IO;
 
 namespace EndlessClient
 {
@@ -855,7 +855,7 @@ namespace EndlessClient
 
 			lock (hatHairLock)
 			{
-				_drawHatHair(flipped, hatInfo == null || hatInfo.SubType != EOLib.Data.ItemSubType.FaceMask);
+				_drawHatHair(flipped, hatInfo == null || hatInfo.SubType != ItemSubType.FaceMask);
 			}
 
 			if (shield != null && !shieldDrawn)
@@ -1224,7 +1224,7 @@ namespace EndlessClient
 			{
 				switch (hatInfo.SubType)
 				{
-					case EOLib.Data.ItemSubType.HideHair: //anything matching ^[A-Za-z ]*[Hh]elm[A-Za-z ]*$ or ^[A-Za-z ]*[Hh]ood[A-Za-z ]*$, or id=314 (pirate hat)
+					case ItemSubType.HideHair: //anything matching ^[A-Za-z ]*[Hh]elm[A-Za-z ]*$ or ^[A-Za-z ]*[Hh]ood[A-Za-z ]*$, or id=314 (pirate hat)
 						hair = null;
 						if (hat != null)
 						{
@@ -1235,7 +1235,7 @@ namespace EndlessClient
 							hat.SetData(hatPixels);
 						}
 						return;
-					case EOLib.Data.ItemSubType.FaceMask: //Frog Head, glasses, and Dragon Mask (anything with mask in the name, really)
+					case ItemSubType.FaceMask: //Frog Head, glasses, and Dragon Mask (anything with mask in the name, really)
 						if (hatInfo.Name.ToLower() == "glasses")
 						{ //special case for glasses, hooray hard-coding :/
 							Color[] glassesData = new Color[hat.Width * hat.Height];

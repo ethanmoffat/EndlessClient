@@ -6,7 +6,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace EOLib.Data
+namespace EOLib.IO
 {
 	public enum SpellType
 	{

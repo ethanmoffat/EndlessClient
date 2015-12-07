@@ -2,10 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EOLib.Data
+namespace EOLib.IO
 {
-	internal interface IDataRecordFactory
+	internal class ItemRecordFactory : IDataRecordFactory
 	{
-		IDataRecord CreateRecord(int id);
+		public IDataRecord CreateRecord(int id)
+		{
+			return new ItemRecord(id);
+		}
 	}
 }

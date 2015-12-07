@@ -7,8 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
-
-using EOLib.Data;
+using EOLib.IO;
 
 namespace BatchPub
 {
@@ -97,7 +96,7 @@ namespace BatchPub
 				}
 
 				rtfOutput.Text += "Processing change: set " + pi.Name + "(" + pi.PropertyType.ToString() + ")=" + newValue.ToString() + " for all items...";
-				eif.Data.ForEach((EOLib.Data.IDataRecord record) =>
+				eif.Data.ForEach(record =>
 					{
 						ItemRecord rec = (ItemRecord)record;
 						System.Reflection.PropertyInfo prop = rec.GetType().GetProperty(pi.Name);

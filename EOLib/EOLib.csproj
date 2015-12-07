@@ -64,19 +64,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\Class.cs" />
+    <Compile Include="IO\Class.cs" />
     <Compile Include="Crc.cs" />
-    <Compile Include="Data\ClassRecordFactory.cs" />
-    <Compile Include="Data\EDFFile.cs" />
-    <Compile Include="Data\EOData.cs" />
-    <Compile Include="Data\IDataRecordFactory.cs" />
-    <Compile Include="Data\Item.cs" />
-    <Compile Include="Data\ItemRecordFactory.cs" />
-    <Compile Include="Data\Map.cs" />
-    <Compile Include="Data\NPC.cs" />
-    <Compile Include="Data\NPCRecordFactory.cs" />
-    <Compile Include="Data\Spell.cs" />
-    <Compile Include="Data\SpellRecordFactory.cs" />
+    <Compile Include="IO\ClassRecordFactory.cs" />
+    <Compile Include="IO\EDFFile.cs" />
+    <Compile Include="IO\EOData.cs" />
+    <Compile Include="IO\IDataRecordFactory.cs" />
+    <Compile Include="IO\Item.cs" />
+    <Compile Include="IO\ItemRecordFactory.cs" />
+    <Compile Include="IO\Map.cs" />
+    <Compile Include="IO\NPC.cs" />
+    <Compile Include="IO\NPCRecordFactory.cs" />
+    <Compile Include="IO\Spell.cs" />
+    <Compile Include="IO\SpellRecordFactory.cs" />
     <Compile Include="Graphics\GFXLoader.cs" />
     <Compile Include="Graphics\GFXManager.cs" />
     <Compile Include="Graphics\GFXTypes.cs" />

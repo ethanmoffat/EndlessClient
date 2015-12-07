@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using EOLib;
-using EOLib.Data;
+using EOLib.IO;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using XNAControls;
@@ -168,7 +168,7 @@ namespace EndlessClient
 			get
 			{
 				return SelectedSpell > 0 &&
-				       World.Instance.ESF.GetSpellRecordByID((short) SelectedSpell).Target == EOLib.Data.SpellTarget.Normal &&
+				       World.Instance.ESF.GetSpellRecordByID((short) SelectedSpell).Target == EOLib.IO.SpellTarget.Normal &&
 				       SpellTarget == null;
 			}
 		}
@@ -752,7 +752,7 @@ namespace EndlessClient
 			bool result = false;
 			switch (data.Target)
 			{
-				case EOLib.Data.SpellTarget.Normal:
+				case EOLib.IO.SpellTarget.Normal:
 					var targetAsNPC = SpellTarget as NPC;
 					var targetAsChar = SpellTarget as EOCharacterRenderer;
 					if (targetAsNPC != null)
@@ -760,12 +760,12 @@ namespace EndlessClient
 					else if (targetAsChar != null)
 						result = m_packetAPI.DoCastTargetSpell((short) id, false, (short) targetAsChar.Character.ID);
 					break;
-				case EOLib.Data.SpellTarget.Self:
+				case EOLib.IO.SpellTarget.Self:
 					result = m_packetAPI.DoCastSelfSpell((short) id);
 					break;
-				case EOLib.Data.SpellTarget.Unknown1:
+				case EOLib.IO.SpellTarget.Unknown1:
 					throw new Exception("What even is this");
-				case EOLib.Data.SpellTarget.Group:
+				case EOLib.IO.SpellTarget.Group:
 					result = m_packetAPI.DoCastGroupSpell((short) id);
 					break;
 				default:
