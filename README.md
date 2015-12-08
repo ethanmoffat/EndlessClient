@@ -95,8 +95,8 @@ As far as bugs are concerned, character rendering during attack is not being don
 Concerning refactoring code, I would like to remove all dependencies on singleton instances of World and EOGame if possible. This would require huge sweeping changes so I may just leave things the way they are since there is no real benefit past the code being cleaner.
 
 Here's the actual to-do list:
- - Character rendering during attack
- - Effects and spells
+ - Character rendering during attack - currently the display is very buggy. The implementation leaves a lot to be desired.
+ - Effects and spells - rendering of the spell on the target does not happen, but the spell is cast.
  - Guilds
  - Quest book
  - Innkeepers
