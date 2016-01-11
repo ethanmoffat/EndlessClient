@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net;
@@ -21,14 +22,16 @@ namespace EndlessClient
 	//	drag+drop
 	public class SpellIcon : XNAControl
 	{
+		private const int ICON_AREA_WIDTH = 42, ICON_AREA_HEIGHT = 36;
+
 		private int m_slot;
 		public int Slot
 		{
 			get { return m_slot; }
-			/*private */set
+			private set
 			{
 				m_slot = value;
-				//OnSlotChanged();
+				OnSlotChanged();
 			}
 		}
 
@@ -58,27 +61,86 @@ namespace EndlessClient
 
 			m_spellGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.SpellIcons, SpellData.Icon);
 			m_highlightColor = new Texture2D(Game.GraphicsDevice, 1, 1);
-			//todo: figure out color of background
-			m_highlightColor.SetData(new[] {Color.FromNonPremultiplied(0, 0, 0, 0)});
+			m_highlightColor.SetData(new[] {Color.FromNonPremultiplied(200, 200, 200, 60)});
 
-			Selected = false; //calls OnSelected
+			OnSelected();
 
-			//set up label for display spell name
-
+			_setSize(ICON_AREA_WIDTH, ICON_AREA_HEIGHT);
 			Slot = slot;
+		}
+
+		public override void Update(GameTime gameTime)
+		{
+			UpdateIconSourceRect();
+
+			base.Update(gameTime);
+		}
+
+		public override void Draw(GameTime gameTime)
+		{
+			if (!Visible) return;
+
+			SpriteBatch.Begin();
+			if (MouseOver)
+				DrawHighlight();
+			DrawSpellIcon();
+			SpriteBatch.End();
+
+			base.Draw(gameTime);
 		}
 
 		//-----------------------------------------------------
 		// Helper methods
 		//-----------------------------------------------------
-		//private void OnSlotChanged() //todo: determine if this is required
-		//{
-		//}
+		private void OnSlotChanged()
+		{
+			//start pos: 101, 97
+			//xdelta: 45; ydelta: 52
+			var row = Slot/ActiveSpells.SPELL_ROW_LENGTH;
+			var col = Slot%ActiveSpells.SPELL_ROW_LENGTH;
+			DrawLocation = new Vector2(101 + col * 45, 9 + row * 52);
+		}
 
 		private void OnSelected()
 		{
-			var halfWidth = m_spellGraphic.Width/2;
+			var halfWidth = m_spellGraphic.Width / 2;
 			m_spellGraphicSourceRect = new Rectangle(Selected ? halfWidth : 0, 0, halfWidth, m_spellGraphic.Height);
+		}
+
+		private void UpdateIconSourceRect()
+		{
+			if (MouseOver && !MouseOverPreviously ||
+				MouseOverPreviously && !MouseOver)
+			{
+				var halfWidth = m_spellGraphic.Width / 2;
+				m_spellGraphicSourceRect = new Rectangle(MouseOver ? halfWidth : 0, 0, halfWidth, m_spellGraphic.Height);
+				if (MouseOver)
+					((EOGame) Game).Hud.SetStatusLabel(DATCONST2.SKILLMASTER_WORD_SPELL, SpellData.Name);
+			}
+		}
+
+		private void DrawSpellIcon()
+		{
+			var targetDrawArea = new Rectangle(
+				DrawAreaWithOffset.X + (DrawAreaWithOffset.Width - m_spellGraphicSourceRect.Width) / 2,
+				DrawAreaWithOffset.Y + (DrawAreaWithOffset.Height - m_spellGraphicSourceRect.Height) / 2,
+				m_spellGraphicSourceRect.Width,
+				m_spellGraphicSourceRect.Height);
+			SpriteBatch.Draw(m_spellGraphic, targetDrawArea, m_spellGraphicSourceRect, Color.White);
+		}
+
+		private void DrawHighlight()
+		{
+			SpriteBatch.Draw(m_highlightColor, DrawAreaWithOffset, Color.White);
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				m_highlightColor.Dispose();
+			}
+			base.Dispose(disposing);
 		}
 	}
 
@@ -176,7 +238,7 @@ namespace EndlessClient
 			if (slot < 0 || m_childItems.Count(x => x.Slot == slot) > 0)
 				return false;
 
-			int row = slot / SPELL_NUM_ROWS;
+			int row = slot / SPELL_ROW_LENGTH;
 			int col = slot % SPELL_ROW_LENGTH;
 			m_filledSlots[row, col] = true;
 

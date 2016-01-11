@@ -883,6 +883,7 @@ namespace EndlessClient
 				case DATCONST2.STATUS_LABEL_TYPE_INFORMATION:
 				case DATCONST2.STATUS_LABEL_TYPE_WARNING:
 				case DATCONST2.STATUS_LABEL_TYPE_ITEM:
+				case DATCONST2.SKILLMASTER_WORD_SPELL:
 					break;
 				default:
 					throw new ArgumentOutOfRangeException("type", "Use either ACTION, BUTTION, INFORMATION, WARNING, or ITEM for this.");
@@ -928,7 +929,6 @@ namespace EndlessClient
 		{
 			return activeSpells.GetSpellRecordBySlot(index);
 		}
-
 		public void SetSelectedSpell(int index)
 		{
 			activeSpells.SetActiveSpellBySlot(index);
