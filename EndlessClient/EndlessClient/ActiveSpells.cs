@@ -12,6 +12,7 @@ using EOLib.Net;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient
@@ -52,6 +53,9 @@ namespace EndlessClient
 		private readonly Texture2D m_spellGraphic, m_highlightColor;
 		private Rectangle m_spellGraphicSourceRect;
 
+		private DateTime m_clickTime;
+		private bool m_dragging, m_followMouse;
+
 		public SpellIcon(ActiveSpells parent, SpellRecord data, int slot)
 			: base(null, null, parent)
 		{
@@ -67,11 +71,14 @@ namespace EndlessClient
 
 			_setSize(ICON_AREA_WIDTH, ICON_AREA_HEIGHT);
 			Slot = slot;
+
+			m_clickTime = DateTime.Now;
 		}
 
 		public override void Update(GameTime gameTime)
 		{
 			UpdateIconSourceRect();
+			CheckForMouseClick();
 
 			base.Update(gameTime);
 		}
@@ -119,14 +126,96 @@ namespace EndlessClient
 			}
 		}
 
+		private void CheckForMouseClick()
+		{
+			var currentState = Mouse.GetState();
+			if (LeftButtonDown(currentState))
+			{
+				if (!m_dragging)
+				{
+					m_followMouse = true;
+					m_clickTime = DateTime.Now;
+				}
+				else
+				{
+					EndDragging(currentState);
+				}
+			}
+			else if (LeftButtonUp(currentState))
+			{
+				if (!m_dragging)
+				{
+					var clickDelta = (DateTime.Now - m_clickTime).TotalMilliseconds;
+					if (clickDelta < 75)
+					{
+						m_dragging = true;
+					}
+				}
+				else
+				{
+					EndDragging(currentState);
+				}
+			}
+
+			if (!m_dragging && m_followMouse && (DateTime.Now - m_clickTime).TotalMilliseconds >= 75)
+				m_dragging = true;
+		}
+
+		private bool LeftButtonDown(MouseState currentState)
+		{
+			return MouseOver && MouseOverPreviously &&
+			       currentState.LeftButton == ButtonState.Pressed &&
+			       PreviousMouseState.LeftButton == ButtonState.Released;
+		}
+
+		private bool LeftButtonUp(MouseState currentState)
+		{
+			return currentState.LeftButton == ButtonState.Released &&
+			       PreviousMouseState.LeftButton == ButtonState.Pressed;
+		}
+
+		private void EndDragging(MouseState currentState)
+		{
+			m_dragging = false;
+			m_followMouse = false;
+
+			var newSlot = GetCurrentHoverSlot(currentState);
+			if (((ActiveSpells)parent).GetSpellRecordBySlot(newSlot) == null)
+				Slot = newSlot;
+		}
+
+		private int GetCurrentHoverSlot(MouseState currentState)
+		{
+			var col = (currentState.X - DrawAreaWithOffset.X) / 45;
+			var row = (currentState.Y - DrawAreaWithOffset.Y) / 52;
+			return row * ActiveSpells.SPELL_ROW_LENGTH + col;
+		}
+
 		private void DrawSpellIcon()
 		{
-			var targetDrawArea = new Rectangle(
-				DrawAreaWithOffset.X + (DrawAreaWithOffset.Width - m_spellGraphicSourceRect.Width) / 2,
-				DrawAreaWithOffset.Y + (DrawAreaWithOffset.Height - m_spellGraphicSourceRect.Height) / 2,
-				m_spellGraphicSourceRect.Width,
-				m_spellGraphicSourceRect.Height);
-			SpriteBatch.Draw(m_spellGraphic, targetDrawArea, m_spellGraphicSourceRect, Color.White);
+			Rectangle targetDrawArea;
+			Color alphaColor;
+			if (!m_followMouse)
+			{
+				targetDrawArea = new Rectangle(
+					DrawAreaWithOffset.X + (DrawAreaWithOffset.Width - m_spellGraphicSourceRect.Width)/2,
+					DrawAreaWithOffset.Y + (DrawAreaWithOffset.Height - m_spellGraphicSourceRect.Height)/2,
+					m_spellGraphicSourceRect.Width,
+					m_spellGraphicSourceRect.Height);
+				alphaColor = Color.White;
+			}
+			else
+			{
+				targetDrawArea = new Rectangle(
+					Mouse.GetState().X - m_spellGraphicSourceRect.Width / 2,
+					Mouse.GetState().Y - m_spellGraphicSourceRect.Height / 2,
+					m_spellGraphicSourceRect.Width,
+					m_spellGraphicSourceRect.Height
+					);
+				alphaColor = Color.FromNonPremultiplied(255, 255, 255, 128);
+			}
+
+			SpriteBatch.Draw(m_spellGraphic, targetDrawArea, m_spellGraphicSourceRect, alphaColor);
 		}
 
 		private void DrawHighlight()
@@ -204,14 +293,6 @@ namespace EndlessClient
 		{
 			ClearActiveSpell();
 			var item = m_childItems.Find(x => x.Slot == slot);
-			if (item != null && !item.Selected)
-				item.Selected = true;
-		}
-
-		public void SetActiveSpellByID(short spellID)
-		{
-			ClearActiveSpell();
-			var item = m_childItems.Find(x => x.SpellData.ID == spellID);
 			if (item != null && !item.Selected)
 				item.Selected = true;
 		}
