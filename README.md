@@ -133,6 +133,7 @@ The auto-login button in debug builds has been disabled unless you specify a use
 	<add key="auto_login_user" value="USERNAME_HERE" />
 	<add key="auto_login_pass" value="PASSWORD_HERE" />
 </appSettings>
+```
 
 <a name="SampleConfigFile" />
 ##### Config File
