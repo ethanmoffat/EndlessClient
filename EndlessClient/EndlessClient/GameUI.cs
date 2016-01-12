@@ -3,6 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
@@ -191,6 +194,8 @@ Thanks to :
 			//testinggame will login as testuser and login as the first character
 			XNAButton testingame = new XNAButton(new Vector2(5, 5), "in-game", Constants.FontSize10);
 			testingame.OnClick += testInGame_click;
+			testingame.Visible = ConfigurationManager.AppSettings["auto_login_user"] != null &&
+								 ConfigurationManager.AppSettings["auto_login_pass"] != null;
 #endif
 		}
 
@@ -201,8 +206,8 @@ Thanks to :
 			await TaskFramework.Delay(500);
 			if (!World.Instance.Client.ConnectedAndInitialized)
 				return;
-			_loginUsernameTextbox.Text = "ethanmoffat";
-			_loginPasswordTextbox.Text = "a0009817701a";
+			_loginUsernameTextbox.Text = ConfigurationManager.AppSettings["auto_login_user"];
+			_loginPasswordTextbox.Text = ConfigurationManager.AppSettings["auto_login_pass"];
 
 			MainButtonPress(_loginButtons[0], e); //login as acc testuser
 			await TaskFramework.Delay(500);

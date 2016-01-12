@@ -105,6 +105,7 @@
     <Reference Include="System">
       <Private>False</Private>
     </Reference>
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.IO">
       <HintPath>..\..\packages\Microsoft.Bcl.1.1.8\lib\net40\System.IO.dll</HintPath>

@@ -125,6 +125,15 @@ You will need a copy of eoserv set up and running, or another Endless Online ser
 
 GFX files are now distributed with the game client, and any map or pub files are loaded from the server during gameplay.
 
+The auto-login button in debug builds has been disabled unless you specify a username/password in a separate config file. Create a file name "local.config" and add the following to it:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<appSettings>
+	<add key="auto_login_user" value="USERNAME_HERE" />
+	<add key="auto_login_pass" value="PASSWORD_HERE" />
+</appSettings>
+
 <a name="SampleConfigFile" />
 ##### Config File
 
@@ -208,7 +217,7 @@ There are a few other projects included with the EndlessClient solution that are
 
 #### Core
 
-The core projects are EndlessClient, EndlessClientContent and EOLib. They are the only required projects in order for the game to run.
+The core projects are EndlessClient (EndlessClient-Mono), EndlessClientContent, EOCLI, and EOLib (EOLib-Mono). They are the only required projects in order for the game to run.
 
 #### BatchMap
 
