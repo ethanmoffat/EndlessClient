@@ -50,6 +50,8 @@ namespace EndlessClient
 		public short Level { get; set; }
 		public SpellRecord SpellData { get; private set; }
 
+		public bool IsDragging { get { return m_dragging; } }
+
 		private readonly Texture2D m_spellGraphic, m_highlightColor;
 		private Rectangle m_spellGraphicSourceRect;
 
@@ -63,7 +65,9 @@ namespace EndlessClient
 			Slot = 0;
 			SpellData = data;
 
-			m_spellGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.SpellIcons, SpellData.Icon);
+			//todo: inheritance! create sub-class for a no-item SpellIcon that only highlights when hovered and doesn't do anything else
+			if (SpellData != null)
+				m_spellGraphic = ((EOGame) Game).GFXManager.TextureFromResource(GFXTypes.SpellIcons, SpellData.Icon);
 			m_highlightColor = new Texture2D(Game.GraphicsDevice, 1, 1);
 			m_highlightColor.SetData(new[] {Color.FromNonPremultiplied(200, 200, 200, 60)});
 
@@ -78,7 +82,7 @@ namespace EndlessClient
 		public override void Update(GameTime gameTime)
 		{
 			UpdateIconSourceRect();
-			CheckForMouseClick();
+			DoClickAndDragLogic();
 
 			base.Update(gameTime);
 		}
@@ -96,9 +100,6 @@ namespace EndlessClient
 			base.Draw(gameTime);
 		}
 
-		//-----------------------------------------------------
-		// Helper methods
-		//-----------------------------------------------------
 		private void OnSlotChanged()
 		{
 			//start pos: 101, 97
@@ -110,12 +111,16 @@ namespace EndlessClient
 
 		private void OnSelected()
 		{
+			if (m_spellGraphic == null) return;
+
 			var halfWidth = m_spellGraphic.Width / 2;
 			m_spellGraphicSourceRect = new Rectangle(Selected ? halfWidth : 0, 0, halfWidth, m_spellGraphic.Height);
 		}
 
 		private void UpdateIconSourceRect()
 		{
+			if (m_spellGraphic == null) return;
+
 			if (MouseOver && !MouseOverPreviously ||
 				MouseOverPreviously && !MouseOver)
 			{
@@ -126,8 +131,11 @@ namespace EndlessClient
 			}
 		}
 
-		private void CheckForMouseClick()
+		private void DoClickAndDragLogic()
 		{
+			if (!((ActiveSpells) parent).AnySpellsDragging())
+				return;
+
 			var currentState = Mouse.GetState();
 			if (LeftButtonDown(currentState))
 			{
@@ -138,7 +146,7 @@ namespace EndlessClient
 				}
 				else
 				{
-					EndDragging(currentState);
+					EndDragging();
 				}
 			}
 			else if (LeftButtonUp(currentState))
@@ -153,7 +161,7 @@ namespace EndlessClient
 				}
 				else
 				{
-					EndDragging(currentState);
+					EndDragging();
 				}
 			}
 
@@ -174,25 +182,28 @@ namespace EndlessClient
 			       PreviousMouseState.LeftButton == ButtonState.Pressed;
 		}
 
-		private void EndDragging(MouseState currentState)
+		private void EndDragging()
 		{
 			m_dragging = false;
 			m_followMouse = false;
 
-			var newSlot = GetCurrentHoverSlot(currentState);
-			if (((ActiveSpells)parent).GetSpellRecordBySlot(newSlot) == null)
+			var newSlot = GetCurrentHoverSlot();
+			if (((ActiveSpells) parent).GetSpellRecordBySlot(newSlot) == null)
+			{
 				Slot = newSlot;
+				((ActiveSpells)parent).AddItemToSlot(Slot, SpellData, Level);
+			}
 		}
 
-		private int GetCurrentHoverSlot(MouseState currentState)
+		private int GetCurrentHoverSlot()
 		{
-			var col = (currentState.X - DrawAreaWithOffset.X) / 45;
-			var row = (currentState.Y - DrawAreaWithOffset.Y) / 52;
-			return row * ActiveSpells.SPELL_ROW_LENGTH + col;
+			return ((ActiveSpells)parent).GetCurrentHoverSlot();
 		}
 
 		private void DrawSpellIcon()
 		{
+			if (m_spellGraphic == null) return;
+
 			Rectangle targetDrawArea;
 			Color alphaColor;
 			if (!m_followMouse)
@@ -242,7 +253,6 @@ namespace EndlessClient
 		private readonly PacketAPI m_api;
 		private readonly RegistryKey m_spellsKey;
 
-		private readonly bool[,] m_filledSlots = new bool[SPELL_NUM_ROWS, SPELL_ROW_LENGTH];
 		private readonly List<SpellIcon> m_childItems;
 
 		public ActiveSpells(XNAPanel parent, PacketAPI api)
@@ -251,6 +261,8 @@ namespace EndlessClient
 			m_api = api;
 
 			m_childItems = new List<SpellIcon>(SPELL_NUM_ROWS * SPELL_ROW_LENGTH);
+			for (int slot = 0; slot < SPELL_NUM_ROWS*SPELL_ROW_LENGTH; ++slot)
+				m_childItems.Add(new SpellIcon(this, null, slot));
 
 			var localSpellSlotMap = new Dictionary<int, int>();
 			m_spellsKey = _tryGetCharacterRegKey();
@@ -276,9 +288,9 @@ namespace EndlessClient
 				SpellRecord rec = World.Instance.ESF.GetSpellRecordByID(spell.id);
 				int slot = localSpellSlotMap.ContainsValue(spell.id)
 					? localSpellSlotMap.First(_pair => _pair.Value == spell.id).Key
-					: _getNextOpenSlot(m_filledSlots);
+					: _getNextOpenSlot();
 
-				if (slot < 0 || !_addItemToSlot(slot, rec, spell.level))
+				if (slot < 0 || !AddItemToSlot(slot, rec, spell.level))
 				{
 					EODialog.Show("You have too many spells! They don't all fit.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					break;
@@ -293,39 +305,58 @@ namespace EndlessClient
 		{
 			ClearActiveSpell();
 			var item = m_childItems.Find(x => x.Slot == slot);
-			if (item != null && !item.Selected)
+			if (item.SpellData != null && !item.Selected)
 				item.Selected = true;
 		}
 
 		public void ClearActiveSpell()
 		{
-			m_childItems.ForEach(x => x.Selected = false);
+			m_childItems.Where(x => x.SpellData != null).ToList()
+						.ForEach(x => x.Selected = false);
 		}
 
 		public SpellRecord GetSpellRecordBySlot(int slot)
 		{
 			var matchingItem = m_childItems.Find(x => x.Slot == slot);
-			if (matchingItem != null)
+			if (matchingItem.SpellData.ID > 0)
 				return matchingItem.SpellData;
 			return null;
 		}
 
-		//-----------------------------------------------------
-		// Helper methods
-		//-----------------------------------------------------
-
-		private bool _addItemToSlot(int slot, SpellRecord data, short level)
+		public bool AnySpellsDragging()
 		{
-			if (slot < 0 || m_childItems.Count(x => x.Slot == slot) > 0)
+			return m_childItems.Any(x => x.IsDragging);
+		}
+
+		public int GetCurrentHoverSlot()
+		{
+			if (!m_childItems.Any(x => x.MouseOver))
+				return -1;
+			return m_childItems.Single(x => x.MouseOver).Slot;
+		}
+
+		public bool AddItemToSlot(int slot, SpellRecord data, short level)
+		{
+			var matchingIndex = m_childItems.FindIndex(x => x.Slot == slot && x.SpellData != null);
+			if (slot < 0 || matchingIndex >= 0)
 				return false;
 
-			int row = slot / SPELL_ROW_LENGTH;
-			int col = slot % SPELL_ROW_LENGTH;
-			m_filledSlots[row, col] = true;
+			matchingIndex = m_childItems.FindIndex(x => x.Slot == slot);
+			var oldItem = m_childItems[matchingIndex];
+			if (oldItem.SpellData != null)
+				m_spellsKey.SetValue(string.Format("item{0}", oldItem.Slot), oldItem.SpellData.ID, RegistryValueKind.String);
 
 			m_spellsKey.SetValue(string.Format("item{0}", slot), data.ID, RegistryValueKind.String);
-			m_childItems.Add(new SpellIcon(this, data, slot) { Level = level });
+			m_childItems[matchingIndex] = new SpellIcon(this, data, slot) { Level = level };
+
 			return true;
+		}
+
+		private int _getNextOpenSlot()
+		{
+			return m_childItems.Where(x => x.SpellData == null)
+							   .Select(x => x.Slot)
+							   .Min();
 		}
 
 		private static RegistryKey _tryGetCharacterRegKey()
@@ -340,21 +371,6 @@ namespace EndlessClient
 			}
 			catch (NullReferenceException) { }
 			return null;
-		}
-
-		private static int _getNextOpenSlot(bool[,] slots)
-		{
-			//just 2 rows for active skills
-			for (int row = 0; row < SPELL_NUM_ROWS; ++row)
-			{
-				for (int col = 0; col < SPELL_ROW_LENGTH; ++col)
-				{
-					if (!slots[row, col])
-						return row*SPELL_ROW_LENGTH + col;
-				}
-			}
-
-			return -1;
 		}
 	}
 }
