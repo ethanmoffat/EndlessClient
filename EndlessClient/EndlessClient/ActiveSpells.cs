@@ -60,7 +60,7 @@ namespace EndlessClient
 					? localSpellSlotMap.First(_pair => _pair.Value == spell.id).Key
 					: _getNextOpenSlot();
 
-				if (slot < 0 || !SetItemSlot(slot, rec, spell.level))
+				if (slot < 0 || !_addNewSpellToSlot(slot, rec, spell.level))
 				{
 					EODialog.Show("You have too many spells! They don't all fit.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					break;
@@ -81,12 +81,13 @@ namespace EndlessClient
 
 		public void ClearActiveSpell()
 		{
-			_childItems.Single(x => x.Selected).Selected = false;
+			if (_childItems.Any(x => x.Selected))
+				_childItems.Single(x => x.Selected).Selected = false;
 		}
 
 		public SpellRecord GetSpellRecordBySlot(int slot)
 		{
-			var icon = _childItems.OfType<SpellIcon>().SingleOrDefault(x => x.Slot == slot);
+			var icon = _childItems.SingleOrDefault(x => x.Slot == slot);
 
 			return icon == null ? null : icon.SpellData;
 		}
@@ -103,17 +104,27 @@ namespace EndlessClient
 			return _childItems.Single(x => x.MouseOver).Slot;
 		}
 
-		public bool SetItemSlot(int slot, SpellRecord data, short level)
+		public void MoveItem(ISpellIcon spellIcon, int newSlot)
 		{
-			var childItem = _childItems.Single(x => x.Slot == slot);
-			if (slot < 0 || !(childItem is EmptySpellIcon))
-				return false;
+			if (spellIcon.Slot == newSlot) return;
 
-			m_spellsKey.SetValue(string.Format("item{0}", slot), data.ID, RegistryValueKind.String);
-			_childItems.Remove(childItem);
-			_childItems.Add(new SpellIcon(this, data, slot) { Level = level });
+			var replacementEmptyIcon = new EmptySpellIcon(this, spellIcon.Slot);
+			if (!_childItems.Contains(spellIcon))
+				throw new ArgumentException("The spell was not found!", "spellIcon");
 
-			return true;
+			//remove the empty item
+			var emptySpellInDestinationSlot = _childItems.Find(x => x.Slot == newSlot && x is EmptySpellIcon);
+			if (emptySpellInDestinationSlot == null)
+				throw new ArgumentException("Destination Slot is not empty!", "newSlot");
+			_childItems.Remove(emptySpellInDestinationSlot);
+
+			//update the registry
+			_setSpellSlotInRegistry(newSlot, spellIcon.SpellData.ID);
+			_clearSlotInRegistry(spellIcon.Slot);
+
+			//set the slot and add a replacement empty item
+			spellIcon.Slot = newSlot;
+			_childItems.Add(replacementEmptyIcon);
 		}
 
 		public override void Update(GameTime gameTime)
@@ -131,11 +142,6 @@ namespace EndlessClient
 			base.Update(gameTime);
 		}
 
-		private int _getNextOpenSlot()
-		{
-			return _childItems.OfType<EmptySpellIcon>().Select(x => x.Slot).Min();
-		}
-
 		private static RegistryKey _tryGetCharacterRegKey()
 		{
 			try
@@ -148,6 +154,34 @@ namespace EndlessClient
 			}
 			catch (NullReferenceException) { }
 			return null;
+		}
+
+		private bool _addNewSpellToSlot(int slot, SpellRecord data, short level)
+		{
+			var emptySpellInDestinationSlot = _childItems.Single(x => x.Slot == slot);
+			if (slot < 0 || !(emptySpellInDestinationSlot is EmptySpellIcon))
+				return false;
+
+			_setSpellSlotInRegistry(slot, data.ID);
+			_childItems.Remove(emptySpellInDestinationSlot);
+			_childItems.Add(new SpellIcon(this, data, slot) { Level = level });
+
+			return true;
+		}
+
+		private int _getNextOpenSlot()
+		{
+			return _childItems.OfType<EmptySpellIcon>().Select(x => x.Slot).Min();
+		}
+
+		private void _setSpellSlotInRegistry(int slot, int id)
+		{
+			m_spellsKey.SetValue(string.Format("item{0}", slot), id, RegistryValueKind.String);
+		}
+
+		private void _clearSlotInRegistry(int slot)
+		{
+			_setSpellSlotInRegistry(slot, 0);
 		}
 	}
 }

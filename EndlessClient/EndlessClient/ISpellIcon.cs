@@ -2,15 +2,18 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EOLib.IO;
+
 namespace EndlessClient
 {
 	public interface ISpellIcon
 	{
-		int Slot { get; }
+		int Slot { get; set; }
 		bool Selected { get; set; }
 		bool IsDragging { get; }
 
 		short Level { get; set; }
+		SpellRecord SpellData { get; }
 
 		//defined in XNAControl base class
 		bool MouseOver { get; }

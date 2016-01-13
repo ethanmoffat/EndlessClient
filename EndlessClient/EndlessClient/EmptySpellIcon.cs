@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -12,13 +13,13 @@ namespace EndlessClient
 {
 	public class EmptySpellIcon : XNAControl, ISpellIcon
 	{
-		protected const int ICON_AREA_WIDTH = 42, ICON_AREA_HEIGHT = 36;
+		private const int ICON_AREA_WIDTH = 42, ICON_AREA_HEIGHT = 36;
 
 		private int _slot;
 		public int Slot
 		{
 			get { return _slot; }
-			protected set
+			set
 			{
 				_slot = value;
 				OnSlotChanged();
@@ -39,6 +40,8 @@ namespace EndlessClient
 
 		public virtual bool IsDragging { get { return false; } }
 
+		public virtual SpellRecord SpellData { get { return null; } }
+
 		private bool _doUpdateLogic = true;
 		protected virtual bool DoEmptySpellIconUpdateLogic { get { return _doUpdateLogic; } }
 
@@ -54,6 +57,8 @@ namespace EndlessClient
 
 			_highlightColor = new Texture2D(Game.GraphicsDevice, 1, 1);
 			_highlightColor.SetData(new[] { Color.FromNonPremultiplied(200, 200, 200, 60) });
+
+			_setSize(ICON_AREA_WIDTH, ICON_AREA_HEIGHT);
 		}
 
 		public override void Update(GameTime gameTime)

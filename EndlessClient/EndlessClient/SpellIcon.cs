@@ -29,11 +29,12 @@ namespace EndlessClient
 
 		public override bool IsDragging { get { return _dragging; } }
 
-		public SpellRecord SpellData { get; private set; }
+		public override SpellRecord SpellData { get { return _spellData; } }
 
 		//stops the base class update logic from being called
 		protected override bool DoEmptySpellIconUpdateLogic { get { return false; } }
 		private readonly Texture2D _spellGraphic;
+		private readonly SpellRecord _spellData;
 
 		private Rectangle _spellGraphicSourceRect;
 		private DateTime _clickTime;
@@ -42,12 +43,10 @@ namespace EndlessClient
 		public SpellIcon(ActiveSpells parent, SpellRecord data, int slot)
 			: base(parent, slot)
 		{
-			SpellData = data;
-			_spellGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.SpellIcons, SpellData.Icon);
+			_spellData = data;
+			_spellGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.SpellIcons, _spellData.Icon);
 
 			OnSelected();
-
-			_setSize(ICON_AREA_WIDTH, ICON_AREA_HEIGHT);
 
 			_clickTime = DateTime.Now;
 		}
@@ -91,7 +90,7 @@ namespace EndlessClient
 
 		private void DoClickAndDragLogic()
 		{
-			if (_parentSpellContainer.AnySpellsDragging())
+			if (!_dragging && _parentSpellContainer.AnySpellsDragging())
 				return;
 
 			var currentState = Mouse.GetState();
@@ -148,8 +147,7 @@ namespace EndlessClient
 			var newSlot = GetCurrentHoverSlot();
 			if (_parentSpellContainer.GetSpellRecordBySlot(newSlot) == null)
 			{
-				Slot = newSlot;
-				_parentSpellContainer.SetItemSlot(Slot, SpellData, Level);
+				_parentSpellContainer.MoveItem(this, newSlot);
 			}
 		}
 
