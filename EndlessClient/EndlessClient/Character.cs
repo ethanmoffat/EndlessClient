@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -670,13 +670,13 @@ namespace EndlessClient
 			switch (warp.door) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
 			{
 				case DoorSpec.LockedCrystal:
-					rec = (ItemRecord) World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord) _rec).Name.ToLower() == "crystal key");
+					rec = (ItemRecord) World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
 					break;
 				case DoorSpec.LockedSilver:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "silver key");
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
 					break;
 				case DoorSpec.LockedWraith:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "wraith key");
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
 					break;
 				default:
 					return permission;
@@ -700,16 +700,16 @@ namespace EndlessClient
 			switch (permission) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
 			{
 				case ChestKey.Normal:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "normal key");
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "normal key");
 					break;
 				case ChestKey.Crystal:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "crystal key");
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
 					break;
 				case ChestKey.Silver:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "silver key");
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
 					break;
 				case ChestKey.Wraith:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => ((ItemRecord)_rec).Name != null && ((ItemRecord)_rec).Name.ToLower() == "wraith key");
+					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
 					break;
 				default:
 					return permission;
