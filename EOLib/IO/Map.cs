@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using EOLib.Data.Map;
 
 namespace EOLib.IO
 {
@@ -130,7 +131,7 @@ namespace EOLib.IO
 		public List<Tile> tiles;
 	}
 
-	public class Warp
+	public class Warp : IMapElement
 	{
 		public byte x;
 		public short warpMap;
@@ -160,7 +161,7 @@ namespace EOLib.IO
 		public List<GFX> tiles;
 	}
 
-	public struct MapSign
+	public struct MapSign : IMapElement
 	{
 		public byte x;
 		public byte y;

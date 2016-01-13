@@ -64,9 +64,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Data\ITileInfo.cs" />
-    <Compile Include="Data\TileInfo.cs" />
-    <Compile Include="Data\TileInfoReturnType.cs" />
+    <Compile Include="Data\Map\BasicTileInfo.cs" />
+    <Compile Include="Data\Map\IMapElement.cs" />
+    <Compile Include="Data\Map\ITileInfo.cs" />
+    <Compile Include="Data\Map\MapSignTileInfo.cs" />
+    <Compile Include="Data\Map\NPCTileInfo.cs" />
+    <Compile Include="Data\Map\TileInfoReturnType.cs" />
+    <Compile Include="Data\Map\WarpTileInfo.cs" />
     <Compile Include="IO\Class.cs" />
     <Compile Include="Crc.cs" />
     <Compile Include="IO\ClassRecordFactory.cs" />

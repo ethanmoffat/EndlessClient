@@ -47,14 +47,26 @@
     <Compile Include="..\EOLib\DataFileConstants.cs">
       <Link>DataFileConstants.cs</Link>
     </Compile>
-    <Compile Include="..\EOLib\Data\ITileInfo.cs">
-      <Link>Data\ITileInfo.cs</Link>
+    <Compile Include="..\EOLib\Data\Map\BasicTileInfo.cs">
+      <Link>Data\Map\BasicTileInfo.cs</Link>
     </Compile>
-    <Compile Include="..\EOLib\Data\TileInfo.cs">
-      <Link>Data\TileInfo.cs</Link>
+    <Compile Include="..\EOLib\Data\Map\IMapElement.cs">
+      <Link>Data\Map\IMapElement.cs</Link>
     </Compile>
-    <Compile Include="..\EOLib\Data\TileInfoReturnType.cs">
-      <Link>Data\TileInfoReturnType.cs</Link>
+    <Compile Include="..\EOLib\Data\Map\ITileInfo.cs">
+      <Link>Data\Map\ITileInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\Map\MapSignTileInfo.cs">
+      <Link>Data\Map\MapSignTileInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\Map\NPCTileInfo.cs">
+      <Link>Data\Map\NPCTileInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\Map\TileInfoReturnType.cs">
+      <Link>Data\Map\TileInfoReturnType.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\Map\WarpTileInfo.cs">
+      <Link>Data\Map\WarpTileInfo.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\Graphics\GFXLoader.cs">
       <Link>Graphics\GFXLoader.cs</Link>

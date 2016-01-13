@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Text;
+using EOLib.Data.Map;
 
 namespace EOLib.IO
 {
@@ -29,7 +30,7 @@ namespace EOLib.IO
 		NONE
 	}
 
-	public class NPCRecord : IDataRecord
+	public class NPCRecord : IDataRecord, IMapElement
 	{
 		public int ID { get; set; }
 

@@ -5,7 +5,7 @@
 using System;
 using System.Linq;
 using EOLib;
-using EOLib.Data;
+using EOLib.Data.Map;
 using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -98,7 +98,7 @@ namespace EndlessClient
 		private void _checkSpecAndWalkIfValid(byte destX, byte destY, EODirection direction)
 		{
 			var mapRend = World.Instance.ActiveMapRenderer;
-			TileInfo info = mapRend.GetTileInfo(destX, destY);
+			var info = mapRend.GetTileInfo(destX, destY);
 
 			Tile tileAtDest = null;
 			if (destY <= mapRend.MapRef.Height && destX <= mapRend.MapRef.Width)
@@ -125,18 +125,20 @@ namespace EndlessClient
 					break;
 				case TileInfoReturnType.IsWarpSpec:
 					if (Renderer.NoWall) goto case TileInfoReturnType.IsTileSpec;
-					if (info.Warp.door != DoorSpec.NoDoor)
+
+					var warpInfo = (Warp) info.MapElement;
+					if (warpInfo.door != DoorSpec.NoDoor)
 					{
 						DoorSpec doorOpened;
-						if (!info.Warp.doorOpened && !info.Warp.backOff)
+						if (!warpInfo.doorOpened && !warpInfo.backOff)
 						{
-							if ((doorOpened = Character.CanOpenDoor(info.Warp)) == DoorSpec.Door)
-								mapRend.StartOpenDoor(info.Warp, destX, destY);
+							if ((doorOpened = Character.CanOpenDoor(warpInfo.door)) == DoorSpec.Door)
+								mapRend.StartOpenDoor(warpInfo, destX, destY);
 						}
 						else
 						{
 							//normal walking
-							if ((doorOpened = Character.CanOpenDoor(info.Warp)) == DoorSpec.Door)
+							if ((doorOpened = Character.CanOpenDoor(warpInfo.door)) == DoorSpec.Door)
 								_walkIfValid(TileSpec.None, direction, destX, destY);
 						}
 
@@ -162,11 +164,11 @@ namespace EndlessClient
 								" - " + strWhichKey);
 						}
 					}
-					else if (info.Warp.levelRequirement != 0 && Character.Stats.Level < info.Warp.levelRequirement)
+					else if (warpInfo.levelRequirement != 0 && Character.Stats.Level < warpInfo.levelRequirement)
 					{
 						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
 							DATCONST2.STATUS_LABEL_NOT_READY_TO_USE_ENTRANCE,
-							" - LVL " + info.Warp.levelRequirement);
+							" - LVL " + warpInfo.levelRequirement);
 					}
 					else
 					{

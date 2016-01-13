@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using EOLib;
-using EOLib.Data;
+using EOLib.Data.Map;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net;
@@ -293,9 +293,8 @@ namespace EndlessClient
 			m_drawingEvent.Set();
 		}
 
-		public TileInfo GetTileInfo(byte destX, byte destY)
+		public ITileInfo GetTileInfo(byte destX, byte destY)
 		{
-			TileInfo? t = null;
 			lock (_npcListLock)
 			{
 				int ndx;
@@ -303,47 +302,36 @@ namespace EndlessClient
 					|| _npc.Walking && _npc.DestX == destX && _npc.DestY == destY)) >= 0)
 				{
 					NPC retNPC = npcList[ndx];
-					if(!retNPC.Dying)
-						t = new TileInfo { ReturnType = TileInfoReturnType.IsOtherNPC, NPC = retNPC.Data };
+					if (!retNPC.Dying)
+						return new NPCTileInfo(retNPC.Data);
 				}
 			}
 
 			lock (_rendererListLock)
 			{
-				if (!t.HasValue && otherRenderers.Select(x => x.Character).Any(player => player.X == destX && player.Y == destY))
-					t = new TileInfo {ReturnType = TileInfoReturnType.IsOtherPlayer};
+				if (otherRenderers.Select(x => x.Character).Any(player => player.X == destX && player.Y == destY))
+					return new BasicTileInfo(TileInfoReturnType.IsOtherPlayer);
 			}
 
-			if (!t.HasValue && destX <= MapRef.Width && destY <= MapRef.Height)
+			var warp = MapRef.WarpLookup[destY, destX];
+			if (warp != null)
+				return new WarpTileInfo(warp);
+
+			var sign = MapRef.Signs.Find(_ms => _ms.x == destX && _ms.y == destY);
+			if (sign.x == destX && sign.y == destY)
+				return new MapSignTileInfo(sign);
+
+			if(destX <= MapRef.Width && destY <= MapRef.Height)
 			{
-				Warp warp = MapRef.WarpLookup[destY, destX];
-				if (warp != null)
-					t = new TileInfo {ReturnType = TileInfoReturnType.IsWarpSpec, Warp = warp};
+				Tile tile = MapRef.TileLookup[destY, destX];
+				if (tile != null)
+					return new BasicTileInfoWithSpec(tile.spec);
 			}
-
-			if (!t.HasValue)
-			{
-				MapSign sign = MapRef.Signs.Find(_ms => _ms.x == destX && _ms.y == destY);
-				if (sign.x == destX && sign.y == destY)
-					t = new TileInfo {ReturnType = TileInfoReturnType.IsMapSign, Sign = sign};
-			}
-
-			if (!t.HasValue)
-			{
-				if(destX <= MapRef.Width && destY <= MapRef.Height)
-				{
-					Tile tile = MapRef.TileLookup[destY, destX];
-					if (tile != null)
-						t = new TileInfo {ReturnType = TileInfoReturnType.IsTileSpec, Spec = tile.spec};
-				}
-			}
-
-			if (!t.HasValue)
-				t = destX <= MapRef.Width && destY <= MapRef.Height //don't need to check zero bounds: because byte type is always positive (unsigned)
-					? new TileInfo {ReturnType = TileInfoReturnType.IsTileSpec, Spec = TileSpec.None}
-					: new TileInfo {ReturnType = TileInfoReturnType.IsTileSpec, Spec = TileSpec.MapEdge};
-
-			return t.Value;
+			
+			//don't need to check zero bounds: because byte type is always positive (unsigned)
+			return destX <= MapRef.Width && destY <= MapRef.Height
+				? new BasicTileInfoWithSpec(TileSpec.None)
+				: new BasicTileInfoWithSpec(TileSpec.MapEdge);
 		}
 
 		public void ToggleMapView()
@@ -537,7 +525,7 @@ namespace EndlessClient
 				{
 					rend.Character.Walk(direction, x, y, false);
 
-					TileInfo ti = GetTileInfo(rend.Character.DestX, rend.Character.DestY);
+					var ti = GetTileInfo(rend.Character.DestX, rend.Character.DestY);
 					bool isWater = ti.ReturnType == TileInfoReturnType.IsTileSpec && ti.Spec == TileSpec.Water;
 					bool isSpike = ti.ReturnType == TileInfoReturnType.IsTileSpec && ti.Spec == TileSpec.SpikesTrap;
 					rend.PlayerWalk(isWater, isSpike);
@@ -554,7 +542,7 @@ namespace EndlessClient
 				{
 					rend.Character.Attack(direction);
 
-					TileInfo info = GetTileInfo((byte) rend.Character.X, (byte) rend.Character.Y);
+					var info = GetTileInfo((byte) rend.Character.X, (byte) rend.Character.Y);
 					rend.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec && info.Spec == TileSpec.Water);
 				}
 			}
@@ -1245,7 +1233,7 @@ namespace EndlessClient
 				mouseClicked &= XNAControl.Dialogs.Count == 0;
 				//rightClicked &= XNAControl.Dialogs.Count == 0;
 
-				TileInfo ti = GetTileInfo((byte) gridX, (byte) gridY);
+				var ti = GetTileInfo((byte) gridX, (byte) gridY);
 				switch (ti.ReturnType)
 				{
 					case TileInfoReturnType.IsOtherPlayer:
@@ -1263,9 +1251,10 @@ namespace EndlessClient
 						}
 						else if (ti.ReturnType == TileInfoReturnType.IsMapSign)
 						{
+							var signInfo = (MapSign)ti.MapElement;
 							_hideCursor = true;
 							if (mouseClicked)
-								EODialog.Show(ti.Sign.message, ti.Sign.title, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+								EODialog.Show(signInfo.message, signInfo.title, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 						}
 						else
 							_cursorSourceRect.Location = new Point(0, 0);
@@ -1344,7 +1333,7 @@ namespace EndlessClient
 			}
 		}
 
-		private void _updateCursorForTileSpec(TileInfo ti, bool mouseClicked, Character c)
+		private void _updateCursorForTileSpec(ITileInfo ti, bool mouseClicked, Character c)
 		{
 			switch (ti.Spec)
 			{

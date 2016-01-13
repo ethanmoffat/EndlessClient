@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib.Data;
+using EOLib.Data.Map;
 using EOLib.Graphics;
 using EOLib.IO;
 using Microsoft.Xna.Framework;
@@ -85,7 +85,7 @@ namespace EndlessClient
 		{
 			bool isEdge = false;
 
-			TileInfo info = _parentRenderer.GetTileInfo((byte)col, (byte)row);
+			var info = _parentRenderer.GetTileInfo((byte)col, (byte)row);
 			switch (info.ReturnType)
 			{
 				case TileInfoReturnType.IsTileSpec:
@@ -115,7 +115,8 @@ namespace EndlessClient
 					break;
 				case TileInfoReturnType.IsOtherNPC:
 					//draw NPC - red or purple depending on type
-					if (info.NPC.Type == NPCType.Aggressive || info.NPC.Type == NPCType.Passive)
+					var npcInfo = (NPCRecord) info.MapElement;
+					if (npcInfo.Type == NPCType.Aggressive || npcInfo.Type == NPCType.Passive)
 					{
 						miniMapRect.Offset((int) MiniMapGfx.Red*miniMapRect.Width, 0);
 					}
@@ -129,7 +130,8 @@ namespace EndlessClient
 					//draw Green
 					break;
 				case TileInfoReturnType.IsWarpSpec:
-					if (info.Warp.door != 0)
+					var warpInfo = (Warp) info.MapElement;
+					if (warpInfo.door != 0)
 						miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
 					break;
 			}

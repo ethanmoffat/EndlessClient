@@ -5,7 +5,7 @@
 using System;
 using System.Linq;
 using EOLib;
-using EOLib.Data;
+using EOLib.Data.Map;
 using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
@@ -59,7 +59,7 @@ namespace EndlessClient
 				{
 					if (Character.CanAttack)
 					{
-						TileInfo info = World.Instance.ActiveMapRenderer.GetTileInfo((byte) Character.X, (byte) Character.Y);
+						var info = World.Instance.ActiveMapRenderer.GetTileInfo((byte) Character.X, (byte) Character.Y);
 						Character.Attack(direction, destX, destY); //destX and destY validity check above
 						Renderer.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec && info.Spec == TileSpec.Water);
 					}

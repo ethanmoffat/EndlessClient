@@ -662,12 +662,12 @@ namespace EndlessClient
 		/// </summary>
 		/// <param name="warp">The Warp containing the door to check</param>
 		/// <returns>Returns DoorSpec.Door if this character may open the door. Otherwise, returns the type of door restricting access</returns>
-		public DoorSpec CanOpenDoor(Warp warp)
+		public DoorSpec CanOpenDoor(DoorSpec door)
 		{
-			DoorSpec permission = warp.door;
+			DoorSpec permission = door;
 
 			ItemRecord rec;
-			switch (warp.door) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
+			switch (door) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
 			{
 				case DoorSpec.LockedCrystal:
 					rec = (ItemRecord) World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");

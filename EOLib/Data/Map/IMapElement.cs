@@ -2,9 +2,9 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EOLib.Data
+namespace EOLib.Data.Map
 {
-	public interface ITileInfo
+	public interface IMapElement
 	{
 	}
 }
