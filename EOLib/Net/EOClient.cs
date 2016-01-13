@@ -105,9 +105,9 @@ namespace EOLib.Net
 		{
 			if (!(obj is FamilyActionPair)) return 0;
 
-			FamilyActionPair fap /*lol*/ = (FamilyActionPair)obj;
+			FamilyActionPair fappingIsBad /*Jesus told me to*/ = (FamilyActionPair)obj;
 
-			return (int)fap.fam << 8 & (byte)fap.act;
+			return (int)fappingIsBad.fam << 8 & (byte)fappingIsBad.act;
 		}
 	}
 
