@@ -143,6 +143,7 @@
     <Compile Include="Config.cs" />
     <Compile Include="ControlKeyListener.cs" />
     <Compile Include="DamageCounter.cs" />
+    <Compile Include="EmptySpellIcon.cs" />
     <Compile Include="EOCharacterRenderer.cs" />
     <Compile Include="EOCharacterStats.cs" />
     <Compile Include="EOChatBubble.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="InGameHud.cs" />
     <Compile Include="InputKeyListenerBase.cs" />
     <Compile Include="InteractList.cs" />
+    <Compile Include="ISpellIcon.cs" />
     <Compile Include="MiniMapRenderer.cs" />
     <Compile Include="NPC.cs" />
     <Compile Include="EOParty.cs" />
@@ -173,6 +175,7 @@
     <Compile Include="QuestDialog.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="Sound.cs" />
+    <Compile Include="SpellIcon.cs" />
     <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>

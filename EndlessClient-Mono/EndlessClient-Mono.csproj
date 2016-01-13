@@ -67,6 +67,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\DamageCounter.cs">
       <Link>DamageCounter.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\EmptySpellIcon.cs">
+      <Link>EmptySpellIcon.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\EOCharacterRenderer.cs">
       <Link>EOCharacterRenderer.cs</Link>
     </Compile>
@@ -121,6 +124,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\InteractList.cs">
       <Link>InteractList.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\ISpellIcon.cs">
+      <Link>ISpellIcon.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\MiniMapRenderer.cs">
       <Link>MiniMapRenderer.cs</Link>
     </Compile>
@@ -147,6 +153,9 @@
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Sound.cs">
       <Link>Sound.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\SpellIcon.cs">
+      <Link>SpellIcon.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\World.cs">
       <Link>World.cs</Link>

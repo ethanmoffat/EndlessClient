@@ -1,0 +1,18 @@
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
+// This file is subject to the GPL v2 License
+// For additional details, see the LICENSE file
+
+namespace EndlessClient
+{
+	public interface ISpellIcon
+	{
+		int Slot { get; }
+		bool Selected { get; set; }
+		bool IsDragging { get; }
+
+		short Level { get; set; }
+
+		//defined in XNAControl base class
+		bool MouseOver { get; }
+	}
+}
