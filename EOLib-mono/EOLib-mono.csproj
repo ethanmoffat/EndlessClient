@@ -47,6 +47,15 @@
     <Compile Include="..\EOLib\DataFileConstants.cs">
       <Link>DataFileConstants.cs</Link>
     </Compile>
+    <Compile Include="..\EOLib\Data\ITileInfo.cs">
+      <Link>Data\ITileInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\TileInfo.cs">
+      <Link>Data\TileInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Data\TileInfoReturnType.cs">
+      <Link>Data\TileInfoReturnType.cs</Link>
+    </Compile>
     <Compile Include="..\EOLib\Graphics\GFXLoader.cs">
       <Link>Graphics\GFXLoader.cs</Link>
     </Compile>

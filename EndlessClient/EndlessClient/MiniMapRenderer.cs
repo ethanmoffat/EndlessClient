@@ -1,8 +1,9 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Data;
 using EOLib.Graphics;
 using EOLib.IO;
 using Microsoft.Xna.Framework;
@@ -43,7 +44,7 @@ namespace EndlessClient
 			_parentRenderer = parentRenderer;
 		}
 
-		public void Draw(GameTime gameTime)
+		public void Draw()
 		{
 			if (Visible)
 			{
@@ -114,17 +115,13 @@ namespace EndlessClient
 					break;
 				case TileInfoReturnType.IsOtherNPC:
 					//draw NPC - red or purple depending on type
-					NPC npc;
-					if ((npc = _parentRenderer.GetNPCAt(col, row)) != null)
+					if (info.NPC.Type == NPCType.Aggressive || info.NPC.Type == NPCType.Passive)
 					{
-						if (npc.Data.Type == NPCType.Aggressive || npc.Data.Type == NPCType.Passive)
-						{
-							miniMapRect.Offset((int)MiniMapGfx.Red * miniMapRect.Width, 0);
-						}
-						else
-						{
-							miniMapRect.Offset((int)MiniMapGfx.Purple * miniMapRect.Width, 0);
-						}
+						miniMapRect.Offset((int) MiniMapGfx.Red*miniMapRect.Width, 0);
+					}
+					else
+					{
+						miniMapRect.Offset((int) MiniMapGfx.Purple*miniMapRect.Width, 0);
 					}
 					break;
 				case TileInfoReturnType.IsOtherPlayer:

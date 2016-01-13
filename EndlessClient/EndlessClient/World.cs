@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -368,10 +368,7 @@ namespace EndlessClient
 
 				//map renderer construction moved to be more closely coupled to loading of the map
 				if (m_mapRender == null)
-				{
 					m_mapRender = new EOMapRenderer(EOGame.Instance, m_api);
-					Console.WriteLine("Map Renderer constructed: value {0}", m_mapRender == null ? "null" : "not null");
-				}
 			}
 			catch
 			{

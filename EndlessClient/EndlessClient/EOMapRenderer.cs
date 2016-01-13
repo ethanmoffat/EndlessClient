@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading;
 using EOLib;
+using EOLib.Data;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net;
@@ -19,33 +19,6 @@ using XNAControls;
 
 namespace EndlessClient
 {
-	public enum TileInfoReturnType
-	{
-		IsTileSpec, //indicates that a normal tile spec is returned
-		IsWarpSpec, //indicates that a normal warp spec is returned
-		IsOtherPlayer, //other player is in the way, spec/warp are invalid
-		IsOtherNPC, //other npc is in the way, spec/warp are invalid
-		IsMapSign
-	}
-
-	[StructLayout(LayoutKind.Explicit)]
-	public struct TileInfo
-	{
-		[FieldOffset(0)]
-		public TileInfoReturnType ReturnType;
-
-		//only one of these is valid at a time
-		[FieldOffset(4)]
-		public TileSpec Spec;
-
-		[FieldOffset(8)]
-		public Warp Warp;
-		[FieldOffset(8)]
-		public NPC NPC;
-		[FieldOffset(8)]
-		public MapSign Sign;
-	}
-
 	public class EOMapRenderer : DrawableGameComponent
 	{
 		private class WaterEffect
@@ -331,7 +304,7 @@ namespace EndlessClient
 				{
 					NPC retNPC = npcList[ndx];
 					if(!retNPC.Dying)
-						t = new TileInfo { ReturnType = TileInfoReturnType.IsOtherNPC, NPC = retNPC };
+						t = new TileInfo { ReturnType = TileInfoReturnType.IsOtherNPC, NPC = retNPC.Data };
 				}
 			}
 
@@ -1511,7 +1484,7 @@ namespace EndlessClient
 				sb.End();
 
 				if (m_miniMapRenderer.Visible)
-					m_miniMapRenderer.Draw(gameTime);
+					m_miniMapRenderer.Draw();
 
 				m_drawingEvent.Set();
 			}

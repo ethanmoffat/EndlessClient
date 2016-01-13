@@ -1,10 +1,11 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
 using System;
 using System.Linq;
 using EOLib;
+using EOLib.Data;
 using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
