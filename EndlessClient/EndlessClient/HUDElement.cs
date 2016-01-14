@@ -31,7 +31,7 @@ namespace EndlessClient
 			if(!Game.Components.Contains(this))
 				Game.Components.Add(this);
 		
-			m_label = new XNALabel(drawArea.SetPosition(new Vector2(2, 14)), Constants.FontSize08)
+			m_label = new XNALabel(drawArea.WithPosition(new Vector2(2, 14)), Constants.FontSize08)
 			{
 				AutoSize = false,
 				BackColor = Color.Transparent,

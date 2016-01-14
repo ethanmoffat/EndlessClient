@@ -83,8 +83,8 @@ namespace EndlessClient
 			{
 				var halfWidth = _spellGraphic.Width / 2;
 				_spellGraphicSourceRect = new Rectangle(MouseOver ? halfWidth : 0, 0, halfWidth, _spellGraphic.Height);
-				if (MouseOver)
-					((EOGame)Game).Hud.SetStatusLabel(DATCONST2.SKILLMASTER_WORD_SPELL, SpellData.Name);
+				if (MouseOver && !_parentSpellContainer.AnySpellsDragging())
+					((EOGame) Game).Hud.SetStatusLabel(DATCONST2.SKILLMASTER_WORD_SPELL, SpellData.Name);
 			}
 		}
 

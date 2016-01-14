@@ -68,7 +68,7 @@ namespace EOLib
 		/// <param name="orig"></param>
 		/// <param name="loc">New position for the rectangle</param>
 		/// <returns></returns>
-		public static Rectangle SetPosition(this Rectangle orig, Vector2 loc)
+		public static Rectangle WithPosition(this Rectangle orig, Vector2 loc)
 		{
 			return new Rectangle((int)loc.X, (int)loc.Y, orig.Width, orig.Height);
 		}

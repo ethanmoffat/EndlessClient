@@ -1307,7 +1307,7 @@ namespace EndlessClient
 
 			Color[] dat = new Color[DrawArea.Width*DrawArea.Height];
 			bgTexture = new Texture2D(Game.GraphicsDevice, DrawArea.Width, DrawArea.Height);
-			bgSprites.GetData(0, DrawArea.SetPosition(new Vector2(0, CharRef.RenderData.gender * DrawArea.Height)), dat, 0, dat.Length);
+			bgSprites.GetData(0, DrawArea.WithPosition(new Vector2(0, CharRef.RenderData.gender * DrawArea.Height)), dat, 0, dat.Length);
 			bgTexture.SetData(dat);
 
 			//not using caption/message since we have other shit to take care of

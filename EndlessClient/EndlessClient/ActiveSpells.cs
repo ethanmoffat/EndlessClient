@@ -5,10 +5,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EOLib;
+using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
@@ -24,6 +27,8 @@ namespace EndlessClient
 		private readonly RegistryKey m_spellsKey;
 
 		private readonly List<ISpellIcon> _childItems;
+		private readonly Texture2D _functionKeyGraphics;
+		private readonly Rectangle _functionKeySourceRect;
 
 		public ActiveSpells(XNAPanel parent, PacketAPI api)
 			: base(null, null, parent)
@@ -66,6 +71,9 @@ namespace EndlessClient
 					break;
 				}
 			}
+
+			_functionKeyGraphics = ((EOGame) Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
+			_functionKeySourceRect = new Rectangle(148, 51, 18, 13);
 
 			//setup other controls that are required
 			//level up button, selected spell label / image, etc
@@ -140,6 +148,33 @@ namespace EndlessClient
 			}
 
 			base.Update(gameTime);
+		}
+
+		public override void Draw(GameTime gameTime)
+		{
+			if (!Visible) return;
+
+			//draw spell icons first
+			base.Draw(gameTime);
+
+			var secondRowSourceRect = _functionKeySourceRect.WithPosition(
+				new Vector2(_functionKeySourceRect.X + _functionKeySourceRect.Width*8, _functionKeySourceRect.Y));
+
+			SpriteBatch.Begin();
+			for (int i = 0; i < 8; ++i)
+			{
+				var offset = (float)_functionKeySourceRect.Width*i;
+
+				SpriteBatch.Draw(_functionKeyGraphics,
+					new Vector2(202 + 45*i, 338),
+					_functionKeySourceRect.WithPosition(new Vector2(_functionKeySourceRect.X + offset, _functionKeySourceRect.Y)),
+					Color.White);
+				SpriteBatch.Draw(_functionKeyGraphics,
+					new Vector2(202 + 45*i, 390),
+					secondRowSourceRect.WithPosition(new Vector2(secondRowSourceRect.X + offset, _functionKeySourceRect.Y)),
+					Color.White);
+			}
+			SpriteBatch.End();
 		}
 
 		private static RegistryKey _tryGetCharacterRegKey()
