@@ -923,6 +923,7 @@ namespace EndlessClient
 		public void AddPartyMember(PartyMember member) { m_party.AddMember(member); }
 		public void RemovePartyMember(short memberID) { m_party.RemoveMember(memberID); }
 		public void CloseParty() { m_party.CloseParty(); }
+		public bool MainPlayerIsInParty() { return m_party.PlayerIsMember((short)World.Instance.MainPlayer.ActiveCharacter.ID); }
 		public bool PlayerIsPartyMember(short playerID) { return m_party.PlayerIsMember(playerID); }
 
 		public SpellRecord GetSpellFromIndex(int index)

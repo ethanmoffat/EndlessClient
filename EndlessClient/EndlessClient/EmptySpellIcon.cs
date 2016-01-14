@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib;
 using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -26,10 +27,16 @@ namespace EndlessClient
 			}
 		}
 
-		public bool Selected
+		public virtual bool Selected
 		{
 			get { return false; }
-			set { throw new InvalidOperationException("Unable to set Selected on an EmptySpellIcon"); }
+			set
+			{
+				if (value)
+				{
+					((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.SPELL_NOTHING_WAS_SELECTED);
+				}
+			}
 		}
 
 		public virtual short Level

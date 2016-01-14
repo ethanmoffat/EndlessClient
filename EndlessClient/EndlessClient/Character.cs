@@ -163,6 +163,7 @@ namespace EndlessClient
 		public int Y { get; private set; }
 
 		public int SelectedSpell { get; private set; }
+		public bool PreparingSpell { get; private set; }
 		public bool NeedsSpellTarget
 		{
 			get
@@ -741,6 +742,8 @@ namespace EndlessClient
 
 			if (!m_packetAPI.PrepareCastSpell((short) id))
 				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+
+			PreparingSpell = true;
 		}
 
 		public void CastSpell(int id)
@@ -788,6 +791,7 @@ namespace EndlessClient
 
 		public void SetSpellCastStart()
 		{
+			PreparingSpell = false;
 			State = CharacterActionState.SpellCast;
 			RenderData.SetUpdate(true);
 		}

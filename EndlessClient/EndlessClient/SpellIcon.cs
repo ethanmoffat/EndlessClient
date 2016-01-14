@@ -15,13 +15,14 @@ namespace EndlessClient
 	public class SpellIcon : EmptySpellIcon
 	{
 		private bool _selected;
-		public new bool Selected
+		public override bool Selected
 		{
 			get { return _selected; }
 			set
 			{
 				_selected = value;
-				OnSelected();
+				if (_selected)
+					OnSelected();
 			}
 		}
 
@@ -45,8 +46,7 @@ namespace EndlessClient
 		{
 			_spellData = data;
 			_spellGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.SpellIcons, _spellData.Icon);
-
-			OnSelected();
+			_spellGraphicSourceRect = new Rectangle(0, 0, _spellGraphic.Width / 2, _spellGraphic.Height);
 
 			_clickTime = DateTime.Now;
 		}
@@ -72,8 +72,17 @@ namespace EndlessClient
 
 		private void OnSelected()
 		{
-			var halfWidth = _spellGraphic.Width / 2;
-			_spellGraphicSourceRect = new Rectangle(Selected ? halfWidth : 0, 0, halfWidth, _spellGraphic.Height);
+			var hud = ((EOGame) Game).Hud;
+			switch (SpellData.Target)
+			{
+				case SpellTarget.Normal:
+					hud.SetStatusLabel(DATCONST2.SKILLMASTER_WORD_SPELL, SpellData.Name, DATCONST2.SPELL_WAS_SELECTED);
+					break;
+				case SpellTarget.Group:
+					if(!hud.MainPlayerIsInParty())
+						hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.SPELL_ONLY_WORKS_ON_GROUP);
+					break;
+			}
 		}
 
 		private void UpdateIconSourceRect()

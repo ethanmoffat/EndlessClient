@@ -21,8 +21,7 @@ namespace EndlessClient
 		public override void Update(GameTime gameTime)
 		{
 			KeyboardState currState = Keyboard.GetState();
-			if (!IgnoreInput && Character.State == CharacterActionState.Standing && 
-				Character.SelectedSpell <= 0 && !Character.NeedsSpellTarget)
+			if (!IgnoreInput && Character.State == CharacterActionState.Standing && !Character.PreparingSpell)
 			{
 				UpdateInputTime();
 
@@ -31,7 +30,9 @@ namespace EndlessClient
 				{
 					if (IsKeyPressed((Keys) key, currState))
 					{
-						_handleSpellFunc(key - (int) Keys.F1);
+						//hidden feature! holding shift calls spell in second row (just learned that, crazy!!!!)
+						var shiftHeld = IsKeyPressed(Keys.LeftShift) || IsKeyPressed(Keys.RightShift) ? ActiveSpells.SPELL_ROW_LENGTH : 0;
+						_handleSpellFunc(key - (int) Keys.F1 + shiftHeld);
 						break;
 					}
 				}

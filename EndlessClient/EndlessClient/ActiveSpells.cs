@@ -28,7 +28,8 @@ namespace EndlessClient
 
 		private readonly List<ISpellIcon> _childItems;
 		private readonly Texture2D _functionKeyGraphics;
-		private readonly Rectangle _functionKeySourceRect;
+		private Rectangle _functionKeyRow1SourceRect;
+		private Rectangle _functionKeyRow2SourceRect;
 
 		public ActiveSpells(XNAPanel parent, PacketAPI api)
 			: base(null, null, parent)
@@ -73,7 +74,8 @@ namespace EndlessClient
 			}
 
 			_functionKeyGraphics = ((EOGame) Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
-			_functionKeySourceRect = new Rectangle(148, 51, 18, 13);
+			_functionKeyRow1SourceRect = new Rectangle(148, 51, 18, 13);
+			_functionKeyRow2SourceRect = new Rectangle(148 + 18*8, 51, 18, 13);
 
 			//setup other controls that are required
 			//level up button, selected spell label / image, etc
@@ -82,8 +84,8 @@ namespace EndlessClient
 		public void SetActiveSpellBySlot(int slot)
 		{
 			ClearActiveSpell();
-			var item = _childItems.OfType<SpellIcon>().Single(x => x.Slot == slot);
-			if (item != null && !item.Selected)
+			var item = _childItems.Single(x => x.Slot == slot);
+			if (item != null)
 				item.Selected = true;
 		}
 
@@ -147,6 +149,12 @@ namespace EndlessClient
 				ClearActiveSpell();
 			}
 
+			if ((Keyboard.GetState().IsKeyDown(Keys.RightShift) && PreviousKeyState.IsKeyUp(Keys.RightShift)) ||
+			    (Keyboard.GetState().IsKeyDown(Keys.LeftShift) && PreviousKeyState.IsKeyUp(Keys.LeftShift)) ||
+			    (Keyboard.GetState().IsKeyUp(Keys.RightShift) && PreviousKeyState.IsKeyDown(Keys.RightShift)) ||
+			    (Keyboard.GetState().IsKeyUp(Keys.LeftShift) && PreviousKeyState.IsKeyDown(Keys.LeftShift)))
+				_swapFunctionKeySourceRectangles();
+
 			base.Update(gameTime);
 		}
 
@@ -157,21 +165,18 @@ namespace EndlessClient
 			//draw spell icons first
 			base.Draw(gameTime);
 
-			var secondRowSourceRect = _functionKeySourceRect.WithPosition(
-				new Vector2(_functionKeySourceRect.X + _functionKeySourceRect.Width*8, _functionKeySourceRect.Y));
-
 			SpriteBatch.Begin();
 			for (int i = 0; i < 8; ++i)
 			{
-				var offset = (float)_functionKeySourceRect.Width*i;
+				var offset = (float)_functionKeyRow1SourceRect.Width*i;
 
 				SpriteBatch.Draw(_functionKeyGraphics,
 					new Vector2(202 + 45*i, 338),
-					_functionKeySourceRect.WithPosition(new Vector2(_functionKeySourceRect.X + offset, _functionKeySourceRect.Y)),
+					_functionKeyRow1SourceRect.WithPosition(new Vector2(_functionKeyRow1SourceRect.X + offset, _functionKeyRow1SourceRect.Y)),
 					Color.White);
 				SpriteBatch.Draw(_functionKeyGraphics,
 					new Vector2(202 + 45*i, 390),
-					secondRowSourceRect.WithPosition(new Vector2(secondRowSourceRect.X + offset, _functionKeySourceRect.Y)),
+					_functionKeyRow2SourceRect.WithPosition(new Vector2(_functionKeyRow2SourceRect.X + offset, _functionKeyRow2SourceRect.Y)),
 					Color.White);
 			}
 			SpriteBatch.End();
@@ -217,6 +222,13 @@ namespace EndlessClient
 		private void _clearSlotInRegistry(int slot)
 		{
 			_setSpellSlotInRegistry(slot, 0);
+		}
+
+		private void _swapFunctionKeySourceRectangles()
+		{
+			var tmpRect = _functionKeyRow2SourceRect;
+			_functionKeyRow2SourceRect = _functionKeyRow1SourceRect;
+			_functionKeyRow1SourceRect = tmpRect;
 		}
 	}
 }
