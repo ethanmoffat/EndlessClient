@@ -53,6 +53,8 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
+			if (!ShouldUpdate()) return;
+
 			UpdateIconSourceRect();
 			DoClickAndDragLogic();
 

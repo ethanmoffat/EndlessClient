@@ -926,6 +926,10 @@ namespace EndlessClient
 		public bool MainPlayerIsInParty() { return m_party.PlayerIsMember((short)World.Instance.MainPlayer.ActiveCharacter.ID); }
 		public bool PlayerIsPartyMember(short playerID) { return m_party.PlayerIsMember(playerID); }
 
+		public void AddNewSpellToActiveSpellsByID(int spellID)
+		{
+			activeSpells.AddNewSpellToNextOpenSlot(spellID);
+		}
 		public SpellRecord GetSpellFromIndex(int index)
 		{
 			return activeSpells.GetSpellRecordBySlot(index);

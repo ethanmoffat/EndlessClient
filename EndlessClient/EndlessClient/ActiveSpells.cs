@@ -81,6 +81,16 @@ namespace EndlessClient
 			//level up button, selected spell label / image, etc
 		}
 
+		public void AddNewSpellToNextOpenSlot(int spellID)
+		{
+			if (_childItems.OfType<SpellIcon>().Any(x => x.SpellData.ID == spellID))
+				return;
+
+			var slot = _getNextOpenSlot();
+			var record = World.Instance.ESF.GetSpellRecordByID((short) spellID);
+			_addNewSpellToSlot(slot, record, 0);
+		}
+
 		public void SetActiveSpellBySlot(int slot)
 		{
 			ClearActiveSpell();
@@ -211,7 +221,8 @@ namespace EndlessClient
 
 		private int _getNextOpenSlot()
 		{
-			return _childItems.OfType<EmptySpellIcon>().Select(x => x.Slot).Min();
+			//SpellIcon is EmptySpellIcon == true...
+			return _childItems.Where(x => !(x is SpellIcon)).Select(x => x.Slot).Min();
 		}
 
 		private void _setSpellSlotInRegistry(int slot, int id)

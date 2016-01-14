@@ -857,6 +857,7 @@ namespace EndlessClient
 			if (EOSkillmasterDialog.Instance != null)
 				EOSkillmasterDialog.Instance.RemoveSkillByIDFromLearnList(id);
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
+			m_game.Hud.AddNewSpellToActiveSpellsByID(id);
 		}
 
 		private void _statskillForgetSpell(short id)
