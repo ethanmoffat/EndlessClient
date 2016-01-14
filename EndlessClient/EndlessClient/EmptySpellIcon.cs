@@ -101,7 +101,7 @@ namespace EndlessClient
 			base.Draw(gameTime);
 		}
 
-		private void OnSlotChanged()
+		protected virtual void OnSlotChanged()
 		{
 			//start pos: 101, 97
 			//xdelta: 45; ydelta: 52

@@ -126,25 +126,23 @@ namespace EndlessClient
 
 		public void MoveItem(ISpellIcon spellIcon, int newSlot)
 		{
-			if (spellIcon.Slot == newSlot) return;
+			if (spellIcon.Slot == newSlot || newSlot < 0 || newSlot > SPELL_NUM_ROWS * SPELL_ROW_LENGTH)
+				return;
 
-			var replacementEmptyIcon = new EmptySpellIcon(this, spellIcon.Slot);
 			if (!_childItems.Contains(spellIcon))
 				throw new ArgumentException("The spell was not found!", "spellIcon");
 
-			//remove the empty item
-			var emptySpellInDestinationSlot = _childItems.Find(x => x.Slot == newSlot && x is EmptySpellIcon);
-			if (emptySpellInDestinationSlot == null)
-				throw new ArgumentException("Destination Slot is not empty!", "newSlot");
-			_childItems.Remove(emptySpellInDestinationSlot);
-
 			//update the registry
+			var spellInDestinationSlot = _childItems.Find(x => x.Slot == newSlot);
+			if (!(spellInDestinationSlot is EmptySpellIcon))
+				_setSpellSlotInRegistry(spellIcon.Slot, spellInDestinationSlot.SpellData.ID);
+			else
+				_clearSlotInRegistry(spellIcon.Slot);
 			_setSpellSlotInRegistry(newSlot, spellIcon.SpellData.ID);
-			_clearSlotInRegistry(spellIcon.Slot);
 
-			//set the slot and add a replacement empty item
+			//set the slots of old/new items
+			spellInDestinationSlot.Slot = spellIcon.Slot;
 			spellIcon.Slot = newSlot;
-			_childItems.Add(replacementEmptyIcon);
 		}
 
 		public override void Update(GameTime gameTime)

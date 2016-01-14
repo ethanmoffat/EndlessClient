@@ -72,6 +72,13 @@ namespace EndlessClient
 			base.Draw(gameTime);
 		}
 
+		protected override void OnSlotChanged()
+		{
+			base.OnSlotChanged();
+			if (_spellGraphic != null)
+				SetIconHover(MouseOver);
+		}
+
 		private void OnSelected()
 		{
 			var hud = ((EOGame) Game).Hud;
@@ -92,11 +99,16 @@ namespace EndlessClient
 			if (MouseOver && !MouseOverPreviously ||
 				MouseOverPreviously && !MouseOver)
 			{
-				var halfWidth = _spellGraphic.Width / 2;
-				_spellGraphicSourceRect = new Rectangle(MouseOver ? halfWidth : 0, 0, halfWidth, _spellGraphic.Height);
+				SetIconHover(MouseOver);
 				if (MouseOver && !_parentSpellContainer.AnySpellsDragging())
 					((EOGame) Game).Hud.SetStatusLabel(DATCONST2.SKILLMASTER_WORD_SPELL, SpellData.Name);
 			}
+		}
+
+		private void SetIconHover(bool hover)
+		{
+			var halfWidth = _spellGraphic.Width/2;
+			_spellGraphicSourceRect = new Rectangle(hover ? halfWidth : 0, 0, halfWidth, _spellGraphic.Height);
 		}
 
 		private void DoClickAndDragLogic()
@@ -156,10 +168,7 @@ namespace EndlessClient
 			_followMouse = false;
 
 			var newSlot = GetCurrentHoverSlot();
-			if (_parentSpellContainer.GetSpellRecordBySlot(newSlot) == null)
-			{
-				_parentSpellContainer.MoveItem(this, newSlot);
-			}
+			_parentSpellContainer.MoveItem(this, newSlot);
 		}
 
 		private int GetCurrentHoverSlot()
