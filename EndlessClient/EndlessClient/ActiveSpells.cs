@@ -23,26 +23,30 @@ namespace EndlessClient
 		public const int SPELL_NUM_ROWS = 2;
 		public const int SPELL_ROW_LENGTH = 8;
 
-		private readonly PacketAPI m_api;
-		private readonly RegistryKey m_spellsKey;
+		private readonly PacketAPI _api;
+		private readonly RegistryKey _spellsKey;
 
 		private readonly List<ISpellIcon> _childItems;
 		private readonly Texture2D _functionKeyGraphics;
 		private Rectangle _functionKeyRow1SourceRect;
 		private Rectangle _functionKeyRow2SourceRect;
 
+		private Texture2D _activeSpellIcon;
+
+		private readonly XNALabel _selectedSpellName;
+
 		public ActiveSpells(XNAPanel parent, PacketAPI api)
 			: base(null, null, parent)
 		{
-			m_api = api;
+			_api = api;
 
 			_childItems = new List<ISpellIcon>(SPELL_NUM_ROWS * SPELL_ROW_LENGTH);
 			for (int slot = 0; slot < SPELL_NUM_ROWS*SPELL_ROW_LENGTH; ++slot)
 				_childItems.Add(new EmptySpellIcon(this, slot));
 
 			var localSpellSlotMap = new Dictionary<int, int>();
-			m_spellsKey = _tryGetCharacterRegKey();
-			if (m_spellsKey != null)
+			_spellsKey = _tryGetCharacterRegKey();
+			if (_spellsKey != null)
 			{
 				const string spellFmt = "item{0}";
 				for (int i = 0; i < SPELL_ROW_LENGTH*4; ++i)
@@ -50,7 +54,7 @@ namespace EndlessClient
 					int id;
 					try
 					{
-						id = Convert.ToInt32(m_spellsKey.GetValue(String.Format(spellFmt, i)));
+						id = Convert.ToInt32(_spellsKey.GetValue(String.Format(spellFmt, i)));
 					}
 					catch { continue; }
 					localSpellSlotMap.Add(i, id);
@@ -77,8 +81,18 @@ namespace EndlessClient
 			_functionKeyRow1SourceRect = new Rectangle(148, 51, 18, 13);
 			_functionKeyRow2SourceRect = new Rectangle(148 + 18*8, 51, 18, 13);
 
+			_selectedSpellName = new XNALabel(new Rectangle(9, 50, 81, 13), Constants.FontSize08pt5)
+			{
+				Visible = false,
+				Text = "",
+				AutoSize = false,
+				TextAlign = LabelAlignment.MiddleCenter,
+				ForeColor = Constants.LightGrayText
+			};
+			_selectedSpellName.SetParent(this);
+
 			//setup other controls that are required
-			//level up button, selected spell label / image, etc
+			//level up button, etc
 		}
 
 		public void AddNewSpellToNextOpenSlot(int spellID)
@@ -96,7 +110,21 @@ namespace EndlessClient
 			ClearActiveSpell();
 			var item = _childItems.Single(x => x.Slot == slot);
 			if (item != null)
+			{
 				item.Selected = true;
+				if (item is SpellIcon)
+				{
+					_activeSpellIcon = ((EOGame) Game).GFXManager.TextureFromResource(GFXTypes.SpellIcons, item.SpellData.Icon);
+					_selectedSpellName.Text = item.SpellData.Name;
+					_selectedSpellName.Visible = true;
+				}
+				else
+					_selectedSpellName.Visible = false;
+			}
+			else
+			{
+				_selectedSpellName.Visible = false;
+			}
 		}
 
 		public void ClearActiveSpell()
@@ -174,20 +202,38 @@ namespace EndlessClient
 			base.Draw(gameTime);
 
 			SpriteBatch.Begin();
+			DrawFunctionKeyLabels();
+			DrawActiveSpell();
+			SpriteBatch.End();
+		}
+
+		private void DrawFunctionKeyLabels()
+		{
 			for (int i = 0; i < 8; ++i)
 			{
-				var offset = (float)_functionKeyRow1SourceRect.Width*i;
+				var offset = (float) _functionKeyRow1SourceRect.Width*i;
 
 				SpriteBatch.Draw(_functionKeyGraphics,
 					new Vector2(202 + 45*i, 338),
-					_functionKeyRow1SourceRect.WithPosition(new Vector2(_functionKeyRow1SourceRect.X + offset, _functionKeyRow1SourceRect.Y)),
+					_functionKeyRow1SourceRect.WithPosition(new Vector2(_functionKeyRow1SourceRect.X + offset,
+						_functionKeyRow1SourceRect.Y)),
 					Color.White);
 				SpriteBatch.Draw(_functionKeyGraphics,
 					new Vector2(202 + 45*i, 390),
-					_functionKeyRow2SourceRect.WithPosition(new Vector2(_functionKeyRow2SourceRect.X + offset, _functionKeyRow2SourceRect.Y)),
+					_functionKeyRow2SourceRect.WithPosition(new Vector2(_functionKeyRow2SourceRect.X + offset,
+						_functionKeyRow2SourceRect.Y)),
 					Color.White);
 			}
-			SpriteBatch.End();
+		}
+
+		private void DrawActiveSpell()
+		{
+			if (_activeSpellIcon == null)
+				return;
+
+			var srcRect = new Rectangle(0, 0, _activeSpellIcon.Width/2, _activeSpellIcon.Height);
+			var dstRect = new Rectangle(DrawAreaWithOffset.X + 32, DrawAreaWithOffset.Y + 14, srcRect.Width, srcRect.Height);
+			SpriteBatch.Draw(_activeSpellIcon, dstRect, srcRect, Color.White);
 		}
 
 		private static RegistryKey _tryGetCharacterRegKey()
@@ -225,7 +271,7 @@ namespace EndlessClient
 
 		private void _setSpellSlotInRegistry(int slot, int id)
 		{
-			m_spellsKey.SetValue(string.Format("item{0}", slot), id, RegistryValueKind.String);
+			_spellsKey.SetValue(string.Format("item{0}", slot), id, RegistryValueKind.String);
 		}
 
 		private void _clearSlotInRegistry(int slot)
