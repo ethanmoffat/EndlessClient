@@ -23,7 +23,18 @@ namespace EndlessClient
 			set
 			{
 				_slot = value;
-				OnSlotChanged();
+				DisplaySlot = value;
+			}
+		}
+
+		private int _displaySlot;
+		public int DisplaySlot
+		{
+			get { return _displaySlot; }
+			set
+			{
+				_displaySlot = value;
+				OnDisplaySlotChanged();
 			}
 		}
 
@@ -106,7 +117,7 @@ namespace EndlessClient
 			base.Draw(gameTime);
 		}
 
-		protected virtual void OnSlotChanged()
+		protected virtual void OnDisplaySlotChanged()
 		{
 			//start pos: 101, 97
 			//xdelta: 45; ydelta: 52

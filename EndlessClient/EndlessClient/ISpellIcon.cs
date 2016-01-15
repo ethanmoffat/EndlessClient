@@ -9,13 +9,20 @@ namespace EndlessClient
 	public interface ISpellIcon
 	{
 		int Slot { get; set; }
+
+		int DisplaySlot { get; set; }
+
 		bool Selected { get; set; }
+
 		bool IsDragging { get; }
 
 		short Level { get; set; }
+
 		SpellRecord SpellData { get; }
 
 		//defined in XNAControl base class
 		bool MouseOver { get; }
+
+		bool Visible { get; set; }
 	}
 }

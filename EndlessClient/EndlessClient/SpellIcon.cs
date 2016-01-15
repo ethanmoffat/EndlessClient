@@ -90,9 +90,9 @@ namespace EndlessClient
 			base.Draw(gameTime);
 		}
 
-		protected override void OnSlotChanged()
+		protected override void OnDisplaySlotChanged()
 		{
-			base.OnSlotChanged();
+			base.OnDisplaySlotChanged();
 			if (_spellGraphic != null)
 				SetIconHover(MouseOver);
 			OnLevelChanged();

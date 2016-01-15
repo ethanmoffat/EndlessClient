@@ -20,7 +20,7 @@ namespace EndlessClient
 	public class ActiveSpells : XNAControl
 	{
 		//number of skills to display in a row
-		public const int SPELL_NUM_ROWS = 2;
+		public const int SPELL_NUM_ROWS = 4;
 		public const int SPELL_ROW_LENGTH = 8;
 
 		private readonly PacketAPI _api;
@@ -35,6 +35,9 @@ namespace EndlessClient
 
 		private readonly XNALabel _selectedSpellName, _selectedSpellLevel, _totalSkillPoints;
 		private readonly XNAButton _levelUpButton1, _levelUpButton2;
+
+		private int _lastScrollOffset;
+		private readonly EOScrollBar _scroll;
 
 		private bool _trainWarningShown;
 
@@ -77,6 +80,9 @@ namespace EndlessClient
 					EODialog.Show("You have too many spells! They don't all fit.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
 					break;
 				}
+
+				if (slot >= SPELL_ROW_LENGTH*(SPELL_NUM_ROWS/2))
+					_childItems.Last().Visible = false;
 			}
 
 			_setSize(parent.DrawArea.Width, parent.DrawArea.Height);
@@ -132,6 +138,9 @@ namespace EndlessClient
 			};
 			_levelUpButton2.OnClick += LevelUp_Click;
 			_levelUpButton2.SetParent(this);
+
+			_scroll = new EOScrollBar(this, new Vector2(467, 2), new Vector2(16, 115), EOScrollBar.ScrollColors.LightOnMed) { LinesToRender = 2 };
+			_scroll.UpdateDimensions(4);
 		}
 
 		public void AddNewSpellToNextOpenSlot(int spellID)
@@ -279,6 +288,9 @@ namespace EndlessClient
 			    (Keyboard.GetState().IsKeyUp(Keys.LeftShift) && PreviousKeyState.IsKeyDown(Keys.LeftShift)))
 				_swapFunctionKeySourceRectangles();
 
+			if (_lastScrollOffset != _scroll.ScrollOffset)
+				UpdateIconsForScroll();
+
 			base.Update(gameTime);
 		}
 
@@ -404,6 +416,25 @@ namespace EndlessClient
 			var pts = World.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints;
 			_levelUpButton1.Visible = pts > 0 && AnySpellsSelected();
 			_levelUpButton2.Visible = pts > 0 && AnySpellsSelected();
+		}
+
+		private void UpdateIconsForScroll()
+		{
+			var firstValidSlot = _scroll.ScrollOffset*SPELL_ROW_LENGTH;
+			var lastValidSlot = firstValidSlot + 2*SPELL_ROW_LENGTH;
+
+			var itemsToHide = _childItems.Where(x => x.Slot < firstValidSlot || x.Slot >= lastValidSlot).ToList();
+			foreach (var item in itemsToHide)
+				item.Visible = false;
+
+			foreach (var item in _childItems.Except(itemsToHide))
+			{
+				item.Visible = true;
+				item.DisplaySlot = item.Slot - firstValidSlot; //todo: get this working
+				//todo: probably an issue with drag/drop once it has been scrolled
+			}
+
+			_lastScrollOffset = _scroll.ScrollOffset;
 		}
 	}
 }
