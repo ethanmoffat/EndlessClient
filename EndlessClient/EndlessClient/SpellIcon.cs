@@ -26,7 +26,19 @@ namespace EndlessClient
 			}
 		}
 
-		public override short Level { get; set; }
+		private short _level;
+		public override short Level
+		{
+			get { return _level; }
+			set
+			{
+				if (_level != value)
+				{
+					_level = value;
+					OnLevelChanged();
+				}
+			}
+		}
 
 		public override bool IsDragging { get { return _dragging; } }
 
@@ -34,12 +46,13 @@ namespace EndlessClient
 
 		//stops the base class update logic from being called
 		protected override bool DoEmptySpellIconUpdateLogic { get { return false; } }
-		private readonly Texture2D _spellGraphic;
+		private readonly Texture2D _spellGraphic, _spellLevelColor;
 		private readonly SpellRecord _spellData;
 
 		private Rectangle _spellGraphicSourceRect;
 		private DateTime _clickTime;
 		private bool _dragging, _followMouse;
+		private Rectangle _levelDestinationRectangle;
 
 		public SpellIcon(ActiveSpells parent, SpellRecord data, int slot)
 			: base(parent, slot)
@@ -47,6 +60,10 @@ namespace EndlessClient
 			_spellData = data;
 			_spellGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.SpellIcons, _spellData.Icon);
 			_spellGraphicSourceRect = new Rectangle(0, 0, _spellGraphic.Width / 2, _spellGraphic.Height);
+
+			_spellLevelColor = new Texture2D(Game.GraphicsDevice, 1, 1);
+			_spellLevelColor.SetData(new[] {Color.FromNonPremultiplied(0xc9, 0xb8, 0x9b, 0xff)});
+			OnLevelChanged();
 
 			_clickTime = DateTime.Now;
 		}
@@ -67,6 +84,7 @@ namespace EndlessClient
 
 			SpriteBatch.Begin();
 			DrawSpellIcon();
+			DrawSpellLevel();
 			SpriteBatch.End();
 
 			base.Draw(gameTime);
@@ -77,6 +95,7 @@ namespace EndlessClient
 			base.OnSlotChanged();
 			if (_spellGraphic != null)
 				SetIconHover(MouseOver);
+			OnLevelChanged();
 		}
 
 		private void OnSelected()
@@ -92,6 +111,13 @@ namespace EndlessClient
 						hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.SPELL_ONLY_WORKS_ON_GROUP);
 					break;
 			}
+		}
+
+		private void OnLevelChanged()
+		{
+			//36 is full width of level bar
+			var width = (int)(Level / 100.0 * 36);
+			_levelDestinationRectangle = new Rectangle(DrawAreaWithOffset.X + 3, DrawAreaWithOffset.Y + 40, width, 6);
 		}
 
 		private void UpdateIconSourceRect()
@@ -201,6 +227,14 @@ namespace EndlessClient
 			}
 
 			SpriteBatch.Draw(_spellGraphic, targetDrawArea, _spellGraphicSourceRect, alphaColor);
+		}
+
+		private void DrawSpellLevel()
+		{
+			if (_followMouse || _dragging)
+				return;
+
+			SpriteBatch.Draw(_spellLevelColor, _levelDestinationRectangle, Color.White);
 		}
 	}
 }
