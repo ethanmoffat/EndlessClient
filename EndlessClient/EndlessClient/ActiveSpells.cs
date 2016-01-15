@@ -376,7 +376,9 @@ namespace EndlessClient
 
 		private int _getNextOpenSlot()
 		{
-			//SpellIcon is EmptySpellIcon == true...
+			//SpellIcon is EmptySpellIcon, so can't compare with EmptySpellIcon or we'll get SpellIcon too
+			if (_childItems.All(x => x is SpellIcon))
+				return -1;
 			return _childItems.Where(x => !(x is SpellIcon)).Select(x => x.Slot).Min();
 		}
 
