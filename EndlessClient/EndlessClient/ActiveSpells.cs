@@ -33,7 +33,8 @@ namespace EndlessClient
 
 		private Texture2D _activeSpellIcon;
 
-		private readonly XNALabel _selectedSpellName;
+		private readonly XNALabel _selectedSpellName, _selectedSpellLevel, _totalSkillPoints;
+		private readonly XNAButton _levelUpButton1, _levelUpButton2;
 
 		public ActiveSpells(XNAPanel parent, PacketAPI api)
 			: base(null, null, parent)
@@ -41,8 +42,7 @@ namespace EndlessClient
 			_api = api;
 
 			_childItems = new List<ISpellIcon>(SPELL_NUM_ROWS * SPELL_ROW_LENGTH);
-			for (int slot = 0; slot < SPELL_NUM_ROWS*SPELL_ROW_LENGTH; ++slot)
-				_childItems.Add(new EmptySpellIcon(this, slot));
+			ClearAllSpells();
 
 			var localSpellSlotMap = new Dictionary<int, int>();
 			_spellsKey = _tryGetCharacterRegKey();
@@ -77,6 +77,8 @@ namespace EndlessClient
 				}
 			}
 
+			_setSize(parent.DrawArea.Width, parent.DrawArea.Height);
+
 			_functionKeyGraphics = ((EOGame) Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
 			_functionKeyRow1SourceRect = new Rectangle(148, 51, 18, 13);
 			_functionKeyRow2SourceRect = new Rectangle(148 + 18*8, 51, 18, 13);
@@ -91,8 +93,43 @@ namespace EndlessClient
 			};
 			_selectedSpellName.SetParent(this);
 
-			//setup other controls that are required
-			//level up button, etc
+			_selectedSpellLevel = new XNALabel(new Rectangle(32, 78, 42, 15), Constants.FontSize08pt5)
+			{
+				Visible = true,
+				Text = "0",
+				AutoSize = false,
+				TextAlign = LabelAlignment.MiddleLeft,
+				ForeColor = Constants.LightGrayText
+			};
+			_selectedSpellLevel.SetParent(this);
+
+			var skillPoints = World.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints;
+			_totalSkillPoints = new XNALabel(new Rectangle(32, 96, 42, 15), Constants.FontSize08pt5)
+			{
+				Visible = true,
+				Text = skillPoints.ToString(),
+				AutoSize = false,
+				TextAlign = LabelAlignment.MiddleLeft,
+				ForeColor = Constants.LightGrayText
+			};
+			_totalSkillPoints.SetParent(this);
+
+			var buttonSheet = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 27, true);
+
+			_levelUpButton1 = new XNAButton(buttonSheet, new Vector2(71, 77), new Rectangle(215, 386, 19, 15), new Rectangle(234, 386, 19, 15))
+			{
+				FlashSpeed = 500,
+				Visible = false
+			};
+			_levelUpButton1.OnClick += LevelUp_Click;
+			_levelUpButton1.SetParent(this);
+			_levelUpButton2 = new XNAButton(buttonSheet, new Vector2(71, 95), new Rectangle(215, 386, 19, 15), new Rectangle(234, 386, 19, 15))
+			{
+				FlashSpeed = 500,
+				Visible = false
+			};
+			_levelUpButton2.OnClick += LevelUp_Click;
+			_levelUpButton2.SetParent(this);
 		}
 
 		public void AddNewSpellToNextOpenSlot(int spellID)
@@ -117,20 +154,22 @@ namespace EndlessClient
 					_activeSpellIcon = ((EOGame) Game).GFXManager.TextureFromResource(GFXTypes.SpellIcons, item.SpellData.Icon);
 					_selectedSpellName.Text = item.SpellData.Name;
 					_selectedSpellName.Visible = true;
+					_selectedSpellLevel.Text = item.Level.ToString();
 				}
-				else
-					_selectedSpellName.Visible = false;
-			}
-			else
-			{
-				_selectedSpellName.Visible = false;
 			}
 		}
 
 		public void ClearActiveSpell()
 		{
 			if (_childItems.Any(x => x.Selected))
+			{
 				_childItems.Single(x => x.Selected).Selected = false;
+
+				_selectedSpellName.Visible = false;
+				_selectedSpellLevel.Text = "0";
+
+				_activeSpellIcon = null;
+			}
 		}
 
 		public SpellRecord GetSpellRecordBySlot(int slot)
@@ -143,6 +182,11 @@ namespace EndlessClient
 		public bool AnySpellsDragging()
 		{
 			return _childItems.Any(x => x.IsDragging);
+		}
+
+		public bool AnySpellsSelected()
+		{
+			return _childItems.Any(x => x.Selected);
 		}
 
 		public int GetCurrentHoverSlot()
@@ -173,8 +217,33 @@ namespace EndlessClient
 			spellIcon.Slot = newSlot;
 		}
 
+		public void RefreshTotalSkillPoints()
+		{
+			var skillPoints = World.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints;
+			_totalSkillPoints.Text = skillPoints.ToString();
+
+			_levelUpButton1.Visible = skillPoints > 0 && _childItems.Any(x => x.Selected);
+			_levelUpButton2.Visible = skillPoints > 0 && _childItems.Any(x => x.Selected);
+		}
+
+		public void ClearAllSpells()
+		{
+			_childItems.OfType<XNAControl>().ToList()
+				.ForEach(x =>
+				{
+					x.SetParent(null);
+					x.Close();
+				});
+			_childItems.Clear();
+
+			for (int slot = 0; slot < SPELL_NUM_ROWS * SPELL_ROW_LENGTH; ++slot)
+				_childItems.Add(new EmptySpellIcon(this, slot));
+		}
+
 		public override void Update(GameTime gameTime)
 		{
+			if (!ShouldUpdate()) return;
+
 			if (MouseOver && MouseOverPreviously &&
 			    _childItems.Any(x => x.Selected) &&
 			    _childItems.All(x => !x.MouseOver) &&
@@ -236,6 +305,11 @@ namespace EndlessClient
 			SpriteBatch.Draw(_activeSpellIcon, dstRect, srcRect, Color.White);
 		}
 
+		private void LevelUp_Click(object sender, EventArgs e)
+		{
+			
+		}
+
 		private static RegistryKey _tryGetCharacterRegKey()
 		{
 			try
@@ -258,6 +332,8 @@ namespace EndlessClient
 
 			_setSpellSlotInRegistry(slot, data.ID);
 			_childItems.Remove(emptySpellInDestinationSlot);
+			((XNAControl)emptySpellInDestinationSlot).SetParent(null);
+			((XNAControl)emptySpellInDestinationSlot).Close();
 			_childItems.Add(new SpellIcon(this, data, slot) { Level = level });
 
 			return true;

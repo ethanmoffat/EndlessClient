@@ -70,14 +70,12 @@ namespace EndlessClient
 
 		public override void Update(GameTime gameTime)
 		{
+			if (!ShouldUpdate()) return;
+
 			if (DoEmptySpellIconUpdateLogic)
 			{
-				if (MouseOver && _parentSpellContainer.AnySpellsDragging())
-					_doDrawLogic = true;
-				else if (_doDrawLogic)
-					_doDrawLogic = false;
-
 				if (MouseOver && MouseOverPreviously &&
+					_parentSpellContainer.AnySpellsSelected() &&
 					!_parentSpellContainer.AnySpellsDragging() &&
 					Mouse.GetState().LeftButton == ButtonState.Released &&
 					PreviousMouseState.LeftButton == ButtonState.Pressed)
@@ -86,11 +84,18 @@ namespace EndlessClient
 				}
 			}
 
+			if (MouseOver && _parentSpellContainer.AnySpellsDragging())
+				_doDrawLogic = true;
+			else if (_doDrawLogic)
+				_doDrawLogic = false;
+
 			base.Update(gameTime);
 		}
 
 		public override void Draw(GameTime gameTime)
 		{
+			if (!Visible) return;
+
 			if (_doDrawLogic)
 			{
 				SpriteBatch.Begin();

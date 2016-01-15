@@ -917,6 +917,8 @@ namespace EndlessClient
 				inventory.UpdateWeightLabel();
 			if(stats != null)
 				stats.Refresh();
+			if (activeSpells != null)
+				activeSpells.RefreshTotalSkillPoints();
 		}
 
 		public void SetPartyData(List<PartyMember> party) { m_party.SetData(party); }
