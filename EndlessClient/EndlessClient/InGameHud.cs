@@ -928,18 +928,13 @@ namespace EndlessClient
 		public bool MainPlayerIsInParty() { return m_party.PlayerIsMember((short)World.Instance.MainPlayer.ActiveCharacter.ID); }
 		public bool PlayerIsPartyMember(short playerID) { return m_party.PlayerIsMember(playerID); }
 
-		public void AddNewSpellToActiveSpellsByID(int spellID)
-		{
-			activeSpells.AddNewSpellToNextOpenSlot(spellID);
-		}
-		public SpellRecord GetSpellFromIndex(int index)
-		{
-			return activeSpells.GetSpellRecordBySlot(index);
-		}
-		public void SetSelectedSpell(int index)
-		{
-			activeSpells.SetActiveSpellBySlot(index);
-		}
+		public void AddNewSpellToActiveSpellsByID(int spellID) { activeSpells.AddNewSpellToNextOpenSlot(spellID); }
+		public SpellRecord GetSpellFromIndex(int index) { return activeSpells.GetSpellRecordBySlot(index); }
+		public void SetSelectedSpell(int index) { activeSpells.SetSelectedSpellBySlot(index); }
+		public void RemoveSpellFromActiveSpellsByID(int spellID) { activeSpells.RemoveSpellByID(spellID); }
+		public void UpdateActiveSpellLevelByID(short spellID, short spellLevel) { activeSpells.UpdateSpellLevelByID(spellID, spellLevel); }
+		public void RemoveAllSpells() { activeSpells.RemoveAllSpells(); }
+
 		#endregion
 		
 		protected override void Dispose(bool disposing)

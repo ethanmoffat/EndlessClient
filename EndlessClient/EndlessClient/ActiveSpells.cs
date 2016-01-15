@@ -36,13 +36,15 @@ namespace EndlessClient
 		private readonly XNALabel _selectedSpellName, _selectedSpellLevel, _totalSkillPoints;
 		private readonly XNAButton _levelUpButton1, _levelUpButton2;
 
+		private bool _trainWarningShown;
+
 		public ActiveSpells(XNAPanel parent, PacketAPI api)
 			: base(null, null, parent)
 		{
 			_api = api;
 
 			_childItems = new List<ISpellIcon>(SPELL_NUM_ROWS * SPELL_ROW_LENGTH);
-			ClearAllSpells();
+			RemoveAllSpells();
 
 			var localSpellSlotMap = new Dictionary<int, int>();
 			_spellsKey = _tryGetCharacterRegKey();
@@ -142,9 +144,9 @@ namespace EndlessClient
 			_addNewSpellToSlot(slot, record, 0);
 		}
 
-		public void SetActiveSpellBySlot(int slot)
+		public void SetSelectedSpellBySlot(int slot)
 		{
-			ClearActiveSpell();
+			ClearSelectedSpell();
 			var item = _childItems.Single(x => x.Slot == slot);
 			if (item != null)
 			{
@@ -155,21 +157,25 @@ namespace EndlessClient
 					_selectedSpellName.Text = item.SpellData.Name;
 					_selectedSpellName.Visible = true;
 					_selectedSpellLevel.Text = item.Level.ToString();
+
+					UpdateLevelUpButtonsVisible();
 				}
 			}
 		}
 
-		public void ClearActiveSpell()
+		public void ClearSelectedSpell()
 		{
-			if (_childItems.Any(x => x.Selected))
-			{
-				_childItems.Single(x => x.Selected).Selected = false;
+			if (!AnySpellsSelected()) return;
 
-				_selectedSpellName.Visible = false;
-				_selectedSpellLevel.Text = "0";
+			_childItems.Single(x => x.Selected).Selected = false;
 
-				_activeSpellIcon = null;
-			}
+			_selectedSpellName.Visible = false;
+			_selectedSpellLevel.Text = "0";
+
+			_levelUpButton1.Visible = false;
+			_levelUpButton2.Visible = false;
+
+			_activeSpellIcon = null;
 		}
 
 		public SpellRecord GetSpellRecordBySlot(int slot)
@@ -177,6 +183,28 @@ namespace EndlessClient
 			var icon = _childItems.SingleOrDefault(x => x.Slot == slot);
 
 			return icon == null ? null : icon.SpellData;
+		}
+
+		public void RemoveSpellByID(int spellID)
+		{
+			var spellToRemove = _childItems.Single(x => x.SpellData.ID == spellID);
+			if (spellToRemove.Selected)
+				ClearSelectedSpell();
+
+			_childItems.Remove(spellToRemove);
+			((XNAControl)spellToRemove).SetParent(null);
+			((XNAControl) spellToRemove).Close();
+		}
+
+		public void UpdateSpellLevelByID(short spellID, short spellLevel)
+		{
+			var spell = _childItems.OfType<SpellIcon>().Single(x => x.SpellData.ID == spellID);
+			spell.Level = spellLevel;
+			if (spell.Selected)
+			{
+				_selectedSpellLevel.Text = spell.Level.ToString();
+				UpdateLevelUpButtonsVisible();
+			}
 		}
 
 		public bool AnySpellsDragging()
@@ -222,12 +250,13 @@ namespace EndlessClient
 			var skillPoints = World.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints;
 			_totalSkillPoints.Text = skillPoints.ToString();
 
-			_levelUpButton1.Visible = skillPoints > 0 && _childItems.Any(x => x.Selected);
-			_levelUpButton2.Visible = skillPoints > 0 && _childItems.Any(x => x.Selected);
+			UpdateLevelUpButtonsVisible();
 		}
 
-		public void ClearAllSpells()
+		public void RemoveAllSpells()
 		{
+			ClearSelectedSpell();
+
 			_childItems.OfType<XNAControl>().ToList()
 				.ForEach(x =>
 				{
@@ -243,16 +272,6 @@ namespace EndlessClient
 		public override void Update(GameTime gameTime)
 		{
 			if (!ShouldUpdate()) return;
-
-			if (MouseOver && MouseOverPreviously &&
-			    _childItems.Any(x => x.Selected) &&
-			    _childItems.All(x => !x.MouseOver) &&
-				!AnySpellsDragging() &&
-				Mouse.GetState().LeftButton == ButtonState.Released &&
-				PreviousMouseState.LeftButton == ButtonState.Pressed)
-			{
-				ClearActiveSpell();
-			}
 
 			if ((Keyboard.GetState().IsKeyDown(Keys.RightShift) && PreviousKeyState.IsKeyUp(Keys.RightShift)) ||
 			    (Keyboard.GetState().IsKeyDown(Keys.LeftShift) && PreviousKeyState.IsKeyUp(Keys.LeftShift)) ||
@@ -305,9 +324,25 @@ namespace EndlessClient
 			SpriteBatch.Draw(_activeSpellIcon, dstRect, srcRect, Color.White);
 		}
 
-		private void LevelUp_Click(object sender, EventArgs e)
+		private void LevelUp_Click(object sender, EventArgs args)
 		{
-			
+			if (!_trainWarningShown)
+			{
+				//apparently this is NOT stored in the edf files...
+				//NOTE: copy-pasted from EOCharacterStats button event handler. Should probably be in some shared function somewhere.
+				EODialog dlg = new EODialog("Do you want to train?", "Skill training", XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader);
+				dlg.DialogClosing += (s, e) =>
+				{
+					if (e.Result != XNADialogResult.OK) return;
+					_trainWarningShown = true;
+				};
+
+				return;
+			}
+
+			var selectedSpell = _childItems.Single(x => x.Selected);
+			if (selectedSpell == null || !_api.LevelUpSpell((short) selectedSpell.SpellData.ID))
+				((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 
 		private static RegistryKey _tryGetCharacterRegKey()
@@ -360,6 +395,13 @@ namespace EndlessClient
 			var tmpRect = _functionKeyRow2SourceRect;
 			_functionKeyRow2SourceRect = _functionKeyRow1SourceRect;
 			_functionKeyRow1SourceRect = tmpRect;
+		}
+
+		private void UpdateLevelUpButtonsVisible()
+		{
+			var pts = World.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints;
+			_levelUpButton1.Visible = pts > 0 && AnySpellsSelected();
+			_levelUpButton2.Visible = pts > 0 && AnySpellsSelected();
 		}
 	}
 }

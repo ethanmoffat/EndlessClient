@@ -80,7 +80,7 @@ namespace EndlessClient
 					Mouse.GetState().LeftButton == ButtonState.Released &&
 					PreviousMouseState.LeftButton == ButtonState.Pressed)
 				{
-					_parentSpellContainer.ClearActiveSpell();
+					_parentSpellContainer.ClearSelectedSpell();
 				}
 			}
 

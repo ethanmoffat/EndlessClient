@@ -149,7 +149,7 @@ namespace EndlessClient
 				{
 					_followMouse = true;
 					_clickTime = DateTime.Now;
-					_parentSpellContainer.SetActiveSpellBySlot(Slot);
+					_parentSpellContainer.SetSelectedSpellBySlot(Slot);
 				}
 				else
 				{

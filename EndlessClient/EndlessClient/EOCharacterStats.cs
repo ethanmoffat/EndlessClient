@@ -66,6 +66,7 @@ namespace EndlessClient
 					if (!m_training)
 					{
 						//apparently this is NOT stored in the edf files...
+						//NOTE: copy-pasted to ActiveSpells spell train button event handler. Should probably be in some shared function somewhere.
 						EODialog dlg = new EODialog("Do you want to train?", "Character training", XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader);
 						dlg.DialogClosing += (sender, args) =>
 						{

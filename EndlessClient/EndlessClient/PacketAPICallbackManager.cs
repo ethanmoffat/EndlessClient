@@ -126,7 +126,7 @@ namespace EndlessClient
 			m_packetAPI.OnSpellLearnError += _statskillLearnError;
 			m_packetAPI.OnSpellLearnSuccess += _statskillLearnSpellSuccess;
 			m_packetAPI.OnSpellForget += _statskillForgetSpell;
-			//todo: spelltrain event
+			m_packetAPI.OnSpellTrain += _statskillTrainSpell;
 			m_packetAPI.OnCharacterStatsReset += _statskillReset;
 
 			//map effects
@@ -864,6 +864,20 @@ namespace EndlessClient
 		{
 			World.Instance.MainPlayer.ActiveCharacter.Spells.RemoveAll(_spell => _spell.id == id);
 			EODialog.Show(DATCONST1.SKILL_FORGET_SUCCESS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+
+			m_game.Hud.RemoveSpellFromActiveSpellsByID(id);
+		}
+
+		private void _statskillTrainSpell(short skillPtsRemaining, short spellID, short spellLevel)
+		{
+			var character = World.Instance.MainPlayer.ActiveCharacter;
+			character.Stats.SkillPoints = skillPtsRemaining;
+
+			var spellNdx = character.Spells.FindIndex(x => x.id == spellID);
+			character.Spells[spellNdx] = new CharacterSpell {id = spellID, level = spellLevel};
+
+			m_game.Hud.RefreshStats();
+			m_game.Hud.UpdateActiveSpellLevelByID(spellID, spellLevel);
 		}
 
 		private void _statskillReset(StatResetData data)
@@ -891,6 +905,7 @@ namespace EndlessClient
 			c.Stats.Evade = data.Evade;
 			c.Stats.Armor = data.Armor;
 			m_game.Hud.RefreshStats();
+			m_game.Hud.RemoveAllSpells();
 		}
 
 		private void _timedSpike()
