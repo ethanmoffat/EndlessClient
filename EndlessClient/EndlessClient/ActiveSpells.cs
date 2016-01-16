@@ -400,7 +400,14 @@ namespace EndlessClient
 			((XNAControl)emptySpellInDestinationSlot).Close();
 
 			var newSpell = new SpellIcon(this, data, slot) {Level = level};
-			newSpell.SetDisplaySlot(GetDisplaySlotFromSlot(slot));
+
+			var displaySlot = GetDisplaySlotFromSlot(slot);
+			newSpell.SetDisplaySlot(displaySlot);
+
+			var scrollOffset = _scroll == null ? 0 : _scroll.ScrollOffset;
+			newSpell.Visible = displaySlot >= scrollOffset*SPELL_ROW_LENGTH &&
+			                   displaySlot < scrollOffset*SPELL_ROW_LENGTH + 2*SPELL_ROW_LENGTH;
+
 			_childItems.Add(newSpell);
 
 			return true;
