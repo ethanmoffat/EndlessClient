@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.HUD.Spells
 {
 	public class EmptySpellIcon : XNAControl, ISpellIcon
 	{

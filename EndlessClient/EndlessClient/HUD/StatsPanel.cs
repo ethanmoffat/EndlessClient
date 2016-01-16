@@ -4,13 +4,14 @@
 
 using System.Globalization;
 using System.Linq;
+using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.HUD
 {
 	public class EOCharacterStats : XNAControl
 	{

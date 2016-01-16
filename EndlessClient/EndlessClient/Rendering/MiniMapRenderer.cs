@@ -9,7 +9,7 @@ using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient
+namespace EndlessClient.Rendering
 {
 	public class MiniMapRenderer : IDisposable
 	{

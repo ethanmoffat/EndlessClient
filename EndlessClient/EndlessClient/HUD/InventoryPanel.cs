@@ -4,9 +4,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Threading;
+using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -19,7 +19,7 @@ using XNAControls;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 using Color = Microsoft.Xna.Framework.Color;
 
-namespace EndlessClient
+namespace EndlessClient.HUD
 {
 	//This is going to be a single item in the inventory. will handle it's own drag/drop, onmouseover, etc.
 	public class EOInventoryItem : XNAControl

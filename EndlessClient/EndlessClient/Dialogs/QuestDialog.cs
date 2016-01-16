@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.Dialogs
 {
 	public class EOQuestDialog : EOScrollingListDialog
 	{

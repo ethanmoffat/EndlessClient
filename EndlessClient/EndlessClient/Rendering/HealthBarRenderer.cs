@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.Rendering
 {
 	/// <summary>
 	/// Numeric damage counter shows a damage value above an actor

@@ -8,7 +8,7 @@ using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace EndlessClient
+namespace EndlessClient.Input
 {
 	public class NumPadListener : InputKeyListenerBase
 	{

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -16,7 +17,7 @@ using Microsoft.Xna.Framework.Input;
 using XNAControls;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
-namespace EndlessClient
+namespace EndlessClient.HUD
 {
 	public class ClientOnlineEntry : OnlineEntry
 	{

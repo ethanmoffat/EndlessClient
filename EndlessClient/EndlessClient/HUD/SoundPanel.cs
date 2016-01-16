@@ -7,13 +7,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.Windows.Media;
 using System.Windows.Threading;
 using EOLib;
 using Microsoft.Xna.Framework.Audio;
-using Microsoft.Xna.Framework.Media;
 
-namespace EndlessClient
+namespace EndlessClient.HUD
 {
 	//sfx001 will be ID int 0
 	public enum SoundEffectID

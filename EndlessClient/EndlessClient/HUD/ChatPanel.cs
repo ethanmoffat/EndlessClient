@@ -5,16 +5,17 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.Net;
-using XNAControls;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using XNAControls;
 using Mouse = Microsoft.Xna.Framework.Input.Mouse;
 
-namespace EndlessClient
+namespace EndlessClient.HUD
 {
 	public enum ChatTabs
 	{

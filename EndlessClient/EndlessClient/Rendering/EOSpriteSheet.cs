@@ -3,13 +3,13 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Graphics;
+using EOLib.IO;
 using EOLib.Net;
 using Microsoft.Xna.Framework.Graphics;
 using XNA = Microsoft.Xna.Framework;
-using EOLib.Graphics;
-using EOLib.IO;
 
-namespace EndlessClient
+namespace EndlessClient.Rendering
 {
 	//---------------------------------------------------
 	// SPRITE SHEET LAYER FOR CHARACTER RENDERING HELPER (and NPCs)

@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Drawing;
 using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -11,7 +10,7 @@ using XNAControls;
 using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
-namespace EndlessClient
+namespace EndlessClient.Rendering
 {
 	public class EOChatBubble : DrawableGameComponent
 	{

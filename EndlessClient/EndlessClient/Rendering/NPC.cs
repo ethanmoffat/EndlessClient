@@ -5,6 +5,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.IO;
 using EOLib.Net;
@@ -13,7 +14,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.Rendering
 {
 	//Map NPCs are coupled with draw/update operations
 	//Note: this is like character, in that it isn't actually drawn or updated by the framework

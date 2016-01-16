@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EndlessClient.Dialogs;
+using EndlessClient.HUD;
 using EOLib;
 using EOLib.IO;
 using EOLib.Net;

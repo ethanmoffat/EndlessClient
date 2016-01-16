@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.Net;
@@ -13,7 +14,7 @@ using Microsoft.Xna.Framework.Input;
 using XNAControls;
 using Color = Microsoft.Xna.Framework.Color;
 
-namespace EndlessClient
+namespace EndlessClient.Rendering
 {
 	public class EOMapContextMenu : XNAControl
 	{

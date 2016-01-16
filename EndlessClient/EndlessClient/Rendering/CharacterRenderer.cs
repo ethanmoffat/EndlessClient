@@ -4,16 +4,17 @@
 
 using System;
 using System.Threading;
-using EOLib.Net;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
-using XNAControls;
+using EndlessClient.HUD;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.Net;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.Rendering
 {
 	public enum CharacterActionState
 	{

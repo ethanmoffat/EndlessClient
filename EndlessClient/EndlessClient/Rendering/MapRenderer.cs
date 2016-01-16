@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using EndlessClient.Dialogs;
+using EndlessClient.HUD;
 using EOLib;
 using EOLib.Data.Map;
 using EOLib.Graphics;
@@ -17,7 +19,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.Rendering
 {
 	public class EOMapRenderer : DrawableGameComponent
 	{

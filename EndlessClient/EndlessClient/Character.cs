@@ -4,6 +4,8 @@
 
 using System;
 using System.Collections.Generic;
+using EndlessClient.Dialogs;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.IO;
 using EOLib.Net;

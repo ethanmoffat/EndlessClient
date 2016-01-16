@@ -4,13 +4,14 @@
 
 using System;
 using System.Linq;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Data.Map;
 using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace EndlessClient
+namespace EndlessClient.Input
 {
 	public class ControlKeyListener : InputKeyListenerBase
 	{

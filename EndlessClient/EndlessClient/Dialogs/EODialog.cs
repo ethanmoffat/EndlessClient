@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -8,6 +8,8 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using EndlessClient.HUD;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -22,7 +24,7 @@ using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 #pragma warning disable 162
 
-namespace EndlessClient
+namespace EndlessClient.Dialogs
 {
 	/// <summary>
 	/// Which buttons should be displayed at the bottom of the EOScrollingListDialog

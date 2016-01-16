@@ -4,7 +4,7 @@
 
 using EOLib.IO;
 
-namespace EndlessClient
+namespace EndlessClient.HUD.Spells
 {
 	public interface ISpellIcon
 	{

@@ -7,6 +7,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using EndlessClient.Dialogs;
+using EndlessClient.HUD;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -46,7 +48,7 @@ namespace EndlessClient
 
 		private readonly XNATextBox[] _accountCreateTextBoxes = new XNATextBox[6];
 
-		public HUD Hud { get; private set; }
+		public HUD.HUD Hud { get; private set; }
 		public EOSoundManager SoundManager { get; private set; }
 
 		private void InitializeControls(bool reinit = false)
@@ -509,7 +511,7 @@ Thanks to :
 							
 							World.Instance.ApplyWelcomeMessage(dlg.WelcomeData);
 							
-							Hud = new HUD(this, _packetAPI);
+							Hud = new HUD.HUD(this, _packetAPI);
 							Components.Add(Hud);
 							Hud.SetNews(dlg.WelcomeData.News);
 							Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.LOADING_GAME_HINT_FIRST);

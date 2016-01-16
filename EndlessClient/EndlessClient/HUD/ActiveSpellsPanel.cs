@@ -5,6 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.Dialogs;
+using EndlessClient.HUD.Spells;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -15,7 +17,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.HUD
 {
 	public class ActiveSpells : XNAControl
 	{

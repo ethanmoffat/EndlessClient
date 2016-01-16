@@ -4,10 +4,12 @@
 
 using System;
 using System.Linq;
+using EndlessClient.HUD;
+using EndlessClient.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace EndlessClient
+namespace EndlessClient.Input
 {
 	public class FunctionKeyListener : InputKeyListenerBase
 	{

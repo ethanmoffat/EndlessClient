@@ -4,6 +4,8 @@
 
 using System;
 using System.Linq;
+using EndlessClient.Dialogs;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Data.Map;
 using EOLib.IO;
@@ -11,7 +13,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.Input
 {
 	//todo: track last player action time for the AFK emotes
 

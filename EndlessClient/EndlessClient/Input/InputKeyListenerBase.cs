@@ -3,11 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EndlessClient.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.Input
 {
 	public class InputKeyListenerBase : GameComponent
 	{
