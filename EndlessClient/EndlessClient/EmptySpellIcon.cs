@@ -121,8 +121,8 @@ namespace EndlessClient
 		{
 			//start pos: 101, 97
 			//xdelta: 45; ydelta: 52
-			var row = Slot / ActiveSpells.SPELL_ROW_LENGTH;
-			var col = Slot % ActiveSpells.SPELL_ROW_LENGTH;
+			var row = DisplaySlot / ActiveSpells.SPELL_ROW_LENGTH;
+			var col = DisplaySlot % ActiveSpells.SPELL_ROW_LENGTH;
 			DrawLocation = new Vector2(101 + col * 45, 9 + row * 52);
 		}
 

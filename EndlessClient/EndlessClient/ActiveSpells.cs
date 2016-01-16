@@ -313,16 +313,24 @@ namespace EndlessClient
 			{
 				var offset = (float) _functionKeyRow1SourceRect.Width*i;
 
-				SpriteBatch.Draw(_functionKeyGraphics,
-					new Vector2(202 + 45*i, 338),
-					_functionKeyRow1SourceRect.WithPosition(new Vector2(_functionKeyRow1SourceRect.X + offset,
-						_functionKeyRow1SourceRect.Y)),
-					Color.White);
-				SpriteBatch.Draw(_functionKeyGraphics,
-					new Vector2(202 + 45*i, 390),
-					_functionKeyRow2SourceRect.WithPosition(new Vector2(_functionKeyRow2SourceRect.X + offset,
-						_functionKeyRow2SourceRect.Y)),
-					Color.White);
+				if (_scroll.ScrollOffset == 0)
+				{
+					SpriteBatch.Draw(_functionKeyGraphics,
+						new Vector2(202 + 45*i, 338),
+						_functionKeyRow1SourceRect.WithPosition(new Vector2(_functionKeyRow1SourceRect.X + offset,
+							_functionKeyRow1SourceRect.Y)),
+						Color.White);
+				}
+
+				if (_scroll.ScrollOffset < 2)
+				{
+					var yCoord = _scroll.ScrollOffset == 0 ? 390 : 338;
+					SpriteBatch.Draw(_functionKeyGraphics,
+						new Vector2(202 + 45*i, yCoord),
+						_functionKeyRow2SourceRect.WithPosition(new Vector2(_functionKeyRow2SourceRect.X + offset,
+							_functionKeyRow2SourceRect.Y)),
+						Color.White);
+				}
 			}
 		}
 
@@ -420,6 +428,10 @@ namespace EndlessClient
 
 		private void UpdateIconsForScroll()
 		{
+			//POTENTIAL ISSUES WITH SCROLLING:
+			//1 - drag/drop icons when scrolled some amount
+			//2 - adding new icon when scrolled some amount
+			//3 - removing icon when scrolled some amount
 			var firstValidSlot = _scroll.ScrollOffset*SPELL_ROW_LENGTH;
 			var lastValidSlot = firstValidSlot + 2*SPELL_ROW_LENGTH;
 
@@ -430,8 +442,7 @@ namespace EndlessClient
 			foreach (var item in _childItems.Except(itemsToHide))
 			{
 				item.Visible = true;
-				item.DisplaySlot = item.Slot - firstValidSlot; //todo: get this working
-				//todo: probably an issue with drag/drop once it has been scrolled
+				item.DisplaySlot = item.Slot - firstValidSlot;
 			}
 
 			_lastScrollOffset = _scroll.ScrollOffset;
