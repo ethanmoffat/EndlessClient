@@ -10,8 +10,6 @@ namespace EndlessClient
 	{
 		int Slot { get; set; }
 
-		int DisplaySlot { get; set; }
-
 		bool Selected { get; set; }
 
 		bool IsDragging { get; }
@@ -19,6 +17,8 @@ namespace EndlessClient
 		short Level { get; set; }
 
 		SpellRecord SpellData { get; }
+
+		void SetDisplaySlot(int displaySlot);
 
 		//defined in XNAControl base class
 		bool MouseOver { get; }

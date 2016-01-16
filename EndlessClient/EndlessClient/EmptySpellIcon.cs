@@ -23,18 +23,7 @@ namespace EndlessClient
 			set
 			{
 				_slot = value;
-				DisplaySlot = value;
-			}
-		}
-
-		private int _displaySlot;
-		public int DisplaySlot
-		{
-			get { return _displaySlot; }
-			set
-			{
-				_displaySlot = value;
-				OnDisplaySlotChanged();
+				OnSlotChanged();
 			}
 		}
 
@@ -77,6 +66,15 @@ namespace EndlessClient
 			_highlightColor.SetData(new[] { Color.FromNonPremultiplied(200, 200, 200, 60) });
 
 			_setSize(ICON_AREA_WIDTH, ICON_AREA_HEIGHT);
+
+			World.IgnoreDialogs(this);
+		}
+
+		public void SetDisplaySlot(int displaySlot)
+		{
+			var currentSlot = _slot;
+			Slot = displaySlot;
+			_slot = currentSlot;
 		}
 
 		public override void Update(GameTime gameTime)
@@ -117,12 +115,12 @@ namespace EndlessClient
 			base.Draw(gameTime);
 		}
 
-		protected virtual void OnDisplaySlotChanged()
+		protected virtual void OnSlotChanged()
 		{
 			//start pos: 101, 97
 			//xdelta: 45; ydelta: 52
-			var row = DisplaySlot / ActiveSpells.SPELL_ROW_LENGTH;
-			var col = DisplaySlot % ActiveSpells.SPELL_ROW_LENGTH;
+			var row = Slot / ActiveSpells.SPELL_ROW_LENGTH;
+			var col = Slot % ActiveSpells.SPELL_ROW_LENGTH;
 			DrawLocation = new Vector2(101 + col * 45, 9 + row * 52);
 		}
 

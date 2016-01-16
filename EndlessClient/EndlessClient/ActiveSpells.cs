@@ -141,6 +141,9 @@ namespace EndlessClient
 
 			_scroll = new EOScrollBar(this, new Vector2(467, 2), new Vector2(16, 115), EOScrollBar.ScrollColors.LightOnMed) { LinesToRender = 2 };
 			_scroll.UpdateDimensions(4);
+
+			foreach (var child in children.Where(x => !(x is EmptySpellIcon)))
+				World.IgnoreDialogs(child);
 		}
 
 		public void AddNewSpellToNextOpenSlot(int spellID)
@@ -196,13 +199,17 @@ namespace EndlessClient
 
 		public void RemoveSpellByID(int spellID)
 		{
-			var spellToRemove = _childItems.Single(x => x.SpellData.ID == spellID);
+			var spellToRemove = _childItems.OfType<SpellIcon>().Single(x => x.SpellData.ID == spellID);
 			if (spellToRemove.Selected)
 				ClearSelectedSpell();
 
 			_childItems.Remove(spellToRemove);
-			((XNAControl)spellToRemove).SetParent(null);
-			((XNAControl) spellToRemove).Close();
+			spellToRemove.SetParent(null);
+			spellToRemove.Close();
+
+			var newEmptySpell = new EmptySpellIcon(this, spellToRemove.Slot);
+			newEmptySpell.SetDisplaySlot(GetDisplaySlotFromSlot(newEmptySpell.Slot));
+			_childItems.Add(newEmptySpell);
 		}
 
 		public void UpdateSpellLevelByID(short spellID, short spellLevel)
@@ -228,9 +235,9 @@ namespace EndlessClient
 
 		public int GetCurrentHoverSlot()
 		{
-			if (!_childItems.Any(x => x.MouseOver))
+			if (!_childItems.Any(x => x.MouseOver && x.Visible))
 				return -1;
-			return _childItems.Single(x => x.MouseOver).Slot;
+			return _childItems.Single(x => x.MouseOver && x.Visible).Slot;
 		}
 
 		public void MoveItem(ISpellIcon spellIcon, int newSlot)
@@ -243,7 +250,7 @@ namespace EndlessClient
 
 			//update the registry
 			var spellInDestinationSlot = _childItems.Find(x => x.Slot == newSlot);
-			if (!(spellInDestinationSlot is EmptySpellIcon))
+			if (spellInDestinationSlot is SpellIcon)
 				_setSpellSlotInRegistry(spellIcon.Slot, spellInDestinationSlot.SpellData.ID);
 			else
 				_clearSlotInRegistry(spellIcon.Slot);
@@ -251,7 +258,9 @@ namespace EndlessClient
 
 			//set the slots of old/new items
 			spellInDestinationSlot.Slot = spellIcon.Slot;
+			spellInDestinationSlot.SetDisplaySlot(GetDisplaySlotFromSlot(spellIcon.Slot));
 			spellIcon.Slot = newSlot;
+			spellIcon.SetDisplaySlot(GetDisplaySlotFromSlot(newSlot));
 		}
 
 		public void RefreshTotalSkillPoints()
@@ -389,7 +398,10 @@ namespace EndlessClient
 			_childItems.Remove(emptySpellInDestinationSlot);
 			((XNAControl)emptySpellInDestinationSlot).SetParent(null);
 			((XNAControl)emptySpellInDestinationSlot).Close();
-			_childItems.Add(new SpellIcon(this, data, slot) { Level = level });
+
+			var newSpell = new SpellIcon(this, data, slot) {Level = level};
+			newSpell.SetDisplaySlot(GetDisplaySlotFromSlot(slot));
+			_childItems.Add(newSpell);
 
 			return true;
 		}
@@ -428,24 +440,29 @@ namespace EndlessClient
 
 		private void UpdateIconsForScroll()
 		{
-			//POTENTIAL ISSUES WITH SCROLLING:
-			//1 - drag/drop icons when scrolled some amount
-			//2 - adding new icon when scrolled some amount
-			//3 - removing icon when scrolled some amount
 			var firstValidSlot = _scroll.ScrollOffset*SPELL_ROW_LENGTH;
 			var lastValidSlot = firstValidSlot + 2*SPELL_ROW_LENGTH;
 
 			var itemsToHide = _childItems.Where(x => x.Slot < firstValidSlot || x.Slot >= lastValidSlot).ToList();
 			foreach (var item in itemsToHide)
+			{
 				item.Visible = false;
+				item.SetDisplaySlot(GetDisplaySlotFromSlot(item.Slot));
+			}
 
 			foreach (var item in _childItems.Except(itemsToHide))
 			{
 				item.Visible = true;
-				item.DisplaySlot = item.Slot - firstValidSlot;
+				item.SetDisplaySlot(item.Slot - firstValidSlot);
 			}
 
 			_lastScrollOffset = _scroll.ScrollOffset;
+		}
+
+		private int GetDisplaySlotFromSlot(int newSlot)
+		{
+			var offset = _scroll == null ? 0 : _scroll.ScrollOffset;
+			return newSlot - SPELL_ROW_LENGTH * offset;
 		}
 	}
 }

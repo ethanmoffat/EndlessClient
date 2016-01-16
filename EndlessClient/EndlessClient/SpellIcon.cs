@@ -90,9 +90,9 @@ namespace EndlessClient
 			base.Draw(gameTime);
 		}
 
-		protected override void OnDisplaySlotChanged()
+		protected override void OnSlotChanged()
 		{
-			base.OnDisplaySlotChanged();
+			base.OnSlotChanged();
 			if (_spellGraphic != null)
 				SetIconHover(MouseOver);
 			OnLevelChanged();
@@ -226,6 +226,9 @@ namespace EndlessClient
 					);
 				alphaColor = Color.FromNonPremultiplied(255, 255, 255, 128);
 			}
+
+			if (targetDrawArea.Width*targetDrawArea.Height == 0)
+				return;
 
 			SpriteBatch.Draw(_spellGraphic, targetDrawArea, _spellGraphicSourceRect, alphaColor);
 		}
