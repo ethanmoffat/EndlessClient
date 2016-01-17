@@ -24,11 +24,7 @@ namespace EndlessClient.Rendering
 		private int _iterations;
 
 		public bool Done { get { return _iterations == _repeats; } }
-
-		public EffectSpriteInfo()
-			: this(4, 1, true, 255, null) //arbitrary defaults...
-		{ }
-
+		
 		public EffectSpriteInfo(int numberOfFrames,
 								int repeats,
 								bool onTopOfCharacter,
@@ -50,6 +46,12 @@ namespace EndlessClient.Rendering
 				_currentFrame = 0;
 				_iterations++;
 			}
+		}
+
+		public void Restart()
+		{
+			_currentFrame = 0;
+			_iterations = 0;
 		}
 
 		public void DrawToSpriteBatch(SpriteBatch sb, Rectangle targetRectangle)
@@ -91,6 +93,7 @@ namespace EndlessClient.Rendering
 				case EffectType.Spell: return ResolveSpellEffect(effectID);
 				case EffectType.WarpOriginal:
 				case EffectType.WarpDestination: return GetWarpEffect(effectType);
+				case EffectType.WaterSplashies: return GetWaterEffect();
 				default: throw new ArgumentOutOfRangeException("effectType", effectType, null);
 			}
 		}
@@ -191,6 +194,14 @@ namespace EndlessClient.Rendering
 			}
 
 			return gfxIDs.Select(id => new EffectSpriteInfo(8, 1, true, 255, GetGraphic(id))).ToList();
+		}
+
+		private IList<EffectSpriteInfo> GetWaterEffect()
+		{
+			return new List<EffectSpriteInfo>
+			{
+				new EffectSpriteInfo(6, 1, false, 255, GetGraphic(125))
+			};
 		}
 
 		private Texture2D GetGraphic(int gfx)

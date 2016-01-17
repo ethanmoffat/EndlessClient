@@ -143,6 +143,7 @@ namespace EndlessClient.Rendering
 		private int m_drunkOffset;
 
 		private bool _playerIsOnSpikeTrap;
+		private EffectRenderer _waterEffect;
 
 		private readonly BlinkingLabel _mouseoverName;
 		private string _shoutName;
@@ -586,8 +587,8 @@ namespace EndlessClient.Rendering
 					EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
 			}
 
-			if(isWaterTile)
-				World.Instance.ActiveMapRenderer.NewWaterEffect(Character.DestX, Character.DestY);
+			if (isWaterTile)
+				RenderWaterSplashie();
 
 			_playerIsOnSpikeTrap = isSpikeTrap;
 			if (_playerIsOnSpikeTrap)
@@ -635,7 +636,7 @@ namespace EndlessClient.Rendering
 			}
 
 			if (isWaterTile)
-				World.Instance.ActiveMapRenderer.NewWaterEffect((byte)Character.X, (byte)Character.Y);
+				RenderWaterSplashie();
 
 			try
 			{
@@ -1215,6 +1216,19 @@ namespace EndlessClient.Rendering
 			}
 
 			SpriteBatch.Draw(boots, new Vector2(drawLoc.X + bootsOffX, drawLoc.Y + bootsOffY), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
+		}
+
+		private void RenderWaterSplashie()
+		{
+			if (_waterEffect != null)
+			{
+				_waterEffect.Restart();
+				return;
+			}
+
+			_waterEffect = new EffectRenderer((EOGame)Game, this, () => _waterEffect = null);
+			_waterEffect.SetEffectInfoTypeAndID(EffectType.WaterSplashies, 0);
+			_waterEffect.ShowEffect();
 		}
 
 		private void maskTheHair()

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -16,7 +17,8 @@ namespace EndlessClient.Rendering
 		Potion,
 		Spell,
 		WarpOriginal,
-		WarpDestination
+		WarpDestination,
+		WaterSplashies
 	}
 
 	public class EffectRenderer : DrawableGameComponent
@@ -62,6 +64,12 @@ namespace EndlessClient.Rendering
 			if (Game.Components.Contains(this))
 				throw new InvalidOperationException("This component is automatically managed. Do not manually add to Game Components list.");
 			Game.Components.Add(this); //calls Initialize() as part of the Add
+		}
+
+		public void Restart()
+		{
+			foreach (var effect in _effectInfo)
+				effect.Restart();
 		}
 
 		public override void Initialize()
@@ -138,7 +146,10 @@ namespace EndlessClient.Rendering
 
 		private Rectangle GetTargetRectangle(CharacterRenderer character)
 		{
-			return character.DrawAreaWithOffset;
+			//Because the rendering code is terrible, the character rectangle needs an additional offset
+			var rect = character.DrawAreaWithOffset;
+			rect.Offset(6, 11);
+			return rect;
 		}
 
 		private Rectangle GetTargetRectangle(object fail)
