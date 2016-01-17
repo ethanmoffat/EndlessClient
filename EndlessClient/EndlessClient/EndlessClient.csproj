@@ -196,11 +196,13 @@
     <Compile Include="Rendering\ChatBubbleRenderer.cs" />
     <Compile Include="Rendering\ContextMenuRenderer.cs" />
     <Compile Include="Rendering\EffectRenderer.cs" />
+    <Compile Include="Rendering\EffectSpriteInfo.cs" />
     <Compile Include="Rendering\EffectSpriteManager.cs" />
     <Compile Include="Rendering\EOSpriteSheet.cs" />
     <Compile Include="Rendering\HealthBarRenderer.cs" />
     <Compile Include="Rendering\MapRenderer.cs" />
     <Compile Include="Rendering\MiniMapRenderer.cs" />
+    <Compile Include="Rendering\FireballEffectSpriteInfo.cs" />
     <Compile Include="Rendering\NPC.cs" />
     <Compile Include="World.cs" />
   </ItemGroup>

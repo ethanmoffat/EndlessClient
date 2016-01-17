@@ -220,11 +220,17 @@
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\EffectRenderer.cs">
       <Link>Rendering\EffectRenderer.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\EffectSpriteInfo.cs">
+      <Link>Rendering\EffectSpriteInfo.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\EffectSpriteManager.cs">
       <Link>Rendering\EffectSpriteManager.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\EOSpriteSheet.cs">
       <Link>Rendering\EOSpriteSheet.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\FireballEffectSpriteInfo.cs">
+      <Link>Rendering\FireballEffectSpriteInfo.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\HealthBarRenderer.cs">
       <Link>Rendering\HealthBarRenderer.cs</Link>

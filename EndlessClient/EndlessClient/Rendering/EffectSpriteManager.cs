@@ -6,66 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EOLib.Graphics;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering
 {
-	public class EffectSpriteInfo
-	{
-		public bool OnTopOfCharacter { get; private set; }
-
-		private readonly int _numberOfFrames;
-		private readonly int _repeats;
-		private readonly int _alpha;
-		private readonly Texture2D _graphic;
-
-		private int _currentFrame;
-		private int _iterations;
-
-		public bool Done { get { return _iterations == _repeats; } }
-		
-		public EffectSpriteInfo(int numberOfFrames,
-								int repeats,
-								bool onTopOfCharacter,
-								int alpha,
-								Texture2D graphic)
-		{
-			_numberOfFrames = numberOfFrames;
-			_repeats = repeats;
-			OnTopOfCharacter = onTopOfCharacter;
-			_alpha = alpha;
-			_graphic = graphic;
-		}
-
-		public void NextFrame()
-		{
-			_currentFrame++;
-			if (_currentFrame >= _numberOfFrames)
-			{
-				_currentFrame = 0;
-				_iterations++;
-			}
-		}
-
-		public void Restart()
-		{
-			_currentFrame = 0;
-			_iterations = 0;
-		}
-
-		public void DrawToSpriteBatch(SpriteBatch sb, Rectangle targetRectangle)
-		{
-			var frameWidth = _graphic.Width/_numberOfFrames;
-			var sourceRect = new Rectangle(_currentFrame*frameWidth, 0, frameWidth, _graphic.Height);
-
-			var targetX = targetRectangle.X + (targetRectangle.Width - sourceRect.Width)/2;
-			var targetY = targetRectangle.Y + (targetRectangle.Height - sourceRect.Height)/2;
-
-			sb.Draw(_graphic, new Vector2(targetX, targetY), sourceRect, Color.FromNonPremultiplied(255, 255, 255, _alpha));
-		}
-	}
-
 	public class EffectSpriteManager
 	{
 		private enum HardCodedPotionEffect
@@ -184,6 +128,18 @@ namespace EndlessClient.Rendering
 					{
 						new EffectSpriteInfo(4, 3, true, 255, GetGraphic(137)),
 						new EffectSpriteInfo(4, 3, true, 128, GetGraphic(138))
+					};
+				case 14: //Fire ball
+					return new List<EffectSpriteInfo>(2)
+					{
+						new FireballEffectSpriteInfo(6, 1, false, 255, GetGraphic(140)),
+						new FireballEffectSpriteInfo(6, 1, true, 128, GetGraphic(141))
+					};
+				case 15: //Magic and Attack Shield
+					return new List<EffectSpriteInfo>(2)
+					{
+						new EffectSpriteInfo(6, 1, false, 128, GetGraphic(144)),
+						new EffectSpriteInfo(6, 1, true, 255, GetGraphic(145))
 					};
 			}
 
