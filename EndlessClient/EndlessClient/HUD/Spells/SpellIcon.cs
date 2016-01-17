@@ -235,7 +235,7 @@ namespace EndlessClient.HUD.Spells
 
 		private void DrawSpellLevel()
 		{
-			if (_followMouse || _dragging)
+			if (_followMouse || _dragging || _spellLevelColor == null)
 				return;
 
 			SpriteBatch.Draw(_spellLevelColor, _levelDestinationRectangle, Color.White);
