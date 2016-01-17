@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Inventory;
 using EOLib;
 using EOLib.Data.Map;
 using EOLib.Graphics;

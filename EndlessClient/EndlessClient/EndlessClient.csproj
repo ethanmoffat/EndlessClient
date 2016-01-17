@@ -172,6 +172,7 @@
     <Compile Include="HUD\HUD.cs" />
     <Compile Include="HUD\HUDElement.cs" />
     <Compile Include="HUD\InventoryPanel.cs" />
+    <Compile Include="HUD\Inventory\EOInventoryItem.cs" />
     <Compile Include="HUD\OnlineListPanel.cs" />
     <Compile Include="HUD\PartyPanel.cs" />
     <Compile Include="HUD\ScrollBar.cs" />

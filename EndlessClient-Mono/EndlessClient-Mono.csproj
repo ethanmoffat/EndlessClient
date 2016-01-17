@@ -151,6 +151,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\HUD\InventoryPanel.cs">
       <Link>HUD\InventoryPanel.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\Inventory\EOInventoryItem.cs">
+      <Link>HUD\Inventory\EOInventoryItem.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\HUD\OnlineListPanel.cs">
       <Link>HUD\OnlineListPanel.cs</Link>
     </Compile>
@@ -214,6 +217,12 @@
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\ContextMenuRenderer.cs">
       <Link>Rendering\ContextMenuRenderer.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\EffectRenderer.cs">
+      <Link>Rendering\EffectRenderer.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\EffectSpriteManager.cs">
+      <Link>Rendering\EffectSpriteManager.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\EOSpriteSheet.cs">
       <Link>Rendering\EOSpriteSheet.cs</Link>
     </Compile>
@@ -235,6 +244,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="MonoGame.Framework">
       <HintPath>$(MSBuildProgramFiles32)\MonoGame\v3.0\Assemblies\Windows\MonoGame.Framework.dll</HintPath>
     </Reference>
