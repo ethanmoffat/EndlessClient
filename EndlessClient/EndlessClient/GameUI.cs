@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -7,6 +7,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using EndlessClient.Dialogs;
+using EndlessClient.HUD;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -46,7 +48,7 @@ namespace EndlessClient
 
 		private readonly XNATextBox[] _accountCreateTextBoxes = new XNATextBox[6];
 
-		public HUD Hud { get; private set; }
+		public HUD.HUD Hud { get; private set; }
 		public EOSoundManager SoundManager { get; private set; }
 
 		private void InitializeControls(bool reinit = false)
@@ -235,7 +237,7 @@ Thanks to :
 				{
 					doStateChange(GameStates.CreateAccount);
 
-					EOScrollingDialog createAccountDlg = new EOScrollingDialog("");
+					ScrollingMessageDialog createAccountDlg = new ScrollingMessageDialog("");
 					string message = World.Instance.DataFiles[World.Instance.Localized2].Data[(int)DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_1];
 					message += "\n\n";
 					message += World.Instance.DataFiles[World.Instance.Localized2].Data[(int)DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_2];
@@ -270,7 +272,7 @@ Thanks to :
 			}
 			else if (sender == _backButton && State == GameStates.PlayingTheGame)
 			{
-				EODialog.Show(DATCONST1.EXIT_GAME_ARE_YOU_SURE, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader, 
+				EOMessageBox.Show(DATCONST1.EXIT_GAME_ARE_YOU_SURE, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader, 
 					(ss, ee) =>
 					{
 						if(ee.Result == XNADialogResult.OK)
@@ -300,7 +302,7 @@ Thanks to :
 
 				if (reply != LoginReply.Ok)
 				{
-					EODialog.Show(_packetAPI.LoginResponseMessage());
+					EOMessageBox.Show(_packetAPI.LoginResponseMessage());
 					return;
 				}
 				World.Instance.MainPlayer.SetAccountName(_loginUsernameTextbox.Text);
@@ -316,44 +318,44 @@ Thanks to :
 					{
 						if (_accountCreateTextBoxes.Any(txt => txt.Text.Length == 0))
 						{
-							EODialog.Show(DATCONST1.ACCOUNT_CREATE_FIELDS_STILL_EMPTY);
+							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_FIELDS_STILL_EMPTY);
 							return;
 						}
 
 						if (_accountCreateTextBoxes[0].Text.Length < 4)
 						{
-							EODialog.Show(DATCONST1.ACCOUNT_CREATE_NAME_TOO_SHORT);
+							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_NAME_TOO_SHORT);
 							return;
 						}
 
 						if (_accountCreateTextBoxes[0].Text.Distinct().Count() < 3)
 						{
-							EODialog.Show(DATCONST1.ACCOUNT_CREATE_NAME_TOO_OBVIOUS);
+							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_NAME_TOO_OBVIOUS);
 							return;
 						}
 
 						if (_accountCreateTextBoxes[1].Text != _accountCreateTextBoxes[2].Text)
 						{
-							EODialog.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_MISMATCH);
+							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_MISMATCH);
 							return;
 						}
 
 						if (_accountCreateTextBoxes[1].Text.Length < 6)
 						{
-							EODialog.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
+							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
 							return;
 						}
 
 						if (_accountCreateTextBoxes[1].Text.Distinct().Count() < 3)
 						{
-							EODialog.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_OBVIOUS);
+							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_OBVIOUS);
 							return;
 						}
 
 						if (!System.Text.RegularExpressions.Regex.IsMatch(_accountCreateTextBoxes[5].Text, //filter emails using regex
 							@"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b"))
 						{
-							EODialog.Show(DATCONST1.ACCOUNT_CREATE_EMAIL_INVALID);
+							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_EMAIL_INVALID);
 							return;
 						}
 
@@ -366,14 +368,14 @@ Thanks to :
 
 						if (reply != AccountReply.Continue)
 						{
-							EODialog.Show(_packetAPI.AccountResponseMessage());
+							EOMessageBox.Show(_packetAPI.AccountResponseMessage());
 							return;
 						}
 
 						//show progress bar for account creation pending and THEN create the account
 						string pbmessage = World.Instance.DataFiles[World.Instance.Localized1].Data[(int) DATCONST1.ACCOUNT_CREATE_ACCEPTED + 1];
 						string pbcaption = World.Instance.DataFiles[World.Instance.Localized1].Data[(int) DATCONST1.ACCOUNT_CREATE_ACCEPTED];
-						EOProgressDialog dlg = new EOProgressDialog(pbmessage, pbcaption);
+						ProgressDialog dlg = new ProgressDialog(pbmessage, pbcaption);
 						dlg.DialogClosing += (dlg_S, dlg_E) =>
 						{
 							if (dlg_E.Result != XNADialogResult.NO_BUTTON_PRESSED) return;
@@ -393,12 +395,12 @@ Thanks to :
 							DATCONST1 resource = _packetAPI.AccountResponseMessage();
 							if (reply != AccountReply.Created)
 							{
-								EODialog.Show(resource);
+								EOMessageBox.Show(resource);
 								return;
 							}
 
 							doStateChange(GameStates.Initial);
-							EODialog.Show(resource);
+							EOMessageBox.Show(resource);
 						};
 
 					}
@@ -416,7 +418,7 @@ Thanks to :
 
 						if (reply != CharacterReply.Ok)
 						{
-							EODialog.Show("Server is not allowing you to create a character right now. This could be a bug.", "Server error");
+							EOMessageBox.Show("Server is not allowing you to create a character right now. This could be a bug.", "Server error");
 							return;
 						}
 
@@ -436,11 +438,11 @@ Thanks to :
 							{
 								if (reply != CharacterReply.Full)
 									dlg_E.CancelClose = true;
-								EODialog.Show(_packetAPI.CharacterResponseMessage());
+								EOMessageBox.Show(_packetAPI.CharacterResponseMessage());
 								return;
 							}
 
-							EODialog.Show(DATCONST1.CHARACTER_CREATE_SUCCESS);
+							EOMessageBox.Show(DATCONST1.CHARACTER_CREATE_SUCCESS);
 							World.Instance.MainPlayer.ProcessCharacterData(dataArray);
 							doShowCharacters();
 						};
@@ -450,7 +452,7 @@ Thanks to :
 			}
 			else if (sender == _passwordChangeBtn)
 			{
-				EOChangePasswordDialog dlg = new EOChangePasswordDialog(_textBoxTextures[3], Dispatcher);
+				ChangePasswordDialog dlg = new ChangePasswordDialog(_textBoxTextures[3], Dispatcher);
 				dlg.DialogClosing += (dlg_S, dlg_E) =>
 				{
 					if (dlg_E.Result != XNADialogResult.OK) return;
@@ -462,7 +464,7 @@ Thanks to :
 						return;
 					}
 
-					EODialog.Show(_packetAPI.AccountResponseMessage());
+					EOMessageBox.Show(_packetAPI.AccountResponseMessage());
 
 					if (reply == AccountReply.ChangeSuccess) return;
 					dlg_E.CancelClose = true;
@@ -499,7 +501,7 @@ Thanks to :
 				World.Instance.ApplyWelcomeRequest(_packetAPI, data);
 
 				//shows the connecting window
-				EOConnectingDialog dlg = new EOConnectingDialog(_packetAPI);
+				GameLoadingDialog dlg = new GameLoadingDialog(_packetAPI);
 				dlg.DialogClosing += (dlgS, dlgE) =>
 				{
 					switch (dlgE.Result)
@@ -509,17 +511,17 @@ Thanks to :
 							
 							World.Instance.ApplyWelcomeMessage(dlg.WelcomeData);
 							
-							Hud = new HUD(this, _packetAPI);
+							Hud = new HUD.HUD(this, _packetAPI);
 							Components.Add(Hud);
 							Hud.SetNews(dlg.WelcomeData.News);
 							Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.LOADING_GAME_HINT_FIRST);
 							
 							if(data.FirstTimePlayer)
-								EODialog.Show(DATCONST1.WARNING_FIRST_TIME_PLAYERS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+								EOMessageBox.Show(DATCONST1.WARNING_FIRST_TIME_PLAYERS, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 							break;
 						case XNADialogResult.NO_BUTTON_PRESSED:
 						{
-							EODialog.Show(DATCONST1.CONNECTION_SERVER_BUSY);
+							EOMessageBox.Show(DATCONST1.CONNECTION_SERVER_BUSY);
 							if (World.Instance.Client.ConnectedAndInitialized)
 								World.Instance.Client.Disconnect();
 							doStateChange(GameStates.Initial);
@@ -536,7 +538,7 @@ Thanks to :
 
 				if (_charDeleteWarningIndex != index)
 				{
-					EODialog.Show("Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' ", DATCONST1.CHARACTER_DELETE_FIRST_CHECK);
+					EOMessageBox.Show("Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' ", DATCONST1.CHARACTER_DELETE_FIRST_CHECK);
 					_charDeleteWarningIndex = index;
 					return;
 				}
@@ -551,12 +553,12 @@ Thanks to :
 
 				if (takeID != World.Instance.MainPlayer.CharData[index].id)
 				{
-					EODialog.Show("The server did not respond properly for deleting the character. Try again.", "Server error");
+					EOMessageBox.Show("The server did not respond properly for deleting the character. Try again.", "Server error");
 					return;
 				}
 
-				EODialog.Show("Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' ",
-					DATCONST1.CHARACTER_DELETE_CONFIRM, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogLargeHeader,
+				EOMessageBox.Show("Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' ",
+					DATCONST1.CHARACTER_DELETE_CONFIRM, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogLargeHeader,
 					(dlgS, dlgE) =>
 					{
 						if (dlgE.Result == XNADialogResult.OK) //user clicked ok to delete their character. do the delete here.

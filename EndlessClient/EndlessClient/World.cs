@@ -6,6 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EndlessClient.Dialogs;
+using EndlessClient.HUD;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -679,15 +682,15 @@ namespace EndlessClient
 		public static void IgnoreDialogs(XNAControl control)
 		{
 			control.IgnoreDialog(typeof(EOPaperdollDialog));
-			control.IgnoreDialog(typeof(EOChestDialog));
-			control.IgnoreDialog(typeof(EOShopDialog));
-			control.IgnoreDialog(typeof(EOBankAccountDialog));
-			control.IgnoreDialog(typeof(EOLockerDialog));
-			control.IgnoreDialog(typeof(EOTradeDialog));
-			control.IgnoreDialog(typeof(EOFriendIgnoreListDialog));
-			control.IgnoreDialog(typeof(EOSkillmasterDialog));
-			control.IgnoreDialog(typeof(EOQuestDialog));
-			control.IgnoreDialog(typeof(EOQuestProgressDialog));
+			control.IgnoreDialog(typeof(ChestDialog));
+			control.IgnoreDialog(typeof(ShopDialog));
+			control.IgnoreDialog(typeof(BankAccountDialog));
+			control.IgnoreDialog(typeof(LockerDialog));
+			control.IgnoreDialog(typeof(TradeDialog));
+			control.IgnoreDialog(typeof(FriendIgnoreListDialog));
+			control.IgnoreDialog(typeof(SkillmasterDialog));
+			control.IgnoreDialog(typeof(QuestDialog));
+			control.IgnoreDialog(typeof(QuestProgressDialog));
 		}
 
 		public static Texture2D GetSpellIcon(short icon, bool hover)

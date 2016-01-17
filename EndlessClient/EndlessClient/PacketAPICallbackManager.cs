@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EndlessClient.Dialogs;
+using EndlessClient.HUD;
 using EOLib;
 using EOLib.IO;
 using EOLib.Net;
@@ -275,30 +277,30 @@ namespace EndlessClient
 
 		private void _chestOpen(ChestData data)
 		{
-			if (EOChestDialog.Instance == null || data.X != EOChestDialog.Instance.CurrentChestX ||
-			    data.Y != EOChestDialog.Instance.CurrentChestY)
+			if (ChestDialog.Instance == null || data.X != ChestDialog.Instance.CurrentChestX ||
+			    data.Y != ChestDialog.Instance.CurrentChestY)
 				return;
 
-			EOChestDialog.Instance.InitializeItems(data.Items);
+			ChestDialog.Instance.InitializeItems(data.Items);
 		}
 
 		private void _chestAgree(ChestData data)
 		{
-			if (EOChestDialog.Instance != null)
-				EOChestDialog.Instance.InitializeItems(data.Items);
+			if (ChestDialog.Instance != null)
+				ChestDialog.Instance.InitializeItems(data.Items);
 		}
 
 		private void _chestAddItem(short id, int amount, byte weight, byte maxWeight, ChestData data)
 		{
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight);
-			EOChestDialog.Instance.InitializeItems(data.Items);
+			ChestDialog.Instance.InitializeItems(data.Items);
 			m_game.Hud.RefreshStats();
 		}
 
 		private void _chestGetItem(short id, int amount, byte weight, byte maxWeight, ChestData data)
 		{
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, true);
-			EOChestDialog.Instance.InitializeItems(data.Items);
+			ChestDialog.Instance.InitializeItems(data.Items);
 			m_game.Hud.RefreshStats();
 		}
 
@@ -670,23 +672,23 @@ namespace EndlessClient
 
 		private void _bankOpen(int gold, int upgrades)
 		{
-			if (EOBankAccountDialog.Instance == null) return;
-			EOBankAccountDialog.Instance.AccountBalance = string.Format("{0}", gold);
-			EOBankAccountDialog.Instance.LockerUpgrades = upgrades;
+			if (BankAccountDialog.Instance == null) return;
+			BankAccountDialog.Instance.AccountBalance = string.Format("{0}", gold);
+			BankAccountDialog.Instance.LockerUpgrades = upgrades;
 		}
 
 		private void _bankChange(int gold, int bankGold)
 		{
-			if (EOBankAccountDialog.Instance == null) return;
+			if (BankAccountDialog.Instance == null) return;
 
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
-			EOBankAccountDialog.Instance.AccountBalance = string.Format("{0}", bankGold);
+			BankAccountDialog.Instance.AccountBalance = string.Format("{0}", bankGold);
 		}
 
 		private void _shopOpen(int shopid, string name, List<ShopItem> tradeitems, List<CraftItem> craftitems)
 		{
-			if (EOShopDialog.Instance == null) return;
-			EOShopDialog.Instance.SetShopData(shopid, name, tradeitems, craftitems);
+			if (ShopDialog.Instance == null) return;
+			ShopDialog.Instance.SetShopData(shopid, name, tradeitems, craftitems);
 		}
 
 		private void _shopTrade(int gold, short itemID, int amount, byte weight, byte maxWeight, bool isBuy)
@@ -705,23 +707,23 @@ namespace EndlessClient
 
 		private void _lockerOpen(byte x, byte y, List<InventoryItem> items)
 		{
-			if (EOLockerDialog.Instance == null || EOLockerDialog.Instance.X != x || EOLockerDialog.Instance.Y != y)
+			if (LockerDialog.Instance == null || LockerDialog.Instance.X != x || LockerDialog.Instance.Y != y)
 				return;
-			EOLockerDialog.Instance.SetLockerData(items);
+			LockerDialog.Instance.SetLockerData(items);
 		}
 
 		private void _lockerItemChange(short id, int amount, byte weight, byte maxWeight, bool existingAmount, List<InventoryItem> items)
 		{
-			if (EOLockerDialog.Instance == null) return;
+			if (LockerDialog.Instance == null) return;
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, existingAmount);
-			EOLockerDialog.Instance.SetLockerData(items);
+			LockerDialog.Instance.SetLockerData(items);
 		}
 
 		private void _lockerUpgrade(int remaining, byte upgrades)
 		{
-			if (EOBankAccountDialog.Instance == null) return;
+			if (BankAccountDialog.Instance == null) return;
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
-			EOBankAccountDialog.Instance.LockerUpgrades = upgrades;
+			BankAccountDialog.Instance.LockerUpgrades = upgrades;
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_LOCKER_SPACE_INCREASED);
 		}
 
@@ -746,9 +748,9 @@ namespace EndlessClient
 			if (!World.Instance.Interaction)
 				return;
 
-			EODialog.Show(name + " ",
+			EOMessageBox.Show(name + " ",
 				   type == PartyRequestType.Join ? DATCONST1.PARTY_GROUP_REQUEST_TO_JOIN : DATCONST1.PARTY_GROUP_SEND_INVITATION,
-				   XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader,
+				   XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
 				   (o, e) =>
 				   {
 					   if (e.Result == XNADialogResult.OK)
@@ -774,8 +776,8 @@ namespace EndlessClient
 			if (!World.Instance.Interaction)
 				return;
 
-			EODialog.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DATCONST1.TRADE_REQUEST, XNADialogButtons.OkCancel,
-					EODialogStyle.SmallDialogSmallHeader, (o, e) =>
+			EOMessageBox.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DATCONST1.TRADE_REQUEST, XNADialogButtons.OkCancel,
+					EOMessageBoxStyle.SmallDialogSmallHeader, (o, e) =>
 					{
 						if (e.Result == XNADialogResult.OK && !m_packetAPI.TradeAcceptRequest(playerID))
 							m_game.DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -784,7 +786,7 @@ namespace EndlessClient
 
 		private void _tradeOpen(short p1, string p1name, short p2, string p2name)
 		{
-			EOTradeDialog dlg = new EOTradeDialog(m_packetAPI);
+			TradeDialog dlg = new TradeDialog(m_packetAPI);
 			dlg.InitPlayerInfo(p1, p1name, p2, p2name);
 
 			string otherName;
@@ -801,40 +803,40 @@ namespace EndlessClient
 
 		private void _tradeCancel(short otherPlayerID)
 		{
-			if (EOTradeDialog.Instance == null) return;
-			EOTradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
+			if (TradeDialog.Instance == null) return;
+			TradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_TRADE_ABORTED);
 		}
 
 		private void _tradeRemotePlayerAgree(short otherPlayerID, bool agree)
 		{
-			if (EOTradeDialog.Instance == null) return;
-			EOTradeDialog.Instance.SetPlayerAgree(false, agree);
+			if (TradeDialog.Instance == null) return;
+			TradeDialog.Instance.SetPlayerAgree(false, agree);
 		}
 
 		private void _tradeSetLocalPlayerAgree(bool agree)
 		{
-			if (EOTradeDialog.Instance == null) return;
-			EOTradeDialog.Instance.SetPlayerAgree(true, agree);
+			if (TradeDialog.Instance == null) return;
+			TradeDialog.Instance.SetPlayerAgree(true, agree);
 		}
 
 		private void _tradeOfferUpdate(short id1, List<InventoryItem> items1, short id2, List<InventoryItem> items2)
 		{
-			if (EOTradeDialog.Instance == null) return;
-			EOTradeDialog.Instance.SetPlayerItems(id1, items1);
-			EOTradeDialog.Instance.SetPlayerItems(id2, items2);
+			if (TradeDialog.Instance == null) return;
+			TradeDialog.Instance.SetPlayerItems(id1, items1);
+			TradeDialog.Instance.SetPlayerItems(id2, items2);
 		}
 
 		private void _tradeCompleted(short id1, List<InventoryItem> items1, short id2, List<InventoryItem> items2)
 		{
-			if (EOTradeDialog.Instance == null) return;
-			EOTradeDialog.Instance.CompleteTrade(id1, items1, id2, items2);
+			if (TradeDialog.Instance == null) return;
+			TradeDialog.Instance.CompleteTrade(id1, items1, id2, items2);
 		}
 
 		private void _skillmasterOpen(SkillmasterData data)
 		{
-			if (EOSkillmasterDialog.Instance != null)
-				EOSkillmasterDialog.Instance.SetSkillmasterData(data);
+			if (SkillmasterDialog.Instance != null)
+				SkillmasterDialog.Instance.SetSkillmasterData(data);
 		}
 
 		private void _statskillLearnError(SkillMasterReply reply, short id)
@@ -843,10 +845,10 @@ namespace EndlessClient
 			{
 				//not sure if this will ever actually be sent because client validates data before trying to learn a skill
 				case SkillMasterReply.ErrorWrongClass:
-					EODialog.Show(DATCONST1.SKILL_LEARN_WRONG_CLASS, " " + ((ClassRecord)World.Instance.ECF.Data[id]).Name + "!", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					EOMessageBox.Show(DATCONST1.SKILL_LEARN_WRONG_CLASS, " " + ((ClassRecord)World.Instance.ECF.Data[id]).Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					break;
 				case SkillMasterReply.ErrorRemoveItems:
-					EODialog.Show(DATCONST1.SKILL_RESET_CHARACTER_CLEAR_PAPERDOLL, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					EOMessageBox.Show(DATCONST1.SKILL_RESET_CHARACTER_CLEAR_PAPERDOLL, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					break;
 			}
 		}
@@ -854,8 +856,8 @@ namespace EndlessClient
 		private void _statskillLearnSpellSuccess(short id, int remaining)
 		{
 			World.Instance.MainPlayer.ActiveCharacter.Spells.Add(new CharacterSpell { id = id, level = 0 });
-			if (EOSkillmasterDialog.Instance != null)
-				EOSkillmasterDialog.Instance.RemoveSkillByIDFromLearnList(id);
+			if (SkillmasterDialog.Instance != null)
+				SkillmasterDialog.Instance.RemoveSkillByIDFromLearnList(id);
 			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
 			m_game.Hud.AddNewSpellToActiveSpellsByID(id);
 		}
@@ -863,7 +865,7 @@ namespace EndlessClient
 		private void _statskillForgetSpell(short id)
 		{
 			World.Instance.MainPlayer.ActiveCharacter.Spells.RemoveAll(_spell => _spell.id == id);
-			EODialog.Show(DATCONST1.SKILL_FORGET_SUCCESS, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+			EOMessageBox.Show(DATCONST1.SKILL_FORGET_SUCCESS, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 
 			m_game.Hud.RemoveSpellFromActiveSpellsByID(id);
 		}
@@ -884,7 +886,7 @@ namespace EndlessClient
 		{
 			Character c;
 			(c = World.Instance.MainPlayer.ActiveCharacter).Spells.Clear();
-			EODialog.Show(DATCONST1.SKILL_RESET_CHARACTER_COMPLETE, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+			EOMessageBox.Show(DATCONST1.SKILL_RESET_CHARACTER_COMPLETE, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 			c.Stats.StatPoints = data.StatPoints;
 			c.Stats.SkillPoints = data.SkillPoints;
 			c.Stats.HP = data.HP;
@@ -935,27 +937,27 @@ namespace EndlessClient
 
 		private void _questDialog(QuestState stateinfo, Dictionary<short, string> dialognames, List<string> pages, Dictionary<short, string> links)
 		{
-			if (EOQuestDialog.Instance == null)
-				EOQuestDialog.SetupInstance(m_packetAPI);
+			if (QuestDialog.Instance == null)
+				QuestDialog.SetupInstance(m_packetAPI);
 
-			if (EOQuestDialog.Instance == null)
+			if (QuestDialog.Instance == null)
 				throw new InvalidOperationException("Something went wrong creating the instance");
 
-			EOQuestDialog.Instance.SetDisplayData(stateinfo, dialognames, pages, links);
+			QuestDialog.Instance.SetDisplayData(stateinfo, dialognames, pages, links);
 		}
 
 		private void _questProgress(short numquests, List<InProgressQuestData> questinfo)
 		{
-			if (EOQuestProgressDialog.Instance == null) return;
+			if (QuestProgressDialog.Instance == null) return;
 
-			EOQuestProgressDialog.Instance.SetInProgressDisplayData(numquests, questinfo);
+			QuestProgressDialog.Instance.SetInProgressDisplayData(numquests, questinfo);
 		}
 
 		private void _questHistory(short numquests, List<string> completedquestnames)
 		{
-			if (EOQuestProgressDialog.Instance == null) return;
+			if (QuestProgressDialog.Instance == null) return;
 
-			EOQuestProgressDialog.Instance.SetHistoryDisplayData(numquests, completedquestnames);
+			QuestProgressDialog.Instance.SetHistoryDisplayData(numquests, completedquestnames);
 		}
 
 		private void _setStatusLabel(string message)

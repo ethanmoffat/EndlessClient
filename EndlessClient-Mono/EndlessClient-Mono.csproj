@@ -43,68 +43,89 @@
     </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\EndlessClient\EndlessClient\ActiveSpells.cs">
-      <Link>ActiveSpells.cs</Link>
-    </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\ArrowKeyListener.cs">
-      <Link>ArrowKeyListener.cs</Link>
-    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\BlinkingLabel.cs">
       <Link>BlinkingLabel.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Character.cs">
       <Link>Character.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\ChatTextBox.cs">
-      <Link>ChatTextBox.cs</Link>
-    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Config.cs">
       <Link>Config.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\ControlKeyListener.cs">
-      <Link>ControlKeyListener.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\BankAccountDialog.cs">
+      <Link>Dialogs\BankAccountDialog.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\DamageCounter.cs">
-      <Link>DamageCounter.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\ChangePasswordDialog.cs">
+      <Link>Dialogs\ChangePasswordDialog.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EmptySpellIcon.cs">
-      <Link>EmptySpellIcon.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\ChestDialog.cs">
+      <Link>Dialogs\ChestDialog.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EOCharacterRenderer.cs">
-      <Link>EOCharacterRenderer.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\CreateCharacterDialog.cs">
+      <Link>Dialogs\CreateCharacterDialog.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EOCharacterStats.cs">
-      <Link>EOCharacterStats.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\EODialogBase.cs">
+      <Link>Dialogs\EODialogBase.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EOChatBubble.cs">
-      <Link>EOChatBubble.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\EOMessageBox.cs">
+      <Link>Dialogs\EOMessageBox.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EOChatRenderer.cs">
-      <Link>EOChatRenderer.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\FriendIgnoreListDialog.cs">
+      <Link>Dialogs\FriendIgnoreListDialog.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EODialog.cs">
-      <Link>EODialog.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\GameLoadingDialog.cs">
+      <Link>Dialogs\GameLoadingDialog.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EOInventory.cs">
-      <Link>EOInventory.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\ItemTransferDialog.cs">
+      <Link>Dialogs\ItemTransferDialog.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EOMapContextMenu.cs">
-      <Link>EOMapContextMenu.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\ListDialogItem.cs">
+      <Link>Dialogs\ListDialogItem.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EOMapRenderer.cs">
-      <Link>EOMapRenderer.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\LockerDialog.cs">
+      <Link>Dialogs\LockerDialog.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EOOnlineList.cs">
-      <Link>EOOnlineList.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\PaperdollDialog.cs">
+      <Link>Dialogs\PaperdollDialog.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EOParty.cs">
-      <Link>EOParty.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\PaperdollDialogItem.cs">
+      <Link>Dialogs\PaperdollDialogItem.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\EOSpriteSheet.cs">
-      <Link>EOSpriteSheet.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\ProgressDialog.cs">
+      <Link>Dialogs\ProgressDialog.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\FunctionKeyListener.cs">
-      <Link>FunctionKeyListener.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\QuestDialog.cs">
+      <Link>Dialogs\QuestDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\QuestHistoryDialogListItem.cs">
+      <Link>Dialogs\QuestHistoryDialogListItem.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\QuestProgressDialog.cs">
+      <Link>Dialogs\QuestProgressDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\QuestProgressDialogListItem.cs">
+      <Link>Dialogs\QuestProgressDialogListItem.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\ScrollingListDialog.cs">
+      <Link>Dialogs\ScrollingListDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\ScrollingMessageDialog.cs">
+      <Link>Dialogs\ScrollingMessageDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\SessionExpDialog.cs">
+      <Link>Dialogs\SessionExpDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\ShopDialog.cs">
+      <Link>Dialogs\ShopDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\SkillmasterDialog.cs">
+      <Link>Dialogs\SkillmasterDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\TextInputDialog.cs">
+      <Link>Dialogs\TextInputDialog.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Dialogs\TradeDialog.cs">
+      <Link>Dialogs\TradeDialog.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Game.cs">
       <Link>Game.cs</Link>
@@ -112,29 +133,68 @@
     <Compile Include="..\EndlessClient\EndlessClient\GameUI.cs">
       <Link>GameUI.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\HUDElement.cs">
-      <Link>HUDElement.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\ActiveSpellsPanel.cs">
+      <Link>HUD\ActiveSpellsPanel.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\InGameHud.cs">
-      <Link>InGameHud.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\ChatPanel.cs">
+      <Link>HUD\ChatPanel.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\InputKeyListenerBase.cs">
-      <Link>InputKeyListenerBase.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\ChatTextBox.cs">
+      <Link>HUD\ChatTextBox.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\HUD.cs">
+      <Link>HUD\HUD.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\HUDElement.cs">
+      <Link>HUD\HUDElement.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\InventoryPanel.cs">
+      <Link>HUD\InventoryPanel.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\OnlineListPanel.cs">
+      <Link>HUD\OnlineListPanel.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\PartyPanel.cs">
+      <Link>HUD\PartyPanel.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\ScrollBar.cs">
+      <Link>HUD\ScrollBar.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\SettingsPanel.cs">
+      <Link>HUD\SettingsPanel.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\SoundPanel.cs">
+      <Link>HUD\SoundPanel.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\Spells\EmptySpellIcon.cs">
+      <Link>HUD\Spells\EmptySpellIcon.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\Spells\ISpellIcon.cs">
+      <Link>HUD\Spells\ISpellIcon.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\Spells\SpellIcon.cs">
+      <Link>HUD\Spells\SpellIcon.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\StatsPanel.cs">
+      <Link>HUD\StatsPanel.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Input\ArrowKeyListener.cs">
+      <Link>Input\ArrowKeyListener.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Input\ControlKeyListener.cs">
+      <Link>Input\ControlKeyListener.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Input\FunctionKeyListener.cs">
+      <Link>Input\FunctionKeyListener.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Input\InputKeyListenerBase.cs">
+      <Link>Input\InputKeyListenerBase.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Input\NumPadListener.cs">
+      <Link>Input\NumPadListener.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\InteractList.cs">
       <Link>InteractList.cs</Link>
-    </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\ISpellIcon.cs">
-      <Link>ISpellIcon.cs</Link>
-    </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\MiniMapRenderer.cs">
-      <Link>MiniMapRenderer.cs</Link>
-    </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\NPC.cs">
-      <Link>NPC.cs</Link>
-    </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\NumPadListener.cs">
-      <Link>NumPadListener.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\PacketAPICallbackManager.cs">
       <Link>PacketAPICallbackManager.cs</Link>
@@ -145,17 +205,29 @@
     <Compile Include="..\EndlessClient\EndlessClient\Program.cs">
       <Link>Program.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\QuestDialog.cs">
-      <Link>QuestDialog.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\CharacterRenderer.cs">
+      <Link>Rendering\CharacterRenderer.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\Settings.cs">
-      <Link>Settings.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\ChatBubbleRenderer.cs">
+      <Link>Rendering\ChatBubbleRenderer.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\Sound.cs">
-      <Link>Sound.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\ContextMenuRenderer.cs">
+      <Link>Rendering\ContextMenuRenderer.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\SpellIcon.cs">
-      <Link>SpellIcon.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\EOSpriteSheet.cs">
+      <Link>Rendering\EOSpriteSheet.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\HealthBarRenderer.cs">
+      <Link>Rendering\HealthBarRenderer.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\MapRenderer.cs">
+      <Link>Rendering\MapRenderer.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\MiniMapRenderer.cs">
+      <Link>Rendering\MiniMapRenderer.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\NPC.cs">
+      <Link>Rendering\NPC.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\World.cs">
       <Link>World.cs</Link>
@@ -189,6 +261,7 @@
       <Name>EOLib-mono</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <PropertyGroup>
