@@ -5,6 +5,7 @@
 using System;
 using System.Threading;
 using EndlessClient.HUD;
+using EndlessClient.Rendering.Effects;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;

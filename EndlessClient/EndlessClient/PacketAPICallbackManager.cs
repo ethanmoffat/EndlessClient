@@ -9,6 +9,7 @@ using System.Linq;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.Rendering;
+using EndlessClient.Rendering.Effects;
 using EOLib;
 using EOLib.IO;
 using EOLib.Net;

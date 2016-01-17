@@ -8,7 +8,7 @@ using System.Linq;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient.Rendering
+namespace EndlessClient.Rendering.Effects
 {
 	public class EffectSpriteManager
 	{

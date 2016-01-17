@@ -217,20 +217,20 @@
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\ContextMenuRenderer.cs">
       <Link>Rendering\ContextMenuRenderer.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\Rendering\EffectRenderer.cs">
-      <Link>Rendering\EffectRenderer.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\EffectRenderer.cs">
+      <Link>Rendering\Effects\EffectRenderer.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\Rendering\EffectSpriteInfo.cs">
-      <Link>Rendering\EffectSpriteInfo.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\EffectSpriteInfo.cs">
+      <Link>Rendering\Effects\EffectSpriteInfo.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\Rendering\EffectSpriteManager.cs">
-      <Link>Rendering\EffectSpriteManager.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\EffectSpriteManager.cs">
+      <Link>Rendering\Effects\EffectSpriteManager.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\FireballEffectSpriteInfo.cs">
+      <Link>Rendering\Effects\FireballEffectSpriteInfo.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\EOSpriteSheet.cs">
       <Link>Rendering\EOSpriteSheet.cs</Link>
-    </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\Rendering\FireballEffectSpriteInfo.cs">
-      <Link>Rendering\FireballEffectSpriteInfo.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\HealthBarRenderer.cs">
       <Link>Rendering\HealthBarRenderer.cs</Link>

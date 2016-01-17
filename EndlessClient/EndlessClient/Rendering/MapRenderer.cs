@@ -10,6 +10,7 @@ using System.Threading;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Inventory;
+using EndlessClient.Rendering.Effects;
 using EOLib;
 using EOLib.Data.Map;
 using EOLib.Graphics;
