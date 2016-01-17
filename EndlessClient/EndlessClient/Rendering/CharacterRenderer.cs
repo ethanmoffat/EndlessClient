@@ -1347,7 +1347,8 @@ namespace EndlessClient.Rendering
 			if (toCast == null) return;
 
 			Character.SelectSpell(toCast.ID);
-			if (toCast.Target == SpellTarget.Self)
+			if (toCast.Target == SpellTarget.Self ||
+			    (toCast.Target == SpellTarget.Group && ((EOGame) Game).Hud.MainPlayerIsInParty()))
 				_prepareSpell();
 		}
 
@@ -1365,6 +1366,9 @@ namespace EndlessClient.Rendering
 
 			Character.SelectSpell(-1);
 			Character.SetSpellTarget(null);
+
+			if (!completedPrep)
+				Character.CancelSpellPrepare();
 		}
 
 		private void _prepareSpell()

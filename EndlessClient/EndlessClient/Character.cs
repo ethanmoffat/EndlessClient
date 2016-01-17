@@ -791,6 +791,11 @@ namespace EndlessClient
 			SpellTarget = target;
 		}
 
+		public void CancelSpellPrepare()
+		{
+			PreparingSpell = false;
+		}
+
 		public void SetSpellCastStart()
 		{
 			PreparingSpell = false;
