@@ -89,7 +89,7 @@ namespace EndlessClient
 		public PacketAPI API { get { return _packetAPI; } }
 
 		private INativeGraphicsLoader _gfxLoader;
-		public GFXManager GFXManager { get; private set; }
+		public INativeGraphicsManager GFXManager { get; private set; }
 
 #if DEBUG //don't do FPS render on release builds
 		private TimeSpan? lastFPSRender;
