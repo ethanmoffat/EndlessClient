@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
+using EndlessClient.Rendering;
 using EOLib;
 using EOLib.IO;
 using EOLib.Net;
@@ -454,8 +455,10 @@ namespace EndlessClient
 					break;
 				case ItemType.EffectPotion:
 					{
-						//World.Instance.ActiveCharacterRenderer.ShowEffect(data.EffectID);
-						//todo: get effects working
+						m_game.Hud.DisableEffectPotionUse();
+						var effectRenderer = new EffectRenderer(m_game, World.Instance.ActiveCharacterRenderer, m_game.Hud.EnableEffectPotionUse);
+						effectRenderer.SetEffectInfoTypeAndID(EffectType.Potion, data.EffectID);
+						effectRenderer.ShowEffect();
 					}
 					break;
 				case ItemType.CureCurse:

@@ -912,6 +912,8 @@ namespace EndlessClient.HUD
 		{
 			return inventory.ItemsFit(newItems, oldItems);
 		}
+		public void DisableEffectPotionUse() { inventory.DisableEffectPotions(); }
+		public void EnableEffectPotionUse() { inventory.EnableEffectPotions(); }
 
 		public void RefreshStats()
 		{

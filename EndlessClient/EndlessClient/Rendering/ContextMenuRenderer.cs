@@ -41,7 +41,7 @@ namespace EndlessClient.Rendering
 		private readonly Dictionary<Rectangle, Action<object, EventArgs>> m_menuActions = new Dictionary<Rectangle, Action<object, EventArgs>>();
 		private Action<object, EventArgs> m_clickEvent; //event for when a 'click' is done
 		private Rectangle? m_overRect; //rectangle for hover region
-		private EOCharacterRenderer m_rend;
+		private CharacterRenderer m_rend;
 
 		private DateTime? m_lastPartyRequestedTime, m_lastTradeRequestedTime;
 
@@ -83,7 +83,7 @@ namespace EndlessClient.Rendering
 			SetParent(null);
 		}
 
-		public void SetCharacterRenderer(EOCharacterRenderer rend)
+		public void SetCharacterRenderer(CharacterRenderer rend)
 		{
 			m_rend = rend;
 			//update draw location

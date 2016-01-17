@@ -30,12 +30,12 @@ namespace EndlessClient.Rendering
 	/// <para/>
 	/// <para>Character rendering in-game is controlled by the map renderer</para>
 	/// <para/>
-	/// <para>EOCharacterRenderer is never added to game components,
-	/// because of the draw ordering in EOMapRenderer.</para>
-	/// <para>So, Draw is only called from EOMapRenderer._doMapDrawing
-	/// (Update and initialize are also called from EOMapRenderer)</para>
+	/// <para>CharacterRenderer is never added to game components,
+	/// because of the draw ordering in MapRenderer.</para>
+	/// <para>So, Draw is only called from MapRenderer._doMapDrawing
+	/// (Update and initialize are also called from MapRenderer)</para>
 	/// </summary>
-	public class EOCharacterRenderer : XNAControl
+	public class CharacterRenderer : XNAControl
 	{
 		private readonly Character _char;
 		public Character Character { get { return _char; } }
@@ -159,7 +159,7 @@ namespace EndlessClient.Rendering
 		/// Construct a character renderer in-game
 		/// </summary>
 		/// <param name="charToRender">The character data that should be wrapped by this renderer</param>
-		public EOCharacterRenderer(Character charToRender)
+		public CharacterRenderer(Character charToRender)
 		{
 			//this has been happening when shit gets disconnected due to invalid sequence or internal packet id
 			if (charToRender == null)
@@ -216,7 +216,7 @@ namespace EndlessClient.Rendering
 		/// </summary>
 		/// <param name="drawLocation">Where to draw it</param>
 		/// <param name="data">Render data to use for drawing</param>
-		public EOCharacterRenderer(Vector2 drawLocation, CharRenderData data)
+		public CharacterRenderer(Vector2 drawLocation, CharRenderData data)
 			: base(drawLocation, null)
 		{
 			noLocUpdate = true;
@@ -686,6 +686,8 @@ namespace EndlessClient.Rendering
 		//started indicates that the spritebatch.begin call has already been made
 		public void Draw(SpriteBatch sb, bool started = false)
 		{
+			if (!Visible) return;
+
 			if (adminRect != null)
 			{
 				if(!started) sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);

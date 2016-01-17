@@ -79,7 +79,7 @@ namespace EndlessClient.HUD
 
 		public override void Update(GameTime gameTime)
 		{
-			if (!Game.IsActive) return;
+			if (!Game.IsActive || !Enabled) return;
 
 			//check for drag-drop here
 			MouseState currentState = Mouse.GetState();
@@ -127,8 +127,8 @@ namespace EndlessClient.HUD
 					ChestDialog.Instance == null && EOPaperdollDialog.Instance == null && LockerDialog.Instance == null
 					&& BankAccountDialog.Instance == null && TradeDialog.Instance == null))
 				{
-					Microsoft.Xna.Framework.Point loc = World.Instance.ActiveMapRenderer.MouseOver ? World.Instance.ActiveMapRenderer.GridCoords:
-						new Microsoft.Xna.Framework.Point(World.Instance.MainPlayer.ActiveCharacter.X, World.Instance.MainPlayer.ActiveCharacter.Y);
+					Point loc = World.Instance.ActiveMapRenderer.MouseOver ? World.Instance.ActiveMapRenderer.GridCoords:
+						new Point(World.Instance.MainPlayer.ActiveCharacter.X, World.Instance.MainPlayer.ActiveCharacter.Y);
 
 					//in range if maximum coordinate difference is <= 2 away
 					bool inRange = Math.Abs(Math.Max(World.Instance.MainPlayer.ActiveCharacter.X - loc.X, World.Instance.MainPlayer.ActiveCharacter.Y - loc.Y)) <= 2;
@@ -547,8 +547,7 @@ namespace EndlessClient.HUD
 					useItem = true;
 					break;
 				case ItemType.EffectPotion:
-					//todo: get effects working
-					//useItem = true;
+					useItem = true;
 					break;
 				//Not implemented server-side
 				//case ItemType.SkillReward:
@@ -1020,6 +1019,20 @@ namespace EndlessClient.HUD
 
 			width = Convert.ToInt32(sizeStr.Substring(4, 1));
 			height = Convert.ToInt32(sizeStr.Substring(6, 1));
+		}
+
+		public void EnableEffectPotions()
+		{
+			var effectPotions = m_childItems.Where(x => x.ItemData.Type == ItemType.EffectPotion && !x.Enabled);
+			foreach (var potion in effectPotions)
+				potion.Enabled = true;
+		}
+
+		public void DisableEffectPotions()
+		{
+			var effectPotions = m_childItems.Where(x => x.ItemData.Type == ItemType.EffectPotion && x.Enabled);
+			foreach (var potion in effectPotions)
+				potion.Enabled = false;
 		}
 	}
 }

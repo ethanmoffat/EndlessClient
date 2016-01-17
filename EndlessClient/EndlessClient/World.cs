@@ -283,11 +283,11 @@ namespace EndlessClient
 
 		public Dictionary<DataFiles, EDFFile> DataFiles { get; private set; }
 
-		private EOMapRenderer m_mapRender;
+		private MapRenderer m_mapRender;
 		/// <summary>
 		/// Returns a map rendering object encapsulating the map the MainPlayer is on
 		/// </summary>
-		public EOMapRenderer ActiveMapRenderer
+		public MapRenderer ActiveMapRenderer
 		{
 			get
 			{
@@ -299,23 +299,23 @@ namespace EndlessClient
 			}
 		}
 
-		private EOCharacterRenderer m_charRender;
+		private CharacterRenderer m_charRender;
 
 		/// <summary>
-		/// Returns a reference to the primary EOCharacterRenderer associated with MainPlayer.ActiveCharacter
+		/// Returns a reference to the primary CharacterRenderer associated with MainPlayer.ActiveCharacter
 		/// </summary>
-		public EOCharacterRenderer ActiveCharacterRenderer
+		public CharacterRenderer ActiveCharacterRenderer
 		{
 			get
 			{
 				//lazy initialization
 				if (m_charRender == null)
 				{
-					m_charRender = new EOCharacterRenderer(MainPlayer.ActiveCharacter);
+					m_charRender = new CharacterRenderer(MainPlayer.ActiveCharacter);
 					m_charRender.Initialize();
 				}
 
-				EOCharacterRenderer ret = m_charRender;
+				CharacterRenderer ret = m_charRender;
 
 				if(ret.Character == null)
 				{
@@ -327,7 +327,7 @@ namespace EndlessClient
 				if (ret.Character != MainPlayer.ActiveCharacter)
 				{
 					ret.Dispose();
-					ret = m_charRender = new EOCharacterRenderer(MainPlayer.ActiveCharacter);
+					ret = m_charRender = new CharacterRenderer(MainPlayer.ActiveCharacter);
 					m_charRender.Initialize();
 				}
 
@@ -371,7 +371,7 @@ namespace EndlessClient
 
 				//map renderer construction moved to be more closely coupled to loading of the map
 				if (m_mapRender == null)
-					m_mapRender = new EOMapRenderer(EOGame.Instance, m_api);
+					m_mapRender = new MapRenderer(EOGame.Instance, m_api);
 			}
 			catch
 			{
@@ -541,6 +541,10 @@ namespace EndlessClient
 
 			foreach (MapItem mi in items)
 				ActiveMapRenderer.AddMapItem(mi);
+
+			var effectRenderer = new EffectRenderer(EOGame.Instance, ActiveCharacterRenderer, delegate { });
+			effectRenderer.SetEffectInfoTypeAndID(EffectType.WarpDestination, 0);
+			effectRenderer.ShowEffect();
 		}
 
 		public void ApplyWelcomeRequest(PacketAPI api, WelcomeRequestData data)

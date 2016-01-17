@@ -3,6 +3,8 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net;
@@ -357,7 +359,7 @@ namespace EndlessClient.Rendering
 		public Texture2D GetFace(out XNA.Rectangle faceRect)
 		{
 			if (_data.emoteFrame < 0 ||
-			    _data.emote == Emote.Trade || _data.emote == Emote.LevelUp)
+				_data.emote == Emote.Trade || _data.emote == Emote.LevelUp)
 			{
 				faceRect = new XNA.Rectangle();
 				return null;
@@ -526,41 +528,6 @@ namespace EndlessClient.Rendering
 			}
 
 			return _gfxManager.TextureFromResource(GFXTypes.NPC, baseGfx + offset, true);
-		}
-	}
-
-	public static class EffectSprite
-	{
-		public const int EFFECT_GFX_WATER_TILE = 25;
-		public const int EFFECT_GFX_WATER_FRAMES = 6;
-
-		//mapping of potion effect numbers to actual GFX values in the file.
-		public static int ConvertItemEffectToGFX(int itemEffectNum, out bool multiGfx)
-		{
-			multiGfx = false;
-			switch (itemEffectNum)
-			{
-				case 0: multiGfx = true; return 1;
-				case 1: return 6;
-				case 4: return 15;
-				case 5: multiGfx = true; return 17;
-				case 6: return 19;
-				case 7: return 22;
-			}
-
-			return 0;
-		}
-
-		//mapping of warp animations to actual GFX values in the file.
-		public static int ConvertWarpAnimToGFX(WarpAnimation anim, out bool multiGfx)
-		{
-			multiGfx = false;
-
-			if (anim == WarpAnimation.Admin)
-				return 9; //12 is also the same
-			//todo: other warp animations?
-
-			return 0;
 		}
 	}
 }

@@ -61,6 +61,7 @@
     <XnaCompressContent>true</XnaCompressContent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Threading.Tasks">
       <HintPath>..\..\packages\Microsoft.Bcl.Async.1.0.168\lib\net40\Microsoft.Threading.Tasks.dll</HintPath>
     </Reference>
@@ -193,6 +194,8 @@
     <Compile Include="Rendering\CharacterRenderer.cs" />
     <Compile Include="Rendering\ChatBubbleRenderer.cs" />
     <Compile Include="Rendering\ContextMenuRenderer.cs" />
+    <Compile Include="Rendering\EffectRenderer.cs" />
+    <Compile Include="Rendering\EffectSpriteManager.cs" />
     <Compile Include="Rendering\EOSpriteSheet.cs" />
     <Compile Include="Rendering\HealthBarRenderer.cs" />
     <Compile Include="Rendering\MapRenderer.cs" />

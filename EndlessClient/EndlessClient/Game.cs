@@ -223,14 +223,14 @@ namespace EndlessClient
 		private void doShowCharacters()
 		{
 			//remove any existing character renderers
-			var toRemove = Components.OfType<EOCharacterRenderer>();
-			foreach (EOCharacterRenderer eor in toRemove)
+			var toRemove = Components.OfType<CharacterRenderer>();
+			foreach (CharacterRenderer eor in toRemove)
 				eor.Close();
 
 			//show the new data
-			EOCharacterRenderer[] render = new EOCharacterRenderer[World.Instance.MainPlayer.CharData.Length];
+			CharacterRenderer[] render = new CharacterRenderer[World.Instance.MainPlayer.CharData.Length];
 			for (int i = 0; i < World.Instance.MainPlayer.CharData.Length; ++i)
-				render[i] = new EOCharacterRenderer(new Vector2(395, 60 + i * 124), World.Instance.MainPlayer.CharData[i]);
+				render[i] = new CharacterRenderer(new Vector2(395, 60 + i * 124), World.Instance.MainPlayer.CharData[i]);
 		}
 		
 		private void doStateChange(GameStates newState)
@@ -267,8 +267,8 @@ namespace EndlessClient
 				}
 				else
 				{
-					if (component is EOCharacterRenderer)
-						toRemove.Add(component as EOCharacterRenderer); //this needs to be done separately because it's a foreach loop
+					if (component is CharacterRenderer)
+						toRemove.Add(component as CharacterRenderer); //this needs to be done separately because it's a foreach loop
 
 					if (component is XNATextBox)
 					{

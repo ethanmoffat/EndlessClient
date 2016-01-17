@@ -21,12 +21,15 @@ using XNAControls;
 
 namespace EndlessClient.Rendering
 {
-	public class EOMapRenderer : DrawableGameComponent
+	public class MapRenderer : DrawableGameComponent
 	{
 		private class WaterEffect
 		{
-			public static readonly Texture2D WaterTexture = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Spells, EffectSprite.EFFECT_GFX_WATER_TILE, true);
-			private static readonly int WidthDelta = WaterTexture.Width/EffectSprite.EFFECT_GFX_WATER_FRAMES;
+			private const int EFFECT_GFX_WATER_TILE = 25;
+			private const int EFFECT_GFX_WATER_FRAMES = 6;
+
+			public static readonly Texture2D WaterTexture = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Spells, EFFECT_GFX_WATER_TILE, true);
+			private static readonly int WidthDelta = WaterTexture.Width/EFFECT_GFX_WATER_FRAMES;
 
 			private DateTime LastUpdate;
 			private int Frame;
@@ -50,7 +53,7 @@ namespace EndlessClient.Rendering
 				if ((DateTime.Now - LastUpdate).TotalMilliseconds >= 100)
 				{
 					Frame++;
-					if (Frame >= EffectSprite.EFFECT_GFX_WATER_FRAMES)
+					if (Frame >= EFFECT_GFX_WATER_FRAMES)
 					{
 						return;
 					}
@@ -62,7 +65,7 @@ namespace EndlessClient.Rendering
 
 			public bool DoneAnimating()
 			{
-				return Frame >= EffectSprite.EFFECT_GFX_WATER_FRAMES;
+				return Frame >= EFFECT_GFX_WATER_FRAMES;
 			}
 
 			public void ResetFrameCounter()
@@ -73,7 +76,7 @@ namespace EndlessClient.Rendering
 
 		//collections
 		private readonly Dictionary<Point, List<MapItem>> MapItems = new Dictionary<Point, List<MapItem>>();
-		private readonly List<EOCharacterRenderer> otherRenderers = new List<EOCharacterRenderer>();
+		private readonly List<CharacterRenderer> otherRenderers = new List<CharacterRenderer>();
 		private readonly List<NPC> npcList = new List<NPC>();
 		private readonly object _npcListLock = new object(), _rendererListLock = new object();
 
@@ -133,7 +136,7 @@ namespace EndlessClient.Rendering
 		private bool _disposed;
 		private readonly object _disposingLockObject = new object();
 
-		public EOMapRenderer(Game g, PacketAPI apiHandle)
+		public MapRenderer(Game g, PacketAPI apiHandle)
 			: base(g)
 		{
 			if(g == null)
@@ -192,7 +195,7 @@ namespace EndlessClient.Rendering
 				{
 					dgc = otherRenderers.Find(_rend => _rend.Character.ID == playerID);
 					if (dgc != null)
-						playerName = ((EOCharacterRenderer) dgc).Character.Name;
+						playerName = ((CharacterRenderer) dgc).Character.Name;
 				}
 			}
 
@@ -229,8 +232,8 @@ namespace EndlessClient.Rendering
 			//show just the speech bubble, since this should be called from the HUD and rendered there already
 
 // ReSharper disable CanBeReplacedWithTryCastAndCheckForNull
-			if (follow is EOCharacterRenderer)
-				((EOCharacterRenderer)follow).SetChatBubbleText(message, groupChat);
+			if (follow is CharacterRenderer)
+				((CharacterRenderer)follow).SetChatBubbleText(message, groupChat);
 			else if (follow is NPC)
 				((NPC)follow).SetChatBubbleText(message, groupChat);
 // ReSharper restore CanBeReplacedWithTryCastAndCheckForNull
@@ -456,7 +459,7 @@ namespace EndlessClient.Rendering
 		#region /* PUBLIC INTERFACE -- OTHER PLAYERS */
 		public void AddOtherPlayer(CharacterData c, WarpAnimation anim = WarpAnimation.None)
 		{
-			EOCharacterRenderer otherRend = null;
+			CharacterRenderer otherRend = null;
 			lock (_rendererListLock)
 			{
 				Character other = otherRenderers.Select(x => x.Character).FirstOrDefault(x => x.Name == c.Name && x.ID == c.ID);
@@ -465,7 +468,7 @@ namespace EndlessClient.Rendering
 					other = new Character(m_api, c);
 					lock (_rendererListLock)
 					{
-						otherRenderers.Add(otherRend = new EOCharacterRenderer(other));
+						otherRenderers.Add(otherRend = new CharacterRenderer(other));
 						otherRenderers[otherRenderers.Count - 1].Visible = true;
 						otherRenderers[otherRenderers.Count - 1].Initialize();
 					}
@@ -479,7 +482,9 @@ namespace EndlessClient.Rendering
 
 			if (anim == WarpAnimation.Admin && otherRend != null)
 			{
-				//otherRend.ShowEffect(12);
+				var effectRenderer = new EffectRenderer((EOGame) Game, otherRend, delegate { });
+				effectRenderer.SetEffectInfoTypeAndID(EffectType.WarpDestination, 0);
+				effectRenderer.ShowEffect();
 			}
 		}
 
@@ -490,11 +495,22 @@ namespace EndlessClient.Rendering
 				int ndx;
 				if ((ndx = otherRenderers.FindIndex(cc => cc.Character.ID == id)) >= 0)
 				{
-					//TODO: Add warp animation when valid
-					otherRenderers[ndx].HideChatBubble();
-					otherRenderers[ndx].Visible = false;
-					otherRenderers[ndx].Close();
-					otherRenderers.RemoveAt(ndx);
+					var rend = otherRenderers[ndx];
+					rend.HideChatBubble();
+					rend.Visible = false;
+					otherRenderers.Remove(rend);
+
+					Action closeRenderer = () => { rend.Close(); };
+					if (anim == WarpAnimation.Admin)
+					{
+						var effectRenderer = new EffectRenderer((EOGame)Game, rend, closeRenderer);
+						effectRenderer.SetEffectInfoTypeAndID(EffectType.WarpOriginal, 0);
+						effectRenderer.ShowEffect();
+					}
+					else
+					{
+						closeRenderer();
+					}
 				}
 			}
 		}
@@ -522,7 +538,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_rendererListLock)
 			{
-				EOCharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
+				CharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
 				if (rend != null)
 				{
 					rend.Character.Walk(direction, x, y, false);
@@ -539,7 +555,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_rendererListLock)
 			{
-				EOCharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
+				CharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
 				if (rend != null)
 				{
 					rend.Character.Attack(direction);
@@ -554,7 +570,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_rendererListLock)
 			{
-				EOCharacterRenderer rend = otherRenderers.Find(cc => cc.Character.ID == playerID);
+				CharacterRenderer rend = otherRenderers.Find(cc => cc.Character.ID == playerID);
 				if (rend != null)
 				{
 					rend.Character.Emote(emote);
@@ -579,7 +595,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_rendererListLock)
 			{
-				EOCharacterRenderer rend = ID == World.Instance.MainPlayer.ActiveCharacter.ID
+				CharacterRenderer rend = ID == World.Instance.MainPlayer.ActiveCharacter.ID
 					? World.Instance.ActiveCharacterRenderer
 					: otherRenderers.Find(_rend => _rend.Character.ID == ID);
 
@@ -757,7 +773,7 @@ namespace EndlessClient.Rendering
 				_waterTiles.Add(pt, new WaterEffect(x, y));
 		}
 
-		public void ShowContextMenu(EOCharacterRenderer player)
+		public void ShowContextMenu(CharacterRenderer player)
 		{
 			m_contextMenu.SetCharacterRenderer(player);
 		}
@@ -873,7 +889,7 @@ namespace EndlessClient.Rendering
 
 			lock (_rendererListLock)
 			{
-				EOCharacterRenderer rend = targetPlayerId == World.Instance.MainPlayer.ActiveCharacter.ID
+				CharacterRenderer rend = targetPlayerId == World.Instance.MainPlayer.ActiveCharacter.ID
 					? World.Instance.ActiveCharacterRenderer
 					: otherRenderers.Find(_rend => _rend.Character.ID == targetPlayerId);
 
@@ -904,7 +920,7 @@ namespace EndlessClient.Rendering
 
 				lock (otherRenderers)
 				{
-					EOCharacterRenderer rend = fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID
+					CharacterRenderer rend = fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID
 						? World.Instance.ActiveCharacterRenderer
 						: otherRenderers.Find(_rend => _rend.Character.ID == fromPlayerID);
 
@@ -1005,7 +1021,7 @@ namespace EndlessClient.Rendering
 			}
 		}
 
-		private void _spikeDamageShared(EOCharacterRenderer rend, int damageAmount, int percentHealth, bool isPlayerDead)
+		private void _spikeDamageShared(CharacterRenderer rend, int damageAmount, int percentHealth, bool isPlayerDead)
 		{
 			rend.SetDamageCounterValue(damageAmount, percentHealth);
 			if (isPlayerDead)
@@ -1153,7 +1169,7 @@ namespace EndlessClient.Rendering
 			World.Instance.ActiveCharacterRenderer.Update(gameTime);
 			lock (_rendererListLock)
 			{
-				foreach (EOCharacterRenderer rend in otherRenderers)
+				foreach (CharacterRenderer rend in otherRenderers)
 					rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
 
 				var deadRenderers = otherRenderers.Where(x => x.CompleteDeath);
@@ -1625,9 +1641,9 @@ namespace EndlessClient.Rendering
 
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 
-			List<EOCharacterRenderer> otherChars;
+			List<CharacterRenderer> otherChars;
 			lock (_rendererListLock)
-				otherChars = new List<EOCharacterRenderer>(otherRenderers); //copy of list (can remove items)
+				otherChars = new List<CharacterRenderer>(otherRenderers); //copy of list (can remove items)
 
 			List<NPC> otherNpcs;
 			lock(_npcListLock)
@@ -1806,7 +1822,7 @@ namespace EndlessClient.Rendering
 			}
 		}
 
-		private void _drawCharactersAndNPCsAtLoc(int rowIndex, int colIndex, List<NPC> otherNpcs, List<EOCharacterRenderer> otherChars)
+		private void _drawCharactersAndNPCsAtLoc(int rowIndex, int colIndex, List<NPC> otherNpcs, List<CharacterRenderer> otherChars)
 		{
 			//todo: is there a more efficient way to do this, like storing the locations in a 2D array directly?
 			//		I would like to avoid the .Where() calls every time the map is updated...
@@ -1950,7 +1966,7 @@ namespace EndlessClient.Rendering
 				}
 
 				lock (_rendererListLock)
-					foreach (EOCharacterRenderer cr in otherRenderers)
+					foreach (CharacterRenderer cr in otherRenderers)
 						cr.Dispose();
 
 				lock (_npcListLock)

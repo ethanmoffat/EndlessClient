@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EOLib.Graphics
 {
-	interface INativeGraphicsManager : IDisposable
+	public interface INativeGraphicsManager : IDisposable
 	{
 		/// <summary>
 		/// Returns a byte array of image data from a single image within an endless online *.egf file

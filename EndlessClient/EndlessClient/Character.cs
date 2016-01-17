@@ -15,7 +15,7 @@ using XNAControls;
 namespace EndlessClient
 {
 	/// <summary>
-	/// This is data used to render the character in EOCharacterRenderer.cs
+	/// This is data used to render the character in CharacterRenderer.cs
 	/// The values represented here are for loading GFX and do NOT represent IDs of items, etc.
 	/// </summary>
 	public class CharRenderData
@@ -447,7 +447,7 @@ namespace EndlessClient
 		}
 
 		/// <summary>
-		/// Called from EOCharacterRenderer.Update (in case of MainPlayer pressing an arrow key) or Handlers.Walk (in case of another character walking)
+		/// Called from CharacterRenderer.Update (in case of MainPlayer pressing an arrow key) or Handlers.Walk (in case of another character walking)
 		/// <para>The Character Renderer will automatically pick up that Walking == true and start a walk operation, limiting the character from walking again until it is complete</para>
 		/// </summary>
 		public void Walk(EODirection direction, byte destX, byte destY, bool admin)
@@ -759,7 +759,7 @@ namespace EndlessClient
 			{
 				case EOLib.IO.SpellTarget.Normal:
 					var targetAsNPC = SpellTarget as NPC;
-					var targetAsChar = SpellTarget as EOCharacterRenderer;
+					var targetAsChar = SpellTarget as CharacterRenderer;
 					if (targetAsNPC != null)
 						result = m_packetAPI.DoCastTargetSpell((short) id, true, targetAsNPC.Index);
 					else if (targetAsChar != null)
@@ -785,7 +785,7 @@ namespace EndlessClient
 
 		public void SetSpellTarget(DrawableGameComponent target)
 		{
-			if (target != null && !(target is NPC || target is EOCharacterRenderer)) //don't set target when it isn't valid!
+			if (target != null && !(target is NPC || target is CharacterRenderer)) //don't set target when it isn't valid!
 				return;
 
 			SpellTarget = target;
