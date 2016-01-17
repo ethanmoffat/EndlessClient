@@ -171,8 +171,24 @@ namespace EndlessClient.Rendering
 			switch (effectID)
 			{
 				case 1: return ResolvePotionEffect(HardCodedPotionEffect.FLAMES);
+				case 10: //Heal spells
+					return new List<EffectSpriteInfo>(2)
+					{
+						new EffectSpriteInfo(5, 1, false, 128, GetGraphic(129)),
+						new EffectSpriteInfo(5, 1, true, 255, GetGraphic(130))
+					};
+				case 11: //Small Thunder
+					return new List<EffectSpriteInfo>(1) { new EffectSpriteInfo(4, 1, true, 255, GetGraphic(133)) };
+				case 13: //Ultima Blast
+					return new List<EffectSpriteInfo>(2)
+					{
+						new EffectSpriteInfo(4, 3, true, 255, GetGraphic(137)),
+						new EffectSpriteInfo(4, 3, true, 128, GetGraphic(138))
+					};
 			}
-			throw new NotImplementedException();
+
+			//not implemented spell graphics will just not render anything
+			return new EffectSpriteInfo[] {};
 		}
 
 		private IList<EffectSpriteInfo> GetWarpEffect(EffectType warpEffect)

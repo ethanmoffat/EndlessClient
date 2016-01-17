@@ -582,7 +582,6 @@ namespace EndlessClient.Rendering
 				var renderer = otherRenderers.Find(x => x.Character.ID == fromPlayerID);
 				if (renderer != null)
 				{
-					//todo: render using graphic from spellID
 					renderer.StopShouting(false);
 					renderer.StartCastingSpell();
 					renderer.SetDamageCounterValue(spellHP, percentHealth, true);
@@ -592,6 +591,8 @@ namespace EndlessClient.Rendering
 					renderer = World.Instance.ActiveCharacterRenderer;
 					renderer.SetDamageCounterValue(spellHP, percentHealth, true);
 				}
+
+				_renderSpellOnPlayer(spellID, renderer);
 			}
 		}
 
@@ -625,8 +626,8 @@ namespace EndlessClient.Rendering
 
 				if (toRenderer != null) //do target renderer stuff
 				{
-					//todo: render using graphic from spellID
 					toRenderer.SetDamageCounterValue(recoveredHP, targetPercentHealth, true);
+					_renderSpellOnPlayer(spellID, toRenderer);
 				}
 			}
 		}
@@ -664,7 +665,8 @@ namespace EndlessClient.Rendering
 					if (targetIsMain)
 						targetRenderer.Character.Stats.HP = target.MemberHP;
 					targetRenderer.SetDamageCounterValue(spellHPgain, target.MemberPercentHealth, true);
-					//todo: render using graphic from spellID
+
+					_renderSpellOnPlayer(spellID, targetRenderer);
 				}
 			}
 		}
@@ -751,7 +753,7 @@ namespace EndlessClient.Rendering
 						npc.Opponent = null;
 						npc.SetDamageCounterValue(damage, 0);
 
-						//todo: render spellID on NPC that is dying
+						_renderSpellOnNPC(spellID, npc);
 					}
 					else //npc is out of view or done fading away
 					{
@@ -845,7 +847,7 @@ namespace EndlessClient.Rendering
 			}
 		}
 
-		public void NPCTakeDamage(short npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth)
+		public void NPCTakeDamage(short npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID = -1)
 		{
 			lock (_npcListLock)
 			{
@@ -854,6 +856,8 @@ namespace EndlessClient.Rendering
 
 				toDamage.SetDamageCounterValue(damageToNPC, npcPctHealth);
 				toDamage.HP -= damageToNPC;
+
+				_renderSpellOnNPC(spellID, toDamage);
 
 				lock (otherRenderers)
 				{
@@ -1813,6 +1817,25 @@ namespace EndlessClient.Rendering
 			}
 		}
 
+		private void _renderSpellOnPlayer(short spellID, CharacterRenderer renderer)
+		{
+			if (spellID < 1) return;
+
+			var spellInfo = World.Instance.ESF.GetSpellRecordByID(spellID);
+			var effect = new EffectRenderer((EOGame)Game, renderer, delegate { });
+			effect.SetEffectInfoTypeAndID(EffectType.Spell, spellInfo.Graphic);
+			effect.ShowEffect();
+		}
+
+		private void _renderSpellOnNPC(short spellID, NPC renderer)
+		{
+			if (spellID < 1) return;
+
+			var spellInfo = World.Instance.ESF.GetSpellRecordByID(spellID);
+			var effect = new EffectRenderer((EOGame)Game, renderer, delegate { });
+			effect.SetEffectInfoTypeAndID(EffectType.Spell, spellInfo.Graphic);
+			effect.ShowEffect();
+		}
 
 		/// <summary>
 		/// does the offset for tiles/items

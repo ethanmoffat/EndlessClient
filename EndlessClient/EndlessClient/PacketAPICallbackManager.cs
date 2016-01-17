@@ -588,15 +588,13 @@ namespace EndlessClient
 
 		private void _npcTakeDamage(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID, short fromTP)
 		{
-			World.Instance.ActiveMapRenderer.NPCTakeDamage(npcIndex, fromPlayerID, fromDirection, damageToNPC, npcPctHealth);
+			World.Instance.ActiveMapRenderer.NPCTakeDamage(npcIndex, fromPlayerID, fromDirection, damageToNPC, npcPctHealth, spellID);
 
 			if (fromTP >= 0)
 			{
 				World.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromTP;
 				m_game.Hud.RefreshStats();
 			}
-
-			//todo: support for rendering spellID on NPC
 		}
 
 		private void _playerLevelUp(LevelUpStats _stats)
