@@ -84,6 +84,7 @@ Some of the more important features that have been implemented are:
  - Spikes - timed, trap, and static
  - Map Effects - HP/TP drain
  - Quest NPC dialogs, as well as progress and history (no book for other players yet)
+ - Skillmasters, spell casting, and spell inventory management (spells aren't rendered when cast yet)
 
 <a name="ToDo" />What's Left to do?
 ------------------
