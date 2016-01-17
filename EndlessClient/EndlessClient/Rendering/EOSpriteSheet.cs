@@ -3,8 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net;
@@ -67,10 +65,10 @@ namespace EndlessClient.Rendering
 	
 	public class EOSpriteSheet
 	{
-		private readonly GFXManager _gfxManager;
+		private readonly INativeGraphicsManager _gfxManager;
 		private readonly Character _charRef;
 
-		public EOSpriteSheet(GFXManager gfxManager, Character charToWatch)
+		public EOSpriteSheet(INativeGraphicsManager gfxManager, Character charToWatch)
 		{
 			_gfxManager = gfxManager;
 			_charRef = charToWatch;
@@ -483,10 +481,10 @@ namespace EndlessClient.Rendering
 
 	public class EONPCSpriteSheet
 	{
-		private readonly GFXManager _gfxManager;
+		private readonly INativeGraphicsManager _gfxManager;
 		private readonly NPC _npc;
 
-		public EONPCSpriteSheet(GFXManager gfxManager, NPC npcToWatch)
+		public EONPCSpriteSheet(INativeGraphicsManager gfxManager, NPC npcToWatch)
 		{
 			_gfxManager = gfxManager;
 			_npc = npcToWatch;
