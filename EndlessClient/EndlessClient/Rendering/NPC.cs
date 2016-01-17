@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -232,12 +232,12 @@ namespace EndlessClient.Rendering
 				switch (Data.Type)
 				{
 					case NPCType.Shop:
-						EOShopDialog.Show(api, this);
+						ShopDialog.Show(api, this);
 						break;
 					case NPCType.Inn:
 						break;
 					case NPCType.Bank:
-						EOBankAccountDialog.Show(api, Index);
+						BankAccountDialog.Show(api, Index);
 						break;
 					case NPCType.Barber:
 						break;
@@ -248,10 +248,10 @@ namespace EndlessClient.Rendering
 					case NPCType.Law:
 						break;
 					case NPCType.Skills:
-						EOSkillmasterDialog.Show(api, Index);
+						SkillmasterDialog.Show(api, Index);
 						break;
 					case NPCType.Quest:
-						EOQuestDialog.Show(api, Index, Data.VendorID, Data.Name);
+						QuestDialog.Show(api, Index, Data.VendorID, Data.Name);
 						break;
 				}
 			}

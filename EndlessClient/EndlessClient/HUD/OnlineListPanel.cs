@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -43,7 +43,7 @@ namespace EndlessClient.HUD
 		}
 
 		private List<ClientOnlineEntry> m_onlineList;
-		private readonly EOScrollBar m_scrollBar;
+		private readonly ScrollBar m_scrollBar;
 		private readonly XNALabel m_totalNumPlayers;
 
 		private const int DRAW_ICON_X = 4,
@@ -73,7 +73,7 @@ namespace EndlessClient.HUD
 			};
 			m_totalNumPlayers.SetParent(this);
 
-			m_scrollBar = new EOScrollBar(this, new Vector2(467, 20), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed)
+			m_scrollBar = new ScrollBar(this, new Vector2(467, 20), new Vector2(16, 97), ScrollBarColors.LightOnMed)
 			{
 				LinesToRender = 7,
 				Visible = true

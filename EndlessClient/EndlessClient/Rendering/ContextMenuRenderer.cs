@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -210,7 +210,7 @@ namespace EndlessClient.Rendering
 		}
 		private void _eventShowBook(object arg1, EventArgs arg2)
 		{
-			EODialog.Show("TODO: Show quest info", "TODO ITEM", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+			EOMessageBox.Show("TODO: Show quest info", "TODO ITEM", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 		}
 		private void _eventJoinParty(object arg1, EventArgs arg2)
 		{
@@ -253,9 +253,9 @@ namespace EndlessClient.Rendering
 		private void _eventTrade(object arg1, EventArgs arg2)
 		{
 			if (World.Instance.MainPlayer.ActiveCharacter.CurrentMap == World.Instance.JailMap)
-				EODialog.Show(World.GetString(DATCONST2.JAIL_WARNING_CANNOT_TRADE),
+				EOMessageBox.Show(World.GetString(DATCONST2.JAIL_WARNING_CANNOT_TRADE),
 					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
-					XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 			else
 			{
 				if(m_lastTradeRequestedTime != null && (DateTime.Now - m_lastTradeRequestedTime.Value).TotalSeconds < Constants.TradeRequestTimeoutSeconds)

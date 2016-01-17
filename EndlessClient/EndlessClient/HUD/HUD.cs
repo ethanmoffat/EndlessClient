@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -155,7 +155,7 @@ namespace EndlessClient.HUD
 				Enabled = true,
 				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
-			m_friendList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: false, apiHandle: m_packetAPI);
+			m_friendList.OnClick += (o, e) => FriendIgnoreListDialog.Show(isIgnoreList: false, apiHandle: m_packetAPI);
 			m_friendList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_FRIEND_LIST);
 
 			m_ignoreList = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
@@ -167,19 +167,19 @@ namespace EndlessClient.HUD
 				Enabled = true,
 				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
-			m_ignoreList.OnClick += (o, e) => EOFriendIgnoreListDialog.Show(isIgnoreList: true, apiHandle: m_packetAPI);
+			m_ignoreList.OnClick += (o, e) => FriendIgnoreListDialog.Show(isIgnoreList: true, apiHandle: m_packetAPI);
 			m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_IGNORE_LIST);
 
 			m_expInfo = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
 				new Vector2(55, 0),
 				new Rectangle(331, 30, 22, 14),
 				new Rectangle(331, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-			m_expInfo.OnClick += (o, e) => EOSessionExpDialog.Show();
+			m_expInfo.OnClick += (o, e) => SessionExpDialog.Show();
 			m_questInfo = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
 				new Vector2(77, 0),
 				new Rectangle(353, 30, 22, 14),
 				new Rectangle(353, 30, 22, 14)) {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-			m_questInfo.OnClick += (o, e) => EOQuestProgressDialog.Show(m_packetAPI);
+			m_questInfo.OnClick += (o, e) => QuestProgressDialog.Show(m_packetAPI);
 
 			//no need to make this a member variable
 			//it does not have any resources to dispose and it is automatically disposed by the framework

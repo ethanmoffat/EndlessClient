@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -124,7 +124,7 @@ namespace EndlessClient.HUD
 		public ChatTabs WhichTab { get; private set; }
 
 		private Rectangle? closeRect;
-		private readonly EOScrollBar scrollBar;
+		private readonly ScrollBar scrollBar;
 
 		private struct ChatIndex : IComparable
 		{
@@ -240,7 +240,7 @@ namespace EndlessClient.HUD
 			}
 			
 			//568 331
-			scrollBar = new EOScrollBar(parent, new Vector2(467, 2), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed)
+			scrollBar = new ScrollBar(parent, new Vector2(467, 2), new Vector2(16, 97), ScrollBarColors.LightOnMed)
 			{
 				Visible = selected,
 				LinesToRender = 7
@@ -260,7 +260,7 @@ namespace EndlessClient.HUD
 
 			relativeTextPos = new Vector2(20, 23);
 			//568 331
-			scrollBar = new EOScrollBar(parent, new Vector2(467, 20), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed)
+			scrollBar = new ScrollBar(parent, new Vector2(467, 20), new Vector2(16, 97), ScrollBarColors.LightOnMed)
 			{
 				LinesToRender = 7,
 				Visible = true

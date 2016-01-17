@@ -581,9 +581,9 @@ namespace EndlessClient
 					//false when AddItem fails to find a good spot
 					if (!EOGame.Instance.Hud.UpdateInventory(newRec))
 					{
-						EODialog.Show(World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+						EOMessageBox.Show(World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
 							World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
-							XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+							XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 						return;
 					}
 				}
@@ -611,9 +611,9 @@ namespace EndlessClient
 					//false when AddItem fails to find a good spot
 					if (!EOGame.Instance.Hud.UpdateInventory(newRec))
 					{
-						EODialog.Show(World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+						EOMessageBox.Show(World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
 							World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
-							XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+							XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 						return;
 					}
 				}
@@ -688,9 +688,9 @@ namespace EndlessClient
 			if(rec != null && Inventory.FindIndex(_ii => _ii.id == rec.ID) >= 0)
 				permission = DoorSpec.Door;
 			else if (rec == null) //show a warning saying that this door is perma-locked. Non-standard pub files will cause this.
-				EODialog.Show(
+				EOMessageBox.Show(
 					string.Format("Unable to find key for {0} in EIF. This door will never be opened!",
-						Enum.GetName(typeof (DoorSpec), permission)), "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						Enum.GetName(typeof (DoorSpec), permission)), "Warning", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 
 			return permission;
 		}
@@ -721,9 +721,9 @@ namespace EndlessClient
 			if (rec != null && Inventory.FindIndex(_ii => _ii.id == rec.ID) >= 0)
 				permission = ChestKey.None;
 			else if (rec == null) //show a warning saying that this chest is perma-locked. Non-standard pub files will cause this.
-				EODialog.Show(
+				EOMessageBox.Show(
 					string.Format("Unable to find key for {0} in EIF. This chest will never be opened!",
-						Enum.GetName(typeof(ChestKey), permission)), "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+						Enum.GetName(typeof(ChestKey), permission)), "Warning", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 
 			return permission;
 		}

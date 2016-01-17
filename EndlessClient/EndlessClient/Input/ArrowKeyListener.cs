@@ -160,7 +160,7 @@ namespace EndlessClient.Input
 									break;
 							}
 
-							EODialog.Show(DATCONST1.DOOR_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+							EOMessageBox.Show(DATCONST1.DOOR_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 							((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
 								DATCONST2.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
 								" - " + strWhichKey);
@@ -213,20 +213,20 @@ namespace EndlessClient.Input
 								case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
 								case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
 								default:
-									EOChestDialog.Show(((EOGame)Game).API, chest.x, chest.y);
+									ChestDialog.Show(((EOGame)Game).API, chest.x, chest.y);
 									break;
 							}
 
 							if (requiredKey != null)
 							{
-								EODialog.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+								EOMessageBox.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 								((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
 									" - " + requiredKey);
 							}
 						}
 						else
 						{
-							EOChestDialog.Show(((EOGame)Game).API, destX, destY);
+							ChestDialog.Show(((EOGame)Game).API, destX, destY);
 						}
 					}
 					break;
@@ -234,7 +234,7 @@ namespace EndlessClient.Input
 					walkValid = Renderer.NoWall;
 					if (!walkValid)
 					{
-						EOLockerDialog.Show(((EOGame)Game).API, destX, destY);
+						LockerDialog.Show(((EOGame)Game).API, destX, destY);
 					}
 					break;
 				case TileSpec.SpikesTrap:

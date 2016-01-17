@@ -1256,7 +1256,7 @@ namespace EndlessClient.Rendering
 							var signInfo = (MapSign)ti.MapElement;
 							_hideCursor = true;
 							if (mouseClicked)
-								EODialog.Show(signInfo.message, signInfo.title, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+								EOMessageBox.Show(signInfo.message, signInfo.title, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 						}
 						else
 							_cursorSourceRect.Location = new Point(0, 0);
@@ -1371,13 +1371,13 @@ namespace EndlessClient.Rendering
 								requiredKey = "Wraith Key";
 								break;
 							default:
-								EOChestDialog.Show(m_api, chest.x, chest.y);
+								ChestDialog.Show(m_api, chest.x, chest.y);
 								break;
 						}
 
 						if (requiredKey != null)
 						{
-							EODialog.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+							EOMessageBox.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 							((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
 								DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
 								" - " + requiredKey);
@@ -1388,7 +1388,7 @@ namespace EndlessClient.Rendering
 					_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
 					if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y))
 					{
-						EOLockerDialog.Show(m_api, (byte) gridX, (byte) gridY);
+						LockerDialog.Show(m_api, (byte) gridX, (byte) gridY);
 					}
 					break;
 				case TileSpec.ChairDown:

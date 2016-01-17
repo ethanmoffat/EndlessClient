@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -89,7 +89,7 @@ namespace EndlessClient.HUD
 			{
 				if (!m_soundChanged && !w.SoundEnabled)
 				{
-					EODialog.Show(DATCONST1.SETTINGS_SOUND_DISABLED, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader,
+					EOMessageBox.Show(DATCONST1.SETTINGS_SOUND_DISABLED, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
 						(o, args) =>
 						{
 							if (args.Result == XNADialogResult.OK)
@@ -115,7 +115,7 @@ namespace EndlessClient.HUD
 			{
 				if (!m_musicChanged && !w.MusicEnabled)
 				{
-					EODialog.Show(DATCONST1.SETTINGS_MUSIC_DISABLED, XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader,
+					EOMessageBox.Show(DATCONST1.SETTINGS_MUSIC_DISABLED, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
 						(o, args) =>
 						{
 							if (args.Result == XNADialogResult.OK)

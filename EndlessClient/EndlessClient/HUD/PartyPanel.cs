@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2015
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -17,7 +17,7 @@ namespace EndlessClient.HUD
 {
 	public class EOPartyPanel : XNAControl
 	{
-		private readonly EOScrollBar m_scrollBar;
+		private readonly ScrollBar m_scrollBar;
 		private readonly XNALabel m_numMembers;
 		private List<PartyMember> m_members;
 		private readonly List<XNAButton> m_buttons; 
@@ -58,7 +58,7 @@ namespace EndlessClient.HUD
 			};
 			m_numMembers.SetParent(this);
 
-			m_scrollBar = new EOScrollBar(this, new Vector2(467, 20), new Vector2(16, 97), EOScrollBar.ScrollColors.LightOnMed)
+			m_scrollBar = new ScrollBar(this, new Vector2(467, 20), new Vector2(16, 97), ScrollBarColors.LightOnMed)
 			{
 				LinesToRender = 7,
 				Visible = true

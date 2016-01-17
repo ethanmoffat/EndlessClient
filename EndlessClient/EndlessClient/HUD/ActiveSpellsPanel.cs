@@ -39,7 +39,7 @@ namespace EndlessClient.HUD
 		private readonly XNAButton _levelUpButton1, _levelUpButton2;
 
 		private int _lastScrollOffset;
-		private readonly EOScrollBar _scroll;
+		private readonly ScrollBar _scroll;
 
 		private bool _trainWarningShown;
 
@@ -79,7 +79,7 @@ namespace EndlessClient.HUD
 
 				if (slot < 0 || !_addNewSpellToSlot(slot, rec, spell.level))
 				{
-					EODialog.Show("You have too many spells! They don't all fit.", "Warning", XNADialogButtons.Ok, EODialogStyle.SmallDialogSmallHeader);
+					EOMessageBox.Show("You have too many spells! They don't all fit.", "Warning", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					break;
 				}
 
@@ -141,7 +141,7 @@ namespace EndlessClient.HUD
 			_levelUpButton2.OnClick += LevelUp_Click;
 			_levelUpButton2.SetParent(this);
 
-			_scroll = new EOScrollBar(this, new Vector2(467, 2), new Vector2(16, 115), EOScrollBar.ScrollColors.LightOnMed) { LinesToRender = 2 };
+			_scroll = new ScrollBar(this, new Vector2(467, 2), new Vector2(16, 115), ScrollBarColors.LightOnMed) { LinesToRender = 2 };
 			_scroll.UpdateDimensions(4);
 
 			foreach (var child in children.Where(x => !(x is EmptySpellIcon)))
@@ -361,7 +361,7 @@ namespace EndlessClient.HUD
 			{
 				//apparently this is NOT stored in the edf files...
 				//NOTE: copy-pasted from EOCharacterStats button event handler. Should probably be in some shared function somewhere.
-				EODialog dlg = new EODialog("Do you want to train?", "Skill training", XNADialogButtons.OkCancel, EODialogStyle.SmallDialogSmallHeader);
+				EOMessageBox dlg = new EOMessageBox("Do you want to train?", "Skill training", XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader);
 				dlg.DialogClosing += (s, e) =>
 				{
 					if (e.Result != XNADialogResult.OK) return;

@@ -1,4 +1,4 @@
-// Original Work Copyright (c) Ethan Moffat 2014-2015
+// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -161,7 +161,7 @@ namespace EndlessClient
 								default:
 									string extra;
 									DATCONST1 msg = _packetAPI.GetInitResponseMessage(out extra);
-									EODialog.Show(msg, extra);
+									EOMessageBox.Show(msg, extra);
 									break;
 							}
 						}
@@ -180,7 +180,7 @@ namespace EndlessClient
 				{
 					if (!_exiting)
 					{
-						EODialog.Show(DATCONST1.CONNECTION_SERVER_NOT_FOUND);
+						EOMessageBox.Show(DATCONST1.CONNECTION_SERVER_NOT_FOUND);
 					}
 				}
 
@@ -191,7 +191,7 @@ namespace EndlessClient
 		public void ShowLostConnectionDialog()
 		{
 			if (_backButtonPressed) return;
-			EODialog.Show(State == GameStates.PlayingTheGame
+			EOMessageBox.Show(State == GameStates.PlayingTheGame
 				? DATCONST1.CONNECTION_LOST_IN_GAME
 				: DATCONST1.CONNECTION_LOST_CONNECTION);	
 		}
@@ -352,7 +352,7 @@ namespace EndlessClient
 					}
 
 					_backButton.Visible = true;
-					//note: HUD construction moved to successful welcome message in EOConnectingDialog close event handler
+					//note: HUD construction moved to successful welcome message in GameLoadingDialog close event handler
 
 					break;
 			}
