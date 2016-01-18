@@ -171,7 +171,7 @@
     <Compile Include="HUD\ChatPanel.cs" />
     <Compile Include="HUD\ChatTextBox.cs" />
     <Compile Include="HUD\HUD.cs" />
-    <Compile Include="HUD\HUDElement.cs" />
+    <Compile Include="HUD\StatusBars\BaseStatusBar.cs" />
     <Compile Include="HUD\InventoryPanel.cs" />
     <Compile Include="HUD\Inventory\EOInventoryItem.cs" />
     <Compile Include="HUD\OnlineListPanel.cs" />
@@ -183,6 +183,10 @@
     <Compile Include="HUD\Spells\ISpellIcon.cs" />
     <Compile Include="HUD\Spells\SpellIcon.cs" />
     <Compile Include="HUD\StatsPanel.cs" />
+    <Compile Include="HUD\StatusBars\HPStatusBar.cs" />
+    <Compile Include="HUD\StatusBars\SPStatusBar.cs" />
+    <Compile Include="HUD\StatusBars\TNLStatusBar.cs" />
+    <Compile Include="HUD\StatusBars\TPStatusBar.cs" />
     <Compile Include="Input\ArrowKeyListener.cs" />
     <Compile Include="Input\ControlKeyListener.cs" />
     <Compile Include="Input\FunctionKeyListener.cs" />

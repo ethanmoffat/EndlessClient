@@ -145,9 +145,6 @@
     <Compile Include="..\EndlessClient\EndlessClient\HUD\HUD.cs">
       <Link>HUD\HUD.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\HUD\HUDElement.cs">
-      <Link>HUD\HUDElement.cs</Link>
-    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\HUD\InventoryPanel.cs">
       <Link>HUD\InventoryPanel.cs</Link>
     </Compile>
@@ -180,6 +177,21 @@
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\HUD\StatsPanel.cs">
       <Link>HUD\StatsPanel.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\StatusBars\BaseStatusBar.cs">
+      <Link>HUD\StatusBars\BaseStatusBar.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\StatusBars\HPStatusBar.cs">
+      <Link>HUD\StatusBars\HPStatusBar.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\StatusBars\SPStatusBar.cs">
+      <Link>HUD\StatusBars\SPStatusBar.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\StatusBars\TNLStatusBar.cs">
+      <Link>HUD\StatusBars\TNLStatusBar.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\HUD\StatusBars\TPStatusBar.cs">
+      <Link>HUD\StatusBars\TPStatusBar.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Input\ArrowKeyListener.cs">
       <Link>Input\ArrowKeyListener.cs</Link>
