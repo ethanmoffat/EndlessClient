@@ -141,6 +141,27 @@ namespace EndlessClient.Rendering.Effects
 						new EffectSpriteInfo(6, 1, false, 128, GetGraphic(144)),
 						new EffectSpriteInfo(6, 1, true, 255, GetGraphic(145))
 					};
+				case 16: //Ring of Fire
+					return new List<EffectSpriteInfo>(2)
+					{
+						new EffectSpriteInfo(4, 3, false, 255, GetGraphic(146)),
+						new EffectSpriteInfo(4, 3, true, 128, GetGraphic(148))
+					};
+				case 17: //Ice Blast (1)
+					return new List<EffectSpriteInfo>(2)
+					{
+						new EffectSpriteInfo(7, 1 ,false, 128, GetGraphic(150)),
+						new EffectSpriteInfo(7, 1, true, 255, GetGraphic(151))
+					};
+				case 18: //Energy Ball
+					return new List<EffectSpriteInfo>(1) { new EnergyBallEffectSpriteInfo(7, 1, true, 255, GetGraphic(154)) };
+				case 19: //hWhirl
+					return new List<EffectSpriteInfo>(3) //todo: in the original client, this moves around more erractically
+					{
+						new EffectSpriteInfo(4, 2, false, 255, GetGraphic(155)),
+						new EffectSpriteInfo(4, 2, true, 128, GetGraphic(156)),
+						new EffectSpriteInfo(4, 2, true, 255, GetGraphic(155))
+					};
 			}
 
 			//not implemented spell graphics will just not render anything

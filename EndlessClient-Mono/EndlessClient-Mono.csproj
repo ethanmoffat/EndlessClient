@@ -226,6 +226,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\EffectSpriteManager.cs">
       <Link>Rendering\Effects\EffectSpriteManager.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\EnergyBallEffectSpriteInfo.cs">
+      <Link>Rendering\Effects\EnergyBallEffectSpriteInfo.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\FireballEffectSpriteInfo.cs">
       <Link>Rendering\Effects\FireballEffectSpriteInfo.cs</Link>
     </Compile>
