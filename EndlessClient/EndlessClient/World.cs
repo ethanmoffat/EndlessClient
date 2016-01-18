@@ -543,9 +543,12 @@ namespace EndlessClient
 			foreach (MapItem mi in items)
 				ActiveMapRenderer.AddMapItem(mi);
 
-			var effectRenderer = new EffectRenderer(EOGame.Instance, ActiveCharacterRenderer, delegate { });
-			effectRenderer.SetEffectInfoTypeAndID(EffectType.WarpDestination, 0);
-			effectRenderer.ShowEffect();
+			if (anim == WarpAnimation.Admin)
+			{
+				var effectRenderer = new EffectRenderer(EOGame.Instance, ActiveCharacterRenderer, delegate { });
+				effectRenderer.SetEffectInfoTypeAndID(EffectType.WarpDestination, 0);
+				effectRenderer.ShowEffect();
+			}
 		}
 
 		public void ApplyWelcomeRequest(PacketAPI api, WelcomeRequestData data)
