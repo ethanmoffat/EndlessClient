@@ -10,10 +10,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.HUD.StatusBars
 {
-	//base hud element class
-	public abstract class HUDElement : XNAControl
+	public abstract class BaseStatusBar : XNAControl
 	{
 		protected readonly CharStatData m_stats;
 		protected readonly XNALabel m_label;
@@ -21,7 +20,7 @@ namespace EndlessClient.HUD
 		protected Rectangle m_elemSourceRect;
 		private DateTime m_labelShowTime;
 		
-		protected HUDElement()
+		protected BaseStatusBar()
 		{
 			m_stats = World.Instance.MainPlayer.ActiveCharacter.Stats;
 			
@@ -41,8 +40,8 @@ namespace EndlessClient.HUD
 			m_label.SetParent(this);
 		}
 
-		protected abstract void updateLabelText();
-		protected abstract void drawHudElement();
+		protected abstract void UpdateLabelText();
+		protected abstract void DrawStatusBar();
 
 		private void OnClick()
 		{
@@ -65,7 +64,7 @@ namespace EndlessClient.HUD
 			if (m_label != null)
 			{
 				if (m_label.Visible)
-					updateLabelText();
+					UpdateLabelText();
 
 				//toggle off after 3 seconds
 				if ((DateTime.Now - m_labelShowTime).TotalSeconds >= 4)
@@ -77,7 +76,7 @@ namespace EndlessClient.HUD
 
 		public override void Draw(GameTime gameTime)
 		{
-			drawHudElement();
+			DrawStatusBar();
 			//draw the background for the label if it is visible
 			if (m_label != null && m_label.Visible)
 			{
@@ -91,20 +90,20 @@ namespace EndlessClient.HUD
 		}
 	}
 
-	public class HudElementHP : HUDElement
+	public class HPStatusBar : BaseStatusBar
 	{
-		public HudElementHP()
+		public HPStatusBar()
 		{
 			DrawLocation = new Vector2(100, 0);
 			drawArea = new Rectangle((int)DrawLocation.X, (int)DrawLocation.Y, m_elemSourceRect.Width, m_elemSourceRect.Height);
 		}
 
-		protected override void updateLabelText()
+		protected override void UpdateLabelText()
 		{
 			m_label.Text = string.Format("{0}/{1}", m_stats.HP, m_stats.MaxHP);
 		}
 
-		protected override void drawHudElement()
+		protected override void DrawStatusBar()
 		{
 			int srcWidth = 25+(int) Math.Round((m_stats.HP/(double) m_stats.MaxHP)*79);
 			Rectangle maskSrc = new Rectangle(m_elemSourceRect.X, m_elemSourceRect.Height, srcWidth, m_elemSourceRect.Height);
@@ -116,21 +115,21 @@ namespace EndlessClient.HUD
 		}
 	}
 
-	public class HudElementTP : HUDElement
+	public class TPStatusBar : BaseStatusBar
 	{
-		public HudElementTP()
+		public TPStatusBar()
 		{
 			DrawLocation = new Vector2(210, 0);
 			drawArea = new Rectangle((int)DrawLocation.X, (int)DrawLocation.Y, m_elemSourceRect.Width, m_elemSourceRect.Height);
 			m_elemSourceRect.Offset(m_elemSourceRect.Width, 0);
 		}
 
-		protected override void updateLabelText()
+		protected override void UpdateLabelText()
 		{
 			m_label.Text = string.Format("{0}/{1}", m_stats.TP, m_stats.MaxTP);
 		}
 
-		protected override void drawHudElement()
+		protected override void DrawStatusBar()
 		{
 			int srcWidth = 24+(int) Math.Round((m_stats.TP/(double) m_stats.MaxTP)*79);
 			Rectangle maskSrc = new Rectangle(m_elemSourceRect.X, m_elemSourceRect.Height, srcWidth, m_elemSourceRect.Height);
@@ -142,21 +141,21 @@ namespace EndlessClient.HUD
 		}
 	}
 
-	public class HudElementSP : HUDElement
+	public class SPStatusBar : BaseStatusBar
 	{
-		public HudElementSP()
+		public SPStatusBar()
 		{
 			DrawLocation = new Vector2(320, 0);
 			drawArea = new Rectangle((int)DrawLocation.X, (int)DrawLocation.Y, m_elemSourceRect.Width, m_elemSourceRect.Height);
 			m_elemSourceRect.Offset(m_elemSourceRect.Width * 2, 0);
 		}
 
-		protected override void updateLabelText()
+		protected override void UpdateLabelText()
 		{
 			m_label.Text = string.Format("{0}/{1}", m_stats.SP, m_stats.MaxSP);
 		}
 
-		protected override void drawHudElement()
+		protected override void DrawStatusBar()
 		{
 			int srcWidth = 25 + (int) Math.Round((m_stats.SP/(double) m_stats.MaxSP)*79);
 			Rectangle maskSrc = new Rectangle(m_elemSourceRect.X, m_elemSourceRect.Height, srcWidth, m_elemSourceRect.Height);
@@ -168,21 +167,21 @@ namespace EndlessClient.HUD
 		}
 	}
 
-	public class HudElementTNL : HUDElement
+	public class TNLStatusBar : BaseStatusBar
 	{
-		public HudElementTNL()
+		public TNLStatusBar()
 		{
 			DrawLocation = new Vector2(430, 0);
 			drawArea = new Rectangle((int)DrawLocation.X, (int)DrawLocation.Y, m_elemSourceRect.Width, m_elemSourceRect.Height);
 			m_elemSourceRect = new Rectangle(m_elemSourceRect.Width * 3 - 1, 0, m_elemSourceRect.Width + 1, m_elemSourceRect.Height);
 		}
 
-		protected override void updateLabelText()
+		protected override void UpdateLabelText()
 		{
 			m_label.Text = string.Format("{0}", World.Instance.exp_table[m_stats.Level + 1] - m_stats.Experience);
 		}
 
-		protected override void drawHudElement()
+		protected override void DrawStatusBar()
 		{
 			int thisLevel = World.Instance.exp_table[m_stats.Level];
 			int nextLevel = World.Instance.exp_table[m_stats.Level + 1];

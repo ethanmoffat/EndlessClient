@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using EndlessClient.Dialogs;
+using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
 using EOLib;
 using EOLib.Graphics;
@@ -64,9 +65,9 @@ namespace EndlessClient.HUD
 		private readonly EOPartyPanel m_party;
 		private ActiveSpells activeSpells; 
 
-		private readonly XNALabel statusLabel; //label for status (mouse-over buttons)
+		private readonly XNALabel statusLabel;
 		private bool m_statusRecentlySet;
-		private readonly XNALabel clockLabel; //label that is updated on a timer
+		private readonly XNALabel clockLabel;
 		private Timer clockTimer, m_muteTimer;
 
 		private DateTime? statusStartTime;
@@ -75,15 +76,8 @@ namespace EndlessClient.HUD
 		private ChatMode currentChatMode;
 		private Texture2D modeTexture;
 		private bool modeTextureLoaded;
-		/// <summary>
-		/// the primary textbox for chat
-		/// </summary>
 		private ChatTextBox chatTextBox;
 
-		//HP, SP, TP, TNL (in that order)
-		private readonly HUDElement[] StatusBars = new HUDElement[4];
-
-		//friend/ignore lists
 		private readonly XNAButton m_friendList, m_ignoreList, m_expInfo, m_questInfo;
 
 		public DateTime SessionStartTime { get; private set; }
@@ -137,11 +131,6 @@ namespace EndlessClient.HUD
 
 			statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
 			clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
-
-			StatusBars[0] = new HudElementHP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-			StatusBars[1] = new HudElementTP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-			StatusBars[2] = new HudElementSP {DrawOrder = HUD_CONTROL_DRAW_ORDER};
-			StatusBars[3] = new HudElementTNL {DrawOrder = HUD_CONTROL_DRAW_ORDER};
 
 			m_whoIsOnline = new EOOnlineList(pnlOnline);
 			m_party = new EOPartyPanel(pnlParty);
@@ -417,6 +406,18 @@ namespace EndlessClient.HUD
 			((EOGame) Game).Dispatcher.Subscriber = chatTextBox;
 		}
 
+		private void CreateStatusBars()
+		{
+			var hp = new HPStatusBar { DrawOrder = HUD_CONTROL_DRAW_ORDER };
+			var tp = new TPStatusBar { DrawOrder = HUD_CONTROL_DRAW_ORDER };
+			var sp = new SPStatusBar { DrawOrder = HUD_CONTROL_DRAW_ORDER };
+			var tnl = new TNLStatusBar { DrawOrder = HUD_CONTROL_DRAW_ORDER };
+
+			if (!Game.Components.Contains(hp) || !Game.Components.Contains(tp) ||
+				!Game.Components.Contains(sp) || !Game.Components.Contains(tnl))
+				throw new InvalidOperationException("One of the status bars (HP, SP, TP, or TNL) is not in the game components list.");
+		}
+
 		#endregion
 
 		public override void Initialize()
@@ -451,7 +452,7 @@ namespace EndlessClient.HUD
 
 					if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).TotalMilliseconds > 3000)
 					{
-						SetStatusLabel("");
+						SetStatusLabelText("");
 						m_statusRecentlySet = false;
 						statusStartTime = null;
 					}
@@ -494,6 +495,8 @@ namespace EndlessClient.HUD
 			};
 			m_inputListeners.ForEach(x => x.InputTimeUpdated += World.Instance.ActiveCharacterRenderer.UpdateInputTime);
 
+			CreateStatusBars();
+
 			base.Initialize();
 		}
 
@@ -535,7 +538,8 @@ namespace EndlessClient.HUD
 			base.Draw(gameTime);
 		}
 
-		#region HelperMethods
+		#region Helper Methods
+
 		private void _doStateChange(InGameStates newGameState)
 		{
 			state = newGameState;
@@ -780,9 +784,34 @@ namespace EndlessClient.HUD
 			//any other logic prior to disconnecting goes here
 			EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
+
+		private void SetStatusLabelText(string text)
+		{
+			statusLabel.Text = text;
+			statusStartTime = !string.IsNullOrEmpty(text) ? new DateTime?(DateTime.Now) : null;
+			m_statusRecentlySet = true;
+		}
+
+		private void CheckStatusLabelType(DATCONST2 type)
+		{
+			switch (type)
+			{
+				case DATCONST2.STATUS_LABEL_TYPE_ACTION:
+				case DATCONST2.STATUS_LABEL_TYPE_BUTTON:
+				case DATCONST2.STATUS_LABEL_TYPE_INFORMATION:
+				case DATCONST2.STATUS_LABEL_TYPE_WARNING:
+				case DATCONST2.STATUS_LABEL_TYPE_ITEM:
+				case DATCONST2.SKILLMASTER_WORD_SPELL:
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("type", "Use either ACTION, BUTTION, INFORMATION, WARNING, or ITEM for this.");
+			}
+		}
+
 		#endregion
 
 		#region Public Interface for classes outside HUD
+
 		public void SetNews(IList<string> lines)
 		{
 			if(lines.Count == 0)
@@ -838,58 +867,30 @@ namespace EndlessClient.HUD
 			chatTextBox.Text = text;
 		}
 
-		public void SetStatusLabel(string text)
-		{
-			statusLabel.Text = text;
-			statusStartTime = !string.IsNullOrEmpty(text) ? new DateTime?(DateTime.Now) : null;
-			m_statusRecentlySet = true;
-		}
-
-		public void SetStatusLabel(DATCONST2 message)
-		{
-			SetStatusLabel(World.Instance.DataFiles[World.Instance.Localized2].Data[(int) message]);
-		}
-
 		public void SetStatusLabel(DATCONST2 type, DATCONST2 message, string extra = "")
 		{
-			_setStatusLabelCheckType(type);
+			CheckStatusLabelType(type);
 
 			string typeText = World.GetString(type);
 			string messageText = World.GetString(message);
-			SetStatusLabel(string.Format("[ {0} ] {1} {2}", typeText, messageText, extra));
+			SetStatusLabelText(string.Format("[ {0} ] {1} {2}", typeText, messageText, extra));
 		}
 
 		public void SetStatusLabel(DATCONST2 type, string extra, DATCONST2 message)
 		{
-			_setStatusLabelCheckType(type);
+			CheckStatusLabelType(type);
 
 			string typeText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int)type];
 			string messageText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int)message];
-			SetStatusLabel(string.Format("[ {0} ] {1} {2}", typeText, extra, messageText));
+			SetStatusLabelText(string.Format("[ {0} ] {1} {2}", typeText, extra, messageText));
 		}
 
 		public void SetStatusLabel(DATCONST2 type, string detail)
 		{
-			_setStatusLabelCheckType(type);
+			CheckStatusLabelType(type);
 
 			string typeText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) type];
-			SetStatusLabel(string.Format("[ {0} ] {1}", typeText, detail));
-		}
-
-		private void _setStatusLabelCheckType(DATCONST2 type)
-		{
-			switch (type)
-			{
-				case DATCONST2.STATUS_LABEL_TYPE_ACTION:
-				case DATCONST2.STATUS_LABEL_TYPE_BUTTON:
-				case DATCONST2.STATUS_LABEL_TYPE_INFORMATION:
-				case DATCONST2.STATUS_LABEL_TYPE_WARNING:
-				case DATCONST2.STATUS_LABEL_TYPE_ITEM:
-				case DATCONST2.SKILLMASTER_WORD_SPELL:
-					break;
-				default:
-					throw new ArgumentOutOfRangeException("type", "Use either ACTION, BUTTION, INFORMATION, WARNING, or ITEM for this.");
-			}
+			SetStatusLabelText(string.Format("[ {0} ] {1}", typeText, detail));
 		}
 
 		public bool UpdateInventory(InventoryItem item)
