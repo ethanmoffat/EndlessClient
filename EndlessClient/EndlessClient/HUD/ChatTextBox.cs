@@ -14,39 +14,46 @@ namespace EndlessClient.HUD
 	/// </summary>
 	public class ChatTextBox : XNATextBox
 	{
-		private bool m_ignoreNextInput;
+		private bool _ignoreNextInput;
 
-		public bool IgnoreAllInput { get; set; }
+		private bool _ignoreAllInput;
 
 		public ChatTextBox(Rectangle area, Texture2D cursorTexture, string spriteFontContentName)
 			: base(area, cursorTexture, spriteFontContentName) { }
 
+		public void ToggleTextInputIgnore()
+		{
+			_ignoreAllInput = !_ignoreAllInput;
+		}
+
 		public override void ReceiveTextInput(char inp)
 		{
-			if (IgnoreAllInput) return;
+			if (_ignoreAllInput) return;
 
-			if (!m_ignoreNextInput)
+			if (!_ignoreNextInput)
 				base.ReceiveTextInput(inp);
 			else
-				m_ignoreNextInput = false;
+				_ignoreNextInput = false;
 		}
+
 		public override void ReceiveTextInput(string inp)
 		{
-			if (IgnoreAllInput) return;
+			if (_ignoreAllInput) return;
 
-			if (!m_ignoreNextInput)
+			if (!_ignoreNextInput)
 				base.ReceiveTextInput(inp);
 			else
-				m_ignoreNextInput = false;
+				_ignoreNextInput = false;
 		}
+
 		public override void ReceiveSpecialInput(Keys key)
 		{
-			if (IgnoreAllInput) return;
+			if (_ignoreAllInput) return;
 
 			//ignore the emote input keys!
 			if (key >= Keys.NumPad0 && key <= Keys.NumPad9 || key == Keys.Decimal)
 			{
-				m_ignoreNextInput = true;
+				_ignoreNextInput = true;
 			}
 		}
 	}

@@ -124,7 +124,7 @@ namespace EndlessClient.HUD
 
 			m_muteTimer = new Timer(s =>
 			{
-				chatTextBox.IgnoreAllInput = false;
+				chatTextBox.ToggleTextInputIgnore();
 				currentChatMode = ChatMode.NoText;
 				m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
 			}, null, Timeout.Infinite, Timeout.Infinite);
@@ -853,7 +853,7 @@ namespace EndlessClient.HUD
 		public void SetMuted()
 		{
 			currentChatMode = ChatMode.Muted;
-			chatTextBox.IgnoreAllInput = true;
+			chatTextBox.ToggleTextInputIgnore();
 			m_muteTimer.Change(Constants.MuteDefaultTimeMinutes*60000, 0);
 		}
 
