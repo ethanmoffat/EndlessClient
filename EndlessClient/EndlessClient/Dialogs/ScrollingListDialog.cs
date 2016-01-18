@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.Controls;
 using EndlessClient.HUD;
 using EOLib;
 using EOLib.Graphics;

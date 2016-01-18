@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading;
+using EndlessClient.Controls;
 using EndlessClient.HUD;
 using EndlessClient.Rendering.Effects;
 using EOLib;

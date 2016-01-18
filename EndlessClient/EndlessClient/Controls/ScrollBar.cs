@@ -1,11 +1,12 @@
 ﻿using System;
+using EndlessClient.HUD;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.Controls
 {
 	public enum ScrollBarColors
 	{

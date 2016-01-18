@@ -6,7 +6,7 @@ using System;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.Controls
 {
 	public class BlinkingLabel : XNALabel
 	{

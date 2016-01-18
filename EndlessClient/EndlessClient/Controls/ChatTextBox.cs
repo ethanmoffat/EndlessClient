@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.Controls
 {
 	/// <summary>
 	/// Special instance of an XNATextBox that should ignore input from the number pad (which is used for Emotes)
