@@ -137,7 +137,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BlinkingLabel.cs" />
+    <Compile Include="Controls\BlinkingLabel.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Dialogs\BankAccountDialog.cs" />
@@ -169,14 +169,14 @@
     <Compile Include="GameUI.cs" />
     <Compile Include="HUD\ActiveSpellsPanel.cs" />
     <Compile Include="HUD\ChatPanel.cs" />
-    <Compile Include="HUD\ChatTextBox.cs" />
+    <Compile Include="Controls\ChatTextBox.cs" />
     <Compile Include="HUD\HUD.cs" />
     <Compile Include="HUD\StatusBars\BaseStatusBar.cs" />
     <Compile Include="HUD\InventoryPanel.cs" />
     <Compile Include="HUD\Inventory\EOInventoryItem.cs" />
     <Compile Include="HUD\OnlineListPanel.cs" />
     <Compile Include="HUD\PartyPanel.cs" />
-    <Compile Include="HUD\ScrollBar.cs" />
+    <Compile Include="Controls\ScrollBar.cs" />
     <Compile Include="HUD\SettingsPanel.cs" />
     <Compile Include="HUD\SoundPanel.cs" />
     <Compile Include="HUD\Spells\EmptySpellIcon.cs" />

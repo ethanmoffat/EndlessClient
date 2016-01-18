@@ -43,14 +43,20 @@
     </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\EndlessClient\EndlessClient\BlinkingLabel.cs">
-      <Link>BlinkingLabel.cs</Link>
-    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Character.cs">
       <Link>Character.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Config.cs">
       <Link>Config.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Controls\BlinkingLabel.cs">
+      <Link>Controls\BlinkingLabel.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Controls\ChatTextBox.cs">
+      <Link>Controls\ChatTextBox.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Controls\ScrollBar.cs">
+      <Link>Controls\ScrollBar.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Dialogs\BankAccountDialog.cs">
       <Link>Dialogs\BankAccountDialog.cs</Link>
@@ -139,9 +145,6 @@
     <Compile Include="..\EndlessClient\EndlessClient\HUD\ChatPanel.cs">
       <Link>HUD\ChatPanel.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\HUD\ChatTextBox.cs">
-      <Link>HUD\ChatTextBox.cs</Link>
-    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\HUD\HUD.cs">
       <Link>HUD\HUD.cs</Link>
     </Compile>
@@ -156,9 +159,6 @@
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\HUD\PartyPanel.cs">
       <Link>HUD\PartyPanel.cs</Link>
-    </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\HUD\ScrollBar.cs">
-      <Link>HUD\ScrollBar.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\HUD\SettingsPanel.cs">
       <Link>HUD\SettingsPanel.cs</Link>
