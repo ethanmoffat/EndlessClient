@@ -1382,7 +1382,7 @@ namespace EndlessClient.Rendering
 			Character.PrepareSpell(toCast.ID);
 			_beginSpellCast(toCast);
 
-			SetSpellShout(toCast.Name);
+			SetSpellShout(toCast.Shout);
 		}
 
 		private void _beginSpellCast(SpellRecord spell)

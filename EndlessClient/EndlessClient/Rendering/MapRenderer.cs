@@ -566,7 +566,7 @@ namespace EndlessClient.Rendering
 
 		public void OtherPlayerShoutSpell(short playerID, short spellID)
 		{
-			string shoutName = World.Instance.ESF.GetSpellRecordByID(spellID).Name;
+			string shoutName = World.Instance.ESF.GetSpellRecordByID(spellID).Shout;
 
 			lock (_rendererListLock)
 			{
