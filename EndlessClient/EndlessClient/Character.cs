@@ -491,7 +491,7 @@ namespace EndlessClient
 				//if (!(x == 255 && y == 255))
 				//{
 				//	TileInfo ti = World.Instance.ActiveMapRenderer.GetTileInfo(x, y);
-				//	if (ti.ReturnType == TileInfoReturnType.IsOtherNPC && ti.NPC.Opponent != null && ti.NPC.Opponent != this)
+				//	if (ti.ReturnType == TileInfoReturnType.IsOtherNPC && ti.NPC.Opponent != null && ti.NPCRenderer.Opponent != this)
 				//	{
 				//		EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_UNABLE_TO_ATTACK);
 				//		shouldSend = false;
@@ -758,7 +758,7 @@ namespace EndlessClient
 			switch (data.Target)
 			{
 				case EOLib.IO.SpellTarget.Normal:
-					var targetAsNPC = SpellTarget as NPC;
+					var targetAsNPC = SpellTarget as NPCRenderer;
 					var targetAsChar = SpellTarget as CharacterRenderer;
 					if (targetAsNPC != null)
 						result = m_packetAPI.DoCastTargetSpell((short) id, true, targetAsNPC.Index);
@@ -785,7 +785,7 @@ namespace EndlessClient
 
 		public void SetSpellTarget(DrawableGameComponent target)
 		{
-			if (target != null && !(target is NPC || target is CharacterRenderer)) //don't set target when it isn't valid!
+			if (target != null && !(target is NPCRenderer || target is CharacterRenderer)) //don't set target when it isn't valid!
 				return;
 
 			SpellTarget = target;

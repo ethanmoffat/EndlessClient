@@ -25,7 +25,7 @@ namespace EndlessClient.Dialogs
 		/* STATIC INTERFACE */
 		public static ShopDialog Instance { get; private set; }
 
-		public static void Show(PacketAPI api, NPC shopKeeper)
+		public static void Show(PacketAPI api, NPCRenderer shopKeeper)
 		{
 			if (Instance != null)
 				return;

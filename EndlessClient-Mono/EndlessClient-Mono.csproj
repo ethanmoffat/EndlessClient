@@ -255,8 +255,8 @@
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\MiniMapRenderer.cs">
       <Link>Rendering\MiniMapRenderer.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\Rendering\NPC.cs">
-      <Link>Rendering\NPC.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\NPCRenderer.cs">
+      <Link>Rendering\NPCRenderer.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\World.cs">
       <Link>World.cs</Link>

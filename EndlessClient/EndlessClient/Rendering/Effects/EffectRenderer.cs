@@ -35,7 +35,7 @@ namespace EndlessClient.Rendering.Effects
 
 		private bool _disposed;
 
-		public EffectRenderer(EOGame game, NPC npc, Action cleanupAction)
+		public EffectRenderer(EOGame game, NPCRenderer npc, Action cleanupAction)
 			: this(game, (DrawableGameComponent)npc, cleanupAction) { }
 
 		public EffectRenderer(EOGame game, CharacterRenderer character, Action cleanupAction)
@@ -123,7 +123,7 @@ namespace EndlessClient.Rendering.Effects
 			base.Draw(gameTime);
 		}
 
-		private void DrawTarget(NPC npc)
+		private void DrawTarget(NPCRenderer npc)
 		{
 			npc.DrawToSpriteBatch(_sb, true);
 		}
@@ -138,7 +138,7 @@ namespace EndlessClient.Rendering.Effects
 			throw new ArgumentException("fail: " + fail);
 		}
 
-		private Rectangle GetTargetRectangle(NPC npc)
+		private Rectangle GetTargetRectangle(NPCRenderer npc)
 		{
 			return npc.DrawArea;
 		}

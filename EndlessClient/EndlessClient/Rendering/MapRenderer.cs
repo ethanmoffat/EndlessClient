@@ -28,7 +28,7 @@ namespace EndlessClient.Rendering
 		//collections
 		private readonly Dictionary<Point, List<MapItem>> MapItems = new Dictionary<Point, List<MapItem>>();
 		private readonly List<CharacterRenderer> otherRenderers = new List<CharacterRenderer>();
-		private readonly List<NPC> npcList = new List<NPC>();
+		private readonly List<NPCRenderer> npcList = new List<NPCRenderer>();
 		private readonly object _npcListLock = new object(), _rendererListLock = new object();
 
 		public MapFile MapRef { get; private set; }
@@ -137,7 +137,7 @@ namespace EndlessClient.Rendering
 				lock(_npcListLock)
 					dgc = npcList.Find(_npc => _npc.Index == playerID);
 				if (dgc != null)
-					playerName = ((NPC) dgc).Data.Name;
+					playerName = ((NPCRenderer) dgc).Data.Name;
 			}
 			else
 			{
@@ -184,8 +184,8 @@ namespace EndlessClient.Rendering
 // ReSharper disable CanBeReplacedWithTryCastAndCheckForNull
 			if (follow is CharacterRenderer)
 				((CharacterRenderer)follow).SetChatBubbleText(message, groupChat);
-			else if (follow is NPC)
-				((NPC)follow).SetChatBubbleText(message, groupChat);
+			else if (follow is NPCRenderer)
+				((NPCRenderer)follow).SetChatBubbleText(message, groupChat);
 // ReSharper restore CanBeReplacedWithTryCastAndCheckForNull
 		}
 
@@ -256,7 +256,7 @@ namespace EndlessClient.Rendering
 				if ((ndx = npcList.FindIndex(_npc => (!_npc.Walking && _npc.X == destX && _npc.Y == destY)
 					|| _npc.Walking && _npc.DestX == destX && _npc.DestY == destY)) >= 0)
 				{
-					NPC retNPC = npcList[ndx];
+					NPCRenderer retNPC = npcList[ndx];
 					if (!retNPC.Dying)
 						return new NPCTileInfo(retNPC.Data);
 				}
@@ -721,7 +721,7 @@ namespace EndlessClient.Rendering
 
 		#region/* PUBLIC INTERFACE -- OTHER NPCS */
 
-		public NPC GetNPCAt(int x, int y)
+		public NPCRenderer GetNPCAt(int x, int y)
 		{
 			lock (_npcListLock)
 			{
@@ -733,10 +733,10 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPC newNPC = new NPC(data);
-				newNPC.Initialize();
-				newNPC.Visible = true;
-				npcList.Add(newNPC);
+				NPCRenderer newNpcRenderer = new NPCRenderer(data);
+				newNpcRenderer.Initialize();
+				newNpcRenderer.Visible = true;
+				npcList.Add(newNpcRenderer);
 			}
 		}
 
@@ -744,24 +744,24 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPC npc = npcList.Find(_npc => _npc.Index == index);
-				if (npc != null)
+				NPCRenderer npcRenderer = npcList.Find(_npc => _npc.Index == index);
+				if (npcRenderer != null)
 				{
 					if (damage > 0) //npc was killed - will do cleanup later
 					{
-						npc.HP = Math.Max(npc.HP - damage, 0);
-						npc.FadeAway();
-						npc.Opponent = null;
-						npc.SetDamageCounterValue(damage, 0);
+						npcRenderer.HP = Math.Max(npcRenderer.HP - damage, 0);
+						npcRenderer.FadeAway();
+						npcRenderer.Opponent = null;
+						npcRenderer.SetDamageCounterValue(damage, 0);
 
-						_renderSpellOnNPC(spellID, npc);
+						_renderSpellOnNPC(spellID, npcRenderer);
 					}
 					else //npc is out of view or done fading away
 					{
-						npc.Visible = false;
-						npc.HideChatBubble();
-						npc.Dispose();
-						npcList.Remove(npc);
+						npcRenderer.Visible = false;
+						npcRenderer.HideChatBubble();
+						npcRenderer.Dispose();
+						npcList.Remove(npcRenderer);
 					}
 				}
 			}
@@ -783,7 +783,7 @@ namespace EndlessClient.Rendering
 			}
 		}
 
-		public void RemoveNPCsWhere(Func<NPC, bool> predicate)
+		public void RemoveNPCsWhere(Func<NPCRenderer, bool> predicate)
 		{
 			List<byte> indexes;
 			lock (_npcListLock)
@@ -795,7 +795,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				foreach (NPC n in npcList)
+				foreach (NPCRenderer n in npcList)
 				{
 					n.Visible = false;
 					n.Dispose();
@@ -808,7 +808,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPC toWalk = npcList.Find(_npc => _npc.Index == index);
+				NPCRenderer toWalk = npcList.Find(_npc => _npc.Index == index);
 				if (toWalk != null && !toWalk.Walking)
 				{
 					toWalk.Walk(x, y, dir);
@@ -820,7 +820,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPC toAttack = npcList.Find(_npc => _npc.Index == index);
+				NPCRenderer toAttack = npcList.Find(_npc => _npc.Index == index);
 				if (toAttack != null && !toAttack.Attacking)
 				{
 					toAttack.Attack(dir);
@@ -852,7 +852,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPC toDamage = npcList.Find(_npc => _npc.Index == npcIndex);
+				NPCRenderer toDamage = npcList.Find(_npc => _npc.Index == npcIndex);
 				if (toDamage == null) return;
 
 				toDamage.SetDamageCounterValue(damageToNPC, npcPctHealth);
@@ -1568,9 +1568,9 @@ namespace EndlessClient.Rendering
 			lock (_rendererListLock)
 				otherChars = new List<CharacterRenderer>(otherRenderers); //copy of list (can remove items)
 
-			List<NPC> otherNpcs;
+			List<NPCRenderer> otherNpcs;
 			lock(_npcListLock)
-				otherNpcs = new List<NPC>(npcList);
+				otherNpcs = new List<NPCRenderer>(npcList);
 
 			Dictionary<Point, Texture2D> drawRoofLater = new Dictionary<Point, Texture2D>();
 
@@ -1745,7 +1745,7 @@ namespace EndlessClient.Rendering
 			}
 		}
 
-		private void _drawCharactersAndNPCsAtLoc(int rowIndex, int colIndex, List<NPC> otherNpcs, List<CharacterRenderer> otherChars)
+		private void _drawCharactersAndNPCsAtLoc(int rowIndex, int colIndex, List<NPCRenderer> otherNpcs, List<CharacterRenderer> otherChars)
 		{
 			//todo: is there a more efficient way to do this, like storing the locations in a 2D array directly?
 			//		I would like to avoid the .Where() calls every time the map is updated...
@@ -1828,7 +1828,7 @@ namespace EndlessClient.Rendering
 			effect.ShowEffect();
 		}
 
-		private void _renderSpellOnNPC(short spellID, NPC renderer)
+		private void _renderSpellOnNPC(short spellID, NPCRenderer renderer)
 		{
 			if (spellID < 1) return;
 
@@ -1913,7 +1913,7 @@ namespace EndlessClient.Rendering
 
 				lock (_npcListLock)
 				{
-					foreach (NPC npc in npcList)
+					foreach (NPCRenderer npc in npcList)
 						npc.Dispose();
 				}
 

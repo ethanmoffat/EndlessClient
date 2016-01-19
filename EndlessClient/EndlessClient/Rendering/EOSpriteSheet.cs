@@ -482,20 +482,20 @@ namespace EndlessClient.Rendering
 	public class EONPCSpriteSheet
 	{
 		private readonly INativeGraphicsManager _gfxManager;
-		private readonly NPC _npc;
+		private readonly NPCRenderer _npcRenderer;
 
-		public EONPCSpriteSheet(INativeGraphicsManager gfxManager, NPC npcToWatch)
+		public EONPCSpriteSheet(INativeGraphicsManager gfxManager, NPCRenderer npcToWatch)
 		{
 			_gfxManager = gfxManager;
-			_npc = npcToWatch;
+			_npcRenderer = npcToWatch;
 		}
 
 		public Texture2D GetNPCTexture()
 		{
-			EODirection dir = _npc.Direction;
-			int baseGfx = (_npc.Data.Graphic - 1)*40;
+			EODirection dir = _npcRenderer.Direction;
+			int baseGfx = (_npcRenderer.Data.Graphic - 1)*40;
 			int offset;
-			switch (_npc.Frame)
+			switch (_npcRenderer.Frame)
 			{
 				case NPCFrame.Standing:
 					offset = dir == EODirection.Down || dir == EODirection.Right ? 1 : 3;

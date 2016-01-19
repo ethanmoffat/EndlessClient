@@ -35,11 +35,11 @@ namespace EndlessClient.Rendering
 		/// <summary>
 		/// This constructor makes the DamageCounter follow 'actor' on the screen.
 		/// </summary>
-		/// <param name="actor">CharacterRenderer or NPC</param>
+		/// <param name="actor">CharacterRenderer or NPCRenderer</param>
 		public DamageCounter(DrawableGameComponent actor)
 		{
 			m_ref = actor;
-			if (m_ref is NPC)
+			if (m_ref is NPCRenderer)
 			{
 				m_isCharacter = false;
 			}
@@ -49,7 +49,7 @@ namespace EndlessClient.Rendering
 			}
 			else
 			{
-				throw new ArgumentException("Invalid actor type. Use Character or NPC", "actor");
+				throw new ArgumentException("Invalid actor type. Use Character or NPCRenderer", "actor");
 			}
 
 			lock (gfx_init_lock)
@@ -131,8 +131,8 @@ namespace EndlessClient.Rendering
 			}
 			else
 			{
-				Rectangle tmp = ((NPC)m_ref).DrawArea;
-				m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f, tmp.Y + ((NPC)m_ref).TopPixel - 10);
+				Rectangle tmp = ((NPCRenderer)m_ref).DrawArea;
+				m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f, tmp.Y + ((NPCRenderer)m_ref).TopPixel - 10);
 			}
 
 			base.Update(gameTime);
@@ -158,8 +158,8 @@ namespace EndlessClient.Rendering
 				}
 				else
 				{
-					Rectangle tmp = ((NPC) m_ref).DrawArea;
-					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y + ((NPC) m_ref).TopPixel - m_additionalOffset - NPC_ADDITIONAL_OFFSET);
+					Rectangle tmp = ((NPCRenderer) m_ref).DrawArea;
+					pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y + ((NPCRenderer) m_ref).TopPixel - m_additionalOffset - NPC_ADDITIONAL_OFFSET);
 				}
 			}
 			else
@@ -171,8 +171,8 @@ namespace EndlessClient.Rendering
 				}
 				else
 				{
-					Rectangle tmp = ((NPC) m_ref).DrawArea;
-					pos = new Vector2(tmp.X + tmp.Width / 2f - (nDigits * 9) / 2f, tmp.Y + ((NPC)m_ref).TopPixel - m_additionalOffset - NPC_ADDITIONAL_OFFSET);
+					Rectangle tmp = ((NPCRenderer) m_ref).DrawArea;
+					pos = new Vector2(tmp.X + tmp.Width / 2f - (nDigits * 9) / 2f, tmp.Y + ((NPCRenderer)m_ref).TopPixel - m_additionalOffset - NPC_ADDITIONAL_OFFSET);
 				}
 			}
 			

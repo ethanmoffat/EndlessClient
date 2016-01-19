@@ -44,7 +44,7 @@ namespace EndlessClient.Rendering
 			EOGame.Instance.Components.Add(this);
 		}
 
-		public EOChatBubble(NPC following)
+		public EOChatBubble(NPCRenderer following)
 			: base(EOGame.Instance)
 		{
 			m_ref = following;
@@ -82,7 +82,7 @@ namespace EndlessClient.Rendering
 			m_label = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt5)
 			{
 				Visible = true,
-				DrawOrder = DrawOrder + 1, //will be based on either NPC index or character renderer ID
+				DrawOrder = DrawOrder + 1, //will be based on either NPCRenderer index or character renderer ID
 				TextWidth = 165,
 				TextAlign = LabelAlignment.MiddleCenter,
 				ForeColor = Color.Black,
@@ -95,7 +95,7 @@ namespace EndlessClient.Rendering
 
 		private void _setLabelDrawLoc()
 		{
-			Rectangle refArea = m_isChar ? ((CharacterRenderer)m_ref).DrawAreaWithOffset : ((NPC)m_ref).DrawArea;
+			Rectangle refArea = m_isChar ? ((CharacterRenderer)m_ref).DrawAreaWithOffset : ((NPCRenderer)m_ref).DrawArea;
 			int extra = s_textsLoaded ? s_textures[ML].Width : 0;
 			if(m_label != null) //really missing the ?. operator :-/
 				m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.ActualHeight - 5);
