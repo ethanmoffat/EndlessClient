@@ -257,7 +257,7 @@ namespace EndlessClient.Rendering
 					|| _npc.NPC.Walking && _npc.NPC.DestX == destX && _npc.NPC.DestY == destY)) >= 0)
 				{
 					NPCRenderer retNPC = npcList[ndx];
-					if (!retNPC.Dying)
+					if (!retNPC.NPC.Dying)
 						return new NPCTileInfo(retNPC.NPC.Data);
 				}
 			}
@@ -751,7 +751,7 @@ namespace EndlessClient.Rendering
 					if (damage > 0) //npc was killed - will do cleanup later
 					{
 						npcRenderer.TakeDamageFrom(null, damage, 0);
-						npcRenderer.FadeAway();
+						npcRenderer.Kill();
 
 						_renderSpellOnNPC(spellID, npcRenderer);
 					}
@@ -1134,7 +1134,7 @@ namespace EndlessClient.Rendering
 				foreach (var npc in npcList)
 					npc.Update(gameTime);
 
-				var deadNPCs = npcList.Where(x => x.CompleteDeath).ToList();
+				var deadNPCs = npcList.Where(x => x.NPC.DeathCompleted).ToList();
 				foreach (var npc in deadNPCs)
 				{
 					RemoveOtherNPC(npc.NPC.Index);

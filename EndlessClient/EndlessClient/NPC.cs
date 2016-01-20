@@ -19,10 +19,12 @@ namespace EndlessClient
 		public byte DestX { get; private set; }
 		public byte DestY { get; private set; }
 		public Character Opponent { get; private set; }
-		public int CurrentHP { get; private set; }
 
 		public bool Walking { get; private set; }
 		public bool Attacking { get; private set; }
+
+		public bool Dying { get; private set; }
+		public bool DeathCompleted { get; private set; }
 
 		public NPC(NPCData serverNPCData, NPCRecord localNPCData)
 		{
@@ -31,8 +33,6 @@ namespace EndlessClient
 			Y = serverNPCData.Y;
 			Direction = serverNPCData.Direction;
 			Data = localNPCData;
-
-			CurrentHP = Data.HP;
 		}
 
 		public void BeginWalking(EODirection direction, byte destX, byte destY)
@@ -65,10 +65,14 @@ namespace EndlessClient
 			Attacking = false;
 		}
 
-		public void TakeDamage(Character opponent, int damage)
+		public void BeginDying()
 		{
-			Opponent = opponent;
-			CurrentHP -= Math.Max(0, CurrentHP - damage);
+			Dying = true;
+		}
+
+		public void EndDying()
+		{
+			DeathCompleted = true;
 		}
 	}
 }

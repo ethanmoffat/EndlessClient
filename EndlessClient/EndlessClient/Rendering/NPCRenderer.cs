@@ -30,9 +30,6 @@ namespace EndlessClient.Rendering
 		public int TopPixel { get; private set; }
 		public NPCFrame Frame { get; private set; }
 
-		public bool Dying { get; private set; }
-		public bool CompleteDeath { get; private set; }
-
 		//drawing related members
 		private readonly EONPCSpriteSheet _npcSheet;
 		private SpriteBatch _sb;
@@ -58,7 +55,6 @@ namespace EndlessClient.Rendering
 			: base(EOGame.Instance)
 		{
 			NPC = npc;
-			Dying = false;
 			_fadeAwayAlpha = 255;
 			_actionStartTime = DateTime.Now;
 			_lastAnimUpdateTime = DateTime.Now;
@@ -128,7 +124,7 @@ namespace EndlessClient.Rendering
 			if (!started)
 				batch.Begin();
 
-			Color col = Dying ? Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha -= 3) : Color.White;
+			Color col = NPC.Dying ? Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha -= 3) : Color.White;
 
 			batch.Draw(_npcSheet.GetNPCTexture(),
 				DrawArea,
@@ -139,8 +135,8 @@ namespace EndlessClient.Rendering
 				effects,
 				1f);
 
-			if (Dying && _fadeAwayAlpha <= 0)
-				CompleteDeath = true;
+			if (NPC.Dying && _fadeAwayAlpha <= 0)
+				NPC.EndDying();
 
 			if (!started)
 				batch.End();
@@ -179,12 +175,12 @@ namespace EndlessClient.Rendering
 		public void TakeDamageFrom(Character opponent, int damage, int pctHealth)
 		{
 			m_damageCounter.SetValue(damage, pctHealth); //NPCs don't know heal spells
-			NPC.TakeDamage(opponent, damage);
+			//todo: set opponent on NPC
 		}
 
-		public void FadeAway()
+		public void Kill()
 		{
-			Dying = true;
+			NPC.BeginDying();
 
 			if (_mouseoverName != null)
 			{
