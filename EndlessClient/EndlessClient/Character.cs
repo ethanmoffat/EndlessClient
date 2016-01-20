@@ -761,7 +761,7 @@ namespace EndlessClient
 					var targetAsNPC = SpellTarget as NPCRenderer;
 					var targetAsChar = SpellTarget as CharacterRenderer;
 					if (targetAsNPC != null)
-						result = m_packetAPI.DoCastTargetSpell((short) id, true, targetAsNPC.Index);
+						result = m_packetAPI.DoCastTargetSpell((short) id, true, targetAsNPC.NPC.Index);
 					else if (targetAsChar != null)
 						result = m_packetAPI.DoCastTargetSpell((short) id, false, (short) targetAsChar.Character.ID);
 					break;

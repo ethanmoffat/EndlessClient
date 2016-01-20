@@ -25,52 +25,36 @@ namespace EndlessClient.Rendering
 		/* Not sure if this is ever transferred to the client at all, but it is a config value... */
 		//private static readonly  int[] SPEED_TABLE = {900, 600, 1300, 1900, 3700, 7500, 15000, 0};
 
-		public byte Index { get; private set; }
-		public byte X { get; private set; }
-		public byte Y { get; private set; }
-		public EODirection Direction { get; private set; }
-		public NPCRecord Data { get; private set; }
+		public NPC NPC { get; private set; }
 
-		public Rectangle DrawArea;
-		/// <summary>
-		/// The Y coordinate of the first non-transparent pixel in the NPC's standing-still sprite sheet
-		/// <para>Used for calculating distance above the NPC's head</para>
-		/// </summary>
+		public Rectangle DrawArea { get; private set; }
 		public int TopPixel { get; private set; }
-		public bool Walking { get; private set; }
-		public bool Attacking { get; private set; }
 		public NPCFrame Frame { get; private set; }
 
-		private SpriteBatch sb;
-		private readonly EONPCSpriteSheet npcSheet;
-		private Rectangle npcArea;
+		public bool Dying { get; private set; }
+		public bool CompleteDeath { get; private set; }
 
-		private Timer walkTimer, attackTimer;
+		private readonly EONPCSpriteSheet _npcSheet;
+		private SpriteBatch _sb;
+		private Rectangle _npcTextureFrameRectangle;
+
+		private Timer _walkTimer, _attackTimer;
 
 		private int offX
 		{
-			get { return X * 32 - Y * 32 + adjX; }
+			get { return NPC.X * 32 - NPC.Y * 32 + adjX; }
 		}
 
 		private int offY
 		{
-			get { return X * 16 + Y * 16 + adjY; }
+			get { return NPC.X * 16 + NPC.Y * 16 + adjY; }
 		}
 
-		public byte DestX { get; private set; }
-		public byte DestY { get; private set; }
-		public Character Opponent { get; set; }
-		public int HP { get; set; }
-
-		public bool Dying { get { return _startFadeAway; } }
-		public bool CompleteDeath { get; private set; }
-
-		//updated when NPC is walking
+		//additional offsets for the walking animation. added to offX/offY
 		private int adjX, adjY;
 
 		private readonly bool hasStandFrame1;
-		private bool _startFadeAway;
-		private int _fadeAwayAlpha = 255;
+		private int _fadeAwayAlpha;
 
 		private readonly EOChatBubble m_chatBubble;
 		private readonly DamageCounter m_damageCounter;
@@ -81,12 +65,15 @@ namespace EndlessClient.Rendering
 		private XNALabel _mouseoverName;
 		private MouseState m_prevState, m_currState;
 
-		public NPCRenderer(NPCData data)
+		public NPCRenderer(NPC npc)
 			: base(EOGame.Instance)
 		{
-			ApplyData(data);
+			NPC = npc;
+			Dying = false;
+			_fadeAwayAlpha = 255;
+
 			bool success = true;
-			npcSheet = new EONPCSpriteSheet(((EOGame)Game).GFXManager, this);
+			_npcSheet = new EONPCSpriteSheet(((EOGame)Game).GFXManager, this);
 			int tries = 0;
 			do
 			{
@@ -94,14 +81,14 @@ namespace EndlessClient.Rendering
 				{
 					//attempt to get standing frame 1. It will have non-black pixels if it exists.
 					Frame = NPCFrame.StandingFrame1;
-					Texture2D tmp = npcSheet.GetNPCTexture();
+					Texture2D tmp = _npcSheet.GetNPCTexture();
 					Color[] tmpData = new Color[tmp.Width*tmp.Height];
 					tmp.GetData(tmpData);
 					hasStandFrame1 = tmpData.Any(_c => _c.R != 0 || _c.G != 0 || _c.B != 0);
 
 					//get the first non-transparent pixel to determine offsets for name labels and damage counters
 					Frame = NPCFrame.Standing;
-					tmp = npcSheet.GetNPCTexture();
+					tmp = _npcSheet.GetNPCTexture();
 					tmpData = new Color[tmp.Width*tmp.Height];
 					tmp.GetData(tmpData);
 					int i = 0;
@@ -124,7 +111,7 @@ namespace EndlessClient.Rendering
 			_mouseoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
 			{
 				Visible = false,
-				Text = Data.Name,
+				Text = NPC.Data.Name,
 				ForeColor = Color.White,
 				AutoSize = false,
 				DrawOrder = (int) ControlDrawLayer.BaseLayer + 3
@@ -138,21 +125,16 @@ namespace EndlessClient.Rendering
 		public override void Initialize()
 		{
 			base.Initialize();
-			sb = new SpriteBatch(GraphicsDevice);
+			_sb = new SpriteBatch(GraphicsDevice);
 
 			Frame = NPCFrame.Standing;
 
-			baseFrame = npcSheet.GetNPCTexture();
-			npcArea = new Rectangle(0, 0, baseFrame.Width, baseFrame.Height);
+			baseFrame = _npcSheet.GetNPCTexture();
+			_npcTextureFrameRectangle = new Rectangle(0, 0, baseFrame.Width, baseFrame.Height);
+			UpdateDrawArea();
 
-			DrawArea = new Rectangle(
-					 offX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)((baseFrame.Width / 6.4) * 3.2),
-					 offY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - baseFrame.Height,
-					 npcArea.Width, npcArea.Height);
-			Walking = false;
-			walkTimer = new Timer(_walkCallback, null, Timeout.Infinite, Timeout.Infinite);
-			Attacking = false;
-			attackTimer = new Timer(_attackCallback, null, Timeout.Infinite, Timeout.Infinite);
+			_walkTimer = new Timer(_walkCallback, null, Timeout.Infinite, Timeout.Infinite);
+			_attackTimer = new Timer(_attackCallback, null, Timeout.Infinite, Timeout.Infinite);
 
 			m_chatBubble.Initialize();
 			m_chatBubble.LoadContent();
@@ -162,15 +144,33 @@ namespace EndlessClient.Rendering
 		{
 			if (!Visible) return;
 
-			DrawArea = new Rectangle(
-					 offX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)((baseFrame.Width / 6.4) * 3.2),
-					 offY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - baseFrame.Height,
-					 npcArea.Width, npcArea.Height);
+			UpdateDrawArea();
 
 			if (!Game.IsActive) return;
 
+			AnimateNPC(gameTime);
+
+			m_currState = Mouse.GetState();
+			CheckMouseoverState();
+			CheckMouseClickState();
+			m_prevState = m_currState;
+
+			base.Update(gameTime);
+		}
+
+		private void UpdateDrawArea()
+		{
+			DrawArea = new Rectangle(
+				offX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)(baseFrame.Width / 6.4 * 3.2),
+				offY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - baseFrame.Height,
+				_npcTextureFrameRectangle.Width, _npcTextureFrameRectangle.Height);
+		}
+
+		private void AnimateNPC(GameTime gameTime)
+		{
 			//switch the standing animation for NPCs every 500ms, if they're standing still
-			if (hasStandFrame1 && m_lastAnimUpdateTime.HasValue && (gameTime.TotalGameTime - m_lastAnimUpdateTime.Value).TotalMilliseconds > 250)
+			if (hasStandFrame1 && m_lastAnimUpdateTime.HasValue &&
+			    (gameTime.TotalGameTime - m_lastAnimUpdateTime.Value).TotalMilliseconds > 250)
 			{
 				if (Frame == NPCFrame.Standing)
 				{
@@ -182,20 +182,13 @@ namespace EndlessClient.Rendering
 				}
 				m_lastAnimUpdateTime = gameTime.TotalGameTime;
 			}
-			else if(!m_lastAnimUpdateTime.HasValue)
+			else if (!m_lastAnimUpdateTime.HasValue)
 			{
 				m_lastAnimUpdateTime = gameTime.TotalGameTime;
 			}
-
-			m_currState = Mouse.GetState();
-			_checkMouseoverState();
-			_checkMouseClickState();
-			m_prevState = m_currState;
-
-			base.Update(gameTime);
 		}
 
-		private void _checkMouseoverState()
+		private void CheckMouseoverState()
 		{
 			if (_mouseoverName == null) return;
 
@@ -205,7 +198,7 @@ namespace EndlessClient.Rendering
 				DrawArea.Y + TopPixel - _mouseoverName.ActualHeight - 4);
 		}
 
-		private void _checkMouseClickState()
+		private void CheckMouseClickState()
 		{
 			bool mouseClicked = m_currState.LeftButton == ButtonState.Released
 			                    && m_prevState.LeftButton == ButtonState.Pressed;
@@ -229,30 +222,17 @@ namespace EndlessClient.Rendering
 				}
 
 				PacketAPI api = ((EOGame) Game).API;
-				switch (Data.Type)
+				switch (NPC.Data.Type)
 				{
-					case NPCType.Shop:
-						ShopDialog.Show(api, this);
-						break;
-					case NPCType.Inn:
-						break;
-					case NPCType.Bank:
-						BankAccountDialog.Show(api, Index);
-						break;
-					case NPCType.Barber:
-						break;
-					case NPCType.Guild:
-						break;
-					case NPCType.Priest:
-						break;
-					case NPCType.Law:
-						break;
-					case NPCType.Skills:
-						SkillmasterDialog.Show(api, Index);
-						break;
-					case NPCType.Quest:
-						QuestDialog.Show(api, Index, Data.VendorID, Data.Name);
-						break;
+					case NPCType.Shop: ShopDialog.Show(api, this); break;
+					case NPCType.Inn: break;
+					case NPCType.Bank: BankAccountDialog.Show(api, NPC.Index); break;
+					case NPCType.Barber: break;
+					case NPCType.Guild: break;
+					case NPCType.Priest: break;
+					case NPCType.Law: break;
+					case NPCType.Skills: SkillmasterDialog.Show(api, NPC.Index); break;
+					case NPCType.Quest: QuestDialog.Show(api, NPC.Index, NPC.Data.VendorID, NPC.Data.Name); break;
 				}
 			}
 		}
@@ -261,22 +241,22 @@ namespace EndlessClient.Rendering
 		{
 			if (!Visible) return;
 
-			DrawToSpriteBatch(sb);
+			DrawToSpriteBatch(_sb);
 			base.Draw(gameTime);
 		}
 
 		public void DrawToSpriteBatch(SpriteBatch batch, bool started = false)
 		{
-			SpriteEffects effects = Direction == EODirection.Left || Direction == EODirection.Down
+			SpriteEffects effects = NPC.Direction == EODirection.Left || NPC.Direction == EODirection.Down
 				? SpriteEffects.None
 				: SpriteEffects.FlipHorizontally;
 
 			if(!started)
 				batch.Begin();
 
-			Color col = _startFadeAway ? Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha -= 3) : Color.White;
+			Color col = Dying ? Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha -= 3) : Color.White;
 
-			batch.Draw(npcSheet.GetNPCTexture(),
+			batch.Draw(_npcSheet.GetNPCTexture(),
 				DrawArea,
 				null,
 				col,
@@ -285,7 +265,7 @@ namespace EndlessClient.Rendering
 				effects,
 				1f);
 
-			if (_startFadeAway && _fadeAwayAlpha <= 0)
+			if (Dying && _fadeAwayAlpha <= 0)
 			{
 				if(!started) batch.End();
 				CompleteDeath = true;
@@ -305,15 +285,15 @@ namespace EndlessClient.Rendering
 		{
 			if (disposing)
 			{
-				if (walkTimer != null)
+				if (_walkTimer != null)
 				{
-					walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
-					walkTimer.Dispose();
-					walkTimer = null;
+					_walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
+					_walkTimer.Dispose();
+					_walkTimer = null;
 				}
 
-				if(sb != null)
-					sb.Dispose();
+				if(_sb != null)
+					_sb.Dispose();
 
 				if (m_chatBubble != null)
 					m_chatBubble.Dispose();
@@ -330,18 +310,16 @@ namespace EndlessClient.Rendering
 
 		public void Walk(byte x, byte y, EODirection dir)
 		{
-			if (Walking || walkTimer == null) return;
-			walkTimer.Change(0, 100); //use 100ms for now....
-			
+			if (NPC.Walking || _walkTimer == null) return;
+
 			//the direction is required for the walk callback
-			Direction = dir;
-			DestX = x;
-			DestY = y;
+			NPC.BeginWalking(dir, x, y);
+			_walkTimer.Change(0, 100);
 		}
 
 		private void _walkCallback(object state)
 		{
-			switch (Direction)
+			switch (NPC.Direction)
 			{
 				case EODirection.Down: adjX += -8; adjY += 4; break;
 				case EODirection.Left: adjX += -8; adjY += -4; break;
@@ -366,10 +344,9 @@ namespace EndlessClient.Rendering
 					break;
 				case NPCFrame.WalkFrame4:
 					Frame = NPCFrame.Standing;
-					if (walkTimer == null) return;
-					walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
-					X = DestX;
-					Y = DestY;
+					if (_walkTimer == null) return;
+					_walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
+					NPC.EndWalking();
 					adjX = adjY = 0;
 					break;
 			}
@@ -377,9 +354,9 @@ namespace EndlessClient.Rendering
 
 		public void Attack(EODirection dir)
 		{
-			if (Attacking) return;
-			attackTimer.Change(0, 100);
-			Direction = dir;
+			if (NPC.Attacking) return;
+			_attackTimer.Change(0, 100);
+			NPC.BeginAttacking(dir);
 		}
 
 		private void _attackCallback(object state)
@@ -395,7 +372,8 @@ namespace EndlessClient.Rendering
 					break;
 				case NPCFrame.Attack2:
 					Frame = NPCFrame.Standing;
-					attackTimer.Change(Timeout.Infinite, Timeout.Infinite);
+					_attackTimer.Change(Timeout.Infinite, Timeout.Infinite);
+					NPC.EndAttacking();
 					break;
 			}
 		}
@@ -410,34 +388,21 @@ namespace EndlessClient.Rendering
 			m_chatBubble.HideBubble();
 		}
 
-		public void SetDamageCounterValue(int value, int pctHealth)
+		public void TakeDamageFrom(Character opponent, int damage, int pctHealth)
 		{
-			m_damageCounter.SetValue(value, pctHealth); //NPCs don't know heal spells
+			m_damageCounter.SetValue(damage, pctHealth); //NPCs don't know heal spells
+			NPC.TakeDamage(opponent, damage);
 		}
 
 		public void FadeAway()
 		{
-			_startFadeAway = true;
+			Dying = true;
 
 			if (_mouseoverName != null)
 			{
 				_mouseoverName.Close();
 				_mouseoverName = null;
 			}
-		}
-
-		public void ApplyData(NPCData data)
-		{
-			Index = data.Index;
-			X = data.X;
-			Y = data.Y;
-			Direction = data.Direction;
-
-			Data = (NPCRecord)World.Instance.ENF.Data[data.ID];
-			HP = Data.HP;
-
-			_startFadeAway = false;
-			_fadeAwayAlpha = 255;
 		}
 	}
 }

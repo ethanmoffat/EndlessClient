@@ -615,7 +615,7 @@ namespace EndlessClient
 
 		private void _removeChildNPCs(short childNPCID)
 		{
-			World.Instance.ActiveMapRenderer.RemoveNPCsWhere(x => x.Data.ID == childNPCID);
+			World.Instance.ActiveMapRenderer.RemoveNPCsWhere(x => x.NPC.Data.ID == childNPCID);
 		}
 
 		private void _chatByPlayerID(TalkType type, int id, string message)

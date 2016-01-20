@@ -193,6 +193,7 @@
     <Compile Include="Input\InputKeyListenerBase.cs" />
     <Compile Include="Input\NumPadListener.cs" />
     <Compile Include="InteractList.cs" />
+    <Compile Include="NPC.cs" />
     <Compile Include="PacketAPICallbackManager.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

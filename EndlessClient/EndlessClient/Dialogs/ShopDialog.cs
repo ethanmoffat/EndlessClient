@@ -30,10 +30,10 @@ namespace EndlessClient.Dialogs
 			if (Instance != null)
 				return;
 
-			Instance = new ShopDialog(api, shopKeeper.Data.ID);
+			Instance = new ShopDialog(api, shopKeeper.NPC.Data.ID);
 
 			//request from server is based on the map index
-			if (!api.RequestShop(shopKeeper.Index))
+			if (!api.RequestShop(shopKeeper.NPC.Index))
 			{
 				Instance.Close();
 				Instance = null;

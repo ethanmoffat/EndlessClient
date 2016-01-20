@@ -492,8 +492,8 @@ namespace EndlessClient.Rendering
 
 		public Texture2D GetNPCTexture()
 		{
-			EODirection dir = _npcRenderer.Direction;
-			int baseGfx = (_npcRenderer.Data.Graphic - 1)*40;
+			EODirection dir = _npcRenderer.NPC.Direction;
+			int baseGfx = (_npcRenderer.NPC.Data.Graphic - 1) * 40;
 			int offset;
 			switch (_npcRenderer.Frame)
 			{

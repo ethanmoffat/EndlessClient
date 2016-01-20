@@ -49,7 +49,7 @@ namespace EndlessClient.Rendering
 		{
 			m_ref = following;
 			m_isChar = false;
-			DrawOrder = following.Index + (int)ControlDrawLayer.BaseLayer + 1; //use index for draw order
+			DrawOrder = following.NPC.Index + (int)ControlDrawLayer.BaseLayer + 1; //use index for draw order
 			_initLabel();
 			Visible = false;
 			EOGame.Instance.Components.Add(this);

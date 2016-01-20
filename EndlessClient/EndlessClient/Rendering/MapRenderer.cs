@@ -135,9 +135,9 @@ namespace EndlessClient.Rendering
 			if (messageType == TalkType.NPC)
 			{
 				lock(_npcListLock)
-					dgc = npcList.Find(_npc => _npc.Index == playerID);
+					dgc = npcList.Find(_npc => _npc.NPC.Index == playerID);
 				if (dgc != null)
-					playerName = ((NPCRenderer) dgc).Data.Name;
+					playerName = ((NPCRenderer)dgc).NPC.Data.Name;
 			}
 			else
 			{
@@ -253,12 +253,12 @@ namespace EndlessClient.Rendering
 			lock (_npcListLock)
 			{
 				int ndx;
-				if ((ndx = npcList.FindIndex(_npc => (!_npc.Walking && _npc.X == destX && _npc.Y == destY)
-					|| _npc.Walking && _npc.DestX == destX && _npc.DestY == destY)) >= 0)
+				if ((ndx = npcList.FindIndex(_npc => (!_npc.NPC.Walking && _npc.NPC.X == destX && _npc.NPC.Y == destY)
+					|| _npc.NPC.Walking && _npc.NPC.DestX == destX && _npc.NPC.DestY == destY)) >= 0)
 				{
 					NPCRenderer retNPC = npcList[ndx];
 					if (!retNPC.Dying)
-						return new NPCTileInfo(retNPC.Data);
+						return new NPCTileInfo(retNPC.NPC.Data);
 				}
 			}
 
@@ -725,7 +725,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				return npcList.Find(_npc => _npc.X == x && _npc.Y == y);
+				return npcList.Find(_npc => _npc.NPC.X == x && _npc.NPC.Y == y);
 			}
 		}
 
@@ -733,7 +733,8 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPCRenderer newNpcRenderer = new NPCRenderer(data);
+				var fileData = World.Instance.ENF.GetNPCRecordByID(data.ID);
+				NPCRenderer newNpcRenderer = new NPCRenderer(new NPC(data, fileData));
 				newNpcRenderer.Initialize();
 				newNpcRenderer.Visible = true;
 				npcList.Add(newNpcRenderer);
@@ -744,15 +745,13 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPCRenderer npcRenderer = npcList.Find(_npc => _npc.Index == index);
+				NPCRenderer npcRenderer = npcList.Find(_npc => _npc.NPC.Index == index);
 				if (npcRenderer != null)
 				{
 					if (damage > 0) //npc was killed - will do cleanup later
 					{
-						npcRenderer.HP = Math.Max(npcRenderer.HP - damage, 0);
+						npcRenderer.TakeDamageFrom(null, damage, 0);
 						npcRenderer.FadeAway();
-						npcRenderer.Opponent = null;
-						npcRenderer.SetDamageCounterValue(damage, 0);
 
 						_renderSpellOnNPC(spellID, npcRenderer);
 					}
@@ -787,7 +786,7 @@ namespace EndlessClient.Rendering
 		{
 			List<byte> indexes;
 			lock (_npcListLock)
-				indexes = npcList.Where(predicate).Select(x => x.Index).ToList();
+				indexes = npcList.Where(predicate).Select(x => x.NPC.Index).ToList();
 			indexes.ForEach(x => RemoveOtherNPC(x));
 		}
 
@@ -808,8 +807,8 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPCRenderer toWalk = npcList.Find(_npc => _npc.Index == index);
-				if (toWalk != null && !toWalk.Walking)
+				NPCRenderer toWalk = npcList.Find(_npc => _npc.NPC.Index == index);
+				if (toWalk != null && !toWalk.NPC.Walking)
 				{
 					toWalk.Walk(x, y, dir);
 				}
@@ -820,8 +819,8 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPCRenderer toAttack = npcList.Find(_npc => _npc.Index == index);
-				if (toAttack != null && !toAttack.Attacking)
+				NPCRenderer toAttack = npcList.Find(_npc => _npc.NPC.Index == index);
+				if (toAttack != null && !toAttack.NPC.Attacking)
 				{
 					toAttack.Attack(dir);
 				}
@@ -852,27 +851,27 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPCRenderer toDamage = npcList.Find(_npc => _npc.Index == npcIndex);
+				NPCRenderer toDamage = npcList.Find(_npc => _npc.NPC.Index == npcIndex);
 				if (toDamage == null) return;
 
-				toDamage.SetDamageCounterValue(damageToNPC, npcPctHealth);
-				toDamage.HP -= damageToNPC;
-
 				_renderSpellOnNPC(spellID, toDamage);
-
+				
+				Character opponent = null;
 				lock (otherRenderers)
 				{
-					CharacterRenderer rend = fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID
+					var rend = fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID
 						? World.Instance.ActiveCharacterRenderer
 						: otherRenderers.Find(_rend => _rend.Character.ID == fromPlayerID);
 
-					if (rend == null) return;
-
-					toDamage.Opponent = rend.Character; //for fighting protection, no KSing!
-
-					if (rend.Character.RenderData.facing != fromDirection)
-						rend.Character.RenderData.SetDirection(fromDirection);
+					if (rend != null)
+					{
+						if (rend.Character.RenderData.facing != fromDirection)
+							rend.Character.RenderData.SetDirection(fromDirection);
+						opponent = rend.Character;
+					}
 				}
+
+				toDamage.TakeDamageFrom(opponent, damageToNPC, npcPctHealth);
 			}
 		}
 		#endregion
@@ -1138,7 +1137,7 @@ namespace EndlessClient.Rendering
 				var deadNPCs = npcList.Where(x => x.CompleteDeath).ToList();
 				foreach (var npc in deadNPCs)
 				{
-					RemoveOtherNPC(npc.Index);
+					RemoveOtherNPC(npc.NPC.Index);
 				}
 			}
 		}
@@ -1750,8 +1749,8 @@ namespace EndlessClient.Rendering
 			//todo: is there a more efficient way to do this, like storing the locations in a 2D array directly?
 			//		I would like to avoid the .Where() calls every time the map is updated...
 
-			var thisLocNpcs = otherNpcs.Where(_npc => (_npc.Walking ? _npc.DestY == rowIndex : _npc.Y == rowIndex) &&
-													  (_npc.Walking ? _npc.DestX == colIndex : _npc.X == colIndex)).ToList();
+			var thisLocNpcs = otherNpcs.Where(_npc => (_npc.NPC.Walking ? _npc.NPC.DestY == rowIndex : _npc.NPC.Y == rowIndex) &&
+													  (_npc.NPC.Walking ? _npc.NPC.DestX == colIndex : _npc.NPC.X == colIndex)).ToList();
 			thisLocNpcs.ForEach(npc => npc.DrawToSpriteBatch(sb, true));
 
 			var thisLocChars = otherChars.Where(_char => _char.Character.State == CharacterActionState.Walking

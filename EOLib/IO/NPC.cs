@@ -4,6 +4,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using EOLib.Data.Map;
 
@@ -147,6 +148,11 @@ namespace EOLib.IO
 		protected override int GetDataSize()
 		{
 			return DATA_SIZE;
+		}
+
+		public NPCRecord GetNPCRecordByID(short id)
+		{
+			return Data.OfType<NPCRecord>().Single(x => x.ID == id);
 		}
 	}
 }
