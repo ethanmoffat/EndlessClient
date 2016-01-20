@@ -258,7 +258,7 @@ namespace EndlessClient.Rendering
 				{
 					NPCRenderer retNPC = npcList[ndx];
 					if (!retNPC.NPC.Dying)
-						return new NPCTileInfo(retNPC.NPC.Data);
+						return new NPCTileInfo(retNPC.NPC);
 				}
 			}
 

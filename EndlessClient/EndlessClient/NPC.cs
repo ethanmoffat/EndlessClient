@@ -2,13 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
+using EOLib.Data.Map;
 using EOLib.IO;
 using EOLib.Net;
 
 namespace EndlessClient
 {
-	public class NPC
+	public class NPC : IMapElement
 	{
 		public byte Index { get; private set; }
 		public byte X { get; private set; }
@@ -25,6 +25,11 @@ namespace EndlessClient
 
 		public bool Dying { get; private set; }
 		public bool DeathCompleted { get; private set; }
+
+		private bool AllowMultipleOpponents
+		{
+			get { return (Data.Type == NPCType.Passive || Data.Type == NPCType.Aggressive) && Data.VendorID == 1; }
+		}
 
 		public NPC(NPCData serverNPCData, NPCRecord localNPCData)
 		{
@@ -73,6 +78,14 @@ namespace EndlessClient
 		public void EndDying()
 		{
 			DeathCompleted = true;
+		}
+
+		public void SetOpponent(Character opponent)
+		{
+			if (AllowMultipleOpponents)
+				return;
+
+			Opponent = opponent;
 		}
 	}
 }

@@ -12,7 +12,7 @@ namespace EOLib.Data.Map
 		public TileSpec Spec { get { return TileSpec.None; } }
 		public IMapElement MapElement { get; private set; }
 
-		public NPCTileInfo(NPCRecord npc)
+		public NPCTileInfo(IMapElement npc)
 		{
 			MapElement = npc;
 		}

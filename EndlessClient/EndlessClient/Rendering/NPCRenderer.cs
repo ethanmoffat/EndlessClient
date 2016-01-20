@@ -175,7 +175,7 @@ namespace EndlessClient.Rendering
 		public void TakeDamageFrom(Character opponent, int damage, int pctHealth)
 		{
 			m_damageCounter.SetValue(damage, pctHealth); //NPCs don't know heal spells
-			//todo: set opponent on NPC
+			NPC.SetOpponent(opponent);
 		}
 
 		public void Kill()

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using EndlessClient.Dialogs;
 using EndlessClient.Rendering;
 using EOLib;
+using EOLib.Data.Map;
 using EOLib.IO;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
@@ -485,20 +486,21 @@ namespace EndlessClient
 			if (this == World.Instance.MainPlayer.ActiveCharacter)
 			{
 				//KS protection - vanilla eoserv does not support this!
-				//This has been turned off for now
-				//bool shouldSend = true;
+				//Enabled client-side only, the official client does not support this
+				var shouldSend = true;
+				if (!(x == 255 && y == 255))
+				{
+					var ti = World.Instance.ActiveMapRenderer.GetTileInfo(x, y);
+					if (ti.ReturnType == TileInfoReturnType.IsOtherNPC && 
+						((NPC)ti.MapElement).Opponent != null &&
+						((NPC)ti.MapElement).Opponent != this)
+					{
+						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_UNABLE_TO_ATTACK);
+						shouldSend = false;
+					}
+				}
 
-				//if (!(x == 255 && y == 255))
-				//{
-				//	TileInfo ti = World.Instance.ActiveMapRenderer.GetTileInfo(x, y);
-				//	if (ti.ReturnType == TileInfoReturnType.IsOtherNPC && ti.NPC.Opponent != null && ti.NPCRenderer.Opponent != this)
-				//	{
-				//		EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_UNABLE_TO_ATTACK);
-				//		shouldSend = false;
-				//	}
-				//}
-
-				if(/*shouldSend &&*/ !m_packetAPI.AttackUse(direction))
+				if(shouldSend && !m_packetAPI.AttackUse(direction))
 					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 			else if(RenderData.facing != direction)
@@ -663,7 +665,6 @@ namespace EndlessClient
 		/// <summary>
 		/// Gets the permission of the current character to open the specified door
 		/// </summary>
-		/// <param name="warp">The Warp containing the door to check</param>
 		/// <returns>Returns DoorSpec.Door if this character may open the door. Otherwise, returns the type of door restricting access</returns>
 		public DoorSpec CanOpenDoor(DoorSpec door)
 		{

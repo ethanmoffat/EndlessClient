@@ -31,7 +31,7 @@ namespace EOLib.IO
 		NONE
 	}
 
-	public class NPCRecord : IDataRecord, IMapElement
+	public class NPCRecord : IDataRecord
 	{
 		public int ID { get; set; }
 
