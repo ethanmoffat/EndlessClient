@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EOLib.Data.BLL;
 using EOLib.IO;
 
 namespace EOLib.Data.Map
@@ -12,7 +13,7 @@ namespace EOLib.Data.Map
 		public TileSpec Spec { get { return TileSpec.None; } }
 		public IMapElement MapElement { get; private set; }
 
-		public NPCTileInfo(IMapElement npc)
+		public NPCTileInfo(NPC npc)
 		{
 			MapElement = npc;
 		}

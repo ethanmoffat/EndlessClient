@@ -63,6 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Data\BLL\NPC.cs" />
     <Compile Include="Data\Map\BasicTileInfo.cs" />
     <Compile Include="Data\Map\IMapElement.cs" />
     <Compile Include="Data\Map\ITileInfo.cs" />
@@ -79,8 +80,10 @@
     <Compile Include="IO\Item.cs" />
     <Compile Include="IO\ItemRecordFactory.cs" />
     <Compile Include="IO\Map.cs" />
-    <Compile Include="IO\NPC.cs" />
+    <Compile Include="IO\NPCFile.cs" />
+    <Compile Include="IO\NPCRecord.cs" />
     <Compile Include="IO\NPCRecordFactory.cs" />
+    <Compile Include="IO\NPCType.cs" />
     <Compile Include="IO\Spell.cs" />
     <Compile Include="IO\SpellRecordFactory.cs" />
     <Compile Include="Graphics\GFXLoader.cs" />

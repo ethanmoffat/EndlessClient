@@ -12,6 +12,7 @@ using EndlessClient.HUD;
 using EndlessClient.HUD.Inventory;
 using EndlessClient.Rendering.Effects;
 using EOLib;
+using EOLib.Data.BLL;
 using EOLib.Data.Map;
 using EOLib.Graphics;
 using EOLib.IO;

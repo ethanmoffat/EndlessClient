@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using EndlessClient.Dialogs;
 using EndlessClient.Rendering;
 using EOLib;
+using EOLib.Data.BLL;
 using EOLib.Data.Map;
 using EOLib.IO;
 using EOLib.Net;

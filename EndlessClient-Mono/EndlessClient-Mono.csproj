@@ -210,9 +210,6 @@
     <Compile Include="..\EndlessClient\EndlessClient\InteractList.cs">
       <Link>InteractList.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\NPC.cs">
-      <Link>NPC.cs</Link>
-    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\PacketAPICallbackManager.cs">
       <Link>PacketAPICallbackManager.cs</Link>
     </Compile>

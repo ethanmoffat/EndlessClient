@@ -4,33 +4,10 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Text;
-using EOLib.Data.Map;
 
 namespace EOLib.IO
 {
-	public enum NPCType
-	{
-		NPC,
-		Passive,
-		Aggressive,
-		Unknown1,
-		Unknown2,
-		Unknown3,
-		Shop,
-		Inn,
-		Unknown4,
-		Bank,
-		Barber,
-		Guild,
-		Priest,
-		Law,
-		Skills,
-		Quest,
-		NONE
-	}
-
 	public class NPCRecord : IDataRecord
 	{
 		public int ID { get; set; }
@@ -126,33 +103,6 @@ namespace EOLib.IO
 			}
 
 			return ret;
-		}
-	}
-
-	public class NPCFile : EODataFile
-	{
-		public const int DATA_SIZE = 39;
-
-		public NPCFile()
-			: base(new NPCRecordFactory())
-		{
-			Load(FilePath = Constants.NPCFilePath);
-		}
-
-		public NPCFile(string path)
-			: base(new NPCRecordFactory())
-		{
-			Load(FilePath = path);
-		}
-
-		protected override int GetDataSize()
-		{
-			return DATA_SIZE;
-		}
-
-		public NPCRecord GetNPCRecordByID(short id)
-		{
-			return Data.OfType<NPCRecord>().Single(x => x.ID == id);
 		}
 	}
 }

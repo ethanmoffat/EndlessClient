@@ -6,7 +6,7 @@ using EOLib.Data.Map;
 using EOLib.IO;
 using EOLib.Net;
 
-namespace EndlessClient
+namespace EOLib.Data.BLL
 {
 	public class NPC : IMapElement
 	{
@@ -18,7 +18,7 @@ namespace EndlessClient
 
 		public byte DestX { get; private set; }
 		public byte DestY { get; private set; }
-		public Character Opponent { get; private set; }
+		public object Opponent { get; private set; }
 
 		public bool Walking { get; private set; }
 		public bool Attacking { get; private set; }
@@ -80,7 +80,8 @@ namespace EndlessClient
 			DeathCompleted = true;
 		}
 
-		public void SetOpponent(Character opponent)
+		//todo: move character to EOLib; use Character instead of object
+		public void SetOpponent(object opponent)
 		{
 			if (AllowMultipleOpponents)
 				return;

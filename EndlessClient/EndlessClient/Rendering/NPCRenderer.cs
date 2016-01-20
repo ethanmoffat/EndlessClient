@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using EndlessClient.Dialogs;
 using EOLib;
+using EOLib.Data.BLL;
 using EOLib.IO;
 using EOLib.Net;
 using Microsoft.Xna.Framework;

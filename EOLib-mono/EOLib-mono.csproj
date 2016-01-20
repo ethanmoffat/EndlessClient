@@ -48,6 +48,9 @@
     <Compile Include="..\EOLib\DataFileConstants.cs">
       <Link>DataFileConstants.cs</Link>
     </Compile>
+    <Compile Include="..\EOLib\Data\BLL\NPC.cs">
+      <Link>Data\BLL\NPC.cs</Link>
+    </Compile>
     <Compile Include="..\EOLib\Data\Map\BasicTileInfo.cs">
       <Link>Data\Map\BasicTileInfo.cs</Link>
     </Compile>
@@ -111,11 +114,17 @@
     <Compile Include="..\EOLib\IO\Map.cs">
       <Link>IO\Map.cs</Link>
     </Compile>
-    <Compile Include="..\EOLib\IO\NPC.cs">
-      <Link>IO\NPC.cs</Link>
+    <Compile Include="..\EOLib\IO\NPCFile.cs">
+      <Link>IO\NPCFile.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\IO\NPCRecord.cs">
+      <Link>IO\NPCRecord.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\IO\NPCRecordFactory.cs">
       <Link>IO\NPCRecordFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\IO\NPCType.cs">
+      <Link>IO\NPCType.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\IO\Spell.cs">
       <Link>IO\Spell.cs</Link>
