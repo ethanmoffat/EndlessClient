@@ -140,7 +140,7 @@ namespace EndlessClient.Rendering.Effects
 
 		private Rectangle GetTargetRectangle(NPCRenderer npc)
 		{
-			return npc.DrawArea;
+			return npc.MapProjectedDrawArea;
 		}
 
 		private Rectangle GetTargetRectangle(CharacterRenderer character)

@@ -27,8 +27,26 @@ namespace EndlessClient.Rendering
 
 		public NPC NPC { get; private set; }
 
+		/// <summary>
+		/// The actual target draw rectangle of the NPC
+		/// </summary>
 		public Rectangle DrawArea { get; private set; }
+
+		/// <summary>
+		/// Represents the current map location (scaled to one human character, not NPC size).
+		/// <para>Since most NPCs are graphically larger/smaller than one "slot" based on character size,</para>
+		///	<para>	this helps determine what the normal size would be if it were a character sprite.</para>
+		/// </summary>
+		public Rectangle MapProjectedDrawArea { get; private set; }
+
+		/// <summary>
+		/// The Y coordinate of the first non-transparent pixel on the NPC's default sprite
+		/// </summary>
 		public int TopPixel { get; private set; }
+
+		/// <summary>
+		/// The current state of the NPC; determines which sprite to draw
+		/// </summary>
 		public NPCFrame Frame { get; private set; }
 
 		//drawing related members
@@ -262,6 +280,14 @@ namespace EndlessClient.Rendering
 				DrawOffsetX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)(_npcTextureFrameRectangle.Width / 6.4 * 3.2),
 				DrawOffsetY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - _npcTextureFrameRectangle.Height,
 				_npcTextureFrameRectangle.Width, _npcTextureFrameRectangle.Height);
+			
+			var oneGridSize = new Vector2(World.Instance.ActiveCharacterRenderer.DrawArea.Width,
+										  World.Instance.ActiveCharacterRenderer.DrawArea.Height);
+			MapProjectedDrawArea = new Rectangle(
+				DrawArea.X + (int) (Math.Abs(oneGridSize.X - DrawArea.Width)/2),
+				DrawArea.Y + (int) Math.Abs(oneGridSize.Y - DrawArea.Height),
+				(int)oneGridSize.X,
+				(int)oneGridSize.Y);
 		}
 
 		private void UpdateStandingFrameIfNeeded()
@@ -407,10 +433,7 @@ namespace EndlessClient.Rendering
 					_chatBubble.Dispose();
 
 				if (_mouseoverName != null)
-				{
 					_mouseoverName.Close();
-					_mouseoverName = null;
-				}
 			}
 
 			base.Dispose(disposing);
