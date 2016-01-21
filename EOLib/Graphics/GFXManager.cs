@@ -19,7 +19,7 @@ namespace EOLib.Graphics
 
 	public sealed class GFXManager : INativeGraphicsManager
 	{
-		private readonly Dictionary<LibraryGraphicPair, Texture2D> cache = new Dictionary<LibraryGraphicPair, Texture2D>();
+		private readonly Dictionary<LibraryGraphicPair, Texture2D> _cache;
 
 		private readonly INativeGraphicsLoader _gfxLoader;
 		private readonly GraphicsDevice _device;
@@ -29,6 +29,7 @@ namespace EOLib.Graphics
 			if(gfxLoader == null) throw new ArgumentNullException("gfxLoader");
 			if (dev == null) throw new ArgumentNullException("dev");
 
+			_cache = new Dictionary<LibraryGraphicPair, Texture2D>();
 			_gfxLoader = gfxLoader;
 			_device = dev;
 		}
@@ -38,15 +39,15 @@ namespace EOLib.Graphics
 			Texture2D ret;
 
 			var key = new LibraryGraphicPair((int)file, 100 + resourceVal);
-			if (!reloadFromFile && cache.ContainsKey(key))
+			if (!reloadFromFile && _cache.ContainsKey(key))
 			{
-				return cache[key];
+				return _cache[key];
 			}
 
-			if (cache.ContainsKey(key) && reloadFromFile)
+			if (_cache.ContainsKey(key) && reloadFromFile)
 			{
-				if (cache[key] != null) cache[key].Dispose();
-				cache.Remove(key);
+				if (_cache[key] != null) _cache[key].Dispose();
+				_cache.Remove(key);
 			}
 
 			using (var mem = new System.IO.MemoryStream())
@@ -60,8 +61,15 @@ namespace EOLib.Graphics
 			//need to double-check that the key isn't already in the cache:
 			//  	multiple threads can enter this method simultaneously
 			//avoiding a lock because this method is used for every graphic
-			if (!cache.ContainsKey(key))
-				cache.Add(key, ret);
+			if (!_cache.ContainsKey(key))
+			{
+				_cache.Add(key, ret);
+			}
+			else
+			{
+				ret.Dispose();
+				ret = _cache[key];
+			}
 
 			return ret;
 		}
@@ -91,11 +99,11 @@ namespace EOLib.Graphics
 		/// </summary>
 		public void Dispose()
 		{
-			foreach (var text in cache.Values)
+			foreach (var text in _cache.Values)
 			{
 				text.Dispose();
 			}
-			cache.Clear();
+			_cache.Clear();
 		}
 	}
 }
