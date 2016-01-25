@@ -5,6 +5,7 @@
 using System;
 using System.Linq;
 using EndlessClient.Dialogs;
+using EndlessClient.Rendering.Effects;
 using EOLib;
 using EOLib.Data.BLL;
 using EOLib.IO;
@@ -55,6 +56,8 @@ namespace EndlessClient.Rendering
 		private Rectangle _npcTextureFrameRectangle;
 		private bool hasStandFrame1;
 		private int _fadeAwayAlpha;
+		
+		private EffectRenderer _effectRenderer;
 
 		private int DrawOffsetX { get { return NPC.X * 32 - NPC.Y * 32 + walkingAdjustedX; } }
 		private int DrawOffsetY { get { return NPC.X * 16 + NPC.Y * 16 + walkingAdjustedY; } }
@@ -117,6 +120,7 @@ namespace EndlessClient.Rendering
 			UpdateStandingFrameIfNeeded();
 			UpdateWalkFrameIfNeeded();
 			UpdateAttackFrameIfNeeded();
+			UpdateEffectAnimation();
 
 			_currMouseState = Mouse.GetState();
 			UpdateMouseoverName();
@@ -136,12 +140,15 @@ namespace EndlessClient.Rendering
 
 		public void DrawToSpriteBatch(SpriteBatch batch, bool started = false)
 		{
-			SpriteEffects effects = NPC.Direction == EODirection.Left || NPC.Direction == EODirection.Down
-				? SpriteEffects.None
-				: SpriteEffects.FlipHorizontally;
+			if (_effectRenderer != null)
+				_effectRenderer.DrawBehindTarget(batch, started);
 
 			if (!started)
 				batch.Begin();
+
+			SpriteEffects effects = NPC.Direction == EODirection.Left || NPC.Direction == EODirection.Down
+				? SpriteEffects.None
+				: SpriteEffects.FlipHorizontally;
 
 			Color col = NPC.Dying ? Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha -= 3) : Color.White;
 
@@ -159,6 +166,9 @@ namespace EndlessClient.Rendering
 
 			if (!started)
 				batch.End();
+
+			if (_effectRenderer != null)
+				_effectRenderer.DrawInFrontOfTarget(batch, started);
 		}
 
 		#endregion
@@ -206,6 +216,26 @@ namespace EndlessClient.Rendering
 				_mouseoverName.Close();
 				_mouseoverName = null;
 			}
+		}
+
+		public void ShowSpellAnimation(int spellGraphicID)
+		{
+			ResetEffectRenderer();
+			RenderEffect(EffectType.Spell, spellGraphicID);
+		}
+
+		private void RenderEffect(EffectType effectType, int effectID)
+		{
+			var gfxManager = ((EOGame)Game).GFXManager;
+			_effectRenderer = new EffectRenderer(gfxManager, this, () => _effectRenderer = null);
+			_effectRenderer.SetEffectInfoTypeAndID(effectType, effectID);
+			_effectRenderer.ShowEffect();
+		}
+
+		private void ResetEffectRenderer()
+		{
+			if (_effectRenderer != null)
+				_effectRenderer.Dispose();
 		}
 
 		#endregion
@@ -418,6 +448,12 @@ namespace EndlessClient.Rendering
 			}
 
 			_actionStartTime = DateTime.Now;
+		}
+
+		private void UpdateEffectAnimation()
+		{
+			if (_effectRenderer != null)
+				_effectRenderer.Update();
 		}
 
 		#endregion

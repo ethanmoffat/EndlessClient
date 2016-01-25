@@ -145,11 +145,12 @@ namespace EndlessClient.Rendering
 		private int m_drunkOffset;
 
 		private bool _playerIsOnSpikeTrap;
-		private EffectRenderer _waterEffect;
 
 		private readonly BlinkingLabel _mouseoverName;
 		private string _shoutName;
 		private DateTime? _spellInvocationStartTime;
+
+		private EffectRenderer _effectRenderer;
 
 		private CharacterActionState State
 		{
@@ -328,6 +329,8 @@ namespace EndlessClient.Rendering
 				_updateDisplayDataSprites();
 			_checkBringBackFromDead();
 			_checkResetCharacterStateAfterSpell();
+
+			UpdateEffectRenderer();
 
 			if (EOGame.Instance.State == GameStates.PlayingTheGame && this == World.Instance.ActiveCharacterRenderer)
 			{
@@ -566,6 +569,12 @@ namespace EndlessClient.Rendering
 			}
 		}
 
+		private void UpdateEffectRenderer()
+		{
+			if (_effectRenderer != null)
+				_effectRenderer.Update();
+		}
+
 		public void PlayerWalk(bool isWaterTile, bool isSpikeTrap)
 		{
 			if (!string.IsNullOrEmpty(_shoutName))
@@ -590,7 +599,7 @@ namespace EndlessClient.Rendering
 			}
 
 			if (isWaterTile)
-				RenderWaterSplashie();
+				ShowWaterSplashieAnimation();
 
 			_playerIsOnSpikeTrap = isSpikeTrap;
 			if (_playerIsOnSpikeTrap)
@@ -638,7 +647,7 @@ namespace EndlessClient.Rendering
 			}
 
 			if (isWaterTile)
-				RenderWaterSplashie();
+				ShowWaterSplashieAnimation();
 
 			try
 			{
@@ -693,7 +702,7 @@ namespace EndlessClient.Rendering
 
 			if (adminRect != null)
 			{
-				if(!started) sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+				if(!started) sb.Begin();
 				sb.Draw(adminGraphic, new Rectangle(DrawAreaWithOffset.X + 48, DrawAreaWithOffset.Y + 73, adminRect.Value.Width, adminRect.Value.Height), adminRect, Color.White);
 				if(!started) sb.End();
 			}
@@ -705,10 +714,16 @@ namespace EndlessClient.Rendering
 				World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 				return;
 
+			if (_effectRenderer != null)
+				_effectRenderer.DrawBehindTarget(sb, started);
+
 			if(!started) sb.Begin();
 			sb.Draw(_charRenderTarget, new Vector2(0, 0),
 				_char.RenderData.hidden || _char.RenderData.dead ? Color.FromNonPremultiplied(255, 255, 255, 128) : Color.White);
 			if(!started) sb.End();
+
+			if (_effectRenderer != null)
+				_effectRenderer.DrawInFrontOfTarget(sb, started);
 		}
 
 		//changes the frame for walking - used by the walk timer
@@ -775,33 +790,6 @@ namespace EndlessClient.Rendering
 			}
 
 			Data.SetUpdate(true);
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				if (levelLabel != null)
-					levelLabel.Dispose();
-				if (nameLabel != null)
-					nameLabel.Dispose();
-				if (_walkTimer != null)
-					_walkTimer.Dispose();
-				if (_attackTimer != null)
-					_attackTimer.Dispose();
-				if (_emoteTimer != null)
-					_emoteTimer.Dispose();
-				if (_spTimer != null)
-					_spTimer.Dispose();
-				if (_charRenderTarget != null)
-					_charRenderTarget.Dispose();
-				if (m_chatBubble != null)
-					m_chatBubble.Dispose();
-				if (_mouseoverName != null)
-					_mouseoverName.Close();
-			}
-
-			base.Dispose(disposing);
 		}
 
 		//character is drawn in the following order:
@@ -1220,19 +1208,6 @@ namespace EndlessClient.Rendering
 			SpriteBatch.Draw(boots, new Vector2(drawLoc.X + bootsOffX, drawLoc.Y + bootsOffY), null, Color.White, 0.0f, Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
 		}
 
-		private void RenderWaterSplashie()
-		{
-			if (_waterEffect != null)
-			{
-				_waterEffect.Restart();
-				return;
-			}
-
-			_waterEffect = new EffectRenderer((EOGame)Game, this, () => _waterEffect = null);
-			_waterEffect.SetEffectInfoTypeAndID(EffectType.WaterSplashies, 0);
-			_waterEffect.ShowEffect();
-		}
-
 		private void maskTheHair()
 		{
 			if (Data.hat == 0)
@@ -1331,6 +1306,8 @@ namespace EndlessClient.Rendering
 			m_drunkTime = DateTime.Now;
 			Character.IsDrunk = true;
 		}
+
+		#region Spell Casting
 
 		//Workflow for spells (main player):
 		// - F-key pressed, calls SelectSpell
@@ -1434,6 +1411,108 @@ namespace EndlessClient.Rendering
 		{
 			_spellInvocationStartTime = DateTime.Now;
 			Character.SetSpellCastStart();
+		}
+
+		#endregion
+
+		#region Effect Rendering
+
+		public void ShowWarpArrive()
+		{
+			ResetEffectRenderer();
+			RenderEffect(EffectType.WarpDestination);
+		}
+
+		public void ShowWarpLeave()
+		{
+			ResetEffectRenderer();
+			RenderEffect(EffectType.WarpOriginal, 0, Close);
+		}
+
+		public void ShowPotionAnimation(int potionID)
+		{
+			var hud = ((EOGame)Game).Hud;
+			hud.DisableEffectPotionUse();
+
+			ResetEffectRenderer();
+			RenderEffect(EffectType.Potion, potionID, hud.EnableEffectPotionUse);
+		}
+
+		public void ShowSpellAnimation(int spellGraphicID)
+		{
+			ResetEffectRenderer();
+			RenderEffect(EffectType.Spell, spellGraphicID);
+		}
+
+		//only used in CharacterRenderer
+		private void ShowWaterSplashieAnimation()
+		{
+			if (HasExistingWaterEffect())
+			{
+				_effectRenderer.Restart();
+				return;
+			}
+
+			ResetEffectRenderer();
+			RenderEffect(EffectType.WaterSplashies);
+		}
+
+		private bool HasExistingWaterEffect()
+		{
+			return _effectRenderer != null && _effectRenderer.EffectType == EffectType.WaterSplashies;
+		}
+
+		private void RenderEffect(EffectType effectType, int effectID = 0, Action cleanupAction = null)
+		{
+			cleanupAction = cleanupAction ?? delegate { };
+			Action fullCleanup = () =>
+			{
+				_effectRenderer = null;
+				cleanupAction();
+			};
+
+			var gfxManager = ((EOGame)Game).GFXManager;
+			_effectRenderer = new EffectRenderer(gfxManager, this, fullCleanup);
+			_effectRenderer.SetEffectInfoTypeAndID(effectType, effectID);
+			_effectRenderer.ShowEffect();
+		}
+
+		private void ResetEffectRenderer()
+		{
+			if (_effectRenderer != null)
+			{
+				_effectRenderer.Dispose();
+				_effectRenderer = null;
+			}
+		}
+
+		#endregion
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				if (levelLabel != null)
+					levelLabel.Dispose();
+				if (nameLabel != null)
+					nameLabel.Dispose();
+				if (_walkTimer != null)
+					_walkTimer.Dispose();
+				if (_attackTimer != null)
+					_attackTimer.Dispose();
+				if (_emoteTimer != null)
+					_emoteTimer.Dispose();
+				if (_spTimer != null)
+					_spTimer.Dispose();
+				if (_charRenderTarget != null)
+					_charRenderTarget.Dispose();
+				if (m_chatBubble != null)
+					m_chatBubble.Dispose();
+				if (_mouseoverName != null)
+					_mouseoverName.Close();
+			}
+
+			base.Dispose(disposing);
 		}
 	}
 }

@@ -9,7 +9,6 @@ using System.Linq;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.Rendering;
-using EndlessClient.Rendering.Effects;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -544,11 +543,7 @@ namespace EndlessClient
 				ActiveMapRenderer.AddMapItem(mi);
 
 			if (anim == WarpAnimation.Admin)
-			{
-				var effectRenderer = new EffectRenderer(EOGame.Instance, ActiveCharacterRenderer, delegate { });
-				effectRenderer.SetEffectInfoTypeAndID(EffectType.WarpDestination, 0);
-				effectRenderer.ShowEffect();
-			}
+				ActiveCharacterRenderer.ShowWarpArrive();
 		}
 
 		public void ApplyWelcomeRequest(PacketAPI api, WelcomeRequestData data)

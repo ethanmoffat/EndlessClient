@@ -10,7 +10,6 @@ using System.Threading;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Inventory;
-using EndlessClient.Rendering.Effects;
 using EOLib;
 using EOLib.Data.BLL;
 using EOLib.Data.Map;
@@ -432,11 +431,7 @@ namespace EndlessClient.Rendering
 			}
 
 			if (anim == WarpAnimation.Admin && otherRend != null)
-			{
-				var effectRenderer = new EffectRenderer((EOGame) Game, otherRend, delegate { });
-				effectRenderer.SetEffectInfoTypeAndID(EffectType.WarpDestination, 0);
-				effectRenderer.ShowEffect();
-			}
+				otherRend.ShowWarpArrive();
 		}
 
 		public void RemoveOtherPlayer(short id, WarpAnimation anim = WarpAnimation.None)
@@ -451,16 +446,13 @@ namespace EndlessClient.Rendering
 					rend.Visible = false;
 					otherRenderers.Remove(rend);
 
-					Action closeRenderer = () => { rend.Close(); };
 					if (anim == WarpAnimation.Admin)
 					{
-						var effectRenderer = new EffectRenderer((EOGame)Game, rend, closeRenderer);
-						effectRenderer.SetEffectInfoTypeAndID(EffectType.WarpOriginal, 0);
-						effectRenderer.ShowEffect();
+						rend.ShowWarpLeave();
 					}
 					else
 					{
-						closeRenderer();
+						rend.Close();
 					}
 				}
 			}
@@ -1823,9 +1815,7 @@ namespace EndlessClient.Rendering
 			if (spellID < 1) return;
 
 			var spellInfo = World.Instance.ESF.GetSpellRecordByID(spellID);
-			var effect = new EffectRenderer((EOGame)Game, renderer, delegate { });
-			effect.SetEffectInfoTypeAndID(EffectType.Spell, spellInfo.Graphic);
-			effect.ShowEffect();
+			renderer.ShowSpellAnimation(spellInfo.Graphic);
 		}
 
 		private void _renderSpellOnNPC(short spellID, NPCRenderer renderer)
@@ -1833,9 +1823,7 @@ namespace EndlessClient.Rendering
 			if (spellID < 1) return;
 
 			var spellInfo = World.Instance.ESF.GetSpellRecordByID(spellID);
-			var effect = new EffectRenderer((EOGame)Game, renderer, delegate { });
-			effect.SetEffectInfoTypeAndID(EffectType.Spell, spellInfo.Graphic);
-			effect.ShowEffect();
+			renderer.ShowSpellAnimation(spellInfo.Graphic);
 		}
 
 		/// <summary>

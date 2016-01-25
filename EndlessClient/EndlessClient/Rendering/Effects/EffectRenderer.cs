@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -20,12 +21,11 @@ namespace EndlessClient.Rendering.Effects
 		WaterSplashies
 	}
 
-	public class EffectRenderer : DrawableGameComponent
+	public sealed class EffectRenderer : IDisposable
 	{
 		private readonly DrawableGameComponent _target;
 		private readonly Action _cleanupAction;
 		private readonly EffectSpriteManager _effectSpriteManager;
-		private readonly SpriteBatch _sb;
 
 		private IList<EffectSpriteInfo> _effectInfo;
 		private DateTime _lastFrameChange;
@@ -35,19 +35,25 @@ namespace EndlessClient.Rendering.Effects
 
 		private bool _disposed;
 
-		public EffectRenderer(EOGame game, NPCRenderer npc, Action cleanupAction)
-			: this(game, (DrawableGameComponent)npc, cleanupAction) { }
+		public EffectType EffectType { get { return _effectType; } }
 
-		public EffectRenderer(EOGame game, CharacterRenderer character, Action cleanupAction)
-			: this(game, (DrawableGameComponent)character, cleanupAction) { }
+		public EffectRenderer(INativeGraphicsManager gfxManager,
+							  NPCRenderer npc,
+							  Action cleanupAction = null)
+			: this(gfxManager, (DrawableGameComponent)npc, cleanupAction) { }
 
-		private EffectRenderer(EOGame game, DrawableGameComponent target, Action cleanupAction)
-			: base(game)
+		public EffectRenderer(INativeGraphicsManager gfxManager,
+							  CharacterRenderer character,
+							  Action cleanupAction = null)
+			: this(gfxManager, (DrawableGameComponent)character, cleanupAction) { }
+
+		private EffectRenderer(INativeGraphicsManager gfxManager,
+							   DrawableGameComponent target,
+							   Action cleanupAction)
 		{
 			_target = target;
 			_cleanupAction = cleanupAction;
-			_effectSpriteManager = new EffectSpriteManager(game.GFXManager);
-			_sb = new SpriteBatch(game.GraphicsDevice);
+			_effectSpriteManager = new EffectSpriteManager(gfxManager);
 
 			SetEffectInfoTypeAndID(EffectType.Invalid, -1);
 		}
@@ -60,9 +66,11 @@ namespace EndlessClient.Rendering.Effects
 
 		public void ShowEffect()
 		{
-			if (Game.Components.Contains(this))
-				throw new InvalidOperationException("This component is automatically managed. Do not manually add to Game Components list.");
-			Game.Components.Add(this); //calls Initialize() as part of the Add
+			if (_effectID < 0 || _effectType == EffectType.Invalid)
+				throw new InvalidOperationException("Call SetEffectInfoTypeAndID before initializing");
+
+			_lastFrameChange = DateTime.Now;
+			_effectInfo = _effectSpriteManager.GetEffectInfo(_effectType, _effectID);
 		}
 
 		public void Restart()
@@ -71,18 +79,7 @@ namespace EndlessClient.Rendering.Effects
 				effect.Restart();
 		}
 
-		public override void Initialize()
-		{
-			if (_effectID < 0 || _effectType == EffectType.Invalid)
-				throw new InvalidOperationException("Call SetEffectInfoTypeAndID before initializing");
-
-			_lastFrameChange = DateTime.Now;
-			_effectInfo = _effectSpriteManager.GetEffectInfo(_effectType, _effectID);
-
-			base.Initialize();
-		}
-
-		public override void Update(GameTime gameTime)
+		public void Update()
 		{
 			if (_disposed) return;
 
@@ -96,46 +93,34 @@ namespace EndlessClient.Rendering.Effects
 				doneEffects.ToList().ForEach(ei => _effectInfo.Remove(ei));
 
 				if (_effectInfo.Count == 0)
-				{
 					Dispose();
-					return;
-				}
 			}
-
-			base.Update(gameTime);
 		}
 
-		public override void Draw(GameTime gameTime)
+		public void DrawBehindTarget(SpriteBatch sb, bool beginHasBeenCalled = true)
+		{
+			DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => !x.OnTopOfCharacter));
+		}
+
+		public void DrawInFrontOfTarget(SpriteBatch sb, bool beginHasBeenCalled = true)
+		{
+			DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => x.OnTopOfCharacter));
+		}
+
+		#region Drawing Helpers
+
+		private void DrawEffects(SpriteBatch sb, bool beginHasBeenCalled, IEnumerable<EffectSpriteInfo> effectInfo)
 		{
 			if (_disposed) return;
 
-			var drawLater = _effectInfo.Where(x => x.OnTopOfCharacter).ToList();
-			var drawFirst = _effectInfo.Except(drawLater);
+			if (!beginHasBeenCalled)
+				sb.Begin();
 
-			_sb.Begin();
-			drawFirst.ToList().ForEach(x => x.DrawToSpriteBatch(_sb, GetTargetRectangle((dynamic) _target)));
+			foreach (var ei in effectInfo)
+				ei.DrawToSpriteBatch(sb, GetTargetRectangle((dynamic) _target));
 
-			DrawTarget((dynamic)_target);
-
-			drawLater.ForEach(x => x.DrawToSpriteBatch(_sb, GetTargetRectangle((dynamic) _target)));
-			_sb.End();
-
-			base.Draw(gameTime);
-		}
-
-		private void DrawTarget(NPCRenderer npc)
-		{
-			npc.DrawToSpriteBatch(_sb, true);
-		}
-
-		private void DrawTarget(CharacterRenderer character)
-		{
-			character.Draw(_sb, true);
-		}
-
-		private void DrawTarget(object fail)
-		{
-			throw new ArgumentException("fail: " + fail);
+			if (!beginHasBeenCalled)
+				sb.End();
 		}
 
 		private Rectangle GetTargetRectangle(NPCRenderer npc)
@@ -157,20 +142,31 @@ namespace EndlessClient.Rendering.Effects
 			throw new ArgumentException("No. Nooo. NOOOOO! THAT'S NOT TRUE! THAT'S IMPOSSIBLE! " + fail, "fail");
 		}
 
-		protected override void Dispose(bool disposing)
+		#endregion
+
+		#region IDisposable
+
+		~EffectRenderer()
+		{
+			Dispose(false);
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		private void Dispose(bool disposing)
 		{
 			_disposed = true;
 
 			if (disposing)
 			{
-				Game.Components.Remove(this);
-
 				_cleanupAction();
-
-				_sb.Dispose();
 			}
-
-			base.Dispose(disposing);
 		}
+
+		#endregion
 	}
 }

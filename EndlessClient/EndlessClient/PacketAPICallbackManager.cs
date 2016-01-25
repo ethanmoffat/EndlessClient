@@ -8,8 +8,6 @@ using System.IO;
 using System.Linq;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
-using EndlessClient.Rendering;
-using EndlessClient.Rendering.Effects;
 using EOLib;
 using EOLib.IO;
 using EOLib.Net;
@@ -454,13 +452,8 @@ namespace EndlessClient
 					World.Instance.ActiveCharacterRenderer.MakeDrunk();
 					m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_ITEM_USE_DRUNK);
 					break;
-				case ItemType.EffectPotion:
-					{
-						m_game.Hud.DisableEffectPotionUse();
-						var effectRenderer = new EffectRenderer(m_game, World.Instance.ActiveCharacterRenderer, m_game.Hud.EnableEffectPotionUse);
-						effectRenderer.SetEffectInfoTypeAndID(EffectType.Potion, data.EffectID);
-						effectRenderer.ShowEffect();
-					}
+				case ItemType.EffectPotion: //todo: effect potions for other players
+					World.Instance.ActiveCharacterRenderer.ShowPotionAnimation(data.EffectID);
 					break;
 				case ItemType.CureCurse:
 					{
