@@ -139,7 +139,7 @@
   <ItemGroup>
     <Compile Include="Controls\BlinkingLabel.cs" />
     <Compile Include="Character.cs" />
-    <Compile Include="Config.cs" />
+    <Compile Include="Logger.cs" />
     <Compile Include="Dialogs\BankAccountDialog.cs" />
     <Compile Include="Dialogs\CreateCharacterDialog.cs" />
     <Compile Include="Dialogs\QuestHistoryDialogListItem.cs" />

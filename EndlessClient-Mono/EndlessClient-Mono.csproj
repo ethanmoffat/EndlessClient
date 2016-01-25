@@ -45,9 +45,6 @@
     <Compile Include="..\EndlessClient\EndlessClient\Character.cs">
       <Link>Character.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\Config.cs">
-      <Link>Config.cs</Link>
-    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Controls\BlinkingLabel.cs">
       <Link>Controls\BlinkingLabel.cs</Link>
     </Compile>
@@ -209,6 +206,9 @@
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\InteractList.cs">
       <Link>InteractList.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Logger.cs">
+      <Link>Logger.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\PacketAPICallbackManager.cs">
       <Link>PacketAPICallbackManager.cs</Link>
