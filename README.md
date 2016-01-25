@@ -62,9 +62,9 @@ Note that the game client requires some additional files to be copied to the *bi
 The client is largely complete. There is a pretty full feature set that allows for many of the original game's operations to be done in the same way. However, there is still a lot left out that has not been integrated into this client as of yet.
 
 Some of the more important features that have been implemented are:
- - Complete implementation of pre-game menus and operations. This includes account creation, logging in, creating/deleting characters, and changing password
+ - Pre-game menus
  - Character rendering and movement (via arrow keys)
- - Character attacking (rendering for this is work in progress)
+ - Character attacking (rendering for this is partially complete)
  - NPC rendering, movement, talking, and attacking
  - Map rendering, including animated wall and floor tiles
  - Rendering of minimap
@@ -77,14 +77,14 @@ Some of the more important features that have been implemented are:
  - Right-click menus for other players (missing 'book' action)
  - Friend/Ignore lists
  - "Who is online?" list
- - NPC interaction on maps - limited to shops and bank bob
- - Sound effects and background music. Not all sound effects have been hooked to actual in-game events yet, but the framework is there.
+ - Some NPC interaction on maps (shops, bank, quests, skillmasters)
+ - Sound effects and background music (partially complete)
  - Party / group
  - Trading with other players
  - Spikes - timed, trap, and static
  - Map Effects - HP/TP drain
  - Quest NPC dialogs, as well as progress and history (no book for other players yet)
- - Skillmasters, spell casting, and spell inventory management (spells aren't rendered when cast yet)
+ - Skillmasters, spell casting, and spell inventory management
 
 <a name="ToDo" />What's Left to do?
 ------------------
@@ -97,7 +97,8 @@ Concerning refactoring code, I would like to remove all dependencies on singleto
 
 Here's the actual to-do list:
  - Character rendering during attack - currently the display is very buggy. The implementation leaves a lot to be desired.
- - Effects and spells - rendering of the spell on the target does not happen, but the spell is cast.
+ - Effects - all effects except spell IDs 17 and up are rendered on the target
+ - Sound - some sound effects are in place, but this is not complete.
  - Guilds
  - Quest book
  - Innkeepers
@@ -112,7 +113,7 @@ Here's a working list of things I want to add that would be additional features 
  - Use built-in patching system prior to log-in to transfer files: help, gfx, pubs, maps, data, sounds, etc.
  - More than 3 characters per account
  - Trading items between characters on the same account (with restrictions)
- - Unbounded display size, including scaling HUD with display size
+ - Unbounded display size, including scaling HUD with display size (basically, re-vamp the HUD to a more modern design)
  - Timed map weather systems
  - Passive skills (planned for in original but never done)
  - In-game macros (planned for in original but never done)
