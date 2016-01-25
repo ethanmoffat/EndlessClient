@@ -26,18 +26,18 @@ namespace EndlessClient.Rendering
 	public class MapRenderer : DrawableGameComponent
 	{
 		//collections
-		private readonly Dictionary<Point, List<MapItem>> MapItems = new Dictionary<Point, List<MapItem>>();
-		private readonly List<CharacterRenderer> otherRenderers = new List<CharacterRenderer>();
-		private readonly List<NPCRenderer> npcList = new List<NPCRenderer>();
-		private readonly object _npcListLock = new object(), _rendererListLock = new object();
+		private readonly Dictionary<Point, List<MapItem>> _mapItems = new Dictionary<Point, List<MapItem>>();
+		private readonly List<CharacterRenderer> _characterRenderers = new List<CharacterRenderer>();
+		private readonly List<NPCRenderer> _npcRenderers = new List<NPCRenderer>();
+		private readonly object _npcListLock = new object(), _characterListLock = new object();
 
 		public MapFile MapRef { get; private set; }
-		private bool m_needDispMapName;
+		private bool _needDispMapName;
 		
 		//cursor members
-		private Vector2 cursorPos;
-		private int gridX, gridY;
-		private readonly Texture2D mouseCursor, statusIcons;
+		private Vector2 _cursorPos;
+		private int _gridX, _gridY;
+		private readonly Texture2D _mouseCursor, _statusIcons;
 		private Rectangle _cursorSourceRect;
 		private readonly XNALabel _itemHoverName;
 		private MouseState _prevState;
@@ -53,21 +53,21 @@ namespace EndlessClient.Rendering
 		}
 		public Point GridCoords
 		{
-			get { return new Point(gridX, gridY); }
+			get { return new Point(_gridX, _gridY); }
 		}
 
 		//rendering members
 		private RenderTarget2D _rtMapObjAbovePlayer, _rtMapObjBelowPlayer;
 		private BlendState _playerBlend;
-		private SpriteBatch sb;
+		private SpriteBatch _sb;
 
-		private DateTime? m_mapLoadTime;
-		private int m_transitionMetric;
+		private DateTime? _mapLoadTime;
+		private int _transitionMetric;
 
 		//animated tile/wall members
 		private Vector2 _tileSrc;
 		private int _wallSrcIndex;
-		private TimeSpan? lastAnimUpdate;
+		private TimeSpan? _lastAnimUpdate;
 		private readonly List<Point> _visibleSpikeTraps = new List<Point>();
 		private readonly object _spikeTrapsLock = new object();
 
@@ -76,12 +76,12 @@ namespace EndlessClient.Rendering
 		private Warp _door;
 		private byte _doorY; //since y-coord not stored in Warp object...
 
-		private ManualResetEventSlim m_drawingEvent;
-		private EOMapContextMenu m_contextMenu;
+		private ManualResetEventSlim _drawingEvent;
+		private EOMapContextMenu _contextMenu;
 
-		private readonly PacketAPI m_api;
+		private readonly PacketAPI _api;
 
-		private MiniMapRenderer m_miniMapRenderer;
+		private MiniMapRenderer _miniMapRenderer;
 		
 		private bool _disposed;
 		private readonly object _disposingLockObject = new object();
@@ -95,13 +95,13 @@ namespace EndlessClient.Rendering
 				throw new ArgumentException("The game must be an EOGame instance");
 			if(apiHandle == null || !apiHandle.Initialized)
 				throw new ArgumentException("Invalid PacketAPI object");
-			m_api = apiHandle;
+			_api = apiHandle;
 
-			sb = new SpriteBatch(Game.GraphicsDevice);
+			_sb = new SpriteBatch(Game.GraphicsDevice);
 
-			mouseCursor = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
-			statusIcons = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 46, true);
-			_cursorSourceRect = new Rectangle(0, 0, mouseCursor.Width / 5, mouseCursor.Height);
+			_mouseCursor = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
+			_statusIcons = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 46, true);
+			_cursorSourceRect = new Rectangle(0, 0, _mouseCursor.Width / 5, _mouseCursor.Height);
 			_itemHoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
 			{
 				Visible = true,
@@ -111,7 +111,7 @@ namespace EndlessClient.Rendering
 				AutoSize = false
 			};
 
-			m_drawingEvent = new ManualResetEventSlim(true);
+			_drawingEvent = new ManualResetEventSlim(true);
 			Visible = false;
 
 			_doorTimer = new Timer(_doorTimerCallback);
@@ -135,15 +135,15 @@ namespace EndlessClient.Rendering
 			if (messageType == TalkType.NPC)
 			{
 				lock(_npcListLock)
-					dgc = npcList.Find(_npc => _npc.NPC.Index == playerID);
+					dgc = _npcRenderers.Find(_npc => _npc.NPC.Index == playerID);
 				if (dgc != null)
 					playerName = ((NPCRenderer)dgc).NPC.Data.Name;
 			}
 			else
 			{
-				lock (_rendererListLock)
+				lock (_characterListLock)
 				{
-					dgc = otherRenderers.Find(_rend => _rend.Character.ID == playerID);
+					dgc = _characterRenderers.Find(_rend => _rend.Character.ID == playerID);
 					if (dgc != null)
 						playerName = ((CharacterRenderer) dgc).Character.Name;
 				}
@@ -191,30 +191,30 @@ namespace EndlessClient.Rendering
 
 		public void SetActiveMap(MapFile newActiveMap)
 		{
-			m_drawingEvent.Wait();
-			m_drawingEvent.Reset();
+			_drawingEvent.Wait();
+			_drawingEvent.Reset();
 
 			if(MapRef != null && MapRef.AmbientNoise != 0)
 				EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.AmbientNoise);
 			
 			MapRef = newActiveMap;
 
-			if (m_miniMapRenderer == null)
-				m_miniMapRenderer = new MiniMapRenderer(this);
+			if (_miniMapRenderer == null)
+				_miniMapRenderer = new MiniMapRenderer(this);
 			else
-				m_miniMapRenderer.Map = MapRef;
+				_miniMapRenderer.Map = MapRef;
 
-			MapItems.Clear();
-			lock (_rendererListLock)
+			_mapItems.Clear();
+			lock (_characterListLock)
 			{
-				otherRenderers.ForEach(_rend => _rend.Dispose());
-				otherRenderers.Clear();
+				_characterRenderers.ForEach(_rend => _rend.Dispose());
+				_characterRenderers.Clear();
 			}
 
 			lock (_npcListLock)
 			{
-				npcList.ForEach(_npc => _npc.Dispose());
-				npcList.Clear();
+				_npcRenderers.ForEach(_npc => _npc.Dispose());
+				_npcRenderers.Clear();
 			}
 			lock (_spikeTrapsLock)
 				_visibleSpikeTraps.Clear();
@@ -229,23 +229,23 @@ namespace EndlessClient.Rendering
 				_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
 			}
 
-			m_mapLoadTime = DateTime.Now;
-			m_transitionMetric = 1;
+			_mapLoadTime = DateTime.Now;
+			_transitionMetric = 1;
 			if (!MapRef.MapAvailable)
-				m_miniMapRenderer.Visible = false;
+				_miniMapRenderer.Visible = false;
 
 			if (MapRef.Name.Length > 0)
 			{
 				if (EOGame.Instance.Hud != null)
 					EOGame.Instance.Hud.AddChat(ChatTabs.System, "", World.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Name, ChatType.NoteLeftArrow);
 				else
-					m_needDispMapName = true;
+					_needDispMapName = true;
 			}
 
 			PlayOrStopBackgroundMusic();
 			PlayOrStopAmbientNoise();
 
-			m_drawingEvent.Set();
+			_drawingEvent.Set();
 		}
 
 		public ITileInfo GetTileInfo(byte destX, byte destY)
@@ -253,18 +253,18 @@ namespace EndlessClient.Rendering
 			lock (_npcListLock)
 			{
 				int ndx;
-				if ((ndx = npcList.FindIndex(_npc => (!_npc.NPC.Walking && _npc.NPC.X == destX && _npc.NPC.Y == destY)
+				if ((ndx = _npcRenderers.FindIndex(_npc => (!_npc.NPC.Walking && _npc.NPC.X == destX && _npc.NPC.Y == destY)
 					|| _npc.NPC.Walking && _npc.NPC.DestX == destX && _npc.NPC.DestY == destY)) >= 0)
 				{
-					NPCRenderer retNPC = npcList[ndx];
+					NPCRenderer retNPC = _npcRenderers[ndx];
 					if (!retNPC.NPC.Dying)
 						return new NPCTileInfo(retNPC.NPC);
 				}
 			}
 
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
-				if (otherRenderers.Select(x => x.Character).Any(player => player.X == destX && player.Y == destY))
+				if (_characterRenderers.Select(x => x.Character).Any(player => player.X == destX && player.Y == destY))
 					return new BasicTileInfo(TileInfoReturnType.IsOtherPlayer);
 			}
 
@@ -292,7 +292,7 @@ namespace EndlessClient.Rendering
 		public void ToggleMapView()
 		{
 			if(MapRef.MapAvailable)
-				m_miniMapRenderer.Visible = !m_miniMapRenderer.Visible;
+				_miniMapRenderer.Visible = !_miniMapRenderer.Visible;
 			else
 				EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_NO_MAP_OF_AREA);
 		}
@@ -308,19 +308,19 @@ namespace EndlessClient.Rendering
 			}
 
 			Point key = new Point(newItem.x, newItem.y);
-			if(!MapItems.ContainsKey(key))
-				MapItems.Add(key, new List<MapItem>());
+			if(!_mapItems.ContainsKey(key))
+				_mapItems.Add(key, new List<MapItem>());
 
-			int index = MapItems[key].FindIndex(_mi => _mi.uid == newItem.uid);
+			int index = _mapItems[key].FindIndex(_mi => _mi.uid == newItem.uid);
 			if (index < 0)
-				MapItems[key].Add(newItem);
+				_mapItems[key].Add(newItem);
 		}
 
 		public void RemoveMapItem(short uid)
 		{
-			var locationContainingItemUID = MapItems.Keys.FirstOrDefault(_key => MapItems[_key].Find(_mi => _mi.uid == uid).uid == uid);
+			var locationContainingItemUID = _mapItems.Keys.FirstOrDefault(_key => _mapItems[_key].Find(_mi => _mi.uid == uid).uid == uid);
 			
-			List<MapItem> res = MapItems[locationContainingItemUID];
+			List<MapItem> res = _mapItems[locationContainingItemUID];
 			for (int i = res.Count - 1; i >= 0; --i)
 			{
 				if (res[i].uid == uid)
@@ -334,20 +334,20 @@ namespace EndlessClient.Rendering
 		private void RemoveMapItem(MapItem oldItem)
 		{
 			Point key = new Point(oldItem.x, oldItem.y);
-			if (!MapItems.ContainsKey(key))
+			if (!_mapItems.ContainsKey(key))
 				return;
-			MapItems[key].Remove(oldItem);
-			if (MapItems[key].Count == 0)
-				MapItems.Remove(key);
+			_mapItems[key].Remove(oldItem);
+			if (_mapItems[key].Count == 0)
+				_mapItems.Remove(key);
 		}
 
 		public void UpdateMapItemAmount(short uid, int amountTaken)
 		{
-			List<Point> pts = MapItems.Keys.Where(_key => MapItems[_key].Find(_mi => _mi.uid == uid).uid == uid).ToList();
+			List<Point> pts = _mapItems.Keys.Where(_key => _mapItems[_key].Find(_mi => _mi.uid == uid).uid == uid).ToList();
 			if(pts.Count > 1)
 				throw new AmbiguousMatchException("Multiple MapItems shared that uid. Something is wrong.");
 
-			List<MapItem> res = MapItems[pts[0]];
+			List<MapItem> res = _mapItems[pts[0]];
 			MapItem toRemove = res.Find(_mi => _mi.uid == uid);
 			res.Remove(toRemove);
 			toRemove = new MapItem
@@ -368,7 +368,7 @@ namespace EndlessClient.Rendering
 
 		public void ClearMapItems()
 		{
-			MapItems.Clear();
+			_mapItems.Clear();
 		}
 
 		public void PlayOrStopBackgroundMusic()
@@ -410,17 +410,17 @@ namespace EndlessClient.Rendering
 		public void AddOtherPlayer(CharacterData c, WarpAnimation anim = WarpAnimation.None)
 		{
 			CharacterRenderer otherRend = null;
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
-				Character other = otherRenderers.Select(x => x.Character).FirstOrDefault(x => x.Name == c.Name && x.ID == c.ID);
+				Character other = _characterRenderers.Select(x => x.Character).FirstOrDefault(x => x.Name == c.Name && x.ID == c.ID);
 				if (other == null)
 				{
-					other = new Character(m_api, c);
-					lock (_rendererListLock)
+					other = new Character(_api, c);
+					lock (_characterListLock)
 					{
-						otherRenderers.Add(otherRend = new CharacterRenderer(other));
-						otherRenderers[otherRenderers.Count - 1].Visible = true;
-						otherRenderers[otherRenderers.Count - 1].Initialize();
+						_characterRenderers.Add(otherRend = new CharacterRenderer(other));
+						_characterRenderers[_characterRenderers.Count - 1].Visible = true;
+						_characterRenderers[_characterRenderers.Count - 1].Initialize();
 					}
 					other.RenderData.SetUpdate(true);
 				}
@@ -436,15 +436,15 @@ namespace EndlessClient.Rendering
 
 		public void RemoveOtherPlayer(short id, WarpAnimation anim = WarpAnimation.None)
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
 				int ndx;
-				if ((ndx = otherRenderers.FindIndex(cc => cc.Character.ID == id)) >= 0)
+				if ((ndx = _characterRenderers.FindIndex(cc => cc.Character.ID == id)) >= 0)
 				{
-					var rend = otherRenderers[ndx];
+					var rend = _characterRenderers[ndx];
 					rend.HideChatBubble();
 					rend.Visible = false;
-					otherRenderers.Remove(rend);
+					_characterRenderers.Remove(rend);
 
 					if (anim == WarpAnimation.Admin)
 					{
@@ -460,28 +460,28 @@ namespace EndlessClient.Rendering
 
 		public void ClearOtherPlayers()
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
-				otherRenderers.ForEach(_rend => _rend.HideChatBubble());
-				otherRenderers.Clear();
+				_characterRenderers.ForEach(_rend => _rend.HideChatBubble());
+				_characterRenderers.Clear();
 			}
 		}
 
 		public void OtherPlayerFace(short ID, EODirection direction)
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
 				int ndx;
-				if ((ndx = otherRenderers.FindIndex(x => x.Character.ID == ID)) >= 0)
-					otherRenderers[ndx].Character.RenderData.SetDirection(direction);
+				if ((ndx = _characterRenderers.FindIndex(x => x.Character.ID == ID)) >= 0)
+					_characterRenderers[ndx].Character.RenderData.SetDirection(direction);
 			}
 		}
 
 		public void OtherPlayerWalk(short ID, EODirection direction, byte x, byte y)
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
-				CharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
+				CharacterRenderer rend = _characterRenderers.Find(_rend => _rend.Character.ID == ID);
 				if (rend != null)
 				{
 					rend.Character.Walk(direction, x, y, false);
@@ -496,9 +496,9 @@ namespace EndlessClient.Rendering
 
 		public void OtherPlayerAttack(short ID, EODirection direction)
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
-				CharacterRenderer rend = otherRenderers.Find(_rend => _rend.Character.ID == ID);
+				CharacterRenderer rend = _characterRenderers.Find(_rend => _rend.Character.ID == ID);
 				if (rend != null)
 				{
 					rend.Character.Attack(direction);
@@ -511,9 +511,9 @@ namespace EndlessClient.Rendering
 
 		public void OtherPlayerEmote(short playerID, Emote emote)
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
-				CharacterRenderer rend = otherRenderers.Find(cc => cc.Character.ID == playerID);
+				CharacterRenderer rend = _characterRenderers.Find(cc => cc.Character.ID == playerID);
 				if (rend != null)
 				{
 					rend.Character.Emote(emote);
@@ -524,23 +524,23 @@ namespace EndlessClient.Rendering
 
 		public void OtherPlayerHide(short ID, bool hidden)
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
 				int ndx;
-				if ((ndx = otherRenderers.FindIndex(x => x.Character.ID == ID)) >= 0)
+				if ((ndx = _characterRenderers.FindIndex(x => x.Character.ID == ID)) >= 0)
 				{
-					otherRenderers[ndx].Character.RenderData.SetHidden(hidden);
+					_characterRenderers[ndx].Character.RenderData.SetHidden(hidden);
 				}
 			}
 		}
 
 		public void OtherPlayerHeal(short ID, int healAmount, int pctHealth)
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
 				CharacterRenderer rend = ID == World.Instance.MainPlayer.ActiveCharacter.ID
 					? World.Instance.ActiveCharacterRenderer
-					: otherRenderers.Find(_rend => _rend.Character.ID == ID);
+					: _characterRenderers.Find(_rend => _rend.Character.ID == ID);
 
 				if (rend == null) return; //couldn't find other player :(
 
@@ -561,9 +561,9 @@ namespace EndlessClient.Rendering
 		{
 			string shoutName = World.Instance.ESF.GetSpellRecordByID(spellID).Shout;
 
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
-				var renderer = otherRenderers.Find(x => x.Character.ID == playerID);
+				var renderer = _characterRenderers.Find(x => x.Character.ID == playerID);
 				if (renderer != null)
 					renderer.SetSpellShout(shoutName);
 			}
@@ -571,9 +571,9 @@ namespace EndlessClient.Rendering
 
 		public void PlayerCastSpellSelf(short fromPlayerID, short spellID, int spellHP, byte percentHealth)
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
-				var renderer = otherRenderers.Find(x => x.Character.ID == fromPlayerID);
+				var renderer = _characterRenderers.Find(x => x.Character.ID == fromPlayerID);
 				if (renderer != null)
 				{
 					renderer.StopShouting(false);
@@ -592,11 +592,11 @@ namespace EndlessClient.Rendering
 
 		public void PlayerCastSpellTarget(short fromPlayerID, short targetPlayerID, EODirection fromPlayerDirection, short spellID, int recoveredHP, byte targetPercentHealth)
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
 				bool fromIsMain = false;
-				var fromRenderer = otherRenderers.Find(x => x.Character.ID == fromPlayerID);
-				var toRenderer = otherRenderers.Find(x => x.Character.ID == targetPlayerID);
+				var fromRenderer = _characterRenderers.Find(x => x.Character.ID == fromPlayerID);
+				var toRenderer = _characterRenderers.Find(x => x.Character.ID == targetPlayerID);
 
 				if (fromRenderer == null && fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
 				{
@@ -628,10 +628,10 @@ namespace EndlessClient.Rendering
 
 		public void PlayerCastSpellGroup(short fromPlayerID, short spellID, short spellHPgain, List<GroupSpellTarget> spellTargets)
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
 				bool fromIsMain = false;
-				var fromRenderer = otherRenderers.Find(x => x.Character.ID == fromPlayerID);
+				var fromRenderer = _characterRenderers.Find(x => x.Character.ID == fromPlayerID);
 				if (fromRenderer == null && fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
 				{
 					fromIsMain = true;
@@ -647,7 +647,7 @@ namespace EndlessClient.Rendering
 				foreach (var target in spellTargets)
 				{
 					bool targetIsMain = false;
-					var targetRenderer = otherRenderers.Find(x => x.Character.ID == target.MemberID);
+					var targetRenderer = _characterRenderers.Find(x => x.Character.ID == target.MemberID);
 					if (targetRenderer == null && target.MemberID == World.Instance.MainPlayer.ActiveCharacter.ID)
 					{
 						targetIsMain = true;
@@ -668,8 +668,8 @@ namespace EndlessClient.Rendering
 		public void UpdateOtherPlayers()
 		{
 			//when mainplayer walks, tell other players to update!
-			lock (_rendererListLock)
-				otherRenderers.Select(x => x.Character).ToList().ForEach(x => x.RenderData.SetUpdate(true));
+			lock (_characterListLock)
+				_characterRenderers.Select(x => x.Character).ToList().ForEach(x => x.RenderData.SetUpdate(true));
 		}
 
 		public void UpdateOtherPlayerRenderData(short playerId, bool sound, CharRenderData newRenderData)
@@ -701,21 +701,21 @@ namespace EndlessClient.Rendering
 		public Character GetOtherPlayerByID(short playerId)
 		{
 			Character retChar;
-			lock (_rendererListLock)
-				retChar = otherRenderers.Find(_c => _c.Character.ID == playerId).Character;
+			lock (_characterListLock)
+				retChar = _characterRenderers.Find(_c => _c.Character.ID == playerId).Character;
 			return retChar;
 		}
 
 		public void ShowContextMenu(CharacterRenderer player)
 		{
-			m_contextMenu.SetCharacterRenderer(player);
+			_contextMenu.SetCharacterRenderer(player);
 		}
 
 		public void ShowPotionEffect(short playerID, int effectID)
 		{
 			CharacterRenderer renderer;
-			lock (_rendererListLock)
-				renderer = otherRenderers.SingleOrDefault(x => x.Character.ID == playerID);
+			lock (_characterListLock)
+				renderer = _characterRenderers.SingleOrDefault(x => x.Character.ID == playerID);
 			if (renderer != null)
 				renderer.ShowPotionAnimation(effectID);
 		}
@@ -728,7 +728,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				return npcList.Find(_npc => _npc.NPC.X == x && _npc.NPC.Y == y);
+				return _npcRenderers.Find(_npc => _npc.NPC.X == x && _npc.NPC.Y == y);
 			}
 		}
 
@@ -740,7 +740,7 @@ namespace EndlessClient.Rendering
 				NPCRenderer newNpcRenderer = new NPCRenderer(new NPC(data, fileData));
 				newNpcRenderer.Initialize();
 				newNpcRenderer.Visible = true;
-				npcList.Add(newNpcRenderer);
+				_npcRenderers.Add(newNpcRenderer);
 			}
 		}
 
@@ -748,7 +748,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPCRenderer npcRenderer = npcList.Find(_npc => _npc.NPC.Index == index);
+				NPCRenderer npcRenderer = _npcRenderers.Find(_npc => _npc.NPC.Index == index);
 				if (npcRenderer != null)
 				{
 					if (damage > 0) //npc was killed - will do cleanup later
@@ -763,16 +763,16 @@ namespace EndlessClient.Rendering
 						npcRenderer.Visible = false;
 						npcRenderer.HideChatBubble();
 						npcRenderer.Dispose();
-						npcList.Remove(npcRenderer);
+						_npcRenderers.Remove(npcRenderer);
 					}
 				}
 			}
 
 			if (playerID > 0)
 			{
-				lock (_rendererListLock)
+				lock (_characterListLock)
 				{
-					var renderer = otherRenderers.Find(x => x.Character.ID == playerID);
+					var renderer = _characterRenderers.Find(x => x.Character.ID == playerID);
 					if (renderer != null)
 					{
 						renderer.Character.RenderData.SetDirection(playerDirection);
@@ -789,7 +789,7 @@ namespace EndlessClient.Rendering
 		{
 			List<byte> indexes;
 			lock (_npcListLock)
-				indexes = npcList.Where(predicate).Select(x => x.NPC.Index).ToList();
+				indexes = _npcRenderers.Where(predicate).Select(x => x.NPC.Index).ToList();
 			indexes.ForEach(x => RemoveOtherNPC(x));
 		}
 
@@ -797,12 +797,12 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				foreach (NPCRenderer n in npcList)
+				foreach (NPCRenderer n in _npcRenderers)
 				{
 					n.Visible = false;
 					n.Dispose();
 				}
-				npcList.Clear();
+				_npcRenderers.Clear();
 			}
 		}
 
@@ -810,7 +810,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPCRenderer toWalk = npcList.Find(_npc => _npc.NPC.Index == index);
+				NPCRenderer toWalk = _npcRenderers.Find(_npc => _npc.NPC.Index == index);
 				if (toWalk != null && !toWalk.NPC.Walking)
 				{
 					toWalk.Walk(x, y, dir);
@@ -822,18 +822,18 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPCRenderer toAttack = npcList.Find(_npc => _npc.NPC.Index == index);
+				NPCRenderer toAttack = _npcRenderers.Find(_npc => _npc.NPC.Index == index);
 				if (toAttack != null && !toAttack.NPC.Attacking)
 				{
 					toAttack.Attack(dir);
 				}
 			}
 
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
 				CharacterRenderer rend = targetPlayerId == World.Instance.MainPlayer.ActiveCharacter.ID
 					? World.Instance.ActiveCharacterRenderer
-					: otherRenderers.Find(_rend => _rend.Character.ID == targetPlayerId);
+					: _characterRenderers.Find(_rend => _rend.Character.ID == targetPlayerId);
 
 				if (rend == null) return; //couldn't find other player :(
 
@@ -854,17 +854,17 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				NPCRenderer toDamage = npcList.Find(_npc => _npc.NPC.Index == npcIndex);
+				NPCRenderer toDamage = _npcRenderers.Find(_npc => _npc.NPC.Index == npcIndex);
 				if (toDamage == null) return;
 
 				_renderSpellOnNPC(spellID, toDamage);
 				
 				Character opponent = null;
-				lock (otherRenderers)
+				lock (_characterRenderers)
 				{
 					var rend = fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID
 						? World.Instance.ActiveCharacterRenderer
-						: otherRenderers.Find(_rend => _rend.Character.ID == fromPlayerID);
+						: _characterRenderers.Find(_rend => _rend.Character.ID == fromPlayerID);
 
 					if (rend != null)
 					{
@@ -887,7 +887,7 @@ namespace EndlessClient.Rendering
 		public void StartOpenDoor(Warp warpRef, byte x, byte y)
 		{
 			warpRef.backOff = true; //set flag to prevent hella door packets from the client
-			if(!m_api.DoorOpen(x, y))
+			if(!_api.DoorOpen(x, y))
 				((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 
@@ -955,12 +955,12 @@ namespace EndlessClient.Rendering
 
 		public void SpikeDamage(short playerID, int percentHealth, bool isPlayerDead, int damageAmount)
 		{
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
-				int ndx = otherRenderers.FindIndex(_rend => _rend.Character.ID == playerID);
+				int ndx = _characterRenderers.FindIndex(_rend => _rend.Character.ID == playerID);
 				if (ndx < 0) return;
 
-				var rend = otherRenderers[ndx];
+				var rend = _characterRenderers[ndx];
 				_spikeDamageShared(rend, damageAmount, percentHealth, isPlayerDead);
 			}
 		}
@@ -1008,14 +1008,14 @@ namespace EndlessClient.Rendering
 			
 			((EOGame)Game).Hud.RefreshStats();
 
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
 				foreach (var other in otherCharacterData)
 				{
-					int ndx = otherRenderers.FindIndex(_rend => _rend.Character.ID == other.PlayerID);
+					int ndx = _characterRenderers.FindIndex(_rend => _rend.Character.ID == other.PlayerID);
 					if (ndx < 0) continue;
 
-					var rend = otherRenderers[ndx];
+					var rend = _characterRenderers[ndx];
 					rend.SetDamageCounterValue(other.DamageDealt, other.PlayerPercentHealth);
 				}
 			}
@@ -1067,7 +1067,7 @@ namespace EndlessClient.Rendering
 				ColorDestinationBlend = Blend.One
 			};
 
-			m_contextMenu = new EOMapContextMenu(m_api);
+			_contextMenu = new EOMapContextMenu(_api);
 
 			base.Initialize();
 		}
@@ -1088,20 +1088,20 @@ namespace EndlessClient.Rendering
 				_updateCursorInfo(ms);
 			}
 
-			if (m_needDispMapName && EOGame.Instance.Hud != null)
+			if (_needDispMapName && EOGame.Instance.Hud != null)
 			{
-				m_needDispMapName = false;
+				_needDispMapName = false;
 				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", World.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Name, ChatType.NoteLeftArrow);
 			}
 
-			if (m_drawingEvent == null) return;
+			if (_drawingEvent == null) return;
 
 			//draw stuff to the render target
 			//this is done in update instead of draw because I'm using render targets
-			m_drawingEvent.Wait(); //need to make sure that the map isn't being changed during a draw!
-			m_drawingEvent.Reset();
+			_drawingEvent.Wait(); //need to make sure that the map isn't being changed during a draw!
+			_drawingEvent.Reset();
 			_drawMapObjectsAndActors();
-			m_drawingEvent.Set();
+			_drawingEvent.Set();
 
 			_prevState = ms;
 			base.Update(gameTime);
@@ -1110,18 +1110,18 @@ namespace EndlessClient.Rendering
 		private void _updateCharacters(GameTime gameTime)
 		{
 			World.Instance.ActiveCharacterRenderer.Update(gameTime);
-			lock (_rendererListLock)
+			lock (_characterListLock)
 			{
-				foreach (CharacterRenderer rend in otherRenderers)
+				foreach (CharacterRenderer rend in _characterRenderers)
 					rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
 
-				var deadRenderers = otherRenderers.Where(x => x.CompleteDeath);
+				var deadRenderers = _characterRenderers.Where(x => x.CompleteDeath);
 				foreach (var rend in deadRenderers)
 				{
 					RemoveOtherPlayer((short) rend.Character.ID);
 
 					if (_visibleSpikeTraps.Contains(new Point(rend.Character.X, rend.Character.Y)) &&
-						!otherRenderers.Select(x => x.Character)
+						!_characterRenderers.Select(x => x.Character)
 							.Any(player => player.X == rend.Character.X && player.Y == rend.Character.Y))
 					{
 						RemoveVisibleSpikeTrap(rend.Character.X, rend.Character.Y);
@@ -1134,10 +1134,10 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				foreach (var npc in npcList)
+				foreach (var npc in _npcRenderers)
 					npc.Update(gameTime);
 
-				var deadNPCs = npcList.Where(x => x.NPC.DeathCompleted).ToList();
+				var deadNPCs = _npcRenderers.Where(x => x.NPC.DeathCompleted).ToList();
 				foreach (var npc in deadNPCs)
 				{
 					RemoveOtherNPC(npc.NPC.Index);
@@ -1148,8 +1148,8 @@ namespace EndlessClient.Rendering
 		private void _animateWallTiles(GameTime gameTime)
 		{
 			//lazy init
-			if (lastAnimUpdate == null) lastAnimUpdate = gameTime.TotalGameTime;
-			if ((gameTime.TotalGameTime - lastAnimUpdate.Value).TotalMilliseconds > 500)
+			if (_lastAnimUpdate == null) _lastAnimUpdate = gameTime.TotalGameTime;
+			if ((gameTime.TotalGameTime - _lastAnimUpdate.Value).TotalMilliseconds > 500)
 			{
 				_wallSrcIndex++;
 				if (_wallSrcIndex == 4) _wallSrcIndex = 0;
@@ -1158,22 +1158,22 @@ namespace EndlessClient.Rendering
 				if (_tileSrc.X > 192)
 					_tileSrc = Vector2.Zero;
 
-				lastAnimUpdate = gameTime.TotalGameTime;
+				_lastAnimUpdate = gameTime.TotalGameTime;
 			}
 		}
 
 		private void _updateCursorInfo(MouseState ms)
 		{
 			//don't do the cursor if there is a dialog open or the mouse is over the context menu
-			if (XNAControl.Dialogs.Count > 0 || (m_contextMenu.Visible && m_contextMenu.MouseOver))
+			if (XNAControl.Dialogs.Count > 0 || (_contextMenu.Visible && _contextMenu.MouseOver))
 				return;
 
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 
-			_getGridCoordsFromMousePosition(ms, _cursorSourceRect, c, out gridX, out gridY);
-			cursorPos = _getDrawCoordinates(gridX, gridY, c);
+			_getGridCoordsFromMousePosition(ms, _cursorSourceRect, c, out _gridX, out _gridY);
+			_cursorPos = _getDrawCoordinates(_gridX, _gridY, c);
 
-			if (gridX >= 0 && gridX <= MapRef.Width && gridY >= 0 && gridY <= MapRef.Height)
+			if (_gridX >= 0 && _gridX <= MapRef.Width && _gridY >= 0 && _gridY <= MapRef.Height)
 			{
 				bool mouseClicked = ms.LeftButton == ButtonState.Released && _prevState.LeftButton == ButtonState.Pressed;
 				//bool rightClicked = ms.RightButton == ButtonState.Released && _prevState.RightButton == ButtonState.Pressed;
@@ -1182,15 +1182,15 @@ namespace EndlessClient.Rendering
 				mouseClicked &= XNAControl.Dialogs.Count == 0;
 				//rightClicked &= XNAControl.Dialogs.Count == 0;
 
-				var ti = GetTileInfo((byte) gridX, (byte) gridY);
+				var ti = GetTileInfo((byte) _gridX, (byte) _gridY);
 				switch (ti.ReturnType)
 				{
 					case TileInfoReturnType.IsOtherPlayer:
 					case TileInfoReturnType.IsOtherNPC:
-						_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
+						_cursorSourceRect.Location = new Point(_mouseCursor.Width/5, 0);
 						break;
 					default: //TileSpec, warp, sign
-						if (gridX == c.X && gridY == c.Y)
+						if (_gridX == c.X && _gridY == c.Y)
 							goto case TileInfoReturnType.IsOtherPlayer; //same logic if it's the active character
 
 						_hideCursor = false;
@@ -1229,10 +1229,10 @@ namespace EndlessClient.Rendering
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 
 			Point p;
-			if (MapItems.ContainsKey(p = new Point(gridX, gridY)) && MapItems[p].Count > 0)
+			if (_mapItems.ContainsKey(p = new Point(_gridX, _gridY)) && _mapItems[p].Count > 0)
 			{
-				MapItem mi = MapItems[p].Last(); //topmost item has label
-				_cursorSourceRect.Location = new Point(2*(mouseCursor.Width/5), 0);
+				MapItem mi = _mapItems[p].Last(); //topmost item has label
+				_cursorSourceRect.Location = new Point(2*(_mouseCursor.Width/5), 0);
 
 				string itemName = EOInventoryItem.GetNameString(mi.id, mi.amount);
 				if (_itemHoverName.Text != itemName)
@@ -1243,8 +1243,8 @@ namespace EndlessClient.Rendering
 					_itemHoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
 				}
 				_itemHoverName.DrawLocation = new Vector2(
-					cursorPos.X + 32 - _itemHoverName.ActualWidth/2f,
-					cursorPos.Y - _itemHoverName.ActualHeight - 4);
+					_cursorPos.X + 32 - _itemHoverName.ActualWidth/2f,
+					_cursorPos.Y - _itemHoverName.ActualHeight - 4);
 
 				if (mouseClicked)
 				{
@@ -1270,7 +1270,7 @@ namespace EndlessClient.Rendering
 						{
 							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
 						}
-						else if (!m_api.GetItem(mi.uid)) //server validates drop protection anyway
+						else if (!_api.GetItem(mi.uid)) //server validates drop protection anyway
 							EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				}
@@ -1295,11 +1295,11 @@ namespace EndlessClient.Rendering
 					break;
 				case TileSpec.Chest:
 					//chest click action
-					_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
-					if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y))
+					_cursorSourceRect.Location = new Point(_mouseCursor.Width/5, 0);
+					if (mouseClicked && Math.Max(c.X - _gridX, c.Y - _gridY) <= 1 && (_gridX == c.X || _gridY == c.Y))
 						//must be directly adjacent
 					{
-						MapChest chest = MapRef.Chests.Find(_mc => _mc.x == gridX && _mc.y == gridY);
+						MapChest chest = MapRef.Chests.Find(_mc => _mc.x == _gridX && _mc.y == _gridY);
 						if (chest == null) break;
 
 						string requiredKey = null;
@@ -1318,7 +1318,7 @@ namespace EndlessClient.Rendering
 								requiredKey = "Wraith Key";
 								break;
 							default:
-								ChestDialog.Show(m_api, chest.x, chest.y);
+								ChestDialog.Show(_api, chest.x, chest.y);
 								break;
 						}
 
@@ -1332,10 +1332,10 @@ namespace EndlessClient.Rendering
 					}
 					break;
 				case TileSpec.BankVault:
-					_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
-					if (mouseClicked && Math.Max(c.X - gridX, c.Y - gridY) <= 1 && (gridX == c.X || gridY == c.Y))
+					_cursorSourceRect.Location = new Point(_mouseCursor.Width/5, 0);
+					if (mouseClicked && Math.Max(c.X - _gridX, c.Y - _gridY) <= 1 && (_gridX == c.X || _gridY == c.Y))
 					{
-						LockerDialog.Show(m_api, (byte) gridX, (byte) gridY);
+						LockerDialog.Show(_api, (byte) _gridX, (byte) _gridY);
 					}
 					break;
 				case TileSpec.ChairDown:
@@ -1355,7 +1355,7 @@ namespace EndlessClient.Rendering
 				case TileSpec.Board8:
 				case TileSpec.Jukebox:
 					//highlight cursor
-					_cursorSourceRect.Location = new Point(mouseCursor.Width/5, 0);
+					_cursorSourceRect.Location = new Point(_mouseCursor.Width/5, 0);
 					break;
 				case TileSpec.Jump:
 				case TileSpec.Water:
@@ -1378,9 +1378,9 @@ namespace EndlessClient.Rendering
 			//(y * 16) + (x * 16) + 144 - c.OffsetY  => 2pixY = 32y + 32x + 288 - 2c.OffsetY
 			//										 => 2pixY + pixX = 64x + 576 - c.OffsetX - 2c.OffsetY
 			//										 => 2pixY + pixX - 576 + c.OffsetX + 2c.OffsetY = 64x
-			//										 => gridX = (pixX + 2pixY - 576 + c.OffsetX + 2c.OffsetY) / 64; <=
-			//pixY = (gridX * 16) + (gridY * 16) + 144 - c.OffsetY =>
-			//(pixY - (gridX * 16) - 144 + c.OffsetY) / 16 = gridY
+			//										 => _gridX = (pixX + 2pixY - 576 + c.OffsetX + 2c.OffsetY) / 64; <=
+			//pixY = (_gridX * 16) + (_gridY * 16) + 144 - c.OffsetY =>
+			//(pixY - (_gridX * 16) - 144 + c.OffsetY) / 16 = _gridY
 
 			//center the cursor on the mouse pointer
 			int msX = ms.X - _cursorSourceRect.Width/2;
@@ -1394,37 +1394,37 @@ namespace EndlessClient.Rendering
 		{
 			if (MapRef != null)
 			{
-				if (m_drawingEvent == null)
-					m_drawingEvent = new ManualResetEventSlim(true);
+				if (_drawingEvent == null)
+					_drawingEvent = new ManualResetEventSlim(true);
 
-				m_drawingEvent.Wait();
-				m_drawingEvent.Reset();
+				_drawingEvent.Wait();
+				_drawingEvent.Reset();
 
 				_drawGroundLayer();
-				if(MapItems.Count > 0)
+				if(_mapItems.Count > 0)
 					_drawMapItems();
 
-				if (m_mapLoadTime != null && (DateTime.Now - m_mapLoadTime.Value).TotalMilliseconds > 2000)
-					m_mapLoadTime = null;
+				if (_mapLoadTime != null && (DateTime.Now - _mapLoadTime.Value).TotalMilliseconds > 2000)
+					_mapLoadTime = null;
 
-				sb.Begin();
+				_sb.Begin();
 
 				_drawCursor();
 
 				/*_drawPlayersNPCsAndMapObjects()*/
-				sb.Draw(_rtMapObjAbovePlayer, Vector2.Zero, Color.White);
-				sb.Draw(_rtMapObjBelowPlayer, Vector2.Zero, Color.White);
+				_sb.Draw(_rtMapObjAbovePlayer, Vector2.Zero, Color.White);
+				_sb.Draw(_rtMapObjBelowPlayer, Vector2.Zero, Color.White);
 #if DEBUG
-				sb.DrawString(EOGame.Instance.DBGFont, string.Format("FPS: {0}", World.FPS), new Vector2(30, 30), Color.White);
+				_sb.DrawString(EOGame.Instance.DBGFont, string.Format("FPS: {0}", World.FPS), new Vector2(30, 30), Color.White);
 #endif
 				_drawPlayerEquipIcons();
 
-				sb.End();
+				_sb.End();
 
-				if (m_miniMapRenderer.Visible)
-					m_miniMapRenderer.Draw();
+				if (_miniMapRenderer.Visible)
+					_miniMapRenderer.Draw();
 
-				m_drawingEvent.Set();
+				_drawingEvent.Set();
 			}
 
 			base.Draw(gameTime);
@@ -1435,37 +1435,37 @@ namespace EndlessClient.Rendering
 			Character c;
 			if ((c = World.Instance.MainPlayer.ActiveCharacter) != null)
 			{
-				int widthDelta = statusIcons.Width/4;
-				int heightDelta = statusIcons.Height/2;
+				int widthDelta = _statusIcons.Width/4;
+				int heightDelta = _statusIcons.Height/2;
 				int extraOffset = 0; //changes based on presence or absence of other icons
 				Color col = Color.FromNonPremultiplied(0x9e, 0x9f, 0x9e, 0xff);
 				if (MapRef.IsPK)
 				{
-					sb.Draw(statusIcons, new Vector2(14, 285), new Rectangle(widthDelta*3, 0, widthDelta, heightDelta), col);
+					_sb.Draw(_statusIcons, new Vector2(14, 285), new Rectangle(widthDelta*3, 0, widthDelta, heightDelta), col);
 					extraOffset += 24;
 				}
 				if (c.SelectedSpell > 0)
 				{
-					sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta*2, 0, widthDelta, heightDelta), col);
+					_sb.Draw(_statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta*2, 0, widthDelta, heightDelta), col);
 					extraOffset += 24;
 				}
 				if (c.PaperDoll[(int) EquipLocation.Weapon] != 0)
 				{
-					sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(0, 0, widthDelta, heightDelta), col);
+					_sb.Draw(_statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(0, 0, widthDelta, heightDelta), col);
 					extraOffset += 24;
 				}
 				if (c.PaperDoll[(int) EquipLocation.Shield] != 0)
-					sb.Draw(statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta, 0, widthDelta, heightDelta), col);
+					_sb.Draw(_statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta, 0, widthDelta, heightDelta), col);
 			}
 		}
 
 		private void _drawCursor()
 		{
-			if (!_hideCursor && gridX >= 0 && gridY >= 0 && gridX <= MapRef.Width && gridY <= MapRef.Height)
+			if (!_hideCursor && _gridX >= 0 && _gridY >= 0 && _gridX <= MapRef.Width && _gridY <= MapRef.Height)
 			{
 				//don't draw cursor if context menu is visible and the context menu has the mouse over it
-				if (!(m_contextMenu.Visible && m_contextMenu.MouseOver))
-					sb.Draw(mouseCursor, cursorPos, _cursorSourceRect, Color.White);
+				if (!(_contextMenu.Visible && _contextMenu.MouseOver))
+					_sb.Draw(_mouseCursor, _cursorPos, _cursorSourceRect, Color.White);
 			}
 		}
 
@@ -1484,7 +1484,7 @@ namespace EndlessClient.Rendering
 			Texture2D fillTileRef = null;
 			for (int i = yMin; i <= yMax; ++i)
 			{
-				sb.Begin();
+				_sb.Begin();
 
 				for (int j = xMin; j <= xMax; ++j)
 				{
@@ -1496,7 +1496,7 @@ namespace EndlessClient.Rendering
 						if (fillTileRef == null) //only do the cache lookup once!
 							fillTileRef = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true);
 
-						sb.Draw(fillTileRef, new Vector2(pos.X - 1, pos.Y - 2),
+						_sb.Draw(fillTileRef, new Vector2(pos.X - 1, pos.Y - 2),
 							Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
 					}
 
@@ -1507,13 +1507,13 @@ namespace EndlessClient.Rendering
 						Texture2D nextTile = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapTiles, tile, true);
 						Rectangle? src = nextTile.Width > 64 ? new Rectangle?(new Rectangle((int)_tileSrc.X, (int)_tileSrc.Y, nextTile.Width / 4, nextTile.Height)) : null;
 						if (nextTile.Width > 64)
-							sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
+							_sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
 						else
-							sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
+							_sb.Draw(nextTile, new Vector2(pos.X - 1, pos.Y - 2), Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
 					}
 				}
 
-				sb.End();
+				_sb.End();
 			}
 		}
 
@@ -1527,13 +1527,13 @@ namespace EndlessClient.Rendering
 			Func<GFXRow, bool> yGFXQuery = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength && row.y <= MapRef.Height;
 
 			//items next! (changed to deep copy so I don't get "collection was modified, enumeration may not continued" errors)
-			List<Point> keys = new List<Point>(MapItems.Keys.Where(_key => xGFXQuery(new GFX {x = (byte) _key.X}) && yGFXQuery(new GFXRow {y = (byte) _key.Y})));
+			List<Point> keys = new List<Point>(_mapItems.Keys.Where(_key => xGFXQuery(new GFX {x = (byte) _key.X}) && yGFXQuery(new GFXRow {y = (byte) _key.Y})));
 
-			sb.Begin();
+			_sb.Begin();
 			foreach (Point pt in keys)
 			{
 				//deep copies!
-				List<MapItem> local = new List<MapItem>(MapItems[pt]);
+				List<MapItem> local = new List<MapItem>(_mapItems[pt]);
 				foreach(MapItem item in local)
 				{
 					ItemRecord itemData = World.Instance.EIF.GetItemRecordByID(item.id);
@@ -1546,18 +1546,18 @@ namespace EndlessClient.Rendering
 							item.amount >= 2 ? 1 : 0)));
 
 						Texture2D moneyMoneyMan = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Items, 269 + 2 * gfx, true);
-						sb.Draw(moneyMoneyMan, 
+						_sb.Draw(moneyMoneyMan, 
 							new Vector2(itemPos.X - (int)Math.Round(moneyMoneyMan.Width / 2.0), itemPos.Y - (int)Math.Round(moneyMoneyMan.Height / 2.0)), 
 							Color.White);
 					}
 					else
 					{
 						Texture2D itemTexture = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Items, 2 * itemData.Graphic - 1, true);
-						sb.Draw(itemTexture, new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0), itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)), Color.White);
+						_sb.Draw(itemTexture, new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0), itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)), Color.White);
 					}
 				}
 			}
-			sb.End();
+			_sb.End();
 		}
 
 		private void _drawMapObjectsAndActors()
@@ -1567,12 +1567,12 @@ namespace EndlessClient.Rendering
 			Character c = World.Instance.MainPlayer.ActiveCharacter;
 
 			List<CharacterRenderer> otherChars;
-			lock (_rendererListLock)
-				otherChars = new List<CharacterRenderer>(otherRenderers); //copy of list (can remove items)
+			lock (_characterListLock)
+				otherChars = new List<CharacterRenderer>(_characterRenderers); //copy of list (can remove items)
 
 			List<NPCRenderer> otherNpcs;
 			lock(_npcListLock)
-				otherNpcs = new List<NPCRenderer>(npcList);
+				otherNpcs = new List<NPCRenderer>(_npcRenderers);
 
 			Dictionary<Point, Texture2D> drawRoofLater = new Dictionary<Point, Texture2D>();
 
@@ -1588,7 +1588,7 @@ namespace EndlessClient.Rendering
 			//no need to iterate over the entire map rows if they won't be included in the render.
 			for (int rowIndex = firstRow; rowIndex <= lastRow; ++rowIndex)
 			{
-				sb.Begin();
+				_sb.Begin();
 				var rowDelta = Math.Abs(c.Y - rowIndex);
 				for (int colIndex = firstCol; colIndex <= lastCol; ++colIndex)
 				{
@@ -1600,10 +1600,10 @@ namespace EndlessClient.Rendering
 					{
 						try
 						{
-							sb.End();
+							_sb.End();
 							GraphicsDevice.SetRenderTarget(_rtMapObjBelowPlayer);
 							GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-							sb.Begin();
+							_sb.Begin();
 						}
 						catch (ObjectDisposedException)
 						{
@@ -1637,20 +1637,20 @@ namespace EndlessClient.Rendering
 
 				try
 				{
-					sb.End();
+					_sb.End();
 				}
 				catch (InvalidOperationException)
 				{
-					sb.Dispose();
-					sb = new SpriteBatch(Game.GraphicsDevice);
+					_sb.Dispose();
+					_sb = new SpriteBatch(Game.GraphicsDevice);
 				}
 			}
 
 			_drawRoofsOnTop(drawRoofLater, c);
 
-			sb.Begin(SpriteSortMode.Deferred, World.Instance.MainPlayer.ActiveCharacter.RenderData.hidden ? BlendState.NonPremultiplied : _playerBlend);
-			World.Instance.ActiveCharacterRenderer.Draw(sb, true);
-			sb.End();
+			_sb.Begin(SpriteSortMode.Deferred, World.Instance.MainPlayer.ActiveCharacter.RenderData.hidden ? BlendState.NonPremultiplied : _playerBlend);
+			World.Instance.ActiveCharacterRenderer.Draw(_sb, true);
+			_sb.End();
 
 			GraphicsDevice.SetRenderTarget(null);
 		}
@@ -1664,7 +1664,7 @@ namespace EndlessClient.Rendering
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
 				Vector2 pos = _getDrawCoordinates(colIndex, rowIndex, c);
 				pos = new Vector2(pos.X + 16, pos.Y - 11);
-				sb.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+				_sb.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
 			}
 		}
 
@@ -1676,7 +1676,7 @@ namespace EndlessClient.Rendering
 			{
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Shadows, gfxNum, true);
 				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
-				sb.Draw(gfx, new Vector2(loc.X - 24, loc.Y - 12), Color.FromNonPremultiplied(255, 255, 255, 60));
+				_sb.Draw(gfx, new Vector2(loc.X - 24, loc.Y - 12), Color.FromNonPremultiplied(255, 255, 255, 60));
 			}
 		}
 
@@ -1700,7 +1700,7 @@ namespace EndlessClient.Rendering
 				loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > WALL_FRAME_WIDTH ? gfxWidthDelta : gfx.Width) / 2.0) + 47,
 					loc.Y - (gfx.Height - 29));
 
-				sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+				_sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
 			}
 
 			//down-facing walls
@@ -1719,7 +1719,7 @@ namespace EndlessClient.Rendering
 				loc = new Vector2(loc.X - (int)Math.Round((gfx.Width > WALL_FRAME_WIDTH ? gfxWidthDelta : gfx.Width) / 2.0) + 15,
 					loc.Y - (gfx.Height - 29));
 
-				sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+				_sb.Draw(gfx, loc, src, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
 			}
 		}
 
@@ -1742,7 +1742,7 @@ namespace EndlessClient.Rendering
 					var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapObjects, gfxNum, true);
 					Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
 					loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28));
-					sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+					_sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
 				}
 			}
 		}
@@ -1754,12 +1754,12 @@ namespace EndlessClient.Rendering
 
 			var thisLocNpcs = otherNpcs.Where(_npc => (_npc.NPC.Walking ? _npc.NPC.DestY == rowIndex : _npc.NPC.Y == rowIndex) &&
 													  (_npc.NPC.Walking ? _npc.NPC.DestX == colIndex : _npc.NPC.X == colIndex)).ToList();
-			thisLocNpcs.ForEach(npc => npc.DrawToSpriteBatch(sb, true));
+			thisLocNpcs.ForEach(npc => npc.DrawToSpriteBatch(_sb, true));
 
 			var thisLocChars = otherChars.Where(_char => _char.Character.State == CharacterActionState.Walking
 														? _char.Character.DestY == rowIndex && _char.Character.DestX == colIndex
 														: _char.Character.Y == rowIndex && _char.Character.X == colIndex).ToList();
-			thisLocChars.ForEach(@char => @char.Draw(sb, true));
+			thisLocChars.ForEach(@char => @char.Draw(_sb, true));
 		}
 
 		private void _drawRoofsAtLoc(int rowIndex, int colIndex, Dictionary<Point, Texture2D> drawRoofLater)
@@ -1781,7 +1781,7 @@ namespace EndlessClient.Rendering
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
 				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
 				loc = new Vector2(loc.X, loc.Y - 65);
-				sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
+				_sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
 			}
 		}
 
@@ -1794,29 +1794,29 @@ namespace EndlessClient.Rendering
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapTiles, gfxNum, true);
 				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
 				loc = new Vector2(loc.X - 2, loc.Y - 31);
-				sb.Draw(gfx, loc, Color.White);
+				_sb.Draw(gfx, loc, Color.White);
 			}
 		}
 
 		private void _drawRoofsOnTop(Dictionary<Point, Texture2D> drawRoofLater, Character c)
 		{
-			sb.Begin();
+			_sb.Begin();
 
 			foreach (var kvp in drawRoofLater)
 			{
 				Vector2 loc = _getDrawCoordinates(kvp.Key.X, kvp.Key.Y, c);
 				loc = new Vector2(loc.X - kvp.Value.Width/2f + 30, loc.Y - kvp.Value.Height + 28);
-				sb.Draw(kvp.Value, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(kvp.Key.X, kvp.Key.Y, c)));
+				_sb.Draw(kvp.Value, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(kvp.Key.X, kvp.Key.Y, c)));
 			}
 
 			try
 			{
-				sb.End();
+				_sb.End();
 			}
 			catch (InvalidOperationException)
 			{
-				sb.Dispose();
-				sb = new SpriteBatch(Game.GraphicsDevice);
+				_sb.Dispose();
+				_sb = new SpriteBatch(Game.GraphicsDevice);
 			}
 		}
 
@@ -1861,16 +1861,16 @@ namespace EndlessClient.Rendering
 			const double TRANSITION_TIME_MS = 125.0; //1/8 second for transition on each tile metric
 
 			int alpha;
-			if (m_mapLoadTime == null || metric < m_transitionMetric || metric == 0)
+			if (_mapLoadTime == null || metric < _transitionMetric || metric == 0)
 				alpha = 255;
-			else if (metric == m_transitionMetric)
+			else if (metric == _transitionMetric)
 			{
-				double ms = (DateTime.Now - m_mapLoadTime.Value).TotalMilliseconds;
+				double ms = (DateTime.Now - _mapLoadTime.Value).TotalMilliseconds;
 				alpha = (int)Math.Round((ms / TRANSITION_TIME_MS) * 255);
 				if (ms / TRANSITION_TIME_MS >= 1)
 				{
-					m_mapLoadTime = DateTime.Now;
-					m_transitionMetric++;
+					_mapLoadTime = DateTime.Now;
+					_transitionMetric++;
 				}
 			}
 			else
@@ -1893,7 +1893,7 @@ namespace EndlessClient.Rendering
 
 		protected override void Dispose(bool disposing)
 		{
-			m_drawingEvent.Wait();
+			_drawingEvent.Wait();
 
 			lock (_disposingLockObject)
 			{
@@ -1905,13 +1905,13 @@ namespace EndlessClient.Rendering
 					return;
 				}
 
-				lock (_rendererListLock)
-					foreach (CharacterRenderer cr in otherRenderers)
+				lock (_characterListLock)
+					foreach (CharacterRenderer cr in _characterRenderers)
 						cr.Dispose();
 
 				lock (_npcListLock)
 				{
-					foreach (NPCRenderer npc in npcList)
+					foreach (NPCRenderer npc in _npcRenderers)
 						npc.Dispose();
 				}
 
@@ -1922,20 +1922,20 @@ namespace EndlessClient.Rendering
 					_rtMapObjBelowPlayer.Dispose();
 				if (_playerBlend != null)
 					_playerBlend.Dispose();
-				sb.Dispose();
+				_sb.Dispose();
 				_doorTimer.Dispose();
 
-				if (m_contextMenu != null)
-					m_contextMenu.Dispose();
+				if (_contextMenu != null)
+					_contextMenu.Dispose();
 
-				if(m_miniMapRenderer != null)
-					m_miniMapRenderer.Dispose();
+				if(_miniMapRenderer != null)
+					_miniMapRenderer.Dispose();
 
 				base.Dispose(true);
 				_disposed = true;
 
-				m_drawingEvent.Dispose();
-				m_drawingEvent = null;
+				_drawingEvent.Dispose();
+				_drawingEvent = null;
 			}
 		}
 	}
