@@ -77,6 +77,7 @@
     <Compile Include="IO\EDFFile.cs" />
     <Compile Include="IO\EOData.cs" />
     <Compile Include="IO\IDataRecordFactory.cs" />
+    <Compile Include="IO\IniReader.cs" />
     <Compile Include="IO\Item.cs" />
     <Compile Include="IO\ItemRecordFactory.cs" />
     <Compile Include="IO\Map.cs" />

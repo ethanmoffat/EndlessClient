@@ -105,6 +105,9 @@
     <Compile Include="..\EOLib\IO\IDataRecordFactory.cs">
       <Link>IO\IDataRecordFactory.cs</Link>
     </Compile>
+    <Compile Include="..\EOLib\IO\IniReader.cs">
+      <Link>IniReader.cs</Link>
+    </Compile>
     <Compile Include="..\EOLib\IO\Item.cs">
       <Link>IO\Item.cs</Link>
     </Compile>
