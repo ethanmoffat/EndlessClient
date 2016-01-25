@@ -20,9 +20,7 @@ namespace EOLib
 			await TaskEx.Run(actionToRun);
 		}
 	}
-#endif
-
-#if MONO
+#else
 	public static class TaskFramework
 	{
 		public static async Task Delay(int timeToDelay)
