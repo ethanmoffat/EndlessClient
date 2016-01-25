@@ -137,6 +137,7 @@ namespace EndlessClient
 			m_packetAPI.OnOtherPlayerTakeSpikeDamage += _otherPlayerSpikeDamage;
 			m_packetAPI.OnTimedMapDrainHP += _mapDrainHP;
 			m_packetAPI.OnTimedMapDrainTP += _mapDrainTP;
+			m_packetAPI.OnEffectPotion += _otherPlayerEffectPotion;
 
 			//quests
 			m_packetAPI.OnQuestDialog += _questDialog;
@@ -928,6 +929,11 @@ namespace EndlessClient
 		private void _mapDrainTP(short amount, short tp, short maxtp)
 		{
 			World.Instance.ActiveMapRenderer.DrainTPFromMainPlayer(amount, tp, maxtp);
+		}
+
+		private void _otherPlayerEffectPotion(short playerID, int effectID)
+		{
+			World.Instance.ActiveMapRenderer.ShowPotionEffect(playerID, effectID);
 		}
 
 		private void _questDialog(QuestState stateinfo, Dictionary<short, string> dialognames, List<string> pages, Dictionary<short, string> links)

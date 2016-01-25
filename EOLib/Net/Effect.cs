@@ -9,8 +9,9 @@ namespace EOLib.Net
 {
 	public delegate void PlayerTakeSpikeDamageEvent(short damage, short hp, short maxhp);
 	public delegate void OtherPlayerTakeSpikeDamageEvent(short playerID, byte playerPercentHealth, bool isPlayerDead, int damageAmount);
-	public delegate void TimedMapDrainHP(short damage, short hp, short maxhp, List<TimedMapHPDrainData> otherCharacterData);
-	public delegate void TimedMapDrainTP(short amount, short tp, short maxtp);
+	public delegate void TimedMapDrainHPEvent(short damage, short hp, short maxhp, List<TimedMapHPDrainData> otherCharacterData);
+	public delegate void TimedMapDrainTPEvent(short amount, short tp, short maxtp);
+	public delegate void EffectPotionUseEvent(short playerID, int effectID);
 
 	public enum EffectDamageType : byte
 	{
@@ -41,8 +42,9 @@ namespace EOLib.Net
 		public event Action OnTimedSpike;
 		public event PlayerTakeSpikeDamageEvent OnPlayerTakeSpikeDamage;
 		public event OtherPlayerTakeSpikeDamageEvent OnOtherPlayerTakeSpikeDamage;
-		public event TimedMapDrainHP OnTimedMapDrainHP;
-		public event TimedMapDrainTP OnTimedMapDrainTP;
+		public event TimedMapDrainHPEvent OnTimedMapDrainHP;
+		public event TimedMapDrainTPEvent OnTimedMapDrainTP;
+		public event EffectPotionUseEvent OnEffectPotion;
 
 		private void _createEffectMembers()
 		{
@@ -50,6 +52,7 @@ namespace EOLib.Net
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.Admin), _handleEffectAdmin, true);
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.Report), _handleEffectReport, true);
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.TargetOther), _handleEffectTargetOther, true);
+			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.Player), _handleEffectPlayer, true);
 		}
 
 		//sent to the player taking spike damage and map TP drains
@@ -128,6 +131,14 @@ namespace EOLib.Net
 			}
 
 			OnTimedMapDrainHP(damage, hp, maxhp, otherCharacters);
+		}
+
+		//potion effect (only known use based on eoserv code)
+		private void _handleEffectPlayer(Packet pkt)
+		{
+			if (OnEffectPotion != null)
+				OnEffectPotion(playerID: pkt.GetShort(),
+							   effectID: pkt.GetThree());
 		}
 	}
 }

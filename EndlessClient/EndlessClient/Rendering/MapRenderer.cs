@@ -710,6 +710,16 @@ namespace EndlessClient.Rendering
 		{
 			m_contextMenu.SetCharacterRenderer(player);
 		}
+
+		public void ShowPotionEffect(short playerID, int effectID)
+		{
+			CharacterRenderer renderer;
+			lock (_rendererListLock)
+				renderer = otherRenderers.SingleOrDefault(x => x.Character.ID == playerID);
+			if (renderer != null)
+				renderer.ShowPotionAnimation(effectID);
+		}
+
 		#endregion
 
 		#region/* PUBLIC INTERFACE -- OTHER NPCS */
