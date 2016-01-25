@@ -243,6 +243,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\FireballEffectSpriteInfo.cs">
       <Link>Rendering\Effects\FireballEffectSpriteInfo.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\GenericMovingEffectSpriteInfo.cs">
+      <Link>Rendering\Effects\GenericMovingEffectSpriteInfo.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\EOSpriteSheet.cs">
       <Link>Rendering\EOSpriteSheet.cs</Link>
     </Compile>

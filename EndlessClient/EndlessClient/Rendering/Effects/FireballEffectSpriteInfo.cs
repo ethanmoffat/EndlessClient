@@ -1,28 +1,29 @@
-﻿using Microsoft.Xna.Framework;
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
+// This file is subject to the GPL v2 License
+// For additional details, see the LICENSE file
+
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Effects
 {
-	public class FireballEffectSpriteInfo : EffectSpriteInfo
+	public class FireballEffectSpriteInfo : GenericMovingEffectSpriteInfo
 	{
 		public FireballEffectSpriteInfo(int numberOfFrames,
-									  int repeats,
-									  bool onTopOfCharacter,
-									  int alpha,
-									  Texture2D graphic)
-			: base(numberOfFrames, repeats, onTopOfCharacter, alpha, graphic)
+										int repeats,
+										bool onTopOfCharacter,
+										int alpha,
+										Texture2D graphic)
+			: base(numberOfFrames, repeats, onTopOfCharacter, alpha, graphic) { }
+
+		protected override float GetTargetXForFrame(Rectangle targetRectangle)
 		{
+			return targetRectangle.X + (targetRectangle.Width - SourceRectangle.Width) / 2;
 		}
 
-		public override void DrawToSpriteBatch(SpriteBatch sb, Rectangle targetRectangle)
+		protected override float GetTargetYForFrame(Rectangle targetRectangle)
 		{
-			var frameWidth = _graphic.Width / _numberOfFrames;
-			var sourceRect = new Rectangle(_currentFrame * frameWidth, 0, frameWidth, _graphic.Height);
-
-			var targetX = targetRectangle.X + (targetRectangle.Width - sourceRect.Width) / 2;
-			var targetY = targetRectangle.Y - (_numberOfFrames - _currentFrame) * sourceRect.Height/3;
-
-			sb.Draw(_graphic, new Vector2(targetX, targetY), sourceRect, Color.FromNonPremultiplied(255, 255, 255, _alpha));
+			return targetRectangle.Y - (_numberOfFrames - _currentFrame) * SourceRectangle.Height / 3;
 		}
 	}
 }
