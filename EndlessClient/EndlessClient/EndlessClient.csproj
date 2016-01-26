@@ -211,6 +211,7 @@
     <Compile Include="Rendering\MiniMapRenderer.cs" />
     <Compile Include="Rendering\Effects\FireballEffectSpriteInfo.cs" />
     <Compile Include="Rendering\NPCRenderer.cs" />
+    <Compile Include="Rendering\PlayerStatusIconRenderer.cs" />
     <Compile Include="World.cs" />
   </ItemGroup>
   <ItemGroup>

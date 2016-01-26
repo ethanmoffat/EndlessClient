@@ -261,6 +261,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\NPCRenderer.cs">
       <Link>Rendering\NPCRenderer.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\PlayerStatusIconRenderer.cs">
+      <Link>Rendering\PlayerStatusIconRenderer.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\World.cs">
       <Link>World.cs</Link>
     </Compile>

@@ -37,7 +37,7 @@ namespace EndlessClient.Rendering
 		//cursor members
 		private Vector2 _cursorPos;
 		private int _gridX, _gridY;
-		private readonly Texture2D _mouseCursor, _statusIcons;
+		private readonly Texture2D _mouseCursor;
 		private Rectangle _cursorSourceRect;
 		private readonly XNALabel _itemHoverName;
 		private MouseState _prevState;
@@ -100,7 +100,6 @@ namespace EndlessClient.Rendering
 			_sb = new SpriteBatch(Game.GraphicsDevice);
 
 			_mouseCursor = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
-			_statusIcons = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 46, true);
 			_cursorSourceRect = new Rectangle(0, 0, _mouseCursor.Width / 5, _mouseCursor.Height);
 			_itemHoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
 			{
@@ -203,6 +202,12 @@ namespace EndlessClient.Rendering
 				_miniMapRenderer = new MiniMapRenderer(this);
 			else
 				_miniMapRenderer.Map = MapRef;
+
+			if (!Game.Components.OfType<PlayerStatusIconRenderer>().Any())
+			{
+				var iconRenderer = new PlayerStatusIconRenderer((EOGame)Game);
+				Game.Components.Add(iconRenderer);
+			}
 
 			_mapItems.Clear();
 			lock (_characterListLock)
@@ -1417,8 +1422,6 @@ namespace EndlessClient.Rendering
 #if DEBUG
 				_sb.DrawString(EOGame.Instance.DBGFont, string.Format("FPS: {0}", World.FPS), new Vector2(30, 30), Color.White);
 #endif
-				_drawPlayerEquipIcons();
-
 				_sb.End();
 
 				if (_miniMapRenderer.Visible)
@@ -1428,35 +1431,6 @@ namespace EndlessClient.Rendering
 			}
 
 			base.Draw(gameTime);
-		}
-
-		private void _drawPlayerEquipIcons()
-		{
-			Character c;
-			if ((c = World.Instance.MainPlayer.ActiveCharacter) != null)
-			{
-				int widthDelta = _statusIcons.Width/4;
-				int heightDelta = _statusIcons.Height/2;
-				int extraOffset = 0; //changes based on presence or absence of other icons
-				Color col = Color.FromNonPremultiplied(0x9e, 0x9f, 0x9e, 0xff);
-				if (MapRef.IsPK)
-				{
-					_sb.Draw(_statusIcons, new Vector2(14, 285), new Rectangle(widthDelta*3, 0, widthDelta, heightDelta), col);
-					extraOffset += 24;
-				}
-				if (c.SelectedSpell > 0)
-				{
-					_sb.Draw(_statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta*2, 0, widthDelta, heightDelta), col);
-					extraOffset += 24;
-				}
-				if (c.PaperDoll[(int) EquipLocation.Weapon] != 0)
-				{
-					_sb.Draw(_statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(0, 0, widthDelta, heightDelta), col);
-					extraOffset += 24;
-				}
-				if (c.PaperDoll[(int) EquipLocation.Shield] != 0)
-					_sb.Draw(_statusIcons, new Vector2(extraOffset + 14, 285), new Rectangle(widthDelta, 0, widthDelta, heightDelta), col);
-			}
 		}
 
 		private void _drawCursor()
