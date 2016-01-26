@@ -7,9 +7,9 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Effects
 {
-	public class FireballEffectSpriteInfo : GenericMovingEffectSpriteInfo
+	public class FallingEffectSpriteInfo : GenericMovingEffectSpriteInfo
 	{
-		public FireballEffectSpriteInfo(int numberOfFrames,
+		public FallingEffectSpriteInfo(int numberOfFrames,
 										int repeats,
 										bool onTopOfCharacter,
 										int alpha,

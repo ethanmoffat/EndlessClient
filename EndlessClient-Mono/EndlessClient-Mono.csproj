@@ -243,8 +243,8 @@
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\EnergyBallEffectSpriteInfo.cs">
       <Link>Rendering\Effects\EnergyBallEffectSpriteInfo.cs</Link>
     </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\FireballEffectSpriteInfo.cs">
-      <Link>Rendering\Effects\FireballEffectSpriteInfo.cs</Link>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\FallingEffectSpriteInfo.cs">
+      <Link>Rendering\Effects\FallingEffectSpriteInfo.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\GenericMovingEffectSpriteInfo.cs">
       <Link>Rendering\Effects\GenericMovingEffectSpriteInfo.cs</Link>

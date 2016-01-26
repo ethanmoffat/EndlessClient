@@ -132,8 +132,8 @@ namespace EndlessClient.Rendering.Effects
 				case 14: //Fire ball
 					return new List<EffectSpriteInfo>(2)
 					{
-						new FireballEffectSpriteInfo(6, 1, false, 255, GetGraphic(140)),
-						new FireballEffectSpriteInfo(6, 1, true, 128, GetGraphic(141))
+						new FallingEffectSpriteInfo(6, 1, false, 255, GetGraphic(140)),
+						new FallingEffectSpriteInfo(6, 1, true, 128, GetGraphic(141))
 					};
 				case 15: //Magic and Attack Shield
 					return new List<EffectSpriteInfo>(2)
@@ -166,6 +166,11 @@ namespace EndlessClient.Rendering.Effects
 					return new List<EffectSpriteInfo>(1)
 					{
 						new AuraEffectSpriteInfo(GetGraphic(159))
+					};
+				case 21: //THE BOULDER KNOWS HOW TO PUT THE HURT IN THE DIRT! WOOOO!
+					return new List<EffectSpriteInfo>(1)
+					{
+						new FallingEffectSpriteInfo(7, 1, true, 255, GetGraphic(163))
 					};
 			}
 
