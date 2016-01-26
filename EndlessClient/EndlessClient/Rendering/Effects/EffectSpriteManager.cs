@@ -22,6 +22,34 @@ namespace EndlessClient.Rendering.Effects
 			TERROR    = 7
 		}
 
+		private enum HardCodedSpellGraphic
+		{
+			FIRE = 1,
+			HEAL = 10,
+			THUNDER = 11,
+			ULTIMA_BLAST = 13,
+			FIRE_BALL = 14,
+			SHIELD = 15,
+			RING_OF_FIRE = 16,
+			ICE_BLAST_1 = 17,
+			ENERGY_BALL = 18,
+			WHIRL = 19,
+			AURA = 20,
+			BOULDER = 21,
+			HEAVEN = 22,
+			ICE_BLAST_2 = 23,
+			DARK_BEAM = 24,
+			DARK_HAND = 26,
+			DARK_SKULL = 27,
+			FIRE_BLAST = 28,
+			TENTACLES = 29,
+			POWER_WIND = 30,
+			MAGIC_WHIRL = 31,
+			DARK_BITE = 32,
+			SHELL = 33,
+			GREEN_FLAME = 34
+		}
+
 		private readonly INativeGraphicsManager _graphicsManager;
 
 		public EffectSpriteManager(INativeGraphicsManager graphicsManager)
@@ -34,7 +62,7 @@ namespace EndlessClient.Rendering.Effects
 			switch (effectType)
 			{
 				case EffectType.Potion: return ResolvePotionEffect((HardCodedPotionEffect)effectID);
-				case EffectType.Spell: return ResolveSpellEffect(effectID);
+				case EffectType.Spell: return ResolveSpellEffect((HardCodedSpellGraphic)effectID);
 				case EffectType.WarpOriginal:
 				case EffectType.WarpDestination: return GetWarpEffect(effectType);
 				case EffectType.WaterSplashies: return GetWaterEffect();
@@ -44,33 +72,6 @@ namespace EndlessClient.Rendering.Effects
 
 		private IList<EffectSpriteInfo> ResolvePotionEffect(HardCodedPotionEffect effect)
 		{
-			//FIRE: Effect #0 - 4 frames (same for small fire spell)
-			// 101 - behind character
-			// 102 - around character, 50% opacity
-			// 103 - in front of character
-			// repeats x2
-
-			//LOVE: Effect #1 - 4 frames
-			// 106 - in front of character
-			// repeats x4
-
-			//CELEBRATE: Effect #4 - 7 frames
-			// 115 - in front of character
-			// repeats x2
-
-			//SPARKLES: Effect #5 - 5 frames (this one is weird)
-			// 117 - in front of character (possible opacity?)
-			// 118 - in front of character
-			// repeats x1
-
-			//EVIL: Effect #6 - 4 frames
-			// 119 - behind character
-			// repeats x4
-			
-			//TERROR: Effect #7 - 4 frames
-			// 122 - behind character
-			// repeats x4
-
 			switch (effect)
 			{
 				case HardCodedPotionEffect.FLAMES:
@@ -110,68 +111,77 @@ namespace EndlessClient.Rendering.Effects
 			}
 		}
 
-		private IList<EffectSpriteInfo> ResolveSpellEffect(int effectID)
+		private IList<EffectSpriteInfo> ResolveSpellEffect(HardCodedSpellGraphic effect)
 		{
-			switch (effectID)
+			switch (effect)
 			{
-				case 1: return ResolvePotionEffect(HardCodedPotionEffect.FLAMES);
-				case 10: //Heal spells
+				case HardCodedSpellGraphic.FIRE: return ResolvePotionEffect(HardCodedPotionEffect.FLAMES);
+				case HardCodedSpellGraphic.HEAL:
 					return new List<EffectSpriteInfo>(2)
 					{
 						new EffectSpriteInfo(5, 1, false, 128, GetGraphic(129)),
 						new EffectSpriteInfo(5, 1, true, 255, GetGraphic(130))
 					};
-				case 11: //Small Thunder
+				case HardCodedSpellGraphic.THUNDER:
 					return new List<EffectSpriteInfo>(1) { new EffectSpriteInfo(4, 1, true, 255, GetGraphic(133)) };
-				case 13: //Ultima Blast
+				case HardCodedSpellGraphic.ULTIMA_BLAST:
 					return new List<EffectSpriteInfo>(2)
 					{
 						new EffectSpriteInfo(4, 3, true, 255, GetGraphic(137)),
 						new EffectSpriteInfo(4, 3, true, 128, GetGraphic(138))
 					};
-				case 14: //Fire ball
+				case HardCodedSpellGraphic.FIRE_BALL:
 					return new List<EffectSpriteInfo>(2)
 					{
 						new FallingEffectSpriteInfo(6, 1, false, 255, GetGraphic(140)),
 						new FallingEffectSpriteInfo(6, 1, true, 128, GetGraphic(141))
 					};
-				case 15: //Magic and Attack Shield
+				case HardCodedSpellGraphic.SHIELD:
 					return new List<EffectSpriteInfo>(2)
 					{
 						new EffectSpriteInfo(6, 1, false, 128, GetGraphic(144)),
 						new EffectSpriteInfo(6, 1, true, 255, GetGraphic(145))
 					};
-				case 16: //Ring of Fire
+				case HardCodedSpellGraphic.RING_OF_FIRE:
 					return new List<EffectSpriteInfo>(2)
 					{
 						new EffectSpriteInfo(4, 3, false, 255, GetGraphic(146)),
 						new EffectSpriteInfo(4, 3, true, 128, GetGraphic(148))
 					};
-				case 17: //Ice Blast (1)
+				case HardCodedSpellGraphic.ICE_BLAST_1:
 					return new List<EffectSpriteInfo>(2)
 					{
 						new EffectSpriteInfo(7, 1 ,false, 128, GetGraphic(150)),
 						new EffectSpriteInfo(7, 1, true, 255, GetGraphic(151))
 					};
-				case 18: //Energy Ball
+				case HardCodedSpellGraphic.ENERGY_BALL:
 					return new List<EffectSpriteInfo>(1) { new EnergyBallEffectSpriteInfo(7, 1, true, 255, GetGraphic(154)) };
-				case 19: //hWhirl
+				case HardCodedSpellGraphic.WHIRL:
 					return new List<EffectSpriteInfo>(3) //todo: in the original client, this moves around more erractically
 					{
 						new EffectSpriteInfo(4, 2, false, 255, GetGraphic(155)),
 						new EffectSpriteInfo(4, 2, true, 128, GetGraphic(156)),
 						new EffectSpriteInfo(4, 2, true, 255, GetGraphic(155))
 					};
-				case 20: //aura
+				case HardCodedSpellGraphic.AURA:
 					return new List<EffectSpriteInfo>(1)
 					{
 						new AuraEffectSpriteInfo(GetGraphic(159))
 					};
-				case 21: //THE BOULDER KNOWS HOW TO PUT THE HURT IN THE DIRT! WOOOO!
+				case HardCodedSpellGraphic.BOULDER:
 					return new List<EffectSpriteInfo>(1)
 					{
 						new FallingEffectSpriteInfo(7, 1, true, 255, GetGraphic(163))
 					};
+				//case HardCodedSpellGraphic.HEAVEN:
+				//	return new List<EffectSpriteInfo>(2)
+				//	{
+				//		//bottom is aligned with bottom of target
+				//		//flashes between last 2 frames of graphic BEHIND FULLALPHA
+				//		new HeavenEffectSpriteInfo(false, 255, GetGraphic(164), true),
+				//		//flashes last frame of graphic ONTOP HALFALPHA
+				//		new HeavenEffectSpriteInfo(true, 128, GetGraphic(165), false)
+				//	};
 			}
 
 			//not implemented spell graphics will just not render anything
@@ -180,14 +190,6 @@ namespace EndlessClient.Rendering.Effects
 
 		private IList<EffectSpriteInfo> GetWarpEffect(EffectType warpEffect)
 		{
-			//old position: 108/109 (character gone)
-			//new position: 112 only
-			//all:
-			// in front of character
-			// repeats once
-			// 100% opacity
-			// 8 frames
-
 			int[] gfxIDs;
 			switch (warpEffect)
 			{
