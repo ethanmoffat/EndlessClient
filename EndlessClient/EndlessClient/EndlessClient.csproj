@@ -200,6 +200,7 @@
     <Compile Include="Rendering\CharacterRenderer.cs" />
     <Compile Include="Rendering\ChatBubbleRenderer.cs" />
     <Compile Include="Rendering\ContextMenuRenderer.cs" />
+    <Compile Include="Rendering\Effects\AuraEffectSpriteInfo.cs" />
     <Compile Include="Rendering\Effects\EffectRenderer.cs" />
     <Compile Include="Rendering\Effects\EffectSpriteInfo.cs" />
     <Compile Include="Rendering\Effects\EffectSpriteManager.cs" />

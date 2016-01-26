@@ -93,8 +93,8 @@ namespace EndlessClient.Rendering.Effects
 				case HardCodedPotionEffect.SPARKLES:
 					return new List<EffectSpriteInfo>(2)
 					{
-						new EffectSpriteInfo(5, 1, true, 255, GetGraphic(117)),
-						new EffectSpriteInfo(5, 1, true, 255, GetGraphic(118))
+						new EffectSpriteInfo(5, 1, true, 128, GetGraphic(117)),
+						new EffectSpriteInfo(5, 1, true, 128, GetGraphic(118))
 					};
 				case HardCodedPotionEffect.EVIL:
 					return new List<EffectSpriteInfo>(1)
@@ -161,6 +161,11 @@ namespace EndlessClient.Rendering.Effects
 						new EffectSpriteInfo(4, 2, false, 255, GetGraphic(155)),
 						new EffectSpriteInfo(4, 2, true, 128, GetGraphic(156)),
 						new EffectSpriteInfo(4, 2, true, 255, GetGraphic(155))
+					};
+				case 20: //aura
+					return new List<EffectSpriteInfo>(1)
+					{
+						new AuraEffectSpriteInfo(GetGraphic(159))
 					};
 			}
 

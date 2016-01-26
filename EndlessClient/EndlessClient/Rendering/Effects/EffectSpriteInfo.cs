@@ -52,13 +52,18 @@ namespace EndlessClient.Rendering.Effects
 
 		public virtual void DrawToSpriteBatch(SpriteBatch sb, Rectangle targetRectangle)
 		{
-			var frameWidth = _graphic.Width / _numberOfFrames;
-			var sourceRect = new Rectangle(_currentFrame * frameWidth, 0, frameWidth, _graphic.Height);
+			var sourceRect = GetFrameSourceRectangle();
 
 			var targetX = targetRectangle.X + (targetRectangle.Width - sourceRect.Width) / 2;
 			var targetY = targetRectangle.Y + (targetRectangle.Height - sourceRect.Height) / 2;
 
 			sb.Draw(_graphic, new Vector2(targetX, targetY), sourceRect, Color.FromNonPremultiplied(255, 255, 255, _alpha));
+		}
+
+		protected virtual Rectangle GetFrameSourceRectangle()
+		{
+			var frameWidth = _graphic.Width / _numberOfFrames;
+			return new Rectangle(_currentFrame * frameWidth, 0, frameWidth, _graphic.Height);
 		}
 	}
 }
