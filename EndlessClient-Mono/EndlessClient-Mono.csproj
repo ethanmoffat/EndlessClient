@@ -246,6 +246,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\FallingEffectSpriteInfo.cs">
       <Link>Rendering\Effects\FallingEffectSpriteInfo.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\IEffectSpriteInfo.cs">
+      <Link>Rendering\Effects\IEffectSpriteInfo.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\EOSpriteSheet.cs">
       <Link>Rendering\EOSpriteSheet.cs</Link>
     </Compile>

@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Effects
 {
+	//todo: it would be cool to load this from a config file instead of having it hard-coded
 	public class EffectSpriteManager
 	{
 		private enum HardCodedPotionEffect
@@ -57,7 +58,7 @@ namespace EndlessClient.Rendering.Effects
 			_graphicsManager = graphicsManager;
 		}
 
-		public IList<EffectSpriteInfo> GetEffectInfo(EffectType effectType, int effectID)
+		public IList<IEffectSpriteInfo> GetEffectInfo(EffectType effectType, int effectID)
 		{
 			switch (effectType)
 			{
@@ -70,40 +71,40 @@ namespace EndlessClient.Rendering.Effects
 			}
 		}
 
-		private IList<EffectSpriteInfo> ResolvePotionEffect(HardCodedPotionEffect effect)
+		private IList<IEffectSpriteInfo> ResolvePotionEffect(HardCodedPotionEffect effect)
 		{
 			switch (effect)
 			{
 				case HardCodedPotionEffect.FLAMES:
-					return new List<EffectSpriteInfo>(3)
+					return new List<IEffectSpriteInfo>(3)
 					{
 						new EffectSpriteInfo(4, 2, false, 255, GetGraphic(101)),
 						new EffectSpriteInfo(4, 2, true, 128, GetGraphic(102)),
 						new EffectSpriteInfo(4, 2, true, 255, GetGraphic(103))
 					};
 				case HardCodedPotionEffect.LOVE:
-					return new List<EffectSpriteInfo>(1)
+					return new List<IEffectSpriteInfo>(1)
 					{
 						new EffectSpriteInfo(4, 4, true, 255, GetGraphic(106))
 					};
 				case HardCodedPotionEffect.CELEBRATE:
-					return new List<EffectSpriteInfo>(1)
+					return new List<IEffectSpriteInfo>(1)
 					{
 						new EffectSpriteInfo(7, 2, true, 255, GetGraphic(115))
 					};
 				case HardCodedPotionEffect.SPARKLES:
-					return new List<EffectSpriteInfo>(2)
+					return new List<IEffectSpriteInfo>(2)
 					{
 						new EffectSpriteInfo(5, 1, true, 128, GetGraphic(117)),
 						new EffectSpriteInfo(5, 1, true, 128, GetGraphic(118))
 					};
 				case HardCodedPotionEffect.EVIL:
-					return new List<EffectSpriteInfo>(1)
+					return new List<IEffectSpriteInfo>(1)
 					{
 						new EffectSpriteInfo(4, 4, false, 255, GetGraphic(119))
 					};
 				case HardCodedPotionEffect.TERROR:
-					return new List<EffectSpriteInfo>(1)
+					return new List<IEffectSpriteInfo>(1)
 					{
 						new EffectSpriteInfo(4, 4, false, 255, GetGraphic(122))
 					};
@@ -111,65 +112,65 @@ namespace EndlessClient.Rendering.Effects
 			}
 		}
 
-		private IList<EffectSpriteInfo> ResolveSpellEffect(HardCodedSpellGraphic effect)
+		private IList<IEffectSpriteInfo> ResolveSpellEffect(HardCodedSpellGraphic effect)
 		{
 			switch (effect)
 			{
 				case HardCodedSpellGraphic.FIRE: return ResolvePotionEffect(HardCodedPotionEffect.FLAMES);
 				case HardCodedSpellGraphic.HEAL:
-					return new List<EffectSpriteInfo>(2)
+					return new List<IEffectSpriteInfo>(2)
 					{
 						new EffectSpriteInfo(5, 1, false, 128, GetGraphic(129)),
 						new EffectSpriteInfo(5, 1, true, 255, GetGraphic(130))
 					};
 				case HardCodedSpellGraphic.THUNDER:
-					return new List<EffectSpriteInfo>(1) { new EffectSpriteInfo(4, 1, true, 255, GetGraphic(133)) };
+					return new List<IEffectSpriteInfo>(1) { new EffectSpriteInfo(4, 1, true, 255, GetGraphic(133)) };
 				case HardCodedSpellGraphic.ULTIMA_BLAST:
-					return new List<EffectSpriteInfo>(2)
+					return new List<IEffectSpriteInfo>(2)
 					{
 						new EffectSpriteInfo(4, 3, true, 255, GetGraphic(137)),
 						new EffectSpriteInfo(4, 3, true, 128, GetGraphic(138))
 					};
 				case HardCodedSpellGraphic.FIRE_BALL:
-					return new List<EffectSpriteInfo>(2)
+					return new List<IEffectSpriteInfo>(2)
 					{
 						new FallingEffectSpriteInfo(6, 1, false, 255, GetGraphic(140)),
 						new FallingEffectSpriteInfo(6, 1, true, 128, GetGraphic(141))
 					};
 				case HardCodedSpellGraphic.SHIELD:
-					return new List<EffectSpriteInfo>(2)
+					return new List<IEffectSpriteInfo>(2)
 					{
 						new EffectSpriteInfo(6, 1, false, 128, GetGraphic(144)),
 						new EffectSpriteInfo(6, 1, true, 255, GetGraphic(145))
 					};
 				case HardCodedSpellGraphic.RING_OF_FIRE:
-					return new List<EffectSpriteInfo>(2)
+					return new List<IEffectSpriteInfo>(2)
 					{
 						new EffectSpriteInfo(4, 3, false, 255, GetGraphic(146)),
 						new EffectSpriteInfo(4, 3, true, 128, GetGraphic(148))
 					};
 				case HardCodedSpellGraphic.ICE_BLAST_1:
-					return new List<EffectSpriteInfo>(2)
+					return new List<IEffectSpriteInfo>(2)
 					{
 						new EffectSpriteInfo(7, 1 ,false, 128, GetGraphic(150)),
 						new EffectSpriteInfo(7, 1, true, 255, GetGraphic(151))
 					};
 				case HardCodedSpellGraphic.ENERGY_BALL:
-					return new List<EffectSpriteInfo>(1) { new EnergyBallEffectSpriteInfo(7, 1, true, 255, GetGraphic(154)) };
+					return new List<IEffectSpriteInfo>(1) { new EnergyBallEffectSpriteInfo(7, 1, true, 255, GetGraphic(154)) };
 				case HardCodedSpellGraphic.WHIRL:
-					return new List<EffectSpriteInfo>(3) //todo: in the original client, this moves around more erractically
+					return new List<IEffectSpriteInfo>(3) //todo: in the original client, this moves around more erractically
 					{
 						new EffectSpriteInfo(4, 2, false, 255, GetGraphic(155)),
 						new EffectSpriteInfo(4, 2, true, 128, GetGraphic(156)),
 						new EffectSpriteInfo(4, 2, true, 255, GetGraphic(155))
 					};
 				case HardCodedSpellGraphic.AURA:
-					return new List<EffectSpriteInfo>(1)
+					return new List<IEffectSpriteInfo>(1)
 					{
 						new AuraEffectSpriteInfo(GetGraphic(159))
 					};
 				case HardCodedSpellGraphic.BOULDER:
-					return new List<EffectSpriteInfo>(1)
+					return new List<IEffectSpriteInfo>(1)
 					{
 						new FallingEffectSpriteInfo(7, 1, true, 255, GetGraphic(163))
 					};
@@ -185,10 +186,10 @@ namespace EndlessClient.Rendering.Effects
 			}
 
 			//not implemented spell graphics will just not render anything
-			return new EffectSpriteInfo[] {};
+			return new IEffectSpriteInfo[] { };
 		}
 
-		private IList<EffectSpriteInfo> GetWarpEffect(EffectType warpEffect)
+		private IList<IEffectSpriteInfo> GetWarpEffect(EffectType warpEffect)
 		{
 			int[] gfxIDs;
 			switch (warpEffect)
@@ -198,20 +199,22 @@ namespace EndlessClient.Rendering.Effects
 				default: throw new ArgumentOutOfRangeException("warpEffect", warpEffect, null);
 			}
 
-			return gfxIDs.Select(id => new EffectSpriteInfo(8, 1, true, 255, GetGraphic(id))).ToList();
+			return gfxIDs.Select(id => new EffectSpriteInfo(8, 1, true, 255, GetGraphic(id)))
+						 .OfType<IEffectSpriteInfo>()
+						 .ToList();
 		}
 
-		private IList<EffectSpriteInfo> GetWaterEffect()
+		private IList<IEffectSpriteInfo> GetWaterEffect()
 		{
-			return new List<EffectSpriteInfo>
+			return new List<IEffectSpriteInfo>
 			{
 				new EffectSpriteInfo(6, 1, false, 255, GetGraphic(125))
 			};
 		}
 
-		private Texture2D GetGraphic(int gfx)
+		private Texture2D GetGraphic(int actualResourceID)
 		{
-			return _graphicsManager.TextureFromResource(GFXTypes.Spells, gfx - 100, true);
+			return _graphicsManager.TextureFromResource(GFXTypes.Spells, actualResourceID - 100, true);
 		}
 	}
 }

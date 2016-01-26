@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Effects
 {
-	public class EffectSpriteInfo
+	public class EffectSpriteInfo : IEffectSpriteInfo
 	{
 		public bool OnTopOfCharacter { get; private set; }
 

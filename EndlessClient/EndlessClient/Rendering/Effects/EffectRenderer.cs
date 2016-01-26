@@ -27,7 +27,7 @@ namespace EndlessClient.Rendering.Effects
 		private readonly Action _cleanupAction;
 		private readonly EffectSpriteManager _effectSpriteManager;
 
-		private IList<EffectSpriteInfo> _effectInfo;
+		private IList<IEffectSpriteInfo> _effectInfo;
 		private DateTime _lastFrameChange;
 
 		private int _effectID;
@@ -109,7 +109,7 @@ namespace EndlessClient.Rendering.Effects
 
 		#region Drawing Helpers
 
-		private void DrawEffects(SpriteBatch sb, bool beginHasBeenCalled, IEnumerable<EffectSpriteInfo> effectInfo)
+		private void DrawEffects(SpriteBatch sb, bool beginHasBeenCalled, IEnumerable<IEffectSpriteInfo> effectInfo)
 		{
 			if (_disposed) return;
 
