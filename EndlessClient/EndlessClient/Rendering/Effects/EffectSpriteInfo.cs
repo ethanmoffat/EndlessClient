@@ -53,17 +53,23 @@ namespace EndlessClient.Rendering.Effects
 		public virtual void DrawToSpriteBatch(SpriteBatch sb, Rectangle targetRectangle)
 		{
 			var sourceRect = GetFrameSourceRectangle();
+			var drawLocation = GetDrawLocation(sourceRect, targetRectangle);
 
-			var targetX = targetRectangle.X + (targetRectangle.Width - sourceRect.Width) / 2;
-			var targetY = targetRectangle.Y + (targetRectangle.Height - sourceRect.Height) / 2;
-
-			sb.Draw(_graphic, new Vector2(targetX, targetY), sourceRect, Color.FromNonPremultiplied(255, 255, 255, _alpha));
+			sb.Draw(_graphic, drawLocation, sourceRect, Color.FromNonPremultiplied(255, 255, 255, _alpha));
 		}
 
 		protected virtual Rectangle GetFrameSourceRectangle()
 		{
 			var frameWidth = _graphic.Width / _numberOfFrames;
 			return new Rectangle(_currentFrame * frameWidth, 0, frameWidth, _graphic.Height);
+		}
+
+		protected virtual Vector2 GetDrawLocation(Rectangle textureSourceRectangle, Rectangle targetActorRectangle)
+		{
+			var targetX = targetActorRectangle.X + (targetActorRectangle.Width - textureSourceRectangle.Width) / 2;
+			var targetY = targetActorRectangle.Y + (targetActorRectangle.Height - textureSourceRectangle.Height) / 2;
+
+			return new Vector2(targetX, targetY);
 		}
 	}
 }

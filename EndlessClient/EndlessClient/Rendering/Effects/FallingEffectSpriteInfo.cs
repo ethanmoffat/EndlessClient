@@ -7,7 +7,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Effects
 {
-	public class FallingEffectSpriteInfo : GenericMovingEffectSpriteInfo
+	public class FallingEffectSpriteInfo : EffectSpriteInfo
 	{
 		public FallingEffectSpriteInfo(int numberOfFrames,
 										int repeats,
@@ -16,14 +16,12 @@ namespace EndlessClient.Rendering.Effects
 										Texture2D graphic)
 			: base(numberOfFrames, repeats, onTopOfCharacter, alpha, graphic) { }
 
-		protected override float GetTargetXForFrame(Rectangle targetRectangle)
+		protected override Vector2 GetDrawLocation(Rectangle textureSourceRectangle, Rectangle targetActorRectangle)
 		{
-			return targetRectangle.X + (targetRectangle.Width - SourceRectangle.Width) / 2;
-		}
+			var x = targetActorRectangle.X + (targetActorRectangle.Width - textureSourceRectangle.Width) / 2;
+			var y = targetActorRectangle.Y - (_numberOfFrames - _currentFrame) * textureSourceRectangle.Height / 3;
 
-		protected override float GetTargetYForFrame(Rectangle targetRectangle)
-		{
-			return targetRectangle.Y - (_numberOfFrames - _currentFrame) * SourceRectangle.Height / 3;
+			return new Vector2(x, y);
 		}
 	}
 }

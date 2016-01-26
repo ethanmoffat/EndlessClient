@@ -205,7 +205,6 @@
     <Compile Include="Rendering\Effects\EffectSpriteInfo.cs" />
     <Compile Include="Rendering\Effects\EffectSpriteManager.cs" />
     <Compile Include="Rendering\Effects\EnergyBallEffectSpriteInfo.cs" />
-    <Compile Include="Rendering\Effects\GenericMovingEffectSpriteInfo.cs" />
     <Compile Include="Rendering\EOSpriteSheet.cs" />
     <Compile Include="Rendering\HealthBarRenderer.cs" />
     <Compile Include="Rendering\MapRenderer.cs" />
