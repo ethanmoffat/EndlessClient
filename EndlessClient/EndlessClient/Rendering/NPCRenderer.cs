@@ -115,17 +115,18 @@ namespace EndlessClient.Rendering
 
 			UpdateDrawArea();
 
-			if (!Game.IsActive) return;
-
 			UpdateStandingFrameIfNeeded();
 			UpdateWalkFrameIfNeeded();
 			UpdateAttackFrameIfNeeded();
 			UpdateEffectAnimation();
 
-			_currMouseState = Mouse.GetState();
-			UpdateMouseoverName();
-			HandleLeftClick();
-			_prevMouseState = _currMouseState;
+			if (Game.IsActive)
+			{
+				_currMouseState = Mouse.GetState();
+				UpdateMouseoverName();
+				HandleLeftClick();
+				_prevMouseState = _currMouseState;
+			}
 
 			base.Update(gameTime);
 		}
