@@ -66,6 +66,7 @@ namespace EndlessClient.Rendering.Effects
 		protected virtual Vector2 GetDrawLocation(Rectangle textureSourceRectangle, Rectangle targetActorRectangle)
 		{
 			var targetX = targetActorRectangle.X + (targetActorRectangle.Width - textureSourceRectangle.Width) / 2;
+			//todo: the y-coordinate does not show up properly on NPCs
 			var targetY = targetActorRectangle.Y + (targetActorRectangle.Height - textureSourceRectangle.Height) / 2;
 
 			return new Vector2(targetX, targetY);

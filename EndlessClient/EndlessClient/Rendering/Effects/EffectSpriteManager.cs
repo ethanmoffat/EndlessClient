@@ -51,11 +51,16 @@ namespace EndlessClient.Rendering.Effects
 			GREEN_FLAME = 34
 		}
 
+		private Dictionary<HardCodedPotionEffect, IList<IEffectSpriteInfo>> _potionEffects;
+		private Dictionary<HardCodedSpellGraphic, IList<IEffectSpriteInfo>> _spellEffects;
+
 		private readonly INativeGraphicsManager _graphicsManager;
 
 		public EffectSpriteManager(INativeGraphicsManager graphicsManager)
 		{
 			_graphicsManager = graphicsManager;
+			CreatePotionEffectDictionary();
+			CreateSpellEffectDictionary();
 		}
 
 		public IList<IEffectSpriteInfo> GetEffectInfo(EffectType effectType, int effectID)
@@ -73,113 +78,20 @@ namespace EndlessClient.Rendering.Effects
 
 		private IList<IEffectSpriteInfo> ResolvePotionEffect(HardCodedPotionEffect effect)
 		{
-			switch (effect)
-			{
-				case HardCodedPotionEffect.FLAMES:
-					return new List<IEffectSpriteInfo>(3)
-					{
-						new EffectSpriteInfo(4, 2, false, 255, GetGraphic(101)),
-						new EffectSpriteInfo(4, 2, true, 128, GetGraphic(102)),
-						new EffectSpriteInfo(4, 2, true, 255, GetGraphic(103))
-					};
-				case HardCodedPotionEffect.LOVE:
-					return new List<IEffectSpriteInfo>(1)
-					{
-						new EffectSpriteInfo(4, 4, true, 255, GetGraphic(106))
-					};
-				case HardCodedPotionEffect.CELEBRATE:
-					return new List<IEffectSpriteInfo>(1)
-					{
-						new EffectSpriteInfo(7, 2, true, 255, GetGraphic(115))
-					};
-				case HardCodedPotionEffect.SPARKLES:
-					return new List<IEffectSpriteInfo>(2)
-					{
-						new EffectSpriteInfo(5, 1, true, 128, GetGraphic(117)),
-						new EffectSpriteInfo(5, 1, true, 128, GetGraphic(118))
-					};
-				case HardCodedPotionEffect.EVIL:
-					return new List<IEffectSpriteInfo>(1)
-					{
-						new EffectSpriteInfo(4, 4, false, 255, GetGraphic(119))
-					};
-				case HardCodedPotionEffect.TERROR:
-					return new List<IEffectSpriteInfo>(1)
-					{
-						new EffectSpriteInfo(4, 4, false, 255, GetGraphic(122))
-					};
-				default: throw new ArgumentOutOfRangeException("effect", effect, null);
-			}
+			var retList = _potionEffects[effect];
+			foreach(var item in retList)
+				item.Restart();
+			return new List<IEffectSpriteInfo>(retList);
 		}
 
 		private IList<IEffectSpriteInfo> ResolveSpellEffect(HardCodedSpellGraphic effect)
 		{
-			switch (effect)
+			if (_spellEffects.ContainsKey(effect))
 			{
-				case HardCodedSpellGraphic.FIRE: return ResolvePotionEffect(HardCodedPotionEffect.FLAMES);
-				case HardCodedSpellGraphic.HEAL:
-					return new List<IEffectSpriteInfo>(2)
-					{
-						new EffectSpriteInfo(5, 1, false, 128, GetGraphic(129)),
-						new EffectSpriteInfo(5, 1, true, 255, GetGraphic(130))
-					};
-				case HardCodedSpellGraphic.THUNDER:
-					return new List<IEffectSpriteInfo>(1) { new EffectSpriteInfo(4, 1, true, 255, GetGraphic(133)) };
-				case HardCodedSpellGraphic.ULTIMA_BLAST:
-					return new List<IEffectSpriteInfo>(2)
-					{
-						new EffectSpriteInfo(4, 3, true, 255, GetGraphic(137)),
-						new EffectSpriteInfo(4, 3, true, 128, GetGraphic(138))
-					};
-				case HardCodedSpellGraphic.FIRE_BALL:
-					return new List<IEffectSpriteInfo>(2)
-					{
-						new FallingEffectSpriteInfo(6, 1, false, 255, GetGraphic(140)),
-						new FallingEffectSpriteInfo(6, 1, true, 128, GetGraphic(141))
-					};
-				case HardCodedSpellGraphic.SHIELD:
-					return new List<IEffectSpriteInfo>(2)
-					{
-						new EffectSpriteInfo(6, 1, false, 128, GetGraphic(144)),
-						new EffectSpriteInfo(6, 1, true, 255, GetGraphic(145))
-					};
-				case HardCodedSpellGraphic.RING_OF_FIRE:
-					return new List<IEffectSpriteInfo>(2)
-					{
-						new EffectSpriteInfo(4, 3, false, 255, GetGraphic(146)),
-						new EffectSpriteInfo(4, 3, true, 128, GetGraphic(148))
-					};
-				case HardCodedSpellGraphic.ICE_BLAST_1:
-					return new List<IEffectSpriteInfo>(2)
-					{
-						new EffectSpriteInfo(7, 1 ,false, 128, GetGraphic(150)),
-						new EffectSpriteInfo(7, 1, true, 255, GetGraphic(151))
-					};
-				case HardCodedSpellGraphic.ENERGY_BALL:
-					return new List<IEffectSpriteInfo>(1) { new EnergyBallEffectSpriteInfo(7, 1, true, 255, GetGraphic(154)) };
-				case HardCodedSpellGraphic.WHIRL:
-					return new List<IEffectSpriteInfo>(3)
-					{
-						new EffectSpriteInfo(4, 2, false, 255, GetGraphic(155)),
-						new EffectSpriteInfo(4, 2, true, 128, GetGraphic(156)),
-						new EffectSpriteInfo(4, 2, true, 255, GetGraphic(157))
-					};
-				case HardCodedSpellGraphic.AURA:
-					return new List<IEffectSpriteInfo>(1)
-					{
-						new AuraEffectSpriteInfo(GetGraphic(159))
-					};
-				case HardCodedSpellGraphic.BOULDER:
-					return new List<IEffectSpriteInfo>(1)
-					{
-						new FallingEffectSpriteInfo(7, 1, true, 255, GetGraphic(163))
-					};
-				case HardCodedSpellGraphic.HEAVEN: //todo: this isn't quite correct yet
-					return new List<IEffectSpriteInfo>(2)
-					{
-						new HeavenEffectSpriteInfo(false, 255, GetGraphic(164)),
-						new HeavenEffectSpriteInfo(true, 128, GetGraphic(165))
-					};
+				var retList = _spellEffects[effect];
+				foreach (var item in retList)
+					item.Restart();
+				return new List<IEffectSpriteInfo>(retList);
 			}
 
 			//not implemented spell graphics will just not render anything
@@ -212,6 +124,109 @@ namespace EndlessClient.Rendering.Effects
 		private Texture2D GetGraphic(int actualResourceID)
 		{
 			return _graphicsManager.TextureFromResource(GFXTypes.Spells, actualResourceID - 100, true);
+		}
+
+		private void CreatePotionEffectDictionary()
+		{
+			_potionEffects = new Dictionary<HardCodedPotionEffect, IList<IEffectSpriteInfo>>(6)
+			{
+				{
+					HardCodedPotionEffect.FLAMES,
+					CreateList(new EffectSpriteInfo(4, 2, false, 255, GetGraphic(101)),
+							   new EffectSpriteInfo(4, 2, true, 128, GetGraphic(102)),
+							   new EffectSpriteInfo(4, 2, true, 255, GetGraphic(103)))
+				},
+				{
+					HardCodedPotionEffect.LOVE,
+					CreateList(new EffectSpriteInfo(4, 4, true, 255, GetGraphic(106)))
+				},
+				{
+					HardCodedPotionEffect.CELEBRATE,
+					CreateList(new EffectSpriteInfo(7, 2, true, 255, GetGraphic(115)))
+				},
+				{
+					HardCodedPotionEffect.SPARKLES,
+					CreateList(new EffectSpriteInfo(5, 1, true, 128, GetGraphic(117)),
+							   new EffectSpriteInfo(5, 1, true, 128, GetGraphic(118)))
+				},
+				{
+					HardCodedPotionEffect.EVIL,
+					CreateList(new EffectSpriteInfo(4, 4, false, 255, GetGraphic(119)))
+				},
+				{
+					HardCodedPotionEffect.TERROR, 
+					CreateList(new EffectSpriteInfo(4, 4, false, 255, GetGraphic(122)))
+				}
+			};
+		}
+
+		private void CreateSpellEffectDictionary()
+		{
+			_spellEffects = new Dictionary<HardCodedSpellGraphic, IList<IEffectSpriteInfo>>(32)
+			{
+				{ HardCodedSpellGraphic.FIRE, _potionEffects[HardCodedPotionEffect.FLAMES] },
+				{ HardCodedSpellGraphic.HEAL, 
+					CreateList(new EffectSpriteInfo(5, 1, false, 128, GetGraphic(129)),
+							   new EffectSpriteInfo(5, 1, true, 255, GetGraphic(130)))
+				},
+				{
+					HardCodedSpellGraphic.THUNDER,
+					CreateList(new EffectSpriteInfo(4, 1, true, 255, GetGraphic(133)))
+				},
+				{
+					HardCodedSpellGraphic.ULTIMA_BLAST,
+					CreateList(new EffectSpriteInfo(4, 3, true, 255, GetGraphic(137)),
+							   new EffectSpriteInfo(4, 3, true, 128, GetGraphic(138)))
+				},
+				{
+					HardCodedSpellGraphic.FIRE_BALL,
+					CreateList(new FallingEffectSpriteInfo(6, 1, false, 255, GetGraphic(140)),
+							   new FallingEffectSpriteInfo(6, 1, true, 128, GetGraphic(141)))
+				},
+				{
+					HardCodedSpellGraphic.SHIELD,
+					CreateList(new EffectSpriteInfo(6, 1, false, 128, GetGraphic(144)),
+							   new EffectSpriteInfo(6, 1, true, 255, GetGraphic(145)))
+				},
+				{
+					HardCodedSpellGraphic.RING_OF_FIRE,
+					CreateList(new EffectSpriteInfo(4, 3, false, 255, GetGraphic(146)),
+							   new EffectSpriteInfo(4, 3, true, 128, GetGraphic(148)))
+				},
+				{
+					HardCodedSpellGraphic.ICE_BLAST_1,
+					CreateList(new EffectSpriteInfo(7, 1 ,false, 128, GetGraphic(150)),
+							   new EffectSpriteInfo(7, 1, true, 255, GetGraphic(151)))
+				},
+				{
+					HardCodedSpellGraphic.ENERGY_BALL,
+					CreateList(new EnergyBallEffectSpriteInfo(7, 1, true, 255, GetGraphic(154)))
+				},
+				{
+					HardCodedSpellGraphic.WHIRL,
+					CreateList(new EffectSpriteInfo(4, 2, false, 255, GetGraphic(155)),
+							   new EffectSpriteInfo(4, 2, true, 128, GetGraphic(156)),
+							   new EffectSpriteInfo(4, 2, true, 255, GetGraphic(157)))
+				},
+				{
+					HardCodedSpellGraphic.AURA,
+					CreateList(new AuraEffectSpriteInfo(GetGraphic(159)))
+				},
+				{
+					HardCodedSpellGraphic.BOULDER,
+					CreateList(new FallingEffectSpriteInfo(7, 1, true, 255, GetGraphic(163)))
+				},
+				{
+					HardCodedSpellGraphic.HEAVEN, //todo: this isn't quite right yet...
+					CreateList(new HeavenEffectSpriteInfo(false, 255, GetGraphic(164)),
+							   new HeavenEffectSpriteInfo(true, 128, GetGraphic(165)))
+				}
+			};
+		}
+
+		private IList<IEffectSpriteInfo> CreateList(params IEffectSpriteInfo[] effects)
+		{
+			return effects.ToList();
 		}
 	}
 }
