@@ -158,11 +158,11 @@ namespace EndlessClient.Rendering.Effects
 				case HardCodedSpellGraphic.ENERGY_BALL:
 					return new List<IEffectSpriteInfo>(1) { new EnergyBallEffectSpriteInfo(7, 1, true, 255, GetGraphic(154)) };
 				case HardCodedSpellGraphic.WHIRL:
-					return new List<IEffectSpriteInfo>(3) //todo: in the original client, this moves around more erractically
+					return new List<IEffectSpriteInfo>(3)
 					{
 						new EffectSpriteInfo(4, 2, false, 255, GetGraphic(155)),
 						new EffectSpriteInfo(4, 2, true, 128, GetGraphic(156)),
-						new EffectSpriteInfo(4, 2, true, 255, GetGraphic(155))
+						new EffectSpriteInfo(4, 2, true, 255, GetGraphic(157))
 					};
 				case HardCodedSpellGraphic.AURA:
 					return new List<IEffectSpriteInfo>(1)
@@ -174,15 +174,12 @@ namespace EndlessClient.Rendering.Effects
 					{
 						new FallingEffectSpriteInfo(7, 1, true, 255, GetGraphic(163))
 					};
-				//case HardCodedSpellGraphic.HEAVEN:
-				//	return new List<EffectSpriteInfo>(2)
-				//	{
-				//		//bottom is aligned with bottom of target
-				//		//flashes between last 2 frames of graphic BEHIND FULLALPHA
-				//		new HeavenEffectSpriteInfo(false, 255, GetGraphic(164), true),
-				//		//flashes last frame of graphic ONTOP HALFALPHA
-				//		new HeavenEffectSpriteInfo(true, 128, GetGraphic(165), false)
-				//	};
+				case HardCodedSpellGraphic.HEAVEN: //todo: this isn't quite correct yet
+					return new List<IEffectSpriteInfo>(2)
+					{
+						new HeavenEffectSpriteInfo(false, 255, GetGraphic(164)),
+						new HeavenEffectSpriteInfo(true, 128, GetGraphic(165))
+					};
 			}
 
 			//not implemented spell graphics will just not render anything

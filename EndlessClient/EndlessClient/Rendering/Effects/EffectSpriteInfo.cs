@@ -9,8 +9,6 @@ namespace EndlessClient.Rendering.Effects
 {
 	public class EffectSpriteInfo : IEffectSpriteInfo
 	{
-		public bool OnTopOfCharacter { get; private set; }
-
 		protected readonly int _numberOfFrames;
 		protected readonly int _repeats;
 		protected readonly int _alpha;
@@ -19,6 +17,7 @@ namespace EndlessClient.Rendering.Effects
 		protected int _currentFrame;
 		protected int _iterations;
 
+		public bool OnTopOfCharacter { get; private set; }
 		public bool Done { get { return _iterations == _repeats; } }
 
 		public EffectSpriteInfo(int numberOfFrames,
