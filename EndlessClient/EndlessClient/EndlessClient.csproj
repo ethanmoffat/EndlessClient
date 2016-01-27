@@ -208,6 +208,7 @@
     <Compile Include="Rendering\Effects\FlickeringEffectSpriteInfo.cs" />
     <Compile Include="Rendering\Effects\HeavenEffectSpriteInfo.cs" />
     <Compile Include="Rendering\Effects\IEffectSpriteInfo.cs" />
+    <Compile Include="Rendering\Effects\BottomAlignedEffectSpriteInfo.cs" />
     <Compile Include="Rendering\EOSpriteSheet.cs" />
     <Compile Include="Rendering\HealthBarRenderer.cs" />
     <Compile Include="Rendering\MapRenderer.cs" />

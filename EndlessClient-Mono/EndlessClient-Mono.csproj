@@ -231,6 +231,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\AuraEffectSpriteInfo.cs">
       <Link>Rendering\Effects\AuraEffectSpriteInfo.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\BottomAlignedEffectSpriteInfo.cs">
+      <Link>Rendering\Effects\BottomAlignedEffectSpriteInfo.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\EffectRenderer.cs">
       <Link>Rendering\Effects\EffectRenderer.cs</Link>
     </Compile>

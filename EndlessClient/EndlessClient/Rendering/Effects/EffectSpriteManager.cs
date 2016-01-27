@@ -216,10 +216,62 @@ namespace EndlessClient.Rendering.Effects
 					HardCodedSpellGraphic.BOULDER,
 					CreateList(new FallingEffectSpriteInfo(7, 1, true, 255, GetGraphic(163)))
 				},
+				//{
+				//	HardCodedSpellGraphic.HEAVEN, //todo: this isn't quite right yet...
+				//	CreateList(new HeavenEffectSpriteInfo(false, 255, GetGraphic(164)),
+				//			   new HeavenEffectSpriteInfo(true, 128, GetGraphic(165)))
+				//},
 				{
-					HardCodedSpellGraphic.HEAVEN, //todo: this isn't quite right yet...
-					CreateList(new HeavenEffectSpriteInfo(false, 255, GetGraphic(164)),
-							   new HeavenEffectSpriteInfo(true, 128, GetGraphic(165)))
+					HardCodedSpellGraphic.ICE_BLAST_2,
+					CreateList(new FallingEffectSpriteInfo(6, 1, false, 255, GetGraphic(167)),
+							   new FallingEffectSpriteInfo(6, 1, true, 255, GetGraphic(168)))
+				},
+				//{
+				//	HardCodedSpellGraphic.DARK_BEAM, //todo: figure this out...
+				//}
+				{
+					HardCodedSpellGraphic.DARK_HAND,
+					CreateList(new EffectSpriteInfo(5, 2, false, 255, GetGraphic(176)),
+							   new EffectSpriteInfo(5, 2, true, 128, GetGraphic(177)))
+				},
+				{
+					HardCodedSpellGraphic.DARK_SKULL,
+					CreateList(new EffectSpriteInfo(5, 2, false, 255, GetGraphic(179)),
+							   new EffectSpriteInfo(5, 2, true, 128, GetGraphic(180)))
+				},
+				{
+					HardCodedSpellGraphic.FIRE_BLAST,
+					CreateList(new EffectSpriteInfo(4, 1, true, 192, GetGraphic(184)))
+				},
+				{
+					HardCodedSpellGraphic.TENTACLES,
+					CreateList(new EffectSpriteInfo(5, 2, false, 255, GetGraphic(185)),
+							   new EffectSpriteInfo(5, 2, true, 255, GetGraphic(187)))
+				},
+				{
+					HardCodedSpellGraphic.POWER_WIND,
+					CreateList(new EffectSpriteInfo(6, 2, false, 255, GetGraphic(188)),
+							   new EffectSpriteInfo(6, 2, true, 255, GetGraphic(190)))
+				},
+				{
+					HardCodedSpellGraphic.MAGIC_WHIRL,
+					CreateList(new BottomAlignedEffectSpriteInfo(15, 1, false, 255, GetGraphic(191)),
+							   new BottomAlignedEffectSpriteInfo(15, 1, true, 128, GetGraphic(193)))
+				},
+				{
+					HardCodedSpellGraphic.DARK_BITE,
+					CreateList(new EffectSpriteInfo(6, 2, false, 255, GetGraphic(194)),
+							   new EffectSpriteInfo(6, 2, true, 128, GetGraphic(195)))
+				},
+				{
+					HardCodedSpellGraphic.SHELL, //todo: why isn't this rendering correctly?
+					CreateList(new EffectSpriteInfo(4, 4, false, 255, GetGraphic(197)),
+							   new EffectSpriteInfo(4, 4, true, 128, GetGraphic(198)))
+				},
+				{
+					HardCodedSpellGraphic.GREEN_FLAME,
+					CreateList(new BottomAlignedEffectSpriteInfo(5, 1, false, 255, GetGraphic(200)),
+							   new BottomAlignedEffectSpriteInfo(5, 1, true, 128, GetGraphic(201)))
 				}
 			};
 		}
