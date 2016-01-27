@@ -316,7 +316,7 @@ namespace EndlessClient.Rendering
 										  World.Instance.ActiveCharacterRenderer.DrawArea.Height);
 			MapProjectedDrawArea = new Rectangle(
 				DrawArea.X + (int) (Math.Abs(oneGridSize.X - DrawArea.Width)/2),
-				DrawArea.Y + (int) Math.Abs(oneGridSize.Y - DrawArea.Height),
+				DrawArea.Bottom - (int) oneGridSize.Y,
 				(int)oneGridSize.X,
 				(int)oneGridSize.Y);
 		}
@@ -353,8 +353,8 @@ namespace EndlessClient.Rendering
 
 		private void HandleLeftClick()
 		{
-			bool mouseClicked = _currMouseState.LeftButton == ButtonState.Released
-								&& _prevMouseState.LeftButton == ButtonState.Pressed;
+			bool mouseClicked = _currMouseState.LeftButton == ButtonState.Released &&
+								_prevMouseState.LeftButton == ButtonState.Pressed;
 
 			if (mouseClicked && DrawArea.ContainsPoint(_currMouseState.X, _currMouseState.Y))
 			{
