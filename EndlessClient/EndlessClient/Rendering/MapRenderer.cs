@@ -352,12 +352,10 @@ namespace EndlessClient.Rendering
 
 		public void UpdateMapItemAmount(short uid, int amountTaken)
 		{
-			List<Point> pts = _mapItems.Keys.Where(_key => _mapItems[_key].Find(_mi => _mi.uid == uid).uid == uid).ToList();
-			if(pts.Count > 1)
-				throw new AmbiguousMatchException("Multiple MapItems shared that uid. Something is wrong.");
+			var pt = _mapItems.Keys.Single(_key => _mapItems[_key].Find(_mi => _mi.uid == uid).uid == uid);
 
-			List<MapItem> res = _mapItems[pts[0]];
-			MapItem toRemove = res.Find(_mi => _mi.uid == uid);
+			List<MapItem> res = _mapItems[pt];
+			var toRemove = res.Single(_mi => _mi.uid == uid);
 			res.Remove(toRemove);
 			toRemove = new MapItem
 			{
@@ -1514,25 +1512,13 @@ namespace EndlessClient.Rendering
 				List<MapItem> local = new List<MapItem>(_mapItems[pt]);
 				foreach(MapItem item in local)
 				{
-					ItemRecord itemData = World.Instance.EIF.GetItemRecordByID(item.id);
-					Vector2 itemPos = _getDrawCoordinates(item.x + 1, item.y, c);
-					if (itemData.Type == ItemType.Money)
-					{
-						int gfx = item.amount >= 100000 ? 4 : (
-							item.amount >= 10000 ? 3 : (
-							item.amount >= 100 ? 2 : (
-							item.amount >= 2 ? 1 : 0)));
-
-						Texture2D moneyMoneyMan = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Items, 269 + 2 * gfx, true);
-						_sb.Draw(moneyMoneyMan, 
-							new Vector2(itemPos.X - (int)Math.Round(moneyMoneyMan.Width / 2.0), itemPos.Y - (int)Math.Round(moneyMoneyMan.Height / 2.0)), 
-							Color.White);
-					}
-					else
-					{
-						Texture2D itemTexture = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Items, 2 * itemData.Graphic - 1, true);
-						_sb.Draw(itemTexture, new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0), itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)), Color.White);
-					}
+					var itemData = World.Instance.EIF.GetItemRecordByID(item.id);
+					var itemPos = _getDrawCoordinates(item.x + 1, item.y, c);
+					var itemTexture = ChestDialog.GetItemGraphic(itemData, item.amount);
+					_sb.Draw(itemTexture, 
+							 new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0),
+										 itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)),
+							 Color.White);
 				}
 			}
 			_sb.End();

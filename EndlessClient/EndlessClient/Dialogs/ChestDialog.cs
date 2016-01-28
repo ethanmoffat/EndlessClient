@@ -8,6 +8,7 @@ using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
@@ -85,7 +86,7 @@ namespace EndlessClient.Dialogs
 					{
 						Text = rec.Name,
 						SubText = secondary,
-						IconGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true),
+						IconGraphic = GetItemGraphic(rec, item.amount),
 						ID = item.id
 					};
 					m_items[i].OnRightClick += (o, e) =>
@@ -153,6 +154,21 @@ namespace EndlessClient.Dialogs
 			}
 
 			base.Update(gt);
+		}
+
+		//todo: find a better place for this
+		public static Texture2D GetItemGraphic(ItemRecord item, int amount)
+		{
+			if (item.Type == ItemType.Money)
+			{
+				var gfx = amount >= 100000 ? 4 : (
+					amount >= 10000 ? 3 : (
+					amount >= 100 ? 2 : (
+					amount >= 2 ? 1 : 0)));
+				return EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Items, 269 + 2*gfx, true);
+			}
+
+			return EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Items, 2*item.Graphic - 1, true);
 		}
 	}
 }
