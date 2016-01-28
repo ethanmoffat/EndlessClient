@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Data.BLL;
 using EOLib.Data.Map;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -115,8 +116,8 @@ namespace EndlessClient.Rendering
 					break;
 				case TileInfoReturnType.IsOtherNPC:
 					//draw NPC - red or purple depending on type
-					var npcInfo = (NPCRecord) info.MapElement;
-					if (npcInfo.Type == NPCType.Aggressive || npcInfo.Type == NPCType.Passive)
+					var npcInfo = (NPC) info.MapElement;
+					if (npcInfo.Data.Type == NPCType.Aggressive || npcInfo.Data.Type == NPCType.Passive)
 					{
 						miniMapRect.Offset((int) MiniMapGfx.Red*miniMapRect.Width, 0);
 					}
