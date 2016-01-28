@@ -256,6 +256,9 @@ namespace EndlessClient.Rendering
 
 		public ITileInfo GetTileInfo(byte destX, byte destY)
 		{
+			if (MapRef.Width < destX || MapRef.Height < destY)
+				return new BasicTileInfoWithSpec(TileSpec.MapEdge);
+
 			lock (_npcListLock)
 			{
 				int ndx;

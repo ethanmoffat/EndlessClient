@@ -106,12 +106,14 @@ namespace EndlessClient.Rendering.Effects
 
 		public void DrawBehindTarget(SpriteBatch sb, bool beginHasBeenCalled = true)
 		{
-			DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => !x.OnTopOfCharacter));
+			if (_effectInfo != null)
+				DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => !x.OnTopOfCharacter));
 		}
 
 		public void DrawInFrontOfTarget(SpriteBatch sb, bool beginHasBeenCalled = true)
 		{
-			DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => x.OnTopOfCharacter));
+			if (_effectInfo != null)
+				DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => x.OnTopOfCharacter));
 		}
 
 		private void PlaySoundsFromBeginning()

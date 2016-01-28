@@ -101,11 +101,7 @@ namespace EndlessClient.Input
 		{
 			var mapRend = World.Instance.ActiveMapRenderer;
 			var info = mapRend.GetTileInfo(destX, destY);
-
-			Tile tileAtDest = null;
-			if (destY <= mapRend.MapRef.Height && destX <= mapRend.MapRef.Width)
-				tileAtDest = mapRend.MapRef.TileLookup[destY, destX];
-			var specAtDest = tileAtDest != null ? tileAtDest.spec : TileSpec.None;
+			var specAtDest = info.Spec;
 
 			switch (info.ReturnType)
 			{
