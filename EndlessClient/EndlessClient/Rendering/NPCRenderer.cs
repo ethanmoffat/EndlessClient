@@ -394,6 +394,7 @@ namespace EndlessClient.Rendering
 		{
 			if (!NPC.Walking || (DateTime.Now - _actionStartTime).TotalMilliseconds < 100)
 				return;
+			_actionStartTime = DateTime.Now;
 
 			switch (NPC.Direction)
 			{
@@ -424,14 +425,13 @@ namespace EndlessClient.Rendering
 					walkingAdjustedX = walkingAdjustedY = 0;
 					break;
 			}
-
-			_actionStartTime = DateTime.Now;
 		}
 
 		private void UpdateAttackFrameIfNeeded()
 		{
 			if (!NPC.Attacking || (DateTime.Now - _actionStartTime).TotalMilliseconds < 100)
 				return;
+			_actionStartTime = DateTime.Now;
 
 			switch (Frame)
 			{
@@ -447,8 +447,6 @@ namespace EndlessClient.Rendering
 					NPC.EndAttacking();
 					break;
 			}
-
-			_actionStartTime = DateTime.Now;
 		}
 
 		private void UpdateEffectAnimation()
