@@ -320,7 +320,10 @@ namespace EndlessClient.Rendering
 			if(!_mapItems.ContainsKey(key))
 				_mapItems.Add(key, new List<MapItem>());
 
-			int index = _mapItems[key].FindIndex(_mi => _mi.uid == newItem.uid);
+			int index = _mapItems.Values
+								 .SelectMany(x => x.ToList())
+								 .ToList()
+								 .FindIndex(_mi => _mi.uid == newItem.uid);
 			if (index < 0)
 				_mapItems[key].Add(newItem);
 		}
