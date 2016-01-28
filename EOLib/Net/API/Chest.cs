@@ -4,28 +4,41 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.Net.API
 {
 	public struct ChestData
 	{
-		private readonly byte x, y;
-		private readonly List<Tuple<short, int>> items;
+		private readonly List<InventoryItem> _items;
 
-		public byte X { get { return x; } }
-		public byte Y { get { return y; } }
-		public IList<Tuple<short, int>> Items { get { return items.AsReadOnly(); } }
+		public byte X { get; private set; }
+		public byte Y { get; private set; }
+
+		public IList<InventoryItem> Items
+		{
+			get
+			{
+				var itemsToReturn = _items.Select(x => new InventoryItem {id = x.id, amount = x.amount});
+				return itemsToReturn.ToList();
+			}
+		}
 
 		internal ChestData(Packet pkt, bool containsCoords)
+			: this()
 		{
-			x = containsCoords ? pkt.GetChar() : byte.MinValue;
-			y = containsCoords ? pkt.GetChar() : byte.MinValue;
+			X = containsCoords ? pkt.GetChar() : byte.MinValue;
+			Y = containsCoords ? pkt.GetChar() : byte.MinValue;
 
-			int numRemaining = pkt.PeekEndString().Length / 5;
-			items = new List<Tuple<short, int>>(numRemaining);
-			for (int i = 0; i < numRemaining; ++i)
+			var numRemaining = pkt.PeekEndString().Length / 5;
+			_items = new List<InventoryItem>(numRemaining);
+			for (var i = 0; i < numRemaining; ++i)
 			{
-				items.Add(new Tuple<short, int>(pkt.GetShort(), pkt.GetThree()));
+				_items.Add(new InventoryItem
+							{
+								id = pkt.GetShort(),
+								amount = pkt.GetThree()
+							});
 			}
 		}
 	}
