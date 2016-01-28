@@ -6,7 +6,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace EOLib.Net
 {
@@ -111,49 +110,28 @@ namespace EOLib.Net
 		}
 	}
 
-	public sealed class LockedHandlerMethod : IDisposable
+	internal class PacketHandlerInvoker
 	{
 		private readonly PacketHandler _handler;
 		private readonly bool _inGameOnly;
-		private AutoResetEvent _lock;
-		private bool m_disposed;
 
-		public LockedHandlerMethod(PacketHandler handler, bool inGameOnly = false)
+		public PacketHandlerInvoker(PacketHandler handler, bool inGameOnly = false)
 		{
 			_handler = handler;
 			_inGameOnly = inGameOnly;
-			_lock = new AutoResetEvent(true);
 		}
 
 		public void InvokeHandler(Packet pkt, bool isInGame)
 		{ //force ignore if the handler is an in-game only handler
 			if (_inGameOnly && !isInGame)
 				return;
-
-			if (m_disposed || _lock == null)
-				return;
-			_lock.WaitOne(Constants.ResponseTimeout);
-			if (m_disposed)
-				return;
 			_handler(pkt);
-			if (_lock != null)
-				_lock.Set();
-		}
-
-		public void Dispose()
-		{
-			if (m_disposed || _lock == null)
-				return;
-			_lock.WaitOne();
-			m_disposed = true;
-			_lock.Dispose();
-			_lock = null;
 		}
 	}
 
 	public class EOClient : AsyncClient
 	{
-		private readonly Dictionary<FamilyActionPair, LockedHandlerMethod> m_handlers;
+		private readonly Dictionary<FamilyActionPair, PacketHandlerInvoker> m_handlers;
 		private ClientPacketProcessor m_packetProcessor;
 
 		public event Action<DataTransferEventArgs> EventSendData;
@@ -174,7 +152,7 @@ namespace EOLib.Net
 
 		public EOClient()
 		{
-			m_handlers = new Dictionary<FamilyActionPair, LockedHandlerMethod>(128);
+			m_handlers = new Dictionary<FamilyActionPair, PacketHandlerInvoker>(128);
 		}
 
 		public void SetInitData(InitData data)
@@ -309,7 +287,7 @@ namespace EOLib.Net
 								}
 							}
 
-							ThreadPool.QueueUserWorkItem(_handlePacket, new Packet(data));
+							_handlePacket(new Packet(data));
 							EODataChunk newWrap = new EODataChunk();
 							StartDataReceive(newWrap);
 							break;
@@ -353,9 +331,9 @@ namespace EOLib.Net
 		public void AddPacketHandler(FamilyActionPair key, PacketHandler handlerFunction, bool inGameOnly)
 		{
 			if (m_handlers.ContainsKey(key))
-				m_handlers[key] = new LockedHandlerMethod(handlerFunction, inGameOnly);
+				m_handlers[key] = new PacketHandlerInvoker(handlerFunction, inGameOnly);
 			else
-				m_handlers.Add(key, new LockedHandlerMethod(handlerFunction, inGameOnly));
+				m_handlers.Add(key, new PacketHandlerInvoker(handlerFunction, inGameOnly));
 		}
 
 		public override void Disconnect()
@@ -366,17 +344,6 @@ namespace EOLib.Net
 			IsInGame = false;
 
 			base.Disconnect();
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				foreach(LockedHandlerMethod method in m_handlers.Values)
-					method.Dispose();
-			}
-
-			base.Dispose(disposing);
 		}
 	}
 }
