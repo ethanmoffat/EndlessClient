@@ -4,7 +4,7 @@
 
 using System;
 using System.Threading;
-using EOLib.Net;
+using EOLib.Net.API;
 
 namespace EOBot
 {

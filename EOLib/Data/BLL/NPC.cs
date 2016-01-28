@@ -4,7 +4,7 @@
 
 using EOLib.Data.Map;
 using EOLib.IO;
-using EOLib.Net;
+using EOLib.Net.API;
 
 namespace EOLib.Data.BLL
 {

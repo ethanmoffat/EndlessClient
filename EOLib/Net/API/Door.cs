@@ -4,7 +4,7 @@
 
 using System;
 
-namespace EOLib.Net
+namespace EOLib.Net.API
 {
 	partial class PacketAPI
 	{

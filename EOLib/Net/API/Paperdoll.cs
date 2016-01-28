@@ -7,7 +7,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using EOLib.IO;
 
-namespace EOLib.Net
+namespace EOLib.Net.API
 {
 	public struct PaperdollEquipData
 	{

@@ -5,7 +5,7 @@
 using System;
 using EOLib.IO;
 
-namespace EOLib.Net
+namespace EOLib.Net.API
 {
 	public struct NPCData
 	{

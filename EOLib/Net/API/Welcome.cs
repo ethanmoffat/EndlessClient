@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Threading;
 using EOLib.IO;
 
-namespace EOLib.Net
+namespace EOLib.Net.API
 {
 	internal enum WelcomeReply : short
 	{

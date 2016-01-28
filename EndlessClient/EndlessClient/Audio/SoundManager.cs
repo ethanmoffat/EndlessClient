@@ -6,9 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Windows.Media;
 using System.Windows.Threading;
 using Microsoft.Xna.Framework.Audio;
-using System.Windows.Media;
 
 namespace EndlessClient.Audio
 {

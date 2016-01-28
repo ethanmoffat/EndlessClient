@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EOLib.Net
+namespace EOLib.Net.API
 {
 	public struct ChestData
 	{

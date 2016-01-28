@@ -7,7 +7,7 @@ using System.Linq;
 using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.Net;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls;
 

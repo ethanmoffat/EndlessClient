@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Sockets;
+using EOLib.Net.API;
 
 namespace EOLib.Net
 {

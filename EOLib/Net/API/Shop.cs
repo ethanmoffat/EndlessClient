@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace EOLib.Net
+namespace EOLib.Net.API
 {
 	public struct ShopItem
 	{

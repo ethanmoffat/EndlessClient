@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace EOLib.Net
+namespace EOLib.Net.API
 {
 	public delegate void PlayerTakeSpikeDamageEvent(short damage, short hp, short maxhp);
 	public delegate void OtherPlayerTakeSpikeDamageEvent(short playerID, byte playerPercentHealth, bool isPlayerDead, int damageAmount);

@@ -10,7 +10,7 @@ using EndlessClient.HUD.Inventory;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.Net;
+using EOLib.Net.API;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

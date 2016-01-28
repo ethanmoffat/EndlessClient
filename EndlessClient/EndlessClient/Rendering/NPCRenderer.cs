@@ -9,7 +9,7 @@ using EndlessClient.Rendering.Effects;
 using EOLib;
 using EOLib.Data.BLL;
 using EOLib.IO;
-using EOLib.Net;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

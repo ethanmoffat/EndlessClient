@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using EOLib.IO;
 
-namespace EOLib.Net
+namespace EOLib.Net.API
 {
 	internal enum WarpReply
 	{

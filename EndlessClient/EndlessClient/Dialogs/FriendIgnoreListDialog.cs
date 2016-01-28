@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EOLib;
-using EOLib.Net;
+using EOLib.Net.API;
 using XNAControls;
 
 namespace EndlessClient.Dialogs

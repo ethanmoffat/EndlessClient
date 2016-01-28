@@ -4,7 +4,7 @@
 
 using System.Threading;
 
-namespace EOLib.Net
+namespace EOLib.Net.API
 {
 	public enum AccountReply : short
 	{

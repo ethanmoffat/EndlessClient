@@ -10,7 +10,7 @@ using EOLib;
 using EOLib.Data.BLL;
 using EOLib.Data.Map;
 using EOLib.IO;
-using EOLib.Net;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -520,8 +520,8 @@ namespace EndlessClient
 		public void Emote(Emote whichEmote)
 		{
 			if (this == World.Instance.MainPlayer.ActiveCharacter &&
-				whichEmote != EOLib.Net.Emote.LevelUp &&
-				whichEmote != EOLib.Net.Emote.Trade)
+				whichEmote != EOLib.Net.API.Emote.LevelUp &&
+				whichEmote != EOLib.Net.API.Emote.Trade)
 			{
 				if (m_packetAPI.ReportEmote(whichEmote))
 					RenderData.SetEmote(whichEmote);

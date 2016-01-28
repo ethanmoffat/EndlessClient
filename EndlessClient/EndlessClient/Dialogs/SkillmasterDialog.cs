@@ -5,18 +5,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using EndlessClient.HUD;
-using EndlessClient.Rendering;
 using EOLib;
-using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.Net;
-using Microsoft.Xna.Framework;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using Color = Microsoft.Xna.Framework.Color;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
 namespace EndlessClient.Dialogs
 {
