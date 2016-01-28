@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading;
 using System.Windows.Threading;
 using Microsoft.Xna.Framework.Audio;
+using System.Windows.Media;
 
 namespace EndlessClient.Audio
 {
@@ -21,156 +22,145 @@ namespace EndlessClient.Audio
 		private const string SFX_DIR = "sfx";
 		private const string MFX_DIR = "mfx";
 
-		private List<SoundInfo> m_sounds;
-		private List<SoundInfo> m_guitarSounds;
-		private List<SoundInfo> m_harpSounds;
-
-		private readonly System.Windows.Media.MediaPlayer m_songPlayer;
-		private readonly Dispatcher m_dispatcher;
-		private List<Uri> m_music;
-
 		//singleton pattern -- any newly constructed instance is copied from the 'instance'
 		private static readonly object _construction_locker_ = new object();
-		private static SoundManager inst;
+		private static SoundManager _singletonInstance;
 
-		private bool IsDisposed { get; set; }
+		private List<SoundInfo> _soundEffects;
+		private List<SoundInfo> _guitarSounds;
+		private List<SoundInfo> _harpSounds;
+
+		private readonly MediaPlayer _musicPlayer;
+		private List<Uri> _musicFiles;
+		private Dispatcher _dispatcher;
 
 		public SoundManager()
 		{
 			lock (_construction_locker_)
 			{
-				if (inst != null)
+				if (_singletonInstance != null)
 				{
-					_copyFrom(inst);
+					CopyFromInstance();
 					return;
 				}
 
-				string[] soundFiles = Directory.GetFiles(SFX_DIR, "*.wav");
+				var soundFiles = Directory.GetFiles(SFX_DIR, "*.wav");
 				Array.Sort(soundFiles);
 
-				string[] musicFiles = Directory.GetFiles(MFX_DIR, "*.mid");
+				var musicFiles = Directory.GetFiles(MFX_DIR, "*.mid");
 				Array.Sort(musicFiles);
 
-				m_sounds = new List<SoundInfo>(81);
-				m_guitarSounds = new List<SoundInfo>(36);
-				m_harpSounds = new List<SoundInfo>(36);
-				m_music = new List<Uri>(musicFiles.Length);
+				_soundEffects = new List<SoundInfo>(81);
+				_guitarSounds = new List<SoundInfo>(36);
+				_harpSounds = new List<SoundInfo>(36);
+				_musicFiles = new List<Uri>(musicFiles.Length);
 
-				foreach (string sfx in soundFiles)
+				foreach (var sfx in soundFiles)
 				{
-					WAVFileValidator.CorrectTheFileLength(sfx);
-
-					using (FileStream fs = new FileStream(sfx, FileMode.Open, FileAccess.Read, FileShare.Read))
+					using (var sfxStream = WAVFileValidator.GetStreamWithCorrectLengthHeader(sfx))
 					{
 						//Note: this MAY throw InvalidOperationException if the file is invalid. However, WAVFileValidator fixes
 						//	this for the original sfx files.
-						SoundEffect nextEffect = SoundEffect.FromStream(fs);
+						SoundEffect nextEffect = SoundEffect.FromStream(sfxStream);
 
 						if (sfx.ToLower().Contains("gui"))
-							m_guitarSounds.Add(nextEffect == null ? null : new SoundInfo(nextEffect));
+							_guitarSounds.Add(nextEffect == null ? null : new SoundInfo(nextEffect));
 						else if (sfx.ToLower().Contains("har"))
-							m_harpSounds.Add(nextEffect == null ? null : new SoundInfo(nextEffect));
+							_harpSounds.Add(nextEffect == null ? null : new SoundInfo(nextEffect));
 						else
-							m_sounds.Add(nextEffect == null ? null : new SoundInfo(nextEffect));
+							_soundEffects.Add(nextEffect == null ? null : new SoundInfo(nextEffect));
 					}
 				}
 
-				m_songPlayer = new System.Windows.Media.MediaPlayer();
-				m_dispatcher = Dispatcher.CurrentDispatcher;
-				m_songPlayer.MediaEnded += (o, e) => m_songPlayer.Position = new TimeSpan(0);
+				_musicPlayer = new MediaPlayer();
+				_musicPlayer.MediaEnded += (o, e) => _musicPlayer.Position = new TimeSpan(0);
 
 				foreach (string mfx in musicFiles)
-					m_music.Add(new Uri(mfx, UriKind.Relative));
+					_musicFiles.Add(new Uri(mfx, UriKind.Relative));
 
-				inst = this;
+				_dispatcher = Dispatcher.CurrentDispatcher;
+
+				_singletonInstance = this;
 			}
 		}
 
-		private void _copyFrom(SoundManager other)
+		private void CopyFromInstance()
 		{
 			//shallow copy is intended
-			m_sounds = other.m_sounds;
-			m_guitarSounds = other.m_guitarSounds;
-			m_harpSounds = other.m_harpSounds;
-			m_music = other.m_music;
+			_soundEffects = _singletonInstance._soundEffects;
+			_guitarSounds = _singletonInstance._guitarSounds;
+			_harpSounds = _singletonInstance._harpSounds;
+			_musicFiles = _singletonInstance._musicFiles;
+			_dispatcher = _singletonInstance._dispatcher;
 		}
 
 		public SoundEffectInstance GetGuitarSoundRef(Note which)
 		{
-			return m_guitarSounds[(int) which].GetNextAvailableInstance();
+			return _guitarSounds[(int) which].GetNextAvailableInstance();
 		}
 
 		public SoundEffectInstance GetHarpSoundRef(Note which)
 		{
-			return m_harpSounds[(int) which].GetNextAvailableInstance();
+			return _harpSounds[(int) which].GetNextAvailableInstance();
 		}
 
 		public SoundEffectInstance GetSoundEffectRef(SoundEffectID whichSoundEffect)
 		{
-			return m_sounds[(int)whichSoundEffect].GetNextAvailableInstance();
+			return _soundEffects[(int)whichSoundEffect].GetNextAvailableInstance();
 		}
 
 		public void PlayLoopingSoundEffect(int sfxID)
 		{
-			if (sfxID < 1 || sfxID > m_sounds.Count)
+			if (sfxID < 1 || sfxID > _soundEffects.Count)
 				throw new ArgumentOutOfRangeException("sfxID", "Out of range -- use a 1-based index for sfx id");
 
-			m_sounds[sfxID - 1].PlayLoopingInstance();
+			_soundEffects[sfxID - 1].PlayLoopingInstance();
 		}
 
 		public void StopLoopingSoundEffect(int sfxID)
 		{
-			if (sfxID < 1 || sfxID > m_sounds.Count)
+			if (sfxID < 1 || sfxID > _soundEffects.Count)
 				throw new ArgumentOutOfRangeException("sfxID", "Out of range -- use a 1-based index for sfx id");
 
-			m_sounds[sfxID - 1].StopLoopingInstance();
+			_soundEffects[sfxID - 1].StopLoopingInstance();
 		}
 
 		public void PlayBackgroundMusic(int mfxID)
 		{
-			if(mfxID < 1 || mfxID >= m_music.Count)
+			if(mfxID < 1 || mfxID >= _musicFiles.Count)
 				throw new ArgumentOutOfRangeException("mfxID", "The MFX id is out of range. Use the 1-based index that matches the number in the file name.");
 
-			Action _func = () =>
-			{
-				m_songPlayer.Stop();
-				m_songPlayer.Close();
-				m_songPlayer.Open(m_music[mfxID - 1]);
-				m_songPlayer.Play();
-			};
-
-			//when changing the map, the background music will be played from a different thread than the main
-			//	one since it is all being done in a callback from the received network data. This requires a
-			//	dispatcher to invoke the song change on the m_songPlayer, otherwise an exception is thrown because
-			//	the thread does not 'own' the m_songPlayer object.
-			if (m_dispatcher.Thread != Thread.CurrentThread)
-				m_dispatcher.BeginInvoke(_func);
-			else
-				_func();
+			InvokeIfNeeded(() =>
+				{
+					_musicPlayer.Stop();
+					_musicPlayer.Close();
+					_musicPlayer.Open(_musicFiles[mfxID - 1]);
+					_musicPlayer.Play();
+				});
 		}
 
 		public void StopBackgroundMusic()
 		{
-			Action _func = () => m_songPlayer.Stop();
+			InvokeIfNeeded(() => _musicPlayer.Stop());
+		}
 
-			if (m_dispatcher.Thread != Thread.CurrentThread)
-				m_dispatcher.BeginInvoke(_func);
+		private void InvokeIfNeeded(Action action)
+		{
+			if (_dispatcher.Thread != Thread.CurrentThread)
+				_dispatcher.BeginInvoke(action);
 			else
-				_func();
+				action();
 		}
 
 		~SoundManager()
 		{
 			//ensure that primary instance is disposed of if the reference to it is not explicitly disposed
-			if (this == inst && !IsDisposed)
-			{
-				Dispose(true);
-			}
+			Dispose(false);
 		}
 
 		public void Dispose()
 		{
-			if (this != inst)
+			if (this != _singletonInstance)
 				return;
 
 			Dispose(true);
@@ -180,23 +170,22 @@ namespace EndlessClient.Audio
 		{
 			if (disposing)
 			{
-				if (m_songPlayer.HasAudio)
+				if (_musicPlayer.HasAudio)
 				{
-					m_songPlayer.Stop();
-					m_songPlayer.Close();
+					_musicPlayer.Stop();
+					_musicPlayer.Close();
 				}
 
-				foreach (var sfx in m_sounds)
+				foreach (var sfx in _soundEffects)
 					sfx.Dispose();
 
-				foreach (var gui in m_guitarSounds)
+				foreach (var gui in _guitarSounds)
 					gui.Dispose();
 
-				foreach (var har in m_harpSounds)
+				foreach (var har in _harpSounds)
 					har.Dispose();
 			}
 
-			IsDisposed = true;
 			GC.SuppressFinalize(this);
 		}
 	}
