@@ -218,6 +218,7 @@
     <Compile Include="Rendering\MapRenderer.cs" />
     <Compile Include="Rendering\MiniMapRenderer.cs" />
     <Compile Include="Rendering\Effects\FallingEffectSpriteInfo.cs" />
+    <Compile Include="Rendering\MouseCursorRenderer.cs" />
     <Compile Include="Rendering\NPCRenderer.cs" />
     <Compile Include="Rendering\PlayerStatusIconRenderer.cs" />
     <Compile Include="World.cs" />
