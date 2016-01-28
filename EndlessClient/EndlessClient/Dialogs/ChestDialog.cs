@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using System.Collections.Generic;
 using EOLib;
 using EOLib.Graphics;
@@ -60,7 +59,7 @@ namespace EndlessClient.Dialogs
 				World.GetString(DATCONST2.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
 		}
 
-		public void InitializeItems(IList<Tuple<short, int>> initialItems)
+		public void InitializeItems(IList<InventoryItem> initialItems)
 		{
 			if (m_items == null)
 				m_items = new ListDialogItem[5];
@@ -70,15 +69,15 @@ namespace EndlessClient.Dialogs
 			{
 				for (; i < initialItems.Count && i < 5; ++i)
 				{
-					Tuple<short, int> item = initialItems[i];
+					var item = initialItems[i];
 					if (m_items[i] != null)
 					{
 						m_items[i].Close();
 						m_items[i] = null;
 					}
 
-					ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.Item1);
-					string secondary = string.Format("x {0}  {1}", item.Item2, rec.Type == ItemType.Armor
+					ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+					string secondary = string.Format("x {0}  {1}", item.amount, rec.Type == ItemType.Armor
 						? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")"
 						: "");
 
@@ -87,7 +86,7 @@ namespace EndlessClient.Dialogs
 						Text = rec.Name,
 						SubText = secondary,
 						IconGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true),
-						ID = item.Item1
+						ID = item.id
 					};
 					m_items[i].OnRightClick += (o, e) =>
 					{
@@ -101,7 +100,7 @@ namespace EndlessClient.Dialogs
 							EOMessageBox.Show(_message, _caption, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 							((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
 						}
-						else if (rec.Weight * item.Item2 + World.Instance.MainPlayer.ActiveCharacter.Weight >
+						else if (rec.Weight * item.amount + World.Instance.MainPlayer.ActiveCharacter.Weight >
 								 World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
 						{
 							EOMessageBox.Show(World.GetString(DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT),
