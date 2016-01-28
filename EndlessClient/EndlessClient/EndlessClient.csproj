@@ -205,6 +205,7 @@
     <Compile Include="Rendering\ContextMenuRenderer.cs" />
     <Compile Include="Rendering\Effects\AuraEffectSpriteInfo.cs" />
     <Compile Include="Rendering\Effects\EffectRenderer.cs" />
+    <Compile Include="Rendering\Effects\EffectSoundManager.cs" />
     <Compile Include="Rendering\Effects\EffectSpriteInfo.cs" />
     <Compile Include="Rendering\Effects\EffectSpriteManager.cs" />
     <Compile Include="Rendering\Effects\EnergyBallEffectSpriteInfo.cs" />

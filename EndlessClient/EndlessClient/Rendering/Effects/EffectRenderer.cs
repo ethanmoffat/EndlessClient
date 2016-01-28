@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.Audio;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -26,6 +27,7 @@ namespace EndlessClient.Rendering.Effects
 		private readonly DrawableGameComponent _target;
 		private readonly Action _cleanupAction;
 		private readonly EffectSpriteManager _effectSpriteManager;
+		private readonly EffectSoundManager _effectSoundManager;
 
 		private IList<IEffectSpriteInfo> _effectInfo;
 		private DateTime _lastFrameChange;
@@ -54,6 +56,7 @@ namespace EndlessClient.Rendering.Effects
 			_target = target;
 			_cleanupAction = cleanupAction;
 			_effectSpriteManager = new EffectSpriteManager(gfxManager);
+			_effectSoundManager = new EffectSoundManager(new SoundManager());
 
 			SetEffectInfoTypeAndID(EffectType.Invalid, -1);
 		}
@@ -71,12 +74,16 @@ namespace EndlessClient.Rendering.Effects
 
 			_lastFrameChange = DateTime.Now;
 			_effectInfo = _effectSpriteManager.GetEffectInfo(_effectType, _effectID);
+
+			PlaySoundsFromBeginning();
 		}
 
 		public void Restart()
 		{
 			foreach (var effect in _effectInfo)
 				effect.Restart();
+
+			PlaySoundsFromBeginning();
 		}
 
 		public void Update()
@@ -105,6 +112,13 @@ namespace EndlessClient.Rendering.Effects
 		public void DrawInFrontOfTarget(SpriteBatch sb, bool beginHasBeenCalled = true)
 		{
 			DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => x.OnTopOfCharacter));
+		}
+
+		private void PlaySoundsFromBeginning()
+		{
+			var soundInfo = _effectSoundManager.GetSoundEffectsForEffect(_effectType, _effectID);
+			foreach (var sound in soundInfo)
+				sound.Play();
 		}
 
 		#region Drawing Helpers

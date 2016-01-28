@@ -246,6 +246,9 @@
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\EffectRenderer.cs">
       <Link>Rendering\Effects\EffectRenderer.cs</Link>
     </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\EffectSoundManager.cs">
+      <Link>Rendering\Effects\EffectSoundManager.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Rendering\Effects\EffectSpriteInfo.cs">
       <Link>Rendering\Effects\EffectSpriteInfo.cs</Link>
     </Compile>

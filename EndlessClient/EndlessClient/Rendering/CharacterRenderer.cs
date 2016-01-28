@@ -592,8 +592,6 @@ namespace EndlessClient.Rendering
 			{
 				if (NoWall)
 					EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.NoWallWalk).Play();
-				if (isWaterTile)
-					EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Water).Play();
 				if (isSpikeTrap)
 					EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
 			}
