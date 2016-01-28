@@ -42,6 +42,18 @@
     <ApplicationIcon>Resources\Game.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\EndlessClient\EndlessClient\Audio\SoundEffectID.cs">
+      <Link>Audio\SoundEffectID.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Audio\SoundInfo.cs">
+      <Link>Audio\SoundInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Audio\SoundManager.cs">
+      <Link>Audio\SoundManager.cs</Link>
+    </Compile>
+    <Compile Include="..\EndlessClient\EndlessClient\Audio\WAVFileValidator.cs">
+      <Link>Audio\WAVFileValidator.cs</Link>
+    </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\Character.cs">
       <Link>Character.cs</Link>
     </Compile>
@@ -158,9 +170,6 @@
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\HUD\SettingsPanel.cs">
       <Link>HUD\SettingsPanel.cs</Link>
-    </Compile>
-    <Compile Include="..\EndlessClient\EndlessClient\HUD\SoundPanel.cs">
-      <Link>HUD\SoundPanel.cs</Link>
     </Compile>
     <Compile Include="..\EndlessClient\EndlessClient\HUD\Spells\EmptySpellIcon.cs">
       <Link>HUD\Spells\EmptySpellIcon.cs</Link>

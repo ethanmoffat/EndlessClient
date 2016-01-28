@@ -5,7 +5,7 @@
 using System;
 using System.Threading;
 using EndlessClient.Controls;
-using EndlessClient.HUD;
+using EndlessClient.Audio;
 using EndlessClient.Rendering.Effects;
 using EOLib;
 using EOLib.Graphics;

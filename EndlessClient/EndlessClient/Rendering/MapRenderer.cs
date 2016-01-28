@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Inventory;

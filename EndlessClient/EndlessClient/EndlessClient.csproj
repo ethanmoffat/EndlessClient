@@ -137,6 +137,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Audio\SoundEffectID.cs" />
+    <Compile Include="Audio\SoundInfo.cs" />
+    <Compile Include="Audio\WAVFileValidator.cs" />
     <Compile Include="Controls\BlinkingLabel.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="Logger.cs" />
@@ -178,7 +181,7 @@
     <Compile Include="HUD\PartyPanel.cs" />
     <Compile Include="Controls\ScrollBar.cs" />
     <Compile Include="HUD\SettingsPanel.cs" />
-    <Compile Include="HUD\SoundPanel.cs" />
+    <Compile Include="Audio\SoundManager.cs" />
     <Compile Include="HUD\Spells\EmptySpellIcon.cs" />
     <Compile Include="HUD\Spells\ISpellIcon.cs" />
     <Compile Include="HUD\Spells\SpellIcon.cs" />

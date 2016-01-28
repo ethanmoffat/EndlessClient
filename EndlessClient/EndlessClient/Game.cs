@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.Rendering;
@@ -575,7 +576,7 @@ namespace EndlessClient
 		{
 			try
 			{
-				SoundManager = new EOSoundManager();
+				SoundManager = new SoundManager();
 			}
 			catch (Exception ex)
 			{

@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EOLib.Net;
@@ -49,7 +50,7 @@ namespace EndlessClient
 		private readonly XNATextBox[] _accountCreateTextBoxes = new XNATextBox[6];
 
 		public HUD.HUD Hud { get; private set; }
-		public EOSoundManager SoundManager { get; private set; }
+		public SoundManager SoundManager { get; private set; }
 
 		private void InitializeControls(bool reinit = false)
 		{
