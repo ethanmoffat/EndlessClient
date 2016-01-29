@@ -24,6 +24,7 @@ namespace EndlessClient.Rendering
 		private readonly Texture2D _mouseCursor;
 		private readonly XNALabel _itemHoverName;
 		private readonly EOMapContextMenu _contextMenu;
+		private readonly Character _mainCharacter;
 
 		private Vector2 _cursorPos;
 		private int _gridX, _gridY;
@@ -56,6 +57,8 @@ namespace EndlessClient.Rendering
 			_cursorSourceRect = new Rectangle(0, 0, _mouseCursor.Width / 5, _mouseCursor.Height);
 
 			_contextMenu = new EOMapContextMenu(_game.API);
+
+			_mainCharacter = World.Instance.MainPlayer.ActiveCharacter;
 		}
 
 		public void ShowContextMenu(CharacterRenderer player)
@@ -102,7 +105,7 @@ namespace EndlessClient.Rendering
 				return;
 
 			SetGridCoordsBasedOnMousePosition(ms);
-			_cursorPos = MapRenderer.GetDrawCoordinatesFromGridUnits(_gridX, _gridY, World.Instance.MainPlayer.ActiveCharacter);
+			_cursorPos = MapRenderer.GetDrawCoordinatesFromGridUnits(_gridX, _gridY, _mainCharacter);
 
 			var ti = GetTileInfoAtGridCoordinates();
 			if (ti == null) return;
@@ -211,14 +214,12 @@ namespace EndlessClient.Rendering
 			//pixY = (_gridX * 16) + (_gridY * 16) + 144 - c.OffsetY =>
 			//(pixY - (_gridX * 16) - 144 + c.OffsetY) / 16 = _gridY
 
-			var c = World.Instance.MainPlayer.ActiveCharacter;
-
 			//center the cursor on the mouse pointer
 			var msX = ms.X - _cursorSourceRect.Width/2;
 			var msY = ms.Y - _cursorSourceRect.Height/2;
 			//align cursor to grid based on mouse position
-			_gridX = (int) Math.Round((msX + 2*msY - 576 + c.OffsetX + 2*c.OffsetY)/64.0);
-			_gridY = (int) Math.Round((msY - _gridX*16 - 144 + c.OffsetY)/16.0);
+			_gridX = (int) Math.Round((msX + 2*msY - 576 + _mainCharacter.OffsetX + 2*_mainCharacter.OffsetY)/64.0);
+			_gridY = (int) Math.Round((msY - _gridX*16 - 144 + _mainCharacter.OffsetY)/16.0);
 		}
 
 		private ITileInfo GetTileInfoAtGridCoordinates()
@@ -259,10 +260,10 @@ namespace EndlessClient.Rendering
 						HandleTileSpecClick(ti.Spec);
 						break;
 					default:
-						if (World.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
+						if (_mainCharacter.NeedsSpellTarget)
 						{
 							//cancel spell targeting if an invalid target was selected
-							World.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
+							_mainCharacter.SelectSpell(-1);
 						}
 						break;
 				}
@@ -271,9 +272,9 @@ namespace EndlessClient.Rendering
 
 		private void HandleMapItemClick(MapItem mi)
 		{
-			var c = World.Instance.MainPlayer.ActiveCharacter;
-
-			if ((c.ID != mi.playerID && mi.playerID != 0) && (mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) || (!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
+			if ((_mainCharacter.ID != mi.playerID && mi.playerID != 0) &&
+				(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) ||
+				(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
 			{
 				Character charRef = _parentMapRenderer.GetOtherPlayerByID((short) mi.playerID);
 				DATCONST2 msg = charRef == null ? DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED : DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
@@ -282,11 +283,12 @@ namespace EndlessClient.Rendering
 			}
 			else
 			{
+				var item = World.Instance.EIF.GetItemRecordByID(mi.id);
 				if (!EOGame.Instance.Hud.InventoryFits(mi.id))
 				{
 					EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
 				}
-				else if (c.Weight + (World.Instance.EIF.GetItemRecordByID(mi.id).Weight*mi.amount) > c.MaxWeight)
+				else if (_mainCharacter.Weight + item.Weight * mi.amount > _mainCharacter.MaxWeight)
 				{
 					EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
 				}
@@ -301,55 +303,44 @@ namespace EndlessClient.Rendering
 			{
 				case TileSpec.Chest: HandleChestClick(); break;
 				case TileSpec.BankVault: HandleBankVaultClick(); break;
+				//todo: boards, chairs
 			}
 		}
 
 		private void HandleChestClick()
 		{
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
+			var characterWithinOneUnitOfChest = Math.Max(_mainCharacter.X - _gridX, _mainCharacter.Y - _gridY) <= 1;
+			var characterInSameRowOrColAsChest = _gridX == _mainCharacter.X || _gridY == _mainCharacter.Y;
 
-			if (Math.Max(c.X - _gridX, c.Y - _gridY) <= 1 && (_gridX == c.X || _gridY == c.Y))
+			if (characterWithinOneUnitOfChest && characterInSameRowOrColAsChest)
 			{
 				MapChest chest = MapRef.Chests.Find(_mc => _mc.x == _gridX && _mc.y == _gridY);
 				if (chest == null) return;
 
-				string requiredKey = null;
-				switch (World.Instance.MainPlayer.ActiveCharacter.CanOpenChest(chest))
+				string requiredKey;
+				switch (_mainCharacter.CanOpenChest(chest))
 				{
-					case ChestKey.Normal:
-						requiredKey = "Normal Key";
-						break;
-					case ChestKey.Silver:
-						requiredKey = "Silver Key";
-						break;
-					case ChestKey.Crystal:
-						requiredKey = "Crystal Key";
-						break;
-					case ChestKey.Wraith:
-						requiredKey = "Wraith Key";
-						break;
-					default:
-						ChestDialog.Show(_game.API, chest.x, chest.y);
-						break;
+					case ChestKey.Normal: requiredKey = "Normal Key"; break;
+					case ChestKey.Silver: requiredKey = "Silver Key"; break;
+					case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
+					case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
+					default: ChestDialog.Show(_game.API, chest.x, chest.y); return;
 				}
-
-				if (requiredKey != null)
-				{
-					EOMessageBox.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-					_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
-						DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
-						" - " + requiredKey);
-				}
+				
+				EOMessageBox.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+				_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
+					DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
+					" - " + requiredKey);
 			}
 		}
 
 		private void HandleBankVaultClick()
 		{
-			var c = World.Instance.MainPlayer.ActiveCharacter;
-			if (Math.Max(c.X - _gridX, c.Y - _gridY) <= 1 && (_gridX == c.X || _gridY == c.Y))
-			{
-				LockerDialog.Show(_game.API, (byte)_gridX, (byte)_gridY);
-			}
+			var characterWithinOneUnitOfLocker = Math.Max(_mainCharacter.X - _gridX, _mainCharacter.Y - _gridY) <= 1;
+			var characterInSameRowOrColAsLocker = _gridX == _mainCharacter.X || _gridY == _mainCharacter.Y;
+
+			if (characterWithinOneUnitOfLocker && characterInSameRowOrColAsLocker)
+				LockerDialog.Show(_game.API, (byte) _gridX, (byte) _gridY);
 		}
 
 		#region IDisposable
