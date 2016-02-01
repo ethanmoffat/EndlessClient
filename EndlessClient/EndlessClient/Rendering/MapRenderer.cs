@@ -871,13 +871,11 @@ namespace EndlessClient.Rendering
 				toDamage.TakeDamageFrom(opponent, damageToNPC, npcPctHealth);
 			}
 		}
+
 		#endregion
 
 		#region /* PUBLIC INTERFACE -- DOORS */
 
-		/// <summary>
-		/// Sends the initial DOOR_OPEN packet to the server for a certain Warp. Sets the warpRef.backOff = true
-		/// </summary>
 		public void StartOpenDoor(Warp warpRef, byte x, byte y)
 		{
 			warpRef.backOff = true; //set flag to prevent hella door packets from the client
@@ -885,9 +883,6 @@ namespace EndlessClient.Rendering
 				((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 
-		/// <summary>
-		/// Handles the opening of the door (event handler for when the DOOR_OPEN packet is received)
-		/// </summary>
 		public void OnDoorOpened(byte x, byte y)
 		{
 			if (_door != null && _door.doorOpened)
@@ -923,7 +918,8 @@ namespace EndlessClient.Rendering
 			_doorY = 0;
 			_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
 		}
-#endregion
+
+		#endregion
 
 		#region /* PUBLIC INTERFACE -- MAP EFFECTS */
 
@@ -1032,7 +1028,8 @@ namespace EndlessClient.Rendering
 
 		#endregion
 
-		/* GAME COMPONENT DERIVED METHODS */
+		#region /* GAME COMPONENT DERIVED METHODS */
+
 		public override void Initialize()
 		{
 			_rtMapObjAbovePlayer = new RenderTarget2D(Game.GraphicsDevice, 
@@ -1458,9 +1455,6 @@ namespace EndlessClient.Rendering
 
 		private void _drawCharactersAndNPCsAtLoc(int rowIndex, int colIndex, List<NPCRenderer> otherNpcs, List<CharacterRenderer> otherChars)
 		{
-			//todo: is there a more efficient way to do this, like storing the locations in a 2D array directly?
-			//		I would like to avoid the .Where() calls every time the map is updated...
-
 			var thisLocNpcs = otherNpcs.Where(_npc => (_npc.NPC.Walking ? _npc.NPC.DestY == rowIndex : _npc.NPC.Y == rowIndex) &&
 													  (_npc.NPC.Walking ? _npc.NPC.DestX == colIndex : _npc.NPC.X == colIndex)).ToList();
 			thisLocNpcs.ForEach(npc => npc.DrawToSpriteBatch(_sb, true));
@@ -1592,6 +1586,8 @@ namespace EndlessClient.Rendering
 		{
 			return Constants.TrapSpikeGFXObjectIDs.Contains(gfxNum);
 		}
+
+		#endregion
 
 		/* DISPOSABLE INTERFACE OVERRIDES AND STUFF */
 		public new void Dispose()
