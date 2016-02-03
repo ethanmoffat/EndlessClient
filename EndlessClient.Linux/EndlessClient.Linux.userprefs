@@ -1,0 +1,12 @@
+﻿<Properties StartupItem="EndlessClient.Linux/EndlessClient.Linux.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="../EndlessClient/EndlessClient/Program.cs">
+    <Files>
+      <File FileName="../EndlessClient/EndlessClient/Program.cs" Line="17" Column="11" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

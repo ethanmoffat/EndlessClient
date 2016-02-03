@@ -30,9 +30,11 @@ namespace EndlessClient.Audio
 		private List<SoundInfo> _guitarSounds;
 		private List<SoundInfo> _harpSounds;
 
+#if !LINUX //todo: find MediaPlayer implementation that is cross-platform
 		private readonly MediaPlayer _musicPlayer;
 		private List<Uri> _musicFiles;
 		private Dispatcher _dispatcher;
+#endif
 
 		public SoundManager()
 		{
@@ -47,13 +49,15 @@ namespace EndlessClient.Audio
 				var soundFiles = Directory.GetFiles(SFX_DIR, "*.wav");
 				Array.Sort(soundFiles);
 
-				var musicFiles = Directory.GetFiles(MFX_DIR, "*.mid");
-				Array.Sort(musicFiles);
-
 				_soundEffects = new List<SoundInfo>(81);
 				_guitarSounds = new List<SoundInfo>(36);
 				_harpSounds = new List<SoundInfo>(36);
+
+#if !LINUX
+				var musicFiles = Directory.GetFiles(MFX_DIR, "*.mid");
+				Array.Sort(musicFiles);
 				_musicFiles = new List<Uri>(musicFiles.Length);
+#endif
 
 				foreach (var sfx in soundFiles)
 				{
@@ -72,6 +76,7 @@ namespace EndlessClient.Audio
 					}
 				}
 
+#if !LINUX
 				_musicPlayer = new MediaPlayer();
 				_musicPlayer.MediaEnded += (o, e) => _musicPlayer.Position = new TimeSpan(0);
 
@@ -79,7 +84,7 @@ namespace EndlessClient.Audio
 					_musicFiles.Add(new Uri(mfx, UriKind.Relative));
 
 				_dispatcher = Dispatcher.CurrentDispatcher;
-
+#endif
 				_singletonInstance = this;
 			}
 		}
@@ -90,8 +95,10 @@ namespace EndlessClient.Audio
 			_soundEffects = _singletonInstance._soundEffects;
 			_guitarSounds = _singletonInstance._guitarSounds;
 			_harpSounds = _singletonInstance._harpSounds;
+#if !LINUX
 			_musicFiles = _singletonInstance._musicFiles;
 			_dispatcher = _singletonInstance._dispatcher;
+#endif
 		}
 
 		public SoundEffectInstance GetGuitarSoundRef(Note which)
@@ -127,6 +134,7 @@ namespace EndlessClient.Audio
 
 		public void PlayBackgroundMusic(int mfxID)
 		{
+#if !LINUX
 			if(mfxID < 1 || mfxID >= _musicFiles.Count)
 				throw new ArgumentOutOfRangeException("mfxID", "The MFX id is out of range. Use the 1-based index that matches the number in the file name.");
 
@@ -137,13 +145,17 @@ namespace EndlessClient.Audio
 					_musicPlayer.Open(_musicFiles[mfxID - 1]);
 					_musicPlayer.Play();
 				});
+#endif
 		}
 
 		public void StopBackgroundMusic()
 		{
+#if !LINUX
 			InvokeIfNeeded(() => _musicPlayer.Stop());
+#endif
 		}
 
+#if !LINUX
 		private void InvokeIfNeeded(Action action)
 		{
 			if (_dispatcher.Thread != Thread.CurrentThread)
@@ -151,6 +163,7 @@ namespace EndlessClient.Audio
 			else
 				action();
 		}
+#endif
 
 		~SoundManager()
 		{
@@ -170,11 +183,13 @@ namespace EndlessClient.Audio
 		{
 			if (disposing)
 			{
+#if !LINUX
 				if (_musicPlayer.HasAudio)
 				{
 					_musicPlayer.Stop();
 					_musicPlayer.Close();
 				}
+#endif
 
 				foreach (var sfx in _soundEffects)
 					sfx.Dispose();
