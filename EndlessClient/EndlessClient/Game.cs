@@ -658,6 +658,8 @@ namespace EndlessClient
 			GFXManager.Dispose();
 			_gfxLoader.Dispose();
 
+			Dispatcher.Dispose();
+
 			World.Instance.Dispose();
 
 			base.Dispose(disposing);
