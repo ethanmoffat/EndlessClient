@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace EOLib.Graphics
@@ -24,22 +23,22 @@ namespace EOLib.Graphics
 		}
 	}
 
-	public sealed class GFXLoader : INativeGraphicsLoader
+	public sealed class Win32GFXLoader : INativeGraphicsLoader
 	{
 		private readonly Dictionary<GFXTypes, IntPtr> _modules;
 
-		public GFXLoader()
+		public Win32GFXLoader()
 		{
 			_modules = new Dictionary<GFXTypes, IntPtr>();
 
-			var values = Enum.GetValues(typeof (GFXTypes)).OfType<GFXTypes>();
+			var values = (GFXTypes[])Enum.GetValues(typeof(GFXTypes));
 			foreach (var gfx in values)
 			{
 				_modules.Add(gfx, LoadLibraryModule(gfx));
 			}
 		}
 
-		~GFXLoader()
+		~Win32GFXLoader()
 		{
 			Dispose(false);
 		}

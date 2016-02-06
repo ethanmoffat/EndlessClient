@@ -32,6 +32,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework, Version=3.4.0.456, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="PELoaderLib">
+      <HintPath>..\PELoaderLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -72,8 +75,8 @@
     <Compile Include="..\EOLib\Data\Map\WarpTileInfo.cs">
       <Link>Data\Map\WarpTileInfo.cs</Link>
     </Compile>
-    <Compile Include="..\EOLib\Graphics\GFXLoader.cs">
-      <Link>Graphics\GFXLoader.cs</Link>
+    <Compile Include="..\EOLib\Graphics\CrossPlatformGFXLoader.cs">
+      <Link>Graphics\CrossPlatformGFXLoader.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\Graphics\GFXManager.cs">
       <Link>Graphics\GFXManager.cs</Link>
@@ -89,6 +92,9 @@
     </Compile>
     <Compile Include="..\EOLib\Graphics\LibraryGraphicPair.cs">
       <Link>Graphics\LibraryGraphicPair.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Graphics\Win32GFXLoader.cs">
+      <Link>Graphics\Win32GFXLoader.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\IO\Class.cs">
       <Link>IO\Class.cs</Link>

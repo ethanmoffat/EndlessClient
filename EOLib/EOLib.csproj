@@ -43,6 +43,9 @@
     </Reference>
     <Reference Include="Microsoft.Xna.Framework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
     <Reference Include="Microsoft.Xna.Framework.Graphics, Version=4.0.0.0, Culture=neutral, PublicKeyToken=842cf8be1de50553, processorArchitecture=x86" />
+    <Reference Include="PELoaderLib">
+      <HintPath>..\PELoaderLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -71,6 +74,7 @@
     <Compile Include="Data\Map\NPCTileInfo.cs" />
     <Compile Include="Data\Map\TileInfoReturnType.cs" />
     <Compile Include="Data\Map\WarpTileInfo.cs" />
+    <Compile Include="Graphics\CrossPlatformGFXLoader.cs" />
     <Compile Include="IO\Class.cs" />
     <Compile Include="Crc.cs" />
     <Compile Include="IO\ClassRecordFactory.cs" />
@@ -87,7 +91,7 @@
     <Compile Include="IO\NPCType.cs" />
     <Compile Include="IO\Spell.cs" />
     <Compile Include="IO\SpellRecordFactory.cs" />
-    <Compile Include="Graphics\GFXLoader.cs" />
+    <Compile Include="Graphics\Win32GFXLoader.cs" />
     <Compile Include="Graphics\GFXManager.cs" />
     <Compile Include="Graphics\GFXTypes.cs" />
     <Compile Include="Graphics\INativeGraphicsLoader.cs" />

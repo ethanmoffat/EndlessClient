@@ -496,7 +496,7 @@ namespace EndlessClient
 			try
 			{
 #if MONO
-				_gfxLoader = new GFXLoader();
+				_gfxLoader = new CrossPlatformGFXLoader();
 #else
 				_gfxLoader = new EOCLI.GFXLoaderCLI();
 #endif

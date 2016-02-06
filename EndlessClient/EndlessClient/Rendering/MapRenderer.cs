@@ -1089,7 +1089,7 @@ namespace EndlessClient.Rendering
 			_drawingEvent.Wait(); //need to make sure that the map isn't being changed during a draw!
 			_drawingEvent.Reset();
 			_drawMapObjectsAndActors();
-			_drawingEvent.Set();
+			_drawingEvent.Set(); //todo: there is a deadlock when switching maps
 
 			base.Update(gameTime);
 		}
