@@ -32,7 +32,7 @@ I encourage everyone to try and break things and file bug reports (see project "
 <a name="Source" />Building the Source
 ---------------------
 
-There are a few prerequisites that need to be installed before the source can be built. Primary development environment for this project is VS 2013 w/ Update 2 on Win8.1 x64.
+There are a few prerequisites that need to be installed before the source can be built. Primary development environment for this project is VS 2013 w/ Update 2 on Win8.1 x64 (recently updated to VS2013 Update 5 on Win10 x64).
 
 These instructions have been tested in a Virtual Machine running Windows 7 Professional x64 With SP1.
 
@@ -43,11 +43,19 @@ These instructions have been tested in a Virtual Machine running Windows 7 Profe
 4. Optionally: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/) (student licenses are **free**!)
 5. Install your favorite git client and fork the latest changes (I highly recommend [Atlassian SourceTree](http://www.sourcetreeapp.com/))
 6. If you would like to build the mono project, download and install the [MonoGame framework](http://www.monogame.net/downloads/)
-7. Build the solution in VS 2013. Copy the required files to the bin\x86\debug\ or bin\x86\release\ folder (see below)
+7. Build the solution in VS 2013 (see note about EOCLI below). Copy the required files to the bin\x86\debug\ or bin\x86\release\ folder (see below)
 8. I recently added support for async/await - this requires use of the Microsoft.BCL.Async package from NuGet. You may or may not need to follow these steps; Visual Studio should automatically pull the required packages for you. Steps to install as follows:
  1. Open EndlessClient.sln in Visual Studio and set EndlessClient as the active/startup project.
  2. Go to Tools->NuGet Package Manager->Package Manager Console
  3. In the Package Manager Console, type Install-Package Microsoft.Bcl.Async
+
+For compatibility with XNA 4.0, EOCLI must be built with an older version of the compiler (.Net 4.0). When Visual Studio first opens, it will prompt you to upgrade compilers. Just click cancel when this dialog is displayed. In case you don't click cancel, use the following steps to revert the framework version:
+
+1. In solution explorer, right-click EOCLI and choose "Unload Project"
+2. Right-click EOCLI (in solution explorer) and choose "Edit EOCLI.vcxproj"
+3. Find the XML tag that says <TargetFrameworkVersion> and set it to v4.0 (the upgrade should have changed it to v4.5)
+4. Save and close the open EOCLI.vcxproj
+5. Right-click EOCLI (in solution explorer) and click "Reload Project"
 
 Note that the game client requires some additional files to be copied to the *bin* directory before the game will successfully launch:
 
