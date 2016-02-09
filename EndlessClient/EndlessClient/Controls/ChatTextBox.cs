@@ -46,15 +46,15 @@ namespace EndlessClient.Controls
 				_ignoreNextInput = false;
 		}
 
-		public override void ReceiveSpecialInput(Keys key)
-		{
-			if (_ignoreAllInput) return;
+		//public override void ReceiveSpecialInput(Keys key)
+		//{
+		//	if (_ignoreAllInput) return;
 
-			//ignore the emote input keys!
-			if (key >= Keys.NumPad0 && key <= Keys.NumPad9 || key == Keys.Decimal)
-			{
-				_ignoreNextInput = true;
-			}
-		}
+		//	//ignore the emote input keys!
+		//	if (key >= Keys.NumPad0 && key <= Keys.NumPad9 || key == Keys.Decimal)
+		//	{
+		//		_ignoreNextInput = true;
+		//	}
+		//}
 	}
 }
