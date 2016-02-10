@@ -1,4 +1,4 @@
-﻿<Properties StartupItem="EndlessClient.Linux/EndlessClient.Linux.csproj">
+﻿<Properties StartupItem="EndlessClient.Linux/EndlessClient.Linux.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
   <MonoDevelop.Ide.Workbench ActiveDocument="../EndlessClient/EndlessClient/Program.cs">
     <Files>

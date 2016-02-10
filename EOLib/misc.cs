@@ -87,7 +87,7 @@ namespace EOLib
 		public const string Host = "127.0.0.1";
 		public const int Port = 8078;
 
-		public const string MapFileFormatString = "maps\\{0,5:D5}.emf";
+		public const string MapFileFormatString = "maps/{0,5:D5}.emf";
 		public const string ItemFilePath = "pub/dat001.eif";
 		public const string NPCFilePath = "pub/dtn001.enf";
 		public const string SpellFilePath = "pub/dsl001.esf";
@@ -111,11 +111,11 @@ namespace EOLib
 		//not a config option because this shouldn't be exposed at the user level
 		public static readonly int[] TrapSpikeGFXObjectIDs = {449, 450, 451, 452};
 
-		public const string FontSize07 = @"Fonts\InGame_Main_07";
-		public const string FontSize08 = @"Fonts\InGame_Main_08";
-		public const string FontSize08pt5 = @"Fonts\InGame_Main_08pt5";
-		public const string FontSize08pt75 = @"Fonts\InGame_Main_08pt75";
-		public const string FontSize10 = @"Fonts\InGame_Main_10";
+		public const string FontSize07 = @"Fonts/InGame_Main_07";
+		public const string FontSize08 = @"Fonts/InGame_Main_08";
+		public const string FontSize08pt5 = @"Fonts/InGame_Main_08pt5";
+		public const string FontSize08pt75 = @"Fonts/InGame_Main_08pt75";
+		public const string FontSize10 = @"Fonts/InGame_Main_10";
 
 		public static readonly Color LightGrayText = Color.FromNonPremultiplied(0xc8, 0xc8, 0xc8, 0xff);
 		public static readonly Color LightYellowText = Color.FromNonPremultiplied(0xf0, 0xf0, 0xc8, 0xff);
@@ -127,6 +127,8 @@ namespace EOLib
 
 	public static class ConfigStrings
 	{
+		public const string Default_Config_File = "config/settings.ini";
+
 		public const string Connection = "CONNECTION";
 		public const string Host = "Host";
 		public const string Port = "Port";
