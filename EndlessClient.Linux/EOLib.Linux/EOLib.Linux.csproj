@@ -8,6 +8,7 @@
     <RootNamespace>EOLib.Linux</RootNamespace>
     <AssemblyName>EOLib.Linux</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <MonoGamePlatform>Linux</MonoGamePlatform>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,18 +30,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.3.0.0\lib\net40\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenTK">
-      <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.3.0.0\lib\net40\OpenTK.dll</HintPath>
-    </Reference>
-    <Reference Include="Tao.Sdl">
-      <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.3.0.0\lib\net40\Tao.Sdl.dll</HintPath>
-    </Reference>
     <Reference Include="System.Drawing" />
     <Reference Include="PELoaderLib">
       <HintPath>..\..\PELoaderLib.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\MonoGameBinaries\MonoGame.Framework.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -266,10 +261,6 @@
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <None Include="SDL.dll" />
-    <None Include="packages.config" />
-  </ItemGroup>
   <ItemGroup>
     <Folder Include="Data\" />
     <Folder Include="Graphics\" />

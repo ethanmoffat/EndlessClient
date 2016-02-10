@@ -8,7 +8,7 @@
     <RootNamespace>EndlessClient.Linux</RootNamespace>
     <AssemblyName>EndlessClient.Linux</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <MonoGamePlatform>DesktopGL</MonoGamePlatform>
+    <MonoGamePlatform>Linux</MonoGamePlatform>
     <MonoGameInstallDirectory Condition="'$(OS)' != 'Unix' ">$(MSBuildProgramFiles32)</MonoGameInstallDirectory>
     <MonoGameInstallDirectory Condition="'$(OS)' == 'Unix' ">$(MSBuildExtensionsPath)</MonoGameInstallDirectory>
   </PropertyGroup>
@@ -45,14 +45,17 @@
     <Reference Include="System.Net" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="MonoGame.Framework">
-      <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.4.0.459\lib\net40\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="OpenTK">
-      <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.4.0.459\lib\net40\OpenTK.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Configuration" />
+    <Reference Include="MonoGame.Framework">
+      <HintPath>..\..\MonoGameBinaries\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="NVorbis">
+      <HintPath>..\..\MonoGameBinaries\NVorbis.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenTK">
+      <HintPath>..\..\MonoGameBinaries\OpenTK.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -316,15 +319,8 @@
     <None Include="..\..\EndlessClient\EndlessClient\Resources\GameThumbnail.png">
       <Link>Resources\GameThumbnail.png</Link>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="OpenTK.dll.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Tao.Sdl.dll.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <MonoGameContentReference Include="Content\content.mgcb" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
