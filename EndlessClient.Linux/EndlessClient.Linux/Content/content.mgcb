@@ -13,7 +13,7 @@
 
 #---------------------------------- Content ---------------------------------#
 
-#begin EndlessClientContent/ChatBubble/ML.png
+#begin ChatBubble/ML.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -23,9 +23,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/ChatBubble/ML.png
+/build:ChatBubble/ML.png
 
-#begin EndlessClientContent/ChatBubble/MM.png
+#begin ChatBubble/MM.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -35,9 +35,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/ChatBubble/MM.png
+/build:ChatBubble/MM.png
 
-#begin EndlessClientContent/ChatBubble/MR.png
+#begin ChatBubble/MR.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -47,9 +47,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/ChatBubble/MR.png
+/build:ChatBubble/MR.png
 
-#begin EndlessClientContent/ChatBubble/NUB.png
+#begin ChatBubble/NUB.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -59,9 +59,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/ChatBubble/NUB.png
+/build:ChatBubble/NUB.png
 
-#begin EndlessClientContent/ChatBubble/RL.png
+#begin ChatBubble/RL.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -71,9 +71,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/ChatBubble/RL.png
+/build:ChatBubble/RL.png
 
-#begin EndlessClientContent/ChatBubble/RM.png
+#begin ChatBubble/RM.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -83,9 +83,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/ChatBubble/RM.png
+/build:ChatBubble/RM.png
 
-#begin EndlessClientContent/ChatBubble/RR.png
+#begin ChatBubble/RR.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -95,9 +95,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/ChatBubble/RR.png
+/build:ChatBubble/RR.png
 
-#begin EndlessClientContent/ChatBubble/TL.png
+#begin ChatBubble/TL.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -107,9 +107,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/ChatBubble/TL.png
+/build:ChatBubble/TL.png
 
-#begin EndlessClientContent/ChatBubble/TM.png
+#begin ChatBubble/TM.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -119,9 +119,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/ChatBubble/TM.png
+/build:ChatBubble/TM.png
 
-#begin EndlessClientContent/ChatBubble/TR.png
+#begin ChatBubble/TR.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -131,39 +131,39 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/ChatBubble/TR.png
+/build:ChatBubble/TR.png
 
-#begin EndlessClientContent/Fonts/InGame_Main_07.spritefont
+#begin Fonts/InGame_Main_07.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:TextureFormat=Compressed
-/build:EndlessClientContent/Fonts/InGame_Main_07.spritefont
+/build:Fonts/InGame_Main_07.spritefont
 
-#begin EndlessClientContent/Fonts/InGame_Main_08.spritefont
+#begin Fonts/InGame_Main_08.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:TextureFormat=Compressed
-/build:EndlessClientContent/Fonts/InGame_Main_08.spritefont
+/build:Fonts/InGame_Main_08.spritefont
 
-#begin EndlessClientContent/Fonts/InGame_Main_08pt5.spritefont
+#begin Fonts/InGame_Main_08pt5.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:TextureFormat=Compressed
-/build:EndlessClientContent/Fonts/InGame_Main_08pt5.spritefont
+/build:Fonts/InGame_Main_08pt5.spritefont
 
-#begin EndlessClientContent/Fonts/InGame_Main_08pt75.spritefont
+#begin Fonts/InGame_Main_08pt75.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:TextureFormat=Compressed
-/build:EndlessClientContent/Fonts/InGame_Main_08pt75.spritefont
+/build:Fonts/InGame_Main_08pt75.spritefont
 
-#begin EndlessClientContent/Fonts/InGame_Main_10.spritefont
+#begin Fonts/InGame_Main_10.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:TextureFormat=Compressed
-/build:EndlessClientContent/Fonts/InGame_Main_10.spritefont
+/build:Fonts/InGame_Main_10.spritefont
 
-#begin EndlessClientContent/Party/hp-green.png
+#begin Party/hp-green.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -173,9 +173,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/Party/hp-green.png
+/build:Party/hp-green.png
 
-#begin EndlessClientContent/Party/hp-outline.png
+#begin Party/hp-outline.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -185,9 +185,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/Party/hp-outline.png
+/build:Party/hp-outline.png
 
-#begin EndlessClientContent/Party/hp-red.png
+#begin Party/hp-red.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -197,9 +197,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/Party/hp-red.png
+/build:Party/hp-red.png
 
-#begin EndlessClientContent/Party/hp-yellow.png
+#begin Party/hp-yellow.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -209,9 +209,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/Party/hp-yellow.png
+/build:Party/hp-yellow.png
 
-#begin EndlessClientContent/cursor.png
+#begin cursor.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -221,15 +221,15 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/cursor.png
+/build:cursor.png
 
-#begin EndlessClientContent/dbg.spritefont
+#begin dbg.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor
 /processorParam:TextureFormat=Compressed
-/build:EndlessClientContent/dbg.spritefont
+/build:dbg.spritefont
 
-#begin EndlessClientContent/tbBack.png
+#begin tbBack.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -239,9 +239,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/tbBack.png
+/build:tbBack.png
 
-#begin EndlessClientContent/tbLeft.png
+#begin tbLeft.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -251,9 +251,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/tbLeft.png
+/build:tbLeft.png
 
-#begin EndlessClientContent/tbRight.png
+#begin tbRight.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -263,5 +263,5 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:EndlessClientContent/tbRight.png
+/build:tbRight.png
 

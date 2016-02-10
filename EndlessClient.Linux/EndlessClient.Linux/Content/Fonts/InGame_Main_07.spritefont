@@ -1,9 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <!--
-
-IMPORTANT: This SpriteFont is used by XNAControls to show the draw orders of different controls dynamically.
-					 It is used for debugging purposes only but should not be deleted or removed because it is actually used.
-
 This file contains an xml description of a font, and will be read by the XNA
 Framework Content Pipeline. Follow the comments to customize the appearance
 of the font in your game, and to change the characters which are available to draw
@@ -15,13 +11,13 @@ with.
     <!--
     Modify this string to change the font that will be imported.
     -->
-    <FontName>Microsoft Sans Serif</FontName>
+    <FontName>Arial</FontName>
 
     <!--
     Size is a float value, measured in points. Modify this value to change
     the size of the font.
     -->
-    <Size>8.0</Size>
+    <Size>7.0</Size>
 
     <!--
     Spacing is a float value, measured in pixels. Modify this value to change

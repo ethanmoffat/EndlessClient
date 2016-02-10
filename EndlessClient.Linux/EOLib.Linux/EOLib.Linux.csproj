@@ -39,6 +39,9 @@
       <HintPath>..\packages\MonoGame.Framework.WindowsGL.3.3.0.0\lib\net40\Tao.Sdl.dll</HintPath>
     </Reference>
     <Reference Include="System.Drawing" />
+    <Reference Include="PELoaderLib">
+      <HintPath>..\..\PELoaderLib.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -86,9 +89,6 @@
     </Compile>
     <Compile Include="..\..\EOLib\Data\Map\WarpTileInfo.cs">
       <Link>Data\Map\WarpTileInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\..\EOLib\Graphics\GFXLoader.cs">
-      <Link>Graphics\GFXLoader.cs</Link>
     </Compile>
     <Compile Include="..\..\EOLib\Graphics\GFXManager.cs">
       <Link>Graphics\GFXManager.cs</Link>
@@ -257,6 +257,12 @@
     </Compile>
     <Compile Include="..\..\EOLib\Net\API\Welcome.cs">
       <Link>Net\API\Welcome.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EOLib\Graphics\CrossPlatformGFXLoader.cs">
+      <Link>Graphics\CrossPlatformGFXLoader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\EOLib\Graphics\Win32GFXLoader.cs">
+      <Link>Graphics\Win32GFXLoader.cs</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
