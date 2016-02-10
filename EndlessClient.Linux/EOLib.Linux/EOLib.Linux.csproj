@@ -31,11 +31,11 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
-    <Reference Include="PELoaderLib">
-      <HintPath>..\..\PELoaderLib.dll</HintPath>
-    </Reference>
     <Reference Include="MonoGame.Framework">
       <HintPath>..\..\MonoGameBinaries\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="PELoaderLib.Linux">
+      <HintPath>..\..\PELoaderLib.Linux.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
