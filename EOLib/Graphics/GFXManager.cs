@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using Microsoft.Xna.Framework.Graphics;
 using Color = System.Drawing.Color;
 
@@ -53,7 +54,7 @@ namespace EOLib.Graphics
 			using (var mem = new System.IO.MemoryStream())
 			{
 				using (var i = BitmapFromResource(file, resourceVal, transparent))
-					i.Save(mem, System.Drawing.Imaging.ImageFormat.Png);
+					i.Save(mem, ImageFormat.Png);
 
 				ret = Texture2D.FromStream(_device, mem);
 			}

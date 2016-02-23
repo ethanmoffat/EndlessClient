@@ -5,22 +5,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
-using EndlessClient.HUD.Inventory;
 using EOLib;
 using EOLib.Data.BLL;
 using EOLib.Data.Map;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.Net;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using XNAControls;
 
 namespace EndlessClient.Rendering
 {
@@ -35,14 +32,6 @@ namespace EndlessClient.Rendering
 		public MapFile MapRef { get; private set; }
 		private bool _needDispMapName;
 		
-		//cursor members
-		private Vector2 _cursorPos;
-		private int _gridX, _gridY;
-		private readonly Texture2D _mouseCursor;
-		private Rectangle _cursorSourceRect;
-		private readonly XNALabel _itemHoverName;
-		private MouseState _prevState;
-		private bool _hideCursor;
 		//public cursor members
 		public bool MouseOver
 		{
@@ -52,10 +41,7 @@ namespace EndlessClient.Rendering
 				return EOGame.Instance.IsActive && ms.X > 0 && ms.Y > 0 && ms.X < 640 && ms.Y < 320;
 			}
 		}
-		public Point GridCoords
-		{
-			get { return new Point(_gridX, _gridY); }
-		}
+		public Point GridCoords { get { return _mouseCursorRenderer.GridCoords; } }
 
 		//rendering members
 		private RenderTarget2D _rtMapObjAbovePlayer, _rtMapObjBelowPlayer;
@@ -78,11 +64,11 @@ namespace EndlessClient.Rendering
 		private byte _doorY; //since y-coord not stored in Warp object...
 
 		private ManualResetEventSlim _drawingEvent;
-		private EOMapContextMenu _contextMenu;
 
 		private readonly PacketAPI _api;
 
 		private MiniMapRenderer _miniMapRenderer;
+		private MouseCursorRenderer _mouseCursorRenderer;
 		
 		private bool _disposed;
 		private readonly object _disposingLockObject = new object();
@@ -99,17 +85,6 @@ namespace EndlessClient.Rendering
 			_api = apiHandle;
 
 			_sb = new SpriteBatch(Game.GraphicsDevice);
-
-			_mouseCursor = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
-			_cursorSourceRect = new Rectangle(0, 0, _mouseCursor.Width / 5, _mouseCursor.Height);
-			_itemHoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
-			{
-				Visible = true,
-				Text = "",
-				ForeColor = Color.White,
-				DrawOrder = (int)ControlDrawLayer.BaseLayer + 3,
-				AutoSize = false
-			};
 
 			_drawingEvent = new ManualResetEventSlim(true);
 			Visible = false;
@@ -374,6 +349,15 @@ namespace EndlessClient.Rendering
 			//still some left. add it back.
 			if(toRemove.amount > 0)
 				res.Add(toRemove);
+		}
+
+		public MapItem? GetMapItemAt(int x, int y)
+		{
+			var p = new Point(x, y);
+			if (_mapItems.ContainsKey(p) && _mapItems[p].Count > 0)
+				return _mapItems[p].Last();
+
+			return null;
 		}
 
 		public void ClearMapItems()
@@ -718,7 +702,7 @@ namespace EndlessClient.Rendering
 
 		public void ShowContextMenu(CharacterRenderer player)
 		{
-			_contextMenu.SetCharacterRenderer(player);
+			_mouseCursorRenderer.ShowContextMenu(player);
 		}
 
 		public void ShowPotionEffect(short playerID, int effectID)
@@ -887,13 +871,11 @@ namespace EndlessClient.Rendering
 				toDamage.TakeDamageFrom(opponent, damageToNPC, npcPctHealth);
 			}
 		}
+
 		#endregion
 
 		#region /* PUBLIC INTERFACE -- DOORS */
 
-		/// <summary>
-		/// Sends the initial DOOR_OPEN packet to the server for a certain Warp. Sets the warpRef.backOff = true
-		/// </summary>
 		public void StartOpenDoor(Warp warpRef, byte x, byte y)
 		{
 			warpRef.backOff = true; //set flag to prevent hella door packets from the client
@@ -901,9 +883,6 @@ namespace EndlessClient.Rendering
 				((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 
-		/// <summary>
-		/// Handles the opening of the door (event handler for when the DOOR_OPEN packet is received)
-		/// </summary>
 		public void OnDoorOpened(byte x, byte y)
 		{
 			if (_door != null && _door.doorOpened)
@@ -939,6 +918,7 @@ namespace EndlessClient.Rendering
 			_doorY = 0;
 			_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
 		}
+
 #endregion
 
 		#region /* PUBLIC INTERFACE -- MAP EFFECTS */
@@ -1048,7 +1028,8 @@ namespace EndlessClient.Rendering
 
 		#endregion
 
-		/* GAME COMPONENT DERIVED METHODS */
+		#region /* GAME COMPONENT DERIVED METHODS */
+
 		public override void Initialize()
 		{
 			_rtMapObjAbovePlayer = new RenderTarget2D(Game.GraphicsDevice, 
@@ -1077,7 +1058,7 @@ namespace EndlessClient.Rendering
 				ColorDestinationBlend = Blend.One
 			};
 
-			_contextMenu = new EOMapContextMenu(_api);
+			_mouseCursorRenderer = new MouseCursorRenderer((EOGame)Game, this);
 
 			base.Initialize();
 		}
@@ -1092,11 +1073,8 @@ namespace EndlessClient.Rendering
 			_animateWallTiles(gameTime);
 
 			//***do the cursor stuff
-			MouseState ms = Mouse.GetState();
-			if (MouseOver) //checks bounds for map rendering area
-			{
-				_updateCursorInfo(ms);
-			}
+			if (MouseOver)
+				_mouseCursorRenderer.Update();
 
 			if (_needDispMapName && EOGame.Instance.Hud != null)
 			{
@@ -1111,9 +1089,8 @@ namespace EndlessClient.Rendering
 			_drawingEvent.Wait(); //need to make sure that the map isn't being changed during a draw!
 			_drawingEvent.Reset();
 			_drawMapObjectsAndActors();
-			_drawingEvent.Set();
+			_drawingEvent.Set(); //todo: there is a deadlock when switching maps
 
-			_prevState = ms;
 			base.Update(gameTime);
 		}
 
@@ -1172,234 +1149,6 @@ namespace EndlessClient.Rendering
 			}
 		}
 
-		private void _updateCursorInfo(MouseState ms)
-		{
-			//don't do the cursor if there is a dialog open or the mouse is over the context menu
-			if (XNAControl.Dialogs.Count > 0 || (_contextMenu.Visible && _contextMenu.MouseOver))
-				return;
-
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
-
-			_getGridCoordsFromMousePosition(ms, _cursorSourceRect, c, out _gridX, out _gridY);
-			_cursorPos = _getDrawCoordinates(_gridX, _gridY, c);
-
-			if (_gridX >= 0 && _gridX <= MapRef.Width && _gridY >= 0 && _gridY <= MapRef.Height)
-			{
-				bool mouseClicked = ms.LeftButton == ButtonState.Released && _prevState.LeftButton == ButtonState.Pressed;
-				//bool rightClicked = ms.RightButton == ButtonState.Released && _prevState.RightButton == ButtonState.Pressed;
-				
-				//don't handle mouse clicks for map if there is a dialog being shown
-				mouseClicked &= XNAControl.Dialogs.Count == 0;
-				//rightClicked &= XNAControl.Dialogs.Count == 0;
-
-				var ti = GetTileInfo((byte) _gridX, (byte) _gridY);
-				switch (ti.ReturnType)
-				{
-					case TileInfoReturnType.IsOtherPlayer:
-					case TileInfoReturnType.IsOtherNPC:
-						_cursorSourceRect.Location = new Point(_mouseCursor.Width/5, 0);
-						break;
-					default: //TileSpec, warp, sign
-						if (_gridX == c.X && _gridY == c.Y)
-							goto case TileInfoReturnType.IsOtherPlayer; //same logic if it's the active character
-
-						_hideCursor = false;
-						if (ti.ReturnType == TileInfoReturnType.IsTileSpec)
-						{
-							_updateCursorForTileSpec(ti, mouseClicked, c);
-						}
-						else if (ti.ReturnType == TileInfoReturnType.IsMapSign)
-						{
-							var signInfo = (MapSign)ti.MapElement;
-							_hideCursor = true;
-							if (mouseClicked)
-								EOMessageBox.Show(signInfo.message, signInfo.title, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-						}
-						else
-							_cursorSourceRect.Location = new Point(0, 0);
-
-						if (mouseClicked && World.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
-						{
-							//cancel spell targeting if an invalid target was selected
-							World.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
-						}
-
-						break;
-				}
-
-				_updateDisplayedMapItemName(mouseClicked);
-
-				if (_itemHoverName.Text.Length > 0 && !Game.Components.Contains(_itemHoverName))
-					Game.Components.Add(_itemHoverName);
-			}
-		}
-
-		private void _updateDisplayedMapItemName(bool mouseClicked)
-		{
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
-
-			Point p;
-			if (_mapItems.ContainsKey(p = new Point(_gridX, _gridY)) && _mapItems[p].Count > 0)
-			{
-				MapItem mi = _mapItems[p].Last(); //topmost item has label
-				_cursorSourceRect.Location = new Point(2*(_mouseCursor.Width/5), 0);
-
-				string itemName = EOInventoryItem.GetNameString(mi.id, mi.amount);
-				if (_itemHoverName.Text != itemName)
-				{
-					_itemHoverName.Visible = true;
-					_itemHoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
-					_itemHoverName.ResizeBasedOnText();
-					_itemHoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
-				}
-				_itemHoverName.DrawLocation = new Vector2(
-					_cursorPos.X + 32 - _itemHoverName.ActualWidth/2f,
-					_cursorPos.Y - _itemHoverName.ActualHeight - 4);
-
-				if (mouseClicked)
-				{
-					if ((World.Instance.MainPlayer.ActiveCharacter.ID != mi.playerID && mi.playerID != 0) &&
-						(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) ||
-						(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
-					{
-						Character charRef = GetOtherPlayerByID((short)mi.playerID);
-						DATCONST2 msg = charRef == null
-							? DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED
-							: DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
-						string extra = charRef == null ? "" : charRef.Name;
-						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
-					}
-					else
-					{
-						if (!EOGame.Instance.Hud.InventoryFits(mi.id))
-						{
-							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
-								DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
-						}
-						else if (c.Weight + (World.Instance.EIF.GetItemRecordByID(mi.id).Weight*mi.amount) > c.MaxWeight)
-						{
-							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
-						}
-						else if (!_api.GetItem(mi.uid)) //server validates drop protection anyway
-							EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-					}
-				}
-			}
-			else if(_itemHoverName.Visible)
-			{
-				_itemHoverName.Visible = false;
-				_itemHoverName.Text = " ";
-			}
-		}
-
-		private void _updateCursorForTileSpec(ITileInfo ti, bool mouseClicked, Character c)
-		{
-			switch (ti.Spec)
-			{
-				case TileSpec.Wall:
-				case TileSpec.JammedDoor:
-				case TileSpec.MapEdge:
-				case TileSpec.FakeWall:
-					//hide cursor
-					_hideCursor = true;
-					break;
-				case TileSpec.Chest:
-					//chest click action
-					_cursorSourceRect.Location = new Point(_mouseCursor.Width/5, 0);
-					if (mouseClicked && Math.Max(c.X - _gridX, c.Y - _gridY) <= 1 && (_gridX == c.X || _gridY == c.Y))
-						//must be directly adjacent
-					{
-						MapChest chest = MapRef.Chests.Find(_mc => _mc.x == _gridX && _mc.y == _gridY);
-						if (chest == null) break;
-
-						string requiredKey = null;
-						switch (World.Instance.MainPlayer.ActiveCharacter.CanOpenChest(chest))
-						{
-							case ChestKey.Normal:
-								requiredKey = "Normal Key";
-								break;
-							case ChestKey.Silver:
-								requiredKey = "Silver Key";
-								break;
-							case ChestKey.Crystal:
-								requiredKey = "Crystal Key";
-								break;
-							case ChestKey.Wraith:
-								requiredKey = "Wraith Key";
-								break;
-							default:
-								ChestDialog.Show(_api, chest.x, chest.y);
-								break;
-						}
-
-						if (requiredKey != null)
-						{
-							EOMessageBox.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-							((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
-								DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
-								" - " + requiredKey);
-						}
-					}
-					break;
-				case TileSpec.BankVault:
-					_cursorSourceRect.Location = new Point(_mouseCursor.Width/5, 0);
-					if (mouseClicked && Math.Max(c.X - _gridX, c.Y - _gridY) <= 1 && (_gridX == c.X || _gridY == c.Y))
-					{
-						LockerDialog.Show(_api, (byte) _gridX, (byte) _gridY);
-					}
-					break;
-				case TileSpec.ChairDown:
-				case TileSpec.ChairLeft:
-				case TileSpec.ChairRight:
-				case TileSpec.ChairUp:
-				case TileSpec.ChairDownRight:
-				case TileSpec.ChairUpLeft:
-				case TileSpec.ChairAll:
-				case TileSpec.Board1:
-				case TileSpec.Board2:
-				case TileSpec.Board3:
-				case TileSpec.Board4:
-				case TileSpec.Board5:
-				case TileSpec.Board6:
-				case TileSpec.Board7:
-				case TileSpec.Board8:
-				case TileSpec.Jukebox:
-					//highlight cursor
-					_cursorSourceRect.Location = new Point(_mouseCursor.Width/5, 0);
-					break;
-				case TileSpec.Jump:
-				case TileSpec.Water:
-				case TileSpec.Arena:
-				case TileSpec.AmbientSource:
-				case TileSpec.SpikesStatic:
-				case TileSpec.SpikesTrap:
-				case TileSpec.SpikesTimed:
-				case TileSpec.None:
-					//normal cursor
-					_cursorSourceRect.Location = new Point(0, 0);
-					break;
-			}
-		}
-
-		private static void _getGridCoordsFromMousePosition(MouseState ms, Rectangle _cursorSourceRect, Character c, out int gridx, out int gridy)
-		{
-			//need to solve this system of equations to get x, y on the grid
-			//(x * 32) - (y * 32) + 288 - c.OffsetX, => pixX = 32x - 32y + 288 - c.OffsetX
-			//(y * 16) + (x * 16) + 144 - c.OffsetY  => 2pixY = 32y + 32x + 288 - 2c.OffsetY
-			//										 => 2pixY + pixX = 64x + 576 - c.OffsetX - 2c.OffsetY
-			//										 => 2pixY + pixX - 576 + c.OffsetX + 2c.OffsetY = 64x
-			//										 => _gridX = (pixX + 2pixY - 576 + c.OffsetX + 2c.OffsetY) / 64; <=
-			//pixY = (_gridX * 16) + (_gridY * 16) + 144 - c.OffsetY =>
-			//(pixY - (_gridX * 16) - 144 + c.OffsetY) / 16 = _gridY
-
-			//center the cursor on the mouse pointer
-			int msX = ms.X - _cursorSourceRect.Width/2;
-			int msY = ms.Y - _cursorSourceRect.Height/2;
-			//align cursor to grid based on mouse position
-			gridx = (int) Math.Round((msX + 2*msY - 576 + c.OffsetX + 2*c.OffsetY)/64.0);
-			gridy = (int) Math.Round((msY - gridx*16 - 144 + c.OffsetY)/16.0);
-		}
-
 		public override void Draw(GameTime gameTime)
 		{
 			if (MapRef != null)
@@ -1419,7 +1168,7 @@ namespace EndlessClient.Rendering
 
 				_sb.Begin();
 
-				_drawCursor();
+				_mouseCursorRenderer.Draw(_sb);
 
 				/*_drawPlayersNPCsAndMapObjects()*/
 				_sb.Draw(_rtMapObjAbovePlayer, Vector2.Zero, Color.White);
@@ -1436,16 +1185,6 @@ namespace EndlessClient.Rendering
 			}
 
 			base.Draw(gameTime);
-		}
-
-		private void _drawCursor()
-		{
-			if (!_hideCursor && _gridX >= 0 && _gridY >= 0 && _gridX <= MapRef.Width && _gridY <= MapRef.Height)
-			{
-				//don't draw cursor if context menu is visible and the context menu has the mouse over it
-				if (!(_contextMenu.Visible && _contextMenu.MouseOver))
-					_sb.Draw(_mouseCursor, _cursorPos, _cursorSourceRect, Color.White);
-			}
 		}
 
 		/* DRAWING-RELATED HELPER METHODS */
@@ -1467,7 +1206,7 @@ namespace EndlessClient.Rendering
 
 				for (int j = xMin; j <= xMax; ++j)
 				{
-					Vector2 pos = _getDrawCoordinates(j, i, cOffX, cOffY);
+					Vector2 pos = GetDrawCoordinatesFromGridUnits(j, i, cOffX, cOffY);
 
 					//only render fill layer when the ground layer is not present!
 					if (MapRef.FillTile > 0 && MapRef.GFXLookup[0][i, j] < 0)
@@ -1516,13 +1255,13 @@ namespace EndlessClient.Rendering
 				foreach(MapItem item in local)
 				{
 					var itemData = World.Instance.EIF.GetItemRecordByID(item.id);
-					var itemPos = _getDrawCoordinates(item.x + 1, item.y, c);
+					var itemPos = GetDrawCoordinatesFromGridUnits(item.x + 1, item.y, c);
 					var itemTexture = ChestDialog.GetItemGraphic(itemData, item.amount);
 					_sb.Draw(itemTexture, 
 							 new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0),
 										 itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)),
-							 Color.White);
-				}
+							Color.White);
+					}
 			}
 			_sb.End();
 		}
@@ -1629,7 +1368,7 @@ namespace EndlessClient.Rendering
 			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.OverlayObjects][rowIndex, colIndex]) > 0)
 			{
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
-				Vector2 pos = _getDrawCoordinates(colIndex, rowIndex, c);
+				Vector2 pos = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
 				pos = new Vector2(pos.X + 16, pos.Y - 11);
 				_sb.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
 			}
@@ -1642,7 +1381,7 @@ namespace EndlessClient.Rendering
 			if (World.Instance.ShowShadows && (gfxNum = MapRef.GFXLookup[(int)MapLayers.Shadow][rowIndex, colIndex]) > 0)
 			{
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Shadows, gfxNum, true);
-				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+				Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
 				_sb.Draw(gfx, new Vector2(loc.X - 24, loc.Y - 12), Color.FromNonPremultiplied(255, 255, 255, 60));
 			}
 		}
@@ -1658,7 +1397,7 @@ namespace EndlessClient.Rendering
 					gfxNum++;
 
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
-				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+				Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
 
 				int gfxWidthDelta = gfx.Width / 4;
 				Rectangle? src = gfx.Width > WALL_FRAME_WIDTH
@@ -1677,7 +1416,7 @@ namespace EndlessClient.Rendering
 					gfxNum++;
 
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
-				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+				Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
 
 				int gfxWidthDelta = gfx.Width / 4;
 				Rectangle? src = gfx.Width > WALL_FRAME_WIDTH
@@ -1707,7 +1446,7 @@ namespace EndlessClient.Rendering
 				if (shouldDrawObject)
 				{
 					var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapObjects, gfxNum, true);
-					Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+					Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
 					loc = new Vector2(loc.X - (int)Math.Round(gfx.Width / 2.0) + 29, loc.Y - (gfx.Height - 28));
 					_sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
 				}
@@ -1716,9 +1455,6 @@ namespace EndlessClient.Rendering
 
 		private void _drawCharactersAndNPCsAtLoc(int rowIndex, int colIndex, List<NPCRenderer> otherNpcs, List<CharacterRenderer> otherChars)
 		{
-			//todo: is there a more efficient way to do this, like storing the locations in a 2D array directly?
-			//		I would like to avoid the .Where() calls every time the map is updated...
-
 			var thisLocNpcs = otherNpcs.Where(_npc => (_npc.NPC.Walking ? _npc.NPC.DestY == rowIndex : _npc.NPC.Y == rowIndex) &&
 													  (_npc.NPC.Walking ? _npc.NPC.DestX == colIndex : _npc.NPC.X == colIndex)).ToList();
 			thisLocNpcs.ForEach(npc => npc.DrawToSpriteBatch(_sb, true));
@@ -1746,7 +1482,7 @@ namespace EndlessClient.Rendering
 			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.Unknown][rowIndex, colIndex]) > 0)
 			{
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
-				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+				Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
 				loc = new Vector2(loc.X, loc.Y - 65);
 				_sb.Draw(gfx, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(colIndex, rowIndex, c)));
 			}
@@ -1759,7 +1495,7 @@ namespace EndlessClient.Rendering
 			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.OverlayTile][rowIndex, colIndex]) > 0)
 			{
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapTiles, gfxNum, true);
-				Vector2 loc = _getDrawCoordinates(colIndex, rowIndex, c);
+				Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
 				loc = new Vector2(loc.X - 2, loc.Y - 31);
 				_sb.Draw(gfx, loc, Color.White);
 			}
@@ -1771,7 +1507,7 @@ namespace EndlessClient.Rendering
 
 			foreach (var kvp in drawRoofLater)
 			{
-				Vector2 loc = _getDrawCoordinates(kvp.Key.X, kvp.Key.Y, c);
+				Vector2 loc = GetDrawCoordinatesFromGridUnits(kvp.Key.X, kvp.Key.Y, c);
 				loc = new Vector2(loc.X - kvp.Value.Width/2f + 30, loc.Y - kvp.Value.Height + 28);
 				_sb.Draw(kvp.Value, loc, Color.FromNonPremultiplied(255, 255, 255, _getAlpha(kvp.Key.X, kvp.Key.Y, c)));
 			}
@@ -1808,12 +1544,12 @@ namespace EndlessClient.Rendering
 		/// <para>(x * 32 - y * 32 + 288 - c.OffsetX), (y * 16 + x * 16 + 144 - c.OffsetY)</para>
 		/// <para>Additional offsets for some gfx will need to be made - this Vector2 is a starting point with calculations required for ALL gfx</para>
 		/// </summary>
-		private Vector2 _getDrawCoordinates(int x, int y, Character c)
+		public static Vector2 GetDrawCoordinatesFromGridUnits(int x, int y, Character c)
 		{
-			return _getDrawCoordinates(x, y, c.OffsetX, c.OffsetY);
+			return GetDrawCoordinatesFromGridUnits(x, y, c.OffsetX, c.OffsetY);
 		}
 
-		private Vector2 _getDrawCoordinates(int x, int y, int cOffX, int cOffY)
+		private static Vector2 GetDrawCoordinatesFromGridUnits(int x, int y, int cOffX, int cOffY)
 		{
 			return new Vector2((x * 32) - (y * 32) + 288 - cOffX, (y * 16) + (x * 16) + 144 - cOffY);
 		}
@@ -1851,6 +1587,8 @@ namespace EndlessClient.Rendering
 			return Constants.TrapSpikeGFXObjectIDs.Contains(gfxNum);
 		}
 
+		#endregion
+
 		/* DISPOSABLE INTERFACE OVERRIDES AND STUFF */
 		public new void Dispose()
 		{
@@ -1882,7 +1620,6 @@ namespace EndlessClient.Rendering
 						npc.Dispose();
 				}
 
-				_itemHoverName.Dispose();
 				if (_rtMapObjAbovePlayer != null)
 					_rtMapObjAbovePlayer.Dispose();
 				if (_rtMapObjBelowPlayer != null)
@@ -1892,11 +1629,11 @@ namespace EndlessClient.Rendering
 				_sb.Dispose();
 				_doorTimer.Dispose();
 
-				if (_contextMenu != null)
-					_contextMenu.Dispose();
-
 				if(_miniMapRenderer != null)
 					_miniMapRenderer.Dispose();
+
+				if (_mouseCursorRenderer != null)
+					_mouseCursorRenderer.Dispose();
 
 				base.Dispose(true);
 				_disposed = true;

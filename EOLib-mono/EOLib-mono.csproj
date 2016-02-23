@@ -32,6 +32,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework, Version=3.4.0.456, Culture=neutral, processorArchitecture=MSIL" />
+    <Reference Include="PELoaderLib">
+      <HintPath>..\PELoaderLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -72,8 +75,8 @@
     <Compile Include="..\EOLib\Data\Map\WarpTileInfo.cs">
       <Link>Data\Map\WarpTileInfo.cs</Link>
     </Compile>
-    <Compile Include="..\EOLib\Graphics\GFXLoader.cs">
-      <Link>Graphics\GFXLoader.cs</Link>
+    <Compile Include="..\EOLib\Graphics\CrossPlatformGFXLoader.cs">
+      <Link>Graphics\CrossPlatformGFXLoader.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\Graphics\GFXManager.cs">
       <Link>Graphics\GFXManager.cs</Link>
@@ -89,6 +92,9 @@
     </Compile>
     <Compile Include="..\EOLib\Graphics\LibraryGraphicPair.cs">
       <Link>Graphics\LibraryGraphicPair.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Graphics\Win32GFXLoader.cs">
+      <Link>Graphics\Win32GFXLoader.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\IO\Class.cs">
       <Link>IO\Class.cs</Link>
@@ -138,113 +144,113 @@
     <Compile Include="..\EOLib\misc.cs">
       <Link>misc.cs</Link>
     </Compile>
-    <Compile Include="..\EOLib\Net\Account.cs">
-      <Link>Net\Account.cs</Link>
+    <Compile Include="..\EOLib\Net\API\Account.cs">
+      <Link>Net\API\Account.cs</Link>
     </Compile>
-    <Compile Include="..\EOLib\Net\AdminInteract.cs">
-      <Link>Net\AdminInteract.cs</Link>
+    <Compile Include="..\EOLib\Net\API\AdminInteract.cs">
+      <Link>Net\API\AdminInteract.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Attack.cs">
+      <Link>Net\API\Attack.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Avatar.cs">
+      <Link>Net\API\Avatar.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Bank.cs">
+      <Link>Net\API\Bank.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Character.cs">
+      <Link>Net\API\Character.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Chest.cs">
+      <Link>Net\API\Chest.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Connection.cs">
+      <Link>Net\API\Connection.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Door.cs">
+      <Link>Net\API\Door.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Effect.cs">
+      <Link>Net\API\Effect.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Emote.cs">
+      <Link>Net\API\Emote.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Face.cs">
+      <Link>Net\API\Face.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Init.cs">
+      <Link>Net\API\Init.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Item.cs">
+      <Link>Net\API\Item.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Locker.cs">
+      <Link>Net\API\Locker.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Login.cs">
+      <Link>Net\API\Login.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Message.cs">
+      <Link>Net\API\Message.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Music.cs">
+      <Link>Net\API\Music.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\NPC.cs">
+      <Link>Net\API\NPC.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\PacketAPI.cs">
+      <Link>Net\API\PacketAPI.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Paperdoll.cs">
+      <Link>Net\API\Paperdoll.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Party.cs">
+      <Link>Net\API\Party.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Players.cs">
+      <Link>Net\API\Players.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Quest.cs">
+      <Link>Net\API\Quest.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Recover.cs">
+      <Link>Net\API\Recover.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Refresh.cs">
+      <Link>Net\API\Refresh.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Shop.cs">
+      <Link>Net\API\Shop.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Spell.cs">
+      <Link>Net\API\Spell.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\StatSkill.cs">
+      <Link>Net\API\StatSkill.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Talk.cs">
+      <Link>Net\API\Talk.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Trade.cs">
+      <Link>Net\API\Trade.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Walk.cs">
+      <Link>Net\API\Walk.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Warp.cs">
+      <Link>Net\API\Warp.cs</Link>
+    </Compile>
+    <Compile Include="..\EOLib\Net\API\Welcome.cs">
+      <Link>Net\API\Welcome.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\Net\AsyncClient.cs">
       <Link>Net\AsyncClient.cs</Link>
     </Compile>
-    <Compile Include="..\EOLib\Net\Attack.cs">
-      <Link>Net\Attack.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Avatar.cs">
-      <Link>Net\Avatar.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Bank.cs">
-      <Link>Net\Bank.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Character.cs">
-      <Link>Net\Character.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Chest.cs">
-      <Link>Net\Chest.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Connection.cs">
-      <Link>Net\Connection.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Door.cs">
-      <Link>Net\Door.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Effect.cs">
-      <Link>Net\Effect.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Emote.cs">
-      <Link>Net\Emote.cs</Link>
-    </Compile>
     <Compile Include="..\EOLib\Net\EOClient.cs">
       <Link>Net\EOClient.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Face.cs">
-      <Link>Net\Face.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Init.cs">
-      <Link>Net\Init.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Item.cs">
-      <Link>Net\Item.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Locker.cs">
-      <Link>Net\Locker.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Login.cs">
-      <Link>Net\Login.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Message.cs">
-      <Link>Net\Message.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Music.cs">
-      <Link>Net\Music.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\NPC.cs">
-      <Link>Net\NPC.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\PacketAPI.cs">
-      <Link>Net\PacketAPI.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Paperdoll.cs">
-      <Link>Net\Paperdoll.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Party.cs">
-      <Link>Net\Party.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Players.cs">
-      <Link>Net\Players.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Quest.cs">
-      <Link>Net\Quest.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Recover.cs">
-      <Link>Net\Recover.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Refresh.cs">
-      <Link>Net\Refresh.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Shop.cs">
-      <Link>Net\Shop.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Spell.cs">
-      <Link>Net\Spell.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\StatSkill.cs">
-      <Link>Net\StatSkill.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Talk.cs">
-      <Link>Net\Talk.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Trade.cs">
-      <Link>Net\Trade.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Walk.cs">
-      <Link>Net\Walk.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Warp.cs">
-      <Link>Net\Warp.cs</Link>
-    </Compile>
-    <Compile Include="..\EOLib\Net\Welcome.cs">
-      <Link>Net\Welcome.cs</Link>
     </Compile>
     <Compile Include="..\EOLib\Packet.cs">
       <Link>Packet.cs</Link>

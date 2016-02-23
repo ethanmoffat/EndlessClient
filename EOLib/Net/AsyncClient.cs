@@ -3,9 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace EOLib.Net
 {

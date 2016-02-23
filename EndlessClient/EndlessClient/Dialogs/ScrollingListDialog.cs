@@ -5,10 +5,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Controls;
-using EndlessClient.HUD;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.Net;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;

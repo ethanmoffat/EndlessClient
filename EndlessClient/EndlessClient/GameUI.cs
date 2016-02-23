@@ -3,19 +3,15 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
-using EndlessClient.HUD;
-using EOLib.Net;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Net.API;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
 namespace EndlessClient

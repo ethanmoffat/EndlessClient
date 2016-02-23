@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
-using EOLib.Net;
+using EOLib.Net.API;
 
 namespace EndlessClient
 {

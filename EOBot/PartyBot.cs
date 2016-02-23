@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using EOLib.Net;
+using EOLib.Net.API;
 
 namespace EOBot
 {

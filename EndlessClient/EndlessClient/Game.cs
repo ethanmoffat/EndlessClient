@@ -11,14 +11,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
-using EndlessClient.HUD;
 using EndlessClient.Rendering;
-using EOLib.Net;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Net;
+using EOLib.Net.API;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 using CONTROLSINIT = XNAControls.XNAControls;
 
@@ -497,7 +496,7 @@ namespace EndlessClient
 			try
 			{
 #if MONO
-				_gfxLoader = new GFXLoader();
+				_gfxLoader = new CrossPlatformGFXLoader();
 #else
 				_gfxLoader = new EOCLI.GFXLoaderCLI();
 #endif
@@ -658,6 +657,8 @@ namespace EndlessClient
 
 			GFXManager.Dispose();
 			_gfxLoader.Dispose();
+
+			Dispatcher.Dispose();
 
 			World.Instance.Dispose();
 

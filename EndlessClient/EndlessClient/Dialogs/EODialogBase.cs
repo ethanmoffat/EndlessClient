@@ -4,7 +4,7 @@
 
 using System;
 using EOLib.Graphics;
-using EOLib.Net;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;

@@ -13,6 +13,7 @@ using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -70,7 +71,7 @@ namespace EndlessClient
 			MapCache = new Dictionary<int, MapFile>(32);
 			DataFiles = new Dictionary<DataFiles, EDFFile>(12); //12 files total
 			m_player = new Player();
-			m_config = new IniReader(@"config\settings.ini");
+			m_config = new IniReader(ConfigStrings.Default_Config_File);
 			if (!m_config.Load())
 				throw new WorldLoadException("Unable to load the configuration file!");
 
