@@ -159,7 +159,7 @@ namespace EndlessClient.Audio
 		private void InvokeIfNeeded(Action action)
 		{
 			if (_dispatcher.Thread != Thread.CurrentThread)
-				_dispatcher.Invoke(action);
+				_dispatcher.BeginInvoke(action);
 			else
 				action();
 		}
