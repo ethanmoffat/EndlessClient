@@ -382,12 +382,20 @@ namespace EndlessClient
 		protected override void Initialize()
 		{
 			IsMouseVisible = true;
+#if MONO
+#if WINDOWS
+			Dispatcher = new KeyboardDispatcher(Window, PlatformTarget.Windows);
+#else
+			Dispatcher = new KeyboardDispatcher(Window, PlatformTarget.Linux);
+#endif
+#else
 			Dispatcher = new KeyboardDispatcher(Window);
+#endif
 			ResetPeopleIndices();
 
 			if (!InitializeXNAControls() ||
 				!InitializeGFXManager() ||
-				!InitializeWorld() || 
+				!InitializeWorld() ||
 				!InitializeSoundManager())
 				return;
 

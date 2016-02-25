@@ -4,6 +4,10 @@
 
 using System;
 
+#if !DEBUG
+using System.Windows.Forms;
+#endif
+
 namespace EndlessClient
 {
 	static class Program

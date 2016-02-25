@@ -7,7 +7,7 @@
     <ProjectGuid>{EDB5AD93-303D-4B07-9FAD-F6A8295D2390}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EOLib_mono</RootNamespace>
+    <RootNamespace>EOLib</RootNamespace>
     <AssemblyName>EOLib-mono</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -24,6 +24,24 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>..\bin-mono\Release\</OutputPath>
     <DefineConstants>TRACE;MONO</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug.Windows|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\bin-mono\Debug.Windows\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS;MONO</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release.Windows|x86'">
+    <OutputPath>..\bin-mono\Release.Windows\</OutputPath>
+    <DefineConstants>TRACE;WINDOWS;MONO</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>

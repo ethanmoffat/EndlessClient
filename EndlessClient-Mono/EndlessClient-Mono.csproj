@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\bin-mono\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;WINDOWS;MONO</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -33,13 +33,31 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\bin-mono\Release\</OutputPath>
-    <DefineConstants>WINDOWS;MONO</DefineConstants>
+    <DefineConstants>MONO</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\Game.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug.Windows|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\bin-mono\Debug.Windows\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;WINDOWS;MONO</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release.Windows|x86'">
+    <OutputPath>..\bin-mono\Release.Windows\</OutputPath>
+    <DefineConstants>WINDOWS;MONO</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\EndlessClient\EndlessClient\Audio\SoundEffectID.cs">
@@ -308,10 +326,49 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
-    <Reference Include="XNAControls-mono">
-      <HintPath>..\XNAControls-mono.dll</HintPath>
-    </Reference>
   </ItemGroup>
+  
+  <!-- From SO answer: http://stackoverflow.com/a/16557059/2562283 -->
+  <!-- Conditionally reference correct version of XNAControls based on project configuration -->
+  <Choose>
+    <When Condition="$(DefineConstants.Contains('DEBUG'))">
+      <Choose>
+        <When Condition="$(DefineConstants.Contains('WINDOWS'))">
+          <ItemGroup>
+            <Reference Include="XNAControls">
+              <HintPath>..\bin-xnacontrols\Debug.Windows\XNAControls.dll</HintPath>
+            </Reference>
+          </ItemGroup>
+        </When>
+        <Otherwise>
+          <ItemGroup>
+            <Reference Include="XNAControls">
+              <HintPath>..\bin-xnacontrols\Debug\XNAControls.dll</HintPath>
+            </Reference>
+          </ItemGroup>
+        </Otherwise>
+      </Choose>
+    </When>
+    <Otherwise>
+      <Choose>
+        <When Condition="$(DefineConstants.Contains('WINDOWS'))">
+          <ItemGroup>
+            <Reference Include="XNAControls">
+              <HintPath>..\bin-xnacontrols\Release.Windows\XNAControls.dll</HintPath>
+            </Reference>
+          </ItemGroup>
+        </When>
+        <Otherwise>
+          <ItemGroup>
+            <Reference Include="XNAControls">
+              <HintPath>..\bin-xnacontrols\Release\XNAControls.dll</HintPath>
+            </Reference>
+          </ItemGroup>
+        </Otherwise>
+      </Choose>
+    </Otherwise>
+  </Choose>
+  
   <ItemGroup>
     <MonoGameContentReference Include="Content\Content.mgcb" />
   </ItemGroup>
