@@ -3,16 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndlessClient", "EndlessClient\EndlessClient\EndlessClient.csproj", "{AE53FAA2-5359-4DC4-9F5A-51D86344805B}"
-	ProjectSection(ProjectDependencies) = postProject
-		{34EC2870-4B44-49A1-801D-54B73E62CA99} = {34EC2870-4B44-49A1-801D-54B73E62CA99}
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndlessClientContent", "EndlessClient\EndlessClientContent\EndlessClientContent.contentproj", "{D2A56A0A-BC54-4D82-92E9-E27A551D92DC}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BatchPub", "BatchPub\BatchPub.csproj", "{18DC9959-1C79-4956-9FD1-438B9D445439}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOLib", "EOLib\EOLib.csproj", "{34EC2870-4B44-49A1-801D-54B73E62CA99}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PacketDecoder", "PacketDecoder\PacketDecoder.csproj", "{D6D15D36-E7F3-4A08-9A3D-6AA382D0DE14}"
 EndProject
@@ -20,9 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BatchMap", "BatchMap\BatchM
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOBot", "EOBot\EOBot.csproj", "{2B7C000B-FA6D-441F-85E9-A8A05ADED423}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndlessClient-Mono", "EndlessClient-Mono\EndlessClient-Mono.csproj", "{0EC2FDA3-00E9-4DF4-8743-85E2C911E6E8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndlessClient", "EndlessClient\EndlessClient.csproj", "{0EC2FDA3-00E9-4DF4-8743-85E2C911E6E8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOLib-mono", "EOLib-mono\EOLib-mono.csproj", "{EDB5AD93-303D-4B07-9FAD-F6A8295D2390}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOLib", "EOLib\EOLib.csproj", "{EDB5AD93-303D-4B07-9FAD-F6A8295D2390}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EOCLI", "EOCLI\EOCLI.vcxproj", "{860A09EE-4DF0-4E63-B59D-77A398200C01}"
 EndProject
@@ -34,18 +25,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{AE53FAA2-5359-4DC4-9F5A-51D86344805B}.Debug.Windows|x86.ActiveCfg = Debug|x86
-		{AE53FAA2-5359-4DC4-9F5A-51D86344805B}.Debug.Windows|x86.Build.0 = Debug|x86
-		{AE53FAA2-5359-4DC4-9F5A-51D86344805B}.Debug|x86.ActiveCfg = Debug|x86
-		{AE53FAA2-5359-4DC4-9F5A-51D86344805B}.Debug|x86.Build.0 = Debug|x86
-		{AE53FAA2-5359-4DC4-9F5A-51D86344805B}.Release.Windows|x86.ActiveCfg = Release|x86
-		{AE53FAA2-5359-4DC4-9F5A-51D86344805B}.Release.Windows|x86.Build.0 = Release|x86
-		{AE53FAA2-5359-4DC4-9F5A-51D86344805B}.Release|x86.ActiveCfg = Release|x86
-		{AE53FAA2-5359-4DC4-9F5A-51D86344805B}.Release|x86.Build.0 = Release|x86
-		{D2A56A0A-BC54-4D82-92E9-E27A551D92DC}.Debug.Windows|x86.ActiveCfg = Debug|x86
-		{D2A56A0A-BC54-4D82-92E9-E27A551D92DC}.Debug|x86.ActiveCfg = Debug|x86
-		{D2A56A0A-BC54-4D82-92E9-E27A551D92DC}.Release.Windows|x86.ActiveCfg = Release|x86
-		{D2A56A0A-BC54-4D82-92E9-E27A551D92DC}.Release|x86.ActiveCfg = Release|x86
 		{18DC9959-1C79-4956-9FD1-438B9D445439}.Debug.Windows|x86.ActiveCfg = Debug|x86
 		{18DC9959-1C79-4956-9FD1-438B9D445439}.Debug.Windows|x86.Build.0 = Debug|x86
 		{18DC9959-1C79-4956-9FD1-438B9D445439}.Debug|x86.ActiveCfg = Debug|x86
@@ -54,14 +33,6 @@ Global
 		{18DC9959-1C79-4956-9FD1-438B9D445439}.Release.Windows|x86.Build.0 = Release|x86
 		{18DC9959-1C79-4956-9FD1-438B9D445439}.Release|x86.ActiveCfg = Release|x86
 		{18DC9959-1C79-4956-9FD1-438B9D445439}.Release|x86.Build.0 = Release|x86
-		{34EC2870-4B44-49A1-801D-54B73E62CA99}.Debug.Windows|x86.ActiveCfg = Debug|x86
-		{34EC2870-4B44-49A1-801D-54B73E62CA99}.Debug.Windows|x86.Build.0 = Debug|x86
-		{34EC2870-4B44-49A1-801D-54B73E62CA99}.Debug|x86.ActiveCfg = Debug|x86
-		{34EC2870-4B44-49A1-801D-54B73E62CA99}.Debug|x86.Build.0 = Debug|x86
-		{34EC2870-4B44-49A1-801D-54B73E62CA99}.Release.Windows|x86.ActiveCfg = Release|x86
-		{34EC2870-4B44-49A1-801D-54B73E62CA99}.Release.Windows|x86.Build.0 = Release|x86
-		{34EC2870-4B44-49A1-801D-54B73E62CA99}.Release|x86.ActiveCfg = Release|x86
-		{34EC2870-4B44-49A1-801D-54B73E62CA99}.Release|x86.Build.0 = Release|x86
 		{D6D15D36-E7F3-4A08-9A3D-6AA382D0DE14}.Debug.Windows|x86.ActiveCfg = Debug|x86
 		{D6D15D36-E7F3-4A08-9A3D-6AA382D0DE14}.Debug.Windows|x86.Build.0 = Debug|x86
 		{D6D15D36-E7F3-4A08-9A3D-6AA382D0DE14}.Debug|x86.ActiveCfg = Debug|x86

@@ -12,7 +12,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{860A09EE-4DF0-4E63-B59D-77A398200C01}</ProjectGuid>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
     <RootNamespace>EOCLI</RootNamespace>
   </PropertyGroup>
@@ -87,8 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EOLib\EOLib.csproj">
-      <Project>{34ec2870-4b44-49a1-801d-54b73e62ca99}</Project>
-      <SpecificVersion>True</SpecificVersion>
+      <Project>{edb5ad93-303d-4b07-9fad-f6a8295d2390}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
