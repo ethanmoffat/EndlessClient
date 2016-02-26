@@ -5,6 +5,7 @@
 using System;
 using System.Configuration;
 using System.Linq;
+using System.Threading.Tasks;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EOLib;
@@ -202,14 +203,14 @@ Thanks to :
 		private async void testInGame_click(object sender, EventArgs e)
 		{
 			MainButtonPress(_mainButtons[1], e); //press login
-			await TaskFramework.Delay(500);
+			await Task.Delay(500);
 			if (!World.Instance.Client.ConnectedAndInitialized)
 				return;
 			_loginUsernameTextbox.Text = ConfigurationManager.AppSettings["auto_login_user"];
 			_loginPasswordTextbox.Text = ConfigurationManager.AppSettings["auto_login_pass"];
 
 			MainButtonPress(_loginButtons[0], e); //login as acc testuser
-			await TaskFramework.Delay(500);
+			await Task.Delay(500);
 			CharModButtonPress(_loginCharButtons[0], e); //login as char testuser
 		}
 #endif

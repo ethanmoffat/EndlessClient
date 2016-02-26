@@ -23,7 +23,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>..\bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;MONO</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -33,7 +33,8 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\bin\Release\</OutputPath>
-    <DefineConstants>MONO</DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
@@ -44,7 +45,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug.Windows|x86'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\bin\Debug.Windows\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;WINDOWS;MONO</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
@@ -52,7 +53,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release.Windows|x86'">
     <OutputPath>..\bin\Release.Windows\</OutputPath>
-    <DefineConstants>WINDOWS;MONO</DefineConstants>
+    <DefineConstants>WINDOWS</DefineConstants>
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
@@ -168,6 +169,10 @@
             <Reference Include="XNAControls">
               <HintPath>..\bin-xnacontrols\Debug.Windows\XNAControls.dll</HintPath>
             </Reference>
+            <ProjectReference Include="..\EOCLI\EOCLI.vcxproj">
+              <Project>{860a09ee-4df0-4e63-b59d-77a398200c01}</Project>
+              <Name>EOCLI</Name>
+            </ProjectReference>
           </ItemGroup>
         </When>
         <Otherwise>
@@ -186,6 +191,10 @@
             <Reference Include="XNAControls">
               <HintPath>..\bin-xnacontrols\Release.Windows\XNAControls.dll</HintPath>
             </Reference>
+            <ProjectReference Include="..\EOCLI\EOCLI.vcxproj">
+              <Project>{860a09ee-4df0-4e63-b59d-77a398200c01}</Project>
+              <Name>EOCLI</Name>
+            </ProjectReference>
           </ItemGroup>
         </When>
         <Otherwise>

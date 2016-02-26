@@ -133,7 +133,7 @@ namespace EndlessClient.Dialogs
 				return false;
 			WelcomeData = data;
 
-			await TaskFramework.Delay(1000);
+			await Task.Delay(1000);
 			return true;
 		}
 
@@ -153,7 +153,7 @@ namespace EndlessClient.Dialogs
 					if (!m_api.RequestFile(InitFileType.Map, World.Instance.MainPlayer.ActiveCharacter.CurrentMap))
 						return false;
 				} while (!_isMapValid());
-				await TaskFramework.Delay(1000);
+				await Task.Delay(1000);
 			}
 			return true;
 		}
@@ -172,7 +172,7 @@ namespace EndlessClient.Dialogs
 					if (!m_api.RequestFile(InitFileType.Item))
 						return false;
 				} while (!_isPubValid(InitFileType.Item));
-				await TaskFramework.Delay(1000);
+				await Task.Delay(1000);
 			}
 			return true;
 		}
@@ -191,7 +191,7 @@ namespace EndlessClient.Dialogs
 					if (!m_api.RequestFile(InitFileType.Npc))
 						return false;
 				} while (!_isPubValid(InitFileType.Npc));
-				await TaskFramework.Delay(1000);
+				await Task.Delay(1000);
 			}
 			return true;
 		}
@@ -210,7 +210,7 @@ namespace EndlessClient.Dialogs
 					if (!m_api.RequestFile(InitFileType.Spell))
 						return false;
 				} while (!_isPubValid(InitFileType.Spell));
-				await TaskFramework.Delay(1000);
+				await Task.Delay(1000);
 			}
 			return true;
 		}
@@ -229,7 +229,7 @@ namespace EndlessClient.Dialogs
 					if (!m_api.RequestFile(InitFileType.Class))
 						return false;
 				} while (!_isPubValid(InitFileType.Class));
-				await TaskFramework.Delay(1000);
+				await Task.Delay(1000);
 			}
 			return true;
 		}

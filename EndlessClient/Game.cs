@@ -122,7 +122,7 @@ namespace EndlessClient
 			}
 			
 			//execute this logic on a separate thread so the game doesn't lock up while it's trying to connect to the server
-			await TaskFramework.Run(() =>
+			await Task.Run(() =>
 			{
 				try
 				{
@@ -495,10 +495,10 @@ namespace EndlessClient
 		{
 			try
 			{
-#if MONO
-				_gfxLoader = new CrossPlatformGFXLoader();
-#else
+#if WINDOWS
 				_gfxLoader = new EOCLI.GFXLoaderCLI();
+#else
+				_gfxLoader = new CrossPlatformGFXLoader();
 #endif
 				GFXManager = new GFXManager(_gfxLoader, GraphicsDevice);
 			}
