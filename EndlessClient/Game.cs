@@ -20,6 +20,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 using CONTROLSINIT = XNAControls.XNAControls;
+using EOCLI;
 
 namespace EndlessClient
 {
@@ -496,7 +497,7 @@ namespace EndlessClient
 			try
 			{
 #if WINDOWS
-				_gfxLoader = new EOCLI.GFXLoaderCLI();
+				_gfxLoader = new GFXLoaderCLI();
 #else
 				_gfxLoader = new CrossPlatformGFXLoader();
 #endif

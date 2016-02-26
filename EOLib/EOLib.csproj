@@ -92,7 +92,7 @@
     <Compile Include="Graphics\INativeGraphicsLoader.cs" />
     <Compile Include="Graphics\INativeGraphicsManager.cs" />
     <Compile Include="Graphics\LibraryGraphicPair.cs" />
-    <Compile Include="Graphics\Win32GFXLoader.cs" />
+    <Compile Include="Graphics\LibraryLoadException.cs" />
     <Compile Include="IO\Class.cs" />
     <Compile Include="IO\ClassRecordFactory.cs" />
     <Compile Include="IO\EDFFile.cs" />
