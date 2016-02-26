@@ -22,7 +22,7 @@ namespace EOLib.Net
 		}
 	}
 
-	public abstract class AsyncClient : IDisposable
+	public abstract class ClientBase : IDisposable
 	{
 		private readonly object disposingLockObject = new object();
 
@@ -66,7 +66,7 @@ namespace EOLib.Net
 		}
 
 		//Set up socket to prepare for connection
-		protected AsyncClient()
+		protected ClientBase()
 		{
 			m_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 		}

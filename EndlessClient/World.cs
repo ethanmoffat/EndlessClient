@@ -344,8 +344,8 @@ namespace EndlessClient
 			get { return m_player; }
 		}
 		
-		private readonly AsyncClient m_client;
-		public AsyncClient Client
+		private readonly ClientBase m_client;
+		public ClientBase Client
 		{
 			get { return m_client; }
 		}

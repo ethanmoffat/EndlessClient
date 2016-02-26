@@ -130,7 +130,7 @@ namespace EOLib.Net
 		}
 	}
 
-	public class EOClient : AsyncClient
+	public class EOClient : ClientBase
 	{
 		private readonly Dictionary<FamilyActionPair, PacketHandlerInvoker> m_handlers;
 		private ClientPacketProcessor m_packetProcessor;
