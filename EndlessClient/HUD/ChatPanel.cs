@@ -8,6 +8,7 @@ using System.Globalization;
 using EndlessClient.Controls;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Net;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

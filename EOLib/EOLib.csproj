@@ -147,6 +147,8 @@
     <Compile Include="Net\ClientBase.cs" />
     <Compile Include="Net\EOClient.cs" />
     <Compile Include="Net\IAsyncSocket.cs" />
+    <Compile Include="Net\PacketAction.cs" />
+    <Compile Include="Net\PacketFamily.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="PacketProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

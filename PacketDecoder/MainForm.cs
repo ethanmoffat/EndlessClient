@@ -5,6 +5,7 @@
 using System;
 using System.Windows.Forms;
 using EOLib;
+using EOLib.Net;
 
 namespace PacketDecoder
 {

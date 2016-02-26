@@ -5,104 +5,10 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Net;
 
 namespace EOLib
 {
-// ReSharper disable UnusedMember.Global
-	public enum PacketFamily : byte
-	{
-		Internal = 0,
-		Connection = (byte)1,
-		Account = (byte)2,
-		Character = (byte)3,
-		Login = (byte)4,
-		Welcome = (byte)5,
-		Walk = (byte)6,
-		Face = (byte)7,
-		Chair = (byte)8,
-		Emote = (byte)9,
-		Attack = (byte)11,
-		Spell = (byte)12,
-		Shop = (byte)13,
-		Item = (byte)14,
-		StatSkill = (byte)16,
-		Global = (byte)17,
-		Talk = (byte)18,
-		Warp = (byte)19,
-		JukeBox = (byte)21,
-		Players = (byte)22,
-		Avatar = (byte)23,
-		Party = (byte)24,
-		Refresh = (byte)25,
-		NPC = (byte)26,
-		AutoRefresh = (byte)27,
-		AutoRefresh2 = (byte)28,
-		Appear = (byte)29,
-		PaperDoll = (byte)30,
-		Effect = (byte)31,
-		Trade = (byte)32,
-		Chest = (byte)33,
-		Door = (byte)34,
-		Message = (byte)35,
-		Bank = (byte)36,
-		Locker = (byte)37,
-		Barber = (byte)38,
-		Guild = (byte)39,
-		Music = (byte)40,
-		Sit = (byte)41,
-		Recover = (byte)42,
-		Board = (byte)43,
-		Cast = (byte)44,
-		Arena = (byte)45,
-		Priest = (byte)46,
-		Marriage = (byte)47,
-		AdminInteract = (byte)48,
-		Citizen = (byte)49,
-		Quest = (byte)50,
-		Book = (byte)51,
-		Init = (byte)255
-	}
-
-	public enum PacketAction : byte
-	{
-		Request = (byte)1,
-		Accept = (byte)2,
-		Reply = (byte)3,
-		Remove = (byte)4,
-		Agree = (byte)5,
-		Create = (byte)6,
-		Add = (byte)7,
-		Player = (byte)8,
-		Take = (byte)9,
-		Use = (byte)10,
-		Buy = (byte)11,
-		Sell = (byte)12,
-		Open = (byte)13,
-		Close = (byte)14,
-		Message = (byte)15,
-		Spec = (byte)16,
-		Admin = (byte)17,
-		List = (byte)18,
-		Tell = (byte)20,
-		Report = (byte)21,
-		Announce = (byte)22,
-		Server = (byte)23,
-		Drop = (byte)24,
-		Junk = (byte)25,
-		Obtain = (byte)26,
-		Get = (byte)27,
-		Kick = (byte)28,
-		Rank = (byte)29,
-		TargetSelf = (byte)30,
-		TargetOther = (byte)31,
-		TargetGroup = (byte)33,
-		Exp = (byte)33, //PACKET_TARGET_GROUP
-		Dialog = (byte)34,
-		Ping = (byte)240,
-		Pong = (byte)241,
-		Net3 = (byte)242,
-		Init = (byte)255
-	}
 	public class PacketProcessor
 	{
 		public static ushort PID(PacketFamily family, PacketAction action)
@@ -114,7 +20,7 @@ namespace EOLib
 		{
 			return new[] {(byte) (pid >> 8), (byte) (pid & 0xFF)};
 		}
-// ReSharper restore UnusedMember.Global
+
 		protected static void Interleave(ref byte[] b)
 		{
 			byte[] numArray = new byte[b.Length];
@@ -189,8 +95,6 @@ namespace EOLib
 				}
 			}
 		}
-
-		//instance things
 
 		public byte RecvMulti { get; set; }
 		public byte SendMulti { get; set; }
