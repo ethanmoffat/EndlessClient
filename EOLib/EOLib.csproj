@@ -143,8 +143,10 @@
     <Compile Include="Net\API\Walk.cs" />
     <Compile Include="Net\API\Warp.cs" />
     <Compile Include="Net\API\Welcome.cs" />
+    <Compile Include="Net\AsyncSocket.cs" />
     <Compile Include="Net\ClientBase.cs" />
     <Compile Include="Net\EOClient.cs" />
+    <Compile Include="Net\IAsyncSocket.cs" />
     <Compile Include="Packet.cs" />
     <Compile Include="PacketProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
