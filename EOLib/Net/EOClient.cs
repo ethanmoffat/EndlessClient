@@ -133,7 +133,7 @@ namespace EOLib.Net
 	public class EOClient : ClientBase
 	{
 		private readonly Dictionary<FamilyActionPair, PacketHandlerInvoker> m_handlers;
-		private ClientPacketProcessor _packetEncoder;
+		private PacketEncoder _packetEncoder;
 
 		public event Action<DataTransferEventArgs> EventSendData;
 		public event Action<DataTransferEventArgs> EventReceiveData;
@@ -172,7 +172,7 @@ namespace EOLib.Net
 			EODataChunk wrap = new EODataChunk();
 			StartDataReceive(wrap);
 
-			_packetEncoder = new ClientPacketProcessor(); //reset the packet processor to allow for new multis
+			_packetEncoder = new PacketEncoder();
 		}
 
 		protected override void OnSendData(Packet pkt, out byte[] toSend)

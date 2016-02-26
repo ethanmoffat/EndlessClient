@@ -9,19 +9,72 @@ using EOLib.Net;
 
 namespace EOLib
 {
-	public class PacketEncoder
+	public sealed class PacketEncoder
 	{
-		public static ushort PID(PacketFamily family, PacketAction action)
+		public int SequenceStart { get; set; }
+		public int SequenceValue { get; set; }
+
+		public byte RecvMultiple { get; set; }
+		public byte SendMultiple { get; set; }
+
+		public PacketEncoder()
 		{
-			return (ushort)((ushort)family | (ushort)action << 8);
+			RecvMultiple = SendMultiple = 0;
 		}
 
-		public static byte[] EPID(ushort pid)
+		public void SetMulti(byte recvMulti, byte sendMulti)
 		{
-			return new[] {(byte) (pid >> 8), (byte) (pid & 0xFF)};
+			if (RecvMultiple != 0 || SendMultiple != 0)
+				throw new InvalidOperationException("PacketEncoder send/receive multipliers already set");
+
+			RecvMultiple = recvMulti;
+			SendMultiple = sendMulti;
 		}
 
-		protected static void Interleave(ref byte[] b)
+		public void Encode(ref byte[] original)
+		{
+			if (SendMultiple == 0 || (original.Length > 2 && (PacketFamily)original[2] == PacketFamily.Init && (PacketAction)original[3] == PacketAction.Init))
+				return;
+
+			AddSequenceByte(ref original);
+			SwapMultiples(ref original, SendMultiple);
+			Interleave(ref original);
+			FlipMSB(ref original);
+		}
+
+		public void Decode(ref byte[] original)
+		{
+			if (RecvMultiple == 0 || ((PacketFamily)original[0] == PacketFamily.Init && (PacketAction)original[1] == PacketAction.Init))
+				return;
+
+			FlipMSB(ref original);
+			Deinterleave(ref original);
+			SwapMultiples(ref original, RecvMultiple);
+		}
+
+		private int GetSequence()
+		{
+			SequenceValue = (SequenceValue + 1) % 10;
+			int ret = SequenceStart + SequenceValue;
+			return ret;
+		}
+
+		private void AddSequenceByte(ref byte[] original)
+		{
+			int seq = GetSequence();
+			int numberOfSequenceBytes = SequenceStart >= 253 ? 2 : 1;
+
+			byte[] newArray = new byte[original.Length + numberOfSequenceBytes];
+
+			Array.Copy(original, 0, newArray, 0, 2); //family/action copied to [0][1]
+			Array.Copy(Packet.EncodeNumber(seq, numberOfSequenceBytes), 0, newArray, 2, numberOfSequenceBytes); //sequence number copied to [2](and [3] if it's a larger number)
+			if (original.Length > 2) //if there is data left to be copied...
+				Array.Copy(original, 2, newArray, 2 + numberOfSequenceBytes, original.Length - 2); //rest of data copied to ([3] or [4] onward)[...]
+
+			original = newArray;
+		}
+
+		private static void Interleave(ref byte[] b)
 		{
 			byte[] numArray = new byte[b.Length];
 			int index1 = 0;
@@ -42,7 +95,7 @@ namespace EOLib
 			numArray.CopyTo(b, 0);
 		}
 
-		protected static void Deinterleave(ref byte[] b)
+		private static void Deinterleave(ref byte[] b)
 		{
 			byte[] numArray = new byte[b.Length];
 			int index1 = 0;
@@ -63,13 +116,13 @@ namespace EOLib
 			numArray.CopyTo(b, 0);
 		}
 
-		protected static void FlipMSB(ref byte[] b)
+		private static void FlipMSB(ref byte[] b)
 		{
 			for (int index = 0; index < b.Length; ++index)
 				b[index] = (byte)(b[index] ^ 128U);
 		}
 
-		protected static void SwapMultiples(ref byte[] b, int multi)
+		private static void SwapMultiples(ref byte[] b, int multi)
 		{
 			int num1 = 0;
 			if (multi <= 0)
@@ -94,73 +147,6 @@ namespace EOLib
 					num1 = 0;
 				}
 			}
-		}
-
-		public byte RecvMulti { get; set; }
-		public byte SendMulti { get; set; }
-
-		protected PacketEncoder()
-		{
-			RecvMulti = SendMulti = 0;
-		}
-
-		public void SetMulti(byte recvMulti, byte sendMulti)
-		{
-			if (RecvMulti != 0 || SendMulti != 0)
-				throw new ApplicationException("PacketEncoder multiples already set");
-
-			RecvMulti = recvMulti;
-			SendMulti = sendMulti;
-		}
-	}
-
-	public class ClientPacketProcessor : PacketEncoder
-	{
-		public int SequenceStart { private get; set; }
-
-		private int SequenceValue { get; set; }
-
-		private int GetSequence()
-		{
-			SequenceValue = (SequenceValue + 1) % 10;
-			int ret = SequenceStart + SequenceValue;
-			return ret;
-		}
-
-		private void AddSequenceByte(ref byte[] original)
-		{
-			int seq = GetSequence();
-			int extra = (SequenceStart >= 253) ? 2 : 1;
-
-			byte[] newArray = new byte[original.Length + extra];
-
-			Array.Copy(original, 0, newArray, 0, 2); //family/action copied to [0][1]
-			Array.Copy(Packet.EncodeNumber(seq, extra), 0, newArray, 2, extra); //sequence number copied to [2](and [3] if it's a larger number)
-			if(original.Length > 2) //if there is data left to be copied...
-				Array.Copy(original, 2, newArray, 2 + extra, original.Length - 2); //rest of data copied to ([3] or [4] onward)[...]
-
-			original = newArray;
-		}
-
-		public void Encode(ref byte[] original)
-		{
-			if (SendMulti == 0 || (original.Length > 2 && (PacketFamily)original[2] == PacketFamily.Init && (PacketAction)original[3] == PacketAction.Init))
-				return;
-
-			AddSequenceByte(ref original);
-			SwapMultiples(ref original, SendMulti);
-			Interleave(ref original);
-			FlipMSB(ref original);
-		}
-
-		public void Decode(ref byte[] original)
-		{
-			if (RecvMulti == 0 || ((PacketFamily)original[0] == PacketFamily.Init && (PacketAction)original[1] == PacketAction.Init))
-				return;
-
-			FlipMSB(ref original);
-			Deinterleave(ref original);
-			SwapMultiples(ref original, RecvMulti);
 		}
 	}
 }

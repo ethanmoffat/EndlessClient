@@ -27,7 +27,7 @@ namespace PacketDecoder
 		}
 
 		private DataTypes m_type;
-		private ClientPacketProcessor _encoder;
+		private PacketEncoder _encoder;
 		private int m_packetOffset, m_dataLength;
 		private bool m_suppressEvent;
 
@@ -36,7 +36,7 @@ namespace PacketDecoder
 			InitializeComponent();
 
 			cmbOutputFmt_SelectedIndexChanged(null, null);
-			_encoder = new ClientPacketProcessor();
+			_encoder = new PacketEncoder();
 		}
 
 		private void cmbOutputFmt_SelectedIndexChanged(object sender, EventArgs e)
@@ -101,13 +101,13 @@ namespace PacketDecoder
 
 			if (txt == txtDMulti)
 			{
-				_encoder.RecvMulti = (byte) param;
+				_encoder.RecvMultiple = (byte)param;
 				if (param < 6 || param > 12)
 					MessageBox.Show("This should be between 6 and 12...", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
 			else if (txt == txtEMulti)
 			{
-				_encoder.SendMulti = (byte) param;
+				_encoder.SendMultiple = (byte) param;
 				if (param < 6 || param > 12)
 					MessageBox.Show("This should be between 6 and 12...", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
@@ -254,8 +254,8 @@ namespace PacketDecoder
 			pkt.Skip(3);
 			txtDMulti.Text = pkt.GetByte().ToString();
 			txtEMulti.Text = pkt.GetByte().ToString();
-			_encoder.RecvMulti = pkt.Get()[5];
-			_encoder.SendMulti = pkt.Get()[6];
+			_encoder.RecvMultiple = pkt.Get()[5];
+			_encoder.SendMultiple = pkt.Get()[6];
 		}
 	}
 }
