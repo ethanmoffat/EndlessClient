@@ -9,7 +9,7 @@ using EOLib.Net;
 
 namespace EOLib
 {
-	public class PacketProcessor
+	public class PacketEncoder
 	{
 		public static ushort PID(PacketFamily family, PacketAction action)
 		{
@@ -99,7 +99,7 @@ namespace EOLib
 		public byte RecvMulti { get; set; }
 		public byte SendMulti { get; set; }
 
-		protected PacketProcessor()
+		protected PacketEncoder()
 		{
 			RecvMulti = SendMulti = 0;
 		}
@@ -107,14 +107,14 @@ namespace EOLib
 		public void SetMulti(byte recvMulti, byte sendMulti)
 		{
 			if (RecvMulti != 0 || SendMulti != 0)
-				throw new ApplicationException("PacketProcessor multiples already set");
+				throw new ApplicationException("PacketEncoder multiples already set");
 
 			RecvMulti = recvMulti;
 			SendMulti = sendMulti;
 		}
 	}
 
-	public class ClientPacketProcessor : PacketProcessor
+	public class ClientPacketProcessor : PacketEncoder
 	{
 		public int SequenceStart { private get; set; }
 

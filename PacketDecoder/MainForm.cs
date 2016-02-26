@@ -27,7 +27,7 @@ namespace PacketDecoder
 		}
 
 		private DataTypes m_type;
-		private ClientPacketProcessor m_processor;
+		private ClientPacketProcessor _encoder;
 		private int m_packetOffset, m_dataLength;
 		private bool m_suppressEvent;
 
@@ -36,7 +36,7 @@ namespace PacketDecoder
 			InitializeComponent();
 
 			cmbOutputFmt_SelectedIndexChanged(null, null);
-			m_processor = new ClientPacketProcessor();
+			_encoder = new ClientPacketProcessor();
 		}
 
 		private void cmbOutputFmt_SelectedIndexChanged(object sender, EventArgs e)
@@ -101,13 +101,13 @@ namespace PacketDecoder
 
 			if (txt == txtDMulti)
 			{
-				m_processor.RecvMulti = (byte) param;
+				_encoder.RecvMulti = (byte) param;
 				if (param < 6 || param > 12)
 					MessageBox.Show("This should be between 6 and 12...", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
 			else if (txt == txtEMulti)
 			{
-				m_processor.SendMulti = (byte) param;
+				_encoder.SendMulti = (byte) param;
 				if (param < 6 || param > 12)
 					MessageBox.Show("This should be between 6 and 12...", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
@@ -155,7 +155,7 @@ namespace PacketDecoder
 				data[i/2] = Convert.ToByte(bytes.Substring(i, 2), 16);
 			}
 
-			m_processor.Decode(ref data);
+			_encoder.Decode(ref data);
 			Packet pkt = new Packet(data) {ReadPos = m_packetOffset};
 
 			lblFamily.Text = pkt.Family.ToString();
@@ -254,8 +254,8 @@ namespace PacketDecoder
 			pkt.Skip(3);
 			txtDMulti.Text = pkt.GetByte().ToString();
 			txtEMulti.Text = pkt.GetByte().ToString();
-			m_processor.RecvMulti = pkt.Get()[5];
-			m_processor.SendMulti = pkt.Get()[6];
+			_encoder.RecvMulti = pkt.Get()[5];
+			_encoder.SendMulti = pkt.Get()[6];
 		}
 	}
 }

@@ -133,7 +133,7 @@ namespace EOLib.Net
 	public class EOClient : ClientBase
 	{
 		private readonly Dictionary<FamilyActionPair, PacketHandlerInvoker> m_handlers;
-		private ClientPacketProcessor m_packetProcessor;
+		private ClientPacketProcessor _packetEncoder;
 
 		public event Action<DataTransferEventArgs> EventSendData;
 		public event Action<DataTransferEventArgs> EventReceiveData;
@@ -158,13 +158,13 @@ namespace EOLib.Net
 
 		public void SetInitData(InitData data)
 		{
-			m_packetProcessor.SetMulti(data.emulti_d, data.emulti_e);
+			_packetEncoder.SetMulti(data.emulti_d, data.emulti_e);
 			UpdateSequence(data.seq_1*7 - 11 + data.seq_2 - 2);
 		}
 
 		public void UpdateSequence(int newVal)
 		{
-			m_packetProcessor.SequenceStart = newVal;
+			_packetEncoder.SequenceStart = newVal;
 		}
 
 		protected override void OnConnect()
@@ -172,7 +172,7 @@ namespace EOLib.Net
 			EODataChunk wrap = new EODataChunk();
 			StartDataReceive(wrap);
 
-			m_packetProcessor = new ClientPacketProcessor(); //reset the packet processor to allow for new multis
+			_packetEncoder = new ClientPacketProcessor(); //reset the packet processor to allow for new multis
 		}
 
 		protected override void OnSendData(Packet pkt, out byte[] toSend)
@@ -185,7 +185,7 @@ namespace EOLib.Net
 
 			//encode the packet bytes (also prepends seq number: 2 bytes)
 			byte[] packetBytes = pkt.Get();
-			m_packetProcessor.Encode(ref packetBytes);
+			_packetEncoder.Encode(ref packetBytes);
 
 			//prepend the 2 bytes of length data to the packet data
 			byte[] len = Packet.EncodeNumber(packetBytes.Length, 2);
@@ -246,7 +246,7 @@ namespace EOLib.Net
 						{
 							byte[] data = new byte[wrap.Data.Length];
 							Array.Copy(wrap.Data, data, data.Length);
-							m_packetProcessor.Decode(ref data);
+							_packetEncoder.Decode(ref data);
 
 							//This block handles receipt of file data that is transferred to the client.
 							//It should make file transfer nuances pretty transparent to the client.
