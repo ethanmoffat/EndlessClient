@@ -10,6 +10,9 @@ namespace EOLib.Net
 {
 	public class Packet
 	{
+		private static readonly Packet _empty = new Packet(new byte[] { });
+		public static Packet Empty { get { return _empty; } }
+
 		public  const int SINGLE_MAX = 253;
 		private const int DOUBLE_MAX = 64009;
 		private const int TRIPLE_MAX = 16194277;
