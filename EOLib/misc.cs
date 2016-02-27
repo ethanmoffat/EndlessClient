@@ -123,6 +123,12 @@ namespace EOLib
 		public static readonly Color LightBeigeText = Color.FromNonPremultiplied(0xdc, 0xc8, 0xb4, 0xff);
 		public static readonly Color LightGrayDialogMessage = Color.FromNonPremultiplied(0xe6, 0xe6, 0xd6, 0xff);
 		public static readonly Color MediumGrayText = Color.FromNonPremultiplied(0xb9, 0xb9, 0xb9, 0xff);
+
+		public const int ONE_BYTE_MAX   = 253;
+		public const int TWO_BYTE_MAX   = 64009;
+		public const int THREE_BYTE_MAX = 16194277;
+
+		public static readonly int[] NUMERIC_MAXIMUM = { ONE_BYTE_MAX, TWO_BYTE_MAX, THREE_BYTE_MAX };
 	}
 
 	public static class ConfigStrings

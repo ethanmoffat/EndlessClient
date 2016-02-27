@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Net
 {
@@ -13,6 +14,7 @@ namespace EOLib.Net
 		private const byte BREAK_STR_MAXVAL = 121;
 
 		private readonly IReadOnlyList<byte> _data;
+		private readonly IPacketEncoderService _encoderService;
 
 		public int Length { get { return _data.Count; } }
 
@@ -23,11 +25,13 @@ namespace EOLib.Net
 		public PacketBuilder(PacketFamily family, PacketAction action)
 		{
 			_data = new List<byte> { (byte) action, (byte) family };
+			_encoderService = new PacketEncoderService();
 		}
 
 		private PacketBuilder(IReadOnlyList<byte> data)
 		{
 			_data = data;
+			_encoderService = new PacketEncoderService();
 		}
 
 		public IPacketBuilder WithFamily(PacketFamily family)
@@ -56,22 +60,22 @@ namespace EOLib.Net
 
 		public IPacketBuilder AddChar(byte b)
 		{
-			return AddBytes(OldPacket.EncodeNumber(b, 1));
+			return AddBytes(_encoderService.EncodeNumber(b, 1));
 		}
 
 		public IPacketBuilder AddShort(short s)
 		{
-			return AddBytes(OldPacket.EncodeNumber(s, 2));
+			return AddBytes(_encoderService.EncodeNumber(s, 2));
 		}
 
 		public IPacketBuilder AddThree(int t)
 		{
-			return AddBytes(OldPacket.EncodeNumber(t, 3));
+			return AddBytes(_encoderService.EncodeNumber(t, 3));
 		}
 
 		public IPacketBuilder AddInt(int i)
 		{
-			return AddBytes(OldPacket.EncodeNumber(i, 4));
+			return AddBytes(_encoderService.EncodeNumber(i, 4));
 		}
 
 		public IPacketBuilder AddString(string s)

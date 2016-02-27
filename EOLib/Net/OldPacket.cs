@@ -12,12 +12,6 @@ namespace EOLib.Net
 	{
 		private static readonly OldPacket _empty = new OldPacket(new byte[] { });
 		public static OldPacket Empty { get { return _empty; } }
-
-		public  const int SINGLE_MAX = 253;
-		private const int DOUBLE_MAX = 64009;
-		private const int TRIPLE_MAX = 16194277;
-
-		private static readonly int[] Max = { SINGLE_MAX, DOUBLE_MAX, TRIPLE_MAX };
 		
 		private int readPos = 2;
 		private int writePos = 2;
@@ -86,13 +80,13 @@ namespace EOLib.Net
 			{
 				if (index >= numArray.Length)
 				{
-					if (number >= Max[index - 1])
-						number %= Max[index - 1];
+					if (number >= Constants.NUMERIC_MAXIMUM[index - 1])
+						number %= Constants.NUMERIC_MAXIMUM[index - 1];
 				}
-				else if (number >= Max[index - 1])
+				else if (number >= Constants.NUMERIC_MAXIMUM[index - 1])
 				{
-					numArray[index] = (byte)(number / Max[index - 1] + 1);
-					number %= Max[index - 1];
+					numArray[index] = (byte)(number / Constants.NUMERIC_MAXIMUM[index - 1] + 1);
+					number %= Constants.NUMERIC_MAXIMUM[index - 1];
 				}
 				else
 					numArray[index] = 254;
@@ -114,7 +108,7 @@ namespace EOLib.Net
 
 			int num = 0;
 			for (int index = b.Length - 1; index >= 1; --index)
-				num += b[index] * Max[index - 1];
+				num += b[index] * Constants.NUMERIC_MAXIMUM[index - 1];
 			return num + b[0];
 		}
 

@@ -7,11 +7,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Net
 {
 	public class Packet : IPacket
 	{
+		private readonly IPacketEncoderService _encoderService;
+
 		public int Length { get { return RawData.Count; } }
 
 		public int ReadPosition { get; private set; }
@@ -31,6 +34,7 @@ namespace EOLib.Net
 			Family = (PacketFamily)data[1];
 			Action = (PacketAction)data[0];
 			RawData = new List<byte>(data);
+			_encoderService = new PacketEncoderService();
 		}
 
 		public void Seek(int position, SeekOrigin origin)
@@ -59,7 +63,7 @@ namespace EOLib.Net
 		public byte PeekChar()
 		{
 			ThrowIfOutOfBounds(0);
-			return (byte) OldPacket.DecodeNumber(RawData[ReadPosition]);
+			return (byte) _encoderService.DecodeNumber(RawData[ReadPosition]);
 		}
 
 		public short PeekShort()
@@ -67,7 +71,7 @@ namespace EOLib.Net
 			ThrowIfOutOfBounds(1);
 
 			var bytes = new[] {RawData[ReadPosition], RawData[ReadPosition + 1]};
-			return (byte)OldPacket.DecodeNumber(bytes);
+			return (byte) _encoderService.DecodeNumber(bytes);
 		}
 
 		public int PeekThree()
@@ -80,7 +84,7 @@ namespace EOLib.Net
 				RawData[ReadPosition + 1],
 				RawData[ReadPosition + 2]
 			};
-			return (byte)OldPacket.DecodeNumber(bytes);
+			return (byte) _encoderService.DecodeNumber(bytes);
 		}
 
 		public int PeekInt()
@@ -94,7 +98,7 @@ namespace EOLib.Net
 				RawData[ReadPosition + 2],
 				RawData[ReadPosition + 3]
 			};
-			return (byte)OldPacket.DecodeNumber(bytes);
+			return (byte) _encoderService.DecodeNumber(bytes);
 		}
 
 		public string PeekString(int length)
