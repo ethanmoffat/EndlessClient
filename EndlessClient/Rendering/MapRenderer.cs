@@ -1598,12 +1598,12 @@ namespace EndlessClient.Rendering
 
 		protected override void Dispose(bool disposing)
 		{
+			if (_disposed) return;
+
 			_drawingEvent.Wait();
 
 			lock (_disposingLockObject)
 			{
-				if (_disposed) return;
-
 				if (!disposing)
 				{
 					base.Dispose(false);
