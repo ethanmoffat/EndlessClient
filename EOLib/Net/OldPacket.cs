@@ -10,9 +10,6 @@ namespace EOLib.Net
 {
 	public class OldPacket
 	{
-		private static readonly OldPacket _empty = new OldPacket(new byte[] { });
-		public static OldPacket Empty { get { return _empty; } }
-		
 		private int readPos = 2;
 		private int writePos = 2;
 		

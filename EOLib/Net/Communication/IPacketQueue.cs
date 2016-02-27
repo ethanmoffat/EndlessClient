@@ -10,12 +10,12 @@ namespace EOLib.Net.Communication
 	{
 		int QueuedPacketCount { get; }
 
-		void EnqueuePacketForHandling(OldPacket pkt);
+		void EnqueuePacketForHandling(IPacket pkt);
 
-		OldPacket PeekPacket();
+		IPacket PeekPacket();
 
-		OldPacket DequeueFirstPacket();
+		IPacket DequeueFirstPacket();
 
-		IEnumerable<OldPacket> DequeueAllPackets();
+		IEnumerable<IPacket> DequeueAllPackets();
 	}
 }

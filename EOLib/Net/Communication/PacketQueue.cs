@@ -9,47 +9,47 @@ namespace EOLib.Net.Communication
 {
 	public class PacketQueue : IPacketQueue
 	{
-		private readonly Queue<OldPacket> _internalQueue;
+		private readonly Queue<IPacket> _internalQueue;
 		private readonly object _locker;
 
 		public int QueuedPacketCount { get { return _internalQueue.Count; } }
 
 		public PacketQueue()
 		{
-			_internalQueue = new Queue<OldPacket>();
+			_internalQueue = new Queue<IPacket>();
 			_locker = new object();
 		}
 
-		public void EnqueuePacketForHandling(OldPacket pkt)
+		public void EnqueuePacketForHandling(IPacket pkt)
 		{
 			lock (_locker)
 				_internalQueue.Enqueue(pkt);
 		}
 
-		public OldPacket PeekPacket()
+		public IPacket PeekPacket()
 		{
 			if (QueuedPacketCount == 0)
-				return OldPacket.Empty;
+				return new EmptyPacket();
 
 			lock (_locker)
 				return _internalQueue.Peek();
 		}
 
-		public OldPacket DequeueFirstPacket()
+		public IPacket DequeueFirstPacket()
 		{
 			if (QueuedPacketCount == 0)
-				return OldPacket.Empty;
+				return new EmptyPacket();
 
 			lock (_locker)
 				return _internalQueue.Dequeue();
 		}
 
-		public IEnumerable<OldPacket> DequeueAllPackets()
+		public IEnumerable<IPacket> DequeueAllPackets()
 		{
 			if (QueuedPacketCount == 0)
 				throw new InvalidOperationException("Error: attempting to dequeue all packets when the queue is empty!");
 
-			IEnumerable<OldPacket> ret;
+			IEnumerable<IPacket> ret;
 
 			lock (_locker)
 			{

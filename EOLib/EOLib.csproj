@@ -145,8 +145,11 @@
     <Compile Include="Net\API\Welcome.cs" />
     <Compile Include="Net\Communication\AsyncSocket.cs" />
     <Compile Include="Net\ClientBase.cs" />
+    <Compile Include="Net\Communication\NetworkClient.cs" />
+    <Compile Include="Net\EmptyPacket.cs" />
     <Compile Include="Net\EOClient.cs" />
     <Compile Include="Net\Communication\IAsyncSocket.cs" />
+    <Compile Include="Net\Communication\INetworkClient.cs" />
     <Compile Include="Net\IPacket.cs" />
     <Compile Include="Net\IPacketBuilder.cs" />
     <Compile Include="Net\Packet.cs" />
