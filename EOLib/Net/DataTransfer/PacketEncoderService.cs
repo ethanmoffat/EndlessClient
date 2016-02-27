@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EOLib.Net
+namespace EOLib.Net.DataTransfer
 {
 	public sealed class PacketEncoderService : IPacketEncoderService
 	{
