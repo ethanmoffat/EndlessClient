@@ -7,7 +7,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EOLib.Net
+namespace EOLib.Net.Communication
 {
 	public interface IAsyncSocket : IDisposable
 	{

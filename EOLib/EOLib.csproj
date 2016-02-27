@@ -143,16 +143,16 @@
     <Compile Include="Net\API\Walk.cs" />
     <Compile Include="Net\API\Warp.cs" />
     <Compile Include="Net\API\Welcome.cs" />
-    <Compile Include="Net\AsyncSocket.cs" />
+    <Compile Include="Net\Communication\AsyncSocket.cs" />
     <Compile Include="Net\ClientBase.cs" />
     <Compile Include="Net\EOClient.cs" />
-    <Compile Include="Net\IAsyncSocket.cs" />
+    <Compile Include="Net\Communication\IAsyncSocket.cs" />
     <Compile Include="Net\PacketProcessing\IPacketEncoderRepository.cs" />
     <Compile Include="Net\PacketProcessing\IPacketEncoderService.cs" />
     <Compile Include="Net\PacketProcessing\IPacketProcessorActions.cs" />
     <Compile Include="Net\PacketProcessing\IPacketSequenceService.cs" />
     <Compile Include="Net\PacketProcessing\ISequenceRepository.cs" />
-    <Compile Include="Net\IPacketQueue.cs" />
+    <Compile Include="Net\Communication\IPacketQueue.cs" />
     <Compile Include="Net\PacketAction.cs" />
     <Compile Include="Net\PacketProcessing\PacketEncoderRepository.cs" />
     <Compile Include="Net\PacketFamily.cs" />
@@ -161,7 +161,7 @@
     <Compile Include="Net\PacketProcessing\SequenceRepository.cs" />
     <Compile Include="Net\Packet.cs" />
     <Compile Include="Net\PacketProcessing\PacketEncoderService.cs" />
-    <Compile Include="Net\PacketQueue.cs" />
+    <Compile Include="Net\Communication\PacketQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>

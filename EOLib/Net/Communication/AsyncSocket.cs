@@ -8,7 +8,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EOLib.Net
+namespace EOLib.Net.Communication
 {
 	[Flags]
 	public enum ConnectResult
