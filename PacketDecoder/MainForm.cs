@@ -27,7 +27,8 @@ namespace PacketDecoder
 		}
 
 		private DataTypes m_type;
-		private PacketEncoder _encoder;
+		private readonly IPacketProcessorActions _packetProcessorActions;
+		private readonly IPacketEncoderRepository _packetEncoderRepository;
 		private int m_packetOffset, m_dataLength;
 		private bool m_suppressEvent;
 
@@ -36,7 +37,9 @@ namespace PacketDecoder
 			InitializeComponent();
 
 			cmbOutputFmt_SelectedIndexChanged(null, null);
-			_encoder = new PacketEncoder();
+
+			_packetEncoderRepository = new PacketEncoderRepository();
+			_packetProcessorActions = new PacketProcessActions(new SequenceRepository(), new PacketEncoderRepository());
 		}
 
 		private void cmbOutputFmt_SelectedIndexChanged(object sender, EventArgs e)
@@ -101,13 +104,13 @@ namespace PacketDecoder
 
 			if (txt == txtDMulti)
 			{
-				_encoder.RecvMultiple = (byte)param;
+				_packetProcessorActions.SetEncodeMultiples((byte)param, _packetEncoderRepository.SendMultiplier);
 				if (param < 6 || param > 12)
 					MessageBox.Show("This should be between 6 and 12...", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
 			else if (txt == txtEMulti)
 			{
-				_encoder.SendMultiple = (byte) param;
+				_packetProcessorActions.SetEncodeMultiples(_packetEncoderRepository.ReceiveMultiplier, (byte)param);
 				if (param < 6 || param > 12)
 					MessageBox.Show("This should be between 6 and 12...", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 			}
@@ -155,7 +158,7 @@ namespace PacketDecoder
 				data[i/2] = Convert.ToByte(bytes.Substring(i, 2), 16);
 			}
 
-			var pkt = _encoder.Decode(data);
+			var pkt = _packetProcessorActions.DecodeData(data);
 			pkt.ReadPos = m_packetOffset;
 
 			lblFamily.Text = pkt.Family.ToString();
@@ -254,8 +257,7 @@ namespace PacketDecoder
 			pkt.Skip(3);
 			txtDMulti.Text = pkt.GetByte().ToString();
 			txtEMulti.Text = pkt.GetByte().ToString();
-			_encoder.RecvMultiple = pkt.Get()[5];
-			_encoder.SendMultiple = pkt.Get()[6];
+			_packetProcessorActions.SetEncodeMultiples(pkt.Get()[5], pkt.Get()[6]);
 		}
 	}
 }

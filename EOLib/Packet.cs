@@ -11,7 +11,11 @@ namespace EOLib
 {
 	public class Packet
 	{
-		private static readonly int[] Max = { 253, 64009, 16194277 };
+		public  const int SINGLE_MAX = 253;
+		private const int DOUBLE_MAX = 64009;
+		private const int TRIPLE_MAX = 16194277;
+
+		private static readonly int[] Max = { SINGLE_MAX, DOUBLE_MAX, TRIPLE_MAX };
 		
 		private int readPos = 2;
 		private int writePos = 2;

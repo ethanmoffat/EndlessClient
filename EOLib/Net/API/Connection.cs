@@ -39,11 +39,11 @@ namespace EOLib.Net.API
 
 		private void _handleConnectionPlayer(Packet pkt)
 		{
-			short seq_1 = pkt.GetShort();
-			byte seq_2 = pkt.GetChar();
-			m_client.UpdateSequence(seq_1 - seq_2);
+			var seq_1 = pkt.GetShort();
+			var seq_2 = pkt.GetChar();
+			m_client.UpdateSequence(seq_1, seq_2);
 
-			Packet reply = new Packet(PacketFamily.Connection, PacketAction.Ping);
+			var reply = new Packet(PacketFamily.Connection, PacketAction.Ping);
 			m_client.SendPacket(reply);
 		}
 	}

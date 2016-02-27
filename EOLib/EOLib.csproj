@@ -147,10 +147,19 @@
     <Compile Include="Net\ClientBase.cs" />
     <Compile Include="Net\EOClient.cs" />
     <Compile Include="Net\IAsyncSocket.cs" />
+    <Compile Include="Net\IPacketEncoderRepository.cs" />
+    <Compile Include="Net\IPacketEncoderService.cs" />
+    <Compile Include="Net\IPacketProcessorActions.cs" />
+    <Compile Include="Net\IPacketSequenceService.cs" />
+    <Compile Include="Net\ISequenceRepository.cs" />
     <Compile Include="Net\PacketAction.cs" />
+    <Compile Include="Net\PacketEncoderRepository.cs" />
     <Compile Include="Net\PacketFamily.cs" />
+    <Compile Include="Net\PacketProcessActions.cs" />
+    <Compile Include="Net\PacketSequenceService.cs" />
+    <Compile Include="Net\SequenceRepository.cs" />
     <Compile Include="Packet.cs" />
-    <Compile Include="Net\PacketEncoder.cs" />
+    <Compile Include="Net\PacketEncoderService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>

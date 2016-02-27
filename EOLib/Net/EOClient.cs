@@ -133,7 +133,8 @@ namespace EOLib.Net
 	public class EOClient : ClientBase
 	{
 		private readonly Dictionary<FamilyActionPair, PacketHandlerInvoker> m_handlers;
-		private PacketEncoder _packetEncoder;
+
+		private readonly IPacketProcessorActions _packetProcessActions;
 
 		public event Action<DataTransferEventArgs> EventSendData;
 		public event Action<DataTransferEventArgs> EventReceiveData;
@@ -154,25 +155,26 @@ namespace EOLib.Net
 		public EOClient()
 		{
 			m_handlers = new Dictionary<FamilyActionPair, PacketHandlerInvoker>(128);
+
+			//note: all this stuff should be dependency injected into an IOC container. I don't have one, so its done here manually.
+			_packetProcessActions = new PacketProcessActions(new SequenceRepository(), new PacketEncoderRepository());
 		}
 
 		public void SetInitData(InitData data)
 		{
-			_packetEncoder.SetMulti(data.emulti_d, data.emulti_e);
-			UpdateSequence(data.seq_1*7 - 11 + data.seq_2 - 2);
+			_packetProcessActions.SetInitialSequenceNumber(data.seq_1, data.seq_2);
+			_packetProcessActions.SetEncodeMultiples(data.emulti_d, data.emulti_e);
 		}
 
-		public void UpdateSequence(int newVal)
+		public void UpdateSequence(int seq1, int seq2)
 		{
-			_packetEncoder.SequenceStart = newVal;
+			_packetProcessActions.SetUpdatedBaseSequenceNumber(seq1, seq2);
 		}
 
 		protected override void OnConnect()
 		{
 			EODataChunk wrap = new EODataChunk();
 			StartDataReceive(wrap);
-
-			_packetEncoder = new PacketEncoder();
 		}
 
 		protected override void OnSendData(Packet pkt, out byte[] toSend)
@@ -183,7 +185,7 @@ namespace EOLib.Net
 			if (pkt.Family == PacketFamily.Internal)
 				throw new ArgumentException("This is an invalid packet!");
 
-			toSend = _packetEncoder.Encode(pkt);
+			toSend = _packetProcessActions.EncodePacket(pkt);
 
 			//at this point, toSend should be 3 or 4 bytes longer than the original packet data
 			//this includes 2 bytes of len, 1 or 2 bytes of seq, and then packet payload
@@ -235,7 +237,7 @@ namespace EOLib.Net
 						}
 					case EODataChunk.DataReceiveState.ReadData:
 						{
-							var pkt = _packetEncoder.Decode(wrap.Data);
+							var pkt = _packetProcessActions.DecodeData(wrap.Data);
 
 							//This block handles receipt of file data that is transferred to the client.
 							//It should make file transfer nuances pretty transparent to the client.

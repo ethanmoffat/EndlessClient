@@ -4,53 +4,48 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace EOLib.Net
 {
-	public sealed class PacketEncoder
+	public sealed class PacketEncoderService : IPacketEncoderService
 	{
-		public int SequenceStart { get; set; }
-		public int SequenceValue { get; set; }
-
-		public byte RecvMultiple { get; set; }
-		public byte SendMultiple { get; set; }
-
-		public void SetMulti(byte recvMulti, byte sendMulti)
+		public byte[] PrependLengthBytes(byte[] data)
 		{
-			if (RecvMultiple != 0 || SendMultiple != 0)
-				throw new InvalidOperationException("PacketEncoder send/receive multipliers already set");
-
-			RecvMultiple = recvMulti;
-			SendMultiple = sendMulti;
+			var ret = PrependLength(data.ToList());
+			return ret.ToArray();
 		}
 
-		public byte[] Encode(Packet original)
+		public Packet AddSequenceNumber(Packet pkt, int sequenceNumber)
 		{
-			if (PacketInvalidForEncode(original))
-				return PrependLength(original.Data).ToArray();
+			var byteList = pkt.Data.ToList();
+			byteList = AddSequenceBytes(byteList, sequenceNumber);
+			return new Packet(byteList);
+		}
+
+		public byte[] Encode(Packet original, byte encodeMultiplier)
+		{
+			if (encodeMultiplier == 0 || PacketInvalidForEncode(original))
+				return original.Data.ToArray();
 
 			var byteList = original.Data.ToList();
-			byteList = AddSequenceByte(byteList);
-			byteList = SwapMultiples(byteList, SendMultiple);
+			byteList = SwapMultiples(byteList, encodeMultiplier);
 			byteList = Interleave(byteList);
 			byteList = FlipMSB(byteList);
-			byteList = PrependLength(byteList);
 
 			return byteList.ToArray();
 		}
 
-		public Packet Decode(byte[] original)
+		public Packet Decode(byte[] original, byte decodeMultiplier)
 		{
-			if (PacketInvalidForDecode(original))
+			if (decodeMultiplier == 0 || PacketInvalidForDecode(original))
 				return new Packet(original);
 
 			var byteList = original.ToList();
 			byteList = FlipMSB(byteList);
 			byteList = Deinterleave(byteList);
-			byteList = SwapMultiples(byteList, RecvMultiple);
+			byteList = SwapMultiples(byteList, decodeMultiplier);
 
 			return new Packet(byteList);
 		}
@@ -59,12 +54,12 @@ namespace EOLib.Net
 
 		private bool PacketInvalidForEncode(Packet pkt)
 		{
-			return SendMultiple == 0 || IsInitPacket(pkt);
+			return IsInitPacket(pkt);
 		}
 
 		private bool PacketInvalidForDecode(byte[] data)
 		{
-			return RecvMultiple == 0 || data.Length > 2 && IsInitPacket(new Packet(new[] {data[3], data[2]}));
+			return data.Length > 2 && IsInitPacket(new Packet(new[] {data[3], data[2]}));
 		}
 
 		private static bool IsInitPacket(Packet pkt)
@@ -77,10 +72,9 @@ namespace EOLib.Net
 
 		#region Sequence Byte(s)
 
-		private List<byte> AddSequenceByte(IReadOnlyList<byte> original)
+		private List<byte> AddSequenceBytes(IReadOnlyList<byte> original, int seq)
 		{
-			var seq = GetNextSeqIncrement();
-			var numberOfSequenceBytes = SequenceStart >= 253 ? 2 : 1;
+			var numberOfSequenceBytes = seq >= Packet.SINGLE_MAX ? 2 : 1;
 			var encodedSequenceBytes = Packet.EncodeNumber(seq, numberOfSequenceBytes);
 
 			var combined = new List<byte>(original.Count + numberOfSequenceBytes);
@@ -92,13 +86,6 @@ namespace EOLib.Net
 			combined.AddRange(original.Where((b, i) => i >= 2));
 
 			return combined;
-		}
-
-		private int GetNextSeqIncrement()
-		{
-			SequenceValue = (SequenceValue + 1) % 10;
-			int ret = SequenceStart + SequenceValue;
-			return ret;
 		}
 
 		#endregion
