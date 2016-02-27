@@ -23,13 +23,13 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized || npcIndex < 0)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Bank, PacketAction.Open);
+			OldPacket pkt = new OldPacket(PacketFamily.Bank, PacketAction.Open);
 			pkt.AddShort(npcIndex);
 
 			return m_client.SendPacket(pkt);
 		}
 
-		private void _handleBankOpen(Packet pkt)
+		private void _handleBankOpen(OldPacket pkt)
 		{
 			int bankGold = pkt.GetInt();
 			pkt.Skip(3); /*Session token - eoserv always sets 0*/
@@ -44,7 +44,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized || amount < 0)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Bank, PacketAction.Add);
+			OldPacket pkt = new OldPacket(PacketFamily.Bank, PacketAction.Add);
 			pkt.AddInt(amount);
 
 			return m_client.SendPacket(pkt);
@@ -55,13 +55,13 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized || amount < 0)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Bank, PacketAction.Take);
+			OldPacket pkt = new OldPacket(PacketFamily.Bank, PacketAction.Take);
 			pkt.AddInt(amount);
 
 			return m_client.SendPacket(pkt);
 		}
 
-		private void _handleBankReply(Packet pkt)
+		private void _handleBankReply(OldPacket pkt)
 		{
 			int characterGold = pkt.GetInt();
 			int bankAmount = pkt.GetInt();

@@ -21,7 +21,7 @@ namespace EOLib.Net.API
 		{
 			if (!m_client.ConnectedAndInitialized || !Initialized) return false;
 
-			Packet pkt = new Packet(PacketFamily.Attack, PacketAction.Use);
+			OldPacket pkt = new OldPacket(PacketFamily.Attack, PacketAction.Use);
 			pkt.AddChar((byte)direction);
 			pkt.AddThree(DateTime.Now.ToEOTimeStamp());
 
@@ -31,7 +31,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Sent when another player attacks (not main player)
 		/// </summary>
-		private void _handleAttackPlayer(Packet pkt)
+		private void _handleAttackPlayer(OldPacket pkt)
 		{
 			if (OnOtherPlayerAttack == null) return;
 			short playerId = pkt.GetShort();

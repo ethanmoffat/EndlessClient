@@ -49,14 +49,14 @@ namespace EOLib.IO
 			if (version != 0)
 				throw new FileLoadException("Unable to Load file with invalid version: " + version);
 
-			Base = (byte) Packet.DecodeNumber(rawData[0]);
-			Type = (byte) Packet.DecodeNumber(rawData[1]);
-			Str = (short) Packet.DecodeNumber(rawData[2], rawData[3]);
-			Int = (short) Packet.DecodeNumber(rawData[4], rawData[5]);
-			Wis = (short) Packet.DecodeNumber(rawData[6], rawData[7]);
-			Agi = (short) Packet.DecodeNumber(rawData[8], rawData[9]);
-			Con = (short) Packet.DecodeNumber(rawData[10], rawData[11]);
-			Cha = (short) Packet.DecodeNumber(rawData[12], rawData[13]);
+			Base = (byte) OldPacket.DecodeNumber(rawData[0]);
+			Type = (byte) OldPacket.DecodeNumber(rawData[1]);
+			Str = (short) OldPacket.DecodeNumber(rawData[2], rawData[3]);
+			Int = (short) OldPacket.DecodeNumber(rawData[4], rawData[5]);
+			Wis = (short) OldPacket.DecodeNumber(rawData[6], rawData[7]);
+			Agi = (short) OldPacket.DecodeNumber(rawData[8], rawData[9]);
+			Con = (short) OldPacket.DecodeNumber(rawData[10], rawData[11]);
+			Cha = (short) OldPacket.DecodeNumber(rawData[12], rawData[13]);
 		}
 
 		public byte[] SerializeToByteArray()
@@ -67,19 +67,19 @@ namespace EOLib.IO
 
 			using (MemoryStream mem = new MemoryStream(ret))
 			{
-				mem.WriteByte(Packet.EncodeNumber(Name.Length, 1)[0]);
+				mem.WriteByte(OldPacket.EncodeNumber(Name.Length, 1)[0]);
 				byte[] name = Encoding.ASCII.GetBytes(Name);
 				mem.Write(name, 0, name.Length);
 
 				mem.WriteByte(Base);
 				mem.WriteByte(Type);
 
-				mem.Write(Packet.EncodeNumber(Str, 2), 0, 2);
-				mem.Write(Packet.EncodeNumber(Int, 2), 0, 2);
-				mem.Write(Packet.EncodeNumber(Wis, 2), 0, 2);
-				mem.Write(Packet.EncodeNumber(Agi, 2), 0, 2);
-				mem.Write(Packet.EncodeNumber(Con, 2), 0, 2);
-				mem.Write(Packet.EncodeNumber(Cha, 2), 0, 2);
+				mem.Write(OldPacket.EncodeNumber(Str, 2), 0, 2);
+				mem.Write(OldPacket.EncodeNumber(Int, 2), 0, 2);
+				mem.Write(OldPacket.EncodeNumber(Wis, 2), 0, 2);
+				mem.Write(OldPacket.EncodeNumber(Agi, 2), 0, 2);
+				mem.Write(OldPacket.EncodeNumber(Con, 2), 0, 2);
+				mem.Write(OldPacket.EncodeNumber(Cha, 2), 0, 2);
 			}
 
 			return ret;

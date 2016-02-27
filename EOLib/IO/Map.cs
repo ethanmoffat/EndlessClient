@@ -315,7 +315,7 @@ namespace EOLib.IO
 				GfxRows[layer] = new List<GFXRow>();
 			}
 
-			Packet file = new Packet(File.ReadAllBytes(fileName));
+			OldPacket file = new OldPacket(File.ReadAllBytes(fileName));
 			if (file.Length == 0)
 				throw new FileLoadException("The file is empty.");
 			file.ReadPos = 0; //use packet wrapper for convenience functions/decoding
@@ -508,7 +508,7 @@ namespace EOLib.IO
 
 		public void Save(string fileName)
 		{
-			Packet file = new Packet(PacketFamily.Internal, PacketAction.Server) {ReadPos = 0, WritePos = 0};
+			OldPacket file = new OldPacket(PacketFamily.Internal, PacketAction.Server) {ReadPos = 0, WritePos = 0};
 
 			//map header
 			file.AddString("EMF");

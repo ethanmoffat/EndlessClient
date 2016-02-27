@@ -21,7 +21,7 @@ namespace EOLib.Net.API
 		public short MaxTP { get { return maxtp; } }
 		public short MaxSP { get { return maxsp; } }
 
-		internal LevelUpStats(Packet pkt, bool includeExp)
+		internal LevelUpStats(OldPacket pkt, bool includeExp)
 		{
 			//includeExp will be false when leveling up from NPC, true from EXPReward
 			//NPC handler happens slightly differently
@@ -57,7 +57,7 @@ namespace EOLib.Net.API
 			public short Evade { get { return m_evade; } }
 			public short Armor { get { return m_armor; } }
 
-			internal CureCurseStats(Packet pkt)
+			internal CureCurseStats(OldPacket pkt)
 			{
 				m_maxhp = pkt.GetShort();
 				m_maxtp = pkt.GetShort();
@@ -109,7 +109,7 @@ namespace EOLib.Net.API
 		private readonly LevelUpStats? expreward_stats;
 		public LevelUpStats RewardStats { get { return expreward_stats ?? new LevelUpStats(); } }
 
-		internal ItemUseData(Packet pkt)
+		internal ItemUseData(OldPacket pkt)
 		{
 			type = (ItemType)pkt.GetChar();
 			itemID = pkt.GetShort();
@@ -203,7 +203,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Item, PacketAction.Get);
+			OldPacket pkt = new OldPacket(PacketFamily.Item, PacketAction.Get);
 			pkt.AddShort(uid);
 
 			return m_client.SendPacket(pkt);
@@ -214,7 +214,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Item, PacketAction.Drop);
+			OldPacket pkt = new OldPacket(PacketFamily.Item, PacketAction.Drop);
 			pkt.AddShort(id);
 			pkt.AddInt(amount);
 			if (x == 255 && y == 255)
@@ -236,7 +236,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Item, PacketAction.Junk);
+			OldPacket pkt = new OldPacket(PacketFamily.Item, PacketAction.Junk);
 			pkt.AddShort(id);
 			pkt.AddInt(amount);
 
@@ -248,13 +248,13 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Item, PacketAction.Use);
+			OldPacket pkt = new OldPacket(PacketFamily.Item, PacketAction.Use);
 			pkt.AddShort(itemID);
 
 			return m_client.SendPacket(pkt);
 		}
 		
-		private void _handleItemDrop(Packet pkt)
+		private void _handleItemDrop(OldPacket pkt)
 		{
 			if (OnDropItem == null) return;
 			short _id = pkt.GetShort();
@@ -277,7 +277,7 @@ namespace EOLib.Net.API
 			OnDropItem(characterAmount, characterWeight, characterMaxWeight, item);
 		}
 
-		private void _handleItemAdd(Packet pkt)
+		private void _handleItemAdd(OldPacket pkt)
 		{
 			if (OnDropItem == null) return;
 			MapItem item = new MapItem
@@ -294,13 +294,13 @@ namespace EOLib.Net.API
 			OnDropItem(-1, 0, 0, item);
 		}
 
-		private void _handleItemRemove(Packet pkt)
+		private void _handleItemRemove(OldPacket pkt)
 		{
 			if (OnRemoveItemFromMap != null)
 				OnRemoveItemFromMap(pkt.GetShort());
 		}
 
-		private void _handleItemJunk(Packet pkt)
+		private void _handleItemJunk(OldPacket pkt)
 		{
 			short id = pkt.GetShort();
 			int amountRemoved = pkt.GetThree();//don't really care - just math it
@@ -312,7 +312,7 @@ namespace EOLib.Net.API
 				OnJunkItem(id, amountRemoved, amountRemaining, weight, maxWeight);
 		}
 
-		private void _handleItemGet(Packet pkt)
+		private void _handleItemGet(OldPacket pkt)
 		{
 			if (OnGetItemFromMap == null) return;
 			short uid = pkt.GetShort();
@@ -323,13 +323,13 @@ namespace EOLib.Net.API
 			OnGetItemFromMap(uid, id, amountTaken, weight, maxWeight);
 		}
 
-		private void _handleItemReply(Packet pkt)
+		private void _handleItemReply(OldPacket pkt)
 		{
 			if (OnUseItem != null)
 				OnUseItem(new ItemUseData(pkt));
 		}
 
-		private void _handleItemObtain(Packet pkt)
+		private void _handleItemObtain(OldPacket pkt)
 		{
 			if (OnItemChange == null) return;
 
@@ -340,7 +340,7 @@ namespace EOLib.Net.API
 			OnItemChange(true, id, amount, weight);
 		}
 
-		private void _handleItemKick(Packet pkt)
+		private void _handleItemKick(OldPacket pkt)
 		{
 			if (OnItemChange == null) return;
 

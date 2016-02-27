@@ -32,7 +32,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Locker, PacketAction.Open);
+			OldPacket pkt = new OldPacket(PacketFamily.Locker, PacketAction.Open);
 			pkt.AddChar(x);
 			pkt.AddChar(y);
 
@@ -47,7 +47,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Locker, PacketAction.Add);
+			OldPacket pkt = new OldPacket(PacketFamily.Locker, PacketAction.Add);
 			pkt.AddChar(x);
 			pkt.AddChar(y);
 			pkt.AddShort(id);
@@ -64,7 +64,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Locker, PacketAction.Take);
+			OldPacket pkt = new OldPacket(PacketFamily.Locker, PacketAction.Take);
 			pkt.AddChar(x);
 			pkt.AddChar(y);
 			pkt.AddShort(id);
@@ -75,7 +75,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handles LOCKER_OPEN from server for opening a locker
 		/// </summary>
-		private void _handleLockerOpen(Packet pkt)
+		private void _handleLockerOpen(OldPacket pkt)
 		{
 			if (OnLockerOpen == null) return;
 
@@ -94,7 +94,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handles LOCKER_REPLY from server for adding an item to locker
 		/// </summary>
-		private void _handleLockerReply(Packet pkt)
+		private void _handleLockerReply(OldPacket pkt)
 		{
 			if (OnLockerItemChange == null) return;
 			//inventory info for amount remaining for character
@@ -116,7 +116,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handles LOCKER_GET from server for taking an item from locker
 		/// </summary>
-		private void _handleLockerGet(Packet pkt)
+		private void _handleLockerGet(OldPacket pkt)
 		{
 			if (OnLockerItemChange == null) return;
 
@@ -138,7 +138,7 @@ namespace EOLib.Net.API
 		/// Handles LOCKER_BUY from server when buying a locker unit upgrade
 		/// </summary>
 		/// <param name="pkt"></param>
-		private void _handleLockerBuy(Packet pkt)
+		private void _handleLockerBuy(OldPacket pkt)
 		{
 			if (OnLockerUpgrade != null)
 				OnLockerUpgrade(pkt.GetInt(), pkt.GetChar()); //gold remaining, num upgrades

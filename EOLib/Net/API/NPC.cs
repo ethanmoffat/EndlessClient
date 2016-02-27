@@ -19,7 +19,7 @@ namespace EOLib.Net.API
 		public byte Y { get { return m_y; } }
 		public EODirection Direction { get { return m_dir; } }
 
-		internal NPCData(Packet pkt)
+		internal NPCData(OldPacket pkt)
 		{
 			m_index = pkt.GetChar();
 			m_id = pkt.GetShort();
@@ -66,7 +66,7 @@ namespace EOLib.Net.API
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.NPC, PacketAction.Junk), _handleNPCJunk, true);
 		}
 
-		private void _handleAppearReply(Packet pkt)
+		private void _handleAppearReply(OldPacket pkt)
 		{
 			if (pkt.Length - pkt.ReadPos != 8 || 
 				pkt.GetChar() != 0 || pkt.GetByte() != 255 ||
@@ -79,7 +79,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for NPC_PLAYER packet, when NPC walks or talks
 		/// </summary>
-		private void _handleNPCPlayer(Packet pkt)
+		private void _handleNPCPlayer(OldPacket pkt)
 		{
 			int num255s = 0;
 			while (pkt.PeekByte() == 255)
@@ -129,7 +129,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for NPC_SPEC packet, when NPC should be removed from view - either by dying or out of character range
 		/// </summary>
-		private void _handleNPCSpec(Packet pkt)
+		private void _handleNPCSpec(OldPacket pkt)
 		{
 			short spellID = -1;
 			if (pkt.Family == PacketFamily.Cast)
@@ -197,7 +197,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for NPC_REPLY packet, when NPC takes damage from an attack (spell cast or weapon) but is still alive
 		/// </summary>
-		private void _handleNPCReply(Packet pkt)
+		private void _handleNPCReply(OldPacket pkt)
 		{
 			if (OnNPCTakeDamage == null) return;
 
@@ -223,7 +223,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for NPC_ACCEPT packet, when character levels up from exp earned when killing an NPC
 		/// </summary>
-		private void _handleNPCAccept(Packet pkt)
+		private void _handleNPCAccept(OldPacket pkt)
 		{
 			_handleNPCSpec(pkt); //same handler for the first part of the packet
 
@@ -231,7 +231,7 @@ namespace EOLib.Net.API
 				OnPlayerLevelUp(new LevelUpStats(pkt, false));
 		}
 
-		private void _handleNPCJunk(Packet pkt)
+		private void _handleNPCJunk(OldPacket pkt)
 		{
 			if (OnRemoveChildNPCs != null)
 				OnRemoveChildNPCs(pkt.GetShort());

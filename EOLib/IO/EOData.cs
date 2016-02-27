@@ -61,16 +61,16 @@ namespace EOLib.IO
 
 				byte[] rid = new byte[4];
 				sr.Read(rid, 0, 4);
-				Rid = Packet.DecodeNumber(rid);
+				Rid = OldPacket.DecodeNumber(rid);
 
 				byte[] len = new byte[2];
 				sr.Read(len, 0, 2);
-				Len = (short) Packet.DecodeNumber(len);
+				Len = (short) OldPacket.DecodeNumber(len);
 
 				//indices are 1-based
 				Data = new List<IDataRecord>(Len) {_factory.CreateRecord(0)};
 
-				Version = Packet.DecodeNumber((byte) sr.ReadByte()); //this was originally seeked over
+				Version = OldPacket.DecodeNumber((byte) sr.ReadByte()); //this was originally seeked over
 
 				byte[] rawData = new byte[GetDataSize()];
 
@@ -81,7 +81,7 @@ namespace EOLib.IO
 					var nameLengths = new List<int>(2);
 					for (int j = 0; j < record.NameCount; ++j)
 					{
-						var nameSize = Packet.DecodeNumber((byte) sr.ReadByte());
+						var nameSize = OldPacket.DecodeNumber((byte) sr.ReadByte());
 						nameLengths.Add(nameSize);
 					}
 
@@ -132,11 +132,11 @@ namespace EOLib.IO
 					using (MemoryStream mem = new MemoryStream())
 					{
 						mem.Write(extension, 0, 3); //E[I|N|S|C]F at beginning
-						mem.Write(Packet.EncodeNumber(Rid, 4), 0, 4); //rid
-						mem.Write(Packet.EncodeNumber(Data.Count, 2), 0, 2); //len
+						mem.Write(OldPacket.EncodeNumber(Rid, 4), 0, 4); //rid
+						mem.Write(OldPacket.EncodeNumber(Data.Count, 2), 0, 2); //len
 
 						Version = pubVersion;
-						mem.WriteByte(Packet.EncodeNumber(Version, 1)[0]); //new version check
+						mem.WriteByte(OldPacket.EncodeNumber(Version, 1)[0]); //new version check
 
 						for (int i = 1; i < Data.Count; ++i)
 						{
@@ -152,7 +152,7 @@ namespace EOLib.IO
 					Rid = (int)newRid;
 					sw.Write(allData, 0, allData.Length);
 					sw.Seek(3, SeekOrigin.Begin); //skip first 3 bytes
-					sw.Write(Packet.EncodeNumber(Rid, 4), 0, 4); //overwrite the 4 RID (revision ID) bytes
+					sw.Write(OldPacket.EncodeNumber(Rid, 4), 0, 4); //overwrite the 4 RID (revision ID) bytes
 				}
 			}
 			catch (Exception ex)

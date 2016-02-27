@@ -190,7 +190,7 @@ namespace EndlessClient.Dialogs
 					if (e.Result == XNADialogResult.Cancel)
 						return;
 
-					Packet pkt = new Packet(PacketFamily.Locker, PacketAction.Buy);
+					OldPacket pkt = new OldPacket(PacketFamily.Locker, PacketAction.Buy);
 					World.Instance.Client.SendPacket(pkt);
 				});
 		}

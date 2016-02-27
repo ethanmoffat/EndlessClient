@@ -75,7 +75,7 @@ namespace EOLib.Net.API
 		}
 
 		// Remove a player from view (sent by server when someone is out of range)
-		private void _handleAvatarRemove(Packet pkt)
+		private void _handleAvatarRemove(OldPacket pkt)
 		{
 			if (OnPlayerAvatarRemove == null) return;
 
@@ -85,7 +85,7 @@ namespace EOLib.Net.API
 		}
 
 		// Player changes appearance (clothes, hair, etc)
-		private void _handleAvatarAgree(Packet pkt)
+		private void _handleAvatarAgree(OldPacket pkt)
 		{
 			short playerID = pkt.GetShort();
 			AvatarSlot slot = (AvatarSlot)pkt.GetChar();

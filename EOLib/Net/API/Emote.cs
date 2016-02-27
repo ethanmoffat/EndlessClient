@@ -48,13 +48,13 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Emote, PacketAction.Report);
+			OldPacket pkt = new OldPacket(PacketFamily.Emote, PacketAction.Report);
 			pkt.AddChar((byte)emote);
 
 			return m_client.SendPacket(pkt);
 		}
 
-		private void _handleEmotePlayer(Packet pkt)
+		private void _handleEmotePlayer(OldPacket pkt)
 		{
 			short playerID = pkt.GetShort();
 			Emote emote = (Emote)pkt.GetChar();

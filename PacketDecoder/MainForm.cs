@@ -152,7 +152,7 @@ namespace PacketDecoder
 			{
 				lenDat[i/2] = Convert.ToByte(len.Substring(i, 2), 16);
 			}
-			lblPacketLength.Text = "Packet Length: " + Packet.DecodeNumber(lenDat).ToString();
+			lblPacketLength.Text = "Packet Length: " + OldPacket.DecodeNumber(lenDat).ToString();
 
 			for (int i = 0; i < bytes.Length; i += 2)
 			{
@@ -254,7 +254,7 @@ namespace PacketDecoder
 				data[i/2] = Convert.ToByte(inp.Substring(i, 2), 16);
 			
 			//no need to decrypt since it's init data
-			Packet pkt = new Packet(data);
+			OldPacket pkt = new OldPacket(data);
 			pkt.Skip(3);
 			txtDMulti.Text = pkt.GetByte().ToString();
 			txtEMulti.Text = pkt.GetByte().ToString();

@@ -38,7 +38,7 @@ namespace EOLib.Net.PacketProcessing
 			_encoderRepository.SendMultiplier = emulti_e;
 		}
 
-		public byte[] EncodePacket(Packet pkt)
+		public byte[] EncodePacket(OldPacket pkt)
 		{
 			var seq = CalculateNextSequenceNumber();
 			pkt = _encoderService.AddSequenceNumber(pkt, seq);
@@ -49,7 +49,7 @@ namespace EOLib.Net.PacketProcessing
 			return data;
 		}
 
-		public Packet DecodeData(byte[] rawData)
+		public OldPacket DecodeData(byte[] rawData)
 		{
 			return _encoderService.Decode(rawData, _encoderRepository.ReceiveMultiplier);
 		}

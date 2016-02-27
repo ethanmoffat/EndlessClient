@@ -24,7 +24,7 @@ namespace EOLib.Net.API
 			}
 		}
 
-		internal ChestData(Packet pkt, bool containsCoords)
+		internal ChestData(OldPacket pkt, bool containsCoords)
 			: this()
 		{
 			X = containsCoords ? pkt.GetChar() : byte.MinValue;
@@ -65,7 +65,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet toSend = new Packet(PacketFamily.Chest, PacketAction.Open);
+			OldPacket toSend = new OldPacket(PacketFamily.Chest, PacketAction.Open);
 			toSend.AddChar(x);
 			toSend.AddChar(y);
 
@@ -77,7 +77,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Chest, PacketAction.Take);
+			OldPacket pkt = new OldPacket(PacketFamily.Chest, PacketAction.Take);
 			pkt.AddChar(x);
 			pkt.AddChar(y);
 			pkt.AddShort(itemID);
@@ -90,7 +90,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Chest, PacketAction.Add);
+			OldPacket pkt = new OldPacket(PacketFamily.Chest, PacketAction.Add);
 			pkt.AddChar(x);
 			pkt.AddChar(y);
 			pkt.AddShort(itemID);
@@ -102,7 +102,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for CHEST_OPEN packet, sent in response to main player opening a chest
 		/// </summary>
-		private void _handleChestOpen(Packet pkt)
+		private void _handleChestOpen(OldPacket pkt)
 		{
 			if (OnChestOpened != null)
 				OnChestOpened(new ChestData(pkt, true));
@@ -111,7 +111,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for CHEST_GET packet, sent as confirmation to character that item is being taken
 		/// </summary>
-		private void _handleChestGet(Packet pkt)
+		private void _handleChestGet(OldPacket pkt)
 		{
 			if (OnChestGetItem == null) return;
 			short takenID = pkt.GetShort();
@@ -125,7 +125,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for CHEST_AGREE packet, sent as update to other characters near a chest that was modified by another player
 		/// </summary>
-		private void _handleChestAgree(Packet pkt)
+		private void _handleChestAgree(OldPacket pkt)
 		{
 			if (OnChestAgree != null)
 				OnChestAgree(new ChestData(pkt, false));
@@ -134,7 +134,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for CHEST_REPLY packet, sent in response to main player adding an item to a chest
 		/// </summary>
-		private void _handleChestReply(Packet pkt)
+		private void _handleChestReply(OldPacket pkt)
 		{
 			if (OnChestAddItem == null) return;
 

@@ -80,7 +80,7 @@ namespace EOLib.Net.API
 		public SitState Sitting { get { return m_sit; } }
 		public bool Hidden { get { return m_hidden; } }
 
-		internal CharacterData(Packet pkt)
+		internal CharacterData(OldPacket pkt)
 		{
 			m_name = pkt.GetBreakString();
 			if (m_name.Length > 1)
@@ -144,7 +144,7 @@ namespace EOLib.Net.API
 		public short Shield { get { return shield; } }
 		public short Weapon { get { return weapon; } }
 
-		internal CharacterRenderData(Packet pkt)
+		internal CharacterRenderData(OldPacket pkt)
 		{
 			name = pkt.GetBreakString();
 			id = pkt.GetInt();
@@ -195,7 +195,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet builder = new Packet(PacketFamily.Character, PacketAction.Request);
+			OldPacket builder = new OldPacket(PacketFamily.Character, PacketAction.Request);
 
 			if (!m_client.SendPacket(builder) || !m_character_responseEvent.WaitOne(Constants.ResponseTimeout))
 				return false;
@@ -212,7 +212,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet builder = new Packet(PacketFamily.Character, PacketAction.Create);
+			OldPacket builder = new OldPacket(PacketFamily.Character, PacketAction.Create);
 			builder.AddShort(255);
 			builder.AddShort(gender);
 			builder.AddShort(hairStyle);
@@ -240,7 +240,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet builder = new Packet(PacketFamily.Character, PacketAction.Take);
+			OldPacket builder = new OldPacket(PacketFamily.Character, PacketAction.Take);
 			builder.AddInt(id);
 
 			if (!m_client.SendPacket(builder) || !m_character_responseEvent.WaitOne(Constants.ResponseTimeout))
@@ -257,7 +257,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet builder = new Packet(PacketFamily.Character, PacketAction.Remove);
+			OldPacket builder = new OldPacket(PacketFamily.Character, PacketAction.Remove);
 			builder.AddShort(255);
 			builder.AddInt(id);
 
@@ -272,7 +272,7 @@ namespace EOLib.Net.API
 			return true;
 		}
 
-		private void _handleCharacterReply(Packet pkt)
+		private void _handleCharacterReply(OldPacket pkt)
 		{
 			m_character_reply = (CharacterReply)pkt.GetShort();
 
@@ -297,7 +297,7 @@ namespace EOLib.Net.API
 		}
 
 		//handler function for when server sends CHARACTER_PLAYER (in response to CHARACTER_TAKE)
-		private void _handleCharacterPlayer(Packet pkt)
+		private void _handleCharacterPlayer(OldPacket pkt)
 		{
 			pkt.Skip(2);
 			m_character_takeID = pkt.GetInt();

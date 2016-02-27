@@ -47,32 +47,32 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet builder;
+			OldPacket builder;
 			switch (chatType)
 			{
 				case TalkType.Local:
-					builder = new Packet(PacketFamily.Talk, PacketAction.Report);
+					builder = new OldPacket(PacketFamily.Talk, PacketAction.Report);
 					break;
 				case TalkType.PM:
-					builder = new Packet(PacketFamily.Talk, PacketAction.Tell);
+					builder = new OldPacket(PacketFamily.Talk, PacketAction.Tell);
 					if (string.IsNullOrWhiteSpace(character))
 						throw new ArgumentException("Unable to send a PM to invalid character!", "character");
 					builder.AddBreakString(character);
 					break;
 				case TalkType.Global:
-					builder = new Packet(PacketFamily.Talk, PacketAction.Message);
+					builder = new OldPacket(PacketFamily.Talk, PacketAction.Message);
 					break;
 				case TalkType.Guild:
-					builder = new Packet(PacketFamily.Talk, PacketAction.Request);
+					builder = new OldPacket(PacketFamily.Talk, PacketAction.Request);
 					break;
 				case TalkType.Party:
-					builder = new Packet(PacketFamily.Talk, PacketAction.Open);
+					builder = new OldPacket(PacketFamily.Talk, PacketAction.Open);
 					break;
 				case TalkType.Admin:
-					builder = new Packet(PacketFamily.Talk, PacketAction.Admin);
+					builder = new OldPacket(PacketFamily.Talk, PacketAction.Admin);
 					break;
 				case TalkType.Announce:
-					builder = new Packet(PacketFamily.Talk, PacketAction.Announce);
+					builder = new OldPacket(PacketFamily.Talk, PacketAction.Announce);
 					break;
 				default: throw new NotImplementedException();
 			}
@@ -85,7 +85,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for the TALK_PLAYER packet (sent for public chat messages)
 		/// </summary>
-		private void _handleTalkPlayer(Packet pkt)
+		private void _handleTalkPlayer(OldPacket pkt)
 		{
 			if (OnPlayerChatByID == null) return;
 			short fromPlayerID = pkt.GetShort();
@@ -97,7 +97,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for the TALK_REPLY packet (sent in response to not-found for PMs sent from this end)
 		/// </summary>
-		private void _handleTalkReply(Packet pkt)
+		private void _handleTalkReply(OldPacket pkt)
 		{
 			if (OnPMRecipientNotFound == null) return;
 
@@ -115,7 +115,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for the TALK_TELL packet (sent in response to PM messages)
 		/// </summary>
-		private void _handleTalkTell(Packet pkt)
+		private void _handleTalkTell(OldPacket pkt)
 		{
 			if (OnPlayerChatByName == null) return;
 
@@ -128,7 +128,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for the TALK_MESSAGE packet (sent in response to global messages)
 		/// </summary>
-		private void _handleTalkMessage(Packet pkt)
+		private void _handleTalkMessage(OldPacket pkt)
 		{
 			if (OnPlayerChatByName == null) return;
 
@@ -142,7 +142,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for the TALK_REQUEST packet (sent in response to guild messages)
 		/// </summary>
-		private void _handleTalkRequest(Packet pkt)
+		private void _handleTalkRequest(OldPacket pkt)
 		{
 			if (OnPlayerChatByName == null) return;
 
@@ -156,7 +156,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handler for the TALK_OPEN packet (sent in response to party messages)
 		/// </summary>
-		private void _handleTalkOpen(Packet pkt)
+		private void _handleTalkOpen(OldPacket pkt)
 		{
 			if (OnPlayerChatByName == null) return;
 
@@ -166,7 +166,7 @@ namespace EOLib.Net.API
 			OnPlayerChatByID(TalkType.Party, from, message);
 		}
 
-		private void _handleTalkServer(Packet pkt)
+		private void _handleTalkServer(OldPacket pkt)
 		{
 			if (OnPlayerChatByName == null) return;
 
@@ -174,7 +174,7 @@ namespace EOLib.Net.API
 			OnPlayerChatByName(TalkType.Server, null, msg);
 		}
 
-		private void _handleTalkAdmin(Packet pkt)
+		private void _handleTalkAdmin(OldPacket pkt)
 		{
 			if (OnPlayerChatByName == null) return;
 
@@ -185,7 +185,7 @@ namespace EOLib.Net.API
 			OnPlayerChatByName(TalkType.Admin, name, msg);
 		}
 
-		private void _handleTalkAnnounce(Packet pkt)
+		private void _handleTalkAnnounce(OldPacket pkt)
 		{
 			if (OnPlayerChatByName == null) return;
 
@@ -196,7 +196,7 @@ namespace EOLib.Net.API
 			OnPlayerChatByName(TalkType.Announce, name, msg);
 		}
 
-		private void _handleTalkSpec(Packet pkt)
+		private void _handleTalkSpec(OldPacket pkt)
 		{
 			if (OnMuted != null)
 				OnMuted(pkt.GetEndString());

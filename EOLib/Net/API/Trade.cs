@@ -40,7 +40,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Trade, PacketAction.Request);
+			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Request);
 			pkt.AddChar(123); //?
 			pkt.AddShort(characterID);
 
@@ -56,7 +56,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Trade, PacketAction.Accept);
+			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Accept);
 			pkt.AddChar(123); //?
 			pkt.AddShort(characterID);
 
@@ -72,7 +72,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Trade, PacketAction.Remove);
+			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Remove);
 			pkt.AddShort(itemID);
 
 			return m_client.SendPacket(pkt);
@@ -88,7 +88,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Trade, PacketAction.Add);
+			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Add);
 			pkt.AddShort(itemID);
 			pkt.AddInt(amount);
 
@@ -104,7 +104,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Trade, PacketAction.Agree);
+			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Agree);
 			pkt.AddChar((byte)(agree ? 1 : 0));
 
 			return m_client.SendPacket(pkt);
@@ -118,13 +118,13 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Trade, PacketAction.Close);
+			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Close);
 			pkt.AddChar(123); //?
 
 			return m_client.SendPacket(pkt);
 		}
 
-		private void _handleTradeRequest(Packet pkt)
+		private void _handleTradeRequest(OldPacket pkt)
 		{
 			pkt.Skip(1); //something - will always be 123 from this client
 			short playerID = pkt.GetShort();
@@ -134,7 +134,7 @@ namespace EOLib.Net.API
 				OnTradeRequested(playerID, name);
 		}
 
-		private void _handleTradeOpen(Packet pkt)
+		private void _handleTradeOpen(OldPacket pkt)
 		{
 			if (OnTradeOpen == null) return;
 
@@ -146,38 +146,38 @@ namespace EOLib.Net.API
 			OnTradeOpen(player1ID, player1Name, player2ID, player2Name);
 		}
 
-		private void _handleTradeReply(Packet pkt)
+		private void _handleTradeReply(OldPacket pkt)
 		{
 			_sharedTradeDataProcess(pkt, OnTradeOfferUpdate);
 		}
 
 		//sent in response to you agreeing
-		private void _handleTradeSpec(Packet pkt)
+		private void _handleTradeSpec(OldPacket pkt)
 		{
 			if (OnTradeYouAgree != null)
 				OnTradeYouAgree(pkt.GetChar() != 0);
 		}
 
 		//sent when your trade partner agrees
-		private void _handleTradeAgree(Packet pkt)
+		private void _handleTradeAgree(OldPacket pkt)
 		{
 			if (OnTradeOtherPlayerAgree != null)
 				OnTradeOtherPlayerAgree(pkt.GetShort(), pkt.GetChar() != 0);
 		}
 
 		//both parties agree to the trade - trade completed
-		private void _handleTradeUse(Packet pkt)
+		private void _handleTradeUse(OldPacket pkt)
 		{
 			_sharedTradeDataProcess(pkt, OnTradeCompleted);
 		}
 
-		private void _handleTradeClose(Packet pkt)
+		private void _handleTradeClose(OldPacket pkt)
 		{
 			if (OnTradeCancel != null)
 				OnTradeCancel(pkt.GetShort());
 		}
 
-		private void _sharedTradeDataProcess(Packet pkt, TradeUpdateEvent handler)
+		private void _sharedTradeDataProcess(OldPacket pkt, TradeUpdateEvent handler)
 		{
 			if (handler == null) return;
 

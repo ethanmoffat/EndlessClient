@@ -85,7 +85,7 @@ namespace EOLib.Net.API
 
 		public bool FirstTimePlayer { get; private set; }
 
-		internal WelcomeRequestData(Packet pkt)
+		internal WelcomeRequestData(OldPacket pkt)
 		{
 			PlayerID = pkt.GetShort();
 			ActiveCharacterID = pkt.GetInt();
@@ -95,17 +95,17 @@ namespace EOLib.Net.API
 			MapLen = pkt.GetThree();
 			MapIsPK = MapRID[0] == 0xFF && MapRID[1] == 0x01;
 
-			EifRid = Packet.DecodeNumber(pkt.GetBytes(4));
-			EifLen = (short)Packet.DecodeNumber(pkt.GetBytes(2));
+			EifRid = OldPacket.DecodeNumber(pkt.GetBytes(4));
+			EifLen = (short)OldPacket.DecodeNumber(pkt.GetBytes(2));
 
-			EnfRid = Packet.DecodeNumber(pkt.GetBytes(4));
-			EnfLen = (short)Packet.DecodeNumber(pkt.GetBytes(2));
+			EnfRid = OldPacket.DecodeNumber(pkt.GetBytes(4));
+			EnfLen = (short)OldPacket.DecodeNumber(pkt.GetBytes(2));
 
-			EsfRid = Packet.DecodeNumber(pkt.GetBytes(4));
-			EsfLen = (short)Packet.DecodeNumber(pkt.GetBytes(2));
+			EsfRid = OldPacket.DecodeNumber(pkt.GetBytes(4));
+			EsfLen = (short)OldPacket.DecodeNumber(pkt.GetBytes(2));
 
-			EcfRid = Packet.DecodeNumber(pkt.GetBytes(4));
-			EcfLen = (short)Packet.DecodeNumber(pkt.GetBytes(2));
+			EcfRid = OldPacket.DecodeNumber(pkt.GetBytes(4));
+			EcfLen = (short)OldPacket.DecodeNumber(pkt.GetBytes(2));
 
 			Name = pkt.GetBreakString();
 			Title = pkt.GetBreakString();
@@ -175,7 +175,7 @@ namespace EOLib.Net.API
 		public IEnumerable<NPCData> NPCData { get { return m_npcs.AsReadOnly(); } }
 		public IEnumerable<MapItem> MapItemData { get { return m_items.AsReadOnly(); } }
 
-		internal WelcomeMessageData(Packet pkt)
+		internal WelcomeMessageData(OldPacket pkt)
 		{
 			m_news = new List<string>();
 			for (int i = 0; i < 9; ++i)
@@ -275,7 +275,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet builder = new Packet(PacketFamily.Welcome, PacketAction.Request);
+			OldPacket builder = new OldPacket(PacketFamily.Welcome, PacketAction.Request);
 			builder.AddInt(id);
 
 			if (!m_client.SendPacket(builder))
@@ -295,7 +295,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet builder = new Packet(PacketFamily.Welcome, PacketAction.Message);
+			OldPacket builder = new OldPacket(PacketFamily.Welcome, PacketAction.Message);
 			builder.AddThree(0x00123456); //?
 			builder.AddInt(id);
 
@@ -311,7 +311,7 @@ namespace EOLib.Net.API
 			return true;
 		}
 
-		private void _handleWelcomeReply(Packet pkt)
+		private void _handleWelcomeReply(OldPacket pkt)
 		{
 			WelcomeReply reply = (WelcomeReply) pkt.GetShort();
 			

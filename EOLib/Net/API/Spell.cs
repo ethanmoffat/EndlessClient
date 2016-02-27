@@ -17,7 +17,7 @@ namespace EOLib.Net.API
 		public short MemberPercentHealth { get { return _partyMemberPercentHealth; } }
 		public short MemberHP { get { return _partyMemberHP; } }
 
-		internal GroupSpellTarget(Packet pkt)
+		internal GroupSpellTarget(OldPacket pkt)
 		{
 			_partyMemberID = pkt.GetShort();
 			_partyMemberPercentHealth = pkt.GetChar();
@@ -75,7 +75,7 @@ namespace EOLib.Net.API
 
 			if (!Initialized || !m_client.ConnectedAndInitialized) return false;
 
-			Packet pkt = new Packet(PacketFamily.Spell, PacketAction.Request);
+			OldPacket pkt = new OldPacket(PacketFamily.Spell, PacketAction.Request);
 			pkt.AddShort(spellID);
 			pkt.AddThree(DateTime.Now.ToEOTimeStamp());
 
@@ -88,7 +88,7 @@ namespace EOLib.Net.API
 
 			if (!Initialized || !m_client.ConnectedAndInitialized) return false;
 
-			Packet pkt = new Packet(PacketFamily.Spell, PacketAction.TargetSelf);
+			OldPacket pkt = new OldPacket(PacketFamily.Spell, PacketAction.TargetSelf);
 			pkt.AddChar(1); //target type
 			pkt.AddShort(spellID);
 			pkt.AddInt(DateTime.Now.ToEOTimeStamp());
@@ -102,7 +102,7 @@ namespace EOLib.Net.API
 
 			if (!Initialized || !m_client.ConnectedAndInitialized) return false;
 
-			Packet pkt = new Packet(PacketFamily.Spell, PacketAction.TargetOther);
+			OldPacket pkt = new OldPacket(PacketFamily.Spell, PacketAction.TargetOther);
 			pkt.AddChar((byte)(targetIsNPC ? 2 : 1));
 			pkt.AddChar(1); //unknown value
 			pkt.AddShort(1); //unknown value
@@ -119,7 +119,7 @@ namespace EOLib.Net.API
 
 			if (!Initialized || !m_client.ConnectedAndInitialized) return false;
 
-			Packet pkt = new Packet(PacketFamily.Spell, PacketAction.TargetGroup);
+			OldPacket pkt = new OldPacket(PacketFamily.Spell, PacketAction.TargetGroup);
 			pkt.AddShort(spellID);
 			pkt.AddThree(DateTime.Now.ToEOTimeStamp());
 
@@ -130,7 +130,7 @@ namespace EOLib.Net.API
 
 		#region handler methods
 
-		private void _handleSpellRequest(Packet pkt)
+		private void _handleSpellRequest(OldPacket pkt)
 		{
 			short fromPlayerID = pkt.GetShort();
 			short spellID = pkt.GetShort();
@@ -139,7 +139,7 @@ namespace EOLib.Net.API
 				OnOtherPlayerStartCastSpell(fromPlayerID, spellID);
 		}
 
-		private void _handleSpellTargetSelf(Packet pkt)
+		private void _handleSpellTargetSelf(OldPacket pkt)
 		{
 			short fromPlayerID = pkt.GetShort();
 			short spellID = pkt.GetShort();
@@ -166,7 +166,7 @@ namespace EOLib.Net.API
 				OnCastSpellSelf(fromPlayerID, spellID, spellHP, percentHealth, characterHP, characterTP);
 		}
 
-		private void _handleSpellTargetOther(Packet pkt)
+		private void _handleSpellTargetOther(OldPacket pkt)
 		{
 			if (OnCastSpellTargetOther == null) return;
 
@@ -191,7 +191,7 @@ namespace EOLib.Net.API
 				targetPlayerCurrentHP);
 		}
 
-		private void _handleSpellTargetGroup(Packet pkt)
+		private void _handleSpellTargetGroup(OldPacket pkt)
 		{
 			if (OnCastSpellTargetGroup == null) return;
 

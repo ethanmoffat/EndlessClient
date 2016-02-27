@@ -23,10 +23,10 @@ namespace EOLib.Net.API
 		{
 			//no data sent to server - just expecting a reply
 			return m_client.ConnectedAndInitialized && Initialized &&
-			       m_client.SendPacket(new Packet(PacketFamily.Refresh, PacketAction.Request));
+			       m_client.SendPacket(new OldPacket(PacketFamily.Refresh, PacketAction.Request));
 		}
 
-		private void _handleRefreshReply(Packet pkt)
+		private void _handleRefreshReply(OldPacket pkt)
 		{
 			if (OnWarpAgree == null)
 				return;

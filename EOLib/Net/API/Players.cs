@@ -29,30 +29,30 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Players, PacketAction.Accept);
+			OldPacket pkt = new OldPacket(PacketFamily.Players, PacketAction.Accept);
 			pkt.AddString(characterName);
 
 			return m_client.SendPacket(pkt);
 		}
 
-		private void _handlePlayersPing(Packet pkt)
+		private void _handlePlayersPing(OldPacket pkt)
 		{
 			if (OnPlayerFindCommandReply != null)
 				OnPlayerFindCommandReply(false, false, pkt.GetEndString());
 		}
-		private void _handlePlayersPong(Packet pkt)
+		private void _handlePlayersPong(OldPacket pkt)
 		{
 			if (OnPlayerFindCommandReply != null)
 				OnPlayerFindCommandReply(true, true, pkt.GetEndString());
 		}
-		private void _handlePlayersNet3(Packet pkt)
+		private void _handlePlayersNet3(OldPacket pkt)
 		{
 			if (OnPlayerFindCommandReply != null)
 				OnPlayerFindCommandReply(true, false, pkt.GetEndString());
 		}
 
 		// Handles PLAYERS_AGREE packet which is sent when a player enters a map by warp or upon spawning
-		private void _handlePlayersAgree(Packet pkt)
+		private void _handlePlayersAgree(OldPacket pkt)
 		{
 			if (pkt.GetByte() != 255 || OnPlayerEnterMap == null)
 				return;

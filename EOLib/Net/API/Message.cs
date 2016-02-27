@@ -37,14 +37,14 @@ namespace EOLib.Net.API
 				nextReq = (short)gen.Next(ushort.MinValue, short.MaxValue - 1);
 			} while (requests.ContainsKey(nextReq));
 
-			Packet pkt = new Packet(PacketFamily.Message, PacketAction.Ping);
+			OldPacket pkt = new OldPacket(PacketFamily.Message, PacketAction.Ping);
 			pkt.AddShort(nextReq);
 
 			requests.Add(nextReq, DateTime.Now);
 			return m_client.SendPacket(pkt);
 		}
 
-		private void _handleMessagePong(Packet pkt)
+		private void _handleMessagePong(OldPacket pkt)
 		{
 			DateTime now = DateTime.Now;
 			short req = pkt.GetShort();
@@ -58,7 +58,7 @@ namespace EOLib.Net.API
 				OnServerPingReply(ms);
 		}
 
-		private void _handleMessageOpen(Packet pkt)
+		private void _handleMessageOpen(OldPacket pkt)
 		{
 			if (OnStatusMessage != null)
 				OnStatusMessage(pkt.GetEndString());

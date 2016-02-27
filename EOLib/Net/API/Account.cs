@@ -51,7 +51,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet builder = new Packet(PacketFamily.Account, PacketAction.Agree);
+			OldPacket builder = new OldPacket(PacketFamily.Account, PacketAction.Agree);
 			builder.AddBreakString(username);
 			builder.AddBreakString(old_password);
 			builder.AddBreakString(new_password);
@@ -70,7 +70,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet builder = new Packet(PacketFamily.Account, PacketAction.Request);
+			OldPacket builder = new OldPacket(PacketFamily.Account, PacketAction.Request);
 			builder.AddString(username);
 
 			if (!m_client.SendPacket(builder) || !m_account_responseEvent.WaitOne(Constants.ResponseTimeout))
@@ -87,7 +87,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet builder = new Packet(PacketFamily.Account, PacketAction.Create);
+			OldPacket builder = new OldPacket(PacketFamily.Account, PacketAction.Create);
 			//eoserv doesn't care...
 			builder.AddShort(1337);
 			builder.AddByte(42);

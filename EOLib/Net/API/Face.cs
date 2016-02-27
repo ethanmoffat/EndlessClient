@@ -26,13 +26,13 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Face, PacketAction.Player);
+			OldPacket pkt = new OldPacket(PacketFamily.Face, PacketAction.Player);
 			pkt.AddChar((byte)dir);
 
 			return m_client.SendPacket(pkt);
 		}
 
-		private void _handleFacePlayer(Packet pkt)
+		private void _handleFacePlayer(OldPacket pkt)
 		{
 			short playerId = pkt.GetShort();
 			EODirection dir = (EODirection)pkt.GetChar();

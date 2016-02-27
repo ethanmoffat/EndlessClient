@@ -17,14 +17,14 @@ namespace EOLib.Net.PacketProcessing
 			return ret.ToArray();
 		}
 
-		public Packet AddSequenceNumber(Packet pkt, int sequenceNumber)
+		public OldPacket AddSequenceNumber(OldPacket pkt, int sequenceNumber)
 		{
 			var byteList = pkt.Data.ToList();
 			byteList = AddSequenceBytes(byteList, sequenceNumber);
-			return new Packet(byteList);
+			return new OldPacket(byteList);
 		}
 
-		public byte[] Encode(Packet original, byte encodeMultiplier)
+		public byte[] Encode(OldPacket original, byte encodeMultiplier)
 		{
 			if (encodeMultiplier == 0 || PacketInvalidForEncode(original))
 				return original.Data.ToArray();
@@ -37,32 +37,32 @@ namespace EOLib.Net.PacketProcessing
 			return byteList.ToArray();
 		}
 
-		public Packet Decode(byte[] original, byte decodeMultiplier)
+		public OldPacket Decode(byte[] original, byte decodeMultiplier)
 		{
 			if (decodeMultiplier == 0 || PacketInvalidForDecode(original))
-				return new Packet(original);
+				return new OldPacket(original);
 
 			var byteList = original.ToList();
 			byteList = FlipMSB(byteList);
 			byteList = Deinterleave(byteList);
 			byteList = SwapMultiples(byteList, decodeMultiplier);
 
-			return new Packet(byteList);
+			return new OldPacket(byteList);
 		}
 
 		#region Packet Validation
 
-		private bool PacketInvalidForEncode(Packet pkt)
+		private bool PacketInvalidForEncode(OldPacket pkt)
 		{
 			return IsInitPacket(pkt);
 		}
 
 		private bool PacketInvalidForDecode(byte[] data)
 		{
-			return data.Length > 2 && IsInitPacket(new Packet(new[] {data[3], data[2]}));
+			return data.Length > 2 && IsInitPacket(new OldPacket(new[] {data[3], data[2]}));
 		}
 
-		private static bool IsInitPacket(Packet pkt)
+		private static bool IsInitPacket(OldPacket pkt)
 		{
 			return pkt.Family == PacketFamily.Init &&
 			       pkt.Action == PacketAction.Init;
@@ -74,8 +74,8 @@ namespace EOLib.Net.PacketProcessing
 
 		private List<byte> AddSequenceBytes(IReadOnlyList<byte> original, int seq)
 		{
-			var numberOfSequenceBytes = seq >= Packet.SINGLE_MAX ? 2 : 1;
-			var encodedSequenceBytes = Packet.EncodeNumber(seq, numberOfSequenceBytes);
+			var numberOfSequenceBytes = seq >= OldPacket.SINGLE_MAX ? 2 : 1;
+			var encodedSequenceBytes = OldPacket.EncodeNumber(seq, numberOfSequenceBytes);
 
 			var combined = new List<byte>(original.Count + numberOfSequenceBytes);
 			//family/action copied to [0][1]
@@ -94,7 +94,7 @@ namespace EOLib.Net.PacketProcessing
 
 		private List<byte> PrependLength(IReadOnlyList<byte> data)
 		{
-			var len = Packet.EncodeNumber(data.Count, 2);
+			var len = OldPacket.EncodeNumber(data.Count, 2);
 			var combined = new List<byte>(data.Count + len.Length);
 
 			combined.AddRange(len);

@@ -81,7 +81,7 @@ namespace EOLib.Net
 		}
 	}
 
-	public delegate void PacketHandler(Packet reader);
+	public delegate void PacketHandler(OldPacket reader);
 	public struct FamilyActionPair : IEqualityComparer
 	{
 		private readonly PacketFamily fam;
@@ -123,7 +123,7 @@ namespace EOLib.Net
 			_inGameOnly = inGameOnly;
 		}
 
-		public void InvokeHandler(Packet pkt, bool isInGame)
+		public void InvokeHandler(OldPacket pkt, bool isInGame)
 		{ //force ignore if the handler is an in-game only handler
 			if (_inGameOnly && !isInGame)
 				return;
@@ -178,7 +178,7 @@ namespace EOLib.Net
 			StartDataReceive(wrap);
 		}
 
-		protected override void OnSendData(Packet pkt, out byte[] toSend)
+		protected override void OnSendData(OldPacket pkt, out byte[] toSend)
 		{
 			//for debugging: sometimes the server is getting PACKET_INTERNAL from this client
 			//I'm not sure why and it happens randomly so this check will allow me to examine
@@ -198,7 +198,7 @@ namespace EOLib.Net
 			}
 		}
 
-		protected override void OnSendRawData(Packet pkt, out byte[] toSend)
+		protected override void OnSendRawData(OldPacket pkt, out byte[] toSend)
 		{
 			if (EventSendData != null)
 			{
@@ -232,7 +232,7 @@ namespace EOLib.Net
 						{
 							wrap.RawLength[1] = wrap.Data[0];
 							wrap.State = EODataChunk.DataReceiveState.ReadData;
-							wrap.Data = new byte[Packet.DecodeNumber(wrap.RawLength)];
+							wrap.Data = new byte[OldPacket.DecodeNumber(wrap.RawLength)];
 							StartDataReceive(wrap);
 							break;
 						}
@@ -283,7 +283,7 @@ namespace EOLib.Net
 									data[2] = reply;
 								}
 
-								pkt = new Packet(data);
+								pkt = new OldPacket(data);
 							}
 
 							_handlePacket(pkt);
@@ -308,7 +308,7 @@ namespace EOLib.Net
 
 		private void _handlePacket(object state)
 		{
-			Packet pkt = (Packet) state;
+			OldPacket pkt = (OldPacket) state;
 			FamilyActionPair pair = new FamilyActionPair(pkt.Family, pkt.Action);
 			bool handled = false;
 			if (m_handlers.ContainsKey(pair))

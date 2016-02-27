@@ -33,7 +33,7 @@ namespace EOLib.Net.API
 		public byte PercentHealth { get { return m_pctHealth; } }
 		public string Name { get { return m_name; } }
 
-		internal PartyMember(Packet pkt, bool isFullData)
+		internal PartyMember(OldPacket pkt, bool isFullData)
 		{
 			m_isFullData = isFullData;
 			m_id = pkt.GetShort();
@@ -92,7 +92,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Party, PacketAction.Request);
+			OldPacket pkt = new OldPacket(PacketFamily.Party, PacketAction.Request);
 			pkt.AddChar((byte)type);
 			pkt.AddShort(otherCharID);
 
@@ -110,7 +110,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Party, PacketAction.Accept);
+			OldPacket pkt = new OldPacket(PacketFamily.Party, PacketAction.Accept);
 			pkt.AddChar((byte)type);
 			pkt.AddShort(otherCharID);
 
@@ -127,7 +127,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Party, PacketAction.Remove);
+			OldPacket pkt = new OldPacket(PacketFamily.Party, PacketAction.Remove);
 			pkt.AddShort(otherCharID);
 
 			return m_client.SendPacket(pkt);
@@ -138,11 +138,11 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			return m_client.SendPacket(new Packet(PacketFamily.Party, PacketAction.Take));
+			return m_client.SendPacket(new OldPacket(PacketFamily.Party, PacketAction.Take));
 		}
 
 		//handles a request to join/invite from another player
-		private void _handlePartyRequest(Packet pkt)
+		private void _handlePartyRequest(OldPacket pkt)
 		{
 			if (OnPartyRequest == null) return;
 			PartyRequestType type = (PartyRequestType) pkt.GetChar();
@@ -154,7 +154,7 @@ namespace EOLib.Net.API
 
 		//handles party_create and party_list packets
 		//party_create should do some creation logic - party_list should only update the members info
-		private void _handlePartyCreateList(Packet pkt)
+		private void _handlePartyCreateList(OldPacket pkt)
 		{
 			if (OnPartyDataRefresh == null) return;
 			List<PartyMember> members = new List<PartyMember>();
@@ -164,7 +164,7 @@ namespace EOLib.Net.API
 		}
 
 		//handles an HP update for party members
-		private void _handlePartyAgree(Packet pkt)
+		private void _handlePartyAgree(OldPacket pkt)
 		{
 			if (OnPartyDataRefresh == null) return;
 			List<PartyMember> members = new List<PartyMember>();
@@ -173,21 +173,21 @@ namespace EOLib.Net.API
 			OnPartyDataRefresh(members);
 		}
 
-		private void _handlePartyAdd(Packet pkt)
+		private void _handlePartyAdd(OldPacket pkt)
 		{
 			if(OnPartyMemberJoin != null)
 				OnPartyMemberJoin(new PartyMember(pkt, true));
 		}
 
 		//handles removing a player from a party (not this player)
-		private void _handlePartyRemove(Packet pkt)
+		private void _handlePartyRemove(OldPacket pkt)
 		{
 			if (OnPartyMemberLeave != null)
 				OnPartyMemberLeave(pkt.GetShort()); //id of character leaving
 		}
 
 		//closes a party on this end
-		private void _handlePartyClose(Packet pkt)
+		private void _handlePartyClose(OldPacket pkt)
 		{
 			//1 byte - 255
 			if (OnPartyClose != null)

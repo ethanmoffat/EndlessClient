@@ -8,10 +8,10 @@ namespace EOLib.Net.PacketProcessing
 	{
 		byte[] PrependLengthBytes(byte[] data);
 
-		Packet AddSequenceNumber(Packet pkt, int sequenceNumber);
+		OldPacket AddSequenceNumber(OldPacket pkt, int sequenceNumber);
 
-		byte[] Encode(Packet original, byte encodeMultiplier);
+		byte[] Encode(OldPacket original, byte encodeMultiplier);
 
-		Packet Decode(byte[] original, byte decodeMultiplier);
+		OldPacket Decode(byte[] original, byte decodeMultiplier);
 	}
 }

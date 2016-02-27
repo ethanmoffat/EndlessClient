@@ -27,7 +27,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet builder = new Packet(PacketFamily.Walk, admin ? PacketAction.Admin : PacketAction.Player);
+			OldPacket builder = new OldPacket(PacketFamily.Walk, admin ? PacketAction.Admin : PacketAction.Player);
 				//change family/action
 			builder.AddChar((byte) dir);
 			builder.AddThree(DateTime.Now.ToEOTimeStamp());
@@ -37,7 +37,7 @@ namespace EOLib.Net.API
 			return m_client.SendPacket(builder);
 		}
 
-		private void _handleMainPlayerWalk(Packet pkt)
+		private void _handleMainPlayerWalk(OldPacket pkt)
 		{
 			if (pkt.GetByte() != 255 || pkt.GetByte() != 255 || OnMainPlayerWalk == null)
 				return;
@@ -60,7 +60,7 @@ namespace EOLib.Net.API
 			OnMainPlayerWalk(items);
 		}
 
-		private void _handleOtherPlayerWalk(Packet pkt)
+		private void _handleOtherPlayerWalk(OldPacket pkt)
 		{
 			if (OnOtherPlayerWalk == null) return;
 

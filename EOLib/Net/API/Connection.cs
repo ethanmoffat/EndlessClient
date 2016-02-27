@@ -18,7 +18,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized)
 				return false;
 
-			Packet confirm = new Packet(PacketFamily.Connection, PacketAction.Accept);
+			OldPacket confirm = new OldPacket(PacketFamily.Connection, PacketAction.Accept);
 			confirm.AddShort(SendMulti);
 			confirm.AddShort(RecvMulti);
 			confirm.AddShort(clientID);
@@ -37,13 +37,13 @@ namespace EOLib.Net.API
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Connection, PacketAction.Player), _handleConnectionPlayer, false);
 		}
 
-		private void _handleConnectionPlayer(Packet pkt)
+		private void _handleConnectionPlayer(OldPacket pkt)
 		{
 			var seq_1 = pkt.GetShort();
 			var seq_2 = pkt.GetChar();
 			m_client.UpdateSequence(seq_1, seq_2);
 
-			var reply = new Packet(PacketFamily.Connection, PacketAction.Ping);
+			var reply = new OldPacket(PacketFamily.Connection, PacketAction.Ping);
 			m_client.SendPacket(reply);
 		}
 	}

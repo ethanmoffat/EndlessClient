@@ -65,7 +65,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Shop, PacketAction.Open);
+			OldPacket pkt = new OldPacket(PacketFamily.Shop, PacketAction.Open);
 			pkt.AddShort(npcIndex);
 
 			return m_client.SendPacket(pkt);
@@ -79,7 +79,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Shop, PacketAction.Buy);
+			OldPacket pkt = new OldPacket(PacketFamily.Shop, PacketAction.Buy);
 			pkt.AddShort(ItemID);
 			pkt.AddInt(amount);
 
@@ -94,7 +94,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Shop, PacketAction.Sell);
+			OldPacket pkt = new OldPacket(PacketFamily.Shop, PacketAction.Sell);
 			pkt.AddShort(ItemID);
 			pkt.AddInt(amount);
 
@@ -109,7 +109,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Shop, PacketAction.Create);
+			OldPacket pkt = new OldPacket(PacketFamily.Shop, PacketAction.Create);
 			pkt.AddShort(ItemID);
 
 			return m_client.SendPacket(pkt);
@@ -118,7 +118,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handles SHOP_OPEN from server, contains shop data for a shop dialog
 		/// </summary>
-		private void _handleShopOpen(Packet pkt)
+		private void _handleShopOpen(OldPacket pkt)
 		{
 			if (OnShopOpen == null) return;
 
@@ -153,7 +153,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handles SHOP_BUY from server, response to buying an item
 		/// </summary>
-		private void _handleShopBuy(Packet pkt)
+		private void _handleShopBuy(OldPacket pkt)
 		{
 			if (OnShopTradeItem == null) return;
 
@@ -169,7 +169,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handles SHOP_SELL from server, response to selling an item
 		/// </summary>
-		private void _handleShopSell(Packet pkt)
+		private void _handleShopSell(OldPacket pkt)
 		{
 			if (OnShopTradeItem == null) return;
 
@@ -185,7 +185,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Handles SHOP_CREATE from server, response to crafting an item
 		/// </summary>
-		private void _handleShopCreate(Packet pkt)
+		private void _handleShopCreate(OldPacket pkt)
 		{
 			if (OnShopCraftItem == null) return;
 

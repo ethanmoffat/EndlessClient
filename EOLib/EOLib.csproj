@@ -159,7 +159,7 @@
     <Compile Include="Net\PacketProcessing\PacketProcessActions.cs" />
     <Compile Include="Net\PacketProcessing\PacketSequenceService.cs" />
     <Compile Include="Net\PacketProcessing\SequenceRepository.cs" />
-    <Compile Include="Net\Packet.cs" />
+    <Compile Include="Net\OldPacket.cs" />
     <Compile Include="Net\PacketProcessing\PacketEncoderService.cs" />
     <Compile Include="Net\Communication\PacketQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

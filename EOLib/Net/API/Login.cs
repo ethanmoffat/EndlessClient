@@ -45,7 +45,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Login, PacketAction.Request);
+			OldPacket pkt = new OldPacket(PacketFamily.Login, PacketAction.Request);
 			pkt.AddBreakString(user);
 			pkt.AddBreakString(pass);
 
@@ -62,7 +62,7 @@ namespace EOLib.Net.API
 		}
 
 		//handler for LOGIN_REPLY received from server
-		private void _handleLoginReply(Packet pkt)
+		private void _handleLoginReply(OldPacket pkt)
 		{
 			m_login_reply = (LoginReply)pkt.GetShort();
 

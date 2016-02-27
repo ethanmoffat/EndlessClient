@@ -56,7 +56,7 @@ namespace EOLib.Net.API
 		}
 
 		//sent to the player taking spike damage and map TP drains
-		private void _handleEffectSpec(Packet pkt)
+		private void _handleEffectSpec(OldPacket pkt)
 		{
 			//1 in eoserv Map::TimedDrains - tp
 			//2 in eoserv Character::SpikeDamage
@@ -89,7 +89,7 @@ namespace EOLib.Net.API
 		}
 
 		//sent to players around a player taking spike damage
-		private void _handleEffectAdmin(Packet pkt)
+		private void _handleEffectAdmin(OldPacket pkt)
 		{
 			if (OnOtherPlayerTakeSpikeDamage == null) return;
 
@@ -102,7 +102,7 @@ namespace EOLib.Net.API
 		}
 
 		//timed spikes
-		private void _handleEffectReport(Packet pkt)
+		private void _handleEffectReport(OldPacket pkt)
 		{
 			pkt.GetChar(); //always 83 - sent from eoserv when Map::TimedSpikes is called
 			//as of rev 487 this is not sent anywhere else. May need to update event handler if this changes.
@@ -111,7 +111,7 @@ namespace EOLib.Net.API
 		}
 
 		//map hp drain
-		private void _handleEffectTargetOther(Packet pkt)
+		private void _handleEffectTargetOther(OldPacket pkt)
 		{
 			if (OnTimedMapDrainHP == null)
 				return;
@@ -134,7 +134,7 @@ namespace EOLib.Net.API
 		}
 
 		//potion effect (only known use based on eoserv code)
-		private void _handleEffectPlayer(Packet pkt)
+		private void _handleEffectPlayer(OldPacket pkt)
 		{
 			if (OnEffectPotion != null)
 				OnEffectPotion(playerID: pkt.GetShort(),

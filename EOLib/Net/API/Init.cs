@@ -150,7 +150,7 @@ namespace EOLib.Net.API
 				return false;
 			}
 
-			Packet builder = new Packet(PacketFamily.Init, PacketAction.Init);
+			OldPacket builder = new OldPacket(PacketFamily.Init, PacketAction.Init);
 
 			builder.AddThree(Hashes.stupid_hash(new Random().Next(6, 12)));
 
@@ -180,7 +180,7 @@ namespace EOLib.Net.API
 			if (file == InitFileType.Map && mapID <= 0)
 				return false;
 
-			Packet builder = new Packet(PacketFamily.Welcome, PacketAction.Agree);
+			OldPacket builder = new OldPacket(PacketFamily.Welcome, PacketAction.Agree);
 			builder.AddChar((byte)file);
 			m_client.ExpectingFile = true;
 			m_init_requestedMap = mapID;
@@ -205,7 +205,7 @@ namespace EOLib.Net.API
 				return false;
 
 			//send the file request
-			Packet builder = new Packet(PacketFamily.Warp, PacketAction.Take);
+			OldPacket builder = new OldPacket(PacketFamily.Warp, PacketAction.Take);
 			m_client.ExpectingFile = true;
 			m_init_requestedMap = MapID;
 
@@ -235,7 +235,7 @@ namespace EOLib.Net.API
 				return false;
 
 			m_client.ExpectingPlayerList = true;
-			Packet pkt = new Packet(PacketFamily.Players, includeFullInfo ? PacketAction.Request : PacketAction.List);
+			OldPacket pkt = new OldPacket(PacketFamily.Players, includeFullInfo ? PacketAction.Request : PacketAction.List);
 			if (!m_client.SendPacket(pkt))
 				return false;
 
@@ -247,7 +247,7 @@ namespace EOLib.Net.API
 			return true;
 		}
 
-		private void _handleInitInit(Packet pkt)
+		private void _handleInitInit(OldPacket pkt)
 		{
 			InitReply response = (InitReply)pkt.GetByte();
 			switch (response)
@@ -351,7 +351,7 @@ namespace EOLib.Net.API
 			m_init_responseEvent.Set(); //packet was handled
 		}
 
-		private void _handlePlayerList(Packet pkt, bool isFriendList)
+		private void _handlePlayerList(OldPacket pkt, bool isFriendList)
 		{
 			short numTotal = pkt.GetShort();
 			if (pkt.GetByte() != 255)

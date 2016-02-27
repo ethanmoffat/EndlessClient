@@ -19,7 +19,7 @@ namespace EOLib.Net.API
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Agree),  _handleAdminShow, true);
 		}
 
-		private void _handleAdminHide(Packet pkt)
+		private void _handleAdminHide(OldPacket pkt)
 		{
 			if (OnAdminHiddenChange == null) return;
 			short id = pkt.GetShort();
@@ -27,7 +27,7 @@ namespace EOLib.Net.API
 			OnAdminHiddenChange(id, true);
 		}
 
-		private void _handleAdminShow(Packet pkt)
+		private void _handleAdminShow(OldPacket pkt)
 		{
 			if (OnAdminHiddenChange == null) return;
 			short id = pkt.GetShort();

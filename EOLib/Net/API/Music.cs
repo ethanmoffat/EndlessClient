@@ -15,7 +15,7 @@ namespace EOLib.Net.API
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Music, PacketAction.Player), _handleMusicPlayer, true);
 		}
 
-		private void _handleMusicPlayer(Packet pkt)
+		private void _handleMusicPlayer(OldPacket pkt)
 		{
 			if (OnPlaySoundEffect != null)
 				OnPlaySoundEffect(pkt.GetChar());

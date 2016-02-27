@@ -104,7 +104,7 @@ namespace EOLib.Net.API
 			get { return _target; }
 		}
 
-		internal InProgressQuestData(Packet pkt)
+		internal InProgressQuestData(OldPacket pkt)
 		{
 			_name = pkt.GetBreakString();
 			_description = pkt.GetBreakString();
@@ -139,7 +139,7 @@ namespace EOLib.Net.API
 			if (!Initialized || !m_client.ConnectedAndInitialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Quest, PacketAction.Use);
+			OldPacket pkt = new OldPacket(PacketFamily.Quest, PacketAction.Use);
 			pkt.AddShort(npcIndex);
 			pkt.AddShort(questID);
 
@@ -151,7 +151,7 @@ namespace EOLib.Net.API
 			if (!Initialized || !m_client.ConnectedAndInitialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Quest, PacketAction.Accept);
+			OldPacket pkt = new OldPacket(PacketFamily.Quest, PacketAction.Accept);
 			pkt.AddShort(state.SessionID); //session ID - ignored by default EOSERV
 			pkt.AddShort(state.DialogID); //dialog ID - ignored by default EOSERV
 			pkt.AddShort(state.QuestID);
@@ -168,13 +168,13 @@ namespace EOLib.Net.API
 			if (!Initialized || !m_client.ConnectedAndInitialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.Quest, PacketAction.List);
+			OldPacket pkt = new OldPacket(PacketFamily.Quest, PacketAction.List);
 			pkt.AddChar((byte) page);
 
 			return m_client.SendPacket(pkt);
 		}
 
-		private void _handleQuestDialog(Packet pkt)
+		private void _handleQuestDialog(OldPacket pkt)
 		{
 			if (OnQuestDialog == null) return;
 
@@ -212,7 +212,7 @@ namespace EOLib.Net.API
 			OnQuestDialog(stateInfo, dialogNames, pages, links);
 		}
 
-		private void _handleQuestList(Packet pkt)
+		private void _handleQuestList(OldPacket pkt)
 		{
 			QuestPage page = (QuestPage) pkt.GetChar();
 			short numQuests = pkt.GetShort();

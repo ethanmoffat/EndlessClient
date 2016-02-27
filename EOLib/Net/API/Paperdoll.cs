@@ -50,7 +50,7 @@ namespace EOLib.Net.API
 		public short Evade { get { return evade; } }
 		public short Armor { get { return armor; } }
 
-		internal PaperdollEquipData(Packet pkt, bool itemUnequipped)
+		internal PaperdollEquipData(OldPacket pkt, bool itemUnequipped)
 		{
 			itemRemoved = itemUnequipped;
 
@@ -95,7 +95,7 @@ namespace EOLib.Net.API
 		public ReadOnlyCollection<short> Paperdoll { get { return paperdoll.AsEnumerable().ToList().AsReadOnly(); } }
 		public PaperdollIconType Icon { get { return iconType; } }
 
-		internal PaperdollDisplayData(Packet pkt)
+		internal PaperdollDisplayData(OldPacket pkt)
 		{
 			//need to be applied to the character that is passed to the dialog
 			name = pkt.GetBreakString();
@@ -138,7 +138,7 @@ namespace EOLib.Net.API
 		{
 			if (!m_client.ConnectedAndInitialized || !Initialized) return false;
 
-			Packet pkt = new Packet(PacketFamily.PaperDoll, PacketAction.Add);
+			OldPacket pkt = new OldPacket(PacketFamily.PaperDoll, PacketAction.Add);
 			pkt.AddShort(id);
 			pkt.AddChar(subLoc);
 
@@ -149,7 +149,7 @@ namespace EOLib.Net.API
 		{
 			if (!m_client.ConnectedAndInitialized || !Initialized) return false;
 
-			Packet pkt = new Packet(PacketFamily.PaperDoll, PacketAction.Remove);
+			OldPacket pkt = new OldPacket(PacketFamily.PaperDoll, PacketAction.Remove);
 			pkt.AddShort(id);
 			pkt.AddChar(subLoc);
 
@@ -160,14 +160,14 @@ namespace EOLib.Net.API
 		{
 			if (!m_client.ConnectedAndInitialized || !Initialized) return false;
 
-			Packet pkt = new Packet(PacketFamily.PaperDoll, PacketAction.Request);
+			OldPacket pkt = new OldPacket(PacketFamily.PaperDoll, PacketAction.Request);
 			pkt.AddShort(charId);
 
 			return m_client.SendPacket(pkt);
 		}
 		
 		//this is only ever sent to MainPlayer (avatar handles other players)
-		private void _handlePaperdollAgree(Packet pkt)
+		private void _handlePaperdollAgree(OldPacket pkt)
 		{
 			if (OnPlayerPaperdollChange == null) return;
 
@@ -178,7 +178,7 @@ namespace EOLib.Net.API
 		}
 
 		//this is only ever sent to MainPlayer (avatar handles other players)
-		private void _handlePaperdollRemove(Packet pkt)
+		private void _handlePaperdollRemove(OldPacket pkt)
 		{
 			if (OnPlayerPaperdollChange == null) return;
 
@@ -213,7 +213,7 @@ namespace EOLib.Net.API
 			OnPlayerPaperdollChange(data);
 		}
 
-		private void _handlePaperdollReply(Packet pkt) //sent when showing a paperdoll for a character
+		private void _handlePaperdollReply(OldPacket pkt) //sent when showing a paperdoll for a character
 		{
 			if (OnViewPaperdoll == null) return;
 

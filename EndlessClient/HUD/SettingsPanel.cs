@@ -157,7 +157,7 @@ namespace EndlessClient.HUD
 			{
 				w.HearWhispers = !w.HearWhispers;
 				m_leftSide[4].Text = World.GetString(w.HearWhispers ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
-				Packet pkt = new Packet(PacketFamily.Global, w.HearWhispers ? PacketAction.Remove : PacketAction.Player);
+				OldPacket pkt = new OldPacket(PacketFamily.Global, w.HearWhispers ? PacketAction.Remove : PacketAction.Player);
 				pkt.AddChar(w.HearWhispers ? (byte) 'n' : (byte) 'y');
 				w.Client.SendPacket(pkt);
 			}

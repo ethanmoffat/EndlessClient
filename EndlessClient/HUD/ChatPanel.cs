@@ -477,13 +477,13 @@ namespace EndlessClient.HUD
 		{
 			if ((ChatTabs) currentSelTab == ChatTabs.Global && tabToSelect != ChatTabs.Global)
 			{
-				Packet pkt = new Packet(PacketFamily.Global, PacketAction.Close);
+				OldPacket pkt = new OldPacket(PacketFamily.Global, PacketAction.Close);
 				pkt.AddChar((byte) 'n');
 				World.Instance.Client.SendPacket(pkt);
 			}
 			else if(tabToSelect == ChatTabs.Global && (ChatTabs)currentSelTab != ChatTabs.Global)
 			{
-				Packet pkt = new Packet(PacketFamily.Global, PacketAction.Open);
+				OldPacket pkt = new OldPacket(PacketFamily.Global, PacketAction.Open);
 				pkt.AddChar((byte) 'y');
 				World.Instance.Client.SendPacket(pkt);
 			}

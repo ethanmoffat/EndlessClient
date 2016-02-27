@@ -19,7 +19,7 @@ namespace EOLib.Net.API
 		{
 			if (!m_client.ConnectedAndInitialized || !Initialized) return false;
 
-			Packet builder = new Packet(PacketFamily.Door, PacketAction.Open);
+			OldPacket builder = new OldPacket(PacketFamily.Door, PacketAction.Open);
 			builder.AddChar(x);
 			builder.AddChar(y);
 
@@ -27,7 +27,7 @@ namespace EOLib.Net.API
 		}
 
 		//also a DOOR_OPEN packet
-		private void _handleDoorOpen(Packet pkt)
+		private void _handleDoorOpen(OldPacket pkt)
 		{
 			if (OnDoorOpen == null) return;
 

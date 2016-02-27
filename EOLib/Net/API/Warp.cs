@@ -51,7 +51,7 @@ namespace EOLib.Net.API
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Warp, PacketAction.Agree), _handleWarpAgree, true);
 		}
 
-		private void _handleWarpRequest(Packet pkt)
+		private void _handleWarpRequest(OldPacket pkt)
 		{
 			WarpReply warpType = (WarpReply)pkt.GetChar();
 			switch (warpType)
@@ -80,13 +80,13 @@ namespace EOLib.Net.API
 		{
 			if (!m_client.ConnectedAndInitialized) return;
 
-			Packet builder = new Packet(PacketFamily.Warp, PacketAction.Accept);
+			OldPacket builder = new OldPacket(PacketFamily.Warp, PacketAction.Accept);
 			builder.AddShort(mapID);
 
 			m_client.SendPacket(builder);
 		}
 
-		private void _handleWarpAgree(Packet pkt)
+		private void _handleWarpAgree(OldPacket pkt)
 		{
 			if (pkt.GetChar() != 2 || OnWarpAgree == null) return;
 

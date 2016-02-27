@@ -44,7 +44,7 @@ namespace EOLib.Net.API
 		public short Evade { get { return m_evade; } }
 		public short Armor { get { return m_armor; } }
 
-		internal DisplayStats(Packet pkt, bool isStatsData)
+		internal DisplayStats(OldPacket pkt, bool isStatsData)
 		{
 			m_statsData = isStatsData;
 			m_class = pkt.GetShort();
@@ -85,13 +85,13 @@ namespace EOLib.Net.API
 			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Recover, PacketAction.Agree), _handleRecoverAgree, true);
 		}
 
-		private void _handleRecoverPlayer(Packet pkt)
+		private void _handleRecoverPlayer(OldPacket pkt)
 		{
 			if (OnPlayerRecover != null)
 				OnPlayerRecover(pkt.GetShort(), pkt.GetShort()); //HP - TP
 		}
 
-		private void _handleRecoverReply(Packet pkt)
+		private void _handleRecoverReply(OldPacket pkt)
 		{
 			if (OnRecoverReply == null) return;
 
@@ -110,14 +110,14 @@ namespace EOLib.Net.API
 			}
 		}
 
-		private void _handleRecoverList(Packet pkt)
+		private void _handleRecoverList(OldPacket pkt)
 		{
 			//almost identical to STATSKILL_PLAYER packet
 			if (OnStatsList != null)
 				OnStatsList(new DisplayStats(pkt, false));
 		}
 
-		private void _handleRecoverAgree(Packet pkt)
+		private void _handleRecoverAgree(OldPacket pkt)
 		{
 			//when a heal item is used by another player
 			if (OnPlayerHeal != null)

@@ -197,7 +197,7 @@ namespace EOLib.Net
 		// Send a packet to the server
 		//---------------------------------------
 
-		public bool SendPacket(Packet pkt)
+		public bool SendPacket(OldPacket pkt)
 		{
 			if (!m_sendLock.WaitOne(Constants.ResponseTimeout)) //do one send at a time
 				return false;
@@ -220,7 +220,7 @@ namespace EOLib.Net
 		/// <summary>
 		/// Does optional processing of packet data before sending it to the server
 		/// </summary>
-		protected virtual void OnSendData(Packet pkt, out byte[] toSend)
+		protected virtual void OnSendData(OldPacket pkt, out byte[] toSend)
 		{
 			toSend = pkt.Get();
 		}
@@ -228,7 +228,7 @@ namespace EOLib.Net
 		/// <summary>
 		/// Send unencrypted packet to server
 		/// </summary>
-		public bool SendRaw(Packet pkt)
+		public bool SendRaw(OldPacket pkt)
 		{
 			m_sendLock.WaitOne();
 
@@ -249,7 +249,7 @@ namespace EOLib.Net
 		/// <summary>
 		/// Does optional processing of raw packet data before sending it to the server
 		/// </summary>
-		protected virtual void OnSendRawData(Packet pkt, out byte[] toSend)
+		protected virtual void OnSendRawData(OldPacket pkt, out byte[] toSend)
 		{
 			toSend = pkt.Get();
 		}

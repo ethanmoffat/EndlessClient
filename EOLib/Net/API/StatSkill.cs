@@ -46,7 +46,7 @@ namespace EOLib.Net.API
 		public short ConReq { get { return m_conReq; } }
 		public short ChaReq { get { return m_chaReq; } }
 
-		internal Skill(Packet pkt)
+		internal Skill(OldPacket pkt)
 		{
 			m_id = pkt.GetShort();
 			m_levelReq = pkt.GetChar();
@@ -79,7 +79,7 @@ namespace EOLib.Net.API
 		public string Title { get { return m_title; } }
 		public IList<Skill> Skills { get { return m_skills.AsReadOnly(); } }
 
-		internal SkillmasterData(Packet pkt)
+		internal SkillmasterData(OldPacket pkt)
 		{
 			m_id = pkt.GetShort();
 			m_title = pkt.GetBreakString();
@@ -116,7 +116,7 @@ namespace EOLib.Net.API
 		public short Evade { get { return m_evade; } }
 		public short Armor { get { return m_armor; } }
 
-		internal StatResetData(Packet pkt)
+		internal StatResetData(OldPacket pkt)
 		{
 			m_statpts = pkt.GetShort();
 			m_skillpts = pkt.GetShort();
@@ -171,7 +171,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.StatSkill, PacketAction.Open);
+			OldPacket pkt = new OldPacket(PacketFamily.StatSkill, PacketAction.Open);
 			pkt.AddShort(skillmasterIndex);
 
 			return m_client.SendPacket(pkt);
@@ -182,7 +182,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.StatSkill, PacketAction.Take);
+			OldPacket pkt = new OldPacket(PacketFamily.StatSkill, PacketAction.Take);
 			pkt.AddInt(1234); //shop ID, ignored by eoserv - eomain may require this to be correct
 			pkt.AddShort(spellID);
 
@@ -194,7 +194,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.StatSkill, PacketAction.Remove);
+			OldPacket pkt = new OldPacket(PacketFamily.StatSkill, PacketAction.Remove);
 			pkt.AddInt(1234); //shop ID, ignored by eoserv - eomain may require this to be correct
 			pkt.AddShort(spellID);
 
@@ -213,7 +213,7 @@ namespace EOLib.Net.API
 
 		public bool ResetCharacterStatSkill()
 		{
-			Packet pkt = new Packet(PacketFamily.StatSkill, PacketAction.Junk);
+			OldPacket pkt = new OldPacket(PacketFamily.StatSkill, PacketAction.Junk);
 			pkt.AddInt(1234); //shop ID, ignored by eoserv - eomain may require this to be correct
 			return !m_client.ConnectedAndInitialized || !Initialized || m_client.SendPacket(pkt);
 		}
@@ -223,7 +223,7 @@ namespace EOLib.Net.API
 			if (!m_client.ConnectedAndInitialized || !Initialized)
 				return false;
 
-			Packet pkt = new Packet(PacketFamily.StatSkill, PacketAction.Add);
+			OldPacket pkt = new OldPacket(PacketFamily.StatSkill, PacketAction.Add);
 			pkt.AddChar((byte)type);
 			pkt.AddShort(id);
 
@@ -232,14 +232,14 @@ namespace EOLib.Net.API
 
 		//handlers
 
-		private void _handleStatSkillOpen(Packet pkt)
+		private void _handleStatSkillOpen(OldPacket pkt)
 		{
 			if (OnSkillmasterOpen != null)
 				OnSkillmasterOpen(new SkillmasterData(pkt));
 		}
 
 		//error learning a skill
-		private void _handleStatSkillReply(Packet pkt)
+		private void _handleStatSkillReply(OldPacket pkt)
 		{
 			//short - should always be SKILLMASTER_REMOVE_ITEMS (1) or SKILLMASTER_WRONG_CLASS (2)
 			//short - character class
@@ -248,7 +248,7 @@ namespace EOLib.Net.API
 		}
 
 		//success learning a skill
-		private void _handleStatSkillTake(Packet pkt)
+		private void _handleStatSkillTake(OldPacket pkt)
 		{
 			//short - spell id
 			//int - character gold remaining
@@ -257,7 +257,7 @@ namespace EOLib.Net.API
 		}
 
 		//forgetting a skill
-		private void _handleStatSkillRemove(Packet pkt)
+		private void _handleStatSkillRemove(OldPacket pkt)
 		{
 			//short - spell id
 			if (OnSpellForget != null)
@@ -265,14 +265,14 @@ namespace EOLib.Net.API
 		}
 
 		//stat point added
-		private void _handleStatSkillPlayer(Packet pkt)
+		private void _handleStatSkillPlayer(OldPacket pkt)
 		{
 			if (OnStatsList != null)
 				OnStatsList(new DisplayStats(pkt, true));
 		}
 
 		//skill point added to spell
-		private void _handleStatSkillAccept(Packet pkt)
+		private void _handleStatSkillAccept(OldPacket pkt)
 		{
 			//short - character skill pts remaining
 			//short - stat ID (spell ID)
@@ -282,7 +282,7 @@ namespace EOLib.Net.API
 		}
 
 		//reset character
-		private void _handleStatSkillJunk(Packet pkt)
+		private void _handleStatSkillJunk(OldPacket pkt)
 		{
 			if (OnCharacterStatsReset != null)
 				OnCharacterStatsReset(new StatResetData(pkt));

@@ -8,10 +8,10 @@ using System.Text;
 
 namespace EOLib.Net
 {
-	public class Packet
+	public class OldPacket
 	{
-		private static readonly Packet _empty = new Packet(new byte[] { });
-		public static Packet Empty { get { return _empty; } }
+		private static readonly OldPacket _empty = new OldPacket(new byte[] { });
+		public static OldPacket Empty { get { return _empty; } }
 
 		public  const int SINGLE_MAX = 253;
 		private const int DOUBLE_MAX = 64009;
@@ -69,12 +69,12 @@ namespace EOLib.Net
 
 		public byte[] Data { get { return data.ToArray(); } }
 
-		public Packet(PacketFamily family, PacketAction action)
+		public OldPacket(PacketFamily family, PacketAction action)
 		{
 			data = new List<byte>(2) {(byte) action, (byte) family};
 		}
 
-		public Packet(IEnumerable<byte> data)
+		public OldPacket(IEnumerable<byte> data)
 		{
 			this.data = new List<byte>(data);
 		}
