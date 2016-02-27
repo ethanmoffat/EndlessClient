@@ -147,6 +147,10 @@
     <Compile Include="Net\ClientBase.cs" />
     <Compile Include="Net\EOClient.cs" />
     <Compile Include="Net\Communication\IAsyncSocket.cs" />
+    <Compile Include="Net\IPacket.cs" />
+    <Compile Include="Net\IPacketBuilder.cs" />
+    <Compile Include="Net\Packet.cs" />
+    <Compile Include="Net\PacketBuilder.cs" />
     <Compile Include="Net\PacketProcessing\IPacketEncoderRepository.cs" />
     <Compile Include="Net\PacketProcessing\IPacketEncoderService.cs" />
     <Compile Include="Net\PacketProcessing\IPacketProcessorActions.cs" />
