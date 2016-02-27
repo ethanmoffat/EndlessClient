@@ -183,19 +183,10 @@ namespace EOLib.Net
 			if (pkt.Family == PacketFamily.Internal)
 				throw new ArgumentException("This is an invalid packet!");
 
-			//encode the packet bytes (also prepends seq number: 2 bytes)
-			byte[] packetBytes = pkt.Get();
-			_packetEncoder.Encode(ref packetBytes);
+			toSend = _packetEncoder.Encode(pkt);
 
-			//prepend the 2 bytes of length data to the packet data
-			byte[] len = Packet.EncodeNumber(packetBytes.Length, 2);
-
-			toSend = new byte[packetBytes.Length + 2];
-			Array.Copy(len, 0, toSend, 0, 2);
-			Array.Copy(packetBytes, 0, toSend, 2, packetBytes.Length);
-
-			//at this point, toSend should be 4 bytes longer than the original packet data
-			//this includes 2 bytes of len, 2 bytes of seq, and then packet payload
+			//at this point, toSend should be 3 or 4 bytes longer than the original packet data
+			//this includes 2 bytes of len, 1 or 2 bytes of seq, and then packet payload
 
 			if (EventSendData != null)
 			{
@@ -244,23 +235,25 @@ namespace EOLib.Net
 						}
 					case EODataChunk.DataReceiveState.ReadData:
 						{
-							byte[] data = new byte[wrap.Data.Length];
-							Array.Copy(wrap.Data, data, data.Length);
-							_packetEncoder.Decode(ref data);
+							var pkt = _packetEncoder.Decode(wrap.Data);
 
 							//This block handles receipt of file data that is transferred to the client.
 							//It should make file transfer nuances pretty transparent to the client.
 							//The header for files stored in a Packet type is always as follows: FAMILY_INIT, ACTION_INIT, (InitReply)
 							//A 3-byte offset is found throughout the code that handles creating these files.
-							if (data[0] == 255 && data[1] == 255) //INIT_INIT packet! check to see if expecting a file or player list
+
+							//INIT_INIT packet! check to see if expecting a file or player list
+							if (pkt.Family == PacketFamily.Init && pkt.Action == PacketAction.Init)
 							{
-								Packet pkt = new Packet(data);
+								byte[] data = pkt.Get();
 								byte reply = pkt.GetChar();
+
 								if (ExpectingFile || reply == (byte)InitReply.INIT_MAP_MUTATION) //handle the map mutation: should work with the byte/char weirdness
 								{
 									int dataGrabbed = 0;
 
 									//find first zero byte
+
 									int pktOffset = 0;
 									for (; pktOffset < data.Length; ++pktOffset)
 										if (data[pktOffset] == 0)
@@ -286,10 +279,12 @@ namespace EOLib.Net
 									//online list sends a char... rewrite it with a byte so it is parsed correctly.
 									data[2] = reply;
 								}
+
+								pkt = new Packet(data);
 							}
 
-							_handlePacket(new Packet(data));
-							EODataChunk newWrap = new EODataChunk();
+							_handlePacket(pkt);
+							var newWrap = new EODataChunk();
 							StartDataReceive(newWrap);
 							break;
 						}

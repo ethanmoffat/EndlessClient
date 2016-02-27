@@ -155,8 +155,8 @@ namespace PacketDecoder
 				data[i/2] = Convert.ToByte(bytes.Substring(i, 2), 16);
 			}
 
-			_encoder.Decode(ref data);
-			Packet pkt = new Packet(data) {ReadPos = m_packetOffset};
+			var pkt = _encoder.Decode(data);
+			pkt.ReadPos = m_packetOffset;
 
 			lblFamily.Text = pkt.Family.ToString();
 			lblAction.Text = pkt.Action.ToString();

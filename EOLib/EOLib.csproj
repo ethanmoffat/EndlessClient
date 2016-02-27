@@ -150,7 +150,7 @@
     <Compile Include="Net\PacketAction.cs" />
     <Compile Include="Net\PacketFamily.cs" />
     <Compile Include="Packet.cs" />
-    <Compile Include="PacketEncoder.cs" />
+    <Compile Include="Net\PacketEncoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>
