@@ -14,13 +14,6 @@ namespace EOLib.Net.Communication
 {
 	public class NetworkClient : INetworkClient<IPacketQueue>
 	{
-		private enum DataReceiveState
-		{
-			ReadLen1,
-			ReadLen2,
-			ReadData
-		}
-
 		private readonly IPacketProcessorActions _packetProcessActions;
 		private readonly IPacketEncoderService _packetEncoderService;
 
@@ -101,34 +94,15 @@ namespace EOLib.Net.Communication
 
 		private async void BackgroundReceiveThread()
 		{
-			var state = DataReceiveState.ReadLen1;
-
-			var lengthData = new List<byte>(2);
 			while (!_backgroundReceiveCTS.IsCancellationRequested)
 			{
-				switch (state)
-				{
-					case DataReceiveState.ReadLen1:
-						lengthData.AddRange(await _socket.ReceiveAsync(1, _backgroundReceiveCTS.Token));
-						state = DataReceiveState.ReadLen2;
-						break;
-					case DataReceiveState.ReadLen2:
-						lengthData.AddRange(await _socket.ReceiveAsync(1, _backgroundReceiveCTS.Token));
-						state = DataReceiveState.ReadData;
-						break;
-					case DataReceiveState.ReadData:
-						var length = _packetEncoderService.DecodeNumber(lengthData.ToArray());
-						lengthData.Clear();
+				var lengthData = await _socket.ReceiveAsync(2, _backgroundReceiveCTS.Token);
+				var length = _packetEncoderService.DecodeNumber(lengthData);
 
-						var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
-						var decodedPacket = _packetProcessActions.DecodeData((IEnumerable<byte>)packetData);
-						PacketQueue.EnqueuePacketForHandling(decodedPacket);
-						state = DataReceiveState.ReadLen1;
-						break;
-					default:
-						state = DataReceiveState.ReadLen1;
-						continue;
-				}
+				var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
+				var packet = _packetProcessActions.DecodeData((IEnumerable<byte>) packetData);
+
+				PacketQueue.EnqueuePacketForHandling(packet);
 			}
 		}
 
