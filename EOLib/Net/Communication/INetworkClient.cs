@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {
-	public interface INetworkClient<T> : IDisposable
+	public interface INetworkClient<out T> : IDisposable
 		where T : IPacketQueue
 	{
 		T PacketQueue { get; }
@@ -18,7 +18,7 @@ namespace EOLib.Net.Communication
 
 		void Disconnect();
 
-		void StartBackgroundReceiveLoop();
+		Task RunReceiveLoopAsync();
 
 		void CancelBackgroundReceiveLoop();
 

@@ -20,7 +20,6 @@ namespace EOLib.Net.Communication
 		private readonly IAsyncSocket _socket;
 
 		private readonly CancellationTokenSource _backgroundReceiveCTS;
-		private readonly Thread _receiveThread;
 
 		public IPacketQueue PacketQueue { get; private set; }
 
@@ -47,7 +46,6 @@ namespace EOLib.Net.Communication
 			_socket = new AsyncSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			
 			_backgroundReceiveCTS = new CancellationTokenSource();
-			_receiveThread = new Thread(BackgroundReceiveThread);
 		}
 
 		public async Task<ConnectResult> ConnectToServer(string host, int port)
@@ -81,29 +79,28 @@ namespace EOLib.Net.Communication
 			_socket.DisconnectAsync(CancellationToken.None);
 		}
 
-		public void StartBackgroundReceiveLoop()
+		public async Task RunReceiveLoopAsync()
 		{
-			_receiveThread.Start();
+			while (!_backgroundReceiveCTS.IsCancellationRequested)
+			{
+				var lengthData = await _socket.ReceiveAsync(2, _backgroundReceiveCTS.Token);
+				if (_backgroundReceiveCTS.IsCancellationRequested)
+					break;
+
+				var length = _packetEncoderService.DecodeNumber(lengthData);
+
+				var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
+				if (_backgroundReceiveCTS.IsCancellationRequested)
+					break;
+
+				var packet = _packetProcessActions.DecodeData((IEnumerable<byte>) packetData);
+				PacketQueue.EnqueuePacketForHandling(packet);
+			}
 		}
 
 		public void CancelBackgroundReceiveLoop()
 		{
 			_backgroundReceiveCTS.Cancel();
-			_receiveThread.Join();
-		}
-
-		private async void BackgroundReceiveThread()
-		{
-			while (!_backgroundReceiveCTS.IsCancellationRequested)
-			{
-				var lengthData = await _socket.ReceiveAsync(2, _backgroundReceiveCTS.Token);
-				var length = _packetEncoderService.DecodeNumber(lengthData);
-
-				var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
-				var packet = _packetProcessActions.DecodeData((IEnumerable<byte>) packetData);
-
-				PacketQueue.EnqueuePacketForHandling(packet);
-			}
 		}
 
 		public int Send(IPacket packet)
