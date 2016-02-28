@@ -121,8 +121,8 @@ namespace EOLib.Net.Communication
 						lengthData.Clear();
 
 						var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
-						PacketQueue.EnqueuePacketForHandling(new Packet(packetData));
-
+						var decodedPacket = _packetProcessActions.DecodeData((IEnumerable<byte>)packetData);
+						PacketQueue.EnqueuePacketForHandling(decodedPacket);
 						state = DataReceiveState.ReadLen1;
 						break;
 					default:
