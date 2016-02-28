@@ -158,6 +158,7 @@ namespace EOLib.Net
 			m_handlers = new Dictionary<FamilyActionPair, PacketHandlerInvoker>(128);
 
 			//note: all this stuff should be dependency injected into an IOC container. I don't have one, so its done here manually.
+			//todo: inject this in the constructor
 			_packetProcessActions = new PacketProcessActions(new SequenceRepository(), new PacketEncoderRepository());
 		}
 

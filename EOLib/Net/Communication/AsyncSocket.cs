@@ -28,7 +28,11 @@ namespace EOLib.Net.Communication
 		/// <summary>
 		/// WinSock error code
 		/// </summary>
-		SocketError
+		SocketError,
+		/// <summary>
+		/// Operation timed out
+		/// </summary>
+		Timeout
 	}
 
 	public class AsyncSocket : IAsyncSocket

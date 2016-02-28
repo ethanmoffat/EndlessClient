@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Collections.Generic;
+
 namespace EOLib.Net.PacketProcessing
 {
 	public class PacketProcessActions : IPacketProcessorActions
@@ -40,6 +42,18 @@ namespace EOLib.Net.PacketProcessing
 
 		public byte[] EncodePacket(OldPacket pkt)
 		{
+			//todo: remove use of OldPacket
+			var seq = CalculateNextSequenceNumber();
+			pkt = _encoderService.AddSequenceNumber(pkt, seq);
+
+			var data = _encoderService.Encode(pkt, _encoderRepository.SendMultiplier);
+			data = _encoderService.PrependLengthBytes(data);
+
+			return data;
+		}
+
+		public byte[] EncodePacket(IPacket pkt)
+		{
 			var seq = CalculateNextSequenceNumber();
 			pkt = _encoderService.AddSequenceNumber(pkt, seq);
 
@@ -50,6 +64,12 @@ namespace EOLib.Net.PacketProcessing
 		}
 
 		public OldPacket DecodeData(byte[] rawData)
+		{
+			//todo: remove use of OldPacket
+			return _encoderService.Decode(rawData, _encoderRepository.ReceiveMultiplier);
+		}
+
+		public IPacket DecodeData(IEnumerable<byte> rawData)
 		{
 			return _encoderService.Decode(rawData, _encoderRepository.ReceiveMultiplier);
 		}

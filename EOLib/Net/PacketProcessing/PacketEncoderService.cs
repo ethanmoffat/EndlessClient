@@ -19,9 +19,17 @@ namespace EOLib.Net.PacketProcessing
 
 		public OldPacket AddSequenceNumber(OldPacket pkt, int sequenceNumber)
 		{
+			//todo: remove use of OldPacket
 			var byteList = pkt.Data.ToList();
 			byteList = AddSequenceBytes(byteList, sequenceNumber);
 			return new OldPacket(byteList);
+		}
+
+		public IPacket AddSequenceNumber(IPacket pkt, int sequenceNumber)
+		{
+			var byteList = pkt.RawData;
+			byteList = AddSequenceBytes(byteList, sequenceNumber);
+			return new Packet(byteList.ToList());
 		}
 
 		public byte[] Encode(OldPacket original, byte encodeMultiplier)
@@ -30,6 +38,19 @@ namespace EOLib.Net.PacketProcessing
 				return original.Data.ToArray();
 
 			var byteList = original.Data.ToList();
+			byteList = SwapMultiples(byteList, encodeMultiplier);
+			byteList = Interleave(byteList);
+			byteList = FlipMSB(byteList);
+
+			return byteList.ToArray();
+		}
+
+		public byte[] Encode(IPacket original, byte encodeMultiplier)
+		{
+			if (encodeMultiplier == 0 || PacketInvalidForEncode(original))
+				return original.RawData.ToArray();
+
+			var byteList = original.RawData.ToList();
 			byteList = SwapMultiples(byteList, encodeMultiplier);
 			byteList = Interleave(byteList);
 			byteList = FlipMSB(byteList);
@@ -48,6 +69,14 @@ namespace EOLib.Net.PacketProcessing
 			byteList = SwapMultiples(byteList, decodeMultiplier);
 
 			return new OldPacket(byteList);
+		}
+
+		public IPacket Decode(IEnumerable<byte> original, byte decodeMultiplier)
+		{
+			//placeholder for until the OldPacket object is removed.
+			//eventually this will be the only decode method
+			var oldPkt = Decode(original.ToArray(), decodeMultiplier);
+			return new Packet(oldPkt.Data);
 		}
 
 		public byte[] EncodeNumber(int number, int size)
@@ -94,6 +123,11 @@ namespace EOLib.Net.PacketProcessing
 		private bool PacketInvalidForEncode(OldPacket pkt)
 		{
 			return IsInitPacket(pkt);
+		}
+
+		private bool PacketInvalidForEncode(IPacket pkt)
+		{
+			return pkt.Family == PacketFamily.Init && pkt.Action == PacketAction.Init;
 		}
 
 		private bool PacketInvalidForDecode(byte[] data)
