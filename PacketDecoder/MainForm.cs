@@ -40,7 +40,10 @@ namespace PacketDecoder
 			cmbOutputFmt_SelectedIndexChanged(null, null);
 
 			_packetEncoderRepository = new PacketEncoderRepository();
-			_packetProcessorActions = new PacketProcessActions(new SequenceRepository(), new PacketEncoderRepository());
+			_packetProcessorActions = new PacketProcessActions(new SequenceRepository(),
+															   _packetEncoderRepository,
+															   new PacketEncoderService(),
+															   new PacketSequenceService());
 		}
 
 		private void cmbOutputFmt_SelectedIndexChanged(object sender, EventArgs e)

@@ -14,6 +14,7 @@ using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net;
 using EOLib.Net.API;
+using EOLib.Net.PacketProcessing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -76,7 +77,7 @@ namespace EndlessClient
 				throw new WorldLoadException("Unable to load the configuration file!");
 
 			//client construction: logging for when packets are sent/received
-			m_client = new EOClient();
+			m_client = new EOClient(CreatePacketProcessorActions());
 			((EOClient) m_client).EventSendData +=
 				dte => Logger.Log("SEND thread: Processing       {4} packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
 					Enum.GetName(typeof (PacketFamily), dte.PacketFamily),
@@ -100,6 +101,14 @@ namespace EndlessClient
 				EOGame.Instance.ResetWorldElements();
 				EOGame.Instance.SetInitialGameState();
 			};
+		}
+
+		private static IPacketProcessorActions CreatePacketProcessorActions()
+		{
+			return new PacketProcessActions(new SequenceRepository(),
+											new PacketEncoderRepository(),
+											new PacketEncoderService(),
+											new PacketSequenceService());
 		}
 
 		public void Init()

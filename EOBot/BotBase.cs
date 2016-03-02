@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using EOLib.Net;
 using EOLib.Net.API;
+using EOLib.Net.PacketProcessing;
 
 namespace EOBot
 {
@@ -48,7 +49,7 @@ namespace EOBot
 		//all bots are going to want to do the init handshake with the server
 		public virtual void Initialize()
 		{
-			_client = new EOClient();
+			_client = new EOClient(CreatePacketProcessorActions());
 			if (!_client.ConnectToServer(_host, _port))
 				throw new ArgumentException(string.Format("Bot {0}: Unable to connect to server! Host={1} Port={2}", _index, _host, _port));
 			_api = new PacketAPI(_client);
@@ -161,6 +162,14 @@ namespace EOBot
 					_cancelTokenSource = null;
 				}
 			}
+		}
+
+		private static PacketProcessActions CreatePacketProcessorActions()
+		{
+			return new PacketProcessActions(new SequenceRepository(),
+											new PacketEncoderRepository(),
+											new PacketEncoderService(),
+											new PacketSequenceService());
 		}
 	}
 }

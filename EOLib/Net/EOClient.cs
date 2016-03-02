@@ -133,7 +133,7 @@ namespace EOLib.Net
 
 	public class EOClient : ClientBase
 	{
-		private readonly Dictionary<FamilyActionPair, PacketHandlerInvoker> m_handlers;
+		private readonly Dictionary<FamilyActionPair, PacketHandlerInvoker> _handlers;
 
 		private readonly IPacketProcessorActions _packetProcessActions;
 
@@ -153,13 +153,10 @@ namespace EOLib.Net
 		/// </summary>
 		internal bool ExpectingPlayerList { get; set; }
 
-		public EOClient()
+		public EOClient(IPacketProcessorActions packetProcessorActions)
 		{
-			m_handlers = new Dictionary<FamilyActionPair, PacketHandlerInvoker>(128);
-
-			//note: all this stuff should be dependency injected into an IOC container. I don't have one, so its done here manually.
-			//todo: inject this in the constructor
-			_packetProcessActions = new PacketProcessActions(new SequenceRepository(), new PacketEncoderRepository());
+			_handlers = new Dictionary<FamilyActionPair, PacketHandlerInvoker>(128);
+			_packetProcessActions = packetProcessorActions;
 		}
 
 		public void SetInitData(InitData data)
@@ -312,10 +309,10 @@ namespace EOLib.Net
 			OldPacket pkt = (OldPacket) state;
 			FamilyActionPair pair = new FamilyActionPair(pkt.Family, pkt.Action);
 			bool handled = false;
-			if (m_handlers.ContainsKey(pair))
+			if (_handlers.ContainsKey(pair))
 			{
 				handled = true;
-				m_handlers[pair].InvokeHandler(pkt, IsInGame);
+				_handlers[pair].InvokeHandler(pkt, IsInGame);
 			}
 
 			if (EventReceiveData != null)
@@ -330,10 +327,10 @@ namespace EOLib.Net
 
 		public void AddPacketHandler(FamilyActionPair key, PacketHandler handlerFunction, bool inGameOnly)
 		{
-			if (m_handlers.ContainsKey(key))
-				m_handlers[key] = new PacketHandlerInvoker(handlerFunction, inGameOnly);
+			if (_handlers.ContainsKey(key))
+				_handlers[key] = new PacketHandlerInvoker(handlerFunction, inGameOnly);
 			else
-				m_handlers.Add(key, new PacketHandlerInvoker(handlerFunction, inGameOnly));
+				_handlers.Add(key, new PacketHandlerInvoker(handlerFunction, inGameOnly));
 		}
 
 		public override void Disconnect()

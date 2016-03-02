@@ -13,13 +13,16 @@ namespace EOLib.Net.PacketProcessing
 		private readonly IPacketEncoderRepository _encoderRepository;
 		private readonly ISequenceRepository _sequenceRepository;
 
-		public PacketProcessActions(ISequenceRepository sequenceNumberRepository, IPacketEncoderRepository encoderRepository)
+		public PacketProcessActions(ISequenceRepository sequenceNumberRepository,
+									IPacketEncoderRepository encoderRepository,
+									IPacketEncoderService encoderService,
+									IPacketSequenceService sequenceService)
 		{
 			_sequenceRepository = sequenceNumberRepository;
 			_encoderRepository = encoderRepository;
 
-			_encoderService = new PacketEncoderService();
-			_sequenceService = new PacketSequenceService();
+			_encoderService = encoderService;
+			_sequenceService = sequenceService;
 		}
 
 		public void SetInitialSequenceNumber(int seq1, int seq2)

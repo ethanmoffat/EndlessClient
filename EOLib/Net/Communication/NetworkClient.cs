@@ -37,11 +37,12 @@ namespace EOLib.Net.Communication
 		}
 
 		public NetworkClient(IPacketQueue queue,
-							 IPacketProcessorActions packetProcessActions)
+							 IPacketProcessorActions packetProcessActions,
+							 IPacketEncoderService packetEncoderService)
 		{
 			PacketQueue = queue;
 			_packetProcessActions = packetProcessActions;
-			_packetEncoderService = new PacketEncoderService();
+			_packetEncoderService = packetEncoderService;
 
 			_socket = new AsyncSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			
