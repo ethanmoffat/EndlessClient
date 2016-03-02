@@ -102,6 +102,7 @@
     <Compile Include="Data\Map\NPCTileInfo.cs" />
     <Compile Include="Data\Map\TileInfoReturnType.cs" />
     <Compile Include="Data\Map\WarpTileInfo.cs" />
+    <Compile Include="EODirection.cs" />
     <Compile Include="Graphics\CrossPlatformGFXLoader.cs" />
     <Compile Include="Graphics\GFXManager.cs" />
     <Compile Include="Graphics\GFXTypes.cs" />

@@ -69,7 +69,7 @@ namespace EndlessClient
 			_tryLoadClasses();
 			
 			//initial capacity of 32: most players won't travel between too many maps in a gaming session
-			MapCache = new Dictionary<int, MapFile>(32);
+			MapCache = new Dictionary<int, OldMapFile>(32);
 			DataFiles = new Dictionary<DataFiles, EDFFile>(12); //12 files total
 			m_player = new Player();
 			m_config = new IniReader(ConfigStrings.Default_Config_File);
@@ -289,7 +289,7 @@ namespace EndlessClient
 		/// <summary>
 		/// Stores a list of MapFiles paired with/accessible by their IDs
 		/// </summary>
-		private Dictionary<int, MapFile> MapCache { get; set; }
+		private Dictionary<int, OldMapFile> MapCache { get; set; }
 
 		public Dictionary<DataFiles, EDFFile> DataFiles { get; private set; }
 
@@ -375,9 +375,9 @@ namespace EndlessClient
 				string mapFile = Path.Combine("maps", string.Format("{0,5:D5}.emf", mapID));
 
 				if(!MapCache.ContainsKey(mapID))
-					MapCache.Add(mapID, new MapFile(mapFile));
+					MapCache.Add(mapID, new OldMapFile(mapFile));
 				else if(forceReload)
-					MapCache[mapID] = new MapFile(mapFile);
+					MapCache[mapID] = new OldMapFile(mapFile);
 
 				//map renderer construction moved to be more closely coupled to loading of the map
 				if (m_mapRender == null)

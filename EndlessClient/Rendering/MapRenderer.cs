@@ -29,7 +29,7 @@ namespace EndlessClient.Rendering
 		private readonly List<NPCRenderer> _npcRenderers = new List<NPCRenderer>();
 		private readonly object _npcListLock = new object(), _characterListLock = new object();
 
-		public MapFile MapRef { get; private set; }
+		public OldMapFile MapRef { get; private set; }
 		private bool _needDispMapName;
 		
 		//public cursor members
@@ -164,7 +164,7 @@ namespace EndlessClient.Rendering
 // ReSharper restore CanBeReplacedWithTryCastAndCheckForNull
 		}
 
-		public void SetActiveMap(MapFile newActiveMap)
+		public void SetActiveMap(OldMapFile newActiveMap)
 		{
 			_drawingEvent.Wait();
 			_drawingEvent.Reset();

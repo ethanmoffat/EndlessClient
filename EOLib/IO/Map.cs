@@ -13,15 +13,6 @@ using EOLib.Net;
 
 namespace EOLib.IO
 {
-	public enum EODirection : byte
-	{
-		Down = 0,
-		Left,
-		Up,
-		Right,
-		Invalid = 255
-	}
-
 	public enum TileSpec : byte
 	{
 		Wall = 0,
@@ -184,7 +175,7 @@ namespace EOLib.IO
 		NUM_LAYERS = 9
 	}
 
-	public class MapFile
+	public class OldMapFile
 	{
 		//lookup tables for direct access so I don't need so many 'find's
 
@@ -291,7 +282,7 @@ namespace EOLib.IO
 			return chars;
 		}
 
-		public MapFile(string fileName)
+		public OldMapFile(string fileName)
 		{
 			string id = fileName.Substring(fileName.LastIndexOf('\\') + 1, 5);
 			MapID = int.Parse(id);

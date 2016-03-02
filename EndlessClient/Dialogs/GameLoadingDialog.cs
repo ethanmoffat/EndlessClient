@@ -243,7 +243,7 @@ namespace EndlessClient.Dialogs
 			try
 			{
 				// ReSharper disable once UnusedVariable
-				var map = new MapFile(string.Format(Constants.MapFileFormatString, OldWorld.Instance.NeedMap));
+				var map = new OldMapFile(string.Format(Constants.MapFileFormatString, OldWorld.Instance.NeedMap));
 			}
 			catch { return false; }
 

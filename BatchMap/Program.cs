@@ -115,7 +115,7 @@ namespace BatchMap
 
 			for (int map = 0; map < inFiles.Length; ++map)
 			{
-				MapFile EMF = new MapFile(inFiles[map]);
+				OldMapFile EMF = new OldMapFile(inFiles[map]);
 				bool changesMade = false;
 
 				string lastPart = inFiles[map].Substring(inFiles[map].Contains('\\') ? inFiles[map].LastIndexOf('\\') + 1 : 0,
@@ -235,7 +235,7 @@ namespace BatchMap
 			}
 		}
 
-		private static bool CheckTile(MapFile EMF, int x, int y)
+		private static bool CheckTile(OldMapFile EMF, int x, int y)
 		{
 			if (EMF.WarpLookup[y, x] != null)
 				return false;
