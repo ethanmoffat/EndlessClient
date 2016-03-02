@@ -132,7 +132,7 @@ namespace EOLib.Net.PacketProcessing
 
 		private bool PacketInvalidForDecode(byte[] data)
 		{
-			return data.Length > 2 && IsInitPacket(new OldPacket(new[] {data[3], data[2]}));
+			return data.Length >= 2 && IsInitPacket(new OldPacket(new[] {data[1], data[0]}));
 		}
 
 		private static bool IsInitPacket(OldPacket pkt)
