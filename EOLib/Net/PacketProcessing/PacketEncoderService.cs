@@ -34,7 +34,7 @@ namespace EOLib.Net.PacketProcessing
 
 		public byte[] Encode(OldPacket original, byte encodeMultiplier)
 		{
-			if (encodeMultiplier == 0 || PacketInvalidForEncode(original))
+			if (encodeMultiplier == 0 || !PacketValidForEncode(original))
 				return original.Data.ToArray();
 
 			var byteList = original.Data.ToList();
@@ -47,7 +47,7 @@ namespace EOLib.Net.PacketProcessing
 
 		public byte[] Encode(IPacket original, byte encodeMultiplier)
 		{
-			if (encodeMultiplier == 0 || PacketInvalidForEncode(original))
+			if (encodeMultiplier == 0 || !PacketValidForEncode(original))
 				return original.RawData.ToArray();
 
 			var byteList = original.RawData.ToList();
@@ -60,7 +60,7 @@ namespace EOLib.Net.PacketProcessing
 
 		public OldPacket Decode(byte[] original, byte decodeMultiplier)
 		{
-			if (decodeMultiplier == 0 || PacketInvalidForDecode(original))
+			if (decodeMultiplier == 0 || !PacketValidForDecode(original))
 				return new OldPacket(original);
 
 			var byteList = original.ToList();
@@ -120,19 +120,19 @@ namespace EOLib.Net.PacketProcessing
 
 		#region Packet Validation
 
-		private bool PacketInvalidForEncode(OldPacket pkt)
+		private bool PacketValidForEncode(OldPacket pkt)
 		{
-			return IsInitPacket(pkt);
+			return !IsInitPacket(pkt);
 		}
 
-		private bool PacketInvalidForEncode(IPacket pkt)
+		private bool PacketValidForEncode(IPacket pkt)
 		{
-			return pkt.Family == PacketFamily.Init && pkt.Action == PacketAction.Init;
+			return !IsInitPacket(new OldPacket(pkt.Family, pkt.Action));
 		}
 
-		private bool PacketInvalidForDecode(byte[] data)
+		private bool PacketValidForDecode(byte[] data)
 		{
-			return data.Length >= 2 && IsInitPacket(new OldPacket(new[] {data[1], data[0]}));
+			return data.Length >= 2 && !IsInitPacket(new OldPacket(new[] {data[0], data[1]}));
 		}
 
 		private static bool IsInitPacket(OldPacket pkt)
