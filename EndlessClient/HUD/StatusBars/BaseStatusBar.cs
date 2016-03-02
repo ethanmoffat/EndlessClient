@@ -22,7 +22,7 @@ namespace EndlessClient.HUD.StatusBars
 		
 		protected BaseStatusBar()
 		{
-			m_stats = World.Instance.MainPlayer.ActiveCharacter.Stats;
+			m_stats = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats;
 			
 			m_textSheet = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
 			m_elemSourceRect = new Rectangle(0, 0, 110, 14);

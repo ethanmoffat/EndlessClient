@@ -90,7 +90,7 @@ namespace EndlessClient.Dialogs
 			{
 				ForeColor = Constants.LightGrayDialogMessage,
 				TextWidth = 200,
-				Text = string.Format("{0} {1} {2}", World.GetString(DATCONST2.DIALOG_TRANSFER_HOW_MUCH), itemName, World.GetString(message))
+				Text = string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.DIALOG_TRANSFER_HOW_MUCH), itemName, OldWorld.GetString(message))
 			};
 			descLabel.SetParent(this);
 

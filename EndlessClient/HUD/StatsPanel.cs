@@ -38,7 +38,7 @@ namespace EndlessClient.HUD
 		public EOCharacterStats(XNAPanel parent) 
 			: base(null, null, parent)
 		{
-			c = World.Instance.MainPlayer.ActiveCharacter;
+			c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 		}
 
 		public override void Initialize()
@@ -61,7 +61,7 @@ namespace EndlessClient.HUD
 					FlashSpeed = 500
 				};
 				m_arrows[i].SetParent(this);
-				World.IgnoreDialogs(m_arrows[i]);
+				OldWorld.IgnoreDialogs(m_arrows[i]);
 				m_arrows[i].OnClick += (s, e) =>
 				{
 					if (!m_training)
@@ -213,7 +213,7 @@ namespace EndlessClient.HUD
 						m_otherInfo[i].Text = c.Stats.Experience.ToString(CultureInfo.InvariantCulture);
 						break;
 					case TNL:
-						m_otherInfo[i].Text = (World.Instance.exp_table[c.Stats.Level + 1] - c.Stats.Experience).ToString(CultureInfo.InvariantCulture);
+						m_otherInfo[i].Text = (OldWorld.Instance.exp_table[c.Stats.Level + 1] - c.Stats.Experience).ToString(CultureInfo.InvariantCulture);
 						break;
 					case KARMA:
 						m_otherInfo[i].Text = Character.KarmaStringFromNum(c.Stats.Karma);

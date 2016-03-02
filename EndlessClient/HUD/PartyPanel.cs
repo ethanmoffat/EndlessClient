@@ -64,7 +64,7 @@ namespace EndlessClient.HUD
 				Visible = true
 			};
 			m_scrollBar.SetParent(this);
-			World.IgnoreDialogs(m_scrollBar);
+			OldWorld.IgnoreDialogs(m_scrollBar);
 		}
 
 		public void SetData(List<PartyMember> memberList)
@@ -74,14 +74,14 @@ namespace EndlessClient.HUD
 				if(m_members == null || m_members.Count == 0)
 				{
 					((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_PARTY_YOU_JOINED);
-					((EOGame)Game).Hud.AddChat(ChatTabs.System, "", World.GetString(DATCONST2.STATUS_LABEL_PARTY_YOU_JOINED), ChatType.PlayerParty, ChatColor.PM);
+					((EOGame)Game).Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(DATCONST2.STATUS_LABEL_PARTY_YOU_JOINED), ChatType.PlayerParty, ChatColor.PM);
 				}
 
 				Visible = true;
 				m_numMembers.Text = string.Format("{0}", memberList.Count);
 				m_members = memberList;
 
-				m_mainIsLeader = m_members.FindIndex(_member => _member.IsLeader && _member.ID == World.Instance.MainPlayer.ActiveCharacter.ID) >= 0;
+				m_mainIsLeader = m_members.FindIndex(_member => _member.IsLeader && _member.ID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID) >= 0;
 				m_scrollBar.UpdateDimensions(memberList.Count);
 
 				m_buttons.Clear();
@@ -108,7 +108,7 @@ namespace EndlessClient.HUD
 		private void _addRemoveButtonForMember(PartyMember member)
 		{
 			int delta = m_removeTexture.Height / 3;
-			bool enabled = m_mainIsLeader || member.ID == World.Instance.MainPlayer.ActiveCharacter.ID;
+			bool enabled = m_mainIsLeader || member.ID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID;
 			XNAButton nextButton = new XNAButton(m_removeTexture,
 				new Vector2(DrawAreaWithOffset.X + DRAW_REMOVE_X, DRAW_OFFSET_Y),
 				enabled ? new Rectangle(0, 0, m_removeTexture.Width, delta) : new Rectangle(0, delta, m_removeTexture.Width, delta),
@@ -132,7 +132,7 @@ namespace EndlessClient.HUD
 			_addRemoveButtonForMember(member);
 
 			((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, member.Name, DATCONST2.STATUS_LABEL_PARTY_JOINED_YOUR);
-			((EOGame)Game).Hud.AddChat(ChatTabs.System, "", member.Name + " " + World.GetString(DATCONST2.STATUS_LABEL_PARTY_JOINED_YOUR), ChatType.PlayerParty, ChatColor.PM);
+			((EOGame)Game).Hud.AddChat(ChatTabs.System, "", member.Name + " " + OldWorld.GetString(DATCONST2.STATUS_LABEL_PARTY_JOINED_YOUR), ChatType.PlayerParty, ChatColor.PM);
 		}
 
 		public void RemoveMember(short memberID)
@@ -157,7 +157,7 @@ namespace EndlessClient.HUD
 				m_scrollBar.ScrollToTop();
 
 			((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, name, DATCONST2.STATUS_LABEL_PARTY_LEFT_YOUR);
-			((EOGame)Game).Hud.AddChat(ChatTabs.System, "", name + " " + World.GetString(DATCONST2.STATUS_LABEL_PARTY_LEFT_YOUR), ChatType.PlayerPartyDark, ChatColor.PM);
+			((EOGame)Game).Hud.AddChat(ChatTabs.System, "", name + " " + OldWorld.GetString(DATCONST2.STATUS_LABEL_PARTY_LEFT_YOUR), ChatType.PlayerPartyDark, ChatColor.PM);
 		}
 
 		public void CloseParty()

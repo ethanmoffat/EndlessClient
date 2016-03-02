@@ -246,7 +246,7 @@ namespace EndlessClient.HUD
 				Visible = selected,
 				LinesToRender = 7
 			};
-			World.IgnoreDialogs(scrollBar);
+			OldWorld.IgnoreDialogs(scrollBar);
 		}
 
 		/// <summary>
@@ -266,7 +266,7 @@ namespace EndlessClient.HUD
 				LinesToRender = 7,
 				Visible = true
 			};
-			World.IgnoreDialogs(scrollBar);
+			OldWorld.IgnoreDialogs(scrollBar);
 		}
 
 		/// <summary>
@@ -479,13 +479,13 @@ namespace EndlessClient.HUD
 			{
 				OldPacket pkt = new OldPacket(PacketFamily.Global, PacketAction.Close);
 				pkt.AddChar((byte) 'n');
-				World.Instance.Client.SendPacket(pkt);
+				OldWorld.Instance.Client.SendPacket(pkt);
 			}
 			else if(tabToSelect == ChatTabs.Global && (ChatTabs)currentSelTab != ChatTabs.Global)
 			{
 				OldPacket pkt = new OldPacket(PacketFamily.Global, PacketAction.Open);
 				pkt.AddChar((byte) 'y');
-				World.Instance.Client.SendPacket(pkt);
+				OldWorld.Instance.Client.SendPacket(pkt);
 			}
 
 			tabs[currentSelTab].Selected = false;
@@ -616,25 +616,25 @@ namespace EndlessClient.HUD
 
 		public static string Filter(string text, bool isMainPlayer)
 		{
-			if (World.Instance.StrictFilterEnabled || World.Instance.CurseFilterEnabled)
+			if (OldWorld.Instance.StrictFilterEnabled || OldWorld.Instance.CurseFilterEnabled)
 			{
-				foreach (string curse in World.Instance.DataFiles[DataFiles.CurseFilter].Data.Values)
+				foreach (string curse in OldWorld.Instance.DataFiles[DataFiles.CurseFilter].Data.Values)
 				{
 					if (string.IsNullOrWhiteSpace(curse))
 						continue;
 
 					if (text.Contains(curse))
 					{
-						if (World.Instance.StrictFilterEnabled && isMainPlayer)
+						if (OldWorld.Instance.StrictFilterEnabled && isMainPlayer)
 						{
 							EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.YOUR_MIND_PREVENTS_YOU_TO_SAY);
 							return null;
 						}
-						if (World.Instance.StrictFilterEnabled)
+						if (OldWorld.Instance.StrictFilterEnabled)
 						{
 							return null;
 						}
-						if (World.Instance.CurseFilterEnabled)
+						if (OldWorld.Instance.CurseFilterEnabled)
 						{
 							text = text.Replace(curse, "****");
 						}

@@ -252,9 +252,9 @@ namespace EndlessClient.Rendering
 		}
 		private void _eventTrade(object arg1, EventArgs arg2)
 		{
-			if (World.Instance.MainPlayer.ActiveCharacter.CurrentMap == World.Instance.JailMap)
-				EOMessageBox.Show(World.GetString(DATCONST2.JAIL_WARNING_CANNOT_TRADE),
-					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+			if (OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap == OldWorld.Instance.JailMap)
+				EOMessageBox.Show(OldWorld.GetString(DATCONST2.JAIL_WARNING_CANNOT_TRADE),
+					OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
 					XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 			else
 			{

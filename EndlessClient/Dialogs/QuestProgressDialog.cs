@@ -113,12 +113,12 @@ namespace EndlessClient.Dialogs
 
 		private void _setTitleProgress()
 		{
-			m_titleText.Text = string.Format("{0}'s {1}", World.Instance.MainPlayer.ActiveCharacter.Name, World.GetString(DATCONST2.QUEST_PROGRESS));
+			m_titleText.Text = string.Format("{0}'s {1}", OldWorld.Instance.MainPlayer.ActiveCharacter.Name, OldWorld.GetString(DATCONST2.QUEST_PROGRESS));
 		}
 
 		private void _setTitleHistory()
 		{
-			m_titleText.Text = string.Format("{0}'s {1}", World.Instance.MainPlayer.ActiveCharacter.Name, World.GetString(DATCONST2.QUEST_HISTORY));
+			m_titleText.Text = string.Format("{0}'s {1}", OldWorld.Instance.MainPlayer.ActiveCharacter.Name, OldWorld.GetString(DATCONST2.QUEST_HISTORY));
 		}
 
 		private void _setMessageProgress()
@@ -127,7 +127,7 @@ namespace EndlessClient.Dialogs
 			{
 				AddItemToList(new QuestProgressDialogListItem(this, 0)
 				{
-					QuestName = World.GetString(DATCONST2.QUEST_DID_NOT_START_ANY),
+					QuestName = OldWorld.GetString(DATCONST2.QUEST_DID_NOT_START_ANY),
 					QuestStep = " ",
 					ShowIcons = false,
 					QuestProgress = " "
@@ -156,7 +156,7 @@ namespace EndlessClient.Dialogs
 			{
 				AddItemToList(new QuestProgressDialogListItem(this, 0)
 				{
-					QuestName = World.GetString(DATCONST2.QUEST_DID_NOT_FINISH_ANY),
+					QuestName = OldWorld.GetString(DATCONST2.QUEST_DID_NOT_FINISH_ANY),
 					QuestStep = " ",
 					ShowIcons = false,
 					QuestProgress = " "

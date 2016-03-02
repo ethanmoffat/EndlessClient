@@ -74,7 +74,7 @@ namespace EndlessClient.Dialogs
 				//check that all fields are filled in, otherwise: return
 				if (inputBoxes.Any(tb => string.IsNullOrWhiteSpace(tb.Text))) return;
 
-				if (Username != World.Instance.MainPlayer.AccountName)
+				if (Username != OldWorld.Instance.MainPlayer.AccountName)
 				{
 					EOMessageBox.Show(DATCONST1.CHANGE_PASSWORD_MISMATCH);
 					return;

@@ -106,8 +106,8 @@ namespace EndlessClient.Dialogs
 
 			if (old == newState) return;
 
-			int numToLearn = m_skills.Count(_skill => !World.Instance.MainPlayer.ActiveCharacter.Spells.Exists(_spell => _spell.id == _skill.ID));
-			int numToForget = World.Instance.MainPlayer.ActiveCharacter.Spells.Count;
+			int numToLearn = m_skills.Count(_skill => !OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Exists(_spell => _spell.id == _skill.ID));
+			int numToForget = OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Count;
 
 			if (newState == SkillState.Learn && numToLearn == 0)
 			{
@@ -120,12 +120,12 @@ namespace EndlessClient.Dialogs
 			{
 				case SkillState.Initial:
 				{
-					string learnNum = string.Format("{0}{1}", numToLearn, World.GetString(DATCONST2.SKILLMASTER_ITEMS_TO_LEARN));
-					string forgetNum = string.Format("{0}{1}", numToForget, World.GetString(DATCONST2.SKILLMASTER_ITEMS_LEARNED));
+					string learnNum = string.Format("{0}{1}", numToLearn, OldWorld.GetString(DATCONST2.SKILLMASTER_ITEMS_TO_LEARN));
+					string forgetNum = string.Format("{0}{1}", numToForget, OldWorld.GetString(DATCONST2.SKILLMASTER_ITEMS_LEARNED));
 
 					ListDialogItem learn = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
 					{
-						Text = World.GetString(DATCONST2.SKILLMASTER_WORD_LEARN),
+						Text = OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_LEARN),
 						SubText = learnNum,
 						IconGraphic = LearnIcon,
 						ShowItemBackGround = false,
@@ -137,7 +137,7 @@ namespace EndlessClient.Dialogs
 
 					ListDialogItem forget = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
 					{
-						Text = World.GetString(DATCONST2.SKILLMASTER_WORD_FORGET),
+						Text = OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_FORGET),
 						SubText = forgetNum,
 						IconGraphic = ForgetIcon,
 						ShowItemBackGround = false,
@@ -149,8 +149,8 @@ namespace EndlessClient.Dialogs
 
 					ListDialogItem forgetAll = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 2)
 					{
-						Text = World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL),
-						SubText = World.GetString(DATCONST2.SKILLMASTER_RESET_YOUR_CHARACTER),
+						Text = OldWorld.GetString(DATCONST2.SKILLMASTER_FORGET_ALL),
+						SubText = OldWorld.GetString(DATCONST2.SKILLMASTER_RESET_YOUR_CHARACTER),
 						IconGraphic = ForgetIcon,
 						ShowItemBackGround = false,
 						OffsetY = 45
@@ -167,18 +167,18 @@ namespace EndlessClient.Dialogs
 					int index = 0;
 					for (int i = 0; i < m_skills.Count; ++i)
 					{
-						if (World.Instance.MainPlayer.ActiveCharacter.Spells.FindIndex(_sp => m_skills[i].ID == _sp.id) >= 0)
+						if (OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.FindIndex(_sp => m_skills[i].ID == _sp.id) >= 0)
 							continue;
 						int localI = i;
 
-						SpellRecord spellData = (SpellRecord) World.Instance.ESF.Data[m_skills[localI].ID];
+						SpellRecord spellData = (SpellRecord) OldWorld.Instance.ESF.Data[m_skills[localI].ID];
 
 						ListDialogItem nextListItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, index++)
 						{
 							Visible = false,
 							Text = spellData.Name,
-							SubText = World.GetString(DATCONST2.SKILLMASTER_WORD_REQUIREMENTS),
-							IconGraphic = World.GetSpellIcon(spellData.Icon, false),
+							SubText = OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_REQUIREMENTS),
+							IconGraphic = OldWorld.GetSpellIcon(spellData.Icon, false),
 							ShowItemBackGround = false,
 							OffsetY = 45,
 							ID = m_skills[localI].ID
@@ -195,14 +195,14 @@ namespace EndlessClient.Dialogs
 					break;
 				case SkillState.Forget:
 				{
-					TextInputDialog input = new TextInputDialog(World.GetString(DATCONST1.SKILL_PROMPT_TO_FORGET, false), 32);
+					TextInputDialog input = new TextInputDialog(OldWorld.GetString(DATCONST1.SKILL_PROMPT_TO_FORGET, false), 32);
 					input.SetAsKeyboardSubscriber();
 					input.DialogClosing += (sender, args) =>
 					{
 						if (args.Result == XNADialogResult.Cancel) return;
 						bool found =
-							World.Instance.MainPlayer.ActiveCharacter.Spells.Any(
-								_spell => ((SpellRecord) World.Instance.ESF.Data[_spell.id]).Name.ToLower() == input.ResponseText.ToLower());
+							OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Any(
+								_spell => ((SpellRecord) OldWorld.Instance.ESF.Data[_spell.id]).Name.ToLower() == input.ResponseText.ToLower());
 
 						if (!found)
 						{
@@ -212,8 +212,8 @@ namespace EndlessClient.Dialogs
 						}
 
 						if (!m_api.ForgetSpell(
-								World.Instance.MainPlayer.ActiveCharacter.Spells.Find(
-									_spell => ((SpellRecord) World.Instance.ESF.Data[_spell.id]).Name.ToLower() == input.ResponseText.ToLower()).id))
+								OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Find(
+									_spell => ((SpellRecord) OldWorld.Instance.ESF.Data[_spell.id]).Name.ToLower() == input.ResponseText.ToLower()).id))
 						{
 							Close();
 							((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -238,7 +238,7 @@ namespace EndlessClient.Dialogs
 
 		private void _learn(Skill skill)
 		{
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
+			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
 			bool skillReqsMet = true;
 			foreach(short x in skill.SkillReq)
@@ -256,11 +256,11 @@ namespace EndlessClient.Dialogs
 
 			if (skill.ClassReq > 0 && c.Class != skill.ClassReq)
 			{
-				EOMessageBox.Show(DATCONST1.SKILL_LEARN_WRONG_CLASS, " " + ((ClassRecord)World.Instance.ECF.Data[skill.ClassReq]).Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+				EOMessageBox.Show(DATCONST1.SKILL_LEARN_WRONG_CLASS, " " + ((ClassRecord)OldWorld.Instance.ECF.Data[skill.ClassReq]).Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 				return;
 			}
 
-			EOMessageBox.Show(DATCONST1.SKILL_LEARN_CONFIRMATION, " " + ((SpellRecord)World.Instance.ESF.Data[skill.ID]).Name + "?", XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+			EOMessageBox.Show(DATCONST1.SKILL_LEARN_CONFIRMATION, " " + ((SpellRecord)OldWorld.Instance.ESF.Data[skill.ID]).Name + "?", XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
 				(o, e) =>
 				{
 					if (e.Result != XNADialogResult.OK)
@@ -296,31 +296,31 @@ namespace EndlessClient.Dialogs
 
 			List<string> drawStrings = new List<string>(15)
 			{
-				((SpellRecord) World.Instance.ESF.Data[skill.ID]).Name + (skill.ClassReq > 0 ? " [" + ((ClassRecord) World.Instance.ECF.Data[skill.ClassReq]).Name + "]" : ""),
+				((SpellRecord) OldWorld.Instance.ESF.Data[skill.ID]).Name + (skill.ClassReq > 0 ? " [" + ((ClassRecord) OldWorld.Instance.ECF.Data[skill.ClassReq]).Name + "]" : ""),
 				" "
 			};
 			if (skill.SkillReq.Any(x => x != 0))
 			{
-				drawStrings.AddRange(from req in skill.SkillReq where req != 0 select World.GetString(DATCONST2.SKILLMASTER_WORD_SKILL) + ": " + ((SpellRecord) World.Instance.ESF.Data[req]).Name);
+				drawStrings.AddRange(from req in skill.SkillReq where req != 0 select OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_SKILL) + ": " + ((SpellRecord) OldWorld.Instance.ESF.Data[req]).Name);
 				drawStrings.Add(" ");
 			}
 
 			if(skill.StrReq > 0)
-				drawStrings.Add(skill.StrReq + " " + World.GetString(DATCONST2.SKILLMASTER_WORD_STRENGTH));
+				drawStrings.Add(skill.StrReq + " " + OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_STRENGTH));
 			if (skill.IntReq > 0)
-				drawStrings.Add(skill.IntReq + " " + World.GetString(DATCONST2.SKILLMASTER_WORD_INTELLIGENCE));
+				drawStrings.Add(skill.IntReq + " " + OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_INTELLIGENCE));
 			if (skill.WisReq > 0)
-				drawStrings.Add(skill.WisReq + " " + World.GetString(DATCONST2.SKILLMASTER_WORD_WISDOM));
+				drawStrings.Add(skill.WisReq + " " + OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_WISDOM));
 			if (skill.AgiReq > 0)
-				drawStrings.Add(skill.AgiReq + " " + World.GetString(DATCONST2.SKILLMASTER_WORD_AGILITY));
+				drawStrings.Add(skill.AgiReq + " " + OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_AGILITY));
 			if (skill.ConReq > 0)
-				drawStrings.Add(skill.ConReq + " " + World.GetString(DATCONST2.SKILLMASTER_WORD_CONSTITUTION));
+				drawStrings.Add(skill.ConReq + " " + OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_CONSTITUTION));
 			if (skill.ChaReq > 0)
-				drawStrings.Add(skill.ChaReq + " " + World.GetString(DATCONST2.SKILLMASTER_WORD_CHARISMA));
+				drawStrings.Add(skill.ChaReq + " " + OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_CHARISMA));
 
 			drawStrings.Add(" ");
-			drawStrings.Add(skill.LevelReq + " " + World.GetString(DATCONST2.SKILLMASTER_WORD_LEVEL));
-			drawStrings.Add(skill.GoldReq + " " + World.Instance.EIF.GetItemRecordByID(1).Name);
+			drawStrings.Add(skill.LevelReq + " " + OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_LEVEL));
+			drawStrings.Add(skill.GoldReq + " " + OldWorld.Instance.EIF.GetItemRecordByID(1).Name);
 
 			foreach (string s in drawStrings)
 			{
@@ -331,7 +331,7 @@ namespace EndlessClient.Dialogs
 
 		private void _showRequirementsLabel(Skill skill)
 		{
-			string full = string.Format("{0} {1} LVL, ", ((SpellRecord)World.Instance.ESF.Data[skill.ID]).Name, skill.LevelReq);
+			string full = string.Format("{0} {1} LVL, ", ((SpellRecord)OldWorld.Instance.ESF.Data[skill.ID]).Name, skill.LevelReq);
 			if (skill.StrReq > 0)
 				full += string.Format("{0} STR, ", skill.StrReq);
 			if (skill.IntReq > 0)
@@ -347,7 +347,7 @@ namespace EndlessClient.Dialogs
 			if (skill.GoldReq > 0)
 				full += string.Format("{0} Gold", skill.GoldReq);
 			if (skill.ClassReq > 0)
-				full += string.Format(", {0}", ((ClassRecord) World.Instance.ECF.Data[skill.ClassReq]).Name);
+				full += string.Format(", {0}", ((ClassRecord) OldWorld.Instance.ECF.Data[skill.ClassReq]).Name);
 
 			((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, full);
 		}
@@ -358,11 +358,11 @@ namespace EndlessClient.Dialogs
 
 			string[] messages =
 			{
-				World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL),
-				World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_1),
-				World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_2),
-				World.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_3),
-				World.GetString(DATCONST2.SKILLMASTER_CLICK_HERE_TO_FORGET_ALL)
+				OldWorld.GetString(DATCONST2.SKILLMASTER_FORGET_ALL),
+				OldWorld.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_1),
+				OldWorld.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_2),
+				OldWorld.GetString(DATCONST2.SKILLMASTER_FORGET_ALL_MSG_3),
+				OldWorld.GetString(DATCONST2.SKILLMASTER_CLICK_HERE_TO_FORGET_ALL)
 			};
 
 			TextSplitter ts = new TextSplitter("", Game.Content.Load<SpriteFont>(Constants.FontSize08pt5)) { LineLength = 200 };

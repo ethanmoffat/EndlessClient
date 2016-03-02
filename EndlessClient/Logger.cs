@@ -94,7 +94,7 @@ namespace EndlessClient
 					m_isOpen = false;
 				}
 
-				m_isEnabled = World.Instance.EnableLog;
+				m_isEnabled = OldWorld.Instance.EnableLog;
 
 				if (m_isEnabled && m_isOpen)
 				{

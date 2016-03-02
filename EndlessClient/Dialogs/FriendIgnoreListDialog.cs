@@ -21,10 +21,10 @@ namespace EndlessClient.Dialogs
 
 			List<string> allLines = isIgnoreList ? InteractList.LoadAllIgnore() : InteractList.LoadAllFriend();
 
-			string charName = World.Instance.MainPlayer.ActiveCharacter.Name;
+			string charName = OldWorld.Instance.MainPlayer.ActiveCharacter.Name;
 			charName = char.ToUpper(charName[0]) + charName.Substring(1);
 			string titleText = string.Format("{0}'s {2} [{1}]", charName, allLines.Count,
-				World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
+				OldWorld.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
 
 			ScrollingListDialog dlg = new ScrollingListDialog
 			{
@@ -41,7 +41,7 @@ namespace EndlessClient.Dialogs
 				{
 					dlg.RemoveFromList(character);
 					dlg.Title = string.Format("{0}'s {2} [{1}]", charName, dlg.NamesList.Count,
-						World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
+						OldWorld.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
 				};
 			});
 			dlg.SetItemList(characters);
@@ -59,7 +59,7 @@ namespace EndlessClient.Dialogs
 				else if (e.Result == XNADialogResult.Add)
 				{
 					e.CancelClose = true;
-					string prompt = World.GetString(isIgnoreList ? DATCONST2.DIALOG_WHO_TO_MAKE_IGNORE : DATCONST2.DIALOG_WHO_TO_MAKE_FRIEND);
+					string prompt = OldWorld.GetString(isIgnoreList ? DATCONST2.DIALOG_WHO_TO_MAKE_IGNORE : DATCONST2.DIALOG_WHO_TO_MAKE_FRIEND);
 					TextInputDialog dlgInput = new TextInputDialog(prompt);
 					dlgInput.DialogClosing += (_o, _e) =>
 					{
@@ -92,11 +92,11 @@ namespace EndlessClient.Dialogs
 							dlg.Title = string.Format("{0}'s {2} [{1}]",
 								charName,
 								dlg.NamesList.Count,
-								World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
+								OldWorld.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
 						};
 						dlg.AddItemToList(newItem, true);
 						dlg.Title = string.Format("{0}'s {2} [{1}]", charName, dlg.NamesList.Count,
-							World.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
+							OldWorld.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
 					};
 				}
 			};
@@ -108,7 +108,7 @@ namespace EndlessClient.Dialogs
 			Instance.SetActiveItemList(onlineList.Select(_oe => _oe.Name).ToList());
 
 			EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST,
-				World.GetString(DATCONST2.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));
+				OldWorld.GetString(DATCONST2.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));
 			//show the dialog
 		}
 	}

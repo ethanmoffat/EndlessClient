@@ -112,11 +112,11 @@ namespace EndlessClient.HUD
 
 			chatRenderer = new EOChatRenderer();
 			chatRenderer.SetParent(pnlChat);
-			chatRenderer.AddTextToTab(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER),
-				World.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_1),
+			chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(DATCONST2.STRING_SERVER),
+				OldWorld.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_1),
 				ChatType.Note, ChatColor.Server);
-			chatRenderer.AddTextToTab(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER),
-				World.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_2),
+			chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(DATCONST2.STRING_SERVER),
+				OldWorld.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_2),
 				ChatType.Note, ChatColor.Server);
 
 			newsTab = new ChatTab(pnlNews);
@@ -275,7 +275,7 @@ namespace EndlessClient.HUD
 			};
 			//pnlCollection.Add(pnlMacro); //if this ever happens...
 
-			pnlCollection.ForEach(World.IgnoreDialogs);
+			pnlCollection.ForEach(OldWorld.IgnoreDialogs);
 		}
 
 		private void CreateMainButtons(Game g, Texture2D mainButtonTexture)
@@ -305,12 +305,12 @@ namespace EndlessClient.HUD
 				{
 					DrawOrder = HUD_CONTROL_DRAW_ORDER
 				};
-				World.IgnoreDialogs(mainBtn[i]);
+				OldWorld.IgnoreDialogs(mainBtn[i]);
 			}
 
 			//left button onclick events
 			mainBtn[0].OnClick += (s, e) => _doStateChange(InGameStates.Inventory);
-			mainBtn[1].OnClick += (s, e) => World.Instance.ActiveMapRenderer.ToggleMapView();
+			mainBtn[1].OnClick += (s, e) => OldWorld.Instance.ActiveMapRenderer.ToggleMapView();
 			mainBtn[2].OnClick += (s, e) => _doStateChange(InGameStates.Active);
 			mainBtn[3].OnClick += (s, e) => _doStateChange(InGameStates.Passive);
 			mainBtn[4].OnClick += (s, e) => _doStateChange(InGameStates.Chat);
@@ -334,7 +334,7 @@ namespace EndlessClient.HUD
 				MaxChars = 140,
 				DrawOrder = HUD_CONTROL_DRAW_ORDER
 			};
-			World.IgnoreDialogs(chatTextBox);
+			OldWorld.IgnoreDialogs(chatTextBox);
 			chatTextBox.OnEnterPressed += _doTalk;
 			chatTextBox.OnClicked += (s, e) =>
 			{
@@ -361,7 +361,7 @@ namespace EndlessClient.HUD
 				}
 
 				if (chatTextBox.Text.Length == 1 && chatTextBox.Text[0] == '~' &&
-					World.Instance.MainPlayer.ActiveCharacter.CurrentMap == World.Instance.JailMap)
+					OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap == OldWorld.Instance.JailMap)
 				{
 					chatTextBox.Text = "";
 					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.JAIL_WARNING_CANNOT_USE_GLOBAL);
@@ -374,7 +374,7 @@ namespace EndlessClient.HUD
 						currentChatMode = ChatMode.Private;
 						break;
 					case '@': //should show global if admin, otherwise, public/normal chat
-						if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
+						if (OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 							goto default;
 						currentChatMode = ChatMode.Global;
 						break;
@@ -383,7 +383,7 @@ namespace EndlessClient.HUD
 						break;
 					case '+':
 					{
-						if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
+						if (OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 							goto default;
 						currentChatMode = ChatMode.Admin;
 					}
@@ -393,7 +393,7 @@ namespace EndlessClient.HUD
 						break;
 					case '&':
 					{
-						if (World.Instance.MainPlayer.ActiveCharacter.GuildName == "")
+						if (OldWorld.Instance.MainPlayer.ActiveCharacter.GuildName == "")
 							goto default;
 						currentChatMode = ChatMode.Guild;
 					}
@@ -423,10 +423,10 @@ namespace EndlessClient.HUD
 
 		public override void Initialize()
 		{
-			World.Instance.ActiveMapRenderer.Visible = true;
-			if (!Game.Components.Contains(World.Instance.ActiveMapRenderer))
-				Game.Components.Add(World.Instance.ActiveMapRenderer);
-			World.Instance.ActiveCharacterRenderer.Visible = true;
+			OldWorld.Instance.ActiveMapRenderer.Visible = true;
+			if (!Game.Components.Contains(OldWorld.Instance.ActiveMapRenderer))
+				Game.Components.Add(OldWorld.Instance.ActiveMapRenderer);
+			OldWorld.Instance.ActiveCharacterRenderer.Visible = true;
 
 			DateTime usageTracking = DateTime.Now;
 			clockTimer = new Timer(threadState =>
@@ -435,7 +435,7 @@ namespace EndlessClient.HUD
 				{
 					if ((DateTime.Now - usageTracking).TotalMinutes >= 1)
 					{
-						World.Instance.MainPlayer.ActiveCharacter.Stats.Usage = World.Instance.MainPlayer.ActiveCharacter.Stats.Usage + 1;
+						OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Usage = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Usage + 1;
 						usageTracking = DateTime.Now;
 					}
 
@@ -494,7 +494,7 @@ namespace EndlessClient.HUD
 				new ControlKeyListener(),
 				new NumPadListener()
 			};
-			m_inputListeners.ForEach(x => x.InputTimeUpdated += World.Instance.ActiveCharacterRenderer.UpdateInputTime);
+			m_inputListeners.ForEach(x => x.InputTimeUpdated += OldWorld.Instance.ActiveCharacterRenderer.UpdateInputTime);
 
 			CreateStatusBars();
 
@@ -612,7 +612,7 @@ namespace EndlessClient.HUD
 			switch (chatText[0])
 			{
 				case '+':  //admin talk
-					if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
+					if (OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 						goto default;
 					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
 					if (filtered != null)
@@ -622,11 +622,11 @@ namespace EndlessClient.HUD
 							_returnToLogin();
 							break;
 						}
-						AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.HGM, ChatColor.Admin);
+						AddChat(ChatTabs.Group, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.HGM, ChatColor.Admin);
 					}
 					break;
 				case '@': //system talk (admin)
-					if (World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
+					if (OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 						goto default;
 					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
 					if (filtered != null)
@@ -636,15 +636,15 @@ namespace EndlessClient.HUD
 							_returnToLogin();
 							break;
 						}
-						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, false);
-						string name = World.Instance.MainPlayer.ActiveCharacter.Name;
+						OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, false);
+						string name = OldWorld.Instance.MainPlayer.ActiveCharacter.Name;
 						AddChat(ChatTabs.Local, name, filtered, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
 						AddChat(ChatTabs.Global, name, filtered, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
 						AddChat(ChatTabs.Group, name, filtered, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
 					}
 					break;
 				case '\'': //group talk
-					if (!m_party.PlayerIsMember((short) World.Instance.MainPlayer.ActiveCharacter.ID))
+					if (!m_party.PlayerIsMember((short) OldWorld.Instance.MainPlayer.ActiveCharacter.ID))
 						break; //not in a party, cancel the talk
 					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
 					if (filtered != null)
@@ -654,13 +654,13 @@ namespace EndlessClient.HUD
 							_returnToLogin();
 							break;
 						}
-						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, true);
-						AddChat(ChatTabs.Local, World.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.PlayerPartyDark, ChatColor.PM);
-						AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.PlayerPartyDark);
+						OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, true);
+						AddChat(ChatTabs.Local, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.PlayerPartyDark, ChatColor.PM);
+						AddChat(ChatTabs.Group, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.PlayerPartyDark);
 					}
 					break;
 				case '&':  //guild talk
-					if (World.Instance.MainPlayer.ActiveCharacter.GuildName == "")
+					if (OldWorld.Instance.MainPlayer.ActiveCharacter.GuildName == "")
 						goto default;
 					
 					filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
@@ -672,7 +672,7 @@ namespace EndlessClient.HUD
 							break;
 						}
 						//note: more processing of colors/icons is needed here
-						AddChat(ChatTabs.Group, World.Instance.MainPlayer.ActiveCharacter.Name, filtered);
+						AddChat(ChatTabs.Group, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered);
 					}
 					break;
 				case '~':  //global talk
@@ -684,7 +684,7 @@ namespace EndlessClient.HUD
 							_returnToLogin();
 							break;
 						}
-						AddChat(ChatTabs.Global, World.Instance.MainPlayer.ActiveCharacter.Name, filtered);
+						AddChat(ChatTabs.Global, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered);
 					}
 					break;
 				case '!':  //private talk
@@ -719,7 +719,7 @@ namespace EndlessClient.HUD
 						//this player will have their messages rendered in Color.PM on the PM tab
 						if (whichPrivateChat != ChatTabs.None)
 						{
-							AddChat(whichPrivateChat, World.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.Note, ChatColor.PM);
+							AddChat(whichPrivateChat, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.Note, ChatColor.PM);
 						}
 					}
 				}
@@ -731,7 +731,7 @@ namespace EndlessClient.HUD
 					
 					if (args.Length == 1 && args[0] == "nowall")
 					{
-						World.Instance.ActiveCharacterRenderer.NoWall = !World.Instance.ActiveCharacterRenderer.NoWall;
+						OldWorld.Instance.ActiveCharacterRenderer.NoWall = !OldWorld.Instance.ActiveCharacterRenderer.NoWall;
 					}
 					else if (args.Length == 2 && args[0] == "find")
 					{
@@ -740,16 +740,16 @@ namespace EndlessClient.HUD
 					}
 					else if (args.Length == 1 && args[0] == "loc")
 					{
-						string firstPart = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) DATCONST2.STATUS_LABEL_YOUR_LOCATION_IS_AT];
+						string firstPart = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) DATCONST2.STATUS_LABEL_YOUR_LOCATION_IS_AT];
 						AddChat(ChatTabs.Local, "System", string.Format(firstPart + " {0}  x:{1}  y:{2}",
-							World.Instance.ActiveMapRenderer.MapRef.MapID,
-							World.Instance.MainPlayer.ActiveCharacter.X,
-							World.Instance.MainPlayer.ActiveCharacter.Y),
+							OldWorld.Instance.ActiveMapRenderer.MapRef.MapID,
+							OldWorld.Instance.MainPlayer.ActiveCharacter.X,
+							OldWorld.Instance.MainPlayer.ActiveCharacter.Y),
 							ChatType.LookingDude);
 					}
 					else if (args.Length == 1 && cmd == "usage")
 					{
-						int usage = World.Instance.MainPlayer.ActiveCharacter.Stats.Usage;
+						int usage = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Usage;
 						AddChat(ChatTabs.Local, "System", string.Format("[x] usage: {0}hrs. {1}min.", usage/60, usage%60));
 					}
 					else if (args.Length == 1 && cmd == "ping")
@@ -772,8 +772,8 @@ namespace EndlessClient.HUD
 						}
 
 						//do the rendering
-						World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, false);
-						AddChat(ChatTabs.Local, World.Instance.MainPlayer.ActiveCharacter.Name, filtered);
+						OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, false);
+						AddChat(ChatTabs.Local, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered);
 					}
 				}
 					break;
@@ -834,7 +834,7 @@ namespace EndlessClient.HUD
 				newsTab.SetButtonFlash();
 			}
 			
-			chatRenderer.AddTextToTab(ChatTabs.Local, World.GetString(DATCONST2.STRING_SERVER), lines[0], ChatType.Note, ChatColor.Server);
+			chatRenderer.AddTextToTab(ChatTabs.Local, OldWorld.GetString(DATCONST2.STRING_SERVER), lines[0], ChatType.Note, ChatColor.Server);
 		}
 
 		public void AddChat(ChatTabs whichTab, string who, string message, ChatType chatType = ChatType.None, ChatColor chatColor = ChatColor.Default)
@@ -844,7 +844,7 @@ namespace EndlessClient.HUD
 
 		public void PrivatePlayerNotFound(string character)
 		{
-			string endPart = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) DATCONST2.SYS_CHAT_PM_PLAYER_COULD_NOT_BE_FOUND];
+			string endPart = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) DATCONST2.SYS_CHAT_PM_PLAYER_COULD_NOT_BE_FOUND];
 			//add message to Sys and close the chat that was opened for 'character'
 			//this is how original client does it - you can see the PM tab open/close really quickly
 			chatRenderer.ClosePrivateChat(character);
@@ -872,8 +872,8 @@ namespace EndlessClient.HUD
 		{
 			CheckStatusLabelType(type);
 
-			string typeText = World.GetString(type);
-			string messageText = World.GetString(message);
+			string typeText = OldWorld.GetString(type);
+			string messageText = OldWorld.GetString(message);
 			SetStatusLabelText(string.Format("[ {0} ] {1} {2}", typeText, messageText, extra));
 		}
 
@@ -881,8 +881,8 @@ namespace EndlessClient.HUD
 		{
 			CheckStatusLabelType(type);
 
-			string typeText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int)type];
-			string messageText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int)message];
+			string typeText = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)type];
+			string messageText = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)message];
 			SetStatusLabelText(string.Format("[ {0} ] {1} {2}", typeText, extra, messageText));
 		}
 
@@ -890,7 +890,7 @@ namespace EndlessClient.HUD
 		{
 			CheckStatusLabelType(type);
 
-			string typeText = World.Instance.DataFiles[World.Instance.Localized2].Data[(int) type];
+			string typeText = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) type];
 			SetStatusLabelText(string.Format("[ {0} ] {1}", typeText, detail));
 		}
 
@@ -931,7 +931,7 @@ namespace EndlessClient.HUD
 		public void AddPartyMember(PartyMember member) { m_party.AddMember(member); }
 		public void RemovePartyMember(short memberID) { m_party.RemoveMember(memberID); }
 		public void CloseParty() { m_party.CloseParty(); }
-		public bool MainPlayerIsInParty() { return m_party.PlayerIsMember((short)World.Instance.MainPlayer.ActiveCharacter.ID); }
+		public bool MainPlayerIsInParty() { return m_party.PlayerIsMember((short)OldWorld.Instance.MainPlayer.ActiveCharacter.ID); }
 		public bool PlayerIsPartyMember(short playerID) { return m_party.PlayerIsMember(playerID); }
 
 		public void AddNewSpellToActiveSpellsByID(int spellID) { activeSpells.AddNewSpellToNextOpenSlot(spellID); }

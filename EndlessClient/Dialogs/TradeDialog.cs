@@ -56,7 +56,7 @@ namespace EndlessClient.Dialogs
 
 			Instance = this;
 			DialogClosing += (sender, args) => Instance = null;
-			m_main = World.Instance.MainPlayer.ActiveCharacter;
+			m_main = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
 			m_leftItems = new List<ListDialogItem>();
 			m_rightItems = new List<ListDialogItem>();
@@ -82,7 +82,7 @@ namespace EndlessClient.Dialogs
 			{
 				AutoSize = false,
 				TextAlign = LabelAlignment.MiddleLeft,
-				Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
+				Text = OldWorld.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
 				ForeColor = Constants.LightGrayText
 			};
 			m_leftPlayerStatus.SetParent(this);
@@ -90,7 +90,7 @@ namespace EndlessClient.Dialogs
 			{
 				AutoSize = false,
 				TextAlign = LabelAlignment.MiddleLeft,
-				Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
+				Text = OldWorld.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
 				ForeColor = Constants.LightGrayText
 			};
 			m_rightPlayerStatus.SetParent(this);
@@ -157,7 +157,7 @@ namespace EndlessClient.Dialogs
 				if (m_leftAgrees)
 				{
 					m_leftAgrees = false;
-					m_leftPlayerStatus.Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
+					m_leftPlayerStatus.Text = OldWorld.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
 				}
 
 				//left player is NOT main, and right player (ie main) agrees, and the item count is different for left player
@@ -165,7 +165,7 @@ namespace EndlessClient.Dialogs
 				if (m_main.ID != playerID && m_rightAgrees && collectionRef.Count != items.Count)
 				{
 					m_rightAgrees = false;
-					m_rightPlayerStatus.Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
+					m_rightPlayerStatus.Text = OldWorld.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
 					EOMessageBox.Show(DATCONST1.TRADE_ABORTED_OFFER_CHANGED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_TRADE_OTHER_PLAYER_CHANGED_OFFER);
 				}
@@ -180,7 +180,7 @@ namespace EndlessClient.Dialogs
 				if (m_rightAgrees)
 				{
 					m_rightAgrees = false;
-					m_rightPlayerStatus.Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
+					m_rightPlayerStatus.Text = OldWorld.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
 				}
 
 				//right player is NOT main, and left player (ie main) agrees, and the item count is different for right player
@@ -188,7 +188,7 @@ namespace EndlessClient.Dialogs
 				if (m_main.ID != playerID && m_leftAgrees && collectionRef.Count != items.Count)
 				{
 					m_leftAgrees = false;
-					m_leftPlayerStatus.Text = World.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
+					m_leftPlayerStatus.Text = OldWorld.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING);
 					EOMessageBox.Show(DATCONST1.TRADE_ABORTED_OFFER_CHANGED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_TRADE_OTHER_PLAYER_CHANGED_OFFER);
 				}
@@ -212,9 +212,9 @@ namespace EndlessClient.Dialogs
 			{
 				int localID = item.id;
 
-				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
 				string secondary = string.Format("x {0}  {1}", item.amount, rec.Type == ItemType.Armor
-					? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")"
+					? "(" + (rec.Gender == 0 ? OldWorld.GetString(DATCONST2.FEMALE) : OldWorld.GetString(DATCONST2.MALE)) + ")"
 					: "");
 
 				int gfxNum = item.id == 1
@@ -253,7 +253,7 @@ namespace EndlessClient.Dialogs
 
 				m_leftAgrees = agrees;
 				m_leftPlayerStatus.Text =
-					World.GetString(agrees ? DATCONST2.DIALOG_TRADE_WORD_AGREE : DATCONST2.DIALOG_TRADE_WORD_TRADING);
+					OldWorld.GetString(agrees ? DATCONST2.DIALOG_TRADE_WORD_AGREE : DATCONST2.DIALOG_TRADE_WORD_TRADING);
 			}
 			else if (playerID == m_rightPlayerID)
 			{
@@ -266,7 +266,7 @@ namespace EndlessClient.Dialogs
 
 				m_rightAgrees = agrees;
 				m_rightPlayerStatus.Text =
-					World.GetString(agrees ? DATCONST2.DIALOG_TRADE_WORD_AGREE : DATCONST2.DIALOG_TRADE_WORD_TRADING);
+					OldWorld.GetString(agrees ? DATCONST2.DIALOG_TRADE_WORD_AGREE : DATCONST2.DIALOG_TRADE_WORD_TRADING);
 			}
 			else
 				throw new ArgumentException("Invalid Player ID for trade session!");
@@ -292,12 +292,12 @@ namespace EndlessClient.Dialogs
 			foreach (var item in mainCollection)
 			{
 				m_main.UpdateInventoryItem(item.id, -item.amount, true);
-				weightDelta -= World.Instance.EIF.GetItemRecordByID(item.id).Weight * item.amount;
+				weightDelta -= OldWorld.Instance.EIF.GetItemRecordByID(item.id).Weight * item.amount;
 			}
 			foreach (var item in otherCollection)
 			{
 				m_main.UpdateInventoryItem(item.id, item.amount, true);
-				weightDelta += World.Instance.EIF.GetItemRecordByID(item.id).Weight * item.amount;
+				weightDelta += OldWorld.Instance.EIF.GetItemRecordByID(item.id).Weight * item.amount;
 			}
 			m_main.Weight += (byte)weightDelta;
 			((EOGame)Game).Hud.RefreshStats();
@@ -321,8 +321,8 @@ namespace EndlessClient.Dialogs
 
 			if (m_leftItems.Count == 0 || m_rightItems.Count == 0)
 			{
-				EOMessageBox.Show(World.GetString(DATCONST2.DIALOG_TRADE_BOTH_PLAYERS_OFFER_ONE_ITEM),
-					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok,
+				EOMessageBox.Show(OldWorld.GetString(DATCONST2.DIALOG_TRADE_BOTH_PLAYERS_OFFER_ONE_ITEM),
+					OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok,
 					EOMessageBoxStyle.SmallDialogSmallHeader);
 				((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_TRADE_BOTH_PLAYERS_OFFER_ONE_ITEM);
 				return;
@@ -336,18 +336,18 @@ namespace EndlessClient.Dialogs
 					otherCollection.Select(_item => new InventoryItem { id = _item.ID, amount = _item.Amount }).ToList(),
 					mainCollection.Select(_item => new InventoryItem { id = _item.ID, amount = _item.Amount }).ToList()))
 			{
-				EOMessageBox.Show(World.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
-					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+				EOMessageBox.Show(OldWorld.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
+					OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 				return;
 			}
 
 			//make sure the change in weight + existing weight is not greater than the max weight!
-			int weightDelta = otherCollection.Sum(itemRef => (World.Instance.EIF.GetItemRecordByID(itemRef.ID).Weight * itemRef.Amount));
-			weightDelta = mainCollection.Aggregate(weightDelta, (current, itemRef) => current - (World.Instance.EIF.GetItemRecordByID(itemRef.ID).Weight * itemRef.Amount));
+			int weightDelta = otherCollection.Sum(itemRef => (OldWorld.Instance.EIF.GetItemRecordByID(itemRef.ID).Weight * itemRef.Amount));
+			weightDelta = mainCollection.Aggregate(weightDelta, (current, itemRef) => current - (OldWorld.Instance.EIF.GetItemRecordByID(itemRef.ID).Weight * itemRef.Amount));
 			if (weightDelta + m_main.Weight > m_main.MaxWeight)
 			{
-				EOMessageBox.Show(World.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT),
-					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+				EOMessageBox.Show(OldWorld.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT),
+					OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 				return;
 			}
 

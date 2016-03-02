@@ -42,7 +42,7 @@ namespace EndlessClient.Dialogs
 			XNALabel title = new XNALabel(new Rectangle(20, 17, 1, 1), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
-				Text = World.GetString(DATCONST2.DIALOG_TITLE_PERFORMANCE),
+				Text = OldWorld.GetString(DATCONST2.DIALOG_TITLE_PERFORMANCE),
 				ForeColor = Constants.LightGrayText
 			};
 			title.SetParent(this);
@@ -64,18 +64,18 @@ namespace EndlessClient.Dialogs
 				rightSide[(i - 48) / 16].SetParent(this);
 			}
 
-			leftSide[0].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_TOTALEXP);
-			leftSide[1].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_NEXT_LEVEL);
-			leftSide[2].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_EXP_NEEDED);
-			leftSide[3].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_TODAY_EXP);
-			leftSide[4].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_TOTAL_AVG);
-			leftSide[5].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_TODAY_AVG);
-			leftSide[6].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_BEST_KILL);
-			leftSide[7].Text = World.GetString(DATCONST2.DIALOG_PERFORMANCE_LAST_KILL);
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
+			leftSide[0].Text = OldWorld.GetString(DATCONST2.DIALOG_PERFORMANCE_TOTALEXP);
+			leftSide[1].Text = OldWorld.GetString(DATCONST2.DIALOG_PERFORMANCE_NEXT_LEVEL);
+			leftSide[2].Text = OldWorld.GetString(DATCONST2.DIALOG_PERFORMANCE_EXP_NEEDED);
+			leftSide[3].Text = OldWorld.GetString(DATCONST2.DIALOG_PERFORMANCE_TODAY_EXP);
+			leftSide[4].Text = OldWorld.GetString(DATCONST2.DIALOG_PERFORMANCE_TOTAL_AVG);
+			leftSide[5].Text = OldWorld.GetString(DATCONST2.DIALOG_PERFORMANCE_TODAY_AVG);
+			leftSide[6].Text = OldWorld.GetString(DATCONST2.DIALOG_PERFORMANCE_BEST_KILL);
+			leftSide[7].Text = OldWorld.GetString(DATCONST2.DIALOG_PERFORMANCE_LAST_KILL);
+			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 			rightSide[0].Text = string.Format("{0}", c.Stats.Experience);
-			rightSide[1].Text = string.Format("{0}", World.Instance.exp_table[c.Stats.Level + 1]);
-			rightSide[2].Text = string.Format("{0}", World.Instance.exp_table[c.Stats.Level + 1] - c.Stats.Experience);
+			rightSide[1].Text = string.Format("{0}", OldWorld.Instance.exp_table[c.Stats.Level + 1]);
+			rightSide[2].Text = string.Format("{0}", OldWorld.Instance.exp_table[c.Stats.Level + 1] - c.Stats.Experience);
 			rightSide[3].Text = string.Format("{0}", c.TodayExp);
 			rightSide[4].Text = string.Format("{0}", (int)(c.Stats.Experience / (c.Stats.Usage / 60.0)));
 			int sessionTime = (int)(DateTime.Now - EOGame.Instance.Hud.SessionStartTime).TotalMinutes;

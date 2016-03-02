@@ -29,8 +29,8 @@ namespace EndlessClient
 
 		public void AssignCallbacks()
 		{
-			m_packetAPI.OnWarpRequestNewMap += World.Instance.CheckMap;
-			m_packetAPI.OnWarpAgree += World.Instance.WarpAgreeAction;
+			m_packetAPI.OnWarpRequestNewMap += OldWorld.Instance.CheckMap;
+			m_packetAPI.OnWarpAgree += OldWorld.Instance.WarpAgreeAction;
 
 			m_packetAPI.OnPlayerEnterMap += _playerEnterMap;
 			m_packetAPI.OnNPCEnterMap += _npcEnterMap;
@@ -158,41 +158,41 @@ namespace EndlessClient
 
 		private void _playerEnterMap(CharacterData data, WarpAnimation anim)
 		{
-			World.Instance.ActiveMapRenderer.AddOtherPlayer(data, anim);
+			OldWorld.Instance.ActiveMapRenderer.AddOtherPlayer(data, anim);
 		}
 
 		private void _npcEnterMap(NPCData obj)
 		{
-			if (World.Instance.ActiveMapRenderer == null) return;
-			World.Instance.ActiveMapRenderer.AddOtherNPC(obj);
+			if (OldWorld.Instance.ActiveMapRenderer == null) return;
+			OldWorld.Instance.ActiveMapRenderer.AddOtherNPC(obj);
 		}
 
 		private void _mainPlayerWalk(List<MapItem> _list)
 		{
-			foreach (var item in _list) World.Instance.ActiveMapRenderer.AddMapItem(item);
+			foreach (var item in _list) OldWorld.Instance.ActiveMapRenderer.AddMapItem(item);
 		}
 
 		private void _otherPlayerWalk(short id, EODirection dir, byte x, byte y)
 		{
-			World.Instance.ActiveMapRenderer.OtherPlayerWalk(id, dir, x, y);
+			OldWorld.Instance.ActiveMapRenderer.OtherPlayerWalk(id, dir, x, y);
 		}
 
 		private void _adminHiddenChange(short id, bool hidden)
 		{
-			if (World.Instance.MainPlayer.ActiveCharacter.ID == id)
-				World.Instance.MainPlayer.ActiveCharacter.RenderData.SetHidden(hidden);
+			if (OldWorld.Instance.MainPlayer.ActiveCharacter.ID == id)
+				OldWorld.Instance.MainPlayer.ActiveCharacter.RenderData.SetHidden(hidden);
 			else
-				World.Instance.ActiveMapRenderer.OtherPlayerHide(id, hidden);
+				OldWorld.Instance.ActiveMapRenderer.OtherPlayerHide(id, hidden);
 		}
 
 		private void _otherPlayerAttack(short playerid, EODirection dir)
 		{
-			World.Instance.ActiveMapRenderer.OtherPlayerAttack(playerid, dir);
+			OldWorld.Instance.ActiveMapRenderer.OtherPlayerAttack(playerid, dir);
 		}
 
 		private void _playerAvatarRemove(short id, WarpAnimation anim)
 		{
-			World.Instance.ActiveMapRenderer.RemoveOtherPlayer(id, anim);
+			OldWorld.Instance.ActiveMapRenderer.RemoveOtherPlayer(id, anim);
 		}
 
 		private void _playerAvatarChange(AvatarData _data)
@@ -200,7 +200,7 @@ namespace EndlessClient
 			switch (_data.Slot)
 			{
 				case AvatarSlot.Clothes:
-					World.Instance.ActiveMapRenderer.UpdateOtherPlayerRenderData(_data.ID, _data.Sound, new CharRenderData
+					OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerRenderData(_data.ID, _data.Sound, new CharRenderData
 					{
 						boots = _data.Boots,
 						armor = _data.Armor,
@@ -210,10 +210,10 @@ namespace EndlessClient
 					});
 					break;
 				case AvatarSlot.Hair:
-					World.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(_data.ID, _data.HairColor, _data.HairStyle);
+					OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(_data.ID, _data.HairColor, _data.HairStyle);
 					break;
 				case AvatarSlot.HairColor:
-					World.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(_data.ID, _data.HairColor);
+					OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(_data.ID, _data.HairColor);
 					break;
 			}
 		}
@@ -223,9 +223,9 @@ namespace EndlessClient
 			Character c;
 			if (!_data.ItemWasUnequipped)
 			{
-				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(_data.ItemID);
+				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(_data.ItemID);
 				//update inventory
-				(c = World.Instance.MainPlayer.ActiveCharacter).UpdateInventoryItem(_data.ItemID, _data.ItemAmount);
+				(c = OldWorld.Instance.MainPlayer.ActiveCharacter).UpdateInventoryItem(_data.ItemID, _data.ItemAmount);
 				//equip item
 				c.EquipItem(rec.Type, (short) rec.ID, (short) rec.DollGraphic, true, (sbyte) _data.SubLoc);
 				//add to paperdoll dialog
@@ -234,11 +234,11 @@ namespace EndlessClient
 			}
 			else
 			{
-				c = World.Instance.MainPlayer.ActiveCharacter;
+				c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 				//update inventory
 				c.UpdateInventoryItem(_data.ItemID, 1, true); //true: add to existing quantity
 				//unequip item
-				c.UnequipItem(World.Instance.EIF.GetItemRecordByID(_data.ItemID).Type, _data.SubLoc);
+				c.UnequipItem(OldWorld.Instance.EIF.GetItemRecordByID(_data.ItemID).Type, _data.SubLoc);
 			}
 			c.UpdateStatsAfterEquip(_data);
 		}
@@ -248,15 +248,15 @@ namespace EndlessClient
 			if (EOPaperdollDialog.Instance != null) return;
 
 			Character c;
-			if (World.Instance.MainPlayer.ActiveCharacter.ID == _data.PlayerID)
+			if (OldWorld.Instance.MainPlayer.ActiveCharacter.ID == _data.PlayerID)
 			{
 				//paperdoll requested for main player, all info should be up to date
-				c = World.Instance.MainPlayer.ActiveCharacter;
+				c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 				Array.Copy(_data.Paperdoll.ToArray(), c.PaperDoll, (int) EquipLocation.PAPERDOLL_MAX);
 			}
 			else
 			{
-				if ((c = World.Instance.ActiveMapRenderer.GetOtherPlayerByID(_data.PlayerID)) != null)
+				if ((c = OldWorld.Instance.ActiveMapRenderer.GetOtherPlayerByID(_data.PlayerID)) != null)
 				{
 					c.Class = _data.Class;
 					c.RenderData.SetGender(_data.Gender);
@@ -274,7 +274,7 @@ namespace EndlessClient
 
 		private void _doorOpen(byte x, byte y)
 		{
-			World.Instance.ActiveMapRenderer.OnDoorOpened(x, y);
+			OldWorld.Instance.ActiveMapRenderer.OnDoorOpened(x, y);
 		}
 
 		private void _chestOpen(ChestData data)
@@ -294,14 +294,14 @@ namespace EndlessClient
 
 		private void _chestAddItem(short id, int amount, byte weight, byte maxWeight, ChestData data)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight);
 			ChestDialog.Instance.InitializeItems(data.Items);
 			m_game.Hud.RefreshStats();
 		}
 
 		private void _chestGetItem(short id, int amount, byte weight, byte maxWeight, ChestData data)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, true);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, true);
 			ChestDialog.Instance.InitializeItems(data.Items);
 			m_game.Hud.RefreshStats();
 		}
@@ -317,11 +317,11 @@ namespace EndlessClient
 
 			string lastPart;
 			if (online && !sameMap)
-				lastPart = World.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_IN_THIS_WORLD);
+				lastPart = OldWorld.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_IN_THIS_WORLD);
 			else if (online)
-				lastPart = World.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_SAME_MAP);
+				lastPart = OldWorld.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_SAME_MAP);
 			else
-				lastPart = World.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_NOT_FOUND);
+				lastPart = OldWorld.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_NOT_FOUND);
 
 			m_game.Hud.AddChat(ChatTabs.Local,
 				"System",
@@ -331,26 +331,26 @@ namespace EndlessClient
 
 		private void _playerFace(short playerId, EODirection dir)
 		{
-			World.Instance.ActiveMapRenderer.OtherPlayerFace(playerId, dir);
+			OldWorld.Instance.ActiveMapRenderer.OtherPlayerFace(playerId, dir);
 		}
 
 		private void _playerRecover(short hp, short tp)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.Stats.HP = hp;
-			World.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.HP = hp;
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
 			if (m_game.Hud != null)
 				m_game.Hud.RefreshStats();
 		}
 
 		private void _recoverReply(int exp, short karma, byte level, short statpoints, short skillpoints)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.Stats.Experience = exp;
-			World.Instance.MainPlayer.ActiveCharacter.Stats.Karma = karma;
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Experience = exp;
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Karma = karma;
 			if (level > 0)
-				World.Instance.MainPlayer.ActiveCharacter.Stats.Level = level;
+				OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Level = level;
 
-			World.Instance.MainPlayer.ActiveCharacter.Stats.StatPoints = statpoints;
-			World.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints = skillpoints;
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.StatPoints = statpoints;
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints = skillpoints;
 
 			m_game.Hud.RefreshStats();
 		}
@@ -358,11 +358,11 @@ namespace EndlessClient
 		private void _statsList(DisplayStats _data)
 		{
 
-			CharStatData localStats = World.Instance.MainPlayer.ActiveCharacter.Stats;
+			CharStatData localStats = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats;
 			if (_data.IsStatsData)
 				localStats.StatPoints = _data.StatPoints;
 			else
-				World.Instance.MainPlayer.ActiveCharacter.Class = _data.Class;
+				OldWorld.Instance.MainPlayer.ActiveCharacter.Class = _data.Class;
 			localStats.Str = _data.Str;
 			localStats.Int = _data.Int;
 			localStats.Wis = _data.Wis;
@@ -373,7 +373,7 @@ namespace EndlessClient
 			localStats.MaxTP = _data.MaxTP;
 			localStats.SP = _data.MaxSP;
 			localStats.MaxSP = _data.MaxSP;
-			World.Instance.MainPlayer.ActiveCharacter.MaxWeight = _data.MaxWeight;
+			OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight = _data.MaxWeight;
 			localStats.MinDam = _data.MinDam;
 			localStats.MaxDam = _data.MaxDam;
 			localStats.Accuracy = _data.Accuracy;
@@ -384,7 +384,7 @@ namespace EndlessClient
 
 		private void _playerHeal(short playerid, int healamount, byte percenthealth)
 		{
-			World.Instance.ActiveMapRenderer.OtherPlayerHeal(playerid, healamount, percenthealth);
+			OldWorld.Instance.ActiveMapRenderer.OtherPlayerHeal(playerid, healamount, percenthealth);
 		}
 
 		private void _getItemFromMap(short uid, short id, int amountTaken, byte weight, byte maxWeight)
@@ -392,35 +392,35 @@ namespace EndlessClient
 
 			if (uid != 0) //$si command has uid of 0 since we're creating a new item from nothing
 			{
-				World.Instance.ActiveMapRenderer.UpdateMapItemAmount(uid, amountTaken);
+				OldWorld.Instance.ActiveMapRenderer.UpdateMapItemAmount(uid, amountTaken);
 			}
 
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);
 
-			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(id);
-			m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP), amountTaken, rec.Name), ChatType.UpArrow);
+			ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(id);
+			m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP), amountTaken, rec.Name), ChatType.UpArrow);
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP, string.Format(" {0} {1}", amountTaken, rec.Name));
 		}
 
 		private void _junkItem(short id, int amountRemoved, int amountRemaining, byte weight, byte maxWeight)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
 
-			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(id);
-			m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED), amountRemoved, rec.Name), ChatType.DownArrow);
+			ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(id);
+			m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED), amountRemoved, rec.Name), ChatType.DownArrow);
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED, string.Format(" {0} {1}", amountRemoved, rec.Name));
 		}
 
 		private void _dropItem(int characterAmount, byte weight, byte maxWeight, MapItem item)
 		{
-			World.Instance.ActiveMapRenderer.AddMapItem(item);
+			OldWorld.Instance.ActiveMapRenderer.AddMapItem(item);
 			if (characterAmount >= 0) //will be -1 when another player drops
 			{
-				World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(item.id, characterAmount, weight, maxWeight);
+				OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(item.id, characterAmount, weight, maxWeight);
 
-				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
 				m_game.Hud.AddChat(ChatTabs.System, "",
-						string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), item.amount, rec.Name),
+						string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), item.amount, rec.Name),
 						ChatType.DownArrow);
 				m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED,
 						string.Format(" {0} {1}", item.amount, rec.Name));
@@ -429,42 +429,42 @@ namespace EndlessClient
 
 		private void _useItem(ItemUseData data)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(data.ItemID, data.CharacterAmount, data.Weight, data.MaxWeight);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(data.ItemID, data.CharacterAmount, data.Weight, data.MaxWeight);
 			switch (data.Type)
 			{
 				case ItemType.Teleport: /*Warp packet handles the rest!*/ break;
 				case ItemType.Heal:
 					{
-						World.Instance.MainPlayer.ActiveCharacter.Stats.HP = data.HP;
-						World.Instance.MainPlayer.ActiveCharacter.Stats.TP = data.TP;
+						OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.HP = data.HP;
+						OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = data.TP;
 
-						int percent = (int)Math.Round(100.0 * ((double)data.HP / World.Instance.MainPlayer.ActiveCharacter.Stats.MaxHP));
+						int percent = (int)Math.Round(100.0 * ((double)data.HP / OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.MaxHP));
 
 						if (data.HPGain > 0)
-							World.Instance.ActiveCharacterRenderer.SetDamageCounterValue(data.HPGain, percent, true);
+							OldWorld.Instance.ActiveCharacterRenderer.SetDamageCounterValue(data.HPGain, percent, true);
 						m_game.Hud.RefreshStats();
 					}
 					break;
 				case ItemType.HairDye:
 					{
-						World.Instance.MainPlayer.ActiveCharacter.RenderData.SetHairColor(data.HairColor);
+						OldWorld.Instance.MainPlayer.ActiveCharacter.RenderData.SetHairColor(data.HairColor);
 					}
 					break;
 				case ItemType.Beer:
-					World.Instance.ActiveCharacterRenderer.MakeDrunk();
+					OldWorld.Instance.ActiveCharacterRenderer.MakeDrunk();
 					m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_ITEM_USE_DRUNK);
 					break;
 				case ItemType.EffectPotion: //todo: effect potions for other players
-					World.Instance.ActiveCharacterRenderer.ShowPotionAnimation(data.EffectID);
+					OldWorld.Instance.ActiveCharacterRenderer.ShowPotionAnimation(data.EffectID);
 					break;
 				case ItemType.CureCurse:
 					{
 						//actually remove the item(s) from the main character
-						Character c = World.Instance.MainPlayer.ActiveCharacter;
+						Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 						for (int i = 0; i < (int)EquipLocation.PAPERDOLL_MAX; ++i)
 						{
 							int nextID = c.PaperDoll[i];
-							if (nextID > 0 && World.Instance.EIF.GetItemRecordByID(nextID).Special == ItemSpecial.Cursed)
+							if (nextID > 0 && OldWorld.Instance.EIF.GetItemRecordByID(nextID).Special == ItemSpecial.Cursed)
 							{
 								c.PaperDoll[i] = 0;
 								switch ((EquipLocation)i)
@@ -498,12 +498,12 @@ namespace EndlessClient
 					break;
 				case ItemType.EXPReward:
 					{
-						CharStatData s = World.Instance.MainPlayer.ActiveCharacter.Stats;
+						CharStatData s = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats;
 						if (s.Level < data.RewardStats.Level)
 						{
 							//level up!
-							World.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
-							World.Instance.ActiveCharacterRenderer.PlayerEmote();
+							OldWorld.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
+							OldWorld.Instance.ActiveCharacterRenderer.PlayerEmote();
 							s.Level = data.RewardStats.Level;
 						}
 						s.Experience = data.RewardStats.Exp;
@@ -519,24 +519,24 @@ namespace EndlessClient
 
 		private void _itemChange(bool wasItemObtained, short id, int amount, byte weight)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight,
-				World.Instance.MainPlayer.ActiveCharacter.MaxWeight, wasItemObtained);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight,
+				OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight, wasItemObtained);
 		}
 
 		private void _removeItemFromMap(short itemuid)
 		{
-			World.Instance.ActiveMapRenderer.RemoveMapItem(itemuid);
+			OldWorld.Instance.ActiveMapRenderer.RemoveMapItem(itemuid);
 		}
 
 		private void _mapMutate()
 		{
 			if (File.Exists("maps\\00000.emf"))
 			{
-				string fmt = string.Format("maps\\{0,5:D5}.emf", World.Instance.MainPlayer.ActiveCharacter.CurrentMap);
+				string fmt = string.Format("maps\\{0,5:D5}.emf", OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap);
 				if (File.Exists(fmt))
 					File.Delete(fmt);
 				File.Move("maps\\00000.emf", fmt);
-				World.Instance.Remap();
+				OldWorld.Instance.Remap();
 			}
 			else
 				throw new FileNotFoundException("Unable to remap the file, something broke");
@@ -544,61 +544,61 @@ namespace EndlessClient
 
 		private void _npcWalk(byte index, byte x, byte y, EODirection dir)
 		{
-			if (World.Instance.ActiveMapRenderer == null) return;
-			World.Instance.ActiveMapRenderer.NPCWalk(index, x, y, dir);
+			if (OldWorld.Instance.ActiveMapRenderer == null) return;
+			OldWorld.Instance.ActiveMapRenderer.NPCWalk(index, x, y, dir);
 		}
 
 		private void _npcAttack(byte index, bool dead, EODirection dir, short id, int damage, int health)
 		{
-			World.Instance.ActiveMapRenderer.NPCAttack(index, dead, dir, id, damage, health);
+			OldWorld.Instance.ActiveMapRenderer.NPCAttack(index, dead, dir, id, damage, health);
 		}
 
 		private void _npcChat(byte index, string message)
 		{
-			if (World.Instance.ActiveMapRenderer == null) return;
+			if (OldWorld.Instance.ActiveMapRenderer == null) return;
 
-			World.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.NPC, index, message, ChatType.Note);
+			OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(TalkType.NPC, index, message, ChatType.Note);
 		}
 
 		private void _npcLeaveView(byte index, int damageToNPC, short playerID, EODirection playerDirection, short playerTP = -1, short spellID = -1)
 		{
-			if (World.Instance.ActiveMapRenderer == null) return;
+			if (OldWorld.Instance.ActiveMapRenderer == null) return;
 
-			World.Instance.ActiveMapRenderer.RemoveOtherNPC(index, damageToNPC, playerID, playerDirection, spellID);
+			OldWorld.Instance.ActiveMapRenderer.RemoveOtherNPC(index, damageToNPC, playerID, playerDirection, spellID);
 
 			if (playerTP >= 0)
 			{
-				World.Instance.MainPlayer.ActiveCharacter.Stats.TP = playerTP;
+				OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = playerTP;
 				m_game.Hud.RefreshStats();
 			}
 		}
 
 		private void _npcKilled(int newExp)
 		{
-			int expDif = newExp - World.Instance.MainPlayer.ActiveCharacter.Stats.Experience;
-			World.Instance.MainPlayer.ActiveCharacter.GainExp(expDif);
+			int expDif = newExp - OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Experience;
+			OldWorld.Instance.MainPlayer.ActiveCharacter.GainExp(expDif);
 
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_YOU_GAINED_EXP, string.Format(" {0} EXP", expDif));
-			m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} EXP", World.GetString(DATCONST2.STATUS_LABEL_YOU_GAINED_EXP), expDif), ChatType.Star);
+			m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} EXP", OldWorld.GetString(DATCONST2.STATUS_LABEL_YOU_GAINED_EXP), expDif), ChatType.Star);
 		}
 
 		private void _npcTakeDamage(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID, short fromTP)
 		{
-			World.Instance.ActiveMapRenderer.NPCTakeDamage(npcIndex, fromPlayerID, fromDirection, damageToNPC, npcPctHealth, spellID);
+			OldWorld.Instance.ActiveMapRenderer.NPCTakeDamage(npcIndex, fromPlayerID, fromDirection, damageToNPC, npcPctHealth, spellID);
 
 			if (fromTP >= 0)
 			{
-				World.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromTP;
+				OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromTP;
 				m_game.Hud.RefreshStats();
 			}
 		}
 
 		private void _playerLevelUp(LevelUpStats _stats)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
-			World.Instance.ActiveCharacterRenderer.PlayerEmote();
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
+			OldWorld.Instance.ActiveCharacterRenderer.PlayerEmote();
 
-			CharStatData stats = World.Instance.MainPlayer.ActiveCharacter.Stats;
+			CharStatData stats = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats;
 			stats.Level = _stats.Level;
 			stats.StatPoints = _stats.StatPoints;
 			stats.SkillPoints = _stats.SkillPoints;
@@ -610,12 +610,12 @@ namespace EndlessClient
 
 		private void _removeChildNPCs(short childNPCID)
 		{
-			World.Instance.ActiveMapRenderer.RemoveNPCsWhere(x => x.NPC.Data.ID == childNPCID);
+			OldWorld.Instance.ActiveMapRenderer.RemoveNPCsWhere(x => x.NPC.Data.ID == childNPCID);
 		}
 
 		private void _chatByPlayerID(TalkType type, int id, string message)
 		{
-			World.Instance.ActiveMapRenderer.RenderChatMessage(type, id, message, type == TalkType.Party ? ChatType.PlayerPartyDark : ChatType.SpeechBubble);
+			OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(type, id, message, type == TalkType.Party ? ChatType.PlayerPartyDark : ChatType.SpeechBubble);
 		}
 
 		private void _chatByPlayerName(TalkType type, string name, string msg)
@@ -638,15 +638,15 @@ namespace EndlessClient
 				case TalkType.Global: m_game.Hud.AddChat(ChatTabs.Global, name, msg, ChatType.GlobalAnnounce); break;
 				case TalkType.Guild: m_game.Hud.AddChat(ChatTabs.Group, name, msg); break;
 				case TalkType.Server:
-					m_game.Hud.AddChat(ChatTabs.Local, World.GetString(DATCONST2.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.Server);
-					m_game.Hud.AddChat(ChatTabs.Global, World.GetString(DATCONST2.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.ServerGlobal);
+					m_game.Hud.AddChat(ChatTabs.Local, OldWorld.GetString(DATCONST2.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.Server);
+					m_game.Hud.AddChat(ChatTabs.Global, OldWorld.GetString(DATCONST2.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.ServerGlobal);
 					m_game.Hud.AddChat(ChatTabs.System, "", msg, ChatType.Exclamation, ChatColor.Server);
 					break;
 				case TalkType.Admin:
 					m_game.Hud.AddChat(ChatTabs.Group, name, msg, ChatType.HGM, ChatColor.Admin);
 					break;
 				case TalkType.Announce:
-					World.Instance.ActiveMapRenderer.MakeSpeechBubble(null, msg, false);
+					OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, msg, false);
 					m_game.Hud.AddChat(ChatTabs.Local, name, msg, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
 					m_game.Hud.AddChat(ChatTabs.Global, name, msg, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
 					m_game.Hud.AddChat(ChatTabs.Group, name, msg, ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
@@ -661,8 +661,8 @@ namespace EndlessClient
 
 		private void _playerMuted(string adminName)
 		{
-			string message = World.GetString(DATCONST2.CHAT_MESSAGE_MUTED_BY) + " " + adminName;
-			m_game.Hud.AddChat(ChatTabs.Local, World.GetString(DATCONST2.STRING_SERVER), message, ChatType.Exclamation, ChatColor.Server);
+			string message = OldWorld.GetString(DATCONST2.CHAT_MESSAGE_MUTED_BY) + " " + adminName;
+			m_game.Hud.AddChat(ChatTabs.Local, OldWorld.GetString(DATCONST2.STRING_SERVER), message, ChatType.Exclamation, ChatColor.Server);
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, "" + Constants.MuteDefaultTimeMinutes, DATCONST2.STATUS_LABEL_MINUTES_MUTED);
 			m_game.Hud.SetMuted();
 		}
@@ -678,7 +678,7 @@ namespace EndlessClient
 		{
 			if (BankAccountDialog.Instance == null) return;
 
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
 			BankAccountDialog.Instance.AccountBalance = string.Format("{0}", bankGold);
 		}
 
@@ -690,13 +690,13 @@ namespace EndlessClient
 
 		private void _shopTrade(int gold, short itemID, int amount, byte weight, byte maxWeight, bool isBuy)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(itemID, amount, weight, maxWeight, isBuy);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(itemID, amount, weight, maxWeight, isBuy);
 		}
 
 		private void _shopCraft(short id, byte weight, byte maxWeight, List<InventoryItem> ingredients)
 		{
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
+			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 			c.UpdateInventoryItem(id, 1, weight, maxWeight, true);
 			foreach (var ingred in ingredients)
 				c.UpdateInventoryItem(ingred.id, ingred.amount);
@@ -712,22 +712,22 @@ namespace EndlessClient
 		private void _lockerItemChange(short id, int amount, byte weight, byte maxWeight, bool existingAmount, List<InventoryItem> items)
 		{
 			if (LockerDialog.Instance == null) return;
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, existingAmount);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, existingAmount);
 			LockerDialog.Instance.SetLockerData(items);
 		}
 
 		private void _lockerUpgrade(int remaining, byte upgrades)
 		{
 			if (BankAccountDialog.Instance == null) return;
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
 			BankAccountDialog.Instance.LockerUpgrades = upgrades;
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_LOCKER_SPACE_INCREASED);
 		}
 
 		private void _playerEmote(short playerID, Emote emote)
 		{
-			if (playerID != World.Instance.MainPlayer.ActiveCharacter.ID)
-				World.Instance.ActiveMapRenderer.OtherPlayerEmote(playerID, emote);
+			if (playerID != OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
+				OldWorld.Instance.ActiveMapRenderer.OtherPlayerEmote(playerID, emote);
 		}
 
 		private void _partyClose()
@@ -742,7 +742,7 @@ namespace EndlessClient
 
 		private void _partyRequest(PartyRequestType type, short id, string name)
 		{
-			if (!World.Instance.Interaction)
+			if (!OldWorld.Instance.Interaction)
 				return;
 
 			EOMessageBox.Show(name + " ",
@@ -770,7 +770,7 @@ namespace EndlessClient
 
 		private void _tradeRequested(short playerID, string name)
 		{
-			if (!World.Instance.Interaction)
+			if (!OldWorld.Instance.Interaction)
 				return;
 
 			EOMessageBox.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DATCONST1.TRADE_REQUEST, XNADialogButtons.OkCancel,
@@ -787,15 +787,15 @@ namespace EndlessClient
 			dlg.InitPlayerInfo(p1, p1name, p2, p2name);
 
 			string otherName;
-			if (p1 == World.Instance.MainPlayer.ActiveCharacter.ID)
+			if (p1 == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
 				otherName = p2name;
-			else if (p2 == World.Instance.MainPlayer.ActiveCharacter.ID)
+			else if (p2 == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
 				otherName = p1name;
 			else
 				throw new ArgumentException("Invalid player ID for this trade session!", "p1");
 
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_TRADE_YOU_ARE_TRADING_WITH,
-					otherName + " " + World.GetString(DATCONST2.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
+					otherName + " " + OldWorld.GetString(DATCONST2.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
 		}
 
 		private void _tradeCancel(short otherPlayerID)
@@ -842,7 +842,7 @@ namespace EndlessClient
 			{
 				//not sure if this will ever actually be sent because client validates data before trying to learn a skill
 				case SkillMasterReply.ErrorWrongClass:
-					EOMessageBox.Show(DATCONST1.SKILL_LEARN_WRONG_CLASS, " " + ((ClassRecord)World.Instance.ECF.Data[id]).Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+					EOMessageBox.Show(DATCONST1.SKILL_LEARN_WRONG_CLASS, " " + ((ClassRecord)OldWorld.Instance.ECF.Data[id]).Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					break;
 				case SkillMasterReply.ErrorRemoveItems:
 					EOMessageBox.Show(DATCONST1.SKILL_RESET_CHARACTER_CLEAR_PAPERDOLL, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
@@ -852,16 +852,16 @@ namespace EndlessClient
 
 		private void _statskillLearnSpellSuccess(short id, int remaining)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.Spells.Add(new CharacterSpell { id = id, level = 0 });
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Add(new CharacterSpell { id = id, level = 0 });
 			if (SkillmasterDialog.Instance != null)
 				SkillmasterDialog.Instance.RemoveSkillByIDFromLearnList(id);
-			World.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
 			m_game.Hud.AddNewSpellToActiveSpellsByID(id);
 		}
 
 		private void _statskillForgetSpell(short id)
 		{
-			World.Instance.MainPlayer.ActiveCharacter.Spells.RemoveAll(_spell => _spell.id == id);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.RemoveAll(_spell => _spell.id == id);
 			EOMessageBox.Show(DATCONST1.SKILL_FORGET_SUCCESS, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 
 			m_game.Hud.RemoveSpellFromActiveSpellsByID(id);
@@ -869,7 +869,7 @@ namespace EndlessClient
 
 		private void _statskillTrainSpell(short skillPtsRemaining, short spellID, short spellLevel)
 		{
-			var character = World.Instance.MainPlayer.ActiveCharacter;
+			var character = OldWorld.Instance.MainPlayer.ActiveCharacter;
 			character.Stats.SkillPoints = skillPtsRemaining;
 
 			var spellNdx = character.Spells.FindIndex(x => x.id == spellID);
@@ -882,7 +882,7 @@ namespace EndlessClient
 		private void _statskillReset(StatResetData data)
 		{
 			Character c;
-			(c = World.Instance.MainPlayer.ActiveCharacter).Spells.Clear();
+			(c = OldWorld.Instance.MainPlayer.ActiveCharacter).Spells.Clear();
 			EOMessageBox.Show(DATCONST1.SKILL_RESET_CHARACTER_COMPLETE, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 			c.Stats.StatPoints = data.StatPoints;
 			c.Stats.SkillPoints = data.SkillPoints;
@@ -909,32 +909,32 @@ namespace EndlessClient
 
 		private void _timedSpike()
 		{
-			World.Instance.ActiveMapRenderer.PlayTimedSpikeSoundEffect();
+			OldWorld.Instance.ActiveMapRenderer.PlayTimedSpikeSoundEffect();
 		}
 
 		private void _mainPlayerSpikeDamage(short damage, short hp, short maxhp)
 		{
-			World.Instance.ActiveMapRenderer.SpikeDamage(damage, hp, maxhp);
+			OldWorld.Instance.ActiveMapRenderer.SpikeDamage(damage, hp, maxhp);
 		}
 
 		private void _otherPlayerSpikeDamage(short playerid, byte playerPercentHealth, bool isPlayerDead, int damageAmount)
 		{
-			World.Instance.ActiveMapRenderer.SpikeDamage(playerid, playerPercentHealth, isPlayerDead, damageAmount);
+			OldWorld.Instance.ActiveMapRenderer.SpikeDamage(playerid, playerPercentHealth, isPlayerDead, damageAmount);
 		}
 
 		private void _mapDrainHP(short damage, short hp, short maxhp, List<TimedMapHPDrainData> othercharacterdata)
 		{
-			World.Instance.ActiveMapRenderer.DrainHPFromPlayers(damage, hp, maxhp, othercharacterdata);
+			OldWorld.Instance.ActiveMapRenderer.DrainHPFromPlayers(damage, hp, maxhp, othercharacterdata);
 		}
 
 		private void _mapDrainTP(short amount, short tp, short maxtp)
 		{
-			World.Instance.ActiveMapRenderer.DrainTPFromMainPlayer(amount, tp, maxtp);
+			OldWorld.Instance.ActiveMapRenderer.DrainTPFromMainPlayer(amount, tp, maxtp);
 		}
 
 		private void _otherPlayerEffectPotion(short playerID, int effectID)
 		{
-			World.Instance.ActiveMapRenderer.ShowPotionEffect(playerID, effectID);
+			OldWorld.Instance.ActiveMapRenderer.ShowPotionEffect(playerID, effectID);
 		}
 
 		private void _questDialog(QuestState stateinfo, Dictionary<short, string> dialognames, List<string> pages, Dictionary<short, string> links)
@@ -972,7 +972,7 @@ namespace EndlessClient
 		{
 			try
 			{
-				if (World.Instance.SoundEnabled)
+				if (OldWorld.Instance.SoundEnabled)
 					m_game.SoundManager.GetSoundEffectRef((SoundEffectID) effectID).Play();
 			}
 			catch { /* Ignore errors when the sound effect ID from the server is invalid */ }
@@ -980,40 +980,40 @@ namespace EndlessClient
 
 		private void _playerStartCastSpell(short fromplayerid, short spellid)
 		{
-			World.Instance.ActiveMapRenderer.OtherPlayerShoutSpell(fromplayerid, spellid);
+			OldWorld.Instance.ActiveMapRenderer.OtherPlayerShoutSpell(fromplayerid, spellid);
 		}
 
 		private void _otherPlayerCastSpellSelf(short fromplayerid, short spellid, int spellhp, byte percenthealth)
 		{
-			World.Instance.ActiveMapRenderer.PlayerCastSpellSelf(fromplayerid, spellid, spellhp, percenthealth);
+			OldWorld.Instance.ActiveMapRenderer.PlayerCastSpellSelf(fromplayerid, spellid, spellhp, percenthealth);
 		}
 
 		private void _mainPlayerCastSpellSelf(short fromplayerid, short spellid, int spellhp, byte percenthealth, short hp, short tp)
 		{
-			World.Instance.ActiveMapRenderer.PlayerCastSpellSelf(fromplayerid, spellid, spellhp, percenthealth);
-			World.Instance.MainPlayer.ActiveCharacter.Stats.HP = hp;
-			World.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
+			OldWorld.Instance.ActiveMapRenderer.PlayerCastSpellSelf(fromplayerid, spellid, spellhp, percenthealth);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.HP = hp;
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
 			m_game.Hud.RefreshStats();
 		}
 
 		private void _playerCastTargetSpell(short targetPlayerID, short fromPlayerID, EODirection sourcePlayerDirection, short spellID, int recoveredHP, byte targetPercentHealth, short targetPlayerCurrentHP)
 		{
-			World.Instance.ActiveMapRenderer.PlayerCastSpellTarget(fromPlayerID, targetPlayerID, sourcePlayerDirection, spellID, recoveredHP, targetPercentHealth);
+			OldWorld.Instance.ActiveMapRenderer.PlayerCastSpellTarget(fromPlayerID, targetPlayerID, sourcePlayerDirection, spellID, recoveredHP, targetPercentHealth);
 
 			if (targetPlayerCurrentHP > 0)
 			{
-				World.Instance.MainPlayer.ActiveCharacter.Stats.HP = targetPlayerCurrentHP;
+				OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.HP = targetPlayerCurrentHP;
 				m_game.Hud.RefreshStats();
 			}
 		}
 
 		private void _playerCastGroupSpell(short spellID, short fromPlayerID, short fromPlayerTP, short spellHPgain, List<GroupSpellTarget> spellTargets)
 		{
-			World.Instance.ActiveMapRenderer.PlayerCastSpellGroup(fromPlayerID, spellID, spellHPgain, spellTargets);
+			OldWorld.Instance.ActiveMapRenderer.PlayerCastSpellGroup(fromPlayerID, spellID, spellHPgain, spellTargets);
 
-			if (fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
+			if (fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
 			{
-				World.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromPlayerTP;
+				OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromPlayerTP;
 				m_game.Hud.RefreshStats();
 			}
 		}

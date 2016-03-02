@@ -148,11 +148,11 @@ namespace EndlessClient.Rendering
 
 		public void MakeSpeechBubble(DrawableGameComponent follow, string message, bool groupChat)
 		{
-			if (!World.Instance.ShowChatBubbles)
+			if (!OldWorld.Instance.ShowChatBubbles)
 				return;
 
 			if (follow == null)
-				follow = World.Instance.ActiveCharacterRenderer; /* Calling with null assumes Active Character */
+				follow = OldWorld.Instance.ActiveCharacterRenderer; /* Calling with null assumes Active Character */
 
 			//show just the speech bubble, since this should be called from the HUD and rendered there already
 
@@ -218,7 +218,7 @@ namespace EndlessClient.Rendering
 			if (MapRef.Name.Length > 0)
 			{
 				if (EOGame.Instance.Hud != null)
-					EOGame.Instance.Hud.AddChat(ChatTabs.System, "", World.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Name, ChatType.NoteLeftArrow);
+					EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Name, ChatType.NoteLeftArrow);
 				else
 					_needDispMapName = true;
 			}
@@ -285,9 +285,9 @@ namespace EndlessClient.Rendering
 		{
 			if (newItem.npcDrop && newItem.id > 0)
 			{
-				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(newItem.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(newItem.id);
 				EOGame.Instance.Hud.AddChat(ChatTabs.System, "",
-					string.Format("{0} {1} {2}", World.GetString(DATCONST2.STATUS_LABEL_THE_NPC_DROPPED), newItem.amount, rec.Name),
+					string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_THE_NPC_DROPPED), newItem.amount, rec.Name),
 					ChatType.DownArrow);
 			}
 
@@ -367,7 +367,7 @@ namespace EndlessClient.Rendering
 
 		public void PlayOrStopBackgroundMusic()
 		{
-			if (!World.Instance.MusicEnabled)
+			if (!OldWorld.Instance.MusicEnabled)
 			{
 				EOGame.Instance.SoundManager.StopBackgroundMusic();
 				return;
@@ -387,7 +387,7 @@ namespace EndlessClient.Rendering
 
 		public void PlayOrStopAmbientNoise()
 		{
-			if (!World.Instance.SoundEnabled)
+			if (!OldWorld.Instance.SoundEnabled)
 			{
 				if(MapRef.AmbientNoise > 0)
 					EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.AmbientNoise);
@@ -532,8 +532,8 @@ namespace EndlessClient.Rendering
 		{
 			lock (_characterListLock)
 			{
-				CharacterRenderer rend = ID == World.Instance.MainPlayer.ActiveCharacter.ID
-					? World.Instance.ActiveCharacterRenderer
+				CharacterRenderer rend = ID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
+					? OldWorld.Instance.ActiveCharacterRenderer
 					: _characterRenderers.Find(_rend => _rend.Character.ID == ID);
 
 				if (rend == null) return; //couldn't find other player :(
@@ -541,7 +541,7 @@ namespace EndlessClient.Rendering
 				if (healAmount > 0)
 				{
 					rend.Character.Stats.HP = (short) Math.Max(rend.Character.Stats.HP + healAmount, rend.Character.Stats.MaxHP);
-					if (rend.Character == World.Instance.MainPlayer.ActiveCharacter)
+					if (rend.Character == OldWorld.Instance.MainPlayer.ActiveCharacter)
 					{
 						//update health in UI
 						EOGame.Instance.Hud.RefreshStats();
@@ -553,7 +553,7 @@ namespace EndlessClient.Rendering
 
 		public void OtherPlayerShoutSpell(short playerID, short spellID)
 		{
-			string shoutName = World.Instance.ESF.GetSpellRecordByID(spellID).Shout;
+			string shoutName = OldWorld.Instance.ESF.GetSpellRecordByID(spellID).Shout;
 
 			lock (_characterListLock)
 			{
@@ -574,9 +574,9 @@ namespace EndlessClient.Rendering
 					renderer.StartCastingSpell();
 					renderer.SetDamageCounterValue(spellHP, percentHealth, true);
 				}
-				else if (fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
+				else if (fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
 				{
-					renderer = World.Instance.ActiveCharacterRenderer;
+					renderer = OldWorld.Instance.ActiveCharacterRenderer;
 					renderer.SetDamageCounterValue(spellHP, percentHealth, true);
 				}
 
@@ -592,14 +592,14 @@ namespace EndlessClient.Rendering
 				var fromRenderer = _characterRenderers.Find(x => x.Character.ID == fromPlayerID);
 				var toRenderer = _characterRenderers.Find(x => x.Character.ID == targetPlayerID);
 
-				if (fromRenderer == null && fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
+				if (fromRenderer == null && fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
 				{
 					fromIsMain = true;
-					fromRenderer = World.Instance.ActiveCharacterRenderer;
+					fromRenderer = OldWorld.Instance.ActiveCharacterRenderer;
 				}
 
-				if (toRenderer == null && targetPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
-					toRenderer = World.Instance.ActiveCharacterRenderer;
+				if (toRenderer == null && targetPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
+					toRenderer = OldWorld.Instance.ActiveCharacterRenderer;
 
 				if (fromRenderer != null) //do source renderer stuff
 				{
@@ -626,10 +626,10 @@ namespace EndlessClient.Rendering
 			{
 				bool fromIsMain = false;
 				var fromRenderer = _characterRenderers.Find(x => x.Character.ID == fromPlayerID);
-				if (fromRenderer == null && fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID)
+				if (fromRenderer == null && fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
 				{
 					fromIsMain = true;
-					fromRenderer = World.Instance.ActiveCharacterRenderer;
+					fromRenderer = OldWorld.Instance.ActiveCharacterRenderer;
 				}
 
 				if (fromRenderer != null && !fromIsMain)
@@ -642,10 +642,10 @@ namespace EndlessClient.Rendering
 				{
 					bool targetIsMain = false;
 					var targetRenderer = _characterRenderers.Find(x => x.Character.ID == target.MemberID);
-					if (targetRenderer == null && target.MemberID == World.Instance.MainPlayer.ActiveCharacter.ID)
+					if (targetRenderer == null && target.MemberID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
 					{
 						targetIsMain = true;
-						targetRenderer = World.Instance.ActiveCharacterRenderer;
+						targetRenderer = OldWorld.Instance.ActiveCharacterRenderer;
 					}
 
 					if (targetRenderer == null) continue;
@@ -668,8 +668,8 @@ namespace EndlessClient.Rendering
 
 		public void UpdateOtherPlayerRenderData(short playerId, bool sound, CharRenderData newRenderData)
 		{
-			Character c = playerId == World.Instance.MainPlayer.ActiveCharacter.ID
-				? World.Instance.MainPlayer.ActiveCharacter
+			Character c = playerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
+				? OldWorld.Instance.MainPlayer.ActiveCharacter
 				: GetOtherPlayerByID(playerId);
 
 			if (c != null)
@@ -681,8 +681,8 @@ namespace EndlessClient.Rendering
 
 		public void UpdateOtherPlayerHairData(short playerId, byte hairColor, byte hairStyle = 255)
 		{
-			Character c = playerId == World.Instance.MainPlayer.ActiveCharacter.ID
-				? World.Instance.MainPlayer.ActiveCharacter
+			Character c = playerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
+				? OldWorld.Instance.MainPlayer.ActiveCharacter
 				: GetOtherPlayerByID(playerId);
 
 			if (c != null)
@@ -730,7 +730,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				var fileData = World.Instance.ENF.GetNPCRecordByID(data.ID);
+				var fileData = OldWorld.Instance.ENF.GetNPCRecordByID(data.ID);
 				NPCRenderer newNpcRenderer = new NPCRenderer(new NPC(data, fileData));
 				newNpcRenderer.Initialize();
 				newNpcRenderer.Visible = true;
@@ -773,8 +773,8 @@ namespace EndlessClient.Rendering
 						renderer.StopShouting(true);
 						renderer.StartCastingSpell();
 					}
-					else if (playerID == World.Instance.MainPlayer.ActiveCharacter.ID)
-						World.Instance.ActiveCharacterRenderer.Character.RenderData.SetDirection(playerDirection);
+					else if (playerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
+						OldWorld.Instance.ActiveCharacterRenderer.Character.RenderData.SetDirection(playerDirection);
 				}
 			}
 		}
@@ -825,14 +825,14 @@ namespace EndlessClient.Rendering
 
 			lock (_characterListLock)
 			{
-				CharacterRenderer rend = targetPlayerId == World.Instance.MainPlayer.ActiveCharacter.ID
-					? World.Instance.ActiveCharacterRenderer
+				CharacterRenderer rend = targetPlayerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
+					? OldWorld.Instance.ActiveCharacterRenderer
 					: _characterRenderers.Find(_rend => _rend.Character.ID == targetPlayerId);
 
 				if (rend == null) return; //couldn't find other player :(
 
 				rend.Character.Stats.HP = (short) Math.Max(rend.Character.Stats.HP - damageToPlayer, 0);
-				if (rend.Character == World.Instance.MainPlayer.ActiveCharacter && ((EOGame) Game).Hud != null)
+				if (rend.Character == OldWorld.Instance.MainPlayer.ActiveCharacter && ((EOGame) Game).Hud != null)
 				{
 					//update health in UI
 					((EOGame) Game).Hud.RefreshStats();
@@ -856,8 +856,8 @@ namespace EndlessClient.Rendering
 				Character opponent = null;
 				lock (_characterRenderers)
 				{
-					var rend = fromPlayerID == World.Instance.MainPlayer.ActiveCharacter.ID
-						? World.Instance.ActiveCharacterRenderer
+					var rend = fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
+						? OldWorld.Instance.ActiveCharacterRenderer
 						: _characterRenderers.Find(_rend => _rend.Character.ID == fromPlayerID);
 
 					if (rend != null)
@@ -894,7 +894,7 @@ namespace EndlessClient.Rendering
 
 			if ((_door = MapRef.WarpLookup[y, x]) != null)
 			{
-				if(World.Instance.SoundEnabled)
+				if(OldWorld.Instance.SoundEnabled)
 					((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorOpen).Play();
 				_door.doorOpened = true;
 				_doorY = y;
@@ -910,7 +910,7 @@ namespace EndlessClient.Rendering
 				return;
 			}
 
-			if (_door.doorOpened && World.Instance.SoundEnabled)
+			if (_door.doorOpened && OldWorld.Instance.SoundEnabled)
 				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorClose).Play();
 
 			_door.doorOpened = false;
@@ -927,13 +927,13 @@ namespace EndlessClient.Rendering
 		{
 			if (!MapRef.HasTimedSpikes) return;
 
-			if (World.Instance.SoundEnabled)
+			if (OldWorld.Instance.SoundEnabled)
 				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
 		}
 
 		public void SpikeDamage(short damage, short hp, short maxhp)
 		{
-			var rend = World.Instance.ActiveCharacterRenderer;
+			var rend = OldWorld.Instance.ActiveCharacterRenderer;
 			rend.Character.Stats.HP = hp;
 			rend.Character.Stats.MaxHP = maxhp;
 			((EOGame)Game).Hud.RefreshStats();
@@ -991,7 +991,7 @@ namespace EndlessClient.Rendering
 
 			int percentHealth = (int)Math.Round(((double)hp / maxhp) * 100.0);
 
-			var mainRend = World.Instance.ActiveCharacterRenderer;
+			var mainRend = OldWorld.Instance.ActiveCharacterRenderer;
 			mainRend.Character.Stats.HP = hp;
 			mainRend.Character.Stats.MaxHP = maxhp;
 			mainRend.SetDamageCounterValue(damage, percentHealth);
@@ -1010,7 +1010,7 @@ namespace EndlessClient.Rendering
 				}
 			}
 
-			if (World.Instance.SoundEnabled)
+			if (OldWorld.Instance.SoundEnabled)
 				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.MapEffectHPDrain).Play();
 		}
 
@@ -1018,11 +1018,11 @@ namespace EndlessClient.Rendering
 		{
 			if (MapRef.Effect != MapEffect.TPDrain || amount == 0) return;
 
-			World.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
-			World.Instance.MainPlayer.ActiveCharacter.Stats.MaxTP = maxtp;
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.MaxTP = maxtp;
 			((EOGame)Game).Hud.RefreshStats();
 
-			if (World.Instance.SoundEnabled)
+			if (OldWorld.Instance.SoundEnabled)
 				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.MapEffectTPDrain).Play();
 		}
 
@@ -1079,7 +1079,7 @@ namespace EndlessClient.Rendering
 			if (_needDispMapName && EOGame.Instance.Hud != null)
 			{
 				_needDispMapName = false;
-				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", World.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Name, ChatType.NoteLeftArrow);
+				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Name, ChatType.NoteLeftArrow);
 			}
 
 			if (_drawingEvent == null) return;
@@ -1096,7 +1096,7 @@ namespace EndlessClient.Rendering
 
 		private void _updateCharacters(GameTime gameTime)
 		{
-			World.Instance.ActiveCharacterRenderer.Update(gameTime);
+			OldWorld.Instance.ActiveCharacterRenderer.Update(gameTime);
 			lock (_characterListLock)
 			{
 				foreach (CharacterRenderer rend in _characterRenderers)
@@ -1174,7 +1174,7 @@ namespace EndlessClient.Rendering
 				_sb.Draw(_rtMapObjAbovePlayer, Vector2.Zero, Color.White);
 				_sb.Draw(_rtMapObjBelowPlayer, Vector2.Zero, Color.White);
 #if DEBUG
-				_sb.DrawString(EOGame.Instance.DBGFont, string.Format("FPS: {0}", World.FPS), new Vector2(30, 30), Color.White);
+				_sb.DrawString(EOGame.Instance.DBGFont, string.Format("FPS: {0}", OldWorld.FPS), new Vector2(30, 30), Color.White);
 #endif
 				_sb.End();
 
@@ -1191,7 +1191,7 @@ namespace EndlessClient.Rendering
 		// Special Thanks: HotDog's client. Used heavily as a reference for numeric offsets/techniques, with some adjustments here and there.
 		private void _drawGroundLayer()
 		{
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
+			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 			const int localViewLength = 10;
 			int xMin = c.X - localViewLength < 0 ? 0 : c.X - localViewLength,
 				xMax = c.X + localViewLength > MapRef.Width ? MapRef.Width : c.X + localViewLength;
@@ -1237,7 +1237,7 @@ namespace EndlessClient.Rendering
 
 		private void _drawMapItems()
 		{
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
+			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 			
 			// Queries (func) for the gfx items within range of the character's X coordinate
 			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength && gfx.x <= MapRef.Width;
@@ -1254,7 +1254,7 @@ namespace EndlessClient.Rendering
 				List<MapItem> local = new List<MapItem>(_mapItems[pt]);
 				foreach(MapItem item in local)
 				{
-					var itemData = World.Instance.EIF.GetItemRecordByID(item.id);
+					var itemData = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
 					var itemPos = GetDrawCoordinatesFromGridUnits(item.x + 1, item.y, c);
 					var itemTexture = ChestDialog.GetItemGraphic(itemData, item.amount);
 					_sb.Draw(itemTexture, 
@@ -1270,7 +1270,7 @@ namespace EndlessClient.Rendering
 		{
 			if (MapRef == null) return;
 
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
+			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
 			List<CharacterRenderer> otherChars;
 			lock (_characterListLock)
@@ -1354,8 +1354,8 @@ namespace EndlessClient.Rendering
 
 			_drawRoofsOnTop(drawRoofLater, c);
 
-			_sb.Begin(SpriteSortMode.Deferred, World.Instance.MainPlayer.ActiveCharacter.RenderData.hidden ? BlendState.NonPremultiplied : _playerBlend);
-			World.Instance.ActiveCharacterRenderer.Draw(_sb, true);
+			_sb.Begin(SpriteSortMode.Deferred, OldWorld.Instance.MainPlayer.ActiveCharacter.RenderData.hidden ? BlendState.NonPremultiplied : _playerBlend);
+			OldWorld.Instance.ActiveCharacterRenderer.Draw(_sb, true);
 			_sb.End();
 
 			GraphicsDevice.SetRenderTarget(null);
@@ -1378,7 +1378,7 @@ namespace EndlessClient.Rendering
 		{
 			//shadows
 			int gfxNum;
-			if (World.Instance.ShowShadows && (gfxNum = MapRef.GFXLookup[(int)MapLayers.Shadow][rowIndex, colIndex]) > 0)
+			if (OldWorld.Instance.ShowShadows && (gfxNum = MapRef.GFXLookup[(int)MapLayers.Shadow][rowIndex, colIndex]) > 0)
 			{
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Shadows, gfxNum, true);
 				Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
@@ -1527,7 +1527,7 @@ namespace EndlessClient.Rendering
 		{
 			if (spellID < 1) return;
 
-			var spellInfo = World.Instance.ESF.GetSpellRecordByID(spellID);
+			var spellInfo = OldWorld.Instance.ESF.GetSpellRecordByID(spellID);
 			renderer.ShowSpellAnimation(spellInfo.Graphic);
 		}
 
@@ -1535,7 +1535,7 @@ namespace EndlessClient.Rendering
 		{
 			if (spellID < 1) return;
 
-			var spellInfo = World.Instance.ESF.GetSpellRecordByID(spellID);
+			var spellInfo = OldWorld.Instance.ESF.GetSpellRecordByID(spellID);
 			renderer.ShowSpellAnimation(spellInfo.Graphic);
 		}
 
@@ -1556,7 +1556,7 @@ namespace EndlessClient.Rendering
 		
 		private int _getAlpha(int objX, int objY, Character c)
 		{
-			if (!World.Instance.ShowTransition)
+			if (!OldWorld.Instance.ShowTransition)
 				return 255;
 
 			//get greater of deltas between the map object and the character

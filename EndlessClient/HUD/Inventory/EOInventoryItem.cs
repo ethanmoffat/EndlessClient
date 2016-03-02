@@ -120,24 +120,24 @@ namespace EndlessClient.HUD.Inventory
 				m_alpha = 255;
 				SetParent(m_preDragParent);
 
-				if (((EOInventory)parent).IsOverDrop() || (World.Instance.ActiveMapRenderer.MouseOver &&
+				if (((EOInventory)parent).IsOverDrop() || (OldWorld.Instance.ActiveMapRenderer.MouseOver &&
 					ChestDialog.Instance == null && EOPaperdollDialog.Instance == null && LockerDialog.Instance == null
 					&& BankAccountDialog.Instance == null && TradeDialog.Instance == null))
 				{
-					Point loc = World.Instance.ActiveMapRenderer.MouseOver ? World.Instance.ActiveMapRenderer.GridCoords :
-						new Point(World.Instance.MainPlayer.ActiveCharacter.X, World.Instance.MainPlayer.ActiveCharacter.Y);
+					Point loc = OldWorld.Instance.ActiveMapRenderer.MouseOver ? OldWorld.Instance.ActiveMapRenderer.GridCoords :
+						new Point(OldWorld.Instance.MainPlayer.ActiveCharacter.X, OldWorld.Instance.MainPlayer.ActiveCharacter.Y);
 
 					//in range if maximum coordinate difference is <= 2 away
-					bool inRange = Math.Abs(Math.Max(World.Instance.MainPlayer.ActiveCharacter.X - loc.X, World.Instance.MainPlayer.ActiveCharacter.Y - loc.Y)) <= 2;
+					bool inRange = Math.Abs(Math.Max(OldWorld.Instance.MainPlayer.ActiveCharacter.X - loc.X, OldWorld.Instance.MainPlayer.ActiveCharacter.Y - loc.Y)) <= 2;
 
 					if (m_itemData.Special == ItemSpecial.Lore)
 					{
 						EOMessageBox.Show(DATCONST1.ITEM_IS_LORE_ITEM, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					}
-					else if (World.Instance.JailMap == World.Instance.MainPlayer.ActiveCharacter.CurrentMap)
+					else if (OldWorld.Instance.JailMap == OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap)
 					{
-						EOMessageBox.Show(World.GetString(DATCONST2.JAIL_WARNING_CANNOT_DROP_ITEMS),
-							World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+						EOMessageBox.Show(OldWorld.GetString(DATCONST2.JAIL_WARNING_CANNOT_DROP_ITEMS),
+							OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
 							XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					}
 					else if (m_inventory.amount > 1 && inRange)
@@ -433,7 +433,7 @@ namespace EndlessClient.HUD.Inventory
 
 		private void _handleDoubleClick()
 		{
-			Character c = World.Instance.MainPlayer.ActiveCharacter;
+			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
 			bool useItem = false;
 			switch (m_itemData.Type)
@@ -492,7 +492,7 @@ namespace EndlessClient.HUD.Inventory
 					{
 						((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
 							DATCONST2.STATUS_LABEL_ITEM_EQUIP_CAN_ONLY_BE_USED_BY,
-							((ClassRecord)World.Instance.ECF.Data.Find(x => ((ClassRecord)x).ID == m_itemData.ClassReq)).Name);
+							((ClassRecord)OldWorld.Instance.ECF.Data.Find(x => ((ClassRecord)x).ID == m_itemData.ClassReq)).Name);
 						break;
 					}
 
@@ -509,14 +509,14 @@ namespace EndlessClient.HUD.Inventory
 					break;
 				//usable items
 				case ItemType.Teleport:
-					if (!World.Instance.ActiveMapRenderer.MapRef.CanScroll)
+					if (!OldWorld.Instance.ActiveMapRenderer.MapRef.CanScroll)
 					{
 						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_NOTHING_HAPPENED);
 						break;
 					}
-					if (m_itemData.ScrollMap == World.Instance.MainPlayer.ActiveCharacter.CurrentMap &&
-						m_itemData.ScrollX == World.Instance.MainPlayer.ActiveCharacter.X &&
-						m_itemData.ScrollY == World.Instance.MainPlayer.ActiveCharacter.Y)
+					if (m_itemData.ScrollMap == OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap &&
+						m_itemData.ScrollX == OldWorld.Instance.MainPlayer.ActiveCharacter.X &&
+						m_itemData.ScrollY == OldWorld.Instance.MainPlayer.ActiveCharacter.Y)
 						break; //already there - no need to scroll!
 					useItem = true;
 					break;
@@ -527,7 +527,7 @@ namespace EndlessClient.HUD.Inventory
 					break;
 				case ItemType.CureCurse:
 					//note: don't actually set the useItem bool here. Call API.UseItem if the dialog result is OK.
-					if (c.PaperDoll.Select(id => World.Instance.EIF.GetItemRecordByID(id))
+					if (c.PaperDoll.Select(id => OldWorld.Instance.EIF.GetItemRecordByID(id))
 						.Any(rec => rec.Special == ItemSpecial.Cursed)) //only do the use if the player has a cursed item equipped
 					{
 						EOMessageBox.Show(DATCONST1.ITEM_CURSE_REMOVE_PROMPT, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
@@ -561,7 +561,7 @@ namespace EndlessClient.HUD.Inventory
 
 		public static Color GetItemTextColor(short id) //also used in map renderer for mapitems
 		{
-			ItemRecord data = World.Instance.EIF.GetItemRecordByID(id);
+			ItemRecord data = OldWorld.Instance.EIF.GetItemRecordByID(id);
 			switch (data.Special)
 			{
 				case ItemSpecial.Lore:
@@ -576,7 +576,7 @@ namespace EndlessClient.HUD.Inventory
 
 		public static string GetNameString(short id, int amount)
 		{
-			ItemRecord data = World.Instance.EIF.GetItemRecordByID(id);
+			ItemRecord data = OldWorld.Instance.EIF.GetItemRecordByID(id);
 			switch (data.ID)
 			{
 				case 1:

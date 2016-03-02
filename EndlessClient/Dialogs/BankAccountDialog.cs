@@ -63,9 +63,9 @@ namespace EndlessClient.Dialogs
 
 			ListDialogItem deposit = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
 			{
-				Text = World.GetString(DATCONST2.DIALOG_BANK_DEPOSIT),
-				SubText = string.Format("{0} gold {1}", World.GetString(DATCONST2.DIALOG_BANK_TRANSFER),
-					World.GetString(DATCONST2.DIALOG_BANK_TO_ACCOUNT)),
+				Text = OldWorld.GetString(DATCONST2.DIALOG_BANK_DEPOSIT),
+				SubText = string.Format("{0} gold {1}", OldWorld.GetString(DATCONST2.DIALOG_BANK_TRANSFER),
+					OldWorld.GetString(DATCONST2.DIALOG_BANK_TO_ACCOUNT)),
 				IconGraphic = _getDlgIcon(ListIcon.BankDeposit),
 				OffsetY = 55,
 				ShowItemBackGround = false
@@ -74,9 +74,9 @@ namespace EndlessClient.Dialogs
 			deposit.OnRightClick += (o, e) => _deposit();
 			ListDialogItem withdraw = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
 			{
-				Text = World.GetString(DATCONST2.DIALOG_BANK_WITHDRAW),
-				SubText = string.Format("{0} gold {1}", World.GetString(DATCONST2.DIALOG_BANK_TAKE),
-					World.GetString(DATCONST2.DIALOG_BANK_FROM_ACCOUNT)),
+				Text = OldWorld.GetString(DATCONST2.DIALOG_BANK_WITHDRAW),
+				SubText = string.Format("{0} gold {1}", OldWorld.GetString(DATCONST2.DIALOG_BANK_TAKE),
+					OldWorld.GetString(DATCONST2.DIALOG_BANK_FROM_ACCOUNT)),
 				IconGraphic = _getDlgIcon(ListIcon.BankWithdraw),
 				OffsetY = 55,
 				ShowItemBackGround = false
@@ -85,8 +85,8 @@ namespace EndlessClient.Dialogs
 			withdraw.OnRightClick += (o, e) => _withdraw();
 			ListDialogItem upgrade = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 2)
 			{
-				Text = World.GetString(DATCONST2.DIALOG_BANK_LOCKER_UPGRADE),
-				SubText = World.GetString(DATCONST2.DIALOG_BANK_MORE_SPACE),
+				Text = OldWorld.GetString(DATCONST2.DIALOG_BANK_LOCKER_UPGRADE),
+				SubText = OldWorld.GetString(DATCONST2.DIALOG_BANK_MORE_SPACE),
 				IconGraphic = _getDlgIcon(ListIcon.BankLockerUpgrade),
 				OffsetY = 55,
 				ShowItemBackGround = false
@@ -103,7 +103,7 @@ namespace EndlessClient.Dialogs
 
 		private void _deposit()
 		{
-			InventoryItem item = World.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.id == 1);
+			InventoryItem item = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.id == 1);
 			if (item.amount == 0)
 			{
 				EOMessageBox.Show(DATCONST1.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
@@ -119,7 +119,7 @@ namespace EndlessClient.Dialogs
 				return;
 			}
 
-			ItemTransferDialog dlg = new ItemTransferDialog(World.Instance.EIF.GetItemRecordByID(1).Name,
+			ItemTransferDialog dlg = new ItemTransferDialog(OldWorld.Instance.EIF.GetItemRecordByID(1).Name,
 				ItemTransferDialog.TransferType.BankTransfer, item.amount, DATCONST2.DIALOG_TRANSFER_DEPOSIT);
 			dlg.DialogClosing += (o, e) =>
 			{
@@ -152,7 +152,7 @@ namespace EndlessClient.Dialogs
 				return;
 			}
 
-			ItemTransferDialog dlg = new ItemTransferDialog(World.Instance.EIF.GetItemRecordByID(1).Name,
+			ItemTransferDialog dlg = new ItemTransferDialog(OldWorld.Instance.EIF.GetItemRecordByID(1).Name,
 				ItemTransferDialog.TransferType.BankTransfer, balance, DATCONST2.DIALOG_TRANSFER_WITHDRAW);
 			dlg.DialogClosing += (o, e) =>
 			{
@@ -176,7 +176,7 @@ namespace EndlessClient.Dialogs
 			}
 
 			int requiredGold = (LockerUpgrades + 1) * 1000;
-			InventoryItem item = World.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.id == 1);
+			InventoryItem item = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.id == 1);
 			if (item.amount < requiredGold)
 			{
 				EOMessageBox.Show(DATCONST1.WARNING_YOU_HAVE_NOT_ENOUGH, "gold", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
@@ -191,7 +191,7 @@ namespace EndlessClient.Dialogs
 						return;
 
 					OldPacket pkt = new OldPacket(PacketFamily.Locker, PacketAction.Buy);
-					World.Instance.Client.SendPacket(pkt);
+					OldWorld.Instance.Client.SendPacket(pkt);
 				});
 		}
 

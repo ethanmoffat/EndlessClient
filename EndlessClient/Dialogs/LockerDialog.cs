@@ -26,7 +26,7 @@ namespace EndlessClient.Dialogs
 				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 
-		private static readonly string TITLE_FMT = World.Instance.MainPlayer.ActiveCharacter.Name + "'s " + World.GetString(DATCONST2.DIALOG_TITLE_PRIVATE_LOCKER) + " [{0}]";
+		private static readonly string TITLE_FMT = OldWorld.Instance.MainPlayer.ActiveCharacter.Name + "'s " + OldWorld.GetString(DATCONST2.DIALOG_TITLE_PRIVATE_LOCKER) + " [{0}]";
 
 		//map location of the currently open locker
 		public byte X { get; private set; }
@@ -55,14 +55,14 @@ namespace EndlessClient.Dialogs
 			List<ListDialogItem> listItems = new List<ListDialogItem>();
 			foreach (InventoryItem item in lockerItems)
 			{
-				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
 				int amount = item.amount;
 				ListDialogItem newItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
 				{
 					Text = rec.Name,
 					SubText = string.Format("x{0}  {1}", item.amount,
 						rec.Type == ItemType.Armor
-							? "(" + (rec.Gender == 0 ? World.GetString(DATCONST2.FEMALE) : World.GetString(DATCONST2.MALE)) + ")"
+							? "(" + (rec.Gender == 0 ? OldWorld.GetString(DATCONST2.FEMALE) : OldWorld.GetString(DATCONST2.MALE)) + ")"
 							: ""),
 					IconGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true),
 					OffsetY = 45
@@ -86,16 +86,16 @@ namespace EndlessClient.Dialogs
 		{
 			if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
 			{
-				EOMessageBox.Show(World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
-					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+				EOMessageBox.Show(OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+					OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
 					XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 				return;
 			}
 
-			if (World.Instance.MainPlayer.ActiveCharacter.Weight + item.Weight * amount > World.Instance.MainPlayer.ActiveCharacter.MaxWeight)
+			if (OldWorld.Instance.MainPlayer.ActiveCharacter.Weight + item.Weight * amount > OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight)
 			{
-				EOMessageBox.Show(World.GetString(DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT),
-					World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+				EOMessageBox.Show(OldWorld.GetString(DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT),
+					OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
 					XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 				return;
 			}

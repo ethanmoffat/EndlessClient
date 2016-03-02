@@ -38,7 +38,7 @@ namespace EndlessClient.Dialogs
 				AutoSize = true,
 				BackColor = m_primaryText.BackColor,
 				ForeColor = m_primaryText.ForeColor,
-				Text = World.GetString(DATCONST2.QUEST_COMPLETED)
+				Text = OldWorld.GetString(DATCONST2.QUEST_COMPLETED)
 			};
 			m_secondaryText.SetParent(this);
 

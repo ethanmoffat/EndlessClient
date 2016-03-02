@@ -18,13 +18,13 @@ namespace EndlessClient.HUD.StatusBars
 
 		protected override void UpdateLabelText()
 		{
-			m_label.Text = string.Format("{0}", World.Instance.exp_table[m_stats.Level + 1] - m_stats.Experience);
+			m_label.Text = string.Format("{0}", OldWorld.Instance.exp_table[m_stats.Level + 1] - m_stats.Experience);
 		}
 
 		protected override void DrawStatusBar()
 		{
-			int thisLevel = World.Instance.exp_table[m_stats.Level];
-			int nextLevel = World.Instance.exp_table[m_stats.Level + 1];
+			int thisLevel = OldWorld.Instance.exp_table[m_stats.Level];
+			int nextLevel = OldWorld.Instance.exp_table[m_stats.Level + 1];
 			int srcWidth = 25 + (int)Math.Round(((m_stats.Experience - thisLevel) / (double)(nextLevel - thisLevel)) * 79);
 			Rectangle maskSrc = new Rectangle(m_elemSourceRect.X, m_elemSourceRect.Height, srcWidth, m_elemSourceRect.Height);
 

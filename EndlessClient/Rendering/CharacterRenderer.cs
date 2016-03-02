@@ -176,11 +176,11 @@ namespace EndlessClient.Rendering
 			_char = charToRender;
 			_data = charToRender.RenderData;
 			Texture2D tmpSkin = spriteSheet.GetSkin(false, out m_skinSourceRect);
-			if (_char != World.Instance.MainPlayer.ActiveCharacter)
+			if (_char != OldWorld.Instance.MainPlayer.ActiveCharacter)
 			{
 				drawArea = new Rectangle(
-					_char.OffsetX + 304 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
-					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
+					_char.OffsetX + 304 - OldWorld.Instance.MainPlayer.ActiveCharacter.OffsetX,
+					_char.OffsetY + 91 - OldWorld.Instance.MainPlayer.ActiveCharacter.OffsetY,
 					m_skinSourceRect.Width, m_skinSourceRect.Height); //set based on size of the sprite and location of charToRender
 			}
 			else
@@ -283,7 +283,7 @@ namespace EndlessClient.Rendering
 			_walkTimer = new Timer(_walkTimerCallback); //wait a minute. I'm the leader. I'll say when it's time to start.
 			_attackTimer = new Timer(_attackTimerCallback);
 			_emoteTimer = new Timer(_emoteTimerCallback);
-			if (Character == World.Instance.MainPlayer.ActiveCharacter)
+			if (Character == OldWorld.Instance.MainPlayer.ActiveCharacter)
 			{
 				_spTimer = new Timer(o =>
 				{
@@ -332,7 +332,7 @@ namespace EndlessClient.Rendering
 
 			UpdateEffectRenderer();
 
-			if (EOGame.Instance.State == GameStates.PlayingTheGame && this == World.Instance.ActiveCharacterRenderer)
+			if (EOGame.Instance.State == GameStates.PlayingTheGame && this == OldWorld.Instance.ActiveCharacterRenderer)
 			{
 				_adjustSP(gameTime);
 				_checkAFKCharacter();
@@ -343,10 +343,10 @@ namespace EndlessClient.Rendering
 		private void _checkUpdateDrawArea()
 		{
 			//update the draw location when the player isn't the MainPlayer (so, if they walked)
-			if (!noLocUpdate && characterSkin != null && _char != null && World.Instance.MainPlayer.ActiveCharacter != null)
+			if (!noLocUpdate && characterSkin != null && _char != null && OldWorld.Instance.MainPlayer.ActiveCharacter != null)
 				drawArea = new Rectangle(
-					_char.OffsetX + 304 - World.Instance.MainPlayer.ActiveCharacter.OffsetX,
-					_char.OffsetY + 91 - World.Instance.MainPlayer.ActiveCharacter.OffsetY,
+					_char.OffsetX + 304 - OldWorld.Instance.MainPlayer.ActiveCharacter.OffsetX,
+					_char.OffsetY + 91 - OldWorld.Instance.MainPlayer.ActiveCharacter.OffsetY,
 					m_skinSourceRect.Width, m_skinSourceRect.Height);
 		}
 
@@ -365,9 +365,9 @@ namespace EndlessClient.Rendering
 		{
 			if (Data.shield != 0)
 			{
-				if (World.Instance.EIF != null)
+				if (OldWorld.Instance.EIF != null)
 				{
-					shieldInfo = World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Shield, Data.shield);
+					shieldInfo = OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Shield, Data.shield);
 					if(shieldInfo != null)
 						shield = spriteSheet.GetShield(shieldInfo.Name == "Bag" || shieldInfo.SubType == ItemSubType.Arrows || shieldInfo.SubType == ItemSubType.Wings);
 				}
@@ -380,9 +380,9 @@ namespace EndlessClient.Rendering
 
 			if (Data.weapon != 0)
 			{
-				if (World.Instance.EIF != null)
+				if (OldWorld.Instance.EIF != null)
 				{
-					weaponInfo = World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Weapon, Data.weapon);
+					weaponInfo = OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Weapon, Data.weapon);
 					if(weaponInfo != null)
 						weapon = spriteSheet.GetWeapon(weaponInfo.SubType == ItemSubType.Ranged);
 				}
@@ -403,8 +403,8 @@ namespace EndlessClient.Rendering
 			{
 				lock (hatHairLock)
 					hat = spriteSheet.GetHat();
-				if (World.Instance.EIF != null)
-					hatInfo = World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Hat, Data.hat);
+				if (OldWorld.Instance.EIF != null)
+					hatInfo = OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Hat, Data.hat);
 			}
 			else
 			{
@@ -543,29 +543,29 @@ namespace EndlessClient.Rendering
 
 			if (leftClicked)
 			{
-				if (World.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
+				if (OldWorld.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
 				{
-					SpellRecord data = World.Instance.ESF.GetSpellRecordByID((short) World.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
+					SpellRecord data = OldWorld.Instance.ESF.GetSpellRecordByID((short) OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
 					if (data.TargetRestrict == SpellTargetRestrict.NPCOnly || 
-						data.TargetRestrict == SpellTargetRestrict.Opponent && !World.Instance.ActiveMapRenderer.MapRef.IsPK)
+						data.TargetRestrict == SpellTargetRestrict.Opponent && !OldWorld.Instance.ActiveMapRenderer.MapRef.IsPK)
 					{
 						//todo: status label message "(something something cannot attack player)"
-						World.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
+						OldWorld.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
 					}
 					else
 					{
-						World.Instance.ActiveCharacterRenderer.SetSpellTarget(this);
-						World.Instance.ActiveCharacterRenderer._prepareSpell();
+						OldWorld.Instance.ActiveCharacterRenderer.SetSpellTarget(this);
+						OldWorld.Instance.ActiveCharacterRenderer._prepareSpell();
 					}
 				}
 			}
 			//handle right-clicking a player. menu when not ActiveCharacter, paperdoll when ActiveCharacter
 			else if (rightClicked)
 			{
-				if (this == World.Instance.ActiveCharacterRenderer)
+				if (this == OldWorld.Instance.ActiveCharacterRenderer)
 					((EOGame) Game).API.RequestPaperdoll((short) Character.ID);
 				else
-					World.Instance.ActiveMapRenderer.ShowContextMenu(this);
+					OldWorld.Instance.ActiveMapRenderer.ShowContextMenu(this);
 			}
 		}
 
@@ -585,10 +585,10 @@ namespace EndlessClient.Rendering
 
 			if (_playerIsOnSpikeTrap)
 			{
-				World.Instance.ActiveMapRenderer.RemoveVisibleSpikeTrap(Character.X, Character.Y);
+				OldWorld.Instance.ActiveMapRenderer.RemoveVisibleSpikeTrap(Character.X, Character.Y);
 			}
 
-			if (World.Instance.SoundEnabled)
+			if (OldWorld.Instance.SoundEnabled)
 			{
 				if (NoWall)
 					EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.NoWallWalk).Play();
@@ -601,7 +601,7 @@ namespace EndlessClient.Rendering
 
 			_playerIsOnSpikeTrap = isSpikeTrap;
 			if (_playerIsOnSpikeTrap)
-				World.Instance.ActiveMapRenderer.AddVisibleSpikeTrap(Character.DestX, Character.DestY);
+				OldWorld.Instance.ActiveMapRenderer.AddVisibleSpikeTrap(Character.DestX, Character.DestY);
 
 			try
 			{
@@ -618,7 +618,7 @@ namespace EndlessClient.Rendering
 			const int attackTimer = 285;
 			Data.SetUpdate(true);
 
-			if (World.Instance.SoundEnabled)
+			if (OldWorld.Instance.SoundEnabled)
 			{
 				if (weaponInfo != null)
 				{
@@ -656,7 +656,7 @@ namespace EndlessClient.Rendering
 
 		public void PlayerEmote()
 		{
-			if (World.Instance.SoundEnabled && Character.RenderData.emote == Emote.LevelUp)
+			if (OldWorld.Instance.SoundEnabled && Character.RenderData.emote == Emote.LevelUp)
 				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.LevelUp).Play();
 			else if (!string.IsNullOrEmpty(_shoutName))
 				_cancelSpell(false);
@@ -680,7 +680,7 @@ namespace EndlessClient.Rendering
 			if (!string.IsNullOrEmpty(_shoutName))
 				_cancelSpell(false);
 
-			if(World.Instance.SoundEnabled)
+			if(OldWorld.Instance.SoundEnabled)
 				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Dead).Play();
 			Character.RenderData.SetDead(true);
 			m_deadTime = DateTime.Now;
@@ -708,8 +708,8 @@ namespace EndlessClient.Rendering
 			if (_char == null || _char.RenderData == null) return;
 
 			//note: if character is hidden, only draw if a) they are not active character and b) the active character is admin
-			if (_char != World.Instance.MainPlayer.ActiveCharacter && _char.RenderData.hidden &&
-				World.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
+			if (_char != OldWorld.Instance.MainPlayer.ActiveCharacter && _char.RenderData.hidden &&
+				OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 				return;
 
 			if (_effectRenderer != null)
@@ -752,7 +752,7 @@ namespace EndlessClient.Rendering
 				_char.ViewAdjustY += yAdjust;
 			}
 			
-			World.Instance.ActiveMapRenderer.UpdateOtherPlayers(); //SetUpdate(true) for all other character's renderdata
+			OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayers(); //SetUpdate(true) for all other character's renderdata
 			Data.SetUpdate(true); //not concerned about multithreaded implications of this member
 		}
 
@@ -813,7 +813,7 @@ namespace EndlessClient.Rendering
 				return;
 			}
 
-			if(Data.hidden && (_char == World.Instance.MainPlayer.ActiveCharacter || _char.AdminLevel != AdminLevel.Player))
+			if(Data.hidden && (_char == OldWorld.Instance.MainPlayer.ActiveCharacter || _char.AdminLevel != AdminLevel.Player))
 				GraphicsDevice.Clear(ClearOptions.Target, Color.FromNonPremultiplied(255,255,255,100), 1, 0); //hidden players should blend nicely
 			else
 				GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 1, 0);
@@ -1212,7 +1212,7 @@ namespace EndlessClient.Rendering
 				return;
 
 			Color[] hatPixels;
-			if (World.Instance.EIF != null && World.Instance.EIF.Version > 0)
+			if (OldWorld.Instance.EIF != null && OldWorld.Instance.EIF.Version > 0)
 			{
 				switch (hatInfo.SubType)
 				{
@@ -1353,7 +1353,7 @@ namespace EndlessClient.Rendering
 			if (Character.SelectedSpell <= 0)
 				throw new InvalidOperationException("You must call SelectSpell before calling _prepareSpell");
 
-			SpellRecord toCast = World.Instance.ESF.GetSpellRecordByID((short) Character.SelectedSpell);
+			SpellRecord toCast = OldWorld.Instance.ESF.GetSpellRecordByID((short) Character.SelectedSpell);
 
 			Character.PrepareSpell(toCast.ID);
 			_beginSpellCast(toCast);
@@ -1389,7 +1389,7 @@ namespace EndlessClient.Rendering
 
 		public void StopShouting(bool isSpellBeingCast)
 		{
-			if (!isSpellBeingCast || World.Instance.ESF.GetSpellRecordByID((short)Character.SelectedSpell).Target == SpellTarget.Self || Character.SpellTarget == this)
+			if (!isSpellBeingCast || OldWorld.Instance.ESF.GetSpellRecordByID((short)Character.SelectedSpell).Target == SpellTarget.Self || Character.SpellTarget == this)
 			{
 				_mouseoverName.BlinkRate = null;
 				_mouseoverName.Text = Character.Name;

@@ -308,12 +308,12 @@ namespace EndlessClient.Rendering
 		private void UpdateDrawArea()
 		{
 			DrawArea = new Rectangle(
-				DrawOffsetX + 320 - World.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)(_npcTextureFrameRectangle.Width / 6.4 * 3.2),
-				DrawOffsetY + 168 - World.Instance.MainPlayer.ActiveCharacter.OffsetY - _npcTextureFrameRectangle.Height,
+				DrawOffsetX + 320 - OldWorld.Instance.MainPlayer.ActiveCharacter.OffsetX - (int)(_npcTextureFrameRectangle.Width / 6.4 * 3.2),
+				DrawOffsetY + 168 - OldWorld.Instance.MainPlayer.ActiveCharacter.OffsetY - _npcTextureFrameRectangle.Height,
 				_npcTextureFrameRectangle.Width, _npcTextureFrameRectangle.Height);
 			
-			var oneGridSize = new Vector2(World.Instance.ActiveCharacterRenderer.DrawArea.Width,
-										  World.Instance.ActiveCharacterRenderer.DrawArea.Height);
+			var oneGridSize = new Vector2(OldWorld.Instance.ActiveCharacterRenderer.DrawArea.Width,
+										  OldWorld.Instance.ActiveCharacterRenderer.DrawArea.Height);
 			MapProjectedDrawArea = new Rectangle(
 				DrawArea.X + (int) (Math.Abs(oneGridSize.X - DrawArea.Width)/2),
 				DrawArea.Bottom - (int) oneGridSize.Y,
@@ -358,17 +358,17 @@ namespace EndlessClient.Rendering
 
 			if (mouseClicked && DrawArea.ContainsPoint(_currMouseState.X, _currMouseState.Y))
 			{
-				if (World.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
+				if (OldWorld.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
 				{
-					SpellRecord data = World.Instance.ESF.GetSpellRecordByID((short)World.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
+					SpellRecord data = OldWorld.Instance.ESF.GetSpellRecordByID((short)OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
 					if (data.TargetRestrict != SpellTargetRestrict.Friendly)
 					{
-						World.Instance.ActiveCharacterRenderer.SetSpellTarget(this);
+						OldWorld.Instance.ActiveCharacterRenderer.SetSpellTarget(this);
 					}
 					else
 					{
 						//todo status label message "you cannot attack this NPC"
-						World.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
+						OldWorld.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);
 					}
 
 					return; //don't process regular click on NPC while targeting a spell

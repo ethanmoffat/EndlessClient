@@ -24,7 +24,7 @@ namespace EndlessClient.HUD
 		public ClientOnlineEntry(string name, string title, string guild, int clss, PaperdollIconType icon)
 			: base(name, title, guild, clss, icon)
 		{
-			ClassRecord record = (ClassRecord) World.Instance.ECF.Data.Find(rec => ((ClassRecord) rec).ID == clss);
+			ClassRecord record = (ClassRecord) OldWorld.Instance.ECF.Data.Find(rec => ((ClassRecord) rec).ID == clss);
 			ClassString = record.ID == 0 ? "-" : record.Name;
 		}
 
@@ -79,7 +79,7 @@ namespace EndlessClient.HUD
 				Visible = true
 			};
 			m_scrollBar.SetParent(this);
-			World.IgnoreDialogs(m_scrollBar);
+			OldWorld.IgnoreDialogs(m_scrollBar);
 
 			m_filterClick = new Rectangle(2 + DrawAreaWithOffset.X, 2 + DrawAreaWithOffset.Y, 14, 14);
 

@@ -42,7 +42,7 @@ namespace EndlessClient.Dialogs
 			_setSize(bgSprites.Width / 4, bgSprites.Height);
 			bgSrcIndex = 0;
 
-			EDFFile file = World.Instance.DataFiles[World.Instance.Localized2];
+			EDFFile file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2];
 			map = file.Data[(int)DATCONST2.LOADING_GAME_UPDATING_MAP];
 			item = file.Data[(int)DATCONST2.LOADING_GAME_UPDATING_ITEMS];
 			npc = file.Data[(int)DATCONST2.LOADING_GAME_UPDATING_NPCS];
@@ -129,7 +129,7 @@ namespace EndlessClient.Dialogs
 
 			caption.Text = loading;
 			WelcomeMessageData data;
-			if (!m_api.WelcomeMessage(World.Instance.MainPlayer.ActiveCharacter.ID, out data))
+			if (!m_api.WelcomeMessage(OldWorld.Instance.MainPlayer.ActiveCharacter.ID, out data))
 				return false;
 			WelcomeData = data;
 
@@ -141,7 +141,7 @@ namespace EndlessClient.Dialogs
 
 		private async Task<bool> _getMapTask()
 		{
-			if (World.Instance.NeedMap != -1)
+			if (OldWorld.Instance.NeedMap != -1)
 			{
 				caption.Text = map;
 				int tries = 0;
@@ -150,7 +150,7 @@ namespace EndlessClient.Dialogs
 					if (tries++ == 3)
 						return false;
 
-					if (!m_api.RequestFile(InitFileType.Map, World.Instance.MainPlayer.ActiveCharacter.CurrentMap))
+					if (!m_api.RequestFile(InitFileType.Map, OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap))
 						return false;
 				} while (!_isMapValid());
 				await Task.Delay(1000);
@@ -160,7 +160,7 @@ namespace EndlessClient.Dialogs
 
 		private async Task<bool> _getEIFTask()
 		{
-			if (World.Instance.NeedEIF)
+			if (OldWorld.Instance.NeedEIF)
 			{
 				caption.Text = item;
 				int tries = 0;
@@ -179,7 +179,7 @@ namespace EndlessClient.Dialogs
 
 		private async Task<bool> _getENFTask()
 		{
-			if (World.Instance.NeedENF)
+			if (OldWorld.Instance.NeedENF)
 			{
 				caption.Text = npc;
 				int tries = 0;
@@ -198,7 +198,7 @@ namespace EndlessClient.Dialogs
 
 		private async Task<bool> _getESFTask()
 		{
-			if (World.Instance.NeedESF)
+			if (OldWorld.Instance.NeedESF)
 			{
 				caption.Text = skill;
 				int tries = 0;
@@ -217,7 +217,7 @@ namespace EndlessClient.Dialogs
 
 		private async Task<bool> _getECFTask()
 		{
-			if (World.Instance.NeedECF)
+			if (OldWorld.Instance.NeedECF)
 			{
 				caption.Text = classes;
 				int tries = 0;
@@ -243,7 +243,7 @@ namespace EndlessClient.Dialogs
 			try
 			{
 				// ReSharper disable once UnusedVariable
-				var map = new MapFile(string.Format(Constants.MapFileFormatString, World.Instance.NeedMap));
+				var map = new MapFile(string.Format(Constants.MapFileFormatString, OldWorld.Instance.NeedMap));
 			}
 			catch { return false; }
 

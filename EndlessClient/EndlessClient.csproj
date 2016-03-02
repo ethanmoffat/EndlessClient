@@ -145,7 +145,7 @@
     <Compile Include="Rendering\MouseCursorRenderer.cs" />
     <Compile Include="Rendering\NPCRenderer.cs" />
     <Compile Include="Rendering\PlayerStatusIconRenderer.cs" />
-    <Compile Include="World.cs" />
+    <Compile Include="OldWorld.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />

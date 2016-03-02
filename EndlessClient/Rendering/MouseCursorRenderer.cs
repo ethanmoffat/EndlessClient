@@ -58,7 +58,7 @@ namespace EndlessClient.Rendering
 
 			_contextMenu = new EOMapContextMenu(_game.API);
 
-			_mainCharacter = World.Instance.MainPlayer.ActiveCharacter;
+			_mainCharacter = OldWorld.Instance.MainPlayer.ActiveCharacter;
 		}
 
 		public void ShowContextMenu(CharacterRenderer player)
@@ -273,8 +273,8 @@ namespace EndlessClient.Rendering
 		private void HandleMapItemClick(MapItem mi)
 		{
 			if ((_mainCharacter.ID != mi.playerID && mi.playerID != 0) &&
-				(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.NPCDropProtectTime) ||
-				(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= World.Instance.PlayerDropProtectTime))
+				(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= OldWorld.Instance.NPCDropProtectTime) ||
+				(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= OldWorld.Instance.PlayerDropProtectTime))
 			{
 				Character charRef = _parentMapRenderer.GetOtherPlayerByID((short) mi.playerID);
 				DATCONST2 msg = charRef == null ? DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED : DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
@@ -283,7 +283,7 @@ namespace EndlessClient.Rendering
 			}
 			else
 			{
-				var item = World.Instance.EIF.GetItemRecordByID(mi.id);
+				var item = OldWorld.Instance.EIF.GetItemRecordByID(mi.id);
 				if (!EOGame.Instance.Hud.InventoryFits(mi.id))
 				{
 					EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);

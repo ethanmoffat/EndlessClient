@@ -72,7 +72,7 @@ namespace EndlessClient.Dialogs
 			if (m_info != null && MouseOver && currentState.RightButton == ButtonState.Released &&
 				PreviousMouseState.RightButton == ButtonState.Pressed)
 			{
-				if (((EOPaperdollDialog)parent).CharRef == World.Instance.MainPlayer.ActiveCharacter)
+				if (((EOPaperdollDialog)parent).CharRef == OldWorld.Instance.MainPlayer.ActiveCharacter)
 				{ //the parent dialog must show equipment for mainplayer
 					if (m_info.Special == ItemSpecial.Cursed)
 					{

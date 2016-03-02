@@ -120,10 +120,10 @@ namespace EndlessClient.Dialogs
 		public static void Show(DATCONST1 resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
 			EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
 		{
-			if (!World.Initialized)
+			if (!OldWorld.Initialized)
 				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
 
-			EDFFile file = World.Instance.DataFiles[World.Instance.Localized1];
+			EDFFile file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
 
 			Show(file.Data[(int)resource + 1], file.Data[(int)resource], whichButtons, style, closingEvent);
 		}
@@ -131,10 +131,10 @@ namespace EndlessClient.Dialogs
 		public static void Show(string prependData, DATCONST1 resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
 			EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
 		{
-			if (!World.Initialized)
+			if (!OldWorld.Initialized)
 				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
 
-			EDFFile file = World.Instance.DataFiles[World.Instance.Localized1];
+			EDFFile file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
 
 			string message = prependData + file.Data[(int)resource + 1];
 			Show(message, file.Data[(int)resource], whichButtons, style, closingEvent);
@@ -143,10 +143,10 @@ namespace EndlessClient.Dialogs
 		public static void Show(DATCONST1 resource, string extraData, XNADialogButtons whichButtons = XNADialogButtons.Ok,
 			EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
 		{
-			if (!World.Initialized)
+			if (!OldWorld.Initialized)
 				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
 
-			EDFFile file = World.Instance.DataFiles[World.Instance.Localized1];
+			EDFFile file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
 
 			string message = file.Data[(int)resource + 1] + extraData;
 			Show(message, file.Data[(int)resource], whichButtons, style, closingEvent);

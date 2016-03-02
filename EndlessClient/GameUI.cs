@@ -162,7 +162,7 @@ Thanks to :
 
 			_lblVersionInfo = new XNALabel(new Rectangle(25, 453, 1, 1), Constants.FontSize07)
 			{
-				Text = string.Format("{0}.{1:000}.{2:000} - {3}:{4}", World.Instance.VersionMajor, World.Instance.VersionMinor, World.Instance.VersionClient, host, port),
+				Text = string.Format("{0}.{1:000}.{2:000} - {3}:{4}", OldWorld.Instance.VersionMajor, OldWorld.Instance.VersionMinor, OldWorld.Instance.VersionClient, host, port),
 				ForeColor = Constants.BeigeText
 			};
 
@@ -204,7 +204,7 @@ Thanks to :
 		{
 			MainButtonPress(_mainButtons[1], e); //press login
 			await Task.Delay(500);
-			if (!World.Instance.Client.ConnectedAndInitialized)
+			if (!OldWorld.Instance.Client.ConnectedAndInitialized)
 				return;
 			_loginUsernameTextbox.Text = ConfigurationManager.AppSettings["auto_login_user"];
 			_loginPasswordTextbox.Text = ConfigurationManager.AppSettings["auto_login_pass"];
@@ -221,7 +221,7 @@ Thanks to :
 			if (!IsActive)
 				return;
 
-			if (World.Instance.SoundEnabled && _mainButtons.Contains(sender))
+			if (OldWorld.Instance.SoundEnabled && _mainButtons.Contains(sender))
 			{
 				SoundManager.GetSoundEffectRef(SoundEffectID.ButtonClick).Play();
 			}
@@ -236,11 +236,11 @@ Thanks to :
 					doStateChange(GameStates.CreateAccount);
 
 					ScrollingMessageDialog createAccountDlg = new ScrollingMessageDialog("");
-					string message = World.Instance.DataFiles[World.Instance.Localized2].Data[(int)DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_1];
+					string message = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_1];
 					message += "\n\n";
-					message += World.Instance.DataFiles[World.Instance.Localized2].Data[(int)DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_2];
+					message += OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_2];
 					message += "\n\n";
-					message += World.Instance.DataFiles[World.Instance.Localized2].Data[(int)DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_3];
+					message += OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_3];
 					createAccountDlg.MessageText = message;
 				});
 			}
@@ -256,8 +256,8 @@ Thanks to :
 			}
 			else if (sender == _mainButtons[3])
 			{
-				if (World.Instance.Client.ConnectedAndInitialized)
-					World.Instance.Client.Disconnect();
+				if (OldWorld.Instance.Client.ConnectedAndInitialized)
+					OldWorld.Instance.Client.Disconnect();
 				Exit();
 			}
 			else if ((sender == _backButton && State != GameStates.PlayingTheGame) || sender == _createButtons[1] || sender == _loginButtons[1])
@@ -277,9 +277,9 @@ Thanks to :
 						{
 							_backButtonPressed = true;
 							Dispatcher.Subscriber = null;
-							World.Instance.ResetGameElements();
-							if (World.Instance.Client.ConnectedAndInitialized)
-								World.Instance.Client.Disconnect();
+							OldWorld.Instance.ResetGameElements();
+							if (OldWorld.Instance.Client.ConnectedAndInitialized)
+								OldWorld.Instance.Client.Disconnect();
 							doStateChange(GameStates.Initial);
 							_backButtonPressed = false;
 						}
@@ -303,8 +303,8 @@ Thanks to :
 					EOMessageBox.Show(_packetAPI.LoginResponseMessage());
 					return;
 				}
-				World.Instance.MainPlayer.SetAccountName(_loginUsernameTextbox.Text);
-				World.Instance.MainPlayer.ProcessCharacterData(dataArray);
+				OldWorld.Instance.MainPlayer.SetAccountName(_loginUsernameTextbox.Text);
+				OldWorld.Instance.MainPlayer.ProcessCharacterData(dataArray);
 
 				doStateChange(GameStates.LoggedIn);
 			}
@@ -371,8 +371,8 @@ Thanks to :
 						}
 
 						//show progress bar for account creation pending and THEN create the account
-						string pbmessage = World.Instance.DataFiles[World.Instance.Localized1].Data[(int) DATCONST1.ACCOUNT_CREATE_ACCEPTED + 1];
-						string pbcaption = World.Instance.DataFiles[World.Instance.Localized1].Data[(int) DATCONST1.ACCOUNT_CREATE_ACCEPTED];
+						string pbmessage = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1].Data[(int) DATCONST1.ACCOUNT_CREATE_ACCEPTED + 1];
+						string pbcaption = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1].Data[(int) DATCONST1.ACCOUNT_CREATE_ACCEPTED];
 						ProgressDialog dlg = new ProgressDialog(pbmessage, pbcaption);
 						dlg.DialogClosing += (dlg_S, dlg_E) =>
 						{
@@ -441,7 +441,7 @@ Thanks to :
 							}
 
 							EOMessageBox.Show(DATCONST1.CHARACTER_CREATE_SUCCESS);
-							World.Instance.MainPlayer.ProcessCharacterData(dataArray);
+							OldWorld.Instance.MainPlayer.ProcessCharacterData(dataArray);
 							doShowCharacters();
 						};
 					}
@@ -485,18 +485,18 @@ Thanks to :
 			if (_loginCharButtons.Contains(sender))
 			{
 				index = _loginCharButtons.ToList().FindIndex(x => x == sender);
-				if (World.Instance.MainPlayer.CharData == null || World.Instance.MainPlayer.CharData.Length <= index)
+				if (OldWorld.Instance.MainPlayer.CharData == null || OldWorld.Instance.MainPlayer.CharData.Length <= index)
 					return;
 
 				WelcomeRequestData data;
-				if (!_packetAPI.SelectCharacter(World.Instance.MainPlayer.CharData[index].id, out data))
+				if (!_packetAPI.SelectCharacter(OldWorld.Instance.MainPlayer.CharData[index].id, out data))
 				{
 					DoShowLostConnectionDialogAndReturnToMainMenu();
 					return;
 				}
 
 				//handles the WelcomeRequestData object
-				World.Instance.ApplyWelcomeRequest(_packetAPI, data);
+				OldWorld.Instance.ApplyWelcomeRequest(_packetAPI, data);
 
 				//shows the connecting window
 				GameLoadingDialog dlg = new GameLoadingDialog(_packetAPI);
@@ -507,7 +507,7 @@ Thanks to :
 						case XNADialogResult.OK:
 							doStateChange(GameStates.PlayingTheGame);
 							
-							World.Instance.ApplyWelcomeMessage(dlg.WelcomeData);
+							OldWorld.Instance.ApplyWelcomeMessage(dlg.WelcomeData);
 							
 							Hud = new HUD.HUD(this, _packetAPI);
 							Components.Add(Hud);
@@ -520,8 +520,8 @@ Thanks to :
 						case XNADialogResult.NO_BUTTON_PRESSED:
 						{
 							EOMessageBox.Show(DATCONST1.CONNECTION_SERVER_BUSY);
-							if (World.Instance.Client.ConnectedAndInitialized)
-								World.Instance.Client.Disconnect();
+							if (OldWorld.Instance.Client.ConnectedAndInitialized)
+								OldWorld.Instance.Client.Disconnect();
 							doStateChange(GameStates.Initial);
 						}
 							break;
@@ -531,44 +531,44 @@ Thanks to :
 			else if (_deleteCharButtons.Contains(sender))
 			{
 				index = _deleteCharButtons.ToList().FindIndex(x => x == sender);
-				if (World.Instance.MainPlayer.CharData.Length <= index)
+				if (OldWorld.Instance.MainPlayer.CharData.Length <= index)
 					return;
 
 				if (_charDeleteWarningIndex != index)
 				{
-					EOMessageBox.Show("Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' ", DATCONST1.CHARACTER_DELETE_FIRST_CHECK);
+					EOMessageBox.Show("Character \'" + OldWorld.Instance.MainPlayer.CharData[index].name + "\' ", DATCONST1.CHARACTER_DELETE_FIRST_CHECK);
 					_charDeleteWarningIndex = index;
 					return;
 				}
 
 				//delete character at that index, if it exists
 				int takeID;
-				if (!_packetAPI.CharacterTake(World.Instance.MainPlayer.CharData[index].id, out takeID))
+				if (!_packetAPI.CharacterTake(OldWorld.Instance.MainPlayer.CharData[index].id, out takeID))
 				{
 					DoShowLostConnectionDialogAndReturnToMainMenu();
 					return;
 				}
 
-				if (takeID != World.Instance.MainPlayer.CharData[index].id)
+				if (takeID != OldWorld.Instance.MainPlayer.CharData[index].id)
 				{
 					EOMessageBox.Show("The server did not respond properly for deleting the character. Try again.", "Server error");
 					return;
 				}
 
-				EOMessageBox.Show("Character \'" + World.Instance.MainPlayer.CharData[index].name + "\' ",
+				EOMessageBox.Show("Character \'" + OldWorld.Instance.MainPlayer.CharData[index].name + "\' ",
 					DATCONST1.CHARACTER_DELETE_CONFIRM, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogLargeHeader,
 					(dlgS, dlgE) =>
 					{
 						if (dlgE.Result == XNADialogResult.OK) //user clicked ok to delete their character. do the delete here.
 						{
 							CharacterRenderData[] dataArray;
-							if (!_packetAPI.CharacterRemove(World.Instance.MainPlayer.CharData[index].id, out dataArray))
+							if (!_packetAPI.CharacterRemove(OldWorld.Instance.MainPlayer.CharData[index].id, out dataArray))
 							{
 								DoShowLostConnectionDialogAndReturnToMainMenu();
 								return;
 							}
 
-							World.Instance.MainPlayer.ProcessCharacterData(dataArray);
+							OldWorld.Instance.MainPlayer.ProcessCharacterData(dataArray);
 							doShowCharacters();
 						}
 					});

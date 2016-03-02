@@ -173,7 +173,7 @@ namespace EndlessClient
 			get
 			{
 				return SelectedSpell > 0 &&
-				       World.Instance.ESF.GetSpellRecordByID((short) SelectedSpell).Target == EOLib.IO.SpellTarget.Normal &&
+				       OldWorld.Instance.ESF.GetSpellRecordByID((short) SelectedSpell).Target == EOLib.IO.SpellTarget.Normal &&
 				       SpellTarget == null;
 			}
 		}
@@ -457,7 +457,7 @@ namespace EndlessClient
 			if (State != CharacterActionState.Standing)
 				return;
 
-			if (this == World.Instance.MainPlayer.ActiveCharacter)
+			if (this == OldWorld.Instance.MainPlayer.ActiveCharacter)
 			{
 				if(!m_packetAPI.PlayerWalk(direction, destX, destY, admin && AdminLevel != AdminLevel.Player))
 					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -484,14 +484,14 @@ namespace EndlessClient
 		{
 			if (State != CharacterActionState.Standing) return;
 
-			if (this == World.Instance.MainPlayer.ActiveCharacter)
+			if (this == OldWorld.Instance.MainPlayer.ActiveCharacter)
 			{
 				//KS protection - vanilla eoserv does not support this!
 				//Enabled client-side only, the official client does not support this
 				var shouldSend = true;
 				if (!(x == 255 && y == 255))
 				{
-					var ti = World.Instance.ActiveMapRenderer.GetTileInfo(x, y);
+					var ti = OldWorld.Instance.ActiveMapRenderer.GetTileInfo(x, y);
 					if (ti.ReturnType == TileInfoReturnType.IsOtherNPC && 
 						((NPC)ti.MapElement).Opponent != null &&
 						((NPC)ti.MapElement).Opponent != this)
@@ -519,7 +519,7 @@ namespace EndlessClient
 
 		public void Emote(Emote whichEmote)
 		{
-			if (this == World.Instance.MainPlayer.ActiveCharacter &&
+			if (this == OldWorld.Instance.MainPlayer.ActiveCharacter &&
 				whichEmote != EOLib.Net.API.Emote.LevelUp &&
 				whichEmote != EOLib.Net.API.Emote.Trade)
 			{
@@ -559,13 +559,13 @@ namespace EndlessClient
 				{
 					Inventory.Add(newRec);
 				}
-				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
+				if (this == OldWorld.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
 			}
 			else //if unequipping an item that isn't in the inventory yet
 			{
 				InventoryItem newRec = new InventoryItem {amount = characterAmount, id = id};
 				Inventory.Add(newRec);
-				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
+				if (this == OldWorld.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
 			}
 		}
 
@@ -579,13 +579,13 @@ namespace EndlessClient
 					amount = addToExistingAmount ? characterAmount + rec.amount : characterAmount,
 					id = id
 				};
-				if (this == World.Instance.MainPlayer.ActiveCharacter)
+				if (this == OldWorld.Instance.MainPlayer.ActiveCharacter)
 				{
 					//false when AddItem fails to find a good spot
 					if (!EOGame.Instance.Hud.UpdateInventory(newRec))
 					{
-						EOMessageBox.Show(World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
-							World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+						EOMessageBox.Show(OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+							OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
 							XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 						return;
 					}
@@ -600,7 +600,7 @@ namespace EndlessClient
 				}
 				Weight = characterWeight;
 				MaxWeight = characterMaxWeight;
-				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.RefreshStats();
+				if (this == OldWorld.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.RefreshStats();
 			}
 			else
 			{
@@ -609,30 +609,30 @@ namespace EndlessClient
 				if (newRec.amount <= 0) return;
 				
 				Inventory.Add(newRec);
-				if (this == World.Instance.MainPlayer.ActiveCharacter)
+				if (this == OldWorld.Instance.MainPlayer.ActiveCharacter)
 				{
 					//false when AddItem fails to find a good spot
 					if (!EOGame.Instance.Hud.UpdateInventory(newRec))
 					{
-						EOMessageBox.Show(World.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
-							World.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+						EOMessageBox.Show(OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+							OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
 							XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 						return;
 					}
 				}
 				Weight = characterWeight;
 				MaxWeight = characterMaxWeight;
-				if (this == World.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.RefreshStats();
+				if (this == OldWorld.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.RefreshStats();
 			}
 		}
 
 		public void SetDisplayItemsFromRenderData(CharRenderData newRenderData)
 		{
-			EquipItem(ItemType.Boots,  (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Boots,  newRenderData.boots)  ?? new ItemRecord(0)).ID, newRenderData.boots,  true);
-			EquipItem(ItemType.Armor,  (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Armor,  newRenderData.armor)  ?? new ItemRecord(0)).ID, newRenderData.armor,  true);
-			EquipItem(ItemType.Hat,    (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Hat,    newRenderData.hat)    ?? new ItemRecord(0)).ID, newRenderData.hat,    true);
-			EquipItem(ItemType.Shield, (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Shield, newRenderData.shield) ?? new ItemRecord(0)).ID, newRenderData.shield, true);
-			EquipItem(ItemType.Weapon, (short)(World.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Weapon, newRenderData.weapon) ?? new ItemRecord(0)).ID, newRenderData.weapon, true);
+			EquipItem(ItemType.Boots,  (short)(OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Boots,  newRenderData.boots)  ?? new ItemRecord(0)).ID, newRenderData.boots,  true);
+			EquipItem(ItemType.Armor,  (short)(OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Armor,  newRenderData.armor)  ?? new ItemRecord(0)).ID, newRenderData.armor,  true);
+			EquipItem(ItemType.Hat,    (short)(OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Hat,    newRenderData.hat)    ?? new ItemRecord(0)).ID, newRenderData.hat,    true);
+			EquipItem(ItemType.Shield, (short)(OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Shield, newRenderData.shield) ?? new ItemRecord(0)).ID, newRenderData.shield, true);
+			EquipItem(ItemType.Weapon, (short)(OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Weapon, newRenderData.weapon) ?? new ItemRecord(0)).ID, newRenderData.weapon, true);
 		}
 
 		public void GainExp(int amount)
@@ -675,13 +675,13 @@ namespace EndlessClient
 			switch (door) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
 			{
 				case DoorSpec.LockedCrystal:
-					rec = (ItemRecord) World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
+					rec = (ItemRecord) OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
 					break;
 				case DoorSpec.LockedSilver:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
+					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
 					break;
 				case DoorSpec.LockedWraith:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
+					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
 					break;
 				default:
 					return permission;
@@ -705,16 +705,16 @@ namespace EndlessClient
 			switch (permission) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
 			{
 				case ChestKey.Normal:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "normal key");
+					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "normal key");
 					break;
 				case ChestKey.Crystal:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
+					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
 					break;
 				case ChestKey.Silver:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
+					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
 					break;
 				case ChestKey.Wraith:
-					rec = (ItemRecord)World.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
+					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
 					break;
 				default:
 					return permission;
@@ -755,7 +755,7 @@ namespace EndlessClient
 			if (SelectedSpell <= 0)
 				return;
 
-			SpellRecord data = World.Instance.ESF.GetSpellRecordByID((short)id);
+			SpellRecord data = OldWorld.Instance.ESF.GetSpellRecordByID((short)id);
 			bool result = false;
 			switch (data.Target)
 			{

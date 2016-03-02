@@ -99,7 +99,7 @@ namespace EndlessClient.Input
 
 		private void _checkSpecAndWalkIfValid(byte destX, byte destY, EODirection direction)
 		{
-			var mapRend = World.Instance.ActiveMapRenderer;
+			var mapRend = OldWorld.Instance.ActiveMapRenderer;
 			var info = mapRend.GetTileInfo(destX, destY);
 			var specAtDest = info.Spec;
 
@@ -198,7 +198,7 @@ namespace EndlessClient.Input
 					walkValid = Renderer.NoWall;
 					if (!walkValid)
 					{
-						MapChest chest = World.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.x == destX && _c.y == destY);
+						MapChest chest = OldWorld.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.x == destX && _c.y == destY);
 						if (chest != null)
 						{
 							string requiredKey = null;
@@ -234,7 +234,7 @@ namespace EndlessClient.Input
 					}
 					break;
 				case TileSpec.SpikesTrap:
-					World.Instance.ActiveMapRenderer.AddVisibleSpikeTrap(destX, destY);
+					OldWorld.Instance.ActiveMapRenderer.AddVisibleSpikeTrap(destX, destY);
 					break;
 				case TileSpec.Board1: //todo: boards?
 				case TileSpec.Board2:

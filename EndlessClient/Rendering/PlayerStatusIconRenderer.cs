@@ -54,10 +54,10 @@ namespace EndlessClient.Rendering
 		{
 			if (!Game.IsActive || !Visible) return;
 
-			var c = World.Instance.MainPlayer.ActiveCharacter;
+			var c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 			
 			_icons = 0;
-			if(World.Instance.ActiveMapRenderer.MapRef.IsPK)
+			if(OldWorld.Instance.ActiveMapRenderer.MapRef.IsPK)
 				_icons |= StatusIconType.PK;
 			if(c.SelectedSpell > 0)
 				_icons |= StatusIconType.Spell;

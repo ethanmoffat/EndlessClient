@@ -29,24 +29,24 @@ namespace EndlessClient
 
 	//singleton pattern: provides global access to data files and network connection
 	//	without allowing for instantiation outside of the class or inheriting from it
-	public sealed class World : IDisposable
+	public sealed class OldWorld : IDisposable
 	{
 #if DEBUG
 		public static int FPS { get; set; }
 #endif
 		/*** STATIC MEMBERS AND SUCH FOR THE SINGLETON PATTERN ***/
-		private static World inst;
+		private static OldWorld inst;
 		private static readonly object locker = new object();
 
 		public static bool Initialized { get; private set; }
 
-		public static World Instance
+		public static OldWorld Instance
 		{
 			get
 			{
 				lock (locker)
 				{
-					return inst ?? (inst = new World());
+					return inst ?? (inst = new OldWorld());
 				}
 			}
 		}
@@ -61,7 +61,7 @@ namespace EndlessClient
 			return Instance.DataFiles[Instance.Localized2].Data[(int)id];
 		}
 
-		private World() //private: don't allow construction of the world using 'new'
+		private OldWorld() //private: don't allow construction of the world using 'new'
 		{
 			_tryLoadItems();
 			_tryLoadNPCs();

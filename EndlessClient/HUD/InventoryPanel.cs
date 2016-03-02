@@ -63,14 +63,14 @@ namespace EndlessClient.HUD
 			}
 
 			//add the inventory items that were retrieved from the server
-			List<InventoryItem> localInv = World.Instance.MainPlayer.ActiveCharacter.Inventory;
+			List<InventoryItem> localInv = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory;
 			if (localInv.Find(_item => _item.id == 1).id != 1)
 				localInv.Insert(0, new InventoryItem {amount = 0, id = 1}); //add 0 gold if there isn't any gold
 
 			bool dialogShown = false;
 			foreach (InventoryItem item in localInv)
 			{
-				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
 				int slot = localItemSlotMap.ContainsValue(item.id)
 					? localItemSlotMap.First(_pair => _pair.Value == item.id).Key
 					: _getNextOpenSlot(rec.Size);
@@ -106,18 +106,18 @@ namespace EndlessClient.HUD
 			//'paperdoll' button
 			m_btnPaperdoll = new XNAButton(thatWeirdSheet, new Vector2(385, 9), /*new Rectangle(39, 385, 88, 19)*/null, new Rectangle(126, 385, 88, 19));
 			m_btnPaperdoll.SetParent(this);
-			m_btnPaperdoll.OnClick += (s, e) => m_api.RequestPaperdoll((short)World.Instance.MainPlayer.ActiveCharacter.ID);
+			m_btnPaperdoll.OnClick += (s, e) => m_api.RequestPaperdoll((short)OldWorld.Instance.MainPlayer.ActiveCharacter.ID);
 			//'drop' button
 			//491, 398 -> 389, 68
 			//0,15,38,37
 			//0,52,38,37
 			m_btnDrop = new XNAButton(thatWeirdSheet, new Vector2(389, 68), new Rectangle(0, 15, 38, 37), new Rectangle(0, 52, 38, 37));
 			m_btnDrop.SetParent(this);
-			World.IgnoreDialogs(m_btnDrop);
+			OldWorld.IgnoreDialogs(m_btnDrop);
 			//'junk' button - 4 + 38 on the x away from drop
 			m_btnJunk = new XNAButton(thatWeirdSheet, new Vector2(431, 68), new Rectangle(0, 89, 38, 37), new Rectangle(0, 126, 38, 37));
 			m_btnJunk.SetParent(this);
-			World.IgnoreDialogs(m_btnJunk);
+			OldWorld.IgnoreDialogs(m_btnJunk);
 		}
 
 		//-----------------------------------------------------
@@ -177,7 +177,7 @@ namespace EndlessClient.HUD
 			if (m_childItems.Find(_i => _i.ItemData.ID == id) != null)
 				return true;
 
-			ItemRecord rec = World.Instance.EIF.GetItemRecordByID(id);
+			ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(id);
 			int nextSlot = _getNextOpenSlot(rec.Size);
 			List<Tuple<int, int>> dummy;
 			return _fitsInSlot(nextSlot, rec.Size, out dummy);
@@ -216,7 +216,7 @@ namespace EndlessClient.HUD
 						continue; //already in inventory: skip, since it isn't a new item
 				}
 
-				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
 
 				int nextSlot = _getNextOpenSlot(tempFilledSlots, rec.Size);
 				List<Tuple<int, int>> points;
@@ -320,8 +320,8 @@ namespace EndlessClient.HUD
 		public void UpdateWeightLabel(string text = "")
 		{
 			if (string.IsNullOrEmpty(text))
-				m_lblWeight.Text = string.Format("{0} / {1}", World.Instance.MainPlayer.ActiveCharacter.Weight,
-					World.Instance.MainPlayer.ActiveCharacter.MaxWeight);
+				m_lblWeight.Text = string.Format("{0} / {1}", OldWorld.Instance.MainPlayer.ActiveCharacter.Weight,
+					OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight);
 			else
 				m_lblWeight.Text = text;
 		}
@@ -341,7 +341,7 @@ namespace EndlessClient.HUD
 			}
 			else
 			{
-				ItemRecord rec = World.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
 				return _addItemToSlot(_getNextOpenSlot(rec.Size), rec, item.amount);
 			}
 
@@ -376,7 +376,7 @@ namespace EndlessClient.HUD
 			{
 				using (RegistryKey currentUser = Registry.CurrentUser)
 				{
-					return currentUser.CreateSubKey(string.Format("Software\\EndlessClient\\{0}\\{1}\\inventory", World.Instance.MainPlayer.AccountName, World.Instance.MainPlayer.ActiveCharacter.Name),
+					return currentUser.CreateSubKey(string.Format("Software\\EndlessClient\\{0}\\{1}\\inventory", OldWorld.Instance.MainPlayer.AccountName, OldWorld.Instance.MainPlayer.ActiveCharacter.Name),
 						RegistryKeyPermissionCheck.ReadWriteSubTree);
 				}
 			}

@@ -115,7 +115,7 @@ namespace EndlessClient
 				return;
 			}
 
-			if (World.Instance.Client.ConnectedAndInitialized && World.Instance.Client.Connected)
+			if (OldWorld.Instance.Client.ConnectedAndInitialized && OldWorld.Instance.Client.Connected)
 			{
 				successAction();
 				_connectMutex.Set();
@@ -127,36 +127,36 @@ namespace EndlessClient
 			{
 				try
 				{
-					if (World.Instance.Client.ConnectToServer(host, port))
+					if (OldWorld.Instance.Client.ConnectToServer(host, port))
 					{
-						_packetAPI = new PacketAPI((EOClient) World.Instance.Client);
+						_packetAPI = new PacketAPI((EOClient) OldWorld.Instance.Client);
 
 						//set up event packet handling event bindings: 
 						//	some events are triggered by the server regardless of action by the client
 						_callbackManager = new PacketAPICallbackManager(_packetAPI, this);
 						_callbackManager.AssignCallbacks();
 
-						((EOClient) World.Instance.Client).EventDisconnect += () => _packetAPI.Disconnect();
+						((EOClient) OldWorld.Instance.Client).EventDisconnect += () => _packetAPI.Disconnect();
 
 						InitData data;
-						if (_packetAPI.Initialize(World.Instance.VersionMajor,
-							World.Instance.VersionMinor,
-							World.Instance.VersionClient,
+						if (_packetAPI.Initialize(OldWorld.Instance.VersionMajor,
+							OldWorld.Instance.VersionMinor,
+							OldWorld.Instance.VersionClient,
 							HDDSerial.GetHDDSerial(),
 							out data))
 						{
 							switch (data.ServerResponse)
 							{
 								case InitReply.INIT_OK:
-									((EOClient) World.Instance.Client).SetInitData(data);
+									((EOClient) OldWorld.Instance.Client).SetInitData(data);
 
 									if (!_packetAPI.ConfirmInit(data.emulti_e, data.emulti_d, data.clientID))
 									{
 										throw new Exception(); //connection failed!
 									}
 
-									World.Instance.MainPlayer.SetPlayerID(data.clientID);
-									World.Instance.SetAPIHandle(_packetAPI);
+									OldWorld.Instance.MainPlayer.SetPlayerID(data.clientID);
+									OldWorld.Instance.SetAPIHandle(_packetAPI);
 									successAction();
 									break;
 								default:
@@ -199,13 +199,13 @@ namespace EndlessClient
 
 		public void ResetWorldElements()
 		{
-			World.Instance.ResetGameElements();
+			OldWorld.Instance.ResetGameElements();
 		}
 
 		public void DisconnectFromGameServer()
 		{
-			if (World.Instance.Client.ConnectedAndInitialized)
-				World.Instance.Client.Disconnect();
+			if (OldWorld.Instance.Client.ConnectedAndInitialized)
+				OldWorld.Instance.Client.Disconnect();
 		}
 
 		public void SetInitialGameState()
@@ -229,9 +229,9 @@ namespace EndlessClient
 				eor.Close();
 
 			//show the new data
-			CharacterRenderer[] render = new CharacterRenderer[World.Instance.MainPlayer.CharData.Length];
-			for (int i = 0; i < World.Instance.MainPlayer.CharData.Length; ++i)
-				render[i] = new CharacterRenderer(new Vector2(395, 60 + i * 124), World.Instance.MainPlayer.CharData[i]);
+			CharacterRenderer[] render = new CharacterRenderer[OldWorld.Instance.MainPlayer.CharData.Length];
+			for (int i = 0; i < OldWorld.Instance.MainPlayer.CharData.Length; ++i)
+				render[i] = new CharacterRenderer(new Vector2(395, 60 + i * 124), OldWorld.Instance.MainPlayer.CharData[i]);
 		}
 		
 		private void doStateChange(GameStates newState)
@@ -466,7 +466,7 @@ namespace EndlessClient
 			localFPS++;
 			if (gameTime.TotalGameTime.TotalMilliseconds - lastFPSRender.Value.TotalMilliseconds > 1000)
 			{
-				World.FPS = localFPS;
+				OldWorld.FPS = localFPS;
 				localFPS = 0;
 				lastFPSRender = gameTime.TotalGameTime;
 			}
@@ -531,7 +531,7 @@ namespace EndlessClient
 		{
 			try
 			{
-				World w = World.Instance;
+				OldWorld w = OldWorld.Instance;
 				w.Init();
 
 				host = w.Host;
@@ -545,8 +545,8 @@ namespace EndlessClient
 			}
 			catch (ConfigStringLoadException csle)
 			{
-				host = World.Instance.Host;
-				port = World.Instance.Port;
+				host = OldWorld.Instance.Host;
+				port = OldWorld.Instance.Port;
 				switch (csle.WhichString)
 				{
 					case ConfigStrings.Host:
@@ -587,7 +587,7 @@ namespace EndlessClient
 				return false;
 			}
 
-			if (World.Instance.MusicEnabled)
+			if (OldWorld.Instance.MusicEnabled)
 				SoundManager.PlayBackgroundMusic(1); //mfx001 == main menu theme
 			return true;
 		}
@@ -598,11 +598,11 @@ namespace EndlessClient
 
 		protected override void Dispose(bool disposing)
 		{
-			if (!World.Initialized)
+			if (!OldWorld.Initialized)
 				return;
 
-			if (World.Instance.Client.ConnectedAndInitialized)
-				World.Instance.Client.Disconnect();
+			if (OldWorld.Instance.Client.ConnectedAndInitialized)
+				OldWorld.Instance.Client.Disconnect();
 
 			if(_loginUsernameTextbox != null)
 				_loginUsernameTextbox.Close();
@@ -661,7 +661,7 @@ namespace EndlessClient
 
 			Dispatcher.Dispose();
 
-			World.Instance.Dispose();
+			OldWorld.Instance.Dispose();
 
 			base.Dispose(disposing);
 		}
@@ -672,7 +672,7 @@ namespace EndlessClient
 			_exiting = true;
 			if(_connectMutex != null)
 				_connectMutex.Set();
-			World.Instance.Client.Dispose(); //kill pending connection request on exit
+			OldWorld.Instance.Client.Dispose(); //kill pending connection request on exit
 			base.OnExiting(sender, args);
 		}
 	}

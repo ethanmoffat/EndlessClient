@@ -67,7 +67,7 @@ namespace EndlessClient.HUD.Spells
 
 			_setSize(ICON_AREA_WIDTH, ICON_AREA_HEIGHT);
 
-			World.IgnoreDialogs(this);
+			OldWorld.IgnoreDialogs(this);
 		}
 
 		public void SetDisplaySlot(int displaySlot)

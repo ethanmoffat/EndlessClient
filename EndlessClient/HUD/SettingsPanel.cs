@@ -16,7 +16,7 @@ namespace EndlessClient.HUD
 	{
 		private readonly XNALabel[] m_leftSide, m_rightSide;
 		private readonly XNAButton[] m_buttons;
-		private readonly World w;
+		private readonly OldWorld w;
 
 		private bool m_soundChanged, m_musicChanged;
 
@@ -29,7 +29,7 @@ namespace EndlessClient.HUD
 		{
 			_setSize(parent.BackgroundImage.Width, parent.BackgroundImage.Height);
 
-			w = World.Instance;
+			w = OldWorld.Instance;
 			m_leftSide = new XNALabel[5];
 			m_rightSide = new XNALabel[5];
 
@@ -65,23 +65,23 @@ namespace EndlessClient.HUD
 
 		private void _setTextForLanguage()
 		{
-			m_leftSide[0].Text = World.GetString(w.SoundEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
-			m_leftSide[1].Text = World.GetString(w.MusicEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
-			m_leftSide[2].Text = World.GetString(DATCONST2.SETTING_KEYBOARD_ENGLISH);
-			m_leftSide[3].Text = World.GetString(DATCONST2.SETTING_LANG_CURRENT);
-			m_leftSide[4].Text = World.GetString(w.HearWhispers ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+			m_leftSide[0].Text = OldWorld.GetString(w.SoundEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+			m_leftSide[1].Text = OldWorld.GetString(w.MusicEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+			m_leftSide[2].Text = OldWorld.GetString(DATCONST2.SETTING_KEYBOARD_ENGLISH);
+			m_leftSide[3].Text = OldWorld.GetString(DATCONST2.SETTING_LANG_CURRENT);
+			m_leftSide[4].Text = OldWorld.GetString(w.HearWhispers ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 
-			m_rightSide[0].Text = World.GetString(w.ShowChatBubbles ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
-			m_rightSide[1].Text = World.GetString(w.ShowShadows ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+			m_rightSide[0].Text = OldWorld.GetString(w.ShowChatBubbles ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+			m_rightSide[1].Text = OldWorld.GetString(w.ShowShadows ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 			if (w.StrictFilterEnabled)
-				m_rightSide[2].Text = World.GetString(DATCONST2.SETTING_EXCLUSIVE);
+				m_rightSide[2].Text = OldWorld.GetString(DATCONST2.SETTING_EXCLUSIVE);
 			else if (w.CurseFilterEnabled)
-				m_rightSide[2].Text = World.GetString(DATCONST2.SETTING_NORMAL);
+				m_rightSide[2].Text = OldWorld.GetString(DATCONST2.SETTING_NORMAL);
 			else
-				m_rightSide[2].Text = World.GetString(DATCONST2.SETTING_DISABLED);
+				m_rightSide[2].Text = OldWorld.GetString(DATCONST2.SETTING_DISABLED);
 
-			m_rightSide[3].Text = World.GetString(w.LogChatToFile ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
-			m_rightSide[4].Text = World.GetString(w.Interaction ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+			m_rightSide[3].Text = OldWorld.GetString(w.LogChatToFile ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+			m_rightSide[4].Text = OldWorld.GetString(w.Interaction ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 		}
 
 		private void _settingChange(object sender, EventArgs e)
@@ -97,8 +97,8 @@ namespace EndlessClient.HUD
 							{
 								m_soundChanged = true;
 								w.SoundEnabled = !w.SoundEnabled;
-								World.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
-								m_leftSide[0].Text = World.GetString(w.SoundEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+								OldWorld.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
+								m_leftSide[0].Text = OldWorld.GetString(w.SoundEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 							}
 						});
 				}
@@ -108,8 +108,8 @@ namespace EndlessClient.HUD
 						m_soundChanged = true;
 
 					w.SoundEnabled = !w.SoundEnabled;
-					World.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
-					m_leftSide[0].Text = World.GetString(w.SoundEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+					OldWorld.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
+					m_leftSide[0].Text = OldWorld.GetString(w.SoundEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 				}
 			}
 			else if (sender == m_buttons[1])
@@ -123,8 +123,8 @@ namespace EndlessClient.HUD
 							{
 								m_musicChanged = true;
 								w.MusicEnabled = !w.MusicEnabled;
-								World.Instance.ActiveMapRenderer.PlayOrStopBackgroundMusic();
-								m_leftSide[1].Text = World.GetString(w.MusicEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+								OldWorld.Instance.ActiveMapRenderer.PlayOrStopBackgroundMusic();
+								m_leftSide[1].Text = OldWorld.GetString(w.MusicEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 							}
 						});
 				}
@@ -134,8 +134,8 @@ namespace EndlessClient.HUD
 						m_musicChanged = true;
 
 					w.MusicEnabled = !w.MusicEnabled;
-					World.Instance.ActiveMapRenderer.PlayOrStopBackgroundMusic();
-					m_leftSide[1].Text = World.GetString(w.MusicEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+					OldWorld.Instance.ActiveMapRenderer.PlayOrStopBackgroundMusic();
+					m_leftSide[1].Text = OldWorld.GetString(w.MusicEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 				}
 			}
 			else if (sender == m_buttons[2])
@@ -143,7 +143,7 @@ namespace EndlessClient.HUD
 				m_keyboard++;
 				if (m_keyboard > KeyLayout.Azerty)
 					m_keyboard = 0;
-				m_leftSide[2].Text = World.GetString(DATCONST2.SETTING_KEYBOARD_ENGLISH + (int)m_keyboard);
+				m_leftSide[2].Text = OldWorld.GetString(DATCONST2.SETTING_KEYBOARD_ENGLISH + (int)m_keyboard);
 			}
 			else if (sender == m_buttons[3])
 			{
@@ -156,7 +156,7 @@ namespace EndlessClient.HUD
 			else if (sender == m_buttons[4])
 			{
 				w.HearWhispers = !w.HearWhispers;
-				m_leftSide[4].Text = World.GetString(w.HearWhispers ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+				m_leftSide[4].Text = OldWorld.GetString(w.HearWhispers ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 				OldPacket pkt = new OldPacket(PacketFamily.Global, w.HearWhispers ? PacketAction.Remove : PacketAction.Player);
 				pkt.AddChar(w.HearWhispers ? (byte) 'n' : (byte) 'y');
 				w.Client.SendPacket(pkt);
@@ -164,12 +164,12 @@ namespace EndlessClient.HUD
 			else if (sender == m_buttons[5])
 			{
 				w.ShowChatBubbles = !w.ShowChatBubbles;
-				m_rightSide[0].Text = World.GetString(w.ShowChatBubbles ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+				m_rightSide[0].Text = OldWorld.GetString(w.ShowChatBubbles ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 			}
 			else if (sender == m_buttons[6])
 			{
 				w.ShowShadows = !w.ShowShadows;
-				m_rightSide[1].Text = World.GetString(w.ShowShadows ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+				m_rightSide[1].Text = OldWorld.GetString(w.ShowShadows ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 			}
 			else if (sender == m_buttons[7])
 			{
@@ -190,17 +190,17 @@ namespace EndlessClient.HUD
 					w.CurseFilterEnabled = true;
 					str = DATCONST2.SETTING_NORMAL;
 				}
-				m_rightSide[2].Text = World.GetString(str);
+				m_rightSide[2].Text = OldWorld.GetString(str);
 			}
 			else if (sender == m_buttons[8])
 			{
 				w.LogChatToFile = !w.LogChatToFile;
-				m_rightSide[3].Text = World.GetString(w.LogChatToFile ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+				m_rightSide[3].Text = OldWorld.GetString(w.LogChatToFile ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 			}
 			else if (sender == m_buttons[9])
 			{
 				w.Interaction = !w.Interaction;
-				m_rightSide[4].Text = World.GetString(w.Interaction ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+				m_rightSide[4].Text = OldWorld.GetString(w.Interaction ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
 			}
 		}
 	}

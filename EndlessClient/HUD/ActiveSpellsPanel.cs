@@ -69,11 +69,11 @@ namespace EndlessClient.HUD
 				}
 			}
 
-			var localSpells = World.Instance.MainPlayer.ActiveCharacter.Spells;
+			var localSpells = OldWorld.Instance.MainPlayer.ActiveCharacter.Spells;
 			// ReSharper disable once LoopCanBeConvertedToQuery
 			foreach (var spell in localSpells)
 			{
-				SpellRecord rec = World.Instance.ESF.GetSpellRecordByID(spell.id);
+				SpellRecord rec = OldWorld.Instance.ESF.GetSpellRecordByID(spell.id);
 				int slot = localSpellSlotMap.ContainsValue(spell.id)
 					? localSpellSlotMap.First(_pair => _pair.Value == spell.id).Key
 					: _getNextOpenSlot();
@@ -114,7 +114,7 @@ namespace EndlessClient.HUD
 			};
 			_selectedSpellLevel.SetParent(this);
 
-			var skillPoints = World.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints;
+			var skillPoints = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints;
 			_totalSkillPoints = new XNALabel(new Rectangle(32, 96, 42, 15), Constants.FontSize08pt5)
 			{
 				Visible = true,
@@ -146,7 +146,7 @@ namespace EndlessClient.HUD
 			_scroll.UpdateDimensions(4);
 
 			foreach (var child in children.Where(x => !(x is EmptySpellIcon)))
-				World.IgnoreDialogs(child);
+				OldWorld.IgnoreDialogs(child);
 		}
 
 		public void AddNewSpellToNextOpenSlot(int spellID)
@@ -155,7 +155,7 @@ namespace EndlessClient.HUD
 				return;
 
 			var slot = _getNextOpenSlot();
-			var record = World.Instance.ESF.GetSpellRecordByID((short) spellID);
+			var record = OldWorld.Instance.ESF.GetSpellRecordByID((short) spellID);
 			_addNewSpellToSlot(slot, record, 0);
 		}
 
@@ -268,7 +268,7 @@ namespace EndlessClient.HUD
 
 		public void RefreshTotalSkillPoints()
 		{
-			var skillPoints = World.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints;
+			var skillPoints = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints;
 			_totalSkillPoints.Text = skillPoints.ToString();
 
 			UpdateLevelUpButtonsVisible();
@@ -383,7 +383,7 @@ namespace EndlessClient.HUD
 			{
 				using (RegistryKey currentUser = Registry.CurrentUser)
 				{
-					return currentUser.CreateSubKey(string.Format("Software\\EndlessClient\\{0}\\{1}\\spells", World.Instance.MainPlayer.AccountName, World.Instance.MainPlayer.ActiveCharacter.Name),
+					return currentUser.CreateSubKey(string.Format("Software\\EndlessClient\\{0}\\{1}\\spells", OldWorld.Instance.MainPlayer.AccountName, OldWorld.Instance.MainPlayer.ActiveCharacter.Name),
 						RegistryKeyPermissionCheck.ReadWriteSubTree);
 				}
 			}
@@ -443,7 +443,7 @@ namespace EndlessClient.HUD
 
 		private void UpdateLevelUpButtonsVisible()
 		{
-			var pts = World.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints;
+			var pts = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints;
 			_levelUpButton1.Visible = pts > 0 && AnySpellsSelected();
 			_levelUpButton2.Visible = pts > 0 && AnySpellsSelected();
 		}

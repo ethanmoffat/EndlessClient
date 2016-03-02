@@ -48,7 +48,7 @@ namespace EndlessClient.Input
 
 		private void _handleSpellFunc(int spellIndex)
 		{
-			World.Instance.ActiveCharacterRenderer.SelectSpell(spellIndex);
+			OldWorld.Instance.ActiveCharacterRenderer.SelectSpell(spellIndex);
 			((EOGame) Game).Hud.SetSelectedSpell(spellIndex);
 		}
 
