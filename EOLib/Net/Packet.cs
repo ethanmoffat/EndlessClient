@@ -7,13 +7,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using EOLib.Net.PacketProcessing;
+using EOLib.Data;
 
 namespace EOLib.Net
 {
 	public class Packet : IPacket
 	{
-		private readonly IPacketEncoderService _encoderService;
+		private readonly INumberEncoderService _encoderService;
 
 		public int Length { get { return RawData.Count; } }
 
@@ -34,7 +34,7 @@ namespace EOLib.Net
 			Family = (PacketFamily)data[1];
 			Action = (PacketAction)data[0];
 			RawData = new List<byte>(data);
-			_encoderService = new PacketEncoderService();
+			_encoderService = new NumberEncoderService();
 		}
 
 		public void Seek(int position, SeekOrigin origin)

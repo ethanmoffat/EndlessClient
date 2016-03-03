@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using EOLib.Net.PacketProcessing;
+using EOLib.Data;
 
 namespace EOLib.Net
 {
@@ -14,7 +14,7 @@ namespace EOLib.Net
 		private const byte BREAK_STR_MAXVAL = 121;
 
 		private readonly IReadOnlyList<byte> _data;
-		private readonly IPacketEncoderService _encoderService;
+		private readonly INumberEncoderService _encoderService;
 
 		public int Length { get { return _data.Count; } }
 
@@ -25,13 +25,13 @@ namespace EOLib.Net
 		public PacketBuilder(PacketFamily family, PacketAction action)
 		{
 			_data = new List<byte> { (byte) action, (byte) family };
-			_encoderService = new PacketEncoderService();
+			_encoderService = new NumberEncoderService();
 		}
 
 		private PacketBuilder(IReadOnlyList<byte> data)
 		{
 			_data = data;
-			_encoderService = new PacketEncoderService();
+			_encoderService = new NumberEncoderService();
 		}
 
 		public IPacketBuilder WithFamily(PacketFamily family)

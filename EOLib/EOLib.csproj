@@ -95,6 +95,7 @@
     <Compile Include="Crc.cs" />
     <Compile Include="DataFileConstants.cs" />
     <Compile Include="Data\BLL\NPC.cs" />
+    <Compile Include="Data\INumberEncoderService.cs" />
     <Compile Include="Data\Map\BasicTileInfo.cs" />
     <Compile Include="Data\Map\IMapElement.cs" />
     <Compile Include="Data\Map\ITileInfo.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Data\Map\NPCTileInfo.cs" />
     <Compile Include="Data\Map\TileInfoReturnType.cs" />
     <Compile Include="Data\Map\WarpTileInfo.cs" />
+    <Compile Include="Data\NumberEncoderService.cs" />
     <Compile Include="EODirection.cs" />
     <Compile Include="Graphics\CrossPlatformGFXLoader.cs" />
     <Compile Include="Graphics\GFXManager.cs" />
@@ -167,6 +169,7 @@
     <Compile Include="Net\ClientBase.cs" />
     <Compile Include="Net\Communication\NetworkClient.cs" />
     <Compile Include="Net\Communication\PacketHandlerComponent.cs" />
+    <Compile Include="Net\PacketProcessing\PacketNumberEncoder.cs" />
     <Compile Include="Net\EmptyPacket.cs" />
     <Compile Include="Net\EOClient.cs" />
     <Compile Include="Net\Communication\IAsyncSocket.cs" />

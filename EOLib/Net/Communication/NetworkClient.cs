@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using EOLib.Data;
 using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Net.Communication
@@ -15,7 +16,7 @@ namespace EOLib.Net.Communication
 	public class NetworkClient : INetworkClient<IPacketQueue>
 	{
 		private readonly IPacketProcessorActions _packetProcessActions;
-		private readonly IPacketEncoderService _packetEncoderService;
+		private readonly INumberEncoderService _numberEncoderService;
 
 		private readonly IAsyncSocket _socket;
 
@@ -38,11 +39,11 @@ namespace EOLib.Net.Communication
 
 		public NetworkClient(IPacketQueue queue,
 							 IPacketProcessorActions packetProcessActions,
-							 IPacketEncoderService packetEncoderService)
+							 INumberEncoderService numberEncoderService)
 		{
 			PacketQueue = queue;
 			_packetProcessActions = packetProcessActions;
-			_packetEncoderService = packetEncoderService;
+			_numberEncoderService = numberEncoderService;
 
 			_socket = new AsyncSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			
@@ -88,7 +89,7 @@ namespace EOLib.Net.Communication
 				if (_backgroundReceiveCTS.IsCancellationRequested)
 					break;
 
-				var length = _packetEncoderService.DecodeNumber(lengthData);
+				var length = _numberEncoderService.DecodeNumber(lengthData);
 
 				var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
 				if (_backgroundReceiveCTS.IsCancellationRequested)

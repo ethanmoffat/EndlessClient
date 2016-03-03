@@ -21,9 +21,5 @@ namespace EOLib.Net.PacketProcessing
 		OldPacket Decode(byte[] original, byte decodeMultiplier);
 
 		IPacket Decode(IEnumerable<byte> original, byte decodeMultiplier);
-
-		byte[] EncodeNumber(int number, int size);
-
-		int DecodeNumber(params byte[] b);
 	}
 }
