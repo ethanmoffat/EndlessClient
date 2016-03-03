@@ -13,7 +13,8 @@ namespace BatchPub
 {
 	public partial class frmMain : Form
 	{
-		private ItemFile eif;
+		private IModifiableDataFile<ItemRecord> eif;
+		private string _fname;
 		private bool changes;
 
 		private enum CompareOperator
@@ -29,17 +30,17 @@ namespace BatchPub
 
 		public frmMain()
 		{
-			this.InitializeComponent();
-			this.InitializeMore();
+			InitializeComponent();
+			InitializeMore();
 		}
 
 		private void btnReset_Click(object sender, EventArgs e)
 		{
-			this.SuspendLayout();
-			this.Controls.Clear();
-			this.ResumeLayout();
-			this.InitializeComponent();
-			this.InitializeMore();
+			SuspendLayout();
+			Controls.Clear();
+			ResumeLayout();
+			InitializeComponent();
+			InitializeMore();
 			eif = null;
 		}
 
@@ -96,12 +97,11 @@ namespace BatchPub
 				}
 
 				rtfOutput.Text += "Processing change: set " + pi.Name + "(" + pi.PropertyType.ToString() + ")=" + newValue.ToString() + " for all items...";
-				eif.Data.ForEach(record =>
-					{
-						ItemRecord rec = (ItemRecord)record;
-						System.Reflection.PropertyInfo prop = rec.GetType().GetProperty(pi.Name);
-						prop.SetValue(rec, Convert.ChangeType(newValue, pi.PropertyType));
-					});
+				foreach (var rec in eif.Data)
+				{
+					System.Reflection.PropertyInfo prop = rec.GetType().GetProperty(pi.Name);
+					prop.SetValue(rec, Convert.ChangeType(newValue, pi.PropertyType));
+				}
 
 				rtfOutput.Text += "done.\n\n";
 			}
@@ -200,14 +200,14 @@ namespace BatchPub
 							default:
 								return false;
 						}
-					}).ToList().ConvertAll<ItemRecord>((recc) => { return (ItemRecord)recc; });
+					}).ToList();
 
-				filtered.ForEach((ItemRecord rec) =>
+				filtered.ForEach(rec =>
 				{
 					if (!changes)
 						changes = true;
 
-					int index = eif.Data.FindIndex(x => (x as ItemRecord).ID == rec.ID);
+					int index = eif.GetIndexOfRecordByID(rec.ID);
 
 					rtfOutput.Text += "Found matching item " + rec.Name + " (" + rec.ID + ")\n";
 					rtfOutput.Text += "  replacing " + pi.Name + " (currently " + pi.GetValue(rec).ToString() + ") with new value " + newValue.ToString() + "\n";
@@ -226,7 +226,7 @@ namespace BatchPub
 					
 					pi.SetValue(rec, setter);
 
-					eif.Data[index] = rec;
+					eif.ReplaceRecordAt(index, rec);
 				});
 			}
 		}
@@ -256,19 +256,20 @@ namespace BatchPub
 
 		private void btnLoad_Click(object sender, EventArgs e)
 		{
-			string fname = "";
+			eif = new ItemFile();
+
+			_fname = "";
 			try
 			{
-				eif = new ItemFile(fname = (string.IsNullOrEmpty(txtFileName.Text) ? EOLib.Constants.ItemFilePath : txtFileName.Text));
-				lblFileName.Text = "Loaded file: " + fname;
+				eif.Load(_fname = string.IsNullOrEmpty(txtFileName.Text) ? EOLib.Constants.ItemFilePath : txtFileName.Text);
+				lblFileName.Text = "Loaded file: " + _fname;
 				grpStepTwo.Enabled = true;
 				btnReset.Enabled = true;
 			}
 			catch(Exception ex)
 			{
 				eif = null;
-				MessageBox.Show("Error loading " + fname + ":\n" + ex.Message, "Error!");
-				return;
+				MessageBox.Show("Error loading " + _fname + ":\n" + ex.Message, "Error!");
 			}
 		}
 
@@ -407,18 +408,24 @@ namespace BatchPub
 				if (dr == DialogResult.No)
 					return;
 
-				bool success;
-				string msg = "";
+				var version = eif.Version;
 				if (eif.Version == 0)
 				{
+					version = 1;
 					MessageBox.Show("Saving using this tool will update the version of the EIF file.");
-
-					success = eif.Save(1, out msg);
 				}
-				else
-					success = eif.Save(eif.Version, out msg);
 
-				MessageBox.Show(success ? "Changes saved." : "Error saving changes to the file:\n" + msg);
+				try
+				{
+					eif.Save("", version);
+				}
+				catch(Exception ex)
+				{
+					MessageBox.Show("Error saving changes to the file:\n" + ex.Message);
+					return;
+				}
+
+				MessageBox.Show("Changes saved.");
 			}
 			else
 			{

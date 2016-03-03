@@ -113,8 +113,11 @@
     <Compile Include="IO\Class.cs" />
     <Compile Include="IO\ClassRecordFactory.cs" />
     <Compile Include="IO\EDFFile.cs" />
-    <Compile Include="IO\EOData.cs" />
+    <Compile Include="IO\EODataFile.cs" />
+    <Compile Include="IO\IDataFile.cs" />
+    <Compile Include="IO\IDataRecord.cs" />
     <Compile Include="IO\IDataRecordFactory.cs" />
+    <Compile Include="IO\IModifiableDataFile.cs" />
     <Compile Include="IO\IniReader.cs" />
     <Compile Include="IO\Item.cs" />
     <Compile Include="IO\ItemRecordFactory.cs" />

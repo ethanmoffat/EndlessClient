@@ -212,7 +212,7 @@ namespace EndlessClient.Dialogs
 			{
 				int localID = item.id;
 
-				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
 				string secondary = string.Format("x {0}  {1}", item.amount, rec.Type == ItemType.Armor
 					? "(" + (rec.Gender == 0 ? OldWorld.GetString(DATCONST2.FEMALE) : OldWorld.GetString(DATCONST2.MALE)) + ")"
 					: "");
@@ -292,12 +292,12 @@ namespace EndlessClient.Dialogs
 			foreach (var item in mainCollection)
 			{
 				m_main.UpdateInventoryItem(item.id, -item.amount, true);
-				weightDelta -= OldWorld.Instance.EIF.GetItemRecordByID(item.id).Weight * item.amount;
+				weightDelta -= OldWorld.Instance.EIF.GetRecordByID(item.id).Weight * item.amount;
 			}
 			foreach (var item in otherCollection)
 			{
 				m_main.UpdateInventoryItem(item.id, item.amount, true);
-				weightDelta += OldWorld.Instance.EIF.GetItemRecordByID(item.id).Weight * item.amount;
+				weightDelta += OldWorld.Instance.EIF.GetRecordByID(item.id).Weight * item.amount;
 			}
 			m_main.Weight += (byte)weightDelta;
 			((EOGame)Game).Hud.RefreshStats();
@@ -342,8 +342,8 @@ namespace EndlessClient.Dialogs
 			}
 
 			//make sure the change in weight + existing weight is not greater than the max weight!
-			int weightDelta = otherCollection.Sum(itemRef => (OldWorld.Instance.EIF.GetItemRecordByID(itemRef.ID).Weight * itemRef.Amount));
-			weightDelta = mainCollection.Aggregate(weightDelta, (current, itemRef) => current - (OldWorld.Instance.EIF.GetItemRecordByID(itemRef.ID).Weight * itemRef.Amount));
+			int weightDelta = otherCollection.Sum(itemRef => OldWorld.Instance.EIF.GetRecordByID(itemRef.ID).Weight * itemRef.Amount);
+			weightDelta = mainCollection.Aggregate(weightDelta, (current, itemRef) => current - OldWorld.Instance.EIF.GetRecordByID(itemRef.ID).Weight * itemRef.Amount);
 			if (weightDelta + m_main.Weight > m_main.MaxWeight)
 			{
 				EOMessageBox.Show(OldWorld.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT),

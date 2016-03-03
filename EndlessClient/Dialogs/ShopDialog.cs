@@ -184,7 +184,7 @@ namespace EndlessClient.Dialogs
 								continue;
 
 							ShopItem localItem = si;
-							ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(si.ID);
+							ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(si.ID);
 							string secondary = string.Format("{2}: {0} {1}", buying ? si.Buy : si.Sell,
 								rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(DATCONST2.FEMALE) : OldWorld.GetString(DATCONST2.MALE)) + ")" : "",
 								OldWorld.GetString(DATCONST2.DIALOG_SHOP_PRICE));
@@ -213,7 +213,7 @@ namespace EndlessClient.Dialogs
 							if (ci.Ingredients.Count <= 0) continue;
 
 							CraftItem localItem = ci;
-							ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(ci.ID);
+							ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(ci.ID);
 							string secondary = string.Format("{2}: {0} {1}", ci.Ingredients.Count,
 								rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(DATCONST2.FEMALE) : OldWorld.GetString(DATCONST2.MALE)) + ")" : "",
 								OldWorld.GetString(DATCONST2.DIALOG_SHOP_CRAFT_INGREDIENTS));
@@ -246,7 +246,7 @@ namespace EndlessClient.Dialogs
 			bool isBuying = m_state == ShopState.Buying;
 
 			InventoryItem ii = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(x => (isBuying ? x.id == 1 : x.id == item.ID));
-			ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.ID);
+			ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ID);
 			if (isBuying)
 			{
 				if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
@@ -330,7 +330,7 @@ namespace EndlessClient.Dialogs
 			if (m_state != ShopState.Crafting)
 				return;
 
-			ItemRecord craftItemRec = OldWorld.Instance.EIF.GetItemRecordByID(item.ID);
+			ItemRecord craftItemRec = OldWorld.Instance.EIF.GetRecordByID(item.ID);
 			// ReSharper disable once LoopCanBeConvertedToQuery
 			foreach (var ingredient in item.Ingredients)
 			{
@@ -339,7 +339,7 @@ namespace EndlessClient.Dialogs
 					string _message = OldWorld.GetString(DATCONST2.DIALOG_SHOP_CRAFT_MISSING_INGREDIENTS) + "\n\n";
 					foreach (var ingred in item.Ingredients)
 					{
-						ItemRecord localRec = OldWorld.Instance.EIF.GetItemRecordByID(ingred.Item1);
+						ItemRecord localRec = OldWorld.Instance.EIF.GetRecordByID(ingred.Item1);
 						_message += string.Format("+  {0}  {1}\n", ingred.Item2, localRec.Name);
 					}
 					string _caption = string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.DIALOG_SHOP_CRAFT_INGREDIENTS),
@@ -361,7 +361,7 @@ namespace EndlessClient.Dialogs
 			string _message2 = OldWorld.GetString(DATCONST2.DIALOG_SHOP_CRAFT_PUT_INGREDIENTS_TOGETHER) + "\n\n";
 			foreach (var ingred in item.Ingredients)
 			{
-				ItemRecord localRec = OldWorld.Instance.EIF.GetItemRecordByID(ingred.Item1);
+				ItemRecord localRec = OldWorld.Instance.EIF.GetRecordByID(ingred.Item1);
 				_message2 += string.Format("+  {0}  {1}\n", ingred.Item2, localRec.Name);
 			}
 			string _caption2 = string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.DIALOG_SHOP_CRAFT_INGREDIENTS),

@@ -61,7 +61,7 @@ namespace EndlessClient.Dialogs
 			//items
 			for (int i = (int)EquipLocation.Boots; i < (int)EquipLocation.PAPERDOLL_MAX; ++i)
 			{
-				ItemRecord info = OldWorld.Instance.EIF.GetItemRecordByID(CharRef.PaperDoll[i]);
+				ItemRecord info = OldWorld.Instance.EIF.GetRecordByID(CharRef.PaperDoll[i]);
 
 				Rectangle itemArea = _getEquipLocRectangle((EquipLocation)i);
 
@@ -91,7 +91,7 @@ namespace EndlessClient.Dialogs
 				}, //home
 				new XNALabel(new Rectangle(228, 82, 1, 1), Constants.FontSize08pt5)
 				{
-					Text = ((ClassRecord)(OldWorld.Instance.ECF.Data.Find(_dat => ((ClassRecord)_dat).ID == CharRef.Class) ?? new ClassRecord(0))).Name
+					Text = (OldWorld.Instance.ECF.GetRecordByID(CharRef.Class) ?? new ClassRecord(0)).Name
 				}, //class
 				new XNALabel(new Rectangle(228, 112, 1, 1), Constants.FontSize08pt5)
 				{

@@ -4,8 +4,11 @@
 
 namespace EOLib.IO
 {
-	internal interface IDataRecordFactory
+	internal interface IDataRecordFactory<out T>
+		where T : IDataRecord
 	{
-		IDataRecord CreateRecord(int id);
+		int RecordSizeInBytes { get; }
+
+		T CreateRecord(int id);
 	}
 }

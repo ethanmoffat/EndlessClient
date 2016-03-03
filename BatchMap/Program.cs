@@ -95,10 +95,12 @@ namespace BatchMap
 				}
 			}
 
+			EIF = new ItemFile();
+			ENF = new NPCFile();
 			try
 			{
-				EIF = new ItemFile(Path.Combine(pubFilePath, "dat001.eif"));
-				ENF = new NPCFile(Path.Combine(pubFilePath, "dtn001.enf"));
+				EIF.Load(Path.Combine(pubFilePath, "dat001.eif"));
+				ENF.Load(Path.Combine(pubFilePath, "dtn001.enf"));
 			}
 			catch
 			{
@@ -154,7 +156,7 @@ namespace BatchMap
 				for(int i = EMF.NPCSpawns.Count - 1; i >= 0; --i)
 				{
 					NPCSpawn npc = EMF.NPCSpawns[i];
-					NPCRecord npcRec = (NPCRecord)ENF.Data.Find(rec => ((NPCRecord) rec).ID == npc.id);
+					NPCRecord npcRec = ENF.GetRecordByID(npc.id);
 					if (npc.id > ENF.Data.Count || npcRec == null)
 					{
 						Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} uses non-existent NPC #{3}. Removing.", lastPart, npc.x, npc.y, npc.id);
@@ -201,7 +203,7 @@ namespace BatchMap
 				for (int i = EMF.Chests.Count - 1; i >= 0; --i)
 				{
 					MapChest chest = EMF.Chests[i];
-					ItemRecord rec = EIF.GetItemRecordByID(chest.item);
+					ItemRecord rec = EIF.GetRecordByID(chest.item);
 					if (chest.item > EIF.Data.Count || rec == null)
 					{
 						Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} uses non-existent Item #{3}. Removing.", lastPart, chest.x, chest.y, chest.item);

@@ -4,9 +4,11 @@
 
 namespace EOLib.IO
 {
-	internal class NPCRecordFactory : IDataRecordFactory
+	internal class NPCRecordFactory : IDataRecordFactory<NPCRecord>
 	{
-		public IDataRecord CreateRecord(int id)
+		public int RecordSizeInBytes { get { return NPCRecord.DATA_SIZE; } }
+
+		public NPCRecord CreateRecord(int id)
 		{
 			return new NPCRecord(id);
 		}

@@ -77,7 +77,7 @@ namespace EndlessClient.Dialogs
 						m_items[i] = null;
 					}
 
-					ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
+					ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
 					string secondary = string.Format("x {0}  {1}", item.amount, rec.Type == ItemType.Armor
 						? "(" + (rec.Gender == 0 ? OldWorld.GetString(DATCONST2.FEMALE) : OldWorld.GetString(DATCONST2.MALE)) + ")"
 						: "");

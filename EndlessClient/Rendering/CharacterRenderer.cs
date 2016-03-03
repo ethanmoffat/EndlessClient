@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Linq;
 using System.Threading;
 using EndlessClient.Audio;
 using EndlessClient.Controls;
@@ -367,7 +368,7 @@ namespace EndlessClient.Rendering
 			{
 				if (OldWorld.Instance.EIF != null)
 				{
-					shieldInfo = OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Shield, Data.shield);
+					shieldInfo = OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Shield && x.DollGraphic == Data.shield);
 					if(shieldInfo != null)
 						shield = spriteSheet.GetShield(shieldInfo.Name == "Bag" || shieldInfo.SubType == ItemSubType.Arrows || shieldInfo.SubType == ItemSubType.Wings);
 				}
@@ -382,7 +383,7 @@ namespace EndlessClient.Rendering
 			{
 				if (OldWorld.Instance.EIF != null)
 				{
-					weaponInfo = OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Weapon, Data.weapon);
+					weaponInfo = OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == Data.weapon);
 					if(weaponInfo != null)
 						weapon = spriteSheet.GetWeapon(weaponInfo.SubType == ItemSubType.Ranged);
 				}
@@ -404,7 +405,7 @@ namespace EndlessClient.Rendering
 				lock (hatHairLock)
 					hat = spriteSheet.GetHat();
 				if (OldWorld.Instance.EIF != null)
-					hatInfo = OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Hat, Data.hat);
+					hatInfo = OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Hat && x.DollGraphic == Data.hat);
 			}
 			else
 			{
@@ -545,7 +546,7 @@ namespace EndlessClient.Rendering
 			{
 				if (OldWorld.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
 				{
-					SpellRecord data = OldWorld.Instance.ESF.GetSpellRecordByID((short) OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
+					SpellRecord data = OldWorld.Instance.ESF.GetRecordByID((short) OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
 					if (data.TargetRestrict == SpellTargetRestrict.NPCOnly || 
 						data.TargetRestrict == SpellTargetRestrict.Opponent && !OldWorld.Instance.ActiveMapRenderer.MapRef.IsPK)
 					{
@@ -1353,7 +1354,7 @@ namespace EndlessClient.Rendering
 			if (Character.SelectedSpell <= 0)
 				throw new InvalidOperationException("You must call SelectSpell before calling _prepareSpell");
 
-			SpellRecord toCast = OldWorld.Instance.ESF.GetSpellRecordByID((short) Character.SelectedSpell);
+			SpellRecord toCast = OldWorld.Instance.ESF.GetRecordByID((short) Character.SelectedSpell);
 
 			Character.PrepareSpell(toCast.ID);
 			_beginSpellCast(toCast);
@@ -1389,7 +1390,7 @@ namespace EndlessClient.Rendering
 
 		public void StopShouting(bool isSpellBeingCast)
 		{
-			if (!isSpellBeingCast || OldWorld.Instance.ESF.GetSpellRecordByID((short)Character.SelectedSpell).Target == SpellTarget.Self || Character.SpellTarget == this)
+			if (!isSpellBeingCast || OldWorld.Instance.ESF.GetRecordByID((short)Character.SelectedSpell).Target == SpellTarget.Self || Character.SpellTarget == this)
 			{
 				_mouseoverName.BlinkRate = null;
 				_mouseoverName.Text = Character.Name;

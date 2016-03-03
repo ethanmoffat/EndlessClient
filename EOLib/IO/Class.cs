@@ -11,6 +11,8 @@ namespace EOLib.IO
 {
 	public class ClassRecord : IDataRecord
 	{
+		public const int DATA_SIZE = 14;
+
 		public int ID { get; set; }
 
 		public int NameCount { get { return 1; } }
@@ -61,7 +63,7 @@ namespace EOLib.IO
 
 		public byte[] SerializeToByteArray()
 		{
-			byte[] ret = new byte[ClassFile.DATA_SIZE + 1 + Name.Length];
+			byte[] ret = new byte[DATA_SIZE + 1 + Name.Length];
 			for (int i = 0; i < ret.Length; ++i)
 				ret[i] = 254;
 
@@ -86,24 +88,8 @@ namespace EOLib.IO
 		}
 	}
 
-	public class ClassFile : EODataFile
+	public class ClassFile : EODataFile<ClassRecord>
 	{
-		public const int DATA_SIZE = 14;
-
-		public ClassFile()
-			: base(new ClassRecordFactory())
-		{
-			Load(FilePath = Constants.ClassFilePath);
-		}
-		public ClassFile(string path)
-			: base(new ClassRecordFactory())
-		{
-			Load(FilePath = path);
-		}
-
-		protected override int GetDataSize()
-		{
-			return DATA_SIZE;
-		}
+		public ClassFile() : base(new ClassRecordFactory()) { }
 	}
 }

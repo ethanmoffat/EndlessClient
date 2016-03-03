@@ -98,6 +98,8 @@ namespace EOLib.IO
 
 	public class ItemRecord : IDataRecord
 	{
+		public const int DATA_SIZE = 58;
+
 		public int ID { get; set; }
 
 		public int NameCount { get { return 1; } }
@@ -246,7 +248,7 @@ namespace EOLib.IO
 
 		public byte[] SerializeToByteArray()
 		{
-			byte[] ret = new byte[ItemFile.DATA_SIZE + 1 + Name.Length];
+			byte[] ret = new byte[DATA_SIZE + 1 + Name.Length];
 			for (int i = 0; i < ret.Length; ++i)
 				ret[i] = 254;
 
@@ -341,35 +343,8 @@ namespace EOLib.IO
 		}
 	}
 
-	public class ItemFile : EODataFile
+	public class ItemFile : EODataFile<ItemRecord>
 	{
-		public const int DATA_SIZE = 58;
-
-		public ItemFile()
-			: base(new ItemRecordFactory())
-		{
-			Load(FilePath = Constants.ItemFilePath);
-		}
-
-		public ItemFile(string path)
-			: base(new ItemRecordFactory())
-		{
-			Load(FilePath = path);
-		}
-
-		public ItemRecord GetItemRecordByID(int id)
-		{
-			return (ItemRecord)Data.Find(_rec => ((ItemRecord)_rec).ID == id);
-		}
-
-		public ItemRecord GetItemRecordByDollGraphic(ItemType type, short dollGraphic)
-		{
-			return (ItemRecord)Data.Find(_rec => ((ItemRecord)_rec).DollGraphic == dollGraphic && ((ItemRecord)_rec).Type == type);
-		}
-
-		protected override int GetDataSize()
-		{
-			return DATA_SIZE;
-		}
+		public ItemFile() : base(new ItemRecordFactory()) { }
 	}
 }

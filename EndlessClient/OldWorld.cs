@@ -260,31 +260,13 @@ namespace EndlessClient
 		public bool NeedESF { get; private set; }
 		public bool NeedECF { get; private set; }
 
-		private ItemFile m_items;
-		public ItemFile EIF
-		{
-			get { return m_items; }
-		}
+		public IDataFile<ItemRecord> EIF { get; private set; }
 
-		private NPCFile m_npcs;
-		public NPCFile ENF
-		{
-			get { return m_npcs; }
-		}
+		public IDataFile<NPCRecord> ENF { get; private set; }
 
-		private SpellFile m_spells;
-// ReSharper disable MemberCanBePrivate.Global
-		public SpellFile ESF
-// ReSharper restore MemberCanBePrivate.Global
-		{
-			get { return m_spells; }
-		}
+		public IDataFile<SpellRecord> ESF { get; private set; }
 
-		private ClassFile m_classes;
-		public ClassFile ECF
-		{
-			get { return m_classes; }
-		}
+		public IDataFile<ClassRecord> ECF { get; private set; }
 
 		/// <summary>
 		/// Stores a list of MapFiles paired with/accessible by their IDs
@@ -393,13 +375,14 @@ namespace EndlessClient
 
 		private bool _tryLoadItems(string fileName = null)
 		{
+			EIF = new ItemFile();
 			try
 			{
-				m_items = string.IsNullOrEmpty(fileName) ? new ItemFile() : new ItemFile(fileName);
+				EIF.Load(fileName);
 			}
 			catch
 			{
-				m_items = null;
+				EIF = null;
 				return false;
 			}
 
@@ -408,13 +391,14 @@ namespace EndlessClient
 
 		private bool _tryLoadNPCs(string fileName = null)
 		{
+			ENF = new NPCFile();
 			try
 			{
-				m_npcs = string.IsNullOrEmpty(fileName) ? new NPCFile() : new NPCFile(fileName);
+				ENF.Load(fileName);
 			}
 			catch
 			{
-				m_npcs = null;
+				ENF = null;
 				return false;
 			}
 
@@ -423,13 +407,14 @@ namespace EndlessClient
 
 		private bool _tryLoadSpells(string fileName = null)
 		{
+			ESF = new SpellFile();
 			try
 			{
-				m_spells = string.IsNullOrEmpty(fileName) ? new SpellFile() : new SpellFile(fileName);
+				ESF.Load(fileName);
 			}
 			catch
 			{
-				m_spells = null;
+				ESF = null;
 				return false;
 			}
 
@@ -438,13 +423,14 @@ namespace EndlessClient
 
 		private bool _tryLoadClasses(string fileName = null)
 		{
+			ECF = new ClassFile();
 			try
 			{
-				m_classes = string.IsNullOrEmpty(fileName) ? new ClassFile() : new ClassFile(fileName);
+				ECF.Load(fileName);
 			}
 			catch
 			{
-				m_classes = null;
+				ECF = null;
 				return false;
 			}
 

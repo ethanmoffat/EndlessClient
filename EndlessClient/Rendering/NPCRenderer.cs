@@ -360,7 +360,7 @@ namespace EndlessClient.Rendering
 			{
 				if (OldWorld.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
 				{
-					SpellRecord data = OldWorld.Instance.ESF.GetSpellRecordByID((short)OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
+					SpellRecord data = OldWorld.Instance.ESF.GetRecordByID((short)OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
 					if (data.TargetRestrict != SpellTargetRestrict.Friendly)
 					{
 						OldWorld.Instance.ActiveCharacterRenderer.SetSpellTarget(this);

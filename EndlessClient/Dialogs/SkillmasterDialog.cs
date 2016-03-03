@@ -320,7 +320,7 @@ namespace EndlessClient.Dialogs
 
 			drawStrings.Add(" ");
 			drawStrings.Add(skill.LevelReq + " " + OldWorld.GetString(DATCONST2.SKILLMASTER_WORD_LEVEL));
-			drawStrings.Add(skill.GoldReq + " " + OldWorld.Instance.EIF.GetItemRecordByID(1).Name);
+			drawStrings.Add(skill.GoldReq + " " + OldWorld.Instance.EIF.GetRecordByID(1).Name);
 
 			foreach (string s in drawStrings)
 			{

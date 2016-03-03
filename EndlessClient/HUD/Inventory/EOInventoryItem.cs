@@ -490,9 +490,9 @@ namespace EndlessClient.HUD.Inventory
 					//check class requirement
 					if (m_itemData.ClassReq > 0 && m_itemData.ClassReq != c.Class)
 					{
-						((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
+						((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
 							DATCONST2.STATUS_LABEL_ITEM_EQUIP_CAN_ONLY_BE_USED_BY,
-							((ClassRecord)OldWorld.Instance.ECF.Data.Find(x => ((ClassRecord)x).ID == m_itemData.ClassReq)).Name);
+							OldWorld.Instance.ECF.GetRecordByID(m_itemData.ClassReq).Name);
 						break;
 					}
 
@@ -527,8 +527,8 @@ namespace EndlessClient.HUD.Inventory
 					break;
 				case ItemType.CureCurse:
 					//note: don't actually set the useItem bool here. Call API.UseItem if the dialog result is OK.
-					if (c.PaperDoll.Select(id => OldWorld.Instance.EIF.GetItemRecordByID(id))
-						.Any(rec => rec.Special == ItemSpecial.Cursed)) //only do the use if the player has a cursed item equipped
+					if (c.PaperDoll.Select(id => OldWorld.Instance.EIF.GetRecordByID(id))
+								   .Any(rec => rec.Special == ItemSpecial.Cursed))
 					{
 						EOMessageBox.Show(DATCONST1.ITEM_CURSE_REMOVE_PROMPT, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
 							(o, e) =>
@@ -561,7 +561,7 @@ namespace EndlessClient.HUD.Inventory
 
 		public static Color GetItemTextColor(short id) //also used in map renderer for mapitems
 		{
-			ItemRecord data = OldWorld.Instance.EIF.GetItemRecordByID(id);
+			ItemRecord data = OldWorld.Instance.EIF.GetRecordByID(id);
 			switch (data.Special)
 			{
 				case ItemSpecial.Lore:
@@ -576,7 +576,7 @@ namespace EndlessClient.HUD.Inventory
 
 		public static string GetNameString(short id, int amount)
 		{
-			ItemRecord data = OldWorld.Instance.EIF.GetItemRecordByID(id);
+			ItemRecord data = OldWorld.Instance.EIF.GetRecordByID(id);
 			switch (data.ID)
 			{
 				case 1:

@@ -33,6 +33,8 @@ namespace EOLib.IO
 
 	public class SpellRecord : IDataRecord
 	{
+		public const int DATA_SIZE = 51;
+
 		public int ID { get; set; }
 
 		public int NameCount { get { return 2; } }
@@ -97,7 +99,7 @@ namespace EOLib.IO
 
 		public byte[] SerializeToByteArray()
 		{
-			byte[] ret = new byte[ClassFile.DATA_SIZE + 1 + Name.Length];
+			byte[] ret = new byte[DATA_SIZE + 1 + Name.Length];
 			for (int i = 0; i < ret.Length; ++i)
 				ret[i] = 254;
 
@@ -136,30 +138,8 @@ namespace EOLib.IO
 		}
 	}
 
-	public class SpellFile : EODataFile
+	public class SpellFile : EODataFile<SpellRecord>
 	{
-		public const int DATA_SIZE = 51;
-
-		public SpellFile()
-			: base(new SpellRecordFactory())
-		{
-			Load(FilePath = Constants.SpellFilePath);
-		}
-
-		public SpellFile(string path)
-			: base(new SpellRecordFactory())
-		{
-			Load(FilePath = path);
-		}
-
-		public SpellRecord GetSpellRecordByID(short id)
-		{
-			return (SpellRecord)Data.Find(x => ((SpellRecord)x).ID == id);
-		}
-
-		protected override int GetDataSize()
-		{
-			return DATA_SIZE;
-		}
+		public SpellFile() : base(new SpellRecordFactory()) { }
 	}
 }

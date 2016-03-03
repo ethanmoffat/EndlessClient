@@ -285,7 +285,7 @@ namespace EndlessClient.Rendering
 		{
 			if (newItem.npcDrop && newItem.id > 0)
 			{
-				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(newItem.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(newItem.id);
 				EOGame.Instance.Hud.AddChat(ChatTabs.System, "",
 					string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_THE_NPC_DROPPED), newItem.amount, rec.Name),
 					ChatType.DownArrow);
@@ -553,7 +553,7 @@ namespace EndlessClient.Rendering
 
 		public void OtherPlayerShoutSpell(short playerID, short spellID)
 		{
-			string shoutName = OldWorld.Instance.ESF.GetSpellRecordByID(spellID).Shout;
+			string shoutName = OldWorld.Instance.ESF.GetRecordByID(spellID).Shout;
 
 			lock (_characterListLock)
 			{
@@ -730,7 +730,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_npcListLock)
 			{
-				var fileData = OldWorld.Instance.ENF.GetNPCRecordByID(data.ID);
+				var fileData = OldWorld.Instance.ENF.GetRecordByID(data.ID);
 				NPCRenderer newNpcRenderer = new NPCRenderer(new NPC(data, fileData));
 				newNpcRenderer.Initialize();
 				newNpcRenderer.Visible = true;
@@ -1254,7 +1254,7 @@ namespace EndlessClient.Rendering
 				List<MapItem> local = new List<MapItem>(_mapItems[pt]);
 				foreach(MapItem item in local)
 				{
-					var itemData = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
+					var itemData = OldWorld.Instance.EIF.GetRecordByID(item.id);
 					var itemPos = GetDrawCoordinatesFromGridUnits(item.x + 1, item.y, c);
 					var itemTexture = ChestDialog.GetItemGraphic(itemData, item.amount);
 					_sb.Draw(itemTexture, 
@@ -1527,7 +1527,7 @@ namespace EndlessClient.Rendering
 		{
 			if (spellID < 1) return;
 
-			var spellInfo = OldWorld.Instance.ESF.GetSpellRecordByID(spellID);
+			var spellInfo = OldWorld.Instance.ESF.GetRecordByID(spellID);
 			renderer.ShowSpellAnimation(spellInfo.Graphic);
 		}
 
@@ -1535,7 +1535,7 @@ namespace EndlessClient.Rendering
 		{
 			if (spellID < 1) return;
 
-			var spellInfo = OldWorld.Instance.ESF.GetSpellRecordByID(spellID);
+			var spellInfo = OldWorld.Instance.ESF.GetRecordByID(spellID);
 			renderer.ShowSpellAnimation(spellInfo.Graphic);
 		}
 

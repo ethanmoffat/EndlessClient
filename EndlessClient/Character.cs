@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using EndlessClient.Dialogs;
 using EndlessClient.Rendering;
 using EOLib;
@@ -172,8 +173,9 @@ namespace EndlessClient
 		{
 			get
 			{
+				var target = OldWorld.Instance.ESF.GetRecordByID((short) SelectedSpell).Target;
 				return SelectedSpell > 0 &&
-				       OldWorld.Instance.ESF.GetSpellRecordByID((short) SelectedSpell).Target == EOLib.IO.SpellTarget.Normal &&
+				       target == EOLib.IO.SpellTarget.Normal &&
 				       SpellTarget == null;
 			}
 		}
@@ -628,11 +630,11 @@ namespace EndlessClient
 
 		public void SetDisplayItemsFromRenderData(CharRenderData newRenderData)
 		{
-			EquipItem(ItemType.Boots,  (short)(OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Boots,  newRenderData.boots)  ?? new ItemRecord(0)).ID, newRenderData.boots,  true);
-			EquipItem(ItemType.Armor,  (short)(OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Armor,  newRenderData.armor)  ?? new ItemRecord(0)).ID, newRenderData.armor,  true);
-			EquipItem(ItemType.Hat,    (short)(OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Hat,    newRenderData.hat)    ?? new ItemRecord(0)).ID, newRenderData.hat,    true);
-			EquipItem(ItemType.Shield, (short)(OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Shield, newRenderData.shield) ?? new ItemRecord(0)).ID, newRenderData.shield, true);
-			EquipItem(ItemType.Weapon, (short)(OldWorld.Instance.EIF.GetItemRecordByDollGraphic(ItemType.Weapon, newRenderData.weapon) ?? new ItemRecord(0)).ID, newRenderData.weapon, true);
+			EquipItem(ItemType.Boots,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Boots  && x.DollGraphic == newRenderData.boots)  ?? new ItemRecord(0)).ID, newRenderData.boots,  true);
+			EquipItem(ItemType.Armor,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Armor  && x.DollGraphic == newRenderData.armor)  ?? new ItemRecord(0)).ID, newRenderData.armor,  true);
+			EquipItem(ItemType.Hat,    (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Hat    && x.DollGraphic == newRenderData.hat)    ?? new ItemRecord(0)).ID, newRenderData.hat,    true);
+			EquipItem(ItemType.Shield, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Shield && x.DollGraphic == newRenderData.shield) ?? new ItemRecord(0)).ID, newRenderData.shield, true);
+			EquipItem(ItemType.Weapon, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == newRenderData.weapon) ?? new ItemRecord(0)).ID, newRenderData.weapon, true);
 		}
 
 		public void GainExp(int amount)
@@ -675,13 +677,13 @@ namespace EndlessClient
 			switch (door) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
 			{
 				case DoorSpec.LockedCrystal:
-					rec = (ItemRecord) OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
+					rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
 					break;
 				case DoorSpec.LockedSilver:
-					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
+					rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
 					break;
 				case DoorSpec.LockedWraith:
-					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
+					rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
 					break;
 				default:
 					return permission;
@@ -705,16 +707,16 @@ namespace EndlessClient
 			switch (permission) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
 			{
 				case ChestKey.Normal:
-					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "normal key");
+					rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "normal key");
 					break;
 				case ChestKey.Crystal:
-					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
+					rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
 					break;
 				case ChestKey.Silver:
-					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
+					rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
 					break;
 				case ChestKey.Wraith:
-					rec = (ItemRecord)OldWorld.Instance.EIF.Data.Find(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
+					rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
 					break;
 				default:
 					return permission;
@@ -755,7 +757,7 @@ namespace EndlessClient
 			if (SelectedSpell <= 0)
 				return;
 
-			SpellRecord data = OldWorld.Instance.ESF.GetSpellRecordByID((short)id);
+			SpellRecord data = OldWorld.Instance.ESF.GetRecordByID((short)id);
 			bool result = false;
 			switch (data.Target)
 			{

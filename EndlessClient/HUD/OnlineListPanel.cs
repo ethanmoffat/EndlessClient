@@ -21,10 +21,10 @@ namespace EndlessClient.HUD
 {
 	public class ClientOnlineEntry : OnlineEntry
 	{
-		public ClientOnlineEntry(string name, string title, string guild, int clss, PaperdollIconType icon)
-			: base(name, title, guild, clss, icon)
+		public ClientOnlineEntry(string name, string title, string guild, int @class, PaperdollIconType icon)
+			: base(name, title, guild, @class, icon)
 		{
-			ClassRecord record = (ClassRecord) OldWorld.Instance.ECF.Data.Find(rec => ((ClassRecord) rec).ID == clss);
+			ClassRecord record = OldWorld.Instance.ECF.GetRecordByID(@class) ?? new ClassRecord(0);
 			ClassString = record.ID == 0 ? "-" : record.Name;
 		}
 

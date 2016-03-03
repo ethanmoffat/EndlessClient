@@ -55,7 +55,7 @@ namespace EndlessClient.Dialogs
 			List<ListDialogItem> listItems = new List<ListDialogItem>();
 			foreach (InventoryItem item in lockerItems)
 			{
-				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
 				int amount = item.amount;
 				ListDialogItem newItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
 				{

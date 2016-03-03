@@ -4,8 +4,11 @@
 
 namespace EOLib.IO
 {
-	public class NPCFile : EODataFile<NPCRecord>
+	public interface IModifiableDataFile<T> : IDataFile<T>
+		where T : IDataRecord
 	{
-		public NPCFile() : base(new NPCRecordFactory()) { }
+		void Save(string fileName, int version = 0);
+
+		void ReplaceRecordAt(int index, T newElement);
 	}
 }

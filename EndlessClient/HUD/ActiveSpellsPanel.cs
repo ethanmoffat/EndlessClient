@@ -73,7 +73,7 @@ namespace EndlessClient.HUD
 			// ReSharper disable once LoopCanBeConvertedToQuery
 			foreach (var spell in localSpells)
 			{
-				SpellRecord rec = OldWorld.Instance.ESF.GetSpellRecordByID(spell.id);
+				SpellRecord rec = OldWorld.Instance.ESF.GetRecordByID(spell.id);
 				int slot = localSpellSlotMap.ContainsValue(spell.id)
 					? localSpellSlotMap.First(_pair => _pair.Value == spell.id).Key
 					: _getNextOpenSlot();
@@ -155,7 +155,7 @@ namespace EndlessClient.HUD
 				return;
 
 			var slot = _getNextOpenSlot();
-			var record = OldWorld.Instance.ESF.GetSpellRecordByID((short) spellID);
+			var record = OldWorld.Instance.ESF.GetRecordByID((short) spellID);
 			_addNewSpellToSlot(slot, record, 0);
 		}
 

@@ -223,7 +223,7 @@ namespace EndlessClient
 			Character c;
 			if (!_data.ItemWasUnequipped)
 			{
-				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(_data.ItemID);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(_data.ItemID);
 				//update inventory
 				(c = OldWorld.Instance.MainPlayer.ActiveCharacter).UpdateInventoryItem(_data.ItemID, _data.ItemAmount);
 				//equip item
@@ -238,7 +238,7 @@ namespace EndlessClient
 				//update inventory
 				c.UpdateInventoryItem(_data.ItemID, 1, true); //true: add to existing quantity
 				//unequip item
-				c.UnequipItem(OldWorld.Instance.EIF.GetItemRecordByID(_data.ItemID).Type, _data.SubLoc);
+				c.UnequipItem(OldWorld.Instance.EIF.GetRecordByID(_data.ItemID).Type, _data.SubLoc);
 			}
 			c.UpdateStatsAfterEquip(_data);
 		}
@@ -397,7 +397,7 @@ namespace EndlessClient
 
 			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);
 
-			ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(id);
+			ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(id);
 			m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP), amountTaken, rec.Name), ChatType.UpArrow);
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP, string.Format(" {0} {1}", amountTaken, rec.Name));
 		}
@@ -406,7 +406,7 @@ namespace EndlessClient
 		{
 			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
 
-			ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(id);
+			ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(id);
 			m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED), amountRemoved, rec.Name), ChatType.DownArrow);
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED, string.Format(" {0} {1}", amountRemoved, rec.Name));
 		}
@@ -418,7 +418,7 @@ namespace EndlessClient
 			{
 				OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(item.id, characterAmount, weight, maxWeight);
 
-				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
 				m_game.Hud.AddChat(ChatTabs.System, "",
 						string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), item.amount, rec.Name),
 						ChatType.DownArrow);
@@ -464,7 +464,7 @@ namespace EndlessClient
 						for (int i = 0; i < (int)EquipLocation.PAPERDOLL_MAX; ++i)
 						{
 							int nextID = c.PaperDoll[i];
-							if (nextID > 0 && OldWorld.Instance.EIF.GetItemRecordByID(nextID).Special == ItemSpecial.Cursed)
+							if (nextID > 0 && OldWorld.Instance.EIF.GetRecordByID(nextID).Special == ItemSpecial.Cursed)
 							{
 								c.PaperDoll[i] = 0;
 								switch ((EquipLocation)i)
@@ -842,7 +842,7 @@ namespace EndlessClient
 			{
 				//not sure if this will ever actually be sent because client validates data before trying to learn a skill
 				case SkillMasterReply.ErrorWrongClass:
-					EOMessageBox.Show(DATCONST1.SKILL_LEARN_WRONG_CLASS, " " + ((ClassRecord)OldWorld.Instance.ECF.Data[id]).Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+					EOMessageBox.Show(DATCONST1.SKILL_LEARN_WRONG_CLASS, " " + OldWorld.Instance.ECF.Data[id].Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					break;
 				case SkillMasterReply.ErrorRemoveItems:
 					EOMessageBox.Show(DATCONST1.SKILL_RESET_CHARACTER_CLEAR_PAPERDOLL, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);

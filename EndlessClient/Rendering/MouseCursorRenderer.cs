@@ -283,7 +283,7 @@ namespace EndlessClient.Rendering
 			}
 			else
 			{
-				var item = OldWorld.Instance.EIF.GetItemRecordByID(mi.id);
+				var item = OldWorld.Instance.EIF.GetRecordByID(mi.id);
 				if (!EOGame.Instance.Hud.InventoryFits(mi.id))
 				{
 					EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);

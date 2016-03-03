@@ -254,20 +254,24 @@ namespace EndlessClient.Dialogs
 		{
 			try
 			{
-				EODataFile file;
+				IDataFile<IDataRecord> file;
 				switch (fileType)
 				{
 					case InitFileType.Item:
 						file = new ItemFile();
+						file.Load(Constants.ItemFilePath);
 						break;
 					case InitFileType.Npc:
 						file = new NPCFile();
+						file.Load(Constants.NPCFilePath);
 						break;
 					case InitFileType.Spell:
 						file = new SpellFile();
+						file.Load(Constants.SpellFilePath);
 						break;
 					case InitFileType.Class:
 						file = new ClassFile();
+						file.Load(Constants.ClassFilePath);
 						break;
 					default:
 						return false;

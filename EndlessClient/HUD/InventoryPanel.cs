@@ -70,7 +70,7 @@ namespace EndlessClient.HUD
 			bool dialogShown = false;
 			foreach (InventoryItem item in localInv)
 			{
-				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
 				int slot = localItemSlotMap.ContainsValue(item.id)
 					? localItemSlotMap.First(_pair => _pair.Value == item.id).Key
 					: _getNextOpenSlot(rec.Size);
@@ -177,7 +177,7 @@ namespace EndlessClient.HUD
 			if (m_childItems.Find(_i => _i.ItemData.ID == id) != null)
 				return true;
 
-			ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(id);
+			ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(id);
 			int nextSlot = _getNextOpenSlot(rec.Size);
 			List<Tuple<int, int>> dummy;
 			return _fitsInSlot(nextSlot, rec.Size, out dummy);
@@ -216,7 +216,7 @@ namespace EndlessClient.HUD
 						continue; //already in inventory: skip, since it isn't a new item
 				}
 
-				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
 
 				int nextSlot = _getNextOpenSlot(tempFilledSlots, rec.Size);
 				List<Tuple<int, int>> points;
@@ -341,7 +341,7 @@ namespace EndlessClient.HUD
 			}
 			else
 			{
-				ItemRecord rec = OldWorld.Instance.EIF.GetItemRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
 				return _addItemToSlot(_getNextOpenSlot(rec.Size), rec, item.amount);
 			}
 
