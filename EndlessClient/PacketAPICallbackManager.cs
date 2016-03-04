@@ -10,6 +10,7 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EOLib;
+using EOLib.Data.Map;
 using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.Net.API;
@@ -391,7 +392,7 @@ namespace EndlessClient
 		private void _getItemFromMap(short uid, short id, int amountTaken, byte weight, byte maxWeight)
 		{
 
-			if (uid != 0) //$si command has uid of 0 since we're creating a new item from nothing
+			if (uid != 0) //$si command has UniqueID of 0 since we're creating a new item from nothing
 			{
 				OldWorld.Instance.ActiveMapRenderer.UpdateMapItemAmount(uid, amountTaken);
 			}
@@ -417,14 +418,14 @@ namespace EndlessClient
 			OldWorld.Instance.ActiveMapRenderer.AddMapItem(item);
 			if (characterAmount >= 0) //will be -1 when another player drops
 			{
-				OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(item.id, characterAmount, weight, maxWeight);
+				OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(item.ItemID, characterAmount, weight, maxWeight);
 
-				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
 				m_game.Hud.AddChat(ChatTabs.System, "",
-						string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), item.amount, rec.Name),
+						string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), item.Amount, rec.Name),
 						ChatType.DownArrow);
 				m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED,
-						string.Format(" {0} {1}", item.amount, rec.Name));
+						string.Format(" {0} {1}", item.Amount, rec.Name));
 			}
 		}
 

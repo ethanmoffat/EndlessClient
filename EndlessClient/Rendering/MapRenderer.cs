@@ -284,34 +284,34 @@ namespace EndlessClient.Rendering
 
 		public void AddMapItem(MapItem newItem)
 		{
-			if (newItem.npcDrop && newItem.id > 0)
+			if (newItem.IsNPCDrop && newItem.ItemID > 0)
 			{
-				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(newItem.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(newItem.ItemID);
 				EOGame.Instance.Hud.AddChat(ChatTabs.System, "",
-					string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_THE_NPC_DROPPED), newItem.amount, rec.Name),
+					string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_THE_NPC_DROPPED), newItem.Amount, rec.Name),
 					ChatType.DownArrow);
 			}
 
-			Point key = new Point(newItem.x, newItem.y);
+			Point key = new Point(newItem.X, newItem.Y);
 			if(!_mapItems.ContainsKey(key))
 				_mapItems.Add(key, new List<MapItem>());
 
 			int index = _mapItems.Values
 								 .SelectMany(x => x.ToList())
 								 .ToList()
-								 .FindIndex(_mi => _mi.uid == newItem.uid);
+								 .FindIndex(_mi => _mi.UniqueID == newItem.UniqueID);
 			if (index < 0)
 				_mapItems[key].Add(newItem);
 		}
 
 		public void RemoveMapItem(short uid)
 		{
-			var locationContainingItemUID = _mapItems.Keys.FirstOrDefault(_key => _mapItems[_key].Find(_mi => _mi.uid == uid).uid == uid);
+			var locationContainingItemUID = _mapItems.Keys.FirstOrDefault(_key => _mapItems[_key].Find(_mi => _mi.UniqueID == uid).UniqueID == uid);
 			
 			List<MapItem> res = _mapItems[locationContainingItemUID];
 			for (int i = res.Count - 1; i >= 0; --i)
 			{
-				if (res[i].uid == uid)
+				if (res[i].UniqueID == uid)
 				{
 					RemoveMapItem(res[i]);
 					break;
@@ -321,7 +321,7 @@ namespace EndlessClient.Rendering
 
 		private void RemoveMapItem(MapItem oldItem)
 		{
-			Point key = new Point(oldItem.x, oldItem.y);
+			Point key = new Point(oldItem.X, oldItem.Y);
 			if (!_mapItems.ContainsKey(key))
 				return;
 			_mapItems[key].Remove(oldItem);
@@ -331,28 +331,28 @@ namespace EndlessClient.Rendering
 
 		public void UpdateMapItemAmount(short uid, int amountTaken)
 		{
-			var pt = _mapItems.Keys.Single(_key => _mapItems[_key].Find(_mi => _mi.uid == uid).uid == uid);
+			var pt = _mapItems.Keys.Single(_key => _mapItems[_key].Find(_mi => _mi.UniqueID == uid).UniqueID == uid);
 
 			List<MapItem> res = _mapItems[pt];
-			var toRemove = res.Single(_mi => _mi.uid == uid);
+			var toRemove = res.Single(_mi => _mi.UniqueID == uid);
 			res.Remove(toRemove);
 			toRemove = new MapItem
 			{
-				amount = toRemove.amount - amountTaken,
-				id = toRemove.id,
-				npcDrop = toRemove.npcDrop,
-				playerID = toRemove.playerID,
-				time = toRemove.time,
-				uid = toRemove.uid,
-				x = toRemove.x,
-				y = toRemove.y
+				Amount = toRemove.Amount - amountTaken,
+				ItemID = toRemove.ItemID,
+				IsNPCDrop = toRemove.IsNPCDrop,
+				OwningPlayerID = toRemove.OwningPlayerID,
+				DropTime = toRemove.DropTime,
+				UniqueID = toRemove.UniqueID,
+				X = toRemove.X,
+				Y = toRemove.Y
 			};
 			//still some left. add it back.
-			if(toRemove.amount > 0)
+			if(toRemove.Amount > 0)
 				res.Add(toRemove);
 		}
 
-		public MapItem? GetMapItemAt(int x, int y)
+		public MapItem GetMapItemAt(int x, int y)
 		{
 			var p = new Point(x, y);
 			if (_mapItems.ContainsKey(p) && _mapItems[p].Count > 0)
@@ -1254,9 +1254,9 @@ namespace EndlessClient.Rendering
 				List<MapItem> local = new List<MapItem>(_mapItems[pt]);
 				foreach(MapItem item in local)
 				{
-					var itemData = OldWorld.Instance.EIF.GetRecordByID(item.id);
-					var itemPos = GetDrawCoordinatesFromGridUnits(item.x + 1, item.y, c);
-					var itemTexture = ChestDialog.GetItemGraphic(itemData, item.amount);
+					var itemData = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+					var itemPos = GetDrawCoordinatesFromGridUnits(item.X + 1, item.Y, c);
+					var itemTexture = ChestDialog.GetItemGraphic(itemData, item.Amount);
 					_sb.Draw(itemTexture, 
 							 new Vector2(itemPos.X - (int)Math.Round(itemTexture.Width / 2.0),
 										 itemPos.Y - (int)Math.Round(itemTexture.Height / 2.0)),

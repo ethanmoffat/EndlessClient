@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Data.Map;
 using EOLib.IO.Map;
 
 namespace EOLib.Net.API
@@ -182,14 +183,14 @@ namespace EOLib.Net.API
 			{
 				OnDropItem(-1, 0, 0, new MapItem
 				{
-					amount = droppedAmount,
-					id = droppedItemID,
-					uid = droppedItemUID,
-					x = x,
-					y = y,
-					time = DateTime.Now,
-					npcDrop = true,
-					playerID = playerID
+					Amount = droppedAmount,
+					ItemID = droppedItemID,
+					UniqueID = droppedItemUID,
+					X = x,
+					Y = y,
+					DropTime = DateTime.Now,
+					IsNPCDrop = true,
+					OwningPlayerID = playerID
 				});
 			}
 		}

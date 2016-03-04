@@ -99,6 +99,7 @@
     <Compile Include="Data\Map\BasicTileInfo.cs" />
     <Compile Include="Data\Map\IMapElement.cs" />
     <Compile Include="Data\Map\ITileInfo.cs" />
+    <Compile Include="Data\Map\MapItem.cs" />
     <Compile Include="Data\Map\MapSignTileInfo.cs" />
     <Compile Include="Data\Map\NPCTileInfo.cs" />
     <Compile Include="Data\Map\TileInfoReturnType.cs" />
@@ -133,7 +134,6 @@
     <Compile Include="IO\Map\MapChest.cs" />
     <Compile Include="IO\Map\MapEffect.cs" />
     <Compile Include="IO\Map\MapFileProperties.cs" />
-    <Compile Include="IO\Map\MapItem.cs" />
     <Compile Include="IO\Map\MapLayer.cs" />
     <Compile Include="IO\Map\MapSign.cs" />
     <Compile Include="IO\Map\MapStringEncoderService.cs" />

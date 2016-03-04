@@ -131,20 +131,19 @@ namespace EndlessClient.Rendering
 
 		private void UpdateDisplayedMapItemName()
 		{
-			var topMapItem = _parentMapRenderer.GetMapItemAt(_gridX, _gridY);
+			var mi = _parentMapRenderer.GetMapItemAt(_gridX, _gridY);
 
-			if (topMapItem.HasValue)
+			if (mi != null)
 			{
-				MapItem mi = topMapItem.Value;
 				_cursorSourceRect.Location = new Point(2 * (_mouseCursor.Width / 5), 0);
 
-				string itemName = EOInventoryItem.GetNameString(mi.id, mi.amount);
+				string itemName = EOInventoryItem.GetNameString(mi.ItemID, mi.Amount);
 				if (_itemHoverName.Text != itemName)
 				{
 					_itemHoverName.Visible = true;
-					_itemHoverName.Text = EOInventoryItem.GetNameString(mi.id, mi.amount);
+					_itemHoverName.Text = EOInventoryItem.GetNameString(mi.ItemID, mi.Amount);
 					_itemHoverName.ResizeBasedOnText();
-					_itemHoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.id);
+					_itemHoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.ItemID);
 				}
 				_itemHoverName.DrawLocation = new Vector2(
 					_cursorPos.X + 32 - _itemHoverName.ActualWidth / 2f,
@@ -243,8 +242,8 @@ namespace EndlessClient.Rendering
 			if (mouseClicked && ti != null)
 			{
 				var topMapItem = _parentMapRenderer.GetMapItemAt(_gridX, _gridY);
-				if (topMapItem.HasValue)
-					HandleMapItemClick(topMapItem.Value);
+				if (topMapItem != null)
+					HandleMapItemClick(topMapItem);
 
 				switch (ti.ReturnType)
 				{
@@ -272,27 +271,27 @@ namespace EndlessClient.Rendering
 
 		private void HandleMapItemClick(MapItem mi)
 		{
-			if ((_mainCharacter.ID != mi.playerID && mi.playerID != 0) &&
-				(mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= OldWorld.Instance.NPCDropProtectTime) ||
-				(!mi.npcDrop && (DateTime.Now - mi.time).TotalSeconds <= OldWorld.Instance.PlayerDropProtectTime))
+			if ((_mainCharacter.ID != mi.OwningPlayerID && mi.OwningPlayerID != 0) &&
+				(mi.IsNPCDrop && (DateTime.Now - mi.DropTime).TotalSeconds <= OldWorld.Instance.NPCDropProtectTime) ||
+				(!mi.IsNPCDrop && (DateTime.Now - mi.DropTime).TotalSeconds <= OldWorld.Instance.PlayerDropProtectTime))
 			{
-				Character charRef = _parentMapRenderer.GetOtherPlayerByID((short) mi.playerID);
+				Character charRef = _parentMapRenderer.GetOtherPlayerByID((short) mi.OwningPlayerID);
 				DATCONST2 msg = charRef == null ? DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED : DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
 				string extra = charRef == null ? "" : charRef.Name;
 				EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
 			}
 			else
 			{
-				var item = OldWorld.Instance.EIF.GetRecordByID(mi.id);
-				if (!EOGame.Instance.Hud.InventoryFits(mi.id))
+				var item = OldWorld.Instance.EIF.GetRecordByID(mi.ItemID);
+				if (!EOGame.Instance.Hud.InventoryFits(mi.ItemID))
 				{
 					EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
 				}
-				else if (_mainCharacter.Weight + item.Weight * mi.amount > _mainCharacter.MaxWeight)
+				else if (_mainCharacter.Weight + item.Weight * mi.Amount > _mainCharacter.MaxWeight)
 				{
 					EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
 				}
-				else if (!_game.API.GetItem(mi.uid)) //server validates drop protection anyway
+				else if (!_game.API.GetItem(mi.UniqueID)) //server validates drop protection anyway
 					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 		}

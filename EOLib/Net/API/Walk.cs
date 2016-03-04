@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using EOLib.Data.Map;
 using EOLib.IO.Map;
 
 namespace EOLib.Net.API
@@ -49,11 +50,11 @@ namespace EOLib.Net.API
 			{
 				items.Add(new MapItem
 				{
-					uid = pkt.GetShort(),
-					id = pkt.GetShort(),
-					x = pkt.GetChar(),
-					y = pkt.GetChar(),
-					amount = pkt.GetThree()
+					UniqueID = pkt.GetShort(),
+					ItemID = pkt.GetShort(),
+					X = pkt.GetChar(),
+					Y = pkt.GetChar(),
+					Amount = pkt.GetThree()
 				});
 			}
 

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using EOLib.Data.Map;
 using EOLib.IO;
 using EOLib.IO.Map;
 
@@ -225,15 +226,15 @@ namespace EOLib.Net.API
 			{
 				m_items.Add(new MapItem
 				{
-					uid = pkt.GetShort(),
-					id = pkt.GetShort(),
-					x = pkt.GetChar(),
-					y = pkt.GetChar(),
-					amount = pkt.GetThree(),
+					UniqueID = pkt.GetShort(),
+					ItemID = pkt.GetShort(),
+					X = pkt.GetChar(),
+					Y = pkt.GetChar(),
+					Amount = pkt.GetThree(),
 					//turn off drop protection for items coming into view - server will validate
-					time = DateTime.Now.AddSeconds(-5),
-					npcDrop = false,
-					playerID = -1
+					DropTime = DateTime.Now.AddSeconds(-5),
+					IsNPCDrop = false,
+					OwningPlayerID = -1
 				});
 			}
 		}

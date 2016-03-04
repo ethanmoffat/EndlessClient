@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Data.Map;
 using EOLib.IO;
 using EOLib.IO.Map;
 
@@ -263,15 +264,15 @@ namespace EOLib.Net.API
 			int characterAmount = pkt.GetInt(); //amount remaining for the character
 			MapItem item = new MapItem
 			{
-				id = _id,
-				amount = _amount,
-				uid = pkt.GetShort(),
-				x = pkt.GetChar(),
-				y = pkt.GetChar(),
+				ItemID = _id,
+				Amount = _amount,
+				UniqueID = pkt.GetShort(),
+				X = pkt.GetChar(),
+				Y = pkt.GetChar(),
 				//turn off drop protection since main player dropped it
-				time = DateTime.Now.AddSeconds(-5),
-				npcDrop = false,
-				playerID = 0 //id of 0 means the currently logged in player owns it
+				DropTime = DateTime.Now.AddSeconds(-5),
+				IsNPCDrop = false,
+				OwningPlayerID = 0 //id of 0 means the currently logged in player owns it
 			};
 			byte characterWeight = pkt.GetChar(), characterMaxWeight = pkt.GetChar(); //character adjusted weights
 			
@@ -283,14 +284,14 @@ namespace EOLib.Net.API
 			if (OnDropItem == null) return;
 			MapItem item = new MapItem
 			{
-				id = pkt.GetShort(),
-				uid = pkt.GetShort(),
-				amount = pkt.GetThree(),
-				x = pkt.GetChar(),
-				y = pkt.GetChar(),
-				time = DateTime.Now,
-				npcDrop = false,
-				playerID = -1 //another player dropped. drop protection says "Item protected" w/o player name
+				ItemID = pkt.GetShort(),
+				UniqueID = pkt.GetShort(),
+				Amount = pkt.GetThree(),
+				X = pkt.GetChar(),
+				Y = pkt.GetChar(),
+				DropTime = DateTime.Now,
+				IsNPCDrop = false,
+				OwningPlayerID = -1 //another player dropped. drop protection says "Item protected" w/o player name
 			};
 			OnDropItem(-1, 0, 0, item);
 		}
