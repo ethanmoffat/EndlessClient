@@ -257,8 +257,8 @@ namespace EndlessClient.Rendering
 			if (warp != null)
 				return new WarpTileInfo(warp);
 
-			var sign = MapRef.Signs.Find(_ms => _ms.x == destX && _ms.y == destY);
-			if (sign.x == destX && sign.y == destY)
+			var sign = MapRef.Signs.Find(_ms => _ms.X == destX && _ms.Y == destY);
+			if (sign.X == destX && sign.Y == destY)
 				return new MapSignTileInfo(sign);
 
 			if(destX <= MapRef.Properties.Width && destY <= MapRef.Properties.Height)

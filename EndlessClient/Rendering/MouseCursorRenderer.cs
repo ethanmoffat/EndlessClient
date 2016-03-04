@@ -249,7 +249,7 @@ namespace EndlessClient.Rendering
 				{
 					case TileInfoReturnType.IsMapSign:
 						var signInfo = (MapSign)ti.MapElement;
-						EOMessageBox.Show(signInfo.message, signInfo.title, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+						EOMessageBox.Show(signInfo.Message, signInfo.Title, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 						break;
 					case TileInfoReturnType.IsOtherPlayer:
 						break;

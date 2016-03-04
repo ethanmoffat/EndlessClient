@@ -8,9 +8,9 @@ namespace EOLib.IO.Map
 {
 	public struct MapSign : IMapElement
 	{
-		public byte x;
-		public byte y;
-		public string title;
-		public string message;
+		public byte X { get; set; }
+		public byte Y { get; set; }
+		public string Title { get; set; }
+		public string Message { get; set; }
 	}
 }

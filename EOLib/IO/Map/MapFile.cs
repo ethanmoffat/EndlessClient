@@ -357,15 +357,15 @@ namespace EOLib.IO.Map
 			var numberOfSigns = filePacket.ReadChar();
 			for (int i = 0; i < numberOfSigns; ++i)
 			{
-				MapSign sign = new MapSign { x = filePacket.ReadChar(), y = filePacket.ReadChar() };
+				MapSign sign = new MapSign { X = filePacket.ReadChar(), Y = filePacket.ReadChar() };
 
 				var msgLength = filePacket.ReadShort() - 1;
 				var rawData = filePacket.ReadBytes(msgLength).ToArray();
 				var titleLength = filePacket.ReadChar();
 
 				string data = _encoderService.DecodeMapString(rawData);
-				sign.title = data.Substring(0, titleLength);
-				sign.message = data.Substring(titleLength);
+				sign.Title = data.Substring(0, titleLength);
+				sign.Message = data.Substring(titleLength);
 
 				Signs.Add(sign);
 			}
@@ -493,13 +493,13 @@ namespace EOLib.IO.Map
 			filePacket.AddChar((byte)Signs.Count);
 			foreach (MapSign sign in Signs)
 			{
-				filePacket.AddChar(sign.x);
-				filePacket.AddChar(sign.y);
-				filePacket.AddShort((short)(sign.message.Length + sign.title.Length + 1));
+				filePacket.AddChar(sign.X);
+				filePacket.AddChar(sign.Y);
+				filePacket.AddShort((short)(sign.Message.Length + sign.Title.Length + 1));
 
-				byte[] fileMsg = new byte[sign.message.Length + sign.title.Length];
-				byte[] rawTitle = _encoderService.EncodeMapString(sign.title);
-				byte[] rawMessage = _encoderService.EncodeMapString(sign.message);
+				byte[] fileMsg = new byte[sign.Message.Length + sign.Title.Length];
+				byte[] rawTitle = _encoderService.EncodeMapString(sign.Title);
+				byte[] rawMessage = _encoderService.EncodeMapString(sign.Message);
 				Array.Copy(rawTitle, fileMsg, fileMsg.Length);
 				Array.Copy(rawMessage, 0, fileMsg, rawTitle.Length, rawMessage.Length);
 				filePacket.AddBytes(fileMsg);
