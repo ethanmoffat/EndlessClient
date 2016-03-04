@@ -1,5 +1,9 @@
-﻿//****************************************************************************************************
-//* This is a modified version of an original work licensed under the GPL v3.0
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
+// This file is subject to the GPL v2 License
+// For additional details, see the LICENSE file
+
+//****************************************************************************************************
+//* This is a derivative of a work licensed under the GPL v3.0
 //* Original unmodifeid source is available at https://www.assembla.com/code/eo-dev-sharp/subversion/nodes (see Data/EMF.cs)
 //* For additional details on GPL v3.0 see the file GPL3License.txt
 //****************************************************************************************************
@@ -8,142 +12,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EOLib.Data.Map;
 using EOLib.Net;
 
 namespace EOLib.IO.Map
 {
-	public enum TileSpec : byte
-	{
-		Wall = 0,
-		ChairDown = 1,
-		ChairLeft = 2,
-		ChairRight = 3,
-		ChairUp = 4,
-		ChairDownRight = 5,
-		ChairUpLeft = 6,
-		ChairAll = 7,
-		JammedDoor = 8,
-		Chest = 9,
-		BankVault = 16,
-		NPCBoundary = 17,
-		MapEdge = 18,
-		FakeWall = 19,
-		Board1 = 20,
-		Board2 = 21,
-		Board3 = 22,
-		Board4 = 23,
-		Board5 = 24,
-		Board6 = 25,
-		Board7 = 26,
-		Board8 = 27,
-		Jukebox = 28,
-		Jump = 29,
-		Water = 30,
-		Arena = 32,
-		AmbientSource = 33,
-		SpikesTimed = 34,
-		SpikesStatic = 35,
-		SpikesTrap = 36,
-
-		None = 255
-	}
-
-	public enum MapEffect : byte
-	{
-		None = 0,
-		HPDrain = 1,
-		TPDrain = 2,
-		Quake = 3
-	}
-
-	public enum DoorSpec : short
-	{
-		NoDoor,
-		Door,
-		LockedSilver,
-		LockedCrystal,
-		LockedWraith
-	}
-
-	public enum ChestKey : short
-	{
-		None,
-		Normal,
-		Silver,
-		Crystal,
-		Wraith
-	}
-
-	public class NPCSpawn
-	{
-		public byte x;
-		public byte y;
-		public short id;
-		public byte index;
-		public byte spawnType;
-		public short spawnTime;
-		public byte amount;
-
-		public EODirection direction;
-	}
-	
-	public class MapChest
-	{
-		public byte x;
-		public byte y;
-		public ChestKey key;
-		public byte slot;
-		public short item;
-		public short time;
-		public int amount;
-	}
-
-	public struct MapItem
-	{
-		public short uid;
-		public short id;
-		public byte x;
-		public byte y;
-		public int amount;
-		public DateTime time;
-		public bool npcDrop;
-		public int playerID;
-	}
-
-	public class Warp : IMapElement
-	{
-		public byte x, y;
-		public short warpMap;
-		public byte warpX;
-		public byte warpY;
-		public byte levelRequirement;
-		public DoorSpec door;
-		public bool doorOpened;
-		public bool backOff; //used in code only: determines whether a door packet was recently sent for this particular door (only valid for doors)
-	}
-
-	public struct MapSign : IMapElement
-	{
-		public byte x;
-		public byte y;
-		public string title;
-		public string message;
-	}
-
-	public enum MapLayer
-	{
-		GroundTile = 0,
-		Objects = 1,
-		OverlayObjects = 2,
-		WallRowsDown = 3,
-		WallRowsRight = 4,
-		Unknown = 5,
-		OverlayTile = 6,
-		Shadow = 7,
-		Roof = 8
-	}
-
 	public class OldMapFile : IMapFile
 	{
 		#region Helper Classes
