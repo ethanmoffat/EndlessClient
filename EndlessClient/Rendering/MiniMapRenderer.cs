@@ -32,7 +32,7 @@ namespace EndlessClient.Rendering
 			Purple = 8 //npc
 		}
 
-		public OldMapFile Map { get; set; }
+		public MapFile Map { get; set; }
 
 		public bool Visible { get; set; }
 

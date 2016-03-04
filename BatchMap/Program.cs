@@ -118,7 +118,7 @@ namespace BatchMap
 
 			for (int map = 0; map < inFiles.Length; ++map)
 			{
-				IMapFile EMF = new OldMapFile();
+				IMapFile EMF = new MapFile();
 				EMF.Load(inFiles[map]);
 				var changesMade = false;
 

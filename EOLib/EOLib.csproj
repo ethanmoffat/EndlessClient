@@ -128,7 +128,7 @@
     <Compile Include="IO\IniReader.cs" />
     <Compile Include="IO\Item.cs" />
     <Compile Include="IO\ItemRecordFactory.cs" />
-    <Compile Include="IO\Map\Map.cs" />
+    <Compile Include="IO\Map\MapFile.cs" />
     <Compile Include="IO\Map\IMapStringEncoderService.cs" />
     <Compile Include="IO\Map\MapChest.cs" />
     <Compile Include="IO\Map\MapEffect.cs" />

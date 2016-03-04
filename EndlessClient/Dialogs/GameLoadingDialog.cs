@@ -243,7 +243,7 @@ namespace EndlessClient.Dialogs
 		{
 			try
 			{
-				var map = new OldMapFile();
+				var map = new MapFile();
 				map.Load(string.Format(Constants.MapFileFormatString, OldWorld.Instance.NeedMap));
 			}
 			catch { return false; }

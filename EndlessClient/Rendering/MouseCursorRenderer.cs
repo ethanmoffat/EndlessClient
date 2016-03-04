@@ -32,7 +32,7 @@ namespace EndlessClient.Rendering
 		private MouseState _prevState;
 		private bool _hideCursor;
 
-		private OldMapFile MapRef { get { return _parentMapRenderer.MapRef; } }
+		private MapFile MapRef { get { return _parentMapRenderer.MapRef; } }
 
 		public Point GridCoords
 		{

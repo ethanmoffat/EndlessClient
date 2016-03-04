@@ -4,7 +4,9 @@
 
 //****************************************************************************************************
 //* This is a derivative of a work licensed under the GPL v3.0
-//* Original unmodifeid source is available at https://www.assembla.com/code/eo-dev-sharp/subversion/nodes (see Data/EMF.cs)
+//* Original unmodifeid source is available at:
+//*      https://www.assembla.com/code/eo-dev-sharp/subversion/nodes
+//*      (see Data/EMF.cs)
 //* For additional details on GPL v3.0 see the file GPL3License.txt
 //****************************************************************************************************
 
@@ -16,7 +18,7 @@ using EOLib.Net;
 
 namespace EOLib.IO.Map
 {
-	public class OldMapFile : IMapFile
+	public class MapFile : IMapFile
 	{
 		#region Helper Classes
 
@@ -83,7 +85,7 @@ namespace EOLib.IO.Map
 
 		private readonly IMapStringEncoderService _encoderService;
 
-		public OldMapFile()
+		public MapFile()
 		{
 			NPCSpawns = new List<NPCSpawn>();
 			Unknowns = new List<byte[]>();
