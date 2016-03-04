@@ -238,13 +238,13 @@ namespace EOLib.IO.Map
 			{
 				Chests.Add(new MapChest
 				{
-					x = filePacket.ReadChar(),
-					y = filePacket.ReadChar(),
-					key = (ChestKey)filePacket.ReadShort(),
-					slot = filePacket.ReadChar(),
-					item = filePacket.ReadShort(),
-					time = filePacket.ReadShort(),
-					amount = filePacket.ReadThree()
+					X = filePacket.ReadChar(),
+					Y = filePacket.ReadChar(),
+					Key = (ChestKey)filePacket.ReadShort(),
+					Slot = filePacket.ReadChar(),
+					ItemID = filePacket.ReadShort(),
+					RespawnTime = filePacket.ReadShort(),
+					Amount = filePacket.ReadThree()
 				});
 			}
 		}
@@ -424,13 +424,13 @@ namespace EOLib.IO.Map
 			filePacket.AddChar((byte)Chests.Count);
 			foreach (MapChest chest in Chests)
 			{
-				filePacket.AddChar(chest.x);
-				filePacket.AddChar(chest.y);
-				filePacket.AddShort((short)chest.key);
-				filePacket.AddChar(chest.slot);
-				filePacket.AddShort(chest.item);
-				filePacket.AddShort(chest.time);
-				filePacket.AddThree(chest.amount);
+				filePacket.AddChar(chest.X);
+				filePacket.AddChar(chest.Y);
+				filePacket.AddShort((short)chest.Key);
+				filePacket.AddChar(chest.Slot);
+				filePacket.AddShort(chest.ItemID);
+				filePacket.AddShort(chest.RespawnTime);
+				filePacket.AddThree(chest.Amount);
 			}
 		}
 

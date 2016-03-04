@@ -207,20 +207,20 @@ namespace BatchMap
 				for (int i = EMF.Chests.Count - 1; i >= 0; --i)
 				{
 					var chest = EMF.Chests[i];
-					var rec = EIF.GetRecordByID(chest.item);
-					if (chest.item > EIF.Data.Count || rec == null)
+					var rec = EIF.GetRecordByID(chest.ItemID);
+					if (chest.ItemID > EIF.Data.Count || rec == null)
 					{
-						Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} uses non-existent Item #{3}. Removing.", mapID, chest.x, chest.y, chest.item);
+						Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} uses non-existent Item #{3}. Removing.", mapID, chest.X, chest.Y, chest.ItemID);
 						EMF.Chests.RemoveAt(i);
 						changesMade = true;
 						continue;
 					}
 
-					if (chest.x > EMF.Properties.Width ||
-					    chest.y > EMF.Properties.Height ||
-					    EMF.Tiles[chest.y, chest.x] != TileSpec.Chest)
+					if (chest.X > EMF.Properties.Width ||
+					    chest.Y > EMF.Properties.Height ||
+					    EMF.Tiles[chest.Y, chest.X] != TileSpec.Chest)
 					{
-						Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} points to a non-chest. Removing.", mapID, chest.x, chest.y);
+						Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} points to a non-chest. Removing.", mapID, chest.X, chest.Y);
 						EMF.Chests.RemoveAt(i);
 						changesMade = true;
 					}

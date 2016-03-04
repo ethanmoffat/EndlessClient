@@ -314,7 +314,7 @@ namespace EndlessClient.Rendering
 
 			if (characterWithinOneUnitOfChest && characterInSameRowOrColAsChest)
 			{
-				MapChest chest = MapRef.Chests.Find(_mc => _mc.x == _gridX && _mc.y == _gridY);
+				MapChest chest = MapRef.Chests.Find(_mc => _mc.X == _gridX && _mc.Y == _gridY);
 				if (chest == null) return;
 
 				string requiredKey;
@@ -324,7 +324,7 @@ namespace EndlessClient.Rendering
 					case ChestKey.Silver: requiredKey = "Silver Key"; break;
 					case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
 					case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
-					default: ChestDialog.Show(_game.API, chest.x, chest.y); return;
+					default: ChestDialog.Show(_game.API, chest.X, chest.Y); return;
 				}
 				
 				EOMessageBox.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);

@@ -702,7 +702,7 @@ namespace EndlessClient
 
 		public ChestKey CanOpenChest(MapChest chest)
 		{
-			ChestKey permission = chest.key;
+			ChestKey permission = chest.Key;
 
 			ItemRecord rec;
 			switch (permission) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
