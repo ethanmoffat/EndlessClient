@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using EOLib.IO;
+using EOLib.IO.Map;
 
 namespace EOLib.Net.API
 {

@@ -55,9 +55,10 @@ namespace EndlessClient.Rendering
 			if (!Game.IsActive || !Visible) return;
 
 			var c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+			var m = OldWorld.Instance.ActiveMapRenderer.MapRef;
 			
 			_icons = 0;
-			if(OldWorld.Instance.ActiveMapRenderer.MapRef.IsPK)
+			if (m.Properties.PKAvailable)
 				_icons |= StatusIconType.PK;
 			if(c.SelectedSpell > 0)
 				_icons |= StatusIconType.Spell;

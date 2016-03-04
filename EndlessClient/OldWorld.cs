@@ -12,6 +12,7 @@ using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.IO.Map;
 using EOLib.Net;
 using EOLib.Net.API;
 using EOLib.Net.PacketProcessing;
@@ -356,10 +357,14 @@ namespace EndlessClient
 
 				string mapFile = Path.Combine("maps", string.Format("{0,5:D5}.emf", mapID));
 
-				if(!MapCache.ContainsKey(mapID))
-					MapCache.Add(mapID, new OldMapFile(mapFile));
-				else if(forceReload)
-					MapCache[mapID] = new OldMapFile(mapFile);
+				if (!MapCache.ContainsKey(mapID))
+				{
+					MapCache.Add(mapID, new OldMapFile());
+					MapCache[mapID].Load(mapFile);
+				}
+				else if (forceReload)
+					MapCache[mapID].Load(mapFile);
+
 
 				//map renderer construction moved to be more closely coupled to loading of the map
 				if (m_mapRender == null)
@@ -458,14 +463,14 @@ namespace EndlessClient
 			{
 				for (int i = 0; i < 4; ++i)
 				{
-					if(MapCache[mapID].Rid[i] != mapRid[i])
+					if(MapCache[mapID].Properties.Checksum[i] != mapRid[i])
 					{
 						NeedMap = mapID;
 						break;
 					}
 				}
 
-				if (NeedMap == -1 && MapCache[mapID].FileSize != mapFileSize)
+				if (NeedMap == -1 && MapCache[mapID].Properties.FileSize != mapFileSize)
 					NeedMap = mapID;
 			}
 

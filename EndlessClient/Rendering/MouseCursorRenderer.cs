@@ -8,7 +8,7 @@ using EndlessClient.HUD.Inventory;
 using EOLib;
 using EOLib.Data.Map;
 using EOLib.Graphics;
-using EOLib.IO;
+using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -82,7 +82,7 @@ namespace EndlessClient.Rendering
 			if (_hideCursor)
 				return;
 
-			if (_gridX >= 0 && _gridY >= 0 && _gridX <= MapRef.Width && _gridY <= MapRef.Height)
+			if (_gridX >= 0 && _gridY >= 0 && _gridX <= MapRef.Properties.Width && _gridY <= MapRef.Properties.Height)
 			{
 				//don't draw cursor if context menu is visible and the context menu has the mouse over it
 				if (!(_contextMenu.Visible && _contextMenu.MouseOver))
@@ -224,7 +224,7 @@ namespace EndlessClient.Rendering
 
 		private ITileInfo GetTileInfoAtGridCoordinates()
 		{
-			if (_gridX >= 0 && _gridX <= MapRef.Width && _gridY >= 0 && _gridY <= MapRef.Height)
+			if (_gridX >= 0 && _gridX <= MapRef.Properties.Width && _gridY >= 0 && _gridY <= MapRef.Properties.Height)
 				return _parentMapRenderer.GetTileInfo((byte)_gridX, (byte)_gridY);
 
 			return null;

@@ -742,7 +742,7 @@ namespace EndlessClient.HUD
 					{
 						string firstPart = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) DATCONST2.STATUS_LABEL_YOUR_LOCATION_IS_AT];
 						AddChat(ChatTabs.Local, "System", string.Format(firstPart + " {0}  x:{1}  y:{2}",
-							OldWorld.Instance.ActiveMapRenderer.MapRef.MapID,
+							OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.MapID,
 							OldWorld.Instance.MainPlayer.ActiveCharacter.X,
 							OldWorld.Instance.MainPlayer.ActiveCharacter.Y),
 							ChatType.LookingDude);

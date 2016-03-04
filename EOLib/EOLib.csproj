@@ -119,11 +119,17 @@
     <Compile Include="IO\IDataFile.cs" />
     <Compile Include="IO\IDataRecord.cs" />
     <Compile Include="IO\IDataRecordFactory.cs" />
+    <Compile Include="IO\Map\IMapEntityItem.cs" />
+    <Compile Include="IO\Map\IMapEntityRow.cs" />
+    <Compile Include="IO\Map\IMapFile.cs" />
     <Compile Include="IO\IModifiableDataFile.cs" />
     <Compile Include="IO\IniReader.cs" />
     <Compile Include="IO\Item.cs" />
     <Compile Include="IO\ItemRecordFactory.cs" />
-    <Compile Include="IO\Map.cs" />
+    <Compile Include="IO\Map\Map.cs" />
+    <Compile Include="IO\Map\IMapStringEncoderService.cs" />
+    <Compile Include="IO\Map\MapFileProperties.cs" />
+    <Compile Include="IO\Map\MapStringEncoderService.cs" />
     <Compile Include="IO\NPCFile.cs" />
     <Compile Include="IO\NPCRecord.cs" />
     <Compile Include="IO\NPCRecordFactory.cs" />
@@ -169,6 +175,7 @@
     <Compile Include="Net\ClientBase.cs" />
     <Compile Include="Net\Communication\NetworkClient.cs" />
     <Compile Include="Net\Communication\PacketHandlerComponent.cs" />
+    <Compile Include="IReadOnly2DArray.cs" />
     <Compile Include="Net\PacketProcessing\PacketNumberEncoder.cs" />
     <Compile Include="Net\EmptyPacket.cs" />
     <Compile Include="Net\EOClient.cs" />
@@ -194,6 +201,7 @@
     <Compile Include="Net\PacketProcessing\PacketEncoderService.cs" />
     <Compile Include="Net\Communication\PacketQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Array2D.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>
   <ItemGroup>

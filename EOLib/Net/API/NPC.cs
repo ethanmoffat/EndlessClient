@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib.IO;
+using EOLib.IO.Map;
 
 namespace EOLib.Net.API
 {

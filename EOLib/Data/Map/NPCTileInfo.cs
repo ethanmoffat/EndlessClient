@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib.Data.BLL;
-using EOLib.IO;
+using EOLib.IO.Map;
 
 namespace EOLib.Data.Map
 {

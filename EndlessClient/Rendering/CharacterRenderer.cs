@@ -548,7 +548,7 @@ namespace EndlessClient.Rendering
 				{
 					SpellRecord data = OldWorld.Instance.ESF.GetRecordByID((short) OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
 					if (data.TargetRestrict == SpellTargetRestrict.NPCOnly || 
-						data.TargetRestrict == SpellTargetRestrict.Opponent && !OldWorld.Instance.ActiveMapRenderer.MapRef.IsPK)
+						data.TargetRestrict == SpellTargetRestrict.Opponent && !OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.PKAvailable)
 					{
 						//todo: status label message "(something something cannot attack player)"
 						OldWorld.Instance.MainPlayer.ActiveCharacter.SelectSpell(-1);

@@ -22,6 +22,12 @@ namespace EOLib.Net
 
 		public PacketAction Action { get { return (PacketAction) _data[0]; } }
 
+		public PacketBuilder()
+		{
+			_data = new List<byte>();
+			_encoderService = new NumberEncoderService();
+		}
+
 		public PacketBuilder(PacketFamily family, PacketAction action)
 		{
 			_data = new List<byte> { (byte) action, (byte) family };

@@ -30,7 +30,9 @@ namespace EOLib.Net
 
 		public Packet(byte[] data)
 		{
-			ReadPosition = 0;
+			//note: start reading at position 2, skip family/action
+			//can call seek to read over them
+			ReadPosition = 2;
 			Family = (PacketFamily)data[1];
 			Action = (PacketAction)data[0];
 			RawData = new List<byte>(data);

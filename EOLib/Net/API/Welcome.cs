@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using EOLib.IO;
+using EOLib.IO.Map;
 
 namespace EOLib.Net.API
 {

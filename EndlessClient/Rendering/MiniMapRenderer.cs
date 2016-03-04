@@ -7,6 +7,7 @@ using EOLib.Data.BLL;
 using EOLib.Data.Map;
 using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -59,9 +60,9 @@ namespace EndlessClient.Rendering
 			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
 			_spriteBatch.Begin();
-			for (int row = Math.Max(c.Y - 30, 0); row <= Math.Min(c.Y + 30, Map.Height); ++row)
+			for (int row = Math.Max(c.Y - 30, 0); row <= Math.Min(c.Y + 30, Map.Properties.Height); ++row)
 			{
-				for (int col = Math.Max(c.X - 30, 0); col <= Math.Min(c.X + 30, Map.Width); ++col)
+				for (int col = Math.Max(c.X - 30, 0); col <= Math.Min(c.X + 30, Map.Properties.Width); ++col)
 				{
 					Rectangle miniMapRectSrc = new Rectangle(0, 0, miniMapText.Width / 9, miniMapText.Height);
 					bool isEdge = false;

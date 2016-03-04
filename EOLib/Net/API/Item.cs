@@ -4,6 +4,7 @@
 
 using System;
 using EOLib.IO;
+using EOLib.IO.Map;
 
 namespace EOLib.Net.API
 {

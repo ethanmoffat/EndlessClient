@@ -11,6 +11,7 @@ using EOLib;
 using EOLib.Data.BLL;
 using EOLib.Data.Map;
 using EOLib.IO;
+using EOLib.IO.Map;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls;

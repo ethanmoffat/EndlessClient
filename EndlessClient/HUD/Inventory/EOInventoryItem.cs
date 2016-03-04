@@ -509,7 +509,7 @@ namespace EndlessClient.HUD.Inventory
 					break;
 				//usable items
 				case ItemType.Teleport:
-					if (!OldWorld.Instance.ActiveMapRenderer.MapRef.CanScroll)
+					if (!OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.CanScroll)
 					{
 						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_NOTHING_HAPPENED);
 						break;

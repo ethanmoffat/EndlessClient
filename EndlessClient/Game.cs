@@ -20,7 +20,10 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 using CONTROLSINIT = XNAControls.XNAControls;
+
+#if WINDOWS
 using EOCLI;
+#endif
 
 namespace EndlessClient
 {

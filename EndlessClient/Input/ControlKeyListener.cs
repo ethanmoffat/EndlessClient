@@ -7,7 +7,7 @@ using System.Linq;
 using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Data.Map;
-using EOLib.IO;
+using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 

@@ -14,6 +14,7 @@ using EOLib.Data.BLL;
 using EOLib.Data.Map;
 using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.IO.Map;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -169,8 +170,8 @@ namespace EndlessClient.Rendering
 			_drawingEvent.Wait();
 			_drawingEvent.Reset();
 
-			if(MapRef != null && MapRef.AmbientNoise != 0)
-				EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.AmbientNoise);
+			if (MapRef != null && MapRef.Properties.AmbientNoise != 0)
+				EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.Properties.AmbientNoise);
 			
 			MapRef = newActiveMap;
 
@@ -212,13 +213,13 @@ namespace EndlessClient.Rendering
 
 			_mapLoadTime = DateTime.Now;
 			_transitionMetric = 1;
-			if (!MapRef.MapAvailable)
+			if (!MapRef.Properties.MapAvailable)
 				_miniMapRenderer.Visible = false;
 
-			if (MapRef.Name.Length > 0)
+			if (MapRef.Properties.Name.Length > 0)
 			{
 				if (EOGame.Instance.Hud != null)
-					EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Name, ChatType.NoteLeftArrow);
+					EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, ChatType.NoteLeftArrow);
 				else
 					_needDispMapName = true;
 			}
@@ -231,7 +232,7 @@ namespace EndlessClient.Rendering
 
 		public ITileInfo GetTileInfo(byte destX, byte destY)
 		{
-			if (MapRef.Width < destX || MapRef.Height < destY)
+			if (MapRef.Properties.Width < destX || MapRef.Properties.Height < destY)
 				return new BasicTileInfoWithSpec(TileSpec.MapEdge);
 
 			lock (_npcListLock)
@@ -252,7 +253,7 @@ namespace EndlessClient.Rendering
 					return new BasicTileInfo(TileInfoReturnType.IsOtherPlayer);
 			}
 
-			var warp = MapRef.WarpLookup[destY, destX];
+			var warp = MapRef.Warps[destY, destX];
 			if (warp != null)
 				return new WarpTileInfo(warp);
 
@@ -260,22 +261,22 @@ namespace EndlessClient.Rendering
 			if (sign.x == destX && sign.y == destY)
 				return new MapSignTileInfo(sign);
 
-			if(destX <= MapRef.Width && destY <= MapRef.Height)
+			if(destX <= MapRef.Properties.Width && destY <= MapRef.Properties.Height)
 			{
-				Tile tile = MapRef.TileLookup[destY, destX];
-				if (tile != null)
-					return new BasicTileInfoWithSpec(tile.spec);
+				var tile = MapRef.Tiles[destY, destX];
+				if (tile != TileSpec.None)
+					return new BasicTileInfoWithSpec(tile);
 			}
 			
 			//don't need to check zero bounds: because byte type is always positive (unsigned)
-			return destX <= MapRef.Width && destY <= MapRef.Height
+			return destX <= MapRef.Properties.Width && destY <= MapRef.Properties.Height
 				? new BasicTileInfoWithSpec(TileSpec.None)
 				: new BasicTileInfoWithSpec(TileSpec.MapEdge);
 		}
 
 		public void ToggleMapView()
 		{
-			if(MapRef.MapAvailable)
+			if (MapRef.Properties.MapAvailable)
 				_miniMapRenderer.Visible = !_miniMapRenderer.Visible;
 			else
 				EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_NO_MAP_OF_AREA);
@@ -374,10 +375,10 @@ namespace EndlessClient.Rendering
 			}
 
 			//not sure what MusicExtra field is supposed to be for
-			if (MapRef.Music > 0)
+			if (MapRef.Properties.Music > 0)
 			{
 				//sound manager accounts for zero-based indices when playing music
-				EOGame.Instance.SoundManager.PlayBackgroundMusic(MapRef.Music);
+				EOGame.Instance.SoundManager.PlayBackgroundMusic(MapRef.Properties.Music);
 			}
 			else
 			{
@@ -389,13 +390,13 @@ namespace EndlessClient.Rendering
 		{
 			if (!OldWorld.Instance.SoundEnabled)
 			{
-				if(MapRef.AmbientNoise > 0)
-					EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.AmbientNoise);
+				if (MapRef.Properties.AmbientNoise > 0)
+					EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.Properties.AmbientNoise);
 				return;
 			}
 
-			if(MapRef.AmbientNoise > 0)
-				EOGame.Instance.SoundManager.PlayLoopingSoundEffect(MapRef.AmbientNoise);
+			if (MapRef.Properties.AmbientNoise > 0)
+				EOGame.Instance.SoundManager.PlayLoopingSoundEffect(MapRef.Properties.AmbientNoise);
 		}
 
 		#endregion
@@ -892,7 +893,7 @@ namespace EndlessClient.Rendering
 				_doorY = 0;
 			}
 
-			if ((_door = MapRef.WarpLookup[y, x]) != null)
+			if ((_door = MapRef.Warps[y, x]) != null)
 			{
 				if(OldWorld.Instance.SoundEnabled)
 					((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorOpen).Play();
@@ -925,7 +926,7 @@ namespace EndlessClient.Rendering
 
 		public void PlayTimedSpikeSoundEffect()
 		{
-			if (!MapRef.HasTimedSpikes) return;
+			if (!MapRef.Properties.HasTimedSpikes) return;
 
 			if (OldWorld.Instance.SoundEnabled)
 				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
@@ -966,7 +967,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_spikeTrapsLock)
 			{
-				if (MapRef.TileLookup[y, x].spec != TileSpec.SpikesTrap)
+				if (MapRef.Tiles[y, x] != TileSpec.SpikesTrap)
 					throw new ArgumentException("The specified tile location is not a trap spike");
 
 				if (_visibleSpikeTraps.Contains(new Point(x, y)))
@@ -987,7 +988,7 @@ namespace EndlessClient.Rendering
 
 		public void DrainHPFromPlayers(short damage, short hp, short maxhp, IEnumerable<TimedMapHPDrainData> otherCharacterData)
 		{
-			if (MapRef.Effect != MapEffect.HPDrain) return;
+			if (MapRef.Properties.Effect != MapEffect.HPDrain) return;
 
 			int percentHealth = (int)Math.Round(((double)hp / maxhp) * 100.0);
 
@@ -1016,7 +1017,7 @@ namespace EndlessClient.Rendering
 
 		public void DrainTPFromMainPlayer(short amount, short tp, short maxtp)
 		{
-			if (MapRef.Effect != MapEffect.TPDrain || amount == 0) return;
+			if (MapRef.Properties.Effect != MapEffect.TPDrain || amount == 0) return;
 
 			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
 			OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.MaxTP = maxtp;
@@ -1079,7 +1080,7 @@ namespace EndlessClient.Rendering
 			if (_needDispMapName && EOGame.Instance.Hud != null)
 			{
 				_needDispMapName = false;
-				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Name, ChatType.NoteLeftArrow);
+				EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, ChatType.NoteLeftArrow);
 			}
 
 			if (_drawingEvent == null) return;
@@ -1194,9 +1195,9 @@ namespace EndlessClient.Rendering
 			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 			const int localViewLength = 10;
 			int xMin = c.X - localViewLength < 0 ? 0 : c.X - localViewLength,
-				xMax = c.X + localViewLength > MapRef.Width ? MapRef.Width : c.X + localViewLength;
+				xMax = c.X + localViewLength > MapRef.Properties.Width ? MapRef.Properties.Width : c.X + localViewLength;
 			int yMin = c.Y - localViewLength < 0 ? 0 : c.Y - localViewLength,
-				yMax = c.Y + localViewLength > MapRef.Height ? MapRef.Height : c.Y + localViewLength;
+				yMax = c.Y + localViewLength > MapRef.Properties.Height ? MapRef.Properties.Height : c.Y + localViewLength;
 			int cOffX = c.OffsetX, cOffY = c.OffsetY;
 
 			Texture2D fillTileRef = null;
@@ -1209,10 +1210,10 @@ namespace EndlessClient.Rendering
 					Vector2 pos = GetDrawCoordinatesFromGridUnits(j, i, cOffX, cOffY);
 
 					//only render fill layer when the ground layer is not present!
-					if (MapRef.FillTile > 0 && MapRef.GFXLookup[0][i, j] < 0)
+					if (MapRef.Properties.FillTile > 0 && MapRef.GFX[0][i, j] < 0)
 					{
 						if (fillTileRef == null) //only do the cache lookup once!
-							fillTileRef = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapTiles, MapRef.FillTile, true);
+							fillTileRef = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapTiles, MapRef.Properties.FillTile, true);
 
 						_sb.Draw(fillTileRef, new Vector2(pos.X - 1, pos.Y - 2),
 							Color.FromNonPremultiplied(255, 255, 255, _getAlpha(j, i, c)));
@@ -1220,7 +1221,7 @@ namespace EndlessClient.Rendering
 
 					//ground layer next
 					int tile;
-					if ((tile = MapRef.GFXLookup[0][i, j]) > 0)
+					if ((tile = MapRef.GFX[0][i, j]) > 0)
 					{
 						Texture2D nextTile = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapTiles, tile, true);
 						Rectangle? src = nextTile.Width > 64 ? new Rectangle?(new Rectangle((int)_tileSrc.X, (int)_tileSrc.Y, nextTile.Width / 4, nextTile.Height)) : null;
@@ -1240,12 +1241,11 @@ namespace EndlessClient.Rendering
 			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 			
 			// Queries (func) for the gfx items within range of the character's X coordinate
-			Func<GFX, bool> xGFXQuery = gfx => gfx.x >= c.X - Constants.ViewLength && gfx.x <= c.X + Constants.ViewLength && gfx.x <= MapRef.Width;
-			// Queries (func) for the gfxrow items within range of the character's Y coordinate
-			Func<GFXRow, bool> yGFXQuery = row => row.y >= c.Y - Constants.ViewLength && row.y <= c.Y + Constants.ViewLength && row.y <= MapRef.Height;
+			Func<int, bool> queryX = x => x >= c.X - Constants.ViewLength && x <= c.X + Constants.ViewLength && x <= MapRef.Properties.Width;
+			// Queries (func) for the gfx items within range of the character's Y coordinate
+			Func<int, bool> queryY = y => y >= c.Y - Constants.ViewLength && y <= c.Y + Constants.ViewLength && y <= MapRef.Properties.Height;
 
-			//items next! (changed to deep copy so I don't get "collection was modified, enumeration may not continued" errors)
-			List<Point> keys = new List<Point>(_mapItems.Keys.Where(_key => xGFXQuery(new GFX {x = (byte) _key.X}) && yGFXQuery(new GFXRow {y = (byte) _key.Y})));
+			List<Point> keys = new List<Point>(_mapItems.Keys.Where(_key => queryX(_key.X) && queryY(_key.Y)));
 
 			_sb.Begin();
 			foreach (Point pt in keys)
@@ -1287,9 +1287,9 @@ namespace EndlessClient.Rendering
 			bool targetChanged = false;
 
 			var firstRow = Math.Max(c.Y - 22, 0);
-			int lastRow = Math.Min(c.Y + 22, MapRef.Height);
+			int lastRow = Math.Min(c.Y + 22, MapRef.Properties.Height);
 			var firstCol = Math.Max(c.X - 22, 0);
-			int lastCol = Math.Min(c.X + 22, MapRef.Width);
+			int lastCol = Math.Min(c.X + 22, MapRef.Properties.Width);
 
 			//no need to iterate over the entire map rows if they won't be included in the render.
 			for (int rowIndex = firstRow; rowIndex <= lastRow; ++rowIndex)
@@ -1365,7 +1365,7 @@ namespace EndlessClient.Rendering
 		{
 			int gfxNum;
 			//overlay/mask  objects
-			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.OverlayObjects][rowIndex, colIndex]) > 0)
+			if ((gfxNum = MapRef.GFX[MapLayer.OverlayObjects][rowIndex, colIndex]) > 0)
 			{
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
 				Vector2 pos = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
@@ -1378,7 +1378,7 @@ namespace EndlessClient.Rendering
 		{
 			//shadows
 			int gfxNum;
-			if (OldWorld.Instance.ShowShadows && (gfxNum = MapRef.GFXLookup[(int)MapLayers.Shadow][rowIndex, colIndex]) > 0)
+			if (OldWorld.Instance.ShowShadows && (gfxNum = MapRef.GFX[MapLayer.Shadow][rowIndex, colIndex]) > 0)
 			{
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.Shadows, gfxNum, true);
 				Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
@@ -1391,7 +1391,7 @@ namespace EndlessClient.Rendering
 			int gfxNum;
 			const int WALL_FRAME_WIDTH = 68;
 			//right-facing walls
-			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.WallRowsRight][rowIndex, colIndex]) > 0)
+			if ((gfxNum = MapRef.GFX[MapLayer.WallRowsRight][rowIndex, colIndex]) > 0)
 			{
 				if (_door != null && _door.x == colIndex && _doorY == rowIndex && _door.doorOpened)
 					gfxNum++;
@@ -1410,7 +1410,7 @@ namespace EndlessClient.Rendering
 			}
 
 			//down-facing walls
-			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.WallRowsDown][rowIndex, colIndex]) > 0)
+			if ((gfxNum = MapRef.GFX[MapLayer.WallRowsDown][rowIndex, colIndex]) > 0)
 			{
 				if (_door != null && _door.x == colIndex && _doorY == rowIndex && _door.doorOpened)
 					gfxNum++;
@@ -1432,13 +1432,13 @@ namespace EndlessClient.Rendering
 		private void _drawMapObjectsAtLoc(int rowIndex, int colIndex, Character c)
 		{
 			int gfxNum;
-			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.Objects][rowIndex, colIndex]) > 0)
+			if ((gfxNum = MapRef.GFX[MapLayer.Objects][rowIndex, colIndex]) > 0)
 			{
 				bool shouldDrawObject = true;
 				lock (_spikeTrapsLock)
 				{
 					if (_isSpikeGFX(gfxNum) &&
-						MapRef.TileLookup[rowIndex, colIndex].spec == TileSpec.SpikesTrap &&
+						MapRef.Tiles[rowIndex, colIndex] == TileSpec.SpikesTrap &&
 						!_visibleSpikeTraps.Contains(new Point(colIndex, rowIndex)))
 						shouldDrawObject = false;
 				}
@@ -1469,7 +1469,7 @@ namespace EndlessClient.Rendering
 		{
 			int gfxNum;
 			//roofs (after objects - for outdoor maps, which actually have roofs, this makes more sense)
-			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.Roof][rowIndex, colIndex]) > 0)
+			if ((gfxNum = MapRef.GFX[MapLayer.Roof][rowIndex, colIndex]) > 0)
 			{
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
 				drawRoofLater.Add(new Point(colIndex, rowIndex), gfx);
@@ -1479,7 +1479,7 @@ namespace EndlessClient.Rendering
 		private void _drawUnknownLayerAtLoc(int rowIndex, int colIndex, Character c)
 		{
 			int gfxNum;
-			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.Unknown][rowIndex, colIndex]) > 0)
+			if ((gfxNum = MapRef.GFX[MapLayer.Unknown][rowIndex, colIndex]) > 0)
 			{
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
 				Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
@@ -1492,7 +1492,7 @@ namespace EndlessClient.Rendering
 		{
 			int gfxNum;
 			//overlay tiles (counters, etc)
-			if ((gfxNum = MapRef.GFXLookup[(int)MapLayers.OverlayTile][rowIndex, colIndex]) > 0)
+			if ((gfxNum = MapRef.GFX[MapLayer.OverlayTile][rowIndex, colIndex]) > 0)
 			{
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapTiles, gfxNum, true);
 				Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);

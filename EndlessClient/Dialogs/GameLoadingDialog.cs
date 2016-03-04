@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.IO.Map;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -242,8 +243,8 @@ namespace EndlessClient.Dialogs
 		{
 			try
 			{
-				// ReSharper disable once UnusedVariable
-				var map = new OldMapFile(string.Format(Constants.MapFileFormatString, OldWorld.Instance.NeedMap));
+				var map = new OldMapFile();
+				map.Load(string.Format(Constants.MapFileFormatString, OldWorld.Instance.NeedMap));
 			}
 			catch { return false; }
 

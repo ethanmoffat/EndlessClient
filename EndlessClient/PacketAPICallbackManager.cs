@@ -11,6 +11,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EOLib;
 using EOLib.IO;
+using EOLib.IO.Map;
 using EOLib.Net.API;
 using XNAControls;
 
