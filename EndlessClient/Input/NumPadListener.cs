@@ -21,7 +21,7 @@ namespace EndlessClient.Input
 
 		public override void Update(GameTime gameTime)
 		{
-			if (!IgnoreInput && Character.RenderData.emoteFrame < 0)
+			if (!IgnoreInput && Character.RenderProperties.emoteFrame < 0)
 			{
 				UpdateInputTime();
 

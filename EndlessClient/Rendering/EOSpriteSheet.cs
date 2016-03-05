@@ -77,7 +77,7 @@ namespace EndlessClient.Rendering
 
 		private CharRenderData _data
 		{
-			get { return _charRef.RenderData; }
+			get { return _charRef.RenderProperties; }
 		}
 
 		public Texture2D GetArmor(bool isBow = false)

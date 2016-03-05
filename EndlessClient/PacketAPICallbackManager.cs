@@ -182,7 +182,7 @@ namespace EndlessClient
 		private void _adminHiddenChange(short id, bool hidden)
 		{
 			if (OldWorld.Instance.MainPlayer.ActiveCharacter.ID == id)
-				OldWorld.Instance.MainPlayer.ActiveCharacter.RenderData.SetHidden(hidden);
+				OldWorld.Instance.MainPlayer.ActiveCharacter.RenderProperties.SetHidden(hidden);
 			else
 				OldWorld.Instance.ActiveMapRenderer.OtherPlayerHide(id, hidden);
 		}
@@ -197,25 +197,18 @@ namespace EndlessClient
 			OldWorld.Instance.ActiveMapRenderer.RemoveOtherPlayer(id, anim);
 		}
 
-		private void _playerAvatarChange(AvatarData _data)
+		private void _playerAvatarChange(AvatarData data)
 		{
-			switch (_data.Slot)
+			switch (data.Slot)
 			{
 				case AvatarSlot.Clothes:
-					OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerRenderData(_data.ID, _data.Sound, new CharRenderData
-					{
-						boots = _data.Boots,
-						armor = _data.Armor,
-						hat = _data.Hat,
-						shield = _data.Shield,
-						weapon = _data.Weapon
-					});
+					OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerRenderData(data.ID, data.Sound, data);
 					break;
 				case AvatarSlot.Hair:
-					OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(_data.ID, _data.HairColor, _data.HairStyle);
+					OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(data.ID, data.HairColor, data.HairStyle);
 					break;
 				case AvatarSlot.HairColor:
-					OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(_data.ID, _data.HairColor);
+					OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(data.ID, data.HairColor);
 					break;
 			}
 		}
@@ -261,7 +254,7 @@ namespace EndlessClient
 				if ((c = OldWorld.Instance.ActiveMapRenderer.GetOtherPlayerByID(_data.PlayerID)) != null)
 				{
 					c.Class = _data.Class;
-					c.RenderData.SetGender(_data.Gender);
+					c.RenderProperties.SetGender(_data.Gender);
 					c.Title = _data.Title;
 					c.GuildName = _data.Guild;
 					Array.Copy(_data.Paperdoll.ToArray(), c.PaperDoll, (int) EquipLocation.PAPERDOLL_MAX);
@@ -449,7 +442,7 @@ namespace EndlessClient
 					break;
 				case ItemType.HairDye:
 					{
-						OldWorld.Instance.MainPlayer.ActiveCharacter.RenderData.SetHairColor(data.HairColor);
+						OldWorld.Instance.MainPlayer.ActiveCharacter.RenderProperties.SetHairColor(data.HairColor);
 					}
 					break;
 				case ItemType.Beer:
@@ -471,11 +464,11 @@ namespace EndlessClient
 								c.PaperDoll[i] = 0;
 								switch ((EquipLocation)i)
 								{
-									case EquipLocation.Boots: c.RenderData.SetBoots(0); break;
-									case EquipLocation.Armor: c.RenderData.SetArmor(0); break;
-									case EquipLocation.Hat: c.RenderData.SetHat(0); break;
-									case EquipLocation.Shield: c.RenderData.SetShield(0); break;
-									case EquipLocation.Weapon: c.RenderData.SetWeapon(0); break;
+									case EquipLocation.Boots: c.RenderProperties.SetBoots(0); break;
+									case EquipLocation.Armor: c.RenderProperties.SetArmor(0); break;
+									case EquipLocation.Hat: c.RenderProperties.SetHat(0); break;
+									case EquipLocation.Shield: c.RenderProperties.SetShield(0); break;
+									case EquipLocation.Weapon: c.RenderProperties.SetWeapon(0); break;
 								}
 							}
 						}
