@@ -49,7 +49,7 @@ namespace EOBot
 			return true;
 		}
 
-		public bool LoginToAccount(string name, string password, out CharacterRenderData[] loginData)
+		public bool LoginToAccount(string name, string password, out CharacterLoginData[] loginData)
 		{
 			LoginReply loginReply;
 			var res = _api.LoginRequest(name, password, out loginReply, out loginData);
@@ -66,7 +66,7 @@ namespace EOBot
 			return true;
 		}
 
-		public bool CreateCharacterIfNeeded(string name, ref CharacterRenderData[] loginData)
+		public bool CreateCharacterIfNeeded(string name, ref CharacterLoginData[] loginData)
 		{
 			if (loginData == null || loginData.Length == 0)
 			{
@@ -96,7 +96,7 @@ namespace EOBot
 			return true;
 		}
 
-		public bool DoWelcomePacketsForFirstCharacter(CharacterRenderData[] loginData, out WelcomeRequestData welcomeReqData, out WelcomeMessageData welcomeMsgData)
+		public bool DoWelcomePacketsForFirstCharacter(CharacterLoginData[] loginData, out WelcomeRequestData welcomeReqData, out WelcomeMessageData welcomeMsgData)
 		{
 			welcomeMsgData = null;
 

@@ -68,7 +68,7 @@ namespace EndlessClient
 			return true;
 		}
 		
-		public void ProcessCharacterData(CharacterRenderData[] dataArray)
+		public void ProcessCharacterData(CharacterLoginData[] dataArray)
 		{
 			CharData = new CharRenderData[dataArray.Length];
 			for (int i = 0; i < CharData.Length; ++i)

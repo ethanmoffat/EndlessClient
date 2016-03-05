@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System.Threading;
-using EOLib.IO;
 
 namespace EOLib.Net.API
 {
@@ -122,7 +121,7 @@ namespace EOLib.Net.API
 	/// <summary>
 	/// Represents render data for a single character
 	/// </summary>
-	public struct CharacterRenderData
+	public struct CharacterLoginData
 	{
 		private readonly string name;
 		private readonly int id;
@@ -144,7 +143,7 @@ namespace EOLib.Net.API
 		public short Shield { get { return shield; } }
 		public short Weapon { get { return weapon; } }
 
-		internal CharacterRenderData(OldPacket pkt)
+		internal CharacterLoginData(OldPacket pkt)
 		{
 			name = pkt.GetBreakString();
 			id = pkt.GetInt();
@@ -166,7 +165,7 @@ namespace EOLib.Net.API
 	{
 		private AutoResetEvent m_character_responseEvent;
 		private CharacterReply m_character_reply;
-		private CharacterRenderData[] m_character_data;
+		private CharacterLoginData[] m_character_data;
 		private int m_character_takeID;
 
 		private void _createCharacterMembers()
@@ -205,7 +204,7 @@ namespace EOLib.Net.API
 			return true;
 		}
 
-		public bool CharacterCreate(byte gender, byte hairStyle, byte hairColor, byte race, string name, out CharacterReply reply, out CharacterRenderData[] data)
+		public bool CharacterCreate(byte gender, byte hairStyle, byte hairColor, byte race, string name, out CharacterReply reply, out CharacterLoginData[] data)
 		{
 			data = null;
 			reply = CharacterReply.THIS_IS_WRONG;
@@ -251,7 +250,7 @@ namespace EOLib.Net.API
 			return true;
 		}
 
-		public bool CharacterRemove(int id, out CharacterRenderData[] data)
+		public bool CharacterRemove(int id, out CharacterLoginData[] data)
 		{
 			data = null;
 			if (!m_client.ConnectedAndInitialized || !Initialized)
@@ -282,11 +281,11 @@ namespace EOLib.Net.API
 				pkt.GetByte();
 				pkt.GetByte();
 
-				m_character_data = new CharacterRenderData[numCharacters];
+				m_character_data = new CharacterLoginData[numCharacters];
 
 				for (int i = 0; i < numCharacters; ++i)
 				{
-					CharacterRenderData nextData = new CharacterRenderData(pkt);
+					CharacterLoginData nextData = new CharacterLoginData(pkt);
 					m_character_data[i] = nextData;
 					if (255 != pkt.GetByte())
 						return; //malformed packet - time out and signal error

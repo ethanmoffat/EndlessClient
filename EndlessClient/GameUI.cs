@@ -291,7 +291,7 @@ Thanks to :
 					return;
 
 				LoginReply reply;
-				CharacterRenderData[] dataArray;
+				CharacterLoginData[] dataArray;
 				if (!_packetAPI.LoginRequest(_loginUsernameTextbox.Text, _loginPasswordTextbox.Text, out reply, out dataArray))
 				{
 					DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -425,7 +425,7 @@ Thanks to :
 						{
 							if (dlg_E.Result != XNADialogResult.OK) return;
 
-							CharacterRenderData[] dataArray;
+							CharacterLoginData[] dataArray;
 							if (!_packetAPI.CharacterCreate(createCharacter.Gender, createCharacter.HairType, createCharacter.HairColor, createCharacter.SkinColor, createCharacter.Name, out reply, out dataArray))
 							{
 								DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -561,7 +561,7 @@ Thanks to :
 					{
 						if (dlgE.Result == XNADialogResult.OK) //user clicked ok to delete their character. do the delete here.
 						{
-							CharacterRenderData[] dataArray;
+							CharacterLoginData[] dataArray;
 							if (!_packetAPI.CharacterRemove(OldWorld.Instance.MainPlayer.CharData[index].id, out dataArray))
 							{
 								DoShowLostConnectionDialogAndReturnToMainMenu();

@@ -30,7 +30,7 @@ namespace EOBot
 
 		protected override void DoWork(CancellationToken ct)
 		{
-			CharacterRenderData[] loginData;
+			CharacterLoginData[] loginData;
 			WelcomeRequestData welcomeReqData;
 			WelcomeMessageData welcomeMsgData;
 

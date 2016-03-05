@@ -38,7 +38,7 @@ namespace EOLib.Net.API
 			}
 		}
 
-		public bool LoginRequest(string user, string pass, out LoginReply reply, out CharacterRenderData[] data)
+		public bool LoginRequest(string user, string pass, out LoginReply reply, out CharacterLoginData[] data)
 		{
 			reply = LoginReply.THIS_IS_WRONG;
 			data = null;
@@ -72,11 +72,11 @@ namespace EOLib.Net.API
 				pkt.GetByte();
 				pkt.GetByte();
 
-				m_character_data = new CharacterRenderData[numCharacters];
+				m_character_data = new CharacterLoginData[numCharacters];
 
 				for (int i = 0; i < numCharacters; ++i)
 				{
-					CharacterRenderData nextData = new CharacterRenderData(pkt);
+					CharacterLoginData nextData = new CharacterLoginData(pkt);
 					m_character_data[i] = nextData;
 					if (255 != pkt.GetByte())
 						return; //malformed packet - time out and signal error
