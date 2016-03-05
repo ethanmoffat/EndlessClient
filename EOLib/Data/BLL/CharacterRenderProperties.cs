@@ -2,13 +2,15 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EOLib.Net.API;
+
 namespace EOLib.Data.BLL
 {
 	public class CharacterRenderProperties : ICharacterRenderProperties
 	{
-		public const int MAX_NUMBER_OF_WALK_FRAMES   = 4;
-		public const int MAX_NUMBER_OF_ATTACK_FRAMES = 2;
-		public const int MAX_NUMBER_OF_EMOTE_FRAMES  = 3;
+		private const int MAX_NUMBER_OF_WALK_FRAMES   = 4;
+		private const int MAX_NUMBER_OF_ATTACK_FRAMES = 2;
+		private const int MAX_NUMBER_OF_EMOTE_FRAMES  = 3;
 
 		public byte HairStyle { get; private set; }
 		public byte HairColor { get; private set; }
@@ -26,6 +28,8 @@ namespace EOLib.Data.BLL
 		public int WalkFrame { get; private set; }
 		public int AttackFrame { get; private set; }
 		public int EmoteFrame { get; private set; }
+
+		public SitState SitState { get; private set; }
 
 		public bool IsHidden { get; private set; }
 		public bool IsDead { get; private set; }
@@ -118,6 +122,13 @@ namespace EOLib.Data.BLL
 		{
 			var props = MakeCopy(this);
 			props.EmoteFrame = (props.EmoteFrame + 1) % MAX_NUMBER_OF_EMOTE_FRAMES;
+			return props;
+		}
+
+		public ICharacterRenderProperties WithSitState(SitState newState)
+		{
+			var props = MakeCopy(this);
+			props.SitState = newState;
 			return props;
 		}
 

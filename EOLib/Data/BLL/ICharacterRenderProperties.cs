@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EOLib.Net.API;
+
 namespace EOLib.Data.BLL
 {
 	public interface ICharacterRenderProperties
@@ -22,6 +24,7 @@ namespace EOLib.Data.BLL
 		int WalkFrame { get; }
 		int AttackFrame { get; }
 		int EmoteFrame { get; }
+		SitState SitState { get; }
 
 		bool IsHidden { get; }
 		bool IsDead { get; }
@@ -42,6 +45,7 @@ namespace EOLib.Data.BLL
 		ICharacterRenderProperties WithNextWalkFrame();
 		ICharacterRenderProperties WithNextAttackFrame();
 		ICharacterRenderProperties WithNextEmoteFrame();
+		ICharacterRenderProperties WithSitState(SitState newState);
 
 		ICharacterRenderProperties WithIsHidden(bool hidden);
 		ICharacterRenderProperties WithDead();
