@@ -214,12 +214,12 @@ namespace EOLib.IO.Map
 			{
 				NPCSpawns.Add(new NPCSpawn
 				{
-					x = filePacket.ReadChar(),
-					y = filePacket.ReadChar(),
-					id = filePacket.ReadShort(),
-					spawnType = filePacket.ReadChar(),
-					spawnTime = filePacket.ReadShort(),
-					amount = filePacket.ReadChar()
+					X = filePacket.ReadChar(),
+					Y = filePacket.ReadChar(),
+					NpcID = filePacket.ReadShort(),
+					SpawnType = filePacket.ReadChar(),
+					RespawnTime = filePacket.ReadShort(),
+					Amount = filePacket.ReadChar()
 				});
 			}
 		}
@@ -403,12 +403,12 @@ namespace EOLib.IO.Map
 			filePacket.AddChar((byte)NPCSpawns.Count);
 			foreach (NPCSpawn spawn in NPCSpawns)
 			{
-				filePacket.AddChar(spawn.x);
-				filePacket.AddChar(spawn.y);
-				filePacket.AddShort(spawn.id);
-				filePacket.AddChar(spawn.spawnType);
-				filePacket.AddShort(spawn.spawnTime);
-				filePacket.AddChar(spawn.amount);
+				filePacket.AddChar(spawn.X);
+				filePacket.AddChar(spawn.Y);
+				filePacket.AddShort(spawn.NpcID);
+				filePacket.AddChar(spawn.SpawnType);
+				filePacket.AddShort(spawn.RespawnTime);
+				filePacket.AddChar(spawn.Amount);
 			}
 		}
 

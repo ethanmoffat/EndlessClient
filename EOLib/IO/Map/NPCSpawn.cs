@@ -6,14 +6,14 @@ namespace EOLib.IO.Map
 {
 	public class NPCSpawn
 	{
-		public byte x;
-		public byte y;
-		public short id;
-		public byte index;
-		public byte spawnType;
-		public short spawnTime;
-		public byte amount;
+		public byte X { get; set; }
+		public byte Y { get; set; }
+		public short NpcID { get; set; }
+		public byte NpcIndex { get; set; }
+		public byte SpawnType { get; set; }
+		public short RespawnTime { get; set; }
+		public byte Amount { get; set; }
 
-		public EODirection direction;
+		public EODirection Direction { get; set; }
 	}
 }

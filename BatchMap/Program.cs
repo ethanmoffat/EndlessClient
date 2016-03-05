@@ -160,31 +160,31 @@ namespace BatchMap
 				for(int i = EMF.NPCSpawns.Count - 1; i >= 0; --i)
 				{
 					var npc = EMF.NPCSpawns[i];
-					var npcRec = ENF.GetRecordByID(npc.id);
-					if (npc.id > ENF.Data.Count || npcRec == null)
+					var npcRec = ENF.GetRecordByID(npc.NpcID);
+					if (npc.NpcID > ENF.Data.Count || npcRec == null)
 					{
-						Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} uses non-existent NPC #{3}. Removing.", mapID, npc.x, npc.y, npc.id);
+						Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} uses non-existent NPC #{3}. Removing.", mapID, npc.X, npc.Y, npc.NpcID);
 						EMF.NPCSpawns.RemoveAt(i);
 						changesMade = true;
 						continue;
 					}
 
-					if (npc.x > EMF.Properties.Width || npc.y > EMF.Properties.Height)
+					if (npc.X > EMF.Properties.Width || npc.Y > EMF.Properties.Height)
 					{
-						Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is out of map bounds. Removing.", mapID, npc.x, npc.y, npcRec.Name);
+						Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is out of map bounds. Removing.", mapID, npc.X, npc.Y, npcRec.Name);
 						EMF.NPCSpawns.RemoveAt(i);
 						changesMade = true;
 						continue;
 					}
 
-					if (!CheckTile(EMF, npc.x, npc.y))
+					if (!CheckTile(EMF, npc.X, npc.Y))
 					{
-						Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is invalid...", mapID, npc.x, npc.y, npcRec.Name);
+						Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is invalid...", mapID, npc.X, npc.Y, npcRec.Name);
 						var found = false;
-						for (int row = npc.y - 2; row < npc.y + 2; ++row)
+						for (int row = npc.Y - 2; row < npc.Y + 2; ++row)
 						{
 							if (found) break;
-							for (int col = npc.x - 2; col < npc.x + 2; ++col)
+							for (int col = npc.X - 2; col < npc.X + 2; ++col)
 							{
 								if (found) break;
 								if (CheckTile(EMF, col, row))
