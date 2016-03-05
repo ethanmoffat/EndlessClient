@@ -45,6 +45,7 @@ namespace EOLib.Data.BLL
 		ICharacterRenderProperties WithNextWalkFrame();
 		ICharacterRenderProperties WithNextAttackFrame();
 		ICharacterRenderProperties WithNextEmoteFrame();
+		ICharacterRenderProperties ResetAnimationFrames();
 		ICharacterRenderProperties WithSitState(SitState newState);
 
 		ICharacterRenderProperties WithIsHidden(bool hidden);

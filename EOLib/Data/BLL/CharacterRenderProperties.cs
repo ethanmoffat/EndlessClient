@@ -125,6 +125,15 @@ namespace EOLib.Data.BLL
 			return props;
 		}
 
+		public ICharacterRenderProperties ResetAnimationFrames()
+		{
+			var props = MakeCopy(this);
+			props.WalkFrame = 0;
+			props.AttackFrame = 0;
+			props.EmoteFrame = 0;
+			return props;
+		}
+
 		public ICharacterRenderProperties WithSitState(SitState newState)
 		{
 			var props = MakeCopy(this);
