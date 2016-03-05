@@ -24,7 +24,9 @@ namespace EOLib.Data.BLL
 		int WalkFrame { get; }
 		int AttackFrame { get; }
 		int EmoteFrame { get; }
+		
 		SitState SitState { get; }
+		Emote Emote { get; }
 
 		bool IsHidden { get; }
 		bool IsDead { get; }
@@ -46,7 +48,9 @@ namespace EOLib.Data.BLL
 		ICharacterRenderProperties WithNextAttackFrame();
 		ICharacterRenderProperties WithNextEmoteFrame();
 		ICharacterRenderProperties ResetAnimationFrames();
+
 		ICharacterRenderProperties WithSitState(SitState newState);
+		ICharacterRenderProperties WithEmote(Emote emote);
 
 		ICharacterRenderProperties WithIsHidden(bool hidden);
 		ICharacterRenderProperties WithDead();

@@ -30,6 +30,7 @@ namespace EOLib.Data.BLL
 		public int EmoteFrame { get; private set; }
 
 		public SitState SitState { get; private set; }
+		public Emote Emote { get; private set; }
 
 		public bool IsHidden { get; private set; }
 		public bool IsDead { get; private set; }
@@ -141,6 +142,13 @@ namespace EOLib.Data.BLL
 			return props;
 		}
 
+		public ICharacterRenderProperties WithEmote(Emote emote)
+		{
+			var props = MakeCopy(this);
+			props.Emote = emote;
+			return props;
+		}
+
 		public ICharacterRenderProperties WithIsHidden(bool hidden)
 		{
 			var props = MakeCopy(this);
@@ -174,6 +182,9 @@ namespace EOLib.Data.BLL
 				WalkFrame = other.WalkFrame,
 				AttackFrame = other.AttackFrame,
 				EmoteFrame = other.EmoteFrame,
+
+				SitState = other.SitState,
+				Emote = other.Emote,
 
 				IsHidden = other.IsHidden,
 				IsDead = other.IsDead
