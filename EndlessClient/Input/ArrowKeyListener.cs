@@ -125,18 +125,18 @@ namespace EndlessClient.Input
 					if (Renderer.NoWall) goto case TileInfoReturnType.IsTileSpec;
 
 					var warpInfo = (Warp) info.MapElement;
-					if (warpInfo.door != DoorSpec.NoDoor)
+					if (warpInfo.DoorType != DoorSpec.NoDoor)
 					{
 						DoorSpec doorOpened;
-						if (!warpInfo.doorOpened && !warpInfo.backOff)
+						if (!warpInfo.IsDoorOpened && !warpInfo.DoorPacketSent)
 						{
-							if ((doorOpened = Character.CanOpenDoor(warpInfo.door)) == DoorSpec.Door)
+							if ((doorOpened = Character.CanOpenDoor(warpInfo.DoorType)) == DoorSpec.Door)
 								mapRend.StartOpenDoor(warpInfo, destX, destY);
 						}
 						else
 						{
 							//normal walking
-							if ((doorOpened = Character.CanOpenDoor(warpInfo.door)) == DoorSpec.Door)
+							if ((doorOpened = Character.CanOpenDoor(warpInfo.DoorType)) == DoorSpec.Door)
 								_walkIfValid(TileSpec.None, direction, destX, destY);
 						}
 
@@ -162,11 +162,11 @@ namespace EndlessClient.Input
 								" - " + strWhichKey);
 						}
 					}
-					else if (warpInfo.levelRequirement != 0 && Character.Stats.Level < warpInfo.levelRequirement)
+					else if (warpInfo.LevelRequirement != 0 && Character.Stats.Level < warpInfo.LevelRequirement)
 					{
 						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
 							DATCONST2.STATUS_LABEL_NOT_READY_TO_USE_ENTRANCE,
-							" - LVL " + warpInfo.levelRequirement);
+							" - LVL " + warpInfo.LevelRequirement);
 					}
 					else
 					{

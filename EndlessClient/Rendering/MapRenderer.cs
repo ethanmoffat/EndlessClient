@@ -204,8 +204,8 @@ namespace EndlessClient.Rendering
 			//need to reset door-related members when changing maps.
 			if (_door != null)
 			{
-				_door.doorOpened = false;
-				_door.backOff = false;
+				_door.IsDoorOpened = false;
+				_door.DoorPacketSent = false;
 				_door = null;
 				_doorY = 0;
 				_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -879,17 +879,17 @@ namespace EndlessClient.Rendering
 
 		public void StartOpenDoor(Warp warpRef, byte x, byte y)
 		{
-			warpRef.backOff = true; //set flag to prevent hella door packets from the client
+			warpRef.DoorPacketSent = true; //set flag to prevent hella door packets from the client
 			if(!_api.DoorOpen(x, y))
 				((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
 
 		public void OnDoorOpened(byte x, byte y)
 		{
-			if (_door != null && _door.doorOpened)
+			if (_door != null && _door.IsDoorOpened)
 			{
-				_door.doorOpened = false;
-				_door.backOff = false;
+				_door.IsDoorOpened = false;
+				_door.DoorPacketSent = false;
 				_doorY = 0;
 			}
 
@@ -897,7 +897,7 @@ namespace EndlessClient.Rendering
 			{
 				if(OldWorld.Instance.SoundEnabled)
 					((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorOpen).Play();
-				_door.doorOpened = true;
+				_door.IsDoorOpened = true;
 				_doorY = y;
 				_doorTimer.Change(3000, 0);
 			}
@@ -911,11 +911,11 @@ namespace EndlessClient.Rendering
 				return;
 			}
 
-			if (_door.doorOpened && OldWorld.Instance.SoundEnabled)
+			if (_door.IsDoorOpened && OldWorld.Instance.SoundEnabled)
 				((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorClose).Play();
 
-			_door.doorOpened = false;
-			_door.backOff = false; //back-off from sending a door packet.
+			_door.IsDoorOpened = false;
+			_door.DoorPacketSent = false; //back-off from sending a door packet.
 			_doorY = 0;
 			_doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
 		}
@@ -1393,7 +1393,7 @@ namespace EndlessClient.Rendering
 			//right-facing walls
 			if ((gfxNum = MapRef.GFX[MapLayer.WallRowsRight][rowIndex, colIndex]) > 0)
 			{
-				if (_door != null && _door.x == colIndex && _doorY == rowIndex && _door.doorOpened)
+				if (_door != null && _door.X == colIndex && _doorY == rowIndex && _door.IsDoorOpened)
 					gfxNum++;
 
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
@@ -1412,7 +1412,7 @@ namespace EndlessClient.Rendering
 			//down-facing walls
 			if ((gfxNum = MapRef.GFX[MapLayer.WallRowsDown][rowIndex, colIndex]) > 0)
 			{
-				if (_door != null && _door.x == colIndex && _doorY == rowIndex && _door.doorOpened)
+				if (_door != null && _door.X == colIndex && _doorY == rowIndex && _door.IsDoorOpened)
 					gfxNum++;
 
 				var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);

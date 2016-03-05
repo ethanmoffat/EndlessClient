@@ -133,7 +133,7 @@ namespace EndlessClient.Rendering
 					break;
 				case TileInfoReturnType.IsWarpSpec:
 					var warpInfo = (Warp) info.MapElement;
-					if (warpInfo.door != 0)
+					if (warpInfo.DoorType != 0)
 						miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
 					break;
 			}

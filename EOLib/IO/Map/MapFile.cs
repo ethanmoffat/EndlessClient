@@ -290,23 +290,23 @@ namespace EOLib.IO.Map
 				{
 					var w = new Warp
 					{
-						y = y,
-						x = filePacket.ReadChar(),
-						warpMap = filePacket.ReadShort(),
-						warpX = filePacket.ReadChar(),
-						warpY = filePacket.ReadChar(),
-						levelRequirement = filePacket.ReadChar(),
-						door = (DoorSpec)filePacket.ReadShort()
+						Y = y,
+						X = filePacket.ReadChar(),
+						DestinationMapID = filePacket.ReadShort(),
+						DestinationMapX = filePacket.ReadChar(),
+						DestinationMapY = filePacket.ReadChar(),
+						LevelRequirement = filePacket.ReadChar(),
+						DoorType = (DoorSpec)filePacket.ReadShort()
 					};
 
-					if (w.y <= Properties.Height && w.x <= Properties.Width)
+					if (w.Y <= Properties.Height && w.X <= Properties.Width)
 					{
-						_warps[w.y, w.x] = w;
+						_warps[w.Y, w.X] = w;
 
 						row.EntityItems.Add(new MapEntityItem<Warp>
 						{
 							Value = w,
-							X = w.x
+							X = w.X
 						});
 					}
 				}
@@ -459,12 +459,12 @@ namespace EOLib.IO.Map
 				foreach (var warpEntity in wr.EntityItems)
 				{
 					var ww = warpEntity.Value;
-					filePacket.AddChar(ww.x);
-					filePacket.AddShort(ww.warpMap);
-					filePacket.AddChar(ww.warpX);
-					filePacket.AddChar(ww.warpY);
-					filePacket.AddChar(ww.levelRequirement);
-					filePacket.AddShort((short)ww.door);
+					filePacket.AddChar(ww.X);
+					filePacket.AddShort(ww.DestinationMapID);
+					filePacket.AddChar(ww.DestinationMapX);
+					filePacket.AddChar(ww.DestinationMapY);
+					filePacket.AddChar(ww.LevelRequirement);
+					filePacket.AddShort((short)ww.DoorType);
 				}
 			}
 		}
