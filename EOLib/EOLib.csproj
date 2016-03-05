@@ -95,7 +95,10 @@
     <Compile Include="Crc.cs" />
     <Compile Include="DataFileConstants.cs" />
     <Compile Include="Data\BLL\CharacterRenderProperties.cs" />
+    <Compile Include="Data\BLL\CharacterStat.cs" />
+    <Compile Include="Data\BLL\CharacterStats.cs" />
     <Compile Include="Data\BLL\ICharacterRenderProperties.cs" />
+    <Compile Include="Data\BLL\ICharacterStats.cs" />
     <Compile Include="Data\BLL\NPC.cs" />
     <Compile Include="Data\INumberEncoderService.cs" />
     <Compile Include="Data\Map\BasicTileInfo.cs" />
