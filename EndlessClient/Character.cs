@@ -19,6 +19,66 @@ using XNAControls;
 namespace EndlessClient
 {
 	/// <summary>
+	/// This is data used to render the character in CharacterRenderer.cs
+	/// The values represented here are for loading GFX and do NOT represent IDs of items, etc.
+	/// </summary>
+	public class CharRenderData
+	{
+		private readonly object frameLocker = new object();
+		public string name;
+		public int id;
+		public byte level, hairstyle, haircolor, race, admin;
+		/// <summary>
+		/// 0 == female and 1 == male
+		/// </summary>
+		public byte gender;
+		public short boots, armor, hat, shield, weapon;
+
+		public int walkFrame, attackFrame, emoteFrame = -1;
+		
+		public EODirection facing;
+		public SitState sitting;
+		public bool hidden;
+		public bool update;
+		public bool hairNeedRefresh;
+		public bool dead;
+
+		public Emote emote;
+
+		public CharRenderData() { name = ""; }
+
+		public void SetHairColor(byte color) { haircolor = color; update = true; }
+		public void SetHairStyle(byte style) { hairstyle = style; update = true; }
+		public void SetRace(byte newrace) { race = newrace; update = true; }
+		public void SetGender(byte newgender) { gender = newgender; update = true; }
+
+		public void SetDirection(EODirection direction) { facing = direction; update = true; }
+		public void SetSitting(SitState sits) { sitting = sits; update = true; }
+		public void SetHidden(bool hiding) { hidden = hiding; update = true; }
+
+		public void SetShield(short newshield) { shield = newshield; update = true; }
+		public void SetArmor(short newarmor) { armor = newarmor; update = true; }
+		public void SetWeapon(short newweap) { weapon = newweap; update = true; }
+
+		public void SetHat(short newhat)
+		{
+			if (hat != 0 && newhat == 0)
+				hairNeedRefresh = true;
+			hat = newhat; update = true;
+		}
+		public void SetBoots(short newboots) { boots = newboots; update = true; }
+
+		public void SetWalkFrame(int wf)     { lock (frameLocker) walkFrame = wf; update = true; }
+		public void SetAttackFrame(int af)   { lock (frameLocker) attackFrame = af; update = true; }
+		public void SetEmoteFrame(int ef) { lock (frameLocker) emoteFrame = ef; update = true; }
+		public void SetUpdate(bool shouldUpdate) { update = shouldUpdate; }
+		public void SetHairNeedRefresh(bool shouldRefresh) { hairNeedRefresh = shouldRefresh; }
+		
+		public void SetDead(bool isDead) { dead = isDead; update = true; }
+		public void SetEmote(Emote which) { emote = which; update = true; }
+	}
+
+	/// <summary>
 	/// This is data used to track the stats of a player as a single, logically cohesive unit
 	/// </summary>
 	public class CharStatData
@@ -102,7 +162,7 @@ namespace EndlessClient
 		public List<CharacterSpell> Spells { get; private set; }
 
 		public CharStatData Stats { get; set; }
-		public ICharacterRenderProperties RenderProperties { get; private set; }
+		public CharRenderData RenderData { get; private set; }
 
 		public short CurrentMap { get; set; }
 		public int X { get; private set; }
@@ -169,7 +229,7 @@ namespace EndlessClient
 
 		private readonly PacketAPI m_packetAPI;
 
-		public Character(ICharacterRenderProperties renderProperties)
+		public Character()
 		{
 			//mock all members with non-null fields
 			//PacketAPI cannot be mocked...
@@ -178,16 +238,16 @@ namespace EndlessClient
 			PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
 
 			Stats = new CharStatData();
-			RenderProperties = renderProperties;
+			RenderData = new CharRenderData();
 
 			Name = PaddedGuildTag = GuildName = GuildRankStr = "";
 		}
 
-		public Character(PacketAPI api, int id, ICharacterRenderProperties renderProperties)
+		public Character(PacketAPI api, int id, CharRenderData data)
 		{
 			m_packetAPI = api;
 			ID = id;
-			RenderProperties = renderProperties ?? new CharacterRenderProperties();
+			RenderData = data ?? new CharRenderData();
 
 			Inventory = new List<InventoryItem>();
 			Spells = new List<CharacterSpell>();
@@ -195,7 +255,6 @@ namespace EndlessClient
 		}
 
 		//constructs a character from a packet sent from the server
-		//todo: factory object for construction?
 		public Character(PacketAPI api, CharacterData data)
 		{
 			//initialize lists
@@ -214,18 +273,18 @@ namespace EndlessClient
 
 			PaddedGuildTag = data.GuildTag;
 
-			RenderProperties = new CharacterRenderProperties()
-				.WithDirection(data.Direction)
-				.WithGender(data.Gender)
-				.WithHairStyle(data.HairStyle)
-				.WithHairColor(data.HairColor)
-				.WithRace(data.Race)
-				.WithSitState(data.Sitting)
-				.WithIsHidden(data.Hidden);
+			RenderData = new CharRenderData
+			{
+				facing = data.Direction,
+				level = data.Level,
+				gender = data.Gender,
+				hairstyle = data.HairStyle,
+				haircolor = data.HairColor,
+				race = data.Race
+			};
 
 			Stats = new CharStatData
 			{
-				Level = data.Level,
 				MaxHP = data.MaxHP,
 				HP = data.HP,
 				MaxTP = data.MaxTP,
@@ -237,6 +296,9 @@ namespace EndlessClient
 			EquipItem(ItemType.Hat, 0, data.Hat, true);
 			EquipItem(ItemType.Shield, 0, data.Shield, true);
 			EquipItem(ItemType.Weapon, 0, data.Weapon, true);
+			
+			RenderData.SetSitting(data.Sitting);
+			RenderData.SetHidden(data.Hidden);
 		}
 
 		public void UnequipItem(ItemType type, byte subLoc)
@@ -251,27 +313,27 @@ namespace EndlessClient
 				case ItemType.Weapon:
 					if (PaperDoll[(int)EquipLocation.Weapon] != 0 && !rewrite) return false;
 					PaperDoll[(int) EquipLocation.Weapon] = id;
-					RenderProperties = RenderProperties.WithWeaponGraphic(graphic);
+					RenderData.SetWeapon(graphic);
 					break;
 				case ItemType.Shield:
 					if (PaperDoll[(int)EquipLocation.Shield] != 0 && !rewrite) return false;
 					PaperDoll[(int) EquipLocation.Shield] = id;
-					RenderProperties = RenderProperties.WithShieldGraphic(graphic);
+					RenderData.SetShield(graphic);
 					break;
 				case ItemType.Armor:
 					if (PaperDoll[(int)EquipLocation.Armor] != 0 && !rewrite) return false;
 					PaperDoll[(int) EquipLocation.Armor] = id;
-					RenderProperties = RenderProperties.WithArmorGraphic(graphic);
+					RenderData.SetArmor(graphic);
 					break;
 				case ItemType.Hat:
 					if (PaperDoll[(int)EquipLocation.Hat] != 0 && !rewrite) return false;
 					PaperDoll[(int) EquipLocation.Hat] = id;
-					RenderProperties = RenderProperties.WithHatGraphic(graphic);
+					RenderData.SetHat(graphic);
 					break;
 				case ItemType.Boots:
 					if (PaperDoll[(int)EquipLocation.Boots] != 0 && !rewrite) return false;
 					PaperDoll[(int) EquipLocation.Boots] = id;
-					RenderProperties = RenderProperties.WithBootsGraphic(graphic);
+					RenderData.SetBoots(graphic);
 					break;
 				case ItemType.Gloves:
 					if (PaperDoll[(int)EquipLocation.Gloves] != 0 && !rewrite) return false;
@@ -363,28 +425,26 @@ namespace EndlessClient
 			if (copyPaperdoll)
 			{
 				//only set the doll graphic info in render data - don't change the paperdoll info!
-				RenderProperties = RenderProperties
-					.WithBootsGraphic(newGuy.Boots)
-					.WithArmorGraphic(newGuy.Armor)
-					.WithHatGraphic(newGuy.Hat)
-					.WithShieldGraphic(newGuy.Shield)
-					.WithWeaponGraphic(newGuy.Weapon);
+				RenderData.SetBoots(newGuy.Boots);
+				RenderData.SetArmor(newGuy.Armor);
+				RenderData.SetHat(newGuy.Hat);
+				RenderData.SetShield(newGuy.Shield);
+				RenderData.SetWeapon(newGuy.Weapon);
 			}
 			Stats.HP = newGuy.HP;
 			Stats.MaxHP = newGuy.MaxHP;
 			Stats.TP = newGuy.TP;
 			Stats.MaxTP = newGuy.MaxTP;
-			Stats.Level = newGuy.Level;
 
-			RenderProperties = RenderProperties.WithDirection(newGuy.Direction)
-				.WithHairStyle(newGuy.HairStyle)
-				.WithHairColor(newGuy.HairColor)
-				.WithGender(newGuy.Gender)
-				.WithRace(newGuy.Race)
-				.WithSitState(newGuy.Sitting)
-				.ResetAnimationFrames();
-
-			State = RenderProperties.SitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
+			RenderData.SetDirection(newGuy.Direction);
+			RenderData.SetHairStyle(newGuy.HairStyle);
+			RenderData.SetHairColor(newGuy.HairColor);
+			RenderData.SetGender(newGuy.Gender);
+			RenderData.SetRace(newGuy.Race);
+			RenderData.SetSitting(newGuy.Sitting);
+			RenderData.level = newGuy.Level;
+			RenderData.SetWalkFrame(0);
+			State = RenderData.sitting == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
 			CurrentMap = newGuy.Map;
 			X = newGuy.X;
 			Y = newGuy.Y;
@@ -405,8 +465,8 @@ namespace EndlessClient
 				if(!m_packetAPI.PlayerWalk(direction, destX, destY, admin && AdminLevel != AdminLevel.Player))
 					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
-			else if (RenderProperties.Direction != direction) //if a packet WALK_PLAYER was received: face them the right way first otherwise this will look weird
-				RenderProperties = RenderProperties.WithDirection(direction);
+			else if (RenderData.facing != direction) //if a packet WALK_PLAYER was received: face them the right way first otherwise this will look weird
+				RenderData.SetDirection(direction);
 
 			DestX = destX;
 			DestY = destY;
@@ -420,7 +480,7 @@ namespace EndlessClient
 			State = CharacterActionState.Standing;
 			X = DestX;
 			Y = DestY;
-			RenderProperties = RenderProperties.ResetAnimationFrames();
+			RenderData.SetWalkFrame(0);
 		}
 
 		public void Attack(EODirection direction, byte x = 255, byte y = 255)
@@ -447,8 +507,8 @@ namespace EndlessClient
 				if(shouldSend && !m_packetAPI.AttackUse(direction))
 					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
-			else if(RenderProperties.Direction != direction)
-				RenderProperties = RenderProperties.WithDirection(direction);
+			else if(RenderData.facing != direction)
+				RenderData.SetDirection(direction);
 
 			State = CharacterActionState.Attacking;
 			Stats.SP--;
@@ -457,7 +517,7 @@ namespace EndlessClient
 		public void DoneAttacking()
 		{
 			State = CharacterActionState.Standing;
-			RenderProperties = RenderProperties.ResetAnimationFrames();
+			RenderData.SetAttackFrame(0);
 		}
 
 		public void Emote(Emote whichEmote)
@@ -467,24 +527,25 @@ namespace EndlessClient
 				whichEmote != EOLib.Net.API.Emote.Trade)
 			{
 				if (m_packetAPI.ReportEmote(whichEmote))
-					RenderProperties = RenderProperties.WithEmote(whichEmote);
+					RenderData.SetEmote(whichEmote);
 				else
 					EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 			}
 
-			RenderProperties = RenderProperties.ResetAnimationFrames()
-				.WithEmote(whichEmote);
+			RenderData.SetEmoteFrame(0);
+			RenderData.SetEmote(whichEmote);
 		}
 
 		public void DoneEmote()
 		{
-			RenderProperties = RenderProperties.ResetAnimationFrames();
+			RenderData.SetEmoteFrame(-1);
 		}
 
 		public void Face(EODirection direction)
 		{
+			//send packet to server: update client side if send was successful
 			if(m_packetAPI.FacePlayer(direction))
-				RenderProperties = RenderProperties.WithDirection(direction);
+				RenderData.SetDirection(direction); //updates the data in the character renderer as well
 			else
 				EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 		}
@@ -568,13 +629,13 @@ namespace EndlessClient
 			}
 		}
 
-		public void SetDisplayItemsFromRenderData(AvatarData avatarData)
+		public void SetDisplayItemsFromRenderData(CharRenderData newRenderData)
 		{
-			EquipItem(ItemType.Boots,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Boots  && x.DollGraphic == avatarData.Boots)  ?? new ItemRecord(0)).ID, avatarData.Boots,  true);
-			EquipItem(ItemType.Armor,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Armor  && x.DollGraphic == avatarData.Armor)  ?? new ItemRecord(0)).ID, avatarData.Armor,  true);
-			EquipItem(ItemType.Hat,    (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Hat    && x.DollGraphic == avatarData.Hat)    ?? new ItemRecord(0)).ID, avatarData.Hat,    true);
-			EquipItem(ItemType.Shield, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Shield && x.DollGraphic == avatarData.Shield) ?? new ItemRecord(0)).ID, avatarData.Shield, true);
-			EquipItem(ItemType.Weapon, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == avatarData.Weapon) ?? new ItemRecord(0)).ID, avatarData.Weapon, true);
+			EquipItem(ItemType.Boots,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Boots  && x.DollGraphic == newRenderData.boots)  ?? new ItemRecord(0)).ID, newRenderData.boots,  true);
+			EquipItem(ItemType.Armor,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Armor  && x.DollGraphic == newRenderData.armor)  ?? new ItemRecord(0)).ID, newRenderData.armor,  true);
+			EquipItem(ItemType.Hat,    (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Hat    && x.DollGraphic == newRenderData.hat)    ?? new ItemRecord(0)).ID, newRenderData.hat,    true);
+			EquipItem(ItemType.Shield, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Shield && x.DollGraphic == newRenderData.shield) ?? new ItemRecord(0)).ID, newRenderData.shield, true);
+			EquipItem(ItemType.Weapon, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == newRenderData.weapon) ?? new ItemRecord(0)).ID, newRenderData.weapon, true);
 		}
 
 		public void GainExp(int amount)
@@ -744,11 +805,13 @@ namespace EndlessClient
 		{
 			PreparingSpell = false;
 			State = CharacterActionState.SpellCast;
+			RenderData.SetUpdate(true);
 		}
 
 		public void SetSpellCastComplete()
 		{
 			State = CharacterActionState.Standing;
+			RenderData.SetUpdate(true);
 		}
 	}
 }

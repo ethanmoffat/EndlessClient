@@ -41,7 +41,7 @@ namespace EndlessClient.Input
 					byte destX, destY;
 					_getDestCoordinates(direction, out destX, out destY);
 
-					if (Character.RenderProperties.facing != direction) //face correct direction if needed
+					if (Character.RenderData.facing != direction) //face correct direction if needed
 					{
 						Character.Face(direction);
 					}

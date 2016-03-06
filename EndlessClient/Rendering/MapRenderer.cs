@@ -417,7 +417,7 @@ namespace EndlessClient.Rendering
 						_characterRenderers[_characterRenderers.Count - 1].Visible = true;
 						_characterRenderers[_characterRenderers.Count - 1].Initialize();
 					}
-					other.RenderProperties.SetUpdate(true);
+					other.RenderData.SetUpdate(true);
 				}
 				else
 				{
@@ -468,7 +468,7 @@ namespace EndlessClient.Rendering
 			{
 				int ndx;
 				if ((ndx = _characterRenderers.FindIndex(x => x.Character.ID == ID)) >= 0)
-					_characterRenderers[ndx].Character.RenderProperties.SetDirection(direction);
+					_characterRenderers[ndx].Character.RenderData.SetDirection(direction);
 			}
 		}
 
@@ -524,7 +524,7 @@ namespace EndlessClient.Rendering
 				int ndx;
 				if ((ndx = _characterRenderers.FindIndex(x => x.Character.ID == ID)) >= 0)
 				{
-					_characterRenderers[ndx].Character.RenderProperties.SetHidden(hidden);
+					_characterRenderers[ndx].Character.RenderData.SetHidden(hidden);
 				}
 			}
 		}
@@ -610,7 +610,7 @@ namespace EndlessClient.Rendering
 						fromRenderer.StopShouting(showShoutName);
 						fromRenderer.StartCastingSpell();
 					}
-					fromRenderer.Character.RenderProperties.SetDirection(fromPlayerDirection);
+					fromRenderer.Character.RenderData.SetDirection(fromPlayerDirection);
 				}
 
 				if (toRenderer != null) //do target renderer stuff
@@ -664,10 +664,10 @@ namespace EndlessClient.Rendering
 		{
 			//when mainplayer walks, tell other players to update!
 			lock (_characterListLock)
-				_characterRenderers.Select(x => x.Character).ToList().ForEach(x => x.RenderProperties.SetUpdate(true));
+				_characterRenderers.Select(x => x.Character).ToList().ForEach(x => x.RenderData.SetUpdate(true));
 		}
 
-		public void UpdateOtherPlayerRenderData(short playerId, bool sound, AvatarData avatarData)
+		public void UpdateOtherPlayerRenderData(short playerId, bool sound, CharRenderData newRenderData)
 		{
 			Character c = playerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
 				? OldWorld.Instance.MainPlayer.ActiveCharacter
@@ -675,7 +675,7 @@ namespace EndlessClient.Rendering
 
 			if (c != null)
 			{
-				c.SetDisplayItemsFromRenderData(avatarData);
+				c.SetDisplayItemsFromRenderData(newRenderData);
 				//todo: play sound?
 			}
 		}
@@ -688,8 +688,8 @@ namespace EndlessClient.Rendering
 
 			if (c != null)
 			{
-				c.RenderProperties.SetHairColor(hairColor);
-				if (hairStyle != 255) c.RenderProperties.SetHairStyle(hairStyle);
+				c.RenderData.SetHairColor(hairColor);
+				if (hairStyle != 255) c.RenderData.SetHairStyle(hairStyle);
 			}
 		}
 
@@ -770,12 +770,12 @@ namespace EndlessClient.Rendering
 					var renderer = _characterRenderers.Find(x => x.Character.ID == playerID);
 					if (renderer != null)
 					{
-						renderer.Character.RenderProperties.SetDirection(playerDirection);
+						renderer.Character.RenderData.SetDirection(playerDirection);
 						renderer.StopShouting(true);
 						renderer.StartCastingSpell();
 					}
 					else if (playerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-						OldWorld.Instance.ActiveCharacterRenderer.Character.RenderProperties.SetDirection(playerDirection);
+						OldWorld.Instance.ActiveCharacterRenderer.Character.RenderData.SetDirection(playerDirection);
 				}
 			}
 		}
@@ -863,8 +863,8 @@ namespace EndlessClient.Rendering
 
 					if (rend != null)
 					{
-						if (rend.Character.RenderProperties.facing != fromDirection)
-							rend.Character.RenderProperties.SetDirection(fromDirection);
+						if (rend.Character.RenderData.facing != fromDirection)
+							rend.Character.RenderData.SetDirection(fromDirection);
 						opponent = rend.Character;
 					}
 				}
@@ -1354,7 +1354,7 @@ namespace EndlessClient.Rendering
 
 			_drawRoofsOnTop(drawRoofLater, c);
 
-			_sb.Begin(SpriteSortMode.Deferred, OldWorld.Instance.MainPlayer.ActiveCharacter.RenderProperties.hidden ? BlendState.NonPremultiplied : _playerBlend);
+			_sb.Begin(SpriteSortMode.Deferred, OldWorld.Instance.MainPlayer.ActiveCharacter.RenderData.hidden ? BlendState.NonPremultiplied : _playerBlend);
 			OldWorld.Instance.ActiveCharacterRenderer.Draw(_sb, true);
 			_sb.End();
 

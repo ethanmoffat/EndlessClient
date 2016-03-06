@@ -48,7 +48,7 @@ namespace EndlessClient.Rendering
 		{
 			get
 			{
-				CharRenderData data = (_char != null ? _char.RenderProperties : _data) ?? new CharRenderData();
+				CharRenderData data = (_char != null ? _char.RenderData : _data) ?? new CharRenderData();
 				return data;
 			}
 		}
@@ -175,7 +175,7 @@ namespace EndlessClient.Rendering
 
 			spriteSheet = new EOSpriteSheet(((EOGame)Game).GFXManager, charToRender);
 			_char = charToRender;
-			_data = charToRender.RenderProperties;
+			_data = charToRender.RenderData;
 			Texture2D tmpSkin = spriteSheet.GetSkin(false, out m_skinSourceRect);
 			if (_char != OldWorld.Instance.MainPlayer.ActiveCharacter)
 			{
@@ -426,10 +426,10 @@ namespace EndlessClient.Rendering
 
 		private void _checkBringBackFromDead()
 		{
-			if (m_deadTime != null && Character.RenderProperties.dead && (DateTime.Now - m_deadTime.Value).TotalSeconds > 2)
+			if (m_deadTime != null && Character.RenderData.dead && (DateTime.Now - m_deadTime.Value).TotalSeconds > 2)
 			{
 				m_deadTime = null;
-				Character.RenderProperties.SetDead(false);
+				Character.RenderData.SetDead(false);
 				CompleteDeath = true;
 			}
 		}
@@ -657,7 +657,7 @@ namespace EndlessClient.Rendering
 
 		public void PlayerEmote()
 		{
-			if (OldWorld.Instance.SoundEnabled && Character.RenderProperties.emote == Emote.LevelUp)
+			if (OldWorld.Instance.SoundEnabled && Character.RenderData.emote == Emote.LevelUp)
 				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.LevelUp).Play();
 			else if (!string.IsNullOrEmpty(_shoutName))
 				_cancelSpell(false);
@@ -683,7 +683,7 @@ namespace EndlessClient.Rendering
 
 			if(OldWorld.Instance.SoundEnabled)
 				EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Dead).Play();
-			Character.RenderProperties.SetDead(true);
+			Character.RenderData.SetDead(true);
 			m_deadTime = DateTime.Now;
 		}
 
@@ -706,10 +706,10 @@ namespace EndlessClient.Rendering
 				if(!started) sb.End();
 			}
 
-			if (_char == null || _char.RenderProperties == null) return;
+			if (_char == null || _char.RenderData == null) return;
 
 			//note: if character is hidden, only draw if a) they are not active character and b) the active character is admin
-			if (_char != OldWorld.Instance.MainPlayer.ActiveCharacter && _char.RenderProperties.hidden &&
+			if (_char != OldWorld.Instance.MainPlayer.ActiveCharacter && _char.RenderData.hidden &&
 				OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
 				return;
 
@@ -718,7 +718,7 @@ namespace EndlessClient.Rendering
 
 			if(!started) sb.Begin();
 			sb.Draw(_charRenderTarget, new Vector2(0, 0),
-				_char.RenderProperties.hidden || _char.RenderProperties.dead ? Color.FromNonPremultiplied(255, 255, 255, 128) : Color.White);
+				_char.RenderData.hidden || _char.RenderData.dead ? Color.FromNonPremultiplied(255, 255, 255, 128) : Color.White);
 			if(!started) sb.End();
 
 			if (_effectRenderer != null)
@@ -867,7 +867,7 @@ namespace EndlessClient.Rendering
 				flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0f);
 
 			//get face and draw
-			if (Character.RenderProperties.emoteFrame >= 0)
+			if (Character.RenderData.emoteFrame >= 0)
 			{
 				Rectangle faceRect, emoteRect;
 				Texture2D face = spriteSheet.GetFace(out faceRect), 

@@ -466,7 +466,7 @@ namespace EndlessClient.HUD.Inventory
 						}
 					}
 					else if (m_itemData.Type == ItemType.Armor &&
-							 m_itemData.Gender != c.RenderProperties.gender)
+							 m_itemData.Gender != c.RenderData.gender)
 					{
 						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
 							DATCONST2.STATUS_LABEL_ITEM_EQUIP_DOES_NOT_FIT_GENDER);
