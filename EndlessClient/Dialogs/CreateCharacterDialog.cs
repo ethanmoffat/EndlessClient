@@ -19,7 +19,7 @@ namespace EndlessClient
 		private readonly XNATextBox inputBox;
 		private readonly XNAButton[] arrowButtons = new XNAButton[4];
 		private readonly Rectangle[] srcRects = new Rectangle[4]; //these are rectangles for the sprite sheet with the different parameter colors (hair colors, styles, etc)
-		private readonly CharacterRenderer charRender;
+		private readonly OldCharacterRenderer charRender;
 
 		public byte Gender { get { return charRender.Gender; } }
 		public byte HairType { get { return charRender.HairType; } }
@@ -62,7 +62,7 @@ namespace EndlessClient
 				arrowButtons[i] = btn;
 			}
 
-			charRender = new CharacterRenderer(new Vector2(269, 83), new CharRenderData { gender = 0, hairstyle = 1, haircolor = 0, race = 0 });
+			charRender = new OldCharacterRenderer(new Vector2(269, 83), new CharRenderData { gender = 0, hairstyle = 1, haircolor = 0, race = 0 });
 			charRender.SetParent(this);
 			srcRects[0] = new Rectangle(0, 38, 23, 19);
 			srcRects[1] = new Rectangle(0, 19, 23, 19);

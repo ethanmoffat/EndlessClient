@@ -26,7 +26,7 @@ namespace EndlessClient.Rendering
 	{
 		//collections
 		private readonly Dictionary<Point, List<MapItem>> _mapItems = new Dictionary<Point, List<MapItem>>();
-		private readonly List<CharacterRenderer> _characterRenderers = new List<CharacterRenderer>();
+		private readonly List<OldCharacterRenderer> _characterRenderers = new List<OldCharacterRenderer>();
 		private readonly List<NPCRenderer> _npcRenderers = new List<NPCRenderer>();
 		private readonly object _npcListLock = new object(), _characterListLock = new object();
 
@@ -121,7 +121,7 @@ namespace EndlessClient.Rendering
 				{
 					dgc = _characterRenderers.Find(_rend => _rend.Character.ID == playerID);
 					if (dgc != null)
-						playerName = ((CharacterRenderer) dgc).Character.Name;
+						playerName = ((OldCharacterRenderer) dgc).Character.Name;
 				}
 			}
 
@@ -158,8 +158,8 @@ namespace EndlessClient.Rendering
 			//show just the speech bubble, since this should be called from the HUD and rendered there already
 
 // ReSharper disable CanBeReplacedWithTryCastAndCheckForNull
-			if (follow is CharacterRenderer)
-				((CharacterRenderer)follow).SetChatBubbleText(message, groupChat);
+			if (follow is OldCharacterRenderer)
+				((OldCharacterRenderer)follow).SetChatBubbleText(message, groupChat);
 			else if (follow is NPCRenderer)
 				((NPCRenderer)follow).SetChatBubbleText(message, groupChat);
 // ReSharper restore CanBeReplacedWithTryCastAndCheckForNull
@@ -404,7 +404,7 @@ namespace EndlessClient.Rendering
 		#region /* PUBLIC INTERFACE -- OTHER PLAYERS */
 		public void AddOtherPlayer(CharacterData c, WarpAnimation anim = WarpAnimation.None)
 		{
-			CharacterRenderer otherRend = null;
+			OldCharacterRenderer otherRend = null;
 			lock (_characterListLock)
 			{
 				Character other = _characterRenderers.Select(x => x.Character).FirstOrDefault(x => x.Name == c.Name && x.ID == c.ID);
@@ -413,7 +413,7 @@ namespace EndlessClient.Rendering
 					other = new Character(_api, c);
 					lock (_characterListLock)
 					{
-						_characterRenderers.Add(otherRend = new CharacterRenderer(other));
+						_characterRenderers.Add(otherRend = new OldCharacterRenderer(other));
 						_characterRenderers[_characterRenderers.Count - 1].Visible = true;
 						_characterRenderers[_characterRenderers.Count - 1].Initialize();
 					}
@@ -476,7 +476,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_characterListLock)
 			{
-				CharacterRenderer rend = _characterRenderers.Find(_rend => _rend.Character.ID == ID);
+				OldCharacterRenderer rend = _characterRenderers.Find(_rend => _rend.Character.ID == ID);
 				if (rend != null)
 				{
 					rend.Character.Walk(direction, x, y, false);
@@ -493,7 +493,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_characterListLock)
 			{
-				CharacterRenderer rend = _characterRenderers.Find(_rend => _rend.Character.ID == ID);
+				OldCharacterRenderer rend = _characterRenderers.Find(_rend => _rend.Character.ID == ID);
 				if (rend != null)
 				{
 					rend.Character.Attack(direction);
@@ -508,7 +508,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_characterListLock)
 			{
-				CharacterRenderer rend = _characterRenderers.Find(cc => cc.Character.ID == playerID);
+				OldCharacterRenderer rend = _characterRenderers.Find(cc => cc.Character.ID == playerID);
 				if (rend != null)
 				{
 					rend.Character.Emote(emote);
@@ -533,7 +533,7 @@ namespace EndlessClient.Rendering
 		{
 			lock (_characterListLock)
 			{
-				CharacterRenderer rend = ID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
+				OldCharacterRenderer rend = ID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
 					? OldWorld.Instance.ActiveCharacterRenderer
 					: _characterRenderers.Find(_rend => _rend.Character.ID == ID);
 
@@ -701,14 +701,14 @@ namespace EndlessClient.Rendering
 			return retChar;
 		}
 
-		public void ShowContextMenu(CharacterRenderer player)
+		public void ShowContextMenu(OldCharacterRenderer player)
 		{
 			_mouseCursorRenderer.ShowContextMenu(player);
 		}
 
 		public void ShowPotionEffect(short playerID, int effectID)
 		{
-			CharacterRenderer renderer;
+			OldCharacterRenderer renderer;
 			lock (_characterListLock)
 				renderer = _characterRenderers.SingleOrDefault(x => x.Character.ID == playerID);
 			if (renderer != null)
@@ -826,7 +826,7 @@ namespace EndlessClient.Rendering
 
 			lock (_characterListLock)
 			{
-				CharacterRenderer rend = targetPlayerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
+				OldCharacterRenderer rend = targetPlayerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
 					? OldWorld.Instance.ActiveCharacterRenderer
 					: _characterRenderers.Find(_rend => _rend.Character.ID == targetPlayerId);
 
@@ -956,7 +956,7 @@ namespace EndlessClient.Rendering
 			}
 		}
 
-		private void _spikeDamageShared(CharacterRenderer rend, int damageAmount, int percentHealth, bool isPlayerDead)
+		private void _spikeDamageShared(OldCharacterRenderer rend, int damageAmount, int percentHealth, bool isPlayerDead)
 		{
 			rend.SetDamageCounterValue(damageAmount, percentHealth);
 			if (isPlayerDead)
@@ -1100,7 +1100,7 @@ namespace EndlessClient.Rendering
 			OldWorld.Instance.ActiveCharacterRenderer.Update(gameTime);
 			lock (_characterListLock)
 			{
-				foreach (CharacterRenderer rend in _characterRenderers)
+				foreach (OldCharacterRenderer rend in _characterRenderers)
 					rend.Update(gameTime); //do update logic here: other renderers will NOT be added to Game's components
 
 				var deadRenderers = _characterRenderers.Where(x => x.CompleteDeath);
@@ -1272,9 +1272,9 @@ namespace EndlessClient.Rendering
 
 			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
-			List<CharacterRenderer> otherChars;
+			List<OldCharacterRenderer> otherChars;
 			lock (_characterListLock)
-				otherChars = new List<CharacterRenderer>(_characterRenderers); //copy of list (can remove items)
+				otherChars = new List<OldCharacterRenderer>(_characterRenderers); //copy of list (can remove items)
 
 			List<NPCRenderer> otherNpcs;
 			lock(_npcListLock)
@@ -1453,7 +1453,7 @@ namespace EndlessClient.Rendering
 			}
 		}
 
-		private void _drawCharactersAndNPCsAtLoc(int rowIndex, int colIndex, List<NPCRenderer> otherNpcs, List<CharacterRenderer> otherChars)
+		private void _drawCharactersAndNPCsAtLoc(int rowIndex, int colIndex, List<NPCRenderer> otherNpcs, List<OldCharacterRenderer> otherChars)
 		{
 			var thisLocNpcs = otherNpcs.Where(_npc => (_npc.NPC.Walking ? _npc.NPC.DestY == rowIndex : _npc.NPC.Y == rowIndex) &&
 													  (_npc.NPC.Walking ? _npc.NPC.DestX == colIndex : _npc.NPC.X == colIndex)).ToList();
@@ -1523,7 +1523,7 @@ namespace EndlessClient.Rendering
 			}
 		}
 
-		private void _renderSpellOnPlayer(short spellID, CharacterRenderer renderer)
+		private void _renderSpellOnPlayer(short spellID, OldCharacterRenderer renderer)
 		{
 			if (spellID < 1) return;
 
@@ -1611,7 +1611,7 @@ namespace EndlessClient.Rendering
 				}
 
 				lock (_characterListLock)
-					foreach (CharacterRenderer cr in _characterRenderers)
+					foreach (OldCharacterRenderer cr in _characterRenderers)
 						cr.Dispose();
 
 				lock (_npcListLock)

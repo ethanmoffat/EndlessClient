@@ -19,7 +19,7 @@ namespace EndlessClient.Input
 		private DateTime? _lastInputTime;
 
 		protected Character Character { get { return OldWorld.Instance.MainPlayer.ActiveCharacter; } }
-		protected CharacterRenderer Renderer { get { return OldWorld.Instance.ActiveCharacterRenderer; } }
+		protected OldCharacterRenderer Renderer { get { return OldWorld.Instance.ActiveCharacterRenderer; } }
 
 		public event Action<DateTime> InputTimeUpdated;
 

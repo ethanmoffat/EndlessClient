@@ -764,7 +764,7 @@ namespace EndlessClient
 			{
 				case EOLib.IO.SpellTarget.Normal:
 					var targetAsNPC = SpellTarget as NPCRenderer;
-					var targetAsChar = SpellTarget as CharacterRenderer;
+					var targetAsChar = SpellTarget as OldCharacterRenderer;
 					if (targetAsNPC != null)
 						result = m_packetAPI.DoCastTargetSpell((short) id, true, targetAsNPC.NPC.Index);
 					else if (targetAsChar != null)
@@ -790,7 +790,7 @@ namespace EndlessClient
 
 		public void SetSpellTarget(DrawableGameComponent target)
 		{
-			if (target != null && !(target is NPCRenderer || target is CharacterRenderer)) //don't set target when it isn't valid!
+			if (target != null && !(target is NPCRenderer || target is OldCharacterRenderer)) //don't set target when it isn't valid!
 				return;
 
 			SpellTarget = target;

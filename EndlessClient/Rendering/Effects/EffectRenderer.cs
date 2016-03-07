@@ -45,7 +45,7 @@ namespace EndlessClient.Rendering.Effects
 			: this(gfxManager, (DrawableGameComponent)npc, cleanupAction) { }
 
 		public EffectRenderer(INativeGraphicsManager gfxManager,
-							  CharacterRenderer character,
+							  OldCharacterRenderer character,
 							  Action cleanupAction = null)
 			: this(gfxManager, (DrawableGameComponent)character, cleanupAction) { }
 
@@ -144,7 +144,7 @@ namespace EndlessClient.Rendering.Effects
 			return npc.MapProjectedDrawArea;
 		}
 
-		private Rectangle GetTargetRectangle(CharacterRenderer character)
+		private Rectangle GetTargetRectangle(OldCharacterRenderer character)
 		{
 			//Because the rendering code is terrible, the character rectangle needs an additional offset
 			var rect = character.DrawAreaWithOffset;

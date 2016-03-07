@@ -124,7 +124,7 @@
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rendering\CharacterRenderer.cs" />
+    <Compile Include="Rendering\OldCharacterRenderer.cs" />
     <Compile Include="Rendering\ChatBubbleRenderer.cs" />
     <Compile Include="Rendering\ContextMenuRenderer.cs" />
     <Compile Include="Rendering\Effects\AuraEffectSpriteInfo.cs" />

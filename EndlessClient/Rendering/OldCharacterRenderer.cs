@@ -38,7 +38,7 @@ namespace EndlessClient.Rendering
 	/// <para>So, Draw is only called from MapRenderer._doMapDrawing
 	/// (Update and initialize are also called from MapRenderer)</para>
 	/// </summary>
-	public class CharacterRenderer : XNAControl
+	public class OldCharacterRenderer : XNAControl
 	{
 		private readonly Character _char;
 		public Character Character { get { return _char; } }
@@ -164,7 +164,7 @@ namespace EndlessClient.Rendering
 		/// Construct a character renderer in-game
 		/// </summary>
 		/// <param name="charToRender">The character data that should be wrapped by this renderer</param>
-		public CharacterRenderer(Character charToRender)
+		public OldCharacterRenderer(Character charToRender)
 		{
 			//this has been happening when shit gets disconnected due to invalid sequence or internal packet id
 			if (charToRender == null)
@@ -221,7 +221,7 @@ namespace EndlessClient.Rendering
 		/// </summary>
 		/// <param name="drawLocation">Where to draw it</param>
 		/// <param name="data">Render data to use for drawing</param>
-		public CharacterRenderer(Vector2 drawLocation, CharRenderData data)
+		public OldCharacterRenderer(Vector2 drawLocation, CharRenderData data)
 			: base(drawLocation, null)
 		{
 			noLocUpdate = true;

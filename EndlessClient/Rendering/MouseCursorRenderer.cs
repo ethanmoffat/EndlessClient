@@ -61,7 +61,7 @@ namespace EndlessClient.Rendering
 			_mainCharacter = OldWorld.Instance.MainPlayer.ActiveCharacter;
 		}
 
-		public void ShowContextMenu(CharacterRenderer player)
+		public void ShowContextMenu(OldCharacterRenderer player)
 		{
 			_contextMenu.SetCharacterRenderer(player);
 		}

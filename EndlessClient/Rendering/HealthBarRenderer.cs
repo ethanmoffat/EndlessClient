@@ -43,7 +43,7 @@ namespace EndlessClient.Rendering
 			{
 				m_isCharacter = false;
 			}
-			else if (m_ref is CharacterRenderer)
+			else if (m_ref is OldCharacterRenderer)
 			{
 				m_isCharacter = true;
 			}
@@ -126,7 +126,7 @@ namespace EndlessClient.Rendering
 
 			if (m_isCharacter)
 			{
-				Rectangle tmp = ((CharacterRenderer)m_ref).DrawAreaWithOffset;
+				Rectangle tmp = ((OldCharacterRenderer)m_ref).DrawAreaWithOffset;
 				m_healthBarPos = new Vector2(tmp.X - 3, tmp.Y - 15);
 			}
 			else
@@ -153,7 +153,7 @@ namespace EndlessClient.Rendering
 				//misses should show dead center
 				if (m_isCharacter)
 				{
-					Rectangle tmp = ((CharacterRenderer) m_ref).DrawAreaWithOffset;
+					Rectangle tmp = ((OldCharacterRenderer) m_ref).DrawAreaWithOffset;
 					pos = new Vector2(tmp.X + 1, tmp.Y - m_additionalOffset - CHR_ADDITIONAL_OFFSET);
 				}
 				else
@@ -166,7 +166,7 @@ namespace EndlessClient.Rendering
 			{
 				if (m_isCharacter)
 				{
-					Rectangle tmp = ((CharacterRenderer) m_ref).DrawAreaWithOffset;
+					Rectangle tmp = ((OldCharacterRenderer) m_ref).DrawAreaWithOffset;
 					pos = new Vector2(tmp.X + 16 - (nDigits * 9) / 2f, tmp.Y - m_additionalOffset - CHR_ADDITIONAL_OFFSET);
 				}
 				else

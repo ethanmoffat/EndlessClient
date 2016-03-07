@@ -293,23 +293,23 @@ namespace EndlessClient
 			}
 		}
 
-		private CharacterRenderer m_charRender;
+		private OldCharacterRenderer m_charRender;
 
 		/// <summary>
 		/// Returns a reference to the primary CharacterRenderer associated with MainPlayer.ActiveCharacter
 		/// </summary>
-		public CharacterRenderer ActiveCharacterRenderer
+		public OldCharacterRenderer ActiveCharacterRenderer
 		{
 			get
 			{
 				//lazy initialization
 				if (m_charRender == null)
 				{
-					m_charRender = new CharacterRenderer(MainPlayer.ActiveCharacter);
+					m_charRender = new OldCharacterRenderer(MainPlayer.ActiveCharacter);
 					m_charRender.Initialize();
 				}
 
-				CharacterRenderer ret = m_charRender;
+				OldCharacterRenderer ret = m_charRender;
 
 				if(ret.Character == null)
 				{
@@ -321,7 +321,7 @@ namespace EndlessClient
 				if (ret.Character != MainPlayer.ActiveCharacter)
 				{
 					ret.Dispose();
-					ret = m_charRender = new CharacterRenderer(MainPlayer.ActiveCharacter);
+					ret = m_charRender = new OldCharacterRenderer(MainPlayer.ActiveCharacter);
 					m_charRender.Initialize();
 				}
 
