@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EndlessClient.Dialogs;
 using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;
@@ -12,7 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.Dialogs
 {
 	public class EOCreateCharacterDialog : EODialogBase
 	{
