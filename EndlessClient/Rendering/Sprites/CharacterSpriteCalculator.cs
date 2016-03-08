@@ -6,6 +6,7 @@ using EOLib;
 using EOLib.Data.BLL;
 using EOLib.Graphics;
 using EOLib.Net.API;
+using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Sprites
 {
@@ -237,7 +238,56 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetSkinTexture(bool isBow)
 		{
-			throw new System.NotImplementedException();
+			var sheetRows = 7;
+			var sheetColumns = 4;
+			var gfxNum = 1;
+
+			if (_characterRenderProperties.CurrentAction == CharacterActionState.Walking && _characterRenderProperties.WalkFrame > 0)
+			{
+				gfxNum = 2;
+				sheetColumns = 16;
+			}
+			else if (_characterRenderProperties.CurrentAction == CharacterActionState.Attacking && _characterRenderProperties.AttackFrame > 0)
+			{
+				if (!isBow)
+				{
+					gfxNum = 3;
+					sheetColumns = 8;
+				}
+				else if (_characterRenderProperties.AttackFrame == 1) //only 1 frame of bow/gun animation
+				{
+					gfxNum = 7; //4 columns in this one too
+				}
+			}
+			else if (_characterRenderProperties.CurrentAction == CharacterActionState.SpellCast)
+			{
+				gfxNum = 4;
+			}
+			else if (_characterRenderProperties.CurrentAction == CharacterActionState.Sitting)
+			{
+				if (_characterRenderProperties.SitState == SitState.Floor) gfxNum = 6;
+				else if (_characterRenderProperties.SitState == SitState.Chair) gfxNum = 5;
+			}
+			//similar if statements for spell, emote, etc
+
+			var texture = _gfxManager.TextureFromResource(GFXTypes.SkinSprites, gfxNum, true);
+
+			var rotated = _characterRenderProperties.Direction == EODirection.Left ||
+						  _characterRenderProperties.Direction == EODirection.Up;
+			var heightDelta = texture.Height / sheetRows; //the height of one 'row' in the sheet
+			var widthDelta = texture.Width / sheetColumns; //the width of one 'column' in the sheet
+			var section = texture.Width / 4; //each 'section' for a different set of graphics
+
+			var walkExtra = _characterRenderProperties.WalkFrame > 0 ? widthDelta * (_characterRenderProperties.WalkFrame - 1) : 0;
+			walkExtra = !isBow && _characterRenderProperties.AttackFrame > 0 ? widthDelta * (_characterRenderProperties.AttackFrame - 1) : walkExtra;
+
+			var sourceArea = new Rectangle(
+				_characterRenderProperties.Gender * widthDelta * (sheetColumns / 2) + (rotated ? section : 0) + walkExtra,
+				_characterRenderProperties.Race * heightDelta,
+				widthDelta,
+				heightDelta);
+
+			return new SpriteSheet(texture, sourceArea);
 		}
 
 		public ISpriteSheet GetHairTexture()
@@ -252,7 +302,30 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetEmoteTexture()
 		{
-			throw new System.NotImplementedException();
+			if (_characterRenderProperties.EmoteFrame < 0 ||
+				_characterRenderProperties.Emote == Emote.Trade ||
+				_characterRenderProperties.Emote == Emote.LevelUp)
+			{
+				return null;
+			}
+
+			//14 rows (7 female - 7 male) / 11 columns
+			const int ROWS = 14;
+			const int COLS = 11;
+
+			var texture = _gfxManager.TextureFromResource(GFXTypes.SkinSprites, 8, true);
+
+			var widthDelta = texture.Width / COLS;
+			var heightDelta = texture.Height / ROWS;
+			var genderOffset = texture.Height / 2 * _characterRenderProperties.Gender;
+			//'playful' is the last face in the gfx (ndx 10), even though it has enum value of 14 (ndx 13)
+			var emote = _characterRenderProperties.Emote == Emote.Playful ||
+						_characterRenderProperties.Emote == Emote.Drunk
+						? 10 : (int)_characterRenderProperties.Emote - 1;
+
+			var sourceRectangle = new Rectangle(widthDelta * emote, heightDelta * _characterRenderProperties.Race + genderOffset, widthDelta, heightDelta);
+
+			return new SpriteSheet(texture, sourceRectangle);
 		}
 
 		private short GetBaseBootGraphic()
