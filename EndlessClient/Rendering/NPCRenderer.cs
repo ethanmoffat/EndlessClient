@@ -51,7 +51,7 @@ namespace EndlessClient.Rendering
 		public NPCFrame Frame { get; private set; }
 
 		//drawing related members
-		private readonly EONPCSpriteSheet _npcSheet;
+		private readonly NPCSpriteSheet _npcSheet;
 		private SpriteBatch _sb;
 		private Rectangle _npcTextureFrameRectangle;
 		private bool hasStandFrame1;
@@ -81,7 +81,7 @@ namespace EndlessClient.Rendering
 			_actionStartTime = DateTime.Now;
 			_lastAnimUpdateTime = DateTime.Now;
 
-			_npcSheet = new EONPCSpriteSheet(((EOGame)Game).GFXManager, this);
+			_npcSheet = new NPCSpriteSheet(((EOGame)Game).GFXManager, this);
 
 			_chatBubble = new EOChatBubble(this);
 			m_damageCounter = new DamageCounter(this);

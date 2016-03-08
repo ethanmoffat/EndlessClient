@@ -5,7 +5,6 @@
 using System;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.IO;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework.Graphics;
 using XNA = Microsoft.Xna.Framework;
@@ -19,51 +18,6 @@ namespace EndlessClient.Rendering
 	//enums are stored with values that are the actual numbers instead of being indexes.
 	//so Standing=1 would refer to image number 101 (graphic no. 0 in game)
 
-	public enum ArmorShieldSpriteType
-	{
-							//dir1/dir2
-		Standing = 1,		//1/2
-		WalkFrame1 = 3,		//3/7
-		WalkFrame2 = 4,		//4/8
-		WalkFrame3 = 5,		//5/9
-		WalkFrame4 = 6,		//6/10
-		SpellCast = 11,		//11/12
-		PunchFrame1 = 13,	//13/15
-		PunchFrame2 = 14,	//14/16
-		
-		//not valid for shields:
-		SitChair = 17,		//17/18
-		SitGround = 19,		//19/20
-		Bow = 21,			//21/22
-	}
-
-	public enum WeaponSpriteType
-	{
-		Standing = 1, //1/2
-		WalkFrame1 = 3, //3/7
-		WalkFrame2 = 4, //4/8
-		WalkFrame3 = 5, //5/9
-		WalkFrame4 = 6, //6/10
-		SpellCast = 11, //11/12
-		SwingFrame1 = 13, //13/15
-		SwingFrame2 = 14, //14/16
-		SwingFrame2Spec = 17, //17 - special frame so that it shows well in the hand
-		//invalid for non-ranged weapons:
-		Shooting = 18, //18/19 AND 21/22 have same gfx
-	}
-
-	public enum BootsSpriteType
-	{
-		Standing = 1, //1/2
-		WalkFrame1 = 3, //3/7
-		WalkFrame2 = 4, //4/8
-		WalkFrame3 = 5, //5/9
-		WalkFrame4 = 6, //6/10
-		Attack = 11, //11/12
-		SitChair = 13, //13/14
-		SitGround = 15, //15/16
-	}
-	
 	public class EOSpriteSheet
 	{
 		private readonly INativeGraphicsManager _gfxManager;
@@ -463,70 +417,6 @@ namespace EndlessClient.Rendering
 					return 4;
 			}
 			return 1;
-		}
-	}
-
-	public enum NPCFrame
-	{
-		//comments are example graphic numbers for goat
-		Standing, //341, 343
-		StandingFrame1, //DNE for goat - for witch/smith, 942/1062
-		WalkFrame1, //345, 349
-		WalkFrame2, //346, 350
-		WalkFrame3, //347, 351
-		WalkFrame4, //348, 352
-		Attack1, //353, 355
-		Attack2, //354, 356
-		//there may be an Attack3 frame, there are 2 extra graphics at this point
-	}
-
-	public class EONPCSpriteSheet
-	{
-		private readonly INativeGraphicsManager _gfxManager;
-		private readonly NPCRenderer _npcRenderer;
-
-		public EONPCSpriteSheet(INativeGraphicsManager gfxManager, NPCRenderer npcToWatch)
-		{
-			_gfxManager = gfxManager;
-			_npcRenderer = npcToWatch;
-		}
-
-		public Texture2D GetNPCTexture()
-		{
-			EODirection dir = _npcRenderer.NPC.Direction;
-			int baseGfx = (_npcRenderer.NPC.Data.Graphic - 1) * 40;
-			int offset;
-			switch (_npcRenderer.Frame)
-			{
-				case NPCFrame.Standing:
-					offset = dir == EODirection.Down || dir == EODirection.Right ? 1 : 3;
-					break;
-				case NPCFrame.StandingFrame1:
-					offset = dir == EODirection.Down || dir == EODirection.Right ? 2 : 4;
-					break;
-				case NPCFrame.WalkFrame1:
-					offset = dir == EODirection.Down || dir == EODirection.Right ? 5 : 9;
-					break;
-				case NPCFrame.WalkFrame2:
-					offset = dir == EODirection.Down || dir == EODirection.Right ? 6 : 10;
-					break;
-				case NPCFrame.WalkFrame3:
-					offset = dir == EODirection.Down || dir == EODirection.Right ? 7 : 11;
-					break;
-				case NPCFrame.WalkFrame4:
-					offset = dir == EODirection.Down || dir == EODirection.Right ? 8 : 12;
-					break;
-				case NPCFrame.Attack1:
-					offset = dir == EODirection.Down || dir == EODirection.Right ? 13 : 15;
-					break;
-				case NPCFrame.Attack2:
-					offset = dir == EODirection.Down || dir == EODirection.Right ? 14 : 16;
-					break;
-				default:
-					return null;
-			}
-
-			return _gfxManager.TextureFromResource(GFXTypes.NPC, baseGfx + offset, true);
 		}
 	}
 }
