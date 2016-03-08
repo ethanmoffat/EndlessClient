@@ -8,6 +8,8 @@ namespace EOLib.Data.BLL
 {
 	public interface ICharacterRenderProperties
 	{
+		CharacterActionState CurrentAction { get; }
+
 		byte HairStyle { get; }
 		byte HairColor { get; }
 		byte Race { get; }

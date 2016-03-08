@@ -4,6 +4,7 @@
 
 using System;
 using EOLib;
+using EOLib.Data.BLL;
 using EOLib.Graphics;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework.Graphics;

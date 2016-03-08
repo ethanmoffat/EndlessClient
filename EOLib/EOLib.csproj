@@ -94,6 +94,7 @@
   <ItemGroup>
     <Compile Include="Crc.cs" />
     <Compile Include="DataFileConstants.cs" />
+    <Compile Include="Data\BLL\CharacterActionState.cs" />
     <Compile Include="Data\BLL\CharacterRenderProperties.cs" />
     <Compile Include="Data\BLL\CharacterStat.cs" />
     <Compile Include="Data\BLL\CharacterStats.cs" />

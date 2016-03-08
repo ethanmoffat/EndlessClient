@@ -5,8 +5,8 @@
 using System;
 using System.Linq;
 using EndlessClient.Dialogs;
-using EndlessClient.Rendering;
 using EOLib;
+using EOLib.Data.BLL;
 using EOLib.Data.Map;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;

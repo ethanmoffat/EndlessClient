@@ -12,6 +12,8 @@ namespace EOLib.Data.BLL
 		private const int MAX_NUMBER_OF_ATTACK_FRAMES = 2;
 		private const int MAX_NUMBER_OF_EMOTE_FRAMES  = 3;
 
+		public CharacterActionState CurrentAction { get; private set; }
+
 		public byte HairStyle { get; private set; }
 		public byte HairColor { get; private set; }
 		public byte Race { get; private set; }
@@ -109,6 +111,7 @@ namespace EOLib.Data.BLL
 		{
 			var props = MakeCopy(this);
 			props.WalkFrame = (props.WalkFrame + 1) % MAX_NUMBER_OF_WALK_FRAMES;
+			props.CurrentAction = props.WalkFrame == 0 ? CharacterActionState.Standing : CharacterActionState.Walking;
 			return props;
 		}
 
@@ -116,6 +119,7 @@ namespace EOLib.Data.BLL
 		{
 			var props = MakeCopy(this);
 			props.AttackFrame = (props.AttackFrame + 1) % MAX_NUMBER_OF_ATTACK_FRAMES;
+			props.CurrentAction = props.AttackFrame == 0 ? CharacterActionState.Standing : CharacterActionState.Attacking;
 			return props;
 		}
 
@@ -123,6 +127,7 @@ namespace EOLib.Data.BLL
 		{
 			var props = MakeCopy(this);
 			props.EmoteFrame = (props.EmoteFrame + 1) % MAX_NUMBER_OF_EMOTE_FRAMES;
+			props.CurrentAction = props.EmoteFrame == 0 ? CharacterActionState.Standing : CharacterActionState.Emote;
 			return props;
 		}
 
@@ -132,6 +137,7 @@ namespace EOLib.Data.BLL
 			props.WalkFrame = 0;
 			props.AttackFrame = 0;
 			props.EmoteFrame = 0;
+			props.CurrentAction = CharacterActionState.Standing;
 			return props;
 		}
 
@@ -139,6 +145,7 @@ namespace EOLib.Data.BLL
 		{
 			var props = MakeCopy(this);
 			props.SitState = newState;
+			props.CurrentAction = newState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
 			return props;
 		}
 

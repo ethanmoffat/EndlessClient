@@ -9,6 +9,7 @@ using EndlessClient.Audio;
 using EndlessClient.Controls;
 using EndlessClient.Rendering.Effects;
 using EOLib;
+using EOLib.Data.BLL;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net.API;
@@ -19,15 +20,6 @@ using XNAControls;
 
 namespace EndlessClient.Rendering
 {
-	public enum CharacterActionState
-	{
-		Standing,
-		Walking,
-		Attacking,
-		Sitting,
-		SpellCast
-	}
-
 	/// <summary>
 	/// HOW THIS WORKS IN-GAME
 	/// <para/>
