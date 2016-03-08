@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
+using System.Linq;
 using EOLib;
 using EOLib.Data.BLL;
 using EOLib.Graphics;
@@ -121,8 +123,8 @@ namespace EndlessClient.Rendering.Sprites
 			var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleHat : GFXTypes.MaleHat;
 
 			var offset = 2 * GetBaseOffsetFromDirection();
-			int baseHatValue = GetBaseHatGraphic();
-			int gfxNumber = baseHatValue + 1 + offset;
+			var baseHatValue = GetBaseHatGraphic();
+			var gfxNumber = baseHatValue + 1 + offset;
 
 			return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
 		}
@@ -274,15 +276,16 @@ namespace EndlessClient.Rendering.Sprites
 
 			var rotated = _characterRenderProperties.Direction == EODirection.Left ||
 						  _characterRenderProperties.Direction == EODirection.Up;
-			var heightDelta = texture.Height / sheetRows; //the height of one 'row' in the sheet
-			var widthDelta = texture.Width / sheetColumns; //the width of one 'column' in the sheet
-			var section = texture.Width / 4; //each 'section' for a different set of graphics
+
+			var heightDelta  = texture.Height / sheetRows;
+			var widthDelta   = texture.Width / sheetColumns;
+			var sectionDelta = texture.Width / 4;
 
 			var walkExtra = _characterRenderProperties.WalkFrame > 0 ? widthDelta * (_characterRenderProperties.WalkFrame - 1) : 0;
 			walkExtra = !isBow && _characterRenderProperties.AttackFrame > 0 ? widthDelta * (_characterRenderProperties.AttackFrame - 1) : walkExtra;
 
 			var sourceArea = new Rectangle(
-				_characterRenderProperties.Gender * widthDelta * (sheetColumns / 2) + (rotated ? section : 0) + walkExtra,
+				_characterRenderProperties.Gender * widthDelta * (sheetColumns / 2) + (rotated ? sectionDelta : 0) + walkExtra,
 				_characterRenderProperties.Race * heightDelta,
 				widthDelta,
 				heightDelta);
@@ -292,15 +295,15 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetHairTexture()
 		{
-			throw new System.NotImplementedException();
+			var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
+			var offset = 2 * GetBaseOffsetFromDirection();
+			var gfxNumber = GetBaseHairGraphic() + 2 + offset;
+
+			var hairTexture = _gfxManager.TextureFromResource(gfxFile, gfxNumber, true, true);
+			return new SpriteSheet(hairTexture);
 		}
 
 		public ISpriteSheet GetFaceTexture()
-		{
-			throw new System.NotImplementedException();
-		}
-
-		public ISpriteSheet GetEmoteTexture()
 		{
 			if (_characterRenderProperties.EmoteFrame < 0 ||
 				_characterRenderProperties.Emote == Emote.Trade ||
@@ -328,6 +331,30 @@ namespace EndlessClient.Rendering.Sprites
 			return new SpriteSheet(texture, sourceRectangle);
 		}
 
+		public ISpriteSheet GetEmoteTexture()
+		{
+			if (_characterRenderProperties.EmoteFrame < 0)
+				return null;
+
+			const int NUM_EMOTES = 15;
+			const int NUM_FRAMES = 4;
+
+			var emoteValue = Enum.GetName(typeof (Emote), _characterRenderProperties.Emote) ?? "";
+			var convertedValuesDictionary = Enum.GetNames(typeof (EmoteSpriteType))
+				.ToDictionary(x => x, x => (EmoteSpriteType) Enum.Parse(typeof (EmoteSpriteType), x));
+			var convertedEmote = (int)convertedValuesDictionary[emoteValue];
+
+			var emoteTexture = _gfxManager.TextureFromResource(GFXTypes.PostLoginUI, 38, true);
+
+			var eachSet = emoteTexture.Width / NUM_EMOTES;
+			var eachFrame = emoteTexture.Width / (NUM_EMOTES * NUM_FRAMES);
+			var startX = convertedEmote*eachSet + _characterRenderProperties.EmoteFrame*eachFrame;
+
+			var emoteRect = new Rectangle(startX, 0, eachFrame, emoteTexture.Height);
+
+			return new SpriteSheet(emoteTexture, emoteRect);
+		}
+
 		private short GetBaseBootGraphic()
 		{
 			return (short) ((_characterRenderProperties.BootsGraphic - 1)*40);
@@ -351,6 +378,11 @@ namespace EndlessClient.Rendering.Sprites
 		private short GetBaseWeaponGraphic()
 		{
 			return (short)((_characterRenderProperties.WeaponGraphic - 1) * 100);
+		}
+
+		private short GetBaseHairGraphic()
+		{
+			return (short)((_characterRenderProperties.HairStyle - 1) * 40 + _characterRenderProperties.HairColor * 4);
 		}
 
 		private int GetBaseOffsetFromDirection()
