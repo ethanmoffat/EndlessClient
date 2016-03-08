@@ -6,7 +6,7 @@ using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient.Rendering
+namespace EndlessClient.Rendering.Sprites
 {
 	public class NPCSpriteSheet
 	{

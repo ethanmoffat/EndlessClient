@@ -2,12 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EndlessClient.Rendering
+namespace EndlessClient.Rendering.Sprites
 {
 	public enum ArmorShieldSpriteType
 	{
 							//dir1/dir2
 		Standing = 1,		//1/2
+		ShieldItemOnBack_AttackingWithBow = 3,
 		WalkFrame1 = 3,		//3/7
 		WalkFrame2 = 4,		//4/8
 		WalkFrame3 = 5,		//5/9

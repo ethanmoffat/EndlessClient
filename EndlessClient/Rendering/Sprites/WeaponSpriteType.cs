@@ -2,7 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EndlessClient.Rendering
+namespace EndlessClient.Rendering.Sprites
 {
 	public enum WeaponSpriteType
 	{

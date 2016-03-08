@@ -51,7 +51,7 @@ namespace EndlessClient.Rendering.Sprites
 
 			var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleShoes : GFXTypes.MaleShoes;
 
-			var offset = GetOffsetBasedOnState(type) * GetBaseFactorFromDirection();
+			var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection();
 			var baseBootGraphic = GetBaseBootGraphic();
 			var gfxNumber = baseBootGraphic + (int)type + offset;
 
@@ -108,7 +108,7 @@ namespace EndlessClient.Rendering.Sprites
 
 			var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleArmor : GFXTypes.MaleArmor;
 
-			var offset = GetOffsetBasedOnState(type) * GetBaseFactorFromDirection();
+			var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection();
 			var baseArmorValue = GetBaseArmorGraphic();
 			var gfxNumber = baseArmorValue + (int)type + offset;
 
@@ -117,12 +117,69 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetHatTexture()
 		{
-			throw new System.NotImplementedException();
+			var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleHat : GFXTypes.MaleHat;
+
+			var offset = 2 * GetBaseOffsetFromDirection();
+			int baseHatValue = GetBaseHatGraphic();
+			int gfxNumber = baseHatValue + 1 + offset;
+
+			return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
 		}
 
 		public ISpriteSheet GetShieldTexture(bool shieldIsOnBack)
 		{
-			throw new System.NotImplementedException();
+			//front shields have one size gfx, back arrows/wings have another size.
+
+			var type = ArmorShieldSpriteType.Standing;
+			int offset = GetBaseOffsetFromDirection();
+
+			if (!shieldIsOnBack)
+			{
+				if (_characterRenderProperties.CurrentAction == CharacterActionState.Walking)
+				{
+					switch (_characterRenderProperties.WalkFrame)
+					{
+						case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
+						case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
+						case 3: type = ArmorShieldSpriteType.WalkFrame3; break;
+						case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
+					}
+				}
+				else if (_characterRenderProperties.CurrentAction == CharacterActionState.Attacking)
+				{
+					switch (_characterRenderProperties.AttackFrame)
+					{
+						case 1: type = ArmorShieldSpriteType.PunchFrame1; break;
+						case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
+					}
+				}
+				else if (_characterRenderProperties.CurrentAction == CharacterActionState.SpellCast)
+				{
+					type = ArmorShieldSpriteType.SpellCast;
+				}
+				else if(_characterRenderProperties.CurrentAction == CharacterActionState.Sitting)
+				{
+					return null;
+				}
+
+				offset *= GetOffsetBasedOnState(type);
+			}
+			else
+			{
+				//different gfx numbering scheme for shield items worn on the back:
+				//	Standing = 1/2
+				//	Attacking = 3/4
+				//	Extra = 5 (unused?)
+				if (_characterRenderProperties.CurrentAction == CharacterActionState.Attacking &&
+					_characterRenderProperties.AttackFrame == 1)
+					type = ArmorShieldSpriteType.ShieldItemOnBack_AttackingWithBow;
+			}
+
+			var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleBack : GFXTypes.MaleBack;
+
+			var baseShieldValue = GetBaseShieldGraphic();
+			var gfxNumber = baseShieldValue + (int)type + offset;
+			return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
 		}
 
 		public ISpriteSheet GetWeaponTexture(bool isBow)
@@ -160,7 +217,17 @@ namespace EndlessClient.Rendering.Sprites
 			return (short) ((_characterRenderProperties.ArmorGraphic - 1)*50);
 		}
 
-		private int GetBaseFactorFromDirection()
+		private short GetBaseHatGraphic()
+		{
+			return (short)((_characterRenderProperties.HatGraphic - 1) * 10);
+		}
+
+		private short GetBaseShieldGraphic()
+		{
+			return (short)((_characterRenderProperties.ShieldGraphic - 1) * 50);
+		}
+
+		private int GetBaseOffsetFromDirection()
 		{
 			return _characterRenderProperties.Direction == EODirection.Down ||
 				   _characterRenderProperties.Direction  == EODirection.Right ? 0 : 1;

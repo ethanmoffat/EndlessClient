@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using EndlessClient.Dialogs;
 using EndlessClient.Rendering.Effects;
+using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Data.BLL;
 using EOLib.IO;
