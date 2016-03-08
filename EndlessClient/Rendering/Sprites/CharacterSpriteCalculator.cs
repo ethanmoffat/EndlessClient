@@ -184,7 +184,55 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetWeaponTexture(bool isBow)
 		{
-			throw new System.NotImplementedException();
+			var type = WeaponSpriteType.Standing;
+
+			switch (_characterRenderProperties.CurrentAction)
+			{
+				case CharacterActionState.Walking:
+					switch (_characterRenderProperties.WalkFrame)
+					{
+						case 1: type = WeaponSpriteType.WalkFrame1; break;
+						case 2: type = WeaponSpriteType.WalkFrame2; break;
+						case 3: type = WeaponSpriteType.WalkFrame3; break;
+						case 4: type = WeaponSpriteType.WalkFrame4; break;
+					}
+					break;
+				case CharacterActionState.Attacking:
+					if (isBow)
+					{
+						switch (_characterRenderProperties.AttackFrame)
+						{
+							case 1: type = WeaponSpriteType.Shooting; break;
+							case 2: type = WeaponSpriteType.Standing; break;
+						}
+					}
+					else
+					{
+						switch (_characterRenderProperties.AttackFrame)
+						{
+							case 1: type = WeaponSpriteType.SwingFrame1; break;
+							case 2:
+								type = _characterRenderProperties.Direction == EODirection.Down
+									|| _characterRenderProperties.Direction == EODirection.Right
+									? WeaponSpriteType.SwingFrame2Spec : WeaponSpriteType.SwingFrame2;
+								break;
+						}
+					}
+					break;
+				case CharacterActionState.SpellCast:
+					type = WeaponSpriteType.SpellCast;
+					break;
+				case CharacterActionState.Sitting:
+					return null; //no weapon when sitting
+			}
+
+			var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleWeapons : GFXTypes.MaleWeapons;
+
+			var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection();
+			var baseWeaponValue = GetBaseWeaponGraphic();
+			var gfxNumber = baseWeaponValue + (int)type + offset;
+
+			return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
 		}
 
 		public ISpriteSheet GetSkinTexture(bool isBow)
@@ -227,6 +275,11 @@ namespace EndlessClient.Rendering.Sprites
 			return (short)((_characterRenderProperties.ShieldGraphic - 1) * 50);
 		}
 
+		private short GetBaseWeaponGraphic()
+		{
+			return (short)((_characterRenderProperties.WeaponGraphic - 1) * 100);
+		}
+
 		private int GetBaseOffsetFromDirection()
 		{
 			return _characterRenderProperties.Direction == EODirection.Down ||
@@ -257,6 +310,22 @@ namespace EndlessClient.Rendering.Sprites
 					return 4;
 				case ArmorShieldSpriteType.PunchFrame1:
 				case ArmorShieldSpriteType.PunchFrame2:
+					return 2;
+			}
+			return 1;
+		}
+
+		private int GetOffsetBasedOnState(WeaponSpriteType type)
+		{
+			switch (type)
+			{
+				case WeaponSpriteType.WalkFrame1:
+				case WeaponSpriteType.WalkFrame2:
+				case WeaponSpriteType.WalkFrame3:
+				case WeaponSpriteType.WalkFrame4:
+					return 4;
+				case WeaponSpriteType.SwingFrame1:
+				case WeaponSpriteType.SwingFrame2:
 					return 2;
 			}
 			return 1;
