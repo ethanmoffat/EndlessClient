@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Data.BLL;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering
@@ -10,5 +11,11 @@ namespace EndlessClient.Rendering
 	public interface ICharacterRenderer : IDrawable, IGameComponent, IDisposable
 	{
 		int TopPixel { get; }
+
+		EOGame Game { get; }
+
+		ICharacterRenderProperties RenderProperties { get; set; }
+
+		Rectangle DrawArea { get; }
 	}
 }
