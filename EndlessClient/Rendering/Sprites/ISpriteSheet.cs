@@ -12,5 +12,9 @@ namespace EndlessClient.Rendering.Sprites
 		Texture2D SheetTexture { get; }
 
 		Rectangle SourceRectangle { get; }
+
+		T[] GetSourceTextureData<T>() where T : struct;
+
+		Texture2D GetSourceTexture();
 	}
 }
