@@ -52,6 +52,10 @@ namespace EndlessClient.Rendering
 		private ICharacterSpriteCalculator _spriteCalculator;
 		private ICharacterRenderProperties _characterRenderPropertiesPrivate;
 		private CharacterTextures _textures;
+		private bool _textureUpdateRequired;
+
+		private SpriteBatch _sb;
+		private RenderTarget2D _charRenderTarget;
 
 		public ICharacterRenderProperties RenderProperties
 		{
@@ -60,8 +64,7 @@ namespace EndlessClient.Rendering
 			{
 				if (_characterRenderPropertiesPrivate == value) return;
 				_characterRenderPropertiesPrivate = value;
-				_spriteCalculator = new CharacterSpriteCalculator(Game.GFXManager, _characterRenderPropertiesPrivate);
-				_textures = new CharacterTextures(_spriteCalculator);
+				_textureUpdateRequired = true;
 			}
 		}
 
@@ -79,6 +82,14 @@ namespace EndlessClient.Rendering
 
 		public override void Initialize()
 		{
+			_charRenderTarget = new RenderTarget2D(Game.GraphicsDevice,
+				Game.GraphicsDevice.PresentationParameters.BackBufferWidth,
+				Game.GraphicsDevice.PresentationParameters.BackBufferHeight,
+				false,
+				SurfaceFormat.Color,
+				DepthFormat.None);
+			_sb = new SpriteBatch(Game.GraphicsDevice);
+
 			base.Initialize();
 		}
 
@@ -92,13 +103,32 @@ namespace EndlessClient.Rendering
 
 		public override void Update(GameTime gameTime)
 		{
-			//load textures for rendering from GFX if update required
+			if (!Game.IsActive || !Visible)
+				return;
+
+			if (_textureUpdateRequired)
+			{
+				_spriteCalculator = new CharacterSpriteCalculator(Game.GFXManager, _characterRenderPropertiesPrivate);
+				_textures = new CharacterTextures(_spriteCalculator);
+				ReloadTextures();
+
+				_textureUpdateRequired = false;
+			}
+
 			base.Update(gameTime);
 		}
 
 		public override void Draw(GameTime gameTime)
 		{
-			//get textures based on render properties and draw
+			//todo: check if this is the renderer for the main player
+			//		if hidden, draw if: they are not active character and active character is admin
+
+			_sb.Begin();
+			_sb.Draw(_charRenderTarget, Vector2.Zero, GetAlphaColor());
+			_sb.End();
+
+			//todo: draw effect over character
+
 			base.Draw(gameTime);
 		}
 
@@ -146,5 +176,23 @@ namespace EndlessClient.Rendering
 		}
 
 		#endregion
+
+		private Color GetAlphaColor()
+		{
+			return RenderProperties.IsHidden || RenderProperties.IsDead
+				? Color.FromNonPremultiplied(255, 255, 255, 128)
+				: Color.White;
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_charRenderTarget.Dispose();
+				_sb.Dispose();
+			}
+
+			base.Dispose(disposing);
+		}
 	}
 }
