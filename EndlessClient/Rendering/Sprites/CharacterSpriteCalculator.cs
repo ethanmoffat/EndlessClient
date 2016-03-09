@@ -26,7 +26,10 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetBootsTexture(bool isBow)
 		{
-			BootsSpriteType type = BootsSpriteType.Standing;
+			if (_characterRenderProperties.BootsGraphic == 0)
+				return new EmptySpriteSheet();
+
+			var type = BootsSpriteType.Standing;
 			switch (_characterRenderProperties.CurrentAction)
 			{
 				case CharacterActionState.Walking:
@@ -63,7 +66,10 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetArmorTexture(bool isBow)
 		{
-			ArmorShieldSpriteType type = ArmorShieldSpriteType.Standing;
+			if (_characterRenderProperties.ArmorGraphic == 0)
+				return new EmptySpriteSheet();
+
+			var type = ArmorShieldSpriteType.Standing;
 			switch (_characterRenderProperties.CurrentAction)
 			{
 				case CharacterActionState.Walking:
@@ -120,6 +126,9 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetHatTexture()
 		{
+			if (_characterRenderProperties.HatGraphic == 0)
+				return new EmptySpriteSheet();
+
 			var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleHat : GFXTypes.MaleHat;
 
 			var offset = 2 * GetBaseOffsetFromDirection();
@@ -131,11 +140,13 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetShieldTexture(bool shieldIsOnBack)
 		{
-			//front shields have one size gfx, back arrows/wings have another size.
+			if (_characterRenderProperties.ShieldGraphic == 0)
+				return new EmptySpriteSheet();
 
 			var type = ArmorShieldSpriteType.Standing;
-			int offset = GetBaseOffsetFromDirection();
+			var offset = GetBaseOffsetFromDirection();
 
+			//front shields have one size gfx, back arrows/wings have another size.
 			if (!shieldIsOnBack)
 			{
 				if (_characterRenderProperties.CurrentAction == CharacterActionState.Walking)
@@ -162,7 +173,7 @@ namespace EndlessClient.Rendering.Sprites
 				}
 				else if(_characterRenderProperties.CurrentAction == CharacterActionState.Sitting)
 				{
-					return null;
+					return new EmptySpriteSheet();
 				}
 
 				offset *= GetOffsetBasedOnState(type);
@@ -187,8 +198,10 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetWeaponTexture(bool isBow)
 		{
-			var type = WeaponSpriteType.Standing;
+			if(_characterRenderProperties.WeaponGraphic == 0)
+				return new EmptySpriteSheet();
 
+			var type = WeaponSpriteType.Standing;
 			switch (_characterRenderProperties.CurrentAction)
 			{
 				case CharacterActionState.Walking:
@@ -226,7 +239,7 @@ namespace EndlessClient.Rendering.Sprites
 					type = WeaponSpriteType.SpellCast;
 					break;
 				case CharacterActionState.Sitting:
-					return null; //no weapon when sitting
+					return new EmptySpriteSheet(); //no weapon when sitting
 			}
 
 			var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleWeapons : GFXTypes.MaleWeapons;
@@ -295,6 +308,9 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetHairTexture()
 		{
+			if(_characterRenderProperties.HairStyle == 0)
+				return new EmptySpriteSheet();
+
 			var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
 			var offset = 2 * GetBaseOffsetFromDirection();
 			var gfxNumber = GetBaseHairGraphic() + 2 + offset;
@@ -309,7 +325,7 @@ namespace EndlessClient.Rendering.Sprites
 				_characterRenderProperties.Emote == Emote.Trade ||
 				_characterRenderProperties.Emote == Emote.LevelUp)
 			{
-				return null;
+				return new EmptySpriteSheet();
 			}
 
 			//14 rows (7 female - 7 male) / 11 columns
@@ -334,7 +350,7 @@ namespace EndlessClient.Rendering.Sprites
 		public ISpriteSheet GetEmoteTexture()
 		{
 			if (_characterRenderProperties.EmoteFrame < 0)
-				return null;
+				return new EmptySpriteSheet();
 
 			const int NUM_EMOTES = 15;
 			const int NUM_FRAMES = 4;
@@ -355,34 +371,34 @@ namespace EndlessClient.Rendering.Sprites
 			return new SpriteSheet(emoteTexture, emoteRect);
 		}
 
-		private short GetBaseBootGraphic()
+		private int GetBaseBootGraphic()
 		{
-			return (short) ((_characterRenderProperties.BootsGraphic - 1)*40);
+			return (_characterRenderProperties.BootsGraphic - 1) * 40;
 		}
 
-		private short GetBaseArmorGraphic()
+		private int GetBaseArmorGraphic()
 		{
-			return (short) ((_characterRenderProperties.ArmorGraphic - 1)*50);
+			return (_characterRenderProperties.ArmorGraphic - 1) * 50;
 		}
 
-		private short GetBaseHatGraphic()
+		private int GetBaseHatGraphic()
 		{
-			return (short)((_characterRenderProperties.HatGraphic - 1) * 10);
+			return (_characterRenderProperties.HatGraphic - 1) * 10;
 		}
 
-		private short GetBaseShieldGraphic()
+		private int GetBaseShieldGraphic()
 		{
-			return (short)((_characterRenderProperties.ShieldGraphic - 1) * 50);
+			return (_characterRenderProperties.ShieldGraphic - 1) * 50;
 		}
 
-		private short GetBaseWeaponGraphic()
+		private int GetBaseWeaponGraphic()
 		{
-			return (short)((_characterRenderProperties.WeaponGraphic - 1) * 100);
+			return (_characterRenderProperties.WeaponGraphic - 1) * 100;
 		}
 
-		private short GetBaseHairGraphic()
+		private int GetBaseHairGraphic()
 		{
-			return (short)((_characterRenderProperties.HairStyle - 1) * 40 + _characterRenderProperties.HairColor * 4);
+			return (_characterRenderProperties.HairStyle - 1) * 40 + _characterRenderProperties.HairColor * 4;
 		}
 
 		private int GetBaseOffsetFromDirection()
