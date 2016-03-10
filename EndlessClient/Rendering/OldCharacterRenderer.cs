@@ -1010,8 +1010,9 @@ namespace EndlessClient.Rendering
 				if (Facing == EODirection.Down || Facing == EODirection.Left)
 					xOffLoc = Data.gender == 0 ? -2 : -4;
 			}
-			Vector2 loc = (int)Facing > 1 ? new Vector2(DrawAreaWithOffset.X - 10 + xOffLoc, DrawAreaWithOffset.Y - 7):
-				new Vector2(DrawAreaWithOffset.X - 28 + xOffLoc, DrawAreaWithOffset.Y - 7);
+			Vector2 loc = flipped
+				? new Vector2(DrawAreaWithOffset.X - 10 + xOffLoc, DrawAreaWithOffset.Y - 7)
+				: new Vector2(DrawAreaWithOffset.X - 28 + xOffLoc, DrawAreaWithOffset.Y - 7);
 
 			SpriteBatch.Draw(weapon, loc, null, Color.White, 0.0f,
 				Vector2.Zero, 1.0f, flipped ? SpriteEffects.FlipHorizontally : SpriteEffects.None, 0.0f);
