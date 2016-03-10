@@ -16,45 +16,9 @@ namespace EndlessClient.Rendering
 {
 	public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
 	{
-		private class CharacterTextures
-		{
-			private readonly ICharacterSpriteCalculator _calc;
-
-			internal Texture2D Boots { get; private set; }
-			internal Texture2D Armor { get; private set; }
-			internal Texture2D Hat { get; private set; }
-			internal Texture2D Shield { get; private set; }
-			internal Texture2D Weapon { get; private set; }
-
-			internal Texture2D Hair { get; private set; }
-			internal ISpriteSheet Skin { get; private set; }
-
-			internal ISpriteSheet Emote { get; private set; }
-			internal ISpriteSheet Face { get; private set; }
-
-			internal CharacterTextures(ICharacterSpriteCalculator calc)
-			{
-				_calc = calc;
-			}
-
-			internal void RefreshTextures(bool bowIsEquipped, bool shieldIsOnBack)
-			{
-				Boots = _calc.GetBootsTexture(bowIsEquipped).SheetTexture;
-				Armor = _calc.GetArmorTexture(bowIsEquipped).SheetTexture;
-				Hat = _calc.GetHatTexture().SheetTexture;
-				Shield = _calc.GetShieldTexture(shieldIsOnBack).SheetTexture;
-				Weapon = _calc.GetWeaponTexture(bowIsEquipped).SheetTexture;
-
-				Hair = _calc.GetHairTexture().SheetTexture;
-				Skin = _calc.GetSkinTexture(bowIsEquipped);
-				Emote = _calc.GetEmoteTexture();
-				Face = _calc.GetFaceTexture();
-			}
-		}
-
 		private ICharacterSpriteCalculator _spriteCalculator;
 		private ICharacterRenderProperties _characterRenderPropertiesPrivate;
-		private CharacterTextures _textures;
+		private ICharacterTextures _textures;
 		private bool _textureUpdateRequired;
 
 		private SpriteBatch _sb;
@@ -103,6 +67,7 @@ namespace EndlessClient.Rendering
 		{
 			FigureOutTopPixel();
 			ReloadTextures();
+			//todo: set draw area
 
 			base.LoadContent();
 		}
@@ -189,43 +154,9 @@ namespace EndlessClient.Rendering
 
 		private IEnumerable<ICharacterPropertyRenderer> GetOrderedRenderers()
 		{
-			//todo: add checks for empty sprite sheet / null textures before creating renderers
-
-			var rendererList = new List<ICharacterPropertyRenderer>();
-
-			if (IsShieldBehindCharacter())
-				rendererList.Add(new ShieldRenderer(_sb, RenderProperties, _textures.Shield));
-
-			if (IsWeaponBehindCharacter())
-				rendererList.Add(new WeaponRenderer(_sb, RenderProperties, _textures.Weapon));
-
-			rendererList.Add(new SkinRenderer(_sb, RenderProperties, _textures.Skin));
-			if (IsCharacterDoingEmote())
-			{
-				rendererList.Add(new FaceRenderer(_sb, RenderProperties, _textures.Face));
-
-				//todo: the emote should probably be moved to a higher level, since this renderer should JUST be the character
-				//however - the way things are segmented, this probably won't be possible (since emotes are contained within this class)
-				rendererList.Add(new EmoteRenderer(_sb, RenderProperties, _textures.Emote));
-			}
-
-			rendererList.Add(new BootsRenderer(_sb, RenderProperties, _textures.Boots));
-			rendererList.Add(new ArmorRenderer(_sb, RenderProperties, _textures.Armor));
-
-			if (!rendererList.OfType<WeaponRenderer>().Any())
-				rendererList.Add(new WeaponRenderer(_sb, RenderProperties, _textures.Weapon));
-
-			var hairOnTopOfHat = new ICharacterPropertyRenderer[]
-			{
-				new HatRenderer(_sb, RenderProperties, _textures.Hat),
-				new HairRenderer(_sb, RenderProperties, _textures.Hair)
-			};
-			rendererList.AddRange(IsHairOnTopOfHat() ? hairOnTopOfHat : hairOnTopOfHat.Reverse());
-
-			if (!rendererList.OfType<ShieldRenderer>().Any())
-				rendererList.Add(new ShieldRenderer(_sb, RenderProperties, _textures.Hair));
-
-			return rendererList;
+			var propertyListBuilder = new CharacterPropertyRendererBuilder(_sb, RenderProperties, _textures, _itemDataFile);
+			return propertyListBuilder.BuildList(isBowEquipped: IsBowEquipped(),
+												 isShieldOnBack: IsShieldOnBack());
 		}
 
 		private Color GetAlphaColor()
@@ -258,53 +189,6 @@ namespace EndlessClient.Rendering
 				   (shieldInfo.Name == "Bag" ||
 					shieldInfo.SubType == ItemSubType.Arrows ||
 					shieldInfo.SubType == ItemSubType.Wings);
-		}
-
-		private bool IsShieldBehindCharacter()
-		{
-			//todo: this may or may not work because boolean logic is confusing
-
-			bool facingDownOrRight = RenderProperties.Direction == EODirection.Down ||
-			                         RenderProperties.Direction == EODirection.Right;
-
-			return (facingDownOrRight && IsShieldOnBack()) || !IsShieldOnBack();
-		}
-
-		private bool IsWeaponBehindCharacter()
-		{
-			//todo: this may or may not work because boolean logic is confusing
-
-			var weaponInfo = _itemDataFile.Data.Single(
-				x => x.Type == ItemType.Weapon &&
-				     x.DollGraphic == RenderProperties.WeaponGraphic);
-
-			// weapon will be drawn later if:
-			//  - attack frame is 2 (or data is NULL in which case ignore)
-			//      - When attack frame is 0, want it behind character's hand
-			//  - Direction is right or down
-			//  - Weapon subtype is not Ranged (or weapon info is NULL in which case ignore)
-			var pass1 = RenderProperties.AttackFrame < 2;
-			var pass2 = RenderProperties.Direction != EODirection.Down && RenderProperties.Direction != EODirection.Right;
-			var pass3 = weaponInfo.SubType == ItemSubType.Ranged;
-
-			return pass1 && pass2 && pass3;
-		}
-
-		private bool IsCharacterDoingEmote()
-		{
-			return RenderProperties.CurrentAction == CharacterActionState.Emote &&
-			       RenderProperties.EmoteFrame > 0;
-		}
-
-		private bool IsHairOnTopOfHat()
-		{
-			//todo: i might have this backwards...
-			
-			var hatInfo = _itemDataFile.Data.SingleOrDefault(
-				x => x.Type == ItemType.Hat &&
-				     x.DollGraphic == RenderProperties.HatGraphic);
-
-			return hatInfo != null && hatInfo.SubType == ItemSubType.FaceMask;
 		}
 
 		#endregion
