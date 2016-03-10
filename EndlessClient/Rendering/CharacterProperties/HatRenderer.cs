@@ -35,13 +35,8 @@ namespace EndlessClient.Rendering.CharacterProperties
 			var drawLoc = new Vector2(parentCharacterDrawArea.X + offsets.X, parentCharacterDrawArea.Y - 3 + offsets.Y);
 
 			_spriteBatch.Draw(_hatTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
-							  IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+							  _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
 							  0.0f);
-		}
-
-		private bool IsFacing(params EODirection[] directions)
-		{
-			return directions.Contains(_renderProperties.Direction);
 		}
 
 		private bool IsWeaponAMeleeWeapon()
@@ -61,19 +56,19 @@ namespace EndlessClient.Rendering.CharacterProperties
 			if (weaponIsMelee && _renderProperties.AttackFrame == 2)
 			{
 				hatOffX = _renderProperties.Gender == 1 ? 6 : 8;
-				if (IsFacing(EODirection.Down, EODirection.Left))
+				if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
 					hatOffX *= -1;
 
-				if (IsFacing(EODirection.Down, EODirection.Right))
+				if (_renderProperties.IsFacing(EODirection.Down, EODirection.Right))
 					hatOffY = _renderProperties.Gender == 1 ? 5 : 6;
 			}
 			else if (!weaponIsMelee && _renderProperties.AttackFrame == 1)
 			{
 				hatOffX = _renderProperties.Gender == 1 ? 3 : 1;
-				if (IsFacing(EODirection.Down, EODirection.Left))
+				if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
 					hatOffX *= -1;
 
-				if (IsFacing(EODirection.Down, EODirection.Right))
+				if (_renderProperties.IsFacing(EODirection.Down, EODirection.Right))
 					hatOffY = _renderProperties.Gender == 1 ? 1 : 0;
 			}
 

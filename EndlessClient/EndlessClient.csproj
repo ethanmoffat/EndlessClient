@@ -132,6 +132,7 @@
     <Compile Include="Rendering\CharacterProperties\HairRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\HatRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\RenderPropertiesExtensions.cs" />
     <Compile Include="Rendering\CharacterProperties\ShieldRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\SkinRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\WeaponRenderer.cs" />
