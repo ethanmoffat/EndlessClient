@@ -50,7 +50,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 				rendererList.Add(new BootsRenderer(_spriteBatch, _renderProperties, _textures.Boots, _itemDataFile));
 
 			if (ArmorEquipped())
-				rendererList.Add(new ArmorRenderer(_spriteBatch, _renderProperties, _textures.Armor));
+				rendererList.Add(new ArmorRenderer(_spriteBatch, _renderProperties, _textures.Armor, _itemDataFile));
 
 			if (WeaponEquipped() && !rendererList.OfType<WeaponRenderer>().Any())
 				rendererList.Add(new WeaponRenderer(_spriteBatch, _renderProperties, _textures.Weapon));
