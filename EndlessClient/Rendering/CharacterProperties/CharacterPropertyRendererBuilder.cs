@@ -57,7 +57,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
 			var hairOnTopOfHat = new List<ICharacterPropertyRenderer>();
 			if (HatEquipped())
-				hairOnTopOfHat.Add(new HatRenderer(_spriteBatch, _renderProperties, _textures.Hat));
+				hairOnTopOfHat.Add(new HatRenderer(_spriteBatch, _renderProperties, _textures.Hat, _itemDataFile));
 			if (!IsBald())
 				hairOnTopOfHat.Add(new HairRenderer(_spriteBatch, _renderProperties, _textures.Hair));
 			if (hairOnTopOfHat.Any())
