@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
-using EOLib;
 using EOLib.Data.BLL;
 using EOLib.IO;
 using Microsoft.Xna.Framework;

@@ -47,7 +47,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 			}
 
 			if (BootsEquipped())
-				rendererList.Add(new BootsRenderer(_spriteBatch, _renderProperties, _textures.Boots));
+				rendererList.Add(new BootsRenderer(_spriteBatch, _renderProperties, _textures.Boots, _itemDataFile));
 
 			if (ArmorEquipped())
 				rendererList.Add(new ArmorRenderer(_spriteBatch, _renderProperties, _textures.Armor));
