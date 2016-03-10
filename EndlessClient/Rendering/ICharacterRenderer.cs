@@ -5,6 +5,7 @@
 using System;
 using EOLib.Data.BLL;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering
 {
@@ -17,5 +18,7 @@ namespace EndlessClient.Rendering
 		ICharacterRenderProperties RenderProperties { get; set; }
 
 		Rectangle DrawArea { get; }
+
+		void DrawToSpriteBatch(SpriteBatch spriteBatch);
 	}
 }

@@ -124,6 +124,16 @@
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Rendering\CharacterProperties\ArmorRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\BootsRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\EmoteRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\FaceRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\HairRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\HatRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\ShieldRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\SkinRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\WeaponRenderer.cs" />
     <Compile Include="Rendering\Sprites\CharacterSpriteCalculator.cs" />
     <Compile Include="Rendering\Sprites\EmoteSpriteType.cs" />
     <Compile Include="Rendering\Sprites\EmptySpriteSheet.cs" />
