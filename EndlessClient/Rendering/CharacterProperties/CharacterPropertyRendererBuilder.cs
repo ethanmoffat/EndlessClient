@@ -39,7 +39,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 			if (WeaponEquipped() && IsWeaponBehindCharacter())
 				rendererList.Add(new WeaponRenderer(_spriteBatch, _renderProperties, _textures.Weapon, _itemDataFile));
 
-			rendererList.Add(new SkinRenderer(_spriteBatch, _renderProperties, _textures.Skin));
+			rendererList.Add(new SkinRenderer(_spriteBatch, _renderProperties, _textures.Skin, _itemDataFile));
 			if (IsCharacterDoingEmote())
 			{
 				rendererList.Add(new FaceRenderer(_spriteBatch, _renderProperties, _textures.Face));
@@ -64,7 +64,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 				rendererList.AddRange(IsHairOnTopOfHat() ? hairOnTopOfHat : hairOnTopOfHat.ToArray().Reverse());
 
 			if (ShieldEquipped() && !rendererList.OfType<ShieldRenderer>().Any())
-				rendererList.Add(new ShieldRenderer(_spriteBatch, _renderProperties, _textures.Hair));
+				rendererList.Add(new ShieldRenderer(_spriteBatch, _renderProperties, _textures.Shield));
 
 			return rendererList;
 		}
