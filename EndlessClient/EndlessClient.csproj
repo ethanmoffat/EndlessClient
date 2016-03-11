@@ -66,6 +66,7 @@
     <Compile Include="Audio\SoundManager.cs" />
     <Compile Include="Audio\WAVFileValidator.cs" />
     <Compile Include="Character.cs" />
+    <Compile Include="CharacterStateTestGame.cs" />
     <Compile Include="Controls\BlinkingLabel.cs" />
     <Compile Include="Controls\ChatTextBox.cs" />
     <Compile Include="Controls\ScrollBar.cs" />
