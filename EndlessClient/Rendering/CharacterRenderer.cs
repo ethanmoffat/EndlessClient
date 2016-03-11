@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
+using EOLib;
 using EOLib.Data.BLL;
 using EOLib.IO;
 using Microsoft.Xna.Framework;
@@ -38,6 +39,7 @@ namespace EndlessClient.Rendering
 		public Rectangle DrawArea { get; private set; }
 
 		public int TopPixel { get; private set; }
+
 		public new EOGame Game { get; private set; }
 
 		public CharacterRenderer(EOGame game, ICharacterRenderProperties renderProperties)
@@ -48,6 +50,8 @@ namespace EndlessClient.Rendering
 
 			_itemDataFile = OldWorld.Instance.EIF; //todo: constructor inject
 		}
+
+		#region Game Component
 
 		public override void Initialize()
 		{
@@ -66,7 +70,6 @@ namespace EndlessClient.Rendering
 		{
 			FigureOutTopPixel();
 			ReloadTextures();
-			//todo: set draw area
 
 			base.LoadContent();
 		}
@@ -104,12 +107,35 @@ namespace EndlessClient.Rendering
 			base.Draw(gameTime);
 		}
 
+		#endregion
+
+		#region ICharacterRenderer
+
+		public void SetAbsoluteScreenPosition(int xPosition, int yPosition)
+		{
+			var skinRect = _textures.Skin.SourceRectangle;
+			DrawArea = new Rectangle(xPosition, yPosition, skinRect.Width, skinRect.Height);
+		}
+
+		public void SetGridCoordinatePosition(int xCoord, int yCoord, int mainCharacterOffsetX, int mainCharacterOffsetY)
+		{
+			//todo: constructor inject a provider for the main character so the offsets aren't parameters
+
+			//todo: the constants here should be dynamically configurable to support window resizing
+			var displayX = CalculateDisplayCoordinateX(xCoord, yCoord) + 304 - mainCharacterOffsetX;
+			var displayY = CalculateDisplayCoordinateY(yCoord, yCoord) + 91 - mainCharacterOffsetY;
+
+			SetAbsoluteScreenPosition(displayX, displayY);
+		}
+
 		public void DrawToSpriteBatch(SpriteBatch spriteBatch)
 		{
 			_sb.Draw(_charRenderTarget, Vector2.Zero, GetAlphaColor());
 		}
 
-		#region Texture Loading
+		#endregion
+
+		#region Texture Loading Helpers
 
 		private void FigureOutTopPixel()
 		{
@@ -135,7 +161,7 @@ namespace EndlessClient.Rendering
 
 		#endregion
 
-		#region Drawing
+		#region Drawing Helpers
 
 		private void DrawToRenderTarget()
 		{
@@ -165,9 +191,23 @@ namespace EndlessClient.Rendering
 				: Color.White;
 		}
 
+		private int CalculateDisplayCoordinateX(int xCoord, int yCoord)
+		{
+			var multiplier = RenderProperties.IsFacing(EODirection.Left, EODirection.Down) ? -1 : 1;
+			var walkAdjust = RenderProperties.IsActing(CharacterActionState.Walking) ? 8 * RenderProperties.WalkFrame : 0;
+			return xCoord * 32 - yCoord * 32 + walkAdjust * multiplier;
+		}
+
+		private int CalculateDisplayCoordinateY(int xCoord, int yCoord)
+		{
+			var multiplier = RenderProperties.IsFacing(EODirection.Left, EODirection.Up) ? -1 : 1;
+			var walkAdjust = RenderProperties.IsActing(CharacterActionState.Walking) ? 4 * RenderProperties.WalkFrame : 0;
+			return xCoord * 16 + yCoord * 16 + walkAdjust * multiplier;
+		}
+
 		#endregion
 
-		#region Conditional Rendering
+		#region Conditional Rendering Helpers
 
 		private bool IsBowEquipped()
 		{

@@ -14,5 +14,10 @@ namespace EndlessClient.Rendering.CharacterProperties
 		{
 			return directions.Contains(renderProperties.Direction);
 		}
+
+		public static bool IsActing(this ICharacterRenderProperties renderProperties, CharacterActionState action)
+		{
+			return renderProperties.CurrentAction == action;
+		}
 	}
 }
