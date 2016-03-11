@@ -42,7 +42,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 			rendererList.Add(new SkinRenderer(_spriteBatch, _renderProperties, _textures.Skin, _itemDataFile));
 			if (IsCharacterDoingEmote())
 			{
-				rendererList.Add(new FaceRenderer(_spriteBatch, _renderProperties, _textures.Face));
+				rendererList.Add(new FaceRenderer(_spriteBatch, _renderProperties, _textures.Face, _itemDataFile));
 				rendererList.Add(new EmoteRenderer(_spriteBatch, _renderProperties, _textures.Emote));
 			}
 
