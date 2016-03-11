@@ -131,6 +131,15 @@ namespace EOLib.Data.BLL
 			return props;
 		}
 
+		public ICharacterRenderProperties WithNextSpellCastFrame()
+		{
+			var props = MakeCopy(this);
+			props.CurrentAction = props.CurrentAction == CharacterActionState.Standing
+				? CharacterActionState.SpellCast
+				: CharacterActionState.Standing;
+			return props;
+		}
+
 		public ICharacterRenderProperties ResetAnimationFrames()
 		{
 			var props = MakeCopy(this);
@@ -168,6 +177,11 @@ namespace EOLib.Data.BLL
 			var props = MakeCopy(this);
 			props.IsDead = true;
 			return props;
+		}
+
+		public object Clone()
+		{
+			return MakeCopy(this);
 		}
 
 		private static CharacterRenderProperties MakeCopy(ICharacterRenderProperties other)

@@ -2,11 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using EOLib.Net.API;
 
 namespace EOLib.Data.BLL
 {
-	public interface ICharacterRenderProperties
+	public interface ICharacterRenderProperties : ICloneable
 	{
 		CharacterActionState CurrentAction { get; }
 
@@ -49,6 +50,7 @@ namespace EOLib.Data.BLL
 		ICharacterRenderProperties WithNextWalkFrame();
 		ICharacterRenderProperties WithNextAttackFrame();
 		ICharacterRenderProperties WithNextEmoteFrame();
+		ICharacterRenderProperties WithNextSpellCastFrame();
 		ICharacterRenderProperties ResetAnimationFrames();
 
 		ICharacterRenderProperties WithSitState(SitState newState);
