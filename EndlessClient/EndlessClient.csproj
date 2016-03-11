@@ -135,6 +135,7 @@
     <Compile Include="Rendering\CharacterProperties\RenderPropertiesExtensions.cs" />
     <Compile Include="Rendering\CharacterProperties\ShieldRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\SkinRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\SkinRenderLocationCalculator.cs" />
     <Compile Include="Rendering\CharacterProperties\WeaponRenderer.cs" />
     <Compile Include="Rendering\CharacterTextures.cs" />
     <Compile Include="Rendering\ICharacterTextures.cs" />
