@@ -21,11 +21,6 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 using CONTROLSINIT = XNAControls.XNAControls;
 
-#if DEBUG
-using Microsoft.Xna.Framework.Input;
-using Keys = Microsoft.Xna.Framework.Input.Keys;
-#endif
-
 #if WINDOWS
 using EOCLI;
 #endif
@@ -427,23 +422,6 @@ namespace EndlessClient
 
 			InitializeControls();
 		}
-
-#if DEBUG
-		private KeyboardState _lastState = Keyboard.GetState();
-		
-		protected override void Update(GameTime gameTime)
-		{
-			if (State != GameStates.Initial || !IsActive)
-				return;
-
-			if (_lastState.IsKeyDown(Keys.F5) && Keyboard.GetState().IsKeyUp(Keys.F5))
-			{
-				new CharacterStateTestGame(this, OldWorld.Instance.EIF).Run(GameRunBehavior.Synchronous);
-			}
-
-			base.Update(gameTime);
-		}
-#endif
 
 		protected override void Draw(GameTime gameTime)
 		{
