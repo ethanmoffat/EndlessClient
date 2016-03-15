@@ -59,7 +59,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 			if (HatEquipped())
 				hairOnTopOfHat.Add(new HatRenderer(_spriteBatch, _renderProperties, _textures.Hat, _itemDataFile));
 			if (!IsBald())
-				hairOnTopOfHat.Add(new HairRenderer(_spriteBatch, _renderProperties, _textures.Hair));
+				hairOnTopOfHat.Add(new HairRenderer(_spriteBatch, _renderProperties, _textures.Hair, _itemDataFile));
 			if (hairOnTopOfHat.Any())
 				rendererList.AddRange(IsHairOnTopOfHat() ? hairOnTopOfHat : hairOnTopOfHat.ToArray().Reverse());
 
@@ -132,7 +132,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
 		private bool IsBald()
 		{
-			return _renderProperties.HairStyle != 0 && _textures.Hair != null;
+			return _textures.Hair == null || _renderProperties.HairStyle == 0;
 		}
 	}
 }
