@@ -23,7 +23,8 @@ namespace EndlessClient.Rendering.CharacterProperties
 
 		public void Render(Rectangle parentCharacterDrawArea)
 		{
-			throw new System.NotImplementedException();
+			//todo:!!!!!!!! how did i forget to implement this?
+			//throw new System.NotImplementedException();
 		}
 	}
 }
