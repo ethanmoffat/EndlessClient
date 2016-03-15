@@ -33,7 +33,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 		{
 			var rendererList = new List<ICharacterPropertyRenderer>();
 
-			if (ShieldEquipped() && IsShieldBehindCharacter(isBowEquipped, isShieldOnBack))
+			if (ShieldEquipped() && IsShieldBehindCharacter(isShieldOnBack))
 				rendererList.Add(new ShieldRenderer(_spriteBatch, _renderProperties, _textures.Shield));
 
 			if (WeaponEquipped() && IsWeaponBehindCharacter())
@@ -69,14 +69,9 @@ namespace EndlessClient.Rendering.CharacterProperties
 			return rendererList;
 		}
 
-		private bool IsShieldBehindCharacter(bool isBowEquipped, bool isShieldOnBack)
+		private bool IsShieldBehindCharacter(bool isShieldOnBack)
 		{
-			//todo: this may or may not work because boolean logic is confusing
-
-			bool facingDownOrRight = _renderProperties.Direction == EODirection.Down ||
-									 _renderProperties.Direction == EODirection.Right;
-
-			return (facingDownOrRight && isBowEquipped) || !isShieldOnBack;
+			return _renderProperties.IsFacing(EODirection.Right, EODirection.Down) && isShieldOnBack;
 		}
 
 		private bool IsWeaponBehindCharacter()
@@ -86,7 +81,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 					 x.DollGraphic == _renderProperties.WeaponGraphic);
 
 			var pass1 = _renderProperties.AttackFrame < 2;
-			var pass2 = _renderProperties.Direction == EODirection.Up || _renderProperties.Direction == EODirection.Left;
+			var pass2 = _renderProperties.IsFacing(EODirection.Up, EODirection.Left);
 			var pass3 = weaponInfo == null || weaponInfo.SubType == ItemSubType.Ranged;
 
 			return pass1 || pass2 || pass3;
