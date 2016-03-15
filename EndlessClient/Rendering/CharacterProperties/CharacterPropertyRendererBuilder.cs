@@ -81,22 +81,15 @@ namespace EndlessClient.Rendering.CharacterProperties
 
 		private bool IsWeaponBehindCharacter()
 		{
-			//todo: this may or may not work because boolean logic is confusing
-
-			var weaponInfo = _itemDataFile.Data.SingleOrDefault(
+			 var weaponInfo = _itemDataFile.Data.SingleOrDefault(
 				x => x.Type == ItemType.Weapon &&
 					 x.DollGraphic == _renderProperties.WeaponGraphic);
 
-			// weapon will be drawn later if:
-			//  - attack frame is 2 (or data is NULL in which case ignore)
-			//      - When attack frame is 0, want it behind character's hand
-			//  - Direction is right or down
-			//  - Weapon subtype is not Ranged (or weapon info is NULL in which case ignore)
 			var pass1 = _renderProperties.AttackFrame < 2;
-			var pass2 = _renderProperties.Direction != EODirection.Down && _renderProperties.Direction != EODirection.Right;
-			var pass3 = weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
+			var pass2 = _renderProperties.Direction == EODirection.Up || _renderProperties.Direction == EODirection.Left;
+			var pass3 = weaponInfo == null || weaponInfo.SubType == ItemSubType.Ranged;
 
-			return pass1 && pass2 && pass3;
+			return pass1 || pass2 || pass3;
 		}
 
 		private bool IsCharacterDoingEmote()
