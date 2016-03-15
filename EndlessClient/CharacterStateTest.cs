@@ -12,11 +12,10 @@ using EOLib.IO;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using XNAControls;
 
 namespace EndlessClient
 {
-	public class CharacterStateTestGame : Game
+	public class CharacterStateTest : DrawableGameComponent
 	{
 		private enum DisplayState
 		{
@@ -36,43 +35,32 @@ namespace EndlessClient
 
 		private static readonly List<DisplayState> _allDisplayStates;
 
-		static CharacterStateTestGame()
+		static CharacterStateTest()
 		{
 			_allDisplayStates = ((DisplayState[]) Enum.GetValues(typeof (DisplayState))).ToList();
 		}
 
 		private readonly EOGame _baseGame;
 		private readonly IDataFile<ItemRecord> _itemFile;
-		private readonly GraphicsDeviceManager _graphicsDeviceManager;
 
 		private ICharacterRenderProperties _baseProperties;
 		private readonly List<ICharacterRenderer> _renderersForDifferentStates;
-
-		private XNALabel _howToLabel;
 
 		private KeyboardState _previousState, _currentState;
 
 		private DateTime _lastWalk, _lastAttack, _lastSpell;
 
-		public CharacterStateTestGame(EOGame baseGame, IDataFile<ItemRecord> itemFile)
+		public CharacterStateTest(EOGame baseGame, IDataFile<ItemRecord> itemFile)
+			: base(baseGame)
 		{
 			_baseGame = baseGame;
 			_itemFile = itemFile;
 
-			_graphicsDeviceManager = new GraphicsDeviceManager(this)
-			{
-				PreferredBackBufferWidth = 640,
-				PreferredBackBufferHeight = 480,
-				IsFullScreen = false
-			};
-
 			_renderersForDifferentStates = new List<ICharacterRenderer>(12);
 		}
 
-		protected override void Initialize()
+		public override void Initialize()
 		{
-			IsMouseVisible = false;
-
 			_baseProperties = new CharacterRenderProperties();
 			foreach (var displayState in _allDisplayStates)
 			{
@@ -85,7 +73,7 @@ namespace EndlessClient
 				_renderersForDifferentStates.Add(characterRenderer);
 			}
 
-			_renderersForDifferentStates.ForEach(Components.Add);
+			_renderersForDifferentStates.ForEach(Game.Components.Add);
 
 			_currentState = _previousState = Keyboard.GetState();
 			_lastWalk = _lastAttack = _lastSpell = DateTime.Now;
@@ -95,15 +83,6 @@ namespace EndlessClient
 
 		protected override void LoadContent()
 		{
-			_howToLabel = new XNALabel(new Rectangle(0, 458, 640, 22), Constants.FontSize08)
-			{
-				ForeColor = Color.Black,
-				BackColor = Color.White,
-				AutoSize = false,
-				TextAlign = LabelAlignment.MiddleCenter,
-				Text = "1: Change Gender | 2: Change HairStyle | 3: Change Hat | 4: Change Armor | 5: Change Boots | 6: Change Weapon | 7: Change Shield | 8: Change Direction | Esc: Close"
-			};
-
 			RefreshDisplayedCharacters();
 
 			base.LoadContent();
@@ -115,7 +94,7 @@ namespace EndlessClient
 		//walking:   0 1 2 3 +animated (0-1-2-3-0)
 		//spellcast: 0 1     +animated (0-1-0)
 
-		protected override void Update(GameTime gameTime)
+		public override void Update(GameTime gameTime)
 		{
 			_currentState = Keyboard.GetState();
 
@@ -249,10 +228,6 @@ namespace EndlessClient
 			if (disposing)
 			{
 				_renderersForDifferentStates.ForEach(x => x.Dispose());
-
-				_howToLabel.Close();
-
-				_graphicsDeviceManager.Dispose();
 			}
 			base.Dispose(disposing);
 		}
