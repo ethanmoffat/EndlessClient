@@ -48,7 +48,8 @@ namespace EndlessClient.Rendering
 			Game = game;
 			RenderProperties = renderProperties;
 
-			_itemDataFile = OldWorld.Instance.EIF; //todo: constructor inject
+			_itemDataFile = new ItemFile(); //todo: constructor inject
+			_itemDataFile.Load(Constants.ItemFilePath);
 		}
 
 		#region Game Component
@@ -68,8 +69,8 @@ namespace EndlessClient.Rendering
 
 		protected override void LoadContent()
 		{
-			FigureOutTopPixel();
 			ReloadTextures();
+			FigureOutTopPixel();
 
 			base.LoadContent();
 		}
