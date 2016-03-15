@@ -428,7 +428,13 @@ Thanks to :
 							if (dlg_E.Result != XNADialogResult.OK) return;
 
 							CharacterLoginData[] dataArray;
-							if (!_packetAPI.CharacterCreate(createCharacter.Gender, createCharacter.HairType, createCharacter.HairColor, createCharacter.SkinColor, createCharacter.Name, out reply, out dataArray))
+							if (!_packetAPI.CharacterCreate(createCharacter.RenderProperties.Gender,
+								createCharacter.RenderProperties.HairStyle,
+								createCharacter.RenderProperties.HairColor,
+								createCharacter.RenderProperties.Race,
+								createCharacter.Name,
+								out reply,
+								out dataArray))
 							{
 								DoShowLostConnectionDialogAndReturnToMainMenu();
 								return;

@@ -116,6 +116,7 @@ namespace EndlessClient.Rendering
 		{
 			var skinRect = _textures.Skin.SourceRectangle;
 			DrawArea = new Rectangle(xPosition, yPosition, skinRect.Width, skinRect.Height);
+			_textureUpdateRequired = true;
 		}
 
 		public void SetGridCoordinatePosition(int xCoord, int yCoord, int mainCharacterOffsetX, int mainCharacterOffsetY)
