@@ -29,7 +29,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 			_itemDataFile = itemDataFile;
 		}
 
-		public IEnumerable<ICharacterPropertyRenderer> BuildList(bool isShieldOnBack, bool isBowEquipped)
+		public IEnumerable<ICharacterPropertyRenderer> BuildList(bool isShieldOnBack)
 		{
 			var rendererList = new List<ICharacterPropertyRenderer>();
 

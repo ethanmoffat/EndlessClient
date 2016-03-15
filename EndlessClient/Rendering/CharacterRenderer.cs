@@ -181,8 +181,7 @@ namespace EndlessClient.Rendering
 		private IEnumerable<ICharacterPropertyRenderer> GetOrderedRenderers()
 		{
 			var propertyListBuilder = new CharacterPropertyRendererBuilder(_sb, RenderProperties, _textures, _itemDataFile);
-			return propertyListBuilder.BuildList(isBowEquipped: IsBowEquipped(),
-												 isShieldOnBack: IsShieldOnBack());
+			return propertyListBuilder.BuildList(IsShieldOnBack());
 		}
 
 		private Color GetAlphaColor()
