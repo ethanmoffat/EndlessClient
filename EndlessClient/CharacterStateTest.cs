@@ -130,7 +130,7 @@ namespace EndlessClient
 				_baseProperties = _baseProperties.WithBootsGraphic(GetNextItemGraphicMatching(ItemType.Boots, _baseProperties.BootsGraphic));
 				update = true;
 			}
-			else if (KeyPressed(Keys.D6))
+			else if (KeyPressed(Keys.D6) && !_isBowEquipped)
 			{
 				_baseProperties = _baseProperties.WithWeaponGraphic(GetNextItemGraphicMatching(ItemType.Weapon, _baseProperties.WeaponGraphic));
 				update = true;
@@ -238,9 +238,16 @@ namespace EndlessClient
 
 		private short GetNextItemGraphicMatching(ItemType type, short currentGraphic)
 		{
+			var shiftPressed = _previousState.IsKeyDown(Keys.LeftShift) ||
+			                   _previousState.IsKeyDown(Keys.RightShift);
+			var increment = shiftPressed ? -1 : 1;
+
 			var matchingItems = _itemFile.Data.Where(x => x.Type == type).OrderBy(x => x.ID).ToList();
-			var ndx = matchingItems.FindIndex(x => x.DollGraphic == currentGraphic);
-			return (short) matchingItems[(ndx + 1)%matchingItems.Count].DollGraphic;
+			var matchingIndex = matchingItems.FindIndex(x => x.DollGraphic == currentGraphic);
+			var ndx = (matchingIndex + increment) % matchingItems.Count;
+			if (ndx < 0)
+				return 0;
+			return (short) matchingItems[ndx].DollGraphic;
 		}
 
 		protected override void Dispose(bool disposing)
