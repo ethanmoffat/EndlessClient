@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -14,12 +15,15 @@ using EndlessClient.Dialogs;
 using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.IO;
 using EOLib.Net;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using XNAControls;
 using CONTROLSINIT = XNAControls.XNAControls;
+using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 #if WINDOWS
 using EOCLI;
@@ -55,7 +59,11 @@ namespace EndlessClient
 		/// <summary>
 		/// In game
 		/// </summary>
-		PlayingTheGame
+		PlayingTheGame,
+		/// <summary>
+		/// Test mode - for testing different character render states
+		/// </summary>
+		TestMode
 	}
 
 	public partial class EOGame : Game
@@ -239,8 +247,21 @@ namespace EndlessClient
 		
 		private void doStateChange(GameStates newState)
 		{
+			//todo: clean this up, it's a mess
+
 			GameStates prevState = State;
 			State = newState;
+
+			if (prevState == GameStates.TestMode && newState == GameStates.Initial)
+			{
+				var testComponents = Components.OfType<CharacterStateTest>().Cast<GameComponent>().ToList();
+				testComponents = testComponents.Concat(Components.OfType<CharacterRenderer>()).ToList();
+				foreach (var component in testComponents)
+				{
+					component.Dispose();
+					Components.Remove(component);
+				}
+			}
 
 			if(prevState == GameStates.PlayingTheGame && State != GameStates.PlayingTheGame)
 			{
@@ -300,9 +321,13 @@ namespace EndlessClient
 			{
 				case GameStates.Initial:
 					ResetPeopleIndices();
+
 					foreach (XNAButton btn in _mainButtons)
 						btn.Visible = true;
 					_lblVersionInfo.Visible = true;
+
+					_testInGame.Visible = ConfigurationManager.AppSettings["auto_login_user"] != null &&
+										  ConfigurationManager.AppSettings["auto_login_pass"] != null;
 					break;
 				case GameStates.CreateAccount:
 					foreach (XNATextBox txt in _accountCreateTextBoxes)
@@ -358,6 +383,12 @@ namespace EndlessClient
 					_backButton.Visible = true;
 					//note: HUD construction moved to successful welcome message in GameLoadingDialog close event handler
 
+					break;
+				case GameStates.TestMode:
+					var file = new ItemFile();
+					file.Load(Constants.ItemFilePath);
+					var testComponent = new CharacterStateTest(this, file);
+					Components.Add(testComponent);
 					break;
 			}
 		}
@@ -423,12 +454,42 @@ namespace EndlessClient
 			InitializeControls();
 		}
 
+#if DEBUG
+
+		private KeyboardState _lastState = Keyboard.GetState();
+
+		protected override void Update(GameTime gameTime)
+		{
+			if (!IsActive || (State != GameStates.Initial && State != GameStates.TestMode))
+			{
+				base.Update(gameTime);
+				return;
+			}
+
+			var currentState = Keyboard.GetState();
+
+			if (State == GameStates.Initial && _lastState.IsKeyDown(Keys.F5) && currentState.IsKeyUp(Keys.F5))
+			{
+				doStateChange(GameStates.TestMode);
+			}
+			else if (State == GameStates.TestMode && _lastState.IsKeyDown(Keys.Escape) && currentState.IsKeyUp(Keys.Escape))
+			{
+				doStateChange(GameStates.Initial);
+			}
+
+			_lastState = currentState;
+
+			base.Update(gameTime);
+		}
+
+#endif
+
 		protected override void Draw(GameTime gameTime)
 		{
-			GraphicsDevice.Clear(Color.Black);
+			GraphicsDevice.Clear(State == GameStates.TestMode ? Color.White : Color.Black);
 			_spriteBatch.Begin();
 
-			if(State != GameStates.PlayingTheGame)
+			if(State != GameStates.PlayingTheGame && State != GameStates.TestMode)
 				_spriteBatch.Draw(_backgroundTexture, new Rectangle(0, 0, WIDTH, HEIGHT), null, Color.White);
 
 			Rectangle personOneRect = new Rectangle(229, 70, _peopleSetOne[_currentPersonOne].Width, _peopleSetOne[_currentPersonOne].Height);
@@ -463,15 +524,18 @@ namespace EndlessClient
 			_spriteBatch.End();
 
 #if DEBUG
-			if (lastFPSRender == null)
-				lastFPSRender = gameTime.TotalGameTime;
-
-			localFPS++;
-			if (gameTime.TotalGameTime.TotalMilliseconds - lastFPSRender.Value.TotalMilliseconds > 1000)
+			if (State != GameStates.TestMode)
 			{
-				OldWorld.FPS = localFPS;
-				localFPS = 0;
-				lastFPSRender = gameTime.TotalGameTime;
+				if (lastFPSRender == null)
+					lastFPSRender = gameTime.TotalGameTime;
+
+				localFPS++;
+				if (gameTime.TotalGameTime.TotalMilliseconds - lastFPSRender.Value.TotalMilliseconds > 1000)
+				{
+					OldWorld.FPS = localFPS;
+					localFPS = 0;
+					lastFPSRender = gameTime.TotalGameTime;
+				}
 			}
 #endif
 			base.Draw(gameTime);

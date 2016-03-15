@@ -48,6 +48,9 @@ namespace EndlessClient
 
 		private KeyboardState _previousState, _currentState;
 
+		private bool _isBowEquipped;
+		private short _lastGraphic;
+
 		private DateTime _lastWalk, _lastAttack, _lastSpell;
 
 		public CharacterStateTest(EOGame baseGame, IDataFile<ItemRecord> itemFile)
@@ -65,11 +68,7 @@ namespace EndlessClient
 			foreach (var displayState in _allDisplayStates)
 			{
 				var props = GetRenderPropertiesForState(displayState);
-				
 				var characterRenderer = new CharacterRenderer(_baseGame, props);
-				characterRenderer.SetAbsoluteScreenPosition(640 / 4 * ((int)displayState % 4),
-															480 / 3 * ((int)displayState / 4));
-
 				_renderersForDifferentStates.Add(characterRenderer);
 			}
 
@@ -84,6 +83,13 @@ namespace EndlessClient
 		protected override void LoadContent()
 		{
 			RefreshDisplayedCharacters();
+
+			foreach (var displayState in _allDisplayStates)
+			{
+				var characterRenderer = _renderersForDifferentStates[(int) displayState];
+				characterRenderer.SetAbsoluteScreenPosition(50 + 640 / 4 * ((int) displayState % 4),
+															30 + 480 / 3 * ((int) displayState / 4));
+			}
 
 			base.LoadContent();
 		}
@@ -139,6 +145,20 @@ namespace EndlessClient
 				_baseProperties = _baseProperties.WithDirection((EODirection)(((int)_baseProperties.Direction + 1) % 4));
 				update = true;
 			}
+			else if (KeyPressed(Keys.Space))
+			{
+				if (!_isBowEquipped)
+				{
+					_lastGraphic = _baseProperties.WeaponGraphic;
+					var firstBowWeapon = _itemFile.Data.First(x => x.Type == ItemType.Weapon && x.SubType == ItemSubType.Ranged);
+					_baseProperties = _baseProperties.WithWeaponGraphic((short)firstBowWeapon.DollGraphic);
+				}
+				else
+					_baseProperties = _baseProperties.WithWeaponGraphic(_lastGraphic);
+				
+				_isBowEquipped = !_isBowEquipped;
+				update = true;
+			}
 
 			if(update)
 				RefreshDisplayedCharacters();
@@ -187,9 +207,9 @@ namespace EndlessClient
 				case DisplayState.Walk1:
 					return _baseProperties.WithNextWalkFrame();
 				case DisplayState.Walk2:
-					return _baseProperties.WithNextWalkFrame();
+					return _baseProperties.WithNextWalkFrame().WithNextWalkFrame();
 				case DisplayState.Walk3:
-					return _baseProperties.WithNextWalkFrame();
+					return _baseProperties.WithNextWalkFrame().WithNextWalkFrame().WithNextWalkFrame();
 				case DisplayState.SpellCast:
 					return _baseProperties.WithNextSpellCastFrame();
 				//create a clone of the properties for animation

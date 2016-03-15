@@ -39,6 +39,10 @@ namespace EndlessClient
 
 		private XNAButton _passwordChangeBtn;
 
+#if DEBUG
+		private XNAButton _testInGame;
+#endif
+
 		private XNAButton _backButton;
 		private bool _backButtonPressed; //workaround so the lost connection dialog doesn't show from the client disconnect event
 
@@ -192,10 +196,8 @@ Thanks to :
 
 #if DEBUG
 			//testinggame will login as testuser and login as the first character
-			XNAButton testingame = new XNAButton(new Vector2(5, 5), "in-game", Constants.FontSize10);
-			testingame.OnClick += testInGame_click;
-			testingame.Visible = ConfigurationManager.AppSettings["auto_login_user"] != null &&
-								 ConfigurationManager.AppSettings["auto_login_pass"] != null;
+			_testInGame = new XNAButton(new Vector2(5, 5), "in-game", Constants.FontSize10);
+			_testInGame.OnClick += testInGame_click;
 #endif
 		}
 
