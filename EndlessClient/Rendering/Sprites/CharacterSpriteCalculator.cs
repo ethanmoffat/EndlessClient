@@ -283,7 +283,6 @@ namespace EndlessClient.Rendering.Sprites
 				if (_characterRenderProperties.SitState == SitState.Floor) gfxNum = 6;
 				else if (_characterRenderProperties.SitState == SitState.Chair) gfxNum = 5;
 			}
-			//similar if statements for spell, emote, etc
 
 			var texture = _gfxManager.TextureFromResource(GFXTypes.SkinSprites, gfxNum, true);
 
@@ -349,7 +348,7 @@ namespace EndlessClient.Rendering.Sprites
 
 		public ISpriteSheet GetEmoteTexture()
 		{
-			if (_characterRenderProperties.EmoteFrame < 0)
+			if (_characterRenderProperties.Emote == 0 || _characterRenderProperties.EmoteFrame < 0)
 				return new EmptySpriteSheet();
 
 			const int NUM_EMOTES = 15;
@@ -404,7 +403,7 @@ namespace EndlessClient.Rendering.Sprites
 		private int GetBaseOffsetFromDirection()
 		{
 			return _characterRenderProperties.Direction == EODirection.Down ||
-				   _characterRenderProperties.Direction  == EODirection.Right ? 0 : 1;
+				   _characterRenderProperties.Direction == EODirection.Right ? 0 : 1;
 		}
 
 		private int GetOffsetBasedOnState(BootsSpriteType type)
