@@ -235,7 +235,7 @@ namespace EndlessClient
 		private void doShowCharacters()
 		{
 			//remove any existing character renderers
-			var toRemove = Components.OfType<OldCharacterRenderer>();
+			var toRemove = Components.OfType<OldCharacterRenderer>().ToList();
 			foreach (OldCharacterRenderer eor in toRemove)
 				eor.Close();
 
