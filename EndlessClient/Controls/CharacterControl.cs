@@ -29,7 +29,7 @@ namespace EndlessClient.Controls
 		public CharacterControl()
 		{
 			_characterRenderer = new CharacterRenderer((EOGame)Game, GetDefaultProperties());
-			((DrawableGameComponent)_characterRenderer).Initialize();
+			_characterRenderer.Initialize();
 
 			_setSize(99, 123);
 		}
@@ -58,7 +58,7 @@ namespace EndlessClient.Controls
 
 		public override void Draw(GameTime gameTime)
 		{
-			((DrawableGameComponent) _characterRenderer).Draw(gameTime);
+			_characterRenderer.Draw(gameTime);
 
 			base.Draw(gameTime);
 		}
