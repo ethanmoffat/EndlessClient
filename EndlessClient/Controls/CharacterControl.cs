@@ -29,10 +29,9 @@ namespace EndlessClient.Controls
 		public CharacterControl()
 		{
 			_characterRenderer = new CharacterRenderer((EOGame)Game, GetDefaultProperties());
+			((DrawableGameComponent)_characterRenderer).Initialize();
+
 			_setSize(99, 123);
-			
-			((DrawableGameComponent)_characterRenderer).DrawOrder = DrawOrder;
-			Game.Components.Add(_characterRenderer);
 		}
 
 		public override void Update(GameTime gameTime)
@@ -40,7 +39,6 @@ namespace EndlessClient.Controls
 			if (!ShouldUpdate())
 				return;
 
-			((DrawableGameComponent)_characterRenderer).DrawOrder = DrawOrder;
 			_characterRenderer.SetAbsoluteScreenPosition(DrawAreaWithOffset.X + 34, DrawAreaWithOffset.Y + 25);
 
 			var currentState = Mouse.GetState();
@@ -48,12 +46,21 @@ namespace EndlessClient.Controls
 				(currentState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)) &&
 				DrawAreaWithOffset.ContainsPoint(currentState.X, currentState.Y))
 			{
-				RenderProperties =
-					RenderProperties.WithDirection(
-						(EODirection) (((int) RenderProperties.Direction + 1)%4));
+				var nextDirectionInt = (int) RenderProperties.Direction + 1;
+				var nextDirection = (EODirection) (nextDirectionInt % 4);
+				RenderProperties = RenderProperties.WithDirection(nextDirection);
 			}
+			
+			_characterRenderer.Update(gameTime);
 
 			base.Update(gameTime);
+		}
+
+		public override void Draw(GameTime gameTime)
+		{
+			((DrawableGameComponent) _characterRenderer).Draw(gameTime);
+
+			base.Draw(gameTime);
 		}
 
 		public void NextGender()
@@ -78,15 +85,7 @@ namespace EndlessClient.Controls
 
 		private static ICharacterRenderProperties GetDefaultProperties()
 		{
-			return new CharacterRenderProperties()
-				.WithHairStyle(1)
-				.WithHairColor(1);
-		}
-
-		public override void Close()
-		{
-			Game.Components.Remove(_characterRenderer);
-			base.Close();
+			return new CharacterRenderProperties().WithHairStyle(1);
 		}
 
 		protected override void Dispose(bool disposing)
