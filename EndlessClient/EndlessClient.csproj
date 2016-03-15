@@ -131,6 +131,7 @@
     <Compile Include="Rendering\CharacterProperties\EmoteRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\FaceRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\HairRenderer.cs" />
+    <Compile Include="Rendering\CharacterProperties\HairRenderLocationCalculator.cs" />
     <Compile Include="Rendering\CharacterProperties\HatRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\RenderPropertiesExtensions.cs" />
