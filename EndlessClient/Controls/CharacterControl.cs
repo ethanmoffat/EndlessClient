@@ -17,22 +17,25 @@ namespace EndlessClient.Controls
 			protected set { _characterRenderer.RenderProperties = value; }
 		}
 
-		private readonly ICharacterRenderer _characterRenderer;
+		protected readonly ICharacterRenderer _characterRenderer;
 
-		public CharacterControl()
+		public CharacterControl(ICharacterRenderProperties initialProperties)
 		{
-			_characterRenderer = new CharacterRenderer((EOGame)Game, GetDefaultProperties());
-			_characterRenderer.Initialize();
+			_characterRenderer = new CharacterRenderer((EOGame)Game, initialProperties);
+		}
 
-			_setSize(99, 123);
+		public override void Initialize()
+		{
+			_characterRenderer.Initialize();
+			_characterRenderer.SetAbsoluteScreenPosition(DrawAreaWithOffset.X, DrawAreaWithOffset.Y);
+
+			base.Initialize();
 		}
 
 		public override void Update(GameTime gameTime)
 		{
 			if (!ShouldUpdate())
 				return;
-
-			_characterRenderer.SetAbsoluteScreenPosition(DrawAreaWithOffset.X + 34, DrawAreaWithOffset.Y + 25);
 			
 			_characterRenderer.Update(gameTime);
 
@@ -44,31 +47,6 @@ namespace EndlessClient.Controls
 			_characterRenderer.Draw(gameTime);
 
 			base.Draw(gameTime);
-		}
-
-		public void NextGender()
-		{
-			RenderProperties = RenderProperties.WithGender((byte)((RenderProperties.Gender + 1) % 2));
-		}
-
-		public void NextRace()
-		{
-			RenderProperties = RenderProperties.WithRace((byte)((RenderProperties.Race + 1) % 6));
-		}
-
-		public void NextHairStyle()
-		{
-			RenderProperties = RenderProperties.WithHairStyle((byte)((RenderProperties.HairStyle + 1) % 21));
-		}
-
-		public void NextHairColor()
-		{
-			RenderProperties = RenderProperties.WithHairColor((byte)((RenderProperties.HairColor + 1) % 10));
-		}
-
-		private static ICharacterRenderProperties GetDefaultProperties()
-		{
-			return new CharacterRenderProperties().WithHairStyle(1);
 		}
 
 		protected override void Dispose(bool disposing)

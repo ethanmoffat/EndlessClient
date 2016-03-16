@@ -18,7 +18,7 @@ namespace EndlessClient.Dialogs
 		private readonly XNATextBox _inputBox;
 		private readonly XNAButton[] _arrowButtons = new XNAButton[4];
 
-		private readonly ClickableCharacterControl _characterControl;
+		private readonly CreateCharacterControl _characterControl;
 
 		private readonly Rectangle[] _srcRectangles = new Rectangle[4];
 		private readonly Texture2D _charCreateSheet;
@@ -41,6 +41,7 @@ namespace EndlessClient.Dialogs
 			{
 				LeftPadding = 5,
 				DefaultText = " ",
+				Text = " ",
 				MaxChars = 12,
 				Selected = true,
 				TextColor = Constants.LightBeigeText,
@@ -60,7 +61,7 @@ namespace EndlessClient.Dialogs
 				_arrowButtons[i] = btn;
 			}
 
-			_characterControl = new ClickableCharacterControl();
+			_characterControl = new CreateCharacterControl();
 			_characterControl.SetParent(this);
 			_characterControl.DrawLocation = new Vector2(235, 58);
 
@@ -97,6 +98,29 @@ namespace EndlessClient.Dialogs
 			endConstructor();
 		}
 
+		public override void Initialize()
+		{
+			_characterControl.Initialize();
+			base.Initialize();
+		}
+
+		public override void Draw(GameTime gt)
+		{
+			if ((parent != null && !parent.Visible) || !Visible)
+				return;
+
+			base.Draw(gt);
+
+			SpriteBatch.Begin();
+
+			SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 84 + DrawAreaWithOffset.Y), _srcRectangles[0], Color.White);
+			SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 111 + DrawAreaWithOffset.Y), _srcRectangles[1], Color.White);
+			SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 138 + DrawAreaWithOffset.Y), _srcRectangles[2], Color.White);
+			SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 165 + DrawAreaWithOffset.Y), _srcRectangles[3], Color.White);
+
+			SpriteBatch.End();
+		}
+
 		private void ArrowButtonClick(object sender, EventArgs e)
 		{
 			if (sender == _arrowButtons[0])
@@ -119,23 +143,6 @@ namespace EndlessClient.Dialogs
 				_characterControl.NextRace();
 				_srcRectangles[3] = new Rectangle(46 + 23 * RenderProperties.Race, 38, 23, 19);
 			}
-		}
-
-		public override void Draw(GameTime gt)
-		{
-			if ((parent != null && !parent.Visible) || !Visible)
-				return;
-
-			base.Draw(gt);
-
-			SpriteBatch.Begin();
-
-			SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 84 + DrawAreaWithOffset.Y), _srcRectangles[0], Color.White);
-			SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 111 + DrawAreaWithOffset.Y), _srcRectangles[1], Color.White);
-			SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 138 + DrawAreaWithOffset.Y), _srcRectangles[2], Color.White);
-			SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 165 + DrawAreaWithOffset.Y), _srcRectangles[3], Color.White);
-
-			SpriteBatch.End();
 		}
 	}
 }
