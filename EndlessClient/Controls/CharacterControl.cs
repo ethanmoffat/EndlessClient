@@ -3,25 +3,18 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.Rendering;
-using EOLib;
 using EOLib.Data.BLL;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient.Controls
 {
 	public class CharacterControl : XNAControl
 	{
-		public ICharacterRenderProperties CharacterRenderProperties
-		{
-			get { return RenderProperties; }
-		}
-
-		private ICharacterRenderProperties RenderProperties
+		public ICharacterRenderProperties RenderProperties
 		{
 			get { return _characterRenderer.RenderProperties; }
-			set { _characterRenderer.RenderProperties = value; }
+			protected set { _characterRenderer.RenderProperties = value; }
 		}
 
 		private readonly ICharacterRenderer _characterRenderer;
@@ -40,16 +33,6 @@ namespace EndlessClient.Controls
 				return;
 
 			_characterRenderer.SetAbsoluteScreenPosition(DrawAreaWithOffset.X + 34, DrawAreaWithOffset.Y + 25);
-
-			var currentState = Mouse.GetState();
-			if (((currentState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed) ||
-				(currentState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)) &&
-				DrawAreaWithOffset.ContainsPoint(currentState.X, currentState.Y))
-			{
-				var nextDirectionInt = (int) RenderProperties.Direction + 1;
-				var nextDirection = (EODirection) (nextDirectionInt % 4);
-				RenderProperties = RenderProperties.WithDirection(nextDirection);
-			}
 			
 			_characterRenderer.Update(gameTime);
 

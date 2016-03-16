@@ -18,14 +18,14 @@ namespace EndlessClient.Dialogs
 		private readonly XNATextBox _inputBox;
 		private readonly XNAButton[] _arrowButtons = new XNAButton[4];
 
-		private readonly CharacterControl _characterControl;
+		private readonly ClickableCharacterControl _characterControl;
 
 		private readonly Rectangle[] _srcRectangles = new Rectangle[4];
 		private readonly Texture2D _charCreateSheet;
 
 		public ICharacterRenderProperties RenderProperties
 		{
-			get { return _characterControl.CharacterRenderProperties; }
+			get { return _characterControl.RenderProperties; }
 		}
 
 		public string Name { get { return _inputBox.Text; } }
@@ -60,7 +60,7 @@ namespace EndlessClient.Dialogs
 				_arrowButtons[i] = btn;
 			}
 
-			_characterControl = new CharacterControl();
+			_characterControl = new ClickableCharacterControl();
 			_characterControl.SetParent(this);
 			_characterControl.DrawLocation = new Vector2(235, 58);
 

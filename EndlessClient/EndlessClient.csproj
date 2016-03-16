@@ -70,6 +70,7 @@
     <Compile Include="Controls\BlinkingLabel.cs" />
     <Compile Include="Controls\CharacterControl.cs" />
     <Compile Include="Controls\ChatTextBox.cs" />
+    <Compile Include="Controls\ClickableCharacterControl.cs" />
     <Compile Include="Controls\ScrollBar.cs" />
     <Compile Include="Dialogs\BankAccountDialog.cs" />
     <Compile Include="Dialogs\ChangePasswordDialog.cs" />
