@@ -49,49 +49,6 @@ namespace EndlessClient.Rendering
 		private RenderTarget2D _charRenderTarget; //use a render target so that a transparency is applied to entire character image
 		private readonly EOSpriteSheet spriteSheet;
 
-		public byte HairColor
-		{
-			get { return Data.haircolor; }
-			set
-			{
-				Data.SetHairColor(value);
-				if (Data.hairstyle != 0)
-				{
-					hair = spriteSheet.GetHair(true);
-					maskTheHair();
-				}
-			}
-		}
-		public byte HairType
-		{
-			get { return Data.hairstyle; }
-			set
-			{
-				Data.SetHairStyle(value);
-				if (Data.hairstyle != 0)
-				{
-					hair = spriteSheet.GetHair(true);
-					maskTheHair();
-				}
-			}
-		}
-		public byte Gender
-		{
-			get { return Data.gender; }
-			set
-			{
-				Data.SetGender(value);
-			}
-		}
-		public byte SkinColor
-		{
-			get { return Data.race; }
-			set
-			{
-				Data.SetRace(value);
-				characterSkin = spriteSheet.GetSkin(weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged, out m_skinSourceRect);
-			}
-		}
 		public EODirection Facing
 		{
 			get { return Data.facing; }
@@ -231,9 +188,7 @@ namespace EndlessClient.Rendering
 				levelLabel = new XNALabel(new Rectangle(-32, 75, 1, 1), Constants.FontSize08pt75)
 				{
 					ForeColor = Constants.BeigeText,
-// ReSharper disable SpecifyACultureInStringConversionExplicitly
 					Text = data.level.ToString()
-// ReSharper restore SpecifyACultureInStringConversionExplicitly
 				};
 				levelLabel.SetParent(this);
 
