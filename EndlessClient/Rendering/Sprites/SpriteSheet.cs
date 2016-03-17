@@ -9,6 +9,8 @@ namespace EndlessClient.Rendering.Sprites
 {
 	public class SpriteSheet : ISpriteSheet
 	{
+		public bool HasTexture { get { return true; } }
+
 		public Texture2D SheetTexture { get; private set; }
 
 		public Rectangle SourceRectangle { get; private set; }
