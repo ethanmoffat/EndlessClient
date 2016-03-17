@@ -69,6 +69,7 @@
     <Compile Include="CharacterStateTest.cs" />
     <Compile Include="Controls\BlinkingLabel.cs" />
     <Compile Include="Controls\CharacterControl.cs" />
+    <Compile Include="Controls\CharacterInfoPanel.cs" />
     <Compile Include="Controls\ChatTextBox.cs" />
     <Compile Include="Controls\CreateCharacterControl.cs" />
     <Compile Include="Controls\ScrollBar.cs" />

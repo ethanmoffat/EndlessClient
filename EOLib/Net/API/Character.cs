@@ -19,7 +19,6 @@ namespace EOLib.Net.API
 	public enum AdminLevel
 	{
 		Player,
-		// ReSharper disable UnusedMember.Global
 		Guide,
 		Guardian,
 		GM,
@@ -31,7 +30,6 @@ namespace EOLib.Net.API
 		Standing,
 		Chair,
 		Floor
-		// ReSharper restore UnusedMember.Global
 	}
 
 	/// <summary>
