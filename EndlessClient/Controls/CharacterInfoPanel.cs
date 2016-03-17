@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Data.BLL;
@@ -21,7 +22,6 @@ namespace EndlessClient.Controls
 	{
 		private readonly CharacterControl _characterControl;
 		private readonly ISpriteSheet _adminGraphic;
-		//private readonly XNAButton _loginButton, _deleteButton;
 
 		protected CharacterInfoPanel(int characterIndex)
 		{
@@ -71,7 +71,7 @@ namespace EndlessClient.Controls
 			if (!ShouldUpdate())
 				return;
 
-			_characterControl.Update(gameTime);
+			DoUpdateLogic(gameTime);
 
 			base.Update(gameTime);
 		}
@@ -81,13 +81,37 @@ namespace EndlessClient.Controls
 			if (!Visible)
 				return;
 
-			SpriteBatch.Begin();
-
-			SpriteBatch.Draw(_adminGraphic.SheetTexture, GetAdminGraphicLocation(), _adminGraphic.SourceRectangle, Color.White);
-
-			SpriteBatch.End();
+			DoDrawLogic(gameTime);
 
 			base.Draw(gameTime);
+		}
+
+		protected virtual void LoginButtonClick(object sender, EventArgs e)
+		{
+			
+		}
+
+		protected virtual void DeleteButtonClick(object sender, EventArgs e)
+		{
+
+		}
+
+		protected virtual void DoUpdateLogic(GameTime gameTime)
+		{
+
+			_characterControl.Update(gameTime);
+		}
+
+		protected virtual void DoDrawLogic(GameTime gameTime)
+		{
+			_characterControl.Draw(gameTime);
+
+			if (_adminGraphic.HasTexture)
+			{
+				SpriteBatch.Begin();
+				SpriteBatch.Draw(_adminGraphic.SheetTexture, GetAdminGraphicLocation(), _adminGraphic.SourceRectangle, Color.White);
+				SpriteBatch.End();
+			}
 		}
 
 		private static Rectangle GetNameLabelLocation()
@@ -114,32 +138,49 @@ namespace EndlessClient.Controls
 		{
 			var adminGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
 			
-			Rectangle adminRect;
-			if (adminLevel == AdminLevel.Guide)
-				adminRect = new Rectangle(252, 39, 17, 17);
-			else if (adminLevel == AdminLevel.Guide ||
-					 adminLevel == AdminLevel.GM ||
-					 adminLevel == AdminLevel.HGM)
-				adminRect = new Rectangle(233, 39, 17, 17);
-			else
-				return new SpriteSheet(adminGraphic);
-
-			return new SpriteSheet(adminGraphic, adminRect);
+			switch (adminLevel)
+			{
+				case AdminLevel.Player:
+					return new EmptySpriteSheet();
+				case AdminLevel.Guide:
+					return new SpriteSheet(adminGraphic, new Rectangle(252, 39, 17, 17));
+				case AdminLevel.Guardian:
+				case AdminLevel.GM:
+				case AdminLevel.HGM:
+					return new SpriteSheet(adminGraphic, new Rectangle(233, 39, 17, 17));
+				default:
+					throw new ArgumentOutOfRangeException("adminLevel", adminLevel, null);
+			}
 		}
 	}
 
 	/// <summary>
-	/// This is a no-op class that represents an empty character slot.
+	/// This is a no-op class that represents an empty character slot. The buttons don't do anything, and nothing is drawn / updated
 	/// </summary>
 	public class EmptyCharacterInfoPanel : CharacterInfoPanel
 	{
-		public EmptyCharacterInfoPanel(int characterIndex)
-			: base(characterIndex) { }
+		public EmptyCharacterInfoPanel(int characterIndex) : base(characterIndex)
+		{
+		}
 
-		public override void Initialize() { }
+		public override void Initialize()
+		{
+		}
 
-		public override void Update(GameTime gameTime) { }
+		protected override void DoUpdateLogic(GameTime gameTime)
+		{
+		}
 
-		public override void Draw(GameTime gameTime) { }
+		protected override void DoDrawLogic(GameTime gameTime)
+		{
+		}
+
+		protected override void LoginButtonClick(object sender, EventArgs e)
+		{
+		}
+
+		protected override void DeleteButtonClick(object sender, EventArgs e)
+		{
+		}
 	}
 }
