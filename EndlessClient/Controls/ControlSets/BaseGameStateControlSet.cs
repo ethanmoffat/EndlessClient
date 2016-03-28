@@ -3,6 +3,8 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -13,11 +15,34 @@ namespace EndlessClient.Controls.ControlSets
 {
 	public abstract class BaseGameStateControlSet
 	{
+		protected readonly List<IGameComponent> _allComponents;
+
+		public IReadOnlyList<IGameComponent> AllComponents
+		{
+			get { return _allComponents; }
+		}
+
+		public IReadOnlyList<XNAControl> XNAControlComponents
+		{
+			get { return _allComponents.OfType<XNAControl>().ToList(); }
+		}
+
 		private readonly Texture2D _mainButtonTexture;
 
 		protected BaseGameStateControlSet(INativeGraphicsManager gfxManager)
 		{
+			_allComponents = new List<IGameComponent>(16);
+
 			_mainButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 13, true);
+		}
+
+		public abstract void CreateControls(IGameStateControlSet currentControlSet);
+
+		protected static IGameComponent GetControl(IGameStateControlSet _currentControlSet,
+												   GameControlIdentifier whichControl,
+												   Func<IGameComponent> componentFactory)
+		{
+			return _currentControlSet.FindComponentByControlIdentifier(whichControl) ?? componentFactory();
 		}
 
 		#region Initial State
