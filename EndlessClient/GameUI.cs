@@ -151,18 +151,7 @@ namespace EndlessClient
 			_passwordChangeBtn = new XNAButton(secondaryButtons, new Vector2(454, 417), new Rectangle(0, 120, 120, 40), new Rectangle(120, 120, 120, 40));
 			_passwordChangeBtn.OnClick += MainButtonPress;
 
-			_lblCredits = new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10)
-			{
-				Text = @"Endless Online - C# Client
-Developed by Ethan Moffat
-Based on Endless Online --
-Copyright Vult-R
-
-Thanks to :
---Sausage for eoserv + C# EO libs
---eoserv.net community
---Hotdog for Eodev client"
-			};
+			_lblCredits = new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10) { Text = Constants.CreditsText };
 
 			_lblVersionInfo = new XNALabel(new Rectangle(25, 453, 1, 1), Constants.FontSize07)
 			{

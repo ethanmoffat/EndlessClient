@@ -67,6 +67,7 @@ namespace EndlessClient.Controls.ControlSets
 		{
 			switch (control)
 			{
+				case GameControlIdentifier.LoginPanelBackground: return null;
 				case GameControlIdentifier.InitialCreateAccount: return _createAccount;
 				case GameControlIdentifier.InitialLogin: return _login;
 				case GameControlIdentifier.InitialViewCredits: return _viewCredits;
