@@ -8,7 +8,7 @@ using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public class CreateAccountControlSet : BaseControlSet, IControlSet
+	public class CreateAccountControlSet : BaseControlSet
 	{
 		private readonly KeyboardDispatcher _dispatcher;
 
@@ -25,14 +25,14 @@ namespace EndlessClient.Controls.ControlSets
 		private TextBoxClickEventHandler _clickHandler;
 		private TextBoxTabEventHandler _tabHandler;
 
-		public GameStates GameState { get { return GameStates.CreateAccount; } }
+		public override GameStates GameState { get { return GameStates.CreateAccount; } }
 
 		public CreateAccountControlSet(KeyboardDispatcher dispatcher)
 		{
 			_dispatcher = dispatcher;
 		}
 
-		public override void InitializeControls(IControlSet currentControlSet)
+		protected override void InitializeControlsHelper(IControlSet currentControlSet)
 		{
 			_tbAccountName = GetControl(currentControlSet, GameControlIdentifier.CreateAccountName, GetCreateAccountNameTextBox);
 			_tbPassword = GetControl(currentControlSet, GameControlIdentifier.CreateAccountPassword, GetCreateAccountPasswordTextBox);
@@ -56,7 +56,7 @@ namespace EndlessClient.Controls.ControlSets
 			_tabHandler = new TextBoxTabEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
 		}
 
-		public IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
+		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
 		{
 			switch (control)
 			{

@@ -8,7 +8,7 @@ using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public class LoginPromptControlSet : BaseControlSet, IControlSet
+	public class LoginPromptControlSet : BaseControlSet
 	{
 		private readonly KeyboardDispatcher _dispatcher;
 
@@ -28,14 +28,14 @@ namespace EndlessClient.Controls.ControlSets
 
 		//todo: add some sort of picturebox control for person 1 and login panel background
 
-		public GameStates GameState { get { return GameStates.Login; } }
+		public override GameStates GameState { get { return GameStates.Login; } }
 
 		public LoginPromptControlSet(KeyboardDispatcher dispatcher)
 		{
 			_dispatcher = dispatcher;
 		}
 
-		public override void InitializeControls(IControlSet currentControlSet)
+		protected override void InitializeControlsHelper(IControlSet currentControlSet)
 		{
 			_createAccount = GetControl(currentControlSet, GameControlIdentifier.InitialCreateAccount, GetMainCreateAccountButton);
 			_login = GetControl(currentControlSet, GameControlIdentifier.InitialLogin, GetMainLoginButton);
@@ -63,7 +63,7 @@ namespace EndlessClient.Controls.ControlSets
 			_tabHandler = new TextBoxTabEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
 		}
 
-		public IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
+		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
 		{
 			switch (control)
 			{

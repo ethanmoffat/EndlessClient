@@ -4,7 +4,9 @@
 
 using System;
 using System.Collections.Generic;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
@@ -25,6 +27,19 @@ namespace EndlessClient.Controls.ControlSets
 		/// Components in this control set that are XNAControls
 		/// </summary>
 		IReadOnlyList<XNAControl> XNAControlComponents { get; }
+
+		/// <summary>
+		/// Initialize the required resources for the control set from the resource dependencies. Should be called before InitializeControls()
+		/// </summary>
+		/// <param name="gfxManager">An initialized native graphics manager</param>
+		/// <param name="xnaContentManager">The ContentManager for the game</param>
+		void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager);
+
+		/// <summary>
+		/// Create the controls for this IControlSet based on an existing set of controls
+		/// </summary>
+		/// <param name="currentControlSet">The current active set of controls</param>
+		void InitializeControls(IControlSet currentControlSet);
 
 		/// <summary>
 		/// Find an existing component from this game control set

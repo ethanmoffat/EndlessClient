@@ -14,11 +14,13 @@ using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public abstract class BaseControlSet : IDisposable
+	public abstract class BaseControlSet : IControlSet
 	{
 		#region IGameStateControlSet implementation
 
 		protected readonly List<IGameComponent> _allComponents;
+
+		public abstract GameStates GameState { get; }
 
 		public IReadOnlyList<IGameComponent> AllComponents
 		{
@@ -30,19 +32,26 @@ namespace EndlessClient.Controls.ControlSets
 			get { return _allComponents.OfType<XNAControl>().ToList(); }
 		}
 
+		public abstract IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control);
+
 		#endregion
 
 		private Texture2D _mainButtonTexture, _secondaryButtonTexture, _smallButtonSheet;
 		private Texture2D[] _textBoxTextures;
+
+		private bool _resourcesInitialized, _controlsInitialized;
 
 		protected BaseControlSet()
 		{
 			_allComponents = new List<IGameComponent>(16);
 		}
 
-		public void InitializeResources(INativeGraphicsManager gfxManager,
+		public virtual void InitializeResources(INativeGraphicsManager gfxManager,
 										ContentManager xnaContentManager)
 		{
+			if (_resourcesInitialized)
+				throw new InvalidOperationException("Error initializing resources: resources have already been initialized");
+
 			_mainButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 13, true);
 			_secondaryButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 14, true);
 			_smallButtonSheet = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
@@ -54,9 +63,23 @@ namespace EndlessClient.Controls.ControlSets
 				xnaContentManager.Load<Texture2D>("tbRight"),
 				xnaContentManager.Load<Texture2D>("cursor")
 			};
+
+			_resourcesInitialized = true;
 		}
 
-		public abstract void InitializeControls(IControlSet currentControlSet);
+		public void InitializeControls(IControlSet currentControlSet)
+		{
+			if (!_resourcesInitialized)
+				throw new InvalidOperationException("Error initializing controls: resources have not yet been initialized");
+			if (_controlsInitialized)
+				throw new InvalidOperationException("Error initializing controls: controls have already been initialized");
+
+			InitializeControlsHelper(currentControlSet);
+
+			_controlsInitialized = true;
+		}
+
+		protected abstract void InitializeControlsHelper(IControlSet currentControlSet);
 
 		protected static IGameComponent GetControl(IControlSet currentControlSet,
 												   GameControlIdentifier whichControl,

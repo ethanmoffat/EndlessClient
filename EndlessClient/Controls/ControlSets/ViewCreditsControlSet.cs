@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public class ViewCreditsControlSet : BaseControlSet, IControlSet
+	public class ViewCreditsControlSet : BaseControlSet
 	{
 		private IGameComponent _createAccount,
 							   _login,
@@ -16,9 +16,9 @@ namespace EndlessClient.Controls.ControlSets
 
 		private IGameComponent _creditsLabel;
 
-		public GameStates GameState { get { return GameStates.ViewCredits; } }
+		public override GameStates GameState { get { return GameStates.ViewCredits; } }
 
-		public override void InitializeControls(IControlSet currentControlSet)
+		protected override void InitializeControlsHelper(IControlSet currentControlSet)
 		{
 			_createAccount = GetControl(currentControlSet, GameControlIdentifier.InitialCreateAccount, GetMainCreateAccountButton);
 			_login = GetControl(currentControlSet, GameControlIdentifier.InitialLogin, GetMainLoginButton);
@@ -35,7 +35,7 @@ namespace EndlessClient.Controls.ControlSets
 			_allComponents.Add(_creditsLabel);
 		}
 
-		public IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
+		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
 		{
 			switch (control)
 			{
