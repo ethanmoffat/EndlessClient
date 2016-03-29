@@ -74,8 +74,8 @@
     <Compile Include="Controls\ControlSets\CreateAccountControlSet.cs" />
     <Compile Include="Controls\ControlSets\GameControlIdentifier.cs" />
     <Compile Include="Controls\ControlSets\IGameStateControlSet.cs" />
-    <Compile Include="Controls\ControlSets\InitialGameStateControlSet.cs" />
-    <Compile Include="Controls\ControlSets\BaseGameStateControlSet.cs" />
+    <Compile Include="Controls\ControlSets\InitialControlSet.cs" />
+    <Compile Include="Controls\ControlSets\BaseControlSet.cs" />
     <Compile Include="Controls\ControlSets\LoginPromptControlSet.cs" />
     <Compile Include="Controls\CreateCharacterControl.cs" />
     <Compile Include="Controls\ControlSets\IGameStateControlSetFactory.cs" />

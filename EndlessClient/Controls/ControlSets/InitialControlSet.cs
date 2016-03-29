@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public class InitialGameStateControlSet : BaseGameStateControlSet, IGameStateControlSet
+	public class InitialControlSet : BaseControlSet, IGameStateControlSet
 	{
 		private IGameComponent _createAccount,
 							   _login,

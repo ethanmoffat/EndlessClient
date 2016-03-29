@@ -14,7 +14,7 @@ using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public abstract class BaseGameStateControlSet : IDisposable
+	public abstract class BaseControlSet : IDisposable
 	{
 		#region IGameStateControlSet implementation
 
@@ -35,7 +35,7 @@ namespace EndlessClient.Controls.ControlSets
 		private Texture2D _mainButtonTexture, _secondaryButtonTexture, _smallButtonSheet;
 		private Texture2D[] _textBoxTextures;
 
-		protected BaseGameStateControlSet()
+		protected BaseControlSet()
 		{
 			_allComponents = new List<IGameComponent>(16);
 		}
@@ -242,7 +242,7 @@ namespace EndlessClient.Controls.ControlSets
 			Dispose(true);
 		}
 
-		~BaseGameStateControlSet()
+		~BaseControlSet()
 		{
 			Dispose(false);
 		}

@@ -8,7 +8,7 @@ using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public class CreateAccountControlSet : BaseGameStateControlSet, IGameStateControlSet
+	public class CreateAccountControlSet : BaseControlSet, IGameStateControlSet
 	{
 		private readonly KeyboardDispatcher _dispatcher;
 
