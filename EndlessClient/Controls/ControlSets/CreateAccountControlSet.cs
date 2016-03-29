@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Controls.ControlSets
@@ -17,6 +16,7 @@ namespace EndlessClient.Controls.ControlSets
 							   _tbEmail,
 							   _btnCreate,
 							   _btnCancel;
+		//todo: add the back button
 
 		public GameStates GameState { get { return GameStates.CreateAccount; } }
 
