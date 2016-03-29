@@ -9,7 +9,7 @@ using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public interface IGameStateControlSet : IDisposable
+	public interface IControlSet : IDisposable
 	{
 		/// <summary>
 		/// The game state that this control set represents

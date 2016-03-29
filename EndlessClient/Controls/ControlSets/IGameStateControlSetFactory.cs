@@ -6,16 +6,16 @@ namespace EndlessClient.Controls.ControlSets
 {
 	public interface IGameStateControlSetFactory
 	{
-		IGameStateControlSet CreateForInitial(IGameStateControlSet currentControlSet);
+		IControlSet CreateForInitial(IControlSet currentControlSet);
 
-		IGameStateControlSet CreateForCreateAccount(IGameStateControlSet currentControlSet);
+		IControlSet CreateForCreateAccount(IControlSet currentControlSet);
 
-		IGameStateControlSet CreateForEnterLoginInfo(IGameStateControlSet currentControlSet);
+		IControlSet CreateForEnterLoginInfo(IControlSet currentControlSet);
 
-		IGameStateControlSet CreateForViewCredits(IGameStateControlSet currentControlSet);
+		IControlSet CreateForViewCredits(IControlSet currentControlSet);
 
-		IGameStateControlSet CreateForSelectCharacter(IGameStateControlSet currentControlSet);
+		IControlSet CreateForSelectCharacter(IControlSet currentControlSet);
 
-		IGameStateControlSet CreateForLoginAsCharacter(IGameStateControlSet currentControlSet);
+		IControlSet CreateForLoginAsCharacter(IControlSet currentControlSet);
 	}
 }

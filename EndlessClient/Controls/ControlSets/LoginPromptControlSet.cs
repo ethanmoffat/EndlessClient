@@ -8,7 +8,7 @@ using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public class LoginPromptControlSet : BaseControlSet, IGameStateControlSet
+	public class LoginPromptControlSet : BaseControlSet, IControlSet
 	{
 		private readonly KeyboardDispatcher _dispatcher;
 
@@ -35,7 +35,7 @@ namespace EndlessClient.Controls.ControlSets
 			_dispatcher = dispatcher;
 		}
 
-		public override void InitializeControls(IGameStateControlSet currentControlSet)
+		public override void InitializeControls(IControlSet currentControlSet)
 		{
 			_createAccount = GetControl(currentControlSet, GameControlIdentifier.InitialCreateAccount, GetMainCreateAccountButton);
 			_login = GetControl(currentControlSet, GameControlIdentifier.InitialLogin, GetMainLoginButton);

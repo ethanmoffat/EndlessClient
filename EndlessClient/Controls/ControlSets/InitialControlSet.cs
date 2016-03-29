@@ -6,7 +6,7 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public class InitialControlSet : BaseControlSet, IGameStateControlSet
+	public class InitialControlSet : BaseControlSet, IControlSet
 	{
 		private IGameComponent _createAccount,
 							   _login,
@@ -16,7 +16,7 @@ namespace EndlessClient.Controls.ControlSets
 
 		public GameStates GameState { get { return GameStates.Initial; } }
 
-		public override void InitializeControls(IGameStateControlSet currentControlSet)
+		public override void InitializeControls(IControlSet currentControlSet)
 		{
 			_createAccount = GetControl(currentControlSet, GameControlIdentifier.InitialCreateAccount, GetMainCreateAccountButton);
 			_login = GetControl(currentControlSet, GameControlIdentifier.InitialLogin, GetMainLoginButton);

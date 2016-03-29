@@ -56,9 +56,9 @@ namespace EndlessClient.Controls.ControlSets
 			};
 		}
 
-		public abstract void InitializeControls(IGameStateControlSet currentControlSet);
+		public abstract void InitializeControls(IControlSet currentControlSet);
 
-		protected static IGameComponent GetControl(IGameStateControlSet currentControlSet,
+		protected static IGameComponent GetControl(IControlSet currentControlSet,
 												   GameControlIdentifier whichControl,
 												   Func<IGameComponent> componentFactory)
 		{
