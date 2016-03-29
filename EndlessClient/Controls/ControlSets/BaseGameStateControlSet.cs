@@ -8,6 +8,7 @@ using System.Linq;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
@@ -15,6 +16,8 @@ namespace EndlessClient.Controls.ControlSets
 {
 	public abstract class BaseGameStateControlSet
 	{
+		#region IGameStateControlSet implementation
+
 		protected readonly List<IGameComponent> _allComponents;
 
 		public IReadOnlyList<IGameComponent> AllComponents
@@ -27,22 +30,38 @@ namespace EndlessClient.Controls.ControlSets
 			get { return _allComponents.OfType<XNAControl>().ToList(); }
 		}
 
-		private readonly Texture2D _mainButtonTexture;
+		#endregion
 
-		protected BaseGameStateControlSet(INativeGraphicsManager gfxManager)
+		private Texture2D _mainButtonTexture, _secondaryButtonTexture;
+		private Texture2D[] _textBoxTextures;
+
+		protected BaseGameStateControlSet()
 		{
 			_allComponents = new List<IGameComponent>(16);
-
-			_mainButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 13, true);
 		}
 
-		public abstract void CreateControls(IGameStateControlSet currentControlSet);
+		public void InitializeResources(INativeGraphicsManager gfxManager,
+										ContentManager xnaContentManager)
+		{
+			_mainButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 13, true);
+			_secondaryButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 14, true);
 
-		protected static IGameComponent GetControl(IGameStateControlSet _currentControlSet,
+			_textBoxTextures = new[]
+			{
+				xnaContentManager.Load<Texture2D>("tbBack"),
+				xnaContentManager.Load<Texture2D>("tbLeft"),
+				xnaContentManager.Load<Texture2D>("tbRight"),
+				xnaContentManager.Load<Texture2D>("cursor")
+			};
+		}
+
+		public abstract void InitializeControls(IGameStateControlSet currentControlSet);
+
+		protected static IGameComponent GetControl(IGameStateControlSet currentControlSet,
 												   GameControlIdentifier whichControl,
 												   Func<IGameComponent> componentFactory)
 		{
-			return _currentControlSet.FindComponentByControlIdentifier(whichControl) ?? componentFactory();
+			return currentControlSet.FindComponentByControlIdentifier(whichControl) ?? componentFactory();
 		}
 
 		#region Initial State
@@ -94,6 +113,90 @@ namespace EndlessClient.Controls.ControlSets
 				Text = " ",
 				ForeColor = Constants.BeigeText
 			};
+		}
+
+		#endregion
+
+		#region Create Account State
+
+		protected XNATextBox GetCreateAccountNameTextBox()
+		{
+			var tb = AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountName);
+			tb.MaxChars = 16;
+			return tb;
+		}
+
+		protected XNATextBox GetCreateAccountPasswordTextBox()
+		{
+			var tb = AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountPassword);
+			tb.PasswordBox = true;
+			tb.MaxChars = 12;
+			return tb;
+		}
+
+		protected XNATextBox GetCreateAccountConfirmTextBox()
+		{
+			var tb = AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountPasswordConfirm);
+			tb.PasswordBox = true;
+			tb.MaxChars = 12;
+			return tb;
+		}
+
+		protected XNATextBox GetCreateAccountRealNameTextBox()
+		{
+			return AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountRealName);
+		}
+
+		protected XNATextBox GetCreateAccountLocationTextBox()
+		{
+			return AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountLocation);
+		}
+
+		protected XNATextBox GetCreateAccountEmailTextBox()
+		{
+			return AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountEmail);
+		}
+
+		private XNATextBox AccountInputTextBoxCreationHelper(GameControlIdentifier whichControl)
+		{
+			int i;
+			switch (whichControl)
+			{
+				case GameControlIdentifier.CreateAccountName: i = 0; break;
+				case GameControlIdentifier.CreateAccountPassword: i = 1; break;
+				case GameControlIdentifier.CreateAccountPasswordConfirm: i = 2; break;
+				case GameControlIdentifier.CreateAccountRealName: i = 3; break;
+				case GameControlIdentifier.CreateAccountLocation: i = 4; break;
+				case GameControlIdentifier.CreateAccountEmail: i = 5; break;
+				default: throw new ArgumentException("Invalid control specified for helper", "whichControl");
+			}
+
+			//set the first  3 Y coord to start at 69  and move up by 51 each time
+			//set the second 3 Y coord to start at 260 and move up by 51 each time
+			var txtYCoord = (i < 3 ? 69 : 260) + i%3*51;
+			var drawArea = new Rectangle(358, txtYCoord, 240, _textBoxTextures[0].Height);
+			return new XNATextBox(drawArea, _textBoxTextures, Constants.FontSize08)
+			{
+				LeftPadding = 4,
+				MaxChars = 35,
+				DefaultText = " "
+			};
+		}
+
+		protected XNAButton GetCreateButton(bool isCreateCharacterButton)
+		{
+			return new XNAButton(_secondaryButtonTexture,
+								 new Vector2(isCreateCharacterButton ? 334 : 359, 417),
+								 new Rectangle(0, 0, 120, 40),
+								 new Rectangle(120, 0, 120, 40));
+		}
+
+		protected XNAButton GetCreateAccountCancelButton()
+		{
+			return new XNAButton(_secondaryButtonTexture,
+								 new Vector2(481, 417),
+								 new Rectangle(0, 40, 120, 40),
+								 new Rectangle(120, 40, 120, 40));
 		}
 
 		#endregion

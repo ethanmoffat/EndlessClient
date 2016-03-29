@@ -20,6 +20,7 @@ namespace EndlessClient.Controls.ControlSets
 		CreateAccountLocation,
 		CreateAccountEmail,
 		CreateAccountButton,
+		CreateAccountCancelButton,
 
 		LoginPanelBackground,
 		LoginAccountName,

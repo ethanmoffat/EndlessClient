@@ -71,9 +71,11 @@
     <Compile Include="Controls\CharacterControl.cs" />
     <Compile Include="Controls\CharacterInfoPanel.cs" />
     <Compile Include="Controls\ChatTextBox.cs" />
+    <Compile Include="Controls\ControlSets\CreateAccountControlSet.cs" />
     <Compile Include="Controls\ControlSets\GameControlIdentifier.cs" />
     <Compile Include="Controls\ControlSets\IGameStateControlSet.cs" />
     <Compile Include="Controls\ControlSets\InitialGameStateControlSet.cs" />
+    <Compile Include="Controls\ControlSets\BaseGameStateControlSet.cs" />
     <Compile Include="Controls\CreateCharacterControl.cs" />
     <Compile Include="Controls\ControlSets\IGameStateControlSetFactory.cs" />
     <Compile Include="Controls\ScrollBar.cs" />

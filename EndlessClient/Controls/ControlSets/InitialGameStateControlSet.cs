@@ -21,16 +21,13 @@ namespace EndlessClient.Controls.ControlSets
 
 		public GameStates GameState { get { return GameStates.Initial; } }
 
-		public InitialGameStateControlSet(INativeGraphicsManager gfxManager)
-			: base(gfxManager) { }
-
-		public override void CreateControls(IGameStateControlSet _currentControlSet)
+		public override void InitializeControls(IGameStateControlSet currentControlSet)
 		{
-			_createAccount = GetControl(_currentControlSet, GameControlIdentifier.InitialCreateAccount, GetCreateAccountButton);
-			_login = GetControl(_currentControlSet, GameControlIdentifier.InitialLogin, GetLoginButton);
-			_viewCredits = GetControl(_currentControlSet, GameControlIdentifier.InitialViewCredits, GetViewCreditsButton);
-			_exitGame = GetControl(_currentControlSet, GameControlIdentifier.InitialExitGame, GetExitButton);
-			_versionInfo = GetControl(_currentControlSet, GameControlIdentifier.InitialVersionLabel, GetVersionInfoLabel);
+			_createAccount = GetControl(currentControlSet, GameControlIdentifier.InitialCreateAccount, GetCreateAccountButton);
+			_login = GetControl(currentControlSet, GameControlIdentifier.InitialLogin, GetLoginButton);
+			_viewCredits = GetControl(currentControlSet, GameControlIdentifier.InitialViewCredits, GetViewCreditsButton);
+			_exitGame = GetControl(currentControlSet, GameControlIdentifier.InitialExitGame, GetExitButton);
+			_versionInfo = GetControl(currentControlSet, GameControlIdentifier.InitialVersionLabel, GetVersionInfoLabel);
 
 			_allComponents.Add(_createAccount);
 			_allComponents.Add(_login);
