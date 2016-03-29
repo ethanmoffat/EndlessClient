@@ -2,12 +2,16 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Linq;
 using Microsoft.Xna.Framework;
+using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
 {
 	public class LoginPromptControlSet : BaseGameStateControlSet, IGameStateControlSet
 	{
+		private readonly KeyboardDispatcher _dispatcher;
+
 		private IGameComponent _createAccount,
 							   _login,
 							   _viewCredits,
@@ -19,9 +23,17 @@ namespace EndlessClient.Controls.ControlSets
 							   _btnLogin,
 							   _btnCancel;
 
+		private TextBoxClickEventHandler _clickHandler;
+		private TextBoxTabEventHandler _tabHandler;
+
 		//todo: add some sort of picturebox control for person 1 and login panel background
 
 		public GameStates GameState { get { return GameStates.Login; } }
+
+		public LoginPromptControlSet(KeyboardDispatcher dispatcher)
+		{
+			_dispatcher = dispatcher;
+		}
 
 		public override void InitializeControls(IGameStateControlSet currentControlSet)
 		{
@@ -46,6 +58,9 @@ namespace EndlessClient.Controls.ControlSets
 			_allComponents.Add(_tbPassword);
 			_allComponents.Add(_btnLogin);
 			_allComponents.Add(_btnCancel);
+
+			_clickHandler = new TextBoxClickEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
+			_tabHandler = new TextBoxTabEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
 		}
 
 		public IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
@@ -63,6 +78,17 @@ namespace EndlessClient.Controls.ControlSets
 				case GameControlIdentifier.LoginCancel: return _btnCancel;
 				default: return null;
 			}
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_clickHandler.Dispose();
+				_tabHandler.Dispose();
+			}
+
+			base.Dispose(disposing);
 		}
 	}
 }

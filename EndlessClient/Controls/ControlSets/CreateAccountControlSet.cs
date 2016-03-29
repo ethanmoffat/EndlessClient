@@ -2,12 +2,16 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Linq;
 using Microsoft.Xna.Framework;
+using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
 {
 	public class CreateAccountControlSet : BaseGameStateControlSet, IGameStateControlSet
 	{
+		private readonly KeyboardDispatcher _dispatcher;
+
 		private IGameComponent _tbAccountName,
 							   _tbPassword,
 							   _tbConfirm,
@@ -18,7 +22,15 @@ namespace EndlessClient.Controls.ControlSets
 							   _btnCancel;
 		//todo: add the back button
 
+		private TextBoxClickEventHandler _clickHandler;
+		private TextBoxTabEventHandler _tabHandler;
+
 		public GameStates GameState { get { return GameStates.CreateAccount; } }
+
+		public CreateAccountControlSet(KeyboardDispatcher dispatcher)
+		{
+			_dispatcher = dispatcher;
+		}
 
 		public override void InitializeControls(IGameStateControlSet currentControlSet)
 		{
@@ -39,6 +51,9 @@ namespace EndlessClient.Controls.ControlSets
 			_allComponents.Add(_tbEmail);
 			_allComponents.Add(_btnCreate);
 			_allComponents.Add(_btnCancel);
+
+			_clickHandler = new TextBoxClickEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
+			_tabHandler = new TextBoxTabEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
 		}
 
 		public IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
@@ -57,6 +72,17 @@ namespace EndlessClient.Controls.ControlSets
 				case GameControlIdentifier.CreateAccountCancelButton: return _btnCancel;
 				default: return null;
 			}
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_clickHandler.Dispose();
+				_tabHandler.Dispose();
+			}
+
+			base.Dispose(disposing);
 		}
 	}
 }

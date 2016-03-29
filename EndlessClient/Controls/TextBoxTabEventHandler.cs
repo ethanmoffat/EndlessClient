@@ -7,18 +7,21 @@ using XNAControls;
 
 namespace EndlessClient.Controls
 {
-	public class KeyboardSubscriberTabEventHandler
+	public sealed class TextBoxTabEventHandler : IDisposable
 	{
 		private readonly KeyboardDispatcher _dispatcher;
-		private readonly IKeyboardSubscriber[] _subscribers;
+		private readonly XNATextBox[] _subscribers;
 
-		public KeyboardSubscriberTabEventHandler(KeyboardDispatcher dispatcher, params IKeyboardSubscriber[] subscribers)
+		public TextBoxTabEventHandler(KeyboardDispatcher dispatcher, params XNATextBox[] subscribers)
 		{
 			_dispatcher = dispatcher;
 			_subscribers = subscribers;
+
+			foreach (var textBox in _subscribers)
+				textBox.OnTabPressed += OnTabPressed;
 		}
 
-		public void OnTabPressed(object sender, EventArgs e)
+		private void OnTabPressed(object sender, EventArgs e)
 		{
 			for (int i = 0; i < _subscribers.Length; ++i)
 			{
@@ -34,6 +37,12 @@ namespace EndlessClient.Controls
 
 				break;
 			}
+		}
+
+		public void Dispose()
+		{
+			foreach (var textBox in _subscribers)
+				textBox.OnTabPressed -= OnTabPressed;
 		}
 	}
 }

@@ -14,7 +14,7 @@ using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public abstract class BaseGameStateControlSet
+	public abstract class BaseGameStateControlSet : IDisposable
 	{
 		#region IGameStateControlSet implementation
 
@@ -236,5 +236,17 @@ namespace EndlessClient.Controls.ControlSets
 		}
 
 		#endregion
+
+		public void Dispose()
+		{
+			Dispose(true);
+		}
+
+		~BaseGameStateControlSet()
+		{
+			Dispose(false);
+		}
+
+		protected virtual void Dispose(bool disposing) { }
 	}
 }

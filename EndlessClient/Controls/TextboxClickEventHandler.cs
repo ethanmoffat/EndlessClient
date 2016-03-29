@@ -8,18 +8,21 @@ using XNAControls;
 
 namespace EndlessClient.Controls
 {
-	public class KeyboardSubscriberClickEventHandler
+	public sealed class TextBoxClickEventHandler : IDisposable
 	{
 		private readonly KeyboardDispatcher _dispatcher;
-		private readonly IKeyboardSubscriber[] _subscribers;
+		private readonly XNATextBox[] _subscribers;
 
-		public KeyboardSubscriberClickEventHandler(KeyboardDispatcher dispatcher, params IKeyboardSubscriber[] subscribers)
+		public TextBoxClickEventHandler(KeyboardDispatcher dispatcher, params XNATextBox[] subscribers)
 		{
 			_dispatcher = dispatcher;
 			_subscribers = subscribers;
+
+			foreach (var textBox in _subscribers)
+				textBox.OnClicked += OnClicked;
 		}
 
-		public void OnClicked(object sender, EventArgs e)
+		private void OnClicked(object sender, EventArgs e)
 		{
 			var ndx = _subscribers.ToList().FindIndex(x => x == sender);
 			var previous = ndx - 1 < 0 ? _subscribers.Length - 1 : ndx - 1;
@@ -28,6 +31,12 @@ namespace EndlessClient.Controls
 
 			_dispatcher.Subscriber = _subscribers[ndx];
 			_subscribers[ndx].Selected = true;
+		}
+
+		public void Dispose()
+		{
+			foreach (var textBox in _subscribers)
+				textBox.OnClicked -= OnClicked;
 		}
 	}
 }

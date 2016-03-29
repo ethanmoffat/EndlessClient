@@ -79,9 +79,9 @@
     <Compile Include="Controls\ControlSets\LoginPromptControlSet.cs" />
     <Compile Include="Controls\CreateCharacterControl.cs" />
     <Compile Include="Controls\ControlSets\IGameStateControlSetFactory.cs" />
-    <Compile Include="Controls\KeyboardSubscriberClickEventHandler.cs" />
+    <Compile Include="Controls\TextboxClickEventHandler.cs" />
     <Compile Include="Controls\ScrollBar.cs" />
-    <Compile Include="Controls\KeyboardSubscriberTabEventHandler.cs" />
+    <Compile Include="Controls\TextBoxTabEventHandler.cs" />
     <Compile Include="Dialogs\BankAccountDialog.cs" />
     <Compile Include="Dialogs\ChangePasswordDialog.cs" />
     <Compile Include="Dialogs\ChestDialog.cs" />
