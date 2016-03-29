@@ -20,8 +20,6 @@ namespace EndlessClient.Controls.ControlSets
 
 		protected readonly List<IGameComponent> _allComponents;
 
-		public abstract GameStates GameState { get; }
-
 		public IReadOnlyList<IGameComponent> AllComponents
 		{
 			get { return _allComponents; }
@@ -31,6 +29,8 @@ namespace EndlessClient.Controls.ControlSets
 		{
 			get { return _allComponents.OfType<XNAControl>().ToList(); }
 		}
+
+		public abstract GameStates GameState { get; }
 
 		public abstract IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control);
 
