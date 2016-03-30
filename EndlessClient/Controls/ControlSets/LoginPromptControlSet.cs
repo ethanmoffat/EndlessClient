@@ -8,15 +8,9 @@ using XNAControls;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public class LoginPromptControlSet : BaseControlSet
+	public class LoginPromptControlSet : InitialControlSet
 	{
 		private readonly KeyboardDispatcher _dispatcher;
-
-		private IGameComponent _createAccount,
-							   _login,
-							   _viewCredits,
-							   _exitGame,
-							   _versionInfo;
 
 		private IGameComponent _tbLogin,
 							   _tbPassword,
@@ -26,7 +20,7 @@ namespace EndlessClient.Controls.ControlSets
 		private TextBoxClickEventHandler _clickHandler;
 		private TextBoxTabEventHandler _tabHandler;
 
-		//todo: add some sort of picturebox control for person 1 and login panel background
+		//todo: add some sort of picturebox control for login panel background
 
 		public override GameStates GameState { get { return GameStates.Login; } }
 
@@ -37,22 +31,12 @@ namespace EndlessClient.Controls.ControlSets
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
 		{
-			_createAccount = GetControl(currentControlSet, GameControlIdentifier.InitialCreateAccount, GetMainCreateAccountButton);
-			_login = GetControl(currentControlSet, GameControlIdentifier.InitialLogin, GetMainLoginButton);
-			_viewCredits = GetControl(currentControlSet, GameControlIdentifier.InitialViewCredits, GetViewCreditsButton);
-			_exitGame = GetControl(currentControlSet, GameControlIdentifier.InitialExitGame, GetExitButton);
-			_versionInfo = GetControl(currentControlSet, GameControlIdentifier.InitialVersionLabel, GetVersionInfoLabel);
+			base.InitializeControlsHelper(currentControlSet);
 
 			_tbLogin = GetControl(currentControlSet, GameControlIdentifier.LoginAccountName, GetLoginUserNameTextBox);
 			_tbPassword = GetControl(currentControlSet, GameControlIdentifier.LoginPassword, GetLoginPasswordTextBox);
 			_btnLogin = GetControl(currentControlSet, GameControlIdentifier.LoginButton, GetLoginAccountButton);
 			_btnCancel = GetControl(currentControlSet, GameControlIdentifier.LoginCancel, GetLoginCancelButton);
-
-			_allComponents.Add(_createAccount);
-			_allComponents.Add(_login);
-			_allComponents.Add(_viewCredits);
-			_allComponents.Add(_exitGame);
-			_allComponents.Add(_versionInfo);
 
 			_allComponents.Add(_tbLogin);
 			_allComponents.Add(_tbPassword);
@@ -68,16 +52,11 @@ namespace EndlessClient.Controls.ControlSets
 			switch (control)
 			{
 				case GameControlIdentifier.LoginPanelBackground: return null;
-				case GameControlIdentifier.InitialCreateAccount: return _createAccount;
-				case GameControlIdentifier.InitialLogin: return _login;
-				case GameControlIdentifier.InitialViewCredits: return _viewCredits;
-				case GameControlIdentifier.InitialExitGame: return _exitGame;
-				case GameControlIdentifier.InitialVersionLabel: return _versionInfo;
 				case GameControlIdentifier.LoginAccountName: return _tbLogin;
 				case GameControlIdentifier.LoginPassword: return _tbPassword;
 				case GameControlIdentifier.LoginButton: return _btnLogin;
 				case GameControlIdentifier.LoginCancel: return _btnCancel;
-				default: return null;
+				default: return base.FindComponentByControlIdentifier(control);
 			}
 		}
 

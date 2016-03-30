@@ -14,6 +14,8 @@ namespace EndlessClient.Controls.ControlSets
 							   _exitGame,
 							   _versionInfo;
 
+		//todo: add some sort of picture box control for person one picture
+
 		public override GameStates GameState { get { return GameStates.Initial; } }
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
