@@ -26,10 +26,6 @@ using XNAControls;
 using CONTROLSINIT = XNAControls.XNAControls;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
-#if WINDOWS
-using EOCLI;
-#endif
-
 namespace EndlessClient
 {
 	/// <summary>
@@ -564,11 +560,7 @@ namespace EndlessClient
 		{
 			try
 			{
-#if WINDOWS
-				_gfxLoader = new GFXLoaderCLI();
-#else
 				_gfxLoader = new CrossPlatformGFXLoader();
-#endif
 				GFXManager = new GFXManager(_gfxLoader, GraphicsDevice);
 			}
 			catch (LibraryLoadException lle)

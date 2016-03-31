@@ -11,13 +11,6 @@ using Color = System.Drawing.Color;
 
 namespace EOLib.Graphics
 {
-	[Serializable]
-	public class GFXLoadException : Exception
-	{
-		public GFXLoadException(int resource, GFXTypes gfx)
-			: base(string.Format("Unable to load graphic {0} from file gfx{1:000}.egf", resource + 100, (int)gfx)) { }
-	}
-
 	public sealed class GFXManager : INativeGraphicsManager
 	{
 		private readonly Dictionary<LibraryGraphicPair, Texture2D> _cache;
@@ -106,5 +99,12 @@ namespace EOLib.Graphics
 			}
 			_cache.Clear();
 		}
+	}
+
+	[Serializable]
+	public class GFXLoadException : Exception
+	{
+		public GFXLoadException(int resource, GFXTypes gfx)
+			: base(string.Format("Unable to load graphic {0} from file gfx{1:000}.egf", resource + 100, (int)gfx)) { }
 	}
 }

@@ -45,7 +45,10 @@ namespace EOLib.Graphics
 			{
 				peFile.Initialize();
 			}
-			catch(IOException) { }
+			catch (IOException)
+			{
+				throw new LibraryLoadException(number, file);
+			}
 
 			if (!peFile.Initialized)
 			{

@@ -212,10 +212,6 @@
             <Reference Include="XNAControls">
               <HintPath>..\bin-xnacontrols\Debug.Windows\XNAControls.dll</HintPath>
             </Reference>
-            <ProjectReference Include="..\EOCLI\EOCLI.vcxproj">
-              <Project>{860a09ee-4df0-4e63-b59d-77a398200c01}</Project>
-              <Name>EOCLI</Name>
-            </ProjectReference>
           </ItemGroup>
         </When>
         <Otherwise>
@@ -234,10 +230,6 @@
             <Reference Include="XNAControls">
               <HintPath>..\bin-xnacontrols\Release.Windows\XNAControls.dll</HintPath>
             </Reference>
-            <ProjectReference Include="..\EOCLI\EOCLI.vcxproj">
-              <Project>{860a09ee-4df0-4e63-b59d-77a398200c01}</Project>
-              <Name>EOCLI</Name>
-            </ProjectReference>
           </ItemGroup>
         </When>
         <Otherwise>
