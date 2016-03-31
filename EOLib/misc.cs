@@ -3,39 +3,10 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.IO;
-using System.Text;
 using Microsoft.Xna.Framework;
 
 namespace EOLib
 {
-	public static class HDDSerial
-	{
-		public static string GetHDDSerial()
-		{
-			string strDriveLetter = DriveInfo.GetDrives()[0].Name;
-			StringBuilder VolLabel = new StringBuilder(256); // Label
-			uint serNum = 0;
-			uint maxCompLen = 0;
-			uint VolFlags = 0;
-			StringBuilder FSName = new StringBuilder(256); // File System Name
-
-			if (Win32.GetVolumeInformation(strDriveLetter, VolLabel, (UInt32)VolLabel.Capacity, ref serNum, ref maxCompLen, ref VolFlags, FSName, (UInt32)FSName.Capacity) != 0)
-				return Convert.ToString(serNum);
-
-			return "";
-		}
-	}
-
-	public static class Hashes
-	{
-		public static int stupid_hash(int i)
-		{
-			++i;
-			return 110905 + (i % 9 + 1) * ((11092004 - i) % ((i % 11 + 1) * 119)) * 119 + i % 2004;
-		}
-	}
-
 	public static class ArrayExtension
 	{
 		public static T[] SubArray<T>(this T[] arr, int offset, int count)

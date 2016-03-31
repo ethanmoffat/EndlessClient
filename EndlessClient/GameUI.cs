@@ -10,6 +10,7 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.IO.Config;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -374,7 +375,7 @@ namespace EndlessClient
 								_accountCreateTextBoxes[3].Text,
 								_accountCreateTextBoxes[4].Text,
 								_accountCreateTextBoxes[5].Text,
-								HDDSerial.GetHDDSerial(),
+								new HDSerialNumberService().GetHDSerialNumber(),
 								out reply))
 							{
 								DoShowLostConnectionDialogAndReturnToMainMenu();

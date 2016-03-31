@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading;
+using EOLib.IO.Config;
 using EOLib.Net.API;
 
 namespace EOBot
@@ -30,7 +31,7 @@ namespace EOBot
 			if (res && accReply != AccountReply.Exists)
 			{
 				if (_api.AccountCreate(name, password, name + " " + name, "COMPY-" + name, name + "@BOT.COM",
-					EOLib.HDDSerial.GetHDDSerial(), out accReply))
+					new HDSerialNumberService().GetHDSerialNumber(), out accReply))
 				{
 					_outputFunc(string.Format("Created account {0}", name));
 				}

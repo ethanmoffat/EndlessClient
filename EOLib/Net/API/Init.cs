@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Net.API
 {
@@ -152,7 +153,8 @@ namespace EOLib.Net.API
 
 			OldPacket builder = new OldPacket(PacketFamily.Init, PacketAction.Init);
 
-			builder.AddThree(Hashes.stupid_hash(new Random().Next(6, 12)));
+			var hashService = new HashService();
+			builder.AddThree(hashService.StupidHash(new Random().Next(6, 12)));
 
 			builder.AddChar(versionNumber[0]);
 			builder.AddChar(versionNumber[1]);

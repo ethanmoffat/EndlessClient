@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace EOLib.IO
+namespace EOLib.IO.Config
 {
 	public class IniReader
 	{

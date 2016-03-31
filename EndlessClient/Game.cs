@@ -16,6 +16,7 @@ using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.IO.Config;
 using EOLib.Net;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -153,7 +154,7 @@ namespace EndlessClient
 						if (_packetAPI.Initialize(OldWorld.Instance.VersionMajor,
 							OldWorld.Instance.VersionMinor,
 							OldWorld.Instance.VersionClient,
-							HDDSerial.GetHDDSerial(),
+							new HDSerialNumberService().GetHDSerialNumber(),
 							out data))
 						{
 							switch (data.ServerResponse)

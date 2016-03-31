@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading;
+using EOLib.IO.Config;
 using EOLib.Net;
 using EOLib.Net.API;
 using EOLib.Net.PacketProcessing;
@@ -55,7 +56,7 @@ namespace EOBot
 			_api = new PacketAPI(_client);
 
 			InitData data;
-			if (!_api.Initialize(0, 0, 28, EOLib.HDDSerial.GetHDDSerial(), out data))
+			if (!_api.Initialize(0, 0, 28, new HDSerialNumberService().GetHDSerialNumber(), out data))
 				throw new TimeoutException(string.Format("Bot {0}: Failed initialization handshake with server!", _index));
 			_client.SetInitData(data);
 
