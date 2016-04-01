@@ -18,6 +18,6 @@ namespace EOLib.Net.Connection
 
 		Task<IInitializationData> BeginHandshake();
 
-		void CompleteHandshake();
+		void CompleteHandshake(IInitializationData initializationData);
 	}
 }

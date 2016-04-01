@@ -110,7 +110,7 @@ namespace EOLib.Net.Communication
 			return sendTask.Result;
 		}
 
-		public async Task<int> SendAsync(IPacket packet, int timeout = 5000)
+		public async Task<int> SendAsync(IPacket packet, int timeout = 500)
 		{
 			var bytesToSend = _packetProcessActions.EncodePacket(packet);
 			return await _socket.SendAsync(bytesToSend, CancellationToken.None);

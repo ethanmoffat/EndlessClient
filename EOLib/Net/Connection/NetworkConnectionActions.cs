@@ -83,7 +83,7 @@ namespace EOLib.Net.Connection
 				.AddString(hdSerialNumber)
 				.Build();
 
-			var bytes = Client.Send(packet);
+			var bytes = await Client.SendAsync(packet);
 			if (bytes == 0)
 				throw new NoDataSentException();
 
@@ -94,9 +94,17 @@ namespace EOLib.Net.Connection
 			return _initDataGeneratorService.GetInitData(responsePacket);
 		}
 
-		public void CompleteHandshake()
+		public void CompleteHandshake(IInitializationData initializationData)
 		{
-			throw new NotImplementedException();
+			var packet = new PacketBuilder(PacketFamily.Connection, PacketAction.Accept)
+				.AddShort((short)initializationData[InitializationDataKey.SendMultiple])
+				.AddShort((short)initializationData[InitializationDataKey.ReceiveMultiple])
+				.AddShort((short)initializationData[InitializationDataKey.ClientID])
+				.Build();
+
+			var bytes = Client.Send(packet);
+			if (bytes == 0)
+				throw new NoDataSentException();
 		}
 
 		private static bool IsInvalidInitPacket(IPacket responsePacket)
