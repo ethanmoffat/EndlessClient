@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EOLib.IO.Actions;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using Microsoft.Practices.Unity;
@@ -42,6 +43,8 @@ namespace EOLib.IO
 
 			container.RegisterType<IMapFileRepository, MapFileRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IMapFileProvider, MapFileRepository>(new ContainerControlledLifetimeManager());
+
+			container.RegisterType<IFileLoadActions, FileLoadActions>();
 		}
 
 		public void InitializeDependencies(IUnityContainer container)
