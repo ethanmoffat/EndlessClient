@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Controls.ControlSets;
 using EndlessClient.Game;
 using EOLib;
 using Microsoft.Practices.Unity;
@@ -14,6 +15,8 @@ namespace EndlessClient
 		public void RegisterDependencies(IUnityContainer container)
 		{
 			container.RegisterType<IEndlessGame, EndlessGame>(new ContainerControlledLifetimeManager());
+
+			container.RegisterType<IGameStateControlSetFactory, GameStateControlSetFactory>(new ContainerControlledLifetimeManager());
 
 			container.RegisterType<IGameStateProvider, GameStateRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IGameStateRepository, GameStateRepository>(new ContainerControlledLifetimeManager());

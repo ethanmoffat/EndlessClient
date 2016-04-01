@@ -73,6 +73,7 @@
     <Compile Include="Controls\ChatTextBox.cs" />
     <Compile Include="Controls\ControlSets\CreateAccountControlSet.cs" />
     <Compile Include="Controls\ControlSets\GameControlIdentifier.cs" />
+    <Compile Include="Controls\ControlSets\GameStateControlSetFactory.cs" />
     <Compile Include="Controls\ControlSets\IControlSet.cs" />
     <Compile Include="Controls\ControlSets\InitialControlSet.cs" />
     <Compile Include="Controls\ControlSets\BaseControlSet.cs" />
