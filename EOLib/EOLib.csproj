@@ -118,6 +118,7 @@
     <Compile Include="Data\Protocol\InitializationOutOfDateData.cs" />
     <Compile Include="Data\Protocol\InitializationSuccessData.cs" />
     <Compile Include="Data\Protocol\InitReply.cs" />
+    <Compile Include="DependencyRegistrar.cs" />
     <Compile Include="EODirection.cs" />
     <Compile Include="Graphics\CrossPlatformGFXLoader.cs" />
     <Compile Include="Graphics\GFXManager.cs" />

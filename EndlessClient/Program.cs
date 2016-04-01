@@ -3,6 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib;
+using EOLib.Data;
+using EOLib.IO;
+using EOLib.Net;
+using Microsoft.Practices.Unity;
 
 #if !DEBUG
 using System.Windows.Forms;
@@ -10,21 +15,27 @@ using System.Windows.Forms;
 
 namespace EndlessClient
 {
-	static class Program
+	public static class Program
 	{
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
 		[STAThread]
-		static void Main()
+		public static void Main()
 		{
 #if !DEBUG
 			try
 			{
 #endif
-				using (EOGame.Instance)
+				using (var unityContainer = new UnityContainer())
 				{
-					EOGame.Instance.Run();
+					var registrar = new DependencyRegistrar(unityContainer);
+
+					registrar.RegisterDependencies(new DataDependencyContainer(),
+						new IODependencyContainer(),
+						new NetworkDependencyContainer());
+
+					registrar.InitializeDependencies(new NetworkDependencyContainer());
+
+					var game = unityContainer.Resolve<IEndlessGame>();
+					game.Run();
 				}
 #if !DEBUG
 			}
