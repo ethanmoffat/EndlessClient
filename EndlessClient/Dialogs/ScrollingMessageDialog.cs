@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using EndlessClient.Controls;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;

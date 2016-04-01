@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using XNAControls;
 
-namespace EndlessClient.Controls.ControlSets
+namespace EndlessClient.ControlSets
 {
 	public interface IControlSet : IDisposable
 	{

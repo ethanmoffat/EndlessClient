@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using EndlessClient.Controls;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.Net;

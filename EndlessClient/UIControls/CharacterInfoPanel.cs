@@ -11,7 +11,7 @@ using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
-namespace EndlessClient.Controls
+namespace EndlessClient.UIControls
 {
 	//has login/delete buttons
 	//has character display

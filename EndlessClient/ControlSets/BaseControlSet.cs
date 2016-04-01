@@ -13,7 +13,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
-namespace EndlessClient.Controls.ControlSets
+namespace EndlessClient.ControlSets
 {
 	public abstract class BaseControlSet : IControlSet
 	{

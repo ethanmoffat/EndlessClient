@@ -5,7 +5,7 @@
 using EndlessClient.Game;
 using Microsoft.Xna.Framework;
 
-namespace EndlessClient.Controls.ControlSets
+namespace EndlessClient.ControlSets
 {
 	public class InitialControlSet : BaseControlSet
 	{

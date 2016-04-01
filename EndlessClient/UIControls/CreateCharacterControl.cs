@@ -8,7 +8,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient.Controls
+namespace EndlessClient.UIControls
 {
 	public class CreateCharacterControl : CharacterControl
 	{

@@ -7,7 +7,7 @@ using EOLib.Data.BLL;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
-namespace EndlessClient.Controls
+namespace EndlessClient.UIControls
 {
 	public class CharacterControl : XNAControl
 	{

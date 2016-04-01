@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using XNAControls;
 
-namespace EndlessClient.Controls
+namespace EndlessClient.Input
 {
 	public sealed class TextBoxClickEventHandler : IDisposable
 	{

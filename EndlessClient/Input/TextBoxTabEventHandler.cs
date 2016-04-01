@@ -5,7 +5,7 @@
 using System;
 using XNAControls;
 
-namespace EndlessClient.Controls
+namespace EndlessClient.Input
 {
 	public sealed class TextBoxTabEventHandler : IDisposable
 	{

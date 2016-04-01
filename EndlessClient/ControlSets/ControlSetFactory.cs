@@ -6,7 +6,7 @@ using System;
 using EndlessClient.Game;
 using EOLib.Graphics;
 
-namespace EndlessClient.Controls.ControlSets
+namespace EndlessClient.ControlSets
 {
 	public class ControlSetFactory : IControlSetFactory
 	{

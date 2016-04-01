@@ -4,10 +4,11 @@
 
 using System.Linq;
 using EndlessClient.Game;
+using EndlessClient.Input;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
-namespace EndlessClient.Controls.ControlSets
+namespace EndlessClient.ControlSets
 {
 	public class LoginPromptControlSet : InitialControlSet
 	{

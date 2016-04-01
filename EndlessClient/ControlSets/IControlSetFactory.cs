@@ -4,7 +4,7 @@
 
 using EndlessClient.Game;
 
-namespace EndlessClient.Controls.ControlSets
+namespace EndlessClient.ControlSets
 {
 	public interface IControlSetFactory
 	{

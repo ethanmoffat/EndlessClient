@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EndlessClient.Controls;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Data.BLL;
 using EOLib.Graphics;

@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient.Controls
+namespace EndlessClient.UIControls
 {
 	public enum ScrollBarColors
 	{
