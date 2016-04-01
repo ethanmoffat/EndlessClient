@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.IO;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 
@@ -11,6 +12,7 @@ namespace EOLib.IO.Actions
 	{
 		private readonly IPubFileRepository _pubFileRepository;
 		private readonly IMapFileRepository _mapFileRepository;
+		private readonly IDataFileRepository _dataFileRepository;
 		private readonly IPubLoadService<ItemRecord> _itemFileLoadService;
 		private readonly IPubLoadService<NPCRecord> _npcFileLoadService;
 		private readonly IPubLoadService<SpellRecord> _spellFileLoadService;
@@ -19,6 +21,7 @@ namespace EOLib.IO.Actions
 
 		public FileLoadActions(IPubFileRepository pubFileRepository,
 							   IMapFileRepository mapFileRepository,
+							   IDataFileRepository dataFileRepository,
 							   IPubLoadService<ItemRecord> itemFileLoadService,
 							   IPubLoadService<NPCRecord> npcFileLoadService,
 							   IPubLoadService<SpellRecord> spellFileLoadService,
@@ -27,6 +30,7 @@ namespace EOLib.IO.Actions
 		{
 			_pubFileRepository = pubFileRepository;
 			_mapFileRepository = mapFileRepository;
+			_dataFileRepository = dataFileRepository;
 			_itemFileLoadService = itemFileLoadService;
 			_npcFileLoadService = npcFileLoadService;
 			_spellFileLoadService = spellFileLoadService;
@@ -90,6 +94,24 @@ namespace EOLib.IO.Actions
 				_mapFileRepository.MapFiles[mapFile.Properties.MapID] = mapFile;
 			else
 				_mapFileRepository.MapFiles.Add(mapFile.Properties.MapID, mapFile);
+		}
+
+		public void LoadDataFiles()
+		{
+			var files = Directory.GetFiles(Constants.DataFilePath, "*.edf");
+
+			if (!Directory.Exists(Constants.DataFilePath) ||
+			    files.Length != Constants.ExpectedNumberOfDataFiles)
+				throw new DataFileLoadException();
+
+			_dataFileRepository.DataFiles.Clear();
+			for (int i = 1; i < Constants.ExpectedNumberOfDataFiles; ++i)
+			{
+				var fileToLoad = (DataFiles) i;
+				var loadedFile = new EDFFile(files[i], fileToLoad);
+				
+				_dataFileRepository.DataFiles.Add(fileToLoad, loadedFile);
+			}
 		}
 	}
 }

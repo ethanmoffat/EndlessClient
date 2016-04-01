@@ -65,6 +65,7 @@ namespace EOLib
 		public const string ClassFilePath = "pub/dat001.ecf";
 
 		public const string DataFilePath = "data/";
+		public const int ExpectedNumberOfDataFiles = 12;
 
 		public const byte ViewLength = 16;
 

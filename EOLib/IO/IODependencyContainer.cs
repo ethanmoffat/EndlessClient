@@ -44,6 +44,9 @@ namespace EOLib.IO
 			container.RegisterType<IMapFileRepository, MapFileRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IMapFileProvider, MapFileRepository>(new ContainerControlledLifetimeManager());
 
+			container.RegisterType<IDataFileRepository, DataFileRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IDataFileProvider, DataFileRepository>(new ContainerControlledLifetimeManager());
+
 			container.RegisterType<IFileLoadActions, FileLoadActions>();
 		}
 

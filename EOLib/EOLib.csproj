@@ -133,7 +133,9 @@
     <Compile Include="IO\Actions\IFileLoadActions.cs" />
     <Compile Include="IO\Class.cs" />
     <Compile Include="IO\ClassRecordFactory.cs" />
+    <Compile Include="IO\DataFileLoadException.cs" />
     <Compile Include="IO\Repositories\ClientVersionProvider.cs" />
+    <Compile Include="IO\Repositories\IDataFileRepository.cs" />
     <Compile Include="IO\Services\HDSerialNumberService.cs" />
     <Compile Include="IO\Repositories\IClientVersionProvider.cs" />
     <Compile Include="IO\Repositories\IConfigurationRepository.cs" />

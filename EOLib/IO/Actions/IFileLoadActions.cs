@@ -25,6 +25,8 @@ namespace EOLib.IO.Actions
 		void LoadMapFileByID(int id);
 
 		void LoadMapFileByName(string fileName);
+
+		void LoadDataFiles();
 	}
 
 	//todo list:
