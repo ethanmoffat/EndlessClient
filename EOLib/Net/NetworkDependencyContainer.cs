@@ -9,7 +9,7 @@ using Microsoft.Practices.Unity;
 
 namespace EOLib.Net
 {
-	public class NetworkDependencyContainer : IDependencyContainer, IInitializableContainer
+	public class NetworkDependencyContainer : IInitializableContainer
 	{
 		public void RegisterDependencies(IUnityContainer container)
 		{
