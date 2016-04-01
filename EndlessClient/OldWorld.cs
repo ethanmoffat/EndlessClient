@@ -13,7 +13,6 @@ using EOLib;
 using EOLib.Data.Map;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Config;
 using EOLib.IO.Map;
 using EOLib.Net;
 using EOLib.Net.API;

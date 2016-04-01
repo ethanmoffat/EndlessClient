@@ -16,7 +16,7 @@ using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Config;
+using EOLib.IO.Services;
 using EOLib.Net;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;

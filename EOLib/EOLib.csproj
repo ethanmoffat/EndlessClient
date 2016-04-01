@@ -131,11 +131,11 @@
     <Compile Include="IInitializableContainer.cs" />
     <Compile Include="IO\Class.cs" />
     <Compile Include="IO\ClassRecordFactory.cs" />
-    <Compile Include="IO\Config\ClientVersionProvider.cs" />
-    <Compile Include="IO\Config\HDSerialNumberService.cs" />
-    <Compile Include="IO\Config\IClientVersionProvider.cs" />
-    <Compile Include="IO\Config\IConfigurationRepository.cs" />
-    <Compile Include="IO\Config\IHDSerialNumberService.cs" />
+    <Compile Include="IO\Repositories\ClientVersionProvider.cs" />
+    <Compile Include="IO\Services\HDSerialNumberService.cs" />
+    <Compile Include="IO\Repositories\IClientVersionProvider.cs" />
+    <Compile Include="IO\Repositories\IConfigurationRepository.cs" />
+    <Compile Include="IO\Services\IHDSerialNumberService.cs" />
     <Compile Include="IO\EDFFile.cs" />
     <Compile Include="IO\EODataFile.cs" />
     <Compile Include="IO\IDataFile.cs" />
@@ -148,7 +148,7 @@
     <Compile Include="IO\Map\IMapEntityRow.cs" />
     <Compile Include="IO\Map\IMapFile.cs" />
     <Compile Include="IO\IModifiableDataFile.cs" />
-    <Compile Include="IO\Config\IniReader.cs" />
+    <Compile Include="IO\IniReader.cs" />
     <Compile Include="IO\Item.cs" />
     <Compile Include="IO\ItemRecordFactory.cs" />
     <Compile Include="IO\Map\MapFile.cs" />

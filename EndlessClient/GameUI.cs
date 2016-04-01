@@ -10,7 +10,7 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.IO.Config;
+using EOLib.IO.Services;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

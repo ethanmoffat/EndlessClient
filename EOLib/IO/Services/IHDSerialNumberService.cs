@@ -2,12 +2,10 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EOLib.IO.Config
+namespace EOLib.IO.Services
 {
-	public interface IClientVersionProvider
+	public interface IHDSerialNumberService
 	{
-		byte VersionMajor { get; }
-		byte VersionMinor { get; }
-		byte VersionBuild { get; }
+		string GetHDSerialNumber();
 	}
 }
