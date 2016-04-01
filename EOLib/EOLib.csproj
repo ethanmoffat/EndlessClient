@@ -166,6 +166,17 @@
     <Compile Include="IO\NPCRecord.cs" />
     <Compile Include="IO\NPCRecordFactory.cs" />
     <Compile Include="IO\NPCType.cs" />
+    <Compile Include="IO\Repositories\IPubFileProvider.cs" />
+    <Compile Include="IO\Repositories\IPubFileRepository.cs" />
+    <Compile Include="IO\Repositories\MapFileRepository.cs" />
+    <Compile Include="IO\Repositories\PubFileRepository.cs" />
+    <Compile Include="IO\Services\ClassFileLoadService.cs" />
+    <Compile Include="IO\Services\IMapFileLoadService.cs" />
+    <Compile Include="IO\Services\IPubLoadService.cs" />
+    <Compile Include="IO\Services\ItemFileLoadService.cs" />
+    <Compile Include="IO\Services\MapFileLoadService.cs" />
+    <Compile Include="IO\Services\NPCFileLoadService.cs" />
+    <Compile Include="IO\Services\SpellFileLoadService.cs" />
     <Compile Include="IO\Spell.cs" />
     <Compile Include="IO\SpellRecordFactory.cs" />
     <Compile Include="misc.cs" />
