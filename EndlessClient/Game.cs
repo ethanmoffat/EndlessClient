@@ -323,8 +323,10 @@ namespace EndlessClient
 						btn.Visible = true;
 					_lblVersionInfo.Visible = true;
 
+#if DEBUG
 					_testInGame.Visible = ConfigurationManager.AppSettings["auto_login_user"] != null &&
 										  ConfigurationManager.AppSettings["auto_login_pass"] != null;
+#endif
 					break;
 				case GameStates.CreateAccount:
 					foreach (XNATextBox txt in _accountCreateTextBoxes)
