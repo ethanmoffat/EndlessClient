@@ -15,15 +15,14 @@ namespace EOLib.Net.Communication
 {
 	public class NetworkClient : INetworkClient<IPacketQueue>
 	{
+		private readonly IPacketQueueProvider _packetQueueProvider;
 		private readonly IPacketProcessorActions _packetProcessActions;
 		private readonly INumberEncoderService _numberEncoderService;
 
 		private readonly IAsyncSocket _socket;
 
 		private readonly CancellationTokenSource _backgroundReceiveCTS;
-
-		public IPacketQueue PacketQueue { get; private set; }
-
+		
 		public bool Connected
 		{
 			get
@@ -37,11 +36,11 @@ namespace EOLib.Net.Communication
 			}
 		}
 
-		public NetworkClient(IPacketQueue queue,
+		public NetworkClient(IPacketQueueProvider packetQueueProvider,
 							 IPacketProcessorActions packetProcessActions,
 							 INumberEncoderService numberEncoderService)
 		{
-			PacketQueue = queue;
+			_packetQueueProvider = packetQueueProvider;
 			_packetProcessActions = packetProcessActions;
 			_numberEncoderService = numberEncoderService;
 
@@ -96,7 +95,7 @@ namespace EOLib.Net.Communication
 					break;
 
 				var packet = _packetProcessActions.DecodeData((IEnumerable<byte>) packetData);
-				PacketQueue.EnqueuePacketForHandling(packet);
+				_packetQueueProvider.PacketQueue.EnqueuePacketForHandling(packet);
 			}
 		}
 

@@ -22,7 +22,8 @@ namespace EOLib.Net
 
 			container.RegisterType<INetworkClientRepository, NetworkClientRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<INetworkClientProvider, NetworkClientRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IPacketQueue, PacketQueue>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IPacketQueueRepository, PacketQueueRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IPacketQueueProvider, IPacketQueueProvider>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IPacketEncoderRepository, PacketEncoderRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ISequenceRepository, SequenceRepository>(new ContainerControlledLifetimeManager());
 
@@ -32,9 +33,13 @@ namespace EOLib.Net
 
 		public void InitializeDependencies(IUnityContainer container)
 		{
+			//create the packet queue object (can be recreated later)
+			var packetQueueRepository = container.Resolve<IPacketQueueRepository>();
+			packetQueueRepository.PacketQueue = new PacketQueue();
+
+			//create the client object (can be recreated later)
 			var clientRepo = container.Resolve<INetworkClientRepository>();
 			var clientFactory = container.Resolve<INetworkClientFactory>();
-
 			clientRepo.NetworkClient = clientFactory.CreateNetworkClient();
 		}
 	}

@@ -16,18 +16,21 @@ namespace EOLib.Net.Connection
 	{
 		private readonly INetworkClientProvider _networkClientProvider;
 		private readonly IConfigurationProvider _configurationProvider;
+		private readonly IPacketQueueProvider _packetQueueProvider;
 		private readonly IHashService _hashService;
 		private readonly IHDSerialNumberService _hdSerialNumberService;
 		private readonly IInitDataGeneratorService _initDataGeneratorService;
 
 		public NetworkConnectionActions(INetworkClientProvider networkClientProvider,
 										IConfigurationProvider configurationProvider,
+										IPacketQueueProvider packetQueueProvider,
 										IHashService hashService,
 										IHDSerialNumberService hdSerialNumberService,
 										IInitDataGeneratorService initDataGeneratorService)
 		{
 			_networkClientProvider = networkClientProvider;
 			_configurationProvider = configurationProvider;
+			_packetQueueProvider = packetQueueProvider;
 			_hashService = hashService;
 			_hdSerialNumberService = hdSerialNumberService;
 			_initDataGeneratorService = initDataGeneratorService;
@@ -63,7 +66,7 @@ namespace EOLib.Net.Connection
 			if (bytes == 0)
 				throw new NoDataSentException();
 
-			var responsePacket = await Client.PacketQueue.WaitForPacketAndDequeue();
+			var responsePacket = await _packetQueueProvider.PacketQueue.WaitForPacketAndDequeue();
 			if (IsInvalidInitPacket(responsePacket))
 				throw new EmptyPacketReceivedException();
 
