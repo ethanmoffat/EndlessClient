@@ -10,12 +10,14 @@ namespace EOLib.IO.Services
 	{
 		public IMapFile LoadMapByID(int mapID)
 		{
-			throw new System.NotImplementedException();
+			return LoadMapByPath(string.Format(Constants.MapFileFormatString, mapID));
 		}
 
 		public IMapFile LoadMapByPath(string pathToMapFile)
 		{
-			throw new System.NotImplementedException();
+			var mapFile = new MapFile();
+			mapFile.Load(pathToMapFile);
+			return mapFile;
 		}
 	}
 }

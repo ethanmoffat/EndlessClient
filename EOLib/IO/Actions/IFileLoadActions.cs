@@ -28,7 +28,6 @@ namespace EOLib.IO.Actions
 	}
 
 	//todo list:
-	//2. implementation for file load services
 	//3. .EDF repositories/services/load actions
 	//4. config load actions
 	//5. move IPacketQueue from NetworkClient-> repository

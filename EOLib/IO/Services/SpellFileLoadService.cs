@@ -8,12 +8,14 @@ namespace EOLib.IO.Services
 	{
 		public IDataFile<SpellRecord> LoadPubFromDefaultFile()
 		{
-			throw new System.NotImplementedException();
+			return LoadPubFromExplicitFile(Constants.SpellFilePath);
 		}
 
 		public IDataFile<SpellRecord> LoadPubFromExplicitFile(string fileName)
 		{
-			throw new System.NotImplementedException();
+			var spellFile = new SpellFile();
+			spellFile.Load(fileName);
+			return spellFile;
 		}
 	}
 }

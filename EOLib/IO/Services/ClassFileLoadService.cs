@@ -8,12 +8,14 @@ namespace EOLib.IO.Services
 	{
 		public IDataFile<ClassRecord> LoadPubFromDefaultFile()
 		{
-			throw new System.NotImplementedException();
+			return LoadPubFromExplicitFile(Constants.ClassFilePath);
 		}
 
 		public IDataFile<ClassRecord> LoadPubFromExplicitFile(string fileName)
 		{
-			throw new System.NotImplementedException();
+			var classFile = new ClassFile();
+			classFile.Load(fileName);
+			return classFile;
 		}
 	}
 }

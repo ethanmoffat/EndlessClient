@@ -8,12 +8,14 @@ namespace EOLib.IO.Services
 	{
 		public IDataFile<NPCRecord> LoadPubFromDefaultFile()
 		{
-			throw new System.NotImplementedException();
+			return LoadPubFromExplicitFile(Constants.NPCFilePath);
 		}
 
 		public IDataFile<NPCRecord> LoadPubFromExplicitFile(string fileName)
 		{
-			throw new System.NotImplementedException();
+			var npcFile = new NPCFile();
+			npcFile.Load(fileName);
+			return npcFile;
 		}
 	}
 }
