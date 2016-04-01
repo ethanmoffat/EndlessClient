@@ -104,6 +104,6 @@ namespace EOLib.Net.Connection
 			return responsePacket is EmptyPacket || (responsePacket.Family != PacketFamily.Init && responsePacket.Action != PacketAction.Init);
 		}
 
-		private INetworkClient<IPacketQueue> Client { get { return _networkClientRepository.NetworkClient; } }
+		private INetworkClient Client { get { return _networkClientRepository.NetworkClient; } }
 	}
 }

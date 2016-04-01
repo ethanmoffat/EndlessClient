@@ -6,6 +6,6 @@ namespace EOLib.Net.Communication
 {
 	public interface INetworkClientFactory
 	{
-		INetworkClient<IPacketQueue> CreateNetworkClient();
+		INetworkClient CreateNetworkClient();
 	}
 }

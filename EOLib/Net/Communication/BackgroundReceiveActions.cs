@@ -25,6 +25,6 @@ namespace EOLib.Net.Communication
 			Client.CancelBackgroundReceiveLoop();
 		}
 
-		private INetworkClient<IPacketQueue> Client { get { return _clientProvider.NetworkClient; } }
+		private INetworkClient Client { get { return _clientProvider.NetworkClient; } }
 	}
 }

@@ -22,7 +22,7 @@ namespace EOLib.Net.Communication
 			_numberEncoderService = numberEncoderService;
 		}
 
-		public INetworkClient<IPacketQueue> CreateNetworkClient()
+		public INetworkClient CreateNetworkClient()
 		{
 			return new NetworkClient(_packetQueue, _packetProcessActions, _numberEncoderService);
 		}

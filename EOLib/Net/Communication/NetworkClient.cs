@@ -13,7 +13,7 @@ using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Net.Communication
 {
-	public class NetworkClient : INetworkClient<IPacketQueue>
+	public class NetworkClient : INetworkClient
 	{
 		private readonly IPacketQueueProvider _packetQueueProvider;
 		private readonly IPacketProcessorActions _packetProcessActions;

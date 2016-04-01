@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {
-	public interface INetworkClient<out T> : IDisposable
-		where T : IPacketQueue
+	public interface INetworkClient : IDisposable
 	{
 		bool Connected { get; }
 

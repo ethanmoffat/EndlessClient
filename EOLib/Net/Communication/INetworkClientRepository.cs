@@ -6,16 +6,16 @@ namespace EOLib.Net.Communication
 {
 	public interface INetworkClientRepository
 	{
-		INetworkClient<IPacketQueue> NetworkClient { get; set; }
+		INetworkClient NetworkClient { get; set; }
 	}
 
 	public interface INetworkClientProvider
 	{
-		INetworkClient<IPacketQueue> NetworkClient { get; }
+		INetworkClient NetworkClient { get; }
 	}
 
 	public class NetworkClientRepository : INetworkClientProvider, INetworkClientRepository
 	{
-		public INetworkClient<IPacketQueue> NetworkClient { get; set; }
+		public INetworkClient NetworkClient { get; set; }
 	}
 }
