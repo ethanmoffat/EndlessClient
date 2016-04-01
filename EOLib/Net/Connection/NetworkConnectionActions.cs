@@ -16,21 +16,18 @@ namespace EOLib.Net.Connection
 	{
 		private readonly INetworkClientProvider _networkClientProvider;
 		private readonly IConfigurationProvider _configurationProvider;
-		private readonly IClientVersionProvider _clientVersionProvider;
 		private readonly IHashService _hashService;
 		private readonly IHDSerialNumberService _hdSerialNumberService;
 		private readonly IInitDataGeneratorService _initDataGeneratorService;
 
 		public NetworkConnectionActions(INetworkClientProvider networkClientProvider,
 										IConfigurationProvider configurationProvider,
-										IClientVersionProvider clientVersionProvider,
 										IHashService hashService,
 										IHDSerialNumberService hdSerialNumberService,
 										IInitDataGeneratorService initDataGeneratorService)
 		{
 			_networkClientProvider = networkClientProvider;
 			_configurationProvider = configurationProvider;
-			_clientVersionProvider = clientVersionProvider;
 			_hashService = hashService;
 			_hdSerialNumberService = hdSerialNumberService;
 			_initDataGeneratorService = initDataGeneratorService;
@@ -54,9 +51,9 @@ namespace EOLib.Net.Connection
 
 			var packet = new PacketBuilder(PacketFamily.Init, PacketAction.Init)
 				.AddThree(stupidHash)
-				.AddChar(_clientVersionProvider.VersionMajor)
-				.AddChar(_clientVersionProvider.VersionMinor)
-				.AddChar(_clientVersionProvider.VersionBuild)
+				.AddChar(_configurationProvider.VersionMajor)
+				.AddChar(_configurationProvider.VersionMinor)
+				.AddChar(_configurationProvider.VersionBuild)
 				.AddChar(112)
 				.AddChar((byte)hdSerialNumber.Length)
 				.AddString(hdSerialNumber)

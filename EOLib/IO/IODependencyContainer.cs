@@ -15,14 +15,8 @@ namespace EOLib.IO
 		{
 			container.RegisterType<IHDSerialNumberService, HDSerialNumberService>();
 
-			container.RegisterType<IClientVersionProvider, ClientVersionProvider>(new ContainerControlledLifetimeManager());
-
 			container.RegisterType<IConfigurationProvider, ConfigurationRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IConfigurationRepository, ConfigurationRepository>(new ContainerControlledLifetimeManager());
-
-			container.RegisterType<IniReader>(
-				new ContainerControlledLifetimeManager(),
-				new InjectionFactory(c => new IniReader(ConfigStrings.Default_Config_File)));
 
 			container.RegisterType<IPubLoadService<ItemRecord>, ItemFileLoadService>();
 			container.RegisterType<IPubLoadService<NPCRecord>, NPCFileLoadService>();

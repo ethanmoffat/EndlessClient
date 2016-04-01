@@ -27,10 +27,12 @@ namespace EOLib.IO.Actions
 		void LoadMapFileByName(string fileName);
 
 		void LoadDataFiles();
+
+		void LoadConfigFile();
 	}
 
 	//todo list:
-	//3. .EDF repositories/services/load actions
 	//4. config load actions
 	//5. move IPacketQueue from NetworkClient-> repository
+	//6. extract logic from LoadDataFiles and LoadConfigFile into services
 }
