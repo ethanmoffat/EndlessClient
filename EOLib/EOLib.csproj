@@ -173,9 +173,11 @@
     <Compile Include="IO\Repositories\MapFileRepository.cs" />
     <Compile Include="IO\Repositories\PubFileRepository.cs" />
     <Compile Include="IO\Services\ClassFileLoadService.cs" />
+    <Compile Include="IO\Services\ILocalizedStringService.cs" />
     <Compile Include="IO\Services\IMapFileLoadService.cs" />
     <Compile Include="IO\Services\IPubLoadService.cs" />
     <Compile Include="IO\Services\ItemFileLoadService.cs" />
+    <Compile Include="IO\Services\LocalizedStringService.cs" />
     <Compile Include="IO\Services\MapFileLoadService.cs" />
     <Compile Include="IO\Services\NPCFileLoadService.cs" />
     <Compile Include="IO\Services\SpellFileLoadService.cs" />

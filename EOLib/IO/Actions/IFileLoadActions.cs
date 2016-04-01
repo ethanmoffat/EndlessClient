@@ -32,7 +32,6 @@ namespace EOLib.IO.Actions
 	}
 
 	//todo list:
-	//4. config load actions
 	//5. move IPacketQueue from NetworkClient-> repository
 	//6. extract logic from LoadDataFiles and LoadConfigFile into services
 }

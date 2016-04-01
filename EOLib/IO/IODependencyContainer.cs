@@ -9,7 +9,7 @@ using Microsoft.Practices.Unity;
 
 namespace EOLib.IO
 {
-	public class IODependencyContainer : IDependencyContainer, IInitializableContainer
+	public class IODependencyContainer : IDependencyContainer
 	{
 		public void RegisterDependencies(IUnityContainer container)
 		{
@@ -23,6 +23,7 @@ namespace EOLib.IO
 			container.RegisterType<IPubLoadService<SpellRecord>, SpellFileLoadService>();
 			container.RegisterType<IPubLoadService<ClassRecord>, ClassFileLoadService>();
 			container.RegisterType<IMapFileLoadService, MapFileLoadService>();
+			container.RegisterType<ILocalizedStringService, LocalizedStringService>();
 
 			container.RegisterType<IPubFileRepository, PubFileRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IPubFileProvider, PubFileRepository>(new ContainerControlledLifetimeManager());
@@ -42,13 +43,6 @@ namespace EOLib.IO
 			container.RegisterType<IDataFileProvider, DataFileRepository>(new ContainerControlledLifetimeManager());
 
 			container.RegisterType<IFileLoadActions, FileLoadActions>();
-		}
-
-		public void InitializeDependencies(IUnityContainer container)
-		{
-			var config = container.Resolve<IniReader>();
-			if (!config.Load())
-				throw new ConfigLoadException();
 		}
 	}
 }

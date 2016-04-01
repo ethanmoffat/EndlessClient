@@ -99,8 +99,6 @@ namespace EOLib.IO.Actions
 				_mapFileRepository.MapFiles.Add(mapFile.Properties.MapID, mapFile);
 		}
 
-		//todo: LoadDataFiles and LoadConfigFile should probably have some logic extracted into services
-
 		public void LoadDataFiles()
 		{
 			var files = Directory.GetFiles(Constants.DataFilePath, "*.edf");
