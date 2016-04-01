@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
+using EndlessClient.Game;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO.Services;

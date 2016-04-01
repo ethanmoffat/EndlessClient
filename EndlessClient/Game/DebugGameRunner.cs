@@ -4,7 +4,7 @@
 
 using Microsoft.Practices.Unity;
 
-namespace EndlessClient
+namespace EndlessClient.Game
 {
 	/// <summary>
 	/// A game runner that does not catch any exceptions

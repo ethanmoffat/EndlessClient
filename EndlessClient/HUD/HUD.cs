@@ -85,7 +85,7 @@ namespace EndlessClient.HUD
 
 		private List<InputKeyListenerBase> m_inputListeners;
 		
-		public HUD(Game g, PacketAPI api) : base(g)
+		public HUD(Microsoft.Xna.Framework.Game g, PacketAPI api) : base(g)
 		{
 			if(!api.Initialized)
 				throw new ArgumentException("Need to initialize connection before the in-game stuff will work");
@@ -278,7 +278,7 @@ namespace EndlessClient.HUD
 			pnlCollection.ForEach(OldWorld.IgnoreDialogs);
 		}
 
-		private void CreateMainButtons(Game g, Texture2D mainButtonTexture)
+		private void CreateMainButtons(Microsoft.Xna.Framework.Game g, Texture2D mainButtonTexture)
 		{
 			for (int i = 0; i < NUM_BTN; ++i)
 			{

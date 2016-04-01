@@ -6,7 +6,7 @@ using System;
 using System.Windows.Forms;
 using Microsoft.Practices.Unity;
 
-namespace EndlessClient
+namespace EndlessClient.Game
 {
 	/// <summary>
 	/// A game runner that catches exceptions and display exception information

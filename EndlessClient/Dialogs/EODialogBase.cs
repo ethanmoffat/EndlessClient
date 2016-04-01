@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EndlessClient.Game;
 using EOLib.Graphics;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;

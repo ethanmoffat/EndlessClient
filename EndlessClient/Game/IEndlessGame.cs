@@ -2,12 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EndlessClient
-{
-	public interface IGameRunner
-	{
-		bool SetupDependencies();
+using System;
 
-		void RunGame();
+namespace EndlessClient.Game
+{
+	public interface IEndlessGame : IDisposable
+	{
+		void Run();
 	}
 }

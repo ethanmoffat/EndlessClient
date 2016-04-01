@@ -2,11 +2,9 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using Microsoft.Xna.Framework;
-
-namespace EndlessClient
+namespace EndlessClient.Game
 {
-	public class EndlessGame : Game, IEndlessGame
+	public class EndlessGame : Microsoft.Xna.Framework.Game, IEndlessGame
 	{
 	}
 }

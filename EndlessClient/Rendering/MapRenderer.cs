@@ -74,7 +74,7 @@ namespace EndlessClient.Rendering
 		private bool _disposed;
 		private readonly object _disposingLockObject = new object();
 
-		public MapRenderer(Game g, PacketAPI apiHandle)
+		public MapRenderer(Microsoft.Xna.Framework.Game g, PacketAPI apiHandle)
 			: base(g)
 		{
 			if(g == null)

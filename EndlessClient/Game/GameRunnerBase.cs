@@ -8,7 +8,7 @@ using EOLib.IO;
 using EOLib.Net;
 using Microsoft.Practices.Unity;
 
-namespace EndlessClient
+namespace EndlessClient.Game
 {
 	public abstract class GameRunnerBase : IGameRunner
 	{

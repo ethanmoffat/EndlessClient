@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
+using EndlessClient.Game;
 using Microsoft.Xna.Framework;
 using XNAControls;
 

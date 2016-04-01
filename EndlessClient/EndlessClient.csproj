@@ -83,7 +83,7 @@
     <Compile Include="Controls\TextboxClickEventHandler.cs" />
     <Compile Include="Controls\ScrollBar.cs" />
     <Compile Include="Controls\TextBoxTabEventHandler.cs" />
-    <Compile Include="DebugGameRunner.cs" />
+    <Compile Include="Game\DebugGameRunner.cs" />
     <Compile Include="Dialogs\BankAccountDialog.cs" />
     <Compile Include="Dialogs\ChangePasswordDialog.cs" />
     <Compile Include="Dialogs\ChestDialog.cs" />
@@ -110,9 +110,10 @@
     <Compile Include="Dialogs\TextInputDialog.cs" />
     <Compile Include="Dialogs\TradeDialog.cs" />
     <Compile Include="EndlessClientDependencyContainer.cs" />
-    <Compile Include="EndlessGame.cs" />
+    <Compile Include="Game\EndlessGame.cs" />
     <Compile Include="Game.cs" />
-    <Compile Include="GameRunnerBase.cs" />
+    <Compile Include="Game\GameRunnerBase.cs" />
+    <Compile Include="Game\GameStates.cs" />
     <Compile Include="GameUI.cs" />
     <Compile Include="HUD\ActiveSpellsPanel.cs" />
     <Compile Include="HUD\ChatPanel.cs" />
@@ -131,8 +132,8 @@
     <Compile Include="HUD\StatusBars\SPStatusBar.cs" />
     <Compile Include="HUD\StatusBars\TNLStatusBar.cs" />
     <Compile Include="HUD\StatusBars\TPStatusBar.cs" />
-    <Compile Include="IEndlessGame.cs" />
-    <Compile Include="IGameRunner.cs" />
+    <Compile Include="Game\IEndlessGame.cs" />
+    <Compile Include="Game\IGameRunner.cs" />
     <Compile Include="Input\ArrowKeyListener.cs" />
     <Compile Include="Input\ControlKeyListener.cs" />
     <Compile Include="Input\FunctionKeyListener.cs" />
@@ -144,7 +145,7 @@
     <Compile Include="Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReleaseGameRunner.cs" />
+    <Compile Include="Game\ReleaseGameRunner.cs" />
     <Compile Include="Rendering\CharacterProperties\ArmorRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\BootsRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\CharacterPropertyRendererBuilder.cs" />
