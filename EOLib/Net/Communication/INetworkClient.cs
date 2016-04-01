@@ -10,6 +10,7 @@ namespace EOLib.Net.Communication
 	public interface INetworkClient<out T> : IDisposable
 		where T : IPacketQueue
 	{
+		//todo: make this private and create PacketQueueRepository
 		T PacketQueue { get; }
 
 		bool Connected { get; }

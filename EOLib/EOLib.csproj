@@ -101,6 +101,7 @@
     <Compile Include="Data\BLL\ICharacterRenderProperties.cs" />
     <Compile Include="Data\BLL\ICharacterStats.cs" />
     <Compile Include="Data\BLL\NPC.cs" />
+    <Compile Include="Data\DataDependencyContainer.cs" />
     <Compile Include="Data\INumberEncoderService.cs" />
     <Compile Include="Data\Map\BasicTileInfo.cs" />
     <Compile Include="Data\Map\IMapElement.cs" />
@@ -121,10 +122,13 @@
     <Compile Include="Graphics\CrossPlatformGFXLoader.cs" />
     <Compile Include="Graphics\GFXManager.cs" />
     <Compile Include="Graphics\GFXTypes.cs" />
+    <Compile Include="Graphics\GraphicsDependencyContainer.cs" />
     <Compile Include="Graphics\INativeGraphicsLoader.cs" />
     <Compile Include="Graphics\INativeGraphicsManager.cs" />
     <Compile Include="Graphics\LibraryGraphicPair.cs" />
     <Compile Include="Graphics\LibraryLoadException.cs" />
+    <Compile Include="IDependencyContainer.cs" />
+    <Compile Include="IInitializableContainer.cs" />
     <Compile Include="IO\Class.cs" />
     <Compile Include="IO\ClassRecordFactory.cs" />
     <Compile Include="IO\Config\ClientVersionProvider.cs" />
@@ -137,6 +141,7 @@
     <Compile Include="IO\IDataFile.cs" />
     <Compile Include="IO\IDataRecord.cs" />
     <Compile Include="IO\IDataRecordFactory.cs" />
+    <Compile Include="IO\IODependencyContainer.cs" />
     <Compile Include="IO\Map\ChestKey.cs" />
     <Compile Include="IO\Map\DoorSpec.cs" />
     <Compile Include="IO\Map\IMapEntityItem.cs" />
@@ -201,8 +206,10 @@
     <Compile Include="Net\Communication\AsyncSocket.cs" />
     <Compile Include="Net\ClientBase.cs" />
     <Compile Include="Net\Communication\EmptyPacketReceivedException.cs" />
+    <Compile Include="Net\Communication\INetworkClientFactory.cs" />
     <Compile Include="Net\Communication\INetworkClientRepository.cs" />
     <Compile Include="Net\Communication\NetworkClient.cs" />
+    <Compile Include="Net\Communication\NetworkClientFactory.cs" />
     <Compile Include="Net\Communication\NoDataSentException.cs" />
     <Compile Include="Net\Communication\PacketHandlerComponent.cs" />
     <Compile Include="IReadOnly2DArray.cs" />
@@ -210,6 +217,7 @@
     <Compile Include="Net\Connection\INetworkConnectionActions.cs" />
     <Compile Include="Net\Connection\InitDataGeneratorService.cs" />
     <Compile Include="Net\Connection\NetworkConnectionActions.cs" />
+    <Compile Include="Net\NetworkDependencyContainer.cs" />
     <Compile Include="Net\PacketProcessing\HashService.cs" />
     <Compile Include="Net\PacketProcessing\IHashService.cs" />
     <Compile Include="Net\PacketProcessing\PacketNumberEncoder.cs" />

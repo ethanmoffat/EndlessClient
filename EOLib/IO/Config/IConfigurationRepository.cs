@@ -41,5 +41,10 @@ namespace EOLib.IO.Config
 		public byte VersionMajor { get; set; }
 		public byte VersionMinor { get; set; }
 		public byte VersionBuild { get; set; }
+
+		public ConfigurationRepository(IniReader configFile)
+		{
+			//todo: set all the stuff
+		}
 	}
 }
