@@ -83,6 +83,7 @@
     <Compile Include="Controls\TextboxClickEventHandler.cs" />
     <Compile Include="Controls\ScrollBar.cs" />
     <Compile Include="Controls\TextBoxTabEventHandler.cs" />
+    <Compile Include="DependencyContainerProvider.cs" />
     <Compile Include="Game\DebugGameRunner.cs" />
     <Compile Include="Dialogs\BankAccountDialog.cs" />
     <Compile Include="Dialogs\ChangePasswordDialog.cs" />

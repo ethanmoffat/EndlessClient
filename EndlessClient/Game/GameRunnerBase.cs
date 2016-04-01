@@ -2,10 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Linq;
 using EOLib;
-using EOLib.Data;
-using EOLib.IO;
-using EOLib.Net;
 using Microsoft.Practices.Unity;
 
 namespace EndlessClient.Game
@@ -23,12 +21,12 @@ namespace EndlessClient.Game
 		{
 			var registrar = new DependencyRegistrar(_unityContainer);
 
-			registrar.RegisterDependencies(new DataDependencyContainer(),
-				new IODependencyContainer(),
-				new NetworkDependencyContainer(),
-				new EndlessClientDependencyContainer());
+			registrar.RegisterDependencies(DependencyContainerProvider.DependencyContainers);
 
-			registrar.InitializeDependencies(new NetworkDependencyContainer());
+			registrar.InitializeDependencies(
+				DependencyContainerProvider.DependencyContainers
+										   .OfType<IInitializableContainer>()
+										   .ToArray());
 
 			return true;
 		}
