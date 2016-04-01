@@ -220,9 +220,11 @@
     <Compile Include="Net\API\Welcome.cs" />
     <Compile Include="Net\Communication\AsyncSocket.cs" />
     <Compile Include="Net\ClientBase.cs" />
+    <Compile Include="Net\Communication\BackgroundReceiveActions.cs" />
     <Compile Include="Net\Communication\EmptyPacketReceivedException.cs" />
     <Compile Include="Net\Communication\INetworkClientFactory.cs" />
     <Compile Include="Net\Communication\INetworkClientRepository.cs" />
+    <Compile Include="Net\Communication\IBackgroundReceiveActions.cs" />
     <Compile Include="Net\Communication\IPacketQueueRepository.cs" />
     <Compile Include="Net\Communication\NetworkClient.cs" />
     <Compile Include="Net\Communication\NetworkClientFactory.cs" />

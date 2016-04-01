@@ -14,26 +14,29 @@ namespace EOLib.Net.Connection
 {
 	public class NetworkConnectionActions : INetworkConnectionActions
 	{
-		private readonly INetworkClientProvider _networkClientProvider;
+		private readonly INetworkClientRepository _networkClientRepository;
 		private readonly IConfigurationProvider _configurationProvider;
 		private readonly IPacketQueueProvider _packetQueueProvider;
 		private readonly IHashService _hashService;
 		private readonly IHDSerialNumberService _hdSerialNumberService;
 		private readonly IInitDataGeneratorService _initDataGeneratorService;
+		private readonly INetworkClientFactory _networkClientFactory;
 
-		public NetworkConnectionActions(INetworkClientProvider networkClientProvider,
+		public NetworkConnectionActions(INetworkClientRepository networkClientRepository,
 										IConfigurationProvider configurationProvider,
 										IPacketQueueProvider packetQueueProvider,
 										IHashService hashService,
 										IHDSerialNumberService hdSerialNumberService,
-										IInitDataGeneratorService initDataGeneratorService)
+										IInitDataGeneratorService initDataGeneratorService,
+										INetworkClientFactory networkClientFactory)
 		{
-			_networkClientProvider = networkClientProvider;
+			_networkClientRepository = networkClientRepository;
 			_configurationProvider = configurationProvider;
 			_packetQueueProvider = packetQueueProvider;
 			_hashService = hashService;
 			_hdSerialNumberService = hdSerialNumberService;
 			_initDataGeneratorService = initDataGeneratorService;
+			_networkClientFactory = networkClientFactory;
 		}
 
 		public async Task<ConnectResult> ConnectToServer()
@@ -45,6 +48,24 @@ namespace EOLib.Net.Connection
 			var port = _configurationProvider.Port;
 
 			return await Client.ConnectToServer(host, port);
+		}
+
+		public async Task<ConnectResult> ReconnectToServer()
+		{
+			if (Client.Connected)
+			{
+				Client.CancelBackgroundReceiveLoop();
+				Client.Disconnect();
+			}
+			Client.Dispose();
+
+			_networkClientRepository.NetworkClient = _networkClientFactory.CreateNetworkClient();
+			return await ConnectToServer();
+		}
+
+		public void DisconnectFromServer()
+		{
+			Client.Disconnect();
 		}
 
 		public async Task<IInitializationData> BeginHandshake()
@@ -83,6 +104,6 @@ namespace EOLib.Net.Connection
 			return responsePacket is EmptyPacket || (responsePacket.Family != PacketFamily.Init && responsePacket.Action != PacketAction.Init);
 		}
 
-		private INetworkClient<IPacketQueue> Client { get { return _networkClientProvider.NetworkClient; } }
+		private INetworkClient<IPacketQueue> Client { get { return _networkClientRepository.NetworkClient; } }
 	}
 }

@@ -29,6 +29,7 @@ namespace EOLib.Net
 
 			container.RegisterType<IPacketProcessorActions, PacketProcessActions>();
 			container.RegisterType<INetworkConnectionActions, NetworkConnectionActions>();
+			container.RegisterType<IBackgroundReceiveActions, BackgroundReceiveActions>();
 		}
 
 		public void InitializeDependencies(IUnityContainer container)

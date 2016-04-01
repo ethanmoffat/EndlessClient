@@ -12,6 +12,10 @@ namespace EOLib.Net.Connection
 	{
 		Task<ConnectResult> ConnectToServer();
 
+		Task<ConnectResult> ReconnectToServer();
+
+		void DisconnectFromServer();
+
 		Task<IInitializationData> BeginHandshake();
 
 		void CompleteHandshake();
