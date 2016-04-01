@@ -116,6 +116,9 @@
     <Compile Include="Game\GameRunnerBase.cs" />
     <Compile Include="Game\GameStates.cs" />
     <Compile Include="GameUI.cs" />
+    <Compile Include="Game\IContentManagerRepository.cs" />
+    <Compile Include="Game\IGameStateRepository.cs" />
+    <Compile Include="Game\IKeyboardDispatcherRepository.cs" />
     <Compile Include="HUD\ActiveSpellsPanel.cs" />
     <Compile Include="HUD\ChatPanel.cs" />
     <Compile Include="HUD\HUD.cs" />
