@@ -6,8 +6,8 @@ using EndlessClient.Game;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public interface IGameStateControlSetFactory
+	public interface IControlSetFactory
 	{
-		IControlSet CreateForState(GameStates newState, IControlSet currentControlSet);
+		IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet);
 	}
 }

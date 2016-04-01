@@ -16,7 +16,7 @@ namespace EndlessClient
 		{
 			container.RegisterType<IEndlessGame, EndlessGame>(new ContainerControlledLifetimeManager());
 
-			container.RegisterType<IGameStateControlSetFactory, GameStateControlSetFactory>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IControlSetFactory, ControlSetFactory>(new ContainerControlledLifetimeManager());
 
 			container.RegisterType<IGameStateProvider, GameStateRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IGameStateRepository, GameStateRepository>(new ContainerControlledLifetimeManager());

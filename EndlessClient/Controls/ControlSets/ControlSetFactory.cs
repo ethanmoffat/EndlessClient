@@ -8,13 +8,13 @@ using EOLib.Graphics;
 
 namespace EndlessClient.Controls.ControlSets
 {
-	public class GameStateControlSetFactory : IGameStateControlSetFactory
+	public class ControlSetFactory : IControlSetFactory
 	{
 		private readonly INativeGraphicsManager _nativeGraphicsManager;
 		private readonly IContentManagerProvider _contentManagerProvider;
 		private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
 
-		public GameStateControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
+		public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
 										  IContentManagerProvider contentManagerProvider,
 										  IKeyboardDispatcherProvider keyboardDispatcherProvider)
 		{
@@ -23,7 +23,7 @@ namespace EndlessClient.Controls.ControlSets
 			_keyboardDispatcherProvider = keyboardDispatcherProvider;
 		}
 
-		public IControlSet CreateForState(GameStates newState, IControlSet currentControlSet)
+		public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
 		{
 			var controlSet = GetSetBasedOnState(newState);
 			controlSet.InitializeResources(_nativeGraphicsManager, _contentManagerProvider.Content);
