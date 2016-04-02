@@ -29,7 +29,9 @@ namespace EOLib.Net
 
 			container.RegisterType<IPacketProcessorActions, PacketProcessActions>();
 			container.RegisterType<INetworkConnectionActions, NetworkConnectionActions>();
-			container.RegisterType<IBackgroundReceiveActions, BackgroundReceiveActions>();
+			
+			//must be a singleton: tracks a thread and has internal state.
+			container.RegisterType<IBackgroundReceiveActions, BackgroundReceiveActions>(new ContainerControlledLifetimeManager());
 		}
 
 		public void InitializeDependencies(IUnityContainer container)

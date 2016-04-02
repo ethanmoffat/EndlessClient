@@ -11,6 +11,7 @@ namespace EOLib.Net.Communication
 		private readonly INetworkClientProvider _clientProvider;
 
 		private Thread _backgroundThread;
+		private bool _threadStarted;
 
 		public BackgroundReceiveActions(INetworkClientProvider clientProvider)
 		{
@@ -20,14 +21,23 @@ namespace EOLib.Net.Communication
 
 		public void RunBackgroundReceiveLoop()
 		{
+			if (_threadStarted)
+				return;
+			
 			_backgroundThread.Start();
+			_threadStarted = true;
 		}
 
 		public void CancelBackgroundReceiveLoop()
 		{
+			if (!_threadStarted)
+				return;
+
 			Client.CancelBackgroundReceiveLoop();
+			
 			_backgroundThread.Join();
 			_backgroundThread = new Thread(BackgroundLoop);
+			_threadStarted = false;
 		}
 
 		private async void BackgroundLoop()
