@@ -10,9 +10,14 @@ namespace EndlessClient.Game
 {
 	public interface IEndlessGame : IDisposable
 	{
+		GameComponentCollection Components { get; }
+
 		ContentManager Content { get; }
+		
 		GameWindow Window { get; }
 
 		void Run();
+
+		void Exit();
 	}
 }

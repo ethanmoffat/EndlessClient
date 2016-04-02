@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs.Actions;
 using EndlessClient.Game;
 using EOLib;
 using Microsoft.Practices.Unity;
@@ -26,6 +27,10 @@ namespace EndlessClient
 			container.RegisterType<IKeyboardDispatcherRepository, KeyboardDispatcherRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetProvider, ControlSetRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetRepository, ControlSetRepository>(new ContainerControlledLifetimeManager());
+
+			container.RegisterType<IMainButtonController, MainButtonController>();
+			container.RegisterType<IGameStateActions, GameStateActions>();
+			container.RegisterType<IErrorDialogDisplayAction, ErrorDialogDisplayAction>();
 		}
 
 		public void InitializeDependencies(IUnityContainer container)

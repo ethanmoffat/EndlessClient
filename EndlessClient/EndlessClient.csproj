@@ -68,6 +68,12 @@
     <Compile Include="Character.cs" />
     <Compile Include="CharacterStateTest.cs" />
     <Compile Include="ControlSets\IControlSetRepository.cs" />
+    <Compile Include="ControlSets\IMainButtonController.cs" />
+    <Compile Include="ControlSets\MainButtonController.cs" />
+    <Compile Include="Dialogs\Actions\ErrorDialogDisplayAction.cs" />
+    <Compile Include="Dialogs\Actions\IErrorDialogDisplayAction.cs" />
+    <Compile Include="Game\GameStateActions.cs" />
+    <Compile Include="Game\IGameStateActions.cs" />
     <Compile Include="UIControls\BlinkingLabel.cs" />
     <Compile Include="UIControls\CharacterControl.cs" />
     <Compile Include="UIControls\CharacterInfoPanel.cs" />
