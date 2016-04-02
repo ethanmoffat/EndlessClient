@@ -11,11 +11,6 @@ namespace EndlessClient.Dialogs.Actions
 {
 	public class ErrorDialogDisplayAction : IErrorDialogDisplayAction
 	{
-		public ErrorDialogDisplayAction()
-		{
-			
-		}
-
 		public void ShowError(ConnectResult connectResult)
 		{
 			switch (connectResult)
