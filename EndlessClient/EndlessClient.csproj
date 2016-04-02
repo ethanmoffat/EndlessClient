@@ -67,6 +67,7 @@
     <Compile Include="Audio\WAVFileValidator.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="CharacterStateTest.cs" />
+    <Compile Include="ControlSets\IControlSetRepository.cs" />
     <Compile Include="UIControls\BlinkingLabel.cs" />
     <Compile Include="UIControls\CharacterControl.cs" />
     <Compile Include="UIControls\CharacterInfoPanel.cs" />
