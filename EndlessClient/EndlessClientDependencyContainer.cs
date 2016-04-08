@@ -4,7 +4,7 @@
 
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
-using EndlessClient.Game;
+using EndlessClient.GameExecution;
 using EOLib;
 using Microsoft.Practices.Unity;
 using XNAControls;

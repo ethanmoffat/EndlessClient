@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EndlessClient.Game;
+using EndlessClient.GameExecution;
 using EOLib.Graphics;
 
 namespace EndlessClient.ControlSets

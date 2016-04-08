@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EndlessClient.Game;
+using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;

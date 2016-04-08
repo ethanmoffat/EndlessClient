@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
-using EndlessClient.Game;
+using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;

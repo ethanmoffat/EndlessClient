@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
-using EndlessClient.Game;
+using EndlessClient.GameExecution;
 using EOLib.Data.Protocol;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EndlessClient.Dialogs;
-using EndlessClient.Game;
+using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.Rendering;
 using EOLib;
