@@ -29,7 +29,7 @@ using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace EndlessClient
 {
-	public partial class EOGame : Microsoft.Xna.Framework.Game
+	public partial class EOGame : Game
 	{
 		private static EOGame inst;
 		/// <summary>
