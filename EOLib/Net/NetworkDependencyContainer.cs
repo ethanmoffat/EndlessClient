@@ -23,7 +23,7 @@ namespace EOLib.Net
 			container.RegisterType<INetworkClientRepository, NetworkClientRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<INetworkClientProvider, NetworkClientRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IPacketQueueRepository, PacketQueueRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IPacketQueueProvider, IPacketQueueProvider>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IPacketQueueProvider, PacketQueueRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IPacketEncoderRepository, PacketEncoderRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ISequenceRepository, SequenceRepository>(new ContainerControlledLifetimeManager());
 
