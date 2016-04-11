@@ -19,8 +19,10 @@ namespace EndlessClient
 			new GraphicsDependencyContainer(),
 			new IODependencyContainer(),
 			new NetworkDependencyContainer(),
+
 			//EndlessClient containers
-			new EndlessClientDependencyContainer()
+			new EndlessClientDependencyContainer(),
+			new XNAControlsDependencyContainer()
 		};
 	}
 }

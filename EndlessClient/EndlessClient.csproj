@@ -211,6 +211,7 @@
     <Compile Include="OldWorld.cs" />
     <Compile Include="Rendering\Sprites\SpriteSheet.cs" />
     <Compile Include="Rendering\Sprites\WeaponSpriteType.cs" />
+    <Compile Include="XNAControlsDependencyContainer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
