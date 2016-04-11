@@ -7,6 +7,7 @@ using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EOLib;
 using Microsoft.Practices.Unity;
+using Microsoft.Xna.Framework;
 using XNAControls;
 
 namespace EndlessClient
@@ -27,6 +28,8 @@ namespace EndlessClient
 			container.RegisterType<IKeyboardDispatcherRepository, KeyboardDispatcherRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetProvider, ControlSetRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetRepository, ControlSetRepository>(new ContainerControlledLifetimeManager());
+
+			container.RegisterType<IClientWindowSizeProvider, ClientWindowSizeProvider>(new ContainerControlledLifetimeManager());
 
 			container.RegisterType<IMainButtonController, MainButtonController>();
 			container.RegisterType<IGameStateActions, GameStateActions>();

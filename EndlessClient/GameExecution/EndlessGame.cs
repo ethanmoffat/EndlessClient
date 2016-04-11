@@ -8,5 +8,18 @@ namespace EndlessClient.GameExecution
 {
 	public class EndlessGame : Game, IEndlessGame
 	{
+		private readonly IGraphicsDeviceManager _graphicsDeviceManager;
+
+		public EndlessGame(IClientWindowSizeProvider windowSizeProvider)
+		{
+			_graphicsDeviceManager = new GraphicsDeviceManager(this)
+			{
+				PreferredBackBufferWidth = windowSizeProvider.Width,
+				PreferredBackBufferHeight = windowSizeProvider.Height
+			};
+			Content.RootDirectory = "Content";
+		}
+
+
 	}
 }
