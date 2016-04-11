@@ -10,6 +10,10 @@ namespace EndlessClient.GameExecution
 	public enum GameStates
 	{
 		/// <summary>
+		/// Represents an noninitialized state (during game initialization)
+		/// </summary>
+		None,
+		/// <summary>
 		/// Initial State when game is launched
 		/// </summary>
 		Initial,

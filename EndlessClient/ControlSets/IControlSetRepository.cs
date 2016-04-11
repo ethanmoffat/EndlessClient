@@ -17,5 +17,10 @@ namespace EndlessClient.ControlSets
 	public class ControlSetRepository : IControlSetRepository, IControlSetProvider
 	{
 		public IControlSet CurrentControlSet { get; set; }
+
+		public ControlSetRepository()
+		{
+			CurrentControlSet = new EmptyControlSet();
+		}
 	}
 }

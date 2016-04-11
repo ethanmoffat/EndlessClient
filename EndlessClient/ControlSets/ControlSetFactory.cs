@@ -15,8 +15,8 @@ namespace EndlessClient.ControlSets
 		private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
 
 		public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
-										  IContentManagerProvider contentManagerProvider,
-										  IKeyboardDispatcherProvider keyboardDispatcherProvider)
+								 IContentManagerProvider contentManagerProvider,
+								 IKeyboardDispatcherProvider keyboardDispatcherProvider)
 		{
 			_nativeGraphicsManager = nativeGraphicsManager;
 			_contentManagerProvider = contentManagerProvider;

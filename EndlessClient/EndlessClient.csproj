@@ -67,6 +67,7 @@
     <Compile Include="Audio\WAVFileValidator.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="CharacterStateTest.cs" />
+    <Compile Include="ControlSets\EmptyControlSet.cs" />
     <Compile Include="ControlSets\IControlSetRepository.cs" />
     <Compile Include="ControlSets\IMainButtonController.cs" />
     <Compile Include="ControlSets\MainButtonController.cs" />
