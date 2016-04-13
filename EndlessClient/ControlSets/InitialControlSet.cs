@@ -4,9 +4,13 @@
 
 using System;
 using EndlessClient.GameExecution;
+using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -19,15 +23,27 @@ namespace EndlessClient.ControlSets
 							   _login,
 							   _viewCredits,
 							   _exitGame,
-							   _versionInfo;
+							   _versionInfo,
+							   _personPicture;
 
-		//todo: add some sort of picture box control for person one picture
+		private readonly Texture2D[] _personSet1;
+		private readonly Random _randomGen;
 
 		public override GameStates GameState { get { return GameStates.Initial; } }
 
 		public InitialControlSet(IConfigurationProvider configProvider)
 		{
 			_configProvider = configProvider;
+			_personSet1 = new Texture2D[4];
+			_randomGen = new Random();
+		}
+
+		public override void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
+		{
+			base.InitializeResources(gfxManager, xnaContentManager);
+
+			for (int i = 0; i < _personSet1.Length; ++i)
+				_personSet1[i] = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 41 + i, true);
 		}
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
@@ -37,12 +53,14 @@ namespace EndlessClient.ControlSets
 			_viewCredits = GetControl(currentControlSet, GameControlIdentifier.InitialViewCredits, GetViewCreditsButton);
 			_exitGame = GetControl(currentControlSet, GameControlIdentifier.InitialExitGame, GetExitButton);
 			_versionInfo = GetControl(currentControlSet, GameControlIdentifier.InitialVersionLabel, GetVersionInfoLabel);
+			_personPicture = GetControl(currentControlSet, GameControlIdentifier.PersonDisplay1, GetPersonPicture1);
 
 			_allComponents.Add(_createAccount);
 			_allComponents.Add(_login);
 			_allComponents.Add(_viewCredits);
 			_allComponents.Add(_exitGame);
 			_allComponents.Add(_versionInfo);
+			_allComponents.Add(_personPicture);
 		}
 
 		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
@@ -54,6 +72,7 @@ namespace EndlessClient.ControlSets
 				case GameControlIdentifier.InitialViewCredits: return _viewCredits;
 				case GameControlIdentifier.InitialExitGame: return _exitGame;
 				case GameControlIdentifier.InitialVersionLabel: return _versionInfo;
+				case GameControlIdentifier.PersonDisplay1: return _personPicture;
 				default: return null;
 			}
 		}
@@ -110,6 +129,18 @@ namespace EndlessClient.ControlSets
 									 _configProvider.Port),
 				ForeColor = Constants.BeigeText
 			};
+		}
+
+		private PictureBox GetPersonPicture1()
+		{
+			var texture = _personSet1[_randomGen.Next(4)];
+			return new PictureBox(texture) { DrawLocation = new Vector2(229, 70) };
+		}
+
+		protected void ExcludePersonPicture1()
+		{
+			((PictureBox) _personPicture).Close();
+			_allComponents.Remove(_personPicture);
 		}
 	}
 }

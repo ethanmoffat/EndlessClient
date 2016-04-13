@@ -20,6 +20,7 @@ namespace EndlessClient.ControlSets
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
 		{
 			base.InitializeControlsHelper(currentControlSet);
+			ExcludePersonPicture1();
 
 			_creditsLabel = GetControl(currentControlSet, GameControlIdentifier.CreditsLabel, GetCreditsLabel);
 			_allComponents.Add(_creditsLabel);

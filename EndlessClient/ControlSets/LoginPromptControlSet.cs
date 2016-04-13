@@ -23,8 +23,6 @@ namespace EndlessClient.ControlSets
 		private TextBoxClickEventHandler _clickHandler;
 		private TextBoxTabEventHandler _tabHandler;
 
-		//todo: add some sort of picturebox control for login panel background
-
 		public override GameStates GameState { get { return GameStates.Login; } }
 
 		public LoginPromptControlSet(KeyboardDispatcher dispatcher, IConfigurationProvider configProvider)
