@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.GameExecution;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -41,6 +42,9 @@ namespace EndlessClient.ControlSets
 		private Texture2D _secondaryButtonTexture, _smallButtonSheet;
 		private Texture2D[] _textBoxTextures;
 
+		private Texture2D[] _backgroundImages;
+		private IGameComponent _backgroundTexture;
+
 		private bool _resourcesInitialized, _controlsInitialized;
 
 		protected BaseControlSet()
@@ -66,6 +70,10 @@ namespace EndlessClient.ControlSets
 				xnaContentManager.Load<Texture2D>("cursor")
 			};
 
+			_backgroundImages = new Texture2D[7];
+			for (int i = 0; i < _backgroundImages.Length; ++i)
+				_backgroundImages[i] = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 30 + i);
+
 			_resourcesInitialized = true;
 		}
 
@@ -75,6 +83,12 @@ namespace EndlessClient.ControlSets
 				throw new InvalidOperationException("Error initializing controls: resources have not yet been initialized");
 			if (_controlsInitialized)
 				throw new InvalidOperationException("Error initializing controls: controls have already been initialized");
+
+			if (GameState != GameStates.PlayingTheGame)
+			{
+				_backgroundTexture = GetControl(currentControlSet, GameControlIdentifier.BackgroundImage, GetBackgroundImage);
+				_allComponents.Add(_backgroundTexture);
+			}
 
 			InitializeControlsHelper(currentControlSet);
 
@@ -88,6 +102,13 @@ namespace EndlessClient.ControlSets
 												   Func<IGameComponent> componentFactory)
 		{
 			return currentControlSet.FindComponentByControlIdentifier(whichControl) ?? componentFactory();
+		}
+
+		private PictureBox GetBackgroundImage()
+		{
+			var rnd = new Random();
+			var texture = _backgroundImages[rnd.Next(7)];
+			return new PictureBox(texture) { DrawOrder = 0 };
 		}
 
 		#region Create Account State

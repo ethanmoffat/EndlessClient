@@ -33,6 +33,7 @@ namespace EndlessClient.ControlSets
 		BackButton,
 		PersonDisplay1,
 		PersonDisplay2,
+		BackgroundImage,
 
 		CreateCharacterButton,
 		ChangePasswordButton,
