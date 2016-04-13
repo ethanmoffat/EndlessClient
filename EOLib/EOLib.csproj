@@ -127,6 +127,7 @@
     <Compile Include="Graphics\GFXManager.cs" />
     <Compile Include="Graphics\GFXTypes.cs" />
     <Compile Include="Graphics\GraphicsDependencyContainer.cs" />
+    <Compile Include="Graphics\IGraphicsDeviceRepository.cs" />
     <Compile Include="Graphics\INativeGraphicsLoader.cs" />
     <Compile Include="Graphics\INativeGraphicsManager.cs" />
     <Compile Include="Graphics\LibraryGraphicPair.cs" />

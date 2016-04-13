@@ -16,16 +16,13 @@ namespace EOLib.Graphics
 		private readonly Dictionary<LibraryGraphicPair, Texture2D> _cache;
 
 		private readonly INativeGraphicsLoader _gfxLoader;
-		private readonly GraphicsDevice _device;
+		private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
 
-		public GFXManager(INativeGraphicsLoader gfxLoader, GraphicsDevice dev)
+		public GFXManager(INativeGraphicsLoader gfxLoader, IGraphicsDeviceProvider graphicsDeviceProvider)
 		{
-			if(gfxLoader == null) throw new ArgumentNullException("gfxLoader");
-			if (dev == null) throw new ArgumentNullException("dev");
-
 			_cache = new Dictionary<LibraryGraphicPair, Texture2D>();
 			_gfxLoader = gfxLoader;
-			_device = dev;
+			_graphicsDeviceProvider = graphicsDeviceProvider;
 		}
 
 		public Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false, bool reloadFromFile = false)
@@ -49,7 +46,7 @@ namespace EOLib.Graphics
 				using (var i = BitmapFromResource(file, resourceVal, transparent))
 					i.Save(mem, ImageFormat.Png);
 
-				ret = Texture2D.FromStream(_device, mem);
+				ret = Texture2D.FromStream(_graphicsDeviceProvider.GraphicsDevice, mem);
 			}
 
 			//need to double-check that the key isn't already in the cache:
@@ -88,9 +85,6 @@ namespace EOLib.Graphics
 			return ret;
 		}
 
-		/// <summary>
-		/// Disposes all cached textures
-		/// </summary>
 		public void Dispose()
 		{
 			foreach (var text in _cache.Values)

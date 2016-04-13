@@ -12,6 +12,9 @@ namespace EOLib.Graphics
 		{
 			container.RegisterType<INativeGraphicsManager, GFXManager>(new ContainerControlledLifetimeManager());
 			container.RegisterType<INativeGraphicsLoader, CrossPlatformGFXLoader>(new ContainerControlledLifetimeManager());
+
+			container.RegisterType<IGraphicsDeviceRepository, GraphicsDeviceRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IGraphicsDeviceProvider, GraphicsDeviceRepository>(new ContainerControlledLifetimeManager());
 		}
 	}
 }
