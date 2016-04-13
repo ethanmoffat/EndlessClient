@@ -16,6 +16,8 @@ namespace EndlessClient.UIControls
 			: base(null, null, parent)
 		{
 			SetNewPicture(displayPicture);
+			if (parent == null)
+				Game.Components.Add(this);
 		}
 
 		public void SetNewPicture(Texture2D displayPicture)
