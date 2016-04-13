@@ -120,6 +120,8 @@ namespace EOLib.IO.Actions
 		public void LoadConfigFile()
 		{
 			var configFile = new IniReader(ConfigStrings.Default_Config_File);
+			if (!configFile.Load())
+				throw new ConfigLoadException();
 
 			int tempInt;
 			_configRepository.VersionMajor = configFile.GetValue(ConfigStrings.Version, ConfigStrings.Major, out tempInt)

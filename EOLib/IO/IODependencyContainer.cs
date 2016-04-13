@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.IO;
 using EOLib.IO.Actions;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
@@ -9,7 +10,7 @@ using Microsoft.Practices.Unity;
 
 namespace EOLib.IO
 {
-	public class IODependencyContainer : IDependencyContainer
+	public class IODependencyContainer : IInitializableContainer
 	{
 		public void RegisterDependencies(IUnityContainer container)
 		{
@@ -43,6 +44,40 @@ namespace EOLib.IO
 			container.RegisterType<IDataFileProvider, DataFileRepository>(new ContainerControlledLifetimeManager());
 
 			container.RegisterType<IFileLoadActions, FileLoadActions>();
+		}
+
+		public void InitializeDependencies(IUnityContainer container)
+		{
+			var fileLoadActions = container.Resolve<IFileLoadActions>();
+
+			try
+			{
+				fileLoadActions.LoadItemFile();
+			}
+			catch (IOException)
+			{
+				//todo: log message?
+			}
+
+			try
+			{
+				fileLoadActions.LoadNPCFile();
+			}
+			catch (IOException) { }
+
+			try
+			{
+				fileLoadActions.LoadSpellFile();
+			}
+			catch (IOException) { }
+
+			try
+			{
+				fileLoadActions.LoadClassFile();
+			}
+			catch (IOException) { }
+
+			fileLoadActions.LoadConfigFile();
 		}
 	}
 }
