@@ -5,6 +5,7 @@
 using System;
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
+using EOLib.IO.Repositories;
 
 namespace EndlessClient.ControlSets
 {
@@ -13,14 +14,17 @@ namespace EndlessClient.ControlSets
 		private readonly INativeGraphicsManager _nativeGraphicsManager;
 		private readonly IContentManagerProvider _contentManagerProvider;
 		private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
+		private readonly IConfigurationProvider _configProvider;
 
 		public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
 								 IContentManagerProvider contentManagerProvider,
-								 IKeyboardDispatcherProvider keyboardDispatcherProvider)
+								 IKeyboardDispatcherProvider keyboardDispatcherProvider,
+								 IConfigurationProvider configProvider)
 		{
 			_nativeGraphicsManager = nativeGraphicsManager;
 			_contentManagerProvider = contentManagerProvider;
 			_keyboardDispatcherProvider = keyboardDispatcherProvider;
+			_configProvider = configProvider;
 		}
 
 		public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -35,10 +39,10 @@ namespace EndlessClient.ControlSets
 		{
 			switch (newState)
 			{
-				case GameStates.Initial: return new InitialControlSet();
+				case GameStates.Initial: return new InitialControlSet(_configProvider);
 				case GameStates.CreateAccount: return new CreateAccountControlSet(_keyboardDispatcherProvider.Dispatcher);
-				case GameStates.Login: return new LoginPromptControlSet(_keyboardDispatcherProvider.Dispatcher);
-				case GameStates.ViewCredits: return new ViewCreditsControlSet();
+				case GameStates.Login: return new LoginPromptControlSet(_keyboardDispatcherProvider.Dispatcher, _configProvider);
+				case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider);
 				default: throw new ArgumentOutOfRangeException("newState", newState, null);
 			}
 		}

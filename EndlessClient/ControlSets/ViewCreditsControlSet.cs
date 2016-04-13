@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.GameExecution;
+using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.ControlSets
@@ -12,6 +13,9 @@ namespace EndlessClient.ControlSets
 		private IGameComponent _creditsLabel;
 
 		public override GameStates GameState { get { return GameStates.ViewCredits; } }
+
+		public ViewCreditsControlSet(IConfigurationProvider configProvider)
+			: base(configProvider) { }
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
 		{

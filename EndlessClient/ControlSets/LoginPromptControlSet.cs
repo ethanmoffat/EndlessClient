@@ -5,6 +5,7 @@
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
+using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -26,7 +27,8 @@ namespace EndlessClient.ControlSets
 
 		public override GameStates GameState { get { return GameStates.Login; } }
 
-		public LoginPromptControlSet(KeyboardDispatcher dispatcher)
+		public LoginPromptControlSet(KeyboardDispatcher dispatcher, IConfigurationProvider configProvider)
+			: base(configProvider)
 		{
 			_dispatcher = dispatcher;
 		}
