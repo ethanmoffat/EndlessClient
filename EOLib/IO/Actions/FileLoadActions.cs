@@ -108,10 +108,13 @@ namespace EOLib.IO.Actions
 				throw new DataFileLoadException();
 
 			_dataFileRepository.DataFiles.Clear();
-			for (int i = 1; i < Constants.ExpectedNumberOfDataFiles; ++i)
+			for (int i = 1; i <= Constants.ExpectedNumberOfDataFiles; ++i)
 			{
+				if (!DataFileNameIsValid(i, files[i-1]))
+					throw new DataFileLoadException();
+
 				var fileToLoad = (DataFiles) i;
-				var loadedFile = new EDFFile(files[i], fileToLoad);
+				var loadedFile = new EDFFile(files[i-1], fileToLoad);
 				
 				_dataFileRepository.DataFiles.Add(fileToLoad, loadedFile);
 			}
@@ -168,6 +171,12 @@ namespace EOLib.IO.Actions
 			string host;
 			_configRepository.Host = configFile.GetValue(ConfigStrings.Connection, ConfigStrings.Host, out host) ? host : Constants.Host;
 			_configRepository.Port = configFile.GetValue(ConfigStrings.Connection, ConfigStrings.Port, out tempInt) ? tempInt : Constants.Port;
+		}
+
+		private bool DataFileNameIsValid(int fileNumber, string fileName)
+		{
+			var expectedFormat = string.Format("data/dat0{0:00}.edf", fileNumber);
+			return expectedFormat == fileName;
 		}
 	}
 }

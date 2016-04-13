@@ -78,6 +78,7 @@ namespace EOLib.IO
 			catch (IOException) { }
 
 			fileLoadActions.LoadConfigFile();
+			fileLoadActions.LoadDataFiles();
 		}
 	}
 }

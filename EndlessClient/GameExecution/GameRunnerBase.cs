@@ -34,7 +34,18 @@ namespace EndlessClient.GameExecution
 			}
 			catch (ConfigLoadException cle)
 			{
-				MessageBox.Show(cle.Message, "Error loading config file!");
+				MessageBox.Show(cle.Message,
+					"Error loading config file!",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Error);
+				return false;
+			}
+			catch (DataFileLoadException dfle)
+			{
+				MessageBox.Show(dfle.Message,
+					"Error loading data files!",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Error);
 				return false;
 			}
 
