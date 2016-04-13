@@ -157,7 +157,7 @@ namespace EndlessClient
 
 			_lblVersionInfo = new XNALabel(new Rectangle(25, 453, 1, 1), Constants.FontSize07)
 			{
-				Text = string.Format("{0}.{1:000}.{2:000} - {3}:{4}", OldWorld.Instance.VersionMajor, OldWorld.Instance.VersionMinor, OldWorld.Instance.VersionClient, host, port),
+				Text = string.Format(Constants.VersionInfoFormat, OldWorld.Instance.VersionMajor, OldWorld.Instance.VersionMinor, OldWorld.Instance.VersionClient, host, port),
 				ForeColor = Constants.BeigeText
 			};
 

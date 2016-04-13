@@ -111,6 +111,7 @@ Thanks to :
 --Sausage for eoserv + C# EO libs
 --eoserv.net community
 --Hotdog for Eodev client";
+		public const string VersionInfoFormat = "{0}.{1:000}.{2:000} - {3}:{4}";
 	}
 
 	public static class ConfigStrings
