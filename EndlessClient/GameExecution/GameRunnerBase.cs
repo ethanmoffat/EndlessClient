@@ -3,7 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
+using System.Windows.Forms;
 using EOLib;
+using EOLib.IO;
 using Microsoft.Practices.Unity;
 
 namespace EndlessClient.GameExecution
@@ -23,10 +25,18 @@ namespace EndlessClient.GameExecution
 
 			registrar.RegisterDependencies(DependencyContainerProvider.DependencyContainers);
 
-			registrar.InitializeDependencies(
-				DependencyContainerProvider.DependencyContainers
-										   .OfType<IInitializableContainer>()
-										   .ToArray());
+			try
+			{
+				registrar.InitializeDependencies(
+					DependencyContainerProvider.DependencyContainers
+											   .OfType<IInitializableContainer>()
+											   .ToArray());
+			}
+			catch (ConfigLoadException cle)
+			{
+				MessageBox.Show(cle.Message, "Error loading config file!");
+				return false;
+			}
 
 			return true;
 		}
