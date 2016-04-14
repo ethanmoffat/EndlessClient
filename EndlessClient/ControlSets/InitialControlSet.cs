@@ -18,6 +18,7 @@ namespace EndlessClient.ControlSets
 	public class InitialControlSet : BaseControlSet
 	{
 		private readonly IConfigurationProvider _configProvider;
+		private readonly IMainButtonController _mainButtonController;
 
 		private IGameComponent _createAccount,
 							   _login,
@@ -31,9 +32,11 @@ namespace EndlessClient.ControlSets
 
 		public override GameStates GameState { get { return GameStates.Initial; } }
 
-		public InitialControlSet(IConfigurationProvider configProvider)
+		public InitialControlSet(IConfigurationProvider configProvider,
+								 IMainButtonController mainButtonController)
 		{
 			_configProvider = configProvider;
+			_mainButtonController = mainButtonController;
 			_personSet1 = new Texture2D[4];
 			_randomGen = new Random();
 		}

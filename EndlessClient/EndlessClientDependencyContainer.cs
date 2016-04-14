@@ -27,6 +27,8 @@ namespace EndlessClient
 			container.RegisterType<IKeyboardDispatcherRepository, KeyboardDispatcherRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetProvider, ControlSetRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetRepository, ControlSetRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IMainButtonControllerRepository, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IMainButtonControllerProvider, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());
 
 			container.RegisterType<IClientWindowSizeProvider, ClientWindowSizeProvider>(new ContainerControlledLifetimeManager());
 
@@ -43,6 +45,9 @@ namespace EndlessClient
 
 			var keyboardDispatcherRepo = container.Resolve<IKeyboardDispatcherRepository>();
 			keyboardDispatcherRepo.Dispatcher = new KeyboardDispatcher(game.Window);
+
+			var mainButtonControllerRepo = container.Resolve<IMainButtonControllerRepository>();
+			mainButtonControllerRepo.MainButtonController = container.Resolve<IMainButtonController>();
 		}
 	}
 }

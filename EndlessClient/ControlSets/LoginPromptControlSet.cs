@@ -25,8 +25,10 @@ namespace EndlessClient.ControlSets
 
 		public override GameStates GameState { get { return GameStates.Login; } }
 
-		public LoginPromptControlSet(KeyboardDispatcher dispatcher, IConfigurationProvider configProvider)
-			: base(configProvider)
+		public LoginPromptControlSet(KeyboardDispatcher dispatcher,
+									 IConfigurationProvider configProvider,
+									 IMainButtonController mainButtonController)
+			: base(configProvider, mainButtonController)
 		{
 			_dispatcher = dispatcher;
 		}

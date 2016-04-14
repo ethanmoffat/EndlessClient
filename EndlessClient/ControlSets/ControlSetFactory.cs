@@ -15,16 +15,19 @@ namespace EndlessClient.ControlSets
 		private readonly IContentManagerProvider _contentManagerProvider;
 		private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
 		private readonly IConfigurationProvider _configProvider;
+		private readonly IMainButtonControllerProvider _mainButtonControllerProvider;
 
 		public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
 								 IContentManagerProvider contentManagerProvider,
 								 IKeyboardDispatcherProvider keyboardDispatcherProvider,
-								 IConfigurationProvider configProvider)
+								 IConfigurationProvider configProvider,
+								 IMainButtonControllerProvider mainButtonControllerProvider)
 		{
 			_nativeGraphicsManager = nativeGraphicsManager;
 			_contentManagerProvider = contentManagerProvider;
 			_keyboardDispatcherProvider = keyboardDispatcherProvider;
 			_configProvider = configProvider;
+			_mainButtonControllerProvider = mainButtonControllerProvider;
 		}
 
 		public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -39,12 +42,17 @@ namespace EndlessClient.ControlSets
 		{
 			switch (newState)
 			{
-				case GameStates.Initial: return new InitialControlSet(_configProvider);
+				case GameStates.Initial: return new InitialControlSet(_configProvider, MainButtonController);
 				case GameStates.CreateAccount: return new CreateAccountControlSet(_keyboardDispatcherProvider.Dispatcher);
-				case GameStates.Login: return new LoginPromptControlSet(_keyboardDispatcherProvider.Dispatcher, _configProvider);
-				case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider);
+				case GameStates.Login: return new LoginPromptControlSet(_keyboardDispatcherProvider.Dispatcher, _configProvider, MainButtonController);
+				case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider, MainButtonController);
 				default: throw new ArgumentOutOfRangeException("newState", newState, null);
 			}
+		}
+
+		private IMainButtonController MainButtonController
+		{
+			get { return _mainButtonControllerProvider.MainButtonController; }
 		}
 	}
 }

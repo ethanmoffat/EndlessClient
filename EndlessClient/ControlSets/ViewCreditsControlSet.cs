@@ -14,8 +14,9 @@ namespace EndlessClient.ControlSets
 
 		public override GameStates GameState { get { return GameStates.ViewCredits; } }
 
-		public ViewCreditsControlSet(IConfigurationProvider configProvider)
-			: base(configProvider) { }
+		public ViewCreditsControlSet(IConfigurationProvider configProvider,
+									 IMainButtonController mainButtonController)
+			: base(configProvider, mainButtonController) { }
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
 		{
