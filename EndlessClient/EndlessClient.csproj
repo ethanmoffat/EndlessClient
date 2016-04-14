@@ -74,6 +74,8 @@
     <Compile Include="ControlSets\MainButtonController.cs" />
     <Compile Include="Dialogs\Actions\ErrorDialogDisplayAction.cs" />
     <Compile Include="Dialogs\Actions\IErrorDialogDisplayAction.cs" />
+    <Compile Include="Dialogs\Factories\EOMessageBoxFactory.cs" />
+    <Compile Include="Dialogs\Factories\IEOMessageBoxFactory.cs" />
     <Compile Include="GameExecution\GameStateActions.cs" />
     <Compile Include="GameExecution\IGameStateActions.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />

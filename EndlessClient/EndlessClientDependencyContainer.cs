@@ -4,6 +4,7 @@
 
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EOLib;
 using Microsoft.Practices.Unity;
@@ -18,6 +19,7 @@ namespace EndlessClient
 			container.RegisterType<IEndlessGame, EndlessGame>(new ContainerControlledLifetimeManager());
 
 			container.RegisterType<IControlSetFactory, ControlSetFactory>();
+			container.RegisterType<IEOMessageBoxFactory, EOMessageBoxFactory>();
 
 			container.RegisterType<IGameStateProvider, GameStateRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IGameStateRepository, GameStateRepository>(new ContainerControlledLifetimeManager());
