@@ -12,5 +12,9 @@ namespace EndlessClient.Dialogs.Actions
 		void ShowError(ConnectResult connectResult);
 
 		void ShowError(IInitializationData initializationData);
+
+		void ShowException(NoDataSentException ex);
+
+		void ShowException(EmptyPacketReceivedException ex);
 	}
 }
