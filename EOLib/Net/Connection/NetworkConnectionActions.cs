@@ -65,7 +65,8 @@ namespace EOLib.Net.Connection
 
 		public void DisconnectFromServer()
 		{
-			Client.Disconnect();
+			if (Client.Connected)
+				Client.Disconnect();
 		}
 
 		public async Task<IInitializationData> BeginHandshake()
