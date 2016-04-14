@@ -5,7 +5,6 @@
 using System;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.IO;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -110,9 +109,10 @@ namespace EndlessClient.Dialogs
 			endConstructor();
 		}
 
-		public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok, EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
+		public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok,
+			EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
 		{
-			EOMessageBox dlg = new EOMessageBox(message, caption, buttons, style);
+			var dlg = new EOMessageBox(message, caption, buttons, style);
 			if (closingEvent != null)
 				dlg.DialogClosing += closingEvent;
 		}
@@ -120,35 +120,23 @@ namespace EndlessClient.Dialogs
 		public static void Show(DATCONST1 resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
 			EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
 		{
-			if (!OldWorld.Initialized)
-				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
-
-			EDFFile file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
-
+			var file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
 			Show(file.Data[(int)resource + 1], file.Data[(int)resource], whichButtons, style, closingEvent);
 		}
 
 		public static void Show(string prependData, DATCONST1 resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
 			EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
 		{
-			if (!OldWorld.Initialized)
-				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
-
-			EDFFile file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
-
-			string message = prependData + file.Data[(int)resource + 1];
+			var file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
+			var message = prependData + file.Data[(int)resource + 1];
 			Show(message, file.Data[(int)resource], whichButtons, style, closingEvent);
 		}
 
 		public static void Show(DATCONST1 resource, string extraData, XNADialogButtons whichButtons = XNADialogButtons.Ok,
 			EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
 		{
-			if (!OldWorld.Initialized)
-				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
-
-			EDFFile file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
-
-			string message = file.Data[(int)resource + 1] + extraData;
+			var file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
+			var message = file.Data[(int)resource + 1] + extraData;
 			Show(message, file.Data[(int)resource], whichButtons, style, closingEvent);
 		}
 	}
