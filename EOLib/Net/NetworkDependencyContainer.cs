@@ -17,7 +17,7 @@ namespace EOLib.Net
 			container.RegisterType<IPacketSequenceService, PacketSequenceService>();
 			container.RegisterType<IInitDataGeneratorService, InitDataGeneratorService>();
 			container.RegisterType<IHashService, HashService>();
-			//the repository is a "disposer" of the NetworkClient (so it gets cleaned up later)
+			//the repository is a "disposer" of the NetworkClient (so NetworkClient gets cleaned up later if it is set)
 			container.RegisterType<INetworkClientDisposer, NetworkClientRepository>(new ContainerControlledLifetimeManager());
 
 			container.RegisterType<INetworkClientFactory, NetworkClientFactory>();
