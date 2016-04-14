@@ -3,9 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.IO;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -20,7 +20,12 @@ namespace EndlessClient.Dialogs
 
 	public class EOMessageBox : EODialogBase
 	{
-		public EOMessageBox(string msgText, string captionText = "", XNADialogButtons whichButtons = XNADialogButtons.Ok, EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader)
+		//I don't like squiggly lines, but this is definitely going to be removed at some point
+		//[Obsolete("This is deprecated and will eventually be removed. Use the EOMessageBoxFactory instead to construct dialogs")]
+		public EOMessageBox(string msgText,
+							string captionText = "",
+							XNADialogButtons whichButtons = XNADialogButtons.Ok,
+							EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader)
 		{
 			this.whichButtons = whichButtons;
 
@@ -110,9 +115,112 @@ namespace EndlessClient.Dialogs
 			endConstructor();
 		}
 
+		public EOMessageBox(INativeGraphicsManager graphicsManager,
+							IGameStateProvider gameStateProvider,
+							IGraphicsDeviceProvider graphicsDeviceProvider,
+							string message,
+							string caption = "",
+							EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
+							XNADialogButtons whichButtons = XNADialogButtons.Ok)
+			: base(graphicsManager)
+		{
+			this.whichButtons = whichButtons;
+
+			var useSmallHeader = true;
+			switch (style)
+			{
+				case EOMessageBoxStyle.SmallDialogLargeHeader:
+					bgTexture = graphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 18);
+					useSmallHeader = false;
+					break;
+				case EOMessageBoxStyle.SmallDialogSmallHeader:
+					bgTexture = graphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 23);
+					break;
+				case EOMessageBoxStyle.LargeDialogSmallHeader:
+					bgTexture = graphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 25);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("style", "Unrecognized dialog style!");
+			}
+			_setSize(bgTexture.Width, bgTexture.Height);
+
+			this.message = new XNALabel(new Rectangle(18, 57, 1, 1), Constants.FontSize10);
+			if (useSmallHeader)
+			{
+				//179, 119
+				//caption 197, 128
+				//message 197, 156
+				//ok: 270, 201
+				//cancel: 363, 201
+				this.message.DrawLocation = new Vector2(18, 40);
+			}
+			this.message.ForeColor = Constants.LightYellowText;
+			this.message.Text = message;
+			this.message.TextWidth = 254;
+			this.message.SetParent(this);
+
+			this.caption = new XNALabel(new Rectangle(59, 23, 1, 1), Constants.FontSize10);
+			if (useSmallHeader)
+			{
+				this.caption.DrawLocation = new Vector2(18, 12);
+			}
+			this.caption.ForeColor = Constants.LightYellowText;
+			this.caption.Text = caption;
+			this.caption.SetParent(this);
+
+			XNAButton ok, cancel;
+			switch (whichButtons)
+			{
+				case XNADialogButtons.Ok:
+					ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
+					ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
+					ok.SetParent(this);
+					dlgButtons.Add(ok);
+					break;
+				case XNADialogButtons.Cancel:
+					cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
+					cancel.OnClick += (sender, e) => Close(cancel, XNADialogResult.Cancel);
+					cancel.SetParent(this);
+					dlgButtons.Add(cancel);
+					break;
+				case XNADialogButtons.OkCancel:
+					//implement this more fully when it is needed
+					//update draw location of ok button to be on left?
+					ok = new XNAButton(smallButtonSheet, new Vector2(89, 113), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
+					ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
+					ok.SetParent(this);
+
+					cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
+					cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
+					cancel.SetParent(this);
+
+					dlgButtons.Add(ok);
+					dlgButtons.Add(cancel);
+					break;
+			}
+
+			if (useSmallHeader)
+			{
+				if (style == EOMessageBoxStyle.SmallDialogSmallHeader)
+					foreach (XNAButton btn in dlgButtons)
+						btn.DrawLocation = new Vector2(btn.DrawLocation.X, 82);
+				else
+					foreach (XNAButton btn in dlgButtons)
+						btn.DrawLocation = new Vector2(btn.DrawLocation.X, 148);
+			}
+
+			Center(graphicsDeviceProvider.GraphicsDevice);
+			if (gameStateProvider.CurrentState == GameStates.PlayingTheGame)
+				DrawLocation = new Vector2(DrawLocation.X, (330 - DrawArea.Height) / 2f);
+			_fixDrawOrder();
+			DrawOrder += 100;
+			Dialogs.Push(this);
+			Game.Components.Add(this);
+		}
+
 		public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok, EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
 		{
-			EOMessageBox dlg = new EOMessageBox(message, caption, buttons, style);
+			var dlg = new EOMessageBox(message, caption, buttons, style);
 			if (closingEvent != null)
 				dlg.DialogClosing += closingEvent;
 		}
@@ -123,8 +231,7 @@ namespace EndlessClient.Dialogs
 			if (!OldWorld.Initialized)
 				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
 
-			EDFFile file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
-
+			var file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
 			Show(file.Data[(int)resource + 1], file.Data[(int)resource], whichButtons, style, closingEvent);
 		}
 
@@ -134,9 +241,8 @@ namespace EndlessClient.Dialogs
 			if (!OldWorld.Initialized)
 				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
 
-			EDFFile file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
-
-			string message = prependData + file.Data[(int)resource + 1];
+			var file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
+			var message = prependData + file.Data[(int)resource + 1];
 			Show(message, file.Data[(int)resource], whichButtons, style, closingEvent);
 		}
 
@@ -146,9 +252,8 @@ namespace EndlessClient.Dialogs
 			if (!OldWorld.Initialized)
 				throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
 
-			EDFFile file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
-
-			string message = file.Data[(int)resource + 1] + extraData;
+			var file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
+			var message = file.Data[(int)resource + 1] + extraData;
 			Show(message, file.Data[(int)resource], whichButtons, style, closingEvent);
 		}
 	}

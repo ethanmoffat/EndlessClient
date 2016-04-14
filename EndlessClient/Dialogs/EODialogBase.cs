@@ -28,6 +28,11 @@ namespace EndlessClient.Dialogs
 			smallButtonSheet = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
 		}
 
+		protected EODialogBase(INativeGraphicsManager nativeGraphicsManager)
+		{
+			smallButtonSheet = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
+		}
+
 		protected void endConstructor(bool centerDialog = true)
 		{
 			//center dialog based on txtSize of background texture
