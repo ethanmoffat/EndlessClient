@@ -85,7 +85,14 @@ namespace EOLib.Net.Communication
 
 		private int BlockingSend(byte[] data)
 		{
-			return _socket.Send(data);
+			try
+			{
+				return _socket.Send(data);
+			}
+			catch (SocketException)
+			{
+				return 0;
+			}
 		}
 
 		private byte[] BlockingReceive(int bytes)
@@ -98,7 +105,15 @@ namespace EOLib.Net.Communication
 				var localBytes = new byte[bytes];
 				var startIndex = numBytes;
 
-				numBytes += _socket.Receive(localBytes, bytes, SocketFlags.None);
+				try
+				{
+					numBytes += _socket.Receive(localBytes, bytes, SocketFlags.None);
+				}
+				catch (ObjectDisposedException)
+				{
+					return new byte[0];
+				}
+
 				Array.Copy(localBytes, 0, ret, startIndex, numBytes - startIndex);
 			} while (numBytes < bytes);
 
@@ -145,6 +160,7 @@ namespace EOLib.Net.Communication
 		{
 			_socket.Shutdown(SocketShutdown.Both);
 			_socket.Disconnect(false);
+			_socket.Close();
 		}
 
 		#region IDisposable
