@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Threading;
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
@@ -20,6 +21,8 @@ namespace EndlessClient.ControlSets
 		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
 		private readonly IGameStateActions _gameStateActions;
 		private readonly IEndlessGame _endlessGame;
+
+		private int _numberOfConnectionRequests;
 
 		public MainButtonController(INetworkConnectionActions networkConnectionActions,
 									IErrorDialogDisplayAction errorDialogDisplayAction,
@@ -43,16 +46,18 @@ namespace EndlessClient.ControlSets
 
 		public async Task ClickCreateAccount()
 		{
-			await StartNetworkConnection();
+			var result = await StartNetworkConnection();
 
-			_gameStateActions.ChangeToState(GameStates.CreateAccount);
+			if (result)
+				_gameStateActions.ChangeToState(GameStates.CreateAccount);
 		}
 
 		public async Task ClickLogin()
 		{
-			await StartNetworkConnection();
+			var result = await StartNetworkConnection();
 
-			_gameStateActions.ChangeToState(GameStates.Login);
+			if (result)
+				_gameStateActions.ChangeToState(GameStates.Login);
 		}
 
 		public void ClickViewCredits()
@@ -68,22 +73,40 @@ namespace EndlessClient.ControlSets
 			_endlessGame.Exit();
 		}
 
-		private async Task StartNetworkConnection()
+		private async Task<bool> StartNetworkConnection()
 		{
+			if (Interlocked.Increment(ref _numberOfConnectionRequests) != 1)
+				return false;
+
 			var connectResult = await _networkConnectionActions.ConnectToServer();
 			if (connectResult != ConnectResult.Success)
 			{
 				_errorDialogDisplayAction.ShowError(connectResult);
-				return;
+				return false;
 			}
 
 			_backgroundReceiveActions.RunBackgroundReceiveLoop();
 
-			var initData = await _networkConnectionActions.BeginHandshake();
+			IInitializationData initData;
+			try
+			{
+				initData = await _networkConnectionActions.BeginHandshake();
+			}
+			catch (NoDataSentException ex)
+			{
+				_errorDialogDisplayAction.ShowException(ex);
+				return false;
+			}
+			catch (EmptyPacketReceivedException ex)
+			{
+				_errorDialogDisplayAction.ShowException(ex);
+				return false;
+			}
+
 			if (initData.Response != InitReply.Success)
 			{
 				_errorDialogDisplayAction.ShowError(initData);
-				return;
+				return false;
 			}
 
 			_packetProcessorActions.SetInitialSequenceNumber(initData[InitializationDataKey.SequenceByte1],
@@ -92,6 +115,9 @@ namespace EndlessClient.ControlSets
 													   (byte)initData[InitializationDataKey.SendMultiple]);
 
 			_networkConnectionActions.CompleteHandshake(initData);
+
+			Interlocked.Exchange(ref _numberOfConnectionRequests, 0);
+			return true;
 		}
 	}
 }
