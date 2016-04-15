@@ -64,7 +64,8 @@ namespace EndlessClient.ControlSets
 			_clickHandler = new TextBoxClickEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
 			_tabHandler = new TextBoxTabEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
 
-			_dispatcher.Subscriber.Selected = false;
+			if (_dispatcher.Subscriber != null)
+				_dispatcher.Subscriber.Selected = false;
 			_dispatcher.Subscriber = _tbLogin;
 			_dispatcher.Subscriber.Selected = true;
 		}
