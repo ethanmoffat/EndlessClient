@@ -109,6 +109,12 @@ namespace EOLib.Net.Communication
 				{
 					numBytes += _socket.Receive(localBytes, bytes, SocketFlags.None);
 				}
+				catch (SocketException sex)
+				{
+					if (sex.SocketErrorCode != SocketError.ConnectionAborted)
+						throw;
+					return new byte[0];
+				}
 				catch (ObjectDisposedException)
 				{
 					return new byte[0];
