@@ -110,14 +110,14 @@ namespace EOLib.Net.Communication
 			return sendTask.Result;
 		}
 
-		public async Task<int> SendAsync(IPacket packet, int timeout = 500)
+		public async Task<int> SendAsync(IPacket packet, int timeout = 1500)
 		{
 			var bytesToSend = _packetProcessActions.EncodePacket(packet);
 			using (var cts = new CancellationTokenSource(timeout))
 				return await _socket.SendAsync(bytesToSend, cts.Token);
 		}
 
-		public async Task<int> SendRawPacketAsync(IPacket packet, int timeout = 500)
+		public async Task<int> SendRawPacketAsync(IPacket packet, int timeout = 1500)
 		{
 			var bytesToSend = _packetProcessActions.EncodeRawPacket(packet);
 			using (var cts = new CancellationTokenSource(timeout))
