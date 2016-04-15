@@ -33,8 +33,6 @@ namespace EndlessClient.ControlSets
 
 		public abstract GameStates GameState { get; }
 
-		public abstract IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control);
-
 		#endregion
 
 		protected Texture2D _mainButtonTexture;
@@ -43,7 +41,7 @@ namespace EndlessClient.ControlSets
 		protected Texture2D[] _textBoxTextures;
 
 		private Texture2D[] _backgroundImages;
-		private IGameComponent _backgroundTexture;
+		private PictureBox _backgroundImage;
 
 		private bool _resourcesInitialized, _controlsInitialized;
 
@@ -86,8 +84,8 @@ namespace EndlessClient.ControlSets
 
 			if (GameState != GameStates.PlayingTheGame)
 			{
-				_backgroundTexture = GetControl(currentControlSet, GameControlIdentifier.BackgroundImage, GetBackgroundImage);
-				_allComponents.Add(_backgroundTexture);
+				_backgroundImage = GetControl(currentControlSet, GameControlIdentifier.BackgroundImage, GetBackgroundImage);
+				_allComponents.Add(_backgroundImage);
 			}
 
 			InitializeControlsHelper(currentControlSet);
@@ -103,6 +101,11 @@ namespace EndlessClient.ControlSets
 			where T : class, IGameComponent
 		{
 			return (T)currentControlSet.FindComponentByControlIdentifier(whichControl) ?? componentFactory();
+		}
+
+		public virtual IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
+		{
+			return control == GameControlIdentifier.BackgroundImage ? _backgroundImage : null;
 		}
 
 		private PictureBox GetBackgroundImage()

@@ -77,7 +77,7 @@ namespace EndlessClient.ControlSets
 				case GameControlIdentifier.InitialExitGame: return _exitGame;
 				case GameControlIdentifier.InitialVersionLabel: return _versionInfo;
 				case GameControlIdentifier.PersonDisplay1: return _personPicture;
-				default: return null;
+				default: return base.FindComponentByControlIdentifier(control);
 			}
 		}
 

@@ -73,7 +73,7 @@ namespace EndlessClient.ControlSets
 				case GameControlIdentifier.CreateAccountButton: return _btnCreate;
 				case GameControlIdentifier.CreateAccountCancelButton: return _btnCancel;
 				case GameControlIdentifier.BackButton: return null; //todo
-				default: return null;
+				default: return base.FindComponentByControlIdentifier(control);
 			}
 		}
 
