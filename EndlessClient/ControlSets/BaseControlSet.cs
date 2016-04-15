@@ -39,8 +39,9 @@ namespace EndlessClient.ControlSets
 		#endregion
 
 		protected Texture2D _mainButtonTexture;
-		private Texture2D _secondaryButtonTexture, _smallButtonSheet;
-		private Texture2D[] _textBoxTextures;
+		private Texture2D _secondaryButtonTexture;
+		protected Texture2D _smallButtonSheet;
+		protected Texture2D[] _textBoxTextures;
 
 		private Texture2D[] _backgroundImages;
 		private IGameComponent _backgroundTexture;
@@ -97,11 +98,12 @@ namespace EndlessClient.ControlSets
 
 		protected abstract void InitializeControlsHelper(IControlSet currentControlSet);
 
-		protected static IGameComponent GetControl(IControlSet currentControlSet,
-												   GameControlIdentifier whichControl,
-												   Func<IGameComponent> componentFactory)
+		protected static T GetControl<T>(IControlSet currentControlSet,
+										 GameControlIdentifier whichControl,
+										 Func<T> componentFactory)
+			where T : class, IGameComponent
 		{
-			return currentControlSet.FindComponentByControlIdentifier(whichControl) ?? componentFactory();
+			return (T)currentControlSet.FindComponentByControlIdentifier(whichControl) ?? componentFactory();
 		}
 
 		private PictureBox GetBackgroundImage()
@@ -191,41 +193,6 @@ namespace EndlessClient.ControlSets
 								 new Vector2(481, 417),
 								 new Rectangle(0, 40, 120, 40),
 								 new Rectangle(120, 40, 120, 40));
-		}
-
-		#endregion
-
-		#region Log In State
-
-		protected XNATextBox GetLoginUserNameTextBox()
-		{
-			return new XNATextBox(new Rectangle(402, 322, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
-			{
-				MaxChars = 16,
-				DefaultText = "Username",
-				LeftPadding = 4
-			};
-		}
-
-		protected XNATextBox GetLoginPasswordTextBox()
-		{
-			return new XNATextBox(new Rectangle(402, 358, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
-			{
-				MaxChars = 12,
-				PasswordBox = true,
-				LeftPadding = 4,
-				DefaultText = "Password"
-			};
-		}
-
-		protected XNAButton GetLoginAccountButton()
-		{
-			return new XNAButton(_smallButtonSheet, new Vector2(361, 389), new Rectangle(0, 0, 91, 29), new Rectangle(91, 0, 91, 29));
-		}
-
-		protected XNAButton GetLoginCancelButton()
-		{
-			return new XNAButton(_smallButtonSheet, new Vector2(453, 389), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
 		}
 
 		#endregion

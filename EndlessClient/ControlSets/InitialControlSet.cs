@@ -20,12 +20,13 @@ namespace EndlessClient.ControlSets
 		private readonly IConfigurationProvider _configProvider;
 		private readonly IMainButtonController _mainButtonController;
 
-		private IGameComponent _createAccount,
-							   _login,
-							   _viewCredits,
-							   _exitGame,
-							   _versionInfo,
-							   _personPicture;
+		private XNAButton _createAccount,
+						  _login,
+						  _viewCredits,
+						  _exitGame;
+		private XNALabel _versionInfo;
+		
+		protected PictureBox _personPicture;
 
 		private readonly Texture2D[] _personSet1;
 		private readonly Random _randomGen;
@@ -150,7 +151,7 @@ namespace EndlessClient.ControlSets
 
 		protected void ExcludePersonPicture1()
 		{
-			((PictureBox) _personPicture).Close();
+			_personPicture.Close();
 			_allComponents.Remove(_personPicture);
 		}
 	}
