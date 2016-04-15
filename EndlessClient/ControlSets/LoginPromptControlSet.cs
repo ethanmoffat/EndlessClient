@@ -20,11 +20,9 @@ namespace EndlessClient.ControlSets
 	{
 		private readonly KeyboardDispatcher _dispatcher;
 
-		private IGameComponent _tbLogin,
-							   _tbPassword,
-							   _btnLogin,
-							   _btnCancel,
-							   _loginPanelBackground;
+		private XNATextBox _tbLogin, _tbPassword;
+		private XNAButton _btnLogin, _btnCancel;
+		private PictureBox _loginPanelBackground;
 
 		private TextBoxClickEventHandler _clickHandler;
 		private TextBoxTabEventHandler _tabHandler;
@@ -65,6 +63,10 @@ namespace EndlessClient.ControlSets
 
 			_clickHandler = new TextBoxClickEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
 			_tabHandler = new TextBoxTabEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
+
+			_dispatcher.Subscriber.Selected = false;
+			_dispatcher.Subscriber = _tbLogin;
+			_dispatcher.Subscriber.Selected = true;
 		}
 
 		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)

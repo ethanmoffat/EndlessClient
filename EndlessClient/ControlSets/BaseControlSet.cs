@@ -197,15 +197,6 @@ namespace EndlessClient.ControlSets
 
 		#endregion
 
-		#region View Credits State
-
-		protected XNALabel GetCreditsLabel()
-		{
-			return new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10) { Text = Constants.CreditsText };
-		}
-
-		#endregion
-
 		public void Dispose()
 		{
 			Dispose(true);

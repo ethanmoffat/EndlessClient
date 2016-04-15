@@ -3,14 +3,16 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.GameExecution;
+using EOLib;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
+using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
 	public class ViewCreditsControlSet : InitialControlSet
 	{
-		private IGameComponent _creditsLabel;
+		private XNALabel _creditsLabel;
 
 		public override GameStates GameState { get { return GameStates.ViewCredits; } }
 
@@ -34,6 +36,11 @@ namespace EndlessClient.ControlSets
 				case GameControlIdentifier.CreditsLabel: return _creditsLabel;
 				default: return base.FindComponentByControlIdentifier(control);
 			}
+		}
+
+		private XNALabel GetCreditsLabel()
+		{
+			return new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10) { Text = Constants.CreditsText };
 		}
 	}
 }
