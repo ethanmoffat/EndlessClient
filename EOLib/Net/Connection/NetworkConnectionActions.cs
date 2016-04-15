@@ -84,7 +84,7 @@ namespace EOLib.Net.Connection
 				.AddString(hdSerialNumber)
 				.Build();
 
-			var bytes = await Client.SendAsync(packet);
+			var bytes = await Client.SendRawPacketAsync(packet);
 			if (bytes == 0)
 				throw new NoDataSentException();
 
