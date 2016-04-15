@@ -117,6 +117,13 @@ namespace EOLib.Net.Communication
 				return await _socket.SendAsync(bytesToSend, cts.Token);
 		}
 
+		public async Task<int> SendRawPacketAsync(IPacket packet, int timeout = 500)
+		{
+			var bytesToSend = _packetProcessActions.EncodeRawPacket(packet);
+			using (var cts = new CancellationTokenSource(timeout))
+				return await _socket.SendAsync(bytesToSend, cts.Token);
+		}
+
 		public void Dispose()
 		{
 			Dispose(true);

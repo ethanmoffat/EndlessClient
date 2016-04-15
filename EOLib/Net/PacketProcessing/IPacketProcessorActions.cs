@@ -17,6 +17,8 @@ namespace EOLib.Net.PacketProcessing
 		byte[] EncodePacket(OldPacket pkt);
 
 		byte[] EncodePacket(IPacket pkt);
+		
+		byte[] EncodeRawPacket(IPacket pkt);
 
 		OldPacket DecodeData(byte[] rawData);
 

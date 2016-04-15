@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.Net.PacketProcessing
 {
@@ -64,6 +65,11 @@ namespace EOLib.Net.PacketProcessing
 			data = _encoderService.PrependLengthBytes(data);
 
 			return data;
+		}
+
+		public byte[] EncodeRawPacket(IPacket pkt)
+		{
+			return _encoderService.PrependLengthBytes(pkt.RawData.ToArray());
 		}
 
 		public OldPacket DecodeData(byte[] rawData)
