@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
-using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -39,7 +38,7 @@ namespace EndlessClient.ControlSets
 		#endregion
 
 		protected Texture2D _mainButtonTexture;
-		private Texture2D _secondaryButtonTexture;
+		protected Texture2D _secondaryButtonTexture;
 		protected Texture2D _smallButtonSheet;
 		protected Texture2D[] _textBoxTextures;
 
@@ -112,90 +111,6 @@ namespace EndlessClient.ControlSets
 			var texture = _backgroundImages[rnd.Next(7)];
 			return new PictureBox(texture) { DrawOrder = 0 };
 		}
-
-		#region Create Account State
-
-		protected XNATextBox GetCreateAccountNameTextBox()
-		{
-			var tb = AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountName);
-			tb.MaxChars = 16;
-			return tb;
-		}
-
-		protected XNATextBox GetCreateAccountPasswordTextBox()
-		{
-			var tb = AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountPassword);
-			tb.PasswordBox = true;
-			tb.MaxChars = 12;
-			return tb;
-		}
-
-		protected XNATextBox GetCreateAccountConfirmTextBox()
-		{
-			var tb = AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountPasswordConfirm);
-			tb.PasswordBox = true;
-			tb.MaxChars = 12;
-			return tb;
-		}
-
-		protected XNATextBox GetCreateAccountRealNameTextBox()
-		{
-			return AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountRealName);
-		}
-
-		protected XNATextBox GetCreateAccountLocationTextBox()
-		{
-			return AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountLocation);
-		}
-
-		protected XNATextBox GetCreateAccountEmailTextBox()
-		{
-			return AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountEmail);
-		}
-
-		private XNATextBox AccountInputTextBoxCreationHelper(GameControlIdentifier whichControl)
-		{
-			int i;
-			switch (whichControl)
-			{
-				case GameControlIdentifier.CreateAccountName: i = 0; break;
-				case GameControlIdentifier.CreateAccountPassword: i = 1; break;
-				case GameControlIdentifier.CreateAccountPasswordConfirm: i = 2; break;
-				case GameControlIdentifier.CreateAccountRealName: i = 3; break;
-				case GameControlIdentifier.CreateAccountLocation: i = 4; break;
-				case GameControlIdentifier.CreateAccountEmail: i = 5; break;
-				default: throw new ArgumentException("Invalid control specified for helper", "whichControl");
-			}
-
-			//set the first  3 Y coord to start at 69  and move up by 51 each time
-			//set the second 3 Y coord to start at 260 and move up by 51 each time
-			var txtYCoord = (i < 3 ? 69 : 260) + i%3*51;
-			var drawArea = new Rectangle(358, txtYCoord, 240, _textBoxTextures[0].Height);
-			return new XNATextBox(drawArea, _textBoxTextures, Constants.FontSize08)
-			{
-				LeftPadding = 4,
-				MaxChars = 35,
-				DefaultText = " "
-			};
-		}
-
-		protected XNAButton GetCreateButton(bool isCreateCharacterButton)
-		{
-			return new XNAButton(_secondaryButtonTexture,
-								 new Vector2(isCreateCharacterButton ? 334 : 359, 417),
-								 new Rectangle(0, 0, 120, 40),
-								 new Rectangle(120, 0, 120, 40));
-		}
-
-		protected XNAButton GetCreateAccountCancelButton()
-		{
-			return new XNAButton(_secondaryButtonTexture,
-								 new Vector2(481, 417),
-								 new Rectangle(0, 40, 120, 40),
-								 new Rectangle(120, 40, 120, 40));
-		}
-
-		#endregion
 
 		public void Dispose()
 		{
