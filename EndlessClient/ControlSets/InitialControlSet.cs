@@ -82,22 +82,30 @@ namespace EndlessClient.ControlSets
 
 		private XNAButton GetMainCreateAccountButton()
 		{
-			return MainButtonCreationHelper(GameControlIdentifier.InitialCreateAccount);
+			var button = MainButtonCreationHelper(GameControlIdentifier.InitialCreateAccount);
+			button.OnClick += async (o, e) => await _mainButtonController.ClickCreateAccount();
+			return button;
 		}
 
 		private XNAButton GetMainLoginButton()
 		{
-			return MainButtonCreationHelper(GameControlIdentifier.InitialLogin);
+			var button = MainButtonCreationHelper(GameControlIdentifier.InitialLogin);
+			button.OnClick += async (o, e) => await _mainButtonController.ClickLogin();
+			return button;
 		}
 
 		private XNAButton GetViewCreditsButton()
 		{
-			return MainButtonCreationHelper(GameControlIdentifier.InitialViewCredits);
+			var button = MainButtonCreationHelper(GameControlIdentifier.InitialViewCredits);
+			button.OnClick += (o, e) => _mainButtonController.ClickViewCredits();
+			return button;
 		}
 
 		private XNAButton GetExitButton()
 		{
-			return MainButtonCreationHelper(GameControlIdentifier.InitialExitGame);
+			var button = MainButtonCreationHelper(GameControlIdentifier.InitialExitGame);
+			button.OnClick += (o, e) => _mainButtonController.ClickExit();
+			return button;
 		}
 
 		private XNAButton MainButtonCreationHelper(GameControlIdentifier whichControl)
