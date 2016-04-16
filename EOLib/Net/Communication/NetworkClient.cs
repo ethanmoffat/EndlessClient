@@ -85,13 +85,13 @@ namespace EOLib.Net.Communication
 			while (!_backgroundReceiveCTS.IsCancellationRequested)
 			{
 				var lengthData = await _socket.ReceiveAsync(2, _backgroundReceiveCTS.Token);
-				if (_backgroundReceiveCTS.IsCancellationRequested)
+				if (_backgroundReceiveCTS.IsCancellationRequested || lengthData.Length != 2)
 					break;
 
 				var length = _numberEncoderService.DecodeNumber(lengthData);
 
 				var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
-				if (_backgroundReceiveCTS.IsCancellationRequested)
+				if (_backgroundReceiveCTS.IsCancellationRequested || packetData.Length != length)
 					break;
 
 				var packet = _packetProcessActions.DecodeData((IEnumerable<byte>) packetData);
