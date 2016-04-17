@@ -32,12 +32,17 @@ namespace EOLib.Net.Communication
 		/// <summary>
 		/// Operation timed out
 		/// </summary>
-		Timeout
+		Timeout,
+		/// <summary>
+		/// Socket is already connected
+		/// </summary>
+		AlreadyConnected
 	}
 
 	public class AsyncSocket : IAsyncSocket
 	{
 		private readonly Socket _socket;
+		private bool _connected;
 
 		public AsyncSocket(AddressFamily family, SocketType type, ProtocolType protocol)
 		{
@@ -128,19 +133,22 @@ namespace EOLib.Net.Communication
 
 		private bool BlockingIsConnected()
 		{
-			var dataAvailableOrConnectionReset = _socket.Poll(1000, SelectMode.SelectRead);
-			var dataAvailable = _socket.Available > 0;
-			return dataAvailableOrConnectionReset && dataAvailable;
+			var pollResult = !_socket.Poll(1000, SelectMode.SelectRead);
+			var dataAvailable = _socket.Available != 0;
+			return _connected && (pollResult || dataAvailable);
 		}
 
 		private ConnectResult BlockingConnect(EndPoint endPoint)
 		{
-			ConnectResult result;
+			if (_connected)
+				return ConnectResult.AlreadyConnected;
 
+			ConnectResult result;
 			try
 			{
 				_socket.Connect(endPoint);
 				result = ConnectResult.Success;
+				_connected = true;
 			}
 			catch(ArgumentNullException)
 			{

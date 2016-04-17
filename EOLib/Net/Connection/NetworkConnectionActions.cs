@@ -42,7 +42,7 @@ namespace EOLib.Net.Connection
 		public async Task<ConnectResult> ConnectToServer()
 		{
 			if (Client.Connected)
-				return ConnectResult.Success;
+				return ConnectResult.AlreadyConnected;
 
 			var host = _configurationProvider.Host;
 			var port = _configurationProvider.Port;

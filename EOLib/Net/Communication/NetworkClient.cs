@@ -64,10 +64,8 @@ namespace EOLib.Net.Communication
 			}
 
 			var endPoint = new IPEndPoint(ip, port);
-			using (var cts = new CancellationTokenSource())
+			using (var cts = new CancellationTokenSource(5000))
 			{
-				cts.CancelAfter(5000);
-				
 				var task = _socket.ConnectAsync(endPoint, cts.Token);
 				await task;
 
