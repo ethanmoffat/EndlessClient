@@ -78,46 +78,53 @@ namespace EndlessClient.ControlSets
 			if (Interlocked.Increment(ref _numberOfConnectionRequests) != 1)
 				return false;
 
-			var connectResult = await _networkConnectionActions.ConnectToServer();
-			if (connectResult != ConnectResult.Success)
-			{
-				_errorDialogDisplayAction.ShowError(connectResult);
-				return false;
-			}
-
-			_backgroundReceiveActions.RunBackgroundReceiveLoop();
-
-			IInitializationData initData;
 			try
 			{
-				initData = await _networkConnectionActions.BeginHandshake();
+				var connectResult = await _networkConnectionActions.ConnectToServer();
+				if (connectResult == ConnectResult.AlreadyConnected)
+					return true;
+				if (connectResult != ConnectResult.Success)
+				{
+					_errorDialogDisplayAction.ShowError(connectResult);
+					return false;
+				}
+
+				_backgroundReceiveActions.RunBackgroundReceiveLoop();
+
+				IInitializationData initData;
+				try
+				{
+					initData = await _networkConnectionActions.BeginHandshake();
+				}
+				catch (NoDataSentException ex)
+				{
+					_errorDialogDisplayAction.ShowException(ex);
+					return false;
+				}
+				catch (EmptyPacketReceivedException ex)
+				{
+					_errorDialogDisplayAction.ShowException(ex);
+					return false;
+				}
+
+				if (initData.Response != InitReply.Success)
+				{
+					_errorDialogDisplayAction.ShowError(initData);
+					return false;
+				}
+
+				_packetProcessorActions.SetInitialSequenceNumber(initData[InitializationDataKey.SequenceByte1],
+					initData[InitializationDataKey.SequenceByte2]);
+				_packetProcessorActions.SetEncodeMultiples((byte) initData[InitializationDataKey.ReceiveMultiple],
+					(byte) initData[InitializationDataKey.SendMultiple]);
+
+				_networkConnectionActions.CompleteHandshake(initData);
+				return true;
 			}
-			catch (NoDataSentException ex)
+			finally
 			{
-				_errorDialogDisplayAction.ShowException(ex);
-				return false;
+				Interlocked.Exchange(ref _numberOfConnectionRequests, 0);
 			}
-			catch (EmptyPacketReceivedException ex)
-			{
-				_errorDialogDisplayAction.ShowException(ex);
-				return false;
-			}
-
-			if (initData.Response != InitReply.Success)
-			{
-				_errorDialogDisplayAction.ShowError(initData);
-				return false;
-			}
-
-			_packetProcessorActions.SetInitialSequenceNumber(initData[InitializationDataKey.SequenceByte1],
-															 initData[InitializationDataKey.SequenceByte2]);
-			_packetProcessorActions.SetEncodeMultiples((byte)initData[InitializationDataKey.ReceiveMultiple],
-													   (byte)initData[InitializationDataKey.SendMultiple]);
-
-			_networkConnectionActions.CompleteHandshake(initData);
-
-			Interlocked.Exchange(ref _numberOfConnectionRequests, 0);
-			return true;
 		}
 	}
 }
