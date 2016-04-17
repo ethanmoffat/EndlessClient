@@ -5,7 +5,7 @@
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.IO.Repositories;
+using EOLib.IO.Services;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories
@@ -15,20 +15,17 @@ namespace EndlessClient.Dialogs.Factories
 		private readonly INativeGraphicsManager _nativeGraphicsManager;
 		private readonly IGameStateProvider _gameStateProvider;
 		private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
-		private readonly IConfigurationProvider _configProvider;
-		private readonly IDataFileProvider _dataFileProvider;
+		private readonly ILocalizedStringService _localizedStringService;
 
 		public EOMessageBoxFactory(INativeGraphicsManager nativeGraphicsManager,
 								   IGameStateProvider gameStateProvider,
 								   IGraphicsDeviceProvider graphicsDeviceProvider,
-								   IConfigurationProvider configProvider,
-								   IDataFileProvider dataFileProvider)
+								   ILocalizedStringService localizedStringService)
 		{
 			_nativeGraphicsManager = nativeGraphicsManager;
 			_gameStateProvider = gameStateProvider;
 			_graphicsDeviceProvider = graphicsDeviceProvider;
-			_configProvider = configProvider;
-			_dataFileProvider = dataFileProvider;
+			_localizedStringService = localizedStringService;
 		}
 
 		public void CreateMessageBox(string message,
@@ -53,9 +50,8 @@ namespace EndlessClient.Dialogs.Factories
 									 EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
 									 XNADialog.OnDialogClose closingEvent = null)
 		{
-			var file = _dataFileProvider.DataFiles[LocalizedFile];
-			CreateMessageBox(file.Data[(int)resource + 1],
-				file.Data[(int)resource],
+			CreateMessageBox(_localizedStringService.GetString(resource + 1),
+				_localizedStringService.GetString(resource),
 				whichButtons,
 				style,
 				closingEvent);
@@ -67,10 +63,9 @@ namespace EndlessClient.Dialogs.Factories
 									 EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
 									 XNADialog.OnDialogClose closingEvent = null)
 		{
-			var file = _dataFileProvider.DataFiles[LocalizedFile];
-			var message = prependData + file.Data[(int)resource + 1];
+			var message = prependData + _localizedStringService.GetString(resource + 1);
 			CreateMessageBox(message,
-				file.Data[(int)resource],
+				_localizedStringService.GetString(resource),
 				whichButtons,
 				style,
 				closingEvent);
@@ -82,27 +77,12 @@ namespace EndlessClient.Dialogs.Factories
 									 EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
 									 XNADialog.OnDialogClose closingEvent = null)
 		{
-			var file = _dataFileProvider.DataFiles[LocalizedFile];
-			var message = file.Data[(int)resource + 1] + extraData;
+			var message = _localizedStringService.GetString(resource + 1) + extraData;
 			CreateMessageBox(message,
-				file.Data[(int)resource],
+				_localizedStringService.GetString(resource),
 				whichButtons,
 				style,
 				closingEvent);
-		}
-
-		private DataFiles LocalizedFile
-		{
-			get
-			{
-				switch (_configProvider.Language)
-				{
-					case EOLanguage.Dutch: return DataFiles.DutchStatus1;
-					case EOLanguage.Swedish: return DataFiles.SwedishStatus1;
-					case EOLanguage.Portuguese: return DataFiles.PortugueseStatus1;
-					default: return DataFiles.EnglishStatus1;
-				}
-			}
 		}
 	}
 }
