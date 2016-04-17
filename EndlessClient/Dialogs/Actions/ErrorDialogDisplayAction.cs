@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Net.Sockets;
 using EndlessClient.Dialogs.Factories;
 using EOLib;
 using EOLib.Data.Protocol;
@@ -33,7 +34,15 @@ namespace EndlessClient.Dialogs.Actions
 						XNADialogButtons.Ok,
 						EOMessageBoxStyle.SmallDialogLargeHeader);
 					break;
-				default: throw new ArgumentOutOfRangeException();
+				default:
+				{
+					var errorCode = (int) connectResult;
+					var ex = new SocketException(errorCode);
+					_messageBoxFactory.CreateMessageBox(
+						string.Format("Error code from socket: {0}", ex.SocketErrorCode),
+						"Internal Error");
+				}
+					break;
 			}
 		}
 
