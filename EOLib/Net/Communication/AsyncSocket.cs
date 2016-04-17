@@ -114,10 +114,8 @@ namespace EOLib.Net.Communication
 				{
 					numBytes += _socket.Receive(localBytes, bytes, SocketFlags.None);
 				}
-				catch (SocketException sex)
+				catch (SocketException)
 				{
-					if (sex.SocketErrorCode != SocketError.ConnectionAborted)
-						throw;
 					return new byte[0];
 				}
 				catch (ObjectDisposedException)
@@ -133,9 +131,17 @@ namespace EOLib.Net.Communication
 
 		private bool BlockingIsConnected()
 		{
-			var pollResult = !_socket.Poll(1000, SelectMode.SelectRead);
-			var dataAvailable = _socket.Available != 0;
-			return _connected && (pollResult || dataAvailable);
+			try
+			{
+				var pollResult = !_socket.Poll(1000, SelectMode.SelectRead);
+				var dataAvailable = _socket.Available != 0;
+				return _connected && (pollResult || dataAvailable);
+			}
+			catch(ObjectDisposedException)
+			{
+				_connected = false;
+				return false;
+			}
 		}
 
 		private ConnectResult BlockingConnect(EndPoint endPoint)
