@@ -4,55 +4,58 @@
 
 using System;
 using System.Collections.Generic;
+using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
 	public class ScrollingMessageDialog : EODialogBase
 	{
-		private readonly ScrollBar scrollBar;
-		private readonly List<string> chatStrings = new List<string>();
-		private readonly TextSplitter textSplitter;
+		private readonly ScrollBar _scrollBar;
+		private readonly List<string> _chatStrings = new List<string>();
+		private readonly TextSplitter _textSplitter;
+		private readonly SpriteFont _font;
 
 		public new string MessageText
 		{
 			set
 			{
-				chatStrings.Clear();
-				textSplitter.Text = value;
+				_chatStrings.Clear();
+				_textSplitter.Text = value;
 
 				//special case: blank line, like in the news panel between news items
 				if (string.IsNullOrWhiteSpace(value))
 				{
-					chatStrings.Add(" ");
-					scrollBar.UpdateDimensions(chatStrings.Count);
+					_chatStrings.Add(" ");
+					_scrollBar.UpdateDimensions(_chatStrings.Count);
 					return;
 				}
 
 				//don't do multi-line processing if we don't need to
-				if (!textSplitter.NeedsProcessing)
+				if (!_textSplitter.NeedsProcessing)
 				{
-					chatStrings.Add(value);
-					scrollBar.UpdateDimensions(chatStrings.Count);
+					_chatStrings.Add(value);
+					_scrollBar.UpdateDimensions(_chatStrings.Count);
 					return;
 				}
 
-				chatStrings.AddRange(textSplitter.SplitIntoLines());
+				_chatStrings.AddRange(_textSplitter.SplitIntoLines());
 
-				scrollBar.UpdateDimensions(chatStrings.Count);
-				scrollBar.LinesToRender = (int)Math.Round(110.0f / 13); //draw area for the text is 117px, 13px per line
-				if (scrollBar.LinesToRender < chatStrings.Count)
-					scrollBar.SetDownArrowFlashSpeed(500);
+				_scrollBar.UpdateDimensions(_chatStrings.Count);
+				_scrollBar.LinesToRender = (int)Math.Round(110.0f / 13); //draw area for the text is 117px, 13px per line
+				if (_scrollBar.LinesToRender < _chatStrings.Count)
+					_scrollBar.SetDownArrowFlashSpeed(500);
 			}
 		}
 
 		public ScrollingMessageDialog(string msgText)
 		{
-			textSplitter = new TextSplitter("", EOGame.Instance.DBGFont) { LineLength = 275 };
+			_textSplitter = new TextSplitter("", EOGame.Instance.DBGFont) { LineLength = 275 };
 
 			bgTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 40);
 			_setSize(bgTexture.Width, bgTexture.Height);
@@ -62,10 +65,31 @@ namespace EndlessClient.Dialogs
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			scrollBar = new ScrollBar(this, new Vector2(320, 66), new Vector2(16, 119), ScrollBarColors.LightOnMed);
+			_scrollBar = new ScrollBar(this, new Vector2(320, 66), new Vector2(16, 119), ScrollBarColors.LightOnMed);
 			MessageText = msgText;
 
 			endConstructor();
+		}
+
+		public ScrollingMessageDialog(INativeGraphicsManager gfxManager,
+									  IGraphicsDeviceProvider graphicsDeviceProvider,
+									  IGameStateProvider gameStateProvider)
+		{
+			_font = Game.Content.Load<SpriteFont>(Constants.FontSize08);
+			_textSplitter = new TextSplitter("", _font);
+
+			bgTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 40);
+			_setSize(bgTexture.Width, bgTexture.Height);
+
+			var ok = new XNAButton(smallButtonSheet, new Vector2(138, 197), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
+			ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
+			ok.SetParent(this);
+			dlgButtons.Add(ok);
+
+			_scrollBar = new ScrollBar(this, new Vector2(320, 66), new Vector2(16, 119), ScrollBarColors.LightOnMed);
+			MessageText = "";
+
+			CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
 		}
 
 		public override void Draw(GameTime gt)
@@ -74,19 +98,19 @@ namespace EndlessClient.Dialogs
 				return;
 
 			base.Draw(gt);
-			if (scrollBar == null) return; //prevent nullreferenceexceptions
+			if (_scrollBar == null) return; //prevent nullreferenceexceptions
 
 			SpriteBatch.Begin();
-			Vector2 pos = new Vector2(27 + (int)DrawLocation.X, 69 + (int)DrawLocation.Y);
+			var pos = new Vector2(27 + (int)DrawLocation.X, 69 + (int)DrawLocation.Y);
 
-			for (int i = scrollBar.ScrollOffset; i < scrollBar.ScrollOffset + scrollBar.LinesToRender; ++i)
+			for (int i = _scrollBar.ScrollOffset; i < _scrollBar.ScrollOffset + _scrollBar.LinesToRender; ++i)
 			{
-				if (i >= chatStrings.Count)
+				if (i >= _chatStrings.Count)
 					break;
 
-				string strToDraw = chatStrings[i];
+				var strToDraw = _chatStrings[i];
 
-				SpriteBatch.DrawString(EOGame.Instance.DBGFont, strToDraw, new Vector2(pos.X, pos.Y + (i - scrollBar.ScrollOffset) * 13), Constants.LightGrayText);
+				SpriteBatch.DrawString(_font ?? EOGame.Instance.DBGFont, strToDraw, new Vector2(pos.X, pos.Y + (i - _scrollBar.ScrollOffset) * 13), Constants.LightGrayText);
 			}
 
 			SpriteBatch.End();
