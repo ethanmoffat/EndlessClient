@@ -376,7 +376,7 @@ namespace EndlessClient
 				PreferredBackBufferWidth = WIDTH,
 				PreferredBackBufferHeight = HEIGHT
 			};
-			Content.RootDirectory = "Content";
+			Content.RootDirectory = "ContentPipeline";
 		}
 
 		protected override void Initialize()

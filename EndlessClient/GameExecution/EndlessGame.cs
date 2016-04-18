@@ -31,7 +31,7 @@ namespace EndlessClient.GameExecution
 				PreferredBackBufferHeight = windowSizeProvider.Height
 			};
 
-			Content.RootDirectory = "Content";
+			Content.RootDirectory = "ContentPipeline";
 		}
 
 		protected override void Initialize()
