@@ -17,7 +17,7 @@ namespace EndlessClient.Dialogs
 		protected readonly Texture2D smallButtonSheet;
 		protected readonly PacketAPI m_api;
 
-		protected EODialogBase(PacketAPI apiHandle = null)
+		protected EODialogBase(PacketAPI apiHandle)
 		{
 			if (apiHandle != null)
 			{

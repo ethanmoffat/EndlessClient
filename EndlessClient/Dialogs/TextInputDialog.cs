@@ -4,6 +4,7 @@
 
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -18,6 +19,7 @@ namespace EndlessClient.Dialogs
 		public string ResponseText { get { return m_inputBox.Text; } }
 
 		public TextInputDialog(string prompt, int maxInputChars = 12)
+			: base((PacketAPI)null)
 		{
 			bgTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 54);
 			_setSize(bgTexture.Width, bgTexture.Height);

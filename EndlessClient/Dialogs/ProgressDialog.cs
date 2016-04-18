@@ -5,6 +5,7 @@
 using System;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -18,6 +19,7 @@ namespace EndlessClient.Dialogs
 		private int pbWidth;
 
 		public ProgressDialog(string msgText, string captionText = "")
+			: base((PacketAPI)null)
 		{
 			bgTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 18);
 			_setSize(bgTexture.Width, bgTexture.Height);

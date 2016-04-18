@@ -5,6 +5,7 @@
 using System;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -45,6 +46,7 @@ namespace EndlessClient.Dialogs
 		/// <param name="totalAmount">Maximum amount that can be transferred</param>
 		/// <param name="message">Resource ID of message to control displayed text</param>
 		public ItemTransferDialog(string itemName, TransferType transferType, int totalAmount, DATCONST2 message = DATCONST2.DIALOG_TRANSFER_DROP)
+			: base((PacketAPI)null)
 		{
 			_validateMessage(message);
 

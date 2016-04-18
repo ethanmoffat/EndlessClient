@@ -8,6 +8,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -54,6 +55,7 @@ namespace EndlessClient.Dialogs
 		}
 
 		public ScrollingMessageDialog(string msgText)
+			: base((PacketAPI)null)
 		{
 			_textSplitter = new TextSplitter("", EOGame.Instance.DBGFont) { LineLength = 275 };
 
@@ -74,6 +76,7 @@ namespace EndlessClient.Dialogs
 		public ScrollingMessageDialog(INativeGraphicsManager gfxManager,
 									  IGraphicsDeviceProvider graphicsDeviceProvider,
 									  IGameStateProvider gameStateProvider)
+			: base(gfxManager)
 		{
 			_font = Game.Content.Load<SpriteFont>(Constants.FontSize08);
 			_textSplitter = new TextSplitter("", _font);

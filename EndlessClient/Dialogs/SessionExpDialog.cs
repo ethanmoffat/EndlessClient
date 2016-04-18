@@ -5,6 +5,7 @@
 using System;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -27,6 +28,7 @@ namespace EndlessClient.Dialogs
 		private readonly Rectangle m_icon;
 
 		private SessionExpDialog()
+			: base((PacketAPI)null)
 		{
 			bgTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 61);
 			_setSize(bgTexture.Width, bgTexture.Height);

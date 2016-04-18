@@ -7,6 +7,7 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Data.BLL;
 using EOLib.Graphics;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -31,6 +32,7 @@ namespace EndlessClient.Dialogs
 		public string Name { get { return _inputBox.Text; } }
 
 		public EOCreateCharacterDialog(Texture2D cursorTexture, KeyboardDispatcher dispatcher)
+			: base((PacketAPI)null)
 		{
 			bgTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 20);
 			_setSize(bgTexture.Width, bgTexture.Height);

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -22,6 +23,7 @@ namespace EndlessClient.Dialogs
 		public string NewPassword { get { return inputBoxes[2].Text; } }
 
 		public ChangePasswordDialog(Texture2D cursorTexture, KeyboardDispatcher dispatcher)
+			: base((PacketAPI)null)
 		{
 			dispatch = dispatcher;
 

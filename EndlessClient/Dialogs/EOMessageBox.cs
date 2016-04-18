@@ -6,6 +6,7 @@ using System;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -26,6 +27,7 @@ namespace EndlessClient.Dialogs
 							string captionText = "",
 							XNADialogButtons whichButtons = XNADialogButtons.Ok,
 							EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader)
+			: base((PacketAPI)null)
 		{
 			this.whichButtons = whichButtons;
 
