@@ -15,7 +15,7 @@ namespace EndlessClient.Dialogs
 	public class SessionExpDialog : EODialogBase
 	{
 		private static SessionExpDialog inst;
-		public static void Show()
+		public new static void Show()
 		{
 			if (inst != null) return;
 

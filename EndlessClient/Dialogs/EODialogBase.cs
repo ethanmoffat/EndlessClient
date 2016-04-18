@@ -121,5 +121,11 @@ namespace EndlessClient.Dialogs
 			ret.SetData(dat);
 			return ret;
 		}
+
+		/// <summary>
+		/// This is a no-op to hide Resharper warnings. It may eventually do something.
+		///  It would be nice to trigger adding all controls to Components by calling this.
+		/// </summary>
+		public virtual void Show() { }
 	}
 }
