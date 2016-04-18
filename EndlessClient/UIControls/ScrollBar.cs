@@ -30,15 +30,29 @@ namespace EndlessClient.UIControls
 
 		private int _totalHeight;
 
-		public ScrollBar(XNAControl parent, Vector2 relativeLoc, Vector2 size, ScrollBarColors palette)
-			: base(relativeLoc, new Rectangle((int)relativeLoc.X, (int)relativeLoc.Y, (int)size.X, (int)size.Y))
+		public ScrollBar(XNAControl parent,
+			Vector2 locationRelativeToParent,
+			Vector2 size,
+			ScrollBarColors palette)
+			: this(parent, locationRelativeToParent, size, palette, EOGame.Instance.GFXManager) { }
+
+		public ScrollBar(XNAControl parent,
+			Vector2 locationRelaiveToParent,
+			Vector2 size,
+			ScrollBarColors palette,
+			INativeGraphicsManager nativeGraphicsManager)
+			: base(locationRelaiveToParent,
+				   new Rectangle((int)locationRelaiveToParent.X,
+								 (int)locationRelaiveToParent.Y,
+								 (int)size.X,
+								 (int)size.Y))
 		{
 			SetParent(parent);
 			scrollArea = new Rectangle(0, 15, 0, (int)size.Y - 15);
-			DrawLocation = relativeLoc;
+			DrawLocation = locationRelaiveToParent;
 			ScrollOffset = 0;
 
-			Texture2D scrollSpriteSheet = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 29);
+			Texture2D scrollSpriteSheet = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 29);
 			Rectangle[] upArrows = new Rectangle[2];
 			Rectangle[] downArrows = new Rectangle[2];
 			int vertOff;

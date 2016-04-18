@@ -89,7 +89,11 @@ namespace EndlessClient.Dialogs
 			ok.SetParent(this);
 			dlgButtons.Add(ok);
 
-			_scrollBar = new ScrollBar(this, new Vector2(320, 66), new Vector2(16, 119), ScrollBarColors.LightOnMed);
+			_scrollBar = new ScrollBar(this,
+				new Vector2(320, 66),
+				new Vector2(16, 119),
+				ScrollBarColors.LightOnMed,
+				gfxManager);
 			MessageText = "";
 
 			CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
