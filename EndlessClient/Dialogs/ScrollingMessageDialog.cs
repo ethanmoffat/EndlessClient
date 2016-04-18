@@ -79,7 +79,7 @@ namespace EndlessClient.Dialogs
 			: base(gfxManager)
 		{
 			_font = Game.Content.Load<SpriteFont>(Constants.FontSize08);
-			_textSplitter = new TextSplitter("", _font);
+			_textSplitter = new TextSplitter("", _font) { LineLength = 275 };
 
 			bgTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 40);
 			_setSize(bgTexture.Width, bgTexture.Height);

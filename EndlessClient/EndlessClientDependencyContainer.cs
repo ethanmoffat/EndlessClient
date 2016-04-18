@@ -18,9 +18,11 @@ namespace EndlessClient
 		{
 			container.RegisterType<IEndlessGame, EndlessGame>(new ContainerControlledLifetimeManager());
 
+			//factories
 			container.RegisterType<IControlSetFactory, ControlSetFactory>();
 			container.RegisterType<IEOMessageBoxFactory, EOMessageBoxFactory>();
 
+			//provider/repository
 			container.RegisterType<IGameStateProvider, GameStateRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IGameStateRepository, GameStateRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IContentManagerProvider, ContentManagerRepository>(new ContainerControlledLifetimeManager());
@@ -29,14 +31,19 @@ namespace EndlessClient
 			container.RegisterType<IKeyboardDispatcherRepository, KeyboardDispatcherRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetProvider, ControlSetRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetRepository, ControlSetRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IMainButtonControllerRepository, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IMainButtonControllerProvider, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IMainButtonControllerRepository, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());
 
+			//provider only
 			container.RegisterType<IClientWindowSizeProvider, ClientWindowSizeProvider>(new ContainerControlledLifetimeManager());
 
+			//controllers
 			container.RegisterType<IMainButtonController, MainButtonController>();
+			
+			//actions
 			container.RegisterType<IGameStateActions, GameStateActions>();
 			container.RegisterType<IErrorDialogDisplayAction, ErrorDialogDisplayAction>();
+			container.RegisterType<ICreateAccountDialogDisplayAction, CreateAccountDialogDisplayAction>();
 		}
 
 		public void InitializeDependencies(IUnityContainer container)

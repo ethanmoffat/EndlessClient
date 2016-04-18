@@ -20,7 +20,8 @@ namespace EndlessClient.ControlSets
 		private readonly IPacketProcessorActions _packetProcessorActions;
 		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
 		private readonly IGameStateActions _gameStateActions;
-		private readonly IEndlessGame _endlessGame;
+		private readonly ICreateAccountDialogDisplayAction _createAccountDialogDisplayAction; //todo: should this be moved to actions?
+		private readonly IEndlessGame _endlessGame; //todo: inject actions that do this? move to gamestateactions?
 
 		private int _numberOfConnectionRequests;
 
@@ -29,6 +30,7 @@ namespace EndlessClient.ControlSets
 									IPacketProcessorActions packetProcessorActions,
 									IBackgroundReceiveActions backgroundReceiveActions,
 									IGameStateActions gameStateActions,
+									ICreateAccountDialogDisplayAction createAccountDialogDisplayAction,
 									IEndlessGame endlessGame)
 		{
 			_networkConnectionActions = networkConnectionActions;
@@ -36,6 +38,7 @@ namespace EndlessClient.ControlSets
 			_packetProcessorActions = packetProcessorActions;
 			_backgroundReceiveActions = backgroundReceiveActions;
 			_gameStateActions = gameStateActions;
+			_createAccountDialogDisplayAction = createAccountDialogDisplayAction;
 			_endlessGame = endlessGame;
 		}
 
@@ -49,7 +52,10 @@ namespace EndlessClient.ControlSets
 			var result = await StartNetworkConnection();
 
 			if (result)
+			{
 				_gameStateActions.ChangeToState(GameStates.CreateAccount);
+				_createAccountDialogDisplayAction.ShowCreateAccountDialog();
+			}
 		}
 
 		public async Task ClickLogin()
