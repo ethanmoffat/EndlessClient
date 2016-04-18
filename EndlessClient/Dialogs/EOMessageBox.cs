@@ -209,13 +209,7 @@ namespace EndlessClient.Dialogs
 						btn.DrawLocation = new Vector2(btn.DrawLocation.X, 148);
 			}
 
-			Center(graphicsDeviceProvider.GraphicsDevice);
-			if (gameStateProvider.CurrentState == GameStates.PlayingTheGame)
-				DrawLocation = new Vector2(DrawLocation.X, (330 - DrawArea.Height) / 2f);
-			_fixDrawOrder();
-			DrawOrder += 100;
-			Dialogs.Push(this);
-			Game.Components.Add(this);
+			CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
 		}
 
 		public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok, EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
