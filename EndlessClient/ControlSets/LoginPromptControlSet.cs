@@ -5,6 +5,7 @@
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
+using EndlessClient.Controllers;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;

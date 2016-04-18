@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 
-namespace EndlessClient.ControlSets
+namespace EndlessClient.Controllers
 {
 	public interface IMainButtonController
 	{

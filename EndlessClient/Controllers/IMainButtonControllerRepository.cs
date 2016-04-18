@@ -9,7 +9,8 @@
  *   This seems to be the best way around it, by making a provider interface and injecting
  *      the provider into ControlSetFactory instead of the controller itself.
  */
-namespace EndlessClient.ControlSets
+
+namespace EndlessClient.Controllers
 {
 	public interface IMainButtonControllerRepository
 	{

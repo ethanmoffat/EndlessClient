@@ -11,7 +11,7 @@ using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.PacketProcessing;
 
-namespace EndlessClient.ControlSets
+namespace EndlessClient.Controllers
 {
 	public class MainButtonController : IMainButtonController
 	{
@@ -20,7 +20,7 @@ namespace EndlessClient.ControlSets
 		private readonly IPacketProcessorActions _packetProcessorActions;
 		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
 		private readonly IGameStateActions _gameStateActions;
-		private readonly ICreateAccountDialogDisplayAction _createAccountDialogDisplayAction; //todo: should this be moved to actions?
+		private readonly ICreateAccountDialogDisplayAction _createAccountDialogDisplayAction;
 		private readonly IEndlessGame _endlessGame; //todo: inject actions that do this? move to gamestateactions?
 
 		private int _numberOfConnectionRequests;

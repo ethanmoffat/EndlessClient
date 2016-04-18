@@ -7,6 +7,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
+using EndlessClient.Controllers;
 using EndlessClient.UIControls;
 using EOLib;
 using Microsoft.Practices.Unity;

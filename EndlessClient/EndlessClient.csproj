@@ -69,9 +69,9 @@
     <Compile Include="CharacterStateTest.cs" />
     <Compile Include="ControlSets\EmptyControlSet.cs" />
     <Compile Include="ControlSets\IControlSetRepository.cs" />
-    <Compile Include="ControlSets\IMainButtonController.cs" />
-    <Compile Include="ControlSets\IMainButtonControllerRepository.cs" />
-    <Compile Include="ControlSets\MainButtonController.cs" />
+    <Compile Include="Controllers\IMainButtonController.cs" />
+    <Compile Include="Controllers\IMainButtonControllerRepository.cs" />
+    <Compile Include="Controllers\MainButtonController.cs" />
     <Compile Include="Dialogs\Actions\ErrorDialogDisplayAction.cs" />
     <Compile Include="Dialogs\Actions\IErrorDialogDisplayAction.cs" />
     <Compile Include="Dialogs\Actions\CreateAccountDialogDisplayAction.cs" />
