@@ -4,7 +4,7 @@
 
 using XNAControls;
 
-namespace EndlessClient.GameExecution
+namespace EndlessClient.UIControls
 {
 	public interface IKeyboardDispatcherRepository
 	{

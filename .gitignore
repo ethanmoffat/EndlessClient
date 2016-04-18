@@ -216,9 +216,7 @@ $RECYCLE.BIN/
 
 # Ignore HotDog's client
 Endless Online V2/
-EndlessClient-Mono/Content/EndlessClient/
 state tree.txt
 bin/
-bin-mono/
+bin-peloader/
 bin-xnacontrols/
-EndlessClient/Content/

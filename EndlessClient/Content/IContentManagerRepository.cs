@@ -4,7 +4,7 @@
 
 using Microsoft.Xna.Framework.Content;
 
-namespace EndlessClient.GameExecution
+namespace EndlessClient.Content
 {
 	public interface IContentManagerRepository
 	{

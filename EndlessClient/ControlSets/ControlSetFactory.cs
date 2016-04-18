@@ -3,7 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EndlessClient.Content;
 using EndlessClient.GameExecution;
+using EndlessClient.UIControls;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 

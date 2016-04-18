@@ -2,10 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Content;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
+using EndlessClient.UIControls;
 using EOLib;
 using Microsoft.Practices.Unity;
 using XNAControls;
