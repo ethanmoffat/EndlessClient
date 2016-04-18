@@ -6,8 +6,12 @@ using System;
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
+using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -15,6 +19,8 @@ namespace EndlessClient.ControlSets
 	public class CreateAccountControlSet : BaseControlSet
 	{
 		private readonly KeyboardDispatcher _dispatcher;
+		private readonly Texture2D[] _personSet2;
+		private readonly Random _randomGen;
 
 		private XNATextBox _tbAccountName,
 						   _tbPassword,
@@ -24,6 +30,7 @@ namespace EndlessClient.ControlSets
 						   _tbEmail;
 		private XNAButton _btnCreate,
 						  _btnCancel;
+		private PictureBox _person2Picture;
 
 		private TextBoxClickEventHandler _clickHandler;
 		private TextBoxTabEventHandler _tabHandler;
@@ -33,6 +40,16 @@ namespace EndlessClient.ControlSets
 		public CreateAccountControlSet(KeyboardDispatcher dispatcher)
 		{
 			_dispatcher = dispatcher;
+			_personSet2 = new Texture2D[8];
+			_randomGen = new Random();
+		}
+
+		public override void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
+		{
+			base.InitializeResources(gfxManager, xnaContentManager);
+
+			for (int i = 0; i < _personSet2.Length; ++i)
+				_personSet2[i] = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 61 + i, true);
 		}
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
@@ -45,6 +62,7 @@ namespace EndlessClient.ControlSets
 			_tbEmail = GetControl(currentControlSet, GameControlIdentifier.CreateAccountEmail, GetCreateAccountEmailTextBox);
 			_btnCreate = GetControl(currentControlSet, GameControlIdentifier.CreateAccountButton, () => GetCreateButton(false));
 			_btnCancel = GetControl(currentControlSet, GameControlIdentifier.CreateAccountCancelButton, GetCreateAccountCancelButton);
+			_person2Picture = GetControl(currentControlSet, GameControlIdentifier.PersonDisplay2, GetPerson2Picture);
 
 			_allComponents.Add(_tbAccountName);
 			_allComponents.Add(_tbPassword);
@@ -54,6 +72,7 @@ namespace EndlessClient.ControlSets
 			_allComponents.Add(_tbEmail);
 			_allComponents.Add(_btnCreate);
 			_allComponents.Add(_btnCancel);
+			_allComponents.Add(_person2Picture);
 
 			_clickHandler = new TextBoxClickEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
 			_tabHandler = new TextBoxTabEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
@@ -73,6 +92,7 @@ namespace EndlessClient.ControlSets
 				case GameControlIdentifier.CreateAccountButton: return _btnCreate;
 				case GameControlIdentifier.CreateAccountCancelButton: return _btnCancel;
 				case GameControlIdentifier.BackButton: return null; //todo
+				case GameControlIdentifier.PersonDisplay2: return _person2Picture;
 				default: return base.FindComponentByControlIdentifier(control);
 			}
 		}
@@ -155,6 +175,12 @@ namespace EndlessClient.ControlSets
 								 new Vector2(481, 417),
 								 new Rectangle(0, 40, 120, 40),
 								 new Rectangle(120, 40, 120, 40));
+		}
+
+		private PictureBox GetPerson2Picture()
+		{
+			var texture = _personSet2[_randomGen.Next(8)];
+			return new PictureBox(texture) { DrawLocation = new Vector2(43, 140) };
 		}
 
 		protected override void Dispose(bool disposing)
