@@ -187,10 +187,12 @@ namespace EndlessClient.ControlSets
 
 		private XNAButton GetCreateAccountCancelButton()
 		{
-			return new XNAButton(_secondaryButtonTexture,
-								 new Vector2(481, 417),
-								 new Rectangle(0, 40, 120, 40),
-								 new Rectangle(120, 40, 120, 40));
+			var button = new XNAButton(_secondaryButtonTexture,
+									   new Vector2(481, 417),
+									   new Rectangle(0, 40, 120, 40),
+									   new Rectangle(120, 40, 120, 40));
+			button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
+			return button;
 		}
 
 		private XNAButton GetBackButton()
