@@ -9,6 +9,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Data.AccountCreation;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -21,6 +22,8 @@ namespace EndlessClient.ControlSets
 	{
 		private readonly KeyboardDispatcher _dispatcher;
 		private readonly IMainButtonController _mainButtonController;
+		private readonly ICreateAccountController _createAccountController;
+		private readonly IAccountCreateParameterRepository _createAccountParameterRepository;
 		private readonly Texture2D[] _personSet2;
 		private readonly Random _randomGen;
 
@@ -43,10 +46,14 @@ namespace EndlessClient.ControlSets
 		public override GameStates GameState { get { return GameStates.CreateAccount; } }
 
 		public CreateAccountControlSet(KeyboardDispatcher dispatcher,
-									   IMainButtonController mainButtonController)
+									   IMainButtonController mainButtonController,
+									   ICreateAccountController createAccountController,
+									   IAccountCreateParameterRepository createAccountParameterRepository)
 		{
 			_dispatcher = dispatcher;
 			_mainButtonController = mainButtonController;
+			_createAccountController = createAccountController;
+			_createAccountParameterRepository = createAccountParameterRepository;
 			_personSet2 = new Texture2D[8];
 			_randomGen = new Random();
 		}
@@ -173,16 +180,19 @@ namespace EndlessClient.ControlSets
 			{
 				LeftPadding = 4,
 				MaxChars = 35,
+				Text = "",
 				DefaultText = " "
 			};
 		}
 
 		private XNAButton GetCreateButton(bool isCreateCharacterButton)
 		{
-			return new XNAButton(_secondaryButtonTexture,
-								 new Vector2(isCreateCharacterButton ? 334 : 359, 417),
-								 new Rectangle(0, 0, 120, 40),
-								 new Rectangle(120, 0, 120, 40));
+			var button = new XNAButton(_secondaryButtonTexture,
+									   new Vector2(isCreateCharacterButton ? 334 : 359, 417),
+									   new Rectangle(0, 0, 120, 40),
+									   new Rectangle(120, 0, 120, 40));
+			button.OnClick += DoCreateAccount;
+			return button;
 		}
 
 		private XNAButton GetCreateAccountCancelButton()
@@ -215,6 +225,22 @@ namespace EndlessClient.ControlSets
 		{
 			var texture = _personSet2[_randomGen.Next(8)];
 			return new PictureBox(texture) { DrawLocation = new Vector2(43, 140) };
+		}
+
+		private void DoCreateAccount(object sender, EventArgs e)
+		{
+			_createAccountParameterRepository.AccountCreateParameters = 
+				new AccountCreateParameters(
+					_tbAccountName.Text,
+					_tbPassword.Text,
+					_tbConfirm.Text,
+					_tbRealName.Text,
+					_tbLocation.Text,
+					_tbEmail.Text);
+
+			_createAccountController.CreateAccount();
+
+			_createAccountParameterRepository.AccountCreateParameters = null;
 		}
 
 		protected override void Dispose(bool disposing)

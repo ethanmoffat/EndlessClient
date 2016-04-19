@@ -97,6 +97,10 @@
   <ItemGroup>
     <Compile Include="Crc.cs" />
     <Compile Include="DataFileConstants.cs" />
+    <Compile Include="Data\AccountCreation\AccountCreateActions.cs" />
+    <Compile Include="Data\AccountCreation\AccountCreateParameterException.cs" />
+    <Compile Include="Data\AccountCreation\AccountCreateParameters.cs" />
+    <Compile Include="Data\AccountCreation\IAccountCreateActions.cs" />
     <Compile Include="Data\BLL\CharacterActionState.cs" />
     <Compile Include="Data\BLL\CharacterRenderProperties.cs" />
     <Compile Include="Data\BLL\CharacterStat.cs" />
@@ -105,6 +109,8 @@
     <Compile Include="Data\BLL\ICharacterStats.cs" />
     <Compile Include="Data\BLL\NPC.cs" />
     <Compile Include="Data\DataDependencyContainer.cs" />
+    <Compile Include="Data\AccountCreation\IAccountCreateParameterRepository.cs" />
+    <Compile Include="Data\AccountCreation\IAccountCreateParameters.cs" />
     <Compile Include="Data\INumberEncoderService.cs" />
     <Compile Include="Data\Map\BasicTileInfo.cs" />
     <Compile Include="Data\Map\IMapElement.cs" />
@@ -121,6 +127,8 @@
     <Compile Include="Data\Protocol\InitializationOutOfDateData.cs" />
     <Compile Include="Data\Protocol\InitializationSuccessData.cs" />
     <Compile Include="Data\Protocol\InitReply.cs" />
+    <Compile Include="Data\AccountCreation\AccountCreateParameterValidator.cs" />
+    <Compile Include="Data\AccountCreation\IAccountCreateParameterValidator.cs" />
     <Compile Include="DependencyRegistrar.cs" />
     <Compile Include="EODirection.cs" />
     <Compile Include="Graphics\CrossPlatformGFXLoader.cs" />
@@ -274,6 +282,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Data\Validation\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

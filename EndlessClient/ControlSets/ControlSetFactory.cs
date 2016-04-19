@@ -7,6 +7,7 @@ using EndlessClient.Content;
 using EndlessClient.GameExecution;
 using EndlessClient.Controllers;
 using EndlessClient.UIControls;
+using EOLib.Data.AccountCreation;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 
@@ -19,18 +20,24 @@ namespace EndlessClient.ControlSets
 		private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
 		private readonly IConfigurationProvider _configProvider;
 		private readonly IMainButtonControllerProvider _mainButtonControllerProvider;
+		private readonly ICreateAccountController _createAccountController;
+		private readonly IAccountCreateParameterRepository _createAccountParameterRepo;
 
 		public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
 								 IContentManagerProvider contentManagerProvider,
 								 IKeyboardDispatcherProvider keyboardDispatcherProvider,
 								 IConfigurationProvider configProvider,
-								 IMainButtonControllerProvider mainButtonControllerProvider)
+								 IMainButtonControllerProvider mainButtonControllerProvider,
+								 ICreateAccountController createAccountController,
+								 IAccountCreateParameterRepository createAccountParameterRepo)
 		{
 			_nativeGraphicsManager = nativeGraphicsManager;
 			_contentManagerProvider = contentManagerProvider;
 			_keyboardDispatcherProvider = keyboardDispatcherProvider;
 			_configProvider = configProvider;
 			_mainButtonControllerProvider = mainButtonControllerProvider;
+			_createAccountController = createAccountController;
+			_createAccountParameterRepo = createAccountParameterRepo;
 		}
 
 		public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -46,7 +53,12 @@ namespace EndlessClient.ControlSets
 			switch (newState)
 			{
 				case GameStates.Initial: return new InitialControlSet(_configProvider, MainButtonController);
-				case GameStates.CreateAccount: return new CreateAccountControlSet(_keyboardDispatcherProvider.Dispatcher, MainButtonController);
+				case GameStates.CreateAccount:
+					return new CreateAccountControlSet(
+						_keyboardDispatcherProvider.Dispatcher,
+						MainButtonController,
+						_createAccountController,
+						_createAccountParameterRepo);
 				case GameStates.Login: return new LoginPromptControlSet(_keyboardDispatcherProvider.Dispatcher, _configProvider, MainButtonController);
 				case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider, MainButtonController);
 				default: throw new ArgumentOutOfRangeException("newState", newState, null);
