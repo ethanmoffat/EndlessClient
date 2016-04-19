@@ -109,7 +109,6 @@
     <Compile Include="Data\BLL\ICharacterStats.cs" />
     <Compile Include="Data\BLL\NPC.cs" />
     <Compile Include="Data\DataDependencyContainer.cs" />
-    <Compile Include="Data\AccountCreation\IAccountCreateParameterRepository.cs" />
     <Compile Include="Data\AccountCreation\IAccountCreateParameters.cs" />
     <Compile Include="Data\INumberEncoderService.cs" />
     <Compile Include="Data\Map\BasicTileInfo.cs" />

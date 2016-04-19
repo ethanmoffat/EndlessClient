@@ -8,56 +8,48 @@ namespace EOLib.Data.AccountCreation
 {
 	public class AccountCreateActions : IAccountCreateActions
 	{
-		private readonly IAccountCreateParameterProvider _accountCreateParameterProvider;
 		private readonly IAccountCreateParameterValidator _accountCreateParameterValidator;
 
-		public AccountCreateActions(IAccountCreateParameterProvider accountCreateParameterProvider,
-			IAccountCreateParameterValidator accountCreateParameterValidator)
+		public AccountCreateActions(IAccountCreateParameterValidator accountCreateParameterValidator)
 		{
-			_accountCreateParameterProvider = accountCreateParameterProvider;
 			_accountCreateParameterValidator = accountCreateParameterValidator;
 		}
 
-		public void CheckAccountCreateParameters()
+		public void CheckAccountCreateParameters(IAccountCreateParameters parameters)
 		{
-			if (AnyFieldsStillEmpty())
+			if (AnyFieldsStillEmpty(parameters))
 				throw new AccountCreateParameterException(DATCONST1.ACCOUNT_CREATE_FIELDS_STILL_EMPTY);
 
-			if (_accountCreateParameterValidator.AccountNameIsNotLongEnough(Parameters.AccountName))
+			if (_accountCreateParameterValidator.AccountNameIsNotLongEnough(parameters.AccountName))
 				throw new AccountCreateParameterException(DATCONST1.ACCOUNT_CREATE_NAME_TOO_SHORT);
 
-			if (_accountCreateParameterValidator.AccountNameIsTooObvious(Parameters.AccountName))
+			if (_accountCreateParameterValidator.AccountNameIsTooObvious(parameters.AccountName))
 				throw new AccountCreateParameterException(DATCONST1.ACCOUNT_CREATE_NAME_TOO_OBVIOUS);
 
-			if (_accountCreateParameterValidator.PasswordMismatch(Parameters.Password, Parameters.ConfirmPassword))
+			if (_accountCreateParameterValidator.PasswordMismatch(parameters.Password, parameters.ConfirmPassword))
 				throw new AccountCreateParameterException(DATCONST1.ACCOUNT_CREATE_PASSWORD_MISMATCH);
 
-			if (_accountCreateParameterValidator.PasswordIsTooShort(Parameters.Password))
+			if (_accountCreateParameterValidator.PasswordIsTooShort(parameters.Password))
 				throw new AccountCreateParameterException(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
 
-			if (_accountCreateParameterValidator.PasswordIsTooObvious(Parameters.Password))
+			if (_accountCreateParameterValidator.PasswordIsTooObvious(parameters.Password))
 				throw new AccountCreateParameterException(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_OBVIOUS);
 
-			if (_accountCreateParameterValidator.EmailIsInvalid(Parameters.Email))
+			if (_accountCreateParameterValidator.EmailIsInvalid(parameters.Email))
 				throw new AccountCreateParameterException(DATCONST1.ACCOUNT_CREATE_EMAIL_INVALID);
 		}
 
-		private bool AnyFieldsStillEmpty()
+		private bool AnyFieldsStillEmpty(IAccountCreateParameters parameters)
 		{
 			return new[]
 			{
-				Parameters.AccountName,
-				Parameters.Password,
-				Parameters.ConfirmPassword,
-				Parameters.RealName,
-				Parameters.Location,
-				Parameters.Email
+				parameters.AccountName,
+				parameters.Password,
+				parameters.ConfirmPassword,
+				parameters.RealName,
+				parameters.Location,
+				parameters.Email
 			}.Any(x => x.Length == 0);
-		}
-
-		private IAccountCreateParameters Parameters
-		{
-			get { return _accountCreateParameterProvider.AccountCreateParameters; }
 		}
 	}
 }

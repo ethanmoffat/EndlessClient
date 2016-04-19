@@ -21,15 +21,13 @@ namespace EndlessClient.ControlSets
 		private readonly IConfigurationProvider _configProvider;
 		private readonly IMainButtonControllerProvider _mainButtonControllerProvider;
 		private readonly ICreateAccountController _createAccountController;
-		private readonly IAccountCreateParameterRepository _createAccountParameterRepo;
 
 		public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
 								 IContentManagerProvider contentManagerProvider,
 								 IKeyboardDispatcherProvider keyboardDispatcherProvider,
 								 IConfigurationProvider configProvider,
 								 IMainButtonControllerProvider mainButtonControllerProvider,
-								 ICreateAccountController createAccountController,
-								 IAccountCreateParameterRepository createAccountParameterRepo)
+								 ICreateAccountController createAccountController)
 		{
 			_nativeGraphicsManager = nativeGraphicsManager;
 			_contentManagerProvider = contentManagerProvider;
@@ -37,7 +35,6 @@ namespace EndlessClient.ControlSets
 			_configProvider = configProvider;
 			_mainButtonControllerProvider = mainButtonControllerProvider;
 			_createAccountController = createAccountController;
-			_createAccountParameterRepo = createAccountParameterRepo;
 		}
 
 		public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -57,8 +54,7 @@ namespace EndlessClient.ControlSets
 					return new CreateAccountControlSet(
 						_keyboardDispatcherProvider.Dispatcher,
 						MainButtonController,
-						_createAccountController,
-						_createAccountParameterRepo);
+						_createAccountController);
 				case GameStates.Login: return new LoginPromptControlSet(_keyboardDispatcherProvider.Dispatcher, _configProvider, MainButtonController);
 				case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider, MainButtonController);
 				default: throw new ArgumentOutOfRangeException("newState", newState, null);

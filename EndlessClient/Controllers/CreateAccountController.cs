@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Data.AccountCreation;
@@ -14,25 +13,19 @@ namespace EndlessClient.Controllers
 	{
 		private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
 		private readonly IAccountCreateActions _accountCreateActions;
-		private readonly IAccountCreateParameterProvider _accountCreateParameterProvider;
 
 		public CreateAccountController(IEOMessageBoxFactory eoMessageBoxFactory,
-									   IAccountCreateActions accountCreateActions,
-									   IAccountCreateParameterProvider accountCreateParameterProvider)
+									   IAccountCreateActions accountCreateActions)
 		{
 			_eoMessageBoxFactory = eoMessageBoxFactory;
 			_accountCreateActions = accountCreateActions;
-			_accountCreateParameterProvider = accountCreateParameterProvider;
 		}
 
-		public void CreateAccount()
+		public void CreateAccount(IAccountCreateParameters accountCreateParameters)
 		{
-			if (_accountCreateParameterProvider.AccountCreateParameters == null)
-				throw new InvalidOperationException("This controller should be called after the account create parameters are set");
-
 			try
 			{
-				_accountCreateActions.CheckAccountCreateParameters();
+				_accountCreateActions.CheckAccountCreateParameters(accountCreateParameters);
 			}
 			catch (AccountCreateParameterException ex)
 			{

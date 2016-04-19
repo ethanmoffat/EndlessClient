@@ -23,7 +23,6 @@ namespace EndlessClient.ControlSets
 		private readonly KeyboardDispatcher _dispatcher;
 		private readonly IMainButtonController _mainButtonController;
 		private readonly ICreateAccountController _createAccountController;
-		private readonly IAccountCreateParameterRepository _createAccountParameterRepository;
 		private readonly Texture2D[] _personSet2;
 		private readonly Random _randomGen;
 
@@ -47,13 +46,11 @@ namespace EndlessClient.ControlSets
 
 		public CreateAccountControlSet(KeyboardDispatcher dispatcher,
 									   IMainButtonController mainButtonController,
-									   ICreateAccountController createAccountController,
-									   IAccountCreateParameterRepository createAccountParameterRepository)
+									   ICreateAccountController createAccountController)
 		{
 			_dispatcher = dispatcher;
 			_mainButtonController = mainButtonController;
 			_createAccountController = createAccountController;
-			_createAccountParameterRepository = createAccountParameterRepository;
 			_personSet2 = new Texture2D[8];
 			_randomGen = new Random();
 		}
@@ -229,18 +226,13 @@ namespace EndlessClient.ControlSets
 
 		private void DoCreateAccount(object sender, EventArgs e)
 		{
-			_createAccountParameterRepository.AccountCreateParameters = 
-				new AccountCreateParameters(
-					_tbAccountName.Text,
-					_tbPassword.Text,
-					_tbConfirm.Text,
-					_tbRealName.Text,
-					_tbLocation.Text,
-					_tbEmail.Text);
-
-			_createAccountController.CreateAccount();
-
-			_createAccountParameterRepository.AccountCreateParameters = null;
+			_createAccountController.CreateAccount(new AccountCreateParameters(
+				_tbAccountName.Text,
+				_tbPassword.Text,
+				_tbConfirm.Text,
+				_tbRealName.Text,
+				_tbLocation.Text,
+				_tbEmail.Text));
 		}
 
 		protected override void Dispose(bool disposing)
