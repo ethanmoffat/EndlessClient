@@ -53,6 +53,11 @@ namespace EndlessClient.GameExecution
 			_controlSetRepository.CurrentControlSet = nextSet;
 		}
 
+		public void ExitGame()
+		{
+			_endlessGame.Exit();
+		}
+
 		private List<IGameComponent> FindUnusedComponents(IControlSet current, IControlSet next)
 		{
 			return current.AllComponents

@@ -21,7 +21,6 @@ namespace EndlessClient.Controllers
 		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
 		private readonly IGameStateActions _gameStateActions;
 		private readonly ICreateAccountDialogDisplayAction _createAccountDialogDisplayAction;
-		private readonly IEndlessGame _endlessGame; //todo: inject actions that do this? move to gamestateactions?
 
 		private int _numberOfConnectionRequests;
 
@@ -30,8 +29,7 @@ namespace EndlessClient.Controllers
 									IPacketProcessorActions packetProcessorActions,
 									IBackgroundReceiveActions backgroundReceiveActions,
 									IGameStateActions gameStateActions,
-									ICreateAccountDialogDisplayAction createAccountDialogDisplayAction,
-									IEndlessGame endlessGame)
+									ICreateAccountDialogDisplayAction createAccountDialogDisplayAction)
 		{
 			_networkConnectionActions = networkConnectionActions;
 			_errorDialogDisplayAction = errorDialogDisplayAction;
@@ -39,7 +37,6 @@ namespace EndlessClient.Controllers
 			_backgroundReceiveActions = backgroundReceiveActions;
 			_gameStateActions = gameStateActions;
 			_createAccountDialogDisplayAction = createAccountDialogDisplayAction;
-			_endlessGame = endlessGame;
 		}
 
 		public void GoToInitialState()
@@ -75,8 +72,7 @@ namespace EndlessClient.Controllers
 		{
 			_backgroundReceiveActions.CancelBackgroundReceiveLoop();
 			_networkConnectionActions.DisconnectFromServer();
-
-			_endlessGame.Exit();
+			_gameStateActions.ExitGame();
 		}
 
 		private async Task<bool> StartNetworkConnection()
