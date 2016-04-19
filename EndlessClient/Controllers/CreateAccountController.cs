@@ -12,22 +12,22 @@ namespace EndlessClient.Controllers
 	public class CreateAccountController : ICreateAccountController
 	{
 		private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
-		private readonly IAccountCreateActions _accountCreateActions;
+		private readonly ICreateAccountActions _createAccountActions;
 
 		public CreateAccountController(IEOMessageBoxFactory eoMessageBoxFactory,
-									   IAccountCreateActions accountCreateActions)
+									   ICreateAccountActions createAccountActions)
 		{
 			_eoMessageBoxFactory = eoMessageBoxFactory;
-			_accountCreateActions = accountCreateActions;
+			_createAccountActions = createAccountActions;
 		}
 
-		public void CreateAccount(IAccountCreateParameters accountCreateParameters)
+		public void CreateAccount(ICreateAccountParameters createAccountParameters)
 		{
 			try
 			{
-				_accountCreateActions.CheckAccountCreateParameters(accountCreateParameters);
+				_createAccountActions.CheckAccountCreateParameters(createAccountParameters);
 			}
-			catch (AccountCreateParameterException ex)
+			catch (CreateAccountParameterException ex)
 			{
 				_eoMessageBoxFactory.CreateMessageBox(
 					ex.Error,

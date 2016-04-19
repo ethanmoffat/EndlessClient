@@ -4,7 +4,7 @@
 
 namespace EOLib.Data.AccountCreation
 {
-	public interface IAccountCreateParameterValidator
+	public interface ICreateAccountParameterValidator
 	{
 		bool AccountNameIsNotLongEnough(string account);
 

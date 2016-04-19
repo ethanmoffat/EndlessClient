@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace EOLib.Data.AccountCreation
 {
-	public class AccountCreateParameterValidator : IAccountCreateParameterValidator
+	public class CreateAccountParameterValidator : ICreateAccountParameterValidator
 	{
 		private const string ValidEmailRegex = @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b";
 

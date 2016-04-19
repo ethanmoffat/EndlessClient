@@ -12,9 +12,9 @@ namespace EOLib.Data
 		public void RegisterDependencies(IUnityContainer container)
 		{
 			container.RegisterType<INumberEncoderService, NumberEncoderService>();
-			container.RegisterType<IAccountCreateParameterValidator, AccountCreateParameterValidator>();
+			container.RegisterType<ICreateAccountParameterValidator, CreateAccountParameterValidator>();
 
-			container.RegisterType<IAccountCreateActions, AccountCreateActions>();
+			container.RegisterType<ICreateAccountActions, CreateAccountActions>();
 		}
 	}
 }

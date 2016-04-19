@@ -8,6 +8,6 @@ namespace EndlessClient.Controllers
 {
 	public interface ICreateAccountController
 	{
-		void CreateAccount(IAccountCreateParameters accountCreateParameters);
+		void CreateAccount(ICreateAccountParameters createAccountParameters);
 	}
 }

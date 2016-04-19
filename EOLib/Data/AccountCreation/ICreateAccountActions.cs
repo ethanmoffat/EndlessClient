@@ -4,8 +4,8 @@
 
 namespace EOLib.Data.AccountCreation
 {
-	public interface IAccountCreateActions
+	public interface ICreateAccountActions
 	{
-		void CheckAccountCreateParameters(IAccountCreateParameters accountCreateparameters);
+		void CheckAccountCreateParameters(ICreateAccountParameters createAccountCreateparameters);
 	}
 }

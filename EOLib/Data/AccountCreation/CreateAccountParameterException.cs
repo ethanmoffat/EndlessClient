@@ -6,11 +6,11 @@ using System;
 
 namespace EOLib.Data.AccountCreation
 {
-	public class AccountCreateParameterException : Exception
+	public class CreateAccountParameterException : Exception
 	{
 		public DATCONST1 Error { get; set; }
 
-		public AccountCreateParameterException(DATCONST1 error)
+		public CreateAccountParameterException(DATCONST1 error)
 		{
 			Error = error;
 		}

@@ -4,7 +4,7 @@
 
 namespace EOLib.Data.AccountCreation
 {
-	public class AccountCreateParameters : IAccountCreateParameters
+	public class CreateAccountParameters : ICreateAccountParameters
 	{
 		public string AccountName { get; private set; }
 		public string Password { get; private set; }
@@ -13,7 +13,7 @@ namespace EOLib.Data.AccountCreation
 		public string Location { get; private set; }
 		public string Email { get; private set; }
 
-		public AccountCreateParameters(
+		public CreateAccountParameters(
 			string accountName,
 			string password,
 			string confirmPassword,

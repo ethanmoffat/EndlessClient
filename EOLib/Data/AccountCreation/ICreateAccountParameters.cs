@@ -4,7 +4,7 @@
 
 namespace EOLib.Data.AccountCreation
 {
-	public interface IAccountCreateParameters
+	public interface ICreateAccountParameters
 	{
 		string AccountName { get; }
 		string Password { get; }

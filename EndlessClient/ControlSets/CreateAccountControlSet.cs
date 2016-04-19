@@ -226,7 +226,7 @@ namespace EndlessClient.ControlSets
 
 		private void DoCreateAccount(object sender, EventArgs e)
 		{
-			_createAccountController.CreateAccount(new AccountCreateParameters(
+			_createAccountController.CreateAccount(new CreateAccountParameters(
 				_tbAccountName.Text,
 				_tbPassword.Text,
 				_tbConfirm.Text,
