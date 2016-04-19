@@ -44,7 +44,7 @@ namespace EndlessClient.Controllers
 
 		public void GoToInitialState()
 		{
-			
+			_gameStateActions.ChangeToState(GameStates.Initial);
 		}
 
 		public async Task ClickCreateAccount()

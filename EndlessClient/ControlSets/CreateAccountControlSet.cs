@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
@@ -19,8 +20,11 @@ namespace EndlessClient.ControlSets
 	public class CreateAccountControlSet : BaseControlSet
 	{
 		private readonly KeyboardDispatcher _dispatcher;
+		private readonly IMainButtonController _mainButtonController;
 		private readonly Texture2D[] _personSet2;
 		private readonly Random _randomGen;
+
+		private Texture2D _backButtonTexture;
 
 		private XNATextBox _tbAccountName,
 						   _tbPassword,
@@ -29,7 +33,8 @@ namespace EndlessClient.ControlSets
 						   _tbLocation,
 						   _tbEmail;
 		private XNAButton _btnCreate,
-						  _btnCancel;
+						  _btnCancel,
+						  _backButton;
 		private PictureBox _person2Picture;
 
 		private TextBoxClickEventHandler _clickHandler;
@@ -37,9 +42,11 @@ namespace EndlessClient.ControlSets
 
 		public override GameStates GameState { get { return GameStates.CreateAccount; } }
 
-		public CreateAccountControlSet(KeyboardDispatcher dispatcher)
+		public CreateAccountControlSet(KeyboardDispatcher dispatcher,
+									   IMainButtonController mainButtonController)
 		{
 			_dispatcher = dispatcher;
+			_mainButtonController = mainButtonController;
 			_personSet2 = new Texture2D[8];
 			_randomGen = new Random();
 		}
@@ -50,6 +57,8 @@ namespace EndlessClient.ControlSets
 
 			for (int i = 0; i < _personSet2.Length; ++i)
 				_personSet2[i] = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 61 + i, true);
+
+			_backButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 24, true);
 		}
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
@@ -62,6 +71,7 @@ namespace EndlessClient.ControlSets
 			_tbEmail = GetControl(currentControlSet, GameControlIdentifier.CreateAccountEmail, GetCreateAccountEmailTextBox);
 			_btnCreate = GetControl(currentControlSet, GameControlIdentifier.CreateAccountButton, () => GetCreateButton(false));
 			_btnCancel = GetControl(currentControlSet, GameControlIdentifier.CreateAccountCancelButton, GetCreateAccountCancelButton);
+			_backButton = GetControl(currentControlSet, GameControlIdentifier.BackButton, GetBackButton);
 			_person2Picture = GetControl(currentControlSet, GameControlIdentifier.PersonDisplay2, GetPerson2Picture);
 
 			_allComponents.Add(_tbAccountName);
@@ -74,8 +84,14 @@ namespace EndlessClient.ControlSets
 			_allComponents.Add(_btnCancel);
 			_allComponents.Add(_person2Picture);
 
-			_clickHandler = new TextBoxClickEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
-			_tabHandler = new TextBoxTabEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
+			var textBoxes = _allComponents.OfType<XNATextBox>().ToArray();
+			_clickHandler = new TextBoxClickEventHandler(_dispatcher, textBoxes);
+			_tabHandler = new TextBoxTabEventHandler(_dispatcher, textBoxes);
+
+			if (_dispatcher.Subscriber != null)
+				_dispatcher.Subscriber.Selected = false;
+			_dispatcher.Subscriber = _tbAccountName;
+			_dispatcher.Subscriber.Selected = true;
 		}
 
 		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
@@ -91,7 +107,7 @@ namespace EndlessClient.ControlSets
 				case GameControlIdentifier.CreateAccountEmail: return _tbEmail;
 				case GameControlIdentifier.CreateAccountButton: return _btnCreate;
 				case GameControlIdentifier.CreateAccountCancelButton: return _btnCancel;
-				case GameControlIdentifier.BackButton: return null; //todo
+				case GameControlIdentifier.BackButton: return _backButton;
 				case GameControlIdentifier.PersonDisplay2: return _person2Picture;
 				default: return base.FindComponentByControlIdentifier(control);
 			}
@@ -175,6 +191,22 @@ namespace EndlessClient.ControlSets
 								 new Vector2(481, 417),
 								 new Rectangle(0, 40, 120, 40),
 								 new Rectangle(120, 40, 120, 40));
+		}
+
+		private XNAButton GetBackButton()
+		{
+			var button = new XNAButton(
+				_backButtonTexture,
+				new Vector2(589, 0),
+				new Rectangle(0, 0, _backButtonTexture.Width, _backButtonTexture.Height/2),
+				new Rectangle(0, _backButtonTexture.Height/2, _backButtonTexture.Width, _backButtonTexture.Height/2))
+			{
+				DrawOrder = 100,
+				ClickArea = new Rectangle(4, 16, 16, 16)
+			};
+			button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
+
+			return button;
 		}
 
 		private PictureBox GetPerson2Picture()

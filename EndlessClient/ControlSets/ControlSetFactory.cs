@@ -46,7 +46,7 @@ namespace EndlessClient.ControlSets
 			switch (newState)
 			{
 				case GameStates.Initial: return new InitialControlSet(_configProvider, MainButtonController);
-				case GameStates.CreateAccount: return new CreateAccountControlSet(_keyboardDispatcherProvider.Dispatcher);
+				case GameStates.CreateAccount: return new CreateAccountControlSet(_keyboardDispatcherProvider.Dispatcher, MainButtonController);
 				case GameStates.Login: return new LoginPromptControlSet(_keyboardDispatcherProvider.Dispatcher, _configProvider, MainButtonController);
 				case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider, MainButtonController);
 				default: throw new ArgumentOutOfRangeException("newState", newState, null);
