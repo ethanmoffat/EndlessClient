@@ -20,7 +20,7 @@ namespace EndlessClient.Controllers
 		private readonly IPacketProcessorActions _packetProcessorActions;
 		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
 		private readonly IGameStateActions _gameStateActions;
-		private readonly ICreateAccountDialogDisplayAction _createAccountDialogDisplayAction;
+		private readonly ICreateAccountDialogDisplayActions _createAccountDialogDisplayActions;
 
 		private int _numberOfConnectionRequests;
 
@@ -29,14 +29,14 @@ namespace EndlessClient.Controllers
 									IPacketProcessorActions packetProcessorActions,
 									IBackgroundReceiveActions backgroundReceiveActions,
 									IGameStateActions gameStateActions,
-									ICreateAccountDialogDisplayAction createAccountDialogDisplayAction)
+									ICreateAccountDialogDisplayActions createAccountDialogDisplayActions)
 		{
 			_networkConnectionActions = networkConnectionActions;
 			_errorDialogDisplayAction = errorDialogDisplayAction;
 			_packetProcessorActions = packetProcessorActions;
 			_backgroundReceiveActions = backgroundReceiveActions;
 			_gameStateActions = gameStateActions;
-			_createAccountDialogDisplayAction = createAccountDialogDisplayAction;
+			_createAccountDialogDisplayActions = createAccountDialogDisplayActions;
 		}
 
 		public void GoToInitialState()
@@ -51,7 +51,7 @@ namespace EndlessClient.Controllers
 			if (result)
 			{
 				_gameStateActions.ChangeToState(GameStates.CreateAccount);
-				_createAccountDialogDisplayAction.ShowCreateAccountDialog();
+				_createAccountDialogDisplayActions.ShowCreateAccountDialog();
 			}
 		}
 

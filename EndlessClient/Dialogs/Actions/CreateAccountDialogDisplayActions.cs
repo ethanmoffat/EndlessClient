@@ -8,12 +8,12 @@ using EOLib.IO.Services;
 
 namespace EndlessClient.Dialogs.Actions
 {
-	public class CreateAccountDialogDisplayAction : ICreateAccountDialogDisplayAction
+	public class CreateAccountDialogDisplayActions : ICreateAccountDialogDisplayActions
 	{
 		private readonly ILocalizedStringService _localizedStringService;
 		private readonly ICreateAccountWarningDialogFactory _createAccountWarningDialogFactory;
 
-		public CreateAccountDialogDisplayAction(ILocalizedStringService localizedStringService,
+		public CreateAccountDialogDisplayActions(ILocalizedStringService localizedStringService,
 												ICreateAccountWarningDialogFactory createAccountWarningDialogFactory)
 		{
 			_localizedStringService = localizedStringService;

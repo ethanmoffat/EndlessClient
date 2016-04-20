@@ -50,7 +50,7 @@ namespace EndlessClient
 			//actions
 			container.RegisterType<IGameStateActions, GameStateActions>();
 			container.RegisterType<IErrorDialogDisplayAction, ErrorDialogDisplayAction>();
-			container.RegisterType<ICreateAccountDialogDisplayAction, CreateAccountDialogDisplayAction>();
+			container.RegisterType<ICreateAccountDialogDisplayActions, CreateAccountDialogDisplayActions>();
 		}
 
 		public void InitializeDependencies(IUnityContainer container)

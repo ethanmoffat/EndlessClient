@@ -4,7 +4,7 @@
 
 namespace EndlessClient.Dialogs.Actions
 {
-	public interface ICreateAccountDialogDisplayAction
+	public interface ICreateAccountDialogDisplayActions
 	{
 		void ShowCreateAccountDialog();
 	}
