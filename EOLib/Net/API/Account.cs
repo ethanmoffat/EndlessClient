@@ -3,20 +3,10 @@
 // For additional details, see the LICENSE file
 
 using System.Threading;
+using EOLib.Data.AccountCreation;
 
 namespace EOLib.Net.API
 {
-	public enum AccountReply : short
-	{
-		THIS_IS_WRONG = 0,
-		Exists = 1,
-		NotApproved = 2,
-		Created = 3,
-		ChangeFailed = 5,
-		ChangeSuccess = 6,
-		Continue = 1000
-	};
-
 	partial class PacketAPI
 	{
 		private AutoResetEvent m_account_responseEvent;

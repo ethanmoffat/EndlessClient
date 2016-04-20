@@ -3,16 +3,27 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using EOLib.IO.Services;
+using EOLib.Net;
+using EOLib.Net.Communication;
 
 namespace EOLib.Data.AccountCreation
 {
 	public class CreateAccountActions : ICreateAccountActions
 	{
 		private readonly ICreateAccountParameterValidator _createAccountParameterValidator;
+		private readonly IPacketSendService _packetSendService;
+		private readonly IHDSerialNumberService _hdSerialNumberService;
 
-		public CreateAccountActions(ICreateAccountParameterValidator createAccountParameterValidator)
+		public CreateAccountActions(ICreateAccountParameterValidator createAccountParameterValidator,
+									IPacketSendService packetSendService,
+									IHDSerialNumberService hdSerialNumberService)
 		{
 			_createAccountParameterValidator = createAccountParameterValidator;
+			_packetSendService = packetSendService;
+			_hdSerialNumberService = hdSerialNumberService;
 		}
 
 		public CreateAccountParameterResult CheckAccountCreateParameters(ICreateAccountParameters parameters)
@@ -39,6 +50,39 @@ namespace EOLib.Data.AccountCreation
 				return new CreateAccountParameterResult(WhichParameter.Email, DATCONST1.ACCOUNT_CREATE_EMAIL_INVALID);
 
 			return new CreateAccountParameterResult(WhichParameter.None);
+		}
+
+		public async Task<AccountReply> CheckAccountNameWithServer(string accountName)
+		{
+			var nameCheckPacket = new PacketBuilder(PacketFamily.Account, PacketAction.Request)
+				.AddString(accountName)
+				.Build();
+
+			var response = await _packetSendService.SendEncodedPacketAndWaitAsync(nameCheckPacket);
+			return (AccountReply)response.ReadShort();
+		}
+
+		public async Task ShowAccountCreatePendingDialog()
+		{
+			await Task.Delay(1);
+		}
+
+		public async Task<AccountReply> CreateAccount(ICreateAccountParameters parameters)
+		{
+			var createAccountPacket = new PacketBuilder(PacketFamily.Account, PacketAction.Create)
+				.AddShort(1337) //eoserv doesn't
+				.AddByte(42)    //validate these values
+				.AddBreakString(parameters.AccountName)
+				.AddBreakString(parameters.Password)
+				.AddBreakString(parameters.Location)
+				.AddBreakString(parameters.Location)
+				.AddBreakString(parameters.Email)
+				.AddBreakString(Dns.GetHostName())
+				.AddBreakString(_hdSerialNumberService.GetHDSerialNumber())
+				.Build();
+
+			var response = await _packetSendService.SendEncodedPacketAndWaitAsync(createAccountPacket);
+			return (AccountReply) response.ReadShort();
 		}
 
 		private bool AnyFieldsStillEmpty(ICreateAccountParameters parameters)

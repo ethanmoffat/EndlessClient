@@ -10,6 +10,7 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EOLib;
+using EOLib.Data.AccountCreation;
 using EOLib.Graphics;
 using EOLib.IO.Services;
 using EOLib.Net.API;

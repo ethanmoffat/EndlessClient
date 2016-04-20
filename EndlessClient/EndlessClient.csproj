@@ -69,6 +69,7 @@
     <Compile Include="CharacterStateTest.cs" />
     <Compile Include="Controllers\CreateAccountController.cs" />
     <Compile Include="Controllers\ICreateAccountController.cs" />
+    <Compile Include="Controllers\ICreateAccountControllerRepository.cs" />
     <Compile Include="ControlSets\EmptyControlSet.cs" />
     <Compile Include="ControlSets\IControlSetRepository.cs" />
     <Compile Include="Controllers\IMainButtonController.cs" />
