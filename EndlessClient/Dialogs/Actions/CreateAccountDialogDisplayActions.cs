@@ -51,7 +51,7 @@ namespace EndlessClient.Dialogs.Actions
 			_eoMessageBoxFactory.CreateMessageBox(
 				validationResult.ErrorString,
 				XNADialogButtons.Ok,
-				EOMessageBoxStyle.LargeDialogSmallHeader);
+				EOMessageBoxStyle.SmallDialogLargeHeader);
 		}
 
 		public void ShowServerError(AccountReply serverError)
@@ -70,7 +70,7 @@ namespace EndlessClient.Dialogs.Actions
 			_eoMessageBoxFactory.CreateMessageBox(
 				message,
 				XNADialogButtons.Ok,
-				EOMessageBoxStyle.LargeDialogSmallHeader);
+				EOMessageBoxStyle.SmallDialogLargeHeader);
 		}
 
 		public void ShowSuccessMessage()
