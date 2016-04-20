@@ -11,13 +11,13 @@ using EOLib.Net.Communication;
 
 namespace EOLib.Data.AccountCreation
 {
-	public class CreateAccountActions : ICreateAccountActions
+	public class AccountActions : IAccountActions
 	{
 		private readonly ICreateAccountParameterValidator _createAccountParameterValidator;
 		private readonly IPacketSendService _packetSendService;
 		private readonly IHDSerialNumberService _hdSerialNumberService;
 
-		public CreateAccountActions(ICreateAccountParameterValidator createAccountParameterValidator,
+		public AccountActions(ICreateAccountParameterValidator createAccountParameterValidator,
 									IPacketSendService packetSendService,
 									IHDSerialNumberService hdSerialNumberService)
 		{

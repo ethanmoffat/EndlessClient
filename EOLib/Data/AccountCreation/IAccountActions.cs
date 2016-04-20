@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EOLib.Data.AccountCreation
 {
-	public interface ICreateAccountActions
+	public interface IAccountActions
 	{
 		CreateAccountParameterResult CheckAccountCreateParameters(ICreateAccountParameters createAccountCreateparameters);
 

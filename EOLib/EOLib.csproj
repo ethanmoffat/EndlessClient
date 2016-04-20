@@ -97,10 +97,10 @@
   <ItemGroup>
     <Compile Include="Crc.cs" />
     <Compile Include="DataFileConstants.cs" />
-    <Compile Include="Data\AccountCreation\CreateAccountActions.cs" />
+    <Compile Include="Data\AccountCreation\AccountActions.cs" />
     <Compile Include="Data\AccountCreation\CreateAccountParameterResult.cs" />
     <Compile Include="Data\AccountCreation\CreateAccountParameters.cs" />
-    <Compile Include="Data\AccountCreation\ICreateAccountActions.cs" />
+    <Compile Include="Data\AccountCreation\IAccountActions.cs" />
     <Compile Include="Data\BLL\CharacterActionState.cs" />
     <Compile Include="Data\BLL\CharacterRenderProperties.cs" />
     <Compile Include="Data\BLL\CharacterStat.cs" />

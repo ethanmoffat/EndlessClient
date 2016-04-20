@@ -13,28 +13,28 @@ namespace EndlessClient.Controllers
 	public class CreateAccountController : ICreateAccountController
 	{
 		private readonly ICreateAccountDialogDisplayActions _createAccountDialogDisplayActions;
-		private readonly ICreateAccountActions _createAccountActions;
+		private readonly IAccountActions _accountActions;
 		private readonly IGameStateActions _gameStateActions;
 
 		public CreateAccountController(ICreateAccountDialogDisplayActions createAccountDialogDisplayActions,
-									   ICreateAccountActions createAccountActions,
+									   IAccountActions accountActions,
 									   IGameStateActions gameStateActions)
 		{
 			_createAccountDialogDisplayActions = createAccountDialogDisplayActions;
-			_createAccountActions = createAccountActions;
+			_accountActions = accountActions;
 			_gameStateActions = gameStateActions;
 		}
 
 		public async Task CreateAccount(ICreateAccountParameters createAccountParameters)
 		{
-			var paramsValidationResult = _createAccountActions.CheckAccountCreateParameters(createAccountParameters);
+			var paramsValidationResult = _accountActions.CheckAccountCreateParameters(createAccountParameters);
 			if(paramsValidationResult.FaultingParameter != WhichParameter.None)
 			{
 				_createAccountDialogDisplayActions.ShowParameterError(paramsValidationResult);
 				return;
 			}
 
-			var nameResult = await _createAccountActions.CheckAccountNameWithServer(createAccountParameters.AccountName);
+			var nameResult = await _accountActions.CheckAccountNameWithServer(createAccountParameters.AccountName);
 			if (nameResult != AccountReply.Continue)
 			{
 				_createAccountDialogDisplayActions.ShowServerError(nameResult);
@@ -47,7 +47,7 @@ namespace EndlessClient.Controllers
 			}
 			catch (OperationCanceledException) { return; }
 
-			var accountResult = await _createAccountActions.CreateAccount(createAccountParameters);
+			var accountResult = await _accountActions.CreateAccount(createAccountParameters);
 			if (accountResult != AccountReply.Created)
 			{
 				_createAccountDialogDisplayActions.ShowServerError(accountResult);

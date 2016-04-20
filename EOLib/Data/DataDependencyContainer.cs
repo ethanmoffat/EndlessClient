@@ -14,7 +14,7 @@ namespace EOLib.Data
 			container.RegisterType<INumberEncoderService, NumberEncoderService>();
 			container.RegisterType<ICreateAccountParameterValidator, CreateAccountParameterValidator>();
 
-			container.RegisterType<ICreateAccountActions, CreateAccountActions>();
+			container.RegisterType<IAccountActions, AccountActions>();
 		}
 	}
 }
