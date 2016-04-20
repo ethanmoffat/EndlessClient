@@ -21,21 +21,21 @@ namespace EOLib.Net.Communication
 		public void SendPacket(IPacket packet)
 		{
 			var bytes = Client.Send(packet);
-			if (bytes == 0 || bytes != packet.Length)
+			if (bytes == 0)
 				throw new NoDataSentException();
 		}
 
 		public async Task SendPacketAsync(IPacket packet)
 		{
 			var bytes = await Client.SendAsync(packet);
-			if (bytes == 0 || bytes != packet.Length)
+			if (bytes == 0)
 				throw new NoDataSentException();
 		}
 
 		public async Task<IPacket> SendRawPacketAndWaitAsync(IPacket packet)
 		{
 			var bytes = await Client.SendRawPacketAsync(packet);
-			if (bytes == 0 || bytes != packet.Length)
+			if (bytes == 0)
 				throw new NoDataSentException();
 
 			var responsePacket = await _packetQueueProvider.PacketQueue.WaitForPacketAndDequeue();
@@ -48,7 +48,7 @@ namespace EOLib.Net.Communication
 		public async Task<IPacket> SendEncodedPacketAndWaitAsync(IPacket packet)
 		{
 			var bytes = await Client.SendAsync(packet);
-			if (bytes == 0 || bytes != packet.Length)
+			if (bytes == 0)
 				throw new NoDataSentException();
 
 			var responsePacket = await _packetQueueProvider.PacketQueue.WaitForPacketAndDequeue();
