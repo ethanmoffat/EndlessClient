@@ -98,9 +98,11 @@
     <Compile Include="Crc.cs" />
     <Compile Include="DataFileConstants.cs" />
     <Compile Include="Data\Account\AccountActions.cs" />
+    <Compile Include="Data\Account\ChangePasswordParameters.cs" />
     <Compile Include="Data\Account\CreateAccountParameterResult.cs" />
     <Compile Include="Data\Account\CreateAccountParameters.cs" />
     <Compile Include="Data\Account\IAccountActions.cs" />
+    <Compile Include="Data\Account\IChangePasswordParameters.cs" />
     <Compile Include="Data\BLL\CharacterActionState.cs" />
     <Compile Include="Data\BLL\CharacterRenderProperties.cs" />
     <Compile Include="Data\BLL\CharacterStat.cs" />

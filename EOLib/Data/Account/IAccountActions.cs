@@ -13,5 +13,7 @@ namespace EOLib.Data.Account
 		Task<AccountReply> CheckAccountNameWithServer(string accountName);
 
 		Task<AccountReply> CreateAccount(ICreateAccountParameters parameters);
+
+		Task<AccountReply> ChangePassword(IChangePasswordParameters parameters);
 	}
 }

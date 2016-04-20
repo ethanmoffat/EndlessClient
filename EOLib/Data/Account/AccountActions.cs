@@ -86,6 +86,21 @@ namespace EOLib.Data.Account
 			return (AccountReply) response.ReadShort();
 		}
 
+		public async Task<AccountReply> ChangePassword(IChangePasswordParameters parameters)
+		{
+			var changePasswordPacket = new PacketBuilder(PacketFamily.Account, PacketAction.Agree)
+				.AddBreakString(parameters.AccountName)
+				.AddBreakString(parameters.OldPassword)
+				.AddBreakString(parameters.NewPassword)
+				.Build();
+
+			var response = await _packetSendService.SendEncodedPacketAndWaitAsync(changePasswordPacket);
+			if (IsInvalidResponse(response))
+				throw new EmptyPacketReceivedException();
+
+			return (AccountReply) response.ReadShort();
+		}
+
 		private bool AnyFieldsStillEmpty(ICreateAccountParameters parameters)
 		{
 			return new[]
