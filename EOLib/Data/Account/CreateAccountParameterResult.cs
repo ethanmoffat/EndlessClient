@@ -4,7 +4,7 @@
 
 using System;
 
-namespace EOLib.Data.AccountCreation
+namespace EOLib.Data.Account
 {
 	public class CreateAccountParameterResult
 	{

@@ -9,7 +9,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib;
-using EOLib.Data.AccountCreation;
+using EOLib.Data.Account;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;

@@ -4,7 +4,7 @@
 
 using System;
 using System.Threading;
-using EOLib.Data.AccountCreation;
+using EOLib.Data.Account;
 using EOLib.IO.Services;
 using EOLib.Net.API;
 

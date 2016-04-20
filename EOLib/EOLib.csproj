@@ -97,10 +97,10 @@
   <ItemGroup>
     <Compile Include="Crc.cs" />
     <Compile Include="DataFileConstants.cs" />
-    <Compile Include="Data\AccountCreation\AccountActions.cs" />
-    <Compile Include="Data\AccountCreation\CreateAccountParameterResult.cs" />
-    <Compile Include="Data\AccountCreation\CreateAccountParameters.cs" />
-    <Compile Include="Data\AccountCreation\IAccountActions.cs" />
+    <Compile Include="Data\Account\AccountActions.cs" />
+    <Compile Include="Data\Account\CreateAccountParameterResult.cs" />
+    <Compile Include="Data\Account\CreateAccountParameters.cs" />
+    <Compile Include="Data\Account\IAccountActions.cs" />
     <Compile Include="Data\BLL\CharacterActionState.cs" />
     <Compile Include="Data\BLL\CharacterRenderProperties.cs" />
     <Compile Include="Data\BLL\CharacterStat.cs" />
@@ -109,7 +109,7 @@
     <Compile Include="Data\BLL\ICharacterStats.cs" />
     <Compile Include="Data\BLL\NPC.cs" />
     <Compile Include="Data\DataDependencyContainer.cs" />
-    <Compile Include="Data\AccountCreation\ICreateAccountParameters.cs" />
+    <Compile Include="Data\Account\ICreateAccountParameters.cs" />
     <Compile Include="Data\INumberEncoderService.cs" />
     <Compile Include="Data\Map\BasicTileInfo.cs" />
     <Compile Include="Data\Map\IMapElement.cs" />
@@ -126,8 +126,8 @@
     <Compile Include="Data\Protocol\InitializationOutOfDateData.cs" />
     <Compile Include="Data\Protocol\InitializationSuccessData.cs" />
     <Compile Include="Data\Protocol\InitReply.cs" />
-    <Compile Include="Data\AccountCreation\CreateAccountParameterValidator.cs" />
-    <Compile Include="Data\AccountCreation\ICreateAccountParameterValidator.cs" />
+    <Compile Include="Data\Account\CreateAccountParameterValidator.cs" />
+    <Compile Include="Data\Account\ICreateAccountParameterValidator.cs" />
     <Compile Include="DependencyRegistrar.cs" />
     <Compile Include="EODirection.cs" />
     <Compile Include="Graphics\CrossPlatformGFXLoader.cs" />
@@ -197,7 +197,7 @@
     <Compile Include="IO\SpellRecordFactory.cs" />
     <Compile Include="misc.cs" />
     <Compile Include="Net\API\Account.cs" />
-    <Compile Include="Data\AccountCreation\AccountReply.cs" />
+    <Compile Include="Data\Account\AccountReply.cs" />
     <Compile Include="Net\API\AdminInteract.cs" />
     <Compile Include="Net\API\Attack.cs" />
     <Compile Include="Net\API\Avatar.cs" />

@@ -2,7 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EOLib.Data.AccountCreation;
+using EOLib.Data.Account;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.Data

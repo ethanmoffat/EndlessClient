@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 
-namespace EOLib.Data.AccountCreation
+namespace EOLib.Data.Account
 {
 	public interface IAccountActions
 	{

@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
-using EOLib.Data.AccountCreation;
+using EOLib.Data.Account;
 
 namespace EndlessClient.Controllers
 {

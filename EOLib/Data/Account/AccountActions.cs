@@ -9,7 +9,7 @@ using EOLib.IO.Services;
 using EOLib.Net;
 using EOLib.Net.Communication;
 
-namespace EOLib.Data.AccountCreation
+namespace EOLib.Data.Account
 {
 	public class AccountActions : IAccountActions
 	{
@@ -59,6 +59,9 @@ namespace EOLib.Data.AccountCreation
 				.Build();
 
 			var response = await _packetSendService.SendEncodedPacketAndWaitAsync(nameCheckPacket);
+			if (IsInvalidResponse(response))
+				throw new EmptyPacketReceivedException();
+
 			return (AccountReply)response.ReadShort();
 		}
 
@@ -77,6 +80,9 @@ namespace EOLib.Data.AccountCreation
 				.Build();
 
 			var response = await _packetSendService.SendEncodedPacketAndWaitAsync(createAccountPacket);
+			if (IsInvalidResponse(response))
+				throw new EmptyPacketReceivedException();
+
 			return (AccountReply) response.ReadShort();
 		}
 
@@ -91,6 +97,11 @@ namespace EOLib.Data.AccountCreation
 				parameters.Location,
 				parameters.Email
 			}.Any(x => x.Length == 0);
+		}
+
+		private bool IsInvalidResponse(IPacket response)
+		{
+			return response.Family != PacketFamily.Account && response.Action != PacketAction.Reply;
 		}
 	}
 }

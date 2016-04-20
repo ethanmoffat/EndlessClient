@@ -4,7 +4,7 @@
 
 using System.Linq;
 
-namespace EOLib.Data.AccountCreation
+namespace EOLib.Data.Account
 {
 	public class CreateAccountParameterValidator : ICreateAccountParameterValidator
 	{
