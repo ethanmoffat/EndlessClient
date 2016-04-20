@@ -16,27 +16,27 @@ namespace EOLib.Net.Connection
 	{
 		private readonly INetworkClientRepository _networkClientRepository;
 		private readonly IConfigurationProvider _configurationProvider;
-		private readonly IPacketQueueProvider _packetQueueProvider;
 		private readonly IHashService _hashService;
 		private readonly IHDSerialNumberService _hdSerialNumberService;
 		private readonly IInitDataGeneratorService _initDataGeneratorService;
 		private readonly INetworkClientFactory _networkClientFactory;
+		private readonly IPacketSendService _packetSendService;
 
 		public NetworkConnectionActions(INetworkClientRepository networkClientRepository,
 										IConfigurationProvider configurationProvider,
-										IPacketQueueProvider packetQueueProvider,
 										IHashService hashService,
 										IHDSerialNumberService hdSerialNumberService,
 										IInitDataGeneratorService initDataGeneratorService,
-										INetworkClientFactory networkClientFactory)
+										INetworkClientFactory networkClientFactory,
+										IPacketSendService packetSendService)
 		{
 			_networkClientRepository = networkClientRepository;
 			_configurationProvider = configurationProvider;
-			_packetQueueProvider = packetQueueProvider;
 			_hashService = hashService;
 			_hdSerialNumberService = hdSerialNumberService;
 			_initDataGeneratorService = initDataGeneratorService;
 			_networkClientFactory = networkClientFactory;
+			_packetSendService = packetSendService;
 		}
 
 		public async Task<ConnectResult> ConnectToServer()
@@ -84,11 +84,7 @@ namespace EOLib.Net.Connection
 				.AddString(hdSerialNumber)
 				.Build();
 
-			var bytes = await Client.SendRawPacketAsync(packet);
-			if (bytes == 0)
-				throw new NoDataSentException();
-
-			var responsePacket = await _packetQueueProvider.PacketQueue.WaitForPacketAndDequeue();
+			var responsePacket = await _packetSendService.SendRawPacketAndWaitAsync(packet);
 			if (IsInvalidInitPacket(responsePacket))
 				throw new EmptyPacketReceivedException();
 
@@ -103,14 +99,12 @@ namespace EOLib.Net.Connection
 				.AddShort((short)initializationData[InitializationDataKey.ClientID])
 				.Build();
 
-			var bytes = Client.Send(packet);
-			if (bytes == 0)
-				throw new NoDataSentException();
+			_packetSendService.SendPacket(packet);
 		}
 
 		private static bool IsInvalidInitPacket(IPacket responsePacket)
 		{
-			return responsePacket is EmptyPacket || (responsePacket.Family != PacketFamily.Init && responsePacket.Action != PacketAction.Init);
+			return responsePacket.Family != PacketFamily.Init && responsePacket.Action != PacketAction.Init;
 		}
 
 		private INetworkClient Client { get { return _networkClientRepository.NetworkClient; } }

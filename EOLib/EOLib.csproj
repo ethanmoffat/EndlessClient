@@ -239,11 +239,13 @@
     <Compile Include="Net\Communication\INetworkClientRepository.cs" />
     <Compile Include="Net\Communication\IBackgroundReceiveActions.cs" />
     <Compile Include="Net\Communication\IPacketQueueRepository.cs" />
+    <Compile Include="Net\Communication\IPacketSendService.cs" />
     <Compile Include="Net\Communication\NetworkClient.cs" />
     <Compile Include="Net\Communication\NetworkClientFactory.cs" />
     <Compile Include="Net\Communication\NoDataSentException.cs" />
     <Compile Include="Net\Communication\PacketHandlerComponent.cs" />
     <Compile Include="IReadOnly2DArray.cs" />
+    <Compile Include="Net\Communication\PacketSendService.cs" />
     <Compile Include="Net\Connection\IInitDataGeneratorService.cs" />
     <Compile Include="Net\Connection\INetworkConnectionActions.cs" />
     <Compile Include="Net\Connection\InitDataGeneratorService.cs" />
