@@ -78,9 +78,11 @@
     <Compile Include="Dialogs\Actions\ErrorDialogDisplayAction.cs" />
     <Compile Include="Dialogs\Actions\IErrorDialogDisplayAction.cs" />
     <Compile Include="Dialogs\Actions\CreateAccountDialogDisplayActions.cs" />
+    <Compile Include="Dialogs\Factories\CreateAccountProgressDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\CreateAccountWarningDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\EOMessageBoxFactory.cs" />
     <Compile Include="Dialogs\Actions\ICreateAccountDialogDisplayActions.cs" />
+    <Compile Include="Dialogs\Factories\ICreateAccountProgressDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\ICreateAccountWarningDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\IEOMessageBoxFactory.cs" />
     <Compile Include="GameExecution\GameStateActions.cs" />
