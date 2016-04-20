@@ -98,7 +98,7 @@
     <Compile Include="Crc.cs" />
     <Compile Include="DataFileConstants.cs" />
     <Compile Include="Data\AccountCreation\CreateAccountActions.cs" />
-    <Compile Include="Data\AccountCreation\CreateAccountParameterException.cs" />
+    <Compile Include="Data\AccountCreation\CreateAccountParameterResult.cs" />
     <Compile Include="Data\AccountCreation\CreateAccountParameters.cs" />
     <Compile Include="Data\AccountCreation\ICreateAccountActions.cs" />
     <Compile Include="Data\BLL\CharacterActionState.cs" />

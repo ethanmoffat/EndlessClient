@@ -6,6 +6,6 @@ namespace EOLib.Data.AccountCreation
 {
 	public interface ICreateAccountActions
 	{
-		void CheckAccountCreateParameters(ICreateAccountParameters createAccountCreateparameters);
+		CreateAccountParameterResult CheckAccountCreateParameters(ICreateAccountParameters createAccountCreateparameters);
 	}
 }

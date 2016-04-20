@@ -15,28 +15,30 @@ namespace EOLib.Data.AccountCreation
 			_createAccountParameterValidator = createAccountParameterValidator;
 		}
 
-		public void CheckAccountCreateParameters(ICreateAccountParameters parameters)
+		public CreateAccountParameterResult CheckAccountCreateParameters(ICreateAccountParameters parameters)
 		{
 			if (AnyFieldsStillEmpty(parameters))
-				throw new CreateAccountParameterException(DATCONST1.ACCOUNT_CREATE_FIELDS_STILL_EMPTY);
+				return new CreateAccountParameterResult(WhichParameter.All, DATCONST1.ACCOUNT_CREATE_FIELDS_STILL_EMPTY);
 
 			if (_createAccountParameterValidator.AccountNameIsNotLongEnough(parameters.AccountName))
-				throw new CreateAccountParameterException(DATCONST1.ACCOUNT_CREATE_NAME_TOO_SHORT);
+				return new CreateAccountParameterResult(WhichParameter.AccountName, DATCONST1.ACCOUNT_CREATE_NAME_TOO_SHORT);
 
 			if (_createAccountParameterValidator.AccountNameIsTooObvious(parameters.AccountName))
-				throw new CreateAccountParameterException(DATCONST1.ACCOUNT_CREATE_NAME_TOO_OBVIOUS);
+				return new CreateAccountParameterResult(WhichParameter.AccountName, DATCONST1.ACCOUNT_CREATE_NAME_TOO_OBVIOUS);
 
 			if (_createAccountParameterValidator.PasswordMismatch(parameters.Password, parameters.ConfirmPassword))
-				throw new CreateAccountParameterException(DATCONST1.ACCOUNT_CREATE_PASSWORD_MISMATCH);
+				return new CreateAccountParameterResult(WhichParameter.Confirm, DATCONST1.ACCOUNT_CREATE_PASSWORD_MISMATCH);
 
 			if (_createAccountParameterValidator.PasswordIsTooShort(parameters.Password))
-				throw new CreateAccountParameterException(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
+				return new CreateAccountParameterResult(WhichParameter.Password, DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
 
 			if (_createAccountParameterValidator.PasswordIsTooObvious(parameters.Password))
-				throw new CreateAccountParameterException(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_OBVIOUS);
+				return new CreateAccountParameterResult(WhichParameter.Password, DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_OBVIOUS);
 
 			if (_createAccountParameterValidator.EmailIsInvalid(parameters.Email))
-				throw new CreateAccountParameterException(DATCONST1.ACCOUNT_CREATE_EMAIL_INVALID);
+				return new CreateAccountParameterResult(WhichParameter.Email, DATCONST1.ACCOUNT_CREATE_EMAIL_INVALID);
+
+			return new CreateAccountParameterResult(WhichParameter.None);
 		}
 
 		private bool AnyFieldsStillEmpty(ICreateAccountParameters parameters)

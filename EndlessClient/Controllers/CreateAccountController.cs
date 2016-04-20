@@ -23,14 +23,11 @@ namespace EndlessClient.Controllers
 
 		public void CreateAccount(ICreateAccountParameters createAccountParameters)
 		{
-			try
-			{
-				_createAccountActions.CheckAccountCreateParameters(createAccountParameters);
-			}
-			catch (CreateAccountParameterException ex)
+			var paramsValidationResult = _createAccountActions.CheckAccountCreateParameters(createAccountParameters);
+			if(paramsValidationResult.FaultingParameter != WhichParameter.None)
 			{
 				_eoMessageBoxFactory.CreateMessageBox(
-					ex.Error,
+					paramsValidationResult.ErrorString,
 					XNADialogButtons.Ok,
 					EOMessageBoxStyle.SmallDialogLargeHeader);
 				return;
