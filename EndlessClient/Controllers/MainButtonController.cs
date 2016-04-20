@@ -51,7 +51,7 @@ namespace EndlessClient.Controllers
 			if (result)
 			{
 				_gameStateActions.ChangeToState(GameStates.CreateAccount);
-				_createAccountDialogDisplayActions.ShowCreateAccountDialog();
+				_createAccountDialogDisplayActions.ShowInitialWarningDialog();
 			}
 		}
 

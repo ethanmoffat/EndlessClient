@@ -12,8 +12,6 @@ namespace EOLib.Data.AccountCreation
 
 		Task<AccountReply> CheckAccountNameWithServer(string accountName);
 
-		Task ShowAccountCreatePendingDialog();
-
 		Task<AccountReply> CreateAccount(ICreateAccountParameters parameters);
 	}
 }

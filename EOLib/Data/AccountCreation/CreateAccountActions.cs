@@ -62,11 +62,6 @@ namespace EOLib.Data.AccountCreation
 			return (AccountReply)response.ReadShort();
 		}
 
-		public async Task ShowAccountCreatePendingDialog()
-		{
-			await Task.Delay(1);
-		}
-
 		public async Task<AccountReply> CreateAccount(ICreateAccountParameters parameters)
 		{
 			var createAccountPacket = new PacketBuilder(PacketFamily.Account, PacketAction.Create)

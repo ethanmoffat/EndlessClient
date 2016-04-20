@@ -4,25 +4,23 @@
 
 using System;
 using System.Threading.Tasks;
-using EndlessClient.Dialogs;
-using EndlessClient.Dialogs.Factories;
+using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EOLib.Data.AccountCreation;
-using XNAControls;
 
 namespace EndlessClient.Controllers
 {
 	public class CreateAccountController : ICreateAccountController
 	{
-		private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+		private readonly ICreateAccountDialogDisplayActions _createAccountDialogDisplayActions;
 		private readonly ICreateAccountActions _createAccountActions;
 		private readonly IGameStateActions _gameStateActions;
 
-		public CreateAccountController(IEOMessageBoxFactory eoMessageBoxFactory,
+		public CreateAccountController(ICreateAccountDialogDisplayActions createAccountDialogDisplayActions,
 									   ICreateAccountActions createAccountActions,
 									   IGameStateActions gameStateActions)
 		{
-			_eoMessageBoxFactory = eoMessageBoxFactory;
+			_createAccountDialogDisplayActions = createAccountDialogDisplayActions;
 			_createAccountActions = createAccountActions;
 			_gameStateActions = gameStateActions;
 		}
@@ -32,35 +30,32 @@ namespace EndlessClient.Controllers
 			var paramsValidationResult = _createAccountActions.CheckAccountCreateParameters(createAccountParameters);
 			if(paramsValidationResult.FaultingParameter != WhichParameter.None)
 			{
-				_eoMessageBoxFactory.CreateMessageBox(
-					paramsValidationResult.ErrorString,
-					XNADialogButtons.Ok,
-					EOMessageBoxStyle.SmallDialogLargeHeader);
+				_createAccountDialogDisplayActions.ShowParameterError(paramsValidationResult);
 				return;
 			}
 
 			var nameResult = await _createAccountActions.CheckAccountNameWithServer(createAccountParameters.AccountName);
 			if (nameResult != AccountReply.Continue)
 			{
-				//show dialog: name exists or name not approved
+				_createAccountDialogDisplayActions.ShowServerError(nameResult);
 				return;
 			}
 
 			try
 			{
-				await _createAccountActions.ShowAccountCreatePendingDialog();
+				await _createAccountDialogDisplayActions.ShowAccountCreatePendingDialog();
 			}
 			catch (OperationCanceledException) { return; }
 
 			var accountResult = await _createAccountActions.CreateAccount(createAccountParameters);
 			if (accountResult != AccountReply.Created)
 			{
-				//show dialog: some error from server, result should always be 'created' here
+				_createAccountDialogDisplayActions.ShowServerError(accountResult);
 				return;
 			}
 
 			_gameStateActions.ChangeToState(GameStates.Initial);
-			//show dialog: your account has been created
+			_createAccountDialogDisplayActions.ShowSuccessMessage();
 		}
 	}
 }
