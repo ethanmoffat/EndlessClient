@@ -21,6 +21,7 @@ namespace EndlessClient.Controllers
 		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
 		private readonly IGameStateActions _gameStateActions;
 		private readonly ICreateAccountDialogDisplayActions _createAccountDialogDisplayActions;
+		private readonly IConnectionStateRepository _connectionStateRepository;
 
 		private int _numberOfConnectionRequests;
 
@@ -29,7 +30,8 @@ namespace EndlessClient.Controllers
 									IPacketProcessorActions packetProcessorActions,
 									IBackgroundReceiveActions backgroundReceiveActions,
 									IGameStateActions gameStateActions,
-									ICreateAccountDialogDisplayActions createAccountDialogDisplayActions)
+									ICreateAccountDialogDisplayActions createAccountDialogDisplayActions,
+									IConnectionStateRepository connectionStateRepository)
 		{
 			_networkConnectionActions = networkConnectionActions;
 			_errorDialogDisplayAction = errorDialogDisplayAction;
@@ -37,6 +39,7 @@ namespace EndlessClient.Controllers
 			_backgroundReceiveActions = backgroundReceiveActions;
 			_gameStateActions = gameStateActions;
 			_createAccountDialogDisplayActions = createAccountDialogDisplayActions;
+			_connectionStateRepository = connectionStateRepository;
 		}
 
 		public void GoToInitialState()
@@ -70,8 +73,7 @@ namespace EndlessClient.Controllers
 
 		public void ClickExit()
 		{
-			_backgroundReceiveActions.CancelBackgroundReceiveLoop();
-			_networkConnectionActions.DisconnectFromServer();
+			StopReceivingAndDisconnect();
 			_gameStateActions.ExitGame();
 		}
 
@@ -82,12 +84,16 @@ namespace EndlessClient.Controllers
 
 			try
 			{
-				var connectResult = await _networkConnectionActions.ConnectToServer();
+				var connectResult = await (_connectionStateRepository.NeedsReconnect ? 
+					_networkConnectionActions.ReconnectToServer() :
+					_networkConnectionActions.ConnectToServer());
+
 				if (connectResult == ConnectResult.AlreadyConnected)
 					return true;
 				if (connectResult != ConnectResult.Success)
 				{
 					_errorDialogDisplayAction.ShowError(connectResult);
+					_connectionStateRepository.NeedsReconnect = true;
 					return false;
 				}
 
@@ -101,17 +107,20 @@ namespace EndlessClient.Controllers
 				catch (NoDataSentException ex)
 				{
 					_errorDialogDisplayAction.ShowException(ex);
+					StopReceivingAndDisconnect();
 					return false;
 				}
 				catch (EmptyPacketReceivedException ex)
 				{
 					_errorDialogDisplayAction.ShowException(ex);
+					StopReceivingAndDisconnect();
 					return false;
 				}
 
 				if (initData.Response != InitReply.Success)
 				{
 					_errorDialogDisplayAction.ShowError(initData);
+					StopReceivingAndDisconnect();
 					return false;
 				}
 
@@ -127,6 +136,13 @@ namespace EndlessClient.Controllers
 			{
 				Interlocked.Exchange(ref _numberOfConnectionRequests, 0);
 			}
+		}
+
+		private void StopReceivingAndDisconnect()
+		{
+			_backgroundReceiveActions.CancelBackgroundReceiveLoop();
+			_networkConnectionActions.DisconnectFromServer();
+			_connectionStateRepository.NeedsReconnect = true; //make this part of DisconnectFromServer?
 		}
 	}
 }
