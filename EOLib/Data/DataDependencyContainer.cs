@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib.Data.Account;
+using EOLib.Data.Login;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.Data
@@ -15,6 +16,7 @@ namespace EOLib.Data
 			container.RegisterType<ICreateAccountParameterValidator, CreateAccountParameterValidator>();
 
 			container.RegisterType<IAccountActions, AccountActions>();
+			container.RegisterType<ILoginActions, LoginActions>();
 		}
 	}
 }

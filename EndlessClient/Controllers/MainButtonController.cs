@@ -142,7 +142,7 @@ namespace EndlessClient.Controllers
 		{
 			_backgroundReceiveActions.CancelBackgroundReceiveLoop();
 			_networkConnectionActions.DisconnectFromServer();
-			_connectionStateRepository.NeedsReconnect = true; //make this part of DisconnectFromServer?
+			_connectionStateRepository.NeedsReconnect = true; //todo make this part of DisconnectFromServer?
 		}
 	}
 }

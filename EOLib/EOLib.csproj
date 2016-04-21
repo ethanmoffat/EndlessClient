@@ -117,7 +117,9 @@
     <Compile Include="Data\INumberEncoderService.cs" />
     <Compile Include="Data\Login\AccountLoginData.cs" />
     <Compile Include="Data\Login\IAccountLoginData.cs" />
+    <Compile Include="Data\Login\ILoginActions.cs" />
     <Compile Include="Data\Login\ILoginParameters.cs" />
+    <Compile Include="Data\Login\LoginActions.cs" />
     <Compile Include="Data\Login\LoginParameters.cs" />
     <Compile Include="Data\Login\LoginReply.cs" />
     <Compile Include="Data\Map\BasicTileInfo.cs" />

@@ -34,6 +34,7 @@ namespace EndlessClient.Controllers
 				return;
 			}
 
+			//todo: add try-catch for send/receive exceptions
 			var nameResult = await _accountActions.CheckAccountNameWithServer(createAccountParameters.AccountName);
 			if (nameResult != AccountReply.Continue)
 			{
@@ -47,6 +48,7 @@ namespace EndlessClient.Controllers
 			}
 			catch (OperationCanceledException) { return; }
 
+			//todo: add try-catch for send/receive exceptions
 			var accountResult = await _accountActions.CreateAccount(createAccountParameters);
 			if (accountResult != AccountReply.Created)
 			{
