@@ -86,6 +86,7 @@ namespace EndlessClient.ControlSets
 			_allComponents.Add(_tbEmail);
 			_allComponents.Add(_btnCreate);
 			_allComponents.Add(_btnCancel);
+			_allComponents.Add(_backButton);
 			_allComponents.Add(_person2Picture);
 
 			var textBoxes = _allComponents.OfType<XNATextBox>().ToArray();
