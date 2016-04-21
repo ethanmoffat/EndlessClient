@@ -36,10 +36,6 @@ namespace EndlessClient
 			container.RegisterType<IKeyboardDispatcherRepository, KeyboardDispatcherRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetProvider, ControlSetRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetRepository, ControlSetRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IMainButtonControllerProvider, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IMainButtonControllerRepository, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICreateAccountControllerProvider, CreateAccountControllerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICreateAccountControllerRepository, CreateAccountControllerRepository>(new ContainerControlledLifetimeManager());
 
 			//provider only
 			container.RegisterType<IClientWindowSizeProvider, ClientWindowSizeProvider>(new ContainerControlledLifetimeManager());
@@ -47,6 +43,15 @@ namespace EndlessClient
 			//controllers
 			container.RegisterType<IMainButtonController, MainButtonController>();
 			container.RegisterType<ICreateAccountController, CreateAccountController>();
+			container.RegisterType<ILoginController, LoginController>();
+			
+			//controller provider/repository (bad hack - avoids circular dependency)
+			container.RegisterType<IMainButtonControllerProvider, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IMainButtonControllerRepository, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ICreateAccountControllerProvider, CreateAccountControllerRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ICreateAccountControllerRepository, CreateAccountControllerRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ILoginControllerProvider, LoginControllerRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ILoginControllerRepository, LoginControllerRepository>(new ContainerControlledLifetimeManager());
 			
 			//actions
 			container.RegisterType<IGameStateActions, GameStateActions>();
@@ -63,10 +68,13 @@ namespace EndlessClient
 			var keyboardDispatcherRepo = container.Resolve<IKeyboardDispatcherRepository>();
 			keyboardDispatcherRepo.Dispatcher = new KeyboardDispatcher(game.Window);
 
+			//part of bad hack to prevent circular dependency
 			var mainButtonControllerRepo = container.Resolve<IMainButtonControllerRepository>();
 			var createAccountControllerRepo = container.Resolve<ICreateAccountControllerRepository>();
+			var loginControllerRepo = container.Resolve<ILoginControllerRepository>();
 			mainButtonControllerRepo.MainButtonController = container.Resolve<IMainButtonController>();
 			createAccountControllerRepo.CreateAccountController = container.Resolve<ICreateAccountController>();
+			loginControllerRepo.LoginController = container.Resolve<ILoginController>();
 		}
 	}
 }

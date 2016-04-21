@@ -2,12 +2,14 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Controllers;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Data.Login;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
@@ -21,8 +23,9 @@ namespace EndlessClient.ControlSets
 	{
 		private readonly KeyboardDispatcher _dispatcher;
 		private readonly IMainButtonController _mainButtonController;
+		private readonly ILoginController _loginController;
 
-		private XNATextBox _tbLogin, _tbPassword;
+		private XNATextBox _tbUsername, _tbPassword;
 		private XNAButton _btnLogin, _btnCancel;
 		private PictureBox _loginPanelBackground;
 
@@ -34,11 +37,13 @@ namespace EndlessClient.ControlSets
 
 		public LoginPromptControlSet(KeyboardDispatcher dispatcher,
 									 IConfigurationProvider configProvider,
-									 IMainButtonController mainButtonController)
+									 IMainButtonController mainButtonController,
+									 ILoginController loginController)
 			: base(configProvider, mainButtonController)
 		{
 			_dispatcher = dispatcher;
 			_mainButtonController = mainButtonController;
+			_loginController = loginController;
 		}
 
 		public override void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
@@ -53,13 +58,13 @@ namespace EndlessClient.ControlSets
 			base.InitializeControlsHelper(currentControlSet);
 
 			_loginPanelBackground = GetControl(currentControlSet, GameControlIdentifier.LoginPanelBackground, GetLoginPanelBackground);
-			_tbLogin = GetControl(currentControlSet, GameControlIdentifier.LoginAccountName, GetLoginUserNameTextBox);
+			_tbUsername = GetControl(currentControlSet, GameControlIdentifier.LoginAccountName, GetLoginUserNameTextBox);
 			_tbPassword = GetControl(currentControlSet, GameControlIdentifier.LoginPassword, GetLoginPasswordTextBox);
 			_btnLogin = GetControl(currentControlSet, GameControlIdentifier.LoginButton, GetLoginAccountButton);
 			_btnCancel = GetControl(currentControlSet, GameControlIdentifier.LoginCancel, GetLoginCancelButton);
 
 			_allComponents.Add(_loginPanelBackground);
-			_allComponents.Add(_tbLogin);
+			_allComponents.Add(_tbUsername);
 			_allComponents.Add(_tbPassword);
 			_allComponents.Add(_btnLogin);
 			_allComponents.Add(_btnCancel);
@@ -69,7 +74,7 @@ namespace EndlessClient.ControlSets
 
 			if (_dispatcher.Subscriber != null)
 				_dispatcher.Subscriber.Selected = false;
-			_dispatcher.Subscriber = _tbLogin;
+			_dispatcher.Subscriber = _tbUsername;
 			_dispatcher.Subscriber.Selected = true;
 		}
 
@@ -78,7 +83,7 @@ namespace EndlessClient.ControlSets
 			switch (control)
 			{
 				case GameControlIdentifier.LoginPanelBackground: return _loginPanelBackground;
-				case GameControlIdentifier.LoginAccountName: return _tbLogin;
+				case GameControlIdentifier.LoginAccountName: return _tbUsername;
 				case GameControlIdentifier.LoginPassword: return _tbPassword;
 				case GameControlIdentifier.LoginButton: return _btnLogin;
 				case GameControlIdentifier.LoginCancel: return _btnCancel;
@@ -120,10 +125,18 @@ namespace EndlessClient.ControlSets
 
 		private XNAButton GetLoginAccountButton()
 		{
-			return new XNAButton(_smallButtonSheet, new Vector2(361, 389), new Rectangle(0, 0, 91, 29), new Rectangle(91, 0, 91, 29))
+			var button = new XNAButton(_smallButtonSheet, new Vector2(361, 389), new Rectangle(0, 0, 91, 29), new Rectangle(91, 0, 91, 29))
 			{
 				DrawOrder = _personPicture.DrawOrder + 2
 			};
+			button.OnClick += DoLogin;
+			return button;
+		}
+
+		private async void DoLogin(object sender, EventArgs e)
+		{
+			var loginParameters = new LoginParameters(_tbUsername.Text, _tbPassword.Text);
+			await _loginController.LoginToAccount(loginParameters);
 		}
 
 		private XNAButton GetLoginCancelButton()

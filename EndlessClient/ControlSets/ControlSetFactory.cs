@@ -20,13 +20,15 @@ namespace EndlessClient.ControlSets
 		private readonly IConfigurationProvider _configProvider;
 		private readonly IMainButtonControllerProvider _mainButtonControllerProvider;
 		private readonly ICreateAccountControllerProvider _createAccountControllerProvider;
+		private readonly ILoginControllerProvider _loginControllerProvider;
 
 		public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
 								 IContentManagerProvider contentManagerProvider,
 								 IKeyboardDispatcherProvider keyboardDispatcherProvider,
 								 IConfigurationProvider configProvider,
 								 IMainButtonControllerProvider mainButtonControllerProvider,
-								 ICreateAccountControllerProvider createAccountControllerProvider)
+								 ICreateAccountControllerProvider createAccountControllerProvider,
+								 ILoginControllerProvider loginControllerProvider)
 		{
 			_nativeGraphicsManager = nativeGraphicsManager;
 			_contentManagerProvider = contentManagerProvider;
@@ -34,6 +36,7 @@ namespace EndlessClient.ControlSets
 			_configProvider = configProvider;
 			_mainButtonControllerProvider = mainButtonControllerProvider;
 			_createAccountControllerProvider = createAccountControllerProvider;
+			_loginControllerProvider = loginControllerProvider;
 		}
 
 		public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -54,8 +57,14 @@ namespace EndlessClient.ControlSets
 						_keyboardDispatcherProvider.Dispatcher,
 						MainButtonController,
 						CreateAccountController);
-				case GameStates.Login: return new LoginPromptControlSet(_keyboardDispatcherProvider.Dispatcher, _configProvider, MainButtonController);
+				case GameStates.Login:
+					return new LoginPromptControlSet(
+						_keyboardDispatcherProvider.Dispatcher,
+						_configProvider, 
+						MainButtonController,
+						LoginController);
 				case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider, MainButtonController);
+				case GameStates.LoggedIn: return new LoggedInControlSet(_keyboardDispatcherProvider.Dispatcher, MainButtonController);
 				default: throw new ArgumentOutOfRangeException("newState", newState, null);
 			}
 		}
@@ -68,6 +77,11 @@ namespace EndlessClient.ControlSets
 		private ICreateAccountController CreateAccountController
 		{
 			get { return _createAccountControllerProvider.CreateAccountController; }
+		}
+
+		private ILoginController LoginController
+		{
+			get { return _loginControllerProvider.LoginController; }
 		}
 	}
 }

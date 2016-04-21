@@ -71,6 +71,8 @@
     <Compile Include="Controllers\ICreateAccountController.cs" />
     <Compile Include="Controllers\ICreateAccountControllerRepository.cs" />
     <Compile Include="Controllers\ILoginController.cs" />
+    <Compile Include="Controllers\ILoginControllerRepository.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="ControlSets\EmptyControlSet.cs" />
     <Compile Include="ControlSets\IControlSetRepository.cs" />
     <Compile Include="Controllers\IMainButtonController.cs" />
