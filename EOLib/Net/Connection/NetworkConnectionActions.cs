@@ -16,6 +16,7 @@ namespace EOLib.Net.Connection
 	public class NetworkConnectionActions : INetworkConnectionActions
 	{
 		private readonly INetworkClientRepository _networkClientRepository;
+		private readonly IConnectionStateRepository _connectionStateRepository;
 		private readonly IConfigurationProvider _configurationProvider;
 		private readonly IHashService _hashService;
 		private readonly IHDSerialNumberService _hdSerialNumberService;
@@ -24,6 +25,7 @@ namespace EOLib.Net.Connection
 		private readonly IPacketSendService _packetSendService;
 
 		public NetworkConnectionActions(INetworkClientRepository networkClientRepository,
+										IConnectionStateRepository connectionStateRepository,
 										IConfigurationProvider configurationProvider,
 										IHashService hashService,
 										IHDSerialNumberService hdSerialNumberService,
@@ -32,6 +34,7 @@ namespace EOLib.Net.Connection
 										IPacketSendService packetSendService)
 		{
 			_networkClientRepository = networkClientRepository;
+			_connectionStateRepository = connectionStateRepository;
 			_configurationProvider = configurationProvider;
 			_hashService = hashService;
 			_hdSerialNumberService = hdSerialNumberService;
@@ -48,7 +51,11 @@ namespace EOLib.Net.Connection
 			var host = _configurationProvider.Host;
 			var port = _configurationProvider.Port;
 
-			return await Client.ConnectToServer(host, port);
+			var result = await Client.ConnectToServer(host, port);
+			if (result != ConnectResult.AlreadyConnected && result != ConnectResult.Success)
+				_connectionStateRepository.NeedsReconnect = true;
+
+			return result;
 		}
 
 		public async Task<ConnectResult> ReconnectToServer()
@@ -68,6 +75,8 @@ namespace EOLib.Net.Connection
 		{
 			if (Client.Connected)
 				Client.Disconnect();
+
+			_connectionStateRepository.NeedsReconnect = true;
 		}
 
 		public async Task<IInitializationData> BeginHandshake()

@@ -21,7 +21,7 @@ namespace EndlessClient.Controllers
 		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
 		private readonly IGameStateActions _gameStateActions;
 		private readonly ICreateAccountDialogDisplayActions _createAccountDialogDisplayActions;
-		private readonly IConnectionStateRepository _connectionStateRepository;
+		private readonly IConnectionStateProvider _connectionStateProvider;
 
 		private int _numberOfConnectionRequests;
 
@@ -31,7 +31,7 @@ namespace EndlessClient.Controllers
 									IBackgroundReceiveActions backgroundReceiveActions,
 									IGameStateActions gameStateActions,
 									ICreateAccountDialogDisplayActions createAccountDialogDisplayActions,
-									IConnectionStateRepository connectionStateRepository)
+									IConnectionStateProvider connectionStateProvider)
 		{
 			_networkConnectionActions = networkConnectionActions;
 			_errorDialogDisplayAction = errorDialogDisplayAction;
@@ -39,7 +39,7 @@ namespace EndlessClient.Controllers
 			_backgroundReceiveActions = backgroundReceiveActions;
 			_gameStateActions = gameStateActions;
 			_createAccountDialogDisplayActions = createAccountDialogDisplayActions;
-			_connectionStateRepository = connectionStateRepository;
+			_connectionStateProvider = connectionStateProvider;
 		}
 
 		public void GoToInitialState()
@@ -84,7 +84,7 @@ namespace EndlessClient.Controllers
 
 			try
 			{
-				var connectResult = await (_connectionStateRepository.NeedsReconnect ? 
+				var connectResult = await (_connectionStateProvider.NeedsReconnect ? 
 					_networkConnectionActions.ReconnectToServer() :
 					_networkConnectionActions.ConnectToServer());
 
@@ -93,7 +93,6 @@ namespace EndlessClient.Controllers
 				if (connectResult != ConnectResult.Success)
 				{
 					_errorDialogDisplayAction.ShowError(connectResult);
-					_connectionStateRepository.NeedsReconnect = true;
 					return false;
 				}
 
@@ -142,7 +141,6 @@ namespace EndlessClient.Controllers
 		{
 			_backgroundReceiveActions.CancelBackgroundReceiveLoop();
 			_networkConnectionActions.DisconnectFromServer();
-			_connectionStateRepository.NeedsReconnect = true; //todo make this part of DisconnectFromServer?
 		}
 	}
 }
