@@ -4,6 +4,7 @@
 
 using System;
 using EndlessClient.Controllers;
+using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -48,7 +49,7 @@ namespace EndlessClient.ControlSets
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
 		{
-			_btnCreate = GetControl(currentControlSet, GameControlIdentifier.CreateAccountButton, () => GetCreateButton(false));
+			_btnCreate = GetControl(currentControlSet, GameControlIdentifier.CreateAccountButton, GetCreateButton);
 			_backButton = GetControl(currentControlSet, GameControlIdentifier.BackButton, GetBackButton);
 			_person2Picture = GetControl(currentControlSet, GameControlIdentifier.PersonDisplay2, GetPerson2Picture);
 
@@ -68,16 +69,9 @@ namespace EndlessClient.ControlSets
 			}
 		}
 
-		/// <summary>
-		/// Gets a button with the text "Create"
-		/// </summary>
-		/// <param name="isCreateCharacterButton">
-		/// True if this create button should create a character on click,
-		/// false if it should create an account
-		/// </param>
-		/// <returns>The button control (with no click event hooked up)</returns>
-		protected virtual XNAButton GetCreateButton(bool isCreateCharacterButton)
+		protected virtual XNAButton GetCreateButton()
 		{
+			var isCreateCharacterButton = GameState == GameStates.LoggedIn;
 			var button = new XNAButton(_secondaryButtonTexture,
 									   new Vector2(isCreateCharacterButton ? 334 : 359, 417),
 									   new Rectangle(0, 0, 120, 40),

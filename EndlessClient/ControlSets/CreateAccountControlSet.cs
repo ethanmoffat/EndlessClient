@@ -193,9 +193,9 @@ namespace EndlessClient.ControlSets
 			return labelsPanel;
 		}
 
-		protected override XNAButton GetCreateButton(bool isCreateCharacterButton)
+		protected override XNAButton GetCreateButton()
 		{
-			var button = base.GetCreateButton(isCreateCharacterButton);
+			var button = base.GetCreateButton();
 			button.OnClick += DoCreateAccount;
 			return button;
 		}
