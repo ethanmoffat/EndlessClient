@@ -103,6 +103,7 @@
     <Compile Include="UIControls\CreateCharacterControl.cs" />
     <Compile Include="ControlSets\IControlSetFactory.cs" />
     <Compile Include="Input\TextboxClickEventHandler.cs" />
+    <Compile Include="UIControls\DisposablePictureBox.cs" />
     <Compile Include="UIControls\PictureBox.cs" />
     <Compile Include="UIControls\ScrollBar.cs" />
     <Compile Include="Input\TextBoxTabEventHandler.cs" />

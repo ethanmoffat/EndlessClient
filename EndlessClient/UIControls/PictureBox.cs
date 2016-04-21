@@ -10,7 +10,7 @@ namespace EndlessClient.UIControls
 {
 	public class PictureBox : XNAControl
 	{
-		private Texture2D _displayPicture;
+		protected Texture2D _displayPicture;
 
 		public PictureBox(Texture2D displayPicture, XNAControl parent = null)
 			: base(null, null, parent)
