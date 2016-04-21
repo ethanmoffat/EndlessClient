@@ -8,6 +8,7 @@ using EndlessClient.GameExecution;
 using EOLib.Data.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using EOLib.Net.Connection;
 
 namespace EndlessClient.Controllers
 {
@@ -16,14 +17,20 @@ namespace EndlessClient.Controllers
 		private readonly ILoginActions _loginActions;
 		private readonly IGameStateActions _gameStateActions;
 		private readonly IErrorDialogDisplayAction _errorDisplayAction;
+		private readonly INetworkConnectionActions _networkConnectionActions;
+		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
 
 		public LoginController(ILoginActions loginActions,
 							   IGameStateActions gameStateActions,
-							   IErrorDialogDisplayAction errorDisplayAction)
+							   IErrorDialogDisplayAction errorDisplayAction,
+							   INetworkConnectionActions networkConnectionActions,
+							   IBackgroundReceiveActions backgroundReceiveActions)
 		{
 			_loginActions = loginActions;
 			_gameStateActions = gameStateActions;
 			_errorDisplayAction = errorDisplayAction;
+			_networkConnectionActions = networkConnectionActions;
+			_backgroundReceiveActions = backgroundReceiveActions;
 		}
 
 		public async Task LoginToAccount(ILoginParameters loginParameters)
@@ -39,21 +46,20 @@ namespace EndlessClient.Controllers
 			}
 			catch (EmptyPacketReceivedException)
 			{
-				//todo: make sure disconnect mechanics are handled correctly here
-				_errorDisplayAction.ShowError(ConnectResult.SocketError);
-				_gameStateActions.ChangeToState(GameStates.Initial);
+				SetInitialStateAndShowError();
+				DisconnectAndStopReceiving();
 				return;
 			}
 			catch (NoDataSentException)
 			{
-				_errorDisplayAction.ShowError(ConnectResult.SocketError);
-				_gameStateActions.ChangeToState(GameStates.Initial);
+				SetInitialStateAndShowError();
+				DisconnectAndStopReceiving();
 				return;
 			}
 			catch (MalformedPacketException)
 			{
-				_errorDisplayAction.ShowError(ConnectResult.SocketError);
-				_gameStateActions.ChangeToState(GameStates.Initial);
+				SetInitialStateAndShowError();
+				DisconnectAndStopReceiving();
 				return;
 			}
 
@@ -63,13 +69,25 @@ namespace EndlessClient.Controllers
 			}
 			else
 			{
-				//show correct login response dialog
+				//todo show correct login response dialog
 			}
 		}
 
 		public async Task LoginToCharacter()
 		{
 			throw new System.NotImplementedException();
+		}
+
+		private void SetInitialStateAndShowError()
+		{
+			_gameStateActions.ChangeToState(GameStates.Initial);
+			_errorDisplayAction.ShowError(ConnectResult.SocketError);
+		}
+
+		private void DisconnectAndStopReceiving()
+		{
+			_backgroundReceiveActions.CancelBackgroundReceiveLoop();
+			_networkConnectionActions.DisconnectFromServer();
 		}
 	}
 }

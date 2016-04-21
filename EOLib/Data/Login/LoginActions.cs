@@ -37,6 +37,7 @@ namespace EOLib.Data.Login
 			var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
 			if (IsInvalidResponse(response))
 				throw new EmptyPacketReceivedException();
+
 			return _loginPacketTranslator.TranslatePacket(response);
 		}
 
