@@ -115,6 +115,7 @@
     <Compile Include="Data\INumberEncoderService.cs" />
     <Compile Include="Data\Login\ILoginParameters.cs" />
     <Compile Include="Data\Login\LoginParameters.cs" />
+    <Compile Include="Data\Login\LoginReply.cs" />
     <Compile Include="Data\Map\BasicTileInfo.cs" />
     <Compile Include="Data\Map\IMapElement.cs" />
     <Compile Include="Data\Map\ITileInfo.cs" />

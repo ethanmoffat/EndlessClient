@@ -3,19 +3,10 @@
 // For additional details, see the LICENSE file
 
 using System.Threading;
+using EOLib.Data.Login;
 
 namespace EOLib.Net.API
 {
-	public enum LoginReply : short
-	{
-		WrongUser = 1,
-		WrongUserPass = 2,
-		Ok = 3,
-		LoggedIn = 5,
-		Busy = 6,
-		THIS_IS_WRONG = 255
-	}
-
 	partial class PacketAPI
 	{
 		private AutoResetEvent m_login_responseEvent;
