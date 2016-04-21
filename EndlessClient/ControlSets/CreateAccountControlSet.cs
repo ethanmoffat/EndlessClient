@@ -19,15 +19,11 @@ using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
-	public class CreateAccountControlSet : BaseControlSet
+	public class CreateAccountControlSet : IntermediateControlSet
 	{
-		private readonly KeyboardDispatcher _dispatcher;
-		private readonly IMainButtonController _mainButtonController;
 		private readonly ICreateAccountController _createAccountController;
-		private readonly Texture2D[] _personSet2;
-		private readonly Random _randomGen;
 
-		private Texture2D _backButtonTexture, _labelsTexture;
+		private Texture2D _labelsTexture;
 
 		private XNATextBox _tbAccountName,
 						   _tbPassword,
@@ -35,13 +31,13 @@ namespace EndlessClient.ControlSets
 						   _tbRealName,
 						   _tbLocation,
 						   _tbEmail;
-		private XNAButton _btnCreate,
-						  _btnCancel,
-						  _backButton;
+
+		private XNAButton _btnCancel;
+
 		private XNAPanel _labels;
-		private PictureBox _person2Picture;
 
 		private TextBoxClickEventHandler _clickHandler;
+
 		private TextBoxTabEventHandler _tabHandler;
 
 		public override GameStates GameState { get { return GameStates.CreateAccount; } }
@@ -49,22 +45,15 @@ namespace EndlessClient.ControlSets
 		public CreateAccountControlSet(KeyboardDispatcher dispatcher,
 									   IMainButtonController mainButtonController,
 									   ICreateAccountController createAccountController)
+			: base(dispatcher, mainButtonController)
 		{
-			_dispatcher = dispatcher;
-			_mainButtonController = mainButtonController;
 			_createAccountController = createAccountController;
-			_personSet2 = new Texture2D[8];
-			_randomGen = new Random();
 		}
 
 		public override void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
 		{
 			base.InitializeResources(gfxManager, xnaContentManager);
 
-			for (int i = 0; i < _personSet2.Length; ++i)
-				_personSet2[i] = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 61 + i, true);
-
-			_backButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 24, true);
 			_labelsTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 12, true);
 		}
 
@@ -76,11 +65,8 @@ namespace EndlessClient.ControlSets
 			_tbRealName = GetControl(currentControlSet, GameControlIdentifier.CreateAccountRealName, GetCreateAccountRealNameTextBox);
 			_tbLocation = GetControl(currentControlSet, GameControlIdentifier.CreateAccountLocation, GetCreateAccountLocationTextBox);
 			_tbEmail = GetControl(currentControlSet, GameControlIdentifier.CreateAccountEmail, GetCreateAccountEmailTextBox);
-			_btnCreate = GetControl(currentControlSet, GameControlIdentifier.CreateAccountButton, () => GetCreateButton(false));
 			_btnCancel = GetControl(currentControlSet, GameControlIdentifier.CreateAccountCancelButton, GetCreateAccountCancelButton);
-			_backButton = GetControl(currentControlSet, GameControlIdentifier.BackButton, GetBackButton);
 			_labels = GetControl(currentControlSet, GameControlIdentifier.CreateAccountLabels, GetCreateAccountLabels);
-			_person2Picture = GetControl(currentControlSet, GameControlIdentifier.PersonDisplay2, GetPerson2Picture);
 
 			_allComponents.Add(_tbAccountName);
 			_allComponents.Add(_tbPassword);
@@ -88,11 +74,8 @@ namespace EndlessClient.ControlSets
 			_allComponents.Add(_tbRealName);
 			_allComponents.Add(_tbLocation);
 			_allComponents.Add(_tbEmail);
-			_allComponents.Add(_btnCreate);
 			_allComponents.Add(_btnCancel);
-			_allComponents.Add(_backButton);
 			_allComponents.Add(_labels);
-			_allComponents.Add(_person2Picture);
 
 			var textBoxes = _allComponents.OfType<XNATextBox>().ToArray();
 			_clickHandler = new TextBoxClickEventHandler(_dispatcher, textBoxes);
@@ -102,6 +85,8 @@ namespace EndlessClient.ControlSets
 				_dispatcher.Subscriber.Selected = false;
 			_dispatcher.Subscriber = _tbAccountName;
 			_dispatcher.Subscriber.Selected = true;
+
+			base.InitializeControlsHelper(currentControlSet);
 		}
 
 		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
@@ -115,10 +100,7 @@ namespace EndlessClient.ControlSets
 				case GameControlIdentifier.CreateAccountRealName: return _tbRealName;
 				case GameControlIdentifier.CreateAccountLocation: return _tbLocation;
 				case GameControlIdentifier.CreateAccountEmail: return _tbEmail;
-				case GameControlIdentifier.CreateAccountButton: return _btnCreate;
 				case GameControlIdentifier.CreateAccountCancelButton: return _btnCancel;
-				case GameControlIdentifier.BackButton: return _backButton;
-				case GameControlIdentifier.PersonDisplay2: return _person2Picture;
 				default: return base.FindComponentByControlIdentifier(control);
 			}
 		}
@@ -188,16 +170,6 @@ namespace EndlessClient.ControlSets
 			};
 		}
 
-		private XNAButton GetCreateButton(bool isCreateCharacterButton)
-		{
-			var button = new XNAButton(_secondaryButtonTexture,
-									   new Vector2(isCreateCharacterButton ? 334 : 359, 417),
-									   new Rectangle(0, 0, 120, 40),
-									   new Rectangle(120, 0, 120, 40));
-			button.OnClick += DoCreateAccount;
-			return button;
-		}
-
 		private XNAButton GetCreateAccountCancelButton()
 		{
 			var button = new XNAButton(_secondaryButtonTexture,
@@ -205,22 +177,6 @@ namespace EndlessClient.ControlSets
 									   new Rectangle(0, 40, 120, 40),
 									   new Rectangle(120, 40, 120, 40));
 			button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
-			return button;
-		}
-
-		private XNAButton GetBackButton()
-		{
-			var button = new XNAButton(
-				_backButtonTexture,
-				new Vector2(589, 0),
-				new Rectangle(0, 0, _backButtonTexture.Width, _backButtonTexture.Height/2),
-				new Rectangle(0, _backButtonTexture.Height/2, _backButtonTexture.Width, _backButtonTexture.Height/2))
-			{
-				DrawOrder = 100,
-				ClickArea = new Rectangle(4, 16, 16, 16)
-			};
-			button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
-
 			return button;
 		}
 
@@ -237,10 +193,11 @@ namespace EndlessClient.ControlSets
 			return labelsPanel;
 		}
 
-		private PictureBox GetPerson2Picture()
+		protected override XNAButton GetCreateButton(bool isCreateCharacterButton)
 		{
-			var texture = _personSet2[_randomGen.Next(8)];
-			return new PictureBox(texture) { DrawLocation = new Vector2(43, 140) };
+			var button = base.GetCreateButton(false);
+			button.OnClick += DoCreateAccount;
+			return button;
 		}
 
 		private void DoCreateAccount(object sender, EventArgs e)
