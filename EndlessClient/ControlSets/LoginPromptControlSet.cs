@@ -20,6 +20,7 @@ namespace EndlessClient.ControlSets
 	public class LoginPromptControlSet : InitialControlSet
 	{
 		private readonly KeyboardDispatcher _dispatcher;
+		private readonly IMainButtonController _mainButtonController;
 
 		private XNATextBox _tbLogin, _tbPassword;
 		private XNAButton _btnLogin, _btnCancel;
@@ -37,6 +38,7 @@ namespace EndlessClient.ControlSets
 			: base(configProvider, mainButtonController)
 		{
 			_dispatcher = dispatcher;
+			_mainButtonController = mainButtonController;
 		}
 
 		public override void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
@@ -126,10 +128,12 @@ namespace EndlessClient.ControlSets
 
 		private XNAButton GetLoginCancelButton()
 		{
-			return new XNAButton(_smallButtonSheet, new Vector2(453, 389), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29))
+			var button = new XNAButton(_smallButtonSheet, new Vector2(453, 389), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29))
 			{
 				DrawOrder = _personPicture.DrawOrder + 2
 			};
+			button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
+			return button;
 		}
 
 		protected override void Dispose(bool disposing)
