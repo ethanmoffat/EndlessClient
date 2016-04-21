@@ -7,6 +7,7 @@ using System.Linq;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
+using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Data.Account;
@@ -26,7 +27,7 @@ namespace EndlessClient.ControlSets
 		private readonly Texture2D[] _personSet2;
 		private readonly Random _randomGen;
 
-		private Texture2D _backButtonTexture;
+		private Texture2D _backButtonTexture, _labelsTexture;
 
 		private XNATextBox _tbAccountName,
 						   _tbPassword,
@@ -37,6 +38,7 @@ namespace EndlessClient.ControlSets
 		private XNAButton _btnCreate,
 						  _btnCancel,
 						  _backButton;
+		private XNAPanel _labels;
 		private PictureBox _person2Picture;
 
 		private TextBoxClickEventHandler _clickHandler;
@@ -63,6 +65,7 @@ namespace EndlessClient.ControlSets
 				_personSet2[i] = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 61 + i, true);
 
 			_backButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 24, true);
+			_labelsTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 12, true);
 		}
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
@@ -76,6 +79,7 @@ namespace EndlessClient.ControlSets
 			_btnCreate = GetControl(currentControlSet, GameControlIdentifier.CreateAccountButton, () => GetCreateButton(false));
 			_btnCancel = GetControl(currentControlSet, GameControlIdentifier.CreateAccountCancelButton, GetCreateAccountCancelButton);
 			_backButton = GetControl(currentControlSet, GameControlIdentifier.BackButton, GetBackButton);
+			_labels = GetControl(currentControlSet, GameControlIdentifier.CreateAccountLabels, GetCreateAccountLabels);
 			_person2Picture = GetControl(currentControlSet, GameControlIdentifier.PersonDisplay2, GetPerson2Picture);
 
 			_allComponents.Add(_tbAccountName);
@@ -87,6 +91,7 @@ namespace EndlessClient.ControlSets
 			_allComponents.Add(_btnCreate);
 			_allComponents.Add(_btnCancel);
 			_allComponents.Add(_backButton);
+			_allComponents.Add(_labels);
 			_allComponents.Add(_person2Picture);
 
 			var textBoxes = _allComponents.OfType<XNATextBox>().ToArray();
@@ -103,7 +108,7 @@ namespace EndlessClient.ControlSets
 		{
 			switch (control)
 			{
-				case GameControlIdentifier.CreateAccountLabels: return null; //todo
+				case GameControlIdentifier.CreateAccountLabels: return _labels;
 				case GameControlIdentifier.CreateAccountName: return _tbAccountName;
 				case GameControlIdentifier.CreateAccountPassword: return _tbPassword;
 				case GameControlIdentifier.CreateAccountPasswordConfirm: return _tbConfirm;
@@ -217,6 +222,19 @@ namespace EndlessClient.ControlSets
 			button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
 
 			return button;
+		}
+
+		private XNAPanel GetCreateAccountLabels()
+		{
+			var labelsPanel = new XNAPanel();
+			for (int srcYIndex = 0; srcYIndex < 6; ++srcYIndex)
+			{
+				var lblpos = new Vector2(358, (srcYIndex < 3 ? 50 : 241) + srcYIndex % 3 * 51);
+				var labelTexture = new SpriteSheet(_labelsTexture, new Rectangle(0, srcYIndex * (srcYIndex < 2 ? 14 : 15), 149, 15));
+				var texturePictureBox = new DisposablePictureBox(labelTexture.GetSourceTexture()) { DrawLocation = lblpos };
+				labelsPanel.AddControl(texturePictureBox);
+			}
+			return labelsPanel;
 		}
 
 		private PictureBox GetPerson2Picture()
