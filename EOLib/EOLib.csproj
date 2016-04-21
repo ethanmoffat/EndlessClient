@@ -113,6 +113,8 @@
     <Compile Include="Data\DataDependencyContainer.cs" />
     <Compile Include="Data\Account\ICreateAccountParameters.cs" />
     <Compile Include="Data\INumberEncoderService.cs" />
+    <Compile Include="Data\Login\ILoginParameters.cs" />
+    <Compile Include="Data\Login\LoginParameters.cs" />
     <Compile Include="Data\Map\BasicTileInfo.cs" />
     <Compile Include="Data\Map\IMapElement.cs" />
     <Compile Include="Data\Map\ITileInfo.cs" />
