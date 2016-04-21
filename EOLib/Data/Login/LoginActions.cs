@@ -42,7 +42,7 @@ namespace EOLib.Data.Login
 
 		private bool IsInvalidResponse(IPacket response)
 		{
-			return response.Family != PacketFamily.Login && response.Action != PacketAction.Reply;
+			return response.Family != PacketFamily.Login || response.Action != PacketAction.Reply;
 		}
 	}
 }

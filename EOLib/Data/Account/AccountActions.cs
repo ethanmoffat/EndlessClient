@@ -116,7 +116,7 @@ namespace EOLib.Data.Account
 
 		private bool IsInvalidResponse(IPacket response)
 		{
-			return response.Family != PacketFamily.Account && response.Action != PacketAction.Reply;
+			return response.Family != PacketFamily.Account || response.Action != PacketAction.Reply;
 		}
 	}
 }

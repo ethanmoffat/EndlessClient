@@ -114,7 +114,7 @@ namespace EOLib.Net.Connection
 
 		private static bool IsInvalidInitPacket(IPacket responsePacket)
 		{
-			return responsePacket.Family != PacketFamily.Init && responsePacket.Action != PacketAction.Init;
+			return responsePacket.Family != PacketFamily.Init || responsePacket.Action != PacketAction.Init;
 		}
 
 		private INetworkClient Client { get { return _networkClientRepository.NetworkClient; } }
