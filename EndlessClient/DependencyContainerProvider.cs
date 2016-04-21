@@ -7,6 +7,7 @@ using EOLib.Data;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net;
+using EOLib.Net.Translators;
 
 namespace EndlessClient
 {
@@ -19,6 +20,7 @@ namespace EndlessClient
 			new GraphicsDependencyContainer(),
 			new IODependencyContainer(),
 			new NetworkDependencyContainer(),
+			new PacketTranslatorContainer(),
 
 			//EndlessClient containers
 			new EndlessClientDependencyContainer(),

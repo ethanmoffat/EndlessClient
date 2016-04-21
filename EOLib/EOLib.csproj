@@ -253,9 +253,8 @@
     <Compile Include="IReadOnly2DArray.cs" />
     <Compile Include="Net\Communication\PacketSendService.cs" />
     <Compile Include="Net\Connection\IConnectionStateRepository.cs" />
-    <Compile Include="Net\Connection\IInitDataGeneratorService.cs" />
     <Compile Include="Net\Connection\INetworkConnectionActions.cs" />
-    <Compile Include="Net\Connection\InitDataGeneratorService.cs" />
+    <Compile Include="Net\Translators\InitDataTranslator.cs" />
     <Compile Include="Net\Connection\NetworkConnectionActions.cs" />
     <Compile Include="Net\NetworkDependencyContainer.cs" />
     <Compile Include="Net\PacketProcessing\HashService.cs" />
@@ -284,6 +283,8 @@
     <Compile Include="Net\OldPacket.cs" />
     <Compile Include="Net\PacketProcessing\PacketEncoderService.cs" />
     <Compile Include="Net\Communication\PacketQueue.cs" />
+    <Compile Include="Net\Translators\IPacketTranslator.cs" />
+    <Compile Include="Net\Translators\PacketTranslatorContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Array2D.cs" />
     <Compile Include="Win32.cs" />

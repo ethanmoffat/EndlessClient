@@ -6,11 +6,11 @@ using System;
 using System.IO;
 using EOLib.Data.Protocol;
 
-namespace EOLib.Net.Connection
+namespace EOLib.Net.Translators
 {
-	public class InitDataGeneratorService : IInitDataGeneratorService
+	public class InitDataTranslator : IPacketTranslator<IInitializationData>
 	{
-		public IInitializationData GetInitData(IPacket packet)
+		public IInitializationData TranslatePacket(IPacket packet)
 		{
 			var response = (InitReply) packet.ReadByte();
 			switch (response)

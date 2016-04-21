@@ -2,12 +2,10 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EOLib.Data.Protocol;
-
-namespace EOLib.Net.Connection
+namespace EOLib.Net.Translators
 {
-	public interface IInitDataGeneratorService
+	public interface IPacketTranslator<out T>
 	{
-		IInitializationData GetInitData(IPacket packet);
+		T TranslatePacket(IPacket packet);
 	}
 }

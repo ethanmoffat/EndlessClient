@@ -15,7 +15,6 @@ namespace EOLib.Net
 		{
 			container.RegisterType<IPacketEncoderService, PacketEncoderService>();
 			container.RegisterType<IPacketSequenceService, PacketSequenceService>();
-			container.RegisterType<IInitDataGeneratorService, InitDataGeneratorService>();
 			container.RegisterType<IHashService, HashService>();
 			container.RegisterType<IPacketSendService, PacketSendService>();
 			//the repository is a "disposer" of the NetworkClient (so NetworkClient gets cleaned up later if it is set)

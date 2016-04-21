@@ -9,6 +9,7 @@ using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using EOLib.Net.Communication;
 using EOLib.Net.PacketProcessing;
+using EOLib.Net.Translators;
 
 namespace EOLib.Net.Connection
 {
@@ -18,7 +19,7 @@ namespace EOLib.Net.Connection
 		private readonly IConfigurationProvider _configurationProvider;
 		private readonly IHashService _hashService;
 		private readonly IHDSerialNumberService _hdSerialNumberService;
-		private readonly IInitDataGeneratorService _initDataGeneratorService;
+		private readonly IPacketTranslator<IInitializationData> _initPacketTranslator;
 		private readonly INetworkClientFactory _networkClientFactory;
 		private readonly IPacketSendService _packetSendService;
 
@@ -26,7 +27,7 @@ namespace EOLib.Net.Connection
 										IConfigurationProvider configurationProvider,
 										IHashService hashService,
 										IHDSerialNumberService hdSerialNumberService,
-										IInitDataGeneratorService initDataGeneratorService,
+										IPacketTranslator<IInitializationData> initPacketTranslator,
 										INetworkClientFactory networkClientFactory,
 										IPacketSendService packetSendService)
 		{
@@ -34,7 +35,7 @@ namespace EOLib.Net.Connection
 			_configurationProvider = configurationProvider;
 			_hashService = hashService;
 			_hdSerialNumberService = hdSerialNumberService;
-			_initDataGeneratorService = initDataGeneratorService;
+			_initPacketTranslator = initPacketTranslator;
 			_networkClientFactory = networkClientFactory;
 			_packetSendService = packetSendService;
 		}
@@ -88,7 +89,7 @@ namespace EOLib.Net.Connection
 			if (IsInvalidInitPacket(responsePacket))
 				throw new EmptyPacketReceivedException();
 
-			return _initDataGeneratorService.GetInitData(responsePacket);
+			return _initPacketTranslator.TranslatePacket(responsePacket);
 		}
 
 		public void CompleteHandshake(IInitializationData initializationData)
