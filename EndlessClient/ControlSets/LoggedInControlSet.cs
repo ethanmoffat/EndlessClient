@@ -12,6 +12,8 @@ namespace EndlessClient.ControlSets
 {
 	public class LoggedInControlSet : IntermediateControlSet
 	{
+		private XNAButton _changePasswordButton;
+
 		public override GameStates GameState
 		{
 			get { return GameStates.LoggedIn; }
@@ -27,6 +29,7 @@ namespace EndlessClient.ControlSets
 		{
 			base.InitializeControlsHelper(currentControlSet);
 
+			_changePasswordButton = GetControl(currentControlSet, GameControlIdentifier.ChangePasswordButton, GetPasswordButton);
 			//login panels
 			//password change button
 		}
@@ -37,13 +40,22 @@ namespace EndlessClient.ControlSets
 			{
 				case GameControlIdentifier.Character1Panel:
 				case GameControlIdentifier.Character2Panel:
-				case GameControlIdentifier.Character3Panel:
-				case GameControlIdentifier.ChangePasswordButton: return null;
+				case GameControlIdentifier.Character3Panel: return null;
+				case GameControlIdentifier.ChangePasswordButton: return _changePasswordButton;
 				default: return base.FindComponentByControlIdentifier(control);
 			}
 		}
 
-		protected override XNAButton GetCreateButton(bool isCreateCharacterButton)
+		private XNAButton GetPasswordButton()
+		{
+			var button = new XNAButton(_secondaryButtonTexture,
+				new Vector2(454, 417),
+				new Rectangle(0, 120, 120, 40),
+				new Rectangle(120, 120, 120, 40));
+			//button.OnClick += ...
+			return button;
+		}
+
 		protected override XNAButton GetCreateButton()
 		{
 			var button = base.GetCreateButton();
