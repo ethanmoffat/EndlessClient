@@ -50,6 +50,7 @@ namespace EndlessClient
 			container.RegisterType<IMainButtonController, MainButtonController>();
 			container.RegisterType<ICreateAccountController, CreateAccountController>();
 			container.RegisterType<ILoginController, LoginController>();
+			container.RegisterType<ICharacterManagementController, CharacterManagementController>();
 			
 			//controller provider/repository (bad hack - avoids circular dependency)
 			container.RegisterType<IMainButtonControllerProvider, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());

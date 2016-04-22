@@ -67,7 +67,9 @@
     <Compile Include="Audio\WAVFileValidator.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="CharacterStateTest.cs" />
+    <Compile Include="Controllers\CharacterManagementController.cs" />
     <Compile Include="Controllers\CreateAccountController.cs" />
+    <Compile Include="Controllers\ICharacterManagementController.cs" />
     <Compile Include="Controllers\ICreateAccountController.cs" />
     <Compile Include="Controllers\ICreateAccountControllerRepository.cs" />
     <Compile Include="Controllers\ILoginController.cs" />

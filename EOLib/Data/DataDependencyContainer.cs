@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib.Data.Account;
+using EOLib.Data.Character;
 using EOLib.Data.Login;
 using Microsoft.Practices.Unity;
 
@@ -17,6 +18,7 @@ namespace EOLib.Data
 
 			container.RegisterType<IAccountActions, AccountActions>();
 			container.RegisterType<ILoginActions, LoginActions>();
+			container.RegisterType<ICharacterManagementActions, CharacterManagementActions>();
 
 			container.RegisterType<ICharacterSelectorRepository, CharacterSelectorRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ICharacterSelectorProvider, CharacterSelectorRepository>(new ContainerControlledLifetimeManager());
