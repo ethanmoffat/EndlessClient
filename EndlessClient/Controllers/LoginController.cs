@@ -70,7 +70,7 @@ namespace EndlessClient.Controllers
 
 		public async Task LoginToCharacter()
 		{
-			throw new System.NotImplementedException();
+			await Task.FromResult(false);
 		}
 
 		private void SetInitialStateAndShowError()

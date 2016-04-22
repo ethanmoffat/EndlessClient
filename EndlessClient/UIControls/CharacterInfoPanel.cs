@@ -12,37 +12,46 @@ using EOLib.Data.BLL;
 using EOLib.Graphics;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
 namespace EndlessClient.UIControls
 {
 	public class CharacterInfoPanel : XNAControl
 	{
+		private readonly INativeGraphicsManager _gfxManager;
 		private readonly ICharacter _character;
 		private readonly ILoginController _loginController;
 		private readonly CharacterControl _characterControl;
 		private readonly ISpriteSheet _adminGraphic;
+
+		private readonly Texture2D _backgroundImage;
 
 		private readonly XNAButton _loginButton, _deleteButton;
 
 		//top left - 334, 36 + ndx*124
 		protected CharacterInfoPanel(int characterIndex, INativeGraphicsManager gfxManager)
 		{
+			_gfxManager = gfxManager;
 			DrawLocation = new Vector2(334, 36 + characterIndex*124);
 
-			var smallButtonTextures = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
+			var smallButtonTextures = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
 
 			_loginButton = new XNAButton(smallButtonTextures,
 				new Vector2(161, 57),
 				new Rectangle(0, 58, 91, 29),
 				new Rectangle(91, 58, 91, 29));
 			_loginButton.OnClick += async (o, e) => await LoginButtonClick();
+			_loginButton.SetParent(this);
 
 			_deleteButton = new XNAButton(smallButtonTextures,
 				new Vector2(161, 85),
 				new Rectangle(0, 87, 91, 29),
 				new Rectangle(91, 87, 91, 29));
 			_deleteButton.OnClick += async (o, e) => await DeleteButtonClick();
+			_deleteButton.SetParent(this);
+
+			_backgroundImage = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 11);
 		}
 
 		public CharacterInfoPanel(int characterIndex,
@@ -101,6 +110,10 @@ namespace EndlessClient.UIControls
 			if (!Visible)
 				return;
 
+			SpriteBatch.Begin();
+			SpriteBatch.Draw(_backgroundImage, DrawLocation, Color.White);
+			SpriteBatch.End();
+
 			DoDrawLogic(gameTime);
 
 			base.Draw(gameTime);
@@ -113,7 +126,7 @@ namespace EndlessClient.UIControls
 
 		protected virtual async Task DeleteButtonClick()
 		{
-
+			await Task.FromResult(false);
 		}
 
 		protected virtual void DoUpdateLogic(GameTime gameTime)
@@ -155,7 +168,7 @@ namespace EndlessClient.UIControls
 
 		private ISpriteSheet CreateAdminGraphic(AdminLevel adminLevel)
 		{
-			var adminGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
+			var adminGraphic = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
 			
 			switch (adminLevel)
 			{

@@ -18,6 +18,7 @@ namespace EndlessClient.ControlSets
 		private readonly IContentManagerProvider _contentManagerProvider;
 		private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
 		private readonly IConfigurationProvider _configProvider;
+		private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
 		private readonly IMainButtonControllerProvider _mainButtonControllerProvider;
 		private readonly ICreateAccountControllerProvider _createAccountControllerProvider;
 		private readonly ILoginControllerProvider _loginControllerProvider;
@@ -26,6 +27,7 @@ namespace EndlessClient.ControlSets
 								 IContentManagerProvider contentManagerProvider,
 								 IKeyboardDispatcherProvider keyboardDispatcherProvider,
 								 IConfigurationProvider configProvider,
+								 ICharacterInfoPanelFactory characterInfoPanelFactory,
 								 IMainButtonControllerProvider mainButtonControllerProvider,
 								 ICreateAccountControllerProvider createAccountControllerProvider,
 								 ILoginControllerProvider loginControllerProvider)
@@ -34,6 +36,7 @@ namespace EndlessClient.ControlSets
 			_contentManagerProvider = contentManagerProvider;
 			_keyboardDispatcherProvider = keyboardDispatcherProvider;
 			_configProvider = configProvider;
+			_characterInfoPanelFactory = characterInfoPanelFactory;
 			_mainButtonControllerProvider = mainButtonControllerProvider;
 			_createAccountControllerProvider = createAccountControllerProvider;
 			_loginControllerProvider = loginControllerProvider;
@@ -64,7 +67,10 @@ namespace EndlessClient.ControlSets
 						MainButtonController,
 						LoginController);
 				case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider, MainButtonController);
-				case GameStates.LoggedIn: return new LoggedInControlSet(_keyboardDispatcherProvider.Dispatcher, MainButtonController);
+				case GameStates.LoggedIn: return new LoggedInControlSet(
+					_keyboardDispatcherProvider.Dispatcher,
+					MainButtonController,
+					_characterInfoPanelFactory);
 				default: throw new ArgumentOutOfRangeException("newState", newState, null);
 			}
 		}

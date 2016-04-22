@@ -3,8 +3,10 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Collections.Generic;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.UIControls;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -12,6 +14,9 @@ namespace EndlessClient.ControlSets
 {
 	public class LoggedInControlSet : IntermediateControlSet
 	{
+		private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
+		private readonly List<CharacterInfoPanel> _characterInfoPanels;
+
 		private XNAButton _changePasswordButton;
 
 		public override GameStates GameState
@@ -20,9 +25,12 @@ namespace EndlessClient.ControlSets
 		}
 
 		public LoggedInControlSet(KeyboardDispatcher dispatcher,
-								  IMainButtonController mainButtonController)
+								  IMainButtonController mainButtonController,
+								  ICharacterInfoPanelFactory characterInfoPanelFactory)
 			: base(dispatcher, mainButtonController)
 		{
+			_characterInfoPanelFactory = characterInfoPanelFactory;
+			_characterInfoPanels = new List<CharacterInfoPanel>();
 		}
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
@@ -30,18 +38,19 @@ namespace EndlessClient.ControlSets
 			base.InitializeControlsHelper(currentControlSet);
 
 			_changePasswordButton = GetControl(currentControlSet, GameControlIdentifier.ChangePasswordButton, GetPasswordButton);
-			//login panels
+			_characterInfoPanels.AddRange(_characterInfoPanelFactory.CreatePanels());
 
 			_allComponents.Add(_changePasswordButton);
+			_allComponents.AddRange(_characterInfoPanels);
 		}
 
 		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
 		{
 			switch (control)
 			{
-				case GameControlIdentifier.Character1Panel:
-				case GameControlIdentifier.Character2Panel:
-				case GameControlIdentifier.Character3Panel: return null;
+				case GameControlIdentifier.Character1Panel: return _characterInfoPanels[0];
+				case GameControlIdentifier.Character2Panel: return _characterInfoPanels[1];
+				case GameControlIdentifier.Character3Panel: return _characterInfoPanels[2];
 				case GameControlIdentifier.ChangePasswordButton: return _changePasswordButton;
 				default: return base.FindComponentByControlIdentifier(control);
 			}
@@ -53,7 +62,7 @@ namespace EndlessClient.ControlSets
 				new Vector2(454, 417),
 				new Rectangle(0, 120, 120, 40),
 				new Rectangle(120, 120, 120, 40));
-			//button.OnClick += ...
+			//todo: button.OnClick += ...
 			return button;
 		}
 
@@ -66,7 +75,7 @@ namespace EndlessClient.ControlSets
 
 		private void DoCreateCharacter(object sender, EventArgs e)
 		{
-			
+			//todo:
 		}
 	}
 }

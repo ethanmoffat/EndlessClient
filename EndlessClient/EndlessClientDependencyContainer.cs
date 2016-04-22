@@ -28,6 +28,7 @@ namespace EndlessClient
 			container.RegisterType<ICreateAccountWarningDialogFactory, CreateAccountWarningDialogFactory>();
 			container.RegisterType<ICreateAccountProgressDialogFactory, CreateAccountProgressDialogFactory>();
 			container.RegisterType<ICharacterRendererFactory, CharacterRendererFactory>();
+			container.RegisterType<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>();
 
 			//provider/repository
 			container.RegisterType<IGameStateProvider, GameStateRepository>(new ContainerControlledLifetimeManager());

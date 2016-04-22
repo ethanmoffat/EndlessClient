@@ -99,6 +99,7 @@
     <Compile Include="UIControls\BlinkingLabel.cs" />
     <Compile Include="UIControls\CharacterControl.cs" />
     <Compile Include="UIControls\CharacterInfoPanel.cs" />
+    <Compile Include="UIControls\CharacterInfoPanelFactory.cs" />
     <Compile Include="UIControls\ChatTextBox.cs" />
     <Compile Include="ControlSets\CreateAccountControlSet.cs" />
     <Compile Include="ControlSets\GameControlIdentifier.cs" />
@@ -112,6 +113,7 @@
     <Compile Include="ControlSets\IControlSetFactory.cs" />
     <Compile Include="Input\TextboxClickEventHandler.cs" />
     <Compile Include="UIControls\DisposablePictureBox.cs" />
+    <Compile Include="UIControls\ICharacterInfoPanelFactory.cs" />
     <Compile Include="UIControls\PictureBox.cs" />
     <Compile Include="UIControls\ScrollBar.cs" />
     <Compile Include="Input\TextBoxTabEventHandler.cs" />
