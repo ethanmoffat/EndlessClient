@@ -31,7 +31,8 @@ namespace EndlessClient.ControlSets
 
 			_changePasswordButton = GetControl(currentControlSet, GameControlIdentifier.ChangePasswordButton, GetPasswordButton);
 			//login panels
-			//password change button
+
+			_allComponents.Add(_changePasswordButton);
 		}
 
 		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
