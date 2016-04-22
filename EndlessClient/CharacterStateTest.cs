@@ -68,7 +68,7 @@ namespace EndlessClient
 			foreach (var displayState in _allDisplayStates)
 			{
 				var props = GetRenderPropertiesForState(displayState);
-				var characterRenderer = new CharacterRenderer(_baseGame, props);
+				var characterRenderer = new CharacterRenderer(_baseGame, null, null, props); //todo: inject these
 				_renderersForDifferentStates.Add(characterRenderer);
 			}
 

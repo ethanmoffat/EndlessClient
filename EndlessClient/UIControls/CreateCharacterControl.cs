@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Rendering.Factories;
 using EOLib;
 using EOLib.Data.BLL;
 using Microsoft.Xna.Framework;
@@ -14,8 +15,8 @@ namespace EndlessClient.UIControls
 	{
 		private Vector2 _lastPosition;
 
-		public CreateCharacterControl()
-			: base(GetDefaultProperties())
+		public CreateCharacterControl(ICharacterRendererFactory characterRendererFactory)
+			: base(GetDefaultProperties(), characterRendererFactory)
 		{
 			_setSize(99, 123);
 			_lastPosition = Vector2.Zero;

@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.Rendering;
+using EndlessClient.Rendering.Factories;
 using EOLib.Data.BLL;
 using Microsoft.Xna.Framework;
 using XNAControls;
@@ -19,9 +20,9 @@ namespace EndlessClient.UIControls
 
 		protected readonly ICharacterRenderer _characterRenderer;
 
-		public CharacterControl(ICharacterRenderProperties initialProperties)
+		public CharacterControl(ICharacterRenderProperties initialProperties, ICharacterRendererFactory characterRendererFactory)
 		{
-			_characterRenderer = new CharacterRenderer((EOGame)Game, initialProperties);
+			_characterRenderer = characterRendererFactory.CreateCharacterRenderer(initialProperties);
 		}
 
 		public override void Initialize()

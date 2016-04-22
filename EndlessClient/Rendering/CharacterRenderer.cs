@@ -8,7 +8,9 @@ using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Data.BLL;
+using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -16,6 +18,9 @@ namespace EndlessClient.Rendering
 {
 	public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
 	{
+		private readonly INativeGraphicsManager _graphicsManager;
+		private readonly IItemFileProvider _itemFileProvider;
+
 		private ICharacterSpriteCalculator _spriteCalculator;
 		private ICharacterRenderProperties _characterRenderPropertiesPrivate;
 		private ICharacterTextures _textures;
@@ -23,7 +28,6 @@ namespace EndlessClient.Rendering
 
 		private SpriteBatch _sb;
 		private RenderTarget2D _charRenderTarget;
-		private readonly IDataFile<ItemRecord> _itemDataFile;
 
 		public ICharacterRenderProperties RenderProperties
 		{
@@ -40,16 +44,15 @@ namespace EndlessClient.Rendering
 
 		public int TopPixel { get; private set; }
 
-		public new EOGame Game { get; private set; }
-
-		public CharacterRenderer(EOGame game, ICharacterRenderProperties renderProperties)
+		public CharacterRenderer(Game game,
+								 INativeGraphicsManager graphicsManager,
+								 IItemFileProvider itemFileProvider,
+								 ICharacterRenderProperties renderProperties)
 			: base(game)
 		{
-			Game = game;
+			_graphicsManager = graphicsManager;
+			_itemFileProvider = itemFileProvider;
 			RenderProperties = renderProperties;
-
-			_itemDataFile = new ItemFile(); //todo: constructor inject
-			_itemDataFile.Load(Constants.ItemFilePath);
 		}
 
 		#region Game Component
@@ -155,7 +158,7 @@ namespace EndlessClient.Rendering
 
 		private void ReloadTextures()
 		{
-			_spriteCalculator = new CharacterSpriteCalculator(Game.GFXManager, _characterRenderPropertiesPrivate);
+			_spriteCalculator = new CharacterSpriteCalculator(_graphicsManager, _characterRenderPropertiesPrivate);
 			_textures = new CharacterTextures(_spriteCalculator);
 
 			_textures.RefreshTextures(IsBowEquipped(), IsShieldOnBack());
@@ -181,7 +184,7 @@ namespace EndlessClient.Rendering
 
 		private IEnumerable<ICharacterPropertyRenderer> GetOrderedRenderers()
 		{
-			var propertyListBuilder = new CharacterPropertyRendererBuilder(_sb, RenderProperties, _textures, _itemDataFile);
+			var propertyListBuilder = new CharacterPropertyRendererBuilder(_sb, RenderProperties, _textures, _itemFileProvider.ItemFile);
 			return propertyListBuilder.BuildList(IsShieldOnBack());
 		}
 
@@ -212,7 +215,7 @@ namespace EndlessClient.Rendering
 
 		private bool IsBowEquipped()
 		{
-			var itemData = _itemDataFile.Data;
+			var itemData = ItemFile.Data;
 			var weaponInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Weapon &&
 														   x.DollGraphic == RenderProperties.WeaponGraphic);
 
@@ -221,7 +224,7 @@ namespace EndlessClient.Rendering
 
 		private bool IsShieldOnBack()
 		{
-			var itemData = _itemDataFile.Data;
+			var itemData = ItemFile.Data;
 			var shieldInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Shield &&
 														   x.DollGraphic == RenderProperties.ShieldGraphic);
 
@@ -230,6 +233,8 @@ namespace EndlessClient.Rendering
 					shieldInfo.SubType == ItemSubType.Arrows ||
 					shieldInfo.SubType == ItemSubType.Wings);
 		}
+
+		private IDataFile<ItemRecord> ItemFile { get { return _itemFileProvider.ItemFile; } }
 
 		#endregion
 

@@ -5,7 +5,6 @@
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
-using EOLib.Data.Account;
 using EOLib.Data.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;

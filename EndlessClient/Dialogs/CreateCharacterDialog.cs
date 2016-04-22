@@ -63,7 +63,7 @@ namespace EndlessClient.Dialogs
 				_arrowButtons[i] = btn;
 			}
 
-			_characterControl = new CreateCharacterControl();
+			_characterControl = new CreateCharacterControl(null); //todo: this needs to be injected
 			_characterControl.SetParent(this);
 			_characterControl.DrawLocation = new Vector2(235, 58);
 

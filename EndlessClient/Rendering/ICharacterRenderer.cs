@@ -13,8 +13,6 @@ namespace EndlessClient.Rendering
 	{
 		int TopPixel { get; }
 
-		EOGame Game { get; }
-
 		ICharacterRenderProperties RenderProperties { get; set; }
 
 		Rectangle DrawArea { get; }

@@ -8,6 +8,7 @@ using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.Controllers;
+using EndlessClient.Rendering.Factories;
 using EndlessClient.UIControls;
 using EOLib;
 using Microsoft.Practices.Unity;
@@ -26,6 +27,7 @@ namespace EndlessClient
 			container.RegisterType<IEOMessageBoxFactory, EOMessageBoxFactory>();
 			container.RegisterType<ICreateAccountWarningDialogFactory, CreateAccountWarningDialogFactory>();
 			container.RegisterType<ICreateAccountProgressDialogFactory, CreateAccountProgressDialogFactory>();
+			container.RegisterType<ICharacterRendererFactory, CharacterRendererFactory>();
 
 			//provider/repository
 			container.RegisterType<IGameStateProvider, GameStateRepository>(new ContainerControlledLifetimeManager());
