@@ -20,20 +20,16 @@ namespace EOLib.Data.BLL
 
 		public ICharacter WithName(string name)
 		{
-			return new Character()
-				.WithName(name)
-				.WithID(ID)
-				.WithRenderProperties(RenderProperties)
-				.WithStats(Stats);
+			var character = MakeCopy(this);
+			character.Name = name;
+			return character;
 		}
 
 		public ICharacter WithID(int id)
 		{
-			return new Character()
-				.WithName(Name)
-				.WithID(id)
-				.WithRenderProperties(RenderProperties)
-				.WithStats(Stats);
+			var character = MakeCopy(this);
+			character.ID = id;
+			return character;
 		}
 
 		public ICharacter WithAdminLevel(AdminLevel level)
