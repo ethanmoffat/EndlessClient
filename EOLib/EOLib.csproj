@@ -114,6 +114,7 @@
     <Compile Include="Data\BLL\NPC.cs" />
     <Compile Include="Data\Character\CharacterCreateData.cs" />
     <Compile Include="Data\Character\CharacterManagementActions.cs" />
+    <Compile Include="Data\Character\CharacterReply.cs" />
     <Compile Include="Data\Character\ICharacterCreateData.cs" />
     <Compile Include="Data\Character\ICharacterManagementActions.cs" />
     <Compile Include="Data\DataDependencyContainer.cs" />

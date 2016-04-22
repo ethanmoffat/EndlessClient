@@ -11,6 +11,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Data.Account;
+using EOLib.Data.Character;
 using EOLib.Data.Login;
 using EOLib.Graphics;
 using EOLib.IO.Services;
