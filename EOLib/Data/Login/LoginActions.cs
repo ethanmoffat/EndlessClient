@@ -13,12 +13,15 @@ namespace EOLib.Data.Login
 	{
 		private readonly IPacketSendService _packetSendService;
 		private readonly IPacketTranslator<IAccountLoginData> _loginPacketTranslator;
+		private readonly ICharacterSelectorRepository _characterSelectorRepository;
 
 		public LoginActions(IPacketSendService packetSendService,
-							IPacketTranslator<IAccountLoginData> loginPacketTranslator)
+							IPacketTranslator<IAccountLoginData> loginPacketTranslator,
+							ICharacterSelectorRepository characterSelectorRepository)
 		{
 			_packetSendService = packetSendService;
 			_loginPacketTranslator = loginPacketTranslator;
+			_characterSelectorRepository = characterSelectorRepository;
 		}
 
 		public bool LoginParametersAreValid(ILoginParameters parameters)
@@ -27,7 +30,7 @@ namespace EOLib.Data.Login
 			       !string.IsNullOrEmpty(parameters.Password);
 		}
 
-		public async Task<IAccountLoginData> LoginToServer(ILoginParameters parameters)
+		public async Task<LoginReply> LoginToServer(ILoginParameters parameters)
 		{
 			var packet = new PacketBuilder(PacketFamily.Login, PacketAction.Request)
 				.AddBreakString(parameters.Username)
@@ -38,7 +41,9 @@ namespace EOLib.Data.Login
 			if (IsInvalidResponse(response))
 				throw new EmptyPacketReceivedException();
 
-			return _loginPacketTranslator.TranslatePacket(response);
+			var data = _loginPacketTranslator.TranslatePacket(response);
+			_characterSelectorRepository.Characters = data.Characters;
+			return data.Response;
 		}
 
 		private bool IsInvalidResponse(IPacket response)

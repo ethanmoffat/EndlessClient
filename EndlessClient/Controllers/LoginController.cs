@@ -5,6 +5,7 @@
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
+using EOLib.Data.Account;
 using EOLib.Data.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;
@@ -38,11 +39,10 @@ namespace EndlessClient.Controllers
 			if (!_loginActions.LoginParametersAreValid(loginParameters))
 				return;
 
-			IAccountLoginData loginData;
+			LoginReply reply;
 			try
 			{
-				//todo: return just the login reply, character data should be put into repository
-				loginData = await _loginActions.LoginToServer(loginParameters);
+				reply = await _loginActions.LoginToServer(loginParameters);
 			}
 			catch (EmptyPacketReceivedException)
 			{
@@ -63,10 +63,10 @@ namespace EndlessClient.Controllers
 				return;
 			}
 
-			if (loginData.Response == LoginReply.Ok)
+			if (reply == LoginReply.Ok)
 				_gameStateActions.ChangeToState(GameStates.LoggedIn);
 			else
-				_errorDisplayAction.ShowLoginError(loginData.Response);
+				_errorDisplayAction.ShowLoginError(reply);
 		}
 
 		public async Task LoginToCharacter()

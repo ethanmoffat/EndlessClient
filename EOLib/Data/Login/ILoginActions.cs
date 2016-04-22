@@ -10,6 +10,6 @@ namespace EOLib.Data.Login
 	{
 		bool LoginParametersAreValid(ILoginParameters parameters);
 
-		Task<IAccountLoginData> LoginToServer(ILoginParameters parameters);
+		Task<LoginReply> LoginToServer(ILoginParameters parameters);
 	}
 }

@@ -17,6 +17,9 @@ namespace EOLib.Data
 
 			container.RegisterType<IAccountActions, AccountActions>();
 			container.RegisterType<ILoginActions, LoginActions>();
+
+			container.RegisterType<ICharacterSelectorRepository, CharacterSelectorRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ICharacterSelectorProvider, CharacterSelectorRepository>(new ContainerControlledLifetimeManager());
 		}
 	}
 }
