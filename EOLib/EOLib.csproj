@@ -112,7 +112,9 @@
     <Compile Include="Data\BLL\ICharacterRenderProperties.cs" />
     <Compile Include="Data\BLL\ICharacterStats.cs" />
     <Compile Include="Data\BLL\NPC.cs" />
+    <Compile Include="Data\Character\CharacterCreateData.cs" />
     <Compile Include="Data\Character\CharacterManagementActions.cs" />
+    <Compile Include="Data\Character\ICharacterCreateData.cs" />
     <Compile Include="Data\Character\ICharacterManagementActions.cs" />
     <Compile Include="Data\DataDependencyContainer.cs" />
     <Compile Include="Data\Account\ICreateAccountParameters.cs" />
