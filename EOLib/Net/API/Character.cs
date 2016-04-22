@@ -7,22 +7,6 @@ using EOLib.Domain.Character;
 
 namespace EOLib.Net.API
 {
-	public enum AdminLevel
-	{
-		Player,
-		Guide,
-		Guardian,
-		GM,
-		HGM
-	}
-
-	public enum SitState
-	{
-		Standing,
-		Chair,
-		Floor
-	}
-
 	/// <summary>
 	/// Represents data for a single character
 	/// </summary>

@@ -9,6 +9,7 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;

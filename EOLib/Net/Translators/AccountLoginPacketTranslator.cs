@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.IO;
 using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Net.API;
 

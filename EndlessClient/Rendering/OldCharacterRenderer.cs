@@ -11,6 +11,7 @@ using EndlessClient.Rendering.Effects;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net.API;

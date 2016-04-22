@@ -9,6 +9,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.IO.Map;

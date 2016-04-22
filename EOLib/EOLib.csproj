@@ -112,11 +112,13 @@
     <Compile Include="Domain\BLL\ICharacterRenderProperties.cs" />
     <Compile Include="Domain\BLL\ICharacterStats.cs" />
     <Compile Include="Domain\BLL\NPC.cs" />
+    <Compile Include="Domain\Character\AdminLevel.cs" />
     <Compile Include="Domain\Character\CharacterCreateData.cs" />
     <Compile Include="Domain\Character\CharacterManagementActions.cs" />
     <Compile Include="Domain\Character\CharacterReply.cs" />
     <Compile Include="Domain\Character\ICharacterCreateData.cs" />
     <Compile Include="Domain\Character\ICharacterManagementActions.cs" />
+    <Compile Include="Domain\Character\SitState.cs" />
     <Compile Include="Domain\DataDependencyContainer.cs" />
     <Compile Include="Domain\Account\ICreateAccountParameters.cs" />
     <Compile Include="Domain\INumberEncoderService.cs" />
