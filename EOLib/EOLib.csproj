@@ -116,7 +116,9 @@
     <Compile Include="Data\Account\ICreateAccountParameters.cs" />
     <Compile Include="Data\INumberEncoderService.cs" />
     <Compile Include="Data\Login\AccountLoginData.cs" />
+    <Compile Include="Data\Login\CharacterCreateParameters.cs" />
     <Compile Include="Data\Login\IAccountLoginData.cs" />
+    <Compile Include="Data\Login\ICharacterCreateParameters.cs" />
     <Compile Include="Data\Login\ICharacterSelectorRepository.cs" />
     <Compile Include="Data\Login\ILoginActions.cs" />
     <Compile Include="Data\Login\ILoginParameters.cs" />
