@@ -6,8 +6,8 @@ using System;
 using System.Net.Sockets;
 using EndlessClient.Dialogs.Factories;
 using EOLib;
-using EOLib.Data.Login;
-using EOLib.Data.Protocol;
+using EOLib.Domain.Login;
+using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
 using XNAControls;
 

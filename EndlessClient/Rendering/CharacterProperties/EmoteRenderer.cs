@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.Rendering.Sprites;
-using EOLib.Data.BLL;
+using EOLib.Domain.BLL;
 using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

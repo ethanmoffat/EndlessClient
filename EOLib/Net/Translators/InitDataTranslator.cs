@@ -4,7 +4,7 @@
 
 using System;
 using System.IO;
-using EOLib.Data.Protocol;
+using EOLib.Domain.Protocol;
 
 namespace EOLib.Net.Translators
 {

@@ -8,7 +8,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
-using EOLib.Data.BLL;
+using EOLib.Domain.BLL;
 using EOLib.IO;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;

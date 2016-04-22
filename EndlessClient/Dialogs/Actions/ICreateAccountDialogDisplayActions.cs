@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
-using EOLib.Data.Account;
+using EOLib.Domain.Account;
 
 namespace EndlessClient.Dialogs.Actions
 {

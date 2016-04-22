@@ -4,8 +4,8 @@
 
 using System.Collections.Generic;
 using System.IO;
-using EOLib.Data.BLL;
-using EOLib.Data.Login;
+using EOLib.Domain.BLL;
+using EOLib.Domain.Login;
 using EOLib.Net.API;
 
 namespace EOLib.Net.Translators

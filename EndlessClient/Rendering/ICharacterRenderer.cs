@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib.Data.BLL;
+using EOLib.Domain.BLL;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

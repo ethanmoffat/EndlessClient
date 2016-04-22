@@ -4,7 +4,7 @@
 
 using System;
 using System.Threading.Tasks;
-using EOLib.Data.Protocol;
+using EOLib.Domain.Protocol;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using EOLib.Net.Communication;

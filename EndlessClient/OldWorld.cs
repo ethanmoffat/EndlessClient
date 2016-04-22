@@ -11,7 +11,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.Rendering;
 using EOLib;
-using EOLib.Data.Map;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Map;

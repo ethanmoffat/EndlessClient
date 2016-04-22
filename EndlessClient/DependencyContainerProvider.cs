@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib;
-using EOLib.Data;
+using EOLib.Domain;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net;

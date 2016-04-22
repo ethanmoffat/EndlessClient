@@ -3,8 +3,8 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib.Data.BLL;
-using EOLib.Data.Map;
+using EOLib.Domain.BLL;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Map;

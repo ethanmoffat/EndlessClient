@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Rendering;
 using EOLib;
-using EOLib.Data.BLL;
+using EOLib.Domain.BLL;
 using EOLib.IO;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;

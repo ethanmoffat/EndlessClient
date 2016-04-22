@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
-using EOLib.Data.Protocol;
+using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
 
 namespace EOLib.Net.Connection

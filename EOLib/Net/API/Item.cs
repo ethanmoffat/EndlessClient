@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib.Data.Map;
+using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.IO.Map;
 

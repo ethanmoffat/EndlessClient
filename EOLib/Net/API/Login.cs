@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Threading;
-using EOLib.Data.Login;
+using EOLib.Domain.Login;
 
 namespace EOLib.Net.API
 {

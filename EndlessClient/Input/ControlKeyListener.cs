@@ -5,8 +5,8 @@
 using System;
 using System.Linq;
 using EOLib;
-using EOLib.Data.BLL;
-using EOLib.Data.Map;
+using EOLib.Domain.BLL;
+using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;

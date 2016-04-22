@@ -6,7 +6,7 @@ using System;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Inventory;
 using EOLib;
-using EOLib.Data.Map;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;

@@ -2,8 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EOLib.Data.Login;
-using EOLib.Data.Protocol;
+using EOLib.Domain.Login;
+using EOLib.Domain.Protocol;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.Net.Translators

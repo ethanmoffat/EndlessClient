@@ -10,7 +10,7 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EOLib;
-using EOLib.Data.Map;
+using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.Net.API;

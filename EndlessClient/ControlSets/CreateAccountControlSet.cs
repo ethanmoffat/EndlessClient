@@ -10,7 +10,7 @@ using EndlessClient.Input;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib;
-using EOLib.Data.Account;
+using EOLib.Domain.Account;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;

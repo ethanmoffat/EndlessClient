@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using EOLib.Data.Map;
+using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.IO.Map;
 

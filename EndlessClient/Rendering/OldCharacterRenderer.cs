@@ -10,7 +10,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.UIControls;
 using EOLib;
-using EOLib.Data.BLL;
+using EOLib.Domain.BLL;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net.API;

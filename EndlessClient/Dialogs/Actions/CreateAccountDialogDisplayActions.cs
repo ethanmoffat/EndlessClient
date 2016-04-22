@@ -6,7 +6,7 @@ using System;
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Factories;
 using EOLib;
-using EOLib.Data.Account;
+using EOLib.Domain.Account;
 using EOLib.IO.Services;
 using XNAControls;
 

@@ -5,7 +5,7 @@
 using System;
 using System.Linq;
 using EndlessClient.HUD;
-using EOLib.Data.BLL;
+using EOLib.Domain.BLL;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
