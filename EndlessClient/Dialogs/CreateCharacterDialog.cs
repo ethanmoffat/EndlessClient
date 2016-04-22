@@ -39,6 +39,8 @@ namespace EndlessClient.Dialogs
 
 		public string Name { get { return _inputBox.Text; } }
 
+		public XNADialogResult Result { get; private set; }
+
 		public CreateCharacterDialog(Texture2D cursorTexture, KeyboardDispatcher dispatcher)
 			: base((PacketAPI)null)
 		{
@@ -248,6 +250,7 @@ namespace EndlessClient.Dialogs
 
 		private void DialogClosingHandler(object sender, CloseDialogEventArgs args)
 		{
+			Result = args.Result;
 			_doneEvent.Set();
 		}
 
