@@ -415,7 +415,7 @@ namespace EndlessClient
 							return;
 						}
 
-						EOCreateCharacterDialog createCharacter = new EOCreateCharacterDialog(_textBoxTextures[3], Dispatcher);
+						CreateCharacterDialog createCharacter = new CreateCharacterDialog(_textBoxTextures[3], Dispatcher);
 						createCharacter.DialogClosing += (dlg_S, dlg_E) =>
 						{
 							if (dlg_E.Result != XNADialogResult.OK) return;
