@@ -64,13 +64,9 @@ namespace EndlessClient.Controllers
 			}
 
 			if (loginData.Response == LoginReply.Ok)
-			{
 				_gameStateActions.ChangeToState(GameStates.LoggedIn);
-			}
 			else
-			{
-				//todo show correct login response dialog
-			}
+				_errorDisplayAction.ShowLoginError(loginData.Response);
 		}
 
 		public async Task LoginToCharacter()

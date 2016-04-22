@@ -6,6 +6,7 @@ using System;
 using System.Net.Sockets;
 using EndlessClient.Dialogs.Factories;
 using EOLib;
+using EOLib.Data.Login;
 using EOLib.Data.Protocol;
 using EOLib.Net.Communication;
 using XNAControls;
@@ -97,6 +98,23 @@ namespace EndlessClient.Dialogs.Actions
 		{
 			_messageBoxFactory.CreateMessageBox(DATCONST1.CONNECTION_SERVER_NOT_FOUND,
 				"\n\"" + ex.Message + "\"",
+				XNADialogButtons.Ok,
+				EOMessageBoxStyle.SmallDialogLargeHeader);
+		}
+
+		public void ShowLoginError(LoginReply loginError)
+		{
+			DATCONST1 message;
+			switch (loginError)
+			{
+				case LoginReply.WrongUser: message = DATCONST1.LOGIN_ACCOUNT_NAME_NOT_FOUND; break;
+				case LoginReply.WrongUserPass: message = DATCONST1.LOGIN_ACCOUNT_NAME_OR_PASSWORD_NOT_FOUND; break;
+				case LoginReply.LoggedIn: message = DATCONST1.LOGIN_ACCOUNT_ALREADY_LOGGED_ON; break;
+				case LoginReply.Busy: message = DATCONST1.CONNECTION_SERVER_IS_FULL;  break;
+				default: throw new ArgumentOutOfRangeException("loginError", loginError, null);
+			}
+
+			_messageBoxFactory.CreateMessageBox(message,
 				XNADialogButtons.Ok,
 				EOMessageBoxStyle.SmallDialogLargeHeader);
 		}
