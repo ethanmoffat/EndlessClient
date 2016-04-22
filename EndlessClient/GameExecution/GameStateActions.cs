@@ -16,17 +16,17 @@ namespace EndlessClient.GameExecution
 		private readonly IGameStateRepository _gameStateRepository;
 		private readonly IControlSetRepository _controlSetRepository;
 		private readonly IControlSetFactory _controlSetFactory;
-		private readonly IEndlessGame _endlessGame;
+		private readonly IEndlessGameProvider _endlessGameProvider;
 
 		public GameStateActions(IGameStateRepository gameStateRepository,
 								IControlSetRepository controlSetRepository,
 								IControlSetFactory controlSetFactory,
-								IEndlessGame endlessGame)
+								IEndlessGameProvider endlessGameProvider)
 		{
 			_gameStateRepository = gameStateRepository;
 			_controlSetRepository = controlSetRepository;
 			_controlSetFactory = controlSetFactory;
-			_endlessGame = endlessGame;
+			_endlessGameProvider = endlessGameProvider;
 		}
 
 		public void ChangeToState(GameStates newState)
@@ -46,8 +46,8 @@ namespace EndlessClient.GameExecution
 			foreach (var component in otherDisposableComponents)
 				component.Dispose();
 			foreach (var component in nextSet.AllComponents)
-				if (!_endlessGame.Components.Contains(component))
-					_endlessGame.Components.Add(component);
+				if (!Game.Components.Contains(component))
+					Game.Components.Add(component);
 
 			_gameStateRepository.CurrentState = newState;
 			_controlSetRepository.CurrentControlSet = nextSet;
@@ -55,7 +55,7 @@ namespace EndlessClient.GameExecution
 
 		public void ExitGame()
 		{
-			_endlessGame.Exit();
+			Game.Exit();
 		}
 
 		private List<IGameComponent> FindUnusedComponents(IControlSet current, IControlSet next)
@@ -64,5 +64,7 @@ namespace EndlessClient.GameExecution
 				.Where(component => !next.AllComponents.Contains(component))
 				.ToList();
 		}
+
+		private IEndlessGame Game { get { return _endlessGameProvider.Game; } }
 	}
 }

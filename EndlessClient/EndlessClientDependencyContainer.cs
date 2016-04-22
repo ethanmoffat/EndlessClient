@@ -38,6 +38,8 @@ namespace EndlessClient
 			container.RegisterType<IKeyboardDispatcherRepository, KeyboardDispatcherRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetProvider, ControlSetRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IControlSetRepository, ControlSetRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IEndlessGameProvider, EndlessGameRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IEndlessGameRepository, EndlessGameRepository>(new ContainerControlledLifetimeManager());
 
 			//provider only
 			container.RegisterType<IClientWindowSizeProvider, ClientWindowSizeProvider>(new ContainerControlledLifetimeManager());
@@ -64,6 +66,9 @@ namespace EndlessClient
 		public void InitializeDependencies(IUnityContainer container)
 		{
 			var game = container.Resolve<IEndlessGame>();
+			var gameRepository = container.Resolve<IEndlessGameRepository>();
+			gameRepository.Game = game;
+
 			var contentRepo = container.Resolve<IContentManagerRepository>();
 			contentRepo.Content = game.Content;
 

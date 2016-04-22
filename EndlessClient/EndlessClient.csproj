@@ -91,6 +91,7 @@
     <Compile Include="Dialogs\Factories\ICreateAccountWarningDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\IEOMessageBoxFactory.cs" />
     <Compile Include="GameExecution\GameStateActions.cs" />
+    <Compile Include="GameExecution\IEndlessGameProvider.cs" />
     <Compile Include="GameExecution\IGameStateActions.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />
     <Compile Include="Rendering\Factories\CharacterRendererFactory.cs" />
