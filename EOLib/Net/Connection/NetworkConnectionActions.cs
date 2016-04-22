@@ -17,6 +17,7 @@ namespace EOLib.Net.Connection
 	{
 		private readonly INetworkClientRepository _networkClientRepository;
 		private readonly IConnectionStateRepository _connectionStateRepository;
+		private readonly ISequenceRepository _sequenceRepository;
 		private readonly IConfigurationProvider _configurationProvider;
 		private readonly IHashService _hashService;
 		private readonly IHDSerialNumberService _hdSerialNumberService;
@@ -26,6 +27,7 @@ namespace EOLib.Net.Connection
 
 		public NetworkConnectionActions(INetworkClientRepository networkClientRepository,
 										IConnectionStateRepository connectionStateRepository,
+										ISequenceRepository sequenceRepository,
 										IConfigurationProvider configurationProvider,
 										IHashService hashService,
 										IHDSerialNumberService hdSerialNumberService,
@@ -35,6 +37,7 @@ namespace EOLib.Net.Connection
 		{
 			_networkClientRepository = networkClientRepository;
 			_connectionStateRepository = connectionStateRepository;
+			_sequenceRepository = sequenceRepository;
 			_configurationProvider = configurationProvider;
 			_hashService = hashService;
 			_hdSerialNumberService = hdSerialNumberService;
@@ -76,6 +79,8 @@ namespace EOLib.Net.Connection
 			if (Client.Connected)
 				Client.Disconnect();
 
+			_sequenceRepository.SequenceIncrement = 0;
+			_sequenceRepository.SequenceStart = 0;
 			_connectionStateRepository.NeedsReconnect = true;
 		}
 
