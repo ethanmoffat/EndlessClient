@@ -123,9 +123,9 @@
     <Compile Include="Domain\Account\ICreateAccountParameters.cs" />
     <Compile Include="Domain\INumberEncoderService.cs" />
     <Compile Include="Domain\Login\AccountLoginData.cs" />
-    <Compile Include="Domain\Login\CharacterCreateParameters.cs" />
+    <Compile Include="Domain\Character\CharacterCreateParameters.cs" />
     <Compile Include="Domain\Login\IAccountLoginData.cs" />
-    <Compile Include="Domain\Login\ICharacterCreateParameters.cs" />
+    <Compile Include="Domain\Character\ICharacterCreateParameters.cs" />
     <Compile Include="Domain\Login\ICharacterSelectorRepository.cs" />
     <Compile Include="Domain\Login\ILoginActions.cs" />
     <Compile Include="Domain\Login\ILoginParameters.cs" />

@@ -26,7 +26,9 @@ namespace EOLib.Net.Translators
 				if (packet.ReadByte() != 255)
 					throw new MalformedPacketException("Login packet missing character separator byte", packet);
 			}
-		} 
+
+			return characters;
+		}
 
 		private ICharacter GetNextCharacter(IPacket packet)
 		{

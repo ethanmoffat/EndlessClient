@@ -10,6 +10,7 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
 using EOLib.Net.API;
