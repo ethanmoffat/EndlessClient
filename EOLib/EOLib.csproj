@@ -304,6 +304,7 @@
     <Compile Include="Net\PacketProcessing\PacketEncoderService.cs" />
     <Compile Include="Net\Communication\PacketQueue.cs" />
     <Compile Include="Net\Translators\IPacketTranslator.cs" />
+    <Compile Include="Net\Translators\ITranslatedData.cs" />
     <Compile Include="Net\Translators\PacketTranslatorContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Array2D.cs" />

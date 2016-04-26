@@ -4,9 +4,7 @@
 
 namespace EOLib.Net.Translators
 {
-	public interface IPacketTranslator<out T>
-		where T : ITranslatedData
+	public interface ITranslatedData
 	{
-		T TranslatePacket(IPacket packet);
 	}
 }

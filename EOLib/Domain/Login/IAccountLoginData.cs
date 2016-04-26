@@ -4,10 +4,11 @@
 
 using System.Collections.Generic;
 using EOLib.Domain.BLL;
+using EOLib.Net.Translators;
 
 namespace EOLib.Domain.Login
 {
-	public interface IAccountLoginData
+	public interface IAccountLoginData : ITranslatedData
 	{
 		LoginReply Response { get; }
 

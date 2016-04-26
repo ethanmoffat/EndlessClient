@@ -10,6 +10,7 @@ using EOLib.Domain.Character;
 namespace EOLib.Net.Translators
 {
 	public abstract class CharacterDisplayPacketTranslator<T> : IPacketTranslator<T>
+		where T : ITranslatedData
 	{
 		public abstract T TranslatePacket(IPacket packet);
 

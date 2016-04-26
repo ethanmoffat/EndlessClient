@@ -4,10 +4,11 @@
 
 using System.Collections.Generic;
 using EOLib.Domain.BLL;
+using EOLib.Net.Translators;
 
 namespace EOLib.Domain.Character
 {
-	public interface ICharacterCreateData
+	public interface ICharacterCreateData : ITranslatedData
 	{
 		CharacterReply Response { get; }
 
