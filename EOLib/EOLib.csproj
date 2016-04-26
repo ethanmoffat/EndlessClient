@@ -272,6 +272,8 @@
     <Compile Include="Net\Connection\INetworkConnectionActions.cs" />
     <Compile Include="Net\MalformedPacketException.cs" />
     <Compile Include="Net\Translators\AccountLoginPacketTranslator.cs" />
+    <Compile Include="Net\Translators\CharacterDisplayPacketTranslator.cs" />
+    <Compile Include="Net\Translators\CharacterReplyPacketTranslator.cs" />
     <Compile Include="Net\Translators\InitDataTranslator.cs" />
     <Compile Include="Net\Connection\NetworkConnectionActions.cs" />
     <Compile Include="Net\NetworkDependencyContainer.cs" />
