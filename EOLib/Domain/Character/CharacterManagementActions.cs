@@ -14,12 +14,15 @@ namespace EOLib.Domain.Character
 	{
 		private readonly IPacketSendService _packetSendService;
 		private readonly IPacketTranslator<ICharacterCreateData> _characterCreatePacketTranslator;
+		private readonly ICharacterSelectorRepository _characterSelectorRepository;
 
 		public CharacterManagementActions(IPacketSendService packetSendService,
-										  IPacketTranslator<ICharacterCreateData> characterCreatePacketTranslator)
+										  IPacketTranslator<ICharacterCreateData> characterCreatePacketTranslator,
+										  ICharacterSelectorRepository characterSelectorRepository)
 		{
 			_packetSendService = packetSendService;
 			_characterCreatePacketTranslator = characterCreatePacketTranslator;
+			_characterSelectorRepository = characterSelectorRepository;
 		}
 
 		public async Task<CharacterReply> RequestCharacterCreation()
@@ -29,7 +32,7 @@ namespace EOLib.Domain.Character
 			return (CharacterReply)responsePacket.ReadShort();
 		}
 
-		public async Task<ICharacterCreateData> CreateCharacter(ICharacterCreateParameters parameters)
+		public async Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters)
 		{
 			var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Create)
 				.AddShort(255)
@@ -41,7 +44,10 @@ namespace EOLib.Domain.Character
 				.AddBreakString(parameters.Name)
 				.Build();
 			var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
-			return _characterCreatePacketTranslator.TranslatePacket(responsePacket);
+			
+			var translatedData = _characterCreatePacketTranslator.TranslatePacket(responsePacket);
+			_characterSelectorRepository.Characters = translatedData.Characters;
+			return translatedData.Response;
 		}
 	}
 }

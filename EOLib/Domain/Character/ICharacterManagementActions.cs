@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
-using EOLib.Domain.Login;
 
 namespace EOLib.Domain.Character
 {
@@ -11,6 +10,6 @@ namespace EOLib.Domain.Character
 	{
 		Task<CharacterReply> RequestCharacterCreation();
 
-		Task<ICharacterCreateData> CreateCharacter(ICharacterCreateParameters parameters);
+		Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters);
 	}
 }
