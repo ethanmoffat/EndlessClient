@@ -2,10 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
-using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
@@ -17,7 +15,6 @@ namespace EndlessClient.Controllers
 {
 	public class CharacterManagementController : ICharacterManagementController
 	{
-		private readonly ICreateCharacterDialogFactory _createCharacterDialogFactory;
 		private readonly ICharacterManagementActions _characterManagementActions;
 		private readonly IErrorDialogDisplayAction _errorDialogDisplayAction;
 		private readonly ICharacterDialogActions _characterDialogActions;
@@ -26,8 +23,7 @@ namespace EndlessClient.Controllers
 		private readonly IGameStateActions _gameStateActions;
 		private readonly ICharacterSelectorRepository _characterSelectorRepository;
 
-		public CharacterManagementController(ICreateCharacterDialogFactory createCharacterDialogFactory,
-											 ICharacterManagementActions characterManagementActions,
+		public CharacterManagementController(ICharacterManagementActions characterManagementActions,
 											 IErrorDialogDisplayAction errorDialogDisplayAction,
 											 ICharacterDialogActions characterDialogActions,
 											 IBackgroundReceiveActions backgroundReceiveActions,
@@ -35,7 +31,6 @@ namespace EndlessClient.Controllers
 											 IGameStateActions gameStateActions,
 											 ICharacterSelectorRepository characterSelectorRepository)
 		{
-			_createCharacterDialogFactory = createCharacterDialogFactory;
 			_characterManagementActions = characterManagementActions;
 			_errorDialogDisplayAction = errorDialogDisplayAction;
 			_characterDialogActions = characterDialogActions;
@@ -72,14 +67,9 @@ namespace EndlessClient.Controllers
 				return;
 			}
 
-			//todo: make this into actions (with response message display)
-			var dialog = _createCharacterDialogFactory.BuildCreateCharacterDialog();
-			ICharacterCreateParameters parameters;
-			try
-			{
-				parameters = await dialog.Show();
-			}
-			catch (OperationCanceledException) { return; }
+			var parameters = await _characterDialogActions.ShowCreateCharacterDialog();
+			if (parameters == null)
+				return;
 
 			try
 			{
@@ -98,15 +88,8 @@ namespace EndlessClient.Controllers
 				return;
 			}
 
-			if (response != CharacterReply.Ok)
-			{
-				//todo: move to character management actions
-				_errorDialogDisplayAction.ShowCharacterManagementMessage(response);
-				return;
-			}
-
 			_gameStateActions.RefreshCurrentState();
-			_errorDialogDisplayAction.ShowCharacterManagementMessage(CharacterReply.Ok);
+			_characterDialogActions.ShowCharacterReplyDialog(response);
 		}
 
 		public Task DeleteCharacter(ICharacter characterToDelete)

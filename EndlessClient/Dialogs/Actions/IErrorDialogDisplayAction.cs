@@ -20,7 +20,5 @@ namespace EndlessClient.Dialogs.Actions
 		void ShowException(EmptyPacketReceivedException ex);
 
 		void ShowLoginError(LoginReply loginError);
-		
-		void ShowCharacterManagementMessage(CharacterReply characterError);
 	}
 }

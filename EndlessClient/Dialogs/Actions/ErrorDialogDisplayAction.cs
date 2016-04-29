@@ -119,22 +119,5 @@ namespace EndlessClient.Dialogs.Actions
 				XNADialogButtons.Ok,
 				EOMessageBoxStyle.SmallDialogLargeHeader);
 		}
-
-		public void ShowCharacterManagementMessage(CharacterReply characterError)
-		{
-			DATCONST1 message;
-			switch (characterError)
-			{
-				case CharacterReply.Exists: message = DATCONST1.CHARACTER_CREATE_NAME_EXISTS; break;
-				case CharacterReply.Full: message = DATCONST1.CHARACTER_CREATE_TOO_MANY_CHARS; break;
-				case CharacterReply.NotApproved: message = DATCONST1.CHARACTER_CREATE_NAME_NOT_APPROVED; break;
-				case CharacterReply.Ok: message = DATCONST1.CHARACTER_CREATE_SUCCESS; break;
-				default: throw new ArgumentOutOfRangeException("characterError", characterError, null);
-			}
-
-			_messageBoxFactory.CreateMessageBox(message,
-				XNADialogButtons.Ok,
-				EOMessageBoxStyle.SmallDialogLargeHeader);
-		}
 	}
 }
