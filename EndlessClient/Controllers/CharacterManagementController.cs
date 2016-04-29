@@ -103,13 +103,61 @@ namespace EndlessClient.Controllers
 				return;
 			}
 
-			//do TAKE action w/ server
+			int takeID;
+			try
+			{
+				takeID = await _characterManagementActions.RequestCharacterDelete();
+			}
+			catch (NoDataSentException)
+			{
+				SetInitialStateAndShowError();
+				DisconnectAndStopReceiving();
+				return;
+			}
+			catch (EmptyPacketReceivedException)
+			{
+				SetInitialStateAndShowError();
+				DisconnectAndStopReceiving();
+				return;
+			}
+
+			if (takeID != characterToDelete.ID)
+			{
+				_characterDialogActions.ShowCharacterDeleteError();
+				return;
+			}
 
 			var dialogResult = await _characterDialogActions.ShowConfirmDeleteWarning(characterToDelete.Name);
 			if (dialogResult != XNADialogResult.OK)
 				return;
 
-			//do DELETE action w/ server
+			CharacterReply response;
+			try
+			{
+				response = await _characterManagementActions.DeleteCharacter();
+			}
+			catch (NoDataSentException)
+			{
+				SetInitialStateAndShowError();
+				DisconnectAndStopReceiving();
+				return;
+			}
+			catch (EmptyPacketReceivedException)
+			{
+				SetInitialStateAndShowError();
+				DisconnectAndStopReceiving();
+				return;
+			}
+
+			_characterSelectorRepository.CharacterForDelete = null;
+			if (response != CharacterReply.Deleted)
+			{
+				SetInitialStateAndShowError();
+				DisconnectAndStopReceiving();
+				return;
+			}
+			
+			_gameStateActions.RefreshCurrentState();
 		}
 
 		private void SetInitialStateAndShowError()

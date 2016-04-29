@@ -11,5 +11,9 @@ namespace EOLib.Domain.Character
 		Task<CharacterReply> RequestCharacterCreation();
 
 		Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters);
+		
+		Task<int> RequestCharacterDelete();
+		
+		Task<CharacterReply> DeleteCharacter();
 	}
 }

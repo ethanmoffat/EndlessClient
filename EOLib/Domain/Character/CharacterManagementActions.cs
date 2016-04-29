@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.IO;
 using System.Threading.Tasks;
 using EOLib.Domain.Login;
 using EOLib.Net;
@@ -45,6 +46,30 @@ namespace EOLib.Domain.Character
 				.Build();
 			var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
 			
+			var translatedData = _characterCreatePacketTranslator.TranslatePacket(responsePacket);
+			_characterSelectorRepository.Characters = translatedData.Characters;
+			return translatedData.Response;
+		}
+
+		public async Task<int> RequestCharacterDelete()
+		{
+			var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Take)
+				.AddInt(_characterSelectorRepository.CharacterForDelete.ID)
+				.Build();
+			
+			var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
+			responsePacket.Seek(2, SeekOrigin.Current);
+			return responsePacket.ReadInt();
+		}
+
+		public async Task<CharacterReply> DeleteCharacter()
+		{
+			var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Remove)
+				.AddShort(255)
+				.AddInt(_characterSelectorRepository.CharacterForDelete.ID)
+				.Build();
+			var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
+
 			var translatedData = _characterCreatePacketTranslator.TranslatePacket(responsePacket);
 			_characterSelectorRepository.Characters = translatedData.Characters;
 			return translatedData.Response;

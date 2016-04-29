@@ -17,5 +17,7 @@ namespace EndlessClient.Dialogs.Actions
 		void ShowCharacterDeleteWarning(string characterName);
 		
 		Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName);
+		
+		void ShowCharacterDeleteError();
 	}
 }

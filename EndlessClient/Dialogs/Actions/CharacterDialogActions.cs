@@ -67,5 +67,14 @@ namespace EndlessClient.Dialogs.Actions
 
 			return await messageBox.Show();
 		}
+
+		public void ShowCharacterDeleteError()
+		{
+			_messageBoxFactory.CreateMessageBox(
+				"The server did not respond properly for deleting the character. Try again.",
+				"Server error",
+				XNADialogButtons.Ok,
+				EOMessageBoxStyle.SmallDialogLargeHeader);
+		}
 	}
 }
