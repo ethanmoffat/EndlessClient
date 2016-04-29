@@ -53,13 +53,19 @@ namespace EndlessClient.Dialogs.Actions
 		public void ShowCharacterDeleteWarning(string characterName)
 		{
 			_messageBoxFactory.CreateMessageBox(
-				string.Format("Character \'{0}\'", characterName),
+				string.Format("Character \'{0}\' ", characterName),
 				DATCONST1.CHARACTER_DELETE_FIRST_CHECK);
 		}
 
-		public async Task<XNADialogResult> ShowConfirmDeleteWarning()
+		public async Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName)
 		{
-			return await Task.FromResult(XNADialogResult.NO_BUTTON_PRESSED);
+			var messageBox = _messageBoxFactory.CreateMessageBox(
+				string.Format("Character \'{0}\' ", characterName),
+				DATCONST1.CHARACTER_DELETE_CONFIRM,
+				XNADialogButtons.OkCancel,
+				EOMessageBoxStyle.SmallDialogLargeHeader);
+
+			return await messageBox.Show();
 		}
 	}
 }

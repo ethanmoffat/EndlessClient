@@ -105,7 +105,7 @@ namespace EndlessClient.Controllers
 
 			//do TAKE action w/ server
 
-			var dialogResult = await _characterDialogActions.ShowConfirmDeleteWarning();
+			var dialogResult = await _characterDialogActions.ShowConfirmDeleteWarning(characterToDelete.Name);
 			if (dialogResult != XNADialogResult.OK)
 				return;
 
