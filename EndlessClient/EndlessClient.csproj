@@ -83,7 +83,9 @@
     <Compile Include="Controllers\MainButtonController.cs" />
     <Compile Include="ControlSets\IntermediateControlSet.cs" />
     <Compile Include="ControlSets\LoggedInControlSet.cs" />
+    <Compile Include="Dialogs\Actions\CharacterDialogActions.cs" />
     <Compile Include="Dialogs\Actions\ErrorDialogDisplayAction.cs" />
+    <Compile Include="Dialogs\Actions\ICharacterDialogActions.cs" />
     <Compile Include="Dialogs\Actions\IErrorDialogDisplayAction.cs" />
     <Compile Include="Dialogs\Actions\CreateAccountDialogDisplayActions.cs" />
     <Compile Include="Dialogs\Factories\CreateAccountProgressDialogFactory.cs" />
