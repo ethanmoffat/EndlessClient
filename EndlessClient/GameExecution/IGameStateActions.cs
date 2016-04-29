@@ -8,6 +8,8 @@ namespace EndlessClient.GameExecution
 	{
 		void ChangeToState(GameStates newState);
 
+		void RefreshCurrentState();
+
 		void ExitGame();
 	}
 }
