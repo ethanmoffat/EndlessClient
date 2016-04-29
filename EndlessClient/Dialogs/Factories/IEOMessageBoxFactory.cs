@@ -9,27 +9,23 @@ namespace EndlessClient.Dialogs.Factories
 {
 	public interface IEOMessageBoxFactory
 	{
-		void CreateMessageBox(string message, 
-							  string caption = "", 
-							  XNADialogButtons whichButtons = XNADialogButtons.Ok,
-							  EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
-							  XNADialog.OnDialogClose closeEvent = null);
+		EOMessageBox CreateMessageBox(string message, 
+									  string caption = "", 
+									  XNADialogButtons whichButtons = XNADialogButtons.Ok,
+									  EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader);
 
-		void CreateMessageBox(DATCONST1 resource,
-							  XNADialogButtons whichButtons = XNADialogButtons.Ok,
-							  EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
-							  XNADialog.OnDialogClose closingEvent = null);
+		EOMessageBox CreateMessageBox(DATCONST1 resource,
+									  XNADialogButtons whichButtons = XNADialogButtons.Ok,
+									  EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader);
 
-		void CreateMessageBox(string prependData,
-							  DATCONST1 resource,
-							  XNADialogButtons whichButtons = XNADialogButtons.Ok,
-							  EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
-							  XNADialog.OnDialogClose closingEvent = null);
+		EOMessageBox CreateMessageBox(string prependData,
+									  DATCONST1 resource,
+									  XNADialogButtons whichButtons = XNADialogButtons.Ok,
+									  EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader);
 
-		void CreateMessageBox(DATCONST1 resource,
-							  string extraData,
-							  XNADialogButtons whichButtons = XNADialogButtons.Ok,
-							  EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
-							  XNADialog.OnDialogClose closingEvent = null);
+		EOMessageBox CreateMessageBox(DATCONST1 resource,
+									  string extraData,
+									  XNADialogButtons whichButtons = XNADialogButtons.Ok,
+									  EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader);
 	}
 }

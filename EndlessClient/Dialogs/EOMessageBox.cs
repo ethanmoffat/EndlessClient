@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Threading.Tasks;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
@@ -21,8 +22,8 @@ namespace EndlessClient.Dialogs
 
 	public class EOMessageBox : EODialogBase
 	{
-		//I don't like squiggly lines, but this is definitely going to be removed at some point
-		//[Obsolete("This is deprecated and will eventually be removed. Use the EOMessageBoxFactory instead to construct dialogs")]
+		private readonly TaskCompletionSource<XNADialogResult> _dialogClosedTask;
+
 		public EOMessageBox(string msgText,
 							string captionText = "",
 							XNADialogButtons whichButtons = XNADialogButtons.Ok,
@@ -211,7 +212,20 @@ namespace EndlessClient.Dialogs
 						btn.DrawLocation = new Vector2(btn.DrawLocation.X, 148);
 			}
 
+			_dialogClosedTask = new TaskCompletionSource<XNADialogResult>();
+			DialogClosing += DialogClosingHandler;
+
 			CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
+		}
+
+		private void DialogClosingHandler(object sender, CloseDialogEventArgs e)
+		{
+			_dialogClosedTask.SetResult(e.Result);
+		}
+
+		public new async Task<XNADialogResult> Show()
+		{
+			return await _dialogClosedTask.Task;
 		}
 
 		public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok, EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)

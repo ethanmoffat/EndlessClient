@@ -28,61 +28,52 @@ namespace EndlessClient.Dialogs.Factories
 			_localizedStringService = localizedStringService;
 		}
 
-		public void CreateMessageBox(string message,
-									 string caption = "",
-									 XNADialogButtons whichButtons = XNADialogButtons.Ok,
-									 EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
-									 XNADialog.OnDialogClose closeEvent = null)
+		public EOMessageBox CreateMessageBox(string message,
+											 string caption = "",
+											 XNADialogButtons whichButtons = XNADialogButtons.Ok,
+											 EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
 		{
-			var messageBox = new EOMessageBox(_nativeGraphicsManager,
+			return new EOMessageBox(_nativeGraphicsManager,
 				_gameStateProvider,
 				_graphicsDeviceProvider,
 				message,
 				caption,
 				style,
 				whichButtons);
-			if (closeEvent != null)
-				messageBox.DialogClosing += closeEvent;
 		}
 
-		public void CreateMessageBox(DATCONST1 resource,
-									 XNADialogButtons whichButtons = XNADialogButtons.Ok,
-									 EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
-									 XNADialog.OnDialogClose closingEvent = null)
+		public EOMessageBox CreateMessageBox(DATCONST1 resource,
+											 XNADialogButtons whichButtons = XNADialogButtons.Ok,
+											 EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
 		{
-			CreateMessageBox(_localizedStringService.GetString(resource + 1),
+			return CreateMessageBox(_localizedStringService.GetString(resource + 1),
 				_localizedStringService.GetString(resource),
 				whichButtons,
-				style,
-				closingEvent);
+				style);
 		}
 
-		public void CreateMessageBox(string prependData,
-									 DATCONST1 resource,
-									 XNADialogButtons whichButtons = XNADialogButtons.Ok,
-									 EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
-									 XNADialog.OnDialogClose closingEvent = null)
+		public EOMessageBox CreateMessageBox(string prependData,
+											 DATCONST1 resource,
+											 XNADialogButtons whichButtons = XNADialogButtons.Ok,
+											 EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
 		{
 			var message = prependData + _localizedStringService.GetString(resource + 1);
-			CreateMessageBox(message,
+			return CreateMessageBox(message,
 				_localizedStringService.GetString(resource),
 				whichButtons,
-				style,
-				closingEvent);
+				style);
 		}
 
-		public void CreateMessageBox(DATCONST1 resource,
-									 string extraData,
-									 XNADialogButtons whichButtons = XNADialogButtons.Ok,
-									 EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
-									 XNADialog.OnDialogClose closingEvent = null)
+		public EOMessageBox CreateMessageBox(DATCONST1 resource,
+											 string extraData,
+											 XNADialogButtons whichButtons = XNADialogButtons.Ok,
+											 EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
 		{
 			var message = _localizedStringService.GetString(resource + 1) + extraData;
-			CreateMessageBox(message,
+			return CreateMessageBox(message,
 				_localizedStringService.GetString(resource),
 				whichButtons,
-				style,
-				closingEvent);
+				style);
 		}
 	}
 }
