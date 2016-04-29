@@ -18,13 +18,15 @@ namespace EndlessClient.Dialogs.Factories
 		private readonly ICharacterRendererFactory _characterRendererFactory;
 		private readonly IContentManagerProvider _contentManagerProvider;
 		private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
+		private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
 
 		public CreateCharacterDialogFactory(INativeGraphicsManager nativeGraphicsManager,
 											IGraphicsDeviceProvider graphicsDeviceProvider,
 											IGameStateProvider gameStateProvider,
 											ICharacterRendererFactory characterRendererFactory,
 											IContentManagerProvider contentManagerProvider,
-											IKeyboardDispatcherProvider keyboardDispatcherProvider)
+											IKeyboardDispatcherProvider keyboardDispatcherProvider,
+											IEOMessageBoxFactory eoMessageBoxFactory)
 		{
 			_nativeGraphicsManager = nativeGraphicsManager;
 			_graphicsDeviceProvider = graphicsDeviceProvider;
@@ -32,6 +34,7 @@ namespace EndlessClient.Dialogs.Factories
 			_characterRendererFactory = characterRendererFactory;
 			_contentManagerProvider = contentManagerProvider;
 			_keyboardDispatcherProvider = keyboardDispatcherProvider;
+			_eoMessageBoxFactory = eoMessageBoxFactory;
 		}
 
 		public CreateCharacterDialog BuildCreateCharacterDialog()
@@ -41,8 +44,8 @@ namespace EndlessClient.Dialogs.Factories
 				_gameStateProvider,
 				_characterRendererFactory,
 				_contentManagerProvider.Content,
-				_keyboardDispatcherProvider.Dispatcher
-				);
+				_keyboardDispatcherProvider.Dispatcher,
+				_eoMessageBoxFactory);
 		}
 	}
 }

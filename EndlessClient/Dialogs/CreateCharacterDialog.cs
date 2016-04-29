@@ -5,13 +5,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
-using EOLib.Domain.Login;
 using EOLib.Graphics;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -23,6 +23,7 @@ namespace EndlessClient.Dialogs
 {
 	public class CreateCharacterDialog : EODialogBase
 	{
+		private readonly IEOMessageBoxFactory _messageBoxFactory;
 		private readonly ManualResetEventSlim _doneEvent;
 
 		private readonly XNATextBox _inputBox;
@@ -40,7 +41,7 @@ namespace EndlessClient.Dialogs
 
 		public string Name { get { return _inputBox.Text; } }
 
-		public XNADialogResult Result { get; private set; }
+		private XNADialogResult _result;
 
 		public CreateCharacterDialog(Texture2D cursorTexture, KeyboardDispatcher dispatcher)
 			: base((PacketAPI)null)
@@ -117,9 +118,11 @@ namespace EndlessClient.Dialogs
 			IGameStateProvider gameStateProvider,
 			ICharacterRendererFactory rendererFactory,
 			ContentManager contentManager,
-			KeyboardDispatcher dispatcher)
+			KeyboardDispatcher dispatcher,
+			IEOMessageBoxFactory messageBoxFactory)
 			: base(nativeGraphicsManager)
 		{
+			_messageBoxFactory = messageBoxFactory;
 			bgTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 20);
 			_setSize(bgTexture.Width, bgTexture.Height);
 
@@ -164,16 +167,7 @@ namespace EndlessClient.Dialogs
 				new Vector2(157, 195),
 				_getSmallButtonOut(SmallButton.Ok),
 				_getSmallButtonOver(SmallButton.Ok));
-			okButton.OnClick += (s, e) =>
-			{
-				if (_inputBox.Text.Length < 4)
-				{
-					EOMessageBox.Show(DATCONST1.CHARACTER_CREATE_NAME_TOO_SHORT);
-					return;
-				}
-
-				Close(okButton, XNADialogResult.OK);
-			};
+			okButton.OnClick += (s, e) => Close(okButton, XNADialogResult.OK);
 			okButton.SetParent(this);
 			dlgButtons.Add(okButton);
 
@@ -218,6 +212,9 @@ namespace EndlessClient.Dialogs
 		{
 			await Task.Run(() => _doneEvent.Wait());
 
+			if (_result == XNADialogResult.Cancel)
+				throw new OperationCanceledException();
+
 			return new CharacterCreateParameters(Name,
 				RenderProperties.Gender,
 				RenderProperties.HairStyle,
@@ -251,7 +248,16 @@ namespace EndlessClient.Dialogs
 
 		private void DialogClosingHandler(object sender, CloseDialogEventArgs args)
 		{
-			Result = args.Result;
+			if (_inputBox.Text.Length < 4)
+			{
+				_messageBoxFactory.CreateMessageBox(DATCONST1.CHARACTER_CREATE_NAME_TOO_SHORT,
+					XNADialogButtons.Ok,
+					EOMessageBoxStyle.SmallDialogLargeHeader);
+				args.CancelClose = true;
+				return;
+			}
+
+			_result = args.Result;
 			_doneEvent.Set();
 		}
 

@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
@@ -15,9 +16,12 @@ namespace EndlessClient.ControlSets
 	public class LoggedInControlSet : IntermediateControlSet
 	{
 		private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
+		private readonly ICharacterManagementController _characterManagementController;
 		private readonly List<CharacterInfoPanel> _characterInfoPanels;
 
 		private XNAButton _changePasswordButton;
+
+		private int _createRequests;
 
 		public override GameStates GameState
 		{
@@ -26,10 +30,12 @@ namespace EndlessClient.ControlSets
 
 		public LoggedInControlSet(KeyboardDispatcher dispatcher,
 								  IMainButtonController mainButtonController,
-								  ICharacterInfoPanelFactory characterInfoPanelFactory)
+								  ICharacterInfoPanelFactory characterInfoPanelFactory,
+								  ICharacterManagementController characterManagementController)
 			: base(dispatcher, mainButtonController)
 		{
 			_characterInfoPanelFactory = characterInfoPanelFactory;
+			_characterManagementController = characterManagementController;
 			_characterInfoPanels = new List<CharacterInfoPanel>();
 		}
 
@@ -73,9 +79,19 @@ namespace EndlessClient.ControlSets
 			return button;
 		}
 
-		private void DoCreateCharacter(object sender, EventArgs e)
+		private async void DoCreateCharacter(object sender, EventArgs e)
 		{
-			//todo:
+			if (Interlocked.Increment(ref _createRequests) != 1)
+				return;
+
+			try
+			{
+				await _characterManagementController.CreateCharacter();
+			}
+			finally
+			{
+				Interlocked.Exchange(ref _createRequests, 0);
+			}
 		}
 	}
 }

@@ -22,6 +22,7 @@ namespace EndlessClient.ControlSets
 		private readonly IMainButtonControllerProvider _mainButtonControllerProvider;
 		private readonly ICreateAccountControllerProvider _createAccountControllerProvider;
 		private readonly ILoginControllerProvider _loginControllerProvider;
+		private readonly ICharacterManagementControllerProvider _characterManagementControllerProvider;
 
 		public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
 								 IContentManagerProvider contentManagerProvider,
@@ -30,7 +31,8 @@ namespace EndlessClient.ControlSets
 								 ICharacterInfoPanelFactory characterInfoPanelFactory,
 								 IMainButtonControllerProvider mainButtonControllerProvider,
 								 ICreateAccountControllerProvider createAccountControllerProvider,
-								 ILoginControllerProvider loginControllerProvider)
+								 ILoginControllerProvider loginControllerProvider,
+								 ICharacterManagementControllerProvider characterManagementControllerProvider)
 		{
 			_nativeGraphicsManager = nativeGraphicsManager;
 			_contentManagerProvider = contentManagerProvider;
@@ -40,6 +42,7 @@ namespace EndlessClient.ControlSets
 			_mainButtonControllerProvider = mainButtonControllerProvider;
 			_createAccountControllerProvider = createAccountControllerProvider;
 			_loginControllerProvider = loginControllerProvider;
+			_characterManagementControllerProvider = characterManagementControllerProvider;
 		}
 
 		public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -70,7 +73,8 @@ namespace EndlessClient.ControlSets
 				case GameStates.LoggedIn: return new LoggedInControlSet(
 					_keyboardDispatcherProvider.Dispatcher,
 					MainButtonController,
-					_characterInfoPanelFactory);
+					_characterInfoPanelFactory,
+					CharacterManagementController);
 				default: throw new ArgumentOutOfRangeException("newState", newState, null);
 			}
 		}
@@ -88,6 +92,11 @@ namespace EndlessClient.ControlSets
 		private ILoginController LoginController
 		{
 			get { return _loginControllerProvider.LoginController; }
+		}
+
+		private ICharacterManagementController CharacterManagementController
+		{
+			get { return _characterManagementControllerProvider.CharacterManagementController; }
 		}
 	}
 }
