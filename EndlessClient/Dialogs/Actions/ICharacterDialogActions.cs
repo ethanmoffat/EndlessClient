@@ -4,6 +4,7 @@
 
 using System.Threading.Tasks;
 using EOLib.Domain.Character;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
@@ -14,5 +15,7 @@ namespace EndlessClient.Dialogs.Actions
 		void ShowCharacterReplyDialog(CharacterReply response);
 
 		void ShowCharacterDeleteWarning(string characterName);
+		
+		Task<XNADialogResult> ShowConfirmDeleteWarning();
 	}
 }

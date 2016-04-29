@@ -10,6 +10,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
+using XNAControls;
 
 namespace EndlessClient.Controllers
 {
@@ -92,20 +93,23 @@ namespace EndlessClient.Controllers
 			_characterDialogActions.ShowCharacterReplyDialog(response);
 		}
 
-		public Task DeleteCharacter(ICharacter characterToDelete)
+		public async Task DeleteCharacter(ICharacter characterToDelete)
 		{
 			if (_characterSelectorRepository.CharacterForDelete == null ||
 			    _characterSelectorRepository.CharacterForDelete != characterToDelete)
 			{
 				_characterDialogActions.ShowCharacterDeleteWarning(characterToDelete.Name);
 				_characterSelectorRepository.CharacterForDelete = characterToDelete;
-			}
-			else
-			{
-				//confirm delete
+				return;
 			}
 
-			return Task.FromResult(false);
+			//do TAKE action w/ server
+
+			var dialogResult = await _characterDialogActions.ShowConfirmDeleteWarning();
+			if (dialogResult != XNADialogResult.OK)
+				return;
+
+			//do DELETE action w/ server
 		}
 
 		private void SetInitialStateAndShowError()

@@ -56,5 +56,10 @@ namespace EndlessClient.Dialogs.Actions
 				string.Format("Character \'{0}\'", characterName),
 				DATCONST1.CHARACTER_DELETE_FIRST_CHECK);
 		}
+
+		public async Task<XNADialogResult> ShowConfirmDeleteWarning()
+		{
+			return await Task.FromResult(XNADialogResult.NO_BUTTON_PRESSED);
+		}
 	}
 }
