@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
+using EOLib.Domain.BLL;
 
 namespace EndlessClient.Controllers
 {
@@ -10,8 +11,6 @@ namespace EndlessClient.Controllers
 	{
 		Task CreateCharacter();
 
-		Task RequestDeleteCharacter();
-
-		Task ConfirmDeleteCharacter();
+		Task DeleteCharacter(ICharacter characterToDelete);
 	}
 }

@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using EndlessClient.Controllers;
 using EndlessClient.Rendering.Factories;
@@ -11,7 +12,6 @@ using EOLib;
 using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
-using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -23,12 +23,13 @@ namespace EndlessClient.UIControls
 		private readonly INativeGraphicsManager _gfxManager;
 		private readonly ICharacter _character;
 		private readonly ILoginController _loginController;
+		private readonly ICharacterManagementController _characterManagementController;
 		private readonly CharacterControl _characterControl;
 		private readonly ISpriteSheet _adminGraphic;
 
 		private readonly Texture2D _backgroundImage;
 
-		private readonly XNAButton _loginButton, _deleteButton;
+		private int _clickRequests;
 
 		//top left - 334, 36 + ndx*124
 		protected CharacterInfoPanel(int characterIndex, INativeGraphicsManager gfxManager)
@@ -38,19 +39,19 @@ namespace EndlessClient.UIControls
 
 			var smallButtonTextures = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
 
-			_loginButton = new XNAButton(smallButtonTextures,
+			var loginButton = new XNAButton(smallButtonTextures,
 				new Vector2(161, 57),
 				new Rectangle(0, 58, 91, 29),
 				new Rectangle(91, 58, 91, 29));
-			_loginButton.OnClick += async (o, e) => await LoginButtonClick();
-			_loginButton.SetParent(this);
+			loginButton.OnClick += async (o, e) => await LoginButtonClick();
+			loginButton.SetParent(this);
 
-			_deleteButton = new XNAButton(smallButtonTextures,
+			var deleteButton = new XNAButton(smallButtonTextures,
 				new Vector2(161, 85),
 				new Rectangle(0, 87, 91, 29),
 				new Rectangle(91, 87, 91, 29));
-			_deleteButton.OnClick += async (o, e) => await DeleteButtonClick();
-			_deleteButton.SetParent(this);
+			deleteButton.OnClick += async (o, e) => await DeleteButtonClick();
+			deleteButton.SetParent(this);
 
 			_backgroundImage = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 11);
 		}
@@ -58,12 +59,15 @@ namespace EndlessClient.UIControls
 		public CharacterInfoPanel(int characterIndex,
 								  ICharacter character,
 								  INativeGraphicsManager gfxManager,
-								  ILoginController loginController, //also need delete controller
+								  ILoginController loginController,
+								  ICharacterManagementController characterManagementController,
 								  ICharacterRendererFactory rendererFactory)
 			: this(characterIndex, gfxManager)
 		{
 			_character = character;
 			_loginController = loginController;
+			_characterManagementController = characterManagementController;
+
 			_characterControl = new CharacterControl(character.RenderProperties, rendererFactory)
 			{
 				DrawLocation = new Vector2(61, 24)
@@ -122,12 +126,32 @@ namespace EndlessClient.UIControls
 
 		protected virtual async Task LoginButtonClick()
 		{
-			await _loginController.LoginToCharacter();
+			if (Interlocked.Increment(ref _clickRequests) != 1)
+				return;
+
+			try
+			{
+				await _loginController.LoginToCharacter();
+			}
+			finally
+			{
+				Interlocked.Exchange(ref _clickRequests, 0);
+			}
 		}
 
 		protected virtual async Task DeleteButtonClick()
 		{
-			await Task.FromResult(false);
+			if (Interlocked.Increment(ref _clickRequests) != 1)
+				return;
+
+			try
+			{
+				await _characterManagementController.DeleteCharacter(_character);
+			}
+			finally
+			{
+				Interlocked.Exchange(ref _clickRequests, 0);
+			}
 		}
 
 		protected virtual void DoUpdateLogic(GameTime gameTime)

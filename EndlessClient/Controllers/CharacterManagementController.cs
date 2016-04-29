@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
+using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
+using EOLib.Domain.Login;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 
@@ -18,23 +20,29 @@ namespace EndlessClient.Controllers
 		private readonly ICreateCharacterDialogFactory _createCharacterDialogFactory;
 		private readonly ICharacterManagementActions _characterManagementActions;
 		private readonly IErrorDialogDisplayAction _errorDialogDisplayAction;
+		private readonly ICharacterDialogActions _characterDialogActions;
 		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
 		private readonly INetworkConnectionActions _networkConnectionActions;
 		private readonly IGameStateActions _gameStateActions;
+		private readonly ICharacterSelectorRepository _characterSelectorRepository;
 
 		public CharacterManagementController(ICreateCharacterDialogFactory createCharacterDialogFactory,
 											 ICharacterManagementActions characterManagementActions,
 											 IErrorDialogDisplayAction errorDialogDisplayAction,
+											 ICharacterDialogActions characterDialogActions,
 											 IBackgroundReceiveActions backgroundReceiveActions,
 											 INetworkConnectionActions networkConnectionActions,
-											 IGameStateActions gameStateActions)
+											 IGameStateActions gameStateActions,
+											 ICharacterSelectorRepository characterSelectorRepository)
 		{
 			_createCharacterDialogFactory = createCharacterDialogFactory;
 			_characterManagementActions = characterManagementActions;
 			_errorDialogDisplayAction = errorDialogDisplayAction;
+			_characterDialogActions = characterDialogActions;
 			_backgroundReceiveActions = backgroundReceiveActions;
 			_networkConnectionActions = networkConnectionActions;
 			_gameStateActions = gameStateActions;
+			_characterSelectorRepository = characterSelectorRepository;
 		}
 
 		public async Task CreateCharacter()
@@ -101,15 +109,19 @@ namespace EndlessClient.Controllers
 			_errorDialogDisplayAction.ShowCharacterManagementMessage(CharacterReply.Ok);
 		}
 
-		public Task RequestDeleteCharacter()
+		public Task DeleteCharacter(ICharacter characterToDelete)
 		{
-			//requests delete (first click)
-			return Task.FromResult(false);
-		}
+			if (_characterSelectorRepository.CharacterForDelete == null ||
+			    _characterSelectorRepository.CharacterForDelete != characterToDelete)
+			{
+				_characterDialogActions.ShowCharacterDeleteWarning(characterToDelete.Name);
+				_characterSelectorRepository.CharacterForDelete = characterToDelete;
+			}
+			else
+			{
+				//confirm delete
+			}
 
-		public Task ConfirmDeleteCharacter()
-		{
-			//does actual delete (second click)
 			return Task.FromResult(false);
 		}
 
