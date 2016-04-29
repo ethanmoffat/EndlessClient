@@ -59,6 +59,8 @@ namespace EndlessClient
 			container.RegisterType<ICreateAccountControllerRepository, CreateAccountControllerRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ILoginControllerProvider, LoginControllerRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ILoginControllerRepository, LoginControllerRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ICharacterManagementControllerProvider, CharacterManagementRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ICharacterManagementControllerRepository, CharacterManagementRepository>(new ContainerControlledLifetimeManager());
 			
 			//actions
 			container.RegisterType<IGameStateActions, GameStateActions>();
@@ -80,11 +82,16 @@ namespace EndlessClient
 
 			//part of bad hack to prevent circular dependency
 			var mainButtonControllerRepo = container.Resolve<IMainButtonControllerRepository>();
-			var createAccountControllerRepo = container.Resolve<ICreateAccountControllerRepository>();
-			var loginControllerRepo = container.Resolve<ILoginControllerRepository>();
 			mainButtonControllerRepo.MainButtonController = container.Resolve<IMainButtonController>();
+
+			var createAccountControllerRepo = container.Resolve<ICreateAccountControllerRepository>();
 			createAccountControllerRepo.CreateAccountController = container.Resolve<ICreateAccountController>();
+
+			var loginControllerRepo = container.Resolve<ILoginControllerRepository>();
 			loginControllerRepo.LoginController = container.Resolve<ILoginController>();
+
+			var charManageControllerRepo = container.Resolve<ICharacterManagementControllerRepository>();
+			charManageControllerRepo.CharacterManagementController = container.Resolve<ICharacterManagementController>();
 		}
 	}
 }

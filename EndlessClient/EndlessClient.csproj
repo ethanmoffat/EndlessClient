@@ -70,6 +70,7 @@
     <Compile Include="Controllers\CharacterManagementController.cs" />
     <Compile Include="Controllers\CreateAccountController.cs" />
     <Compile Include="Controllers\ICharacterManagementController.cs" />
+    <Compile Include="Controllers\ICharacterManagementControllerRepository.cs" />
     <Compile Include="Controllers\ICreateAccountController.cs" />
     <Compile Include="Controllers\ICreateAccountControllerRepository.cs" />
     <Compile Include="Controllers\ILoginController.cs" />
