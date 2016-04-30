@@ -58,6 +58,9 @@ namespace EOLib.Net.Handlers
 					}
 
 					var handler = _packetHandlerFinder.FindHandler(nextPacket.Family, nextPacket.Action);
+					if (!handler.CanHandle)
+						continue;
+
 					handler.HandlePacket(nextPacket);
 				}
 			}
@@ -74,6 +77,9 @@ namespace EOLib.Net.Handlers
 					}
 
 					var handler = _packetHandlerFinder.FindHandler(nextPacket.Family, nextPacket.Action);
+					if (!handler.CanHandle)
+						continue;
+
 					handler.HandlePacket(nextPacket);
 				}
 			}

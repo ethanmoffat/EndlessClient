@@ -4,6 +4,7 @@
 
 using System.Threading;
 using EOLib.Domain.Login;
+using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {

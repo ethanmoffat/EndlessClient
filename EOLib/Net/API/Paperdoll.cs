@@ -6,6 +6,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using EOLib.IO;
+using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {

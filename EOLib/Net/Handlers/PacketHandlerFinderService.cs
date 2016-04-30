@@ -2,20 +2,30 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Collections.Generic;
+using System.Linq;
+
 namespace EOLib.Net.Handlers
 {
 	public class PacketHandlerFinderService : IPacketHandlerFinderService
 	{
-		//todo: take all packet handlers as constructor injected parameter, store in map to their specified family/action
+		private readonly Dictionary<FamilyActionPair, IPacketHandler> _handlers;
+ 
+		public PacketHandlerFinderService(IPacketHandlerProvider packetHandlerProvider)
+		{
+			_handlers = packetHandlerProvider.PacketHandlers.ToDictionary(x => new FamilyActionPair(x.Family, x.Action));
+		}
 
 		public bool HandlerExists(PacketFamily family, PacketAction action)
 		{
-			throw new System.NotImplementedException();
+			var familyActionPair = new FamilyActionPair(family, action);
+			return _handlers.ContainsKey(familyActionPair);
 		}
 
 		public IPacketHandler FindHandler(PacketFamily family, PacketAction action)
 		{
-			throw new System.NotImplementedException();
+			var familyActionPair = new FamilyActionPair(family, action);
+			return _handlers[familyActionPair];
 		}
 	}
 }

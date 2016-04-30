@@ -9,6 +9,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.IO.Map;
+using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {

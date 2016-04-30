@@ -31,6 +31,8 @@ namespace EOLib.Net
 			container.RegisterType<ISequenceRepository, SequenceRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IConnectionStateRepository, ConnectionStateRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IConnectionStateProvider, ConnectionStateRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IPacketHandlerRepository, PacketHandlerRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IPacketHandlerProvider, PacketHandlerRepository>(new ContainerControlledLifetimeManager());
 
 			container.RegisterType<IPacketProcessorActions, PacketProcessActions>();
 			container.RegisterType<INetworkConnectionActions, NetworkConnectionActions>();

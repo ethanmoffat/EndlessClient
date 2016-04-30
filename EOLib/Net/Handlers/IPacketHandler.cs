@@ -9,6 +9,8 @@ namespace EOLib.Net.Handlers
 		PacketFamily Family { get; }
 		PacketAction Action { get; }
 
+		bool CanHandle { get; }
+
 		void HandlePacket(IPacket packet);
 	}
 }

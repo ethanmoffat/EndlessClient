@@ -3,10 +3,10 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Net.Sockets;
 using EOLib.Net.API;
+using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Net
@@ -82,35 +82,6 @@ namespace EOLib.Net
 	}
 
 	public delegate void PacketHandler(OldPacket reader);
-	public struct FamilyActionPair : IEqualityComparer
-	{
-		private readonly PacketFamily fam;
-		private readonly PacketAction act;
-
-		public FamilyActionPair(PacketFamily family, PacketAction action)
-		{
-			fam = family;
-			act = action;
-		}
-
-		bool IEqualityComparer.Equals(object obj1, object obj2)
-		{
-			if (!(obj1 is FamilyActionPair) || !(obj2 is FamilyActionPair))
-				return false;
-
-			FamilyActionPair fap1 = (FamilyActionPair)obj1, fap2 = (FamilyActionPair)obj2;
-			return fap1.fam == fap2.fam && fap1.act == fap2.act;
-		}
-
-		public int GetHashCode(object obj)
-		{
-			if (!(obj is FamilyActionPair)) return 0;
-
-			FamilyActionPair fap /*lol*/ = (FamilyActionPair)obj;
-
-			return (int)fap.fam << 8 & (byte)fap.act;
-		}
-	}
 
 	internal class PacketHandlerInvoker
 	{
