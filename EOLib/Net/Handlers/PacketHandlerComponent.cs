@@ -21,6 +21,8 @@ namespace EOLib.Net.Handlers
 		private readonly IPacketQueueProvider _packetQueueProvider;
 		private readonly IPacketHandlerFinderService _packetHandlerFinder;
 
+		private readonly List<IPacket> _unhandledPackets;
+
 		public bool Enabled { get { return true; } }
 
 		public int UpdateOrder { get { return 0; } }
@@ -34,6 +36,8 @@ namespace EOLib.Net.Handlers
 		{
 			_packetQueueProvider = packetQueueProvider;
 			_packetHandlerFinder = packetHandlerFinder;
+
+			_unhandledPackets = new List<IPacket>(10);
 		}
 
 		public void Initialize() { }
@@ -43,49 +47,42 @@ namespace EOLib.Net.Handlers
 			if (PacketQueue.QueuedPacketCount == 0)
 				return;
 
-			//For packets without handlers or that are only handled in-band (account, login, character, etc):
-			//	store in list and re-queue at end of handling
-			var unhandledPackets = new List<IPacket>();
+			_unhandledPackets.Clear();
+
 			if (Max_Packets_Per_Update >= PacketQueue.QueuedPacketCount)
 			{
 				var packets = PacketQueue.DequeueAllPackets();
 				foreach (var nextPacket in packets)
-				{
-					if (!_packetHandlerFinder.HandlerExists(nextPacket.Family, nextPacket.Action))
-					{
-						unhandledPackets.Add(nextPacket);
-						continue;
-					}
-
-					var handler = _packetHandlerFinder.FindHandler(nextPacket.Family, nextPacket.Action);
-					if (!handler.CanHandle)
-						continue;
-
-					handler.HandlePacket(nextPacket);
-				}
+					FindAndHandlePacket(nextPacket);
 			}
 			else
 			{
 				for (int i = 0; i < Max_Packets_Per_Update && PacketQueue.QueuedPacketCount > 0; ++i)
 				{
 					var nextPacket = PacketQueue.DequeueFirstPacket();
-					if (!_packetHandlerFinder.HandlerExists(nextPacket.Family, nextPacket.Action))
-					{
-						i -= 1; //don't count this packet in handling counts for this update
-						unhandledPackets.Add(nextPacket);
-						continue;
-					}
-
-					var handler = _packetHandlerFinder.FindHandler(nextPacket.Family, nextPacket.Action);
-					if (!handler.CanHandle)
-						continue;
-
-					handler.HandlePacket(nextPacket);
+					if (!FindAndHandlePacket(nextPacket))
+						i -= 1;
 				}
 			}
 
-			foreach (var packet in unhandledPackets)
+			foreach (var packet in _unhandledPackets)
 				PacketQueue.EnqueuePacketForHandling(packet);
+		}
+
+		private bool FindAndHandlePacket(IPacket packet)
+		{
+			if (!_packetHandlerFinder.HandlerExists(packet.Family, packet.Action))
+			{
+				_unhandledPackets.Add(packet);
+				return false;
+			}
+
+			var handler = _packetHandlerFinder.FindHandler(packet.Family, packet.Action);
+			if (!handler.CanHandle)
+				return false;
+
+			handler.HandlePacket(packet);
+			return true;
 		}
 
 		private IPacketQueue PacketQueue { get { return _packetQueueProvider.PacketQueue; } }
