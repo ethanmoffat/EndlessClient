@@ -4,6 +4,7 @@
 
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
+using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 using Microsoft.Practices.Unity;
 
@@ -36,6 +37,11 @@ namespace EOLib.Net
 			
 			//must be a singleton: tracks a thread and has internal state.
 			container.RegisterType<IBackgroundReceiveActions, BackgroundReceiveActions>(new ContainerControlledLifetimeManager());
+
+			//packet handling
+			container.RegisterType<PacketHandlerComponent>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IPacketHandlerFinderService, PacketHandlerFinderService>();
+			//todo: register handlers as varied types of interface
 		}
 
 		public void InitializeDependencies(IUnityContainer container)
