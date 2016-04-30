@@ -215,7 +215,7 @@ namespace EndlessClient.Dialogs
 			if (_result == XNADialogResult.Cancel)
 				throw new OperationCanceledException();
 
-			return new CharacterCreateParameters(Name,
+			return new CharacterCreateParameters(Name.Trim(),
 				RenderProperties.Gender,
 				RenderProperties.HairStyle,
 				RenderProperties.HairColor,
@@ -232,6 +232,9 @@ namespace EndlessClient.Dialogs
 			else if (sender == _arrowButtons[1])
 			{
 				_characterControl.NextHairStyle();
+				if (RenderProperties.HairStyle == 0) //skip bald
+					_characterControl.NextHairStyle();
+
 				_srcRectangles[1] = new Rectangle(0 + 23 * (RenderProperties.HairStyle - 1), 19, 23, 19);
 			}
 			else if (sender == _arrowButtons[2])
