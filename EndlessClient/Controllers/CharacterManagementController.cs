@@ -70,6 +70,7 @@ namespace EndlessClient.Controllers
 				return;
 			}
 
+			//todo: make not approved character names cancel the dialog close
 			var parameters = await _characterDialogActions.ShowCreateCharacterDialog();
 			if (parameters == null)
 				return;
