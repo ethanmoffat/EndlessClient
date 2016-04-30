@@ -92,7 +92,8 @@ namespace EndlessClient.Controllers
 				return;
 			}
 
-			_gameStateActions.RefreshCurrentState();
+			if (response == CharacterReply.Ok)
+				_gameStateActions.RefreshCurrentState();
 			_characterDialogActions.ShowCharacterReplyDialog(response);
 		}
 
