@@ -43,10 +43,10 @@ namespace EndlessClient.Controllers
 
 		public async Task CreateCharacter()
 		{
-			CharacterReply response;
+			short createID;
 			try
 			{
-				response = await _characterManagementActions.RequestCharacterCreation();
+				createID = await _characterManagementActions.RequestCharacterCreation();
 			}
 			catch (NoDataSentException)
 			{
@@ -60,8 +60,10 @@ namespace EndlessClient.Controllers
 				DisconnectAndStopReceiving();
 				return;
 			}
-
-			if (response != CharacterReply.Ok)
+			
+			//todo: other server implementations might have a different value than 1000
+			//		it is set to a constant 1000 in eoserv
+			if (createID != 1000)
 			{
 				SetInitialStateAndShowError();
 				DisconnectAndStopReceiving();
@@ -72,6 +74,7 @@ namespace EndlessClient.Controllers
 			if (parameters == null)
 				return;
 
+			CharacterReply response;
 			try
 			{
 				response = await _characterManagementActions.CreateCharacter(parameters);

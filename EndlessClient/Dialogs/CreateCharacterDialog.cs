@@ -248,11 +248,11 @@ namespace EndlessClient.Dialogs
 
 		private void DialogClosingHandler(object sender, CloseDialogEventArgs args)
 		{
-			if (_inputBox.Text.Length < 4)
+			if (args.Result == XNADialogResult.OK && _inputBox.Text.Length < 4)
 			{
 				_messageBoxFactory.CreateMessageBox(DATCONST1.CHARACTER_CREATE_NAME_TOO_SHORT,
-					XNADialogButtons.Ok,
-					EOMessageBoxStyle.SmallDialogLargeHeader);
+													XNADialogButtons.Ok,
+													EOMessageBoxStyle.SmallDialogLargeHeader);
 				args.CancelClose = true;
 				return;
 			}

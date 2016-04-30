@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using EOLib.Domain.Login;
 using EOLib.Net;
@@ -26,11 +27,11 @@ namespace EOLib.Domain.Character
 			_characterSelectorRepository = characterSelectorRepository;
 		}
 
-		public async Task<CharacterReply> RequestCharacterCreation()
+		public async Task<short> RequestCharacterCreation()
 		{
 			var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Request).Build();
 			var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
-			return (CharacterReply)responsePacket.ReadShort();
+			return responsePacket.ReadShort();
 		}
 
 		public async Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters)
@@ -47,7 +48,8 @@ namespace EOLib.Domain.Character
 			var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
 			
 			var translatedData = _characterCreatePacketTranslator.TranslatePacket(responsePacket);
-			_characterSelectorRepository.Characters = translatedData.Characters;
+			if (translatedData.Characters.Any())
+				_characterSelectorRepository.Characters = translatedData.Characters;
 			return translatedData.Response;
 		}
 

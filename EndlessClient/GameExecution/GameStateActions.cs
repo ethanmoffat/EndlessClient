@@ -50,7 +50,9 @@ namespace EndlessClient.GameExecution
 			var emptySet = new EmptyControlSet();
 
 			RemoveOldComponents(currentSet, emptySet);
-			currentSet.InitializeControls(emptySet);
+			var refreshedSet = _controlSetFactory.CreateControlsForState(currentSet.GameState, emptySet);
+			AddNewComponents(refreshedSet);
+			_controlSetRepository.CurrentControlSet = refreshedSet;
 		}
 
 		public void ExitGame()

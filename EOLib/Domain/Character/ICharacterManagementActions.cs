@@ -8,7 +8,7 @@ namespace EOLib.Domain.Character
 {
 	public interface ICharacterManagementActions
 	{
-		Task<CharacterReply> RequestCharacterCreation();
+		Task<short> RequestCharacterCreation();
 
 		Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters);
 		
