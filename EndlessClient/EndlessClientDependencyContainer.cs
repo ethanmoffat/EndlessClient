@@ -11,6 +11,7 @@ using EndlessClient.Controllers;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Net.Handlers;
 using Microsoft.Practices.Unity;
 using XNAControls;
 
@@ -74,6 +75,8 @@ namespace EndlessClient
 			var game = container.Resolve<IEndlessGame>();
 			var gameRepository = container.Resolve<IEndlessGameRepository>();
 			gameRepository.Game = game;
+
+			gameRepository.Game.Components.Add(container.Resolve<PacketHandlerComponent>());
 
 			var contentRepo = container.Resolve<IContentManagerRepository>();
 			contentRepo.Content = game.Content;

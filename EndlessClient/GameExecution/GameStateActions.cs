@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.ControlSets;
+using EOLib.Net.Handlers;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -71,7 +72,11 @@ namespace EndlessClient.GameExecution
 		{
 			var componentsToRemove = FindUnusedComponents(currentSet, nextSet);
 			var xnaControlComponents = componentsToRemove.OfType<XNAControl>().ToList();
-			var otherDisposableComponents = componentsToRemove.Except(xnaControlComponents).OfType<IDisposable>().ToList();
+			var otherDisposableComponents = componentsToRemove
+				.Except(xnaControlComponents)
+				.Where(x => !(x is PacketHandlerComponent))
+				.OfType<IDisposable>()
+				.ToList();
 
 			foreach (var component in xnaControlComponents)
 				component.Close();

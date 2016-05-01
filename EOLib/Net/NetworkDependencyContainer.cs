@@ -46,10 +46,12 @@ namespace EOLib.Net
 			container.RegisterType<PacketHandlerComponent>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IPacketHandlerFinderService, PacketHandlerFinderService>();
 
+			container.RegisterType<IPacketHandler, ConnectionPlayerHandler>(
+				typeof(ConnectionPlayerHandler).Name);
+
 			container.RegisterType<IEnumerable<IPacketHandler>>(
 				new ContainerControlledLifetimeManager(),
 				new InjectionFactory(c => c.ResolveAll<IPacketHandler>()));
-			container.RegisterType<IPacketHandler, ConnectionPlayerHandler>();
 		}
 
 		public void InitializeDependencies(IUnityContainer container)
