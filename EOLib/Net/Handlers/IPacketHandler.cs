@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Threading.Tasks;
+
 namespace EOLib.Net.Handlers
 {
 	public interface IPacketHandler
@@ -11,6 +13,6 @@ namespace EOLib.Net.Handlers
 
 		bool CanHandle { get; }
 
-		void HandlePacket(IPacket packet);
+		Task<bool> HandlePacket(IPacket packet);
 	}
 }

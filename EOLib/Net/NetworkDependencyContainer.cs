@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Collections;
+using System.Collections.Generic;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.Handlers;
@@ -43,7 +45,11 @@ namespace EOLib.Net
 			//packet handling
 			container.RegisterType<PacketHandlerComponent>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IPacketHandlerFinderService, PacketHandlerFinderService>();
-			//todo: register handlers as varied types of interface
+
+			container.RegisterType<IEnumerable<IPacketHandler>>(
+				new ContainerControlledLifetimeManager(),
+				new InjectionFactory(c => c.ResolveAll<IPacketHandler>()));
+			container.RegisterType<IPacketHandler, ConnectionPlayerHandler>();
 		}
 
 		public void InitializeDependencies(IUnityContainer container)

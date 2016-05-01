@@ -269,6 +269,7 @@
     <Compile Include="Net\Communication\PacketSendService.cs" />
     <Compile Include="Net\Connection\IConnectionStateRepository.cs" />
     <Compile Include="Net\Connection\INetworkConnectionActions.cs" />
+    <Compile Include="Net\Handlers\ConnectionPlayerHandler.cs" />
     <Compile Include="Net\Handlers\FamilyActionPair.cs" />
     <Compile Include="Net\Handlers\IPacketHandler.cs" />
     <Compile Include="Net\Handlers\IPacketHandlerFinderService.cs" />
