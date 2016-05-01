@@ -32,7 +32,7 @@ namespace EOLib.Net.Handlers
 		public async Task<bool> HandlePacket(IPacket packet)
 		{
 			var seq1 = packet.ReadShort();
-			var seq2 = packet.ReadByte();
+			var seq2 = packet.ReadChar();
 
 			_packetProcessorActions.SetUpdatedBaseSequenceNumber(seq1, seq2);
 
