@@ -8,7 +8,6 @@ using EndlessClient.GameExecution;
 using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;
-using EOLib.Net.Connection;
 
 namespace EndlessClient.Controllers
 {
@@ -17,20 +16,17 @@ namespace EndlessClient.Controllers
 		private readonly ILoginActions _loginActions;
 		private readonly IGameStateActions _gameStateActions;
 		private readonly IErrorDialogDisplayAction _errorDisplayAction;
-		private readonly INetworkConnectionActions _networkConnectionActions;
-		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
+		private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
 
 		public LoginController(ILoginActions loginActions,
 							   IGameStateActions gameStateActions,
 							   IErrorDialogDisplayAction errorDisplayAction,
-							   INetworkConnectionActions networkConnectionActions,
-							   IBackgroundReceiveActions backgroundReceiveActions)
+							   ISafeInBandNetworkOperationFactory networkOperationFactory)
 		{
 			_loginActions = loginActions;
 			_gameStateActions = gameStateActions;
 			_errorDisplayAction = errorDisplayAction;
-			_networkConnectionActions = networkConnectionActions;
-			_backgroundReceiveActions = backgroundReceiveActions;
+			_networkOperationFactory = networkOperationFactory;
 		}
 
 		public async Task LoginToAccount(ILoginParameters loginParameters)
@@ -38,29 +34,13 @@ namespace EndlessClient.Controllers
 			if (!_loginActions.LoginParametersAreValid(loginParameters))
 				return;
 
-			LoginReply reply;
-			try
-			{
-				reply = await _loginActions.LoginToServer(loginParameters);
-			}
-			catch (EmptyPacketReceivedException)
-			{
-				SetInitialStateAndShowError();
-				DisconnectAndStopReceiving();
+			var loginToServerOperation = _networkOperationFactory.CreateSafeOperation(
+				async () => await _loginActions.LoginToServer(loginParameters),
+				SetInitialStateAndShowError, SetInitialStateAndShowError);
+
+			if (!await loginToServerOperation.Invoke())
 				return;
-			}
-			catch (NoDataSentException)
-			{
-				SetInitialStateAndShowError();
-				DisconnectAndStopReceiving();
-				return;
-			}
-			catch (MalformedPacketException)
-			{
-				SetInitialStateAndShowError();
-				DisconnectAndStopReceiving();
-				return;
-			}
+			var reply = loginToServerOperation.Result;
 
 			if (reply == LoginReply.Ok)
 				_gameStateActions.ChangeToState(GameStates.LoggedIn);
@@ -73,16 +53,16 @@ namespace EndlessClient.Controllers
 			await Task.FromResult(false);
 		}
 
-		private void SetInitialStateAndShowError()
+		private void SetInitialStateAndShowError(NoDataSentException ex)
 		{
 			_gameStateActions.ChangeToState(GameStates.Initial);
-			_errorDisplayAction.ShowError(ConnectResult.SocketError);
+			_errorDisplayAction.ShowException(ex);
 		}
 
-		private void DisconnectAndStopReceiving()
+		private void SetInitialStateAndShowError(EmptyPacketReceivedException ex)
 		{
-			_backgroundReceiveActions.CancelBackgroundReceiveLoop();
-			_networkConnectionActions.DisconnectFromServer();
+			_gameStateActions.ChangeToState(GameStates.Initial);
+			_errorDisplayAction.ShowException(ex);
 		}
 	}
 }
