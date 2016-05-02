@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.Net.Handlers
 {
@@ -11,7 +12,7 @@ namespace EOLib.Net.Handlers
 		private readonly List<FamilyActionPair> _inBandPackets;
 		private readonly List<FamilyActionPair> _outOfBandPackets;
 
-		public PacketHandlingTypeFinder()
+		public PacketHandlingTypeFinder(IEnumerable<IPacketHandler> outOfBandHandlers)
 		{
 			_inBandPackets = new List<FamilyActionPair>
 			{
@@ -21,10 +22,7 @@ namespace EOLib.Net.Handlers
 				new FamilyActionPair(PacketFamily.Login, PacketAction.Reply)
 			};
 
-			_outOfBandPackets = new List<FamilyActionPair>
-			{
-				new FamilyActionPair(PacketFamily.Connection, PacketAction.Player)
-			};
+			_outOfBandPackets = outOfBandHandlers.Select(x => new FamilyActionPair(x.Family, x.Action)).ToList();
 		}
 
 		public PacketHandlingType FindHandlingType(PacketFamily family, PacketAction action)
