@@ -2,10 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Linq;
 using EOLib;
 using EOLib.Domain.BLL;
-using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 

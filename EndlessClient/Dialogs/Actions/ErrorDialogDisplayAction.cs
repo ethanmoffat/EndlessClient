@@ -6,9 +6,9 @@ using System;
 using System.Net.Sockets;
 using EndlessClient.Dialogs.Factories;
 using EOLib;
-using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Protocol;
+using EOLib.Net;
 using EOLib.Net.Communication;
 using XNAControls;
 

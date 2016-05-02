@@ -3,8 +3,8 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EndlessClient.GameExecution;
 using EndlessClient.Controllers;
+using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;

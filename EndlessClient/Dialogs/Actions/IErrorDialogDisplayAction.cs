@@ -2,9 +2,9 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Protocol;
+using EOLib.Net;
 using EOLib.Net.Communication;
 
 namespace EndlessClient.Dialogs.Actions

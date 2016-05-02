@@ -4,10 +4,9 @@
 
 using System;
 using System.Threading.Tasks;
-using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 
-namespace EOLib.Net
+namespace EOLib.Net.Communication
 {
 	public class SafeInBandNetworkOperationFactory : ISafeInBandNetworkOperationFactory
 	{

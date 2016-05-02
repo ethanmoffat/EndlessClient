@@ -3,12 +3,13 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {
-	public class NoDataSentException : Exception
+	public interface ISafeInBandNetworkOperationFactory
 	{
-		public NoDataSentException()
-			: base("No data was sent to the server.") { }
+		SafeInBandNetworkOperation<T> CreateSafeOperation<T>(Func<Task<T>> networkOperation,
+			Action errorAction);
 	}
 }

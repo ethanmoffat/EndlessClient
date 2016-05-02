@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Account;
+using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 

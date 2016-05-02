@@ -4,10 +4,9 @@
 
 using System;
 using System.Threading.Tasks;
-using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 
-namespace EOLib.Net
+namespace EOLib.Net.Communication
 {
 	/// <summary>
 	/// Wraps an in-band network operation (send/receive), handling send and receive exceptions and executing code when a failure occurs.

@@ -2,12 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EOLib.Net.Communication
-{
-	public interface IBackgroundReceiveActions
-	{
-		void RunBackgroundReceiveLoop();
+using System;
 
-		void CancelBackgroundReceiveLoop();
+namespace EOLib.Net
+{
+	public class NoDataSentException : Exception
+	{
+		public NoDataSentException()
+			: base("No data was sent to the server.") { }
 	}
 }

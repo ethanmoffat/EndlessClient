@@ -8,6 +8,7 @@ using EndlessClient.GameExecution;
 using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using XNAControls;

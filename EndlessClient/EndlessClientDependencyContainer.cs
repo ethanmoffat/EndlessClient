@@ -3,11 +3,11 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.Content;
+using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
-using EndlessClient.Controllers;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.UIControls;
 using EOLib;

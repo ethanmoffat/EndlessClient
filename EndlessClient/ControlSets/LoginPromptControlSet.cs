@@ -4,9 +4,9 @@
 
 using System;
 using System.Linq;
+using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
-using EndlessClient.Controllers;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Login;

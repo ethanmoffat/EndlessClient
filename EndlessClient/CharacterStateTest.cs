@@ -10,7 +10,6 @@ using EOLib;
 using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
 using EOLib.IO;
-using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
