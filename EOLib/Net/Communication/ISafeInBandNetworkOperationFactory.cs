@@ -10,6 +10,7 @@ namespace EOLib.Net.Communication
 	public interface ISafeInBandNetworkOperationFactory
 	{
 		SafeInBandNetworkOperation<T> CreateSafeOperation<T>(Func<Task<T>> networkOperation,
-			Action errorAction);
+			Action<NoDataSentException> sendErrorAction = null,
+			Action<EmptyPacketReceivedException> receiveErrorAction = null);
 	}
 }
