@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Protocol;
-using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.PacketProcessing;
@@ -23,6 +22,7 @@ namespace EndlessClient.Controllers
 		private readonly IGameStateActions _gameStateActions;
 		private readonly ICreateAccountDialogDisplayActions _createAccountDialogDisplayActions;
 		private readonly IConnectionStateProvider _connectionStateProvider;
+		private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
 
 		private int _numberOfConnectionRequests;
 
@@ -32,7 +32,8 @@ namespace EndlessClient.Controllers
 									IBackgroundReceiveActions backgroundReceiveActions,
 									IGameStateActions gameStateActions,
 									ICreateAccountDialogDisplayActions createAccountDialogDisplayActions,
-									IConnectionStateProvider connectionStateProvider)
+									IConnectionStateProvider connectionStateProvider,
+									ISafeInBandNetworkOperationFactory networkOperationFactory)
 		{
 			_networkConnectionActions = networkConnectionActions;
 			_errorDialogDisplayAction = errorDialogDisplayAction;
@@ -41,6 +42,7 @@ namespace EndlessClient.Controllers
 			_gameStateActions = gameStateActions;
 			_createAccountDialogDisplayActions = createAccountDialogDisplayActions;
 			_connectionStateProvider = connectionStateProvider;
+			_networkOperationFactory = networkOperationFactory;
 		}
 
 		public void GoToInitialState()
@@ -99,23 +101,13 @@ namespace EndlessClient.Controllers
 
 				_backgroundReceiveActions.RunBackgroundReceiveLoop();
 
-				IInitializationData initData;
-				try
-				{
-					initData = await _networkConnectionActions.BeginHandshake();
-				}
-				catch (NoDataSentException ex)
-				{
-					_errorDialogDisplayAction.ShowException(ex);
-					StopReceivingAndDisconnect();
+				var beginHandshakeOperation = _networkOperationFactory.CreateSafeOperation(
+					_networkConnectionActions.BeginHandshake,
+					ex => _errorDialogDisplayAction.ShowException(ex),
+					ex => _errorDialogDisplayAction.ShowException(ex));
+				if (!await beginHandshakeOperation.Invoke())
 					return false;
-				}
-				catch (EmptyPacketReceivedException ex)
-				{
-					_errorDialogDisplayAction.ShowException(ex);
-					StopReceivingAndDisconnect();
-					return false;
-				}
+				var initData = beginHandshakeOperation.Result;
 
 				if (initData.Response != InitReply.Success)
 				{
