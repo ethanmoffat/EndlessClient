@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Collections.Generic;
 using EOLib.Net.Communication;
 using Microsoft.Xna.Framework;
 
@@ -14,14 +13,11 @@ namespace EOLib.Net.Handlers
 {
 	public class PacketHandlerComponent : IGameComponent, IUpdateable
 	{
-		//the game will lag considerablly if this is too high.
 		//todo: investigate making this a configurable option or move to Constants class
 		private const int Max_Packets_Per_Update = 10;
 
 		private readonly IPacketQueueProvider _packetQueueProvider;
 		private readonly IPacketHandlerFinderService _packetHandlerFinder;
-
-		private readonly List<IPacket> _unhandledPackets;
 
 		public bool Enabled { get { return true; } }
 
@@ -36,8 +32,6 @@ namespace EOLib.Net.Handlers
 		{
 			_packetQueueProvider = packetQueueProvider;
 			_packetHandlerFinder = packetHandlerFinder;
-
-			_unhandledPackets = new List<IPacket>(10);
 		}
 
 		public void Initialize() { }
@@ -46,8 +40,6 @@ namespace EOLib.Net.Handlers
 		{
 			if (OutOfBandPacketQueue.QueuedPacketCount == 0)
 				return;
-
-			_unhandledPackets.Clear();
 
 			if (Max_Packets_Per_Update >= OutOfBandPacketQueue.QueuedPacketCount)
 			{
@@ -64,18 +56,12 @@ namespace EOLib.Net.Handlers
 						i -= 1;
 				}
 			}
-
-			foreach (var packet in _unhandledPackets)
-				OutOfBandPacketQueue.EnqueuePacketForHandling(packet);
 		}
 
 		private bool FindAndHandlePacket(IPacket packet)
 		{
 			if (!_packetHandlerFinder.HandlerExists(packet.Family, packet.Action))
-			{
-				_unhandledPackets.Add(packet);
 				return false;
-			}
 
 			var handler = _packetHandlerFinder.FindHandler(packet.Family, packet.Action);
 			if (!handler.CanHandle)
