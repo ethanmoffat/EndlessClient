@@ -282,7 +282,10 @@
     <Compile Include="Net\Handlers\PacketHandlingActions.cs" />
     <Compile Include="Net\Handlers\PacketHandlingType.cs" />
     <Compile Include="Net\Handlers\PacketHandlingTypeFinder.cs" />
+    <Compile Include="Net\ISafeInBandNetworkOperationFactory.cs" />
     <Compile Include="Net\MalformedPacketException.cs" />
+    <Compile Include="Net\SafeInBandNetworkOperation.cs" />
+    <Compile Include="Net\SafeInBandNetworkOperationFactory.cs" />
     <Compile Include="Net\Translators\AccountLoginPacketTranslator.cs" />
     <Compile Include="Net\Translators\CharacterDisplayPacketTranslator.cs" />
     <Compile Include="Net\Translators\CharacterReplyPacketTranslator.cs" />
