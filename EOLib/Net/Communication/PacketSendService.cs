@@ -38,7 +38,7 @@ namespace EOLib.Net.Communication
 			if (bytes == 0)
 				throw new NoDataSentException();
 
-			var responsePacket = await Queue.WaitForPacketAndDequeue();
+			var responsePacket = await InBandQueue.WaitForPacketAndDequeue();
 			if (responsePacket is EmptyPacket)
 				throw new EmptyPacketReceivedException();
 
@@ -51,7 +51,7 @@ namespace EOLib.Net.Communication
 			if (bytes == 0)
 				throw new NoDataSentException();
 
-			var responsePacket = await Queue.WaitForPacketAndDequeue();
+			var responsePacket = await InBandQueue.WaitForPacketAndDequeue();
 			if (responsePacket is EmptyPacket)
 				throw new EmptyPacketReceivedException();
 
@@ -60,6 +60,6 @@ namespace EOLib.Net.Communication
 
 		private INetworkClient Client { get { return _networkClientProvider.NetworkClient; } }
 
-		private IPacketQueue Queue { get { return _packetQueueProvider.PacketQueue; } }
+		private IWaitablePacketQueue InBandQueue { get { return _packetQueueProvider.HandleInBandPacketQueue; } }
 	}
 }

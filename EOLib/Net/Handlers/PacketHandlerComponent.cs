@@ -44,29 +44,29 @@ namespace EOLib.Net.Handlers
 
 		public void Update(GameTime gameTime)
 		{
-			if (PacketQueue.QueuedPacketCount == 0)
+			if (OutOfBandPacketQueue.QueuedPacketCount == 0)
 				return;
 
 			_unhandledPackets.Clear();
 
-			if (Max_Packets_Per_Update >= PacketQueue.QueuedPacketCount)
+			if (Max_Packets_Per_Update >= OutOfBandPacketQueue.QueuedPacketCount)
 			{
-				var packets = PacketQueue.DequeueAllPackets();
+				var packets = OutOfBandPacketQueue.DequeueAllPackets();
 				foreach (var nextPacket in packets)
 					FindAndHandlePacket(nextPacket);
 			}
 			else
 			{
-				for (int i = 0; i < Max_Packets_Per_Update && PacketQueue.QueuedPacketCount > 0; ++i)
+				for (int i = 0; i < Max_Packets_Per_Update && OutOfBandPacketQueue.QueuedPacketCount > 0; ++i)
 				{
-					var nextPacket = PacketQueue.DequeueFirstPacket();
+					var nextPacket = OutOfBandPacketQueue.DequeueFirstPacket();
 					if (!FindAndHandlePacket(nextPacket))
 						i -= 1;
 				}
 			}
 
 			foreach (var packet in _unhandledPackets)
-				PacketQueue.EnqueuePacketForHandling(packet);
+				OutOfBandPacketQueue.EnqueuePacketForHandling(packet);
 		}
 
 		private bool FindAndHandlePacket(IPacket packet)
@@ -85,6 +85,6 @@ namespace EOLib.Net.Handlers
 			return true;
 		}
 
-		private IPacketQueue PacketQueue { get { return _packetQueueProvider.PacketQueue; } }
+		private IPacketQueue OutOfBandPacketQueue { get { return _packetQueueProvider.HandleOutOfBandPacketQueue; } }
 	}
 }

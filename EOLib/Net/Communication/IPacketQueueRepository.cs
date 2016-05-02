@@ -6,16 +6,35 @@ namespace EOLib.Net.Communication
 {
 	public interface IPacketQueueRepository
 	{
-		IPacketQueue PacketQueue { get; set; }
+		IPacketQueue IncomingPacketQueue { get; set; }
+
+		IWaitablePacketQueue HandleInBandPacketQueue { get; set; }
+
+		IPacketQueue HandleOutOfBandPacketQueue { get; set; }
 	}
 
 	public interface IPacketQueueProvider
 	{
-		IPacketQueue PacketQueue { get; }
+		IPacketQueue IncomingPacketQueue { get; }
+
+		IWaitablePacketQueue HandleInBandPacketQueue { get; }
+
+		IPacketQueue HandleOutOfBandPacketQueue { get; }
 	}
 
 	public class PacketQueueRepository : IPacketQueueRepository, IPacketQueueProvider
 	{
-		public IPacketQueue PacketQueue { get; set; }
+		public IPacketQueue IncomingPacketQueue { get; set; }
+
+		public IWaitablePacketQueue HandleInBandPacketQueue { get; set; }
+
+		public IPacketQueue HandleOutOfBandPacketQueue { get; set; }
+
+		public PacketQueueRepository()
+		{
+			IncomingPacketQueue = new PacketQueue();
+			HandleInBandPacketQueue = new PacketQueue();
+			HandleOutOfBandPacketQueue = new PacketQueue();
+		}
 	}
 }

@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {
@@ -16,8 +15,6 @@ namespace EOLib.Net.Communication
 		IPacket PeekPacket();
 
 		IPacket DequeueFirstPacket();
-
-		Task<IPacket> WaitForPacketAndDequeue(int timeOut = Constants.ResponseTimeout);
 
 		IEnumerable<IPacket> DequeueAllPackets();
 	}

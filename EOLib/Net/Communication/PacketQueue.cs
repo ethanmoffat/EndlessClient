@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {
-	public sealed class PacketQueue : IPacketQueue
+	public sealed class PacketQueue : IWaitablePacketQueue
 	{
 		private readonly Queue<IPacket> _internalQueue;
 		private readonly object _locker;

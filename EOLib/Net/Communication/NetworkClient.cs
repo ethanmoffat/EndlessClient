@@ -9,14 +9,15 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using EOLib.Domain;
+using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Net.Communication
 {
 	public class NetworkClient : INetworkClient
 	{
-		private readonly IPacketQueueProvider _packetQueueProvider;
 		private readonly IPacketProcessorActions _packetProcessActions;
+		private readonly IPacketHandlingActions _packetHandlingActions;
 		private readonly INumberEncoderService _numberEncoderService;
 
 		private readonly IAsyncSocket _socket;
@@ -36,12 +37,12 @@ namespace EOLib.Net.Communication
 			}
 		}
 
-		public NetworkClient(IPacketQueueProvider packetQueueProvider,
-							 IPacketProcessorActions packetProcessActions,
+		public NetworkClient(IPacketProcessorActions packetProcessActions,
+							 IPacketHandlingActions packetHandlingActions,
 							 INumberEncoderService numberEncoderService)
 		{
-			_packetQueueProvider = packetQueueProvider;
 			_packetProcessActions = packetProcessActions;
+			_packetHandlingActions = packetHandlingActions;
 			_numberEncoderService = numberEncoderService;
 
 			_socket = new AsyncSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -93,7 +94,7 @@ namespace EOLib.Net.Communication
 					break;
 
 				var packet = _packetProcessActions.DecodeData((IEnumerable<byte>) packetData);
-				_packetQueueProvider.PacketQueue.EnqueuePacketForHandling(packet);
+				_packetHandlingActions.EnqueuePacketForHandling(packet);
 			}
 		}
 

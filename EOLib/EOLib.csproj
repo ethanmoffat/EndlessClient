@@ -262,6 +262,7 @@
     <Compile Include="Net\Communication\IBackgroundReceiveActions.cs" />
     <Compile Include="Net\Communication\IPacketQueueRepository.cs" />
     <Compile Include="Net\Communication\IPacketSendService.cs" />
+    <Compile Include="Net\Communication\IWaitablePacketQueue.cs" />
     <Compile Include="Net\Communication\NetworkClient.cs" />
     <Compile Include="Net\Communication\NetworkClientFactory.cs" />
     <Compile Include="Net\Communication\NoDataSentException.cs" />
@@ -274,8 +275,13 @@
     <Compile Include="Net\Handlers\IPacketHandler.cs" />
     <Compile Include="Net\Handlers\IPacketHandlerFinderService.cs" />
     <Compile Include="Net\Handlers\IPacketHandlerRepository.cs" />
+    <Compile Include="Net\Handlers\IPacketHandlingActions.cs" />
+    <Compile Include="Net\Handlers\IPacketHandlingTypeFinder.cs" />
     <Compile Include="Net\Handlers\PacketHandlerComponent.cs" />
     <Compile Include="Net\Handlers\PacketHandlerFinderService.cs" />
+    <Compile Include="Net\Handlers\PacketHandlingActions.cs" />
+    <Compile Include="Net\Handlers\PacketHandlingType.cs" />
+    <Compile Include="Net\Handlers\PacketHandlingTypeFinder.cs" />
     <Compile Include="Net\MalformedPacketException.cs" />
     <Compile Include="Net\Translators\AccountLoginPacketTranslator.cs" />
     <Compile Include="Net\Translators\CharacterDisplayPacketTranslator.cs" />

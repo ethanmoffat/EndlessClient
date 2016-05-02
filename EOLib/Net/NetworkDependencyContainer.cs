@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Collections;
 using System.Collections.Generic;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
@@ -20,6 +19,8 @@ namespace EOLib.Net
 			container.RegisterType<IPacketSequenceService, PacketSequenceService>();
 			container.RegisterType<IHashService, HashService>();
 			container.RegisterType<IPacketSendService, PacketSendService>();
+			container.RegisterType<IPacketHandlingTypeFinder, PacketHandlingTypeFinder>();
+
 			//the repository is a "disposer" of the NetworkClient (so NetworkClient gets cleaned up later if it is set)
 			container.RegisterType<INetworkClientDisposer, NetworkClientRepository>(new ContainerControlledLifetimeManager());
 
@@ -38,6 +39,7 @@ namespace EOLib.Net
 
 			container.RegisterType<IPacketProcessorActions, PacketProcessActions>();
 			container.RegisterType<INetworkConnectionActions, NetworkConnectionActions>();
+			container.RegisterType<IPacketHandlingActions, PacketHandlingActions>();
 			
 			//must be a singleton: tracks a thread and has internal state.
 			container.RegisterType<IBackgroundReceiveActions, BackgroundReceiveActions>(new ContainerControlledLifetimeManager());
@@ -56,10 +58,6 @@ namespace EOLib.Net
 
 		public void InitializeDependencies(IUnityContainer container)
 		{
-			//create the packet queue object (can be recreated later)
-			var packetQueueRepository = container.Resolve<IPacketQueueRepository>();
-			packetQueueRepository.PacketQueue = new PacketQueue();
-
 			//create the client object (can be recreated later)
 			var clientRepo = container.Resolve<INetworkClientRepository>();
 			var clientFactory = container.Resolve<INetworkClientFactory>();
