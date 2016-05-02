@@ -9,7 +9,6 @@ using EndlessClient.GameExecution;
 using EOLib.Domain.Account;
 using EOLib.Net;
 using EOLib.Net.Communication;
-using EOLib.Net.Connection;
 
 namespace EndlessClient.Controllers
 {
@@ -19,68 +18,57 @@ namespace EndlessClient.Controllers
 		private readonly IErrorDialogDisplayAction _errorDisplayAction;
 		private readonly IAccountActions _accountActions;
 		private readonly IGameStateActions _gameStateActions;
-		private readonly INetworkConnectionActions _networkConnectionActions;
-		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
+		private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
 
 		public CreateAccountController(ICreateAccountDialogDisplayActions createAccountDialogDisplayActions,
 									   IErrorDialogDisplayAction errorDisplayAction,
 									   IAccountActions accountActions,
 									   IGameStateActions gameStateActions,
-									   INetworkConnectionActions networkConnectionActions,
-									   IBackgroundReceiveActions backgroundReceiveActions)
+									   ISafeInBandNetworkOperationFactory networkOperationFactory)
 		{
 			_createAccountDialogDisplayActions = createAccountDialogDisplayActions;
 			_errorDisplayAction = errorDisplayAction;
 			_accountActions = accountActions;
 			_gameStateActions = gameStateActions;
-			_networkConnectionActions = networkConnectionActions;
-			_backgroundReceiveActions = backgroundReceiveActions;
+			_networkOperationFactory = networkOperationFactory;
 		}
 
 		public async Task CreateAccount(ICreateAccountParameters createAccountParameters)
 		{
 			var paramsValidationResult = _accountActions.CheckAccountCreateParameters(createAccountParameters);
-			if(paramsValidationResult.FaultingParameter != WhichParameter.None)
+			if (paramsValidationResult.FaultingParameter != WhichParameter.None)
 			{
 				_createAccountDialogDisplayActions.ShowParameterError(paramsValidationResult);
 				return;
 			}
 
-			try
-			{
-				var nameResult = await _accountActions.CheckAccountNameWithServer(createAccountParameters.AccountName);
-				if (nameResult != AccountReply.Continue)
-				{
-					_createAccountDialogDisplayActions.ShowServerError(nameResult);
-					return;
-				}
+			var checkNameOperation = _networkOperationFactory.CreateSafeOperation(
+				async () => await _accountActions.CheckAccountNameWithServer(createAccountParameters.AccountName),
+				SetInitialStateAndShowError,
+				SetInitialStateAndShowError);
+			if (!await checkNameOperation.Invoke())
+				return;
 
-				try
-				{
-					await _createAccountDialogDisplayActions.ShowAccountCreatePendingDialog();
-				}
-				catch (OperationCanceledException)
-				{
-					return;
-				}
-
-				var accountResult = await _accountActions.CreateAccount(createAccountParameters);
-				if (accountResult != AccountReply.Created)
-				{
-					_createAccountDialogDisplayActions.ShowServerError(accountResult);
-					return;
-				}
-			}
-			catch (NoDataSentException)
+			var nameResult = checkNameOperation.Result;
+			if (nameResult != AccountReply.Continue)
 			{
-				SetInitialStateAndShowError();
-				DisconnectAndStopReceiving();
+				_createAccountDialogDisplayActions.ShowServerError(nameResult);
 				return;
 			}
-			catch (EmptyPacketReceivedException)
+
+			if (!await ShowAccountCreationPendingDialog()) return;
+
+			var createAccountOperation = _networkOperationFactory.CreateSafeOperation(
+				async () => await _accountActions.CreateAccount(createAccountParameters),
+				SetInitialStateAndShowError,
+				SetInitialStateAndShowError);
+			if (!await createAccountOperation.Invoke())
+				return;
+
+			var accountResult = createAccountOperation.Result;
+			if (accountResult != AccountReply.Created)
 			{
-				SetInitialStateAndShowError();
-				DisconnectAndStopReceiving();
+				_createAccountDialogDisplayActions.ShowServerError(accountResult);
 				return;
 			}
 
@@ -88,16 +76,27 @@ namespace EndlessClient.Controllers
 			_createAccountDialogDisplayActions.ShowSuccessMessage();
 		}
 
-		private void SetInitialStateAndShowError()
+		private async Task<bool> ShowAccountCreationPendingDialog()
 		{
-			_gameStateActions.ChangeToState(GameStates.Initial);
-			_errorDisplayAction.ShowError(ConnectResult.SocketError);
+			try
+			{
+				await _createAccountDialogDisplayActions.ShowAccountCreatePendingDialog();
+			}
+			catch (OperationCanceledException) { return false; }
+
+			return true;
 		}
 
-		private void DisconnectAndStopReceiving()
+		private void SetInitialStateAndShowError(NoDataSentException ex)
 		{
-			_backgroundReceiveActions.CancelBackgroundReceiveLoop();
-			_networkConnectionActions.DisconnectFromServer();
+			_gameStateActions.ChangeToState(GameStates.Initial);
+			_errorDisplayAction.ShowException(ex);
+		}
+
+		private void SetInitialStateAndShowError(EmptyPacketReceivedException ex)
+		{
+			_gameStateActions.ChangeToState(GameStates.Initial);
+			_errorDisplayAction.ShowException(ex);
 		}
 	}
 }
