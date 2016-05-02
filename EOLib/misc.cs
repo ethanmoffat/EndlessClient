@@ -102,6 +102,8 @@ namespace EOLib
 
 		public static readonly int[] NUMERIC_MAXIMUM = { ONE_BYTE_MAX, TWO_BYTE_MAX, THREE_BYTE_MAX };
 
+		public const int OutOfBand_Packets_Handled_Per_Update = 10;
+
 		public const string CreditsText = @"Endless Online - C# Client
 Developed by Ethan Moffat
 Based on Endless Online --

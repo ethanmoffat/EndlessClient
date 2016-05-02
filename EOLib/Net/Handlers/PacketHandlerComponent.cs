@@ -13,9 +13,6 @@ namespace EOLib.Net.Handlers
 {
 	public class PacketHandlerComponent : IGameComponent, IUpdateable
 	{
-		//todo: investigate making this a configurable option or move to Constants class
-		private const int Max_Packets_Per_Update = 10;
-
 		private readonly IPacketQueueProvider _packetQueueProvider;
 		private readonly IPacketHandlerFinderService _packetHandlerFinder;
 
@@ -41,7 +38,7 @@ namespace EOLib.Net.Handlers
 			if (OutOfBandPacketQueue.QueuedPacketCount == 0)
 				return;
 
-			if (Max_Packets_Per_Update >= OutOfBandPacketQueue.QueuedPacketCount)
+			if (Constants.OutOfBand_Packets_Handled_Per_Update >= OutOfBandPacketQueue.QueuedPacketCount)
 			{
 				var packets = OutOfBandPacketQueue.DequeueAllPackets();
 				foreach (var nextPacket in packets)
@@ -49,7 +46,7 @@ namespace EOLib.Net.Handlers
 			}
 			else
 			{
-				for (int i = 0; i < Max_Packets_Per_Update && OutOfBandPacketQueue.QueuedPacketCount > 0; ++i)
+				for (int i = 0; i < Constants.OutOfBand_Packets_Handled_Per_Update && OutOfBandPacketQueue.QueuedPacketCount > 0; ++i)
 				{
 					var nextPacket = OutOfBandPacketQueue.DequeueFirstPacket();
 					if (!FindAndHandlePacket(nextPacket))
