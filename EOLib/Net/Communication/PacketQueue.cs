@@ -13,7 +13,8 @@ namespace EOLib.Net.Communication
 	{
 		private readonly Queue<IPacket> _internalQueue;
 		private readonly object _locker;
-		private readonly AutoResetEvent _enqueuedEvent;
+
+		private TaskCompletionSource<bool> _enqueuedTaskCompletionSource;
 
 		public int QueuedPacketCount { get { return _internalQueue.Count; } }
 
@@ -21,15 +22,13 @@ namespace EOLib.Net.Communication
 		{
 			_internalQueue = new Queue<IPacket>();
 			_locker = new object();
-
-			_enqueuedEvent = new AutoResetEvent(false);
 		}
 
 		public void EnqueuePacketForHandling(IPacket pkt)
 		{
 			lock (_locker)
 				_internalQueue.Enqueue(pkt);
-			_enqueuedEvent.Set();
+			_enqueuedTaskCompletionSource.SetResult(true);
 		}
 
 		public IPacket PeekPacket()
@@ -55,13 +54,17 @@ namespace EOLib.Net.Communication
 			if (QueuedPacketCount > 0)
 				return DequeueFirstPacket();
 
-			return await Task.Run(() =>
+			using (var cts = new CancellationTokenSource(timeOut))
 			{
-				if (!_enqueuedEvent.WaitOne(timeOut))
-					return new EmptyPacket();
+				_enqueuedTaskCompletionSource = new TaskCompletionSource<bool>();
+				cts.Token.Register(() => _enqueuedTaskCompletionSource.SetCanceled(), false);
 
-				return DequeueFirstPacket();
-			});
+				var result = await _enqueuedTaskCompletionSource.Task;
+				if (_enqueuedTaskCompletionSource.Task.IsCanceled || !result)
+					return new EmptyPacket();
+			}
+
+			return DequeueFirstPacket();
 		}
 
 		public IEnumerable<IPacket> DequeueAllPackets()
@@ -78,11 +81,6 @@ namespace EOLib.Net.Communication
 			}
 
 			return ret;
-		}
-
-		public void Dispose()
-		{
-			_enqueuedEvent.Dispose();
 		}
 	}
 }

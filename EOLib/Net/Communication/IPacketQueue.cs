@@ -2,13 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {
-	public interface IPacketQueue : IDisposable
+	public interface IPacketQueue
 	{
 		int QueuedPacketCount { get; }
 
