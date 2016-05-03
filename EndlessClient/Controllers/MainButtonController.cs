@@ -20,7 +20,7 @@ namespace EndlessClient.Controllers
 		private readonly IPacketProcessorActions _packetProcessorActions;
 		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
 		private readonly IGameStateActions _gameStateActions;
-		private readonly ICreateAccountDialogDisplayActions _createAccountDialogDisplayActions;
+		private readonly IAccountDialogDisplayActions _accountDialogDisplayActions;
 		private readonly IConnectionStateProvider _connectionStateProvider;
 		private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
 
@@ -31,7 +31,7 @@ namespace EndlessClient.Controllers
 									IPacketProcessorActions packetProcessorActions,
 									IBackgroundReceiveActions backgroundReceiveActions,
 									IGameStateActions gameStateActions,
-									ICreateAccountDialogDisplayActions createAccountDialogDisplayActions,
+									IAccountDialogDisplayActions accountDialogDisplayActions,
 									IConnectionStateProvider connectionStateProvider,
 									ISafeInBandNetworkOperationFactory networkOperationFactory)
 		{
@@ -40,7 +40,7 @@ namespace EndlessClient.Controllers
 			_packetProcessorActions = packetProcessorActions;
 			_backgroundReceiveActions = backgroundReceiveActions;
 			_gameStateActions = gameStateActions;
-			_createAccountDialogDisplayActions = createAccountDialogDisplayActions;
+			_accountDialogDisplayActions = accountDialogDisplayActions;
 			_connectionStateProvider = connectionStateProvider;
 			_networkOperationFactory = networkOperationFactory;
 		}
@@ -57,7 +57,7 @@ namespace EndlessClient.Controllers
 			if (result)
 			{
 				_gameStateActions.ChangeToState(GameStates.CreateAccount);
-				_createAccountDialogDisplayActions.ShowInitialWarningDialog();
+				_accountDialogDisplayActions.ShowInitialWarningDialog();
 			}
 		}
 

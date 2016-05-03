@@ -7,7 +7,7 @@ using EOLib.Domain.Account;
 
 namespace EndlessClient.Dialogs.Actions
 {
-	public interface ICreateAccountDialogDisplayActions
+	public interface IAccountDialogDisplayActions
 	{
 		void ShowInitialWarningDialog();
 

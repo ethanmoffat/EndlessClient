@@ -14,19 +14,19 @@ namespace EndlessClient.Controllers
 {
 	public class AccountController : IAccountController
 	{
-		private readonly ICreateAccountDialogDisplayActions _createAccountDialogDisplayActions;
+		private readonly IAccountDialogDisplayActions _accountDialogDisplayActions;
 		private readonly IErrorDialogDisplayAction _errorDisplayAction;
 		private readonly IAccountActions _accountActions;
 		private readonly IGameStateActions _gameStateActions;
 		private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
 
-		public AccountController(ICreateAccountDialogDisplayActions createAccountDialogDisplayActions,
+		public AccountController(IAccountDialogDisplayActions accountDialogDisplayActions,
 								 IErrorDialogDisplayAction errorDisplayAction,
 								 IAccountActions accountActions,
 								 IGameStateActions gameStateActions,
 								 ISafeInBandNetworkOperationFactory networkOperationFactory)
 		{
-			_createAccountDialogDisplayActions = createAccountDialogDisplayActions;
+			_accountDialogDisplayActions = accountDialogDisplayActions;
 			_errorDisplayAction = errorDisplayAction;
 			_accountActions = accountActions;
 			_gameStateActions = gameStateActions;
@@ -38,7 +38,7 @@ namespace EndlessClient.Controllers
 			var paramsValidationResult = _accountActions.CheckAccountCreateParameters(createAccountParameters);
 			if (paramsValidationResult.FaultingParameter != WhichParameter.None)
 			{
-				_createAccountDialogDisplayActions.ShowParameterError(paramsValidationResult);
+				_accountDialogDisplayActions.ShowParameterError(paramsValidationResult);
 				return;
 			}
 
@@ -52,7 +52,7 @@ namespace EndlessClient.Controllers
 			var nameResult = checkNameOperation.Result;
 			if (nameResult != AccountReply.Continue)
 			{
-				_createAccountDialogDisplayActions.ShowServerError(nameResult);
+				_accountDialogDisplayActions.ShowServerError(nameResult);
 				return;
 			}
 
@@ -68,24 +68,24 @@ namespace EndlessClient.Controllers
 			var accountResult = createAccountOperation.Result;
 			if (accountResult != AccountReply.Created)
 			{
-				_createAccountDialogDisplayActions.ShowServerError(accountResult);
+				_accountDialogDisplayActions.ShowServerError(accountResult);
 				return;
 			}
 
 			_gameStateActions.ChangeToState(GameStates.Initial);
-			_createAccountDialogDisplayActions.ShowSuccessMessage();
+			_accountDialogDisplayActions.ShowSuccessMessage();
 		}
 
-		//public async Task ChangePassword()
-		//{
-		//	await Task.FromResult(false);
-		//}
+		public async Task ChangePassword()
+		{
+			await Task.FromResult(false);
+		}
 
 		private async Task<bool> ShowAccountCreationPendingDialog()
 		{
 			try
 			{
-				await _createAccountDialogDisplayActions.ShowAccountCreatePendingDialog();
+				await _accountDialogDisplayActions.ShowAccountCreatePendingDialog();
 			}
 			catch (OperationCanceledException) { return false; }
 

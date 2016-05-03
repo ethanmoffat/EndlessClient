@@ -68,10 +68,10 @@
     <Compile Include="Character.cs" />
     <Compile Include="CharacterStateTest.cs" />
     <Compile Include="Controllers\CharacterManagementController.cs" />
-    <Compile Include="Controllers\CreateAccountController.cs" />
+    <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ICharacterManagementController.cs" />
     <Compile Include="Controllers\ICharacterManagementControllerRepository.cs" />
-    <Compile Include="Controllers\ICreateAccountController.cs" />
+    <Compile Include="Controllers\IAccountController.cs" />
     <Compile Include="Controllers\ICreateAccountControllerRepository.cs" />
     <Compile Include="Controllers\ILoginController.cs" />
     <Compile Include="Controllers\ILoginControllerRepository.cs" />
@@ -87,12 +87,12 @@
     <Compile Include="Dialogs\Actions\ErrorDialogDisplayAction.cs" />
     <Compile Include="Dialogs\Actions\ICharacterDialogActions.cs" />
     <Compile Include="Dialogs\Actions\IErrorDialogDisplayAction.cs" />
-    <Compile Include="Dialogs\Actions\CreateAccountDialogDisplayActions.cs" />
+    <Compile Include="Dialogs\Actions\AccountDialogDisplayActions.cs" />
     <Compile Include="Dialogs\Factories\CreateAccountProgressDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\CreateAccountWarningDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\CreateCharacterDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\EOMessageBoxFactory.cs" />
-    <Compile Include="Dialogs\Actions\ICreateAccountDialogDisplayActions.cs" />
+    <Compile Include="Dialogs\Actions\IAccountDialogDisplayActions.cs" />
     <Compile Include="Dialogs\Factories\ICreateAccountProgressDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\ICreateAccountWarningDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\ICreateCharacterDialogFactory.cs" />

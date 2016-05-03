@@ -12,17 +12,17 @@ using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
-	public class CreateAccountDialogDisplayActions : ICreateAccountDialogDisplayActions
+	public class AccountDialogDisplayActions : IAccountDialogDisplayActions
 	{
 		private readonly ILocalizedStringService _localizedStringService;
 		private readonly ICreateAccountWarningDialogFactory _createAccountWarningDialogFactory;
 		private readonly ICreateAccountProgressDialogFactory _createAccountProgressDialogFactory;
 		private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
 
-		public CreateAccountDialogDisplayActions(ILocalizedStringService localizedStringService,
-												 ICreateAccountWarningDialogFactory createAccountWarningDialogFactory,
-												 ICreateAccountProgressDialogFactory createAccountProgressDialogFactory,
-												 IEOMessageBoxFactory eoMessageBoxFactory)
+		public AccountDialogDisplayActions(ILocalizedStringService localizedStringService,
+										   ICreateAccountWarningDialogFactory createAccountWarningDialogFactory,
+										   ICreateAccountProgressDialogFactory createAccountProgressDialogFactory,
+										   IEOMessageBoxFactory eoMessageBoxFactory)
 		{
 			_localizedStringService = localizedStringService;
 			_createAccountWarningDialogFactory = createAccountWarningDialogFactory;
