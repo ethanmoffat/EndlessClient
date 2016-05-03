@@ -4,6 +4,7 @@
 
 using EndlessClient.Content;
 using EndlessClient.Controllers;
+using EndlessClient.Controllers.Repositories;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;

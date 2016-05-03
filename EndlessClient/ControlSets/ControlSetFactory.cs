@@ -5,6 +5,7 @@
 using System;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
+using EndlessClient.Controllers.Repositories;
 using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
 using EOLib.Graphics;

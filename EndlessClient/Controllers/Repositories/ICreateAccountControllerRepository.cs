@@ -2,7 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EndlessClient.Controllers
+namespace EndlessClient.Controllers.Repositories
 {
 	public interface ICreateAccountControllerRepository
 	{

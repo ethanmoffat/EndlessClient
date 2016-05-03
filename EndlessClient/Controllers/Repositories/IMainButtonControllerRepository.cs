@@ -10,7 +10,7 @@
  *      the provider into ControlSetFactory instead of the controller itself.
  */
 
-namespace EndlessClient.Controllers
+namespace EndlessClient.Controllers.Repositories
 {
 	public interface IMainButtonControllerRepository
 	{
