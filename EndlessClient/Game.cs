@@ -328,8 +328,6 @@ namespace EndlessClient
 					foreach (XNAButton x in _deleteCharButtons)
 						x.Visible = true;
 
-					_passwordChangeBtn.Visible = true;
-
 					doShowCharacters();
 					break;
 				case GameStates.PlayingTheGame:
@@ -660,9 +658,6 @@ namespace EndlessClient
 				if(btn != null)
 					btn.Close();
 			}
-
-			if(_passwordChangeBtn != null)
-				_passwordChangeBtn.Close();
 
 			if(_backButton != null)
 				_backButton.Close();

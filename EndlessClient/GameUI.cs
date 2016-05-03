@@ -42,8 +42,6 @@ namespace EndlessClient
 		private readonly XNAButton[] _loginCharButtons = new XNAButton[3];
 		private readonly XNAButton[] _deleteCharButtons = new XNAButton[3];
 
-		private XNAButton _passwordChangeBtn;
-
 #if DEBUG
 		private XNAButton _testInGame;
 #endif
@@ -152,9 +150,6 @@ namespace EndlessClient
 			_createButtons[1] = new XNAButton(secondaryButtons, new Vector2(481, 417), new Rectangle(0, 40, 120, 40), new Rectangle(120, 40, 120, 40));
 			_createButtons[0].OnClick += MainButtonPress;
 			_createButtons[1].OnClick += MainButtonPress;
-
-			_passwordChangeBtn = new XNAButton(secondaryButtons, new Vector2(454, 417), new Rectangle(0, 120, 120, 40), new Rectangle(120, 120, 120, 40));
-			_passwordChangeBtn.OnClick += MainButtonPress;
 
 			_lblCredits = new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10) { Text = Constants.CreditsText };
 
@@ -449,26 +444,6 @@ namespace EndlessClient
 					}
 						break;
 				}
-			}
-			else if (sender == _passwordChangeBtn)
-			{
-				ChangePasswordDialog dlg = new ChangePasswordDialog(_textBoxTextures[3], Dispatcher);
-				dlg.DialogClosing += (dlg_S, dlg_E) =>
-				{
-					if (dlg_E.Result != XNADialogResult.OK) return;
-
-					AccountReply reply;
-					if (!_packetAPI.AccountChangePassword(dlg.Username, dlg.OldPassword, dlg.NewPassword, out reply))
-					{
-						DoShowLostConnectionDialogAndReturnToMainMenu();
-						return;
-					}
-
-					EOMessageBox.Show(_packetAPI.AccountResponseMessage());
-
-					if (reply == AccountReply.ChangeSuccess) return;
-					dlg_E.CancelClose = true;
-				};
 			}
 		}
 
