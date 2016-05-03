@@ -2,9 +2,18 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using EndlessClient.Content;
+using EndlessClient.Dialogs.Factories;
+using EndlessClient.GameExecution;
+using EndlessClient.Input;
+using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Domain.Account;
+using EOLib.Domain.Login;
 using EOLib.Graphics;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -15,17 +24,25 @@ namespace EndlessClient.Dialogs
 {
 	public class ChangePasswordDialog : EODialogBase
 	{
+		private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+		private readonly ILoggedInAccountNameProvider _loggedInAccountNameProvider;
 		private readonly XNATextBox[] inputBoxes = new XNATextBox[4];
-		private readonly KeyboardDispatcher dispatch;
+		
+		private readonly KeyboardDispatcher _dispatcher;
+		private readonly TextBoxClickEventHandler _clickEventHandler;
+		private readonly TextBoxTabEventHandler _tabEventHandler;
+
+		private readonly TaskCompletionSource<XNADialogResult> _dialogResultCompletionSource;
 
 		public string Username { get { return inputBoxes[0].Text; } }
 		public string OldPassword { get { return inputBoxes[1].Text; } }
 		public string NewPassword { get { return inputBoxes[2].Text; } }
+		public string ConfirmPassword { get { return inputBoxes[3].Text; } }
 
 		public ChangePasswordDialog(Texture2D cursorTexture, KeyboardDispatcher dispatcher)
 			: base((PacketAPI)null)
 		{
-			dispatch = dispatcher;
+			_dispatcher = dispatcher;
 
 			bgTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
 			_setSize(bgTexture.Width, bgTexture.Height);
@@ -51,13 +68,13 @@ namespace EndlessClient.Dialogs
 					int next = tbIndex + 1 > 3 ? 0 : tbIndex + 1;
 					inputBoxes[tbIndex].Selected = false;
 					inputBoxes[next].Selected = true;
-					dispatch.Subscriber = inputBoxes[next];
+					_dispatcher.Subscriber = inputBoxes[next];
 				};
 
 				tb.OnClicked += (s, e) =>
 				{
-					dispatch.Subscriber.Selected = false;
-					dispatch.Subscriber = (s as XNATextBox);
+					_dispatcher.Subscriber.Selected = false;
+					_dispatcher.Subscriber = (s as XNATextBox);
 					dispatcher.Subscriber.Selected = true;
 				};
 
@@ -65,7 +82,7 @@ namespace EndlessClient.Dialogs
 				inputBoxes[i] = tb;
 			}
 
-			dispatch.Subscriber = inputBoxes[0];
+			_dispatcher.Subscriber = inputBoxes[0];
 
 			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(157, 195), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok))
 			{
@@ -110,6 +127,118 @@ namespace EndlessClient.Dialogs
 			dlgButtons.Add(cancel);
 
 			endConstructor();
+		}
+
+		public ChangePasswordDialog(INativeGraphicsManager nativeGraphicsManager,
+									IGraphicsDeviceProvider graphicsDeviceProvider,
+									IGameStateProvider gameStateProvider,
+									IContentManagerProvider contentManagerProvider,
+									IEOMessageBoxFactory eoMessageBoxFactory,
+									IKeyboardDispatcherProvider keyboardDispatcherProvider,
+									ILoggedInAccountNameProvider loggedInAccountNameProvider)
+			: base(nativeGraphicsManager)
+		{
+			_eoMessageBoxFactory = eoMessageBoxFactory;
+			_loggedInAccountNameProvider = loggedInAccountNameProvider;
+			_dispatcher = keyboardDispatcherProvider.Dispatcher;
+
+			bgTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
+			_setSize(bgTexture.Width, bgTexture.Height);
+
+			var cursorTexture = contentManagerProvider.Content.Load<Texture2D>("Cursor");
+
+			for (int i = 0; i < inputBoxes.Length; ++i)
+			{
+				var tb = new XNATextBox(new Rectangle(198, 60 + i * 30, 137, 19), cursorTexture, Constants.FontSize08)
+				{
+					LeftPadding = 5,
+					DefaultText = " ",
+					MaxChars = i == 0 ? 16 : 12,
+					PasswordBox = i > 1,
+					Selected = i == 0,
+					TextColor = Constants.LightBeigeText,
+					Visible = true
+				};
+				tb.SetParent(this);
+				inputBoxes[i] = tb;
+			}
+
+			_clickEventHandler = new TextBoxClickEventHandler(_dispatcher, inputBoxes);
+			_tabEventHandler = new TextBoxTabEventHandler(_dispatcher, inputBoxes);
+
+			_dispatcher.Subscriber.Selected = false;
+			_dispatcher.Subscriber = inputBoxes[0];
+			_dispatcher.Subscriber.Selected = true;
+
+			var ok = new XNAButton(smallButtonSheet, new Vector2(157, 195), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
+			ok.OnClick += (s, e) => Close(ok, XNADialogResult.OK);
+			ok.SetParent(this);
+			dlgButtons.Add(ok);
+
+			var cancel = new XNAButton(smallButtonSheet, new Vector2(250, 195), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
+			cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
+			cancel.SetParent(this);
+			dlgButtons.Add(cancel);
+
+			DialogClosing += OnDialogClosing;
+			_dialogResultCompletionSource = new TaskCompletionSource<XNADialogResult>();
+
+			CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
+		}
+
+		private void OnDialogClosing(object sender, CloseDialogEventArgs e)
+		{
+			if (e.Result == XNADialogResult.OK)
+			{
+				if (inputBoxes.Any(tb => string.IsNullOrWhiteSpace(tb.Text)))
+				{
+					e.CancelClose = true;
+					return;
+				}
+
+				if (Username != _loggedInAccountNameProvider.LoggedInAccountName)
+				{
+					e.CancelClose = true;
+					_eoMessageBoxFactory.CreateMessageBox(DATCONST1.CHANGE_PASSWORD_MISMATCH);
+					return;
+				}
+
+				if (NewPassword.Length != ConfirmPassword.Length || NewPassword != ConfirmPassword)
+				{
+					e.CancelClose = true;
+					_eoMessageBoxFactory.CreateMessageBox(DATCONST1.ACCOUNT_CREATE_PASSWORD_MISMATCH);
+					return;
+				}
+
+				if (NewPassword.Length < 6)
+				{
+					e.CancelClose = true;
+					_eoMessageBoxFactory.CreateMessageBox(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
+					return;
+				}
+			}
+
+			_dialogResultCompletionSource.SetResult(e.Result);
+		}
+
+		public new async Task<IChangePasswordParameters> Show()
+		{
+			var result = await _dialogResultCompletionSource.Task;
+			if (result != XNADialogResult.OK)
+				throw new OperationCanceledException();
+
+			return new ChangePasswordParameters(Username, OldPassword, NewPassword);
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+			{
+				_clickEventHandler.Dispose();
+				_tabEventHandler.Dispose();
+			}
+
+			base.Dispose(disposing);
 		}
 	}
 }
