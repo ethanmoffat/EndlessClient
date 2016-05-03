@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using EOLib.Domain.Character;
-using EOLib.Net.API;
 
 namespace EOLib.Domain.BLL
 {

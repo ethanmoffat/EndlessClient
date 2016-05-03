@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
+using EOLib.Domain.BLL;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Translators;
@@ -13,16 +14,22 @@ namespace EOLib.Domain.Login
 	{
 		private readonly IPacketSendService _packetSendService;
 		private readonly IPacketTranslator<IAccountLoginData> _loginPacketTranslator;
+		private readonly IPacketTranslator<ILoginRequestGrantedData> _loginRequestGrantedPacketTranslator;
+		private readonly IPacketTranslator<ILoginRequestCompletedData> _loginRequestCompletedPacketTranslator;
 		private readonly ICharacterSelectorRepository _characterSelectorRepository;
 		private readonly ILoggedInAccountNameRepository _loggedInAccountNameRepository;
 
 		public LoginActions(IPacketSendService packetSendService,
 							IPacketTranslator<IAccountLoginData> loginPacketTranslator,
+							IPacketTranslator<ILoginRequestGrantedData> loginRequestGrantedPacketTranslator,
+							IPacketTranslator<ILoginRequestCompletedData> loginRequestCompletedPacketTranslator,
 							ICharacterSelectorRepository characterSelectorRepository,
 							ILoggedInAccountNameRepository loggedInAccountNameRepository)
 		{
 			_packetSendService = packetSendService;
 			_loginPacketTranslator = loginPacketTranslator;
+			_loginRequestGrantedPacketTranslator = loginRequestGrantedPacketTranslator;
+			_loginRequestCompletedPacketTranslator = loginRequestCompletedPacketTranslator;
 			_characterSelectorRepository = characterSelectorRepository;
 			_loggedInAccountNameRepository = loggedInAccountNameRepository;
 		}
@@ -53,9 +60,43 @@ namespace EOLib.Domain.Login
 			return data.Response;
 		}
 
+		public async Task<ILoginRequestGrantedData> RequestCharacterLogin(ICharacter character)
+		{
+			var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Request)
+				.AddInt(character.ID)
+				.Build();
+
+			var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
+			if (IsInvalidWelcome(response))
+				throw new EmptyPacketReceivedException();
+
+			//todo: put data into required repositories
+			return _loginRequestGrantedPacketTranslator.TranslatePacket(response);
+		}
+
+		public async Task<ILoginRequestCompletedData> CompleteCharacterLogin(ICharacter character)
+		{
+			var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Message)
+				.AddThree(0x00123456) //?
+				.AddInt(character.ID)
+				.Build();
+
+			var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
+			if (IsInvalidWelcome(response))
+				throw new EmptyPacketReceivedException();
+
+			//todo: put data into required repositories
+			return _loginRequestCompletedPacketTranslator.TranslatePacket(response);
+		}
+
 		private bool IsInvalidResponse(IPacket response)
 		{
 			return response.Family != PacketFamily.Login || response.Action != PacketAction.Reply;
+		}
+
+		private bool IsInvalidWelcome(IPacket response)
+		{
+			return response.Family != PacketFamily.Welcome || response.Action != PacketAction.Reply;
 		}
 	}
 }

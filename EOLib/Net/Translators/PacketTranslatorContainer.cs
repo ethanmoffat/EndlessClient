@@ -16,6 +16,8 @@ namespace EOLib.Net.Translators
 			container.RegisterType<IPacketTranslator<IInitializationData>, InitDataTranslator>();
 			container.RegisterType<IPacketTranslator<IAccountLoginData>, AccountLoginPacketTranslator>();
 			container.RegisterType<IPacketTranslator<ICharacterCreateData>, CharacterReplyPacketTranslator>();
+			container.RegisterType<IPacketTranslator<ILoginRequestGrantedData>, LoginRequestGrantedPacketTranslator>();
+			container.RegisterType<IPacketTranslator<ILoginRequestCompletedData>, LoginRequestCompletedPacketTranslator>();
 		}
 	}
 }

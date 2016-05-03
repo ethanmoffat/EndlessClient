@@ -20,7 +20,8 @@ namespace EOLib.Net.Handlers
 				new FamilyActionPair(PacketFamily.Account, PacketAction.Reply),
 				new FamilyActionPair(PacketFamily.Character, PacketAction.Player),
 				new FamilyActionPair(PacketFamily.Character, PacketAction.Reply),
-				new FamilyActionPair(PacketFamily.Login, PacketAction.Reply)
+				new FamilyActionPair(PacketFamily.Login, PacketAction.Reply),
+				new FamilyActionPair(PacketFamily.Welcome, PacketAction.Reply)
 			};
 
 			_outOfBandPackets = outOfBandHandlers.Select(x => new FamilyActionPair(x.Family, x.Action)).ToList();
