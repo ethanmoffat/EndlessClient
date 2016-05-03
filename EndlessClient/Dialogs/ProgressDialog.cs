@@ -16,12 +16,11 @@ namespace EndlessClient.Dialogs
 {
 	public class ProgressDialog : EODialogBase
 	{
-		private readonly ManualResetEventSlim _doneEvent;
-		private readonly CancellationTokenSource _waitToken;
+		private readonly TaskCompletionSource<XNADialogResult> _dialogResultCompletionSource;
 
 		private TimeSpan? timeOpened;
-		private readonly Texture2D pbBackText, pbForeText;
-		private int pbWidth;
+		private readonly Texture2D _pbBackgroundTexture, _pbForegroundTexture;
+		private int _pbWidth, _cancelRequests;
 
 		public ProgressDialog(INativeGraphicsManager nativeGraphicsManager,
 							  IGameStateProvider gameStateProvider,
@@ -51,35 +50,33 @@ namespace EndlessClient.Dialogs
 			var cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113),
 				_getSmallButtonOut(SmallButton.Cancel),
 				_getSmallButtonOver(SmallButton.Cancel));
-			cancel.OnClick += (sender, e) => Close(cancel, XNADialogResult.Cancel);
+			cancel.OnClick += DoCancel;
 			cancel.SetParent(this);
 			dlgButtons.Add(cancel);
 
-			pbBackText = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 19);
+			_pbBackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 19);
 
-			pbForeText = new Texture2D(Game.GraphicsDevice, 1, pbBackText.Height - 2); //foreground texture is just a fill
-			var pbForeFill = new Color[pbForeText.Width * pbForeText.Height];
+			_pbForegroundTexture = new Texture2D(Game.GraphicsDevice, 1, _pbBackgroundTexture.Height - 2); //foreground texture is just a fill
+			var pbForeFill = new Color[_pbForegroundTexture.Width * _pbForegroundTexture.Height];
 			for (int i = 0; i < pbForeFill.Length; ++i)
 				pbForeFill[i] = Color.FromNonPremultiplied(0xb4, 0xdc, 0xe6, 0xff);
-			pbForeText.SetData(pbForeFill);
+			_pbForegroundTexture.SetData(pbForeFill);
 
-			_doneEvent = new ManualResetEventSlim(false);
-			_waitToken = new CancellationTokenSource();
-			DialogClosing += CloseDialog;
+			_dialogResultCompletionSource = new TaskCompletionSource<XNADialogResult>();
 
 			CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
 		}
 
 		public override void Update(GameTime gt)
 		{
-			if (timeOpened == null) //set timeOpened on first call to Update
+			if (timeOpened == null)
 				timeOpened = gt.TotalGameTime;
 
 			int pbPercent = (int)((gt.TotalGameTime.TotalSeconds - timeOpened.Value.TotalSeconds) / 10.0f * 100);
-
-			pbWidth = (int)Math.Round(pbPercent / 100.0f * pbBackText.Width);
+			_pbWidth = (int)Math.Round(pbPercent / 100.0f * _pbBackgroundTexture.Width);
+			
 			if (pbPercent >= 100)
-				Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+				_dialogResultCompletionSource.SetResult(XNADialogResult.NO_BUTTON_PRESSED);
 
 			base.Update(gt);
 		}
@@ -92,39 +89,33 @@ namespace EndlessClient.Dialogs
 			base.Draw(gt);
 
 			SpriteBatch.Begin();
-			SpriteBatch.Draw(pbBackText, new Vector2(15 + DrawAreaWithOffset.X, 95 + DrawAreaWithOffset.Y), Color.White);
-			SpriteBatch.Draw(pbForeText, new Rectangle(18 + DrawAreaWithOffset.X, 98 + DrawAreaWithOffset.Y, pbWidth - 6, pbForeText.Height - 4), Color.White);
+			SpriteBatch.Draw(_pbBackgroundTexture, new Vector2(15 + DrawAreaWithOffset.X, 95 + DrawAreaWithOffset.Y), Color.White);
+			SpriteBatch.Draw(_pbForegroundTexture, new Rectangle(18 + DrawAreaWithOffset.X, 98 + DrawAreaWithOffset.Y, _pbWidth - 6, _pbForegroundTexture.Height - 4), Color.White);
 			SpriteBatch.End();
 		}
 
 		public async Task WaitForCompletion()
 		{
-			var t = Task.Run(() => _doneEvent.Wait(), _waitToken.Token);
-			await t;
+			var result = await _dialogResultCompletionSource.Task;
+			Close(null, result);
 
-			if (t.IsCanceled)
+			if (result == XNADialogResult.Cancel)
 				throw new OperationCanceledException();
 		}
 
-		//todo: This should be refactored once the old dependent code is removed.
-		//Ideally, shouldn't need the dialog Close event at all.
-		private void CloseDialog(object sender, CloseDialogEventArgs args)
+		private void DoCancel(object sender, EventArgs e)
 		{
-			if (args.Result == XNADialogResult.Cancel)
-			{
-				_waitToken.Cancel();
+			if (Interlocked.Increment(ref _cancelRequests) != 1)
 				return;
+
+			try
+			{
+				_dialogResultCompletionSource.SetResult(XNADialogResult.Cancel);
 			}
-
-			_doneEvent.Set();
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-				_doneEvent.Dispose();
-
-			base.Dispose(disposing);
+			finally
+			{
+				Interlocked.Exchange(ref _cancelRequests, 0);
+			}
 		}
 	}
 }
