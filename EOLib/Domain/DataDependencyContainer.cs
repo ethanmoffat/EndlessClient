@@ -22,6 +22,8 @@ namespace EOLib.Domain
 
 			container.RegisterType<ICharacterSelectorRepository, CharacterSelectorRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ICharacterSelectorProvider, CharacterSelectorRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ILoggedInAccountNameRepository, LoggedInAccountNameRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ILoggedInAccountNameProvider, LoggedInAccountNameRepository>(new ContainerControlledLifetimeManager());
 		}
 	}
 }

@@ -14,14 +14,17 @@ namespace EOLib.Domain.Login
 		private readonly IPacketSendService _packetSendService;
 		private readonly IPacketTranslator<IAccountLoginData> _loginPacketTranslator;
 		private readonly ICharacterSelectorRepository _characterSelectorRepository;
+		private readonly ILoggedInAccountNameRepository _loggedInAccountNameRepository;
 
 		public LoginActions(IPacketSendService packetSendService,
 							IPacketTranslator<IAccountLoginData> loginPacketTranslator,
-							ICharacterSelectorRepository characterSelectorRepository)
+							ICharacterSelectorRepository characterSelectorRepository,
+							ILoggedInAccountNameRepository loggedInAccountNameRepository)
 		{
 			_packetSendService = packetSendService;
 			_loginPacketTranslator = loginPacketTranslator;
 			_characterSelectorRepository = characterSelectorRepository;
+			_loggedInAccountNameRepository = loggedInAccountNameRepository;
 		}
 
 		public bool LoginParametersAreValid(ILoginParameters parameters)
@@ -43,6 +46,10 @@ namespace EOLib.Domain.Login
 
 			var data = _loginPacketTranslator.TranslatePacket(response);
 			_characterSelectorRepository.Characters = data.Characters;
+
+			if (data.Response == LoginReply.Ok)
+				_loggedInAccountNameRepository.LoggedInAccountName = parameters.Username;
+
 			return data.Response;
 		}
 
