@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
@@ -24,7 +23,7 @@ namespace EndlessClient.Dialogs
 	public class CreateCharacterDialog : EODialogBase
 	{
 		private readonly IEOMessageBoxFactory _messageBoxFactory;
-		private readonly ManualResetEventSlim _doneEvent;
+		private readonly TaskCompletionSource<XNADialogResult> _dialogResultCompletionSource;
 
 		private readonly XNATextBox _inputBox;
 		private readonly XNAButton[] _arrowButtons = new XNAButton[4];
@@ -40,8 +39,6 @@ namespace EndlessClient.Dialogs
 		}
 
 		public string Name { get { return _inputBox.Text; } }
-
-		private XNADialogResult _result;
 
 		public CreateCharacterDialog(Texture2D cursorTexture, KeyboardDispatcher dispatcher)
 			: base((PacketAPI)null)
@@ -179,7 +176,7 @@ namespace EndlessClient.Dialogs
 			cancelButton.SetParent(this);
 			dlgButtons.Add(cancelButton);
 
-			_doneEvent = new ManualResetEventSlim(false);
+			_dialogResultCompletionSource = new TaskCompletionSource<XNADialogResult>();
 			DialogClosing += DialogClosingHandler;
 
 			CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
@@ -210,9 +207,9 @@ namespace EndlessClient.Dialogs
 
 		public new async Task<ICharacterCreateParameters> Show()
 		{
-			await Task.Run(() => _doneEvent.Wait());
+			var result = await _dialogResultCompletionSource.Task;
 
-			if (_result == XNADialogResult.Cancel)
+			if (result == XNADialogResult.Cancel)
 				throw new OperationCanceledException();
 
 			return new CharacterCreateParameters(Name.Trim(),
@@ -260,15 +257,7 @@ namespace EndlessClient.Dialogs
 				return;
 			}
 
-			_result = args.Result;
-			_doneEvent.Set();
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-				_doneEvent.Dispose();
-			base.Dispose(disposing);
+			_dialogResultCompletionSource.SetResult(args.Result);
 		}
 	}
 }
