@@ -30,7 +30,7 @@ namespace EndlessClient.Dialogs.Actions
 			_eoMessageBoxFactory = eoMessageBoxFactory;
 		}
 
-		public void ShowInitialWarningDialog()
+		public void ShowInitialCreateWarningDialog()
 		{
 			var message = string.Format("{0}\n\n{1}\n\n{2}",
 				_localizedStringService.GetString(DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_1),
@@ -40,13 +40,18 @@ namespace EndlessClient.Dialogs.Actions
 			_createAccountWarningDialogFactory.ShowCreateAccountWarningDialog(message);
 		}
 
-		public async Task ShowAccountCreatePendingDialog()
+		public async Task ShowCreatePendingDialog()
 		{
 			var progress = _createAccountProgressDialogFactory.BuildCreateAccountProgressDialog();
 			await progress.WaitForCompletion();
 		}
 
-		public void ShowParameterError(CreateAccountParameterResult validationResult)
+		public Task<IChangePasswordParameters> ShowChangePasswordDialog()
+		{
+			throw new NotImplementedException();
+		}
+
+		public void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult)
 		{
 			_eoMessageBoxFactory.CreateMessageBox(
 				validationResult.ErrorString,
@@ -54,7 +59,7 @@ namespace EndlessClient.Dialogs.Actions
 				EOMessageBoxStyle.SmallDialogLargeHeader);
 		}
 
-		public void ShowServerError(AccountReply serverError)
+		public void ShowCreateAccountServerError(AccountReply serverError)
 		{
 			DATCONST1 message;
 			switch (serverError)
@@ -75,7 +80,7 @@ namespace EndlessClient.Dialogs.Actions
 
 		public void ShowSuccessMessage()
 		{
-			ShowServerError(AccountReply.Created);
+			ShowCreateAccountServerError(AccountReply.Created);
 		}
 	}
 }

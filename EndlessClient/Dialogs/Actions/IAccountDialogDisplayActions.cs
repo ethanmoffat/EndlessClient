@@ -9,13 +9,15 @@ namespace EndlessClient.Dialogs.Actions
 {
 	public interface IAccountDialogDisplayActions
 	{
-		void ShowInitialWarningDialog();
+		void ShowInitialCreateWarningDialog();
 
-		Task ShowAccountCreatePendingDialog();
+		Task ShowCreatePendingDialog();
 
-		void ShowParameterError(CreateAccountParameterResult validationResult);
+		Task<IChangePasswordParameters> ShowChangePasswordDialog();
+
+		void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult);
 		
-		void ShowServerError(AccountReply serverError);
+		void ShowCreateAccountServerError(AccountReply serverError);
 		
 		void ShowSuccessMessage();
 	}

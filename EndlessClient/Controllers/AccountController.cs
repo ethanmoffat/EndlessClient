@@ -38,7 +38,7 @@ namespace EndlessClient.Controllers
 			var paramsValidationResult = _accountActions.CheckAccountCreateParameters(createAccountParameters);
 			if (paramsValidationResult.FaultingParameter != WhichParameter.None)
 			{
-				_accountDialogDisplayActions.ShowParameterError(paramsValidationResult);
+				_accountDialogDisplayActions.ShowCreateParameterValidationError(paramsValidationResult);
 				return;
 			}
 
@@ -52,7 +52,7 @@ namespace EndlessClient.Controllers
 			var nameResult = checkNameOperation.Result;
 			if (nameResult != AccountReply.Continue)
 			{
-				_accountDialogDisplayActions.ShowServerError(nameResult);
+				_accountDialogDisplayActions.ShowCreateAccountServerError(nameResult);
 				return;
 			}
 
@@ -68,7 +68,7 @@ namespace EndlessClient.Controllers
 			var accountResult = createAccountOperation.Result;
 			if (accountResult != AccountReply.Created)
 			{
-				_accountDialogDisplayActions.ShowServerError(accountResult);
+				_accountDialogDisplayActions.ShowCreateAccountServerError(accountResult);
 				return;
 			}
 
@@ -85,7 +85,7 @@ namespace EndlessClient.Controllers
 		{
 			try
 			{
-				await _accountDialogDisplayActions.ShowAccountCreatePendingDialog();
+				await _accountDialogDisplayActions.ShowCreatePendingDialog();
 			}
 			catch (OperationCanceledException) { return false; }
 
