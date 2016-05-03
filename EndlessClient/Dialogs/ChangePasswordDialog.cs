@@ -31,10 +31,10 @@ namespace EndlessClient.Dialogs
 
 		private readonly TaskCompletionSource<XNADialogResult> _dialogResultCompletionSource;
 
-		public string Username { get { return _inputBoxes[0].Text; } }
-		public string OldPassword { get { return _inputBoxes[1].Text; } }
-		public string NewPassword { get { return _inputBoxes[2].Text; } }
-		public string ConfirmPassword { get { return _inputBoxes[3].Text; } }
+		private string Username { get { return _inputBoxes[0].Text; } }
+		private string OldPassword { get { return _inputBoxes[1].Text; } }
+		private string NewPassword { get { return _inputBoxes[2].Text; } }
+		private string ConfirmPassword { get { return _inputBoxes[3].Text; } }
 
 		public ChangePasswordDialog(INativeGraphicsManager nativeGraphicsManager,
 									IGraphicsDeviceProvider graphicsDeviceProvider,
