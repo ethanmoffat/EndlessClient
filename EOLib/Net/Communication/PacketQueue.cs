@@ -22,6 +22,8 @@ namespace EOLib.Net.Communication
 		{
 			_internalQueue = new Queue<IPacket>();
 			_locker = new object();
+
+			_enqueuedTaskCompletionSource = new TaskCompletionSource<bool>();
 		}
 
 		public void EnqueuePacketForHandling(IPacket pkt)

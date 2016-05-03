@@ -18,6 +18,7 @@ namespace EOLib.Net.Handlers
 			{
 				new FamilyActionPair(PacketFamily.Init, PacketAction.Init),
 				new FamilyActionPair(PacketFamily.Account, PacketAction.Reply),
+				new FamilyActionPair(PacketFamily.Character, PacketAction.Player),
 				new FamilyActionPair(PacketFamily.Character, PacketAction.Reply),
 				new FamilyActionPair(PacketFamily.Login, PacketAction.Reply)
 			};
