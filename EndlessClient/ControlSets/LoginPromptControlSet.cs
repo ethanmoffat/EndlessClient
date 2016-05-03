@@ -102,18 +102,20 @@ namespace EndlessClient.ControlSets
 
 		private XNATextBox GetLoginUserNameTextBox()
 		{
-			return new XNATextBox(new Rectangle(402, 322, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
+			var textBox = new XNATextBox(new Rectangle(402, 322, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
 			{
 				MaxChars = 16,
 				DefaultText = "Username",
 				LeftPadding = 4,
 				DrawOrder = _personPicture.DrawOrder + 2
 			};
+			textBox.OnEnterPressed += DoLogin;
+			return textBox;
 		}
 
 		private XNATextBox GetLoginPasswordTextBox()
 		{
-			return new XNATextBox(new Rectangle(402, 358, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
+			var textBox = new XNATextBox(new Rectangle(402, 358, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
 			{
 				MaxChars = 12,
 				PasswordBox = true,
@@ -121,6 +123,8 @@ namespace EndlessClient.ControlSets
 				DefaultText = "Password",
 				DrawOrder = _personPicture.DrawOrder + 2
 			};
+			textBox.OnEnterPressed += DoLogin;
+			return textBox;
 		}
 
 		private XNAButton GetLoginAccountButton()
