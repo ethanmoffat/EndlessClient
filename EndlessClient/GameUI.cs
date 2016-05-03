@@ -3,14 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Configuration;
 using System.Linq;
-using System.Threading.Tasks;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EOLib;
-using EOLib.Domain.Login;
 using EOLib.Graphics;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -21,139 +18,34 @@ namespace EndlessClient
 {
 	public partial class EOGame
 	{
-		private int _charDeleteWarningIndex = -1; //index of the character that we've shown a warning about deleting, set to -1 for no warning shown
-
 		private readonly GraphicsDeviceManager _graphicsDeviceManager;
 		private SpriteBatch _spriteBatch;
 
-		private XNATextBox _loginUsernameTextbox;
-		private XNATextBox _loginPasswordTextbox;
-		private readonly Texture2D[] _textBoxTextures = new Texture2D[4];
-
 		public KeyboardDispatcher Dispatcher { get; private set; }
 
-		private readonly XNAButton[] _mainButtons = new XNAButton[4];
-		private readonly XNAButton[] _loginButtons = new XNAButton[2];
-
 		private readonly XNAButton[] _loginCharButtons = new XNAButton[3];
-		private readonly XNAButton[] _deleteCharButtons = new XNAButton[3];
-
-#if DEBUG
-		private XNAButton _testInGame;
-#endif
 
 		private XNAButton _backButton;
 		private bool _backButtonPressed; //workaround so the lost connection dialog doesn't show from the client disconnect event
-
-		private XNALabel _lblCredits, _lblVersionInfo;
-
-		private readonly XNATextBox[] _accountCreateTextBoxes = new XNATextBox[6];
 
 		public HUD.HUD Hud { get; private set; }
 		public SoundManager SoundManager { get; private set; }
 
 		private void InitializeControls(bool reinit = false)
 		{
-			//set up text boxes for login
-			_textBoxTextures[0] = Content.Load<Texture2D>("tbBack");
-			_textBoxTextures[1] = Content.Load<Texture2D>("tbLeft");
-			_textBoxTextures[2] = Content.Load<Texture2D>("tbRight");
-			_textBoxTextures[3] = Content.Load<Texture2D>("cursor");
-
-			_loginUsernameTextbox = new XNATextBox(new Rectangle(402, 322, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
-			{
-				MaxChars = 16,
-				DefaultText = "Username",
-				LeftPadding = 4
-			};
-			_loginUsernameTextbox.OnTabPressed += OnTabPressed;
-			_loginUsernameTextbox.OnClicked += OnTextClicked;
-			_loginUsernameTextbox.OnEnterPressed += (s, e) => MainButtonPress(_loginButtons[0], e);
-			Dispatcher.Subscriber = _loginUsernameTextbox;
-
-			_loginPasswordTextbox = new XNATextBox(new Rectangle(402, 358, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
-			{
-				MaxChars = 12,
-				PasswordBox = true,
-				LeftPadding = 4,
-				DefaultText = "Password"
-			};
-			_loginPasswordTextbox.OnTabPressed += OnTabPressed;
-			_loginPasswordTextbox.OnClicked += OnTextClicked;
-			_loginPasswordTextbox.OnEnterPressed += (s, e) => MainButtonPress(_loginButtons[0], e);
-
-			//set up primary four login buttons
-			Texture2D mainButtonSheet = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 13, true);
-			for (int i = 0; i < _mainButtons.Length; ++i)
-			{
-				int widthFactor = mainButtonSheet.Width / 2; //2: mouseOut and mouseOver textures
-				int heightFactor = mainButtonSheet.Height / _mainButtons.Length; //1 row per button
-				Rectangle outSource = new Rectangle(0, i * heightFactor, widthFactor, heightFactor);
-				Rectangle overSource = new Rectangle(widthFactor, i * heightFactor, widthFactor, heightFactor);
-				_mainButtons[i] = new XNAButton(mainButtonSheet, new Vector2(26, 278 + i * 40), outSource, overSource);
-				_mainButtons[i].OnClick += MainButtonPress;
-			}
-
-			//the button in the top-right for going back a screen
 			Texture2D back = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 24, true);
 			_backButton = new XNAButton(back, new Vector2(589, 0), new Rectangle(0, 0, back.Width, back.Height / 2),
 				new Rectangle(0, back.Height / 2, back.Width, back.Height / 2)) { DrawOrder = 100 };
 			_backButton.OnClick += MainButtonPress;
 			_backButton.ClickArea = new Rectangle(4, 16, 16, 16);
 
-			//Login/Cancel buttons for logging in
 			Texture2D smallButtonSheet = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
-			_loginButtons[0] = new XNAButton(smallButtonSheet, new Vector2(361, 389), new Rectangle(0, 0, 91, 29), new Rectangle(91, 0, 91, 29));
-			_loginButtons[1] = new XNAButton(smallButtonSheet, new Vector2(453, 389), new Rectangle(0, 29, 91, 29), new Rectangle(91, 29, 91, 29));
-			_loginButtons[0].OnClick += MainButtonPress;
-			_loginButtons[1].OnClick += MainButtonPress;
 
-			//6 text boxes (by default) for creating a new account.
-			for (int i = 0; i < _accountCreateTextBoxes.Length; ++i)
-			{
-				//holy fuck! magic numbers!
-				//basically, set the first  3 Y coord to start at 69  and move up by 51 each time
-				//			 set the second 3 Y coord to start at 260 and move up by 51 each time
-				int txtYCoord = (i < 3 ? 69 : 260) + (i < 3 ? i * 51 : (i - 3) * 51);
-				XNATextBox txt = new XNATextBox(new Rectangle(358, txtYCoord, 240, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08) { LeftPadding = 4 };
-
-				switch (i)
-				{
-					case 0:
-						txt.MaxChars = 16;
-						break;
-					case 1:
-					case 2:
-						txt.PasswordBox = true;
-						txt.MaxChars = 12;
-						break;
-					default:
-						txt.MaxChars = 35;
-						break;
-				}
-
-				txt.DefaultText = " ";
-
-				txt.OnTabPressed += OnTabPressed;
-				txt.OnClicked += OnTextClicked;
-				_accountCreateTextBoxes[i] = txt;
-			}
-
-			_lblCredits = new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10) { Text = Constants.CreditsText };
-
-			_lblVersionInfo = new XNALabel(new Rectangle(25, 453, 1, 1), Constants.FontSize07)
-			{
-				Text = string.Format(Constants.VersionInfoFormat, OldWorld.Instance.VersionMajor, OldWorld.Instance.VersionMinor, OldWorld.Instance.VersionClient, host, port),
-				ForeColor = Constants.BeigeText
-			};
-
-			//login/delete buttons for each character
+			//login buttons for each character
 			for (int i = 0; i < 3; ++i)
 			{
 				_loginCharButtons[i] = new XNAButton(smallButtonSheet, new Vector2(495, 93 + i * 124), new Rectangle(0, 58, 91, 29), new Rectangle(91, 58, 91, 29));
 				_loginCharButtons[i].OnClick += CharModButtonPress;
-				_deleteCharButtons[i] = new XNAButton(smallButtonSheet, new Vector2(495, 121 + i * 124), new Rectangle(0, 87, 91, 29), new Rectangle(91, 87, 91, 29));
-				_deleteCharButtons[i].OnClick += CharModButtonPress;
 			}
 
 			//hide all the components to start with
@@ -166,70 +58,17 @@ namespace EndlessClient
 					continue;
 
 				//...except for the four main buttons
-				if (component != null && !_mainButtons.Contains(component as XNAButton))
+				if (component != null)
 					component.Visible = false;
 			}
-			_lblVersionInfo.Visible = true;
-
-#if DEBUG
-			//testinggame will login as testuser and login as the first character
-			_testInGame = new XNAButton(new Vector2(5, 5), "in-game", Constants.FontSize10);
-			_testInGame.OnClick += testInGame_click;
-#endif
 		}
 
-#if DEBUG
-		private async void testInGame_click(object sender, EventArgs e)
-		{
-			MainButtonPress(_mainButtons[1], e); //press login
-			await Task.Delay(500);
-			if (!OldWorld.Instance.Client.ConnectedAndInitialized)
-				return;
-			_loginUsernameTextbox.Text = ConfigurationManager.AppSettings["auto_login_user"];
-			_loginPasswordTextbox.Text = ConfigurationManager.AppSettings["auto_login_pass"];
-
-			MainButtonPress(_loginButtons[0], e); //login as acc testuser
-			await Task.Delay(500);
-			CharModButtonPress(_loginCharButtons[0], e); //login as char testuser
-		}
-#endif
-
-		//Pretty much controls how states transition between one another
-		private async void MainButtonPress(object sender, EventArgs e)
+		private void MainButtonPress(object sender, EventArgs e)
 		{
 			if (!IsActive)
 				return;
-
-			if (OldWorld.Instance.SoundEnabled && _mainButtons.Contains(sender))
-			{
-				SoundManager.GetSoundEffectRef(SoundEffectID.ButtonClick).Play();
-			}
-
-			if (sender == _mainButtons[1])
-			{
-				//try connect
-				//if successful go to account login state
-				await TryConnectToServer(() => doStateChange(GameStates.Login));
-			}
-			else if (sender == _mainButtons[2])
-			{
-				doStateChange(GameStates.ViewCredits);
-			}
-			else if (sender == _mainButtons[3])
-			{
-				if (OldWorld.Instance.Client.ConnectedAndInitialized)
-					OldWorld.Instance.Client.Disconnect();
-				Exit();
-			}
-			else if ((sender == _backButton && State != GameStates.PlayingTheGame) || sender == _loginButtons[1])
-			{
-				Dispatcher.Subscriber = null;
-				DoShowLostConnectionDialogAndReturnToMainMenu();
-				//disabled warning: in case I add code later below, need to remember that this should immediately return
-// ReSharper disable once RedundantJumpStatement
-				return;
-			}
-			else if (sender == _backButton && State == GameStates.PlayingTheGame)
+			
+			if (sender == _backButton && State == GameStates.PlayingTheGame)
 			{
 				EOMessageBox.Show(DATCONST1.EXIT_GAME_ARE_YOU_SURE, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader, 
 					(ss, ee) =>
@@ -246,61 +85,33 @@ namespace EndlessClient
 						}
 					});
 			}
-			else if (sender == _loginButtons[0])
-			{
-				if (_loginUsernameTextbox.Text == "" || _loginPasswordTextbox.Text == "")
-					return;
-
-				LoginReply reply;
-				CharacterLoginData[] dataArray;
-				if (!_packetAPI.LoginRequest(_loginUsernameTextbox.Text, _loginPasswordTextbox.Text, out reply, out dataArray))
-				{
-					DoShowLostConnectionDialogAndReturnToMainMenu();
-					return;
-				}
-
-				if (reply != LoginReply.Ok)
-				{
-					EOMessageBox.Show(_packetAPI.LoginResponseMessage());
-					return;
-				}
-				OldWorld.Instance.MainPlayer.SetAccountName(_loginUsernameTextbox.Text);
-				OldWorld.Instance.MainPlayer.ProcessCharacterData(dataArray);
-
-				doStateChange(GameStates.LoggedIn);
-			}
 		}
 
 		private void CharModButtonPress(object sender, EventArgs e)
 		{
-			//click delete once: pop up initial dialog, set that initial dialog has been shown
-			//Character_take: delete clicked, then dialog pops up
-			//Character_remove: click ok in yes/no dialog
-
 			//click login: send WELCOME_REQUEST, get WELCOME_REPLY
 			//Send WELCOME_AGREE for map/pubs if needed
 			//Send WELCOME_MSG, get WELCOME_REPLY
 			//log in if all okay
 
-			int index;
 			if (_loginCharButtons.Contains(sender))
 			{
-				index = _loginCharButtons.ToList().FindIndex(x => x == sender);
+				var index = _loginCharButtons.ToList().FindIndex(x => x == sender);
 				if (OldWorld.Instance.MainPlayer.CharData == null || OldWorld.Instance.MainPlayer.CharData.Length <= index)
 					return;
 
 				WelcomeRequestData data;
-				if (!_packetAPI.SelectCharacter(OldWorld.Instance.MainPlayer.CharData[index].id, out data))
+				if (!API.SelectCharacter(OldWorld.Instance.MainPlayer.CharData[index].id, out data))
 				{
 					DoShowLostConnectionDialogAndReturnToMainMenu();
 					return;
 				}
 
 				//handles the WelcomeRequestData object
-				OldWorld.Instance.ApplyWelcomeRequest(_packetAPI, data);
+				OldWorld.Instance.ApplyWelcomeRequest(API, data);
 
 				//shows the connecting window
-				GameLoadingDialog dlg = new GameLoadingDialog(_packetAPI);
+				GameLoadingDialog dlg = new GameLoadingDialog(API);
 				dlg.DialogClosing += (dlgS, dlgE) =>
 				{
 					switch (dlgE.Result)
@@ -309,8 +120,8 @@ namespace EndlessClient
 							doStateChange(GameStates.PlayingTheGame);
 							
 							OldWorld.Instance.ApplyWelcomeMessage(dlg.WelcomeData);
-							
-							Hud = new HUD.HUD(this, _packetAPI);
+
+							Hud = new HUD.HUD(this, API);
 							Components.Add(Hud);
 							Hud.SetNews(dlg.WelcomeData.News);
 							Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.LOADING_GAME_HINT_FIRST);
@@ -328,116 +139,6 @@ namespace EndlessClient
 							break;
 					}
 				};
-			}
-			else if (_deleteCharButtons.Contains(sender))
-			{
-				index = _deleteCharButtons.ToList().FindIndex(x => x == sender);
-				if (OldWorld.Instance.MainPlayer.CharData.Length <= index)
-					return;
-
-				if (_charDeleteWarningIndex != index)
-				{
-					EOMessageBox.Show("Character \'" + OldWorld.Instance.MainPlayer.CharData[index].name + "\' ", DATCONST1.CHARACTER_DELETE_FIRST_CHECK);
-					_charDeleteWarningIndex = index;
-					return;
-				}
-
-				//delete character at that index, if it exists
-				int takeID;
-				if (!_packetAPI.CharacterTake(OldWorld.Instance.MainPlayer.CharData[index].id, out takeID))
-				{
-					DoShowLostConnectionDialogAndReturnToMainMenu();
-					return;
-				}
-
-				if (takeID != OldWorld.Instance.MainPlayer.CharData[index].id)
-				{
-					EOMessageBox.Show("The server did not respond properly for deleting the character. Try again.", "Server error");
-					return;
-				}
-
-				EOMessageBox.Show("Character \'" + OldWorld.Instance.MainPlayer.CharData[index].name + "\' ",
-					DATCONST1.CHARACTER_DELETE_CONFIRM, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogLargeHeader,
-					(dlgS, dlgE) =>
-					{
-						if (dlgE.Result == XNADialogResult.OK) //user clicked ok to delete their character. do the delete here.
-						{
-							CharacterLoginData[] dataArray;
-							if (!_packetAPI.CharacterRemove(OldWorld.Instance.MainPlayer.CharData[index].id, out dataArray))
-							{
-								DoShowLostConnectionDialogAndReturnToMainMenu();
-								return;
-							}
-
-							OldWorld.Instance.MainPlayer.ProcessCharacterData(dataArray);
-							doShowCharacters();
-						}
-					});
-			}
-		}
-
-		private void OnTabPressed(object sender, EventArgs e)
-		{
-			if (!IsActive)
-				return;
-			//for loginClickedGameState
-			switch (State)
-			{
-				case GameStates.Login:
-					if (sender == _loginUsernameTextbox)
-					{
-						_loginUsernameTextbox.Selected = false;
-						Dispatcher.Subscriber = _loginPasswordTextbox;
-						_loginPasswordTextbox.Selected = true;
-					}
-					else
-					{
-						_loginUsernameTextbox.Selected = true;
-						Dispatcher.Subscriber = _loginUsernameTextbox;
-						_loginPasswordTextbox.Selected = false;
-					}
-					break;
-				case GameStates.CreateAccount:
-					for (int i = 0; i < _accountCreateTextBoxes.Length; ++i)
-					{
-						if (sender == _accountCreateTextBoxes[i])
-						{
-							_accountCreateTextBoxes[i].Selected = false;
-							int next = (i == _accountCreateTextBoxes.Length - 1) ? 0 : i + 1;
-							Dispatcher.Subscriber = _accountCreateTextBoxes[next];
-							_accountCreateTextBoxes[next].Selected = true;
-							break;
-						}
-					}
-					break;
-			}
-		}
-
-		private void OnTextClicked(object sender, EventArgs e)
-		{
-			switch (State)
-			{
-				case GameStates.Login:
-					if (sender == _loginUsernameTextbox)
-					{
-						OnTabPressed(_loginPasswordTextbox, null);
-					}
-					else if (sender == _loginPasswordTextbox)
-					{
-						OnTabPressed(_loginUsernameTextbox, null);
-					}
-					break;
-				case GameStates.CreateAccount:
-					for (int i = 0; i < _accountCreateTextBoxes.Length; ++i)
-					{
-						if (sender == _accountCreateTextBoxes[i])
-						{
-							int prev = (i == 0) ? _accountCreateTextBoxes.Length - 1 : i - 1;
-							OnTabPressed(_accountCreateTextBoxes[prev], null);
-							break;
-						}
-					}
-					break;
 			}
 		}
 	}

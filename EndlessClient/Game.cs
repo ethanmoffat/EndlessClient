@@ -4,11 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
@@ -17,8 +14,6 @@ using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Services;
-using EOLib.Net;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -54,14 +49,9 @@ namespace EndlessClient
 		private Texture2D _backgroundTexture;
 		private Texture2D _characterSelectBackground, _accountCreateTextures, _userPassLoginPromptBackground;
 
-		private bool _exiting;
-		private AutoResetEvent _connectMutex;
-
 		private string host;
 		private int port;
-		private PacketAPI _packetAPI;
-		private PacketAPICallbackManager _callbackManager;
-		public PacketAPI API { get { return _packetAPI; } }
+		public PacketAPI API { get { return null; } }
 
 		private INativeGraphicsLoader _gfxLoader;
 		public INativeGraphicsManager GFXManager { get; private set; }
@@ -70,98 +60,6 @@ namespace EndlessClient
 		private TimeSpan? lastFPSRender;
 		private int localFPS;
 #endif
-
-		//--------------------------
-		//***** HELPER METHODS *****
-		//--------------------------
-		private async Task TryConnectToServer(Action successAction)
-		{
-			//the mutex here should simulate the action of spamming the button.
-			//no matter what, it will only do it one at a time: the mutex is only released when the bg thread ends
-			if (_connectMutex == null)
-			{
-				_connectMutex = new AutoResetEvent(true);
-				if (!_connectMutex.WaitOne(0))
-					return;
-			}
-			else if (!_connectMutex.WaitOne(0))
-			{
-				return;
-			}
-
-			if (OldWorld.Instance.Client.ConnectedAndInitialized && OldWorld.Instance.Client.Connected)
-			{
-				successAction();
-				_connectMutex.Set();
-				return;
-			}
-			
-			//execute this logic on a separate thread so the game doesn't lock up while it's trying to connect to the server
-			await Task.Run(() =>
-			{
-				try
-				{
-					if (OldWorld.Instance.Client.ConnectToServer(host, port))
-					{
-						_packetAPI = new PacketAPI((EOClient) OldWorld.Instance.Client);
-
-						//set up event packet handling event bindings: 
-						//	some events are triggered by the server regardless of action by the client
-						_callbackManager = new PacketAPICallbackManager(_packetAPI, this);
-						_callbackManager.AssignCallbacks();
-
-						((EOClient) OldWorld.Instance.Client).EventDisconnect += () => _packetAPI.Disconnect();
-
-						InitData data;
-						if (_packetAPI.Initialize(OldWorld.Instance.VersionMajor,
-							OldWorld.Instance.VersionMinor,
-							OldWorld.Instance.VersionClient,
-							new HDSerialNumberService().GetHDSerialNumber(),
-							out data))
-						{
-							switch (data.ServerResponse)
-							{
-								case InitReply.INIT_OK:
-									((EOClient) OldWorld.Instance.Client).SetInitData(data);
-
-									if (!_packetAPI.ConfirmInit(data.emulti_e, data.emulti_d, data.clientID))
-									{
-										throw new Exception(); //connection failed!
-									}
-
-									OldWorld.Instance.MainPlayer.SetPlayerID(data.clientID);
-									OldWorld.Instance.SetAPIHandle(_packetAPI);
-									successAction();
-									break;
-								default:
-									string extra;
-									DATCONST1 msg = _packetAPI.GetInitResponseMessage(out extra);
-									EOMessageBox.Show(msg, extra);
-									break;
-							}
-						}
-						else
-						{
-							throw new Exception(); //connection failed!
-						}
-					}
-					else
-					{
-						//show connection not found
-						throw new Exception();
-					}
-				}
-				catch
-				{
-					if (!_exiting)
-					{
-						EOMessageBox.Show(DATCONST1.CONNECTION_SERVER_NOT_FOUND);
-					}
-				}
-
-				_connectMutex.Set();
-			});
-		}
 
 		public void ShowLostConnectionDialog()
 		{
@@ -195,19 +93,6 @@ namespace EndlessClient
 			SetInitialGameState();
 		}
 
-		private void doShowCharacters()
-		{
-			//remove any existing character renderers
-			var toRemove = Components.OfType<OldCharacterRenderer>().ToList();
-			foreach (OldCharacterRenderer eor in toRemove)
-				eor.Close();
-
-			//show the new data
-			OldCharacterRenderer[] render = new OldCharacterRenderer[OldWorld.Instance.MainPlayer.CharData.Length];
-			for (int i = 0; i < OldWorld.Instance.MainPlayer.CharData.Length; ++i)
-				render[i] = new OldCharacterRenderer(new Vector2(395, 60 + i * 124), OldWorld.Instance.MainPlayer.CharData[i]);
-		}
-		
 		private void doStateChange(GameStates newState)
 		{
 			//todo: clean this up, it's a mess
@@ -282,49 +167,6 @@ namespace EndlessClient
 
 			switch (State)
 			{
-				case GameStates.Initial:
-					ResetPeopleIndices();
-
-					foreach (XNAButton btn in _mainButtons)
-						btn.Visible = true;
-					_lblVersionInfo.Visible = true;
-
-#if DEBUG
-					_testInGame.Visible = ConfigurationManager.AppSettings["auto_login_user"] != null &&
-										  ConfigurationManager.AppSettings["auto_login_pass"] != null;
-#endif
-					break;
-				case GameStates.CreateAccount:
-					foreach (XNATextBox txt in _accountCreateTextBoxes)
-						txt.Visible = true;
-					_backButton.Visible = true;
-					Dispatcher.Subscriber = _accountCreateTextBoxes[0];
-					break;
-				case GameStates.Login:
-					_loginUsernameTextbox.Visible = true;
-					_loginPasswordTextbox.Visible = true;
-					foreach (XNAButton btn in _loginButtons)
-						btn.Visible = true;
-					foreach (XNAButton btn in _mainButtons)
-						btn.Visible = true;
-					Dispatcher.Subscriber = _loginUsernameTextbox;
-					_lblVersionInfo.Visible = true;
-					break;
-				case GameStates.ViewCredits:
-					foreach (XNAButton btn in _mainButtons)
-						btn.Visible = true;
-					_lblCredits.Visible = true;
-					break;
-				case GameStates.LoggedIn:
-					_backButton.Visible = true;
-
-					foreach (XNAButton x in _loginCharButtons)
-						x.Visible = true;
-					foreach (XNAButton x in _deleteCharButtons)
-						x.Visible = true;
-
-					doShowCharacters();
-					break;
 				case GameStates.PlayingTheGame:
 					FieldInfo[] fi = GetType().GetFields(BindingFlags.Instance | BindingFlags.GetField | BindingFlags.NonPublic);
 					for (int i = Components.Count - 1; i >= 0; --i)
@@ -627,22 +469,6 @@ namespace EndlessClient
 			if (OldWorld.Instance.Client.ConnectedAndInitialized)
 				OldWorld.Instance.Client.Disconnect();
 
-			if(_loginUsernameTextbox != null)
-				_loginUsernameTextbox.Close();
-			if(_loginPasswordTextbox != null)
-				_loginPasswordTextbox.Close();
-
-			foreach (XNAButton btn in _mainButtons)
-			{
-				if(btn != null)
-					btn.Close();
-			}
-			foreach (XNAButton btn in _loginButtons)
-			{
-				if(btn != null)
-					btn.Close();
-			}
-
 			foreach (XNAButton btn in _loginCharButtons)
 			{
 				if(btn != null)
@@ -652,24 +478,9 @@ namespace EndlessClient
 			if(_backButton != null)
 				_backButton.Close();
 
-			if(_lblCredits != null)
-				_lblCredits.Close();
-
-			foreach (XNATextBox btn in _accountCreateTextBoxes)
-			{
-				if(btn != null)
-					btn.Close();
-			}
-
 			if(_spriteBatch != null)
 				_spriteBatch.Dispose();
 			((IDisposable)_graphicsDeviceManager).Dispose();
-			
-			if(_lblVersionInfo != null)
-				_lblVersionInfo.Close();
-
-			if(_connectMutex != null)
-				_connectMutex.Dispose();
 
 			GFXManager.Dispose();
 			_gfxLoader.Dispose();
@@ -679,16 +490,6 @@ namespace EndlessClient
 			OldWorld.Instance.Dispose();
 
 			base.Dispose(disposing);
-		}
-
-		//make sure a pending connection request terminates properly without crashing the game
-		protected override void OnExiting(object sender, EventArgs args)
-		{
-			_exiting = true;
-			if(_connectMutex != null)
-				_connectMutex.Set();
-			OldWorld.Instance.Client.Dispose(); //kill pending connection request on exit
-			base.OnExiting(sender, args);
 		}
 	}
 }
