@@ -74,7 +74,8 @@ namespace EndlessClient.ControlSets
 					_keyboardDispatcherProvider.Dispatcher,
 					MainButtonController,
 					_characterInfoPanelFactory,
-					CharacterManagementController);
+					CharacterManagementController,
+					AccountController);
 				default: throw new ArgumentOutOfRangeException("newState", newState, null);
 			}
 		}

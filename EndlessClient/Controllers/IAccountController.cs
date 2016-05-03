@@ -10,5 +10,7 @@ namespace EndlessClient.Controllers
 	public interface IAccountController
 	{
 		Task CreateAccount(ICreateAccountParameters createAccountParameters);
+
+		Task ChangePassword();
 	}
 }

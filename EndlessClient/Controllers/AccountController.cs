@@ -78,7 +78,14 @@ namespace EndlessClient.Controllers
 
 		public async Task ChangePassword()
 		{
-			await Task.FromResult(false);
+			IChangePasswordParameters changePasswordParameters;
+			try
+			{
+				changePasswordParameters = await _accountDialogDisplayActions.ShowChangePasswordDialog();
+			}
+			catch (OperationCanceledException) { return; }
+
+			//todo: change the password server-side
 		}
 
 		private async Task<bool> ShowAccountCreationPendingDialog()

@@ -18,16 +18,19 @@ namespace EndlessClient.Dialogs.Actions
 		private readonly ICreateAccountWarningDialogFactory _createAccountWarningDialogFactory;
 		private readonly ICreateAccountProgressDialogFactory _createAccountProgressDialogFactory;
 		private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+		private readonly IChangePasswordDialogFactory _changePasswordDialogFactory;
 
 		public AccountDialogDisplayActions(ILocalizedStringService localizedStringService,
 										   ICreateAccountWarningDialogFactory createAccountWarningDialogFactory,
 										   ICreateAccountProgressDialogFactory createAccountProgressDialogFactory,
-										   IEOMessageBoxFactory eoMessageBoxFactory)
+										   IEOMessageBoxFactory eoMessageBoxFactory,
+										   IChangePasswordDialogFactory changePasswordDialogFactory)
 		{
 			_localizedStringService = localizedStringService;
 			_createAccountWarningDialogFactory = createAccountWarningDialogFactory;
 			_createAccountProgressDialogFactory = createAccountProgressDialogFactory;
 			_eoMessageBoxFactory = eoMessageBoxFactory;
+			_changePasswordDialogFactory = changePasswordDialogFactory;
 		}
 
 		public void ShowInitialCreateWarningDialog()
@@ -46,9 +49,10 @@ namespace EndlessClient.Dialogs.Actions
 			await progress.WaitForCompletion();
 		}
 
-		public Task<IChangePasswordParameters> ShowChangePasswordDialog()
+		public async Task<IChangePasswordParameters> ShowChangePasswordDialog()
 		{
-			throw new NotImplementedException();
+			var changePassword = _changePasswordDialogFactory.BuildChangePasswordDialog();
+			return await changePassword.Show();
 		}
 
 		public void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult)

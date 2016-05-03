@@ -17,11 +17,12 @@ namespace EndlessClient.ControlSets
 	{
 		private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
 		private readonly ICharacterManagementController _characterManagementController;
+		private readonly IAccountController _accountController;
 		private readonly List<CharacterInfoPanel> _characterInfoPanels;
 
 		private XNAButton _changePasswordButton;
 
-		private int _createRequests;
+		private int _createRequests, _changePasswordRequests;
 
 		public override GameStates GameState
 		{
@@ -31,11 +32,13 @@ namespace EndlessClient.ControlSets
 		public LoggedInControlSet(KeyboardDispatcher dispatcher,
 								  IMainButtonController mainButtonController,
 								  ICharacterInfoPanelFactory characterInfoPanelFactory,
-								  ICharacterManagementController characterManagementController)
+								  ICharacterManagementController characterManagementController,
+								  IAccountController accountController)
 			: base(dispatcher, mainButtonController)
 		{
 			_characterInfoPanelFactory = characterInfoPanelFactory;
 			_characterManagementController = characterManagementController;
+			_accountController = accountController;
 			_characterInfoPanels = new List<CharacterInfoPanel>();
 		}
 
@@ -68,7 +71,7 @@ namespace EndlessClient.ControlSets
 				new Vector2(454, 417),
 				new Rectangle(0, 120, 120, 40),
 				new Rectangle(120, 120, 120, 40));
-			//todo: button.OnClick += ...
+			button.OnClick += DoChangePassword;
 			return button;
 		}
 
@@ -91,6 +94,21 @@ namespace EndlessClient.ControlSets
 			finally
 			{
 				Interlocked.Exchange(ref _createRequests, 0);
+			}
+		}
+
+		private async void DoChangePassword(object sender, EventArgs e)
+		{
+			if (Interlocked.Increment(ref _changePasswordRequests) != 1)
+				return;
+
+			try
+			{
+				await _accountController.ChangePassword();
+			}
+			finally
+			{
+				Interlocked.Exchange(ref _changePasswordRequests, 0);
 			}
 		}
 	}
