@@ -22,14 +22,17 @@ namespace EOLib.Net.Communication
 		{
 			_internalQueue = new Queue<IPacket>();
 			_locker = new object();
-
-			_enqueuedTaskCompletionSource = new TaskCompletionSource<bool>();
 		}
 
 		public void EnqueuePacketForHandling(IPacket pkt)
 		{
 			lock (_locker)
 				_internalQueue.Enqueue(pkt);
+		}
+
+		public void EnqueuePacketAndSignalConsumer(IPacket pkt)
+		{
+			EnqueuePacketForHandling(pkt);
 			_enqueuedTaskCompletionSource.SetResult(true);
 		}
 

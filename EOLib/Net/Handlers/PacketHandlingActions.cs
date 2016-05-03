@@ -25,7 +25,7 @@ namespace EOLib.Net.Handlers
 			switch (handleType)
 			{
 				case PacketHandlingType.InBand:
-					_packetQueueProvider.HandleInBandPacketQueue.EnqueuePacketForHandling(packet);
+					_packetQueueProvider.HandleInBandPacketQueue.EnqueuePacketAndSignalConsumer(packet);
 					break;
 				case PacketHandlingType.OutOfBand:
 					_packetQueueProvider.HandleOutOfBandPacketQueue.EnqueuePacketForHandling(packet);
