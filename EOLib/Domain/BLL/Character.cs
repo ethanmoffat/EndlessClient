@@ -3,21 +3,38 @@
 // For additional details, see the LICENSE file
 
 using EOLib.Domain.Character;
-using EOLib.Net.API;
+using EOLib.IO;
 
 namespace EOLib.Domain.BLL
 {
 	public class Character : ICharacter
 	{
+		public int ID { get; private set; }
+
 		public string Name { get; private set; }
 
-		public int ID { get; private set; }
+		public string Title { get; private set; }
+
+		public string GuildName { get; private set; }
+
+		public string GuildRank { get; private set; }
+
+		public string GuildTag { get; private set; }
+
+		public ClassRecord Class { get; private set; }
 
 		public AdminLevel AdminLevel { get; private set; }
 
 		public ICharacterRenderProperties RenderProperties { get; private set; }
 
 		public ICharacterStats Stats { get; private set; }
+
+		public ICharacter WithID(int id)
+		{
+			var character = MakeCopy(this);
+			character.ID = id;
+			return character;
+		}
 
 		public ICharacter WithName(string name)
 		{
@@ -26,10 +43,38 @@ namespace EOLib.Domain.BLL
 			return character;
 		}
 
-		public ICharacter WithID(int id)
+		public ICharacter WithTitle(string title)
 		{
 			var character = MakeCopy(this);
-			character.ID = id;
+			character.Title = title;
+			return character;
+		}
+
+		public ICharacter WithGuildName(string guildName)
+		{
+			var character = MakeCopy(this);
+			character.GuildName = guildName;
+			return character;
+		}
+
+		public ICharacter WithGuildRank(string guildRank)
+		{
+			var character = MakeCopy(this);
+			character.GuildRank = guildRank;
+			return character;
+		}
+
+		public ICharacter WithGuildTag(string guildTag)
+		{
+			var character = MakeCopy(this);
+			character.GuildTag = guildTag;
+			return character;
+		}
+
+		public ICharacter WithClass(ClassRecord newClass)
+		{
+			var character = MakeCopy(this);
+			character.Class = newClass;
 			return character;
 		}
 
@@ -58,8 +103,13 @@ namespace EOLib.Domain.BLL
 		{
 			return new Character
 			{
-				Name = source.Name,
 				ID = source.ID,
+				Name = source.Name,
+				Title = source.Title,
+				GuildName = source.GuildName,
+				GuildRank = source.GuildRank,
+				GuildTag = source.GuildTag,
+				Class = source.Class,
 				AdminLevel = source.AdminLevel,
 				RenderProperties = source.RenderProperties,
 				Stats = source.Stats

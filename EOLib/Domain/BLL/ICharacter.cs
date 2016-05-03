@@ -3,14 +3,26 @@
 // For additional details, see the LICENSE file
 
 using EOLib.Domain.Character;
+using EOLib.IO;
 
 namespace EOLib.Domain.BLL
 {
 	public interface ICharacter
 	{
+		int ID { get; }
+
 		string Name { get; }
 
-		int ID { get; }
+		string Title { get; }
+
+		//todo: guild stuff should be in a guild object
+		string GuildName { get; }
+
+		string GuildRank { get; }
+
+		string GuildTag { get; }
+
+		ClassRecord Class { get; }
 
 		ICharacterRenderProperties RenderProperties { get; }
 
@@ -18,9 +30,19 @@ namespace EOLib.Domain.BLL
 
 		AdminLevel AdminLevel { get; }
 
+		ICharacter WithID(int id);
+
 		ICharacter WithName(string name);
 
-		ICharacter WithID(int id);
+		ICharacter WithTitle(string title);
+
+		ICharacter WithGuildName(string guildName);
+
+		ICharacter WithGuildRank(string guildRank);
+
+		ICharacter WithGuildTag(string guildTag);
+
+		ICharacter WithClass(ClassRecord newClass);
 
 		ICharacter WithRenderProperties(ICharacterRenderProperties renderProperties);
 
