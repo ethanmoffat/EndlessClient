@@ -9,6 +9,5 @@ namespace EOLib.Domain.Account
 		string AccountName { get; }
 		string OldPassword { get; }
 		string NewPassword { get; }
-		string ConfirmNewPassword { get; }
 	}
 }

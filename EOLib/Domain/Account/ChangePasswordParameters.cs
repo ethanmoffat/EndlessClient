@@ -9,17 +9,14 @@ namespace EOLib.Domain.Account
 		public string AccountName { get; private set; }
 		public string OldPassword { get; private set; }
 		public string NewPassword { get; private set; }
-		public string ConfirmNewPassword { get; private set; }
 
 		public ChangePasswordParameters(string accountName,
 			string oldPassword,
-			string newPassword,
-			string confirmNewPassword)
+			string newPassword)
 		{
 			AccountName = accountName;
 			OldPassword = oldPassword;
 			NewPassword = newPassword;
-			ConfirmNewPassword = confirmNewPassword;
 		}
 	}
 }
