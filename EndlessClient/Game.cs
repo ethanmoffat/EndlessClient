@@ -297,9 +297,6 @@ namespace EndlessClient
 				case GameStates.CreateAccount:
 					foreach (XNATextBox txt in _accountCreateTextBoxes)
 						txt.Visible = true;
-					foreach (XNAButton btn in _createButtons)
-						btn.Visible = true;
-					_createButtons[0].DrawLocation = new Vector2(359, 417);
 					_backButton.Visible = true;
 					Dispatcher.Subscriber = _accountCreateTextBoxes[0];
 					break;
@@ -320,8 +317,6 @@ namespace EndlessClient
 					break;
 				case GameStates.LoggedIn:
 					_backButton.Visible = true;
-					_createButtons[0].Visible = true;
-					_createButtons[0].DrawLocation = new Vector2(334, 417);
 
 					foreach (XNAButton x in _loginCharButtons)
 						x.Visible = true;
@@ -643,11 +638,6 @@ namespace EndlessClient
 					btn.Close();
 			}
 			foreach (XNAButton btn in _loginButtons)
-			{
-				if(btn != null)
-					btn.Close();
-			}
-			foreach (XNAButton btn in _createButtons)
 			{
 				if(btn != null)
 					btn.Close();

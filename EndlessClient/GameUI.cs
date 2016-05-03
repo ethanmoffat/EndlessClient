@@ -10,11 +10,8 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EOLib;
-using EOLib.Domain.Account;
-using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
-using EOLib.IO.Services;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -37,7 +34,6 @@ namespace EndlessClient
 
 		private readonly XNAButton[] _mainButtons = new XNAButton[4];
 		private readonly XNAButton[] _loginButtons = new XNAButton[2];
-		private readonly XNAButton[] _createButtons = new XNAButton[2];
 
 		private readonly XNAButton[] _loginCharButtons = new XNAButton[3];
 		private readonly XNAButton[] _deleteCharButtons = new XNAButton[3];
@@ -143,14 +139,6 @@ namespace EndlessClient
 				_accountCreateTextBoxes[i] = txt;
 			}
 
-
-			//create account / cancel
-			Texture2D secondaryButtons = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 14, true);
-			_createButtons[0] = new XNAButton(secondaryButtons, new Vector2(359, 417), new Rectangle(0, 0, 120, 40), new Rectangle(120, 0, 120, 40));
-			_createButtons[1] = new XNAButton(secondaryButtons, new Vector2(481, 417), new Rectangle(0, 40, 120, 40), new Rectangle(120, 40, 120, 40));
-			_createButtons[0].OnClick += MainButtonPress;
-			_createButtons[1].OnClick += MainButtonPress;
-
 			_lblCredits = new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10) { Text = Constants.CreditsText };
 
 			_lblVersionInfo = new XNALabel(new Rectangle(25, 453, 1, 1), Constants.FontSize07)
@@ -251,7 +239,7 @@ namespace EndlessClient
 					OldWorld.Instance.Client.Disconnect();
 				Exit();
 			}
-			else if ((sender == _backButton && State != GameStates.PlayingTheGame) || sender == _createButtons[1] || sender == _loginButtons[1])
+			else if ((sender == _backButton && State != GameStates.PlayingTheGame) || sender == _loginButtons[1])
 			{
 				Dispatcher.Subscriber = null;
 				DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -298,152 +286,6 @@ namespace EndlessClient
 				OldWorld.Instance.MainPlayer.ProcessCharacterData(dataArray);
 
 				doStateChange(GameStates.LoggedIn);
-			}
-			else if (sender == _createButtons[0])
-			{
-				switch (State)
-				{
-					case GameStates.CreateAccount:
-					{
-						if (_accountCreateTextBoxes.Any(txt => txt.Text.Length == 0))
-						{
-							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_FIELDS_STILL_EMPTY);
-							return;
-						}
-
-						if (_accountCreateTextBoxes[0].Text.Length < 4)
-						{
-							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_NAME_TOO_SHORT);
-							return;
-						}
-
-						if (_accountCreateTextBoxes[0].Text.Distinct().Count() < 3)
-						{
-							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_NAME_TOO_OBVIOUS);
-							return;
-						}
-
-						if (_accountCreateTextBoxes[1].Text != _accountCreateTextBoxes[2].Text)
-						{
-							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_MISMATCH);
-							return;
-						}
-
-						if (_accountCreateTextBoxes[1].Text.Length < 6)
-						{
-							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
-							return;
-						}
-
-						if (_accountCreateTextBoxes[1].Text.Distinct().Count() < 3)
-						{
-							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_OBVIOUS);
-							return;
-						}
-
-						if (!System.Text.RegularExpressions.Regex.IsMatch(_accountCreateTextBoxes[5].Text, //filter emails using regex
-							@"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b"))
-						{
-							EOMessageBox.Show(DATCONST1.ACCOUNT_CREATE_EMAIL_INVALID);
-							return;
-						}
-
-						AccountReply reply;
-						if (!_packetAPI.AccountCheckName(_accountCreateTextBoxes[0].Text, out reply))
-						{
-							DoShowLostConnectionDialogAndReturnToMainMenu();
-							return;
-						}
-
-						if (reply != AccountReply.Continue)
-						{
-							EOMessageBox.Show(_packetAPI.AccountResponseMessage());
-							return;
-						}
-
-						//show progress bar for account creation pending and THEN create the account
-						string pbmessage = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1].Data[(int) DATCONST1.ACCOUNT_CREATE_ACCEPTED + 1];
-						string pbcaption = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1].Data[(int) DATCONST1.ACCOUNT_CREATE_ACCEPTED];
-						ProgressDialog dlg = new ProgressDialog(pbmessage, pbcaption);
-						dlg.DialogClosing += (dlg_S, dlg_E) =>
-						{
-							if (dlg_E.Result != XNADialogResult.NO_BUTTON_PRESSED) return;
-
-							if (!_packetAPI.AccountCreate(_accountCreateTextBoxes[0].Text,
-								_accountCreateTextBoxes[1].Text,
-								_accountCreateTextBoxes[3].Text,
-								_accountCreateTextBoxes[4].Text,
-								_accountCreateTextBoxes[5].Text,
-								new HDSerialNumberService().GetHDSerialNumber(),
-								out reply))
-							{
-								DoShowLostConnectionDialogAndReturnToMainMenu();
-								return;
-							}
-
-							DATCONST1 resource = _packetAPI.AccountResponseMessage();
-							if (reply != AccountReply.Created)
-							{
-								EOMessageBox.Show(resource);
-								return;
-							}
-
-							doStateChange(GameStates.Initial);
-							EOMessageBox.Show(resource);
-						};
-
-					}
-						break;
-					case GameStates.LoggedIn:
-					{
-						//Character_request: show create character dialog
-						//Character_create: clicked ok in create character dialog
-						CharacterReply reply;
-						if (!_packetAPI.CharacterRequest(out reply))
-						{
-							DoShowLostConnectionDialogAndReturnToMainMenu();
-							return;
-						}
-
-						if (reply != CharacterReply.Ok)
-						{
-							EOMessageBox.Show("Server is not allowing you to create a character right now. This could be a bug.", "Server error");
-							return;
-						}
-
-						CreateCharacterDialog createCharacter = new CreateCharacterDialog(_textBoxTextures[3], Dispatcher);
-						createCharacter.DialogClosing += (dlg_S, dlg_E) =>
-						{
-							if (dlg_E.Result != XNADialogResult.OK) return;
-
-							CharacterLoginData[] dataArray;
-							if (!_packetAPI.CharacterCreate(createCharacter.RenderProperties.Gender,
-								createCharacter.RenderProperties.HairStyle,
-								createCharacter.RenderProperties.HairColor,
-								createCharacter.RenderProperties.Race,
-								createCharacter.Name,
-								out reply,
-								out dataArray))
-							{
-								DoShowLostConnectionDialogAndReturnToMainMenu();
-								return;
-							}
-
-							if (reply != CharacterReply.Ok)
-							{
-								if (reply != CharacterReply.Full)
-									dlg_E.CancelClose = true;
-								EOMessageBox.Show(_packetAPI.CharacterResponseMessage());
-								return;
-							}
-
-							EOMessageBox.Show(DATCONST1.CHARACTER_CREATE_SUCCESS);
-							OldWorld.Instance.MainPlayer.ProcessCharacterData(dataArray);
-							doShowCharacters();
-						};
-					}
-						break;
-				}
 			}
 		}
 
