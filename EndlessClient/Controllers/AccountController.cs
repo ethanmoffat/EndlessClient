@@ -85,7 +85,15 @@ namespace EndlessClient.Controllers
 			}
 			catch (OperationCanceledException) { return; }
 
-			//todo: change the password server-side
+			var changePasswordOperation = _networkOperationFactory.CreateSafeOperation(
+				async () => await _accountActions.ChangePassword(changePasswordParameters),
+				SetInitialStateAndShowError,
+				SetInitialStateAndShowError);
+			if (!await changePasswordOperation.Invoke())
+				return;
+
+			var result = changePasswordOperation.Result;
+			_accountDialogDisplayActions.ShowCreateAccountServerError(result);
 		}
 
 		private async Task<bool> ShowAccountCreationPendingDialog()
