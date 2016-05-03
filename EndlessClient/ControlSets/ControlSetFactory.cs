@@ -62,7 +62,7 @@ namespace EndlessClient.ControlSets
 					return new CreateAccountControlSet(
 						_keyboardDispatcherProvider.Dispatcher,
 						MainButtonController,
-						CreateAccountController);
+						AccountController);
 				case GameStates.Login:
 					return new LoginPromptControlSet(
 						_keyboardDispatcherProvider.Dispatcher,
@@ -84,9 +84,9 @@ namespace EndlessClient.ControlSets
 			get { return _mainButtonControllerProvider.MainButtonController; }
 		}
 
-		private ICreateAccountController CreateAccountController
+		private IAccountController AccountController
 		{
-			get { return _createAccountControllerProvider.CreateAccountController; }
+			get { return _createAccountControllerProvider.AccountController; }
 		}
 
 		private ILoginController LoginController

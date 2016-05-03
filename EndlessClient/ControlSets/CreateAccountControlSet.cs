@@ -21,7 +21,7 @@ namespace EndlessClient.ControlSets
 {
 	public class CreateAccountControlSet : IntermediateControlSet
 	{
-		private readonly ICreateAccountController _createAccountController;
+		private readonly IAccountController _accountController;
 
 		private Texture2D _labelsTexture;
 
@@ -44,10 +44,10 @@ namespace EndlessClient.ControlSets
 
 		public CreateAccountControlSet(KeyboardDispatcher dispatcher,
 									   IMainButtonController mainButtonController,
-									   ICreateAccountController createAccountController)
+									   IAccountController accountController)
 			: base(dispatcher, mainButtonController)
 		{
-			_createAccountController = createAccountController;
+			_accountController = accountController;
 		}
 
 		public override void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
@@ -202,7 +202,7 @@ namespace EndlessClient.ControlSets
 
 		private void DoCreateAccount(object sender, EventArgs e)
 		{
-			_createAccountController.CreateAccount(new CreateAccountParameters(
+			_accountController.CreateAccount(new CreateAccountParameters(
 				_tbAccountName.Text,
 				_tbPassword.Text,
 				_tbConfirm.Text,

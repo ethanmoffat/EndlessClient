@@ -6,16 +6,16 @@ namespace EndlessClient.Controllers
 {
 	public interface ICreateAccountControllerRepository
 	{
-		ICreateAccountController CreateAccountController { get; set; }
+		IAccountController AccountController { get; set; }
 	}
 
 	public interface ICreateAccountControllerProvider
 	{
-		ICreateAccountController CreateAccountController { get; }
+		IAccountController AccountController { get; }
 	}
 
 	public class CreateAccountControllerRepository : ICreateAccountControllerRepository, ICreateAccountControllerProvider
 	{
-		public ICreateAccountController CreateAccountController { get; set; }
+		public IAccountController AccountController { get; set; }
 	}
 }

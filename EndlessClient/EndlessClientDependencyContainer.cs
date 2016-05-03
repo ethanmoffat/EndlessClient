@@ -49,7 +49,7 @@ namespace EndlessClient
 
 			//controllers
 			container.RegisterType<IMainButtonController, MainButtonController>();
-			container.RegisterType<ICreateAccountController, CreateAccountController>();
+			container.RegisterType<IAccountController, AccountController>();
 			container.RegisterType<ILoginController, LoginController>();
 			container.RegisterType<ICharacterManagementController, CharacterManagementController>();
 			
@@ -89,7 +89,7 @@ namespace EndlessClient
 			mainButtonControllerRepo.MainButtonController = container.Resolve<IMainButtonController>();
 
 			var createAccountControllerRepo = container.Resolve<ICreateAccountControllerRepository>();
-			createAccountControllerRepo.CreateAccountController = container.Resolve<ICreateAccountController>();
+			createAccountControllerRepo.AccountController = container.Resolve<IAccountController>();
 
 			var loginControllerRepo = container.Resolve<ILoginControllerRepository>();
 			loginControllerRepo.LoginController = container.Resolve<ILoginController>();

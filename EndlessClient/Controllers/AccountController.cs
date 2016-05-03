@@ -12,7 +12,7 @@ using EOLib.Net.Communication;
 
 namespace EndlessClient.Controllers
 {
-	public class CreateAccountController : ICreateAccountController
+	public class AccountController : IAccountController
 	{
 		private readonly ICreateAccountDialogDisplayActions _createAccountDialogDisplayActions;
 		private readonly IErrorDialogDisplayAction _errorDisplayAction;
@@ -20,11 +20,11 @@ namespace EndlessClient.Controllers
 		private readonly IGameStateActions _gameStateActions;
 		private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
 
-		public CreateAccountController(ICreateAccountDialogDisplayActions createAccountDialogDisplayActions,
-									   IErrorDialogDisplayAction errorDisplayAction,
-									   IAccountActions accountActions,
-									   IGameStateActions gameStateActions,
-									   ISafeInBandNetworkOperationFactory networkOperationFactory)
+		public AccountController(ICreateAccountDialogDisplayActions createAccountDialogDisplayActions,
+								 IErrorDialogDisplayAction errorDisplayAction,
+								 IAccountActions accountActions,
+								 IGameStateActions gameStateActions,
+								 ISafeInBandNetworkOperationFactory networkOperationFactory)
 		{
 			_createAccountDialogDisplayActions = createAccountDialogDisplayActions;
 			_errorDisplayAction = errorDisplayAction;
@@ -75,6 +75,11 @@ namespace EndlessClient.Controllers
 			_gameStateActions.ChangeToState(GameStates.Initial);
 			_createAccountDialogDisplayActions.ShowSuccessMessage();
 		}
+
+		//public async Task ChangePassword()
+		//{
+		//	await Task.FromResult(false);
+		//}
 
 		private async Task<bool> ShowAccountCreationPendingDialog()
 		{
