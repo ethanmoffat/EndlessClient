@@ -8,7 +8,6 @@ using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -52,25 +51,6 @@ namespace EndlessClient.Dialogs
 				if (_scrollBar.LinesToRender < _chatStrings.Count)
 					_scrollBar.SetDownArrowFlashSpeed(500);
 			}
-		}
-
-		public ScrollingMessageDialog(string msgText)
-			: base((PacketAPI)null)
-		{
-			_textSplitter = new TextSplitter("", EOGame.Instance.DBGFont) { LineLength = 275 };
-
-			bgTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 40);
-			_setSize(bgTexture.Width, bgTexture.Height);
-
-			XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(138, 197), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
-			ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
-			ok.SetParent(this);
-			dlgButtons.Add(ok);
-
-			_scrollBar = new ScrollBar(this, new Vector2(320, 66), new Vector2(16, 119), ScrollBarColors.LightOnMed);
-			MessageText = msgText;
-
-			endConstructor();
 		}
 
 		public ScrollingMessageDialog(INativeGraphicsManager gfxManager,

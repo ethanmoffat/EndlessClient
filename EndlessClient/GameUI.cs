@@ -205,25 +205,7 @@ namespace EndlessClient
 				SoundManager.GetSoundEffectRef(SoundEffectID.ButtonClick).Play();
 			}
 
-			//switch on sender
-			if (sender == _mainButtons[0])
-			{
-				//try connect
-				//if successful go to account creation state
-				await TryConnectToServer(() =>
-				{
-					doStateChange(GameStates.CreateAccount);
-
-					ScrollingMessageDialog createAccountDlg = new ScrollingMessageDialog("");
-					string message = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_1];
-					message += "\n\n";
-					message += OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_2];
-					message += "\n\n";
-					message += OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_3];
-					createAccountDlg.MessageText = message;
-				});
-			}
-			else if (sender == _mainButtons[1])
+			if (sender == _mainButtons[1])
 			{
 				//try connect
 				//if successful go to account login state
