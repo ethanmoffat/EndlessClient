@@ -362,12 +362,13 @@ namespace EndlessClient.HUD
 			{
 				//apparently this is NOT stored in the edf files...
 				//NOTE: copy-pasted from EOCharacterStats button event handler. Should probably be in some shared function somewhere.
-				EOMessageBox dlg = new EOMessageBox("Do you want to train?", "Skill training", XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader);
-				dlg.DialogClosing += (s, e) =>
-				{
-					if (e.Result != XNADialogResult.OK) return;
-					_trainWarningShown = true;
-				};
+				EOMessageBox.Show("Do you want to train?", "Skill training", XNADialogButtons.OkCancel,
+					EOMessageBoxStyle.SmallDialogSmallHeader,
+					(s, e) =>
+					{
+						if (e.Result != XNADialogResult.OK) return;
+						_trainWarningShown = true;
+					});
 
 				return;
 			}

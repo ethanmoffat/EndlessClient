@@ -68,12 +68,13 @@ namespace EndlessClient.HUD
 					{
 						//apparently this is NOT stored in the edf files...
 						//NOTE: copy-pasted to ActiveSpells spell train button event handler. Should probably be in some shared function somewhere.
-						EOMessageBox dlg = new EOMessageBox("Do you want to train?", "Character training", XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader);
-						dlg.DialogClosing += (sender, args) =>
-						{
-							if (args.Result != XNADialogResult.OK) return;
-							m_training = true;
-						};
+						EOMessageBox.Show("Do you want to train?", "Character training", XNADialogButtons.OkCancel,
+							EOMessageBoxStyle.SmallDialogSmallHeader,
+							(sender, args) =>
+							{
+								if (args.Result != XNADialogResult.OK) return;
+								m_training = true;
+							});
 					}
 					else
 					{
