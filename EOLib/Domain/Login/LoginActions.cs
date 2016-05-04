@@ -5,7 +5,6 @@
 using System.Threading.Tasks;
 using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
-using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Translators;
@@ -21,7 +20,6 @@ namespace EOLib.Domain.Login
 		private readonly ICharacterSelectorRepository _characterSelectorRepository;
 		private readonly ILoggedInAccountNameRepository _loggedInAccountNameRepository;
 		private readonly ICharacterRepository _characterRepository;
-		private readonly IPubFileProvider _pubFileProvider;
 
 		public LoginActions(IPacketSendService packetSendService,
 							IPacketTranslator<IAccountLoginData> loginPacketTranslator,
@@ -29,8 +27,7 @@ namespace EOLib.Domain.Login
 							IPacketTranslator<ILoginRequestCompletedData> loginRequestCompletedPacketTranslator,
 							ICharacterSelectorRepository characterSelectorRepository,
 							ILoggedInAccountNameRepository loggedInAccountNameRepository,
-							ICharacterRepository characterRepository,
-							IPubFileProvider pubFileProvider)
+							ICharacterRepository characterRepository)
 		{
 			_packetSendService = packetSendService;
 			_loginPacketTranslator = loginPacketTranslator;
@@ -39,7 +36,6 @@ namespace EOLib.Domain.Login
 			_characterSelectorRepository = characterSelectorRepository;
 			_loggedInAccountNameRepository = loggedInAccountNameRepository;
 			_characterRepository = characterRepository;
-			_pubFileProvider = pubFileProvider;
 		}
 
 		public bool LoginParametersAreValid(ILoginParameters parameters)
