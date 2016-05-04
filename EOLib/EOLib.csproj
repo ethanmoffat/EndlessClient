@@ -173,6 +173,7 @@
     <Compile Include="IO\ClassRecordFactory.cs" />
     <Compile Include="IO\DataFileLoadException.cs" />
     <Compile Include="IO\Repositories\IDataFileRepository.cs" />
+    <Compile Include="IO\Repositories\IFileChecksumRepository.cs" />
     <Compile Include="IO\Repositories\IMapFileProvider.cs" />
     <Compile Include="IO\Repositories\IMapFileRepository.cs" />
     <Compile Include="IO\Services\HDSerialNumberService.cs" />
