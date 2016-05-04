@@ -26,7 +26,7 @@ namespace EOLib.IO.Repositories
 
 		Dictionary<short, byte[]> MapChecksums { get; set; }
 
-		Dictionary<short, short> MapLengths { get; set; } 
+		Dictionary<short, int> MapLengths { get; set; } 
 	}
 
 	public interface IFileChecksumProvider
@@ -47,9 +47,9 @@ namespace EOLib.IO.Repositories
 
 		short ECFLength { get; }
 
-		Dictionary<short, byte[]> MapChecksums { get; }
+		IReadOnlyDictionary<short, byte[]> MapChecksums { get; }
 
-		Dictionary<short, short> MapLengths { get; } 
+		IReadOnlyDictionary<short, int> MapLengths { get; }
 	}
 
 	public class FileChecksumRepository : IFileChecksumRepository, IFileChecksumProvider
@@ -70,14 +70,18 @@ namespace EOLib.IO.Repositories
 
 		public short ECFLength { get; set; }
 
+		IReadOnlyDictionary<short, byte[]> IFileChecksumProvider.MapChecksums { get { return MapChecksums; } }
+
+		IReadOnlyDictionary<short, int> IFileChecksumProvider.MapLengths { get { return MapLengths; } }
+
 		public Dictionary<short, byte[]> MapChecksums { get; set; }
 
-		public Dictionary<short, short> MapLengths { get; set; }
+		public Dictionary<short, int> MapLengths { get; set; }
 
 		public FileChecksumRepository()
 		{
 			MapChecksums = new Dictionary<short, byte[]>();
-			MapLengths = new Dictionary<short, short>();
+			MapLengths = new Dictionary<short, int>();
 		}
 	}
 }
