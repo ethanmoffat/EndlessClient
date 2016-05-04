@@ -88,6 +88,9 @@ namespace EOLib.Domain.Login
 				.WithStats(data.CharacterStats)
 				.WithPaperdoll(data.Paperdoll);
 
+			_playerInfoRepository.PlayerID = data.PlayerID;
+			_playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
+
 			return data;
 		}
 
