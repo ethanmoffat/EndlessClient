@@ -6,19 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using EOLib.Domain.Character;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO;
-using EOLib.IO.Map;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-	internal enum WelcomeReply : short
-	{
-		RequestGranted = 1, //response from welcome_request
-		WelcomeMessage = 2, //response from welcome_message
-	}
-
 	public struct InventoryItem
 	{
 		public short id;
@@ -317,16 +311,16 @@ namespace EOLib.Net.API
 
 		private void _handleWelcomeReply(OldPacket pkt)
 		{
-			WelcomeReply reply = (WelcomeReply) pkt.GetShort();
+			CharacterLoginReply reply = (CharacterLoginReply) pkt.GetShort();
 			
 			bool success;
 			switch (reply)
 			{
-				case WelcomeReply.RequestGranted:
+				case CharacterLoginReply.RequestGranted:
 					m_welcome_requestData = new WelcomeRequestData(pkt);
 					success = pkt.GetByte() == 255;
 					break;
-				case WelcomeReply.WelcomeMessage:
+				case CharacterLoginReply.RequestCompleted:
 					if (pkt.GetByte() != 255) return; //error, something is off.
 					try
 					{

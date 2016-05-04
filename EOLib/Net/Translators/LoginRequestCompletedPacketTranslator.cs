@@ -10,6 +10,10 @@ namespace EOLib.Net.Translators
 	{
 		public ILoginRequestCompletedData TranslatePacket(IPacket packet)
 		{
+			var reply = (CharacterLoginReply)packet.ReadShort();
+			if (reply != CharacterLoginReply.RequestCompleted)
+				throw new MalformedPacketException("Unexpected welcome response in packet: " + reply, packet);
+
 			throw new System.NotImplementedException();
 		}
 	}

@@ -137,6 +137,7 @@
     <Compile Include="Domain\Login\LoginParameters.cs" />
     <Compile Include="Domain\Login\LoginReply.cs" />
     <Compile Include="Domain\Login\LoginRequestGrantedData.cs" />
+    <Compile Include="Domain\Login\CharacterLoginReply.cs" />
     <Compile Include="Domain\Map\BasicTileInfo.cs" />
     <Compile Include="Domain\Map\IMapElement.cs" />
     <Compile Include="Domain\Map\ITileInfo.cs" />

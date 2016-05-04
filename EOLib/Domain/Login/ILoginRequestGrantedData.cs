@@ -15,8 +15,8 @@ namespace EOLib.Domain.Login
 		int CharacterID { get; }
 
 		short MapID { get; }
-		int MapLen { get; }
 		IReadOnlyList<byte> MapRID { get; }
+		int MapLen { get; }
 
 		int EifRid { get; }
 		short EifLen { get; }

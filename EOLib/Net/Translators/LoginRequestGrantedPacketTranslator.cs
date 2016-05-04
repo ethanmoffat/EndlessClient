@@ -23,6 +23,10 @@ namespace EOLib.Net.Translators
 
 		public ILoginRequestGrantedData TranslatePacket(IPacket packet)
 		{
+			var reply = (CharacterLoginReply)packet.ReadShort();
+			if (reply != CharacterLoginReply.RequestGranted)
+				throw new MalformedPacketException("Unexpected welcome response in packet: " + reply, packet);
+
 			var playerID = packet.ReadShort();
 			var characterID = packet.ReadInt();
 
