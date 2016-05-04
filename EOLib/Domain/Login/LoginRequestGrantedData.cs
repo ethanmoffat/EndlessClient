@@ -16,11 +16,8 @@ namespace EOLib.Domain.Login
 		public int CharacterID { get; private set; }
 
 		public short MapID { get; private set; }
+		public IReadOnlyList<byte> MapRID { get; private set; }
 		public int MapLen { get; private set; }
-
-		private byte[] _mapRid;
-		public IReadOnlyList<byte> MapRID { get { return _mapRid; } }
-		public bool MapIsPK { get { return MapRID[0] == 0xff && MapRID[1] == 0xff; } }
 
 		public int EifRid { get; private set; }
 		public short EifLen { get; private set; }
@@ -72,7 +69,7 @@ namespace EOLib.Domain.Login
 		public ILoginRequestGrantedData WithMapRID(IEnumerable<byte> mapRID)
 		{
 			var copy = MakeCopy(this);
-			copy._mapRid = mapRID.ToArray();
+			copy.MapRID = mapRID.ToList();
 			return copy;
 		}
 
@@ -231,8 +228,8 @@ namespace EOLib.Domain.Login
 				CharacterID = source.CharacterID,
 
 				MapID = source.MapID,
+				MapRID = source.MapRID,
 				MapLen = source.MapLen,
-				_mapRid = source._mapRid,
 
 				EifLen = source.EifLen,
 				EifRid = source.EifRid,

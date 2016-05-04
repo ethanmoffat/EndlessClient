@@ -17,7 +17,6 @@ namespace EOLib.Domain.Login
 		short MapID { get; }
 		int MapLen { get; }
 		IReadOnlyList<byte> MapRID { get; }
-		bool MapIsPK { get; }
 
 		int EifRid { get; }
 		short EifLen { get; }
