@@ -170,7 +170,9 @@
     <Compile Include="IDependencyContainer.cs" />
     <Compile Include="IInitializableContainer.cs" />
     <Compile Include="IO\Actions\FileLoadActions.cs" />
+    <Compile Include="IO\Actions\FileRequestActions.cs" />
     <Compile Include="IO\Actions\IFileLoadActions.cs" />
+    <Compile Include="IO\Actions\IFileRequestActions.cs" />
     <Compile Include="IO\Class.cs" />
     <Compile Include="IO\ClassRecordFactory.cs" />
     <Compile Include="IO\DataFileLoadException.cs" />
