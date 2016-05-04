@@ -2,8 +2,9 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Collections.Generic;
+using System.Linq;
 using EOLib.Domain.Character;
-using EOLib.IO;
 
 namespace EOLib.Domain.BLL
 {
@@ -21,9 +22,11 @@ namespace EOLib.Domain.BLL
 
 		public string GuildTag { get; private set; }
 
-		public ClassRecord Class { get; private set; }
+		public byte ClassID { get; private set; }
 
 		public AdminLevel AdminLevel { get; private set; }
+
+		public IReadOnlyList<short> Paperdoll { get; private set; }
 
 		public ICharacterRenderProperties RenderProperties { get; private set; }
 
@@ -71,10 +74,10 @@ namespace EOLib.Domain.BLL
 			return character;
 		}
 
-		public ICharacter WithClass(ClassRecord newClass)
+		public ICharacter WithClassID(byte newClassID)
 		{
 			var character = MakeCopy(this);
-			character.Class = newClass;
+			character.ClassID = newClassID;
 			return character;
 		}
 
@@ -82,6 +85,13 @@ namespace EOLib.Domain.BLL
 		{
 			var character = MakeCopy(this);
 			character.AdminLevel = level;
+			return character;
+		}
+
+		public ICharacter WithPaperdoll(IEnumerable<short> paperdollItemIDs)
+		{
+			var character = MakeCopy(this);
+			character.Paperdoll = paperdollItemIDs.ToList();
 			return character;
 		}
 
@@ -109,10 +119,11 @@ namespace EOLib.Domain.BLL
 				GuildName = source.GuildName,
 				GuildRank = source.GuildRank,
 				GuildTag = source.GuildTag,
-				Class = source.Class,
+				ClassID = source.ClassID,
 				AdminLevel = source.AdminLevel,
 				RenderProperties = source.RenderProperties,
-				Stats = source.Stats
+				Stats = source.Stats,
+				Paperdoll = source.Paperdoll
 			};
 		}
 	}

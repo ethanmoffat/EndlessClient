@@ -2,8 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Collections.Generic;
 using EOLib.Domain.Character;
-using EOLib.IO;
 
 namespace EOLib.Domain.BLL
 {
@@ -22,13 +22,15 @@ namespace EOLib.Domain.BLL
 
 		string GuildTag { get; }
 
-		ClassRecord Class { get; }
+		byte ClassID { get; }
 
 		ICharacterRenderProperties RenderProperties { get; }
 
 		ICharacterStats Stats { get; }
 
 		AdminLevel AdminLevel { get; }
+
+		IReadOnlyList<short> Paperdoll { get; }
 
 		ICharacter WithID(int id);
 
@@ -42,12 +44,14 @@ namespace EOLib.Domain.BLL
 
 		ICharacter WithGuildTag(string guildTag);
 
-		ICharacter WithClass(ClassRecord newClass);
+		ICharacter WithClassID(byte newClassID);
 
 		ICharacter WithRenderProperties(ICharacterRenderProperties renderProperties);
 
 		ICharacter WithStats(ICharacterStats stats);
 
 		ICharacter WithAdminLevel(AdminLevel level);
+
+		ICharacter WithPaperdoll(IEnumerable<short> paperdollItemIDs);
 	}
 }

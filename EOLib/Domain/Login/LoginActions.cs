@@ -4,6 +4,8 @@
 
 using System.Threading.Tasks;
 using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
+using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Translators;
@@ -18,13 +20,17 @@ namespace EOLib.Domain.Login
 		private readonly IPacketTranslator<ILoginRequestCompletedData> _loginRequestCompletedPacketTranslator;
 		private readonly ICharacterSelectorRepository _characterSelectorRepository;
 		private readonly ILoggedInAccountNameRepository _loggedInAccountNameRepository;
+		private readonly ICharacterRepository _characterRepository;
+		private readonly IPubFileProvider _pubFileProvider;
 
 		public LoginActions(IPacketSendService packetSendService,
 							IPacketTranslator<IAccountLoginData> loginPacketTranslator,
 							IPacketTranslator<ILoginRequestGrantedData> loginRequestGrantedPacketTranslator,
 							IPacketTranslator<ILoginRequestCompletedData> loginRequestCompletedPacketTranslator,
 							ICharacterSelectorRepository characterSelectorRepository,
-							ILoggedInAccountNameRepository loggedInAccountNameRepository)
+							ILoggedInAccountNameRepository loggedInAccountNameRepository,
+							ICharacterRepository characterRepository,
+							IPubFileProvider pubFileProvider)
 		{
 			_packetSendService = packetSendService;
 			_loginPacketTranslator = loginPacketTranslator;
@@ -32,6 +38,8 @@ namespace EOLib.Domain.Login
 			_loginRequestCompletedPacketTranslator = loginRequestCompletedPacketTranslator;
 			_characterSelectorRepository = characterSelectorRepository;
 			_loggedInAccountNameRepository = loggedInAccountNameRepository;
+			_characterRepository = characterRepository;
+			_pubFileProvider = pubFileProvider;
 		}
 
 		public bool LoginParametersAreValid(ILoginParameters parameters)
@@ -70,8 +78,21 @@ namespace EOLib.Domain.Login
 			if (IsInvalidWelcome(response))
 				throw new EmptyPacketReceivedException();
 
-			//todo: put data into required repositories
-			return _loginRequestGrantedPacketTranslator.TranslatePacket(response);
+			var data = _loginRequestGrantedPacketTranslator.TranslatePacket(response);
+
+			_characterRepository.ActiveCharacter = character
+				.WithID(data.CharacterID)
+				.WithName(data.Name)
+				.WithTitle(data.Title)
+				.WithGuildName(data.GuildName)
+				.WithGuildRank(data.GuildRank)
+				.WithGuildTag(data.GuildTag)
+				.WithClassID(data.ClassID)
+				.WithAdminLevel(data.AdminLevel)
+				.WithStats(data.CharacterStats)
+				.WithPaperdoll(data.Paperdoll);
+
+			return data;
 		}
 
 		public async Task<ILoginRequestCompletedData> CompleteCharacterLogin(ICharacter character)
