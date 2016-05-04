@@ -2,9 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Linq;
 using System.Threading.Tasks;
 using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
+using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Translators;
@@ -20,6 +22,7 @@ namespace EOLib.Domain.Login
 		private readonly ICharacterSelectorRepository _characterSelectorRepository;
 		private readonly IPlayerInfoRepository _playerInfoRepository;
 		private readonly ICharacterRepository _characterRepository;
+		private readonly IFileChecksumRepository _fileChecksumRepository;
 
 		public LoginActions(IPacketSendService packetSendService,
 							IPacketTranslator<IAccountLoginData> loginPacketTranslator,
@@ -27,7 +30,8 @@ namespace EOLib.Domain.Login
 							IPacketTranslator<ILoginRequestCompletedData> loginRequestCompletedPacketTranslator,
 							ICharacterSelectorRepository characterSelectorRepository,
 							IPlayerInfoRepository playerInfoRepository,
-							ICharacterRepository characterRepository)
+							ICharacterRepository characterRepository,
+							IFileChecksumRepository fileChecksumRepository)
 		{
 			_packetSendService = packetSendService;
 			_loginPacketTranslator = loginPacketTranslator;
@@ -36,6 +40,7 @@ namespace EOLib.Domain.Login
 			_characterSelectorRepository = characterSelectorRepository;
 			_playerInfoRepository = playerInfoRepository;
 			_characterRepository = characterRepository;
+			_fileChecksumRepository = fileChecksumRepository;
 		}
 
 		public bool LoginParametersAreValid(ILoginParameters parameters)
@@ -90,6 +95,18 @@ namespace EOLib.Domain.Login
 
 			_playerInfoRepository.PlayerID = data.PlayerID;
 			_playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
+
+			_fileChecksumRepository.MapChecksums.Add(data.MapID, data.MapRID.ToArray());
+			_fileChecksumRepository.MapLengths.Add(data.MapID, data.MapLen);
+
+			_fileChecksumRepository.EIFChecksum = data.EifRid;
+			_fileChecksumRepository.EIFLength = data.EifLen;
+			_fileChecksumRepository.ENFChecksum = data.EnfRid;
+			_fileChecksumRepository.ENFLength = data.EnfLen;
+			_fileChecksumRepository.ESFChecksum = data.EsfRid;
+			_fileChecksumRepository.ESFLength = data.EsfLen;
+			_fileChecksumRepository.ECFChecksum = data.EcfRid;
+			_fileChecksumRepository.ECFLength = data.EcfLen;
 
 			return data;
 		}
