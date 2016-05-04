@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
+using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Communication;
@@ -22,6 +23,7 @@ namespace EOLib.Domain.Login
 		private readonly ICharacterSelectorRepository _characterSelectorRepository;
 		private readonly IPlayerInfoRepository _playerInfoRepository;
 		private readonly ICharacterRepository _characterRepository;
+		private readonly ICurrentMapRepository _currentMapRepository;
 		private readonly IFileChecksumRepository _fileChecksumRepository;
 
 		public LoginActions(IPacketSendService packetSendService,
@@ -31,6 +33,7 @@ namespace EOLib.Domain.Login
 							ICharacterSelectorRepository characterSelectorRepository,
 							IPlayerInfoRepository playerInfoRepository,
 							ICharacterRepository characterRepository,
+							ICurrentMapRepository currentMapRepository,
 							IFileChecksumRepository fileChecksumRepository)
 		{
 			_packetSendService = packetSendService;
@@ -40,6 +43,7 @@ namespace EOLib.Domain.Login
 			_characterSelectorRepository = characterSelectorRepository;
 			_playerInfoRepository = playerInfoRepository;
 			_characterRepository = characterRepository;
+			_currentMapRepository = currentMapRepository;
 			_fileChecksumRepository = fileChecksumRepository;
 		}
 
@@ -95,6 +99,7 @@ namespace EOLib.Domain.Login
 
 			_playerInfoRepository.PlayerID = data.PlayerID;
 			_playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
+			_currentMapRepository.CurrentMapID = data.MapID;
 
 			_fileChecksumRepository.MapChecksums.Add(data.MapID, data.MapRID.ToArray());
 			_fileChecksumRepository.MapLengths.Add(data.MapID, data.MapLen);

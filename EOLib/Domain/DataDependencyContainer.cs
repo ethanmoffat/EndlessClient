@@ -5,6 +5,7 @@
 using EOLib.Domain.Account;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.Domain
@@ -26,6 +27,8 @@ namespace EOLib.Domain
 			container.RegisterType<ILoggedInAccountNameProvider, PlayerInfoRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ICharacterRepository, CharacterRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ICharacterProvider, CharacterRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ICurrentMapRepository, CurrentMapRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ICurrentMapProvider, CurrentMapRepository>(new ContainerControlledLifetimeManager());
 		}
 	}
 }
