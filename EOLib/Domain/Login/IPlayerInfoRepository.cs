@@ -4,7 +4,7 @@
 
 namespace EOLib.Domain.Login
 {
-	public interface ILoggedInAccountNameRepository
+	public interface IPlayerInfoRepository
 	{
 		string LoggedInAccountName { get; set; }
 	}
@@ -14,7 +14,7 @@ namespace EOLib.Domain.Login
 		string LoggedInAccountName { get; }
 	}
 
-	public class LoggedInAccountNameRepository : ILoggedInAccountNameRepository, ILoggedInAccountNameProvider
+	public class PlayerInfoRepository : IPlayerInfoRepository, ILoggedInAccountNameProvider
 	{
 		public string LoggedInAccountName { get; set; }
 	}

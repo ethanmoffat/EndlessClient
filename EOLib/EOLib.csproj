@@ -128,7 +128,7 @@
     <Compile Include="Domain\Login\IAccountLoginData.cs" />
     <Compile Include="Domain\Character\ICharacterCreateParameters.cs" />
     <Compile Include="Domain\Login\ICharacterSelectorRepository.cs" />
-    <Compile Include="Domain\Login\ILoggedInAccountRepository.cs" />
+    <Compile Include="Domain\Login\IPlayerInfoRepository.cs" />
     <Compile Include="Domain\Login\ILoginActions.cs" />
     <Compile Include="Domain\Login\ILoginParameters.cs" />
     <Compile Include="Domain\Login\ILoginRequestCompletedData.cs" />

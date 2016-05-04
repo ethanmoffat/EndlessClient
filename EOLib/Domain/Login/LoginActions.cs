@@ -18,7 +18,7 @@ namespace EOLib.Domain.Login
 		private readonly IPacketTranslator<ILoginRequestGrantedData> _loginRequestGrantedPacketTranslator;
 		private readonly IPacketTranslator<ILoginRequestCompletedData> _loginRequestCompletedPacketTranslator;
 		private readonly ICharacterSelectorRepository _characterSelectorRepository;
-		private readonly ILoggedInAccountNameRepository _loggedInAccountNameRepository;
+		private readonly IPlayerInfoRepository _playerInfoRepository;
 		private readonly ICharacterRepository _characterRepository;
 
 		public LoginActions(IPacketSendService packetSendService,
@@ -26,7 +26,7 @@ namespace EOLib.Domain.Login
 							IPacketTranslator<ILoginRequestGrantedData> loginRequestGrantedPacketTranslator,
 							IPacketTranslator<ILoginRequestCompletedData> loginRequestCompletedPacketTranslator,
 							ICharacterSelectorRepository characterSelectorRepository,
-							ILoggedInAccountNameRepository loggedInAccountNameRepository,
+							IPlayerInfoRepository playerInfoRepository,
 							ICharacterRepository characterRepository)
 		{
 			_packetSendService = packetSendService;
@@ -34,7 +34,7 @@ namespace EOLib.Domain.Login
 			_loginRequestGrantedPacketTranslator = loginRequestGrantedPacketTranslator;
 			_loginRequestCompletedPacketTranslator = loginRequestCompletedPacketTranslator;
 			_characterSelectorRepository = characterSelectorRepository;
-			_loggedInAccountNameRepository = loggedInAccountNameRepository;
+			_playerInfoRepository = playerInfoRepository;
 			_characterRepository = characterRepository;
 		}
 
@@ -59,7 +59,7 @@ namespace EOLib.Domain.Login
 			_characterSelectorRepository.Characters = data.Characters;
 
 			if (data.Response == LoginReply.Ok)
-				_loggedInAccountNameRepository.LoggedInAccountName = parameters.Username;
+				_playerInfoRepository.LoggedInAccountName = parameters.Username;
 
 			return data.Response;
 		}
