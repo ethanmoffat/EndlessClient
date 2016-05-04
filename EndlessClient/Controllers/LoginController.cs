@@ -5,6 +5,7 @@
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
+using EOLib.Domain.BLL;
 using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;
@@ -48,9 +49,25 @@ namespace EndlessClient.Controllers
 				_errorDisplayAction.ShowLoginError(reply);
 		}
 
-		public async Task LoginToCharacter()
+		public async Task LoginToCharacter(ICharacter character)
 		{
-			await Task.FromResult(false);
+			var requestCharacterLoginOperation = _networkOperationFactory.CreateSafeOperation(
+				async () => await _loginActions.RequestCharacterLogin(character),
+				SetInitialStateAndShowError, SetInitialStateAndShowError);
+
+			if (!await requestCharacterLoginOperation.Invoke())
+				return;
+
+			//show logging in / connection pending dialog
+			//wait 5 seconds
+
+			//request files 1 at a time (if required)
+			//set dialog title appropriately at each of those different states
+
+			//complete login and set dialog title
+
+			//close dialog
+			//transition to in-game state
 		}
 
 		private void SetInitialStateAndShowError(NoDataSentException ex)

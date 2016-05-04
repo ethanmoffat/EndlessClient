@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
+using EOLib.Domain.BLL;
 using EOLib.Domain.Login;
 
 namespace EndlessClient.Controllers
@@ -11,6 +12,6 @@ namespace EndlessClient.Controllers
 	{
 		Task LoginToAccount(ILoginParameters loginParameters);
 
-		Task LoginToCharacter(); //todo: parameter for which character
+		Task LoginToCharacter(ICharacter character);
 	}
 }

@@ -131,7 +131,7 @@ namespace EndlessClient.UIControls
 
 			try
 			{
-				await _loginController.LoginToCharacter();
+				await _loginController.LoginToCharacter(_character);
 			}
 			finally
 			{
