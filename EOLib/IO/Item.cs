@@ -3,7 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using EOLib.Net;
 
@@ -346,5 +348,13 @@ namespace EOLib.IO
 	public class ItemFile : EODataFile<ItemRecord>
 	{
 		public ItemFile() : base(new ItemRecordFactory()) { }
+
+		public static ItemFile FromBytes(IEnumerable<byte> bytes)
+		{
+			var file = new ItemFile();
+			using (var ms = new MemoryStream(bytes.ToArray()))
+				file.LoadFromStream(ms);
+			return file;
+		}
 	}
 }

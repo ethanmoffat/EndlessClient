@@ -39,7 +39,24 @@ namespace EOLib.IO.Services
 
 		public async Task<IModifiableDataFile<T>> RequestFile<T>(InitFileType fileType) where T : IDataRecord
 		{
-			throw new System.NotImplementedException();
+			var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
+				.AddChar((byte) fileType)
+				.Build();
+
+			var response = await _packetSendService.SendEncodedPacketAndWaitAsync(request);
+			if (!PacketIsValid(response))
+				throw new EmptyPacketReceivedException();
+
+			var responseFileType = (InitReply) response.ReadChar();
+			var responseBytes = response.ReadBytes(response.Length - 3);
+			switch (responseFileType)
+			{
+				case InitReply.ItemFile: return (IModifiableDataFile<T>)ItemFile.FromBytes(responseBytes);
+				case InitReply.NpcFile: return (IModifiableDataFile<T>)NPCFile.FromBytes(responseBytes);
+				case InitReply.SpellFile: return (IModifiableDataFile<T>)SpellFile.FromBytes(responseBytes);
+				case InitReply.ClassFile: return (IModifiableDataFile<T>)ClassFile.FromBytes(responseBytes);
+				default: throw new EmptyPacketReceivedException();
+			}
 		}
 
 		private bool PacketIsValid(IPacket packet)

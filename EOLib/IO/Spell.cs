@@ -3,7 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using EOLib.Net;
 
@@ -141,5 +143,13 @@ namespace EOLib.IO
 	public class SpellFile : EODataFile<SpellRecord>
 	{
 		public SpellFile() : base(new SpellRecordFactory()) { }
+
+		public static SpellFile FromBytes(IEnumerable<byte> bytes)
+		{
+			var file = new SpellFile();
+			using (var ms = new MemoryStream(bytes.ToArray()))
+				file.LoadFromStream(ms);
+			return file;
+		}
 	}
 }

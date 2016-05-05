@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using EOLib.Domain;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
-using EOLib.Net.API;
 
 namespace EOLib.IO.Actions
 {
@@ -43,7 +42,7 @@ namespace EOLib.IO.Actions
 
 		public async Task GetMapFromServer(short mapID)
 		{
-			var mapFile = await _fileRequestService.RequestMapFile();
+			var mapFile = await _fileRequestService.RequestMapFile(mapID);
 			mapFile.Save(string.Format(Constants.MapFileFormatString, mapID));
 
 			if (_mapFileRepository.MapFiles.ContainsKey(mapID))

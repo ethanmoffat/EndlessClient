@@ -29,55 +29,59 @@ namespace EOLib.IO
 
 		public void Load(string fileName)
 		{
-			using (var sr = File.OpenRead(fileName)) //throw exceptions on error
+			var fileBytes = File.ReadAllBytes(fileName);
+			using (var ms = new MemoryStream(fileBytes))
+				LoadFromStream(ms);
+		}
+
+		protected void LoadFromStream(MemoryStream mem)
+		{
+			mem.Seek(3, SeekOrigin.Begin);
+
+			var rid = new byte[4];
+			mem.Read(rid, 0, 4);
+			Rid = OldPacket.DecodeNumber(rid);
+
+			var len = new byte[2];
+			mem.Read(len, 0, 2);
+			Len = (short) OldPacket.DecodeNumber(len);
+
+			//indices are 1-based
+			var localData = new List<T>(Len) {_factory.CreateRecord(0)};
+
+			Version = OldPacket.DecodeNumber((byte) mem.ReadByte()); //this was originally seeked over
+
+			var rawData = new byte[_factory.RecordSizeInBytes];
+
+			for (int i = 1; i <= Len; ++i)
 			{
-				sr.Seek(3, SeekOrigin.Begin);
+				var record = _factory.CreateRecord(i);
 
-				var rid = new byte[4];
-				sr.Read(rid, 0, 4);
-				Rid = OldPacket.DecodeNumber(rid);
-
-				var len = new byte[2];
-				sr.Read(len, 0, 2);
-				Len = (short) OldPacket.DecodeNumber(len);
-
-				//indices are 1-based
-				var localData = new List<T>(Len) { _factory.CreateRecord(0) };
-
-				Version = OldPacket.DecodeNumber((byte) sr.ReadByte()); //this was originally seeked over
-
-				var rawData = new byte[_factory.RecordSizeInBytes];
-
-				for(int i = 1; i <= Len; ++i)
+				var nameLengths = new List<int>(2);
+				for (int j = 0; j < record.NameCount; ++j)
 				{
-					var record = _factory.CreateRecord(i);
-
-					var nameLengths = new List<int>(2);
-					for (int j = 0; j < record.NameCount; ++j)
-					{
-						var nameSize = OldPacket.DecodeNumber((byte) sr.ReadByte());
-						nameLengths.Add(nameSize);
-					}
-
-					record.SetNames(nameLengths.Select(x =>
-					{
-						var rawName = new byte[x];
-						sr.Read(rawName, 0, x);
-						return Encoding.ASCII.GetString(rawName);
-					}).ToArray());
-
-					sr.Read(rawData, 0, _factory.RecordSizeInBytes);
-					record.DeserializeFromByteArray(Version, rawData);
-					
-					if (record.Name != "eof")
-						localData.Add(record);
-					if (sr.Read(new byte[1], 0, 1) != 1)
-						break;
-					sr.Seek(-1, SeekOrigin.Current);
+					var nameSize = OldPacket.DecodeNumber((byte) mem.ReadByte());
+					nameLengths.Add(nameSize);
 				}
 
-				Data = new List<T>(localData);
+				record.SetNames(nameLengths.Select(x =>
+				{
+					var rawName = new byte[x];
+					mem.Read(rawName, 0, x);
+					return Encoding.ASCII.GetString(rawName);
+				}).ToArray());
+
+				mem.Read(rawData, 0, _factory.RecordSizeInBytes);
+				record.DeserializeFromByteArray(Version, rawData);
+
+				if (record.Name != "eof")
+					localData.Add(record);
+				if (mem.Read(new byte[1], 0, 1) != 1)
+					break;
+				mem.Seek(-1, SeekOrigin.Current);
 			}
+
+			Data = new List<T>(localData);
 		}
 
 		public void Save(string fileName, int pubVersion = 0)
