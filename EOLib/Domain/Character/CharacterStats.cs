@@ -33,7 +33,7 @@ namespace EOLib.Domain.Character
 
 		private static IReadOnlyDictionary<CharacterStat, int> CreateStatCollection()
 		{
-			var stats = new Dictionary<CharacterStat, int>(23);
+			var stats = new Dictionary<CharacterStat, int>(25);
 
 			var allStatTypes = Enum.GetValues(typeof(CharacterStat));
 			foreach (CharacterStat stat in allStatTypes)

@@ -31,6 +31,9 @@ namespace EOLib.Domain.Character
 		Wisdom,
 		Agility,
 		Constituion,
-		Charisma
+		Charisma,
+
+		Weight,
+		MaxWeight
 	}
 }

@@ -29,6 +29,7 @@ namespace EOLib.Domain.Character
 
 		AdminLevel AdminLevel { get; }
 
+		//todo: this should be repository-ified
 		IReadOnlyList<short> Paperdoll { get; }
 
 		int MapID { get; }
