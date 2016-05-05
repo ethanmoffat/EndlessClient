@@ -56,4 +56,46 @@ namespace EOLib.Net.Communication
 			_networkConnectionActions.DisconnectFromServer();
 		}
 	}
+
+	public class SafeInBandNetworkOperation
+	{
+		private readonly IBackgroundReceiveActions _backgroundReceiveActions;
+		private readonly INetworkConnectionActions _networkConnectionActions;
+		private readonly Func<Task> _operation;
+		private readonly Action<NoDataSentException> _sendErrorAction;
+		private readonly Action<EmptyPacketReceivedException> _receiveErrorAction;
+
+		public SafeInBandNetworkOperation(IBackgroundReceiveActions backgroundReceiveActions,
+										  INetworkConnectionActions networkConnectionActions,
+										  Func<Task> operation,
+										  Action<NoDataSentException> sendErrorAction = null,
+										  Action<EmptyPacketReceivedException> receiveErrorAction = null)
+		{
+			_backgroundReceiveActions = backgroundReceiveActions;
+			_networkConnectionActions = networkConnectionActions;
+			_operation = operation;
+			_sendErrorAction = sendErrorAction ?? (_ => { });
+			_receiveErrorAction = receiveErrorAction ?? (_ => { });
+		}
+
+		public async Task<bool> Invoke()
+		{
+			try
+			{
+				await _operation();
+				return true;
+			}
+			catch (NoDataSentException ex) { _sendErrorAction(ex); }
+			catch (EmptyPacketReceivedException ex) { _receiveErrorAction(ex); }
+
+			DisconnectAndStopReceiving();
+			return false;
+		}
+
+		private void DisconnectAndStopReceiving()
+		{
+			_backgroundReceiveActions.CancelBackgroundReceiveLoop();
+			_networkConnectionActions.DisconnectFromServer();
+		}
+	}
 }

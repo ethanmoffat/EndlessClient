@@ -20,6 +20,18 @@ namespace EOLib.Net.Communication
 			_networkConnectionActions = networkConnectionActions;
 		}
 
+		public SafeInBandNetworkOperation CreateSafeOperation(Func<Task> networkOperation,
+			Action<NoDataSentException> sendErrorAction = null,
+			Action<EmptyPacketReceivedException> receiveErrorAction = null)
+		{
+			return new SafeInBandNetworkOperation(
+				_backgroundReceiveActions,
+				_networkConnectionActions,
+				networkOperation,
+				sendErrorAction,
+				receiveErrorAction);
+		}
+
 		public SafeInBandNetworkOperation<T> CreateSafeOperation<T>(Func<Task<T>> networkOperation,
 			Action<NoDataSentException> sendErrorAction = null,
 			Action<EmptyPacketReceivedException> receiveErrorAction = null)
