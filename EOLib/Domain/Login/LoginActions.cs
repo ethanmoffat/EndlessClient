@@ -24,6 +24,7 @@ namespace EOLib.Domain.Login
 		private readonly ICharacterRepository _characterRepository;
 		private readonly ICurrentMapRepository _currentMapRepository;
 		private readonly ILoginFileChecksumRepository _loginFileChecksumRepository;
+		private readonly ICharacterInventoryRepository _characterInventoryRepository;
 
 		public LoginActions(IPacketSendService packetSendService,
 							IPacketTranslator<IAccountLoginData> loginPacketTranslator,
@@ -33,7 +34,8 @@ namespace EOLib.Domain.Login
 							IPlayerInfoRepository playerInfoRepository,
 							ICharacterRepository characterRepository,
 							ICurrentMapRepository currentMapRepository,
-							ILoginFileChecksumRepository loginFileChecksumRepository)
+							ILoginFileChecksumRepository loginFileChecksumRepository,
+							ICharacterInventoryRepository characterInventoryRepository)
 		{
 			_packetSendService = packetSendService;
 			_loginPacketTranslator = loginPacketTranslator;
@@ -44,6 +46,7 @@ namespace EOLib.Domain.Login
 			_characterRepository = characterRepository;
 			_currentMapRepository = currentMapRepository;
 			_loginFileChecksumRepository = loginFileChecksumRepository;
+			_characterInventoryRepository = characterInventoryRepository;
 		}
 
 		public bool LoginParametersAreValid(ILoginParameters parameters)
@@ -124,7 +127,20 @@ namespace EOLib.Domain.Login
 			if (IsInvalidWelcome(response))
 				throw new EmptyPacketReceivedException();
 
-			//todo: put data into required repositories
+			var data = _loginRequestCompletedPacketTranslator.TranslatePacket(response);
+
+			//todo: handle news
+
+			var stats = _characterRepository.ActiveCharacter.Stats
+				.WithNewStat(CharacterStat.Weight, data.CharacterWeight)
+				.WithNewStat(CharacterStat.MaxWeight, data.CharacterMaxWeight);
+
+			_characterRepository.ActiveCharacter = _characterRepository.ActiveCharacter.WithStats(stats);
+
+			_characterInventoryRepository.ItemInventory = data.CharacterItemInventory.ToList();
+			_characterInventoryRepository.SpellInventory = data.CharacterSpellInventory.ToList();
+
+			//todo: handle character, npc, items on map (map state repository)
 		}
 
 		private bool IsInvalidResponse(IPacket response)
