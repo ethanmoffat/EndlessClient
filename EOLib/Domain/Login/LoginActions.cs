@@ -73,7 +73,7 @@ namespace EOLib.Domain.Login
 			return data.Response;
 		}
 
-		public async Task<ILoginRequestGrantedData> RequestCharacterLogin(ICharacter character)
+		public async Task RequestCharacterLogin(ICharacter character)
 		{
 			var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Request)
 				.AddInt(character.ID)
@@ -112,15 +112,13 @@ namespace EOLib.Domain.Login
 			_loginFileChecksumRepository.ESFLength = data.EsfLen;
 			_loginFileChecksumRepository.ECFChecksum = data.EcfRid;
 			_loginFileChecksumRepository.ECFLength = data.EcfLen;
-
-			return data;
 		}
 
-		public async Task<ILoginRequestCompletedData> CompleteCharacterLogin(ICharacter character)
+		public async Task<ILoginRequestCompletedData> CompleteCharacterLogin()
 		{
 			var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Message)
 				.AddThree(0x00123456) //?
-				.AddInt(character.ID)
+				.AddInt(_characterRepository.ActiveCharacter.ID)
 				.Build();
 
 			var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);

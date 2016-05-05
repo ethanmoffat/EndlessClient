@@ -13,8 +13,8 @@ namespace EOLib.Domain.Login
 
 		Task<LoginReply> LoginToServer(ILoginParameters parameters);
 
-		Task<ILoginRequestGrantedData> RequestCharacterLogin(ICharacter character);
+		Task RequestCharacterLogin(ICharacter character);
 
-		Task<ILoginRequestCompletedData> CompleteCharacterLogin(ICharacter character);
+		Task<ILoginRequestCompletedData> CompleteCharacterLogin();
 	}
 }

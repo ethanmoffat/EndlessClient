@@ -72,7 +72,6 @@ namespace EndlessClient.Controllers
 			var requestCharacterLoginOperation = _networkOperationFactory.CreateSafeOperation(
 				async () => await _loginActions.RequestCharacterLogin(character),
 				SetInitialStateAndShowError, SetInitialStateAndShowError);
-
 			if (!await requestCharacterLoginOperation.Invoke())
 				return;
 
@@ -88,6 +87,7 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.Map);
 					if (!await SafeGetFile(async () => await _fileRequestActions.GetMapFromServer(_currentMapProvider.CurrentMapID)))
 						return;
+					_fileLoadActions.LoadMapFileByID(_currentMapProvider.CurrentMapID);
 					await WaitInRelease(1000);
 				}
 
@@ -96,6 +96,7 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.Item);
 					if (!await SafeGetFile(_fileRequestActions.GetItemFileFromServer))
 						return;
+					_fileLoadActions.LoadItemFile();
 					await WaitInRelease(1000);
 				}
 
@@ -104,6 +105,7 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.NPC);
 					if (!await SafeGetFile(_fileRequestActions.GetNPCFileFromServer))
 						return;
+					_fileLoadActions.LoadNPCFile();
 					await WaitInRelease(1000);
 				}
 
@@ -112,6 +114,7 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.Spell);
 					if (!await SafeGetFile(_fileRequestActions.GetSpellFileFromServer))
 						return;
+					_fileLoadActions.LoadSpellFile();
 					await WaitInRelease(1000);
 				}
 
@@ -120,13 +123,20 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.Class);
 					if (!await SafeGetFile(_fileRequestActions.GetClassFileFromServer))
 						return;
+					_fileLoadActions.LoadClassFile();
 					await WaitInRelease(1000);
 				}
 
 				gameLoadingDialog.SetState(GameLoadingDialogState.LoadingGame);
 
-				//complete login
-				//transition to in-game state
+				var completeCharacterLoginOperation = _networkOperationFactory.CreateSafeOperation(
+					_loginActions.CompleteCharacterLogin,
+					SetInitialStateAndShowError,
+					SetInitialStateAndShowError);
+				if (!await completeCharacterLoginOperation.Invoke())
+					return;
+
+				_gameStateActions.ChangeToState(GameStates.PlayingTheGame);
 			}
 			finally
 			{
@@ -150,7 +160,7 @@ namespace EndlessClient.Controllers
 		private async Task WaitInRelease(int timeInMilliseconds)
 		{
 #if DEBUG
-			await Task.FromResult(false); //no-op in debug
+			await Task.FromResult(timeInMilliseconds); //no-op in debug
 #else
 			await Task.Delay(timeInMilliseconds);
 #endif
