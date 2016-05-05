@@ -176,6 +176,7 @@
     <Compile Include="IO\Class.cs" />
     <Compile Include="IO\ClassRecordFactory.cs" />
     <Compile Include="IO\DataFileLoadException.cs" />
+    <Compile Include="IO\InitFileType.cs" />
     <Compile Include="IO\Repositories\IDataFileRepository.cs" />
     <Compile Include="IO\Repositories\ILoginFileChecksumRepository.cs" />
     <Compile Include="IO\Repositories\IMapFileProvider.cs" />

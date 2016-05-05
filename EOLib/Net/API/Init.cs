@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using EOLib.IO;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 
@@ -32,15 +33,6 @@ namespace EOLib.Net.API
 		INIT_BAN_TEMP = 0,
 		INIT_BAN_PERM = 2,
 		THIS_IS_WRONG = 255
-	}
-
-	public enum InitFileType : byte
-	{
-		Map = 1,
-		Item = 2,
-		Npc = 3,
-		Spell = 4,
-		Class = 5
 	}
 
 	public struct InitData
