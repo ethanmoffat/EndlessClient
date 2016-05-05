@@ -14,25 +14,21 @@ using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
-	public abstract class IntermediateControlSet : BaseControlSet
+	public abstract class IntermediateControlSet : BackButtonControlSet
 	{
 		protected readonly KeyboardDispatcher _dispatcher;
-		protected readonly IMainButtonController _mainButtonController;
 		private readonly Texture2D[] _personSet2;
 		private readonly Random _randomGen;
 
-		private Texture2D _backButtonTexture;
-
-		private XNAButton _btnCreate,
-						  _backButton;
+		private XNAButton _btnCreate;
 
 		private PictureBox _person2Picture;
 
 		protected IntermediateControlSet(KeyboardDispatcher dispatcher,
 										 IMainButtonController mainButtonController)
+			: base(mainButtonController)
 		{
 			_dispatcher = dispatcher;
-			_mainButtonController = mainButtonController;
 			_personSet2 = new Texture2D[8];
 			_randomGen = new Random();
 		}
@@ -43,18 +39,14 @@ namespace EndlessClient.ControlSets
 
 			for (int i = 0; i < _personSet2.Length; ++i)
 				_personSet2[i] = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 61 + i, true);
-
-			_backButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 24, true);
 		}
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
 		{
 			_btnCreate = GetControl(currentControlSet, GameControlIdentifier.CreateAccountButton, GetCreateButton);
-			_backButton = GetControl(currentControlSet, GameControlIdentifier.BackButton, GetBackButton);
 			_person2Picture = GetControl(currentControlSet, GameControlIdentifier.PersonDisplay2, GetPerson2Picture);
 
 			_allComponents.Add(_btnCreate);
-			_allComponents.Add(_backButton);
 			_allComponents.Add(_person2Picture);
 		}
 
@@ -63,7 +55,6 @@ namespace EndlessClient.ControlSets
 			switch (control)
 			{
 				case GameControlIdentifier.CreateAccountButton: return _btnCreate;
-				case GameControlIdentifier.BackButton: return _backButton;
 				case GameControlIdentifier.PersonDisplay2: return _person2Picture;
 				default: return base.FindComponentByControlIdentifier(control);
 			}
@@ -76,22 +67,6 @@ namespace EndlessClient.ControlSets
 									   new Vector2(isCreateCharacterButton ? 334 : 359, 417),
 									   new Rectangle(0, 0, 120, 40),
 									   new Rectangle(120, 0, 120, 40));
-			return button;
-		}
-
-		private XNAButton GetBackButton()
-		{
-			var button = new XNAButton(
-				_backButtonTexture,
-				new Vector2(589, 0),
-				new Rectangle(0, 0, _backButtonTexture.Width, _backButtonTexture.Height / 2),
-				new Rectangle(0, _backButtonTexture.Height / 2, _backButtonTexture.Width, _backButtonTexture.Height / 2))
-			{
-				DrawOrder = 100,
-				ClickArea = new Rectangle(4, 16, 16, 16)
-			};
-			button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
-
 			return button;
 		}
 

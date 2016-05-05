@@ -76,6 +76,7 @@
     <Compile Include="Controllers\ILoginController.cs" />
     <Compile Include="Controllers\Repositories\ILoginControllerRepository.cs" />
     <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="ControlSets\BackButtonControlSet.cs" />
     <Compile Include="ControlSets\EmptyControlSet.cs" />
     <Compile Include="ControlSets\IControlSetRepository.cs" />
     <Compile Include="Controllers\IMainButtonController.cs" />
