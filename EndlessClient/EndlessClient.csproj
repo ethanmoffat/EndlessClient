@@ -94,11 +94,13 @@
     <Compile Include="Dialogs\Factories\CreateCharacterDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\EOMessageBoxFactory.cs" />
     <Compile Include="Dialogs\Actions\IAccountDialogDisplayActions.cs" />
+    <Compile Include="Dialogs\Factories\GameLoadingDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\IChangePasswordDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\ICreateAccountProgressDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\ICreateAccountWarningDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\ICreateCharacterDialogFactory.cs" />
     <Compile Include="Dialogs\Factories\IEOMessageBoxFactory.cs" />
+    <Compile Include="Dialogs\Factories\IGameLoadingDialogFactory.cs" />
     <Compile Include="GameExecution\GameStateActions.cs" />
     <Compile Include="GameExecution\IEndlessGameProvider.cs" />
     <Compile Include="GameExecution\IGameStateActions.cs" />

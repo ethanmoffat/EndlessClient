@@ -33,6 +33,7 @@ namespace EndlessClient
 			container.RegisterType<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>();
 			container.RegisterType<ICreateCharacterDialogFactory, CreateCharacterDialogFactory>();
 			container.RegisterType<IChangePasswordDialogFactory, ChangePasswordDialogFactory>();
+			container.RegisterType<IGameLoadingDialogFactory, GameLoadingDialogFactory>();
 
 			//provider/repository
 			container.RegisterType<IGameStateProvider, GameStateRepository>(new ContainerControlledLifetimeManager());
