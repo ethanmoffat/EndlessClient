@@ -111,6 +111,8 @@
     <Compile Include="Domain\Character\ICharacter.cs" />
     <Compile Include="Domain\Character\ICharacterRenderProperties.cs" />
     <Compile Include="Domain\Character\ICharacterStats.cs" />
+    <Compile Include="Domain\Map\IMapItem.cs" />
+    <Compile Include="Domain\Map\MapItem.cs" />
     <Compile Include="Domain\NPC\INPC.cs" />
     <Compile Include="Domain\NPC\NPC.cs" />
     <Compile Include="Domain\NPC\OldNPC.cs" />
