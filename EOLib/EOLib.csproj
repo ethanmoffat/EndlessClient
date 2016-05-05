@@ -109,6 +109,7 @@
     <Compile Include="Domain\Character\CharacterStat.cs" />
     <Compile Include="Domain\Character\CharacterStats.cs" />
     <Compile Include="Domain\Character\ICharacter.cs" />
+    <Compile Include="Domain\Character\ICharacterInventoryRepository.cs" />
     <Compile Include="Domain\Character\ICharacterRenderProperties.cs" />
     <Compile Include="Domain\Character\ICharacterStats.cs" />
     <Compile Include="Domain\Character\IInventoryItem.cs" />
