@@ -24,6 +24,7 @@ namespace EOLib.Domain.Login
 		private readonly ICharacterRepository _characterRepository;
 		private readonly ICurrentMapStateRepository _currentMapStateRepository;
 		private readonly ILoginFileChecksumRepository _loginFileChecksumRepository;
+		private readonly INewsRepository _newsRepository;
 		private readonly ICharacterInventoryRepository _characterInventoryRepository;
 
 		public LoginActions(IPacketSendService packetSendService,
@@ -35,6 +36,7 @@ namespace EOLib.Domain.Login
 							ICharacterRepository characterRepository,
 							ICurrentMapStateRepository currentMapStateRepository,
 							ILoginFileChecksumRepository loginFileChecksumRepository,
+							INewsRepository newsRepository,
 							ICharacterInventoryRepository characterInventoryRepository)
 		{
 			_packetSendService = packetSendService;
@@ -46,6 +48,7 @@ namespace EOLib.Domain.Login
 			_characterRepository = characterRepository;
 			_currentMapStateRepository = currentMapStateRepository;
 			_loginFileChecksumRepository = loginFileChecksumRepository;
+			_newsRepository = newsRepository;
 			_characterInventoryRepository = characterInventoryRepository;
 		}
 
@@ -129,7 +132,7 @@ namespace EOLib.Domain.Login
 
 			var data = _loginRequestCompletedPacketTranslator.TranslatePacket(response);
 
-			//todo: handle news
+			_newsRepository.NewsText = data.News.ToList();
 
 			var stats = _characterRepository.ActiveCharacter.Stats
 				.WithNewStat(CharacterStat.Weight, data.CharacterWeight)
@@ -140,7 +143,9 @@ namespace EOLib.Domain.Login
 			_characterInventoryRepository.ItemInventory = data.CharacterItemInventory.ToList();
 			_characterInventoryRepository.SpellInventory = data.CharacterSpellInventory.ToList();
 
-			//todo: handle character, npc, items on map (map state repository)
+			_currentMapStateRepository.Characters = data.MapCharacters.ToList();
+			_currentMapStateRepository.NPCs = data.MapNPCs.ToList();
+			_currentMapStateRepository.MapItems = data.MapItems.ToList();
 		}
 
 		private bool IsInvalidResponse(IPacket response)
