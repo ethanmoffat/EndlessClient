@@ -22,7 +22,7 @@ namespace EOLib.Domain.Login
 		private readonly ICharacterSelectorRepository _characterSelectorRepository;
 		private readonly IPlayerInfoRepository _playerInfoRepository;
 		private readonly ICharacterRepository _characterRepository;
-		private readonly ICurrentMapRepository _currentMapRepository;
+		private readonly ICurrentMapStateRepository _currentMapStateRepository;
 		private readonly ILoginFileChecksumRepository _loginFileChecksumRepository;
 		private readonly ICharacterInventoryRepository _characterInventoryRepository;
 
@@ -33,7 +33,7 @@ namespace EOLib.Domain.Login
 							ICharacterSelectorRepository characterSelectorRepository,
 							IPlayerInfoRepository playerInfoRepository,
 							ICharacterRepository characterRepository,
-							ICurrentMapRepository currentMapRepository,
+							ICurrentMapStateRepository currentMapStateRepository,
 							ILoginFileChecksumRepository loginFileChecksumRepository,
 							ICharacterInventoryRepository characterInventoryRepository)
 		{
@@ -44,7 +44,7 @@ namespace EOLib.Domain.Login
 			_characterSelectorRepository = characterSelectorRepository;
 			_playerInfoRepository = playerInfoRepository;
 			_characterRepository = characterRepository;
-			_currentMapRepository = currentMapRepository;
+			_currentMapStateRepository = currentMapStateRepository;
 			_loginFileChecksumRepository = loginFileChecksumRepository;
 			_characterInventoryRepository = characterInventoryRepository;
 		}
@@ -101,7 +101,7 @@ namespace EOLib.Domain.Login
 
 			_playerInfoRepository.PlayerID = data.PlayerID;
 			_playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
-			_currentMapRepository.CurrentMapID = data.MapID;
+			_currentMapStateRepository.CurrentMapID = data.MapID;
 
 			_loginFileChecksumRepository.MapChecksum = data.MapRID.ToArray();
 			_loginFileChecksumRepository.MapLength = data.MapID;

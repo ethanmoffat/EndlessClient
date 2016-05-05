@@ -27,8 +27,8 @@ namespace EOLib.Domain
 			container.RegisterType<ILoggedInAccountNameProvider, PlayerInfoRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ICharacterRepository, CharacterRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ICharacterProvider, CharacterRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICurrentMapRepository, CurrentMapRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICurrentMapProvider, CurrentMapRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ICurrentMapStateRepository, CurrentMapStateRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterType<ICurrentMapProvider, CurrentMapStateRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ICharacterInventoryRepository, CharacterInventoryRepository>(new ContainerControlledLifetimeManager());
 			container.RegisterType<ICharacterInventoryProvider, CharacterInventoryRepository>(new ContainerControlledLifetimeManager());
 		}

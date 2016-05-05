@@ -149,7 +149,7 @@
     <Compile Include="Domain\Login\LoginRequestGrantedData.cs" />
     <Compile Include="Domain\Login\CharacterLoginReply.cs" />
     <Compile Include="Domain\Map\BasicTileInfo.cs" />
-    <Compile Include="Domain\Map\ICurrentMapRepository.cs" />
+    <Compile Include="Domain\Map\ICurrentMapStateRepository.cs" />
     <Compile Include="Domain\Map\IMapElement.cs" />
     <Compile Include="Domain\Map\ITileInfo.cs" />
     <Compile Include="Domain\Map\OldMapItem.cs" />

@@ -4,7 +4,7 @@
 
 namespace EOLib.Domain.Map
 {
-	public interface ICurrentMapRepository
+	public interface ICurrentMapStateRepository
 	{
 		short CurrentMapID { get; set; }
 	}
@@ -14,7 +14,7 @@ namespace EOLib.Domain.Map
 		short CurrentMapID { get; }
 	}
 
-	public class CurrentMapRepository : ICurrentMapRepository, ICurrentMapProvider
+	public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapProvider
 	{
 		public short CurrentMapID { get; set; }
 	}
