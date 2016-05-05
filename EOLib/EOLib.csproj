@@ -337,6 +337,7 @@
     <Compile Include="Net\Translators\ITranslatedData.cs" />
     <Compile Include="Net\Translators\LoginRequestCompletedPacketTranslator.cs" />
     <Compile Include="Net\Translators\LoginRequestGrantedPacketTranslator.cs" />
+    <Compile Include="Net\Translators\MapStatePacketTranslator.cs" />
     <Compile Include="Net\Translators\PacketTranslatorContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Array2D.cs" />
