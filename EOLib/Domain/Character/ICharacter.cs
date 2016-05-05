@@ -31,6 +31,12 @@ namespace EOLib.Domain.Character
 
 		IReadOnlyList<short> Paperdoll { get; }
 
+		int MapID { get; }
+
+		int MapX { get; }
+
+		int MapY { get; }
+
 		ICharacter WithID(int id);
 
 		ICharacter WithName(string name);
@@ -52,5 +58,11 @@ namespace EOLib.Domain.Character
 		ICharacter WithAdminLevel(AdminLevel level);
 
 		ICharacter WithPaperdoll(IEnumerable<short> paperdollItemIDs);
+
+		ICharacter WithMapID(int mapID);
+
+		ICharacter WithMapX(int mapX);
+
+		ICharacter WithMapY(int mapY);
 	}
 }
