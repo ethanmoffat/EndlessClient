@@ -4,13 +4,12 @@
 
 using System.Threading.Tasks;
 using EOLib.IO.Map;
-using EOLib.Net.API;
 
 namespace EOLib.IO.Services
 {
 	public interface IFileRequestService
 	{
-		Task<IMapFile> RequestMapFile();
+		Task<IMapFile> RequestMapFile(short mapID);
 
 		Task<IModifiableDataFile<T>> RequestFile<T>(InitFileType fileType) where T : IDataRecord;
 	}

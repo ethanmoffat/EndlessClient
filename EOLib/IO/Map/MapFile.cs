@@ -518,5 +518,25 @@ namespace EOLib.IO.Map
 			if (!tileRow.EntityItems.Any())
 				collection.Remove(tileRow);
 		}
+
+		public static IMapFile FromBytes(int mapID, IEnumerable<byte> bytes)
+		{
+			var filePacket = new Packet(bytes.ToArray());
+			
+			var mapFile = new MapFile();
+			mapFile.SetMapProperties(mapID, filePacket);
+			mapFile.ResetCollections();
+			mapFile.ReadNPCSpawns(filePacket);
+			mapFile.ReadUnknowns(filePacket);
+			mapFile.ReadMapChests(filePacket);
+			mapFile.ReadTileSpecs(filePacket);
+			mapFile.ReadWarpTiles(filePacket);
+			mapFile.ReadGFXLayers(filePacket);
+
+			if (filePacket.ReadPosition != filePacket.Length)
+				mapFile.ReadMapSigns(filePacket);
+
+			return mapFile;
+		}
 	}
 }
