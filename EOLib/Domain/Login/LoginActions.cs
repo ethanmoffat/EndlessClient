@@ -113,7 +113,7 @@ namespace EOLib.Domain.Login
 			_loginFileChecksumRepository.ECFLength = data.EcfLen;
 		}
 
-		public async Task<ILoginRequestCompletedData> CompleteCharacterLogin()
+		public async Task CompleteCharacterLogin()
 		{
 			var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Message)
 				.AddThree(0x00123456) //?
@@ -125,7 +125,6 @@ namespace EOLib.Domain.Login
 				throw new EmptyPacketReceivedException();
 
 			//todo: put data into required repositories
-			return _loginRequestCompletedPacketTranslator.TranslatePacket(response);
 		}
 
 		private bool IsInvalidResponse(IPacket response)

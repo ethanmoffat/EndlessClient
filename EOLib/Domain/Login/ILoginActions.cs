@@ -15,6 +15,6 @@ namespace EOLib.Domain.Login
 
 		Task RequestCharacterLogin(ICharacter character);
 
-		Task<ILoginRequestCompletedData> CompleteCharacterLogin();
+		Task CompleteCharacterLogin();
 	}
 }
