@@ -29,7 +29,7 @@ namespace EOLib.Net.Translators
 				var xLoc = packet.ReadShort();
 				var yLoc = packet.ReadShort();
 
-				var direction = packet.ReadShort();
+				var direction = (EODirection)packet.ReadChar();
 				packet.ReadChar(); //value is always 6? Unknown use
 				var guildTag = packet.ReadString(3);
 
@@ -41,7 +41,7 @@ namespace EOLib.Net.Translators
 
 				var maxHP = packet.ReadShort();
 				var hp = packet.ReadShort();
-				var MaxTP = packet.ReadShort();
+				var maxTP = packet.ReadShort();
 				var tp = packet.ReadShort();
 
 				var boots = packet.ReadShort();
@@ -55,7 +55,36 @@ namespace EOLib.Net.Translators
 				var sitState = (SitState) packet.ReadChar();
 				var hidden = packet.ReadChar() != 0;
 
-				yield return new Character();
+				var stats = new CharacterStats()
+					.WithNewStat(CharacterStat.Level, level)
+					.WithNewStat(CharacterStat.HP, hp)
+					.WithNewStat(CharacterStat.MaxHP, maxHP)
+					.WithNewStat(CharacterStat.TP, tp)
+					.WithNewStat(CharacterStat.MaxTP, maxTP);
+
+				var renderProps = new CharacterRenderProperties()
+					.WithDirection(direction)
+					.WithGender(gender)
+					.WithHairStyle(hairStyle)
+					.WithHairColor(hairColor)
+					.WithRace(race)
+					.WithBootsGraphic(boots)
+					.WithArmorGraphic(armor)
+					.WithHatGraphic(hat)
+					.WithShieldGraphic(shield)
+					.WithWeaponGraphic(weapon)
+					.WithSitState(sitState)
+					.WithIsHidden(hidden);
+
+				yield return new Character()
+					.WithName(name)
+					.WithID(id)
+					.WithMapID(mapID)
+					.WithMapX(xLoc)
+					.WithMapY(yLoc)
+					.WithGuildTag(guildTag)
+					.WithStats(stats)
+					.WithRenderProperties(renderProps);
 			}
 		}
 
