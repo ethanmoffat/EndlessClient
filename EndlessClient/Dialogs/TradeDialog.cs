@@ -211,15 +211,15 @@ namespace EndlessClient.Dialogs
 			int index = 0;
 			foreach (InventoryItem item in items)
 			{
-				int localID = item.id;
+				int localID = item.ItemID;
 
-				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
-				string secondary = string.Format("x {0}  {1}", item.amount, rec.Type == ItemType.Armor
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+				string secondary = string.Format("x {0}  {1}", item.Amount, rec.Type == ItemType.Armor
 					? "(" + (rec.Gender == 0 ? OldWorld.GetString(DATCONST2.FEMALE) : OldWorld.GetString(DATCONST2.MALE)) + ")"
 					: "");
 
-				int gfxNum = item.id == 1
-					? 269 + 2 * (item.amount >= 100000 ? 4 : (item.amount >= 10000 ? 3 : (item.amount >= 100 ? 2 : (item.amount >= 2 ? 1 : 0))))
+				int gfxNum = item.ItemID == 1
+					? 269 + 2 * (item.Amount >= 100000 ? 4 : (item.Amount >= 10000 ? 3 : (item.Amount >= 100 ? 2 : (item.Amount >= 2 ? 1 : 0))))
 					: 2 * rec.Graphic - 1;
 
 				var nextItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, index++)
@@ -227,8 +227,8 @@ namespace EndlessClient.Dialogs
 					Text = rec.Name,
 					SubText = secondary,
 					IconGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.Items, gfxNum, true),
-					ID = item.id,
-					Amount = item.amount,
+					ID = item.ItemID,
+					Amount = item.Amount,
 					OffsetX = xOffset,
 					OffsetY = 46
 				};
@@ -292,13 +292,13 @@ namespace EndlessClient.Dialogs
 			int weightDelta = 0;
 			foreach (var item in mainCollection)
 			{
-				m_main.UpdateInventoryItem(item.id, -item.amount, true);
-				weightDelta -= OldWorld.Instance.EIF.GetRecordByID(item.id).Weight * item.amount;
+				m_main.UpdateInventoryItem(item.ItemID, -item.Amount, true);
+				weightDelta -= OldWorld.Instance.EIF.GetRecordByID(item.ItemID).Weight * item.Amount;
 			}
 			foreach (var item in otherCollection)
 			{
-				m_main.UpdateInventoryItem(item.id, item.amount, true);
-				weightDelta += OldWorld.Instance.EIF.GetRecordByID(item.id).Weight * item.amount;
+				m_main.UpdateInventoryItem(item.ItemID, item.Amount, true);
+				weightDelta += OldWorld.Instance.EIF.GetRecordByID(item.ItemID).Weight * item.Amount;
 			}
 			m_main.Weight += (byte)weightDelta;
 			((EOGame)Game).Hud.RefreshStats();
@@ -334,8 +334,8 @@ namespace EndlessClient.Dialogs
 
 			//make sure that the items will fit!
 			if (!((EOGame)Game).Hud.ItemsFit(
-					otherCollection.Select(_item => new InventoryItem { id = _item.ID, amount = _item.Amount }).ToList(),
-					mainCollection.Select(_item => new InventoryItem { id = _item.ID, amount = _item.Amount }).ToList()))
+					otherCollection.Select(_item => new InventoryItem(_item.ID, _item.Amount)).ToList(),
+					mainCollection.Select(_item => new InventoryItem(_item.ID, _item.Amount)).ToList()))
 			{
 				EOMessageBox.Show(OldWorld.GetString(DATCONST2.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
 					OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);

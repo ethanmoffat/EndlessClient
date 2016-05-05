@@ -104,13 +104,13 @@ namespace EndlessClient.Dialogs
 
 		private void _deposit()
 		{
-			InventoryItem item = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.id == 1);
-			if (item.amount == 0)
+			InventoryItem item = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.ItemID == 1);
+			if (item.Amount == 0)
 			{
 				EOMessageBox.Show(DATCONST1.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 				return;
 			}
-			if (item.amount == 1)
+			if (item.Amount == 1)
 			{
 				if (!m_api.BankDeposit(1))
 				{
@@ -121,7 +121,7 @@ namespace EndlessClient.Dialogs
 			}
 
 			ItemTransferDialog dlg = new ItemTransferDialog(OldWorld.Instance.EIF.GetRecordByID(1).Name,
-				ItemTransferDialog.TransferType.BankTransfer, item.amount, DATCONST2.DIALOG_TRANSFER_DEPOSIT);
+				ItemTransferDialog.TransferType.BankTransfer, item.Amount, DATCONST2.DIALOG_TRANSFER_DEPOSIT);
 			dlg.DialogClosing += (o, e) =>
 			{
 				if (e.Result == XNADialogResult.Cancel)
@@ -177,8 +177,8 @@ namespace EndlessClient.Dialogs
 			}
 
 			int requiredGold = (LockerUpgrades + 1) * 1000;
-			InventoryItem item = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.id == 1);
-			if (item.amount < requiredGold)
+			InventoryItem item = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.ItemID == 1);
+			if (item.Amount < requiredGold)
 			{
 				EOMessageBox.Show(DATCONST1.WARNING_YOU_HAVE_NOT_ENOUGH, "gold", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 				return;

@@ -78,8 +78,8 @@ namespace EndlessClient.Dialogs
 						m_items[i] = null;
 					}
 
-					ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
-					string secondary = string.Format("x {0}  {1}", item.amount, rec.Type == ItemType.Armor
+					ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+					string secondary = string.Format("x {0}  {1}", item.Amount, rec.Type == ItemType.Armor
 						? "(" + (rec.Gender == 0 ? OldWorld.GetString(DATCONST2.FEMALE) : OldWorld.GetString(DATCONST2.MALE)) + ")"
 						: "");
 
@@ -87,8 +87,8 @@ namespace EndlessClient.Dialogs
 					{
 						Text = rec.Name,
 						SubText = secondary,
-						IconGraphic = GetItemGraphic(rec, item.amount),
-						ID = item.id
+						IconGraphic = GetItemGraphic(rec, item.Amount),
+						ID = item.ItemID
 					};
 					m_items[i].OnRightClick += (o, e) =>
 					{
@@ -102,7 +102,7 @@ namespace EndlessClient.Dialogs
 							EOMessageBox.Show(_message, _caption, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 							((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
 						}
-						else if (rec.Weight * item.amount + OldWorld.Instance.MainPlayer.ActiveCharacter.Weight >
+						else if (rec.Weight * item.Amount + OldWorld.Instance.MainPlayer.ActiveCharacter.Weight >
 								 OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight)
 						{
 							EOMessageBox.Show(OldWorld.GetString(DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT),

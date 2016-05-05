@@ -701,7 +701,7 @@ namespace EndlessClient
 			Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 			c.UpdateInventoryItem(id, 1, weight, maxWeight, true);
 			foreach (var ingred in ingredients)
-				c.UpdateInventoryItem(ingred.id, ingred.amount);
+				c.UpdateInventoryItem(ingred.ItemID, ingred.Amount);
 		}
 
 		private void _lockerOpen(byte x, byte y, List<InventoryItem> items)

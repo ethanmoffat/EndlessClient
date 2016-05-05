@@ -87,7 +87,7 @@ namespace EOLib.Net.API
 			List<InventoryItem> items = new List<InventoryItem>();
 			while (pkt.ReadPos != pkt.Length)
 			{
-				items.Add(new InventoryItem { id = pkt.GetShort(), amount = pkt.GetThree() });
+				items.Add(new InventoryItem(pkt.GetShort(), pkt.GetThree()));
 			}
 
 			OnLockerOpen(x, y, items);
@@ -109,7 +109,7 @@ namespace EOLib.Net.API
 			List<InventoryItem> items = new List<InventoryItem>();
 			while (pkt.ReadPos != pkt.Length)
 			{
-				items.Add(new InventoryItem { id = pkt.GetShort(), amount = pkt.GetThree() });
+				items.Add(new InventoryItem(pkt.GetShort(), pkt.GetThree()));
 			}
 
 			OnLockerItemChange(itemID, amount, weight, maxWeight, false, items);
@@ -130,7 +130,7 @@ namespace EOLib.Net.API
 			List<InventoryItem> items = new List<InventoryItem>();
 			while (pkt.ReadPos != pkt.Length)
 			{
-				items.Add(new InventoryItem { id = pkt.GetShort(), amount = pkt.GetThree() });
+				items.Add(new InventoryItem(pkt.GetShort(), pkt.GetThree()));
 			}
 
 			OnLockerItemChange(itemID, amount, weight, maxWeight, true, items);

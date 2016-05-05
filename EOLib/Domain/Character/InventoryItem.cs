@@ -4,9 +4,21 @@
 
 namespace EOLib.Domain.Character
 {
-	public struct InventoryItem
+	public class InventoryItem : IInventoryItem
 	{
-		public short id;
-		public int amount;
+		public short ItemID { get; private set; }
+		
+		public int Amount { get; private set; }
+
+		public InventoryItem(short itemID, int amount)
+		{
+			ItemID = itemID;
+			Amount = amount;
+		}
+
+		public InventoryItem WithAmount(int newAmount)
+		{
+			return new InventoryItem(ItemID, newAmount);
+		}
 	}
 }

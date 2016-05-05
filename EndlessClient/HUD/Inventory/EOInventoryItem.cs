@@ -141,26 +141,26 @@ namespace EndlessClient.HUD.Inventory
 							OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
 							XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					}
-					else if (m_inventory.amount > 1 && inRange)
+					else if (m_inventory.Amount > 1 && inRange)
 					{
 						ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.DropItems,
-							m_inventory.amount);
+							m_inventory.Amount);
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result == XNADialogResult.OK)
 							{
 								//note: not sure of the actual limit. 10000 is arbitrary here
-								if (dlg.SelectedAmount > 10000 && m_inventory.id == 1 && !safetyCommentHasBeenShown)
+								if (dlg.SelectedAmount > 10000 && m_inventory.ItemID == 1 && !safetyCommentHasBeenShown)
 									EOMessageBox.Show(DATCONST1.DROP_MANY_GOLD_ON_GROUND, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader,
 										(o, e) => { safetyCommentHasBeenShown = true; });
-								else if (!m_api.DropItem(m_inventory.id, dlg.SelectedAmount, (byte)loc.X, (byte)loc.Y))
+								else if (!m_api.DropItem(m_inventory.ItemID, dlg.SelectedAmount, (byte)loc.X, (byte)loc.Y))
 									((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 							}
 						};
 					}
 					else if (inRange)
 					{
-						if (!m_api.DropItem(m_inventory.id, 1, (byte)loc.X, (byte)loc.Y))
+						if (!m_api.DropItem(m_inventory.ItemID, 1, (byte)loc.X, (byte)loc.Y))
 							((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 					else /*if (!inRange)*/
@@ -170,17 +170,17 @@ namespace EndlessClient.HUD.Inventory
 				}
 				else if (((EOInventory)parent).IsOverJunk())
 				{
-					if (m_inventory.amount > 1)
+					if (m_inventory.Amount > 1)
 					{
 						ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.JunkItems,
-							m_inventory.amount, DATCONST2.DIALOG_TRANSFER_JUNK);
+							m_inventory.Amount, DATCONST2.DIALOG_TRANSFER_JUNK);
 						dlg.DialogClosing += (sender, args) =>
 						{
-							if (args.Result == XNADialogResult.OK && !m_api.JunkItem(m_inventory.id, dlg.SelectedAmount))
+							if (args.Result == XNADialogResult.OK && !m_api.JunkItem(m_inventory.ItemID, dlg.SelectedAmount))
 								((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 						};
 					}
-					else if (!m_api.JunkItem(m_inventory.id, 1))
+					else if (!m_api.JunkItem(m_inventory.ItemID, 1))
 						((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 				}
 				else if (ChestDialog.Instance != null && ChestDialog.Instance.MouseOver && ChestDialog.Instance.MouseOverPreviously)
@@ -189,20 +189,20 @@ namespace EndlessClient.HUD.Inventory
 					{
 						EOMessageBox.Show(DATCONST1.ITEM_IS_LORE_ITEM, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					}
-					else if (m_inventory.amount > 1)
+					else if (m_inventory.Amount > 1)
 					{
-						ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.DropItems, m_inventory.amount);
+						ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.DropItems, m_inventory.Amount);
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result == XNADialogResult.OK &&
 								!m_api.ChestAddItem(ChestDialog.Instance.CurrentChestX, ChestDialog.Instance.CurrentChestY,
-									m_inventory.id, dlg.SelectedAmount))
+									m_inventory.ItemID, dlg.SelectedAmount))
 								EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 						};
 					}
 					else
 					{
-						if (!m_api.ChestAddItem(ChestDialog.Instance.CurrentChestX, ChestDialog.Instance.CurrentChestY, m_inventory.id, 1))
+						if (!m_api.ChestAddItem(ChestDialog.Instance.CurrentChestX, ChestDialog.Instance.CurrentChestY, m_inventory.ItemID, 1))
 							EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				}
@@ -232,42 +232,42 @@ namespace EndlessClient.HUD.Inventory
 				{
 					byte x = LockerDialog.Instance.X;
 					byte y = LockerDialog.Instance.Y;
-					if (m_inventory.id == 1)
+					if (m_inventory.ItemID == 1)
 					{
 						EOMessageBox.Show(DATCONST1.LOCKER_DEPOSIT_GOLD_ERROR, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					}
-					else if (m_inventory.amount > 1)
+					else if (m_inventory.Amount > 1)
 					{
-						ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.ShopTransfer, m_inventory.amount, DATCONST2.DIALOG_TRANSFER_TRANSFER);
+						ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.ShopTransfer, m_inventory.Amount, DATCONST2.DIALOG_TRANSFER_TRANSFER);
 						dlg.DialogClosing += (sender, args) =>
 						{
 							if (args.Result == XNADialogResult.OK)
 							{
-								if (LockerDialog.Instance.GetNewItemAmount(m_inventory.id, dlg.SelectedAmount) > Constants.LockerMaxSingleItemAmount)
+								if (LockerDialog.Instance.GetNewItemAmount(m_inventory.ItemID, dlg.SelectedAmount) > Constants.LockerMaxSingleItemAmount)
 									EOMessageBox.Show(DATCONST1.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-								else if (!m_api.LockerAddItem(x, y, m_inventory.id, dlg.SelectedAmount))
+								else if (!m_api.LockerAddItem(x, y, m_inventory.ItemID, dlg.SelectedAmount))
 									EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 							}
 						};
 					}
 					else
 					{
-						if (LockerDialog.Instance.GetNewItemAmount(m_inventory.id, 1) > Constants.LockerMaxSingleItemAmount)
+						if (LockerDialog.Instance.GetNewItemAmount(m_inventory.ItemID, 1) > Constants.LockerMaxSingleItemAmount)
 							EOMessageBox.Show(DATCONST1.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-						else if (!m_api.LockerAddItem(x, y, m_inventory.id, 1))
+						else if (!m_api.LockerAddItem(x, y, m_inventory.ItemID, 1))
 							EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 					}
 				}
-				else if (BankAccountDialog.Instance != null && BankAccountDialog.Instance.MouseOver && BankAccountDialog.Instance.MouseOverPreviously && m_inventory.id == 1)
+				else if (BankAccountDialog.Instance != null && BankAccountDialog.Instance.MouseOver && BankAccountDialog.Instance.MouseOverPreviously && m_inventory.ItemID == 1)
 				{
-					if (m_inventory.amount == 0)
+					if (m_inventory.Amount == 0)
 					{
 						EOMessageBox.Show(DATCONST1.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					}
-					else if (m_inventory.amount > 1)
+					else if (m_inventory.Amount > 1)
 					{
 						ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.BankTransfer,
-							m_inventory.amount, DATCONST2.DIALOG_TRANSFER_DEPOSIT);
+							m_inventory.Amount, DATCONST2.DIALOG_TRANSFER_DEPOSIT);
 						dlg.DialogClosing += (o, e) =>
 						{
 							if (e.Result == XNADialogResult.Cancel)
@@ -290,22 +290,22 @@ namespace EndlessClient.HUD.Inventory
 					{
 						EOMessageBox.Show(DATCONST1.ITEM_IS_LORE_ITEM);
 					}
-					else if (m_inventory.amount > 1)
+					else if (m_inventory.Amount > 1)
 					{
 						ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.TradeItems,
-							m_inventory.amount, DATCONST2.DIALOG_TRANSFER_OFFER);
+							m_inventory.Amount, DATCONST2.DIALOG_TRANSFER_OFFER);
 						dlg.DialogClosing += (o, e) =>
 						{
 							if (e.Result != XNADialogResult.OK) return;
 
-							if (!m_api.TradeAddItem(m_inventory.id, dlg.SelectedAmount))
+							if (!m_api.TradeAddItem(m_inventory.ItemID, dlg.SelectedAmount))
 							{
 								TradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
 								((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 							}
 						};
 					}
-					else if (!m_api.TradeAddItem(m_inventory.id, 1))
+					else if (!m_api.TradeAddItem(m_inventory.ItemID, 1))
 					{
 						TradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
 						((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -398,7 +398,7 @@ namespace EndlessClient.HUD.Inventory
 
 		public void UpdateItemLabel()
 		{
-			m_nameLabel.Text = GetNameString(m_inventory.id, m_inventory.amount);
+			m_nameLabel.Text = GetNameString(m_inventory.ItemID, m_inventory.Amount);
 			m_nameLabel.ResizeBasedOnText(16, 9);
 		}
 

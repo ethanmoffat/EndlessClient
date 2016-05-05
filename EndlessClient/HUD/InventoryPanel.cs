@@ -65,22 +65,22 @@ namespace EndlessClient.HUD
 
 			//add the inventory items that were retrieved from the server
 			List<InventoryItem> localInv = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory;
-			if (localInv.Find(_item => _item.id == 1).id != 1)
-				localInv.Insert(0, new InventoryItem {amount = 0, id = 1}); //add 0 gold if there isn't any gold
+			if (localInv.Find(_item => _item.ItemID == 1).ItemID != 1)
+				localInv.Insert(0, new InventoryItem(amount: 0, itemID: 1)); //add 0 gold if there isn't any gold
 
 			bool dialogShown = false;
 			foreach (InventoryItem item in localInv)
 			{
-				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
-				int slot = localItemSlotMap.ContainsValue(item.id)
-					? localItemSlotMap.First(_pair => _pair.Value == item.id).Key
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+				int slot = localItemSlotMap.ContainsValue(item.ItemID)
+					? localItemSlotMap.First(_pair => _pair.Value == item.ItemID).Key
 					: _getNextOpenSlot(rec.Size);
 
 				List<Tuple<int, int>> points;
 				if (!_fitsInSlot(slot, rec.Size, out points))
 					slot = _getNextOpenSlot(rec.Size);
 
-				if (!_addItemToSlot(slot, rec, item.amount) && !dialogShown)
+				if (!_addItemToSlot(slot, rec, item.Amount) && !dialogShown)
 				{
 					dialogShown = true;
 					EOMessageBox.Show("Something doesn't fit in the inventory. Rearrange items or get rid of them.", "Warning", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
@@ -167,7 +167,7 @@ namespace EndlessClient.HUD
 			points.ForEach(point => filledSlots[point.Item1, point.Item2] = true); //flag that the spaces are taken
 
 			m_inventoryKey.SetValue(string.Format("item{0}", slot), item.ID, RegistryValueKind.String); //update the registry
-			m_childItems.Add(new EOInventoryItem(m_api, slot, item, new InventoryItem { amount = count, id = (short)item.ID }, this)); //add the control wrapper for the item
+			m_childItems.Add(new EOInventoryItem(m_api, slot, item, new InventoryItem(amount: count, itemID: (short)item.ID), this)); //add the control wrapper for the item
 			m_childItems[m_childItems.Count - 1].DrawOrder = (int) ControlDrawLayer.DialogLayer - (2 + slot%INVENTORY_ROW_LENGTH);
 			return true;
 		}
@@ -204,20 +204,20 @@ namespace EndlessClient.HUD
 			if(oldItems != null)
 				foreach (InventoryItem item in oldItems)
 				{
-					EOInventoryItem control = m_childItems.Find(_item => _item.ItemData.ID == item.id);
-					if (control != null && control.Inventory.amount - item.amount <= 0)
+					EOInventoryItem control = m_childItems.Find(_item => _item.ItemData.ID == item.ItemID);
+					if (control != null && control.Inventory.Amount - item.Amount <= 0)
 						_unmarkItemSlots(tempFilledSlots, _getTakenSlots(control.Slot, control.ItemData.Size));
 				}
 
 			foreach (InventoryItem item in newItems)
 			{
-				if (oldItems != null && oldItems.FindIndex(_itm => _itm.id == item.id) < 0)
+				if (oldItems != null && oldItems.FindIndex(_itm => _itm.ItemID == item.ItemID) < 0)
 				{
-					if (item.id == 1 || m_childItems.Find(_item => _item.ItemData.ID == item.id) != null)
+					if (item.ItemID == 1 || m_childItems.Find(_item => _item.ItemData.ID == item.ItemID) != null)
 						continue; //already in inventory: skip, since it isn't a new item
 				}
 
-				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
 
 				int nextSlot = _getNextOpenSlot(tempFilledSlots, rec.Size);
 				List<Tuple<int, int>> points;
@@ -240,9 +240,9 @@ namespace EndlessClient.HUD
 			EOInventoryItem control = m_childItems.Find(_control => _control.Slot == slot);
 			if (control == null || slot < 0) return;
 
-			int numLeft = control.Inventory.amount - count;
+			int numLeft = control.Inventory.Amount - count;
 
-			if (numLeft <= 0 && control.Inventory.id != 1)
+			if (numLeft <= 0 && control.Inventory.ItemID != 1)
 			{
 				ItemSize sz = control.ItemData.Size;
 				_unmarkItemSlots(m_filledSlots, _getTakenSlots(control.Slot, sz));
@@ -254,7 +254,7 @@ namespace EndlessClient.HUD
 			}
 			else
 			{
-				control.Inventory = new InventoryItem {amount = numLeft, id = control.Inventory.id};
+				control.Inventory = new InventoryItem(amount: numLeft, itemID: control.Inventory.ItemID);
 				control.UpdateItemLabel();
 			}
 		}
@@ -335,15 +335,15 @@ namespace EndlessClient.HUD
 		public bool UpdateItem(InventoryItem item)
 		{
 			EOInventoryItem ctrl;
-			if((ctrl = m_childItems.Find(_ctrl => _ctrl.ItemData.ID == item.id)) != null)
+			if((ctrl = m_childItems.Find(_ctrl => _ctrl.ItemData.ID == item.ItemID)) != null)
 			{
 				ctrl.Inventory = item;
 				ctrl.UpdateItemLabel();
 			}
 			else
 			{
-				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
-				return _addItemToSlot(_getNextOpenSlot(rec.Size), rec, item.amount);
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+				return _addItemToSlot(_getNextOpenSlot(rec.Size), rec, item.Amount);
 			}
 
 			return true;
@@ -354,7 +354,7 @@ namespace EndlessClient.HUD
 			EOInventoryItem ctrl;
 			if ((ctrl = m_childItems.Find(_ctrl => _ctrl.ItemData.ID == id)) != null)
 			{
-				_removeItemFromSlot(ctrl.Slot, ctrl.Inventory.amount);
+				_removeItemFromSlot(ctrl.Slot, ctrl.Inventory.Amount);
 			}
 		}
 

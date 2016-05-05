@@ -248,7 +248,7 @@ namespace EndlessClient.Dialogs
 			//check the requirements
 			if (c.Stats.Str < skill.StrReq || c.Stats.Int < skill.IntReq || c.Stats.Wis < skill.WisReq ||
 				c.Stats.Agi < skill.AgiReq || c.Stats.Con < skill.ConReq || c.Stats.Cha < skill.ChaReq ||
-				c.Stats.Level < skill.LevelReq || c.Inventory.Find(_ii => _ii.id == 1).amount < skill.GoldReq || !skillReqsMet)
+				c.Stats.Level < skill.LevelReq || c.Inventory.Find(_ii => _ii.ItemID == 1).Amount < skill.GoldReq || !skillReqsMet)
 			{
 				EOMessageBox.Show(DATCONST1.SKILL_LEARN_REQS_NOT_MET, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 				return;

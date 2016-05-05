@@ -897,8 +897,8 @@ namespace EndlessClient.HUD
 
 		public bool UpdateInventory(InventoryItem item)
 		{
-			if (item.amount <= 0)
-				inventory.RemoveItem(item.id);
+			if (item.Amount <= 0)
+				inventory.RemoveItem(item.ItemID);
 			else
 				return inventory.UpdateItem(item);
 			return true;

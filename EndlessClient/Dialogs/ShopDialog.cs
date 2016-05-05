@@ -109,7 +109,7 @@ namespace EndlessClient.Dialogs
 			if (old == newState) return;
 
 			int buyNumInt = m_tradeItems.FindAll(x => x.Buy > 0).Count;
-			int sellNumInt = m_tradeItems.FindAll(x => OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(item => item.id == x.ID) >= 0 && x.Sell > 0).Count;
+			int sellNumInt = m_tradeItems.FindAll(x => OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(item => item.ItemID == x.ID) >= 0 && x.Sell > 0).Count;
 
 			if (newState == ShopState.Buying && buyNumInt <= 0)
 			{
@@ -181,7 +181,7 @@ namespace EndlessClient.Dialogs
 						foreach (ShopItem si in m_tradeItems)
 						{
 							if (si.ID <= 0 || (buying && si.Buy <= 0) ||
-								(!buying && (si.Sell <= 0 || OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(inv => inv.id == si.ID) < 0)))
+								(!buying && (si.Sell <= 0 || OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(inv => inv.ItemID == si.ID) < 0)))
 								continue;
 
 							ShopItem localItem = si;
@@ -246,7 +246,7 @@ namespace EndlessClient.Dialogs
 				return;
 			bool isBuying = m_state == ShopState.Buying;
 
-			InventoryItem ii = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(x => (isBuying ? x.id == 1 : x.id == item.ID));
+			InventoryItem ii = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(x => (isBuying ? x.ItemID == 1 : x.ItemID == item.ID));
 			ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ID);
 			if (isBuying)
 			{
@@ -267,17 +267,17 @@ namespace EndlessClient.Dialogs
 					return;
 				}
 
-				if (ii.amount < item.Buy)
+				if (ii.Amount < item.Buy)
 				{
 					EOMessageBox.Show(DATCONST1.WARNING_YOU_HAVE_NOT_ENOUGH, " gold.", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					return;
 				}
 			}
-			else if (ii.amount == 0)
+			else if (ii.Amount == 0)
 				return; //can't sell if amount of item is 0
 
 			//special case: no need for prompting if selling an item with count == 1 in inventory
-			if (!isBuying && ii.amount == 1)
+			if (!isBuying && ii.Amount == 1)
 			{
 				string _message = string.Format("{0} 1 {1} {2} {3} gold?",
 					OldWorld.GetString(DATCONST2.DIALOG_WORD_SELL),
@@ -296,7 +296,7 @@ namespace EndlessClient.Dialogs
 			else
 			{
 				ItemTransferDialog dlg = new ItemTransferDialog(rec.Name, ItemTransferDialog.TransferType.ShopTransfer,
-					isBuying ? item.MaxBuy : ii.amount, isBuying ? DATCONST2.DIALOG_TRANSFER_BUY : DATCONST2.DIALOG_TRANSFER_SELL);
+					isBuying ? item.MaxBuy : ii.Amount, isBuying ? DATCONST2.DIALOG_TRANSFER_BUY : DATCONST2.DIALOG_TRANSFER_SELL);
 				dlg.DialogClosing += (o, e) =>
 				{
 					if (e.Result == XNADialogResult.OK)
@@ -335,7 +335,7 @@ namespace EndlessClient.Dialogs
 			// ReSharper disable once LoopCanBeConvertedToQuery
 			foreach (var ingredient in item.Ingredients)
 			{
-				if (OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(_item => _item.id == ingredient.Item1 && _item.amount >= ingredient.Item2) < 0)
+				if (OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.FindIndex(_item => _item.ItemID == ingredient.Item1 && _item.Amount >= ingredient.Item2) < 0)
 				{
 					string _message = OldWorld.GetString(DATCONST2.DIALOG_SHOP_CRAFT_MISSING_INGREDIENTS) + "\n\n";
 					foreach (var ingred in item.Ingredients)

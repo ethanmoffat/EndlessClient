@@ -21,7 +21,7 @@ namespace EOLib.Net.API
 		{
 			get
 			{
-				var itemsToReturn = _items.Select(x => new InventoryItem {id = x.id, amount = x.amount});
+				var itemsToReturn = _items.Select(x => new InventoryItem(x.ItemID, x.Amount));
 				return itemsToReturn.ToList();
 			}
 		}
@@ -36,11 +36,7 @@ namespace EOLib.Net.API
 			_items = new List<InventoryItem>(numRemaining);
 			for (var i = 0; i < numRemaining; ++i)
 			{
-				_items.Add(new InventoryItem
-							{
-								id = pkt.GetShort(),
-								amount = pkt.GetThree()
-							});
+				_items.Add(new InventoryItem(pkt.GetShort(), pkt.GetThree()));
 			}
 		}
 	}

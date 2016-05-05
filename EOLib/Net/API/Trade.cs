@@ -187,7 +187,7 @@ namespace EOLib.Net.API
 			List<InventoryItem> player1Items = new List<InventoryItem>();
 			while (pkt.PeekByte() != 255)
 			{
-				player1Items.Add(new InventoryItem { id = pkt.GetShort(), amount = pkt.GetInt() });
+				player1Items.Add(new InventoryItem(pkt.GetShort(), pkt.GetInt()));
 			}
 			pkt.Skip(1);
 
@@ -195,7 +195,7 @@ namespace EOLib.Net.API
 			List<InventoryItem> player2Items = new List<InventoryItem>();
 			while (pkt.PeekByte() != 255)
 			{
-				player2Items.Add(new InventoryItem { id = pkt.GetShort(), amount = pkt.GetInt() });
+				player2Items.Add(new InventoryItem(pkt.GetShort(), pkt.GetInt()));
 			}
 			pkt.Skip(1);
 

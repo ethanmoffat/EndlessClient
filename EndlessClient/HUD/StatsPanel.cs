@@ -206,9 +206,9 @@ namespace EndlessClient.HUD
 						break;
 					case GOLD:
 						InventoryItem inv;
-						if ((inv = c.Inventory.Find(_i => _i.id == 1)).id == 1)
+						if ((inv = c.Inventory.Find(_i => _i.ItemID == 1)).ItemID == 1)
 						{
-							m_otherInfo[i].Text = inv.amount.ToString(CultureInfo.InvariantCulture);
+							m_otherInfo[i].Text = inv.Amount.ToString(CultureInfo.InvariantCulture);
 						}
 						break;
 					case EXP:

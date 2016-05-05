@@ -200,7 +200,7 @@ namespace EOLib.Net.API
 			{
 				if (pkt.PeekShort() <= 0) break;
 
-				inventoryItems.Add(new InventoryItem {id = pkt.GetShort(), amount = pkt.GetInt()});
+				inventoryItems.Add(new InventoryItem(pkt.GetShort(), pkt.GetInt()));
 			}
 
 			OnShopCraftItem(itemID, weight, maxWeight, inventoryItems);

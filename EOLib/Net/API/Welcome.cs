@@ -175,7 +175,7 @@ namespace EOLib.Net.API
 
 			m_inventory = new List<InventoryItem>();
 			while (pkt.PeekByte() != 255)
-				m_inventory.Add(new InventoryItem { id = pkt.GetShort(), amount = pkt.GetInt() });
+				m_inventory.Add(new InventoryItem(pkt.GetShort(), pkt.GetInt()));
 			pkt.GetByte();
 
 			m_spells = new List<InventorySpell>();

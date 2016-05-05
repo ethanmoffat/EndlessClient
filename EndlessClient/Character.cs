@@ -554,12 +554,12 @@ namespace EndlessClient
 		public void UpdateInventoryItem(short id, int characterAmount, bool add = false)
 		{
 			InventoryItem rec;
-			if ((rec = Inventory.Find(item => item.id == id)).id == id)
+			if ((rec = Inventory.Find(item => item.ItemID == id)).ItemID == id)
 			{
-				InventoryItem newRec = new InventoryItem {amount = add ? characterAmount + rec.amount : characterAmount, id = id};
+				InventoryItem newRec = new InventoryItem(id, add ? characterAmount + rec.Amount : characterAmount);
 				if (!Inventory.Remove(rec))
 					throw new Exception("Unable to remove from inventory!");
-				if (newRec.amount > 0)
+				if (newRec.Amount > 0)
 				{
 					Inventory.Add(newRec);
 				}
@@ -567,7 +567,7 @@ namespace EndlessClient
 			}
 			else //if unequipping an item that isn't in the inventory yet
 			{
-				InventoryItem newRec = new InventoryItem {amount = characterAmount, id = id};
+				InventoryItem newRec = new InventoryItem(amount: characterAmount, itemID: id);
 				Inventory.Add(newRec);
 				if (this == OldWorld.Instance.MainPlayer.ActiveCharacter) EOGame.Instance.Hud.UpdateInventory(newRec);
 			}
@@ -576,13 +576,11 @@ namespace EndlessClient
 		public void UpdateInventoryItem(short id, int characterAmount, byte characterWeight, byte characterMaxWeight, bool addToExistingAmount = false)
 		{
 			InventoryItem rec;
-			if ((rec = Inventory.Find(item => item.id == id)).id == id)
+			if ((rec = Inventory.Find(item => item.ItemID == id)).ItemID == id)
 			{
 				InventoryItem newRec = new InventoryItem
-				{
-					amount = addToExistingAmount ? characterAmount + rec.amount : characterAmount,
-					id = id
-				};
+					(amount: addToExistingAmount ? characterAmount + rec.Amount : characterAmount,
+					 itemID: id);
 				if (this == OldWorld.Instance.MainPlayer.ActiveCharacter)
 				{
 					//false when AddItem fails to find a good spot
@@ -598,7 +596,7 @@ namespace EndlessClient
 				//if we can hold it, update local inventory and weight stats
 				if (!Inventory.Remove(rec))
 					throw new Exception("Unable to remove from inventory!");
-				if (newRec.amount > 0)
+				if (newRec.Amount > 0)
 				{
 					Inventory.Add(newRec);
 				}
@@ -609,8 +607,8 @@ namespace EndlessClient
 			else
 			{
 				//for item_get/chest_get packets, the item may not be in the inventory yet
-				InventoryItem newRec = new InventoryItem {amount = characterAmount, id = id};
-				if (newRec.amount <= 0) return;
+				InventoryItem newRec = new InventoryItem(amount: characterAmount, itemID: id);
+				if (newRec.Amount <= 0) return;
 				
 				Inventory.Add(newRec);
 				if (this == OldWorld.Instance.MainPlayer.ActiveCharacter)
@@ -691,7 +689,7 @@ namespace EndlessClient
 					return permission;
 			}
 
-			if(rec != null && Inventory.FindIndex(_ii => _ii.id == rec.ID) >= 0)
+			if(rec != null && Inventory.FindIndex(_ii => _ii.ItemID == rec.ID) >= 0)
 				permission = DoorSpec.Door;
 			else if (rec == null) //show a warning saying that this door is perma-locked. Non-standard pub files will cause this.
 				EOMessageBox.Show(
@@ -724,7 +722,7 @@ namespace EndlessClient
 					return permission;
 			}
 
-			if (rec != null && Inventory.FindIndex(_ii => _ii.id == rec.ID) >= 0)
+			if (rec != null && Inventory.FindIndex(_ii => _ii.ItemID == rec.ID) >= 0)
 				permission = ChestKey.None;
 			else if (rec == null) //show a warning saying that this chest is perma-locked. Non-standard pub files will cause this.
 				EOMessageBox.Show(

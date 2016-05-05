@@ -56,12 +56,12 @@ namespace EndlessClient.Dialogs
 			List<ListDialogItem> listItems = new List<ListDialogItem>();
 			foreach (InventoryItem item in lockerItems)
 			{
-				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.id);
-				int amount = item.amount;
+				ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+				int amount = item.Amount;
 				ListDialogItem newItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
 				{
 					Text = rec.Name,
-					SubText = string.Format("x{0}  {1}", item.amount,
+					SubText = string.Format("x{0}  {1}", item.Amount,
 						rec.Type == ItemType.Armor
 							? "(" + (rec.Gender == 0 ? OldWorld.GetString(DATCONST2.FEMALE) : OldWorld.GetString(DATCONST2.MALE)) + ")"
 							: ""),
@@ -78,9 +78,9 @@ namespace EndlessClient.Dialogs
 
 		public int GetNewItemAmount(short id, int amount)
 		{
-			int matchIndex = items.FindIndex(_ii => _ii.id == id);
+			int matchIndex = items.FindIndex(_ii => _ii.ItemID == id);
 			if (matchIndex < 0) return amount;
-			return items[matchIndex].amount + amount;
+			return items[matchIndex].Amount + amount;
 		}
 
 		private void _removeItem(ItemRecord item, int amount)
