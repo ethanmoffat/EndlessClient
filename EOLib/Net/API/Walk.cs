@@ -11,7 +11,7 @@ namespace EOLib.Net.API
 {
 	partial class PacketAPI
 	{
-		public delegate void AddMapItemsEvent(List<MapItem> items);
+		public delegate void AddMapItemsEvent(List<OldMapItem> items);
 		public delegate void OtherPlayerWalkEvent(short id, EODirection dir, byte x, byte y);
 
 		public event AddMapItemsEvent OnMainPlayerWalk;
@@ -45,10 +45,10 @@ namespace EOLib.Net.API
 
 			//response contains the map items that are now in range
 			int numberOfMapItems = pkt.PeekEndString().Length / 9;
-			List<MapItem> items = new List<MapItem>(numberOfMapItems);
+			List<OldMapItem> items = new List<OldMapItem>(numberOfMapItems);
 			for (int i = 0; i < numberOfMapItems; ++i)
 			{
-				items.Add(new MapItem
+				items.Add(new OldMapItem
 				{
 					UniqueID = pkt.GetShort(),
 					ItemID = pkt.GetShort(),

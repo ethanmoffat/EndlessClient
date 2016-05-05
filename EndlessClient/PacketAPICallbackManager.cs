@@ -168,7 +168,7 @@ namespace EndlessClient
 			OldWorld.Instance.ActiveMapRenderer.AddOtherNPC(obj);
 		}
 
-		private void _mainPlayerWalk(List<MapItem> _list)
+		private void _mainPlayerWalk(List<OldMapItem> _list)
 		{
 			foreach (var item in _list) OldWorld.Instance.ActiveMapRenderer.AddMapItem(item);
 		}
@@ -412,7 +412,7 @@ namespace EndlessClient
 			m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED, string.Format(" {0} {1}", amountRemoved, rec.Name));
 		}
 
-		private void _dropItem(int characterAmount, byte weight, byte maxWeight, MapItem item)
+		private void _dropItem(int characterAmount, byte weight, byte maxWeight, OldMapItem item)
 		{
 			OldWorld.Instance.ActiveMapRenderer.AddMapItem(item);
 			if (characterAmount >= 0) //will be -1 when another player drops

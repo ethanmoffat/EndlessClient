@@ -513,7 +513,7 @@ namespace EndlessClient
 			}
 		}
 
-		public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<MapItem> items)
+		public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<OldMapItem> items)
 		{
 			if (!_tryLoadMap(mapID, false))
 			{
@@ -542,7 +542,7 @@ namespace EndlessClient
 			foreach (var data in npcs)
 				ActiveMapRenderer.AddOtherNPC(data);
 
-			foreach (MapItem mi in items)
+			foreach (OldMapItem mi in items)
 				ActiveMapRenderer.AddMapItem(mi);
 
 			if (anim == WarpAnimation.Admin)

@@ -26,7 +26,7 @@ namespace EndlessClient.Rendering
 	public class MapRenderer : DrawableGameComponent
 	{
 		//collections
-		private readonly Dictionary<Point, List<MapItem>> _mapItems = new Dictionary<Point, List<MapItem>>();
+		private readonly Dictionary<Point, List<OldMapItem>> _mapItems = new Dictionary<Point, List<OldMapItem>>();
 		private readonly List<OldCharacterRenderer> _characterRenderers = new List<OldCharacterRenderer>();
 		private readonly List<NPCRenderer> _npcRenderers = new List<NPCRenderer>();
 		private readonly object _npcListLock = new object(), _characterListLock = new object();
@@ -283,7 +283,7 @@ namespace EndlessClient.Rendering
 				EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_NO_MAP_OF_AREA);
 		}
 
-		public void AddMapItem(MapItem newItem)
+		public void AddMapItem(OldMapItem newItem)
 		{
 			if (newItem.IsNPCDrop && newItem.ItemID > 0)
 			{
@@ -295,7 +295,7 @@ namespace EndlessClient.Rendering
 
 			Point key = new Point(newItem.X, newItem.Y);
 			if(!_mapItems.ContainsKey(key))
-				_mapItems.Add(key, new List<MapItem>());
+				_mapItems.Add(key, new List<OldMapItem>());
 
 			int index = _mapItems.Values
 								 .SelectMany(x => x.ToList())
@@ -309,7 +309,7 @@ namespace EndlessClient.Rendering
 		{
 			var locationContainingItemUID = _mapItems.Keys.FirstOrDefault(_key => _mapItems[_key].Find(_mi => _mi.UniqueID == uid).UniqueID == uid);
 			
-			List<MapItem> res = _mapItems[locationContainingItemUID];
+			List<OldMapItem> res = _mapItems[locationContainingItemUID];
 			for (int i = res.Count - 1; i >= 0; --i)
 			{
 				if (res[i].UniqueID == uid)
@@ -320,7 +320,7 @@ namespace EndlessClient.Rendering
 			}
 		}
 
-		private void RemoveMapItem(MapItem oldItem)
+		private void RemoveMapItem(OldMapItem oldItem)
 		{
 			Point key = new Point(oldItem.X, oldItem.Y);
 			if (!_mapItems.ContainsKey(key))
@@ -334,10 +334,10 @@ namespace EndlessClient.Rendering
 		{
 			var pt = _mapItems.Keys.Single(_key => _mapItems[_key].Find(_mi => _mi.UniqueID == uid).UniqueID == uid);
 
-			List<MapItem> res = _mapItems[pt];
+			List<OldMapItem> res = _mapItems[pt];
 			var toRemove = res.Single(_mi => _mi.UniqueID == uid);
 			res.Remove(toRemove);
-			toRemove = new MapItem
+			toRemove = new OldMapItem
 			{
 				Amount = toRemove.Amount - amountTaken,
 				ItemID = toRemove.ItemID,
@@ -353,7 +353,7 @@ namespace EndlessClient.Rendering
 				res.Add(toRemove);
 		}
 
-		public MapItem GetMapItemAt(int x, int y)
+		public OldMapItem GetMapItemAt(int x, int y)
 		{
 			var p = new Point(x, y);
 			if (_mapItems.ContainsKey(p) && _mapItems[p].Count > 0)
@@ -1252,8 +1252,8 @@ namespace EndlessClient.Rendering
 			foreach (Point pt in keys)
 			{
 				//deep copies!
-				List<MapItem> local = new List<MapItem>(_mapItems[pt]);
-				foreach(MapItem item in local)
+				List<OldMapItem> local = new List<OldMapItem>(_mapItems[pt]);
+				foreach(OldMapItem item in local)
 				{
 					var itemData = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
 					var itemPos = GetDrawCoordinatesFromGridUnits(item.X + 1, item.Y, c);

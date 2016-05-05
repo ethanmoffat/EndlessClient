@@ -269,7 +269,7 @@ namespace EndlessClient.Rendering
 			}
 		}
 
-		private void HandleMapItemClick(MapItem mi)
+		private void HandleMapItemClick(OldMapItem mi)
 		{
 			if ((_mainCharacter.ID != mi.OwningPlayerID && mi.OwningPlayerID != 0) &&
 				(mi.IsNPCDrop && (DateTime.Now - mi.DropTime).TotalSeconds <= OldWorld.Instance.NPCDropProtectTime) ||

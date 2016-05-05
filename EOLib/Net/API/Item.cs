@@ -165,7 +165,7 @@ namespace EOLib.Net.API
 		}
 	}
 
-	public delegate void PlayerItemDropEvent(int characterAmount, byte weight, byte maxWeight, MapItem item);
+	public delegate void PlayerItemDropEvent(int characterAmount, byte weight, byte maxWeight, OldMapItem item);
 	public delegate void RemoveMapItemEvent(short itemUID);
 	public delegate void JunkItemEvent(short itemID, int numJunked, int numRemaining, byte weight, byte maxWeight);
 	public delegate void GetItemEvent(short itemUID, short itemID, int amountTaken, byte weight, byte maxWeight);
@@ -262,7 +262,7 @@ namespace EOLib.Net.API
 			short _id = pkt.GetShort();
 			int _amount = pkt.GetThree();
 			int characterAmount = pkt.GetInt(); //amount remaining for the character
-			MapItem item = new MapItem
+			OldMapItem item = new OldMapItem
 			{
 				ItemID = _id,
 				Amount = _amount,
@@ -282,7 +282,7 @@ namespace EOLib.Net.API
 		private void _handleItemAdd(OldPacket pkt)
 		{
 			if (OnDropItem == null) return;
-			MapItem item = new MapItem
+			OldMapItem item = new OldMapItem
 			{
 				ItemID = pkt.GetShort(),
 				UniqueID = pkt.GetShort(),

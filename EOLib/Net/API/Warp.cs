@@ -37,7 +37,7 @@ namespace EOLib.Net.API
 		/// <summary>
 		/// Defines a delegate for a warp agree event (when WARP_AGREE is received from server)
 		/// </summary>
-		public delegate void WarpAgreeEvent(short MapID, WarpAnimation anim, List<CharacterData> charData, List<NPCData> npcData, List<MapItem> itemData);
+		public delegate void WarpAgreeEvent(short MapID, WarpAnimation anim, List<CharacterData> charData, List<NPCData> npcData, List<OldMapItem> itemData);
 
 		/// <summary>
 		/// Occurs when a warp action is sent from the server that requests a new map
@@ -112,10 +112,10 @@ namespace EOLib.Net.API
 			}
 			if (pkt.GetByte() != 255) return;
 
-			List<MapItem> otherItems = new List<MapItem>();
+			List<OldMapItem> otherItems = new List<OldMapItem>();
 			while (pkt.ReadPos < pkt.Length)
 			{
-				otherItems.Add(new MapItem
+				otherItems.Add(new OldMapItem
 				{
 					UniqueID = pkt.GetShort(),
 					ItemID = pkt.GetShort(),

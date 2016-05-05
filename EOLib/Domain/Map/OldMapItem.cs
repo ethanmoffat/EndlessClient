@@ -6,7 +6,7 @@ using System;
 
 namespace EOLib.Domain.Map
 {
-	public class MapItem
+	public class OldMapItem
 	{
 		public short UniqueID { get; set; }
 		public short ItemID { get; set; }

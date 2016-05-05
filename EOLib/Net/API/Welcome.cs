@@ -167,11 +167,11 @@ namespace EOLib.Net.API
 
 		private readonly List<CharacterData> m_characters;
 		private readonly List<NPCData> m_npcs;
-		private readonly List<MapItem> m_items;
+		private readonly List<OldMapItem> m_items;
 
 		public IEnumerable<CharacterData> CharacterData { get { return m_characters.AsReadOnly(); } }
 		public IEnumerable<NPCData> NPCData { get { return m_npcs.AsReadOnly(); } }
-		public IEnumerable<MapItem> MapItemData { get { return m_items.AsReadOnly(); } }
+		public IEnumerable<OldMapItem> MapItemData { get { return m_items.AsReadOnly(); } }
 
 		internal WelcomeMessageData(OldPacket pkt)
 		{
@@ -217,10 +217,10 @@ namespace EOLib.Net.API
 			pkt.GetByte();
 
 			//get data for items on map
-			m_items = new List<MapItem>();
+			m_items = new List<OldMapItem>();
 			while (pkt.ReadPos < pkt.Length)
 			{
-				m_items.Add(new MapItem
+				m_items.Add(new OldMapItem
 				{
 					UniqueID = pkt.GetShort(),
 					ItemID = pkt.GetShort(),

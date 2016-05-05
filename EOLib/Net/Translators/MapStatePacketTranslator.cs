@@ -93,7 +93,7 @@ namespace EOLib.Net.Translators
 			return Enumerable.Empty<INPC>();
 		}
 
-		protected IEnumerable<MapItem> GetMapItems(IPacket packet)
+		protected IEnumerable<OldMapItem> GetMapItems(IPacket packet)
 		{
 			return Enumerable.Empty<MapItem>();
 		}

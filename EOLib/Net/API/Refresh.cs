@@ -53,10 +53,10 @@ namespace EOLib.Net.API
 			}
 			pkt.GetByte();
 
-			List<MapItem> mapItems = new List<MapItem>();
+			List<OldMapItem> mapItems = new List<OldMapItem>();
 			while (pkt.ReadPos < pkt.Length)
 			{
-				mapItems.Add(new MapItem
+				mapItems.Add(new OldMapItem
 				{
 					UniqueID = pkt.GetShort(),
 					ItemID = pkt.GetShort(),

@@ -181,7 +181,7 @@ namespace EOLib.Net.API
 		{
 			if (droppedItemID > 0 && OnDropItem != null)
 			{
-				OnDropItem(-1, 0, 0, new MapItem
+				OnDropItem(-1, 0, 0, new OldMapItem
 				{
 					Amount = droppedAmount,
 					ItemID = droppedItemID,
