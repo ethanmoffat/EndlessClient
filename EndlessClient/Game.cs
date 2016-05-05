@@ -469,12 +469,6 @@ namespace EndlessClient
 			if (OldWorld.Instance.Client.ConnectedAndInitialized)
 				OldWorld.Instance.Client.Disconnect();
 
-			foreach (XNAButton btn in _loginCharButtons)
-			{
-				if(btn != null)
-					btn.Close();
-			}
-
 			if(_backButton != null)
 				_backButton.Close();
 
