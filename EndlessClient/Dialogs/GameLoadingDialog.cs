@@ -87,9 +87,6 @@ namespace EndlessClient.Dialogs
 		{
 			switch (whichState)
 			{
-				case GameLoadingDialogState.PleaseWait:
-					MessageText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_PLEASE_WAIT);
-					break;
 				case GameLoadingDialogState.Map:
 					MessageText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_MAP);
 					break;
@@ -116,7 +113,6 @@ namespace EndlessClient.Dialogs
 
 	public enum GameLoadingDialogState
 	{
-		PleaseWait,
 		Map,
 		Item,
 		NPC,
