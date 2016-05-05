@@ -2,11 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Collections.Generic;
-
 namespace EOLib.IO.Repositories
 {
-	public interface IFileChecksumRepository
+	/// <summary>
+	/// Contains file checksums from the Welcome Request Granted packet
+	/// </summary>
+	public interface ILoginFileChecksumRepository
 	{
 		int EIFChecksum { get; set; }
 
@@ -24,12 +25,15 @@ namespace EOLib.IO.Repositories
 
 		short ECFLength { get; set; }
 
-		Dictionary<short, byte[]> MapChecksums { get; set; }
+		byte[] MapChecksum { get; set; }
 
-		Dictionary<short, int> MapLengths { get; set; } 
+		int MapLength { get; set; }
 	}
 
-	public interface IFileChecksumProvider
+	/// <summary>
+	/// Contains file checksums from the Welcome Request Granted packet
+	/// </summary>
+	public interface ILoginFileChecksumProvider
 	{
 		int EIFChecksum { get; }
 
@@ -47,12 +51,15 @@ namespace EOLib.IO.Repositories
 
 		short ECFLength { get; }
 
-		IReadOnlyDictionary<short, byte[]> MapChecksums { get; }
+		byte[] MapChecksum { get; }
 
-		IReadOnlyDictionary<short, int> MapLengths { get; }
+		int MapLength { get; }
 	}
 
-	public class FileChecksumRepository : IFileChecksumRepository, IFileChecksumProvider
+	/// <summary>
+	/// Contains file checksums from the Welcome Request Granted packet
+	/// </summary>
+	public class LoginFileChecksumRepository : ILoginFileChecksumRepository, ILoginFileChecksumProvider
 	{
 		public int EIFChecksum { get; set; }
 
@@ -70,18 +77,8 @@ namespace EOLib.IO.Repositories
 
 		public short ECFLength { get; set; }
 
-		IReadOnlyDictionary<short, byte[]> IFileChecksumProvider.MapChecksums { get { return MapChecksums; } }
+		public byte[] MapChecksum { get; set; }
 
-		IReadOnlyDictionary<short, int> IFileChecksumProvider.MapLengths { get { return MapLengths; } }
-
-		public Dictionary<short, byte[]> MapChecksums { get; set; }
-
-		public Dictionary<short, int> MapLengths { get; set; }
-
-		public FileChecksumRepository()
-		{
-			MapChecksums = new Dictionary<short, byte[]>();
-			MapLengths = new Dictionary<short, int>();
-		}
+		public int MapLength { get; set; }
 	}
 }

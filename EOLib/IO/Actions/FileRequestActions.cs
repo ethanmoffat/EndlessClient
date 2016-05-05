@@ -14,17 +14,17 @@ namespace EOLib.IO.Actions
 	public class FileRequestActions : IFileRequestActions
 	{
 		private readonly INumberEncoderService _numberEncoderService;
-		private readonly IFileChecksumProvider _fileChecksumProvider;
+		private readonly ILoginFileChecksumProvider _loginFileChecksumProvider;
 		private readonly IPubFileRepository _pubFileRepository;
 		private readonly IMapFileRepository _mapFileRepository;
 
 		public FileRequestActions(INumberEncoderService numberEncoderService,
-								  IFileChecksumProvider fileChecksumProvider,
+								  ILoginFileChecksumProvider loginFileChecksumProvider,
 								  IPubFileRepository pubFileRepository,
 								  IMapFileRepository mapFileRepository)
 		{
 			_numberEncoderService = numberEncoderService;
-			_fileChecksumProvider = fileChecksumProvider;
+			_loginFileChecksumProvider = loginFileChecksumProvider;
 			_pubFileRepository = pubFileRepository;
 			_mapFileRepository = mapFileRepository;
 		}
@@ -66,15 +66,15 @@ namespace EOLib.IO.Actions
 		{
 			try
 			{
-				var expectedChecksum = _numberEncoderService.DecodeNumber(_fileChecksumProvider.MapChecksums[mapID]);
-				var expectedLength = _fileChecksumProvider.MapLengths[mapID];
+				var expectedChecksum = _numberEncoderService.DecodeNumber(_loginFileChecksumProvider.MapChecksum);
+				var expectedLength = _loginFileChecksumProvider.MapLength;
 
 				var actualChecksum = _numberEncoderService.DecodeNumber(_mapFileRepository.MapFiles[mapID].Properties.Checksum);
 				var actualLength = _mapFileRepository.MapFiles[mapID].Properties.FileSize;
 
 				return expectedChecksum != actualChecksum || expectedLength != actualLength;
 			}
-			catch (KeyNotFoundException) { return true; } //ID not in a dictionary
+			catch (KeyNotFoundException) { return true; } //map id is not in the map file repository
 		}
 
 		private bool NeedPub(InitFileType fileType)
@@ -83,20 +83,20 @@ namespace EOLib.IO.Actions
 			{
 				case InitFileType.Item:
 					return _pubFileRepository.ItemFile == null ||
-					       _fileChecksumProvider.EIFChecksum != _pubFileRepository.ItemFile.Rid ||
-					       _fileChecksumProvider.EIFLength != _pubFileRepository.ItemFile.Len;
+					       _loginFileChecksumProvider.EIFChecksum != _pubFileRepository.ItemFile.Rid ||
+					       _loginFileChecksumProvider.EIFLength != _pubFileRepository.ItemFile.Len;
 				case InitFileType.Npc:
 					return _pubFileRepository.NPCFile == null ||
-					       _fileChecksumProvider.ENFChecksum != _pubFileRepository.NPCFile.Rid ||
-					       _fileChecksumProvider.ENFLength != _pubFileRepository.NPCFile.Len;
+					       _loginFileChecksumProvider.ENFChecksum != _pubFileRepository.NPCFile.Rid ||
+					       _loginFileChecksumProvider.ENFLength != _pubFileRepository.NPCFile.Len;
 				case InitFileType.Spell:
 					return _pubFileRepository.SpellFile == null ||
-					       _fileChecksumProvider.ESFChecksum != _pubFileRepository.SpellFile.Rid ||
-					       _fileChecksumProvider.ESFLength != _pubFileRepository.SpellFile.Len;
+					       _loginFileChecksumProvider.ESFChecksum != _pubFileRepository.SpellFile.Rid ||
+					       _loginFileChecksumProvider.ESFLength != _pubFileRepository.SpellFile.Len;
 				case InitFileType.Class:
 					return _pubFileRepository.ClassFile == null ||
-					       _fileChecksumProvider.ECFChecksum != _pubFileRepository.ClassFile.Rid ||
-					       _fileChecksumProvider.ECFLength != _pubFileRepository.ClassFile.Len;
+					       _loginFileChecksumProvider.ECFChecksum != _pubFileRepository.ClassFile.Rid ||
+					       _loginFileChecksumProvider.ECFLength != _pubFileRepository.ClassFile.Len;
 				default:
 					throw new ArgumentOutOfRangeException("fileType", fileType, null);
 			}
