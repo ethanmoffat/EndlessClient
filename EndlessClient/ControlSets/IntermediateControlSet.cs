@@ -43,7 +43,9 @@ namespace EndlessClient.ControlSets
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
 		{
-			_btnCreate = GetControl(currentControlSet, GameControlIdentifier.CreateAccountButton, GetCreateButton);
+			_btnCreate = GetControl(currentControlSet, 
+				GameState == GameStates.LoggedIn ? GameControlIdentifier.CreateCharacterButton : GameControlIdentifier.CreateAccountButton,
+				GetCreateButton);
 			_person2Picture = GetControl(currentControlSet, GameControlIdentifier.PersonDisplay2, GetPerson2Picture);
 
 			_allComponents.Add(_btnCreate);
