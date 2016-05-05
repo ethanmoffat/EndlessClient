@@ -112,6 +112,7 @@
     <Compile Include="Domain\Character\ICharacterRenderProperties.cs" />
     <Compile Include="Domain\Character\ICharacterStats.cs" />
     <Compile Include="Domain\Character\IInventoryItem.cs" />
+    <Compile Include="Domain\Character\IInventorySpell.cs" />
     <Compile Include="Domain\Character\InventoryItem.cs" />
     <Compile Include="Domain\Character\InventorySpell.cs" />
     <Compile Include="Domain\Map\IMapItem.cs" />

@@ -4,9 +4,21 @@
 
 namespace EOLib.Domain.Character
 {
-	public struct InventorySpell
+	public class InventorySpell : IInventorySpell
 	{
-		public short id;
-		public short level;
+		public short ID { get; private set; }
+
+		public short Level { get; private set; }
+
+		public InventorySpell(short id, short level)
+		{
+			ID = id;
+			Level = level;
+		}
+
+		public IInventorySpell WithLevel(short newLevel)
+		{
+			return new InventorySpell(ID, newLevel);
+		}
 	}
 }

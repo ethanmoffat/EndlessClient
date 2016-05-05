@@ -73,12 +73,12 @@ namespace EndlessClient.HUD
 			// ReSharper disable once LoopCanBeConvertedToQuery
 			foreach (var spell in localSpells)
 			{
-				SpellRecord rec = OldWorld.Instance.ESF.GetRecordByID(spell.id);
-				int slot = localSpellSlotMap.ContainsValue(spell.id)
-					? localSpellSlotMap.First(_pair => _pair.Value == spell.id).Key
+				SpellRecord rec = OldWorld.Instance.ESF.GetRecordByID(spell.ID);
+				int slot = localSpellSlotMap.ContainsValue(spell.ID)
+					? localSpellSlotMap.First(_pair => _pair.Value == spell.ID).Key
 					: _getNextOpenSlot();
 
-				if (slot < 0 || !_addNewSpellToSlot(slot, rec, spell.level))
+				if (slot < 0 || !_addNewSpellToSlot(slot, rec, spell.Level))
 				{
 					EOMessageBox.Show("You have too many spells! They don't all fit.", "Warning", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 					break;

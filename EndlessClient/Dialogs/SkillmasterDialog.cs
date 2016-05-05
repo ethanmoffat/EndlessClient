@@ -106,7 +106,7 @@ namespace EndlessClient.Dialogs
 
 			if (old == newState) return;
 
-			int numToLearn = m_skills.Count(_skill => !OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Exists(_spell => _spell.id == _skill.ID));
+			int numToLearn = m_skills.Count(_skill => !OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Exists(_spell => _spell.ID == _skill.ID));
 			int numToForget = OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Count;
 
 			if (newState == SkillState.Learn && numToLearn == 0)
@@ -167,7 +167,7 @@ namespace EndlessClient.Dialogs
 					int index = 0;
 					for (int i = 0; i < m_skills.Count; ++i)
 					{
-						if (OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.FindIndex(_sp => m_skills[i].ID == _sp.id) >= 0)
+						if (OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.FindIndex(_sp => m_skills[i].ID == _sp.ID) >= 0)
 							continue;
 						int localI = i;
 
@@ -202,7 +202,7 @@ namespace EndlessClient.Dialogs
 						if (args.Result == XNADialogResult.Cancel) return;
 						bool found =
 							OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Any(
-								_spell => ((SpellRecord) OldWorld.Instance.ESF.Data[_spell.id]).Name.ToLower() == input.ResponseText.ToLower());
+								_spell => ((SpellRecord) OldWorld.Instance.ESF.Data[_spell.ID]).Name.ToLower() == input.ResponseText.ToLower());
 
 						if (!found)
 						{
@@ -213,7 +213,7 @@ namespace EndlessClient.Dialogs
 
 						if (!m_api.ForgetSpell(
 								OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Find(
-									_spell => ((SpellRecord) OldWorld.Instance.ESF.Data[_spell.id]).Name.ToLower() == input.ResponseText.ToLower()).id))
+									_spell => ((SpellRecord) OldWorld.Instance.ESF.Data[_spell.ID]).Name.ToLower() == input.ResponseText.ToLower()).ID))
 						{
 							Close();
 							((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -242,7 +242,7 @@ namespace EndlessClient.Dialogs
 
 			bool skillReqsMet = true;
 			foreach(short x in skill.SkillReq)
-				if (x != 0 && c.Spells.FindIndex(_sp => _sp.id == x) < 0)
+				if (x != 0 && c.Spells.FindIndex(_sp => _sp.ID == x) < 0)
 					skillReqsMet = false;
 
 			//check the requirements

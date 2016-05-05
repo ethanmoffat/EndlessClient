@@ -854,7 +854,7 @@ namespace EndlessClient
 
 		private void _statskillLearnSpellSuccess(short id, int remaining)
 		{
-			OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Add(new InventorySpell { id = id, level = 0 });
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Add(new InventorySpell(id, 0));
 			if (SkillmasterDialog.Instance != null)
 				SkillmasterDialog.Instance.RemoveSkillByIDFromLearnList(id);
 			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
@@ -863,7 +863,7 @@ namespace EndlessClient
 
 		private void _statskillForgetSpell(short id)
 		{
-			OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.RemoveAll(_spell => _spell.id == id);
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.RemoveAll(_spell => _spell.ID == id);
 			EOMessageBox.Show(DATCONST1.SKILL_FORGET_SUCCESS, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 
 			m_game.Hud.RemoveSpellFromActiveSpellsByID(id);
@@ -874,8 +874,8 @@ namespace EndlessClient
 			var character = OldWorld.Instance.MainPlayer.ActiveCharacter;
 			character.Stats.SkillPoints = skillPtsRemaining;
 
-			var spellNdx = character.Spells.FindIndex(x => x.id == spellID);
-			character.Spells[spellNdx] = new InventorySpell {id = spellID, level = spellLevel};
+			var spellNdx = character.Spells.FindIndex(x => x.ID == spellID);
+			character.Spells[spellNdx] = new InventorySpell(spellID, spellLevel);
 
 			m_game.Hud.RefreshStats();
 			m_game.Hud.UpdateActiveSpellLevelByID(spellID, spellLevel);

@@ -180,7 +180,7 @@ namespace EOLib.Net.API
 
 			m_spells = new List<InventorySpell>();
 			while (pkt.PeekByte() != 255)
-				m_spells.Add(new InventorySpell { id = pkt.GetShort(), level = pkt.GetShort() });
+				m_spells.Add(new InventorySpell(pkt.GetShort(), pkt.GetShort()));
 			pkt.GetByte();
 
 			//Get data for other characters
