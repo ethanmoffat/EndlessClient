@@ -10,6 +10,6 @@ namespace EOLib.Domain.Character
 
 		int Amount { get; }
 
-		InventoryItem WithAmount(int newAmount);
+		IInventoryItem WithAmount(int newAmount);
 	}
 }

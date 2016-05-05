@@ -16,7 +16,7 @@ namespace EOLib.Domain.Character
 			Amount = amount;
 		}
 
-		public InventoryItem WithAmount(int newAmount)
+		public IInventoryItem WithAmount(int newAmount)
 		{
 			return new InventoryItem(ItemID, newAmount);
 		}
