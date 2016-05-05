@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib;
+using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.Net;
 using EOLib.Net.API;

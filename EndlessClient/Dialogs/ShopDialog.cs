@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using EndlessClient.Rendering;
 using EOLib;
+using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net.API;

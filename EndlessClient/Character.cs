@@ -160,7 +160,7 @@ namespace EndlessClient
 		public byte MaxWeight { get; set; }
 		public short[] PaperDoll { get; private set; }
 		public List<InventoryItem> Inventory { get; private set; }
-		public List<CharacterSpell> Spells { get; private set; }
+		public List<InventorySpell> Spells { get; private set; }
 
 		public CharStatData Stats { get; set; }
 		public CharRenderData RenderData { get; private set; }
@@ -235,7 +235,7 @@ namespace EndlessClient
 			//mock all members with non-null fields
 			//PacketAPI cannot be mocked...
 			Inventory = new List<InventoryItem>();
-			Spells = new List<CharacterSpell>();
+			Spells = new List<InventorySpell>();
 			PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
 
 			Stats = new CharStatData();
@@ -251,7 +251,7 @@ namespace EndlessClient
 			RenderData = data ?? new CharRenderData();
 
 			Inventory = new List<InventoryItem>();
-			Spells = new List<CharacterSpell>();
+			Spells = new List<InventorySpell>();
 			PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
 		}
 
@@ -262,7 +262,7 @@ namespace EndlessClient
 			m_packetAPI = api;
 
 			Inventory = new List<InventoryItem>();
-			Spells = new List<CharacterSpell>();
+			Spells = new List<InventorySpell>();
 			PaperDoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
 
 			Name = data.Name;

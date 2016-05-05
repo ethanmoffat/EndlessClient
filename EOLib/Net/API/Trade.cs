@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using EOLib.Domain.Character;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API

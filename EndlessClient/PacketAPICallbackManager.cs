@@ -10,6 +10,7 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EOLib;
+using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.Net.API;
@@ -853,7 +854,7 @@ namespace EndlessClient
 
 		private void _statskillLearnSpellSuccess(short id, int remaining)
 		{
-			OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Add(new CharacterSpell { id = id, level = 0 });
+			OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Add(new InventorySpell { id = id, level = 0 });
 			if (SkillmasterDialog.Instance != null)
 				SkillmasterDialog.Instance.RemoveSkillByIDFromLearnList(id);
 			OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
@@ -874,7 +875,7 @@ namespace EndlessClient
 			character.Stats.SkillPoints = skillPtsRemaining;
 
 			var spellNdx = character.Spells.FindIndex(x => x.id == spellID);
-			character.Spells[spellNdx] = new CharacterSpell {id = spellID, level = spellLevel};
+			character.Spells[spellNdx] = new InventorySpell {id = spellID, level = spellLevel};
 
 			m_game.Hud.RefreshStats();
 			m_game.Hud.UpdateActiveSpellLevelByID(spellID, spellLevel);

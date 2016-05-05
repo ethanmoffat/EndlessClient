@@ -8,6 +8,7 @@ using System.Linq;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Inventory;
 using EOLib;
+using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net.API;

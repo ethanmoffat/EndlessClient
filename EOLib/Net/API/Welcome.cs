@@ -13,17 +13,6 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-	public struct InventoryItem
-	{
-		public short id;
-		public int amount;
-	}
-	public struct CharacterSpell
-	{
-		public short id;
-		public short level;
-	}
-
 	public class WelcomeRequestData
 	{
 		public short PlayerID { get; private set; }
@@ -162,8 +151,8 @@ namespace EOLib.Net.API
 		private readonly List<InventoryItem> m_inventory;
 		public IEnumerable<InventoryItem> Inventory { get { return m_inventory.AsReadOnly(); } }
 
-		private readonly List<CharacterSpell> m_spells;
-		public IEnumerable<CharacterSpell> Spells { get { return m_spells.AsReadOnly(); } }
+		private readonly List<InventorySpell> m_spells;
+		public IEnumerable<InventorySpell> Spells { get { return m_spells.AsReadOnly(); } }
 
 		private readonly List<CharacterData> m_characters;
 		private readonly List<NPCData> m_npcs;
@@ -189,9 +178,9 @@ namespace EOLib.Net.API
 				m_inventory.Add(new InventoryItem { id = pkt.GetShort(), amount = pkt.GetInt() });
 			pkt.GetByte();
 
-			m_spells = new List<CharacterSpell>();
+			m_spells = new List<InventorySpell>();
 			while (pkt.PeekByte() != 255)
-				m_spells.Add(new CharacterSpell { id = pkt.GetShort(), level = pkt.GetShort() });
+				m_spells.Add(new InventorySpell { id = pkt.GetShort(), level = pkt.GetShort() });
 			pkt.GetByte();
 
 			//Get data for other characters

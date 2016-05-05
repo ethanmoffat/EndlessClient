@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using EndlessClient.Dialogs;
 using EOLib;
+using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net.API;
