@@ -24,7 +24,7 @@ namespace EOLib.Domain.Login
 		private readonly IPlayerInfoRepository _playerInfoRepository;
 		private readonly ICharacterRepository _characterRepository;
 		private readonly ICurrentMapRepository _currentMapRepository;
-		private readonly IFileChecksumRepository _fileChecksumRepository;
+		private readonly ILoginFileChecksumRepository _loginFileChecksumRepository;
 
 		public LoginActions(IPacketSendService packetSendService,
 							IPacketTranslator<IAccountLoginData> loginPacketTranslator,
@@ -34,7 +34,7 @@ namespace EOLib.Domain.Login
 							IPlayerInfoRepository playerInfoRepository,
 							ICharacterRepository characterRepository,
 							ICurrentMapRepository currentMapRepository,
-							IFileChecksumRepository fileChecksumRepository)
+							ILoginFileChecksumRepository loginFileChecksumRepository)
 		{
 			_packetSendService = packetSendService;
 			_loginPacketTranslator = loginPacketTranslator;
@@ -44,7 +44,7 @@ namespace EOLib.Domain.Login
 			_playerInfoRepository = playerInfoRepository;
 			_characterRepository = characterRepository;
 			_currentMapRepository = currentMapRepository;
-			_fileChecksumRepository = fileChecksumRepository;
+			_loginFileChecksumRepository = loginFileChecksumRepository;
 		}
 
 		public bool LoginParametersAreValid(ILoginParameters parameters)
@@ -101,17 +101,17 @@ namespace EOLib.Domain.Login
 			_playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
 			_currentMapRepository.CurrentMapID = data.MapID;
 
-			_fileChecksumRepository.MapChecksums.Add(data.MapID, data.MapRID.ToArray());
-			_fileChecksumRepository.MapLengths.Add(data.MapID, data.MapLen);
+			_loginFileChecksumRepository.MapChecksum = data.MapRID.ToArray();
+			_loginFileChecksumRepository.MapLength = data.MapID;
 
-			_fileChecksumRepository.EIFChecksum = data.EifRid;
-			_fileChecksumRepository.EIFLength = data.EifLen;
-			_fileChecksumRepository.ENFChecksum = data.EnfRid;
-			_fileChecksumRepository.ENFLength = data.EnfLen;
-			_fileChecksumRepository.ESFChecksum = data.EsfRid;
-			_fileChecksumRepository.ESFLength = data.EsfLen;
-			_fileChecksumRepository.ECFChecksum = data.EcfRid;
-			_fileChecksumRepository.ECFLength = data.EcfLen;
+			_loginFileChecksumRepository.EIFChecksum = data.EifRid;
+			_loginFileChecksumRepository.EIFLength = data.EifLen;
+			_loginFileChecksumRepository.ENFChecksum = data.EnfRid;
+			_loginFileChecksumRepository.ENFLength = data.EnfLen;
+			_loginFileChecksumRepository.ESFChecksum = data.EsfRid;
+			_loginFileChecksumRepository.ESFLength = data.EsfLen;
+			_loginFileChecksumRepository.ECFChecksum = data.EcfRid;
+			_loginFileChecksumRepository.ECFLength = data.EcfLen;
 
 			return data;
 		}
