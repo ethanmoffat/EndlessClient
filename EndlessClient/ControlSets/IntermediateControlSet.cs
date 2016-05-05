@@ -54,7 +54,10 @@ namespace EndlessClient.ControlSets
 		{
 			switch (control)
 			{
-				case GameControlIdentifier.CreateAccountButton: return _btnCreate;
+				case GameControlIdentifier.CreateAccountButton:
+					return GameState == GameStates.CreateAccount ? _btnCreate : null;
+				case GameControlIdentifier.CreateCharacterButton:
+					return GameState == GameStates.LoggedIn ? _btnCreate : null;
 				case GameControlIdentifier.PersonDisplay2: return _person2Picture;
 				default: return base.FindComponentByControlIdentifier(control);
 			}
