@@ -5,7 +5,6 @@
 using System;
 using System.Linq;
 using EOLib;
-using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.Net.API;

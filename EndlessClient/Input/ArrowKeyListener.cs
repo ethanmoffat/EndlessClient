@@ -6,7 +6,7 @@ using System;
 using System.Linq;
 using EndlessClient.Dialogs;
 using EOLib;
-using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;

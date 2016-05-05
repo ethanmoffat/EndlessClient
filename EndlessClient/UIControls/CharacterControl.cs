@@ -4,7 +4,7 @@
 
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Factories;
-using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 using XNAControls;
 

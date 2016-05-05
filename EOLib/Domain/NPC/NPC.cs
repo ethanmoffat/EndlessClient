@@ -6,7 +6,7 @@ using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.Net.API;
 
-namespace EOLib.Domain.BLL
+namespace EOLib.Domain.NPC
 {
 	public class NPC : IMapElement
 	{

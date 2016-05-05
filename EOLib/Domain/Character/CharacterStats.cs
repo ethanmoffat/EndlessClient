@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EOLib.Domain.BLL
+namespace EOLib.Domain.Character
 {
 	public class CharacterStats : ICharacterStats
 	{

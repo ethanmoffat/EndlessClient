@@ -5,9 +5,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
+using EOLib.Domain.NPC;
 
 namespace EOLib.Net.Translators
 {

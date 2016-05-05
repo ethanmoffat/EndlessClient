@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using EOLib.Domain.Map;
-using EOLib.IO.Map;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API

@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using EOLib.Domain.BLL;
 using EOLib.Net.Translators;
 
 namespace EOLib.Domain.Character

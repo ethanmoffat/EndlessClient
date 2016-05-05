@@ -4,7 +4,7 @@
 
 using System.Linq;
 using EOLib;
-using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
 using EOLib.IO;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

@@ -9,7 +9,6 @@ using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;

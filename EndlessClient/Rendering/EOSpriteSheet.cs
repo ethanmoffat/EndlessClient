@@ -5,7 +5,6 @@
 using System;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
-using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.Net.API;

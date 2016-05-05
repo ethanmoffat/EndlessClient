@@ -3,10 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib.Domain.Character;
 using EOLib.Net.API;
 
-namespace EOLib.Domain.BLL
+namespace EOLib.Domain.Character
 {
 	public interface ICharacterRenderProperties : ICloneable
 	{

@@ -4,7 +4,6 @@
 
 using System.Linq;
 using System.Threading.Tasks;
-using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;

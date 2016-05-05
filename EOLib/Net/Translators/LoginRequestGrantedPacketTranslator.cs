@@ -5,7 +5,6 @@
 using System.IO;
 using System.Linq;
 using EOLib.Domain;
-using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.IO;

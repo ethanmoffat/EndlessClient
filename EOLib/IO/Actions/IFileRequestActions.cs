@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
-using EOLib.Net.API;
 
 namespace EOLib.IO.Actions
 {

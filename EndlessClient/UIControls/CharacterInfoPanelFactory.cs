@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using EndlessClient.Controllers;
 using EndlessClient.Controllers.Repositories;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Login;

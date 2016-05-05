@@ -8,7 +8,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
-using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO;

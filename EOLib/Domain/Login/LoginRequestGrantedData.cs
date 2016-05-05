@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
 using EOLib.IO;
 

@@ -7,7 +7,7 @@ using System.Linq;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
-using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Repositories;

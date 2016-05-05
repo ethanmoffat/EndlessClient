@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace EOLib.Domain.BLL
+namespace EOLib.Domain.Character
 {
 	public interface ICharacterStats
 	{

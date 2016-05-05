@@ -4,9 +4,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using EOLib.Domain.Character;
 
-namespace EOLib.Domain.BLL
+namespace EOLib.Domain.Character
 {
 	public class Character : ICharacter
 	{

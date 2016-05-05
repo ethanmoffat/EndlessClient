@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.GameExecution;
-using EOLib.Domain.BLL;
+using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;

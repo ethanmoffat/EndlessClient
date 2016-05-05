@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using System.IO;
-using EOLib.Domain.BLL;
 using EOLib.Domain.Character;
 
 namespace EOLib.Net.Translators
