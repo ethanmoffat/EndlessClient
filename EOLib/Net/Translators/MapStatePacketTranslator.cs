@@ -19,6 +19,9 @@ namespace EOLib.Net.Translators
 		protected IEnumerable<ICharacter> GetCharacters(IPacket packet)
 		{
 			var numCharacters = packet.ReadChar();
+			if (packet.ReadByte() != 255)
+				throw new MalformedPacketException("Missing 255 byte after number of characters", packet);
+
 			for (int i = 0; i < numCharacters; ++i)
 			{
 				var name = packet.ReadBreakString();
@@ -55,6 +58,9 @@ namespace EOLib.Net.Translators
 				var sitState = (SitState) packet.ReadChar();
 				var hidden = packet.ReadChar() != 0;
 
+				if (packet.ReadByte() != 255)
+					throw new MalformedPacketException("Missing 255 byte after character", packet);
+
 				var stats = new CharacterStats()
 					.WithNewStat(CharacterStat.Level, level)
 					.WithNewStat(CharacterStat.HP, hp)
@@ -90,12 +96,34 @@ namespace EOLib.Net.Translators
 
 		protected IEnumerable<INPC> GetNPCs(IPacket packet)
 		{
-			return Enumerable.Empty<INPC>();
+			while (packet.PeekByte() != 255)
+			{
+				var index = packet.ReadChar();
+				var id = packet.ReadShort();
+				var x = packet.ReadChar();
+				var y = packet.ReadChar();
+				var direction = (EODirection) packet.ReadChar();
+				
+				yield return new NPC(id, index)
+					.WithX(x)
+					.WithY(y)
+					.WithDirection(direction);
+			}
+			
+			packet.ReadByte(); //consume the tail 255 byte that broke loop iteration
 		}
 
 		protected IEnumerable<OldMapItem> GetMapItems(IPacket packet)
 		{
-			return Enumerable.Empty<MapItem>();
+			while (packet.ReadPosition < packet.Length)
+			{
+				var uid = packet.ReadShort();
+				var itemID = packet.ReadShort();
+				var x = packet.ReadShort();
+				var y = packet.ReadShort();
+				var amount = packet.ReadThree();
+			}
+			return null;
 		}
 	}
 }
