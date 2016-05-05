@@ -24,6 +24,7 @@ namespace EOLib.IO
 			container.RegisterType<IPubLoadService<SpellRecord>, SpellFileLoadService>();
 			container.RegisterType<IPubLoadService<ClassRecord>, ClassFileLoadService>();
 			container.RegisterType<IMapFileLoadService, MapFileLoadService>();
+			container.RegisterType<IFileRequestService, FileRequestService>();
 			container.RegisterType<ILocalizedStringService, LocalizedStringService>();
 
 			container.RegisterType<IPubFileRepository, PubFileRepository>(new ContainerControlledLifetimeManager());
@@ -47,6 +48,7 @@ namespace EOLib.IO
 			container.RegisterType<IDataFileProvider, DataFileRepository>(new ContainerControlledLifetimeManager());
 
 			container.RegisterType<IFileLoadActions, FileLoadActions>();
+			container.RegisterType<IFileRequestActions, FileRequestActions>();
 		}
 
 		public void InitializeDependencies(IUnityContainer container)

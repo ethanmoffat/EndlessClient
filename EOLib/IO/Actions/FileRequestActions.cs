@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using EOLib.Domain;
 using EOLib.IO.Repositories;
+using EOLib.IO.Services;
 using EOLib.Net.API;
 
 namespace EOLib.IO.Actions
@@ -14,16 +15,19 @@ namespace EOLib.IO.Actions
 	public class FileRequestActions : IFileRequestActions
 	{
 		private readonly INumberEncoderService _numberEncoderService;
+		private readonly IFileRequestService _fileRequestService;
 		private readonly ILoginFileChecksumProvider _loginFileChecksumProvider;
 		private readonly IPubFileRepository _pubFileRepository;
 		private readonly IMapFileRepository _mapFileRepository;
 
 		public FileRequestActions(INumberEncoderService numberEncoderService,
+								  IFileRequestService fileRequestService,
 								  ILoginFileChecksumProvider loginFileChecksumProvider,
 								  IPubFileRepository pubFileRepository,
 								  IMapFileRepository mapFileRepository)
 		{
 			_numberEncoderService = numberEncoderService;
+			_fileRequestService = fileRequestService;
 			_loginFileChecksumProvider = loginFileChecksumProvider;
 			_pubFileRepository = pubFileRepository;
 			_mapFileRepository = mapFileRepository;
@@ -39,27 +43,45 @@ namespace EOLib.IO.Actions
 
 		public async Task GetMapFromServer(short mapID)
 		{
-			await Task.FromResult(false);
+			var mapFile = await _fileRequestService.RequestMapFile();
+			mapFile.Save(string.Format(Constants.MapFileFormatString, mapID));
+
+			if (_mapFileRepository.MapFiles.ContainsKey(mapID))
+				_mapFileRepository.MapFiles[mapID] = mapFile;
+			else
+				_mapFileRepository.MapFiles.Add(mapID, mapFile);
 		}
 
 		public async Task GetItemFileFromServer()
 		{
-			await Task.FromResult(false);
+			var itemFile = await _fileRequestService.RequestFile<ItemRecord>(InitFileType.Item);
+			
+			itemFile.Save(Constants.ItemFilePath);
+			_pubFileRepository.ItemFile = itemFile;
 		}
 
 		public async Task GetNPCFileFromServer()
 		{
-			await Task.FromResult(false);
+			var npcFile = await _fileRequestService.RequestFile<NPCRecord>(InitFileType.Npc);
+
+			npcFile.Save(Constants.NPCFilePath);
+			_pubFileRepository.NPCFile = npcFile;
 		}
 
 		public async Task GetSpellFileFromServer()
 		{
-			await Task.FromResult(false);
+			var spellFile = await _fileRequestService.RequestFile<SpellRecord>(InitFileType.Spell);
+
+			spellFile.Save(Constants.SpellFilePath);
+			_pubFileRepository.SpellFile = spellFile;
 		}
 
 		public async Task GetClassFileFromServer()
 		{
-			await Task.FromResult(false);
+			var classFile = await _fileRequestService.RequestFile<ClassRecord>(InitFileType.Class);
+
+			classFile.Save(Constants.ClassFilePath);
+			_pubFileRepository.ClassFile = classFile;
 		}
 
 		private bool NeedMap(short mapID)

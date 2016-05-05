@@ -7,6 +7,8 @@ using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EOLib.Domain.BLL;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
+using EOLib.IO.Actions;
 using EOLib.Net;
 using EOLib.Net.Communication;
 
@@ -15,19 +17,25 @@ namespace EndlessClient.Controllers
 	public class LoginController : ILoginController
 	{
 		private readonly ILoginActions _loginActions;
+		private readonly IFileLoadActions _fileLoadActions;
 		private readonly IGameStateActions _gameStateActions;
 		private readonly IErrorDialogDisplayAction _errorDisplayAction;
 		private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
+		private readonly ICurrentMapProvider _currentMapProvider;
 
 		public LoginController(ILoginActions loginActions,
+							   IFileLoadActions fileLoadActions,
 							   IGameStateActions gameStateActions,
 							   IErrorDialogDisplayAction errorDisplayAction,
-							   ISafeInBandNetworkOperationFactory networkOperationFactory)
+							   ISafeInBandNetworkOperationFactory networkOperationFactory,
+							   ICurrentMapProvider currentMapProvider)
 		{
 			_loginActions = loginActions;
+			_fileLoadActions = fileLoadActions;
 			_gameStateActions = gameStateActions;
 			_errorDisplayAction = errorDisplayAction;
 			_networkOperationFactory = networkOperationFactory;
+			_currentMapProvider = currentMapProvider;
 		}
 
 		public async Task LoginToAccount(ILoginParameters loginParameters)

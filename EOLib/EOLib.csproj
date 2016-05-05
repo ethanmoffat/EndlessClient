@@ -177,11 +177,13 @@
     <Compile Include="IO\ClassRecordFactory.cs" />
     <Compile Include="IO\DataFileLoadException.cs" />
     <Compile Include="IO\Repositories\IDataFileRepository.cs" />
-    <Compile Include="IO\Repositories\IFileChecksumRepository.cs" />
+    <Compile Include="IO\Repositories\ILoginFileChecksumRepository.cs" />
     <Compile Include="IO\Repositories\IMapFileProvider.cs" />
     <Compile Include="IO\Repositories\IMapFileRepository.cs" />
+    <Compile Include="IO\Services\FileRequestService.cs" />
     <Compile Include="IO\Services\HDSerialNumberService.cs" />
     <Compile Include="IO\Repositories\IConfigurationRepository.cs" />
+    <Compile Include="IO\Services\IFileRequestService.cs" />
     <Compile Include="IO\Services\IHDSerialNumberService.cs" />
     <Compile Include="IO\EDFFile.cs" />
     <Compile Include="IO\EODataFile.cs" />
