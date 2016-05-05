@@ -733,7 +733,7 @@ namespace EndlessClient.Rendering
 			lock (_npcListLock)
 			{
 				var fileData = OldWorld.Instance.ENF.GetRecordByID(data.ID);
-				NPCRenderer newNpcRenderer = new NPCRenderer(new NPC(data, fileData));
+				NPCRenderer newNpcRenderer = new NPCRenderer(new OldNPC(data, fileData));
 				newNpcRenderer.Initialize();
 				newNpcRenderer.Visible = true;
 				_npcRenderers.Add(newNpcRenderer);

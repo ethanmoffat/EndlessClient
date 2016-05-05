@@ -8,7 +8,7 @@ using EOLib.Net.API;
 
 namespace EOLib.Domain.NPC
 {
-	public class NPC : IMapElement
+	public class OldNPC : IMapElement
 	{
 		public byte Index { get; private set; }
 		public byte X { get; private set; }
@@ -31,7 +31,7 @@ namespace EOLib.Domain.NPC
 			get { return (Data.Type == NPCType.Passive || Data.Type == NPCType.Aggressive) && Data.VendorID == 1; }
 		}
 
-		public NPC(NPCData serverNPCData, NPCRecord localNPCData)
+		public OldNPC(NPCData serverNPCData, NPCRecord localNPCData)
 		{
 			Index = serverNPCData.Index;
 			X = serverNPCData.X;

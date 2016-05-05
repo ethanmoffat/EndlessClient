@@ -88,9 +88,9 @@ namespace EOLib.Net.Translators
 			}
 		}
 
-		protected IEnumerable<NPC> GetNPCs(IPacket packet)
+		protected IEnumerable<OldNPC> GetNPCs(IPacket packet)
 		{
-			return Enumerable.Empty<NPC>();
+			return Enumerable.Empty<OldNPC>();
 		}
 
 		protected IEnumerable<MapItem> GetMapItems(IPacket packet)

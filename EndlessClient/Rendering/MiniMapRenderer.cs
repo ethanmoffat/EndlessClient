@@ -117,7 +117,7 @@ namespace EndlessClient.Rendering
 					break;
 				case TileInfoReturnType.IsOtherNPC:
 					//draw NPC - red or purple depending on type
-					var npcInfo = (NPC) info.MapElement;
+					var npcInfo = (OldNPC) info.MapElement;
 					if (npcInfo.Data.Type == NPCType.Aggressive || npcInfo.Data.Type == NPCType.Passive)
 					{
 						miniMapRect.Offset((int) MiniMapGfx.Red*miniMapRect.Width, 0);

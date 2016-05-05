@@ -111,7 +111,7 @@
     <Compile Include="Domain\Character\ICharacter.cs" />
     <Compile Include="Domain\Character\ICharacterRenderProperties.cs" />
     <Compile Include="Domain\Character\ICharacterStats.cs" />
-    <Compile Include="Domain\NPC\NPC.cs" />
+    <Compile Include="Domain\NPC\OldNPC.cs" />
     <Compile Include="Domain\Character\AdminLevel.cs" />
     <Compile Include="Domain\Character\CharacterCreateData.cs" />
     <Compile Include="Domain\Character\CharacterManagementActions.cs" />

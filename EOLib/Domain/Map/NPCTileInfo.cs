@@ -12,7 +12,7 @@ namespace EOLib.Domain.Map
 		public TileSpec Spec { get { return TileSpec.None; } }
 		public IMapElement MapElement { get; private set; }
 
-		public NPCTileInfo(NPC.NPC npc)
+		public NPCTileInfo(NPC.OldNPC npc)
 		{
 			MapElement = npc;
 		}
