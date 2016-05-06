@@ -53,12 +53,16 @@ namespace EndlessClient.Dialogs
 
 		//todo: usage of this should eventually be refactored out if possible
 		protected void CenterAndFixDrawOrder(IGraphicsDeviceProvider graphicsDeviceProvider,
-											 IGameStateProvider gameStateProvider)
+											 IGameStateProvider gameStateProvider,
+											 bool shouldCenter = true)
 		{
-			Center(graphicsDeviceProvider.GraphicsDevice);
+			if (shouldCenter)
+			{
+				Center(graphicsDeviceProvider.GraphicsDevice);
 
-			if (gameStateProvider.CurrentState == GameStates.PlayingTheGame)
-				DrawLocation = new Vector2(DrawLocation.X, (330 - DrawArea.Height) / 2f);
+				if (gameStateProvider.CurrentState == GameStates.PlayingTheGame)
+					DrawLocation = new Vector2(DrawLocation.X, (330 - DrawArea.Height)/2f);
+			}
 
 			_fixDrawOrder();
 			DrawOrder += 100;

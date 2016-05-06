@@ -57,7 +57,7 @@ namespace EndlessClient.Dialogs
 			};
 			message.SetParent(this);
 
-			CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
+			CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider, false);
 		}
 
 		public override void Update(GameTime gt)
