@@ -21,7 +21,6 @@ namespace EndlessClient.Controllers
 	public class LoginController : ILoginController
 	{
 		private readonly ILoginActions _loginActions;
-		private readonly IFileLoadActions _fileLoadActions;
 		private readonly IFileRequestActions _fileRequestActions;
 		private readonly IGameStateActions _gameStateActions;
 		private readonly IErrorDialogDisplayAction _errorDisplayAction;
@@ -30,7 +29,6 @@ namespace EndlessClient.Controllers
 		private readonly ICurrentMapProvider _currentMapProvider;
 
 		public LoginController(ILoginActions loginActions,
-							   IFileLoadActions fileLoadActions,
 							   IFileRequestActions fileRequestActions,
 							   IGameStateActions gameStateActions,
 							   IErrorDialogDisplayAction errorDisplayAction,
@@ -39,7 +37,6 @@ namespace EndlessClient.Controllers
 							   ICurrentMapProvider currentMapProvider)
 		{
 			_loginActions = loginActions;
-			_fileLoadActions = fileLoadActions;
 			_fileRequestActions = fileRequestActions;
 			_gameStateActions = gameStateActions;
 			_errorDisplayAction = errorDisplayAction;
@@ -87,7 +84,6 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.Map);
 					if (!await SafeGetFile(async () => await _fileRequestActions.GetMapFromServer(_currentMapProvider.CurrentMapID)))
 						return;
-					_fileLoadActions.LoadMapFileByID(_currentMapProvider.CurrentMapID);
 					await WaitInRelease(1000);
 				}
 
@@ -96,7 +92,6 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.Item);
 					if (!await SafeGetFile(_fileRequestActions.GetItemFileFromServer))
 						return;
-					_fileLoadActions.LoadItemFile();
 					await WaitInRelease(1000);
 				}
 
@@ -105,7 +100,6 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.NPC);
 					if (!await SafeGetFile(_fileRequestActions.GetNPCFileFromServer))
 						return;
-					_fileLoadActions.LoadNPCFile();
 					await WaitInRelease(1000);
 				}
 
@@ -114,7 +108,6 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.Spell);
 					if (!await SafeGetFile(_fileRequestActions.GetSpellFileFromServer))
 						return;
-					_fileLoadActions.LoadSpellFile();
 					await WaitInRelease(1000);
 				}
 
@@ -123,7 +116,6 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.Class);
 					if (!await SafeGetFile(_fileRequestActions.GetClassFileFromServer))
 						return;
-					_fileLoadActions.LoadClassFile();
 					await WaitInRelease(1000);
 				}
 
