@@ -69,14 +69,14 @@ namespace EndlessClient.Dialogs
 			{
 				AutoSize = false,
 				TextAlign = LabelAlignment.MiddleLeft,
-				ForeColor = Constants.LightGrayText
+				ForeColor = ColorConstants.LightGrayText
 			};
 			m_leftPlayerName.SetParent(this);
 			m_rightPlayerName = new XNALabel(new Rectangle(285, 14, 166, 20), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
 				TextAlign = LabelAlignment.MiddleLeft,
-				ForeColor = Constants.LightGrayText
+				ForeColor = ColorConstants.LightGrayText
 			};
 			m_rightPlayerName.SetParent(this);
 			m_leftPlayerStatus = new XNALabel(new Rectangle(195, 14, 79, 20), Constants.FontSize08pt5)
@@ -84,7 +84,7 @@ namespace EndlessClient.Dialogs
 				AutoSize = false,
 				TextAlign = LabelAlignment.MiddleLeft,
 				Text = OldWorld.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
-				ForeColor = Constants.LightGrayText
+				ForeColor = ColorConstants.LightGrayText
 			};
 			m_leftPlayerStatus.SetParent(this);
 			m_rightPlayerStatus = new XNALabel(new Rectangle(462, 14, 79, 20), Constants.FontSize08pt5)
@@ -92,7 +92,7 @@ namespace EndlessClient.Dialogs
 				AutoSize = false,
 				TextAlign = LabelAlignment.MiddleLeft,
 				Text = OldWorld.GetString(DATCONST2.DIALOG_TRADE_WORD_TRADING),
-				ForeColor = Constants.LightGrayText
+				ForeColor = ColorConstants.LightGrayText
 			};
 			m_rightPlayerStatus.SetParent(this);
 

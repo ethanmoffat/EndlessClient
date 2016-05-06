@@ -90,7 +90,7 @@ namespace EndlessClient.Dialogs
 
 			XNALabel descLabel = new XNALabel(new Rectangle(20, 42, 231, 33), Constants.FontSize10)
 			{
-				ForeColor = Constants.LightGrayDialogMessage,
+				ForeColor = ColorConstants.LightGrayDialogMessage,
 				TextWidth = 200,
 				Text = string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.DIALOG_TRANSFER_HOW_MUCH), itemName, OldWorld.GetString(message))
 			};
@@ -103,7 +103,7 @@ namespace EndlessClient.Dialogs
 				Visible = true,
 				Enabled = true,
 				MaxChars = 8, //max drop/junk at a time will be 99,999,999
-				TextColor = Constants.LightBeigeText,
+				TextColor = ColorConstants.LightBeigeText,
 				Text = "1"
 			};
 			m_amount.SetParent(this);

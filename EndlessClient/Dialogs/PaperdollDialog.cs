@@ -111,7 +111,7 @@ namespace EndlessClient.Dialogs
 				} //rank
 			};
 
-			labels.ToList().ForEach(_l => { _l.ForeColor = Constants.LightGrayText; _l.SetParent(this); });
+			labels.ToList().ForEach(_l => { _l.ForeColor = ColorConstants.LightGrayText; _l.SetParent(this); });
 
 			ChatType iconType = EOChatRenderer.GetChatTypeFromPaperdollIcon(data.Icon);
 			m_characterIcon = ChatTab.GetChatIcon(iconType);

@@ -97,7 +97,7 @@ namespace EndlessClient.Dialogs
 
 				var strToDraw = _chatStrings[i];
 
-				SpriteBatch.DrawString(_font ?? EOGame.Instance.DBGFont, strToDraw, new Vector2(pos.X, pos.Y + (i - _scrollBar.ScrollOffset) * 13), Constants.LightGrayText);
+				SpriteBatch.DrawString(_font ?? EOGame.Instance.DBGFont, strToDraw, new Vector2(pos.X, pos.Y + (i - _scrollBar.ScrollOffset) * 13), ColorConstants.LightGrayText);
 			}
 
 			SpriteBatch.End();

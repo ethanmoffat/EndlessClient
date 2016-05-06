@@ -59,7 +59,7 @@ namespace EndlessClient.Dialogs
 				Text = " ",
 				MaxChars = 12,
 				Selected = true,
-				TextColor = Constants.LightBeigeText,
+				TextColor = ColorConstants.LightBeigeText,
 				Visible = true
 			};
 			_inputBox.SetParent(this);

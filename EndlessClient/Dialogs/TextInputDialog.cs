@@ -27,7 +27,7 @@ namespace EndlessClient.Dialogs
 			XNALabel lblPrompt = new XNALabel(new Rectangle(16, 20, 235, 49), Constants.FontSize10)
 			{
 				AutoSize = false,
-				ForeColor = Constants.LightGrayDialogMessage,
+				ForeColor = ColorConstants.LightGrayDialogMessage,
 				TextWidth = 230,
 				RowSpacing = 3,
 				Text = prompt
@@ -42,7 +42,7 @@ namespace EndlessClient.Dialogs
 			{
 				MaxChars = maxInputChars,
 				LeftPadding = 4,
-				TextColor = Constants.LightBeigeText
+				TextColor = ColorConstants.LightBeigeText
 			};
 			m_inputBox.SetParent(this);
 			EOGame.Instance.Dispatcher.Subscriber = m_inputBox;

@@ -34,7 +34,7 @@ namespace EndlessClient.HUD.StatusBars
 			{
 				AutoSize = false,
 				BackColor = Color.Transparent,
-				ForeColor = Constants.LightGrayText,
+				ForeColor = ColorConstants.LightGrayText,
 				Visible = false
 			};
 			m_label.SetParent(this);

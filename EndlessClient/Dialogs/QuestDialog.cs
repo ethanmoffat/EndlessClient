@@ -67,7 +67,7 @@ namespace EndlessClient.Dialogs
 			{
 				AutoSize = false,
 				TextAlign = LabelAlignment.MiddleLeft,
-				ForeColor = Constants.LightGrayText
+				ForeColor = ColorConstants.LightGrayText
 			};
 			caption.SetParent(this);
 

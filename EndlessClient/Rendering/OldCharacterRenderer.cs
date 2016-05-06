@@ -188,7 +188,7 @@ namespace EndlessClient.Rendering
 				//362, 167 abs loc
 				levelLabel = new XNALabel(new Rectangle(-32, 75, 1, 1), Constants.FontSize08pt75)
 				{
-					ForeColor = Constants.BeigeText,
+					ForeColor = ColorConstants.BeigeText,
 					Text = data.level.ToString()
 				};
 				levelLabel.SetParent(this);
@@ -196,7 +196,7 @@ namespace EndlessClient.Rendering
 				//504, 93 abs loc
 				nameLabel = new XNALabel(new Rectangle(104, 2, 89, 22), Constants.FontSize08pt5)
 				{
-					ForeColor = Constants.BeigeText,
+					ForeColor = ColorConstants.BeigeText,
 					Text = ((char) (data.name[0] - 32)) + data.name.Substring(1),
 					TextAlign = LabelAlignment.MiddleCenter,
 					AutoSize = false

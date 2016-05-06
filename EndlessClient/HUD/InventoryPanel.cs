@@ -93,7 +93,7 @@ namespace EndlessClient.HUD
 			//current weight label (member variable, needs to have text updated when item amounts change)
 			m_lblWeight = new XNALabel(new Rectangle(385, 37, 88, 18), Constants.FontSize08pt5)
 			{
-				ForeColor = Constants.LightGrayText,
+				ForeColor = ColorConstants.LightGrayText,
 				TextAlign = LabelAlignment.MiddleCenter,
 				Visible = true,
 				AutoSize = false

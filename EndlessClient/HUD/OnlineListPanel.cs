@@ -68,7 +68,7 @@ namespace EndlessClient.HUD
 			m_totalNumPlayers = new XNALabel(new Rectangle(455, 2, 27, 14), Constants.FontSize08pt5)
 			{
 				AutoSize = false,
-				ForeColor = Constants.LightGrayText,
+				ForeColor = ColorConstants.LightGrayText,
 				TextAlign = LabelAlignment.MiddleRight
 			};
 			m_totalNumPlayers.SetParent(this);

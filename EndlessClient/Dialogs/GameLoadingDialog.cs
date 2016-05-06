@@ -41,7 +41,7 @@ namespace EndlessClient.Dialogs
 			caption = new XNALabel(new Rectangle(12, 9, 1, 1), Constants.FontSize10)
 			{
 				Text = _localizedStringService.GetString(DATCONST2.LOADING_GAME_PLEASE_WAIT),
-				ForeColor = Constants.LightYellowText
+				ForeColor = ColorConstants.LightYellowText
 			};
 			caption.SetParent(this);
 
@@ -52,7 +52,7 @@ namespace EndlessClient.Dialogs
 			message = new XNALabel(new Rectangle(18, 61, 1, 1), Constants.FontSize08)
 			{
 				TextWidth = 175,
-				ForeColor = Constants.MediumGrayText,
+				ForeColor = ColorConstants.MediumGrayText,
 				Text = localizedMessage
 			};
 			message.SetParent(this);

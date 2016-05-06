@@ -171,7 +171,7 @@ namespace EndlessClient.HUD
 					case ChatColor.Error: return Color.FromNonPremultiplied(0x7d, 0x0a, 0x0a, 0xff);
 					case ChatColor.PM: return Color.FromNonPremultiplied(0x5a, 0x3c, 0x00, 0xff);
 					case ChatColor.Server: return Color.FromNonPremultiplied(0xe6, 0xd2, 0xc8, 0xff);
-					case ChatColor.ServerGlobal: return Constants.LightYellowText;
+					case ChatColor.ServerGlobal: return ColorConstants.LightYellowText;
 					case ChatColor.Admin: return Color.FromNonPremultiplied(0xc8, 0xaa, 0x96, 0xff);
 					default: throw new IndexOutOfRangeException("ChatColor enumeration unhandled for index " + _index.ToString(CultureInfo.InvariantCulture));
 				}

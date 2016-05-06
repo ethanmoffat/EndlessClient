@@ -37,12 +37,12 @@ namespace EndlessClient.HUD
 			{
 				m_leftSide[i] = new XNALabel(new Rectangle(117, 25 + (18*i), 100, 15), Constants.FontSize08pt5)
 				{
-					ForeColor = Constants.LightGrayText
+					ForeColor = ColorConstants.LightGrayText
 				};
 				m_leftSide[i].SetParent(this);
 				m_rightSide[i] = new XNALabel(new Rectangle(356, 25 + (18*i), 100, 15), Constants.FontSize08pt5)
 				{
-					ForeColor = Constants.LightGrayText
+					ForeColor = ColorConstants.LightGrayText
 				};
 				m_rightSide[i].SetParent(this);
 			}

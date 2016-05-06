@@ -52,7 +52,7 @@ namespace EndlessClient.HUD
 				m_basicStats[i] = new XNALabel(new Rectangle(50, 8 + i*18, 73, 13), Constants.FontSize08pt5)
 				{
 					Visible = true,
-					ForeColor = Constants.LightGrayText,
+					ForeColor = ColorConstants.LightGrayText,
 					AutoSize = false
 				};
 				m_basicStats[i].SetParent(this);
@@ -92,7 +92,7 @@ namespace EndlessClient.HUD
 				m_characterStats[i] = new XNALabel(new Rectangle(158, 8 + i * 18, 73, 13), Constants.FontSize08pt5)
 				{
 					Visible = true,
-					ForeColor = Constants.LightGrayText,
+					ForeColor = ColorConstants.LightGrayText,
 					AutoSize = false
 				};
 				m_characterStats[i].SetParent(this);
@@ -103,7 +103,7 @@ namespace EndlessClient.HUD
 				m_otherInfo[i] = new XNALabel(new Rectangle(i < 4 ? 280 : 379 , 44 + (i%4)*18, i < 4 ? 60 : 94, 13), Constants.FontSize08pt5)
 				{
 					Visible = true,
-					ForeColor = Constants.LightGrayText,
+					ForeColor = ColorConstants.LightGrayText,
 					AutoSize = false
 				};
 				m_otherInfo[i].SetParent(this);
@@ -114,7 +114,7 @@ namespace EndlessClient.HUD
 			m_charInfo[NAME] = new XNALabel(new Rectangle(280, 8, 144, 13), Constants.FontSize08pt5)
 			{
 				Visible = true,
-				ForeColor = Constants.LightGrayText,
+				ForeColor = ColorConstants.LightGrayText,
 				AutoSize = false,
 				Text = c.Name
 			};
@@ -122,7 +122,7 @@ namespace EndlessClient.HUD
 			m_charInfo[GUILD] = new XNALabel(new Rectangle(280, 26, 193, 13), Constants.FontSize08pt5)
 			{
 				Visible = true,
-				ForeColor = Constants.LightGrayText,
+				ForeColor = ColorConstants.LightGrayText,
 				AutoSize = false,
 				Text = c.GuildName
 			};
@@ -130,7 +130,7 @@ namespace EndlessClient.HUD
 			m_charInfo[LEVEL] = new XNALabel(new Rectangle(453, 8, 20, 13), Constants.FontSize08pt5)
 			{
 				Visible = true,
-				ForeColor = Constants.LightGrayText,
+				ForeColor = ColorConstants.LightGrayText,
 				AutoSize = false
 			};
 			foreach(XNALabel lbl in m_charInfo) lbl.SetParent(this);

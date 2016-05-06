@@ -100,7 +100,7 @@ namespace EndlessClient.HUD
 				Text = "",
 				AutoSize = false,
 				TextAlign = LabelAlignment.MiddleCenter,
-				ForeColor = Constants.LightGrayText
+				ForeColor = ColorConstants.LightGrayText
 			};
 			_selectedSpellName.SetParent(this);
 
@@ -110,7 +110,7 @@ namespace EndlessClient.HUD
 				Text = "0",
 				AutoSize = false,
 				TextAlign = LabelAlignment.MiddleLeft,
-				ForeColor = Constants.LightGrayText
+				ForeColor = ColorConstants.LightGrayText
 			};
 			_selectedSpellLevel.SetParent(this);
 
@@ -121,7 +121,7 @@ namespace EndlessClient.HUD
 				Text = skillPoints.ToString(),
 				AutoSize = false,
 				TextAlign = LabelAlignment.MiddleLeft,
-				ForeColor = Constants.LightGrayText
+				ForeColor = ColorConstants.LightGrayText
 			};
 			_totalSkillPoints.SetParent(this);
 

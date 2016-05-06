@@ -71,7 +71,7 @@ namespace EndlessClient.Dialogs
 			{
 				AutoSize = false,
 				TextAlign = LabelAlignment.MiddleLeft,
-				ForeColor = Constants.LightGrayText,
+				ForeColor = ColorConstants.LightGrayText,
 				Text = " "
 			};
 			m_titleText.SetParent(this);

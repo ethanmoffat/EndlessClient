@@ -62,7 +62,7 @@ namespace EndlessClient.Dialogs
 				//cancel: 363, 201
 				this.message.DrawLocation = new Vector2(18, 40);
 			}
-			this.message.ForeColor = Constants.LightYellowText;
+			this.message.ForeColor = ColorConstants.LightYellowText;
 			this.message.Text = message;
 			this.message.TextWidth = 254;
 			this.message.SetParent(this);
@@ -72,7 +72,7 @@ namespace EndlessClient.Dialogs
 			{
 				this.caption.DrawLocation = new Vector2(18, 12);
 			}
-			this.caption.ForeColor = Constants.LightYellowText;
+			this.caption.ForeColor = ColorConstants.LightYellowText;
 			this.caption.Text = caption;
 			this.caption.SetParent(this);
 

@@ -34,7 +34,7 @@ namespace EndlessClient.Dialogs
 
 			message = new XNALabel(new Rectangle(18, 57, 1, 1), Constants.FontSize10)
 			{
-				ForeColor = Constants.LightYellowText,
+				ForeColor = ColorConstants.LightYellowText,
 				Text = messageText,
 				TextWidth = 254
 			};
@@ -42,7 +42,7 @@ namespace EndlessClient.Dialogs
 
 			caption = new XNALabel(new Rectangle(59, 23, 1, 1), Constants.FontSize10)
 			{
-				ForeColor = Constants.LightYellowText,
+				ForeColor = ColorConstants.LightYellowText,
 				Text = captionText
 			};
 			caption.SetParent(this);

@@ -75,7 +75,7 @@ namespace EndlessClient.UIControls
 
 			var nameLabel = new XNALabel(GetNameLabelLocation(), Constants.FontSize08pt5)
 			{
-				ForeColor = Constants.BeigeText,
+				ForeColor = ColorConstants.BeigeText,
 				Text = CapitalizeName(character.Name),
 				TextAlign = LabelAlignment.MiddleCenter,
 				AutoSize = false
@@ -84,7 +84,7 @@ namespace EndlessClient.UIControls
 
 			var levelLabel = new XNALabel(GetLevelLabelLocation(), Constants.FontSize08pt75)
 			{
-				ForeColor = Constants.BeigeText,
+				ForeColor = ColorConstants.BeigeText,
 				Text = character.Stats.Stats[CharacterStat.Level].ToString()
 			};
 			levelLabel.SetParent(this);

@@ -51,7 +51,7 @@ namespace EndlessClient.Dialogs
 
 			m_accountBalance = new XNALabel(new Rectangle(129, 20, 121, 16), Constants.FontSize08pt5)
 			{
-				ForeColor = Constants.LightGrayText,
+				ForeColor = ColorConstants.LightGrayText,
 				Text = "",
 				TextAlign = LabelAlignment.MiddleRight,
 				AutoSize = false

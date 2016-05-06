@@ -45,7 +45,7 @@ namespace EndlessClient.Dialogs
 			{
 				AutoSize = false,
 				Text = OldWorld.GetString(DATCONST2.DIALOG_TITLE_PERFORMANCE),
-				ForeColor = Constants.LightGrayText
+				ForeColor = ColorConstants.LightGrayText
 			};
 			title.SetParent(this);
 
@@ -55,13 +55,13 @@ namespace EndlessClient.Dialogs
 				leftSide[(i - 48) / 16] = new XNALabel(new Rectangle(38, i, 1, 1), Constants.FontSize08pt5)
 				{
 					AutoSize = false,
-					ForeColor = Constants.LightGrayText
+					ForeColor = ColorConstants.LightGrayText
 				};
 				leftSide[(i - 48) / 16].SetParent(this);
 				rightSide[(i - 48) / 16] = new XNALabel(new Rectangle(158, i, 1, 1), Constants.FontSize08pt5)
 				{
 					AutoSize = false,
-					ForeColor = Constants.LightGrayText
+					ForeColor = ColorConstants.LightGrayText
 				};
 				rightSide[(i - 48) / 16].SetParent(this);
 			}

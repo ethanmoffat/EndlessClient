@@ -140,7 +140,7 @@ namespace EndlessClient.ControlSets
 									 _configProvider.VersionBuild,
 									 _configProvider.Host,
 									 _configProvider.Port),
-				ForeColor = Constants.BeigeText
+				ForeColor = ColorConstants.BeigeText
 			};
 		}
 

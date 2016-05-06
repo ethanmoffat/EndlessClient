@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using Microsoft.Xna.Framework;
 
 namespace EOLib
 {
@@ -28,20 +27,6 @@ namespace EOLib
 		public static int ToEOTimeStamp(this DateTime dt)
 		{
 			return dt.Hour * 360000 + dt.Minute * 6000 + dt.Second * 100 + dt.Millisecond / 10;
-		}
-	}
-
-	public static class RectExtension
-	{
-		/// <summary>
-		/// Returns a new rectangle with the position set to the specified location
-		/// </summary>
-		/// <param name="orig"></param>
-		/// <param name="loc">New position for the rectangle</param>
-		/// <returns></returns>
-		public static Rectangle WithPosition(this Rectangle orig, Vector2 loc)
-		{
-			return new Rectangle((int)loc.X, (int)loc.Y, orig.Width, orig.Height);
 		}
 	}
 
@@ -88,13 +73,6 @@ namespace EOLib
 		public const string FontSize08pt5 = @"Fonts/InGame_Main_08pt5";
 		public const string FontSize08pt75 = @"Fonts/InGame_Main_08pt75";
 		public const string FontSize10 = @"Fonts/InGame_Main_10";
-
-		public static readonly Color LightGrayText = Color.FromNonPremultiplied(0xc8, 0xc8, 0xc8, 0xff);
-		public static readonly Color LightYellowText = Color.FromNonPremultiplied(0xf0, 0xf0, 0xc8, 0xff);
-		public static readonly Color BeigeText = Color.FromNonPremultiplied(0xb4, 0xa0, 0x8c, 0xff);
-		public static readonly Color LightBeigeText = Color.FromNonPremultiplied(0xdc, 0xc8, 0xb4, 0xff);
-		public static readonly Color LightGrayDialogMessage = Color.FromNonPremultiplied(0xe6, 0xe6, 0xd6, 0xff);
-		public static readonly Color MediumGrayText = Color.FromNonPremultiplied(0xb9, 0xb9, 0xb9, 0xff);
 
 		public const int ONE_BYTE_MAX   = 253;
 		public const int TWO_BYTE_MAX   = 64009;

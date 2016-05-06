@@ -64,7 +64,7 @@ namespace EndlessClient.Dialogs
 					MaxChars = i == 0 ? 16 : 12,
 					PasswordBox = i > 1,
 					Selected = i == 0,
-					TextColor = Constants.LightBeigeText,
+					TextColor = ColorConstants.LightBeigeText,
 					Visible = true
 				};
 				tb.SetParent(this);
