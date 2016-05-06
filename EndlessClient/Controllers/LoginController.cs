@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
@@ -21,28 +22,31 @@ namespace EndlessClient.Controllers
 	public class LoginController : ILoginController
 	{
 		private readonly ILoginActions _loginActions;
+		private readonly IFileLoadActions _fileLoadActions;
 		private readonly IFileRequestActions _fileRequestActions;
 		private readonly IGameStateActions _gameStateActions;
 		private readonly IErrorDialogDisplayAction _errorDisplayAction;
 		private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
 		private readonly IGameLoadingDialogFactory _gameLoadingDialogFactory;
-		private readonly ICurrentMapProvider _currentMapProvider;
+		private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
 		public LoginController(ILoginActions loginActions,
+							   IFileLoadActions fileLoadActions,
 							   IFileRequestActions fileRequestActions,
 							   IGameStateActions gameStateActions,
 							   IErrorDialogDisplayAction errorDisplayAction,
 							   ISafeInBandNetworkOperationFactory networkOperationFactory,
 							   IGameLoadingDialogFactory gameLoadingDialogFactory,
-							   ICurrentMapProvider currentMapProvider)
+							   ICurrentMapStateProvider currentMapStateProvider)
 		{
 			_loginActions = loginActions;
+			_fileLoadActions = fileLoadActions;
 			_fileRequestActions = fileRequestActions;
 			_gameStateActions = gameStateActions;
 			_errorDisplayAction = errorDisplayAction;
 			_networkOperationFactory = networkOperationFactory;
 			_gameLoadingDialogFactory = gameLoadingDialogFactory;
-			_currentMapProvider = currentMapProvider;
+			_currentMapStateProvider = currentMapStateProvider;
 		}
 
 		public async Task LoginToAccount(ILoginParameters loginParameters)
@@ -72,6 +76,16 @@ namespace EndlessClient.Controllers
 			if (!await requestCharacterLoginOperation.Invoke())
 				return;
 
+			try
+			{
+				_fileLoadActions.LoadMapFileByID(_currentMapStateProvider.CurrentMapID);
+			}
+			catch (IOException)
+			{
+				// Try to load the map now that we know what Map ID we need
+				// non-fatal exception
+			}
+
 			GameLoadingDialog gameLoadingDialog = null;
 			try
 			{
@@ -79,10 +93,10 @@ namespace EndlessClient.Controllers
 
 				await WaitInRelease(5000);
 
-				if (_fileRequestActions.NeedsFile(InitFileType.Map, _currentMapProvider.CurrentMapID))
+				if (_fileRequestActions.NeedsFile(InitFileType.Map, _currentMapStateProvider.CurrentMapID))
 				{
 					gameLoadingDialog.SetState(GameLoadingDialogState.Map);
-					if (!await SafeGetFile(async () => await _fileRequestActions.GetMapFromServer(_currentMapProvider.CurrentMapID)))
+					if (!await SafeGetFile(async () => await _fileRequestActions.GetMapFromServer(_currentMapStateProvider.CurrentMapID)))
 						return;
 					await WaitInRelease(1000);
 				}

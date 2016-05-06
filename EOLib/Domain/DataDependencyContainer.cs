@@ -28,7 +28,7 @@ namespace EOLib.Domain
 			container.RegisterInstance<ICharacterRepository, CharacterRepository>();
 			container.RegisterInstance<ICharacterProvider, CharacterRepository>();
 			container.RegisterInstance<ICurrentMapStateRepository, CurrentMapStateRepository>();
-			container.RegisterInstance<ICurrentMapProvider, CurrentMapStateRepository>();
+			container.RegisterInstance<ICurrentMapStateProvider, CurrentMapStateRepository>();
 			container.RegisterInstance<ICharacterInventoryRepository, CharacterInventoryRepository>();
 			container.RegisterInstance<ICharacterInventoryProvider, CharacterInventoryRepository>();
 			container.RegisterInstance<INewsRepository, NewsRepository>();

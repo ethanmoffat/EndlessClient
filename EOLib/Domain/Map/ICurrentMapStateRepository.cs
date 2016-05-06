@@ -19,7 +19,7 @@ namespace EOLib.Domain.Map
 		List<IMapItem> MapItems { get; set; }
 	}
 
-	public interface ICurrentMapProvider
+	public interface ICurrentMapStateProvider
 	{
 		short CurrentMapID { get; }
 
@@ -30,7 +30,7 @@ namespace EOLib.Domain.Map
 		IReadOnlyList<IMapItem> MapItems { get; }
 	}
 
-	public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapProvider
+	public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider
 	{
 		public short CurrentMapID { get; set; }
 
@@ -40,11 +40,11 @@ namespace EOLib.Domain.Map
 
 		public List<IMapItem> MapItems { get; set; }
 
-		IReadOnlyList<ICharacter> ICurrentMapProvider.Characters { get { return Characters; } }
+		IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters { get { return Characters; } }
 
-		IReadOnlyList<INPC> ICurrentMapProvider.NPCs { get { return NPCs; } }
+		IReadOnlyList<INPC> ICurrentMapStateProvider.NPCs { get { return NPCs; } }
 
-		IReadOnlyList<IMapItem> ICurrentMapProvider.MapItems { get { return MapItems; } }
+		IReadOnlyList<IMapItem> ICurrentMapStateProvider.MapItems { get { return MapItems; } }
 
 		public CurrentMapStateRepository()
 		{
