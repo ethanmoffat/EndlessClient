@@ -299,6 +299,7 @@
     <Compile Include="Net\Translators\PacketTranslatorContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Array2D.cs" />
+    <Compile Include="UnityExtensions.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>
   <ItemGroup>
