@@ -133,7 +133,7 @@ namespace EOLib.Net
 
 		private void ThrowIfOutOfBounds(int extraBytes)
 		{
-			if (ReadPosition + extraBytes >= Length)
+			if (ReadPosition + extraBytes > Length)
 				throw new InvalidOperationException("Operation is out of bounds of the packet");
 		}
 
