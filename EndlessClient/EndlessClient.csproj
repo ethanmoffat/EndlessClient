@@ -148,7 +148,7 @@
     <Compile Include="GameUI.cs" />
     <Compile Include="Content\IContentManagerRepository.cs" />
     <Compile Include="GameExecution\IGameStateRepository.cs" />
-    <Compile Include="UIControls\IKeyboardDispatcherRepository.cs" />
+    <Compile Include="Input\IKeyboardDispatcherRepository.cs" />
     <Compile Include="HUD\ActiveSpellsPanel.cs" />
     <Compile Include="HUD\ChatPanel.cs" />
     <Compile Include="HUD\HUD.cs" />

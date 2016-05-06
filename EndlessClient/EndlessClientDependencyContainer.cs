@@ -9,6 +9,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
+using EndlessClient.Input;
 using EndlessClient.Network;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.UIControls;
