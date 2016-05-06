@@ -16,8 +16,8 @@ namespace EOLib.IO
 		{
 			container.RegisterType<IHDSerialNumberService, HDSerialNumberService>();
 
-			container.RegisterType<IConfigurationProvider, ConfigurationRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IConfigurationRepository, ConfigurationRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<IConfigurationProvider, ConfigurationRepository>();
+			container.RegisterInstance<IConfigurationRepository, ConfigurationRepository>();
 
 			container.RegisterType<IPubLoadService<ItemRecord>, ItemFileLoadService>();
 			container.RegisterType<IPubLoadService<NPCRecord>, NPCFileLoadService>();
@@ -27,25 +27,25 @@ namespace EOLib.IO
 			container.RegisterType<IFileRequestService, FileRequestService>();
 			container.RegisterType<ILocalizedStringService, LocalizedStringService>();
 
-			container.RegisterType<IPubFileRepository, PubFileRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IPubFileProvider, PubFileRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IItemFileRepository, PubFileRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IItemFileProvider, PubFileRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<INPCFileRepository, PubFileRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<INPCFileProvider, PubFileRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ISpellFileRepository, PubFileRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ISpellFileProvider, PubFileRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IClassFileRepository, PubFileRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IClassFileProvider, PubFileRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<IPubFileRepository, PubFileRepository>();
+			container.RegisterInstance<IPubFileProvider, PubFileRepository>();
+			container.RegisterInstance<IItemFileRepository, PubFileRepository>();
+			container.RegisterInstance<IItemFileProvider, PubFileRepository>();
+			container.RegisterInstance<INPCFileRepository, PubFileRepository>();
+			container.RegisterInstance<INPCFileProvider, PubFileRepository>();
+			container.RegisterInstance<ISpellFileRepository, PubFileRepository>();
+			container.RegisterInstance<ISpellFileProvider, PubFileRepository>();
+			container.RegisterInstance<IClassFileRepository, PubFileRepository>();
+			container.RegisterInstance<IClassFileProvider, PubFileRepository>();
 
-			container.RegisterType<IMapFileRepository, MapFileRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IMapFileProvider, MapFileRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<IMapFileRepository, MapFileRepository>();
+			container.RegisterInstance<IMapFileProvider, MapFileRepository>();
 
-			container.RegisterType<ILoginFileChecksumRepository, LoginFileChecksumRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ILoginFileChecksumProvider, LoginFileChecksumRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<ILoginFileChecksumRepository, LoginFileChecksumRepository>();
+			container.RegisterInstance<ILoginFileChecksumProvider, LoginFileChecksumRepository>();
 
-			container.RegisterType<IDataFileRepository, DataFileRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IDataFileProvider, DataFileRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<IDataFileRepository, DataFileRepository>();
+			container.RegisterInstance<IDataFileProvider, DataFileRepository>();
 
 			container.RegisterType<IFileLoadActions, FileLoadActions>();
 			container.RegisterType<IFileRequestActions, FileRequestActions>();

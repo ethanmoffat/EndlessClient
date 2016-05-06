@@ -21,18 +21,18 @@ namespace EOLib.Domain
 			container.RegisterType<ILoginActions, LoginActions>();
 			container.RegisterType<ICharacterManagementActions, CharacterManagementActions>();
 
-			container.RegisterType<ICharacterSelectorRepository, CharacterSelectorRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICharacterSelectorProvider, CharacterSelectorRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IPlayerInfoRepository, PlayerInfoRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ILoggedInAccountNameProvider, PlayerInfoRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICharacterRepository, CharacterRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICharacterProvider, CharacterRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICurrentMapStateRepository, CurrentMapStateRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICurrentMapProvider, CurrentMapStateRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICharacterInventoryRepository, CharacterInventoryRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICharacterInventoryProvider, CharacterInventoryRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<INewsRepository, NewsRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<INewsProvider, NewsRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<ICharacterSelectorRepository, CharacterSelectorRepository>();
+			container.RegisterInstance<ICharacterSelectorProvider, CharacterSelectorRepository>();
+			container.RegisterInstance<IPlayerInfoRepository, PlayerInfoRepository>();
+			container.RegisterInstance<ILoggedInAccountNameProvider, PlayerInfoRepository>();
+			container.RegisterInstance<ICharacterRepository, CharacterRepository>();
+			container.RegisterInstance<ICharacterProvider, CharacterRepository>();
+			container.RegisterInstance<ICurrentMapStateRepository, CurrentMapStateRepository>();
+			container.RegisterInstance<ICurrentMapProvider, CurrentMapStateRepository>();
+			container.RegisterInstance<ICharacterInventoryRepository, CharacterInventoryRepository>();
+			container.RegisterInstance<ICharacterInventoryProvider, CharacterInventoryRepository>();
+			container.RegisterInstance<INewsRepository, NewsRepository>();
+			container.RegisterInstance<INewsProvider, NewsRepository>();
 		}
 	}
 }

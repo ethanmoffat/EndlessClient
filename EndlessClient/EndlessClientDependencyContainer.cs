@@ -23,7 +23,7 @@ namespace EndlessClient
 	{
 		public void RegisterDependencies(IUnityContainer container)
 		{
-			container.RegisterType<IEndlessGame, EndlessGame>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<IEndlessGame, EndlessGame>();
 
 			//factories
 			container.RegisterType<IControlSetFactory, ControlSetFactory>();
@@ -37,19 +37,19 @@ namespace EndlessClient
 			container.RegisterType<IGameLoadingDialogFactory, GameLoadingDialogFactory>();
 
 			//provider/repository
-			container.RegisterType<IGameStateProvider, GameStateRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IGameStateRepository, GameStateRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IContentManagerProvider, ContentManagerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IContentManagerRepository, ContentManagerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IKeyboardDispatcherProvider, KeyboardDispatcherRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IKeyboardDispatcherRepository, KeyboardDispatcherRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IControlSetProvider, ControlSetRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IControlSetRepository, ControlSetRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IEndlessGameProvider, EndlessGameRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IEndlessGameRepository, EndlessGameRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<IGameStateProvider, GameStateRepository>();
+			container.RegisterInstance<IGameStateRepository, GameStateRepository>();
+			container.RegisterInstance<IContentManagerProvider, ContentManagerRepository>();
+			container.RegisterInstance<IContentManagerRepository, ContentManagerRepository>();
+			container.RegisterInstance<IKeyboardDispatcherProvider, KeyboardDispatcherRepository>();
+			container.RegisterInstance<IKeyboardDispatcherRepository, KeyboardDispatcherRepository>();
+			container.RegisterInstance<IControlSetProvider, ControlSetRepository>();
+			container.RegisterInstance<IControlSetRepository, ControlSetRepository>();
+			container.RegisterInstance<IEndlessGameProvider, EndlessGameRepository>();
+			container.RegisterInstance<IEndlessGameRepository, EndlessGameRepository>();
 
 			//provider only
-			container.RegisterType<IClientWindowSizeProvider, ClientWindowSizeProvider>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>();
 
 			//controllers
 			container.RegisterType<IMainButtonController, MainButtonController>();
@@ -58,14 +58,14 @@ namespace EndlessClient
 			container.RegisterType<ICharacterManagementController, CharacterManagementController>();
 			
 			//controller provider/repository (bad hack - avoids circular dependency)
-			container.RegisterType<IMainButtonControllerProvider, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IMainButtonControllerRepository, MainButtonControllerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICreateAccountControllerProvider, CreateAccountControllerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICreateAccountControllerRepository, CreateAccountControllerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ILoginControllerProvider, LoginControllerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ILoginControllerRepository, LoginControllerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICharacterManagementControllerProvider, CharacterManagementRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ICharacterManagementControllerRepository, CharacterManagementRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<IMainButtonControllerProvider, MainButtonControllerRepository>();
+			container.RegisterInstance<IMainButtonControllerRepository, MainButtonControllerRepository>();
+			container.RegisterInstance<ICreateAccountControllerProvider, CreateAccountControllerRepository>();
+			container.RegisterInstance<ICreateAccountControllerRepository, CreateAccountControllerRepository>();
+			container.RegisterInstance<ILoginControllerProvider, LoginControllerRepository>();
+			container.RegisterInstance<ILoginControllerRepository, LoginControllerRepository>();
+			container.RegisterInstance<ICharacterManagementControllerProvider, CharacterManagementRepository>();
+			container.RegisterInstance<ICharacterManagementControllerRepository, CharacterManagementRepository>();
 			
 			//actions
 			container.RegisterType<IGameStateActions, GameStateActions>();

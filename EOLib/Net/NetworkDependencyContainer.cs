@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Collections.Generic;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.Handlers;
@@ -22,39 +21,34 @@ namespace EOLib.Net
 			container.RegisterType<IPacketHandlingTypeFinder, PacketHandlingTypeFinder>();
 
 			//the repository is a "disposer" of the NetworkClient (so NetworkClient gets cleaned up later if it is set)
-			container.RegisterType<INetworkClientDisposer, NetworkClientRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<INetworkClientDisposer, NetworkClientRepository>();
 
 			container.RegisterType<INetworkClientFactory, NetworkClientFactory>();
 			container.RegisterType<ISafeInBandNetworkOperationFactory, SafeInBandNetworkOperationFactory>();
 
-			container.RegisterType<INetworkClientRepository, NetworkClientRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<INetworkClientProvider, NetworkClientRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IPacketQueueRepository, PacketQueueRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IPacketQueueProvider, PacketQueueRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IPacketEncoderRepository, PacketEncoderRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<ISequenceRepository, SequenceRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IConnectionStateRepository, ConnectionStateRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IConnectionStateProvider, ConnectionStateRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IPacketHandlerRepository, PacketHandlerRepository>(new ContainerControlledLifetimeManager());
-			container.RegisterType<IPacketHandlerProvider, PacketHandlerRepository>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<INetworkClientRepository, NetworkClientRepository>();
+			container.RegisterInstance<INetworkClientProvider, NetworkClientRepository>();
+			container.RegisterInstance<IPacketQueueRepository, PacketQueueRepository>();
+			container.RegisterInstance<IPacketQueueProvider, PacketQueueRepository>();
+			container.RegisterInstance<IPacketEncoderRepository, PacketEncoderRepository>();
+			container.RegisterInstance<ISequenceRepository, SequenceRepository>();
+			container.RegisterInstance<IConnectionStateRepository, ConnectionStateRepository>();
+			container.RegisterInstance<IConnectionStateProvider, ConnectionStateRepository>();
+			container.RegisterInstance<IPacketHandlerRepository, PacketHandlerRepository>();
+			container.RegisterInstance<IPacketHandlerProvider, PacketHandlerRepository>();
 
 			container.RegisterType<IPacketProcessorActions, PacketProcessActions>();
 			container.RegisterType<INetworkConnectionActions, NetworkConnectionActions>();
 			container.RegisterType<IPacketHandlingActions, PacketHandlingActions>();
 			
 			//must be a singleton: tracks a thread and has internal state.
-			container.RegisterType<IBackgroundReceiveActions, BackgroundReceiveActions>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<IBackgroundReceiveActions, BackgroundReceiveActions>();
 
 			//packet handling
-			container.RegisterType<IOutOfBandPacketHandler, OutOfBandPacketHandler>(new ContainerControlledLifetimeManager());
+			container.RegisterInstance<IOutOfBandPacketHandler, OutOfBandPacketHandler>();
 			container.RegisterType<IPacketHandlerFinderService, PacketHandlerFinderService>();
 
-			container.RegisterType<IPacketHandler, ConnectionPlayerHandler>(
-				typeof(ConnectionPlayerHandler).Name);
-
-			container.RegisterType<IEnumerable<IPacketHandler>>(
-				new ContainerControlledLifetimeManager(),
-				new InjectionFactory(c => c.ResolveAll<IPacketHandler>()));
+			container.RegisterVaried<IPacketHandler, ConnectionPlayerHandler>();
 		}
 
 		public void InitializeDependencies(IUnityContainer container)
