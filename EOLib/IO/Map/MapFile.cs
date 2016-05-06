@@ -186,25 +186,29 @@ namespace EOLib.IO.Map
 				.WithUnknown2(filePacket.ReadChar());
 		}
 
+		/// <summary>
+		/// Must be called after map properties are set (relies on Width/Height for setting collection capacity)
+		/// </summary>
 		private void ResetCollections()
 		{
+			_tileRows.Clear();
+			_warpRows.Clear();
+			_gfxRows.Clear();
+
 			_tiles = new Array2D<TileSpec>(Properties.Height + 1, Properties.Width + 1, TileSpec.None);
-
 			_warps = new Array2D<Warp>(Properties.Height + 1, Properties.Width + 1, null);
-
 			_gfx = new Dictionary<MapLayer, Array2D<int>>();
 			var layers = (MapLayer[]) Enum.GetValues(typeof (MapLayer));
 			foreach (var layer in layers)
+			{
 				_gfx.Add(layer, new Array2D<int>(Properties.Height + 1, Properties.Width + 1, -1));
+				_gfxRows.Add(layer, new List<MapEntityRow<int>>(Properties.Height + 1));
+			}
 
 			NPCSpawns.Clear();
 			Unknowns.Clear();
 			Chests.Clear();
 			Signs.Clear();
-			
-			_tileRows.Clear();
-			_warpRows.Clear();
-			_gfxRows.Clear();
 		}
 
 		private void ReadNPCSpawns(IPacket filePacket)

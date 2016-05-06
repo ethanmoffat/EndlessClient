@@ -34,6 +34,12 @@ namespace EOLib.IO.Map
 
 		public bool HasTimedSpikes { get; private set; }
 
+		public MapFileProperties()
+		{
+			Name = "";
+			Checksum = new byte[4];
+		}
+
 		public MapFileProperties WithMapID(int id)
 		{
 			var clone = Clone();
