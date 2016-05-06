@@ -9,10 +9,10 @@ using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
+using EndlessClient.Network;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.UIControls;
 using EOLib;
-using EOLib.Net.Handlers;
 using Microsoft.Practices.Unity;
 using XNAControls;
 
@@ -79,7 +79,7 @@ namespace EndlessClient
 			var gameRepository = container.Resolve<IEndlessGameRepository>();
 			gameRepository.Game = game;
 
-			gameRepository.Game.Components.Add(container.Resolve<PacketHandlerComponent>());
+			gameRepository.Game.Components.Add(container.Resolve<PacketHandlerGameComponent>());
 
 			var contentRepo = container.Resolve<IContentManagerRepository>();
 			contentRepo.Content = game.Content;

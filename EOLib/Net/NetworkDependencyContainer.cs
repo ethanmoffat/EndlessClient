@@ -46,7 +46,7 @@ namespace EOLib.Net
 			container.RegisterType<IBackgroundReceiveActions, BackgroundReceiveActions>(new ContainerControlledLifetimeManager());
 
 			//packet handling
-			container.RegisterType<PacketHandlerComponent>(new ContainerControlledLifetimeManager());
+			container.RegisterType<IOutOfBandPacketHandler, OutOfBandPacketHandler>(new ContainerControlledLifetimeManager());
 			container.RegisterType<IPacketHandlerFinderService, PacketHandlerFinderService>();
 
 			container.RegisterType<IPacketHandler, ConnectionPlayerHandler>(

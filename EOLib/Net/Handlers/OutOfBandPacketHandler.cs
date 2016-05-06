@@ -2,38 +2,23 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using EOLib.Net.Communication;
-using Microsoft.Xna.Framework;
-
-//disable "event not used" warnings for EnabledChanged and UpdateOrderChanged
-#pragma warning disable 67
 
 namespace EOLib.Net.Handlers
 {
-	public class PacketHandlerComponent : IGameComponent, IUpdateable
+	public class OutOfBandPacketHandler : IOutOfBandPacketHandler
 	{
 		private readonly IPacketQueueProvider _packetQueueProvider;
 		private readonly IPacketHandlerFinderService _packetHandlerFinder;
 
-		public bool Enabled { get { return true; } }
-
-		public int UpdateOrder { get { return 0; } }
-
-		public event EventHandler<EventArgs> EnabledChanged;
-
-		public event EventHandler<EventArgs> UpdateOrderChanged;
-
-		public PacketHandlerComponent(IPacketQueueProvider packetQueueProvider,
+		public OutOfBandPacketHandler(IPacketQueueProvider packetQueueProvider,
 									  IPacketHandlerFinderService packetHandlerFinder)
 		{
 			_packetQueueProvider = packetQueueProvider;
 			_packetHandlerFinder = packetHandlerFinder;
 		}
 
-		public void Initialize() { }
-
-		public void Update(GameTime gameTime)
+		public void PollForPacketsAndHandle()
 		{
 			if (OutOfBandPacketQueue.QueuedPacketCount == 0)
 				return;

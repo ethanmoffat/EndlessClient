@@ -107,6 +107,7 @@
     <Compile Include="GameExecution\IEndlessGameProvider.cs" />
     <Compile Include="GameExecution\IGameStateActions.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />
+    <Compile Include="Network\PacketHandlerGameComponent.cs" />
     <Compile Include="Rendering\Factories\CharacterRendererFactory.cs" />
     <Compile Include="Rendering\Factories\ICharacterRendererFactory.cs" />
     <Compile Include="UIControls\BlinkingLabel.cs" />

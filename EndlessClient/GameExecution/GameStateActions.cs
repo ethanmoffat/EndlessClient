@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.ControlSets;
-using EOLib.Net.Handlers;
+using EndlessClient.Network;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -74,7 +74,7 @@ namespace EndlessClient.GameExecution
 			var xnaControlComponents = componentsToRemove.OfType<XNAControl>().ToList();
 			var otherDisposableComponents = componentsToRemove
 				.Except(xnaControlComponents)
-				.Where(x => !(x is PacketHandlerComponent))
+				.Where(x => !(x is PacketHandlerGameComponent))
 				.OfType<IDisposable>()
 				.ToList();
 
