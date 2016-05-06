@@ -42,24 +42,6 @@
   <PropertyGroup>
     <ApplicationIcon>Resources\Game.ico</ApplicationIcon>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug.Windows|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\bin\Debug.Windows\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;WINDOWS</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release.Windows|x86'">
-    <OutputPath>..\bin\Release.Windows\</OutputPath>
-    <DefineConstants>WINDOWS</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Audio\SoundEffectID.cs" />
     <Compile Include="Audio\SoundInfo.cs" />
@@ -284,40 +266,18 @@
   <!-- Conditionally reference correct version of XNAControls based on project configuration -->
   <Choose>
     <When Condition="$(DefineConstants.Contains('DEBUG'))">
-      <Choose>
-        <When Condition="$(DefineConstants.Contains('WINDOWS'))">
-          <ItemGroup>
-            <Reference Include="XNAControls">
-              <HintPath>..\bin-xnacontrols\Debug.Windows\XNAControls.dll</HintPath>
-            </Reference>
-          </ItemGroup>
-        </When>
-        <Otherwise>
-          <ItemGroup>
-            <Reference Include="XNAControls">
-              <HintPath>..\bin-xnacontrols\Debug\XNAControls.dll</HintPath>
-            </Reference>
-          </ItemGroup>
-        </Otherwise>
-      </Choose>
+      <ItemGroup>
+        <Reference Include="XNAControls">
+          <HintPath>..\bin-xnacontrols\Debug\XNAControls.dll</HintPath>
+        </Reference>
+      </ItemGroup>
     </When>
     <Otherwise>
-      <Choose>
-        <When Condition="$(DefineConstants.Contains('WINDOWS'))">
-          <ItemGroup>
-            <Reference Include="XNAControls">
-              <HintPath>..\bin-xnacontrols\Release.Windows\XNAControls.dll</HintPath>
-            </Reference>
-          </ItemGroup>
-        </When>
-        <Otherwise>
-          <ItemGroup>
-            <Reference Include="XNAControls">
-              <HintPath>..\bin-xnacontrols\Release\XNAControls.dll</HintPath>
-            </Reference>
-          </ItemGroup>
-        </Otherwise>
-      </Choose>
+      <ItemGroup>
+        <Reference Include="XNAControls">
+          <HintPath>..\bin-xnacontrols\Release\XNAControls.dll</HintPath>
+        </Reference>
+      </ItemGroup>
     </Otherwise>
   </Choose>
   <ItemGroup>
@@ -328,6 +288,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EOLib.Graphics\EOLib.Graphics.csproj">
+      <Project>{8c4bc247-89ed-4629-b34b-15a5aee88e2d}</Project>
+      <Name>EOLib.Graphics</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EOLib\EOLib.csproj">
       <Project>{edb5ad93-303d-4b07-9fad-f6a8295d2390}</Project>
       <Name>EOLib</Name>

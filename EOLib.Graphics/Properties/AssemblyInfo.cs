@@ -4,11 +4,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("EOLib")]
+[assembly: AssemblyTitle("EOLib.Graphics")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("EOLib")]
+[assembly: AssemblyProduct("EOLib.Graphics")]
 [assembly: AssemblyCopyright("Copyright © Ethan Moffat 2014-2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("2d9d7ff1-cd70-4f8c-9ab7-934892179565")]
+[assembly: Guid("d7b3635e-e39f-4062-8698-9e7ba24db03e")]
 
 // Version information for an assembly consists of the following four values:
 //
