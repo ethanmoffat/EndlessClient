@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using EndlessClient.Controllers;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -57,9 +58,14 @@ namespace EndlessClient.ControlSets
 				DrawOrder = 100,
 				ClickArea = new Rectangle(4, 16, 16, 16)
 			};
-			button.OnClick += (o, e) => _mainButtonController.GoToInitialState();
+			button.OnClick += DoBackButtonClick;
 
 			return button;
+		}
+
+		protected virtual void DoBackButtonClick(object sender, EventArgs e)
+		{
+			_mainButtonController.GoToInitialState();
 		}
 	}
 }

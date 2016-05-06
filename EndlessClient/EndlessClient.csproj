@@ -82,6 +82,7 @@
     <Compile Include="Controllers\IMainButtonController.cs" />
     <Compile Include="Controllers\Repositories\IMainButtonControllerRepository.cs" />
     <Compile Include="Controllers\MainButtonController.cs" />
+    <Compile Include="ControlSets\InGameControlSet.cs" />
     <Compile Include="ControlSets\IntermediateControlSet.cs" />
     <Compile Include="ControlSets\LoggedInControlSet.cs" />
     <Compile Include="Dialogs\Actions\CharacterDialogActions.cs" />
