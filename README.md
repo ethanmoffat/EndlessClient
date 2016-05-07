@@ -3,9 +3,7 @@ EndlessClient
 
 An open source client for Endless Online written in C#
 
-![alt text](http://i.imgur.com/s0MpbG1.gif "Slow 9MB GIF incoming!")
-
-I made a newer GIF but the image embed isn't working. Here is a link to [the newer GIF with more features](http://i.imgur.com/GTQbwrS.gif).
+NOTE: This project has been on GitHub since the end of July, 2014. If you're looking for the more feature-complete version of the code base, see the old_code branch (now protected)
 
 #### Jump to:
  - [Download and Play](#Download)
@@ -19,28 +17,26 @@ I made a newer GIF but the image embed isn't working. Here is a link to [the new
 <a name="Download" />Download+Play
 -------------
 
-There is a [Release Binary ZIP](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) available for download for those not interested in building the source. It is up to date as of 4/20/15.
+There is a [Release Binary ZIP](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) available for download for those not interested in building the source. It is up to date as of 06 May 2016.
 
-You will need to install the [XNA Game Framework](http://www.microsoft.com/en-us/download/details.aspx?id=20914) and the [.NET framework 4.0](http://www.microsoft.com/en-us/download/details.aspx?id=17718) (if you don't have .NET installed already).
+The client is dependent on MonoGame and .Net 4.5. Since it uses MonoGame, the .Net implementation it runs on is Mono.
 
-Gameplay is pretty simple since you can't do much yet. Walking is done with the arrow keys. Attacking is done by holding left or right CTRL key. Mouse is used for interacting with items that drop on the map (single-click to pick up). You can click+drag items around the inventory as well. Double-click inventory items to equip them, or open the "Paperdoll" and drag+drop between the inventory and the active equipment. You can right-click other players to get a menu of interactive options for that player too.
-
-I encourage everyone to try and break things and file bug reports (see project "Issues"). The more testing the better!
-
-**Special Note**: Copyrighted sound, graphics, and other data files are not included in the release zip. Instructions for getting these files are included at the end of the "Building the Source" section below.
+**Special Note**: Copyrighted sound, graphics, and other data files are not included in the release zip. See [how to obtain the original copyrighted files](#CopyrightedFiles) section from the original game client.
 
 <a name="Source" />Building the Source
 ---------------------
 
-There are a few prerequisites that need to be installed before the source can be built. Primary development environment for this project is VS 2013 w/ Update 2 on Win8.1 x64 (recently updated to VS2013 Update 5 on Win10 x64).
+There are a few prerequisites that need to be installed before the source can be built. The primary development environment is Visual Studio 2013 on Windows 10 Professional x64. The solution should be compatible with other IDEs that support MonoGame.
 
-These instructions have been tested in a Virtual Machine running Windows 7 Professional x64 With SP1.
+These are legacy instructions, tested on a Virtual Machine running Windows 7 Professional x64 With SP1. Updated instructions coming soon (in a couple hours)
+
+(Note: references to official XNA files are incorrect - the project is now MonoGame ONLY)
 
 1. Install Windows and run windows update cyclically until there are no more
 2. Install Visual Studio 2013 ([the **free** Community Edition also works](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) if you don't have a licensed full version)
 3. Install the [XNA 4.0 Refresh](https://mxa.codeplex.com/releases/view/117230) visual studio extension and its dependencies. These are all included in the linked .zip file (four prereqs + the extension itself also, [take a look at this](https://bitbucket.org/rbwhitaker/xna-beyond-vs-2010/src/))
  1. Follow the [instructions here](https://stackoverflow.com/questions/28008970/how-to-install-xna-in-visual-studio-2015-preview/28009075) to get the VSIX installed on Visual Studio 2015
-4. Optionally: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/) (student licenses are **free**!)
+4. Optionally: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/) (student licenses are **free** with a .edu email address!)
 5. Install your favorite git client and fork the latest changes (I highly recommend [Atlassian SourceTree](http://www.sourcetreeapp.com/))
 6. If you would like to build the mono project, download and install the [MonoGame framework](http://www.monogame.net/downloads/)
 7. Build the solution in VS 2013 (see note about EOCLI below). Copy the required files to the bin\x86\debug\ or bin\x86\release\ folder (see below)
@@ -48,6 +44,8 @@ These instructions have been tested in a Virtual Machine running Windows 7 Profe
  1. Open EndlessClient.sln in Visual Studio and set EndlessClient as the active/startup project.
  2. Go to Tools->NuGet Package Manager->Package Manager Console
  3. In the Package Manager Console, type Install-Package Microsoft.Bcl.Async
+
+(Note: EOCLI has been deprecated and its use removed)
 
 For compatibility with XNA 4.0, EOCLI must be built with an older version of the compiler (.Net 4.0). When Visual Studio first opens, it will prompt you to upgrade compilers. Just click cancel when this dialog is displayed. In case you don't click cancel, use the following steps to revert the framework version:
 
@@ -57,15 +55,20 @@ For compatibility with XNA 4.0, EOCLI must be built with an older version of the
 4. Save and close the open EOCLI.vcxproj
 5. Right-click EOCLI (in solution explorer) and click "Reload Project"
 
+<a name="CopyrightedFiles" />Obtaining additional copyrighted files
+=====================
+
 Note that the game client requires some additional files to be copied to the *bin* directory before the game will successfully launch:
 
-1. Download the Endless Online client from [www.endless-online.com](http://cache.tehsausage.com/EOzipped028.zip) - link changed due to recent "upheaval" / database hack of main server
+1. Download the [Endless Online client](http://cache.tehsausage.com/EOzipped028.zip). This link points at a ZIP file hosted by Sausage (author of EOSERV). EIRC.exe may be a false-positive flag by some antivirus scanners.
 2. Copy the data, gfx, mfx, and sfx folders from the linked ZIP archive to the output bin directory before running the game. Otherwise it will fail to launch.
-3. Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory. Note that the original client had a setup.ini; this has been renamed to settings.ini.
+3. (config file is included in Release.zip) ~Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory. Note that the original client had a setup.ini; this has been renamed to settings.ini.~
 4. Any other files will be downloaded or created as needed (pub, maps, and friend.ini/ignore.ini)
 
 <a name="SoFar" />What is there so far?
 ---------------------
+
+*This is a legacy feature list based on features complete in the old_code branch. In the new code base, all the pre-game menus have been completed.*
 
 The client is largely complete. There is a pretty full feature set that allows for many of the original game's operations to be done in the same way. However, there is still a lot left out that has not been integrated into this client as of yet.
 
@@ -96,6 +99,8 @@ Some of the more important features that have been implemented are:
 
 <a name="ToDo" />What's Left to do?
 ------------------
+
+*Again, this information is outdated (like the feature list above). I will update with more accurate information later*
 
 Since most of the major components are there that make the game playable, I'm working primarily on resolving bugs, refactoring code, and enhancing usability. 
 
@@ -133,7 +138,7 @@ Most things on the above list would require changes to the server software which
 
 You will need a copy of eoserv set up and running, or another Endless Online server to connect to. The client binary is now distributed with a config file that points at the eoserv instance I use for testing (ewmoffat.ddns.net:8078). You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server.
 
-GFX files are now distributed with the game client, and any map or pub files are loaded from the server during gameplay.
+*Note: the auto-login button is not in the new code base yet. Since the in-game state isn't built up yet, it hasn't been added back in.*
 
 The auto-login button in debug builds has been disabled unless you specify a username/password in a separate config file. Create a file name "local.config" and add the following to it:
 
@@ -204,6 +209,10 @@ Part of the sound processing involves reading the audio data and rewriting the l
 
 #### Rendering Hair
 
+*"This is horrible" - Falco, Star Fox 64
+
+Not even sure how accurate this is anymore. Hair rendering will (hopefully) be fixed up to work well with the new code base.*
+
 There are very subtle changes I've made to handling how hair is rendered for this client. Unlike the other features of the game, I've taken it upon myself to update the file format (GASP) for the item files to better assist with hair rendering in the client. I believe the original client had some hard-coded values for certain items that should render a certain way.
 
 EndlessClient uses a special method of rendering hair to ensure that face masks are rendered one way, hoods/helmets are rendered a second way, and hats that should clip hair are rendered a third way. In order to ensure that your pub file is up-to-date and can render this as designed, run BatchPub to use a batch-processing method of assigning the updated values to the selected items. Otherwise, the default pubs will have some weird graphics showing up when hats are equipped.
@@ -228,7 +237,7 @@ There are a few other projects included with the EndlessClient solution that are
 
 #### Core
 
-The core projects are EndlessClient (EndlessClient-Mono), EndlessClientContent, EOCLI, and EOLib (EOLib-Mono). They are the only required projects in order for the game to run.
+The core projects are EndlessClient, EOLib, and EOLib.Graphics. They are the only required projects in order for the game to run.
 
 #### BatchMap
 
@@ -245,7 +254,7 @@ BatchMap corrects for a number of errors, including:
  
 #### BatchPub
 
-BatchPub is designed to do batch processing of items within the EIF file. The goal behind this was to change all items matching a certain criteria to have the same updated property (for instance, when rendering hair).
+BatchPub is designed to do batch processing of items within the EIF file. The goal behind this was to change all items matching a certain criteria to have the same updated property (for instance, when rendering hair, see above).
 
 #### EOBot
 
