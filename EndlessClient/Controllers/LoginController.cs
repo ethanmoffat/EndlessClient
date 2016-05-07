@@ -91,14 +91,14 @@ namespace EndlessClient.Controllers
 			{
 				gameLoadingDialog = _gameLoadingDialogFactory.CreateGameLoadingDialog();
 
-				await WaitInRelease(5000);
+				await InitialDelayInReleaseMode();
 
 				if (_fileRequestActions.NeedsFile(InitFileType.Map, _currentMapStateProvider.CurrentMapID))
 				{
 					gameLoadingDialog.SetState(GameLoadingDialogState.Map);
 					if (!await SafeGetFile(async () => await _fileRequestActions.GetMapFromServer(_currentMapStateProvider.CurrentMapID)))
 						return;
-					await WaitInRelease(1000);
+					await Task.Delay(1000);
 				}
 
 				if (_fileRequestActions.NeedsFile(InitFileType.Item))
@@ -106,7 +106,7 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.Item);
 					if (!await SafeGetFile(_fileRequestActions.GetItemFileFromServer))
 						return;
-					await WaitInRelease(1000);
+					await Task.Delay(1000);
 				}
 
 				if (_fileRequestActions.NeedsFile(InitFileType.Npc))
@@ -114,7 +114,7 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.NPC);
 					if (!await SafeGetFile(_fileRequestActions.GetNPCFileFromServer))
 						return;
-					await WaitInRelease(1000);
+					await Task.Delay(1000);
 				}
 
 				if (_fileRequestActions.NeedsFile(InitFileType.Spell))
@@ -122,7 +122,7 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.Spell);
 					if (!await SafeGetFile(_fileRequestActions.GetSpellFileFromServer))
 						return;
-					await WaitInRelease(1000);
+					await Task.Delay(1000);
 				}
 
 				if (_fileRequestActions.NeedsFile(InitFileType.Class))
@@ -130,7 +130,7 @@ namespace EndlessClient.Controllers
 					gameLoadingDialog.SetState(GameLoadingDialogState.Class);
 					if (!await SafeGetFile(_fileRequestActions.GetClassFileFromServer))
 						return;
-					await WaitInRelease(1000);
+					await Task.Delay(1000);
 				}
 
 				gameLoadingDialog.SetState(GameLoadingDialogState.LoadingGame);
@@ -141,6 +141,8 @@ namespace EndlessClient.Controllers
 					SetInitialStateAndShowError);
 				if (!await completeCharacterLoginOperation.Invoke())
 					return;
+
+				await Task.Delay(1000); //always wait 1 second
 
 				_gameStateActions.ChangeToState(GameStates.PlayingTheGame);
 			}
@@ -163,12 +165,12 @@ namespace EndlessClient.Controllers
 			_errorDisplayAction.ShowException(ex);
 		}
 
-		private async Task WaitInRelease(int timeInMilliseconds)
+		private async Task InitialDelayInReleaseMode()
 		{
 #if DEBUG
-			await Task.FromResult(timeInMilliseconds); //no-op in debug
+			await Task.FromResult(false); //no-op in debug
 #else
-			await Task.Delay(timeInMilliseconds);
+			await Task.Delay(5000);
 #endif
 		}
 
