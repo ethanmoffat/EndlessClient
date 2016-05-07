@@ -50,6 +50,8 @@ namespace EndlessClient.ControlSets
 
 			_allComponents.Add(_btnCreate);
 			_allComponents.Add(_person2Picture);
+
+			base.InitializeControlsHelper(currentControlSet);
 		}
 
 		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
