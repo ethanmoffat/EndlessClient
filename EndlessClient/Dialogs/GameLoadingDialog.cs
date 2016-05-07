@@ -17,7 +17,7 @@ namespace EndlessClient.Dialogs
 	{
 		private readonly ILocalizedStringService _localizedStringService;
 		private readonly Texture2D _backgroundSprite;
-		private readonly DateTime _timeOpened;
+		private DateTime _lastBackgroundUpdate;
 		private int _bgSrcIndex;
 
 		public GameLoadingDialog(INativeGraphicsManager nativeGraphicsManager,
@@ -36,7 +36,7 @@ namespace EndlessClient.Dialogs
 			_setSize(_backgroundSprite.Width / 4, _backgroundSprite.Height);
 
 			_bgSrcIndex = 0;
-			_timeOpened = DateTime.Now;
+			_lastBackgroundUpdate = DateTime.Now;
 
 			caption = new XNALabel(new Rectangle(12, 9, 1, 1), Constants.FontSize10)
 			{
@@ -62,8 +62,11 @@ namespace EndlessClient.Dialogs
 
 		public override void Update(GameTime gt)
 		{
-			if ((int)(DateTime.Now - _timeOpened).TotalMilliseconds % 500 == 0)
+			if ((int) (DateTime.Now - _lastBackgroundUpdate).TotalMilliseconds > 500)
+			{
 				_bgSrcIndex = _bgSrcIndex == 3 ? 0 : _bgSrcIndex + 1;
+				_lastBackgroundUpdate = DateTime.Now;
+			}
 
 			base.Update(gt);
 		}
@@ -88,22 +91,22 @@ namespace EndlessClient.Dialogs
 			switch (whichState)
 			{
 				case GameLoadingDialogState.Map:
-					MessageText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_MAP);
+					CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_MAP);
 					break;
 				case GameLoadingDialogState.Item:
-					MessageText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_ITEMS);
+					CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_ITEMS);
 					break;
 				case GameLoadingDialogState.NPC:
-					MessageText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_NPCS);
+					CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_NPCS);
 					break;
 				case GameLoadingDialogState.Spell:
-					MessageText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_SKILLS);
+					CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_SKILLS);
 					break;
 				case GameLoadingDialogState.Class:
-					MessageText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_CLASSES);
+					CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_CLASSES);
 					break;
 				case GameLoadingDialogState.LoadingGame:
-					MessageText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_LOADING_GAME);
+					CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_LOADING_GAME);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException("whichState", whichState, null);
