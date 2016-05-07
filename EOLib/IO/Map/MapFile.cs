@@ -129,14 +129,14 @@ namespace EOLib.IO.Map
 		{
 			IPacketBuilder builder = new PacketBuilder();
 
-			WriteMapProperties(builder);
-			WriteNPCSpawns(builder);
-			WriteUnknowns(builder);
-			WriteMapChests(builder);
-			WriteTileSpecs(builder);
-			WriteWarpTiles(builder);
-			WriteGFXLayers(builder);
-			WriteMapSigns(builder);
+			builder = WriteMapProperties(builder);
+			builder = WriteNPCSpawns(builder);
+			builder = WriteUnknowns(builder);
+			builder = WriteMapChests(builder);
+			builder = WriteTileSpecs(builder);
+			builder = WriteWarpTiles(builder);
+			builder = WriteGFXLayers(builder);
+			builder = WriteMapSigns(builder);
 
 			var pkt = builder.Build();
 			File.WriteAllBytes(fileName, pkt.RawData.ToArray());
@@ -379,140 +379,154 @@ namespace EOLib.IO.Map
 			}
 		}
 
-		private void WriteMapProperties(IPacketBuilder filePacket)
+		private IPacketBuilder WriteMapProperties(IPacketBuilder filePacket)
 		{
-			filePacket.AddString("EMF");
-			filePacket.AddBytes(Properties.Checksum);
+			filePacket = filePacket.AddString("EMF")
+				.AddBytes(Properties.Checksum);
 
 			var encodedName = _encoderService.EncodeMapString(Properties.Name);
 			var paddedName = new byte[24];
 			for (int i = paddedName.Length - 1; i >= 0; --i)
 				paddedName[i] = 0xFF;
 			Array.Copy(encodedName, 0, paddedName, paddedName.Length - encodedName.Length, encodedName.Length);
-			filePacket.AddBytes(paddedName);
-
-			filePacket.AddChar(Properties.PKAvailable ? (byte)3 : (byte)0);
-			filePacket.AddChar((byte)Properties.Effect);
-			filePacket.AddChar(Properties.Music);
-			filePacket.AddChar(Properties.MusicExtra);
-			filePacket.AddShort(Properties.AmbientNoise);
-			filePacket.AddChar(Properties.Width);
-			filePacket.AddChar(Properties.Height);
-			filePacket.AddShort(Properties.FillTile);
-			filePacket.AddChar(Properties.MapAvailable ? (byte)1 : (byte)0);
-			filePacket.AddChar(Properties.CanScroll ? (byte)1 : (byte)0);
-			filePacket.AddChar(Properties.RelogX);
-			filePacket.AddChar(Properties.RelogY);
-			filePacket.AddChar(Properties.Unknown2);
+			
+			return filePacket.AddBytes(paddedName)
+				.AddChar(Properties.PKAvailable ? (byte)3 : (byte)0)
+				.AddChar((byte)Properties.Effect)
+				.AddChar(Properties.Music)
+				.AddChar(Properties.MusicExtra)
+				.AddShort(Properties.AmbientNoise)
+				.AddChar(Properties.Width)
+				.AddChar(Properties.Height)
+				.AddShort(Properties.FillTile)
+				.AddChar(Properties.MapAvailable ? (byte)1 : (byte)0)
+				.AddChar(Properties.CanScroll ? (byte)1 : (byte)0)
+				.AddChar(Properties.RelogX)
+				.AddChar(Properties.RelogY)
+				.AddChar(Properties.Unknown2);
 		}
 
-		private void WriteNPCSpawns(IPacketBuilder filePacket)
+		private IPacketBuilder WriteNPCSpawns(IPacketBuilder filePacket)
 		{
-			filePacket.AddChar((byte)NPCSpawns.Count);
-			foreach (NPCSpawn spawn in NPCSpawns)
+			filePacket = filePacket.AddChar((byte)NPCSpawns.Count);
+			foreach (var spawn in NPCSpawns)
 			{
-				filePacket.AddChar(spawn.X);
-				filePacket.AddChar(spawn.Y);
-				filePacket.AddShort(spawn.NpcID);
-				filePacket.AddChar(spawn.SpawnType);
-				filePacket.AddShort(spawn.RespawnTime);
-				filePacket.AddChar(spawn.Amount);
+				filePacket = filePacket.AddChar(spawn.X)
+					.AddChar(spawn.Y)
+					.AddShort(spawn.NpcID)
+					.AddChar(spawn.SpawnType)
+					.AddShort(spawn.RespawnTime)
+					.AddChar(spawn.Amount);
 			}
+			return filePacket;
 		}
 
-		private void WriteUnknowns(IPacketBuilder filePacket)
+		private IPacketBuilder WriteUnknowns(IPacketBuilder filePacket)
 		{
-			filePacket.AddChar((byte)Unknowns.Count);
-			foreach (byte[] b in Unknowns)
-				filePacket.AddBytes(b);
+			filePacket = filePacket.AddChar((byte)Unknowns.Count);
+			foreach (var b in Unknowns)
+				filePacket = filePacket.AddBytes(b);
+			return filePacket;
 		}
 
-		private void WriteMapChests(IPacketBuilder filePacket)
+		private IPacketBuilder WriteMapChests(IPacketBuilder filePacket)
 		{
-			filePacket.AddChar((byte)Chests.Count);
+			filePacket = filePacket.AddChar((byte)Chests.Count);
 			foreach (MapChest chest in Chests)
 			{
-				filePacket.AddChar(chest.X);
-				filePacket.AddChar(chest.Y);
-				filePacket.AddShort((short)chest.Key);
-				filePacket.AddChar(chest.Slot);
-				filePacket.AddShort(chest.ItemID);
-				filePacket.AddShort(chest.RespawnTime);
-				filePacket.AddThree(chest.Amount);
+				filePacket = filePacket.AddChar(chest.X)
+					.AddChar(chest.Y)
+					.AddShort((short) chest.Key)
+					.AddChar(chest.Slot)
+					.AddShort(chest.ItemID)
+					.AddShort(chest.RespawnTime)
+					.AddThree(chest.Amount);
 			}
+			return filePacket;
 		}
 
-		private void WriteTileSpecs(IPacketBuilder filePacket)
+		private IPacketBuilder WriteTileSpecs(IPacketBuilder filePacket)
 		{
-			filePacket.AddChar((byte)_tileRows.Count);
+			filePacket = filePacket.AddChar((byte)_tileRows.Count);
 			foreach (var tr in _tileRows)
 			{
-				filePacket.AddChar((byte)tr.Y);
-				filePacket.AddChar((byte)tr.EntityItems.Count);
+				filePacket = filePacket.AddChar((byte)tr.Y);
+				filePacket = filePacket.AddChar((byte)tr.EntityItems.Count);
 				foreach (var tt in tr.EntityItems)
 				{
-					filePacket.AddChar((byte)tt.X);
-					filePacket.AddChar((byte)tt.Value);
+					filePacket = filePacket.AddChar((byte)tt.X);
+					filePacket = filePacket.AddChar((byte)tt.Value);
 				}
 			}
+			return filePacket;
 		}
 
-		private void WriteWarpTiles(IPacketBuilder filePacket)
+		private IPacketBuilder WriteWarpTiles(IPacketBuilder filePacket)
 		{
-			filePacket.AddChar((byte)_warpRows.Count);
+			filePacket = filePacket.AddChar((byte)_warpRows.Count);
+
 			foreach (var wr in _warpRows)
 			{
-				filePacket.AddChar((byte)wr.Y);
-				filePacket.AddChar((byte)wr.EntityItems.Count);
+				filePacket = filePacket.AddChar((byte)wr.Y)
+					.AddChar((byte)wr.EntityItems.Count);
+
 				foreach (var warpEntity in wr.EntityItems)
 				{
 					var ww = warpEntity.Value;
-					filePacket.AddChar(ww.X);
-					filePacket.AddShort(ww.DestinationMapID);
-					filePacket.AddChar(ww.DestinationMapX);
-					filePacket.AddChar(ww.DestinationMapY);
-					filePacket.AddChar(ww.LevelRequirement);
-					filePacket.AddShort((short)ww.DoorType);
+					filePacket = filePacket.AddChar(ww.X)
+						.AddShort(ww.DestinationMapID)
+						.AddChar(ww.DestinationMapX)
+						.AddChar(ww.DestinationMapY)
+						.AddChar(ww.LevelRequirement)
+						.AddShort((short) ww.DoorType);
 				}
 			}
+
+			return filePacket;
 		}
 
-		private void WriteGFXLayers(IPacketBuilder filePacket)
+		private IPacketBuilder WriteGFXLayers(IPacketBuilder filePacket)
 		{
 			var layers = (MapLayer[])Enum.GetValues(typeof(MapLayer));
+
 			foreach (var layer in layers)
 			{
-				filePacket.AddChar((byte)_gfxRows[layer].Count);
+				filePacket = filePacket.AddChar((byte)_gfxRows[layer].Count);
 				foreach (var row in _gfxRows[layer])
 				{
-					filePacket.AddChar((byte)row.Y);
-					filePacket.AddChar((byte)row.EntityItems.Count);
+					filePacket = filePacket.AddChar((byte)row.Y);
+					filePacket = filePacket.AddChar((byte)row.EntityItems.Count);
 					foreach (var gfx in row.EntityItems)
 					{
-						filePacket.AddChar((byte)gfx.X);
-						filePacket.AddShort((short)gfx.Value);
+						filePacket = filePacket.AddChar((byte)gfx.X);
+						filePacket = filePacket.AddShort((short)gfx.Value);
 					}
 				}
 			}
+
+			return filePacket;
 		}
 
-		private void WriteMapSigns(IPacketBuilder filePacket)
+		private IPacketBuilder WriteMapSigns(IPacketBuilder filePacket)
 		{
-			filePacket.AddChar((byte)Signs.Count);
-			foreach (MapSign sign in Signs)
-			{
-				filePacket.AddChar(sign.X);
-				filePacket.AddChar(sign.Y);
-				filePacket.AddShort((short)(sign.Message.Length + sign.Title.Length + 1));
+			filePacket = filePacket.AddChar((byte)Signs.Count);
 
-				byte[] fileMsg = new byte[sign.Message.Length + sign.Title.Length];
-				byte[] rawTitle = _encoderService.EncodeMapString(sign.Title);
-				byte[] rawMessage = _encoderService.EncodeMapString(sign.Message);
+			foreach (var sign in Signs)
+			{
+				filePacket = filePacket.AddChar(sign.X)
+					.AddChar(sign.Y)
+					.AddShort((short)(sign.Message.Length + sign.Title.Length + 1));
+
+				var fileMsg = new byte[sign.Message.Length + sign.Title.Length];
+				var rawTitle = _encoderService.EncodeMapString(sign.Title);
+				var rawMessage = _encoderService.EncodeMapString(sign.Message);
 				Array.Copy(rawTitle, fileMsg, fileMsg.Length);
 				Array.Copy(rawMessage, 0, fileMsg, rawTitle.Length, rawMessage.Length);
-				filePacket.AddBytes(fileMsg);
-				filePacket.AddChar((byte)rawTitle.Length);
+				filePacket = filePacket.AddBytes(fileMsg);
+				filePacket = filePacket.AddChar((byte)rawTitle.Length);
 			}
+
+			return filePacket;
 		}
 
 		private static void RemoveItemShared<T>(IList<MapEntityRow<T>> collection, int row, int col)
@@ -530,6 +544,9 @@ namespace EOLib.IO.Map
 		public static IMapFile FromBytes(int mapID, IEnumerable<byte> bytes)
 		{
 			var filePacket = new Packet(bytes.ToArray());
+			filePacket.Seek(0, SeekOrigin.Begin);
+			if (filePacket.ReadString(3) != "EMF")
+				throw new IOException("Corrupt or not an EMF file");
 			
 			var mapFile = new MapFile();
 			mapFile.SetMapProperties(mapID, filePacket);
