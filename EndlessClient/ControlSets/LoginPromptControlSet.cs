@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using System.Threading;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
@@ -32,6 +33,8 @@ namespace EndlessClient.ControlSets
 		private TextBoxClickEventHandler _clickHandler;
 		private TextBoxTabEventHandler _tabHandler;
 		private Texture2D _loginBackgroundTexture;
+
+		private int _loginRequests;
 
 		public override GameStates GameState { get { return GameStates.Login; } }
 
@@ -139,8 +142,18 @@ namespace EndlessClient.ControlSets
 
 		private async void DoLogin(object sender, EventArgs e)
 		{
+			if (Interlocked.Increment(ref _loginRequests) != 1)
+				return;
+			
 			var loginParameters = new LoginParameters(_tbUsername.Text, _tbPassword.Text);
-			await _loginController.LoginToAccount(loginParameters);
+			try
+			{
+				await _loginController.LoginToAccount(loginParameters);
+			}
+			finally
+			{
+				Interlocked.Exchange(ref _loginRequests, 0);
+			}
 		}
 
 		private XNAButton GetLoginCancelButton()
