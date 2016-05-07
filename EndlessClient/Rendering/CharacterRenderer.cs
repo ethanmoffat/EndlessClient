@@ -184,7 +184,7 @@ namespace EndlessClient.Rendering
 
 		private IEnumerable<ICharacterPropertyRenderer> GetOrderedRenderers()
 		{
-			var propertyListBuilder = new CharacterPropertyRendererBuilder(_sb, RenderProperties, _textures, _itemFileProvider.ItemFile);
+			var propertyListBuilder = new CharacterPropertyRendererBuilder(_sb, RenderProperties, _textures, _itemFileProvider);
 			return propertyListBuilder.BuildList(IsShieldOnBack());
 		}
 
@@ -215,6 +215,9 @@ namespace EndlessClient.Rendering
 
 		private bool IsBowEquipped()
 		{
+			if (ItemFile == null || ItemFile.Data == null)
+				return false;
+
 			var itemData = ItemFile.Data;
 			var weaponInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Weapon &&
 														   x.DollGraphic == RenderProperties.WeaponGraphic);
@@ -224,6 +227,9 @@ namespace EndlessClient.Rendering
 
 		private bool IsShieldOnBack()
 		{
+			if (ItemFile == null || ItemFile.Data == null)
+				return false;
+
 			var itemData = ItemFile.Data;
 			var shieldInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Shield &&
 														   x.DollGraphic == RenderProperties.ShieldGraphic);

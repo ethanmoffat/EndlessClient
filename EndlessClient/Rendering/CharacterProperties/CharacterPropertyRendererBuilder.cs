@@ -7,6 +7,7 @@ using System.Linq;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.IO;
+using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.CharacterProperties
@@ -16,17 +17,17 @@ namespace EndlessClient.Rendering.CharacterProperties
 		private readonly SpriteBatch _spriteBatch;
 		private readonly ICharacterRenderProperties _renderProperties;
 		private readonly ICharacterTextures _textures;
-		private readonly IDataFile<ItemRecord> _itemDataFile;
+		private readonly IItemFileProvider _itemFileProvider;
 
 		public CharacterPropertyRendererBuilder(SpriteBatch spriteBatch,
 												ICharacterRenderProperties renderProperties,
 												ICharacterTextures textures,
-												IDataFile<ItemRecord> itemDataFile)
+												IItemFileProvider itemFileProvider)
 		{
 			_spriteBatch = spriteBatch;
 			_renderProperties = renderProperties;
 			_textures = textures;
-			_itemDataFile = itemDataFile;
+			_itemFileProvider = itemFileProvider;
 		}
 
 		public IEnumerable<ICharacterPropertyRenderer> BuildList(bool isShieldOnBack)
@@ -37,29 +38,29 @@ namespace EndlessClient.Rendering.CharacterProperties
 				rendererList.Add(new ShieldRenderer(_spriteBatch, _renderProperties, _textures.Shield));
 
 			if (WeaponEquipped() && IsWeaponBehindCharacter())
-				rendererList.Add(new WeaponRenderer(_spriteBatch, _renderProperties, _textures.Weapon, _itemDataFile));
+				rendererList.Add(new WeaponRenderer(_spriteBatch, _renderProperties, _textures.Weapon, ItemFile));
 
-			rendererList.Add(new SkinRenderer(_spriteBatch, _renderProperties, _textures.Skin, _itemDataFile));
+			rendererList.Add(new SkinRenderer(_spriteBatch, _renderProperties, _textures.Skin, ItemFile));
 			if (IsCharacterDoingEmote())
 			{
-				rendererList.Add(new FaceRenderer(_spriteBatch, _renderProperties, _textures.Face, _itemDataFile));
-				rendererList.Add(new EmoteRenderer(_spriteBatch, _renderProperties, _textures.Emote, _itemDataFile));
+				rendererList.Add(new FaceRenderer(_spriteBatch, _renderProperties, _textures.Face, ItemFile));
+				rendererList.Add(new EmoteRenderer(_spriteBatch, _renderProperties, _textures.Emote, ItemFile));
 			}
 
 			if (BootsEquipped())
-				rendererList.Add(new BootsRenderer(_spriteBatch, _renderProperties, _textures.Boots, _itemDataFile));
+				rendererList.Add(new BootsRenderer(_spriteBatch, _renderProperties, _textures.Boots, ItemFile));
 
 			if (ArmorEquipped())
-				rendererList.Add(new ArmorRenderer(_spriteBatch, _renderProperties, _textures.Armor, _itemDataFile));
+				rendererList.Add(new ArmorRenderer(_spriteBatch, _renderProperties, _textures.Armor, ItemFile));
 
 			if (WeaponEquipped() && !rendererList.OfType<WeaponRenderer>().Any())
-				rendererList.Add(new WeaponRenderer(_spriteBatch, _renderProperties, _textures.Weapon, _itemDataFile));
+				rendererList.Add(new WeaponRenderer(_spriteBatch, _renderProperties, _textures.Weapon, ItemFile));
 
 			var hairOnTopOfHat = new List<ICharacterPropertyRenderer>();
 			if (HatEquipped())
-				hairOnTopOfHat.Add(new HatRenderer(_spriteBatch, _renderProperties, _textures.Hat, _itemDataFile));
+				hairOnTopOfHat.Add(new HatRenderer(_spriteBatch, _renderProperties, _textures.Hat, ItemFile));
 			if (!IsBald())
-				hairOnTopOfHat.Add(new HairRenderer(_spriteBatch, _renderProperties, _textures.Hair, _itemDataFile));
+				hairOnTopOfHat.Add(new HairRenderer(_spriteBatch, _renderProperties, _textures.Hair, ItemFile));
 			if (hairOnTopOfHat.Any())
 				rendererList.AddRange(IsHairOnTopOfHat() ? hairOnTopOfHat : hairOnTopOfHat.ToArray().Reverse());
 
@@ -76,7 +77,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
 		private bool IsWeaponBehindCharacter()
 		{
-			 var weaponInfo = _itemDataFile.Data.SingleOrDefault(
+			 var weaponInfo = ItemFile.Data.SingleOrDefault(
 				x => x.Type == ItemType.Weapon &&
 					 x.DollGraphic == _renderProperties.WeaponGraphic);
 
@@ -97,7 +98,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 		{
 			//todo: i might have this backwards...
 
-			var hatInfo = _itemDataFile.Data.SingleOrDefault(
+			var hatInfo = ItemFile.Data.SingleOrDefault(
 				x => x.Type == ItemType.Hat &&
 					 x.DollGraphic == _renderProperties.HatGraphic);
 
@@ -133,6 +134,11 @@ namespace EndlessClient.Rendering.CharacterProperties
 		private bool IsBald()
 		{
 			return _textures.Hair == null || _renderProperties.HairStyle == 0;
+		}
+
+		private IDataFile<ItemRecord> ItemFile
+		{
+			get { return _itemFileProvider.ItemFile ?? new ItemFile(); }
 		}
 	}
 }
