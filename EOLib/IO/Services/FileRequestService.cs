@@ -33,7 +33,7 @@ namespace EOLib.IO.Services
 			if (fileType != InitReply.MapFile)
 				throw new EmptyPacketReceivedException();
 
-			var fileData = response.ReadBytes(response.Length - 3);
+			var fileData = response.ReadBytes(response.Length - response.ReadPosition);
 			return MapFile.FromBytes(mapID, fileData);
 		}
 
@@ -48,7 +48,12 @@ namespace EOLib.IO.Services
 				throw new EmptyPacketReceivedException();
 
 			var responseFileType = (InitReply) response.ReadChar();
-			var responseBytes = response.ReadBytes(response.Length - 3);
+			
+			var extraByte = response.ReadChar();
+			if (extraByte != 1)
+				throw new MalformedPacketException("Missing extra single byte in file transfer packet", response);
+
+			var responseBytes = response.ReadBytes(response.Length - response.ReadPosition);
 			switch (responseFileType)
 			{
 				case InitReply.ItemFile: return (IModifiableDataFile<T>)ItemFile.FromBytes(responseBytes);
