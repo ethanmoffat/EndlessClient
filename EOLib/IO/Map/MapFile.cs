@@ -101,7 +101,11 @@ namespace EOLib.IO.Map
 
 		public void Load(string fileName)
 		{
-			var strID = fileName.Substring(fileName.LastIndexOf('\\') + 1, 5);
+			var lastSlash = fileName.LastIndexOf('\\') < 0 ? fileName.LastIndexOf('/') : -1;
+			if (lastSlash < 0)
+				throw new IOException();
+
+			var strID = fileName.Substring(lastSlash + 1, 5);
 			var intID = int.Parse(strID);
 
 			var filePacket = CreateFilePacketForLoad(fileName);
