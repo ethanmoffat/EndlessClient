@@ -6,6 +6,7 @@ using System;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.Controllers.Repositories;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
@@ -17,6 +18,7 @@ namespace EndlessClient.ControlSets
 	public class ControlSetFactory : IControlSetFactory
 	{
 		private readonly INativeGraphicsManager _nativeGraphicsManager;
+		private readonly IEOMessageBoxFactory _messageBoxFactory;
 		private readonly IContentManagerProvider _contentManagerProvider;
 		private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
 		private readonly IConfigurationProvider _configProvider;
@@ -27,6 +29,7 @@ namespace EndlessClient.ControlSets
 		private readonly ICharacterManagementControllerProvider _characterManagementControllerProvider;
 
 		public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
+								 IEOMessageBoxFactory messageBoxFactory,
 								 IContentManagerProvider contentManagerProvider,
 								 IKeyboardDispatcherProvider keyboardDispatcherProvider,
 								 IConfigurationProvider configProvider,
@@ -37,6 +40,7 @@ namespace EndlessClient.ControlSets
 								 ICharacterManagementControllerProvider characterManagementControllerProvider)
 		{
 			_nativeGraphicsManager = nativeGraphicsManager;
+			_messageBoxFactory = messageBoxFactory;
 			_contentManagerProvider = contentManagerProvider;
 			_keyboardDispatcherProvider = keyboardDispatcherProvider;
 			_configProvider = configProvider;
@@ -72,12 +76,15 @@ namespace EndlessClient.ControlSets
 						MainButtonController,
 						LoginController);
 				case GameStates.ViewCredits: return new ViewCreditsControlSet(_configProvider, MainButtonController);
-				case GameStates.LoggedIn: return new LoggedInControlSet(
-					_keyboardDispatcherProvider.Dispatcher,
-					MainButtonController,
-					_characterInfoPanelFactory,
-					CharacterManagementController,
-					AccountController);
+				case GameStates.LoggedIn:
+					return new LoggedInControlSet(
+						_keyboardDispatcherProvider.Dispatcher,
+						MainButtonController,
+						_characterInfoPanelFactory,
+						CharacterManagementController,
+						AccountController);
+				case GameStates.PlayingTheGame:
+					return new InGameControlSet(MainButtonController, _messageBoxFactory);
 				default: throw new ArgumentOutOfRangeException("newState", newState, null);
 			}
 		}
