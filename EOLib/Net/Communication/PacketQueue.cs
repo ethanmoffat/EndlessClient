@@ -33,7 +33,7 @@ namespace EOLib.Net.Communication
 		public void EnqueuePacketAndSignalConsumer(IPacket pkt)
 		{
 			EnqueuePacketForHandling(pkt);
-			_enqueuedTaskCompletionSource.SetResult(true);
+			SetSignalResult(true);
 		}
 
 		public IPacket PeekPacket()
@@ -62,10 +62,10 @@ namespace EOLib.Net.Communication
 			using (var cts = new CancellationTokenSource(timeOut))
 			{
 				_enqueuedTaskCompletionSource = new TaskCompletionSource<bool>();
-				cts.Token.Register(() => _enqueuedTaskCompletionSource.SetResult(false), false);
+				cts.Token.Register(() => SetSignalResult(false), false);
 
 				var result = await _enqueuedTaskCompletionSource.Task;
-				if (_enqueuedTaskCompletionSource.Task.IsCanceled || !result)
+				if (!result)
 					return new EmptyPacket();
 			}
 
@@ -86,6 +86,12 @@ namespace EOLib.Net.Communication
 			}
 
 			return ret;
+		}
+
+		private void SetSignalResult(bool result)
+		{
+			if (!_enqueuedTaskCompletionSource.Task.IsCompleted)
+				_enqueuedTaskCompletionSource.SetResult(result);
 		}
 	}
 }
