@@ -62,7 +62,7 @@ namespace EOLib.Net.Communication
 			using (var cts = new CancellationTokenSource(timeOut))
 			{
 				_enqueuedTaskCompletionSource = new TaskCompletionSource<bool>();
-				cts.Token.Register(() => _enqueuedTaskCompletionSource.SetCanceled(), false);
+				cts.Token.Register(() => _enqueuedTaskCompletionSource.SetResult(false), false);
 
 				var result = await _enqueuedTaskCompletionSource.Task;
 				if (_enqueuedTaskCompletionSource.Task.IsCanceled || !result)
