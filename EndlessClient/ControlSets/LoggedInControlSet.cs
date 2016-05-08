@@ -82,6 +82,11 @@ namespace EndlessClient.ControlSets
 			return button;
 		}
 
+		protected override void DoBackButtonClick(object sender, EventArgs e)
+		{
+			_mainButtonController.GoToInitialStateAndDisconnect();
+		}
+
 		private async void DoCreateCharacter(object sender, EventArgs e)
 		{
 			if (Interlocked.Increment(ref _createRequests) != 1)

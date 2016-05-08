@@ -10,6 +10,8 @@ namespace EndlessClient.Controllers
 	{
 		void GoToInitialState();
 
+		void GoToInitialStateAndDisconnect();
+
 		Task ClickCreateAccount();
 
 		Task ClickLogin();

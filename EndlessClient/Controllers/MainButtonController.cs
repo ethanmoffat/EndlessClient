@@ -50,6 +50,12 @@ namespace EndlessClient.Controllers
 			_gameStateActions.ChangeToState(GameStates.Initial);
 		}
 
+		public void GoToInitialStateAndDisconnect()
+		{
+			GoToInitialState();
+			StopReceivingAndDisconnect();
+		}
+
 		public async Task ClickCreateAccount()
 		{
 			var result = await StartNetworkConnection();

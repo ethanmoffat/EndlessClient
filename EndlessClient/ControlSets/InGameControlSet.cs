@@ -39,7 +39,7 @@ namespace EndlessClient.ControlSets
 
 			var result = await messageBox.Show();
 			if (result == XNADialogResult.OK)
-				base.DoBackButtonClick(sender, e);
+				_mainButtonController.GoToInitialStateAndDisconnect();
 		}
 	}
 }
