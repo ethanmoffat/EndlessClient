@@ -2,12 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Drawing;
+using System;
+using System.Collections.Generic;
+using PELoaderLib;
 
 namespace EOLib.Graphics
 {
-	public interface INativeGraphicsLoader
+	public interface IPEFileCollection : IDictionary<GFXTypes, IPEFile>, IDisposable
 	{
-		Bitmap LoadGFX(GFXTypes file, int resourceValue);
 	}
 }
