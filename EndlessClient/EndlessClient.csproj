@@ -88,6 +88,9 @@
     <Compile Include="GameExecution\GameStateActions.cs" />
     <Compile Include="GameExecution\IEndlessGameProvider.cs" />
     <Compile Include="GameExecution\IGameStateActions.cs" />
+    <Compile Include="HUD\HudBackgroundFrame.cs" />
+    <Compile Include="HUD\HudControlsFactory.cs" />
+    <Compile Include="HUD\IHudControlsFactory.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
     <Compile Include="Rendering\Factories\CharacterRendererFactory.cs" />

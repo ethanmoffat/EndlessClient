@@ -46,7 +46,7 @@ namespace EndlessClient.HUD
 
 		private const int NUM_BTN = 11;
 		private const int HUD_CONTROL_DRAW_ORDER = 101;
-		private readonly Texture2D mainFrame, topLeft, sidebar, topBar, filler;
+
 		private XNAPanel pnlInventory;
 		private XNAPanel pnlActiveSpells;
 		private XNAPanel pnlPassiveSpells;
@@ -93,13 +93,6 @@ namespace EndlessClient.HUD
 			m_packetAPI = api;
 
 			DrawOrder = 100;
-
-			mainFrame = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 1, true);
-			topLeft = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 21, true);
-			sidebar = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 22, true);
-			topBar = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 23, true);
-			filler = new Texture2D(g.GraphicsDevice, 1, 1);
-			filler.SetData(new[] {Color.FromNonPremultiplied(8, 8, 8, 255)});
 
 			Texture2D mainButtonTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 25);
 			mainBtn = new XNAButton[NUM_BTN];
@@ -505,15 +498,6 @@ namespace EndlessClient.HUD
 		public override void Draw(GameTime gameTime)
 		{
 			SpriteBatch.Begin();
-			SpriteBatch.Draw(topBar, new Vector2(49, 7), Color.White);
-			SpriteBatch.Draw(mainFrame, Vector2.Zero, Color.White);
-			SpriteBatch.Draw(topLeft, Vector2.Zero, Color.White);
-			SpriteBatch.Draw(sidebar, new Vector2(7, 53), Color.White);
-			SpriteBatch.Draw(sidebar, new Vector2(629, 53), new Rectangle(3, 0, 1, sidebar.Height), Color.White);
-			//fill in some extra holes with black lines
-			SpriteBatch.Draw(filler, new Rectangle(542, 0, 1, 8), Color.White);
-			SpriteBatch.Draw(filler, new Rectangle(14, 329, 1, 142), Color.White);
-			SpriteBatch.Draw(filler, new Rectangle(98, 479, 445, 1), Color.White);
 
 			//show the little graphic next
 			if (currentChatMode != ChatMode.NoText && !modeTextureLoaded)
@@ -965,7 +949,6 @@ namespace EndlessClient.HUD
 				chatRenderer.Dispose();
 				stats.Dispose();
 
-				filler.Dispose();
 				if (modeTexture != null)
 					modeTexture.Dispose();
 				SpriteBatch.Dispose();

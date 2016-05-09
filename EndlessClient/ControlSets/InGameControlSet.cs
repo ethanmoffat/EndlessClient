@@ -6,6 +6,7 @@ using System;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD;
 using EOLib;
 using XNAControls;
 
@@ -14,6 +15,7 @@ namespace EndlessClient.ControlSets
 	public class InGameControlSet : BackButtonControlSet
 	{
 		private readonly IEOMessageBoxFactory _messageBoxFactory;
+		private readonly IHudControlsFactory _hudControlsFactory;
 
 		public override GameStates GameState
 		{
@@ -21,15 +23,21 @@ namespace EndlessClient.ControlSets
 		}
 
 		public InGameControlSet(IMainButtonController mainButtonController,
-								IEOMessageBoxFactory messageBoxFactory)
+								IEOMessageBoxFactory messageBoxFactory,
+								IHudControlsFactory hudControlsFactory)
 			: base(mainButtonController)
 		{
 			_messageBoxFactory = messageBoxFactory;
+			_hudControlsFactory = hudControlsFactory;
 		}
 
-		//todo: redesign HUD
-		//		need to decide if it will still be the same monolithic object or if the HUD will be built of components
-		//		probably should build it out of components
+		protected override void InitializeControlsHelper(IControlSet currentControlSet)
+		{
+			var controls = _hudControlsFactory.CreateHud();
+			_allComponents.AddRange(controls);
+
+			base.InitializeControlsHelper(currentControlSet);
+		}
 
 		protected override async void DoBackButtonClick(object sender, EventArgs e)
 		{

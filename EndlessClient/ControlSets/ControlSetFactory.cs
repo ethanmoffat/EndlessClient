@@ -8,6 +8,7 @@ using EndlessClient.Controllers;
 using EndlessClient.Controllers.Repositories;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib.Graphics;
@@ -19,6 +20,7 @@ namespace EndlessClient.ControlSets
 	{
 		private readonly INativeGraphicsManager _nativeGraphicsManager;
 		private readonly IEOMessageBoxFactory _messageBoxFactory;
+		private readonly IHudControlsFactory _hudControlsFactory;
 		private readonly IContentManagerProvider _contentManagerProvider;
 		private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
 		private readonly IConfigurationProvider _configProvider;
@@ -30,6 +32,7 @@ namespace EndlessClient.ControlSets
 
 		public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
 								 IEOMessageBoxFactory messageBoxFactory,
+								 IHudControlsFactory hudControlsFactory,
 								 IContentManagerProvider contentManagerProvider,
 								 IKeyboardDispatcherProvider keyboardDispatcherProvider,
 								 IConfigurationProvider configProvider,
@@ -41,6 +44,7 @@ namespace EndlessClient.ControlSets
 		{
 			_nativeGraphicsManager = nativeGraphicsManager;
 			_messageBoxFactory = messageBoxFactory;
+			_hudControlsFactory = hudControlsFactory;
 			_contentManagerProvider = contentManagerProvider;
 			_keyboardDispatcherProvider = keyboardDispatcherProvider;
 			_configProvider = configProvider;
@@ -84,7 +88,7 @@ namespace EndlessClient.ControlSets
 						CharacterManagementController,
 						AccountController);
 				case GameStates.PlayingTheGame:
-					return new InGameControlSet(MainButtonController, _messageBoxFactory);
+					return new InGameControlSet(MainButtonController, _messageBoxFactory, _hudControlsFactory);
 				default: throw new ArgumentOutOfRangeException("newState", newState, null);
 			}
 		}

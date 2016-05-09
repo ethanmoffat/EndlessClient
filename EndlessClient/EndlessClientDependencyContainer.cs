@@ -9,6 +9,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD;
 using EndlessClient.Input;
 using EndlessClient.Network;
 using EndlessClient.Rendering.Factories;
@@ -27,11 +28,13 @@ namespace EndlessClient
 
 			//factories
 			container.RegisterType<IControlSetFactory, ControlSetFactory>();
+			container.RegisterType<IHudControlsFactory, HudControlsFactory>();
+			container.RegisterType<ICharacterRendererFactory, CharacterRendererFactory>();
+			container.RegisterType<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>();
+
 			container.RegisterType<IEOMessageBoxFactory, EOMessageBoxFactory>();
 			container.RegisterType<ICreateAccountWarningDialogFactory, CreateAccountWarningDialogFactory>();
 			container.RegisterType<ICreateAccountProgressDialogFactory, CreateAccountProgressDialogFactory>();
-			container.RegisterType<ICharacterRendererFactory, CharacterRendererFactory>();
-			container.RegisterType<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>();
 			container.RegisterType<ICreateCharacterDialogFactory, CreateCharacterDialogFactory>();
 			container.RegisterType<IChangePasswordDialogFactory, ChangePasswordDialogFactory>();
 			container.RegisterType<IGameLoadingDialogFactory, GameLoadingDialogFactory>();
