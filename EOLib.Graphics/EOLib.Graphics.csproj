@@ -72,8 +72,8 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ColorConstants.cs" />
-    <Compile Include="CrossPlatformGFXLoader.cs" />
-    <Compile Include="GFXManager.cs" />
+    <Compile Include="NativeGraphicsLoader.cs" />
+    <Compile Include="NativeGraphicsManager.cs" />
     <Compile Include="GFXTypes.cs" />
     <Compile Include="GraphicsDependencyContainer.cs" />
     <Compile Include="IGraphicsDeviceRepository.cs" />

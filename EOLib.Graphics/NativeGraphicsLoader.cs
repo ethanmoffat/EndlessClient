@@ -10,11 +10,11 @@ using PELoaderLib;
 
 namespace EOLib.Graphics
 {
-	public sealed class CrossPlatformGFXLoader : INativeGraphicsLoader
+	public sealed class NativeGraphicsLoader : INativeGraphicsLoader
 	{
 		private readonly Dictionary<GFXTypes, IPEFile> _modules;
 
-		public CrossPlatformGFXLoader()
+		public NativeGraphicsLoader()
 		{
 			_modules = new Dictionary<GFXTypes, IPEFile>();
 			var values = (GFXTypes[])Enum.GetValues(typeof(GFXTypes));
@@ -58,7 +58,7 @@ namespace EOLib.Graphics
 			return peFile;
 		}
 
-		~CrossPlatformGFXLoader()
+		~NativeGraphicsLoader()
 		{
 			Dispose(false);
 		}

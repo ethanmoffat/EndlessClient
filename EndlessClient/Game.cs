@@ -365,8 +365,8 @@ namespace EndlessClient
 			{
 				var graphicsDeviceProvider = new GraphicsDeviceRepository { GraphicsDevice = GraphicsDevice };
 
-				_gfxLoader = new CrossPlatformGFXLoader();
-				GFXManager = new GFXManager(_gfxLoader, graphicsDeviceProvider);
+				_gfxLoader = new NativeGraphicsLoader();
+				GFXManager = new NativeGraphicsManager(_gfxLoader, graphicsDeviceProvider);
 			}
 			catch (LibraryLoadException lle)
 			{

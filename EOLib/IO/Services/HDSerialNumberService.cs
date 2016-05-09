@@ -12,6 +12,7 @@ namespace EOLib.IO.Services
 	{
 		public string GetHDSerialNumber()
 		{
+			//todo: follow advice here http://stackoverflow.com/a/23415273/2562283
 			var strDriveLetter = DriveInfo.GetDrives()[0].Name;
 			var volumeLabel = new StringBuilder(256);
 			uint serNum = 0;

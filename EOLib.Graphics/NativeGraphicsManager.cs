@@ -11,14 +11,14 @@ using Color = System.Drawing.Color;
 
 namespace EOLib.Graphics
 {
-	public sealed class GFXManager : INativeGraphicsManager
+	public sealed class NativeGraphicsManager : INativeGraphicsManager
 	{
 		private readonly Dictionary<LibraryGraphicPair, Texture2D> _cache;
 
 		private readonly INativeGraphicsLoader _gfxLoader;
 		private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
 
-		public GFXManager(INativeGraphicsLoader gfxLoader, IGraphicsDeviceProvider graphicsDeviceProvider)
+		public NativeGraphicsManager(INativeGraphicsLoader gfxLoader, IGraphicsDeviceProvider graphicsDeviceProvider)
 		{
 			_cache = new Dictionary<LibraryGraphicPair, Texture2D>();
 			_gfxLoader = gfxLoader;

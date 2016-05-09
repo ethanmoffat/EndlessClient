@@ -10,8 +10,8 @@ namespace EOLib.Graphics
 	{
 		public void RegisterDependencies(IUnityContainer container)
 		{
-			container.RegisterInstance<INativeGraphicsManager, GFXManager>();
-			container.RegisterInstance<INativeGraphicsLoader, CrossPlatformGFXLoader>();
+			container.RegisterInstance<INativeGraphicsManager, NativeGraphicsManager>();
+			container.RegisterInstance<INativeGraphicsLoader, NativeGraphicsLoader>();
 
 			container.RegisterInstance<IGraphicsDeviceRepository, GraphicsDeviceRepository>();
 			container.RegisterInstance<IGraphicsDeviceProvider, GraphicsDeviceRepository>();
