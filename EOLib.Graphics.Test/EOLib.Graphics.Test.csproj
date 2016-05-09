@@ -44,6 +44,10 @@
       <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PELoaderLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\bin-peloader\Debug\PELoaderLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -63,6 +67,7 @@
   <ItemGroup>
     <Compile Include="GraphicsDeviceServiceTestHelper.cs" />
     <Compile Include="GraphicsDeviceTestHelper.cs" />
+    <Compile Include="NativeGraphicsLoaderTest.cs" />
     <Compile Include="NativeGraphicsManagerTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
