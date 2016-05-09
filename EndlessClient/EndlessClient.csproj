@@ -92,6 +92,7 @@
     <Compile Include="HUD\HudControlsFactory.cs" />
     <Compile Include="HUD\IHudControlsFactory.cs" />
     <Compile Include="HUD\InGameStates.cs" />
+    <Compile Include="HUD\UsageTrackerComponent.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
     <Compile Include="Rendering\Factories\CharacterRendererFactory.cs" />
@@ -235,6 +236,7 @@
     <Compile Include="OldWorld.cs" />
     <Compile Include="Rendering\Sprites\SpriteSheet.cs" />
     <Compile Include="Rendering\Sprites\WeaponSpriteType.cs" />
+    <Compile Include="UIControls\TimeLabel.cs" />
     <Compile Include="XNAControlsDependencyContainer.cs" />
   </ItemGroup>
   <ItemGroup>

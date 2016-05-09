@@ -26,8 +26,6 @@ namespace EndlessClient.HUD
 	/// </summary>
 	public class HUD : DrawableGameComponent
 	{
-		private readonly object clockLock = new object();
-
 		private readonly PacketAPI m_packetAPI;
 
 		private const int NUM_BTN = 11;
@@ -55,8 +53,7 @@ namespace EndlessClient.HUD
 
 		private readonly XNALabel statusLabel;
 		private bool m_statusRecentlySet;
-		private readonly XNALabel clockLabel;
-		private Timer clockTimer, m_muteTimer;
+		private Timer m_muteTimer;
 
 		private DateTime? statusStartTime;
 
@@ -111,7 +108,6 @@ namespace EndlessClient.HUD
 			}, null, Timeout.Infinite, Timeout.Infinite);
 
 			statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
-			clockLabel = new XNALabel(new Rectangle(558, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
 
 			m_whoIsOnline = new EOOnlineList(pnlOnline);
 			m_party = new EOPartyPanel(pnlParty);
@@ -407,38 +403,14 @@ namespace EndlessClient.HUD
 			if (!Game.Components.Contains(OldWorld.Instance.ActiveMapRenderer))
 				Game.Components.Add(OldWorld.Instance.ActiveMapRenderer);
 			OldWorld.Instance.ActiveCharacterRenderer.Visible = true;
-
-			DateTime usageTracking = DateTime.Now;
-			clockTimer = new Timer(threadState =>
-			{
-				lock (clockLock)
-				{
-					if ((DateTime.Now - usageTracking).TotalMinutes >= 1)
-					{
-						OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Usage = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Usage + 1;
-						usageTracking = DateTime.Now;
-					}
-
-					string fmt = string.Format("{0,2:D2}:{1,2:D2}:{2,2:D2}", DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
-					try
-					{
-						clockLabel.Text = fmt;
-					}
-					catch (NullReferenceException)
-					{
-						if (clockTimer != null)
-							clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
-						return;
-					}
-
-					if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).TotalMilliseconds > 3000)
-					{
-						SetStatusLabelText("");
-						m_statusRecentlySet = false;
-						statusStartTime = null;
-					}
-				}
-			}, null, 0, 1000);
+			
+			//todo: figure out a good way to do status label setting
+					//if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).TotalMilliseconds > 3000)
+					//{
+					//	SetStatusLabelText("");
+					//	m_statusRecentlySet = false;
+					//	statusStartTime = null;
+					//}
 
 			//the draw orders are adjusted for child items in the constructor.
 			//calling SetParent will break this.
@@ -918,13 +890,6 @@ namespace EndlessClient.HUD
 		{
 			if (disposing)
 			{
-				try
-				{
-					lock (clockLock)
-						clockTimer.Change(Timeout.Infinite, Timeout.Infinite);
-				}
-				catch (ObjectDisposedException) { }
-
 				m_packetAPI.Dispose();
 
 				foreach (XNAButton btn in mainBtn)
@@ -956,12 +921,6 @@ namespace EndlessClient.HUD
 
 				m_expInfo.Close();
 				m_questInfo.Close();
-
-				lock (clockLock)
-				{
-					clockTimer.Dispose();
-					clockLabel.Close();
-				}
 
 				if (m_muteTimer != null)
 				{
