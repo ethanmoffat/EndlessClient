@@ -21,20 +21,6 @@ using XNAControls;
 
 namespace EndlessClient.HUD
 {
-	public enum InGameStates
-	{
-		News = -1,
-		Inventory = 0,
-		Active = 2,
-		Passive = 3,
-		Chat = 4,
-		Stats = 5,
-		Online = 6,
-		Party = 7,
-		Settings = 9,
-		Help = 10
-	}
-	
 	/// <summary>
 	/// Note that this is NOT an XNAControl - it is just a DrawableGameComponent
 	/// </summary>
