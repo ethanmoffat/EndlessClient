@@ -5,6 +5,7 @@
 using System.Linq;
 using System.Windows.Forms;
 using EOLib;
+using EOLib.Graphics;
 using EOLib.IO;
 using Microsoft.Practices.Unity;
 
@@ -29,8 +30,8 @@ namespace EndlessClient.GameExecution
 			{
 				registrar.InitializeDependencies(
 					DependencyContainerProvider.DependencyContainers
-											   .OfType<IInitializableContainer>()
-											   .ToArray());
+						.OfType<IInitializableContainer>()
+						.ToArray());
 			}
 			catch (ConfigLoadException cle)
 			{
@@ -44,6 +45,19 @@ namespace EndlessClient.GameExecution
 			{
 				MessageBox.Show(dfle.Message,
 					"Error loading data files!",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Error);
+				return false;
+			}
+			catch (LibraryLoadException lle)
+			{
+				MessageBox.Show(
+					string.Format(
+						"There was an error loading GFX{0:000}.EGF : {1}. Place all .GFX files in .\\gfx\\. The error message is:\n\n\"{2}\"",
+						(int) lle.WhichGFX,
+						lle.WhichGFX,
+						lle.Message),
+					"GFX Load Error",
 					MessageBoxButtons.OK,
 					MessageBoxIcon.Error);
 				return false;

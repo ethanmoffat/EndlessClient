@@ -53,7 +53,6 @@ namespace EndlessClient
 		private int port;
 		public PacketAPI API { get { return null; } }
 
-		private INativeGraphicsLoader _gfxLoader;
 		public INativeGraphicsManager GFXManager { get; private set; }
 
 #if DEBUG //don't do FPS render on release builds
@@ -95,8 +94,6 @@ namespace EndlessClient
 
 		private void doStateChange(GameStates newState)
 		{
-			//todo: clean this up, it's a mess
-
 			GameStates prevState = State;
 			State = newState;
 
@@ -220,9 +217,7 @@ namespace EndlessClient
 			Dispatcher = new KeyboardDispatcher(Window);
 			ResetPeopleIndices();
 
-			if (!InitializeXNAControls() ||
-				!InitializeGFXManager() ||
-				!InitializeWorld() ||
+			if (!InitializeWorld() ||
 				!InitializeSoundManager())
 				return;
 
@@ -341,57 +336,6 @@ namespace EndlessClient
 			base.Draw(gameTime);
 		}
 
-		private bool InitializeXNAControls()
-		{
-			try
-			{
-				CONTROLSINIT.Initialize(this);
-				CONTROLSINIT.IgnoreEnterForDialogs = true;
-				CONTROLSINIT.IgnoreEscForDialogs = true;
-			}
-			catch (ArgumentNullException ex)
-			{
-				MessageBox.Show("Something super weird happened: " + ex.Message);
-				Exit();
-				return false;
-			}
-
-			return true;
-		}
-
-		private bool InitializeGFXManager()
-		{
-			try
-			{
-				var graphicsDeviceProvider = new GraphicsDeviceRepository { GraphicsDevice = GraphicsDevice };
-
-				_gfxLoader = new NativeGraphicsLoader();
-				GFXManager = new NativeGraphicsManager(_gfxLoader, graphicsDeviceProvider);
-			}
-			catch (LibraryLoadException lle)
-			{
-				MessageBox.Show(
-					string.Format(
-						"There was an error loading GFX{0:000}.EGF : {1}. Place all .GFX files in .\\gfx\\. The error message is:\n\n\"{2}\"",
-						(int)lle.WhichGFX,
-						lle.WhichGFX,
-						lle.Message),
-					"GFX Load Error",
-					MessageBoxButtons.OK,
-					MessageBoxIcon.Error);
-				Exit();
-				return false;
-			}
-			catch (ArgumentNullException ex)
-			{
-				MessageBox.Show("Error initializing GFXManager: " + ex.Message, "Error");
-				Exit();
-				return false;
-			}
-
-			return true;
-		}
-
 		private bool InitializeWorld()
 		{
 			try
@@ -477,7 +421,6 @@ namespace EndlessClient
 			((IDisposable)_graphicsDeviceManager).Dispose();
 
 			GFXManager.Dispose();
-			_gfxLoader.Dispose();
 
 			Dispatcher.Dispose();
 
