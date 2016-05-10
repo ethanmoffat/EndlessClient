@@ -8,6 +8,7 @@ NOTE: This project has been on GitHub since the end of July, 2014. If you're loo
 #### Jump to:
  - [Download and Play](#Download)
  - [Building the Source](#Source)
+ - [Obtaining Copyrighted Files](#CopyrightedFiles)
  - [What is there so far?](#SoFar)
  - [What is left to do?](#ToDo)
  - [Running the game - Additional Info](#AdditionalGameInfo)
@@ -17,110 +18,67 @@ NOTE: This project has been on GitHub since the end of July, 2014. If you're loo
 <a name="Download" />Download+Play
 -------------
 
-There is a [Release Binary ZIP](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) available for download for those not interested in building the source. It is up to date as of 06 May 2016.
+ZIP file of the [Release Binary](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) is available for download for those not interested in building the source. It is up to date as of 09 May 2016.
 
-The client is dependent on MonoGame and .Net 4.5. Since it uses MonoGame, the .Net implementation it runs on is Mono.
+The game is able to run independently of a MonoGame installation. The only requirement is .Net 4.5, which is available with installations of Windows 8 and later. Windows Vista and Windows 7 users will [need to install .Net 4.5](https://www.microsoft.com/en-us/download/details.aspx?id=30653) if it (or a later version) is not already installed.
 
-**Special Note**: Copyrighted sound, graphics, and other data files are not included in the release zip. See [how to obtain the original copyrighted files](#CopyrightedFiles) section from the original game client.
+**Special Note**: Copyrighted sound, graphics, and other data files are not included in the release zip. See [how to obtain the original copyrighted files](#CopyrightedFiles) from the original client for more information.
 
 <a name="Source" />Building the Source
 ---------------------
 
-There are a few prerequisites that need to be installed before the source can be built. The primary development environment is Visual Studio 2013 on Windows 10 Professional x64. The solution should be compatible with other IDEs that support MonoGame.
+There are a few prerequisites that need to be installed before the source can be built. The primary development environment is Visual Studio 2013 (with Update 5) on Windows 10 Professional x64. The solution should be compatible with other IDEs that support MonoGame.
 
-These are legacy instructions, tested on a Virtual Machine running Windows 7 Professional x64 With SP1. Updated instructions coming soon (in a couple hours)
+1. Install Windows
 
-(Note: references to official XNA files are incorrect - the project is now MonoGame ONLY)
+  a. Run Windows Update and reboot cyclically until Windows is up to date
+  
+2. Install Visual Studio ([2013 Community](https://www.visualstudio.com/en-us/news/vs2013-community-vs.aspx)) ([2015 Community](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx))
 
-1. Install Windows and run windows update cyclically until there are no more
-2. Install Visual Studio 2013 ([the **free** Community Edition also works](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) if you don't have a licensed full version)
-3. Install the [XNA 4.0 Refresh](https://mxa.codeplex.com/releases/view/117230) visual studio extension and its dependencies. These are all included in the linked .zip file (four prereqs + the extension itself also, [take a look at this](https://bitbucket.org/rbwhitaker/xna-beyond-vs-2010/src/))
- 1. Follow the [instructions here](https://stackoverflow.com/questions/28008970/how-to-install-xna-in-visual-studio-2015-preview/28009075) to get the VSIX installed on Visual Studio 2015
-4. Optionally: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/) (student licenses are **free** with a .edu email address!)
-5. Install your favorite git client and fork the latest changes (I highly recommend [Atlassian SourceTree](http://www.sourcetreeapp.com/))
-6. If you would like to build the mono project, download and install the [MonoGame framework](http://www.monogame.net/downloads/)
-7. Build the solution in VS 2013 (see note about EOCLI below). Copy the required files to the bin\x86\debug\ or bin\x86\release\ folder (see below)
-8. I recently added support for async/await - this requires use of the Microsoft.BCL.Async package from NuGet. You may or may not need to follow these steps; Visual Studio should automatically pull the required packages for you. Steps to install as follows:
- 1. Open EndlessClient.sln in Visual Studio and set EndlessClient as the active/startup project.
- 2. Go to Tools->NuGet Package Manager->Package Manager Console
- 3. In the Package Manager Console, type Install-Package Microsoft.Bcl.Async
+  a. Optional, but recommended: For Visual Studio 2013, install [Visual Studio 2013 Update 5](https://www.microsoft.com/en-us/download/details.aspx?id=48129)
+  
+  b. Optional, but *highly* recommended: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/download/) (student licenses are free with a .edu address!)
+  
+  c. Optional, but recommended: Install Productivity Power Tools ([2013](https://visualstudiogallery.msdn.microsoft.com/dbcb8670-889e-4a54-a226-a48a15e4cace)) ([2015](https://visualstudiogallery.msdn.microsoft.com/34ebc6a2-2777-421d-8914-e29c1dfa7f5d))
 
-(Note: EOCLI has been deprecated and its use removed)
+3. Install [MonoGame 3.5](http://www.monogame.net/2016/03/17/monogame-3-5/)
 
-For compatibility with XNA 4.0, EOCLI must be built with an older version of the compiler (.Net 4.0). When Visual Studio first opens, it will prompt you to upgrade compilers. Just click cancel when this dialog is displayed. In case you don't click cancel, use the following steps to revert the framework version:
+4. Install a git client (I use and recommend [Atlassian SourceTree](https://www.sourcetreeapp.com/))
 
-1. In solution explorer, right-click EOCLI and choose "Unload Project"
-2. Right-click EOCLI (in solution explorer) and choose "Edit EOCLI.vcxproj"
-3. Find the XML tag that says <TargetFrameworkVersion> and set it to v4.0 (the upgrade should have changed it to v4.5)
-4. Save and close the open EOCLI.vcxproj
-5. Right-click EOCLI (in solution explorer) and click "Reload Project"
+5. Clone the repo to your computer
+
+6. Build the source in Visual Studio
+
+7. Copy the required files from the original game client to the bin/Debug or bin/Release directory
 
 <a name="CopyrightedFiles" />Obtaining additional copyrighted files
-=====================
+---------------------
 
 Note that the game client requires some additional files to be copied to the *bin* directory before the game will successfully launch:
 
 1. Download the [Endless Online client](http://cache.tehsausage.com/EOzipped028.zip). This link points at a ZIP file hosted by Sausage (author of EOSERV). EIRC.exe may be a false-positive flag by some antivirus scanners.
-2. Copy the data, gfx, mfx, and sfx folders from the linked ZIP archive to the output bin directory before running the game. Otherwise it will fail to launch.
-3. (config file is included in Release.zip) ~Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory. Note that the original client had a setup.ini; this has been renamed to settings.ini.~
+2. Copy the data, gfx, help, jbox, mfx, and sfx folders from the linked ZIP archive to the output bin directory before running the game.
+3. Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory. Note that the original client had a setup.ini; this has been renamed to settings.ini.
 4. Any other files will be downloaded or created as needed (pub, maps, and friend.ini/ignore.ini)
 
 <a name="SoFar" />What is there so far?
 ---------------------
 
-*This is a legacy feature list based on features complete in the old_code branch. In the new code base, all the pre-game menus have been completed.*
+*For the list of features in the legacy code base, see the README.md file in the old_code branch*
 
-The client is largely complete. There is a pretty full feature set that allows for many of the original game's operations to be done in the same way. However, there is still a lot left out that has not been integrated into this client as of yet.
-
-Some of the more important features that have been implemented are:
- - Pre-game menus
- - Character rendering and movement (via arrow keys)
- - Character attacking (rendering for this is partially complete)
- - NPC rendering, movement, talking, and attacking
- - Map rendering, including animated wall and floor tiles
- - Rendering of minimap
- - Warps between maps, and doors that open/shut
- - Chat - global, local, player commands (such as #loc #usage)
- - Item inventory management, item equipping (armor), item use, and interaction with map (dropping)
- - Stats display and leveling up or 'training'
- - Stat bars for main player in HUD (hp/tp/sp/tnl)
- - Chests and private lockers on maps
- - Right-click menus for other players (missing 'book' action)
- - Friend/Ignore lists
- - "Who is online?" list
- - Some NPC interaction on maps (shops, bank, quests, skillmasters)
- - Sound effects and background music (partially complete)
- - Party / group
- - Trading with other players
- - Spikes - timed, trap, and static
- - Map Effects - HP/TP drain
- - Quest NPC dialogs, as well as progress and history (no book for other players yet)
- - Skillmasters, spell casting, and spell inventory management
+- Connecting to the server (INIT Packet family)
+- Support for sequence numbers in the EO protocol (CONNECTION Packet family)
+- Logging in with a username/password (LOGIN Packet family)
+- Creating an account and changing a password (ACCOUNT Packet family)
+- Creating and deleting a character (CHARACTER Packet family)
+- Logging in as a character (WELCOME Packet family)
 
 <a name="ToDo" />What's Left to do?
 ------------------
 
-*Again, this information is outdated (like the feature list above). I will update with more accurate information later*
+*For the TODO list based on the original code base, see the README.md file in the old_code branch*
 
-Since most of the major components are there that make the game playable, I'm working primarily on resolving bugs, refactoring code, and enhancing usability. 
-
-As far as bugs are concerned, character rendering during attack is not being done properly. This is the most obvious bug that needs to be fixed, but requires a LOT of manual tinkering and is really quite tedious to get 100% right.
-
-Concerning refactoring code, I would like to remove all dependencies on singleton instances of World and EOGame if possible. This would require huge sweeping changes so I may just leave things the way they are since there is no real benefit past the code being cleaner.
-
-Here's the actual to-do list:
- - Character rendering during attack - currently the display is very buggy. The implementation leaves a lot to be desired.
- - Effects - all effects except spell IDs 17 and up are rendered on the target
- - Sound - some sound effects are in place, but this is not complete.
- - Guilds
- - Quest book
- - Innkeepers
- - Marriage/Law
- - Sitting - floor and chairs
- - Boards
- - Jukeboxes
- - "Jump" tiles
- - Map Effect - quake
+Any features related to packet families not mentioned above still need to be re-implemented. The next step in the rewrite process is to re-write all of the in-game logic, which is a majority of the game. More updates on this as work is completed.
  
 Here's a working list of things I want to add that would be additional features on top of the original client specs:
  - Use built-in patching system prior to log-in to transfer files: help, gfx, pubs, maps, data, sounds, etc.
@@ -136,9 +94,9 @@ Most things on the above list would require changes to the server software which
 <a name="AdditionalGameInfo" />Running the game - additional info
 ----------------
 
-You will need a copy of eoserv set up and running, or another Endless Online server to connect to. The client binary is now distributed with a config file that points at the eoserv instance I use for testing (ewmoffat.ddns.net:8078). You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server.
+You will need a copy of eoserv set up and running, or another Endless Online server to connect to. I am self-hosting a test instance of EOSERV at ewmoffat.ddns.net:8078. You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server such as [game.eoserv.net](https://game.eoserv.net/).
 
-*Note: the auto-login button is not in the new code base yet. Since the in-game state isn't built up yet, it hasn't been added back in.*
+*Note: the auto-login button mentioned below is not in the new code base yet. Since the in-game state isn't built up yet, it hasn't been added back in. I will most likely re-enable it once the in-game logic comes together a little more.*
 
 The auto-login button in debug builds has been disabled unless you specify a username/password in a separate config file. Create a file name "local.config" and add the following to it:
 
@@ -190,7 +148,7 @@ HearWhisper=on
 Interaction=on
 ```
 
-<a name="Changes" />Changes From Original Client (so far)
+<a name="Changes" />Changes From Original Client
 -------------------------------------
 
 #### Version Numbers
@@ -209,9 +167,9 @@ Part of the sound processing involves reading the audio data and rewriting the l
 
 #### Rendering Hair
 
-*"This is horrible" - Falco, Star Fox 64
+*"This is horrible" - Falco, Star Fox 64*
 
-Not even sure how accurate this is anymore. Hair rendering will (hopefully) be fixed up to work well with the new code base.*
+*I'm not even sure how accurate this section is anymore. Hair rendering will (hopefully) be fixed up to work well with the new code base.*
 
 There are very subtle changes I've made to handling how hair is rendered for this client. Unlike the other features of the game, I've taken it upon myself to update the file format (GASP) for the item files to better assist with hair rendering in the client. I believe the original client had some hard-coded values for certain items that should render a certain way.
 
@@ -238,6 +196,10 @@ There are a few other projects included with the EndlessClient solution that are
 #### Core
 
 The core projects are EndlessClient, EOLib, and EOLib.Graphics. They are the only required projects in order for the game to run.
+
+#### Test
+
+Any projects with a ".Test" suffix in the name contain unit tests. These will be expanded for as much code coverage as possible.
 
 #### BatchMap
 
