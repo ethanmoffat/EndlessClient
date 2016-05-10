@@ -64,59 +64,21 @@ Note that the game client requires some additional files to be copied to the *bi
 <a name="SoFar" />What is there so far?
 ---------------------
 
-*This is a legacy feature list based on features complete in the old_code branch. In the new code base, all the pre-game menus have been completed.*
+*For the list of features in the legacy code base, see the README.md file in the old_code branch*
 
-The client is largely complete. There is a pretty full feature set that allows for many of the original game's operations to be done in the same way. However, there is still a lot left out that has not been integrated into this client as of yet.
-
-Some of the more important features that have been implemented are:
- - Pre-game menus
- - Character rendering and movement (via arrow keys)
- - Character attacking (rendering for this is partially complete)
- - NPC rendering, movement, talking, and attacking
- - Map rendering, including animated wall and floor tiles
- - Rendering of minimap
- - Warps between maps, and doors that open/shut
- - Chat - global, local, player commands (such as #loc #usage)
- - Item inventory management, item equipping (armor), item use, and interaction with map (dropping)
- - Stats display and leveling up or 'training'
- - Stat bars for main player in HUD (hp/tp/sp/tnl)
- - Chests and private lockers on maps
- - Right-click menus for other players (missing 'book' action)
- - Friend/Ignore lists
- - "Who is online?" list
- - Some NPC interaction on maps (shops, bank, quests, skillmasters)
- - Sound effects and background music (partially complete)
- - Party / group
- - Trading with other players
- - Spikes - timed, trap, and static
- - Map Effects - HP/TP drain
- - Quest NPC dialogs, as well as progress and history (no book for other players yet)
- - Skillmasters, spell casting, and spell inventory management
+- Connecting to the server (INIT Packet family)
+- Support for sequence numbers in the EO protocol (CONNECTION Packet family)
+- Logging in with a username/password (LOGIN Packet family)
+- Creating an account and changing a password (ACCOUNT Packet family)
+- Creating and deleting a character (CHARACTER Packet family)
+- Logging in as a character (WELCOME Packet family)
 
 <a name="ToDo" />What's Left to do?
 ------------------
 
-*Again, this information is outdated (like the feature list above). I will update with more accurate information later*
+*For the TODO list based on the original code base, see the README.md file in the old_code branch*
 
-Since most of the major components are there that make the game playable, I'm working primarily on resolving bugs, refactoring code, and enhancing usability. 
-
-As far as bugs are concerned, character rendering during attack is not being done properly. This is the most obvious bug that needs to be fixed, but requires a LOT of manual tinkering and is really quite tedious to get 100% right.
-
-Concerning refactoring code, I would like to remove all dependencies on singleton instances of World and EOGame if possible. This would require huge sweeping changes so I may just leave things the way they are since there is no real benefit past the code being cleaner.
-
-Here's the actual to-do list:
- - Character rendering during attack - currently the display is very buggy. The implementation leaves a lot to be desired.
- - Effects - all effects except spell IDs 17 and up are rendered on the target
- - Sound - some sound effects are in place, but this is not complete.
- - Guilds
- - Quest book
- - Innkeepers
- - Marriage/Law
- - Sitting - floor and chairs
- - Boards
- - Jukeboxes
- - "Jump" tiles
- - Map Effect - quake
+Any features related to packet families not mentioned above still need to be re-implemented. The next step in the rewrite process is to re-write all of the in-game logic, which is a majority of the game. More updates on this as work is completed.
  
 Here's a working list of things I want to add that would be additional features on top of the original client specs:
  - Use built-in patching system prior to log-in to transfer files: help, gfx, pubs, maps, data, sounds, etc.
@@ -132,9 +94,9 @@ Most things on the above list would require changes to the server software which
 <a name="AdditionalGameInfo" />Running the game - additional info
 ----------------
 
-You will need a copy of eoserv set up and running, or another Endless Online server to connect to. The client binary is now distributed with a config file that points at the eoserv instance I use for testing (ewmoffat.ddns.net:8078). You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server.
+You will need a copy of eoserv set up and running, or another Endless Online server to connect to. I am self-hosting a test instance of EOSERV at ewmoffat.ddns.net:8078. You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server such as [game.eoserv.net](https://game.eoserv.net/).
 
-*Note: the auto-login button is not in the new code base yet. Since the in-game state isn't built up yet, it hasn't been added back in.*
+*Note: the auto-login button mentioned below is not in the new code base yet. Since the in-game state isn't built up yet, it hasn't been added back in. I will most likely re-enable it once the in-game logic comes together a little more.*
 
 The auto-login button in debug builds has been disabled unless you specify a username/password in a separate config file. Create a file name "local.config" and add the following to it:
 
@@ -186,7 +148,7 @@ HearWhisper=on
 Interaction=on
 ```
 
-<a name="Changes" />Changes From Original Client (so far)
+<a name="Changes" />Changes From Original Client
 -------------------------------------
 
 #### Version Numbers
@@ -205,9 +167,9 @@ Part of the sound processing involves reading the audio data and rewriting the l
 
 #### Rendering Hair
 
-*"This is horrible" - Falco, Star Fox 64
+*"This is horrible" - Falco, Star Fox 64*
 
-Not even sure how accurate this is anymore. Hair rendering will (hopefully) be fixed up to work well with the new code base.*
+*I'm not even sure how accurate this section is anymore. Hair rendering will (hopefully) be fixed up to work well with the new code base.*
 
 There are very subtle changes I've made to handling how hair is rendered for this client. Unlike the other features of the game, I've taken it upon myself to update the file format (GASP) for the item files to better assist with hair rendering in the client. I believe the original client had some hard-coded values for certain items that should render a certain way.
 
@@ -234,6 +196,10 @@ There are a few other projects included with the EndlessClient solution that are
 #### Core
 
 The core projects are EndlessClient, EOLib, and EOLib.Graphics. They are the only required projects in order for the game to run.
+
+#### Test
+
+Any projects with a ".Test" suffix in the name contain unit tests. These will be expanded for as much code coverage as possible.
 
 #### BatchMap
 
