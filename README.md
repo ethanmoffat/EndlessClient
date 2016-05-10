@@ -32,15 +32,11 @@ There are a few prerequisites that need to be installed before the source can be
 1. Install Windows
 
   a. Run Windows Update and reboot cyclically until Windows is up to date
-
 2. Install Visual Studio ([2013 Community](https://www.visualstudio.com/en-us/news/vs2013-community-vs.aspx)) ([2015 Community](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx))
 
   a. Optional, but recommended: For Visual Studio 2013, install [Visual Studio 2013 Update 5](https://www.microsoft.com/en-us/download/details.aspx?id=48129)
-  
   b. Optional, but **highly** recommended: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/download/) (student licenses are free with a .edu address!)
-  
   c. Optional, but recommended: Install Productivity Power Tools ([2013](https://visualstudiogallery.msdn.microsoft.com/dbcb8670-889e-4a54-a226-a48a15e4cace)) ([2015](https://visualstudiogallery.msdn.microsoft.com/34ebc6a2-2777-421d-8914-e29c1dfa7f5d))
-  
 3. Install [MonoGame 3.5](http://www.monogame.net/2016/03/17/monogame-3-5/)
 4. Install a git client (I use and recommend [Atlassian SourceTree](https://www.sourcetreeapp.com/))
 5. Clone the repo to your computer
