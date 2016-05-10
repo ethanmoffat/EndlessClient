@@ -8,6 +8,7 @@ NOTE: This project has been on GitHub since the end of July, 2014. If you're loo
 #### Jump to:
  - [Download and Play](#Download)
  - [Building the Source](#Source)
+ - [Obtaining Copyrighted Files](#CopyrightedFiles)
  - [What is there so far?](#SoFar)
  - [What is left to do?](#ToDo)
  - [Running the game - Additional Info](#AdditionalGameInfo)
@@ -17,43 +18,34 @@ NOTE: This project has been on GitHub since the end of July, 2014. If you're loo
 <a name="Download" />Download+Play
 -------------
 
-There is a [Release Binary ZIP](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) available for download for those not interested in building the source. It is up to date as of 06 May 2016.
+ZIP file of the [Release Binary](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) is available for download for those not interested in building the source. It is up to date as of 09 May 2016.
 
-The client is dependent on MonoGame and .Net 4.5. Since it uses MonoGame, the .Net implementation it runs on is Mono.
+The game is able to run independently of a MonoGame installation. The only requirement is .Net 4.5, which is available with installations of Windows 8 and later. Windows Vista and Windows 7 users will [need to install .Net 4.5](https://www.microsoft.com/en-us/download/details.aspx?id=30653) if it (or a later version) is not already installed.
 
-**Special Note**: Copyrighted sound, graphics, and other data files are not included in the release zip. See [how to obtain the original copyrighted files](#CopyrightedFiles) section from the original game client.
+**Special Note**: Copyrighted sound, graphics, and other data files are not included in the release zip. See [how to obtain the original copyrighted files](#CopyrightedFiles) from the original client for more information.
 
 <a name="Source" />Building the Source
 ---------------------
 
-There are a few prerequisites that need to be installed before the source can be built. The primary development environment is Visual Studio 2013 on Windows 10 Professional x64. The solution should be compatible with other IDEs that support MonoGame.
+There are a few prerequisites that need to be installed before the source can be built. The primary development environment is Visual Studio 2013 (with Update 5) on Windows 10 Professional x64. The solution should be compatible with other IDEs that support MonoGame.
 
-These are legacy instructions, tested on a Virtual Machine running Windows 7 Professional x64 With SP1. Updated instructions coming soon (in a couple hours)
+1. Install Windows
 
-(Note: references to official XNA files are incorrect - the project is now MonoGame ONLY)
+  a. Run Windows Update and reboot cyclically until Windows is up to date
 
-1. Install Windows and run windows update cyclically until there are no more
-2. Install Visual Studio 2013 ([the **free** Community Edition also works](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx) if you don't have a licensed full version)
-3. Install the [XNA 4.0 Refresh](https://mxa.codeplex.com/releases/view/117230) visual studio extension and its dependencies. These are all included in the linked .zip file (four prereqs + the extension itself also, [take a look at this](https://bitbucket.org/rbwhitaker/xna-beyond-vs-2010/src/))
- 1. Follow the [instructions here](https://stackoverflow.com/questions/28008970/how-to-install-xna-in-visual-studio-2015-preview/28009075) to get the VSIX installed on Visual Studio 2015
-4. Optionally: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/) (student licenses are **free** with a .edu email address!)
-5. Install your favorite git client and fork the latest changes (I highly recommend [Atlassian SourceTree](http://www.sourcetreeapp.com/))
-6. If you would like to build the mono project, download and install the [MonoGame framework](http://www.monogame.net/downloads/)
-7. Build the solution in VS 2013 (see note about EOCLI below). Copy the required files to the bin\x86\debug\ or bin\x86\release\ folder (see below)
-8. I recently added support for async/await - this requires use of the Microsoft.BCL.Async package from NuGet. You may or may not need to follow these steps; Visual Studio should automatically pull the required packages for you. Steps to install as follows:
- 1. Open EndlessClient.sln in Visual Studio and set EndlessClient as the active/startup project.
- 2. Go to Tools->NuGet Package Manager->Package Manager Console
- 3. In the Package Manager Console, type Install-Package Microsoft.Bcl.Async
+2. Install Visual Studio ([2013 Community](https://www.visualstudio.com/en-us/news/vs2013-community-vs.aspx)) ([2015 Community](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx))
 
-(Note: EOCLI has been deprecated and its use removed)
-
-For compatibility with XNA 4.0, EOCLI must be built with an older version of the compiler (.Net 4.0). When Visual Studio first opens, it will prompt you to upgrade compilers. Just click cancel when this dialog is displayed. In case you don't click cancel, use the following steps to revert the framework version:
-
-1. In solution explorer, right-click EOCLI and choose "Unload Project"
-2. Right-click EOCLI (in solution explorer) and choose "Edit EOCLI.vcxproj"
-3. Find the XML tag that says <TargetFrameworkVersion> and set it to v4.0 (the upgrade should have changed it to v4.5)
-4. Save and close the open EOCLI.vcxproj
-5. Right-click EOCLI (in solution explorer) and click "Reload Project"
+  a. Optional, but recommended: For Visual Studio 2013, install [Visual Studio 2013 Update 5](https://www.microsoft.com/en-us/download/details.aspx?id=48129)
+  
+  b. Optional, but **highly** recommended: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/download/) (student licenses are free with a .edu address!)
+  
+  c. Optional, but recommended: Install Productivity Power Tools ([2013](https://visualstudiogallery.msdn.microsoft.com/dbcb8670-889e-4a54-a226-a48a15e4cace)) ([2015](https://visualstudiogallery.msdn.microsoft.com/34ebc6a2-2777-421d-8914-e29c1dfa7f5d))
+  
+3. Install [MonoGame 3.5](http://www.monogame.net/2016/03/17/monogame-3-5/)
+4. Install a git client (I use and recommend [Atlassian SourceTree](https://www.sourcetreeapp.com/))
+5. Clone the repo to your computer
+6. Build the source in Visual Studio
+7. Copy the required files from the original game client to the bin/Debug or bin/Release directory
 
 <a name="CopyrightedFiles" />Obtaining additional copyrighted files
 =====================
@@ -61,8 +53,8 @@ For compatibility with XNA 4.0, EOCLI must be built with an older version of the
 Note that the game client requires some additional files to be copied to the *bin* directory before the game will successfully launch:
 
 1. Download the [Endless Online client](http://cache.tehsausage.com/EOzipped028.zip). This link points at a ZIP file hosted by Sausage (author of EOSERV). EIRC.exe may be a false-positive flag by some antivirus scanners.
-2. Copy the data, gfx, mfx, and sfx folders from the linked ZIP archive to the output bin directory before running the game. Otherwise it will fail to launch.
-3. (config file is included in Release.zip) ~Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory. Note that the original client had a setup.ini; this has been renamed to settings.ini.~
+2. Copy the data, gfx, help, jbox, mfx, and sfx folders from the linked ZIP archive to the output bin directory before running the game.
+3. Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory. Note that the original client had a setup.ini; this has been renamed to settings.ini.
 4. Any other files will be downloaded or created as needed (pub, maps, and friend.ini/ignore.ini)
 
 <a name="SoFar" />What is there so far?
