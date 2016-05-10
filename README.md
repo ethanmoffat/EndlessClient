@@ -52,7 +52,7 @@ There are a few prerequisites that need to be installed before the source can be
 7. Copy the required files from the original game client to the bin/Debug or bin/Release directory
 
 <a name="CopyrightedFiles" />Obtaining additional copyrighted files
-=====================
+---------------------
 
 Note that the game client requires some additional files to be copied to the *bin* directory before the game will successfully launch:
 
