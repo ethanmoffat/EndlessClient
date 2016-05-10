@@ -42,9 +42,13 @@ There are a few prerequisites that need to be installed before the source can be
   c. Optional, but recommended: Install Productivity Power Tools ([2013](https://visualstudiogallery.msdn.microsoft.com/dbcb8670-889e-4a54-a226-a48a15e4cace)) ([2015](https://visualstudiogallery.msdn.microsoft.com/34ebc6a2-2777-421d-8914-e29c1dfa7f5d))
 
 3. Install [MonoGame 3.5](http://www.monogame.net/2016/03/17/monogame-3-5/)
+
 4. Install a git client (I use and recommend [Atlassian SourceTree](https://www.sourcetreeapp.com/))
+
 5. Clone the repo to your computer
+
 6. Build the source in Visual Studio
+
 7. Copy the required files from the original game client to the bin/Debug or bin/Release directory
 
 <a name="CopyrightedFiles" />Obtaining additional copyrighted files
