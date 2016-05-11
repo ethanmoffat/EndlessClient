@@ -76,6 +76,7 @@ namespace EndlessClient.Controllers
 			if (!await requestCharacterLoginOperation.Invoke())
 				return;
 
+			var unableToLoadMap = false;
 			try
 			{
 				_fileLoadActions.LoadMapFileByID(_currentMapStateProvider.CurrentMapID);
@@ -84,6 +85,7 @@ namespace EndlessClient.Controllers
 			{
 				// Try to load the map now that we know what Map ID we need
 				// non-fatal exception
+				unableToLoadMap = true;
 			}
 
 			GameLoadingDialog gameLoadingDialog = null;
@@ -93,7 +95,7 @@ namespace EndlessClient.Controllers
 
 				await InitialDelayInReleaseMode();
 
-				if (_fileRequestActions.NeedsFile(InitFileType.Map, _currentMapStateProvider.CurrentMapID))
+				if (unableToLoadMap || _fileRequestActions.NeedsFile(InitFileType.Map, _currentMapStateProvider.CurrentMapID))
 				{
 					gameLoadingDialog.SetState(GameLoadingDialogState.Map);
 					if (!await SafeGetFile(async () => await _fileRequestActions.GetMapFromServer(_currentMapStateProvider.CurrentMapID)))

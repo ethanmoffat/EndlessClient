@@ -107,7 +107,7 @@ namespace EOLib.Domain.Login
 			_currentMapStateRepository.CurrentMapID = data.MapID;
 
 			_loginFileChecksumRepository.MapChecksum = data.MapRID.ToArray();
-			_loginFileChecksumRepository.MapLength = data.MapID;
+			_loginFileChecksumRepository.MapLength = data.MapLen;
 
 			_loginFileChecksumRepository.EIFChecksum = data.EifRid;
 			_loginFileChecksumRepository.EIFLength = data.EifLen;
