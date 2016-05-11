@@ -11,6 +11,7 @@ namespace EndlessClient.HUD
 {
 	public class UsageTrackerComponent : GameComponent
 	{
+		private readonly IEndlessGameProvider _gameProvider;
 		private readonly ICharacterRepository _characterRepository;
 		private DateTime _lastUpdateTime;
 
@@ -18,8 +19,17 @@ namespace EndlessClient.HUD
 									 ICharacterRepository characterRepository)
 			: base((Game)gameProvider.Game)
 		{
+			_gameProvider = gameProvider;
 			_characterRepository = characterRepository;
 			_lastUpdateTime = DateTime.Now;
+		}
+
+		public override void Initialize()
+		{
+			if (!_gameProvider.Game.Components.Contains(this))
+				_gameProvider.Game.Components.Add(this);
+
+			base.Initialize();
 		}
 
 		public override void Update(GameTime gameTime)

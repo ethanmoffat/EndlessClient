@@ -3,11 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EOLib;
+using Microsoft.Xna.Framework;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -16,6 +19,8 @@ namespace EndlessClient.ControlSets
 	{
 		private readonly IEOMessageBoxFactory _messageBoxFactory;
 		private readonly IHudControlsFactory _hudControlsFactory;
+
+		private IReadOnlyDictionary<HudControlIdentifier, IGameComponent> _controls;
 
 		public override GameStates GameState
 		{
@@ -29,12 +34,19 @@ namespace EndlessClient.ControlSets
 		{
 			_messageBoxFactory = messageBoxFactory;
 			_hudControlsFactory = hudControlsFactory;
+			_controls = new Dictionary<HudControlIdentifier, IGameComponent>();
+		}
+
+		public T GetHudComponent<T>(HudControlIdentifier whichControl)
+			where T : IGameComponent
+		{
+			return (T)_controls[whichControl];
 		}
 
 		protected override void InitializeControlsHelper(IControlSet currentControlSet)
 		{
-			var controls = _hudControlsFactory.CreateHud();
-			_allComponents.AddRange(controls);
+			_controls = _hudControlsFactory.CreateHud();
+			_allComponents.AddRange(_controls.Select(x => x.Value));
 
 			base.InitializeControlsHelper(currentControlSet);
 		}

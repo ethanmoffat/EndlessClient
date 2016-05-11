@@ -32,23 +32,32 @@ namespace EndlessClient.HUD
 			_characterRepository = characterRepository;
 		}
 
-		public IList<IGameComponent> CreateHud()
+		public IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud()
 		{
-			//todo: draw order for controls
-
-			var hudBackground = new HudBackgroundFrame(_nativeGraphicsManager, _graphicsDeviceProvider);
-
-			var clockLabel = new TimeLabel(_clientWindowSizeProvider);
-			var usageTracker = new UsageTrackerComponent(_endlessGameProvider, _characterRepository);
-
-			return new List<IGameComponent>
+			var controls = new Dictionary<HudControlIdentifier, IGameComponent>
 			{
-				hudBackground,
-
-				//time keeping
-				clockLabel,
-				usageTracker
+				{HudControlIdentifier.HudBackground, CreateHudBackground()},
+				
+				{HudControlIdentifier.ClockLabel, CreateClockLabel()},
+				{HudControlIdentifier.UsageTracker, CreateUsageTracker()}
 			};
+
+			return controls;
+		}
+
+		private IGameComponent CreateHudBackground()
+		{
+			return new HudBackgroundFrame(_nativeGraphicsManager, _graphicsDeviceProvider);
+		}
+
+		private IGameComponent CreateClockLabel()
+		{
+			return new TimeLabel(_clientWindowSizeProvider);
+		}
+
+		private IGameComponent CreateUsageTracker()
+		{
+			return new UsageTrackerComponent(_endlessGameProvider, _characterRepository);
 		}
 	}
 }

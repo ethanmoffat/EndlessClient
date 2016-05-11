@@ -55,5 +55,13 @@ namespace EndlessClient.GameExecution
 
 			base.LoadContent();
 		}
+
+		protected override void Draw(GameTime gameTime)
+		{
+			var isTestMode = _controlSetRepository.CurrentControlSet.GameState == GameStates.TestMode;
+			GraphicsDevice.Clear(isTestMode ? Color.White : Color.Black);
+
+			base.Draw(gameTime);
+		}
 	}
 }

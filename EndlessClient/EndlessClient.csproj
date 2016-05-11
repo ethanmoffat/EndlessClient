@@ -89,6 +89,7 @@
     <Compile Include="GameExecution\IEndlessGameProvider.cs" />
     <Compile Include="GameExecution\IGameStateActions.cs" />
     <Compile Include="HUD\HudBackgroundFrame.cs" />
+    <Compile Include="HUD\HudControlIdentifier.cs" />
     <Compile Include="HUD\HudControlsFactory.cs" />
     <Compile Include="HUD\IHudControlsFactory.cs" />
     <Compile Include="HUD\InGameStates.cs" />

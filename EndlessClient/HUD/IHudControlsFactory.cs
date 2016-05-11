@@ -9,6 +9,6 @@ namespace EndlessClient.HUD
 {
 	public interface IHudControlsFactory
 	{
-		IList<IGameComponent> CreateHud();
+		IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud();
 	}
 }
