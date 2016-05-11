@@ -149,7 +149,7 @@ namespace EndlessClient.Controllers
 			finally
 			{
 				if (gameLoadingDialog != null)
-					gameLoadingDialog.Close();
+					gameLoadingDialog.CloseDialog();
 			}
 		}
 

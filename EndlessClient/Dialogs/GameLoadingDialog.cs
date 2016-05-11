@@ -112,6 +112,11 @@ namespace EndlessClient.Dialogs
 					throw new ArgumentOutOfRangeException("whichState", whichState, null);
 			}
 		}
+
+		public void CloseDialog()
+		{
+			Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+		}
 	}
 
 	public enum GameLoadingDialogState
