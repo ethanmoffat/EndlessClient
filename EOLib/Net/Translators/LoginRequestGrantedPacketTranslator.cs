@@ -33,17 +33,17 @@ namespace EOLib.Net.Translators
 			var mapRid = packet.ReadBytes(4).ToArray();
 			var mapLen = packet.ReadThree();
 
-			var eifRid = _numberEncoderService.DecodeNumber(packet.ReadBytes(4).ToArray());
-			var eifLen = (short)_numberEncoderService.DecodeNumber(packet.ReadBytes(2).ToArray());
+			var eifRid = packet.ReadInt();
+			var eifLen = packet.ReadShort();
 
-			var enfRid = _numberEncoderService.DecodeNumber(packet.ReadBytes(4).ToArray());
-			var enfLen = (short)_numberEncoderService.DecodeNumber(packet.ReadBytes(2).ToArray());
+			var enfRid = packet.ReadInt();
+			var enfLen = packet.ReadShort();
 
-			var esfRid = _numberEncoderService.DecodeNumber(packet.ReadBytes(4).ToArray());
-			var esfLen = (short)_numberEncoderService.DecodeNumber(packet.ReadBytes(2).ToArray());
+			var esfRid = packet.ReadInt();
+			var esfLen = packet.ReadShort();
 
-			var ecfRid = _numberEncoderService.DecodeNumber(packet.ReadBytes(4).ToArray());
-			var ecfLen = (short) _numberEncoderService.DecodeNumber(packet.ReadBytes(2).ToArray());
+			var ecfRid = packet.ReadInt();
+			var ecfLen = packet.ReadShort();
 
 			var characterName = packet.ReadBreakString();
 			var characterTitle = packet.ReadBreakString();
