@@ -7,7 +7,7 @@ namespace EOLib.IO
 	public interface IModifiableDataFile<T> : IDataFile<T>
 		where T : IDataRecord
 	{
-		void Save(string fileName, int version = 0);
+		void Save(string fileName, bool rewriteRid, int version = 0);
 
 		void ReplaceRecordAt(int index, T newElement);
 	}

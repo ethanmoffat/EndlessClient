@@ -55,7 +55,7 @@ namespace EOLib.IO.Actions
 		{
 			var itemFile = await _fileRequestService.RequestFile<ItemRecord>(InitFileType.Item);
 			
-			itemFile.Save(Constants.ItemFilePath);
+			itemFile.Save(Constants.ItemFilePath, rewriteRid: false);
 			_pubFileRepository.ItemFile = itemFile;
 		}
 
@@ -63,7 +63,7 @@ namespace EOLib.IO.Actions
 		{
 			var npcFile = await _fileRequestService.RequestFile<NPCRecord>(InitFileType.Npc);
 
-			npcFile.Save(Constants.NPCFilePath);
+			npcFile.Save(Constants.NPCFilePath, rewriteRid: false);
 			_pubFileRepository.NPCFile = npcFile;
 		}
 
@@ -71,7 +71,7 @@ namespace EOLib.IO.Actions
 		{
 			var spellFile = await _fileRequestService.RequestFile<SpellRecord>(InitFileType.Spell);
 
-			spellFile.Save(Constants.SpellFilePath);
+			spellFile.Save(Constants.SpellFilePath, rewriteRid: false);
 			_pubFileRepository.SpellFile = spellFile;
 		}
 
@@ -79,7 +79,7 @@ namespace EOLib.IO.Actions
 		{
 			var classFile = await _fileRequestService.RequestFile<ClassRecord>(InitFileType.Class);
 
-			classFile.Save(Constants.ClassFilePath);
+			classFile.Save(Constants.ClassFilePath, rewriteRid: false);
 			_pubFileRepository.ClassFile = classFile;
 		}
 

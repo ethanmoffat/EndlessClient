@@ -87,7 +87,7 @@ namespace EOLib.IO
 			Data = new List<T>(localData);
 		}
 
-		public void Save(string fileName, int pubVersion = 0)
+		public void Save(string fileName, bool rewriteRid, int pubVersion = 0)
 		{
 			if (fileName.Length <= 4 || !fileName.Contains('.'))
 				throw new ArgumentException(
@@ -119,12 +119,16 @@ namespace EOLib.IO
 
 			using (var sw = File.Create(fileName))
 			{
-				var crc = new CRC32();
-				var newRid = crc.Check(allData, 7, (uint) allData.Length - 7);
-				Rid = (int) newRid;
 				sw.Write(allData, 0, allData.Length);
-				sw.Seek(3, SeekOrigin.Begin); //skip first 3 bytes
+
+				if (rewriteRid)
+				{
+					var crc = new CRC32();
+					var newRid = crc.Check(allData, 7, (uint) allData.Length - 7);
+					Rid = (int) newRid;
+					sw.Seek(3, SeekOrigin.Begin); //skip first 3 bytes
 					sw.Write(_numberEncoderService.EncodeNumber(Rid, 4), 0, 4); //overwrite the 4 RID (revision ID) bytes
+				}
 			}
 		}
 

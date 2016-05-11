@@ -417,7 +417,7 @@ namespace BatchPub
 
 				try
 				{
-					eif.Save("", version);
+					eif.Save("", version: version, rewriteRid: true);
 				}
 				catch(Exception ex)
 				{
