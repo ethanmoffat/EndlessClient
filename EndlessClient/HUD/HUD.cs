@@ -28,7 +28,6 @@ namespace EndlessClient.HUD
 	{
 		private readonly PacketAPI m_packetAPI;
 
-		private const int NUM_BTN = 11;
 		private const int HUD_CONTROL_DRAW_ORDER = 101;
 
 		private XNAPanel pnlInventory;
@@ -41,7 +40,6 @@ namespace EndlessClient.HUD
 		private XNAPanel pnlParty;
 		private XNAPanel pnlSettings;
 		private XNAPanel pnlHelp;
-		private readonly XNAButton[] mainBtn;
 		private readonly SpriteBatch SpriteBatch;
 		private readonly EOChatRenderer chatRenderer;
 		private EOInventory inventory;
@@ -52,10 +50,7 @@ namespace EndlessClient.HUD
 		private ActiveSpells activeSpells; 
 
 		private readonly XNALabel statusLabel;
-		private bool m_statusRecentlySet;
 		private Timer m_muteTimer;
-
-		private DateTime? statusStartTime;
 
 		private InGameStates state;
 		private ChatMode currentChatMode;
@@ -77,11 +72,7 @@ namespace EndlessClient.HUD
 
 			DrawOrder = 100;
 
-			Texture2D mainButtonTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 25);
-			mainBtn = new XNAButton[NUM_BTN];
-
 			CreatePanels();
-			CreateMainButtons(g, mainButtonTexture);
 
 			SpriteBatch = new SpriteBatch(g.GraphicsDevice);
 
@@ -254,52 +245,6 @@ namespace EndlessClient.HUD
 			pnlCollection.ForEach(OldWorld.IgnoreDialogs);
 		}
 
-		private void CreateMainButtons(Game g, Texture2D mainButtonTexture)
-		{
-			for (int i = 0; i < NUM_BTN; ++i)
-			{
-				Texture2D _out = new Texture2D(g.GraphicsDevice, mainButtonTexture.Width / 2, mainButtonTexture.Height / NUM_BTN);
-				Texture2D _ovr = new Texture2D(g.GraphicsDevice, mainButtonTexture.Width / 2, mainButtonTexture.Height / NUM_BTN);
-
-				Rectangle _outRec = new Rectangle(0, i * _out.Height, _out.Width, _out.Height);
-				Rectangle _ovrRec = new Rectangle(_ovr.Width, i * _ovr.Height, _ovr.Width, _ovr.Height);
-
-				Color[] _outBuf = new Color[_outRec.Width * _outRec.Height];
-				Color[] _ovrBuf = new Color[_ovrRec.Width * _ovrRec.Height];
-
-				mainButtonTexture.GetData(0, _outRec, _outBuf, 0, _outBuf.Length);
-				_out.SetData(_outBuf);
-
-				mainButtonTexture.GetData(0, _ovrRec, _ovrBuf, 0, _ovrBuf.Length);
-				_ovr.SetData(_ovrBuf);
-
-				//0-5: left side, starting at 59, 327 with increments of 20
-				//6-10: right side, starting at 587, 347
-				Vector2 btnLoc = new Vector2(i < 6 ? 62 : 590, (i < 6 ? 330 : 350) + ((i < 6 ? i : i - 6) * 20));
-
-				mainBtn[i] = new XNAButton(new[] { _out, _ovr }, btnLoc)
-				{
-					DrawOrder = HUD_CONTROL_DRAW_ORDER
-				};
-				OldWorld.IgnoreDialogs(mainBtn[i]);
-			}
-
-			//left button onclick events
-			mainBtn[0].OnClick += (s, e) => _doStateChange(InGameStates.Inventory);
-			mainBtn[1].OnClick += (s, e) => OldWorld.Instance.ActiveMapRenderer.ToggleMapView();
-			mainBtn[2].OnClick += (s, e) => _doStateChange(InGameStates.Active);
-			mainBtn[3].OnClick += (s, e) => _doStateChange(InGameStates.Passive);
-			mainBtn[4].OnClick += (s, e) => _doStateChange(InGameStates.Chat);
-			mainBtn[5].OnClick += (s, e) => _doStateChange(InGameStates.Stats);
-
-			//right button onclick events
-			mainBtn[6].OnClick += (s, e) => _doStateChange(InGameStates.Online);
-			mainBtn[7].OnClick += (s, e) => _doStateChange(InGameStates.Party);
-			//mainBtn[8].OnClick += OnViewMacro; //not implemented in EO client
-			mainBtn[9].OnClick += (s, e) => _doStateChange(InGameStates.Settings);
-			mainBtn[10].OnClick += (s, e) => _doStateChange(InGameStates.Help);
-		}
-
 		private void CreateChatTextbox()
 		{
 			chatTextBox = new ChatTextBox(new Rectangle(124, 308, 440, 19), Game.Content.Load<Texture2D>("cursor"),
@@ -421,22 +366,7 @@ namespace EndlessClient.HUD
 
 			activeSpells = new ActiveSpells(pnlActiveSpells, m_packetAPI);
 			activeSpells.Initialize();
-
-			for (int i = 0; i < mainBtn.Length; ++i)
-			{
-				int offset = i;
-				mainBtn[i].OnMouseOver += (o, e) =>
-				{
-					if (!m_statusRecentlySet)
-					{
-						SetStatusLabel(
-							DATCONST2.STATUS_LABEL_TYPE_BUTTON,
-							DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + offset);
-						m_statusRecentlySet = false;
-					}
-				};
-			}
-
+			
 			SessionStartTime = DateTime.Now;
 
 			m_inputListeners = new List<InputKeyListenerBase>(4)
@@ -506,10 +436,10 @@ namespace EndlessClient.HUD
 				case InGameStates.Inventory:
 					pnlInventory.Visible = true;
 					break;
-				case InGameStates.Active:
+				case InGameStates.ActiveSpells:
 					pnlActiveSpells.Visible = true;
 					break;
-				case InGameStates.Passive:
+				case InGameStates.PassiveSpells:
 					pnlPassiveSpells.Visible = true;
 					break;
 				case InGameStates.Chat:
@@ -521,7 +451,7 @@ namespace EndlessClient.HUD
 					pnlStats.Visible = true;
 					SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_STATS_PANEL_NOW_VIEWED);
 					break;
-				case InGameStates.Online:
+				case InGameStates.OnlineList:
 					List<OnlineEntry> onlineList;
 					if (!m_packetAPI.RequestOnlinePlayers(true, out onlineList))
 						EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -732,8 +662,6 @@ namespace EndlessClient.HUD
 		private void SetStatusLabelText(string text)
 		{
 			statusLabel.Text = text;
-			statusStartTime = !string.IsNullOrEmpty(text) ? new DateTime?(DateTime.Now) : null;
-			m_statusRecentlySet = true;
 		}
 
 		private void CheckStatusLabelType(DATCONST2 type)
@@ -891,9 +819,6 @@ namespace EndlessClient.HUD
 			if (disposing)
 			{
 				m_packetAPI.Dispose();
-
-				foreach (XNAButton btn in mainBtn)
-					btn.Close();
 
 				newsTab.Dispose();
 				inventory.Dispose();

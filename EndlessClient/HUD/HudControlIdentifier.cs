@@ -40,6 +40,8 @@ namespace EndlessClient.HUD
 		HelpButton,
 		HelpPanel,
 
+		NewsPanel,
+
 		//top bar
 		UsageAndStatsButton,
 		QuestsButton,
