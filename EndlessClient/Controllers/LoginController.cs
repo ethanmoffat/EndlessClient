@@ -143,14 +143,14 @@ namespace EndlessClient.Controllers
 					return;
 
 				await Task.Delay(1000); //always wait 1 second
-
-				_gameStateActions.ChangeToState(GameStates.PlayingTheGame);
 			}
 			finally
 			{
 				if (gameLoadingDialog != null)
 					gameLoadingDialog.CloseDialog();
 			}
+
+			_gameStateActions.ChangeToState(GameStates.PlayingTheGame);
 		}
 
 		private void SetInitialStateAndShowError(NoDataSentException ex)

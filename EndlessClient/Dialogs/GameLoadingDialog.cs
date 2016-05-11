@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Collections.Generic;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
@@ -115,7 +116,17 @@ namespace EndlessClient.Dialogs
 
 		public void CloseDialog()
 		{
-			Close(null, XNADialogResult.NO_BUTTON_PRESSED);
+			Close();
+
+			//workaround because XNAControls is poorly written
+			XNADialog dlg;
+			var tmpDialogs = new Stack<XNADialog>();
+			do tmpDialogs.Push(dlg = Dialogs.Pop()); while (dlg != this);
+
+			tmpDialogs.Pop(); //remove this dialog from Dialogs
+			
+			while (tmpDialogs.Count > 0) //push other dialogs back on stack
+				Dialogs.Push(tmpDialogs.Pop());
 		}
 	}
 
