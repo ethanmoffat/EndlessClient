@@ -10,6 +10,7 @@ using EndlessClient.UIControls;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
 namespace EndlessClient.HUD
@@ -56,6 +57,18 @@ namespace EndlessClient.HUD
 				{HudControlIdentifier.SettingsButton, CreateStateChangeButton(InGameStates.Settings)},
 				{HudControlIdentifier.HelpButton, CreateStateChangeButton(InGameStates.Help)},
 				
+				{HudControlIdentifier.NewsPanel, CreateStatePanel(InGameStates.News)},
+				{HudControlIdentifier.InventoryPanel, CreateStatePanel(InGameStates.Inventory)},
+				{HudControlIdentifier.ActiveSpellsPanel, CreateStatePanel(InGameStates.ActiveSpells)},
+				{HudControlIdentifier.PassiveSpellsPanel, CreateStatePanel(InGameStates.PassiveSpells)},
+				{HudControlIdentifier.ChatPanel, CreateStatePanel(InGameStates.Chat)},
+				{HudControlIdentifier.StatsPanel, CreateStatePanel(InGameStates.Stats)},
+				{HudControlIdentifier.OnlineListPanel, CreateStatePanel(InGameStates.OnlineList)},
+				{HudControlIdentifier.PartyPanel, CreateStatePanel(InGameStates.Party)},
+				//macro panel
+				{HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
+				{HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
+				
 				{HudControlIdentifier.ClockLabel, CreateClockLabel()},
 				{HudControlIdentifier.UsageTracker, CreateUsageTracker()}
 			};
@@ -83,6 +96,7 @@ namespace EndlessClient.HUD
 
 			var outSprite = new SpriteSheet(mainButtonTexture, new Rectangle(0, heightDelta*buttonIndex, widthDelta, heightDelta));
 			var overSprite = new SpriteSheet(mainButtonTexture, new Rectangle(widthDelta, heightDelta * buttonIndex, widthDelta, heightDelta));
+			//todo: these textures returned by GetSourceTexture are never disposed
 			var textures = new[] { outSprite.GetSourceTexture(), overSprite.GetSourceTexture() };
 
 			var xPosition = buttonIndex < 6 ? 62 : 590;
@@ -94,6 +108,67 @@ namespace EndlessClient.HUD
 										//DATCONST2.STATUS_LABEL_TYPE_BUTTON,
 										//DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + buttonIndex
 			return retButton;
+		}
+
+		private IGameComponent CreateStatePanel(InGameStates whichState)
+		{
+			//todo: change to use individual panel implementations instead of XNAPanel as panels are refactored
+			Texture2D backgroundImage;
+			XNAPanel retPanel;
+
+			switch (whichState)
+			{
+				case InGameStates.Inventory:
+					backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 44);
+					retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+					break;
+				case InGameStates.ActiveSpells:
+					backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 62);
+					retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+					break;
+				case InGameStates.PassiveSpells:
+					backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 62);
+					retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+					break;
+				case InGameStates.Chat:
+					backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 28);
+					retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+					break;
+				case InGameStates.Stats:
+					backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 34);
+					retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+					break;
+				case InGameStates.OnlineList:
+					backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 36);
+					retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+					break;
+				case InGameStates.Party:
+					backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 42);
+					retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+					break;
+				case InGameStates.Settings:
+					backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 47);
+					retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+					break;
+				case InGameStates.Help:
+					backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 63);
+					retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+					break;
+				case InGameStates.News:
+					backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 48);
+					retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("whichState",
+						whichState,
+						"Macro and View Map do not have panels associated with them");
+			}
+
+			retPanel.Visible = false;
+			retPanel.DrawOrder = HUD_CONTROL_LAYER;
+			retPanel.BackgroundImage = backgroundImage;
+
+			return retPanel;
 		}
 
 		private TimeLabel CreateClockLabel()

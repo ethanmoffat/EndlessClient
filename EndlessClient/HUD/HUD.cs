@@ -30,6 +30,7 @@ namespace EndlessClient.HUD
 
 		private const int HUD_CONTROL_DRAW_ORDER = 101;
 
+		//todo: remove panels when refactored
 		private XNAPanel pnlInventory;
 		private XNAPanel pnlActiveSpells;
 		private XNAPanel pnlPassiveSpells;
@@ -71,8 +72,6 @@ namespace EndlessClient.HUD
 			m_packetAPI = api;
 
 			DrawOrder = 100;
-
-			CreatePanels();
 
 			SpriteBatch = new SpriteBatch(g.GraphicsDevice);
 
@@ -145,105 +144,6 @@ namespace EndlessClient.HUD
 		}
 
 		#region Constructor Helpers
-
-		private void CreatePanels()
-		{
-			Texture2D invBG = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 44);
-			pnlInventory = new XNAPanel(new Rectangle(102, 330, invBG.Width, invBG.Height))
-			{
-				BackgroundImage = invBG,
-				Visible = false,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-
-			Texture2D spellsBG = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 62);
-			pnlActiveSpells = new XNAPanel(new Rectangle(102, 330, spellsBG.Width, spellsBG.Height))
-			{
-				BackgroundImage = spellsBG,
-				Visible = false,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-
-			pnlPassiveSpells = new XNAPanel(new Rectangle(102, 330, spellsBG.Width, spellsBG.Height))
-			{
-				BackgroundImage = spellsBG,
-				Visible = false,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-
-			Texture2D chatBG = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 28);
-			pnlChat = new XNAPanel(new Rectangle(102, 330, chatBG.Width, chatBG.Height))
-			{
-				BackgroundImage = chatBG,
-				Visible = false,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-
-			Texture2D statsBG = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 34);
-			pnlStats = new XNAPanel(new Rectangle(102, 330, statsBG.Width, statsBG.Height))
-			{
-				BackgroundImage = statsBG,
-				Visible = false,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-
-			Texture2D onlineBG = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 36);
-			pnlOnline = new XNAPanel(new Rectangle(102, 330, onlineBG.Width, onlineBG.Height))
-			{
-				BackgroundImage = onlineBG,
-				Visible = false,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-
-			Texture2D partyBG = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 42);
-			pnlParty = new XNAPanel(new Rectangle(102, 330, partyBG.Width, partyBG.Height))
-			{
-				BackgroundImage = partyBG,
-				Visible = false,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-
-			Texture2D settingsBG = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 47);
-			pnlSettings = new XNAPanel(new Rectangle(102, 330, settingsBG.Width, settingsBG.Height))
-			{
-				BackgroundImage = settingsBG,
-				Visible = false,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-
-			Texture2D helpBG = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 63);
-			pnlHelp = new XNAPanel(new Rectangle(102, 330, helpBG.Width, helpBG.Height))
-			{
-				BackgroundImage = helpBG,
-				Visible = false,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-
-			Texture2D newsBG = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 48);
-			pnlNews = new XNAPanel(new Rectangle(102, 330, newsBG.Width, newsBG.Height))
-			{
-				BackgroundImage = newsBG,
-				DrawOrder = HUD_CONTROL_DRAW_ORDER
-			};
-
-			//for easy update of all panels via foreach
-			List<XNAPanel> pnlCollection = new List<XNAPanel>(10)
-			{
-				pnlInventory,
-				pnlActiveSpells,
-				pnlPassiveSpells,
-				pnlChat,
-				pnlStats,
-				pnlOnline,
-				pnlParty,
-				pnlSettings,
-				pnlHelp,
-				pnlNews
-			};
-			//pnlCollection.Add(pnlMacro); //if this ever happens...
-
-			pnlCollection.ForEach(OldWorld.IgnoreDialogs);
-		}
 
 		private void CreateChatTextbox()
 		{
