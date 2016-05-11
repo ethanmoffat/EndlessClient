@@ -179,7 +179,10 @@ namespace EOLib.Net.Communication
 		private void BlockingDisconnect()
 		{
 			_socket.Shutdown(SocketShutdown.Both);
-			_socket.Disconnect(false);
+
+			if (_socket.Connected)
+				_socket.Disconnect(false);
+
 			_socket.Close();
 		}
 
