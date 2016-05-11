@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using EOLib.Domain;
 using EOLib.Net;
 
 namespace EOLib.IO
@@ -142,7 +143,7 @@ namespace EOLib.IO
 
 	public class SpellFile : EODataFile<SpellRecord>
 	{
-		public SpellFile() : base(new SpellRecordFactory()) { }
+		public SpellFile() : base(new SpellRecordFactory(), new NumberEncoderService()) { }
 
 		public static SpellFile FromBytes(IEnumerable<byte> bytes)
 		{

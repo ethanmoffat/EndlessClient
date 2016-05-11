@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using EOLib.Domain;
 using EOLib.Net;
 
 namespace EOLib.IO
@@ -347,7 +348,7 @@ namespace EOLib.IO
 
 	public class ItemFile : EODataFile<ItemRecord>
 	{
-		public ItemFile() : base(new ItemRecordFactory()) { }
+		public ItemFile() : base(new ItemRecordFactory(), new NumberEncoderService()) { }
 
 		public static ItemFile FromBytes(IEnumerable<byte> bytes)
 		{

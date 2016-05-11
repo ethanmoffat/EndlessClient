@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using EOLib.Domain;
 using EOLib.Net;
 
 namespace EOLib.IO
@@ -92,7 +93,7 @@ namespace EOLib.IO
 
 	public class ClassFile : EODataFile<ClassRecord>
 	{
-		public ClassFile() : base(new ClassRecordFactory()) { }
+		public ClassFile() : base(new ClassRecordFactory(), new NumberEncoderService()) { }
 
 		public static ClassFile FromBytes(IEnumerable<byte> bytes)
 		{

@@ -5,12 +5,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EOLib.Domain;
 
 namespace EOLib.IO
 {
 	public class NPCFile : EODataFile<NPCRecord>
 	{
-		public NPCFile() : base(new NPCRecordFactory()) { }
+		public NPCFile() : base(new NPCRecordFactory(), new NumberEncoderService()) { }
 
 		public static NPCFile FromBytes(IEnumerable<byte> bytes)
 		{

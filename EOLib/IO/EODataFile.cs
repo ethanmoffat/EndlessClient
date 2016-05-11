@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using EOLib.Net;
+using EOLib.Domain;
 
 namespace EOLib.IO
 {
@@ -20,10 +20,13 @@ namespace EOLib.IO
 		public short Len { get; private set; }
 
 		private readonly IDataRecordFactory<T> _factory;
+		private readonly INumberEncoderService _numberEncoderService;
 
-		internal EODataFile(IDataRecordFactory<T> factory)
+		internal EODataFile(IDataRecordFactory<T> factory,
+							INumberEncoderService numberEncoderService)
 		{
 			_factory = factory;
+			_numberEncoderService = numberEncoderService;
 			Data = new List<T>();
 		}
 
@@ -40,16 +43,16 @@ namespace EOLib.IO
 
 			var rid = new byte[4];
 			mem.Read(rid, 0, 4);
-			Rid = OldPacket.DecodeNumber(rid);
+			Rid = _numberEncoderService.DecodeNumber(rid);
 
 			var len = new byte[2];
 			mem.Read(len, 0, 2);
-			Len = (short) OldPacket.DecodeNumber(len);
+			Len = (short) _numberEncoderService.DecodeNumber(len);
 
 			//indices are 1-based
 			var localData = new List<T>(Len) {_factory.CreateRecord(0)};
 
-			Version = OldPacket.DecodeNumber((byte) mem.ReadByte()); //this was originally seeked over
+			Version = _numberEncoderService.DecodeNumber((byte) mem.ReadByte()); //this was originally seeked over
 
 			var rawData = new byte[_factory.RecordSizeInBytes];
 
@@ -60,7 +63,7 @@ namespace EOLib.IO
 				var nameLengths = new List<int>(2);
 				for (int j = 0; j < record.NameCount; ++j)
 				{
-					var nameSize = OldPacket.DecodeNumber((byte) mem.ReadByte());
+					var nameSize = _numberEncoderService.DecodeNumber((byte)mem.ReadByte());
 					nameLengths.Add(nameSize);
 				}
 
@@ -100,11 +103,11 @@ namespace EOLib.IO
 			using (var mem = new MemoryStream()) //write to memory so we can get a CRC for the new RID value
 			{
 				mem.Write(extension, 0, 3);
-				mem.Write(OldPacket.EncodeNumber(Rid, 4), 0, 4);
-				mem.Write(OldPacket.EncodeNumber(Data.Count, 2), 0, 2);
+				mem.Write(_numberEncoderService.EncodeNumber(Rid, 4), 0, 4);
+				mem.Write(_numberEncoderService.EncodeNumber(Data.Count, 2), 0, 2);
 
 				Version = pubVersion;
-				mem.WriteByte(OldPacket.EncodeNumber(Version, 1)[0]); //new version check
+				mem.WriteByte(_numberEncoderService.EncodeNumber(Version, 1)[0]); //new version check
 
 				for (int i = 1; i < Data.Count; ++i)
 				{
@@ -121,7 +124,7 @@ namespace EOLib.IO
 				Rid = (int) newRid;
 				sw.Write(allData, 0, allData.Length);
 				sw.Seek(3, SeekOrigin.Begin); //skip first 3 bytes
-				sw.Write(OldPacket.EncodeNumber(Rid, 4), 0, 4); //overwrite the 4 RID (revision ID) bytes
+					sw.Write(_numberEncoderService.EncodeNumber(Rid, 4), 0, 4); //overwrite the 4 RID (revision ID) bytes
 			}
 		}
 
