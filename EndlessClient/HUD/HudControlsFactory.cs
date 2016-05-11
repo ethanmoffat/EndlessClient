@@ -84,7 +84,7 @@ namespace EndlessClient.HUD
 			};
 		}
 
-		private XNAButton CreateStateChangeButton(InGameStates whichState)
+		private DisposableButton CreateStateChangeButton(InGameStates whichState)
 		{
 			if (whichState == InGameStates.News)
 				throw new ArgumentOutOfRangeException("whichState", "News state does not have a button associated with it");
@@ -94,15 +94,19 @@ namespace EndlessClient.HUD
 			var widthDelta = mainButtonTexture.Width/2;
 			var heightDelta = mainButtonTexture.Height/11;
 
-			var outSprite = new SpriteSheet(mainButtonTexture, new Rectangle(0, heightDelta*buttonIndex, widthDelta, heightDelta));
-			var overSprite = new SpriteSheet(mainButtonTexture, new Rectangle(widthDelta, heightDelta * buttonIndex, widthDelta, heightDelta));
-			//todo: these textures returned by GetSourceTexture are never disposed
-			var textures = new[] { outSprite.GetSourceTexture(), overSprite.GetSourceTexture() };
-
 			var xPosition = buttonIndex < 6 ? 62 : 590;
 			var yPosition = (buttonIndex < 6 ? 330 : 350) + (buttonIndex < 6 ? buttonIndex : buttonIndex - 6)*20;
 
-			var retButton = new XNAButton(textures, new Vector2(xPosition, yPosition)) { DrawOrder = HUD_CONTROL_LAYER };
+			var outSprite = new SpriteSheet(mainButtonTexture, new Rectangle(0, heightDelta * buttonIndex, widthDelta, heightDelta));
+			var overSprite = new SpriteSheet(mainButtonTexture, new Rectangle(widthDelta, heightDelta * buttonIndex, widthDelta, heightDelta));
+
+			var retButton = new DisposableButton(
+				new Vector2(xPosition, yPosition),
+				outSprite.GetSourceTexture(),
+				overSprite.GetSourceTexture())
+			{
+				DrawOrder = HUD_CONTROL_LAYER
+			};
 			//retButton.OnClick += //todo: game state controller, set in-game state?
 			//retButton.OnMouseOver +=  //todo: set status label
 										//DATCONST2.STATUS_LABEL_TYPE_BUTTON,

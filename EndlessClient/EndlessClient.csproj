@@ -114,6 +114,7 @@
     <Compile Include="UIControls\CreateCharacterControl.cs" />
     <Compile Include="ControlSets\IControlSetFactory.cs" />
     <Compile Include="Input\TextboxClickEventHandler.cs" />
+    <Compile Include="UIControls\DisposableButton.cs" />
     <Compile Include="UIControls\DisposablePictureBox.cs" />
     <Compile Include="UIControls\ICharacterInfoPanelFactory.cs" />
     <Compile Include="UIControls\PictureBox.cs" />
