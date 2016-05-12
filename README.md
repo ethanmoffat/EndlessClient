@@ -18,7 +18,7 @@ NOTE: This project has been on GitHub since the end of July, 2014. If you're loo
 <a name="Download" />Download+Play
 -------------
 
-ZIP file of the [Release Binary](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) is available for download for those not interested in building the source. It is up to date as of 09 May 2016.
+ZIP file of the [Release Binary](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) is available for download for those not interested in building the source. It is up to date as of 11 May 2016.
 
 The game is able to run independently of a MonoGame installation. The only requirement is .Net 4.5, which is available with installations of Windows 8 and later. Windows Vista and Windows 7 users will [need to install .Net 4.5](https://www.microsoft.com/en-us/download/details.aspx?id=30653) if it (or a later version) is not already installed.
 
