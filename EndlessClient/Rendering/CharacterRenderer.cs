@@ -96,7 +96,7 @@ namespace EndlessClient.Rendering
 
 		public override void Draw(GameTime gameTime)
 		{
-			if (!Visible)
+			if (!Visible || _sb.IsDisposed)
 				return;
 
 			//todo: check if this is the renderer for the main player
@@ -104,6 +104,9 @@ namespace EndlessClient.Rendering
 
 			_sb.Begin();
 			DrawToSpriteBatch(_sb);
+			
+			if (_sb.IsDisposed)
+				return;
 			_sb.End();
 
 			//todo: draw effect over character
@@ -248,8 +251,8 @@ namespace EndlessClient.Rendering
 		{
 			if (disposing)
 			{
-				_charRenderTarget.Dispose();
 				_sb.Dispose();
+				_charRenderTarget.Dispose();
 			}
 
 			base.Dispose(disposing);
