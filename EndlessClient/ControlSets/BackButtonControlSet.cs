@@ -39,14 +39,6 @@ namespace EndlessClient.ControlSets
 			_allComponents.Add(_backButton);
 		}
 
-		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
-		{
-			if (control == GameControlIdentifier.BackButton)
-				return _backButton;
-
-			return base.FindComponentByControlIdentifier(control);
-		}
-
 		private XNAButton GetBackButton()
 		{
 			var button = new XNAButton(
