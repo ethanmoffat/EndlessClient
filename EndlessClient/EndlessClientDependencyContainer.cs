@@ -75,6 +75,10 @@ namespace EndlessClient
 			container.RegisterType<IErrorDialogDisplayAction, ErrorDialogDisplayAction>();
 			container.RegisterType<IAccountDialogDisplayActions, AccountDialogDisplayActions>();
 			container.RegisterType<ICharacterDialogActions, CharacterDialogActions>();
+
+			//hud
+			container.RegisterType<IHudButtonController, HudButtonController>();
+			container.RegisterType<IHudStateActions, HudStateActions>();
 		}
 
 		public void InitializeDependencies(IUnityContainer container)
