@@ -9,6 +9,7 @@ using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Controls;
 using EOLib;
 using Microsoft.Xna.Framework;
 using XNAControls;

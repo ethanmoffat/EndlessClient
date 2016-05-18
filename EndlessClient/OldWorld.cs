@@ -9,6 +9,7 @@ using System.Linq;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Domain.Map;

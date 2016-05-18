@@ -10,6 +10,7 @@ using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
 using EndlessClient.Network;
 using EndlessClient.Rendering.Factories;

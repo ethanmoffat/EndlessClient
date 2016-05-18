@@ -25,7 +25,7 @@ namespace EndlessClient
 		private XNAButton _backButton;
 		private bool _backButtonPressed; //workaround so the lost connection dialog doesn't show from the client disconnect event
 
-		public HUD.HUD Hud { get; private set; }
+		public HUD.Controls.HUD Hud { get; private set; }
 		public SoundManager SoundManager { get; private set; }
 
 		private void InitializeControls(bool reinit = false)

@@ -18,7 +18,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.HUD.Panels
 {
 	public class ActiveSpells : XNAControl
 	{

@@ -9,6 +9,7 @@ using EndlessClient.Controllers.Repositories;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib.Graphics;

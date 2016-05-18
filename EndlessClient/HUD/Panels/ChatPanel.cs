@@ -16,7 +16,7 @@ using Microsoft.Xna.Framework.Input;
 using XNAControls;
 using Mouse = Microsoft.Xna.Framework.Input.Mouse;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.HUD.Panels
 {
 	public enum ChatTabs
 	{

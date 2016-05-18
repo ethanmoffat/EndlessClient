@@ -8,11 +8,10 @@ using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
-using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.HUD.Panels
 {
 	public class EOCharacterStats : XNAControl
 	{

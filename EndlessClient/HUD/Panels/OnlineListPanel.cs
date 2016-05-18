@@ -17,7 +17,7 @@ using Microsoft.Xna.Framework.Input;
 using XNAControls;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.HUD.Panels
 {
 	public class ClientOnlineEntry : OnlineEntry
 	{

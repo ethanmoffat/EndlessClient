@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.HUD.Controls
 {
 	public interface IHudControlsFactory
 	{

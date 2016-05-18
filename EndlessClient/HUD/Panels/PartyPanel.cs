@@ -13,7 +13,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.HUD.Panels
 {
 	public class EOPartyPanel : XNAControl
 	{

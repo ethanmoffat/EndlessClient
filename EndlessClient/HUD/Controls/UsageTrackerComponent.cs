@@ -7,7 +7,7 @@ using EndlessClient.GameExecution;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.HUD.Controls
 {
 	public class UsageTrackerComponent : GameComponent
 	{

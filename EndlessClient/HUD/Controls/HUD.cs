@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using EndlessClient.Dialogs;
+using EndlessClient.HUD.Panels;
 using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
@@ -19,7 +20,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
-namespace EndlessClient.HUD
+namespace EndlessClient.HUD.Controls
 {
 	/// <summary>
 	/// Note that this is NOT an XNAControl - it is just a DrawableGameComponent
