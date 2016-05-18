@@ -50,7 +50,7 @@ namespace EOLib.Net
 				default: throw new ArgumentOutOfRangeException("origin", origin, null);
 			}
 
-			if (newPosition >= Length)
+			if (newPosition > Length)
 				throw new ArgumentOutOfRangeException("position", "Position is out of bounds of the packet!");
 
 			ReadPosition = newPosition;
