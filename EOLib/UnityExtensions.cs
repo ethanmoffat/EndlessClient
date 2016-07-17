@@ -9,28 +9,28 @@ namespace EOLib
 {
     public static class UnityExtensions
     {
-        public static void RegisterInstance<T>(this IUnityContainer container)
+        public static IUnityContainer RegisterInstance<T>(this IUnityContainer container)
         {
-            container.RegisterType<T>(new ContainerControlledLifetimeManager());
+            return container.RegisterType<T>(new ContainerControlledLifetimeManager());
         }
 
-        public static void RegisterInstance<T, U>(this IUnityContainer container) where U : T
+        public static IUnityContainer RegisterInstance<T, U>(this IUnityContainer container) where U : T
         {
-            container.RegisterType<T, U>(new ContainerControlledLifetimeManager());
+            return container.RegisterType<T, U>(new ContainerControlledLifetimeManager());
         }
 
-        public static void RegisterVaried<T, U>(this IUnityContainer container) where U : T
+        public static IUnityContainer RegisterVaried<T, U>(this IUnityContainer container) where U : T
         {
             RegisterEnumerableIfNeeded<T, U>(container);
 
-            container.RegisterType<T, U>(typeof(U).Name);
+            return container.RegisterType<T, U>(typeof(U).Name);
         }
 
-        public static void RegisterInstanceVaried<T, U>(this IUnityContainer container) where U : T
+        public static IUnityContainer RegisterInstanceVaried<T, U>(this IUnityContainer container) where U : T
         {
             RegisterEnumerableIfNeeded<T, U>(container);
 
-            container.RegisterType<T, U>(typeof(U).Name, new ContainerControlledLifetimeManager());
+            return container.RegisterType<T, U>(typeof(U).Name, new ContainerControlledLifetimeManager());
         }
 
         private static void RegisterEnumerableIfNeeded<T, U>(IUnityContainer container) where U : T
