@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.Content;
-using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EOLib;
 using EOLib.Domain.Login;
@@ -36,10 +35,52 @@ namespace EndlessClient.HUD.Panels
             return new NewsPanel(_nativeGraphicsManager,
                                  new ChatRenderableGenerator(chatFont),
                                  _newsProvider,
-                                 chatFont)
-            {
-                DrawOrder = HUD_CONTROL_LAYER
-            };
+                                 chatFont) { DrawOrder = HUD_CONTROL_LAYER };
+        }
+
+        public InventoryPanel CreateInventoryPanel()
+        {
+            return new InventoryPanel();
+        }
+
+        public ActiveSpellsPanel CreateActiveSpellsPanel()
+        {
+            return new ActiveSpellsPanel();
+        }
+
+        public PassiveSpellsPanel CreatePassiveSpellsPanel()
+        {
+            return new PassiveSpellsPanel();
+        }
+
+        public ChatPanel CreateChatPanel()
+        {
+            return new ChatPanel();
+        }
+
+        public StatsPanel CreateStatsPanel()
+        {
+            return new StatsPanel();
+        }
+
+        public OnlineListPanel CreateOnlineListPanel()
+        {
+            return new OnlineListPanel();
+        }
+
+        public PartyPanel CreatePartyPanel()
+        {
+            return new PartyPanel();
+        }
+
+        public SettingsPanel CreateSettingsPanel()
+        {
+            return new SettingsPanel();
+        }
+
+        public HelpPanel CreateHelpPanel()
+        {
+            return new HelpPanel();
         }
     }
 }

@@ -11,8 +11,6 @@ using EndlessClient.UIControls;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using XNAControls;
 
 namespace EndlessClient.HUD.Controls
 {
@@ -62,16 +60,16 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.HelpButton, CreateStateChangeButton(InGameStates.Help)},
                 
                 {HudControlIdentifier.NewsPanel, CreateStatePanel(InGameStates.News)},
-                //{HudControlIdentifier.InventoryPanel, CreateStatePanel(InGameStates.Inventory)},
-                //{HudControlIdentifier.ActiveSpellsPanel, CreateStatePanel(InGameStates.ActiveSpells)},
-                //{HudControlIdentifier.PassiveSpellsPanel, CreateStatePanel(InGameStates.PassiveSpells)},
-                //{HudControlIdentifier.ChatPanel, CreateStatePanel(InGameStates.Chat)},
-                //{HudControlIdentifier.StatsPanel, CreateStatePanel(InGameStates.Stats)},
-                //{HudControlIdentifier.OnlineListPanel, CreateStatePanel(InGameStates.OnlineList)},
-                //{HudControlIdentifier.PartyPanel, CreateStatePanel(InGameStates.Party)},
+                {HudControlIdentifier.InventoryPanel, CreateStatePanel(InGameStates.Inventory)},
+                {HudControlIdentifier.ActiveSpellsPanel, CreateStatePanel(InGameStates.ActiveSpells)},
+                {HudControlIdentifier.PassiveSpellsPanel, CreateStatePanel(InGameStates.PassiveSpells)},
+                {HudControlIdentifier.ChatPanel, CreateStatePanel(InGameStates.Chat)},
+                {HudControlIdentifier.StatsPanel, CreateStatePanel(InGameStates.Stats)},
+                {HudControlIdentifier.OnlineListPanel, CreateStatePanel(InGameStates.OnlineList)},
+                {HudControlIdentifier.PartyPanel, CreateStatePanel(InGameStates.Party)},
                 //macro panel
-                //{HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
-                //{HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
+                {HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
+                {HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
                 
                 {HudControlIdentifier.ClockLabel, CreateClockLabel()},
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()}
@@ -120,55 +118,26 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateStatePanel(InGameStates whichState)
         {
-            IHudPanel retPanel = null;
+            IHudPanel retPanel;
 
             switch (whichState)
             {
-                //case InGameStates.Inventory:
-                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 44);
-                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                //    break;
-                //case InGameStates.ActiveSpells:
-                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 62);
-                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                //    break;
-                //case InGameStates.PassiveSpells:
-                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 62);
-                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                //    break;
-                //case InGameStates.Chat:
-                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 28);
-                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                //    break;
-                //case InGameStates.Stats:
-                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 34);
-                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                //    break;
-                //case InGameStates.OnlineList:
-                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 36);
-                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                //    break;
-                //case InGameStates.Party:
-                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 42);
-                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                //    break;
-                //case InGameStates.Settings:
-                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 47);
-                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                //    break;
-                //case InGameStates.Help:
-                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 63);
-                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                //    break;
+                case InGameStates.Inventory: retPanel = _hudPanelFactory.CreateInventoryPanel(); break;
+                case InGameStates.ActiveSpells: retPanel = _hudPanelFactory.CreateActiveSpellsPanel(); break;
+                case InGameStates.PassiveSpells: retPanel = _hudPanelFactory.CreatePassiveSpellsPanel(); break;
+                case InGameStates.Chat: retPanel = _hudPanelFactory.CreateChatPanel(); break;
+                case InGameStates.Stats: retPanel = _hudPanelFactory.CreateStatsPanel(); break;
+                case InGameStates.OnlineList: retPanel = _hudPanelFactory.CreateOnlineListPanel(); break;
+                case InGameStates.Party: retPanel = _hudPanelFactory.CreatePartyPanel(); break;
+                case InGameStates.Settings: retPanel = _hudPanelFactory.CreateSettingsPanel(); break;
+                case InGameStates.Help: retPanel = _hudPanelFactory.CreateHelpPanel(); break;
                 case InGameStates.News: retPanel = _hudPanelFactory.CreateNewsPanel(); break;
-                //default:
-                //    throw new ArgumentOutOfRangeException("whichState",
-                //        whichState,
-                //        "Panel specification is out of range.");
+                default: throw new ArgumentOutOfRangeException("whichState", whichState, "Panel specification is out of range.");
             }
-
-            //retPanel.Visible = false;
-            //retPanel.DrawOrder = HUD_CONTROL_LAYER;
+            
+            //news is visible by default when loading the game
+            if(whichState != InGameStates.News)
+                retPanel.Visible = false;
 
             return retPanel;
         }
