@@ -98,6 +98,8 @@
     <Compile Include="HUD\IHudStateActions.cs" />
     <Compile Include="HUD\InGameStates.cs" />
     <Compile Include="HUD\Controls\UsageTrackerComponent.cs" />
+    <Compile Include="HUD\Panels\ChatColor.cs" />
+    <Compile Include="HUD\Panels\ChatType.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
     <Compile Include="Rendering\Factories\CharacterRendererFactory.cs" />

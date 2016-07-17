@@ -30,39 +30,6 @@ namespace EndlessClient.HUD.Panels
     }
 
     /// <summary>
-    /// Represents the different icons displayed next to lines of chat text.
-    /// These go in numerical order for how they are in the sprite sheet in the GFX file
-    /// </summary>
-    public enum ChatType
-    {
-        None = -1, //blank icon - trying to load will return empty texture
-        SpeechBubble = 0,
-        Note,
-        Error,
-        NoteLeftArrow,
-        GlobalAnnounce,
-        Star,
-        Exclamation,
-        LookingDude,
-        Heart,
-        Player,
-        PlayerParty,
-        PlayerPartyDark,
-        GM,
-        GMParty,
-        HGM,
-        HGMParty,
-        DownArrow,
-        UpArrow,
-        DotDotDotDot,
-        GSymbol,
-        Skeleton,
-        WhatTheFuck,
-        Information,
-        QuestMessage
-    }
-
-    /// <summary>
     /// Represents the graphic displayed next to the text in the chat bar
     /// These go in numerical order for how they are in the sprite sheet in the GFX file
     /// </summary>
@@ -76,34 +43,6 @@ namespace EndlessClient.HUD.Panels
         Admin,
         Muted,
         Guild
-    }
-
-    public enum ChatColor
-    {
-        /// <summary>
-        /// 00 00 00
-        /// </summary>
-        Default,
-        /// <summary>
-        /// e6 d2 c8
-        /// </summary>
-        Server,
-        /// <summary>
-        /// 7d 0a 0a
-        /// </summary>
-        Error,
-        /// <summary>
-        /// 5a 3c 00
-        /// </summary>
-        PM,
-        /// <summary>
-        /// f0 f0 c8
-        /// </summary>
-        ServerGlobal,
-        /// <summary>
-        /// c8 aa 96
-        /// </summary>
-        Admin
     }
 
     /// <summary>
