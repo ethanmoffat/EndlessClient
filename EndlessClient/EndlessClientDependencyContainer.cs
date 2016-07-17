@@ -11,6 +11,7 @@ using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
+using EndlessClient.HUD.Panels;
 using EndlessClient.Input;
 using EndlessClient.Network;
 using EndlessClient.Rendering.Factories;
@@ -28,58 +29,59 @@ namespace EndlessClient
             container.RegisterInstance<IEndlessGame, EndlessGame>();
 
             //factories
-            container.RegisterType<IControlSetFactory, ControlSetFactory>();
-            container.RegisterType<IHudControlsFactory, HudControlsFactory>();
-            container.RegisterType<ICharacterRendererFactory, CharacterRendererFactory>();
-            container.RegisterType<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>();
+            container.RegisterType<IControlSetFactory, ControlSetFactory>()
+                .RegisterType<IHudControlsFactory, HudControlsFactory>()
+                .RegisterType<ICharacterRendererFactory, CharacterRendererFactory>()
+                .RegisterType<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>()
+                .RegisterType<IHudPanelFactory, HudPanelFactory>();
 
-            container.RegisterType<IEOMessageBoxFactory, EOMessageBoxFactory>();
-            container.RegisterType<ICreateAccountWarningDialogFactory, CreateAccountWarningDialogFactory>();
-            container.RegisterType<ICreateAccountProgressDialogFactory, CreateAccountProgressDialogFactory>();
-            container.RegisterType<ICreateCharacterDialogFactory, CreateCharacterDialogFactory>();
-            container.RegisterType<IChangePasswordDialogFactory, ChangePasswordDialogFactory>();
-            container.RegisterType<IGameLoadingDialogFactory, GameLoadingDialogFactory>();
+            container.RegisterType<IEOMessageBoxFactory, EOMessageBoxFactory>()
+                .RegisterType<ICreateAccountWarningDialogFactory, CreateAccountWarningDialogFactory>()
+                .RegisterType<ICreateAccountProgressDialogFactory, CreateAccountProgressDialogFactory>()
+                .RegisterType<ICreateCharacterDialogFactory, CreateCharacterDialogFactory>()
+                .RegisterType<IChangePasswordDialogFactory, ChangePasswordDialogFactory>()
+                .RegisterType<IGameLoadingDialogFactory, GameLoadingDialogFactory>();
 
             //provider/repository
-            container.RegisterInstance<IGameStateProvider, GameStateRepository>();
-            container.RegisterInstance<IGameStateRepository, GameStateRepository>();
-            container.RegisterInstance<IContentManagerProvider, ContentManagerRepository>();
-            container.RegisterInstance<IContentManagerRepository, ContentManagerRepository>();
-            container.RegisterInstance<IKeyboardDispatcherProvider, KeyboardDispatcherRepository>();
-            container.RegisterInstance<IKeyboardDispatcherRepository, KeyboardDispatcherRepository>();
-            container.RegisterInstance<IControlSetProvider, ControlSetRepository>();
-            container.RegisterInstance<IControlSetRepository, ControlSetRepository>();
-            container.RegisterInstance<IEndlessGameProvider, EndlessGameRepository>();
-            container.RegisterInstance<IEndlessGameRepository, EndlessGameRepository>();
+            container.RegisterInstance<IGameStateProvider, GameStateRepository>()
+                .RegisterInstance<IGameStateRepository, GameStateRepository>()
+                .RegisterInstance<IContentManagerProvider, ContentManagerRepository>()
+                .RegisterInstance<IContentManagerRepository, ContentManagerRepository>()
+                .RegisterInstance<IKeyboardDispatcherProvider, KeyboardDispatcherRepository>()
+                .RegisterInstance<IKeyboardDispatcherRepository, KeyboardDispatcherRepository>()
+                .RegisterInstance<IControlSetProvider, ControlSetRepository>()
+                .RegisterInstance<IControlSetRepository, ControlSetRepository>()
+                .RegisterInstance<IEndlessGameProvider, EndlessGameRepository>()
+                .RegisterInstance<IEndlessGameRepository, EndlessGameRepository>();
 
             //provider only
             container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>();
 
             //controllers
-            container.RegisterType<IMainButtonController, MainButtonController>();
-            container.RegisterType<IAccountController, AccountController>();
-            container.RegisterType<ILoginController, LoginController>();
-            container.RegisterType<ICharacterManagementController, CharacterManagementController>();
+            container.RegisterType<IMainButtonController, MainButtonController>()
+                .RegisterType<IAccountController, AccountController>()
+                .RegisterType<ILoginController, LoginController>()
+                .RegisterType<ICharacterManagementController, CharacterManagementController>();
             
             //controller provider/repository (bad hack - avoids circular dependency)
-            container.RegisterInstance<IMainButtonControllerProvider, MainButtonControllerRepository>();
-            container.RegisterInstance<IMainButtonControllerRepository, MainButtonControllerRepository>();
-            container.RegisterInstance<ICreateAccountControllerProvider, CreateAccountControllerRepository>();
-            container.RegisterInstance<ICreateAccountControllerRepository, CreateAccountControllerRepository>();
-            container.RegisterInstance<ILoginControllerProvider, LoginControllerRepository>();
-            container.RegisterInstance<ILoginControllerRepository, LoginControllerRepository>();
-            container.RegisterInstance<ICharacterManagementControllerProvider, CharacterManagementRepository>();
-            container.RegisterInstance<ICharacterManagementControllerRepository, CharacterManagementRepository>();
+            container.RegisterInstance<IMainButtonControllerProvider, MainButtonControllerRepository>()
+                .RegisterInstance<IMainButtonControllerRepository, MainButtonControllerRepository>()
+                .RegisterInstance<ICreateAccountControllerProvider, CreateAccountControllerRepository>()
+                .RegisterInstance<ICreateAccountControllerRepository, CreateAccountControllerRepository>()
+                .RegisterInstance<ILoginControllerProvider, LoginControllerRepository>()
+                .RegisterInstance<ILoginControllerRepository, LoginControllerRepository>()
+                .RegisterInstance<ICharacterManagementControllerProvider, CharacterManagementRepository>()
+                .RegisterInstance<ICharacterManagementControllerRepository, CharacterManagementRepository>();
             
             //actions
-            container.RegisterType<IGameStateActions, GameStateActions>();
-            container.RegisterType<IErrorDialogDisplayAction, ErrorDialogDisplayAction>();
-            container.RegisterType<IAccountDialogDisplayActions, AccountDialogDisplayActions>();
-            container.RegisterType<ICharacterDialogActions, CharacterDialogActions>();
+            container.RegisterType<IGameStateActions, GameStateActions>()
+                .RegisterType<IErrorDialogDisplayAction, ErrorDialogDisplayAction>()
+                .RegisterType<IAccountDialogDisplayActions, AccountDialogDisplayActions>()
+                .RegisterType<ICharacterDialogActions, CharacterDialogActions>();
 
             //hud
-            container.RegisterType<IHudButtonController, HudButtonController>();
-            container.RegisterType<IHudStateActions, HudStateActions>();
+            container.RegisterType<IHudButtonController, HudButtonController>()
+                .RegisterType<IHudStateActions, HudStateActions>();
         }
 
         public void InitializeDependencies(IUnityContainer container)

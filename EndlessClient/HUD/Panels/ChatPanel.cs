@@ -189,26 +189,6 @@ namespace EndlessClient.HUD.Panels
         }
 
         /// <summary>
-        /// This constructor should be used for the news rendering
-        /// </summary>
-        public ChatTab(XNAControl parentControl)
-            : base(null, null, parentControl)
-        {
-            WhichTab = ChatTabs.None;
-            _selected = true;
-            tabLabel = null;
-
-            relativeTextPos = new Vector2(20, 23);
-            //568 331
-            scrollBar = new ScrollBar(parent, new Vector2(467, 20), new Vector2(16, 97), ScrollBarColors.LightOnMed)
-            {
-                LinesToRender = 7,
-                Visible = true
-            };
-            OldWorld.IgnoreDialogs(scrollBar);
-        }
-
-        /// <summary>
         /// Adds text to the tab. For multi-line text strings, does text wrapping. For text length > 415 pixels, does text wrapping
         /// </summary>
         /// <param name="who">Person that spoke</param>

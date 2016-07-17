@@ -47,7 +47,6 @@ namespace EndlessClient.HUD.Controls
         private EOInventory inventory;
         private EOCharacterStats stats;
         private readonly EOOnlineList m_whoIsOnline;
-        private readonly ChatTab newsTab;
         private readonly EOPartyPanel m_party;
         private ActiveSpells activeSpells; 
 
@@ -86,8 +85,6 @@ namespace EndlessClient.HUD.Controls
             chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(DATCONST2.STRING_SERVER),
                 OldWorld.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_2),
                 ChatType.Note, ChatColor.Server);
-
-            newsTab = new ChatTab(pnlNews);
 
             CreateChatTextbox();
 
@@ -597,13 +594,13 @@ namespace EndlessClient.HUD.Controls
             else
             {
                 lines = lines.Where(_line => !string.IsNullOrWhiteSpace(_line)).ToList();
-                for(int i = 1; i < lines.Count; ++i)
-                {
-                    newsTab.AddText(null, lines[i], ChatType.Note);
-                    if(i != lines.Count - 1)
-                        newsTab.AddText(null, " "); //line breaks between entries
-                }
-                newsTab.SetButtonFlash();
+                //for(int i = 1; i < lines.Count; ++i)
+                //{
+                //    newsTab.AddText(null, lines[i], ChatType.Note);
+                //    if(i != lines.Count - 1)
+                //        newsTab.AddText(null, " "); //line breaks between entries
+                //}
+                //newsTab.SetButtonFlash();
             }
             
             chatRenderer.AddTextToTab(ChatTabs.Local, OldWorld.GetString(DATCONST2.STRING_SERVER), lines[0], ChatType.Note, ChatColor.Server);
@@ -721,7 +718,6 @@ namespace EndlessClient.HUD.Controls
             {
                 m_packetAPI.Dispose();
 
-                newsTab.Dispose();
                 inventory.Dispose();
                 chatRenderer.Dispose();
                 stats.Dispose();

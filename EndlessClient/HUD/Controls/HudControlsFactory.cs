@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib.Domain.Character;
@@ -20,18 +21,21 @@ namespace EndlessClient.HUD.Controls
         private const int HUD_BASE_LAYER = 100;
         private const int HUD_CONTROL_LAYER = 130;
 
+        private readonly IHudPanelFactory _hudPanelFactory;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
 
-        public HudControlsFactory(INativeGraphicsManager nativeGraphicsManager,
+        public HudControlsFactory(IHudPanelFactory hudPanelFactory,
+                                  INativeGraphicsManager nativeGraphicsManager,
                                   IGraphicsDeviceProvider graphicsDeviceProvider,
                                   IClientWindowSizeProvider clientWindowSizeProvider,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository)
         {
+            _hudPanelFactory = hudPanelFactory;
             _nativeGraphicsManager = nativeGraphicsManager;
             _graphicsDeviceProvider = graphicsDeviceProvider;
             _clientWindowSizeProvider = clientWindowSizeProvider;
@@ -116,61 +120,55 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateStatePanel(InGameStates whichState)
         {
-            //todo: change to use individual panel implementations instead of XNAPanel as panels are refactored
-            Texture2D backgroundImage;
-            XNAPanel retPanel;
+            IHudPanel retPanel;
 
             switch (whichState)
             {
-                case InGameStates.Inventory:
-                    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 44);
-                    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                    break;
-                case InGameStates.ActiveSpells:
-                    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 62);
-                    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                    break;
-                case InGameStates.PassiveSpells:
-                    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 62);
-                    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                    break;
-                case InGameStates.Chat:
-                    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 28);
-                    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                    break;
-                case InGameStates.Stats:
-                    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 34);
-                    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                    break;
-                case InGameStates.OnlineList:
-                    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 36);
-                    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                    break;
-                case InGameStates.Party:
-                    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 42);
-                    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                    break;
-                case InGameStates.Settings:
-                    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 47);
-                    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                    break;
-                case InGameStates.Help:
-                    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 63);
-                    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                    break;
-                case InGameStates.News:
-                    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 48);
-                    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
-                    break;
+                //case InGameStates.Inventory:
+                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 44);
+                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+                //    break;
+                //case InGameStates.ActiveSpells:
+                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 62);
+                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+                //    break;
+                //case InGameStates.PassiveSpells:
+                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 62);
+                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+                //    break;
+                //case InGameStates.Chat:
+                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 28);
+                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+                //    break;
+                //case InGameStates.Stats:
+                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 34);
+                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+                //    break;
+                //case InGameStates.OnlineList:
+                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 36);
+                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+                //    break;
+                //case InGameStates.Party:
+                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 42);
+                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+                //    break;
+                //case InGameStates.Settings:
+                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 47);
+                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+                //    break;
+                //case InGameStates.Help:
+                //    backgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 63);
+                //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
+                //    break;
+                case InGameStates.News: retPanel = _hudPanelFactory.CreateNewsPanel(); break;
                 default:
                     throw new ArgumentOutOfRangeException("whichState",
                         whichState,
-                        "Macro and View Map do not have panels associated with them");
+                        "Panel specification is out of range.");
             }
 
-            retPanel.Visible = false;
-            retPanel.DrawOrder = HUD_CONTROL_LAYER;
-            retPanel.BackgroundImage = backgroundImage;
+            //retPanel.Visible = false;
+            //retPanel.DrawOrder = HUD_CONTROL_LAYER;
 
             return retPanel;
         }
