@@ -132,7 +132,8 @@ namespace EOLib.Domain.Login
 
             var data = _loginRequestCompletedPacketTranslator.TranslatePacket(response);
 
-            _newsRepository.NewsText = data.News.ToList();
+            _newsRepository.NewsHeader = data.News.First();
+            _newsRepository.NewsText = data.News.Except(new[] { data.News.First()}).ToList();
 
             var stats = _characterRepository.ActiveCharacter.Stats
                 .WithNewStat(CharacterStat.Weight, data.CharacterWeight)
