@@ -40,47 +40,47 @@ namespace EndlessClient.HUD.Panels
 
         public InventoryPanel CreateInventoryPanel()
         {
-            return new InventoryPanel();
+            return new InventoryPanel(_nativeGraphicsManager);
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()
         {
-            return new ActiveSpellsPanel();
+            return new ActiveSpellsPanel(_nativeGraphicsManager);
         }
 
         public PassiveSpellsPanel CreatePassiveSpellsPanel()
         {
-            return new PassiveSpellsPanel();
+            return new PassiveSpellsPanel(_nativeGraphicsManager);
         }
 
         public ChatPanel CreateChatPanel()
         {
-            return new ChatPanel();
+            return new ChatPanel(_nativeGraphicsManager);
         }
 
         public StatsPanel CreateStatsPanel()
         {
-            return new StatsPanel();
+            return new StatsPanel(_nativeGraphicsManager);
         }
 
         public OnlineListPanel CreateOnlineListPanel()
         {
-            return new OnlineListPanel();
+            return new OnlineListPanel(_nativeGraphicsManager);
         }
 
         public PartyPanel CreatePartyPanel()
         {
-            return new PartyPanel();
+            return new PartyPanel(_nativeGraphicsManager);
         }
 
         public SettingsPanel CreateSettingsPanel()
         {
-            return new SettingsPanel();
+            return new SettingsPanel(_nativeGraphicsManager);
         }
 
         public HelpPanel CreateHelpPanel()
         {
-            return new HelpPanel();
+            return new HelpPanel(_nativeGraphicsManager);
         }
     }
 }
