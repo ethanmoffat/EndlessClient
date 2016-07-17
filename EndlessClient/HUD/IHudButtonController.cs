@@ -22,8 +22,6 @@ namespace EndlessClient.HUD
 
         void ClickParty();
 
-        //void ClickMacro();
-
         void ClickSettings();
 
         void ClickHelp();
