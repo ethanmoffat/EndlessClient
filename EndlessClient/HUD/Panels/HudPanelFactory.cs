@@ -40,47 +40,47 @@ namespace EndlessClient.HUD.Panels
 
         public InventoryPanel CreateInventoryPanel()
         {
-            return new InventoryPanel(_nativeGraphicsManager);
+            return new InventoryPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ActiveSpellsPanel CreateActiveSpellsPanel()
         {
-            return new ActiveSpellsPanel(_nativeGraphicsManager);
+            return new ActiveSpellsPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PassiveSpellsPanel CreatePassiveSpellsPanel()
         {
-            return new PassiveSpellsPanel(_nativeGraphicsManager);
+            return new PassiveSpellsPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public ChatPanel CreateChatPanel()
         {
-            return new ChatPanel(_nativeGraphicsManager);
+            return new ChatPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public StatsPanel CreateStatsPanel()
         {
-            return new StatsPanel(_nativeGraphicsManager);
+            return new StatsPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public OnlineListPanel CreateOnlineListPanel()
         {
-            return new OnlineListPanel(_nativeGraphicsManager);
+            return new OnlineListPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public PartyPanel CreatePartyPanel()
         {
-            return new PartyPanel(_nativeGraphicsManager);
+            return new PartyPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public SettingsPanel CreateSettingsPanel()
         {
-            return new SettingsPanel(_nativeGraphicsManager);
+            return new SettingsPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public HelpPanel CreateHelpPanel()
         {
-            return new HelpPanel(_nativeGraphicsManager);
+            return new HelpPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
         }
     }
 }
