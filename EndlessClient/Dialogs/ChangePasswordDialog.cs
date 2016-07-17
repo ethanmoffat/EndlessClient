@@ -23,7 +23,7 @@ namespace EndlessClient.Dialogs
     public class ChangePasswordDialog : EODialogBase
     {
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
-        private readonly ILoggedInAccountNameProvider _loggedInAccountNameProvider;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly XNATextBox[] _inputBoxes;
 
         private readonly TextBoxClickEventHandler _clickEventHandler;
@@ -42,11 +42,11 @@ namespace EndlessClient.Dialogs
                                     IContentManagerProvider contentManagerProvider,
                                     IEOMessageBoxFactory eoMessageBoxFactory,
                                     IKeyboardDispatcherProvider keyboardDispatcherProvider,
-                                    ILoggedInAccountNameProvider loggedInAccountNameProvider)
+                                    IPlayerInfoProvider playerInfoProvider)
             : base(nativeGraphicsManager)
         {
             _eoMessageBoxFactory = eoMessageBoxFactory;
-            _loggedInAccountNameProvider = loggedInAccountNameProvider;
+            _playerInfoProvider = playerInfoProvider;
             var dispatcher = keyboardDispatcherProvider.Dispatcher;
 
             bgTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
@@ -104,7 +104,7 @@ namespace EndlessClient.Dialogs
                     return;
                 }
 
-                if (Username != _loggedInAccountNameProvider.LoggedInAccountName)
+                if (Username != _playerInfoProvider.LoggedInAccountName)
                 {
                     e.CancelClose = true;
                     _eoMessageBoxFactory.CreateMessageBox(DATCONST1.CHANGE_PASSWORD_MISMATCH);

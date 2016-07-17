@@ -13,7 +13,7 @@ namespace EOLib.Domain.Login
         bool IsFirstTimePlayer { get; set; }
     }
 
-    public interface ILoggedInAccountNameProvider
+    public interface IPlayerInfoProvider
     {
         string LoggedInAccountName { get; }
 
@@ -22,7 +22,7 @@ namespace EOLib.Domain.Login
         bool IsFirstTimePlayer { get; }
     }
 
-    public class PlayerInfoRepository : IPlayerInfoRepository, ILoggedInAccountNameProvider
+    public class PlayerInfoRepository : IPlayerInfoRepository, IPlayerInfoProvider
     {
         public string LoggedInAccountName { get; set; }
 

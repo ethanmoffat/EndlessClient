@@ -24,7 +24,7 @@ namespace EOLib.Domain
             container.RegisterInstance<ICharacterSelectorRepository, CharacterSelectorRepository>();
             container.RegisterInstance<ICharacterSelectorProvider, CharacterSelectorRepository>();
             container.RegisterInstance<IPlayerInfoRepository, PlayerInfoRepository>();
-            container.RegisterInstance<ILoggedInAccountNameProvider, PlayerInfoRepository>();
+            container.RegisterInstance<IPlayerInfoProvider, PlayerInfoRepository>();
             container.RegisterInstance<ICharacterRepository, CharacterRepository>();
             container.RegisterInstance<ICharacterProvider, CharacterRepository>();
             container.RegisterInstance<ICurrentMapStateRepository, CurrentMapStateRepository>();

@@ -19,7 +19,7 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IContentManagerProvider _contentManagerProvider;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
-        private readonly ILoggedInAccountNameProvider _loggedInAccountNameProvider;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public ChangePasswordDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                            IGraphicsDeviceProvider graphicsDeviceProvider,
@@ -27,7 +27,7 @@ namespace EndlessClient.Dialogs.Factories
                                            IContentManagerProvider contentManagerProvider,
                                            IEOMessageBoxFactory eoMessageBoxFactory,
                                            IKeyboardDispatcherProvider keyboardDispatcherProvider,
-                                           ILoggedInAccountNameProvider loggedInAccountNameProvider)
+                                           IPlayerInfoProvider playerInfoProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _graphicsDeviceProvider = graphicsDeviceProvider;
@@ -35,7 +35,7 @@ namespace EndlessClient.Dialogs.Factories
             _contentManagerProvider = contentManagerProvider;
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _keyboardDispatcherProvider = keyboardDispatcherProvider;
-            _loggedInAccountNameProvider = loggedInAccountNameProvider;
+            _playerInfoProvider = playerInfoProvider;
         }
 
         public ChangePasswordDialog BuildChangePasswordDialog()
@@ -46,7 +46,7 @@ namespace EndlessClient.Dialogs.Factories
                 _contentManagerProvider,
                 _eoMessageBoxFactory,
                 _keyboardDispatcherProvider,
-                _loggedInAccountNameProvider);
+                _playerInfoProvider);
         }
     }
 }
