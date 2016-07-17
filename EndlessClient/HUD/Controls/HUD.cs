@@ -44,12 +44,12 @@ namespace EndlessClient.HUD.Controls
         private XNAPanel pnlSettings;
         private XNAPanel pnlHelp;
         private readonly SpriteBatch SpriteBatch;
-        private readonly EOChatRenderer chatRenderer;
-        private EOInventory inventory;
-        private EOCharacterStats stats;
-        private readonly EOOnlineList m_whoIsOnline;
-        private readonly EOPartyPanel m_party;
-        private ActiveSpells activeSpells; 
+        private readonly OldChatRenderer chatRenderer;
+        private OldEOInventory inventory;
+        private OldEOCharacterStats stats;
+        private readonly OldEOOnlineList m_whoIsOnline;
+        private readonly OldEOPartyPanel m_party;
+        private OldActiveSpells activeSpells; 
 
         private readonly XNALabel statusLabel;
         private Timer m_muteTimer;
@@ -78,7 +78,7 @@ namespace EndlessClient.HUD.Controls
 
             state = InGameStates.News;
 
-            chatRenderer = new EOChatRenderer();
+            chatRenderer = new OldChatRenderer();
             chatRenderer.SetParent(pnlChat);
             chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(DATCONST2.STRING_SERVER),
                 OldWorld.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_1),
@@ -98,8 +98,8 @@ namespace EndlessClient.HUD.Controls
 
             statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
 
-            m_whoIsOnline = new EOOnlineList(pnlOnline);
-            m_party = new EOPartyPanel(pnlParty);
+            m_whoIsOnline = new OldEOOnlineList(pnlOnline);
+            m_party = new OldEOPartyPanel(pnlParty);
 
             m_friendList = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
                 new Vector2(592, 312),
@@ -139,7 +139,7 @@ namespace EndlessClient.HUD.Controls
             //no need to make this a member variable
             //it does not have any resources to dispose and it is automatically disposed by the framework
             // ReSharper disable once UnusedVariable
-            EOSettingsPanel settings = new EOSettingsPanel(pnlSettings);
+            OldEOSettingsPanel settings = new OldEOSettingsPanel(pnlSettings);
         }
 
         #region Constructor Helpers
@@ -258,12 +258,12 @@ namespace EndlessClient.HUD.Controls
 
             //the draw orders are adjusted for child items in the constructor.
             //calling SetParent will break this.
-            inventory = new EOInventory(pnlInventory, m_packetAPI);
+            inventory = new OldEOInventory(pnlInventory, m_packetAPI);
 
-            stats = new EOCharacterStats(pnlStats);
+            stats = new OldEOCharacterStats(pnlStats);
             stats.Initialize();
 
-            activeSpells = new ActiveSpells(pnlActiveSpells, m_packetAPI);
+            activeSpells = new OldActiveSpells(pnlActiveSpells, m_packetAPI);
             activeSpells.Initialize();
             
             SessionStartTime = DateTime.Now;
@@ -386,7 +386,7 @@ namespace EndlessClient.HUD.Controls
                 case '+':  //admin talk
                     if (OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
                         goto default;
-                    filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
+                    filtered = OldChatRenderer.Filter(chatText.Substring(1), true);
                     if (filtered != null)
                     {
                         if (!m_packetAPI.Speak(TalkType.Admin, chatText.Substring(1)))
@@ -400,7 +400,7 @@ namespace EndlessClient.HUD.Controls
                 case '@': //system talk (admin)
                     if (OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
                         goto default;
-                    filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
+                    filtered = OldChatRenderer.Filter(chatText.Substring(1), true);
                     if (filtered != null)
                     {
                         if (!m_packetAPI.Speak(TalkType.Announce, chatText.Substring(1)))
@@ -418,7 +418,7 @@ namespace EndlessClient.HUD.Controls
                 case '\'': //group talk
                     if (!m_party.PlayerIsMember((short) OldWorld.Instance.MainPlayer.ActiveCharacter.ID))
                         break; //not in a party, cancel the talk
-                    filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
+                    filtered = OldChatRenderer.Filter(chatText.Substring(1), true);
                     if (filtered != null)
                     {
                         if (!m_packetAPI.Speak(TalkType.Party, chatText.Substring(1)))
@@ -435,7 +435,7 @@ namespace EndlessClient.HUD.Controls
                     if (OldWorld.Instance.MainPlayer.ActiveCharacter.GuildName == "")
                         goto default;
                     
-                    filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
+                    filtered = OldChatRenderer.Filter(chatText.Substring(1), true);
                     if (filtered != null)
                     {
                         if (!m_packetAPI.Speak(TalkType.Guild, chatText.Substring(1)))
@@ -448,7 +448,7 @@ namespace EndlessClient.HUD.Controls
                     }
                     break;
                 case '~':  //global talk
-                    filtered = EOChatRenderer.Filter(chatText.Substring(1), true);
+                    filtered = OldChatRenderer.Filter(chatText.Substring(1), true);
                     if (filtered != null)
                     {
                         if (!m_packetAPI.Speak(TalkType.Global, chatText.Substring(1)))
@@ -477,7 +477,7 @@ namespace EndlessClient.HUD.Controls
 
                     character = character.Substring(0, 1).ToUpper() + character.Substring(1).ToLower();
 
-                    filtered = EOChatRenderer.Filter(message, true);
+                    filtered = OldChatRenderer.Filter(message, true);
                     if (filtered != null)
                     {
                         if (!m_packetAPI.Speak(TalkType.PM, message, character))
@@ -533,7 +533,7 @@ namespace EndlessClient.HUD.Controls
                     break;
                 default:
                 {
-                    filtered = EOChatRenderer.Filter(chatText, true);
+                    filtered = OldChatRenderer.Filter(chatText, true);
                     if (filtered != null)
                     {
                         //send packet to the server

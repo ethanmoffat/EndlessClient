@@ -34,7 +34,7 @@ namespace EndlessClient.Input
                     if (IsKeyPressed((Keys) key, currState))
                     {
                         //hidden feature! holding shift calls spell in second row (just learned that, crazy!!!!)
-                        var shiftHeld = IsKeyPressed(Keys.LeftShift) || IsKeyPressed(Keys.RightShift) ? ActiveSpells.SPELL_ROW_LENGTH : 0;
+                        var shiftHeld = IsKeyPressed(Keys.LeftShift) || IsKeyPressed(Keys.RightShift) ? OldActiveSpells.SPELL_ROW_LENGTH : 0;
                         _handleSpellFunc(key - (int) Keys.F1 + shiftHeld);
                         break;
                     }

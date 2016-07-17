@@ -136,7 +136,7 @@ namespace EndlessClient.Rendering
             if (EOGame.Instance.Hud == null)
                 return;
 
-            message = EOChatRenderer.Filter(message, false);
+            message = OldChatRenderer.Filter(message, false);
 
             if (message != null)
             {

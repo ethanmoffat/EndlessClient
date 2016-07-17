@@ -55,7 +55,7 @@ namespace EndlessClient.HUD.Spells
         private bool _dragging, _followMouse;
         private Rectangle _levelDestinationRectangle;
 
-        public SpellIcon(ActiveSpells parent, SpellRecord data, int slot)
+        public SpellIcon(OldActiveSpells parent, SpellRecord data, int slot)
             : base(parent, slot)
         {
             _spellData = data;

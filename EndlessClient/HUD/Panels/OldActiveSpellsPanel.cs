@@ -20,7 +20,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class ActiveSpells : XNAControl
+    public class OldActiveSpells : XNAControl
     {
         //number of skills to display in a row
         public const int SPELL_NUM_ROWS = 4;
@@ -44,7 +44,7 @@ namespace EndlessClient.HUD.Panels
 
         private bool _trainWarningShown;
 
-        public ActiveSpells(XNAPanel parent, PacketAPI api)
+        public OldActiveSpells(XNAPanel parent, PacketAPI api)
             : base(null, null, parent)
         {
             _api = api;

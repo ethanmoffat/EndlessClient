@@ -12,7 +12,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class EOSettingsPanel : XNAControl
+    public class OldEOSettingsPanel : XNAControl
     {
         private readonly XNALabel[] m_leftSide, m_rightSide;
         private readonly XNAButton[] m_buttons;
@@ -24,7 +24,7 @@ namespace EndlessClient.HUD.Panels
         private KeyLayout m_keyboard = KeyLayout.English; //this is not stored or loaded
 
         //parent x,y - 102,330
-        public EOSettingsPanel(XNAPanel parent)
+        public OldEOSettingsPanel(XNAPanel parent)
             : base(null, null, parent)
         {
             _setSize(parent.BackgroundImage.Width, parent.BackgroundImage.Height);

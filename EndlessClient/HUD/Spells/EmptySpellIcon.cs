@@ -53,11 +53,11 @@ namespace EndlessClient.HUD.Spells
         private bool _doUpdateLogic = true;
         protected virtual bool DoEmptySpellIconUpdateLogic { get { return _doUpdateLogic; } }
 
-        protected readonly ActiveSpells _parentSpellContainer;
+        protected readonly OldActiveSpells _parentSpellContainer;
         private readonly Texture2D _highlightColor;
         private bool _doDrawLogic;
 
-        public EmptySpellIcon(ActiveSpells parent, int slot)
+        public EmptySpellIcon(OldActiveSpells parent, int slot)
             : base(null, null, parent)
         {
             Slot = slot;
@@ -120,8 +120,8 @@ namespace EndlessClient.HUD.Spells
         {
             //start pos: 101, 97
             //xdelta: 45; ydelta: 52
-            var row = Slot / ActiveSpells.SPELL_ROW_LENGTH;
-            var col = Slot % ActiveSpells.SPELL_ROW_LENGTH;
+            var row = Slot / OldActiveSpells.SPELL_ROW_LENGTH;
+            var col = Slot % OldActiveSpells.SPELL_ROW_LENGTH;
             DrawLocation = new Vector2(101 + col * 45, 9 + row * 52);
         }
 

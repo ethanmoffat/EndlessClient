@@ -22,7 +22,7 @@ namespace EndlessClient.HUD.Panels
     /// <summary>
     /// contains a scroll bar and handles the text display and storage for a particular tab
     /// </summary>
-    public class ChatTab : XNAControl
+    public class OldChatTab : XNAControl
     {
         private bool _selected;
         public bool Selected
@@ -112,7 +112,7 @@ namespace EndlessClient.HUD.Panels
         /// <summary>
         /// This Constructor should be used for all values in ChatTabs
         /// </summary>
-        public ChatTab(ChatTabs tab, EOChatRenderer parentRenderer, bool selected = false)
+        public OldChatTab(ChatTabs tab, OldChatRenderer parentRenderer, bool selected = false)
             : base(null, null, parentRenderer)
         {
             WhichTab = tab;
@@ -240,7 +240,7 @@ namespace EndlessClient.HUD.Panels
             tabLabel.Text = "";
             lock (ChatStringsLock)
                 chatStrings.Clear();
-            ((EOChatRenderer)parent).SetSelectedTab(ChatTabs.Local);
+            ((OldChatRenderer)parent).SetSelectedTab(ChatTabs.Local);
         }
 
         public static Texture2D GetChatIcon(ChatType type)
@@ -267,7 +267,7 @@ namespace EndlessClient.HUD.Panels
             {
                 if (!Selected)
                 {
-                    ((EOChatRenderer)parent).SetSelectedTab(WhichTab);
+                    ((OldChatRenderer)parent).SetSelectedTab(WhichTab);
                 }
 
                 //logic for handling the close button (not actually a button, was I high when I made this...?)
@@ -341,22 +341,22 @@ namespace EndlessClient.HUD.Panels
     /// <summary>
     /// Stores all the different tabs, draws their tab graphics, and handles switching between tabs.
     /// </summary>
-    public class EOChatRenderer : XNAControl
+    public class OldChatRenderer : XNAControl
     {
         private int currentSelTab;
-        private readonly ChatTab[] tabs;
+        private readonly OldChatTab[] tabs;
 
-        public ChatTab SelectedTab
+        public OldChatTab SelectedTab
         {
             get { return tabs[currentSelTab]; }
         }
 
-        public EOChatRenderer()
+        public OldChatRenderer()
         {
-            tabs = new ChatTab[Enum.GetNames(typeof(ChatTabs)).Length - 1]; // -1 skips the 'none' tab which is used for news
+            tabs = new OldChatTab[Enum.GetNames(typeof(ChatTabs)).Length - 1]; // -1 skips the 'none' tab which is used for news
             for(int i = 0; i < tabs.Length; ++i)
             {
-                tabs[i] = new ChatTab((ChatTabs)i, this, (ChatTabs)i == ChatTabs.Local)
+                tabs[i] = new OldChatTab((ChatTabs)i, this, (ChatTabs)i == ChatTabs.Local)
                 {
                     DrawLocation = i > (int) ChatTabs.Private2 ? new Vector2(289 + 44*(i - 2), 102) : new Vector2((ChatTabs) i == ChatTabs.Private1 ? 23 : 156, 102)
                 };
@@ -397,7 +397,7 @@ namespace EndlessClient.HUD.Panels
             //307 16 43x16
 
             //the parent renderer draws all the tabs
-            foreach (ChatTab t in tabs)
+            foreach (OldChatTab t in tabs)
             {
                 Texture2D drawTexture;
                 Color[] data;

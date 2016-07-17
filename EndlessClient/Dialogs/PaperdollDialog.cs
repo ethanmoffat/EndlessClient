@@ -115,8 +115,8 @@ namespace EndlessClient.Dialogs
 
             labels.ToList().ForEach(_l => { _l.ForeColor = ColorConstants.LightGrayText; _l.SetParent(this); });
 
-            ChatType iconType = EOChatRenderer.GetChatTypeFromPaperdollIcon(data.Icon);
-            m_characterIcon = ChatTab.GetChatIcon(iconType);
+            ChatType iconType = OldChatRenderer.GetChatTypeFromPaperdollIcon(data.Icon);
+            m_characterIcon = OldChatTab.GetChatIcon(iconType);
 
             //should not be centered vertically: only display in game window
             //first center in the game display window, then move it 15px from top, THEN call end constructor logic

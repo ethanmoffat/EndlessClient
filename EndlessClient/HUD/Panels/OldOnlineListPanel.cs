@@ -30,7 +30,8 @@ namespace EndlessClient.HUD.Panels
 
         public string ClassString { get; private set; }
     }
-    public class EOOnlineList : XNAControl
+
+    public class OldEOOnlineList : XNAControl
     {
         //there may be more filters: these will be supported by default
         private enum Filter
@@ -58,7 +59,7 @@ namespace EndlessClient.HUD.Panels
         private readonly Texture2D[] m_filterTextures = new Texture2D[4]; //there are 4 filter textures
         private List<string> m_friendList = new List<string>();
 
-        public EOOnlineList(XNAPanel parent)
+        public OldEOOnlineList(XNAPanel parent)
             : base(null, null, parent)
         {
             m_onlineList = new List<ClientOnlineEntry>();
@@ -166,7 +167,7 @@ namespace EndlessClient.HUD.Panels
             for (int i = scrollOff; i < scrollOff + m_scrollBar.LinesToRender && i < filtered.Count; ++i)
             {
                 int yCoord = DRAW_OFFSET_Y + DrawAreaWithOffset.Y + (i - m_scrollBar.ScrollOffset)*13;
-                SpriteBatch.Draw(ChatTab.GetChatIcon(EOChatRenderer.GetChatTypeFromPaperdollIcon(filtered[i].Icon)), new Vector2(DrawAreaWithOffset.X + DRAW_ICON_X, yCoord), Color.White);
+                SpriteBatch.Draw(OldChatTab.GetChatIcon(OldChatRenderer.GetChatTypeFromPaperdollIcon(filtered[i].Icon)), new Vector2(DrawAreaWithOffset.X + DRAW_ICON_X, yCoord), Color.White);
                 SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Name, new Vector2(DrawAreaWithOffset.X + DRAW_NAME_X, yCoord), Color.Black);
                 SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Title, new Vector2(DrawAreaWithOffset.X + DRAW_TITLE_X, yCoord), Color.Black);
                 SpriteBatch.DrawString(EOGame.Instance.DBGFont, filtered[i].Guild, new Vector2(DrawAreaWithOffset.X + DRAW_GUILD_X, yCoord), Color.Black);

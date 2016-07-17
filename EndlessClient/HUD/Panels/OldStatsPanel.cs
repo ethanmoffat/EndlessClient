@@ -13,7 +13,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class EOCharacterStats : XNAControl
+    public class OldEOCharacterStats : XNAControl
     {
         //Note: pretty much the only reason(s) I didn't use enums here are because I've been working with c++ a lot
         //        and because I didn't want to deal with typecasting the values away from enums for freaking everything
@@ -35,7 +35,7 @@ namespace EndlessClient.HUD.Panels
         private readonly Character c;
         private bool m_training;
 
-        public EOCharacterStats(XNAPanel parent) 
+        public OldEOCharacterStats(XNAPanel parent) 
             : base(null, null, parent)
         {
             c = OldWorld.Instance.MainPlayer.ActiveCharacter;

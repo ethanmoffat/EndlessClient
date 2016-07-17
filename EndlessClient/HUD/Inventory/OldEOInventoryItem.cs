@@ -21,7 +21,7 @@ namespace EndlessClient.HUD.Inventory
 {
     //Name conflict: InventoryItem already exists.
     //Keeping the EO prefix on this one since naming is hard
-    public class EOInventoryItem : XNAControl
+    public class OldEOInventoryItem : XNAControl
     {
         private readonly ItemRecord m_itemData;
         public ItemRecord ItemData
@@ -53,7 +53,7 @@ namespace EndlessClient.HUD.Inventory
         private readonly PacketAPI m_api;
         private static bool safetyCommentHasBeenShown;
 
-        public EOInventoryItem(PacketAPI api, int slot, ItemRecord itemData, InventoryItem itemInventoryInfo, EOInventory inventory)
+        public OldEOInventoryItem(PacketAPI api, int slot, ItemRecord itemData, InventoryItem itemInventoryInfo, OldEOInventory inventory)
             : base(null, null, inventory)
         {
             m_api = api;
@@ -86,7 +86,7 @@ namespace EndlessClient.HUD.Inventory
             if (!m_beingDragged && MouseOverPreviously && MouseOver && PreviousMouseState.LeftButton == ButtonState.Pressed && currentState.LeftButton == ButtonState.Pressed)
             {
                 //Conditions for starting are the mouse is over, the button is pressed, and no other items are being dragged
-                if (((EOInventory)parent).NoItemsDragging())
+                if (((OldEOInventory)parent).NoItemsDragging())
                 {
                     //start the drag operation and hide the item label
                     m_beingDragged = true;
@@ -122,7 +122,7 @@ namespace EndlessClient.HUD.Inventory
                 m_alpha = 255;
                 SetParent(m_preDragParent);
 
-                if (((EOInventory)parent).IsOverDrop() || (OldWorld.Instance.ActiveMapRenderer.MouseOver &&
+                if (((OldEOInventory)parent).IsOverDrop() || (OldWorld.Instance.ActiveMapRenderer.MouseOver &&
                     ChestDialog.Instance == null && EOPaperdollDialog.Instance == null && LockerDialog.Instance == null
                     && BankAccountDialog.Instance == null && TradeDialog.Instance == null))
                 {
@@ -169,7 +169,7 @@ namespace EndlessClient.HUD.Inventory
                         EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
                     }
                 }
-                else if (((EOInventory)parent).IsOverJunk())
+                else if (((OldEOInventory)parent).IsOverJunk())
                 {
                     if (m_inventory.Amount > 1)
                     {
@@ -355,11 +355,11 @@ namespace EndlessClient.HUD.Inventory
             {
                 int currentSlot = ItemCurrentSlot();
                 Vector2 drawLoc = m_beingDragged
-                    ? new Vector2(m_oldOffX + 13 + 26 * (currentSlot % EOInventory.INVENTORY_ROW_LENGTH),
-                        m_oldOffY + 9 + 26 * (currentSlot / EOInventory.INVENTORY_ROW_LENGTH)) //recalculate the top-left point for the highlight based on the current drag position
+                    ? new Vector2(m_oldOffX + 13 + 26 * (currentSlot % OldEOInventory.INVENTORY_ROW_LENGTH),
+                        m_oldOffY + 9 + 26 * (currentSlot / OldEOInventory.INVENTORY_ROW_LENGTH)) //recalculate the top-left point for the highlight based on the current drag position
                     : new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y);
 
-                if (EOInventory.GRID_AREA.Contains(DrawAreaWithOffset))
+                if (OldEOInventory.GRID_AREA.Contains(DrawAreaWithOffset))
                     SpriteBatch.Draw(m_highlightBG, drawLoc, Color.White);
             }
             if (m_itemgfx != null)
@@ -370,20 +370,20 @@ namespace EndlessClient.HUD.Inventory
 
         private void UpdateItemLocation(int newSlot)
         {
-            if (Slot != newSlot && ((EOInventory)parent).MoveItem(this, newSlot)) Slot = newSlot;
+            if (Slot != newSlot && ((OldEOInventory)parent).MoveItem(this, newSlot)) Slot = newSlot;
 
             //top-left grid slot in the inventory is 115, 339
             //parent top-left is 103, 330
             //grid size is 26*26 (w/o borders 23*23)
             int width, height;
-            EOInventory._getItemSizeDeltas(m_itemData.Size, out width, out height);
-            DrawLocation = new Vector2(13 + 26 * (Slot % EOInventory.INVENTORY_ROW_LENGTH), 9 + 26 * (Slot / EOInventory.INVENTORY_ROW_LENGTH));
+            OldEOInventory._getItemSizeDeltas(m_itemData.Size, out width, out height);
+            DrawLocation = new Vector2(13 + 26 * (Slot % OldEOInventory.INVENTORY_ROW_LENGTH), 9 + 26 * (Slot / OldEOInventory.INVENTORY_ROW_LENGTH));
             _setSize(width * 26, height * 26);
 
             if (m_nameLabel != null) //fix the position of the name label too if we aren't creating the inventoryitem
             {
                 m_nameLabel.DrawLocation = new Vector2(DrawArea.Width, 0);
-                if (!EOInventory.GRID_AREA.Contains(m_nameLabel.DrawAreaWithOffset))
+                if (!OldEOInventory.GRID_AREA.Contains(m_nameLabel.DrawAreaWithOffset))
                     m_nameLabel.DrawLocation = new Vector2(-m_nameLabel.DrawArea.Width, 0); //show on the right if it isn't in bounds!
                 m_nameLabel.ResizeBasedOnText(16, 9);
             }
@@ -394,7 +394,7 @@ namespace EndlessClient.HUD.Inventory
             if (!m_beingDragged) return Slot;
 
             //convert the current draw area to a slot number (for when the item is dragged)
-            return (int)((DrawLocation.X - m_oldOffX - 13) / 26) + EOInventory.INVENTORY_ROW_LENGTH * (int)((DrawLocation.Y - m_oldOffY - 9) / 26);
+            return (int)((DrawLocation.X - m_oldOffX - 13) / 26) + OldEOInventory.INVENTORY_ROW_LENGTH * (int)((DrawLocation.Y - m_oldOffY - 9) / 26);
         }
 
         public void UpdateItemLabel()

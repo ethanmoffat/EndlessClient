@@ -16,7 +16,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class EOPartyPanel : XNAControl
+    public class OldEOPartyPanel : XNAControl
     {
         private readonly ScrollBar m_scrollBar;
         private readonly XNALabel m_numMembers;
@@ -36,7 +36,7 @@ namespace EndlessClient.HUD.Panels
 
         private const int HP_OUTLINE = 0, HP_RED = 1, HP_YELLOW = 2, HP_GREEN = 3;
 
-        public EOPartyPanel(XNAPanel parent)
+        public OldEOPartyPanel(XNAPanel parent)
             : base(null, null, parent)
         {
             _setSize(parent.BackgroundImage.Width, parent.BackgroundImage.Height);
@@ -208,7 +208,7 @@ namespace EndlessClient.HUD.Panels
                     PartyMember member = m_members[i];
                     int yCoord = DRAW_OFFSET_Y + DrawAreaWithOffset.Y + (i - m_scrollBar.ScrollOffset) * 13;
                     m_buttons[i].DrawLocation = new Vector2(DRAW_REMOVE_X, yCoord - DrawAreaWithOffset.Y + 1);
-                    SpriteBatch.Draw(ChatTab.GetChatIcon(member.IsLeader ? ChatType.Star : ChatType.Player), new Vector2(DrawAreaWithOffset.X + DRAW_ICON_X, yCoord), Color.White);
+                    SpriteBatch.Draw(OldChatTab.GetChatIcon(member.IsLeader ? ChatType.Star : ChatType.Player), new Vector2(DrawAreaWithOffset.X + DRAW_ICON_X, yCoord), Color.White);
                     SpriteBatch.DrawString(((EOGame) Game).DBGFont, member.Name, new Vector2(DrawAreaWithOffset.X + DRAW_NAME_X, yCoord), Color.Black);
                     SpriteBatch.DrawString(((EOGame) Game).DBGFont, "" + member.Level, new Vector2(DrawAreaWithOffset.X + DRAW_LEVEL_X, yCoord), Color.Black);
                     SpriteBatch.DrawString(((EOGame) Game).DBGFont, "HP", new Vector2(DrawAreaWithOffset.X + DRAW_HP_X, yCoord), Color.Black);

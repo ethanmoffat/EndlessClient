@@ -137,13 +137,13 @@ namespace EndlessClient.Rendering
             {
                 _cursorSourceRect.Location = new Point(2 * (_mouseCursor.Width / 5), 0);
 
-                string itemName = EOInventoryItem.GetNameString(mi.ItemID, mi.Amount);
+                string itemName = OldEOInventoryItem.GetNameString(mi.ItemID, mi.Amount);
                 if (_itemHoverName.Text != itemName)
                 {
                     _itemHoverName.Visible = true;
-                    _itemHoverName.Text = EOInventoryItem.GetNameString(mi.ItemID, mi.Amount);
+                    _itemHoverName.Text = OldEOInventoryItem.GetNameString(mi.ItemID, mi.Amount);
                     _itemHoverName.ResizeBasedOnText();
-                    _itemHoverName.ForeColor = EOInventoryItem.GetItemTextColor(mi.ItemID);
+                    _itemHoverName.ForeColor = OldEOInventoryItem.GetItemTextColor(mi.ItemID);
                 }
                 _itemHoverName.DrawLocation = new Vector2(
                     _cursorPos.X + 32 - _itemHoverName.ActualWidth / 2f,

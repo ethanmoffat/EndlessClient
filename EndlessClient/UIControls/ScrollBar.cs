@@ -215,7 +215,7 @@ namespace EndlessClient.UIControls
             //scroll wheel will only work for news because it is constructed with a panel as the parent
             //so for all other tabs, need to get the tab that it is being rendered in for mouseover to work properly
             XNAControl tempParent;
-            if (parent is EOChatRenderer)
+            if (parent is OldChatRenderer)
                 tempParent = parent.GetParent();
             else
                 tempParent = parent;

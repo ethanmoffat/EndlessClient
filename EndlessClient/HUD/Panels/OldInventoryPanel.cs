@@ -19,7 +19,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    public class EOInventory : XNAControl
+    public class OldEOInventory : XNAControl
     {
         /// <summary>
         /// number of slots in an inventory row
@@ -33,14 +33,14 @@ namespace EndlessClient.HUD.Panels
 
         private readonly bool[,] m_filledSlots = new bool[4, INVENTORY_ROW_LENGTH]; //4 rows, 14 columns = 56 total in grid
         private readonly RegistryKey m_inventoryKey;
-        private readonly List<EOInventoryItem> m_childItems = new List<EOInventoryItem>();
+        private readonly List<OldEOInventoryItem> m_childItems = new List<OldEOInventoryItem>();
 
         private readonly XNALabel m_lblWeight;
         private readonly XNAButton m_btnDrop, m_btnJunk, m_btnPaperdoll;
 
         private readonly PacketAPI m_api;
         
-        public EOInventory(XNAPanel parent, PacketAPI api)
+        public OldEOInventory(XNAPanel parent, PacketAPI api)
             : base(null, null, parent)
         {
             m_api = api;
@@ -167,7 +167,7 @@ namespace EndlessClient.HUD.Panels
             points.ForEach(point => filledSlots[point.Item1, point.Item2] = true); //flag that the spaces are taken
 
             m_inventoryKey.SetValue(string.Format("item{0}", slot), item.ID, RegistryValueKind.String); //update the registry
-            m_childItems.Add(new EOInventoryItem(m_api, slot, item, new InventoryItem(amount: count, itemID: (short)item.ID), this)); //add the control wrapper for the item
+            m_childItems.Add(new OldEOInventoryItem(m_api, slot, item, new InventoryItem(amount: count, itemID: (short)item.ID), this)); //add the control wrapper for the item
             m_childItems[m_childItems.Count - 1].DrawOrder = (int) ControlDrawLayer.DialogLayer - (2 + slot%INVENTORY_ROW_LENGTH);
             return true;
         }
@@ -204,7 +204,7 @@ namespace EndlessClient.HUD.Panels
             if(oldItems != null)
                 foreach (InventoryItem item in oldItems)
                 {
-                    EOInventoryItem control = m_childItems.Find(_item => _item.ItemData.ID == item.ItemID);
+                    OldEOInventoryItem control = m_childItems.Find(_item => _item.ItemData.ID == item.ItemID);
                     if (control != null && control.Inventory.Amount - item.Amount <= 0)
                         _unmarkItemSlots(tempFilledSlots, _getTakenSlots(control.Slot, control.ItemData.Size));
                 }
@@ -237,7 +237,7 @@ namespace EndlessClient.HUD.Panels
 
         private void _removeItemFromSlot(int slot, int count = 1)
         {
-            EOInventoryItem control = m_childItems.Find(_control => _control.Slot == slot);
+            OldEOInventoryItem control = m_childItems.Find(_control => _control.Slot == slot);
             if (control == null || slot < 0) return;
 
             int numLeft = control.Inventory.Amount - count;
@@ -259,7 +259,7 @@ namespace EndlessClient.HUD.Panels
             }
         }
 
-        public bool MoveItem(EOInventoryItem childItem, int newSlot)
+        public bool MoveItem(OldEOInventoryItem childItem, int newSlot)
         {
             if (childItem.Slot == newSlot) return true; // We did it, Reddit!
 
@@ -334,7 +334,7 @@ namespace EndlessClient.HUD.Panels
 
         public bool UpdateItem(InventoryItem item)
         {
-            EOInventoryItem ctrl;
+            OldEOInventoryItem ctrl;
             if((ctrl = m_childItems.Find(_ctrl => _ctrl.ItemData.ID == item.ItemID)) != null)
             {
                 ctrl.Inventory = item;
@@ -351,7 +351,7 @@ namespace EndlessClient.HUD.Panels
 
         public void RemoveItem(int id)
         {
-            EOInventoryItem ctrl;
+            OldEOInventoryItem ctrl;
             if ((ctrl = m_childItems.Find(_ctrl => _ctrl.ItemData.ID == id)) != null)
             {
                 _removeItemFromSlot(ctrl.Slot, ctrl.Inventory.Amount);
