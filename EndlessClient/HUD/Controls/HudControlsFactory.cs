@@ -19,6 +19,7 @@ namespace EndlessClient.HUD.Controls
         private const int HUD_BASE_LAYER = 100;
         private const int HUD_CONTROL_LAYER = 130;
 
+        private readonly IHudButtonController _hudButtonController;
         private readonly IHudPanelFactory _hudPanelFactory;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
@@ -26,13 +27,15 @@ namespace EndlessClient.HUD.Controls
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
 
-        public HudControlsFactory(IHudPanelFactory hudPanelFactory,
+        public HudControlsFactory(IHudButtonController hudButtonController,
+                                  IHudPanelFactory hudPanelFactory,
                                   INativeGraphicsManager nativeGraphicsManager,
                                   IGraphicsDeviceProvider graphicsDeviceProvider,
                                   IClientWindowSizeProvider clientWindowSizeProvider,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository)
         {
+            _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
             _nativeGraphicsManager = nativeGraphicsManager;
             _graphicsDeviceProvider = graphicsDeviceProvider;
@@ -109,11 +112,30 @@ namespace EndlessClient.HUD.Controls
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            //retButton.OnClick += //todo: game state controller, set in-game state?
+            retButton.OnClick += (o, e) => DoHudStateChangeClick(whichState);
             //retButton.OnMouseOver +=  //todo: set status label
                                         //DATCONST2.STATUS_LABEL_TYPE_BUTTON,
                                         //DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + buttonIndex
             return retButton;
+        }
+
+        private void DoHudStateChangeClick(InGameStates whichState)
+        {
+            switch (whichState)
+            {
+                case InGameStates.Inventory: _hudButtonController.ClickInventory(); break;
+                case InGameStates.ViewMapToggle: _hudButtonController.ClickViewMapToggle(); break;
+                case InGameStates.ActiveSpells: _hudButtonController.ClickActiveSpells(); break;
+                case InGameStates.PassiveSpells: _hudButtonController.ClickPassiveSpells(); break;
+                case InGameStates.Chat: _hudButtonController.ClickChat(); break;
+                case InGameStates.Stats: _hudButtonController.ClickStats(); break;
+                case InGameStates.OnlineList: _hudButtonController.ClickOnlineList(); break;
+                case InGameStates.Party: _hudButtonController.ClickParty(); break;
+                case InGameStates.Macro: break;
+                case InGameStates.Settings: _hudButtonController.ClickSettings(); break;
+                case InGameStates.Help: _hudButtonController.ClickHelp(); break;
+                default: throw new ArgumentOutOfRangeException("whichState", whichState, null);
+            }
         }
 
         private IGameComponent CreateStatePanel(InGameStates whichState)
@@ -134,9 +156,9 @@ namespace EndlessClient.HUD.Controls
                 case InGameStates.News: retPanel = _hudPanelFactory.CreateNewsPanel(); break;
                 default: throw new ArgumentOutOfRangeException("whichState", whichState, "Panel specification is out of range.");
             }
-            
+
             //news is visible by default when loading the game
-            if(whichState != InGameStates.News)
+            if (whichState != InGameStates.News)
                 retPanel.Visible = false;
 
             return retPanel;
@@ -144,10 +166,7 @@ namespace EndlessClient.HUD.Controls
 
         private TimeLabel CreateClockLabel()
         {
-            return new TimeLabel(_clientWindowSizeProvider)
-            {
-                DrawOrder = HUD_CONTROL_LAYER
-            };
+            return new TimeLabel(_clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         private UsageTrackerComponent CreateUsageTracker()
