@@ -13,17 +13,12 @@ namespace EndlessClient.HUD
             _hudStateActions = hudStateActions;
         }
 
-        public void SetInitialHudState()
-        {
-
-        }
-
         public void ClickInventory()
         {
             _hudStateActions.SwitchToState(InGameStates.Inventory);
         }
 
-        public void ClickShowMap()
+        public void ClickViewMapToggle()
         {
             _hudStateActions.ToggleMapView();
         }
@@ -48,7 +43,7 @@ namespace EndlessClient.HUD
             _hudStateActions.SwitchToState(InGameStates.Stats);
         }
 
-        public void ClickWhoIsOnline()
+        public void ClickOnlineList()
         {
             _hudStateActions.SwitchToState(InGameStates.OnlineList);
         }

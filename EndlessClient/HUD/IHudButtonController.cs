@@ -6,11 +6,9 @@ namespace EndlessClient.HUD
 {
     public interface IHudButtonController
     {
-        void SetInitialHudState();
-
         void ClickInventory();
 
-        void ClickShowMap();
+        void ClickViewMapToggle();
 
         void ClickActiveSpells();
 
@@ -20,7 +18,7 @@ namespace EndlessClient.HUD
 
         void ClickStats();
 
-        void ClickWhoIsOnline();
+        void ClickOnlineList();
 
         void ClickParty();
 
