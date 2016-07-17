@@ -93,6 +93,8 @@ namespace EndlessClient.HUD.Panels
 
         public override void Draw(GameTime gameTime)
         {
+            if (!Visible) return;
+
             base.Draw(gameTime);
 
             if (_chatRenderables == null)
