@@ -13,6 +13,7 @@ using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Net.API;

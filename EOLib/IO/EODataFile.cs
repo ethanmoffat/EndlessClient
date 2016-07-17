@@ -104,7 +104,7 @@ namespace EOLib.IO
             {
                 mem.Write(extension, 0, 3);
                 mem.Write(_numberEncoderService.EncodeNumber(Rid, 4), 0, 4);
-                mem.Write(_numberEncoderService.EncodeNumber(Data.Count, 2), 0, 2);
+                mem.Write(_numberEncoderService.EncodeNumber(Len, 2), 0, 2);
 
                 Version = pubVersion;
                 mem.WriteByte(_numberEncoderService.EncodeNumber(Version, 1)[0]); //new version check

@@ -12,6 +12,7 @@ using EndlessClient.HUD;
 using EndlessClient.HUD.Panels;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.Graphics;

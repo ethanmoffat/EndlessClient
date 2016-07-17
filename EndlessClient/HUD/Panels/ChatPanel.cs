@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using EOLib.Net;
 using EOLib.Net.API;
@@ -18,33 +19,6 @@ using Mouse = Microsoft.Xna.Framework.Input.Mouse;
 
 namespace EndlessClient.HUD.Panels
 {
-    public enum ChatTabs
-    {
-        Private1,
-        Private2,
-        Local,
-        Global,
-        Group,
-        System,
-        None
-    }
-
-    /// <summary>
-    /// Represents the graphic displayed next to the text in the chat bar
-    /// These go in numerical order for how they are in the sprite sheet in the GFX file
-    /// </summary>
-    public enum ChatMode
-    {
-        NoText,
-        Public,
-        Private,
-        Global,
-        Group,
-        Admin,
-        Muted,
-        Guild
-    }
-
     /// <summary>
     /// contains a scroll bar and handles the text display and storage for a particular tab
     /// </summary>

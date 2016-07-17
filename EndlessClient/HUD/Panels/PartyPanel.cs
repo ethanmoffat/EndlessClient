@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;

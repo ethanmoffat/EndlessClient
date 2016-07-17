@@ -71,6 +71,10 @@
     <Compile Include="Domain\Character\IInventorySpell.cs" />
     <Compile Include="Domain\Character\InventoryItem.cs" />
     <Compile Include="Domain\Character\InventorySpell.cs" />
+    <Compile Include="Domain\Chat\ChatColor.cs" />
+    <Compile Include="Domain\Chat\ChatMode.cs" />
+    <Compile Include="Domain\Chat\ChatTabs.cs" />
+    <Compile Include="Domain\Chat\ChatType.cs" />
     <Compile Include="Domain\Login\INewsRepository.cs" />
     <Compile Include="Domain\Login\LoginRequestCompletedData.cs" />
     <Compile Include="Domain\Map\IMapItem.cs" />

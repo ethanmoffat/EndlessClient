@@ -54,7 +54,7 @@ namespace EOLib.IO.Actions
         public async Task GetItemFileFromServer()
         {
             var itemFile = await _fileRequestService.RequestFile<ItemRecord>(InitFileType.Item);
-            
+
             itemFile.Save(Constants.ItemFilePath, rewriteRid: false);
             _pubFileRepository.ItemFile = itemFile;
         }

@@ -12,6 +12,7 @@ using EndlessClient.HUD;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering;
 using EOLib;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO;
