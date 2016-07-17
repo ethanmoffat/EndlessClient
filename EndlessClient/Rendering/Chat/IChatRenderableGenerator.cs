@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace EndlessClient.Rendering
+namespace EndlessClient.Rendering.Chat
 {
     public interface IChatRenderableGenerator
     {

@@ -5,7 +5,7 @@
 using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient.Rendering
+namespace EndlessClient.Rendering.Chat
 {
     public interface IChatRenderable
     {

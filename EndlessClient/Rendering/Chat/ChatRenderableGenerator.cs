@@ -8,7 +8,7 @@ using EndlessClient.HUD.Panels;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
-namespace EndlessClient.Rendering
+namespace EndlessClient.Rendering.Chat
 {
     public class ChatRenderableGenerator : IChatRenderableGenerator
     {

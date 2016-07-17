@@ -4,6 +4,7 @@
 
 using EndlessClient.Content;
 using EndlessClient.Rendering;
+using EndlessClient.Rendering.Chat;
 using EOLib;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
