@@ -55,7 +55,8 @@ namespace EndlessClient
                 .RegisterInstance<IEndlessGameRepository, EndlessGameRepository>();
 
             //provider only
-            container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>();
+            container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>()
+                .RegisterInstance<IHudControlProvider, HudControlProvider>();
 
             //controllers
             container.RegisterType<IMainButtonController, MainButtonController>()
