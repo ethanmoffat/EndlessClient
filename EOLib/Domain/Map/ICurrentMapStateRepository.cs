@@ -17,6 +17,8 @@ namespace EOLib.Domain.Map
         List<INPC> NPCs { get; set; }
 
         List<IMapItem> MapItems { get; set; }
+        
+        bool ShowMiniMap { get; set; }
     }
 
     public interface ICurrentMapStateProvider
@@ -28,6 +30,8 @@ namespace EOLib.Domain.Map
         IReadOnlyList<INPC> NPCs { get; }
 
         IReadOnlyList<IMapItem> MapItems { get; }
+
+        bool ShowMiniMap { get; }
     }
 
     public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider
@@ -39,6 +43,8 @@ namespace EOLib.Domain.Map
         public List<INPC> NPCs { get; set; }
 
         public List<IMapItem> MapItems { get; set; }
+
+        public bool ShowMiniMap { get; set; }
 
         IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters { get { return Characters; } }
 
