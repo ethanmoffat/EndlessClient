@@ -106,10 +106,12 @@
     <Compile Include="HUD\Panels\NewsPanel.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
-    <Compile Include="Rendering\ChatRenderer.cs" />
+    <Compile Include="Rendering\ChatRenderable.cs" />
+    <Compile Include="Rendering\ChatRenderableGenerator.cs" />
     <Compile Include="Rendering\Factories\CharacterRendererFactory.cs" />
     <Compile Include="Rendering\Factories\ICharacterRendererFactory.cs" />
-    <Compile Include="Rendering\IChatRenderer.cs" />
+    <Compile Include="Rendering\IChatRenderable.cs" />
+    <Compile Include="Rendering\IChatRenderableGenerator.cs" />
     <Compile Include="UIControls\BlinkingLabel.cs" />
     <Compile Include="UIControls\CharacterControl.cs" />
     <Compile Include="UIControls\CharacterInfoPanel.cs" />

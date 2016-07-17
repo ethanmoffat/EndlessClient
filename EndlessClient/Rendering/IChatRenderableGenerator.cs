@@ -2,13 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using System.Collections.Generic;
 
 namespace EndlessClient.Rendering
 {
-    public interface IChatRenderer : IDisposable
+    public interface IChatRenderableGenerator
     {
-        void RenderNews(IReadOnlyList<string> newsText, int scrollOffset, int linesToRender);
+        IReadOnlyList<IChatRenderable> GenerateNewsRenderables(IReadOnlyList<string> newsText);
     }
 }

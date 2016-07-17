@@ -582,30 +582,6 @@ namespace EndlessClient.HUD.Controls
 
         #region Public Interface for classes outside HUD
 
-        public void SetNews(IList<string> lines)
-        {
-            if(lines.Count == 0)
-                return;
-
-            if(lines.Count == 1)
-            {
-                _doStateChange(InGameStates.Chat);
-            }
-            else
-            {
-                lines = lines.Where(_line => !string.IsNullOrWhiteSpace(_line)).ToList();
-                //for(int i = 1; i < lines.Count; ++i)
-                //{
-                //    newsTab.AddText(null, lines[i], ChatType.Note);
-                //    if(i != lines.Count - 1)
-                //        newsTab.AddText(null, " "); //line breaks between entries
-                //}
-                //newsTab.SetButtonFlash();
-            }
-            
-            chatRenderer.AddTextToTab(ChatTabs.Local, OldWorld.GetString(DATCONST2.STRING_SERVER), lines[0], ChatType.Note, ChatColor.Server);
-        }
-
         public void AddChat(ChatTabs whichTab, string who, string message, ChatType chatType = ChatType.None, ChatColor chatColor = ChatColor.Default)
         {
             chatRenderer.AddTextToTab(whichTab, who, message, chatType, chatColor);

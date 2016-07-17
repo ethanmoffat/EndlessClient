@@ -62,16 +62,16 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.HelpButton, CreateStateChangeButton(InGameStates.Help)},
                 
                 {HudControlIdentifier.NewsPanel, CreateStatePanel(InGameStates.News)},
-                {HudControlIdentifier.InventoryPanel, CreateStatePanel(InGameStates.Inventory)},
-                {HudControlIdentifier.ActiveSpellsPanel, CreateStatePanel(InGameStates.ActiveSpells)},
-                {HudControlIdentifier.PassiveSpellsPanel, CreateStatePanel(InGameStates.PassiveSpells)},
-                {HudControlIdentifier.ChatPanel, CreateStatePanel(InGameStates.Chat)},
-                {HudControlIdentifier.StatsPanel, CreateStatePanel(InGameStates.Stats)},
-                {HudControlIdentifier.OnlineListPanel, CreateStatePanel(InGameStates.OnlineList)},
-                {HudControlIdentifier.PartyPanel, CreateStatePanel(InGameStates.Party)},
+                //{HudControlIdentifier.InventoryPanel, CreateStatePanel(InGameStates.Inventory)},
+                //{HudControlIdentifier.ActiveSpellsPanel, CreateStatePanel(InGameStates.ActiveSpells)},
+                //{HudControlIdentifier.PassiveSpellsPanel, CreateStatePanel(InGameStates.PassiveSpells)},
+                //{HudControlIdentifier.ChatPanel, CreateStatePanel(InGameStates.Chat)},
+                //{HudControlIdentifier.StatsPanel, CreateStatePanel(InGameStates.Stats)},
+                //{HudControlIdentifier.OnlineListPanel, CreateStatePanel(InGameStates.OnlineList)},
+                //{HudControlIdentifier.PartyPanel, CreateStatePanel(InGameStates.Party)},
                 //macro panel
-                {HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
-                {HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
+                //{HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
+                //{HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
                 
                 {HudControlIdentifier.ClockLabel, CreateClockLabel()},
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()}
@@ -120,7 +120,7 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateStatePanel(InGameStates whichState)
         {
-            IHudPanel retPanel;
+            IHudPanel retPanel = null;
 
             switch (whichState)
             {
@@ -161,10 +161,10 @@ namespace EndlessClient.HUD.Controls
                 //    retPanel = new XNAPanel(new Rectangle(102, 330, backgroundImage.Width, backgroundImage.Height));
                 //    break;
                 case InGameStates.News: retPanel = _hudPanelFactory.CreateNewsPanel(); break;
-                default:
-                    throw new ArgumentOutOfRangeException("whichState",
-                        whichState,
-                        "Panel specification is out of range.");
+                //default:
+                //    throw new ArgumentOutOfRangeException("whichState",
+                //        whichState,
+                //        "Panel specification is out of range.");
             }
 
             //retPanel.Visible = false;
