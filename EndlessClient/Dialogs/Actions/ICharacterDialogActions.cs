@@ -8,16 +8,16 @@ using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
-	public interface ICharacterDialogActions
-	{
-		Task<ICharacterCreateParameters> ShowCreateCharacterDialog();
+    public interface ICharacterDialogActions
+    {
+        Task<ICharacterCreateParameters> ShowCreateCharacterDialog();
 
-		void ShowCharacterReplyDialog(CharacterReply response);
+        void ShowCharacterReplyDialog(CharacterReply response);
 
-		void ShowCharacterDeleteWarning(string characterName);
-		
-		Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName);
-		
-		void ShowCharacterDeleteError();
-	}
+        void ShowCharacterDeleteWarning(string characterName);
+        
+        Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName);
+        
+        void ShowCharacterDeleteError();
+    }
 }

@@ -7,38 +7,38 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-	partial class PacketAPI
-	{
-		public event Action<short, EODirection> OnPlayerFace;
+    partial class PacketAPI
+    {
+        public event Action<short, EODirection> OnPlayerFace;
 
-		private void _createFaceMembers()
-		{
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Face, PacketAction.Player), _handleFacePlayer, true);
-		}
+        private void _createFaceMembers()
+        {
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Face, PacketAction.Player), _handleFacePlayer, true);
+        }
 
-		/// <summary>
-		/// Change the direction of the currently logged in player
-		/// </summary>
-		/// <param name="dir">Direction to face the currently logged in player</param>
-		/// <returns>True on successful send, false otherwise</returns>
-		public bool FacePlayer(EODirection dir)
-		{
-			if (!m_client.ConnectedAndInitialized || !Initialized)
-				return false;
+        /// <summary>
+        /// Change the direction of the currently logged in player
+        /// </summary>
+        /// <param name="dir">Direction to face the currently logged in player</param>
+        /// <returns>True on successful send, false otherwise</returns>
+        public bool FacePlayer(EODirection dir)
+        {
+            if (!m_client.ConnectedAndInitialized || !Initialized)
+                return false;
 
-			OldPacket pkt = new OldPacket(PacketFamily.Face, PacketAction.Player);
-			pkt.AddChar((byte)dir);
+            OldPacket pkt = new OldPacket(PacketFamily.Face, PacketAction.Player);
+            pkt.AddChar((byte)dir);
 
-			return m_client.SendPacket(pkt);
-		}
+            return m_client.SendPacket(pkt);
+        }
 
-		private void _handleFacePlayer(OldPacket pkt)
-		{
-			short playerId = pkt.GetShort();
-			EODirection dir = (EODirection)pkt.GetChar();
+        private void _handleFacePlayer(OldPacket pkt)
+        {
+            short playerId = pkt.GetShort();
+            EODirection dir = (EODirection)pkt.GetChar();
 
-			if (OnPlayerFace != null)
-				OnPlayerFace(playerId, dir);
-		}
-	}
+            if (OnPlayerFace != null)
+                OnPlayerFace(playerId, dir);
+        }
+    }
 }

@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace EOLib.Domain.Character
 {
-	public interface ICharacterManagementActions
-	{
-		Task<short> RequestCharacterCreation();
+    public interface ICharacterManagementActions
+    {
+        Task<short> RequestCharacterCreation();
 
-		Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters);
-		
-		Task<int> RequestCharacterDelete();
-		
-		Task<CharacterReply> DeleteCharacter();
-	}
+        Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters);
+        
+        Task<int> RequestCharacterDelete();
+        
+        Task<CharacterReply> DeleteCharacter();
+    }
 }

@@ -8,31 +8,31 @@ using XNAControls;
 
 namespace EndlessClient.UIControls
 {
-	public class PictureBox : XNAControl
-	{
-		protected Texture2D _displayPicture;
+    public class PictureBox : XNAControl
+    {
+        protected Texture2D _displayPicture;
 
-		public PictureBox(Texture2D displayPicture, XNAControl parent = null)
-			: base(null, null, parent)
-		{
-			SetNewPicture(displayPicture);
-			if (parent == null)
-				Game.Components.Add(this);
-		}
+        public PictureBox(Texture2D displayPicture, XNAControl parent = null)
+            : base(null, null, parent)
+        {
+            SetNewPicture(displayPicture);
+            if (parent == null)
+                Game.Components.Add(this);
+        }
 
-		public void SetNewPicture(Texture2D displayPicture)
-		{
-			_displayPicture = displayPicture;
-			_setSize(displayPicture.Width, displayPicture.Height);
-		}
+        public void SetNewPicture(Texture2D displayPicture)
+        {
+            _displayPicture = displayPicture;
+            _setSize(displayPicture.Width, displayPicture.Height);
+        }
 
-		public override void Draw(GameTime gameTime)
-		{
-			SpriteBatch.Begin();
-			SpriteBatch.Draw(_displayPicture, DrawAreaWithOffset, Color.White);
-			SpriteBatch.End();
+        public override void Draw(GameTime gameTime)
+        {
+            SpriteBatch.Begin();
+            SpriteBatch.Draw(_displayPicture, DrawAreaWithOffset, Color.White);
+            SpriteBatch.End();
 
-			base.Draw(gameTime);
-		}
-	}
+            base.Draw(gameTime);
+        }
+    }
 }

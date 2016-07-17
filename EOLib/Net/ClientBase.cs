@@ -9,339 +9,339 @@ using System.Threading;
 
 namespace EOLib.Net
 {
-	/// <summary>
-	/// A single chunk of data (wraps around a byte array)
-	/// </summary>
-	public class DataChunk
-	{
-		public byte[] Data { get; set; }
+    /// <summary>
+    /// A single chunk of data (wraps around a byte array)
+    /// </summary>
+    public class DataChunk
+    {
+        public byte[] Data { get; set; }
 
-		public DataChunk(int size = 128)
-		{
-			Data = new byte[size];
-		}
-	}
+        public DataChunk(int size = 128)
+        {
+            Data = new byte[size];
+        }
+    }
 
-	public abstract class ClientBase : IDisposable
-	{
-		private readonly object disposingLockObject = new object();
+    public abstract class ClientBase : IDisposable
+    {
+        private readonly object disposingLockObject = new object();
 
-		private Socket m_sock;
-		private EndPoint m_serverEndpoint;
-		private bool m_disposing;
-		private bool m_connectedAndInitialized;
-		private AutoResetEvent m_sendLock;
+        private Socket m_sock;
+        private EndPoint m_serverEndpoint;
+        private bool m_disposing;
+        private bool m_connectedAndInitialized;
+        private AutoResetEvent m_sendLock;
 
-		/// <summary>
-		/// Returns a flag that is set when the Connect() method returns successfully.
-		/// </summary>
-		public bool ConnectedAndInitialized
-		{
-			get { return m_connectedAndInitialized && Connected; }
-		}
+        /// <summary>
+        /// Returns a flag that is set when the Connect() method returns successfully.
+        /// </summary>
+        public bool ConnectedAndInitialized
+        {
+            get { return m_connectedAndInitialized && Connected; }
+        }
 
-		/// <summary>
-		/// Polls the socket for the connection status. Retrieves connection status based on underlying socket.
-		/// Sets ConnectedAndInitialized to 'false' if the socket cannot be polled.
-		/// </summary>
-		public bool Connected
-		{
-			get
-			{
-				try
-				{
-					bool c = !(m_sock.Poll(1000, SelectMode.SelectRead) && m_sock.Available == 0);
-					if (!c && m_connectedAndInitialized)
-					{
-						Disconnect();
-						m_connectedAndInitialized = false;
-					}
-					return c;
-				}
-				catch
-				{
-					return false;
-				}
-			}
-		}
+        /// <summary>
+        /// Polls the socket for the connection status. Retrieves connection status based on underlying socket.
+        /// Sets ConnectedAndInitialized to 'false' if the socket cannot be polled.
+        /// </summary>
+        public bool Connected
+        {
+            get
+            {
+                try
+                {
+                    bool c = !(m_sock.Poll(1000, SelectMode.SelectRead) && m_sock.Available == 0);
+                    if (!c && m_connectedAndInitialized)
+                    {
+                        Disconnect();
+                        m_connectedAndInitialized = false;
+                    }
+                    return c;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
 
-		//Set up socket to prepare for connection
-		protected ClientBase()
-		{
-			m_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-		}
+        //Set up socket to prepare for connection
+        protected ClientBase()
+        {
+            m_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        }
 
-		/// <summary>
-		/// Connects to the server specified when the constructor was called
-		/// </summary>
-		/// <returns>True if successful, false otherwise</returns>
-		public bool ConnectToServer(string ipOrHostname, int port)
-		{
-			if (m_connectedAndInitialized)
-			{
-				throw new InvalidOperationException("Client has already connected to the server. Disconnect first before connecting again.");
-			}
+        /// <summary>
+        /// Connects to the server specified when the constructor was called
+        /// </summary>
+        /// <returns>True if successful, false otherwise</returns>
+        public bool ConnectToServer(string ipOrHostname, int port)
+        {
+            if (m_connectedAndInitialized)
+            {
+                throw new InvalidOperationException("Client has already connected to the server. Disconnect first before connecting again.");
+            }
 
-			if (m_serverEndpoint == null)
-			{
-				IPAddress ip;
-				if (!IPAddress.TryParse(ipOrHostname, out ip))
-				{
-					IPAddress[] ipv4Addresses = Array.FindAll(Dns.GetHostEntry(ipOrHostname).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork);
+            if (m_serverEndpoint == null)
+            {
+                IPAddress ip;
+                if (!IPAddress.TryParse(ipOrHostname, out ip))
+                {
+                    IPAddress[] ipv4Addresses = Array.FindAll(Dns.GetHostEntry(ipOrHostname).AddressList, a => a.AddressFamily == AddressFamily.InterNetwork);
 
-					if (ipv4Addresses.Length == 0)
-					{
-						// throw new NotSupportedException("No IPv4 addresses found for the hostname '" + ipOrHostname + "'. IPv6 is not currently supported by EOSERV.");
-						return false;
-					}
+                    if (ipv4Addresses.Length == 0)
+                    {
+                        // throw new NotSupportedException("No IPv4 addresses found for the hostname '" + ipOrHostname + "'. IPv6 is not currently supported by EOSERV.");
+                        return false;
+                    }
 
-					ip = ipv4Addresses[0];
-				}
+                    ip = ipv4Addresses[0];
+                }
 
-				try
-				{
-					m_serverEndpoint = new IPEndPoint(ip, port);
-				}
-				catch
-				{
-					return false;
-				}
-			}
+                try
+                {
+                    m_serverEndpoint = new IPEndPoint(ip, port);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
 
-			try
-			{
-				if (m_sock != null && m_sock.Connected)
-				{
-					m_connectedAndInitialized = true;
-					return true;
-				}
+            try
+            {
+                if (m_sock != null && m_sock.Connected)
+                {
+                    m_connectedAndInitialized = true;
+                    return true;
+                }
 
-				if (m_sock == null)
-				{
-					return m_connectedAndInitialized = false;
-				}
+                if (m_sock == null)
+                {
+                    return m_connectedAndInitialized = false;
+                }
 
-				if (m_sendLock != null)
-				{
-					m_sendLock.Close();
-					m_sendLock = null;
-				}
+                if (m_sendLock != null)
+                {
+                    m_sendLock.Close();
+                    m_sendLock = null;
+                }
 
-				m_sendLock = new AutoResetEvent(true);
+                m_sendLock = new AutoResetEvent(true);
 
-				m_sock.Connect(m_serverEndpoint);
-				m_connectedAndInitialized = true;
+                m_sock.Connect(m_serverEndpoint);
+                m_connectedAndInitialized = true;
 
-				if (Connected)
-				{
-					OnConnect();
-				}
-			}
-			catch
-			{
-				m_connectedAndInitialized = false;
-			}
+                if (Connected)
+                {
+                    OnConnect();
+                }
+            }
+            catch
+            {
+                m_connectedAndInitialized = false;
+            }
 
-			return m_connectedAndInitialized;
-		}
+            return m_connectedAndInitialized;
+        }
 
-		/// <summary>
-		/// Provides for implementation-specific logic to be called on a successful socket connect() operation
-		/// </summary>
-		protected virtual void OnConnect()
-		{
-			DataChunk wrap = new DataChunk();
-			m_sock.BeginReceive(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _recvCB, wrap);
-		}
+        /// <summary>
+        /// Provides for implementation-specific logic to be called on a successful socket connect() operation
+        /// </summary>
+        protected virtual void OnConnect()
+        {
+            DataChunk wrap = new DataChunk();
+            m_sock.BeginReceive(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _recvCB, wrap);
+        }
 
-		/// <summary>
-		/// Starts an asyncronous receive operation on the underlying socket
-		/// </summary>
-		protected void StartDataReceive(DataChunk buffer)
-		{
-			m_sock.BeginReceive(buffer.Data, 0, buffer.Data.Length, SocketFlags.None, _recvCB, buffer);
-		}
+        /// <summary>
+        /// Starts an asyncronous receive operation on the underlying socket
+        /// </summary>
+        protected void StartDataReceive(DataChunk buffer)
+        {
+            m_sock.BeginReceive(buffer.Data, 0, buffer.Data.Length, SocketFlags.None, _recvCB, buffer);
+        }
 
-		/// <summary>
-		/// Yanks raw data out of the receive buffer for the underlying socket
-		/// </summary>
-		/// <returns>Number of bytes received</returns>
-		protected int ReceiveRaw(ref byte[] rawData)
-		{
-			return m_sock.Receive(rawData, rawData.Length, SocketFlags.None);
-		}
+        /// <summary>
+        /// Yanks raw data out of the receive buffer for the underlying socket
+        /// </summary>
+        /// <returns>Number of bytes received</returns>
+        protected int ReceiveRaw(ref byte[] rawData)
+        {
+            return m_sock.Receive(rawData, rawData.Length, SocketFlags.None);
+        }
 
-		/// <summary>
-		/// Disconnects from the server and recreates the socket. 
-		/// </summary>
-		public virtual void Disconnect()
-		{
-			if (!m_connectedAndInitialized)
-			{
-				return;
-			}
+        /// <summary>
+        /// Disconnects from the server and recreates the socket. 
+        /// </summary>
+        public virtual void Disconnect()
+        {
+            if (!m_connectedAndInitialized)
+            {
+                return;
+            }
 
-			m_connectedAndInitialized = false;
-			if (m_sock != null)
-			{
-				m_sock.Shutdown(SocketShutdown.Both);
-				//m_sock.Disconnect(false); //this seems to cause errors: a disconnected socket can only be reconnected asyncronously which is a pain in the ass
-				m_sock.Close();
-			}
+            m_connectedAndInitialized = false;
+            if (m_sock != null)
+            {
+                m_sock.Shutdown(SocketShutdown.Both);
+                //m_sock.Disconnect(false); //this seems to cause errors: a disconnected socket can only be reconnected asyncronously which is a pain in the ass
+                m_sock.Close();
+            }
 
-			Socket newSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			m_sock = newSock;
-		}
+            Socket newSock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            m_sock = newSock;
+        }
 
-		//---------------------------------------
-		// Send a packet to the server
-		//---------------------------------------
+        //---------------------------------------
+        // Send a packet to the server
+        //---------------------------------------
 
-		public bool SendPacket(OldPacket pkt)
-		{
-			if (!m_sendLock.WaitOne(Constants.ResponseTimeout)) //do one send at a time
-				return false;
+        public bool SendPacket(OldPacket pkt)
+        {
+            if (!m_sendLock.WaitOne(Constants.ResponseTimeout)) //do one send at a time
+                return false;
 
-			byte[] toSend;
-			OnSendData(pkt, out toSend);
-			DataChunk wrap = new DataChunk(toSend.Length) {Data = toSend};
-			try
-			{
-				m_sock.BeginSend(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _sendCB, wrap);
-			}
-			catch (SocketException)
-			{
-				//connection aborted by hardware errors produce a socketexception.
-				return false;
-			}
-			return true;
-		}
+            byte[] toSend;
+            OnSendData(pkt, out toSend);
+            DataChunk wrap = new DataChunk(toSend.Length) {Data = toSend};
+            try
+            {
+                m_sock.BeginSend(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _sendCB, wrap);
+            }
+            catch (SocketException)
+            {
+                //connection aborted by hardware errors produce a socketexception.
+                return false;
+            }
+            return true;
+        }
 
-		/// <summary>
-		/// Does optional processing of packet data before sending it to the server
-		/// </summary>
-		protected virtual void OnSendData(OldPacket pkt, out byte[] toSend)
-		{
-			toSend = pkt.Get();
-		}
+        /// <summary>
+        /// Does optional processing of packet data before sending it to the server
+        /// </summary>
+        protected virtual void OnSendData(OldPacket pkt, out byte[] toSend)
+        {
+            toSend = pkt.Get();
+        }
 
-		/// <summary>
-		/// Send unencrypted packet to server
-		/// </summary>
-		public bool SendRaw(OldPacket pkt)
-		{
-			m_sendLock.WaitOne();
+        /// <summary>
+        /// Send unencrypted packet to server
+        /// </summary>
+        public bool SendRaw(OldPacket pkt)
+        {
+            m_sendLock.WaitOne();
 
-			byte[] toSend;
-			OnSendRawData(pkt, out toSend);
-			DataChunk wrap = new DataChunk(toSend.Length) {Data = toSend};
-			try
-			{
-				m_sock.BeginSend(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _sendCB, wrap);
-			}
-			catch (SocketException)
-			{
-				return false;
-			}
-			return true;
-		}
+            byte[] toSend;
+            OnSendRawData(pkt, out toSend);
+            DataChunk wrap = new DataChunk(toSend.Length) {Data = toSend};
+            try
+            {
+                m_sock.BeginSend(wrap.Data, 0, wrap.Data.Length, SocketFlags.None, _sendCB, wrap);
+            }
+            catch (SocketException)
+            {
+                return false;
+            }
+            return true;
+        }
 
-		/// <summary>
-		/// Does optional processing of raw packet data before sending it to the server
-		/// </summary>
-		protected virtual void OnSendRawData(OldPacket pkt, out byte[] toSend)
-		{
-			toSend = pkt.Get();
-		}
+        /// <summary>
+        /// Does optional processing of raw packet data before sending it to the server
+        /// </summary>
+        protected virtual void OnSendRawData(OldPacket pkt, out byte[] toSend)
+        {
+            toSend = pkt.Get();
+        }
 
-		//-----------------------------------
-		//send and receive callback functions
-		//-----------------------------------
+        //-----------------------------------
+        //send and receive callback functions
+        //-----------------------------------
 
-		private void _recvCB(IAsyncResult res)
-		{
-			lock (disposingLockObject)
-				if (m_disposing)
-					return;
+        private void _recvCB(IAsyncResult res)
+        {
+            lock (disposingLockObject)
+                if (m_disposing)
+                    return;
 
-			int bytes;
-			DataChunk wrap;
-			try
-			{
-				bytes = m_sock.EndReceive(res);
-				wrap = (DataChunk) res.AsyncState;
-			}
-			catch
-			{
-				return;
-			}
+            int bytes;
+            DataChunk wrap;
+            try
+            {
+                bytes = m_sock.EndReceive(res);
+                wrap = (DataChunk) res.AsyncState;
+            }
+            catch
+            {
+                return;
+            }
 
-			if (bytes == 0)
-			{
-				Console.WriteLine("There was an error in the receive callback. Closing connection.");
-				Disconnect();
-				return;
-			}
+            if (bytes == 0)
+            {
+                Console.WriteLine("There was an error in the receive callback. Closing connection.");
+                Disconnect();
+                return;
+            }
 
-			OnReceiveData(wrap);
-		}
+            OnReceiveData(wrap);
+        }
 
-		/// <summary>
-		/// Processes the data chunk that was received from the server - MUST BE OVERRIDDEN WITH PROCESSING LOGIC
-		/// </summary>
-		protected abstract void OnReceiveData(DataChunk wrappedData);
+        /// <summary>
+        /// Processes the data chunk that was received from the server - MUST BE OVERRIDDEN WITH PROCESSING LOGIC
+        /// </summary>
+        protected abstract void OnReceiveData(DataChunk wrappedData);
 
-		private void _sendCB(IAsyncResult res)
-		{
-			lock (disposingLockObject)
-				if (m_disposing)
-				{
-					m_sendLock.Set();
-					return;
-				}
+        private void _sendCB(IAsyncResult res)
+        {
+            lock (disposingLockObject)
+                if (m_disposing)
+                {
+                    m_sendLock.Set();
+                    return;
+                }
 
-			int bytes = m_sock.EndSend(res);
-			DataChunk wrap = (DataChunk) res.AsyncState;
-			if (bytes != wrap.Data.Length)
-			{
-				m_sendLock.Set();
-				throw new InvalidOperationException("There was an error sending the specified number of bytes to the server.");
-			}
+            int bytes = m_sock.EndSend(res);
+            DataChunk wrap = (DataChunk) res.AsyncState;
+            if (bytes != wrap.Data.Length)
+            {
+                m_sendLock.Set();
+                throw new InvalidOperationException("There was an error sending the specified number of bytes to the server.");
+            }
 
-			m_sendLock.Set(); //send completed asyncronously. Allow pending sends to continue
-		}
+            m_sendLock.Set(); //send completed asyncronously. Allow pending sends to continue
+        }
 
-		//-----------------------------------
-		//dispose method
-		//-----------------------------------
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        //-----------------------------------
+        //dispose method
+        //-----------------------------------
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (!disposing) return;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposing) return;
 
-			lock (disposingLockObject)
-			{
-				if (m_disposing)
-					return;
+            lock (disposingLockObject)
+            {
+                if (m_disposing)
+                    return;
 
-				m_disposing = true;
-			}
+                m_disposing = true;
+            }
 
-			if (m_sendLock != null)
-			{
-				m_sendLock.Set();
-				m_sendLock.Close();
-			}
-			if (m_connectedAndInitialized)
-				m_sock.Shutdown(SocketShutdown.Both);
+            if (m_sendLock != null)
+            {
+                m_sendLock.Set();
+                m_sendLock.Close();
+            }
+            if (m_connectedAndInitialized)
+                m_sock.Shutdown(SocketShutdown.Both);
 
-			m_sock.Close();
-			m_sock = null;
-		}
-	}
+            m_sock.Close();
+            m_sock = null;
+        }
+    }
 }

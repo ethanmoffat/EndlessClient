@@ -4,8 +4,8 @@
 
 namespace EOLib.Net.Communication
 {
-	public interface INetworkClientFactory
-	{
-		INetworkClient CreateNetworkClient();
-	}
+    public interface INetworkClientFactory
+    {
+        INetworkClient CreateNetworkClient();
+    }
 }

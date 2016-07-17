@@ -6,11 +6,11 @@ using EOLib.Domain.Map;
 
 namespace EOLib.IO.Map
 {
-	public struct MapSign : IMapElement
-	{
-		public byte X { get; set; }
-		public byte Y { get; set; }
-		public string Title { get; set; }
-		public string Message { get; set; }
-	}
+    public struct MapSign : IMapElement
+    {
+        public byte X { get; set; }
+        public byte Y { get; set; }
+        public string Title { get; set; }
+        public string Message { get; set; }
+    }
 }

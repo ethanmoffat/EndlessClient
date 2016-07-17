@@ -4,8 +4,8 @@
 
 namespace EndlessClient.Dialogs.Factories
 {
-	public interface ICreateCharacterDialogFactory
-	{
-		CreateCharacterDialog BuildCreateCharacterDialog();
-	}
+    public interface ICreateCharacterDialogFactory
+    {
+        CreateCharacterDialog BuildCreateCharacterDialog();
+    }
 }

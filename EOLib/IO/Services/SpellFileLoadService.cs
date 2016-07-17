@@ -4,18 +4,18 @@
 
 namespace EOLib.IO.Services
 {
-	public class SpellFileLoadService : IPubLoadService<SpellRecord>
-	{
-		public IDataFile<SpellRecord> LoadPubFromDefaultFile()
-		{
-			return LoadPubFromExplicitFile(Constants.SpellFilePath);
-		}
+    public class SpellFileLoadService : IPubLoadService<SpellRecord>
+    {
+        public IDataFile<SpellRecord> LoadPubFromDefaultFile()
+        {
+            return LoadPubFromExplicitFile(Constants.SpellFilePath);
+        }
 
-		public IDataFile<SpellRecord> LoadPubFromExplicitFile(string fileName)
-		{
-			var spellFile = new SpellFile();
-			spellFile.Load(fileName);
-			return spellFile;
-		}
-	}
+        public IDataFile<SpellRecord> LoadPubFromExplicitFile(string fileName)
+        {
+            var spellFile = new SpellFile();
+            spellFile.Load(fileName);
+            return spellFile;
+        }
+    }
 }

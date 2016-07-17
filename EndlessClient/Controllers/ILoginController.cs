@@ -8,10 +8,10 @@ using EOLib.Domain.Login;
 
 namespace EndlessClient.Controllers
 {
-	public interface ILoginController
-	{
-		Task LoginToAccount(ILoginParameters loginParameters);
+    public interface ILoginController
+    {
+        Task LoginToAccount(ILoginParameters loginParameters);
 
-		Task LoginToCharacter(ICharacter character);
-	}
+        Task LoginToCharacter(ICharacter character);
+    }
 }

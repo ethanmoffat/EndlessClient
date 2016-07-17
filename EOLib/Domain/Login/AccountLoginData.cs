@@ -7,17 +7,17 @@ using EOLib.Domain.Character;
 
 namespace EOLib.Domain.Login
 {
-	public class AccountLoginData : IAccountLoginData
-	{
-		public LoginReply Response { get; private set; }
+    public class AccountLoginData : IAccountLoginData
+    {
+        public LoginReply Response { get; private set; }
 
-		private readonly List<ICharacter> _characters;
-		public IReadOnlyList<ICharacter> Characters { get { return _characters; } }
+        private readonly List<ICharacter> _characters;
+        public IReadOnlyList<ICharacter> Characters { get { return _characters; } }
 
-		public AccountLoginData(LoginReply reply, List<ICharacter> characters)
-		{
-			Response = reply;
-			_characters = characters;
-		}
-	}
+        public AccountLoginData(LoginReply reply, List<ICharacter> characters)
+        {
+            Response = reply;
+            _characters = characters;
+        }
+    }
 }

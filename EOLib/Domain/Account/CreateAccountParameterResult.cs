@@ -6,29 +6,29 @@ using System;
 
 namespace EOLib.Domain.Account
 {
-	public class CreateAccountParameterResult
-	{
-		public WhichParameter FaultingParameter { get; private set; }
+    public class CreateAccountParameterResult
+    {
+        public WhichParameter FaultingParameter { get; private set; }
 
-		public DATCONST1 ErrorString { get; private set; }
+        public DATCONST1 ErrorString { get; private set; }
 
-		public CreateAccountParameterResult(WhichParameter faultingParameter, DATCONST1 errorString = DATCONST1.NICE_TRY_HAXOR)
-		{
-			FaultingParameter = faultingParameter;
-			ErrorString = errorString;
-		}
-	}
+        public CreateAccountParameterResult(WhichParameter faultingParameter, DATCONST1 errorString = DATCONST1.NICE_TRY_HAXOR)
+        {
+            FaultingParameter = faultingParameter;
+            ErrorString = errorString;
+        }
+    }
 
-	[Flags]
-	public enum WhichParameter
-	{
-		None,
-		AccountName,
-		Password,
-		Confirm,
-		RealName,
-		Location,
-		Email,
-		All = AccountName | Password | Confirm | RealName | Location | Email
-	}
+    [Flags]
+    public enum WhichParameter
+    {
+        None,
+        AccountName,
+        Password,
+        Confirm,
+        RealName,
+        Location,
+        Email,
+        All = AccountName | Password | Confirm | RealName | Location | Email
+    }
 }

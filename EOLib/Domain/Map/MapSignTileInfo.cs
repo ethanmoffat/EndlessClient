@@ -6,15 +6,15 @@ using EOLib.IO.Map;
 
 namespace EOLib.Domain.Map
 {
-	public class MapSignTileInfo : ITileInfo
-	{
-		public TileInfoReturnType ReturnType { get { return TileInfoReturnType.IsMapSign; } }
-		public TileSpec Spec { get { return TileSpec.None; } }
-		public IMapElement MapElement { get; private set; }
+    public class MapSignTileInfo : ITileInfo
+    {
+        public TileInfoReturnType ReturnType { get { return TileInfoReturnType.IsMapSign; } }
+        public TileSpec Spec { get { return TileSpec.None; } }
+        public IMapElement MapElement { get; private set; }
 
-		public MapSignTileInfo(MapSign mapSign)
-		{
-			MapElement = mapSign;
-		}
-	}
+        public MapSignTileInfo(MapSign mapSign)
+        {
+            MapElement = mapSign;
+        }
+    }
 }

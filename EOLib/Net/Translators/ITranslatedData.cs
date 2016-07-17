@@ -4,7 +4,7 @@
 
 namespace EOLib.Net.Translators
 {
-	public interface ITranslatedData
-	{
-	}
+    public interface ITranslatedData
+    {
+    }
 }

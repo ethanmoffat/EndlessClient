@@ -8,16 +8,16 @@ using EOLib.Domain.Character;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-	public static class RenderPropertiesExtensions
-	{
-		public static bool IsFacing(this ICharacterRenderProperties renderProperties, params EODirection[] directions)
-		{
-			return directions.Contains(renderProperties.Direction);
-		}
+    public static class RenderPropertiesExtensions
+    {
+        public static bool IsFacing(this ICharacterRenderProperties renderProperties, params EODirection[] directions)
+        {
+            return directions.Contains(renderProperties.Direction);
+        }
 
-		public static bool IsActing(this ICharacterRenderProperties renderProperties, CharacterActionState action)
-		{
-			return renderProperties.CurrentAction == action;
-		}
-	}
+        public static bool IsActing(this ICharacterRenderProperties renderProperties, CharacterActionState action)
+        {
+            return renderProperties.CurrentAction == action;
+        }
+    }
 }

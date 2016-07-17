@@ -4,68 +4,68 @@
 
 namespace EndlessClient.HUD
 {
-	public class HudButtonController : IHudButtonController
-	{
-		private readonly IHudStateActions _hudStateActions;
+    public class HudButtonController : IHudButtonController
+    {
+        private readonly IHudStateActions _hudStateActions;
 
-		public HudButtonController(IHudStateActions hudStateActions)
-		{
-			_hudStateActions = hudStateActions;
-		}
+        public HudButtonController(IHudStateActions hudStateActions)
+        {
+            _hudStateActions = hudStateActions;
+        }
 
-		public void SetInitialHudState()
-		{
-			
-		}
+        public void SetInitialHudState()
+        {
 
-		public void ClickInventory()
-		{
-			_hudStateActions.SwitchToState(InGameStates.Inventory);
-		}
+        }
 
-		public void ClickShowMap()
-		{
-			_hudStateActions.ToggleMapView();
-		}
+        public void ClickInventory()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Inventory);
+        }
 
-		public void ClickActiveSpells()
-		{
-			_hudStateActions.SwitchToState(InGameStates.ActiveSpells);
-		}
+        public void ClickShowMap()
+        {
+            _hudStateActions.ToggleMapView();
+        }
 
-		public void ClickPassiveSpells()
-		{
-			_hudStateActions.SwitchToState(InGameStates.PassiveSpells);
-		}
+        public void ClickActiveSpells()
+        {
+            _hudStateActions.SwitchToState(InGameStates.ActiveSpells);
+        }
 
-		public void ClickChat()
-		{
-			_hudStateActions.SwitchToState(InGameStates.Chat);
-		}
+        public void ClickPassiveSpells()
+        {
+            _hudStateActions.SwitchToState(InGameStates.PassiveSpells);
+        }
 
-		public void ClickStats()
-		{
-			_hudStateActions.SwitchToState(InGameStates.Stats);
-		}
+        public void ClickChat()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Chat);
+        }
 
-		public void ClickWhoIsOnline()
-		{
-			_hudStateActions.SwitchToState(InGameStates.OnlineList);
-		}
+        public void ClickStats()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Stats);
+        }
 
-		public void ClickParty()
-		{
-			_hudStateActions.SwitchToState(InGameStates.Party);
-		}
+        public void ClickWhoIsOnline()
+        {
+            _hudStateActions.SwitchToState(InGameStates.OnlineList);
+        }
 
-		public void ClickSettings()
-		{
-			_hudStateActions.SwitchToState(InGameStates.Settings);
-		}
+        public void ClickParty()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Party);
+        }
 
-		public void ClickHelp()
-		{
-			_hudStateActions.SwitchToState(InGameStates.Help);
-		}
-	}
+        public void ClickSettings()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Settings);
+        }
+
+        public void ClickHelp()
+        {
+            _hudStateActions.SwitchToState(InGameStates.Help);
+        }
+    }
 }

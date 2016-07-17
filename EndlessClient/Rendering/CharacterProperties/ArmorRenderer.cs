@@ -11,74 +11,74 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-	public class ArmorRenderer : ICharacterPropertyRenderer
-	{
-		private readonly SpriteBatch _spriteBatch;
-		private readonly ICharacterRenderProperties _renderProperties;
-		private readonly Texture2D _armorTexture;
-		private readonly IDataFile<ItemRecord> _itemFile;
+    public class ArmorRenderer : ICharacterPropertyRenderer
+    {
+        private readonly SpriteBatch _spriteBatch;
+        private readonly ICharacterRenderProperties _renderProperties;
+        private readonly Texture2D _armorTexture;
+        private readonly IDataFile<ItemRecord> _itemFile;
 
-		public ArmorRenderer(SpriteBatch spriteBatch,
-							 ICharacterRenderProperties renderProperties,
-							 Texture2D armorTexture,
-							 IDataFile<ItemRecord> itemFile)
-		{
-			_spriteBatch = spriteBatch;
-			_renderProperties = renderProperties;
-			_armorTexture = armorTexture;
-			_itemFile = itemFile;
-		}
+        public ArmorRenderer(SpriteBatch spriteBatch,
+                             ICharacterRenderProperties renderProperties,
+                             Texture2D armorTexture,
+                             IDataFile<ItemRecord> itemFile)
+        {
+            _spriteBatch = spriteBatch;
+            _renderProperties = renderProperties;
+            _armorTexture = armorTexture;
+            _itemFile = itemFile;
+        }
 
-		public void Render(Rectangle parentCharacterDrawArea)
-		{
-			var offsets = GetOffsets();
-			var drawLoc = new Vector2(parentCharacterDrawArea.X - 2 + offsets.X, parentCharacterDrawArea.Y + offsets.Y);
+        public void Render(Rectangle parentCharacterDrawArea)
+        {
+            var offsets = GetOffsets();
+            var drawLoc = new Vector2(parentCharacterDrawArea.X - 2 + offsets.X, parentCharacterDrawArea.Y + offsets.Y);
 
-			_spriteBatch.Draw(_armorTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
-							  _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-							  0.0f);
-		}
+            _spriteBatch.Draw(_armorTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
+                              _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                              0.0f);
+        }
 
-		private bool IsWeaponAMeleeWeapon()
-		{
-			var weaponInfo = _itemFile.Data.SingleOrDefault(
-				x => x.Type == ItemType.Weapon &&
-					 x.DollGraphic == _renderProperties.WeaponGraphic);
+        private bool IsWeaponAMeleeWeapon()
+        {
+            var weaponInfo = _itemFile.Data.SingleOrDefault(
+                x => x.Type == ItemType.Weapon &&
+                     x.DollGraphic == _renderProperties.WeaponGraphic);
 
-			return weaponInfo == null || weaponInfo.SubType != ItemSubType.Ranged;
-		}
+            return weaponInfo == null || weaponInfo.SubType != ItemSubType.Ranged;
+        }
 
-		private Vector2 GetOffsets()
-		{
-			var weaponIsMelee = IsWeaponAMeleeWeapon();
-			var armorOffX = 0;
-			var armorOffY = _renderProperties.CurrentAction == CharacterActionState.Walking ? -1 : 0;
+        private Vector2 GetOffsets()
+        {
+            var weaponIsMelee = IsWeaponAMeleeWeapon();
+            var armorOffX = 0;
+            var armorOffY = _renderProperties.CurrentAction == CharacterActionState.Walking ? -1 : 0;
 
-			if (weaponIsMelee && _renderProperties.AttackFrame == 2)
-			{
-				armorOffX = _renderProperties.Gender == 1 ? 6 : 7;
-				if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
-					armorOffX *= -1;
+            if (weaponIsMelee && _renderProperties.AttackFrame == 2)
+            {
+                armorOffX = _renderProperties.Gender == 1 ? 6 : 7;
+                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
+                    armorOffX *= -1;
 
-				armorOffY += _renderProperties.IsFacing(EODirection.Down, EODirection.Right) ? 1 : -1;
-			}
-			else if (!weaponIsMelee && _renderProperties.AttackFrame == 1)
-			{
-				if (_renderProperties.IsFacing(EODirection.Down, EODirection.Right))
-				{
-					armorOffX = 6;
-					armorOffY += 1;
-				}
-				else
-				{
-					armorOffX = 4;
-				}
+                armorOffY += _renderProperties.IsFacing(EODirection.Down, EODirection.Right) ? 1 : -1;
+            }
+            else if (!weaponIsMelee && _renderProperties.AttackFrame == 1)
+            {
+                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Right))
+                {
+                    armorOffX = 6;
+                    armorOffY += 1;
+                }
+                else
+                {
+                    armorOffX = 4;
+                }
 
-				if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
-					armorOffX *= -1;
-			}
+                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
+                    armorOffX *= -1;
+            }
 
-			return new Vector2(armorOffX, armorOffY);
-		}
-	}
+            return new Vector2(armorOffX, armorOffY);
+        }
+    }
 }

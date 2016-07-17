@@ -8,10 +8,10 @@ using EOLib.Net.Translators;
 
 namespace EOLib.Domain.Login
 {
-	public interface IAccountLoginData : ITranslatedData
-	{
-		LoginReply Response { get; }
+    public interface IAccountLoginData : ITranslatedData
+    {
+        LoginReply Response { get; }
 
-		IReadOnlyList<ICharacter> Characters { get; }
-	}
+        IReadOnlyList<ICharacter> Characters { get; }
+    }
 }

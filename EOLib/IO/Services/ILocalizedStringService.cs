@@ -4,12 +4,12 @@
 
 namespace EOLib.IO.Services
 {
-	public interface ILocalizedStringService
-	{
-		string GetString(EOLanguage language, DATCONST1 dataConstant);
-		string GetString(EOLanguage langauge, DATCONST2 dataConstant);
+    public interface ILocalizedStringService
+    {
+        string GetString(EOLanguage language, DATCONST1 dataConstant);
+        string GetString(EOLanguage langauge, DATCONST2 dataConstant);
 
-		string GetString(DATCONST1 dataConstant);
-		string GetString(DATCONST2 dataConstant);
-	}
+        string GetString(DATCONST1 dataConstant);
+        string GetString(DATCONST2 dataConstant);
+    }
 }

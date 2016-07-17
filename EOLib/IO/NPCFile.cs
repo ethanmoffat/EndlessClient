@@ -9,16 +9,16 @@ using EOLib.Domain;
 
 namespace EOLib.IO
 {
-	public class NPCFile : EODataFile<NPCRecord>
-	{
-		public NPCFile() : base(new NPCRecordFactory(), new NumberEncoderService()) { }
+    public class NPCFile : EODataFile<NPCRecord>
+    {
+        public NPCFile() : base(new NPCRecordFactory(), new NumberEncoderService()) { }
 
-		public static NPCFile FromBytes(IEnumerable<byte> bytes)
-		{
-			var file = new NPCFile();
-			using (var ms = new MemoryStream(bytes.ToArray()))
-				file.LoadFromStream(ms);
-			return file;
-		}
-	}
+        public static NPCFile FromBytes(IEnumerable<byte> bytes)
+        {
+            var file = new NPCFile();
+            using (var ms = new MemoryStream(bytes.ToArray()))
+                file.LoadFromStream(ms);
+            return file;
+        }
+    }
 }

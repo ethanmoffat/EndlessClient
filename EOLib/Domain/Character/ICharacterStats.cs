@@ -6,12 +6,12 @@ using System.Collections.Generic;
 
 namespace EOLib.Domain.Character
 {
-	public interface ICharacterStats
-	{
-		IReadOnlyDictionary<CharacterStat, int> Stats { get; }
+    public interface ICharacterStats
+    {
+        IReadOnlyDictionary<CharacterStat, int> Stats { get; }
 
-		int this[CharacterStat stat] { get; }
+        int this[CharacterStat stat] { get; }
 
-		ICharacterStats WithNewStat(CharacterStat whichStat, int statValue);
-	}
+        ICharacterStats WithNewStat(CharacterStat whichStat, int statValue);
+    }
 }

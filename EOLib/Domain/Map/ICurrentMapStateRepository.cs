@@ -8,49 +8,49 @@ using EOLib.Domain.NPC;
 
 namespace EOLib.Domain.Map
 {
-	public interface ICurrentMapStateRepository
-	{
-		short CurrentMapID { get; set; }
+    public interface ICurrentMapStateRepository
+    {
+        short CurrentMapID { get; set; }
 
-		List<ICharacter> Characters { get; set; }
+        List<ICharacter> Characters { get; set; }
 
-		List<INPC> NPCs { get; set; }
+        List<INPC> NPCs { get; set; }
 
-		List<IMapItem> MapItems { get; set; }
-	}
+        List<IMapItem> MapItems { get; set; }
+    }
 
-	public interface ICurrentMapStateProvider
-	{
-		short CurrentMapID { get; }
+    public interface ICurrentMapStateProvider
+    {
+        short CurrentMapID { get; }
 
-		IReadOnlyList<ICharacter> Characters { get; }
+        IReadOnlyList<ICharacter> Characters { get; }
 
-		IReadOnlyList<INPC> NPCs { get; }
+        IReadOnlyList<INPC> NPCs { get; }
 
-		IReadOnlyList<IMapItem> MapItems { get; }
-	}
+        IReadOnlyList<IMapItem> MapItems { get; }
+    }
 
-	public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider
-	{
-		public short CurrentMapID { get; set; }
+    public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider
+    {
+        public short CurrentMapID { get; set; }
 
-		public List<ICharacter> Characters { get; set; }
+        public List<ICharacter> Characters { get; set; }
 
-		public List<INPC> NPCs { get; set; }
+        public List<INPC> NPCs { get; set; }
 
-		public List<IMapItem> MapItems { get; set; }
+        public List<IMapItem> MapItems { get; set; }
 
-		IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters { get { return Characters; } }
+        IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters { get { return Characters; } }
 
-		IReadOnlyList<INPC> ICurrentMapStateProvider.NPCs { get { return NPCs; } }
+        IReadOnlyList<INPC> ICurrentMapStateProvider.NPCs { get { return NPCs; } }
 
-		IReadOnlyList<IMapItem> ICurrentMapStateProvider.MapItems { get { return MapItems; } }
+        IReadOnlyList<IMapItem> ICurrentMapStateProvider.MapItems { get { return MapItems; } }
 
-		public CurrentMapStateRepository()
-		{
-			Characters = new List<ICharacter>();
-			NPCs = new List<INPC>();
-			MapItems = new List<IMapItem>();
-		}
-	}
+        public CurrentMapStateRepository()
+        {
+            Characters = new List<ICharacter>();
+            NPCs = new List<INPC>();
+            MapItems = new List<IMapItem>();
+        }
+    }
 }

@@ -6,18 +6,18 @@ using XNAControls;
 
 namespace EndlessClient.Input
 {
-	public interface IKeyboardDispatcherRepository
-	{
-		KeyboardDispatcher Dispatcher { get; set; }
-	}
+    public interface IKeyboardDispatcherRepository
+    {
+        KeyboardDispatcher Dispatcher { get; set; }
+    }
 
-	public interface IKeyboardDispatcherProvider
-	{
-		KeyboardDispatcher Dispatcher { get; }
-	}
+    public interface IKeyboardDispatcherProvider
+    {
+        KeyboardDispatcher Dispatcher { get; }
+    }
 
-	public class KeyboardDispatcherRepository : IKeyboardDispatcherRepository, IKeyboardDispatcherProvider
-	{
-		public KeyboardDispatcher Dispatcher { get; set; }
-	}
+    public class KeyboardDispatcherRepository : IKeyboardDispatcherRepository, IKeyboardDispatcherProvider
+    {
+        public KeyboardDispatcher Dispatcher { get; set; }
+    }
 }

@@ -8,96 +8,96 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-	partial class PacketAPI
-	{
-		private AutoResetEvent m_login_responseEvent;
-		private LoginReply m_login_reply;
+    partial class PacketAPI
+    {
+        private AutoResetEvent m_login_responseEvent;
+        private LoginReply m_login_reply;
 
-		private void _createLoginMembers()
-		{
-			m_login_responseEvent = new AutoResetEvent(false);
-			m_login_reply = LoginReply.THIS_IS_WRONG;
+        private void _createLoginMembers()
+        {
+            m_login_responseEvent = new AutoResetEvent(false);
+            m_login_reply = LoginReply.THIS_IS_WRONG;
 
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Login, PacketAction.Reply), _handleLoginReply, false);
-		}
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Login, PacketAction.Reply), _handleLoginReply, false);
+        }
 
-		private void _disposeLoginMembers()
-		{
-			if (m_login_responseEvent != null)
-			{
-				m_login_responseEvent.Dispose();
-				m_login_responseEvent = null;
-			}
-		}
+        private void _disposeLoginMembers()
+        {
+            if (m_login_responseEvent != null)
+            {
+                m_login_responseEvent.Dispose();
+                m_login_responseEvent = null;
+            }
+        }
 
-		public bool LoginRequest(string user, string pass, out LoginReply reply, out CharacterLoginData[] data)
-		{
-			reply = LoginReply.THIS_IS_WRONG;
-			data = null;
-			if (!m_client.ConnectedAndInitialized || !Initialized)
-				return false;
+        public bool LoginRequest(string user, string pass, out LoginReply reply, out CharacterLoginData[] data)
+        {
+            reply = LoginReply.THIS_IS_WRONG;
+            data = null;
+            if (!m_client.ConnectedAndInitialized || !Initialized)
+                return false;
 
-			OldPacket pkt = new OldPacket(PacketFamily.Login, PacketAction.Request);
-			pkt.AddBreakString(user);
-			pkt.AddBreakString(pass);
+            OldPacket pkt = new OldPacket(PacketFamily.Login, PacketAction.Request);
+            pkt.AddBreakString(user);
+            pkt.AddBreakString(pass);
 
-			if(!m_client.SendPacket(pkt) || !m_login_responseEvent.WaitOne(Constants.ResponseTimeout))
-				return false;
+            if(!m_client.SendPacket(pkt) || !m_login_responseEvent.WaitOne(Constants.ResponseTimeout))
+                return false;
 
-			reply = m_login_reply;
-			if (reply == LoginReply.Ok && m_character_data != null)
-			{
-				data = m_character_data;
-			}
+            reply = m_login_reply;
+            if (reply == LoginReply.Ok && m_character_data != null)
+            {
+                data = m_character_data;
+            }
 
-			return true;
-		}
+            return true;
+        }
 
-		//handler for LOGIN_REPLY received from server
-		private void _handleLoginReply(OldPacket pkt)
-		{
-			m_login_reply = (LoginReply)pkt.GetShort();
+        //handler for LOGIN_REPLY received from server
+        private void _handleLoginReply(OldPacket pkt)
+        {
+            m_login_reply = (LoginReply)pkt.GetShort();
 
-			if (m_login_reply == LoginReply.Ok)
-			{
-				byte numCharacters = pkt.GetChar();
-				pkt.GetByte();
-				pkt.GetByte();
+            if (m_login_reply == LoginReply.Ok)
+            {
+                byte numCharacters = pkt.GetChar();
+                pkt.GetByte();
+                pkt.GetByte();
 
-				m_character_data = new CharacterLoginData[numCharacters];
+                m_character_data = new CharacterLoginData[numCharacters];
 
-				for (int i = 0; i < numCharacters; ++i)
-				{
-					CharacterLoginData nextData = new CharacterLoginData(pkt);
-					m_character_data[i] = nextData;
-					if (255 != pkt.GetByte())
-						return; //malformed packet - time out and signal error
-				}
-			}
+                for (int i = 0; i < numCharacters; ++i)
+                {
+                    CharacterLoginData nextData = new CharacterLoginData(pkt);
+                    m_character_data[i] = nextData;
+                    if (255 != pkt.GetByte())
+                        return; //malformed packet - time out and signal error
+                }
+            }
 
-			m_login_responseEvent.Set();
-		}
+            m_login_responseEvent.Set();
+        }
 
-		public DATCONST1 LoginResponseMessage()
-		{
-			DATCONST1 message = DATCONST1.NICE_TRY_HAXOR;
-			switch (m_login_reply)
-			{
-				case LoginReply.LoggedIn:
-					message = DATCONST1.LOGIN_ACCOUNT_ALREADY_LOGGED_ON;
-					break;
-				case LoginReply.Busy:
-					message = DATCONST1.CONNECTION_SERVER_IS_FULL;
-					break;
-				case LoginReply.WrongUser:
-					message = DATCONST1.LOGIN_ACCOUNT_NAME_NOT_FOUND;
-					break;
-				case LoginReply.WrongUserPass:
-					message = DATCONST1.LOGIN_ACCOUNT_NAME_OR_PASSWORD_NOT_FOUND;
-					break;
-			}
+        public DATCONST1 LoginResponseMessage()
+        {
+            DATCONST1 message = DATCONST1.NICE_TRY_HAXOR;
+            switch (m_login_reply)
+            {
+                case LoginReply.LoggedIn:
+                    message = DATCONST1.LOGIN_ACCOUNT_ALREADY_LOGGED_ON;
+                    break;
+                case LoginReply.Busy:
+                    message = DATCONST1.CONNECTION_SERVER_IS_FULL;
+                    break;
+                case LoginReply.WrongUser:
+                    message = DATCONST1.LOGIN_ACCOUNT_NAME_NOT_FOUND;
+                    break;
+                case LoginReply.WrongUserPass:
+                    message = DATCONST1.LOGIN_ACCOUNT_NAME_OR_PASSWORD_NOT_FOUND;
+                    break;
+            }
 
-			return message;
-		}
-	}
+            return message;
+        }
+    }
 }

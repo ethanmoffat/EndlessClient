@@ -10,27 +10,27 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Factories
 {
-	public class CharacterRendererFactory : ICharacterRendererFactory
-	{
-		private readonly IEndlessGameProvider _gameProvider;
-		private readonly INativeGraphicsManager _nativeGraphicsManager;
-		private readonly IItemFileProvider _itemFileProvider;
+    public class CharacterRendererFactory : ICharacterRendererFactory
+    {
+        private readonly IEndlessGameProvider _gameProvider;
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IItemFileProvider _itemFileProvider;
 
-		public CharacterRendererFactory(IEndlessGameProvider gameProvider,
-										INativeGraphicsManager nativeGraphicsManager,
-										IItemFileProvider itemFileProvider)
-		{
-			_gameProvider = gameProvider;
-			_nativeGraphicsManager = nativeGraphicsManager;
-			_itemFileProvider = itemFileProvider;
-		}
+        public CharacterRendererFactory(IEndlessGameProvider gameProvider,
+                                        INativeGraphicsManager nativeGraphicsManager,
+                                        IItemFileProvider itemFileProvider)
+        {
+            _gameProvider = gameProvider;
+            _nativeGraphicsManager = nativeGraphicsManager;
+            _itemFileProvider = itemFileProvider;
+        }
 
-		public ICharacterRenderer CreateCharacterRenderer(ICharacterRenderProperties initialRenderProperties)
-		{
-			return new CharacterRenderer((Game)_gameProvider.Game,
-				_nativeGraphicsManager,
-				_itemFileProvider,
-				initialRenderProperties);
-		}
-	}
+        public ICharacterRenderer CreateCharacterRenderer(ICharacterRenderProperties initialRenderProperties)
+        {
+            return new CharacterRenderer((Game)_gameProvider.Game,
+                _nativeGraphicsManager,
+                _itemFileProvider,
+                initialRenderProperties);
+        }
+    }
 }

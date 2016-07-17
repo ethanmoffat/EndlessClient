@@ -4,12 +4,12 @@
 
 namespace EOLib.Domain.Character
 {
-	public interface IInventorySpell
-	{
-		short ID { get; }
+    public interface IInventorySpell
+    {
+        short ID { get; }
 
-		short Level { get; }
+        short Level { get; }
 
-		IInventorySpell WithLevel(short newLevel);
-	}
+        IInventorySpell WithLevel(short newLevel);
+    }
 }

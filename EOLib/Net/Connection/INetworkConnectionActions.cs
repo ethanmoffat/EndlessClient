@@ -8,16 +8,16 @@ using EOLib.Net.Communication;
 
 namespace EOLib.Net.Connection
 {
-	public interface INetworkConnectionActions
-	{
-		Task<ConnectResult> ConnectToServer();
+    public interface INetworkConnectionActions
+    {
+        Task<ConnectResult> ConnectToServer();
 
-		Task<ConnectResult> ReconnectToServer();
+        Task<ConnectResult> ReconnectToServer();
 
-		void DisconnectFromServer();
+        void DisconnectFromServer();
 
-		Task<IInitializationData> BeginHandshake();
+        Task<IInitializationData> BeginHandshake();
 
-		void CompleteHandshake(IInitializationData initializationData);
-	}
+        void CompleteHandshake(IInitializationData initializationData);
+    }
 }

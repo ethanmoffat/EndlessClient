@@ -4,26 +4,26 @@
 
 namespace EOLib.Net.PacketProcessing
 {
-	public class PacketSequenceService : IPacketSequenceService
-	{
-		public int CalculateInitialSequenceNumber(int seq1, int seq2)
-		{
-			return seq1*7 - 11 + seq2 - 2;
-		}
+    public class PacketSequenceService : IPacketSequenceService
+    {
+        public int CalculateInitialSequenceNumber(int seq1, int seq2)
+        {
+            return seq1*7 - 11 + seq2 - 2;
+        }
 
-		public int CalculateNextSequenceNumber(int sequence, int increment)
-		{
-			return sequence + increment;
-		}
+        public int CalculateNextSequenceNumber(int sequence, int increment)
+        {
+            return sequence + increment;
+        }
 
-		public int CalculateNewInitialSequenceNumber(int seq1, int seq2)
-		{
-			return seq1 - seq2;
-		}
+        public int CalculateNewInitialSequenceNumber(int seq1, int seq2)
+        {
+            return seq1 - seq2;
+        }
 
-		public int CalculateNextSequenceIncrement(int increment)
-		{
-			return (increment + 1)%10;
-		}
-	}
+        public int CalculateNextSequenceIncrement(int increment)
+        {
+            return (increment + 1)%10;
+        }
+    }
 }

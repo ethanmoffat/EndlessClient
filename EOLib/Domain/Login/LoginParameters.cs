@@ -4,15 +4,15 @@
 
 namespace EOLib.Domain.Login
 {
-	public class LoginParameters : ILoginParameters
-	{
-		public string Username { get; private set; }
-		public string Password { get; private set; }
+    public class LoginParameters : ILoginParameters
+    {
+        public string Username { get; private set; }
+        public string Password { get; private set; }
 
-		public LoginParameters(string username, string password)
-		{
-			Username = username;
-			Password = password;
-		}
-	}
+        public LoginParameters(string username, string password)
+        {
+            Username = username;
+            Password = password;
+        }
+    }
 }

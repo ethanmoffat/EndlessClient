@@ -4,12 +4,12 @@
 
 namespace EOLib.IO.Map
 {
-	public enum ChestKey : short
-	{
-		None,
-		Normal,
-		Silver,
-		Crystal,
-		Wraith
-	}
+    public enum ChestKey : short
+    {
+        None,
+        Normal,
+        Silver,
+        Crystal,
+        Wraith
+    }
 }

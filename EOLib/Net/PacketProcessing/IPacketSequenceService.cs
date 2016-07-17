@@ -4,14 +4,14 @@
 
 namespace EOLib.Net.PacketProcessing
 {
-	public interface IPacketSequenceService
-	{
-		int CalculateInitialSequenceNumber(int seq1, int seq2);
+    public interface IPacketSequenceService
+    {
+        int CalculateInitialSequenceNumber(int seq1, int seq2);
 
-		int CalculateNextSequenceNumber(int sequence, int increment);
-		
-		int CalculateNewInitialSequenceNumber(int seq1, int seq2);
+        int CalculateNextSequenceNumber(int sequence, int increment);
+        
+        int CalculateNewInitialSequenceNumber(int seq1, int seq2);
 
-		int CalculateNextSequenceIncrement(int increment);
-	}
+        int CalculateNextSequenceIncrement(int increment);
+    }
 }

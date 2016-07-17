@@ -4,18 +4,18 @@
 
 namespace EOLib.IO.Services
 {
-	public class ClassFileLoadService : IPubLoadService<ClassRecord>
-	{
-		public IDataFile<ClassRecord> LoadPubFromDefaultFile()
-		{
-			return LoadPubFromExplicitFile(Constants.ClassFilePath);
-		}
+    public class ClassFileLoadService : IPubLoadService<ClassRecord>
+    {
+        public IDataFile<ClassRecord> LoadPubFromDefaultFile()
+        {
+            return LoadPubFromExplicitFile(Constants.ClassFilePath);
+        }
 
-		public IDataFile<ClassRecord> LoadPubFromExplicitFile(string fileName)
-		{
-			var classFile = new ClassFile();
-			classFile.Load(fileName);
-			return classFile;
-		}
-	}
+        public IDataFile<ClassRecord> LoadPubFromExplicitFile(string fileName)
+        {
+            var classFile = new ClassFile();
+            classFile.Load(fileName);
+            return classFile;
+        }
+    }
 }

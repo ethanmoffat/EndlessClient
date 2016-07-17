@@ -6,15 +6,15 @@ using EOLib.IO.Map;
 
 namespace EOLib.Domain.Map
 {
-	public class NPCTileInfo : ITileInfo
-	{
-		public TileInfoReturnType ReturnType { get { return TileInfoReturnType.IsOtherNPC; } }
-		public TileSpec Spec { get { return TileSpec.None; } }
-		public IMapElement MapElement { get; private set; }
+    public class NPCTileInfo : ITileInfo
+    {
+        public TileInfoReturnType ReturnType { get { return TileInfoReturnType.IsOtherNPC; } }
+        public TileSpec Spec { get { return TileSpec.None; } }
+        public IMapElement MapElement { get; private set; }
 
-		public NPCTileInfo(NPC.OldNPC npc)
-		{
-			MapElement = npc;
-		}
-	}
+        public NPCTileInfo(NPC.OldNPC npc)
+        {
+            MapElement = npc;
+        }
+    }
 }

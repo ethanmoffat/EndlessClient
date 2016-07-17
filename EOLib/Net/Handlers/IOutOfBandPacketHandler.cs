@@ -4,8 +4,8 @@
 
 namespace EOLib.Net.Handlers
 {
-	public interface IOutOfBandPacketHandler
-	{
-		void PollForPacketsAndHandle();
-	}
+    public interface IOutOfBandPacketHandler
+    {
+        void PollForPacketsAndHandle();
+    }
 }

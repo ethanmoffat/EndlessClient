@@ -8,16 +8,16 @@ using Microsoft.Xna.Framework.Content;
 
 namespace EndlessClient.GameExecution
 {
-	public interface IEndlessGame : IDisposable
-	{
-		GameComponentCollection Components { get; }
+    public interface IEndlessGame : IDisposable
+    {
+        GameComponentCollection Components { get; }
 
-		ContentManager Content { get; }
-		
-		GameWindow Window { get; }
+        ContentManager Content { get; }
+        
+        GameWindow Window { get; }
 
-		void Run();
+        void Run();
 
-		void Exit();
-	}
+        void Exit();
+    }
 }

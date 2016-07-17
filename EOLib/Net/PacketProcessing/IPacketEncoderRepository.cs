@@ -4,9 +4,9 @@
 
 namespace EOLib.Net.PacketProcessing
 {
-	public interface IPacketEncoderRepository
-	{
-		byte ReceiveMultiplier { get; set; }
-		byte SendMultiplier { get; set; }
-	}
+    public interface IPacketEncoderRepository
+    {
+        byte ReceiveMultiplier { get; set; }
+        byte SendMultiplier { get; set; }
+    }
 }

@@ -7,45 +7,45 @@ using EOLib.Net.Communication;
 
 namespace EOLib.Net.Connection
 {
-	public class BackgroundReceiveActions : IBackgroundReceiveActions
-	{
-		private readonly INetworkClientProvider _clientProvider;
+    public class BackgroundReceiveActions : IBackgroundReceiveActions
+    {
+        private readonly INetworkClientProvider _clientProvider;
 
-		private Thread _backgroundThread;
-		private bool _threadStarted;
+        private Thread _backgroundThread;
+        private bool _threadStarted;
 
-		public BackgroundReceiveActions(INetworkClientProvider clientProvider)
-		{
-			_clientProvider = clientProvider;
-			_backgroundThread = new Thread(BackgroundLoop);
-		}
+        public BackgroundReceiveActions(INetworkClientProvider clientProvider)
+        {
+            _clientProvider = clientProvider;
+            _backgroundThread = new Thread(BackgroundLoop);
+        }
 
-		public void RunBackgroundReceiveLoop()
-		{
-			if (_threadStarted)
-				return;
-			
-			_backgroundThread.Start();
-			_threadStarted = true;
-		}
+        public void RunBackgroundReceiveLoop()
+        {
+            if (_threadStarted)
+                return;
+            
+            _backgroundThread.Start();
+            _threadStarted = true;
+        }
 
-		public void CancelBackgroundReceiveLoop()
-		{
-			if (!_threadStarted)
-				return;
+        public void CancelBackgroundReceiveLoop()
+        {
+            if (!_threadStarted)
+                return;
 
-			Client.CancelBackgroundReceiveLoop();
-			
-			_backgroundThread.Join();
-			_backgroundThread = new Thread(BackgroundLoop);
-			_threadStarted = false;
-		}
+            Client.CancelBackgroundReceiveLoop();
+            
+            _backgroundThread.Join();
+            _backgroundThread = new Thread(BackgroundLoop);
+            _threadStarted = false;
+        }
 
-		private async void BackgroundLoop()
-		{
-			await Client.RunReceiveLoopAsync();
-		}
+        private async void BackgroundLoop()
+        {
+            await Client.RunReceiveLoopAsync();
+        }
 
-		private INetworkClient Client { get { return _clientProvider.NetworkClient; } }
-	}
+        private INetworkClient Client { get { return _clientProvider.NetworkClient; } }
+    }
 }

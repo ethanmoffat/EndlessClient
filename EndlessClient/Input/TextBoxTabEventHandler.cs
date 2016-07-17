@@ -7,42 +7,42 @@ using XNAControls;
 
 namespace EndlessClient.Input
 {
-	public sealed class TextBoxTabEventHandler : IDisposable
-	{
-		private readonly KeyboardDispatcher _dispatcher;
-		private readonly XNATextBox[] _subscribers;
+    public sealed class TextBoxTabEventHandler : IDisposable
+    {
+        private readonly KeyboardDispatcher _dispatcher;
+        private readonly XNATextBox[] _subscribers;
 
-		public TextBoxTabEventHandler(KeyboardDispatcher dispatcher, params XNATextBox[] subscribers)
-		{
-			_dispatcher = dispatcher;
-			_subscribers = subscribers;
+        public TextBoxTabEventHandler(KeyboardDispatcher dispatcher, params XNATextBox[] subscribers)
+        {
+            _dispatcher = dispatcher;
+            _subscribers = subscribers;
 
-			foreach (var textBox in _subscribers)
-				textBox.OnTabPressed += OnTabPressed;
-		}
+            foreach (var textBox in _subscribers)
+                textBox.OnTabPressed += OnTabPressed;
+        }
 
-		private void OnTabPressed(object sender, EventArgs e)
-		{
-			for (int i = 0; i < _subscribers.Length; ++i)
-			{
-				if (_subscribers[i] != sender)
-					continue;
+        private void OnTabPressed(object sender, EventArgs e)
+        {
+            for (int i = 0; i < _subscribers.Length; ++i)
+            {
+                if (_subscribers[i] != sender)
+                    continue;
 
-				var next = (i+1)%_subscribers.Length;
+                var next = (i+1)%_subscribers.Length;
 
-				_subscribers[i].Selected = false;
+                _subscribers[i].Selected = false;
 
-				_dispatcher.Subscriber = _subscribers[next];
-				_subscribers[next].Selected = true;
+                _dispatcher.Subscriber = _subscribers[next];
+                _subscribers[next].Selected = true;
 
-				break;
-			}
-		}
+                break;
+            }
+        }
 
-		public void Dispose()
-		{
-			foreach (var textBox in _subscribers)
-				textBox.OnTabPressed -= OnTabPressed;
-		}
-	}
+        public void Dispose()
+        {
+            foreach (var textBox in _subscribers)
+                textBox.OnTabPressed -= OnTabPressed;
+        }
+    }
 }

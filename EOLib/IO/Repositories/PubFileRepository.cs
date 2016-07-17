@@ -4,14 +4,14 @@
 
 namespace EOLib.IO.Repositories
 {
-	public class PubFileRepository : IPubFileRepository, IPubFileProvider
-	{
-		public IDataFile<ItemRecord> ItemFile { get; set; }
+    public class PubFileRepository : IPubFileRepository, IPubFileProvider
+    {
+        public IDataFile<ItemRecord> ItemFile { get; set; }
 
-		public IDataFile<NPCRecord> NPCFile { get; set; }
+        public IDataFile<NPCRecord> NPCFile { get; set; }
 
-		public IDataFile<SpellRecord> SpellFile { get; set; }
+        public IDataFile<SpellRecord> SpellFile { get; set; }
 
-		public IDataFile<ClassRecord> ClassFile { get; set; }
-	}
+        public IDataFile<ClassRecord> ClassFile { get; set; }
+    }
 }

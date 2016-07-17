@@ -6,31 +6,31 @@ using System.Collections.Generic;
 
 namespace EOLib.Domain.Character
 {
-	public interface ICharacterRepository
-	{
-		ICharacter ActiveCharacter { get; set; }
+    public interface ICharacterRepository
+    {
+        ICharacter ActiveCharacter { get; set; }
 
-		List<ICharacter> VisibleCharacters { get; set; }
-	}
+        List<ICharacter> VisibleCharacters { get; set; }
+    }
 
-	public interface ICharacterProvider
-	{
-		ICharacter ActiveCharacter { get; }
+    public interface ICharacterProvider
+    {
+        ICharacter ActiveCharacter { get; }
 
-		IReadOnlyList<ICharacter> VisibleCharacters { get; }
-	}
+        IReadOnlyList<ICharacter> VisibleCharacters { get; }
+    }
 
-	public class CharacterRepository : ICharacterRepository, ICharacterProvider
-	{
-		public ICharacter ActiveCharacter { get; set; }
+    public class CharacterRepository : ICharacterRepository, ICharacterProvider
+    {
+        public ICharacter ActiveCharacter { get; set; }
 
-		public List<ICharacter> VisibleCharacters { get; set; }
+        public List<ICharacter> VisibleCharacters { get; set; }
 
-		IReadOnlyList<ICharacter> ICharacterProvider.VisibleCharacters { get { return VisibleCharacters; } }
+        IReadOnlyList<ICharacter> ICharacterProvider.VisibleCharacters { get { return VisibleCharacters; } }
 
-		public CharacterRepository()
-		{
-			VisibleCharacters = new List<ICharacter>(64);
-		}
-	}
+        public CharacterRepository()
+        {
+            VisibleCharacters = new List<ICharacter>(64);
+        }
+    }
 }

@@ -4,10 +4,10 @@
 
 namespace EOLib.Net.Handlers
 {
-	public enum PacketHandlingType
-	{
-		InBand,
-		OutOfBand,
-		NotHandled
-	}
+    public enum PacketHandlingType
+    {
+        InBand,
+        OutOfBand,
+        NotHandled
+    }
 }

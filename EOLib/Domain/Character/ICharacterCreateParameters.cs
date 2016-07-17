@@ -4,13 +4,13 @@
 
 namespace EOLib.Domain.Character
 {
-	public interface ICharacterCreateParameters
-	{
-		string Name { get; }
+    public interface ICharacterCreateParameters
+    {
+        string Name { get; }
 
-		int Gender { get; }
-		int HairStyle { get; }
-		int HairColor { get; }
-		int Race { get; }
-	}
+        int Gender { get; }
+        int HairStyle { get; }
+        int HairColor { get; }
+        int Race { get; }
+    }
 }

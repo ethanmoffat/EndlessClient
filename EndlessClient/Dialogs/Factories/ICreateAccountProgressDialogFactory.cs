@@ -4,8 +4,8 @@
 
 namespace EndlessClient.Dialogs.Factories
 {
-	public interface ICreateAccountProgressDialogFactory
-	{
-		ProgressDialog BuildCreateAccountProgressDialog();
-	}
+    public interface ICreateAccountProgressDialogFactory
+    {
+        ProgressDialog BuildCreateAccountProgressDialog();
+    }
 }

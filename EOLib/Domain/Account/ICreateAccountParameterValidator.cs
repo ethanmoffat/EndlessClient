@@ -4,18 +4,18 @@
 
 namespace EOLib.Domain.Account
 {
-	public interface ICreateAccountParameterValidator
-	{
-		bool AccountNameIsNotLongEnough(string account);
+    public interface ICreateAccountParameterValidator
+    {
+        bool AccountNameIsNotLongEnough(string account);
 
-		bool AccountNameIsTooObvious(string account);
+        bool AccountNameIsTooObvious(string account);
 
-		bool PasswordMismatch(string input, string confirm);
+        bool PasswordMismatch(string input, string confirm);
 
-		bool PasswordIsTooShort(string password);
+        bool PasswordIsTooShort(string password);
 
-		bool PasswordIsTooObvious(string password);
+        bool PasswordIsTooObvious(string password);
 
-		bool EmailIsInvalid(string email);
-	}
+        bool EmailIsInvalid(string email);
+    }
 }

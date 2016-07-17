@@ -13,66 +13,66 @@ using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.Input
 {
-	public class ControlKeyListener : InputKeyListenerBase
-	{
-		public ControlKeyListener()
-		{
-			if (Game.Components.Any(x => x is ControlKeyListener))
-				throw new InvalidOperationException("The game already contains an arrow key listener");
-			Game.Components.Add(this);
-		}
+    public class ControlKeyListener : InputKeyListenerBase
+    {
+        public ControlKeyListener()
+        {
+            if (Game.Components.Any(x => x is ControlKeyListener))
+                throw new InvalidOperationException("The game already contains an arrow key listener");
+            Game.Components.Add(this);
+        }
 
-		public override void Update(GameTime gameTime)
-		{
-			if (!IgnoreInput && Character.State != CharacterActionState.Attacking)
-			{
-				UpdateInputTime();
+        public override void Update(GameTime gameTime)
+        {
+            if (!IgnoreInput && Character.State != CharacterActionState.Attacking)
+            {
+                UpdateInputTime();
 
-				EODirection direction = EODirection.Invalid;
-				if (IsKeyPressed(Keys.LeftControl) || IsKeyPressed(Keys.RightControl))
-					direction = Character.RenderData.facing;
+                EODirection direction = EODirection.Invalid;
+                if (IsKeyPressed(Keys.LeftControl) || IsKeyPressed(Keys.RightControl))
+                    direction = Character.RenderData.facing;
 
-				byte destX, destY;
-				switch (direction)
-				{
-					case EODirection.Up:
-						destX = (byte) Character.X;
-						destY = (byte) (Character.Y - 1);
-						break;
-					case EODirection.Down:
-						destX = (byte) Character.X;
-						destY = (byte) (Character.Y + 1);
-						break;
-					case EODirection.Right:
-						destX = (byte) (Character.X + 1);
-						destY = (byte) Character.Y;
-						break;
-					case EODirection.Left:
-						destX = (byte) (Character.X - 1);
-						destY = (byte) Character.Y;
-						break;
-					default:
-						destX = destY = 255;
-						break;
-				}
+                byte destX, destY;
+                switch (direction)
+                {
+                    case EODirection.Up:
+                        destX = (byte) Character.X;
+                        destY = (byte) (Character.Y - 1);
+                        break;
+                    case EODirection.Down:
+                        destX = (byte) Character.X;
+                        destY = (byte) (Character.Y + 1);
+                        break;
+                    case EODirection.Right:
+                        destX = (byte) (Character.X + 1);
+                        destY = (byte) Character.Y;
+                        break;
+                    case EODirection.Left:
+                        destX = (byte) (Character.X - 1);
+                        destY = (byte) Character.Y;
+                        break;
+                    default:
+                        destX = destY = 255;
+                        break;
+                }
 
-				if (direction != EODirection.Invalid && Character.State == CharacterActionState.Standing)
-				{
-					if (Character.CanAttack)
-					{
-						var info = OldWorld.Instance.ActiveMapRenderer.GetTileInfo((byte) Character.X, (byte) Character.Y);
-						Character.Attack(direction, destX, destY); //destX and destY validity check above
-						Renderer.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec && info.Spec == TileSpec.Water);
-					}
-					else if (Character.Weight > Character.MaxWeight)
-					{
-						EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
-							DATCONST2.STATUS_LABEL_CANNOT_ATTACK_OVERWEIGHT);
-					}
-				}
-			}
+                if (direction != EODirection.Invalid && Character.State == CharacterActionState.Standing)
+                {
+                    if (Character.CanAttack)
+                    {
+                        var info = OldWorld.Instance.ActiveMapRenderer.GetTileInfo((byte) Character.X, (byte) Character.Y);
+                        Character.Attack(direction, destX, destY); //destX and destY validity check above
+                        Renderer.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec && info.Spec == TileSpec.Water);
+                    }
+                    else if (Character.Weight > Character.MaxWeight)
+                    {
+                        EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
+                            DATCONST2.STATUS_LABEL_CANNOT_ATTACK_OVERWEIGHT);
+                    }
+                }
+            }
 
-			base.Update(gameTime);
-		}
-	}
+            base.Update(gameTime);
+        }
+    }
 }

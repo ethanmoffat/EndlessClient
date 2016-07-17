@@ -7,33 +7,33 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-	partial class PacketAPI
-	{
-		/// <summary>
-		/// Occurs when the hidden state of an admin changes. Includes short PlayerID and bool Hidden (true if player is hiding, false if visible).
-		/// </summary>
-		public event Action<short, bool> OnAdminHiddenChange;
+    partial class PacketAPI
+    {
+        /// <summary>
+        /// Occurs when the hidden state of an admin changes. Includes short PlayerID and bool Hidden (true if player is hiding, false if visible).
+        /// </summary>
+        public event Action<short, bool> OnAdminHiddenChange;
 
-		private void _createAdminInteractMembers()
-		{
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Remove), _handleAdminHide, true);
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Agree),  _handleAdminShow, true);
-		}
+        private void _createAdminInteractMembers()
+        {
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Remove), _handleAdminHide, true);
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.AdminInteract, PacketAction.Agree),  _handleAdminShow, true);
+        }
 
-		private void _handleAdminHide(OldPacket pkt)
-		{
-			if (OnAdminHiddenChange == null) return;
-			short id = pkt.GetShort();
+        private void _handleAdminHide(OldPacket pkt)
+        {
+            if (OnAdminHiddenChange == null) return;
+            short id = pkt.GetShort();
 
-			OnAdminHiddenChange(id, true);
-		}
+            OnAdminHiddenChange(id, true);
+        }
 
-		private void _handleAdminShow(OldPacket pkt)
-		{
-			if (OnAdminHiddenChange == null) return;
-			short id = pkt.GetShort();
+        private void _handleAdminShow(OldPacket pkt)
+        {
+            if (OnAdminHiddenChange == null) return;
+            short id = pkt.GetShort();
 
-			OnAdminHiddenChange(id, false);
-		}
-	}
+            OnAdminHiddenChange(id, false);
+        }
+    }
 }

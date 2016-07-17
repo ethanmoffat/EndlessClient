@@ -9,33 +9,33 @@ using EOLib.IO.Services;
 
 namespace EndlessClient.Dialogs.Factories
 {
-	public class CreateAccountProgressDialogFactory : ICreateAccountProgressDialogFactory
-	{
-		private readonly INativeGraphicsManager _nativeGraphicsManager;
-		private readonly IGameStateProvider _gameStateProvider;
-		private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
-		private readonly ILocalizedStringService _localizedStringService;
+    public class CreateAccountProgressDialogFactory : ICreateAccountProgressDialogFactory
+    {
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly IGameStateProvider _gameStateProvider;
+        private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
+        private readonly ILocalizedStringService _localizedStringService;
 
-		public CreateAccountProgressDialogFactory(INativeGraphicsManager nativeGraphicsManager,
-												  IGameStateProvider gameStateProvider,
-												  IGraphicsDeviceProvider graphicsDeviceProvider,
-												  ILocalizedStringService localizedStringService)
-		{
-			_nativeGraphicsManager = nativeGraphicsManager;
-			_gameStateProvider = gameStateProvider;
-			_graphicsDeviceProvider = graphicsDeviceProvider;
-			_localizedStringService = localizedStringService;
-		}
+        public CreateAccountProgressDialogFactory(INativeGraphicsManager nativeGraphicsManager,
+                                                  IGameStateProvider gameStateProvider,
+                                                  IGraphicsDeviceProvider graphicsDeviceProvider,
+                                                  ILocalizedStringService localizedStringService)
+        {
+            _nativeGraphicsManager = nativeGraphicsManager;
+            _gameStateProvider = gameStateProvider;
+            _graphicsDeviceProvider = graphicsDeviceProvider;
+            _localizedStringService = localizedStringService;
+        }
 
-		public ProgressDialog BuildCreateAccountProgressDialog()
-		{
-			var message = _localizedStringService.GetString(DATCONST1.ACCOUNT_CREATE_ACCEPTED + 1);
-			var caption = _localizedStringService.GetString(DATCONST1.ACCOUNT_CREATE_ACCEPTED);
-			
-			return new ProgressDialog(_nativeGraphicsManager,
-									  _gameStateProvider,
-									  _graphicsDeviceProvider,
-									  message, caption);
-		}
-	}
+        public ProgressDialog BuildCreateAccountProgressDialog()
+        {
+            var message = _localizedStringService.GetString(DATCONST1.ACCOUNT_CREATE_ACCEPTED + 1);
+            var caption = _localizedStringService.GetString(DATCONST1.ACCOUNT_CREATE_ACCEPTED);
+            
+            return new ProgressDialog(_nativeGraphicsManager,
+                                      _gameStateProvider,
+                                      _graphicsDeviceProvider,
+                                      message, caption);
+        }
+    }
 }

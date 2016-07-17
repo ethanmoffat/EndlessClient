@@ -4,8 +4,8 @@
 
 namespace EndlessClient.Dialogs.Factories
 {
-	public interface IGameLoadingDialogFactory
-	{
-		GameLoadingDialog CreateGameLoadingDialog();
-	}
+    public interface IGameLoadingDialogFactory
+    {
+        GameLoadingDialog CreateGameLoadingDialog();
+    }
 }

@@ -4,10 +4,10 @@
 
 namespace EOLib.Domain.Account
 {
-	public interface IChangePasswordParameters
-	{
-		string AccountName { get; }
-		string OldPassword { get; }
-		string NewPassword { get; }
-	}
+    public interface IChangePasswordParameters
+    {
+        string AccountName { get; }
+        string OldPassword { get; }
+        string NewPassword { get; }
+    }
 }

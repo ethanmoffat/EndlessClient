@@ -10,40 +10,40 @@ using PELoaderLib;
 
 namespace EOLib.Graphics
 {
-	public sealed class PEFileCollection : Dictionary<GFXTypes, IPEFile>, IPEFileCollection
-	{
-		public PEFileCollection()
-		{
-			var gfxTypes = Enum.GetValues(typeof(GFXTypes)).OfType<GFXTypes>();
-			var modules = gfxTypes.ToDictionary(type => type, CreateGFXFile);
-			foreach(var modulePair in modules)
-				Add(modulePair.Key, modulePair.Value);
-		}
+    public sealed class PEFileCollection : Dictionary<GFXTypes, IPEFile>, IPEFileCollection
+    {
+        public PEFileCollection()
+        {
+            var gfxTypes = Enum.GetValues(typeof(GFXTypes)).OfType<GFXTypes>();
+            var modules = gfxTypes.ToDictionary(type => type, CreateGFXFile);
+            foreach(var modulePair in modules)
+                Add(modulePair.Key, modulePair.Value);
+        }
 
-		private IPEFile CreateGFXFile(GFXTypes file)
-		{
-			var number = ((int)file).ToString("D3");
-			var fName = Path.Combine("gfx", "gfx" + number + ".egf");
+        private IPEFile CreateGFXFile(GFXTypes file)
+        {
+            var number = ((int)file).ToString("D3");
+            var fName = Path.Combine("gfx", "gfx" + number + ".egf");
 
-			return new PEFile(fName);
-		}
+            return new PEFile(fName);
+        }
 
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		~PEFileCollection()
-		{
-			Dispose(false);
-		}
+        ~PEFileCollection()
+        {
+            Dispose(false);
+        }
 
-		private void Dispose(bool disposing)
-		{
-			if (disposing)
-				foreach (var pair in this)
-					pair.Value.Dispose();
-		}
-	}
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+                foreach (var pair in this)
+                    pair.Value.Dispose();
+        }
+    }
 }

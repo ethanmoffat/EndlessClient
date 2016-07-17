@@ -4,18 +4,18 @@
 
 namespace EOLib.IO.Services
 {
-	public class NPCFileLoadService : IPubLoadService<NPCRecord>
-	{
-		public IDataFile<NPCRecord> LoadPubFromDefaultFile()
-		{
-			return LoadPubFromExplicitFile(Constants.NPCFilePath);
-		}
+    public class NPCFileLoadService : IPubLoadService<NPCRecord>
+    {
+        public IDataFile<NPCRecord> LoadPubFromDefaultFile()
+        {
+            return LoadPubFromExplicitFile(Constants.NPCFilePath);
+        }
 
-		public IDataFile<NPCRecord> LoadPubFromExplicitFile(string fileName)
-		{
-			var npcFile = new NPCFile();
-			npcFile.Load(fileName);
-			return npcFile;
-		}
-	}
+        public IDataFile<NPCRecord> LoadPubFromExplicitFile(string fileName)
+        {
+            var npcFile = new NPCFile();
+            npcFile.Load(fileName);
+            return npcFile;
+        }
+    }
 }

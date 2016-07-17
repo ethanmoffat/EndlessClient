@@ -4,8 +4,8 @@
 
 namespace EOLib.IO.Services
 {
-	public interface IHDSerialNumberService
-	{
-		string GetHDSerialNumber();
-	}
+    public interface IHDSerialNumberService
+    {
+        string GetHDSerialNumber();
+    }
 }

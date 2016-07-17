@@ -4,11 +4,11 @@
 
 namespace EOLib
 {
-	public interface IReadOnly2DArray<out T>
-	{
-		int Rows { get; }
-		int Cols { get; }
+    public interface IReadOnly2DArray<out T>
+    {
+        int Rows { get; }
+        int Cols { get; }
 
-		T this[int row, int col] { get; }
-	}
+        T this[int row, int col] { get; }
+    }
 }

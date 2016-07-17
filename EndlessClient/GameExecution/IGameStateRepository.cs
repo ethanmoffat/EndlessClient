@@ -4,18 +4,18 @@
 
 namespace EndlessClient.GameExecution
 {
-	public interface IGameStateRepository
-	{
-		GameStates CurrentState { get; set; }
-	}
+    public interface IGameStateRepository
+    {
+        GameStates CurrentState { get; set; }
+    }
 
-	public interface IGameStateProvider
-	{
-		GameStates CurrentState { get; }
-	}
+    public interface IGameStateProvider
+    {
+        GameStates CurrentState { get; }
+    }
 
-	public class GameStateRepository : IGameStateRepository, IGameStateProvider
-	{
-		public GameStates CurrentState { get; set; }
-	}
+    public class GameStateRepository : IGameStateRepository, IGameStateProvider
+    {
+        public GameStates CurrentState { get; set; }
+    }
 }

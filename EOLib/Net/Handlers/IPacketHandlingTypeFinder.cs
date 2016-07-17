@@ -4,8 +4,8 @@
 
 namespace EOLib.Net.Handlers
 {
-	public interface IPacketHandlingTypeFinder
-	{
-		PacketHandlingType FindHandlingType(PacketFamily family, PacketAction action);
-	}
+    public interface IPacketHandlingTypeFinder
+    {
+        PacketHandlingType FindHandlingType(PacketFamily family, PacketAction action);
+    }
 }

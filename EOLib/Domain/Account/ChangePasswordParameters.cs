@@ -4,19 +4,19 @@
 
 namespace EOLib.Domain.Account
 {
-	public class ChangePasswordParameters : IChangePasswordParameters
-	{
-		public string AccountName { get; private set; }
-		public string OldPassword { get; private set; }
-		public string NewPassword { get; private set; }
+    public class ChangePasswordParameters : IChangePasswordParameters
+    {
+        public string AccountName { get; private set; }
+        public string OldPassword { get; private set; }
+        public string NewPassword { get; private set; }
 
-		public ChangePasswordParameters(string accountName,
-			string oldPassword,
-			string newPassword)
-		{
-			AccountName = accountName;
-			OldPassword = oldPassword;
-			NewPassword = newPassword;
-		}
-	}
+        public ChangePasswordParameters(string accountName,
+            string oldPassword,
+            string newPassword)
+        {
+            AccountName = accountName;
+            OldPassword = oldPassword;
+            NewPassword = newPassword;
+        }
+    }
 }

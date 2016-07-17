@@ -7,10 +7,10 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services
 {
-	public interface IFileRequestService
-	{
-		Task<IMapFile> RequestMapFile(short mapID);
+    public interface IFileRequestService
+    {
+        Task<IMapFile> RequestMapFile(short mapID);
 
-		Task<IModifiableDataFile<T>> RequestFile<T>(InitFileType fileType) where T : IDataRecord;
-	}
+        Task<IModifiableDataFile<T>> RequestFile<T>(InitFileType fileType) where T : IDataRecord;
+    }
 }

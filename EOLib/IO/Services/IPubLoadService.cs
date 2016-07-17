@@ -4,11 +4,11 @@
 
 namespace EOLib.IO.Services
 {
-	public interface IPubLoadService<out T>
-		where T : IDataRecord
-	{
-		IDataFile<T> LoadPubFromDefaultFile();
+    public interface IPubLoadService<out T>
+        where T : IDataRecord
+    {
+        IDataFile<T> LoadPubFromDefaultFile();
 
-		IDataFile<T> LoadPubFromExplicitFile(string fileName);
-	}
+        IDataFile<T> LoadPubFromExplicitFile(string fileName);
+    }
 }

@@ -8,23 +8,23 @@ using Microsoft.Practices.Unity;
 
 namespace EndlessClient
 {
-	public static class Program
-	{
-		private static IGameRunner _gameRunner;
+    public static class Program
+    {
+        private static IGameRunner _gameRunner;
 
-		[STAThread]
-		public static void Main()
-		{
-			using (var unityContainer = new UnityContainer())
-			{
+        [STAThread]
+        public static void Main()
+        {
+            using (var unityContainer = new UnityContainer())
+            {
 #if DEBUG
-				_gameRunner = new DebugGameRunner(unityContainer);
+                _gameRunner = new DebugGameRunner(unityContainer);
 #else
-				_gameRunner = new ReleaseGameRunner(unityContainer);
+                _gameRunner = new ReleaseGameRunner(unityContainer);
 #endif
-				if (_gameRunner.SetupDependencies())
-					_gameRunner.RunGame();
-			}
-		}
-	}
+                if (_gameRunner.SetupDependencies())
+                    _gameRunner.RunGame();
+            }
+        }
+    }
 }

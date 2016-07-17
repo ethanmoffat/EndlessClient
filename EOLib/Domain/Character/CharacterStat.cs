@@ -4,36 +4,36 @@
 
 namespace EOLib.Domain.Character
 {
-	public enum CharacterStat
-	{
-		Level,
-		Experience,
-		Usage,
+    public enum CharacterStat
+    {
+        Level,
+        Experience,
+        Usage,
 
-		HP,
-		MaxHP,
-		TP,
-		MaxTP,
-		SP,
-		MaxSP,
+        HP,
+        MaxHP,
+        TP,
+        MaxTP,
+        SP,
+        MaxSP,
 
-		StatPoints,
-		SkillPoints,
-		Karma,
-		MinDam,
-		MaxDam,
-		Accuracy,
-		Evade,
-		Armor,
+        StatPoints,
+        SkillPoints,
+        Karma,
+        MinDam,
+        MaxDam,
+        Accuracy,
+        Evade,
+        Armor,
 
-		Strength,
-		Intelligence,
-		Wisdom,
-		Agility,
-		Constituion,
-		Charisma,
+        Strength,
+        Intelligence,
+        Wisdom,
+        Agility,
+        Constituion,
+        Charisma,
 
-		Weight,
-		MaxWeight
-	}
+        Weight,
+        MaxWeight
+    }
 }

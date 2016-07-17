@@ -4,9 +4,9 @@
 
 namespace EOLib.Domain.Login
 {
-	public interface ILoginParameters
-	{
-		string Username { get; }
-		string Password { get; }
-	}
+    public interface ILoginParameters
+    {
+        string Username { get; }
+        string Password { get; }
+    }
 }

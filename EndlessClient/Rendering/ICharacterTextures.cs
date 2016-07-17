@@ -7,20 +7,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering
 {
-	public interface ICharacterTextures
-	{
-		Texture2D Boots { get; }
-		Texture2D Armor { get; }
-		Texture2D Hat { get; }
-		Texture2D Shield { get; }
-		Texture2D Weapon { get; }
+    public interface ICharacterTextures
+    {
+        Texture2D Boots { get; }
+        Texture2D Armor { get; }
+        Texture2D Hat { get; }
+        Texture2D Shield { get; }
+        Texture2D Weapon { get; }
 
-		Texture2D Hair { get; }
-		ISpriteSheet Skin { get; }
+        Texture2D Hair { get; }
+        ISpriteSheet Skin { get; }
 
-		ISpriteSheet Emote { get; }
-		ISpriteSheet Face { get; }
+        ISpriteSheet Emote { get; }
+        ISpriteSheet Face { get; }
 
-		void RefreshTextures(bool bowIsEquipped, bool shieldIsOnBack);
-	}
+        void RefreshTextures(bool bowIsEquipped, bool shieldIsOnBack);
+    }
 }

@@ -7,34 +7,34 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-	partial class PacketAPI
-	{
-		public event Action<byte, byte> OnDoorOpen;
+    partial class PacketAPI
+    {
+        public event Action<byte, byte> OnDoorOpen;
 
-		private void _createDoorMembers()
-		{
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Door, PacketAction.Open), _handleDoorOpen, true);
-		}
+        private void _createDoorMembers()
+        {
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Door, PacketAction.Open), _handleDoorOpen, true);
+        }
 
-		public bool DoorOpen(byte x, byte y)
-		{
-			if (!m_client.ConnectedAndInitialized || !Initialized) return false;
+        public bool DoorOpen(byte x, byte y)
+        {
+            if (!m_client.ConnectedAndInitialized || !Initialized) return false;
 
-			OldPacket builder = new OldPacket(PacketFamily.Door, PacketAction.Open);
-			builder.AddChar(x);
-			builder.AddChar(y);
+            OldPacket builder = new OldPacket(PacketFamily.Door, PacketAction.Open);
+            builder.AddChar(x);
+            builder.AddChar(y);
 
-			return m_client.SendPacket(builder);
-		}
+            return m_client.SendPacket(builder);
+        }
 
-		//also a DOOR_OPEN packet
-		private void _handleDoorOpen(OldPacket pkt)
-		{
-			if (OnDoorOpen == null) return;
+        //also a DOOR_OPEN packet
+        private void _handleDoorOpen(OldPacket pkt)
+        {
+            if (OnDoorOpen == null) return;
 
-			//returns: x, y (char, short) of door location - 
-			//  but the short (y) is expanded from a byte server-side so no loss of data
-			OnDoorOpen(pkt.GetChar(), (byte)pkt.GetShort());
-		}
-	}
+            //returns: x, y (char, short) of door location - 
+            //  but the short (y) is expanded from a byte server-side so no loss of data
+            OnDoorOpen(pkt.GetChar(), (byte)pkt.GetShort());
+        }
+    }
 }

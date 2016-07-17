@@ -6,36 +6,36 @@ using System.Collections.Generic;
 
 namespace EOLib.Net
 {
-	public interface IPacketBuilder
-	{
-		int Length { get; }
+    public interface IPacketBuilder
+    {
+        int Length { get; }
 
-		PacketFamily Family { get; }
+        PacketFamily Family { get; }
 
-		PacketAction Action { get; }
+        PacketAction Action { get; }
 
-		IPacketBuilder WithFamily(PacketFamily family);
+        IPacketBuilder WithFamily(PacketFamily family);
 
-		IPacketBuilder WithAction(PacketAction action);
+        IPacketBuilder WithAction(PacketAction action);
 
-		IPacketBuilder AddBreak();
+        IPacketBuilder AddBreak();
 
-		IPacketBuilder AddByte(byte b);
+        IPacketBuilder AddByte(byte b);
 
-		IPacketBuilder AddChar(byte b);
+        IPacketBuilder AddChar(byte b);
 
-		IPacketBuilder AddShort(short s);
+        IPacketBuilder AddShort(short s);
 
-		IPacketBuilder AddThree(int t);
+        IPacketBuilder AddThree(int t);
 
-		IPacketBuilder AddInt(int i);
+        IPacketBuilder AddInt(int i);
 
-		IPacketBuilder AddString(string s);
+        IPacketBuilder AddString(string s);
 
-		IPacketBuilder AddBreakString(string s);
+        IPacketBuilder AddBreakString(string s);
 
-		IPacketBuilder AddBytes(IEnumerable<byte> bytes);
+        IPacketBuilder AddBytes(IEnumerable<byte> bytes);
 
-		IPacket Build();
-	}
+        IPacket Build();
+    }
 }

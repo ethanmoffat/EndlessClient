@@ -4,12 +4,12 @@
 
 namespace EOLib
 {
-	public enum EODirection : byte
-	{
-		Down = 0,
-		Left,
-		Up,
-		Right,
-		Invalid = 255
-	}
+    public enum EODirection : byte
+    {
+        Down = 0,
+        Left,
+        Up,
+        Right,
+        Invalid = 255
+    }
 }

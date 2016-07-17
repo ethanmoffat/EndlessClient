@@ -6,9 +6,9 @@ using System.Collections.Generic;
 
 namespace EOLib.IO.Map
 {
-	public interface IMapEntityRow<T>
-	{
-		int Y { get; set; }
-		List<IMapEntityItem<T>> EntityItems { get; set; }
-	}
+    public interface IMapEntityRow<T>
+    {
+        int Y { get; set; }
+        List<IMapEntityItem<T>> EntityItems { get; set; }
+    }
 }

@@ -12,18 +12,18 @@
 
 namespace EndlessClient.Controllers.Repositories
 {
-	public interface IMainButtonControllerRepository
-	{
-		IMainButtonController MainButtonController { get; set; }
-	}
+    public interface IMainButtonControllerRepository
+    {
+        IMainButtonController MainButtonController { get; set; }
+    }
 
-	public interface IMainButtonControllerProvider
-	{
-		IMainButtonController MainButtonController { get; }
-	}
+    public interface IMainButtonControllerProvider
+    {
+        IMainButtonController MainButtonController { get; }
+    }
 
-	public class MainButtonControllerRepository : IMainButtonControllerRepository, IMainButtonControllerProvider
-	{
-		public IMainButtonController MainButtonController { get; set; }
-	}
+    public class MainButtonControllerRepository : IMainButtonControllerRepository, IMainButtonControllerProvider
+    {
+        public IMainButtonController MainButtonController { get; set; }
+    }
 }

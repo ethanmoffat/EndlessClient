@@ -4,9 +4,9 @@
 
 namespace EOLib.Net.PacketProcessing
 {
-	public class SequenceRepository : ISequenceRepository
-	{
-		public int SequenceStart { get; set; }
-		public int SequenceIncrement { get; set; }
-	}
+    public class SequenceRepository : ISequenceRepository
+    {
+        public int SequenceStart { get; set; }
+        public int SequenceIncrement { get; set; }
+    }
 }

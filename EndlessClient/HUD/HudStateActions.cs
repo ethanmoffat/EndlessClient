@@ -4,16 +4,16 @@
 
 namespace EndlessClient.HUD
 {
-	public class HudStateActions : IHudStateActions
-	{
-		public void SwitchToState(InGameStates newState)
-		{
-			throw new System.NotImplementedException();
-		}
+    public class HudStateActions : IHudStateActions
+    {
+        public void SwitchToState(InGameStates newState)
+        {
+            throw new System.NotImplementedException();
+        }
 
-		public void ToggleMapView()
-		{
-			throw new System.NotImplementedException();
-		}
-	}
+        public void ToggleMapView()
+        {
+            throw new System.NotImplementedException();
+        }
+    }
 }

@@ -7,13 +7,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Effects
 {
-	public interface IEffectSpriteInfo
-	{
-		bool OnTopOfCharacter { get; }
-		bool Done { get; }
+    public interface IEffectSpriteInfo
+    {
+        bool OnTopOfCharacter { get; }
+        bool Done { get; }
 
-		void NextFrame();
-		void Restart();
-		void DrawToSpriteBatch(SpriteBatch sb, Rectangle target);
-	}
+        void NextFrame();
+        void Restart();
+        void DrawToSpriteBatch(SpriteBatch sb, Rectangle target);
+    }
 }

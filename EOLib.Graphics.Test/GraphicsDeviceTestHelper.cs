@@ -10,48 +10,48 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EOLib.Graphics.Test
 {
-	internal sealed class GraphicsDeviceTestHelper : IDisposable
-	{
-		private readonly Form _form;
-		private readonly Game _game;
-		private readonly ServiceContainer _serviceContainer;
+    internal sealed class GraphicsDeviceTestHelper : IDisposable
+    {
+        private readonly Form _form;
+        private readonly Game _game;
+        private readonly ServiceContainer _serviceContainer;
 
-		public GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
+        public GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
 
-		public GraphicsDeviceTestHelper()
-		{
-			_form = new Form();
-			_game = new Game();
-			GraphicsDeviceManager = new GraphicsDeviceManager(_game);
+        public GraphicsDeviceTestHelper()
+        {
+            _form = new Form();
+            _game = new Game();
+            GraphicsDeviceManager = new GraphicsDeviceManager(_game);
 
-			var gds = GraphicsDeviceServiceTestHelper.AddRef(_form.Handle, _form.ClientSize.Width, _form.ClientSize.Height);
-			
-			_serviceContainer = new ServiceContainer();
-			_serviceContainer.AddService(typeof(IGraphicsDeviceService), gds);
+            var gds = GraphicsDeviceServiceTestHelper.AddRef(_form.Handle, _form.ClientSize.Width, _form.ClientSize.Height);
+            
+            _serviceContainer = new ServiceContainer();
+            _serviceContainer.AddService(typeof(IGraphicsDeviceService), gds);
 
-			GraphicsDeviceManager.CreateDevice();
-		}
+            GraphicsDeviceManager.CreateDevice();
+        }
 
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		~GraphicsDeviceTestHelper()
-		{
-			Dispose(false);
-		}
+        ~GraphicsDeviceTestHelper()
+        {
+            Dispose(false);
+        }
 
-		private void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				_serviceContainer.Dispose();
-				GraphicsDeviceManager.Dispose();
-				_game.Dispose();
-				_form.Dispose();
-			}
-		}
-	}
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _serviceContainer.Dispose();
+                GraphicsDeviceManager.Dispose();
+                _game.Dispose();
+                _form.Dispose();
+            }
+        }
+    }
 }

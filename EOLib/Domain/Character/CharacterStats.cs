@@ -8,38 +8,38 @@ using System.Linq;
 
 namespace EOLib.Domain.Character
 {
-	public class CharacterStats : ICharacterStats
-	{
-		public IReadOnlyDictionary<CharacterStat, int> Stats { get; private set; }
+    public class CharacterStats : ICharacterStats
+    {
+        public IReadOnlyDictionary<CharacterStat, int> Stats { get; private set; }
 
-		public int this[CharacterStat stat] { get { return Stats[stat]; } }
+        public int this[CharacterStat stat] { get { return Stats[stat]; } }
 
-		public CharacterStats()
-		{
-			Stats = CreateStatCollection();
-		}
+        public CharacterStats()
+        {
+            Stats = CreateStatCollection();
+        }
 
-		private CharacterStats(IReadOnlyDictionary<CharacterStat, int> stats)
-		{
-			Stats = stats;
-		}
+        private CharacterStats(IReadOnlyDictionary<CharacterStat, int> stats)
+        {
+            Stats = stats;
+        }
 
-		public ICharacterStats WithNewStat(CharacterStat whichStat, int statValue)
-		{
-			var newStats = Stats.ToDictionary(x => x.Key, x => x.Value);
-			newStats[whichStat] = statValue;
-			return new CharacterStats(newStats);
-		}
+        public ICharacterStats WithNewStat(CharacterStat whichStat, int statValue)
+        {
+            var newStats = Stats.ToDictionary(x => x.Key, x => x.Value);
+            newStats[whichStat] = statValue;
+            return new CharacterStats(newStats);
+        }
 
-		private static IReadOnlyDictionary<CharacterStat, int> CreateStatCollection()
-		{
-			var stats = new Dictionary<CharacterStat, int>(25);
+        private static IReadOnlyDictionary<CharacterStat, int> CreateStatCollection()
+        {
+            var stats = new Dictionary<CharacterStat, int>(25);
 
-			var allStatTypes = Enum.GetValues(typeof(CharacterStat));
-			foreach (CharacterStat stat in allStatTypes)
-				stats.Add(stat, 0);
+            var allStatTypes = Enum.GetValues(typeof(CharacterStat));
+            foreach (CharacterStat stat in allStatTypes)
+                stats.Add(stat, 0);
 
-			return stats;
-		}
-	}
+            return stats;
+        }
+    }
 }

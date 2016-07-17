@@ -4,18 +4,18 @@
 
 namespace EOLib.Domain.Map
 {
-	public interface IMapItem
-	{
-		short UniqueID { get; }
+    public interface IMapItem
+    {
+        short UniqueID { get; }
 
-		short ItemID { get; }
+        short ItemID { get; }
 
-		byte X { get; }
+        byte X { get; }
 
-		byte Y { get; }
+        byte Y { get; }
 
-		int Amount { get; }
+        int Amount { get; }
 
-		IMapItem WithAmount(int newAmount);
-	}
+        IMapItem WithAmount(int newAmount);
+    }
 }

@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace EndlessClient.Controllers
 {
-	public interface IMainButtonController
-	{
-		void GoToInitialState();
+    public interface IMainButtonController
+    {
+        void GoToInitialState();
 
-		void GoToInitialStateAndDisconnect();
+        void GoToInitialStateAndDisconnect();
 
-		Task ClickCreateAccount();
+        Task ClickCreateAccount();
 
-		Task ClickLogin();
+        Task ClickLogin();
 
-		void ClickViewCredits();
+        void ClickViewCredits();
 
-		void ClickExit();
-	}
+        void ClickExit();
+    }
 }

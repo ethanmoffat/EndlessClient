@@ -4,17 +4,17 @@
 
 namespace EndlessClient.Rendering.Sprites
 {
-	public interface ICharacterSpriteCalculator
-	{
-		ISpriteSheet GetBootsTexture(bool isBow);
-		ISpriteSheet GetArmorTexture(bool isBow);
-		ISpriteSheet GetHatTexture();
-		ISpriteSheet GetShieldTexture(bool shieldIsOnBack);
-		ISpriteSheet GetWeaponTexture(bool isBow);
+    public interface ICharacterSpriteCalculator
+    {
+        ISpriteSheet GetBootsTexture(bool isBow);
+        ISpriteSheet GetArmorTexture(bool isBow);
+        ISpriteSheet GetHatTexture();
+        ISpriteSheet GetShieldTexture(bool shieldIsOnBack);
+        ISpriteSheet GetWeaponTexture(bool isBow);
 
-		ISpriteSheet GetSkinTexture(bool isBow);
-		ISpriteSheet GetHairTexture();
-		ISpriteSheet GetFaceTexture();
-		ISpriteSheet GetEmoteTexture();
-	}
+        ISpriteSheet GetSkinTexture(bool isBow);
+        ISpriteSheet GetHairTexture();
+        ISpriteSheet GetFaceTexture();
+        ISpriteSheet GetEmoteTexture();
+    }
 }

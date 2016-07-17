@@ -11,20 +11,20 @@ using EOLib.Net.Translators;
 
 namespace EndlessClient
 {
-	public static class DependencyContainerProvider
-	{
-		public static readonly IDependencyContainer[] DependencyContainers =
-		{
-			//EOLib containers
-			new DataDependencyContainer(),
-			new GraphicsDependencyContainer(),
-			new IODependencyContainer(),
-			new NetworkDependencyContainer(),
-			new PacketTranslatorContainer(),
+    public static class DependencyContainerProvider
+    {
+        public static readonly IDependencyContainer[] DependencyContainers =
+        {
+            //EOLib containers
+            new DataDependencyContainer(),
+            new GraphicsDependencyContainer(),
+            new IODependencyContainer(),
+            new NetworkDependencyContainer(),
+            new PacketTranslatorContainer(),
 
-			//EndlessClient containers
-			new EndlessClientDependencyContainer(),
-			new XNAControlsDependencyContainer()
-		};
-	}
+            //EndlessClient containers
+            new EndlessClientDependencyContainer(),
+            new XNAControlsDependencyContainer()
+        };
+    }
 }

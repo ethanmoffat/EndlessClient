@@ -7,25 +7,25 @@ using System.Linq;
 
 namespace EOLib.Net.Handlers
 {
-	public class PacketHandlerFinderService : IPacketHandlerFinderService
-	{
-		private readonly Dictionary<FamilyActionPair, IPacketHandler> _handlers;
+    public class PacketHandlerFinderService : IPacketHandlerFinderService
+    {
+        private readonly Dictionary<FamilyActionPair, IPacketHandler> _handlers;
  
-		public PacketHandlerFinderService(IPacketHandlerProvider packetHandlerProvider)
-		{
-			_handlers = packetHandlerProvider.PacketHandlers.ToDictionary(x => new FamilyActionPair(x.Family, x.Action));
-		}
+        public PacketHandlerFinderService(IPacketHandlerProvider packetHandlerProvider)
+        {
+            _handlers = packetHandlerProvider.PacketHandlers.ToDictionary(x => new FamilyActionPair(x.Family, x.Action));
+        }
 
-		public bool HandlerExists(PacketFamily family, PacketAction action)
-		{
-			var familyActionPair = new FamilyActionPair(family, action);
-			return _handlers.ContainsKey(familyActionPair);
-		}
+        public bool HandlerExists(PacketFamily family, PacketAction action)
+        {
+            var familyActionPair = new FamilyActionPair(family, action);
+            return _handlers.ContainsKey(familyActionPair);
+        }
 
-		public IPacketHandler FindHandler(PacketFamily family, PacketAction action)
-		{
-			var familyActionPair = new FamilyActionPair(family, action);
-			return _handlers[familyActionPair];
-		}
-	}
+        public IPacketHandler FindHandler(PacketFamily family, PacketAction action)
+        {
+            var familyActionPair = new FamilyActionPair(family, action);
+            return _handlers[familyActionPair];
+        }
+    }
 }

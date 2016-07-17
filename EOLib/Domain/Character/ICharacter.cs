@@ -6,64 +6,64 @@ using System.Collections.Generic;
 
 namespace EOLib.Domain.Character
 {
-	public interface ICharacter
-	{
-		int ID { get; }
+    public interface ICharacter
+    {
+        int ID { get; }
 
-		string Name { get; }
+        string Name { get; }
 
-		string Title { get; }
+        string Title { get; }
 
-		//todo: guild stuff should be in a guild object
-		string GuildName { get; }
+        //todo: guild stuff should be in a guild object
+        string GuildName { get; }
 
-		string GuildRank { get; }
+        string GuildRank { get; }
 
-		string GuildTag { get; }
+        string GuildTag { get; }
 
-		byte ClassID { get; }
+        byte ClassID { get; }
 
-		ICharacterRenderProperties RenderProperties { get; }
+        ICharacterRenderProperties RenderProperties { get; }
 
-		ICharacterStats Stats { get; }
+        ICharacterStats Stats { get; }
 
-		AdminLevel AdminLevel { get; }
+        AdminLevel AdminLevel { get; }
 
-		//todo: this should be repository-ified
-		IReadOnlyList<short> Paperdoll { get; }
+        //todo: this should be repository-ified
+        IReadOnlyList<short> Paperdoll { get; }
 
-		int MapID { get; }
+        int MapID { get; }
 
-		int MapX { get; }
+        int MapX { get; }
 
-		int MapY { get; }
+        int MapY { get; }
 
-		ICharacter WithID(int id);
+        ICharacter WithID(int id);
 
-		ICharacter WithName(string name);
+        ICharacter WithName(string name);
 
-		ICharacter WithTitle(string title);
+        ICharacter WithTitle(string title);
 
-		ICharacter WithGuildName(string guildName);
+        ICharacter WithGuildName(string guildName);
 
-		ICharacter WithGuildRank(string guildRank);
+        ICharacter WithGuildRank(string guildRank);
 
-		ICharacter WithGuildTag(string guildTag);
+        ICharacter WithGuildTag(string guildTag);
 
-		ICharacter WithClassID(byte newClassID);
+        ICharacter WithClassID(byte newClassID);
 
-		ICharacter WithRenderProperties(ICharacterRenderProperties renderProperties);
+        ICharacter WithRenderProperties(ICharacterRenderProperties renderProperties);
 
-		ICharacter WithStats(ICharacterStats stats);
+        ICharacter WithStats(ICharacterStats stats);
 
-		ICharacter WithAdminLevel(AdminLevel level);
+        ICharacter WithAdminLevel(AdminLevel level);
 
-		ICharacter WithPaperdoll(IEnumerable<short> paperdollItemIDs);
+        ICharacter WithPaperdoll(IEnumerable<short> paperdollItemIDs);
 
-		ICharacter WithMapID(int mapID);
+        ICharacter WithMapID(int mapID);
 
-		ICharacter WithMapX(int mapX);
+        ICharacter WithMapX(int mapX);
 
-		ICharacter WithMapY(int mapY);
-	}
+        ICharacter WithMapY(int mapY);
+    }
 }

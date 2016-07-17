@@ -6,18 +6,18 @@ using Microsoft.Xna.Framework.Content;
 
 namespace EndlessClient.Content
 {
-	public interface IContentManagerRepository
-	{
-		ContentManager Content { get; set; }
-	}
+    public interface IContentManagerRepository
+    {
+        ContentManager Content { get; set; }
+    }
 
-	public interface IContentManagerProvider
-	{
-		ContentManager Content { get; }
-	}
+    public interface IContentManagerProvider
+    {
+        ContentManager Content { get; }
+    }
 
-	public class ContentManagerRepository : IContentManagerRepository, IContentManagerProvider
-	{
-		public ContentManager Content { get; set; }
-	}
+    public class ContentManagerRepository : IContentManagerRepository, IContentManagerProvider
+    {
+        public ContentManager Content { get; set; }
+    }
 }

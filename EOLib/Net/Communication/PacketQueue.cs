@@ -9,89 +9,89 @@ using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {
-	public sealed class PacketQueue : IWaitablePacketQueue
-	{
-		private readonly Queue<IPacket> _internalQueue;
-		private readonly object _locker;
+    public sealed class PacketQueue : IWaitablePacketQueue
+    {
+        private readonly Queue<IPacket> _internalQueue;
+        private readonly object _locker;
 
-		private TaskCompletionSource<bool> _enqueuedTaskCompletionSource;
+        private TaskCompletionSource<bool> _enqueuedTaskCompletionSource;
 
-		public int QueuedPacketCount { get { return _internalQueue.Count; } }
+        public int QueuedPacketCount { get { return _internalQueue.Count; } }
 
-		public PacketQueue()
-		{
-			_internalQueue = new Queue<IPacket>();
-			_locker = new object();
-		}
+        public PacketQueue()
+        {
+            _internalQueue = new Queue<IPacket>();
+            _locker = new object();
+        }
 
-		public void EnqueuePacketForHandling(IPacket pkt)
-		{
-			lock (_locker)
-				_internalQueue.Enqueue(pkt);
-		}
+        public void EnqueuePacketForHandling(IPacket pkt)
+        {
+            lock (_locker)
+                _internalQueue.Enqueue(pkt);
+        }
 
-		public void EnqueuePacketAndSignalConsumer(IPacket pkt)
-		{
-			EnqueuePacketForHandling(pkt);
-			SetSignalResult(true);
-		}
+        public void EnqueuePacketAndSignalConsumer(IPacket pkt)
+        {
+            EnqueuePacketForHandling(pkt);
+            SetSignalResult(true);
+        }
 
-		public IPacket PeekPacket()
-		{
-			if (QueuedPacketCount == 0)
-				return new EmptyPacket();
+        public IPacket PeekPacket()
+        {
+            if (QueuedPacketCount == 0)
+                return new EmptyPacket();
 
-			lock (_locker)
-				return _internalQueue.Peek();
-		}
+            lock (_locker)
+                return _internalQueue.Peek();
+        }
 
-		public IPacket DequeueFirstPacket()
-		{
-			if (QueuedPacketCount == 0)
-				return new EmptyPacket();
+        public IPacket DequeueFirstPacket()
+        {
+            if (QueuedPacketCount == 0)
+                return new EmptyPacket();
 
-			lock (_locker)
-				return _internalQueue.Dequeue();
-		}
+            lock (_locker)
+                return _internalQueue.Dequeue();
+        }
 
-		public async Task<IPacket> WaitForPacketAndDequeue(int timeOut = Constants.ResponseTimeout)
-		{
-			if (QueuedPacketCount > 0)
-				return DequeueFirstPacket();
+        public async Task<IPacket> WaitForPacketAndDequeue(int timeOut = Constants.ResponseTimeout)
+        {
+            if (QueuedPacketCount > 0)
+                return DequeueFirstPacket();
 
-			using (var cts = new CancellationTokenSource(timeOut))
-			{
-				_enqueuedTaskCompletionSource = new TaskCompletionSource<bool>();
-				cts.Token.Register(() => SetSignalResult(false), false);
+            using (var cts = new CancellationTokenSource(timeOut))
+            {
+                _enqueuedTaskCompletionSource = new TaskCompletionSource<bool>();
+                cts.Token.Register(() => SetSignalResult(false), false);
 
-				var result = await _enqueuedTaskCompletionSource.Task;
-				if (!result)
-					return new EmptyPacket();
-			}
+                var result = await _enqueuedTaskCompletionSource.Task;
+                if (!result)
+                    return new EmptyPacket();
+            }
 
-			return DequeueFirstPacket();
-		}
+            return DequeueFirstPacket();
+        }
 
-		public IEnumerable<IPacket> DequeueAllPackets()
-		{
-			if (QueuedPacketCount == 0)
-				throw new InvalidOperationException("Error: attempting to dequeue all packets when the queue is empty!");
+        public IEnumerable<IPacket> DequeueAllPackets()
+        {
+            if (QueuedPacketCount == 0)
+                throw new InvalidOperationException("Error: attempting to dequeue all packets when the queue is empty!");
 
-			IEnumerable<IPacket> ret;
+            IEnumerable<IPacket> ret;
 
-			lock (_locker)
-			{
-				ret = _internalQueue.ToArray();
-				_internalQueue.Clear();
-			}
+            lock (_locker)
+            {
+                ret = _internalQueue.ToArray();
+                _internalQueue.Clear();
+            }
 
-			return ret;
-		}
+            return ret;
+        }
 
-		private void SetSignalResult(bool result)
-		{
-			if (!_enqueuedTaskCompletionSource.Task.IsCompleted)
-				_enqueuedTaskCompletionSource.SetResult(result);
-		}
-	}
+        private void SetSignalResult(bool result)
+        {
+            if (!_enqueuedTaskCompletionSource.Task.IsCompleted)
+                _enqueuedTaskCompletionSource.SetResult(result);
+        }
+    }
 }

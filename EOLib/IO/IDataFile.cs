@@ -6,18 +6,18 @@ using System.Collections.Generic;
 
 namespace EOLib.IO
 {
-	public interface IDataFile<out T>
-		where T : IDataRecord
-	{
-		IReadOnlyList<T> Data { get; }
-		int Version { get; }
-		int Rid { get; }
-		short Len { get; }
+    public interface IDataFile<out T>
+        where T : IDataRecord
+    {
+        IReadOnlyList<T> Data { get; }
+        int Version { get; }
+        int Rid { get; }
+        short Len { get; }
 
-		void Load(string fileName);
+        void Load(string fileName);
 
-		T GetRecordByID(int id);
+        T GetRecordByID(int id);
 
-		int GetIndexOfRecordByID(int id);
-	}
+        int GetIndexOfRecordByID(int id);
+    }
 }

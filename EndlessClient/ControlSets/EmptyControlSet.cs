@@ -12,32 +12,32 @@ using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
-	/// <summary>
-	/// An empty control set that represents the initial state of the game with no controls
-	/// </summary>
-	public class EmptyControlSet : IControlSet
-	{
-		public GameStates GameState { get { return GameStates.None; } }
+    /// <summary>
+    /// An empty control set that represents the initial state of the game with no controls
+    /// </summary>
+    public class EmptyControlSet : IControlSet
+    {
+        public GameStates GameState { get { return GameStates.None; } }
 
-		public IReadOnlyList<IGameComponent> AllComponents { get { return Enumerable.Empty<IGameComponent>().ToList(); } }
+        public IReadOnlyList<IGameComponent> AllComponents { get { return Enumerable.Empty<IGameComponent>().ToList(); } }
 
-		public IReadOnlyList<XNAControl> XNAControlComponents { get { return AllComponents.OfType<XNAControl>().ToList(); } }
+        public IReadOnlyList<XNAControl> XNAControlComponents { get { return AllComponents.OfType<XNAControl>().ToList(); } }
 
-		public void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
-		{
-		}
+        public void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
+        {
+        }
 
-		public void InitializeControls(IControlSet currentControlSet)
-		{
-		}
+        public void InitializeControls(IControlSet currentControlSet)
+        {
+        }
 
-		public IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
-		{
-			return null;
-		}
+        public IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
+        {
+            return null;
+        }
 
-		public void Dispose()
-		{
-		}
-	}
+        public void Dispose()
+        {
+        }
+    }
 }

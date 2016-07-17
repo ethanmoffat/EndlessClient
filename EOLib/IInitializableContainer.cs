@@ -6,8 +6,8 @@ using Microsoft.Practices.Unity;
 
 namespace EOLib
 {
-	public interface IInitializableContainer : IDependencyContainer
-	{
-		void InitializeDependencies(IUnityContainer container);
-	}
+    public interface IInitializableContainer : IDependencyContainer
+    {
+        void InitializeDependencies(IUnityContainer container);
+    }
 }

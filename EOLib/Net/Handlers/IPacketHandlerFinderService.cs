@@ -4,10 +4,10 @@
 
 namespace EOLib.Net.Handlers
 {
-	public interface IPacketHandlerFinderService
-	{
-		bool HandlerExists(PacketFamily family, PacketAction action);
+    public interface IPacketHandlerFinderService
+    {
+        bool HandlerExists(PacketFamily family, PacketAction action);
 
-		IPacketHandler FindHandler(PacketFamily family, PacketAction action);
-	}
+        IPacketHandler FindHandler(PacketFamily family, PacketAction action);
+    }
 }

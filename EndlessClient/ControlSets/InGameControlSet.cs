@@ -16,51 +16,51 @@ using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
-	public class InGameControlSet : BackButtonControlSet
-	{
-		private readonly IEOMessageBoxFactory _messageBoxFactory;
-		private readonly IHudControlsFactory _hudControlsFactory;
+    public class InGameControlSet : BackButtonControlSet
+    {
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly IHudControlsFactory _hudControlsFactory;
 
-		private IReadOnlyDictionary<HudControlIdentifier, IGameComponent> _controls;
+        private IReadOnlyDictionary<HudControlIdentifier, IGameComponent> _controls;
 
-		public override GameStates GameState
-		{
-			get { return GameStates.PlayingTheGame; }
-		}
+        public override GameStates GameState
+        {
+            get { return GameStates.PlayingTheGame; }
+        }
 
-		public InGameControlSet(IMainButtonController mainButtonController,
-								IEOMessageBoxFactory messageBoxFactory,
-								IHudControlsFactory hudControlsFactory)
-			: base(mainButtonController)
-		{
-			_messageBoxFactory = messageBoxFactory;
-			_hudControlsFactory = hudControlsFactory;
-			_controls = new Dictionary<HudControlIdentifier, IGameComponent>();
-		}
+        public InGameControlSet(IMainButtonController mainButtonController,
+                                IEOMessageBoxFactory messageBoxFactory,
+                                IHudControlsFactory hudControlsFactory)
+            : base(mainButtonController)
+        {
+            _messageBoxFactory = messageBoxFactory;
+            _hudControlsFactory = hudControlsFactory;
+            _controls = new Dictionary<HudControlIdentifier, IGameComponent>();
+        }
 
-		public T GetHudComponent<T>(HudControlIdentifier whichControl)
-			where T : IGameComponent
-		{
-			return (T)_controls[whichControl];
-		}
+        public T GetHudComponent<T>(HudControlIdentifier whichControl)
+            where T : IGameComponent
+        {
+            return (T)_controls[whichControl];
+        }
 
-		protected override void InitializeControlsHelper(IControlSet currentControlSet)
-		{
-			_controls = _hudControlsFactory.CreateHud();
-			_allComponents.AddRange(_controls.Select(x => x.Value));
+        protected override void InitializeControlsHelper(IControlSet currentControlSet)
+        {
+            _controls = _hudControlsFactory.CreateHud();
+            _allComponents.AddRange(_controls.Select(x => x.Value));
 
-			base.InitializeControlsHelper(currentControlSet);
-		}
+            base.InitializeControlsHelper(currentControlSet);
+        }
 
-		protected override async void DoBackButtonClick(object sender, EventArgs e)
-		{
-			var messageBox = _messageBoxFactory.CreateMessageBox(
-				DATCONST1.EXIT_GAME_ARE_YOU_SURE,
-				XNADialogButtons.OkCancel);
+        protected override async void DoBackButtonClick(object sender, EventArgs e)
+        {
+            var messageBox = _messageBoxFactory.CreateMessageBox(
+                DATCONST1.EXIT_GAME_ARE_YOU_SURE,
+                XNADialogButtons.OkCancel);
 
-			var result = await messageBox.Show();
-			if (result == XNADialogResult.OK)
-				_mainButtonController.GoToInitialStateAndDisconnect();
-		}
-	}
+            var result = await messageBox.Show();
+            if (result == XNADialogResult.OK)
+                _mainButtonController.GoToInitialStateAndDisconnect();
+        }
+    }
 }

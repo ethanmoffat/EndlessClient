@@ -4,30 +4,30 @@
 
 namespace EOLib.Domain.Login
 {
-	public interface IPlayerInfoRepository
-	{
-		string LoggedInAccountName { get; set; }
+    public interface IPlayerInfoRepository
+    {
+        string LoggedInAccountName { get; set; }
 
-		int PlayerID { get; set; }
+        int PlayerID { get; set; }
 
-		bool IsFirstTimePlayer { get; set; }
-	}
+        bool IsFirstTimePlayer { get; set; }
+    }
 
-	public interface ILoggedInAccountNameProvider
-	{
-		string LoggedInAccountName { get; }
+    public interface ILoggedInAccountNameProvider
+    {
+        string LoggedInAccountName { get; }
 
-		int PlayerID { get; }
+        int PlayerID { get; }
 
-		bool IsFirstTimePlayer { get; }
-	}
+        bool IsFirstTimePlayer { get; }
+    }
 
-	public class PlayerInfoRepository : IPlayerInfoRepository, ILoggedInAccountNameProvider
-	{
-		public string LoggedInAccountName { get; set; }
+    public class PlayerInfoRepository : IPlayerInfoRepository, ILoggedInAccountNameProvider
+    {
+        public string LoggedInAccountName { get; set; }
 
-		public int PlayerID { get; set; }
+        public int PlayerID { get; set; }
 
-		public bool IsFirstTimePlayer { get; set; }
-	}
+        public bool IsFirstTimePlayer { get; set; }
+    }
 }

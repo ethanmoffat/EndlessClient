@@ -6,26 +6,26 @@ using System.Collections.Generic;
 
 namespace EOLib.IO.Repositories
 {
-	public interface IDataFileRepository
-	{
-		Dictionary<DataFiles, EDFFile> DataFiles { get; }
-	}
+    public interface IDataFileRepository
+    {
+        Dictionary<DataFiles, EDFFile> DataFiles { get; }
+    }
 
-	public interface IDataFileProvider
-	{
-		IReadOnlyDictionary<DataFiles, EDFFile> DataFiles { get; }
-	}
+    public interface IDataFileProvider
+    {
+        IReadOnlyDictionary<DataFiles, EDFFile> DataFiles { get; }
+    }
 
-	public class DataFileRepository : IDataFileRepository, IDataFileProvider
-	{
-		private readonly Dictionary<DataFiles, EDFFile> _dataFiles;
+    public class DataFileRepository : IDataFileRepository, IDataFileProvider
+    {
+        private readonly Dictionary<DataFiles, EDFFile> _dataFiles;
 
-		public Dictionary<DataFiles, EDFFile> DataFiles { get { return _dataFiles; } }
-		IReadOnlyDictionary<DataFiles, EDFFile> IDataFileProvider.DataFiles { get { return _dataFiles; } }
+        public Dictionary<DataFiles, EDFFile> DataFiles { get { return _dataFiles; } }
+        IReadOnlyDictionary<DataFiles, EDFFile> IDataFileProvider.DataFiles { get { return _dataFiles; } }
 
-		public DataFileRepository()
-		{
-			_dataFiles = new Dictionary<DataFiles, EDFFile>(Constants.ExpectedNumberOfDataFiles);
-		}
-	}
+        public DataFileRepository()
+        {
+            _dataFiles = new Dictionary<DataFiles, EDFFile>(Constants.ExpectedNumberOfDataFiles);
+        }
+    }
 }

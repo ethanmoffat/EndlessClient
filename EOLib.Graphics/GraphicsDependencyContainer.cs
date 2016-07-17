@@ -8,42 +8,42 @@ using PELoaderLib;
 
 namespace EOLib.Graphics
 {
-	public class GraphicsDependencyContainer : IInitializableContainer
-	{
-		public void RegisterDependencies(IUnityContainer container)
-		{
-			container.RegisterInstance<INativeGraphicsManager, NativeGraphicsManager>();
-			container.RegisterInstance<INativeGraphicsLoader, NativeGraphicsLoader>();
+    public class GraphicsDependencyContainer : IInitializableContainer
+    {
+        public void RegisterDependencies(IUnityContainer container)
+        {
+            container.RegisterInstance<INativeGraphicsManager, NativeGraphicsManager>();
+            container.RegisterInstance<INativeGraphicsLoader, NativeGraphicsLoader>();
 
-			container.RegisterInstance<IGraphicsDeviceRepository, GraphicsDeviceRepository>();
-			container.RegisterInstance<IGraphicsDeviceProvider, GraphicsDeviceRepository>();
-			
-			container.RegisterInstance<IPEFileCollection, PEFileCollection>();
-		}
+            container.RegisterInstance<IGraphicsDeviceRepository, GraphicsDeviceRepository>();
+            container.RegisterInstance<IGraphicsDeviceProvider, GraphicsDeviceRepository>();
+            
+            container.RegisterInstance<IPEFileCollection, PEFileCollection>();
+        }
 
-		public void InitializeDependencies(IUnityContainer container)
-		{
-			var files = container.Resolve<IPEFileCollection>();
+        public void InitializeDependencies(IUnityContainer container)
+        {
+            var files = container.Resolve<IPEFileCollection>();
 
-			foreach (var filePair in files)
-				TryInitializePEFiles(filePair.Key, filePair.Value);
-		}
+            foreach (var filePair in files)
+                TryInitializePEFiles(filePair.Key, filePair.Value);
+        }
 
-		private static void TryInitializePEFiles(GFXTypes file, IPEFile peFile)
-		{
-			var number = ((int) file).ToString("D3");
+        private static void TryInitializePEFiles(GFXTypes file, IPEFile peFile)
+        {
+            var number = ((int) file).ToString("D3");
 
-			try
-			{
-				peFile.Initialize();
-			}
-			catch (IOException)
-			{
-				throw new LibraryLoadException(number, file);
-			}
+            try
+            {
+                peFile.Initialize();
+            }
+            catch (IOException)
+            {
+                throw new LibraryLoadException(number, file);
+            }
 
-			if (!peFile.Initialized)
-				throw new LibraryLoadException(number, file);
-		}
-	}
+            if (!peFile.Initialized)
+                throw new LibraryLoadException(number, file);
+        }
+    }
 }

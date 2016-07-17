@@ -4,12 +4,12 @@
 
 namespace EOLib.Domain.Map
 {
-	public enum TileInfoReturnType
-	{
-		IsTileSpec, //indicates that a normal tile spec is returned
-		IsWarpSpec, //indicates that a normal warp spec is returned
-		IsOtherPlayer, //other player is in the way, spec/warp are invalid
-		IsOtherNPC, //other npc is in the way, spec/warp are invalid
-		IsMapSign
-	}
+    public enum TileInfoReturnType
+    {
+        IsTileSpec, //indicates that a normal tile spec is returned
+        IsWarpSpec, //indicates that a normal warp spec is returned
+        IsOtherPlayer, //other player is in the way, spec/warp are invalid
+        IsOtherNPC, //other npc is in the way, spec/warp are invalid
+        IsMapSign
+    }
 }

@@ -12,79 +12,79 @@ using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
-	public class AccountDialogDisplayActions : IAccountDialogDisplayActions
-	{
-		private readonly ILocalizedStringService _localizedStringService;
-		private readonly ICreateAccountWarningDialogFactory _createAccountWarningDialogFactory;
-		private readonly ICreateAccountProgressDialogFactory _createAccountProgressDialogFactory;
-		private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
-		private readonly IChangePasswordDialogFactory _changePasswordDialogFactory;
+    public class AccountDialogDisplayActions : IAccountDialogDisplayActions
+    {
+        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ICreateAccountWarningDialogFactory _createAccountWarningDialogFactory;
+        private readonly ICreateAccountProgressDialogFactory _createAccountProgressDialogFactory;
+        private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+        private readonly IChangePasswordDialogFactory _changePasswordDialogFactory;
 
-		public AccountDialogDisplayActions(ILocalizedStringService localizedStringService,
-										   ICreateAccountWarningDialogFactory createAccountWarningDialogFactory,
-										   ICreateAccountProgressDialogFactory createAccountProgressDialogFactory,
-										   IEOMessageBoxFactory eoMessageBoxFactory,
-										   IChangePasswordDialogFactory changePasswordDialogFactory)
-		{
-			_localizedStringService = localizedStringService;
-			_createAccountWarningDialogFactory = createAccountWarningDialogFactory;
-			_createAccountProgressDialogFactory = createAccountProgressDialogFactory;
-			_eoMessageBoxFactory = eoMessageBoxFactory;
-			_changePasswordDialogFactory = changePasswordDialogFactory;
-		}
+        public AccountDialogDisplayActions(ILocalizedStringService localizedStringService,
+                                           ICreateAccountWarningDialogFactory createAccountWarningDialogFactory,
+                                           ICreateAccountProgressDialogFactory createAccountProgressDialogFactory,
+                                           IEOMessageBoxFactory eoMessageBoxFactory,
+                                           IChangePasswordDialogFactory changePasswordDialogFactory)
+        {
+            _localizedStringService = localizedStringService;
+            _createAccountWarningDialogFactory = createAccountWarningDialogFactory;
+            _createAccountProgressDialogFactory = createAccountProgressDialogFactory;
+            _eoMessageBoxFactory = eoMessageBoxFactory;
+            _changePasswordDialogFactory = changePasswordDialogFactory;
+        }
 
-		public void ShowInitialCreateWarningDialog()
-		{
-			var message = string.Format("{0}\n\n{1}\n\n{2}",
-				_localizedStringService.GetString(DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_1),
-				_localizedStringService.GetString(DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_2),
-				_localizedStringService.GetString(DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_3));
+        public void ShowInitialCreateWarningDialog()
+        {
+            var message = string.Format("{0}\n\n{1}\n\n{2}",
+                _localizedStringService.GetString(DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_1),
+                _localizedStringService.GetString(DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_2),
+                _localizedStringService.GetString(DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_3));
 
-			_createAccountWarningDialogFactory.ShowCreateAccountWarningDialog(message);
-		}
+            _createAccountWarningDialogFactory.ShowCreateAccountWarningDialog(message);
+        }
 
-		public async Task ShowCreatePendingDialog()
-		{
-			var progress = _createAccountProgressDialogFactory.BuildCreateAccountProgressDialog();
-			await progress.WaitForCompletion();
-		}
+        public async Task ShowCreatePendingDialog()
+        {
+            var progress = _createAccountProgressDialogFactory.BuildCreateAccountProgressDialog();
+            await progress.WaitForCompletion();
+        }
 
-		public async Task<IChangePasswordParameters> ShowChangePasswordDialog()
-		{
-			var changePassword = _changePasswordDialogFactory.BuildChangePasswordDialog();
-			return await changePassword.Show();
-		}
+        public async Task<IChangePasswordParameters> ShowChangePasswordDialog()
+        {
+            var changePassword = _changePasswordDialogFactory.BuildChangePasswordDialog();
+            return await changePassword.Show();
+        }
 
-		public void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult)
-		{
-			_eoMessageBoxFactory.CreateMessageBox(
-				validationResult.ErrorString,
-				XNADialogButtons.Ok,
-				EOMessageBoxStyle.SmallDialogLargeHeader);
-		}
+        public void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult)
+        {
+            _eoMessageBoxFactory.CreateMessageBox(
+                validationResult.ErrorString,
+                XNADialogButtons.Ok,
+                EOMessageBoxStyle.SmallDialogLargeHeader);
+        }
 
-		public void ShowCreateAccountServerError(AccountReply serverError)
-		{
-			DATCONST1 message;
-			switch (serverError)
-			{
-				case AccountReply.Exists: message = DATCONST1.ACCOUNT_CREATE_NAME_EXISTS; break;
-				case AccountReply.NotApproved: message = DATCONST1.ACCOUNT_CREATE_NAME_NOT_APPROVED; break;
-				case AccountReply.Created: message = DATCONST1.ACCOUNT_CREATE_SUCCESS_WELCOME; break;
-				case AccountReply.ChangeFailed: message = DATCONST1.CHANGE_PASSWORD_MISMATCH; break;
-				case AccountReply.ChangeSuccess: message = DATCONST1.CHANGE_PASSWORD_SUCCESS; break;
-				default: throw new ArgumentOutOfRangeException("serverError", serverError, null);
-			}
+        public void ShowCreateAccountServerError(AccountReply serverError)
+        {
+            DATCONST1 message;
+            switch (serverError)
+            {
+                case AccountReply.Exists: message = DATCONST1.ACCOUNT_CREATE_NAME_EXISTS; break;
+                case AccountReply.NotApproved: message = DATCONST1.ACCOUNT_CREATE_NAME_NOT_APPROVED; break;
+                case AccountReply.Created: message = DATCONST1.ACCOUNT_CREATE_SUCCESS_WELCOME; break;
+                case AccountReply.ChangeFailed: message = DATCONST1.CHANGE_PASSWORD_MISMATCH; break;
+                case AccountReply.ChangeSuccess: message = DATCONST1.CHANGE_PASSWORD_SUCCESS; break;
+                default: throw new ArgumentOutOfRangeException("serverError", serverError, null);
+            }
 
-			_eoMessageBoxFactory.CreateMessageBox(
-				message,
-				XNADialogButtons.Ok,
-				EOMessageBoxStyle.SmallDialogLargeHeader);
-		}
+            _eoMessageBoxFactory.CreateMessageBox(
+                message,
+                XNADialogButtons.Ok,
+                EOMessageBoxStyle.SmallDialogLargeHeader);
+        }
 
-		public void ShowSuccessMessage()
-		{
-			ShowCreateAccountServerError(AccountReply.Created);
-		}
-	}
+        public void ShowSuccessMessage()
+        {
+            ShowCreateAccountServerError(AccountReply.Created);
+        }
+    }
 }

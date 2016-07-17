@@ -7,8 +7,8 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Repositories
 {
-	public interface IMapFileRepository
-	{
-		Dictionary<int, IMapFile> MapFiles { get; }
-	}
+    public interface IMapFileRepository
+    {
+        Dictionary<int, IMapFile> MapFiles { get; }
+    }
 }

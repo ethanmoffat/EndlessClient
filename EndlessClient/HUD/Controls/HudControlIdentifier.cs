@@ -4,63 +4,63 @@
 
 namespace EndlessClient.HUD.Controls
 {
-	public enum HudControlIdentifier
-	{
-		HudBackground,
+    public enum HudControlIdentifier
+    {
+        HudBackground,
 
-		//buttons and panels
-		InventoryButton,
-		InventoryPanel,
+        //buttons and panels
+        InventoryButton,
+        InventoryPanel,
 
-		ViewMapButton,
+        ViewMapButton,
 
-		ActiveSpellsButton,
-		ActiveSpellsPanel,
+        ActiveSpellsButton,
+        ActiveSpellsPanel,
 
-		PassiveSpellsButton,
-		PassiveSpellsPanel,
+        PassiveSpellsButton,
+        PassiveSpellsPanel,
 
-		ChatButton,
-		ChatPanel,
+        ChatButton,
+        ChatPanel,
 
-		StatsButton,
-		StatsPanel,
+        StatsButton,
+        StatsPanel,
 
-		OnlineListButton,
-		OnlineListPanel,
+        OnlineListButton,
+        OnlineListPanel,
 
-		PartyButton,
-		PartyPanel,
+        PartyButton,
+        PartyPanel,
 
-		MacroButton,
-		
-		SettingsButton,
-		SettingsPanel,
+        MacroButton,
+        
+        SettingsButton,
+        SettingsPanel,
 
-		HelpButton,
-		HelpPanel,
+        HelpButton,
+        HelpPanel,
 
-		NewsPanel,
+        NewsPanel,
 
-		//top bar
-		UsageAndStatsButton,
-		QuestsButton,
+        //top bar
+        UsageAndStatsButton,
+        QuestsButton,
 
-		HPStatusBar,
-		TPStatusBar,
-		SPStatusBar,
-		TNLStatusBar,
+        HPStatusBar,
+        TPStatusBar,
+        SPStatusBar,
+        TNLStatusBar,
 
-		//mid stuff
-		ChatTypeBox,
-		ChatTextBox,
+        //mid stuff
+        ChatTypeBox,
+        ChatTextBox,
 
-		FriendList,
-		IgnoreList,
+        FriendList,
+        IgnoreList,
 
-		//lower stuff
-		StatusLabel,
-		ClockLabel,
-		UsageTracker
-	}
+        //lower stuff
+        StatusLabel,
+        ClockLabel,
+        UsageTracker
+    }
 }

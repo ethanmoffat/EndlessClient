@@ -10,54 +10,54 @@ using XNAControls;
 
 namespace EndlessClient.UIControls
 {
-	public class CharacterControl : XNAControl
-	{
-		public ICharacterRenderProperties RenderProperties
-		{
-			get { return _characterRenderer.RenderProperties; }
-			protected set { _characterRenderer.RenderProperties = value; }
-		}
+    public class CharacterControl : XNAControl
+    {
+        public ICharacterRenderProperties RenderProperties
+        {
+            get { return _characterRenderer.RenderProperties; }
+            protected set { _characterRenderer.RenderProperties = value; }
+        }
 
-		protected readonly ICharacterRenderer _characterRenderer;
+        protected readonly ICharacterRenderer _characterRenderer;
 
-		public CharacterControl(ICharacterRenderProperties initialProperties, ICharacterRendererFactory characterRendererFactory)
-		{
-			_characterRenderer = characterRendererFactory.CreateCharacterRenderer(initialProperties);
-		}
+        public CharacterControl(ICharacterRenderProperties initialProperties, ICharacterRendererFactory characterRendererFactory)
+        {
+            _characterRenderer = characterRendererFactory.CreateCharacterRenderer(initialProperties);
+        }
 
-		public override void Initialize()
-		{
-			_characterRenderer.Initialize();
-			_characterRenderer.SetAbsoluteScreenPosition(DrawAreaWithOffset.X, DrawAreaWithOffset.Y);
+        public override void Initialize()
+        {
+            _characterRenderer.Initialize();
+            _characterRenderer.SetAbsoluteScreenPosition(DrawAreaWithOffset.X, DrawAreaWithOffset.Y);
 
-			base.Initialize();
-		}
+            base.Initialize();
+        }
 
-		public override void Update(GameTime gameTime)
-		{
-			if (!ShouldUpdate())
-				return;
-			
-			_characterRenderer.Update(gameTime);
+        public override void Update(GameTime gameTime)
+        {
+            if (!ShouldUpdate())
+                return;
+            
+            _characterRenderer.Update(gameTime);
 
-			base.Update(gameTime);
-		}
+            base.Update(gameTime);
+        }
 
-		public override void Draw(GameTime gameTime)
-		{
-			_characterRenderer.Draw(gameTime);
+        public override void Draw(GameTime gameTime)
+        {
+            _characterRenderer.Draw(gameTime);
 
-			base.Draw(gameTime);
-		}
+            base.Draw(gameTime);
+        }
 
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				_characterRenderer.Dispose();
-			}
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _characterRenderer.Dispose();
+            }
 
-			base.Dispose(disposing);
-		}
-	}
+            base.Dispose(disposing);
+        }
+    }
 }

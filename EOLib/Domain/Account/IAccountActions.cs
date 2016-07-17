@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace EOLib.Domain.Account
 {
-	public interface IAccountActions
-	{
-		CreateAccountParameterResult CheckAccountCreateParameters(ICreateAccountParameters createAccountCreateparameters);
+    public interface IAccountActions
+    {
+        CreateAccountParameterResult CheckAccountCreateParameters(ICreateAccountParameters createAccountCreateparameters);
 
-		Task<AccountReply> CheckAccountNameWithServer(string accountName);
+        Task<AccountReply> CheckAccountNameWithServer(string accountName);
 
-		Task<AccountReply> CreateAccount(ICreateAccountParameters parameters);
+        Task<AccountReply> CreateAccount(ICreateAccountParameters parameters);
 
-		Task<AccountReply> ChangePassword(IChangePasswordParameters parameters);
-	}
+        Task<AccountReply> ChangePassword(IChangePasswordParameters parameters);
+    }
 }

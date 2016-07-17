@@ -6,8 +6,8 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-	public interface ICharacterPropertyRenderer
-	{
-		void Render(Rectangle parentCharacterDrawArea);
-	}
+    public interface ICharacterPropertyRenderer
+    {
+        void Render(Rectangle parentCharacterDrawArea);
+    }
 }

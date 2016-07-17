@@ -6,20 +6,20 @@ using System.Collections.Generic;
 
 namespace EOLib.Net.PacketProcessing
 {
-	public interface IPacketEncoderService
-	{
-		byte[] PrependLengthBytes(byte[] data);
+    public interface IPacketEncoderService
+    {
+        byte[] PrependLengthBytes(byte[] data);
 
-		OldPacket AddSequenceNumber(OldPacket pkt, int sequenceNumber);
+        OldPacket AddSequenceNumber(OldPacket pkt, int sequenceNumber);
 
-		IPacket AddSequenceNumber(IPacket pkt, int sequenceNumber);
+        IPacket AddSequenceNumber(IPacket pkt, int sequenceNumber);
 
-		byte[] Encode(OldPacket original, byte encodeMultiplier);
+        byte[] Encode(OldPacket original, byte encodeMultiplier);
 
-		byte[] Encode(IPacket original, byte encodeMultiplier);
-		
-		OldPacket Decode(byte[] original, byte decodeMultiplier);
+        byte[] Encode(IPacket original, byte encodeMultiplier);
+        
+        OldPacket Decode(byte[] original, byte decodeMultiplier);
 
-		IPacket Decode(IEnumerable<byte> original, byte decodeMultiplier);
-	}
+        IPacket Decode(IEnumerable<byte> original, byte decodeMultiplier);
+    }
 }

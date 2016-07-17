@@ -7,18 +7,18 @@ using EOLib.Domain.Account;
 
 namespace EndlessClient.Dialogs.Actions
 {
-	public interface IAccountDialogDisplayActions
-	{
-		void ShowInitialCreateWarningDialog();
+    public interface IAccountDialogDisplayActions
+    {
+        void ShowInitialCreateWarningDialog();
 
-		Task ShowCreatePendingDialog();
+        Task ShowCreatePendingDialog();
 
-		Task<IChangePasswordParameters> ShowChangePasswordDialog();
+        Task<IChangePasswordParameters> ShowChangePasswordDialog();
 
-		void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult);
-		
-		void ShowCreateAccountServerError(AccountReply serverError);
-		
-		void ShowSuccessMessage();
-	}
+        void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult);
+        
+        void ShowCreateAccountServerError(AccountReply serverError);
+        
+        void ShowSuccessMessage();
+    }
 }

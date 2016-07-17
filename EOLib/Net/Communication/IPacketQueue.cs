@@ -6,16 +6,16 @@ using System.Collections.Generic;
 
 namespace EOLib.Net.Communication
 {
-	public interface IPacketQueue
-	{
-		int QueuedPacketCount { get; }
+    public interface IPacketQueue
+    {
+        int QueuedPacketCount { get; }
 
-		void EnqueuePacketForHandling(IPacket pkt);
+        void EnqueuePacketForHandling(IPacket pkt);
 
-		IPacket PeekPacket();
+        IPacket PeekPacket();
 
-		IPacket DequeueFirstPacket();
+        IPacket DequeueFirstPacket();
 
-		IEnumerable<IPacket> DequeueAllPackets();
-	}
+        IEnumerable<IPacket> DequeueAllPackets();
+    }
 }

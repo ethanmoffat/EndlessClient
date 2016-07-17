@@ -6,23 +6,23 @@ using EOLib.IO;
 
 namespace EndlessClient.HUD.Spells
 {
-	public interface ISpellIcon
-	{
-		int Slot { get; set; }
+    public interface ISpellIcon
+    {
+        int Slot { get; set; }
 
-		bool Selected { get; set; }
+        bool Selected { get; set; }
 
-		bool IsDragging { get; }
+        bool IsDragging { get; }
 
-		short Level { get; set; }
+        short Level { get; set; }
 
-		SpellRecord SpellData { get; }
+        SpellRecord SpellData { get; }
 
-		void SetDisplaySlot(int displaySlot);
+        void SetDisplaySlot(int displaySlot);
 
-		//defined in XNAControl base class
-		bool MouseOver { get; }
+        //defined in XNAControl base class
+        bool MouseOver { get; }
 
-		bool Visible { get; set; }
-	}
+        bool Visible { get; set; }
+    }
 }

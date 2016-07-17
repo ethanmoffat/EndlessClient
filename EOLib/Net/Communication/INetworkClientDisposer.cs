@@ -6,7 +6,7 @@ using System;
 
 namespace EOLib.Net.Communication
 {
-	public interface INetworkClientDisposer : IDisposable
-	{
-	}
+    public interface INetworkClientDisposer : IDisposable
+    {
+    }
 }

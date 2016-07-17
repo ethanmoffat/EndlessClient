@@ -6,22 +6,22 @@ using System.Collections.Generic;
 
 namespace EOLib.Net.PacketProcessing
 {
-	public interface IPacketProcessorActions
-	{
-		void SetInitialSequenceNumber(int seq1, int seq2);
+    public interface IPacketProcessorActions
+    {
+        void SetInitialSequenceNumber(int seq1, int seq2);
 
-		void SetUpdatedBaseSequenceNumber(int seq1, int seq2);
+        void SetUpdatedBaseSequenceNumber(int seq1, int seq2);
 
-		void SetEncodeMultiples(byte emulti_d, byte emulti_e);
+        void SetEncodeMultiples(byte emulti_d, byte emulti_e);
 
-		byte[] EncodePacket(OldPacket pkt);
+        byte[] EncodePacket(OldPacket pkt);
 
-		byte[] EncodePacket(IPacket pkt);
-		
-		byte[] EncodeRawPacket(IPacket pkt);
+        byte[] EncodePacket(IPacket pkt);
+        
+        byte[] EncodeRawPacket(IPacket pkt);
 
-		OldPacket DecodeData(byte[] rawData);
+        OldPacket DecodeData(byte[] rawData);
 
-		IPacket DecodeData(IEnumerable<byte> rawData);
-	}
+        IPacket DecodeData(IEnumerable<byte> rawData);
+    }
 }

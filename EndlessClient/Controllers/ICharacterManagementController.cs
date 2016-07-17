@@ -7,10 +7,10 @@ using EOLib.Domain.Character;
 
 namespace EndlessClient.Controllers
 {
-	public interface ICharacterManagementController
-	{
-		Task CreateCharacter();
+    public interface ICharacterManagementController
+    {
+        Task CreateCharacter();
 
-		Task DeleteCharacter(ICharacter characterToDelete);
-	}
+        Task DeleteCharacter(ICharacter characterToDelete);
+    }
 }

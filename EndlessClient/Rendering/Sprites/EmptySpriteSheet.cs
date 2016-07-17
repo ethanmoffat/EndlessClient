@@ -8,20 +8,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Sprites
 {
-	public class EmptySpriteSheet : ISpriteSheet
-	{
-		public bool HasTexture { get { return false; } }
-		public Texture2D SheetTexture { get { return null; } }
-		public Rectangle SourceRectangle { get { return Rectangle.Empty; } }
+    public class EmptySpriteSheet : ISpriteSheet
+    {
+        public bool HasTexture { get { return false; } }
+        public Texture2D SheetTexture { get { return null; } }
+        public Rectangle SourceRectangle { get { return Rectangle.Empty; } }
 
-		public T[] GetSourceTextureData<T>() where T : struct
-		{
-			return Enumerable.Empty<T>().ToArray();
-		}
+        public T[] GetSourceTextureData<T>() where T : struct
+        {
+            return Enumerable.Empty<T>().ToArray();
+        }
 
-		public Texture2D GetSourceTexture()
-		{
-			return SheetTexture;
-		}
-	}
+        public Texture2D GetSourceTexture()
+        {
+            return SheetTexture;
+        }
+    }
 }

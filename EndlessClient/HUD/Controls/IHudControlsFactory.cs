@@ -7,8 +7,8 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.HUD.Controls
 {
-	public interface IHudControlsFactory
-	{
-		IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud();
-	}
+    public interface IHudControlsFactory
+    {
+        IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud();
+    }
 }

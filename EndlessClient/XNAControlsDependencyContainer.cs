@@ -9,21 +9,21 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient
 {
-	public class XNAControlsDependencyContainer : IInitializableContainer
-	{
-		public void RegisterDependencies(IUnityContainer container)
-		{
-		}
+    public class XNAControlsDependencyContainer : IInitializableContainer
+    {
+        public void RegisterDependencies(IUnityContainer container)
+        {
+        }
 
-		public void InitializeDependencies(IUnityContainer container)
-		{
-			//todo: investigate adding support for Unity container to XNAControls 
-			//	or some other way to replace this grossness
-			var game = container.Resolve<IEndlessGame>();
-			XNAControls.XNAControls.Initialize((Game)game);
+        public void InitializeDependencies(IUnityContainer container)
+        {
+            //todo: investigate adding support for Unity container to XNAControls 
+            //    or some other way to replace this grossness
+            var game = container.Resolve<IEndlessGame>();
+            XNAControls.XNAControls.Initialize((Game)game);
 
-			XNAControls.XNAControls.IgnoreEnterForDialogs = true;
-			XNAControls.XNAControls.IgnoreEscForDialogs = true;
-		}
-	}
+            XNAControls.XNAControls.IgnoreEnterForDialogs = true;
+            XNAControls.XNAControls.IgnoreEscForDialogs = true;
+        }
+    }
 }

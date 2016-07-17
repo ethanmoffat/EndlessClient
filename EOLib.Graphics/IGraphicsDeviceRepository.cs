@@ -6,18 +6,18 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EOLib.Graphics
 {
-	public interface IGraphicsDeviceRepository
-	{
-		GraphicsDevice GraphicsDevice { get; set; }
-	}
+    public interface IGraphicsDeviceRepository
+    {
+        GraphicsDevice GraphicsDevice { get; set; }
+    }
 
-	public interface IGraphicsDeviceProvider
-	{
-		GraphicsDevice GraphicsDevice { get; }
-	}
+    public interface IGraphicsDeviceProvider
+    {
+        GraphicsDevice GraphicsDevice { get; }
+    }
 
-	public class GraphicsDeviceRepository : IGraphicsDeviceRepository, IGraphicsDeviceProvider
-	{
-		public GraphicsDevice GraphicsDevice { get; set; }
-	}
+    public class GraphicsDeviceRepository : IGraphicsDeviceRepository, IGraphicsDeviceProvider
+    {
+        public GraphicsDevice GraphicsDevice { get; set; }
+    }
 }

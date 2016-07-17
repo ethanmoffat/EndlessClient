@@ -4,11 +4,11 @@
 
 namespace EOLib.IO.Map
 {
-	public enum MapEffect : byte
-	{
-		None = 0,
-		HPDrain = 1,
-		TPDrain = 2,
-		Quake = 3
-	}
+    public enum MapEffect : byte
+    {
+        None = 0,
+        HPDrain = 1,
+        TPDrain = 2,
+        Quake = 3
+    }
 }

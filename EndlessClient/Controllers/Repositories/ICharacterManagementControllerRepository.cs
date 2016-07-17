@@ -4,18 +4,18 @@
 
 namespace EndlessClient.Controllers.Repositories
 {
-	public interface ICharacterManagementControllerRepository
-	{
-		ICharacterManagementController CharacterManagementController { get; set; }
-	}
+    public interface ICharacterManagementControllerRepository
+    {
+        ICharacterManagementController CharacterManagementController { get; set; }
+    }
 
-	public interface ICharacterManagementControllerProvider
-	{
-		ICharacterManagementController CharacterManagementController { get; }
-	}
+    public interface ICharacterManagementControllerProvider
+    {
+        ICharacterManagementController CharacterManagementController { get; }
+    }
 
-	public class CharacterManagementRepository : ICharacterManagementControllerRepository, ICharacterManagementControllerProvider
-	{
-		public ICharacterManagementController CharacterManagementController { get; set; }
-	}
+    public class CharacterManagementRepository : ICharacterManagementControllerRepository, ICharacterManagementControllerProvider
+    {
+        public ICharacterManagementController CharacterManagementController { get; set; }
+    }
 }

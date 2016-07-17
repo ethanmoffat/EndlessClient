@@ -4,30 +4,30 @@
 
 namespace EOLib.IO.Actions
 {
-	public interface IFileLoadActions
-	{
-		void LoadItemFile();
+    public interface IFileLoadActions
+    {
+        void LoadItemFile();
 
-		void LoadItemFileByName(string fileName);
+        void LoadItemFileByName(string fileName);
 
-		void LoadNPCFile();
+        void LoadNPCFile();
 
-		void LoadNPCFileByName(string fileName);
+        void LoadNPCFileByName(string fileName);
 
-		void LoadSpellFile();
+        void LoadSpellFile();
 
-		void LoadSpellFileByName(string fileName);
+        void LoadSpellFileByName(string fileName);
 
-		void LoadClassFile();
+        void LoadClassFile();
 
-		void LoadClassFileByName(string fileName);
+        void LoadClassFileByName(string fileName);
 
-		void LoadMapFileByID(int id);
+        void LoadMapFileByID(int id);
 
-		void LoadMapFileByName(string fileName);
+        void LoadMapFileByName(string fileName);
 
-		void LoadDataFiles();
+        void LoadDataFiles();
 
-		void LoadConfigFile();
-	}
+        void LoadConfigFile();
+    }
 }

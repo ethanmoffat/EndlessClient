@@ -4,45 +4,45 @@
 
 namespace EOLib.Domain
 {
-	public class NumberEncoderService : INumberEncoderService
-	{
-		public byte[] EncodeNumber(int number, int size)
-		{
-			byte[] numArray = new byte[size];
-			for (int index = 3; index >= 1; --index)
-			{
-				if (index >= numArray.Length)
-				{
-					if (number >= Constants.NUMERIC_MAXIMUM[index - 1])
-						number %= Constants.NUMERIC_MAXIMUM[index - 1];
-				}
-				else if (number >= Constants.NUMERIC_MAXIMUM[index - 1])
-				{
-					numArray[index] = (byte)(number / Constants.NUMERIC_MAXIMUM[index - 1] + 1);
-					number %= Constants.NUMERIC_MAXIMUM[index - 1];
-				}
-				else
-					numArray[index] = 254;
-			}
-			numArray[0] = (byte)(number + 1);
-			return numArray;
-		}
+    public class NumberEncoderService : INumberEncoderService
+    {
+        public byte[] EncodeNumber(int number, int size)
+        {
+            byte[] numArray = new byte[size];
+            for (int index = 3; index >= 1; --index)
+            {
+                if (index >= numArray.Length)
+                {
+                    if (number >= Constants.NUMERIC_MAXIMUM[index - 1])
+                        number %= Constants.NUMERIC_MAXIMUM[index - 1];
+                }
+                else if (number >= Constants.NUMERIC_MAXIMUM[index - 1])
+                {
+                    numArray[index] = (byte)(number / Constants.NUMERIC_MAXIMUM[index - 1] + 1);
+                    number %= Constants.NUMERIC_MAXIMUM[index - 1];
+                }
+                else
+                    numArray[index] = 254;
+            }
+            numArray[0] = (byte)(number + 1);
+            return numArray;
+        }
 
-		public int DecodeNumber(params byte[] b)
-		{
-			for (int index = 0; index < b.Length; ++index)
-			{
-				if (b[index] == 254)
-					b[index] = 1;
-				else if (b[index] == 0)
-					b[index] = 128;
-				--b[index];
-			}
+        public int DecodeNumber(params byte[] b)
+        {
+            for (int index = 0; index < b.Length; ++index)
+            {
+                if (b[index] == 254)
+                    b[index] = 1;
+                else if (b[index] == 0)
+                    b[index] = 128;
+                --b[index];
+            }
 
-			int num = 0;
-			for (int index = b.Length - 1; index >= 1; --index)
-				num += b[index] * Constants.NUMERIC_MAXIMUM[index - 1];
-			return num + b[0];
-		}
-	}
+            int num = 0;
+            for (int index = b.Length - 1; index >= 1; --index)
+                num += b[index] * Constants.NUMERIC_MAXIMUM[index - 1];
+            return num + b[0];
+        }
+    }
 }

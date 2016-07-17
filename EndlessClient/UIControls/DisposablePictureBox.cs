@@ -7,16 +7,16 @@ using XNAControls;
 
 namespace EndlessClient.UIControls
 {
-	public class DisposablePictureBox : PictureBox
-	{
-		public DisposablePictureBox(Texture2D displayPicture, XNAControl parent = null)
-			: base(displayPicture, parent) { }
+    public class DisposablePictureBox : PictureBox
+    {
+        public DisposablePictureBox(Texture2D displayPicture, XNAControl parent = null)
+            : base(displayPicture, parent) { }
 
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-				_displayPicture.Dispose();
-			base.Dispose(disposing);
-		}
-	}
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                _displayPicture.Dispose();
+            base.Dispose(disposing);
+        }
+    }
 }

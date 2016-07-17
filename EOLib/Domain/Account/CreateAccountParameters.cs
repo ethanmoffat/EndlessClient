@@ -4,29 +4,29 @@
 
 namespace EOLib.Domain.Account
 {
-	public class CreateAccountParameters : ICreateAccountParameters
-	{
-		public string AccountName { get; private set; }
-		public string Password { get; private set; }
-		public string ConfirmPassword { get; private set; }
-		public string RealName { get; private set; }
-		public string Location { get; private set; }
-		public string Email { get; private set; }
+    public class CreateAccountParameters : ICreateAccountParameters
+    {
+        public string AccountName { get; private set; }
+        public string Password { get; private set; }
+        public string ConfirmPassword { get; private set; }
+        public string RealName { get; private set; }
+        public string Location { get; private set; }
+        public string Email { get; private set; }
 
-		public CreateAccountParameters(
-			string accountName,
-			string password,
-			string confirmPassword,
-			string realName,
-			string location,
-			string email)
-		{
-			AccountName = accountName;
-			Password = password;
-			ConfirmPassword = confirmPassword;
-			RealName = realName;
-			Location = location;
-			Email = email;
-		}
-	}
+        public CreateAccountParameters(
+            string accountName,
+            string password,
+            string confirmPassword,
+            string realName,
+            string location,
+            string email)
+        {
+            AccountName = accountName;
+            Password = password;
+            ConfirmPassword = confirmPassword;
+            RealName = realName;
+            Location = location;
+            Email = email;
+        }
+    }
 }

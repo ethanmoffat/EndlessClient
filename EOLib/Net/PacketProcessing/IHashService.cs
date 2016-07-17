@@ -4,8 +4,8 @@
 
 namespace EOLib.Net.PacketProcessing
 {
-	public interface IHashService
-	{
-		int StupidHash(int seed);
-	}
+    public interface IHashService
+    {
+        int StupidHash(int seed);
+    }
 }

@@ -7,10 +7,10 @@ using EOLib.Domain.Account;
 
 namespace EndlessClient.Controllers
 {
-	public interface IAccountController
-	{
-		Task CreateAccount(ICreateAccountParameters createAccountParameters);
+    public interface IAccountController
+    {
+        Task CreateAccount(ICreateAccountParameters createAccountParameters);
 
-		Task ChangePassword();
-	}
+        Task ChangePassword();
+    }
 }

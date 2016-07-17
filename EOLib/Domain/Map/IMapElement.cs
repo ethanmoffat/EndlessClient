@@ -4,7 +4,7 @@
 
 namespace EOLib.Domain.Map
 {
-	public interface IMapElement
-	{
-	}
+    public interface IMapElement
+    {
+    }
 }

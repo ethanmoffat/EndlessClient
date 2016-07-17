@@ -9,197 +9,197 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-	partial class PacketAPI
-	{
-		public delegate void TradeRequestEvent(short playerID, string name);
-		public delegate void TradeOpenEvent(short player1ID, string player1Name, short player2ID, string player2Name);
-		public delegate void TradeUpdateEvent(short id1, List<InventoryItem> items1, short id2, List<InventoryItem> items2);
-		public event TradeRequestEvent OnTradeRequested;
-		public event TradeOpenEvent OnTradeOpen;
-		public event TradeUpdateEvent OnTradeOfferUpdate;
-		public event Action<short> OnTradeCancel;
-		public event Action<bool> OnTradeYouAgree;
-		public event Action<short, bool> OnTradeOtherPlayerAgree;
-		public event TradeUpdateEvent OnTradeCompleted;
+    partial class PacketAPI
+    {
+        public delegate void TradeRequestEvent(short playerID, string name);
+        public delegate void TradeOpenEvent(short player1ID, string player1Name, short player2ID, string player2Name);
+        public delegate void TradeUpdateEvent(short id1, List<InventoryItem> items1, short id2, List<InventoryItem> items2);
+        public event TradeRequestEvent OnTradeRequested;
+        public event TradeOpenEvent OnTradeOpen;
+        public event TradeUpdateEvent OnTradeOfferUpdate;
+        public event Action<short> OnTradeCancel;
+        public event Action<bool> OnTradeYouAgree;
+        public event Action<short, bool> OnTradeOtherPlayerAgree;
+        public event TradeUpdateEvent OnTradeCompleted;
 
-		private void _createTradeMembers()
-		{
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Request), _handleTradeRequest, true);
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Open), _handleTradeOpen, true);
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Reply), _handleTradeReply, true);
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Spec), _handleTradeSpec, true);
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Agree), _handleTradeAgree, true);
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Use), _handleTradeUse, true);
-			m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Close), _handleTradeClose, true);
-		}
+        private void _createTradeMembers()
+        {
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Request), _handleTradeRequest, true);
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Open), _handleTradeOpen, true);
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Reply), _handleTradeReply, true);
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Spec), _handleTradeSpec, true);
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Agree), _handleTradeAgree, true);
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Use), _handleTradeUse, true);
+            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Trade, PacketAction.Close), _handleTradeClose, true);
+        }
 
-		/// <summary>
-		/// Request a trade with another player
-		/// </summary>
-		/// <param name="characterID">ID of the other player's character</param>
-		public bool TradeRequest(short characterID)
-		{
-			if (!m_client.ConnectedAndInitialized || !Initialized)
-				return false;
+        /// <summary>
+        /// Request a trade with another player
+        /// </summary>
+        /// <param name="characterID">ID of the other player's character</param>
+        public bool TradeRequest(short characterID)
+        {
+            if (!m_client.ConnectedAndInitialized || !Initialized)
+                return false;
 
-			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Request);
-			pkt.AddChar(123); //?
-			pkt.AddShort(characterID);
+            OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Request);
+            pkt.AddChar(123); //?
+            pkt.AddShort(characterID);
 
-			return m_client.SendPacket(pkt);
-		}
+            return m_client.SendPacket(pkt);
+        }
 
-		/// <summary>
-		/// Accept another players request for trade
-		/// </summary>
-		/// <param name="characterID">ID of the other player's character</param>
-		public bool TradeAcceptRequest(short characterID)
-		{
-			if (!m_client.ConnectedAndInitialized || !Initialized)
-				return false;
+        /// <summary>
+        /// Accept another players request for trade
+        /// </summary>
+        /// <param name="characterID">ID of the other player's character</param>
+        public bool TradeAcceptRequest(short characterID)
+        {
+            if (!m_client.ConnectedAndInitialized || !Initialized)
+                return false;
 
-			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Accept);
-			pkt.AddChar(123); //?
-			pkt.AddShort(characterID);
+            OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Accept);
+            pkt.AddChar(123); //?
+            pkt.AddShort(characterID);
 
-			return m_client.SendPacket(pkt);
-		}
+            return m_client.SendPacket(pkt);
+        }
 
-		/// <summary>
-		/// Remove an item from a pending trade offer
-		/// </summary>
-		/// <param name="itemID">Item ID of the item to remove</param>
-		public bool TradeRemoveItem(short itemID)
-		{
-			if (!m_client.ConnectedAndInitialized || !Initialized)
-				return false;
+        /// <summary>
+        /// Remove an item from a pending trade offer
+        /// </summary>
+        /// <param name="itemID">Item ID of the item to remove</param>
+        public bool TradeRemoveItem(short itemID)
+        {
+            if (!m_client.ConnectedAndInitialized || !Initialized)
+                return false;
 
-			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Remove);
-			pkt.AddShort(itemID);
+            OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Remove);
+            pkt.AddShort(itemID);
 
-			return m_client.SendPacket(pkt);
-		}
+            return m_client.SendPacket(pkt);
+        }
 
-		/// <summary>
-		/// Add an item to a pending trade offer
-		/// </summary>
-		/// <param name="itemID">Item ID of the item to add</param>
-		/// <param name="amount">Amount of the item to add</param>
-		public bool TradeAddItem(short itemID, int amount)
-		{
-			if (!m_client.ConnectedAndInitialized || !Initialized)
-				return false;
+        /// <summary>
+        /// Add an item to a pending trade offer
+        /// </summary>
+        /// <param name="itemID">Item ID of the item to add</param>
+        /// <param name="amount">Amount of the item to add</param>
+        public bool TradeAddItem(short itemID, int amount)
+        {
+            if (!m_client.ConnectedAndInitialized || !Initialized)
+                return false;
 
-			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Add);
-			pkt.AddShort(itemID);
-			pkt.AddInt(amount);
+            OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Add);
+            pkt.AddShort(itemID);
+            pkt.AddInt(amount);
 
-			return m_client.SendPacket(pkt);
-		}
+            return m_client.SendPacket(pkt);
+        }
 
-		/// <summary>
-		/// Set the agree flag for a pending trade offer
-		/// </summary>
-		/// <param name="agree">True to agree, false to un-agree</param>
-		public bool TradeAgree(bool agree)
-		{
-			if (!m_client.ConnectedAndInitialized || !Initialized)
-				return false;
+        /// <summary>
+        /// Set the agree flag for a pending trade offer
+        /// </summary>
+        /// <param name="agree">True to agree, false to un-agree</param>
+        public bool TradeAgree(bool agree)
+        {
+            if (!m_client.ConnectedAndInitialized || !Initialized)
+                return false;
 
-			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Agree);
-			pkt.AddChar((byte)(agree ? 1 : 0));
+            OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Agree);
+            pkt.AddChar((byte)(agree ? 1 : 0));
 
-			return m_client.SendPacket(pkt);
-		}
+            return m_client.SendPacket(pkt);
+        }
 
-		/// <summary>
-		/// Cancel a pending trade
-		/// </summary>
-		public bool TradeClose()
-		{
-			if (!m_client.ConnectedAndInitialized || !Initialized)
-				return false;
+        /// <summary>
+        /// Cancel a pending trade
+        /// </summary>
+        public bool TradeClose()
+        {
+            if (!m_client.ConnectedAndInitialized || !Initialized)
+                return false;
 
-			OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Close);
-			pkt.AddChar(123); //?
+            OldPacket pkt = new OldPacket(PacketFamily.Trade, PacketAction.Close);
+            pkt.AddChar(123); //?
 
-			return m_client.SendPacket(pkt);
-		}
+            return m_client.SendPacket(pkt);
+        }
 
-		private void _handleTradeRequest(OldPacket pkt)
-		{
-			pkt.Skip(1); //something - will always be 123 from this client
-			short playerID = pkt.GetShort();
-			string name = pkt.GetEndString();
+        private void _handleTradeRequest(OldPacket pkt)
+        {
+            pkt.Skip(1); //something - will always be 123 from this client
+            short playerID = pkt.GetShort();
+            string name = pkt.GetEndString();
 
-			if (OnTradeRequested != null)
-				OnTradeRequested(playerID, name);
-		}
+            if (OnTradeRequested != null)
+                OnTradeRequested(playerID, name);
+        }
 
-		private void _handleTradeOpen(OldPacket pkt)
-		{
-			if (OnTradeOpen == null) return;
+        private void _handleTradeOpen(OldPacket pkt)
+        {
+            if (OnTradeOpen == null) return;
 
-			short player1ID = pkt.GetShort();
-			string player1Name = pkt.GetBreakString();
-			short player2ID = pkt.GetShort();
-			string player2Name = pkt.GetBreakString();
+            short player1ID = pkt.GetShort();
+            string player1Name = pkt.GetBreakString();
+            short player2ID = pkt.GetShort();
+            string player2Name = pkt.GetBreakString();
 
-			OnTradeOpen(player1ID, player1Name, player2ID, player2Name);
-		}
+            OnTradeOpen(player1ID, player1Name, player2ID, player2Name);
+        }
 
-		private void _handleTradeReply(OldPacket pkt)
-		{
-			_sharedTradeDataProcess(pkt, OnTradeOfferUpdate);
-		}
+        private void _handleTradeReply(OldPacket pkt)
+        {
+            _sharedTradeDataProcess(pkt, OnTradeOfferUpdate);
+        }
 
-		//sent in response to you agreeing
-		private void _handleTradeSpec(OldPacket pkt)
-		{
-			if (OnTradeYouAgree != null)
-				OnTradeYouAgree(pkt.GetChar() != 0);
-		}
+        //sent in response to you agreeing
+        private void _handleTradeSpec(OldPacket pkt)
+        {
+            if (OnTradeYouAgree != null)
+                OnTradeYouAgree(pkt.GetChar() != 0);
+        }
 
-		//sent when your trade partner agrees
-		private void _handleTradeAgree(OldPacket pkt)
-		{
-			if (OnTradeOtherPlayerAgree != null)
-				OnTradeOtherPlayerAgree(pkt.GetShort(), pkt.GetChar() != 0);
-		}
+        //sent when your trade partner agrees
+        private void _handleTradeAgree(OldPacket pkt)
+        {
+            if (OnTradeOtherPlayerAgree != null)
+                OnTradeOtherPlayerAgree(pkt.GetShort(), pkt.GetChar() != 0);
+        }
 
-		//both parties agree to the trade - trade completed
-		private void _handleTradeUse(OldPacket pkt)
-		{
-			_sharedTradeDataProcess(pkt, OnTradeCompleted);
-		}
+        //both parties agree to the trade - trade completed
+        private void _handleTradeUse(OldPacket pkt)
+        {
+            _sharedTradeDataProcess(pkt, OnTradeCompleted);
+        }
 
-		private void _handleTradeClose(OldPacket pkt)
-		{
-			if (OnTradeCancel != null)
-				OnTradeCancel(pkt.GetShort());
-		}
+        private void _handleTradeClose(OldPacket pkt)
+        {
+            if (OnTradeCancel != null)
+                OnTradeCancel(pkt.GetShort());
+        }
 
-		private void _sharedTradeDataProcess(OldPacket pkt, TradeUpdateEvent handler)
-		{
-			if (handler == null) return;
+        private void _sharedTradeDataProcess(OldPacket pkt, TradeUpdateEvent handler)
+        {
+            if (handler == null) return;
 
-			short player1ID = pkt.GetShort();
-			List<InventoryItem> player1Items = new List<InventoryItem>();
-			while (pkt.PeekByte() != 255)
-			{
-				player1Items.Add(new InventoryItem(pkt.GetShort(), pkt.GetInt()));
-			}
-			pkt.Skip(1);
+            short player1ID = pkt.GetShort();
+            List<InventoryItem> player1Items = new List<InventoryItem>();
+            while (pkt.PeekByte() != 255)
+            {
+                player1Items.Add(new InventoryItem(pkt.GetShort(), pkt.GetInt()));
+            }
+            pkt.Skip(1);
 
-			short player2ID = pkt.GetShort();
-			List<InventoryItem> player2Items = new List<InventoryItem>();
-			while (pkt.PeekByte() != 255)
-			{
-				player2Items.Add(new InventoryItem(pkt.GetShort(), pkt.GetInt()));
-			}
-			pkt.Skip(1);
+            short player2ID = pkt.GetShort();
+            List<InventoryItem> player2Items = new List<InventoryItem>();
+            while (pkt.PeekByte() != 255)
+            {
+                player2Items.Add(new InventoryItem(pkt.GetShort(), pkt.GetInt()));
+            }
+            pkt.Skip(1);
 
-			handler(player1ID, player1Items, player2ID, player2Items);
-		}
-	}
+            handler(player1ID, player1Items, player2ID, player2Items);
+        }
+    }
 }

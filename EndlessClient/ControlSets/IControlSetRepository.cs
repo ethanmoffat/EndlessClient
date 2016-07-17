@@ -4,23 +4,23 @@
 
 namespace EndlessClient.ControlSets
 {
-	public interface IControlSetRepository
-	{
-		IControlSet CurrentControlSet { get; set; }
-	}
+    public interface IControlSetRepository
+    {
+        IControlSet CurrentControlSet { get; set; }
+    }
 
-	public interface IControlSetProvider
-	{
-		IControlSet CurrentControlSet { get; }
-	}
+    public interface IControlSetProvider
+    {
+        IControlSet CurrentControlSet { get; }
+    }
 
-	public class ControlSetRepository : IControlSetRepository, IControlSetProvider
-	{
-		public IControlSet CurrentControlSet { get; set; }
+    public class ControlSetRepository : IControlSetRepository, IControlSetProvider
+    {
+        public IControlSet CurrentControlSet { get; set; }
 
-		public ControlSetRepository()
-		{
-			CurrentControlSet = new EmptyControlSet();
-		}
-	}
+        public ControlSetRepository()
+        {
+            CurrentControlSet = new EmptyControlSet();
+        }
+    }
 }

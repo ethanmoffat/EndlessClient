@@ -11,37 +11,37 @@ using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
-	public class ViewCreditsControlSet : InitialControlSet
-	{
-		private XNALabel _creditsLabel;
+    public class ViewCreditsControlSet : InitialControlSet
+    {
+        private XNALabel _creditsLabel;
 
-		public override GameStates GameState { get { return GameStates.ViewCredits; } }
+        public override GameStates GameState { get { return GameStates.ViewCredits; } }
 
-		public ViewCreditsControlSet(IConfigurationProvider configProvider,
-									 IMainButtonController mainButtonController)
-			: base(configProvider, mainButtonController) { }
+        public ViewCreditsControlSet(IConfigurationProvider configProvider,
+                                     IMainButtonController mainButtonController)
+            : base(configProvider, mainButtonController) { }
 
-		protected override void InitializeControlsHelper(IControlSet currentControlSet)
-		{
-			base.InitializeControlsHelper(currentControlSet);
-			ExcludePersonPicture1();
+        protected override void InitializeControlsHelper(IControlSet currentControlSet)
+        {
+            base.InitializeControlsHelper(currentControlSet);
+            ExcludePersonPicture1();
 
-			_creditsLabel = GetControl(currentControlSet, GameControlIdentifier.CreditsLabel, GetCreditsLabel);
-			_allComponents.Add(_creditsLabel);
-		}
+            _creditsLabel = GetControl(currentControlSet, GameControlIdentifier.CreditsLabel, GetCreditsLabel);
+            _allComponents.Add(_creditsLabel);
+        }
 
-		public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
-		{
-			switch (control)
-			{
-				case GameControlIdentifier.CreditsLabel: return _creditsLabel;
-				default: return base.FindComponentByControlIdentifier(control);
-			}
-		}
+        public override IGameComponent FindComponentByControlIdentifier(GameControlIdentifier control)
+        {
+            switch (control)
+            {
+                case GameControlIdentifier.CreditsLabel: return _creditsLabel;
+                default: return base.FindComponentByControlIdentifier(control);
+            }
+        }
 
-		private XNALabel GetCreditsLabel()
-		{
-			return new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10) { Text = Constants.CreditsText };
-		}
-	}
+        private XNALabel GetCreditsLabel()
+        {
+            return new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10) { Text = Constants.CreditsText };
+        }
+    }
 }

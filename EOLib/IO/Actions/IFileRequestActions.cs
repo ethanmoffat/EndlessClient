@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace EOLib.IO.Actions
 {
-	public interface IFileRequestActions
-	{
-		bool NeedsFile(InitFileType fileType, short optionalID = 0);
+    public interface IFileRequestActions
+    {
+        bool NeedsFile(InitFileType fileType, short optionalID = 0);
 
-		Task GetMapFromServer(short mapID);
+        Task GetMapFromServer(short mapID);
 
-		Task GetItemFileFromServer();
+        Task GetItemFileFromServer();
 
-		Task GetNPCFileFromServer();
+        Task GetNPCFileFromServer();
 
-		Task GetSpellFileFromServer();
+        Task GetSpellFileFromServer();
 
-		Task GetClassFileFromServer();
-	}
+        Task GetClassFileFromServer();
+    }
 }

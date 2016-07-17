@@ -4,18 +4,18 @@
 
 namespace EOLib.Net.Connection
 {
-	public interface IConnectionStateRepository
-	{
-		bool NeedsReconnect { get; set; }
-	}
+    public interface IConnectionStateRepository
+    {
+        bool NeedsReconnect { get; set; }
+    }
 
-	public interface IConnectionStateProvider
-	{
-		bool NeedsReconnect { get; }
-	}
+    public interface IConnectionStateProvider
+    {
+        bool NeedsReconnect { get; }
+    }
 
-	public class ConnectionStateRepository : IConnectionStateRepository, IConnectionStateProvider
-	{
-		public bool NeedsReconnect { get; set; }
-	}
+    public class ConnectionStateRepository : IConnectionStateRepository, IConnectionStateProvider
+    {
+        public bool NeedsReconnect { get; set; }
+    }
 }

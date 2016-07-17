@@ -4,24 +4,24 @@
 
 namespace EOLib.Net.Communication
 {
-	public interface INetworkClientRepository : INetworkClientDisposer
-	{
-		INetworkClient NetworkClient { get; set; }
-	}
+    public interface INetworkClientRepository : INetworkClientDisposer
+    {
+        INetworkClient NetworkClient { get; set; }
+    }
 
-	public interface INetworkClientProvider
-	{
-		INetworkClient NetworkClient { get; }
-	}
+    public interface INetworkClientProvider
+    {
+        INetworkClient NetworkClient { get; }
+    }
 
-	public sealed class NetworkClientRepository : INetworkClientProvider, INetworkClientRepository
-	{
-		public INetworkClient NetworkClient { get; set; }
-		
-		public void Dispose()
-		{
-			if (NetworkClient != null)
-				NetworkClient.Dispose();
-		}
-	}
+    public sealed class NetworkClientRepository : INetworkClientProvider, INetworkClientRepository
+    {
+        public INetworkClient NetworkClient { get; set; }
+        
+        public void Dispose()
+        {
+            if (NetworkClient != null)
+                NetworkClient.Dispose();
+        }
+    }
 }

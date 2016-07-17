@@ -4,13 +4,13 @@
 
 namespace EOLib.IO
 {
-	internal class ItemRecordFactory : IDataRecordFactory<ItemRecord>
-	{
-		public int RecordSizeInBytes { get { return ItemRecord.DATA_SIZE; } }
+    internal class ItemRecordFactory : IDataRecordFactory<ItemRecord>
+    {
+        public int RecordSizeInBytes { get { return ItemRecord.DATA_SIZE; } }
 
-		public ItemRecord CreateRecord(int id)
-		{
-			return new ItemRecord(id);
-		}
-	}
+        public ItemRecord CreateRecord(int id)
+        {
+            return new ItemRecord(id);
+        }
+    }
 }

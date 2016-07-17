@@ -21,44 +21,44 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EOLib.Graphics.Test
 {
-	class GraphicsDeviceServiceTestHelper : IGraphicsDeviceService
-	{
-		#region Fields
+    class GraphicsDeviceServiceTestHelper : IGraphicsDeviceService
+    {
+        #region Fields
 
-		private static GraphicsDeviceServiceTestHelper _singletonInstance;
-		private static int _referenceCount;
+        private static GraphicsDeviceServiceTestHelper _singletonInstance;
+        private static int _referenceCount;
 
-		#endregion
+        #endregion
 
-		GraphicsDeviceServiceTestHelper(IntPtr windowHandle, int width, int height)
-		{
-			var parameters = new PresentationParameters
-			{
-				BackBufferWidth = Math.Max(width, 1),
-				BackBufferHeight = Math.Max(height, 1),
-				BackBufferFormat = SurfaceFormat.Color,
-				DepthStencilFormat = DepthFormat.Depth24,
-				DeviceWindowHandle = windowHandle,
-				PresentationInterval = PresentInterval.Immediate,
-				IsFullScreen = false
-			};
+        GraphicsDeviceServiceTestHelper(IntPtr windowHandle, int width, int height)
+        {
+            var parameters = new PresentationParameters
+            {
+                BackBufferWidth = Math.Max(width, 1),
+                BackBufferHeight = Math.Max(height, 1),
+                BackBufferFormat = SurfaceFormat.Color,
+                DepthStencilFormat = DepthFormat.Depth24,
+                DeviceWindowHandle = windowHandle,
+                PresentationInterval = PresentInterval.Immediate,
+                IsFullScreen = false
+            };
 
-			GraphicsDevice = new GraphicsDevice(GraphicsAdapter.DefaultAdapter, GraphicsProfile.HiDef, parameters);
-		}
+            GraphicsDevice = new GraphicsDevice(GraphicsAdapter.DefaultAdapter, GraphicsProfile.HiDef, parameters);
+        }
 
-		public static GraphicsDeviceServiceTestHelper AddRef(IntPtr windowHandle, int width, int height)
-		{
-			if (Interlocked.Increment(ref _referenceCount) == 1)
-				_singletonInstance = new GraphicsDeviceServiceTestHelper(windowHandle, width, height);
+        public static GraphicsDeviceServiceTestHelper AddRef(IntPtr windowHandle, int width, int height)
+        {
+            if (Interlocked.Increment(ref _referenceCount) == 1)
+                _singletonInstance = new GraphicsDeviceServiceTestHelper(windowHandle, width, height);
 
-			return _singletonInstance;
-		}
+            return _singletonInstance;
+        }
 
-		public GraphicsDevice GraphicsDevice { get; private set; }
+        public GraphicsDevice GraphicsDevice { get; private set; }
 
-		public event EventHandler<EventArgs> DeviceCreated;
-		public event EventHandler<EventArgs> DeviceDisposing;
-		public event EventHandler<EventArgs> DeviceReset;
-		public event EventHandler<EventArgs> DeviceResetting;
-	}
+        public event EventHandler<EventArgs> DeviceCreated;
+        public event EventHandler<EventArgs> DeviceDisposing;
+        public event EventHandler<EventArgs> DeviceReset;
+        public event EventHandler<EventArgs> DeviceResetting;
+    }
 }

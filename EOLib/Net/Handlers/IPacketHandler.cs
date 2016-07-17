@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace EOLib.Net.Handlers
 {
-	public interface IPacketHandler
-	{
-		PacketFamily Family { get; }
-		PacketAction Action { get; }
+    public interface IPacketHandler
+    {
+        PacketFamily Family { get; }
+        PacketAction Action { get; }
 
-		bool CanHandle { get; }
+        bool CanHandle { get; }
 
-		Task<bool> HandlePacket(IPacket packet);
-	}
+        Task<bool> HandlePacket(IPacket packet);
+    }
 }

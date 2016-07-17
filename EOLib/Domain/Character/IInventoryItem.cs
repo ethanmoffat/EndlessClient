@@ -4,12 +4,12 @@
 
 namespace EOLib.Domain.Character
 {
-	public interface IInventoryItem
-	{
-		short ItemID { get; }
+    public interface IInventoryItem
+    {
+        short ItemID { get; }
 
-		int Amount { get; }
+        int Amount { get; }
 
-		IInventoryItem WithAmount(int newAmount);
-	}
+        IInventoryItem WithAmount(int newAmount);
+    }
 }

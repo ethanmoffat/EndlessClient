@@ -6,29 +6,29 @@ using Microsoft.Practices.Unity;
 
 namespace EOLib
 {
-	public class DependencyRegistrar
-	{
-		private readonly IUnityContainer _unityContainer;
+    public class DependencyRegistrar
+    {
+        private readonly IUnityContainer _unityContainer;
 
-		public DependencyRegistrar(IUnityContainer unityContainer)
-		{
-			_unityContainer = unityContainer;
-		}
+        public DependencyRegistrar(IUnityContainer unityContainer)
+        {
+            _unityContainer = unityContainer;
+        }
 
-		public void RegisterDependencies(params IDependencyContainer[] containers)
-		{
-			foreach (var container in containers)
-			{
-				container.RegisterDependencies(_unityContainer);
-			}
-		}
+        public void RegisterDependencies(params IDependencyContainer[] containers)
+        {
+            foreach (var container in containers)
+            {
+                container.RegisterDependencies(_unityContainer);
+            }
+        }
 
-		public void InitializeDependencies(params IInitializableContainer[] containers)
-		{
-			foreach (var container in containers)
-			{
-				container.InitializeDependencies(_unityContainer);
-			}
-		}
-	}
+        public void InitializeDependencies(params IInitializableContainer[] containers)
+        {
+            foreach (var container in containers)
+            {
+                container.InitializeDependencies(_unityContainer);
+            }
+        }
+    }
 }

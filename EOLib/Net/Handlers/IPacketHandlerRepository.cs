@@ -6,23 +6,23 @@ using System.Collections.Generic;
 
 namespace EOLib.Net.Handlers
 {
-	public interface IPacketHandlerRepository
-	{
-		IEnumerable<IPacketHandler> PacketHandlers { get; set; }
-	}
+    public interface IPacketHandlerRepository
+    {
+        IEnumerable<IPacketHandler> PacketHandlers { get; set; }
+    }
 
-	public interface IPacketHandlerProvider
-	{
-		IEnumerable<IPacketHandler> PacketHandlers { get; }
-	}
+    public interface IPacketHandlerProvider
+    {
+        IEnumerable<IPacketHandler> PacketHandlers { get; }
+    }
 
-	public class PacketHandlerRepository : IPacketHandlerRepository, IPacketHandlerProvider
-	{
-		public PacketHandlerRepository(IEnumerable<IPacketHandler> packetHandlers)
-		{
-			PacketHandlers = packetHandlers;
-		}
+    public class PacketHandlerRepository : IPacketHandlerRepository, IPacketHandlerProvider
+    {
+        public PacketHandlerRepository(IEnumerable<IPacketHandler> packetHandlers)
+        {
+            PacketHandlers = packetHandlers;
+        }
 
-		public IEnumerable<IPacketHandler> PacketHandlers { get; set; }
-	}
+        public IEnumerable<IPacketHandler> PacketHandlers { get; set; }
+    }
 }

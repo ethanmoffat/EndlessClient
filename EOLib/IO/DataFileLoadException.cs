@@ -6,12 +6,12 @@ using System;
 
 namespace EOLib.IO
 {
-	public class DataFileLoadException : Exception
-	{
-		public DataFileLoadException()
-			: base("Unable to find data files! Check that the data directory exists and has ALL the edf files copied over")
-		{
-			
-		}
-	}
+    public class DataFileLoadException : Exception
+    {
+        public DataFileLoadException()
+            : base("Unable to find data files! Check that the data directory exists and has ALL the edf files copied over")
+        {
+            
+        }
+    }
 }

@@ -6,23 +6,23 @@ using EOLib.Domain;
 
 namespace EOLib.Net.PacketProcessing
 {
-	internal static class PacketNumberEncoder
-	{
-		private static readonly INumberEncoderService _service;
+    internal static class PacketNumberEncoder
+    {
+        private static readonly INumberEncoderService _service;
 
-		static PacketNumberEncoder()
-		{
-			_service = new NumberEncoderService();
-		}
+        static PacketNumberEncoder()
+        {
+            _service = new NumberEncoderService();
+        }
 
-		internal static byte[] Encode(int number, int size)
-		{
-			return _service.EncodeNumber(number, size);
-		}
+        internal static byte[] Encode(int number, int size)
+        {
+            return _service.EncodeNumber(number, size);
+        }
 
-		internal static int Decode(params byte[] rawNumber)
-		{
-			return _service.DecodeNumber(rawNumber);
-		}
-	}
+        internal static int Decode(params byte[] rawNumber)
+        {
+            return _service.DecodeNumber(rawNumber);
+        }
+    }
 }

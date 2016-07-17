@@ -9,15 +9,15 @@ using Microsoft.Practices.Unity;
 
 namespace EOLib.Net.Translators
 {
-	public class PacketTranslatorContainer : IDependencyContainer
-	{
-		public void RegisterDependencies(IUnityContainer container)
-		{
-			container.RegisterType<IPacketTranslator<IInitializationData>, InitDataTranslator>();
-			container.RegisterType<IPacketTranslator<IAccountLoginData>, AccountLoginPacketTranslator>();
-			container.RegisterType<IPacketTranslator<ICharacterCreateData>, CharacterReplyPacketTranslator>();
-			container.RegisterType<IPacketTranslator<ILoginRequestGrantedData>, LoginRequestGrantedPacketTranslator>();
-			container.RegisterType<IPacketTranslator<ILoginRequestCompletedData>, LoginRequestCompletedPacketTranslator>();
-		}
-	}
+    public class PacketTranslatorContainer : IDependencyContainer
+    {
+        public void RegisterDependencies(IUnityContainer container)
+        {
+            container.RegisterType<IPacketTranslator<IInitializationData>, InitDataTranslator>();
+            container.RegisterType<IPacketTranslator<IAccountLoginData>, AccountLoginPacketTranslator>();
+            container.RegisterType<IPacketTranslator<ICharacterCreateData>, CharacterReplyPacketTranslator>();
+            container.RegisterType<IPacketTranslator<ILoginRequestGrantedData>, LoginRequestGrantedPacketTranslator>();
+            container.RegisterType<IPacketTranslator<ILoginRequestCompletedData>, LoginRequestCompletedPacketTranslator>();
+        }
+    }
 }

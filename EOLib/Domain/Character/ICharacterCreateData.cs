@@ -7,10 +7,10 @@ using EOLib.Net.Translators;
 
 namespace EOLib.Domain.Character
 {
-	public interface ICharacterCreateData : ITranslatedData
-	{
-		CharacterReply Response { get; }
+    public interface ICharacterCreateData : ITranslatedData
+    {
+        CharacterReply Response { get; }
 
-		IReadOnlyList<ICharacter> Characters { get; }
-	}
+        IReadOnlyList<ICharacter> Characters { get; }
+    }
 }

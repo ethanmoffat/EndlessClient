@@ -9,16 +9,16 @@ using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {
-	public interface IAsyncSocket : IDisposable
-	{
-		Task<int> SendAsync(byte[] data, CancellationToken ct);
+    public interface IAsyncSocket : IDisposable
+    {
+        Task<int> SendAsync(byte[] data, CancellationToken ct);
 
-		Task<byte[]> ReceiveAsync(int bytes, CancellationToken ct);
+        Task<byte[]> ReceiveAsync(int bytes, CancellationToken ct);
 
-		Task<bool> CheckIsConnectedAsync(CancellationToken ct);
+        Task<bool> CheckIsConnectedAsync(CancellationToken ct);
 
-		Task<ConnectResult> ConnectAsync(EndPoint endPoint, CancellationToken ct);
+        Task<ConnectResult> ConnectAsync(EndPoint endPoint, CancellationToken ct);
 
-		Task DisconnectAsync(CancellationToken ct);
-	}
+        Task DisconnectAsync(CancellationToken ct);
+    }
 }

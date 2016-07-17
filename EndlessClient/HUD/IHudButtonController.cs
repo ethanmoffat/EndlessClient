@@ -4,34 +4,34 @@
 
 namespace EndlessClient.HUD
 {
-	public interface IHudButtonController
-	{
-		void SetInitialHudState();
+    public interface IHudButtonController
+    {
+        void SetInitialHudState();
 
-		void ClickInventory();
+        void ClickInventory();
 
-		void ClickShowMap();
+        void ClickShowMap();
 
-		void ClickActiveSpells();
+        void ClickActiveSpells();
 
-		void ClickPassiveSpells();
+        void ClickPassiveSpells();
 
-		void ClickChat();
+        void ClickChat();
 
-		void ClickStats();
+        void ClickStats();
 
-		void ClickWhoIsOnline();
+        void ClickWhoIsOnline();
 
-		void ClickParty();
+        void ClickParty();
 
-		//void ClickMacro();
+        //void ClickMacro();
 
-		void ClickSettings();
+        void ClickSettings();
 
-		void ClickHelp();
+        void ClickHelp();
 
-		//friend/ignore
+        //friend/ignore
 
-		//E/Q
-	}
+        //E/Q
+    }
 }

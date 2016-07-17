@@ -6,15 +6,15 @@ using EOLib.IO.Map;
 
 namespace EOLib.Domain.Map
 {
-	public class WarpTileInfo : ITileInfo
-	{
-		public TileInfoReturnType ReturnType { get { return TileInfoReturnType.IsWarpSpec; } }
-		public TileSpec Spec { get { return TileSpec.None; } }
-		public IMapElement MapElement { get; private set; }
+    public class WarpTileInfo : ITileInfo
+    {
+        public TileInfoReturnType ReturnType { get { return TileInfoReturnType.IsWarpSpec; } }
+        public TileSpec Spec { get { return TileSpec.None; } }
+        public IMapElement MapElement { get; private set; }
 
-		public WarpTileInfo(Warp mapWarp)
-		{
-			MapElement = mapWarp;
-		}
-	}
+        public WarpTileInfo(Warp mapWarp)
+        {
+            MapElement = mapWarp;
+        }
+    }
 }

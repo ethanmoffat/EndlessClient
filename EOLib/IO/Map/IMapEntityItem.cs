@@ -4,9 +4,9 @@
 
 namespace EOLib.IO.Map
 {
-	public interface IMapEntityItem<T>
-	{
-		int X { get; set; }
-		T Value { get; set; }
-	}
+    public interface IMapEntityItem<T>
+    {
+        int X { get; set; }
+        T Value { get; set; }
+    }
 }

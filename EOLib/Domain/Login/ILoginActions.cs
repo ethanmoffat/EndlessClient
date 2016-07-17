@@ -7,14 +7,14 @@ using EOLib.Domain.Character;
 
 namespace EOLib.Domain.Login
 {
-	public interface ILoginActions
-	{
-		bool LoginParametersAreValid(ILoginParameters parameters);
+    public interface ILoginActions
+    {
+        bool LoginParametersAreValid(ILoginParameters parameters);
 
-		Task<LoginReply> LoginToServer(ILoginParameters parameters);
+        Task<LoginReply> LoginToServer(ILoginParameters parameters);
 
-		Task RequestCharacterLogin(ICharacter character);
+        Task RequestCharacterLogin(ICharacter character);
 
-		Task CompleteCharacterLogin();
-	}
+        Task CompleteCharacterLogin();
+    }
 }

@@ -7,22 +7,22 @@ using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {
-	public interface INetworkClient : IDisposable
-	{
-		bool Connected { get; }
+    public interface INetworkClient : IDisposable
+    {
+        bool Connected { get; }
 
-		Task<ConnectResult> ConnectToServer(string host, int port);
+        Task<ConnectResult> ConnectToServer(string host, int port);
 
-		void Disconnect();
+        void Disconnect();
 
-		Task RunReceiveLoopAsync();
+        Task RunReceiveLoopAsync();
 
-		void CancelBackgroundReceiveLoop();
+        void CancelBackgroundReceiveLoop();
 
-		int Send(IPacket packet);
+        int Send(IPacket packet);
 
-		Task<int> SendAsync(IPacket packet, int timeout = 1500);
-		
-		Task<int> SendRawPacketAsync(IPacket packet, int timeout = 1500);
-	}
+        Task<int> SendAsync(IPacket packet, int timeout = 1500);
+        
+        Task<int> SendRawPacketAsync(IPacket packet, int timeout = 1500);
+    }
 }

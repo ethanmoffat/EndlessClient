@@ -4,18 +4,18 @@
 
 namespace EndlessClient.GameExecution
 {
-	public interface IEndlessGameRepository
-	{
-		IEndlessGame Game { get; set; }
-	}
+    public interface IEndlessGameRepository
+    {
+        IEndlessGame Game { get; set; }
+    }
 
-	public interface IEndlessGameProvider
-	{
-		IEndlessGame Game { get; }
-	}
+    public interface IEndlessGameProvider
+    {
+        IEndlessGame Game { get; }
+    }
 
-	public class EndlessGameRepository : IEndlessGameRepository, IEndlessGameProvider
-	{
-		public IEndlessGame Game { get; set; }
-	}
+    public class EndlessGameRepository : IEndlessGameRepository, IEndlessGameProvider
+    {
+        public IEndlessGame Game { get; set; }
+    }
 }

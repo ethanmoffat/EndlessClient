@@ -4,13 +4,13 @@
 
 namespace EOLib.IO
 {
-	internal class SpellRecordFactory : IDataRecordFactory<SpellRecord>
-	{
-		public int RecordSizeInBytes { get { return SpellRecord.DATA_SIZE; } }
+    internal class SpellRecordFactory : IDataRecordFactory<SpellRecord>
+    {
+        public int RecordSizeInBytes { get { return SpellRecord.DATA_SIZE; } }
 
-		public SpellRecord CreateRecord(int id)
-		{
-			return new SpellRecord(id);
-		}
-	}
+        public SpellRecord CreateRecord(int id)
+        {
+            return new SpellRecord(id);
+        }
+    }
 }

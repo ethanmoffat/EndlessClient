@@ -14,139 +14,139 @@ using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Net.Communication
 {
-	public class NetworkClient : INetworkClient
-	{
-		private readonly IPacketProcessorActions _packetProcessActions;
-		private readonly IPacketHandlingActions _packetHandlingActions;
-		private readonly INumberEncoderService _numberEncoderService;
+    public class NetworkClient : INetworkClient
+    {
+        private readonly IPacketProcessorActions _packetProcessActions;
+        private readonly IPacketHandlingActions _packetHandlingActions;
+        private readonly INumberEncoderService _numberEncoderService;
 
-		private readonly IAsyncSocket _socket;
+        private readonly IAsyncSocket _socket;
 
-		private readonly CancellationTokenSource _backgroundReceiveCTS;
-		
-		public bool Connected
-		{
-			get
-			{
-				using (var cts = new CancellationTokenSource())
-				{
-					cts.CancelAfter(5000);
-					var t = _socket.CheckIsConnectedAsync(cts.Token);
-					return !t.IsCanceled && t.Result;
-				}
-			}
-		}
+        private readonly CancellationTokenSource _backgroundReceiveCTS;
+        
+        public bool Connected
+        {
+            get
+            {
+                using (var cts = new CancellationTokenSource())
+                {
+                    cts.CancelAfter(5000);
+                    var t = _socket.CheckIsConnectedAsync(cts.Token);
+                    return !t.IsCanceled && t.Result;
+                }
+            }
+        }
 
-		public NetworkClient(IPacketProcessorActions packetProcessActions,
-							 IPacketHandlingActions packetHandlingActions,
-							 INumberEncoderService numberEncoderService)
-		{
-			_packetProcessActions = packetProcessActions;
-			_packetHandlingActions = packetHandlingActions;
-			_numberEncoderService = numberEncoderService;
+        public NetworkClient(IPacketProcessorActions packetProcessActions,
+                             IPacketHandlingActions packetHandlingActions,
+                             INumberEncoderService numberEncoderService)
+        {
+            _packetProcessActions = packetProcessActions;
+            _packetHandlingActions = packetHandlingActions;
+            _numberEncoderService = numberEncoderService;
 
-			_socket = new AsyncSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			
-			_backgroundReceiveCTS = new CancellationTokenSource();
-		}
+            _socket = new AsyncSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            
+            _backgroundReceiveCTS = new CancellationTokenSource();
+        }
 
-		public async Task<ConnectResult> ConnectToServer(string host, int port)
-		{
-			IPAddress ip;
-			if (!IPAddress.TryParse(host, out ip))
-			{
-				var addressList = Dns.GetHostEntry(host).AddressList;
-				var ipv4Addresses = Array.FindAll(addressList, a => a.AddressFamily == AddressFamily.InterNetwork);
+        public async Task<ConnectResult> ConnectToServer(string host, int port)
+        {
+            IPAddress ip;
+            if (!IPAddress.TryParse(host, out ip))
+            {
+                var addressList = Dns.GetHostEntry(host).AddressList;
+                var ipv4Addresses = Array.FindAll(addressList, a => a.AddressFamily == AddressFamily.InterNetwork);
 
-				if (ipv4Addresses.Length == 0)
-					return ConnectResult.InvalidEndpoint;
+                if (ipv4Addresses.Length == 0)
+                    return ConnectResult.InvalidEndpoint;
 
-				ip = ipv4Addresses[0];
-			}
+                ip = ipv4Addresses[0];
+            }
 
-			var endPoint = new IPEndPoint(ip, port);
-			using (var cts = new CancellationTokenSource(5000))
-			{
-				var task = _socket.ConnectAsync(endPoint, cts.Token);
-				await task;
+            var endPoint = new IPEndPoint(ip, port);
+            using (var cts = new CancellationTokenSource(5000))
+            {
+                var task = _socket.ConnectAsync(endPoint, cts.Token);
+                await task;
 
-				return task.IsCanceled ? ConnectResult.Timeout : task.Result;
-			}
-		}
+                return task.IsCanceled ? ConnectResult.Timeout : task.Result;
+            }
+        }
 
-		public void Disconnect()
-		{
-			_socket.DisconnectAsync(CancellationToken.None);
-		}
+        public void Disconnect()
+        {
+            _socket.DisconnectAsync(CancellationToken.None);
+        }
 
-		public async Task RunReceiveLoopAsync()
-		{
-			while (!_backgroundReceiveCTS.IsCancellationRequested)
-			{
-				var lengthData = await _socket.ReceiveAsync(2, _backgroundReceiveCTS.Token);
-				if (_backgroundReceiveCTS.IsCancellationRequested || lengthData.Length != 2)
-					break;
+        public async Task RunReceiveLoopAsync()
+        {
+            while (!_backgroundReceiveCTS.IsCancellationRequested)
+            {
+                var lengthData = await _socket.ReceiveAsync(2, _backgroundReceiveCTS.Token);
+                if (_backgroundReceiveCTS.IsCancellationRequested || lengthData.Length != 2)
+                    break;
 
-				var length = _numberEncoderService.DecodeNumber(lengthData);
+                var length = _numberEncoderService.DecodeNumber(lengthData);
 
-				var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
-				if (_backgroundReceiveCTS.IsCancellationRequested || packetData.Length != length)
-					break;
+                var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
+                if (_backgroundReceiveCTS.IsCancellationRequested || packetData.Length != length)
+                    break;
 
-				var packet = _packetProcessActions.DecodeData((IEnumerable<byte>) packetData);
-				_packetHandlingActions.EnqueuePacketForHandling(packet);
-			}
-		}
+                var packet = _packetProcessActions.DecodeData((IEnumerable<byte>) packetData);
+                _packetHandlingActions.EnqueuePacketForHandling(packet);
+            }
+        }
 
-		public void CancelBackgroundReceiveLoop()
-		{
-			_backgroundReceiveCTS.Cancel();
-		}
+        public void CancelBackgroundReceiveLoop()
+        {
+            _backgroundReceiveCTS.Cancel();
+        }
 
-		public int Send(IPacket packet)
-		{
-			var sendTask = SendAsync(packet);
-			return sendTask.Result;
-		}
+        public int Send(IPacket packet)
+        {
+            var sendTask = SendAsync(packet);
+            return sendTask.Result;
+        }
 
-		public async Task<int> SendAsync(IPacket packet, int timeout = 1500)
-		{
-			var bytesToSend = _packetProcessActions.EncodePacket(packet);
-			using (var cts = new CancellationTokenSource(timeout))
-				return await _socket.SendAsync(bytesToSend, cts.Token);
-		}
+        public async Task<int> SendAsync(IPacket packet, int timeout = 1500)
+        {
+            var bytesToSend = _packetProcessActions.EncodePacket(packet);
+            using (var cts = new CancellationTokenSource(timeout))
+                return await _socket.SendAsync(bytesToSend, cts.Token);
+        }
 
-		public async Task<int> SendRawPacketAsync(IPacket packet, int timeout = 1500)
-		{
-			var bytesToSend = _packetProcessActions.EncodeRawPacket(packet);
-			using (var cts = new CancellationTokenSource(timeout))
-				return await _socket.SendAsync(bytesToSend, cts.Token);
-		}
+        public async Task<int> SendRawPacketAsync(IPacket packet, int timeout = 1500)
+        {
+            var bytesToSend = _packetProcessActions.EncodeRawPacket(packet);
+            using (var cts = new CancellationTokenSource(timeout))
+                return await _socket.SendAsync(bytesToSend, cts.Token);
+        }
 
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-		~NetworkClient()
-		{
-			Dispose(false);
-		}
+        ~NetworkClient()
+        {
+            Dispose(false);
+        }
 
-		protected virtual void Dispose(bool disposing)
-		{
-			if (disposing)
-			{
-				if (Connected)
-				{
-					CancelBackgroundReceiveLoop();
-					Disconnect();
-				}
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (Connected)
+                {
+                    CancelBackgroundReceiveLoop();
+                    Disconnect();
+                }
 
-				_backgroundReceiveCTS.Dispose();
-				_socket.Dispose();
-			}
-		}
-	}
+                _backgroundReceiveCTS.Dispose();
+                _socket.Dispose();
+            }
+        }
+    }
 }

@@ -6,8 +6,8 @@ using System.Collections.Generic;
 
 namespace EndlessClient.UIControls
 {
-	public interface ICharacterInfoPanelFactory
-	{
-		IEnumerable<CharacterInfoPanel> CreatePanels();
-	}
+    public interface ICharacterInfoPanelFactory
+    {
+        IEnumerable<CharacterInfoPanel> CreatePanels();
+    }
 }

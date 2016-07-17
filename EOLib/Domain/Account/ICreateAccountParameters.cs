@@ -4,13 +4,13 @@
 
 namespace EOLib.Domain.Account
 {
-	public interface ICreateAccountParameters
-	{
-		string AccountName { get; }
-		string Password { get; }
-		string ConfirmPassword { get; }
-		string RealName { get; }
-		string Location { get; }
-		string Email { get; }
-	}
+    public interface ICreateAccountParameters
+    {
+        string AccountName { get; }
+        string Password { get; }
+        string ConfirmPassword { get; }
+        string RealName { get; }
+        string Location { get; }
+        string Email { get; }
+    }
 }

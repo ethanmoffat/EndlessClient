@@ -6,12 +6,12 @@ using Microsoft.Practices.Unity;
 
 namespace EndlessClient.GameExecution
 {
-	/// <summary>
-	/// A game runner that does not catch any exceptions
-	/// </summary>
-	public class DebugGameRunner : GameRunnerBase
-	{
-		public DebugGameRunner(IUnityContainer unityContainer)
-			: base(unityContainer) { }
-	}
+    /// <summary>
+    /// A game runner that does not catch any exceptions
+    /// </summary>
+    public class DebugGameRunner : GameRunnerBase
+    {
+        public DebugGameRunner(IUnityContainer unityContainer)
+            : base(unityContainer) { }
+    }
 }

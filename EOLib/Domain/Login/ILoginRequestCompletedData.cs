@@ -10,38 +10,38 @@ using EOLib.Net.Translators;
 
 namespace EOLib.Domain.Login
 {
-	public interface ILoginRequestCompletedData : ITranslatedData
-	{
-		IReadOnlyList<string> News { get; }
+    public interface ILoginRequestCompletedData : ITranslatedData
+    {
+        IReadOnlyList<string> News { get; }
 
-		byte CharacterWeight { get; }
+        byte CharacterWeight { get; }
 
-		byte CharacterMaxWeight { get; }
+        byte CharacterMaxWeight { get; }
 
-		IReadOnlyList<IInventoryItem> CharacterItemInventory { get; }
+        IReadOnlyList<IInventoryItem> CharacterItemInventory { get; }
 
-		IReadOnlyList<IInventorySpell> CharacterSpellInventory { get; }
+        IReadOnlyList<IInventorySpell> CharacterSpellInventory { get; }
 
-		IReadOnlyList<ICharacter> MapCharacters { get; }
+        IReadOnlyList<ICharacter> MapCharacters { get; }
 
-		IReadOnlyList<INPC> MapNPCs { get; }
+        IReadOnlyList<INPC> MapNPCs { get; }
 
-		IReadOnlyList<IMapItem> MapItems { get; }
+        IReadOnlyList<IMapItem> MapItems { get; }
 
-		ILoginRequestCompletedData WithNews(IEnumerable<string> newsStrings);
+        ILoginRequestCompletedData WithNews(IEnumerable<string> newsStrings);
 
-		ILoginRequestCompletedData WithWeight(byte weight);
+        ILoginRequestCompletedData WithWeight(byte weight);
 
-		ILoginRequestCompletedData WithMaxWeight(byte maxWeight);
+        ILoginRequestCompletedData WithMaxWeight(byte maxWeight);
 
-		ILoginRequestCompletedData WithInventory(IEnumerable<IInventoryItem> inventoryItems);
+        ILoginRequestCompletedData WithInventory(IEnumerable<IInventoryItem> inventoryItems);
 
-		ILoginRequestCompletedData WithSpells(IEnumerable<IInventorySpell> inventorySpells);
+        ILoginRequestCompletedData WithSpells(IEnumerable<IInventorySpell> inventorySpells);
 
-		ILoginRequestCompletedData WithCharacters(IEnumerable<ICharacter> characters);
+        ILoginRequestCompletedData WithCharacters(IEnumerable<ICharacter> characters);
 
-		ILoginRequestCompletedData WithNPCs(IEnumerable<INPC> npcs);
+        ILoginRequestCompletedData WithNPCs(IEnumerable<INPC> npcs);
 
-		ILoginRequestCompletedData WithItems(IEnumerable<IMapItem> items);
-	}
+        ILoginRequestCompletedData WithItems(IEnumerable<IMapItem> items);
+    }
 }

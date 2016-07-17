@@ -7,54 +7,54 @@ using System.IO;
 
 namespace EOLib.Net
 {
-	public interface IPacket
-	{
-		int Length { get; }
+    public interface IPacket
+    {
+        int Length { get; }
 
-		int ReadPosition { get; }
+        int ReadPosition { get; }
 
-		void Seek(int position, SeekOrigin origin);
+        void Seek(int position, SeekOrigin origin);
 
-		PacketFamily Family { get; }
+        PacketFamily Family { get; }
 
-		PacketAction Action { get; }
+        PacketAction Action { get; }
 
-		IReadOnlyList<byte> RawData { get; }
+        IReadOnlyList<byte> RawData { get; }
 
-		byte PeekByte();
+        byte PeekByte();
 
-		byte PeekChar();
+        byte PeekChar();
 
-		short PeekShort();
+        short PeekShort();
 
-		int PeekThree();
+        int PeekThree();
 
-		int PeekInt();
+        int PeekInt();
 
-		string PeekString(int length);
+        string PeekString(int length);
 
-		string PeekEndString();
+        string PeekEndString();
 
-		string PeekBreakString();
+        string PeekBreakString();
 
-		IEnumerable<byte> PeekBytes(int length);
+        IEnumerable<byte> PeekBytes(int length);
 
-		byte ReadByte();
+        byte ReadByte();
 
-		byte ReadChar();
+        byte ReadChar();
 
-		short ReadShort();
+        short ReadShort();
 
-		int ReadThree();
+        int ReadThree();
 
-		int ReadInt();
+        int ReadInt();
 
-		string ReadString(int length);
+        string ReadString(int length);
 
-		string ReadEndString();
+        string ReadEndString();
 
-		string ReadBreakString();
+        string ReadBreakString();
 
-		IEnumerable<byte> ReadBytes(int length);
-	}
+        IEnumerable<byte> ReadBytes(int length);
+    }
 }

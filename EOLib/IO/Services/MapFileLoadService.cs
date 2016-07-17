@@ -6,18 +6,18 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services
 {
-	public class MapFileLoadService : IMapFileLoadService
-	{
-		public IMapFile LoadMapByID(int mapID)
-		{
-			return LoadMapByPath(string.Format(Constants.MapFileFormatString, mapID));
-		}
+    public class MapFileLoadService : IMapFileLoadService
+    {
+        public IMapFile LoadMapByID(int mapID)
+        {
+            return LoadMapByPath(string.Format(Constants.MapFileFormatString, mapID));
+        }
 
-		public IMapFile LoadMapByPath(string pathToMapFile)
-		{
-			var mapFile = new MapFile();
-			mapFile.Load(pathToMapFile);
-			return mapFile;
-		}
-	}
+        public IMapFile LoadMapByPath(string pathToMapFile)
+        {
+            var mapFile = new MapFile();
+            mapFile.Load(pathToMapFile);
+            return mapFile;
+        }
+    }
 }

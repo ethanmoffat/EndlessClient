@@ -6,12 +6,12 @@ using EOLib.IO.Map;
 
 namespace EOLib.Domain.Map
 {
-	public interface ITileInfo
-	{
-		TileInfoReturnType ReturnType { get; }
+    public interface ITileInfo
+    {
+        TileInfoReturnType ReturnType { get; }
 
-		TileSpec Spec { get; }
+        TileSpec Spec { get; }
 
-		IMapElement MapElement { get; }
-	}
+        IMapElement MapElement { get; }
+    }
 }

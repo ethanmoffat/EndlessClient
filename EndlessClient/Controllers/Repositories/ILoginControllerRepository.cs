@@ -4,18 +4,18 @@
 
 namespace EndlessClient.Controllers.Repositories
 {
-	public interface ILoginControllerRepository
-	{
-		ILoginController LoginController { get; set; }
-	}
+    public interface ILoginControllerRepository
+    {
+        ILoginController LoginController { get; set; }
+    }
 
-	public interface ILoginControllerProvider
-	{
-		ILoginController LoginController { get; }
-	}
+    public interface ILoginControllerProvider
+    {
+        ILoginController LoginController { get; }
+    }
 
-	public class LoginControllerRepository : ILoginControllerRepository, ILoginControllerProvider
-	{
-		public ILoginController LoginController { get; set; }
-	}
+    public class LoginControllerRepository : ILoginControllerRepository, ILoginControllerProvider
+    {
+        public ILoginController LoginController { get; set; }
+    }
 }

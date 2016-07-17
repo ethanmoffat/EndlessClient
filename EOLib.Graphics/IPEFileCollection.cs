@@ -8,7 +8,7 @@ using PELoaderLib;
 
 namespace EOLib.Graphics
 {
-	public interface IPEFileCollection : IDictionary<GFXTypes, IPEFile>, IDisposable
-	{
-	}
+    public interface IPEFileCollection : IDictionary<GFXTypes, IPEFile>, IDisposable
+    {
+    }
 }

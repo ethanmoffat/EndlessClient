@@ -4,8 +4,8 @@
 
 namespace EndlessClient.Dialogs.Factories
 {
-	public interface ICreateAccountWarningDialogFactory
-	{
-		void ShowCreateAccountWarningDialog(string warningMessage);
-	}
+    public interface ICreateAccountWarningDialogFactory
+    {
+        void ShowCreateAccountWarningDialog(string warningMessage);
+    }
 }

@@ -8,22 +8,22 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Network
 {
-	public class PacketHandlerGameComponent : GameComponent
-	{
-		private readonly IOutOfBandPacketHandler _packetHandler;
+    public class PacketHandlerGameComponent : GameComponent
+    {
+        private readonly IOutOfBandPacketHandler _packetHandler;
 
-		public PacketHandlerGameComponent(IEndlessGame game,
-										  IOutOfBandPacketHandler packetHandler)
-			: base((Game) game)
-		{
-			_packetHandler = packetHandler;
-		}
+        public PacketHandlerGameComponent(IEndlessGame game,
+                                          IOutOfBandPacketHandler packetHandler)
+            : base((Game) game)
+        {
+            _packetHandler = packetHandler;
+        }
 
-		public override void Update(GameTime gameTime)
-		{
-			_packetHandler.PollForPacketsAndHandle();
+        public override void Update(GameTime gameTime)
+        {
+            _packetHandler.PollForPacketsAndHandle();
 
-			base.Update(gameTime);
-		}
-	}
+            base.Update(gameTime);
+        }
+    }
 }
