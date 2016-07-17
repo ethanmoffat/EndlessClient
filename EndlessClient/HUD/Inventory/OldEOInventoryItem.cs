@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Panels;
+using EndlessClient.HUD.Panels.Old;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;

@@ -17,7 +17,7 @@ using Microsoft.Xna.Framework.Input;
 using XNAControls;
 using Mouse = Microsoft.Xna.Framework.Input.Mouse;
 
-namespace EndlessClient.HUD.Panels
+namespace EndlessClient.HUD.Panels.Old
 {
     /// <summary>
     /// contains a scroll bar and handles the text display and storage for a particular tab

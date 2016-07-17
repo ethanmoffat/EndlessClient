@@ -11,7 +11,7 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
-namespace EndlessClient.HUD.Panels
+namespace EndlessClient.HUD.Panels.Old
 {
     public class OldEOCharacterStats : XNAControl
     {

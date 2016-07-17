@@ -10,6 +10,7 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Panels;
+using EndlessClient.HUD.Panels.Old;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;

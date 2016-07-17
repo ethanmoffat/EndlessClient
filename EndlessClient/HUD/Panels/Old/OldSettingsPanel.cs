@@ -10,7 +10,7 @@ using EOLib.Net;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
-namespace EndlessClient.HUD.Panels
+namespace EndlessClient.HUD.Panels.Old
 {
     public class OldEOSettingsPanel : XNAControl
     {

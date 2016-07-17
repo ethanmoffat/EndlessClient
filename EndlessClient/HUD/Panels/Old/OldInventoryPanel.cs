@@ -17,7 +17,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
-namespace EndlessClient.HUD.Panels
+namespace EndlessClient.HUD.Panels.Old
 {
     public class OldEOInventory : XNAControl
     {

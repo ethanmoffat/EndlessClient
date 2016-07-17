@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Panels;
+using EndlessClient.HUD.Panels.Old;
 using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
