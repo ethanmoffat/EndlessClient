@@ -52,7 +52,9 @@ namespace EndlessClient
                 .RegisterInstance<IControlSetProvider, ControlSetRepository>()
                 .RegisterInstance<IControlSetRepository, ControlSetRepository>()
                 .RegisterInstance<IEndlessGameProvider, EndlessGameRepository>()
-                .RegisterInstance<IEndlessGameRepository, EndlessGameRepository>();
+                .RegisterInstance<IEndlessGameRepository, EndlessGameRepository>()
+                .RegisterInstance<IStatusLabelTextProvider, StatusLabelTextRepository>()
+                .RegisterInstance<IStatusLabelTextRepository, StatusLabelTextRepository>();
 
             //provider only
             container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>()
@@ -82,7 +84,8 @@ namespace EndlessClient
 
             //hud
             container.RegisterType<IHudButtonController, HudButtonController>()
-                .RegisterType<IHudStateActions, HudStateActions>();
+                .RegisterType<IHudStateActions, HudStateActions>()
+                .RegisterType<IStatusLabelSetter, StatusLabelSetter>();
         }
 
         public void InitializeDependencies(IUnityContainer container)

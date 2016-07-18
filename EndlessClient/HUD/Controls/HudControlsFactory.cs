@@ -8,6 +8,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
+using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -26,6 +27,8 @@ namespace EndlessClient.HUD.Controls
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
+        private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly IStatusLabelTextProvider _statusLabelTextProvider;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
                                   IHudPanelFactory hudPanelFactory,
@@ -33,7 +36,9 @@ namespace EndlessClient.HUD.Controls
                                   IGraphicsDeviceProvider graphicsDeviceProvider,
                                   IClientWindowSizeProvider clientWindowSizeProvider,
                                   IEndlessGameProvider endlessGameProvider,
-                                  ICharacterRepository characterRepository)
+                                  ICharacterRepository characterRepository,
+                                  IStatusLabelSetter statusLabelSetter,
+                                  IStatusLabelTextProvider statusLabelTextProvider)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -42,6 +47,8 @@ namespace EndlessClient.HUD.Controls
             _clientWindowSizeProvider = clientWindowSizeProvider;
             _endlessGameProvider = endlessGameProvider;
             _characterRepository = characterRepository;
+            _statusLabelSetter = statusLabelSetter;
+            _statusLabelTextProvider = statusLabelTextProvider;
         }
 
         public IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud()
@@ -75,7 +82,8 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
                 
                 {HudControlIdentifier.ClockLabel, CreateClockLabel()},
-                {HudControlIdentifier.UsageTracker, CreateUsageTracker()}
+                {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
+                {HudControlIdentifier.StatusLabel, CreateStatusLabel()}
             };
 
             return controls;
@@ -113,9 +121,9 @@ namespace EndlessClient.HUD.Controls
                 DrawOrder = HUD_CONTROL_LAYER
             };
             retButton.OnClick += (o, e) => DoHudStateChangeClick(whichState);
-            //retButton.OnMouseOver +=  //todo: set status label
-                                        //DATCONST2.STATUS_LABEL_TYPE_BUTTON,
-                                        //DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + buttonIndex
+            retButton.OnMouseEnter += (o, e) => _statusLabelSetter.SetStatusLabel( //todo: figure out why OnMouseEnter isn't working for the buttons
+                DATCONST2.STATUS_LABEL_TYPE_BUTTON,
+                DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + buttonIndex);
             return retButton;
         }
 
@@ -172,6 +180,11 @@ namespace EndlessClient.HUD.Controls
         private UsageTrackerComponent CreateUsageTracker()
         {
             return new UsageTrackerComponent(_endlessGameProvider, _characterRepository);
+        }
+
+        private StatusBarLabel CreateStatusLabel()
+        {
+            return new StatusBarLabel(_clientWindowSizeProvider, _statusLabelTextProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
     }
 }

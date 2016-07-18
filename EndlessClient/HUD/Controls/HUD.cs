@@ -52,7 +52,6 @@ namespace EndlessClient.HUD.Controls
         private readonly OldEOPartyPanel m_party;
         private OldActiveSpells activeSpells; 
 
-        private readonly XNALabel statusLabel;
         private Timer m_muteTimer;
 
         private InGameStates state;
@@ -96,8 +95,6 @@ namespace EndlessClient.HUD.Controls
                 currentChatMode = ChatMode.NoText;
                 m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }, null, Timeout.Infinite, Timeout.Infinite);
-
-            statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
 
             m_whoIsOnline = new OldEOOnlineList(pnlOnline);
             m_party = new OldEOPartyPanel(pnlParty);
@@ -248,14 +245,6 @@ namespace EndlessClient.HUD.Controls
             if (!Game.Components.Contains(OldWorld.Instance.ActiveMapRenderer))
                 Game.Components.Add(OldWorld.Instance.ActiveMapRenderer);
             OldWorld.Instance.ActiveCharacterRenderer.Visible = true;
-            
-            //todo: figure out a good way to do status label setting
-                    //if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).TotalMilliseconds > 3000)
-                    //{
-                    //    SetStatusLabelText("");
-                    //    m_statusRecentlySet = false;
-                    //    statusStartTime = null;
-                    //}
 
             //the draw orders are adjusted for child items in the constructor.
             //calling SetParent will break this.
@@ -314,34 +303,10 @@ namespace EndlessClient.HUD.Controls
 
         #region Helper Methods
 
-        private void _doStateChange(InGameStates newGameState)
+        private void _doStateChange()
         {
-            state = newGameState;
-
-            pnlNews.Visible = false;
-
-            pnlInventory.Visible = false;
-            pnlActiveSpells.Visible = false;
-            pnlPassiveSpells.Visible = false;
-            pnlChat.Visible = false;
-            pnlStats.Visible = false;
-
-            pnlOnline.Visible = false;
-            pnlParty.Visible = false;
-            pnlSettings.Visible = false;
-            pnlHelp.Visible = false;
-
             switch(state)
             {
-                case InGameStates.Inventory:
-                    pnlInventory.Visible = true;
-                    break;
-                case InGameStates.ActiveSpells:
-                    pnlActiveSpells.Visible = true;
-                    break;
-                case InGameStates.PassiveSpells:
-                    pnlPassiveSpells.Visible = true;
-                    break;
                 case InGameStates.Chat:
                     pnlChat.Visible = true;
                     SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_CHAT_PANEL_NOW_VIEWED);
@@ -358,12 +323,6 @@ namespace EndlessClient.HUD.Controls
                     m_whoIsOnline.SetOnlinePlayerList(onlineList);
                     pnlOnline.Visible = true;
                     SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_ONLINE_PLAYERS_NOW_VIEWED);
-                    break;
-                case InGameStates.Party:
-                    pnlParty.Visible = true;
-                    break;
-                case InGameStates.Settings:
-                    pnlSettings.Visible = true;
                     break;
                 case InGameStates.Help:
                     pnlHelp.Visible = true;
@@ -559,27 +518,6 @@ namespace EndlessClient.HUD.Controls
             EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
         }
 
-        private void SetStatusLabelText(string text)
-        {
-            statusLabel.Text = text;
-        }
-
-        private void CheckStatusLabelType(DATCONST2 type)
-        {
-            switch (type)
-            {
-                case DATCONST2.STATUS_LABEL_TYPE_ACTION:
-                case DATCONST2.STATUS_LABEL_TYPE_BUTTON:
-                case DATCONST2.STATUS_LABEL_TYPE_INFORMATION:
-                case DATCONST2.STATUS_LABEL_TYPE_WARNING:
-                case DATCONST2.STATUS_LABEL_TYPE_ITEM:
-                case DATCONST2.SKILLMASTER_WORD_SPELL:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException("type", "Use either ACTION, BUTTION, INFORMATION, WARNING, or ITEM for this.");
-            }
-        }
-
         #endregion
 
         #region Public Interface for classes outside HUD
@@ -617,28 +555,16 @@ namespace EndlessClient.HUD.Controls
 
         public void SetStatusLabel(DATCONST2 type, DATCONST2 message, string extra = "")
         {
-            CheckStatusLabelType(type);
-
-            string typeText = OldWorld.GetString(type);
-            string messageText = OldWorld.GetString(message);
-            SetStatusLabelText(string.Format("[ {0} ] {1} {2}", typeText, messageText, extra));
         }
 
         public void SetStatusLabel(DATCONST2 type, string extra, DATCONST2 message)
         {
-            CheckStatusLabelType(type);
-
-            string typeText = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)type];
-            string messageText = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)message];
-            SetStatusLabelText(string.Format("[ {0} ] {1} {2}", typeText, extra, messageText));
+            //SetStatusLabelText(string.Format("[ {0} ] {1} {2}", typeText, extra, messageText));
         }
 
         public void SetStatusLabel(DATCONST2 type, string detail)
         {
-            CheckStatusLabelType(type);
-
-            string typeText = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) type];
-            SetStatusLabelText(string.Format("[ {0} ] {1}", typeText, detail));
+            //SetStatusLabelText(string.Format("[ {0} ] {1}", typeText, detail));
         }
 
         public bool UpdateInventory(InventoryItem item)
@@ -714,7 +640,6 @@ namespace EndlessClient.HUD.Controls
                 pnlSettings.Close();
 
                 chatTextBox.Close();
-                statusLabel.Close();
 
                 m_friendList.Close();
                 m_ignoreList.Close();
