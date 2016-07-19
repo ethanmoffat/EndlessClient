@@ -74,12 +74,6 @@ namespace EOLib
         public const string FontSize08pt75 = @"Fonts/InGame_Main_08pt75";
         public const string FontSize10 = @"Fonts/InGame_Main_10";
 
-        public const int ONE_BYTE_MAX   = 253;
-        public const int TWO_BYTE_MAX   = 64009;
-        public const int THREE_BYTE_MAX = 16194277;
-
-        public static readonly int[] NUMERIC_MAXIMUM = { ONE_BYTE_MAX, TWO_BYTE_MAX, THREE_BYTE_MAX };
-
         public const int OutOfBand_Packets_Handled_Per_Update = 10;
 
         public const string CreditsText = @"Endless Online - C# Client

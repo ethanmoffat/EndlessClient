@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using EOLib.IO;
 
 namespace EOLib.Net
 {
@@ -77,13 +78,13 @@ namespace EOLib.Net
             {
                 if (index >= numArray.Length)
                 {
-                    if (number >= Constants.NUMERIC_MAXIMUM[index - 1])
-                        number %= Constants.NUMERIC_MAXIMUM[index - 1];
+                    if (number >= NumericConstants.NUMERIC_MAXIMUM[index - 1])
+                        number %= NumericConstants.NUMERIC_MAXIMUM[index - 1];
                 }
-                else if (number >= Constants.NUMERIC_MAXIMUM[index - 1])
+                else if (number >= NumericConstants.NUMERIC_MAXIMUM[index - 1])
                 {
-                    numArray[index] = (byte)(number / Constants.NUMERIC_MAXIMUM[index - 1] + 1);
-                    number %= Constants.NUMERIC_MAXIMUM[index - 1];
+                    numArray[index] = (byte)(number / NumericConstants.NUMERIC_MAXIMUM[index - 1] + 1);
+                    number %= NumericConstants.NUMERIC_MAXIMUM[index - 1];
                 }
                 else
                     numArray[index] = 254;
@@ -105,7 +106,7 @@ namespace EOLib.Net
 
             int num = 0;
             for (int index = b.Length - 1; index >= 1; --index)
-                num += b[index] * Constants.NUMERIC_MAXIMUM[index - 1];
+                num += b[index] * NumericConstants.NUMERIC_MAXIMUM[index - 1];
             return num + b[0];
         }
 

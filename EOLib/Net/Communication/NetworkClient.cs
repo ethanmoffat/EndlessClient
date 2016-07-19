@@ -8,7 +8,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using EOLib.Domain;
+using EOLib.IO.Services;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 

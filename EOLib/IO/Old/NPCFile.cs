@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EOLib.Domain;
+using EOLib.IO.Services;
 
 namespace EOLib.IO.Old
 {

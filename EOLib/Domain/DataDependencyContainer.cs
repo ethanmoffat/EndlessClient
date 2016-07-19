@@ -6,6 +6,7 @@ using EOLib.Domain.Account;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.IO.Services;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.Domain

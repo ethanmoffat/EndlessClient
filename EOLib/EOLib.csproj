@@ -92,7 +92,6 @@
     <Compile Include="Domain\Character\SitState.cs" />
     <Compile Include="Domain\DataDependencyContainer.cs" />
     <Compile Include="Domain\Account\ICreateAccountParameters.cs" />
-    <Compile Include="Domain\INumberEncoderService.cs" />
     <Compile Include="Domain\Login\AccountLoginData.cs" />
     <Compile Include="Domain\Character\CharacterCreateParameters.cs" />
     <Compile Include="Domain\Login\IAccountLoginData.cs" />
@@ -117,7 +116,6 @@
     <Compile Include="Domain\Map\NPCTileInfo.cs" />
     <Compile Include="Domain\Map\TileInfoReturnType.cs" />
     <Compile Include="Domain\Map\WarpTileInfo.cs" />
-    <Compile Include="Domain\NumberEncoderService.cs" />
     <Compile Include="Domain\Protocol\BanType.cs" />
     <Compile Include="Domain\Protocol\IInitializationData.cs" />
     <Compile Include="Domain\Protocol\InitFileType.cs" />
