@@ -104,7 +104,7 @@ namespace EOLib.IO.Pub
             using (var mem = new MemoryStream(ret))
             {
                 mem.WriteByte(numberEncoderService.EncodeNumber(Name.Length, 1)[0]);
-                byte[] name = Encoding.ASCII.GetBytes(Name);
+                var name = Encoding.ASCII.GetBytes(Name);
                 mem.Write(name, 0, name.Length);
 
                 mem.Write(numberEncoderService.EncodeNumber(Graphic, 2), 0, 2);

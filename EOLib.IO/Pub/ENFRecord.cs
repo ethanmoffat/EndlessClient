@@ -64,26 +64,26 @@ namespace EOLib.IO.Pub
             using (var mem = new MemoryStream(ret))
             {
                 mem.WriteByte(numberEncoderService.EncodeNumber(Name.Length, 1)[0]);
-                byte[] name = Encoding.ASCII.GetBytes(Name);
+                var name = Encoding.ASCII.GetBytes(Name);
                 mem.Write(name, 0, name.Length);
 
                 mem.Write(numberEncoderService.EncodeNumber(Graphic, 2), 0, 2);
 
-                mem.Seek(3, SeekOrigin.Begin);
+                mem.Seek(3 + Name.Length, SeekOrigin.Begin);
                 mem.Write(numberEncoderService.EncodeNumber(Boss, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Child, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber((short)Type, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(VendorID, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(HP, 3), 0, 3);
 
-                mem.Seek(16, SeekOrigin.Begin);
+                mem.Seek(16 + Name.Length, SeekOrigin.Begin);
                 mem.Write(numberEncoderService.EncodeNumber(MinDam, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(MaxDam, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Accuracy, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Evade, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Armor, 2), 0, 2);
 
-                mem.Seek(36, SeekOrigin.Begin);
+                mem.Seek(36 + Name.Length, SeekOrigin.Begin);
                 mem.Write(numberEncoderService.EncodeNumber(Exp, 2), 0, 2);
             }
 
