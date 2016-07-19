@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using EOLib.Domain;
 
-namespace EOLib.IO
+namespace EOLib.IO.Old
 {
     public abstract class EODataFile<T> : IModifiableDataFile<T>
         where T : IDataRecord

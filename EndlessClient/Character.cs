@@ -13,6 +13,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.IO;
 using EOLib.IO.Map;
+using EOLib.IO.Old;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls;

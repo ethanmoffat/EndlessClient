@@ -2,7 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EOLib.IO
+namespace EOLib.IO.Old
 {
     internal class ItemRecordFactory : IDataRecordFactory<ItemRecord>
     {

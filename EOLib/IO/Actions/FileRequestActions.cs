@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using EOLib.Domain;
+using EOLib.Domain.Protocol;
+using EOLib.IO.Old;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 

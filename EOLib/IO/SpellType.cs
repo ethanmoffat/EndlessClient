@@ -4,12 +4,10 @@
 
 namespace EOLib.IO
 {
-    public enum InitFileType : byte
+    public enum SpellType
     {
-        Map = 1,
-        Item = 2,
-        Npc = 3,
-        Spell = 4,
-        Class = 5
+        Heal,
+        Damage,
+        Bard
     }
 }

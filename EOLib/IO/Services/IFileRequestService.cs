@@ -3,7 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
+using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
+using EOLib.IO.Old;
 
 namespace EOLib.IO.Services
 {

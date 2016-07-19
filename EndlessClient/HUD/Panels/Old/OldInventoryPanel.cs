@@ -11,6 +11,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.IO.Old;
 using EOLib.Net.API;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;

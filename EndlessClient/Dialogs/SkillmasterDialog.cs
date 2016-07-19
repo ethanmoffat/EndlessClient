@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EOLib;
 using EOLib.IO;
+using EOLib.IO.Old;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;

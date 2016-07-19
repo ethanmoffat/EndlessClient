@@ -5,6 +5,7 @@
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
+using EOLib.IO.Old;
 using EOLib.Net;
 using EOLib.Net.Communication;
 
