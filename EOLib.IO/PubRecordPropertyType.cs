@@ -110,5 +110,19 @@ namespace EOLib.IO
         SpellHP,
 
         #endregion
+
+        #region Class Specific
+
+        ClassBase,
+        ClassType,
+
+        ClassStr,
+        ClassInt,
+        ClassWis,
+        ClassAgi,
+        ClassCon,
+        ClassCha
+
+        #endregion
     }
 }
