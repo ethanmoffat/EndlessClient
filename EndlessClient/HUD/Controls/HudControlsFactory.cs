@@ -135,13 +135,25 @@ namespace EndlessClient.HUD.Controls
                 case InGameStates.ViewMapToggle: _hudButtonController.ClickViewMapToggle(); break;
                 case InGameStates.ActiveSpells: _hudButtonController.ClickActiveSpells(); break;
                 case InGameStates.PassiveSpells: _hudButtonController.ClickPassiveSpells(); break;
-                case InGameStates.Chat: _hudButtonController.ClickChat(); break;
-                case InGameStates.Stats: _hudButtonController.ClickStats(); break;
-                case InGameStates.OnlineList: _hudButtonController.ClickOnlineList(); break;
+                case InGameStates.Chat: 
+                    _hudButtonController.ClickChat();
+                    _statusLabelSetter.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_CHAT_PANEL_NOW_VIEWED);
+                    break;
+                case InGameStates.Stats:
+                    _hudButtonController.ClickStats();
+                    _statusLabelSetter.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_STATS_PANEL_NOW_VIEWED);
+                    break;
+                case InGameStates.OnlineList:
+                    _hudButtonController.ClickOnlineList();
+                    _statusLabelSetter.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_ONLINE_PLAYERS_NOW_VIEWED);
+                    break;
                 case InGameStates.Party: _hudButtonController.ClickParty(); break;
                 case InGameStates.Macro: break;
                 case InGameStates.Settings: _hudButtonController.ClickSettings(); break;
-                case InGameStates.Help: _hudButtonController.ClickHelp(); break;
+                case InGameStates.Help:
+                    _hudButtonController.ClickHelp();
+                    _statusLabelSetter.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_LAST);
+                    break;
                 default: throw new ArgumentOutOfRangeException("whichState", whichState, null);
             }
         }
