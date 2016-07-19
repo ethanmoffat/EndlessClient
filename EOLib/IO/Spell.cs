@@ -12,28 +12,6 @@ using EOLib.Net;
 
 namespace EOLib.IO
 {
-    public enum SpellType
-    {
-        Heal,
-        Damage,
-        Bard
-    }
-
-    public enum SpellTargetRestrict
-    {
-        NPCOnly,
-        Friendly,
-        Opponent
-    }
-
-    public enum SpellTarget
-    {
-        Normal,
-        Self,
-        Unknown1,
-        Group
-    }
-
     public class SpellRecord : IDataRecord
     {
         public const int DATA_SIZE = 51;
