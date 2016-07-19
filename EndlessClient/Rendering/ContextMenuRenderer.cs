@@ -154,9 +154,6 @@ namespace EndlessClient.Rendering
             if (currentState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)
                 Visible = false;
 
-            if (!Visible)
-                PreviousMouseState = currentState;
-
             base.Update(gameTime);
         }
 

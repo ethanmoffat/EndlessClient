@@ -121,7 +121,7 @@ namespace EndlessClient.HUD.Controls
                 DrawOrder = HUD_CONTROL_LAYER
             };
             retButton.OnClick += (o, e) => DoHudStateChangeClick(whichState);
-            retButton.OnMouseEnter += (o, e) => _statusLabelSetter.SetStatusLabel( //todo: figure out why OnMouseEnter isn't working for the buttons
+            retButton.OnMouseEnter += (o, e) => _statusLabelSetter.SetStatusLabel(
                 DATCONST2.STATUS_LABEL_TYPE_BUTTON,
                 DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + buttonIndex);
             return retButton;
