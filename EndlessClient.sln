@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOLib.Graphics.Test", "EOLi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOLib.Test", "EOLib.Test\EOLib.Test.csproj", "{85826A6C-45B4-414D-A80A-35672F812B91}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOLib.IO", "EOLib.IO\EOLib.IO.csproj", "{AA07776B-3F05-404A-BA8A-24970A91C024}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -63,6 +65,10 @@ Global
 		{85826A6C-45B4-414D-A80A-35672F812B91}.Debug|x86.Build.0 = Debug|x86
 		{85826A6C-45B4-414D-A80A-35672F812B91}.Release|x86.ActiveCfg = Release|x86
 		{85826A6C-45B4-414D-A80A-35672F812B91}.Release|x86.Build.0 = Release|x86
+		{AA07776B-3F05-404A-BA8A-24970A91C024}.Debug|x86.ActiveCfg = Debug|x86
+		{AA07776B-3F05-404A-BA8A-24970A91C024}.Debug|x86.Build.0 = Debug|x86
+		{AA07776B-3F05-404A-BA8A-24970A91C024}.Release|x86.ActiveCfg = Release|x86
+		{AA07776B-3F05-404A-BA8A-24970A91C024}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
