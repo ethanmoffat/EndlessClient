@@ -120,6 +120,7 @@
     <Compile Include="Domain\NumberEncoderService.cs" />
     <Compile Include="Domain\Protocol\BanType.cs" />
     <Compile Include="Domain\Protocol\IInitializationData.cs" />
+    <Compile Include="Domain\Protocol\InitFileType.cs" />
     <Compile Include="Domain\Protocol\InitializationBannedData.cs" />
     <Compile Include="Domain\Protocol\InitializationOutOfDateData.cs" />
     <Compile Include="Domain\Protocol\InitializationSuccessData.cs" />
@@ -138,7 +139,6 @@
     <Compile Include="IO\Old\ClassRecordFactory.cs" />
     <Compile Include="IO\DataFileLoadException.cs" />
     <Compile Include="IO\EquipLocation.cs" />
-    <Compile Include="IO\InitFileType.cs" />
     <Compile Include="IO\ItemSize.cs" />
     <Compile Include="IO\ItemSpecial.cs" />
     <Compile Include="IO\ItemSubType.cs" />

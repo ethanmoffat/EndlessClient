@@ -14,6 +14,7 @@ using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
+using EOLib.Domain.Protocol;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Map;
