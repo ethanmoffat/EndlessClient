@@ -138,11 +138,6 @@
     <Compile Include="IO\Old\Class.cs" />
     <Compile Include="IO\Old\ClassRecordFactory.cs" />
     <Compile Include="IO\DataFileLoadException.cs" />
-    <Compile Include="IO\EquipLocation.cs" />
-    <Compile Include="IO\ItemSize.cs" />
-    <Compile Include="IO\ItemSpecial.cs" />
-    <Compile Include="IO\ItemSubType.cs" />
-    <Compile Include="IO\ItemType.cs" />
     <Compile Include="IO\Repositories\IDataFileRepository.cs" />
     <Compile Include="IO\Repositories\ILoginFileChecksumRepository.cs" />
     <Compile Include="IO\Repositories\IMapFileProvider.cs" />
@@ -181,7 +176,6 @@
     <Compile Include="IO\Old\NPCFile.cs" />
     <Compile Include="IO\Old\NPCRecord.cs" />
     <Compile Include="IO\Old\NPCRecordFactory.cs" />
-    <Compile Include="IO\NPCType.cs" />
     <Compile Include="IO\Repositories\IPubFileProvider.cs" />
     <Compile Include="IO\Repositories\IPubFileRepository.cs" />
     <Compile Include="IO\Repositories\MapFileRepository.cs" />
@@ -197,9 +191,6 @@
     <Compile Include="IO\Services\SpellFileLoadService.cs" />
     <Compile Include="IO\Old\Spell.cs" />
     <Compile Include="IO\Old\SpellRecordFactory.cs" />
-    <Compile Include="IO\SpellTarget.cs" />
-    <Compile Include="IO\SpellTargetRestrict.cs" />
-    <Compile Include="IO\SpellType.cs" />
     <Compile Include="misc.cs" />
     <Compile Include="Net\API\Account.cs" />
     <Compile Include="Domain\Account\AccountReply.cs" />

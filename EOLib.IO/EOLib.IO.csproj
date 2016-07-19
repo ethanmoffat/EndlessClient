@@ -34,10 +34,19 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EquipLocation.cs" />
+    <Compile Include="ItemSize.cs" />
+    <Compile Include="ItemSpecial.cs" />
+    <Compile Include="ItemSubType.cs" />
+    <Compile Include="ItemType.cs" />
+    <Compile Include="NPCType.cs" />
     <Compile Include="Pub\IPubFile.cs" />
     <Compile Include="Pub\IPubRecord.cs" />
     <Compile Include="Pub\IReadOnlyPubFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpellTarget.cs" />
+    <Compile Include="SpellTargetRestrict.cs" />
+    <Compile Include="SpellType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
