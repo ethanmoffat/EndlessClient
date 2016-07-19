@@ -4,10 +4,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using EndlessClient.Dialogs;
-using EndlessClient.HUD.Panels;
 using EndlessClient.HUD.Panels.Old;
 using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
@@ -33,17 +31,6 @@ namespace EndlessClient.HUD.Controls
 
         private const int HUD_CONTROL_DRAW_ORDER = 101;
 
-        //todo: remove panels when refactored
-        private XNAPanel pnlInventory;
-        private XNAPanel pnlActiveSpells;
-        private XNAPanel pnlPassiveSpells;
-        private XNAPanel pnlChat;
-        private XNAPanel pnlStats;
-        private XNAPanel pnlNews;
-        private XNAPanel pnlOnline;
-        private XNAPanel pnlParty;
-        private XNAPanel pnlSettings;
-        private XNAPanel pnlHelp;
         private readonly SpriteBatch SpriteBatch;
         private readonly OldChatRenderer chatRenderer;
         private OldEOInventory inventory;
@@ -52,10 +39,8 @@ namespace EndlessClient.HUD.Controls
         private readonly OldEOPartyPanel m_party;
         private OldActiveSpells activeSpells; 
 
-        private readonly XNALabel statusLabel;
         private Timer m_muteTimer;
 
-        private InGameStates state;
         private ChatMode currentChatMode;
         private Texture2D modeTexture;
         private bool modeTextureLoaded;
@@ -77,10 +62,8 @@ namespace EndlessClient.HUD.Controls
 
             SpriteBatch = new SpriteBatch(g.GraphicsDevice);
 
-            state = InGameStates.News;
-
             chatRenderer = new OldChatRenderer();
-            chatRenderer.SetParent(pnlChat);
+            //chatRenderer.SetParent(pnlChat);
             chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(DATCONST2.STRING_SERVER),
                 OldWorld.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_1),
                 ChatType.Note, ChatColor.Server);
@@ -97,10 +80,8 @@ namespace EndlessClient.HUD.Controls
                 m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }, null, Timeout.Infinite, Timeout.Infinite);
 
-            statusLabel = new XNALabel(new Rectangle(97, 455, 1, 1), Constants.FontSize07) { DrawOrder = HUD_CONTROL_DRAW_ORDER };
-
-            m_whoIsOnline = new OldEOOnlineList(pnlOnline);
-            m_party = new OldEOPartyPanel(pnlParty);
+            //m_whoIsOnline = new OldEOOnlineList(pnlOnline);
+            //m_party = new OldEOPartyPanel(pnlParty);
 
             m_friendList = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
                 new Vector2(592, 312),
@@ -140,7 +121,7 @@ namespace EndlessClient.HUD.Controls
             //no need to make this a member variable
             //it does not have any resources to dispose and it is automatically disposed by the framework
             // ReSharper disable once UnusedVariable
-            OldEOSettingsPanel settings = new OldEOSettingsPanel(pnlSettings);
+            //OldEOSettingsPanel settings = new OldEOSettingsPanel(pnlSettings);
         }
 
         #region Constructor Helpers
@@ -248,23 +229,15 @@ namespace EndlessClient.HUD.Controls
             if (!Game.Components.Contains(OldWorld.Instance.ActiveMapRenderer))
                 Game.Components.Add(OldWorld.Instance.ActiveMapRenderer);
             OldWorld.Instance.ActiveCharacterRenderer.Visible = true;
-            
-            //todo: figure out a good way to do status label setting
-                    //if (statusStartTime.HasValue && (DateTime.Now - statusStartTime.Value).TotalMilliseconds > 3000)
-                    //{
-                    //    SetStatusLabelText("");
-                    //    m_statusRecentlySet = false;
-                    //    statusStartTime = null;
-                    //}
 
             //the draw orders are adjusted for child items in the constructor.
             //calling SetParent will break this.
-            inventory = new OldEOInventory(pnlInventory, m_packetAPI);
+            //inventory = new OldEOInventory(pnlInventory, m_packetAPI);
 
-            stats = new OldEOCharacterStats(pnlStats);
+            //stats = new OldEOCharacterStats(pnlStats);
             stats.Initialize();
 
-            activeSpells = new OldActiveSpells(pnlActiveSpells, m_packetAPI);
+            //activeSpells = new OldActiveSpells(pnlActiveSpells, m_packetAPI);
             activeSpells.Initialize();
             
             SessionStartTime = DateTime.Now;
@@ -314,67 +287,6 @@ namespace EndlessClient.HUD.Controls
 
         #region Helper Methods
 
-        private void _doStateChange(InGameStates newGameState)
-        {
-            state = newGameState;
-
-            pnlNews.Visible = false;
-
-            pnlInventory.Visible = false;
-            pnlActiveSpells.Visible = false;
-            pnlPassiveSpells.Visible = false;
-            pnlChat.Visible = false;
-            pnlStats.Visible = false;
-
-            pnlOnline.Visible = false;
-            pnlParty.Visible = false;
-            pnlSettings.Visible = false;
-            pnlHelp.Visible = false;
-
-            switch(state)
-            {
-                case InGameStates.Inventory:
-                    pnlInventory.Visible = true;
-                    break;
-                case InGameStates.ActiveSpells:
-                    pnlActiveSpells.Visible = true;
-                    break;
-                case InGameStates.PassiveSpells:
-                    pnlPassiveSpells.Visible = true;
-                    break;
-                case InGameStates.Chat:
-                    pnlChat.Visible = true;
-                    SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_CHAT_PANEL_NOW_VIEWED);
-                    break;
-                case InGameStates.Stats:
-                    stats.Refresh();
-                    pnlStats.Visible = true;
-                    SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_STATS_PANEL_NOW_VIEWED);
-                    break;
-                case InGameStates.OnlineList:
-                    List<OnlineEntry> onlineList;
-                    if (!m_packetAPI.RequestOnlinePlayers(true, out onlineList))
-                        EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                    m_whoIsOnline.SetOnlinePlayerList(onlineList);
-                    pnlOnline.Visible = true;
-                    SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_ONLINE_PLAYERS_NOW_VIEWED);
-                    break;
-                case InGameStates.Party:
-                    pnlParty.Visible = true;
-                    break;
-                case InGameStates.Settings:
-                    pnlSettings.Visible = true;
-                    break;
-                case InGameStates.Help:
-                    pnlHelp.Visible = true;
-                    SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_LAST);
-                    break;
-            }
-        }
-
-        /// <summary>
-        /// Event for enter keypress of primary textbox. Does the chat
-        /// </summary>
         private void _doTalk(object sender, EventArgs e)
         {
             if (chatTextBox.Text.Length <= 0)
@@ -392,7 +304,7 @@ namespace EndlessClient.HUD.Controls
                     {
                         if (!m_packetAPI.Speak(TalkType.Admin, chatText.Substring(1)))
                         {
-                            _returnToLogin();
+                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                             break;
                         }
                         AddChat(ChatTabs.Group, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatType.HGM, ChatColor.Admin);
@@ -406,7 +318,7 @@ namespace EndlessClient.HUD.Controls
                     {
                         if (!m_packetAPI.Speak(TalkType.Announce, chatText.Substring(1)))
                         {
-                            _returnToLogin();
+                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                             break;
                         }
                         OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, false);
@@ -424,7 +336,7 @@ namespace EndlessClient.HUD.Controls
                     {
                         if (!m_packetAPI.Speak(TalkType.Party, chatText.Substring(1)))
                         {
-                            _returnToLogin();
+                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                             break;
                         }
                         OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, true);
@@ -441,7 +353,7 @@ namespace EndlessClient.HUD.Controls
                     {
                         if (!m_packetAPI.Speak(TalkType.Guild, chatText.Substring(1)))
                         {
-                            _returnToLogin();
+                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                             break;
                         }
                         //note: more processing of colors/icons is needed here
@@ -454,7 +366,7 @@ namespace EndlessClient.HUD.Controls
                     {
                         if (!m_packetAPI.Speak(TalkType.Global, chatText.Substring(1)))
                         {
-                            _returnToLogin();
+                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                             break;
                         }
                         AddChat(ChatTabs.Global, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered);
@@ -483,7 +395,7 @@ namespace EndlessClient.HUD.Controls
                     {
                         if (!m_packetAPI.Speak(TalkType.PM, message, character))
                         {
-                            _returnToLogin();
+                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                             break;
                         }
 
@@ -540,7 +452,7 @@ namespace EndlessClient.HUD.Controls
                         //send packet to the server
                         if (!m_packetAPI.Speak(TalkType.Local, chatText))
                         {
-                            _returnToLogin();
+                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                             break;
                         }
 
@@ -550,33 +462,6 @@ namespace EndlessClient.HUD.Controls
                     }
                 }
                     break;
-            }
-        }
-
-        private void _returnToLogin()
-        {
-            //any other logic prior to disconnecting goes here
-            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-        }
-
-        private void SetStatusLabelText(string text)
-        {
-            statusLabel.Text = text;
-        }
-
-        private void CheckStatusLabelType(DATCONST2 type)
-        {
-            switch (type)
-            {
-                case DATCONST2.STATUS_LABEL_TYPE_ACTION:
-                case DATCONST2.STATUS_LABEL_TYPE_BUTTON:
-                case DATCONST2.STATUS_LABEL_TYPE_INFORMATION:
-                case DATCONST2.STATUS_LABEL_TYPE_WARNING:
-                case DATCONST2.STATUS_LABEL_TYPE_ITEM:
-                case DATCONST2.SKILLMASTER_WORD_SPELL:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException("type", "Use either ACTION, BUTTION, INFORMATION, WARNING, or ITEM for this.");
             }
         }
 
@@ -617,28 +502,16 @@ namespace EndlessClient.HUD.Controls
 
         public void SetStatusLabel(DATCONST2 type, DATCONST2 message, string extra = "")
         {
-            CheckStatusLabelType(type);
-
-            string typeText = OldWorld.GetString(type);
-            string messageText = OldWorld.GetString(message);
-            SetStatusLabelText(string.Format("[ {0} ] {1} {2}", typeText, messageText, extra));
         }
 
         public void SetStatusLabel(DATCONST2 type, string extra, DATCONST2 message)
         {
-            CheckStatusLabelType(type);
-
-            string typeText = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)type];
-            string messageText = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int)message];
-            SetStatusLabelText(string.Format("[ {0} ] {1} {2}", typeText, extra, messageText));
+            //SetStatusLabelText(string.Format("[ {0} ] {1} {2}", typeText, extra, messageText));
         }
 
         public void SetStatusLabel(DATCONST2 type, string detail)
         {
-            CheckStatusLabelType(type);
-
-            string typeText = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) type];
-            SetStatusLabelText(string.Format("[ {0} ] {1}", typeText, detail));
+            //SetStatusLabelText(string.Format("[ {0} ] {1}", typeText, detail));
         }
 
         public bool UpdateInventory(InventoryItem item)
@@ -704,17 +577,7 @@ namespace EndlessClient.HUD.Controls
                     modeTexture.Dispose();
                 SpriteBatch.Dispose();
 
-                pnlInventory.Close();
-                pnlActiveSpells.Close();
-                pnlPassiveSpells.Close();
-                pnlChat.Close();
-                pnlStats.Close();
-                pnlOnline.Close();
-                pnlParty.Close();
-                pnlSettings.Close();
-
                 chatTextBox.Close();
-                statusLabel.Close();
 
                 m_friendList.Close();
                 m_ignoreList.Close();

@@ -99,6 +99,8 @@
     <Compile Include="HUD\IHudStateActions.cs" />
     <Compile Include="HUD\InGameStates.cs" />
     <Compile Include="HUD\Controls\UsageTrackerComponent.cs" />
+    <Compile Include="HUD\IStatusLabelTextRepository.cs" />
+    <Compile Include="HUD\IStatusLabelSetter.cs" />
     <Compile Include="HUD\Panels\ActiveSpellsPanel.cs" />
     <Compile Include="HUD\Panels\ChatPanel.cs" />
     <Compile Include="HUD\Panels\HelpPanel.cs" />
@@ -112,6 +114,7 @@
     <Compile Include="HUD\Panels\PassiveSpellsPanel.cs" />
     <Compile Include="HUD\Panels\SettingsPanel.cs" />
     <Compile Include="HUD\Panels\StatsPanel.cs" />
+    <Compile Include="HUD\StatusLabelSetter.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
     <Compile Include="Rendering\Chat\ChatRenderable.cs" />
@@ -260,6 +263,7 @@
     <Compile Include="OldWorld.cs" />
     <Compile Include="Rendering\Sprites\SpriteSheet.cs" />
     <Compile Include="Rendering\Sprites\WeaponSpriteType.cs" />
+    <Compile Include="UIControls\StatusBarLabel.cs" />
     <Compile Include="UIControls\TimeLabel.cs" />
     <Compile Include="XNAControlsDependencyContainer.cs" />
   </ItemGroup>
