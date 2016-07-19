@@ -87,5 +87,28 @@ namespace EOLib.IO
         NPCArmor,
 
         #endregion
+
+        #region Spell Specific
+
+        SpellShout,
+
+        SpellIcon,
+        SpellGraphic,
+
+        SpellTP,
+        SpellSP,
+
+        SpellCastTime,
+
+        SpellType,
+        SpellTargetRestrict,
+        SpellTarget,
+
+        SpellMinDam,
+        SpellMaxDam,
+        SpellAccuracy,
+        SpellHP,
+
+        #endregion
     }
 }
