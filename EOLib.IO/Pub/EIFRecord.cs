@@ -101,7 +101,7 @@ namespace EOLib.IO.Pub
         {
             var ret = Enumerable.Repeat<byte>(254, DATA_SIZE + 1 + Name.Length).ToArray();
 
-            using (MemoryStream mem = new MemoryStream(ret))
+            using (var mem = new MemoryStream(ret))
             {
                 mem.WriteByte(numberEncoderService.EncodeNumber(Name.Length, 1)[0]);
                 byte[] name = Encoding.ASCII.GetBytes(Name);

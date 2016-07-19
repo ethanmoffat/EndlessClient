@@ -22,6 +22,6 @@ namespace EOLib.IO.Pub
 
         void SetNames(string[] names);
 
-        void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService);
+        void DeserializeFromByteArray(byte[] recordBytes, INumberEncoderService numberEncoderService);
     }
 }

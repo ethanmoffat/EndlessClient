@@ -36,6 +36,7 @@
   <ItemGroup>
     <Compile Include="EquipLocation.cs" />
     <Compile Include="NumericConstants.cs" />
+    <Compile Include="Pub\ENFRecord.cs" />
     <Compile Include="Services\INumberEncoderService.cs" />
     <Compile Include="ItemSize.cs" />
     <Compile Include="ItemSpecial.cs" />

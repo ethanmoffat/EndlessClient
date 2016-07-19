@@ -10,7 +10,8 @@ namespace EOLib.IO
         GlobalID,
         GlobalName,
 
-        //Item-specific
+        #region Item Specific
+
         ItemGraphic,
         ItemType,
         ItemSubType,
@@ -63,5 +64,28 @@ namespace EOLib.IO
         ItemWeight,
 
         ItemSize,
+
+        #endregion
+
+        #region NPC Specific
+
+        NPCGraphic,
+
+        NPCBoss,
+        NPCChild,
+        NPCType,
+
+        NPCVendorID,
+
+        NPCHP,
+        NPCExp,
+        NPCMinDam,
+        NPCMaxDam,
+
+        NPCAccuracy,
+        NPCEvade,
+        NPCArmor,
+
+        #endregion
     }
 }
