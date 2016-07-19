@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using EOLib.IO;
+using EOLib.IO.Old;
 
 namespace BatchPub
 {

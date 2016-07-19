@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace EOLib.IO
+namespace EOLib.IO.Old
 {
     public interface IDataFile<out T>
         where T : IDataRecord

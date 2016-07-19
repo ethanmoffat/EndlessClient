@@ -10,7 +10,7 @@ using System.Text;
 using EOLib.Domain;
 using EOLib.Net;
 
-namespace EOLib.IO
+namespace EOLib.IO.Old
 {
     public class ItemRecord : IDataRecord
     {

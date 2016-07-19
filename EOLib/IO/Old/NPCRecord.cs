@@ -7,7 +7,7 @@ using System.IO;
 using System.Text;
 using EOLib.Net;
 
-namespace EOLib.IO
+namespace EOLib.IO.Old
 {
     public class NPCRecord : IDataRecord
     {

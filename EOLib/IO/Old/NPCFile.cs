@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using EOLib.Domain;
 
-namespace EOLib.IO
+namespace EOLib.IO.Old
 {
     public class NPCFile : EODataFile<NPCRecord>
     {

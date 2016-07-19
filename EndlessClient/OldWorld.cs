@@ -17,6 +17,7 @@ using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Map;
+using EOLib.IO.Old;
 using EOLib.Net;
 using EOLib.Net.API;
 using EOLib.Net.PacketProcessing;

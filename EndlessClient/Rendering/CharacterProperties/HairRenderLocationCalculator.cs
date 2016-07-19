@@ -6,6 +6,7 @@ using System.Linq;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.IO;
+using EOLib.IO.Old;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.CharacterProperties

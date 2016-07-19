@@ -4,6 +4,7 @@
 
 using System.IO;
 using EOLib.IO.Actions;
+using EOLib.IO.Old;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using Microsoft.Practices.Unity;

@@ -11,6 +11,7 @@ using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.IO.Old;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

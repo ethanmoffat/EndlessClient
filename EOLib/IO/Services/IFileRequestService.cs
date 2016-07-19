@@ -4,6 +4,7 @@
 
 using System.Threading.Tasks;
 using EOLib.IO.Map;
+using EOLib.IO.Old;
 
 namespace EOLib.IO.Services
 {

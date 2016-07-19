@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib.IO;
+using EOLib.IO.Old;
 
 namespace EndlessClient.HUD.Spells
 {
