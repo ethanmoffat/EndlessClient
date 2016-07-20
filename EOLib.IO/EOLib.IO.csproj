@@ -53,7 +53,7 @@
     <Compile Include="ItemType.cs" />
     <Compile Include="NPCType.cs" />
     <Compile Include="Services\NumberEncoderService.cs" />
-    <Compile Include="PubRecordPropertyType.cs" />
+    <Compile Include="PubRecordProperty.cs" />
     <Compile Include="Pub\EIFRecord.cs" />
     <Compile Include="Pub\IPubFile.cs" />
     <Compile Include="Pub\IPubRecord.cs" />

@@ -4,7 +4,15 @@
 
 namespace EOLib.IO
 {
-    public enum PubRecordPropertyType
+    /// <summary>
+    /// Enum representing the different properties that exist within the pub records
+    /// </summary>
+    /// <remarks>
+    /// IPubRecord::Get uses reflection to resolve the correct property. Property value resolution is based on the naming of the values in this enum.
+    /// These values should always match the names of the actual properties in the implementations of the IPubRecord files (plus the type prefix).
+    /// To be safe, just don't change the names here unless you know what you're doing. It's a crappy design, but it checks out.
+    /// </remarks>
+    public enum PubRecordProperty
     {
         //Applicable to all records
         GlobalID,

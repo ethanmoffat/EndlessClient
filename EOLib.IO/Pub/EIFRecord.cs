@@ -78,7 +78,7 @@ namespace EOLib.IO.Pub
 
         public ItemSize Size { get; set; }
 
-        public TValue Get<TValue>(PubRecordPropertyType type)
+        public TValue Get<TValue>(PubRecordProperty type)
         {
             var name = Enum.GetName(type.GetType(), type) ?? "";
             if (!name.StartsWith("Global") && !name.StartsWith("Item"))

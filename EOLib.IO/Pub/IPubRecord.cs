@@ -14,7 +14,7 @@ namespace EOLib.IO.Pub
 
         string Name { get; set; }
 
-        TValue Get<TValue>(PubRecordPropertyType type);
+        TValue Get<TValue>(PubRecordProperty type);
 
         byte[] SerializeToByteArray(INumberEncoderService numberEncoderService);
 

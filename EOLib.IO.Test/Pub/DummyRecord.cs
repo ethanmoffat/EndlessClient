@@ -17,7 +17,7 @@ namespace EOLib.IO.Test.Pub
 
         public string Name { get; set; }
 
-        public TValue Get<TValue>(PubRecordPropertyType type)
+        public TValue Get<TValue>(PubRecordProperty type)
         {
             return default(TValue);
         }

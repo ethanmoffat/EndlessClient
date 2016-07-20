@@ -18,7 +18,7 @@ namespace EOLib.IO.Test.Pub
             const int expected = 44;
             var rec = new ESFRecord { ID = expected };
 
-            var actual = rec.Get<int>(PubRecordPropertyType.GlobalID);
+            var actual = rec.Get<int>(PubRecordProperty.GlobalID);
 
             Assert.AreEqual(expected, actual);
         }
@@ -29,7 +29,7 @@ namespace EOLib.IO.Test.Pub
             const string expected = "some name";
             var rec = new ESFRecord { Name = expected };
 
-            var actual = rec.Get<string>(PubRecordPropertyType.GlobalName);
+            var actual = rec.Get<string>(PubRecordProperty.GlobalName);
 
             Assert.AreEqual(expected, actual);
         }
@@ -37,9 +37,9 @@ namespace EOLib.IO.Test.Pub
         [TestMethod]
         public void ESFRecord_GetSpellPropertiesComprehensive_NoException()
         {
-            var spellProperties = Enum.GetNames(typeof(PubRecordPropertyType))
+            var spellProperties = Enum.GetNames(typeof(PubRecordProperty))
                                       .Where(x => x.StartsWith("Spell"))
-                                      .Select(x => (PubRecordPropertyType)Enum.Parse(typeof(PubRecordPropertyType), x))
+                                      .Select(x => (PubRecordProperty)Enum.Parse(typeof(PubRecordProperty), x))
                                       .ToArray();
 
             Assert.AreNotEqual(0, spellProperties.Length);
@@ -56,7 +56,7 @@ namespace EOLib.IO.Test.Pub
         [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ESFRecord_GetItemProperty_ThrowsArgumentOutOfRangeException()
         {
-            const PubRecordPropertyType invalidProperty = PubRecordPropertyType.ItemSubType;
+            const PubRecordProperty invalidProperty = PubRecordProperty.ItemSubType;
 
             var record = new ESFRecord();
 
@@ -66,7 +66,7 @@ namespace EOLib.IO.Test.Pub
         [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ESFRecord_GetNPCProperty_ThrowsArgumentOutOfRangeException()
         {
-            const PubRecordPropertyType invalidProperty = PubRecordPropertyType.NPCAccuracy;
+            const PubRecordProperty invalidProperty = PubRecordProperty.NPCAccuracy;
 
             var record = new ESFRecord();
 
@@ -76,7 +76,7 @@ namespace EOLib.IO.Test.Pub
         [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void ESFRecord_GetClassProperty_ThrowsArgumentOutOfRangeException()
         {
-            const PubRecordPropertyType invalidProperty = PubRecordPropertyType.ClassAgi;
+            const PubRecordProperty invalidProperty = PubRecordProperty.ClassAgi;
 
             var record = new ESFRecord();
 
@@ -88,7 +88,7 @@ namespace EOLib.IO.Test.Pub
         {
             var rec = new ESFRecord { Name = "" };
 
-            rec.Get<int>(PubRecordPropertyType.GlobalName);
+            rec.Get<int>(PubRecordProperty.GlobalName);
         }
     }
 }
