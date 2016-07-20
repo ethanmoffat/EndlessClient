@@ -58,8 +58,8 @@ namespace EOLib.IO.Pub
                 var name = Encoding.ASCII.GetBytes(Name);
                 mem.Write(name, 0, name.Length);
 
-                mem.WriteByte(Base);
-                mem.WriteByte(Type);
+                mem.WriteByte(numberEncoderService.EncodeNumber(Base, 1)[0]);
+                mem.WriteByte(numberEncoderService.EncodeNumber(Type, 1)[0]);
 
                 mem.Write(numberEncoderService.EncodeNumber(Str, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Int, 2), 0, 2);
