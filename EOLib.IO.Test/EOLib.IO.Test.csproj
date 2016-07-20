@@ -45,6 +45,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Pub\EIFFileTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
