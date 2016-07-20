@@ -37,9 +37,9 @@ namespace EOLib.IO.Pub
             mem.Seek(1, SeekOrigin.Current);
 
             var rawData = new byte[ECFRecord.DATA_SIZE];
-            for (int i = 0; i < recordsInFile; ++i)
+            for (int i = 0; i < recordsInFile && mem.Position < mem.Length; ++i)
             {
-                var nameLength = mem.ReadByte();
+                var nameLength = numberEncoderService.DecodeNumber((byte)mem.ReadByte());
                 var rawName = new byte[nameLength];
                 mem.Read(rawName, 0, nameLength);
                 mem.Read(rawData, 0, ECFRecord.DATA_SIZE);
@@ -47,13 +47,14 @@ namespace EOLib.IO.Pub
                 var record = new ECFRecord { ID = i, Name = Encoding.ASCII.GetString(rawName) };
                 record.DeserializeFromByteArray(rawData, numberEncoderService);
 
-                if (mem.Position == mem.Length || record.Name.ToLower() == "eof")
+                if (record.Name.ToLower() == "eof")
                     break;
 
                 _data.Add(record);
             }
 
-            Debug.Assert(recordsInFile == Length, "Mismatch between expected length and actual length!");
+            if (recordsInFile != Length)
+                throw new IOException("Mismatch between expected length and actual length!");
         }
     }
 }

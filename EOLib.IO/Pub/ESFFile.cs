@@ -37,32 +37,27 @@ namespace EOLib.IO.Pub
             mem.Seek(1, SeekOrigin.Current);
 
             var rawData = new byte[ESFRecord.DATA_SIZE];
-            for (int i = 0; i < recordsInFile; ++i)
+            for (int i = 0; i < recordsInFile && mem.Position < mem.Length; ++i)
             {
-                var nameLength = mem.ReadByte();
-                var shoutLength = mem.ReadByte();
-
+                var nameLength = numberEncoderService.DecodeNumber((byte)mem.ReadByte());
+                var shoutLength = numberEncoderService.DecodeNumber((byte)mem.ReadByte());
                 var rawName = new byte[nameLength];
                 var rawShout = new byte[shoutLength];
                 mem.Read(rawName, 0, nameLength);
                 mem.Read(rawShout, 0, shoutLength);
                 mem.Read(rawData, 0, ESFRecord.DATA_SIZE);
 
-                var record = new ESFRecord
-                {
-                    ID = i,
-                    Name = Encoding.ASCII.GetString(rawName),
-                    Shout = Encoding.ASCII.GetString(rawShout)
-                };
+                var record = new ESFRecord { ID = i, Name = Encoding.ASCII.GetString(rawName) };
                 record.DeserializeFromByteArray(rawData, numberEncoderService);
 
-                if (mem.Position == mem.Length || record.Name.ToLower() == "eof")
+                if (record.Name.ToLower() == "eof")
                     break;
 
                 _data.Add(record);
             }
 
-            Debug.Assert(recordsInFile == Length, "Mismatch between expected length and actual length!");
+            if (recordsInFile != Length)
+                throw new IOException("Mismatch between expected length and actual length!");
         }
     }
 }
