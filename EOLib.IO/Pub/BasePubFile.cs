@@ -9,7 +9,7 @@ using EOLib.IO.Services;
 
 namespace EOLib.IO.Pub
 {
-    public abstract class BasePubFile<T> : IPubFile<T>
+    public abstract class BasePubFile<T> : IPubFile<T>, IReadOnlyPubFile<T>
         where T : IPubRecord, new()
     {
         protected readonly List<T> _data;

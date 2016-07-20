@@ -6,21 +6,19 @@ using EOLib.IO.Services;
 
 namespace EOLib.IO.Pub
 {
-    public interface IPubFile<TRecord> : IPubFile
+    public interface IReadOnlyPubFile<out TRecord> : IReadOnlyPubFile
         where TRecord : IPubRecord, new()
     {
-        TRecord this[int id] { get; set; }
+        TRecord this[int id] { get; }
 
         byte[] SerializeToByteArray(INumberEncoderService numberEncoderService);
-
-        void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService);
     }
 
-    public interface IPubFile
+    public interface IReadOnlyPubFile
     {
         string FileType { get; }
 
-        int CheckSum { get; set; }
+        int CheckSum { get; }
 
         int Length { get; }
     }
