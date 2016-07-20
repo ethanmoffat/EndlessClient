@@ -39,6 +39,7 @@
     <Compile Include="Pub\ECFRecord.cs" />
     <Compile Include="Pub\ENFRecord.cs" />
     <Compile Include="Pub\ESFRecord.cs" />
+    <Compile Include="Pub\IReadOnlyPubRecord.cs" />
     <Compile Include="Services\INumberEncoderService.cs" />
     <Compile Include="ItemSize.cs" />
     <Compile Include="ItemSpecial.cs" />
