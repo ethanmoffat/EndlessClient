@@ -23,7 +23,6 @@ namespace EOLib.IO.Pub
         public T this[int id]
         {
             get { return _data[id - 1]; }
-            set { _data[id - 1] = value; }
         }
 
         public IReadOnlyList<T> Data { get { return _data; } }

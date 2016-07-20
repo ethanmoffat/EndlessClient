@@ -7,10 +7,10 @@ using EOLib.IO.Services;
 
 namespace EOLib.IO.Pub
 {
-    public interface IPubFile<TRecord> : IPubFile
+    public interface IPubFile<out TRecord> : IPubFile
         where TRecord : IPubRecord, new()
     {
-        TRecord this[int id] { get; set; }
+        TRecord this[int id] { get; }
 
         IReadOnlyList<TRecord> Data { get; }
 
