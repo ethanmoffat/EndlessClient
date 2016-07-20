@@ -47,12 +47,6 @@ namespace EOLib.IO.Pub
                 var record = new EIFRecord {ID = i, Name = Encoding.ASCII.GetString(rawName)};
                 record.DeserializeFromByteArray(rawData, numberEncoderService);
 
-                if (record.Name.ToLower() == "eof")
-                {
-                    recordsInFile -= 1;
-                    break;
-                }
-
                 _data.Add(record);
             }
 

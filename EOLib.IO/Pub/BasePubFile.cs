@@ -37,18 +37,15 @@ namespace EOLib.IO.Pub
             {
                 mem.Write(Encoding.ASCII.GetBytes(FileType), 0, 3);
                 mem.Write(numberEncoderService.EncodeNumber(CheckSum, 4), 0, 4);
-                mem.Write(numberEncoderService.EncodeNumber(Length + 1, 2), 0, 2);
+                mem.Write(numberEncoderService.EncodeNumber(Length, 2), 0, 2);
 
-                mem.WriteByte(1);
+                mem.WriteByte(numberEncoderService.EncodeNumber(1, 1)[0]);
 
-                for (int i = 1; i < _data.Count; ++i)
+                foreach (var dataRecord in _data)
                 {
-                    byte[] toWrite = _data[i].SerializeToByteArray(numberEncoderService);
+                    var toWrite = dataRecord.SerializeToByteArray(numberEncoderService);
                     mem.Write(toWrite, 0, toWrite.Length);
                 }
-
-                var eofRecord = new T { ID = Length, Name = "EOF" }.SerializeToByteArray(numberEncoderService);
-                mem.Write(eofRecord, 0, eofRecord.Length);
 
                 return mem.ToArray();
             }
