@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,7 +28,7 @@ namespace EOLib.IO.Test.Pub
         [TestMethod]
         public void PubFile_WithOneItemRecord_HasExpectedLength()
         {
-            var bytes = MakeDummyFile(1234, new DummyRecord { ID = 1, Name = "TestItem" });
+            var bytes = MakeDummyFile(new DummyRecord { ID = 1, Name = "TestItem" });
 
             _baseFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
 
@@ -39,11 +38,10 @@ namespace EOLib.IO.Test.Pub
         [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void PubFile_Indexing_ThrowsExceptionWhenLessThan1()
         {
-            var bytes = MakeDummyFile(1234,
-                                     new DummyRecord { ID = 1, Name = "TestItem" },
-                                     new DummyRecord { ID = 2, Name = "Test2" },
-                                     new DummyRecord { ID = 3, Name = "Test3" },
-                                     new DummyRecord { ID = 4, Name = "Test4" });
+            var bytes = MakeDummyFile(new DummyRecord { ID = 1, Name = "TestItem" },
+                                      new DummyRecord { ID = 2, Name = "Test2" },
+                                      new DummyRecord { ID = 3, Name = "Test3" },
+                                      new DummyRecord { ID = 4, Name = "Test4" });
 
             _baseFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
 
@@ -56,9 +54,8 @@ namespace EOLib.IO.Test.Pub
         [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void PubFile_Indexing_ThrowsExceptionWhenLessThanCount()
         {
-            var bytes = MakeDummyFile(1234,
-                                     new DummyRecord { ID = 1, Name = "TestItem" },
-                                     new DummyRecord { ID = 2, Name = "Test2" });
+            var bytes = MakeDummyFile(new DummyRecord { ID = 1, Name = "TestItem" },
+                                      new DummyRecord { ID = 2, Name = "Test2" });
 
             _baseFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
 
@@ -71,7 +68,7 @@ namespace EOLib.IO.Test.Pub
         [TestMethod]
         public void PubFile_Indexing_ReturnsExpectedItemWhenRequestedByID()
         {
-            var items = new[]
+            var records = new[]
             {
                 new DummyRecord {ID = 1, Name = "TestItem"},
                 new DummyRecord {ID = 2, Name = "Test2"},
@@ -83,17 +80,17 @@ namespace EOLib.IO.Test.Pub
                 new DummyRecord {ID = 8, Name = "Test8"}
             };
 
-            var bytes = MakeDummyFile(1234, items);
+            var bytes = MakeDummyFile(records);
 
             _baseFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
 
-            Assert.AreEqual(items.Length, _baseFile.Length);
+            Assert.AreEqual(records.Length, _baseFile.Length);
 
-            for (int i = 0; i < items.Length; ++i)
-                Assert.AreEqual(items[i].Name, _baseFile[items[i].ID].Name, "Failed at index {0}", i);
+            for (int i = 0; i < records.Length; ++i)
+                Assert.AreEqual(records[i].Name, _baseFile[records[i].ID].Name, "Failed at index {0}", i);
         }
 
-        private byte[] MakeDummyFile(int checksum, params DummyRecord[] records)
+        private byte[] MakeDummyFile(params DummyRecord[] records)
         {
             var numberEncoderService = new NumberEncoderService();
 
