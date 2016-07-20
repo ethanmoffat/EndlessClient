@@ -67,21 +67,21 @@ namespace EOLib.IO.Pub
 
                 mem.Write(numberEncoderService.EncodeNumber(Graphic, 2), 0, 2);
 
-                mem.Seek(3 + Name.Length, SeekOrigin.Begin);
+                mem.Seek(4 + Name.Length, SeekOrigin.Begin);
                 mem.Write(numberEncoderService.EncodeNumber(Boss, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Child, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber((short)Type, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(VendorID, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(HP, 3), 0, 3);
 
-                mem.Seek(16 + Name.Length, SeekOrigin.Begin);
+                mem.Seek(17 + Name.Length, SeekOrigin.Begin);
                 mem.Write(numberEncoderService.EncodeNumber(MinDam, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(MaxDam, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Accuracy, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Evade, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Armor, 2), 0, 2);
 
-                mem.Seek(36 + Name.Length, SeekOrigin.Begin);
+                mem.Seek(37 + Name.Length, SeekOrigin.Begin);
                 mem.Write(numberEncoderService.EncodeNumber(Exp, 2), 0, 2);
             }
 
@@ -90,17 +90,24 @@ namespace EOLib.IO.Pub
 
         public void DeserializeFromByteArray(byte[] recordBytes, INumberEncoderService numberEncoderService)
         {
+            if (recordBytes.Length != DATA_SIZE)
+                throw new ArgumentOutOfRangeException("recordBytes", "Data is not properly sized for correct deserialization");
+
             Graphic = numberEncoderService.DecodeNumber(recordBytes[0], recordBytes[1]);
+
             Boss = (short)numberEncoderService.DecodeNumber(recordBytes[3], recordBytes[4]);
             Child = (short)numberEncoderService.DecodeNumber(recordBytes[5], recordBytes[6]);
             Type = (NPCType)numberEncoderService.DecodeNumber(recordBytes[7], recordBytes[8]);
             VendorID = (short)numberEncoderService.DecodeNumber(recordBytes[9], recordBytes[10]);
             HP = numberEncoderService.DecodeNumber(recordBytes[11], recordBytes[12], recordBytes[13]);
+
             MinDam = (short)numberEncoderService.DecodeNumber(recordBytes[16], recordBytes[17]);
             MaxDam = (short)numberEncoderService.DecodeNumber(recordBytes[18], recordBytes[19]);
+
             Accuracy = (short)numberEncoderService.DecodeNumber(recordBytes[20], recordBytes[21]);
             Evade = (short)numberEncoderService.DecodeNumber(recordBytes[22], recordBytes[23]);
             Armor = (short)numberEncoderService.DecodeNumber(recordBytes[24], recordBytes[25]);
+
             Exp = (ushort)numberEncoderService.DecodeNumber(recordBytes[36], recordBytes[37]);
         }
     }
