@@ -36,8 +36,12 @@
   <ItemGroup>
     <Compile Include="EquipLocation.cs" />
     <Compile Include="NumericConstants.cs" />
+    <Compile Include="Pub\ECFFile.cs" />
     <Compile Include="Pub\ECFRecord.cs" />
+    <Compile Include="Pub\EIFFile.cs" />
+    <Compile Include="Pub\ENFFile.cs" />
     <Compile Include="Pub\ENFRecord.cs" />
+    <Compile Include="Pub\ESFFile.cs" />
     <Compile Include="Pub\ESFRecord.cs" />
     <Compile Include="Pub\IReadOnlyPubRecord.cs" />
     <Compile Include="Pub\BasePubFile.cs" />

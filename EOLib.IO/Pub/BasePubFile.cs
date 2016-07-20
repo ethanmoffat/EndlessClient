@@ -3,13 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using EOLib.IO.Services;
 
 namespace EOLib.IO.Pub
 {
     public abstract class BasePubFile<T> : IPubFile<T>
         where T : IPubRecord
     {
-        private readonly List<T> _data;
+        protected readonly List<T> _data;
 
         public abstract string FileType { get; }
 
@@ -28,8 +29,8 @@ namespace EOLib.IO.Pub
             _data = new List<T>();
         }
 
-        public abstract byte[] SerializeToByteArray();
+        public abstract byte[] SerializeToByteArray(INumberEncoderService numberEncoderService);
 
-        public abstract void DeserializeFromByteArray(byte[] bytes);
+        public abstract void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService);
     }
 }
