@@ -6,7 +6,7 @@ using EOLib.IO.Services;
 
 namespace EOLib.IO.Pub
 {
-    public interface IPubFile<TRecord> where TRecord : IPubRecord
+    public interface IPubFile<TRecord> where TRecord : IPubRecord, new()
     {
         string FileType { get; }
 

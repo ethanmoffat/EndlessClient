@@ -16,11 +16,6 @@ namespace EOLib.IO.Pub
             get { return "ESF"; }
         }
 
-        public override byte[] SerializeToByteArray(INumberEncoderService numberEncoderService)
-        {
-            throw new System.NotImplementedException();
-        }
-
         public override void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService)
         {
             using (var mem = new MemoryStream(bytes))
