@@ -2,31 +2,32 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 
 namespace EOLib.IO.Repositories
 {
+    //todo: rename these to IEIFFileRepository, etc. (same for providers and impl)
     public interface IPubFileRepository : IItemFileRepository, INPCFileRepository, ISpellFileRepository, IClassFileRepository
     {
     }
 
     public interface IItemFileRepository
     {
-        IDataFile<ItemRecord> ItemFile { get; set; }
+        IPubFile<EIFRecord> ItemFile { get; set; }
     }
 
     public interface INPCFileRepository
     {
-        IDataFile<NPCRecord> NPCFile { get; set; }
+        IPubFile<ENFRecord> NPCFile { get; set; }
     }
 
     public interface ISpellFileRepository
     {
-        IDataFile<SpellRecord> SpellFile { get; set; }
+        IPubFile<ESFRecord> SpellFile { get; set; }
     }
 
     public interface IClassFileRepository
     {
-        IDataFile<ClassRecord> ClassFile { get; set; }
+        IPubFile<ECFRecord> ClassFile { get; set; }
     }
 }

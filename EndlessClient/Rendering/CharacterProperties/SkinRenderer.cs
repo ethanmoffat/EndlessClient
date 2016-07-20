@@ -5,8 +5,7 @@
 using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Character;
-using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -22,7 +21,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         public SkinRenderer(SpriteBatch spriteBatch,
                            ICharacterRenderProperties renderProperties,
                            ISpriteSheet skinSheet,
-                           IDataFile<ItemRecord> itemFile)
+                           IPubFile<EIFRecord> itemFile)
         {
             _spriteBatch = spriteBatch;
             _renderProperties = renderProperties;

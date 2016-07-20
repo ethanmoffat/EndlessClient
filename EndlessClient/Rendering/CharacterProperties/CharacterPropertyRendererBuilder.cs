@@ -7,7 +7,7 @@ using System.Linq;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -137,9 +137,9 @@ namespace EndlessClient.Rendering.CharacterProperties
             return _textures.Hair == null || _renderProperties.HairStyle == 0;
         }
 
-        private IDataFile<ItemRecord> ItemFile
+        private IPubFile<EIFRecord> ItemFile
         {
-            get { return _itemFileProvider.ItemFile ?? new ItemFile(); }
+            get { return _itemFileProvider.ItemFile ?? new EIFFile(); }
         }
     }
 }

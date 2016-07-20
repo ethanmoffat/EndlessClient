@@ -6,17 +6,17 @@ using System.Linq;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
     public class HairRenderLocationCalculator
     {
-        private readonly IDataFile<ItemRecord> _itemFile;
+        private readonly IPubFile<EIFRecord> _itemFile;
         private readonly ICharacterRenderProperties _renderProperties;
 
-        public HairRenderLocationCalculator(IDataFile<ItemRecord> itemFile,
+        public HairRenderLocationCalculator(IPubFile<EIFRecord> itemFile,
                                             ICharacterRenderProperties renderProperties)
         {
             _itemFile = itemFile;

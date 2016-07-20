@@ -2,7 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 
 namespace EOLib.IO.Repositories
 {
@@ -12,21 +12,21 @@ namespace EOLib.IO.Repositories
 
     public interface IItemFileProvider
     {
-        IDataFile<ItemRecord> ItemFile { get; }
+        IPubFile<EIFRecord> ItemFile { get; }
     }
 
     public interface INPCFileProvider
     {
-        IDataFile<NPCRecord> NPCFile { get; }
+        IPubFile<ENFRecord> NPCFile { get; }
     }
 
     public interface ISpellFileProvider
     {
-        IDataFile<SpellRecord> SpellFile { get; }
+        IPubFile<ESFRecord> SpellFile { get; }
     }
 
     public interface IClassFileProvider
     {
-        IDataFile<ClassRecord> ClassFile { get; }
+        IPubFile<ECFRecord> ClassFile { get; }
     }
 }

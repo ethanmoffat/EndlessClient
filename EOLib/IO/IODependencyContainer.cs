@@ -4,7 +4,7 @@
 
 using System.IO;
 using EOLib.IO.Actions;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using Microsoft.Practices.Unity;
@@ -20,10 +20,10 @@ namespace EOLib.IO
             container.RegisterInstance<IConfigurationProvider, ConfigurationRepository>();
             container.RegisterInstance<IConfigurationRepository, ConfigurationRepository>();
 
-            container.RegisterType<IPubLoadService<ItemRecord>, ItemFileLoadService>();
-            container.RegisterType<IPubLoadService<NPCRecord>, NPCFileLoadService>();
-            container.RegisterType<IPubLoadService<SpellRecord>, SpellFileLoadService>();
-            container.RegisterType<IPubLoadService<ClassRecord>, ClassFileLoadService>();
+            container.RegisterType<IPubLoadService<EIFRecord>, ItemFileLoadService>();
+            container.RegisterType<IPubLoadService<ENFRecord>, NPCFileLoadService>();
+            container.RegisterType<IPubLoadService<ESFRecord>, SpellFileLoadService>();
+            container.RegisterType<IPubLoadService<ECFRecord>, ClassFileLoadService>();
             container.RegisterType<IMapFileLoadService, MapFileLoadService>();
             container.RegisterType<IFileRequestService, FileRequestService>();
             container.RegisterType<ILocalizedStringService, LocalizedStringService>();
@@ -48,17 +48,19 @@ namespace EOLib.IO
             container.RegisterInstance<IDataFileRepository, DataFileRepository>();
             container.RegisterInstance<IDataFileProvider, DataFileRepository>();
 
-            container.RegisterType<IFileLoadActions, FileLoadActions>();
-            container.RegisterType<IFileRequestActions, FileRequestActions>();
+            container.RegisterType<IFileLoadActions, FileLoadActions>()
+                .RegisterType<IPubFileLoadActions, PubFileLoadActions>()
+                .RegisterType<IFileRequestActions, FileRequestActions>();
         }
 
         public void InitializeDependencies(IUnityContainer container)
         {
+            var pubFileLoadActions = container.Resolve<IPubFileLoadActions>();
             var fileLoadActions = container.Resolve<IFileLoadActions>();
 
             try
             {
-                fileLoadActions.LoadItemFile();
+                pubFileLoadActions.LoadItemFile();
             }
             catch (IOException)
             {
@@ -67,19 +69,19 @@ namespace EOLib.IO
 
             try
             {
-                fileLoadActions.LoadNPCFile();
+                pubFileLoadActions.LoadNPCFile();
             }
             catch (IOException) { }
 
             try
             {
-                fileLoadActions.LoadSpellFile();
+                pubFileLoadActions.LoadSpellFile();
             }
             catch (IOException) { }
 
             try
             {
-                fileLoadActions.LoadClassFile();
+                pubFileLoadActions.LoadClassFile();
             }
             catch (IOException) { }
 

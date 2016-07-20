@@ -6,7 +6,7 @@ using System.Linq;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -17,12 +17,12 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly SpriteBatch _spriteBatch;
         private readonly ICharacterRenderProperties _renderProperties;
         private readonly Texture2D _armorTexture;
-        private readonly IDataFile<ItemRecord> _itemFile;
+        private readonly IPubFile<EIFRecord> _itemFile;
 
         public ArmorRenderer(SpriteBatch spriteBatch,
                              ICharacterRenderProperties renderProperties,
                              Texture2D armorTexture,
-                             IDataFile<ItemRecord> itemFile)
+                             IPubFile<EIFRecord> itemFile)
         {
             _spriteBatch = spriteBatch;
             _renderProperties = renderProperties;

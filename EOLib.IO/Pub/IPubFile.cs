@@ -13,10 +13,6 @@ namespace EOLib.IO.Pub
         TRecord this[int id] { get; }
 
         IReadOnlyList<TRecord> Data { get; }
-
-        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService);
-
-        void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService);
     }
 
     public interface IPubFile
@@ -26,5 +22,9 @@ namespace EOLib.IO.Pub
         int CheckSum { get; set; }
 
         int Length { get; }
+
+        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService);
+
+        void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService);
     }
 }

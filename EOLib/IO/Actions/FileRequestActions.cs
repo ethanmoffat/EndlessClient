@@ -4,9 +4,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 
@@ -54,34 +55,38 @@ namespace EOLib.IO.Actions
 
         public async Task GetItemFileFromServer()
         {
-            var itemFile = await _fileRequestService.RequestFile<ItemRecord>(InitFileType.Item);
+            var itemFile = await _fileRequestService.RequestFile(InitFileType.Item);
 
-            itemFile.Save(Constants.ItemFilePath, rewriteRid: false);
-            _pubFileRepository.ItemFile = itemFile;
+            //todo: move this to a service in EOLib.IO assembly
+            File.WriteAllBytes(Constants.ItemFilePath, itemFile.SerializeToByteArray(_numberEncoderService));
+            _pubFileRepository.ItemFile = (EIFFile)itemFile;
         }
 
         public async Task GetNPCFileFromServer()
         {
-            var npcFile = await _fileRequestService.RequestFile<NPCRecord>(InitFileType.Npc);
+            var npcFile = await _fileRequestService.RequestFile(InitFileType.Npc);
 
-            npcFile.Save(Constants.NPCFilePath, rewriteRid: false);
-            _pubFileRepository.NPCFile = npcFile;
+            //todo: move this to a service in EOLib.IO assembly
+            File.WriteAllBytes(Constants.NPCFilePath, npcFile.SerializeToByteArray(_numberEncoderService));
+            _pubFileRepository.NPCFile = (ENFFile)npcFile;
         }
 
         public async Task GetSpellFileFromServer()
         {
-            var spellFile = await _fileRequestService.RequestFile<SpellRecord>(InitFileType.Spell);
+            var spellFile = await _fileRequestService.RequestFile(InitFileType.Spell);
 
-            spellFile.Save(Constants.SpellFilePath, rewriteRid: false);
-            _pubFileRepository.SpellFile = spellFile;
+            //todo: move this to a service in EOLib.IO assembly
+            File.WriteAllBytes(Constants.SpellFilePath, spellFile.SerializeToByteArray(_numberEncoderService));
+            _pubFileRepository.SpellFile = (ESFFile)spellFile;
         }
 
         public async Task GetClassFileFromServer()
         {
-            var classFile = await _fileRequestService.RequestFile<ClassRecord>(InitFileType.Class);
+            var classFile = await _fileRequestService.RequestFile(InitFileType.Class);
 
-            classFile.Save(Constants.ClassFilePath, rewriteRid: false);
-            _pubFileRepository.ClassFile = classFile;
+            //todo: move this to a service in EOLib.IO assembly
+            File.WriteAllBytes(Constants.ClassFilePath, classFile.SerializeToByteArray(_numberEncoderService));
+            _pubFileRepository.ClassFile = (ECFFile)classFile;
         }
 
         private bool NeedMap(short mapID)
@@ -105,20 +110,20 @@ namespace EOLib.IO.Actions
             {
                 case InitFileType.Item:
                     return _pubFileRepository.ItemFile == null ||
-                           _loginFileChecksumProvider.EIFChecksum != _pubFileRepository.ItemFile.Rid ||
-                           _loginFileChecksumProvider.EIFLength != _pubFileRepository.ItemFile.Len;
+                           _loginFileChecksumProvider.EIFChecksum != _pubFileRepository.ItemFile.CheckSum ||
+                           _loginFileChecksumProvider.EIFLength != _pubFileRepository.ItemFile.Length;
                 case InitFileType.Npc:
                     return _pubFileRepository.NPCFile == null ||
-                           _loginFileChecksumProvider.ENFChecksum != _pubFileRepository.NPCFile.Rid ||
-                           _loginFileChecksumProvider.ENFLength != _pubFileRepository.NPCFile.Len;
+                           _loginFileChecksumProvider.ENFChecksum != _pubFileRepository.NPCFile.CheckSum ||
+                           _loginFileChecksumProvider.ENFLength != _pubFileRepository.NPCFile.Length;
                 case InitFileType.Spell:
                     return _pubFileRepository.SpellFile == null ||
-                           _loginFileChecksumProvider.ESFChecksum != _pubFileRepository.SpellFile.Rid ||
-                           _loginFileChecksumProvider.ESFLength != _pubFileRepository.SpellFile.Len;
+                           _loginFileChecksumProvider.ESFChecksum != _pubFileRepository.SpellFile.CheckSum ||
+                           _loginFileChecksumProvider.ESFLength != _pubFileRepository.SpellFile.Length;
                 case InitFileType.Class:
                     return _pubFileRepository.ClassFile == null ||
-                           _loginFileChecksumProvider.ECFChecksum != _pubFileRepository.ClassFile.Rid ||
-                           _loginFileChecksumProvider.ECFLength != _pubFileRepository.ClassFile.Len;
+                           _loginFileChecksumProvider.ECFChecksum != _pubFileRepository.ClassFile.CheckSum ||
+                           _loginFileChecksumProvider.ECFLength != _pubFileRepository.ClassFile.Length;
                 default:
                     throw new ArgumentOutOfRangeException("fileType", fileType, null);
             }

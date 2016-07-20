@@ -2,10 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Linq;
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Net;
 using EOLib.Net.Communication;
 
@@ -14,10 +15,13 @@ namespace EOLib.IO.Services
     public class FileRequestService : IFileRequestService
     {
         private readonly IPacketSendService _packetSendService;
+        private readonly INumberEncoderService _numberEncoderService;
 
-        public FileRequestService(IPacketSendService packetSendService)
+        public FileRequestService(IPacketSendService packetSendService,
+                                  INumberEncoderService numberEncoderService)
         {
             _packetSendService = packetSendService;
+            _numberEncoderService = numberEncoderService;
         }
 
         public async Task<IMapFile> RequestMapFile(short mapID)
@@ -38,7 +42,7 @@ namespace EOLib.IO.Services
             return MapFile.FromBytes(mapID, fileData);
         }
 
-        public async Task<IModifiableDataFile<T>> RequestFile<T>(InitFileType fileType) where T : IDataRecord
+        public async Task<IPubFile> RequestFile(InitFileType fileType)
         {
             var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
                 .AddChar((byte) fileType)
@@ -54,15 +58,21 @@ namespace EOLib.IO.Services
             if (extraByte != 1)
                 throw new MalformedPacketException("Missing extra single byte in file transfer packet", response);
 
-            var responseBytes = response.ReadBytes(response.Length - response.ReadPosition);
+            IPubFile retFile;
             switch (responseFileType)
             {
-                case InitReply.ItemFile: return (IModifiableDataFile<T>)ItemFile.FromBytes(responseBytes);
-                case InitReply.NpcFile: return (IModifiableDataFile<T>)NPCFile.FromBytes(responseBytes);
-                case InitReply.SpellFile: return (IModifiableDataFile<T>)SpellFile.FromBytes(responseBytes);
-                case InitReply.ClassFile: return (IModifiableDataFile<T>)ClassFile.FromBytes(responseBytes);
+                case InitReply.ItemFile: retFile = new EIFFile(); break;
+                case InitReply.NpcFile: retFile = new ENFFile(); break;
+                case InitReply.SpellFile: retFile = new ESFFile(); break;
+                case InitReply.ClassFile: retFile = new ECFFile(); break;
                 default: throw new EmptyPacketReceivedException();
             }
+
+            var responseBytes = response.ReadBytes(response.Length - response.ReadPosition)
+                                        .ToArray();
+            retFile.DeserializeFromByteArray(responseBytes, _numberEncoderService);
+
+            return retFile;
         }
 
         private bool PacketIsValid(IPacket packet)

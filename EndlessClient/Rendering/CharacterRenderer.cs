@@ -10,7 +10,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -219,10 +219,10 @@ namespace EndlessClient.Rendering
 
         private bool IsBowEquipped()
         {
-            if (ItemFile == null || ItemFile.Data == null)
+            if (EIFFile == null || EIFFile.Data == null)
                 return false;
 
-            var itemData = ItemFile.Data;
+            var itemData = EIFFile.Data;
             var weaponInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Weapon &&
                                                            x.DollGraphic == RenderProperties.WeaponGraphic);
 
@@ -231,10 +231,10 @@ namespace EndlessClient.Rendering
 
         private bool IsShieldOnBack()
         {
-            if (ItemFile == null || ItemFile.Data == null)
+            if (EIFFile == null || EIFFile.Data == null)
                 return false;
 
-            var itemData = ItemFile.Data;
+            var itemData = EIFFile.Data;
             var shieldInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Shield &&
                                                            x.DollGraphic == RenderProperties.ShieldGraphic);
 
@@ -244,7 +244,7 @@ namespace EndlessClient.Rendering
                     shieldInfo.SubType == ItemSubType.Wings);
         }
 
-        private IDataFile<ItemRecord> ItemFile { get { return _itemFileProvider.ItemFile; } }
+        private IPubFile<EIFRecord> EIFFile { get { return _itemFileProvider.ItemFile; } }
 
         #endregion
 

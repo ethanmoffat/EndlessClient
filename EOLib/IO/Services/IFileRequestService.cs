@@ -5,7 +5,7 @@
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 
 namespace EOLib.IO.Services
 {
@@ -13,6 +13,6 @@ namespace EOLib.IO.Services
     {
         Task<IMapFile> RequestMapFile(short mapID);
 
-        Task<IModifiableDataFile<T>> RequestFile<T>(InitFileType fileType) where T : IDataRecord;
+        Task<IPubFile> RequestFile(InitFileType fileType);
     }
 }

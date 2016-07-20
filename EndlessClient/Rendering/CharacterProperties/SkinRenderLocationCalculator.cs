@@ -7,7 +7,7 @@ using System.Linq;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.CharacterProperties
@@ -15,9 +15,9 @@ namespace EndlessClient.Rendering.CharacterProperties
     public class SkinRenderLocationCalculator
     {
         private readonly ICharacterRenderProperties _renderProperties;
-        private readonly IDataFile<ItemRecord> _itemFile;
+        private readonly IPubFile<EIFRecord> _itemFile;
 
-        public SkinRenderLocationCalculator(ICharacterRenderProperties renderProperties, IDataFile<ItemRecord> itemFile)
+        public SkinRenderLocationCalculator(ICharacterRenderProperties renderProperties, IPubFile<EIFRecord> itemFile)
         {
             _renderProperties = renderProperties;
             _itemFile = itemFile;

@@ -4,8 +4,7 @@
 
 using EOLib;
 using EOLib.Domain.Character;
-using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -21,7 +20,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         public HatRenderer(SpriteBatch spriteBatch,
                            ICharacterRenderProperties renderProperties,
                            Texture2D hatTexture,
-                           IDataFile<ItemRecord> itemFile)
+                           IPubFile<EIFRecord> itemFile)
         {
             _spriteBatch = spriteBatch;
             _renderProperties = renderProperties;
