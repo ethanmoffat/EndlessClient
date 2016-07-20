@@ -74,6 +74,9 @@ namespace EOLib.IO.Pub
 
         public void DeserializeFromByteArray(byte[] recordBytes, INumberEncoderService numberEncoderService)
         {
+            if (recordBytes.Length != DATA_SIZE)
+                throw new ArgumentOutOfRangeException("recordBytes", "Data is not properly sized for correct deserialization");
+
             Base = (byte)numberEncoderService.DecodeNumber(recordBytes[0]);
             Type = (byte)numberEncoderService.DecodeNumber(recordBytes[1]);
 
