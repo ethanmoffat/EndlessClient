@@ -51,7 +51,10 @@ namespace EOLib.IO.Pub
                 record.DeserializeFromByteArray(rawData, numberEncoderService);
 
                 if (record.Name.ToLower() == "eof")
+                {
+                    recordsInFile -= 1;
                     break;
+                }
 
                 _data.Add(record);
             }
