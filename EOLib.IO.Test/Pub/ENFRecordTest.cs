@@ -3,8 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 using EOLib.IO.Pub;
+using EOLib.IO.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EOLib.IO.Test.Pub
@@ -89,6 +93,109 @@ namespace EOLib.IO.Test.Pub
             var rec = new ENFRecord { Name = "" };
 
             rec.Get<int>(PubRecordProperty.GlobalName);
+        }
+
+        [TestMethod]
+        public void ENFRecord_SerializeToByteArray_WritesExpectedFormat()
+        {
+            var numberEncoderService = new NumberEncoderService();
+            var record = CreateRecordWithSomeGoodTestData();
+
+            var actualBytes = record.SerializeToByteArray(numberEncoderService);
+
+            var expectedBytes = GetExpectedBytes(record, numberEncoderService);
+
+            CollectionAssert.AreEqual(expectedBytes, actualBytes);
+        }
+
+        [TestMethod]
+        public void ENFRecord_DeserializeFromByteArray_HasCorrectData()
+        {
+            var numberEncoderService = new NumberEncoderService();
+            var sourceRecord = CreateRecordWithSomeGoodTestData();
+            var sourceRecordBytes = GetExpectedBytesWithoutName(sourceRecord, numberEncoderService);
+
+            var record = new ENFRecord { ID = sourceRecord.ID, Name = sourceRecord.Name };
+            record.DeserializeFromByteArray(sourceRecordBytes, numberEncoderService);
+
+            var properties = record.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+            Assert.IsTrue(properties.Length > 0);
+
+            foreach (var property in properties)
+            {
+                var expectedValue = property.GetValue(sourceRecord);
+                var actualValue = property.GetValue(record);
+
+                Assert.AreEqual(expectedValue, actualValue, "Property: {0}", property.Name);
+            }
+        }
+
+        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void ENFRecord_DeserializeFromByteArray_InvalidArrayLength_ThrowsException()
+        {
+            var record = new ENFRecord();
+
+            record.DeserializeFromByteArray(new byte[] { 1, 2, 3 }, new NumberEncoderService());
+        }
+
+        private static ENFRecord CreateRecordWithSomeGoodTestData()
+        {
+            return new ENFRecord
+            {
+                ID = 1,
+                Name = "TestName",
+                Graphic = 123,
+                Boss = 321,
+                Child = 4321,
+                Type = NPCType.Barber,
+
+                VendorID = 1234,
+
+                HP = 123456,
+                Exp = 44332,
+                MinDam = 16543,
+                MaxDam = 16544,
+
+                Accuracy = 31313,
+                Evade = 13131,
+                Armor = 222
+            };
+        }
+
+        private static byte[] GetExpectedBytes(ENFRecord rec, INumberEncoderService nes)
+        {
+            var ret = new List<byte>();
+
+            ret.AddRange(nes.EncodeNumber(rec.Name.Length, 1));
+            ret.AddRange(Encoding.ASCII.GetBytes(rec.Name));
+            ret.AddRange(GetExpectedBytesWithoutName(rec, nes));
+
+            return ret.ToArray();
+        }
+
+        private static byte[] GetExpectedBytesWithoutName(ENFRecord rec, INumberEncoderService nes)
+        {
+            var ret = new List<byte>();
+
+            ret.AddRange(nes.EncodeNumber(rec.Graphic, 2));
+            ret.AddRange(Enumerable.Repeat((byte)254, 1));
+            ret.AddRange(nes.EncodeNumber(rec.Boss, 2));
+            ret.AddRange(nes.EncodeNumber(rec.Child, 2));
+            ret.AddRange(nes.EncodeNumber((short)rec.Type, 2));
+            ret.AddRange(nes.EncodeNumber(rec.VendorID, 2));
+            ret.AddRange(nes.EncodeNumber(rec.HP, 3));
+            ret.AddRange(Enumerable.Repeat((byte)254, 2));
+            ret.AddRange(nes.EncodeNumber(rec.MinDam, 2));
+            ret.AddRange(nes.EncodeNumber(rec.MaxDam, 2));
+            ret.AddRange(nes.EncodeNumber(rec.Accuracy, 2));
+            ret.AddRange(nes.EncodeNumber(rec.Evade, 2));
+            ret.AddRange(nes.EncodeNumber(rec.Armor, 2));
+            ret.AddRange(Enumerable.Repeat((byte)254, 10));
+            ret.AddRange(nes.EncodeNumber(rec.Exp, 2));
+            ret.AddRange(Enumerable.Repeat((byte)254, 1));
+
+            return ret.ToArray();
         }
     }
 }

@@ -127,7 +127,7 @@ namespace EOLib.IO.Test.Pub
                 var expectedValue = property.GetValue(sourceRecord);
                 var actualValue = property.GetValue(record);
 
-                Assert.AreEqual(expectedValue, actualValue);
+                Assert.AreEqual(expectedValue, actualValue, "Property: {0}", property.Name);
             }
         }
 
