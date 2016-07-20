@@ -30,14 +30,14 @@ namespace EOLib.IO
 
             container.RegisterInstance<IPubFileRepository, PubFileRepository>();
             container.RegisterInstance<IPubFileProvider, PubFileRepository>();
-            container.RegisterInstance<IItemFileRepository, PubFileRepository>();
-            container.RegisterInstance<IItemFileProvider, PubFileRepository>();
-            container.RegisterInstance<INPCFileRepository, PubFileRepository>();
-            container.RegisterInstance<INPCFileProvider, PubFileRepository>();
-            container.RegisterInstance<ISpellFileRepository, PubFileRepository>();
-            container.RegisterInstance<ISpellFileProvider, PubFileRepository>();
-            container.RegisterInstance<IClassFileRepository, PubFileRepository>();
-            container.RegisterInstance<IClassFileProvider, PubFileRepository>();
+            container.RegisterInstance<IEIFFileRepository, PubFileRepository>();
+            container.RegisterInstance<IEIFFileProvider, PubFileRepository>();
+            container.RegisterInstance<IENFFileRepository, PubFileRepository>();
+            container.RegisterInstance<IENFFileProvider, PubFileRepository>();
+            container.RegisterInstance<IESFFileRepository, PubFileRepository>();
+            container.RegisterInstance<IESFFileProvider, PubFileRepository>();
+            container.RegisterInstance<IECFFileRepository, PubFileRepository>();
+            container.RegisterInstance<IECFFileProvider, PubFileRepository>();
 
             container.RegisterInstance<IMapFileRepository, MapFileRepository>();
             container.RegisterInstance<IMapFileProvider, MapFileRepository>();

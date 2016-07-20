@@ -18,17 +18,17 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly SpriteBatch _spriteBatch;
         private readonly ICharacterRenderProperties _renderProperties;
         private readonly ICharacterTextures _textures;
-        private readonly IItemFileProvider _itemFileProvider;
+        private readonly IEIFFileProvider _eifFileProvider;
 
         public CharacterPropertyRendererBuilder(SpriteBatch spriteBatch,
                                                 ICharacterRenderProperties renderProperties,
                                                 ICharacterTextures textures,
-                                                IItemFileProvider itemFileProvider)
+                                                IEIFFileProvider eifFileProvider)
         {
             _spriteBatch = spriteBatch;
             _renderProperties = renderProperties;
             _textures = textures;
-            _itemFileProvider = itemFileProvider;
+            _eifFileProvider = eifFileProvider;
         }
 
         public IEnumerable<ICharacterPropertyRenderer> BuildList(bool isShieldOnBack)
@@ -139,7 +139,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         private IPubFile<EIFRecord> ItemFile
         {
-            get { return _itemFileProvider.ItemFile ?? new EIFFile(); }
+            get { return _eifFileProvider.EIFFile ?? new EIFFile(); }
         }
     }
 }

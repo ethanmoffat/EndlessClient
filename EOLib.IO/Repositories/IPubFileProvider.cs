@@ -6,27 +6,27 @@ using EOLib.IO.Pub;
 
 namespace EOLib.IO.Repositories
 {
-    public interface IPubFileProvider : IItemFileProvider, INPCFileProvider, ISpellFileProvider, IClassFileProvider
+    public interface IPubFileProvider : IEIFFileProvider, IENFFileProvider, IESFFileProvider, IECFFileProvider
     {
     }
 
-    public interface IItemFileProvider
+    public interface IEIFFileProvider
     {
-        IPubFile<EIFRecord> ItemFile { get; }
+        IPubFile<EIFRecord> EIFFile { get; }
     }
 
-    public interface INPCFileProvider
+    public interface IENFFileProvider
     {
-        IPubFile<ENFRecord> NPCFile { get; }
+        IPubFile<ENFRecord> ENFFile { get; }
     }
 
-    public interface ISpellFileProvider
+    public interface IESFFileProvider
     {
-        IPubFile<ESFRecord> SpellFile { get; }
+        IPubFile<ESFRecord> ESFFile { get; }
     }
 
-    public interface IClassFileProvider
+    public interface IECFFileProvider
     {
-        IPubFile<ECFRecord> ClassFile { get; }
+        IPubFile<ECFRecord> ECFFile { get; }
     }
 }

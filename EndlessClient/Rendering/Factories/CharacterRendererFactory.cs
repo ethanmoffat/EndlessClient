@@ -14,22 +14,22 @@ namespace EndlessClient.Rendering.Factories
     {
         private readonly IEndlessGameProvider _gameProvider;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly IItemFileProvider _itemFileProvider;
+        private readonly IEIFFileProvider _eifFileProvider;
 
         public CharacterRendererFactory(IEndlessGameProvider gameProvider,
                                         INativeGraphicsManager nativeGraphicsManager,
-                                        IItemFileProvider itemFileProvider)
+                                        IEIFFileProvider eifFileProvider)
         {
             _gameProvider = gameProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
-            _itemFileProvider = itemFileProvider;
+            _eifFileProvider = eifFileProvider;
         }
 
         public ICharacterRenderer CreateCharacterRenderer(ICharacterRenderProperties initialRenderProperties)
         {
             return new CharacterRenderer((Game)_gameProvider.Game,
                 _nativeGraphicsManager,
-                _itemFileProvider,
+                _eifFileProvider,
                 initialRenderProperties);
         }
     }

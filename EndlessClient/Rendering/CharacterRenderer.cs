@@ -20,7 +20,7 @@ namespace EndlessClient.Rendering
     public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
     {
         private readonly INativeGraphicsManager _graphicsManager;
-        private readonly IItemFileProvider _itemFileProvider;
+        private readonly IEIFFileProvider _eifFileProvider;
 
         private ICharacterSpriteCalculator _spriteCalculator;
         private ICharacterRenderProperties _characterRenderPropertiesPrivate;
@@ -47,12 +47,12 @@ namespace EndlessClient.Rendering
 
         public CharacterRenderer(Game game,
                                  INativeGraphicsManager graphicsManager,
-                                 IItemFileProvider itemFileProvider,
+                                 IEIFFileProvider eifFileProvider,
                                  ICharacterRenderProperties renderProperties)
             : base(game)
         {
             _graphicsManager = graphicsManager;
-            _itemFileProvider = itemFileProvider;
+            _eifFileProvider = eifFileProvider;
             RenderProperties = renderProperties;
         }
 
@@ -188,7 +188,7 @@ namespace EndlessClient.Rendering
 
         private IEnumerable<ICharacterPropertyRenderer> GetOrderedRenderers()
         {
-            var propertyListBuilder = new CharacterPropertyRendererBuilder(_sb, RenderProperties, _textures, _itemFileProvider);
+            var propertyListBuilder = new CharacterPropertyRendererBuilder(_sb, RenderProperties, _textures, _eifFileProvider);
             return propertyListBuilder.BuildList(IsShieldOnBack());
         }
 
@@ -244,7 +244,7 @@ namespace EndlessClient.Rendering
                     shieldInfo.SubType == ItemSubType.Wings);
         }
 
-        private IPubFile<EIFRecord> EIFFile { get { return _itemFileProvider.ItemFile; } }
+        private IPubFile<EIFRecord> EIFFile { get { return _eifFileProvider.EIFFile; } }
 
         #endregion
 

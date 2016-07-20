@@ -32,49 +32,49 @@ namespace EOLib.IO.Actions
         public void LoadItemFile()
         {
             var itemFile = _itemFileLoadService.LoadPubFromDefaultFile();
-            _pubFileRepository.ItemFile = itemFile;
+            _pubFileRepository.EIFFile = itemFile;
         }
 
         public void LoadItemFileByName(string fileName)
         {
             var itemFile = _itemFileLoadService.LoadPubFromExplicitFile(fileName);
-            _pubFileRepository.ItemFile = itemFile;
+            _pubFileRepository.EIFFile = itemFile;
         }
 
         public void LoadNPCFile()
         {
             var npcFile = _npcFileLoadService.LoadPubFromDefaultFile();
-            _pubFileRepository.NPCFile = npcFile;
+            _pubFileRepository.ENFFile = npcFile;
         }
 
         public void LoadNPCFileByName(string fileName)
         {
             var npcFile = _npcFileLoadService.LoadPubFromExplicitFile(fileName);
-            _pubFileRepository.NPCFile = npcFile;
+            _pubFileRepository.ENFFile = npcFile;
         }
 
         public void LoadSpellFile()
         {
             var spellFile = _spellFileLoadService.LoadPubFromDefaultFile();
-            _pubFileRepository.SpellFile = spellFile;
+            _pubFileRepository.ESFFile = spellFile;
         }
 
         public void LoadSpellFileByName(string fileName)
         {
             var spellFile = _spellFileLoadService.LoadPubFromExplicitFile(fileName);
-            _pubFileRepository.SpellFile = spellFile;
+            _pubFileRepository.ESFFile = spellFile;
         }
 
         public void LoadClassFile()
         {
             var classFile = _classFileLoadService.LoadPubFromDefaultFile();
-            _pubFileRepository.ClassFile = classFile;
+            _pubFileRepository.ECFFile = classFile;
         }
 
         public void LoadClassFileByName(string fileName)
         {
             var classFile = _classFileLoadService.LoadPubFromExplicitFile(fileName);
-            _pubFileRepository.ClassFile = classFile;
+            _pubFileRepository.ECFFile = classFile;
         }
     }
 }

@@ -6,28 +6,27 @@ using EOLib.IO.Pub;
 
 namespace EOLib.IO.Repositories
 {
-    //todo: rename these to IEIFFileRepository, etc. (same for providers and impl)
-    public interface IPubFileRepository : IItemFileRepository, INPCFileRepository, ISpellFileRepository, IClassFileRepository
+    public interface IPubFileRepository : IEIFFileRepository, IENFFileRepository, IESFFileRepository, IECFFileRepository
     {
     }
 
-    public interface IItemFileRepository
+    public interface IEIFFileRepository
     {
-        IPubFile<EIFRecord> ItemFile { get; set; }
+        IPubFile<EIFRecord> EIFFile { get; set; }
     }
 
-    public interface INPCFileRepository
+    public interface IENFFileRepository
     {
-        IPubFile<ENFRecord> NPCFile { get; set; }
+        IPubFile<ENFRecord> ENFFile { get; set; }
     }
 
-    public interface ISpellFileRepository
+    public interface IESFFileRepository
     {
-        IPubFile<ESFRecord> SpellFile { get; set; }
+        IPubFile<ESFRecord> ESFFile { get; set; }
     }
 
-    public interface IClassFileRepository
+    public interface IECFFileRepository
     {
-        IPubFile<ECFRecord> ClassFile { get; set; }
+        IPubFile<ECFRecord> ECFFile { get; set; }
     }
 }

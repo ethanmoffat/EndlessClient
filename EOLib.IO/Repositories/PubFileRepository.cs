@@ -8,12 +8,12 @@ namespace EOLib.IO.Repositories
 {
     public class PubFileRepository : IPubFileRepository, IPubFileProvider
     {
-        public IPubFile<EIFRecord> ItemFile { get; set; }
+        public IPubFile<EIFRecord> EIFFile { get; set; }
 
-        public IPubFile<ENFRecord> NPCFile { get; set; }
+        public IPubFile<ENFRecord> ENFFile { get; set; }
 
-        public IPubFile<ESFRecord> SpellFile { get; set; }
+        public IPubFile<ESFRecord> ESFFile { get; set; }
 
-        public IPubFile<ECFRecord> ClassFile { get; set; }
+        public IPubFile<ECFRecord> ECFFile { get; set; }
     }
 }

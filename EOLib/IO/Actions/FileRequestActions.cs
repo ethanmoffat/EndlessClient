@@ -59,7 +59,7 @@ namespace EOLib.IO.Actions
 
             //todo: move this to a service in EOLib.IO assembly
             File.WriteAllBytes(Constants.ItemFilePath, itemFile.SerializeToByteArray(_numberEncoderService));
-            _pubFileRepository.ItemFile = (EIFFile)itemFile;
+            _pubFileRepository.EIFFile = (EIFFile)itemFile;
         }
 
         public async Task GetNPCFileFromServer()
@@ -68,7 +68,7 @@ namespace EOLib.IO.Actions
 
             //todo: move this to a service in EOLib.IO assembly
             File.WriteAllBytes(Constants.NPCFilePath, npcFile.SerializeToByteArray(_numberEncoderService));
-            _pubFileRepository.NPCFile = (ENFFile)npcFile;
+            _pubFileRepository.ENFFile = (ENFFile)npcFile;
         }
 
         public async Task GetSpellFileFromServer()
@@ -77,7 +77,7 @@ namespace EOLib.IO.Actions
 
             //todo: move this to a service in EOLib.IO assembly
             File.WriteAllBytes(Constants.SpellFilePath, spellFile.SerializeToByteArray(_numberEncoderService));
-            _pubFileRepository.SpellFile = (ESFFile)spellFile;
+            _pubFileRepository.ESFFile = (ESFFile)spellFile;
         }
 
         public async Task GetClassFileFromServer()
@@ -86,7 +86,7 @@ namespace EOLib.IO.Actions
 
             //todo: move this to a service in EOLib.IO assembly
             File.WriteAllBytes(Constants.ClassFilePath, classFile.SerializeToByteArray(_numberEncoderService));
-            _pubFileRepository.ClassFile = (ECFFile)classFile;
+            _pubFileRepository.ECFFile = (ECFFile)classFile;
         }
 
         private bool NeedMap(short mapID)
@@ -109,21 +109,21 @@ namespace EOLib.IO.Actions
             switch (fileType)
             {
                 case InitFileType.Item:
-                    return _pubFileRepository.ItemFile == null ||
-                           _loginFileChecksumProvider.EIFChecksum != _pubFileRepository.ItemFile.CheckSum ||
-                           _loginFileChecksumProvider.EIFLength != _pubFileRepository.ItemFile.Length;
+                    return _pubFileRepository.EIFFile == null ||
+                           _loginFileChecksumProvider.EIFChecksum != _pubFileRepository.EIFFile.CheckSum ||
+                           _loginFileChecksumProvider.EIFLength != _pubFileRepository.EIFFile.Length;
                 case InitFileType.Npc:
-                    return _pubFileRepository.NPCFile == null ||
-                           _loginFileChecksumProvider.ENFChecksum != _pubFileRepository.NPCFile.CheckSum ||
-                           _loginFileChecksumProvider.ENFLength != _pubFileRepository.NPCFile.Length;
+                    return _pubFileRepository.ENFFile == null ||
+                           _loginFileChecksumProvider.ENFChecksum != _pubFileRepository.ENFFile.CheckSum ||
+                           _loginFileChecksumProvider.ENFLength != _pubFileRepository.ENFFile.Length;
                 case InitFileType.Spell:
-                    return _pubFileRepository.SpellFile == null ||
-                           _loginFileChecksumProvider.ESFChecksum != _pubFileRepository.SpellFile.CheckSum ||
-                           _loginFileChecksumProvider.ESFLength != _pubFileRepository.SpellFile.Length;
+                    return _pubFileRepository.ESFFile == null ||
+                           _loginFileChecksumProvider.ESFChecksum != _pubFileRepository.ESFFile.CheckSum ||
+                           _loginFileChecksumProvider.ESFLength != _pubFileRepository.ESFFile.Length;
                 case InitFileType.Class:
-                    return _pubFileRepository.ClassFile == null ||
-                           _loginFileChecksumProvider.ECFChecksum != _pubFileRepository.ClassFile.CheckSum ||
-                           _loginFileChecksumProvider.ECFLength != _pubFileRepository.ClassFile.Length;
+                    return _pubFileRepository.ECFFile == null ||
+                           _loginFileChecksumProvider.ECFChecksum != _pubFileRepository.ECFFile.CheckSum ||
+                           _loginFileChecksumProvider.ECFLength != _pubFileRepository.ECFFile.Length;
                 default:
                     throw new ArgumentOutOfRangeException("fileType", fileType, null);
             }
