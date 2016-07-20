@@ -48,7 +48,10 @@
     <Compile Include="Pub\BasePubFileTest.cs" />
     <Compile Include="Pub\DummyFile.cs" />
     <Compile Include="Pub\DummyRecord.cs" />
+    <Compile Include="Pub\ECFFileTest.cs" />
     <Compile Include="Pub\EIFFileTest.cs" />
+    <Compile Include="Pub\ENFFileTest.cs" />
+    <Compile Include="Pub\ESFFileTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
