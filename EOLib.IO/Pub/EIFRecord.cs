@@ -16,8 +16,6 @@ namespace EOLib.IO.Pub
         public const int DATA_SIZE = 58;
 
         public int RecordSize { get { return DATA_SIZE; } }
-        
-        public int NameCount { get { return 1; } }
 
         public int ID { get; set; }
 
@@ -156,14 +154,6 @@ namespace EOLib.IO.Pub
             }
 
             return ret;
-        }
-
-        public void SetNames(string[] names)
-        {
-            if(names.Length != NameCount)
-                throw new ArgumentOutOfRangeException("names", "Incorrect number of names, must be " + NameCount);
-
-            Name = names[0];
         }
 
         public void DeserializeFromByteArray(byte[] recordBytes, INumberEncoderService numberEncoderService)

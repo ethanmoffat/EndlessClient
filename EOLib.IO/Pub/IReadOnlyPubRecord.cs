@@ -10,8 +10,6 @@ namespace EOLib.IO.Pub
     {
         int RecordSize { get; }
 
-        int NameCount { get; }
-
         int ID { get; }
 
         string Name { get; }

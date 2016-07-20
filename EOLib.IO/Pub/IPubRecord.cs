@@ -10,8 +10,6 @@ namespace EOLib.IO.Pub
     {
         int RecordSize { get; }
 
-        int NameCount { get; }
-
         int ID { get; set; }
 
         string Name { get; set; }
@@ -19,8 +17,6 @@ namespace EOLib.IO.Pub
         TValue Get<TValue>(PubRecordPropertyType type);
 
         byte[] SerializeToByteArray(INumberEncoderService numberEncoderService);
-
-        void SetNames(string[] names);
 
         void DeserializeFromByteArray(byte[] recordBytes, INumberEncoderService numberEncoderService);
     }
