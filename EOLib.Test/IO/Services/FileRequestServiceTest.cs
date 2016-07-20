@@ -4,9 +4,8 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
-using EOLib.IO;
+using EOLib.IO.Old;
 using EOLib.IO.Services;
 using EOLib.Net;
 using EOLib.Net.Communication;
