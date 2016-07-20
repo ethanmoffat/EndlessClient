@@ -32,15 +32,35 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EquipLocation.cs" />
+    <Compile Include="NumericConstants.cs" />
+    <Compile Include="Pub\ECFFile.cs" />
+    <Compile Include="Pub\ECFRecord.cs" />
+    <Compile Include="Pub\EIFFile.cs" />
+    <Compile Include="Pub\ENFFile.cs" />
+    <Compile Include="Pub\ENFRecord.cs" />
+    <Compile Include="Pub\ESFFile.cs" />
+    <Compile Include="Pub\ESFRecord.cs" />
+    <Compile Include="Pub\IReadOnlyPubFile.cs" />
+    <Compile Include="Pub\IReadOnlyPubRecord.cs" />
+    <Compile Include="Pub\BasePubFile.cs" />
+    <Compile Include="Services\INumberEncoderService.cs" />
+    <Compile Include="ItemSize.cs" />
+    <Compile Include="ItemSpecial.cs" />
+    <Compile Include="ItemSubType.cs" />
+    <Compile Include="ItemType.cs" />
+    <Compile Include="NPCType.cs" />
+    <Compile Include="Services\NumberEncoderService.cs" />
+    <Compile Include="PubRecordProperty.cs" />
+    <Compile Include="Pub\EIFRecord.cs" />
+    <Compile Include="Pub\IPubFile.cs" />
+    <Compile Include="Pub\IPubRecord.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpellTarget.cs" />
+    <Compile Include="SpellTargetRestrict.cs" />
+    <Compile Include="SpellType.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

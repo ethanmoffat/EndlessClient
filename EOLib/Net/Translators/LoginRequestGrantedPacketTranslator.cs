@@ -4,10 +4,10 @@
 
 using System.IO;
 using System.Linq;
-using EOLib.Domain;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.IO;
+using EOLib.IO.Services;
 
 namespace EOLib.Net.Translators
 {

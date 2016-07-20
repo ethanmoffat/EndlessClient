@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOLib.Test", "EOLib.Test\EO
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOLib.IO", "EOLib.IO\EOLib.IO.csproj", "{AA07776B-3F05-404A-BA8A-24970A91C024}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EOLib.IO.Test", "EOLib.IO.Test\EOLib.IO.Test.csproj", "{45EA065F-9FAB-4E22-AD24-84DDD41D9960}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F82F4564-465B-45C3-BA7E-0A6C1CB63E39}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -69,8 +73,17 @@ Global
 		{AA07776B-3F05-404A-BA8A-24970A91C024}.Debug|x86.Build.0 = Debug|x86
 		{AA07776B-3F05-404A-BA8A-24970A91C024}.Release|x86.ActiveCfg = Release|x86
 		{AA07776B-3F05-404A-BA8A-24970A91C024}.Release|x86.Build.0 = Release|x86
+		{45EA065F-9FAB-4E22-AD24-84DDD41D9960}.Debug|x86.ActiveCfg = Debug|x86
+		{45EA065F-9FAB-4E22-AD24-84DDD41D9960}.Debug|x86.Build.0 = Debug|x86
+		{45EA065F-9FAB-4E22-AD24-84DDD41D9960}.Release|x86.ActiveCfg = Release|x86
+		{45EA065F-9FAB-4E22-AD24-84DDD41D9960}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2A903DEF-46C6-4E67-A039-A1561DB26C53} = {F82F4564-465B-45C3-BA7E-0A6C1CB63E39}
+		{85826A6C-45B4-414D-A80A-35672F812B91} = {F82F4564-465B-45C3-BA7E-0A6C1CB63E39}
+		{45EA065F-9FAB-4E22-AD24-84DDD41D9960} = {F82F4564-465B-45C3-BA7E-0A6C1CB63E39}
 	EndGlobalSection
 EndGlobal

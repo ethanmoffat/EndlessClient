@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using EOLib.IO;
 
 namespace EOLib.Net.PacketProcessing
 {
@@ -108,7 +109,7 @@ namespace EOLib.Net.PacketProcessing
 
         private List<byte> AddSequenceBytes(IReadOnlyList<byte> original, int seq)
         {
-            var numberOfSequenceBytes = seq >= Constants.ONE_BYTE_MAX ? 2 : 1;
+            var numberOfSequenceBytes = seq >= NumericConstants.ONE_BYTE_MAX ? 2 : 1;
             var encodedSequenceBytes = PacketNumberEncoder.Encode(seq, numberOfSequenceBytes);
 
             var combined = new List<byte>(original.Count + numberOfSequenceBytes);
