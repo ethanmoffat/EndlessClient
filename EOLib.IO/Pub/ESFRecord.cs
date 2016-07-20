@@ -75,19 +75,19 @@ namespace EOLib.IO.Pub
                 mem.Write(numberEncoderService.EncodeNumber(SP, 2), 0, 2);
                 mem.WriteByte(numberEncoderService.EncodeNumber(CastTime, 1)[0]);
 
-                mem.Seek(11 + Name.Length + Shout.Length, SeekOrigin.Begin);
+                mem.Seek(13 + Name.Length + Shout.Length, SeekOrigin.Begin);
                 mem.WriteByte(numberEncoderService.EncodeNumber((byte)Type, 1)[0]);
 
-                mem.Seek(17 + Name.Length + Shout.Length, SeekOrigin.Begin);
+                mem.Seek(19 + Name.Length + Shout.Length, SeekOrigin.Begin);
                 mem.WriteByte(numberEncoderService.EncodeNumber((byte)TargetRestrict, 1)[0]);
                 mem.WriteByte(numberEncoderService.EncodeNumber((byte)Target, 1)[0]);
 
-                mem.Seek(23 + Name.Length + Shout.Length, SeekOrigin.Begin);
+                mem.Seek(25 + Name.Length + Shout.Length, SeekOrigin.Begin);
                 mem.Write(numberEncoderService.EncodeNumber(MinDam, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(MaxDam, 2), 0, 2);
                 mem.Write(numberEncoderService.EncodeNumber(Accuracy, 2), 0, 2);
 
-                mem.Seek(34 + Name.Length + Shout.Length, SeekOrigin.Begin);
+                mem.Seek(36 + Name.Length + Shout.Length, SeekOrigin.Begin);
                 mem.Write(numberEncoderService.EncodeNumber(HP, 2), 0, 2);
             }
 
