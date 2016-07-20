@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Collections.Generic;
 using EOLib.IO.Services;
 
 namespace EOLib.IO.Pub
@@ -10,6 +11,8 @@ namespace EOLib.IO.Pub
         where TRecord : IPubRecord, new()
     {
         TRecord this[int id] { get; set; }
+
+        IReadOnlyList<TRecord> Data { get; }
 
         byte[] SerializeToByteArray(INumberEncoderService numberEncoderService);
 

@@ -26,6 +26,8 @@ namespace EOLib.IO.Pub
             set { _data[id - 1] = value; }
         }
 
+        public IReadOnlyList<T> Data { get { return _data; } }
+
         protected BasePubFile()
         {
             _data = new List<T>();
