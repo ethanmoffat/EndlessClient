@@ -135,7 +135,6 @@
     <Compile Include="IO\Actions\IFileRequestActions.cs" />
     <Compile Include="IO\Old\Class.cs" />
     <Compile Include="IO\Old\ClassRecordFactory.cs" />
-    <Compile Include="IO\DataFileLoadException.cs" />
     <Compile Include="IO\Repositories\IDataFileRepository.cs" />
     <Compile Include="IO\Repositories\ILoginFileChecksumRepository.cs" />
     <Compile Include="IO\Repositories\IMapFileProvider.cs" />
