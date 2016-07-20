@@ -47,7 +47,12 @@ namespace EOLib.IO.Pub
                 mem.Read(rawShout, 0, shoutLength);
                 mem.Read(rawData, 0, ESFRecord.DATA_SIZE);
 
-                var record = new ESFRecord { ID = i, Name = Encoding.ASCII.GetString(rawName) };
+                var record = new ESFRecord
+                {
+                    ID = i,
+                    Name = Encoding.ASCII.GetString(rawName),
+                    Shout = Encoding.ASCII.GetString(rawShout)
+                };
                 record.DeserializeFromByteArray(rawData, numberEncoderService);
 
                 _data.Add(record);
