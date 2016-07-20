@@ -40,6 +40,7 @@
     <Compile Include="Pub\ENFRecord.cs" />
     <Compile Include="Pub\ESFRecord.cs" />
     <Compile Include="Pub\IReadOnlyPubRecord.cs" />
+    <Compile Include="Pub\BasePubFile.cs" />
     <Compile Include="Services\INumberEncoderService.cs" />
     <Compile Include="ItemSize.cs" />
     <Compile Include="ItemSpecial.cs" />
@@ -51,7 +52,6 @@
     <Compile Include="Pub\EIFRecord.cs" />
     <Compile Include="Pub\IPubFile.cs" />
     <Compile Include="Pub\IPubRecord.cs" />
-    <Compile Include="Pub\IReadOnlyPubFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SpellTarget.cs" />
     <Compile Include="SpellTargetRestrict.cs" />

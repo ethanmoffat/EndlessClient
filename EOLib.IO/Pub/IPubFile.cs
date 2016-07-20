@@ -12,12 +12,10 @@ namespace EOLib.IO.Pub
 
         int Length { get; }
 
-        int Version { get; set; }
-
         TRecord this[int id] { get; set; }
 
         byte[] SerializeToByteArray();
 
-        void CreateFromByteArray(byte[] bytes);
+        void DeserializeFromByteArray(byte[] bytes);
     }
 }
