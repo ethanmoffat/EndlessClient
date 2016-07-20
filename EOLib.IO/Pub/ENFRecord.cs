@@ -11,7 +11,7 @@ using EOLib.IO.Services;
 
 namespace EOLib.IO.Pub
 {
-    public class ENFRecord : IPubRecord, IReadOnlyPubRecord
+    public class ENFRecord : IPubRecord
     {
         public const int DATA_SIZE = 39;
 
