@@ -62,6 +62,7 @@
     <Compile Include="Map\NPCSpawnMapEntity.cs" />
     <Compile Include="Map\SignMapEntity.cs" />
     <Compile Include="Map\TileSpec.cs" />
+    <Compile Include="Map\WarpMapEntity.cs" />
     <Compile Include="PubDependencyContainer.cs" />
     <Compile Include="NumericConstants.cs" />
     <Compile Include="PubFileNameConstants.cs" />
