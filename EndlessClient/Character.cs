@@ -502,7 +502,7 @@ namespace EndlessClient
                         ((OldNPC)ti.MapElement).Opponent != null &&
                         ((OldNPC)ti.MapElement).Opponent != this)
                     {
-                        EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_UNABLE_TO_ATTACK);
+                        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_UNABLE_TO_ATTACK);
                         shouldSend = false;
                     }
                 }
@@ -588,8 +588,8 @@ namespace EndlessClient
                     //false when AddItem fails to find a good spot
                     if (!EOGame.Instance.Hud.UpdateInventory(newRec))
                     {
-                        EOMessageBox.Show(OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
-                            OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+                        EOMessageBox.Show(OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+                            OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
                             XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         return;
                     }
@@ -618,8 +618,8 @@ namespace EndlessClient
                     //false when AddItem fails to find a good spot
                     if (!EOGame.Instance.Hud.UpdateInventory(newRec))
                     {
-                        EOMessageBox.Show(OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
-                            OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+                        EOMessageBox.Show(OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+                            OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
                             XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         return;
                     }

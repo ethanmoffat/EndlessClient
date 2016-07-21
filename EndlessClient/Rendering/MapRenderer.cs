@@ -222,7 +222,7 @@ namespace EndlessClient.Rendering
             if (MapRef.Properties.Name.Length > 0)
             {
                 if (EOGame.Instance.Hud != null)
-                    EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, ChatType.NoteLeftArrow);
+                    EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, ChatType.NoteLeftArrow);
                 else
                     _needDispMapName = true;
             }
@@ -282,7 +282,7 @@ namespace EndlessClient.Rendering
             if (MapRef.Properties.MapAvailable)
                 _miniMapRenderer.Visible = !_miniMapRenderer.Visible;
             else
-                EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_NO_MAP_OF_AREA);
+                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_NO_MAP_OF_AREA);
         }
 
         public void AddMapItem(OldMapItem newItem)
@@ -291,7 +291,7 @@ namespace EndlessClient.Rendering
             {
                 ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(newItem.ItemID);
                 EOGame.Instance.Hud.AddChat(ChatTabs.System, "",
-                    string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_THE_NPC_DROPPED), newItem.Amount, rec.Name),
+                    string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_THE_NPC_DROPPED), newItem.Amount, rec.Name),
                     ChatType.DownArrow);
             }
 
@@ -1083,7 +1083,7 @@ namespace EndlessClient.Rendering
             if (_needDispMapName && EOGame.Instance.Hud != null)
             {
                 _needDispMapName = false;
-                EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(DATCONST2.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, ChatType.NoteLeftArrow);
+                EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, ChatType.NoteLeftArrow);
             }
 
             if (_drawingEvent == null) return;

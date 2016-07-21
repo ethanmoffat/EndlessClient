@@ -132,15 +132,15 @@ namespace EndlessClient.HUD.Panels.Old
 
             if (IsOverDrop())
             {
-                EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_INVENTORY_DROP_BUTTON);
+                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_INVENTORY_DROP_BUTTON);
             }
             else if (IsOverJunk())
             {
-                EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_INVENTORY_JUNK_BUTTON);
+                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_INVENTORY_JUNK_BUTTON);
             }
             else if (m_btnPaperdoll.MouseOver && !m_btnPaperdoll.MouseOverPreviously)
             {
-                EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_INVENTORY_SHOW_YOUR_PAPERDOLL);
+                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_INVENTORY_SHOW_YOUR_PAPERDOLL);
             }
 
             base.Update(gameTime);

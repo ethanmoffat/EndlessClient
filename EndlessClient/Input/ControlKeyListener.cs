@@ -67,8 +67,8 @@ namespace EndlessClient.Input
                     }
                     else if (Character.Weight > Character.MaxWeight)
                     {
-                        EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
-                            DATCONST2.STATUS_LABEL_CANNOT_ATTACK_OVERWEIGHT);
+                        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                            EOResourceID.STATUS_LABEL_CANNOT_ATTACK_OVERWEIGHT);
                     }
                 }
             }

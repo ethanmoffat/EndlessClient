@@ -33,7 +33,7 @@ namespace EndlessClient.Dialogs.Actions
                 case ConnectResult.InvalidEndpoint:
                 case ConnectResult.InvalidSocket:
                 case ConnectResult.SocketError:
-                    _messageBoxFactory.CreateMessageBox(DATCONST1.CONNECTION_SERVER_NOT_FOUND,
+                    _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
                         XNADialogButtons.Ok,
                         EOMessageBoxStyle.SmallDialogLargeHeader);
                     break;
@@ -57,7 +57,7 @@ namespace EndlessClient.Dialogs.Actions
                 {
                     var versionNumber = initializationData[InitializationDataKey.RequiredVersionNumber];
                     var extra = string.Format(" 0.000.0{0}", versionNumber);
-                    _messageBoxFactory.CreateMessageBox(DATCONST1.CONNECTION_CLIENT_OUT_OF_DATE,
+                    _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_CLIENT_OUT_OF_DATE,
                         extra,
                         XNADialogButtons.Ok,
                         EOMessageBoxStyle.SmallDialogLargeHeader);
@@ -67,14 +67,14 @@ namespace EndlessClient.Dialogs.Actions
                 {
                     var banType = (BanType) initializationData[InitializationDataKey.BanType];
                     if (banType == BanType.PermanentBan)
-                        _messageBoxFactory.CreateMessageBox(DATCONST1.CONNECTION_IP_BAN_PERM,
+                        _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_PERM,
                             XNADialogButtons.Ok,
                             EOMessageBoxStyle.SmallDialogLargeHeader);
                     else if (banType == BanType.TemporaryBan)
                     {
                         var banMinutesRemaining = initializationData[InitializationDataKey.BanTimeRemaining];
                         var extra = string.Format(" {0} minutes.", banMinutesRemaining);
-                        _messageBoxFactory.CreateMessageBox(DATCONST1.CONNECTION_IP_BAN_TEMP,
+                        _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_TEMP,
                             extra,
                             XNADialogButtons.Ok,
                             EOMessageBoxStyle.SmallDialogLargeHeader);
@@ -90,7 +90,7 @@ namespace EndlessClient.Dialogs.Actions
 
         public void ShowException(NoDataSentException ex)
         {
-            _messageBoxFactory.CreateMessageBox(DATCONST1.CONNECTION_SERVER_NOT_FOUND,
+            _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
                 "\n\"" + ex.Message + "\"",
                 XNADialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
@@ -98,7 +98,7 @@ namespace EndlessClient.Dialogs.Actions
 
         public void ShowException(EmptyPacketReceivedException ex)
         {
-            _messageBoxFactory.CreateMessageBox(DATCONST1.CONNECTION_SERVER_NOT_FOUND,
+            _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
                 "\n\"" + ex.Message + "\"",
                 XNADialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
@@ -106,13 +106,13 @@ namespace EndlessClient.Dialogs.Actions
 
         public void ShowLoginError(LoginReply loginError)
         {
-            DATCONST1 message;
+            DialogResourceID message;
             switch (loginError)
             {
-                case LoginReply.WrongUser: message = DATCONST1.LOGIN_ACCOUNT_NAME_NOT_FOUND; break;
-                case LoginReply.WrongUserPass: message = DATCONST1.LOGIN_ACCOUNT_NAME_OR_PASSWORD_NOT_FOUND; break;
-                case LoginReply.LoggedIn: message = DATCONST1.LOGIN_ACCOUNT_ALREADY_LOGGED_ON; break;
-                case LoginReply.Busy: message = DATCONST1.CONNECTION_SERVER_IS_FULL;  break;
+                case LoginReply.WrongUser: message = DialogResourceID.LOGIN_ACCOUNT_NAME_NOT_FOUND; break;
+                case LoginReply.WrongUserPass: message = DialogResourceID.LOGIN_ACCOUNT_NAME_OR_PASSWORD_NOT_FOUND; break;
+                case LoginReply.LoggedIn: message = DialogResourceID.LOGIN_ACCOUNT_ALREADY_LOGGED_ON; break;
+                case LoginReply.Busy: message = DialogResourceID.CONNECTION_SERVER_IS_FULL;  break;
                 default: throw new ArgumentOutOfRangeException("loginError", loginError, null);
             }
 

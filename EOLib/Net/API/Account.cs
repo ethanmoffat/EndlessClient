@@ -100,25 +100,25 @@ namespace EOLib.Net.API
             return true;
         }
 
-        public DATCONST1 AccountResponseMessage()
+        public DialogResourceID AccountResponseMessage()
         {
-            DATCONST1 ret = DATCONST1.NICE_TRY_HAXOR;
+            DialogResourceID ret = DialogResourceID.NICE_TRY_HAXOR;
             switch (m_account_reply)
             {
                 case AccountReply.Exists:
-                    ret = DATCONST1.ACCOUNT_CREATE_NAME_EXISTS;
+                    ret = DialogResourceID.ACCOUNT_CREATE_NAME_EXISTS;
                     break;
                 case AccountReply.NotApproved:
-                    ret = DATCONST1.ACCOUNT_CREATE_NAME_NOT_APPROVED;
+                    ret = DialogResourceID.ACCOUNT_CREATE_NAME_NOT_APPROVED;
                     break;
                 case AccountReply.Created:
-                    ret = DATCONST1.ACCOUNT_CREATE_SUCCESS_WELCOME;
+                    ret = DialogResourceID.ACCOUNT_CREATE_SUCCESS_WELCOME;
                     break;
                 case AccountReply.ChangeFailed:
-                    ret = DATCONST1.CHANGE_PASSWORD_MISMATCH;
+                    ret = DialogResourceID.CHANGE_PASSWORD_MISMATCH;
                     break;
                 case AccountReply.ChangeSuccess:
-                    ret = DATCONST1.CHANGE_PASSWORD_SUCCESS;
+                    ret = DialogResourceID.CHANGE_PASSWORD_SUCCESS;
                     break;
             }
             return ret;

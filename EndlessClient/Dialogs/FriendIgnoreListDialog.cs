@@ -25,7 +25,7 @@ namespace EndlessClient.Dialogs
             string charName = OldWorld.Instance.MainPlayer.ActiveCharacter.Name;
             charName = char.ToUpper(charName[0]) + charName.Substring(1);
             string titleText = string.Format("{0}'s {2} [{1}]", charName, allLines.Count,
-                OldWorld.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
+                OldWorld.GetString(isIgnoreList ? EOResourceID.STATUS_LABEL_IGNORE_LIST : EOResourceID.STATUS_LABEL_FRIEND_LIST));
 
             ScrollingListDialog dlg = new ScrollingListDialog
             {
@@ -42,7 +42,7 @@ namespace EndlessClient.Dialogs
                 {
                     dlg.RemoveFromList(character);
                     dlg.Title = string.Format("{0}'s {2} [{1}]", charName, dlg.NamesList.Count,
-                        OldWorld.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
+                        OldWorld.GetString(isIgnoreList ? EOResourceID.STATUS_LABEL_IGNORE_LIST : EOResourceID.STATUS_LABEL_FRIEND_LIST));
                 };
             });
             dlg.SetItemList(characters);
@@ -60,7 +60,7 @@ namespace EndlessClient.Dialogs
                 else if (e.Result == XNADialogResult.Add)
                 {
                     e.CancelClose = true;
-                    string prompt = OldWorld.GetString(isIgnoreList ? DATCONST2.DIALOG_WHO_TO_MAKE_IGNORE : DATCONST2.DIALOG_WHO_TO_MAKE_FRIEND);
+                    string prompt = OldWorld.GetString(isIgnoreList ? EOResourceID.DIALOG_WHO_TO_MAKE_IGNORE : EOResourceID.DIALOG_WHO_TO_MAKE_FRIEND);
                     TextInputDialog dlgInput = new TextInputDialog(prompt);
                     dlgInput.DialogClosing += (_o, _e) =>
                     {
@@ -69,7 +69,7 @@ namespace EndlessClient.Dialogs
                         if (dlgInput.ResponseText.Length < 4)
                         {
                             _e.CancelClose = true;
-                            EOMessageBox.Show(DATCONST1.CHARACTER_CREATE_NAME_TOO_SHORT);
+                            EOMessageBox.Show(DialogResourceID.CHARACTER_CREATE_NAME_TOO_SHORT);
                             dlgInput.SetAsKeyboardSubscriber();
                             return;
                         }
@@ -93,11 +93,11 @@ namespace EndlessClient.Dialogs
                             dlg.Title = string.Format("{0}'s {2} [{1}]",
                                 charName,
                                 dlg.NamesList.Count,
-                                OldWorld.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
+                                OldWorld.GetString(isIgnoreList ? EOResourceID.STATUS_LABEL_IGNORE_LIST : EOResourceID.STATUS_LABEL_FRIEND_LIST));
                         };
                         dlg.AddItemToList(newItem, true);
                         dlg.Title = string.Format("{0}'s {2} [{1}]", charName, dlg.NamesList.Count,
-                            OldWorld.GetString(isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST));
+                            OldWorld.GetString(isIgnoreList ? EOResourceID.STATUS_LABEL_IGNORE_LIST : EOResourceID.STATUS_LABEL_FRIEND_LIST));
                     };
                 }
             };
@@ -108,8 +108,8 @@ namespace EndlessClient.Dialogs
             apiHandle.RequestOnlinePlayers(false, out onlineList);
             Instance.SetActiveItemList(onlineList.Select(_oe => _oe.Name).ToList());
 
-            EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, isIgnoreList ? DATCONST2.STATUS_LABEL_IGNORE_LIST : DATCONST2.STATUS_LABEL_FRIEND_LIST,
-                OldWorld.GetString(DATCONST2.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));
+            EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, isIgnoreList ? EOResourceID.STATUS_LABEL_IGNORE_LIST : EOResourceID.STATUS_LABEL_FRIEND_LIST,
+                OldWorld.GetString(EOResourceID.STATUS_LABEL_USE_RIGHT_MOUSE_CLICK_DELETE));
             //show the dialog
         }
     }

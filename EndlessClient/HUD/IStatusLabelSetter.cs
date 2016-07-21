@@ -9,6 +9,6 @@ namespace EndlessClient.HUD
 {
     public interface IStatusLabelSetter
     {
-        void SetStatusLabel(DATCONST2 type, DATCONST2 text, string extra = "");
+        void SetStatusLabel(EOResourceID type, EOResourceID text, string extra = "");
     }
 }

@@ -55,7 +55,7 @@ namespace EndlessClient.ControlSets
         protected override async void DoBackButtonClick(object sender, EventArgs e)
         {
             var messageBox = _messageBoxFactory.CreateMessageBox(
-                DATCONST1.EXIT_GAME_ARE_YOU_SURE,
+                DialogResourceID.EXIT_GAME_ARE_YOU_SURE,
                 XNADialogButtons.OkCancel);
 
             var result = await messageBox.Show();

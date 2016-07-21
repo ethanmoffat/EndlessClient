@@ -278,22 +278,22 @@ namespace EOLib.Net.API
             m_character_responseEvent.Set();
         }
 
-        public DATCONST1 CharacterResponseMessage()
+        public DialogResourceID CharacterResponseMessage()
         {
-            DATCONST1 message = DATCONST1.NICE_TRY_HAXOR;
+            DialogResourceID message = DialogResourceID.NICE_TRY_HAXOR;
             switch (m_character_reply)
             {
                 case CharacterReply.Ok:
-                    message = DATCONST1.CHARACTER_CREATE_SUCCESS;
+                    message = DialogResourceID.CHARACTER_CREATE_SUCCESS;
                     break;
                 case CharacterReply.Full:
-                    message = DATCONST1.CHARACTER_CREATE_TOO_MANY_CHARS;
+                    message = DialogResourceID.CHARACTER_CREATE_TOO_MANY_CHARS;
                     break;
                 case CharacterReply.Exists:
-                    message = DATCONST1.CHARACTER_CREATE_NAME_EXISTS;
+                    message = DialogResourceID.CHARACTER_CREATE_NAME_EXISTS;
                     break;
                 case CharacterReply.NotApproved:
-                    message = DATCONST1.CHARACTER_CREATE_NAME_NOT_APPROVED;
+                    message = DialogResourceID.CHARACTER_CREATE_NAME_NOT_APPROVED;
                     break;
             }
             return message;

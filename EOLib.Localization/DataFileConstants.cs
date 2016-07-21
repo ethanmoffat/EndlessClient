@@ -7,7 +7,7 @@ namespace EOLib.Localization
     /// <summary>
     /// Constants for resource string status messages in the first data file for the language
     /// </summary>
-    public enum DATCONST1
+    public enum DialogResourceID
     {
         CONNECTION_SERVER_BUSY = 0,
         CHARACTER_CREATE_NAME_TOO_SHORT = 2,
@@ -155,7 +155,7 @@ namespace EOLib.Localization
     /// <summary>
     /// Constants for resource string status messages in the second data file for the language
     /// </summary>
-    public enum DATCONST2
+    public enum EOResourceID
     {
         //these are status labels, and dialog text for non-alert style dialogs
 

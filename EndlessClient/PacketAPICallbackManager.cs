@@ -321,11 +321,11 @@ namespace EndlessClient
 
             string lastPart;
             if (online && !sameMap)
-                lastPart = OldWorld.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_IN_THIS_WORLD);
+                lastPart = OldWorld.GetString(EOResourceID.STATUS_LABEL_IS_ONLINE_IN_THIS_WORLD);
             else if (online)
-                lastPart = OldWorld.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_SAME_MAP);
+                lastPart = OldWorld.GetString(EOResourceID.STATUS_LABEL_IS_ONLINE_SAME_MAP);
             else
-                lastPart = OldWorld.GetString(DATCONST2.STATUS_LABEL_IS_ONLINE_NOT_FOUND);
+                lastPart = OldWorld.GetString(EOResourceID.STATUS_LABEL_IS_ONLINE_NOT_FOUND);
 
             m_game.Hud.AddChat(ChatTabs.Local,
                 "System",
@@ -402,8 +402,8 @@ namespace EndlessClient
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);
 
             ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(id);
-            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP), amountTaken, rec.Name), ChatType.UpArrow);
-            m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP, string.Format(" {0} {1}", amountTaken, rec.Name));
+            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP), amountTaken, rec.Name), ChatType.UpArrow);
+            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP, string.Format(" {0} {1}", amountTaken, rec.Name));
         }
 
         private void _junkItem(short id, int amountRemoved, int amountRemaining, byte weight, byte maxWeight)
@@ -411,8 +411,8 @@ namespace EndlessClient
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
 
             ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(id);
-            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED), amountRemoved, rec.Name), ChatType.DownArrow);
-            m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED, string.Format(" {0} {1}", amountRemoved, rec.Name));
+            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED), amountRemoved, rec.Name), ChatType.DownArrow);
+            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED, string.Format(" {0} {1}", amountRemoved, rec.Name));
         }
 
         private void _dropItem(int characterAmount, byte weight, byte maxWeight, OldMapItem item)
@@ -424,9 +424,9 @@ namespace EndlessClient
 
                 ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
                 m_game.Hud.AddChat(ChatTabs.System, "",
-                        string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), item.Amount, rec.Name),
+                        string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), item.Amount, rec.Name),
                         ChatType.DownArrow);
-                m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_DROP_YOU_DROPPED,
+                m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED,
                         string.Format(" {0} {1}", item.Amount, rec.Name));
             }
         }
@@ -456,7 +456,7 @@ namespace EndlessClient
                     break;
                 case ItemType.Beer:
                     OldWorld.Instance.ActiveCharacterRenderer.MakeDrunk();
-                    m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_ITEM_USE_DRUNK);
+                    m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_USE_DRUNK);
                     break;
                 case ItemType.EffectPotion: //todo: effect potions for other players
                     OldWorld.Instance.ActiveCharacterRenderer.ShowPotionAnimation(data.EffectID);
@@ -582,8 +582,8 @@ namespace EndlessClient
             int expDif = newExp - OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Experience;
             OldWorld.Instance.MainPlayer.ActiveCharacter.GainExp(expDif);
 
-            m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_YOU_GAINED_EXP, string.Format(" {0} EXP", expDif));
-            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} EXP", OldWorld.GetString(DATCONST2.STATUS_LABEL_YOU_GAINED_EXP), expDif), ChatType.Star);
+            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_YOU_GAINED_EXP, string.Format(" {0} EXP", expDif));
+            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} EXP", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_GAINED_EXP), expDif), ChatType.Star);
         }
 
         private void _npcTakeDamage(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID, short fromTP)
@@ -642,8 +642,8 @@ namespace EndlessClient
                 case TalkType.Global: m_game.Hud.AddChat(ChatTabs.Global, name, msg, ChatType.GlobalAnnounce); break;
                 case TalkType.Guild: m_game.Hud.AddChat(ChatTabs.Group, name, msg); break;
                 case TalkType.Server:
-                    m_game.Hud.AddChat(ChatTabs.Local, OldWorld.GetString(DATCONST2.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.Server);
-                    m_game.Hud.AddChat(ChatTabs.Global, OldWorld.GetString(DATCONST2.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.ServerGlobal);
+                    m_game.Hud.AddChat(ChatTabs.Local, OldWorld.GetString(EOResourceID.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.Server);
+                    m_game.Hud.AddChat(ChatTabs.Global, OldWorld.GetString(EOResourceID.STRING_SERVER), msg, ChatType.Exclamation, ChatColor.ServerGlobal);
                     m_game.Hud.AddChat(ChatTabs.System, "", msg, ChatType.Exclamation, ChatColor.Server);
                     break;
                 case TalkType.Admin:
@@ -665,9 +665,9 @@ namespace EndlessClient
 
         private void _playerMuted(string adminName)
         {
-            string message = OldWorld.GetString(DATCONST2.CHAT_MESSAGE_MUTED_BY) + " " + adminName;
-            m_game.Hud.AddChat(ChatTabs.Local, OldWorld.GetString(DATCONST2.STRING_SERVER), message, ChatType.Exclamation, ChatColor.Server);
-            m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, "" + Constants.MuteDefaultTimeMinutes, DATCONST2.STATUS_LABEL_MINUTES_MUTED);
+            string message = OldWorld.GetString(EOResourceID.CHAT_MESSAGE_MUTED_BY) + " " + adminName;
+            m_game.Hud.AddChat(ChatTabs.Local, OldWorld.GetString(EOResourceID.STRING_SERVER), message, ChatType.Exclamation, ChatColor.Server);
+            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, "" + Constants.MuteDefaultTimeMinutes, EOResourceID.STATUS_LABEL_MINUTES_MUTED);
             m_game.Hud.SetMuted();
         }
 
@@ -725,7 +725,7 @@ namespace EndlessClient
             if (BankAccountDialog.Instance == null) return;
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, remaining);
             BankAccountDialog.Instance.LockerUpgrades = upgrades;
-            m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_LOCKER_SPACE_INCREASED);
+            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_LOCKER_SPACE_INCREASED);
         }
 
         private void _playerEmote(short playerID, Emote emote)
@@ -750,7 +750,7 @@ namespace EndlessClient
                 return;
 
             EOMessageBox.Show(name + " ",
-                   type == PartyRequestType.Join ? DATCONST1.PARTY_GROUP_REQUEST_TO_JOIN : DATCONST1.PARTY_GROUP_SEND_INVITATION,
+                   type == PartyRequestType.Join ? DialogResourceID.PARTY_GROUP_REQUEST_TO_JOIN : DialogResourceID.PARTY_GROUP_SEND_INVITATION,
                    XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                    (o, e) =>
                    {
@@ -777,7 +777,7 @@ namespace EndlessClient
             if (!OldWorld.Instance.Interaction)
                 return;
 
-            EOMessageBox.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DATCONST1.TRADE_REQUEST, XNADialogButtons.OkCancel,
+            EOMessageBox.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DialogResourceID.TRADE_REQUEST, XNADialogButtons.OkCancel,
                     EOMessageBoxStyle.SmallDialogSmallHeader, (o, e) =>
                     {
                         if (e.Result == XNADialogResult.OK && !m_packetAPI.TradeAcceptRequest(playerID))
@@ -798,15 +798,15 @@ namespace EndlessClient
             else
                 throw new ArgumentException("Invalid player ID for this trade session!", "p1");
 
-            m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_TRADE_YOU_ARE_TRADING_WITH,
-                    otherName + " " + OldWorld.GetString(DATCONST2.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
+            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_YOU_ARE_TRADING_WITH,
+                    otherName + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
         }
 
         private void _tradeCancel(short otherPlayerID)
         {
             if (TradeDialog.Instance == null) return;
             TradeDialog.Instance.Close(XNADialogResult.NO_BUTTON_PRESSED);
-            m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_TRADE_ABORTED);
+            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_ABORTED);
         }
 
         private void _tradeRemotePlayerAgree(short otherPlayerID, bool agree)
@@ -846,10 +846,10 @@ namespace EndlessClient
             {
                 //not sure if this will ever actually be sent because client validates data before trying to learn a skill
                 case SkillMasterReply.ErrorWrongClass:
-                    EOMessageBox.Show(DATCONST1.SKILL_LEARN_WRONG_CLASS, " " + OldWorld.Instance.ECF.Data[id].Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EOMessageBox.Show(DialogResourceID.SKILL_LEARN_WRONG_CLASS, " " + OldWorld.Instance.ECF.Data[id].Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     break;
                 case SkillMasterReply.ErrorRemoveItems:
-                    EOMessageBox.Show(DATCONST1.SKILL_RESET_CHARACTER_CLEAR_PAPERDOLL, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_CLEAR_PAPERDOLL, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     break;
             }
         }
@@ -866,7 +866,7 @@ namespace EndlessClient
         private void _statskillForgetSpell(short id)
         {
             OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.RemoveAll(_spell => _spell.ID == id);
-            EOMessageBox.Show(DATCONST1.SKILL_FORGET_SUCCESS, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            EOMessageBox.Show(DialogResourceID.SKILL_FORGET_SUCCESS, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 
             m_game.Hud.RemoveSpellFromActiveSpellsByID(id);
         }
@@ -887,7 +887,7 @@ namespace EndlessClient
         {
             Character c;
             (c = OldWorld.Instance.MainPlayer.ActiveCharacter).Spells.Clear();
-            EOMessageBox.Show(DATCONST1.SKILL_RESET_CHARACTER_COMPLETE, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_COMPLETE, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
             c.Stats.StatPoints = data.StatPoints;
             c.Stats.SkillPoints = data.SkillPoints;
             c.Stats.HP = data.HP;
@@ -968,7 +968,7 @@ namespace EndlessClient
 
         private void _setStatusLabel(string message)
         {
-            m_game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, message);
+            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, message);
             m_game.Hud.AddChat(ChatTabs.System, "", message, ChatType.QuestMessage, ChatColor.Server);
         }
 

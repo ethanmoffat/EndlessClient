@@ -61,29 +61,29 @@ namespace EndlessClient.HUD.Panels.Old
 
                 m_buttons[i].SetParent(this);
                 m_buttons[i].OnClick += _settingChange;
-                m_buttons[i].OnMouseOver += (o, e) => EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_SETTINGS_CLICK_TO_CHANGE);
+                m_buttons[i].OnMouseOver += (o, e) => EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_SETTINGS_CLICK_TO_CHANGE);
             }
         }
 
         private void _setTextForLanguage()
         {
-            m_leftSide[0].Text = OldWorld.GetString(w.SoundEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
-            m_leftSide[1].Text = OldWorld.GetString(w.MusicEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
-            m_leftSide[2].Text = OldWorld.GetString(DATCONST2.SETTING_KEYBOARD_ENGLISH);
-            m_leftSide[3].Text = OldWorld.GetString(DATCONST2.SETTING_LANG_CURRENT);
-            m_leftSide[4].Text = OldWorld.GetString(w.HearWhispers ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+            m_leftSide[0].Text = OldWorld.GetString(w.SoundEnabled ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
+            m_leftSide[1].Text = OldWorld.GetString(w.MusicEnabled ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
+            m_leftSide[2].Text = OldWorld.GetString(EOResourceID.SETTING_KEYBOARD_ENGLISH);
+            m_leftSide[3].Text = OldWorld.GetString(EOResourceID.SETTING_LANG_CURRENT);
+            m_leftSide[4].Text = OldWorld.GetString(w.HearWhispers ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
 
-            m_rightSide[0].Text = OldWorld.GetString(w.ShowChatBubbles ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
-            m_rightSide[1].Text = OldWorld.GetString(w.ShowShadows ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+            m_rightSide[0].Text = OldWorld.GetString(w.ShowChatBubbles ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
+            m_rightSide[1].Text = OldWorld.GetString(w.ShowShadows ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
             if (w.StrictFilterEnabled)
-                m_rightSide[2].Text = OldWorld.GetString(DATCONST2.SETTING_EXCLUSIVE);
+                m_rightSide[2].Text = OldWorld.GetString(EOResourceID.SETTING_EXCLUSIVE);
             else if (w.CurseFilterEnabled)
-                m_rightSide[2].Text = OldWorld.GetString(DATCONST2.SETTING_NORMAL);
+                m_rightSide[2].Text = OldWorld.GetString(EOResourceID.SETTING_NORMAL);
             else
-                m_rightSide[2].Text = OldWorld.GetString(DATCONST2.SETTING_DISABLED);
+                m_rightSide[2].Text = OldWorld.GetString(EOResourceID.SETTING_DISABLED);
 
-            m_rightSide[3].Text = OldWorld.GetString(w.LogChatToFile ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
-            m_rightSide[4].Text = OldWorld.GetString(w.Interaction ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+            m_rightSide[3].Text = OldWorld.GetString(w.LogChatToFile ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
+            m_rightSide[4].Text = OldWorld.GetString(w.Interaction ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
         }
 
         private void _settingChange(object sender, EventArgs e)
@@ -92,7 +92,7 @@ namespace EndlessClient.HUD.Panels.Old
             {
                 if (!m_soundChanged && !w.SoundEnabled)
                 {
-                    EOMessageBox.Show(DATCONST1.SETTINGS_SOUND_DISABLED, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+                    EOMessageBox.Show(DialogResourceID.SETTINGS_SOUND_DISABLED, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                         (o, args) =>
                         {
                             if (args.Result == XNADialogResult.OK)
@@ -100,7 +100,7 @@ namespace EndlessClient.HUD.Panels.Old
                                 m_soundChanged = true;
                                 w.SoundEnabled = !w.SoundEnabled;
                                 OldWorld.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
-                                m_leftSide[0].Text = OldWorld.GetString(w.SoundEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+                                m_leftSide[0].Text = OldWorld.GetString(w.SoundEnabled ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
                             }
                         });
                 }
@@ -111,14 +111,14 @@ namespace EndlessClient.HUD.Panels.Old
 
                     w.SoundEnabled = !w.SoundEnabled;
                     OldWorld.Instance.ActiveMapRenderer.PlayOrStopAmbientNoise();
-                    m_leftSide[0].Text = OldWorld.GetString(w.SoundEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+                    m_leftSide[0].Text = OldWorld.GetString(w.SoundEnabled ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
                 }
             }
             else if (sender == m_buttons[1])
             {
                 if (!m_musicChanged && !w.MusicEnabled)
                 {
-                    EOMessageBox.Show(DATCONST1.SETTINGS_MUSIC_DISABLED, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+                    EOMessageBox.Show(DialogResourceID.SETTINGS_MUSIC_DISABLED, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                         (o, args) =>
                         {
                             if (args.Result == XNADialogResult.OK)
@@ -126,7 +126,7 @@ namespace EndlessClient.HUD.Panels.Old
                                 m_musicChanged = true;
                                 w.MusicEnabled = !w.MusicEnabled;
                                 OldWorld.Instance.ActiveMapRenderer.PlayOrStopBackgroundMusic();
-                                m_leftSide[1].Text = OldWorld.GetString(w.MusicEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+                                m_leftSide[1].Text = OldWorld.GetString(w.MusicEnabled ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
                             }
                         });
                 }
@@ -137,7 +137,7 @@ namespace EndlessClient.HUD.Panels.Old
 
                     w.MusicEnabled = !w.MusicEnabled;
                     OldWorld.Instance.ActiveMapRenderer.PlayOrStopBackgroundMusic();
-                    m_leftSide[1].Text = OldWorld.GetString(w.MusicEnabled ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+                    m_leftSide[1].Text = OldWorld.GetString(w.MusicEnabled ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
                 }
             }
             else if (sender == m_buttons[2])
@@ -145,7 +145,7 @@ namespace EndlessClient.HUD.Panels.Old
                 m_keyboard++;
                 if (m_keyboard > KeyLayout.Azerty)
                     m_keyboard = 0;
-                m_leftSide[2].Text = OldWorld.GetString(DATCONST2.SETTING_KEYBOARD_ENGLISH + (int)m_keyboard);
+                m_leftSide[2].Text = OldWorld.GetString(EOResourceID.SETTING_KEYBOARD_ENGLISH + (int)m_keyboard);
             }
             else if (sender == m_buttons[3])
             {
@@ -158,7 +158,7 @@ namespace EndlessClient.HUD.Panels.Old
             else if (sender == m_buttons[4])
             {
                 w.HearWhispers = !w.HearWhispers;
-                m_leftSide[4].Text = OldWorld.GetString(w.HearWhispers ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+                m_leftSide[4].Text = OldWorld.GetString(w.HearWhispers ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
                 OldPacket pkt = new OldPacket(PacketFamily.Global, w.HearWhispers ? PacketAction.Remove : PacketAction.Player);
                 pkt.AddChar(w.HearWhispers ? (byte) 'n' : (byte) 'y');
                 w.Client.SendPacket(pkt);
@@ -166,43 +166,43 @@ namespace EndlessClient.HUD.Panels.Old
             else if (sender == m_buttons[5])
             {
                 w.ShowChatBubbles = !w.ShowChatBubbles;
-                m_rightSide[0].Text = OldWorld.GetString(w.ShowChatBubbles ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+                m_rightSide[0].Text = OldWorld.GetString(w.ShowChatBubbles ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
             }
             else if (sender == m_buttons[6])
             {
                 w.ShowShadows = !w.ShowShadows;
-                m_rightSide[1].Text = OldWorld.GetString(w.ShowShadows ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+                m_rightSide[1].Text = OldWorld.GetString(w.ShowShadows ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
             }
             else if (sender == m_buttons[7])
             {
-                DATCONST2 str;
+                EOResourceID str;
                 if (w.StrictFilterEnabled)
                 {
                     w.StrictFilterEnabled = false;
-                    str = DATCONST2.SETTING_DISABLED;
+                    str = EOResourceID.SETTING_DISABLED;
                 }
                 else if (w.CurseFilterEnabled)
                 {
                     w.CurseFilterEnabled = false;
                     w.StrictFilterEnabled = true;
-                    str = DATCONST2.SETTING_EXCLUSIVE;
+                    str = EOResourceID.SETTING_EXCLUSIVE;
                 }
                 else
                 {
                     w.CurseFilterEnabled = true;
-                    str = DATCONST2.SETTING_NORMAL;
+                    str = EOResourceID.SETTING_NORMAL;
                 }
                 m_rightSide[2].Text = OldWorld.GetString(str);
             }
             else if (sender == m_buttons[8])
             {
                 w.LogChatToFile = !w.LogChatToFile;
-                m_rightSide[3].Text = OldWorld.GetString(w.LogChatToFile ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+                m_rightSide[3].Text = OldWorld.GetString(w.LogChatToFile ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
             }
             else if (sender == m_buttons[9])
             {
                 w.Interaction = !w.Interaction;
-                m_rightSide[4].Text = OldWorld.GetString(w.Interaction ? DATCONST2.SETTING_ENABLED : DATCONST2.SETTING_DISABLED);
+                m_rightSide[4].Text = OldWorld.GetString(w.Interaction ? EOResourceID.SETTING_ENABLED : EOResourceID.SETTING_DISABLED);
             }
         }
     }

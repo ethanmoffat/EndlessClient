@@ -107,21 +107,21 @@ namespace EndlessClient.Dialogs
                 if (Username != _playerInfoProvider.LoggedInAccountName)
                 {
                     e.CancelClose = true;
-                    _eoMessageBoxFactory.CreateMessageBox(DATCONST1.CHANGE_PASSWORD_MISMATCH);
+                    _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.CHANGE_PASSWORD_MISMATCH);
                     return;
                 }
 
                 if (NewPassword.Length != ConfirmPassword.Length || NewPassword != ConfirmPassword)
                 {
                     e.CancelClose = true;
-                    _eoMessageBoxFactory.CreateMessageBox(DATCONST1.ACCOUNT_CREATE_PASSWORD_MISMATCH);
+                    _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_PASSWORD_MISMATCH);
                     return;
                 }
 
                 if (NewPassword.Length < 6)
                 {
                     e.CancelClose = true;
-                    _eoMessageBoxFactory.CreateMessageBox(DATCONST1.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
+                    _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
                     return;
                 }
             }

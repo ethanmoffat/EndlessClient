@@ -56,8 +56,8 @@ namespace EndlessClient
         {
             if (_backButtonPressed) return;
             EOMessageBox.Show(State == GameStates.PlayingTheGame
-                ? DATCONST1.CONNECTION_LOST_IN_GAME
-                : DATCONST1.CONNECTION_LOST_CONNECTION);    
+                ? DialogResourceID.CONNECTION_LOST_IN_GAME
+                : DialogResourceID.CONNECTION_LOST_CONNECTION);    
         }
 
         public void ResetWorldElements()

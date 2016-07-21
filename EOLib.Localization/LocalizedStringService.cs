@@ -19,26 +19,26 @@ namespace EOLib.Localization
             _dataFileProvider = dataFileProvider;
         }
 
-        public string GetString(EOLanguage language, DATCONST1 dataConstant)
+        public string GetString(EOLanguage language, DialogResourceID dataConstant)
         {
             return _dataFileProvider
                 .DataFiles[GetFile1FromLanguage(language)]
                 .Data[(int)dataConstant];
         }
 
-        public string GetString(EOLanguage language, DATCONST2 dataConstant)
+        public string GetString(EOLanguage language, EOResourceID dataConstant)
         {
             return _dataFileProvider
                 .DataFiles[GetFile2FromLanguage(language)]
                 .Data[(int)dataConstant];
         }
 
-        public string GetString(DATCONST1 dataConstant)
+        public string GetString(DialogResourceID dataConstant)
         {
             return GetString(_configProvider.Language, dataConstant);
         }
 
-        public string GetString(DATCONST2 dataConstant)
+        public string GetString(EOResourceID dataConstant)
         {
             return GetString(_configProvider.Language, dataConstant);
         }

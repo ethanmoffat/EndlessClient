@@ -109,8 +109,8 @@ namespace EndlessClient.Input
                 case TileInfoReturnType.IsOtherPlayer:
                     if (Renderer.NoWall) goto case TileInfoReturnType.IsTileSpec;
 
-                    EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION,
-                        DATCONST2.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
+                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
+                        EOResourceID.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
                     if (_startWalkingThroughPlayerTime == null)
                         _startWalkingThroughPlayerTime = DateTime.Now;
                     else if ((DateTime.Now - _startWalkingThroughPlayerTime.Value).TotalSeconds > 5)
@@ -157,16 +157,16 @@ namespace EndlessClient.Input
                                     break;
                             }
 
-                            EOMessageBox.Show(DATCONST1.DOOR_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                            ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
-                                DATCONST2.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
+                            EOMessageBox.Show(DialogResourceID.DOOR_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                            ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                                EOResourceID.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
                                 " - " + strWhichKey);
                         }
                     }
                     else if (warpInfo.LevelRequirement != 0 && Character.Stats.Level < warpInfo.LevelRequirement)
                     {
-                        EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
-                            DATCONST2.STATUS_LABEL_NOT_READY_TO_USE_ENTRANCE,
+                        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                            EOResourceID.STATUS_LABEL_NOT_READY_TO_USE_ENTRANCE,
                             " - LVL " + warpInfo.LevelRequirement);
                     }
                     else
@@ -216,8 +216,8 @@ namespace EndlessClient.Input
 
                             if (requiredKey != null)
                             {
-                                EOMessageBox.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                                ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
+                                EOMessageBox.Show(DialogResourceID.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                                ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
                                     " - " + requiredKey);
                             }
                         }

@@ -36,7 +36,7 @@ namespace EndlessClient.HUD.Spells
             {
                 if (value)
                 {
-                    ((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.SPELL_NOTHING_WAS_SELECTED);
+                    ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_NOTHING_WAS_SELECTED);
                 }
             }
         }

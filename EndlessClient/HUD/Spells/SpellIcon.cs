@@ -107,11 +107,11 @@ namespace EndlessClient.HUD.Spells
             switch (SpellData.Target)
             {
                 case SpellTarget.Normal:
-                    hud.SetStatusLabel(DATCONST2.SKILLMASTER_WORD_SPELL, SpellData.Name, DATCONST2.SPELL_WAS_SELECTED);
+                    hud.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, SpellData.Name, EOResourceID.SPELL_WAS_SELECTED);
                     break;
                 case SpellTarget.Group:
                     if(!hud.MainPlayerIsInParty())
-                        hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.SPELL_ONLY_WORKS_ON_GROUP);
+                        hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_ONLY_WORKS_ON_GROUP);
                     break;
             }
         }
@@ -130,7 +130,7 @@ namespace EndlessClient.HUD.Spells
             {
                 SetIconHover(MouseOver);
                 if (MouseOver && !_parentSpellContainer.AnySpellsDragging())
-                    ((EOGame) Game).Hud.SetStatusLabel(DATCONST2.SKILLMASTER_WORD_SPELL, SpellData.Name);
+                    ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, SpellData.Name);
             }
         }
 

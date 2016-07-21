@@ -11,9 +11,9 @@ namespace EOLib.Domain.Account
     {
         public WhichParameter FaultingParameter { get; private set; }
 
-        public DATCONST1 ErrorString { get; private set; }
+        public DialogResourceID ErrorString { get; private set; }
 
-        public CreateAccountParameterResult(WhichParameter faultingParameter, DATCONST1 errorString = DATCONST1.NICE_TRY_HAXOR)
+        public CreateAccountParameterResult(WhichParameter faultingParameter, DialogResourceID errorString = DialogResourceID.NICE_TRY_HAXOR)
         {
             FaultingParameter = faultingParameter;
             ErrorString = errorString;

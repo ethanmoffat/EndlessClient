@@ -59,11 +59,11 @@ namespace EndlessClient
         }
 
         //Gets a localized string based on the selected language
-        public static string GetString(DATCONST1 id, bool getTitle)
+        public static string GetString(DialogResourceID id, bool getTitle)
         {
             return Instance.DataFiles[Instance.Localized1].Data[(int)id + (getTitle ? 0 : 1)];
         }
-        public static string GetString(DATCONST2 id)
+        public static string GetString(EOResourceID id)
         {
             return Instance.DataFiles[Instance.Localized2].Data[(int)id];
         }
@@ -604,8 +604,8 @@ namespace EndlessClient
                 return;
             }
 
-            EOGame.Instance.Hud.AddChat(ChatTabs.Local, GetString(DATCONST2.STRING_SERVER), GetString(DATCONST2.SERVER_MESSAGE_MAP_MUTATION), ChatType.Exclamation, ChatColor.Server);
-            EOGame.Instance.Hud.AddChat(ChatTabs.System, GetString(DATCONST2.STRING_SERVER), GetString(DATCONST2.SERVER_MESSAGE_MAP_MUTATION), ChatType.Exclamation, ChatColor.Server);
+            EOGame.Instance.Hud.AddChat(ChatTabs.Local, GetString(EOResourceID.STRING_SERVER), GetString(EOResourceID.SERVER_MESSAGE_MAP_MUTATION), ChatType.Exclamation, ChatColor.Server);
+            EOGame.Instance.Hud.AddChat(ChatTabs.System, GetString(EOResourceID.STRING_SERVER), GetString(EOResourceID.SERVER_MESSAGE_MAP_MUTATION), ChatType.Exclamation, ChatColor.Server);
 
             ActiveMapRenderer.SetActiveMap(MapCache[MainPlayer.ActiveCharacter.CurrentMap]);
         }

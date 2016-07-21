@@ -37,9 +37,9 @@ namespace EndlessClient.Dialogs.Actions
         public void ShowInitialCreateWarningDialog()
         {
             var message = string.Format("{0}\n\n{1}\n\n{2}",
-                _localizedStringService.GetString(DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_1),
-                _localizedStringService.GetString(DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_2),
-                _localizedStringService.GetString(DATCONST2.ACCOUNT_CREATE_WARNING_DIALOG_3));
+                _localizedStringService.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_1),
+                _localizedStringService.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_2),
+                _localizedStringService.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_3));
 
             _createAccountWarningDialogFactory.ShowCreateAccountWarningDialog(message);
         }
@@ -66,14 +66,14 @@ namespace EndlessClient.Dialogs.Actions
 
         public void ShowCreateAccountServerError(AccountReply serverError)
         {
-            DATCONST1 message;
+            DialogResourceID message;
             switch (serverError)
             {
-                case AccountReply.Exists: message = DATCONST1.ACCOUNT_CREATE_NAME_EXISTS; break;
-                case AccountReply.NotApproved: message = DATCONST1.ACCOUNT_CREATE_NAME_NOT_APPROVED; break;
-                case AccountReply.Created: message = DATCONST1.ACCOUNT_CREATE_SUCCESS_WELCOME; break;
-                case AccountReply.ChangeFailed: message = DATCONST1.CHANGE_PASSWORD_MISMATCH; break;
-                case AccountReply.ChangeSuccess: message = DATCONST1.CHANGE_PASSWORD_SUCCESS; break;
+                case AccountReply.Exists: message = DialogResourceID.ACCOUNT_CREATE_NAME_EXISTS; break;
+                case AccountReply.NotApproved: message = DialogResourceID.ACCOUNT_CREATE_NAME_NOT_APPROVED; break;
+                case AccountReply.Created: message = DialogResourceID.ACCOUNT_CREATE_SUCCESS_WELCOME; break;
+                case AccountReply.ChangeFailed: message = DialogResourceID.CHANGE_PASSWORD_MISMATCH; break;
+                case AccountReply.ChangeSuccess: message = DialogResourceID.CHANGE_PASSWORD_SUCCESS; break;
                 default: throw new ArgumentOutOfRangeException("serverError", serverError, null);
             }
 

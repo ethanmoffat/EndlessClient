@@ -109,7 +109,7 @@ namespace EndlessClient.Rendering
                 DrawLocation = new Vector2(drawLocation.X, 35);
             }
 
-            EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_MENU_BELONGS_TO_PLAYER, m_rend.Character.Name);
+            EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_MENU_BELONGS_TO_PLAYER, m_rend.Character.Name);
 
             Visible = true;
         }
@@ -214,58 +214,58 @@ namespace EndlessClient.Rendering
         {
             if (((EOGame) Game).Hud.PlayerIsPartyMember((short)m_rend.Character.ID))
             {
-                ((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, m_rend.Character.Name, DATCONST2.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER);
+                ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, m_rend.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER);
                 return;
             }
 
             if (m_lastPartyRequestedTime != null && (DateTime.Now - m_lastPartyRequestedTime.Value).TotalSeconds < Constants.PartyRequestTimeoutSeconds)
             {
-                ((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_PARTY_RECENTLY_REQUESTED);
+                ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_PARTY_RECENTLY_REQUESTED);
                 return;
             }
 
             if (!m_api.PartyRequest(PartyRequestType.Join, (short) m_rend.Character.ID))
                 EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
             m_lastPartyRequestedTime = DateTime.Now;
-            ((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_PARTY_REQUESTED_TO_JOIN);
+            ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_PARTY_REQUESTED_TO_JOIN);
         }
         private void _eventInviteToParty(object arg1, EventArgs arg2)
         {
             if (((EOGame)Game).Hud.PlayerIsPartyMember((short)m_rend.Character.ID))
             {
-                ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, m_rend.Character.Name, DATCONST2.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER);
+                ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, m_rend.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_ALREADY_MEMBER);
                 return;
             }
 
             if (m_lastPartyRequestedTime != null && (DateTime.Now - m_lastPartyRequestedTime.Value).TotalSeconds < Constants.PartyRequestTimeoutSeconds)
             {
-                ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_PARTY_RECENTLY_REQUESTED);
+                ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_PARTY_RECENTLY_REQUESTED);
                 return;
             }
 
             if (!m_api.PartyRequest(PartyRequestType.Invite, (short)m_rend.Character.ID))
                 EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
             m_lastPartyRequestedTime = DateTime.Now;
-            ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, DATCONST2.STATUS_LABEL_PARTY_IS_INVITED);
+            ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, EOResourceID.STATUS_LABEL_PARTY_IS_INVITED);
         }
         private void _eventTrade(object arg1, EventArgs arg2)
         {
             if (OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap == OldWorld.Instance.JailMap)
-                EOMessageBox.Show(OldWorld.GetString(DATCONST2.JAIL_WARNING_CANNOT_TRADE),
-                    OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+                EOMessageBox.Show(OldWorld.GetString(EOResourceID.JAIL_WARNING_CANNOT_TRADE),
+                    OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
                     XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
             else
             {
                 if(m_lastTradeRequestedTime != null && (DateTime.Now - m_lastTradeRequestedTime.Value).TotalSeconds < Constants.TradeRequestTimeoutSeconds)
                 {
-                    ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_TRADE_RECENTLY_REQUESTED);
+                    ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_TRADE_RECENTLY_REQUESTED);
                     return;
                 }
                 m_lastTradeRequestedTime = DateTime.Now;
                 if (!m_api.TradeRequest((short)m_rend.Character.ID))
                     ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
                 //todo: is this correct text?
-                ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_TRADE_REQUESTED_TO_TRADE);
+                ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_REQUESTED_TO_TRADE);
             }
         }
         private void _eventPrivateMessage(object arg1, EventArgs arg2)
@@ -274,12 +274,12 @@ namespace EndlessClient.Rendering
         }
         private void _eventAddFriend(object arg1, EventArgs arg2)
         {
-            EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, DATCONST2.STATUS_LABEL_WILL_BE_YOUR_FRIEND);
+            EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, EOResourceID.STATUS_LABEL_WILL_BE_YOUR_FRIEND);
             InteractList.WriteNewFriend(m_rend.Character.Name);
         }
         private void _eventAddIgnore(object arg1, EventArgs arg2)
         {
-            EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, DATCONST2.STATUS_LABEL_WILL_BE_IGNORED);
+            EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, m_rend.Character.Name, EOResourceID.STATUS_LABEL_WILL_BE_IGNORED);
             InteractList.WriteNewIgnore(m_rend.Character.Name);
         }
 

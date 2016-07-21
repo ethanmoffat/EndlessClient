@@ -277,20 +277,20 @@ namespace EndlessClient.Rendering
                 (!mi.IsNPCDrop && (DateTime.Now - mi.DropTime).TotalSeconds <= OldWorld.Instance.PlayerDropProtectTime))
             {
                 Character charRef = _parentMapRenderer.GetOtherPlayerByID((short) mi.OwningPlayerID);
-                DATCONST2 msg = charRef == null ? DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED : DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
+                EOResourceID msg = charRef == null ? EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED : EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
                 string extra = charRef == null ? "" : charRef.Name;
-                EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
+                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
             }
             else
             {
                 var item = OldWorld.Instance.EIF.GetRecordByID(mi.ItemID);
                 if (!EOGame.Instance.Hud.InventoryFits(mi.ItemID))
                 {
-                    EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
+                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                 }
                 else if (_mainCharacter.Weight + item.Weight * mi.Amount > _mainCharacter.MaxWeight)
                 {
-                    EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
+                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.DIALOG_ITS_TOO_HEAVY_WEIGHT);
                 }
                 else if (!_game.API.GetItem(mi.UniqueID)) //server validates drop protection anyway
                     EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -327,9 +327,9 @@ namespace EndlessClient.Rendering
                     default: ChestDialog.Show(_game.API, chest.X, chest.Y); return;
                 }
                 
-                EOMessageBox.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                _game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
-                    DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
+                EOMessageBox.Show(DialogResourceID.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                _game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                    EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
                     " - " + requiredKey);
             }
         }

@@ -59,7 +59,7 @@ namespace EndlessClient
             
             if (sender == _backButton && State == GameStates.PlayingTheGame)
             {
-                EOMessageBox.Show(DATCONST1.EXIT_GAME_ARE_YOU_SURE, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader, 
+                EOMessageBox.Show(DialogResourceID.EXIT_GAME_ARE_YOU_SURE, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader, 
                     (ss, ee) =>
                     {
                         if(ee.Result == XNADialogResult.OK)

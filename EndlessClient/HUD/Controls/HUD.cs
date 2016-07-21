@@ -65,11 +65,11 @@ namespace EndlessClient.HUD.Controls
 
             chatRenderer = new OldChatRenderer();
             //chatRenderer.SetParent(pnlChat);
-            chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(DATCONST2.STRING_SERVER),
-                OldWorld.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_1),
+            chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(EOResourceID.STRING_SERVER),
+                OldWorld.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_1),
                 ChatType.Note, ChatColor.Server);
-            chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(DATCONST2.STRING_SERVER),
-                OldWorld.GetString(DATCONST2.GLOBAL_CHAT_SERVER_MESSAGE_2),
+            chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(EOResourceID.STRING_SERVER),
+                OldWorld.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_2),
                 ChatType.Note, ChatColor.Server);
 
             CreateChatTextbox();
@@ -94,7 +94,7 @@ namespace EndlessClient.HUD.Controls
                 DrawOrder = HUD_CONTROL_DRAW_ORDER
             };
             m_friendList.OnClick += (o, e) => FriendIgnoreListDialog.Show(isIgnoreList: false, apiHandle: m_packetAPI);
-            m_friendList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_FRIEND_LIST);
+            m_friendList.OnMouseOver += (o, e) => SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_FRIEND_LIST);
 
             m_ignoreList = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 27, false, true),
                 new Vector2(609, 312),
@@ -106,7 +106,7 @@ namespace EndlessClient.HUD.Controls
                 DrawOrder = HUD_CONTROL_DRAW_ORDER
             };
             m_ignoreList.OnClick += (o, e) => FriendIgnoreListDialog.Show(isIgnoreList: true, apiHandle: m_packetAPI);
-            m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_IGNORE_LIST);
+            m_ignoreList.OnMouseOver += (o, e) => SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_IGNORE_LIST);
 
             m_expInfo = new XNAButton(((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 58),
                 new Vector2(55, 0),
@@ -167,7 +167,7 @@ namespace EndlessClient.HUD.Controls
                     OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap == OldWorld.Instance.JailMap)
                 {
                     chatTextBox.Text = "";
-                    SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.JAIL_WARNING_CANNOT_USE_GLOBAL);
+                    SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.JAIL_WARNING_CANNOT_USE_GLOBAL);
                     return;
                 }
 
@@ -426,7 +426,7 @@ namespace EndlessClient.HUD.Controls
                     }
                     else if (args.Length == 1 && args[0] == "loc")
                     {
-                        string firstPart = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) DATCONST2.STATUS_LABEL_YOUR_LOCATION_IS_AT];
+                        string firstPart = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) EOResourceID.STATUS_LABEL_YOUR_LOCATION_IS_AT];
                         AddChat(ChatTabs.Local, "System", string.Format(firstPart + " {0}  x:{1}  y:{2}",
                             OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.MapID,
                             OldWorld.Instance.MainPlayer.ActiveCharacter.X,
@@ -477,7 +477,7 @@ namespace EndlessClient.HUD.Controls
 
         public void PrivatePlayerNotFound(string character)
         {
-            string endPart = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) DATCONST2.SYS_CHAT_PM_PLAYER_COULD_NOT_BE_FOUND];
+            string endPart = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) EOResourceID.SYS_CHAT_PM_PLAYER_COULD_NOT_BE_FOUND];
             //add message to Sys and close the chat that was opened for 'character'
             //this is how original client does it - you can see the PM tab open/close really quickly
             chatRenderer.ClosePrivateChat(character);
@@ -501,16 +501,16 @@ namespace EndlessClient.HUD.Controls
             chatTextBox.Text = text;
         }
 
-        public void SetStatusLabel(DATCONST2 type, DATCONST2 message, string extra = "")
+        public void SetStatusLabel(EOResourceID type, EOResourceID message, string extra = "")
         {
         }
 
-        public void SetStatusLabel(DATCONST2 type, string extra, DATCONST2 message)
+        public void SetStatusLabel(EOResourceID type, string extra, EOResourceID message)
         {
             //SetStatusLabelText(string.Format("[ {0} ] {1} {2}", typeText, extra, messageText));
         }
 
-        public void SetStatusLabel(DATCONST2 type, string detail)
+        public void SetStatusLabel(EOResourceID type, string detail)
         {
             //SetStatusLabelText(string.Format("[ {0} ] {1}", typeText, detail));
         }
