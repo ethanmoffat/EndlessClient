@@ -9,11 +9,16 @@ namespace EOLib.IO.Map
     public interface IMapEntity
     {
         int DataSize { get; }
+
         int X { get; }
+
         int Y { get; }
 
-        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService);
+        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
+                                    IMapStringEncoderService mapStringEncoderService);
 
-        void DeserializeFromByteArray(byte[] data, INumberEncoderService numberEncoderService);
+        void DeserializeFromByteArray(byte[] data,
+                                      INumberEncoderService numberEncoderService,
+                                      IMapStringEncoderService mapStringEncoderService);
     }
 }
