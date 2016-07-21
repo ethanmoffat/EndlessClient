@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace EOLib.IO.Map
 {
+    //todo: make this internal once it is no longer depended upon
     public interface IMapEntityRow<T>
     {
         int Y { get; set; }
