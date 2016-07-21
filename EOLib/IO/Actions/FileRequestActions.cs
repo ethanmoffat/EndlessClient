@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Pub;
@@ -17,18 +16,21 @@ namespace EOLib.IO.Actions
     {
         private readonly INumberEncoderService _numberEncoderService;
         private readonly IFileRequestService _fileRequestService;
+        private readonly IPubFileSaveService _pubFileSaveService;
         private readonly ILoginFileChecksumProvider _loginFileChecksumProvider;
         private readonly IPubFileRepository _pubFileRepository;
         private readonly IMapFileRepository _mapFileRepository;
 
         public FileRequestActions(INumberEncoderService numberEncoderService,
                                   IFileRequestService fileRequestService,
+                                  IPubFileSaveService pubFileSaveService,
                                   ILoginFileChecksumProvider loginFileChecksumProvider,
                                   IPubFileRepository pubFileRepository,
                                   IMapFileRepository mapFileRepository)
         {
             _numberEncoderService = numberEncoderService;
             _fileRequestService = fileRequestService;
+            _pubFileSaveService = pubFileSaveService;
             _loginFileChecksumProvider = loginFileChecksumProvider;
             _pubFileRepository = pubFileRepository;
             _mapFileRepository = mapFileRepository;
@@ -56,36 +58,28 @@ namespace EOLib.IO.Actions
         public async Task GetItemFileFromServer()
         {
             var itemFile = await _fileRequestService.RequestFile(InitFileType.Item);
-
-            //todo: move this to a service in EOLib.IO assembly
-            File.WriteAllBytes(Constants.ItemFilePath, itemFile.SerializeToByteArray(_numberEncoderService));
+            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToEIFFile, itemFile);
             _pubFileRepository.EIFFile = (EIFFile)itemFile;
         }
 
         public async Task GetNPCFileFromServer()
         {
             var npcFile = await _fileRequestService.RequestFile(InitFileType.Npc);
-
-            //todo: move this to a service in EOLib.IO assembly
-            File.WriteAllBytes(Constants.NPCFilePath, npcFile.SerializeToByteArray(_numberEncoderService));
+            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToENFFile, npcFile);
             _pubFileRepository.ENFFile = (ENFFile)npcFile;
         }
 
         public async Task GetSpellFileFromServer()
         {
             var spellFile = await _fileRequestService.RequestFile(InitFileType.Spell);
-
-            //todo: move this to a service in EOLib.IO assembly
-            File.WriteAllBytes(Constants.SpellFilePath, spellFile.SerializeToByteArray(_numberEncoderService));
+            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToESFFile, spellFile);
             _pubFileRepository.ESFFile = (ESFFile)spellFile;
         }
 
         public async Task GetClassFileFromServer()
         {
             var classFile = await _fileRequestService.RequestFile(InitFileType.Class);
-
-            //todo: move this to a service in EOLib.IO assembly
-            File.WriteAllBytes(Constants.ClassFilePath, classFile.SerializeToByteArray(_numberEncoderService));
+            _pubFileSaveService.SaveFile(PubFileNameConstants.PathToECFFile, classFile);
             _pubFileRepository.ECFFile = (ECFFile)classFile;
         }
 
