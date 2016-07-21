@@ -10,6 +10,8 @@ namespace EOLib.IO.Map
 
         int Cols { get; }
 
+        T[] GetRow(int rowIndex);
+
         T this[int row, int col] { get; }
     }
 }

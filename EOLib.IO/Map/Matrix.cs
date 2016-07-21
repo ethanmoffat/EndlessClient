@@ -33,6 +33,18 @@ namespace EOLib.IO.Map
                     _arr[row, col] = value;
         }
 
+        public T[] GetRow(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= Rows)
+                throw new ArgumentOutOfRangeException("rowIndex", "Row index is out of bounds of the number of matrix rows");
+
+            var retArray = new T[Cols];
+            for (int i = 0; i < Cols; ++i)
+                retArray[i] = _arr[rowIndex, i];
+
+            return retArray;
+        }
+
         public T this[int row, int col]
         {
             get { return _arr[row, col]; }
