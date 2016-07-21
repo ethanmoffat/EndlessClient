@@ -4,7 +4,7 @@
 
 using EOLib.Config;
 
-namespace EOLib.IO.Services
+namespace EOLib.Localization
 {
     public interface ILocalizedStringService
     {

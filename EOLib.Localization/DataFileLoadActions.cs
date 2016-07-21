@@ -3,8 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System.IO;
-using EOLib.IO;
-using EOLib.IO.Repositories;
 
 namespace EOLib.Localization
 {

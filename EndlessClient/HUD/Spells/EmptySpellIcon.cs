@@ -6,6 +6,7 @@ using System;
 using EndlessClient.HUD.Panels.Old;
 using EOLib;
 using EOLib.IO.Old;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;

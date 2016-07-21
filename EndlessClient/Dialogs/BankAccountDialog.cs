@@ -5,6 +5,7 @@
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
+using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;

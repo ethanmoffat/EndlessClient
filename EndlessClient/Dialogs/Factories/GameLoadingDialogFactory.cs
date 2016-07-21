@@ -5,6 +5,7 @@
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using EOLib.IO.Services;
+using EOLib.Localization;
 
 namespace EndlessClient.Dialogs.Factories
 {

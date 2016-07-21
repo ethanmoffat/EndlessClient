@@ -4,9 +4,8 @@
 
 using System;
 using EOLib.Config;
-using EOLib.IO.Repositories;
 
-namespace EOLib.IO.Services
+namespace EOLib.Localization
 {
     public class LocalizedStringService : ILocalizedStringService
     {

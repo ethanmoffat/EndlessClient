@@ -14,6 +14,7 @@ using EOLib.Domain.NPC;
 using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.IO.Old;
+using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls;

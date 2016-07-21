@@ -4,7 +4,7 @@
 
 using System;
 
-namespace EOLib.IO
+namespace EOLib.Localization
 {
     public class DataFileLoadException : Exception
     {

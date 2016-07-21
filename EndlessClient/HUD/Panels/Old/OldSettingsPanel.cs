@@ -7,6 +7,7 @@ using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.Config;
 using EOLib.Graphics;
+using EOLib.Localization;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
 using XNAControls;

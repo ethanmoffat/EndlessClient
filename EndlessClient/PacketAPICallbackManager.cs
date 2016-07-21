@@ -14,6 +14,7 @@ using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.IO.Old;
+using EOLib.Localization;
 using EOLib.Net.API;
 using XNAControls;
 

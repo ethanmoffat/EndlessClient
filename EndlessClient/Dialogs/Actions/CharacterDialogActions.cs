@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EndlessClient.Dialogs.Factories;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Localization;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions

@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Localization;
 
 namespace EOLib.Domain.Account
 {

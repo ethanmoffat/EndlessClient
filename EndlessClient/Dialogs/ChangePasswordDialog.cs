@@ -13,6 +13,7 @@ using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;

@@ -18,6 +18,7 @@ using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.IO.Old;
+using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.API;
 using EOLib.Net.PacketProcessing;
@@ -135,20 +136,20 @@ namespace EndlessClient
                 switch (m_lang)
                 {
                     case EOLanguage.English:
-                        Localized1 = EOLib.DataFiles.EnglishStatus1;
-                        Localized2 = EOLib.DataFiles.EnglishStatus2;
+                        Localized1 = EOLib.Localization.DataFiles.EnglishStatus1;
+                        Localized2 = EOLib.Localization.DataFiles.EnglishStatus2;
                         break;
                     case EOLanguage.Dutch:
-                        Localized1 = EOLib.DataFiles.DutchStatus1;
-                        Localized2 = EOLib.DataFiles.DutchStatus2;
+                        Localized1 = EOLib.Localization.DataFiles.DutchStatus1;
+                        Localized2 = EOLib.Localization.DataFiles.DutchStatus2;
                         break;
                     case EOLanguage.Swedish:
-                        Localized1 = EOLib.DataFiles.SwedishStatus1;
-                        Localized2 = EOLib.DataFiles.SwedishStatus2;
+                        Localized1 = EOLib.Localization.DataFiles.SwedishStatus1;
+                        Localized2 = EOLib.Localization.DataFiles.SwedishStatus2;
                         break;
                     case EOLanguage.Portuguese:
-                        Localized1 = EOLib.DataFiles.PortugueseStatus1;
-                        Localized2 = EOLib.DataFiles.PortugueseStatus2;
+                        Localized1 = EOLib.Localization.DataFiles.PortugueseStatus1;
+                        Localized2 = EOLib.Localization.DataFiles.PortugueseStatus2;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();

@@ -11,6 +11,7 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;

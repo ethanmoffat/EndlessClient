@@ -9,6 +9,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;

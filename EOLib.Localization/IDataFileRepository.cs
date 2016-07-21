@@ -3,9 +3,8 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using EOLib.Localization;
 
-namespace EOLib.IO.Repositories
+namespace EOLib.Localization
 {
     public interface IDataFileRepository
     {

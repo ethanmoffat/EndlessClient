@@ -5,6 +5,7 @@
 using System;
 using EOLib;
 using EOLib.IO.Services;
+using EOLib.Localization;
 
 namespace EndlessClient.HUD
 {

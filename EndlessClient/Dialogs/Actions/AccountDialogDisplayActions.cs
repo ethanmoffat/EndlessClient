@@ -8,6 +8,7 @@ using EndlessClient.Dialogs.Factories;
 using EOLib;
 using EOLib.Domain.Account;
 using EOLib.IO.Services;
+using EOLib.Localization;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
