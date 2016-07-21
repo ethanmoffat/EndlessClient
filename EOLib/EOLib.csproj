@@ -143,8 +143,6 @@
     <Compile Include="IO\Old\IDataRecord.cs" />
     <Compile Include="IO\Old\IDataRecordFactory.cs" />
     <Compile Include="IO\IODependencyContainer.cs" />
-    <Compile Include="IO\OldMap\IMapEntityItem.cs" />
-    <Compile Include="IO\OldMap\IMapEntityRow.cs" />
     <Compile Include="IO\OldMap\IMapFile.cs" />
     <Compile Include="IO\Old\IModifiableDataFile.cs" />
     <Compile Include="IO\Old\Item.cs" />
