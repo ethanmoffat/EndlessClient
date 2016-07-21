@@ -3,8 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using EOLib.IO.Map;
-using EOLib.IO.OldMap;
+using IMapFile = EOLib.IO.OldMap.IMapFile;
 
 namespace EOLib.IO.Repositories
 {

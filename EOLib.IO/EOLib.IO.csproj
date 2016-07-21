@@ -61,6 +61,7 @@
     <Compile Include="Map\IMapEntity.cs" />
     <Compile Include="Map\IMapEntityItem.cs" />
     <Compile Include="Map\IMapEntityRow.cs" />
+    <Compile Include="Map\IMapFile.cs" />
     <Compile Include="Map\MapEffect.cs" />
     <Compile Include="Map\MapFileProperties.cs" />
     <Compile Include="Map\MapLayer.cs" />

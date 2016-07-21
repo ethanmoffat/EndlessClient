@@ -9,6 +9,7 @@ using EOLib.IO.Map;
 using EOLib.IO.OldMap;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
+using IMapFile = EOLib.IO.OldMap.IMapFile;
 
 namespace BatchMap
 {
