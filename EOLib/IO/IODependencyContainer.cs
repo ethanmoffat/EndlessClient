@@ -20,8 +20,7 @@ namespace EOLib.IO
                 .RegisterType<IFileRequestService, FileRequestService>()
                 .RegisterType<ILocalizedStringService, LocalizedStringService>();
 
-            container.RegisterInstance<IConfigurationRepository, ConfigurationRepository>()
-                .RegisterInstance<IConfigurationProvider, ConfigurationRepository>()
+            container
                 .RegisterInstance<IMapFileRepository, MapFileRepository>()
                 .RegisterInstance<IMapFileProvider, MapFileRepository>()
                 .RegisterInstance<ILoginFileChecksumRepository, LoginFileChecksumRepository>()
@@ -30,17 +29,13 @@ namespace EOLib.IO
                 .RegisterInstance<IDataFileProvider, DataFileRepository>();
 
             container.RegisterType<IFileLoadActions, FileLoadActions>()
-                .RegisterType<IFileRequestActions, FileRequestActions>()
-                .RegisterType<IConfigFileLoadActions, ConfigFileLoadActions>();
+                .RegisterType<IFileRequestActions, FileRequestActions>();
         }
 
         public void InitializeDependencies(IUnityContainer container)
         {
-            //todo: these should move to the correct assemblies (EOLib.IO and EOLib.Config)
             var fileLoadActions = container.Resolve<IFileLoadActions>();
-            var configLoadActions = container.Resolve<IConfigFileLoadActions>();
 
-            configLoadActions.LoadConfigFile();
             fileLoadActions.LoadDataFiles();
         }
     }

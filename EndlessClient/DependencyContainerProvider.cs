@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EOLib.Config;
 using EOLib.DependencyInjection;
 using EOLib.Domain;
 using EOLib.Graphics;
@@ -16,6 +17,7 @@ namespace EndlessClient
         public static readonly IDependencyContainer[] DependencyContainers =
         {
             //EOLib containers
+            new ConfigDependencyContainer(),
             new DataDependencyContainer(),
             new GraphicsDependencyContainer(),
             new IODependencyContainer(),
