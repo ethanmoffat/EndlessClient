@@ -9,6 +9,7 @@ using EOLib;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Map;
+using EOLib.IO.OldMap;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

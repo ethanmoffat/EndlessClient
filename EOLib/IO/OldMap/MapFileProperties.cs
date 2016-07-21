@@ -3,8 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.IO.Map;
 
-namespace EOLib.IO.Map
+namespace EOLib.IO.OldMap
 {
     public class MapFileProperties
     {

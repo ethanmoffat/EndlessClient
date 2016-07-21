@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace EOLib.IO.Map
+namespace EOLib.IO.OldMap
 {
     public interface IMapEntityRow<T>
     {

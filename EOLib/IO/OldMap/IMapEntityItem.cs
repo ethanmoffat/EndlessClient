@@ -2,12 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EOLib.IO.Map
+namespace EOLib.IO.OldMap
 {
-    public interface IMapStringEncoderService
+    public interface IMapEntityItem<T>
     {
-        string DecodeMapString(byte[] chars);
-
-        byte[] EncodeMapString(string s);
+        int X { get; set; }
+        T Value { get; set; }
     }
 }

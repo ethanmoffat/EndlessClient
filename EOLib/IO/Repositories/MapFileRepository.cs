@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using EOLib.IO.Map;
+using EOLib.IO.OldMap;
 
 namespace EOLib.IO.Repositories
 {

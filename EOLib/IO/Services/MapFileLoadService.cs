@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib.IO.Map;
+using EOLib.IO.OldMap;
 
 namespace EOLib.IO.Services
 {

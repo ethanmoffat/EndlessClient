@@ -4,7 +4,7 @@
 
 using EOLib.Domain.Map;
 
-namespace EOLib.IO.Map
+namespace EOLib.IO.OldMap
 {
     public struct MapSign : IMapElement
     {

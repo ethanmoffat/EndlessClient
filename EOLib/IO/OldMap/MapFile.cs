@@ -14,9 +14,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using EOLib.IO.Map;
 using EOLib.Net;
 
-namespace EOLib.IO.Map
+namespace EOLib.IO.OldMap
 {
     public class MapFile : IMapFile
     {

@@ -18,6 +18,7 @@ using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.IO.Old;
+using EOLib.IO.OldMap;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.API;
