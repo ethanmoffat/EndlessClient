@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using Microsoft.Practices.Unity;
 
-namespace EOLib
+namespace EOLib.DependencyInjection
 {
     public static class UnityExtensions
     {

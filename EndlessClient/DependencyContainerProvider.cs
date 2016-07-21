@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib;
+using EOLib.DependencyInjection;
 using EOLib.Domain;
 using EOLib.Graphics;
 using EOLib.IO;

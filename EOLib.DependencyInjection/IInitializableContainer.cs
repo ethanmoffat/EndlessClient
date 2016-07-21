@@ -4,7 +4,7 @@
 
 using Microsoft.Practices.Unity;
 
-namespace EOLib
+namespace EOLib.DependencyInjection
 {
     public interface IInitializableContainer : IDependencyContainer
     {

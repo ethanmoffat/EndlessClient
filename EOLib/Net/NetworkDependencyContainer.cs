@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EOLib.DependencyInjection;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.Handlers;

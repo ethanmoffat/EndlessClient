@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
+using EOLib.DependencyInjection;
 using Microsoft.Practices.Unity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;

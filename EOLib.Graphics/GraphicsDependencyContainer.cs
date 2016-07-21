@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.IO;
+using EOLib.DependencyInjection;
 using Microsoft.Practices.Unity;
 using PELoaderLib;
 

@@ -4,6 +4,7 @@
 
 using System.IO;
 using EOLib.Config;
+using EOLib.DependencyInjection;
 using EOLib.IO.Actions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;

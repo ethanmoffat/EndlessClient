@@ -17,6 +17,7 @@ using EndlessClient.Network;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.DependencyInjection;
 using Microsoft.Practices.Unity;
 using XNAControls;
 
