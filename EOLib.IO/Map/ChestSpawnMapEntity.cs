@@ -8,7 +8,7 @@ using EOLib.IO.Services;
 
 namespace EOLib.IO.Map
 {
-    public class ChestMapEntity : IMapEntity
+    public class ChestSpawnMapEntity : IMapEntity
     {
         public int DataSize { get { return 12; } }
 

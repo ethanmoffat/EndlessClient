@@ -54,7 +54,7 @@
     <Compile Include="Actions\PubFileLoadActions.cs" />
     <Compile Include="EquipLocation.cs" />
     <Compile Include="Map\ChestKey.cs" />
-    <Compile Include="Map\ChestMapEntity.cs" />
+    <Compile Include="Map\ChestSpawnMapEntity.cs" />
     <Compile Include="Map\DoorSpec.cs" />
     <Compile Include="Map\IMapEntity.cs" />
     <Compile Include="Map\MapEffect.cs" />
