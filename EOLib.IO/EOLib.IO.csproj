@@ -59,6 +59,7 @@
     <Compile Include="Map\IMapEntity.cs" />
     <Compile Include="Map\MapEffect.cs" />
     <Compile Include="Map\MapLayer.cs" />
+    <Compile Include="Map\SignMapEntity.cs" />
     <Compile Include="Map\TileSpec.cs" />
     <Compile Include="PubDependencyContainer.cs" />
     <Compile Include="NumericConstants.cs" />

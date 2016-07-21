@@ -29,7 +29,7 @@ namespace EOLib.IO.Map
         public byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
                                            IMapStringEncoderService mapStringEncoderService)
         {
-            var retBytes = new List<byte>(12);
+            var retBytes = new List<byte>(DataSize);
 
             retBytes.AddRange(numberEncoderService.EncodeNumber(X, 1));
             retBytes.AddRange(numberEncoderService.EncodeNumber(Y, 1));
@@ -47,7 +47,7 @@ namespace EOLib.IO.Map
                                              IMapStringEncoderService mapStringEncoderService)
         {
             if (data.Length != DataSize)
-                throw new ArgumentException("Data is improperly size for serialization", "data");
+                throw new ArgumentException("Data is improperly sized for deserialization", "data");
 
             X = numberEncoderService.DecodeNumber(data[0]);
             Y = numberEncoderService.DecodeNumber(data[1]);
