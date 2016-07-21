@@ -58,6 +58,7 @@
     <Compile Include="ItemSubType.cs" />
     <Compile Include="ItemType.cs" />
     <Compile Include="NPCType.cs" />
+    <Compile Include="Services\IPubFileSaveService.cs" />
     <Compile Include="Services\IPubLoadService.cs" />
     <Compile Include="Services\ItemFileLoadService.cs" />
     <Compile Include="Services\NPCFileLoadService.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Pub\IPubFile.cs" />
     <Compile Include="Pub\IPubRecord.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\PubFileSaveService.cs" />
     <Compile Include="Services\SpellFileLoadService.cs" />
     <Compile Include="SpellTarget.cs" />
     <Compile Include="SpellTargetRestrict.cs" />
