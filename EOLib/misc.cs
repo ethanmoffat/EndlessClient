@@ -44,10 +44,6 @@ namespace EOLib
         public const int Port = 8078;
 
         public const string MapFileFormatString = "maps/{0,5:D5}.emf";
-        public const string ItemFilePath = "pub/dat001.eif";
-        public const string NPCFilePath = "pub/dtn001.enf";
-        public const string SpellFilePath = "pub/dsl001.esf";
-        public const string ClassFilePath = "pub/dat001.ecf";
 
         public const string DataFilePath = "data/";
         public const int ExpectedNumberOfDataFiles = 12;

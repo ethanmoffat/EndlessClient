@@ -184,7 +184,7 @@ namespace EndlessClient
                     break;
                 case GameStates.TestMode:
                     var file = new ItemFile();
-                    file.Load(Constants.ItemFilePath);
+                    file.Load(PubFileNameConstants.PathToEIFFile);
                     var testComponent = new CharacterStateTest(this, file);
                     Components.Add(testComponent);
                     break;

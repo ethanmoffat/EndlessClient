@@ -262,7 +262,7 @@ namespace BatchPub
             _fname = "";
             try
             {
-                eif.Load(_fname = string.IsNullOrEmpty(txtFileName.Text) ? EOLib.Constants.ItemFilePath : txtFileName.Text);
+                eif.Load(_fname = string.IsNullOrEmpty(txtFileName.Text) ? PubFileNameConstants.PathToEIFFile : txtFileName.Text);
                 lblFileName.Text = "Loaded file: " + _fname;
                 grpStepTwo.Enabled = true;
                 btnReset.Enabled = true;
