@@ -60,6 +60,7 @@
     <Compile Include="Map\DoorSpec.cs" />
     <Compile Include="Map\IMapEntity.cs" />
     <Compile Include="Map\MapEffect.cs" />
+    <Compile Include="Map\MapFileProperties.cs" />
     <Compile Include="Map\MapLayer.cs" />
     <Compile Include="Map\NPCSpawnMapEntity.cs" />
     <Compile Include="Map\SignMapEntity.cs" />

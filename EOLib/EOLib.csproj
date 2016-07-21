@@ -151,7 +151,6 @@
     <Compile Include="IO\Old\ItemRecordFactory.cs" />
     <Compile Include="IO\OldMap\MapFile.cs" />
     <Compile Include="IO\OldMap\MapChest.cs" />
-    <Compile Include="IO\OldMap\MapFileProperties.cs" />
     <Compile Include="IO\OldMap\MapSign.cs" />
     <Compile Include="IO\OldMap\NPCSpawn.cs" />
     <Compile Include="IO\OldMap\Warp.cs" />
