@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using EOLib.IO.Services;
 
 namespace EOLib.IO.Map
 {
@@ -18,5 +19,12 @@ namespace EOLib.IO.Map
         IReadOnlyList<byte[]> Unknowns { get; }
         IReadOnlyList<ChestSpawnMapEntity> Chests { get; }
         IReadOnlyList<SignMapEntity> Signs { get; }
+
+        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
+                                    IMapStringEncoderService mapStringEncoderService);
+
+        void DeserializeFromByteArray(byte[] data,
+                                      INumberEncoderService numberEncoderService,
+                                      IMapStringEncoderService mapStringEncoderService);
     }
 }

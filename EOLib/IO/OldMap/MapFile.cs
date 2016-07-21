@@ -393,7 +393,7 @@ namespace EOLib.IO.OldMap
             for (int i = paddedName.Length - 1; i >= 0; --i)
                 paddedName[i] = 0xFF;
             Array.Copy(encodedName, 0, paddedName, paddedName.Length - encodedName.Length, encodedName.Length);
-            
+
             return filePacket.AddBytes(paddedName)
                 .AddChar(Properties.PKAvailable ? (byte)3 : (byte)0)
                 .AddChar((byte)Properties.Effect)

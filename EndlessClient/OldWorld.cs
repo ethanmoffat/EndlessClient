@@ -16,9 +16,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Protocol;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Map;
 using EOLib.IO.Old;
-using EOLib.IO.OldMap;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.API;
@@ -26,6 +24,7 @@ using EOLib.Net.PacketProcessing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
+using MapFile = EOLib.IO.OldMap.MapFile;
 
 namespace EndlessClient
 {

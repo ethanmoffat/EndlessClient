@@ -16,8 +16,8 @@ namespace EOLib.IO.Map
 
         public string FileType { get { return "EMF"; } }
         public int MapID { get; private set; }
-
         public int FileSize { get; private set; }
+
         public byte[] Checksum { get; private set; }
         public string Name { get; private set; }
 

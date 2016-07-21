@@ -6,10 +6,10 @@ using System;
 using System.IO;
 using System.Linq;
 using EOLib.IO.Map;
-using EOLib.IO.OldMap;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
 using IMapFile = EOLib.IO.OldMap.IMapFile;
+using MapFile = EOLib.IO.OldMap.MapFile;
 
 namespace BatchMap
 {

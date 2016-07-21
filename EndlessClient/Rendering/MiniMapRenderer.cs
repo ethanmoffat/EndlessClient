@@ -11,6 +11,7 @@ using EOLib.IO.Map;
 using EOLib.IO.OldMap;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MapFile = EOLib.IO.OldMap.MapFile;
 
 namespace EndlessClient.Rendering
 {
