@@ -4,7 +4,7 @@
 
 namespace EOLib.IO.Actions
 {
-    public interface IFileLoadActions
+    public interface IMapFileLoadActions
     {
         void LoadMapFileByID(int id);
 

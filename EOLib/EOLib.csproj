@@ -125,9 +125,9 @@
     <Compile Include="Domain\Account\CreateAccountParameterValidator.cs" />
     <Compile Include="Domain\Account\ICreateAccountParameterValidator.cs" />
     <Compile Include="EODirection.cs" />
-    <Compile Include="IO\Actions\FileLoadActions.cs" />
+    <Compile Include="IO\Actions\MapFileLoadActions.cs" />
     <Compile Include="IO\Actions\FileRequestActions.cs" />
-    <Compile Include="IO\Actions\IFileLoadActions.cs" />
+    <Compile Include="IO\Actions\IMapFileLoadActions.cs" />
     <Compile Include="IO\Actions\IFileRequestActions.cs" />
     <Compile Include="IO\Old\Class.cs" />
     <Compile Include="IO\Old\ClassRecordFactory.cs" />

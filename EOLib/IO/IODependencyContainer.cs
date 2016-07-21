@@ -25,7 +25,7 @@ namespace EOLib.IO
                 .RegisterInstance<ILoginFileChecksumRepository, LoginFileChecksumRepository>()
                 .RegisterInstance<ILoginFileChecksumProvider, LoginFileChecksumRepository>();
 
-            container.RegisterType<IFileLoadActions, FileLoadActions>()
+            container.RegisterType<IMapFileLoadActions, MapFileLoadActions>()
                 .RegisterType<IFileRequestActions, FileRequestActions>();
         }
     }

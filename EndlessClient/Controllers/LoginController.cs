@@ -22,7 +22,7 @@ namespace EndlessClient.Controllers
     public class LoginController : ILoginController
     {
         private readonly ILoginActions _loginActions;
-        private readonly IFileLoadActions _fileLoadActions;
+        private readonly IMapFileLoadActions _mapFileLoadActions;
         private readonly IFileRequestActions _fileRequestActions;
         private readonly IGameStateActions _gameStateActions;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
@@ -31,7 +31,7 @@ namespace EndlessClient.Controllers
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
         public LoginController(ILoginActions loginActions,
-                               IFileLoadActions fileLoadActions,
+                               IMapFileLoadActions mapFileLoadActions,
                                IFileRequestActions fileRequestActions,
                                IGameStateActions gameStateActions,
                                IErrorDialogDisplayAction errorDisplayAction,
@@ -40,7 +40,7 @@ namespace EndlessClient.Controllers
                                ICurrentMapStateProvider currentMapStateProvider)
         {
             _loginActions = loginActions;
-            _fileLoadActions = fileLoadActions;
+            _mapFileLoadActions = mapFileLoadActions;
             _fileRequestActions = fileRequestActions;
             _gameStateActions = gameStateActions;
             _errorDisplayAction = errorDisplayAction;
@@ -79,7 +79,7 @@ namespace EndlessClient.Controllers
             var unableToLoadMap = false;
             try
             {
-                _fileLoadActions.LoadMapFileByID(_currentMapStateProvider.CurrentMapID);
+                _mapFileLoadActions.LoadMapFileByID(_currentMapStateProvider.CurrentMapID);
             }
             catch (IOException)
             {

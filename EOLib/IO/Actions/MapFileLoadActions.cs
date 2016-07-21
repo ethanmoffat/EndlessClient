@@ -7,12 +7,12 @@ using EOLib.IO.Services;
 
 namespace EOLib.IO.Actions
 {
-    public class FileLoadActions : IFileLoadActions
+    public class MapFileLoadActions : IMapFileLoadActions
     {
         private readonly IMapFileRepository _mapFileRepository;
         private readonly IMapFileLoadService _mapFileLoadService;
 
-        public FileLoadActions(IMapFileRepository mapFileRepository,
+        public MapFileLoadActions(IMapFileRepository mapFileRepository,
                                IMapFileLoadService mapFileLoadService)
         {
             _mapFileRepository = mapFileRepository;
