@@ -75,6 +75,7 @@
     <Compile Include="Repositories\IPubFileRepository.cs" />
     <Compile Include="Repositories\PubFileRepository.cs" />
     <Compile Include="Services\ClassFileLoadService.cs" />
+    <Compile Include="Services\IMapStringEncoderService.cs" />
     <Compile Include="Services\INumberEncoderService.cs" />
     <Compile Include="ItemSize.cs" />
     <Compile Include="ItemSpecial.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Services\IPubFileSaveService.cs" />
     <Compile Include="Services\IPubLoadService.cs" />
     <Compile Include="Services\ItemFileLoadService.cs" />
+    <Compile Include="Services\MapStringEncoderService.cs" />
     <Compile Include="Services\NPCFileLoadService.cs" />
     <Compile Include="Services\NumberEncoderService.cs" />
     <Compile Include="PubRecordProperty.cs" />

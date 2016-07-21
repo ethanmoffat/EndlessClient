@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EOLib.IO.Map;
+using EOLib.IO.Services;
 using EOLib.Net;
 
 namespace EOLib.IO.OldMap

@@ -5,7 +5,7 @@
 using System;
 using System.Text;
 
-namespace EOLib.IO.OldMap
+namespace EOLib.IO.Services
 {
     public class MapStringEncoderService : IMapStringEncoderService
     {
