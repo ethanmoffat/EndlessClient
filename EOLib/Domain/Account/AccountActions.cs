@@ -5,7 +5,6 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using EOLib.IO.Services;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;

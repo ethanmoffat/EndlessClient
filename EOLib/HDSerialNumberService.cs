@@ -6,7 +6,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace EOLib.IO.Services
+namespace EOLib
 {
     public class HDSerialNumberService : IHDSerialNumberService
     {

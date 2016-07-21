@@ -135,9 +135,9 @@
     <Compile Include="IO\Repositories\IMapFileProvider.cs" />
     <Compile Include="IO\Repositories\IMapFileRepository.cs" />
     <Compile Include="Net\FileTransfer\FileRequestService.cs" />
-    <Compile Include="IO\Services\HDSerialNumberService.cs" />
+    <Compile Include="HDSerialNumberService.cs" />
     <Compile Include="Net\FileTransfer\IFileRequestService.cs" />
-    <Compile Include="IO\Services\IHDSerialNumberService.cs" />
+    <Compile Include="IHDSerialNumberService.cs" />
     <Compile Include="IO\Old\EODataFile.cs" />
     <Compile Include="IO\Old\IDataFile.cs" />
     <Compile Include="IO\Old\IDataRecord.cs" />
