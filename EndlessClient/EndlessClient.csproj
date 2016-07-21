@@ -326,6 +326,10 @@
       <Project>{2FEC86D4-EA73-472F-9983-B06AF7981F5C}</Project>
       <Name>EOLib.Config</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
+      <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
+      <Name>EOLib.DependencyInjection</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EOLib.Graphics\EOLib.Graphics.csproj">
       <Project>{8c4bc247-89ed-4629-b34b-15a5aee88e2d}</Project>
       <Name>EOLib.Graphics</Name>
