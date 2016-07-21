@@ -6,6 +6,7 @@ using EOLib.DependencyInjection;
 using EOLib.IO.Actions;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
+using EOLib.Localization;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.IO
@@ -28,12 +29,13 @@ namespace EOLib.IO
                 .RegisterInstance<IDataFileProvider, DataFileRepository>();
 
             container.RegisterType<IFileLoadActions, FileLoadActions>()
+                .RegisterType<IDataFileLoadActions, DataFileLoadActions>()
                 .RegisterType<IFileRequestActions, FileRequestActions>();
         }
 
         public void InitializeDependencies(IUnityContainer container)
         {
-            var fileLoadActions = container.Resolve<IFileLoadActions>();
+            var fileLoadActions = container.Resolve<IDataFileLoadActions>();
 
             fileLoadActions.LoadDataFiles();
         }

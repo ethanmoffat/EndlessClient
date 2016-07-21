@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Crc.cs" />
-    <Compile Include="DataFileConstants.cs" />
     <Compile Include="Domain\Account\AccountActions.cs" />
     <Compile Include="Domain\Account\ChangePasswordParameters.cs" />
     <Compile Include="Domain\Account\CreateAccountParameterResult.cs" />
@@ -132,7 +131,6 @@
     <Compile Include="IO\Actions\IFileRequestActions.cs" />
     <Compile Include="IO\Old\Class.cs" />
     <Compile Include="IO\Old\ClassRecordFactory.cs" />
-    <Compile Include="IO\Repositories\IDataFileRepository.cs" />
     <Compile Include="IO\Repositories\ILoginFileChecksumRepository.cs" />
     <Compile Include="IO\Repositories\IMapFileProvider.cs" />
     <Compile Include="IO\Repositories\IMapFileRepository.cs" />
@@ -140,7 +138,6 @@
     <Compile Include="IO\Services\HDSerialNumberService.cs" />
     <Compile Include="IO\Services\IFileRequestService.cs" />
     <Compile Include="IO\Services\IHDSerialNumberService.cs" />
-    <Compile Include="IO\EDFFile.cs" />
     <Compile Include="IO\Old\EODataFile.cs" />
     <Compile Include="IO\Old\IDataFile.cs" />
     <Compile Include="IO\Old\IDataRecord.cs" />
@@ -169,9 +166,7 @@
     <Compile Include="IO\Old\NPCRecord.cs" />
     <Compile Include="IO\Old\NPCRecordFactory.cs" />
     <Compile Include="IO\Repositories\MapFileRepository.cs" />
-    <Compile Include="IO\Services\ILocalizedStringService.cs" />
     <Compile Include="IO\Services\IMapFileLoadService.cs" />
-    <Compile Include="IO\Services\LocalizedStringService.cs" />
     <Compile Include="IO\Services\MapFileLoadService.cs" />
     <Compile Include="IO\Old\Spell.cs" />
     <Compile Include="IO\Old\SpellRecordFactory.cs" />
@@ -303,6 +298,10 @@
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
       <Project>{aa07776b-3f05-404a-ba8a-24970a91c024}</Project>
       <Name>EOLib.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EOLib.Localization\EOLib.Localization.csproj">
+      <Project>{9F543E30-1320-43E2-8691-080E089154A0}</Project>
+      <Name>EOLib.Localization</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -52,7 +52,6 @@
   <ItemGroup>
     <Compile Include="Actions\IPubFileLoadActions.cs" />
     <Compile Include="Actions\PubFileLoadActions.cs" />
-    <Compile Include="DataFileLoadException.cs" />
     <Compile Include="EquipLocation.cs" />
     <Compile Include="PubDependencyContainer.cs" />
     <Compile Include="NumericConstants.cs" />

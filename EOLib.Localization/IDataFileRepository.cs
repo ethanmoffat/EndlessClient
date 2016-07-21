@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using EOLib.Localization;
 
 namespace EOLib.IO.Repositories
 {
@@ -25,7 +26,7 @@ namespace EOLib.IO.Repositories
 
         public DataFileRepository()
         {
-            _dataFiles = new Dictionary<DataFiles, EDFFile>(Constants.ExpectedNumberOfDataFiles);
+            _dataFiles = new Dictionary<DataFiles, EDFFile>(DataConstants.ExpectedNumberOfDataFiles);
         }
     }
 }

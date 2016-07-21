@@ -338,6 +338,10 @@
       <Project>{aa07776b-3f05-404a-ba8a-24970a91c024}</Project>
       <Name>EOLib.IO</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EOLib.Localization\EOLib.Localization.csproj">
+      <Project>{9F543E30-1320-43E2-8691-080E089154A0}</Project>
+      <Name>EOLib.Localization</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EOLib\EOLib.csproj">
       <Project>{edb5ad93-303d-4b07-9fad-f6a8295d2390}</Project>
       <Name>EOLib</Name>

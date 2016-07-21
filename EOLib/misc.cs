@@ -38,9 +38,6 @@ namespace EOLib
 
         public const string MapFileFormatString = "maps/{0,5:D5}.emf";
 
-        public const string DataFilePath = "data/";
-        public const int ExpectedNumberOfDataFiles = 12;
-
         public const byte ViewLength = 16;
 
         public const int LockerMaxSingleItemAmount = 200;

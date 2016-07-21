@@ -2,12 +2,10 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EOLib.IO.Actions
+namespace EOLib.Localization
 {
-    public interface IFileLoadActions
+    public interface IDataFileLoadActions
     {
-        void LoadMapFileByID(int id);
-
-        void LoadMapFileByName(string fileName);
+        void LoadDataFiles();
     }
 }
