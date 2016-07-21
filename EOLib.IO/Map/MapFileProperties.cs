@@ -6,7 +6,7 @@ using System;
 
 namespace EOLib.IO.Map
 {
-    public class MapFileProperties
+    public class MapFileProperties : IMapFileProperties
     {
         public int MapID { get; private set; }
 
@@ -40,126 +40,126 @@ namespace EOLib.IO.Map
             Checksum = new byte[4];
         }
 
-        public MapFileProperties WithMapID(int id)
+        public IMapFileProperties WithMapID(int id)
         {
             var clone = Clone();
             clone.MapID = id;
             return clone;
         }
 
-        public MapFileProperties WithFileSize(int fileSize)
+        public IMapFileProperties WithFileSize(int fileSize)
         {
             var clone = Clone();
             clone.FileSize = fileSize;
             return clone;
         }
 
-        public MapFileProperties WithChecksum(byte[] checksum)
+        public IMapFileProperties WithChecksum(byte[] checksum)
         {
             var clone = Clone();
             clone.Checksum = checksum;
             return clone;
         }
 
-        public MapFileProperties WithName(string name)
+        public IMapFileProperties WithName(string name)
         {
             var clone = Clone();
             clone.Name = name;
             return clone;
         }
 
-        public MapFileProperties WithWidth(byte width)
+        public IMapFileProperties WithWidth(byte width)
         {
             var clone = Clone();
             clone.Width = width;
             return clone;
         }
 
-        public MapFileProperties WithHeight(byte height)
+        public IMapFileProperties WithHeight(byte height)
         {
             var clone = Clone();
             clone.Height = height;
             return clone;
         }
 
-        public MapFileProperties WithEffect(MapEffect effect)
+        public IMapFileProperties WithEffect(MapEffect effect)
         {
             var clone = Clone();
             clone.Effect = effect;
             return clone;
         }
 
-        public MapFileProperties WithMusic(byte music)
+        public IMapFileProperties WithMusic(byte music)
         {
             var clone = Clone();
             clone.Music = music;
             return clone;
         }
 
-        public MapFileProperties WithMusicExtra(byte musicExtra)
+        public IMapFileProperties WithMusicExtra(byte musicExtra)
         {
             var clone = Clone();
             clone.MusicExtra = musicExtra;
             return clone;
         }
 
-        public MapFileProperties WithAmbientNoise(short ambientNoise)
+        public IMapFileProperties WithAmbientNoise(short ambientNoise)
         {
             var clone = Clone();
             clone.AmbientNoise = ambientNoise;
             return clone;
         }
 
-        public MapFileProperties WithFillTile(short fillTile)
+        public IMapFileProperties WithFillTile(short fillTile)
         {
             var clone = Clone();
             clone.FillTile = fillTile;
             return clone;
         }
 
-        public MapFileProperties WithRelogX(byte relogX)
+        public IMapFileProperties WithRelogX(byte relogX)
         {
             var clone = Clone();
             clone.RelogX = relogX;
             return clone;
         }
 
-        public MapFileProperties WithRelogY(byte relogY)
+        public IMapFileProperties WithRelogY(byte relogY)
         {
             var clone = Clone();
             clone.RelogY = relogY;
             return clone;
         }
 
-        public MapFileProperties WithUnknown2(byte unknown2)
+        public IMapFileProperties WithUnknown2(byte unknown2)
         {
             var clone = Clone();
             clone.Unknown2 = unknown2;
             return clone;
         }
 
-        public MapFileProperties WithMapAvailable(bool isAvailable)
+        public IMapFileProperties WithMapAvailable(bool isAvailable)
         {
             var clone = Clone();
             clone.MapAvailable = isAvailable;
             return clone;
         }
 
-        public MapFileProperties WithScrollAvailable(bool canScroll)
+        public IMapFileProperties WithScrollAvailable(bool canScroll)
         {
             var clone = Clone();
             clone.CanScroll = canScroll;
             return clone;
         }
 
-        public MapFileProperties WithPKAvailable(bool pkAvailable)
+        public IMapFileProperties WithPKAvailable(bool pkAvailable)
         {
             var clone = Clone();
             clone.PKAvailable = pkAvailable;
             return clone;
         }
 
-        public MapFileProperties WithHasTimedSpikes(bool hasTimedSpikes)
+        public IMapFileProperties WithHasTimedSpikes(bool hasTimedSpikes)
         {
             var clone = Clone();
             clone.HasTimedSpikes = hasTimedSpikes;

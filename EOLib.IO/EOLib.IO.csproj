@@ -53,6 +53,7 @@
     <Compile Include="Actions\IPubFileLoadActions.cs" />
     <Compile Include="Actions\PubFileLoadActions.cs" />
     <Compile Include="EquipLocation.cs" />
+    <Compile Include="Map\IMapFileProperties.cs" />
     <Compile Include="Map\IReadOnlyMatrix.cs" />
     <Compile Include="Map\Matrix.cs" />
     <Compile Include="Map\ChestKey.cs" />

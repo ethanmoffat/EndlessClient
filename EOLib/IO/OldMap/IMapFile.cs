@@ -9,7 +9,7 @@ namespace EOLib.IO.OldMap
 {
     public interface IMapFile
     {
-        MapFileProperties Properties { get; }
+        IMapFileProperties Properties { get; }
 
         IReadOnly2DArray<TileSpec> Tiles { get; }
         IReadOnly2DArray<Warp> Warps { get; }

@@ -8,7 +8,7 @@ namespace EOLib.IO.Map
 {
     public interface IMapFile
     {
-        MapFileProperties Properties { get; }
+        IMapFileProperties Properties { get; }
 
         IReadOnlyMatrix<TileSpec> Tiles { get; }
         IReadOnlyMatrix<WarpMapEntity> Warps { get; }

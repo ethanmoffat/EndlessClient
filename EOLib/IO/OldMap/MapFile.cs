@@ -43,7 +43,7 @@ namespace EOLib.IO.OldMap
 
         #endregion
 
-        public MapFileProperties Properties { get; private set; }
+        public IMapFileProperties Properties { get; private set; }
 
         public IReadOnly2DArray<TileSpec> Tiles { get { return _tiles; } }
         public IReadOnly2DArray<Warp> Warps { get { return _warps; } }
