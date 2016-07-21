@@ -5,16 +5,16 @@
 using System;
 using System.IO;
 using System.Linq;
-using EOLib.IO;
 using EOLib.IO.Map;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
+using EOLib.IO.Services;
 
 namespace BatchMap
 {
     public static class Program
     {
-        private static ItemFile EIF;
-        private static NPCFile ENF;
+        private static EIFFile EIF;
+        private static ENFFile ENF;
 
         private static void Main(string[] args)
         {
@@ -97,12 +97,12 @@ namespace BatchMap
                 }
             }
 
-            EIF = new ItemFile();
-            ENF = new NPCFile();
+            EIF = new EIFFile();
+            ENF = new ENFFile();
             try
             {
-                EIF.Load(Path.Combine(pubFilePath, "dat001.eif"));
-                ENF.Load(Path.Combine(pubFilePath, "dtn001.enf"));
+                EIF.DeserializeFromByteArray(File.ReadAllBytes(Path.Combine(pubFilePath, "dat001.eif")), new NumberEncoderService());
+                ENF.DeserializeFromByteArray(File.ReadAllBytes(Path.Combine(pubFilePath, "dtn001.enf")), new NumberEncoderService());
             }
             catch
             {
@@ -161,7 +161,7 @@ namespace BatchMap
                 for(int i = EMF.NPCSpawns.Count - 1; i >= 0; --i)
                 {
                     var npc = EMF.NPCSpawns[i];
-                    var npcRec = ENF.GetRecordByID(npc.NpcID);
+                    var npcRec = ENF[npc.NpcID];
                     if (npc.NpcID > ENF.Data.Count || npcRec == null)
                     {
                         Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} uses non-existent NPC #{3}. Removing.", mapID, npc.X, npc.Y, npc.NpcID);
@@ -208,7 +208,7 @@ namespace BatchMap
                 for (int i = EMF.Chests.Count - 1; i >= 0; --i)
                 {
                     var chest = EMF.Chests[i];
-                    var rec = EIF.GetRecordByID(chest.ItemID);
+                    var rec = EIF[chest.ItemID];
                     if (chest.ItemID > EIF.Data.Count || rec == null)
                     {
                         Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} uses non-existent Item #{3}. Removing.", mapID, chest.X, chest.Y, chest.ItemID);
