@@ -11,33 +11,22 @@ using Microsoft.Practices.Unity;
 
 namespace EOLib.IO
 {
-    public class IODependencyContainer : IInitializableContainer
+    public class IODependencyContainer : IDependencyContainer
     {
         public void RegisterDependencies(IUnityContainer container)
         {
             container.RegisterType<IHDSerialNumberService, HDSerialNumberService>()
                 .RegisterType<IMapFileLoadService, MapFileLoadService>()
-                .RegisterType<IFileRequestService, FileRequestService>()
-                .RegisterType<ILocalizedStringService, LocalizedStringService>();
+                .RegisterType<IFileRequestService, FileRequestService>();
 
             container
                 .RegisterInstance<IMapFileRepository, MapFileRepository>()
                 .RegisterInstance<IMapFileProvider, MapFileRepository>()
                 .RegisterInstance<ILoginFileChecksumRepository, LoginFileChecksumRepository>()
-                .RegisterInstance<ILoginFileChecksumProvider, LoginFileChecksumRepository>()
-                .RegisterInstance<IDataFileRepository, DataFileRepository>()
-                .RegisterInstance<IDataFileProvider, DataFileRepository>();
+                .RegisterInstance<ILoginFileChecksumProvider, LoginFileChecksumRepository>();
 
             container.RegisterType<IFileLoadActions, FileLoadActions>()
-                .RegisterType<IDataFileLoadActions, DataFileLoadActions>()
                 .RegisterType<IFileRequestActions, FileRequestActions>();
-        }
-
-        public void InitializeDependencies(IUnityContainer container)
-        {
-            var fileLoadActions = container.Resolve<IDataFileLoadActions>();
-
-            fileLoadActions.LoadDataFiles();
         }
     }
 }
