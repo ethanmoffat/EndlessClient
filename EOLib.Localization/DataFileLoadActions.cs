@@ -17,14 +17,14 @@ namespace EOLib.Localization
 
         public void LoadDataFiles()
         {
-            var files = Directory.GetFiles(DataConstants.DataFilePath, "*.edf");
+            var files = Directory.GetFiles(DataFileConstants.DataFilePath, "*.edf");
 
-            if (!Directory.Exists(DataConstants.DataFilePath) ||
-                files.Length != DataConstants.ExpectedNumberOfDataFiles)
+            if (!Directory.Exists(DataFileConstants.DataFilePath) ||
+                files.Length != DataFileConstants.ExpectedNumberOfDataFiles)
                 throw new DataFileLoadException();
 
             _dataFileRepository.DataFiles.Clear();
-            for (int i = 1; i <= DataConstants.ExpectedNumberOfDataFiles; ++i)
+            for (int i = 1; i <= DataFileConstants.ExpectedNumberOfDataFiles; ++i)
             {
                 if (!DataFileNameIsValid(i, files[i - 1]))
                     throw new DataFileLoadException();

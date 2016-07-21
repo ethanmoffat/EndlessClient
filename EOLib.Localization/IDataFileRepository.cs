@@ -25,7 +25,7 @@ namespace EOLib.Localization
 
         public DataFileRepository()
         {
-            _dataFiles = new Dictionary<DataFiles, EDFFile>(DataConstants.ExpectedNumberOfDataFiles);
+            _dataFiles = new Dictionary<DataFiles, EDFFile>(DataFileConstants.ExpectedNumberOfDataFiles);
         }
     }
 }

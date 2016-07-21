@@ -4,8 +4,7 @@
 
 namespace EOLib.Localization
 {
-    //todo: this should be DataFileConstants
-    public static class DataConstants
+    public static class DataFileConstants
     {
         public const string DataFilePath = "data/";
         public const int ExpectedNumberOfDataFiles = 12;

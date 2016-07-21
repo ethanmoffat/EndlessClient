@@ -51,7 +51,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataConstants.cs" />
+    <Compile Include="DataFileConstants.cs" />
     <Compile Include="EOResourceID.cs" />
     <Compile Include="DataFileLoadActions.cs" />
     <Compile Include="DataFileLoadException.cs" />
