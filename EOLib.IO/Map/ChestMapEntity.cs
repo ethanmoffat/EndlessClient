@@ -12,19 +12,19 @@ namespace EOLib.IO.Map
     {
         public int DataSize { get { return 12; } }
 
-        public int X { get; private set; }
+        public int X { get; set; }
 
-        public int Y { get; private set; }
+        public int Y { get; set; }
 
-        public ChestKey Key { get; private set; }
+        public ChestKey Key { get; set; }
 
-        public byte Slot { get; private set; }
+        public byte Slot { get; set; }
 
-        public short ItemID { get; private set; }
+        public short ItemID { get; set; }
 
-        public short RespawnTime { get; private set; }
+        public short RespawnTime { get; set; }
 
-        public int Amount { get; private set; }
+        public int Amount { get; set; }
 
         public byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
                                            IMapStringEncoderService mapStringEncoderService)

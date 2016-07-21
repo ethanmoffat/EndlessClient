@@ -13,13 +13,13 @@ namespace EOLib.IO.Map
     {
         public int DataSize { get { return 5; } }
 
-        public int X { get; private set; }
+        public int X { get; set; }
 
-        public int Y { get; private set; }
+        public int Y { get; set; }
 
-        public string Title { get; private set; }
+        public string Title { get; set; }
 
-        public string Message { get; private set; }
+        public string Message { get; set; }
 
         public byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
                                            IMapStringEncoderService mapStringEncoderService)
