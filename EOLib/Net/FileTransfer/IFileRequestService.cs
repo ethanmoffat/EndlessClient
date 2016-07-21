@@ -7,7 +7,7 @@ using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
 
-namespace EOLib.IO.Services
+namespace EOLib.Net.FileTransfer
 {
     public interface IFileRequestService
     {

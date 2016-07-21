@@ -9,6 +9,7 @@ using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using EOLib.Net.FileTransfer;
 using EOLib.Net.Translators;
 
 namespace EOLib.Domain.Login

@@ -16,6 +16,7 @@ using EOLib.Domain.Protocol;
 using EOLib.IO.Actions;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using EOLib.Net.FileTransfer;
 
 namespace EndlessClient.Controllers
 {

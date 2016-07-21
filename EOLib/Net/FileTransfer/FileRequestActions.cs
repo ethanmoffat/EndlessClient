@@ -6,11 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
+using EOLib.IO;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 
-namespace EOLib.IO.Actions
+namespace EOLib.Net.FileTransfer
 {
     public class FileRequestActions : IFileRequestActions
     {

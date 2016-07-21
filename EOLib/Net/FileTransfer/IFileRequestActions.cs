@@ -5,7 +5,7 @@
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
 
-namespace EOLib.IO.Actions
+namespace EOLib.Net.FileTransfer
 {
     public interface IFileRequestActions
     {

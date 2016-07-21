@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
-using EOLib.Net;
+using EOLib.IO.Services;
 using EOLib.Net.Communication;
 
-namespace EOLib.IO.Services
+namespace EOLib.Net.FileTransfer
 {
     public class FileRequestService : IFileRequestService
     {

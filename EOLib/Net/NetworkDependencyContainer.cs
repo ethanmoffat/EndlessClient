@@ -8,6 +8,7 @@ using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
+using EOLib.Net.FileTransfer;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 using Microsoft.Practices.Unity;
