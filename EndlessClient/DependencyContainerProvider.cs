@@ -21,6 +21,7 @@ namespace EndlessClient
             new IODependencyContainer(),
             new NetworkDependencyContainer(),
             new PacketTranslatorContainer(),
+            new PubDependencyContainer(),
 
             //EndlessClient containers
             new EndlessClientDependencyContainer(),
