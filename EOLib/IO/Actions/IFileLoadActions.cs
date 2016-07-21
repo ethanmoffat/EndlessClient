@@ -11,7 +11,5 @@ namespace EOLib.IO.Actions
         void LoadMapFileByName(string fileName);
 
         void LoadDataFiles();
-
-        void LoadConfigFile();
     }
 }

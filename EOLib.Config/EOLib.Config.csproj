@@ -35,9 +35,12 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigDefaults.cs" />
+    <Compile Include="ConfigFileLoadActions.cs" />
     <Compile Include="ConfigLoadException.cs" />
     <Compile Include="ConfigStrings.cs" />
     <Compile Include="EOLanguage.cs" />
+    <Compile Include="IConfigFileLoadActions.cs" />
     <Compile Include="IConfigurationRepository.cs" />
     <Compile Include="IniReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

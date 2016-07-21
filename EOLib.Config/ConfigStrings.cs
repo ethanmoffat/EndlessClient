@@ -4,7 +4,7 @@
 
 namespace EOLib.Config
 {
-    public static class ConfigStrings
+    internal static class ConfigStrings
     {
         public const string Default_Config_File = "config/settings.ini";
 

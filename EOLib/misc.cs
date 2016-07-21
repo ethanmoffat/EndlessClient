@@ -36,13 +36,6 @@ namespace EOLib
         public const int ResponseTimeout = 5000;
         public const int ResponseFileTimeout = 10000;
 
-        public const byte MajorVersion = 0;
-        public const byte MinorVersion = 0;
-        public const byte ClientVersion = 28;
-
-        public const string Host = "127.0.0.1";
-        public const int Port = 8078;
-
         public const string MapFileFormatString = "maps/{0,5:D5}.emf";
 
         public const string DataFilePath = "data/";
@@ -50,8 +43,6 @@ namespace EOLib
 
         public const byte ViewLength = 16;
 
-        public const int NPCDropProtectionSeconds = 30;
-        public const int PlayerDropProtectionSeconds = 5;
         public const int LockerMaxSingleItemAmount = 200;
         public const int PartyRequestTimeoutSeconds = 15;
         public const int TradeRequestTimeoutSeconds = 15;

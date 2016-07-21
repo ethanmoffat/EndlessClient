@@ -8,8 +8,6 @@ using System.IO;
 using System.Linq;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
-using EndlessClient.HUD;
-using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Config;
@@ -80,9 +78,6 @@ namespace EndlessClient
             MapCache = new Dictionary<int, MapFile>(32);
             DataFiles = new Dictionary<DataFiles, EDFFile>(12); //12 files total
             m_player = new Player();
-            m_config = new IniReader(ConfigStrings.Default_Config_File);
-            if (!m_config.Load())
-                throw new WorldLoadException("Unable to load the configuration file!");
 
             //client construction: logging for when packets are sent/received
             m_client = new EOClient(CreatePacketProcessorActions());
@@ -121,87 +116,14 @@ namespace EndlessClient
 
         public void Init()
         {
-            Initialized = true;
-
             exp_table = new int[254];
             for (int i = 1; i < exp_table.Length; ++i)
             {
                 exp_table[i] = (int)Math.Round(Math.Pow(i, 3) * 133.1);
             }
-
-            string[] files;
-            if (!Directory.Exists(Constants.DataFilePath) || (files = Directory.GetFiles(Constants.DataFilePath, "*.edf")).Length != 12)
-                throw new WorldLoadException("Unable to find data files! Check that the data directory exists and has ALL the edf files copied over");
-
-            for (DataFiles file = (DataFiles) 1; file <= (DataFiles) 12; ++file)
-            {
-                DataFiles.Add(file, new EDFFile(files[(int) file - 1], file));
-
-                //uncomment to write out the english status messages to files in the bin directory
-                //if (file == EOLib.DataFiles.EnglishStatus1 || file == EOLib.DataFiles.EnglishStatus2)
-                //{
-                //    using(StreamWriter sw = new StreamWriter("test" + ((int)file) + ".txt"))
-                //        foreach(var kvp in DataFiles.Last().Value.Data)
-                //            sw.WriteLine("{0,3}: {1}", kvp.Key, kvp.Value);
-                //}
-            }
-
-            int maj, min, cli, lang, dropProtect;
-            VersionMajor = m_config.GetValue(ConfigStrings.Version, ConfigStrings.Major, out maj) ? (byte)maj : Constants.MajorVersion;
-            VersionMinor = m_config.GetValue(ConfigStrings.Version, ConfigStrings.Minor, out min) ? (byte)min : Constants.MinorVersion;
-            VersionClient = m_config.GetValue(ConfigStrings.Version, ConfigStrings.Client, out cli) ? (byte)cli : Constants.ClientVersion;
-            Language = m_config.GetValue(ConfigStrings.LANGUAGE, ConfigStrings.Language, out lang) ? (EOLanguage)lang : EOLanguage.English;
-
-            PlayerDropProtectTime = m_config.GetValue(ConfigStrings.Custom, ConfigStrings.PlayerDropProtectTime, out dropProtect)
-                ? dropProtect
-                : Constants.PlayerDropProtectionSeconds;
-            NPCDropProtectTime = m_config.GetValue(ConfigStrings.Custom, ConfigStrings.NPCDropProtectTime, out dropProtect)
-                ? dropProtect
-                : Constants.NPCDropProtectionSeconds;
-            
-            bool filter, strict;
-            CurseFilterEnabled = m_config.GetValue(ConfigStrings.Chat, ConfigStrings.Filter, out filter) && filter;
-            StrictFilterEnabled = m_config.GetValue(ConfigStrings.Chat, ConfigStrings.FilterAll, out strict) && strict;
-
-            bool shadows, transitions, music, sound, bubbles;
-            ShowShadows = !m_config.GetValue(ConfigStrings.Settings, ConfigStrings.ShowShadows, out shadows) || shadows;
-            ShowTransition = !m_config.GetValue(ConfigStrings.Settings, ConfigStrings.ShowTransition, out transitions) || transitions;
-            MusicEnabled = m_config.GetValue(ConfigStrings.Settings, ConfigStrings.Music, out music) && music;
-            SoundEnabled = m_config.GetValue(ConfigStrings.Settings, ConfigStrings.Sound, out sound) && sound;
-            ShowChatBubbles = !m_config.GetValue(ConfigStrings.Settings, ConfigStrings.ShowBaloons, out bubbles) || bubbles;
-
-            bool logging, whispers, interaction, logChat;
-            EnableLog = m_config.GetValue(ConfigStrings.Settings, ConfigStrings.EnableLogging, out logging) && logging;
-            HearWhispers = !m_config.GetValue(ConfigStrings.Chat, ConfigStrings.HearWhisper, out whispers) || whispers;
-            Interaction = !m_config.GetValue(ConfigStrings.Chat, ConfigStrings.Interaction, out interaction) || interaction;
-            LogChatToFile = m_config.GetValue(ConfigStrings.Chat, ConfigStrings.LogChat, out logChat) && logChat;
-
-            //do these last and throw non-fatal exceptions (default will be used)
-            string host;
-            int port;
-            if (!m_config.GetValue(ConfigStrings.Connection, ConfigStrings.Host, out host))
-            {
-                Host = Constants.Host;
-                throw new ConfigStringLoadException(ConfigStrings.Host);
-            }
-            Host = host;
-            if (!m_config.GetValue(ConfigStrings.Connection, ConfigStrings.Port, out port))
-            {
-                Port = Constants.Port;
-                throw new ConfigStringLoadException(ConfigStrings.Port);
-            }
-            Port = port;
         }
 
         public int[] exp_table;
-
-        /*** Settings loaded from configuration ***/
-        /*** Those with private setters are custom config options that can't be changed in-game ***/
-        private readonly IniReader m_config;
-
-        public byte VersionMajor { get; private set; }
-        public byte VersionMinor { get; private set; }
-        public byte VersionClient { get; private set; }
 
         private EOLanguage m_lang;
         public EOLanguage Language
@@ -247,9 +169,6 @@ namespace EndlessClient
 
         public bool MusicEnabled { get; set; }
         public bool SoundEnabled { get; set; }
-
-        public string Host { get; private set; }
-        public int Port { get; private set; }
 
         public bool HearWhispers { get; set; }
         public bool Interaction { get; set; }

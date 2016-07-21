@@ -53,12 +53,16 @@ namespace EOLib.IO
             container.RegisterType<IFileLoadActions, FileLoadActions>()
                 .RegisterType<IPubFileLoadActions, PubFileLoadActions>()
                 .RegisterType<IFileRequestActions, FileRequestActions>();
+
+            container.RegisterType<IConfigFileLoadActions, ConfigFileLoadActions>();
         }
 
         public void InitializeDependencies(IUnityContainer container)
         {
+            //these should move to the correct assemblies (EOLib.IO and EOLib.Config)
             var pubFileLoadActions = container.Resolve<IPubFileLoadActions>();
             var fileLoadActions = container.Resolve<IFileLoadActions>();
+            var configLoadActions = container.Resolve<IConfigFileLoadActions>();
 
             try
             {
@@ -87,7 +91,7 @@ namespace EOLib.IO
             }
             catch (IOException) { }
 
-            fileLoadActions.LoadConfigFile();
+            configLoadActions.LoadConfigFile();
             fileLoadActions.LoadDataFiles();
         }
     }
