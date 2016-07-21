@@ -4,8 +4,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.UIControls;
 using EOLib.Domain.Login;

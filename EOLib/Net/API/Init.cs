@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using EOLib.Domain.Protocol;
-using EOLib.IO;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 

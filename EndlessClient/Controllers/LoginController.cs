@@ -13,7 +13,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Protocol;
-using EOLib.IO;
 using EOLib.IO.Actions;
 using EOLib.Net;
 using EOLib.Net.Communication;

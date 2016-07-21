@@ -3,10 +3,8 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EndlessClient.HUD.Panels;
 using EndlessClient.HUD.Panels.Old;
 using EOLib;
-using EOLib.IO;
 using EOLib.IO.Old;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

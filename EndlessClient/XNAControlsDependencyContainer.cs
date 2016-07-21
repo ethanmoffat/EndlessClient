@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.GameExecution;
-using EOLib;
 using EOLib.DependencyInjection;
 using Microsoft.Practices.Unity;
 using Microsoft.Xna.Framework;

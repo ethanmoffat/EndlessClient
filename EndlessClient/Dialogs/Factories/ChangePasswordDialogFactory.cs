@@ -5,7 +5,6 @@
 using EndlessClient.Content;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
-using EndlessClient.UIControls;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
 

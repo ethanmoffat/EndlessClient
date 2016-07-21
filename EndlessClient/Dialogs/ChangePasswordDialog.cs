@@ -9,7 +9,6 @@ using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
-using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Domain.Login;

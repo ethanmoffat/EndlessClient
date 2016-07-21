@@ -4,8 +4,6 @@
 
 using System;
 using System.Linq;
-using EndlessClient.HUD;
-using EndlessClient.HUD.Panels;
 using EndlessClient.HUD.Panels.Old;
 using EOLib;
 using EOLib.Domain.Chat;

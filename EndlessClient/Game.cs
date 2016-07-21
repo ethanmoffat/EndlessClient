@@ -20,7 +20,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
-using CONTROLSINIT = XNAControls.XNAControls;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace EndlessClient

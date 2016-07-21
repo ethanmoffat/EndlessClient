@@ -10,7 +10,6 @@ using EndlessClient.HUD.Spells;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.IO;
 using EOLib.IO.Old;
 using EOLib.Net.API;
 using Microsoft.Win32;

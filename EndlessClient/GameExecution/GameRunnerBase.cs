@@ -5,7 +5,6 @@
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using EOLib;
 using EOLib.Config;
 using EOLib.DependencyInjection;
 using EOLib.Graphics;

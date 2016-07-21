@@ -13,7 +13,6 @@ using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
-using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
