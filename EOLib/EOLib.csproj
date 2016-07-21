@@ -143,8 +143,6 @@
     <Compile Include="IO\Old\IDataRecord.cs" />
     <Compile Include="IO\Old\IDataRecordFactory.cs" />
     <Compile Include="IO\IODependencyContainer.cs" />
-    <Compile Include="IO\Map\ChestKey.cs" />
-    <Compile Include="IO\Map\DoorSpec.cs" />
     <Compile Include="IO\Map\IMapEntityItem.cs" />
     <Compile Include="IO\Map\IMapEntityRow.cs" />
     <Compile Include="IO\Map\IMapFile.cs" />
@@ -154,13 +152,10 @@
     <Compile Include="IO\Map\MapFile.cs" />
     <Compile Include="IO\Map\IMapStringEncoderService.cs" />
     <Compile Include="IO\Map\MapChest.cs" />
-    <Compile Include="IO\Map\MapEffect.cs" />
     <Compile Include="IO\Map\MapFileProperties.cs" />
-    <Compile Include="IO\Map\MapLayer.cs" />
     <Compile Include="IO\Map\MapSign.cs" />
     <Compile Include="IO\Map\MapStringEncoderService.cs" />
     <Compile Include="IO\Map\NPCSpawn.cs" />
-    <Compile Include="IO\Map\TileSpec.cs" />
     <Compile Include="IO\Map\Warp.cs" />
     <Compile Include="IO\Old\NPCFile.cs" />
     <Compile Include="IO\Old\NPCRecord.cs" />
