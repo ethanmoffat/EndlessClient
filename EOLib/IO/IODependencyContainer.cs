@@ -6,7 +6,6 @@ using EOLib.DependencyInjection;
 using EOLib.IO.Actions;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
-using EOLib.Localization;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.IO
@@ -17,16 +16,9 @@ namespace EOLib.IO
         {
             container.RegisterType<IHDSerialNumberService, HDSerialNumberService>()
                 .RegisterType<IMapFileLoadService, MapFileLoadService>()
-                .RegisterType<IFileRequestService, FileRequestService>();
-
-            container
                 .RegisterInstance<IMapFileRepository, MapFileRepository>()
                 .RegisterInstance<IMapFileProvider, MapFileRepository>()
-                .RegisterInstance<ILoginFileChecksumRepository, LoginFileChecksumRepository>()
-                .RegisterInstance<ILoginFileChecksumProvider, LoginFileChecksumRepository>();
-
-            container.RegisterType<IMapFileLoadActions, MapFileLoadActions>()
-                .RegisterType<IFileRequestActions, FileRequestActions>();
+                .RegisterType<IMapFileLoadActions, MapFileLoadActions>();
         }
     }
 }

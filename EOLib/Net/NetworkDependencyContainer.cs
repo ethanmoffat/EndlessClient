@@ -3,6 +3,9 @@
 // For additional details, see the LICENSE file
 
 using EOLib.DependencyInjection;
+using EOLib.IO.Actions;
+using EOLib.IO.Repositories;
+using EOLib.IO.Services;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.Handlers;
@@ -20,6 +23,7 @@ namespace EOLib.Net
             container.RegisterType<IHashService, HashService>();
             container.RegisterType<IPacketSendService, PacketSendService>();
             container.RegisterType<IPacketHandlingTypeFinder, PacketHandlingTypeFinder>();
+            container.RegisterType<IFileRequestService, FileRequestService>();
 
             //the repository is a "disposer" of the NetworkClient (so NetworkClient gets cleaned up later if it is set)
             container.RegisterInstance<INetworkClientDisposer, NetworkClientRepository>();
@@ -37,10 +41,13 @@ namespace EOLib.Net
             container.RegisterInstance<IConnectionStateProvider, ConnectionStateRepository>();
             container.RegisterInstance<IPacketHandlerRepository, PacketHandlerRepository>();
             container.RegisterInstance<IPacketHandlerProvider, PacketHandlerRepository>();
+            container.RegisterInstance<ILoginFileChecksumRepository, LoginFileChecksumRepository>();
+            container.RegisterInstance<ILoginFileChecksumProvider, LoginFileChecksumRepository>();
 
             container.RegisterType<IPacketProcessorActions, PacketProcessActions>();
             container.RegisterType<INetworkConnectionActions, NetworkConnectionActions>();
             container.RegisterType<IPacketHandlingActions, PacketHandlingActions>();
+            container.RegisterType<IFileRequestActions, FileRequestActions>();
             
             //must be a singleton: tracks a thread and has internal state.
             container.RegisterInstance<IBackgroundReceiveActions, BackgroundReceiveActions>();
