@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Panels;
+using EOLib;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
 
@@ -13,14 +14,17 @@ namespace EndlessClient.HUD
 {
     public class HudStateActions : IHudStateActions
     {
+        private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IMapFileProvider _mapFileProvider;
 
-        public HudStateActions(IHudControlProvider hudControlProvider,
+        public HudStateActions(IStatusLabelSetter statusLabelSetter,
+                               IHudControlProvider hudControlProvider,
                                ICurrentMapStateRepository currentMapStateRepository,
                                IMapFileProvider mapFileProvider)
         {
+            _statusLabelSetter = statusLabelSetter;
             _hudControlProvider = hudControlProvider;
             _currentMapStateRepository = currentMapStateRepository;
             _mapFileProvider = mapFileProvider;
@@ -40,7 +44,7 @@ namespace EndlessClient.HUD
             var mapFile = _mapFileProvider.MapFiles[_currentMapStateRepository.CurrentMapID];
             if (!mapFile.Properties.MapAvailable)
             {
-                //todo: show status bar message
+                _statusLabelSetter.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_NO_MAP_OF_AREA);
                 return;
             }
 
