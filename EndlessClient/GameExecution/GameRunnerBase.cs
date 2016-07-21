@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using EOLib;
+using EOLib.Config;
 using EOLib.Graphics;
 using EOLib.IO;
 using Microsoft.Practices.Unity;

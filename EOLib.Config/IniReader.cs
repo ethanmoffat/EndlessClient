@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace EOLib.IO
+namespace EOLib.Config
 {
     public class IniReader
     {
@@ -190,11 +190,5 @@ namespace EOLib.IO
         }
 
         #endregion
-    }
-
-    public class ConfigLoadException : Exception
-    {
-        public ConfigLoadException()
-            : base("Unable to load the configuration file! Make sure there is a file in " + ConfigStrings.Default_Config_File) { }
     }
 }

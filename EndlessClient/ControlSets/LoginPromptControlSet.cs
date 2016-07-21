@@ -10,6 +10,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib;
+using EOLib.Config;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;

@@ -4,14 +4,6 @@
 
 namespace EOLib
 {
-    public enum EOLanguage
-    {
-        English,
-        Dutch,
-        Swedish,
-        Portuguese
-    }
-
     public enum DataFiles
     {
         Credits = 1,

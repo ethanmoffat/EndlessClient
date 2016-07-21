@@ -12,6 +12,7 @@ using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
+using EOLib.Config;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 

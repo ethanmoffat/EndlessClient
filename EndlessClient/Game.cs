@@ -12,6 +12,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EOLib;
+using EOLib.Config;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Old;

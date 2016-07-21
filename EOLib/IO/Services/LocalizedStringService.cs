@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Config;
 using EOLib.IO.Repositories;
 
 namespace EOLib.IO.Services

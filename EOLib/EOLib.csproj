@@ -141,7 +141,6 @@
     <Compile Include="IO\Repositories\IMapFileRepository.cs" />
     <Compile Include="IO\Services\FileRequestService.cs" />
     <Compile Include="IO\Services\HDSerialNumberService.cs" />
-    <Compile Include="IO\Repositories\IConfigurationRepository.cs" />
     <Compile Include="IO\Services\IFileRequestService.cs" />
     <Compile Include="IO\Services\IHDSerialNumberService.cs" />
     <Compile Include="IO\EDFFile.cs" />
@@ -156,7 +155,6 @@
     <Compile Include="IO\Map\IMapEntityRow.cs" />
     <Compile Include="IO\Map\IMapFile.cs" />
     <Compile Include="IO\Old\IModifiableDataFile.cs" />
-    <Compile Include="IO\IniReader.cs" />
     <Compile Include="IO\Old\Item.cs" />
     <Compile Include="IO\Old\ItemRecordFactory.cs" />
     <Compile Include="IO\Map\MapFile.cs" />
@@ -298,6 +296,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj">
+      <Project>{2FEC86D4-EA73-472F-9983-B06AF7981F5C}</Project>
+      <Name>EOLib.Config</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
       <Project>{aa07776b-3f05-404a-ba8a-24970a91c024}</Project>
       <Name>EOLib.IO</Name>
