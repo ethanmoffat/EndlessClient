@@ -2,12 +2,16 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EOLib.IO.Services;
+
 namespace EOLib.IO.Map
 {
     public interface IMapFileProperties
     {
+        string FileType { get; }
         int MapID { get; }
         int FileSize { get; }
+
         byte[] Checksum { get; }
         string Name { get; }
         byte Width { get; }
@@ -27,6 +31,7 @@ namespace EOLib.IO.Map
 
         IMapFileProperties WithMapID(int id);
         IMapFileProperties WithFileSize(int fileSize);
+
         IMapFileProperties WithChecksum(byte[] checksum);
         IMapFileProperties WithName(string name);
         IMapFileProperties WithWidth(byte width);
@@ -43,5 +48,12 @@ namespace EOLib.IO.Map
         IMapFileProperties WithScrollAvailable(bool canScroll);
         IMapFileProperties WithPKAvailable(bool pkAvailable);
         IMapFileProperties WithHasTimedSpikes(bool hasTimedSpikes);
+
+        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
+                                    IMapStringEncoderService mapStringEncoderService);
+
+        IMapFileProperties DeserializeFromByteArray(byte[] data,
+                                                    INumberEncoderService numberEncoderService,
+                                                    IMapStringEncoderService mapStringEncoderService);
     }
 }

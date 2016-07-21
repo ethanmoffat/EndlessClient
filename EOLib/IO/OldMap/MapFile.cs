@@ -172,7 +172,9 @@ namespace EOLib.IO.OldMap
         private void SetMapProperties(int intID, IPacket filePacket)
         {
             byte[] checkSum;
-            Properties = new MapFileProperties()
+            Properties = new MapFileProperties();
+
+            Properties = Properties
                 .WithMapID(intID)
                 .WithFileSize(filePacket.Length)
                 .WithChecksum(checkSum = filePacket.ReadBytes(4).ToArray())
