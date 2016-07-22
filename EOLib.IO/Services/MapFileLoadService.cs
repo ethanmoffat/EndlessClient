@@ -31,13 +31,7 @@ namespace EOLib.IO.Services
 
         public IMapFile LoadMapByPath(string pathToMapFile)
         {
-            var lastSlash = pathToMapFile.LastIndexOf('\\') < 0 ? pathToMapFile.LastIndexOf('/') : -1;
-            if (lastSlash < 0)
-                throw new IOException();
-
-            var strID = pathToMapFile.Substring(lastSlash + 1, 5);
-            var intID = int.Parse(strID);
-
+            var intID = new MapPathToIDConverter().ConvertFromPathToID(pathToMapFile);
             var mapFile = new MapFile(intID);
 
             var mapFileBytes = File.ReadAllBytes(pathToMapFile);
