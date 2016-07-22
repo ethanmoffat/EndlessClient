@@ -44,6 +44,7 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MapFilePropertiesTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Pub\BasePubFileTest.cs" />
     <Compile Include="Pub\DummyFile.cs" />

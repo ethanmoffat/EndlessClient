@@ -212,7 +212,7 @@ namespace EOLib.IO.Map
 
             var typeString = Encoding.ASCII.GetString(data.Take(3).ToArray());
             if (typeString != FileType)
-                throw new ArgumentException("Data is not correctly formatted! Must be an EMF file header");
+                throw new FormatException("Data is not correctly formatted! Must be an EMF file header");
 
             var checksumArray = data.Skip(7).Take(24).ToArray();
             var props = Clone();
