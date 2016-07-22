@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
 using EOLib.IO;
@@ -18,25 +17,25 @@ namespace EOLib.Net.FileTransfer
     public class FileRequestActions : IFileRequestActions
     {
         private readonly INumberEncoderService _numberEncoderService;
-        private readonly IMapStringEncoderService _mapStringEncoderService;
         private readonly IFileRequestService _fileRequestService;
         private readonly IPubFileSaveService _pubFileSaveService;
+        private readonly IMapFileSaveService _mapFileSaveService;
         private readonly ILoginFileChecksumProvider _loginFileChecksumProvider;
         private readonly IPubFileRepository _pubFileRepository;
         private readonly IMapFileRepository _mapFileRepository;
 
         public FileRequestActions(INumberEncoderService numberEncoderService,
-                                  IMapStringEncoderService mapStringEncoderService,
                                   IFileRequestService fileRequestService,
                                   IPubFileSaveService pubFileSaveService,
+                                  IMapFileSaveService mapFileSaveService,
                                   ILoginFileChecksumProvider loginFileChecksumProvider,
                                   IPubFileRepository pubFileRepository,
                                   IMapFileRepository mapFileRepository)
         {
             _numberEncoderService = numberEncoderService;
-            _mapStringEncoderService = mapStringEncoderService;
             _fileRequestService = fileRequestService;
             _pubFileSaveService = pubFileSaveService;
+            _mapFileSaveService = mapFileSaveService;
             _loginFileChecksumProvider = loginFileChecksumProvider;
             _pubFileRepository = pubFileRepository;
             _mapFileRepository = mapFileRepository;
@@ -53,8 +52,7 @@ namespace EOLib.Net.FileTransfer
         public async Task GetMapFromServer(short mapID)
         {
             var mapFile = await _fileRequestService.RequestMapFile(mapID);
-            File.WriteAllBytes(string.Format(MapFile.MapFileFormatString, mapID),
-                               mapFile.SerializeToByteArray(_numberEncoderService, _mapStringEncoderService));
+            _mapFileSaveService.SaveFile(string.Format(MapFile.MapFileFormatString, mapID), mapFile);
 
             if (_mapFileRepository.MapFiles.ContainsKey(mapID))
                 _mapFileRepository.MapFiles[mapID] = mapFile;
