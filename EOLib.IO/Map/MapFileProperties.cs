@@ -180,7 +180,12 @@ namespace EOLib.IO.Map
 
             ret.AddRange(Encoding.ASCII.GetBytes(FileType));
             ret.AddRange(Checksum);
-            ret.AddRange(mapStringEncoderService.EncodeMapString(Name));
+
+            var fullName = Enumerable.Repeat((byte) 0xFF, 24).ToArray();
+            var encodedName = mapStringEncoderService.EncodeMapString(Name);
+            Array.Copy(encodedName, 0, fullName, fullName.Length - encodedName.Length, encodedName.Length);
+            ret.AddRange(fullName);
+
             ret.AddRange(numberEncoderService.EncodeNumber(PKAvailable ? 3 : 0, 1));
             ret.AddRange(numberEncoderService.EncodeNumber((byte)Effect, 1));
             ret.AddRange(numberEncoderService.EncodeNumber(Music, 1));
