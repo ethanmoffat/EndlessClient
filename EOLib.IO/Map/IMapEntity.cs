@@ -14,6 +14,7 @@ namespace EOLib.IO.Map
 
         int Y { get; }
 
+        //todo: find some way so that not all map entities have to know about IMapStringEncoderService
         byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
                                     IMapStringEncoderService mapStringEncoderService);
 

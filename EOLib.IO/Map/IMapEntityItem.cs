@@ -4,7 +4,7 @@
 
 namespace EOLib.IO.Map
 {
-    //todo: make this internal once it is no longer depended upon
+    //todo: remove this once it is no longer depended upon
     public interface IMapEntityItem<T>
     {
         int X { get; set; }
