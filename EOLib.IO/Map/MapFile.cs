@@ -47,7 +47,18 @@ namespace EOLib.IO.Map
         public byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
                                            IMapStringEncoderService mapStringEncoderService)
         {
-            throw new NotImplementedException();
+            var ret = new List<byte>();
+
+            ret.AddRange(Properties.SerializeToByteArray(numberEncoderService, mapStringEncoderService));
+            WriteNPCSpawns(ret, numberEncoderService, mapStringEncoderService);
+            WriteUnknowns(ret, numberEncoderService);
+            WriteMapChests(ret, numberEncoderService, mapStringEncoderService);
+            WriteTileSpecs(ret, numberEncoderService);
+            WriteWarpTiles(ret, numberEncoderService, mapStringEncoderService);
+            WriteGFXLayers(ret, numberEncoderService);
+            WriteMapSigns(ret, numberEncoderService, mapStringEncoderService);
+
+            return ret.ToArray();
         }
 
         public void DeserializeFromByteArray(byte[] data,
@@ -235,7 +246,83 @@ namespace EOLib.IO.Map
 
         #endregion
 
-        #region Helper classes for Serialization
+        #region Helpers for Serialization
+
+        private void WriteNPCSpawns(List<byte> ret, INumberEncoderService nes, IMapStringEncoderService ses)
+        {
+            ret.AddRange(nes.EncodeNumber(NPCSpawns.Count, 1));
+            foreach (var spawn in NPCSpawns)
+                ret.AddRange(spawn.SerializeToByteArray(nes, ses));
+        }
+
+        private void WriteUnknowns(List<byte> ret, INumberEncoderService nes)
+        {
+            ret.AddRange(nes.EncodeNumber(Unknowns.Count, 1));
+            foreach (var unknown in Unknowns)
+                ret.AddRange(unknown);
+        }
+
+        private void WriteMapChests(List<byte> ret, INumberEncoderService nes, IMapStringEncoderService ses)
+        {
+            ret.AddRange(nes.EncodeNumber(Chests.Count, 1));
+            foreach (var chest in Chests)
+                ret.AddRange(chest.SerializeToByteArray(nes, ses));
+        }
+
+        private void WriteTileSpecs(List<byte> ret, INumberEncoderService nes)
+        {
+            var collection = GetSerializationCollection(_mutableTiles, TileSpec.None);
+            ret.AddRange(nes.EncodeNumber(collection.Count, 1));
+            foreach (var row in collection)
+            {
+                ret.AddRange(nes.EncodeNumber(row.Y, 1));
+                ret.AddRange(nes.EncodeNumber(row.EntityItems.Count, 1));
+                foreach (var item in row.EntityItems)
+                {
+                    ret.AddRange(nes.EncodeNumber(item.X, 1));
+                    ret.AddRange(nes.EncodeNumber((byte)item.Value, 1));
+                }
+            }
+        }
+
+        private void WriteWarpTiles(List<byte> ret, INumberEncoderService nes, IMapStringEncoderService ses)
+        {
+            var collection = GetSerializationCollection(_mutableWarps, null);
+            ret.AddRange(nes.EncodeNumber(collection.Count, 1));
+            foreach (var row in collection)
+            {
+                ret.AddRange(nes.EncodeNumber(row.Y, 1));
+                ret.AddRange(nes.EncodeNumber(row.EntityItems.Count, 1));
+                foreach (var item in row.EntityItems)
+                    ret.AddRange(item.Value.SerializeToByteArray(nes, ses));
+            }
+        }
+
+        private void WriteGFXLayers(List<byte> ret, INumberEncoderService nes)
+        {
+            foreach (var layer in _mutableGFX.Keys)
+            {
+                var collection = GetSerializationCollection(_mutableGFX[layer], -1);
+                ret.AddRange(nes.EncodeNumber(collection.Count, 1));
+                foreach (var row in collection)
+                {
+                    ret.AddRange(nes.EncodeNumber(row.Y, 1));
+                    ret.AddRange(nes.EncodeNumber(row.EntityItems.Count, 1));
+                    foreach (var item in row.EntityItems)
+                    {
+                        ret.AddRange(nes.EncodeNumber(item.X, 1));
+                        ret.AddRange(nes.EncodeNumber(item.Value, 2));
+                    }
+                }
+            }
+        }
+
+        private void WriteMapSigns(List<byte> ret, INumberEncoderService nes, IMapStringEncoderService ses)
+        {
+            ret.AddRange(nes.EncodeNumber(Signs.Count, 1));
+            foreach (var sign in Signs)
+                ret.AddRange(sign.SerializeToByteArray(nes, ses));
+        }
 
         private List<MapEntityRow<T>> GetSerializationCollection<T>(Matrix<T> m, T fillValue)
         {
