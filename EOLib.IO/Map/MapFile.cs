@@ -333,7 +333,7 @@ namespace EOLib.IO.Map
                 var nextEntityRow = new MapEntityRow<T> {Y = r};
 
                 var row = m.GetRow(r);
-                if (row.All(x => x.Equals(fillValue)))
+                if (row.All(x => x == null || x.Equals(fillValue)))
                     continue;
 
                 var mapEntityItems = row.Select((val, x) => new MapEntityItem<T> {X = x, Value = val})
