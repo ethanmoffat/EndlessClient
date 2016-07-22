@@ -10,7 +10,7 @@ namespace EOLib.IO.Map
 {
     public class NPCSpawnMapEntity : IMapEntity
     {
-        public int DataSize { get { return 10; } }
+        public int DataSize { get { return 8; } }
 
         public int X { get; set; }
 
