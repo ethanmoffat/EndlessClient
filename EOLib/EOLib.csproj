@@ -125,15 +125,11 @@
     <Compile Include="Domain\Account\CreateAccountParameterValidator.cs" />
     <Compile Include="Domain\Account\ICreateAccountParameterValidator.cs" />
     <Compile Include="EODirection.cs" />
-    <Compile Include="IO\Actions\MapFileLoadActions.cs" />
     <Compile Include="Net\FileTransfer\FileRequestActions.cs" />
-    <Compile Include="IO\Actions\IMapFileLoadActions.cs" />
     <Compile Include="Net\FileTransfer\IFileRequestActions.cs" />
     <Compile Include="IO\Old\Class.cs" />
     <Compile Include="IO\Old\ClassRecordFactory.cs" />
     <Compile Include="Net\FileTransfer\ILoginFileChecksumRepository.cs" />
-    <Compile Include="IO\Repositories\IMapFileProvider.cs" />
-    <Compile Include="IO\Repositories\IMapFileRepository.cs" />
     <Compile Include="Net\FileTransfer\FileRequestService.cs" />
     <Compile Include="HDSerialNumberService.cs" />
     <Compile Include="Net\FileTransfer\IFileRequestService.cs" />
@@ -155,9 +151,6 @@
     <Compile Include="IO\Old\NPCFile.cs" />
     <Compile Include="IO\Old\NPCRecord.cs" />
     <Compile Include="IO\Old\NPCRecordFactory.cs" />
-    <Compile Include="IO\Repositories\MapFileRepository.cs" />
-    <Compile Include="IO\Services\IMapFileLoadService.cs" />
-    <Compile Include="IO\Services\MapFileLoadService.cs" />
     <Compile Include="IO\Old\Spell.cs" />
     <Compile Include="IO\Old\SpellRecordFactory.cs" />
     <Compile Include="misc.cs" />

@@ -12,6 +12,8 @@ namespace EOLib.IO.Map
 {
     public class MapFile : IMapFile
     {
+        public const string MapFileFormatString = "maps/{0,5:D5}.emf";
+
         public IMapFileProperties Properties { get; private set; }
 
         public IReadOnlyMatrix<TileSpec> Tiles { get { return _mutableTiles; } }
@@ -337,7 +339,7 @@ namespace EOLib.IO.Map
                     continue;
 
                 var mapEntityItems = row.Select((val, x) => new MapEntityItem<T> {X = x, Value = val})
-                                        .Where(x => !x.Value.Equals(fillValue));
+                                        .Where(x => x.Value != null && !x.Value.Equals(fillValue));
 
                 nextEntityRow.EntityItems.AddRange(mapEntityItems);
                 retList.Add(nextEntityRow);

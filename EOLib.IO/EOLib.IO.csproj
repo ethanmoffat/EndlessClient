@@ -50,7 +50,9 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\IMapFileLoadActions.cs" />
     <Compile Include="Actions\IPubFileLoadActions.cs" />
+    <Compile Include="Actions\MapFileLoadActions.cs" />
     <Compile Include="Actions\PubFileLoadActions.cs" />
     <Compile Include="EquipLocation.cs" />
     <Compile Include="Map\IMapFileProperties.cs" />
@@ -82,10 +84,12 @@
     <Compile Include="Pub\ESFFile.cs" />
     <Compile Include="Pub\ESFRecord.cs" />
     <Compile Include="Pub\BasePubFile.cs" />
+    <Compile Include="Repositories\IMapFileRepository.cs" />
     <Compile Include="Repositories\IPubFileProvider.cs" />
     <Compile Include="Repositories\IPubFileRepository.cs" />
     <Compile Include="Repositories\PubFileRepository.cs" />
     <Compile Include="Services\ClassFileLoadService.cs" />
+    <Compile Include="Services\IMapFileLoadService.cs" />
     <Compile Include="Services\IMapStringEncoderService.cs" />
     <Compile Include="Services\INumberEncoderService.cs" />
     <Compile Include="ItemSize.cs" />
@@ -96,6 +100,7 @@
     <Compile Include="Services\IPubFileSaveService.cs" />
     <Compile Include="Services\IPubLoadService.cs" />
     <Compile Include="Services\ItemFileLoadService.cs" />
+    <Compile Include="Services\MapFileLoadService.cs" />
     <Compile Include="Services\MapStringEncoderService.cs" />
     <Compile Include="Services\NPCFileLoadService.cs" />
     <Compile Include="Services\NumberEncoderService.cs" />

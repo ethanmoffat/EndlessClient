@@ -15,6 +15,7 @@ namespace EOLib.IO
         public void RegisterDependencies(IUnityContainer container)
         {
             container.RegisterType<IHDSerialNumberService, HDSerialNumberService>()
+                .RegisterType<IMapStringEncoderService, MapStringEncoderService>()
                 .RegisterType<IMapFileLoadService, MapFileLoadService>()
                 .RegisterInstance<IMapFileRepository, MapFileRepository>()
                 .RegisterInstance<IMapFileProvider, MapFileRepository>()

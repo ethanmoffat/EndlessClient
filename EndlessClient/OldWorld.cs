@@ -373,7 +373,7 @@ namespace EndlessClient
         {
             NeedMap = -1;
 
-            string mapFile = string.Format(Constants.MapFileFormatString, mapID);
+            string mapFile = string.Format(EOLib.IO.Map.MapFile.MapFileFormatString, mapID);
             if (!Directory.Exists("maps") || !File.Exists(mapFile))
             {
                 Directory.CreateDirectory("maps");

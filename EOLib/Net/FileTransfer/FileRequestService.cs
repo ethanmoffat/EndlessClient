@@ -5,7 +5,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
-using EOLib.IO.OldMap;
+using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
 using EOLib.Net.Communication;
@@ -16,12 +16,15 @@ namespace EOLib.Net.FileTransfer
     {
         private readonly IPacketSendService _packetSendService;
         private readonly INumberEncoderService _numberEncoderService;
+        private readonly IMapStringEncoderService _mapStringEncoderService;
 
         public FileRequestService(IPacketSendService packetSendService,
-                                  INumberEncoderService numberEncoderService)
+                                  INumberEncoderService numberEncoderService,
+                                  IMapStringEncoderService mapStringEncoderService)
         {
             _packetSendService = packetSendService;
             _numberEncoderService = numberEncoderService;
+            _mapStringEncoderService = mapStringEncoderService;
         }
 
         public async Task<IMapFile> RequestMapFile(short mapID)
@@ -39,7 +42,11 @@ namespace EOLib.Net.FileTransfer
                 throw new EmptyPacketReceivedException();
 
             var fileData = response.ReadBytes(response.Length - response.ReadPosition);
-            return MapFile.FromBytes(mapID, fileData);
+            
+            var mapFile = new MapFile(mapID);
+            mapFile.DeserializeFromByteArray(fileData.ToArray(), _numberEncoderService, _mapStringEncoderService);
+
+            return mapFile;
         }
 
         public async Task<IPubFile> RequestFile(InitFileType fileType)

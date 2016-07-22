@@ -4,9 +4,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
 using EOLib.IO;
+using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
@@ -16,6 +18,7 @@ namespace EOLib.Net.FileTransfer
     public class FileRequestActions : IFileRequestActions
     {
         private readonly INumberEncoderService _numberEncoderService;
+        private readonly IMapStringEncoderService _mapStringEncoderService;
         private readonly IFileRequestService _fileRequestService;
         private readonly IPubFileSaveService _pubFileSaveService;
         private readonly ILoginFileChecksumProvider _loginFileChecksumProvider;
@@ -23,6 +26,7 @@ namespace EOLib.Net.FileTransfer
         private readonly IMapFileRepository _mapFileRepository;
 
         public FileRequestActions(INumberEncoderService numberEncoderService,
+                                  IMapStringEncoderService mapStringEncoderService,
                                   IFileRequestService fileRequestService,
                                   IPubFileSaveService pubFileSaveService,
                                   ILoginFileChecksumProvider loginFileChecksumProvider,
@@ -30,6 +34,7 @@ namespace EOLib.Net.FileTransfer
                                   IMapFileRepository mapFileRepository)
         {
             _numberEncoderService = numberEncoderService;
+            _mapStringEncoderService = mapStringEncoderService;
             _fileRequestService = fileRequestService;
             _pubFileSaveService = pubFileSaveService;
             _loginFileChecksumProvider = loginFileChecksumProvider;
@@ -48,7 +53,8 @@ namespace EOLib.Net.FileTransfer
         public async Task GetMapFromServer(short mapID)
         {
             var mapFile = await _fileRequestService.RequestMapFile(mapID);
-            mapFile.Save(string.Format(Constants.MapFileFormatString, mapID));
+            File.WriteAllBytes(string.Format(MapFile.MapFileFormatString, mapID),
+                               mapFile.SerializeToByteArray(_numberEncoderService, _mapStringEncoderService));
 
             if (_mapFileRepository.MapFiles.ContainsKey(mapID))
                 _mapFileRepository.MapFiles[mapID] = mapFile;

@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
-using EOLib.IO.OldMap;
+using EOLib.IO.Map;
 using EOLib.IO.Pub;
 
 namespace EOLib.Net.FileTransfer

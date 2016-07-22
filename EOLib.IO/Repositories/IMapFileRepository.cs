@@ -3,10 +3,20 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using IMapFile = EOLib.IO.OldMap.IMapFile;
+using EOLib.IO.Map;
 
 namespace EOLib.IO.Repositories
 {
+    public interface IMapFileRepository
+    {
+        Dictionary<int, IMapFile> MapFiles { get; }
+    }
+
+    public interface IMapFileProvider
+    {
+        IReadOnlyDictionary<int, IMapFile> MapFiles { get; }
+    }
+
     public class MapFileRepository : IMapFileRepository, IMapFileProvider
     {
         private readonly Dictionary<int, IMapFile> _mapCache;

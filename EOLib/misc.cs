@@ -36,8 +36,6 @@ namespace EOLib
         public const int ResponseTimeout = 5000;
         public const int ResponseFileTimeout = 10000;
 
-        public const string MapFileFormatString = "maps/{0,5:D5}.emf";
-
         public const byte ViewLength = 16;
 
         public const int LockerMaxSingleItemAmount = 200;

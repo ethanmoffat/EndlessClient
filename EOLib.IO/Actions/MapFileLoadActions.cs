@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 
@@ -21,12 +22,18 @@ namespace EOLib.IO.Actions
 
         public void LoadMapFileByID(int id)
         {
-            LoadMapFileByName(string.Format(Constants.MapFileFormatString, id));
+            var mapFile = _mapFileLoadService.LoadMapByID(id);
+            AddMapToCache(mapFile);
         }
 
         public void LoadMapFileByName(string fileName)
         {
             var mapFile = _mapFileLoadService.LoadMapByPath(fileName);
+            AddMapToCache(mapFile);
+        }
+
+        private void AddMapToCache(IMapFile mapFile)
+        {
             if (_mapFileRepository.MapFiles.ContainsKey(mapFile.Properties.MapID))
                 _mapFileRepository.MapFiles[mapFile.Properties.MapID] = mapFile;
             else
