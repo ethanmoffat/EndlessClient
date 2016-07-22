@@ -12,7 +12,7 @@ using EOLib.IO.Map;
 using EOLib.IO.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace EOLib.IO.Test
+namespace EOLib.IO.Test.Map
 {
     [TestClass]
     public class MapFilePropertiesTest
