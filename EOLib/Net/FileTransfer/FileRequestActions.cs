@@ -52,7 +52,7 @@ namespace EOLib.Net.FileTransfer
         public async Task GetMapFromServer(short mapID)
         {
             var mapFile = await _fileRequestService.RequestMapFile(mapID);
-            _mapFileSaveService.SaveFile(string.Format(MapFile.MapFileFormatString, mapID), mapFile);
+            _mapFileSaveService.SaveFileToDefaultDirectory(mapFile);
 
             if (_mapFileRepository.MapFiles.ContainsKey(mapID))
                 _mapFileRepository.MapFiles[mapID] = mapFile;
