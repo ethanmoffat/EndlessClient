@@ -3,9 +3,6 @@
 // For additional details, see the LICENSE file
 
 using EOLib.DependencyInjection;
-using EOLib.IO.Actions;
-using EOLib.IO.Repositories;
-using EOLib.IO.Services;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.IO
@@ -14,12 +11,7 @@ namespace EOLib.IO
     {
         public void RegisterDependencies(IUnityContainer container)
         {
-            container.RegisterType<IHDSerialNumberService, HDSerialNumberService>()
-                .RegisterType<IMapStringEncoderService, MapStringEncoderService>()
-                .RegisterType<IMapFileLoadService, MapFileLoadService>()
-                .RegisterInstance<IMapFileRepository, MapFileRepository>()
-                .RegisterInstance<IMapFileProvider, MapFileRepository>()
-                .RegisterType<IMapFileLoadActions, MapFileLoadActions>();
+            container.RegisterType<IHDSerialNumberService, HDSerialNumberService>();
         }
     }
 }

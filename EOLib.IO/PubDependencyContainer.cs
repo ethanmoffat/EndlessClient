@@ -18,7 +18,9 @@ namespace EOLib.IO
         public void RegisterDependencies(IUnityContainer container)
         {
             container
-                .RegisterType<INumberEncoderService, NumberEncoderService>();
+                .RegisterType<INumberEncoderService, NumberEncoderService>()
+                .RegisterType<IMapStringEncoderService, MapStringEncoderService>()
+                .RegisterType<IMapFileLoadService, MapFileLoadService>();
 
             container
                 .RegisterType<IPubLoadService<EIFRecord>, ItemFileLoadService>()
@@ -37,10 +39,13 @@ namespace EOLib.IO
                 .RegisterInstance<IESFFileRepository, PubFileRepository>()
                 .RegisterInstance<IESFFileProvider, PubFileRepository>()
                 .RegisterInstance<IECFFileRepository, PubFileRepository>()
-                .RegisterInstance<IECFFileProvider, PubFileRepository>();
+                .RegisterInstance<IECFFileProvider, PubFileRepository>()
+                .RegisterInstance<IMapFileRepository, MapFileRepository>()
+                .RegisterInstance<IMapFileProvider, MapFileRepository>();
 
             container
-                .RegisterType<IPubFileLoadActions, PubFileLoadActions>();
+                .RegisterType<IPubFileLoadActions, PubFileLoadActions>()
+                .RegisterType<IMapFileLoadActions, MapFileLoadActions>();
         }
 
         public void InitializeDependencies(IUnityContainer container)
