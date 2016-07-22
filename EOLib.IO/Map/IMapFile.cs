@@ -14,11 +14,14 @@ namespace EOLib.IO.Map
         IReadOnlyMatrix<TileSpec> Tiles { get; }
         IReadOnlyMatrix<WarpMapEntity> Warps { get; }
         IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX { get; }
-
         IReadOnlyList<NPCSpawnMapEntity> NPCSpawns { get; }
         IReadOnlyList<byte[]> Unknowns { get; }
         IReadOnlyList<ChestSpawnMapEntity> Chests { get; }
         IReadOnlyList<SignMapEntity> Signs { get; }
+
+        IReadOnlyList<MapFile.MapEntityRow<TileSpec>> TileRows { get; }
+        IReadOnlyList<MapFile.MapEntityRow<WarpMapEntity>> WarpRows { get; }
+        IReadOnlyDictionary<MapLayer, IReadOnlyList<MapFile.MapEntityRow<int>>> GFXRows { get; }
 
         byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
                                     IMapStringEncoderService mapStringEncoderService);

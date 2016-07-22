@@ -17,14 +17,11 @@ namespace EOLib.IO.Map
         public IMapFileProperties Properties { get; private set; }
 
         public IReadOnlyMatrix<TileSpec> Tiles { get { return _mutableTiles; } }
-        
         public IReadOnlyMatrix<WarpMapEntity> Warps { get { return _mutableWarps; } }
-
         public IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX
         {
             get { return _mutableGFX.ToDictionary(k => k.Key, v => (IReadOnlyMatrix<int>) v.Value); }
         }
-
         public IReadOnlyList<NPCSpawnMapEntity> NPCSpawns { get { return _mutableNPCSpawns; } }
         public IReadOnlyList<byte[]> Unknowns { get { return _mutableUnknowns; } }
         public IReadOnlyList<ChestSpawnMapEntity> Chests { get { return _mutableChestSpawns; } }
@@ -37,6 +34,17 @@ namespace EOLib.IO.Map
         private List<byte[]> _mutableUnknowns;
         private List<ChestSpawnMapEntity> _mutableChestSpawns;
         private List<SignMapEntity> _mutableSigns;
+
+        public IReadOnlyList<MapEntityRow<TileSpec>> TileRows { get { return _mutableTileRows; } }
+        public IReadOnlyList<MapEntityRow<WarpMapEntity>> WarpRows { get { return _mutableWarpRows; } }
+        public IReadOnlyDictionary<MapLayer, IReadOnlyList<MapEntityRow<int>>> GFXRows
+        {
+            get { return _mutableGFXRows.ToDictionary(k => k.Key, v => (IReadOnlyList<MapEntityRow<int>>) v.Value); }
+        }
+
+        private List<MapEntityRow<TileSpec>> _mutableTileRows;
+        private List<MapEntityRow<WarpMapEntity>> _mutableWarpRows;
+        private Dictionary<MapLayer, List<MapEntityRow<int>>> _mutableGFXRows;
 
         public MapFile(int id)
         {
@@ -97,11 +105,16 @@ namespace EOLib.IO.Map
             _mutableGFX = new Dictionary<MapLayer, Matrix<int>>();
             foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))
                 _mutableGFX.Add(layer, new Matrix<int>(Properties.Width + 1, Properties.Height + 1, -1));
-
             _mutableNPCSpawns = new List<NPCSpawnMapEntity>();
             _mutableUnknowns = new List<byte[]>();
             _mutableChestSpawns = new List<ChestSpawnMapEntity>();
             _mutableSigns = new List<SignMapEntity>();
+
+            _mutableTileRows = new List<MapEntityRow<TileSpec>>();
+            _mutableWarpRows = new List<MapEntityRow<WarpMapEntity>>();
+            _mutableGFXRows = new Dictionary<MapLayer, List<MapEntityRow<int>>>();
+            foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))
+                _mutableGFXRows.Add(layer, new List<MapEntityRow<int>>());
         }
 
         #region Helpers for Deserialization
@@ -155,6 +168,7 @@ namespace EOLib.IO.Map
                 var y = nes.DecodeNumber((byte)ms.ReadByte());
                 var numberOfTileColumns = nes.DecodeNumber((byte)ms.ReadByte());
 
+                _mutableTileRows.Add(new MapEntityRow<TileSpec> {Y = y});
                 for (int j = 0; j < numberOfTileColumns; ++j)
                 {
                     var x = nes.DecodeNumber((byte)ms.ReadByte());
@@ -162,7 +176,9 @@ namespace EOLib.IO.Map
                     if (spec == TileSpec.SpikesTimed && !Properties.HasTimedSpikes)
                         Properties = Properties.WithHasTimedSpikes(true);
 
-                    _mutableTiles[y, x] = spec;
+                    if (x <= Properties.Width && y <= Properties.Height)
+                        _mutableTiles[y, x] = spec;
+                    _mutableTileRows.Last().EntityItems.Add(new MapEntityCol<TileSpec> {X = x, Value = spec});
                 }
             }
         }
@@ -175,17 +191,19 @@ namespace EOLib.IO.Map
                 var y = nes.DecodeNumber((byte)ms.ReadByte());
                 var numberOfWarpColumns = nes.DecodeNumber((byte)ms.ReadByte());
 
+                _mutableWarpRows.Add(new MapEntityRow<WarpMapEntity> {Y = y});
                 for (int j = 0; j < numberOfWarpColumns; ++j)
                 {
                     var warp = new WarpMapEntity(y);
-                    
+
                     var rawWarpData = new byte[warp.DataSize];
                     ms.Read(rawWarpData, 0, rawWarpData.Length);
 
                     warp.DeserializeFromByteArray(rawWarpData, nes, ses);
 
-                    if (warp.Y <= Properties.Height && warp.X <= Properties.Width)
+                    if (warp.X <= Properties.Width && warp.Y <= Properties.Height)
                         _mutableWarps[warp.Y, warp.X] = warp;
+                    _mutableWarpRows.Last().EntityItems.Add(new MapEntityCol<WarpMapEntity> {X = warp.X, Value = warp});
                 }
             }
         }
@@ -205,6 +223,7 @@ namespace EOLib.IO.Map
                     var y = nes.DecodeNumber((byte) ms.ReadByte());
                     var numberOfColsThisLayer = nes.DecodeNumber((byte) ms.ReadByte());
 
+                    _mutableGFXRows[layer].Add(new MapEntityRow<int> {Y = y});
                     for (int j = 0; j < numberOfColsThisLayer; ++j)
                     {
                         var x = nes.DecodeNumber((byte) ms.ReadByte());
@@ -212,8 +231,9 @@ namespace EOLib.IO.Map
                         ms.Read(twoByteBuffer, 0, twoByteBuffer.Length);
                         var gfxID = (ushort) nes.DecodeNumber(twoByteBuffer);
 
-                        if (y <= Properties.Height && x <= Properties.Width)
+                        if (x <= Properties.Width && y <= Properties.Height)
                             _mutableGFX[layer][y, x] = gfxID;
+                        _mutableGFXRows[layer].Last().EntityItems.Add(new MapEntityCol<int> {X = x, Value = gfxID});
                     }
                 }
             }
@@ -273,9 +293,8 @@ namespace EOLib.IO.Map
 
         private void WriteTileSpecs(List<byte> ret, INumberEncoderService nes)
         {
-            var collection = GetSerializationCollection(_mutableTiles, TileSpec.None);
-            ret.AddRange(nes.EncodeNumber(collection.Count, 1));
-            foreach (var row in collection)
+            ret.AddRange(nes.EncodeNumber(TileRows.Count, 1));
+            foreach (var row in TileRows)
             {
                 ret.AddRange(nes.EncodeNumber(row.Y, 1));
                 ret.AddRange(nes.EncodeNumber(row.EntityItems.Count, 1));
@@ -289,9 +308,8 @@ namespace EOLib.IO.Map
 
         private void WriteWarpTiles(List<byte> ret, INumberEncoderService nes, IMapStringEncoderService ses)
         {
-            var collection = GetSerializationCollection(_mutableWarps, null);
-            ret.AddRange(nes.EncodeNumber(collection.Count, 1));
-            foreach (var row in collection)
+            ret.AddRange(nes.EncodeNumber(WarpRows.Count, 1));
+            foreach (var row in WarpRows)
             {
                 ret.AddRange(nes.EncodeNumber(row.Y, 1));
                 ret.AddRange(nes.EncodeNumber(row.EntityItems.Count, 1));
@@ -304,9 +322,8 @@ namespace EOLib.IO.Map
         {
             foreach (var layer in _mutableGFX.Keys)
             {
-                var collection = GetSerializationCollection(_mutableGFX[layer], -1);
-                ret.AddRange(nes.EncodeNumber(collection.Count, 1));
-                foreach (var row in collection)
+                ret.AddRange(nes.EncodeNumber(GFXRows[layer].Count, 1));
+                foreach (var row in GFXRows[layer])
                 {
                     ret.AddRange(nes.EncodeNumber(row.Y, 1));
                     ret.AddRange(nes.EncodeNumber(row.EntityItems.Count, 1));
@@ -326,41 +343,19 @@ namespace EOLib.IO.Map
                 ret.AddRange(sign.SerializeToByteArray(nes, ses));
         }
 
-        private List<MapEntityRow<T>> GetSerializationCollection<T>(Matrix<T> m, T fillValue)
-        {
-            var retList = new List<MapEntityRow<T>>();
-
-            for (int r = 0; r < m.Rows; ++r)
-            {
-                var nextEntityRow = new MapEntityRow<T> {Y = r};
-
-                var row = m.GetRow(r);
-                if (row.All(x => x == null || x.Equals(fillValue)))
-                    continue;
-
-                var mapEntityItems = row.Select((val, x) => new MapEntityItem<T> {X = x, Value = val})
-                                        .Where(x => x.Value != null && !x.Value.Equals(fillValue));
-
-                nextEntityRow.EntityItems.AddRange(mapEntityItems);
-                retList.Add(nextEntityRow);
-            }
-
-            return retList;
-        }
-
-        private class MapEntityRow<T>
+        public class MapEntityRow<T>
         {
             public int Y { get; set; }
 
-            public List<MapEntityItem<T>> EntityItems { get; private set; }
+            public List<MapEntityCol<T>> EntityItems { get; private set; }
 
             public MapEntityRow()
             {
-                EntityItems = new List<MapEntityItem<T>>();
+                EntityItems = new List<MapEntityCol<T>>();
             }
         }
 
-        private class MapEntityItem<T>
+        public class MapEntityCol<T>
         {
             public int X { get; set; }
 
