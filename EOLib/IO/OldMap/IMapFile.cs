@@ -15,19 +15,11 @@ namespace EOLib.IO.OldMap
         IReadOnly2DArray<Warp> Warps { get; }
         IReadOnlyDictionary<MapLayer, IReadOnly2DArray<int>> GFX { get; }
 
-        IReadOnlyList<IMapEntityRow<TileSpec>> TileRows { get; }
-        IReadOnlyList<IMapEntityRow<Warp>> WarpRows { get; }
-        IReadOnlyDictionary<MapLayer, IReadOnlyList<IMapEntityRow<int>>> GFXRows { get; }
-
         List<NPCSpawn> NPCSpawns { get; }
         List<byte[]> Unknowns { get; }
         List<MapChest> Chests { get; }
         List<MapSign> Signs { get; }
 
         void Load(string fileName);
-        void Save(string fileName);
-
-        void RemoveTileAt(int row, int col);
-        void RemoveWarpAt(int row, int col);
     }
 }

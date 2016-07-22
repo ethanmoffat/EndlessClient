@@ -22,27 +22,6 @@ namespace EOLib.IO.OldMap
 {
     public class MapFile : IMapFile
     {
-        #region Helper Classes
-
-        private class MapEntityRow<T> : IMapEntityRow<T>
-        {
-            public int Y { get; set; }
-            public List<IMapEntityItem<T>> EntityItems { get; set; }
-
-            public MapEntityRow()
-            {
-                EntityItems = new List<IMapEntityItem<T>>();
-            }
-        }
-
-        private class MapEntityItem<T> : IMapEntityItem<T>
-        {
-            public int X { get; set; }
-            public T Value { get; set; }
-        }
-
-        #endregion
-
         public IMapFileProperties Properties { get; private set; }
 
         public IReadOnly2DArray<TileSpec> Tiles { get { return _tiles; } }
@@ -52,16 +31,6 @@ namespace EOLib.IO.OldMap
             get
             {
                 return _gfx.ToDictionary(k => k.Key, v => (IReadOnly2DArray<int>) v.Value);
-            }
-        }
-
-        public IReadOnlyList<IMapEntityRow<TileSpec>> TileRows { get { return _tileRows; } }
-        public IReadOnlyList<IMapEntityRow<Warp>> WarpRows { get { return _warpRows; } }
-        public IReadOnlyDictionary<MapLayer, IReadOnlyList<IMapEntityRow<int>>> GFXRows
-        {
-            get
-            {
-                return _gfxRows.ToDictionary(k => k.Key, v => (IReadOnlyList<IMapEntityRow<int>>)v.Value);
             }
         }
 
@@ -78,11 +47,6 @@ namespace EOLib.IO.OldMap
         private Array2D<Warp> _warps;
         private Dictionary<MapLayer, Array2D<int>> _gfx;
 
-        //backing fields for Save() function
-        private readonly List<MapEntityRow<TileSpec>> _tileRows;
-        private readonly List<MapEntityRow<Warp>> _warpRows;
-        private readonly Dictionary<MapLayer, List<MapEntityRow<int>>> _gfxRows;
-
         #endregion
 
         private readonly IMapStringEncoderService _encoderService;
@@ -93,10 +57,6 @@ namespace EOLib.IO.OldMap
             Unknowns = new List<byte[]>();
             Chests = new List<MapChest>();
             Signs = new List<MapSign>();
-
-            _tileRows = new List<MapEntityRow<TileSpec>>();
-            _warpRows = new List<MapEntityRow<Warp>>();
-            _gfxRows = new Dictionary<MapLayer, List<MapEntityRow<int>>>();
 
             _encoderService = new MapStringEncoderService();
         }
@@ -125,35 +85,6 @@ namespace EOLib.IO.OldMap
                 return;
 
             ReadMapSigns(filePacket);
-        }
-
-        public void Save(string fileName)
-        {
-            IPacketBuilder builder = new PacketBuilder();
-
-            builder = WriteMapProperties(builder);
-            builder = WriteNPCSpawns(builder);
-            builder = WriteUnknowns(builder);
-            builder = WriteMapChests(builder);
-            builder = WriteTileSpecs(builder);
-            builder = WriteWarpTiles(builder);
-            builder = WriteGFXLayers(builder);
-            builder = WriteMapSigns(builder);
-
-            var pkt = builder.Build();
-            File.WriteAllBytes(fileName, pkt.RawData.ToArray());
-        }
-
-        public void RemoveTileAt(int row, int col)
-        {
-            _tiles[row, col] = TileSpec.None;
-            RemoveItemShared(_tileRows, row, col);
-        }
-
-        public void RemoveWarpAt(int row, int col)
-        {
-            _warps[row, col] = null;
-            RemoveItemShared(_warpRows, row, col);
         }
 
         private IPacket CreateFilePacketForLoad(string fileName)
@@ -199,10 +130,6 @@ namespace EOLib.IO.OldMap
         /// </summary>
         private void ResetCollections()
         {
-            _tileRows.Clear();
-            _warpRows.Clear();
-            _gfxRows.Clear();
-
             _tiles = new Array2D<TileSpec>(Properties.Height + 1, Properties.Width + 1, TileSpec.None);
             _warps = new Array2D<Warp>(Properties.Height + 1, Properties.Width + 1, null);
             _gfx = new Dictionary<MapLayer, Array2D<int>>();
@@ -210,7 +137,6 @@ namespace EOLib.IO.OldMap
             foreach (var layer in layers)
             {
                 _gfx.Add(layer, new Array2D<int>(Properties.Height + 1, Properties.Width + 1, -1));
-                _gfxRows.Add(layer, new List<MapEntityRow<int>>(Properties.Height + 1));
             }
 
             NPCSpawns.Clear();
@@ -269,7 +195,6 @@ namespace EOLib.IO.OldMap
                 var y = filePacket.ReadChar();
                 var numberOfTileColumns = filePacket.ReadChar();
 
-                var row = new MapEntityRow<TileSpec> {Y = y};
                 for (int j = 0; j < numberOfTileColumns; ++j)
                 {
                     var x = filePacket.ReadChar();
@@ -277,15 +202,7 @@ namespace EOLib.IO.OldMap
                     if (spec == TileSpec.SpikesTimed)
                         Properties = Properties.WithHasTimedSpikes(true);
                     _tiles[y, x] = spec;
-
-                    row.EntityItems.Add(new MapEntityItem<TileSpec>
-                    {
-                        Value = spec,
-                        X = x
-                    });
                 }
-
-                _tileRows.Add(row);
             }
         }
 
@@ -297,7 +214,6 @@ namespace EOLib.IO.OldMap
                 var y = filePacket.ReadChar();
                 var numberOfWarpColumns = filePacket.ReadChar();
 
-                var row = new MapEntityRow<Warp> {Y = y};
                 for (int j = 0; j < numberOfWarpColumns; ++j)
                 {
                     var w = new Warp
@@ -314,16 +230,8 @@ namespace EOLib.IO.OldMap
                     if (w.Y <= Properties.Height && w.X <= Properties.Width)
                     {
                         _warps[w.Y, w.X] = w;
-
-                        row.EntityItems.Add(new MapEntityItem<Warp>
-                        {
-                            Value = w,
-                            X = w.X
-                        });
                     }
                 }
-
-                _warpRows.Add(row);
             }
         }
 
@@ -342,8 +250,6 @@ namespace EOLib.IO.OldMap
                     var y = filePacket.ReadChar();
                     var numberOfColsThisLayer = filePacket.ReadChar();
 
-                    var row = new MapEntityRow<int> {Y = y};
-
                     for (int j = 0; j < numberOfColsThisLayer; ++j)
                     {
                         var x = filePacket.ReadChar();
@@ -351,15 +257,8 @@ namespace EOLib.IO.OldMap
                         if (y <= Properties.Height && x <= Properties.Width)
                         {
                             _gfx[layer][y, x] = gfxNumber;
-                            row.EntityItems.Add(new MapEntityItem<int>
-                            {
-                                Value = gfxNumber,
-                                X = x
-                            });
                         }
                     }
-
-                    _gfxRows[layer].Add(row);
                 }
             }
         }
@@ -381,191 +280,6 @@ namespace EOLib.IO.OldMap
 
                 Signs.Add(sign);
             }
-        }
-
-        private IPacketBuilder WriteMapProperties(IPacketBuilder filePacket)
-        {
-            filePacket = filePacket.AddString("EMF")
-                .AddBytes(Properties.Checksum);
-
-            var encodedName = _encoderService.EncodeMapString(Properties.Name);
-            var paddedName = new byte[24];
-            for (int i = paddedName.Length - 1; i >= 0; --i)
-                paddedName[i] = 0xFF;
-            Array.Copy(encodedName, 0, paddedName, paddedName.Length - encodedName.Length, encodedName.Length);
-
-            return filePacket.AddBytes(paddedName)
-                .AddChar(Properties.PKAvailable ? (byte)3 : (byte)0)
-                .AddChar((byte)Properties.Effect)
-                .AddChar(Properties.Music)
-                .AddChar(Properties.MusicExtra)
-                .AddShort(Properties.AmbientNoise)
-                .AddChar(Properties.Width)
-                .AddChar(Properties.Height)
-                .AddShort(Properties.FillTile)
-                .AddChar(Properties.MapAvailable ? (byte)1 : (byte)0)
-                .AddChar(Properties.CanScroll ? (byte)1 : (byte)0)
-                .AddChar(Properties.RelogX)
-                .AddChar(Properties.RelogY)
-                .AddChar(Properties.Unknown2);
-        }
-
-        private IPacketBuilder WriteNPCSpawns(IPacketBuilder filePacket)
-        {
-            filePacket = filePacket.AddChar((byte)NPCSpawns.Count);
-            foreach (var spawn in NPCSpawns)
-            {
-                filePacket = filePacket.AddChar(spawn.X)
-                    .AddChar(spawn.Y)
-                    .AddShort(spawn.NpcID)
-                    .AddChar(spawn.SpawnType)
-                    .AddShort(spawn.RespawnTime)
-                    .AddChar(spawn.Amount);
-            }
-            return filePacket;
-        }
-
-        private IPacketBuilder WriteUnknowns(IPacketBuilder filePacket)
-        {
-            filePacket = filePacket.AddChar((byte)Unknowns.Count);
-            foreach (var b in Unknowns)
-                filePacket = filePacket.AddBytes(b);
-            return filePacket;
-        }
-
-        private IPacketBuilder WriteMapChests(IPacketBuilder filePacket)
-        {
-            filePacket = filePacket.AddChar((byte)Chests.Count);
-            foreach (MapChest chest in Chests)
-            {
-                filePacket = filePacket.AddChar(chest.X)
-                    .AddChar(chest.Y)
-                    .AddShort((short) chest.Key)
-                    .AddChar(chest.Slot)
-                    .AddShort(chest.ItemID)
-                    .AddShort(chest.RespawnTime)
-                    .AddThree(chest.Amount);
-            }
-            return filePacket;
-        }
-
-        private IPacketBuilder WriteTileSpecs(IPacketBuilder filePacket)
-        {
-            filePacket = filePacket.AddChar((byte)_tileRows.Count);
-            foreach (var tr in _tileRows)
-            {
-                filePacket = filePacket.AddChar((byte)tr.Y);
-                filePacket = filePacket.AddChar((byte)tr.EntityItems.Count);
-                foreach (var tt in tr.EntityItems)
-                {
-                    filePacket = filePacket.AddChar((byte)tt.X);
-                    filePacket = filePacket.AddChar((byte)tt.Value);
-                }
-            }
-            return filePacket;
-        }
-
-        private IPacketBuilder WriteWarpTiles(IPacketBuilder filePacket)
-        {
-            filePacket = filePacket.AddChar((byte)_warpRows.Count);
-
-            foreach (var wr in _warpRows)
-            {
-                filePacket = filePacket.AddChar((byte)wr.Y)
-                    .AddChar((byte)wr.EntityItems.Count);
-
-                foreach (var warpEntity in wr.EntityItems)
-                {
-                    var ww = warpEntity.Value;
-                    filePacket = filePacket.AddChar(ww.X)
-                        .AddShort(ww.DestinationMapID)
-                        .AddChar(ww.DestinationMapX)
-                        .AddChar(ww.DestinationMapY)
-                        .AddChar(ww.LevelRequirement)
-                        .AddShort((short) ww.DoorType);
-                }
-            }
-
-            return filePacket;
-        }
-
-        private IPacketBuilder WriteGFXLayers(IPacketBuilder filePacket)
-        {
-            var layers = (MapLayer[])Enum.GetValues(typeof(MapLayer));
-
-            foreach (var layer in layers)
-            {
-                filePacket = filePacket.AddChar((byte)_gfxRows[layer].Count);
-                foreach (var row in _gfxRows[layer])
-                {
-                    filePacket = filePacket.AddChar((byte)row.Y);
-                    filePacket = filePacket.AddChar((byte)row.EntityItems.Count);
-                    foreach (var gfx in row.EntityItems)
-                    {
-                        filePacket = filePacket.AddChar((byte)gfx.X);
-                        filePacket = filePacket.AddShort((short)gfx.Value);
-                    }
-                }
-            }
-
-            return filePacket;
-        }
-
-        private IPacketBuilder WriteMapSigns(IPacketBuilder filePacket)
-        {
-            filePacket = filePacket.AddChar((byte)Signs.Count);
-
-            foreach (var sign in Signs)
-            {
-                filePacket = filePacket.AddChar(sign.X)
-                    .AddChar(sign.Y)
-                    .AddShort((short)(sign.Message.Length + sign.Title.Length + 1));
-
-                var fileMsg = new byte[sign.Message.Length + sign.Title.Length];
-                var rawTitle = _encoderService.EncodeMapString(sign.Title);
-                var rawMessage = _encoderService.EncodeMapString(sign.Message);
-                Array.Copy(rawTitle, fileMsg, fileMsg.Length);
-                Array.Copy(rawMessage, 0, fileMsg, rawTitle.Length, rawMessage.Length);
-                filePacket = filePacket.AddBytes(fileMsg);
-                filePacket = filePacket.AddChar((byte)rawTitle.Length);
-            }
-
-            return filePacket;
-        }
-
-        private static void RemoveItemShared<T>(IList<MapEntityRow<T>> collection, int row, int col)
-        {
-            IMapEntityItem<T> tile = null;
-            var tileRow = collection.SingleOrDefault(tr => tr.Y == row &&
-                                                           (tile = tr.EntityItems.SingleOrDefault(tt => tt.X == col)) != null);
-            if (tileRow == null || tile == null)
-                return;
-            tileRow.EntityItems.Remove(tile);
-            if (!tileRow.EntityItems.Any())
-                collection.Remove(tileRow);
-        }
-
-        public static IMapFile FromBytes(int mapID, IEnumerable<byte> bytes)
-        {
-            var filePacket = new Packet(bytes.ToArray());
-            filePacket.Seek(0, SeekOrigin.Begin);
-            if (filePacket.ReadString(3) != "EMF")
-                throw new IOException("Corrupt or not an EMF file");
-            
-            var mapFile = new MapFile();
-            mapFile.SetMapProperties(mapID, filePacket);
-            mapFile.ResetCollections();
-            mapFile.ReadNPCSpawns(filePacket);
-            mapFile.ReadUnknowns(filePacket);
-            mapFile.ReadMapChests(filePacket);
-            mapFile.ReadTileSpecs(filePacket);
-            mapFile.ReadWarpTiles(filePacket);
-            mapFile.ReadGFXLayers(filePacket);
-
-            if (filePacket.ReadPosition != filePacket.Length)
-                mapFile.ReadMapSigns(filePacket);
-
-            return mapFile;
         }
     }
 }

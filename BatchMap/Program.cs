@@ -11,6 +11,7 @@ using EOLib.IO.Services;
 using IMapFile = EOLib.IO.OldMap.IMapFile;
 using MapFile = EOLib.IO.OldMap.MapFile;
 
+//todo: this file needs a rewrite with the new map file stuff
 namespace BatchMap
 {
     public static class Program
@@ -129,36 +130,36 @@ namespace BatchMap
                 var lengthOfMapID = inFiles[map].Length - inFiles[map].LastIndexOf('\\') - 1;
                 var mapID = inFiles[map].Substring(startOfMapID, lengthOfMapID);
 
-                for (int i = EMF.TileRows.Count - 1; i >= 0; --i)
-                {
-                    var tr = EMF.TileRows[i];
-                    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
-                    {
-                        var tt = tr.EntityItems[j];
-                        if (tt.X > EMF.Properties.Width || tr.Y > EMF.Properties.Height)
-                        {
-                            Console.WriteLine("[MAP {3}] Tile {0}x{1} ({2}) is out of map bounds. Removing.",
-                                tt.X, tr.Y, Enum.GetName(typeof(TileSpec), tt.Value), mapID);
-                            EMF.RemoveTileAt(tr.Y, tt.X);
-                            changesMade = true;
-                        }
-                    }
-                }
+                //for (int i = EMF.TileRows.Count - 1; i >= 0; --i)
+                //{
+                //    var tr = EMF.TileRows[i];
+                //    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
+                //    {
+                //        var tt = tr.EntityItems[j];
+                //        if (tt.X > EMF.Properties.Width || tr.Y > EMF.Properties.Height)
+                //        {
+                //            Console.WriteLine("[MAP {3}] Tile {0}x{1} ({2}) is out of map bounds. Removing.",
+                //                tt.X, tr.Y, Enum.GetName(typeof(TileSpec), tt.Value), mapID);
+                //            EMF.RemoveTileAt(tr.Y, tt.X);
+                //            changesMade = true;
+                //        }
+                //    }
+                //}
 
-                for (int i = EMF.WarpRows.Count - 1; i >= 0; --i)
-                {
-                    var tr = EMF.WarpRows[i];
-                    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
-                    {
-                        var tt = tr.EntityItems[j];
-                        if (tt.X > EMF.Properties.Width || tr.Y > EMF.Properties.Height)
-                        {
-                            Console.WriteLine("[MAP {2}] Warp {0}x{1} is out of map bounds. Removing.", tt.X, tr.Y, mapID);
-                            EMF.RemoveWarpAt(tr.Y, tt.X);
-                            changesMade = true;
-                        }
-                    }
-                }
+                //for (int i = EMF.WarpRows.Count - 1; i >= 0; --i)
+                //{
+                //    var tr = EMF.WarpRows[i];
+                //    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
+                //    {
+                //        var tt = tr.EntityItems[j];
+                //        if (tt.X > EMF.Properties.Width || tr.Y > EMF.Properties.Height)
+                //        {
+                //            Console.WriteLine("[MAP {2}] Warp {0}x{1} is out of map bounds. Removing.", tt.X, tr.Y, mapID);
+                //            EMF.RemoveWarpAt(tr.Y, tt.X);
+                //            changesMade = true;
+                //        }
+                //    }
+                //}
 
                 for(int i = EMF.NPCSpawns.Count - 1; i >= 0; --i)
                 {
@@ -235,13 +236,13 @@ namespace BatchMap
                     continue;
                 }
 
-                if (map == 0 && singleFile && inFiles.Length == 1)
-                {
-                    EMF.Save(dst);
-                    break;
-                }
+                //if (map == 0 && singleFile && inFiles.Length == 1)
+                //{
+                //    EMF.Save(dst);
+                //    break;
+                //}
 
-                EMF.Save(Path.Combine(dst, mapID));
+                //EMF.Save(Path.Combine(dst, mapID));
             }
         }
 
