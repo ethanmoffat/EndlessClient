@@ -26,7 +26,8 @@ namespace EOLib.IO
                 .RegisterType<IPubLoadService<ENFRecord>, NPCFileLoadService>()
                 .RegisterType<IPubLoadService<ESFRecord>, SpellFileLoadService>()
                 .RegisterType<IPubLoadService<ECFRecord>, ClassFileLoadService>()
-                .RegisterType<IPubFileSaveService, PubFileSaveService>();
+                .RegisterType<IPubFileSaveService, PubFileSaveService>()
+                .RegisterType<IMapFileSaveService, MapFileSaveService>();
 
             container
                 .RegisterInstance<IPubFileRepository, PubFileRepository>()
