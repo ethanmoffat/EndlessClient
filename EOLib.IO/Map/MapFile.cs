@@ -90,11 +90,11 @@ namespace EOLib.IO.Map
 
         private void ResetCollections()
         {
-            _mutableTiles = new Matrix<TileSpec>(Properties.Width, Properties.Height, TileSpec.None);
-            _mutableWarps = new Matrix<WarpMapEntity>(Properties.Width, Properties.Height, null);
+            _mutableTiles = new Matrix<TileSpec>(Properties.Width + 1, Properties.Height + 1, TileSpec.None);
+            _mutableWarps = new Matrix<WarpMapEntity>(Properties.Width + 1, Properties.Height + 1, null);
             _mutableGFX = new Dictionary<MapLayer, Matrix<int>>();
             foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))
-                _mutableGFX.Add(layer, new Matrix<int>(Properties.Width, Properties.Height, -1));
+                _mutableGFX.Add(layer, new Matrix<int>(Properties.Width + 1, Properties.Height + 1, -1));
 
             _mutableNPCSpawns = new List<NPCSpawnMapEntity>();
             _mutableUnknowns = new List<byte[]>();
