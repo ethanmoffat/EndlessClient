@@ -158,44 +158,44 @@ namespace BatchMap
                 var mapID = new MapPathToIDConverter().ConvertFromPathToID(inFiles[mapIndex]);
 
                 mapFileLoadActions.LoadMapFileByName(inFiles[mapIndex]);
-                var EMF = _mapFileProvider.MapFiles[mapID];
+                var mapFile = _mapFileProvider.MapFiles[mapID];
                 
                 var changesMade = false;
 
-                //for (int i = EMF.TileRows.Count - 1; i >= 0; --i)
+                //for (int i = mapFile.TileRows.Count - 1; i >= 0; --i)
                 //{
-                //    var tr = EMF.TileRows[i];
+                //    var tr = mapFile.TileRows[i];
                 //    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
                 //    {
                 //        var tt = tr.EntityItems[j];
-                //        if (tt.X > EMF.Properties.Width || tr.Y > EMF.Properties.Height)
+                //        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
                 //        {
                 //            Console.WriteLine("[MAP {3}] Tile {0}x{1} ({2}) is out of map bounds. Removing.",
                 //                tt.X, tr.Y, Enum.GetName(typeof(TileSpec), tt.Value), mapID);
-                //            EMF.RemoveTileAt(tr.Y, tt.X);
+                //            mapFile.RemoveTileAt(tr.Y, tt.X);
                 //            changesMade = true;
                 //        }
                 //    }
                 //}
 
-                //for (int i = EMF.WarpRows.Count - 1; i >= 0; --i)
+                //for (int i = mapFile.WarpRows.Count - 1; i >= 0; --i)
                 //{
-                //    var tr = EMF.WarpRows[i];
+                //    var tr = mapFile.WarpRows[i];
                 //    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
                 //    {
                 //        var tt = tr.EntityItems[j];
-                //        if (tt.X > EMF.Properties.Width || tr.Y > EMF.Properties.Height)
+                //        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
                 //        {
                 //            Console.WriteLine("[MAP {2}] Warp {0}x{1} is out of map bounds. Removing.", tt.X, tr.Y, mapID);
-                //            EMF.RemoveWarpAt(tr.Y, tt.X);
+                //            mapFile.RemoveWarpAt(tr.Y, tt.X);
                 //            changesMade = true;
                 //        }
                 //    }
                 //}
 
-                for(int i = EMF.NPCSpawns.Count - 1; i >= 0; --i)
+                for(int i = mapFile.NPCSpawns.Count - 1; i >= 0; --i)
                 {
-                    var npc = EMF.NPCSpawns[i];
+                    var npc = mapFile.NPCSpawns[i];
                     var npcRec = _pubProvider.ENFFile[npc.ID];
                     if (npc.ID > _pubProvider.ENFFile.Data.Count || npcRec == null)
                     {
@@ -205,7 +205,7 @@ namespace BatchMap
                         continue;
                     }
 
-                    if (npc.X > EMF.Properties.Width || npc.Y > EMF.Properties.Height)
+                    if (npc.X > mapFile.Properties.Width || npc.Y > mapFile.Properties.Height)
                     {
                         Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is out of map bounds. Removing.", mapID, npc.X, npc.Y, npcRec.Name);
                         //EMF.NPCSpawns.RemoveAt(i); //todo: way to modify NPCs
@@ -213,7 +213,7 @@ namespace BatchMap
                         continue;
                     }
 
-                    if (!TileIsValidNPCSpawnPoint(EMF, npc.X, npc.Y))
+                    if (!TileIsValidNPCSpawnPoint(mapFile, npc.X, npc.Y))
                     {
                         Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is invalid...", mapID, npc.X, npc.Y, npcRec.Name);
                         var found = false;
@@ -223,7 +223,7 @@ namespace BatchMap
                             for (int col = npc.X - 2; col < npc.X + 2; ++col)
                             {
                                 if (found) break;
-                                if (TileIsValidNPCSpawnPoint(EMF, col, row))
+                                if (TileIsValidNPCSpawnPoint(mapFile, col, row))
                                 {
                                     Console.WriteLine("[MAP {0}] Found valid spawn point. Continuing.", mapID);
                                     found = true;
@@ -240,9 +240,9 @@ namespace BatchMap
                     }
                 }
 
-                for (int i = EMF.Chests.Count - 1; i >= 0; --i)
+                for (int i = mapFile.Chests.Count - 1; i >= 0; --i)
                 {
-                    var chest = EMF.Chests[i];
+                    var chest = mapFile.Chests[i];
                     var rec = _pubProvider.EIFFile[chest.ItemID];
                     if (chest.ItemID > _pubProvider.EIFFile.Data.Count || rec == null)
                     {
@@ -252,9 +252,9 @@ namespace BatchMap
                         continue;
                     }
 
-                    if (chest.X > EMF.Properties.Width ||
-                        chest.Y > EMF.Properties.Height ||
-                        EMF.Tiles[chest.Y, chest.X] != TileSpec.Chest)
+                    if (chest.X > mapFile.Properties.Width ||
+                        chest.Y > mapFile.Properties.Height ||
+                        mapFile.Tiles[chest.Y, chest.X] != TileSpec.Chest)
                     {
                         Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} points to a non-chest. Removing.", mapID, chest.X, chest.Y);
                         //EMF.Chests.RemoveAt(i); //todo: way to modify Chests
@@ -270,13 +270,13 @@ namespace BatchMap
 
                 if (mapIndex == 0 && singleFile && inFiles.Length == 1)
                 {
-                    mapFileSaveService.SaveFile(dst, EMF);
+                    mapFileSaveService.SaveFile(dst, mapFile);
                     break;
                 }
 
                 mapFileSaveService.SaveFile(
                     Path.Combine(dst, string.Format(MapFile.MapFileFormatString, mapID)),
-                    EMF);
+                    mapFile);
             }
         }
 
