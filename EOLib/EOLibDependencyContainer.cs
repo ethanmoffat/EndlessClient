@@ -5,9 +5,9 @@
 using EOLib.DependencyInjection;
 using Microsoft.Practices.Unity;
 
-namespace EOLib.IO
+namespace EOLib
 {
-    public class IODependencyContainer : IDependencyContainer
+    public class EOLibDependencyContainer : IDependencyContainer
     {
         public void RegisterDependencies(IUnityContainer container)
         {

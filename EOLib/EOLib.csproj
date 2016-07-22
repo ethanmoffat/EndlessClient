@@ -138,7 +138,7 @@
     <Compile Include="IO\Old\IDataFile.cs" />
     <Compile Include="IO\Old\IDataRecord.cs" />
     <Compile Include="IO\Old\IDataRecordFactory.cs" />
-    <Compile Include="IO\IODependencyContainer.cs" />
+    <Compile Include="EOLibDependencyContainer.cs" />
     <Compile Include="IO\OldMap\IMapFile.cs" />
     <Compile Include="IO\Old\IModifiableDataFile.cs" />
     <Compile Include="IO\Old\Item.cs" />

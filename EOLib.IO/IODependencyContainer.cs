@@ -12,8 +12,7 @@ using Microsoft.Practices.Unity;
 
 namespace EOLib.IO
 {
-    //todo: rename this to IODependencyContainer once the dependencies in the existing IODependencyContainer are completely componentized
-    public class PubDependencyContainer : IInitializableContainer
+    public class IODependencyContainer : IInitializableContainer
     {
         public void RegisterDependencies(IUnityContainer container)
         {

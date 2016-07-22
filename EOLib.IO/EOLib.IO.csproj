@@ -73,7 +73,7 @@
     <Compile Include="Map\SignMapEntity.cs" />
     <Compile Include="Map\TileSpec.cs" />
     <Compile Include="Map\WarpMapEntity.cs" />
-    <Compile Include="PubDependencyContainer.cs" />
+    <Compile Include="IODependencyContainer.cs" />
     <Compile Include="NumericConstants.cs" />
     <Compile Include="PubFileNameConstants.cs" />
     <Compile Include="Pub\ECFFile.cs" />
