@@ -11,7 +11,7 @@ using EOLib.IO.Map;
 using EOLib.IO.OldMap;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MapFile = EOLib.IO.OldMap.MapFile;
+using IMapFile = EOLib.IO.Map.IMapFile;
 
 namespace EndlessClient.Rendering
 {
@@ -34,7 +34,7 @@ namespace EndlessClient.Rendering
             Purple = 8 //npc
         }
 
-        public MapFile Map { get; set; }
+        public IMapFile Map { get; set; }
 
         public bool Visible { get; set; }
 

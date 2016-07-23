@@ -22,7 +22,7 @@ using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using MapFile = EOLib.IO.OldMap.MapFile;
+using IMapFile = EOLib.IO.Map.IMapFile;
 
 namespace EndlessClient.Rendering
 {
@@ -34,7 +34,7 @@ namespace EndlessClient.Rendering
         private readonly List<NPCRenderer> _npcRenderers = new List<NPCRenderer>();
         private readonly object _npcListLock = new object(), _characterListLock = new object();
 
-        public MapFile MapRef { get; private set; }
+        public IMapFile MapRef { get; private set; }
         private bool _needDispMapName;
         
         //public cursor members
@@ -65,7 +65,7 @@ namespace EndlessClient.Rendering
 
         //door members
         private readonly Timer _doorTimer;
-        private Warp _door;
+        private WarpMapEntity _door;
         private byte _doorY; //since y-coord not stored in Warp object...
 
         private ManualResetEventSlim _drawingEvent;
@@ -169,7 +169,7 @@ namespace EndlessClient.Rendering
 // ReSharper restore CanBeReplacedWithTryCastAndCheckForNull
         }
 
-        public void SetActiveMap(MapFile newActiveMap)
+        public void SetActiveMap(IMapFile newActiveMap)
         {
             _drawingEvent.Wait();
             _drawingEvent.Reset();
@@ -208,8 +208,8 @@ namespace EndlessClient.Rendering
             //need to reset door-related members when changing maps.
             if (_door != null)
             {
-                _door.IsDoorOpened = false;
-                _door.DoorPacketSent = false;
+                //_door.IsDoorOpened = false;
+                //_door.DoorPacketSent = false;
                 _door = null;
                 _doorY = 0;
                 _doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -259,11 +259,11 @@ namespace EndlessClient.Rendering
 
             var warp = MapRef.Warps[destY, destX];
             if (warp != null)
-                return new WarpTileInfo(warp);
+                return new WarpTileInfo(null);
 
-            var sign = MapRef.Signs.Find(_ms => _ms.X == destX && _ms.Y == destY);
-            if (sign.X == destX && sign.Y == destY)
-                return new MapSignTileInfo(sign);
+            //var sign = MapRef.Signs.Single(_ms => _ms.X == destX && _ms.Y == destY);
+            //if (sign.X == destX && sign.Y == destY)
+            //    return new MapSignTileInfo(new MapSign());
 
             if(destX <= MapRef.Properties.Width && destY <= MapRef.Properties.Height)
             {
@@ -276,14 +276,6 @@ namespace EndlessClient.Rendering
             return destX <= MapRef.Properties.Width && destY <= MapRef.Properties.Height
                 ? new BasicTileInfoWithSpec(TileSpec.None)
                 : new BasicTileInfoWithSpec(TileSpec.MapEdge);
-        }
-
-        public void ToggleMapView()
-        {
-            if (MapRef.Properties.MapAvailable)
-                _miniMapRenderer.Visible = !_miniMapRenderer.Visible;
-            else
-                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_NO_MAP_OF_AREA);
         }
 
         public void AddMapItem(OldMapItem newItem)
@@ -723,14 +715,6 @@ namespace EndlessClient.Rendering
 
         #region/* PUBLIC INTERFACE -- OTHER NPCS */
 
-        public NPCRenderer GetNPCAt(int x, int y)
-        {
-            lock (_npcListLock)
-            {
-                return _npcRenderers.Find(_npc => _npc.NPC.X == x && _npc.NPC.Y == y);
-            }
-        }
-
         public void AddOtherNPC(NPCData data)
         {
             lock (_npcListLock)
@@ -890,18 +874,18 @@ namespace EndlessClient.Rendering
 
         public void OnDoorOpened(byte x, byte y)
         {
-            if (_door != null && _door.IsDoorOpened)
-            {
-                _door.IsDoorOpened = false;
-                _door.DoorPacketSent = false;
-                _doorY = 0;
-            }
+            //if (_door != null && _door.IsDoorOpened)
+            //{
+            //    _door.IsDoorOpened = false;
+            //    _door.DoorPacketSent = false;
+            //    _doorY = 0;
+            //}
 
             if ((_door = MapRef.Warps[y, x]) != null)
             {
                 if(OldWorld.Instance.SoundEnabled)
                     ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorOpen).Play();
-                _door.IsDoorOpened = true;
+                //_door.IsDoorOpened = true;
                 _doorY = y;
                 _doorTimer.Change(3000, 0);
             }
@@ -915,11 +899,11 @@ namespace EndlessClient.Rendering
                 return;
             }
 
-            if (_door.IsDoorOpened && OldWorld.Instance.SoundEnabled)
-                ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorClose).Play();
+            //if (_door.IsDoorOpened && OldWorld.Instance.SoundEnabled)
+            //    ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorClose).Play();
 
-            _door.IsDoorOpened = false;
-            _door.DoorPacketSent = false; //back-off from sending a door packet.
+            //_door.IsDoorOpened = false;
+            //_door.DoorPacketSent = false; //back-off from sending a door packet.
             _doorY = 0;
             _doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
@@ -1397,8 +1381,8 @@ namespace EndlessClient.Rendering
             //right-facing walls
             if ((gfxNum = MapRef.GFX[MapLayer.WallRowsRight][rowIndex, colIndex]) > 0)
             {
-                if (_door != null && _door.X == colIndex && _doorY == rowIndex && _door.IsDoorOpened)
-                    gfxNum++;
+                //if (_door != null && _door.X == colIndex && _doorY == rowIndex && _door.IsDoorOpened)
+                //    gfxNum++;
 
                 var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
                 Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);
@@ -1416,8 +1400,8 @@ namespace EndlessClient.Rendering
             //down-facing walls
             if ((gfxNum = MapRef.GFX[MapLayer.WallRowsDown][rowIndex, colIndex]) > 0)
             {
-                if (_door != null && _door.X == colIndex && _doorY == rowIndex && _door.IsDoorOpened)
-                    gfxNum++;
+                //if (_door != null && _door.X == colIndex && _doorY == rowIndex && _door.IsDoorOpened)
+                //    gfxNum++;
 
                 var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
                 Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);

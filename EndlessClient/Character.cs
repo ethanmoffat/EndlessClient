@@ -702,7 +702,7 @@ namespace EndlessClient
             return permission;
         }
 
-        public ChestKey CanOpenChest(MapChest chest)
+        public ChestKey CanOpenChest(ChestSpawnMapEntity chest)
         {
             ChestKey permission = chest.Key;
 

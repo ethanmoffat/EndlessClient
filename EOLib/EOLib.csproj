@@ -111,7 +111,6 @@
     <Compile Include="Domain\Map\IMapElement.cs" />
     <Compile Include="Domain\Map\ITileInfo.cs" />
     <Compile Include="Domain\Map\OldMapItem.cs" />
-    <Compile Include="Domain\Map\MapSignTileInfo.cs" />
     <Compile Include="Domain\Map\NPCTileInfo.cs" />
     <Compile Include="Domain\Map\TileInfoReturnType.cs" />
     <Compile Include="Domain\Map\WarpTileInfo.cs" />

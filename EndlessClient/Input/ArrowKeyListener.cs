@@ -200,7 +200,7 @@ namespace EndlessClient.Input
                     walkValid = Renderer.NoWall;
                     if (!walkValid)
                     {
-                        MapChest chest = OldWorld.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.X == destX && _c.Y == destY);
+                        var chest = OldWorld.Instance.ActiveMapRenderer.MapRef.Chests.Single(_c => _c.X == destX && _c.Y == destY);
                         if (chest != null)
                         {
                             string requiredKey = null;
@@ -211,7 +211,7 @@ namespace EndlessClient.Input
                                 case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
                                 case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
                                 default:
-                                    ChestDialog.Show(((EOGame)Game).API, chest.X, chest.Y);
+                                    ChestDialog.Show(((EOGame)Game).API, (byte)chest.X, (byte)chest.Y);
                                     break;
                             }
 

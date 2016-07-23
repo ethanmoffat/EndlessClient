@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Linq;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Inventory;
 using EOLib;
@@ -15,7 +16,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
-using MapFile = EOLib.IO.OldMap.MapFile;
+using IMapFile = EOLib.IO.Map.IMapFile;
 
 namespace EndlessClient.Rendering
 {
@@ -35,7 +36,7 @@ namespace EndlessClient.Rendering
         private MouseState _prevState;
         private bool _hideCursor;
 
-        private MapFile MapRef { get { return _parentMapRenderer.MapRef; } }
+        private IMapFile MapRef { get { return _parentMapRenderer.MapRef; } }
 
         public Point GridCoords
         {
@@ -251,8 +252,8 @@ namespace EndlessClient.Rendering
                 switch (ti.ReturnType)
                 {
                     case TileInfoReturnType.IsMapSign:
-                        var signInfo = (MapSign)ti.MapElement;
-                        EOMessageBox.Show(signInfo.Message, signInfo.Title, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        //var signInfo = (MapSign)ti.MapElement;
+                        //EOMessageBox.Show(signInfo.Message, signInfo.Title, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         break;
                     case TileInfoReturnType.IsOtherPlayer:
                         break;
@@ -316,7 +317,7 @@ namespace EndlessClient.Rendering
 
             if (characterWithinOneUnitOfChest && characterInSameRowOrColAsChest)
             {
-                MapChest chest = MapRef.Chests.Find(_mc => _mc.X == _gridX && _mc.Y == _gridY);
+                var chest = MapRef.Chests.Single(_mc => _mc.X == _gridX && _mc.Y == _gridY);
                 if (chest == null) return;
 
                 string requiredKey;
@@ -326,7 +327,7 @@ namespace EndlessClient.Rendering
                     case ChestKey.Silver: requiredKey = "Silver Key"; break;
                     case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
                     case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
-                    default: ChestDialog.Show(_game.API, chest.X, chest.Y); return;
+                    default: ChestDialog.Show(_game.API, (byte)chest.X, (byte)chest.Y); return;
                 }
                 
                 EOMessageBox.Show(DialogResourceID.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
