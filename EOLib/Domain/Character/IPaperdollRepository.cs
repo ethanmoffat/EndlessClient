@@ -9,36 +9,36 @@ namespace EOLib.Domain.Character
 {
     public interface IPaperdollRepository
     {
-        List<EquippedItem> ActiveCharacterPaperdoll { get; set; }
+        List<short> ActiveCharacterPaperdoll { get; set; }
 
-        Dictionary<int, List<EquippedItem>> VisibleCharacterPaperdolls { get; set; }
+        Dictionary<int, List<short>> VisibleCharacterPaperdolls { get; set; }
     }
 
     public interface IPaperdollProvider
     {
-        IReadOnlyList<EquippedItem> ActiveCharacterPaperdoll { get; }
+        IReadOnlyList<short> ActiveCharacterPaperdoll { get; }
 
-        IReadOnlyDictionary<int, IReadOnlyList<EquippedItem>> VisibleCharacterPaperdolls { get; }
+        IReadOnlyDictionary<int, IReadOnlyList<short>> VisibleCharacterPaperdolls { get; }
     }
 
     public class PaperdollRepository : IPaperdollRepository, IPaperdollProvider
     {
-        public List<EquippedItem> ActiveCharacterPaperdoll { get; set; }
+        public List<short> ActiveCharacterPaperdoll { get; set; }
 
-        public Dictionary<int, List<EquippedItem>> VisibleCharacterPaperdolls { get; set; }
+        public Dictionary<int, List<short>> VisibleCharacterPaperdolls { get; set; }
 
-        IReadOnlyList<EquippedItem> IPaperdollProvider.ActiveCharacterPaperdoll
+        IReadOnlyList<short> IPaperdollProvider.ActiveCharacterPaperdoll
         {
             get { return ActiveCharacterPaperdoll; }
         }
 
-        IReadOnlyDictionary<int, IReadOnlyList<EquippedItem>> IPaperdollProvider.VisibleCharacterPaperdolls
+        IReadOnlyDictionary<int, IReadOnlyList<short>> IPaperdollProvider.VisibleCharacterPaperdolls
         {
             get
             {
                 return VisibleCharacterPaperdolls.ToDictionary(
                     k => k.Key,
-                    v => (IReadOnlyList<EquippedItem>) v.Value);
+                    v => (IReadOnlyList<short>)v.Value);
             }
         }
     }

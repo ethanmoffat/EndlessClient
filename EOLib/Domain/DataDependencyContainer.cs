@@ -17,22 +17,24 @@ namespace EOLib.Domain
         {
             container.RegisterType<ICreateAccountParameterValidator, CreateAccountParameterValidator>();
 
-            container.RegisterType<IAccountActions, AccountActions>();
-            container.RegisterType<ILoginActions, LoginActions>();
-            container.RegisterType<ICharacterManagementActions, CharacterManagementActions>();
+            container.RegisterType<IAccountActions, AccountActions>()
+                .RegisterType<ILoginActions, LoginActions>()
+                .RegisterType<ICharacterManagementActions, CharacterManagementActions>();
 
-            container.RegisterInstance<ICharacterSelectorRepository, CharacterSelectorRepository>();
-            container.RegisterInstance<ICharacterSelectorProvider, CharacterSelectorRepository>();
-            container.RegisterInstance<IPlayerInfoRepository, PlayerInfoRepository>();
-            container.RegisterInstance<IPlayerInfoProvider, PlayerInfoRepository>();
-            container.RegisterInstance<ICharacterRepository, CharacterRepository>();
-            container.RegisterInstance<ICharacterProvider, CharacterRepository>();
-            container.RegisterInstance<ICurrentMapStateRepository, CurrentMapStateRepository>();
-            container.RegisterInstance<ICurrentMapStateProvider, CurrentMapStateRepository>();
-            container.RegisterInstance<ICharacterInventoryRepository, CharacterInventoryRepository>();
-            container.RegisterInstance<ICharacterInventoryProvider, CharacterInventoryRepository>();
-            container.RegisterInstance<INewsRepository, NewsRepository>();
-            container.RegisterInstance<INewsProvider, NewsRepository>();
+            container.RegisterInstance<ICharacterSelectorRepository, CharacterSelectorRepository>()
+                .RegisterInstance<ICharacterSelectorProvider, CharacterSelectorRepository>()
+                .RegisterInstance<IPlayerInfoRepository, PlayerInfoRepository>()
+                .RegisterInstance<IPlayerInfoProvider, PlayerInfoRepository>()
+                .RegisterInstance<ICharacterRepository, CharacterRepository>()
+                .RegisterInstance<ICharacterProvider, CharacterRepository>()
+                .RegisterInstance<ICurrentMapStateRepository, CurrentMapStateRepository>()
+                .RegisterInstance<ICurrentMapStateProvider, CurrentMapStateRepository>()
+                .RegisterInstance<ICharacterInventoryRepository, CharacterInventoryRepository>()
+                .RegisterInstance<ICharacterInventoryProvider, CharacterInventoryRepository>()
+                .RegisterInstance<IPaperdollRepository, PaperdollRepository>()
+                .RegisterInstance<IPaperdollProvider, PaperdollRepository>()
+                .RegisterInstance<INewsRepository, NewsRepository>()
+                .RegisterInstance<INewsProvider, NewsRepository>();
         }
     }
 }
