@@ -9,6 +9,7 @@ using EndlessClient.HUD.Panels;
 using EOLib;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
+using EOLib.Localization;
 
 namespace EndlessClient.HUD
 {
@@ -44,7 +45,7 @@ namespace EndlessClient.HUD
             var mapFile = _mapFileProvider.MapFiles[_currentMapStateRepository.CurrentMapID];
             if (!mapFile.Properties.MapAvailable)
             {
-                _statusLabelSetter.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_NO_MAP_OF_AREA);
+                _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_NO_MAP_OF_AREA);
                 return;
             }
 
