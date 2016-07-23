@@ -80,7 +80,7 @@
     <Compile Include="Pub\ECFFile.cs" />
     <Compile Include="Pub\ECFRecord.cs" />
     <Compile Include="Pub\EIFFile.cs" />
-    <Compile Include="Pub\EIFRecordExtensions.cs" />
+    <Compile Include="Extensions\EIFRecordExtensions.cs" />
     <Compile Include="Pub\ENFFile.cs" />
     <Compile Include="Pub\ENFRecord.cs" />
     <Compile Include="Pub\ESFFile.cs" />
@@ -128,6 +128,7 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
