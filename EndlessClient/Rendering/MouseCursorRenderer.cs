@@ -3,16 +3,19 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Linq;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Inventory;
 using EOLib;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Map;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
+using IMapFile = EOLib.IO.Map.IMapFile;
 
 namespace EndlessClient.Rendering
 {
@@ -32,7 +35,7 @@ namespace EndlessClient.Rendering
         private MouseState _prevState;
         private bool _hideCursor;
 
-        private MapFile MapRef { get { return _parentMapRenderer.MapRef; } }
+        private IMapFile MapRef { get { return _parentMapRenderer.MapRef; } }
 
         public Point GridCoords
         {
@@ -248,8 +251,8 @@ namespace EndlessClient.Rendering
                 switch (ti.ReturnType)
                 {
                     case TileInfoReturnType.IsMapSign:
-                        var signInfo = (MapSign)ti.MapElement;
-                        EOMessageBox.Show(signInfo.Message, signInfo.Title, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        //var signInfo = (MapSign)ti.MapElement;
+                        //EOMessageBox.Show(signInfo.Message, signInfo.Title, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         break;
                     case TileInfoReturnType.IsOtherPlayer:
                         break;
@@ -276,20 +279,20 @@ namespace EndlessClient.Rendering
                 (!mi.IsNPCDrop && (DateTime.Now - mi.DropTime).TotalSeconds <= OldWorld.Instance.PlayerDropProtectTime))
             {
                 Character charRef = _parentMapRenderer.GetOtherPlayerByID((short) mi.OwningPlayerID);
-                DATCONST2 msg = charRef == null ? DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED : DATCONST2.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
+                EOResourceID msg = charRef == null ? EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED : EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
                 string extra = charRef == null ? "" : charRef.Name;
-                EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
+                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
             }
             else
             {
-                var item = OldWorld.Instance.EIF.GetRecordByID(mi.ItemID);
+                var item = OldWorld.Instance.EIF[mi.ItemID];
                 if (!EOGame.Instance.Hud.InventoryFits(mi.ItemID))
                 {
-                    EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
+                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                 }
                 else if (_mainCharacter.Weight + item.Weight * mi.Amount > _mainCharacter.MaxWeight)
                 {
-                    EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT);
+                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.DIALOG_ITS_TOO_HEAVY_WEIGHT);
                 }
                 else if (!_game.API.GetItem(mi.UniqueID)) //server validates drop protection anyway
                     EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -313,7 +316,7 @@ namespace EndlessClient.Rendering
 
             if (characterWithinOneUnitOfChest && characterInSameRowOrColAsChest)
             {
-                MapChest chest = MapRef.Chests.Find(_mc => _mc.X == _gridX && _mc.Y == _gridY);
+                var chest = MapRef.Chests.Single(_mc => _mc.X == _gridX && _mc.Y == _gridY);
                 if (chest == null) return;
 
                 string requiredKey;
@@ -323,12 +326,12 @@ namespace EndlessClient.Rendering
                     case ChestKey.Silver: requiredKey = "Silver Key"; break;
                     case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
                     case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
-                    default: ChestDialog.Show(_game.API, chest.X, chest.Y); return;
+                    default: ChestDialog.Show(_game.API, (byte)chest.X, (byte)chest.Y); return;
                 }
                 
-                EOMessageBox.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                _game.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
-                    DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
+                EOMessageBox.Show(DialogResourceID.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                _game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                    EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
                     " - " + requiredKey);
             }
         }

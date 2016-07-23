@@ -4,10 +4,10 @@
 
 using System;
 using System.Threading;
+using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
-using EOLib.IO.Services;
 using EOLib.Net.API;
 
 namespace EOBot

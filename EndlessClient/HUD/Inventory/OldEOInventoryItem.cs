@@ -6,13 +6,14 @@ using System;
 using System.Linq;
 using System.Threading;
 using EndlessClient.Dialogs;
-using EndlessClient.HUD.Panels;
 using EndlessClient.HUD.Panels.Old;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Extensions;
+using EOLib.IO.Pub;
+using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -25,8 +26,8 @@ namespace EndlessClient.HUD.Inventory
     //Keeping the EO prefix on this one since naming is hard
     public class OldEOInventoryItem : XNAControl
     {
-        private readonly ItemRecord m_itemData;
-        public ItemRecord ItemData
+        private readonly EIFRecord m_itemData;
+        public EIFRecord ItemData
         {
             get { return m_itemData; }
         }
@@ -55,7 +56,7 @@ namespace EndlessClient.HUD.Inventory
         private readonly PacketAPI m_api;
         private static bool safetyCommentHasBeenShown;
 
-        public OldEOInventoryItem(PacketAPI api, int slot, ItemRecord itemData, InventoryItem itemInventoryInfo, OldEOInventory inventory)
+        public OldEOInventoryItem(PacketAPI api, int slot, EIFRecord itemData, InventoryItem itemInventoryInfo, OldEOInventory inventory)
             : base(null, null, inventory)
         {
             m_api = api;
@@ -136,12 +137,12 @@ namespace EndlessClient.HUD.Inventory
 
                     if (m_itemData.Special == ItemSpecial.Lore)
                     {
-                        EOMessageBox.Show(DATCONST1.ITEM_IS_LORE_ITEM, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (OldWorld.Instance.JailMap == OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap)
                     {
-                        EOMessageBox.Show(OldWorld.GetString(DATCONST2.JAIL_WARNING_CANNOT_DROP_ITEMS),
-                            OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+                        EOMessageBox.Show(OldWorld.GetString(EOResourceID.JAIL_WARNING_CANNOT_DROP_ITEMS),
+                            OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
                             XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (m_inventory.Amount > 1 && inRange)
@@ -154,7 +155,7 @@ namespace EndlessClient.HUD.Inventory
                             {
                                 //note: not sure of the actual limit. 10000 is arbitrary here
                                 if (dlg.SelectedAmount > 10000 && m_inventory.ItemID == 1 && !safetyCommentHasBeenShown)
-                                    EOMessageBox.Show(DATCONST1.DROP_MANY_GOLD_ON_GROUND, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader,
+                                    EOMessageBox.Show(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader,
                                         (o, e) => { safetyCommentHasBeenShown = true; });
                                 else if (!m_api.DropItem(m_inventory.ItemID, dlg.SelectedAmount, (byte)loc.X, (byte)loc.Y))
                                     ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -168,7 +169,7 @@ namespace EndlessClient.HUD.Inventory
                     }
                     else /*if (!inRange)*/
                     {
-                        EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
+                        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_DROP_OUT_OF_RANGE);
                     }
                 }
                 else if (((OldEOInventory)parent).IsOverJunk())
@@ -176,7 +177,7 @@ namespace EndlessClient.HUD.Inventory
                     if (m_inventory.Amount > 1)
                     {
                         ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.JunkItems,
-                            m_inventory.Amount, DATCONST2.DIALOG_TRANSFER_JUNK);
+                            m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_JUNK);
                         dlg.DialogClosing += (sender, args) =>
                         {
                             if (args.Result == XNADialogResult.OK && !m_api.JunkItem(m_inventory.ItemID, dlg.SelectedAmount))
@@ -190,7 +191,7 @@ namespace EndlessClient.HUD.Inventory
                 {
                     if (m_itemData.Special == ItemSpecial.Lore)
                     {
-                        EOMessageBox.Show(DATCONST1.ITEM_IS_LORE_ITEM, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (m_inventory.Amount > 1)
                     {
@@ -237,17 +238,17 @@ namespace EndlessClient.HUD.Inventory
                     byte y = LockerDialog.Instance.Y;
                     if (m_inventory.ItemID == 1)
                     {
-                        EOMessageBox.Show(DATCONST1.LOCKER_DEPOSIT_GOLD_ERROR, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EOMessageBox.Show(DialogResourceID.LOCKER_DEPOSIT_GOLD_ERROR, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (m_inventory.Amount > 1)
                     {
-                        ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.ShopTransfer, m_inventory.Amount, DATCONST2.DIALOG_TRANSFER_TRANSFER);
+                        ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.ShopTransfer, m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_TRANSFER);
                         dlg.DialogClosing += (sender, args) =>
                         {
                             if (args.Result == XNADialogResult.OK)
                             {
                                 if (LockerDialog.Instance.GetNewItemAmount(m_inventory.ItemID, dlg.SelectedAmount) > Constants.LockerMaxSingleItemAmount)
-                                    EOMessageBox.Show(DATCONST1.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                                    EOMessageBox.Show(DialogResourceID.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                                 else if (!m_api.LockerAddItem(x, y, m_inventory.ItemID, dlg.SelectedAmount))
                                     EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                             }
@@ -256,7 +257,7 @@ namespace EndlessClient.HUD.Inventory
                     else
                     {
                         if (LockerDialog.Instance.GetNewItemAmount(m_inventory.ItemID, 1) > Constants.LockerMaxSingleItemAmount)
-                            EOMessageBox.Show(DATCONST1.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                            EOMessageBox.Show(DialogResourceID.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         else if (!m_api.LockerAddItem(x, y, m_inventory.ItemID, 1))
                             EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                     }
@@ -265,12 +266,12 @@ namespace EndlessClient.HUD.Inventory
                 {
                     if (m_inventory.Amount == 0)
                     {
-                        EOMessageBox.Show(DATCONST1.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EOMessageBox.Show(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (m_inventory.Amount > 1)
                     {
                         ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.BankTransfer,
-                            m_inventory.Amount, DATCONST2.DIALOG_TRANSFER_DEPOSIT);
+                            m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_DEPOSIT);
                         dlg.DialogClosing += (o, e) =>
                         {
                             if (e.Result == XNADialogResult.Cancel)
@@ -291,12 +292,12 @@ namespace EndlessClient.HUD.Inventory
                 {
                     if (m_itemData.Special == ItemSpecial.Lore)
                     {
-                        EOMessageBox.Show(DATCONST1.ITEM_IS_LORE_ITEM);
+                        EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM);
                     }
                     else if (m_inventory.Amount > 1)
                     {
                         ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.TradeItems,
-                            m_inventory.Amount, DATCONST2.DIALOG_TRANSFER_OFFER);
+                            m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_OFFER);
                         dlg.DialogClosing += (o, e) =>
                         {
                             if (e.Result != XNADialogResult.OK) return;
@@ -338,7 +339,7 @@ namespace EndlessClient.HUD.Inventory
             if (!MouseOverPreviously && MouseOver && !m_beingDragged)
             {
                 m_nameLabel.Visible = true;
-                EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ITEM, m_nameLabel.Text);
+                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ITEM, m_nameLabel.Text);
             }
             else if (!MouseOver && !m_beingDragged && m_nameLabel != null && m_nameLabel.Visible)
             {
@@ -464,16 +465,16 @@ namespace EndlessClient.HUD.Inventory
                             subLoc = 1;
                         else
                         {
-                            EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
-                                DATCONST2.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
+                            EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
+                                EOResourceID.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
                             break;
                         }
                     }
                     else if (m_itemData.Type == ItemType.Armor &&
                              m_itemData.Gender != c.RenderData.gender)
                     {
-                        EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
-                            DATCONST2.STATUS_LABEL_ITEM_EQUIP_DOES_NOT_FIT_GENDER);
+                        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
+                            EOResourceID.STATUS_LABEL_ITEM_EQUIP_DOES_NOT_FIT_GENDER);
                         break;
                     }
 
@@ -486,17 +487,17 @@ namespace EndlessClient.HUD.Inventory
                     {
                         int reqIndex = reqs.ToList().FindIndex(x => x > 0);
 
-                        ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
-                            DATCONST2.STATUS_LABEL_ITEM_EQUIP_THIS_ITEM_REQUIRES,
+                        ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
+                            EOResourceID.STATUS_LABEL_ITEM_EQUIP_THIS_ITEM_REQUIRES,
                             string.Format(" {0} {1}", reqs[reqIndex], reqNames[reqIndex]));
                         break;
                     }
                     //check class requirement
                     if (m_itemData.ClassReq > 0 && m_itemData.ClassReq != c.Class)
                     {
-                        ((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
-                            DATCONST2.STATUS_LABEL_ITEM_EQUIP_CAN_ONLY_BE_USED_BY,
-                            OldWorld.Instance.ECF.GetRecordByID(m_itemData.ClassReq).Name);
+                        ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
+                            EOResourceID.STATUS_LABEL_ITEM_EQUIP_CAN_ONLY_BE_USED_BY,
+                            OldWorld.Instance.ECF[m_itemData.ClassReq].Name);
                         break;
                     }
 
@@ -507,15 +508,15 @@ namespace EndlessClient.HUD.Inventory
                             EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                     }
                     else
-                        EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION,
-                            DATCONST2.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
+                        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
+                            EOResourceID.STATUS_LABEL_ITEM_EQUIP_TYPE_ALREADY_EQUIPPED);
 
                     break;
                 //usable items
                 case ItemType.Teleport:
                     if (!OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.CanScroll)
                     {
-                        EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_NOTHING_HAPPENED);
+                        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_NOTHING_HAPPENED);
                         break;
                     }
                     if (m_itemData.ScrollMap == OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap &&
@@ -531,10 +532,10 @@ namespace EndlessClient.HUD.Inventory
                     break;
                 case ItemType.CureCurse:
                     //note: don't actually set the useItem bool here. Call API.UseItem if the dialog result is OK.
-                    if (c.PaperDoll.Select(id => OldWorld.Instance.EIF.GetRecordByID(id))
+                    if (c.PaperDoll.Select(id => OldWorld.Instance.EIF[id])
                                    .Any(rec => rec.Special == ItemSpecial.Cursed))
                     {
-                        EOMessageBox.Show(DATCONST1.ITEM_CURSE_REMOVE_PROMPT, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+                        EOMessageBox.Show(DialogResourceID.ITEM_CURSE_REMOVE_PROMPT, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                             (o, e) =>
                             {
                                 if (e.Result == XNADialogResult.OK && !m_api.UseItem((short)m_itemData.ID))
@@ -565,7 +566,7 @@ namespace EndlessClient.HUD.Inventory
 
         public static Color GetItemTextColor(short id) //also used in map renderer for mapitems
         {
-            ItemRecord data = OldWorld.Instance.EIF.GetRecordByID(id);
+            var data = OldWorld.Instance.EIF[id];
             switch (data.Special)
             {
                 case ItemSpecial.Lore:
@@ -580,7 +581,7 @@ namespace EndlessClient.HUD.Inventory
 
         public static string GetNameString(short id, int amount)
         {
-            ItemRecord data = OldWorld.Instance.EIF.GetRecordByID(id);
+            var data = OldWorld.Instance.EIF[id];
             switch (data.ID)
             {
                 case 1:

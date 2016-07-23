@@ -6,7 +6,6 @@ using EndlessClient.Content;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Factories;
-using EndlessClient.UIControls;
 using EOLib.Graphics;
 
 namespace EndlessClient.Dialogs.Factories

@@ -5,6 +5,7 @@
 using System;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -45,7 +46,7 @@ namespace EndlessClient.Dialogs
         /// <param name="transferType">Which transfer is being done (controls title)</param>
         /// <param name="totalAmount">Maximum amount that can be transferred</param>
         /// <param name="message">Resource ID of message to control displayed text</param>
-        public ItemTransferDialog(string itemName, TransferType transferType, int totalAmount, DATCONST2 message = DATCONST2.DIALOG_TRANSFER_DROP)
+        public ItemTransferDialog(string itemName, TransferType transferType, int totalAmount, EOResourceID message = EOResourceID.DIALOG_TRANSFER_DROP)
             : base((PacketAPI)null)
         {
             _validateMessage(message);
@@ -92,7 +93,7 @@ namespace EndlessClient.Dialogs
             {
                 ForeColor = ColorConstants.LightGrayDialogMessage,
                 TextWidth = 200,
-                Text = string.Format("{0} {1} {2}", OldWorld.GetString(DATCONST2.DIALOG_TRANSFER_HOW_MUCH), itemName, OldWorld.GetString(message))
+                Text = string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_HOW_MUCH), itemName, OldWorld.GetString(message))
             };
             descLabel.SetParent(this);
 
@@ -190,19 +191,19 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        private void _validateMessage(DATCONST2 msg)
+        private void _validateMessage(EOResourceID msg)
         {
             switch (msg)
             {
-                case DATCONST2.DIALOG_TRANSFER_DROP:
-                case DATCONST2.DIALOG_TRANSFER_GIVE:
-                case DATCONST2.DIALOG_TRANSFER_JUNK:
-                case DATCONST2.DIALOG_TRANSFER_BUY:
-                case DATCONST2.DIALOG_TRANSFER_SELL:
-                case DATCONST2.DIALOG_TRANSFER_TRANSFER:
-                case DATCONST2.DIALOG_TRANSFER_DEPOSIT:
-                case DATCONST2.DIALOG_TRANSFER_WITHDRAW:
-                case DATCONST2.DIALOG_TRANSFER_OFFER:
+                case EOResourceID.DIALOG_TRANSFER_DROP:
+                case EOResourceID.DIALOG_TRANSFER_GIVE:
+                case EOResourceID.DIALOG_TRANSFER_JUNK:
+                case EOResourceID.DIALOG_TRANSFER_BUY:
+                case EOResourceID.DIALOG_TRANSFER_SELL:
+                case EOResourceID.DIALOG_TRANSFER_TRANSFER:
+                case EOResourceID.DIALOG_TRANSFER_DEPOSIT:
+                case EOResourceID.DIALOG_TRANSFER_WITHDRAW:
+                case EOResourceID.DIALOG_TRANSFER_OFFER:
                     break;
                 default: throw new ArgumentOutOfRangeException("msg", "Use one of the approved messages.");
             }

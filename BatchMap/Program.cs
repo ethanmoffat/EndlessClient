@@ -5,16 +5,21 @@
 using System;
 using System.IO;
 using System.Linq;
+using EOLib.DependencyInjection;
+using EOLib.IO;
+using EOLib.IO.Actions;
 using EOLib.IO.Map;
-using EOLib.IO.Pub;
+using EOLib.IO.Repositories;
 using EOLib.IO.Services;
+using Microsoft.Practices.Unity;
 
 namespace BatchMap
 {
     public static class Program
     {
-        private static EIFFile EIF;
-        private static ENFFile ENF;
+        private static IUnityContainer _unityContainer;
+        private static IPubFileProvider _pubProvider;
+        private static IMapFileProvider _mapFileProvider;
 
         private static void Main(string[] args)
         {
@@ -24,10 +29,10 @@ namespace BatchMap
                 return;
             }
 
-            string srcFilePath = args[0];
-            string dstFilePath = args[1];
-            string pubFilePath = args[2];
-            bool singleFileProcess = false;
+            var srcFilePath = args[0];
+            var dstFilePath = args[1];
+            var pubFilePath = args[2];
+            var singleFileProcess = false;
 
             if (srcFilePath.ToLower().EndsWith(".emf") && !dstFilePath.ToLower().EndsWith(".emf"))
             {
@@ -97,98 +102,134 @@ namespace BatchMap
                 }
             }
 
-            EIF = new EIFFile();
-            ENF = new ENFFile();
+            SetupDependencies();
+
             try
             {
-                EIF.DeserializeFromByteArray(File.ReadAllBytes(Path.Combine(pubFilePath, "dat001.eif")), new NumberEncoderService());
-                ENF.DeserializeFromByteArray(File.ReadAllBytes(Path.Combine(pubFilePath, "dtn001.enf")), new NumberEncoderService());
+                var actions = _unityContainer.Resolve<IPubFileLoadActions>();
+
+                actions.LoadItemFileByName(Path.Combine(pubFilePath, "dat001.eif"));
+                actions.LoadNPCFileByName(Path.Combine(pubFilePath, "dtn001.enf"));
             }
             catch
             {
                 Console.WriteLine("Error loading pub files!");
+                _unityContainer.Dispose();
                 return;
             }
 
-            ProcessFiles(srcFilePath, dstFilePath, singleFileProcess);
+            try
+            {
+                ProcessFiles(srcFilePath, dstFilePath, singleFileProcess);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Exception was thrown: ");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine(ex.Message);
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nCall stack: \n");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine(ex.StackTrace);
+            }
+
+            _unityContainer.Dispose();
+        }
+
+        private static void SetupDependencies()
+        {
+            var dependencyRegistrar = new DependencyRegistrar(_unityContainer = new UnityContainer());
+            var containers = new IDependencyContainer[] {new IODependencyContainer()};
+
+            dependencyRegistrar.RegisterDependencies(containers);
+            dependencyRegistrar.InitializeDependencies(containers.OfType<IInitializableContainer>().ToArray());
+
+            _pubProvider = _unityContainer.Resolve<IPubFileProvider>();
+            _mapFileProvider = _unityContainer.Resolve<IMapFileProvider>();
         }
 
         private static void ProcessFiles(string src, string dst, bool singleFile)
         {
-            string[] inFiles = singleFile ? new[] {src} : Directory.GetFiles(src, "*.emf");
+            var mapFileLoadActions = _unityContainer.Resolve<IMapFileLoadActions>();
+            var mapFileSaveService = _unityContainer.Resolve<IMapFileSaveService>();
 
-            for (int map = 0; map < inFiles.Length; ++map)
+            var inFiles = singleFile ? new[] {src} : Directory.GetFiles(src, "*.emf");
+
+            for (int mapIndex = 0; mapIndex < inFiles.Length; ++mapIndex)
             {
-                IMapFile EMF = new MapFile();
-                EMF.Load(inFiles[map]);
+                var mapID = new MapPathToIDConverter().ConvertFromPathToID(inFiles[mapIndex]);
+
+                mapFileLoadActions.LoadMapFileByName(inFiles[mapIndex]);
+                var mapFile = _mapFileProvider.MapFiles[mapID].AsEditableMap();
+                
                 var changesMade = false;
 
-                var startOfMapID = inFiles[map].Contains('\\') ? inFiles[map].LastIndexOf('\\') + 1 : 0;
-                var lengthOfMapID = inFiles[map].Length - inFiles[map].LastIndexOf('\\') - 1;
-                var mapID = inFiles[map].Substring(startOfMapID, lengthOfMapID);
-
-                for (int i = EMF.TileRows.Count - 1; i >= 0; --i)
+                for (int i = mapFile.TileRows.Count - 1; i >= 0; --i)
                 {
-                    var tr = EMF.TileRows[i];
+                    var tr = mapFile.TileRows[i];
                     for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
                     {
                         var tt = tr.EntityItems[j];
-                        if (tt.X > EMF.Properties.Width || tr.Y > EMF.Properties.Height)
+                        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
                         {
-                            Console.WriteLine("[MAP {3}] Tile {0}x{1} ({2}) is out of map bounds. Removing.",
-                                tt.X, tr.Y, Enum.GetName(typeof(TileSpec), tt.Value), mapID);
-                            EMF.RemoveTileAt(tr.Y, tt.X);
+                            Console.WriteLine("[MAP {0}] Tile {1}x{2} ({3}) is out of map bounds. Removing.",
+                                              mapID, tt.X, tr.Y, Enum.GetName(typeof(TileSpec), tt.Value));
+                            mapFile.RemoveTileAt(tr.Y, tt.X);
                             changesMade = true;
                         }
                     }
                 }
 
-                for (int i = EMF.WarpRows.Count - 1; i >= 0; --i)
+                for (int i = mapFile.WarpRows.Count - 1; i >= 0; --i)
                 {
-                    var tr = EMF.WarpRows[i];
+                    var tr = mapFile.WarpRows[i];
                     for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
                     {
                         var tt = tr.EntityItems[j];
-                        if (tt.X > EMF.Properties.Width || tr.Y > EMF.Properties.Height)
+                        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
                         {
-                            Console.WriteLine("[MAP {2}] Warp {0}x{1} is out of map bounds. Removing.", tt.X, tr.Y, mapID);
-                            EMF.RemoveWarpAt(tr.Y, tt.X);
+                            Console.WriteLine("[MAP {0}] Warp {1}x{2} is out of map bounds. Removing.", mapID, tt.X, tr.Y);
+                            mapFile.RemoveWarpAt(tr.Y, tt.X);
                             changesMade = true;
                         }
                     }
                 }
 
-                for(int i = EMF.NPCSpawns.Count - 1; i >= 0; --i)
+                for(int ndx = mapFile.NPCSpawns.Count - 1; ndx >= 0; --ndx)
                 {
-                    var npc = EMF.NPCSpawns[i];
-                    var npcRec = ENF[npc.NpcID];
-                    if (npc.NpcID > ENF.Data.Count || npcRec == null)
+                    var npcSpawn = mapFile.NPCSpawns[ndx];
+                    var npcRec = _pubProvider.ENFFile[npcSpawn.ID];
+                    if (npcSpawn.ID > _pubProvider.ENFFile.Data.Count || npcRec == null)
                     {
-                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} uses non-existent NPC #{3}. Removing.", mapID, npc.X, npc.Y, npc.NpcID);
-                        EMF.NPCSpawns.RemoveAt(i);
+                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} uses non-existent NPC #{3}. Removing.", mapID, npcSpawn.X, npcSpawn.Y, npcSpawn.ID);
+                        mapFile.RemoveNPCSpawn(npcSpawn);
                         changesMade = true;
                         continue;
                     }
 
-                    if (npc.X > EMF.Properties.Width || npc.Y > EMF.Properties.Height)
+                    if (npcSpawn.X > mapFile.Properties.Width || npcSpawn.Y > mapFile.Properties.Height)
                     {
-                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is out of map bounds. Removing.", mapID, npc.X, npc.Y, npcRec.Name);
-                        EMF.NPCSpawns.RemoveAt(i);
+                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is out of map bounds. Removing.", mapID, npcSpawn.X, npcSpawn.Y, npcRec.Name);
+                        mapFile.RemoveNPCSpawn(npcSpawn);
                         changesMade = true;
                         continue;
                     }
 
-                    if (!CheckTile(EMF, npc.X, npc.Y))
+                    if (!TileIsValidNPCSpawnPoint(mapFile, npcSpawn.X, npcSpawn.Y))
                     {
-                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is invalid...", mapID, npc.X, npc.Y, npcRec.Name);
+                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is invalid...", mapID, npcSpawn.X, npcSpawn.Y, npcRec.Name);
                         var found = false;
-                        for (int row = npc.Y - 2; row < npc.Y + 2; ++row)
+                        for (int row = npcSpawn.Y - 2; row < npcSpawn.Y + 2; ++row)
                         {
                             if (found) break;
-                            for (int col = npc.X - 2; col < npc.X + 2; ++col)
+                            for (int col = npcSpawn.X - 2; col < npcSpawn.X + 2; ++col)
                             {
                                 if (found) break;
-                                if (CheckTile(EMF, col, row))
+                                if (TileIsValidNPCSpawnPoint(mapFile, col, row))
                                 {
                                     Console.WriteLine("[MAP {0}] Found valid spawn point. Continuing.", mapID);
                                     found = true;
@@ -198,31 +239,31 @@ namespace BatchMap
 
                         if (!found)
                         {
-                            Console.WriteLine("[MAP {0}] NPC couldn't spawn anywhere valid! Removing.");
-                            EMF.NPCSpawns.RemoveAt(i);
+                            Console.WriteLine("[MAP {0}] NPC couldn't spawn anywhere valid! Removing.", mapID);
+                            mapFile.RemoveNPCSpawn(npcSpawn);
                             changesMade = true;
                         }
                     }
                 }
 
-                for (int i = EMF.Chests.Count - 1; i >= 0; --i)
+                for(int ndx = mapFile.Chests.Count - 1; ndx >= 0; --ndx)
                 {
-                    var chest = EMF.Chests[i];
-                    var rec = EIF[chest.ItemID];
-                    if (chest.ItemID > EIF.Data.Count || rec == null)
+                    var chestSpawn = mapFile.Chests[ndx];
+                    var rec = _pubProvider.EIFFile[chestSpawn.ItemID];
+                    if (chestSpawn.ItemID > _pubProvider.EIFFile.Data.Count || rec == null)
                     {
-                        Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} uses non-existent Item #{3}. Removing.", mapID, chest.X, chest.Y, chest.ItemID);
-                        EMF.Chests.RemoveAt(i);
+                        Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} uses non-existent Item #{3}. Removing.", mapID, chestSpawn.X, chestSpawn.Y, chestSpawn.ItemID);
+                        mapFile.RemoveChestSpawn(chestSpawn);
                         changesMade = true;
                         continue;
                     }
 
-                    if (chest.X > EMF.Properties.Width ||
-                        chest.Y > EMF.Properties.Height ||
-                        EMF.Tiles[chest.Y, chest.X] != TileSpec.Chest)
+                    if (chestSpawn.X > mapFile.Properties.Width ||
+                        chestSpawn.Y > mapFile.Properties.Height ||
+                        mapFile.Tiles[chestSpawn.Y, chestSpawn.X] != TileSpec.Chest)
                     {
-                        Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} points to a non-chest. Removing.", mapID, chest.X, chest.Y);
-                        EMF.Chests.RemoveAt(i);
+                        Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} points to a non-chest. Removing.", mapID, chestSpawn.X, chestSpawn.Y);
+                        mapFile.RemoveChestSpawn(chestSpawn);
                         changesMade = true;
                     }
                 }
@@ -233,17 +274,19 @@ namespace BatchMap
                     continue;
                 }
 
-                if (map == 0 && singleFile && inFiles.Length == 1)
+                if (mapIndex == 0 && singleFile && inFiles.Length == 1)
                 {
-                    EMF.Save(dst);
+                    mapFileSaveService.SaveFile(dst, mapFile);
                     break;
                 }
 
-                EMF.Save(Path.Combine(dst, mapID));
+                mapFileSaveService.SaveFile(
+                    Path.Combine(dst, string.Format("{0,5:D5}.emf", mapID)),
+                    mapFile);
             }
         }
 
-        private static bool CheckTile(IMapFile EMF, int x, int y)
+        private static bool TileIsValidNPCSpawnPoint(IReadOnlyMapFile EMF, int x, int y)
         {
             if (EMF.Warps[y, x] != null)
                 return false;

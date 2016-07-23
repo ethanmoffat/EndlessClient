@@ -3,11 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EndlessClient.HUD.Panels;
 using EndlessClient.HUD.Panels.Old;
-using EOLib;
-using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -37,7 +35,7 @@ namespace EndlessClient.HUD.Spells
             {
                 if (value)
                 {
-                    ((EOGame) Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.SPELL_NOTHING_WAS_SELECTED);
+                    ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_NOTHING_WAS_SELECTED);
                 }
             }
         }
@@ -50,7 +48,7 @@ namespace EndlessClient.HUD.Spells
 
         public virtual bool IsDragging { get { return false; } }
 
-        public virtual SpellRecord SpellData { get { return null; } }
+        public virtual ESFRecord SpellData { get { return null; } }
 
         private bool _doUpdateLogic = true;
         protected virtual bool DoEmptySpellIconUpdateLogic { get { return _doUpdateLogic; } }

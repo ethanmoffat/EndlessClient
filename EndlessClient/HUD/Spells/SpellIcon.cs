@@ -3,12 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EndlessClient.HUD.Panels;
 using EndlessClient.HUD.Panels.Old;
-using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -45,19 +44,19 @@ namespace EndlessClient.HUD.Spells
 
         public override bool IsDragging { get { return _dragging; } }
 
-        public override SpellRecord SpellData { get { return _spellData; } }
+        public override ESFRecord SpellData { get { return _spellData; } }
 
         //stops the base class update logic from being called
         protected override bool DoEmptySpellIconUpdateLogic { get { return false; } }
         private readonly Texture2D _spellGraphic, _spellLevelColor;
-        private readonly SpellRecord _spellData;
+        private readonly ESFRecord _spellData;
 
         private Rectangle _spellGraphicSourceRect;
         private DateTime _clickTime;
         private bool _dragging, _followMouse;
         private Rectangle _levelDestinationRectangle;
 
-        public SpellIcon(OldActiveSpells parent, SpellRecord data, int slot)
+        public SpellIcon(OldActiveSpells parent, ESFRecord data, int slot)
             : base(parent, slot)
         {
             _spellData = data;
@@ -107,11 +106,11 @@ namespace EndlessClient.HUD.Spells
             switch (SpellData.Target)
             {
                 case SpellTarget.Normal:
-                    hud.SetStatusLabel(DATCONST2.SKILLMASTER_WORD_SPELL, SpellData.Name, DATCONST2.SPELL_WAS_SELECTED);
+                    hud.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, SpellData.Name, EOResourceID.SPELL_WAS_SELECTED);
                     break;
                 case SpellTarget.Group:
                     if(!hud.MainPlayerIsInParty())
-                        hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.SPELL_ONLY_WORKS_ON_GROUP);
+                        hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.SPELL_ONLY_WORKS_ON_GROUP);
                     break;
             }
         }
@@ -130,7 +129,7 @@ namespace EndlessClient.HUD.Spells
             {
                 SetIconHover(MouseOver);
                 if (MouseOver && !_parentSpellContainer.AnySpellsDragging())
-                    ((EOGame) Game).Hud.SetStatusLabel(DATCONST2.SKILLMASTER_WORD_SPELL, SpellData.Name);
+                    ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.SKILLMASTER_WORD_SPELL, SpellData.Name);
             }
         }
 

@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Crc.cs" />
-    <Compile Include="DataFileConstants.cs" />
     <Compile Include="Domain\Account\AccountActions.cs" />
     <Compile Include="Domain\Account\ChangePasswordParameters.cs" />
     <Compile Include="Domain\Account\CreateAccountParameterResult.cs" />
@@ -112,10 +111,8 @@
     <Compile Include="Domain\Map\IMapElement.cs" />
     <Compile Include="Domain\Map\ITileInfo.cs" />
     <Compile Include="Domain\Map\OldMapItem.cs" />
-    <Compile Include="Domain\Map\MapSignTileInfo.cs" />
     <Compile Include="Domain\Map\NPCTileInfo.cs" />
     <Compile Include="Domain\Map\TileInfoReturnType.cs" />
-    <Compile Include="Domain\Map\WarpTileInfo.cs" />
     <Compile Include="Domain\Protocol\BanType.cs" />
     <Compile Include="Domain\Protocol\IInitializationData.cs" />
     <Compile Include="Domain\Protocol\InitFileType.cs" />
@@ -125,61 +122,15 @@
     <Compile Include="Domain\Protocol\InitReply.cs" />
     <Compile Include="Domain\Account\CreateAccountParameterValidator.cs" />
     <Compile Include="Domain\Account\ICreateAccountParameterValidator.cs" />
-    <Compile Include="DependencyRegistrar.cs" />
     <Compile Include="EODirection.cs" />
-    <Compile Include="IDependencyContainer.cs" />
-    <Compile Include="IInitializableContainer.cs" />
-    <Compile Include="IO\Actions\FileLoadActions.cs" />
-    <Compile Include="IO\Actions\FileRequestActions.cs" />
-    <Compile Include="IO\Actions\IFileLoadActions.cs" />
-    <Compile Include="IO\Actions\IFileRequestActions.cs" />
-    <Compile Include="IO\Old\Class.cs" />
-    <Compile Include="IO\Old\ClassRecordFactory.cs" />
-    <Compile Include="IO\Repositories\IDataFileRepository.cs" />
-    <Compile Include="IO\Repositories\ILoginFileChecksumRepository.cs" />
-    <Compile Include="IO\Repositories\IMapFileProvider.cs" />
-    <Compile Include="IO\Repositories\IMapFileRepository.cs" />
-    <Compile Include="IO\Services\FileRequestService.cs" />
-    <Compile Include="IO\Services\HDSerialNumberService.cs" />
-    <Compile Include="IO\Repositories\IConfigurationRepository.cs" />
-    <Compile Include="IO\Services\IFileRequestService.cs" />
-    <Compile Include="IO\Services\IHDSerialNumberService.cs" />
-    <Compile Include="IO\EDFFile.cs" />
-    <Compile Include="IO\Old\EODataFile.cs" />
-    <Compile Include="IO\Old\IDataFile.cs" />
-    <Compile Include="IO\Old\IDataRecord.cs" />
-    <Compile Include="IO\Old\IDataRecordFactory.cs" />
-    <Compile Include="IO\IODependencyContainer.cs" />
-    <Compile Include="IO\Map\ChestKey.cs" />
-    <Compile Include="IO\Map\DoorSpec.cs" />
-    <Compile Include="IO\Map\IMapEntityItem.cs" />
-    <Compile Include="IO\Map\IMapEntityRow.cs" />
-    <Compile Include="IO\Map\IMapFile.cs" />
-    <Compile Include="IO\Old\IModifiableDataFile.cs" />
-    <Compile Include="IO\IniReader.cs" />
-    <Compile Include="IO\Old\Item.cs" />
-    <Compile Include="IO\Old\ItemRecordFactory.cs" />
-    <Compile Include="IO\Map\MapFile.cs" />
-    <Compile Include="IO\Map\IMapStringEncoderService.cs" />
-    <Compile Include="IO\Map\MapChest.cs" />
-    <Compile Include="IO\Map\MapEffect.cs" />
-    <Compile Include="IO\Map\MapFileProperties.cs" />
-    <Compile Include="IO\Map\MapLayer.cs" />
-    <Compile Include="IO\Map\MapSign.cs" />
-    <Compile Include="IO\Map\MapStringEncoderService.cs" />
-    <Compile Include="IO\Map\NPCSpawn.cs" />
-    <Compile Include="IO\Map\TileSpec.cs" />
-    <Compile Include="IO\Map\Warp.cs" />
-    <Compile Include="IO\Old\NPCFile.cs" />
-    <Compile Include="IO\Old\NPCRecord.cs" />
-    <Compile Include="IO\Old\NPCRecordFactory.cs" />
-    <Compile Include="IO\Repositories\MapFileRepository.cs" />
-    <Compile Include="IO\Services\ILocalizedStringService.cs" />
-    <Compile Include="IO\Services\IMapFileLoadService.cs" />
-    <Compile Include="IO\Services\LocalizedStringService.cs" />
-    <Compile Include="IO\Services\MapFileLoadService.cs" />
-    <Compile Include="IO\Old\Spell.cs" />
-    <Compile Include="IO\Old\SpellRecordFactory.cs" />
+    <Compile Include="Net\FileTransfer\FileRequestActions.cs" />
+    <Compile Include="Net\FileTransfer\IFileRequestActions.cs" />
+    <Compile Include="Net\FileTransfer\ILoginFileChecksumRepository.cs" />
+    <Compile Include="Net\FileTransfer\FileRequestService.cs" />
+    <Compile Include="HDSerialNumberService.cs" />
+    <Compile Include="Net\FileTransfer\IFileRequestService.cs" />
+    <Compile Include="IHDSerialNumberService.cs" />
+    <Compile Include="EOLibDependencyContainer.cs" />
     <Compile Include="misc.cs" />
     <Compile Include="Net\API\Account.cs" />
     <Compile Include="Domain\Account\AccountReply.cs" />
@@ -291,16 +242,27 @@
     <Compile Include="Net\Translators\PacketTranslatorContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Array2D.cs" />
-    <Compile Include="UnityExtensions.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj">
+      <Project>{2FEC86D4-EA73-472F-9983-B06AF7981F5C}</Project>
+      <Name>EOLib.Config</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
+      <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
+      <Name>EOLib.DependencyInjection</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
       <Project>{aa07776b-3f05-404a-ba8a-24970a91c024}</Project>
       <Name>EOLib.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EOLib.Localization\EOLib.Localization.csproj">
+      <Project>{9F543E30-1320-43E2-8691-080E089154A0}</Project>
+      <Name>EOLib.Localization</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

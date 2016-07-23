@@ -4,6 +4,7 @@
 
 using System.Threading;
 using EOLib.Domain.Login;
+using EOLib.Localization;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
@@ -78,22 +79,22 @@ namespace EOLib.Net.API
             m_login_responseEvent.Set();
         }
 
-        public DATCONST1 LoginResponseMessage()
+        public DialogResourceID LoginResponseMessage()
         {
-            DATCONST1 message = DATCONST1.NICE_TRY_HAXOR;
+            DialogResourceID message = DialogResourceID.NICE_TRY_HAXOR;
             switch (m_login_reply)
             {
                 case LoginReply.LoggedIn:
-                    message = DATCONST1.LOGIN_ACCOUNT_ALREADY_LOGGED_ON;
+                    message = DialogResourceID.LOGIN_ACCOUNT_ALREADY_LOGGED_ON;
                     break;
                 case LoginReply.Busy:
-                    message = DATCONST1.CONNECTION_SERVER_IS_FULL;
+                    message = DialogResourceID.CONNECTION_SERVER_IS_FULL;
                     break;
                 case LoginReply.WrongUser:
-                    message = DATCONST1.LOGIN_ACCOUNT_NAME_NOT_FOUND;
+                    message = DialogResourceID.LOGIN_ACCOUNT_NAME_NOT_FOUND;
                     break;
                 case LoginReply.WrongUserPass:
-                    message = DATCONST1.LOGIN_ACCOUNT_NAME_OR_PASSWORD_NOT_FOUND;
+                    message = DialogResourceID.LOGIN_ACCOUNT_NAME_OR_PASSWORD_NOT_FOUND;
                     break;
             }
 

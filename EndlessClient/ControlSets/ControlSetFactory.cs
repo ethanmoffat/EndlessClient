@@ -8,12 +8,11 @@ using EndlessClient.Controllers;
 using EndlessClient.Controllers.Repositories;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
-using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
+using EOLib.Config;
 using EOLib.Graphics;
-using EOLib.IO.Repositories;
 
 namespace EndlessClient.ControlSets
 {

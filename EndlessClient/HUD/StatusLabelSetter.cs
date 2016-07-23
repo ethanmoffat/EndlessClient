@@ -5,6 +5,7 @@
 using System;
 using EOLib;
 using EOLib.IO.Services;
+using EOLib.Localization;
 
 namespace EndlessClient.HUD
 {
@@ -20,7 +21,7 @@ namespace EndlessClient.HUD
             _localizedStringService = localizedStringService;
         }
 
-        public void SetStatusLabel(DATCONST2 type, DATCONST2 text, string extra = "")
+        public void SetStatusLabel(EOResourceID type, EOResourceID text, string extra = "")
         {
             CheckStatusLabelType(type);
 
@@ -34,16 +35,16 @@ namespace EndlessClient.HUD
             _statusLabelTextRepository.SetTime = DateTime.Now;
         }
 
-        private void CheckStatusLabelType(DATCONST2 type)
+        private void CheckStatusLabelType(EOResourceID type)
         {
             switch (type)
             {
-                case DATCONST2.STATUS_LABEL_TYPE_ACTION:
-                case DATCONST2.STATUS_LABEL_TYPE_BUTTON:
-                case DATCONST2.STATUS_LABEL_TYPE_INFORMATION:
-                case DATCONST2.STATUS_LABEL_TYPE_WARNING:
-                case DATCONST2.STATUS_LABEL_TYPE_ITEM:
-                case DATCONST2.SKILLMASTER_WORD_SPELL:
+                case EOResourceID.STATUS_LABEL_TYPE_ACTION:
+                case EOResourceID.STATUS_LABEL_TYPE_BUTTON:
+                case EOResourceID.STATUS_LABEL_TYPE_INFORMATION:
+                case EOResourceID.STATUS_LABEL_TYPE_WARNING:
+                case EOResourceID.STATUS_LABEL_TYPE_ITEM:
+                case EOResourceID.SKILLMASTER_WORD_SPELL:
                     break;
                 default: throw new ArgumentOutOfRangeException("type", "Use either ACTION, BUTTION, INFORMATION, WARNING, ITEM, or SPELL for this.");
             }

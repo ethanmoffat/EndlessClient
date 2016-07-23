@@ -10,6 +10,7 @@ using EOLib.IO;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using IMapFile = EOLib.IO.Map.IMapFile;
 
 namespace EndlessClient.Rendering
 {
@@ -32,7 +33,7 @@ namespace EndlessClient.Rendering
             Purple = 8 //npc
         }
 
-        public MapFile Map { get; set; }
+        public IMapFile Map { get; set; }
 
         public bool Visible { get; set; }
 
@@ -132,9 +133,9 @@ namespace EndlessClient.Rendering
                     //draw Green
                     break;
                 case TileInfoReturnType.IsWarpSpec:
-                    var warpInfo = (Warp) info.MapElement;
-                    if (warpInfo.DoorType != 0)
-                        miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
+                    //var warpInfo = (Warp) info.MapElement;
+                    //if (warpInfo.DoorType != 0)
+                    //    miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
                     break;
             }
 

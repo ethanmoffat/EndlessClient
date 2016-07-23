@@ -9,6 +9,7 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
+using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -520,7 +521,7 @@ namespace EndlessClient.HUD.Panels.Old
                     {
                         if (OldWorld.Instance.StrictFilterEnabled && isMainPlayer)
                         {
-                            EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.YOUR_MIND_PREVENTS_YOU_TO_SAY);
+                            EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.YOUR_MIND_PREVENTS_YOU_TO_SAY);
                             return null;
                         }
                         if (OldWorld.Instance.StrictFilterEnabled)

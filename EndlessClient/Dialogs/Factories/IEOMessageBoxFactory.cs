@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib;
+using EOLib.Localization;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories
@@ -14,16 +15,16 @@ namespace EndlessClient.Dialogs.Factories
                                       XNADialogButtons whichButtons = XNADialogButtons.Ok,
                                       EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader);
 
-        EOMessageBox CreateMessageBox(DATCONST1 resource,
+        EOMessageBox CreateMessageBox(DialogResourceID resource,
                                       XNADialogButtons whichButtons = XNADialogButtons.Ok,
                                       EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader);
 
         EOMessageBox CreateMessageBox(string prependData,
-                                      DATCONST1 resource,
+                                      DialogResourceID resource,
                                       XNADialogButtons whichButtons = XNADialogButtons.Ok,
                                       EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader);
 
-        EOMessageBox CreateMessageBox(DATCONST1 resource,
+        EOMessageBox CreateMessageBox(DialogResourceID resource,
                                       string extraData,
                                       XNADialogButtons whichButtons = XNADialogButtons.Ok,
                                       EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader);

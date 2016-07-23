@@ -4,7 +4,7 @@
 
 using System;
 using System.Threading;
-using EOLib.IO.Services;
+using EOLib;
 using EOLib.Net;
 using EOLib.Net.API;
 using EOLib.Net.PacketProcessing;

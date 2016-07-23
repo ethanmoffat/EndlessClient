@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
@@ -138,7 +139,7 @@ namespace EndlessClient.Dialogs
             throw new NotImplementedException("Static message box display is deprecated and will be removed in the future");
         }
 
-        public static void Show(DATCONST1 resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
+        public static void Show(DialogResourceID resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
             EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
         {
             if (!OldWorld.Initialized)
@@ -148,7 +149,7 @@ namespace EndlessClient.Dialogs
             Show(file.Data[(int)resource + 1], file.Data[(int)resource], whichButtons, style, closingEvent);
         }
 
-        public static void Show(string prependData, DATCONST1 resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
+        public static void Show(string prependData, DialogResourceID resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
             EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
         {
             if (!OldWorld.Initialized)
@@ -159,7 +160,7 @@ namespace EndlessClient.Dialogs
             Show(message, file.Data[(int)resource], whichButtons, style, closingEvent);
         }
 
-        public static void Show(DATCONST1 resource, string extraData, XNADialogButtons whichButtons = XNADialogButtons.Ok,
+        public static void Show(DialogResourceID resource, string extraData, XNADialogButtons whichButtons = XNADialogButtons.Ok,
             EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
         {
             if (!OldWorld.Initialized)

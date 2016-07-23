@@ -11,7 +11,8 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
+using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
@@ -70,9 +71,9 @@ namespace EndlessClient.HUD.Panels.Old
                 localInv.Insert(0, new InventoryItem(amount: 0, itemID: 1)); //add 0 gold if there isn't any gold
 
             bool dialogShown = false;
-            foreach (InventoryItem item in localInv)
+            foreach (var item in localInv)
             {
-                ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+                var rec = OldWorld.Instance.EIF[item.ItemID];
                 int slot = localItemSlotMap.ContainsValue(item.ItemID)
                     ? localItemSlotMap.First(_pair => _pair.Value == item.ItemID).Key
                     : _getNextOpenSlot(rec.Size);
@@ -131,15 +132,15 @@ namespace EndlessClient.HUD.Panels.Old
 
             if (IsOverDrop())
             {
-                EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_INVENTORY_DROP_BUTTON);
+                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_INVENTORY_DROP_BUTTON);
             }
             else if (IsOverJunk())
             {
-                EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_INVENTORY_JUNK_BUTTON);
+                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_INVENTORY_JUNK_BUTTON);
             }
             else if (m_btnPaperdoll.MouseOver && !m_btnPaperdoll.MouseOverPreviously)
             {
-                EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_BUTTON, DATCONST2.STATUS_LABEL_INVENTORY_SHOW_YOUR_PAPERDOLL);
+                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_BUTTON, EOResourceID.STATUS_LABEL_INVENTORY_SHOW_YOUR_PAPERDOLL);
             }
 
             base.Update(gameTime);
@@ -153,12 +154,12 @@ namespace EndlessClient.HUD.Panels.Old
             m_btnDrop.Dispose();
         }
 
-        private bool _addItemToSlot(int slot, ItemRecord item, int count = 1)
+        private bool _addItemToSlot(int slot, EIFRecord item, int count = 1)
         {
             return _addItemToSlot(m_filledSlots, slot, item, count);
         }
 
-        private bool _addItemToSlot(bool[,] filledSlots, int slot, ItemRecord item, int count = 1)
+        private bool _addItemToSlot(bool[,] filledSlots, int slot, EIFRecord item, int count = 1)
         {
             //this is ADD item - don't allow adding items that have been added already
             if (slot < 0 || m_childItems.Count(_item => _item.Slot == slot) > 0) return false;
@@ -179,7 +180,7 @@ namespace EndlessClient.HUD.Panels.Old
             if (m_childItems.Find(_i => _i.ItemData.ID == id) != null)
                 return true;
 
-            ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(id);
+            var rec = OldWorld.Instance.EIF[id];
             int nextSlot = _getNextOpenSlot(rec.Size);
             List<Tuple<int, int>> dummy;
             return _fitsInSlot(nextSlot, rec.Size, out dummy);
@@ -218,7 +219,7 @@ namespace EndlessClient.HUD.Panels.Old
                         continue; //already in inventory: skip, since it isn't a new item
                 }
 
-                ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+                var rec = OldWorld.Instance.EIF[item.ItemID];
 
                 int nextSlot = _getNextOpenSlot(tempFilledSlots, rec.Size);
                 List<Tuple<int, int>> points;
@@ -343,7 +344,7 @@ namespace EndlessClient.HUD.Panels.Old
             }
             else
             {
-                ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+                var rec = OldWorld.Instance.EIF[item.ItemID];
                 return _addItemToSlot(_getNextOpenSlot(rec.Size), rec, item.Amount);
             }
 

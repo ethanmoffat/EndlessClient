@@ -11,16 +11,14 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
-using EOLib;
 using EOLib.Graphics;
-using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
+using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
-using CONTROLSINIT = XNAControls.XNAControls;
 using Keys = Microsoft.Xna.Framework.Input.Keys;
 
 namespace EndlessClient
@@ -41,17 +39,8 @@ namespace EndlessClient
         private const int WIDTH = 640;
         private const int HEIGHT = 480;
 
-        private readonly Random _randGenerator;
-        private int _currentPersonOne, _currentPersonTwo;
         public GameStates State { get; private set; }
 
-        private Texture2D[] _peopleSetOne;
-        private Texture2D[] _peopleSetTwo;
-        private Texture2D _backgroundTexture;
-        private Texture2D _characterSelectBackground, _accountCreateTextures, _userPassLoginPromptBackground;
-
-        private string host;
-        private int port;
         public PacketAPI API { get { return null; } }
 
         public INativeGraphicsManager GFXManager { get; private set; }
@@ -65,8 +54,8 @@ namespace EndlessClient
         {
             if (_backButtonPressed) return;
             EOMessageBox.Show(State == GameStates.PlayingTheGame
-                ? DATCONST1.CONNECTION_LOST_IN_GAME
-                : DATCONST1.CONNECTION_LOST_CONNECTION);    
+                ? DialogResourceID.CONNECTION_LOST_IN_GAME
+                : DialogResourceID.CONNECTION_LOST_CONNECTION);    
         }
 
         public void ResetWorldElements()
@@ -183,18 +172,12 @@ namespace EndlessClient
 
                     break;
                 case GameStates.TestMode:
-                    var file = new ItemFile();
-                    file.Load(PubFileNameConstants.PathToEIFFile);
+                    var file = new EIFFile();
+                    //file.Load(PubFileNameConstants.PathToEIFFile);
                     var testComponent = new CharacterStateTest(this, file);
                     Components.Add(testComponent);
                     break;
             }
-        }
-
-        private void ResetPeopleIndices()
-        {
-            _currentPersonOne = _randGenerator.Next(4);
-            _currentPersonTwo = _randGenerator.Next(8);
         }
 
         //-----------------------------
@@ -203,7 +186,6 @@ namespace EndlessClient
 
         private EOGame()
         {
-            _randGenerator = new Random();
             _graphicsDeviceManager = new GraphicsDeviceManager(this)
             {
                 PreferredBackBufferWidth = WIDTH,
@@ -215,11 +197,8 @@ namespace EndlessClient
         protected override void Initialize()
         {
             IsMouseVisible = true;
-            Dispatcher = new KeyboardDispatcher(Window);
-            ResetPeopleIndices();
 
-            if (!InitializeWorld() ||
-                !InitializeSoundManager())
+            if (!InitializeSoundManager())
                 return;
 
             base.Initialize();
@@ -228,24 +207,6 @@ namespace EndlessClient
         protected override void LoadContent()
         {
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            DBGFont = Content.Load<SpriteFont>("dbg");
-
-            _backgroundTexture = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 30 + _randGenerator.Next(7));
-
-            _peopleSetOne = new Texture2D[4];
-            _peopleSetTwo = new Texture2D[8];
-
-            for (int i = 1; i <= 4; ++i)
-            {
-                _peopleSetOne[i - 1] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 40 + i, true);
-                _peopleSetTwo[i - 1] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 60 + i, true);
-                _peopleSetTwo[i + 3] = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 64 + i, true);
-            }
-            
-            _userPassLoginPromptBackground = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 2);
-            _characterSelectBackground = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 11);
-            _accountCreateTextures = GFXManager.TextureFromResource(GFXTypes.PreLoginUI, 12, true);
 
             InitializeControls();
         }
@@ -283,41 +244,6 @@ namespace EndlessClient
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(State == GameStates.TestMode ? Color.White : Color.Black);
-            _spriteBatch.Begin();
-
-            if(State != GameStates.PlayingTheGame && State != GameStates.TestMode)
-                _spriteBatch.Draw(_backgroundTexture, new Rectangle(0, 0, WIDTH, HEIGHT), null, Color.White);
-
-            Rectangle personOneRect = new Rectangle(229, 70, _peopleSetOne[_currentPersonOne].Width, _peopleSetOne[_currentPersonOne].Height);
-            Rectangle personTwoRect = new Rectangle(43, 140, _peopleSetTwo[_currentPersonTwo].Width, _peopleSetTwo[_currentPersonTwo].Height);
-            switch (State)
-            {
-                case GameStates.Login:
-                    _spriteBatch.Draw(_peopleSetOne[_currentPersonOne], personOneRect, Color.White);
-                    _spriteBatch.Draw(_userPassLoginPromptBackground, new Vector2(266, 291), Color.White);
-                    break;
-                case GameStates.Initial:
-                    _spriteBatch.Draw(_peopleSetOne[_currentPersonOne], personOneRect, Color.White);
-                    break;
-                case GameStates.CreateAccount:
-                    _spriteBatch.Draw(_peopleSetTwo[_currentPersonTwo], personTwoRect, Color.White);
-                    //there are six labels
-                    for (int srcYIndex = 0; srcYIndex < 6; ++srcYIndex)
-                    {
-                        Vector2 lblpos = new Vector2(358, (srcYIndex < 3 ? 50 : 241) + (srcYIndex < 3 ? srcYIndex * 51 : (srcYIndex - 3) * 51));
-                        _spriteBatch.Draw(_accountCreateTextures, lblpos, new Rectangle(0, srcYIndex * (srcYIndex < 2 ? 14 : 15), 149, 15), Color.White);
-                    }
-                    break;
-                case GameStates.LoggedIn:
-                    //334, 36
-                    //334 160
-                    _spriteBatch.Draw(_peopleSetTwo[_currentPersonTwo], personTwoRect, Color.White);
-                    for (int i = 0; i < 3; ++i)
-                        _spriteBatch.Draw(_characterSelectBackground, new Vector2(334, 36 + i * 124), Color.White);
-                    break;
-            }
-
-            _spriteBatch.End();
 
 #if DEBUG
             if (State != GameStates.TestMode)
@@ -335,51 +261,6 @@ namespace EndlessClient
             }
 #endif
             base.Draw(gameTime);
-        }
-
-        private bool InitializeWorld()
-        {
-            try
-            {
-                OldWorld w = OldWorld.Instance;
-                w.Init();
-
-                host = w.Host;
-                port = w.Port;
-            }
-            catch (WorldLoadException wle)
-            {
-                MessageBox.Show(wle.Message, "Error");
-                Exit();
-                return false;
-            }
-            catch (ConfigStringLoadException csle)
-            {
-                host = OldWorld.Instance.Host;
-                port = OldWorld.Instance.Port;
-                switch (csle.WhichString)
-                {
-                    case ConfigStrings.Host:
-                        MessageBox.Show(
-                            string.Format("There was an error loading the host/port from the config file. Defaults will be used: {0}:{1}",
-                                host, port),
-                            "Config Load Failed",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Warning);
-                        break;
-                    case ConfigStrings.Port:
-                        MessageBox.Show(
-                            string.Format("There was an error loading the port from the config file. Default will be used: {0}:{1}",
-                                host, port),
-                            "Config Load Failed",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Warning);
-                        break;
-                }
-                return false;
-            }
-
-            return true;
         }
 
         private bool InitializeSoundManager()

@@ -4,6 +4,7 @@
 
 namespace EOLib
 {
+    //todo: remove once the OldMap namespace is gone
     public interface IReadOnly2DArray<out T>
     {
         int Rows { get; }

@@ -9,6 +9,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
@@ -108,8 +109,8 @@ namespace EndlessClient.Input
                 case TileInfoReturnType.IsOtherPlayer:
                     if (Renderer.NoWall) goto case TileInfoReturnType.IsTileSpec;
 
-                    EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION,
-                        DATCONST2.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
+                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
+                        EOResourceID.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
                     if (_startWalkingThroughPlayerTime == null)
                         _startWalkingThroughPlayerTime = DateTime.Now;
                     else if ((DateTime.Now - _startWalkingThroughPlayerTime.Value).TotalSeconds > 5)
@@ -124,55 +125,55 @@ namespace EndlessClient.Input
                 case TileInfoReturnType.IsWarpSpec:
                     if (Renderer.NoWall) goto case TileInfoReturnType.IsTileSpec;
 
-                    var warpInfo = (Warp) info.MapElement;
-                    if (warpInfo.DoorType != DoorSpec.NoDoor)
-                    {
-                        DoorSpec doorOpened;
-                        if (!warpInfo.IsDoorOpened && !warpInfo.DoorPacketSent)
-                        {
-                            if ((doorOpened = Character.CanOpenDoor(warpInfo.DoorType)) == DoorSpec.Door)
-                                mapRend.StartOpenDoor(warpInfo, destX, destY);
-                        }
-                        else
-                        {
-                            //normal walking
-                            if ((doorOpened = Character.CanOpenDoor(warpInfo.DoorType)) == DoorSpec.Door)
-                                _walkIfValid(TileSpec.None, direction, destX, destY);
-                        }
+                    //var warpInfo = (Warp) info.MapElement;
+                    //if (warpInfo.DoorType != DoorSpec.NoDoor)
+                    //{
+                    //    DoorSpec doorOpened;
+                    //    if (!warpInfo.IsDoorOpened && !warpInfo.DoorPacketSent)
+                    //    {
+                    //        if ((doorOpened = Character.CanOpenDoor(warpInfo.DoorType)) == DoorSpec.Door)
+                    //            mapRend.StartOpenDoor(warpInfo, destX, destY);
+                    //    }
+                    //    else
+                    //    {
+                    //        //normal walking
+                    //        if ((doorOpened = Character.CanOpenDoor(warpInfo.DoorType)) == DoorSpec.Door)
+                    //            _walkIfValid(TileSpec.None, direction, destX, destY);
+                    //    }
 
-                        if (doorOpened != DoorSpec.Door)
-                        {
-                            string strWhichKey = "[error key?]";
-                            switch (doorOpened)
-                            {
-                                case DoorSpec.LockedCrystal:
-                                    strWhichKey = "Crystal Key";
-                                    break;
-                                case DoorSpec.LockedSilver:
-                                    strWhichKey = "Silver Key";
-                                    break;
-                                case DoorSpec.LockedWraith:
-                                    strWhichKey = "Wraith Key";
-                                    break;
-                            }
+                    //    if (doorOpened != DoorSpec.Door)
+                    //    {
+                    //        string strWhichKey = "[error key?]";
+                    //        switch (doorOpened)
+                    //        {
+                    //            case DoorSpec.LockedCrystal:
+                    //                strWhichKey = "Crystal Key";
+                    //                break;
+                    //            case DoorSpec.LockedSilver:
+                    //                strWhichKey = "Silver Key";
+                    //                break;
+                    //            case DoorSpec.LockedWraith:
+                    //                strWhichKey = "Wraith Key";
+                    //                break;
+                    //        }
 
-                            EOMessageBox.Show(DATCONST1.DOOR_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                            ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
-                                DATCONST2.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
-                                " - " + strWhichKey);
-                        }
-                    }
-                    else if (warpInfo.LevelRequirement != 0 && Character.Stats.Level < warpInfo.LevelRequirement)
-                    {
-                        EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING,
-                            DATCONST2.STATUS_LABEL_NOT_READY_TO_USE_ENTRANCE,
-                            " - LVL " + warpInfo.LevelRequirement);
-                    }
-                    else
-                    {
-                        //normal walking
-                        _walkIfValid(TileSpec.None, direction, destX, destY);
-                    }
+                    //        EOMessageBox.Show(DialogResourceID.DOOR_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    //        ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                    //            EOResourceID.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
+                    //            " - " + strWhichKey);
+                    //    }
+                    //}
+                    //else if (warpInfo.LevelRequirement != 0 && Character.Stats.Level < warpInfo.LevelRequirement)
+                    //{
+                    //    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                    //        EOResourceID.STATUS_LABEL_NOT_READY_TO_USE_ENTRANCE,
+                    //        " - LVL " + warpInfo.LevelRequirement);
+                    //}
+                    //else
+                    //{
+                    //    //normal walking
+                    //    _walkIfValid(TileSpec.None, direction, destX, destY);
+                    //}
                     break;
                 case TileInfoReturnType.IsTileSpec:
                     _walkIfValid(specAtDest, direction, destX, destY);
@@ -198,7 +199,7 @@ namespace EndlessClient.Input
                     walkValid = Renderer.NoWall;
                     if (!walkValid)
                     {
-                        MapChest chest = OldWorld.Instance.ActiveMapRenderer.MapRef.Chests.Find(_c => _c.X == destX && _c.Y == destY);
+                        var chest = OldWorld.Instance.ActiveMapRenderer.MapRef.Chests.Single(_c => _c.X == destX && _c.Y == destY);
                         if (chest != null)
                         {
                             string requiredKey = null;
@@ -209,14 +210,14 @@ namespace EndlessClient.Input
                                 case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
                                 case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
                                 default:
-                                    ChestDialog.Show(((EOGame)Game).API, chest.X, chest.Y);
+                                    ChestDialog.Show(((EOGame)Game).API, (byte)chest.X, (byte)chest.Y);
                                     break;
                             }
 
                             if (requiredKey != null)
                             {
-                                EOMessageBox.Show(DATCONST1.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                                ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
+                                EOMessageBox.Show(DialogResourceID.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                                ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
                                     " - " + requiredKey);
                             }
                         }

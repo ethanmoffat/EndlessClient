@@ -13,7 +13,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -82,7 +82,7 @@ namespace EndlessClient.Rendering
         private Rectangle? adminRect;
         private readonly Texture2D adminGraphic;
 
-        private ItemRecord shieldInfo, weaponInfo/*, bootsInfo, armorInfo*/, hatInfo;
+        private EIFRecord shieldInfo, weaponInfo/*, bootsInfo, armorInfo*/, hatInfo;
 
         private Timer _walkTimer, _attackTimer, _emoteTimer, _spTimer, _spellCastTimer;
         private readonly bool noLocUpdate;
@@ -495,7 +495,7 @@ namespace EndlessClient.Rendering
             {
                 if (OldWorld.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
                 {
-                    SpellRecord data = OldWorld.Instance.ESF.GetRecordByID((short) OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
+                    var data = OldWorld.Instance.ESF[OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell];
                     if (data.TargetRestrict == SpellTargetRestrict.NPCOnly || 
                         data.TargetRestrict == SpellTargetRestrict.Opponent && !OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.PKAvailable)
                     {
@@ -1163,7 +1163,7 @@ namespace EndlessClient.Rendering
                 return;
 
             Color[] hatPixels;
-            if (OldWorld.Instance.EIF != null && OldWorld.Instance.EIF.Version > 0)
+            //if (OldWorld.Instance.EIF != null && OldWorld.Instance.EIF.Version > 0)
             {
                 switch (hatInfo.SubType)
                 {
@@ -1271,7 +1271,7 @@ namespace EndlessClient.Rendering
         */
         public void SelectSpell(int spellIndex)
         {
-            SpellRecord toCast = ((EOGame)Game).Hud.GetSpellFromIndex(spellIndex);
+            var toCast = ((EOGame)Game).Hud.GetSpellFromIndex(spellIndex);
             if (toCast == null) return;
 
             Character.SelectSpell(toCast.ID);
@@ -1304,7 +1304,7 @@ namespace EndlessClient.Rendering
             if (Character.SelectedSpell <= 0)
                 throw new InvalidOperationException("You must call SelectSpell before calling _prepareSpell");
 
-            SpellRecord toCast = OldWorld.Instance.ESF.GetRecordByID((short) Character.SelectedSpell);
+            var toCast = OldWorld.Instance.ESF[Character.SelectedSpell];
 
             Character.PrepareSpell(toCast.ID);
             _beginSpellCast(toCast);
@@ -1312,7 +1312,7 @@ namespace EndlessClient.Rendering
             SetSpellShout(toCast.Shout);
         }
 
-        private void _beginSpellCast(SpellRecord spell)
+        private void _beginSpellCast(ESFRecord spell)
         {
             if (Character.SelectedSpell <= 0)
                 throw new InvalidOperationException("You must have a selected spell before casting (race condition?");
@@ -1340,7 +1340,7 @@ namespace EndlessClient.Rendering
 
         public void StopShouting(bool isSpellBeingCast)
         {
-            if (!isSpellBeingCast || OldWorld.Instance.ESF.GetRecordByID((short)Character.SelectedSpell).Target == SpellTarget.Self || Character.SpellTarget == this)
+            if (!isSpellBeingCast || OldWorld.Instance.ESF[Character.SelectedSpell].Target == SpellTarget.Self || Character.SpellTarget == this)
             {
                 _mouseoverName.BlinkRate = null;
                 _mouseoverName.Text = Character.Name;

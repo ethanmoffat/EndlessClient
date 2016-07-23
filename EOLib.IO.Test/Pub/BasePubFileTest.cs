@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
+// This file is subject to the GPL v2 License
+// For additional details, see the LICENSE file
+
 using System.Collections.Generic;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
@@ -35,8 +38,8 @@ namespace EOLib.IO.Test.Pub
             Assert.AreEqual(1, _baseFile.Length);
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void PubFile_Indexing_ThrowsExceptionWhenLessThan1()
+        [TestMethod]
+        public void PubFile_Indexing_ReturnsNullWhenLessThan1()
         {
             var bytes = MakeDummyFile(new DummyRecord { ID = 1, Name = "TestItem" },
                                       new DummyRecord { ID = 2, Name = "Test2" },
@@ -46,13 +49,11 @@ namespace EOLib.IO.Test.Pub
             _baseFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
 
             Assert.AreEqual(4, _baseFile.Length);
-
-            var invalidItem = _baseFile[0];
-            Assert.IsNotNull(invalidItem);
+            Assert.IsNull(_baseFile[0]);
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
-        public void PubFile_Indexing_ThrowsExceptionWhenLessThanCount()
+        [TestMethod]
+        public void PubFile_Indexing_ReturnsNullWhenGreaterThanCount()
         {
             var bytes = MakeDummyFile(new DummyRecord { ID = 1, Name = "TestItem" },
                                       new DummyRecord { ID = 2, Name = "Test2" });
@@ -60,9 +61,7 @@ namespace EOLib.IO.Test.Pub
             _baseFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
 
             Assert.AreEqual(2, _baseFile.Length);
-
-            var invalidItem = _baseFile[3];
-            Assert.IsNotNull(invalidItem);
+            Assert.IsNull(_baseFile[3]);
         }
 
         [TestMethod]

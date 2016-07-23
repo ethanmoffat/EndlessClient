@@ -5,7 +5,7 @@
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EOLib;
-using EOLib.IO.Repositories;
+using EOLib.Config;
 using Microsoft.Xna.Framework;
 using XNAControls;
 

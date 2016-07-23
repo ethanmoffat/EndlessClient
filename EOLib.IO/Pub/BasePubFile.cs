@@ -10,7 +10,7 @@ using EOLib.IO.Services;
 namespace EOLib.IO.Pub
 {
     public abstract class BasePubFile<T> : IPubFile<T>
-        where T : IPubRecord, new()
+        where T : class, IPubRecord, new()
     {
         protected readonly List<T> _data;
 
@@ -22,7 +22,13 @@ namespace EOLib.IO.Pub
 
         public T this[int id]
         {
-            get { return _data[id - 1]; }
+            get
+            {
+                if (id < 1 || id > _data.Count)
+                    return null;
+
+                return _data[id - 1];
+            }
         }
 
         public IReadOnlyList<T> Data { get { return _data; } }

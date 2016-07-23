@@ -8,7 +8,7 @@ using EOLib.IO.Services;
 namespace EOLib.IO.Pub
 {
     public interface IPubFile<out TRecord> : IPubFile
-        where TRecord : IPubRecord, new()
+        where TRecord : class, IPubRecord, new()
     {
         TRecord this[int id] { get; }
 

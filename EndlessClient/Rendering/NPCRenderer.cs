@@ -10,7 +10,6 @@ using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.NPC;
 using EOLib.IO;
-using EOLib.IO.Old;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -362,7 +361,7 @@ namespace EndlessClient.Rendering
             {
                 if (OldWorld.Instance.MainPlayer.ActiveCharacter.NeedsSpellTarget)
                 {
-                    SpellRecord data = OldWorld.Instance.ESF.GetRecordByID((short)OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell);
+                    var data = OldWorld.Instance.ESF[OldWorld.Instance.MainPlayer.ActiveCharacter.SelectedSpell];
                     if (data.TargetRestrict != SpellTargetRestrict.Friendly)
                     {
                         OldWorld.Instance.ActiveCharacterRenderer.SetSpellTarget(this);

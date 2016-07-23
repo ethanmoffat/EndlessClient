@@ -78,6 +78,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
+      <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
+      <Name>EOLib.DependencyInjection</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EOLib\EOLib.csproj">
       <Project>{EDB5AD93-303D-4B07-9FAD-F6A8295D2390}</Project>
       <Name>EOLib</Name>

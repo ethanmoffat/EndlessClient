@@ -4,6 +4,7 @@
 
 using EOLib;
 using EOLib.Graphics;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -38,7 +39,7 @@ namespace EndlessClient.Dialogs
                 AutoSize = true,
                 BackColor = m_primaryText.BackColor,
                 ForeColor = m_primaryText.ForeColor,
-                Text = OldWorld.GetString(DATCONST2.QUEST_COMPLETED)
+                Text = OldWorld.GetString(EOResourceID.QUEST_COMPLETED)
             };
             m_secondaryText.SetParent(this);
 

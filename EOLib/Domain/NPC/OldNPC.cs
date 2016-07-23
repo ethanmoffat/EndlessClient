@@ -4,7 +4,7 @@
 
 using EOLib.Domain.Map;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Net.API;
 
 namespace EOLib.Domain.NPC
@@ -15,7 +15,7 @@ namespace EOLib.Domain.NPC
         public byte X { get; private set; }
         public byte Y { get; private set; }
         public EODirection Direction { get; private set; }
-        public NPCRecord Data { get; private set; }
+        public ENFRecord Data { get; private set; }
 
         public byte DestX { get; private set; }
         public byte DestY { get; private set; }
@@ -32,7 +32,7 @@ namespace EOLib.Domain.NPC
             get { return (Data.Type == NPCType.Passive || Data.Type == NPCType.Aggressive) && Data.VendorID == 1; }
         }
 
-        public OldNPC(NPCData serverNPCData, NPCRecord localNPCData)
+        public OldNPC(NPCData serverNPCData, ENFRecord localNPCData)
         {
             Index = serverNPCData.Index;
             X = serverNPCData.X;

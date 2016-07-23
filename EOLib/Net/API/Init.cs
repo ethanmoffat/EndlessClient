@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using EOLib.Domain.Protocol;
-using EOLib.IO;
+using EOLib.Localization;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 
@@ -386,31 +386,31 @@ namespace EOLib.Net.API
             }
         }
 
-        public DATCONST1 GetInitResponseMessage(out string extra)
+        public DialogResourceID GetInitResponseMessage(out string extra)
         {
-            DATCONST1 msg;
+            DialogResourceID msg;
 
             switch (m_init_initData.ServerResponse)
             {
                 case InitReply.INIT_BANNED:
                     if (m_init_initData.BanType == InitBanType.INIT_BAN_TEMP)
                     {
-                        msg = DATCONST1.CONNECTION_IP_BAN_TEMP;
+                        msg = DialogResourceID.CONNECTION_IP_BAN_TEMP;
                         extra = " " + m_init_initData.BanMinsLeft + " minutes.";
                     }
                     else
                     {
-                        msg = DATCONST1.CONNECTION_IP_BAN_PERM;
+                        msg = DialogResourceID.CONNECTION_IP_BAN_PERM;
                         extra = "";
                     }
 
                     break;
                 case InitReply.INIT_OUT_OF_DATE:
-                    msg = DATCONST1.CONNECTION_CLIENT_OUT_OF_DATE;
+                    msg = DialogResourceID.CONNECTION_CLIENT_OUT_OF_DATE;
                     extra = " 0.000.0" + m_init_initData.RequiredVersionNumber;
                     break;
                 default:
-                    msg = DATCONST1.CONNECTION_SERVER_NOT_FOUND;
+                    msg = DialogResourceID.CONNECTION_SERVER_NOT_FOUND;
                     extra = "";
                     break;
             }

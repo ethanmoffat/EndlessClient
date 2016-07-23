@@ -87,9 +87,9 @@
     <Compile Include="RectangleExtension.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EOLib\EOLib.csproj">
-      <Project>{edb5ad93-303d-4b07-9fad-f6a8295d2390}</Project>
-      <Name>EOLib</Name>
+    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
+      <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
+      <Name>EOLib.DependencyInjection</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

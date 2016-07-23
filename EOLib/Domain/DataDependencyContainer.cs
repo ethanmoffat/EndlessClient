@@ -2,11 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EOLib.DependencyInjection;
 using EOLib.Domain.Account;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
-using EOLib.IO.Services;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.Domain
@@ -15,7 +15,6 @@ namespace EOLib.Domain
     {
         public void RegisterDependencies(IUnityContainer container)
         {
-            container.RegisterType<INumberEncoderService, NumberEncoderService>();
             container.RegisterType<ICreateAccountParameterValidator, CreateAccountParameterValidator>();
 
             container.RegisterType<IAccountActions, AccountActions>();

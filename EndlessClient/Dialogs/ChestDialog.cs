@@ -3,11 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
+using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -58,8 +58,8 @@ namespace EndlessClient.Dialogs
             DrawLocation = new Vector2((Game.GraphicsDevice.PresentationParameters.BackBufferWidth - DrawArea.Width) / 2f, 15);
             cancel.SetParent(this);
 
-            EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_CHEST_YOU_OPENED,
-                OldWorld.GetString(DATCONST2.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
+            EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_CHEST_YOU_OPENED,
+                OldWorld.GetString(EOResourceID.STATUS_LABEL_DRAG_AND_DROP_ITEMS));
         }
 
         public void InitializeItems(IList<InventoryItem> initialItems)
@@ -79,9 +79,9 @@ namespace EndlessClient.Dialogs
                         m_items[i] = null;
                     }
 
-                    ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+                    var rec = OldWorld.Instance.EIF[item.ItemID];
                     string secondary = string.Format("x {0}  {1}", item.Amount, rec.Type == ItemType.Armor
-                        ? "(" + (rec.Gender == 0 ? OldWorld.GetString(DATCONST2.FEMALE) : OldWorld.GetString(DATCONST2.MALE)) + ")"
+                        ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")"
                         : "");
 
                     m_items[i] = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, i)
@@ -98,16 +98,16 @@ namespace EndlessClient.Dialogs
 
                         if (!EOGame.Instance.Hud.InventoryFits(sender.ID))
                         {
-                            string _message = OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
-                            string _caption = OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING);
+                            string _message = OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
+                            string _caption = OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING);
                             EOMessageBox.Show(_message, _caption, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                            ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
+                            ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                         }
                         else if (rec.Weight * item.Amount + OldWorld.Instance.MainPlayer.ActiveCharacter.Weight >
                                  OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight)
                         {
-                            EOMessageBox.Show(OldWorld.GetString(DATCONST2.DIALOG_ITS_TOO_HEAVY_WEIGHT),
-                                OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+                            EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_ITS_TOO_HEAVY_WEIGHT),
+                                OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
                                 XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         }
                         else
@@ -159,7 +159,7 @@ namespace EndlessClient.Dialogs
         }
 
         //todo: find a better place for this
-        public static Texture2D GetItemGraphic(ItemRecord item, int amount)
+        public static Texture2D GetItemGraphic(EIFRecord item, int amount)
         {
             if (item.Type == ItemType.Money)
             {

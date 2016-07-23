@@ -11,6 +11,7 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.HUD.Controls
@@ -122,8 +123,8 @@ namespace EndlessClient.HUD.Controls
             };
             retButton.OnClick += (o, e) => DoHudStateChangeClick(whichState);
             retButton.OnMouseEnter += (o, e) => _statusLabelSetter.SetStatusLabel(
-                DATCONST2.STATUS_LABEL_TYPE_BUTTON,
-                DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + buttonIndex);
+                EOResourceID.STATUS_LABEL_TYPE_BUTTON,
+                EOResourceID.STATUS_LABEL_HUD_BUTTON_HOVER_FIRST + buttonIndex);
             return retButton;
         }
 
@@ -137,22 +138,22 @@ namespace EndlessClient.HUD.Controls
                 case InGameStates.PassiveSpells: _hudButtonController.ClickPassiveSpells(); break;
                 case InGameStates.Chat: 
                     _hudButtonController.ClickChat();
-                    _statusLabelSetter.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_CHAT_PANEL_NOW_VIEWED);
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_CHAT_PANEL_NOW_VIEWED);
                     break;
                 case InGameStates.Stats:
                     _hudButtonController.ClickStats();
-                    _statusLabelSetter.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_STATS_PANEL_NOW_VIEWED);
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_STATS_PANEL_NOW_VIEWED);
                     break;
                 case InGameStates.OnlineList:
                     _hudButtonController.ClickOnlineList();
-                    _statusLabelSetter.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_ONLINE_PLAYERS_NOW_VIEWED);
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_ONLINE_PLAYERS_NOW_VIEWED);
                     break;
                 case InGameStates.Party: _hudButtonController.ClickParty(); break;
                 case InGameStates.Macro: break;
                 case InGameStates.Settings: _hudButtonController.ClickSettings(); break;
                 case InGameStates.Help:
                     _hudButtonController.ClickHelp();
-                    _statusLabelSetter.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_ACTION, DATCONST2.STATUS_LABEL_HUD_BUTTON_HOVER_LAST);
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_HUD_BUTTON_HOVER_LAST);
                     break;
                 default: throw new ArgumentOutOfRangeException("whichState", whichState, null);
             }

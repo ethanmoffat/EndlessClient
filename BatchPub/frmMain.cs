@@ -4,17 +4,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
+using EOLib.IO.Services;
 
 namespace BatchPub
 {
     public partial class frmMain : Form
     {
-        private IModifiableDataFile<ItemRecord> eif;
+        private IPubFile<EIFRecord> eif;
         private string _fname;
         private bool changes;
 
@@ -50,7 +52,7 @@ namespace BatchPub
             cmbStepTwoField.Items.Clear();
             cmbStepThreeField.Items.Clear();
 
-            var eifType = typeof (ItemRecord);
+            var eifType = typeof (EIFRecord);
             foreach(System.Reflection.PropertyInfo prop in eifType.GetProperties())
             {
                 cmbStepTwoField.Items.Add(new PropInfo(prop));
@@ -171,9 +173,9 @@ namespace BatchPub
                     }
                 }
 
-                List<ItemRecord> filtered = eif.Data.Where(record =>
+                List<EIFRecord> filtered = eif.Data.Where(record =>
                     {
-                        ItemRecord rec = (ItemRecord)record;
+                        EIFRecord rec = (EIFRecord)record;
                         if (rec == null || rec.ID == 0) return false;
 
                         System.Reflection.PropertyInfo comparePropertyInfo = (cmbStepThreeField.SelectedItem as PropInfo).PropertyInfo;
@@ -208,7 +210,7 @@ namespace BatchPub
                     if (!changes)
                         changes = true;
 
-                    int index = eif.GetIndexOfRecordByID(rec.ID);
+                    int index = rec.ID - 1;
 
                     rtfOutput.Text += "Found matching item " + rec.Name + " (" + rec.ID + ")\n";
                     rtfOutput.Text += "  replacing " + pi.Name + " (currently " + pi.GetValue(rec).ToString() + ") with new value " + newValue.ToString() + "\n";
@@ -227,7 +229,7 @@ namespace BatchPub
                     
                     pi.SetValue(rec, setter);
 
-                    eif.ReplaceRecordAt(index, rec);
+                    //eif.ReplaceRecordAt(index, rec); //todo: way to modify pub files
                 });
             }
         }
@@ -257,12 +259,13 @@ namespace BatchPub
 
         private void btnLoad_Click(object sender, EventArgs e)
         {
-            eif = new ItemFile();
+            eif = new EIFFile();
 
             _fname = "";
             try
             {
-                eif.Load(_fname = string.IsNullOrEmpty(txtFileName.Text) ? PubFileNameConstants.PathToEIFFile : txtFileName.Text);
+                var fileBytes = File.ReadAllBytes(_fname = string.IsNullOrEmpty(txtFileName.Text) ? PubFileNameConstants.PathToEIFFile : txtFileName.Text);
+                eif.DeserializeFromByteArray(fileBytes, new NumberEncoderService());
                 lblFileName.Text = "Loaded file: " + _fname;
                 grpStepTwo.Enabled = true;
                 btnReset.Enabled = true;
@@ -409,16 +412,17 @@ namespace BatchPub
                 if (dr == DialogResult.No)
                     return;
 
-                var version = eif.Version;
-                if (eif.Version == 0)
-                {
-                    version = 1;
-                    MessageBox.Show("Saving using this tool will update the version of the EIF file.");
-                }
+                //var version = eif.Version;
+                //if (eif.Version == 0)
+                //{
+                //    version = 1;
+                //    MessageBox.Show("Saving using this tool will update the version of the EIF file.");
+                //}
 
                 try
                 {
-                    eif.Save("", version: version, rewriteRid: true);
+                    eif.CheckSum++;//todo: recalculate checksum
+                    var bytes = eif.SerializeToByteArray(new NumberEncoderService());
                 }
                 catch(Exception ex)
                 {

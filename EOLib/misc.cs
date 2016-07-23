@@ -36,22 +36,8 @@ namespace EOLib
         public const int ResponseTimeout = 5000;
         public const int ResponseFileTimeout = 10000;
 
-        public const byte MajorVersion = 0;
-        public const byte MinorVersion = 0;
-        public const byte ClientVersion = 28;
-
-        public const string Host = "127.0.0.1";
-        public const int Port = 8078;
-
-        public const string MapFileFormatString = "maps/{0,5:D5}.emf";
-
-        public const string DataFilePath = "data/";
-        public const int ExpectedNumberOfDataFiles = 12;
-
         public const byte ViewLength = 16;
 
-        public const int NPCDropProtectionSeconds = 30;
-        public const int PlayerDropProtectionSeconds = 5;
         public const int LockerMaxSingleItemAmount = 200;
         public const int PartyRequestTimeoutSeconds = 15;
         public const int TradeRequestTimeoutSeconds = 15;
@@ -82,41 +68,5 @@ Thanks to :
 --eoserv.net community
 --Hotdog for Eodev client";
         public const string VersionInfoFormat = "{0}.{1:000}.{2:000} - {3}:{4}";
-    }
-
-    public static class ConfigStrings
-    {
-        public const string Default_Config_File = "config/settings.ini";
-
-        public const string Connection = "CONNECTION";
-        public const string Host = "Host";
-        public const string Port = "Port";
-
-        public const string Version = "VERSION";
-        public const string Major = "Major";
-        public const string Minor = "Minor";
-        public const string Client = "Client";
-
-        public const string Settings = "SETTINGS";
-        public const string ShowShadows = "ShowShadows";
-        public const string ShowTransition = "ShowTransition";
-        public const string EnableLogging = "EnableLogging";
-        public const string Music = "Music";
-        public const string Sound = "Sound";
-        public const string ShowBaloons = "ShowBaloons";
-
-        public const string Custom = "CUSTOM";
-        public const string NPCDropProtectTime = "NPCDropProtectTime";
-        public const string PlayerDropProtectTime = "PlayerDropProtectTime";
-
-        public const string LANGUAGE = "LANGUAGE";
-        public const string Language = "Language";
-
-        public const string Chat = "CHAT";
-        public const string Filter = "Filter";
-        public const string FilterAll = "FilterAll";
-        public const string HearWhisper = "HearWhisper";
-        public const string Interaction = "Interaction";
-        public const string LogChat = "LogChat";
     }
 }

@@ -6,6 +6,7 @@ using System;
 
 namespace EOLib
 {
+    //todo: remove once the OldMap namespace is gone
     public class Array2D<T> : IReadOnly2DArray<T>
     {
         private readonly T[,] _arr;

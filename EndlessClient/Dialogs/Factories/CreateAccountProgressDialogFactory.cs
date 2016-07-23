@@ -6,6 +6,7 @@ using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO.Services;
+using EOLib.Localization;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -29,8 +30,8 @@ namespace EndlessClient.Dialogs.Factories
 
         public ProgressDialog BuildCreateAccountProgressDialog()
         {
-            var message = _localizedStringService.GetString(DATCONST1.ACCOUNT_CREATE_ACCEPTED + 1);
-            var caption = _localizedStringService.GetString(DATCONST1.ACCOUNT_CREATE_ACCEPTED);
+            var message = _localizedStringService.GetString(DialogResourceID.ACCOUNT_CREATE_ACCEPTED + 1);
+            var caption = _localizedStringService.GetString(DialogResourceID.ACCOUNT_CREATE_ACCEPTED);
             
             return new ProgressDialog(_nativeGraphicsManager,
                                       _gameStateProvider,

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EndlessClient.Dialogs.Factories;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Localization;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
@@ -35,13 +36,13 @@ namespace EndlessClient.Dialogs.Actions
 
         public void ShowCharacterReplyDialog(CharacterReply response)
         {
-            DATCONST1 message;
+            DialogResourceID message;
             switch (response)
             {
-                case CharacterReply.Exists: message = DATCONST1.CHARACTER_CREATE_NAME_EXISTS; break;
-                case CharacterReply.Full: message = DATCONST1.CHARACTER_CREATE_TOO_MANY_CHARS; break;
-                case CharacterReply.NotApproved: message = DATCONST1.CHARACTER_CREATE_NAME_NOT_APPROVED; break;
-                case CharacterReply.Ok: message = DATCONST1.CHARACTER_CREATE_SUCCESS; break;
+                case CharacterReply.Exists: message = DialogResourceID.CHARACTER_CREATE_NAME_EXISTS; break;
+                case CharacterReply.Full: message = DialogResourceID.CHARACTER_CREATE_TOO_MANY_CHARS; break;
+                case CharacterReply.NotApproved: message = DialogResourceID.CHARACTER_CREATE_NAME_NOT_APPROVED; break;
+                case CharacterReply.Ok: message = DialogResourceID.CHARACTER_CREATE_SUCCESS; break;
                 default: throw new ArgumentOutOfRangeException("response", response, null);
             }
 
@@ -54,14 +55,14 @@ namespace EndlessClient.Dialogs.Actions
         {
             _messageBoxFactory.CreateMessageBox(
                 string.Format("Character \'{0}\' ", characterName),
-                DATCONST1.CHARACTER_DELETE_FIRST_CHECK);
+                DialogResourceID.CHARACTER_DELETE_FIRST_CHECK);
         }
 
         public async Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName)
         {
             var messageBox = _messageBoxFactory.CreateMessageBox(
                 string.Format("Character \'{0}\' ", characterName),
-                DATCONST1.CHARACTER_DELETE_CONFIRM,
+                DialogResourceID.CHARACTER_DELETE_CONFIRM,
                 XNADialogButtons.OkCancel,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
 

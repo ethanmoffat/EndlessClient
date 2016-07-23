@@ -6,6 +6,7 @@ using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO.Services;
+using EOLib.Localization;
 using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories
@@ -42,7 +43,7 @@ namespace EndlessClient.Dialogs.Factories
                 whichButtons);
         }
 
-        public EOMessageBox CreateMessageBox(DATCONST1 resource,
+        public EOMessageBox CreateMessageBox(DialogResourceID resource,
                                              XNADialogButtons whichButtons = XNADialogButtons.Ok,
                                              EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
         {
@@ -53,7 +54,7 @@ namespace EndlessClient.Dialogs.Factories
         }
 
         public EOMessageBox CreateMessageBox(string prependData,
-                                             DATCONST1 resource,
+                                             DialogResourceID resource,
                                              XNADialogButtons whichButtons = XNADialogButtons.Ok,
                                              EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
         {
@@ -64,7 +65,7 @@ namespace EndlessClient.Dialogs.Factories
                 style);
         }
 
-        public EOMessageBox CreateMessageBox(DATCONST1 resource,
+        public EOMessageBox CreateMessageBox(DialogResourceID resource,
                                              string extraData,
                                              XNADialogButtons whichButtons = XNADialogButtons.Ok,
                                              EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)

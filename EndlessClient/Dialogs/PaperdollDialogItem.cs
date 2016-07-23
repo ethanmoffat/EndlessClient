@@ -3,10 +3,10 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
+using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -17,7 +17,7 @@ namespace EndlessClient.Dialogs
 {
     public class PaperdollDialogItem : XNAControl
     {
-        private ItemRecord m_info;
+        private EIFRecord m_info;
         private Texture2D m_gfx;
         private Rectangle m_area;
 
@@ -26,7 +26,7 @@ namespace EndlessClient.Dialogs
 
         private readonly PacketAPI m_api;
 
-        public PaperdollDialogItem(PacketAPI api, Rectangle location, EOPaperdollDialog parent, ItemRecord info, EquipLocation locationEnum)
+        public PaperdollDialogItem(PacketAPI api, Rectangle location, EOPaperdollDialog parent, EIFRecord info, EquipLocation locationEnum)
             : base(null, null, parent)
         {
             m_api = api;
@@ -42,31 +42,31 @@ namespace EndlessClient.Dialogs
 
             if (MouseOver && !MouseOverPreviously)
             {
-                DATCONST2 msg;
+                EOResourceID msg;
                 switch (EquipLoc)
                 {
-                    case EquipLocation.Boots: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_BOOTS_EQUIPMENT; break;
-                    case EquipLocation.Accessory: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_MISC_EQUIPMENT; break;
-                    case EquipLocation.Gloves: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_GLOVES_EQUIPMENT; break;
-                    case EquipLocation.Belt: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_BELT_EQUIPMENT; break;
-                    case EquipLocation.Armor: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_ARMOR_EQUIPMENT; break;
-                    case EquipLocation.Necklace: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_NECKLACE_EQUIPMENT; break;
-                    case EquipLocation.Hat: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_HAT_EQUIPMENT; break;
-                    case EquipLocation.Shield: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_SHIELD_EQUIPMENT; break;
-                    case EquipLocation.Weapon: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_WEAPON_EQUIPMENT; break;
+                    case EquipLocation.Boots: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_BOOTS_EQUIPMENT; break;
+                    case EquipLocation.Accessory: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_MISC_EQUIPMENT; break;
+                    case EquipLocation.Gloves: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_GLOVES_EQUIPMENT; break;
+                    case EquipLocation.Belt: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_BELT_EQUIPMENT; break;
+                    case EquipLocation.Armor: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_ARMOR_EQUIPMENT; break;
+                    case EquipLocation.Necklace: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_NECKLACE_EQUIPMENT; break;
+                    case EquipLocation.Hat: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_HAT_EQUIPMENT; break;
+                    case EquipLocation.Shield: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_SHIELD_EQUIPMENT; break;
+                    case EquipLocation.Weapon: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_WEAPON_EQUIPMENT; break;
                     case EquipLocation.Ring1:
-                    case EquipLocation.Ring2: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_RING_EQUIPMENT; break;
+                    case EquipLocation.Ring2: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_RING_EQUIPMENT; break;
                     case EquipLocation.Armlet1:
-                    case EquipLocation.Armlet2: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_ARMLET_EQUIPMENT; break;
+                    case EquipLocation.Armlet2: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_ARMLET_EQUIPMENT; break;
                     case EquipLocation.Bracer1:
-                    case EquipLocation.Bracer2: msg = DATCONST2.STATUS_LABEL_PAPERDOLL_BRACER_EQUIPMENT; break;
+                    case EquipLocation.Bracer2: msg = EOResourceID.STATUS_LABEL_PAPERDOLL_BRACER_EQUIPMENT; break;
                     default: throw new ArgumentOutOfRangeException();
                 }
 
                 if (m_info != null)
-                    EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, msg, ", " + m_info.Name);
+                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, msg, ", " + m_info.Name);
                 else
-                    EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, msg);
+                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, msg);
             }
 
             //unequipping an item via right-click
@@ -77,11 +77,11 @@ namespace EndlessClient.Dialogs
                 { //the parent dialog must show equipment for mainplayer
                     if (m_info.Special == ItemSpecial.Cursed)
                     {
-                        EOMessageBox.Show(DATCONST1.ITEM_IS_CURSED_ITEM, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EOMessageBox.Show(DialogResourceID.ITEM_IS_CURSED_ITEM, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (!((EOGame)Game).Hud.InventoryFits((short)m_info.ID))
                     {
-                        ((EOGame)Game).Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_WARNING, DATCONST2.STATUS_LABEL_ITEM_UNEQUIP_NO_SPACE_LEFT);
+                        ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_UNEQUIP_NO_SPACE_LEFT);
                     }
                     else
                     {
@@ -112,7 +112,7 @@ namespace EndlessClient.Dialogs
             SpriteBatch.End();
         }
 
-        public void SetInfo(Rectangle location, ItemRecord info)
+        public void SetInfo(Rectangle location, EIFRecord info)
         {
             m_info = info;
             if (info != null)

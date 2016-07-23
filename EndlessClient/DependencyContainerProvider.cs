@@ -3,9 +3,12 @@
 // For additional details, see the LICENSE file
 
 using EOLib;
+using EOLib.Config;
+using EOLib.DependencyInjection;
 using EOLib.Domain;
 using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Translators;
 
@@ -16,9 +19,12 @@ namespace EndlessClient
         public static readonly IDependencyContainer[] DependencyContainers =
         {
             //EOLib containers
+            new ConfigDependencyContainer(),
             new DataDependencyContainer(),
+            new EOLibDependencyContainer(),
             new GraphicsDependencyContainer(),
             new IODependencyContainer(),
+            new LocalizationDependencyContainer(),
             new NetworkDependencyContainer(),
             new PacketTranslatorContainer(),
 

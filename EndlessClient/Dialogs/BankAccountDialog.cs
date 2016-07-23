@@ -5,6 +5,7 @@
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
+using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -64,9 +65,9 @@ namespace EndlessClient.Dialogs
 
             ListDialogItem deposit = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
-                Text = OldWorld.GetString(DATCONST2.DIALOG_BANK_DEPOSIT),
-                SubText = string.Format("{0} gold {1}", OldWorld.GetString(DATCONST2.DIALOG_BANK_TRANSFER),
-                    OldWorld.GetString(DATCONST2.DIALOG_BANK_TO_ACCOUNT)),
+                Text = OldWorld.GetString(EOResourceID.DIALOG_BANK_DEPOSIT),
+                SubText = string.Format("{0} gold {1}", OldWorld.GetString(EOResourceID.DIALOG_BANK_TRANSFER),
+                    OldWorld.GetString(EOResourceID.DIALOG_BANK_TO_ACCOUNT)),
                 IconGraphic = _getDlgIcon(ListIcon.BankDeposit),
                 OffsetY = 55,
                 ShowItemBackGround = false
@@ -75,9 +76,9 @@ namespace EndlessClient.Dialogs
             deposit.OnRightClick += (o, e) => _deposit();
             ListDialogItem withdraw = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
             {
-                Text = OldWorld.GetString(DATCONST2.DIALOG_BANK_WITHDRAW),
-                SubText = string.Format("{0} gold {1}", OldWorld.GetString(DATCONST2.DIALOG_BANK_TAKE),
-                    OldWorld.GetString(DATCONST2.DIALOG_BANK_FROM_ACCOUNT)),
+                Text = OldWorld.GetString(EOResourceID.DIALOG_BANK_WITHDRAW),
+                SubText = string.Format("{0} gold {1}", OldWorld.GetString(EOResourceID.DIALOG_BANK_TAKE),
+                    OldWorld.GetString(EOResourceID.DIALOG_BANK_FROM_ACCOUNT)),
                 IconGraphic = _getDlgIcon(ListIcon.BankWithdraw),
                 OffsetY = 55,
                 ShowItemBackGround = false
@@ -86,8 +87,8 @@ namespace EndlessClient.Dialogs
             withdraw.OnRightClick += (o, e) => _withdraw();
             ListDialogItem upgrade = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 2)
             {
-                Text = OldWorld.GetString(DATCONST2.DIALOG_BANK_LOCKER_UPGRADE),
-                SubText = OldWorld.GetString(DATCONST2.DIALOG_BANK_MORE_SPACE),
+                Text = OldWorld.GetString(EOResourceID.DIALOG_BANK_LOCKER_UPGRADE),
+                SubText = OldWorld.GetString(EOResourceID.DIALOG_BANK_MORE_SPACE),
                 IconGraphic = _getDlgIcon(ListIcon.BankLockerUpgrade),
                 OffsetY = 55,
                 ShowItemBackGround = false
@@ -107,7 +108,7 @@ namespace EndlessClient.Dialogs
             InventoryItem item = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.ItemID == 1);
             if (item.Amount == 0)
             {
-                EOMessageBox.Show(DATCONST1.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
             if (item.Amount == 1)
@@ -120,8 +121,8 @@ namespace EndlessClient.Dialogs
                 return;
             }
 
-            ItemTransferDialog dlg = new ItemTransferDialog(OldWorld.Instance.EIF.GetRecordByID(1).Name,
-                ItemTransferDialog.TransferType.BankTransfer, item.Amount, DATCONST2.DIALOG_TRANSFER_DEPOSIT);
+            ItemTransferDialog dlg = new ItemTransferDialog(OldWorld.Instance.EIF[1].Name,
+                ItemTransferDialog.TransferType.BankTransfer, item.Amount, EOResourceID.DIALOG_TRANSFER_DEPOSIT);
             dlg.DialogClosing += (o, e) =>
             {
                 if (e.Result == XNADialogResult.Cancel)
@@ -140,7 +141,7 @@ namespace EndlessClient.Dialogs
             int balance = int.Parse(AccountBalance);
             if (balance == 0)
             {
-                EOMessageBox.Show(DATCONST1.BANK_ACCOUNT_UNABLE_TO_WITHDRAW, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_WITHDRAW, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
             if (balance == 1)
@@ -153,8 +154,8 @@ namespace EndlessClient.Dialogs
                 return;
             }
 
-            ItemTransferDialog dlg = new ItemTransferDialog(OldWorld.Instance.EIF.GetRecordByID(1).Name,
-                ItemTransferDialog.TransferType.BankTransfer, balance, DATCONST2.DIALOG_TRANSFER_WITHDRAW);
+            ItemTransferDialog dlg = new ItemTransferDialog(OldWorld.Instance.EIF[1].Name,
+                ItemTransferDialog.TransferType.BankTransfer, balance, EOResourceID.DIALOG_TRANSFER_WITHDRAW);
             dlg.DialogClosing += (o, e) =>
             {
                 if (e.Result == XNADialogResult.Cancel)
@@ -172,7 +173,7 @@ namespace EndlessClient.Dialogs
         {
             if (LockerUpgrades == 7)
             {
-                EOMessageBox.Show(DATCONST1.LOCKER_UPGRADE_IMPOSSIBLE, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.LOCKER_UPGRADE_IMPOSSIBLE, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
@@ -180,11 +181,11 @@ namespace EndlessClient.Dialogs
             InventoryItem item = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.ItemID == 1);
             if (item.Amount < requiredGold)
             {
-                EOMessageBox.Show(DATCONST1.WARNING_YOU_HAVE_NOT_ENOUGH, "gold", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, "gold", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
-            EOMessageBox.Show(DATCONST1.LOCKER_UPGRADE_UNIT, string.Format("{0} gold?", requiredGold), XNADialogButtons.OkCancel,
+            EOMessageBox.Show(DialogResourceID.LOCKER_UPGRADE_UNIT, string.Format("{0} gold?", requiredGold), XNADialogButtons.OkCancel,
                 EOMessageBoxStyle.SmallDialogSmallHeader,
                 (o, e) =>
                 {

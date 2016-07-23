@@ -31,27 +31,69 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\CommonServiceLocator.1.3\lib\portable-net4+sl5+netcore45+wpa81+wp8\Microsoft.Practices.ServiceLocation.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=6d32ff45e0ccc69f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.4.0.1\lib\net45\Microsoft.Practices.Unity.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration, Version=4.0.0.0, Culture=neutral, PublicKeyToken=6d32ff45e0ccc69f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.4.0.1\lib\net45\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.RegistrationByConvention, Version=4.0.0.0, Culture=neutral, PublicKeyToken=6d32ff45e0ccc69f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Unity.4.0.1\lib\net45\Microsoft.Practices.Unity.RegistrationByConvention.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Actions\IMapFileLoadActions.cs" />
     <Compile Include="Actions\IPubFileLoadActions.cs" />
+    <Compile Include="Actions\MapFileLoadActions.cs" />
     <Compile Include="Actions\PubFileLoadActions.cs" />
-    <Compile Include="DataFileLoadException.cs" />
     <Compile Include="EquipLocation.cs" />
+    <Compile Include="Map\IMapFile.cs" />
+    <Compile Include="Map\IMapFileProperties.cs" />
+    <Compile Include="Map\IReadOnlyMatrix.cs" />
+    <Compile Include="Map\MapFile.cs" />
+    <Compile Include="Map\MapFileExtensions.cs" />
+    <Compile Include="Map\MapPathToIDConverter.cs" />
+    <Compile Include="Map\Matrix.cs" />
+    <Compile Include="Map\ChestKey.cs" />
+    <Compile Include="Map\ChestSpawnMapEntity.cs" />
+    <Compile Include="Map\DoorSpec.cs" />
+    <Compile Include="Map\IMapEntity.cs" />
+    <Compile Include="Map\IReadOnlyMapFile.cs" />
+    <Compile Include="Map\MapEffect.cs" />
+    <Compile Include="Map\MapFileProperties.cs" />
+    <Compile Include="Map\MapLayer.cs" />
+    <Compile Include="Map\NPCSpawnMapEntity.cs" />
+    <Compile Include="Map\SignMapEntity.cs" />
+    <Compile Include="Map\TileSpec.cs" />
+    <Compile Include="Map\WarpMapEntity.cs" />
+    <Compile Include="IODependencyContainer.cs" />
     <Compile Include="NumericConstants.cs" />
     <Compile Include="PubFileNameConstants.cs" />
     <Compile Include="Pub\ECFFile.cs" />
     <Compile Include="Pub\ECFRecord.cs" />
     <Compile Include="Pub\EIFFile.cs" />
+    <Compile Include="Extensions\EIFRecordExtensions.cs" />
     <Compile Include="Pub\ENFFile.cs" />
     <Compile Include="Pub\ENFRecord.cs" />
     <Compile Include="Pub\ESFFile.cs" />
     <Compile Include="Pub\ESFRecord.cs" />
     <Compile Include="Pub\BasePubFile.cs" />
+    <Compile Include="Repositories\IMapFileRepository.cs" />
     <Compile Include="Repositories\IPubFileProvider.cs" />
     <Compile Include="Repositories\IPubFileRepository.cs" />
     <Compile Include="Repositories\PubFileRepository.cs" />
     <Compile Include="Services\ClassFileLoadService.cs" />
+    <Compile Include="Services\IMapFileLoadService.cs" />
+    <Compile Include="Services\IMapFileSaveService.cs" />
+    <Compile Include="Services\IMapStringEncoderService.cs" />
     <Compile Include="Services\INumberEncoderService.cs" />
     <Compile Include="ItemSize.cs" />
     <Compile Include="ItemSpecial.cs" />
@@ -61,6 +103,9 @@
     <Compile Include="Services\IPubFileSaveService.cs" />
     <Compile Include="Services\IPubLoadService.cs" />
     <Compile Include="Services\ItemFileLoadService.cs" />
+    <Compile Include="Services\MapFileLoadService.cs" />
+    <Compile Include="Services\MapFileSaveService.cs" />
+    <Compile Include="Services\MapStringEncoderService.cs" />
     <Compile Include="Services\NPCFileLoadService.cs" />
     <Compile Include="Services\NumberEncoderService.cs" />
     <Compile Include="PubRecordProperty.cs" />
@@ -73,6 +118,15 @@
     <Compile Include="SpellTarget.cs" />
     <Compile Include="SpellTargetRestrict.cs" />
     <Compile Include="SpellType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
+      <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
+      <Name>EOLib.DependencyInjection</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

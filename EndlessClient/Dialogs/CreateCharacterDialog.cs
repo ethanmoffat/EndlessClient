@@ -11,6 +11,7 @@ using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -175,7 +176,7 @@ namespace EndlessClient.Dialogs
         {
             if (args.Result == XNADialogResult.OK && _inputBox.Text.Length < 4)
             {
-                _messageBoxFactory.CreateMessageBox(DATCONST1.CHARACTER_CREATE_NAME_TOO_SHORT,
+                _messageBoxFactory.CreateMessageBox(DialogResourceID.CHARACTER_CREATE_NAME_TOO_SHORT,
                                                     XNADialogButtons.Ok,
                                                     EOMessageBoxStyle.SmallDialogLargeHeader);
                 args.CancelClose = true;

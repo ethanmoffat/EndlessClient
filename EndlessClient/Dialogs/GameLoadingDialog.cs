@@ -8,6 +8,7 @@ using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.IO.Services;
+using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -41,13 +42,13 @@ namespace EndlessClient.Dialogs
 
             caption = new XNALabel(new Rectangle(12, 9, 1, 1), Constants.FontSize10)
             {
-                Text = _localizedStringService.GetString(DATCONST2.LOADING_GAME_PLEASE_WAIT),
+                Text = _localizedStringService.GetString(EOResourceID.LOADING_GAME_PLEASE_WAIT),
                 ForeColor = ColorConstants.LightYellowText
             };
             caption.SetParent(this);
 
             var gen = new Random();
-            var messageTextID = (DATCONST2)gen.Next((int)DATCONST2.LOADING_GAME_HINT_FIRST, (int)DATCONST2.LOADING_GAME_HINT_LAST);
+            var messageTextID = (EOResourceID)gen.Next((int)EOResourceID.LOADING_GAME_HINT_FIRST, (int)EOResourceID.LOADING_GAME_HINT_LAST);
             var localizedMessage = _localizedStringService.GetString(messageTextID);
 
             message = new XNALabel(new Rectangle(18, 61, 1, 1), Constants.FontSize08)
@@ -92,22 +93,22 @@ namespace EndlessClient.Dialogs
             switch (whichState)
             {
                 case GameLoadingDialogState.Map:
-                    CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_MAP);
+                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_UPDATING_MAP);
                     break;
                 case GameLoadingDialogState.Item:
-                    CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_ITEMS);
+                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_UPDATING_ITEMS);
                     break;
                 case GameLoadingDialogState.NPC:
-                    CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_NPCS);
+                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_UPDATING_NPCS);
                     break;
                 case GameLoadingDialogState.Spell:
-                    CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_SKILLS);
+                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_UPDATING_SKILLS);
                     break;
                 case GameLoadingDialogState.Class:
-                    CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_UPDATING_CLASSES);
+                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_UPDATING_CLASSES);
                     break;
                 case GameLoadingDialogState.LoadingGame:
-                    CaptionText = _localizedStringService.GetString(DATCONST2.LOADING_GAME_LOADING_GAME);
+                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_LOADING_GAME);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("whichState", whichState, null);

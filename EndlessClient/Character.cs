@@ -13,7 +13,8 @@ using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.IO;
 using EOLib.IO.Map;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
+using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls;
@@ -176,7 +177,7 @@ namespace EndlessClient
         {
             get
             {
-                var target = OldWorld.Instance.ESF.GetRecordByID((short) SelectedSpell).Target;
+                var target = OldWorld.Instance.ESF[SelectedSpell].Target;
                 return SelectedSpell > 0 &&
                        target == EOLib.IO.SpellTarget.Normal &&
                        SpellTarget == null;
@@ -501,7 +502,7 @@ namespace EndlessClient
                         ((OldNPC)ti.MapElement).Opponent != null &&
                         ((OldNPC)ti.MapElement).Opponent != this)
                     {
-                        EOGame.Instance.Hud.SetStatusLabel(DATCONST2.STATUS_LABEL_TYPE_INFORMATION, DATCONST2.STATUS_LABEL_UNABLE_TO_ATTACK);
+                        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_UNABLE_TO_ATTACK);
                         shouldSend = false;
                     }
                 }
@@ -587,8 +588,8 @@ namespace EndlessClient
                     //false when AddItem fails to find a good spot
                     if (!EOGame.Instance.Hud.UpdateInventory(newRec))
                     {
-                        EOMessageBox.Show(OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
-                            OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+                        EOMessageBox.Show(OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+                            OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
                             XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         return;
                     }
@@ -617,8 +618,8 @@ namespace EndlessClient
                     //false when AddItem fails to find a good spot
                     if (!EOGame.Instance.Hud.UpdateInventory(newRec))
                     {
-                        EOMessageBox.Show(OldWorld.GetString(DATCONST2.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
-                            OldWorld.GetString(DATCONST2.STATUS_LABEL_TYPE_WARNING),
+                        EOMessageBox.Show(OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
+                            OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
                             XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         return;
                     }
@@ -631,11 +632,11 @@ namespace EndlessClient
 
         public void SetDisplayItemsFromRenderData(CharRenderData newRenderData)
         {
-            EquipItem(ItemType.Boots,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Boots  && x.DollGraphic == newRenderData.boots)  ?? new ItemRecord(0)).ID, newRenderData.boots,  true);
-            EquipItem(ItemType.Armor,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Armor  && x.DollGraphic == newRenderData.armor)  ?? new ItemRecord(0)).ID, newRenderData.armor,  true);
-            EquipItem(ItemType.Hat,    (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Hat    && x.DollGraphic == newRenderData.hat)    ?? new ItemRecord(0)).ID, newRenderData.hat,    true);
-            EquipItem(ItemType.Shield, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Shield && x.DollGraphic == newRenderData.shield) ?? new ItemRecord(0)).ID, newRenderData.shield, true);
-            EquipItem(ItemType.Weapon, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == newRenderData.weapon) ?? new ItemRecord(0)).ID, newRenderData.weapon, true);
+            EquipItem(ItemType.Boots,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Boots  && x.DollGraphic == newRenderData.boots)  ?? new EIFRecord()).ID, newRenderData.boots,  true);
+            EquipItem(ItemType.Armor,  (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Armor  && x.DollGraphic == newRenderData.armor)  ?? new EIFRecord()).ID, newRenderData.armor,  true);
+            EquipItem(ItemType.Hat,    (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Hat    && x.DollGraphic == newRenderData.hat)    ?? new EIFRecord()).ID, newRenderData.hat,    true);
+            EquipItem(ItemType.Shield, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Shield && x.DollGraphic == newRenderData.shield) ?? new EIFRecord()).ID, newRenderData.shield, true);
+            EquipItem(ItemType.Weapon, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == newRenderData.weapon) ?? new EIFRecord()).ID, newRenderData.weapon, true);
         }
 
         public void GainExp(int amount)
@@ -674,7 +675,7 @@ namespace EndlessClient
         {
             DoorSpec permission = door;
 
-            ItemRecord rec;
+            EIFRecord rec;
             switch (door) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
             {
                 case DoorSpec.LockedCrystal:
@@ -700,11 +701,11 @@ namespace EndlessClient
             return permission;
         }
 
-        public ChestKey CanOpenChest(MapChest chest)
+        public ChestKey CanOpenChest(ChestSpawnMapEntity chest)
         {
             ChestKey permission = chest.Key;
 
-            ItemRecord rec;
+            EIFRecord rec;
             switch (permission) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
             {
                 case ChestKey.Normal:
@@ -758,7 +759,7 @@ namespace EndlessClient
             if (SelectedSpell <= 0)
                 return;
 
-            SpellRecord data = OldWorld.Instance.ESF.GetRecordByID((short)id);
+            var data = OldWorld.Instance.ESF[id];
             bool result = false;
             switch (data.Target)
             {
