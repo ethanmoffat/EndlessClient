@@ -14,7 +14,7 @@ namespace EOLib.Domain.Map
 
         List<ICharacter> Characters { get; set; }
 
-        List<INPC> NPCs { get; set; }
+        List<IMapNPC> NPCs { get; set; }
 
         List<IMapItem> MapItems { get; set; }
         
@@ -27,7 +27,7 @@ namespace EOLib.Domain.Map
 
         IReadOnlyList<ICharacter> Characters { get; }
 
-        IReadOnlyList<INPC> NPCs { get; }
+        IReadOnlyList<IMapNPC> NPCs { get; }
 
         IReadOnlyList<IMapItem> MapItems { get; }
 
@@ -40,7 +40,7 @@ namespace EOLib.Domain.Map
 
         public List<ICharacter> Characters { get; set; }
 
-        public List<INPC> NPCs { get; set; }
+        public List<IMapNPC> NPCs { get; set; }
 
         public List<IMapItem> MapItems { get; set; }
 
@@ -48,14 +48,14 @@ namespace EOLib.Domain.Map
 
         IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters { get { return Characters; } }
 
-        IReadOnlyList<INPC> ICurrentMapStateProvider.NPCs { get { return NPCs; } }
+        IReadOnlyList<IMapNPC> ICurrentMapStateProvider.NPCs { get { return NPCs; } }
 
         IReadOnlyList<IMapItem> ICurrentMapStateProvider.MapItems { get { return MapItems; } }
 
         public CurrentMapStateRepository()
         {
             Characters = new List<ICharacter>();
-            NPCs = new List<INPC>();
+            NPCs = new List<IMapNPC>();
             MapItems = new List<IMapItem>();
         }
     }

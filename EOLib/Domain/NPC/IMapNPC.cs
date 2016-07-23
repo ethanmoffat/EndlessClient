@@ -4,7 +4,7 @@
 
 namespace EOLib.Domain.NPC
 {
-    public interface INPC
+    public interface IMapNPC
     {
         short ID { get; }
 
@@ -16,10 +16,10 @@ namespace EOLib.Domain.NPC
 
         EODirection Direction { get; }
 
-        INPC WithX(byte x);
+        IMapNPC WithX(byte x);
 
-        INPC WithY(byte y);
+        IMapNPC WithY(byte y);
 
-        INPC WithDirection(EODirection direction);
+        IMapNPC WithDirection(EODirection direction);
     }
 }

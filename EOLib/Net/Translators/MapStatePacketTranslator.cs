@@ -93,7 +93,7 @@ namespace EOLib.Net.Translators
             }
         }
 
-        protected IEnumerable<INPC> GetNPCs(IPacket packet)
+        protected IEnumerable<IMapNPC> GetNPCs(IPacket packet)
         {
             while (packet.PeekByte() != 255)
             {
@@ -103,7 +103,7 @@ namespace EOLib.Net.Translators
                 var y = packet.ReadChar();
                 var direction = (EODirection) packet.ReadChar();
                 
-                yield return new NPC(id, index)
+                yield return new MapNPC(id, index)
                     .WithX(x)
                     .WithY(y)
                     .WithDirection(direction);

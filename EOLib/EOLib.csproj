@@ -78,8 +78,8 @@
     <Compile Include="Domain\Login\LoginRequestCompletedData.cs" />
     <Compile Include="Domain\Map\IMapItem.cs" />
     <Compile Include="Domain\Map\MapItem.cs" />
-    <Compile Include="Domain\NPC\INPC.cs" />
-    <Compile Include="Domain\NPC\NPC.cs" />
+    <Compile Include="Domain\NPC\IMapNPC.cs" />
+    <Compile Include="Domain\NPC\MapNpc.cs" />
     <Compile Include="Domain\NPC\OldNPC.cs" />
     <Compile Include="Domain\Character\AdminLevel.cs" />
     <Compile Include="Domain\Character\CharacterCreateData.cs" />
