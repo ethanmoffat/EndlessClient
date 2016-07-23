@@ -66,6 +66,12 @@ namespace EOLib.IO.Map
             _mutableChestSpawns.Remove(spawn);
         }
 
+        public void RemoveTileAt(int x, int y)
+        {
+            var tileRow = _mutableTileRows.Single(w => w.Y == y);
+            tileRow.EntityItems.Remove(tileRow.EntityItems.Single(w => w.X == x));
+        }
+
         public void RemoveWarp(WarpMapEntity warp)
         {
             RemoveWarpAt(warp.X, warp.Y);

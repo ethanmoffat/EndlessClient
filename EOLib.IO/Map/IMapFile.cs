@@ -10,6 +10,8 @@ namespace EOLib.IO.Map
 
         void RemoveChestSpawn(ChestSpawnMapEntity spawn);
 
+        void RemoveTileAt(int x, int y);
+
         void RemoveWarp(WarpMapEntity warp);
 
         void RemoveWarpAt(int x, int y);
