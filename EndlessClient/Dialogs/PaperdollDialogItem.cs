@@ -3,10 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -18,7 +17,7 @@ namespace EndlessClient.Dialogs
 {
     public class PaperdollDialogItem : XNAControl
     {
-        private ItemRecord m_info;
+        private EIFRecord m_info;
         private Texture2D m_gfx;
         private Rectangle m_area;
 
@@ -27,7 +26,7 @@ namespace EndlessClient.Dialogs
 
         private readonly PacketAPI m_api;
 
-        public PaperdollDialogItem(PacketAPI api, Rectangle location, EOPaperdollDialog parent, ItemRecord info, EquipLocation locationEnum)
+        public PaperdollDialogItem(PacketAPI api, Rectangle location, EOPaperdollDialog parent, EIFRecord info, EquipLocation locationEnum)
             : base(null, null, parent)
         {
             m_api = api;
@@ -113,7 +112,7 @@ namespace EndlessClient.Dialogs
             SpriteBatch.End();
         }
 
-        public void SetInfo(Rectangle location, ItemRecord info)
+        public void SetInfo(Rectangle location, EIFRecord info)
         {
             m_info = info;
             if (info != null)

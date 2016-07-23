@@ -11,10 +11,8 @@ using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
-using EOLib;
 using EOLib.Graphics;
-using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -174,8 +172,8 @@ namespace EndlessClient
 
                     break;
                 case GameStates.TestMode:
-                    var file = new ItemFile();
-                    file.Load(PubFileNameConstants.PathToEIFFile);
+                    var file = new EIFFile();
+                    //file.Load(PubFileNameConstants.PathToEIFFile);
                     var testComponent = new CharacterStateTest(this, file);
                     Components.Add(testComponent);
                     break;

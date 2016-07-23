@@ -13,7 +13,8 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Extensions;
+using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using XNAControls;
@@ -227,7 +228,7 @@ namespace EndlessClient
             Character c;
             if (!_data.ItemWasUnequipped)
             {
-                ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(_data.ItemID);
+                var rec = OldWorld.Instance.EIF[_data.ItemID];
                 //update inventory
                 (c = OldWorld.Instance.MainPlayer.ActiveCharacter).UpdateInventoryItem(_data.ItemID, _data.ItemAmount);
                 //equip item
@@ -242,7 +243,7 @@ namespace EndlessClient
                 //update inventory
                 c.UpdateInventoryItem(_data.ItemID, 1, true); //true: add to existing quantity
                 //unequip item
-                c.UnequipItem(OldWorld.Instance.EIF.GetRecordByID(_data.ItemID).Type, _data.SubLoc);
+                c.UnequipItem(OldWorld.Instance.EIF[_data.ItemID].Type, _data.SubLoc);
             }
             c.UpdateStatsAfterEquip(_data);
         }
@@ -401,7 +402,7 @@ namespace EndlessClient
 
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);
 
-            ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(id);
+            var rec = OldWorld.Instance.EIF[id];
             m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP), amountTaken, rec.Name), ChatType.UpArrow);
             m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP, string.Format(" {0} {1}", amountTaken, rec.Name));
         }
@@ -410,7 +411,7 @@ namespace EndlessClient
         {
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
 
-            ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(id);
+            var rec = OldWorld.Instance.EIF[id];
             m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED), amountRemoved, rec.Name), ChatType.DownArrow);
             m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED, string.Format(" {0} {1}", amountRemoved, rec.Name));
         }
@@ -422,7 +423,7 @@ namespace EndlessClient
             {
                 OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(item.ItemID, characterAmount, weight, maxWeight);
 
-                ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+                var rec = OldWorld.Instance.EIF[item.ItemID];
                 m_game.Hud.AddChat(ChatTabs.System, "",
                         string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), item.Amount, rec.Name),
                         ChatType.DownArrow);
@@ -468,7 +469,7 @@ namespace EndlessClient
                         for (int i = 0; i < (int)EquipLocation.PAPERDOLL_MAX; ++i)
                         {
                             int nextID = c.PaperDoll[i];
-                            if (nextID > 0 && OldWorld.Instance.EIF.GetRecordByID(nextID).Special == ItemSpecial.Cursed)
+                            if (nextID > 0 && OldWorld.Instance.EIF[nextID].Special == ItemSpecial.Cursed)
                             {
                                 c.PaperDoll[i] = 0;
                                 switch ((EquipLocation)i)

@@ -172,7 +172,7 @@ namespace EndlessClient.Dialogs
                             continue;
                         int localI = i;
 
-                        SpellRecord spellData = (SpellRecord) OldWorld.Instance.ESF.Data[m_skills[localI].ID];
+                        var spellData = OldWorld.Instance.ESF.Data[m_skills[localI].ID];
 
                         ListDialogItem nextListItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, index++)
                         {
@@ -203,7 +203,7 @@ namespace EndlessClient.Dialogs
                         if (args.Result == XNADialogResult.Cancel) return;
                         bool found =
                             OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Any(
-                                _spell => ((SpellRecord) OldWorld.Instance.ESF.Data[_spell.ID]).Name.ToLower() == input.ResponseText.ToLower());
+                                _spell => OldWorld.Instance.ESF.Data[_spell.ID].Name.ToLower() == input.ResponseText.ToLower());
 
                         if (!found)
                         {
@@ -214,7 +214,7 @@ namespace EndlessClient.Dialogs
 
                         if (!m_api.ForgetSpell(
                                 OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.Find(
-                                    _spell => ((SpellRecord) OldWorld.Instance.ESF.Data[_spell.ID]).Name.ToLower() == input.ResponseText.ToLower()).ID))
+                                    _spell => OldWorld.Instance.ESF.Data[_spell.ID].Name.ToLower() == input.ResponseText.ToLower()).ID))
                         {
                             Close();
                             ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -257,11 +257,11 @@ namespace EndlessClient.Dialogs
 
             if (skill.ClassReq > 0 && c.Class != skill.ClassReq)
             {
-                EOMessageBox.Show(DialogResourceID.SKILL_LEARN_WRONG_CLASS, " " + ((ClassRecord)OldWorld.Instance.ECF.Data[skill.ClassReq]).Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.SKILL_LEARN_WRONG_CLASS, " " + OldWorld.Instance.ECF.Data[skill.ClassReq].Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
-            EOMessageBox.Show(DialogResourceID.SKILL_LEARN_CONFIRMATION, " " + ((SpellRecord)OldWorld.Instance.ESF.Data[skill.ID]).Name + "?", XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+            EOMessageBox.Show(DialogResourceID.SKILL_LEARN_CONFIRMATION, " " + OldWorld.Instance.ESF.Data[skill.ID].Name + "?", XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                 (o, e) =>
                 {
                     if (e.Result != XNADialogResult.OK)
@@ -297,12 +297,12 @@ namespace EndlessClient.Dialogs
 
             List<string> drawStrings = new List<string>(15)
             {
-                ((SpellRecord) OldWorld.Instance.ESF.Data[skill.ID]).Name + (skill.ClassReq > 0 ? " [" + ((ClassRecord) OldWorld.Instance.ECF.Data[skill.ClassReq]).Name + "]" : ""),
+                OldWorld.Instance.ESF.Data[skill.ID].Name + (skill.ClassReq > 0 ? " [" + OldWorld.Instance.ECF.Data[skill.ClassReq].Name + "]" : ""),
                 " "
             };
             if (skill.SkillReq.Any(x => x != 0))
             {
-                drawStrings.AddRange(from req in skill.SkillReq where req != 0 select OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_SKILL) + ": " + ((SpellRecord) OldWorld.Instance.ESF.Data[req]).Name);
+                drawStrings.AddRange(from req in skill.SkillReq where req != 0 select OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_SKILL) + ": " +  OldWorld.Instance.ESF.Data[req].Name);
                 drawStrings.Add(" ");
             }
 
@@ -321,7 +321,7 @@ namespace EndlessClient.Dialogs
 
             drawStrings.Add(" ");
             drawStrings.Add(skill.LevelReq + " " + OldWorld.GetString(EOResourceID.SKILLMASTER_WORD_LEVEL));
-            drawStrings.Add(skill.GoldReq + " " + OldWorld.Instance.EIF.GetRecordByID(1).Name);
+            drawStrings.Add(skill.GoldReq + " " + OldWorld.Instance.EIF[1].Name);
 
             foreach (string s in drawStrings)
             {
@@ -332,7 +332,7 @@ namespace EndlessClient.Dialogs
 
         private void _showRequirementsLabel(Skill skill)
         {
-            string full = string.Format("{0} {1} LVL, ", ((SpellRecord)OldWorld.Instance.ESF.Data[skill.ID]).Name, skill.LevelReq);
+            string full = string.Format("{0} {1} LVL, ", OldWorld.Instance.ESF.Data[skill.ID].Name, skill.LevelReq);
             if (skill.StrReq > 0)
                 full += string.Format("{0} STR, ", skill.StrReq);
             if (skill.IntReq > 0)
@@ -348,7 +348,7 @@ namespace EndlessClient.Dialogs
             if (skill.GoldReq > 0)
                 full += string.Format("{0} Gold", skill.GoldReq);
             if (skill.ClassReq > 0)
-                full += string.Format(", {0}", ((ClassRecord) OldWorld.Instance.ECF.Data[skill.ClassReq]).Name);
+                full += string.Format(", {0}", OldWorld.Instance.ECF.Data[skill.ClassReq].Name);
 
             ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, full);
         }

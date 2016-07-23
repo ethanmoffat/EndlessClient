@@ -9,7 +9,7 @@ using System.Linq;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -24,7 +24,7 @@ namespace EndlessClient.HUD.Panels.Old
         public ClientOnlineEntry(string name, string title, string guild, int @class, PaperdollIconType icon)
             : base(name, title, guild, @class, icon)
         {
-            ClassRecord record = OldWorld.Instance.ECF.GetRecordByID(@class) ?? new ClassRecord(0);
+            var record = OldWorld.Instance.ECF[@class] ?? new ECFRecord {Name = ""};
             ClassString = record.ID == 0 ? "-" : record.Name;
         }
 

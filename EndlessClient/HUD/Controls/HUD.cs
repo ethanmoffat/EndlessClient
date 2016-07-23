@@ -14,7 +14,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -556,7 +556,7 @@ namespace EndlessClient.HUD.Controls
         public bool PlayerIsPartyMember(short playerID) { return m_party.PlayerIsMember(playerID); }
 
         public void AddNewSpellToActiveSpellsByID(int spellID) { activeSpells.AddNewSpellToNextOpenSlot(spellID); }
-        public SpellRecord GetSpellFromIndex(int index) { return activeSpells.GetSpellRecordBySlot(index); }
+        public ESFRecord GetSpellFromIndex(int index) { return activeSpells.GetSpellRecordBySlot(index); }
         public void SetSelectedSpell(int index) { activeSpells.SetSelectedSpellBySlot(index); }
         public void RemoveSpellFromActiveSpellsByID(int spellID) { activeSpells.RemoveSpellByID(spellID); }
         public void UpdateActiveSpellLevelByID(short spellID, short spellLevel) { activeSpells.UpdateSpellLevelByID(spellID, spellLevel); }

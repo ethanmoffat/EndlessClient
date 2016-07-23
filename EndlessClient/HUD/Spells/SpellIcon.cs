@@ -4,10 +4,9 @@
 
 using System;
 using EndlessClient.HUD.Panels.Old;
-using EOLib;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -45,19 +44,19 @@ namespace EndlessClient.HUD.Spells
 
         public override bool IsDragging { get { return _dragging; } }
 
-        public override SpellRecord SpellData { get { return _spellData; } }
+        public override ESFRecord SpellData { get { return _spellData; } }
 
         //stops the base class update logic from being called
         protected override bool DoEmptySpellIconUpdateLogic { get { return false; } }
         private readonly Texture2D _spellGraphic, _spellLevelColor;
-        private readonly SpellRecord _spellData;
+        private readonly ESFRecord _spellData;
 
         private Rectangle _spellGraphicSourceRect;
         private DateTime _clickTime;
         private bool _dragging, _followMouse;
         private Rectangle _levelDestinationRectangle;
 
-        public SpellIcon(OldActiveSpells parent, SpellRecord data, int slot)
+        public SpellIcon(OldActiveSpells parent, ESFRecord data, int slot)
             : base(parent, slot)
         {
             _spellData = data;

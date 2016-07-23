@@ -9,7 +9,7 @@ using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -41,7 +41,7 @@ namespace EndlessClient
         }
 
         private readonly EOGame _baseGame;
-        private readonly IDataFile<ItemRecord> _itemFile;
+        private readonly IPubFile<EIFRecord> _itemFile;
 
         private ICharacterRenderProperties _baseProperties;
         private readonly List<ICharacterRenderer> _renderersForDifferentStates;
@@ -53,7 +53,7 @@ namespace EndlessClient
 
         private DateTime _lastWalk, _lastAttack, _lastSpell;
 
-        public CharacterStateTest(EOGame baseGame, IDataFile<ItemRecord> itemFile)
+        public CharacterStateTest(EOGame baseGame, IPubFile<EIFRecord> itemFile)
             : base(baseGame)
         {
             _baseGame = baseGame;

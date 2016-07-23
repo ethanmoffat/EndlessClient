@@ -11,7 +11,6 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -215,7 +214,7 @@ namespace EndlessClient.Dialogs
             {
                 int localID = item.ItemID;
 
-                ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+                var rec = OldWorld.Instance.EIF[item.ItemID];
                 string secondary = string.Format("x {0}  {1}", item.Amount, rec.Type == ItemType.Armor
                     ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")"
                     : "");
@@ -295,12 +294,12 @@ namespace EndlessClient.Dialogs
             foreach (var item in mainCollection)
             {
                 m_main.UpdateInventoryItem(item.ItemID, -item.Amount, true);
-                weightDelta -= OldWorld.Instance.EIF.GetRecordByID(item.ItemID).Weight * item.Amount;
+                weightDelta -= OldWorld.Instance.EIF[item.ItemID].Weight * item.Amount;
             }
             foreach (var item in otherCollection)
             {
                 m_main.UpdateInventoryItem(item.ItemID, item.Amount, true);
-                weightDelta += OldWorld.Instance.EIF.GetRecordByID(item.ItemID).Weight * item.Amount;
+                weightDelta += OldWorld.Instance.EIF[item.ItemID].Weight * item.Amount;
             }
             m_main.Weight += (byte)weightDelta;
             ((EOGame)Game).Hud.RefreshStats();
@@ -345,8 +344,8 @@ namespace EndlessClient.Dialogs
             }
 
             //make sure the change in weight + existing weight is not greater than the max weight!
-            int weightDelta = otherCollection.Sum(itemRef => OldWorld.Instance.EIF.GetRecordByID(itemRef.ID).Weight * itemRef.Amount);
-            weightDelta = mainCollection.Aggregate(weightDelta, (current, itemRef) => current - OldWorld.Instance.EIF.GetRecordByID(itemRef.ID).Weight * itemRef.Amount);
+            int weightDelta = otherCollection.Sum(itemRef => OldWorld.Instance.EIF[itemRef.ID].Weight * itemRef.Amount);
+            weightDelta = mainCollection.Aggregate(weightDelta, (current, itemRef) => current - OldWorld.Instance.EIF[itemRef.ID].Weight * itemRef.Amount);
             if (weightDelta + m_main.Weight > m_main.MaxWeight)
             {
                 EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT),

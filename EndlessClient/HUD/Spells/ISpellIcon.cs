@@ -2,7 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 
 namespace EndlessClient.HUD.Spells
 {
@@ -16,7 +16,7 @@ namespace EndlessClient.HUD.Spells
 
         short Level { get; set; }
 
-        SpellRecord SpellData { get; }
+        ESFRecord SpellData { get; }
 
         void SetDisplaySlot(int displaySlot);
 

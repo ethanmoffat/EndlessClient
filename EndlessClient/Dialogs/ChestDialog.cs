@@ -3,11 +3,10 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -80,7 +79,7 @@ namespace EndlessClient.Dialogs
                         m_items[i] = null;
                     }
 
-                    ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+                    var rec = OldWorld.Instance.EIF[item.ItemID];
                     string secondary = string.Format("x {0}  {1}", item.Amount, rec.Type == ItemType.Armor
                         ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")"
                         : "");
@@ -160,7 +159,7 @@ namespace EndlessClient.Dialogs
         }
 
         //todo: find a better place for this
-        public static Texture2D GetItemGraphic(ItemRecord item, int amount)
+        public static Texture2D GetItemGraphic(EIFRecord item, int amount)
         {
             if (item.Type == ItemType.Money)
             {

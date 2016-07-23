@@ -4,8 +4,7 @@
 
 using System;
 using EndlessClient.HUD.Panels.Old;
-using EOLib;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -49,7 +48,7 @@ namespace EndlessClient.HUD.Spells
 
         public virtual bool IsDragging { get { return false; } }
 
-        public virtual SpellRecord SpellData { get { return null; } }
+        public virtual ESFRecord SpellData { get { return null; } }
 
         private bool _doUpdateLogic = true;
         protected virtual bool DoEmptySpellIconUpdateLogic { get { return _doUpdateLogic; } }

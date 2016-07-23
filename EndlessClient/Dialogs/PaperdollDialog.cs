@@ -9,7 +9,7 @@ using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -63,7 +63,7 @@ namespace EndlessClient.Dialogs
             //items
             for (int i = (int)EquipLocation.Boots; i < (int)EquipLocation.PAPERDOLL_MAX; ++i)
             {
-                ItemRecord info = OldWorld.Instance.EIF.GetRecordByID(CharRef.PaperDoll[i]);
+                var info = OldWorld.Instance.EIF[CharRef.PaperDoll[i]];
 
                 Rectangle itemArea = _getEquipLocRectangle((EquipLocation)i);
 
@@ -93,7 +93,7 @@ namespace EndlessClient.Dialogs
                 }, //home
                 new XNALabel(new Rectangle(228, 82, 1, 1), Constants.FontSize08pt5)
                 {
-                    Text = (OldWorld.Instance.ECF.GetRecordByID(CharRef.Class) ?? new ClassRecord(0)).Name
+                    Text = (OldWorld.Instance.ECF[CharRef.Class] ?? new ECFRecord()).Name ?? ""
                 }, //class
                 new XNALabel(new Rectangle(228, 112, 1, 1), Constants.FontSize08pt5)
                 {
@@ -156,7 +156,7 @@ namespace EndlessClient.Dialogs
             SpriteBatch.End();
         }
 
-        public void SetItem(EquipLocation loc, ItemRecord info)
+        public void SetItem(EquipLocation loc, EIFRecord info)
         {
             PaperdollDialogItem itemToUpdate = (PaperdollDialogItem)children.Find(_ctrl =>
             {

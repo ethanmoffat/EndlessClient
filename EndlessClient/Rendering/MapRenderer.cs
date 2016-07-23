@@ -16,7 +16,6 @@ using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.Graphics;
 using EOLib.IO.Map;
-using EOLib.IO.Old;
 using EOLib.IO.OldMap;
 using EOLib.Localization;
 using EOLib.Net.API;
@@ -291,7 +290,7 @@ namespace EndlessClient.Rendering
         {
             if (newItem.IsNPCDrop && newItem.ItemID > 0)
             {
-                ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(newItem.ItemID);
+                var rec = OldWorld.Instance.EIF[newItem.ItemID];
                 EOGame.Instance.Hud.AddChat(ChatTabs.System, "",
                     string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_THE_NPC_DROPPED), newItem.Amount, rec.Name),
                     ChatType.DownArrow);
@@ -559,7 +558,7 @@ namespace EndlessClient.Rendering
 
         public void OtherPlayerShoutSpell(short playerID, short spellID)
         {
-            string shoutName = OldWorld.Instance.ESF.GetRecordByID(spellID).Shout;
+            string shoutName = OldWorld.Instance.ESF[spellID].Shout;
 
             lock (_characterListLock)
             {
@@ -736,7 +735,7 @@ namespace EndlessClient.Rendering
         {
             lock (_npcListLock)
             {
-                var fileData = OldWorld.Instance.ENF.GetRecordByID(data.ID);
+                var fileData = OldWorld.Instance.ENF[data.ID];
                 NPCRenderer newNpcRenderer = new NPCRenderer(new OldNPC(data, fileData));
                 newNpcRenderer.Initialize();
                 newNpcRenderer.Visible = true;
@@ -1259,7 +1258,7 @@ namespace EndlessClient.Rendering
                 List<OldMapItem> local = new List<OldMapItem>(_mapItems[pt]);
                 foreach(OldMapItem item in local)
                 {
-                    var itemData = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+                    var itemData = OldWorld.Instance.EIF[item.ItemID];
                     var itemPos = GetDrawCoordinatesFromGridUnits(item.X + 1, item.Y, c);
                     var itemTexture = ChestDialog.GetItemGraphic(itemData, item.Amount);
                     _sb.Draw(itemTexture, 
@@ -1532,7 +1531,7 @@ namespace EndlessClient.Rendering
         {
             if (spellID < 1) return;
 
-            var spellInfo = OldWorld.Instance.ESF.GetRecordByID(spellID);
+            var spellInfo = OldWorld.Instance.ESF[spellID];
             renderer.ShowSpellAnimation(spellInfo.Graphic);
         }
 
@@ -1540,7 +1539,7 @@ namespace EndlessClient.Rendering
         {
             if (spellID < 1) return;
 
-            var spellInfo = OldWorld.Instance.ESF.GetRecordByID(spellID);
+            var spellInfo = OldWorld.Instance.ESF[spellID];
             renderer.ShowSpellAnimation(spellInfo.Graphic);
         }
 

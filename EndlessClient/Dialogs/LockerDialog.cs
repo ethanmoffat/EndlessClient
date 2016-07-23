@@ -3,11 +3,10 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -58,7 +57,7 @@ namespace EndlessClient.Dialogs
             List<ListDialogItem> listItems = new List<ListDialogItem>();
             foreach (InventoryItem item in lockerItems)
             {
-                ItemRecord rec = OldWorld.Instance.EIF.GetRecordByID(item.ItemID);
+                var rec = OldWorld.Instance.EIF[item.ItemID];
                 int amount = item.Amount;
                 ListDialogItem newItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
                 {
@@ -85,7 +84,7 @@ namespace EndlessClient.Dialogs
             return items[matchIndex].Amount + amount;
         }
 
-        private void _removeItem(ItemRecord item, int amount)
+        private void _removeItem(EIFRecord item, int amount)
         {
             if (!EOGame.Instance.Hud.InventoryFits((short)item.ID))
             {

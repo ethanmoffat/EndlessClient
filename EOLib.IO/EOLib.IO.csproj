@@ -80,6 +80,7 @@
     <Compile Include="Pub\ECFFile.cs" />
     <Compile Include="Pub\ECFRecord.cs" />
     <Compile Include="Pub\EIFFile.cs" />
+    <Compile Include="Pub\EIFRecordExtensions.cs" />
     <Compile Include="Pub\ENFFile.cs" />
     <Compile Include="Pub\ENFRecord.cs" />
     <Compile Include="Pub\ESFFile.cs" />

@@ -11,7 +11,8 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
-using EOLib.IO.Old;
+using EOLib.IO.Extensions;
+using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -25,8 +26,8 @@ namespace EndlessClient.HUD.Inventory
     //Keeping the EO prefix on this one since naming is hard
     public class OldEOInventoryItem : XNAControl
     {
-        private readonly ItemRecord m_itemData;
-        public ItemRecord ItemData
+        private readonly EIFRecord m_itemData;
+        public EIFRecord ItemData
         {
             get { return m_itemData; }
         }
@@ -55,7 +56,7 @@ namespace EndlessClient.HUD.Inventory
         private readonly PacketAPI m_api;
         private static bool safetyCommentHasBeenShown;
 
-        public OldEOInventoryItem(PacketAPI api, int slot, ItemRecord itemData, InventoryItem itemInventoryInfo, OldEOInventory inventory)
+        public OldEOInventoryItem(PacketAPI api, int slot, EIFRecord itemData, InventoryItem itemInventoryInfo, OldEOInventory inventory)
             : base(null, null, inventory)
         {
             m_api = api;
@@ -496,7 +497,7 @@ namespace EndlessClient.HUD.Inventory
                     {
                         ((EOGame) Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
                             EOResourceID.STATUS_LABEL_ITEM_EQUIP_CAN_ONLY_BE_USED_BY,
-                            OldWorld.Instance.ECF.GetRecordByID(m_itemData.ClassReq).Name);
+                            OldWorld.Instance.ECF[m_itemData.ClassReq].Name);
                         break;
                     }
 
@@ -531,7 +532,7 @@ namespace EndlessClient.HUD.Inventory
                     break;
                 case ItemType.CureCurse:
                     //note: don't actually set the useItem bool here. Call API.UseItem if the dialog result is OK.
-                    if (c.PaperDoll.Select(id => OldWorld.Instance.EIF.GetRecordByID(id))
+                    if (c.PaperDoll.Select(id => OldWorld.Instance.EIF[id])
                                    .Any(rec => rec.Special == ItemSpecial.Cursed))
                     {
                         EOMessageBox.Show(DialogResourceID.ITEM_CURSE_REMOVE_PROMPT, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
@@ -565,7 +566,7 @@ namespace EndlessClient.HUD.Inventory
 
         public static Color GetItemTextColor(short id) //also used in map renderer for mapitems
         {
-            ItemRecord data = OldWorld.Instance.EIF.GetRecordByID(id);
+            var data = OldWorld.Instance.EIF[id];
             switch (data.Special)
             {
                 case ItemSpecial.Lore:
@@ -580,7 +581,7 @@ namespace EndlessClient.HUD.Inventory
 
         public static string GetNameString(short id, int amount)
         {
-            ItemRecord data = OldWorld.Instance.EIF.GetRecordByID(id);
+            var data = OldWorld.Instance.EIF[id];
             switch (data.ID)
             {
                 case 1:

@@ -10,7 +10,7 @@ using EndlessClient.HUD.Spells;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.Net.API;
 using Microsoft.Win32;
 using Microsoft.Xna.Framework;
@@ -73,7 +73,7 @@ namespace EndlessClient.HUD.Panels.Old
             // ReSharper disable once LoopCanBeConvertedToQuery
             foreach (var spell in localSpells)
             {
-                SpellRecord rec = OldWorld.Instance.ESF.GetRecordByID(spell.ID);
+                var rec = OldWorld.Instance.ESF[spell.ID];
                 int slot = localSpellSlotMap.ContainsValue(spell.ID)
                     ? localSpellSlotMap.First(_pair => _pair.Value == spell.ID).Key
                     : _getNextOpenSlot();
@@ -155,7 +155,7 @@ namespace EndlessClient.HUD.Panels.Old
                 return;
 
             var slot = _getNextOpenSlot();
-            var record = OldWorld.Instance.ESF.GetRecordByID((short) spellID);
+            var record = OldWorld.Instance.ESF[spellID];
             _addNewSpellToSlot(slot, record, 0);
         }
 
@@ -193,7 +193,7 @@ namespace EndlessClient.HUD.Panels.Old
             _activeSpellIcon = null;
         }
 
-        public SpellRecord GetSpellRecordBySlot(int slot)
+        public ESFRecord GetSpellRecordBySlot(int slot)
         {
             var icon = _childItems.SingleOrDefault(x => x.Slot == slot);
 
@@ -392,7 +392,7 @@ namespace EndlessClient.HUD.Panels.Old
             return null;
         }
 
-        private bool _addNewSpellToSlot(int slot, SpellRecord data, short level)
+        private bool _addNewSpellToSlot(int slot, ESFRecord data, short level)
         {
             var emptySpellInDestinationSlot = _childItems.Single(x => x.Slot == slot);
             if (slot < 0 || !(emptySpellInDestinationSlot is EmptySpellIcon))

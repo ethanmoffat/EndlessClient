@@ -121,7 +121,7 @@ namespace EndlessClient.Dialogs
                 return;
             }
 
-            ItemTransferDialog dlg = new ItemTransferDialog(OldWorld.Instance.EIF.GetRecordByID(1).Name,
+            ItemTransferDialog dlg = new ItemTransferDialog(OldWorld.Instance.EIF[1].Name,
                 ItemTransferDialog.TransferType.BankTransfer, item.Amount, EOResourceID.DIALOG_TRANSFER_DEPOSIT);
             dlg.DialogClosing += (o, e) =>
             {
@@ -154,7 +154,7 @@ namespace EndlessClient.Dialogs
                 return;
             }
 
-            ItemTransferDialog dlg = new ItemTransferDialog(OldWorld.Instance.EIF.GetRecordByID(1).Name,
+            ItemTransferDialog dlg = new ItemTransferDialog(OldWorld.Instance.EIF[1].Name,
                 ItemTransferDialog.TransferType.BankTransfer, balance, EOResourceID.DIALOG_TRANSFER_WITHDRAW);
             dlg.DialogClosing += (o, e) =>
             {
