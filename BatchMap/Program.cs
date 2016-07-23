@@ -5,7 +5,6 @@
 using System;
 using System.IO;
 using System.Linq;
-using EOLib;
 using EOLib.DependencyInjection;
 using EOLib.IO;
 using EOLib.IO.Actions;
@@ -125,10 +124,17 @@ namespace BatchMap
             }
             catch (Exception ex)
             {
+                Console.WriteLine();
+
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Exception was thrown: ");
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("\t" + ex.Message);
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine(ex.Message);
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nCall stack: \n");
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Console.WriteLine(ex.StackTrace);
             }
 
             _unityContainer.Dispose();
@@ -193,8 +199,9 @@ namespace BatchMap
                     }
                 }
 
-                foreach(var npcSpawn in mapFile.NPCSpawns)
+                for(int ndx = mapFile.NPCSpawns.Count - 1; ndx >= 0; --ndx)
                 {
+                    var npcSpawn = mapFile.NPCSpawns[ndx];
                     var npcRec = _pubProvider.ENFFile[npcSpawn.ID];
                     if (npcSpawn.ID > _pubProvider.ENFFile.Data.Count || npcRec == null)
                     {
@@ -239,8 +246,9 @@ namespace BatchMap
                     }
                 }
 
-                foreach(var chestSpawn in mapFile.Chests)
+                for(int ndx = mapFile.Chests.Count - 1; ndx >= 0; --ndx)
                 {
+                    var chestSpawn = mapFile.Chests[ndx];
                     var rec = _pubProvider.EIFFile[chestSpawn.ItemID];
                     if (chestSpawn.ItemID > _pubProvider.EIFFile.Data.Count || rec == null)
                     {
@@ -273,7 +281,7 @@ namespace BatchMap
                 }
 
                 mapFileSaveService.SaveFile(
-                    Path.Combine(dst, string.Format(MapFile.MapFileFormatString, mapID)),
+                    Path.Combine(dst, string.Format("{0,5:D5}.emf", mapID)),
                     mapFile);
             }
         }
