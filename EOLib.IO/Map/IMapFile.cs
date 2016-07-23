@@ -2,32 +2,16 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Collections.Generic;
-using EOLib.IO.Services;
-
 namespace EOLib.IO.Map
 {
-    public interface IMapFile
+    public interface IMapFile : IReadOnlyMapFile
     {
-        IMapFileProperties Properties { get; }
+        void RemoveNPCSpawn(NPCSpawnMapEntity spawn);
 
-        IReadOnlyMatrix<TileSpec> Tiles { get; }
-        IReadOnlyMatrix<WarpMapEntity> Warps { get; }
-        IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX { get; }
-        IReadOnlyList<NPCSpawnMapEntity> NPCSpawns { get; }
-        IReadOnlyList<byte[]> Unknowns { get; }
-        IReadOnlyList<ChestSpawnMapEntity> Chests { get; }
-        IReadOnlyList<SignMapEntity> Signs { get; }
+        void RemoveChestSpawn(ChestSpawnMapEntity spawn);
 
-        IReadOnlyList<MapFile.MapEntityRow<TileSpec>> TileRows { get; }
-        IReadOnlyList<MapFile.MapEntityRow<WarpMapEntity>> WarpRows { get; }
-        IReadOnlyDictionary<MapLayer, IReadOnlyList<MapFile.MapEntityRow<int>>> GFXRows { get; }
+        void RemoveWarp(WarpMapEntity warp);
 
-        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
-                                    IMapStringEncoderService mapStringEncoderService);
-
-        void DeserializeFromByteArray(byte[] data,
-                                      INumberEncoderService numberEncoderService,
-                                      IMapStringEncoderService mapStringEncoderService);
+        void RemoveWarpAt(int x, int y);
     }
 }

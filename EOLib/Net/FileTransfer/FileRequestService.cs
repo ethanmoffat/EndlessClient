@@ -27,7 +27,7 @@ namespace EOLib.Net.FileTransfer
             _mapStringEncoderService = mapStringEncoderService;
         }
 
-        public async Task<IMapFile> RequestMapFile(short mapID)
+        public async Task<IReadOnlyMapFile> RequestMapFile(short mapID)
         {
             var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
                 .AddChar((byte) InitFileType.Map)

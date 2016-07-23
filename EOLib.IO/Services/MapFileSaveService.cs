@@ -20,13 +20,13 @@ namespace EOLib.IO.Services
             _mapStringEncoderService = mapStringEncoderService;
         }
 
-        public void SaveFileToDefaultDirectory(IMapFile mapFile)
+        public void SaveFileToDefaultDirectory(IReadOnlyMapFile mapFile)
         {
             File.WriteAllBytes(string.Format(MapFile.MapFileFormatString, mapFile.Properties.MapID),
                                mapFile.SerializeToByteArray(_numberEncoderService, _mapStringEncoderService));
         }
 
-        public void SaveFile(string path, IMapFile mapFile)
+        public void SaveFile(string path, IReadOnlyMapFile mapFile)
         {
             if (!path.ToLower().EndsWith(".emf"))
                 throw new ArgumentException("Must specify an emf file", "path");

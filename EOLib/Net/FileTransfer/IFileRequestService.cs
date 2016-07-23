@@ -11,7 +11,7 @@ namespace EOLib.Net.FileTransfer
 {
     public interface IFileRequestService
     {
-        Task<IMapFile> RequestMapFile(short mapID);
+        Task<IReadOnlyMapFile> RequestMapFile(short mapID);
 
         Task<IPubFile> RequestFile(InitFileType fileType);
     }

@@ -50,9 +50,36 @@ namespace EOLib.IO.Map
         {
             Properties = new MapFileProperties();
             Properties = Properties.WithMapID(id);
-            
+
             ResetCollections();
         }
+
+        #region File Modifications (to support BatchMap)
+
+        public void RemoveNPCSpawn(NPCSpawnMapEntity spawn)
+        {
+            _mutableNPCSpawns.Remove(spawn);
+        }
+
+        public void RemoveChestSpawn(ChestSpawnMapEntity spawn)
+        {
+            _mutableChestSpawns.Remove(spawn);
+        }
+
+        public void RemoveWarp(WarpMapEntity warp)
+        {
+            RemoveWarpAt(warp.X, warp.Y);
+        }
+
+        public void RemoveWarpAt(int x, int y)
+        {
+            _mutableWarps[y, x] = null;
+
+            var warpRow = _mutableWarpRows.Single(w => w.Y == y);
+            warpRow.EntityItems.Remove(warpRow.EntityItems.Single(w => w.X == x));
+        }
+
+        #endregion
 
         public byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
                                            IMapStringEncoderService mapStringEncoderService)
