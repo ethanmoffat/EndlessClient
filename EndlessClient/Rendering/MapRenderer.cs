@@ -16,7 +16,6 @@ using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
 using EOLib.Graphics;
 using EOLib.IO.Map;
-using EOLib.IO.OldMap;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -257,9 +256,9 @@ namespace EndlessClient.Rendering
                     return new BasicTileInfo(TileInfoReturnType.IsOtherPlayer);
             }
 
-            var warp = MapRef.Warps[destY, destX];
-            if (warp != null)
-                return new WarpTileInfo(null);
+            //var warp = MapRef.Warps[destY, destX];
+            //if (warp != null)
+            //    return new WarpTileInfo(null);
 
             //var sign = MapRef.Signs.Single(_ms => _ms.X == destX && _ms.Y == destY);
             //if (sign.X == destX && sign.Y == destY)
@@ -865,12 +864,12 @@ namespace EndlessClient.Rendering
 
         #region /* PUBLIC INTERFACE -- DOORS */
 
-        public void StartOpenDoor(Warp warpRef, byte x, byte y)
-        {
-            warpRef.DoorPacketSent = true; //set flag to prevent hella door packets from the client
-            if(!_api.DoorOpen(x, y))
-                ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-        }
+        //public void StartOpenDoor(Warp warpRef, byte x, byte y)
+        //{
+        //    warpRef.DoorPacketSent = true; //set flag to prevent hella door packets from the client
+        //    if(!_api.DoorOpen(x, y))
+        //        ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+        //}
 
         public void OnDoorOpened(byte x, byte y)
         {

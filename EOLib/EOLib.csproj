@@ -113,7 +113,6 @@
     <Compile Include="Domain\Map\OldMapItem.cs" />
     <Compile Include="Domain\Map\NPCTileInfo.cs" />
     <Compile Include="Domain\Map\TileInfoReturnType.cs" />
-    <Compile Include="Domain\Map\WarpTileInfo.cs" />
     <Compile Include="Domain\Protocol\BanType.cs" />
     <Compile Include="Domain\Protocol\IInitializationData.cs" />
     <Compile Include="Domain\Protocol\InitFileType.cs" />
@@ -132,12 +131,6 @@
     <Compile Include="Net\FileTransfer\IFileRequestService.cs" />
     <Compile Include="IHDSerialNumberService.cs" />
     <Compile Include="EOLibDependencyContainer.cs" />
-    <Compile Include="IO\OldMap\IMapFile.cs" />
-    <Compile Include="IO\OldMap\MapFile.cs" />
-    <Compile Include="IO\OldMap\MapChest.cs" />
-    <Compile Include="IO\OldMap\MapSign.cs" />
-    <Compile Include="IO\OldMap\NPCSpawn.cs" />
-    <Compile Include="IO\OldMap\Warp.cs" />
     <Compile Include="misc.cs" />
     <Compile Include="Net\API\Account.cs" />
     <Compile Include="Domain\Account\AccountReply.cs" />
