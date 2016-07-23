@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib.IO;
+using EOLib.IO.Pub;
 
 namespace EOLib.Domain.Character
 {
@@ -10,6 +11,8 @@ namespace EOLib.Domain.Character
     {
         EquipLocation EquipLocation { get; }
 
-        short ItemID { get; }
+        int ItemID { get; }
+
+        EIFRecord ItemData { get; }
     }
 }
