@@ -133,11 +133,11 @@ namespace EOLib.IO.Map
 
         private void ResetCollections()
         {
-            _mutableTiles = new Matrix<TileSpec>(Properties.Width + 1, Properties.Height + 1, TileSpec.None);
-            _mutableWarps = new Matrix<WarpMapEntity>(Properties.Width + 1, Properties.Height + 1, null);
+            _mutableTiles = new Matrix<TileSpec>(Properties.Height + 1, Properties.Width + 1, TileSpec.None);
+            _mutableWarps = new Matrix<WarpMapEntity>(Properties.Height + 1, Properties.Width + 1, null);
             _mutableGFX = new Dictionary<MapLayer, Matrix<int>>();
             foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))
-                _mutableGFX.Add(layer, new Matrix<int>(Properties.Width + 1, Properties.Height + 1, -1));
+                _mutableGFX.Add(layer, new Matrix<int>(Properties.Height + 1, Properties.Width + 1, -1));
             _mutableNPCSpawns = new List<NPCSpawnMapEntity>();
             _mutableUnknowns = new List<byte[]>();
             _mutableChestSpawns = new List<ChestSpawnMapEntity>();
@@ -296,7 +296,7 @@ namespace EOLib.IO.Map
             ms.Read(messageLengthRaw, 0, 2); //read two-byte length
             ms.Seek(-4, SeekOrigin.Current); //skip back to beginning
 
-            return nes.DecodeNumber(messageLengthRaw);
+            return nes.DecodeNumber(messageLengthRaw) - 1;
         }
 
         #endregion
