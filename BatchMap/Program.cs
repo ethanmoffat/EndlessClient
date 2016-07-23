@@ -158,69 +158,68 @@ namespace BatchMap
                 var mapID = new MapPathToIDConverter().ConvertFromPathToID(inFiles[mapIndex]);
 
                 mapFileLoadActions.LoadMapFileByName(inFiles[mapIndex]);
-                var mapFile = _mapFileProvider.MapFiles[mapID];
+                var mapFile = _mapFileProvider.MapFiles[mapID].AsEditableMap();
                 
                 var changesMade = false;
 
-                //for (int i = mapFile.TileRows.Count - 1; i >= 0; --i)
-                //{
-                //    var tr = mapFile.TileRows[i];
-                //    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
-                //    {
-                //        var tt = tr.EntityItems[j];
-                //        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
-                //        {
-                //            Console.WriteLine("[MAP {3}] Tile {0}x{1} ({2}) is out of map bounds. Removing.",
-                //                tt.X, tr.Y, Enum.GetName(typeof(TileSpec), tt.Value), mapID);
-                //            mapFile.RemoveTileAt(tr.Y, tt.X);
-                //            changesMade = true;
-                //        }
-                //    }
-                //}
-
-                //for (int i = mapFile.WarpRows.Count - 1; i >= 0; --i)
-                //{
-                //    var tr = mapFile.WarpRows[i];
-                //    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
-                //    {
-                //        var tt = tr.EntityItems[j];
-                //        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
-                //        {
-                //            Console.WriteLine("[MAP {2}] Warp {0}x{1} is out of map bounds. Removing.", tt.X, tr.Y, mapID);
-                //            mapFile.RemoveWarpAt(tr.Y, tt.X);
-                //            changesMade = true;
-                //        }
-                //    }
-                //}
-
-                for(int i = mapFile.NPCSpawns.Count - 1; i >= 0; --i)
+                for (int i = mapFile.TileRows.Count - 1; i >= 0; --i)
                 {
-                    var npc = mapFile.NPCSpawns[i];
-                    var npcRec = _pubProvider.ENFFile[npc.ID];
-                    if (npc.ID > _pubProvider.ENFFile.Data.Count || npcRec == null)
+                    var tr = mapFile.TileRows[i];
+                    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
                     {
-                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} uses non-existent NPC #{3}. Removing.", mapID, npc.X, npc.Y, npc.ID);
-                        //EMF.NPCSpawns.RemoveAt(i); //todo: way to modify NPCs
+                        var tt = tr.EntityItems[j];
+                        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
+                        {
+                            Console.WriteLine("[MAP {0}] Tile {1}x{2} ({3}) is out of map bounds. Removing.",
+                                              mapID, tt.X, tr.Y, Enum.GetName(typeof(TileSpec), tt.Value));
+                            mapFile.RemoveTileAt(tr.Y, tt.X);
+                            changesMade = true;
+                        }
+                    }
+                }
+
+                for (int i = mapFile.WarpRows.Count - 1; i >= 0; --i)
+                {
+                    var tr = mapFile.WarpRows[i];
+                    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
+                    {
+                        var tt = tr.EntityItems[j];
+                        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
+                        {
+                            Console.WriteLine("[MAP {0}] Warp {1}x{2} is out of map bounds. Removing.", mapID, tt.X, tr.Y);
+                            mapFile.RemoveWarpAt(tr.Y, tt.X);
+                            changesMade = true;
+                        }
+                    }
+                }
+
+                foreach(var npcSpawn in mapFile.NPCSpawns)
+                {
+                    var npcRec = _pubProvider.ENFFile[npcSpawn.ID];
+                    if (npcSpawn.ID > _pubProvider.ENFFile.Data.Count || npcRec == null)
+                    {
+                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} uses non-existent NPC #{3}. Removing.", mapID, npcSpawn.X, npcSpawn.Y, npcSpawn.ID);
+                        mapFile.RemoveNPCSpawn(npcSpawn);
                         changesMade = true;
                         continue;
                     }
 
-                    if (npc.X > mapFile.Properties.Width || npc.Y > mapFile.Properties.Height)
+                    if (npcSpawn.X > mapFile.Properties.Width || npcSpawn.Y > mapFile.Properties.Height)
                     {
-                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is out of map bounds. Removing.", mapID, npc.X, npc.Y, npcRec.Name);
-                        //EMF.NPCSpawns.RemoveAt(i); //todo: way to modify NPCs
+                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is out of map bounds. Removing.", mapID, npcSpawn.X, npcSpawn.Y, npcRec.Name);
+                        mapFile.RemoveNPCSpawn(npcSpawn);
                         changesMade = true;
                         continue;
                     }
 
-                    if (!TileIsValidNPCSpawnPoint(mapFile, npc.X, npc.Y))
+                    if (!TileIsValidNPCSpawnPoint(mapFile, npcSpawn.X, npcSpawn.Y))
                     {
-                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is invalid...", mapID, npc.X, npc.Y, npcRec.Name);
+                        Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is invalid...", mapID, npcSpawn.X, npcSpawn.Y, npcRec.Name);
                         var found = false;
-                        for (int row = npc.Y - 2; row < npc.Y + 2; ++row)
+                        for (int row = npcSpawn.Y - 2; row < npcSpawn.Y + 2; ++row)
                         {
                             if (found) break;
-                            for (int col = npc.X - 2; col < npc.X + 2; ++col)
+                            for (int col = npcSpawn.X - 2; col < npcSpawn.X + 2; ++col)
                             {
                                 if (found) break;
                                 if (TileIsValidNPCSpawnPoint(mapFile, col, row))
@@ -233,31 +232,30 @@ namespace BatchMap
 
                         if (!found)
                         {
-                            Console.WriteLine("[MAP {0}] NPC couldn't spawn anywhere valid! Removing.");
-                            //EMF.NPCSpawns.RemoveAt(i); //todo: way to modify NPCs
+                            Console.WriteLine("[MAP {0}] NPC couldn't spawn anywhere valid! Removing.", mapID);
+                            mapFile.RemoveNPCSpawn(npcSpawn);
                             changesMade = true;
                         }
                     }
                 }
 
-                for (int i = mapFile.Chests.Count - 1; i >= 0; --i)
+                foreach(var chestSpawn in mapFile.Chests)
                 {
-                    var chest = mapFile.Chests[i];
-                    var rec = _pubProvider.EIFFile[chest.ItemID];
-                    if (chest.ItemID > _pubProvider.EIFFile.Data.Count || rec == null)
+                    var rec = _pubProvider.EIFFile[chestSpawn.ItemID];
+                    if (chestSpawn.ItemID > _pubProvider.EIFFile.Data.Count || rec == null)
                     {
-                        Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} uses non-existent Item #{3}. Removing.", mapID, chest.X, chest.Y, chest.ItemID);
-                        //EMF.Chests.RemoveAt(i); //todo: way to modify Chests
+                        Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} uses non-existent Item #{3}. Removing.", mapID, chestSpawn.X, chestSpawn.Y, chestSpawn.ItemID);
+                        mapFile.RemoveChestSpawn(chestSpawn);
                         changesMade = true;
                         continue;
                     }
 
-                    if (chest.X > mapFile.Properties.Width ||
-                        chest.Y > mapFile.Properties.Height ||
-                        mapFile.Tiles[chest.Y, chest.X] != TileSpec.Chest)
+                    if (chestSpawn.X > mapFile.Properties.Width ||
+                        chestSpawn.Y > mapFile.Properties.Height ||
+                        mapFile.Tiles[chestSpawn.Y, chestSpawn.X] != TileSpec.Chest)
                     {
-                        Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} points to a non-chest. Removing.", mapID, chest.X, chest.Y);
-                        //EMF.Chests.RemoveAt(i); //todo: way to modify Chests
+                        Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} points to a non-chest. Removing.", mapID, chestSpawn.X, chestSpawn.Y);
+                        mapFile.RemoveChestSpawn(chestSpawn);
                         changesMade = true;
                     }
                 }
@@ -280,7 +278,7 @@ namespace BatchMap
             }
         }
 
-        private static bool TileIsValidNPCSpawnPoint(IMapFile EMF, int x, int y)
+        private static bool TileIsValidNPCSpawnPoint(IReadOnlyMapFile EMF, int x, int y)
         {
             if (EMF.Warps[y, x] != null)
                 return false;
