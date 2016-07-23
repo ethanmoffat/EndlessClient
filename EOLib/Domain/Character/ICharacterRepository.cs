@@ -9,15 +9,11 @@ namespace EOLib.Domain.Character
     public interface ICharacterRepository
     {
         ICharacter ActiveCharacter { get; set; }
-
-        List<ICharacter> VisibleCharacters { get; set; }
     }
 
     public interface ICharacterProvider
     {
         ICharacter ActiveCharacter { get; }
-
-        IReadOnlyList<ICharacter> VisibleCharacters { get; }
     }
 
     public class CharacterRepository : ICharacterRepository, ICharacterProvider
@@ -25,8 +21,6 @@ namespace EOLib.Domain.Character
         public ICharacter ActiveCharacter { get; set; }
 
         public List<ICharacter> VisibleCharacters { get; set; }
-
-        IReadOnlyList<ICharacter> ICharacterProvider.VisibleCharacters { get { return VisibleCharacters; } }
 
         public CharacterRepository()
         {
