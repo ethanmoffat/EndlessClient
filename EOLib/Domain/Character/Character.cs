@@ -2,9 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Collections.Generic;
-using System.Linq;
-
 namespace EOLib.Domain.Character
 {
     public class Character : ICharacter
@@ -24,8 +21,6 @@ namespace EOLib.Domain.Character
         public byte ClassID { get; private set; }
 
         public AdminLevel AdminLevel { get; private set; }
-
-        public IReadOnlyList<short> Paperdoll { get; private set; }
 
         public ICharacterRenderProperties RenderProperties { get; private set; }
 
@@ -93,13 +88,6 @@ namespace EOLib.Domain.Character
             return character;
         }
 
-        public ICharacter WithPaperdoll(IEnumerable<short> paperdollItemIDs)
-        {
-            var character = MakeCopy(this);
-            character.Paperdoll = paperdollItemIDs.ToList();
-            return character;
-        }
-
         public ICharacter WithRenderProperties(ICharacterRenderProperties renderProperties)
         {
             var character = MakeCopy(this);
@@ -149,7 +137,6 @@ namespace EOLib.Domain.Character
                 AdminLevel = source.AdminLevel,
                 RenderProperties = source.RenderProperties,
                 Stats = source.Stats,
-                Paperdoll = source.Paperdoll,
                 MapID = source.MapID,
                 MapX = source.MapX,
                 MapY = source.MapY

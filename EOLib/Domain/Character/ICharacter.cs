@@ -2,8 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Collections.Generic;
-
 namespace EOLib.Domain.Character
 {
     public interface ICharacter
@@ -28,9 +26,6 @@ namespace EOLib.Domain.Character
         ICharacterStats Stats { get; }
 
         AdminLevel AdminLevel { get; }
-
-        //todo: this should be repository-ified
-        IReadOnlyList<short> Paperdoll { get; }
 
         int MapID { get; }
 
@@ -57,8 +52,6 @@ namespace EOLib.Domain.Character
         ICharacter WithStats(ICharacterStats stats);
 
         ICharacter WithAdminLevel(AdminLevel level);
-
-        ICharacter WithPaperdoll(IEnumerable<short> paperdollItemIDs);
 
         ICharacter WithMapID(int mapID);
 

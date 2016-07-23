@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
-using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
@@ -27,6 +26,7 @@ namespace EOLib.Domain.Login
         private readonly ILoginFileChecksumRepository _loginFileChecksumRepository;
         private readonly INewsRepository _newsRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
+        private readonly IPaperdollRepository _paperdollRepository;
 
         public LoginActions(IPacketSendService packetSendService,
                             IPacketTranslator<IAccountLoginData> loginPacketTranslator,
@@ -38,7 +38,8 @@ namespace EOLib.Domain.Login
                             ICurrentMapStateRepository currentMapStateRepository,
                             ILoginFileChecksumRepository loginFileChecksumRepository,
                             INewsRepository newsRepository,
-                            ICharacterInventoryRepository characterInventoryRepository)
+                            ICharacterInventoryRepository characterInventoryRepository,
+                            IPaperdollRepository paperdollRepository)
         {
             _packetSendService = packetSendService;
             _loginPacketTranslator = loginPacketTranslator;
@@ -51,6 +52,7 @@ namespace EOLib.Domain.Login
             _loginFileChecksumRepository = loginFileChecksumRepository;
             _newsRepository = newsRepository;
             _characterInventoryRepository = characterInventoryRepository;
+            _paperdollRepository = paperdollRepository;
         }
 
         public bool LoginParametersAreValid(ILoginParameters parameters)
@@ -100,8 +102,8 @@ namespace EOLib.Domain.Login
                 .WithGuildTag(data.GuildTag)
                 .WithClassID(data.ClassID)
                 .WithAdminLevel(data.AdminLevel)
-                .WithStats(data.CharacterStats)
-                .WithPaperdoll(data.Paperdoll);
+                .WithStats(data.CharacterStats);
+            _paperdollRepository.ActiveCharacterPaperdoll = data.Paperdoll.ToList();
 
             _playerInfoRepository.PlayerID = data.PlayerID;
             _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
