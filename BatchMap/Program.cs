@@ -137,7 +137,7 @@ namespace BatchMap
         private static void SetupDependencies()
         {
             var dependencyRegistrar = new DependencyRegistrar(_unityContainer = new UnityContainer());
-            var containers = new IDependencyContainer[] { new EOLibDependencyContainer(), new IODependencyContainer() };
+            var containers = new IDependencyContainer[] {new IODependencyContainer()};
 
             dependencyRegistrar.RegisterDependencies(containers);
             dependencyRegistrar.InitializeDependencies(containers.OfType<IInitializableContainer>().ToArray());
