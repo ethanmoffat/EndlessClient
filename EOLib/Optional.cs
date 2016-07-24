@@ -21,5 +21,15 @@ namespace EOLib
             Value = value;
             HasValue = true;
         }
+
+        public static implicit operator Optional<T>(T value)
+        {
+            return new Optional<T>(value);
+        }
+
+        public static implicit operator T(Optional<T> optional)
+        {
+            return optional.Value;
+        }
     }
 }
