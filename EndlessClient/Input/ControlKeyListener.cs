@@ -61,9 +61,9 @@ namespace EndlessClient.Input
                 {
                     if (Character.CanAttack)
                     {
-                        var info = OldWorld.Instance.ActiveMapRenderer.GetTileInfo((byte) Character.X, (byte) Character.Y);
-                        Character.Attack(direction, destX, destY); //destX and destY validity check above
-                        Renderer.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec);// && info.Spec == TileSpec.Water);
+                        //var info = OldWorld.Instance.ActiveMapRenderer.GetTileInfo((byte) Character.X, (byte) Character.Y);
+                        //Character.Attack(direction, destX, destY); //destX and destY validity check above
+                        //Renderer.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec); && info.Spec == TileSpec.Water);
                     }
                     else if (Character.Weight > Character.MaxWeight)
                     {

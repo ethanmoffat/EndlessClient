@@ -478,10 +478,10 @@ namespace EndlessClient.Rendering
                 {
                     rend.Character.Walk(direction, x, y, false);
 
-                    var ti = GetTileInfo(rend.Character.DestX, rend.Character.DestY);
-                    bool isWater = ti.ReturnType == TileInfoReturnType.IsTileSpec;// && ti.Spec == TileSpec.Water;
-                    bool isSpike = ti.ReturnType == TileInfoReturnType.IsTileSpec;// && ti.Spec == TileSpec.SpikesTrap;
-                    rend.PlayerWalk(isWater, isSpike);
+                    //var ti = GetTileInfo(rend.Character.DestX, rend.Character.DestY);
+                    //bool isWater = ti.ReturnType == TileInfoReturnType.IsTileSpec;// && ti.Spec == TileSpec.Water;
+                    //bool isSpike = ti.ReturnType == TileInfoReturnType.IsTileSpec;// && ti.Spec == TileSpec.SpikesTrap;
+                    //rend.PlayerWalk(isWater, isSpike);
                 }
             }
         }
@@ -495,8 +495,8 @@ namespace EndlessClient.Rendering
                 {
                     rend.Character.Attack(direction);
 
-                    var info = GetTileInfo((byte) rend.Character.X, (byte) rend.Character.Y);
-                    rend.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec);// && info.Spec == TileSpec.Water);
+                    //var info = GetTileInfo((byte) rend.Character.X, (byte) rend.Character.Y);
+                    //rend.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec);// && info.Spec == TileSpec.Water);
                 }
             }
         }

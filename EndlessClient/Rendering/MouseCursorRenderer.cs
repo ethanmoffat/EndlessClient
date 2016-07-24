@@ -248,27 +248,27 @@ namespace EndlessClient.Rendering
                 if (topMapItem != null)
                     HandleMapItemClick(topMapItem);
 
-                switch (ti.ReturnType)
-                {
-                    case TileInfoReturnType.IsMapSign:
-                        //var signInfo = (MapSign)ti.MapElement;
-                        //EOMessageBox.Show(signInfo.Message, signInfo.Title, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                        break;
-                    case TileInfoReturnType.IsOtherPlayer:
-                        break;
-                    case TileInfoReturnType.IsOtherNPC:
-                        break;
-                    case TileInfoReturnType.IsTileSpec:
-                        //HandleTileSpecClick(ti.Spec);
-                        break;
-                    default:
-                        if (_mainCharacter.NeedsSpellTarget)
-                        {
-                            //cancel spell targeting if an invalid target was selected
-                            _mainCharacter.SelectSpell(-1);
-                        }
-                        break;
-                }
+                //switch (ti.ReturnType)
+                //{
+                //    case TileInfoReturnType.IsMapSign:
+                //        var signInfo = (MapSign)ti.MapElement;
+                //        EOMessageBox.Show(signInfo.Message, signInfo.Title, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                //        break;
+                //    case TileInfoReturnType.IsOtherPlayer:
+                //        break;
+                //    case TileInfoReturnType.IsOtherNPC:
+                //        break;
+                //    case TileInfoReturnType.IsTileSpec:
+                //        HandleTileSpecClick(ti.Spec);
+                //        break;
+                //    default:
+                //        if (_mainCharacter.NeedsSpellTarget)
+                //        {
+                //            //cancel spell targeting if an invalid target was selected
+                //            _mainCharacter.SelectSpell(-1);
+                //        }
+                //        break;
+                //}
             }
         }
 

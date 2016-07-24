@@ -10,8 +10,6 @@ namespace EOLib.Domain.Map
 {
     public interface IMapCellState
     {
-        TileInfoReturnType ReturnType { get; }
-
         IReadOnlyList<IMapItem> Items { get; }
 
         TileSpec TileSpec { get; }

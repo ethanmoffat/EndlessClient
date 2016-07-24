@@ -10,9 +10,7 @@ namespace EOLib.Domain.Map
 {
     public class MapCellState : IMapCellState
     {
-        public TileInfoReturnType ReturnType { get; private set; }
-
-        public IReadOnlyList<IMapItem> Items { get; private set; }
+        public IReadOnlyList<IMapItem> Items { get; set; }
 
         public TileSpec TileSpec { get; set; }
 
@@ -35,11 +33,6 @@ namespace EOLib.Domain.Map
             Chest = new Optional<IMapChest>();
             Warp = new Optional<IMapWarp>();
             Sign = new Optional<IMapSign>();
-        }
-
-        public void SetItems(List<IMapItem> items)
-        {
-            Items = new List<IMapItem>(items);
         }
     }
 }

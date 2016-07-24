@@ -100,30 +100,30 @@ namespace EndlessClient.Input
 
         private void _checkSpecAndWalkIfValid(byte destX, byte destY, EODirection direction)
         {
-            var mapRend = OldWorld.Instance.ActiveMapRenderer;
-            var info = mapRend.GetTileInfo(destX, destY);
-            var specAtDest = TileSpec.None;//info.Spec;
+            //var mapRend = OldWorld.Instance.ActiveMapRenderer;
+            //var info = mapRend.GetTileInfo(destX, destY);
+            //var specAtDest = info.Spec;
 
-            switch (info.ReturnType)
-            {
-                case TileInfoReturnType.IsOtherPlayer:
-                    if (Renderer.NoWall) goto case TileInfoReturnType.IsTileSpec;
+            //switch (info.ReturnType)
+            //{
+            //    case TileInfoReturnType.IsOtherPlayer:
+            //        if (Renderer.NoWall) goto case TileInfoReturnType.IsTileSpec;
 
-                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
-                        EOResourceID.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
-                    if (_startWalkingThroughPlayerTime == null)
-                        _startWalkingThroughPlayerTime = DateTime.Now;
-                    else if ((DateTime.Now - _startWalkingThroughPlayerTime.Value).TotalSeconds > 5)
-                    {
-                        _startWalkingThroughPlayerTime = null;
-                        goto case TileInfoReturnType.IsTileSpec;
-                    }
-                    break;
-                case TileInfoReturnType.IsOtherNPC:
-                    if (Renderer.NoWall) goto case TileInfoReturnType.IsTileSpec;
-                    break;
-                case TileInfoReturnType.IsWarpSpec:
-                    if (Renderer.NoWall) goto case TileInfoReturnType.IsTileSpec;
+            //        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
+            //            EOResourceID.STATUS_LABEL_KEEP_MOVING_THROUGH_PLAYER);
+            //        if (_startWalkingThroughPlayerTime == null)
+            //            _startWalkingThroughPlayerTime = DateTime.Now;
+            //        else if ((DateTime.Now - _startWalkingThroughPlayerTime.Value).TotalSeconds > 5)
+            //        {
+            //            _startWalkingThroughPlayerTime = null;
+            //            goto case TileInfoReturnType.IsTileSpec;
+            //        }
+            //        break;
+            //    case TileInfoReturnType.IsOtherNPC:
+            //        if (Renderer.NoWall) goto case TileInfoReturnType.IsTileSpec;
+            //        break;
+            //    case TileInfoReturnType.IsWarpSpec:
+            //        if (Renderer.NoWall) goto case TileInfoReturnType.IsTileSpec;
 
                     //var warpInfo = (Warp) info.MapElement;
                     //if (warpInfo.DoorType != DoorSpec.NoDoor)
@@ -174,11 +174,11 @@ namespace EndlessClient.Input
                     //    //normal walking
                     //    _walkIfValid(TileSpec.None, direction, destX, destY);
                     //}
-                    break;
-                case TileInfoReturnType.IsTileSpec:
-                    _walkIfValid(specAtDest, direction, destX, destY);
-                    break;
-            }
+            //        break;
+            //    case TileInfoReturnType.IsTileSpec:
+            //        _walkIfValid(specAtDest, direction, destX, destY);
+            //        break;
+            //}
         }
 
         private void _walkIfValid(TileSpec spec, EODirection dir, byte destX, byte destY)

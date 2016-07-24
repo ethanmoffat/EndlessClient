@@ -88,10 +88,10 @@ namespace EndlessClient.Rendering
         {
             bool isEdge = false;
 
-            var info = _parentRenderer.GetTileInfo((byte)col, (byte)row);
-            switch (info.ReturnType)
-            {
-                case TileInfoReturnType.IsTileSpec:
+            //var info = _parentRenderer.GetTileInfo((byte)col, (byte)row);
+            //switch (info.ReturnType)
+            //{
+            //    case TileInfoReturnType.IsTileSpec:
                     //switch (info.Spec)
                     //{
                     //    case TileSpec.FakeWall:
@@ -115,29 +115,29 @@ namespace EndlessClient.Rendering
                     //        isEdge = true;
                     //        break;
                     //}
-                    break;
-                case TileInfoReturnType.IsOtherNPC:
-                    //draw NPC - red or purple depending on type
-                    //var npcInfo = (OldNPC) info.MapElement;
-                    //if (npcInfo.Data.Type == NPCType.Aggressive || npcInfo.Data.Type == NPCType.Passive)
-                    //{
-                    //    miniMapRect.Offset((int) MiniMapGfx.Red*miniMapRect.Width, 0);
-                    //}
-                    //else
-                    //{
-                    //    miniMapRect.Offset((int) MiniMapGfx.Purple*miniMapRect.Width, 0);
-                    //}
-                    break;
-                case TileInfoReturnType.IsOtherPlayer:
-                    miniMapRect.Offset((int)MiniMapGfx.Green * miniMapRect.Width, 0);
-                    //draw Green
-                    break;
-                case TileInfoReturnType.IsWarpSpec:
-                    //var warpInfo = (Warp) info.MapElement;
-                    //if (warpInfo.DoorType != 0)
-                    //    miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
-                    break;
-            }
+                //    break;
+                //case TileInfoReturnType.IsOtherNPC:
+                //    //draw NPC - red or purple depending on type
+                //    var npcInfo = (OldNPC) info.MapElement;
+                //    if (npcInfo.Data.Type == NPCType.Aggressive || npcInfo.Data.Type == NPCType.Passive)
+                //    {
+                //        miniMapRect.Offset((int) MiniMapGfx.Red*miniMapRect.Width, 0);
+                //    }
+                //    else
+                //    {
+                //        miniMapRect.Offset((int) MiniMapGfx.Purple*miniMapRect.Width, 0);
+                //    }
+                //    break;
+                //case TileInfoReturnType.IsOtherPlayer:
+                //    miniMapRect.Offset((int)MiniMapGfx.Green * miniMapRect.Width, 0);
+                //    //draw Green
+                //    break;
+                //case TileInfoReturnType.IsWarpSpec:
+                //    var warpInfo = (Warp) info.MapElement;
+                //    if (warpInfo.DoorType != 0)
+                //        miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
+                //    break;
+            //}
 
             return isEdge;
         }

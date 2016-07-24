@@ -497,8 +497,8 @@ namespace EndlessClient
                 var shouldSend = true;
                 if (!(x == 255 && y == 255))
                 {
-                    var ti = OldWorld.Instance.ActiveMapRenderer.GetTileInfo(x, y);
-                    if (ti.ReturnType == TileInfoReturnType.IsOtherNPC)// && 
+                    //var ti = OldWorld.Instance.ActiveMapRenderer.GetTileInfo(x, y);
+                    //if (ti.ReturnType == TileInfoReturnType.IsOtherNPC) && 
                         //((OldNPC)ti.MapElement).Opponent != null &&
                         //((OldNPC)ti.MapElement).Opponent != this)
                     {
