@@ -122,7 +122,6 @@
     <Compile Include="Domain\Login\CharacterLoginReply.cs" />
     <Compile Include="Domain\Map\ICurrentMapStateRepository.cs" />
     <Compile Include="Domain\Map\OldMapItem.cs" />
-    <Compile Include="Domain\Map\TileInfoReturnType.cs" />
     <Compile Include="Domain\Protocol\BanType.cs" />
     <Compile Include="Domain\Protocol\IInitializationData.cs" />
     <Compile Include="Domain\Protocol\InitFileType.cs" />
