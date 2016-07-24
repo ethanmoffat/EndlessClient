@@ -92,41 +92,41 @@ namespace EndlessClient.Rendering
             switch (info.ReturnType)
             {
                 case TileInfoReturnType.IsTileSpec:
-                    switch (info.Spec)
-                    {
-                        case TileSpec.FakeWall:
-                        case TileSpec.Wall:
-                            miniMapRect.Offset((int)MiniMapGfx.Solid * miniMapRect.Width, 0);
-                            //draw block
-                            break;
-                        case TileSpec.BankVault:
-                        case TileSpec.ChairAll:
-                        case TileSpec.ChairDown:
-                        case TileSpec.ChairLeft:
-                        case TileSpec.ChairRight:
-                        case TileSpec.ChairUp:
-                        case TileSpec.ChairDownRight:
-                        case TileSpec.ChairUpLeft:
-                        case TileSpec.Chest:
-                            //draw exclamation
-                            miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
-                            break;
-                        case TileSpec.MapEdge:
-                            isEdge = true;
-                            break;
-                    }
+                    //switch (info.Spec)
+                    //{
+                    //    case TileSpec.FakeWall:
+                    //    case TileSpec.Wall:
+                    //        miniMapRect.Offset((int)MiniMapGfx.Solid * miniMapRect.Width, 0);
+                    //        //draw block
+                    //        break;
+                    //    case TileSpec.BankVault:
+                    //    case TileSpec.ChairAll:
+                    //    case TileSpec.ChairDown:
+                    //    case TileSpec.ChairLeft:
+                    //    case TileSpec.ChairRight:
+                    //    case TileSpec.ChairUp:
+                    //    case TileSpec.ChairDownRight:
+                    //    case TileSpec.ChairUpLeft:
+                    //    case TileSpec.Chest:
+                    //        //draw exclamation
+                    //        miniMapRect.Offset((int)MiniMapGfx.Blue * miniMapRect.Width, 0);
+                    //        break;
+                    //    case TileSpec.MapEdge:
+                    //        isEdge = true;
+                    //        break;
+                    //}
                     break;
                 case TileInfoReturnType.IsOtherNPC:
                     //draw NPC - red or purple depending on type
-                    var npcInfo = (OldNPC) info.MapElement;
-                    if (npcInfo.Data.Type == NPCType.Aggressive || npcInfo.Data.Type == NPCType.Passive)
-                    {
-                        miniMapRect.Offset((int) MiniMapGfx.Red*miniMapRect.Width, 0);
-                    }
-                    else
-                    {
-                        miniMapRect.Offset((int) MiniMapGfx.Purple*miniMapRect.Width, 0);
-                    }
+                    //var npcInfo = (OldNPC) info.MapElement;
+                    //if (npcInfo.Data.Type == NPCType.Aggressive || npcInfo.Data.Type == NPCType.Passive)
+                    //{
+                    //    miniMapRect.Offset((int) MiniMapGfx.Red*miniMapRect.Width, 0);
+                    //}
+                    //else
+                    //{
+                    //    miniMapRect.Offset((int) MiniMapGfx.Purple*miniMapRect.Width, 0);
+                    //}
                     break;
                 case TileInfoReturnType.IsOtherPlayer:
                     miniMapRect.Offset((int)MiniMapGfx.Green * miniMapRect.Width, 0);

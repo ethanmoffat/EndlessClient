@@ -6,6 +6,7 @@ using System;
 
 namespace EOLib.Domain.Map
 {
+    //todo: remove use of OldMapItem for IMapItem
     public class OldMapItem
     {
         public short UniqueID { get; set; }

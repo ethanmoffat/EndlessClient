@@ -16,7 +16,6 @@ namespace EOLib.Domain.Map
 
         public int Amount { get; private set; }
 
-        //mostly immutable because the only thing that should ever change is the amount (or it will be deleted entirely)
         public MapItem(short uid, short itemID, byte x, byte y)
         {
             UniqueID = uid;

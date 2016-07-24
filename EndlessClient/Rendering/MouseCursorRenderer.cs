@@ -114,22 +114,22 @@ namespace EndlessClient.Rendering
             if (ti == null) return;
 
             _hideCursor = false;
-            switch (ti.ReturnType)
-            {
-                case TileInfoReturnType.IsOtherPlayer:
-                case TileInfoReturnType.IsOtherNPC:
-                    _cursorSourceRect.Location = new Point(_mouseCursor.Width / 5, 0);
-                    break;
-                case TileInfoReturnType.IsTileSpec:
-                    UpdateCursorForTileSpec(ti.Spec);
-                    break;
-                case TileInfoReturnType.IsMapSign:
-                    _hideCursor = true;
-                    break;
-                case TileInfoReturnType.IsWarpSpec:
-                    _cursorSourceRect.Location = new Point(0, 0);
-                    break;
-            }
+            //switch (ti.ReturnType)
+            //{
+            //    case TileInfoReturnType.IsOtherPlayer:
+            //    case TileInfoReturnType.IsOtherNPC:
+            //        _cursorSourceRect.Location = new Point(_mouseCursor.Width / 5, 0);
+            //        break;
+            //    case TileInfoReturnType.IsTileSpec:
+            //        UpdateCursorForTileSpec(ti.Spec);
+            //        break;
+            //    case TileInfoReturnType.IsMapSign:
+            //        _hideCursor = true;
+            //        break;
+            //    case TileInfoReturnType.IsWarpSpec:
+            //        _cursorSourceRect.Location = new Point(0, 0);
+            //        break;
+            //}
         }
 
         private void UpdateDisplayedMapItemName()
@@ -224,7 +224,7 @@ namespace EndlessClient.Rendering
             _gridY = (int) Math.Round((msY - _gridX*16 - 144 + _mainCharacter.OffsetY)/16.0);
         }
 
-        private ITileInfo GetTileInfoAtGridCoordinates()
+        private IMapCellState GetTileInfoAtGridCoordinates()
         {
             if (_gridX >= 0 && _gridX <= MapRef.Properties.Width && _gridY >= 0 && _gridY <= MapRef.Properties.Height)
                 return _parentMapRenderer.GetTileInfo((byte)_gridX, (byte)_gridY);
@@ -259,7 +259,7 @@ namespace EndlessClient.Rendering
                     case TileInfoReturnType.IsOtherNPC:
                         break;
                     case TileInfoReturnType.IsTileSpec:
-                        HandleTileSpecClick(ti.Spec);
+                        //HandleTileSpecClick(ti.Spec);
                         break;
                     default:
                         if (_mainCharacter.NeedsSpellTarget)

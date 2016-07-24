@@ -4,7 +4,8 @@
 
 namespace EOLib.Domain.Map
 {
-    public interface IMapElement
+    public interface IMapChest
     {
+        //todo: figure out properties
     }
 }

@@ -80,7 +80,11 @@
     <Compile Include="Domain\Extensions\PaperdollRepositoryExtensions.cs" />
     <Compile Include="Domain\Login\INewsRepository.cs" />
     <Compile Include="Domain\Login\LoginRequestCompletedData.cs" />
+    <Compile Include="Domain\Map\IMapCellState.cs" />
+    <Compile Include="Domain\Map\IMapChest.cs" />
     <Compile Include="Domain\Map\IMapItem.cs" />
+    <Compile Include="Domain\Map\IMapSign.cs" />
+    <Compile Include="Domain\Map\IMapWarp.cs" />
     <Compile Include="Domain\Map\MapItem.cs" />
     <Compile Include="Domain\NPC\IMapNPC.cs" />
     <Compile Include="Domain\NPC\MapNpc.cs" />
@@ -110,12 +114,8 @@
     <Compile Include="Domain\Login\LoginReply.cs" />
     <Compile Include="Domain\Login\LoginRequestGrantedData.cs" />
     <Compile Include="Domain\Login\CharacterLoginReply.cs" />
-    <Compile Include="Domain\Map\BasicTileInfo.cs" />
     <Compile Include="Domain\Map\ICurrentMapStateRepository.cs" />
-    <Compile Include="Domain\Map\IMapElement.cs" />
-    <Compile Include="Domain\Map\ITileInfo.cs" />
     <Compile Include="Domain\Map\OldMapItem.cs" />
-    <Compile Include="Domain\Map\NPCTileInfo.cs" />
     <Compile Include="Domain\Map\TileInfoReturnType.cs" />
     <Compile Include="Domain\Protocol\BanType.cs" />
     <Compile Include="Domain\Protocol\IInitializationData.cs" />
@@ -244,6 +244,7 @@
     <Compile Include="Net\Translators\LoginRequestGrantedPacketTranslator.cs" />
     <Compile Include="Net\Translators\MapStatePacketTranslator.cs" />
     <Compile Include="Net\Translators\PacketTranslatorContainer.cs" />
+    <Compile Include="Optional.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Array2D.cs" />
     <Compile Include="Win32.cs" />

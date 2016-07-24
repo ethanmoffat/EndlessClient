@@ -498,9 +498,9 @@ namespace EndlessClient
                 if (!(x == 255 && y == 255))
                 {
                     var ti = OldWorld.Instance.ActiveMapRenderer.GetTileInfo(x, y);
-                    if (ti.ReturnType == TileInfoReturnType.IsOtherNPC && 
-                        ((OldNPC)ti.MapElement).Opponent != null &&
-                        ((OldNPC)ti.MapElement).Opponent != this)
+                    if (ti.ReturnType == TileInfoReturnType.IsOtherNPC)// && 
+                        //((OldNPC)ti.MapElement).Opponent != null &&
+                        //((OldNPC)ti.MapElement).Opponent != this)
                     {
                         EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_UNABLE_TO_ATTACK);
                         shouldSend = false;

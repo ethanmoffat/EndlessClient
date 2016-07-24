@@ -102,7 +102,7 @@ namespace EndlessClient.Input
         {
             var mapRend = OldWorld.Instance.ActiveMapRenderer;
             var info = mapRend.GetTileInfo(destX, destY);
-            var specAtDest = info.Spec;
+            var specAtDest = TileSpec.None;//info.Spec;
 
             switch (info.ReturnType)
             {

@@ -233,28 +233,30 @@ namespace EndlessClient.Rendering
             _drawingEvent.Set();
         }
 
-        public ITileInfo GetTileInfo(byte destX, byte destY)
+        public IMapCellState GetTileInfo(byte destX, byte destY)
         {
-            if (MapRef.Properties.Width < destX || MapRef.Properties.Height < destY)
-                return new BasicTileInfoWithSpec(TileSpec.MapEdge);
+            return null;
 
-            lock (_npcListLock)
-            {
-                int ndx;
-                if ((ndx = _npcRenderers.FindIndex(_npc => (!_npc.NPC.Walking && _npc.NPC.X == destX && _npc.NPC.Y == destY)
-                    || _npc.NPC.Walking && _npc.NPC.DestX == destX && _npc.NPC.DestY == destY)) >= 0)
-                {
-                    NPCRenderer retNPC = _npcRenderers[ndx];
-                    if (!retNPC.NPC.Dying)
-                        return new NPCTileInfo(retNPC.NPC);
-                }
-            }
+            //if (MapRef.Properties.Width < destX || MapRef.Properties.Height < destY)
+            //    return new BasicTileInfoWithSpec(TileSpec.MapEdge);
 
-            lock (_characterListLock)
-            {
-                if (_characterRenderers.Select(x => x.Character).Any(player => player.X == destX && player.Y == destY))
-                    return new BasicTileInfo(TileInfoReturnType.IsOtherPlayer);
-            }
+            //lock (_npcListLock)
+            //{
+            //    int ndx;
+            //    if ((ndx = _npcRenderers.FindIndex(_npc => (!_npc.NPC.Walking && _npc.NPC.X == destX && _npc.NPC.Y == destY)
+            //        || _npc.NPC.Walking && _npc.NPC.DestX == destX && _npc.NPC.DestY == destY)) >= 0)
+            //    {
+            //        NPCRenderer retNPC = _npcRenderers[ndx];
+            //        if (!retNPC.NPC.Dying)
+            //            return new NPCTileInfo(retNPC.NPC);
+            //    }
+            //}
+
+            //lock (_characterListLock)
+            //{
+            //    if (_characterRenderers.Select(x => x.Character).Any(player => player.X == destX && player.Y == destY))
+            //        return new BasicTileInfo(TileInfoReturnType.IsOtherPlayer);
+            //}
 
             //var warp = MapRef.Warps[destY, destX];
             //if (warp != null)
@@ -264,17 +266,17 @@ namespace EndlessClient.Rendering
             //if (sign.X == destX && sign.Y == destY)
             //    return new MapSignTileInfo(new MapSign());
 
-            if(destX <= MapRef.Properties.Width && destY <= MapRef.Properties.Height)
-            {
-                var tile = MapRef.Tiles[destY, destX];
-                if (tile != TileSpec.None)
-                    return new BasicTileInfoWithSpec(tile);
-            }
+            //if(destX <= MapRef.Properties.Width && destY <= MapRef.Properties.Height)
+            //{
+            //    var tile = MapRef.Tiles[destY, destX];
+            //    if (tile != TileSpec.None)
+            //        return new BasicTileInfoWithSpec(tile);
+            //}
             
-            //don't need to check zero bounds: because byte type is always positive (unsigned)
-            return destX <= MapRef.Properties.Width && destY <= MapRef.Properties.Height
-                ? new BasicTileInfoWithSpec(TileSpec.None)
-                : new BasicTileInfoWithSpec(TileSpec.MapEdge);
+            ////don't need to check zero bounds: because byte type is always positive (unsigned)
+            //return destX <= MapRef.Properties.Width && destY <= MapRef.Properties.Height
+            //    ? new BasicTileInfoWithSpec(TileSpec.None)
+            //    : new BasicTileInfoWithSpec(TileSpec.MapEdge);
         }
 
         public void AddMapItem(OldMapItem newItem)
@@ -477,8 +479,8 @@ namespace EndlessClient.Rendering
                     rend.Character.Walk(direction, x, y, false);
 
                     var ti = GetTileInfo(rend.Character.DestX, rend.Character.DestY);
-                    bool isWater = ti.ReturnType == TileInfoReturnType.IsTileSpec && ti.Spec == TileSpec.Water;
-                    bool isSpike = ti.ReturnType == TileInfoReturnType.IsTileSpec && ti.Spec == TileSpec.SpikesTrap;
+                    bool isWater = ti.ReturnType == TileInfoReturnType.IsTileSpec;// && ti.Spec == TileSpec.Water;
+                    bool isSpike = ti.ReturnType == TileInfoReturnType.IsTileSpec;// && ti.Spec == TileSpec.SpikesTrap;
                     rend.PlayerWalk(isWater, isSpike);
                 }
             }
@@ -494,7 +496,7 @@ namespace EndlessClient.Rendering
                     rend.Character.Attack(direction);
 
                     var info = GetTileInfo((byte) rend.Character.X, (byte) rend.Character.Y);
-                    rend.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec && info.Spec == TileSpec.Water);
+                    rend.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec);// && info.Spec == TileSpec.Water);
                 }
             }
         }

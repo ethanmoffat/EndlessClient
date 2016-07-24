@@ -12,39 +12,39 @@ namespace EOLib.Domain.Map
     {
         short CurrentMapID { get; set; }
 
+        bool ShowMiniMap { get; set; }
+
         List<ICharacter> Characters { get; set; }
 
         List<IMapNPC> NPCs { get; set; }
 
         List<IMapItem> MapItems { get; set; }
-        
-        bool ShowMiniMap { get; set; }
     }
 
     public interface ICurrentMapStateProvider
     {
         short CurrentMapID { get; }
 
+        bool ShowMiniMap { get; }
+
         IReadOnlyList<ICharacter> Characters { get; }
 
         IReadOnlyList<IMapNPC> NPCs { get; }
 
         IReadOnlyList<IMapItem> MapItems { get; }
-
-        bool ShowMiniMap { get; }
     }
 
     public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider
     {
         public short CurrentMapID { get; set; }
 
+        public bool ShowMiniMap { get; set; }
+
         public List<ICharacter> Characters { get; set; }
 
         public List<IMapNPC> NPCs { get; set; }
 
         public List<IMapItem> MapItems { get; set; }
-
-        public bool ShowMiniMap { get; set; }
 
         IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters { get { return Characters; } }
 
