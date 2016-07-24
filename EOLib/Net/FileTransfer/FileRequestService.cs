@@ -39,7 +39,7 @@ namespace EOLib.Net.FileTransfer
 
             var fileType = (InitReply)response.ReadChar();
             if (fileType != InitReply.MapFile)
-                throw new EmptyPacketReceivedException();
+                throw new MalformedPacketException("Invalid file type " + fileType + " when requesting a map file", response);
 
             var fileData = response.ReadBytes(response.Length - response.ReadPosition);
             

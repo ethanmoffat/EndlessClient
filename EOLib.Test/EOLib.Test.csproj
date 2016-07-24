@@ -84,6 +84,10 @@
       <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
       <Name>EOLib.DependencyInjection</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
+      <Project>{AA07776B-3F05-404A-BA8A-24970A91C024}</Project>
+      <Name>EOLib.IO</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EOLib\EOLib.csproj">
       <Project>{EDB5AD93-303D-4B07-9FAD-F6A8295D2390}</Project>
       <Name>EOLib</Name>

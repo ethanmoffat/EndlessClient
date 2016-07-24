@@ -5,10 +5,11 @@
 using System;
 using System.Linq;
 using EOLib.Domain.Protocol;
-using EOLib.IO.Old;
+using EOLib.IO.Pub;
 using EOLib.IO.Services;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using EOLib.Net.FileTransfer;
 using EOLib.Test.TestHelpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -19,14 +20,21 @@ namespace EOLib.Test.IO.Services
     public class FileRequestServiceTest
     {
         private IFileRequestService _fileRequestService;
+        
         private IPacketSendService _packetSendService;
+        private INumberEncoderService _numberEncoderService;
+        private IMapStringEncoderService _mapStringEncoderService;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _packetSendService = Mock.Of<IPacketSendService>();
+            _numberEncoderService = new NumberEncoderService();
+            _mapStringEncoderService = new MapStringEncoderService();
 
-            _fileRequestService = new FileRequestService(_packetSendService);
+            _fileRequestService = new FileRequestService(_packetSendService,
+                                                         _numberEncoderService,
+                                                         _mapStringEncoderService);
         }
 
         #region RequestFile Tests
@@ -36,7 +44,7 @@ namespace EOLib.Test.IO.Services
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Account, PacketAction.Accept);
 
-            var task = _fileRequestService.RequestFile<ItemRecord>(InitFileType.Item);
+            var task = _fileRequestService.RequestFile(InitFileType.Item);
 
             Assert.IsTrue(task.IsFaulted);
             Assert.IsInstanceOfType((task.Exception ?? new AggregateException()).InnerExceptions.Single(),
@@ -48,7 +56,7 @@ namespace EOLib.Test.IO.Services
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, (byte)InitReply.ItemFile, 33);
 
-            var task = _fileRequestService.RequestFile<ItemRecord>(InitFileType.Item);
+            var task = _fileRequestService.RequestFile(InitFileType.Item);
 
             Assert.IsTrue(task.IsFaulted);
             Assert.IsInstanceOfType((task.Exception ?? new AggregateException()).InnerExceptions.Single(),
@@ -66,7 +74,7 @@ namespace EOLib.Test.IO.Services
                 Mock.Get(_packetSendService).Setup(x => x.SendEncodedPacketAndWaitAsync(It.IsAny<IPacket>()))
                     .Callback((IPacket packet) => packetIsCorrect = IsCorrectFileRequestPacket(packet, localType));
 
-                _fileRequestService.RequestFile<ItemRecord>(type);
+                _fileRequestService.RequestFile(type);
 
                 Assert.IsTrue(packetIsCorrect, "Incorrect packet for {0}", type);
             }
@@ -83,10 +91,10 @@ namespace EOLib.Test.IO.Services
                 AggregateException aggEx = null;
                 switch (type)
                 {
-                    case InitFileType.Item: aggEx = _fileRequestService.RequestFile<ItemRecord>(type).Exception; break;
-                    case InitFileType.Npc: aggEx = _fileRequestService.RequestFile<NPCRecord>(type).Exception; break;
-                    case InitFileType.Spell: aggEx = _fileRequestService.RequestFile<SpellRecord>(type).Exception; break;
-                    case InitFileType.Class: aggEx = _fileRequestService.RequestFile<ClassRecord>(type).Exception; break;
+                    case InitFileType.Item: aggEx = _fileRequestService.RequestFile(type).Exception; break;
+                    case InitFileType.Npc: aggEx = _fileRequestService.RequestFile(type).Exception; break;
+                    case InitFileType.Spell: aggEx = _fileRequestService.RequestFile(type).Exception; break;
+                    case InitFileType.Class: aggEx = _fileRequestService.RequestFile(type).Exception; break;
                 }
 
                 if (aggEx != null)
@@ -103,18 +111,18 @@ namespace EOLib.Test.IO.Services
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Account, PacketAction.Accept);
 
-            var task = _fileRequestService.RequestFile<ItemRecord>(InitFileType.Item);
+            var task = _fileRequestService.RequestMapFile(1);
 
             Assert.IsTrue(task.IsFaulted);
             Assert.IsInstanceOfType((task.Exception ?? new AggregateException()).InnerExceptions.Single(), typeof (EmptyPacketReceivedException));
         }
 
         [TestMethod]
-        public void RequestMapFile_ResponsePacketInvalidExtraByte_ThrowsMalformedPacketException()
+        public void RequestMapFile_ResponsePacketHasIncorrectFileType_ThrowsMalformedPacketException()
         {
-            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, (byte) InitReply.MapFile, 33);
+            Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, (byte) InitReply.SpellFile, 33);
 
-            var task = _fileRequestService.RequestFile<ItemRecord>(InitFileType.Item);
+            var task = _fileRequestService.RequestMapFile(1);
 
             Assert.IsTrue(task.IsFaulted);
             Assert.IsInstanceOfType((task.Exception ?? new AggregateException()).InnerExceptions.Single(), typeof (MalformedPacketException));
@@ -126,7 +134,7 @@ namespace EOLib.Test.IO.Services
             var packetIsCorrect = false;
             Mock.Get(_packetSendService).Setup(x => x.SendEncodedPacketAndWaitAsync(It.IsAny<IPacket>())).Callback((IPacket packet) => packetIsCorrect = IsCorrectFileRequestPacket(packet, InitFileType.Map));
 
-            _fileRequestService.RequestFile<ItemRecord>(InitFileType.Map);
+            _fileRequestService.RequestMapFile(1);
 
             Assert.IsTrue(packetIsCorrect, "Incorrect packet for Map");
         }
@@ -144,6 +152,8 @@ namespace EOLib.Test.IO.Services
         {
             IPacketBuilder packetBuilder = new PacketBuilder();
 
+            var nes = new NumberEncoderService();
+
             switch (type)
             {
                 case InitFileType.Item:
@@ -152,7 +162,8 @@ namespace EOLib.Test.IO.Services
                         .AddString("EIF").AddInt(1) //RID
                         .AddShort(2) //Len
                         .AddByte(1) //filler byte
-                        .AddBytes(new ItemRecord(1) {Name = "Test1"}.SerializeToByteArray()).AddBytes(new ItemRecord(2) {Name = "EOF"}.SerializeToByteArray());
+                        .AddBytes(new EIFRecord { ID = 1, Name = "Test1" }.SerializeToByteArray(nes))
+                        .AddBytes(new EIFRecord { ID = 2, Name = "eof" }.SerializeToByteArray(nes));
                     break;
                 case InitFileType.Npc:
                     packetBuilder = packetBuilder
@@ -160,7 +171,8 @@ namespace EOLib.Test.IO.Services
                         .AddString("ENF").AddInt(1) //RID
                         .AddShort(2) //Len
                         .AddByte(1) //filler byte
-                        .AddBytes(new NPCRecord(1) {Name = "Test1"}.SerializeToByteArray()).AddBytes(new NPCRecord(2) {Name = "EOF"}.SerializeToByteArray());
+                        .AddBytes(new ENFRecord { ID = 1, Name = "Test1" }.SerializeToByteArray(nes))
+                        .AddBytes(new ENFRecord { ID = 2, Name = "eof" }.SerializeToByteArray(nes));
                     break;
                 case InitFileType.Spell:
                     packetBuilder = packetBuilder
@@ -168,8 +180,8 @@ namespace EOLib.Test.IO.Services
                         .AddString("ESF").AddInt(1) //RID
                         .AddShort(2) //Len
                         .AddByte(1) //filler byte
-                        .AddBytes(new SpellRecord(1) {Name = "Test1", Shout = ""}.SerializeToByteArray())
-                        .AddBytes(new SpellRecord(2) {Name = "EOF", Shout = ""}.SerializeToByteArray());
+                        .AddBytes(new ESFRecord { ID = 1, Name = "Test1", Shout = "" }.SerializeToByteArray(nes))
+                        .AddBytes(new ESFRecord { ID = 2, Name = "eof", Shout = "" }.SerializeToByteArray(nes));
                     break;
                 case InitFileType.Class:
                     packetBuilder = packetBuilder
@@ -177,7 +189,8 @@ namespace EOLib.Test.IO.Services
                         .AddString("ECF").AddInt(1) //RID
                         .AddShort(2) //Len
                         .AddByte(1) //filler byte
-                        .AddBytes(new ClassRecord(1) {Name = "Test1"}.SerializeToByteArray()).AddBytes(new ClassRecord(2) {Name = "EOF"}.SerializeToByteArray());
+                        .AddBytes(new ECFRecord { ID = 1, Name = "Test1" }.SerializeToByteArray(nes))
+                        .AddBytes(new ECFRecord { ID = 2, Name = "eof" }.SerializeToByteArray(nes));
                     break;
             }
 
