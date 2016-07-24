@@ -23,6 +23,9 @@ namespace EOLib.Domain.Map
 
         public IMapCellState GetCellStateAt(int x, int y)
         {
+            if (x < 0 || y < 0 || x > CurrentMap.Properties.Width || y > CurrentMap.Properties.Height)
+                return new MapCellState {TileSpec = TileSpec.MapEdge};
+
             var tileSpec = CurrentMap.Tiles[y, x];
             var warp = CurrentMap.Warps[y, x];
             var chest = CurrentMap.Chests.FirstOrDefault(c => c.X == x && c.Y == y);
