@@ -2,7 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EOLib.Domain.NPC
+namespace EOLib.Domain.Map
 {
     public class MapNPC : IMapNPC
     {
