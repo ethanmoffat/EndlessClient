@@ -85,6 +85,7 @@
     <Compile Include="Domain\Map\IMapItem.cs" />
     <Compile Include="Domain\Map\IMapSign.cs" />
     <Compile Include="Domain\Map\IMapWarp.cs" />
+    <Compile Include="Domain\Map\MapCellState.cs" />
     <Compile Include="Domain\Map\MapItem.cs" />
     <Compile Include="Domain\Map\IMapNPC.cs" />
     <Compile Include="Domain\Map\MapNpc.cs" />
