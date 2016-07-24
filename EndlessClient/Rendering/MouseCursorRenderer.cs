@@ -22,7 +22,7 @@ namespace EndlessClient.Rendering
     public sealed class MouseCursorRenderer : IDisposable
     {
         private readonly EOGame _game;
-        private readonly MapRenderer _parentMapRenderer;
+        private readonly OldMapRenderer _parentMapRenderer;
 
         private readonly Texture2D _mouseCursor;
         private readonly XNALabel _itemHoverName;
@@ -42,7 +42,7 @@ namespace EndlessClient.Rendering
             get { return new Point(_gridX, _gridY); }
         }
 
-        public MouseCursorRenderer(EOGame game, MapRenderer parentMapRenderer)
+        public MouseCursorRenderer(EOGame game, OldMapRenderer parentMapRenderer)
         {
             _game = game;
             _parentMapRenderer = parentMapRenderer;
@@ -108,7 +108,7 @@ namespace EndlessClient.Rendering
                 return;
 
             SetGridCoordsBasedOnMousePosition(ms);
-            _cursorPos = MapRenderer.GetDrawCoordinatesFromGridUnits(_gridX, _gridY, _mainCharacter);
+            _cursorPos = OldMapRenderer.GetDrawCoordinatesFromGridUnits(_gridX, _gridY, _mainCharacter);
 
             var ti = GetTileInfoAtGridCoordinates();
             if (ti == null) return;

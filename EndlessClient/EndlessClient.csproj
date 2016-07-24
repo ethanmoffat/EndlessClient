@@ -255,7 +255,7 @@
     <Compile Include="Rendering\Effects\IEffectSpriteInfo.cs" />
     <Compile Include="Rendering\EOSpriteSheet.cs" />
     <Compile Include="Rendering\HealthBarRenderer.cs" />
-    <Compile Include="Rendering\MapRenderer.cs" />
+    <Compile Include="Rendering\OldMapRenderer.cs" />
     <Compile Include="Rendering\MiniMapRenderer.cs" />
     <Compile Include="Rendering\MouseCursorRenderer.cs" />
     <Compile Include="Rendering\NPCRenderer.cs" />

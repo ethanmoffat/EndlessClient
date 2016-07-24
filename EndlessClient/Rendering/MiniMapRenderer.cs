@@ -38,9 +38,9 @@ namespace EndlessClient.Rendering
         public bool Visible { get; set; }
 
         private SpriteBatch _spriteBatch;
-        private readonly MapRenderer _parentRenderer;
+        private readonly OldMapRenderer _parentRenderer;
 
-        public MiniMapRenderer(MapRenderer parentRenderer)
+        public MiniMapRenderer(OldMapRenderer parentRenderer)
         {
             Map = parentRenderer.MapRef;
             _spriteBatch = new SpriteBatch(EOGame.Instance.GraphicsDevice);

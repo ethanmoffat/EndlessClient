@@ -25,7 +25,7 @@ using IMapFile = EOLib.IO.Map.IMapFile;
 
 namespace EndlessClient.Rendering
 {
-    public class MapRenderer : DrawableGameComponent
+    public class OldMapRenderer : DrawableGameComponent
     {
         //collections
         private readonly Dictionary<Point, List<OldMapItem>> _mapItems = new Dictionary<Point, List<OldMapItem>>();
@@ -77,7 +77,7 @@ namespace EndlessClient.Rendering
         private bool _disposed;
         private readonly object _disposingLockObject = new object();
 
-        public MapRenderer(Game g, PacketAPI apiHandle)
+        public OldMapRenderer(Game g, PacketAPI apiHandle)
             : base(g)
         {
             if(g == null)

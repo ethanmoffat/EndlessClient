@@ -191,11 +191,11 @@ namespace EndlessClient
 
         public Dictionary<DataFiles, EDFFile> DataFiles { get; private set; }
 
-        private MapRenderer m_mapRender;
+        private OldMapRenderer m_mapRender;
         /// <summary>
         /// Returns a map rendering object encapsulating the map the MainPlayer is on
         /// </summary>
-        public MapRenderer ActiveMapRenderer
+        public OldMapRenderer ActiveMapRenderer
         {
             get
             {
@@ -283,7 +283,7 @@ namespace EndlessClient
 
                 //map renderer construction moved to be more closely coupled to loading of the map
                 if (m_mapRender == null)
-                    m_mapRender = new MapRenderer(EOGame.Instance, m_api);
+                    m_mapRender = new OldMapRenderer(EOGame.Instance, m_api);
             }
             catch
             {
