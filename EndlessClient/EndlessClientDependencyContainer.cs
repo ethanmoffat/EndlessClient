@@ -15,6 +15,7 @@ using EndlessClient.HUD.Panels;
 using EndlessClient.Input;
 using EndlessClient.Network;
 using EndlessClient.Rendering.Factories;
+using EndlessClient.Rendering.Map;
 using EndlessClient.UIControls;
 using EOLib.DependencyInjection;
 using Microsoft.Practices.Unity;
@@ -33,7 +34,8 @@ namespace EndlessClient
                 .RegisterType<IHudControlsFactory, HudControlsFactory>()
                 .RegisterType<ICharacterRendererFactory, CharacterRendererFactory>()
                 .RegisterType<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>()
-                .RegisterType<IHudPanelFactory, HudPanelFactory>();
+                .RegisterType<IHudPanelFactory, HudPanelFactory>()
+                .RegisterType<IMapRenderTargetFactory, MapRenderTargetFactory>();
 
             container.RegisterType<IEOMessageBoxFactory, EOMessageBoxFactory>()
                 .RegisterType<ICreateAccountWarningDialogFactory, CreateAccountWarningDialogFactory>()
@@ -41,6 +43,9 @@ namespace EndlessClient
                 .RegisterType<ICreateCharacterDialogFactory, CreateCharacterDialogFactory>()
                 .RegisterType<IChangePasswordDialogFactory, ChangePasswordDialogFactory>()
                 .RegisterType<IGameLoadingDialogFactory, GameLoadingDialogFactory>();
+
+            //services
+            container.RegisterType<IMapRenderDistanceCalculator, MapRenderDistanceCalculator>();
 
             //provider/repository
             container.RegisterInstance<IGameStateProvider, GameStateRepository>()
@@ -58,7 +63,8 @@ namespace EndlessClient
 
             //provider only
             container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>()
-                .RegisterInstance<IHudControlProvider, HudControlProvider>();
+                .RegisterInstance<IHudControlProvider, HudControlProvider>()
+                .RegisterInstance<IMapEntityRendererProvider, MapEntityRendererProvider>();
 
             //controllers
             container.RegisterType<IMainButtonController, MainButtonController>()
@@ -86,6 +92,9 @@ namespace EndlessClient
             container.RegisterType<IHudButtonController, HudButtonController>()
                 .RegisterType<IHudStateActions, HudStateActions>()
                 .RegisterType<IStatusLabelSetter, StatusLabelSetter>();
+
+            //map entity renderer types
+            //todo: register IMapEntityRenderer implementations here
         }
 
         public void InitializeDependencies(IUnityContainer container)

@@ -123,6 +123,17 @@
     <Compile Include="Rendering\Factories\ICharacterRendererFactory.cs" />
     <Compile Include="Rendering\Chat\IChatRenderable.cs" />
     <Compile Include="Rendering\Chat\IChatRenderableGenerator.cs" />
+    <Compile Include="Rendering\Factories\IMapRenderTargetFactory.cs" />
+    <Compile Include="Rendering\Factories\MapRenderTargetFactory.cs" />
+    <Compile Include="Rendering\Map\IMapRenderDistanceCalculator.cs" />
+    <Compile Include="Rendering\Map\IMapEntityRenderer.cs" />
+    <Compile Include="Rendering\Map\IMapEntityRendererProvider.cs" />
+    <Compile Include="Rendering\Map\IMapRenderer.cs" />
+    <Compile Include="Rendering\Map\MapEntityRendererProvider.cs" />
+    <Compile Include="Rendering\Map\MapRenderBounds.cs" />
+    <Compile Include="Rendering\Map\MapRenderDistanceCalculator.cs" />
+    <Compile Include="Rendering\Map\MapRenderer.cs" />
+    <Compile Include="Rendering\Map\MapRenderLayer.cs" />
     <Compile Include="UIControls\BlinkingLabel.cs" />
     <Compile Include="UIControls\CharacterControl.cs" />
     <Compile Include="UIControls\CharacterInfoPanel.cs" />
