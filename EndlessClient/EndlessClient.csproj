@@ -117,6 +117,8 @@
     <Compile Include="HUD\StatusLabelSetter.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
+    <Compile Include="Rendering\CharacterProperties\CharacterRenderOffsetCalculator.cs" />
+    <Compile Include="Rendering\CharacterProperties\ICharacterRenderOffsetCalculator.cs" />
     <Compile Include="Rendering\Chat\ChatRenderable.cs" />
     <Compile Include="Rendering\Chat\ChatRenderableGenerator.cs" />
     <Compile Include="Rendering\Factories\CharacterRendererFactory.cs" />

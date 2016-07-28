@@ -8,6 +8,7 @@ using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Pub;
