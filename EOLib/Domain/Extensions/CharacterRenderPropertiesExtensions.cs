@@ -3,12 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
-using EOLib;
 using EOLib.Domain.Character;
 
-namespace EndlessClient.Rendering.CharacterProperties
+namespace EOLib.Domain.Extensions
 {
-    public static class RenderPropertiesExtensions
+    public static class CharacterRenderPropertiesExtensions
     {
         public static bool IsFacing(this ICharacterRenderProperties renderProperties, params EODirection[] directions)
         {

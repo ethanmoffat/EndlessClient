@@ -6,6 +6,7 @@ using System;
 using System.Linq;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.IO;
 using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;

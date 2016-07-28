@@ -84,7 +84,7 @@ namespace EndlessClient.Rendering.Map
 
             spriteBatch.Draw(_mapAbovePlayer, Vector2.Zero, Color.White);
             spriteBatch.Draw(_mapBelowPlayer, Vector2.Zero, Color.White);
-            
+
             //todo: draw FPS string
 
             spriteBatch.End();

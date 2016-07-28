@@ -78,6 +78,7 @@
     <Compile Include="Domain\Chat\ChatTabs.cs" />
     <Compile Include="Domain\Chat\ChatType.cs" />
     <Compile Include="Domain\Extensions\CharacterExtensions.cs" />
+    <Compile Include="Domain\Extensions\CharacterRenderPropertiesExtensions.cs" />
     <Compile Include="Domain\Extensions\PaperdollRepositoryExtensions.cs" />
     <Compile Include="Domain\Login\INewsRepository.cs" />
     <Compile Include="Domain\Login\LoginRequestCompletedData.cs" />

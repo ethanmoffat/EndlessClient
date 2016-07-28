@@ -4,6 +4,7 @@
 
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
