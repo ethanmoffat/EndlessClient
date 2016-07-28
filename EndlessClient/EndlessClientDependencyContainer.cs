@@ -16,6 +16,7 @@ using EndlessClient.Input;
 using EndlessClient.Network;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
+using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.UIControls;
 using EOLib.DependencyInjection;
 using Microsoft.Practices.Unity;

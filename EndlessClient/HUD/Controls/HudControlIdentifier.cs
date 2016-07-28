@@ -6,6 +6,8 @@ namespace EndlessClient.HUD.Controls
 {
     public enum HudControlIdentifier
     {
+        MapRenderer,
+
         HudBackground,
 
         //buttons and panels

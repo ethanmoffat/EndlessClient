@@ -2,7 +2,9 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EndlessClient.Rendering.Map
+using EndlessClient.Rendering.Map;
+
+namespace EndlessClient.Rendering.MapEntityRenderers
 {
     public interface IMapEntityRenderer
     {

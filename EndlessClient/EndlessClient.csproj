@@ -126,8 +126,8 @@
     <Compile Include="Rendering\Factories\IMapRenderTargetFactory.cs" />
     <Compile Include="Rendering\Factories\MapRenderTargetFactory.cs" />
     <Compile Include="Rendering\Map\IMapRenderDistanceCalculator.cs" />
-    <Compile Include="Rendering\Map\IMapEntityRenderer.cs" />
-    <Compile Include="Rendering\Map\IMapEntityRendererProvider.cs" />
+    <Compile Include="Rendering\MapEntityRenderers\IMapEntityRenderer.cs" />
+    <Compile Include="Rendering\MapEntityRenderers\IMapEntityRendererProvider.cs" />
     <Compile Include="Rendering\Map\IMapRenderer.cs" />
     <Compile Include="Rendering\Map\MapEntityRendererProvider.cs" />
     <Compile Include="Rendering\Map\MapRenderBounds.cs" />

@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using EndlessClient.Rendering.MapEntityRenderers;
 
 namespace EndlessClient.Rendering.Map
 {

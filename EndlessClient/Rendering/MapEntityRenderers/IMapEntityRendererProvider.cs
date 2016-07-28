@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace EndlessClient.Rendering.Map
+namespace EndlessClient.Rendering.MapEntityRenderers
 {
     public interface IMapEntityRendererProvider
     {
