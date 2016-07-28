@@ -81,6 +81,7 @@
     <Compile Include="Domain\Extensions\PaperdollRepositoryExtensions.cs" />
     <Compile Include="Domain\Login\INewsRepository.cs" />
     <Compile Include="Domain\Login\LoginRequestCompletedData.cs" />
+    <Compile Include="Domain\Map\ICurrentMapProvider.cs" />
     <Compile Include="Domain\Map\IMapCellState.cs" />
     <Compile Include="Domain\Map\IMapCellStateProvider.cs" />
     <Compile Include="Domain\Map\IMapChest.cs" />

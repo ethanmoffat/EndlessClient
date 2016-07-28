@@ -29,6 +29,7 @@ namespace EOLib.Domain
                 .RegisterInstance<ICharacterProvider, CharacterRepository>()
                 .RegisterInstance<ICurrentMapStateRepository, CurrentMapStateRepository>()
                 .RegisterInstance<ICurrentMapStateProvider, CurrentMapStateRepository>()
+                .RegisterInstance<ICurrentMapProvider, CurrentMapProvider>()
                 .RegisterInstance<ICharacterInventoryRepository, CharacterInventoryRepository>()
                 .RegisterInstance<ICharacterInventoryProvider, CharacterInventoryRepository>()
                 .RegisterInstance<IPaperdollRepository, PaperdollRepository>()
