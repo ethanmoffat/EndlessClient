@@ -10,8 +10,6 @@ using EndlessClient.Rendering.MapEntityRenderers;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
-using EOLib.IO.Map;
-using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -33,8 +31,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IMapRenderTargetFactory _mapRenderTargetFactory;
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IMapFileProvider _mapFileProvider;
-        private readonly ICurrentMapStateProvider _mapStateProvider;
+        private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
 
         private RenderTarget2D _mapAbovePlayer, _mapBelowPlayer;
@@ -42,15 +39,13 @@ namespace EndlessClient.Rendering.Map
         public MapRenderer(IMapRenderTargetFactory mapRenderTargetFactory,
                            IMapEntityRendererProvider mapEntityRendererProvider,
                            ICharacterProvider characterProvider,
-                           IMapFileProvider mapFileProvider,
-                           ICurrentMapStateProvider mapStateProvider,
+                           ICurrentMapProvider currentMapProvider,
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator)
         {
             _mapRenderTargetFactory = mapRenderTargetFactory;
             _mapEntityRendererProvider = mapEntityRendererProvider;
             _characterProvider = characterProvider;
-            _mapFileProvider = mapFileProvider;
-            _mapStateProvider = mapStateProvider;
+            _currentMapProvider = currentMapProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
         }
 
@@ -102,7 +97,7 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.SetRenderTarget(_mapAbovePlayer);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
-            var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, CurrentMap);
+            var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
             for (int row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
             {
                 SpriteBatch.Begin();
@@ -142,11 +137,6 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
             SpriteBatch.Begin();
-        }
-
-        private IReadOnlyMapFile CurrentMap
-        {
-            get { return _mapFileProvider.MapFiles[_mapStateProvider.CurrentMapID]; }
         }
 
         protected override void Dispose(bool disposing)
