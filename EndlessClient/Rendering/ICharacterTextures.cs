@@ -21,6 +21,6 @@ namespace EndlessClient.Rendering
         ISpriteSheet Emote { get; }
         ISpriteSheet Face { get; }
 
-        void RefreshTextures(bool bowIsEquipped, bool shieldIsOnBack);
+        void Refresh(bool bowIsEquipped, bool shieldIsOnBack);
     }
 }

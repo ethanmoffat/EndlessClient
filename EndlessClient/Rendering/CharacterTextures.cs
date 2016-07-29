@@ -28,7 +28,7 @@ namespace EndlessClient.Rendering
             _calc = calc;
         }
 
-        public void RefreshTextures(bool bowIsEquipped, bool shieldIsOnBack)
+        public void Refresh(bool bowIsEquipped, bool shieldIsOnBack)
         {
             Boots = _calc.GetBootsTexture(bowIsEquipped).SheetTexture;
             Armor = _calc.GetArmorTexture(bowIsEquipped).SheetTexture;

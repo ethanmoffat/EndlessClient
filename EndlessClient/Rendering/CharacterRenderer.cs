@@ -24,9 +24,9 @@ namespace EndlessClient.Rendering
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
 
-        private ICharacterSpriteCalculator _spriteCalculator;
+        private ICharacterSpriteCalculator _characterSpriteCalculator;
         private ICharacterRenderProperties _characterRenderPropertiesPrivate, _lastRenderProperties;
-        private ICharacterTextures _textures;
+        private ICharacterTextures _characterTextures;
         private bool _textureUpdateRequired;
 
         private SpriteBatch _sb;
@@ -132,7 +132,7 @@ namespace EndlessClient.Rendering
 
         public void SetAbsoluteScreenPosition(int xPosition, int yPosition)
         {
-            var skinRect = _textures.Skin.SourceRectangle;
+            var skinRect = _characterTextures.Skin.SourceRectangle;
             DrawArea = new Rectangle(xPosition, yPosition, skinRect.Width, skinRect.Height);
             _textureUpdateRequired = true;
         }
@@ -148,7 +148,7 @@ namespace EndlessClient.Rendering
 
         private void FigureOutTopPixel()
         {
-            var spriteForSkin = _spriteCalculator.GetSkinTexture(isBow: false);
+            var spriteForSkin = _characterSpriteCalculator.GetSkinTexture(isBow: false);
             var skinData = spriteForSkin.GetSourceTextureData<Color>();
 
             int i = 0;
@@ -162,10 +162,10 @@ namespace EndlessClient.Rendering
 
         private void ReloadTextures()
         {
-            _spriteCalculator = new CharacterSpriteCalculator(_graphicsManager, _characterRenderPropertiesPrivate);
-            _textures = new CharacterTextures(_spriteCalculator);
+            _characterSpriteCalculator = new CharacterSpriteCalculator(_graphicsManager, _characterRenderPropertiesPrivate);
+            _characterTextures = new CharacterTextures(_characterSpriteCalculator);
 
-            _textures.RefreshTextures(IsBowEquipped(), IsShieldOnBack());
+            _characterTextures.Refresh(IsBowEquipped(), IsShieldOnBack());
         }
 
         #endregion
@@ -188,7 +188,7 @@ namespace EndlessClient.Rendering
 
         private IEnumerable<ICharacterPropertyRenderer> GetOrderedRenderers()
         {
-            var propertyListBuilder = new CharacterPropertyRendererBuilder(_sb, RenderProperties, _textures, _eifFileProvider);
+            var propertyListBuilder = new CharacterPropertyRendererBuilder(_sb, RenderProperties, _characterTextures, _eifFileProvider);
             return propertyListBuilder.BuildList(IsShieldOnBack());
         }
 
