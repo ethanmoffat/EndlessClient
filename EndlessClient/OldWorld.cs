@@ -257,39 +257,11 @@ namespace EndlessClient
             get { return m_client; }
         }
 
-        private PacketAPI m_api;
-
         /*** Functions for loading/checking the different pub/map files ***/
 
         //tries to load the map that MainPlayer.ActiveCharacter is hanging out on
         private bool _tryLoadMap(int mapID, bool forceReload)
         {
-            try
-            {
-                if (mapID < 0)
-                    mapID = MainPlayer.ActiveCharacter.CurrentMap;
-
-                var mapFilePath = Path.Combine("maps", string.Format("{0,5:D5}.emf", mapID));
-                var mapBytes = File.ReadAllBytes(mapFilePath);
-
-                if (!MapCache.ContainsKey(mapID))
-                {
-                    MapCache.Add(mapID, new MapFile(mapID));
-                    MapCache[mapID].DeserializeFromByteArray(mapBytes, new NumberEncoderService(), new MapStringEncoderService());
-                }
-                else if (forceReload)
-                    MapCache[mapID].DeserializeFromByteArray(mapBytes, new NumberEncoderService(), new MapStringEncoderService());
-
-
-                //map renderer construction moved to be more closely coupled to loading of the map
-                if (m_mapRender == null)
-                    m_mapRender = new OldMapRenderer(EOGame.Instance, m_api);
-            }
-            catch
-            {
-                return false;
-            }
-
             return true;
         }
 
