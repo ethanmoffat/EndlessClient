@@ -27,9 +27,7 @@ namespace EndlessClient.Rendering
         /// </summary>
         /// <param name="xCoord">The X coordinate of the map grid</param>
         /// <param name="yCoord">The Y coordinate of the map grid</param>
-        /// <param name="mainCharacterOffsetX">The main character's OffsetX property</param>
-        /// <param name="mainCharacterOffsetY">The main character's OffsetY property</param>
-        void SetGridCoordinatePosition(int xCoord, int yCoord, int mainCharacterOffsetX, int mainCharacterOffsetY);
+        void SetGridCoordinatePosition(int xCoord, int yCoord);
 
         void DrawToSpriteBatch(SpriteBatch spriteBatch);
     }

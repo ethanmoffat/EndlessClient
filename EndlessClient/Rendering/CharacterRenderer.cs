@@ -22,6 +22,8 @@ namespace EndlessClient.Rendering
     {
         private readonly INativeGraphicsManager _graphicsManager;
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly ICharacterProvider _characterProvider;
+        private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
 
         private ICharacterSpriteCalculator _spriteCalculator;
         private ICharacterRenderProperties _characterRenderPropertiesPrivate;
@@ -49,11 +51,15 @@ namespace EndlessClient.Rendering
         public CharacterRenderer(Game game,
                                  INativeGraphicsManager graphicsManager,
                                  IEIFFileProvider eifFileProvider,
+                                 ICharacterProvider characterProvider,
+                                 ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
                                  ICharacterRenderProperties renderProperties)
             : base(game)
         {
             _graphicsManager = graphicsManager;
             _eifFileProvider = eifFileProvider;
+            _characterProvider = characterProvider;
+            _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
             RenderProperties = renderProperties;
         }
 
@@ -127,13 +133,11 @@ namespace EndlessClient.Rendering
             _textureUpdateRequired = true;
         }
 
-        public void SetGridCoordinatePosition(int xCoord, int yCoord, int mainCharacterOffsetX, int mainCharacterOffsetY)
+        public void SetGridCoordinatePosition(int xCoord, int yCoord)
         {
-            //todo: constructor inject a provider for the main character so the offsets aren't parameters
-
             //todo: the constants here should be dynamically configurable to support window resizing
-            var displayX = CalculateDisplayCoordinateX(xCoord, yCoord) + 304 - mainCharacterOffsetX;
-            var displayY = CalculateDisplayCoordinateY(yCoord, yCoord) + 91 - mainCharacterOffsetY;
+            var displayX = CalculateDisplayCoordinateX(xCoord, yCoord) + 304 - GetMainCharacterOffsetX();
+            var displayY = CalculateDisplayCoordinateY(yCoord, yCoord) + 91 - GetMainCharacterOffsetY();
 
             SetAbsoluteScreenPosition(displayX, displayY);
         }
@@ -212,6 +216,16 @@ namespace EndlessClient.Rendering
             var multiplier = RenderProperties.IsFacing(EODirection.Left, EODirection.Up) ? -1 : 1;
             var walkAdjust = RenderProperties.IsActing(CharacterActionState.Walking) ? 4 * RenderProperties.WalkFrame : 0;
             return xCoord * 16 + yCoord * 16 + walkAdjust * multiplier;
+        }
+
+        private int GetMainCharacterOffsetX()
+        {
+            return _characterRenderOffsetCalculator.CalculateOffsetX(_characterProvider.ActiveCharacter);
+        }
+
+        private int GetMainCharacterOffsetY()
+        {
+            return _characterRenderOffsetCalculator.CalculateOffsetY(_characterProvider.ActiveCharacter);
         }
 
         #endregion
