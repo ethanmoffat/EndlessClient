@@ -136,10 +136,10 @@ namespace EndlessClient.Rendering
         public void SetGridCoordinatePosition(int xCoord, int yCoord)
         {
             //todo: the constants here should be dynamically configurable to support window resizing
-            var displayX = CalculateDisplayCoordinateX(xCoord, yCoord) + 304 - GetMainCharacterOffsetX();
-            var displayY = CalculateDisplayCoordinateY(yCoord, yCoord) + 91 - GetMainCharacterOffsetY();
+            var screenX = _characterRenderOffsetCalculator.CalculateOffsetX(RenderProperties) + 304 - GetMainCharacterOffsetX();
+            var screenY = _characterRenderOffsetCalculator.CalculateOffsetY(RenderProperties) + 91 - GetMainCharacterOffsetY();
 
-            SetAbsoluteScreenPosition(displayX, displayY);
+            SetAbsoluteScreenPosition(screenX, screenY);
         }
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
@@ -202,20 +202,6 @@ namespace EndlessClient.Rendering
             return RenderProperties.IsHidden || RenderProperties.IsDead
                 ? Color.FromNonPremultiplied(255, 255, 255, 128)
                 : Color.White;
-        }
-
-        private int CalculateDisplayCoordinateX(int xCoord, int yCoord)
-        {
-            var multiplier = RenderProperties.IsFacing(EODirection.Left, EODirection.Down) ? -1 : 1;
-            var walkAdjust = RenderProperties.IsActing(CharacterActionState.Walking) ? 8 * RenderProperties.WalkFrame : 0;
-            return xCoord * 32 - yCoord * 32 + walkAdjust * multiplier;
-        }
-
-        private int CalculateDisplayCoordinateY(int xCoord, int yCoord)
-        {
-            var multiplier = RenderProperties.IsFacing(EODirection.Left, EODirection.Up) ? -1 : 1;
-            var walkAdjust = RenderProperties.IsActing(CharacterActionState.Walking) ? 4 * RenderProperties.WalkFrame : 0;
-            return xCoord * 16 + yCoord * 16 + walkAdjust * multiplier;
         }
 
         private int GetMainCharacterOffsetX()
