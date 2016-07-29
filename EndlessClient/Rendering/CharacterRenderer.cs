@@ -183,7 +183,7 @@ namespace EndlessClient.Rendering
             GraphicsDevice.SetRenderTarget(null);
         }
 
-        private IEnumerable<ICharacterPropertyRenderer> GetOrderedRenderers()
+        private List<ICharacterPropertyRenderer> GetOrderedRenderers()
         {
             var propertyListBuilder = new CharacterPropertyRendererBuilder(_characterTextures, _eifFileProvider);
             return propertyListBuilder.BuildList(RenderProperties);

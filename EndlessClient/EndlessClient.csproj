@@ -118,6 +118,7 @@
     <Compile Include="IClientWindowSizeProvider.cs" />
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
     <Compile Include="Rendering\CharacterProperties\CharacterRenderOffsetCalculator.cs" />
+    <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRendererBuilder.cs" />
     <Compile Include="Rendering\CharacterProperties\ICharacterRenderOffsetCalculator.cs" />
     <Compile Include="Rendering\Chat\ChatRenderable.cs" />
     <Compile Include="Rendering\Chat\ChatRenderableGenerator.cs" />

@@ -13,7 +13,7 @@ using EOLib.IO.Repositories;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-    public class CharacterPropertyRendererBuilder
+    public class CharacterPropertyRendererBuilder : ICharacterPropertyRendererBuilder
     {
         private readonly ICharacterTextures _textures;
         private readonly IEIFFileProvider _eifFileProvider;
@@ -25,7 +25,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             _eifFileProvider = eifFileProvider;
         }
 
-        public IEnumerable<ICharacterPropertyRenderer> BuildList(ICharacterRenderProperties renderProperties)
+        public List<ICharacterPropertyRenderer> BuildList(ICharacterRenderProperties renderProperties)
         {
             var rendererList = new List<ICharacterPropertyRenderer>();
 
