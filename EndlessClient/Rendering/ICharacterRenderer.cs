@@ -17,17 +17,7 @@ namespace EndlessClient.Rendering
 
         Rectangle DrawArea { get; }
 
-        /// <summary>
-        /// Set the position of this character renderer at an absolute screen pixel coordinate
-        /// </summary>
         void SetAbsoluteScreenPosition(int xPosition, int yPosition);
-
-        /// <summary>
-        /// Set the position of this character based on grid coordinates in-game
-        /// </summary>
-        /// <param name="xCoord">The X coordinate of the map grid</param>
-        /// <param name="yCoord">The Y coordinate of the map grid</param>
-        void SetGridCoordinatePosition(int xCoord, int yCoord);
 
         void DrawToSpriteBatch(SpriteBatch spriteBatch);
     }

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Graphics;
@@ -26,7 +25,7 @@ namespace EndlessClient.Rendering
         private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
 
         private ICharacterSpriteCalculator _spriteCalculator;
-        private ICharacterRenderProperties _characterRenderPropertiesPrivate;
+        private ICharacterRenderProperties _characterRenderPropertiesPrivate, _lastRenderProperties;
         private ICharacterTextures _textures;
         private bool _textureUpdateRequired;
 
@@ -91,6 +90,9 @@ namespace EndlessClient.Rendering
             if (!Game.IsActive || !Visible)
                 return;
 
+            if (RenderProperties != _lastRenderProperties && RenderProperties.IsActing(CharacterActionState.Walking))
+                SetGridCoordinatePosition(RenderProperties.MapX, RenderProperties.MapY);
+
             if (_textureUpdateRequired)
             {
                 ReloadTextures();
@@ -98,6 +100,8 @@ namespace EndlessClient.Rendering
 
                 _textureUpdateRequired = false;
             }
+
+            _lastRenderProperties = RenderProperties;
 
             base.Update(gameTime);
         }
@@ -131,15 +135,6 @@ namespace EndlessClient.Rendering
             var skinRect = _textures.Skin.SourceRectangle;
             DrawArea = new Rectangle(xPosition, yPosition, skinRect.Width, skinRect.Height);
             _textureUpdateRequired = true;
-        }
-
-        public void SetGridCoordinatePosition(int xCoord, int yCoord)
-        {
-            //todo: the constants here should be dynamically configurable to support window resizing
-            var screenX = _characterRenderOffsetCalculator.CalculateOffsetX(RenderProperties) + 304 - GetMainCharacterOffsetX();
-            var screenY = _characterRenderOffsetCalculator.CalculateOffsetY(RenderProperties) + 91 - GetMainCharacterOffsetY();
-
-            SetAbsoluteScreenPosition(screenX, screenY);
         }
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
@@ -202,6 +197,15 @@ namespace EndlessClient.Rendering
             return RenderProperties.IsHidden || RenderProperties.IsDead
                 ? Color.FromNonPremultiplied(255, 255, 255, 128)
                 : Color.White;
+        }
+
+        private void SetGridCoordinatePosition(int xCoord, int yCoord)
+        {
+            //todo: the constants here should be dynamically configurable to support window resizing
+            var screenX = _characterRenderOffsetCalculator.CalculateOffsetX(RenderProperties) + 304 - GetMainCharacterOffsetX();
+            var screenY = _characterRenderOffsetCalculator.CalculateOffsetY(RenderProperties) + 91 - GetMainCharacterOffsetY();
+
+            SetAbsoluteScreenPosition(screenX, screenY);
         }
 
         private int GetMainCharacterOffsetX()
