@@ -3,14 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using System.Linq;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Graphics;
-using EOLib.IO;
-using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -188,8 +185,8 @@ namespace EndlessClient.Rendering
 
         private IEnumerable<ICharacterPropertyRenderer> GetOrderedRenderers()
         {
-            var propertyListBuilder = new CharacterPropertyRendererBuilder(RenderProperties, _characterTextures, _eifFileProvider);
-            return propertyListBuilder.BuildList(IsShieldOnBack());
+            var propertyListBuilder = new CharacterPropertyRendererBuilder(_characterTextures, _eifFileProvider);
+            return propertyListBuilder.BuildList(RenderProperties);
         }
 
         private Color GetAlphaColor()
@@ -217,39 +214,6 @@ namespace EndlessClient.Rendering
         {
             return _characterRenderOffsetCalculator.CalculateOffsetY(_characterProvider.ActiveCharacter.RenderProperties);
         }
-
-        #endregion
-
-        #region Conditional Rendering Helpers
-
-        private bool IsBowEquipped()
-        {
-            if (EIFFile == null || EIFFile.Data == null)
-                return false;
-
-            var itemData = EIFFile.Data;
-            var weaponInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Weapon &&
-                                                           x.DollGraphic == RenderProperties.WeaponGraphic);
-
-            return weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
-        }
-
-        private bool IsShieldOnBack()
-        {
-            if (EIFFile == null || EIFFile.Data == null)
-                return false;
-
-            var itemData = EIFFile.Data;
-            var shieldInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Shield &&
-                                                           x.DollGraphic == RenderProperties.ShieldGraphic);
-
-            return shieldInfo != null &&
-                   (shieldInfo.Name == "Bag" ||
-                    shieldInfo.SubType == ItemSubType.Arrows ||
-                    shieldInfo.SubType == ItemSubType.Wings);
-        }
-
-        private IPubFile<EIFRecord> EIFFile { get { return _eifFileProvider.EIFFile; } }
 
         #endregion
 

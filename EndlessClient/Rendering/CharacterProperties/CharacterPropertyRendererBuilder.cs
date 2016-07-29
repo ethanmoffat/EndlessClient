@@ -15,126 +15,138 @@ namespace EndlessClient.Rendering.CharacterProperties
 {
     public class CharacterPropertyRendererBuilder
     {
-        private readonly ICharacterRenderProperties _renderProperties;
         private readonly ICharacterTextures _textures;
         private readonly IEIFFileProvider _eifFileProvider;
 
-        public CharacterPropertyRendererBuilder(ICharacterRenderProperties renderProperties,
-                                                ICharacterTextures textures,
+        public CharacterPropertyRendererBuilder(ICharacterTextures textures,
                                                 IEIFFileProvider eifFileProvider)
         {
-            _renderProperties = renderProperties;
             _textures = textures;
             _eifFileProvider = eifFileProvider;
         }
 
-        public IEnumerable<ICharacterPropertyRenderer> BuildList(bool isShieldOnBack)
+        public IEnumerable<ICharacterPropertyRenderer> BuildList(ICharacterRenderProperties renderProperties)
         {
             var rendererList = new List<ICharacterPropertyRenderer>();
 
-            if (ShieldEquipped() && IsShieldBehindCharacter(isShieldOnBack))
-                rendererList.Add(new ShieldRenderer(_renderProperties, _textures.Shield));
+            if (ShieldEquipped(renderProperties) && IsShieldBehindCharacter(renderProperties))
+                rendererList.Add(new ShieldRenderer(renderProperties, _textures.Shield));
 
-            if (WeaponEquipped() && IsWeaponBehindCharacter())
-                rendererList.Add(new WeaponRenderer(_renderProperties, _textures.Weapon, ItemFile));
+            if (WeaponEquipped(renderProperties) && IsWeaponBehindCharacter(renderProperties))
+                rendererList.Add(new WeaponRenderer(renderProperties, _textures.Weapon, EIFFile));
 
-            rendererList.Add(new SkinRenderer(_renderProperties, _textures.Skin, ItemFile));
-            if (IsCharacterDoingEmote())
+            rendererList.Add(new SkinRenderer(renderProperties, _textures.Skin, EIFFile));
+            if (IsCharacterDoingEmote(renderProperties))
             {
-                rendererList.Add(new FaceRenderer(_renderProperties, _textures.Face, ItemFile));
-                rendererList.Add(new EmoteRenderer(_renderProperties, _textures.Emote, ItemFile));
+                rendererList.Add(new FaceRenderer(renderProperties, _textures.Face, EIFFile));
+                rendererList.Add(new EmoteRenderer(renderProperties, _textures.Emote, EIFFile));
             }
 
-            if (BootsEquipped())
-                rendererList.Add(new BootsRenderer(_renderProperties, _textures.Boots, ItemFile));
+            if (BootsEquipped(renderProperties))
+                rendererList.Add(new BootsRenderer(renderProperties, _textures.Boots, EIFFile));
 
-            if (ArmorEquipped())
-                rendererList.Add(new ArmorRenderer(_renderProperties, _textures.Armor, ItemFile));
+            if (ArmorEquipped(renderProperties))
+                rendererList.Add(new ArmorRenderer(renderProperties, _textures.Armor, EIFFile));
 
-            if (WeaponEquipped() && !rendererList.OfType<WeaponRenderer>().Any())
-                rendererList.Add(new WeaponRenderer(_renderProperties, _textures.Weapon, ItemFile));
+            if (WeaponEquipped(renderProperties) && !rendererList.OfType<WeaponRenderer>().Any())
+                rendererList.Add(new WeaponRenderer(renderProperties, _textures.Weapon, EIFFile));
 
             var hairOnTopOfHat = new List<ICharacterPropertyRenderer>();
-            if (HatEquipped())
-                hairOnTopOfHat.Add(new HatRenderer(_renderProperties, _textures.Hat, ItemFile));
-            if (!IsBald())
-                hairOnTopOfHat.Add(new HairRenderer(_renderProperties, _textures.Hair, ItemFile));
+            if (HatEquipped(renderProperties))
+                hairOnTopOfHat.Add(new HatRenderer(renderProperties, _textures.Hat, EIFFile));
+            if (!IsBald(renderProperties))
+                hairOnTopOfHat.Add(new HairRenderer(renderProperties, _textures.Hair, EIFFile));
             if (hairOnTopOfHat.Any())
-                rendererList.AddRange(IsHairOnTopOfHat() ? hairOnTopOfHat : hairOnTopOfHat.ToArray().Reverse());
+                rendererList.AddRange(IsHairOnTopOfHat(renderProperties) ? hairOnTopOfHat : hairOnTopOfHat.ToArray().Reverse());
 
-            if (ShieldEquipped() && !rendererList.OfType<ShieldRenderer>().Any())
-                rendererList.Add(new ShieldRenderer(_renderProperties, _textures.Shield));
+            if (ShieldEquipped(renderProperties) && !rendererList.OfType<ShieldRenderer>().Any())
+                rendererList.Add(new ShieldRenderer(renderProperties, _textures.Shield));
 
             return rendererList;
         }
 
-        private bool IsShieldBehindCharacter(bool isShieldOnBack)
+        private bool IsShieldBehindCharacter(ICharacterRenderProperties renderProperties)
         {
-            return _renderProperties.IsFacing(EODirection.Right, EODirection.Down) && isShieldOnBack;
+            return renderProperties.IsFacing(EODirection.Right, EODirection.Down) && IsShieldOnBack(renderProperties);
         }
 
-        private bool IsWeaponBehindCharacter()
+        private bool IsWeaponBehindCharacter(ICharacterRenderProperties renderProperties)
         {
-             var weaponInfo = ItemFile.Data.SingleOrDefault(
+             var weaponInfo = EIFFile.Data.SingleOrDefault(
                 x => x.Type == ItemType.Weapon &&
-                     x.DollGraphic == _renderProperties.WeaponGraphic);
+                     x.DollGraphic == renderProperties.WeaponGraphic);
 
-            var pass1 = _renderProperties.AttackFrame < 2;
-            var pass2 = _renderProperties.IsFacing(EODirection.Up, EODirection.Left);
+            var pass1 = renderProperties.AttackFrame < 2;
+            var pass2 = renderProperties.IsFacing(EODirection.Up, EODirection.Left);
             var pass3 = weaponInfo == null || weaponInfo.SubType == ItemSubType.Ranged;
 
             return pass1 || pass2 || pass3;
         }
 
-        private bool IsCharacterDoingEmote()
+        private bool IsCharacterDoingEmote(ICharacterRenderProperties renderProperties)
         {
-            return _renderProperties.CurrentAction == CharacterActionState.Emote &&
-                   _renderProperties.EmoteFrame > 0;
+            return renderProperties.CurrentAction == CharacterActionState.Emote &&
+                   renderProperties.EmoteFrame > 0;
         }
 
-        private bool IsHairOnTopOfHat()
+        private bool IsHairOnTopOfHat(ICharacterRenderProperties renderProperties)
         {
             //todo: i might have this backwards...
 
-            var hatInfo = ItemFile.Data.SingleOrDefault(
+            var hatInfo = EIFFile.Data.SingleOrDefault(
                 x => x.Type == ItemType.Hat &&
-                     x.DollGraphic == _renderProperties.HatGraphic);
+                     x.DollGraphic == renderProperties.HatGraphic);
 
             return hatInfo != null && hatInfo.SubType == ItemSubType.FaceMask;
         }
 
-        private bool BootsEquipped()
+        private bool BootsEquipped(ICharacterRenderProperties renderProperties)
         {
-            return _renderProperties.BootsGraphic != 0 && _textures.Boots != null;
+            return renderProperties.BootsGraphic != 0 && _textures.Boots != null;
         }
 
-        private bool ArmorEquipped()
+        private bool ArmorEquipped(ICharacterRenderProperties renderProperties)
         {
-            return _renderProperties.ArmorGraphic != 0 && _textures.Armor != null;
+            return renderProperties.ArmorGraphic != 0 && _textures.Armor != null;
         }
 
-        private bool HatEquipped()
+        private bool HatEquipped(ICharacterRenderProperties renderProperties)
         {
-            return _renderProperties.HatGraphic != 0 && _textures.Hat != null;
+            return renderProperties.HatGraphic != 0 && _textures.Hat != null;
         }
 
-        private bool ShieldEquipped()
+        private bool ShieldEquipped(ICharacterRenderProperties renderProperties)
         {
 
-            return _renderProperties.ShieldGraphic != 0 && _textures.Shield != null;
+            return renderProperties.ShieldGraphic != 0 && _textures.Shield != null;
         }
 
-        private bool WeaponEquipped()
+        private bool WeaponEquipped(ICharacterRenderProperties renderProperties)
         {
-            return _renderProperties.WeaponGraphic != 0 && _textures.Weapon != null;
+            return renderProperties.WeaponGraphic != 0 && _textures.Weapon != null;
         }
 
-        private bool IsBald()
+        private bool IsBald(ICharacterRenderProperties renderProperties)
         {
-            return _textures.Hair == null || _renderProperties.HairStyle == 0;
+            return _textures.Hair == null || renderProperties.HairStyle == 0;
         }
 
-        private IPubFile<EIFRecord> ItemFile
+        private bool IsShieldOnBack(ICharacterRenderProperties renderProperties)
+        {
+            if (EIFFile == null || !EIFFile.Data.Any())
+                return false;
+
+            var itemData = EIFFile.Data;
+            var shieldInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Shield &&
+                                                           x.DollGraphic == renderProperties.ShieldGraphic);
+
+            return shieldInfo != null &&
+                   (shieldInfo.Name == "Bag" ||
+                    shieldInfo.SubType == ItemSubType.Arrows ||
+                    shieldInfo.SubType == ItemSubType.Wings);
+        }
+
+        private IPubFile<EIFRecord> EIFFile
         {
             get { return _eifFileProvider.EIFFile ?? new EIFFile(); }
         }
