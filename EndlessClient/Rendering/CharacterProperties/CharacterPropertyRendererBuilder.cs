@@ -10,23 +10,19 @@ using EOLib.Domain.Extensions;
 using EOLib.IO;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
     public class CharacterPropertyRendererBuilder
     {
-        private readonly SpriteBatch _spriteBatch;
         private readonly ICharacterRenderProperties _renderProperties;
         private readonly ICharacterTextures _textures;
         private readonly IEIFFileProvider _eifFileProvider;
 
-        public CharacterPropertyRendererBuilder(SpriteBatch spriteBatch,
-                                                ICharacterRenderProperties renderProperties,
+        public CharacterPropertyRendererBuilder(ICharacterRenderProperties renderProperties,
                                                 ICharacterTextures textures,
                                                 IEIFFileProvider eifFileProvider)
         {
-            _spriteBatch = spriteBatch;
             _renderProperties = renderProperties;
             _textures = textures;
             _eifFileProvider = eifFileProvider;
@@ -37,37 +33,37 @@ namespace EndlessClient.Rendering.CharacterProperties
             var rendererList = new List<ICharacterPropertyRenderer>();
 
             if (ShieldEquipped() && IsShieldBehindCharacter(isShieldOnBack))
-                rendererList.Add(new ShieldRenderer(_spriteBatch, _renderProperties, _textures.Shield));
+                rendererList.Add(new ShieldRenderer(_renderProperties, _textures.Shield));
 
             if (WeaponEquipped() && IsWeaponBehindCharacter())
-                rendererList.Add(new WeaponRenderer(_spriteBatch, _renderProperties, _textures.Weapon, ItemFile));
+                rendererList.Add(new WeaponRenderer(_renderProperties, _textures.Weapon, ItemFile));
 
-            rendererList.Add(new SkinRenderer(_spriteBatch, _renderProperties, _textures.Skin, ItemFile));
+            rendererList.Add(new SkinRenderer(_renderProperties, _textures.Skin, ItemFile));
             if (IsCharacterDoingEmote())
             {
-                rendererList.Add(new FaceRenderer(_spriteBatch, _renderProperties, _textures.Face, ItemFile));
-                rendererList.Add(new EmoteRenderer(_spriteBatch, _renderProperties, _textures.Emote, ItemFile));
+                rendererList.Add(new FaceRenderer(_renderProperties, _textures.Face, ItemFile));
+                rendererList.Add(new EmoteRenderer(_renderProperties, _textures.Emote, ItemFile));
             }
 
             if (BootsEquipped())
-                rendererList.Add(new BootsRenderer(_spriteBatch, _renderProperties, _textures.Boots, ItemFile));
+                rendererList.Add(new BootsRenderer(_renderProperties, _textures.Boots, ItemFile));
 
             if (ArmorEquipped())
-                rendererList.Add(new ArmorRenderer(_spriteBatch, _renderProperties, _textures.Armor, ItemFile));
+                rendererList.Add(new ArmorRenderer(_renderProperties, _textures.Armor, ItemFile));
 
             if (WeaponEquipped() && !rendererList.OfType<WeaponRenderer>().Any())
-                rendererList.Add(new WeaponRenderer(_spriteBatch, _renderProperties, _textures.Weapon, ItemFile));
+                rendererList.Add(new WeaponRenderer(_renderProperties, _textures.Weapon, ItemFile));
 
             var hairOnTopOfHat = new List<ICharacterPropertyRenderer>();
             if (HatEquipped())
-                hairOnTopOfHat.Add(new HatRenderer(_spriteBatch, _renderProperties, _textures.Hat, ItemFile));
+                hairOnTopOfHat.Add(new HatRenderer(_renderProperties, _textures.Hat, ItemFile));
             if (!IsBald())
-                hairOnTopOfHat.Add(new HairRenderer(_spriteBatch, _renderProperties, _textures.Hair, ItemFile));
+                hairOnTopOfHat.Add(new HairRenderer(_renderProperties, _textures.Hair, ItemFile));
             if (hairOnTopOfHat.Any())
                 rendererList.AddRange(IsHairOnTopOfHat() ? hairOnTopOfHat : hairOnTopOfHat.ToArray().Reverse());
 
             if (ShieldEquipped() && !rendererList.OfType<ShieldRenderer>().Any())
-                rendererList.Add(new ShieldRenderer(_spriteBatch, _renderProperties, _textures.Shield));
+                rendererList.Add(new ShieldRenderer(_renderProperties, _textures.Shield));
 
             return rendererList;
         }

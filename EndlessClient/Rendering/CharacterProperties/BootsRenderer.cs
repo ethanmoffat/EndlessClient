@@ -15,30 +15,27 @@ namespace EndlessClient.Rendering.CharacterProperties
 {
     public class BootsRenderer : ICharacterPropertyRenderer
     {
-        private readonly SpriteBatch _spriteBatch;
         private readonly ICharacterRenderProperties _renderProperties;
         private readonly Texture2D _bootsTexture;
         private readonly IPubFile<EIFRecord> _itemFile;
 
-        public BootsRenderer(SpriteBatch spriteBatch,
-                             ICharacterRenderProperties renderProperties,
+        public BootsRenderer(ICharacterRenderProperties renderProperties,
                              Texture2D bootsTexture,
                              IPubFile<EIFRecord> itemFile)
         {
-            _spriteBatch = spriteBatch;
             _renderProperties = renderProperties;
             _bootsTexture = bootsTexture;
             _itemFile = itemFile;
         }
 
-        public void Render(Rectangle parentCharacterDrawArea)
+        public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
             var offsets = GetOffsets();
             var drawLoc = new Vector2(parentCharacterDrawArea.X - 2 + offsets.X, parentCharacterDrawArea.Y + 49 + offsets.Y);
 
-            _spriteBatch.Draw(_bootsTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
-                              _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                              0.0f);
+            spriteBatch.Draw(_bootsTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
+                             _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                             0.0f);
         }
 
         private bool IsWeaponAMeleeWeapon()

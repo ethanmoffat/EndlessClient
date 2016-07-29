@@ -3,11 +3,12 @@
 // For additional details, see the LICENSE file
 
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
     public interface ICharacterPropertyRenderer
     {
-        void Render(Rectangle parentCharacterDrawArea);
+        void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea);
     }
 }

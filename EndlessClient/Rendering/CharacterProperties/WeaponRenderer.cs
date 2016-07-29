@@ -15,23 +15,20 @@ namespace EndlessClient.Rendering.CharacterProperties
 {
     public class WeaponRenderer : ICharacterPropertyRenderer
     {
-        private readonly SpriteBatch _spriteBatch;
         private readonly ICharacterRenderProperties _renderProperties;
         private readonly Texture2D _weaponTexture;
         private readonly IPubFile<EIFRecord> _itemFile;
 
-        public WeaponRenderer(SpriteBatch spriteBatch,
-                              ICharacterRenderProperties renderProperties,
+        public WeaponRenderer(ICharacterRenderProperties renderProperties,
                               Texture2D weaponTexture,
                               IPubFile<EIFRecord> itemFile)
         {
-            _spriteBatch = spriteBatch;
             _renderProperties = renderProperties;
             _weaponTexture = weaponTexture;
             _itemFile = itemFile;
         }
 
-        public void Render(Rectangle parentCharacterDrawArea)
+        public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
             if (_renderProperties.CurrentAction == CharacterActionState.Sitting ||
                 _renderProperties.CurrentAction == CharacterActionState.SpellCast)
@@ -40,9 +37,9 @@ namespace EndlessClient.Rendering.CharacterProperties
             var offsets = GetOffsets();
             var drawLoc = new Vector2(parentCharacterDrawArea.X + offsets.X, parentCharacterDrawArea.Y + offsets.Y);
 
-            _spriteBatch.Draw(_weaponTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
-                              _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                              0.0f);
+            spriteBatch.Draw(_weaponTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
+                             _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                             0.0f);
         }
 
         private bool IsWeaponAMeleeWeapon()

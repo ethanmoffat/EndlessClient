@@ -180,7 +180,7 @@ namespace EndlessClient.Rendering
 
             var characterPropertyRenderers = GetOrderedRenderers();
             foreach (var renderer in characterPropertyRenderers)
-                renderer.Render(DrawArea);
+                renderer.Render(_sb, DrawArea);
 
             _sb.End();
             GraphicsDevice.SetRenderTarget(null);
@@ -188,7 +188,7 @@ namespace EndlessClient.Rendering
 
         private IEnumerable<ICharacterPropertyRenderer> GetOrderedRenderers()
         {
-            var propertyListBuilder = new CharacterPropertyRendererBuilder(_sb, RenderProperties, _characterTextures, _eifFileProvider);
+            var propertyListBuilder = new CharacterPropertyRendererBuilder(RenderProperties, _characterTextures, _eifFileProvider);
             return propertyListBuilder.BuildList(IsShieldOnBack());
         }
 

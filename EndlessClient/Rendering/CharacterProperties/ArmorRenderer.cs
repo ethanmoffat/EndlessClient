@@ -15,30 +15,27 @@ namespace EndlessClient.Rendering.CharacterProperties
 {
     public class ArmorRenderer : ICharacterPropertyRenderer
     {
-        private readonly SpriteBatch _spriteBatch;
         private readonly ICharacterRenderProperties _renderProperties;
         private readonly Texture2D _armorTexture;
         private readonly IPubFile<EIFRecord> _itemFile;
 
-        public ArmorRenderer(SpriteBatch spriteBatch,
-                             ICharacterRenderProperties renderProperties,
+        public ArmorRenderer(ICharacterRenderProperties renderProperties,
                              Texture2D armorTexture,
                              IPubFile<EIFRecord> itemFile)
         {
-            _spriteBatch = spriteBatch;
             _renderProperties = renderProperties;
             _armorTexture = armorTexture;
             _itemFile = itemFile;
         }
 
-        public void Render(Rectangle parentCharacterDrawArea)
+        public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
             var offsets = GetOffsets();
             var drawLoc = new Vector2(parentCharacterDrawArea.X - 2 + offsets.X, parentCharacterDrawArea.Y + offsets.Y);
 
-            _spriteBatch.Draw(_armorTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
-                              _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                              0.0f);
+            spriteBatch.Draw(_armorTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
+                             _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                             0.0f);
         }
 
         private bool IsWeaponAMeleeWeapon()
