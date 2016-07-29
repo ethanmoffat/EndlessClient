@@ -163,9 +163,9 @@ namespace EndlessClient.Rendering
         private void ReloadTextures()
         {
             _characterSpriteCalculator = new CharacterSpriteCalculator(_graphicsManager, _characterRenderPropertiesPrivate);
-            _characterTextures = new CharacterTextures(_characterSpriteCalculator);
+            _characterTextures = new CharacterTextures(_eifFileProvider, _characterSpriteCalculator, _characterRenderPropertiesPrivate);
 
-            _characterTextures.Refresh(IsBowEquipped(), IsShieldOnBack());
+            _characterTextures.Refresh();
         }
 
         #endregion
