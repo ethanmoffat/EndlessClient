@@ -30,7 +30,9 @@ namespace EOLib.Domain.Map
             var warp = CurrentMap.Warps[y, x];
             var chest = CurrentMap.Chests.FirstOrDefault(c => c.X == x && c.Y == y);
             var sign = CurrentMap.Signs.FirstOrDefault(s => s.X == x && s.Y == y);
-            var character = _mapStateProvider.Characters.FirstOrDefault(c => c.MapX == x && c.MapY == y);
+
+            var character = _mapStateProvider.Characters.FirstOrDefault(c => c.RenderProperties.MapX == x &&
+                                                                             c.RenderProperties.MapY == y);
             var npc = _mapStateProvider.NPCs.FirstOrDefault(n => n.X == x && n.Y == y);
             var items = _mapStateProvider.MapItems.Where(i => i.X == x && i.Y == y);
 

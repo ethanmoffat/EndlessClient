@@ -29,10 +29,6 @@ namespace EOLib.Domain.Character
 
         int MapID { get; }
 
-        int MapX { get; }
-
-        int MapY { get; }
-
         ICharacter WithID(int id);
 
         ICharacter WithName(string name);
@@ -54,9 +50,5 @@ namespace EOLib.Domain.Character
         ICharacter WithAdminLevel(AdminLevel level);
 
         ICharacter WithMapID(int mapID);
-
-        ICharacter WithMapX(int mapX);
-
-        ICharacter WithMapY(int mapY);
     }
 }

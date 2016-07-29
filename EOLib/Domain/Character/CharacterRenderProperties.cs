@@ -26,6 +26,8 @@ namespace EOLib.Domain.Character
         public short WeaponGraphic { get; private set; }
 
         public EODirection Direction { get; private set; }
+        public int MapX { get; private set; }
+        public int MapY { get; private set; }
 
         public int WalkFrame { get; private set; }
         public int AttackFrame { get; private set; }
@@ -104,6 +106,20 @@ namespace EOLib.Domain.Character
         {
             var props = MakeCopy(this);
             props.Direction = newDirection;
+            return props;
+        }
+
+        public ICharacterRenderProperties WithMapX(int mapX)
+        {
+            var props = MakeCopy(this);
+            props.MapX = mapX;
+            return props;
+        }
+
+        public ICharacterRenderProperties WithMapY(int mapY)
+        {
+            var props = MakeCopy(this);
+            props.MapY = mapY;
             return props;
         }
 
@@ -200,6 +216,9 @@ namespace EOLib.Domain.Character
                 WeaponGraphic = other.WeaponGraphic,
 
                 Direction = other.Direction,
+                MapX = other.MapX,
+                MapY = other.MapY,
+
                 WalkFrame = other.WalkFrame,
                 AttackFrame = other.AttackFrame,
                 EmoteFrame = other.EmoteFrame,

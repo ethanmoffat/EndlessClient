@@ -28,10 +28,6 @@ namespace EOLib.Domain.Character
 
         public int MapID { get; private set; }
 
-        public int MapX { get; private set; }
-
-        public int MapY { get; private set; }
-
         public ICharacter WithID(int id)
         {
             var character = MakeCopy(this);
@@ -109,20 +105,6 @@ namespace EOLib.Domain.Character
             return character;
         }
 
-        public ICharacter WithMapX(int mapX)
-        {
-            var character = MakeCopy(this);
-            character.MapX = mapX;
-            return character;
-        }
-
-        public ICharacter WithMapY(int mapY)
-        {
-            var character = MakeCopy(this);
-            character.MapY = mapY;
-            return character;
-        }
-
         private static Character MakeCopy(ICharacter source)
         {
             return new Character
@@ -137,9 +119,7 @@ namespace EOLib.Domain.Character
                 AdminLevel = source.AdminLevel,
                 RenderProperties = source.RenderProperties,
                 Stats = source.Stats,
-                MapID = source.MapID,
-                MapX = source.MapX,
-                MapY = source.MapY
+                MapID = source.MapID
             };
         }
     }

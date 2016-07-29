@@ -8,8 +8,8 @@ namespace EndlessClient.Rendering.CharacterProperties
 {
     public interface ICharacterRenderOffsetCalculator
     {
-        int CalculateOffsetX(ICharacter character);
+        int CalculateOffsetX(ICharacterRenderProperties properties);
 
-        int CalculateOffsetY(ICharacter character);
+        int CalculateOffsetY(ICharacterRenderProperties properties);
     }
 }

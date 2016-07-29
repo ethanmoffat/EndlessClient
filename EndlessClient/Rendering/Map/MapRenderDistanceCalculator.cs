@@ -14,10 +14,10 @@ namespace EndlessClient.Rendering.Map
 
         public MapRenderBounds CalculateRenderBounds(ICharacter character, IReadOnlyMapFile currentMap)
         {
-            var firstRow = Math.Max(character.MapY - DEFAULT_BOUNDS_DISTANCE, 0);
-            var lastRow = Math.Min(character.MapY + DEFAULT_BOUNDS_DISTANCE, currentMap.Properties.Height);
-            var firstCol = Math.Max(character.MapX - DEFAULT_BOUNDS_DISTANCE, 0);
-            var lastCol = Math.Min(character.MapX + DEFAULT_BOUNDS_DISTANCE, currentMap.Properties.Width);
+            var firstRow = Math.Max(character.RenderProperties.MapY - DEFAULT_BOUNDS_DISTANCE, 0);
+            var lastRow = Math.Min(character.RenderProperties.MapY + DEFAULT_BOUNDS_DISTANCE, currentMap.Properties.Height);
+            var firstCol = Math.Max(character.RenderProperties.MapX - DEFAULT_BOUNDS_DISTANCE, 0);
+            var lastCol = Math.Min(character.RenderProperties.MapX + DEFAULT_BOUNDS_DISTANCE, currentMap.Properties.Width);
 
             return new MapRenderBounds(firstRow, lastRow, firstCol, lastCol);
         }

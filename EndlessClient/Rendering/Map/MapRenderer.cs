@@ -104,7 +104,7 @@ namespace EndlessClient.Rendering.Map
 
                 for (int col = renderBounds.FirstCol; col <= renderBounds.LastCol; col++)
                 {
-                    if (CharacterIsAtPosition(immutableCharacter, row, col))
+                    if (CharacterIsAtPosition(immutableCharacter.RenderProperties, row, col))
                         SwitchRenderTargets();
 
                     foreach (var layer in _possibleLayers)
@@ -121,12 +121,12 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.SetRenderTarget(null);
         }
 
-        private static bool CharacterIsAtPosition(ICharacter character, int row, int col)
+        private static bool CharacterIsAtPosition(ICharacterRenderProperties renderProperties, int row, int col)
         {
-            if (character.RenderProperties.CurrentAction == CharacterActionState.Walking)
-                return row == character.GetDestinationY() && col == character.GetDestinationX();
+            if (renderProperties.CurrentAction == CharacterActionState.Walking)
+                return row == renderProperties.GetDestinationY() && col == renderProperties.GetDestinationX();
 
-            return row == character.MapY && col == character.MapX;
+            return row == renderProperties.MapY && col == renderProperties.MapX;
         }
 
         private void SwitchRenderTargets()

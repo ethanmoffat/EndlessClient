@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 
 namespace EOLib.Net.Translators
 {
@@ -79,14 +78,14 @@ namespace EOLib.Net.Translators
                     .WithShieldGraphic(shield)
                     .WithWeaponGraphic(weapon)
                     .WithSitState(sitState)
-                    .WithIsHidden(hidden);
+                    .WithIsHidden(hidden)
+                    .WithMapX(xLoc)
+                    .WithMapY(yLoc);
 
                 yield return new Character()
                     .WithName(name)
                     .WithID(id)
                     .WithMapID(mapID)
-                    .WithMapX(xLoc)
-                    .WithMapY(yLoc)
                     .WithGuildTag(guildTag)
                     .WithStats(stats)
                     .WithRenderProperties(renderProps);

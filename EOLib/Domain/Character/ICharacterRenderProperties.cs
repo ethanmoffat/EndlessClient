@@ -23,6 +23,8 @@ namespace EOLib.Domain.Character
         short WeaponGraphic { get; }
 
         EODirection Direction { get; }
+        int MapX { get; }
+        int MapY { get; }
 
         int WalkFrame { get; }
         int AttackFrame { get; }
@@ -46,6 +48,8 @@ namespace EOLib.Domain.Character
         ICharacterRenderProperties WithWeaponGraphic(short weaponGraphic);
 
         ICharacterRenderProperties WithDirection(EODirection newDirection);
+        ICharacterRenderProperties WithMapX(int mapX);
+        ICharacterRenderProperties WithMapY(int mapY);
 
         ICharacterRenderProperties WithNextWalkFrame();
         ICharacterRenderProperties WithNextAttackFrame();

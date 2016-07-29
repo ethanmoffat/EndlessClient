@@ -10,26 +10,22 @@ namespace EndlessClient.Rendering.CharacterProperties
 {
     public class CharacterRenderOffsetCalculator : ICharacterRenderOffsetCalculator
     {
-        public int CalculateOffsetX(ICharacter character)
+        public int CalculateOffsetX(ICharacterRenderProperties properties)
         {
-            var properties = character.RenderProperties;
-
             var multiplier = properties.IsFacing(EODirection.Left, EODirection.Down) ? -1 : 1;
             var walkAdjust = properties.IsActing(CharacterActionState.Walking) ? 8 * properties.WalkFrame : 0;
 
             //walkAdjust * multiplier is the old ViewAdjustX
-            return character.MapX*32 - character.MapY*32 + walkAdjust * multiplier;
+            return properties.MapX*32 - properties.MapY*32 + walkAdjust*multiplier;
         }
 
-        public int CalculateOffsetY(ICharacter character)
+        public int CalculateOffsetY(ICharacterRenderProperties properties)
         {
-            var properties = character.RenderProperties;
-
             var multiplier = properties.IsFacing(EODirection.Left, EODirection.Up) ? -1 : 1;
             var walkAdjust = properties.IsActing(CharacterActionState.Walking) ? 4 * properties.WalkFrame : 0;
 
             //walkAdjust * multiplier is the old ViewAdjustY
-            return character.MapX*16 + character.MapY*16 + walkAdjust * multiplier;
+            return properties.MapX*16 + properties.MapY*16 + walkAdjust*multiplier;
         }
     }
 }
