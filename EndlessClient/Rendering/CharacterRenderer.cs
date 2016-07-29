@@ -91,7 +91,7 @@ namespace EndlessClient.Rendering
                 return;
 
             if (RenderProperties != _lastRenderProperties && RenderProperties.IsActing(CharacterActionState.Walking))
-                SetGridCoordinatePosition(RenderProperties.MapX, RenderProperties.MapY);
+                SetGridCoordinatePosition();
 
             if (_textureUpdateRequired)
             {
@@ -199,7 +199,7 @@ namespace EndlessClient.Rendering
                 : Color.White;
         }
 
-        private void SetGridCoordinatePosition(int xCoord, int yCoord)
+        private void SetGridCoordinatePosition()
         {
             //todo: the constants here should be dynamically configurable to support window resizing
             var screenX = _characterRenderOffsetCalculator.CalculateOffsetX(RenderProperties) + 304 - GetMainCharacterOffsetX();
