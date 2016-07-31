@@ -4,7 +4,6 @@
 
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Factories;
-using EOLib.Domain.Character;
 using EOLib.IO.Repositories;
 
 namespace EndlessClient
@@ -14,26 +13,19 @@ namespace EndlessClient
     {
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRendererFactory _characterRendererFactory;
-        private readonly ICharacterRepository _characterRepository;
         private readonly IEIFFileProvider _eifFileProvider;
 
         public TestModeLauncher(IEndlessGameProvider endlessGameProvider,
                                 ICharacterRendererFactory characterRendererFactory,
-                                ICharacterRepository characterRepository,
                                 IEIFFileProvider eifFileProvider)
         {
             _endlessGameProvider = endlessGameProvider;
             _characterRendererFactory = characterRendererFactory;
-            _characterRepository = characterRepository;
             _eifFileProvider = eifFileProvider;
         }
 
         public void LaunchTestMode()
         {
-            if (_characterRepository.ActiveCharacter == null)
-                _characterRepository.ActiveCharacter = new EOLib.Domain.Character.Character()
-                    .WithRenderProperties(new CharacterRenderProperties());
-
             var testMode = new CharacterStateTest(
                 _endlessGameProvider.Game,
                 _characterRendererFactory,
