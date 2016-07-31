@@ -4,6 +4,7 @@
 
 using System.Linq;
 using EndlessClient.Rendering.CharacterProperties;
+using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -14,6 +15,7 @@ namespace EndlessClient.Rendering
 {
     public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
     {
+        private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
@@ -42,6 +44,7 @@ namespace EndlessClient.Rendering
         public int TopPixel { get; private set; }
 
         public CharacterRenderer(Game game,
+                                 IRenderTargetFactory renderTargetFactory,
                                  ICharacterProvider characterProvider,
                                  ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
@@ -50,6 +53,7 @@ namespace EndlessClient.Rendering
                                  ICharacterRenderProperties renderProperties)
             : base(game)
         {
+            _renderTargetFactory = renderTargetFactory;
             _characterProvider = characterProvider;
             _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
@@ -62,12 +66,7 @@ namespace EndlessClient.Rendering
 
         public override void Initialize()
         {
-            _charRenderTarget = new RenderTarget2D(Game.GraphicsDevice,
-                Game.GraphicsDevice.PresentationParameters.BackBufferWidth,
-                Game.GraphicsDevice.PresentationParameters.BackBufferHeight,
-                false,
-                SurfaceFormat.Color,
-                DepthFormat.None);
+            _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
             base.Initialize();

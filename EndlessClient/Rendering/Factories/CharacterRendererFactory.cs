@@ -13,6 +13,7 @@ namespace EndlessClient.Rendering.Factories
     public class CharacterRendererFactory : ICharacterRendererFactory
     {
         private readonly IEndlessGameProvider _gameProvider;
+        private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
@@ -20,6 +21,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
 
         public CharacterRendererFactory(IEndlessGameProvider gameProvider,
+                                        IRenderTargetFactory renderTargetFactory,
                                         ICharacterProvider characterProvider,
                                         ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
                                         ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
@@ -27,6 +29,7 @@ namespace EndlessClient.Rendering.Factories
                                         ICharacterSpriteCalculator characterSpriteCalculator)
         {
             _gameProvider = gameProvider;
+            _renderTargetFactory = renderTargetFactory;
             _characterProvider = characterProvider;
             _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
@@ -37,6 +40,7 @@ namespace EndlessClient.Rendering.Factories
         public ICharacterRenderer CreateCharacterRenderer(ICharacterRenderProperties initialRenderProperties)
         {
             return new CharacterRenderer((Game) _gameProvider.Game,
+                _renderTargetFactory,
                 _characterProvider,
                 _characterRenderOffsetCalculator,
                 _characterPropertyRendererBuilder,
