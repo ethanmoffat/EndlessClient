@@ -22,41 +22,45 @@ namespace EndlessClient.Rendering.CharacterProperties
             _eifFileProvider = eifFileProvider;
         }
 
-        public List<ICharacterPropertyRenderer> BuildList(ICharacterTextures textures,
-                                                          ICharacterRenderProperties renderProperties)
+        public IEnumerable<ICharacterPropertyRenderer> BuildList(ICharacterTextures textures,
+                                                                 ICharacterRenderProperties renderProperties)
         {
-            var rendererList = new List<ICharacterPropertyRenderer>();
+            bool shieldAdded = false, weaponAdded = false;
 
             if (IsShieldBehindCharacter(renderProperties))
-                rendererList.Add(new ShieldRenderer(renderProperties, textures.Shield));
+            {
+                shieldAdded = true;
+                yield return new ShieldRenderer(renderProperties, textures.Shield);
+            }
 
             if (IsWeaponBehindCharacter(renderProperties))
-                rendererList.Add(new WeaponRenderer(renderProperties, textures.Weapon, EIFFile));
+            {
+                weaponAdded = true;
+                yield return new WeaponRenderer(renderProperties, textures.Weapon, EIFFile);
+            }
 
-            rendererList.Add(new SkinRenderer(renderProperties, textures.Skin, EIFFile));
-            rendererList.Add(new FaceRenderer(renderProperties, textures.Face, EIFFile));
-            rendererList.Add(new EmoteRenderer(renderProperties, textures.Emote, EIFFile));
+            yield return new SkinRenderer(renderProperties, textures.Skin, EIFFile);
+            yield return new FaceRenderer(renderProperties, textures.Face, EIFFile);
+            yield return new EmoteRenderer(renderProperties, textures.Emote, EIFFile);
 
-            rendererList.Add(new BootsRenderer(renderProperties, textures.Boots, EIFFile));
-            rendererList.Add(new ArmorRenderer(renderProperties, textures.Armor, EIFFile));
-            if (!rendererList.OfType<WeaponRenderer>().Any())
-                rendererList.Add(new WeaponRenderer(renderProperties, textures.Weapon, EIFFile));
+            yield return new BootsRenderer(renderProperties, textures.Boots, EIFFile);
+            yield return new ArmorRenderer(renderProperties, textures.Armor, EIFFile);
+            if (!weaponAdded)
+                yield return new WeaponRenderer(renderProperties, textures.Weapon, EIFFile);
 
             if (IsHairOnTopOfHat(renderProperties))
             {
-                rendererList.Add(new HatRenderer(renderProperties, textures.Hat, EIFFile));
-                rendererList.Add(new HairRenderer(renderProperties, textures.Hair, EIFFile));
+                yield return new HatRenderer(renderProperties, textures.Hat, EIFFile);
+                yield return new HairRenderer(renderProperties, textures.Hair, EIFFile);
             }
             else
             {
-                rendererList.Add(new HairRenderer(renderProperties, textures.Hair, EIFFile));
-                rendererList.Add(new HatRenderer(renderProperties, textures.Hat, EIFFile));
+                yield return new HairRenderer(renderProperties, textures.Hair, EIFFile);
+                yield return new HatRenderer(renderProperties, textures.Hat, EIFFile);
             }
 
-            if (!rendererList.OfType<ShieldRenderer>().Any())
-                rendererList.Add(new ShieldRenderer(renderProperties, textures.Shield));
-
-            return rendererList;
+            if (!shieldAdded)
+                yield return new ShieldRenderer(renderProperties, textures.Shield);
         }
 
         private bool IsShieldBehindCharacter(ICharacterRenderProperties renderProperties)
