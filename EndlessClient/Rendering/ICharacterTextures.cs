@@ -22,6 +22,6 @@ namespace EndlessClient.Rendering
         ISpriteSheet Emote { get; }
         ISpriteSheet Face { get; }
 
-        void Refresh(ICharacterSpriteCalculator characterSpriteCalculator, ICharacterRenderProperties characterRenderProperties);
+        void Refresh(ICharacterRenderProperties characterRenderProperties);
     }
 }

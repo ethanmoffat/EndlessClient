@@ -7,6 +7,9 @@ using System.Linq;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
+using EOLib.IO;
+using EOLib.IO.Pub;
+using EOLib.IO.Repositories;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 
@@ -15,25 +18,25 @@ namespace EndlessClient.Rendering.Sprites
     public class CharacterSpriteCalculator : ICharacterSpriteCalculator
     {
         private readonly INativeGraphicsManager _gfxManager;
-        private readonly ICharacterRenderProperties _characterRenderProperties;
+        private readonly IEIFFileProvider _eifFileProvider;
 
         public CharacterSpriteCalculator(INativeGraphicsManager gfxManager,
-                                         ICharacterRenderProperties characterRenderProperties)
+                                         IEIFFileProvider eifFileProvider)
         {
             _gfxManager = gfxManager;
-            _characterRenderProperties = characterRenderProperties;
+            _eifFileProvider = eifFileProvider;
         }
 
-        public ISpriteSheet GetBootsTexture(bool isBow)
+        public ISpriteSheet GetBootsTexture(ICharacterRenderProperties characterRenderProperties)
         {
-            if (_characterRenderProperties.BootsGraphic == 0)
+            if (characterRenderProperties.BootsGraphic == 0)
                 return new EmptySpriteSheet();
 
             var type = BootsSpriteType.Standing;
-            switch (_characterRenderProperties.CurrentAction)
+            switch (characterRenderProperties.CurrentAction)
             {
                 case CharacterActionState.Walking:
-                    switch (_characterRenderProperties.WalkFrame)
+                    switch (characterRenderProperties.WalkFrame)
                     {
                         case 1: type = BootsSpriteType.WalkFrame1; break;
                         case 2: type = BootsSpriteType.WalkFrame2; break;
@@ -42,12 +45,12 @@ namespace EndlessClient.Rendering.Sprites
                     }
                     break;
                 case CharacterActionState.Attacking:
-                    if (!isBow && _characterRenderProperties.AttackFrame == 2 ||
-                        isBow && _characterRenderProperties.AttackFrame == 1)
+                    if (!BowIsEquipped(characterRenderProperties) && characterRenderProperties.AttackFrame == 2 ||
+                        BowIsEquipped(characterRenderProperties) && characterRenderProperties.AttackFrame == 1)
                         type = BootsSpriteType.Attack;
                     break;
                 case CharacterActionState.Sitting:
-                    switch (_characterRenderProperties.SitState)
+                    switch (characterRenderProperties.SitState)
                     {
                         case SitState.Chair: type = BootsSpriteType.SitChair; break;
                         case SitState.Floor: type = BootsSpriteType.SitGround; break;
@@ -55,25 +58,25 @@ namespace EndlessClient.Rendering.Sprites
                     break;
             }
 
-            var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleShoes : GFXTypes.MaleShoes;
+            var gfxFile = characterRenderProperties.Gender == 0 ? GFXTypes.FemaleShoes : GFXTypes.MaleShoes;
 
-            var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection();
-            var baseBootGraphic = GetBaseBootGraphic();
+            var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+            var baseBootGraphic = GetBaseBootGraphic(characterRenderProperties.BootsGraphic);
             var gfxNumber = baseBootGraphic + (int)type + offset;
 
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
         }
 
-        public ISpriteSheet GetArmorTexture(bool isBow)
+        public ISpriteSheet GetArmorTexture(ICharacterRenderProperties characterRenderProperties)
         {
-            if (_characterRenderProperties.ArmorGraphic == 0)
+            if (characterRenderProperties.ArmorGraphic == 0)
                 return new EmptySpriteSheet();
 
             var type = ArmorShieldSpriteType.Standing;
-            switch (_characterRenderProperties.CurrentAction)
+            switch (characterRenderProperties.CurrentAction)
             {
                 case CharacterActionState.Walking:
-                    switch (_characterRenderProperties.WalkFrame)
+                    switch (characterRenderProperties.WalkFrame)
                     {
                         case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
                         case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
@@ -82,9 +85,9 @@ namespace EndlessClient.Rendering.Sprites
                     }
                     break;
                 case CharacterActionState.Attacking:
-                    if (isBow)
+                    if (BowIsEquipped(characterRenderProperties))
                     {
-                        switch (_characterRenderProperties.AttackFrame)
+                        switch (characterRenderProperties.AttackFrame)
                         {
                             case 1: type = ArmorShieldSpriteType.Bow; break;
                             case 2: type = ArmorShieldSpriteType.Standing; break;
@@ -92,7 +95,7 @@ namespace EndlessClient.Rendering.Sprites
                     }
                     else
                     {
-                        switch (_characterRenderProperties.AttackFrame)
+                        switch (characterRenderProperties.AttackFrame)
                         {
                             case 1: type = ArmorShieldSpriteType.PunchFrame1; break;
                             case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
@@ -103,7 +106,7 @@ namespace EndlessClient.Rendering.Sprites
                     type = ArmorShieldSpriteType.SpellCast;
                     break;
                 case CharacterActionState.Sitting:
-                    switch (_characterRenderProperties.SitState)
+                    switch (characterRenderProperties.SitState)
                     {
                         case SitState.Chair:
                             type = ArmorShieldSpriteType.SitChair;
@@ -115,43 +118,43 @@ namespace EndlessClient.Rendering.Sprites
                     break;
             }
 
-            var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleArmor : GFXTypes.MaleArmor;
+            var gfxFile = characterRenderProperties.Gender == 0 ? GFXTypes.FemaleArmor : GFXTypes.MaleArmor;
 
-            var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection();
-            var baseArmorValue = GetBaseArmorGraphic();
+            var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+            var baseArmorValue = GetBaseArmorGraphic(characterRenderProperties.ArmorGraphic);
             var gfxNumber = baseArmorValue + (int)type + offset;
 
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
         }
 
-        public ISpriteSheet GetHatTexture()
+        public ISpriteSheet GetHatTexture(ICharacterRenderProperties characterRenderProperties)
         {
-            if (_characterRenderProperties.HatGraphic == 0)
+            if (characterRenderProperties.HatGraphic == 0)
                 return new EmptySpriteSheet();
 
-            var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleHat : GFXTypes.MaleHat;
+            var gfxFile = characterRenderProperties.Gender == 0 ? GFXTypes.FemaleHat : GFXTypes.MaleHat;
 
-            var offset = 2 * GetBaseOffsetFromDirection();
-            var baseHatValue = GetBaseHatGraphic();
+            var offset = 2 * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+            var baseHatValue = GetBaseHatGraphic(characterRenderProperties.HatGraphic);
             var gfxNumber = baseHatValue + 1 + offset;
 
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
         }
 
-        public ISpriteSheet GetShieldTexture(bool shieldIsOnBack)
+        public ISpriteSheet GetShieldTexture(ICharacterRenderProperties characterRenderProperties)
         {
-            if (_characterRenderProperties.ShieldGraphic == 0)
+            if (characterRenderProperties.ShieldGraphic == 0)
                 return new EmptySpriteSheet();
 
             var type = ArmorShieldSpriteType.Standing;
-            var offset = GetBaseOffsetFromDirection();
+            var offset = GetBaseOffsetFromDirection(characterRenderProperties.Direction);
 
             //front shields have one size gfx, back arrows/wings have another size.
-            if (!shieldIsOnBack)
+            if (!ShieldIsOnBack(characterRenderProperties))
             {
-                if (_characterRenderProperties.CurrentAction == CharacterActionState.Walking)
+                if (characterRenderProperties.CurrentAction == CharacterActionState.Walking)
                 {
-                    switch (_characterRenderProperties.WalkFrame)
+                    switch (characterRenderProperties.WalkFrame)
                     {
                         case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
                         case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
@@ -159,19 +162,19 @@ namespace EndlessClient.Rendering.Sprites
                         case 4: type = ArmorShieldSpriteType.WalkFrame4; break;
                     }
                 }
-                else if (_characterRenderProperties.CurrentAction == CharacterActionState.Attacking)
+                else if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking)
                 {
-                    switch (_characterRenderProperties.AttackFrame)
+                    switch (characterRenderProperties.AttackFrame)
                     {
                         case 1: type = ArmorShieldSpriteType.PunchFrame1; break;
                         case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
                     }
                 }
-                else if (_characterRenderProperties.CurrentAction == CharacterActionState.SpellCast)
+                else if (characterRenderProperties.CurrentAction == CharacterActionState.SpellCast)
                 {
                     type = ArmorShieldSpriteType.SpellCast;
                 }
-                else if(_characterRenderProperties.CurrentAction == CharacterActionState.Sitting)
+                else if(characterRenderProperties.CurrentAction == CharacterActionState.Sitting)
                 {
                     return new EmptySpriteSheet();
                 }
@@ -184,28 +187,28 @@ namespace EndlessClient.Rendering.Sprites
                 //    Standing = 1/2
                 //    Attacking = 3/4
                 //    Extra = 5 (unused?)
-                if (_characterRenderProperties.CurrentAction == CharacterActionState.Attacking &&
-                    _characterRenderProperties.AttackFrame == 1)
+                if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking &&
+                    characterRenderProperties.AttackFrame == 1)
                     type = ArmorShieldSpriteType.ShieldItemOnBack_AttackingWithBow;
             }
 
-            var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleBack : GFXTypes.MaleBack;
+            var gfxFile = characterRenderProperties.Gender == 0 ? GFXTypes.FemaleBack : GFXTypes.MaleBack;
 
-            var baseShieldValue = GetBaseShieldGraphic();
+            var baseShieldValue = GetBaseShieldGraphic(characterRenderProperties.ShieldGraphic);
             var gfxNumber = baseShieldValue + (int)type + offset;
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
         }
 
-        public ISpriteSheet GetWeaponTexture(bool isBow)
+        public ISpriteSheet GetWeaponTexture(ICharacterRenderProperties characterRenderProperties)
         {
-            if(_characterRenderProperties.WeaponGraphic == 0)
+            if(characterRenderProperties.WeaponGraphic == 0)
                 return new EmptySpriteSheet();
 
             var type = WeaponSpriteType.Standing;
-            switch (_characterRenderProperties.CurrentAction)
+            switch (characterRenderProperties.CurrentAction)
             {
                 case CharacterActionState.Walking:
-                    switch (_characterRenderProperties.WalkFrame)
+                    switch (characterRenderProperties.WalkFrame)
                     {
                         case 1: type = WeaponSpriteType.WalkFrame1; break;
                         case 2: type = WeaponSpriteType.WalkFrame2; break;
@@ -214,9 +217,9 @@ namespace EndlessClient.Rendering.Sprites
                     }
                     break;
                 case CharacterActionState.Attacking:
-                    if (isBow)
+                    if (BowIsEquipped(characterRenderProperties))
                     {
-                        switch (_characterRenderProperties.AttackFrame)
+                        switch (characterRenderProperties.AttackFrame)
                         {
                             case 1: type = WeaponSpriteType.Shooting; break;
                             case 2: type = WeaponSpriteType.Standing; break;
@@ -224,12 +227,12 @@ namespace EndlessClient.Rendering.Sprites
                     }
                     else
                     {
-                        switch (_characterRenderProperties.AttackFrame)
+                        switch (characterRenderProperties.AttackFrame)
                         {
                             case 1: type = WeaponSpriteType.SwingFrame1; break;
                             case 2:
-                                type = _characterRenderProperties.Direction == EODirection.Down
-                                    || _characterRenderProperties.Direction == EODirection.Right
+                                type = characterRenderProperties.Direction == EODirection.Down
+                                    || characterRenderProperties.Direction == EODirection.Right
                                     ? WeaponSpriteType.SwingFrame2Spec : WeaponSpriteType.SwingFrame2;
                                 break;
                         }
@@ -242,87 +245,87 @@ namespace EndlessClient.Rendering.Sprites
                     return new EmptySpriteSheet(); //no weapon when sitting
             }
 
-            var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleWeapons : GFXTypes.MaleWeapons;
+            var gfxFile = characterRenderProperties.Gender == 0 ? GFXTypes.FemaleWeapons : GFXTypes.MaleWeapons;
 
-            var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection();
-            var baseWeaponValue = GetBaseWeaponGraphic();
+            var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+            var baseWeaponValue = GetBaseWeaponGraphic(characterRenderProperties.WeaponGraphic);
             var gfxNumber = baseWeaponValue + (int)type + offset;
 
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
         }
 
-        public ISpriteSheet GetSkinTexture(bool isBow)
+        public ISpriteSheet GetSkinTexture(ICharacterRenderProperties characterRenderProperties)
         {
             var sheetRows = 7;
             var sheetColumns = 4;
             var gfxNum = 1;
 
-            if (_characterRenderProperties.CurrentAction == CharacterActionState.Walking && _characterRenderProperties.WalkFrame > 0)
+            if (characterRenderProperties.CurrentAction == CharacterActionState.Walking && characterRenderProperties.WalkFrame > 0)
             {
                 gfxNum = 2;
                 sheetColumns = 16;
             }
-            else if (_characterRenderProperties.CurrentAction == CharacterActionState.Attacking && _characterRenderProperties.AttackFrame > 0)
+            else if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking && characterRenderProperties.AttackFrame > 0)
             {
-                if (!isBow)
+                if (!BowIsEquipped(characterRenderProperties))
                 {
                     gfxNum = 3;
                     sheetColumns = 8;
                 }
-                else if (_characterRenderProperties.AttackFrame == 1) //only 1 frame of bow/gun animation
+                else if (characterRenderProperties.AttackFrame == 1) //only 1 frame of bow/gun animation
                 {
                     gfxNum = 7; //4 columns in this one too
                 }
             }
-            else if (_characterRenderProperties.CurrentAction == CharacterActionState.SpellCast)
+            else if (characterRenderProperties.CurrentAction == CharacterActionState.SpellCast)
             {
                 gfxNum = 4;
             }
-            else if (_characterRenderProperties.CurrentAction == CharacterActionState.Sitting)
+            else if (characterRenderProperties.CurrentAction == CharacterActionState.Sitting)
             {
-                if (_characterRenderProperties.SitState == SitState.Floor) gfxNum = 6;
-                else if (_characterRenderProperties.SitState == SitState.Chair) gfxNum = 5;
+                if (characterRenderProperties.SitState == SitState.Floor) gfxNum = 6;
+                else if (characterRenderProperties.SitState == SitState.Chair) gfxNum = 5;
             }
 
             var texture = _gfxManager.TextureFromResource(GFXTypes.SkinSprites, gfxNum, true);
 
-            var rotated = _characterRenderProperties.Direction == EODirection.Left ||
-                          _characterRenderProperties.Direction == EODirection.Up;
+            var rotated = characterRenderProperties.Direction == EODirection.Left ||
+                          characterRenderProperties.Direction == EODirection.Up;
 
             var heightDelta  = texture.Height / sheetRows;
             var widthDelta   = texture.Width / sheetColumns;
             var sectionDelta = texture.Width / 4;
 
-            var walkExtra = _characterRenderProperties.WalkFrame > 0 ? widthDelta * (_characterRenderProperties.WalkFrame - 1) : 0;
-            walkExtra = !isBow && _characterRenderProperties.AttackFrame > 0 ? widthDelta * (_characterRenderProperties.AttackFrame - 1) : walkExtra;
+            var walkExtra = characterRenderProperties.WalkFrame > 0 ? widthDelta * (characterRenderProperties.WalkFrame - 1) : 0;
+            walkExtra = !BowIsEquipped(characterRenderProperties) && characterRenderProperties.AttackFrame > 0 ? widthDelta * (characterRenderProperties.AttackFrame - 1) : walkExtra;
 
             var sourceArea = new Rectangle(
-                _characterRenderProperties.Gender * widthDelta * (sheetColumns / 2) + (rotated ? sectionDelta : 0) + walkExtra,
-                _characterRenderProperties.Race * heightDelta,
+                characterRenderProperties.Gender * widthDelta * (sheetColumns / 2) + (rotated ? sectionDelta : 0) + walkExtra,
+                characterRenderProperties.Race * heightDelta,
                 widthDelta,
                 heightDelta);
 
             return new SpriteSheet(texture, sourceArea);
         }
 
-        public ISpriteSheet GetHairTexture()
+        public ISpriteSheet GetHairTexture(ICharacterRenderProperties characterRenderProperties)
         {
-            if(_characterRenderProperties.HairStyle == 0)
+            if(characterRenderProperties.HairStyle == 0)
                 return new EmptySpriteSheet();
 
-            var gfxFile = _characterRenderProperties.Gender == 0 ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
-            var offset = 2 * GetBaseOffsetFromDirection();
-            var gfxNumber = GetBaseHairGraphic() + 2 + offset;
+            var gfxFile = characterRenderProperties.Gender == 0 ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
+            var offset = 2 * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+            var gfxNumber = GetBaseHairGraphic(characterRenderProperties.HairStyle, characterRenderProperties.HairColor) + 2 + offset;
 
             var hairTexture = _gfxManager.TextureFromResource(gfxFile, gfxNumber, true, true);
             return new SpriteSheet(hairTexture);
         }
 
-        public ISpriteSheet GetFaceTexture()
+        public ISpriteSheet GetFaceTexture(ICharacterRenderProperties characterRenderProperties)
         {
-            if (_characterRenderProperties.EmoteFrame < 0 ||
-                _characterRenderProperties.Emote == Emote.Trade ||
-                _characterRenderProperties.Emote == Emote.LevelUp)
+            if (characterRenderProperties.EmoteFrame < 0 ||
+                characterRenderProperties.Emote == Emote.Trade ||
+                characterRenderProperties.Emote == Emote.LevelUp)
             {
                 return new EmptySpriteSheet();
             }
@@ -335,26 +338,26 @@ namespace EndlessClient.Rendering.Sprites
 
             var widthDelta = texture.Width / COLS;
             var heightDelta = texture.Height / ROWS;
-            var genderOffset = texture.Height / 2 * _characterRenderProperties.Gender;
+            var genderOffset = texture.Height / 2 * characterRenderProperties.Gender;
             //'playful' is the last face in the gfx (ndx 10), even though it has enum value of 14 (ndx 13)
-            var emote = _characterRenderProperties.Emote == Emote.Playful ||
-                        _characterRenderProperties.Emote == Emote.Drunk
-                        ? 10 : (int)_characterRenderProperties.Emote - 1;
+            var emote = characterRenderProperties.Emote == Emote.Playful ||
+                        characterRenderProperties.Emote == Emote.Drunk
+                        ? 10 : (int)characterRenderProperties.Emote - 1;
 
-            var sourceRectangle = new Rectangle(widthDelta * emote, heightDelta * _characterRenderProperties.Race + genderOffset, widthDelta, heightDelta);
+            var sourceRectangle = new Rectangle(widthDelta * emote, heightDelta * characterRenderProperties.Race + genderOffset, widthDelta, heightDelta);
 
             return new SpriteSheet(texture, sourceRectangle);
         }
 
-        public ISpriteSheet GetEmoteTexture()
+        public ISpriteSheet GetEmoteTexture(ICharacterRenderProperties characterRenderProperties)
         {
-            if (_characterRenderProperties.Emote == 0 || _characterRenderProperties.EmoteFrame < 0)
+            if (characterRenderProperties.Emote == 0 || characterRenderProperties.EmoteFrame < 0)
                 return new EmptySpriteSheet();
 
             const int NUM_EMOTES = 15;
             const int NUM_FRAMES = 4;
 
-            var emoteValue = Enum.GetName(typeof (Emote), _characterRenderProperties.Emote) ?? "";
+            var emoteValue = Enum.GetName(typeof (Emote), characterRenderProperties.Emote) ?? "";
             var convertedValuesDictionary = Enum.GetNames(typeof (EmoteSpriteType))
                 .ToDictionary(x => x, x => (EmoteSpriteType) Enum.Parse(typeof (EmoteSpriteType), x));
             var convertedEmote = (int)convertedValuesDictionary[emoteValue];
@@ -363,47 +366,47 @@ namespace EndlessClient.Rendering.Sprites
 
             var eachSet = emoteTexture.Width / NUM_EMOTES;
             var eachFrame = emoteTexture.Width / (NUM_EMOTES * NUM_FRAMES);
-            var startX = convertedEmote*eachSet + _characterRenderProperties.EmoteFrame*eachFrame;
+            var startX = convertedEmote*eachSet + characterRenderProperties.EmoteFrame*eachFrame;
 
             var emoteRect = new Rectangle(startX, 0, eachFrame, emoteTexture.Height);
 
             return new SpriteSheet(emoteTexture, emoteRect);
         }
 
-        private int GetBaseBootGraphic()
+        private int GetBaseBootGraphic(int bootsGraphic)
         {
-            return (_characterRenderProperties.BootsGraphic - 1) * 40;
+            return (bootsGraphic - 1) * 40;
         }
 
-        private int GetBaseArmorGraphic()
+        private int GetBaseArmorGraphic(int armorGraphic)
         {
-            return (_characterRenderProperties.ArmorGraphic - 1) * 50;
+            return (armorGraphic - 1) * 50;
         }
 
-        private int GetBaseHatGraphic()
+        private int GetBaseHatGraphic(int hatGraphic)
         {
-            return (_characterRenderProperties.HatGraphic - 1) * 10;
+            return (hatGraphic - 1) * 10;
         }
 
-        private int GetBaseShieldGraphic()
+        private int GetBaseShieldGraphic(int shieldGraphic)
         {
-            return (_characterRenderProperties.ShieldGraphic - 1) * 50;
+            return (shieldGraphic - 1) * 50;
         }
 
-        private int GetBaseWeaponGraphic()
+        private int GetBaseWeaponGraphic(int weaponGraphic)
         {
-            return (_characterRenderProperties.WeaponGraphic - 1) * 100;
+            return (weaponGraphic - 1) * 100;
         }
 
-        private int GetBaseHairGraphic()
+        private int GetBaseHairGraphic(int hairStyle, int hairColor)
         {
-            return (_characterRenderProperties.HairStyle - 1) * 40 + _characterRenderProperties.HairColor * 4;
+            return (hairStyle - 1) * 40 + hairColor * 4;
         }
 
-        private int GetBaseOffsetFromDirection()
+        private int GetBaseOffsetFromDirection(EODirection direction)
         {
-            return _characterRenderProperties.Direction == EODirection.Down ||
-                   _characterRenderProperties.Direction == EODirection.Right ? 0 : 1;
+            return direction == EODirection.Down ||
+                   direction == EODirection.Right ? 0 : 1;
         }
 
         private int GetOffsetBasedOnState(BootsSpriteType type)
@@ -450,5 +453,34 @@ namespace EndlessClient.Rendering.Sprites
             }
             return 1;
         }
+
+        private bool BowIsEquipped(ICharacterRenderProperties characterRenderProperties)
+        {
+            if (EIFFile == null || EIFFile.Data == null)
+                return false;
+
+            var itemData = EIFFile.Data;
+            var weaponInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Weapon &&
+                                                            x.DollGraphic == characterRenderProperties.WeaponGraphic);
+
+            return weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
+        }
+
+        private bool ShieldIsOnBack(ICharacterRenderProperties characterRenderProperties)
+        {
+            if (EIFFile == null || EIFFile.Data == null)
+                return false;
+
+            var itemData = EIFFile.Data;
+            var shieldInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Shield &&
+                                                            x.DollGraphic == characterRenderProperties.ShieldGraphic);
+
+            return shieldInfo != null &&
+                    (shieldInfo.Name == "Bag" ||
+                    shieldInfo.SubType == ItemSubType.Arrows ||
+                    shieldInfo.SubType == ItemSubType.Wings);
+        }
+
+        private IPubFile<EIFRecord> EIFFile { get { return _eifFileProvider.EIFFile; } }
     }
 }

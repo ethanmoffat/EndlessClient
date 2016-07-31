@@ -7,7 +7,6 @@ using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
-using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,13 +14,12 @@ namespace EndlessClient.Rendering
 {
     public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
     {
-        private readonly INativeGraphicsManager _graphicsManager;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
         private readonly ICharacterTextures _characterTextures;
+        private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
 
-        private ICharacterSpriteCalculator _characterSpriteCalculator;
         private ICharacterRenderProperties _characterRenderPropertiesPrivate, _lastRenderProperties;
         private bool _textureUpdateRequired;
 
@@ -44,19 +42,19 @@ namespace EndlessClient.Rendering
         public int TopPixel { get; private set; }
 
         public CharacterRenderer(Game game,
-                                 INativeGraphicsManager graphicsManager,
                                  ICharacterProvider characterProvider,
                                  ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                  ICharacterTextures characterTextures,
+                                 ICharacterSpriteCalculator characterSpriteCalculator,
                                  ICharacterRenderProperties renderProperties)
             : base(game)
         {
-            _graphicsManager = graphicsManager;
             _characterProvider = characterProvider;
             _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
             _characterTextures = characterTextures;
+            _characterSpriteCalculator = characterSpriteCalculator;
             RenderProperties = renderProperties;
         }
 
@@ -146,7 +144,7 @@ namespace EndlessClient.Rendering
 
         private void FigureOutTopPixel()
         {
-            var spriteForSkin = _characterSpriteCalculator.GetSkinTexture(isBow: false);
+            var spriteForSkin = _characterSpriteCalculator.GetSkinTexture(_characterRenderPropertiesPrivate);
             var skinData = spriteForSkin.GetSourceTextureData<Color>();
 
             int i = 0;
@@ -160,8 +158,7 @@ namespace EndlessClient.Rendering
 
         private void ReloadTextures()
         {
-            _characterSpriteCalculator = new CharacterSpriteCalculator(_graphicsManager, _characterRenderPropertiesPrivate);
-            _characterTextures.Refresh(_characterSpriteCalculator, _characterRenderPropertiesPrivate);
+            _characterTextures.Refresh(_characterRenderPropertiesPrivate);
         }
 
         #endregion

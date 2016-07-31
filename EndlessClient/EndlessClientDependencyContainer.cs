@@ -19,6 +19,7 @@ using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.MapEntityRenderers;
+using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib.DependencyInjection;
 using Microsoft.Practices.Unity;
@@ -51,7 +52,8 @@ namespace EndlessClient
             //services
             container.RegisterType<IMapRenderDistanceCalculator, MapRenderDistanceCalculator>()
                 .RegisterType<ICharacterRenderOffsetCalculator, CharacterRenderOffsetCalculator>()
-                .RegisterType<ICharacterTextures, CharacterTextures>();
+                .RegisterType<ICharacterTextures, CharacterTextures>()
+                .RegisterType<ICharacterSpriteCalculator, CharacterSpriteCalculator>();
 
             //provider/repository
             container.RegisterInstance<IGameStateProvider, GameStateRepository>()
