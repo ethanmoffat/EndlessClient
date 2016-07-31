@@ -74,7 +74,7 @@ namespace EndlessClient.Rendering
 
         protected override void LoadContent()
         {
-            ReloadTextures();
+            _characterTextures.Refresh(_characterRenderPropertiesPrivate);
             FigureOutTopPixel();
 
             base.LoadContent();
@@ -90,7 +90,7 @@ namespace EndlessClient.Rendering
 
             if (_textureUpdateRequired)
             {
-                ReloadTextures();
+                _characterTextures.Refresh(_characterRenderPropertiesPrivate);
                 DrawToRenderTarget();
 
                 _textureUpdateRequired = false;
@@ -153,11 +153,6 @@ namespace EndlessClient.Rendering
             var genderOffset = RenderProperties.Gender == 0 ? 12 : 13;
 
             TopPixel = genderOffset + firstPixelHeight;
-        }
-
-        private void ReloadTextures()
-        {
-            _characterTextures.Refresh(_characterRenderPropertiesPrivate);
         }
 
         #endregion
