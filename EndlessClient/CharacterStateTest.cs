@@ -5,11 +5,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
+using EndlessClient.Rendering.Factories;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.IO;
 using EOLib.IO.Pub;
+using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -40,8 +43,8 @@ namespace EndlessClient
             _allDisplayStates = ((DisplayState[]) Enum.GetValues(typeof (DisplayState))).ToList();
         }
 
-        private readonly EOGame _baseGame;
-        private readonly IPubFile<EIFRecord> _itemFile;
+        private readonly ICharacterRendererFactory _characterRendererFactory;
+        private readonly IEIFFileProvider _eifFileProvider;
 
         private ICharacterRenderProperties _baseProperties;
         private readonly List<ICharacterRenderer> _renderersForDifferentStates;
@@ -53,24 +56,27 @@ namespace EndlessClient
 
         private DateTime _lastWalk, _lastAttack, _lastSpell;
 
-        public CharacterStateTest(EOGame baseGame, IPubFile<EIFRecord> itemFile)
-            : base(baseGame)
+        public CharacterStateTest(IEndlessGame baseGame,
+                                  ICharacterRendererFactory characterRendererFactory,
+                                  IEIFFileProvider eifFileProvider)
+            : base((Game)baseGame)
         {
-            _baseGame = baseGame;
-            _itemFile = itemFile;
+            _characterRendererFactory = characterRendererFactory;
+            _eifFileProvider = eifFileProvider;
 
             _renderersForDifferentStates = new List<ICharacterRenderer>(12);
         }
 
         public override void Initialize()
         {
+            DrawOrder = 0;
+
             _baseProperties = new CharacterRenderProperties();
             foreach (var displayState in _allDisplayStates)
             {
                 var props = GetRenderPropertiesForState(displayState);
-                //todo: finalize character rendering logic and use it here
-                //var characterRenderer = new CharacterRenderer(_baseGame, null, null, props);
-                //_renderersForDifferentStates.Add(characterRenderer);
+                _renderersForDifferentStates.Add(_characterRendererFactory.CreateCharacterRenderer(props));
+                _renderersForDifferentStates.OfType<DrawableGameComponent>().Last().DrawOrder = 10;
             }
 
             _renderersForDifferentStates.ForEach(Game.Components.Add);
@@ -151,7 +157,7 @@ namespace EndlessClient
                 if (!_isBowEquipped)
                 {
                     _lastGraphic = _baseProperties.WeaponGraphic;
-                    var firstBowWeapon = _itemFile.Data.First(x => x.Type == ItemType.Weapon && x.SubType == ItemSubType.Ranged);
+                    var firstBowWeapon = EIFFile.Data.First(x => x.Type == ItemType.Weapon && x.SubType == ItemSubType.Ranged);
                     _baseProperties = _baseProperties.WithWeaponGraphic((short)firstBowWeapon.DollGraphic);
                 }
                 else
@@ -189,6 +195,13 @@ namespace EndlessClient
             }
 
             base.Update(gameTime);
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
+            GraphicsDevice.Clear(Color.White);
+
+            base.Draw(gameTime);
         }
 
         private ICharacterRenderProperties GetRenderPropertiesForState(DisplayState displayState)
@@ -243,13 +256,15 @@ namespace EndlessClient
                                _previousState.IsKeyDown(Keys.RightShift);
             var increment = shiftPressed ? -1 : 1;
 
-            var matchingItems = _itemFile.Data.Where(x => x.Type == type).OrderBy(x => x.ID).ToList();
+            var matchingItems = EIFFile.Data.Where(x => x.Type == type).OrderBy(x => x.ID).ToList();
             var matchingIndex = matchingItems.FindIndex(x => x.DollGraphic == currentGraphic);
             var ndx = (matchingIndex + increment) % matchingItems.Count;
             if (ndx < 0)
                 return 0;
             return (short) matchingItems[ndx].DollGraphic;
         }
+
+        private IPubFile<EIFRecord> EIFFile { get { return _eifFileProvider.EIFFile; } }
 
         protected override void Dispose(bool disposing)
         {

@@ -85,8 +85,9 @@ namespace EndlessClient.Rendering
             if (!Game.IsActive || !Visible)
                 return;
 
-            if (RenderProperties != _lastRenderProperties && RenderProperties.IsActing(CharacterActionState.Walking))
-                SetGridCoordinatePosition();
+            //todo: figure out how to update position of character renderers
+            //if (RenderProperties != _lastRenderProperties && RenderProperties.IsActing(CharacterActionState.Walking))
+            //    SetGridCoordinatePosition();
 
             if (_textureUpdateRequired)
             {

@@ -8,7 +8,6 @@ using System.Windows.Forms;
 using EOLib.Config;
 using EOLib.DependencyInjection;
 using EOLib.Graphics;
-using EOLib.IO;
 using EOLib.Localization;
 using Microsoft.Practices.Unity;
 

@@ -31,7 +31,8 @@ namespace EndlessClient
     {
         public void RegisterDependencies(IUnityContainer container)
         {
-            container.RegisterInstance<IEndlessGame, EndlessGame>();
+            container.RegisterInstance<IEndlessGame, EndlessGame>()
+                .RegisterType<ITestModeLauncher, TestModeLauncher>();
 
             //factories
             container.RegisterType<IControlSetFactory, ControlSetFactory>()

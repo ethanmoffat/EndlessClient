@@ -204,6 +204,8 @@ namespace EOLib.Domain.Character
         {
             return new CharacterRenderProperties
             {
+                CurrentAction = other.CurrentAction,
+
                 HairStyle = other.HairStyle,
                 HairColor = other.HairColor,
                 Race = other.Race,

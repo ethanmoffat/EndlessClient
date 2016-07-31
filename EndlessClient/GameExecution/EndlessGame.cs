@@ -5,6 +5,7 @@
 using EndlessClient.ControlSets;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.GameExecution
 {
@@ -13,18 +14,22 @@ namespace EndlessClient.GameExecution
         private readonly IGraphicsDeviceRepository _graphicsDeviceRepository;
         private readonly IControlSetRepository _controlSetRepository;
         private readonly IControlSetFactory _controlSetFactory;
-
+        private readonly ITestModeLauncher _testModeLauncher;
         private readonly IGraphicsDeviceManager _graphicsDeviceManager;
+
+        private KeyboardState _previousKeyState;
 
         public EndlessGame(IClientWindowSizeProvider windowSizeProvider,
                            IGraphicsDeviceRepository graphicsDeviceRepository,
                            IControlSetRepository controlSetRepository,
-                           IControlSetFactory controlSetFactory)
+                           IControlSetFactory controlSetFactory,
+                           ITestModeLauncher testModeLauncher)
         {
             _graphicsDeviceRepository = graphicsDeviceRepository;
             _controlSetRepository = controlSetRepository;
             _controlSetFactory = controlSetFactory;
-            
+            _testModeLauncher = testModeLauncher;
+
             _graphicsDeviceManager = new GraphicsDeviceManager(this)
             {
                 PreferredBackBufferWidth = windowSizeProvider.Width,
@@ -37,6 +42,7 @@ namespace EndlessClient.GameExecution
         protected override void Initialize()
         {
             IsMouseVisible = true;
+            _previousKeyState = Keyboard.GetState();
 
             base.Initialize();
         }
@@ -55,6 +61,25 @@ namespace EndlessClient.GameExecution
 
             base.LoadContent();
         }
+
+#if DEBUG
+
+        protected override void Update(GameTime gameTime)
+        {
+            //todo: this is a debug-only mode launched with the F5 key.
+            //todo: move this to be handled by some sort of key listener once function keys are handled in-game
+            var currentKeyState = Keyboard.GetState();
+            if (_previousKeyState.IsKeyDown(Keys.F5) && currentKeyState.IsKeyUp(Keys.F5))
+            {
+                _testModeLauncher.LaunchTestMode();
+            }
+
+            _previousKeyState = currentKeyState;
+
+            base.Update(gameTime);
+        }
+
+#endif
 
         protected override void Draw(GameTime gameTime)
         {

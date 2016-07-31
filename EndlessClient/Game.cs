@@ -12,7 +12,6 @@ using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EOLib.Graphics;
-using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
@@ -87,17 +86,6 @@ namespace EndlessClient
             GameStates prevState = State;
             State = newState;
 
-            if (prevState == GameStates.TestMode && newState == GameStates.Initial)
-            {
-                var testComponents = Components.OfType<CharacterStateTest>().Cast<GameComponent>().ToList();
-                testComponents = testComponents.Concat(Components.OfType<CharacterRenderer>()).ToList();
-                foreach (var component in testComponents)
-                {
-                    component.Dispose();
-                    Components.Remove(component);
-                }
-            }
-
             if(prevState == GameStates.PlayingTheGame && State != GameStates.PlayingTheGame)
             {
                 Components.OfType<IDisposable>()
@@ -171,12 +159,6 @@ namespace EndlessClient
                     //note: HUD construction moved to successful welcome message in GameLoadingDialog close event handler
 
                     break;
-                case GameStates.TestMode:
-                    var file = new EIFFile();
-                    //file.Load(PubFileNameConstants.PathToEIFFile);
-                    var testComponent = new CharacterStateTest(this, file);
-                    Components.Add(testComponent);
-                    break;
             }
         }
 
@@ -211,40 +193,8 @@ namespace EndlessClient
             InitializeControls();
         }
 
-#if DEBUG
-
-        private KeyboardState _lastState = Keyboard.GetState();
-
-        protected override void Update(GameTime gameTime)
-        {
-            if (!IsActive || (State != GameStates.Initial && State != GameStates.TestMode))
-            {
-                base.Update(gameTime);
-                return;
-            }
-
-            var currentState = Keyboard.GetState();
-
-            if (State == GameStates.Initial && _lastState.IsKeyDown(Keys.F5) && currentState.IsKeyUp(Keys.F5))
-            {
-                doStateChange(GameStates.TestMode);
-            }
-            else if (State == GameStates.TestMode && _lastState.IsKeyDown(Keys.Escape) && currentState.IsKeyUp(Keys.Escape))
-            {
-                doStateChange(GameStates.Initial);
-            }
-
-            _lastState = currentState;
-
-            base.Update(gameTime);
-        }
-
-#endif
-
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(State == GameStates.TestMode ? Color.White : Color.Black);
-
 #if DEBUG
             if (State != GameStates.TestMode)
             {
