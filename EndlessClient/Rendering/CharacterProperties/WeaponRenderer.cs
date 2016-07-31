@@ -19,6 +19,8 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly Texture2D _weaponTexture;
         private readonly IPubFile<EIFRecord> _itemFile;
 
+        public bool CanRender { get { return _weaponTexture != null && _renderProperties.WeaponGraphic != 0; } }
+
         public WeaponRenderer(ICharacterRenderProperties renderProperties,
                               Texture2D weaponTexture,
                               IPubFile<EIFRecord> itemFile)

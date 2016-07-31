@@ -17,6 +17,8 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly Texture2D _hatTexture;
         private readonly HairRenderLocationCalculator _hairRenderLocationCalculator;
 
+        public bool CanRender { get { return _hatTexture != null && _renderProperties.HatGraphic != 0; } }
+
         public HatRenderer(ICharacterRenderProperties renderProperties,
                            Texture2D hatTexture,
                            IPubFile<EIFRecord> itemFile)

@@ -4,6 +4,7 @@
 
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -12,15 +13,26 @@ namespace EndlessClient.Rendering.CharacterProperties
 {
     public class EmoteRenderer : ICharacterPropertyRenderer
     {
+        private readonly ICharacterRenderProperties _renderProperties;
         private readonly ISpriteSheet _emoteSheet;
         private readonly SkinRenderLocationCalculator _skinRenderLocationCalculator;
+
+        public bool CanRender
+        {
+            get
+            {
+                return _renderProperties.IsActing(CharacterActionState.Emote) &&
+                       _renderProperties.EmoteFrame > 0;
+            }
+        }
 
         public EmoteRenderer(ICharacterRenderProperties renderProperties,
                              ISpriteSheet emoteSheet,
                              IPubFile<EIFRecord> itemFile)
         {
+            _renderProperties = renderProperties;
             _emoteSheet = emoteSheet;
-            _skinRenderLocationCalculator = new SkinRenderLocationCalculator(renderProperties, itemFile);
+            _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties, itemFile);
         }
 
         public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)

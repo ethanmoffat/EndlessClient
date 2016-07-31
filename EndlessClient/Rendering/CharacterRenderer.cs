@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Linq;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
@@ -177,7 +178,9 @@ namespace EndlessClient.Rendering
             GraphicsDevice.Clear(Color.Transparent);
             _sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 
-            var characterPropertyRenderers = _characterPropertyRendererBuilder.BuildList(_characterTextures, RenderProperties);
+            var characterPropertyRenderers = _characterPropertyRendererBuilder
+                .BuildList(_characterTextures, RenderProperties)
+                .Where(x => x.CanRender);
             foreach (var renderer in characterPropertyRenderers)
                 renderer.Render(_sb, DrawArea);
 

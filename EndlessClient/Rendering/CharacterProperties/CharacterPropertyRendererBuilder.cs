@@ -27,37 +27,33 @@ namespace EndlessClient.Rendering.CharacterProperties
         {
             var rendererList = new List<ICharacterPropertyRenderer>();
 
-            if (ShieldEquipped(textures, renderProperties) && IsShieldBehindCharacter(renderProperties))
+            if (IsShieldBehindCharacter(renderProperties))
                 rendererList.Add(new ShieldRenderer(renderProperties, textures.Shield));
 
-            if (WeaponEquipped(textures, renderProperties) && IsWeaponBehindCharacter(renderProperties))
+            if (IsWeaponBehindCharacter(renderProperties))
                 rendererList.Add(new WeaponRenderer(renderProperties, textures.Weapon, EIFFile));
 
             rendererList.Add(new SkinRenderer(renderProperties, textures.Skin, EIFFile));
-            if (IsCharacterDoingEmote(renderProperties))
-            {
-                rendererList.Add(new FaceRenderer(renderProperties, textures.Face, EIFFile));
-                rendererList.Add(new EmoteRenderer(renderProperties, textures.Emote, EIFFile));
-            }
+            rendererList.Add(new FaceRenderer(renderProperties, textures.Face, EIFFile));
+            rendererList.Add(new EmoteRenderer(renderProperties, textures.Emote, EIFFile));
 
-            if (BootsEquipped(textures, renderProperties))
-                rendererList.Add(new BootsRenderer(renderProperties, textures.Boots, EIFFile));
-
-            if (ArmorEquipped(textures, renderProperties))
-                rendererList.Add(new ArmorRenderer(renderProperties, textures.Armor, EIFFile));
-
-            if (WeaponEquipped(textures, renderProperties) && !rendererList.OfType<WeaponRenderer>().Any())
+            rendererList.Add(new BootsRenderer(renderProperties, textures.Boots, EIFFile));
+            rendererList.Add(new ArmorRenderer(renderProperties, textures.Armor, EIFFile));
+            if (!rendererList.OfType<WeaponRenderer>().Any())
                 rendererList.Add(new WeaponRenderer(renderProperties, textures.Weapon, EIFFile));
 
-            var hairOnTopOfHat = new List<ICharacterPropertyRenderer>();
-            if (HatEquipped(textures, renderProperties))
-                hairOnTopOfHat.Add(new HatRenderer(renderProperties, textures.Hat, EIFFile));
-            if (!IsBald(textures, renderProperties))
-                hairOnTopOfHat.Add(new HairRenderer(renderProperties, textures.Hair, EIFFile));
-            if (hairOnTopOfHat.Any())
-                rendererList.AddRange(IsHairOnTopOfHat(renderProperties) ? hairOnTopOfHat : hairOnTopOfHat.ToArray().Reverse());
+            if (IsHairOnTopOfHat(renderProperties))
+            {
+                rendererList.Add(new HatRenderer(renderProperties, textures.Hat, EIFFile));
+                rendererList.Add(new HairRenderer(renderProperties, textures.Hair, EIFFile));
+            }
+            else
+            {
+                rendererList.Add(new HairRenderer(renderProperties, textures.Hair, EIFFile));
+                rendererList.Add(new HatRenderer(renderProperties, textures.Hat, EIFFile));
+            }
 
-            if (ShieldEquipped(textures, renderProperties) && !rendererList.OfType<ShieldRenderer>().Any())
+            if (!rendererList.OfType<ShieldRenderer>().Any())
                 rendererList.Add(new ShieldRenderer(renderProperties, textures.Shield));
 
             return rendererList;
@@ -81,12 +77,6 @@ namespace EndlessClient.Rendering.CharacterProperties
             return pass1 || pass2 || pass3;
         }
 
-        private bool IsCharacterDoingEmote(ICharacterRenderProperties renderProperties)
-        {
-            return renderProperties.CurrentAction == CharacterActionState.Emote &&
-                   renderProperties.EmoteFrame > 0;
-        }
-
         private bool IsHairOnTopOfHat(ICharacterRenderProperties renderProperties)
         {
             //todo: i might have this backwards...
@@ -96,37 +86,6 @@ namespace EndlessClient.Rendering.CharacterProperties
                      x.DollGraphic == renderProperties.HatGraphic);
 
             return hatInfo != null && hatInfo.SubType == ItemSubType.FaceMask;
-        }
-
-        private bool BootsEquipped(ICharacterTextures _textures, ICharacterRenderProperties renderProperties)
-        {
-            return renderProperties.BootsGraphic != 0 && _textures.Boots != null;
-        }
-
-        private bool ArmorEquipped(ICharacterTextures _textures, ICharacterRenderProperties renderProperties)
-        {
-            return renderProperties.ArmorGraphic != 0 && _textures.Armor != null;
-        }
-
-        private bool HatEquipped(ICharacterTextures _textures, ICharacterRenderProperties renderProperties)
-        {
-            return renderProperties.HatGraphic != 0 && _textures.Hat != null;
-        }
-
-        private bool ShieldEquipped(ICharacterTextures _textures, ICharacterRenderProperties renderProperties)
-        {
-
-            return renderProperties.ShieldGraphic != 0 && _textures.Shield != null;
-        }
-
-        private bool WeaponEquipped(ICharacterTextures _textures, ICharacterRenderProperties renderProperties)
-        {
-            return renderProperties.WeaponGraphic != 0 && _textures.Weapon != null;
-        }
-
-        private bool IsBald(ICharacterTextures _textures, ICharacterRenderProperties renderProperties)
-        {
-            return _textures.Hair == null || renderProperties.HairStyle == 0;
         }
 
         private bool IsShieldOnBack(ICharacterRenderProperties renderProperties)

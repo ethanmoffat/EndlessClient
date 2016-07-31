@@ -17,6 +17,8 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly Texture2D _hairTexture;
         private readonly HairRenderLocationCalculator _hairRenderLocationCalculator;
 
+        public bool CanRender { get { return _hairTexture != null && _renderProperties.HairStyle != 0; } }
+
         public HairRenderer(ICharacterRenderProperties renderProperties,
                             Texture2D hairTexture,
                             IPubFile<EIFRecord> itemFile)

@@ -9,6 +9,8 @@ namespace EndlessClient.Rendering.CharacterProperties
 {
     public interface ICharacterPropertyRenderer
     {
+        bool CanRender { get; }
+
         void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea);
     }
 }
