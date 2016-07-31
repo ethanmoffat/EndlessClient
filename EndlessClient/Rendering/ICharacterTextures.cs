@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.Rendering.Sprites;
+using EOLib.Domain.Character;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering
@@ -21,6 +22,6 @@ namespace EndlessClient.Rendering
         ISpriteSheet Emote { get; }
         ISpriteSheet Face { get; }
 
-        void Refresh();
+        void Refresh(ICharacterSpriteCalculator characterSpriteCalculator, ICharacterRenderProperties characterRenderProperties);
     }
 }

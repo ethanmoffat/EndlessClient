@@ -15,8 +15,6 @@ namespace EndlessClient.Rendering
     public class CharacterTextures : ICharacterTextures
     {
         private readonly IEIFFileProvider _eifFileProvider;
-        private readonly ICharacterSpriteCalculator _calc;
-        private readonly ICharacterRenderProperties _characterRenderProperties;
 
         public Texture2D Boots { get; private set; }
         public Texture2D Armor { get; private set; }
@@ -30,61 +28,51 @@ namespace EndlessClient.Rendering
         public ISpriteSheet Emote { get; private set; }
         public ISpriteSheet Face { get; private set; }
 
-        public CharacterTextures(IEIFFileProvider eifFileProvider,
-                                 ICharacterSpriteCalculator calc,
-                                 ICharacterRenderProperties characterRenderProperties)
+        public CharacterTextures(IEIFFileProvider eifFileProvider)
         {
             _eifFileProvider = eifFileProvider;
-            _calc = calc;
-            _characterRenderProperties = characterRenderProperties;
         }
 
-        public void Refresh()
+        public void Refresh(ICharacterSpriteCalculator calc,
+                            ICharacterRenderProperties characterRenderProperties)
         {
-            Boots = _calc.GetBootsTexture(BowIsEquipped).SheetTexture;
-            Armor = _calc.GetArmorTexture(BowIsEquipped).SheetTexture;
-            Hat = _calc.GetHatTexture().SheetTexture;
-            Shield = _calc.GetShieldTexture(ShieldIsOnBack).SheetTexture;
-            Weapon = _calc.GetWeaponTexture(BowIsEquipped).SheetTexture;
+            Boots = calc.GetBootsTexture(BowIsEquipped(characterRenderProperties)).SheetTexture;
+            Armor = calc.GetArmorTexture(BowIsEquipped(characterRenderProperties)).SheetTexture;
+            Hat = calc.GetHatTexture().SheetTexture;
+            Shield = calc.GetShieldTexture(ShieldIsOnBack(characterRenderProperties)).SheetTexture;
+            Weapon = calc.GetWeaponTexture(BowIsEquipped(characterRenderProperties)).SheetTexture;
 
-            Hair = _calc.GetHairTexture().SheetTexture;
-            Skin = _calc.GetSkinTexture(BowIsEquipped);
-            Emote = _calc.GetEmoteTexture();
-            Face = _calc.GetFaceTexture();
+            Hair = calc.GetHairTexture().SheetTexture;
+            Skin = calc.GetSkinTexture(BowIsEquipped(characterRenderProperties));
+            Emote = calc.GetEmoteTexture();
+            Face = calc.GetFaceTexture();
         }
 
-
-        private bool BowIsEquipped
+        private bool BowIsEquipped(ICharacterRenderProperties characterRenderProperties)
         {
-            get
-            {
-                if (EIFFile == null || EIFFile.Data == null)
-                    return false;
+            if (EIFFile == null || EIFFile.Data == null)
+                return false;
 
-                var itemData = EIFFile.Data;
-                var weaponInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Weapon &&
-                                                               x.DollGraphic == _characterRenderProperties.WeaponGraphic);
+            var itemData = EIFFile.Data;
+            var weaponInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Weapon &&
+                                                            x.DollGraphic == characterRenderProperties.WeaponGraphic);
 
-                return weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
-            }
+            return weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
         }
 
-        private bool ShieldIsOnBack
+        private bool ShieldIsOnBack(ICharacterRenderProperties characterRenderProperties)
         {
-            get
-            {
-                if (EIFFile == null || EIFFile.Data == null)
-                    return false;
+            if (EIFFile == null || EIFFile.Data == null)
+                return false;
 
-                var itemData = EIFFile.Data;
-                var shieldInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Shield &&
-                                                               x.DollGraphic == _characterRenderProperties.ShieldGraphic);
+            var itemData = EIFFile.Data;
+            var shieldInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Shield &&
+                                                            x.DollGraphic == characterRenderProperties.ShieldGraphic);
 
-                return shieldInfo != null &&
-                       (shieldInfo.Name == "Bag" ||
-                        shieldInfo.SubType == ItemSubType.Arrows ||
-                        shieldInfo.SubType == ItemSubType.Wings);
-            }
+            return shieldInfo != null &&
+                    (shieldInfo.Name == "Bag" ||
+                    shieldInfo.SubType == ItemSubType.Arrows ||
+                    shieldInfo.SubType == ItemSubType.Wings);
         }
 
         private IPubFile<EIFRecord> EIFFile { get { return _eifFileProvider.EIFFile; } }

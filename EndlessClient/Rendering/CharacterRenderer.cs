@@ -8,7 +8,6 @@ using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Graphics;
-using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -17,14 +16,13 @@ namespace EndlessClient.Rendering
     public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
     {
         private readonly INativeGraphicsManager _graphicsManager;
-        private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
+        private readonly ICharacterTextures _characterTextures;
 
         private ICharacterSpriteCalculator _characterSpriteCalculator;
         private ICharacterRenderProperties _characterRenderPropertiesPrivate, _lastRenderProperties;
-        private ICharacterTextures _characterTextures;
         private bool _textureUpdateRequired;
 
         private SpriteBatch _sb;
@@ -47,18 +45,18 @@ namespace EndlessClient.Rendering
 
         public CharacterRenderer(Game game,
                                  INativeGraphicsManager graphicsManager,
-                                 IEIFFileProvider eifFileProvider,
                                  ICharacterProvider characterProvider,
                                  ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
+                                 ICharacterTextures characterTextures,
                                  ICharacterRenderProperties renderProperties)
             : base(game)
         {
             _graphicsManager = graphicsManager;
-            _eifFileProvider = eifFileProvider;
             _characterProvider = characterProvider;
             _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
+            _characterTextures = characterTextures;
             RenderProperties = renderProperties;
         }
 
@@ -163,9 +161,7 @@ namespace EndlessClient.Rendering
         private void ReloadTextures()
         {
             _characterSpriteCalculator = new CharacterSpriteCalculator(_graphicsManager, _characterRenderPropertiesPrivate);
-            _characterTextures = new CharacterTextures(_eifFileProvider, _characterSpriteCalculator, _characterRenderPropertiesPrivate);
-
-            _characterTextures.Refresh();
+            _characterTextures.Refresh(_characterSpriteCalculator, _characterRenderPropertiesPrivate);
         }
 
         #endregion

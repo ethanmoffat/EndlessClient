@@ -14,6 +14,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Input;
 using EndlessClient.Network;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
@@ -49,7 +50,8 @@ namespace EndlessClient
 
             //services
             container.RegisterType<IMapRenderDistanceCalculator, MapRenderDistanceCalculator>()
-                .RegisterType<ICharacterRenderOffsetCalculator, CharacterRenderOffsetCalculator>();
+                .RegisterType<ICharacterRenderOffsetCalculator, CharacterRenderOffsetCalculator>()
+                .RegisterType<ICharacterTextures, CharacterTextures>();
 
             //provider/repository
             container.RegisterInstance<IGameStateProvider, GameStateRepository>()
