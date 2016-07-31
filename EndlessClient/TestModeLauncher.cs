@@ -14,18 +14,24 @@ namespace EndlessClient
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly IGameStateProvider _gameStateProvider;
 
         public TestModeLauncher(IEndlessGameProvider endlessGameProvider,
                                 ICharacterRendererFactory characterRendererFactory,
-                                IEIFFileProvider eifFileProvider)
+                                IEIFFileProvider eifFileProvider,
+                                IGameStateProvider gameStateProvider)
         {
             _endlessGameProvider = endlessGameProvider;
             _characterRendererFactory = characterRendererFactory;
             _eifFileProvider = eifFileProvider;
+            _gameStateProvider = gameStateProvider;
         }
 
         public void LaunchTestMode()
         {
+            if (_gameStateProvider.CurrentState != GameStates.Initial)
+                return;
+
             var testMode = new CharacterStateTest(
                 _endlessGameProvider.Game,
                 _characterRendererFactory,
