@@ -6,8 +6,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Factories
 {
-    public interface IMapRenderTargetFactory
+    public interface IRenderTargetFactory
     {
-        RenderTarget2D CreateMapRenderTarget();
+        RenderTarget2D CreateRenderTarget();
     }
 }

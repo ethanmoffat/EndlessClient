@@ -39,7 +39,7 @@ namespace EndlessClient
                 .RegisterType<ICharacterRendererFactory, CharacterRendererFactory>()
                 .RegisterType<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>()
                 .RegisterType<IHudPanelFactory, HudPanelFactory>()
-                .RegisterType<IMapRenderTargetFactory, MapRenderTargetFactory>()
+                .RegisterType<IRenderTargetFactory, RenderTargetFactory>()
                 .RegisterType<ICharacterPropertyRendererBuilder, CharacterPropertyRendererBuilder>();
 
             container.RegisterType<IEOMessageBoxFactory, EOMessageBoxFactory>()

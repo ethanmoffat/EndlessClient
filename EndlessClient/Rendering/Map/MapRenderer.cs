@@ -28,7 +28,7 @@ namespace EndlessClient.Rendering.Map
                                   .ToList();
         }
 
-        private readonly IMapRenderTargetFactory _mapRenderTargetFactory;
+        private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
@@ -36,13 +36,13 @@ namespace EndlessClient.Rendering.Map
 
         private RenderTarget2D _mapAbovePlayer, _mapBelowPlayer;
 
-        public MapRenderer(IMapRenderTargetFactory mapRenderTargetFactory,
+        public MapRenderer(IRenderTargetFactory renderTargetFactory,
                            IMapEntityRendererProvider mapEntityRendererProvider,
                            ICharacterProvider characterProvider,
                            ICurrentMapProvider currentMapProvider,
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator)
         {
-            _mapRenderTargetFactory = mapRenderTargetFactory;
+            _renderTargetFactory = renderTargetFactory;
             _mapEntityRendererProvider = mapEntityRendererProvider;
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
@@ -54,8 +54,8 @@ namespace EndlessClient.Rendering.Map
             if (_mapEntityRendererProvider.MapEntityRenderers.Count != _possibleLayers.Count)
                 throw new InvalidOperationException("A map entity renderer implementation is missing!");
 
-            _mapAbovePlayer = _mapRenderTargetFactory.CreateMapRenderTarget();
-            _mapBelowPlayer = _mapRenderTargetFactory.CreateMapRenderTarget();
+            _mapAbovePlayer = _renderTargetFactory.CreateRenderTarget();
+            _mapBelowPlayer = _renderTargetFactory.CreateRenderTarget();
 
             base.Initialize();
         }

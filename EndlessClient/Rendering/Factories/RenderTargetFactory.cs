@@ -7,19 +7,19 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Factories
 {
-    public class MapRenderTargetFactory : IMapRenderTargetFactory
+    public class RenderTargetFactory : IRenderTargetFactory
     {
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
-        public MapRenderTargetFactory(IGraphicsDeviceProvider graphicsDeviceProvider,
+        public RenderTargetFactory(IGraphicsDeviceProvider graphicsDeviceProvider,
                                       IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _graphicsDeviceProvider = graphicsDeviceProvider;
             _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
-        public RenderTarget2D CreateMapRenderTarget()
+        public RenderTarget2D CreateRenderTarget()
         {
             return new RenderTarget2D(
                 _graphicsDeviceProvider.GraphicsDevice,
