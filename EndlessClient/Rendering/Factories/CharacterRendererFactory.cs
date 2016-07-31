@@ -18,18 +18,21 @@ namespace EndlessClient.Rendering.Factories
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
+        private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
 
         public CharacterRendererFactory(IEndlessGameProvider gameProvider,
                                         INativeGraphicsManager nativeGraphicsManager,
                                         IEIFFileProvider eifFileProvider,
                                         ICharacterProvider characterProvider,
-                                        ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
+                                        ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
+                                        ICharacterPropertyRendererBuilder characterPropertyRendererBuilder)
         {
             _gameProvider = gameProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
             _eifFileProvider = eifFileProvider;
             _characterProvider = characterProvider;
             _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
+            _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
         }
 
         public ICharacterRenderer CreateCharacterRenderer(ICharacterRenderProperties initialRenderProperties)
@@ -39,6 +42,7 @@ namespace EndlessClient.Rendering.Factories
                 _eifFileProvider,
                 _characterProvider,
                 _characterRenderOffsetCalculator,
+                _characterPropertyRendererBuilder,
                 initialRenderProperties);
         }
     }

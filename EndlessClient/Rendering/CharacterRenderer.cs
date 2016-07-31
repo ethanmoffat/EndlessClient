@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Collections.Generic;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
@@ -20,6 +19,7 @@ namespace EndlessClient.Rendering
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
+        private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
 
         private ICharacterSpriteCalculator _characterSpriteCalculator;
         private ICharacterRenderProperties _characterRenderPropertiesPrivate, _lastRenderProperties;
@@ -49,6 +49,7 @@ namespace EndlessClient.Rendering
                                  IEIFFileProvider eifFileProvider,
                                  ICharacterProvider characterProvider,
                                  ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
+                                 ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                  ICharacterRenderProperties renderProperties)
             : base(game)
         {
@@ -56,6 +57,7 @@ namespace EndlessClient.Rendering
             _eifFileProvider = eifFileProvider;
             _characterProvider = characterProvider;
             _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
+            _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
             RenderProperties = renderProperties;
         }
 
@@ -175,18 +177,12 @@ namespace EndlessClient.Rendering
             GraphicsDevice.Clear(Color.Transparent);
             _sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
 
-            var characterPropertyRenderers = GetOrderedRenderers();
+            var characterPropertyRenderers = _characterPropertyRendererBuilder.BuildList(_characterTextures, RenderProperties);
             foreach (var renderer in characterPropertyRenderers)
                 renderer.Render(_sb, DrawArea);
 
             _sb.End();
             GraphicsDevice.SetRenderTarget(null);
-        }
-
-        private List<ICharacterPropertyRenderer> GetOrderedRenderers()
-        {
-            var propertyListBuilder = new CharacterPropertyRendererBuilder(_characterTextures, _eifFileProvider);
-            return propertyListBuilder.BuildList(RenderProperties);
         }
 
         private Color GetAlphaColor()

@@ -9,6 +9,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 {
     public interface ICharacterPropertyRendererBuilder
     {
-        List<ICharacterPropertyRenderer> BuildList(ICharacterRenderProperties renderProperties);
+        List<ICharacterPropertyRenderer> BuildList(ICharacterTextures characterTextures,
+                                                   ICharacterRenderProperties renderProperties);
     }
 }
