@@ -22,7 +22,7 @@ namespace EndlessClient.Rendering
         private readonly ICharacterTextures _characterTextures;
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
 
-        private ICharacterRenderProperties _characterRenderPropertiesPrivate, _lastRenderProperties;
+        private ICharacterRenderProperties _renderProperties, _lastRenderProperties;
         private bool _textureUpdateRequired;
 
         private SpriteBatch _sb;
@@ -30,11 +30,11 @@ namespace EndlessClient.Rendering
 
         public ICharacterRenderProperties RenderProperties
         {
-            get { return _characterRenderPropertiesPrivate; }
+            get { return _renderProperties; }
             set
             {
-                if (_characterRenderPropertiesPrivate == value) return;
-                _characterRenderPropertiesPrivate = value;
+                if (_renderProperties == value) return;
+                _renderProperties = value;
                 _textureUpdateRequired = true;
             }
         }
@@ -74,7 +74,7 @@ namespace EndlessClient.Rendering
 
         protected override void LoadContent()
         {
-            _characterTextures.Refresh(_characterRenderPropertiesPrivate);
+            _characterTextures.Refresh(_renderProperties);
             FigureOutTopPixel();
 
             base.LoadContent();
@@ -90,7 +90,7 @@ namespace EndlessClient.Rendering
 
             if (_textureUpdateRequired)
             {
-                _characterTextures.Refresh(_characterRenderPropertiesPrivate);
+                _characterTextures.Refresh(_renderProperties);
                 DrawToRenderTarget();
 
                 _textureUpdateRequired = false;
@@ -143,7 +143,7 @@ namespace EndlessClient.Rendering
 
         private void FigureOutTopPixel()
         {
-            var spriteForSkin = _characterSpriteCalculator.GetSkinTexture(_characterRenderPropertiesPrivate);
+            var spriteForSkin = _characterSpriteCalculator.GetSkinTexture(_renderProperties);
             var skinData = spriteForSkin.GetSourceTextureData<Color>();
 
             int i = 0;
