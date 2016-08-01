@@ -126,7 +126,9 @@
     <Compile Include="Rendering\Factories\ICharacterRendererFactory.cs" />
     <Compile Include="Rendering\Chat\IChatRenderable.cs" />
     <Compile Include="Rendering\Chat\IChatRenderableGenerator.cs" />
+    <Compile Include="Rendering\Factories\IMapRendererFactory.cs" />
     <Compile Include="Rendering\Factories\IRenderTargetFactory.cs" />
+    <Compile Include="Rendering\Factories\MapRendererFactory.cs" />
     <Compile Include="Rendering\Factories\RenderTargetFactory.cs" />
     <Compile Include="Rendering\MapEntityRenderers\GroundLayerRenderer.cs" />
     <Compile Include="Rendering\Map\IMapRenderDistanceCalculator.cs" />

@@ -41,7 +41,8 @@ namespace EndlessClient
                 .RegisterType<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>()
                 .RegisterType<IHudPanelFactory, HudPanelFactory>()
                 .RegisterType<IRenderTargetFactory, RenderTargetFactory>()
-                .RegisterType<ICharacterPropertyRendererBuilder, CharacterPropertyRendererBuilder>();
+                .RegisterType<ICharacterPropertyRendererBuilder, CharacterPropertyRendererBuilder>()
+                .RegisterType<IMapRendererFactory, MapRendererFactory>();
 
             container.RegisterType<IEOMessageBoxFactory, EOMessageBoxFactory>()
                 .RegisterType<ICreateAccountWarningDialogFactory, CreateAccountWarningDialogFactory>()
