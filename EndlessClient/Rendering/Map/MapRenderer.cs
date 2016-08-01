@@ -117,7 +117,7 @@ namespace EndlessClient.Rendering.Map
                                                               .Where(x => x.ElementTypeIsInRange(localRow, localCol));
 
                     foreach (var renderer in renderers)
-                        renderer.RenderElementAt(_sb, row, col, 255); //todo: alpha for fading
+                        renderer.RenderElementAt(_sb, row, col, 255); //todo: alpha for fading (once changing maps is supported)
                 }
 
                 _sb.End();

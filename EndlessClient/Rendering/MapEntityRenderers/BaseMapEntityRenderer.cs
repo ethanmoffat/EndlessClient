@@ -19,7 +19,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public abstract MapRenderLayer RenderLayer { get; }
 
-        public abstract int RenderDistance { get; }
+        protected abstract int RenderDistance { get; }
 
         protected BaseMapEntityRenderer(IMapFileProvider mapFileProvider,
                                         ICharacterProvider characterProvider)

@@ -11,8 +11,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     {
         MapRenderLayer RenderLayer { get; }
 
-        int RenderDistance { get; }
-
         bool ElementTypeIsInRange(int row, int col);
 
         //todo: add required parameters for Render()

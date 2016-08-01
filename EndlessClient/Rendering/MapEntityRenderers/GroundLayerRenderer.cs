@@ -23,7 +23,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             get { return MapRenderLayer.Ground; }
         }
 
-        public override int RenderDistance { get { return 10; } }
+        protected override int RenderDistance { get { return 10; } }
 
         public GroundLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    IMapFileProvider mapFileProvider,
