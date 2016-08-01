@@ -101,6 +101,7 @@ namespace EOLib.Domain.Login
                 .WithGuildRank(data.GuildRank)
                 .WithGuildTag(data.GuildTag)
                 .WithClassID(data.ClassID)
+                .WithMapID(data.MapID)
                 .WithAdminLevel(data.AdminLevel)
                 .WithStats(data.CharacterStats);
             _paperdollRepository.ActiveCharacterPaperdoll = data.Paperdoll.ToList();
