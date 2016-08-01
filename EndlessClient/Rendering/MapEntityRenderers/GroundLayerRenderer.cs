@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
@@ -14,43 +13,29 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
 {
-    public class GroundLayerRenderer : IMapEntityRenderer
+    public class GroundLayerRenderer : BaseMapEntityRenderer
     {
-        private const int RENDER_DISTANCE = 10;
-
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly IMapFileProvider _mapFileProvider;
-        private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
 
-        public MapRenderLayer RenderLayer
+        public override MapRenderLayer RenderLayer
         {
             get { return MapRenderLayer.Ground; }
         }
+
+        public override int RenderDistance { get { return 10; } }
 
         public GroundLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    IMapFileProvider mapFileProvider,
                                    ICharacterProvider characterProvider,
                                    ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
+            : base(mapFileProvider, characterProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
-            _mapFileProvider = mapFileProvider;
-            _characterProvider = characterProvider;
             _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
         }
 
-        //todo: put this in a base class and make RENDER_DISTANCE protected abstract or part of the interface?
-        public bool ElementTypeIsInRange(int row, int col)
-        {
-            var props = _characterProvider.ActiveCharacter.RenderProperties;
-
-            var rowDelta = Math.Abs(props.MapY - row);
-            var colDelta = Math.Abs(props.MapX - col);
-
-            return rowDelta <= RENDER_DISTANCE && colDelta <= RENDER_DISTANCE;
-        }
-
-        public void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
             var offX = _characterRenderOffsetCalculator.CalculateOffsetX(_characterProvider.ActiveCharacter.RenderProperties);
             var offY = _characterRenderOffsetCalculator.CalculateOffsetY(_characterProvider.ActiveCharacter.RenderProperties);
@@ -73,15 +58,5 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 spriteBatch.Draw(tile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.FromNonPremultiplied(255, 255, 255, alpha));
             }
         }
-
-        //todo: put this in a base class?
-        private static Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY, int characterOffsetX, int characterOffsetY)
-        {
-            return new Vector2(gridX*32 - gridY*32 + 288 - characterOffsetX,
-                               gridY*16 + gridX*16 + 144 - characterOffsetY);
-        }
-
-        //todo: put this in a base class?
-        private IReadOnlyMapFile MapFile { get { return _mapFileProvider.MapFiles[_characterProvider.ActiveCharacter.MapID]; } }
     }
 }
