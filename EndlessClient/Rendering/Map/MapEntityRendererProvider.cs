@@ -3,7 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.MapEntityRenderers;
+using EOLib.Domain.Character;
+using EOLib.Graphics;
+using EOLib.IO.Repositories;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -13,11 +17,18 @@ namespace EndlessClient.Rendering.Map
 
         public IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get { return _renderers; } }
 
-        public MapEntityRendererProvider()
+        public MapEntityRendererProvider(INativeGraphicsManager nativeGraphicsManager,
+                                         IMapFileProvider mapFileProvider,
+                                         ICharacterProvider characterProvider,
+                                         ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
         {
-            _renderers = new List<IMapEntityRenderer>();
-
-            //todo: build up the renderers list
+            _renderers = new List<IMapEntityRenderer>
+            {
+                new GroundLayerRenderer(nativeGraphicsManager,
+                                        mapFileProvider,
+                                        characterProvider,
+                                        characterRenderOffsetCalculator)
+            };
         }
     }
 }
