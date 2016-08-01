@@ -6,9 +6,10 @@ using System;
 using System.Collections.Generic;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Panels;
+using EndlessClient.Rendering.Factories;
+using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.Localization;
@@ -23,6 +24,7 @@ namespace EndlessClient.HUD.Controls
 
         private readonly IHudButtonController _hudButtonController;
         private readonly IHudPanelFactory _hudPanelFactory;
+        private readonly IMapRendererFactory _mapRendererFactory;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
@@ -33,6 +35,7 @@ namespace EndlessClient.HUD.Controls
 
         public HudControlsFactory(IHudButtonController hudButtonController,
                                   IHudPanelFactory hudPanelFactory,
+                                  IMapRendererFactory mapRendererFactory,
                                   INativeGraphicsManager nativeGraphicsManager,
                                   IGraphicsDeviceProvider graphicsDeviceProvider,
                                   IClientWindowSizeProvider clientWindowSizeProvider,
@@ -43,6 +46,7 @@ namespace EndlessClient.HUD.Controls
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
+            _mapRendererFactory = mapRendererFactory;
             _nativeGraphicsManager = nativeGraphicsManager;
             _graphicsDeviceProvider = graphicsDeviceProvider;
             _clientWindowSizeProvider = clientWindowSizeProvider;
@@ -56,6 +60,8 @@ namespace EndlessClient.HUD.Controls
         {
             var controls = new Dictionary<HudControlIdentifier, IGameComponent>
             {
+                {HudControlIdentifier.MapRenderer, CreateMapRenderer()},
+
                 {HudControlIdentifier.HudBackground, CreateHudBackground()},
 
                 {HudControlIdentifier.InventoryButton, CreateStateChangeButton(InGameStates.Inventory)},
@@ -88,6 +94,11 @@ namespace EndlessClient.HUD.Controls
             };
 
             return controls;
+        }
+
+        private IMapRenderer CreateMapRenderer()
+        {
+            return _mapRendererFactory.CreateMapRenderer();
         }
 
         private HudBackgroundFrame CreateHudBackground()
