@@ -132,11 +132,13 @@
     <Compile Include="Rendering\Factories\RenderTargetFactory.cs" />
     <Compile Include="Rendering\MapEntityRenderers\BaseMapEntityRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\GroundLayerRenderer.cs" />
+    <Compile Include="Rendering\Map\IMapItemGraphicProvider.cs" />
     <Compile Include="Rendering\Map\IMapRenderDistanceCalculator.cs" />
     <Compile Include="Rendering\MapEntityRenderers\IMapEntityRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\IMapEntityRendererProvider.cs" />
     <Compile Include="Rendering\Map\IMapRenderer.cs" />
     <Compile Include="Rendering\Map\MapEntityRendererProvider.cs" />
+    <Compile Include="Rendering\Map\MapItemGraphicProvider.cs" />
     <Compile Include="Rendering\Map\MapRenderBounds.cs" />
     <Compile Include="Rendering\Map\MapRenderDistanceCalculator.cs" />
     <Compile Include="Rendering\Map\MapRenderer.cs" />
