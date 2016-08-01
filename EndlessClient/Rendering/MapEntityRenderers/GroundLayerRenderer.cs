@@ -16,7 +16,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     public class GroundLayerRenderer : BaseMapEntityRenderer
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
 
         public override MapRenderLayer RenderLayer
         {
@@ -29,17 +28,14 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                                    IMapFileProvider mapFileProvider,
                                    ICharacterProvider characterProvider,
                                    ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
-            : base(mapFileProvider, characterProvider)
+            : base(mapFileProvider, characterProvider, characterRenderOffsetCalculator)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
-            _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
-            var offX = _characterRenderOffsetCalculator.CalculateOffsetX(_characterProvider.ActiveCharacter.RenderProperties);
-            var offY = _characterRenderOffsetCalculator.CalculateOffsetY(_characterProvider.ActiveCharacter.RenderProperties);
-            var pos = GetDrawCoordinatesFromGridUnits(col, row, offX, offY);
+            var pos = GetDrawCoordinatesFromGridUnits(col, row);
 
             int tileGFX;
             if ((tileGFX = MapFile.Properties.FillTile) > 0 && MapFile.GFX[MapLayer.GroundTile][row, col] < 0)
