@@ -35,7 +35,11 @@ namespace EndlessClient.Rendering.Map
                                          characterProvider,
                                          characterRenderOffsetCalculator,
                                          currentMapStateProvider,
-                                         mapItemGraphicProvider)
+                                         mapItemGraphicProvider),
+                new OverlayLayerRenderer(nativeGraphicsManager,
+                                         mapFileProvider,
+                                         characterProvider,
+                                         characterRenderOffsetCalculator),
             };
         }
     }
