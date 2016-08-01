@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.Rendering.Map;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
 {
@@ -10,7 +11,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     {
         MapRenderLayer RenderLayer { get; }
 
+        bool ElementTypeIsInRange(int row, int col);
+
         //todo: add required parameters for Render()
-        void RenderElementAt(int row, int col);
+        void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha);
     }
 }

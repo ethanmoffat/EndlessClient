@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EOLib.Domain.Character;
@@ -12,12 +13,10 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls;
 
 namespace EndlessClient.Rendering.Map
 {
-    //todo: maybe this should just be a DGC instead of an XNAControl, like it used to be...
-    public class MapRenderer : XNAControl, IMapRenderer
+    public class MapRenderer : DrawableGameComponent, IMapRenderer
     {
         private static readonly List<MapRenderLayer> _possibleLayers;
 
@@ -35,12 +34,15 @@ namespace EndlessClient.Rendering.Map
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
 
         private RenderTarget2D _mapAbovePlayer, _mapBelowPlayer;
+        private SpriteBatch _sb;
 
-        public MapRenderer(IRenderTargetFactory renderTargetFactory,
+        public MapRenderer(IEndlessGame endlessGame,
+                           IRenderTargetFactory renderTargetFactory,
                            IMapEntityRendererProvider mapEntityRendererProvider,
                            ICharacterProvider characterProvider,
                            ICurrentMapProvider currentMapProvider,
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator)
+            : base((Game)endlessGame)
         {
             _renderTargetFactory = renderTargetFactory;
             _mapEntityRendererProvider = mapEntityRendererProvider;
@@ -56,6 +58,7 @@ namespace EndlessClient.Rendering.Map
 
             _mapAbovePlayer = _renderTargetFactory.CreateRenderTarget();
             _mapBelowPlayer = _renderTargetFactory.CreateRenderTarget();
+            _sb = new SpriteBatch(Game.GraphicsDevice);
 
             base.Initialize();
         }
@@ -73,7 +76,7 @@ namespace EndlessClient.Rendering.Map
             if (!Visible)
                 return;
 
-            DrawToSpriteBatch(SpriteBatch);
+            DrawToSpriteBatch(_sb);
 
             base.Draw(gameTime);
         }
@@ -84,8 +87,6 @@ namespace EndlessClient.Rendering.Map
 
             spriteBatch.Draw(_mapAbovePlayer, Vector2.Zero, Color.White);
             spriteBatch.Draw(_mapBelowPlayer, Vector2.Zero, Color.White);
-
-            //todo: draw FPS string
 
             spriteBatch.End();
         }
@@ -100,22 +101,25 @@ namespace EndlessClient.Rendering.Map
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
             for (int row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
             {
-                SpriteBatch.Begin();
+                var localRow = row;
+
+                _sb.Begin();
 
                 for (int col = renderBounds.FirstCol; col <= renderBounds.LastCol; col++)
                 {
+                    var localCol = col;
+
                     if (CharacterIsAtPosition(immutableCharacter.RenderProperties, row, col))
                         SwitchRenderTargets();
 
-                    foreach (var layer in _possibleLayers)
-                    {
-                        _mapEntityRendererProvider.MapEntityRenderers
-                                                  .Single(x => x.RenderLayer == layer)
-                                                  .RenderElementAt(row, col);
-                    }
+                    var renderers = _mapEntityRendererProvider.MapEntityRenderers
+                                                              .Where(x => x.ElementTypeIsInRange(localRow, localCol));
+
+                    foreach (var renderer in renderers)
+                        renderer.RenderElementAt(_sb, row, col, 255); //todo: alpha for fading
                 }
 
-                SpriteBatch.End();
+                _sb.End();
             }
 
             GraphicsDevice.SetRenderTarget(null);
@@ -131,12 +135,12 @@ namespace EndlessClient.Rendering.Map
 
         private void SwitchRenderTargets()
         {
-            SpriteBatch.End();
+            _sb.End();
 
             GraphicsDevice.SetRenderTarget(_mapBelowPlayer);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
-            SpriteBatch.Begin();
+            _sb.Begin();
         }
 
         protected override void Dispose(bool disposing)
