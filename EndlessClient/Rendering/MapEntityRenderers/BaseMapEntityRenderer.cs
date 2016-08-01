@@ -32,7 +32,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
         }
 
-        public bool ElementTypeIsInRange(int row, int col)
+        public virtual bool ElementTypeIsInRange(int row, int col)
         {
             var props = _characterProvider.ActiveCharacter.RenderProperties;
 

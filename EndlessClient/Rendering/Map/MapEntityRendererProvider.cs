@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EOLib.Domain.Character;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Repositories;
 
@@ -20,6 +21,8 @@ namespace EndlessClient.Rendering.Map
         public MapEntityRendererProvider(INativeGraphicsManager nativeGraphicsManager,
                                          IMapFileProvider mapFileProvider,
                                          ICharacterProvider characterProvider,
+                                         ICurrentMapStateProvider currentMapStateProvider,
+                                         IMapItemGraphicProvider mapItemGraphicProvider,
                                          ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
         {
             _renderers = new List<IMapEntityRenderer>
@@ -27,7 +30,12 @@ namespace EndlessClient.Rendering.Map
                 new GroundLayerRenderer(nativeGraphicsManager,
                                         mapFileProvider,
                                         characterProvider,
-                                        characterRenderOffsetCalculator)
+                                        characterRenderOffsetCalculator),
+                new MapItemLayerRenderer(mapFileProvider,
+                                         characterProvider,
+                                         characterRenderOffsetCalculator,
+                                         currentMapStateProvider,
+                                         mapItemGraphicProvider)
             };
         }
     }
