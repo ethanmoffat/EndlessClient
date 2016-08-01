@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.MapEntityRenderers;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
@@ -14,18 +15,17 @@ namespace EndlessClient.Rendering.Map
 {
     public class MapEntityRendererProvider : IMapEntityRendererProvider
     {
-        private readonly List<IMapEntityRenderer> _renderers;
-
-        public IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get { return _renderers; } }
+        public IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; private set; }
 
         public MapEntityRendererProvider(INativeGraphicsManager nativeGraphicsManager,
                                          IMapFileProvider mapFileProvider,
                                          ICharacterProvider characterProvider,
                                          ICurrentMapStateProvider currentMapStateProvider,
                                          IMapItemGraphicProvider mapItemGraphicProvider,
-                                         ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
+                                         ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
+                                         IConfigurationProvider configurationProvider)
         {
-            _renderers = new List<IMapEntityRenderer>
+            MapEntityRenderers = new List<IMapEntityRenderer>
             {
                 new GroundLayerRenderer(nativeGraphicsManager,
                                         mapFileProvider,
@@ -40,6 +40,11 @@ namespace EndlessClient.Rendering.Map
                                          mapFileProvider,
                                          characterProvider,
                                          characterRenderOffsetCalculator),
+                new ShadowLayerRenderer(nativeGraphicsManager,
+                                        mapFileProvider,
+                                        characterProvider,
+                                        characterRenderOffsetCalculator,
+                                        configurationProvider),
             };
         }
     }
