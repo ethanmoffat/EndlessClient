@@ -74,7 +74,8 @@ namespace EndlessClient
             //provider only
             container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>()
                 .RegisterInstance<IHudControlProvider, HudControlProvider>()
-                .RegisterInstance<IMapEntityRendererProvider, MapEntityRendererProvider>();
+                .RegisterInstance<IMapEntityRendererProvider, MapEntityRendererProvider>()
+                .RegisterInstance<IMapItemGraphicProvider, MapItemGraphicProvider>();
 
             //controllers
             container.RegisterType<IMainButtonController, MainButtonController>()
