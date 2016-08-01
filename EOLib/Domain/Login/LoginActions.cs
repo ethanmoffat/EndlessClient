@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using EOLib.Domain.Character;
@@ -139,16 +140,29 @@ namespace EOLib.Domain.Login
             _newsRepository.NewsHeader = data.News.First();
             _newsRepository.NewsText = data.News.Except(new[] { data.News.First()}).ToList();
 
+            var mainCharacter = data.MapCharacters.Single(
+                x => x.Name.ToLower() == _characterRepository.ActiveCharacter.Name.ToLower());
+
             var stats = _characterRepository.ActiveCharacter.Stats
                 .WithNewStat(CharacterStat.Weight, data.CharacterWeight)
-                .WithNewStat(CharacterStat.MaxWeight, data.CharacterMaxWeight);
+                .WithNewStat(CharacterStat.MaxWeight, data.CharacterMaxWeight)
+                .WithNewStat(CharacterStat.Level, mainCharacter.Stats[CharacterStat.Level])
+                .WithNewStat(CharacterStat.HP, mainCharacter.Stats[CharacterStat.HP])
+                .WithNewStat(CharacterStat.MaxHP, mainCharacter.Stats[CharacterStat.MaxHP])
+                .WithNewStat(CharacterStat.TP, mainCharacter.Stats[CharacterStat.TP])
+                .WithNewStat(CharacterStat.MaxTP, mainCharacter.Stats[CharacterStat.MaxTP]);
 
-            _characterRepository.ActiveCharacter = _characterRepository.ActiveCharacter.WithStats(stats);
+            _characterRepository.ActiveCharacter = _characterRepository.ActiveCharacter
+                .WithName(mainCharacter.Name)
+                .WithMapID(mainCharacter.MapID)
+                .WithGuildTag(mainCharacter.GuildTag)
+                .WithStats(stats)
+                .WithRenderProperties(mainCharacter.RenderProperties);
 
             _characterInventoryRepository.ItemInventory = data.CharacterItemInventory.ToList();
             _characterInventoryRepository.SpellInventory = data.CharacterSpellInventory.ToList();
 
-            _currentMapStateRepository.Characters = data.MapCharacters.ToList();
+            _currentMapStateRepository.Characters = data.MapCharacters.Except(new[] {mainCharacter}).ToList();
             _currentMapStateRepository.NPCs = data.MapNPCs.ToList();
             _currentMapStateRepository.MapItems = data.MapItems.ToList();
         }
