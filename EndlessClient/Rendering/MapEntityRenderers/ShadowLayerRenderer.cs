@@ -6,9 +6,9 @@ using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Map;
 using EOLib.Config;
 using EOLib.Domain.Character;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Map;
-using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -17,6 +17,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     public class ShadowLayerRenderer : BaseMapEntityRenderer
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IConfigurationProvider _configurationProvider;
 
         public override MapRenderLayer RenderLayer
@@ -30,13 +31,14 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         }
 
         public ShadowLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
-                                   IMapFileProvider mapFileProvider,
+                                   ICurrentMapProvider currentMapProvider,
                                    ICharacterProvider characterProvider,
                                    ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
                                    IConfigurationProvider configurationProvider)
-            : base(mapFileProvider, characterProvider, characterRenderOffsetCalculator)
+            : base(characterProvider, characterRenderOffsetCalculator)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _currentMapProvider = currentMapProvider;
             _configurationProvider = configurationProvider;
         }
 
@@ -56,5 +58,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             pos = new Vector2(pos.X - 24, pos.Y - 12);
             spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, 60));
         }
+
+        private IReadOnlyMapFile MapFile { get { return _currentMapProvider.CurrentMap; } }
     }
 }

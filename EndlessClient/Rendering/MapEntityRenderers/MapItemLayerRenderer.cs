@@ -8,7 +8,6 @@ using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
-using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -29,12 +28,11 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             get { return 16; }
         }
 
-        public MapItemLayerRenderer(IMapFileProvider mapFileProvider,
-                                    ICharacterProvider characterProvider,
+        public MapItemLayerRenderer(ICharacterProvider characterProvider,
                                     ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
                                     ICurrentMapStateProvider currentMapStateProvider,
                                     IMapItemGraphicProvider mapItemGraphicProvider)
-            : base(mapFileProvider, characterProvider, characterRenderOffsetCalculator)
+            : base(characterProvider, characterRenderOffsetCalculator)
         {
             _currentMapStateProvider = currentMapStateProvider;
             _mapItemGraphicProvider = mapItemGraphicProvider;

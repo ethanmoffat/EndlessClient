@@ -9,7 +9,6 @@ using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
-using EOLib.IO.Repositories;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -18,7 +17,7 @@ namespace EndlessClient.Rendering.Map
         public IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; private set; }
 
         public MapEntityRendererProvider(INativeGraphicsManager nativeGraphicsManager,
-                                         IMapFileProvider mapFileProvider,
+                                         ICurrentMapProvider currentMapProvider,
                                          ICharacterProvider characterProvider,
                                          ICurrentMapStateProvider currentMapStateProvider,
                                          IMapItemGraphicProvider mapItemGraphicProvider,
@@ -28,25 +27,24 @@ namespace EndlessClient.Rendering.Map
             MapEntityRenderers = new List<IMapEntityRenderer>
             {
                 new GroundLayerRenderer(nativeGraphicsManager,
-                                        mapFileProvider,
+                                        currentMapProvider,
                                         characterProvider,
                                         characterRenderOffsetCalculator),
-                new MapItemLayerRenderer(mapFileProvider,
-                                         characterProvider,
+                new MapItemLayerRenderer(characterProvider,
                                          characterRenderOffsetCalculator,
                                          currentMapStateProvider,
                                          mapItemGraphicProvider),
                 new OverlayLayerRenderer(nativeGraphicsManager,
-                                         mapFileProvider,
+                                         currentMapProvider,
                                          characterProvider,
                                          characterRenderOffsetCalculator),
                 new ShadowLayerRenderer(nativeGraphicsManager,
-                                        mapFileProvider,
+                                        currentMapProvider,
                                         characterProvider,
                                         characterRenderOffsetCalculator,
                                         configurationProvider),
                 new WallLayerRenderer(nativeGraphicsManager,
-                                      mapFileProvider,
+                                      currentMapProvider,
                                       characterProvider,
                                       characterRenderOffsetCalculator),
             };

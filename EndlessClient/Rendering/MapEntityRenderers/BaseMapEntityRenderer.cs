@@ -6,8 +6,6 @@ using System;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
-using EOLib.IO.Map;
-using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -15,7 +13,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 {
     public abstract class BaseMapEntityRenderer : IMapEntityRenderer
     {
-        private readonly IMapFileProvider _mapFileProvider;
         protected readonly ICharacterProvider _characterProvider;
         private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
 
@@ -23,11 +20,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected abstract int RenderDistance { get; }
 
-        protected BaseMapEntityRenderer(IMapFileProvider mapFileProvider,
-                                        ICharacterProvider characterProvider,
+        protected BaseMapEntityRenderer(ICharacterProvider characterProvider,
                                         ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
         {
-            _mapFileProvider = mapFileProvider;
             _characterProvider = characterProvider;
             _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
         }
@@ -52,7 +47,5 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return new Vector2(gridX * 32 - gridY * 32 + 288 - charOffX,
                                gridY * 16 + gridX * 16 + 144 - charOffY);
         }
-
-        protected IReadOnlyMapFile MapFile { get { return _mapFileProvider.MapFiles[_characterProvider.ActiveCharacter.MapID]; } }
     }
 }

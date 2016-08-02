@@ -5,11 +5,10 @@
 using System;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Map;
-using EOLib.Config;
 using EOLib.Domain.Character;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Map;
-using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -20,6 +19,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         private const int WALL_FRAME_WIDTH = 68;
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly ICurrentMapProvider _currentMapProvider;
 
         public override MapRenderLayer RenderLayer
         {
@@ -32,12 +32,13 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         }
 
         public WallLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
-                                 IMapFileProvider mapFileProvider,
+                                 ICurrentMapProvider currentMapProvider,
                                  ICharacterProvider characterProvider,
                                  ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
-            : base(mapFileProvider, characterProvider, characterRenderOffsetCalculator)
+            : base(characterProvider, characterRenderOffsetCalculator)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _currentMapProvider = currentMapProvider;
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
@@ -70,5 +71,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
             spriteBatch.Draw(gfx, pos, src, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
+
+        private IReadOnlyMapFile MapFile { get { return _currentMapProvider.CurrentMap; } }
     }
 }
