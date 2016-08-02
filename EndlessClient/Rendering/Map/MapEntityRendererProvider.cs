@@ -55,6 +55,10 @@ namespace EndlessClient.Rendering.Map
                                       currentMapProvider,
                                       characterProvider,
                                       characterRenderOffsetCalculator),
+                new UnknownLayerRenderer(nativeGraphicsManager,
+                                         currentMapProvider,
+                                         characterProvider,
+                                         characterRenderOffsetCalculator),
             };
         }
     }
