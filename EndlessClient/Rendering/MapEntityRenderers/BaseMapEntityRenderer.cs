@@ -18,6 +18,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public abstract MapRenderLayer RenderLayer { get; }
 
+        public bool ShouldRenderLast { get { return RenderLayer == MapRenderLayer.Roof; } }
+
         protected abstract int RenderDistance { get; }
 
         protected BaseMapEntityRenderer(ICharacterProvider characterProvider,

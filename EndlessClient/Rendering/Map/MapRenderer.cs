@@ -99,6 +99,8 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.SetRenderTarget(_mapAbovePlayer);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
+            var gfxToRenderLast = new SortedList<Point, List<MapRenderLayer>>();
+
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
             for (int row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
             {
@@ -117,11 +119,36 @@ namespace EndlessClient.Rendering.Map
                                                               .Where(x => x.ElementTypeIsInRange(localRow, localCol));
 
                     foreach (var renderer in renderers)
+                    {
+                        if (renderer.ShouldRenderLast)
+                        {
+                            var renderLaterKey = new Point(col, row);
+                            if (gfxToRenderLast.ContainsKey(renderLaterKey))
+                                gfxToRenderLast[renderLaterKey].Add(renderer.RenderLayer);
+                            else
+                                gfxToRenderLast.Add(renderLaterKey, new List<MapRenderLayer> { renderer.RenderLayer });
+                        }
+
                         renderer.RenderElementAt(_sb, row, col, 255); //todo: alpha for fading (once changing maps is supported)
+                    }
                 }
 
                 _sb.End();
             }
+
+            _sb.Begin();
+            foreach (var pointKey in gfxToRenderLast.Keys)
+            {
+                foreach (var layer in gfxToRenderLast[pointKey])
+                {
+                    _mapEntityRendererProvider.MapEntityRenderers
+                                              .Single(x => x.RenderLayer == layer)
+                                              .RenderElementAt(_sb, pointKey.Y, pointKey.X, 255);
+                }
+            }
+            _sb.End();
+
+            //todo: draw the main character renderer here after everything
 
             GraphicsDevice.SetRenderTarget(null);
         }

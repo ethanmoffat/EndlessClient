@@ -14,8 +14,8 @@ namespace EndlessClient.Rendering.Map
         Objects,
         Character,
         Npc,
+        Roof,
         Unknown,
         OnTop,
-        Roof,
     }
 }

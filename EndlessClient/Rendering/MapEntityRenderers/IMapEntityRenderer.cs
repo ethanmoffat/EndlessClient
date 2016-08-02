@@ -11,9 +11,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     {
         MapRenderLayer RenderLayer { get; }
 
+        bool ShouldRenderLast { get; }
+
         bool ElementTypeIsInRange(int row, int col);
 
-        //todo: add required parameters for Render()
         void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha);
     }
 }
