@@ -50,7 +50,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
             int gfxNum;
-            if ((gfxNum = MapFile.GFX[MapLayer.Shadow][row, col]) <= 0)
+            if ((gfxNum = CurrentMap.GFX[MapLayer.Shadow][row, col]) <= 0)
                 return;
 
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.Shadows, gfxNum, true);
@@ -59,6 +59,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, 60));
         }
 
-        private IReadOnlyMapFile MapFile { get { return _currentMapProvider.CurrentMap; } }
+        private IReadOnlyMapFile CurrentMap { get { return _currentMapProvider.CurrentMap; } }
     }
 }

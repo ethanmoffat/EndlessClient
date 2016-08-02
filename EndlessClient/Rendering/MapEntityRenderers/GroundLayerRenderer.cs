@@ -40,13 +40,13 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
 
             int tileGFX;
-            if ((tileGFX = MapFile.Properties.FillTile) > 0 && MapFile.GFX[MapLayer.GroundTile][row, col] < 0)
+            if ((tileGFX = CurrentMap.Properties.FillTile) > 0 && CurrentMap.GFX[MapLayer.GroundTile][row, col] < 0)
             {
                 //todo: source rectangle for fill tile
                 var fillTile = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapTiles, tileGFX, true);
                 spriteBatch.Draw(fillTile, new Vector2(pos.X - 1, pos.Y - 2), Color.FromNonPremultiplied(255, 255, 255, alpha));
             }
-            else if ((tileGFX = MapFile.GFX[MapLayer.GroundTile][row, col]) > 0)
+            else if ((tileGFX = CurrentMap.GFX[MapLayer.GroundTile][row, col]) > 0)
             {
                 var tile = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapTiles, tileGFX, true);
 
@@ -57,6 +57,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             }
         }
 
-        private IReadOnlyMapFile MapFile { get { return _currentMapProvider.CurrentMap; } }
+        private IReadOnlyMapFile CurrentMap { get { return _currentMapProvider.CurrentMap; } }
     }
 }

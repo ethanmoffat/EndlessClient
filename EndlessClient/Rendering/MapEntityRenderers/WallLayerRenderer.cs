@@ -44,10 +44,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
             int gfxNum;
-            if ((gfxNum = MapFile.GFX[MapLayer.WallRowsRight][row, col]) > 0)
+            if ((gfxNum = CurrentMap.GFX[MapLayer.WallRowsRight][row, col]) > 0)
                 DrawWall(spriteBatch, row, col, alpha, gfxNum, MapLayer.WallRowsRight);
 
-            if ((gfxNum = MapFile.GFX[MapLayer.WallRowsDown][row, col]) > 0)
+            if ((gfxNum = CurrentMap.GFX[MapLayer.WallRowsDown][row, col]) > 0)
                 DrawWall(spriteBatch, row, col, alpha, gfxNum, MapLayer.WallRowsDown);
         }
 
@@ -72,6 +72,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             spriteBatch.Draw(gfx, pos, src, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 
-        private IReadOnlyMapFile MapFile { get { return _currentMapProvider.CurrentMap; } }
+        private IReadOnlyMapFile CurrentMap { get { return _currentMapProvider.CurrentMap; } }
     }
 }
