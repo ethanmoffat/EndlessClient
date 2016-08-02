@@ -51,6 +51,10 @@ namespace EndlessClient.Rendering.Map
                                            currentMapProvider,
                                            characterProvider,
                                            characterRenderOffsetCalculator),
+                new RoofLayerRenderer(nativeGraphicsManager,
+                                      currentMapProvider,
+                                      characterProvider,
+                                      characterRenderOffsetCalculator),
             };
         }
     }
