@@ -143,6 +143,7 @@
     <Compile Include="Rendering\Map\IMapRenderer.cs" />
     <Compile Include="Rendering\Map\MapEntityRendererProvider.cs" />
     <Compile Include="Rendering\Map\MapItemGraphicProvider.cs" />
+    <Compile Include="Rendering\MapEntityRenderers\MapObjectLayerRenderer.cs" />
     <Compile Include="Rendering\Map\MapRenderBounds.cs" />
     <Compile Include="Rendering\Map\MapRenderDistanceCalculator.cs" />
     <Compile Include="Rendering\Map\MapRenderer.cs" />
