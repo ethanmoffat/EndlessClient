@@ -135,6 +135,7 @@
     <Compile Include="Rendering\MapEntityRenderers\MapItemLayerRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\OverlayLayerRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\ShadowLayerRenderer.cs" />
+    <Compile Include="Rendering\MapEntityRenderers\WallLayerRenderer.cs" />
     <Compile Include="Rendering\Map\IMapItemGraphicProvider.cs" />
     <Compile Include="Rendering\Map\IMapRenderDistanceCalculator.cs" />
     <Compile Include="Rendering\MapEntityRenderers\IMapEntityRenderer.cs" />

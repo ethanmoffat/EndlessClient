@@ -45,6 +45,10 @@ namespace EndlessClient.Rendering.Map
                                         characterProvider,
                                         characterRenderOffsetCalculator,
                                         configurationProvider),
+                new WallLayerRenderer(nativeGraphicsManager,
+                                      mapFileProvider,
+                                      characterProvider,
+                                      characterRenderOffsetCalculator),
             };
         }
     }
