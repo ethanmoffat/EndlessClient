@@ -42,9 +42,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _configurationProvider = configurationProvider;
         }
 
-        public override bool ElementTypeIsInRange(int row, int col)
+        public override bool CanRender(int row, int col)
         {
-            return _configurationProvider.ShowShadows && base.ElementTypeIsInRange(row, col);
+            return _configurationProvider.ShowShadows && base.CanRender(row, col);
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)

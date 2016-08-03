@@ -104,22 +104,18 @@ namespace EndlessClient.Rendering.Map
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
             for (int row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
             {
-                var localRow = row;
-
                 _sb.Begin();
 
                 for (int col = renderBounds.FirstCol; col <= renderBounds.LastCol; col++)
                 {
-                    var localCol = col;
-
                     if (CharacterIsAtPosition(immutableCharacter.RenderProperties, row, col))
                         SwitchRenderTargets();
 
-                    var renderers = _mapEntityRendererProvider.MapEntityRenderers
-                                                              .Where(x => x.ElementTypeIsInRange(localRow, localCol));
-
-                    foreach (var renderer in renderers)
+                    foreach (var renderer in _mapEntityRendererProvider.MapEntityRenderers)
                     {
+                        if (!renderer.CanRender(row, col))
+                            continue;
+
                         if (renderer.ShouldRenderLast)
                         {
                             var renderLaterKey = new Point(col, row);

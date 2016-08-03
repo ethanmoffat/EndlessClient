@@ -13,7 +13,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         bool ShouldRenderLast { get; }
 
-        bool ElementTypeIsInRange(int row, int col);
+        bool CanRender(int row, int col);
 
         void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha);
     }

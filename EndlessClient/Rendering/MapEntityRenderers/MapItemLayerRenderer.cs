@@ -38,9 +38,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _mapItemGraphicProvider = mapItemGraphicProvider;
         }
 
-        public override bool ElementTypeIsInRange(int row, int col)
+        public override bool CanRender(int row, int col)
         {
-            if (!base.ElementTypeIsInRange(row, col))
+            if (!base.CanRender(row, col))
                 return false;
 
             return _currentMapStateProvider.MapItems.Any(item => item.X == col && item.Y == row);
