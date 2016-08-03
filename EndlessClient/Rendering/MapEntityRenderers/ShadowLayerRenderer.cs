@@ -47,15 +47,19 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return _configurationProvider.ShowShadows && base.CanRender(row, col);
         }
 
+        protected override bool ElementExistsAt(int row, int col)
+        {
+            return CurrentMap.GFX[MapLayer.Shadow][row, col] > 0;
+        }
+
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
-            int gfxNum;
-            if ((gfxNum = CurrentMap.GFX[MapLayer.Shadow][row, col]) <= 0)
-                return;
-
+            int gfxNum = CurrentMap.GFX[MapLayer.Shadow][row, col];
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.Shadows, gfxNum, true);
+
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
             pos = new Vector2(pos.X - 24, pos.Y - 12);
+
             spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, 60));
         }
 

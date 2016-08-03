@@ -41,6 +41,12 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _currentMapProvider = currentMapProvider;
         }
 
+        protected override bool ElementExistsAt(int row, int col)
+        {
+            return CurrentMap.GFX[MapLayer.WallRowsRight][row, col] > 0 ||
+                   CurrentMap.GFX[MapLayer.WallRowsDown][row, col] > 0;
+        }
+
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
             int gfxNum;

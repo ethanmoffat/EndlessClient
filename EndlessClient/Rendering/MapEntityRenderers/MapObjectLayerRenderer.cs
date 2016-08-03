@@ -39,17 +39,21 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _currentMapProvider = currentMapProvider;
         }
 
+        protected override bool ElementExistsAt(int row, int col)
+        {
+            return MapFile.GFX[MapLayer.Objects][row, col] > 0;
+        }
+
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
-            int gfxNum;
-            if ((gfxNum = MapFile.GFX[MapLayer.Objects][row, col]) <= 0)
-                return;
-
             //todo: handling for spike traps when players walk over them: see OldMapRenderer._drawMapObjectsAtLoc
 
+            int gfxNum = MapFile.GFX[MapLayer.Objects][row, col];
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapObjects, gfxNum, true);
+
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
             pos = new Vector2(pos.X - (int)Math.Round(gfx.Width / 2.0) + 29, pos.Y - (gfx.Height - 28));
+
             spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 

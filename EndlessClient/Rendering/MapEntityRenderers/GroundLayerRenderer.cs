@@ -35,6 +35,12 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _currentMapProvider = currentMapProvider;
         }
 
+        protected override bool ElementExistsAt(int row, int col)
+        {
+            return (CurrentMap.Properties.FillTile > 0 && CurrentMap.GFX[MapLayer.GroundTile][row, col] < 0) ||
+                   CurrentMap.GFX[MapLayer.GroundTile][row, col] > 0;
+        }
+
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
             var pos = GetDrawCoordinatesFromGridUnits(col, row);

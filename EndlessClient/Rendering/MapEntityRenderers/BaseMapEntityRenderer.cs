@@ -31,6 +31,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public virtual bool CanRender(int row, int col)
         {
+            if (!ElementExistsAt(row, col))
+                return false;
+
             var props = _characterProvider.ActiveCharacter.RenderProperties;
 
             var rowDelta = Math.Abs(props.MapY - row);
@@ -38,6 +41,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
             return rowDelta <= RenderDistance && colDelta <= RenderDistance;
         }
+
+        protected abstract bool ElementExistsAt(int row, int col);
 
         public abstract void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha);
 

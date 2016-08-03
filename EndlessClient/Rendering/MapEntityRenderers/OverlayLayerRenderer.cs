@@ -38,15 +38,19 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _currentMapProvider = currentMapProvider;
         }
 
+        protected override bool ElementExistsAt(int row, int col)
+        {
+            return CurrentMap.GFX[MapLayer.OverlayObjects][row, col] > 0;
+        }
+
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
-            int gfxNum;
-            if ((gfxNum = CurrentMap.GFX[MapLayer.OverlayObjects][row, col]) <= 0)
-                return;
-
+            int gfxNum = CurrentMap.GFX[MapLayer.OverlayObjects][row, col];
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
+
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
             pos = new Vector2(pos.X + 16, pos.Y - 11);
+
             spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 

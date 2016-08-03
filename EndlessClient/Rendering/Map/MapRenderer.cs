@@ -102,11 +102,11 @@ namespace EndlessClient.Rendering.Map
             var gfxToRenderLast = new SortedList<Point, List<MapRenderLayer>>();
 
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
-            for (int row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
+            for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
             {
                 _sb.Begin();
 
-                for (int col = renderBounds.FirstCol; col <= renderBounds.LastCol; col++)
+                for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; col++)
                 {
                     if (CharacterIsAtPosition(immutableCharacter.RenderProperties, row, col))
                         SwitchRenderTargets();
