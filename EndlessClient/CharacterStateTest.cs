@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
+using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EOLib;
 using EOLib.Domain.Character;

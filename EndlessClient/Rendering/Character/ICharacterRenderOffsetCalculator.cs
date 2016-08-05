@@ -4,7 +4,7 @@
 
 using EOLib.Domain.Character;
 
-namespace EndlessClient.Rendering.CharacterProperties
+namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterRenderOffsetCalculator
     {

@@ -6,7 +6,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 
-namespace EndlessClient.Rendering.CharacterProperties
+namespace EndlessClient.Rendering.Character
 {
     public class CharacterRenderOffsetCalculator : ICharacterRenderOffsetCalculator
     {

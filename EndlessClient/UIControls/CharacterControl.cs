@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.Rendering;
+using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;

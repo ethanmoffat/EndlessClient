@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EOLib.Config;

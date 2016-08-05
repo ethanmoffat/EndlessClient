@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.GameExecution;
+using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;

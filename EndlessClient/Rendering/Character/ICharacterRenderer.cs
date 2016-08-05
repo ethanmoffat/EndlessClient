@@ -7,7 +7,7 @@ using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient.Rendering
+namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable
     {

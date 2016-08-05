@@ -6,7 +6,7 @@ using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace EndlessClient.Rendering
+namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterTextures
     {
