@@ -117,9 +117,13 @@
     <Compile Include="HUD\StatusLabelSetter.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
-    <Compile Include="Rendering\CharacterProperties\CharacterRenderOffsetCalculator.cs" />
     <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRendererBuilder.cs" />
-    <Compile Include="Rendering\CharacterProperties\ICharacterRenderOffsetCalculator.cs" />
+    <Compile Include="Rendering\Character\CharacterRenderer.cs" />
+    <Compile Include="Rendering\Character\CharacterRenderOffsetCalculator.cs" />
+    <Compile Include="Rendering\Character\CharacterTextures.cs" />
+    <Compile Include="Rendering\Character\ICharacterRenderer.cs" />
+    <Compile Include="Rendering\Character\ICharacterRenderOffsetCalculator.cs" />
+    <Compile Include="Rendering\Character\ICharacterTextures.cs" />
     <Compile Include="Rendering\Chat\ChatRenderable.cs" />
     <Compile Include="Rendering\Chat\ChatRenderableGenerator.cs" />
     <Compile Include="Rendering\Factories\CharacterRendererFactory.cs" />
@@ -254,8 +258,6 @@
     <Compile Include="Rendering\CharacterProperties\SkinRenderer.cs" />
     <Compile Include="Rendering\CharacterProperties\SkinRenderLocationCalculator.cs" />
     <Compile Include="Rendering\CharacterProperties\WeaponRenderer.cs" />
-    <Compile Include="Rendering\CharacterTextures.cs" />
-    <Compile Include="Rendering\ICharacterTextures.cs" />
     <Compile Include="Rendering\Sprites\CharacterSpriteCalculator.cs" />
     <Compile Include="Rendering\Sprites\EmoteSpriteType.cs" />
     <Compile Include="Rendering\Sprites\EmptySpriteSheet.cs" />
@@ -265,8 +267,6 @@
     <Compile Include="Rendering\Sprites\NPCFrame.cs" />
     <Compile Include="Rendering\Sprites\BootsSpriteType.cs" />
     <Compile Include="Rendering\Sprites\ArmorShieldSpriteType.cs" />
-    <Compile Include="Rendering\CharacterRenderer.cs" />
-    <Compile Include="Rendering\ICharacterRenderer.cs" />
     <Compile Include="Rendering\OldCharacterRenderer.cs" />
     <Compile Include="Rendering\ChatBubbleRenderer.cs" />
     <Compile Include="Rendering\ContextMenuRenderer.cs" />
@@ -378,7 +378,9 @@
   <ItemGroup>
     <Content Include="Resources\Game.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Rendering\Character" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <PropertyGroup>

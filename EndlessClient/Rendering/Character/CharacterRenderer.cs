@@ -7,7 +7,6 @@ using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
-using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
