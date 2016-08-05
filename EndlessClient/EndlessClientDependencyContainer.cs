@@ -70,7 +70,9 @@ namespace EndlessClient
                 .RegisterInstance<IEndlessGameProvider, EndlessGameRepository>()
                 .RegisterInstance<IEndlessGameRepository, EndlessGameRepository>()
                 .RegisterInstance<IStatusLabelTextProvider, StatusLabelTextRepository>()
-                .RegisterInstance<IStatusLabelTextRepository, StatusLabelTextRepository>();
+                .RegisterInstance<IStatusLabelTextRepository, StatusLabelTextRepository>()
+                .RegisterInstance<ICharacterRendererProvider, CharacterRendererRepository>()
+                .RegisterInstance<ICharacterRendererRepository, CharacterRendererRepository>();
 
             //provider only
             container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>()

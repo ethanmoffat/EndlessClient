@@ -122,6 +122,7 @@
     <Compile Include="Rendering\Character\CharacterRenderOffsetCalculator.cs" />
     <Compile Include="Rendering\Character\CharacterTextures.cs" />
     <Compile Include="Rendering\Character\ICharacterRenderer.cs" />
+    <Compile Include="Rendering\Character\ICharacterRendererRepository.cs" />
     <Compile Include="Rendering\Character\ICharacterRenderOffsetCalculator.cs" />
     <Compile Include="Rendering\Character\ICharacterTextures.cs" />
     <Compile Include="Rendering\Chat\ChatRenderable.cs" />
