@@ -3,13 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using EOLib;
 using EOLib.Domain.Character;
 
 namespace EndlessClient.Rendering.Character
 {
     public class CharacterStateCache : ICharacterStateCache
     {
-        public ICharacterRenderProperties ActiveCharacterRenderProperties { get; private set; }
+        public Optional<ICharacterRenderProperties> ActiveCharacterRenderProperties { get; private set; }
 
         private readonly Dictionary<int, ICharacterRenderProperties> _characterRenderProperties;
 
@@ -20,6 +21,7 @@ namespace EndlessClient.Rendering.Character
 
         public CharacterStateCache()
         {
+            ActiveCharacterRenderProperties = new Optional<ICharacterRenderProperties>();
             _characterRenderProperties = new Dictionary<int, ICharacterRenderProperties>();
         }
 
@@ -30,7 +32,7 @@ namespace EndlessClient.Rendering.Character
 
         public void UpdateActiveCharacterState(ICharacterRenderProperties newActiveCharacterState)
         {
-            ActiveCharacterRenderProperties = newActiveCharacterState;
+            ActiveCharacterRenderProperties = new Optional<ICharacterRenderProperties>(newActiveCharacterState);
         }
 
         public void UpdateCharacterState(int id, ICharacterRenderProperties newCharacterState)

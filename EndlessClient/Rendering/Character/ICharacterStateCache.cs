@@ -3,13 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using EOLib;
 using EOLib.Domain.Character;
 
 namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterStateCache
     {
-        ICharacterRenderProperties ActiveCharacterRenderProperties { get; }
+        Optional<ICharacterRenderProperties> ActiveCharacterRenderProperties { get; }
 
         IReadOnlyDictionary<int, ICharacterRenderProperties> CharacterRenderProperties { get; }
 
