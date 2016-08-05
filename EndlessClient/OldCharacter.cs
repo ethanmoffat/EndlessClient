@@ -9,8 +9,6 @@ using EndlessClient.Dialogs;
 using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Domain.Character;
-using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 using EOLib.IO;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
@@ -119,7 +117,7 @@ namespace EndlessClient
     ///    <para>data races to the properties that are here. However, since it is updating</para>
     /// <para>and redrawing so fast, I don't think it will matter all that much.</para>
     /// </summary>
-    public class Character
+    public class OldCharacter
     {
         public int ID { get; private set; }
 
@@ -232,7 +230,7 @@ namespace EndlessClient
 
         private readonly PacketAPI m_packetAPI;
 
-        public Character()
+        public OldCharacter()
         {
             //mock all members with non-null fields
             //PacketAPI cannot be mocked...
@@ -246,7 +244,7 @@ namespace EndlessClient
             Name = PaddedGuildTag = GuildName = GuildRankStr = "";
         }
 
-        public Character(PacketAPI api, int id, CharRenderData data)
+        public OldCharacter(PacketAPI api, int id, CharRenderData data)
         {
             m_packetAPI = api;
             ID = id;
@@ -258,7 +256,7 @@ namespace EndlessClient
         }
 
         //constructs a character from a packet sent from the server
-        public Character(PacketAPI api, CharacterData data)
+        public OldCharacter(PacketAPI api, CharacterData data)
         {
             //initialize lists
             m_packetAPI = api;

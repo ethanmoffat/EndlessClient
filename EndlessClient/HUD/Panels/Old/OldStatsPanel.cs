@@ -32,7 +32,7 @@ namespace EndlessClient.HUD.Panels.Old
             GOLD = 4, EXP = 5, TNL = 6, KARMA = 7;
         private readonly XNALabel[] m_otherInfo = new XNALabel[8];
 
-        private readonly Character c;
+        private readonly OldCharacter c;
         private bool m_training;
 
         public OldEOCharacterStats(XNAPanel parent) 
@@ -217,7 +217,7 @@ namespace EndlessClient.HUD.Panels.Old
                         m_otherInfo[i].Text = (OldWorld.Instance.exp_table[c.Stats.Level + 1] - c.Stats.Experience).ToString(CultureInfo.InvariantCulture);
                         break;
                     case KARMA:
-                        m_otherInfo[i].Text = Character.KarmaStringFromNum(c.Stats.Karma);
+                        m_otherInfo[i].Text = OldCharacter.KarmaStringFromNum(c.Stats.Karma);
                         break;
                 }
             }

@@ -9,13 +9,13 @@ namespace EndlessClient
 {
     public class Player
     {
-        private Character _activeCharacter;
+        private OldCharacter _activeCharacter;
         public string AccountName { get; private set; }
         public int PlayerID { get; private set; }
 
         public CharRenderData[] CharData { get; private set; }
 
-        public Character ActiveCharacter
+        public OldCharacter ActiveCharacter
         {
             get
             {
@@ -25,7 +25,7 @@ namespace EndlessClient
 
                 if (_activeCharacter == null)
                 {
-                    return new Character();
+                    return new OldCharacter();
                 }
 
                 return _activeCharacter;
@@ -64,7 +64,7 @@ namespace EndlessClient
             CharRenderData activeData = CharData.FirstOrDefault(d => d.id == id);
             if (activeData == null)
                 return false;
-            ActiveCharacter = new Character(api, id, activeData);
+            ActiveCharacter = new OldCharacter(api, id, activeData);
             return true;
         }
         

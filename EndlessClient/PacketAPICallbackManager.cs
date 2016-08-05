@@ -225,7 +225,7 @@ namespace EndlessClient
 
         private void _playerPaperdollChange(PaperdollEquipData _data)
         {
-            Character c;
+            OldCharacter c;
             if (!_data.ItemWasUnequipped)
             {
                 var rec = OldWorld.Instance.EIF[_data.ItemID];
@@ -252,7 +252,7 @@ namespace EndlessClient
         {
             if (EOPaperdollDialog.Instance != null) return;
 
-            Character c;
+            OldCharacter c;
             if (OldWorld.Instance.MainPlayer.ActiveCharacter.ID == _data.PlayerID)
             {
                 //paperdoll requested for main player, all info should be up to date
@@ -465,7 +465,7 @@ namespace EndlessClient
                 case ItemType.CureCurse:
                     {
                         //actually remove the item(s) from the main character
-                        Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+                        OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
                         for (int i = 0; i < (int)EquipLocation.PAPERDOLL_MAX; ++i)
                         {
                             int nextID = c.PaperDoll[i];
@@ -701,7 +701,7 @@ namespace EndlessClient
 
         private void _shopCraft(short id, byte weight, byte maxWeight, List<InventoryItem> ingredients)
         {
-            Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+            OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
             c.UpdateInventoryItem(id, 1, weight, maxWeight, true);
             foreach (var ingred in ingredients)
                 c.UpdateInventoryItem(ingred.ItemID, ingred.Amount);
@@ -886,7 +886,7 @@ namespace EndlessClient
 
         private void _statskillReset(StatResetData data)
         {
-            Character c;
+            OldCharacter c;
             (c = OldWorld.Instance.MainPlayer.ActiveCharacter).Spells.Clear();
             EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_COMPLETE, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
             c.Stats.StatPoints = data.StatPoints;

@@ -404,10 +404,10 @@ namespace EndlessClient.Rendering
             OldCharacterRenderer otherRend = null;
             lock (_characterListLock)
             {
-                Character other = _characterRenderers.Select(x => x.Character).FirstOrDefault(x => x.Name == c.Name && x.ID == c.ID);
+                OldCharacter other = _characterRenderers.Select(x => x.Character).FirstOrDefault(x => x.Name == c.Name && x.ID == c.ID);
                 if (other == null)
                 {
-                    other = new Character(_api, c);
+                    other = new OldCharacter(_api, c);
                     lock (_characterListLock)
                     {
                         _characterRenderers.Add(otherRend = new OldCharacterRenderer(other));
@@ -666,7 +666,7 @@ namespace EndlessClient.Rendering
 
         public void UpdateOtherPlayerRenderData(short playerId, bool sound, CharRenderData newRenderData)
         {
-            Character c = playerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
+            OldCharacter c = playerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
                 ? OldWorld.Instance.MainPlayer.ActiveCharacter
                 : GetOtherPlayerByID(playerId);
 
@@ -679,7 +679,7 @@ namespace EndlessClient.Rendering
 
         public void UpdateOtherPlayerHairData(short playerId, byte hairColor, byte hairStyle = 255)
         {
-            Character c = playerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
+            OldCharacter c = playerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
                 ? OldWorld.Instance.MainPlayer.ActiveCharacter
                 : GetOtherPlayerByID(playerId);
 
@@ -690,9 +690,9 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public Character GetOtherPlayerByID(short playerId)
+        public OldCharacter GetOtherPlayerByID(short playerId)
         {
-            Character retChar;
+            OldCharacter retChar;
             lock (_characterListLock)
                 retChar = _characterRenderers.Find(_c => _c.Character.ID == playerId).Character;
             return retChar;
@@ -843,7 +843,7 @@ namespace EndlessClient.Rendering
 
                 _renderSpellOnNPC(spellID, toDamage);
                 
-                Character opponent = null;
+                OldCharacter opponent = null;
                 lock (_characterRenderers)
                 {
                     var rend = fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
@@ -1181,7 +1181,7 @@ namespace EndlessClient.Rendering
         // Special Thanks: HotDog's client. Used heavily as a reference for numeric offsets/techniques, with some adjustments here and there.
         private void _drawGroundLayer()
         {
-            Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+            OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
             const int localViewLength = 10;
             int xMin = c.X - localViewLength < 0 ? 0 : c.X - localViewLength,
                 xMax = c.X + localViewLength > MapRef.Properties.Width ? MapRef.Properties.Width : c.X + localViewLength;
@@ -1227,7 +1227,7 @@ namespace EndlessClient.Rendering
 
         private void _drawMapItems()
         {
-            Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+            OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
             
             // Queries (func) for the gfx items within range of the character's X coordinate
             Func<int, bool> queryX = x => x >= c.X - Constants.ViewLength && x <= c.X + Constants.ViewLength && x <= MapRef.Properties.Width;
@@ -1259,7 +1259,7 @@ namespace EndlessClient.Rendering
         {
             if (MapRef == null) return;
 
-            Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+            OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
             List<OldCharacterRenderer> otherChars;
             lock (_characterListLock)
@@ -1350,7 +1350,7 @@ namespace EndlessClient.Rendering
             GraphicsDevice.SetRenderTarget(null);
         }
 
-        private void _drawOverlayAtLoc(int rowIndex, int colIndex, Character c)
+        private void _drawOverlayAtLoc(int rowIndex, int colIndex, OldCharacter c)
         {
             int gfxNum;
             //overlay/mask  objects
@@ -1363,7 +1363,7 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private void _drawShadowsAtLoc(int rowIndex, int colIndex, Character c)
+        private void _drawShadowsAtLoc(int rowIndex, int colIndex, OldCharacter c)
         {
             //shadows
             int gfxNum;
@@ -1375,7 +1375,7 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private void _drawWallAtLoc(int rowIndex, int colIndex, Character c)
+        private void _drawWallAtLoc(int rowIndex, int colIndex, OldCharacter c)
         {
             int gfxNum;
             const int WALL_FRAME_WIDTH = 68;
@@ -1418,7 +1418,7 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private void _drawMapObjectsAtLoc(int rowIndex, int colIndex, Character c)
+        private void _drawMapObjectsAtLoc(int rowIndex, int colIndex, OldCharacter c)
         {
             int gfxNum;
             if ((gfxNum = MapRef.GFX[MapLayer.Objects][rowIndex, colIndex]) > 0)
@@ -1465,7 +1465,7 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private void _drawUnknownLayerAtLoc(int rowIndex, int colIndex, Character c)
+        private void _drawUnknownLayerAtLoc(int rowIndex, int colIndex, OldCharacter c)
         {
             int gfxNum;
             if ((gfxNum = MapRef.GFX[MapLayer.Unknown][rowIndex, colIndex]) > 0)
@@ -1477,7 +1477,7 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private void _drawOnTopLayerAtLoc(int rowIndex, int colIndex, Character c)
+        private void _drawOnTopLayerAtLoc(int rowIndex, int colIndex, OldCharacter c)
         {
             int gfxNum;
             //overlay tiles (counters, etc)
@@ -1490,7 +1490,7 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private void _drawRoofsOnTop(Dictionary<Point, Texture2D> drawRoofLater, Character c)
+        private void _drawRoofsOnTop(Dictionary<Point, Texture2D> drawRoofLater, OldCharacter c)
         {
             _sb.Begin();
 
@@ -1533,7 +1533,7 @@ namespace EndlessClient.Rendering
         /// <para>(x * 32 - y * 32 + 288 - c.OffsetX), (y * 16 + x * 16 + 144 - c.OffsetY)</para>
         /// <para>Additional offsets for some gfx will need to be made - this Vector2 is a starting point with calculations required for ALL gfx</para>
         /// </summary>
-        public static Vector2 GetDrawCoordinatesFromGridUnits(int x, int y, Character c)
+        public static Vector2 GetDrawCoordinatesFromGridUnits(int x, int y, OldCharacter c)
         {
             return GetDrawCoordinatesFromGridUnits(x, y, c.OffsetX, c.OffsetY);
         }
@@ -1543,7 +1543,7 @@ namespace EndlessClient.Rendering
             return new Vector2((x * 32) - (y * 32) + 288 - cOffX, (y * 16) + (x * 16) + 144 - cOffY);
         }
         
-        private int _getAlpha(int objX, int objY, Character c)
+        private int _getAlpha(int objX, int objY, OldCharacter c)
         {
             if (!OldWorld.Instance.ShowTransition)
                 return 255;

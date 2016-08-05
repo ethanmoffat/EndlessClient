@@ -23,9 +23,9 @@ namespace EndlessClient.Rendering
     public class EOSpriteSheet
     {
         private readonly INativeGraphicsManager _gfxManager;
-        private readonly Character _charRef;
+        private readonly OldCharacter _charRef;
 
-        public EOSpriteSheet(INativeGraphicsManager gfxManager, Character charToWatch)
+        public EOSpriteSheet(INativeGraphicsManager gfxManager, OldCharacter charToWatch)
         {
             _gfxManager = gfxManager;
             _charRef = charToWatch;

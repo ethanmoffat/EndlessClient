@@ -21,7 +21,7 @@ namespace EndlessClient.Dialogs
     {
         public static EOPaperdollDialog Instance { get; private set; }
 
-        public static void Show(PacketAPI api, Character character, PaperdollDisplayData data)
+        public static void Show(PacketAPI api, OldCharacter character, PaperdollDisplayData data)
         {
             if (Instance != null)
                 return;
@@ -29,13 +29,13 @@ namespace EndlessClient.Dialogs
             Instance.DialogClosing += (o, e) => Instance = null;
         }
 
-        public Character CharRef { get; private set; }
+        public OldCharacter CharRef { get; private set; }
 
         private readonly Texture2D m_characterIcon;
 
         private static readonly Rectangle m_characterIconRect = new Rectangle(227, 258, 44, 21);
 
-        private EOPaperdollDialog(PacketAPI api, Character character, PaperdollDisplayData data)
+        private EOPaperdollDialog(PacketAPI api, OldCharacter character, PaperdollDisplayData data)
             : base(api)
         {
             if (Instance != null)

@@ -238,7 +238,7 @@ namespace EndlessClient.Dialogs
 
         private void _learn(Skill skill)
         {
-            Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+            OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
             bool skillReqsMet = true;
             foreach(short x in skill.SkillReq)

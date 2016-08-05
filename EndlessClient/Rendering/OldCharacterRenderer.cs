@@ -34,8 +34,8 @@ namespace EndlessClient.Rendering
     /// </summary>
     public class OldCharacterRenderer : XNAControl
     {
-        private readonly Character _char;
-        public Character Character { get { return _char; } }
+        private readonly OldCharacter _char;
+        public OldCharacter Character { get { return _char; } }
 
         private readonly CharRenderData _data;
         private CharRenderData Data
@@ -115,7 +115,7 @@ namespace EndlessClient.Rendering
         /// Construct a character renderer in-game
         /// </summary>
         /// <param name="charToRender">The character data that should be wrapped by this renderer</param>
-        public OldCharacterRenderer(Character charToRender)
+        public OldCharacterRenderer(OldCharacter charToRender)
         {
             //this has been happening when shit gets disconnected due to invalid sequence or internal packet id
             if (charToRender == null)
@@ -176,7 +176,7 @@ namespace EndlessClient.Rendering
             : base(drawLocation, null)
         {
             noLocUpdate = true;
-            _char = new Character(null, -1, data);
+            _char = new OldCharacter(null, -1, data);
             spriteSheet = new EOSpriteSheet(((EOGame)Game).GFXManager, _char);
             //when this is a part of a dialog, the drawareaoffset will be set accordingly and is used in the draw method
             //otherwise, it will just draw it at the absolute location specified by drawArea

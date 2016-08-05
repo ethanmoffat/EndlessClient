@@ -18,7 +18,7 @@ namespace EndlessClient.Input
         private KeyboardState _prevKeyState;
         private DateTime? _lastInputTime;
 
-        protected Character Character { get { return OldWorld.Instance.MainPlayer.ActiveCharacter; } }
+        protected OldCharacter Character { get { return OldWorld.Instance.MainPlayer.ActiveCharacter; } }
         protected OldCharacterRenderer Renderer { get { return OldWorld.Instance.ActiveCharacterRenderer; } }
 
         public event Action<DateTime> InputTimeUpdated;

@@ -58,7 +58,7 @@ namespace EndlessClient.Rendering
         private void _drawMiniMap()
         {
             Texture2D miniMapText = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 45, true);
-            Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+            OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
             _spriteBatch.Begin();
             for (int row = Math.Max(c.Y - 30, 0); row <= Math.Min(c.Y + 30, Map.Properties.Height); ++row)
@@ -156,7 +156,7 @@ namespace EndlessClient.Rendering
             _spriteBatch.Draw(miniMapText, loc, miniMapRect, Color.FromNonPremultiplied(255, 255, 255, 128));
         }
 
-        private Vector2 _getMiniMapDrawCoordinates(int x, int y, Character c)
+        private Vector2 _getMiniMapDrawCoordinates(int x, int y, OldCharacter c)
         {
             return new Vector2((x * 13) - (y * 13) + 288 - (c.X * 13 - c.Y * 13), (y * 7) + (x * 7) + 144 - (c.Y * 7 + c.X * 7));
         }

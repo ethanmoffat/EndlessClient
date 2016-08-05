@@ -75,7 +75,7 @@ namespace EndlessClient.Dialogs
             leftSide[5].Text = OldWorld.GetString(EOResourceID.DIALOG_PERFORMANCE_TODAY_AVG);
             leftSide[6].Text = OldWorld.GetString(EOResourceID.DIALOG_PERFORMANCE_BEST_KILL);
             leftSide[7].Text = OldWorld.GetString(EOResourceID.DIALOG_PERFORMANCE_LAST_KILL);
-            Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+            OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
             rightSide[0].Text = string.Format("{0}", c.Stats.Experience);
             rightSide[1].Text = string.Format("{0}", OldWorld.Instance.exp_table[c.Stats.Level + 1]);
             rightSide[2].Text = string.Format("{0}", OldWorld.Instance.exp_table[c.Stats.Level + 1] - c.Stats.Experience);

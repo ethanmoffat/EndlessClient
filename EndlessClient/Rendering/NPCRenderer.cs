@@ -203,7 +203,7 @@ namespace EndlessClient.Rendering
             _chatBubble.HideBubble();
         }
 
-        public void TakeDamageFrom(Character opponent, int damage, int pctHealth)
+        public void TakeDamageFrom(OldCharacter opponent, int damage, int pctHealth)
         {
             m_damageCounter.SetValue(damage, pctHealth); //NPCs don't know heal spells
             NPC.SetOpponent(opponent);

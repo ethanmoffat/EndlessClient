@@ -35,7 +35,7 @@ namespace EndlessClient.Dialogs
         private bool m_leftAgrees, m_rightAgrees;
         private readonly List<ListDialogItem> m_leftItems, m_rightItems;
 
-        private readonly Character m_main; //local reference
+        private readonly OldCharacter m_main; //local reference
 
         private int m_recentPartnerRemoves;
 

@@ -47,7 +47,7 @@
     <Compile Include="Audio\SoundInfo.cs" />
     <Compile Include="Audio\SoundManager.cs" />
     <Compile Include="Audio\WAVFileValidator.cs" />
-    <Compile Include="Character.cs" />
+    <Compile Include="OldCharacter.cs" />
     <Compile Include="CharacterStateTest.cs" />
     <Compile Include="Controllers\CharacterManagementController.cs" />
     <Compile Include="Controllers\AccountController.cs" />

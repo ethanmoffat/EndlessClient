@@ -27,7 +27,7 @@ namespace EndlessClient.Rendering
         private readonly Texture2D _mouseCursor;
         private readonly XNALabel _itemHoverName;
         private readonly EOMapContextMenu _contextMenu;
-        private readonly Character _mainCharacter;
+        private readonly OldCharacter _mainCharacter;
 
         private Vector2 _cursorPos;
         private int _gridX, _gridY;
@@ -278,7 +278,7 @@ namespace EndlessClient.Rendering
                 (mi.IsNPCDrop && (DateTime.Now - mi.DropTime).TotalSeconds <= OldWorld.Instance.NPCDropProtectTime) ||
                 (!mi.IsNPCDrop && (DateTime.Now - mi.DropTime).TotalSeconds <= OldWorld.Instance.PlayerDropProtectTime))
             {
-                Character charRef = _parentMapRenderer.GetOtherPlayerByID((short) mi.OwningPlayerID);
+                OldCharacter charRef = _parentMapRenderer.GetOtherPlayerByID((short) mi.OwningPlayerID);
                 EOResourceID msg = charRef == null ? EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED : EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
                 string extra = charRef == null ? "" : charRef.Name;
                 EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, msg, extra);

@@ -438,7 +438,7 @@ namespace EndlessClient.HUD.Inventory
 
         private void _handleDoubleClick()
         {
-            Character c = OldWorld.Instance.MainPlayer.ActiveCharacter;
+            OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
             bool useItem = false;
             switch (m_itemData.Type)
