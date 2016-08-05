@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterTextures _characterTextures;
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
 
-        private ICharacterRenderProperties _renderProperties, _lastRenderProperties;
+        private ICharacterRenderProperties _renderProperties;
         private bool _textureUpdateRequired;
 
         private SpriteBatch _sb;
@@ -84,10 +84,6 @@ namespace EndlessClient.Rendering.Character
             if (!Game.IsActive || !Visible)
                 return;
 
-            //todo: figure out how to update position of character renderers
-            //if (RenderProperties != _lastRenderProperties && RenderProperties.IsActing(CharacterActionState.Walking))
-            //    SetGridCoordinatePosition();
-
             if (_textureUpdateRequired)
             {
                 _characterTextures.Refresh(_renderProperties);
@@ -95,8 +91,6 @@ namespace EndlessClient.Rendering.Character
 
                 _textureUpdateRequired = false;
             }
-
-            _lastRenderProperties = RenderProperties;
 
             base.Update(gameTime);
         }
