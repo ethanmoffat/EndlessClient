@@ -68,6 +68,8 @@ namespace EOLib.IO.Map
 
         public void RemoveTileAt(int x, int y)
         {
+            _mutableTiles[y, x] = TileSpec.None;
+
             var tileRow = _mutableTileRows.Single(w => w.Y == y);
             tileRow.EntityItems.Remove(tileRow.EntityItems.Single(w => w.X == x));
         }
