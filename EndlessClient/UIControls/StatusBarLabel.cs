@@ -16,15 +16,21 @@ namespace EndlessClient.UIControls
 
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
 
+        private readonly bool _constructed;
+
         public StatusBarLabel(IClientWindowSizeProvider clientWindowSizeProvider,
                               IStatusLabelTextProvider statusLabelTextProvider)
             : base(GetPositionBasedOnWindowSize(clientWindowSizeProvider), Constants.FontSize07)
         {
             _statusLabelTextProvider = statusLabelTextProvider;
+            _constructed = true;
         }
 
         public override void Update(GameTime gameTime)
         {
+            if (!_constructed)
+                return;
+
             if (Text != _statusLabelTextProvider.StatusText)
             {
                 Text = _statusLabelTextProvider.StatusText;
