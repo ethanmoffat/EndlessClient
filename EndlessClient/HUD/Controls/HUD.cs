@@ -154,40 +154,10 @@ namespace EndlessClient.HUD.Controls
                     return;
                 }
 
-                switch (chatTextBox.Text[0])
-                {
-                    case '!':
-                        currentChatMode = ChatMode.Private;
-                        break;
-                    case '@': //should show global if admin, otherwise, public/normal chat
-                        if (OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
-                            goto default;
-                        currentChatMode = ChatMode.Global;
-                        break;
-                    case '~':
-                        currentChatMode = ChatMode.Global;
-                        break;
-                    case '+':
-                    {
-                        if (OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
-                            goto default;
-                        currentChatMode = ChatMode.Admin;
-                    }
-                        break;
-                    case '\'':
-                        currentChatMode = ChatMode.Group;
-                        break;
-                    case '&':
-                    {
-                        if (OldWorld.Instance.MainPlayer.ActiveCharacter.GuildName == "")
-                            goto default;
-                        currentChatMode = ChatMode.Guild;
-                    }
-                        break;
-                    default:
-                        currentChatMode = ChatMode.Public;
-                        break;
-                }
+                currentChatMode = new ChatModeCalculatorService().CalculateChatType(
+                    chatTextBox.Text,
+                    OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel != AdminLevel.Player,
+                    OldWorld.Instance.MainPlayer.ActiveCharacter.GuildName.Length > 0);
             };
         }
 

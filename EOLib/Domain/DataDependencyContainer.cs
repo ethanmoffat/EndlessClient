@@ -5,6 +5,7 @@
 using EOLib.DependencyInjection;
 using EOLib.Domain.Account;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using Microsoft.Practices.Unity;
@@ -15,7 +16,8 @@ namespace EOLib.Domain
     {
         public void RegisterDependencies(IUnityContainer container)
         {
-            container.RegisterType<ICreateAccountParameterValidator, CreateAccountParameterValidator>();
+            container.RegisterType<ICreateAccountParameterValidator, CreateAccountParameterValidator>()
+                .RegisterType<IChatModeCalculatorService, ChatModeCalculatorService>();
 
             container.RegisterType<IAccountActions, AccountActions>()
                 .RegisterType<ILoginActions, LoginActions>()
