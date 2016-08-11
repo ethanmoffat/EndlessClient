@@ -19,6 +19,8 @@ namespace EndlessClient.Rendering.Character
 
         void SetAbsoluteScreenPosition(int xPosition, int yPosition);
 
+        void SetToCenterScreenPosition();
+
         void DrawToSpriteBatch(SpriteBatch spriteBatch);
     }
 }

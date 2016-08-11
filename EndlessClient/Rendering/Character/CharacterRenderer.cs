@@ -22,7 +22,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
 
         private ICharacterRenderProperties _renderProperties;
-        private bool _textureUpdateRequired;
+        private bool _textureUpdateRequired, _positionIsRelative = true;
 
         private SpriteBatch _sb;
         private RenderTarget2D _charRenderTarget;
@@ -92,6 +92,9 @@ namespace EndlessClient.Rendering.Character
                 _textureUpdateRequired = false;
             }
 
+            if (_positionIsRelative)
+                SetGridCoordinatePosition();
+
             base.Update(gameTime);
         }
 
@@ -121,9 +124,16 @@ namespace EndlessClient.Rendering.Character
 
         public void SetAbsoluteScreenPosition(int xPosition, int yPosition)
         {
+            SetScreenCoordinates(xPosition, yPosition);
+            _positionIsRelative = false;
+        }
+
+        public void SetToCenterScreenPosition()
+        {
             var skinRect = _characterTextures.Skin.SourceRectangle;
-            DrawArea = new Rectangle(xPosition, yPosition, skinRect.Width, skinRect.Height);
-            _textureUpdateRequired = true;
+            var x = (618 - skinRect.Width)/2 + 4;
+            var y = (298 - skinRect.Height)/2 - 29;
+            SetAbsoluteScreenPosition(x, y);
         }
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
@@ -182,7 +192,14 @@ namespace EndlessClient.Rendering.Character
             var screenX = _characterRenderOffsetCalculator.CalculateOffsetX(RenderProperties) + 304 - GetMainCharacterOffsetX();
             var screenY = _characterRenderOffsetCalculator.CalculateOffsetY(RenderProperties) + 91 - GetMainCharacterOffsetY();
 
-            SetAbsoluteScreenPosition(screenX, screenY);
+            SetScreenCoordinates(screenX, screenY);
+        }
+
+        private void SetScreenCoordinates(int xPosition, int yPosition)
+        {
+            var skinRect = _characterTextures.Skin.SourceRectangle;
+            DrawArea = new Rectangle(xPosition, yPosition, skinRect.Width, skinRect.Height);
+            _textureUpdateRequired = true;
         }
 
         private int GetMainCharacterOffsetX()

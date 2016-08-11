@@ -44,6 +44,7 @@ namespace EndlessClient.Rendering.Character
                 var renderer = _characterRendererFactory.CreateCharacterRenderer(actualProperties);
                 _characterRendererRepository.MainCharacterRenderer = renderer;
                 _characterRendererRepository.MainCharacterRenderer.Initialize();
+                _characterRendererRepository.MainCharacterRenderer.SetToCenterScreenPosition();
 
                 return;
             }
