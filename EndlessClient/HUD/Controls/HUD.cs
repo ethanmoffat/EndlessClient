@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using EndlessClient.Content;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Panels.Old;
 using EndlessClient.HUD.StatusBars;
@@ -129,12 +130,10 @@ namespace EndlessClient.HUD.Controls
 
         private void CreateChatTextbox()
         {
-            chatTextBox = new ChatTextBox(new Rectangle(124, 308, 440, 19), Game.Content.Load<Texture2D>("cursor"),
-                Constants.FontSize08)
+            chatTextBox = new ChatTextBox(new ContentManagerRepository())
             {
                 Selected = true,
                 Visible = true,
-                MaxChars = 140,
                 DrawOrder = HUD_CONTROL_DRAW_ORDER
             };
             OldWorld.IgnoreDialogs(chatTextBox);

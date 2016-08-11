@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Content;
+using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -17,8 +19,13 @@ namespace EndlessClient.UIControls
 
         private bool _ignoreAllInput;
 
-        public ChatTextBox(Rectangle area, Texture2D cursorTexture, string spriteFontContentName)
-            : base(area, cursorTexture, spriteFontContentName) { }
+        public ChatTextBox(IContentManagerProvider contentManagerProvider)
+            : base(new Rectangle(124, 308, 440, 19),
+                contentManagerProvider.Content.Load<Texture2D>("cursor"),
+                Constants.FontSize08)
+        {
+            MaxChars = 140;
+        }
 
         public void ToggleTextInputIgnore()
         {
