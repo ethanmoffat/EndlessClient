@@ -57,9 +57,8 @@ namespace EndlessClient.Rendering.Map
 
         public override void Initialize()
         {
-            //todo: re-enable once all renderers are implemented!
-            //if (_mapEntityRendererProvider.MapEntityRenderers.Count != _possibleLayers.Count)
-            //    throw new InvalidOperationException("A map entity renderer implementation is missing!");
+            if (_mapEntityRendererProvider.MapEntityRenderers.Count != _possibleLayers.Count)
+                throw new InvalidOperationException("A map entity renderer implementation is missing!");
 
             _mapAbovePlayer = _renderTargetFactory.CreateRenderTarget();
             _mapBelowPlayer = _renderTargetFactory.CreateRenderTarget();
