@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.GameExecution;
+using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EOLib.Domain.Character;
@@ -32,6 +33,9 @@ namespace EndlessClient.Rendering.Map
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
+        private readonly ICharacterRendererFactory _characterRendererFactory;
+        private readonly ICharacterRendererRepository _characterRendererRepository;
+        private readonly ICharacterStateCache _characterStateCache;
 
         private RenderTarget2D _mapAbovePlayer, _mapBelowPlayer;
         private SpriteBatch _sb;
@@ -41,7 +45,10 @@ namespace EndlessClient.Rendering.Map
                            IMapEntityRendererProvider mapEntityRendererProvider,
                            ICharacterProvider characterProvider,
                            ICurrentMapProvider currentMapProvider,
-                           IMapRenderDistanceCalculator mapRenderDistanceCalculator)
+                           IMapRenderDistanceCalculator mapRenderDistanceCalculator,
+                           ICharacterRendererFactory characterRendererFactory,
+                           ICharacterRendererRepository characterRendererRepository,
+                           ICharacterStateCache characterStateCache)
             : base((Game)endlessGame)
         {
             _renderTargetFactory = renderTargetFactory;
@@ -49,6 +56,9 @@ namespace EndlessClient.Rendering.Map
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
+            _characterRendererFactory = characterRendererFactory;
+            _characterRendererRepository = characterRendererRepository;
+            _characterStateCache = characterStateCache;
         }
 
         public override void Initialize()
@@ -67,7 +77,11 @@ namespace EndlessClient.Rendering.Map
         public override void Update(GameTime gameTime)
         {
             if (Visible)
+            {
+                CacheMainCharacterRenderProperties();
+                UpdateAllCharacters(gameTime);
                 DrawMapToRenderTarget();
+            }
 
             base.Update(gameTime);
         }
@@ -144,7 +158,9 @@ namespace EndlessClient.Rendering.Map
             }
             _sb.End();
 
-            //todo: draw the main character renderer here after everything
+            _sb.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); //todo: use different blend state if character is hidden
+            _characterRendererRepository.ActiveCharacterRenderer.DrawToSpriteBatch(_sb);
+            _sb.End();
 
             GraphicsDevice.SetRenderTarget(null);
         }
@@ -165,6 +181,36 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
             _sb.Begin();
+        }
+
+        private void CacheMainCharacterRenderProperties()
+        {
+            var actualProperties = _characterProvider.ActiveCharacter.RenderProperties;
+            var cachedProperties = _characterStateCache.ActiveCharacterRenderProperties;
+
+            if (!cachedProperties.HasValue)
+            {
+                _characterStateCache.UpdateActiveCharacterState(actualProperties);
+
+                var renderer = _characterRendererFactory.CreateCharacterRenderer(actualProperties);
+                _characterRendererRepository.ActiveCharacterRenderer = renderer;
+                _characterRendererRepository.ActiveCharacterRenderer.Initialize();
+
+                return;
+            }
+
+            if (cachedProperties.Value == actualProperties)
+                return;
+
+            _characterRendererRepository.ActiveCharacterRenderer.RenderProperties = actualProperties;
+            _characterStateCache.UpdateActiveCharacterState(actualProperties);
+        }
+
+        private void UpdateAllCharacters(GameTime gameTime)
+        {
+            _characterRendererRepository.ActiveCharacterRenderer.Update(gameTime);
+            foreach (var renderer in _characterRendererRepository.CharacterRenderers)
+                renderer.Update(gameTime);
         }
 
         protected override void Dispose(bool disposing)
