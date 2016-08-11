@@ -128,7 +128,7 @@ namespace EndlessClient.Rendering.Character
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
         {
-            _sb.Draw(_charRenderTarget, Vector2.Zero, GetAlphaColor());
+            spriteBatch.Draw(_charRenderTarget, Vector2.Zero, GetAlphaColor());
         }
 
         #endregion
