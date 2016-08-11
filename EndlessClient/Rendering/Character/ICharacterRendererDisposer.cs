@@ -8,5 +8,6 @@ namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterRendererDisposer : IDisposable
     {
+        void ResetRenderers();
     }
 }

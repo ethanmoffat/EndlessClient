@@ -11,8 +11,6 @@ namespace EndlessClient.Rendering.Character
         ICharacterRenderer ActiveCharacterRenderer { get; set; }
 
         List<ICharacterRenderer> CharacterRenderers { get; set; }
-
-        void ResetRenderers();
     }
 
     public interface ICharacterRendererProvider
