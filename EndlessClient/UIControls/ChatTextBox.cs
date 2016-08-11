@@ -6,6 +6,7 @@ using EndlessClient.Content;
 using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -15,7 +16,6 @@ namespace EndlessClient.UIControls
     /// </summary>
     public class ChatTextBox : XNATextBox
     {
-        private bool _ignoreNextInput;
         private bool _ignoreAllInput;
 
         private string _lastTextInput;
@@ -49,33 +49,22 @@ namespace EndlessClient.UIControls
 
             _lastTextInput = Text;
 
-            if (!_ignoreNextInput)
-                base.ReceiveTextInput(inp);
+            if (IsSpecialInput((Keys) inp))
+                HandleSpecialInput((Keys)inp);
             else
-                _ignoreNextInput = false;
+                base.ReceiveTextInput(inp);
         }
 
-        public override void ReceiveTextInput(string inp)
+        private void HandleSpecialInput(Keys key)
         {
-            if (_ignoreAllInput) return;
-
-            _lastTextInput = Text;
-
-            if (!_ignoreNextInput)
-                base.ReceiveTextInput(inp);
-            else
-                _ignoreNextInput = false;
+            if (key == Keys.Escape)
+                Text = "";
         }
 
-        //public override void ReceiveSpecialInput(Keys key)
-        //{
-        //    if (_ignoreAllInput) return;
-
-        //    //ignore the emote input keys!
-        //    if (key >= Keys.NumPad0 && key <= Keys.NumPad9 || key == Keys.Decimal)
-        //    {
-        //        _ignoreNextInput = true;
-        //    }
-        //}
+        private bool IsSpecialInput(Keys k)
+        {
+            return k == Keys.Escape || k == Keys.Decimal ||
+                   (k >= Keys.NumPad0 && k <= Keys.NumPad9);
+        }
     }
 }
