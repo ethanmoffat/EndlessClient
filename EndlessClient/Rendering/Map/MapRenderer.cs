@@ -113,7 +113,7 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.SetRenderTarget(_mapAbovePlayer);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
-            var gfxToRenderLast = new SortedList<Point, List<MapRenderLayer>>();
+            var gfxToRenderLast = new SortedList<Point, List<MapRenderLayer>>(new PointComparer());
 
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
             for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
@@ -153,13 +153,9 @@ namespace EndlessClient.Rendering.Map
                 {
                     _mapEntityRendererProvider.MapEntityRenderers
                                               .Single(x => x.RenderLayer == layer)
-                                              .RenderElementAt(_sb, pointKey.Y, pointKey.X, 255);
+                                              .RenderElementAt(_sb, pointKey.Y, pointKey.X, 255); //todo: alpha for fading (once changing maps is supported)
                 }
             }
-            _sb.End();
-
-            _sb.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied); //todo: use different blend state if character is hidden
-            _characterRendererRepository.ActiveCharacterRenderer.DrawToSpriteBatch(_sb);
             _sb.End();
 
             GraphicsDevice.SetRenderTarget(null);

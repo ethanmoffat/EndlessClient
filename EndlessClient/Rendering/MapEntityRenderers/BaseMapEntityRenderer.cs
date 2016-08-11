@@ -4,7 +4,6 @@
 
 using System;
 using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
@@ -19,7 +18,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public abstract MapRenderLayer RenderLayer { get; }
 
-        public bool ShouldRenderLast { get { return RenderLayer == MapRenderLayer.Roof; } }
+        public bool ShouldRenderLast
+        {
+            get { return RenderLayer == MapRenderLayer.Roof || RenderLayer == MapRenderLayer.MainCharacter; }
+        }
 
         protected abstract int RenderDistance { get; }
 

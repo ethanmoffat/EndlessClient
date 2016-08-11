@@ -117,6 +117,7 @@
     <Compile Include="HUD\StatusLabelSetter.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
+    <Compile Include="PointComparer.cs" />
     <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRendererBuilder.cs" />
     <Compile Include="Rendering\Character\CharacterRenderer.cs" />
     <Compile Include="Rendering\Character\CharacterRenderOffsetCalculator.cs" />
@@ -139,6 +140,7 @@
     <Compile Include="Rendering\Factories\MapRendererFactory.cs" />
     <Compile Include="Rendering\Factories\RenderTargetFactory.cs" />
     <Compile Include="Rendering\MapEntityRenderers\BaseMapEntityRenderer.cs" />
+    <Compile Include="Rendering\MapEntityRenderers\MainCharacterEntityRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\GroundLayerRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\MapItemLayerRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\OnTopLayerRenderer.cs" />
@@ -382,9 +384,7 @@
   <ItemGroup>
     <Content Include="Resources\Game.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Rendering\Character" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\MonoGame\v3.0\MonoGame.Content.Builder.targets" />
   <PropertyGroup>

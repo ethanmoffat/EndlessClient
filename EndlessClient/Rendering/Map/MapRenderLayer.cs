@@ -12,10 +12,11 @@ namespace EndlessClient.Rendering.Map
         Shadows,
         Walls,
         Objects,
-        Character,
+        OtherCharacters,
         Npc,
         Roof,
         Unknown,
         OnTop,
+        MainCharacter,
     }
 }
