@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using EndlessClient.Content;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Panels.Old;
 using EndlessClient.HUD.StatusBars;
@@ -130,23 +129,8 @@ namespace EndlessClient.HUD.Controls
 
         private void CreateChatTextbox()
         {
-            chatTextBox = new ChatTextBox(new ContentManagerRepository())
-            {
-                Selected = true,
-                Visible = true,
-                DrawOrder = HUD_CONTROL_DRAW_ORDER
-            };
-            OldWorld.IgnoreDialogs(chatTextBox);
             chatTextBox.OnEnterPressed += _doTalk;
-            chatTextBox.OnClicked += (s, e) =>
-            {
-                //make sure clicking on the textarea selects it (this is an annoying problem in the original client)
-                if (((EOGame) Game).Dispatcher.Subscriber != null)
-                    ((XNATextBox) ((EOGame) Game).Dispatcher.Subscriber).Selected = false;
 
-                ((EOGame) Game).Dispatcher.Subscriber = chatTextBox;
-                chatTextBox.Selected = true;
-            };
             chatTextBox.OnTextChanged += (s, e) =>
             {
                 if (chatTextBox.Text.Length <= 0)
@@ -205,8 +189,6 @@ namespace EndlessClient.HUD.Controls
                         break;
                 }
             };
-
-            ((EOGame) Game).Dispatcher.Subscriber = chatTextBox;
         }
 
         private void CreateStatusBars()
