@@ -17,6 +17,8 @@ namespace EndlessClient.Controllers
 
         public void SendChatAndClearTextBox()
         {
+            //todo: send chat string to server (see HUD._doTalk)
+            _chatTextBoxActions.ClearChatText();
         }
 
         public void SelectChatTextBox()

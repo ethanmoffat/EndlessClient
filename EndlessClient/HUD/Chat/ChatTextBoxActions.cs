@@ -6,6 +6,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
+using XNAControls;
 
 namespace EndlessClient.HUD.Chat
 {
@@ -21,14 +22,29 @@ namespace EndlessClient.HUD.Chat
             _hudControlProvider = hudControlProvider;
         }
 
+        public void ClearChatText()
+        {
+            var chatTextBox = GetChatTextBox();
+            chatTextBox.Text = "";
+        }
+
         public void FocusChatTextBox()
         {
-            if (_keyboardDispatcherProvider.Dispatcher.Subscriber != null)
-                _keyboardDispatcherProvider.Dispatcher.Subscriber.Selected = false;
+            if (KeyboardDispatcher.Subscriber != null)
+                KeyboardDispatcher.Subscriber.Selected = false;
 
-            var chatTextBox = _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
-            _keyboardDispatcherProvider.Dispatcher.Subscriber = chatTextBox;
-            chatTextBox.Selected = true;
+            KeyboardDispatcher.Subscriber = GetChatTextBox();
+            KeyboardDispatcher.Subscriber.Selected = true;
+        }
+
+        private KeyboardDispatcher KeyboardDispatcher
+        {
+            get { return _keyboardDispatcherProvider.Dispatcher; }
+        }
+
+        private ChatTextBox GetChatTextBox()
+        {
+            return _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
         }
     }
 }
