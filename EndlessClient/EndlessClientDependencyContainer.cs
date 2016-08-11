@@ -101,6 +101,12 @@ namespace EndlessClient
 
         public void InitializeDependencies(IUnityContainer container)
         {
+            SetUpRepositoriesForGameDependencies(container);
+            MethodInjectControllers(container);
+        }
+
+        private static void SetUpRepositoriesForGameDependencies(IUnityContainer container)
+        {
             var game = container.Resolve<IEndlessGame>();
             var gameRepository = container.Resolve<IEndlessGameRepository>();
             gameRepository.Game = game;
@@ -111,7 +117,10 @@ namespace EndlessClient
 
             var keyboardDispatcherRepo = container.Resolve<IKeyboardDispatcherRepository>();
             keyboardDispatcherRepo.Dispatcher = new KeyboardDispatcher(game.Window);
+        }
 
+        private static void MethodInjectControllers(IUnityContainer container)
+        {
             var mainButtonController = container.Resolve<IMainButtonController>();
             var accountController = container.Resolve<IAccountController>();
             var loginController = container.Resolve<ILoginController>();

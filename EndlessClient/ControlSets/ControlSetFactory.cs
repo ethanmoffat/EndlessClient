@@ -48,6 +48,10 @@ namespace EndlessClient.ControlSets
 
         public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
         {
+            if (_mainButtonController == null || _accountController == null ||
+                _loginController == null || _characterManagementController == null)
+                throw new InvalidOperationException("Missing controllers - the Unity container was initialized incorrectly");
+
             var controlSet = GetSetBasedOnState(newState);
             controlSet.InitializeResources(_nativeGraphicsManager, _contentManagerProvider.Content);
             controlSet.InitializeControls(currentControlSet);
