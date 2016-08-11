@@ -221,9 +221,6 @@ namespace EndlessClient.HUD.Controls
             chatTextBox.OnClicked += (o, e) => _chatController.SelectChatTextBox();
             chatTextBox.OnTextChanged += UpdateChatModeGraphic;
 
-            //todo: probably not the appropriate place to do this. Maybe in GameStateActions or a controller somewhere.
-            _keyboardDispatcherProvider.Dispatcher.Subscriber = chatTextBox;
-
             return chatTextBox;
         }
 

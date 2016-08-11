@@ -9,6 +9,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD.Chat;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -26,6 +27,7 @@ namespace EndlessClient.Controllers
         private readonly IMapFileLoadActions _mapFileLoadActions;
         private readonly IFileRequestActions _fileRequestActions;
         private readonly IGameStateActions _gameStateActions;
+        private readonly IChatTextBoxActions _chatTextBoxActions;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
         private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
         private readonly IGameLoadingDialogFactory _gameLoadingDialogFactory;
@@ -35,6 +37,7 @@ namespace EndlessClient.Controllers
                                IMapFileLoadActions mapFileLoadActions,
                                IFileRequestActions fileRequestActions,
                                IGameStateActions gameStateActions,
+                               IChatTextBoxActions chatTextBoxActions,
                                IErrorDialogDisplayAction errorDisplayAction,
                                ISafeInBandNetworkOperationFactory networkOperationFactory,
                                IGameLoadingDialogFactory gameLoadingDialogFactory,
@@ -44,6 +47,7 @@ namespace EndlessClient.Controllers
             _mapFileLoadActions = mapFileLoadActions;
             _fileRequestActions = fileRequestActions;
             _gameStateActions = gameStateActions;
+            _chatTextBoxActions = chatTextBoxActions;
             _errorDisplayAction = errorDisplayAction;
             _networkOperationFactory = networkOperationFactory;
             _gameLoadingDialogFactory = gameLoadingDialogFactory;
@@ -154,6 +158,7 @@ namespace EndlessClient.Controllers
             }
 
             _gameStateActions.ChangeToState(GameStates.PlayingTheGame);
+            _chatTextBoxActions.FocusChatTextBox();
         }
 
         private void SetInitialStateAndShowError(NoDataSentException ex)

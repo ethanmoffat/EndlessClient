@@ -9,6 +9,7 @@ using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Input;
@@ -92,7 +93,8 @@ namespace EndlessClient
                 .RegisterType<IErrorDialogDisplayAction, ErrorDialogDisplayAction>()
                 .RegisterType<IAccountDialogDisplayActions, AccountDialogDisplayActions>()
                 .RegisterType<ICharacterDialogActions, CharacterDialogActions>()
-                .RegisterType<ICharacterRenderUpdateActions, CharacterRenderUpdateActions>();
+                .RegisterType<ICharacterRenderUpdateActions, CharacterRenderUpdateActions>()
+                .RegisterType<IChatTextBoxActions, ChatTextBoxActions>();
 
             //hud
             container.RegisterType<IHudButtonController, HudButtonController>()
