@@ -19,9 +19,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
-        private readonly ICharacterRendererFactory _characterRendererFactory;
-        private readonly ICharacterRendererRepository _characterRendererRepository;
-        private readonly ICharacterStateCache _characterStateCache;
+        private readonly ICharacterRenderUpdateActions _characterRenderUpdateActions;
 
         public MapRendererFactory(IEndlessGameProvider endlessGameProvider,
             IRenderTargetFactory renderTargetFactory,
@@ -29,9 +27,7 @@ namespace EndlessClient.Rendering.Factories
             ICharacterProvider characterProvider,
             ICurrentMapProvider currentMapProvider,
             IMapRenderDistanceCalculator mapRenderDistanceCalculator,
-            ICharacterRendererFactory characterRendererFactory,
-            ICharacterRendererRepository characterRendererRepository,
-            ICharacterStateCache characterStateCache)
+            ICharacterRenderUpdateActions characterRenderUpdateActions)
         {
             _endlessGameProvider = endlessGameProvider;
             _renderTargetFactory = renderTargetFactory;
@@ -39,9 +35,7 @@ namespace EndlessClient.Rendering.Factories
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
-            _characterRendererFactory = characterRendererFactory;
-            _characterRendererRepository = characterRendererRepository;
-            _characterStateCache = characterStateCache;
+            _characterRenderUpdateActions = characterRenderUpdateActions;
         }
 
         public IMapRenderer CreateMapRenderer()
@@ -52,9 +46,7 @@ namespace EndlessClient.Rendering.Factories
                                    _characterProvider,
                                    _currentMapProvider,
                                    _mapRenderDistanceCalculator,
-                                   _characterRendererFactory,
-                                   _characterRendererRepository,
-                                   _characterStateCache);
+                                   _characterRenderUpdateActions);
         }
     }
 }

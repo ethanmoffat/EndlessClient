@@ -33,9 +33,7 @@ namespace EndlessClient.Rendering.Map
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
-        private readonly ICharacterRendererFactory _characterRendererFactory;
-        private readonly ICharacterRendererRepository _characterRendererRepository;
-        private readonly ICharacterStateCache _characterStateCache;
+        private readonly ICharacterRenderUpdateActions _characterRenderUpdateActions;
 
         private RenderTarget2D _mapAbovePlayer, _mapBelowPlayer;
         private SpriteBatch _sb;
@@ -46,9 +44,7 @@ namespace EndlessClient.Rendering.Map
                            ICharacterProvider characterProvider,
                            ICurrentMapProvider currentMapProvider,
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator,
-                           ICharacterRendererFactory characterRendererFactory,
-                           ICharacterRendererRepository characterRendererRepository,
-                           ICharacterStateCache characterStateCache)
+                           ICharacterRenderUpdateActions characterRenderUpdateActions)
             : base((Game)endlessGame)
         {
             _renderTargetFactory = renderTargetFactory;
@@ -56,9 +52,7 @@ namespace EndlessClient.Rendering.Map
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
-            _characterRendererFactory = characterRendererFactory;
-            _characterRendererRepository = characterRendererRepository;
-            _characterStateCache = characterStateCache;
+            _characterRenderUpdateActions = characterRenderUpdateActions;
         }
 
         public override void Initialize()
@@ -78,8 +72,7 @@ namespace EndlessClient.Rendering.Map
         {
             if (Visible)
             {
-                CacheMainCharacterRenderProperties();
-                UpdateAllCharacters(gameTime);
+                _characterRenderUpdateActions.UpdateCharacters(gameTime);
                 DrawMapToRenderTarget();
             }
 
@@ -177,36 +170,6 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
             _sb.Begin();
-        }
-
-        private void CacheMainCharacterRenderProperties()
-        {
-            var actualProperties = _characterProvider.ActiveCharacter.RenderProperties;
-            var cachedProperties = _characterStateCache.ActiveCharacterRenderProperties;
-
-            if (!cachedProperties.HasValue)
-            {
-                _characterStateCache.UpdateActiveCharacterState(actualProperties);
-
-                var renderer = _characterRendererFactory.CreateCharacterRenderer(actualProperties);
-                _characterRendererRepository.ActiveCharacterRenderer = renderer;
-                _characterRendererRepository.ActiveCharacterRenderer.Initialize();
-
-                return;
-            }
-
-            if (cachedProperties.Value == actualProperties)
-                return;
-
-            _characterRendererRepository.ActiveCharacterRenderer.RenderProperties = actualProperties;
-            _characterStateCache.UpdateActiveCharacterState(actualProperties);
-        }
-
-        private void UpdateAllCharacters(GameTime gameTime)
-        {
-            _characterRendererRepository.ActiveCharacterRenderer.Update(gameTime);
-            foreach (var renderer in _characterRendererRepository.CharacterRenderers)
-                renderer.Update(gameTime);
         }
 
         protected override void Dispose(bool disposing)

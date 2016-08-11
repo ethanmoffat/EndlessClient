@@ -121,12 +121,14 @@
     <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRendererBuilder.cs" />
     <Compile Include="Rendering\Character\CharacterRenderer.cs" />
     <Compile Include="Rendering\Character\CharacterRenderOffsetCalculator.cs" />
+    <Compile Include="Rendering\Character\CharacterRenderUpdateActions.cs" />
     <Compile Include="Rendering\Character\CharacterStateCache.cs" />
     <Compile Include="Rendering\Character\CharacterTextures.cs" />
     <Compile Include="Rendering\Character\ICharacterRenderer.cs" />
     <Compile Include="Rendering\Character\ICharacterRendererResetter.cs" />
     <Compile Include="Rendering\Character\ICharacterRendererRepository.cs" />
     <Compile Include="Rendering\Character\ICharacterRenderOffsetCalculator.cs" />
+    <Compile Include="Rendering\Character\ICharacterRenderUpdateActions.cs" />
     <Compile Include="Rendering\Character\ICharacterStateCache.cs" />
     <Compile Include="Rendering\Character\ICharacterTextures.cs" />
     <Compile Include="Rendering\Chat\ChatRenderable.cs" />

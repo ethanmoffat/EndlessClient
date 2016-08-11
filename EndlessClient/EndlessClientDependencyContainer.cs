@@ -101,15 +101,13 @@ namespace EndlessClient
             container.RegisterType<IGameStateActions, GameStateActions>()
                 .RegisterType<IErrorDialogDisplayAction, ErrorDialogDisplayAction>()
                 .RegisterType<IAccountDialogDisplayActions, AccountDialogDisplayActions>()
-                .RegisterType<ICharacterDialogActions, CharacterDialogActions>();
+                .RegisterType<ICharacterDialogActions, CharacterDialogActions>()
+                .RegisterType<ICharacterRenderUpdateActions, CharacterRenderUpdateActions>();
 
             //hud
             container.RegisterType<IHudButtonController, HudButtonController>()
                 .RegisterType<IHudStateActions, HudStateActions>()
                 .RegisterType<IStatusLabelSetter, StatusLabelSetter>();
-
-            //map entity renderer types
-            //todo: register IMapEntityRenderer implementations here
         }
 
         public void InitializeDependencies(IUnityContainer container)
