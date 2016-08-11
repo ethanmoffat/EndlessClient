@@ -4,8 +4,10 @@
 
 using System;
 using System.Collections.Generic;
+using EndlessClient.Content;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Panels;
+using EndlessClient.Input;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.Sprites;
@@ -32,6 +34,8 @@ namespace EndlessClient.HUD.Controls
         private readonly ICharacterRepository _characterRepository;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
+        private readonly IContentManagerProvider _contentManagerProvider;
+        private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
                                   IHudPanelFactory hudPanelFactory,
@@ -42,7 +46,9 @@ namespace EndlessClient.HUD.Controls
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository,
                                   IStatusLabelSetter statusLabelSetter,
-                                  IStatusLabelTextProvider statusLabelTextProvider)
+                                  IStatusLabelTextProvider statusLabelTextProvider,
+                                  IContentManagerProvider contentManagerProvider,
+                                  IKeyboardDispatcherProvider keyboardDispatcherProvider)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -54,6 +60,8 @@ namespace EndlessClient.HUD.Controls
             _characterRepository = characterRepository;
             _statusLabelSetter = statusLabelSetter;
             _statusLabelTextProvider = statusLabelTextProvider;
+            _contentManagerProvider = contentManagerProvider;
+            _keyboardDispatcherProvider = keyboardDispatcherProvider;
         }
 
         public IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud()
@@ -88,6 +96,7 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
                 {HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
                 
+                {HudControlIdentifier.ChatTextBox, CreateChatTextBox()},
                 {HudControlIdentifier.ClockLabel, CreateClockLabel()},
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
                 {HudControlIdentifier.StatusLabel, CreateStatusLabel()}
@@ -194,6 +203,24 @@ namespace EndlessClient.HUD.Controls
                 retPanel.Visible = false;
 
             return retPanel;
+        }
+
+        private ChatTextBox CreateChatTextBox()
+        {
+            var chatTextBox = new ChatTextBox(_contentManagerProvider)
+            {
+                Selected = true,
+                Visible = true,
+                DrawOrder = HUD_CONTROL_LAYER
+            };
+            //chatTextBox.OnEnterPressed += todo: input handling
+            //chatTextBox.OnClicked += todo: select it in KeyboardDispatcher
+            //chatTextBox.OnTextChanged += todo: select the mode texture
+
+            //todo: probably not the appropriate place to do this. Maybe in GameStateActions or a controller somewhere.
+            _keyboardDispatcherProvider.Dispatcher.Subscriber = chatTextBox;
+
+            return chatTextBox;
         }
 
         private TimeLabel CreateClockLabel()
