@@ -87,14 +87,11 @@ namespace EndlessClient
                 .RegisterType<ILoginController, LoginController>()
                 .RegisterType<ICharacterManagementController, CharacterManagementController>();
             
-            //controller provider/repository (bad hack - avoids circular dependency)
-            container.RegisterInstance<IMainButtonControllerProvider, MainButtonControllerRepository>()
+            //controller repository (bad hack - avoids circular dependency)
+            container
                 .RegisterInstance<IMainButtonControllerRepository, MainButtonControllerRepository>()
-                .RegisterInstance<ICreateAccountControllerProvider, CreateAccountControllerRepository>()
                 .RegisterInstance<ICreateAccountControllerRepository, CreateAccountControllerRepository>()
-                .RegisterInstance<ILoginControllerProvider, LoginControllerRepository>()
                 .RegisterInstance<ILoginControllerRepository, LoginControllerRepository>()
-                .RegisterInstance<ICharacterManagementControllerProvider, CharacterManagementRepository>()
                 .RegisterInstance<ICharacterManagementControllerRepository, CharacterManagementRepository>();
             
             //actions

@@ -15,22 +15,22 @@ namespace EndlessClient.UIControls
     {
         private readonly ICharacterSelectorProvider _characterProvider;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly ILoginControllerProvider _loginControllerProvider;
-        private readonly ICharacterManagementControllerProvider _characterManagementControllerProvider;
+        private readonly ILoginControllerRepository _loginControllerRepository;
+        private readonly ICharacterManagementControllerRepository _characterManagementControllerRepository;
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly ICharacterRendererResetter _characterRendererResetter;
 
         public CharacterInfoPanelFactory(ICharacterSelectorProvider characterProvider,
                                          INativeGraphicsManager nativeGraphicsManager,
-                                         ILoginControllerProvider loginControllerProvider,
-                                         ICharacterManagementControllerProvider characterManagementControllerProvider,
+                                         ILoginControllerRepository loginControllerRepository,
+                                         ICharacterManagementControllerRepository characterManagementControllerRepository,
                                          ICharacterRendererFactory characterRendererFactory,
                                          ICharacterRendererResetter characterRendererResetter)
         {
             _characterProvider = characterProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
-            _loginControllerProvider = loginControllerProvider;
-            _characterManagementControllerProvider = characterManagementControllerProvider;
+            _loginControllerRepository = loginControllerRepository;
+            _characterManagementControllerRepository = characterManagementControllerRepository;
             _characterRendererFactory = characterRendererFactory;
             _characterRendererResetter = characterRendererResetter;
         }
@@ -44,8 +44,8 @@ namespace EndlessClient.UIControls
                 yield return new CharacterInfoPanel(i,
                                                     character,
                                                     _nativeGraphicsManager,
-                                                    _loginControllerProvider.LoginController,
-                                                    _characterManagementControllerProvider.CharacterManagementController,
+                                                    _loginControllerRepository.LoginController,
+                                                    _characterManagementControllerRepository.CharacterManagementController,
                                                     _characterRendererFactory,
                                                     _characterRendererResetter);
             }

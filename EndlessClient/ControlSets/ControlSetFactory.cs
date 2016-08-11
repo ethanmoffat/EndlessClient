@@ -25,10 +25,10 @@ namespace EndlessClient.ControlSets
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IConfigurationProvider _configProvider;
         private readonly ICharacterInfoPanelFactory _characterInfoPanelFactory;
-        private readonly IMainButtonControllerProvider _mainButtonControllerProvider;
-        private readonly ICreateAccountControllerProvider _createAccountControllerProvider;
-        private readonly ILoginControllerProvider _loginControllerProvider;
-        private readonly ICharacterManagementControllerProvider _characterManagementControllerProvider;
+        private readonly IMainButtonControllerRepository _mainButtonControllerRepository;
+        private readonly ICreateAccountControllerRepository _createAccountControllerRepository;
+        private readonly ILoginControllerRepository _loginControllerRepository;
+        private readonly ICharacterManagementControllerRepository _characterManagementControllerRepository;
 
         public ControlSetFactory(INativeGraphicsManager nativeGraphicsManager,
                                  IEOMessageBoxFactory messageBoxFactory,
@@ -37,10 +37,10 @@ namespace EndlessClient.ControlSets
                                  IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                  IConfigurationProvider configProvider,
                                  ICharacterInfoPanelFactory characterInfoPanelFactory,
-                                 IMainButtonControllerProvider mainButtonControllerProvider,
-                                 ICreateAccountControllerProvider createAccountControllerProvider,
-                                 ILoginControllerProvider loginControllerProvider,
-                                 ICharacterManagementControllerProvider characterManagementControllerProvider)
+                                 IMainButtonControllerRepository mainButtonControllerRepository,
+                                 ICreateAccountControllerRepository createAccountControllerRepository,
+                                 ILoginControllerRepository loginControllerRepository,
+                                 ICharacterManagementControllerRepository characterManagementControllerRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _messageBoxFactory = messageBoxFactory;
@@ -49,10 +49,10 @@ namespace EndlessClient.ControlSets
             _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _configProvider = configProvider;
             _characterInfoPanelFactory = characterInfoPanelFactory;
-            _mainButtonControllerProvider = mainButtonControllerProvider;
-            _createAccountControllerProvider = createAccountControllerProvider;
-            _loginControllerProvider = loginControllerProvider;
-            _characterManagementControllerProvider = characterManagementControllerProvider;
+            _mainButtonControllerRepository = mainButtonControllerRepository;
+            _createAccountControllerRepository = createAccountControllerRepository;
+            _loginControllerRepository = loginControllerRepository;
+            _characterManagementControllerRepository = characterManagementControllerRepository;
         }
 
         public IControlSet CreateControlsForState(GameStates newState, IControlSet currentControlSet)
@@ -95,22 +95,22 @@ namespace EndlessClient.ControlSets
 
         private IMainButtonController MainButtonController
         {
-            get { return _mainButtonControllerProvider.MainButtonController; }
+            get { return _mainButtonControllerRepository.MainButtonController; }
         }
 
         private IAccountController AccountController
         {
-            get { return _createAccountControllerProvider.AccountController; }
+            get { return _createAccountControllerRepository.AccountController; }
         }
 
         private ILoginController LoginController
         {
-            get { return _loginControllerProvider.LoginController; }
+            get { return _loginControllerRepository.LoginController; }
         }
 
         private ICharacterManagementController CharacterManagementController
         {
-            get { return _characterManagementControllerProvider.CharacterManagementController; }
+            get { return _characterManagementControllerRepository.CharacterManagementController; }
         }
     }
 }

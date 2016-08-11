@@ -17,12 +17,7 @@ namespace EndlessClient.Controllers.Repositories
         IMainButtonController MainButtonController { get; set; }
     }
 
-    public interface IMainButtonControllerProvider
-    {
-        IMainButtonController MainButtonController { get; }
-    }
-
-    public class MainButtonControllerRepository : IMainButtonControllerRepository, IMainButtonControllerProvider
+    public class MainButtonControllerRepository : IMainButtonControllerRepository
     {
         public IMainButtonController MainButtonController { get; set; }
     }

@@ -9,12 +9,7 @@ namespace EndlessClient.Controllers.Repositories
         IAccountController AccountController { get; set; }
     }
 
-    public interface ICreateAccountControllerProvider
-    {
-        IAccountController AccountController { get; }
-    }
-
-    public class CreateAccountControllerRepository : ICreateAccountControllerRepository, ICreateAccountControllerProvider
+    public class CreateAccountControllerRepository : ICreateAccountControllerRepository
     {
         public IAccountController AccountController { get; set; }
     }

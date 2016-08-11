@@ -9,12 +9,7 @@ namespace EndlessClient.Controllers.Repositories
         ICharacterManagementController CharacterManagementController { get; set; }
     }
 
-    public interface ICharacterManagementControllerProvider
-    {
-        ICharacterManagementController CharacterManagementController { get; }
-    }
-
-    public class CharacterManagementRepository : ICharacterManagementControllerRepository, ICharacterManagementControllerProvider
+    public class CharacterManagementRepository : ICharacterManagementControllerRepository
     {
         public ICharacterManagementController CharacterManagementController { get; set; }
     }
