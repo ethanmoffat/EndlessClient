@@ -2,8 +2,9 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Collections.Generic;
-using EndlessClient.Controllers.Repositories;
+using EndlessClient.Controllers;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Login;
@@ -15,28 +16,38 @@ namespace EndlessClient.UIControls
     {
         private readonly ICharacterSelectorProvider _characterProvider;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly ILoginControllerRepository _loginControllerRepository;
-        private readonly ICharacterManagementControllerRepository _characterManagementControllerRepository;
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly ICharacterRendererResetter _characterRendererResetter;
 
+        private ILoginController _loginController;
+        private ICharacterManagementController _characterManagementController;
+
         public CharacterInfoPanelFactory(ICharacterSelectorProvider characterProvider,
                                          INativeGraphicsManager nativeGraphicsManager,
-                                         ILoginControllerRepository loginControllerRepository,
-                                         ICharacterManagementControllerRepository characterManagementControllerRepository,
                                          ICharacterRendererFactory characterRendererFactory,
                                          ICharacterRendererResetter characterRendererResetter)
         {
             _characterProvider = characterProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
-            _loginControllerRepository = loginControllerRepository;
-            _characterManagementControllerRepository = characterManagementControllerRepository;
             _characterRendererFactory = characterRendererFactory;
             _characterRendererResetter = characterRendererResetter;
         }
 
+        public void InjectLoginController(ILoginController loginController)
+        {
+            _loginController = loginController;
+        }
+
+        public void InjectCharacterManagementController(ICharacterManagementController characterManagementController)
+        {
+            _characterManagementController = characterManagementController;
+        }
+
         public IEnumerable<CharacterInfoPanel> CreatePanels()
         {
+            if(_loginController == null || _characterManagementController == null)
+                throw new InvalidOperationException("Missing controllers - the Unity container was initialized incorrectly");
+
             int i = 0;
             for (; i < _characterProvider.Characters.Count; ++i)
             {
@@ -44,8 +55,8 @@ namespace EndlessClient.UIControls
                 yield return new CharacterInfoPanel(i,
                                                     character,
                                                     _nativeGraphicsManager,
-                                                    _loginControllerRepository.LoginController,
-                                                    _characterManagementControllerRepository.CharacterManagementController,
+                                                    _loginController,
+                                                    _characterManagementController,
                                                     _characterRendererFactory,
                                                     _characterRendererResetter);
             }

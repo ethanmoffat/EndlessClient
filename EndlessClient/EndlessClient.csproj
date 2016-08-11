@@ -52,17 +52,13 @@
     <Compile Include="Controllers\CharacterManagementController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ICharacterManagementController.cs" />
-    <Compile Include="Controllers\Repositories\ICharacterManagementControllerRepository.cs" />
     <Compile Include="Controllers\IAccountController.cs" />
-    <Compile Include="Controllers\Repositories\ICreateAccountControllerRepository.cs" />
     <Compile Include="Controllers\ILoginController.cs" />
-    <Compile Include="Controllers\Repositories\ILoginControllerRepository.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="ControlSets\BackButtonControlSet.cs" />
     <Compile Include="ControlSets\EmptyControlSet.cs" />
     <Compile Include="ControlSets\IControlSetRepository.cs" />
     <Compile Include="Controllers\IMainButtonController.cs" />
-    <Compile Include="Controllers\Repositories\IMainButtonControllerRepository.cs" />
     <Compile Include="Controllers\MainButtonController.cs" />
     <Compile Include="ControlSets\IHudControlProvider.cs" />
     <Compile Include="ControlSets\InGameControlSet.cs" />

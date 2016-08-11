@@ -4,7 +4,6 @@
 
 using EndlessClient.Content;
 using EndlessClient.Controllers;
-using EndlessClient.Controllers.Repositories;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
@@ -35,10 +34,10 @@ namespace EndlessClient
                 .RegisterType<ITestModeLauncher, TestModeLauncher>();
 
             //factories
-            container.RegisterType<IControlSetFactory, ControlSetFactory>()
+            container.RegisterInstance<IControlSetFactory, ControlSetFactory>()
                 .RegisterType<IHudControlsFactory, HudControlsFactory>()
                 .RegisterType<ICharacterRendererFactory, CharacterRendererFactory>()
-                .RegisterType<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>()
+                .RegisterInstance<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>()
                 .RegisterType<IHudPanelFactory, HudPanelFactory>()
                 .RegisterType<IRenderTargetFactory, RenderTargetFactory>()
                 .RegisterType<ICharacterPropertyRendererBuilder, CharacterPropertyRendererBuilder>()
@@ -87,13 +86,6 @@ namespace EndlessClient
                 .RegisterType<ILoginController, LoginController>()
                 .RegisterType<ICharacterManagementController, CharacterManagementController>();
             
-            //controller repository (bad hack - avoids circular dependency)
-            container
-                .RegisterInstance<IMainButtonControllerRepository, MainButtonControllerRepository>()
-                .RegisterInstance<ICreateAccountControllerRepository, CreateAccountControllerRepository>()
-                .RegisterInstance<ILoginControllerRepository, LoginControllerRepository>()
-                .RegisterInstance<ICharacterManagementControllerRepository, CharacterManagementRepository>();
-            
             //actions
             container.RegisterType<IGameStateActions, GameStateActions>()
                 .RegisterType<IErrorDialogDisplayAction, ErrorDialogDisplayAction>()
@@ -112,7 +104,6 @@ namespace EndlessClient
             var game = container.Resolve<IEndlessGame>();
             var gameRepository = container.Resolve<IEndlessGameRepository>();
             gameRepository.Game = game;
-
             gameRepository.Game.Components.Add(container.Resolve<PacketHandlerGameComponent>());
 
             var contentRepo = container.Resolve<IContentManagerRepository>();
@@ -121,18 +112,20 @@ namespace EndlessClient
             var keyboardDispatcherRepo = container.Resolve<IKeyboardDispatcherRepository>();
             keyboardDispatcherRepo.Dispatcher = new KeyboardDispatcher(game.Window);
 
-            //part of bad hack to prevent circular dependency
-            var mainButtonControllerRepo = container.Resolve<IMainButtonControllerRepository>();
-            mainButtonControllerRepo.MainButtonController = container.Resolve<IMainButtonController>();
+            var mainButtonController = container.Resolve<IMainButtonController>();
+            var accountController = container.Resolve<IAccountController>();
+            var loginController = container.Resolve<ILoginController>();
+            var characterManagementController = container.Resolve<ICharacterManagementController>();
 
-            var createAccountControllerRepo = container.Resolve<ICreateAccountControllerRepository>();
-            createAccountControllerRepo.AccountController = container.Resolve<IAccountController>();
+            var controlSetFactory = container.Resolve<IControlSetFactory>();
+            controlSetFactory.InjectControllers(mainButtonController,
+                                                accountController,
+                                                loginController,
+                                                characterManagementController);
 
-            var loginControllerRepo = container.Resolve<ILoginControllerRepository>();
-            loginControllerRepo.LoginController = container.Resolve<ILoginController>();
-
-            var charManageControllerRepo = container.Resolve<ICharacterManagementControllerRepository>();
-            charManageControllerRepo.CharacterManagementController = container.Resolve<ICharacterManagementController>();
+            var charInfoPanelFactory = container.Resolve<ICharacterInfoPanelFactory>();
+            charInfoPanelFactory.InjectLoginController(loginController);
+            charInfoPanelFactory.InjectCharacterManagementController(characterManagementController);
         }
     }
 }
