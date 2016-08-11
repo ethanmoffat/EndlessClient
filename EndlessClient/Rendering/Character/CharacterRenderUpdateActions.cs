@@ -58,7 +58,7 @@ namespace EndlessClient.Rendering.Character
         private void UpdateAllCharacters(GameTime gameTime)
         {
             _characterRendererRepository.MainCharacterRenderer.Update(gameTime);
-            foreach (var renderer in _characterRendererRepository.CharacterRenderers)
+            foreach (var renderer in _characterRendererRepository.CharacterRenderers.Values)
                 renderer.Update(gameTime);
         }
     }

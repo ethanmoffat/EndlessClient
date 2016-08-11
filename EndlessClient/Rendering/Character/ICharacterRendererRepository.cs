@@ -10,30 +10,30 @@ namespace EndlessClient.Rendering.Character
     {
         ICharacterRenderer MainCharacterRenderer { get; set; }
 
-        List<ICharacterRenderer> CharacterRenderers { get; set; }
+        Dictionary<int, ICharacterRenderer> CharacterRenderers { get; set; }
     }
 
     public interface ICharacterRendererProvider
     {
         ICharacterRenderer MainCharacterRenderer { get; }
 
-        IReadOnlyList<ICharacterRenderer> CharacterRenderers { get; }
+        IReadOnlyDictionary<int, ICharacterRenderer> CharacterRenderers { get; }
     }
 
     public class CharacterRendererRepository : ICharacterRendererRepository, ICharacterRendererProvider, ICharacterRendererResetter
     {
         public ICharacterRenderer MainCharacterRenderer { get; set; }
 
-        public List<ICharacterRenderer> CharacterRenderers { get; set; }
+        public Dictionary<int, ICharacterRenderer> CharacterRenderers { get; set; }
 
-        IReadOnlyList<ICharacterRenderer> ICharacterRendererProvider.CharacterRenderers
+        IReadOnlyDictionary<int, ICharacterRenderer> ICharacterRendererProvider.CharacterRenderers
         {
             get { return CharacterRenderers; }
         }
 
         public CharacterRendererRepository()
         {
-            CharacterRenderers = new List<ICharacterRenderer>(64);
+            CharacterRenderers = new Dictionary<int, ICharacterRenderer>(64);
         }
 
         public void ResetRenderers()
@@ -42,7 +42,7 @@ namespace EndlessClient.Rendering.Character
                 MainCharacterRenderer.Dispose();
             MainCharacterRenderer = null;
 
-            foreach (var renderer in CharacterRenderers)
+            foreach (var renderer in CharacterRenderers.Values)
                 renderer.Dispose();
             CharacterRenderers.Clear();
         }
