@@ -20,7 +20,7 @@ namespace EndlessClient.Rendering.Character
         IReadOnlyList<ICharacterRenderer> CharacterRenderers { get; }
     }
 
-    public class CharacterRendererRepository : ICharacterRendererRepository, ICharacterRendererProvider, ICharacterRendererDisposer
+    public class CharacterRendererRepository : ICharacterRendererRepository, ICharacterRendererProvider, ICharacterRendererResetter
     {
         public ICharacterRenderer ActiveCharacterRenderer { get; set; }
 

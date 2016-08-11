@@ -123,7 +123,7 @@
     <Compile Include="Rendering\Character\CharacterStateCache.cs" />
     <Compile Include="Rendering\Character\CharacterTextures.cs" />
     <Compile Include="Rendering\Character\ICharacterRenderer.cs" />
-    <Compile Include="Rendering\Character\ICharacterRendererDisposer.cs" />
+    <Compile Include="Rendering\Character\ICharacterRendererResetter.cs" />
     <Compile Include="Rendering\Character\ICharacterRendererRepository.cs" />
     <Compile Include="Rendering\Character\ICharacterRenderOffsetCalculator.cs" />
     <Compile Include="Rendering\Character\ICharacterStateCache.cs" />

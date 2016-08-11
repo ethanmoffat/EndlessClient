@@ -18,21 +18,21 @@ namespace EndlessClient.UIControls
         private readonly ILoginControllerProvider _loginControllerProvider;
         private readonly ICharacterManagementControllerProvider _characterManagementControllerProvider;
         private readonly ICharacterRendererFactory _characterRendererFactory;
-        private readonly ICharacterRendererDisposer _characterRendererDisposer;
+        private readonly ICharacterRendererResetter _characterRendererResetter;
 
         public CharacterInfoPanelFactory(ICharacterSelectorProvider characterProvider,
                                          INativeGraphicsManager nativeGraphicsManager,
                                          ILoginControllerProvider loginControllerProvider,
                                          ICharacterManagementControllerProvider characterManagementControllerProvider,
                                          ICharacterRendererFactory characterRendererFactory,
-                                         ICharacterRendererDisposer characterRendererDisposer)
+                                         ICharacterRendererResetter characterRendererResetter)
         {
             _characterProvider = characterProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
             _loginControllerProvider = loginControllerProvider;
             _characterManagementControllerProvider = characterManagementControllerProvider;
             _characterRendererFactory = characterRendererFactory;
-            _characterRendererDisposer = characterRendererDisposer;
+            _characterRendererResetter = characterRendererResetter;
         }
 
         public IEnumerable<CharacterInfoPanel> CreatePanels()
@@ -47,7 +47,7 @@ namespace EndlessClient.UIControls
                                                     _loginControllerProvider.LoginController,
                                                     _characterManagementControllerProvider.CharacterManagementController,
                                                     _characterRendererFactory,
-                                                    _characterRendererDisposer);
+                                                    _characterRendererResetter);
             }
 
             for (; i < 3; ++i)

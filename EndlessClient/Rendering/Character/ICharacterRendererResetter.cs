@@ -6,7 +6,7 @@ using System;
 
 namespace EndlessClient.Rendering.Character
 {
-    public interface ICharacterRendererDisposer : IDisposable
+    public interface ICharacterRendererResetter : IDisposable
     {
         void ResetRenderers();
     }
