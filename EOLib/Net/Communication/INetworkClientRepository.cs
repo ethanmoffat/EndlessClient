@@ -4,7 +4,7 @@
 
 namespace EOLib.Net.Communication
 {
-    public interface INetworkClientRepository : INetworkClientDisposer
+    public interface INetworkClientRepository
     {
         INetworkClient NetworkClient { get; set; }
     }
@@ -14,7 +14,7 @@ namespace EOLib.Net.Communication
         INetworkClient NetworkClient { get; }
     }
 
-    public sealed class NetworkClientRepository : INetworkClientProvider, INetworkClientRepository
+    public sealed class NetworkClientRepository : INetworkClientProvider, INetworkClientRepository, INetworkClientDisposer
     {
         public INetworkClient NetworkClient { get; set; }
         
