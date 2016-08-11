@@ -29,7 +29,7 @@ namespace EndlessClient
 
         public void LaunchTestMode()
         {
-            if (_gameStateProvider.CurrentState != GameStates.Initial)
+            if (_gameStateProvider.CurrentState != GameStates.None)
                 return;
 
             var testMode = new CharacterStateTest(
