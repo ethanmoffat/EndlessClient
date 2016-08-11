@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using EndlessClient.Content;
+using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Input;
@@ -25,6 +26,7 @@ namespace EndlessClient.HUD.Controls
         private const int HUD_CONTROL_LAYER = 130;
 
         private readonly IHudButtonController _hudButtonController;
+        private readonly IChatController _chatController;
         private readonly IHudPanelFactory _hudPanelFactory;
         private readonly IMapRendererFactory _mapRendererFactory;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
@@ -38,6 +40,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
+                                  IChatController chatController,
                                   IHudPanelFactory hudPanelFactory,
                                   IMapRendererFactory mapRendererFactory,
                                   INativeGraphicsManager nativeGraphicsManager,
@@ -51,6 +54,7 @@ namespace EndlessClient.HUD.Controls
                                   IKeyboardDispatcherProvider keyboardDispatcherProvider)
         {
             _hudButtonController = hudButtonController;
+            _chatController = chatController;
             _hudPanelFactory = hudPanelFactory;
             _mapRendererFactory = mapRendererFactory;
             _nativeGraphicsManager = nativeGraphicsManager;
@@ -213,14 +217,24 @@ namespace EndlessClient.HUD.Controls
                 Visible = true,
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            //chatTextBox.OnEnterPressed += todo: input handling
-            //chatTextBox.OnClicked += todo: select it in KeyboardDispatcher
-            //chatTextBox.OnTextChanged += todo: select the mode texture
+            chatTextBox.OnEnterPressed += (o, e) => _chatController.SendChatAndClearTextBox();
+            chatTextBox.OnClicked += (o, e) => _chatController.SelectChatTextBox();
+            chatTextBox.OnTextChanged += UpdateChatModeGraphic;
 
             //todo: probably not the appropriate place to do this. Maybe in GameStateActions or a controller somewhere.
             _keyboardDispatcherProvider.Dispatcher.Subscriber = chatTextBox;
 
             return chatTextBox;
+        }
+
+        private void UpdateChatModeGraphic(object s, EventArgs e)
+        {
+            var chatTextBox = s as ChatTextBox;
+            if (chatTextBox == null)
+                throw new ArgumentNullException("s", "Error resolving chat textbox!");
+
+            if (chatTextBox.SingleCharFromNone)
+                _chatController.UpdateChatModeGraphic();
         }
 
         private TimeLabel CreateClockLabel()

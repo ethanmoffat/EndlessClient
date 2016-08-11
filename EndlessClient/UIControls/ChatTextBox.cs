@@ -16,8 +16,18 @@ namespace EndlessClient.UIControls
     public class ChatTextBox : XNATextBox
     {
         private bool _ignoreNextInput;
-
         private bool _ignoreAllInput;
+
+        private string _lastTextInput;
+
+        public bool SingleCharFromNone
+        {
+            get
+            {
+                return _lastTextInput.Length == 0 && Text.Length == 1 ||
+                       Text.Length == 0 && _lastTextInput.Length == 1;
+            }
+        }
 
         public ChatTextBox(IContentManagerProvider contentManagerProvider)
             : base(new Rectangle(124, 308, 440, 19),
@@ -25,6 +35,7 @@ namespace EndlessClient.UIControls
                 Constants.FontSize08)
         {
             MaxChars = 140;
+            _lastTextInput = "";
         }
 
         public void ToggleTextInputIgnore()
@@ -36,6 +47,8 @@ namespace EndlessClient.UIControls
         {
             if (_ignoreAllInput) return;
 
+            _lastTextInput = Text;
+
             if (!_ignoreNextInput)
                 base.ReceiveTextInput(inp);
             else
@@ -45,6 +58,8 @@ namespace EndlessClient.UIControls
         public override void ReceiveTextInput(string inp)
         {
             if (_ignoreAllInput) return;
+
+            _lastTextInput = Text;
 
             if (!_ignoreNextInput)
                 base.ReceiveTextInput(inp);
