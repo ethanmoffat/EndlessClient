@@ -23,7 +23,8 @@ namespace EndlessClient.Rendering.Map
                                          IMapItemGraphicProvider mapItemGraphicProvider,
                                          ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
                                          IConfigurationProvider configurationProvider,
-                                         ICharacterRendererProvider characterRendererProvider)
+                                         ICharacterRendererProvider characterRendererProvider,
+                                         ICharacterStateCache characterStateCache)
         {
             MapEntityRenderers = new List<IMapEntityRenderer>
             {
@@ -52,6 +53,10 @@ namespace EndlessClient.Rendering.Map
                                            currentMapProvider,
                                            characterProvider,
                                            characterRenderOffsetCalculator),
+                new OtherCharacterEntityRenderer(characterProvider,
+                                                 characterRendererProvider,
+                                                 characterStateCache,
+                                                 characterRenderOffsetCalculator),
                 new RoofLayerRenderer(nativeGraphicsManager,
                                       currentMapProvider,
                                       characterProvider,

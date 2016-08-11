@@ -146,6 +146,7 @@
     <Compile Include="Rendering\MapEntityRenderers\GroundLayerRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\MapItemLayerRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\OnTopLayerRenderer.cs" />
+    <Compile Include="Rendering\MapEntityRenderers\OtherCharacterEntityRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\OverlayLayerRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\RoofLayerRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\ShadowLayerRenderer.cs" />
