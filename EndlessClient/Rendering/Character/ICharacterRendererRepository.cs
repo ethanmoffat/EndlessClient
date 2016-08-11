@@ -11,6 +11,8 @@ namespace EndlessClient.Rendering.Character
         ICharacterRenderer ActiveCharacterRenderer { get; set; }
 
         List<ICharacterRenderer> CharacterRenderers { get; set; }
+
+        void ResetRenderers();
     }
 
     public interface ICharacterRendererProvider
@@ -20,7 +22,7 @@ namespace EndlessClient.Rendering.Character
         IReadOnlyList<ICharacterRenderer> CharacterRenderers { get; }
     }
 
-    public class CharacterRendererRepository : ICharacterRendererRepository, ICharacterRendererProvider
+    public class CharacterRendererRepository : ICharacterRendererRepository, ICharacterRendererProvider, ICharacterRendererDisposer
     {
         public ICharacterRenderer ActiveCharacterRenderer { get; set; }
 
@@ -34,6 +36,22 @@ namespace EndlessClient.Rendering.Character
         public CharacterRendererRepository()
         {
             CharacterRenderers = new List<ICharacterRenderer>(64);
+        }
+
+        public void ResetRenderers()
+        {
+            Dispose();
+        }
+
+        public void Dispose()
+        {
+            if (ActiveCharacterRenderer != null)
+                ActiveCharacterRenderer.Dispose();
+            ActiveCharacterRenderer = null;
+
+            foreach (var renderer in CharacterRenderers)
+                renderer.Dispose();
+            CharacterRenderers.Clear();
         }
     }
 }
