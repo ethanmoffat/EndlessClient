@@ -22,6 +22,10 @@ namespace EOLib.IO.Services
 
         public void SaveFileToDefaultDirectory(IReadOnlyMapFile mapFile)
         {
+            var directoryName = Path.GetDirectoryName(string.Format(MapFile.MapFileFormatString, 1)) ?? "";
+            if (!Directory.Exists(directoryName))
+                Directory.CreateDirectory(directoryName);
+
             File.WriteAllBytes(string.Format(MapFile.MapFileFormatString, mapFile.Properties.MapID),
                                mapFile.SerializeToByteArray(_numberEncoderService, _mapStringEncoderService));
         }

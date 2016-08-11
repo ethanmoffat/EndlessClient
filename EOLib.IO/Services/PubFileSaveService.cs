@@ -18,8 +18,11 @@ namespace EOLib.IO.Services
 
         public void SaveFile(string path, IPubFile pubFile)
         {
-            var pubFileBytes = pubFile.SerializeToByteArray(_numberEncoderService);
+            var directoryName = Path.GetDirectoryName(path) ?? "";
+            if (!Directory.Exists(directoryName))
+                Directory.CreateDirectory(directoryName);
 
+            var pubFileBytes = pubFile.SerializeToByteArray(_numberEncoderService);
             File.WriteAllBytes(path, pubFileBytes);
         }
     }
