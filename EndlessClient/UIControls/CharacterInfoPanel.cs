@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EndlessClient.Controllers;
+using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
@@ -23,6 +24,7 @@ namespace EndlessClient.UIControls
         private readonly ICharacter _character;
         private readonly ILoginController _loginController;
         private readonly ICharacterManagementController _characterManagementController;
+        private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly CharacterControl _characterControl;
         private readonly ISpriteSheet _adminGraphic;
 
@@ -60,12 +62,14 @@ namespace EndlessClient.UIControls
                                   INativeGraphicsManager gfxManager,
                                   ILoginController loginController,
                                   ICharacterManagementController characterManagementController,
-                                  ICharacterRendererFactory rendererFactory)
+                                  ICharacterRendererFactory rendererFactory,
+                                  ICharacterRendererRepository characterRendererRepository)
             : this(characterIndex, gfxManager)
         {
             _character = character;
             _loginController = loginController;
             _characterManagementController = characterManagementController;
+            _characterRendererRepository = characterRendererRepository;
 
             _characterControl = new CharacterControl(character.RenderProperties, rendererFactory)
             {
@@ -130,6 +134,7 @@ namespace EndlessClient.UIControls
 
             try
             {
+                _characterRendererRepository.ResetRenderers();
                 await _loginController.LoginToCharacter(_character);
             }
             finally

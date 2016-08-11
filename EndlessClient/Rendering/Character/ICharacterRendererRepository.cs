@@ -40,11 +40,6 @@ namespace EndlessClient.Rendering.Character
 
         public void ResetRenderers()
         {
-            Dispose();
-        }
-
-        public void Dispose()
-        {
             if (ActiveCharacterRenderer != null)
                 ActiveCharacterRenderer.Dispose();
             ActiveCharacterRenderer = null;
@@ -52,6 +47,11 @@ namespace EndlessClient.Rendering.Character
             foreach (var renderer in CharacterRenderers)
                 renderer.Dispose();
             CharacterRenderers.Clear();
+        }
+
+        public void Dispose()
+        {
+            ResetRenderers();
         }
     }
 }
