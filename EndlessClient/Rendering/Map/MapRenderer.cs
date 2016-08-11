@@ -101,7 +101,7 @@ namespace EndlessClient.Rendering.Map
 
         private void DrawMapToRenderTarget()
         {
-            var immutableCharacter = _characterProvider.ActiveCharacter;
+            var immutableCharacter = _characterProvider.MainCharacter;
 
             GraphicsDevice.SetRenderTarget(_mapAbovePlayer);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);

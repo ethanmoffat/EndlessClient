@@ -6,16 +6,16 @@ namespace EOLib.Domain.Character
 {
     public interface ICharacterRepository
     {
-        ICharacter ActiveCharacter { get; set; }
+        ICharacter MainCharacter { get; set; }
     }
 
     public interface ICharacterProvider
     {
-        ICharacter ActiveCharacter { get; }
+        ICharacter MainCharacter { get; }
     }
 
     public class CharacterRepository : ICharacterRepository, ICharacterProvider
     {
-        public ICharacter ActiveCharacter { get; set; }
+        public ICharacter MainCharacter { get; set; }
     }
 }

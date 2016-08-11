@@ -23,7 +23,7 @@ namespace EOLib.Domain.Extensions
 
         private static IReadOnlyList<IEquippedItem> GetLoggedInCharacterPaperdoll(this PaperdollRepository repository, IPubFile<EIFRecord> eifFile)
         {
-            return repository.ActiveCharacterPaperdoll.Select(itemID => (IEquippedItem)new EquippedItem(eifFile[itemID])).ToList();
+            return repository.MainCharacterPaperdoll.Select(itemID => (IEquippedItem)new EquippedItem(eifFile[itemID])).ToList();
         }
     }
 }

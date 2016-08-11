@@ -10,7 +10,7 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterStateCache : ICharacterStateCache
     {
-        public Optional<ICharacterRenderProperties> ActiveCharacterRenderProperties { get; private set; }
+        public Optional<ICharacterRenderProperties> MainCharacterRenderProperties { get; private set; }
 
         private readonly Dictionary<int, ICharacterRenderProperties> _characterRenderProperties;
 
@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.Character
 
         public CharacterStateCache()
         {
-            ActiveCharacterRenderProperties = new Optional<ICharacterRenderProperties>();
+            MainCharacterRenderProperties = new Optional<ICharacterRenderProperties>();
             _characterRenderProperties = new Dictionary<int, ICharacterRenderProperties>();
         }
 
@@ -30,9 +30,9 @@ namespace EndlessClient.Rendering.Character
             return _characterRenderProperties.ContainsKey(id);
         }
 
-        public void UpdateActiveCharacterState(ICharacterRenderProperties newActiveCharacterState)
+        public void UpdateMainCharacterState(ICharacterRenderProperties newMainCharacterState)
         {
-            ActiveCharacterRenderProperties = new Optional<ICharacterRenderProperties>(newActiveCharacterState);
+            MainCharacterRenderProperties = new Optional<ICharacterRenderProperties>(newMainCharacterState);
         }
 
         public void UpdateCharacterState(int id, ICharacterRenderProperties newCharacterState)
@@ -50,7 +50,7 @@ namespace EndlessClient.Rendering.Character
 
         public void ClearAll()
         {
-            ActiveCharacterRenderProperties = null;
+            MainCharacterRenderProperties = null;
             _characterRenderProperties.Clear();
         }
     }

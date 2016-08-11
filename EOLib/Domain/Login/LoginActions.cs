@@ -94,7 +94,7 @@ namespace EOLib.Domain.Login
 
             var data = _loginRequestGrantedPacketTranslator.TranslatePacket(response);
 
-            _characterRepository.ActiveCharacter = character
+            _characterRepository.MainCharacter = character
                 .WithID(data.CharacterID)
                 .WithName(data.Name)
                 .WithTitle(data.Title)
@@ -105,7 +105,7 @@ namespace EOLib.Domain.Login
                 .WithMapID(data.MapID)
                 .WithAdminLevel(data.AdminLevel)
                 .WithStats(data.CharacterStats);
-            _paperdollRepository.ActiveCharacterPaperdoll = data.Paperdoll.ToList();
+            _paperdollRepository.MainCharacterPaperdoll = data.Paperdoll.ToList();
 
             _playerInfoRepository.PlayerID = data.PlayerID;
             _playerInfoRepository.IsFirstTimePlayer = data.FirstTimePlayer;
@@ -128,7 +128,7 @@ namespace EOLib.Domain.Login
         {
             var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Message)
                 .AddThree(0x00123456) //?
-                .AddInt(_characterRepository.ActiveCharacter.ID)
+                .AddInt(_characterRepository.MainCharacter.ID)
                 .Build();
 
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
@@ -141,9 +141,9 @@ namespace EOLib.Domain.Login
             _newsRepository.NewsText = data.News.Except(new[] { data.News.First()}).ToList();
 
             var mainCharacter = data.MapCharacters.Single(
-                x => x.Name.ToLower() == _characterRepository.ActiveCharacter.Name.ToLower());
+                x => x.Name.ToLower() == _characterRepository.MainCharacter.Name.ToLower());
 
-            var stats = _characterRepository.ActiveCharacter.Stats
+            var stats = _characterRepository.MainCharacter.Stats
                 .WithNewStat(CharacterStat.Weight, data.CharacterWeight)
                 .WithNewStat(CharacterStat.MaxWeight, data.CharacterMaxWeight)
                 .WithNewStat(CharacterStat.Level, mainCharacter.Stats[CharacterStat.Level])
@@ -152,7 +152,7 @@ namespace EOLib.Domain.Login
                 .WithNewStat(CharacterStat.TP, mainCharacter.Stats[CharacterStat.TP])
                 .WithNewStat(CharacterStat.MaxTP, mainCharacter.Stats[CharacterStat.MaxTP]);
 
-            _characterRepository.ActiveCharacter = _characterRepository.ActiveCharacter
+            _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithName(mainCharacter.Name)
                 .WithMapID(mainCharacter.MapID)
                 .WithGuildTag(mainCharacter.GuildTag)

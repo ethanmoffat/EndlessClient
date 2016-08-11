@@ -36,9 +36,9 @@ namespace EndlessClient.HUD.Controls
         {
             if ((DateTime.Now - _lastUpdateTime).TotalMinutes >= 1)
             {
-                var stats = _characterRepository.ActiveCharacter.Stats;
+                var stats = _characterRepository.MainCharacter.Stats;
                 stats = stats.WithNewStat(CharacterStat.Usage, stats.Stats[CharacterStat.Usage] + 1);
-                _characterRepository.ActiveCharacter = _characterRepository.ActiveCharacter
+                _characterRepository.MainCharacter = _characterRepository.MainCharacter
                                                                        .WithStats(stats);
                 _lastUpdateTime = DateTime.Now;
             }

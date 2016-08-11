@@ -187,12 +187,12 @@ namespace EndlessClient.Rendering.Character
 
         private int GetMainCharacterOffsetX()
         {
-            return _characterRenderOffsetCalculator.CalculateOffsetX(_characterProvider.ActiveCharacter.RenderProperties);
+            return _characterRenderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
         }
 
         private int GetMainCharacterOffsetY()
         {
-            return _characterRenderOffsetCalculator.CalculateOffsetY(_characterProvider.ActiveCharacter.RenderProperties);
+            return _characterRenderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
         }
 
         #endregion

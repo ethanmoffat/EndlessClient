@@ -9,27 +9,27 @@ namespace EOLib.Domain.Character
 {
     public interface IPaperdollRepository
     {
-        List<short> ActiveCharacterPaperdoll { get; set; }
+        List<short> MainCharacterPaperdoll { get; set; }
 
         Dictionary<int, List<short>> VisibleCharacterPaperdolls { get; set; }
     }
 
     public interface IPaperdollProvider
     {
-        IReadOnlyList<short> ActiveCharacterPaperdoll { get; }
+        IReadOnlyList<short> MainCharacterPaperdoll { get; }
 
         IReadOnlyDictionary<int, IReadOnlyList<short>> VisibleCharacterPaperdolls { get; }
     }
 
     public class PaperdollRepository : IPaperdollRepository, IPaperdollProvider
     {
-        public List<short> ActiveCharacterPaperdoll { get; set; }
+        public List<short> MainCharacterPaperdoll { get; set; }
 
         public Dictionary<int, List<short>> VisibleCharacterPaperdolls { get; set; }
 
-        IReadOnlyList<short> IPaperdollProvider.ActiveCharacterPaperdoll
+        IReadOnlyList<short> IPaperdollProvider.MainCharacterPaperdoll
         {
-            get { return ActiveCharacterPaperdoll; }
+            get { return MainCharacterPaperdoll; }
         }
 
         IReadOnlyDictionary<int, IReadOnlyList<short>> IPaperdollProvider.VisibleCharacterPaperdolls

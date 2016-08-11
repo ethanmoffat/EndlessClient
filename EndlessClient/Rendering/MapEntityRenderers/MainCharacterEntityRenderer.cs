@@ -34,20 +34,20 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return row == _characterProvider.ActiveCharacter.RenderProperties.MapY &&
-                   col == _characterProvider.ActiveCharacter.RenderProperties.MapX;
+            return row == _characterProvider.MainCharacter.RenderProperties.MapY &&
+                   col == _characterProvider.MainCharacter.RenderProperties.MapX;
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
-            if(_characterRendererProvider.ActiveCharacterRenderer == null)
+            if(_characterRendererProvider.MainCharacterRenderer == null)
                 throw new InvalidOperationException("Active character renderer is null! Did you call MapRenderer.Update() before calling MapRenderer.Draw()?");
 
             spriteBatch.End();
 
             //todo: use different blend state if character is hidden
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
-            _characterRendererProvider.ActiveCharacterRenderer.DrawToSpriteBatch(spriteBatch);
+            _characterRendererProvider.MainCharacterRenderer.DrawToSpriteBatch(spriteBatch);
             spriteBatch.End();
 
             spriteBatch.Begin();

@@ -10,13 +10,13 @@ namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterStateCache
     {
-        Optional<ICharacterRenderProperties> ActiveCharacterRenderProperties { get; }
+        Optional<ICharacterRenderProperties> MainCharacterRenderProperties { get; }
 
         IReadOnlyDictionary<int, ICharacterRenderProperties> CharacterRenderProperties { get; }
 
         bool HasCharacterWithID(int id);
 
-        void UpdateActiveCharacterState(ICharacterRenderProperties newActiveCharacterState);
+        void UpdateMainCharacterState(ICharacterRenderProperties newMainCharacterState);
 
         void UpdateCharacterState(int id, ICharacterRenderProperties newCharacterState);
 

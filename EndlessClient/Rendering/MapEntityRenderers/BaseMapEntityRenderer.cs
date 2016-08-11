@@ -37,7 +37,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             if (!ElementExistsAt(row, col))
                 return false;
 
-            var props = _characterProvider.ActiveCharacter.RenderProperties;
+            var props = _characterProvider.MainCharacter.RenderProperties;
 
             var rowDelta = Math.Abs(props.MapY - row);
             var colDelta = Math.Abs(props.MapX - col);
@@ -51,8 +51,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            var charOffX = _characterRenderOffsetCalculator.CalculateOffsetX(_characterProvider.ActiveCharacter.RenderProperties);
-            var charOffY = _characterRenderOffsetCalculator.CalculateOffsetY(_characterProvider.ActiveCharacter.RenderProperties);
+            var charOffX = _characterRenderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
+            var charOffY = _characterRenderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
 
             return new Vector2(gridX * 32 - gridY * 32 + 288 - charOffX,
                                gridY * 16 + gridX * 16 + 144 - charOffY);

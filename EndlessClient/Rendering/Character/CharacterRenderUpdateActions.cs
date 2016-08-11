@@ -34,16 +34,16 @@ namespace EndlessClient.Rendering.Character
 
         private void CacheMainCharacterRenderProperties()
         {
-            var actualProperties = _characterProvider.ActiveCharacter.RenderProperties;
-            var cachedProperties = _characterStateCache.ActiveCharacterRenderProperties;
+            var actualProperties = _characterProvider.MainCharacter.RenderProperties;
+            var cachedProperties = _characterStateCache.MainCharacterRenderProperties;
 
             if (!cachedProperties.HasValue)
             {
-                _characterStateCache.UpdateActiveCharacterState(actualProperties);
+                _characterStateCache.UpdateMainCharacterState(actualProperties);
 
                 var renderer = _characterRendererFactory.CreateCharacterRenderer(actualProperties);
-                _characterRendererRepository.ActiveCharacterRenderer = renderer;
-                _characterRendererRepository.ActiveCharacterRenderer.Initialize();
+                _characterRendererRepository.MainCharacterRenderer = renderer;
+                _characterRendererRepository.MainCharacterRenderer.Initialize();
 
                 return;
             }
@@ -51,13 +51,13 @@ namespace EndlessClient.Rendering.Character
             if (cachedProperties.Value == actualProperties)
                 return;
 
-            _characterRendererRepository.ActiveCharacterRenderer.RenderProperties = actualProperties;
-            _characterStateCache.UpdateActiveCharacterState(actualProperties);
+            _characterRendererRepository.MainCharacterRenderer.RenderProperties = actualProperties;
+            _characterStateCache.UpdateMainCharacterState(actualProperties);
         }
 
         private void UpdateAllCharacters(GameTime gameTime)
         {
-            _characterRendererRepository.ActiveCharacterRenderer.Update(gameTime);
+            _characterRendererRepository.MainCharacterRenderer.Update(gameTime);
             foreach (var renderer in _characterRendererRepository.CharacterRenderers)
                 renderer.Update(gameTime);
         }
