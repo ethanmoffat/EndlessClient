@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
@@ -39,6 +40,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
+            if(_characterRendererProvider.ActiveCharacterRenderer == null)
+                throw new InvalidOperationException("Active character renderer is null! Did you call MapRenderer.Update() before calling MapRenderer.Draw()?");
+
             spriteBatch.End();
 
             //todo: use different blend state if character is hidden
