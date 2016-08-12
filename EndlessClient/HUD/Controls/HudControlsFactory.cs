@@ -228,12 +228,12 @@ namespace EndlessClient.HUD.Controls
             };
             chatTextBox.OnEnterPressed += (o, e) => _chatController.SendChatAndClearTextBox();
             chatTextBox.OnClicked += (o, e) => _chatController.SelectChatTextBox();
-            chatTextBox.OnTextChanged += UpdateChatModeGraphic;
+            chatTextBox.OnTextChanged += HandleChatTextChanged;
 
             return chatTextBox;
         }
 
-        private void UpdateChatModeGraphic(object s, EventArgs e)
+        private void HandleChatTextChanged(object s, EventArgs e)
         {
             var chatTextBox = s as ChatTextBox;
             if (chatTextBox == null)
