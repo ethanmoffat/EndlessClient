@@ -94,7 +94,8 @@ namespace EndlessClient
                 .RegisterType<IAccountDialogDisplayActions, AccountDialogDisplayActions>()
                 .RegisterType<ICharacterDialogActions, CharacterDialogActions>()
                 .RegisterType<ICharacterRenderUpdateActions, CharacterRenderUpdateActions>()
-                .RegisterType<IChatTextBoxActions, ChatTextBoxActions>();
+                .RegisterType<IChatTextBoxActions, ChatTextBoxActions>()
+                .RegisterType<IChatModeGraphicActions, ChatModeGraphicActions>();
 
             //hud
             container.RegisterType<IHudButtonController, HudButtonController>()

@@ -54,7 +54,7 @@ namespace EndlessClient.HUD.Controls
         TNLStatusBar,
 
         //mid stuff
-        ChatTypeBox,
+        ChatModePictureBox,
         ChatTextBox,
 
         FriendList,

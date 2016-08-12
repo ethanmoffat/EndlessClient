@@ -49,7 +49,9 @@
     <Compile Include="Audio\WAVFileValidator.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\IChatController.cs" />
+    <Compile Include="HUD\Chat\ChatModeGraphicActions.cs" />
     <Compile Include="HUD\Chat\ChatTextBoxActions.cs" />
+    <Compile Include="HUD\Chat\IChatModeGraphicActions.cs" />
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
     <Compile Include="OldCharacter.cs" />
     <Compile Include="CharacterStateTest.cs" />

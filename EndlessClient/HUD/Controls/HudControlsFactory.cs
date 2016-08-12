@@ -8,7 +8,6 @@ using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Panels;
-using EndlessClient.Input;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.Sprites;
@@ -37,7 +36,6 @@ namespace EndlessClient.HUD.Controls
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
         private readonly IContentManagerProvider _contentManagerProvider;
-        private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
                                   IChatController chatController,
@@ -50,8 +48,7 @@ namespace EndlessClient.HUD.Controls
                                   ICharacterRepository characterRepository,
                                   IStatusLabelSetter statusLabelSetter,
                                   IStatusLabelTextProvider statusLabelTextProvider,
-                                  IContentManagerProvider contentManagerProvider,
-                                  IKeyboardDispatcherProvider keyboardDispatcherProvider)
+                                  IContentManagerProvider contentManagerProvider)
         {
             _hudButtonController = hudButtonController;
             _chatController = chatController;
@@ -65,7 +62,6 @@ namespace EndlessClient.HUD.Controls
             _statusLabelSetter = statusLabelSetter;
             _statusLabelTextProvider = statusLabelTextProvider;
             _contentManagerProvider = contentManagerProvider;
-            _keyboardDispatcherProvider = keyboardDispatcherProvider;
         }
 
         public IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud()
@@ -100,6 +96,7 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
                 {HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
                 
+                {HudControlIdentifier.ChatModePictureBox, CreateChatModePictureBox()},
                 {HudControlIdentifier.ChatTextBox, CreateChatTextBox()},
                 {HudControlIdentifier.ClockLabel, CreateClockLabel()},
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
@@ -207,6 +204,18 @@ namespace EndlessClient.HUD.Controls
                 retPanel.Visible = false;
 
             return retPanel;
+        }
+
+        private PictureBox CreateChatModePictureBox()
+        {
+            var chatModesTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 31);
+            var pictureBox = new PictureBox(chatModesTexture)
+            {
+                DrawLocation = new Vector2(16, 309),
+                SourceRectangle = new Rectangle(0, 0, chatModesTexture.Width, chatModesTexture.Height / 8)
+            };
+
+            return pictureBox;
         }
 
         private ChatTextBox CreateChatTextBox()

@@ -9,10 +9,13 @@ namespace EndlessClient.Controllers
     public class ChatController : IChatController
     {
         private readonly IChatTextBoxActions _chatTextBoxActions;
+        private readonly IChatModeGraphicActions _chatModeGraphicActions;
 
-        public ChatController(IChatTextBoxActions chatTextBoxActions)
+        public ChatController(IChatTextBoxActions chatTextBoxActions,
+                              IChatModeGraphicActions chatModeGraphicActions)
         {
             _chatTextBoxActions = chatTextBoxActions;
+            _chatModeGraphicActions = chatModeGraphicActions;
         }
 
         public void SendChatAndClearTextBox()
@@ -28,6 +31,7 @@ namespace EndlessClient.Controllers
 
         public void UpdateChatModeGraphic()
         {
+            _chatModeGraphicActions.UpdateChatMode();
         }
     }
 }

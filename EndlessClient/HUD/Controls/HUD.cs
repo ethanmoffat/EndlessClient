@@ -18,7 +18,6 @@ using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
 namespace EndlessClient.HUD.Controls
@@ -32,7 +31,6 @@ namespace EndlessClient.HUD.Controls
 
         private const int HUD_CONTROL_DRAW_ORDER = 101;
 
-        private readonly SpriteBatch SpriteBatch;
         private readonly OldChatRenderer chatRenderer;
         private OldEOInventory inventory;
         private OldEOCharacterStats stats;
@@ -42,9 +40,6 @@ namespace EndlessClient.HUD.Controls
 
         private Timer m_muteTimer;
 
-        private ChatMode currentChatMode;
-        private Texture2D modeTexture;
-        private bool modeTextureLoaded;
         private ChatTextBox chatTextBox;
 
         private readonly XNAButton m_friendList, m_ignoreList, m_expInfo, m_questInfo;
@@ -61,8 +56,6 @@ namespace EndlessClient.HUD.Controls
 
             DrawOrder = 100;
 
-            SpriteBatch = new SpriteBatch(g.GraphicsDevice);
-
             chatRenderer = new OldChatRenderer();
             //chatRenderer.SetParent(pnlChat);
             chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(EOResourceID.STRING_SERVER),
@@ -77,7 +70,7 @@ namespace EndlessClient.HUD.Controls
             m_muteTimer = new Timer(s =>
             {
                 chatTextBox.ToggleTextInputIgnore();
-                currentChatMode = ChatMode.NoText;
+                //currentChatMode = ChatMode.NoText;
                 m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }, null, Timeout.Infinite, Timeout.Infinite);
 
@@ -133,19 +126,6 @@ namespace EndlessClient.HUD.Controls
 
             chatTextBox.OnTextChanged += (s, e) =>
             {
-                if (chatTextBox.Text.Length <= 0)
-                {
-                    if (modeTextureLoaded && modeTexture != null)
-                    {
-                        modeTextureLoaded = false;
-                        modeTexture.Dispose();
-                        modeTexture = null;
-
-                        currentChatMode = ChatMode.NoText;
-                    }
-                    return;
-                }
-
                 if (chatTextBox.Text.Length == 1 && chatTextBox.Text[0] == '~' &&
                     OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap == OldWorld.Instance.JailMap)
                 {
@@ -153,11 +133,6 @@ namespace EndlessClient.HUD.Controls
                     SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.JAIL_WARNING_CANNOT_USE_GLOBAL);
                     return;
                 }
-
-                currentChatMode = new ChatModeCalculatorService().CalculateChatType(
-                    chatTextBox.Text,
-                    OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel != AdminLevel.Player,
-                    OldWorld.Instance.MainPlayer.ActiveCharacter.GuildName.Length > 0);
             };
         }
 
@@ -206,35 +181,6 @@ namespace EndlessClient.HUD.Controls
             CreateStatusBars();
 
             base.Initialize();
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            SpriteBatch.Begin();
-
-            //show the little graphic next
-            if (currentChatMode != ChatMode.NoText && !modeTextureLoaded)
-            {
-                Texture2D chatModeTexture = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 31);
-                int oneMode = chatModeTexture.Height/8;
-                Color[] data = new Color[chatModeTexture.Width*oneMode]; //there are 8 chat mode graphics in the texture
-                chatModeTexture.GetData(0, new Rectangle(0, (int) currentChatMode*oneMode, chatModeTexture.Width, oneMode), data, 0,
-                    data.Length);
-                modeTexture = new Texture2D(Game.GraphicsDevice, chatModeTexture.Width, oneMode);
-                modeTexture.SetData(data);
-                modeTextureLoaded = true;
-            }
-
-            if(modeTextureLoaded && modeTexture != null)
-                SpriteBatch.Draw(modeTexture, new Vector2(16, 309), Color.White);
-
-            try
-            {
-                SpriteBatch.End();
-            }
-            catch (ObjectDisposedException) { return; }
-
-            base.Draw(gameTime);
         }
 
         #region Helper Methods
@@ -437,7 +383,7 @@ namespace EndlessClient.HUD.Controls
 
         public void SetMuted()
         {
-            currentChatMode = ChatMode.Muted;
+            //currentChatMode = ChatMode.Muted;
             chatTextBox.ToggleTextInputIgnore();
             m_muteTimer.Change(Constants.MuteDefaultTimeMinutes*60000, 0);
         }
@@ -524,10 +470,6 @@ namespace EndlessClient.HUD.Controls
                 inventory.Dispose();
                 chatRenderer.Dispose();
                 stats.Dispose();
-
-                if (modeTexture != null)
-                    modeTexture.Dispose();
-                SpriteBatch.Dispose();
 
                 chatTextBox.Close();
 
