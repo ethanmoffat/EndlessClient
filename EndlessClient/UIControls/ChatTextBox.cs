@@ -47,7 +47,7 @@ namespace EndlessClient.UIControls
         {
             if (_ignoreAllInput) return;
 
-            _lastTextInput = Text;
+            _lastTextInput = Text ?? "";
 
             if (IsSpecialInput((Keys) inp))
                 HandleSpecialInput((Keys)inp);
