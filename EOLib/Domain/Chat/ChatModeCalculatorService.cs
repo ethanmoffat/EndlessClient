@@ -10,19 +10,19 @@ namespace EOLib.Domain.Chat
     {
         public ChatMode CalculateChatType(string fullTextString, bool playerIsAdmin, bool playerIsInGuild)
         {
-            if(string.IsNullOrEmpty(fullTextString))
-                throw new ArgumentException("Input string is null or empty!", "fullTextString");
-
-            if ((fullTextString[0] == '@' || fullTextString[0] == '+') && !playerIsAdmin)
-                return ChatMode.Public;
-
-            if (fullTextString[0] == '&' && !playerIsInGuild)
+            if(fullTextString == null)
+                throw new ArgumentException("Input string is null!", "fullTextString");
+            
+            if (fullTextString.Length == 0)
+                return ChatMode.NoText;
+            if (((fullTextString[0] == '@' || fullTextString[0] == '+') && !playerIsAdmin) ||
+                (fullTextString[0] == '&' && !playerIsInGuild))
                 return ChatMode.Public;
 
             switch (fullTextString[0])
             {
                 case '!': return ChatMode.Private;
-                case '@': return ChatMode.Global;
+                case '@':
                 case '~': return  ChatMode.Global;
                 case '+': return ChatMode.Admin;
                 case '\'': return ChatMode.Group;
