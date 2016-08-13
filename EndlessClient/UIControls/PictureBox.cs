@@ -13,7 +13,17 @@ namespace EndlessClient.UIControls
     {
         protected Texture2D _displayPicture;
 
-        public Optional<Rectangle?> SourceRectangle { get; set; }
+        private Rectangle? _src;
+
+        public Rectangle? SourceRectangle
+        {
+            get { return _src; }
+            set
+            {
+                _src = value;
+                SetNewPicture(_displayPicture);
+            }
+        }
 
         public PictureBox(Texture2D displayPicture, XNAControl parent = null)
             : base(null, null, parent)
@@ -22,13 +32,18 @@ namespace EndlessClient.UIControls
             if (parent == null)
                 Game.Components.Add(this);
 
-            SourceRectangle = new Optional<Rectangle?>();
+            SourceRectangle = null;
         }
 
         public void SetNewPicture(Texture2D displayPicture)
         {
             _displayPicture = displayPicture;
-            _setSize(displayPicture.Width, displayPicture.Height);
+
+            if (!SourceRectangle.HasValue)
+                _setSize(displayPicture.Width, displayPicture.Height);
+            else
+                _setSize(((Rectangle)SourceRectangle).Width,
+                         ((Rectangle)SourceRectangle).Height);
         }
 
         public override void Draw(GameTime gameTime)
@@ -37,7 +52,7 @@ namespace EndlessClient.UIControls
             SpriteBatch.Draw(
                 _displayPicture,
                 DrawAreaWithOffset,
-                SourceRectangle.HasValue ? SourceRectangle.Value : null,
+                SourceRectangle,
                 Color.White);
             SpriteBatch.End();
 

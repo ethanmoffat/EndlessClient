@@ -212,7 +212,8 @@ namespace EndlessClient.HUD.Controls
             var pictureBox = new PictureBox(chatModesTexture)
             {
                 DrawLocation = new Vector2(16, 309),
-                SourceRectangle = new Rectangle(0, 0, chatModesTexture.Width, chatModesTexture.Height / 8)
+                SourceRectangle = new Rectangle(0, 0, chatModesTexture.Width, chatModesTexture.Height / 8),
+                DrawOrder = HUD_CONTROL_LAYER
             };
 
             return pictureBox;
