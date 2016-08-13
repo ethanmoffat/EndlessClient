@@ -6,6 +6,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
+using EOLib.Domain.Chat;
 using XNAControls;
 
 namespace EndlessClient.HUD.Chat
@@ -14,12 +15,15 @@ namespace EndlessClient.HUD.Chat
     {
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly IChatTextRepository _chatTextRepository;
 
         public ChatTextBoxActions(IKeyboardDispatcherProvider keyboardDispatcherProvider,
-                                  IHudControlProvider hudControlProvider)
+                                  IHudControlProvider hudControlProvider,
+                                  IChatTextRepository chatTextRepository)
         {
             _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _hudControlProvider = hudControlProvider;
+            _chatTextRepository = chatTextRepository;
         }
 
         public void ClearChatText()
@@ -35,6 +39,18 @@ namespace EndlessClient.HUD.Chat
 
             KeyboardDispatcher.Subscriber = GetChatTextBox();
             KeyboardDispatcher.Subscriber.Selected = true;
+        }
+
+        public void UpdateChatTextRepository()
+        {
+            var chatTextBox = GetChatTextBox();
+            SetTextInRepository(chatTextBox.Text);
+        }
+
+        private void SetTextInRepository(string newText)
+        {
+            _chatTextRepository.PreviousText = _chatTextRepository.ChatText;
+            _chatTextRepository.ChatText = newText;
         }
 
         private KeyboardDispatcher KeyboardDispatcher

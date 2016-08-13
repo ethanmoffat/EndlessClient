@@ -229,13 +229,9 @@ namespace EndlessClient.HUD.Controls
             };
             chatTextBox.OnEnterPressed += (o, e) => _chatController.SendChatAndClearTextBox();
             chatTextBox.OnClicked += (o, e) => _chatController.SelectChatTextBox();
-            chatTextBox.OnTextChanged += HandleChatTextChanged;
+            chatTextBox.OnTextChanged += (o, e) => _chatController.ChatTextChanged();
 
             return chatTextBox;
-        }
-
-        private void HandleChatTextChanged(object s, EventArgs e)
-        {
         }
 
         private TimeLabel CreateClockLabel()

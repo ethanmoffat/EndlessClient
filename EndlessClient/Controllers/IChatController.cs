@@ -10,6 +10,6 @@ namespace EndlessClient.Controllers
 
         void SelectChatTextBox();
 
-        void UpdateChatModeGraphic();
+        void ChatTextChanged();
     }
 }
