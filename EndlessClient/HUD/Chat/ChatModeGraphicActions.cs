@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.UIControls;
@@ -34,6 +35,9 @@ namespace EndlessClient.HUD.Chat
                 !string.IsNullOrEmpty(_characterProvider.MainCharacter.GuildName));
 
             var chatModePicture = _hudControlProvider.GetComponent<PictureBox>(HudControlIdentifier.ChatModePictureBox);
+            if (!chatModePicture.SourceRectangle.HasValue)
+                throw new InvalidOperationException("Chat mode picture is expected to specify a source rectangle");
+
             var width = ((Rectangle) chatModePicture.SourceRectangle).Width;
             var height = ((Rectangle) chatModePicture.SourceRectangle).Height;
             chatModePicture.SourceRectangle = new Rectangle(0, height*(int) chatMode, width, height);
