@@ -236,12 +236,6 @@ namespace EndlessClient.HUD.Controls
 
         private void HandleChatTextChanged(object s, EventArgs e)
         {
-            var chatTextBox = s as ChatTextBox;
-            if (chatTextBox == null)
-                throw new ArgumentNullException("s", "Error resolving chat textbox!");
-
-            if (chatTextBox.SingleCharFromNone)
-                _chatController.UpdateChatModeGraphic();
         }
 
         private TimeLabel CreateClockLabel()

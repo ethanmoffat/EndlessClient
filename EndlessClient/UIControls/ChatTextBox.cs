@@ -18,24 +18,12 @@ namespace EndlessClient.UIControls
     {
         private bool _ignoreAllInput;
 
-        private string _lastTextInput;
-
-        public bool SingleCharFromNone
-        {
-            get
-            {
-                return _lastTextInput.Length == 0 && Text.Length == 1 ||
-                       Text.Length == 0 && _lastTextInput.Length == 1;
-            }
-        }
-
         public ChatTextBox(IContentManagerProvider contentManagerProvider)
             : base(new Rectangle(124, 308, 440, 19),
                 contentManagerProvider.Content.Load<Texture2D>("cursor"),
                 Constants.FontSize08)
         {
             MaxChars = 140;
-            _lastTextInput = "";
         }
 
         public void ToggleTextInputIgnore()
@@ -46,8 +34,6 @@ namespace EndlessClient.UIControls
         public override void ReceiveTextInput(char inp)
         {
             if (_ignoreAllInput) return;
-
-            _lastTextInput = Text ?? "";
 
             if (IsSpecialInput((Keys) inp))
                 HandleSpecialInput((Keys)inp);
@@ -63,8 +49,9 @@ namespace EndlessClient.UIControls
 
         private bool IsSpecialInput(Keys k)
         {
-            return k == Keys.Escape || k == Keys.Decimal ||
-                   (k >= Keys.NumPad0 && k <= Keys.NumPad9);
+            //todo: figure out how to handle num pad
+            return k == Keys.Escape;// || k == Keys.Decimal ||
+                   //(k >= Keys.NumPad0 && k <= Keys.NumPad9);
         }
     }
 }
