@@ -37,7 +37,9 @@ namespace EOLib.Domain
                 .RegisterInstance<IPaperdollRepository, PaperdollRepository>()
                 .RegisterInstance<IPaperdollProvider, PaperdollRepository>()
                 .RegisterInstance<INewsRepository, NewsRepository>()
-                .RegisterInstance<INewsProvider, NewsRepository>();
+                .RegisterInstance<INewsProvider, NewsRepository>()
+                .RegisterInstance<IChatTextRepository, ChatTextRepository>()
+                .RegisterInstance<IChatTextProvider, ChatTextRepository>();
         }
     }
 }
