@@ -16,17 +16,17 @@ namespace EndlessClient.HUD.Chat
     {
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IChatTextRepository _chatTextRepository;
+        private readonly IChatRepository _chatRepository;
         private readonly IChatModeCalculatorService _chatModeCalculatorService;
 
         public ChatModeGraphicActions(IHudControlProvider hudControlProvider,
                                       ICharacterProvider characterProvider,
-                                      IChatTextRepository chatTextRepository,
+                                      IChatRepository chatRepository,
                                       IChatModeCalculatorService chatModeCalculatorService)
         {
             _hudControlProvider = hudControlProvider;
             _characterProvider = characterProvider;
-            _chatTextRepository = chatTextRepository;
+            _chatRepository = chatRepository;
             _chatModeCalculatorService = chatModeCalculatorService;
         }
 
@@ -37,9 +37,9 @@ namespace EndlessClient.HUD.Chat
                 _characterProvider.MainCharacter.AdminLevel != AdminLevel.Player,
                 !string.IsNullOrEmpty(_characterProvider.MainCharacter.GuildName));
 
-            if (chatMode == _chatTextRepository.CurrentChatMode)
+            if (chatMode == _chatRepository.CurrentChatMode)
                 return;
-            _chatTextRepository.CurrentChatMode = chatMode;
+            _chatRepository.CurrentChatMode = chatMode;
 
             var chatModePicture = _hudControlProvider.GetComponent<PictureBox>(HudControlIdentifier.ChatModePictureBox);
             if (!chatModePicture.SourceRectangle.HasValue)

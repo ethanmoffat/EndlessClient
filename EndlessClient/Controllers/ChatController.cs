@@ -11,15 +11,15 @@ namespace EndlessClient.Controllers
     {
         private readonly IChatTextBoxActions _chatTextBoxActions;
         private readonly IChatModeGraphicActions _chatModeGraphicActions;
-        private readonly IChatTextProvider _chatTextRepository;
+        private readonly IChatProvider _chatRepository;
 
         public ChatController(IChatTextBoxActions chatTextBoxActions,
                               IChatModeGraphicActions chatModeGraphicActions,
-                              IChatTextProvider chatTextRepository)
+                              IChatProvider chatRepository)
         {
             _chatTextBoxActions = chatTextBoxActions;
             _chatModeGraphicActions = chatModeGraphicActions;
-            _chatTextRepository = chatTextRepository;
+            _chatRepository = chatRepository;
         }
 
         public void SendChatAndClearTextBox()
@@ -47,7 +47,7 @@ namespace EndlessClient.Controllers
         {
             get
             {
-                var text = _chatTextRepository.LocalTypedText;
+                var text = _chatRepository.LocalTypedText;
                 return text.Length == 0 || text.Length == 1;
             }
         }

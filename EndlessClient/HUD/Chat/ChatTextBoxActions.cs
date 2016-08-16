@@ -15,15 +15,15 @@ namespace EndlessClient.HUD.Chat
     {
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;
         private readonly IHudControlProvider _hudControlProvider;
-        private readonly IChatTextRepository _chatTextRepository;
+        private readonly IChatRepository _chatRepository;
 
         public ChatTextBoxActions(IKeyboardDispatcherProvider keyboardDispatcherProvider,
                                   IHudControlProvider hudControlProvider,
-                                  IChatTextRepository chatTextRepository)
+                                  IChatRepository chatRepository)
         {
             _keyboardDispatcherProvider = keyboardDispatcherProvider;
             _hudControlProvider = hudControlProvider;
-            _chatTextRepository = chatTextRepository;
+            _chatRepository = chatRepository;
         }
 
         public void ClearChatText()
@@ -44,7 +44,7 @@ namespace EndlessClient.HUD.Chat
         public void UpdateChatTextRepository()
         {
             var chatTextBox = GetChatTextBox();
-            _chatTextRepository.LocalTypedText = chatTextBox.Text;
+            _chatRepository.LocalTypedText = chatTextBox.Text;
         }
 
         private KeyboardDispatcher KeyboardDispatcher
