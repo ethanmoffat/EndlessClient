@@ -77,6 +77,7 @@
     <Compile Include="Domain\Chat\ChatModeCalculatorService.cs" />
     <Compile Include="Domain\Chat\IChatModeCalculatorService.cs" />
     <Compile Include="Domain\Chat\IChatRepository.cs" />
+    <Compile Include="Domain\Chat\TalkType.cs" />
     <Compile Include="Domain\Extensions\CharacterRenderPropertiesExtensions.cs" />
     <Compile Include="Domain\Extensions\PaperdollRepositoryExtensions.cs" />
     <Compile Include="Domain\Login\INewsRepository.cs" />

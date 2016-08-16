@@ -3,23 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Domain.Chat;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-    public enum TalkType
-    {
-        Admin,
-        PM, //private message: !
-        Local, //local chat: no prefix
-        Global,//global chat: ~
-        Guild, //guild chat: &
-        Party, //party chat: '
-        Announce, //global chat: @
-        NPC, //npc is saying something
-        Server //server is saying something
-    }
-
     partial class PacketAPI
     {
         public delegate void ReceivePublicChatEvent(TalkType type, int playerID, string message);
