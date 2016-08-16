@@ -7,20 +7,27 @@ namespace EOLib.Domain.Chat
     public interface IChatTextRepository
     {
         string LocalTypedText { get; set; }
+
+        ChatMode CurrentChatMode { get; set; }
     }
 
     public interface IChatTextProvider
     {
         string LocalTypedText { get; }
+
+        ChatMode CurrentChatMode { get; }
     }
 
     public class ChatTextRepository : IChatTextRepository, IChatTextProvider
     {
         public string LocalTypedText { get; set; }
 
+        public ChatMode CurrentChatMode { get; set; }
+
         public ChatTextRepository()
         {
             LocalTypedText = "";
+            CurrentChatMode = ChatMode.NoText;
         }
     }
 }
