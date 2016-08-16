@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering;
 using EOLib.Config;
 using EOLib.Domain.Chat;

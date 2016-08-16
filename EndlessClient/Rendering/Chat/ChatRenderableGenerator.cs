@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.HUD.Chat;
 using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;

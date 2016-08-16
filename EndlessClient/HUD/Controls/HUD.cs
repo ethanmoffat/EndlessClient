@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using EndlessClient.Dialogs;
+using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Panels.Old;
 using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
