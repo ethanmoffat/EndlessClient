@@ -6,28 +6,21 @@ namespace EOLib.Domain.Chat
 {
     public interface IChatTextRepository
     {
-        string ChatText { get; set; }
-
-        string PreviousText { get; set; }
+        string LocalTypedText { get; set; }
     }
 
     public interface IChatTextProvider
     {
-        string ChatText { get; }
-
-        string PreviousText { get; }
+        string LocalTypedText { get; }
     }
 
     public class ChatTextRepository : IChatTextRepository, IChatTextProvider
     {
-        public string ChatText { get; set; }
-
-        public string PreviousText { get; set; }
+        public string LocalTypedText { get; set; }
 
         public ChatTextRepository()
         {
-            ChatText = "";
-            PreviousText = "";
+            LocalTypedText = "";
         }
     }
 }

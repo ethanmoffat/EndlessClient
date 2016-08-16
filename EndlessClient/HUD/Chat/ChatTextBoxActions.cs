@@ -44,13 +44,7 @@ namespace EndlessClient.HUD.Chat
         public void UpdateChatTextRepository()
         {
             var chatTextBox = GetChatTextBox();
-            SetTextInRepository(chatTextBox.Text);
-        }
-
-        private void SetTextInRepository(string newText)
-        {
-            _chatTextRepository.PreviousText = _chatTextRepository.ChatText;
-            _chatTextRepository.ChatText = newText;
+            _chatTextRepository.LocalTypedText = chatTextBox.Text;
         }
 
         private KeyboardDispatcher KeyboardDispatcher

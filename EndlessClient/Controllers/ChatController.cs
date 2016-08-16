@@ -47,8 +47,8 @@ namespace EndlessClient.Controllers
         {
             get
             {
-                return (_chatTextRepository.ChatText.Length == 0 && _chatTextRepository.PreviousText.Length == 1) ||
-                       (_chatTextRepository.ChatText.Length == 1 && _chatTextRepository.PreviousText.Length == 0);
+                var text = _chatTextRepository.LocalTypedText;
+                return text.Length == 0 || text.Length == 1;
             }
         }
     }
