@@ -50,11 +50,11 @@
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\IChatController.cs" />
     <Compile Include="HUD\Chat\ChatColor.cs" />
-    <Compile Include="HUD\Chat\ChatModeGraphicActions.cs" />
+    <Compile Include="HUD\Chat\ChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\ChatTabs.cs" />
     <Compile Include="HUD\Chat\ChatTextBoxActions.cs" />
     <Compile Include="HUD\Chat\ChatType.cs" />
-    <Compile Include="HUD\Chat\IChatModeGraphicActions.cs" />
+    <Compile Include="HUD\Chat\IChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
     <Compile Include="OldCharacter.cs" />
     <Compile Include="CharacterStateTest.cs" />
@@ -175,6 +175,7 @@
     <Compile Include="UIControls\CharacterControl.cs" />
     <Compile Include="UIControls\CharacterInfoPanel.cs" />
     <Compile Include="UIControls\CharacterInfoPanelFactory.cs" />
+    <Compile Include="UIControls\ChatModePictureBox.cs" />
     <Compile Include="UIControls\ChatTextBox.cs" />
     <Compile Include="ControlSets\CreateAccountControlSet.cs" />
     <Compile Include="ControlSets\GameControlIdentifier.cs" />

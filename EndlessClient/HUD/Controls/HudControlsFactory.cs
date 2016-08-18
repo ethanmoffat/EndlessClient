@@ -7,12 +7,14 @@ using System.Collections.Generic;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
@@ -36,6 +38,8 @@ namespace EndlessClient.HUD.Controls
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
         private readonly IContentManagerProvider _contentManagerProvider;
+        private readonly IChatProvider _chatProvider;
+        private readonly IChatModeCalculator _chatModeCalculator;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
                                   IChatController chatController,
@@ -48,7 +52,9 @@ namespace EndlessClient.HUD.Controls
                                   ICharacterRepository characterRepository,
                                   IStatusLabelSetter statusLabelSetter,
                                   IStatusLabelTextProvider statusLabelTextProvider,
-                                  IContentManagerProvider contentManagerProvider)
+                                  IContentManagerProvider contentManagerProvider,
+                                  IChatProvider chatProvider,
+                                  IChatModeCalculator chatModeCalculator)
         {
             _hudButtonController = hudButtonController;
             _chatController = chatController;
@@ -62,6 +68,8 @@ namespace EndlessClient.HUD.Controls
             _statusLabelSetter = statusLabelSetter;
             _statusLabelTextProvider = statusLabelTextProvider;
             _contentManagerProvider = contentManagerProvider;
+            _chatProvider = chatProvider;
+            _chatModeCalculator = chatModeCalculator;
         }
 
         public IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud()
@@ -206,10 +214,10 @@ namespace EndlessClient.HUD.Controls
             return retPanel;
         }
 
-        private PictureBox CreateChatModePictureBox()
+        private ChatModePictureBox CreateChatModePictureBox()
         {
             var chatModesTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 31);
-            var pictureBox = new PictureBox(chatModesTexture)
+            var pictureBox = new ChatModePictureBox(_chatModeCalculator, _chatProvider, chatModesTexture)
             {
                 DrawLocation = new Vector2(16, 309),
                 SourceRectangle = new Rectangle(0, 0, chatModesTexture.Width, chatModesTexture.Height / 8),

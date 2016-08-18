@@ -16,8 +16,7 @@ namespace EOLib.Domain
     {
         public void RegisterDependencies(IUnityContainer container)
         {
-            container.RegisterType<ICreateAccountParameterValidator, CreateAccountParameterValidator>()
-                .RegisterType<IChatModeCalculatorService, ChatModeCalculatorService>();
+            container.RegisterType<ICreateAccountParameterValidator, CreateAccountParameterValidator>();
 
             container.RegisterType<IAccountActions, AccountActions>()
                 .RegisterType<ILoginActions, LoginActions>()

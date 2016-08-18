@@ -73,9 +73,6 @@
     <Compile Include="Domain\Character\InventoryItem.cs" />
     <Compile Include="Domain\Character\InventorySpell.cs" />
     <Compile Include="Domain\Character\IPaperdollRepository.cs" />
-    <Compile Include="Domain\Chat\ChatMode.cs" />
-    <Compile Include="Domain\Chat\ChatModeCalculatorService.cs" />
-    <Compile Include="Domain\Chat\IChatModeCalculatorService.cs" />
     <Compile Include="Domain\Chat\IChatRepository.cs" />
     <Compile Include="Domain\Chat\TalkType.cs" />
     <Compile Include="Domain\Extensions\CharacterRenderPropertiesExtensions.cs" />

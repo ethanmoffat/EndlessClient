@@ -2,10 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.UIControls;
+
 namespace EndlessClient.HUD.Chat
 {
-    public interface IChatModeGraphicActions
+    public interface IChatModeCalculator
     {
-        void UpdateChatMode();
+        ChatModePictureBox.ChatMode CalculateMode(string fullTextString);
     }
 }

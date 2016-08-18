@@ -94,13 +94,13 @@ namespace EndlessClient
                 .RegisterType<IAccountDialogDisplayActions, AccountDialogDisplayActions>()
                 .RegisterType<ICharacterDialogActions, CharacterDialogActions>()
                 .RegisterType<ICharacterRenderUpdateActions, CharacterRenderUpdateActions>()
-                .RegisterType<IChatTextBoxActions, ChatTextBoxActions>()
-                .RegisterType<IChatModeGraphicActions, ChatModeGraphicActions>();
+                .RegisterType<IChatTextBoxActions, ChatTextBoxActions>();
 
             //hud
             container.RegisterType<IHudButtonController, HudButtonController>()
                 .RegisterType<IHudStateActions, HudStateActions>()
-                .RegisterType<IStatusLabelSetter, StatusLabelSetter>();
+                .RegisterType<IStatusLabelSetter, StatusLabelSetter>()
+                .RegisterType<IChatModeCalculator, ChatModeCalculator>();
         }
 
         public void InitializeDependencies(IUnityContainer container)
