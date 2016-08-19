@@ -298,13 +298,10 @@ namespace EndlessClient.HUD.Controls
                             break;
                         }
 
-                        ChatTabs whichPrivateChat = chatRenderer.StartConversation(character);
+                        var whichPrivateChat = chatRenderer.StartConversation(character);
                         //the other player will have their messages rendered in Color.PM on scr
                         //this player will have their messages rendered in Color.PM on the PM tab
-                        if (whichPrivateChat != ChatTabs.None)
-                        {
-                            AddChat(whichPrivateChat, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatIcon.Note, ChatColor.PM);
-                        }
+                        AddChat(whichPrivateChat, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatIcon.Note, ChatColor.PM);
                     }
                 }
                     break;

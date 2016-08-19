@@ -11,7 +11,6 @@ namespace EOLib.Domain.Chat
         Local,
         Global,
         Group,
-        System,
-        None
+        System
     }
 }

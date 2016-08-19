@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using EndlessClient.HUD.Chat;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Chat;
@@ -181,7 +180,7 @@ namespace EndlessClient.HUD.Panels.Old
                 lock(ChatStringsLock)
                     chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), " ");
                 scrollBar.UpdateDimensions(chatStrings.Count);
-                if (chatStrings.Count > 7 && WhichTab != ChatTabs.None)
+                if (chatStrings.Count > 7)
                 {
                     scrollBar.ScrollToEnd();
                 }
@@ -226,7 +225,7 @@ namespace EndlessClient.HUD.Panels.Old
             }
 
             scrollBar.UpdateDimensions(chatStrings.Count);
-            if (chatStrings.Count > 7 && WhichTab != ChatTabs.None)
+            if (chatStrings.Count > 7)
             {
                 scrollBar.ScrollToEnd();
             }
@@ -282,7 +281,7 @@ namespace EndlessClient.HUD.Panels.Old
                     }
                 }
             }
-            else if (Selected && mouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed && WhichTab != ChatTabs.None)
+            else if (Selected && mouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)
             {
                 XNAControl tmpParent = parent.GetParent(); //get the panel containing this tab, the parent is the chatRenderer
                 if (tmpParent.DrawAreaWithOffset.Contains(mouseState.X, mouseState.Y))
@@ -327,16 +326,6 @@ namespace EndlessClient.HUD.Panels.Old
 
             }
             base.Draw(gameTime); //draw child controls though
-        }
-
-        /// <summary>
-        /// Sets the down arrow flash speed to 500ms for the news tab if there are more lines to render than can be displayed at once
-        /// This should only be called from HUD::SetNews
-        /// </summary>
-        public void SetButtonFlash()
-        {
-            if(WhichTab == ChatTabs.None && chatStrings.Count > scrollBar.LinesToRender)
-                scrollBar.SetDownArrowFlashSpeed(500);
         }
     }
 
@@ -461,7 +450,8 @@ namespace EndlessClient.HUD.Panels.Old
                 return ChatTabs.Private2;
             }
 
-            return ChatTabs.None;
+            //note: this used to return ChatTabs.None before it was removed
+            throw new InvalidOperationException("Unable to start PM!");
         }
 
         /// <summary>
