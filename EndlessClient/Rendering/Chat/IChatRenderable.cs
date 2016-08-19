@@ -9,7 +9,10 @@ namespace EndlessClient.Rendering.Chat
 {
     public interface IChatRenderable
     {
+        int DisplayIndex { get; }
+
         void Render(SpriteBatch spriteBatch, SpriteFont chatFont, INativeGraphicsManager nativeGraphicsManager);
-        void UpdateIndex(int newIndex);
+
+        void SetDisplayIndex(int newIndex);
     }
 }

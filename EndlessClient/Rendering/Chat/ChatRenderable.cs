@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using EndlessClient.HUD.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -16,44 +15,25 @@ namespace EndlessClient.Rendering.Chat
         private const int CHAT_MESSAGE_X_OFF = 20;
         private static readonly Vector2 TOP_LEFT = new Vector2(102, 330);
 
+        private readonly ChatData _data;
+        private readonly string _partialMessage;
+
         protected virtual int HeaderYOffset { get { return 3; } }
 
-        public int Index { get; private set; }
+        public int DisplayIndex { get; private set; }
 
-        public ChatIcon Icon { get; private set; }
-
-        public string Who { get; private set; }
-
-        public string Message { get; private set; }
-
-        public ChatColor ChatColor { get; private set; }
-
-        public Color Color { get { return ChatColor.ToColor(); } }
-
-        public ChatRenderable(int index,
-                              string who,
-                              string message,
-                              ChatIcon icon = ChatIcon.None,
-                              ChatColor color = ChatColor.Default)
+        public ChatRenderable(int displayIndex,
+                              ChatData data,
+                              string partialMessage = null)
         {
-            if (who == null)
-                who = "";
-            else if (who.Length >= 1)
-                who = Char.ToUpper(who[0]) + who.Substring(1).ToLower();
-
-            if (message == null)
-                message = "";
-
-            Index = index;
-            Icon = icon;
-            Who = who;
-            Message = message;
-            ChatColor = color;
+            DisplayIndex = displayIndex;
+            _data = data;
+            _partialMessage = partialMessage;
         }
 
-        public void UpdateIndex(int newIndex)
+        public void SetDisplayIndex(int newIndex)
         {
-            Index = newIndex;
+            DisplayIndex = newIndex;
         }
 
         public override bool Equals(object obj)
@@ -61,18 +41,15 @@ namespace EndlessClient.Rendering.Chat
             if (!(obj is ChatRenderable)) return false;
             var other = (ChatRenderable) obj;
 
-            return other.Index == Index &&
-                   other.Icon == Icon &&
-                   other.Who == Who &&
-                   other.ChatColor == ChatColor;
+            return other._data.Equals(_data)
+                && other._partialMessage.Equals(_partialMessage);
         }
 
         public override int GetHashCode()
         {
-            var hash = 397 ^ Index.GetHashCode();
-            hash = (hash*397) ^ Icon.GetHashCode();
-            hash = (hash*397) ^ ChatColor.GetHashCode();
-            hash = (hash*397) ^ Who.GetHashCode();
+            var hash = 397 ^ _data.GetHashCode();
+            hash = (hash*397) ^ DisplayIndex.GetHashCode();
+            hash = (hash*397) ^ _partialMessage.GetHashCode();
             return hash;
         }
 
@@ -80,21 +57,21 @@ namespace EndlessClient.Rendering.Chat
         {
             spriteBatch.Begin();
 
-            var pos = TOP_LEFT + new Vector2(0, Index*13);
-            spriteBatch.Draw(GetChatIconGraphic(Icon, nativeGraphicsManager, spriteBatch.GraphicsDevice),
+            var pos = TOP_LEFT + new Vector2(0, DisplayIndex*13);
+            spriteBatch.Draw(GetChatIconGraphic(_data.Icon, nativeGraphicsManager, spriteBatch.GraphicsDevice),
                              new Vector2(pos.X + ICON_GRAPHIC_X_OFF, pos.Y + HeaderYOffset),
                              Color.White);
 
             string strToDraw;
-            if (string.IsNullOrEmpty(Who))
-                strToDraw = Message;
+            if (string.IsNullOrEmpty(_data.Who))
+                strToDraw = _partialMessage;
             else
-                strToDraw = Who + "  " + Message;
+                strToDraw = _data.Who + "  " + _partialMessage;
 
             spriteBatch.DrawString(chatFont,
                                    strToDraw,
                                    new Vector2(pos.X + CHAT_MESSAGE_X_OFF, pos.Y + HeaderYOffset),
-                                   Color);
+                                   _data.Color);
 
             spriteBatch.End();
         }
@@ -120,12 +97,9 @@ namespace EndlessClient.Rendering.Chat
     {
         protected override int HeaderYOffset { get { return 23; } }
 
-        public NewsChatRenderable(int index,
-                                  string who,
-                                  string message,
-                                  ChatIcon icon = ChatIcon.None,
-                                  ChatColor color = ChatColor.Default)
-            : base(index, who, message, icon, color)
+        //todo: don't take whole ChatData, just the variable properties that are needed
+        public NewsChatRenderable(int displayIndex, ChatData data, string partialMessage)
+            : base(displayIndex, data, partialMessage)
         {
         }
     }

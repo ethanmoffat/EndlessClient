@@ -121,7 +121,7 @@ namespace EndlessClient.HUD.Panels
             //only render based on what the scroll bar's position is
             _chatRenderables.AddRange(renderables.Skip(_cachedScrollOffset).Take(_cachedLinesToRender));
             for (int i = 0; i < _chatRenderables.Count; ++i)
-                _chatRenderables[i].UpdateIndex(i);
+                _chatRenderables[i].SetDisplayIndex(i);
 
             //update scrollbar with total number of renderables
             _scrollBar.UpdateDimensions(renderables.Count);

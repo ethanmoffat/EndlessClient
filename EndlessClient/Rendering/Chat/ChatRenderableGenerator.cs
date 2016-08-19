@@ -40,12 +40,7 @@ namespace EndlessClient.Rendering.Chat
             }
 
             var splitStrings = SplitTextIntoLines("", newsTextWithBlankLines);
-
-            return splitStrings.Select(
-                (pair, i) => new NewsChatRenderable(i,
-                    "",
-                    pair.Text,
-                    pair.IsFirstLineOfMultilineMessage && !string.IsNullOrWhiteSpace(pair.Text) ? ChatIcon.Note : ChatIcon.None)).ToList();
+            return splitStrings.Select(CreateNewsRenderableFromChatPair).ToList();
         }
 
         private IReadOnlyList<ChatPair> SplitTextIntoLines(string who, IReadOnlyList<string> input)
@@ -86,6 +81,13 @@ namespace EndlessClient.Rendering.Chat
             }
 
             return retStrings;
+        }
+
+        private static NewsChatRenderable CreateNewsRenderableFromChatPair(ChatPair pair, int i)
+        {
+            var shouldShowNoteIcon = pair.IsFirstLineOfMultilineMessage && !string.IsNullOrWhiteSpace(pair.Text);
+            var chatData = new ChatData("", pair.Text, shouldShowNoteIcon ? ChatIcon.Note : ChatIcon.None);
+            return new NewsChatRenderable(i, chatData, pair.Text);
         }
     }
 }
