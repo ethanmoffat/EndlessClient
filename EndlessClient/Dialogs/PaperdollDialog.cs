@@ -15,7 +15,6 @@ using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using ChatType = EndlessClient.HUD.Chat.ChatType;
 
 namespace EndlessClient.Dialogs
 {
@@ -117,8 +116,8 @@ namespace EndlessClient.Dialogs
 
             labels.ToList().ForEach(_l => { _l.ForeColor = ColorConstants.LightGrayText; _l.SetParent(this); });
 
-            ChatType iconType = OldChatRenderer.GetChatTypeFromPaperdollIcon(data.Icon);
-            m_characterIcon = OldChatTab.GetChatIcon(iconType);
+            ChatIcon icon = OldChatRenderer.GetChatTypeFromPaperdollIcon(data.Icon);
+            m_characterIcon = OldChatTab.GetChatIcon(icon);
 
             //should not be centered vertically: only display in game window
             //first center in the game display window, then move it 15px from top, THEN call end constructor logic

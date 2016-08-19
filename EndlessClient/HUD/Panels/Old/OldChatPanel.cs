@@ -17,7 +17,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
-using ChatType = EndlessClient.HUD.Chat.ChatType;
 using Mouse = Microsoft.Xna.Framework.Input.Mouse;
 
 namespace EndlessClient.HUD.Panels.Old
@@ -52,7 +51,7 @@ namespace EndlessClient.HUD.Panels.Old
             /// <summary>
             /// Determines the type of special icon that should appear next to the chat message
             /// </summary>
-            public readonly ChatType Type;
+            public readonly ChatIcon Icon;
             /// <summary>
             /// The entity that talked
             /// </summary>
@@ -60,10 +59,10 @@ namespace EndlessClient.HUD.Panels.Old
 
             private readonly ChatColor col;
 
-            public ChatIndex(int index = 0, ChatType type = ChatType.None, string who = "", ChatColor color = ChatColor.Default)
+            public ChatIndex(int index = 0, ChatIcon icon = ChatIcon.None, string who = "", ChatColor color = ChatColor.Default)
             {
                 _index = index;
-                Type = type;
+                Icon = icon;
                 if (who != null && who.Length >= 1)
                 {
                     //first character of the who string is capitalized: always!
@@ -172,7 +171,7 @@ namespace EndlessClient.HUD.Panels.Old
         /// <param name="text">Message that was spoken</param>
         /// <param name="icon">Icon to display next to the chat</param>
         /// <param name="col">Rendering color (enumerated value)</param>
-        public void AddText(string who, string text, ChatType icon = ChatType.None, ChatColor col = ChatColor.Default)
+        public void AddText(string who, string text, ChatIcon icon = ChatIcon.None, ChatColor col = ChatColor.Default)
         {
             const int LINE_LEN = 380;
 
@@ -221,7 +220,7 @@ namespace EndlessClient.HUD.Panels.Old
                         if (i == 0)
                             chatStrings.Add(new ChatIndex(chatStrings.Count, icon, who, col), chatStringsToAdd[0]);
                         else
-                            chatStrings.Add(new ChatIndex(chatStrings.Count, ChatType.None, "", col), chatStringsToAdd[i]);
+                            chatStrings.Add(new ChatIndex(chatStrings.Count, ChatIcon.None, "", col), chatStringsToAdd[i]);
                     }
                 }
             }
@@ -246,14 +245,14 @@ namespace EndlessClient.HUD.Panels.Old
             ((OldChatRenderer)parent).SetSelectedTab(ChatTabs.Local);
         }
 
-        public static Texture2D GetChatIcon(ChatType type)
+        public static Texture2D GetChatIcon(ChatIcon icon)
         {
             Texture2D ret = new Texture2D(EOGame.Instance.GraphicsDevice, 13, 13);
-            if (type == ChatType.None)
+            if (icon == ChatIcon.None)
                 return ret;
 
             Color[] data = new Color[169]; //each icon is 13x13
-            EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true).GetData(0, new Rectangle(0, (int)type * 13, 13, 13), data, 0, 169);
+            EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true).GetData(0, new Rectangle(0, (int)icon * 13, 13, 13), data, 0, 169);
             ret.SetData(data);
 
             return ret;
@@ -314,7 +313,7 @@ namespace EndlessClient.HUD.Panels.Old
 
                     SpriteBatch.Begin();
                     Vector2 pos = new Vector2(parent.DrawAreaWithOffset.X, parent.DrawAreaWithOffset.Y + relativeTextPos.Y + (i - scrollBar.ScrollOffset)*13);
-                    SpriteBatch.Draw(GetChatIcon(chatStrings.Keys[i].Type), new Vector2(pos.X + 3, pos.Y), Color.White);
+                    SpriteBatch.Draw(GetChatIcon(chatStrings.Keys[i].Icon), new Vector2(pos.X + 3, pos.Y), Color.White);
 
                     string strToDraw;
                     if (string.IsNullOrEmpty(chatStrings.Keys[i].Who))
@@ -388,7 +387,7 @@ namespace EndlessClient.HUD.Panels.Old
             tabs[currentSelTab = (int)tabToSelect].Selected = true;
         }
 
-        public void AddTextToTab(ChatTabs tab, string who, string text, ChatType icon = ChatType.None, ChatColor col = ChatColor.Default)
+        public void AddTextToTab(ChatTabs tab, string who, string text, ChatIcon icon = ChatIcon.None, ChatColor col = ChatColor.Default)
         {
             tabs[(int)tab].AddText(who, text, icon, col);
         }
@@ -478,36 +477,36 @@ namespace EndlessClient.HUD.Panels.Old
                 tabs[i].ClosePrivateChat();
         }
 
-        public static ChatType GetChatTypeFromPaperdollIcon(PaperdollIconType whichIcon)
+        public static ChatIcon GetChatTypeFromPaperdollIcon(PaperdollIconType whichIcon)
         {
-            ChatType iconType;
+            ChatIcon icon;
             switch (whichIcon)
             {
                 case PaperdollIconType.Normal:
-                    iconType = ChatType.Player;
+                    icon = ChatIcon.Player;
                     break;
                 case PaperdollIconType.GM:
-                    iconType = ChatType.GM;
+                    icon = ChatIcon.GM;
                     break;
                 case PaperdollIconType.HGM:
-                    iconType = ChatType.HGM;
+                    icon = ChatIcon.HGM;
                     break;
                 case PaperdollIconType.Party:
-                    iconType = ChatType.PlayerParty;
+                    icon = ChatIcon.PlayerParty;
                     break;
                 case PaperdollIconType.GMParty:
-                    iconType = ChatType.GMParty;
+                    icon = ChatIcon.GMParty;
                     break;
                 case PaperdollIconType.HGMParty:
-                    iconType = ChatType.HGMParty;
+                    icon = ChatIcon.HGMParty;
                     break;
                 case PaperdollIconType.SLNBot:
-                    iconType = ChatType.PlayerPartyDark;
+                    icon = ChatIcon.PlayerPartyDark;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("whichIcon", "Invalid Icon type specified.");
             }
-            return iconType;
+            return icon;
         }
 
         public static string Filter(string text, bool isMainPlayer)

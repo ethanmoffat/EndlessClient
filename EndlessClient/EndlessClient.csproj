@@ -53,7 +53,7 @@
     <Compile Include="HUD\Chat\ChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\ChatTabs.cs" />
     <Compile Include="HUD\Chat\ChatTextBoxActions.cs" />
-    <Compile Include="HUD\Chat\ChatType.cs" />
+    <Compile Include="HUD\Chat\ChatIcon.cs" />
     <Compile Include="HUD\Chat\IChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
     <Compile Include="OldCharacter.cs" />

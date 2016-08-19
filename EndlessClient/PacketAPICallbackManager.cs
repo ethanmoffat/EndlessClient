@@ -315,7 +315,7 @@ namespace EndlessClient
 
         private void _showPingTime(int timeout)
         {
-            m_game.Hud.AddChat(ChatTabs.Local, "System", string.Format("[x] Current ping to the server is: {0} ms.", timeout), HUD.Chat.ChatType.LookingDude);
+            m_game.Hud.AddChat(ChatTabs.Local, "System", string.Format("[x] Current ping to the server is: {0} ms.", timeout), HUD.Chat.ChatIcon.LookingDude);
         }
 
         private void _showFindCommandResult(bool online, bool sameMap, string charName)
@@ -333,7 +333,7 @@ namespace EndlessClient
             m_game.Hud.AddChat(ChatTabs.Local,
                 "System",
                 string.Format("{0} " + lastPart, char.ToUpper(charName[0]) + charName.Substring(1)),
-                HUD.Chat.ChatType.LookingDude);
+                HUD.Chat.ChatIcon.LookingDude);
         }
 
         private void _playerFace(short playerId, EODirection dir)
@@ -405,7 +405,7 @@ namespace EndlessClient
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);
 
             var rec = OldWorld.Instance.EIF[id];
-            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP), amountTaken, rec.Name), HUD.Chat.ChatType.UpArrow);
+            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP), amountTaken, rec.Name), HUD.Chat.ChatIcon.UpArrow);
             m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP, string.Format(" {0} {1}", amountTaken, rec.Name));
         }
 
@@ -414,7 +414,7 @@ namespace EndlessClient
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
 
             var rec = OldWorld.Instance.EIF[id];
-            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED), amountRemoved, rec.Name), HUD.Chat.ChatType.DownArrow);
+            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED), amountRemoved, rec.Name), HUD.Chat.ChatIcon.DownArrow);
             m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED, string.Format(" {0} {1}", amountRemoved, rec.Name));
         }
 
@@ -428,7 +428,7 @@ namespace EndlessClient
                 var rec = OldWorld.Instance.EIF[item.ItemID];
                 m_game.Hud.AddChat(ChatTabs.System, "",
                         string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), item.Amount, rec.Name),
-                        HUD.Chat.ChatType.DownArrow);
+                        HUD.Chat.ChatIcon.DownArrow);
                 m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED,
                         string.Format(" {0} {1}", item.Amount, rec.Name));
             }
@@ -564,7 +564,7 @@ namespace EndlessClient
         {
             if (OldWorld.Instance.ActiveMapRenderer == null) return;
 
-            OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(ChatType.NPC, index, message, HUD.Chat.ChatType.Note);
+            OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(ChatType.NPC, index, message, HUD.Chat.ChatIcon.Note);
         }
 
         private void _npcLeaveView(byte index, int damageToNPC, short playerID, EODirection playerDirection, short playerTP = -1, short spellID = -1)
@@ -586,7 +586,7 @@ namespace EndlessClient
             OldWorld.Instance.MainPlayer.ActiveCharacter.GainExp(expDif);
 
             m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_YOU_GAINED_EXP, string.Format(" {0} EXP", expDif));
-            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} EXP", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_GAINED_EXP), expDif), HUD.Chat.ChatType.Star);
+            m_game.Hud.AddChat(ChatTabs.System, "", string.Format("{0} {1} EXP", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_GAINED_EXP), expDif), HUD.Chat.ChatIcon.Star);
         }
 
         private void _npcTakeDamage(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID, short fromTP)
@@ -622,7 +622,7 @@ namespace EndlessClient
 
         private void _chatByPlayerID(ChatType type, int id, string message)
         {
-            OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(type, id, message, type == ChatType.Party ? HUD.Chat.ChatType.PlayerPartyDark : HUD.Chat.ChatType.SpeechBubble);
+            OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(type, id, message, type == ChatType.Party ? HUD.Chat.ChatIcon.PlayerPartyDark : HUD.Chat.ChatIcon.SpeechBubble);
         }
 
         private void _chatByPlayerName(ChatType type, string name, string msg)
@@ -638,25 +638,25 @@ namespace EndlessClient
                 case ChatType.Party:
                     break;
                 case ChatType.PM:
-                    m_game.Hud.AddChat(ChatTabs.Local, name, msg, HUD.Chat.ChatType.Note, ChatColor.PM);
+                    m_game.Hud.AddChat(ChatTabs.Local, name, msg, HUD.Chat.ChatIcon.Note, ChatColor.PM);
                     ChatTabs tab = m_game.Hud.GetPrivateChatTab(name);
-                    m_game.Hud.AddChat(tab, name, msg, HUD.Chat.ChatType.Note);
+                    m_game.Hud.AddChat(tab, name, msg, HUD.Chat.ChatIcon.Note);
                     break;
-                case ChatType.Global: m_game.Hud.AddChat(ChatTabs.Global, name, msg, HUD.Chat.ChatType.GlobalAnnounce); break;
+                case ChatType.Global: m_game.Hud.AddChat(ChatTabs.Global, name, msg, HUD.Chat.ChatIcon.GlobalAnnounce); break;
                 case ChatType.Guild: m_game.Hud.AddChat(ChatTabs.Group, name, msg); break;
                 case ChatType.Server:
-                    m_game.Hud.AddChat(ChatTabs.Local, OldWorld.GetString(EOResourceID.STRING_SERVER), msg, HUD.Chat.ChatType.Exclamation, ChatColor.Server);
-                    m_game.Hud.AddChat(ChatTabs.Global, OldWorld.GetString(EOResourceID.STRING_SERVER), msg, HUD.Chat.ChatType.Exclamation, ChatColor.ServerGlobal);
-                    m_game.Hud.AddChat(ChatTabs.System, "", msg, HUD.Chat.ChatType.Exclamation, ChatColor.Server);
+                    m_game.Hud.AddChat(ChatTabs.Local, OldWorld.GetString(EOResourceID.STRING_SERVER), msg, HUD.Chat.ChatIcon.Exclamation, ChatColor.Server);
+                    m_game.Hud.AddChat(ChatTabs.Global, OldWorld.GetString(EOResourceID.STRING_SERVER), msg, HUD.Chat.ChatIcon.Exclamation, ChatColor.ServerGlobal);
+                    m_game.Hud.AddChat(ChatTabs.System, "", msg, HUD.Chat.ChatIcon.Exclamation, ChatColor.Server);
                     break;
                 case ChatType.Admin:
-                    m_game.Hud.AddChat(ChatTabs.Group, name, msg, HUD.Chat.ChatType.HGM, ChatColor.Admin);
+                    m_game.Hud.AddChat(ChatTabs.Group, name, msg, HUD.Chat.ChatIcon.HGM, ChatColor.Admin);
                     break;
                 case ChatType.Announce:
                     OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, msg, false);
-                    m_game.Hud.AddChat(ChatTabs.Local, name, msg, HUD.Chat.ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
-                    m_game.Hud.AddChat(ChatTabs.Global, name, msg, HUD.Chat.ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
-                    m_game.Hud.AddChat(ChatTabs.Group, name, msg, HUD.Chat.ChatType.GlobalAnnounce, ChatColor.ServerGlobal);
+                    m_game.Hud.AddChat(ChatTabs.Local, name, msg, HUD.Chat.ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
+                    m_game.Hud.AddChat(ChatTabs.Global, name, msg, HUD.Chat.ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
+                    m_game.Hud.AddChat(ChatTabs.Group, name, msg, HUD.Chat.ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
                     break;
             }
         }
@@ -669,7 +669,7 @@ namespace EndlessClient
         private void _playerMuted(string adminName)
         {
             string message = OldWorld.GetString(EOResourceID.CHAT_MESSAGE_MUTED_BY) + " " + adminName;
-            m_game.Hud.AddChat(ChatTabs.Local, OldWorld.GetString(EOResourceID.STRING_SERVER), message, HUD.Chat.ChatType.Exclamation, ChatColor.Server);
+            m_game.Hud.AddChat(ChatTabs.Local, OldWorld.GetString(EOResourceID.STRING_SERVER), message, HUD.Chat.ChatIcon.Exclamation, ChatColor.Server);
             m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, "" + Constants.MuteDefaultTimeMinutes, EOResourceID.STATUS_LABEL_MINUTES_MUTED);
             m_game.Hud.SetMuted();
         }
@@ -972,7 +972,7 @@ namespace EndlessClient
         private void _setStatusLabel(string message)
         {
             m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, message);
-            m_game.Hud.AddChat(ChatTabs.System, "", message, HUD.Chat.ChatType.QuestMessage, ChatColor.Server);
+            m_game.Hud.AddChat(ChatTabs.System, "", message, HUD.Chat.ChatIcon.QuestMessage, ChatColor.Server);
         }
 
         private void _playSoundEffect(int effectID)

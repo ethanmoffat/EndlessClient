@@ -8,7 +8,6 @@ using EndlessClient.HUD.Chat;
 using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using ChatType = EndlessClient.HUD.Chat.ChatType;
 
 namespace EndlessClient.Rendering.Chat
 {
@@ -47,7 +46,7 @@ namespace EndlessClient.Rendering.Chat
                 (pair, i) => new NewsChatRenderable(i,
                     "",
                     pair.Text,
-                    pair.IsFirstLineOfMultilineMessage && !string.IsNullOrWhiteSpace(pair.Text) ? ChatType.Note : ChatType.None)).ToList();
+                    pair.IsFirstLineOfMultilineMessage && !string.IsNullOrWhiteSpace(pair.Text) ? ChatIcon.Note : ChatIcon.None)).ToList();
         }
 
         private IReadOnlyList<ChatPair> SplitTextIntoLines(string who, IReadOnlyList<string> input)

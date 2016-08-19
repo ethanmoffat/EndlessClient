@@ -8,7 +8,6 @@ using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using ChatType = EndlessClient.HUD.Chat.ChatType;
 
 namespace EndlessClient.Rendering.Chat
 {
@@ -22,7 +21,7 @@ namespace EndlessClient.Rendering.Chat
 
         public int Index { get; private set; }
 
-        public ChatType Type { get; private set; }
+        public ChatIcon Icon { get; private set; }
 
         public string Who { get; private set; }
 
@@ -35,7 +34,7 @@ namespace EndlessClient.Rendering.Chat
         public ChatRenderable(int index,
                               string who,
                               string message,
-                              ChatType type = ChatType.None,
+                              ChatIcon icon = ChatIcon.None,
                               ChatColor color = ChatColor.Default)
         {
             if (who == null)
@@ -47,7 +46,7 @@ namespace EndlessClient.Rendering.Chat
                 message = "";
 
             Index = index;
-            Type = type;
+            Icon = icon;
             Who = who;
             Message = message;
             _chatColor = color;
@@ -64,7 +63,7 @@ namespace EndlessClient.Rendering.Chat
             var other = (ChatRenderable) obj;
 
             return other.Index == Index &&
-                   other.Type == Type &&
+                   other.Icon == Icon &&
                    other.Who == Who &&
                    other._chatColor == _chatColor;
         }
@@ -72,7 +71,7 @@ namespace EndlessClient.Rendering.Chat
         public override int GetHashCode()
         {
             var hash = 397 ^ Index;
-            hash = (hash*397) ^ (int) Type;
+            hash = (hash*397) ^ (int) Icon;
             hash = (hash*397) ^ (int) _chatColor;
             hash = (hash*397) ^ Who.GetHashCode();
             return hash;
@@ -83,7 +82,7 @@ namespace EndlessClient.Rendering.Chat
             spriteBatch.Begin();
 
             var pos = TOP_LEFT + new Vector2(0, Index*13);
-            spriteBatch.Draw(GetChatIconGraphic(Type, nativeGraphicsManager, spriteBatch.GraphicsDevice),
+            spriteBatch.Draw(GetChatIconGraphic(Icon, nativeGraphicsManager, spriteBatch.GraphicsDevice),
                              new Vector2(pos.X + ICON_GRAPHIC_X_OFF, pos.Y + HeaderYOffset),
                              Color.White);
 
@@ -101,16 +100,16 @@ namespace EndlessClient.Rendering.Chat
             spriteBatch.End();
         }
 
-        private Texture2D GetChatIconGraphic(ChatType type, INativeGraphicsManager graphicsManager, GraphicsDevice graphicsDevice)
+        private Texture2D GetChatIconGraphic(ChatIcon icon, INativeGraphicsManager graphicsManager, GraphicsDevice graphicsDevice)
         {
             var ret = new Texture2D(graphicsDevice, 13, 13);
-            if (type == ChatType.None)
+            if (icon == ChatIcon.None)
                 return ret;
 
             var data = new Color[ret.Width * ret.Height];
 
             var texture = graphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true);
-            texture.GetData(0, new Rectangle(0, (int)type * 13, 13, 13), data, 0, data.Length);
+            texture.GetData(0, new Rectangle(0, (int)icon * 13, 13, 13), data, 0, data.Length);
 
             ret.SetData(data);
 
@@ -139,9 +138,9 @@ namespace EndlessClient.Rendering.Chat
         public NewsChatRenderable(int index,
                                   string who,
                                   string message,
-                                  ChatType type = ChatType.None,
+                                  ChatIcon icon = ChatIcon.None,
                                   ChatColor color = ChatColor.Default)
-            : base(index, who, message, type, color)
+            : base(index, who, message, icon, color)
         {
         }
     }

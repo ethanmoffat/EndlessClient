@@ -99,7 +99,7 @@ namespace EndlessClient.Rendering
         }
 
         #region /* PUBLIC INTERFACE -- CHAT + MAP RELATED */
-        public void RenderChatMessage(ChatType messageType, int playerID, string message, HUD.Chat.ChatType chatType = HUD.Chat.ChatType.None)
+        public void RenderChatMessage(ChatType messageType, int playerID, string message, HUD.Chat.ChatIcon chatIcon = HUD.Chat.ChatIcon.None)
         {
             //convert the messageType into a valid ChatTab to pass everything on to
             ChatTabs tab;
@@ -142,11 +142,11 @@ namespace EndlessClient.Rendering
 
             if (message != null)
             {
-                EOGame.Instance.Hud.AddChat(tab, playerName, message, chatType);
+                EOGame.Instance.Hud.AddChat(tab, playerName, message, chatIcon);
                 if (messageType == ChatType.Party)
                 {
                     //party chat also adds to local with the PM color
-                    EOGame.Instance.Hud.AddChat(ChatTabs.Local, playerName, message, chatType, ChatColor.PM);
+                    EOGame.Instance.Hud.AddChat(ChatTabs.Local, playerName, message, chatIcon, ChatColor.PM);
                 }
                 MakeSpeechBubble(dgc, message, messageType == ChatType.Party);
             }
@@ -224,7 +224,7 @@ namespace EndlessClient.Rendering
             if (MapRef.Properties.Name.Length > 0)
             {
                 if (EOGame.Instance.Hud != null)
-                    EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, HUD.Chat.ChatType.NoteLeftArrow);
+                    EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, HUD.Chat.ChatIcon.NoteLeftArrow);
                 else
                     _needDispMapName = true;
             }
@@ -288,7 +288,7 @@ namespace EndlessClient.Rendering
                 var rec = OldWorld.Instance.EIF[newItem.ItemID];
                 EOGame.Instance.Hud.AddChat(ChatTabs.System, "",
                     string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_THE_NPC_DROPPED), newItem.Amount, rec.Name),
-                    HUD.Chat.ChatType.DownArrow);
+                    HUD.Chat.ChatIcon.DownArrow);
             }
 
             Point key = new Point(newItem.X, newItem.Y);
@@ -1071,7 +1071,7 @@ namespace EndlessClient.Rendering
             if (_needDispMapName && EOGame.Instance.Hud != null)
             {
                 _needDispMapName = false;
-                EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, HUD.Chat.ChatType.NoteLeftArrow);
+                EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, HUD.Chat.ChatIcon.NoteLeftArrow);
             }
 
             if (_drawingEvent == null) return;

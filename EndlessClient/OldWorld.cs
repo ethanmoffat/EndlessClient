@@ -23,7 +23,6 @@ using EOLib.Net.PacketProcessing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using ChatType = EndlessClient.HUD.Chat.ChatType;
 
 namespace EndlessClient
 {
@@ -385,8 +384,8 @@ namespace EndlessClient
                 return;
             }
 
-            EOGame.Instance.Hud.AddChat(ChatTabs.Local, GetString(EOResourceID.STRING_SERVER), GetString(EOResourceID.SERVER_MESSAGE_MAP_MUTATION), ChatType.Exclamation, ChatColor.Server);
-            EOGame.Instance.Hud.AddChat(ChatTabs.System, GetString(EOResourceID.STRING_SERVER), GetString(EOResourceID.SERVER_MESSAGE_MAP_MUTATION), ChatType.Exclamation, ChatColor.Server);
+            EOGame.Instance.Hud.AddChat(ChatTabs.Local, GetString(EOResourceID.STRING_SERVER), GetString(EOResourceID.SERVER_MESSAGE_MAP_MUTATION), ChatIcon.Exclamation, ChatColor.Server);
+            EOGame.Instance.Hud.AddChat(ChatTabs.System, GetString(EOResourceID.STRING_SERVER), GetString(EOResourceID.SERVER_MESSAGE_MAP_MUTATION), ChatIcon.Exclamation, ChatColor.Server);
 
             ActiveMapRenderer.SetActiveMap(MapCache[MainPlayer.ActiveCharacter.CurrentMap]);
         }

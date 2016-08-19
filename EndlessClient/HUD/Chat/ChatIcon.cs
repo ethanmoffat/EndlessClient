@@ -8,7 +8,7 @@ namespace EndlessClient.HUD.Chat
     /// Represents the different icons displayed next to lines of chat text.
     /// These go in numerical order for how they are in the sprite sheet in the GFX file
     /// </summary>
-    public enum ChatType
+    public enum ChatIcon
     {
         None = -1, //blank icon - trying to load will return empty texture
         SpeechBubble = 0,
