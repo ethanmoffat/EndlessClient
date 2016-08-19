@@ -10,8 +10,8 @@ namespace EOLib.Net.API
 {
     partial class PacketAPI
     {
-        public delegate void ReceivePublicChatEvent(TalkType type, int playerID, string message);
-        public delegate void ReceiveOtherChatEvent(TalkType type, string player, string message);
+        public delegate void ReceivePublicChatEvent(ChatType type, int playerID, string message);
+        public delegate void ReceiveOtherChatEvent(ChatType type, string player, string message);
         public event ReceivePublicChatEvent OnPlayerChatByID; //chat event that should be shown in some kind of speech bubble and chat panel
         public event ReceiveOtherChatEvent OnPlayerChatByName; //chat event that should only be shown in the chat panel
         public event Action<string> OnPMRecipientNotFound;
@@ -31,7 +31,7 @@ namespace EOLib.Net.API
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Spec), _handleTalkSpec, true);
         }
 
-        public bool Speak(TalkType chatType, string message, string character = null)
+        public bool Speak(ChatType chatType, string message, string character = null)
         {
             if (!m_client.ConnectedAndInitialized || !Initialized)
                 return false;
@@ -39,28 +39,28 @@ namespace EOLib.Net.API
             OldPacket builder;
             switch (chatType)
             {
-                case TalkType.Local:
+                case ChatType.Local:
                     builder = new OldPacket(PacketFamily.Talk, PacketAction.Report);
                     break;
-                case TalkType.PM:
+                case ChatType.PM:
                     builder = new OldPacket(PacketFamily.Talk, PacketAction.Tell);
                     if (string.IsNullOrWhiteSpace(character))
                         throw new ArgumentException("Unable to send a PM to invalid character!", "character");
                     builder.AddBreakString(character);
                     break;
-                case TalkType.Global:
+                case ChatType.Global:
                     builder = new OldPacket(PacketFamily.Talk, PacketAction.Message);
                     break;
-                case TalkType.Guild:
+                case ChatType.Guild:
                     builder = new OldPacket(PacketFamily.Talk, PacketAction.Request);
                     break;
-                case TalkType.Party:
+                case ChatType.Party:
                     builder = new OldPacket(PacketFamily.Talk, PacketAction.Open);
                     break;
-                case TalkType.Admin:
+                case ChatType.Admin:
                     builder = new OldPacket(PacketFamily.Talk, PacketAction.Admin);
                     break;
-                case TalkType.Announce:
+                case ChatType.Announce:
                     builder = new OldPacket(PacketFamily.Talk, PacketAction.Announce);
                     break;
                 default: throw new NotImplementedException();
@@ -80,7 +80,7 @@ namespace EOLib.Net.API
             short fromPlayerID = pkt.GetShort();
             string message = pkt.GetEndString();
 
-            OnPlayerChatByID(TalkType.Local, fromPlayerID, message);
+            OnPlayerChatByID(ChatType.Local, fromPlayerID, message);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace EOLib.Net.API
             string from = pkt.GetBreakString();
             from = char.ToUpper(from[0]) + from.Substring(1).ToLower();
             string message = pkt.GetBreakString();
-            OnPlayerChatByName(TalkType.PM, from, message);
+            OnPlayerChatByName(ChatType.PM, from, message);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace EOLib.Net.API
             from = char.ToUpper(from[0]) + from.Substring(1).ToLower();
             string message = pkt.GetBreakString();
 
-            OnPlayerChatByName(TalkType.Global, from, message);
+            OnPlayerChatByName(ChatType.Global, from, message);
         }
 
         /// <summary>
@@ -139,7 +139,7 @@ namespace EOLib.Net.API
             from = char.ToUpper(from[0]) + from.Substring(1).ToLower();
             string message = pkt.GetBreakString();
 
-            OnPlayerChatByName(TalkType.Guild, from, message);
+            OnPlayerChatByName(ChatType.Guild, from, message);
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace EOLib.Net.API
             short from = pkt.GetShort();
             string message = pkt.GetBreakString();
 
-            OnPlayerChatByID(TalkType.Party, from, message);
+            OnPlayerChatByID(ChatType.Party, from, message);
         }
 
         private void _handleTalkServer(OldPacket pkt)
@@ -160,7 +160,7 @@ namespace EOLib.Net.API
             if (OnPlayerChatByName == null) return;
 
             string msg = pkt.GetEndString();
-            OnPlayerChatByName(TalkType.Server, null, msg);
+            OnPlayerChatByName(ChatType.Server, null, msg);
         }
 
         private void _handleTalkAdmin(OldPacket pkt)
@@ -171,7 +171,7 @@ namespace EOLib.Net.API
             name = char.ToUpper(name[0]) + name.Substring(1);
             string msg = pkt.GetBreakString();
 
-            OnPlayerChatByName(TalkType.Admin, name, msg);
+            OnPlayerChatByName(ChatType.Admin, name, msg);
         }
 
         private void _handleTalkAnnounce(OldPacket pkt)
@@ -182,7 +182,7 @@ namespace EOLib.Net.API
             name = char.ToUpper(name[0]) + name.Substring(1);
             string msg = pkt.GetBreakString();
 
-            OnPlayerChatByName(TalkType.Announce, name, msg);
+            OnPlayerChatByName(ChatType.Announce, name, msg);
         }
 
         private void _handleTalkSpec(OldPacket pkt)

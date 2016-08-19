@@ -23,6 +23,7 @@ using EOLib.Net.PacketProcessing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
+using ChatType = EndlessClient.HUD.Chat.ChatType;
 
 namespace EndlessClient
 {

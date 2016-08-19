@@ -17,6 +17,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
+using ChatType = EndlessClient.HUD.Chat.ChatType;
 using Mouse = Microsoft.Xna.Framework.Input.Mouse;
 
 namespace EndlessClient.HUD.Panels.Old

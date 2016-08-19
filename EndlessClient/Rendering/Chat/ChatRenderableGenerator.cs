@@ -8,6 +8,7 @@ using EndlessClient.HUD.Chat;
 using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
+using ChatType = EndlessClient.HUD.Chat.ChatType;
 
 namespace EndlessClient.Rendering.Chat
 {

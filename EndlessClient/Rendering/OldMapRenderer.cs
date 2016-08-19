@@ -22,6 +22,7 @@ using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using ChatType = EOLib.Domain.Chat.ChatType;
 using IMapFile = EOLib.IO.Map.IMapFile;
 
 namespace EndlessClient.Rendering
@@ -98,21 +99,21 @@ namespace EndlessClient.Rendering
         }
 
         #region /* PUBLIC INTERFACE -- CHAT + MAP RELATED */
-        public void RenderChatMessage(TalkType messageType, int playerID, string message, ChatType chatType = ChatType.None)
+        public void RenderChatMessage(ChatType messageType, int playerID, string message, HUD.Chat.ChatType chatType = HUD.Chat.ChatType.None)
         {
             //convert the messageType into a valid ChatTab to pass everything on to
             ChatTabs tab;
             switch (messageType)
             {
-                case TalkType.NPC:
-                case TalkType.Local: tab = ChatTabs.Local; break;
-                case TalkType.Party: tab = ChatTabs.Group; break;
+                case ChatType.NPC:
+                case ChatType.Local: tab = ChatTabs.Local; break;
+                case ChatType.Party: tab = ChatTabs.Group; break;
                 default: throw new ArgumentOutOfRangeException("messageType", "Unsupported message type for chat rendering");
             }
 
             DrawableGameComponent dgc;
             string playerName = null;
-            if (messageType == TalkType.NPC)
+            if (messageType == ChatType.NPC)
             {
                 lock(_npcListLock)
                     dgc = _npcRenderers.Find(_npc => _npc.NPC.Index == playerID);
@@ -142,12 +143,12 @@ namespace EndlessClient.Rendering
             if (message != null)
             {
                 EOGame.Instance.Hud.AddChat(tab, playerName, message, chatType);
-                if (messageType == TalkType.Party)
+                if (messageType == ChatType.Party)
                 {
                     //party chat also adds to local with the PM color
                     EOGame.Instance.Hud.AddChat(ChatTabs.Local, playerName, message, chatType, ChatColor.PM);
                 }
-                MakeSpeechBubble(dgc, message, messageType == TalkType.Party);
+                MakeSpeechBubble(dgc, message, messageType == ChatType.Party);
             }
         }
 
@@ -223,7 +224,7 @@ namespace EndlessClient.Rendering
             if (MapRef.Properties.Name.Length > 0)
             {
                 if (EOGame.Instance.Hud != null)
-                    EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, ChatType.NoteLeftArrow);
+                    EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, HUD.Chat.ChatType.NoteLeftArrow);
                 else
                     _needDispMapName = true;
             }
@@ -287,7 +288,7 @@ namespace EndlessClient.Rendering
                 var rec = OldWorld.Instance.EIF[newItem.ItemID];
                 EOGame.Instance.Hud.AddChat(ChatTabs.System, "",
                     string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_THE_NPC_DROPPED), newItem.Amount, rec.Name),
-                    ChatType.DownArrow);
+                    HUD.Chat.ChatType.DownArrow);
             }
 
             Point key = new Point(newItem.X, newItem.Y);
@@ -1070,7 +1071,7 @@ namespace EndlessClient.Rendering
             if (_needDispMapName && EOGame.Instance.Hud != null)
             {
                 _needDispMapName = false;
-                EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, ChatType.NoteLeftArrow);
+                EOGame.Instance.Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, HUD.Chat.ChatType.NoteLeftArrow);
             }
 
             if (_drawingEvent == null) return;

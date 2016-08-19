@@ -4,7 +4,7 @@
 
 namespace EOLib.Domain.Chat
 {
-    public enum TalkType
+    public enum ChatType
     {
         Admin,
         PM, //private message: !
