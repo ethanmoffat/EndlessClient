@@ -136,6 +136,7 @@
     <Compile Include="Rendering\Character\ICharacterRenderUpdateActions.cs" />
     <Compile Include="Rendering\Character\ICharacterStateCache.cs" />
     <Compile Include="Rendering\Character\ICharacterTextures.cs" />
+    <Compile Include="Rendering\Chat\ChatColorExtensions.cs" />
     <Compile Include="Rendering\Chat\ChatRenderable.cs" />
     <Compile Include="Rendering\Chat\ChatRenderableGenerator.cs" />
     <Compile Include="Rendering\Factories\CharacterRendererFactory.cs" />

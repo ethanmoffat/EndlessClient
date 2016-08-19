@@ -4,7 +4,6 @@
 
 using System;
 using EndlessClient.HUD.Chat;
-using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -27,9 +26,9 @@ namespace EndlessClient.Rendering.Chat
 
         public string Message { get; private set; }
 
-        private readonly ChatColor _chatColor;
+        public ChatColor ChatColor { get; private set; }
 
-        public Color Color { get { return GetColor(_chatColor); } }
+        public Color Color { get { return ChatColor.ToColor(); } }
 
         public ChatRenderable(int index,
                               string who,
@@ -49,7 +48,7 @@ namespace EndlessClient.Rendering.Chat
             Icon = icon;
             Who = who;
             Message = message;
-            _chatColor = color;
+            ChatColor = color;
         }
 
         public void UpdateIndex(int newIndex)
@@ -65,14 +64,14 @@ namespace EndlessClient.Rendering.Chat
             return other.Index == Index &&
                    other.Icon == Icon &&
                    other.Who == Who &&
-                   other._chatColor == _chatColor;
+                   other.ChatColor == ChatColor;
         }
 
         public override int GetHashCode()
         {
-            var hash = 397 ^ Index;
-            hash = (hash*397) ^ (int) Icon;
-            hash = (hash*397) ^ (int) _chatColor;
+            var hash = 397 ^ Index.GetHashCode();
+            hash = (hash*397) ^ Icon.GetHashCode();
+            hash = (hash*397) ^ ChatColor.GetHashCode();
             hash = (hash*397) ^ Who.GetHashCode();
             return hash;
         }
@@ -114,20 +113,6 @@ namespace EndlessClient.Rendering.Chat
             ret.SetData(data);
 
             return ret;
-        }
-
-        private static Color GetColor(ChatColor chatColor)
-        {
-            switch (chatColor)
-            {
-                case ChatColor.Default: return Color.Black;
-                case ChatColor.Error: return Color.FromNonPremultiplied(0x7d, 0x0a, 0x0a, 0xff);
-                case ChatColor.PM: return Color.FromNonPremultiplied(0x5a, 0x3c, 0x00, 0xff);
-                case ChatColor.Server: return Color.FromNonPremultiplied(0xe6, 0xd2, 0xc8, 0xff);
-                case ChatColor.ServerGlobal: return ColorConstants.LightYellowText;
-                case ChatColor.Admin: return Color.FromNonPremultiplied(0xc8, 0xaa, 0x96, 0xff);
-                default: throw new ArgumentOutOfRangeException("chatColor", chatColor, "Unrecognized chat color");
-            }
         }
     }
 
