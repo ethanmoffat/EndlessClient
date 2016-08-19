@@ -4,7 +4,7 @@
 
 namespace EOLib.Domain.Chat
 {
-    public enum ChatTabs
+    public enum ChatTab
     {
         Private1,
         Private2,

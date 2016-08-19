@@ -36,7 +36,7 @@ namespace EndlessClient.HUD.Panels.Old
                 tabLabel.ForeColor = _selected ? Color.White : Color.Black;
             }
         }
-        public ChatTabs WhichTab { get; private set; }
+        public ChatTab WhichTab { get; private set; }
 
         private Rectangle? closeRect;
         private readonly ScrollBar scrollBar;
@@ -99,7 +99,7 @@ namespace EndlessClient.HUD.Panels.Old
         private readonly XNALabel tabLabel;
         public string ChatCharacter
         {
-            get { return WhichTab == ChatTabs.Private1 || WhichTab == ChatTabs.Private2 ? tabLabel.Text : null; }
+            get { return WhichTab == ChatTab.Private1 || WhichTab == ChatTab.Private2 ? tabLabel.Text : null; }
             set { tabLabel.Text = value; }
         }
 
@@ -113,7 +113,7 @@ namespace EndlessClient.HUD.Panels.Old
         /// <summary>
         /// This Constructor should be used for all values in ChatTabs
         /// </summary>
-        public OldChatTab(ChatTabs tab, OldChatRenderer parentRenderer, bool selected = false)
+        public OldChatTab(ChatTab tab, OldChatRenderer parentRenderer, bool selected = false)
             : base(null, null, parentRenderer)
         {
             WhichTab = tab;
@@ -123,12 +123,12 @@ namespace EndlessClient.HUD.Panels.Old
 
             switch(WhichTab)
             {
-                case ChatTabs.Local: tabLabel.Text = "scr";  break;
-                case ChatTabs.Global: tabLabel.Text = "glb"; break;
-                case ChatTabs.Group: tabLabel.Text = "grp"; break;
-                case ChatTabs.System: tabLabel.Text = "sys"; break;
-                case ChatTabs.Private1:
-                case ChatTabs.Private2:
+                case ChatTab.Local: tabLabel.Text = "scr";  break;
+                case ChatTab.Global: tabLabel.Text = "glb"; break;
+                case ChatTab.Group: tabLabel.Text = "grp"; break;
+                case ChatTab.System: tabLabel.Text = "sys"; break;
+                case ChatTab.Private1:
+                case ChatTab.Private2:
                     tabLabel.Text = "[priv " + ((int)WhichTab + 1) + "]";
                     break;
             }
@@ -139,8 +139,8 @@ namespace EndlessClient.HUD.Panels.Old
             //enable close button based on which tab was specified
             switch(WhichTab)
             {
-                case ChatTabs.Private1:
-                case ChatTabs.Private2:
+                case ChatTab.Private1:
+                case ChatTab.Private2:
                     {
                         closeRect = new Rectangle(3, 3, 11, 11);
                         drawArea = new Rectangle(drawArea.X, drawArea.Y, 132, 16);
@@ -241,7 +241,7 @@ namespace EndlessClient.HUD.Panels.Old
             tabLabel.Text = "";
             lock (ChatStringsLock)
                 chatStrings.Clear();
-            ((OldChatRenderer)parent).SetSelectedTab(ChatTabs.Local);
+            ((OldChatRenderer)parent).SetSelectedTab(ChatTab.Local);
         }
 
         public static Texture2D GetChatIcon(ChatIcon icon)
@@ -272,7 +272,7 @@ namespace EndlessClient.HUD.Panels.Old
                 }
 
                 //logic for handling the close button (not actually a button, was I high when I made this...?)
-                if ((WhichTab == ChatTabs.Private1 || WhichTab == ChatTabs.Private2) && closeRect != null)
+                if ((WhichTab == ChatTab.Private1 || WhichTab == ChatTab.Private2) && closeRect != null)
                 {
                     Rectangle withOffset = new Rectangle(DrawAreaWithOffset.X + closeRect.Value.X, DrawAreaWithOffset.Y + closeRect.Value.Y, closeRect.Value.Width, closeRect.Value.Height);
                     if (withOffset.ContainsPoint(Mouse.GetState().X, Mouse.GetState().Y))
@@ -344,28 +344,28 @@ namespace EndlessClient.HUD.Panels.Old
 
         public OldChatRenderer()
         {
-            tabs = new OldChatTab[Enum.GetNames(typeof(ChatTabs)).Length - 1]; // -1 skips the 'none' tab which is used for news
+            tabs = new OldChatTab[Enum.GetNames(typeof(ChatTab)).Length - 1]; // -1 skips the 'none' tab which is used for news
             for(int i = 0; i < tabs.Length; ++i)
             {
-                tabs[i] = new OldChatTab((ChatTabs)i, this, (ChatTabs)i == ChatTabs.Local)
+                tabs[i] = new OldChatTab((ChatTab)i, this, (ChatTab)i == ChatTab.Local)
                 {
-                    DrawLocation = i > (int) ChatTabs.Private2 ? new Vector2(289 + 44*(i - 2), 102) : new Vector2((ChatTabs) i == ChatTabs.Private1 ? 23 : 156, 102)
+                    DrawLocation = i > (int) ChatTab.Private2 ? new Vector2(289 + 44*(i - 2), 102) : new Vector2((ChatTab) i == ChatTab.Private1 ? 23 : 156, 102)
                 };
             }
 
-            currentSelTab = (int)ChatTabs.Local;
+            currentSelTab = (int)ChatTab.Local;
             tabs[currentSelTab].Selected = true;
         }
 
-        public void SetSelectedTab(ChatTabs tabToSelect)
+        public void SetSelectedTab(ChatTab tabToSelect)
         {
-            if ((ChatTabs) currentSelTab == ChatTabs.Global && tabToSelect != ChatTabs.Global)
+            if ((ChatTab) currentSelTab == ChatTab.Global && tabToSelect != ChatTab.Global)
             {
                 OldPacket pkt = new OldPacket(PacketFamily.Global, PacketAction.Close);
                 pkt.AddChar((byte) 'n');
                 OldWorld.Instance.Client.SendPacket(pkt);
             }
-            else if(tabToSelect == ChatTabs.Global && (ChatTabs)currentSelTab != ChatTabs.Global)
+            else if(tabToSelect == ChatTab.Global && (ChatTab)currentSelTab != ChatTab.Global)
             {
                 OldPacket pkt = new OldPacket(PacketFamily.Global, PacketAction.Open);
                 pkt.AddChar((byte) 'y');
@@ -376,7 +376,7 @@ namespace EndlessClient.HUD.Panels.Old
             tabs[currentSelTab = (int)tabToSelect].Selected = true;
         }
 
-        public void AddTextToTab(ChatTabs tab, string who, string text, ChatIcon icon = ChatIcon.None, ChatColor col = ChatColor.Default)
+        public void AddTextToTab(ChatTab tab, string who, string text, ChatIcon icon = ChatIcon.None, ChatColor col = ChatColor.Default)
         {
             tabs[(int)tab].AddText(who, text, icon, col);
         }
@@ -394,10 +394,10 @@ namespace EndlessClient.HUD.Panels.Old
                 Color[] data;
                 switch (t.WhichTab)
                 {
-                    case ChatTabs.Local: //391 433 need to see if this should be relative to top-left of existing chat panel or absolute from top-left of game screen
-                    case ChatTabs.Global:
-                    case ChatTabs.Group:
-                    case ChatTabs.System:
+                    case ChatTab.Local: //391 433 need to see if this should be relative to top-left of existing chat panel or absolute from top-left of game screen
+                    case ChatTab.Global:
+                    case ChatTab.Group:
+                    case ChatTab.System:
                         {
                             data = new Color[43 * 16];
                             drawTexture = new Texture2D(Game.GraphicsDevice, 43, 16);
@@ -405,8 +405,8 @@ namespace EndlessClient.HUD.Panels.Old
                             drawTexture.SetData(data);
                         }
                         break;
-                    case ChatTabs.Private1:
-                    case ChatTabs.Private2:
+                    case ChatTab.Private1:
+                    case ChatTab.Private2:
                         {
                             if (t.Visible)
                             {
@@ -435,19 +435,19 @@ namespace EndlessClient.HUD.Panels.Old
         /// </summary>
         /// <param name="character">Character for the conversation</param>
         /// <returns>ChatTab to which text should be added</returns>
-        public ChatTabs StartConversation(string character)
+        public ChatTab StartConversation(string character)
         {
             int i;
-            if (tabs[i = (int) ChatTabs.Private1].PrivateChatUnused || tabs[i].ChatCharacter == character)
+            if (tabs[i = (int) ChatTab.Private1].PrivateChatUnused || tabs[i].ChatCharacter == character)
             {
                 tabs[i].ChatCharacter = character;
-                return ChatTabs.Private1;
+                return ChatTab.Private1;
             }
 
-            if (tabs[i = (int) ChatTabs.Private2].PrivateChatUnused || tabs[i].ChatCharacter == character)
+            if (tabs[i = (int) ChatTab.Private2].PrivateChatUnused || tabs[i].ChatCharacter == character)
             {
                 tabs[i].ChatCharacter = character;
-                return ChatTabs.Private2;
+                return ChatTab.Private2;
             }
 
             //note: this used to return ChatTabs.None before it was removed
@@ -461,9 +461,9 @@ namespace EndlessClient.HUD.Panels.Old
         public void ClosePrivateChat(string character)
         {
             int i;
-            if (tabs[i = (int) ChatTabs.Private1].ChatCharacter == character)
+            if (tabs[i = (int) ChatTab.Private1].ChatCharacter == character)
                 tabs[i].ClosePrivateChat();
-            else if (tabs[i = (int) ChatTabs.Private2].ChatCharacter == character)
+            else if (tabs[i = (int) ChatTab.Private2].ChatCharacter == character)
                 tabs[i].ClosePrivateChat();
         }
 

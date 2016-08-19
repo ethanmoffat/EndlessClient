@@ -77,7 +77,7 @@ namespace EndlessClient.HUD.Panels.Old
                 if(m_members == null || m_members.Count == 0)
                 {
                     ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_PARTY_YOU_JOINED);
-                    ((EOGame)Game).Hud.AddChat(ChatTabs.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_YOU_JOINED), ChatIcon.PlayerParty, ChatColor.PM);
+                    ((EOGame)Game).Hud.AddChat(ChatTab.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_YOU_JOINED), ChatIcon.PlayerParty, ChatColor.PM);
                 }
 
                 Visible = true;
@@ -135,7 +135,7 @@ namespace EndlessClient.HUD.Panels.Old
             _addRemoveButtonForMember(member);
 
             ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, member.Name, EOResourceID.STATUS_LABEL_PARTY_JOINED_YOUR);
-            ((EOGame)Game).Hud.AddChat(ChatTabs.System, "", member.Name + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_JOINED_YOUR), ChatIcon.PlayerParty, ChatColor.PM);
+            ((EOGame)Game).Hud.AddChat(ChatTab.System, "", member.Name + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_JOINED_YOUR), ChatIcon.PlayerParty, ChatColor.PM);
         }
 
         public void RemoveMember(short memberID)
@@ -160,7 +160,7 @@ namespace EndlessClient.HUD.Panels.Old
                 m_scrollBar.ScrollToTop();
 
             ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, name, EOResourceID.STATUS_LABEL_PARTY_LEFT_YOUR);
-            ((EOGame)Game).Hud.AddChat(ChatTabs.System, "", name + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_LEFT_YOUR), ChatIcon.PlayerPartyDark, ChatColor.PM);
+            ((EOGame)Game).Hud.AddChat(ChatTab.System, "", name + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_PARTY_LEFT_YOUR), ChatIcon.PlayerPartyDark, ChatColor.PM);
         }
 
         public void CloseParty()
