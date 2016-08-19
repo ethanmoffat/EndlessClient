@@ -49,8 +49,7 @@ namespace EOLib.Net.Handlers
             if (!handler.CanHandle)
                 return false;
 
-            handler.HandlePacket(packet);
-            return true;
+            return handler.HandlePacket(packet);
         }
 
         private IPacketQueue OutOfBandPacketQueue { get { return _packetQueueProvider.HandleOutOfBandPacketQueue; } }

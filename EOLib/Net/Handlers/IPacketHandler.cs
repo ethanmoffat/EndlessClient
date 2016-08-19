@@ -13,6 +13,9 @@ namespace EOLib.Net.Handlers
 
         bool CanHandle { get; }
 
-        Task<bool> HandlePacket(IPacket packet);
+        bool HandlePacket(IPacket packet);
+
+        //todo: method to determine whether a packet should be handled asynchronously or not
+        Task<bool> HandlePacketAsync(IPacket packet);
     }
 }

@@ -29,7 +29,7 @@ namespace EOLib.Net.Handlers
             _packetSendService = packetSendService;
         }
 
-        public async Task<bool> HandlePacket(IPacket packet)
+        public bool HandlePacket(IPacket packet)
         {
             var seq1 = packet.ReadShort();
             var seq2 = packet.ReadChar();
@@ -39,7 +39,8 @@ namespace EOLib.Net.Handlers
             var response = new PacketBuilder(PacketFamily.Connection, PacketAction.Ping).Build();
             try
             {
-                await _packetSendService.SendPacketAsync(response);
+                _packetSendService.SendPacketAsync(response)
+                                  .Wait();
             }
             catch (NoDataSentException)
             {
@@ -47,6 +48,11 @@ namespace EOLib.Net.Handlers
             }
 
             return true;
+        }
+
+        public async Task<bool> HandlePacketAsync(IPacket packet)
+        {
+            return await Task.Run(() => HandlePacket(packet));
         }
     }
 }
