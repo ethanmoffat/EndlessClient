@@ -210,7 +210,7 @@
     <Compile Include="Net\Handlers\IOutOfBandPacketHandler.cs" />
     <Compile Include="Net\Handlers\IPacketHandler.cs" />
     <Compile Include="Net\Handlers\IPacketHandlerFinderService.cs" />
-    <Compile Include="Net\Handlers\IPacketHandlerRepository.cs" />
+    <Compile Include="Net\Handlers\IPacketHandlerProvider.cs" />
     <Compile Include="Net\Handlers\IPacketHandlingActions.cs" />
     <Compile Include="Net\Handlers\IPacketHandlingTypeFinder.cs" />
     <Compile Include="Net\Handlers\OutOfBandPacketHandler.cs" />

@@ -38,8 +38,7 @@ namespace EOLib.Net
                 .RegisterInstance<ISequenceRepository, SequenceRepository>()
                 .RegisterInstance<IConnectionStateRepository, ConnectionStateRepository>()
                 .RegisterInstance<IConnectionStateProvider, ConnectionStateRepository>()
-                .RegisterInstance<IPacketHandlerRepository, PacketHandlerRepository>()
-                .RegisterInstance<IPacketHandlerProvider, PacketHandlerRepository>()
+                .RegisterInstance<IPacketHandlerProvider, PacketHandlerProvider>()
                 .RegisterInstance<ILoginFileChecksumRepository, LoginFileChecksumRepository>()
                 .RegisterInstance<ILoginFileChecksumProvider, LoginFileChecksumRepository>();
 
