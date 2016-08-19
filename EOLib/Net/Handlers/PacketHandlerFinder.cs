@@ -7,11 +7,11 @@ using System.Linq;
 
 namespace EOLib.Net.Handlers
 {
-    public class PacketHandlerFinderService : IPacketHandlerFinderService
+    public class PacketHandlerFinder : IPacketHandlerFinder
     {
         private readonly Dictionary<FamilyActionPair, IPacketHandler> _handlers;
  
-        public PacketHandlerFinderService(IPacketHandlerProvider packetHandlerProvider)
+        public PacketHandlerFinder(IPacketHandlerProvider packetHandlerProvider)
         {
             _handlers = packetHandlerProvider.PacketHandlers.ToDictionary(x => new FamilyActionPair(x.Family, x.Action));
         }

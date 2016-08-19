@@ -9,10 +9,10 @@ namespace EOLib.Net.Handlers
     public class OutOfBandPacketHandler : IOutOfBandPacketHandler
     {
         private readonly IPacketQueueProvider _packetQueueProvider;
-        private readonly IPacketHandlerFinderService _packetHandlerFinder;
+        private readonly IPacketHandlerFinder _packetHandlerFinder;
 
         public OutOfBandPacketHandler(IPacketQueueProvider packetQueueProvider,
-                                      IPacketHandlerFinderService packetHandlerFinder)
+                                      IPacketHandlerFinder packetHandlerFinder)
         {
             _packetQueueProvider = packetQueueProvider;
             _packetHandlerFinder = packetHandlerFinder;

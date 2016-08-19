@@ -4,7 +4,7 @@
 
 namespace EOLib.Net.Handlers
 {
-    public interface IPacketHandlerFinderService
+    public interface IPacketHandlerFinder
     {
         bool HandlerExists(PacketFamily family, PacketAction action);
 

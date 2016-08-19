@@ -55,7 +55,7 @@ namespace EOLib.Net
 
             //packet handling
             container.RegisterInstance<IOutOfBandPacketHandler, OutOfBandPacketHandler>()
-                .RegisterType<IPacketHandlerFinderService, PacketHandlerFinderService>();
+                .RegisterType<IPacketHandlerFinder, PacketHandlerFinder>();
 
             container.RegisterVaried<IPacketHandler, ConnectionPlayerHandler>();
         }
