@@ -29,6 +29,8 @@ namespace EOLib.Domain.Character
 
         int MapID { get; }
 
+        bool NoWall { get; }
+
         ICharacter WithID(int id);
 
         ICharacter WithName(string name);
@@ -50,5 +52,7 @@ namespace EOLib.Domain.Character
         ICharacter WithAdminLevel(AdminLevel level);
 
         ICharacter WithMapID(int mapID);
+
+        ICharacter WithNoWall(bool noWall);
     }
 }

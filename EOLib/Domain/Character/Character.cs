@@ -28,6 +28,8 @@ namespace EOLib.Domain.Character
 
         public int MapID { get; private set; }
 
+        public bool NoWall { get; private set; }
+
         public ICharacter WithID(int id)
         {
             var character = MakeCopy(this);
@@ -105,6 +107,13 @@ namespace EOLib.Domain.Character
             return character;
         }
 
+        public ICharacter WithNoWall(bool noWall)
+        {
+            var character = MakeCopy(this);
+            character.NoWall = noWall;
+            return character;
+        }
+
         private static Character MakeCopy(ICharacter source)
         {
             return new Character
@@ -119,7 +128,8 @@ namespace EOLib.Domain.Character
                 AdminLevel = source.AdminLevel,
                 RenderProperties = source.RenderProperties,
                 Stats = source.Stats,
-                MapID = source.MapID
+                MapID = source.MapID,
+                NoWall = source.NoWall
             };
         }
     }
