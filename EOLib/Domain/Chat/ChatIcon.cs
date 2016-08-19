@@ -2,7 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EndlessClient.HUD.Chat
+namespace EOLib.Domain.Chat
 {
     /// <summary>
     /// Represents the different icons displayed next to lines of chat text.

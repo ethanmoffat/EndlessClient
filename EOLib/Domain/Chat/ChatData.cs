@@ -2,10 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EndlessClient.HUD.Chat;
-using Microsoft.Xna.Framework;
-
-namespace EndlessClient.Rendering.Chat
+namespace EOLib.Domain.Chat
 {
     public class ChatData
     {
@@ -16,8 +13,6 @@ namespace EndlessClient.Rendering.Chat
         public string Message { get; private set; }
 
         public ChatColor ChatColor { get; private set; }
-
-        public Color Color { get { return ChatColor.ToColor(); } }
 
         public ChatData(string who,
             string message,

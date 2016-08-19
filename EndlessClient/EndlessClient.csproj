@@ -49,11 +49,8 @@
     <Compile Include="Audio\WAVFileValidator.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\IChatController.cs" />
-    <Compile Include="HUD\Chat\ChatColor.cs" />
     <Compile Include="HUD\Chat\ChatModeCalculator.cs" />
-    <Compile Include="HUD\Chat\ChatTabs.cs" />
     <Compile Include="HUD\Chat\ChatTextBoxActions.cs" />
-    <Compile Include="HUD\Chat\ChatIcon.cs" />
     <Compile Include="HUD\Chat\IChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
     <Compile Include="OldCharacter.cs" />
@@ -137,7 +134,6 @@
     <Compile Include="Rendering\Character\ICharacterStateCache.cs" />
     <Compile Include="Rendering\Character\ICharacterTextures.cs" />
     <Compile Include="Rendering\Chat\ChatColorExtensions.cs" />
-    <Compile Include="Rendering\Chat\ChatData.cs" />
     <Compile Include="Rendering\Chat\ChatRenderable.cs" />
     <Compile Include="Rendering\Chat\ChatRenderableGenerator.cs" />
     <Compile Include="Rendering\Factories\CharacterRendererFactory.cs" />

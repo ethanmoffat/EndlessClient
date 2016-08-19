@@ -2,7 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EndlessClient.HUD.Chat;
+using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -71,7 +71,7 @@ namespace EndlessClient.Rendering.Chat
             spriteBatch.DrawString(chatFont,
                                    strToDraw,
                                    new Vector2(pos.X + CHAT_MESSAGE_X_OFF, pos.Y + HeaderYOffset),
-                                   _data.Color);
+                                   _data.ChatColor.ToColor());
 
             spriteBatch.End();
         }
@@ -97,7 +97,6 @@ namespace EndlessClient.Rendering.Chat
     {
         protected override int HeaderYOffset { get { return 23; } }
 
-        //todo: don't take whole ChatData, just the variable properties that are needed
         public NewsChatRenderable(int displayIndex, ChatData data, string partialMessage)
             : base(displayIndex, data, partialMessage)
         {

@@ -4,6 +4,7 @@
 
 using System;
 using EndlessClient.HUD.Chat;
+using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 

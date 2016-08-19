@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using EndlessClient.Dialogs;
-using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Panels.Old;
 using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
@@ -62,10 +61,10 @@ namespace EndlessClient.HUD.Controls
             //chatRenderer.SetParent(pnlChat);
             chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(EOResourceID.STRING_SERVER),
                 OldWorld.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_1),
-                Chat.ChatIcon.Note, ChatColor.Server);
+                ChatIcon.Note, ChatColor.Server);
             chatRenderer.AddTextToTab(ChatTabs.Global, OldWorld.GetString(EOResourceID.STRING_SERVER),
                 OldWorld.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_2),
-                Chat.ChatIcon.Note, ChatColor.Server);
+                ChatIcon.Note, ChatColor.Server);
 
             CreateChatTextbox();
 
@@ -207,7 +206,7 @@ namespace EndlessClient.HUD.Controls
                             EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                             break;
                         }
-                        AddChat(ChatTabs.Group, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, Chat.ChatIcon.HGM, ChatColor.Admin);
+                        AddChat(ChatTabs.Group, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatIcon.HGM, ChatColor.Admin);
                     }
                     break;
                 case '@': //system talk (admin)
@@ -223,9 +222,9 @@ namespace EndlessClient.HUD.Controls
                         }
                         OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, false);
                         string name = OldWorld.Instance.MainPlayer.ActiveCharacter.Name;
-                        AddChat(ChatTabs.Local, name, filtered, Chat.ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
-                        AddChat(ChatTabs.Global, name, filtered, Chat.ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
-                        AddChat(ChatTabs.Group, name, filtered, Chat.ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
+                        AddChat(ChatTabs.Local, name, filtered, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
+                        AddChat(ChatTabs.Global, name, filtered, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
+                        AddChat(ChatTabs.Group, name, filtered, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
                     }
                     break;
                 case '\'': //group talk
@@ -240,8 +239,8 @@ namespace EndlessClient.HUD.Controls
                             break;
                         }
                         OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, true);
-                        AddChat(ChatTabs.Local, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, Chat.ChatIcon.PlayerPartyDark, ChatColor.PM);
-                        AddChat(ChatTabs.Group, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, Chat.ChatIcon.PlayerPartyDark);
+                        AddChat(ChatTabs.Local, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatIcon.PlayerPartyDark, ChatColor.PM);
+                        AddChat(ChatTabs.Group, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatIcon.PlayerPartyDark);
                     }
                     break;
                 case '&':  //guild talk
@@ -304,7 +303,7 @@ namespace EndlessClient.HUD.Controls
                         //this player will have their messages rendered in Color.PM on the PM tab
                         if (whichPrivateChat != ChatTabs.None)
                         {
-                            AddChat(whichPrivateChat, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, Chat.ChatIcon.Note, ChatColor.PM);
+                            AddChat(whichPrivateChat, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatIcon.Note, ChatColor.PM);
                         }
                     }
                 }
@@ -330,7 +329,7 @@ namespace EndlessClient.HUD.Controls
                             OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.MapID,
                             OldWorld.Instance.MainPlayer.ActiveCharacter.X,
                             OldWorld.Instance.MainPlayer.ActiveCharacter.Y),
-                            Chat.ChatIcon.LookingDude);
+                            ChatIcon.LookingDude);
                     }
                     else if (args.Length == 1 && cmd == "usage")
                     {
@@ -369,7 +368,7 @@ namespace EndlessClient.HUD.Controls
 
         #region Public Interface for classes outside HUD
 
-        public void AddChat(ChatTabs whichTab, string who, string message, Chat.ChatIcon chatIcon = Chat.ChatIcon.None, ChatColor chatColor = ChatColor.Default)
+        public void AddChat(ChatTabs whichTab, string who, string message, ChatIcon chatIcon = ChatIcon.None, ChatColor chatColor = ChatColor.Default)
         {
             chatRenderer.AddTextToTab(whichTab, who, message, chatIcon, chatColor);
         }
@@ -380,7 +379,7 @@ namespace EndlessClient.HUD.Controls
             //add message to Sys and close the chat that was opened for 'character'
             //this is how original client does it - you can see the PM tab open/close really quickly
             chatRenderer.ClosePrivateChat(character);
-            AddChat(ChatTabs.System, "", string.Format("{0} " + endPart, character), Chat.ChatIcon.Error, ChatColor.Error);
+            AddChat(ChatTabs.System, "", string.Format("{0} " + endPart, character), ChatIcon.Error, ChatColor.Error);
         }
 
         public void SetMuted()
