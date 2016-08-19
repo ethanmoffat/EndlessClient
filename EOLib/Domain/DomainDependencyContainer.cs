@@ -12,7 +12,7 @@ using Microsoft.Practices.Unity;
 
 namespace EOLib.Domain
 {
-    public class DataDependencyContainer : IDependencyContainer
+    public class DomainDependencyContainer : IDependencyContainer
     {
         public void RegisterDependencies(IUnityContainer container)
         {

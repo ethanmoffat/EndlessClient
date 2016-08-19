@@ -20,7 +20,7 @@ namespace EndlessClient
         {
             //EOLib containers
             new ConfigDependencyContainer(),
-            new DataDependencyContainer(),
+            new DomainDependencyContainer(),
             new EOLibDependencyContainer(),
             new GraphicsDependencyContainer(),
             new IODependencyContainer(),

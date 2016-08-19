@@ -113,7 +113,7 @@
     <Compile Include="Domain\Character\ICharacterManagementActions.cs" />
     <Compile Include="Domain\Character\ICharacterRepository.cs" />
     <Compile Include="Domain\Character\SitState.cs" />
-    <Compile Include="Domain\DataDependencyContainer.cs" />
+    <Compile Include="Domain\DomainDependencyContainer.cs" />
     <Compile Include="Domain\Account\ICreateAccountParameters.cs" />
     <Compile Include="Domain\Login\AccountLoginData.cs" />
     <Compile Include="Domain\Character\CharacterCreateParameters.cs" />
