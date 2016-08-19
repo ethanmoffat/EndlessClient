@@ -3,9 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib.DependencyInjection;
-using EOLib.IO.Actions;
-using EOLib.IO.Repositories;
-using EOLib.IO.Services;
+using EOLib.Net.Builders;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.FileTransfer;
@@ -19,43 +17,46 @@ namespace EOLib.Net
     {
         public void RegisterDependencies(IUnityContainer container)
         {
-            container.RegisterType<IPacketEncoderService, PacketEncoderService>();
-            container.RegisterType<IPacketSequenceService, PacketSequenceService>();
-            container.RegisterType<IHashService, HashService>();
-            container.RegisterType<IPacketSendService, PacketSendService>();
-            container.RegisterType<IPacketHandlingTypeFinder, PacketHandlingTypeFinder>();
-            container.RegisterType<IFileRequestService, FileRequestService>();
+            container.RegisterType<IPacketEncoderService, PacketEncoderService>()
+                .RegisterType<IPacketSequenceService, PacketSequenceService>()
+                .RegisterType<IHashService, HashService>()
+                .RegisterType<IPacketSendService, PacketSendService>()
+                .RegisterType<IPacketHandlingTypeFinder, PacketHandlingTypeFinder>()
+                .RegisterType<IFileRequestService, FileRequestService>();
 
             //the repository is a "disposer" of the NetworkClient (so NetworkClient gets cleaned up later if it is set)
             container.RegisterInstance<INetworkClientDisposer, NetworkClientRepository>();
 
-            container.RegisterType<INetworkClientFactory, NetworkClientFactory>();
-            container.RegisterType<ISafeInBandNetworkOperationFactory, SafeInBandNetworkOperationFactory>();
+            container.RegisterType<INetworkClientFactory, NetworkClientFactory>()
+                .RegisterType<ISafeInBandNetworkOperationFactory, SafeInBandNetworkOperationFactory>();
 
-            container.RegisterInstance<INetworkClientRepository, NetworkClientRepository>();
-            container.RegisterInstance<INetworkClientProvider, NetworkClientRepository>();
-            container.RegisterInstance<IPacketQueueRepository, PacketQueueRepository>();
-            container.RegisterInstance<IPacketQueueProvider, PacketQueueRepository>();
-            container.RegisterInstance<IPacketEncoderRepository, PacketEncoderRepository>();
-            container.RegisterInstance<ISequenceRepository, SequenceRepository>();
-            container.RegisterInstance<IConnectionStateRepository, ConnectionStateRepository>();
-            container.RegisterInstance<IConnectionStateProvider, ConnectionStateRepository>();
-            container.RegisterInstance<IPacketHandlerRepository, PacketHandlerRepository>();
-            container.RegisterInstance<IPacketHandlerProvider, PacketHandlerRepository>();
-            container.RegisterInstance<ILoginFileChecksumRepository, LoginFileChecksumRepository>();
-            container.RegisterInstance<ILoginFileChecksumProvider, LoginFileChecksumRepository>();
+            container.RegisterInstance<INetworkClientRepository, NetworkClientRepository>()
+                .RegisterInstance<INetworkClientProvider, NetworkClientRepository>()
+                .RegisterInstance<IPacketQueueRepository, PacketQueueRepository>()
+                .RegisterInstance<IPacketQueueProvider, PacketQueueRepository>()
+                .RegisterInstance<IPacketEncoderRepository, PacketEncoderRepository>()
+                .RegisterInstance<ISequenceRepository, SequenceRepository>()
+                .RegisterInstance<IConnectionStateRepository, ConnectionStateRepository>()
+                .RegisterInstance<IConnectionStateProvider, ConnectionStateRepository>()
+                .RegisterInstance<IPacketHandlerRepository, PacketHandlerRepository>()
+                .RegisterInstance<IPacketHandlerProvider, PacketHandlerRepository>()
+                .RegisterInstance<ILoginFileChecksumRepository, LoginFileChecksumRepository>()
+                .RegisterInstance<ILoginFileChecksumProvider, LoginFileChecksumRepository>();
 
-            container.RegisterType<IPacketProcessorActions, PacketProcessActions>();
-            container.RegisterType<INetworkConnectionActions, NetworkConnectionActions>();
-            container.RegisterType<IPacketHandlingActions, PacketHandlingActions>();
-            container.RegisterType<IFileRequestActions, FileRequestActions>();
+            container.RegisterType<IPacketProcessorActions, PacketProcessActions>()
+                .RegisterType<INetworkConnectionActions, NetworkConnectionActions>()
+                .RegisterType<IPacketHandlingActions, PacketHandlingActions>()
+                .RegisterType<IFileRequestActions, FileRequestActions>();
             
             //must be a singleton: tracks a thread and has internal state.
+            //todo: see if this can be re-worked so the actions are stateless
             container.RegisterInstance<IBackgroundReceiveActions, BackgroundReceiveActions>();
 
+            container.RegisterType<IChatPacketBuilder, ChatPacketBuilder>();
+
             //packet handling
-            container.RegisterInstance<IOutOfBandPacketHandler, OutOfBandPacketHandler>();
-            container.RegisterType<IPacketHandlerFinderService, PacketHandlerFinderService>();
+            container.RegisterInstance<IOutOfBandPacketHandler, OutOfBandPacketHandler>()
+                .RegisterType<IPacketHandlerFinderService, PacketHandlerFinderService>();
 
             container.RegisterVaried<IPacketHandler, ConnectionPlayerHandler>();
         }
@@ -63,6 +64,7 @@ namespace EOLib.Net
         public void InitializeDependencies(IUnityContainer container)
         {
             //create the client object (can be recreated later)
+            //todo: make this constructor injected in INetworkClientRepository?
             var clientRepo = container.Resolve<INetworkClientRepository>();
             var clientFactory = container.Resolve<INetworkClientFactory>();
             clientRepo.NetworkClient = clientFactory.CreateNetworkClient();

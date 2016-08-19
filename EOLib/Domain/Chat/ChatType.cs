@@ -14,6 +14,7 @@ namespace EOLib.Domain.Chat
         Party, //party chat: '
         Announce, //global chat: @
         NPC, //npc is saying something
-        Server //server is saying something
+        Server, //server is saying something
+        Command, //local command: #
     }
 }

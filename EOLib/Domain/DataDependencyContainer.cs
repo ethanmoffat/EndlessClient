@@ -36,9 +36,18 @@ namespace EOLib.Domain
                 .RegisterInstance<IPaperdollRepository, PaperdollRepository>()
                 .RegisterInstance<IPaperdollProvider, PaperdollRepository>()
                 .RegisterInstance<INewsRepository, NewsRepository>()
-                .RegisterInstance<INewsProvider, NewsRepository>()
-                .RegisterInstance<IChatRepository, ChatRepository>()
-                .RegisterInstance<IChatProvider, ChatRepository>();
+                .RegisterInstance<INewsProvider, NewsRepository>();
+
+            RegisterTypesForChat(container);
+        }
+
+        private static void RegisterTypesForChat(IUnityContainer container)
+        {
+            container.RegisterInstance<IChatRepository, ChatRepository>()
+                .RegisterInstance<IChatProvider, ChatRepository>()
+                .RegisterType<IChatActions, ChatActions>()
+                .RegisterType<ILocalCommandHandler, LocalCommandHandler>()
+                .RegisterType<IChatTypeCalculator, ChatTypeCalculator>();
         }
     }
 }

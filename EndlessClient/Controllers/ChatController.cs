@@ -3,21 +3,25 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.HUD.Chat;
+using EOLib.Domain.Chat;
 
 namespace EndlessClient.Controllers
 {
     public class ChatController : IChatController
     {
         private readonly IChatTextBoxActions _chatTextBoxActions;
+        private readonly IChatActions _chatActions;
 
-        public ChatController(IChatTextBoxActions chatTextBoxActions)
+        public ChatController(IChatTextBoxActions chatTextBoxActions,
+                              IChatActions chatActions)
         {
             _chatTextBoxActions = chatTextBoxActions;
+            _chatActions = chatActions;
         }
 
         public void SendChatAndClearTextBox()
         {
-            //todo: send chat string to server (see HUD._doTalk)
+            _chatActions.SendChatToServer();
             _chatTextBoxActions.ClearChatText();
             _chatTextBoxActions.UpdateChatTextRepository();
         }

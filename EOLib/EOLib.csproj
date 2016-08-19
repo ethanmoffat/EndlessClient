@@ -73,8 +73,14 @@
     <Compile Include="Domain\Character\InventoryItem.cs" />
     <Compile Include="Domain\Character\InventorySpell.cs" />
     <Compile Include="Domain\Character\IPaperdollRepository.cs" />
+    <Compile Include="Domain\Chat\ChatActions.cs" />
+    <Compile Include="Domain\Chat\ChatTypeCalculator.cs" />
+    <Compile Include="Domain\Chat\IChatActions.cs" />
     <Compile Include="Domain\Chat\IChatRepository.cs" />
     <Compile Include="Domain\Chat\ChatType.cs" />
+    <Compile Include="Domain\Chat\IChatTypeCalculator.cs" />
+    <Compile Include="Domain\Chat\ILocalCommandHandler.cs" />
+    <Compile Include="Domain\Chat\LocalCommandHandler.cs" />
     <Compile Include="Domain\Extensions\CharacterRenderPropertiesExtensions.cs" />
     <Compile Include="Domain\Extensions\PaperdollRepositoryExtensions.cs" />
     <Compile Include="Domain\Login\INewsRepository.cs" />
@@ -132,6 +138,8 @@
     <Compile Include="Domain\Account\CreateAccountParameterValidator.cs" />
     <Compile Include="Domain\Account\ICreateAccountParameterValidator.cs" />
     <Compile Include="EODirection.cs" />
+    <Compile Include="Net\Builders\ChatPacketBuilder.cs" />
+    <Compile Include="Net\Builders\IChatPacketBuilder.cs" />
     <Compile Include="Net\FileTransfer\FileRequestActions.cs" />
     <Compile Include="Net\FileTransfer\IFileRequestActions.cs" />
     <Compile Include="Net\FileTransfer\ILoginFileChecksumRepository.cs" />
