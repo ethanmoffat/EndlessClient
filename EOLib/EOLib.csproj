@@ -79,9 +79,11 @@
     <Compile Include="Domain\Chat\ChatIcon.cs" />
     <Compile Include="Domain\Chat\ChatTab.cs" />
     <Compile Include="Domain\Chat\ChatTypeCalculator.cs" />
+    <Compile Include="Domain\Chat\Commands\FindCommand.cs" />
     <Compile Include="Domain\Chat\Commands\IPlayerCommand.cs" />
     <Compile Include="Domain\Chat\Commands\LocCommand.cs" />
     <Compile Include="Domain\Chat\Commands\NoWallCommand.cs" />
+    <Compile Include="Domain\Chat\Commands\PingCommand.cs" />
     <Compile Include="Domain\Chat\Commands\UsageCommand.cs" />
     <Compile Include="Domain\Chat\IChatActions.cs" />
     <Compile Include="Domain\Chat\IChatRepository.cs" />
@@ -145,6 +147,7 @@
     <Compile Include="Domain\Protocol\InitReply.cs" />
     <Compile Include="Domain\Account\CreateAccountParameterValidator.cs" />
     <Compile Include="Domain\Account\ICreateAccountParameterValidator.cs" />
+    <Compile Include="Domain\Protocol\IPingTimeRepository.cs" />
     <Compile Include="EODirection.cs" />
     <Compile Include="Net\Builders\ChatPacketBuilder.cs" />
     <Compile Include="Net\Builders\IChatPacketBuilder.cs" />

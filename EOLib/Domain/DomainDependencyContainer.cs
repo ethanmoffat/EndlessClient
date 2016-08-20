@@ -9,6 +9,7 @@ using EOLib.Domain.Chat;
 using EOLib.Domain.Chat.Commands;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.Domain.Protocol;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.Domain
@@ -37,7 +38,9 @@ namespace EOLib.Domain
                 .RegisterInstance<IPaperdollRepository, PaperdollRepository>()
                 .RegisterInstance<IPaperdollProvider, PaperdollRepository>()
                 .RegisterInstance<INewsRepository, NewsRepository>()
-                .RegisterInstance<INewsProvider, NewsRepository>();
+                .RegisterInstance<INewsProvider, NewsRepository>()
+                .RegisterInstance<IPingTimeRepository, PingTimeRepository>()
+                .RegisterInstance<IPingTimeProvider, PingTimeRepository>();
 
             RegisterTypesForChat(container);
         }
@@ -50,7 +53,11 @@ namespace EOLib.Domain
                 .RegisterType<ILocalCommandHandler, LocalCommandHandler>()
                 .RegisterType<IChatTypeCalculator, ChatTypeCalculator>();
 
-            container.RegisterVaried<IPlayerCommand, NoWallCommand>();
+            container.RegisterVaried<IPlayerCommand, NoWallCommand>()
+                .RegisterVaried<IPlayerCommand, LocCommand>()
+                .RegisterVaried<IPlayerCommand, UsageCommand>()
+                .RegisterVaried<IPlayerCommand, FindCommand>()
+                .RegisterVaried<IPlayerCommand, PingCommand>();
         }
     }
 }
