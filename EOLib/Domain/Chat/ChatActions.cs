@@ -61,12 +61,12 @@ namespace EOLib.Domain.Chat
         /// </summary>
         private bool HandleCommand(string commandString)
         {
-            var command = commandString.Substring(1)
+            var command = new string(commandString.Substring(1)
                 .TakeWhile(x => x != ' ')
-                .ToString()
+                .ToArray())
                 .Trim();
-            var parameters = commandString.SkipWhile(x => x != ' ')
-                .ToString()
+            var parameters = new string(commandString.SkipWhile(x => x != ' ')
+                .ToArray())
                 .Trim();
             return _localCommandHandler.HandleCommand(command, parameters);
         }

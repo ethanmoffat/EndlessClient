@@ -2,10 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EOLib.Domain.Chat
+namespace EOLib.Domain.Chat.Commands
 {
-    public interface ILocalCommandHandler
+    public interface IPlayerCommand
     {
-        bool HandleCommand(string inputCommand, string arguments);
+        string CommandText { get; }
+
+        bool Execute(string parameter);
     }
 }

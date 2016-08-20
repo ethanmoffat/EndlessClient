@@ -6,6 +6,7 @@ using EOLib.DependencyInjection;
 using EOLib.Domain.Account;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
+using EOLib.Domain.Chat.Commands;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using Microsoft.Practices.Unity;
@@ -48,6 +49,8 @@ namespace EOLib.Domain
                 .RegisterType<IChatActions, ChatActions>()
                 .RegisterType<ILocalCommandHandler, LocalCommandHandler>()
                 .RegisterType<IChatTypeCalculator, ChatTypeCalculator>();
+
+            container.RegisterVaried<IPlayerCommand, NoWallCommand>();
         }
     }
 }
