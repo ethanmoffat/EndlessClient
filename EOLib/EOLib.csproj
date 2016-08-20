@@ -82,6 +82,7 @@
     <Compile Include="Domain\Chat\Commands\IPlayerCommand.cs" />
     <Compile Include="Domain\Chat\Commands\LocCommand.cs" />
     <Compile Include="Domain\Chat\Commands\NoWallCommand.cs" />
+    <Compile Include="Domain\Chat\Commands\UsageCommand.cs" />
     <Compile Include="Domain\Chat\IChatActions.cs" />
     <Compile Include="Domain\Chat\IChatRepository.cs" />
     <Compile Include="Domain\Chat\ChatType.cs" />
