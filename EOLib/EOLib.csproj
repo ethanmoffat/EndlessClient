@@ -145,6 +145,8 @@
     <Compile Include="Net\Builders\ChatPacketBuilder.cs" />
     <Compile Include="Net\Builders\IChatPacketBuilder.cs" />
     <Compile Include="Net\Communication\ISafeNetworkOperation.cs" />
+    <Compile Include="Net\Communication\SafeAsyncNetworkOperation.cs" />
+    <Compile Include="Net\Communication\SafeNetworkOperationBase.cs" />
     <Compile Include="Net\FileTransfer\FileRequestActions.cs" />
     <Compile Include="Net\FileTransfer\IFileRequestActions.cs" />
     <Compile Include="Net\FileTransfer\ILoginFileChecksumRepository.cs" />

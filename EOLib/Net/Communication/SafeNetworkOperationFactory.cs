@@ -45,5 +45,14 @@ namespace EOLib.Net.Communication
                 sendErrorAction,
                 receiveErrorAction);
         }
+
+        public ISafeNetworkOperation CreateSafeAsyncOperation(Func<Task> networkOperation, Action<NoDataSentException> sendErrorAction = null)
+        {
+            return new SafeAsyncNetworkOperation(
+                _backgroundReceiveActions,
+                _networkConnectionActions,
+                networkOperation,
+                sendErrorAction);
+        }
     }
 }

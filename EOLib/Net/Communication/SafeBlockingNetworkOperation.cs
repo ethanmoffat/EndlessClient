@@ -12,54 +12,30 @@ namespace EOLib.Net.Communication
     /// Wraps an in-band network operation (send/receive), handling send and receive exceptions and executing code when a failure occurs.
     /// <para>By default, disconnects from server and stops receiving on error</para>
     /// </summary>
-    public class SafeBlockingNetworkOperation : ISafeNetworkOperation
+    public class SafeBlockingNetworkOperation : SafeNetworkOperationBase
     {
-        private readonly IBackgroundReceiveActions _backgroundReceiveActions;
-        private readonly INetworkConnectionActions _networkConnectionActions;
         private readonly Func<Task> _operation;
-        private readonly Action<NoDataSentException> _sendErrorAction;
-        private readonly Action<EmptyPacketReceivedException> _receiveErrorAction;
 
         public SafeBlockingNetworkOperation(IBackgroundReceiveActions backgroundReceiveActions,
                                             INetworkConnectionActions networkConnectionActions,
                                             Func<Task> operation,
                                             Action<NoDataSentException> sendErrorAction = null,
                                             Action<EmptyPacketReceivedException> receiveErrorAction = null)
+            : base(backgroundReceiveActions,
+                   networkConnectionActions,
+                   sendErrorAction,
+                   receiveErrorAction)
         {
-            _backgroundReceiveActions = backgroundReceiveActions;
-            _networkConnectionActions = networkConnectionActions;
             _operation = operation;
-            _sendErrorAction = sendErrorAction ?? (_ => { });
-            _receiveErrorAction = receiveErrorAction ?? (_ => { });
         }
 
-        public async Task<bool> Invoke()
-        {
-            try
-            {
-                await DoOperation();
-                return true;
-            }
-            catch (NoDataSentException ex) { _sendErrorAction(ex); }
-            catch (EmptyPacketReceivedException ex) { _receiveErrorAction(ex); }
-
-            DisconnectAndStopReceiving();
-            return false;
-        }
-
-        protected virtual async Task DoOperation()
+        protected override async Task DoOperation()
         {
             await _operation();
         }
-
-        private void DisconnectAndStopReceiving()
-        {
-            _backgroundReceiveActions.CancelBackgroundReceiveLoop();
-            _networkConnectionActions.DisconnectFromServer();
-        }
     }
 
-    public class SafeBlockingNetworkOperation<T> : SafeBlockingNetworkOperation, ISafeNetworkOperation<T>
+    public class SafeBlockingNetworkOperation<T> : SafeNetworkOperationBase, ISafeNetworkOperation<T>
     {
         private readonly Func<Task<T>> _operation;
 
@@ -72,7 +48,6 @@ namespace EOLib.Net.Communication
                                             Action<EmptyPacketReceivedException> receiveErrorAction = null)
             : base(backgroundReceiveActions,
                    networkConnectionActions,
-                   operation,
                    sendErrorAction,
                    receiveErrorAction)
         {

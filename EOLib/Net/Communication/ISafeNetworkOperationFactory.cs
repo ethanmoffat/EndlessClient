@@ -18,5 +18,9 @@ namespace EOLib.Net.Communication
             Func<Task<T>> networkOperation,
             Action<NoDataSentException> sendErrorAction = null,
             Action<EmptyPacketReceivedException> receiveErrorAction = null);
+
+        ISafeNetworkOperation CreateSafeAsyncOperation(
+            Func<Task> networkOperation,
+            Action<NoDataSentException> sendErrorAction = null);
     }
 }
