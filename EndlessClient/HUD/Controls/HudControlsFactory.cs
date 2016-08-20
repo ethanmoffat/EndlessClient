@@ -27,7 +27,6 @@ namespace EndlessClient.HUD.Controls
         private const int HUD_CONTROL_LAYER = 130;
 
         private readonly IHudButtonController _hudButtonController;
-        private readonly IChatController _chatController;
         private readonly IHudPanelFactory _hudPanelFactory;
         private readonly IMapRendererFactory _mapRendererFactory;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
@@ -41,8 +40,9 @@ namespace EndlessClient.HUD.Controls
         private readonly IChatProvider _chatProvider;
         private readonly IChatModeCalculator _chatModeCalculator;
 
+        private IChatController _chatController;
+
         public HudControlsFactory(IHudButtonController hudButtonController,
-                                  IChatController chatController,
                                   IHudPanelFactory hudPanelFactory,
                                   IMapRendererFactory mapRendererFactory,
                                   INativeGraphicsManager nativeGraphicsManager,
@@ -57,7 +57,6 @@ namespace EndlessClient.HUD.Controls
                                   IChatModeCalculator chatModeCalculator)
         {
             _hudButtonController = hudButtonController;
-            _chatController = chatController;
             _hudPanelFactory = hudPanelFactory;
             _mapRendererFactory = mapRendererFactory;
             _nativeGraphicsManager = nativeGraphicsManager;
@@ -70,6 +69,11 @@ namespace EndlessClient.HUD.Controls
             _contentManagerProvider = contentManagerProvider;
             _chatProvider = chatProvider;
             _chatModeCalculator = chatModeCalculator;
+        }
+
+        public void InjectChatController(IChatController chatController)
+        {
+            _chatController = chatController;
         }
 
         public IReadOnlyDictionary<HudControlIdentifier, IGameComponent> CreateHud()
@@ -235,7 +239,7 @@ namespace EndlessClient.HUD.Controls
                 Visible = true,
                 DrawOrder = HUD_CONTROL_LAYER
             };
-            chatTextBox.OnEnterPressed += (o, e) => _chatController.SendChatAndClearTextBox();
+            chatTextBox.OnEnterPressed += async (o, e) => await _chatController.SendChatAndClearTextBox();
             chatTextBox.OnClicked += (o, e) => _chatController.SelectChatTextBox();
             chatTextBox.OnTextChanged += (o, e) => _chatController.ChatTextChanged();
 

@@ -36,7 +36,7 @@ namespace EndlessClient
 
             //factories
             container.RegisterInstance<IControlSetFactory, ControlSetFactory>()
-                .RegisterType<IHudControlsFactory, HudControlsFactory>()
+                .RegisterInstance<IHudControlsFactory, HudControlsFactory>()
                 .RegisterType<ICharacterRendererFactory, CharacterRendererFactory>()
                 .RegisterInstance<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>()
                 .RegisterType<IHudPanelFactory, HudPanelFactory>()
@@ -129,6 +129,7 @@ namespace EndlessClient
             var accountController = container.Resolve<IAccountController>();
             var loginController = container.Resolve<ILoginController>();
             var characterManagementController = container.Resolve<ICharacterManagementController>();
+            var chatController = container.Resolve<IChatController>();
 
             var controlSetFactory = container.Resolve<IControlSetFactory>();
             controlSetFactory.InjectControllers(mainButtonController,
@@ -139,6 +140,9 @@ namespace EndlessClient
             var charInfoPanelFactory = container.Resolve<ICharacterInfoPanelFactory>();
             charInfoPanelFactory.InjectLoginController(loginController);
             charInfoPanelFactory.InjectCharacterManagementController(characterManagementController);
+
+            var hudControlsFactory = container.Resolve<IHudControlsFactory>();
+            hudControlsFactory.InjectChatController(chatController);
         }
     }
 }

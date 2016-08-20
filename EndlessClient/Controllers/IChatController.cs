@@ -2,11 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Threading.Tasks;
+
 namespace EndlessClient.Controllers
 {
     public interface IChatController
     {
-        void SendChatAndClearTextBox();
+        Task SendChatAndClearTextBox();
 
         void SelectChatTextBox();
 
