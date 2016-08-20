@@ -22,6 +22,9 @@ namespace EOLib.Domain.Chat.Commands
 
         public bool Execute(string parameter)
         {
+            if (_characterRepository.MainCharacter.AdminLevel == AdminLevel.Player)
+                return false;
+
             var newNoWall = !_characterRepository.MainCharacter.NoWall;
             var newCharacter = _characterRepository.MainCharacter.WithNoWall(newNoWall);
             _characterRepository.MainCharacter = newCharacter;

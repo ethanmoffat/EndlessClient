@@ -80,6 +80,7 @@
     <Compile Include="Domain\Chat\ChatTab.cs" />
     <Compile Include="Domain\Chat\ChatTypeCalculator.cs" />
     <Compile Include="Domain\Chat\Commands\IPlayerCommand.cs" />
+    <Compile Include="Domain\Chat\Commands\LocCommand.cs" />
     <Compile Include="Domain\Chat\Commands\NoWallCommand.cs" />
     <Compile Include="Domain\Chat\IChatActions.cs" />
     <Compile Include="Domain\Chat\IChatRepository.cs" />
