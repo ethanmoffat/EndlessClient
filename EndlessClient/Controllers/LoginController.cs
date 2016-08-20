@@ -29,7 +29,7 @@ namespace EndlessClient.Controllers
         private readonly IGameStateActions _gameStateActions;
         private readonly IChatTextBoxActions _chatTextBoxActions;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
-        private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
+        private readonly ISafeNetworkOperationFactory _networkOperationFactory;
         private readonly IGameLoadingDialogFactory _gameLoadingDialogFactory;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
@@ -39,7 +39,7 @@ namespace EndlessClient.Controllers
                                IGameStateActions gameStateActions,
                                IChatTextBoxActions chatTextBoxActions,
                                IErrorDialogDisplayAction errorDisplayAction,
-                               ISafeInBandNetworkOperationFactory networkOperationFactory,
+                               ISafeNetworkOperationFactory networkOperationFactory,
                                IGameLoadingDialogFactory gameLoadingDialogFactory,
                                ICurrentMapStateProvider currentMapStateProvider)
         {
@@ -59,7 +59,7 @@ namespace EndlessClient.Controllers
             if (!_loginActions.LoginParametersAreValid(loginParameters))
                 return;
 
-            var loginToServerOperation = _networkOperationFactory.CreateSafeOperation(
+            var loginToServerOperation = _networkOperationFactory.CreateSafeBlockingOperation(
                 async () => await _loginActions.LoginToServer(loginParameters),
                 SetInitialStateAndShowError, SetInitialStateAndShowError);
 
@@ -75,7 +75,7 @@ namespace EndlessClient.Controllers
 
         public async Task LoginToCharacter(ICharacter character)
         {
-            var requestCharacterLoginOperation = _networkOperationFactory.CreateSafeOperation(
+            var requestCharacterLoginOperation = _networkOperationFactory.CreateSafeBlockingOperation(
                 async () => await _loginActions.RequestCharacterLogin(character),
                 SetInitialStateAndShowError, SetInitialStateAndShowError);
             if (!await requestCharacterLoginOperation.Invoke())
@@ -142,7 +142,7 @@ namespace EndlessClient.Controllers
 
                 gameLoadingDialog.SetState(GameLoadingDialogState.LoadingGame);
 
-                var completeCharacterLoginOperation = _networkOperationFactory.CreateSafeOperation(
+                var completeCharacterLoginOperation = _networkOperationFactory.CreateSafeBlockingOperation(
                     _loginActions.CompleteCharacterLogin,
                     SetInitialStateAndShowError,
                     SetInitialStateAndShowError);
@@ -184,7 +184,7 @@ namespace EndlessClient.Controllers
 
         private async Task<bool> SafeGetFile(Func<Task> operation)
         {
-            var op = _networkOperationFactory.CreateSafeOperation(
+            var op = _networkOperationFactory.CreateSafeBlockingOperation(
                         operation,
                         SetInitialStateAndShowError,
                         SetInitialStateAndShowError);

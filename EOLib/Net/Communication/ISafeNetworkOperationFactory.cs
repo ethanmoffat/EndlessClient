@@ -7,13 +7,15 @@ using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {
-    public interface ISafeInBandNetworkOperationFactory
+    public interface ISafeNetworkOperationFactory
     {
-        SafeInBandNetworkOperation CreateSafeOperation(Func<Task> networkOperation,
+        ISafeNetworkOperation CreateSafeBlockingOperation(
+            Func<Task> networkOperation,
             Action<NoDataSentException> sendErrorAction = null,
             Action<EmptyPacketReceivedException> receiveErrorAction = null);
 
-        SafeInBandNetworkOperation<T> CreateSafeOperation<T>(Func<Task<T>> networkOperation,
+        ISafeNetworkOperation<T> CreateSafeBlockingOperation<T>(
+            Func<Task<T>> networkOperation,
             Action<NoDataSentException> sendErrorAction = null,
             Action<EmptyPacketReceivedException> receiveErrorAction = null);
     }

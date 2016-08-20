@@ -28,7 +28,7 @@ namespace EOLib.Net
             container.RegisterInstance<INetworkClientDisposer, NetworkClientRepository>();
 
             container.RegisterType<INetworkClientFactory, NetworkClientFactory>()
-                .RegisterType<ISafeInBandNetworkOperationFactory, SafeInBandNetworkOperationFactory>();
+                .RegisterType<ISafeNetworkOperationFactory, SafeNetworkOperationFactory>();
 
             container.RegisterInstance<INetworkClientRepository, NetworkClientRepository>()
                 .RegisterInstance<INetworkClientProvider, NetworkClientRepository>()

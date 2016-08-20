@@ -18,13 +18,13 @@ namespace EndlessClient.Controllers
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
         private readonly IAccountActions _accountActions;
         private readonly IGameStateActions _gameStateActions;
-        private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
+        private readonly ISafeNetworkOperationFactory _networkOperationFactory;
 
         public AccountController(IAccountDialogDisplayActions accountDialogDisplayActions,
                                  IErrorDialogDisplayAction errorDisplayAction,
                                  IAccountActions accountActions,
                                  IGameStateActions gameStateActions,
-                                 ISafeInBandNetworkOperationFactory networkOperationFactory)
+                                 ISafeNetworkOperationFactory networkOperationFactory)
         {
             _accountDialogDisplayActions = accountDialogDisplayActions;
             _errorDisplayAction = errorDisplayAction;
@@ -42,7 +42,7 @@ namespace EndlessClient.Controllers
                 return;
             }
 
-            var checkNameOperation = _networkOperationFactory.CreateSafeOperation(
+            var checkNameOperation = _networkOperationFactory.CreateSafeBlockingOperation(
                 async () => await _accountActions.CheckAccountNameWithServer(createAccountParameters.AccountName),
                 SetInitialStateAndShowError,
                 SetInitialStateAndShowError);
@@ -58,7 +58,7 @@ namespace EndlessClient.Controllers
 
             if (!await ShowAccountCreationPendingDialog()) return;
 
-            var createAccountOperation = _networkOperationFactory.CreateSafeOperation(
+            var createAccountOperation = _networkOperationFactory.CreateSafeBlockingOperation(
                 async () => await _accountActions.CreateAccount(createAccountParameters),
                 SetInitialStateAndShowError,
                 SetInitialStateAndShowError);
@@ -85,7 +85,7 @@ namespace EndlessClient.Controllers
             }
             catch (OperationCanceledException) { return; }
 
-            var changePasswordOperation = _networkOperationFactory.CreateSafeOperation(
+            var changePasswordOperation = _networkOperationFactory.CreateSafeBlockingOperation(
                 async () => await _accountActions.ChangePassword(changePasswordParameters),
                 SetInitialStateAndShowError,
                 SetInitialStateAndShowError);

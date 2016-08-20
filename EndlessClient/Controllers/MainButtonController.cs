@@ -22,7 +22,7 @@ namespace EndlessClient.Controllers
         private readonly IGameStateActions _gameStateActions;
         private readonly IAccountDialogDisplayActions _accountDialogDisplayActions;
         private readonly IConnectionStateProvider _connectionStateProvider;
-        private readonly ISafeInBandNetworkOperationFactory _networkOperationFactory;
+        private readonly ISafeNetworkOperationFactory _networkOperationFactory;
 
         private int _numberOfConnectionRequests;
 
@@ -33,7 +33,7 @@ namespace EndlessClient.Controllers
                                     IGameStateActions gameStateActions,
                                     IAccountDialogDisplayActions accountDialogDisplayActions,
                                     IConnectionStateProvider connectionStateProvider,
-                                    ISafeInBandNetworkOperationFactory networkOperationFactory)
+                                    ISafeNetworkOperationFactory networkOperationFactory)
         {
             _networkConnectionActions = networkConnectionActions;
             _errorDialogDisplayAction = errorDialogDisplayAction;
@@ -107,7 +107,7 @@ namespace EndlessClient.Controllers
 
                 _backgroundReceiveActions.RunBackgroundReceiveLoop();
 
-                var beginHandshakeOperation = _networkOperationFactory.CreateSafeOperation(
+                var beginHandshakeOperation = _networkOperationFactory.CreateSafeBlockingOperation(
                     _networkConnectionActions.BeginHandshake,
                     ex => _errorDialogDisplayAction.ShowException(ex),
                     ex => _errorDialogDisplayAction.ShowException(ex));
