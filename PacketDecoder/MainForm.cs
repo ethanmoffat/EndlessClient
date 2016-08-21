@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.IO;
 using System.Windows.Forms;
 using EOLib.Net;
 using EOLib.Net.PacketProcessing;
@@ -162,7 +163,7 @@ namespace PacketDecoder
             }
 
             var pkt = _packetProcessorActions.DecodeData(data);
-            pkt.ReadPos = m_packetOffset;
+            pkt.Seek(m_packetOffset, SeekOrigin.Begin);
 
             lblFamily.Text = pkt.Family.ToString();
             lblAction.Text = pkt.Action.ToString();
@@ -177,7 +178,7 @@ namespace PacketDecoder
             switch ((DataTypes) cmbOutputFmt.SelectedIndex)
             {
                 case DataTypes.None:
-                    txtOutput.Text = pkt.GetEndString();
+                    txtOutput.Text = pkt.ReadEndString();
                     break;
                 case DataTypes.PacketFamily:
                     txtOutput.Text = ((PacketFamily) pkt.PeekByte()).ToString();
@@ -207,7 +208,7 @@ namespace PacketDecoder
                     txtOutput.Text = pkt.PeekEndString();
                     break;
                 case DataTypes.FixedString:
-                    txtOutput.Text = pkt.PeekFixedString(m_dataLength);
+                    txtOutput.Text = pkt.PeekString(m_dataLength);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -219,13 +220,13 @@ namespace PacketDecoder
                 switch (m_type)
                 {
                     case DataTypes.EndString:
-                        selLen = 3*(pkt.Length - pkt.ReadPos) - 1;
+                        selLen = 3*(pkt.Length - pkt.ReadPosition) - 1;
                         break;
                     case DataTypes.BreakString:
-                        int oldPos = pkt.ReadPos;
-                        while (pkt.GetByte() != 255) ;
-                        selLen = pkt.ReadPos - oldPos;
-                        pkt.ReadPos = oldPos;
+                        int oldPos = pkt.ReadPosition;
+                        while (pkt.ReadByte() != 255) ;
+                        selLen = pkt.ReadPosition - oldPos;
+                        pkt.Seek(oldPos, SeekOrigin.Begin);
                         break;
                     default:
                         selLen = 0;
