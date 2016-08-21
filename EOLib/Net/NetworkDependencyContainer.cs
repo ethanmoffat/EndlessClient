@@ -9,6 +9,7 @@ using EOLib.Net.Connection;
 using EOLib.Net.FileTransfer;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
+using EOLib.PacketHandlers;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.Net
@@ -69,14 +70,6 @@ namespace EOLib.Net
                 .RegisterType<IPacketHandlingActions, PacketHandlingActions>()
                 .RegisterInstance<IPacketHandlerProvider, PacketHandlerProvider>()
                 .RegisterType<IPacketHandlingTypeFinder, PacketHandlingTypeFinder>();
-
-            //todo: these things should be moved to a separate namespace outside of EOLib.Net - they
-            //todo:      have dependencies that shouldn't be required in EOLib.Net.
-            container.RegisterVaried<IPacketHandler, ConnectionPlayerHandler>()
-                .RegisterVaried<IPacketHandler, PingResponseHandler>()
-                .RegisterVaried<IPacketHandler, PlayerNotFoundResponse>()
-                .RegisterVaried<IPacketHandler, PlayerSameMapResponse>()
-                .RegisterVaried<IPacketHandler, PlayerDifferentMapResponse>();
         }
     }
 }

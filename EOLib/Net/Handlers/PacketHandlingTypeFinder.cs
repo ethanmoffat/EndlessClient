@@ -14,6 +14,8 @@ namespace EOLib.Net.Handlers
 
         public PacketHandlingTypeFinder(IEnumerable<IPacketHandler> outOfBandHandlers)
         {
+            //Packets that are handled in-band are manually defined here.
+            //All other Family/Action pairs should be handled by the OutOfBandPacketHandler
             _inBandPackets = new List<FamilyActionPair>
             {
                 new FamilyActionPair(PacketFamily.Init, PacketAction.Init),

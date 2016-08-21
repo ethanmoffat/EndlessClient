@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
+using EOLib.Net;
 using EOLib.Net.Communication;
+using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 
-namespace EOLib.Net.Handlers
+namespace EOLib.PacketHandlers
 {
     /// <summary>
     /// Handles incoming CONNECTION_PLAYER packets which are used for updating sequence numbers in the EO protocol

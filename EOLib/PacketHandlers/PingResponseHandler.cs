@@ -6,8 +6,10 @@ using System;
 using System.Threading.Tasks;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Protocol;
+using EOLib.Net;
+using EOLib.Net.Handlers;
 
-namespace EOLib.Net.Handlers
+namespace EOLib.PacketHandlers
 {
     /// <summary>
     /// Handles MESSAGE_PONG packets which are in response to a #ping command request

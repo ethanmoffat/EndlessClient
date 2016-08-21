@@ -11,6 +11,7 @@ using EOLib.IO;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Translators;
+using EOLib.PacketHandlers;
 
 namespace EndlessClient
 {
@@ -27,6 +28,7 @@ namespace EndlessClient
             new LocalizationDependencyContainer(),
             new NetworkDependencyContainer(),
             new PacketTranslatorContainer(),
+            new PacketHandlerDependencyContainer(), 
 
             //EndlessClient containers
             new EndlessClientDependencyContainer(),

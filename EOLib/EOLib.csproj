@@ -215,9 +215,9 @@
     <Compile Include="Net\Connection\IConnectionStateRepository.cs" />
     <Compile Include="Net\Connection\INetworkConnectionActions.cs" />
     <Compile Include="Net\EmptyPacketReceivedException.cs" />
-    <Compile Include="Net\Handlers\ConnectionPlayerHandler.cs" />
+    <Compile Include="PacketHandlers\ConnectionPlayerHandler.cs" />
     <Compile Include="Net\Handlers\FamilyActionPair.cs" />
-    <Compile Include="Net\Handlers\FindCommandHandlerBase.cs" />
+    <Compile Include="PacketHandlers\FindCommandHandlerBase.cs" />
     <Compile Include="Net\Handlers\IOutOfBandPacketHandler.cs" />
     <Compile Include="Net\Handlers\IPacketHandler.cs" />
     <Compile Include="Net\Handlers\IPacketHandlerFinder.cs" />
@@ -230,7 +230,11 @@
     <Compile Include="Net\Handlers\PacketHandlingType.cs" />
     <Compile Include="Net\Handlers\PacketHandlingTypeFinder.cs" />
     <Compile Include="Net\Communication\ISafeNetworkOperationFactory.cs" />
-    <Compile Include="Net\Handlers\PingResponseHandler.cs" />
+    <Compile Include="PacketHandlers\FindCommandPlayerDifferentMapHandler.cs" />
+    <Compile Include="PacketHandlers\FindCommandPlayerNotFoundHandler.cs" />
+    <Compile Include="PacketHandlers\FindCommandPlayerSameMapHandler.cs" />
+    <Compile Include="PacketHandlers\PacketHandlerDependencyContainer.cs" />
+    <Compile Include="PacketHandlers\PingResponseHandler.cs" />
     <Compile Include="Net\MalformedPacketException.cs" />
     <Compile Include="Net\NoDataSentException.cs" />
     <Compile Include="Net\Communication\SafeBlockingNetworkOperation.cs" />
