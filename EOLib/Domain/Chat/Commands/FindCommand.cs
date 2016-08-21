@@ -26,7 +26,7 @@ namespace EOLib.Domain.Chat.Commands
                 .AddString(parameter)
                 .Build();
 
-            _packetSendService.SendPacket(packet);
+            _packetSendService.SendPacketAsync(packet);
             return true;
         }
     }

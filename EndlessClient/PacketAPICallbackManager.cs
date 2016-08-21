@@ -8,14 +8,12 @@ using System.IO;
 using System.Linq;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
-using EndlessClient.HUD.Chat;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.IO;
 using EOLib.IO.Extensions;
-using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using XNAControls;
@@ -61,9 +59,6 @@ namespace EndlessClient
             m_packetAPI.OnChestAgree += _chestAgree;
             m_packetAPI.OnChestAddItem += _chestAddItem;
             m_packetAPI.OnChestGetItem += _chestGetItem;
-
-            m_packetAPI.OnServerPingReply += _showPingTime;
-            m_packetAPI.OnPlayerFindCommandReply += _showFindCommandResult;
 
             m_packetAPI.OnPlayerFace += _playerFace;
 
@@ -311,29 +306,6 @@ namespace EndlessClient
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, true);
             ChestDialog.Instance.InitializeItems(data.Items);
             m_game.Hud.RefreshStats();
-        }
-
-        private void _showPingTime(int timeout)
-        {
-            m_game.Hud.AddChat(ChatTab.Local, "System", string.Format("[x] Current ping to the server is: {0} ms.", timeout), ChatIcon.LookingDude);
-        }
-
-        private void _showFindCommandResult(bool online, bool sameMap, string charName)
-        {
-            if (charName.Length == 0) return;
-
-            string lastPart;
-            if (online && !sameMap)
-                lastPart = OldWorld.GetString(EOResourceID.STATUS_LABEL_IS_ONLINE_IN_THIS_WORLD);
-            else if (online)
-                lastPart = OldWorld.GetString(EOResourceID.STATUS_LABEL_IS_ONLINE_SAME_MAP);
-            else
-                lastPart = OldWorld.GetString(EOResourceID.STATUS_LABEL_IS_ONLINE_NOT_FOUND);
-
-            m_game.Hud.AddChat(ChatTab.Local,
-                "System",
-                string.Format("{0} " + lastPart, char.ToUpper(charName[0]) + charName.Substring(1)),
-                ChatIcon.LookingDude);
         }
 
         private void _playerFace(short playerId, EODirection dir)

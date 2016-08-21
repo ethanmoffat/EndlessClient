@@ -27,19 +27,19 @@ namespace EOLib.Domain.Chat.Commands
 
         public bool Execute(string parameter)
         {
-            short requestID;
+            ushort requestID;
             do
             {
-                requestID = (short) _random.Next(ushort.MinValue, ushort.MaxValue - 1);
+                requestID = (ushort) _random.Next(ushort.MinValue, ushort.MaxValue - 1);
             } while (_pingTimeRepository.PingRequests.ContainsKey(requestID));
 
             _pingTimeRepository.PingRequests.Add(requestID, DateTime.Now);
 
             var packet = new PacketBuilder(PacketFamily.Message, PacketAction.Ping)
-                .AddShort(requestID)
+                .AddShort((short)requestID)
                 .Build();
 
-            _packetSendService.SendPacket(packet);
+            _packetSendService.SendPacketAsync(packet);
             return true;
         }
     }

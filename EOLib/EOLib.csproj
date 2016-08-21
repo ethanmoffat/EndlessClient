@@ -217,6 +217,7 @@
     <Compile Include="Net\EmptyPacketReceivedException.cs" />
     <Compile Include="Net\Handlers\ConnectionPlayerHandler.cs" />
     <Compile Include="Net\Handlers\FamilyActionPair.cs" />
+    <Compile Include="Net\Handlers\FindCommandHandlerBase.cs" />
     <Compile Include="Net\Handlers\IOutOfBandPacketHandler.cs" />
     <Compile Include="Net\Handlers\IPacketHandler.cs" />
     <Compile Include="Net\Handlers\IPacketHandlerFinder.cs" />
@@ -229,6 +230,7 @@
     <Compile Include="Net\Handlers\PacketHandlingType.cs" />
     <Compile Include="Net\Handlers\PacketHandlingTypeFinder.cs" />
     <Compile Include="Net\Communication\ISafeNetworkOperationFactory.cs" />
+    <Compile Include="Net\Handlers\PingResponseHandler.cs" />
     <Compile Include="Net\MalformedPacketException.cs" />
     <Compile Include="Net\NoDataSentException.cs" />
     <Compile Include="Net\Communication\SafeBlockingNetworkOperation.cs" />

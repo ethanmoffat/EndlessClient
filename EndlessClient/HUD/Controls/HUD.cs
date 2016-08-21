@@ -305,41 +305,6 @@ namespace EndlessClient.HUD.Controls
                     }
                 }
                     break;
-                case '#':  //local command
-                {
-                    string cmd = chatText.Substring(1).ToLower().Trim();
-                    string[] args = cmd.Split(' ');
-                    
-                    if (args.Length == 1 && args[0] == "nowall")
-                    {
-                        OldWorld.Instance.ActiveCharacterRenderer.NoWall = !OldWorld.Instance.ActiveCharacterRenderer.NoWall;
-                    }
-                    else if (args.Length == 2 && args[0] == "find")
-                    {
-                        if(!m_packetAPI.FindPlayer(args[1]))
-                            ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                    }
-                    else if (args.Length == 1 && args[0] == "loc")
-                    {
-                        string firstPart = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) EOResourceID.STATUS_LABEL_YOUR_LOCATION_IS_AT];
-                        AddChat(ChatTab.Local, "System", string.Format(firstPart + " {0}  x:{1}  y:{2}",
-                            OldWorld.Instance.ActiveMapRenderer.MapRef.Properties.MapID,
-                            OldWorld.Instance.MainPlayer.ActiveCharacter.X,
-                            OldWorld.Instance.MainPlayer.ActiveCharacter.Y),
-                            ChatIcon.LookingDude);
-                    }
-                    else if (args.Length == 1 && cmd == "usage")
-                    {
-                        int usage = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Usage;
-                        AddChat(ChatTab.Local, "System", string.Format("[x] usage: {0}hrs. {1}min.", usage/60, usage%60));
-                    }
-                    else if (args.Length == 1 && cmd == "ping")
-                    {
-                        if (!m_packetAPI.PingServer())
-                            ((EOGame) Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                    }
-                }
-                    break;
                 default:
                 {
                     filtered = OldChatRenderer.Filter(chatText, true);

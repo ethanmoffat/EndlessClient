@@ -9,26 +9,16 @@ namespace EOLib.Domain.Protocol
 {
     public interface IPingTimeRepository
     {
-        Dictionary<short, DateTime> PingRequests { get; set; }
+        Dictionary<ushort, DateTime> PingRequests { get; set; }
     }
 
-    public interface IPingTimeProvider
+    public class PingTimeRepository : IPingTimeRepository
     {
-        IReadOnlyDictionary<short, DateTime> PingRequests { get; }
-    }
-
-    public class PingTimeRepository : IPingTimeRepository, IPingTimeProvider
-    {
-        public Dictionary<short, DateTime> PingRequests { get; set; }
-
-        IReadOnlyDictionary<short, DateTime> IPingTimeProvider.PingRequests
-        {
-            get { return PingRequests; }
-        }
+        public Dictionary<ushort, DateTime> PingRequests { get; set; }
 
         public PingTimeRepository()
         {
-            PingRequests = new Dictionary<short, DateTime>();
+            PingRequests = new Dictionary<ushort, DateTime>();
         }
     }
 }

@@ -21,7 +21,6 @@ namespace EOLib.Net
                 .RegisterType<IPacketSequenceService, PacketSequenceService>()
                 .RegisterType<IHashService, HashService>()
                 .RegisterType<IPacketSendService, PacketSendService>()
-                .RegisterType<IPacketHandlingTypeFinder, PacketHandlingTypeFinder>()
                 .RegisterType<IFileRequestService, FileRequestService>();
 
             //the repository is a "disposer" of the NetworkClient (so NetworkClient gets cleaned up later if it is set)
@@ -38,13 +37,11 @@ namespace EOLib.Net
                 .RegisterInstance<ISequenceRepository, SequenceRepository>()
                 .RegisterInstance<IConnectionStateRepository, ConnectionStateRepository>()
                 .RegisterInstance<IConnectionStateProvider, ConnectionStateRepository>()
-                .RegisterInstance<IPacketHandlerProvider, PacketHandlerProvider>()
                 .RegisterInstance<ILoginFileChecksumRepository, LoginFileChecksumRepository>()
                 .RegisterInstance<ILoginFileChecksumProvider, LoginFileChecksumRepository>();
 
             container.RegisterType<IPacketProcessorActions, PacketProcessActions>()
                 .RegisterType<INetworkConnectionActions, NetworkConnectionActions>()
-                .RegisterType<IPacketHandlingActions, PacketHandlingActions>()
                 .RegisterType<IFileRequestActions, FileRequestActions>();
             
             //must be a singleton: tracks a thread and has internal state.
@@ -53,11 +50,7 @@ namespace EOLib.Net
 
             container.RegisterType<IChatPacketBuilder, ChatPacketBuilder>();
 
-            //packet handling
-            container.RegisterInstance<IOutOfBandPacketHandler, OutOfBandPacketHandler>()
-                .RegisterType<IPacketHandlerFinder, PacketHandlerFinder>();
-
-            container.RegisterVaried<IPacketHandler, ConnectionPlayerHandler>();
+            RegisterPacketHandlerDependencies(container);
         }
 
         public void InitializeDependencies(IUnityContainer container)
@@ -67,6 +60,23 @@ namespace EOLib.Net
             var clientRepo = container.Resolve<INetworkClientRepository>();
             var clientFactory = container.Resolve<INetworkClientFactory>();
             clientRepo.NetworkClient = clientFactory.CreateNetworkClient();
+        }
+
+        private static void RegisterPacketHandlerDependencies(IUnityContainer container)
+        {
+            container.RegisterInstance<IOutOfBandPacketHandler, OutOfBandPacketHandler>()
+                .RegisterType<IPacketHandlerFinder, PacketHandlerFinder>()
+                .RegisterType<IPacketHandlingActions, PacketHandlingActions>()
+                .RegisterInstance<IPacketHandlerProvider, PacketHandlerProvider>()
+                .RegisterType<IPacketHandlingTypeFinder, PacketHandlingTypeFinder>();
+
+            //todo: these things should be moved to a separate namespace outside of EOLib.Net - they
+            //todo:      have dependencies that shouldn't be required in EOLib.Net.
+            container.RegisterVaried<IPacketHandler, ConnectionPlayerHandler>()
+                .RegisterVaried<IPacketHandler, PingResponseHandler>()
+                .RegisterVaried<IPacketHandler, PlayerNotFoundResponse>()
+                .RegisterVaried<IPacketHandler, PlayerSameMapResponse>()
+                .RegisterVaried<IPacketHandler, PlayerDifferentMapResponse>();
         }
     }
 }
