@@ -5,6 +5,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using EOLib.Domain.Character;
 using EOLib.Net.Builders;
 using EOLib.Net.Communication;
 
@@ -12,19 +13,22 @@ namespace EOLib.Domain.Chat
 {
     public class ChatActions : IChatActions
     {
-        private readonly IChatProvider _chatProvider;
+        private readonly IChatRepository _chatRepository;
+        private readonly ICharacterProvider _characterProvider;
         private readonly IChatTypeCalculator _chatTypeCalculator;
         private readonly IChatPacketBuilder _chatPacketBuilder;
         private readonly IPacketSendService _packetSendService;
         private readonly ILocalCommandHandler _localCommandHandler;
 
-        public ChatActions(IChatProvider chatProvider,
-            IChatTypeCalculator chatTypeCalculator,
-            IChatPacketBuilder chatPacketBuilder,
-            IPacketSendService packetSendService,
-            ILocalCommandHandler localCommandHandler)
+        public ChatActions(IChatRepository chatRepository,
+                           ICharacterProvider characterProvider,
+                           IChatTypeCalculator chatTypeCalculator,
+                           IChatPacketBuilder chatPacketBuilder,
+                           IPacketSendService packetSendService,
+                           ILocalCommandHandler localCommandHandler)
         {
-            _chatProvider = chatProvider;
+            _chatRepository = chatRepository;
+            _characterProvider = characterProvider;
             _chatTypeCalculator = chatTypeCalculator;
             _chatPacketBuilder = chatPacketBuilder;
             _packetSendService = packetSendService;
@@ -34,7 +38,7 @@ namespace EOLib.Domain.Chat
         public async Task SendChatToServer()
         {
             //todo: get target character for PM
-            await SendChatToServer(_chatProvider.LocalTypedText);
+            await SendChatToServer(_chatRepository.LocalTypedText);
         }
 
         public async Task SendChatToServer(string chat, string targetCharacter = null)
@@ -54,6 +58,8 @@ namespace EOLib.Domain.Chat
 
             var chatPacket = _chatPacketBuilder.BuildChatPacket(chatType, chat, targetCharacter);
             await _packetSendService.SendPacketAsync(chatPacket);
+
+            AddChatForLocalDisplay(chatType, chat);
         }
 
         /// <summary>
@@ -88,6 +94,44 @@ namespace EOLib.Domain.Chat
                     return chat.Substring(1);
                 default:
                     return chat;
+            }
+        }
+
+        private void AddChatForLocalDisplay(ChatType chatType, string chat)
+        {
+            //todo: handling for speech bubbles - announce, local, and group (and maybe guild?) need it.
+            //todo: need some sort of event that fires or client-side detection mechanism (it should not be known about here)
+            //todo: the same detection mechanism should also be used when other players chat is handled
+            var who = _characterProvider.MainCharacter.Name;
+            switch (chatType)
+            {
+                case ChatType.Admin:
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat, ChatIcon.HGM, ChatColor.Admin));
+                    break;
+                case ChatType.PM:
+                    //todo: handling for PM
+                    break;
+                case ChatType.Local:
+                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(who, chat));
+                    break;
+                case ChatType.Global:
+                    _chatRepository.AllChat[ChatTab.Global].Add(new ChatData(who, chat));
+                    break;
+                case ChatType.Guild:
+                    //todo: there are special cases here for guild chat that aren't handled
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat));
+                    break;
+                case ChatType.Party:
+                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(who, chat, ChatIcon.PlayerPartyDark, ChatColor.PM));
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat, ChatIcon.PlayerPartyDark));
+                    break;
+                case ChatType.Announce:
+                    _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
+                    _chatRepository.AllChat[ChatTab.Global].Add(new ChatData(who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
+                    _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("chatType", chatType, "Unexpected ChatType encountered");
             }
         }
     }

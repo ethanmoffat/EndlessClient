@@ -132,7 +132,6 @@ namespace EndlessClient.HUD.Controls
                 {
                     chatTextBox.Text = "";
                     SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.JAIL_WARNING_CANNOT_USE_GLOBAL);
-                    return;
                 }
             };
         }
@@ -191,86 +190,10 @@ namespace EndlessClient.HUD.Controls
             if (chatTextBox.Text.Length <= 0)
                 return;
 
-            string chatText = chatTextBox.Text, filtered;
+            string chatText = chatTextBox.Text;
             chatTextBox.Text = "";
             switch (chatText[0])
             {
-                case '+':  //admin talk
-                    if (OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
-                        goto default;
-                    filtered = OldChatRenderer.Filter(chatText.Substring(1), true);
-                    if (filtered != null)
-                    {
-                        if (!m_packetAPI.Speak(ChatType.Admin, chatText.Substring(1)))
-                        {
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                            break;
-                        }
-                        AddChat(ChatTab.Group, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatIcon.HGM, ChatColor.Admin);
-                    }
-                    break;
-                case '@': //system talk (admin)
-                    if (OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
-                        goto default;
-                    filtered = OldChatRenderer.Filter(chatText.Substring(1), true);
-                    if (filtered != null)
-                    {
-                        if (!m_packetAPI.Speak(ChatType.Announce, chatText.Substring(1)))
-                        {
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                            break;
-                        }
-                        OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, false);
-                        string name = OldWorld.Instance.MainPlayer.ActiveCharacter.Name;
-                        AddChat(ChatTab.Local, name, filtered, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
-                        AddChat(ChatTab.Global, name, filtered, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
-                        AddChat(ChatTab.Group, name, filtered, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
-                    }
-                    break;
-                case '\'': //group talk
-                    if (!m_party.PlayerIsMember((short) OldWorld.Instance.MainPlayer.ActiveCharacter.ID))
-                        break; //not in a party, cancel the talk
-                    filtered = OldChatRenderer.Filter(chatText.Substring(1), true);
-                    if (filtered != null)
-                    {
-                        if (!m_packetAPI.Speak(ChatType.Party, chatText.Substring(1)))
-                        {
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                            break;
-                        }
-                        OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, true);
-                        AddChat(ChatTab.Local, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatIcon.PlayerPartyDark, ChatColor.PM);
-                        AddChat(ChatTab.Group, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatIcon.PlayerPartyDark);
-                    }
-                    break;
-                case '&':  //guild talk
-                    if (OldWorld.Instance.MainPlayer.ActiveCharacter.GuildName == "")
-                        goto default;
-                    
-                    filtered = OldChatRenderer.Filter(chatText.Substring(1), true);
-                    if (filtered != null)
-                    {
-                        if (!m_packetAPI.Speak(ChatType.Guild, chatText.Substring(1)))
-                        {
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                            break;
-                        }
-                        //note: more processing of colors/icons is needed here
-                        AddChat(ChatTab.Group, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered);
-                    }
-                    break;
-                case '~':  //global talk
-                    filtered = OldChatRenderer.Filter(chatText.Substring(1), true);
-                    if (filtered != null)
-                    {
-                        if (!m_packetAPI.Speak(ChatType.Global, chatText.Substring(1)))
-                        {
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                            break;
-                        }
-                        AddChat(ChatTab.Global, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered);
-                    }
-                    break;
                 case '!':  //private talk
                 {
                     string character, message;
@@ -289,7 +212,7 @@ namespace EndlessClient.HUD.Controls
 
                     character = character.Substring(0, 1).ToUpper() + character.Substring(1).ToLower();
 
-                    filtered = OldChatRenderer.Filter(message, true);
+                    var filtered = OldChatRenderer.Filter(message, true);
                     if (filtered != null)
                     {
                         if (!m_packetAPI.Speak(ChatType.PM, message, character))
@@ -302,24 +225,6 @@ namespace EndlessClient.HUD.Controls
                         //the other player will have their messages rendered in Color.PM on scr
                         //this player will have their messages rendered in Color.PM on the PM tab
                         AddChat(whichPrivateChat, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatIcon.Note, ChatColor.PM);
-                    }
-                }
-                    break;
-                default:
-                {
-                    filtered = OldChatRenderer.Filter(chatText, true);
-                    if (filtered != null)
-                    {
-                        //send packet to the server
-                        if (!m_packetAPI.Speak(ChatType.Local, chatText))
-                        {
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                            break;
-                        }
-
-                        //do the rendering
-                        OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, filtered, false);
-                        AddChat(ChatTab.Local, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered);
                     }
                 }
                     break;
