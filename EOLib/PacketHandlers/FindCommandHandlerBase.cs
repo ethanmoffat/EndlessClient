@@ -4,6 +4,7 @@
 
 using System.Threading.Tasks;
 using EOLib.Domain.Chat;
+using EOLib.Domain.Login;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Handlers;
@@ -14,21 +15,23 @@ namespace EOLib.PacketHandlers
     {
         private readonly IChatRepository _chatRespository;
         private readonly ILocalizedStringService _localizedStringService;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public PacketFamily Family { get { return PacketFamily.Players; } }
 
         public abstract PacketAction Action { get; }
 
-        //todo: handle in-game only
-        public bool CanHandle { get { return true; } }
+        public bool CanHandle { get { return _playerInfoProvider.PlayerIsInGame; } }
 
         protected abstract EOResourceID ResourceIDForResponse { get; }
 
         protected FindCommandHandlerBase(IChatRepository chatRespository,
-                                         ILocalizedStringService localizedStringService)
+                                         ILocalizedStringService localizedStringService,
+                                         IPlayerInfoProvider playerInfoProvider)
         {
             _chatRespository = chatRespository;
             _localizedStringService = localizedStringService;
+            _playerInfoProvider = playerInfoProvider;
         }
 
         public bool HandlePacket(IPacket packet)

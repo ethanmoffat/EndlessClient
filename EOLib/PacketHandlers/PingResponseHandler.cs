@@ -5,6 +5,7 @@
 using System;
 using System.Threading.Tasks;
 using EOLib.Domain.Chat;
+using EOLib.Domain.Login;
 using EOLib.Domain.Protocol;
 using EOLib.Net;
 using EOLib.Net.Handlers;
@@ -18,19 +19,21 @@ namespace EOLib.PacketHandlers
     {
         private readonly IPingTimeRepository _pingTimeRepository;
         private readonly IChatRepository _chatRepository;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public PacketFamily Family { get { return PacketFamily.Message; } }
 
         public PacketAction Action { get { return PacketAction.Pong; } }
 
-        //todo: handle in-game only
-        public bool CanHandle { get { return true; } }
+        public bool CanHandle { get { return _playerInfoProvider.PlayerIsInGame; } }
 
         public PingResponseHandler(IPingTimeRepository pingTimeRepository,
-                                   IChatRepository chatRepository)
+                                   IChatRepository chatRepository,
+                                   IPlayerInfoProvider playerInfoProvider)
         {
             _pingTimeRepository = pingTimeRepository;
             _chatRepository = chatRepository;
+            _playerInfoProvider = playerInfoProvider;
         }
 
         public bool HandlePacket(IPacket packet)

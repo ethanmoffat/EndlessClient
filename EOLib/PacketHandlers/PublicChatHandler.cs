@@ -4,6 +4,7 @@
 
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
 
@@ -16,8 +17,9 @@ namespace EOLib.PacketHandlers
         public override PacketAction Action { get { return PacketAction.Player; } }
 
         public PublicChatHandler(ICurrentMapStateProvider currentMapStateProvider,
-            IChatRepository chatRepository)
-            : base(currentMapStateProvider)
+                                 IPlayerInfoProvider playerInfoProvider,
+                                 IChatRepository chatRepository)
+            : base(currentMapStateProvider, playerInfoProvider)
         {
             _chatRepository = chatRepository;
         }

@@ -5,6 +5,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using EOLib.Domain.Character;
+using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
@@ -14,17 +15,19 @@ namespace EOLib.PacketHandlers
     public abstract class PlayerChatByIDHandler : IPacketHandler
     {
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public PacketFamily Family { get { return PacketFamily.Talk; } }
 
         public abstract PacketAction Action { get; }
 
-        //todo: handle in-game only!
-        public bool CanHandle { get { return true; } }
+        public bool CanHandle { get { return _playerInfoProvider.PlayerIsInGame; } }
 
-        protected PlayerChatByIDHandler(ICurrentMapStateProvider currentMapStateProvider)
+        protected PlayerChatByIDHandler(ICurrentMapStateProvider currentMapStateProvider,
+                                        IPlayerInfoProvider playerInfoProvider)
         {
             _currentMapStateProvider = currentMapStateProvider;
+            _playerInfoProvider = playerInfoProvider;
         }
 
         public bool HandlePacket(IPacket packet)
