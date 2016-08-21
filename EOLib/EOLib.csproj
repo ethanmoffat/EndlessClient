@@ -211,7 +211,6 @@
     <Compile Include="Net\Communication\IWaitablePacketQueue.cs" />
     <Compile Include="Net\Communication\NetworkClient.cs" />
     <Compile Include="Net\Communication\NetworkClientFactory.cs" />
-    <Compile Include="IReadOnly2DArray.cs" />
     <Compile Include="Net\Communication\PacketSendService.cs" />
     <Compile Include="Net\Connection\BackgroundReceiveActions.cs" />
     <Compile Include="Net\Connection\IBackgroundReceiveActions.cs" />
@@ -285,7 +284,6 @@
     <Compile Include="PacketHandlers\PlayerChatByIDHandler.cs" />
     <Compile Include="PacketHandlers\PublicChatHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Array2D.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>
   <ItemGroup>
