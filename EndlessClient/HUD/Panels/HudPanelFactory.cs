@@ -5,6 +5,7 @@
 using EndlessClient.Content;
 using EndlessClient.Rendering.Chat;
 using EOLib;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,20 +19,23 @@ namespace EndlessClient.HUD.Panels
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IContentManagerProvider _contentManagerProvider;
         private readonly INewsProvider _newsProvider;
+        private readonly IChatProvider _chatProvider;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IContentManagerProvider contentManagerProvider,
-                               INewsProvider newsProvider)
+                               INewsProvider newsProvider,
+                               IChatProvider chatProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _contentManagerProvider = contentManagerProvider;
             _newsProvider = newsProvider;
+            _chatProvider = chatProvider;
         }
 
         public NewsPanel CreateNewsPanel()
         {
             var chatFont = _contentManagerProvider.Content.Load<SpriteFont>(Constants.FontSize08);
-            
+
             return new NewsPanel(_nativeGraphicsManager,
                                  new ChatRenderableGenerator(chatFont),
                                  _newsProvider,
@@ -55,7 +59,12 @@ namespace EndlessClient.HUD.Panels
 
         public ChatPanel CreateChatPanel()
         {
-            return new ChatPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
+            var chatFont = _contentManagerProvider.Content.Load<SpriteFont>(Constants.FontSize08);
+
+            return new ChatPanel(_nativeGraphicsManager,
+                                 new ChatRenderableGenerator(chatFont),
+                                 _chatProvider,
+                                 chatFont) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public StatsPanel CreateStatsPanel()

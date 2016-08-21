@@ -4,7 +4,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using EndlessClient.HUD.Chat;
 using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
@@ -42,6 +41,21 @@ namespace EndlessClient.Rendering.Chat
 
             var splitStrings = SplitTextIntoLines("", newsTextWithBlankLines);
             return splitStrings.Select(CreateNewsRenderableFromChatPair).ToList();
+        }
+
+        public IReadOnlyList<IChatRenderable> GenerateChatRenderables(IReadOnlyList<ChatData> chatData)
+        {
+            var retList = new List<IChatRenderable>();
+            foreach (var data in chatData)
+            {
+                var splitStrings = SplitTextIntoLines(data.Who, new[] {data.Message});
+                var renderables = splitStrings.Select(
+                    (pair, i) => CreateChatRenderableFromChatPair(pair, i, data))
+                    .ToList();
+                retList.AddRange(renderables);
+            }
+
+            return retList;
         }
 
         private IReadOnlyList<ChatPair> SplitTextIntoLines(string who, IReadOnlyList<string> input)
@@ -89,6 +103,17 @@ namespace EndlessClient.Rendering.Chat
             var shouldShowNoteIcon = pair.IsFirstLineOfMultilineMessage && !string.IsNullOrWhiteSpace(pair.Text);
             var chatData = new ChatData("", pair.Text, shouldShowNoteIcon ? ChatIcon.Note : ChatIcon.None);
             return new NewsChatRenderable(i, chatData, pair.Text);
+        }
+
+        private static ChatRenderable CreateChatRenderableFromChatPair(ChatPair pair, int displayIndex, ChatData data)
+        {
+            var modifiedData = new ChatData(
+                pair.IsFirstLineOfMultilineMessage ? data.Who : string.Empty,
+                data.Message,
+                pair.IsFirstLineOfMultilineMessage ? data.Icon : ChatIcon.None,
+                data.ChatColor);
+
+            return new ChatRenderable(displayIndex, modifiedData, pair.Text);
         }
     }
 }
