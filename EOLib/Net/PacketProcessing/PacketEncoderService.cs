@@ -18,32 +18,11 @@ namespace EOLib.Net.PacketProcessing
             return ret.ToArray();
         }
 
-        public OldPacket AddSequenceNumber(OldPacket pkt, int sequenceNumber)
-        {
-            //todo: remove use of OldPacket
-            var byteList = pkt.Data.ToList();
-            byteList = AddSequenceBytes(byteList, sequenceNumber);
-            return new OldPacket(byteList);
-        }
-
         public IPacket AddSequenceNumber(IPacket pkt, int sequenceNumber)
         {
             var byteList = pkt.RawData;
             byteList = AddSequenceBytes(byteList, sequenceNumber);
             return new Packet(byteList.ToList());
-        }
-
-        public byte[] Encode(OldPacket original, byte encodeMultiplier)
-        {
-            if (encodeMultiplier == 0 || !PacketValidForEncode(original))
-                return original.Data.ToArray();
-
-            var byteList = original.Data.ToList();
-            byteList = SwapMultiples(byteList, encodeMultiplier);
-            byteList = Interleave(byteList);
-            byteList = FlipMSB(byteList);
-
-            return byteList.ToArray();
         }
 
         public byte[] Encode(IPacket original, byte encodeMultiplier)
@@ -59,45 +38,33 @@ namespace EOLib.Net.PacketProcessing
             return byteList.ToArray();
         }
 
-        public OldPacket Decode(byte[] original, byte decodeMultiplier)
+        public IPacket Decode(IEnumerable<byte> original, byte decodeMultiplier)
         {
-            if (decodeMultiplier == 0 || !PacketValidForDecode(original))
-                return new OldPacket(original);
+            var originalBytes = original.ToArray();
+            if (decodeMultiplier == 0 || !PacketValidForDecode(originalBytes))
+                return new Packet(originalBytes);
 
-            var byteList = original.ToList();
+            var byteList = originalBytes.ToList();
             byteList = FlipMSB(byteList);
             byteList = Deinterleave(byteList);
             byteList = SwapMultiples(byteList, decodeMultiplier);
 
-            return new OldPacket(byteList);
-        }
-
-        public IPacket Decode(IEnumerable<byte> original, byte decodeMultiplier)
-        {
-            //placeholder for until the OldPacket object is removed.
-            //eventually this will be the only decode method
-            var oldPkt = Decode(original.ToArray(), decodeMultiplier);
-            return new Packet(oldPkt.Data);
+            return new Packet(byteList);
         }
 
         #region Packet Validation
 
-        private bool PacketValidForEncode(OldPacket pkt)
+        private static bool PacketValidForEncode(IPacket pkt)
         {
             return !IsInitPacket(pkt);
         }
 
-        private bool PacketValidForEncode(IPacket pkt)
+        private static bool PacketValidForDecode(byte[] data)
         {
-            return !IsInitPacket(new OldPacket(pkt.Family, pkt.Action));
+            return data.Length >= 2 && !IsInitPacket(new Packet(new[] {data[0], data[1]}));
         }
 
-        private bool PacketValidForDecode(byte[] data)
-        {
-            return data.Length >= 2 && !IsInitPacket(new OldPacket(new[] {data[0], data[1]}));
-        }
-
-        private static bool IsInitPacket(OldPacket pkt)
+        private static bool IsInitPacket(IPacket pkt)
         {
             return pkt.Family == PacketFamily.Init &&
                    pkt.Action == PacketAction.Init;

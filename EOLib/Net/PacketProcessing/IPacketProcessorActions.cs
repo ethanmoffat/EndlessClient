@@ -14,13 +14,9 @@ namespace EOLib.Net.PacketProcessing
 
         void SetEncodeMultiples(byte emulti_d, byte emulti_e);
 
-        byte[] EncodePacket(OldPacket pkt);
-
         byte[] EncodePacket(IPacket pkt);
-        
-        byte[] EncodeRawPacket(IPacket pkt);
 
-        OldPacket DecodeData(byte[] rawData);
+        byte[] EncodeRawPacket(IPacket pkt);
 
         IPacket DecodeData(IEnumerable<byte> rawData);
     }

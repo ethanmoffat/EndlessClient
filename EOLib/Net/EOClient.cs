@@ -147,25 +147,25 @@ namespace EOLib.Net
             StartDataReceive(wrap);
         }
 
-        protected override void OnSendData(OldPacket pkt, out byte[] toSend)
-        {
-            //for debugging: sometimes the server is getting PACKET_INTERNAL from this client
-            //I'm not sure why and it happens randomly so this check will allow me to examine
-            //    packet contents and the call stack to figure it out
-            if (pkt.Family == PacketFamily.Internal)
-                throw new ArgumentException("This is an invalid packet!");
+        //protected override void OnSendData(OldPacket pkt, out byte[] toSend)
+        //{
+        //    //for debugging: sometimes the server is getting PACKET_INTERNAL from this client
+        //    //I'm not sure why and it happens randomly so this check will allow me to examine
+        //    //    packet contents and the call stack to figure it out
+        //    if (pkt.Family == PacketFamily.Internal)
+        //        throw new ArgumentException("This is an invalid packet!");
 
-            toSend = _packetProcessActions.EncodePacket(pkt);
+        //    toSend = _packetProcessActions.EncodePacket(pkt);
 
-            //at this point, toSend should be 3 or 4 bytes longer than the original packet data
-            //this includes 2 bytes of len, 1 or 2 bytes of seq, and then packet payload
+        //    //at this point, toSend should be 3 or 4 bytes longer than the original packet data
+        //    //this includes 2 bytes of len, 1 or 2 bytes of seq, and then packet payload
 
-            if (EventSendData != null)
-            {
-                DataTransferEventArgs dte = new DataTransferEventArgs(DataTransferEventArgs.TransferType.Send, pkt.Family, pkt.Action, pkt.Data);
-                EventSendData(dte);
-            }
-        }
+        //    if (EventSendData != null)
+        //    {
+        //        DataTransferEventArgs dte = new DataTransferEventArgs(DataTransferEventArgs.TransferType.Send, pkt.Family, pkt.Action, pkt.Data);
+        //        EventSendData(dte);
+        //    }
+        //}
 
         protected override void OnSendRawData(OldPacket pkt, out byte[] toSend)
         {
@@ -207,57 +207,57 @@ namespace EOLib.Net
                         }
                     case EODataChunk.DataReceiveState.ReadData:
                         {
-                            var pkt = _packetProcessActions.DecodeData(wrap.Data);
+                            //var pkt = _packetProcessActions.DecodeData(wrap.Data);
 
-                            //This block handles receipt of file data that is transferred to the client.
-                            //It should make file transfer nuances pretty transparent to the client.
-                            //The header for files stored in a Packet type is always as follows: FAMILY_INIT, ACTION_INIT, (InitReply)
-                            //A 3-byte offset is found throughout the code that handles creating these files.
+                            ////This block handles receipt of file data that is transferred to the client.
+                            ////It should make file transfer nuances pretty transparent to the client.
+                            ////The header for files stored in a Packet type is always as follows: FAMILY_INIT, ACTION_INIT, (InitReply)
+                            ////A 3-byte offset is found throughout the code that handles creating these files.
 
-                            //INIT_INIT packet! check to see if expecting a file or player list
-                            if (pkt.Family == PacketFamily.Init && pkt.Action == PacketAction.Init)
-                            {
-                                byte[] data = pkt.Get();
-                                byte reply = pkt.GetChar();
+                            ////INIT_INIT packet! check to see if expecting a file or player list
+                            //if (pkt.Family == PacketFamily.Init && pkt.Action == PacketAction.Init)
+                            //{
+                            //    byte[] data = pkt.Get();
+                            //    byte reply = pkt.GetChar();
 
-                                if (ExpectingFile || reply == (byte)InitReply.INIT_MAP_MUTATION) //handle the map mutation: should work with the byte/char weirdness
-                                {
-                                    int dataGrabbed = 0;
+                            //    if (ExpectingFile || reply == (byte)InitReply.INIT_MAP_MUTATION) //handle the map mutation: should work with the byte/char weirdness
+                            //    {
+                            //        int dataGrabbed = 0;
 
-                                    //find first zero byte
+                            //        //find first zero byte
 
-                                    int pktOffset = 0;
-                                    for (; pktOffset < data.Length; ++pktOffset)
-                                        if (data[pktOffset] == 0)
-                                            break;
+                            //        int pktOffset = 0;
+                            //        for (; pktOffset < data.Length; ++pktOffset)
+                            //            if (data[pktOffset] == 0)
+                            //                break;
 
-                                    //continue receiving until we have grabbed enough data to fill the allocated packet buffer
-                                    do
-                                    {
-                                        byte[] fileBuffer = new byte[pkt.Length - pktOffset];
-                                        int nextGrabbed = ReceiveRaw(ref fileBuffer);
-                                        Array.Copy(fileBuffer, 0, data, dataGrabbed + 3, data.Length - (dataGrabbed + pktOffset));
-                                        dataGrabbed += nextGrabbed;
-                                    } while (dataGrabbed < pkt.Length - pktOffset);
+                            //        //continue receiving until we have grabbed enough data to fill the allocated packet buffer
+                            //        do
+                            //        {
+                            //            byte[] fileBuffer = new byte[pkt.Length - pktOffset];
+                            //            int nextGrabbed = ReceiveRaw(ref fileBuffer);
+                            //            Array.Copy(fileBuffer, 0, data, dataGrabbed + 3, data.Length - (dataGrabbed + pktOffset));
+                            //            dataGrabbed += nextGrabbed;
+                            //        } while (dataGrabbed < pkt.Length - pktOffset);
 
-                                    if (pktOffset > 3)
-                                        data = data.SubArray(0, pkt.Length - (pktOffset - 3));
+                            //        if (pktOffset > 3)
+                            //            data = data.SubArray(0, pkt.Length - (pktOffset - 3));
 
-                                    //rewrite the InitReply with the correct value (retrieved with GetChar, server sends with GetByte for other reply types)
-                                    data[2] = reply;
-                                }
-                                else if (ExpectingPlayerList)
-                                {
-                                    //online list sends a char... rewrite it with a byte so it is parsed correctly.
-                                    data[2] = reply;
-                                }
+                            //        //rewrite the InitReply with the correct value (retrieved with GetChar, server sends with GetByte for other reply types)
+                            //        data[2] = reply;
+                            //    }
+                            //    else if (ExpectingPlayerList)
+                            //    {
+                            //        //online list sends a char... rewrite it with a byte so it is parsed correctly.
+                            //        data[2] = reply;
+                            //    }
 
-                                pkt = new OldPacket(data);
-                            }
+                            //    pkt = new OldPacket(data);
+                            //}
 
-                            _handlePacket(pkt);
-                            var newWrap = new EODataChunk();
-                            StartDataReceive(newWrap);
+                            //_handlePacket(pkt);
+                            //var newWrap = new EODataChunk();
+                            //StartDataReceive(newWrap);
                             break;
                         }
                     default:

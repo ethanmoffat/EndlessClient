@@ -37,7 +37,7 @@ namespace EOLib.Net.Builders
                 case ChatType.Party: return PacketAction.Open;
                 case ChatType.Admin: return PacketAction.Admin;
                 case ChatType.Announce: return PacketAction.Announce;
-                default: throw new NotImplementedException();
+                default: throw new ArgumentOutOfRangeException("chatType");
             }
         }
     }
