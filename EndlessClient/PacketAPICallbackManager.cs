@@ -89,7 +89,6 @@ namespace EndlessClient
             m_packetAPI.OnRemoveChildNPCs += _removeChildNPCs;
 
             //chat related
-            m_packetAPI.OnPlayerChatByID += _chatByPlayerID;
             m_packetAPI.OnPlayerChatByName += _chatByPlayerName;
             m_packetAPI.OnPMRecipientNotFound += _pmRecipientNotFound;
             m_packetAPI.OnMuted += _playerMuted;
@@ -590,11 +589,6 @@ namespace EndlessClient
         private void _removeChildNPCs(short childNPCID)
         {
             OldWorld.Instance.ActiveMapRenderer.RemoveNPCsWhere(x => x.NPC.Data.ID == childNPCID);
-        }
-
-        private void _chatByPlayerID(ChatType type, int id, string message)
-        {
-            OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(type, id, message, type == ChatType.Party ? ChatIcon.PlayerPartyDark : ChatIcon.SpeechBubble);
         }
 
         private void _chatByPlayerName(ChatType type, string name, string msg)

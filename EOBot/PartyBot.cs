@@ -59,7 +59,7 @@ namespace EOBot
 
         private void SpeakYourMind(object state)
         {
-            _api.Speak(ChatType.Local, _name + " standing by!");
+            //_api.Speak(ChatType.Local, _name + " standing by!");
 
             if (_speechTimer != null)
             {

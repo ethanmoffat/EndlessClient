@@ -215,11 +215,11 @@ namespace EndlessClient.HUD.Controls
                     var filtered = OldChatRenderer.Filter(message, true);
                     if (filtered != null)
                     {
-                        if (!m_packetAPI.Speak(ChatType.PM, message, character))
-                        {
-                            EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                            break;
-                        }
+                        //if (!m_packetAPI.Speak(ChatType.PM, message, character))
+                        //{
+                        //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                        //    break;
+                        //}
 
                         var whichPrivateChat = chatRenderer.StartConversation(character);
                         //the other player will have their messages rendered in Color.PM on scr

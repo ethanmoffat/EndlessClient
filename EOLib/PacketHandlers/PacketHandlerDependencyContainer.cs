@@ -17,6 +17,9 @@ namespace EOLib.PacketHandlers
                 .RegisterVaried<IPacketHandler, FindCommandPlayerNotFoundHandler>()
                 .RegisterVaried<IPacketHandler, FindCommandPlayerSameMapHandler>()
                 .RegisterVaried<IPacketHandler, FindCommandPlayerDifferentMapHandler>();
+
+            container.RegisterVaried<IPacketHandler, PublicChatHandler>()
+                .RegisterVaried<IPacketHandler, GroupChatHandler>();
         }
     }
 }
