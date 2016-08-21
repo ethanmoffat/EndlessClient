@@ -45,7 +45,7 @@ namespace EndlessClient.UIControls
 
         private static Rectangle GetPositionBasedOnWindowSize(IClientWindowSizeProvider clientWindowSizeProvider)
         {
-            return new Rectangle(97, clientWindowSizeProvider.Height - 25, 1, 1);
+            return new Rectangle(97, clientWindowSizeProvider.Height - 24, 1, 1);
         }
     }
 }
