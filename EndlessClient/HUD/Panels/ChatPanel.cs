@@ -108,6 +108,38 @@ namespace EndlessClient.HUD.Panels
             _constructed = true;
         }
 
+        public Optional<ChatTab> TryStartNewPrivateChat(string targetCharacter)
+        {
+            if (_privateChat1Shown && _privateChat2Shown)
+                return new Optional<ChatTab>();
+
+            if (_privateChat1Shown)
+            {
+                _privateChat2Shown = true;
+                SelectTab(ChatTab.Private2);
+                _tabLabels[ChatTab.Private2].Text = char.ToUpper(targetCharacter[0]) + targetCharacter.Substring(1);
+                return new Optional<ChatTab>(ChatTab.Private2);
+            }
+
+            _privateChat1Shown = true;
+            SelectTab(ChatTab.Private1);
+            _tabLabels[ChatTab.Private1].Text = char.ToUpper(targetCharacter[0]) + targetCharacter.Substring(1);
+            return new Optional<ChatTab>(ChatTab.Private1);
+        }
+
+        public void ClosePrivateChat(ChatTab whichTab)
+        {
+            if (whichTab == ChatTab.Private1)
+                _privateChat1Shown = false;
+            else if (whichTab == ChatTab.Private2)
+                _privateChat2Shown = false;
+            else
+                throw new ArgumentOutOfRangeException("whichTab");
+
+            _tabLabels[whichTab].Text = "";
+            SelectTab(ChatTab.Local);
+        }
+
         public override void Update(GameTime gameTime)
         {
             if (!_constructed)
@@ -142,9 +174,7 @@ namespace EndlessClient.HUD.Panels
                     (clickedTab != ChatTab.Private2 || _privateChat2Shown))
                 {
                     //todo: special-case handling for close buttons
-                    _tabLabels[_currentTab].ForeColor = Color.Black;
-                    _tabLabels[clickedTab].ForeColor = Color.White;
-                    _currentTab = clickedTab;
+                    SelectTab(clickedTab);
                 }
             }
             else if (MouseOver && mouseState.RightButton == ButtonState.Released &&
@@ -245,7 +275,6 @@ namespace EndlessClient.HUD.Panels
 
             switch (tab)
             {
-                //todo: handling for PM (empty sprite sheet if not open!)
                 case ChatTab.Private1:
                 case ChatTab.Private2:
                     return _currentTab == tab ? _largeSelected : _largeUnselected;
@@ -257,6 +286,13 @@ namespace EndlessClient.HUD.Panels
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void SelectTab(ChatTab clickedTab)
+        {
+            _tabLabels[_currentTab].ForeColor = Color.Black;
+            _tabLabels[clickedTab].ForeColor = Color.White;
+            _currentTab = clickedTab;
         }
 
         protected override void Dispose(bool disposing)
