@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
+using EOLib.Domain;
 using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
@@ -21,6 +22,7 @@ namespace EndlessClient.Controllers
         private readonly IBackgroundReceiveActions _backgroundReceiveActions;
         private readonly IGameStateActions _gameStateActions;
         private readonly IAccountDialogDisplayActions _accountDialogDisplayActions;
+        private readonly IResetStateAction _resetStateAction;
         private readonly IConnectionStateProvider _connectionStateProvider;
         private readonly ISafeNetworkOperationFactory _networkOperationFactory;
 
@@ -32,6 +34,7 @@ namespace EndlessClient.Controllers
                                     IBackgroundReceiveActions backgroundReceiveActions,
                                     IGameStateActions gameStateActions,
                                     IAccountDialogDisplayActions accountDialogDisplayActions,
+                                    IResetStateAction resetStateAction,
                                     IConnectionStateProvider connectionStateProvider,
                                     ISafeNetworkOperationFactory networkOperationFactory)
         {
@@ -41,6 +44,7 @@ namespace EndlessClient.Controllers
             _backgroundReceiveActions = backgroundReceiveActions;
             _gameStateActions = gameStateActions;
             _accountDialogDisplayActions = accountDialogDisplayActions;
+            _resetStateAction = resetStateAction;
             _connectionStateProvider = connectionStateProvider;
             _networkOperationFactory = networkOperationFactory;
         }
@@ -54,6 +58,8 @@ namespace EndlessClient.Controllers
         {
             GoToInitialState();
             StopReceivingAndDisconnect();
+
+            _resetStateAction.ResetState();
         }
 
         public async Task ClickCreateAccount()

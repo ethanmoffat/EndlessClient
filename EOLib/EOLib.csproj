@@ -93,6 +93,7 @@
     <Compile Include="Domain\Chat\LocalCommandHandler.cs" />
     <Compile Include="Domain\Extensions\CharacterRenderPropertiesExtensions.cs" />
     <Compile Include="Domain\Extensions\PaperdollRepositoryExtensions.cs" />
+    <Compile Include="Domain\IResetStateAction.cs" />
     <Compile Include="Domain\Login\INewsRepository.cs" />
     <Compile Include="Domain\Login\LoginRequestCompletedData.cs" />
     <Compile Include="Domain\Map\ICurrentMapProvider.cs" />
@@ -148,7 +149,9 @@
     <Compile Include="Domain\Account\CreateAccountParameterValidator.cs" />
     <Compile Include="Domain\Account\ICreateAccountParameterValidator.cs" />
     <Compile Include="Domain\Protocol\IPingTimeRepository.cs" />
+    <Compile Include="Domain\ResetStateAction.cs" />
     <Compile Include="EODirection.cs" />
+    <Compile Include="IResettable.cs" />
     <Compile Include="Net\Builders\ChatPacketBuilder.cs" />
     <Compile Include="Net\Builders\IChatPacketBuilder.cs" />
     <Compile Include="Net\Communication\ISafeNetworkOperation.cs" />

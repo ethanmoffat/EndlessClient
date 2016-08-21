@@ -165,6 +165,8 @@ namespace EOLib.Domain.Login
             _currentMapStateRepository.Characters = data.MapCharacters.Except(new[] {mainCharacter}).ToList();
             _currentMapStateRepository.NPCs = data.MapNPCs.ToList();
             _currentMapStateRepository.MapItems = data.MapItems.ToList();
+
+            _playerInfoRepository.PlayerIsInGame = true;
         }
 
         private bool IsInvalidResponse(IPacket response)

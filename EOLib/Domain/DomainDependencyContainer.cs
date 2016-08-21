@@ -41,6 +41,11 @@ namespace EOLib.Domain
                 .RegisterInstance<INewsProvider, NewsRepository>()
                 .RegisterInstance<IPingTimeRepository, PingTimeRepository>();
 
+            container.RegisterType<IResetStateAction, ResetStateAction>();
+
+            //resettable containers
+            container.RegisterInstanceVaried<IResettable, PlayerInfoRepository>();
+
             RegisterTypesForChat(container);
         }
 
