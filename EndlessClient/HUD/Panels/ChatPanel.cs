@@ -32,6 +32,7 @@ namespace EndlessClient.HUD.Panels
         private int _cachedScrollOffset;
         private int _cachedLinesToRender;
         private ChatTab _currentTab;
+        private bool _privateChat1Shown, _privateChat2Shown;
 
         private readonly ISpriteSheet _smallSelected, _smallUnselected;
         private readonly ISpriteSheet _largeSelected, _largeUnselected;
@@ -203,6 +204,10 @@ namespace EndlessClient.HUD.Panels
 
         private ISpriteSheet GetSpriteSheetForTab(ChatTab tab)
         {
+            if ((tab == ChatTab.Private1 && !_privateChat1Shown) ||
+                (tab == ChatTab.Private2 && !_privateChat2Shown))
+                return new EmptySpriteSheet();
+
             switch (tab)
             {
                 //todo: handling for PM (empty sprite sheet if not open!)
