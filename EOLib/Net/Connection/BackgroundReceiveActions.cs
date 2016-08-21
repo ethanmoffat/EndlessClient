@@ -10,35 +10,35 @@ namespace EOLib.Net.Connection
     public class BackgroundReceiveActions : IBackgroundReceiveActions
     {
         private readonly INetworkClientProvider _clientProvider;
+        private readonly IBackgroundReceiveThreadRepository _backgroundReceiveThreadRepository;
 
-        private Thread _backgroundThread;
-        private bool _threadStarted;
-
-        public BackgroundReceiveActions(INetworkClientProvider clientProvider)
+        public BackgroundReceiveActions(INetworkClientProvider clientProvider,
+                                        IBackgroundReceiveThreadRepository backgroundReceiveThreadRepository)
         {
             _clientProvider = clientProvider;
-            _backgroundThread = new Thread(BackgroundLoop);
+            _backgroundReceiveThreadRepository = backgroundReceiveThreadRepository;
+            _backgroundReceiveThreadRepository.BackgroundThreadObject = new Thread(BackgroundLoop);
         }
 
         public void RunBackgroundReceiveLoop()
         {
-            if (_threadStarted)
+            if (_backgroundReceiveThreadRepository.BackgroundThreadRunning)
                 return;
-            
-            _backgroundThread.Start();
-            _threadStarted = true;
+
+            _backgroundReceiveThreadRepository.BackgroundThreadObject.Start();
+            _backgroundReceiveThreadRepository.BackgroundThreadRunning = true;
         }
 
         public void CancelBackgroundReceiveLoop()
         {
-            if (!_threadStarted)
+            if (!_backgroundReceiveThreadRepository.BackgroundThreadRunning)
                 return;
 
             Client.CancelBackgroundReceiveLoop();
-            
-            _backgroundThread.Join();
-            _backgroundThread = new Thread(BackgroundLoop);
-            _threadStarted = false;
+
+            _backgroundReceiveThreadRepository.BackgroundThreadObject.Join();
+            _backgroundReceiveThreadRepository.BackgroundThreadObject = new Thread(BackgroundLoop);
+            _backgroundReceiveThreadRepository.BackgroundThreadRunning = false;
         }
 
         private async void BackgroundLoop()

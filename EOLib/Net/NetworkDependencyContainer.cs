@@ -9,7 +9,6 @@ using EOLib.Net.Connection;
 using EOLib.Net.FileTransfer;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
-using EOLib.PacketHandlers;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.Net
@@ -45,9 +44,8 @@ namespace EOLib.Net
                 .RegisterType<INetworkConnectionActions, NetworkConnectionActions>()
                 .RegisterType<IFileRequestActions, FileRequestActions>();
             
-            //must be a singleton: tracks a thread and has internal state.
-            //todo: see if this can be re-worked so the actions are stateless
-            container.RegisterInstance<IBackgroundReceiveActions, BackgroundReceiveActions>();
+            container.RegisterType<IBackgroundReceiveActions, BackgroundReceiveActions>()
+                .RegisterInstance<IBackgroundReceiveThreadRepository, BackgroundReceiveThreadRepository>();
 
             container.RegisterType<IChatPacketBuilder, ChatPacketBuilder>();
 
@@ -57,7 +55,7 @@ namespace EOLib.Net
         public void InitializeDependencies(IUnityContainer container)
         {
             //create the client object (can be recreated later)
-            //todo: make this constructor injected in INetworkClientRepository?
+            //constructor-injecting the factory causes a dependency loop.
             var clientRepo = container.Resolve<INetworkClientRepository>();
             var clientFactory = container.Resolve<INetworkClientFactory>();
             clientRepo.NetworkClient = clientFactory.CreateNetworkClient();
