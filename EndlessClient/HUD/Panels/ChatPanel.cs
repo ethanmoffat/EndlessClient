@@ -2,10 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Rendering.Chat;
+using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
+using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -30,6 +33,11 @@ namespace EndlessClient.HUD.Panels
         private int _cachedLinesToRender;
         private ChatTab _currentTab;
 
+        private readonly ISpriteSheet _smallSelected, _smallUnselected;
+        private readonly ISpriteSheet _largeSelected, _largeUnselected;
+
+        private readonly Dictionary<ChatTab, XNALabel> _tabLabels;
+
         public ChatPanel(INativeGraphicsManager nativeGraphicsManager,
                          IChatRenderableGenerator chatRenderableGenerator,
                          IChatProvider chatProvider,
@@ -53,6 +61,32 @@ namespace EndlessClient.HUD.Panels
             _cachedScrollOffset = -1;
             _cachedLinesToRender = -1;
             _currentTab = ChatTab.Local;
+
+            var tabTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 35);
+            _smallSelected = new SpriteSheet(tabTexture, new Rectangle(307, 16, 43, 16));
+            _smallUnselected = new SpriteSheet(tabTexture, new Rectangle(264, 16, 43, 16));
+            _largeSelected = new SpriteSheet(tabTexture, new Rectangle(132, 16, 132, 16));
+            _largeUnselected = new SpriteSheet(tabTexture, new Rectangle(0, 16, 132, 16));
+
+            _tabLabels = new Dictionary<ChatTab, XNALabel>
+            {
+                {ChatTab.Local, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "scr", ForeColor = Color.White}},
+                {ChatTab.Global, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "glb"}},
+                {ChatTab.Group, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "grp"}},
+                {ChatTab.System, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "sys"}},
+                {ChatTab.Private1, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "[priv 1]", Visible = false}},
+                {ChatTab.Private2, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "[priv 2]", Visible = false}}
+            };
+
+            foreach (var kvp in _tabLabels)
+            {
+                var startPos = GetDestinationVectorForTab(kvp.Key);
+                kvp.Value.DrawLocation = startPos + new Vector2(14, 2);
+
+                //note: these must be manually drawn so they appear on top of the tab graphics
+                if (Game.Components.Contains(kvp.Value))
+                    Game.Components.Remove(kvp.Value);
+            }
 
             BackgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 28);
             _setSize(BackgroundImage.Width, BackgroundImage.Height);
@@ -94,6 +128,10 @@ namespace EndlessClient.HUD.Panels
 
             foreach (var renderable in _chatRenderables)
                 renderable.Render(SpriteBatch, _chatFont, _nativeGraphicsManager);
+
+            DrawTabsAtBottom();
+            foreach (var tabLabel in _tabLabels.Values)
+                tabLabel.Draw(gameTime);
         }
 
         private void UpdateCachedChatData()
@@ -122,6 +160,74 @@ namespace EndlessClient.HUD.Panels
 
             if (renderables.Count > _scrollBar.LinesToRender)
                 _scrollBar.ScrollToEnd();
+        }
+
+        private void DrawTabsAtBottom()
+        {
+            SpriteBatch.Begin();
+
+            var chatTabs = (ChatTab[])Enum.GetValues(typeof(ChatTab));
+            foreach (var tab in chatTabs)
+            {
+                var destVector = GetDestinationVectorForTab(tab);
+                var spriteSheet = GetSpriteSheetForTab(tab);
+                if (!spriteSheet.HasTexture)
+                    continue;
+
+                SpriteBatch.Draw(spriteSheet.SheetTexture,
+                                 destVector,
+                                 spriteSheet.SourceRectangle,
+                                 Color.White);
+            }
+
+            SpriteBatch.End();
+        }
+
+        private Vector2 GetDestinationVectorForTab(ChatTab tab)
+        {
+            var topLeft = new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y);
+            switch (tab)
+            {
+                case ChatTab.Private1:
+                    return topLeft + new Vector2(23, 102);
+                case ChatTab.Private2:
+                    return topLeft + new Vector2(156, 102);
+                case ChatTab.Local:
+                case ChatTab.Global:
+                case ChatTab.Group:
+                case ChatTab.System:
+                    return topLeft + new Vector2(289 + 44 * ((int)tab - 2), 102);
+                default: throw new ArgumentOutOfRangeException("tab", tab, null);
+            }
+        }
+
+        private ISpriteSheet GetSpriteSheetForTab(ChatTab tab)
+        {
+            switch (tab)
+            {
+                //todo: handling for PM (empty sprite sheet if not open!)
+                case ChatTab.Private1:
+                case ChatTab.Private2:
+                    return _currentTab == tab ? _largeSelected : _largeUnselected;
+                case ChatTab.Local:
+                case ChatTab.Global:
+                case ChatTab.Group:
+                case ChatTab.System:
+                    return _currentTab == tab ? _smallSelected : _smallUnselected;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                foreach (var tabLabel in _tabLabels.Values)
+                    tabLabel.Dispose();
+                _tabLabels.Clear();
+            }
+            base.Dispose(disposing);
         }
     }
 }
