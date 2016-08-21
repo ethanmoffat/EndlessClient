@@ -9,12 +9,14 @@ using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
+using EndlessClient.HUD;
 using EndlessClient.HUD.Chat;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Actions;
+using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
@@ -28,10 +30,12 @@ namespace EndlessClient.Controllers
         private readonly IFileRequestActions _fileRequestActions;
         private readonly IGameStateActions _gameStateActions;
         private readonly IChatTextBoxActions _chatTextBoxActions;
+        private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
         private readonly ISafeNetworkOperationFactory _networkOperationFactory;
         private readonly IGameLoadingDialogFactory _gameLoadingDialogFactory;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly IFirstTimePlayerActions _firstTimePlayerActions;
 
         public LoginController(ILoginActions loginActions,
                                IMapFileLoadActions mapFileLoadActions,
@@ -39,9 +43,11 @@ namespace EndlessClient.Controllers
                                IGameStateActions gameStateActions,
                                IChatTextBoxActions chatTextBoxActions,
                                IErrorDialogDisplayAction errorDisplayAction,
+                               IFirstTimePlayerActions firstTimePlayerActions,
                                ISafeNetworkOperationFactory networkOperationFactory,
                                IGameLoadingDialogFactory gameLoadingDialogFactory,
-                               ICurrentMapStateProvider currentMapStateProvider)
+                               ICurrentMapStateProvider currentMapStateProvider,
+                               IStatusLabelSetter statusLabelSetter)
         {
             _loginActions = loginActions;
             _mapFileLoadActions = mapFileLoadActions;
@@ -49,9 +55,11 @@ namespace EndlessClient.Controllers
             _gameStateActions = gameStateActions;
             _chatTextBoxActions = chatTextBoxActions;
             _errorDisplayAction = errorDisplayAction;
+            _firstTimePlayerActions = firstTimePlayerActions;
             _networkOperationFactory = networkOperationFactory;
             _gameLoadingDialogFactory = gameLoadingDialogFactory;
             _currentMapStateProvider = currentMapStateProvider;
+            _statusLabelSetter = statusLabelSetter;
         }
 
         public async Task LoginToAccount(ILoginParameters loginParameters)
@@ -159,6 +167,9 @@ namespace EndlessClient.Controllers
 
             _gameStateActions.ChangeToState(GameStates.PlayingTheGame);
             _chatTextBoxActions.FocusChatTextBox();
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                                              EOResourceID.LOADING_GAME_HINT_FIRST);
+            _firstTimePlayerActions.WarnFirstTimePlayers();
         }
 
         private void SetInitialStateAndShowError(NoDataSentException ex)

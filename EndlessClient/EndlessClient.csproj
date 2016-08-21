@@ -49,6 +49,7 @@
     <Compile Include="Audio\WAVFileValidator.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\IChatController.cs" />
+    <Compile Include="Dialogs\Actions\IFirstTimePlayerActions.cs" />
     <Compile Include="HUD\Chat\ChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\ChatTextBoxActions.cs" />
     <Compile Include="HUD\Chat\IChatModeCalculator.cs" />
