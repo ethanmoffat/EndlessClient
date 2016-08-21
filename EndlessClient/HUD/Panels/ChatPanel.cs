@@ -13,11 +13,11 @@ using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
-    //todo: maybe some of this can be shared between ChatPanel and NewsPanel
     public class ChatPanel : XNAPanel, IHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
@@ -38,6 +38,9 @@ namespace EndlessClient.HUD.Panels
         private readonly ISpriteSheet _largeSelected, _largeUnselected;
 
         private readonly Dictionary<ChatTab, XNALabel> _tabLabels;
+        private readonly IReadOnlyDictionary<ChatTab, Rectangle> _tabLabelClickableAreas;
+
+        private readonly bool _constructed;
 
         public ChatPanel(INativeGraphicsManager nativeGraphicsManager,
                          IChatRenderableGenerator chatRenderableGenerator,
@@ -79,6 +82,16 @@ namespace EndlessClient.HUD.Panels
                 {ChatTab.Private2, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "[priv 2]", Visible = false}}
             };
 
+            _tabLabelClickableAreas = new Dictionary<ChatTab, Rectangle>
+            {
+                {ChatTab.Local, new Rectangle(0, 0, 43, 16).WithPosition(GetDestinationVectorForTab(ChatTab.Local))},
+                {ChatTab.Global, new Rectangle(0, 0, 43, 16).WithPosition(GetDestinationVectorForTab(ChatTab.Global))},
+                {ChatTab.Group, new Rectangle(0, 0, 43, 16).WithPosition(GetDestinationVectorForTab(ChatTab.Group))},
+                {ChatTab.System, new Rectangle(0, 0, 43, 16).WithPosition(GetDestinationVectorForTab(ChatTab.System))},
+                {ChatTab.Private1, new Rectangle(0, 0, 132, 16).WithPosition(GetDestinationVectorForTab(ChatTab.Private1))},
+                {ChatTab.Private2, new Rectangle(0, 0, 132, 16).WithPosition(GetDestinationVectorForTab(ChatTab.Private2))},
+            };
+
             foreach (var kvp in _tabLabels)
             {
                 var startPos = GetDestinationVectorForTab(kvp.Key);
@@ -91,11 +104,13 @@ namespace EndlessClient.HUD.Panels
 
             BackgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 28);
             _setSize(BackgroundImage.Width, BackgroundImage.Height);
+
+            _constructed = true;
         }
 
         public override void Update(GameTime gameTime)
         {
-            if (_scrollBar == null)
+            if (!_constructed)
                 return;
 
             var chatChanged = false;
@@ -115,17 +130,37 @@ namespace EndlessClient.HUD.Panels
                 SetupRenderablesFromCachedValues(renderables);
             }
 
+            var mouseState = Mouse.GetState();
+            if (MouseOver && mouseState.LeftButton == ButtonState.Released &&
+                PreviousMouseState.LeftButton == ButtonState.Pressed &&
+                _tabLabelClickableAreas.Any(x => x.Value.Contains(mouseState.Position))) //handle left click
+            {
+                var clickedTab = _tabLabelClickableAreas.Single(x => x.Value.Contains(mouseState.Position)).Key;
+                
+                //prevent clicking invisible tabs (boolean logic reduced using de morgan's laws
+                if ((clickedTab != ChatTab.Private1 || _privateChat1Shown) &&
+                    (clickedTab != ChatTab.Private2 || _privateChat2Shown))
+                {
+                    //todo: special-case handling for close buttons
+                    _tabLabels[_currentTab].ForeColor = Color.Black;
+                    _tabLabels[clickedTab].ForeColor = Color.White;
+                    _currentTab = clickedTab;
+                }
+            }
+            else if (MouseOver && mouseState.RightButton == ButtonState.Released &&
+                     PreviousMouseState.RightButton == ButtonState.Pressed) //handle right click
+            {
+                //todo: start private chat with the person that said whatever line was right-clicked
+            }
+
             base.Update(gameTime);
         }
 
         public override void Draw(GameTime gameTime)
         {
-            if (!Visible) return;
+            if (!Visible || !_constructed) return;
 
             base.Draw(gameTime);
-
-            if (_chatRenderables == null)
-                return;
 
             foreach (var renderable in _chatRenderables)
                 renderable.Render(SpriteBatch, _chatFont, _nativeGraphicsManager);
