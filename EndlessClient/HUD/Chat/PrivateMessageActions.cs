@@ -17,8 +17,8 @@ namespace EndlessClient.HUD.Chat
         private readonly IChatTypeCalculator _chatTypeCalculator;
 
         public PrivateMessageActions(IHudControlProvider hudControlProvider,
-            IChatProvider chatProvider,
-            IChatTypeCalculator chatTypeCalculator)
+                                     IChatProvider chatProvider,
+                                     IChatTypeCalculator chatTypeCalculator)
         {
             _hudControlProvider = hudControlProvider;
             _chatProvider = chatProvider;
@@ -27,6 +27,8 @@ namespace EndlessClient.HUD.Chat
 
         public string GetTargetCharacter()
         {
+            //todo: error status bar message if there is no text following a character name
+
             if (_chatTypeCalculator.CalculateChatType(_chatProvider.LocalTypedText) != ChatType.PM)
                 return "";
 

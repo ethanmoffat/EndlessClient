@@ -283,6 +283,7 @@
     <Compile Include="Net\Translators\PacketTranslatorContainer.cs" />
     <Compile Include="Optional.cs" />
     <Compile Include="PacketHandlers\PlayerChatByIDHandler.cs" />
+    <Compile Include="PacketHandlers\PrivateMessageTargetNotFound.cs" />
     <Compile Include="PacketHandlers\PublicChatHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Win32.cs" />
