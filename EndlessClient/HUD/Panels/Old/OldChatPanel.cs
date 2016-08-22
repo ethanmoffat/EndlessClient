@@ -347,9 +347,11 @@ namespace EndlessClient.HUD.Panels.Old
             tabs = new OldChatTab[Enum.GetNames(typeof(ChatTab)).Length - 1]; // -1 skips the 'none' tab which is used for news
             for(int i = 0; i < tabs.Length; ++i)
             {
-                tabs[i] = new OldChatTab((ChatTab)i, this, (ChatTab)i == ChatTab.Local)
+                tabs[i] = new OldChatTab((ChatTab) i, this, (ChatTab) i == ChatTab.Local)
                 {
-                    DrawLocation = i > (int) ChatTab.Private2 ? new Vector2(289 + 44*(i - 2), 102) : new Vector2((ChatTab) i == ChatTab.Private1 ? 23 : 156, 102)
+                    DrawLocation = i > (int) ChatTab.Private2
+                        ? new Vector2(289 + 44*(i - 2), 102)
+                        : new Vector2((ChatTab) i == ChatTab.Private1 ? 23 : 156, 102)
                 };
             }
 

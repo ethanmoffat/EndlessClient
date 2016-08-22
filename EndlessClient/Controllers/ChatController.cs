@@ -16,18 +16,21 @@ namespace EndlessClient.Controllers
     {
         private readonly IChatTextBoxActions _chatTextBoxActions;
         private readonly IChatActions _chatActions;
+        private readonly IPrivateMessageActions _privateMessageActions;
         private readonly IGameStateActions _gameStateActions;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
         private readonly ISafeNetworkOperationFactory _safeNetworkOperationFactory;
 
         public ChatController(IChatTextBoxActions chatTextBoxActions,
                               IChatActions chatActions,
+                              IPrivateMessageActions privateMessageActions,
                               IGameStateActions gameStateActions,
                               IErrorDialogDisplayAction errorDisplayAction,
                               ISafeNetworkOperationFactory safeNetworkOperationFactory)
         {
             _chatTextBoxActions = chatTextBoxActions;
             _chatActions = chatActions;
+            _privateMessageActions = privateMessageActions;
             _gameStateActions = gameStateActions;
             _errorDisplayAction = errorDisplayAction;
             _safeNetworkOperationFactory = safeNetworkOperationFactory;
@@ -35,8 +38,9 @@ namespace EndlessClient.Controllers
 
         public async Task SendChatAndClearTextBox()
         {
+            var targetCharacter = _privateMessageActions.GetTargetCharacter();
             var sendChatOperation = _safeNetworkOperationFactory.CreateSafeAsyncOperation(
-                async () => await _chatActions.SendChatToServer(),
+                async () => await _chatActions.SendChatToServer(targetCharacter),
                 SetInitialStateAndShowError);
 
             if (!await sendChatOperation.Invoke())

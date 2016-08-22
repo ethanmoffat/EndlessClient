@@ -31,7 +31,6 @@ namespace EndlessClient.HUD.Panels
         private readonly List<ChatData> _cachedChatData;
         private int _cachedScrollOffset;
         private int _cachedLinesToRender;
-        private ChatTab _currentTab;
         private bool _privateChat1Shown, _privateChat2Shown;
 
         private readonly ISpriteSheet _smallSelected, _smallUnselected;
@@ -41,6 +40,8 @@ namespace EndlessClient.HUD.Panels
         private readonly IReadOnlyDictionary<ChatTab, Rectangle> _tabLabelClickableAreas;
 
         private readonly bool _constructed;
+
+        public ChatTab CurrentTab { get; private set; }
 
         public ChatPanel(INativeGraphicsManager nativeGraphicsManager,
                          IChatRenderableGenerator chatRenderableGenerator,
@@ -64,7 +65,7 @@ namespace EndlessClient.HUD.Panels
             _cachedChatData = new List<ChatData>();
             _cachedScrollOffset = -1;
             _cachedLinesToRender = -1;
-            _currentTab = ChatTab.Local;
+            CurrentTab = ChatTab.Local;
 
             var tabTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 35);
             _smallSelected = new SpriteSheet(tabTexture, new Rectangle(307, 16, 43, 16));
@@ -108,23 +109,25 @@ namespace EndlessClient.HUD.Panels
             _constructed = true;
         }
 
-        public Optional<ChatTab> TryStartNewPrivateChat(string targetCharacter)
+        public void TryStartNewPrivateChat(string targetCharacter)
         {
             if (_privateChat1Shown && _privateChat2Shown)
-                return new Optional<ChatTab>();
+                return;
 
-            if (_privateChat1Shown)
+            if (_privateChat1Shown) //private chat 1 is in use
             {
                 _privateChat2Shown = true;
                 SelectTab(ChatTab.Private2);
                 _tabLabels[ChatTab.Private2].Text = char.ToUpper(targetCharacter[0]) + targetCharacter.Substring(1);
-                return new Optional<ChatTab>(ChatTab.Private2);
+                _tabLabels[ChatTab.Private2].Visible = true;
             }
-
-            _privateChat1Shown = true;
-            SelectTab(ChatTab.Private1);
-            _tabLabels[ChatTab.Private1].Text = char.ToUpper(targetCharacter[0]) + targetCharacter.Substring(1);
-            return new Optional<ChatTab>(ChatTab.Private1);
+            else //no private chats are in use
+            {
+                _privateChat1Shown = true;
+                SelectTab(ChatTab.Private1);
+                _tabLabels[ChatTab.Private1].Text = char.ToUpper(targetCharacter[0]) + targetCharacter.Substring(1);
+                _tabLabels[ChatTab.Private1].Visible = true;
+            }
         }
 
         public void ClosePrivateChat(ChatTab whichTab)
@@ -146,7 +149,7 @@ namespace EndlessClient.HUD.Panels
                 return;
 
             var chatChanged = false;
-            if (!_cachedChatData.SequenceEqual(_chatProvider.AllChat[_currentTab]))
+            if (!_cachedChatData.SequenceEqual(_chatProvider.AllChat[CurrentTab]))
             {
                 UpdateCachedChatData();
                 chatChanged = true;
@@ -203,7 +206,7 @@ namespace EndlessClient.HUD.Panels
         private void UpdateCachedChatData()
         {
             _cachedChatData.Clear();
-            _cachedChatData.AddRange(_chatProvider.AllChat[_currentTab]);
+            _cachedChatData.AddRange(_chatProvider.AllChat[CurrentTab]);
         }
 
         private void UpdateCachedScrollProperties()
@@ -277,12 +280,12 @@ namespace EndlessClient.HUD.Panels
             {
                 case ChatTab.Private1:
                 case ChatTab.Private2:
-                    return _currentTab == tab ? _largeSelected : _largeUnselected;
+                    return CurrentTab == tab ? _largeSelected : _largeUnselected;
                 case ChatTab.Local:
                 case ChatTab.Global:
                 case ChatTab.Group:
                 case ChatTab.System:
-                    return _currentTab == tab ? _smallSelected : _smallUnselected;
+                    return CurrentTab == tab ? _smallSelected : _smallUnselected;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -290,9 +293,9 @@ namespace EndlessClient.HUD.Panels
 
         private void SelectTab(ChatTab clickedTab)
         {
-            _tabLabels[_currentTab].ForeColor = Color.Black;
+            _tabLabels[CurrentTab].ForeColor = Color.Black;
             _tabLabels[clickedTab].ForeColor = Color.White;
-            _currentTab = clickedTab;
+            CurrentTab = clickedTab;
         }
 
         protected override void Dispose(bool disposing)

@@ -13,6 +13,10 @@ namespace EOLib.Domain.Chat
         string LocalTypedText { get; set; }
 
         Dictionary<ChatTab, List<ChatData>> AllChat { get; set; }
+
+        string PMTarget1 { get; set; }
+
+        string PMTarget2 { get; set; }
     }
 
     public interface IChatProvider
@@ -20,6 +24,10 @@ namespace EOLib.Domain.Chat
         string LocalTypedText { get; }
 
         IReadOnlyDictionary<ChatTab, IReadOnlyList<ChatData>> AllChat { get; }
+
+        string PMTarget1 { get; }
+
+        string PMTarget2 { get; }
     }
 
     public class ChatRepository : IChatRepository, IChatProvider, IResettable
@@ -37,6 +45,10 @@ namespace EOLib.Domain.Chat
                     v => v.Value as IReadOnlyList<ChatData>);
             }
         }
+
+        public string PMTarget1 { get; set; }
+
+        public string PMTarget2 { get; set; }
 
         public ChatRepository()
         {

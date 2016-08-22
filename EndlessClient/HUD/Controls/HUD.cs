@@ -19,7 +19,6 @@ using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls;
-using ChatType = EOLib.Domain.Chat.ChatType;
 
 namespace EndlessClient.HUD.Controls
 {
@@ -123,8 +122,6 @@ namespace EndlessClient.HUD.Controls
 
         private void CreateChatTextbox()
         {
-            chatTextBox.OnEnterPressed += _doTalk;
-
             chatTextBox.OnTextChanged += (s, e) =>
             {
                 if (chatTextBox.Text.Length == 1 && chatTextBox.Text[0] == '~' &&
@@ -184,52 +181,6 @@ namespace EndlessClient.HUD.Controls
         }
 
         #region Helper Methods
-
-        private void _doTalk(object sender, EventArgs e)
-        {
-            if (chatTextBox.Text.Length <= 0)
-                return;
-
-            string chatText = chatTextBox.Text;
-            chatTextBox.Text = "";
-            switch (chatText[0])
-            {
-                case '!':  //private talk
-                {
-                    string character, message;
-                    if (chatRenderer.SelectedTab.WhichTab == ChatTab.Private1 || chatRenderer.SelectedTab.WhichTab == ChatTab.Private2)
-                    {
-                        character = chatRenderer.SelectedTab.ChatCharacter;
-                        message = chatText.Substring(1);
-                    }
-                    else
-                    {
-                        int firstSpace = chatText.IndexOf(' ');
-                        if (firstSpace < 7) return; //character names should be 6, leading ! should be 1, 6+1=7 and THAT'S MATH
-                        character = chatText.Substring(1, firstSpace - 1);
-                        message = chatText.Substring(firstSpace + 1);
-                    }
-
-                    character = character.Substring(0, 1).ToUpper() + character.Substring(1).ToLower();
-
-                    var filtered = OldChatRenderer.Filter(message, true);
-                    if (filtered != null)
-                    {
-                        //if (!m_packetAPI.Speak(ChatType.PM, message, character))
-                        //{
-                        //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                        //    break;
-                        //}
-
-                        var whichPrivateChat = chatRenderer.StartConversation(character);
-                        //the other player will have their messages rendered in Color.PM on scr
-                        //this player will have their messages rendered in Color.PM on the PM tab
-                        AddChat(whichPrivateChat, OldWorld.Instance.MainPlayer.ActiveCharacter.Name, filtered, ChatIcon.Note, ChatColor.PM);
-                    }
-                }
-                    break;
-            }
-        }
 
         #endregion
 

@@ -8,8 +8,8 @@ namespace EOLib.Domain.Chat
 {
     public interface IChatActions
     {
-        Task SendChatToServer();
+        Task SendChatToServer(string targetCharacter);
 
-        Task SendChatToServer(string chat, string targetCharacter = null);
+        Task SendChatToServer(string chat, string targetCharacter);
     }
 }

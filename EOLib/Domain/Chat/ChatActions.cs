@@ -35,13 +35,12 @@ namespace EOLib.Domain.Chat
             _localCommandHandler = localCommandHandler;
         }
 
-        public async Task SendChatToServer()
+        public async Task SendChatToServer(string targetCharacter)
         {
-            //todo: get target character for PM
-            await SendChatToServer(_chatRepository.LocalTypedText);
+            await SendChatToServer(_chatRepository.LocalTypedText, targetCharacter);
         }
 
-        public async Task SendChatToServer(string chat, string targetCharacter = null)
+        public async Task SendChatToServer(string chat, string targetCharacter)
         {
             var chatType = _chatTypeCalculator.CalculateChatType(chat);
 
@@ -54,12 +53,20 @@ namespace EOLib.Domain.Chat
                 chatType = ChatType.Local;
             }
 
-            chat = RemoveFirstCharacterIfNeeded(chat, chatType);
+            if (chatType == ChatType.PM)
+            {
+                if (string.IsNullOrEmpty(_chatRepository.PMTarget1))
+                    _chatRepository.PMTarget1 = targetCharacter;
+                else if (string.IsNullOrEmpty(_chatRepository.PMTarget2))
+                    _chatRepository.PMTarget2 = targetCharacter;
+            }
+
+            chat = RemoveFirstCharacterIfNeeded(chat, chatType, targetCharacter);
 
             var chatPacket = _chatPacketBuilder.BuildChatPacket(chatType, chat, targetCharacter);
             await _packetSendService.SendPacketAsync(chatPacket);
 
-            AddChatForLocalDisplay(chatType, chat);
+            AddChatForLocalDisplay(chatType, chat, targetCharacter);
         }
 
         /// <summary>
@@ -77,9 +84,8 @@ namespace EOLib.Domain.Chat
             return _localCommandHandler.HandleCommand(command, parameters);
         }
 
-        private string RemoveFirstCharacterIfNeeded(string chat, ChatType chatType)
+        private static string RemoveFirstCharacterIfNeeded(string chat, ChatType chatType, string targetCharacter)
         {
-            //todo: handling for PMs
             switch (chatType)
             {
                 case ChatType.Command:
@@ -92,12 +98,21 @@ namespace EOLib.Domain.Chat
                 case ChatType.Party:
                 case ChatType.Announce:
                     return chat.Substring(1);
-                default:
+                case ChatType.PM:
+                    chat = chat.Substring(1);
+                    //todo: need to just send the whole string if the selected tab is the target character
+                    //currently this is incorrect since it will remove the name
+                    if (chat.ToLower().StartsWith(targetCharacter.ToLower()))
+                        chat = chat.Substring(targetCharacter.Length);
                     return chat;
+                case ChatType.Local:
+                    return chat;
+                default:
+                    throw new ArgumentOutOfRangeException("chatType");
             }
         }
 
-        private void AddChatForLocalDisplay(ChatType chatType, string chat)
+        private void AddChatForLocalDisplay(ChatType chatType, string chat, string targetCharacter)
         {
             //todo: handling for speech bubbles - announce, local, and group (and maybe guild?) need it.
             //todo: need some sort of event that fires or client-side detection mechanism (it should not be known about here)
@@ -109,7 +124,15 @@ namespace EOLib.Domain.Chat
                     _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat, ChatIcon.HGM, ChatColor.Admin));
                     break;
                 case ChatType.PM:
-                    //todo: handling for PM
+                    var chatData = new ChatData(who, chat, ChatIcon.Note, ChatColor.PM);
+
+                    if(targetCharacter == _chatRepository.PMTarget1)
+                        _chatRepository.AllChat[ChatTab.Private1].Add(chatData);
+                    else if (targetCharacter == _chatRepository.PMTarget2)
+                        _chatRepository.AllChat[ChatTab.Private2].Add(chatData);
+                    else
+                        throw new ArgumentException("Unexpected target character!", "targetCharacter");
+
                     break;
                 case ChatType.Local:
                     _chatRepository.AllChat[ChatTab.Local].Add(new ChatData(who, chat));
