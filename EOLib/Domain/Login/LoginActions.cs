@@ -2,11 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
+using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
@@ -20,12 +21,14 @@ namespace EOLib.Domain.Login
         private readonly IPacketTranslator<IAccountLoginData> _loginPacketTranslator;
         private readonly IPacketTranslator<ILoginRequestGrantedData> _loginRequestGrantedPacketTranslator;
         private readonly IPacketTranslator<ILoginRequestCompletedData> _loginRequestCompletedPacketTranslator;
+        private readonly ILocalizedStringService _localizedStringService;
         private readonly ICharacterSelectorRepository _characterSelectorRepository;
         private readonly IPlayerInfoRepository _playerInfoRepository;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ILoginFileChecksumRepository _loginFileChecksumRepository;
         private readonly INewsRepository _newsRepository;
+        private readonly IChatRepository _chatRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
         private readonly IPaperdollRepository _paperdollRepository;
 
@@ -33,12 +36,14 @@ namespace EOLib.Domain.Login
                             IPacketTranslator<IAccountLoginData> loginPacketTranslator,
                             IPacketTranslator<ILoginRequestGrantedData> loginRequestGrantedPacketTranslator,
                             IPacketTranslator<ILoginRequestCompletedData> loginRequestCompletedPacketTranslator,
+                            ILocalizedStringService localizedStringService,
                             ICharacterSelectorRepository characterSelectorRepository,
                             IPlayerInfoRepository playerInfoRepository,
                             ICharacterRepository characterRepository,
                             ICurrentMapStateRepository currentMapStateRepository,
                             ILoginFileChecksumRepository loginFileChecksumRepository,
                             INewsRepository newsRepository,
+                            IChatRepository chatRepository,
                             ICharacterInventoryRepository characterInventoryRepository,
                             IPaperdollRepository paperdollRepository)
         {
@@ -46,12 +51,14 @@ namespace EOLib.Domain.Login
             _loginPacketTranslator = loginPacketTranslator;
             _loginRequestGrantedPacketTranslator = loginRequestGrantedPacketTranslator;
             _loginRequestCompletedPacketTranslator = loginRequestCompletedPacketTranslator;
+            _localizedStringService = localizedStringService;
             _characterSelectorRepository = characterSelectorRepository;
             _playerInfoRepository = playerInfoRepository;
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _loginFileChecksumRepository = loginFileChecksumRepository;
             _newsRepository = newsRepository;
+            _chatRepository = chatRepository;
             _characterInventoryRepository = characterInventoryRepository;
             _paperdollRepository = paperdollRepository;
         }
@@ -138,7 +145,8 @@ namespace EOLib.Domain.Login
             var data = _loginRequestCompletedPacketTranslator.TranslatePacket(response);
 
             _newsRepository.NewsHeader = data.News.First();
-            _newsRepository.NewsText = data.News.Except(new[] { data.News.First()}).ToList();
+            _newsRepository.NewsText = data.News.Except(new[] { data.News.First() }).ToList();
+            AddDefaultTextToChat();
 
             var mainCharacter = data.MapCharacters.Single(
                 x => x.Name.ToLower() == _characterRepository.MainCharacter.Name.ToLower());
@@ -168,7 +176,6 @@ namespace EOLib.Domain.Login
 
             _playerInfoRepository.PlayerIsInGame = true;
         }
-
         private bool IsInvalidResponse(IPacket response)
         {
             return response.Family != PacketFamily.Login || response.Action != PacketAction.Reply;
@@ -178,5 +185,20 @@ namespace EOLib.Domain.Login
         {
             return response.Family != PacketFamily.Welcome || response.Action != PacketAction.Reply;
         }
+
+        private void AddDefaultTextToChat()
+        {
+            var server = _localizedStringService.GetString(EOResourceID.STRING_SERVER);
+            var serverMessage1 = _localizedStringService.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_1);
+            var serverMessage2 = _localizedStringService.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_2);
+
+            _chatRepository.AllChat[ChatTab.Local].Add(
+                new ChatData(server, _newsRepository.NewsHeader, ChatIcon.Note, ChatColor.Server));
+            _chatRepository.AllChat[ChatTab.Global].Add(
+                new ChatData(server, serverMessage1, ChatIcon.Note, ChatColor.Server));
+            _chatRepository.AllChat[ChatTab.Global].Add(
+                new ChatData(server, serverMessage2, ChatIcon.Note, ChatColor.Server));
+        }
+
     }
 }

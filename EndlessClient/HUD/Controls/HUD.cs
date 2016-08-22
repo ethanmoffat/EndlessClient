@@ -57,13 +57,6 @@ namespace EndlessClient.HUD.Controls
             DrawOrder = 100;
 
             chatRenderer = new OldChatRenderer();
-            //chatRenderer.SetParent(pnlChat);
-            chatRenderer.AddTextToTab(ChatTab.Global, OldWorld.GetString(EOResourceID.STRING_SERVER),
-                OldWorld.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_1),
-                ChatIcon.Note, ChatColor.Server);
-            chatRenderer.AddTextToTab(ChatTab.Global, OldWorld.GetString(EOResourceID.STRING_SERVER),
-                OldWorld.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_2),
-                ChatIcon.Note, ChatColor.Server);
 
             CreateChatTextbox();
 
