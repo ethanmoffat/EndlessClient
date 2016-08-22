@@ -22,7 +22,7 @@ namespace EOLib.Domain.Chat
         IReadOnlyDictionary<ChatTab, IReadOnlyList<ChatData>> AllChat { get; }
     }
 
-    public class ChatRepository : IChatRepository, IChatProvider
+    public class ChatRepository : IChatRepository, IChatProvider, IResettable
     {
         public string LocalTypedText { get; set; }
 
@@ -39,6 +39,11 @@ namespace EOLib.Domain.Chat
         }
 
         public ChatRepository()
+        {
+            ResetState();
+        }
+
+        public void ResetState()
         {
             LocalTypedText = "";
 
