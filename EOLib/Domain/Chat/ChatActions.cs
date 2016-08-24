@@ -114,9 +114,6 @@ namespace EOLib.Domain.Chat
 
         private void AddChatForLocalDisplay(ChatType chatType, string chat, string targetCharacter)
         {
-            //todo: handling for speech bubbles - announce, local, and group (and maybe guild?) need it.
-            //todo: need some sort of event that fires or client-side detection mechanism (it should not be known about here)
-            //todo: the same detection mechanism should also be used when other players chat is handled
             var who = _characterProvider.MainCharacter.Name;
             switch (chatType)
             {

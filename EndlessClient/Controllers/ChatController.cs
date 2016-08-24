@@ -19,6 +19,7 @@ namespace EndlessClient.Controllers
         private readonly IPrivateMessageActions _privateMessageActions;
         private readonly IGameStateActions _gameStateActions;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
+        private readonly IChatSpeechBubbleActions _chatSpeechBubbleActions;
         private readonly ISafeNetworkOperationFactory _safeNetworkOperationFactory;
 
         public ChatController(IChatTextBoxActions chatTextBoxActions,
@@ -26,6 +27,7 @@ namespace EndlessClient.Controllers
                               IPrivateMessageActions privateMessageActions,
                               IGameStateActions gameStateActions,
                               IErrorDialogDisplayAction errorDisplayAction,
+                              IChatSpeechBubbleActions chatSpeechBubbleActions,
                               ISafeNetworkOperationFactory safeNetworkOperationFactory)
         {
             _chatTextBoxActions = chatTextBoxActions;
@@ -33,6 +35,7 @@ namespace EndlessClient.Controllers
             _privateMessageActions = privateMessageActions;
             _gameStateActions = gameStateActions;
             _errorDisplayAction = errorDisplayAction;
+            _chatSpeechBubbleActions = chatSpeechBubbleActions;
             _safeNetworkOperationFactory = safeNetworkOperationFactory;
         }
 
@@ -48,6 +51,8 @@ namespace EndlessClient.Controllers
 
             _chatTextBoxActions.ClearChatText();
             _chatTextBoxActions.UpdateChatTextRepository();
+
+            _chatSpeechBubbleActions.ShowSpeechBubbleForMainCharacter();
         }
 
         public void SelectChatTextBox()

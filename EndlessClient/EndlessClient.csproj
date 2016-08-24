@@ -51,8 +51,10 @@
     <Compile Include="Controllers\IChatController.cs" />
     <Compile Include="Dialogs\Actions\IFirstTimePlayerActions.cs" />
     <Compile Include="HUD\Chat\ChatModeCalculator.cs" />
+    <Compile Include="HUD\Chat\ChatSpeechBubbleActions.cs" />
     <Compile Include="HUD\Chat\ChatTextBoxActions.cs" />
     <Compile Include="HUD\Chat\IChatModeCalculator.cs" />
+    <Compile Include="HUD\Chat\IChatSpeechBubbleActions.cs" />
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
     <Compile Include="HUD\Chat\IPrivateMessageActions.cs" />
     <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
