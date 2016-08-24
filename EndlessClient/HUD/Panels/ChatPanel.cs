@@ -52,10 +52,12 @@ namespace EndlessClient.HUD.Panels
             : base(new Rectangle(102, 330, 1, 1))
         {
             _nativeGraphicsManager = nativeGraphicsManager;
-            _chatEventManager = chatEventManager;
             _chatRenderableGenerator = chatRenderableGenerator;
             _chatProvider = chatProvider;
             _chatFont = chatFont;
+
+            _chatEventManager = chatEventManager;
+            _chatEventManager.ChatPMTargetNotFound += HandleChatTargetNotFound;
 
             //abs coordiantes: 568 309
             _scrollBar = new ScrollBar(this, new Vector2(467, 2), new Vector2(16, 97), ScrollBarColors.LightOnMed, _nativeGraphicsManager)
@@ -131,12 +133,6 @@ namespace EndlessClient.HUD.Panels
                 _tabLabels[ChatTab.Private1].Text = char.ToUpper(targetCharacter[0]) + targetCharacter.Substring(1);
                 _tabLabels[ChatTab.Private1].Visible = true;
             }
-        }
-
-        public override void Initialize()
-        {
-            _chatEventManager.ChatPMTargetNotFound += HandleChatTargetNotFound;
-            base.Initialize();
         }
 
         public override void Update(GameTime gameTime)
