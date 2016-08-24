@@ -5,6 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EndlessClient.ControlSets;
+using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
@@ -24,6 +26,7 @@ namespace EndlessClient.HUD.Panels
         private readonly ChatEventManager _chatEventManager;
         private readonly IChatRenderableGenerator _chatRenderableGenerator;
         private readonly IChatProvider _chatProvider;
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly SpriteFont _chatFont;
 
         private readonly ScrollBar _scrollBar;
@@ -48,12 +51,14 @@ namespace EndlessClient.HUD.Panels
                          ChatEventManager chatEventManager,
                          IChatRenderableGenerator chatRenderableGenerator,
                          IChatProvider chatProvider,
+                         IHudControlProvider hudControlProvider,
                          SpriteFont chatFont)
             : base(new Rectangle(102, 330, 1, 1))
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatRenderableGenerator = chatRenderableGenerator;
             _chatProvider = chatProvider;
+            _hudControlProvider = hudControlProvider;
             _chatFont = chatFont;
 
             _chatEventManager = chatEventManager;
@@ -165,7 +170,7 @@ namespace EndlessClient.HUD.Panels
             {
                 var clickedTab = _tabLabelClickableAreas.Single(x => x.Value.Contains(mouseState.Position)).Key;
                 
-                //prevent clicking invisible tabs (boolean logic reduced using de morgan's laws
+                //prevent clicking invisible tabs (boolean logic reduced using de morgan's laws)
                 if ((clickedTab != ChatTab.Private1 || _privateChat1Shown) &&
                     (clickedTab != ChatTab.Private2 || _privateChat2Shown))
                 {
@@ -176,7 +181,16 @@ namespace EndlessClient.HUD.Panels
             else if (MouseOver && mouseState.RightButton == ButtonState.Released &&
                      PreviousMouseState.RightButton == ButtonState.Pressed) //handle right click
             {
-                //todo: start private chat with the person that said whatever line was right-clicked
+                var clickedYRelativeToTopOfPanel = mouseState.Y - DrawAreaWithOffset.Y;
+                var clickedChatRow = (int) Math.Round(clickedYRelativeToTopOfPanel/13.0) - 1;
+
+                if (clickedChatRow >= 0 &&
+                    _scrollBar.ScrollOffset + clickedChatRow < _chatProvider.AllChat[CurrentTab].Count)
+                {
+                    var who = _chatProvider.AllChat[CurrentTab][_scrollBar.ScrollOffset + clickedChatRow].Who;
+                    _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text =
+                        string.Format("!{0} ", who);
+                }
             }
 
             base.Update(gameTime);

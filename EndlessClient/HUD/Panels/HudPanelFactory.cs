@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.Content;
+using EndlessClient.ControlSets;
 using EndlessClient.Rendering.Chat;
 using EOLib;
 using EOLib.Domain.Chat;
@@ -19,18 +20,21 @@ namespace EndlessClient.HUD.Panels
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ChatEventManager _chatEventManager;
         private readonly IContentManagerProvider _contentManagerProvider;
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly INewsProvider _newsProvider;
         private readonly IChatProvider _chatProvider;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                ChatEventManager chatEventManager,
                                IContentManagerProvider contentManagerProvider,
+                               IHudControlProvider hudControlProvider,
                                INewsProvider newsProvider,
                                IChatProvider chatProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatEventManager = chatEventManager;
             _contentManagerProvider = contentManagerProvider;
+            _hudControlProvider = hudControlProvider;
             _newsProvider = newsProvider;
             _chatProvider = chatProvider;
         }
@@ -68,6 +72,7 @@ namespace EndlessClient.HUD.Panels
                                  _chatEventManager,
                                  new ChatRenderableGenerator(chatFont),
                                  _chatProvider,
+                                 _hudControlProvider,
                                  chatFont) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
