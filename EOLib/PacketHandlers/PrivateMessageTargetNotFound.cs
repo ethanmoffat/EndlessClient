@@ -36,6 +36,7 @@ namespace EOLib.PacketHandlers
 
         public bool HandlePacket(IPacket packet)
         {
+            //todo: some sort of signaling message to close the private chat window that was opened
             var response = packet.ReadShort();
             if (response != TALK_NOTFOUND)
                 return false;

@@ -148,6 +148,7 @@ namespace EndlessClient.HUD.Panels
             if (!_constructed)
                 return;
 
+            //todo: some sort of change detection for when text is added to tabs
             var chatChanged = false;
             if (!_cachedChatData.SequenceEqual(_chatProvider.AllChat[CurrentTab]))
             {
