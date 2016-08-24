@@ -18,6 +18,7 @@ namespace EOLib.PacketHandlers
         private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringService _localizedStringService;
+        private readonly ChatEventManager _chatEventManager;
 
         public PacketFamily Family { get { return PacketFamily.Talk; } }
 
@@ -27,16 +28,17 @@ namespace EOLib.PacketHandlers
 
         public PrivateMessageTargetNotFound(IPlayerInfoProvider playerInfoProvider,
                                             IChatRepository chatRepository,
-                                            ILocalizedStringService localizedStringService)
+                                            ILocalizedStringService localizedStringService,
+                                            ChatEventManager chatEventManager)
         {
             _playerInfoProvider = playerInfoProvider;
             _chatRepository = chatRepository;
             _localizedStringService = localizedStringService;
+            _chatEventManager = chatEventManager;
         }
 
         public bool HandlePacket(IPacket packet)
         {
-            //todo: some sort of signaling message to close the private chat window that was opened
             var response = packet.ReadShort();
             if (response != TALK_NOTFOUND)
                 return false;
@@ -48,6 +50,7 @@ namespace EOLib.PacketHandlers
 
             var chatData = new ChatData(string.Empty, message, ChatIcon.Error, ChatColor.Error);
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
+            _chatEventManager.FireChatPMTargetNotFound(from);
 
             return true;
         }

@@ -17,16 +17,19 @@ namespace EndlessClient.HUD.Panels
         private const int HUD_CONTROL_LAYER = 130;
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly ChatEventManager _chatEventManager;
         private readonly IContentManagerProvider _contentManagerProvider;
         private readonly INewsProvider _newsProvider;
         private readonly IChatProvider _chatProvider;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
+                               ChatEventManager chatEventManager,
                                IContentManagerProvider contentManagerProvider,
                                INewsProvider newsProvider,
                                IChatProvider chatProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _chatEventManager = chatEventManager;
             _contentManagerProvider = contentManagerProvider;
             _newsProvider = newsProvider;
             _chatProvider = chatProvider;
@@ -62,6 +65,7 @@ namespace EndlessClient.HUD.Panels
             var chatFont = _contentManagerProvider.Content.Load<SpriteFont>(Constants.FontSize08);
 
             return new ChatPanel(_nativeGraphicsManager,
+                                 _chatEventManager,
                                  new ChatRenderableGenerator(chatFont),
                                  _chatProvider,
                                  chatFont) { DrawOrder = HUD_CONTROL_LAYER };

@@ -21,6 +21,7 @@ namespace EndlessClient.HUD.Panels
     public class ChatPanel : XNAPanel, IHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
+        private readonly ChatEventManager _chatEventManager;
         private readonly IChatRenderableGenerator _chatRenderableGenerator;
         private readonly IChatProvider _chatProvider;
         private readonly SpriteFont _chatFont;
@@ -44,12 +45,14 @@ namespace EndlessClient.HUD.Panels
         public ChatTab CurrentTab { get; private set; }
 
         public ChatPanel(INativeGraphicsManager nativeGraphicsManager,
+                         ChatEventManager chatEventManager,
                          IChatRenderableGenerator chatRenderableGenerator,
                          IChatProvider chatProvider,
                          SpriteFont chatFont)
             : base(new Rectangle(102, 330, 1, 1))
         {
             _nativeGraphicsManager = nativeGraphicsManager;
+            _chatEventManager = chatEventManager;
             _chatRenderableGenerator = chatRenderableGenerator;
             _chatProvider = chatProvider;
             _chatFont = chatFont;
@@ -130,17 +133,10 @@ namespace EndlessClient.HUD.Panels
             }
         }
 
-        public void ClosePrivateChat(ChatTab whichTab)
+        public override void Initialize()
         {
-            if (whichTab == ChatTab.Private1)
-                _privateChat1Shown = false;
-            else if (whichTab == ChatTab.Private2)
-                _privateChat2Shown = false;
-            else
-                throw new ArgumentOutOfRangeException("whichTab");
-
-            _tabLabels[whichTab].Text = "";
-            SelectTab(ChatTab.Local);
+            _chatEventManager.ChatPMTargetNotFound += HandleChatTargetNotFound;
+            base.Initialize();
         }
 
         public override void Update(GameTime gameTime)
@@ -299,6 +295,25 @@ namespace EndlessClient.HUD.Panels
             CurrentTab = clickedTab;
         }
 
+        private void HandleChatTargetNotFound(string targetCharacter)
+        {
+            var whichTab = _chatProvider.PMTarget1.ToLower() == targetCharacter.ToLower()
+                ? ChatTab.Private1
+                : _chatProvider.PMTarget2.ToLower() == targetCharacter.ToLower()
+                    ? ChatTab.Private2
+                    : ChatTab.Local;
+
+            if (whichTab == ChatTab.Private1)
+                _privateChat1Shown = false;
+            else if (whichTab == ChatTab.Private2)
+                _privateChat2Shown = false;
+            else
+                return;
+
+            _tabLabels[whichTab].Text = "";
+            SelectTab(ChatTab.Local);
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -306,6 +321,8 @@ namespace EndlessClient.HUD.Panels
                 foreach (var tabLabel in _tabLabels.Values)
                     tabLabel.Dispose();
                 _tabLabels.Clear();
+
+                _chatEventManager.ChatPMTargetNotFound -= HandleChatTargetNotFound;
             }
             base.Dispose(disposing);
         }

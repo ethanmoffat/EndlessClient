@@ -76,6 +76,7 @@
     <Compile Include="Domain\Chat\ChatActions.cs" />
     <Compile Include="Domain\Chat\ChatColor.cs" />
     <Compile Include="Domain\Chat\ChatData.cs" />
+    <Compile Include="Domain\Chat\ChatEventManager.cs" />
     <Compile Include="Domain\Chat\ChatIcon.cs" />
     <Compile Include="Domain\Chat\ChatTab.cs" />
     <Compile Include="Domain\Chat\ChatTypeCalculator.cs" />
