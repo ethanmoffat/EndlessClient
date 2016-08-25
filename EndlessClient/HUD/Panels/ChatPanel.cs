@@ -173,39 +173,12 @@ namespace EndlessClient.HUD.Panels
                 PreviousMouseState.LeftButton == ButtonState.Pressed &&
                 _tabLabelClickableAreas.Any(x => x.Value.Contains(mouseState.Position))) //handle left click over tabs
             {
-                var clickedTab = _tabLabelClickableAreas.Single(x => x.Value.Contains(mouseState.Position)).Key;
-                
-                //prevent clicking invisible tabs (boolean logic reduced using de morgan's laws)
-                if ((clickedTab != ChatTab.Private1 || _privateChat1Shown) &&
-                    (clickedTab != ChatTab.Private2 || _privateChat2Shown))
-                {
-                    if (_closeButtonAreaForTab1.ContainsPoint(mouseState.X, mouseState.Y))
-                    {
-                        ClosePMTab(ChatTab.Private1);
-                        SelectTab(ChatTab.Local);
-                    }
-                    else if (_closeButtonAreaForTab2.ContainsPoint(mouseState.X, mouseState.Y))
-                    {
-                        ClosePMTab(ChatTab.Private2);
-                        SelectTab(ChatTab.Local);
-                    }
-                    else
-                        SelectTab(clickedTab);
-                }
+                HandleLeftClickOnTabs(mouseState);
             }
             else if (MouseOver && mouseState.RightButton == ButtonState.Released &&
                      PreviousMouseState.RightButton == ButtonState.Pressed) //handle right click
             {
-                var clickedYRelativeToTopOfPanel = mouseState.Y - DrawAreaWithOffset.Y;
-                var clickedChatRow = (int) Math.Round(clickedYRelativeToTopOfPanel/13.0) - 1;
-
-                if (clickedChatRow >= 0 &&
-                    _scrollBar.ScrollOffset + clickedChatRow < _chatProvider.AllChat[CurrentTab].Count)
-                {
-                    var who = _chatProvider.AllChat[CurrentTab][_scrollBar.ScrollOffset + clickedChatRow].Who;
-                    _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text =
-                        string.Format("!{0} ", who);
-                }
+                HandleRightClickOnChatText(mouseState);
             }
 
             base.Update(gameTime);
@@ -224,6 +197,8 @@ namespace EndlessClient.HUD.Panels
             foreach (var tabLabel in _tabLabels.Values)
                 tabLabel.Draw(gameTime);
         }
+
+        #region Update Helpers
 
         private void UpdateCachedChatData()
         {
@@ -252,6 +227,47 @@ namespace EndlessClient.HUD.Panels
             if (renderables.Count > _scrollBar.LinesToRender)
                 _scrollBar.ScrollToEnd();
         }
+
+        private void HandleLeftClickOnTabs(MouseState mouseState)
+        {
+            var clickedTab = _tabLabelClickableAreas.Single(x => x.Value.Contains(mouseState.Position)).Key;
+
+            //prevent clicking invisible tabs (boolean logic reduced using de morgan's laws)
+            if ((clickedTab != ChatTab.Private1 || _privateChat1Shown) &&
+                (clickedTab != ChatTab.Private2 || _privateChat2Shown))
+            {
+                if (_closeButtonAreaForTab1.ContainsPoint(mouseState.X, mouseState.Y))
+                {
+                    ClosePMTab(ChatTab.Private1);
+                    SelectTab(ChatTab.Local);
+                }
+                else if (_closeButtonAreaForTab2.ContainsPoint(mouseState.X, mouseState.Y))
+                {
+                    ClosePMTab(ChatTab.Private2);
+                    SelectTab(ChatTab.Local);
+                }
+                else
+                    SelectTab(clickedTab);
+            }
+        }
+
+        private void HandleRightClickOnChatText(MouseState mouseState)
+        {
+            var clickedYRelativeToTopOfPanel = mouseState.Y - DrawAreaWithOffset.Y;
+            var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
+
+            if (clickedChatRow >= 0 &&
+                _scrollBar.ScrollOffset + clickedChatRow < _chatProvider.AllChat[CurrentTab].Count)
+            {
+                var who = _chatProvider.AllChat[CurrentTab][_scrollBar.ScrollOffset + clickedChatRow].Who;
+                _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text =
+                    string.Format("!{0} ", who);
+            }
+        }
+
+        #endregion
+
+        #region Draw Helpers
 
         private void DrawTabsAtBottom()
         {
@@ -312,6 +328,8 @@ namespace EndlessClient.HUD.Panels
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        #endregion
 
         private void SelectTab(ChatTab clickedTab)
         {
