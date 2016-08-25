@@ -12,12 +12,10 @@ namespace EOLib.Net.API
     {
         public delegate void ReceiveOtherChatEvent(ChatType type, string player, string message);
         public event ReceiveOtherChatEvent OnPlayerChatByName; //chat event that should only be shown in the chat panel
-        public event Action<string> OnPMRecipientNotFound;
         public event Action<string> OnMuted;
 
         private void _createTalkMembers()
         {
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Reply), _handleTalkReply, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Request), _handleTalkRequest, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Tell), _handleTalkTell, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Message), _handleTalkMessage, true);
@@ -25,24 +23,6 @@ namespace EOLib.Net.API
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Admin), _handleTalkAdmin, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Announce), _handleTalkAnnounce, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Talk, PacketAction.Spec), _handleTalkSpec, true);
-        }
-
-        /// <summary>
-        /// Handler for the TALK_REPLY packet (sent in response to not-found for PMs sent from this end)
-        /// </summary>
-        private void _handleTalkReply(OldPacket pkt)
-        {
-            if (OnPMRecipientNotFound == null) return;
-
-            switch (pkt.GetShort())
-            {
-                //player is not found so a sys error needs to be displayed
-                case 1: //TALK_NOTFOUND response (no other members of this enum)
-                    string from = pkt.GetEndString();
-                    from = char.ToUpper(from[0]) + from.Substring(1).ToLower();
-                    OnPMRecipientNotFound(from);
-                    break;
-            }
         }
 
         /// <summary>

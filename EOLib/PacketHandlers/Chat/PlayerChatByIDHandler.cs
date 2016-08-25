@@ -10,7 +10,7 @@ using EOLib.Domain.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Chat
 {
     public abstract class PlayerChatByIDHandler : IPacketHandler
     {

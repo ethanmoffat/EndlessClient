@@ -7,23 +7,23 @@ using EOLib.Domain.Login;
 using EOLib.Localization;
 using EOLib.Net;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Commands
 {
-    public class FindCommandPlayerSameMapHandler : FindCommandHandlerBase
+    public class FindCommandPlayerNotFoundHandler : FindCommandHandlerBase
     {
         public override PacketAction Action
         {
-            get { return PacketAction.Pong; }
+            get { return PacketAction.Ping; }
         }
 
         protected override EOResourceID ResourceIDForResponse
         {
-            get { return EOResourceID.STATUS_LABEL_IS_ONLINE_SAME_MAP; }
+            get { return EOResourceID.STATUS_LABEL_IS_ONLINE_NOT_FOUND; }
         }
 
-        public FindCommandPlayerSameMapHandler(IChatRepository chatRespository,
-                                               ILocalizedStringService localizedStringService,
-                                               IPlayerInfoProvider playerInfoProvider)
+        public FindCommandPlayerNotFoundHandler(IChatRepository chatRespository,
+                                                ILocalizedStringService localizedStringService,
+                                                IPlayerInfoProvider playerInfoProvider)
             : base(chatRespository, localizedStringService, playerInfoProvider)
         {
         }

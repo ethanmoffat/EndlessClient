@@ -8,7 +8,7 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Chat
 {
     public class PublicChatHandler : PlayerChatByIDHandler
     {

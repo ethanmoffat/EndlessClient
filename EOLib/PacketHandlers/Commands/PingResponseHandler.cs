@@ -10,7 +10,7 @@ using EOLib.Domain.Protocol;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Commands
 {
     /// <summary>
     /// Handles MESSAGE_PONG packets which are in response to a #ping command request

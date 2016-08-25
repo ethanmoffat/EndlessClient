@@ -9,7 +9,7 @@ using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Chat
 {
     public class PrivateMessageTargetNotFound : IPacketHandler
     {

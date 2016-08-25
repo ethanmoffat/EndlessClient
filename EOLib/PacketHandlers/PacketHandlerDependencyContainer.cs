@@ -4,6 +4,8 @@
 
 using EOLib.DependencyInjection;
 using EOLib.Net.Handlers;
+using EOLib.PacketHandlers.Chat;
+using EOLib.PacketHandlers.Commands;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.PacketHandlers

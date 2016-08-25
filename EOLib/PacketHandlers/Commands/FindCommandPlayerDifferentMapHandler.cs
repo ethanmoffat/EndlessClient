@@ -7,7 +7,7 @@ using EOLib.Domain.Login;
 using EOLib.Localization;
 using EOLib.Net;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Commands
 {
     public class FindCommandPlayerDifferentMapHandler : FindCommandHandlerBase
     {
