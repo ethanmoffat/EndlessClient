@@ -26,6 +26,7 @@ namespace EOLib.PacketHandlers.Chat
 
         protected override void DoTalk(IPacket packet, ICharacter character)
         {
+            //todo: speech bubble!
             var message = packet.ReadBreakString();
 
             var chatData = new ChatData(character.Name, message, ChatIcon.PlayerPartyDark);

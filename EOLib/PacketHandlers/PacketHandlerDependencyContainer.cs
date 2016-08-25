@@ -22,7 +22,13 @@ namespace EOLib.PacketHandlers
 
             container.RegisterVaried<IPacketHandler, PublicChatHandler>()
                 .RegisterVaried<IPacketHandler, GroupChatHandler>()
-                .RegisterVaried<IPacketHandler, PrivateMessageTargetNotFound>();
+                .RegisterVaried<IPacketHandler, PrivateMessageTargetNotFound>()
+                .RegisterVaried<IPacketHandler, PrivateMessageHandler>()
+                .RegisterVaried<IPacketHandler, GuildMessageHandler>()
+                .RegisterVaried<IPacketHandler, GlobalMessageHandler>()
+                .RegisterVaried<IPacketHandler, ServerMessageHandler>()
+                .RegisterVaried<IPacketHandler, AdminMessageHandler>()
+                .RegisterVaried<IPacketHandler, AnnounceMessageHandler>();
         }
     }
 }

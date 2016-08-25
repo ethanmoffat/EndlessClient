@@ -219,6 +219,13 @@
     <Compile Include="Net\Connection\IConnectionStateRepository.cs" />
     <Compile Include="Net\Connection\INetworkConnectionActions.cs" />
     <Compile Include="Net\EmptyPacketReceivedException.cs" />
+    <Compile Include="PacketHandlers\Chat\AnnounceMessageHandler.cs" />
+    <Compile Include="PacketHandlers\Chat\GlobalMessageHandler.cs" />
+    <Compile Include="PacketHandlers\Chat\GuildMessageHandler.cs" />
+    <Compile Include="PacketHandlers\Chat\PlayerChatByNameBase.cs" />
+    <Compile Include="PacketHandlers\Chat\PrivateMessageHandler.cs" />
+    <Compile Include="PacketHandlers\Chat\AdminMessageHandler.cs" />
+    <Compile Include="PacketHandlers\Chat\ServerMessageHandler.cs" />
     <Compile Include="PacketHandlers\ConnectionPlayerHandler.cs" />
     <Compile Include="Net\Handlers\FamilyActionPair.cs" />
     <Compile Include="PacketHandlers\Commands\FindCommandHandlerBase.cs" />

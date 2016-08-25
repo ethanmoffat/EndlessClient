@@ -89,7 +89,6 @@ namespace EndlessClient
             m_packetAPI.OnRemoveChildNPCs += _removeChildNPCs;
 
             //chat related
-            m_packetAPI.OnPlayerChatByName += _chatByPlayerName;
             m_packetAPI.OnMuted += _playerMuted;
 
             //bank related
@@ -588,42 +587,6 @@ namespace EndlessClient
         private void _removeChildNPCs(short childNPCID)
         {
             OldWorld.Instance.ActiveMapRenderer.RemoveNPCsWhere(x => x.NPC.Data.ID == childNPCID);
-        }
-
-        private void _chatByPlayerName(ChatType type, string name, string msg)
-        {
-            //possible that HUD hasn't been initialized yet and a chat message could come in
-            if (m_game.Hud == null)
-                return;
-
-            switch (type)
-            {
-                //invalid types
-                case ChatType.Local:
-                case ChatType.Party:
-                    break;
-                case ChatType.PM:
-                    m_game.Hud.AddChat(ChatTab.Local, name, msg, ChatIcon.Note, ChatColor.PM);
-                    //ChatTab tab = m_game.Hud.GetPrivateChatTab(name);
-                    //m_game.Hud.AddChat(tab, name, msg, ChatIcon.Note);
-                    break;
-                case ChatType.Global: m_game.Hud.AddChat(ChatTab.Global, name, msg, ChatIcon.GlobalAnnounce); break;
-                case ChatType.Guild: m_game.Hud.AddChat(ChatTab.Group, name, msg); break;
-                case ChatType.Server:
-                    m_game.Hud.AddChat(ChatTab.Local, OldWorld.GetString(EOResourceID.STRING_SERVER), msg, ChatIcon.Exclamation, ChatColor.Server);
-                    m_game.Hud.AddChat(ChatTab.Global, OldWorld.GetString(EOResourceID.STRING_SERVER), msg, ChatIcon.Exclamation, ChatColor.ServerGlobal);
-                    m_game.Hud.AddChat(ChatTab.System, "", msg, ChatIcon.Exclamation, ChatColor.Server);
-                    break;
-                case ChatType.Admin:
-                    m_game.Hud.AddChat(ChatTab.Group, name, msg, ChatIcon.HGM, ChatColor.Admin);
-                    break;
-                case ChatType.Announce:
-                    OldWorld.Instance.ActiveMapRenderer.MakeSpeechBubble(null, msg, false);
-                    m_game.Hud.AddChat(ChatTab.Local, name, msg, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
-                    m_game.Hud.AddChat(ChatTab.Global, name, msg, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
-                    m_game.Hud.AddChat(ChatTab.Group, name, msg, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
-                    break;
-            }
         }
 
         private void _playerMuted(string adminName)
