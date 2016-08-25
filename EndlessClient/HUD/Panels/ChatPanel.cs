@@ -43,6 +43,8 @@ namespace EndlessClient.HUD.Panels
         private readonly Dictionary<ChatTab, XNALabel> _tabLabels;
         private readonly IReadOnlyDictionary<ChatTab, Rectangle> _tabLabelClickableAreas;
 
+        private readonly Rectangle _closeButtonAreaForTab1, _closeButtonAreaForTab2;
+
         private readonly bool _constructed;
 
         public ChatTab CurrentTab { get; private set; }
@@ -113,6 +115,9 @@ namespace EndlessClient.HUD.Panels
                     Game.Components.Remove(kvp.Value);
             }
 
+            _closeButtonAreaForTab1 = new Rectangle(3, 3, 11, 11).WithPosition(GetDestinationVectorForTab(ChatTab.Private1));
+            _closeButtonAreaForTab2 = new Rectangle(3, 3, 11, 11).WithPosition(GetDestinationVectorForTab(ChatTab.Private2));
+
             BackgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 28);
             _setSize(BackgroundImage.Width, BackgroundImage.Height);
 
@@ -166,7 +171,7 @@ namespace EndlessClient.HUD.Panels
             var mouseState = Mouse.GetState();
             if (MouseOver && mouseState.LeftButton == ButtonState.Released &&
                 PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                _tabLabelClickableAreas.Any(x => x.Value.Contains(mouseState.Position))) //handle left click
+                _tabLabelClickableAreas.Any(x => x.Value.Contains(mouseState.Position))) //handle left click over tabs
             {
                 var clickedTab = _tabLabelClickableAreas.Single(x => x.Value.Contains(mouseState.Position)).Key;
                 
@@ -174,8 +179,18 @@ namespace EndlessClient.HUD.Panels
                 if ((clickedTab != ChatTab.Private1 || _privateChat1Shown) &&
                     (clickedTab != ChatTab.Private2 || _privateChat2Shown))
                 {
-                    //todo: special-case handling for close buttons
-                    SelectTab(clickedTab);
+                    if (_closeButtonAreaForTab1.ContainsPoint(mouseState.X, mouseState.Y))
+                    {
+                        ClosePMTab(ChatTab.Private1);
+                        SelectTab(ChatTab.Local);
+                    }
+                    else if (_closeButtonAreaForTab2.ContainsPoint(mouseState.X, mouseState.Y))
+                    {
+                        ClosePMTab(ChatTab.Private2);
+                        SelectTab(ChatTab.Local);
+                    }
+                    else
+                        SelectTab(clickedTab);
                 }
             }
             else if (MouseOver && mouseState.RightButton == ButtonState.Released &&
@@ -313,6 +328,11 @@ namespace EndlessClient.HUD.Panels
                     ? ChatTab.Private2
                     : ChatTab.Local;
 
+            ClosePMTab(whichTab);
+        }
+
+        private void ClosePMTab(ChatTab whichTab)
+        {
             if (whichTab == ChatTab.Private1)
                 _privateChat1Shown = false;
             else if (whichTab == ChatTab.Private2)

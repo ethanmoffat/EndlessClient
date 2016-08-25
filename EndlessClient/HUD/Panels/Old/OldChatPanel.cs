@@ -10,35 +10,17 @@ using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using EOLib.Localization;
-using EOLib.Net;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using XNAControls;
-using Mouse = Microsoft.Xna.Framework.Input.Mouse;
 
 namespace EndlessClient.HUD.Panels.Old
 {
-    /// <summary>
-    /// contains a scroll bar and handles the text display and storage for a particular tab
-    /// </summary>
     public class OldChatTab : XNAControl
     {
-        private bool _selected;
-        public bool Selected
-        {
-            get { return _selected; }
-            set
-            {
-                _selected = value;
-                scrollBar.Visible = _selected;
-                tabLabel.ForeColor = _selected ? Color.White : Color.Black;
-            }
-        }
-        public ChatTab WhichTab { get; private set; }
-
-        private Rectangle? closeRect;
+        private bool Selected { get; set; }
+        private ChatTab WhichTab { get; set; }
         private readonly ScrollBar scrollBar;
 
         private struct ChatIndex : IComparable
@@ -91,22 +73,13 @@ namespace EndlessClient.HUD.Panels.Old
                 }
             }
         }
+
         private readonly SortedList<ChatIndex, string> chatStrings = new SortedList<ChatIndex, string>();
 
         //this is here so we don't add more than one chat string at a time.
         private static readonly object ChatStringsLock = new object();
 
         private readonly XNALabel tabLabel;
-        public string ChatCharacter
-        {
-            get { return WhichTab == ChatTab.Private1 || WhichTab == ChatTab.Private2 ? tabLabel.Text : null; }
-            set { tabLabel.Text = value; }
-        }
-
-        public bool PrivateChatUnused
-        {
-            get { return tabLabel.Text.Contains("[") || tabLabel.Text == ""; }
-        }
 
         private Vector2 relativeTextPos;
 
@@ -132,27 +105,9 @@ namespace EndlessClient.HUD.Panels.Old
                     tabLabel.Text = "[priv " + ((int)WhichTab + 1) + "]";
                     break;
             }
-            _selected = selected;
+            Selected = selected;
 
             relativeTextPos = new Vector2(20, 3);
-
-            //enable close button based on which tab was specified
-            switch(WhichTab)
-            {
-                case ChatTab.Private1:
-                case ChatTab.Private2:
-                    {
-                        closeRect = new Rectangle(3, 3, 11, 11);
-                        drawArea = new Rectangle(drawArea.X, drawArea.Y, 132, 16);
-                        Visible = false;
-                    } break;
-                default:
-                    {
-                        closeRect = null;
-                        drawArea = new Rectangle(drawArea.X, drawArea.Y, 43, 16);
-                        Visible = true;
-                    } break;
-            }
             
             //568 331
             scrollBar = new ScrollBar(parent, new Vector2(467, 2), new Vector2(16, 97), ScrollBarColors.LightOnMed)
@@ -247,34 +202,6 @@ namespace EndlessClient.HUD.Panels.Old
 
             return ret;
         }
-        
-        public override void Update(GameTime gameTime)
-        {
-            if (!Visible || !EOGame.Instance.IsActive)
-                return;
-
-            MouseState mouseState = Mouse.GetState();
-            //this is our own button press handler
-            if (MouseOver && mouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed)
-            {
-                if (!Selected)
-                {
-                    ((OldChatRenderer)parent).SetSelectedTab(WhichTab);
-                }
-
-                //logic for handling the close button (not actually a button, was I high when I made this...?)
-                if ((WhichTab == ChatTab.Private1 || WhichTab == ChatTab.Private2) && closeRect != null)
-                {
-                    Rectangle withOffset = new Rectangle(DrawAreaWithOffset.X + closeRect.Value.X, DrawAreaWithOffset.Y + closeRect.Value.Y, closeRect.Value.Width, closeRect.Value.Height);
-                    if (withOffset.ContainsPoint(Mouse.GetState().X, Mouse.GetState().Y))
-                    {
-                        //ClosePrivateChat();
-                    }
-                }
-            }
-
-            base.Update(gameTime);
-        }
 
         public override void Draw(GameTime gameTime)
         {
@@ -312,13 +239,7 @@ namespace EndlessClient.HUD.Panels.Old
     /// </summary>
     public class OldChatRenderer : XNAControl
     {
-        private int currentSelTab;
         private readonly OldChatTab[] tabs;
-
-        public OldChatTab SelectedTab
-        {
-            get { return tabs[currentSelTab]; }
-        }
 
         public OldChatRenderer()
         {
@@ -332,82 +253,11 @@ namespace EndlessClient.HUD.Panels.Old
                         : new Vector2((ChatTab) i == ChatTab.Private1 ? 23 : 156, 102)
                 };
             }
-
-            currentSelTab = (int)ChatTab.Local;
-            tabs[currentSelTab].Selected = true;
-        }
-
-        public void SetSelectedTab(ChatTab tabToSelect)
-        {
-            if ((ChatTab) currentSelTab == ChatTab.Global && tabToSelect != ChatTab.Global)
-            {
-                OldPacket pkt = new OldPacket(PacketFamily.Global, PacketAction.Close);
-                pkt.AddChar((byte) 'n');
-                OldWorld.Instance.Client.SendPacket(pkt);
-            }
-            else if(tabToSelect == ChatTab.Global && (ChatTab)currentSelTab != ChatTab.Global)
-            {
-                OldPacket pkt = new OldPacket(PacketFamily.Global, PacketAction.Open);
-                pkt.AddChar((byte) 'y');
-                OldWorld.Instance.Client.SendPacket(pkt);
-            }
-
-            tabs[currentSelTab].Selected = false;
-            tabs[currentSelTab = (int)tabToSelect].Selected = true;
         }
 
         public void AddTextToTab(ChatTab tab, string who, string text, ChatIcon icon = ChatIcon.None, ChatColor col = ChatColor.Default)
         {
             tabs[(int)tab].AddText(who, text, icon, col);
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            SpriteBatch.Begin();
-            //264 16 43x16
-            //307 16 43x16
-
-            //the parent renderer draws all the tabs
-            foreach (OldChatTab t in tabs)
-            {
-                Texture2D drawTexture;
-                Color[] data;
-                switch (t.WhichTab)
-                {
-                    case ChatTab.Local: //391 433 need to see if this should be relative to top-left of existing chat panel or absolute from top-left of game screen
-                    case ChatTab.Global:
-                    case ChatTab.Group:
-                    case ChatTab.System:
-                        {
-                            data = new Color[43 * 16];
-                            drawTexture = new Texture2D(Game.GraphicsDevice, 43, 16);
-                            ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData(0, t.Selected ? new Rectangle(307, 16, 43, 16) : new Rectangle(264, 16, 43, 16), data, 0, data.Length);
-                            drawTexture.SetData(data);
-                        }
-                        break;
-                    case ChatTab.Private1:
-                    case ChatTab.Private2:
-                        {
-                            if (t.Visible)
-                            {
-                                data = new Color[132 * 16];
-                                drawTexture = new Texture2D(Game.GraphicsDevice, 132, 16);
-                                ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 35).GetData(0, t.Selected ? new Rectangle(132, 16, 132, 16) : new Rectangle(0, 16, 132, 16), data, 0, data.Length);
-                                drawTexture.SetData(data);
-                            }
-                            else
-                                drawTexture = null;
-                        }
-                        break;
-                    default:
-                        throw new InvalidOperationException("This is not a valid enumeration for WhichTab");
-                }
-                if(drawTexture != null)
-                    SpriteBatch.Draw(drawTexture, new Vector2(t.DrawAreaWithOffset.X, t.DrawAreaWithOffset.Y), Color.White);
-            }
-            SpriteBatch.End();
-
-            base.Draw(gameTime);
         }
 
         public static ChatIcon GetChatTypeFromPaperdollIcon(PaperdollIconType whichIcon)
