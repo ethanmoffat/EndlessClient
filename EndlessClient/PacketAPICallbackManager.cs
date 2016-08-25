@@ -90,7 +90,6 @@ namespace EndlessClient
 
             //chat related
             m_packetAPI.OnPlayerChatByName += _chatByPlayerName;
-            m_packetAPI.OnPMRecipientNotFound += _pmRecipientNotFound;
             m_packetAPI.OnMuted += _playerMuted;
 
             //bank related
@@ -605,8 +604,8 @@ namespace EndlessClient
                     break;
                 case ChatType.PM:
                     m_game.Hud.AddChat(ChatTab.Local, name, msg, ChatIcon.Note, ChatColor.PM);
-                    ChatTab tab = m_game.Hud.GetPrivateChatTab(name);
-                    m_game.Hud.AddChat(tab, name, msg, ChatIcon.Note);
+                    //ChatTab tab = m_game.Hud.GetPrivateChatTab(name);
+                    //m_game.Hud.AddChat(tab, name, msg, ChatIcon.Note);
                     break;
                 case ChatType.Global: m_game.Hud.AddChat(ChatTab.Global, name, msg, ChatIcon.GlobalAnnounce); break;
                 case ChatType.Guild: m_game.Hud.AddChat(ChatTab.Group, name, msg); break;
@@ -625,11 +624,6 @@ namespace EndlessClient
                     m_game.Hud.AddChat(ChatTab.Group, name, msg, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal);
                     break;
             }
-        }
-
-        private void _pmRecipientNotFound(string name)
-        {
-            m_game.Hud.PrivatePlayerNotFound(name);
         }
 
         private void _playerMuted(string adminName)

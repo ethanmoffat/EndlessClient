@@ -184,25 +184,11 @@ namespace EndlessClient.HUD.Controls
             chatRenderer.AddTextToTab(whichTab, who, message, chatIcon, chatColor);
         }
 
-        public void PrivatePlayerNotFound(string character)
-        {
-            string endPart = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized2].Data[(int) EOResourceID.SYS_CHAT_PM_PLAYER_COULD_NOT_BE_FOUND];
-            //add message to Sys and close the chat that was opened for 'character'
-            //this is how original client does it - you can see the PM tab open/close really quickly
-            chatRenderer.ClosePrivateChat(character);
-            AddChat(ChatTab.System, "", string.Format("{0} " + endPart, character), ChatIcon.Error, ChatColor.Error);
-        }
-
         public void SetMuted()
         {
             //currentChatMode = ChatMode.Muted;
             chatTextBox.ToggleTextInputIgnore();
             m_muteTimer.Change(Constants.MuteDefaultTimeMinutes*60000, 0);
-        }
-
-        public ChatTab GetPrivateChatTab(string character)
-        {
-            return chatRenderer.StartConversation(character);
         }
 
         public void SetChatText(string text)

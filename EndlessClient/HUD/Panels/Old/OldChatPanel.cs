@@ -235,15 +235,6 @@ namespace EndlessClient.HUD.Panels.Old
                 Visible = true;
         }
 
-        public void ClosePrivateChat()
-        {
-            Visible = Selected = false;
-            tabLabel.Text = "";
-            lock (ChatStringsLock)
-                chatStrings.Clear();
-            ((OldChatRenderer)parent).SetSelectedTab(ChatTab.Local);
-        }
-
         public static Texture2D GetChatIcon(ChatIcon icon)
         {
             Texture2D ret = new Texture2D(EOGame.Instance.GraphicsDevice, 13, 13);
@@ -277,20 +268,7 @@ namespace EndlessClient.HUD.Panels.Old
                     Rectangle withOffset = new Rectangle(DrawAreaWithOffset.X + closeRect.Value.X, DrawAreaWithOffset.Y + closeRect.Value.Y, closeRect.Value.Width, closeRect.Value.Height);
                     if (withOffset.ContainsPoint(Mouse.GetState().X, Mouse.GetState().Y))
                     {
-                        ClosePrivateChat();
-                    }
-                }
-            }
-            else if (Selected && mouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)
-            {
-                XNAControl tmpParent = parent.GetParent(); //get the panel containing this tab, the parent is the chatRenderer
-                if (tmpParent.DrawAreaWithOffset.Contains(mouseState.X, mouseState.Y))
-                {
-                    int adjustedY = mouseState.Y - tmpParent.DrawAreaWithOffset.Y;
-                    int level = (int)Math.Round(adjustedY / 13.0) - 1;
-                    if (level >= 0 && scrollBar.ScrollOffset + level < chatStrings.Count)
-                    {
-                        EOGame.Instance.Hud.SetChatText("!" + chatStrings.Keys[scrollBar.ScrollOffset + level].Who + " ");
+                        //ClosePrivateChat();
                     }
                 }
             }
@@ -430,43 +408,6 @@ namespace EndlessClient.HUD.Panels.Old
             SpriteBatch.End();
 
             base.Draw(gameTime);
-        }
-
-        /// <summary>
-        /// Returns the first open PM tab for a character, or ChatTabs.None if both PM tabs are in use.
-        /// </summary>
-        /// <param name="character">Character for the conversation</param>
-        /// <returns>ChatTab to which text should be added</returns>
-        public ChatTab StartConversation(string character)
-        {
-            int i;
-            if (tabs[i = (int) ChatTab.Private1].PrivateChatUnused || tabs[i].ChatCharacter == character)
-            {
-                tabs[i].ChatCharacter = character;
-                return ChatTab.Private1;
-            }
-
-            if (tabs[i = (int) ChatTab.Private2].PrivateChatUnused || tabs[i].ChatCharacter == character)
-            {
-                tabs[i].ChatCharacter = character;
-                return ChatTab.Private2;
-            }
-
-            //note: this used to return ChatTabs.None before it was removed
-            throw new InvalidOperationException("Unable to start PM!");
-        }
-
-        /// <summary>
-        /// Closes a private chat conversation (called if the response from the server is "not found" for a character)
-        /// </summary>
-        /// <param name="character">Character for the conversation</param>
-        public void ClosePrivateChat(string character)
-        {
-            int i;
-            if (tabs[i = (int) ChatTab.Private1].ChatCharacter == character)
-                tabs[i].ClosePrivateChat();
-            else if (tabs[i = (int) ChatTab.Private2].ChatCharacter == character)
-                tabs[i].ClosePrivateChat();
         }
 
         public static ChatIcon GetChatTypeFromPaperdollIcon(PaperdollIconType whichIcon)
