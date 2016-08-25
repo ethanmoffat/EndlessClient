@@ -22,21 +22,21 @@ namespace EndlessClient.HUD.Panels
         private readonly IContentManagerProvider _contentManagerProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly INewsProvider _newsProvider;
-        private readonly IChatProvider _chatProvider;
+        private readonly IChatRepository _chatRepository;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                ChatEventManager chatEventManager,
                                IContentManagerProvider contentManagerProvider,
                                IHudControlProvider hudControlProvider,
                                INewsProvider newsProvider,
-                               IChatProvider chatProvider)
+                               IChatRepository chatRepository)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatEventManager = chatEventManager;
             _contentManagerProvider = contentManagerProvider;
             _hudControlProvider = hudControlProvider;
             _newsProvider = newsProvider;
-            _chatProvider = chatProvider;
+            _chatRepository = chatRepository;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -71,7 +71,7 @@ namespace EndlessClient.HUD.Panels
             return new ChatPanel(_nativeGraphicsManager,
                                  _chatEventManager,
                                  new ChatRenderableGenerator(chatFont),
-                                 _chatProvider,
+                                 _chatRepository,
                                  _hudControlProvider,
                                  chatFont) { DrawOrder = HUD_CONTROL_LAYER };
         }

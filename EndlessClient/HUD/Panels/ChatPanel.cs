@@ -25,7 +25,7 @@ namespace EndlessClient.HUD.Panels
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ChatEventManager _chatEventManager;
         private readonly IChatRenderableGenerator _chatRenderableGenerator;
-        private readonly IChatProvider _chatProvider;
+        private readonly IChatRepository _chatRepository;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly SpriteFont _chatFont;
 
@@ -53,14 +53,14 @@ namespace EndlessClient.HUD.Panels
         public ChatPanel(INativeGraphicsManager nativeGraphicsManager,
                          ChatEventManager chatEventManager,
                          IChatRenderableGenerator chatRenderableGenerator,
-                         IChatProvider chatProvider,
+                         IChatRepository chatRepository,
                          IHudControlProvider hudControlProvider,
                          SpriteFont chatFont)
             : base(new Rectangle(102, 330, 1, 1))
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatRenderableGenerator = chatRenderableGenerator;
-            _chatProvider = chatProvider;
+            _chatRepository = chatRepository;
             _hudControlProvider = hudControlProvider;
             _chatFont = chatFont;
 
@@ -77,6 +77,8 @@ namespace EndlessClient.HUD.Panels
 
             _cachedChatDataCurrentTab = new List<ChatData>();
             _cachedChatTabLineCounts = ((ChatTab[]) Enum.GetValues(typeof(ChatTab))).ToDictionary(k => k, v => 0);
+            _cachedChatTabLineCounts[ChatTab.Local] = 1; //1 line of default news text
+            _cachedChatTabLineCounts[ChatTab.Global] = 2; //2 lines default text
             _cachedScrollOffset = -1;
             _cachedLinesToRender = -1;
             CurrentTab = ChatTab.Local;
@@ -155,8 +157,7 @@ namespace EndlessClient.HUD.Panels
             HandleTextAddedToOtherTabs();
 
             var chatChanged = false;
-            if (_cachedChatTabLineCounts[CurrentTab] != _chatProvider.AllChat[CurrentTab].Count &&
-                !_cachedChatDataCurrentTab.SequenceEqual(_chatProvider.AllChat[CurrentTab]))
+            if (!_cachedChatDataCurrentTab.SequenceEqual(_chatRepository.AllChat[CurrentTab]))
             {
                 UpdateCachedChatData();
                 chatChanged = true;
@@ -175,12 +176,12 @@ namespace EndlessClient.HUD.Panels
             var mouseState = Mouse.GetState();
             if (MouseOver && mouseState.LeftButton == ButtonState.Released &&
                 PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                _tabLabelClickableAreas.Any(x => x.Value.Contains(mouseState.Position))) //handle left click over tabs
+                _tabLabelClickableAreas.Any(x => x.Value.Contains(mouseState.Position)))
             {
                 HandleLeftClickOnTabs(mouseState);
             }
             else if (MouseOver && mouseState.RightButton == ButtonState.Released &&
-                     PreviousMouseState.RightButton == ButtonState.Pressed) //handle right click
+                     PreviousMouseState.RightButton == ButtonState.Pressed)
             {
                 HandleRightClickOnChatText(mouseState);
             }
@@ -206,16 +207,18 @@ namespace EndlessClient.HUD.Panels
 
         private void HandleTextAddedToOtherTabs()
         {
-            foreach (var kvp in _cachedChatTabLineCounts)
+            var tabs = (ChatTab[]) Enum.GetValues(typeof(ChatTab));
+
+            foreach (var tab in tabs)
             {
-                if (CurrentTab == kvp.Key)
+                if (CurrentTab == tab)
                     continue;
 
-                var lineCountForTab = _chatProvider.AllChat[kvp.Key].Count;
-                if (kvp.Value != lineCountForTab)
+                var lineCountForTab = _chatRepository.AllChat[tab].Count;
+                if (_cachedChatTabLineCounts[tab] != lineCountForTab)
                 {
-                    _cachedChatTabLineCounts[kvp.Key] = lineCountForTab;
-                    _tabLabels[kvp.Key].ForeColor = Color.White;
+                    _cachedChatTabLineCounts[tab] = lineCountForTab;
+                    _tabLabels[tab].ForeColor = Color.White;
                 }
             }
         }
@@ -223,7 +226,7 @@ namespace EndlessClient.HUD.Panels
         private void UpdateCachedChatData()
         {
             _cachedChatDataCurrentTab.Clear();
-            _cachedChatDataCurrentTab.AddRange(_chatProvider.AllChat[CurrentTab]);
+            _cachedChatDataCurrentTab.AddRange(_chatRepository.AllChat[CurrentTab]);
         }
 
         private void UpdateCachedScrollProperties()
@@ -277,9 +280,9 @@ namespace EndlessClient.HUD.Panels
             var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
 
             if (clickedChatRow >= 0 &&
-                _scrollBar.ScrollOffset + clickedChatRow < _chatProvider.AllChat[CurrentTab].Count)
+                _scrollBar.ScrollOffset + clickedChatRow < _chatRepository.AllChat[CurrentTab].Count)
             {
-                var who = _chatProvider.AllChat[CurrentTab][_scrollBar.ScrollOffset + clickedChatRow].Who;
+                var who = _chatRepository.AllChat[CurrentTab][_scrollBar.ScrollOffset + clickedChatRow].Who;
                 _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text =
                     string.Format("!{0} ", who);
             }
@@ -360,9 +363,9 @@ namespace EndlessClient.HUD.Panels
 
         private void HandleChatTargetNotFound(string targetCharacter)
         {
-            var whichTab = _chatProvider.PMTarget1.ToLower() == targetCharacter.ToLower()
+            var whichTab = _chatRepository.PMTarget1.ToLower() == targetCharacter.ToLower()
                 ? ChatTab.Private1
-                : _chatProvider.PMTarget2.ToLower() == targetCharacter.ToLower()
+                : _chatRepository.PMTarget2.ToLower() == targetCharacter.ToLower()
                     ? ChatTab.Private2
                     : ChatTab.Local;
 
@@ -372,13 +375,20 @@ namespace EndlessClient.HUD.Panels
         private void ClosePMTab(ChatTab whichTab)
         {
             if (whichTab == ChatTab.Private1)
+            {
                 _privateChat1Shown = false;
+                _chatRepository.PMTarget1 = "";
+            }
             else if (whichTab == ChatTab.Private2)
+            {
                 _privateChat2Shown = false;
+                _chatRepository.PMTarget2 = "";
+            }
             else
                 return;
 
             _tabLabels[whichTab].Text = "";
+            _chatRepository.AllChat[whichTab].Clear();
             SelectTab(ChatTab.Local);
         }
 
