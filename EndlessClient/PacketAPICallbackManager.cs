@@ -88,9 +88,6 @@ namespace EndlessClient
             m_packetAPI.OnPlayerLevelUp += _playerLevelUp;
             m_packetAPI.OnRemoveChildNPCs += _removeChildNPCs;
 
-            //chat related
-            m_packetAPI.OnMuted += _playerMuted;
-
             //bank related
             m_packetAPI.OnBankOpen += _bankOpen;
             m_packetAPI.OnBankChange += _bankChange;
@@ -589,6 +586,7 @@ namespace EndlessClient
             OldWorld.Instance.ActiveMapRenderer.RemoveNPCsWhere(x => x.NPC.Data.ID == childNPCID);
         }
 
+        //todo: implement client-side handling that does this in new code
         private void _playerMuted(string adminName)
         {
             string message = OldWorld.GetString(EOResourceID.CHAT_MESSAGE_MUTED_BY) + " " + adminName;

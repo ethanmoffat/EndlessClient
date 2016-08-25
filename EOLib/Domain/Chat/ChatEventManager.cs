@@ -12,11 +12,20 @@ namespace EOLib.Domain.Chat
 
         public event ChatPMTargetNotFoundDelegate ChatPMTargetNotFound = delegate { };
 
+        public event PlayerMutedDelegate PlayerMuted = delegate { };
+
         internal void FireChatPMTargetNotFound(string pmTargetCharacter)
         {
             ChatPMTargetNotFound(pmTargetCharacter);
         }
+
+        internal void FirePlayerMuted(string adminName)
+        {
+            PlayerMuted(adminName);
+        }
     }
 
     public delegate void ChatPMTargetNotFoundDelegate(string pmTargetCharacter);
+
+    public delegate void PlayerMutedDelegate(string adminName);
 }

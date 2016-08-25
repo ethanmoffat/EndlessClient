@@ -28,7 +28,8 @@ namespace EOLib.PacketHandlers
                 .RegisterVaried<IPacketHandler, GlobalMessageHandler>()
                 .RegisterVaried<IPacketHandler, ServerMessageHandler>()
                 .RegisterVaried<IPacketHandler, AdminMessageHandler>()
-                .RegisterVaried<IPacketHandler, AnnounceMessageHandler>();
+                .RegisterVaried<IPacketHandler, AnnounceMessageHandler>()
+                .RegisterVaried<IPacketHandler, MuteHandler>();
         }
     }
 }

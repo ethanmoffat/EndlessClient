@@ -52,16 +52,10 @@ namespace EOLib.Net.API
             _createShopMembers();
             _createSpellMembers();
             _createStatSkillMembers();
-            _createTalkMembers();
             _createTradeMembers();
             _createWalkMembers();
             _createWarpMembers();
             _createWelcomeMembers();
-        }
-
-        public void Disconnect()
-        {
-            Initialized = false;
         }
 
         public void Dispose()

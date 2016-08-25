@@ -198,7 +198,6 @@
     <Compile Include="Net\API\Shop.cs" />
     <Compile Include="Net\API\Spell.cs" />
     <Compile Include="Net\API\StatSkill.cs" />
-    <Compile Include="Net\API\Talk.cs" />
     <Compile Include="Net\API\Trade.cs" />
     <Compile Include="Net\API\Walk.cs" />
     <Compile Include="Net\API\Warp.cs" />
@@ -222,6 +221,7 @@
     <Compile Include="PacketHandlers\Chat\AnnounceMessageHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GlobalMessageHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GuildMessageHandler.cs" />
+    <Compile Include="PacketHandlers\Chat\MuteHandler.cs" />
     <Compile Include="PacketHandlers\Chat\PlayerChatByNameBase.cs" />
     <Compile Include="PacketHandlers\Chat\PrivateMessageHandler.cs" />
     <Compile Include="PacketHandlers\Chat\AdminMessageHandler.cs" />
