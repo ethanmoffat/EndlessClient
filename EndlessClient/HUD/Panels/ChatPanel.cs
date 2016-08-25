@@ -361,6 +361,9 @@ namespace EndlessClient.HUD.Panels
             CurrentTab = clickedTab;
         }
 
+        //todo: some of this should be extracted into a separate in-game component that is designed just to handle these events
+        //todo: then the public interface of ChatPanel can do delegate internally and it can just take a ChatProvider again
+
         private void HandleChatTargetNotFound(string targetCharacter)
         {
             var whichTab = _chatRepository.PMTarget1.ToLower() == targetCharacter.ToLower()
