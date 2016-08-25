@@ -32,7 +32,8 @@ namespace EndlessClient.HUD.Panels
         private readonly ScrollBar _scrollBar;
         private readonly List<IChatRenderable> _chatRenderables;
 
-        private readonly List<ChatData> _cachedChatData;
+        private readonly List<ChatData> _cachedChatDataCurrentTab;
+        private readonly Dictionary<ChatTab, int> _cachedChatTabLineCounts;
         private int _cachedScrollOffset;
         private int _cachedLinesToRender;
         private bool _privateChat1Shown, _privateChat2Shown;
@@ -74,7 +75,8 @@ namespace EndlessClient.HUD.Panels
             };
             _chatRenderables = new List<IChatRenderable>();
 
-            _cachedChatData = new List<ChatData>();
+            _cachedChatDataCurrentTab = new List<ChatData>();
+            _cachedChatTabLineCounts = ((ChatTab[]) Enum.GetValues(typeof(ChatTab))).ToDictionary(k => k, v => 0);
             _cachedScrollOffset = -1;
             _cachedLinesToRender = -1;
             CurrentTab = ChatTab.Local;
@@ -150,9 +152,11 @@ namespace EndlessClient.HUD.Panels
             if (!_constructed)
                 return;
 
-            //todo: some sort of change detection for when text is added to tabs
+            HandleTextAddedToOtherTabs();
+
             var chatChanged = false;
-            if (!_cachedChatData.SequenceEqual(_chatProvider.AllChat[CurrentTab]))
+            if (_cachedChatTabLineCounts[CurrentTab] != _chatProvider.AllChat[CurrentTab].Count &&
+                !_cachedChatDataCurrentTab.SequenceEqual(_chatProvider.AllChat[CurrentTab]))
             {
                 UpdateCachedChatData();
                 chatChanged = true;
@@ -162,7 +166,7 @@ namespace EndlessClient.HUD.Panels
                 _cachedScrollOffset != _scrollBar.ScrollOffset ||
                 _cachedLinesToRender != _scrollBar.LinesToRender)
             {
-                var renderables = _chatRenderableGenerator.GenerateChatRenderables(_cachedChatData);
+                var renderables = _chatRenderableGenerator.GenerateChatRenderables(_cachedChatDataCurrentTab);
 
                 UpdateCachedScrollProperties();
                 SetupRenderablesFromCachedValues(renderables);
@@ -200,10 +204,26 @@ namespace EndlessClient.HUD.Panels
 
         #region Update Helpers
 
+        private void HandleTextAddedToOtherTabs()
+        {
+            foreach (var kvp in _cachedChatTabLineCounts)
+            {
+                if (CurrentTab == kvp.Key)
+                    continue;
+
+                var lineCountForTab = _chatProvider.AllChat[kvp.Key].Count;
+                if (kvp.Value != lineCountForTab)
+                {
+                    _cachedChatTabLineCounts[kvp.Key] = lineCountForTab;
+                    _tabLabels[kvp.Key].ForeColor = Color.White;
+                }
+            }
+        }
+
         private void UpdateCachedChatData()
         {
-            _cachedChatData.Clear();
-            _cachedChatData.AddRange(_chatProvider.AllChat[CurrentTab]);
+            _cachedChatDataCurrentTab.Clear();
+            _cachedChatDataCurrentTab.AddRange(_chatProvider.AllChat[CurrentTab]);
         }
 
         private void UpdateCachedScrollProperties()
