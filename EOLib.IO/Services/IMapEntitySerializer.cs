@@ -6,12 +6,14 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services
 {
-   public interface IMapEntitySerializer<T> where T : IMapEntity
-   {
-      MapEntitySerializeType MapEntitySerializeType { get; }
+    public interface IMapEntitySerializer<T> where T : IMapEntity
+    {
+        int DataSize { get; }
 
-      byte[] SerializeToByteArray(T mapEntity);
+        MapEntitySerializeType MapEntitySerializeType { get; }
 
-      T DeserializeFromByteArray(byte[] data);
-   }
+        byte[] SerializeToByteArray(T mapEntity);
+
+        T DeserializeFromByteArray(byte[] data);
+    }
 }

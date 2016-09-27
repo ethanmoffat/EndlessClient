@@ -6,8 +6,6 @@ namespace EOLib.IO.Map
 {
     public interface IMapEntity
     {
-        int DataSize { get; }
-
         int X { get; }
 
         int Y { get; }

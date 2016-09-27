@@ -97,7 +97,7 @@ namespace EOLib.IO.Map
             ret.AddRange(Properties.SerializeToByteArray(numberEncoderService, mapStringEncoderService));
             WriteNPCSpawns(ret, numberEncoderService, mapStringEncoderService);
             WriteUnknowns(ret, numberEncoderService);
-            WriteMapChests(ret, numberEncoderService, mapStringEncoderService);
+            WriteMapChests(ret, numberEncoderService);
             WriteTileSpecs(ret, numberEncoderService);
             WriteWarpTiles(ret, numberEncoderService, mapStringEncoderService);
             WriteGFXLayers(ret, numberEncoderService);
@@ -121,7 +121,7 @@ namespace EOLib.IO.Map
                 ResetCollections();
                 ReadNPCSpawns(ms, numberEncoderService, mapStringEncoderService);
                 ReadUnknowns(ms, numberEncoderService);
-                ReadMapChests(ms, numberEncoderService, mapStringEncoderService);
+                ReadMapChests(ms, numberEncoderService);
                 ReadTileSpecs(ms, numberEncoderService);
                 ReadWarpTiles(ms, numberEncoderService, mapStringEncoderService);
                 ReadGFXLayers(ms, numberEncoderService);
@@ -180,18 +180,17 @@ namespace EOLib.IO.Map
             }
         }
 
-        private void ReadMapChests(MemoryStream ms, INumberEncoderService nes, IMapStringEncoderService ses)
+        private void ReadMapChests(MemoryStream ms, INumberEncoderService nes)
         {
-            var collectionSize = nes.DecodeNumber((byte)ms.ReadByte());
+            var collectionSize = nes.DecodeNumber((byte) ms.ReadByte());
             for (int i = 0; i < collectionSize; ++i)
             {
-                var chest = new ChestSpawnMapEntity();
+                IMapEntitySerializer<ChestSpawnMapEntity> serializer = new ChestSpawnMapEntitySerializer(nes);
 
-                var npcSpawnData = new byte[chest.DataSize];
-                ms.Read(npcSpawnData, 0, chest.DataSize);
+                var chestSpawnData = new byte[serializer.DataSize];
+                ms.Read(chestSpawnData, 0, serializer.DataSize);
 
-                chest.DeserializeFromByteArray(npcSpawnData, nes, ses);
-                _mutableChestSpawns.Add(chest);
+                _mutableChestSpawns.Add(serializer.DeserializeFromByteArray(chestSpawnData));
             }
         }
 
@@ -319,11 +318,12 @@ namespace EOLib.IO.Map
                 ret.AddRange(unknown);
         }
 
-        private void WriteMapChests(List<byte> ret, INumberEncoderService nes, IMapStringEncoderService ses)
+        private void WriteMapChests(List<byte> ret, INumberEncoderService nes)
         {
+            IMapEntitySerializer<ChestSpawnMapEntity> serializer = new ChestSpawnMapEntitySerializer(nes);
             ret.AddRange(nes.EncodeNumber(Chests.Count, 1));
             foreach (var chest in Chests)
-                ret.AddRange(chest.SerializeToByteArray(nes, ses));
+                ret.AddRange(serializer.SerializeToByteArray(chest));
         }
 
         private void WriteTileSpecs(List<byte> ret, INumberEncoderService nes)

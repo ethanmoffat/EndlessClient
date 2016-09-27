@@ -55,6 +55,7 @@
     <Compile Include="Actions\MapFileLoadActions.cs" />
     <Compile Include="Actions\PubFileLoadActions.cs" />
     <Compile Include="EquipLocation.cs" />
+    <Compile Include="Services\ChestSpawnMapEntitySerializer.cs" />
     <Compile Include="Services\IMapEntitySerializer.cs" />
     <Compile Include="Map\IMapFile.cs" />
     <Compile Include="Map\IMapFileProperties.cs" />

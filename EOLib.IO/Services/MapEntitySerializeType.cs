@@ -4,11 +4,11 @@
 
 namespace EOLib.IO.Services
 {
-   public enum MapEntitySerializeType
-   {
-      ChestEntitySerializer,
-      NPCEntitySerializer,
-      WarpEntitySerializer,
-      MapSignEntitySerializer
-   }
+    public enum MapEntitySerializeType
+    {
+        ChestEntitySerializer,
+        NPCEntitySerializer,
+        WarpEntitySerializer,
+        MapSignEntitySerializer
+    }
 }
