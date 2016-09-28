@@ -8,6 +8,7 @@ namespace EOLib.IO.Services.Serializers
 {
     public interface IMapEntitySerializer<T> where T : IMapEntity
     {
+        //todo: refactor into constants within MapFileSerializer
         int DataSize { get; }
 
         MapEntitySerializeType MapEntitySerializeType { get; }

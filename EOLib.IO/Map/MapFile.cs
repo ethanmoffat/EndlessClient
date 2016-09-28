@@ -96,7 +96,7 @@ namespace EOLib.IO.Map
             var ret = new List<byte>();
 
             ret.AddRange(Properties.SerializeToByteArray(numberEncoderService, mapStringEncoderService));
-            WriteNPCSpawns(ret, numberEncoderService, mapStringEncoderService);
+            WriteNPCSpawns(ret, numberEncoderService);
             WriteUnknowns(ret, numberEncoderService);
             WriteMapChests(ret, numberEncoderService);
             WriteTileSpecs(ret, numberEncoderService);
@@ -120,7 +120,7 @@ namespace EOLib.IO.Map
                     .DeserializeFromByteArray(mapPropertiesData, numberEncoderService, mapStringEncoderService);
 
                 ResetCollections();
-                ReadNPCSpawns(ms, numberEncoderService, mapStringEncoderService);
+                ReadNPCSpawns(ms, numberEncoderService);
                 ReadUnknowns(ms, numberEncoderService);
                 ReadMapChests(ms, numberEncoderService);
                 ReadTileSpecs(ms, numberEncoderService);
@@ -155,18 +155,17 @@ namespace EOLib.IO.Map
 
         #region Helpers for Deserialization
 
-        private void ReadNPCSpawns(MemoryStream ms, INumberEncoderService nes, IMapStringEncoderService ses)
+        private void ReadNPCSpawns(MemoryStream ms, INumberEncoderService nes)
         {
             var collectionSize = nes.DecodeNumber((byte)ms.ReadByte());
             for (int i = 0; i < collectionSize; ++i)
             {
-                var npcSpawn = new NPCSpawnMapEntity();
+                IMapEntitySerializer<NPCSpawnMapEntity> serializer = new NPCSpawnMapEntitySerializer(nes);
                 
-                var npcSpawnData = new byte[npcSpawn.DataSize];
-                ms.Read(npcSpawnData, 0, npcSpawn.DataSize);
+                var npcSpawnData = new byte[serializer.DataSize];
+                ms.Read(npcSpawnData, 0, serializer.DataSize);
 
-                npcSpawn.DeserializeFromByteArray(npcSpawnData, nes, ses);
-                _mutableNPCSpawns.Add(npcSpawn);
+                _mutableNPCSpawns.Add(serializer.DeserializeFromByteArray(npcSpawnData));
             }
         }
 
@@ -305,11 +304,12 @@ namespace EOLib.IO.Map
 
         #region Helpers for Serialization
 
-        private void WriteNPCSpawns(List<byte> ret, INumberEncoderService nes, IMapStringEncoderService ses)
+        private void WriteNPCSpawns(List<byte> ret, INumberEncoderService nes)
         {
+            IMapEntitySerializer<NPCSpawnMapEntity> serializer = new NPCSpawnMapEntitySerializer(nes);
             ret.AddRange(nes.EncodeNumber(NPCSpawns.Count, 1));
             foreach (var spawn in NPCSpawns)
-                ret.AddRange(spawn.SerializeToByteArray(nes, ses));
+                ret.AddRange(serializer.SerializeToByteArray(spawn));
         }
 
         private void WriteUnknowns(List<byte> ret, INumberEncoderService nes)
