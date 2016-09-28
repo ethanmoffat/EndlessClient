@@ -4,7 +4,7 @@
 
 using EOLib.IO.Map;
 
-namespace EOLib.IO.Services
+namespace EOLib.IO.Services.Serializers
 {
     public interface IMapEntitySerializer<T> where T : IMapEntity
     {

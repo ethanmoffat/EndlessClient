@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using EOLib.IO.Map;
 
-namespace EOLib.IO.Services
+namespace EOLib.IO.Services.Serializers
 {
     public class ChestSpawnMapEntitySerializer : IMapEntitySerializer<ChestSpawnMapEntity>
     {

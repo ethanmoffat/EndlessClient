@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Map
 {
