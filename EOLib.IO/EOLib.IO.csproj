@@ -105,6 +105,7 @@
     <Compile Include="Services\IPubFileSaveService.cs" />
     <Compile Include="Services\IPubLoadService.cs" />
     <Compile Include="Services\ItemFileLoadService.cs" />
+    <Compile Include="Services\Serializers\IMapSectionSerializer.cs" />
     <Compile Include="Services\Serializers\MapEntitySerializeType.cs" />
     <Compile Include="Services\MapFileLoadService.cs" />
     <Compile Include="Services\MapFileSaveService.cs" />
