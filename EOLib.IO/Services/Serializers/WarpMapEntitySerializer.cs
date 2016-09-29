@@ -10,7 +10,7 @@ namespace EOLib.IO.Services.Serializers
 {
     public class WarpMapEntitySerializer : IMapEntitySerializer<WarpMapEntity>
     {
-        private readonly INumberEncoderService numberEncoderService;
+        private readonly INumberEncoderService _numberEncoderService;
 
         public int DataSize { get { return 8; } }
 
@@ -21,19 +21,19 @@ namespace EOLib.IO.Services.Serializers
 
         public WarpMapEntitySerializer(INumberEncoderService numberEncoderService)
         {
-            this.numberEncoderService = numberEncoderService;
+            _numberEncoderService = numberEncoderService;
         }
 
         public byte[] SerializeToByteArray(WarpMapEntity mapEntity)
         {
             var retBytes = new List<byte>(DataSize);
 
-            retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.X, 1));
-            retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.DestinationMapID, 2));
-            retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.DestinationMapX, 1));
-            retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.DestinationMapY, 1));
-            retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.LevelRequirement, 1));
-            retBytes.AddRange(numberEncoderService.EncodeNumber((short)mapEntity.DoorType, 2));
+            retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.X, 1));
+            retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.DestinationMapID, 2));
+            retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.DestinationMapX, 1));
+            retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.DestinationMapY, 1));
+            retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.LevelRequirement, 1));
+            retBytes.AddRange(_numberEncoderService.EncodeNumber((short)mapEntity.DoorType, 2));
 
             return retBytes.ToArray();
         }
@@ -45,12 +45,12 @@ namespace EOLib.IO.Services.Serializers
 
             return new WarpMapEntity
             {
-                X = numberEncoderService.DecodeNumber(data[0]),
-                DestinationMapID = (short) numberEncoderService.DecodeNumber(data[1], data[2]),
-                DestinationMapX = (byte) numberEncoderService.DecodeNumber(data[3]),
-                DestinationMapY = (byte) numberEncoderService.DecodeNumber(data[4]),
-                LevelRequirement = (byte) numberEncoderService.DecodeNumber(data[5]),
-                DoorType = (DoorSpec) numberEncoderService.DecodeNumber(data[6], data[7])
+                X = _numberEncoderService.DecodeNumber(data[0]),
+                DestinationMapID = (short) _numberEncoderService.DecodeNumber(data[1], data[2]),
+                DestinationMapX = (byte) _numberEncoderService.DecodeNumber(data[3]),
+                DestinationMapY = (byte) _numberEncoderService.DecodeNumber(data[4]),
+                LevelRequirement = (byte) _numberEncoderService.DecodeNumber(data[5]),
+                DoorType = (DoorSpec) _numberEncoderService.DecodeNumber(data[6], data[7])
             };
         }
     }
