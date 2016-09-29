@@ -276,17 +276,17 @@ namespace EOLib.IO.Map
 
         private void ReadMapSigns(MemoryStream ms, INumberEncoderService nes, IMapStringEncoderService ses)
         {
+            IMapEntitySerializer<SignMapEntity> serializer = new SignMapEntitySerializer(nes, ses);
+
             var collectionSize = nes.DecodeNumber((byte)ms.ReadByte());
             for (int i = 0; i < collectionSize; ++i)
             {
                 var variableLength = GetVariableSignLength(ms, nes);
 
-                var sign = new SignMapEntity();
-                var signData = new byte[variableLength + sign.DataSize];
+                var signData = new byte[variableLength + serializer.DataSize];
                 ms.Read(signData, 0, signData.Length);
 
-                sign.DeserializeFromByteArray(signData, nes, ses);
-                _mutableSigns.Add(sign);
+                _mutableSigns.Add(serializer.DeserializeFromByteArray(signData));
             }
         }
 
@@ -376,9 +376,10 @@ namespace EOLib.IO.Map
 
         private void WriteMapSigns(List<byte> ret, INumberEncoderService nes, IMapStringEncoderService ses)
         {
+            IMapEntitySerializer<SignMapEntity> serializer = new SignMapEntitySerializer(nes, ses);
             ret.AddRange(nes.EncodeNumber(Signs.Count, 1));
             foreach (var sign in Signs)
-                ret.AddRange(sign.SerializeToByteArray(nes, ses));
+                ret.AddRange(serializer.SerializeToByteArray(sign));
         }
 
         public class MapEntityRow<T>

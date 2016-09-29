@@ -118,6 +118,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\PubFileSaveService.cs" />
     <Compile Include="Services\Serializers\NPCSpawnMapEntitySerializer.cs" />
+    <Compile Include="Services\Serializers\SignMapEntitySerializer.cs" />
     <Compile Include="Services\Serializers\WarpMapEntitySerializer.cs" />
     <Compile Include="Services\SpellFileLoadService.cs" />
     <Compile Include="SpellTarget.cs" />
