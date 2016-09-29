@@ -18,7 +18,7 @@ namespace EOLib.IO.Test.Map
     [TestClass]
     public class MapFilePropertiesTest
     {
-        private IMapSectionSerializer<IMapFileProperties> _mapPropertiesSerializer;
+        private ISerializer<IMapFileProperties> _mapPropertiesSerializer;
         private IMapFileProperties _props;
 
         [TestInitialize]

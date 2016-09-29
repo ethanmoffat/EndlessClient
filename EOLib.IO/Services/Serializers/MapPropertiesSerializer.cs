@@ -10,7 +10,7 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    public class MapPropertiesSerializer : IMapSectionSerializer<IMapFileProperties>
+    public class MapPropertiesSerializer : ISerializer<IMapFileProperties>
     {
         private readonly INumberEncoderService _numberEncoderService;
         private readonly IMapStringEncoderService _mapStringEncoderService;

@@ -4,7 +4,7 @@
 
 namespace EOLib.IO.Services.Serializers
 {
-    public interface IMapSectionSerializer<T>
+    public interface ISerializer<T>
     {
         byte[] SerializeToByteArray(T mapEntity);
 

@@ -6,7 +6,7 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    public interface IMapEntitySerializer<T> : IMapSectionSerializer<T>
+    public interface IMapEntitySerializer<T> : ISerializer<T>
         where T : IMapEntity
     {
         //todo: refactor into constants within MapFileSerializer

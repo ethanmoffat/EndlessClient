@@ -95,7 +95,7 @@ namespace EOLib.IO.Map
         {
             var ret = new List<byte>();
 
-            IMapSectionSerializer<IMapFileProperties> serializer =
+            ISerializer<IMapFileProperties> serializer =
                 new MapPropertiesSerializer(numberEncoderService, mapStringEncoderService);
 
             ret.AddRange(serializer.SerializeToByteArray(Properties));
@@ -115,7 +115,7 @@ namespace EOLib.IO.Map
                                              INumberEncoderService numberEncoderService,
                                              IMapStringEncoderService mapStringEncoderService)
         {
-            IMapSectionSerializer<IMapFileProperties> serializer =
+            ISerializer<IMapFileProperties> serializer =
                 new MapPropertiesSerializer(numberEncoderService, mapStringEncoderService);
 
             using (var ms = new MemoryStream(data))
