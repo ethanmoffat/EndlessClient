@@ -95,7 +95,11 @@ namespace EOLib.IO.Map
         {
             var ret = new List<byte>();
 
-            ret.AddRange(Properties.SerializeToByteArray(numberEncoderService, mapStringEncoderService));
+            IMapSectionSerializer<IMapFileProperties> serializer =
+                new MapPropertiesSerializer(numberEncoderService, mapStringEncoderService);
+
+            ret.AddRange(serializer.SerializeToByteArray(Properties));
+
             WriteNPCSpawns(ret, numberEncoderService);
             WriteUnknowns(ret, numberEncoderService);
             WriteMapChests(ret, numberEncoderService);
@@ -111,13 +115,16 @@ namespace EOLib.IO.Map
                                              INumberEncoderService numberEncoderService,
                                              IMapStringEncoderService mapStringEncoderService)
         {
+            IMapSectionSerializer<IMapFileProperties> serializer =
+                new MapPropertiesSerializer(numberEncoderService, mapStringEncoderService);
+
             using (var ms = new MemoryStream(data))
             {
                 var mapPropertiesData = new byte[MapFileProperties.DATA_SIZE];
                 ms.Read(mapPropertiesData, 0, mapPropertiesData.Length);
-                Properties = Properties
-                    .WithFileSize(data.Length)
-                    .DeserializeFromByteArray(mapPropertiesData, numberEncoderService, mapStringEncoderService);
+                Properties = serializer
+                    .DeserializeFromByteArray(mapPropertiesData)
+                    .WithFileSize(data.Length);
 
                 ResetCollections();
                 ReadNPCSpawns(ms, numberEncoderService);

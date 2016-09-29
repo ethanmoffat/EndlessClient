@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using EOLib.IO.Map;
 using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EOLib.IO.Test.Map
@@ -17,12 +18,16 @@ namespace EOLib.IO.Test.Map
     [TestClass]
     public class MapFilePropertiesTest
     {
+        private IMapSectionSerializer<IMapFileProperties> _mapPropertiesSerializer;
         private IMapFileProperties _props;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _props = new MapFileProperties();
+
+            _mapPropertiesSerializer = new MapPropertiesSerializer(
+                new NumberEncoderService(), new MapStringEncoderService());
         }
 
         [TestMethod]
@@ -37,7 +42,7 @@ namespace EOLib.IO.Test.Map
             _props = CreateMapPropertiesWithSomeTestData(_props);
 
             var expectedBytes = CreateExpectedBytes(_props);
-            var actualBytes = _props.SerializeToByteArray(new NumberEncoderService(), new MapStringEncoderService());
+            var actualBytes = _mapPropertiesSerializer.SerializeToByteArray(_props);
 
             CollectionAssert.AreEquivalent(expectedBytes, actualBytes);
         }
@@ -48,7 +53,7 @@ namespace EOLib.IO.Test.Map
             var expected = CreateMapPropertiesWithSomeTestData(_props);
             var bytes = CreateExpectedBytes(expected);
 
-            _props = _props.DeserializeFromByteArray(bytes, new NumberEncoderService(), new MapStringEncoderService());
+            _props = _mapPropertiesSerializer.DeserializeFromByteArray(bytes);
 
             foreach (var property in expected.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
@@ -68,7 +73,7 @@ namespace EOLib.IO.Test.Map
             var expected = CreateMapPropertiesWithSomeTestData(_props);
             var bytes = CreateExpectedBytes(expected);
 
-            _props = _props.DeserializeFromByteArray(bytes, new NumberEncoderService(), new MapStringEncoderService());
+            _props = _mapPropertiesSerializer.DeserializeFromByteArray(bytes);
 
             Assert.AreEqual(new MapFileProperties().MapID, _props.MapID);
             Assert.AreEqual(new MapFileProperties().FileSize, _props.FileSize);
@@ -80,7 +85,7 @@ namespace EOLib.IO.Test.Map
         {
             var bytes = new byte[] {1, 2};
 
-            _props.DeserializeFromByteArray(bytes, new NumberEncoderService(), new MapStringEncoderService());
+            _mapPropertiesSerializer.DeserializeFromByteArray(bytes);
         }
 
         [TestMethod, ExpectedException(typeof(FormatException))]
@@ -88,7 +93,7 @@ namespace EOLib.IO.Test.Map
         {
             var bytes = Enumerable.Repeat((byte) 254, MapFileProperties.DATA_SIZE).ToArray();
 
-            _props.DeserializeFromByteArray(bytes, new NumberEncoderService(), new MapStringEncoderService());
+            _mapPropertiesSerializer.DeserializeFromByteArray(bytes);
         }
 
         private static IMapFileProperties CreateMapPropertiesWithSomeTestData(IMapFileProperties props)

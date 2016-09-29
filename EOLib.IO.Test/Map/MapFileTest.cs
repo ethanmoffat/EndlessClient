@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using EOLib.IO.Map;
 using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EOLib.IO.Test.Map
@@ -103,7 +104,9 @@ namespace EOLib.IO.Test.Map
         {
             var ret = new List<byte>();
 
-            ret.AddRange(mapFileProperties.SerializeToByteArray(_numberEncoder, _stringEncoder));
+            var serializer = new MapPropertiesSerializer(_numberEncoder, _stringEncoder);
+
+            ret.AddRange(serializer.SerializeToByteArray(mapFileProperties));
             ret.AddRange(_numberEncoder.EncodeNumber(0, 1)); //npc spawns
             ret.AddRange(_numberEncoder.EncodeNumber(0, 1)); //unknowns
             ret.AddRange(_numberEncoder.EncodeNumber(0, 1)); //chest spawns

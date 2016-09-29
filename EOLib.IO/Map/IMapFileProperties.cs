@@ -48,12 +48,5 @@ namespace EOLib.IO.Map
         IMapFileProperties WithScrollAvailable(bool canScroll);
         IMapFileProperties WithPKAvailable(bool pkAvailable);
         IMapFileProperties WithHasTimedSpikes(bool hasTimedSpikes);
-
-        byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
-                                    IMapStringEncoderService mapStringEncoderService);
-
-        IMapFileProperties DeserializeFromByteArray(byte[] data,
-                                                    INumberEncoderService numberEncoderService,
-                                                    IMapStringEncoderService mapStringEncoderService);
     }
 }
