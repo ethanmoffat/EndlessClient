@@ -100,7 +100,7 @@ namespace EOLib.IO.Map
             WriteUnknowns(ret, numberEncoderService);
             WriteMapChests(ret, numberEncoderService);
             WriteTileSpecs(ret, numberEncoderService);
-            WriteWarpTiles(ret, numberEncoderService, mapStringEncoderService);
+            WriteWarpTiles(ret, numberEncoderService);
             WriteGFXLayers(ret, numberEncoderService);
             WriteMapSigns(ret, numberEncoderService, mapStringEncoderService);
 
@@ -124,7 +124,7 @@ namespace EOLib.IO.Map
                 ReadUnknowns(ms, numberEncoderService);
                 ReadMapChests(ms, numberEncoderService);
                 ReadTileSpecs(ms, numberEncoderService);
-                ReadWarpTiles(ms, numberEncoderService, mapStringEncoderService);
+                ReadWarpTiles(ms, numberEncoderService);
                 ReadGFXLayers(ms, numberEncoderService);
 
                 if (ms.Position == ms.Length)
@@ -157,11 +157,11 @@ namespace EOLib.IO.Map
 
         private void ReadNPCSpawns(MemoryStream ms, INumberEncoderService nes)
         {
+            IMapEntitySerializer<NPCSpawnMapEntity> serializer = new NPCSpawnMapEntitySerializer(nes);
+
             var collectionSize = nes.DecodeNumber((byte)ms.ReadByte());
             for (int i = 0; i < collectionSize; ++i)
             {
-                IMapEntitySerializer<NPCSpawnMapEntity> serializer = new NPCSpawnMapEntitySerializer(nes);
-                
                 var npcSpawnData = new byte[serializer.DataSize];
                 ms.Read(npcSpawnData, 0, serializer.DataSize);
 
@@ -182,11 +182,11 @@ namespace EOLib.IO.Map
 
         private void ReadMapChests(MemoryStream ms, INumberEncoderService nes)
         {
+            IMapEntitySerializer<ChestSpawnMapEntity> serializer = new ChestSpawnMapEntitySerializer(nes);
+
             var collectionSize = nes.DecodeNumber((byte) ms.ReadByte());
             for (int i = 0; i < collectionSize; ++i)
             {
-                IMapEntitySerializer<ChestSpawnMapEntity> serializer = new ChestSpawnMapEntitySerializer(nes);
-
                 var chestSpawnData = new byte[serializer.DataSize];
                 ms.Read(chestSpawnData, 0, serializer.DataSize);
 
@@ -217,8 +217,10 @@ namespace EOLib.IO.Map
             }
         }
 
-        private void ReadWarpTiles(MemoryStream ms, INumberEncoderService nes, IMapStringEncoderService ses)
+        private void ReadWarpTiles(MemoryStream ms, INumberEncoderService nes)
         {
+            IMapEntitySerializer<WarpMapEntity> serializer = new WarpMapEntitySerializer(nes);
+
             var numberOfWarpRows = nes.DecodeNumber((byte)ms.ReadByte());
             for (int i = 0; i < numberOfWarpRows; ++i)
             {
@@ -228,12 +230,11 @@ namespace EOLib.IO.Map
                 _mutableWarpRows.Add(new MapEntityRow<WarpMapEntity> {Y = y});
                 for (int j = 0; j < numberOfWarpColumns; ++j)
                 {
-                    var warp = new WarpMapEntity(y);
-
-                    var rawWarpData = new byte[warp.DataSize];
+                    var rawWarpData = new byte[serializer.DataSize];
                     ms.Read(rawWarpData, 0, rawWarpData.Length);
 
-                    warp.DeserializeFromByteArray(rawWarpData, nes, ses);
+                    var warp = serializer.DeserializeFromByteArray(rawWarpData);
+                    warp.Y = y;
 
                     if (warp.X <= Properties.Width && warp.Y <= Properties.Height)
                         _mutableWarps[warp.Y, warp.X] = warp;
@@ -342,15 +343,16 @@ namespace EOLib.IO.Map
             }
         }
 
-        private void WriteWarpTiles(List<byte> ret, INumberEncoderService nes, IMapStringEncoderService ses)
+        private void WriteWarpTiles(List<byte> ret, INumberEncoderService nes)
         {
+            IMapEntitySerializer<WarpMapEntity> serializer = new WarpMapEntitySerializer(nes);
             ret.AddRange(nes.EncodeNumber(WarpRows.Count, 1));
             foreach (var row in WarpRows)
             {
                 ret.AddRange(nes.EncodeNumber(row.Y, 1));
                 ret.AddRange(nes.EncodeNumber(row.EntityItems.Count, 1));
                 foreach (var item in row.EntityItems)
-                    ret.AddRange(item.Value.SerializeToByteArray(nes, ses));
+                    ret.AddRange(serializer.SerializeToByteArray(item.Value));
             }
         }
 
