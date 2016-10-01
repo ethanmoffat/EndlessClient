@@ -8,6 +8,9 @@ namespace EOLib.IO.Map
 {
     public class Matrix<T> : IReadOnlyMatrix<T>
     {
+        private static readonly Matrix<T> _empty = new Matrix<T>(0, 0);
+        public static Matrix<T> Empty { get { return _empty; } }
+
         private readonly T[,] _arr;
 
         public int Rows { get; private set; }
@@ -25,6 +28,14 @@ namespace EOLib.IO.Map
         {
             Fill(defaultValue);
         } 
+
+        public Matrix(Matrix<T> other)
+            : this(other.Rows, other.Cols)
+        {
+            for (int row = 0; row < other.Rows; ++row)
+                for (int col = 0; col < other.Cols; ++col)
+                    _arr[row, col] = other[row, col];
+        }
 
         private void Fill(T value)
         {
