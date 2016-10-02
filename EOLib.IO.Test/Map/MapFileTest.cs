@@ -84,7 +84,7 @@ namespace EOLib.IO.Test.Map
 
             var actualData = _mapFile.SerializeToByteArray(_numberEncoder, _stringEncoder);
 
-            CollectionAssert.AreEquivalent(mapData, actualData);
+            CollectionAssert.AreEqual(mapData, actualData);
         }
 
         [TestMethod]

@@ -44,7 +44,7 @@ namespace EOLib.IO.Test.Map
             var expectedBytes = CreateExpectedBytes(_props);
             var actualBytes = _mapPropertiesSerializer.SerializeToByteArray(_props);
 
-            CollectionAssert.AreEquivalent(expectedBytes, actualBytes);
+            CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
 
         [TestMethod]
@@ -61,7 +61,7 @@ namespace EOLib.IO.Test.Map
                 var actualValue = property.GetValue(_props);
 
                 if (expectedValue is ICollection && actualValue is ICollection)
-                    CollectionAssert.AreEquivalent((ICollection) expectedValue, (ICollection) actualValue);
+                    CollectionAssert.AreEqual((ICollection)expectedValue, (ICollection)actualValue);
                 else
                     Assert.AreEqual(expectedValue, actualValue, "Property {0} is not equal!", property.Name);
             }
