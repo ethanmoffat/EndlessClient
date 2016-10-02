@@ -82,6 +82,55 @@ namespace EOLib.IO.Map
             return newMap;
         }
 
+        public IMapFile WithTiles(Matrix<TileSpec> tiles)
+        {
+            var newMap = MakeCopy(this);
+            newMap._mutableTiles = tiles;
+            return newMap;
+        }
+
+        public IMapFile WithWarps(Matrix<WarpMapEntity> warps)
+        {
+            var newMap = MakeCopy(this);
+            newMap._mutableWarps = warps;
+            return newMap;
+        }
+
+        public IMapFile WithGFX(Dictionary<MapLayer, Matrix<int>> gfx)
+        {
+            var newMap = MakeCopy(this);
+            newMap._mutableGFX = gfx;
+            return newMap;
+        }
+
+        public IMapFile WithNPCSpawns(List<NPCSpawnMapEntity> npcSpawns)
+        {
+            var newMap = MakeCopy(this);
+            newMap._mutableNPCSpawns = npcSpawns;
+            return newMap;
+        }
+
+        public IMapFile WithUnknowns(List<byte[]> unknowns)
+        {
+            var newMap = MakeCopy(this);
+            newMap._mutableUnknowns = unknowns;
+            return newMap;
+        }
+
+        public IMapFile WithChests(List<ChestSpawnMapEntity> chests)
+        {
+            var newMap = MakeCopy(this);
+            newMap._mutableChestSpawns = chests;
+            return newMap;
+        }
+
+        public IMapFile WithSigns(List<SignMapEntity> signs)
+        {
+            var newMap = MakeCopy(this);
+            newMap._mutableSigns = signs;
+            return newMap;
+        }
+
         public IMapFile RemoveNPCSpawn(NPCSpawnMapEntity spawn)
         {
             var updatedSpawns = new List<NPCSpawnMapEntity>(_mutableNPCSpawns);

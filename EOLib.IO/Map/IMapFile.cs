@@ -23,6 +23,20 @@ namespace EOLib.IO.Map
 
         IMapFile WithMapProperties(IMapFileProperties mapFileProperties);
 
+        IMapFile WithTiles(Matrix<TileSpec> tiles);
+
+        IMapFile WithWarps(Matrix<WarpMapEntity> warps);
+
+        IMapFile WithGFX(Dictionary<MapLayer, Matrix<int>> gfx);
+
+        IMapFile WithNPCSpawns(List<NPCSpawnMapEntity> npcSpawns);
+
+        IMapFile WithUnknowns(List<byte[]> unknowns);
+
+        IMapFile WithChests(List<ChestSpawnMapEntity> chests);
+
+        IMapFile WithSigns(List<SignMapEntity> signs);
+
         IMapFile RemoveNPCSpawn(NPCSpawnMapEntity spawn);
 
         IMapFile RemoveChestSpawn(ChestSpawnMapEntity spawn);
