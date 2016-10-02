@@ -3,6 +3,8 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace EOLib.IO.Map
 {
@@ -74,6 +76,52 @@ namespace EOLib.IO.Map
             var ret = new Matrix<T>(array.GetLength(0), array.GetLength(1));
             Array.Copy(array, ret._arr, array.Length);
             return ret;
+        }
+
+        public IEnumerator<IList<T>> GetEnumerator()
+        {
+            return new MatrixRowEnumerator(_arr);
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _arr.GetEnumerator();
+        }
+
+        private class MatrixRowEnumerator : IEnumerator<IList<T>>
+        {
+            private Matrix<T> _matrix;
+            private int _row = -1;
+
+            public MatrixRowEnumerator(Matrix<T> matrix)
+            {
+                _matrix = matrix;
+            }
+
+            public void Dispose()
+            {
+                _row = -1;
+                _matrix = null;
+            }
+
+            public bool MoveNext()
+            {
+                if (_row + 1 >= _matrix.Rows)
+                    return false;
+
+                _row++;
+
+                return true;
+            }
+
+            public void Reset()
+            {
+                _row = 0;
+            }
+
+            public IList<T> Current { get { return _matrix.GetRow(_row); } }
+
+            object IEnumerator.Current { get { return Current; } }
         }
     }
 }
