@@ -14,7 +14,7 @@ namespace EOLib.IO.Map
         IReadOnlyMatrix<WarpMapEntity> Warps { get; }
         IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX { get; }
         IReadOnlyList<NPCSpawnMapEntity> NPCSpawns { get; }
-        IReadOnlyList<byte[]> Unknowns { get; }
+        IReadOnlyList<UnknownMapEntity> Unknowns { get; }
         IReadOnlyList<ChestSpawnMapEntity> Chests { get; }
         IReadOnlyList<SignMapEntity> Signs { get; }
 
@@ -30,7 +30,7 @@ namespace EOLib.IO.Map
 
         IMapFile WithNPCSpawns(List<NPCSpawnMapEntity> npcSpawns);
 
-        IMapFile WithUnknowns(List<byte[]> unknowns);
+        IMapFile WithUnknowns(List<UnknownMapEntity> unknowns);
 
         IMapFile WithChests(List<ChestSpawnMapEntity> chests);
 

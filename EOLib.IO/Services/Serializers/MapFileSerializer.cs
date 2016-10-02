@@ -17,6 +17,7 @@ namespace EOLib.IO.Services.Serializers
         private readonly ISerializer<ChestSpawnMapEntity> _chestSpawnMapEntitySerializer;
         private readonly ISerializer<WarpMapEntity> _warpMapEntitySerializer;
         private readonly ISerializer<SignMapEntity> _signMapEntitySerializer;
+        private readonly ISerializer<UnknownMapEntity> _unknownMapEntitySerailizer;
         private readonly INumberEncoderService _numberEncoderService;
 
         public MapFileSerializer(ISerializer<IMapFileProperties> mapPropertiesSerializer,
@@ -24,6 +25,7 @@ namespace EOLib.IO.Services.Serializers
                                  ISerializer<ChestSpawnMapEntity> chestSpawnMapEntitySerializer,
                                  ISerializer<WarpMapEntity> warpMapEntitySerializer,
                                  ISerializer<SignMapEntity> signMapEntitySerializer,
+                                 ISerializer<UnknownMapEntity> unknownMapEntitySerailizer,
                                  INumberEncoderService numberEncoderService)
         {
             _mapPropertiesSerializer = mapPropertiesSerializer;
@@ -31,6 +33,7 @@ namespace EOLib.IO.Services.Serializers
             _chestSpawnMapEntitySerializer = chestSpawnMapEntitySerializer;
             _warpMapEntitySerializer = warpMapEntitySerializer;
             _signMapEntitySerializer = signMapEntitySerializer;
+            _unknownMapEntitySerailizer = unknownMapEntitySerailizer;
             _numberEncoderService = numberEncoderService;
         }
 
@@ -104,16 +107,17 @@ namespace EOLib.IO.Services.Serializers
             return npcSpawns;
         }
 
-        private List<byte[]> ReadUnknowns(MemoryStream ms)
+        private List<UnknownMapEntity> ReadUnknowns(MemoryStream ms)
         {
-            var unknowns = new List<byte[]>();
+            var unknowns = new List<UnknownMapEntity>();
 
             var collectionSize = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
             for (int i = 0; i < collectionSize; ++i)
             {
-                var unknown = new byte[4];
-                ms.Read(unknown, 0, unknown.Length);
-                unknowns.Add(unknown);
+                var unknownData = new byte[UnknownMapEntity.DATA_SIZE];
+                ms.Read(unknownData, 0, unknownData.Length);
+
+                unknowns.Add(_unknownMapEntitySerailizer.DeserializeFromByteArray(unknownData));
             }
 
             return unknowns;
@@ -264,9 +268,11 @@ namespace EOLib.IO.Services.Serializers
         private List<byte> WriteUnknowns(IMapFile mapFile)
         {
             var ret = new List<byte>();
+
             ret.AddRange(_numberEncoderService.EncodeNumber(mapFile.Unknowns.Count, 1));
             foreach (var unknown in mapFile.Unknowns)
-                ret.AddRange(unknown);
+                ret.AddRange(_unknownMapEntitySerailizer.SerializeToByteArray(unknown));
+
             return ret;
         }
 

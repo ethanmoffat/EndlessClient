@@ -4,10 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using EOLib.IO.Services;
-using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Map
 {
@@ -24,7 +21,7 @@ namespace EOLib.IO.Map
             get { return _mutableGFX.ToDictionary(k => k.Key, v => (IReadOnlyMatrix<int>) v.Value); }
         }
         public IReadOnlyList<NPCSpawnMapEntity> NPCSpawns { get { return _mutableNPCSpawns; } }
-        public IReadOnlyList<byte[]> Unknowns { get { return _mutableUnknowns; } }
+        public IReadOnlyList<UnknownMapEntity> Unknowns { get { return _mutableUnknowns; } }
         public IReadOnlyList<ChestSpawnMapEntity> Chests { get { return _mutableChestSpawns; } }
         public IReadOnlyList<SignMapEntity> Signs { get { return _mutableSigns; } }
 
@@ -32,7 +29,7 @@ namespace EOLib.IO.Map
         private Matrix<WarpMapEntity> _mutableWarps;
         private Dictionary<MapLayer, Matrix<int>> _mutableGFX;
         private List<NPCSpawnMapEntity> _mutableNPCSpawns;
-        private List<byte[]> _mutableUnknowns;
+        private List<UnknownMapEntity> _mutableUnknowns;
         private List<ChestSpawnMapEntity> _mutableChestSpawns;
         private List<SignMapEntity> _mutableSigns;
 
@@ -42,7 +39,7 @@ namespace EOLib.IO.Map
             Matrix<WarpMapEntity>.Empty,
             new Dictionary<MapLayer, Matrix<int>>(),
             new List<NPCSpawnMapEntity>(),
-            new List<byte[]>(),
+            new List<UnknownMapEntity>(),
             new List<ChestSpawnMapEntity>(),
             new List<SignMapEntity>())
         {
@@ -55,7 +52,7 @@ namespace EOLib.IO.Map
             Matrix<WarpMapEntity> warps,
             Dictionary<MapLayer, Matrix<int>> gfx,
             List<NPCSpawnMapEntity> npcSpawns,
-            List<byte[]> unknowns,
+            List<UnknownMapEntity> unknowns,
             List<ChestSpawnMapEntity> chests,
             List<SignMapEntity> signs)
         {
@@ -110,7 +107,7 @@ namespace EOLib.IO.Map
             return newMap;
         }
 
-        public IMapFile WithUnknowns(List<byte[]> unknowns)
+        public IMapFile WithUnknowns(List<UnknownMapEntity> unknowns)
         {
             var newMap = MakeCopy(this);
             newMap._mutableUnknowns = unknowns;

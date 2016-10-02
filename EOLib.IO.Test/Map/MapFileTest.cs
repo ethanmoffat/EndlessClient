@@ -33,6 +33,7 @@ namespace EOLib.IO.Test.Map
                 new ChestSpawnMapEntitySerializer(nes),
                 new WarpMapEntitySerializer(nes),
                 new SignMapEntitySerializer(nes, ses),
+                new UnknownMapEntitySerializer(nes),
                 nes);
         }
 
