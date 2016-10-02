@@ -8,8 +8,8 @@ namespace EOLib.IO.Services
 {
     public interface IMapFileSaveService
     {
-        void SaveFileToDefaultDirectory(IReadOnlyMapFile mapFile);
+        void SaveFileToDefaultDirectory(IMapFile mapFile);
 
-        void SaveFile(string path, IReadOnlyMapFile pubFile);
+        void SaveFile(string path, IMapFile pubFile);
     }
 }

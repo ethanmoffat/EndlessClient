@@ -164,7 +164,7 @@ namespace BatchMap
                 var mapID = new MapPathToIDConverter().ConvertFromPathToID(inFiles[mapIndex]);
 
                 mapFileLoadActions.LoadMapFileByName(inFiles[mapIndex]);
-                var mapFile = _mapFileProvider.MapFiles[mapID].AsEditableMap();
+                var mapFile = _mapFileProvider.MapFiles[mapID];
                 
                 var changesMade = false;
 
@@ -287,7 +287,7 @@ namespace BatchMap
             }
         }
 
-        private static bool TileIsValidNPCSpawnPoint(IReadOnlyMapFile EMF, int x, int y)
+        private static bool TileIsValidNPCSpawnPoint(IMapFile EMF, int x, int y)
         {
             if (EMF.Warps[y, x] != null)
                 return false;

@@ -48,6 +48,6 @@ namespace EOLib.Domain.Map
             };
         }
 
-        private IReadOnlyMapFile CurrentMap { get { return _mapFileProvider.MapFiles[_mapStateProvider.CurrentMapID]; } }
+        private IMapFile CurrentMap { get { return _mapFileProvider.MapFiles[_mapStateProvider.CurrentMapID]; } }
     }
 }

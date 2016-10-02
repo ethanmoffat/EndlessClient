@@ -9,28 +9,28 @@ namespace EOLib.IO.Repositories
 {
     public interface IMapFileRepository
     {
-        Dictionary<int, IReadOnlyMapFile> MapFiles { get; }
+        Dictionary<int, IMapFile> MapFiles { get; }
     }
 
     public interface IMapFileProvider
     {
-        IReadOnlyDictionary<int, IReadOnlyMapFile> MapFiles { get; }
+        IReadOnlyDictionary<int, IMapFile> MapFiles { get; }
     }
 
     public class MapFileRepository : IMapFileRepository, IMapFileProvider
     {
-        private readonly Dictionary<int, IReadOnlyMapFile> _mapCache;
+        private readonly Dictionary<int, IMapFile> _mapCache;
 
-        public Dictionary<int, IReadOnlyMapFile> MapFiles { get { return _mapCache; } }
+        public Dictionary<int, IMapFile> MapFiles { get { return _mapCache; } }
 
-        IReadOnlyDictionary<int, IReadOnlyMapFile> IMapFileProvider.MapFiles
+        IReadOnlyDictionary<int, IMapFile> IMapFileProvider.MapFiles
         {
             get { return _mapCache; }
         }
 
         public MapFileRepository()
         {
-            _mapCache = new Dictionary<int, IReadOnlyMapFile>();
+            _mapCache = new Dictionary<int, IMapFile>();
         }
     }
 }

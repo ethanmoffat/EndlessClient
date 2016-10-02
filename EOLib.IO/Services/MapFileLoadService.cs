@@ -19,7 +19,7 @@ namespace EOLib.IO.Services
             _mapStringEncoderService = mapStringEncoderService;
         }
 
-        public IReadOnlyMapFile LoadMapByID(int mapID)
+        public IMapFile LoadMapByID(int mapID)
         {
             var mapFile = new MapFile(mapID);
 
@@ -29,7 +29,7 @@ namespace EOLib.IO.Services
             return mapFile;
         }
 
-        public IReadOnlyMapFile LoadMapByPath(string pathToMapFile)
+        public IMapFile LoadMapByPath(string pathToMapFile)
         {
             var intID = new MapPathToIDConverter().ConvertFromPathToID(pathToMapFile);
             var mapFile = new MapFile(intID);

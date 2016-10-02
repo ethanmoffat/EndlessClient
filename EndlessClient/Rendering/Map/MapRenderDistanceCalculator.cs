@@ -12,7 +12,7 @@ namespace EndlessClient.Rendering.Map
     {
         private const int DEFAULT_BOUNDS_DISTANCE = 22;
 
-        public MapRenderBounds CalculateRenderBounds(ICharacter character, IReadOnlyMapFile currentMap)
+        public MapRenderBounds CalculateRenderBounds(ICharacter character, IMapFile currentMap)
         {
             var firstRow = Math.Max(character.RenderProperties.MapY - DEFAULT_BOUNDS_DISTANCE, 0);
             var lastRow = Math.Min(character.RenderProperties.MapY + DEFAULT_BOUNDS_DISTANCE, currentMap.Properties.Height);

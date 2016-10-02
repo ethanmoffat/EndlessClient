@@ -20,7 +20,7 @@ namespace EOLib.IO.Services
             _mapStringEncoderService = mapStringEncoderService;
         }
 
-        public void SaveFileToDefaultDirectory(IReadOnlyMapFile mapFile)
+        public void SaveFileToDefaultDirectory(IMapFile mapFile)
         {
             var directoryName = Path.GetDirectoryName(string.Format(MapFile.MapFileFormatString, 1)) ?? "";
             if (!Directory.Exists(directoryName))
@@ -30,7 +30,7 @@ namespace EOLib.IO.Services
                                mapFile.SerializeToByteArray(_numberEncoderService, _mapStringEncoderService));
         }
 
-        public void SaveFile(string path, IReadOnlyMapFile mapFile)
+        public void SaveFile(string path, IMapFile mapFile)
         {
             if (!path.ToLower().EndsWith(".emf"))
                 throw new ArgumentException("Must specify an emf file", "path");

@@ -8,8 +8,8 @@ namespace EOLib.IO.Services
 {
     public interface IMapFileLoadService
     {
-        IReadOnlyMapFile LoadMapByID(int mapID);
+        IMapFile LoadMapByID(int mapID);
 
-        IReadOnlyMapFile LoadMapByPath(string pathToMapFile);
+        IMapFile LoadMapByPath(string pathToMapFile);
     }
 }

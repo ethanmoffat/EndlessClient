@@ -9,7 +9,7 @@ namespace EOLib.Domain.Map
 {
     public interface ICurrentMapProvider
     {
-        IReadOnlyMapFile CurrentMap { get; }
+        IMapFile CurrentMap { get; }
     }
 
     public class CurrentMapProvider : ICurrentMapProvider
@@ -25,7 +25,7 @@ namespace EOLib.Domain.Map
         }
 
 
-        public IReadOnlyMapFile CurrentMap
+        public IMapFile CurrentMap
         {
             get { return _mapFileProvider.MapFiles[_currentMapStateProvider.CurrentMapID]; }
         }

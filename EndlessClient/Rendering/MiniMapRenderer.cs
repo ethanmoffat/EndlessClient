@@ -3,14 +3,10 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 using EOLib.Graphics;
-using EOLib.IO;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using IMapFile = EOLib.IO.Map.IMapFile;
 
 namespace EndlessClient.Rendering
 {

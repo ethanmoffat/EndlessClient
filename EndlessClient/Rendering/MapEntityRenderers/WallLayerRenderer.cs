@@ -79,6 +79,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             spriteBatch.Draw(gfx, pos, src, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 
-        private IReadOnlyMapFile CurrentMap { get { return _currentMapProvider.CurrentMap; } }
+        private IMapFile CurrentMap { get { return _currentMapProvider.CurrentMap; } }
     }
 }

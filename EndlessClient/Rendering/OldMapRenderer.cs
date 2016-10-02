@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
-using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Panels.Old;
 using EOLib;
 using EOLib.Domain.Character;
@@ -23,7 +22,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ChatType = EOLib.Domain.Chat.ChatType;
-using IMapFile = EOLib.IO.Map.IMapFile;
 
 namespace EndlessClient.Rendering
 {
@@ -177,7 +175,7 @@ namespace EndlessClient.Rendering
 
             if (MapRef != null && MapRef.Properties.AmbientNoise != 0)
                 EOGame.Instance.SoundManager.StopLoopingSoundEffect(MapRef.Properties.AmbientNoise);
-            
+
             MapRef = newActiveMap;
 
             if (_miniMapRenderer == null)

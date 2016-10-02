@@ -64,6 +64,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             }
         }
 
-        private IReadOnlyMapFile CurrentMap { get { return _currentMapProvider.CurrentMap; } }
+        private IMapFile CurrentMap { get { return _currentMapProvider.CurrentMap; } }
     }
 }

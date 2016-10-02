@@ -15,7 +15,7 @@ namespace EOLib.IO.Test.Map
     [TestClass, ExcludeFromCodeCoverage]
     public class MapFileTest
     {
-        private IReadOnlyMapFile _mapFile;
+        private IMapFile _mapFile;
         private IMapStringEncoderService _stringEncoder;
         private INumberEncoderService _numberEncoder;
 

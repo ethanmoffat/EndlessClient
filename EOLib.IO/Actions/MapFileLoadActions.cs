@@ -32,7 +32,7 @@ namespace EOLib.IO.Actions
             AddMapToCache(mapFile);
         }
 
-        private void AddMapToCache(IReadOnlyMapFile mapFile)
+        private void AddMapToCache(IMapFile mapFile)
         {
             if (_mapFileRepository.MapFiles.ContainsKey(mapFile.Properties.MapID))
                 _mapFileRepository.MapFiles[mapFile.Properties.MapID] = mapFile;
