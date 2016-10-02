@@ -36,15 +36,13 @@ namespace EOLib.IO.Services.Serializers
             if (data.Length != WarpMapEntity.DATA_SIZE)
                 throw new ArgumentException("Data is improperly sized for deserialization", "data");
 
-            return new WarpMapEntity
-            {
-                X = _numberEncoderService.DecodeNumber(data[0]),
-                DestinationMapID = (short) _numberEncoderService.DecodeNumber(data[1], data[2]),
-                DestinationMapX = (byte) _numberEncoderService.DecodeNumber(data[3]),
-                DestinationMapY = (byte) _numberEncoderService.DecodeNumber(data[4]),
-                LevelRequirement = (byte) _numberEncoderService.DecodeNumber(data[5]),
-                DoorType = (DoorSpec) _numberEncoderService.DecodeNumber(data[6], data[7])
-            };
+            return new WarpMapEntity()
+                .WithX(_numberEncoderService.DecodeNumber(data[0]))
+                .WithDestinationMapID((short) _numberEncoderService.DecodeNumber(data[1], data[2]))
+                .WithDestinationMapX((byte) _numberEncoderService.DecodeNumber(data[3]))
+                .WithDestinationMapY((byte) _numberEncoderService.DecodeNumber(data[4]))
+                .WithLevelRequirement((byte) _numberEncoderService.DecodeNumber(data[5]))
+                .WithDoorType((DoorSpec) _numberEncoderService.DecodeNumber(data[6], data[7]));
         }
     }
 }

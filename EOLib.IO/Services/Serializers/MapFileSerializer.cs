@@ -181,8 +181,7 @@ namespace EOLib.IO.Services.Serializers
                     var rawWarpData = new byte[WarpMapEntity.DATA_SIZE];
                     ms.Read(rawWarpData, 0, rawWarpData.Length);
 
-                    var warp = _warpMapEntitySerializer.DeserializeFromByteArray(rawWarpData);
-                    warp.Y = y;
+                    var warp = _warpMapEntitySerializer.DeserializeFromByteArray(rawWarpData).WithY(y);
 
                     if (warp.X <= properties.Width && warp.Y <= properties.Height)
                         warps[warp.Y, warp.X] = warp;
