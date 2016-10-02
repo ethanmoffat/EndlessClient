@@ -21,7 +21,7 @@ namespace EOLib.IO.Services
 
         public IMapFile LoadMapByID(int mapID)
         {
-            var mapFile = new MapFile(mapID);
+            var mapFile = new MapFile().WithMapID(mapID);
 
             var mapFileBytes = File.ReadAllBytes(string.Format(MapFile.MapFileFormatString, mapID));
             mapFile.DeserializeFromByteArray(mapFileBytes, _numberEncoderService, _mapStringEncoderService);
@@ -32,7 +32,7 @@ namespace EOLib.IO.Services
         public IMapFile LoadMapByPath(string pathToMapFile)
         {
             var intID = new MapPathToIDConverter().ConvertFromPathToID(pathToMapFile);
-            var mapFile = new MapFile(intID);
+            var mapFile = new MapFile().WithMapID(intID);
 
             var mapFileBytes = File.ReadAllBytes(pathToMapFile);
             mapFile.DeserializeFromByteArray(mapFileBytes, _numberEncoderService, _mapStringEncoderService);

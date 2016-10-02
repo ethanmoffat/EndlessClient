@@ -43,7 +43,7 @@ namespace EOLib.Net.FileTransfer
 
             var fileData = response.ReadBytes(response.Length - response.ReadPosition);
             
-            var mapFile = new MapFile(mapID);
+            var mapFile = new MapFile().WithMapID(mapID);
             mapFile.DeserializeFromByteArray(fileData.ToArray(), _numberEncoderService, _mapStringEncoderService);
 
             return mapFile;

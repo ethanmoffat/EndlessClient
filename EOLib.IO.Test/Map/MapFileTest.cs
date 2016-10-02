@@ -29,7 +29,7 @@ namespace EOLib.IO.Test.Map
         [TestMethod]
         public void MapFile_Properties_HasExpectedInitialParameters()
         {
-            _mapFile = new MapFile(123);
+            _mapFile = new MapFile().WithMapID(123);
 
             Assert.AreEqual(123, _mapFile.Properties.MapID);
             Assert.IsNotNull(_mapFile.NPCSpawns);
@@ -44,7 +44,7 @@ namespace EOLib.IO.Test.Map
         [TestMethod]
         public void MapFile_DeserializeFromByteArray_HasCorrectFileSizeInMapProperties()
         {
-            _mapFile = new MapFile(1);
+            _mapFile = new MapFile().WithMapID(1);
 
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.None);
             _mapFile.DeserializeFromByteArray(mapData, _numberEncoder, _stringEncoder);
@@ -55,7 +55,7 @@ namespace EOLib.IO.Test.Map
         [TestMethod]
         public void MapFile_DeserializeFromByteArray_NoTileSpecIsTimedSpikes_FlagIsNotSetInProperties()
         {
-            _mapFile = new MapFile(1);
+            _mapFile = new MapFile().WithMapID(1);
 
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.AmbientSource);
             _mapFile.DeserializeFromByteArray(mapData, _numberEncoder, _stringEncoder);
@@ -66,7 +66,7 @@ namespace EOLib.IO.Test.Map
         [TestMethod]
         public void MapFile_DeserializeFromByteArray_AnyTileSpecIsTimedSpikes_FlagIsSetInProperties()
         {
-            _mapFile = new MapFile(1);
+            _mapFile = new MapFile().WithMapID(1);
 
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.SpikesTimed);
             _mapFile.DeserializeFromByteArray(mapData, _numberEncoder, _stringEncoder);
@@ -77,7 +77,7 @@ namespace EOLib.IO.Test.Map
         [TestMethod]
         public void MapFile_SerializeToByteArray_HasCorrectFormat()
         {
-            _mapFile = new MapFile(1);
+            _mapFile = new MapFile().WithMapID(1);
 
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(2).WithHeight(2), TileSpec.Arena, 432);
             _mapFile.DeserializeFromByteArray(mapData, _numberEncoder, _stringEncoder);
@@ -90,7 +90,7 @@ namespace EOLib.IO.Test.Map
         [TestMethod]
         public void MapFile_Width1Height1_HasExpectedGFXAndTiles()
         {
-            _mapFile = new MapFile(1);
+            _mapFile = new MapFile().WithMapID(1);
 
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.Board5, 999);
             _mapFile.DeserializeFromByteArray(mapData, _numberEncoder, _stringEncoder);

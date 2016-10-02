@@ -19,6 +19,10 @@ namespace EOLib.IO.Map
         IReadOnlyList<ChestSpawnMapEntity> Chests { get; }
         IReadOnlyList<SignMapEntity> Signs { get; }
 
+        IMapFile WithMapID(int id);
+
+        IMapFile WithMapProperties(IMapFileProperties mapFileProperties);
+
         IMapFile RemoveNPCSpawn(NPCSpawnMapEntity spawn);
 
         IMapFile RemoveChestSpawn(ChestSpawnMapEntity spawn);

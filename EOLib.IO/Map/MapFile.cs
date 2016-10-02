@@ -36,15 +36,6 @@ namespace EOLib.IO.Map
         private List<ChestSpawnMapEntity> _mutableChestSpawns;
         private List<SignMapEntity> _mutableSigns;
 
-        //todo: remove this constructor
-        public MapFile(int id)
-        {
-            Properties = new MapFileProperties();
-            Properties = Properties.WithMapID(id);
-
-            ResetCollections();
-        }
-
         public MapFile()
             : this(new MapFileProperties(),
             Matrix<TileSpec>.Empty,
@@ -78,7 +69,18 @@ namespace EOLib.IO.Map
             _mutableSigns = signs;
         }
 
-        #region File Modifications (to support BatchMap)
+        public IMapFile WithMapID(int id)
+        {
+            var newProperties = Properties.WithMapID(id);
+            return WithMapProperties(newProperties);
+        }
+
+        public IMapFile WithMapProperties(IMapFileProperties mapFileProperties)
+        {
+            var newMap = MakeCopy(this);
+            newMap.Properties = mapFileProperties;
+            return newMap;
+        }
 
         public IMapFile RemoveNPCSpawn(NPCSpawnMapEntity spawn)
         {
@@ -124,8 +126,6 @@ namespace EOLib.IO.Map
             newMap._mutableWarps = updatedWarps;
             return newMap;
         }
-
-        #endregion
 
         public byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
                                            IMapStringEncoderService mapStringEncoderService)
