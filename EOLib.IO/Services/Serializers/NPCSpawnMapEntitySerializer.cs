@@ -36,15 +36,13 @@ namespace EOLib.IO.Services.Serializers
             if (data.Length != NPCSpawnMapEntity.DATA_SIZE)
                 throw new ArgumentException("Data is improperly sized for deserialization", "data");
 
-            return new NPCSpawnMapEntity
-            {
-                X = _numberEncoderService.DecodeNumber(data[0]),
-                Y = _numberEncoderService.DecodeNumber(data[1]),
-                ID = (short) _numberEncoderService.DecodeNumber(data[2], data[3]),
-                SpawnType = (byte) _numberEncoderService.DecodeNumber(data[4]),
-                RespawnTime = (short) _numberEncoderService.DecodeNumber(data[5], data[6]),
-                Amount = (byte) _numberEncoderService.DecodeNumber(data[7])
-            };
+            return new NPCSpawnMapEntity()
+                .WithX(_numberEncoderService.DecodeNumber(data[0]))
+                .WithY(_numberEncoderService.DecodeNumber(data[1]))
+                .WithID((short) _numberEncoderService.DecodeNumber(data[2], data[3]))
+                .WithSpawnType((byte) _numberEncoderService.DecodeNumber(data[4]))
+                .WithRespawnTime((short) _numberEncoderService.DecodeNumber(data[5], data[6]))
+                .WithAmount((byte) _numberEncoderService.DecodeNumber(data[7]));
         }
     }
 }
