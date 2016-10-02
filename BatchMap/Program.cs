@@ -207,7 +207,7 @@ namespace BatchMap
                     if (npcSpawn.ID > _pubProvider.ENFFile.Data.Count || npcRec == null)
                     {
                         Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} uses non-existent NPC #{3}. Removing.", mapID, npcSpawn.X, npcSpawn.Y, npcSpawn.ID);
-                        mapFile.RemoveNPCSpawn(npcSpawn);
+                        mapFile = mapFile.RemoveNPCSpawn(npcSpawn);
                         changesMade = true;
                         continue;
                     }
@@ -215,7 +215,7 @@ namespace BatchMap
                     if (npcSpawn.X > mapFile.Properties.Width || npcSpawn.Y > mapFile.Properties.Height)
                     {
                         Console.WriteLine("[MAP {0}] NPC Spawn {1}x{2} ({3}) is out of map bounds. Removing.", mapID, npcSpawn.X, npcSpawn.Y, npcRec.Name);
-                        mapFile.RemoveNPCSpawn(npcSpawn);
+                        mapFile = mapFile.RemoveNPCSpawn(npcSpawn);
                         changesMade = true;
                         continue;
                     }
@@ -241,7 +241,7 @@ namespace BatchMap
                         if (!found)
                         {
                             Console.WriteLine("[MAP {0}] NPC couldn't spawn anywhere valid! Removing.", mapID);
-                            mapFile.RemoveNPCSpawn(npcSpawn);
+                            mapFile = mapFile.RemoveNPCSpawn(npcSpawn);
                             changesMade = true;
                         }
                     }
@@ -254,7 +254,7 @@ namespace BatchMap
                     if (chestSpawn.ItemID > _pubProvider.EIFFile.Data.Count || rec == null)
                     {
                         Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} uses non-existent Item #{3}. Removing.", mapID, chestSpawn.X, chestSpawn.Y, chestSpawn.ItemID);
-                        mapFile.RemoveChestSpawn(chestSpawn);
+                        mapFile = mapFile.RemoveChestSpawn(chestSpawn);
                         changesMade = true;
                         continue;
                     }
@@ -264,7 +264,7 @@ namespace BatchMap
                         mapFile.Tiles[chestSpawn.Y, chestSpawn.X] != TileSpec.Chest)
                     {
                         Console.WriteLine("[MAP {0}] Chest Spawn {1}x{2} points to a non-chest. Removing.", mapID, chestSpawn.X, chestSpawn.Y);
-                        mapFile.RemoveChestSpawn(chestSpawn);
+                        mapFile = mapFile.RemoveChestSpawn(chestSpawn);
                         changesMade = true;
                     }
                 }

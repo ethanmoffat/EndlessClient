@@ -36,6 +36,7 @@ namespace EOLib.IO.Map
         private List<ChestSpawnMapEntity> _mutableChestSpawns;
         private List<SignMapEntity> _mutableSigns;
 
+        //todo: remove this constructor
         public MapFile(int id)
         {
             Properties = new MapFileProperties();
@@ -44,31 +45,80 @@ namespace EOLib.IO.Map
             ResetCollections();
         }
 
+        public MapFile()
+            : this(new MapFileProperties(),
+            Matrix<TileSpec>.Empty,
+            Matrix<WarpMapEntity>.Empty,
+            new Dictionary<MapLayer, Matrix<int>>(),
+            new List<NPCSpawnMapEntity>(),
+            new List<byte[]>(),
+            new List<ChestSpawnMapEntity>(),
+            new List<SignMapEntity>())
+        {
+            foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))
+                _mutableGFX.Add(layer, Matrix<int>.Empty);
+        }
+
+        private MapFile(IMapFileProperties properties,
+            Matrix<TileSpec> tiles,
+            Matrix<WarpMapEntity> warps,
+            Dictionary<MapLayer, Matrix<int>> gfx,
+            List<NPCSpawnMapEntity> npcSpawns,
+            List<byte[]> unknowns,
+            List<ChestSpawnMapEntity> chests,
+            List<SignMapEntity> signs)
+        {
+            Properties = properties;
+            _mutableTiles = tiles;
+            _mutableWarps = warps;
+            _mutableGFX = gfx;
+            _mutableNPCSpawns = npcSpawns;
+            _mutableUnknowns = unknowns;
+            _mutableChestSpawns = chests;
+            _mutableSigns = signs;
+        }
+
         #region File Modifications (to support BatchMap)
 
-        public void RemoveNPCSpawn(NPCSpawnMapEntity spawn)
+        public IMapFile RemoveNPCSpawn(NPCSpawnMapEntity spawn)
         {
-            _mutableNPCSpawns.Remove(spawn);
+            var updatedSpawns = new List<NPCSpawnMapEntity>(_mutableNPCSpawns);
+            updatedSpawns.Remove(spawn);
+
+            return new MapFile(Properties, _mutableTiles, _mutableWarps, _mutableGFX,
+                updatedSpawns, _mutableUnknowns, _mutableChestSpawns, _mutableSigns);
         }
 
-        public void RemoveChestSpawn(ChestSpawnMapEntity spawn)
+        public IMapFile RemoveChestSpawn(ChestSpawnMapEntity spawn)
         {
-            _mutableChestSpawns.Remove(spawn);
+            var updatedSpawns = new List<ChestSpawnMapEntity>(_mutableChestSpawns);
+            updatedSpawns.Remove(spawn);
+
+            return new MapFile(Properties, _mutableTiles, _mutableWarps, _mutableGFX,
+                _mutableNPCSpawns, _mutableUnknowns, updatedSpawns, _mutableSigns);
         }
 
-        public void RemoveTileAt(int x, int y)
+        public IMapFile RemoveTileAt(int x, int y)
         {
-            _mutableTiles[y, x] = TileSpec.None;
+            var updatedTiles = new Matrix<TileSpec>(_mutableTiles);
+            updatedTiles[y, x] = TileSpec.None;
+
+            return new MapFile(Properties, updatedTiles, _mutableWarps, _mutableGFX,
+                _mutableNPCSpawns, _mutableUnknowns, _mutableChestSpawns, _mutableSigns);
         }
 
-        public void RemoveWarp(WarpMapEntity warp)
+        public IMapFile RemoveWarp(WarpMapEntity warp)
         {
-            RemoveWarpAt(warp.X, warp.Y);
+            return RemoveWarpAt(warp.X, warp.Y);
         }
 
-        public void RemoveWarpAt(int x, int y)
+        public IMapFile RemoveWarpAt(int x, int y)
         {
-            _mutableWarps[y, x] = null;
+            var updatedWarps = new Matrix<WarpMapEntity>(_mutableWarps);
+            updatedWarps[y, x] = null;
+
+            return new MapFile(Properties, _mutableTiles, updatedWarps, _mutableGFX,
+                _mutableNPCSpawns, _mutableUnknowns, _mutableChestSpawns, _mutableSigns);
         }
 
         #endregion

@@ -6,14 +6,14 @@ namespace EOLib.IO.Map
 {
     public interface IMapFile : IReadOnlyMapFile
     {
-        void RemoveNPCSpawn(NPCSpawnMapEntity spawn);
+        IMapFile RemoveNPCSpawn(NPCSpawnMapEntity spawn);
 
-        void RemoveChestSpawn(ChestSpawnMapEntity spawn);
+        IMapFile RemoveChestSpawn(ChestSpawnMapEntity spawn);
 
-        void RemoveTileAt(int x, int y);
+        IMapFile RemoveTileAt(int x, int y);
 
-        void RemoveWarp(WarpMapEntity warp);
+        IMapFile RemoveWarp(WarpMapEntity warp);
 
-        void RemoveWarpAt(int x, int y);
+        IMapFile RemoveWarpAt(int x, int y);
     }
 }

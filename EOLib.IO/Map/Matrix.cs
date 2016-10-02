@@ -18,7 +18,7 @@ namespace EOLib.IO.Map
         public int Rows { get; private set; }
         public int Cols { get; private set; }
 
-        public Matrix(int rows, int cols)
+        private Matrix(int rows, int cols)
         {
             Rows = rows;
             Cols = cols;
