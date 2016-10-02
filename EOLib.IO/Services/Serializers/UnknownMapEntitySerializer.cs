@@ -29,12 +29,10 @@ namespace EOLib.IO.Services.Serializers
             if (data.Length != UnknownMapEntity.DATA_SIZE)
                 throw new ArgumentException("Data is improperly sized for deserialization", "data");
 
-            return new UnknownMapEntity
-            {
-                X = _numberEncoderService.DecodeNumber(data[0]),
-                Y = _numberEncoderService.DecodeNumber(data[1]),
-                RawData = data
-            };
+            return new UnknownMapEntity()
+                .WithX(_numberEncoderService.DecodeNumber(data[0]))
+                .WithY(_numberEncoderService.DecodeNumber(data[1]))
+                .WithRawData(data);
         }
     }
 }
