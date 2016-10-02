@@ -85,8 +85,9 @@ namespace EOLib.IO.Map
             var updatedSpawns = new List<NPCSpawnMapEntity>(_mutableNPCSpawns);
             updatedSpawns.Remove(spawn);
 
-            return new MapFile(Properties, _mutableTiles, _mutableWarps, _mutableGFX,
-                updatedSpawns, _mutableUnknowns, _mutableChestSpawns, _mutableSigns);
+            var newMap = MakeCopy(this);
+            newMap._mutableNPCSpawns = updatedSpawns;
+            return newMap;
         }
 
         public IMapFile RemoveChestSpawn(ChestSpawnMapEntity spawn)
@@ -94,8 +95,9 @@ namespace EOLib.IO.Map
             var updatedSpawns = new List<ChestSpawnMapEntity>(_mutableChestSpawns);
             updatedSpawns.Remove(spawn);
 
-            return new MapFile(Properties, _mutableTiles, _mutableWarps, _mutableGFX,
-                _mutableNPCSpawns, _mutableUnknowns, updatedSpawns, _mutableSigns);
+            var newMap = MakeCopy(this);
+            newMap._mutableChestSpawns = updatedSpawns;
+            return newMap;
         }
 
         public IMapFile RemoveTileAt(int x, int y)
@@ -103,8 +105,9 @@ namespace EOLib.IO.Map
             var updatedTiles = new Matrix<TileSpec>(_mutableTiles);
             updatedTiles[y, x] = TileSpec.None;
 
-            return new MapFile(Properties, updatedTiles, _mutableWarps, _mutableGFX,
-                _mutableNPCSpawns, _mutableUnknowns, _mutableChestSpawns, _mutableSigns);
+            var newMap = MakeCopy(this);
+            newMap._mutableTiles = _mutableTiles;
+            return newMap;
         }
 
         public IMapFile RemoveWarp(WarpMapEntity warp)
@@ -117,8 +120,9 @@ namespace EOLib.IO.Map
             var updatedWarps = new Matrix<WarpMapEntity>(_mutableWarps);
             updatedWarps[y, x] = null;
 
-            return new MapFile(Properties, _mutableTiles, updatedWarps, _mutableGFX,
-                _mutableNPCSpawns, _mutableUnknowns, _mutableChestSpawns, _mutableSigns);
+            var newMap = MakeCopy(this);
+            newMap._mutableWarps = updatedWarps;
+            return newMap;
         }
 
         #endregion
@@ -442,5 +446,18 @@ namespace EOLib.IO.Map
         }
 
         #endregion
+
+        private static MapFile MakeCopy(MapFile source)
+        {
+            return new MapFile(
+                source.Properties,
+                source._mutableTiles,
+                source._mutableWarps,
+                source._mutableGFX,
+                source._mutableNPCSpawns,
+                source._mutableUnknowns,
+                source._mutableChestSpawns,
+                source._mutableSigns);
+        }
     }
 }
