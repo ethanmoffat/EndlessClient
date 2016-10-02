@@ -12,6 +12,10 @@ namespace EOLib.IO.Services.Serializers
 {
     public class MapFileSerializer : ISerializer<IMapFile>
     {
+        private const TileSpec DEFAULT_TILE = TileSpec.None;
+        private static readonly WarpMapEntity DEFAULT_WARP = null;
+        private const int DEFAULT_GFX = -1;
+
         private readonly ISerializer<IMapFileProperties> _mapPropertiesSerializer;
         private readonly ISerializer<NPCSpawnMapEntity> _npcSpawnMapEntitySerializer;
         private readonly ISerializer<ChestSpawnMapEntity> _chestSpawnMapEntitySerializer;
@@ -141,7 +145,7 @@ namespace EOLib.IO.Services.Serializers
 
         private Matrix<TileSpec> ReadTileSpecs(MemoryStream ms, IMapFileProperties properties)
         {
-            var tiles = new Matrix<TileSpec>(properties.Height + 1, properties.Width + 1, TileSpec.None);
+            var tiles = new Matrix<TileSpec>(properties.Height + 1, properties.Width + 1, DEFAULT_TILE);
 
             var numberOfTileRows = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
             for (int i = 0; i < numberOfTileRows; ++i)
@@ -164,7 +168,7 @@ namespace EOLib.IO.Services.Serializers
 
         private Matrix<WarpMapEntity> ReadWarpTiles(MemoryStream ms, IMapFileProperties properties)
         {
-            var warps = new Matrix<WarpMapEntity>(properties.Height + 1, properties.Width + 1, null);
+            var warps = new Matrix<WarpMapEntity>(properties.Height + 1, properties.Width + 1, DEFAULT_WARP);
 
             var numberOfWarpRows = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
             for (int i = 0; i < numberOfWarpRows; ++i)
@@ -199,7 +203,7 @@ namespace EOLib.IO.Services.Serializers
                 if (ms.Position == ms.Length)
                     break;
 
-                gfx.Add(layer, new Matrix<int>(properties.Height + 1, properties.Width + 1, -1));
+                gfx.Add(layer, new Matrix<int>(properties.Height + 1, properties.Width + 1, DEFAULT_GFX));
 
                 var numberOfRowsThisLayer = _numberEncoderService.DecodeNumber((byte)ms.ReadByte());
                 for (int i = 0; i < numberOfRowsThisLayer; ++i)
@@ -291,7 +295,7 @@ namespace EOLib.IO.Services.Serializers
 
             var tileRows = mapFile.Tiles
                 .Select((row, i) => new { EntityItems = row, Y = i })
-                .Where(rowList => rowList.EntityItems.Any(item => item != TileSpec.None))
+                .Where(rowList => rowList.EntityItems.Any(item => item != DEFAULT_TILE))
                 .ToList();
 
             ret.AddRange(_numberEncoderService.EncodeNumber(tileRows.Count, 1));
@@ -299,7 +303,7 @@ namespace EOLib.IO.Services.Serializers
             {
                 var entityItems = row.EntityItems
                     .Select((item, i) => new { Value = item, X = i })
-                    .Where(item => item.Value != TileSpec.None)
+                    .Where(item => item.Value != DEFAULT_TILE)
                     .ToList();
 
                 ret.AddRange(_numberEncoderService.EncodeNumber(row.Y, 1));
@@ -319,7 +323,7 @@ namespace EOLib.IO.Services.Serializers
 
             var warpRows = mapFile.Warps
                 .Select((row, i) => new { EntityItems = row, Y = i })
-                .Where(rowList => rowList.EntityItems.Any(item => item != null)) //todo: use optional for default instead of null
+                .Where(rowList => rowList.EntityItems.Any(item => item != DEFAULT_WARP))
                 .ToList();
 
             ret.AddRange(_numberEncoderService.EncodeNumber(warpRows.Count, 1));
@@ -327,7 +331,7 @@ namespace EOLib.IO.Services.Serializers
             {
                 var entityItems = row.EntityItems
                     .Select((item, i) => new { Value = item, X = i })
-                    .Where(item => item.Value != null)
+                    .Where(item => item.Value != DEFAULT_WARP)
                     .ToList();
 
                 ret.AddRange(_numberEncoderService.EncodeNumber(row.Y, 1));
@@ -346,7 +350,7 @@ namespace EOLib.IO.Services.Serializers
             {
                 var gfxRowsForLayer = mapFile.GFX[layer]
                     .Select((row, i) => new { EntityItems = row, Y = i })
-                    .Where(rowList => rowList.EntityItems.Any(item => item != -1))
+                    .Where(rowList => rowList.EntityItems.Any(item => item != DEFAULT_GFX))
                     .ToList();
 
                 ret.AddRange(_numberEncoderService.EncodeNumber(gfxRowsForLayer.Count, 1));
@@ -354,7 +358,7 @@ namespace EOLib.IO.Services.Serializers
                 {
                     var entityItems = row.EntityItems
                         .Select((item, i) => new { Value = item, X = i })
-                        .Where(item => item.Value != -1)
+                        .Where(item => item.Value != DEFAULT_GFX)
                         .ToList();
 
                     ret.AddRange(_numberEncoderService.EncodeNumber(row.Y, 1));
