@@ -55,6 +55,7 @@
     <Compile Include="Actions\MapFileLoadActions.cs" />
     <Compile Include="Actions\PubFileLoadActions.cs" />
     <Compile Include="EquipLocation.cs" />
+    <Compile Include="Map\UnknownMapEntity.cs" />
     <Compile Include="Services\Serializers\ChestSpawnMapEntitySerializer.cs" />
     <Compile Include="Map\IMapFileProperties.cs" />
     <Compile Include="Map\IReadOnlyMatrix.cs" />
@@ -118,6 +119,7 @@
     <Compile Include="Services\Serializers\MapPropertiesSerializer.cs" />
     <Compile Include="Services\Serializers\NPCSpawnMapEntitySerializer.cs" />
     <Compile Include="Services\Serializers\SignMapEntitySerializer.cs" />
+    <Compile Include="Services\Serializers\UnknownMapEntitySerializer.cs" />
     <Compile Include="Services\Serializers\WarpMapEntitySerializer.cs" />
     <Compile Include="Services\SpellFileLoadService.cs" />
     <Compile Include="SpellTarget.cs" />

@@ -37,7 +37,8 @@ namespace EOLib.IO
                 .RegisterType<ISerializer<ChestSpawnMapEntity>, ChestSpawnMapEntitySerializer>()
                 .RegisterType<ISerializer<NPCSpawnMapEntity>, NPCSpawnMapEntitySerializer>()
                 .RegisterType<ISerializer<WarpMapEntity>, WarpMapEntitySerializer>()
-                .RegisterType<ISerializer<SignMapEntity>, SignMapEntitySerializer>();
+                .RegisterType<ISerializer<SignMapEntity>, SignMapEntitySerializer>()
+                .RegisterType<ISerializer<UnknownMapEntity>, UnknownMapEntitySerializer>();
 
             container
                 .RegisterInstance<IPubFileRepository, PubFileRepository>()
