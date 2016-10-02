@@ -168,36 +168,37 @@ namespace BatchMap
                 
                 var changesMade = false;
 
-                for (int i = mapFile.TileRows.Count - 1; i >= 0; --i)
-                {
-                    var tr = mapFile.TileRows[i];
-                    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
-                    {
-                        var tt = tr.EntityItems[j];
-                        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
-                        {
-                            Console.WriteLine("[MAP {0}] Tile {1}x{2} ({3}) is out of map bounds. Removing.",
-                                              mapID, tt.X, tr.Y, Enum.GetName(typeof(TileSpec), tt.Value));
-                            mapFile.RemoveTileAt(tr.Y, tt.X);
-                            changesMade = true;
-                        }
-                    }
-                }
+                //todo: find way to store actual input data, since invalid tiles/warps will be auto-removed
+                //for (int i = mapFile.TileRows.Count - 1; i >= 0; --i)
+                //{
+                //    var tr = mapFile.TileRows[i];
+                //    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
+                //    {
+                //        var tt = tr.EntityItems[j];
+                //        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
+                //        {
+                //            Console.WriteLine("[MAP {0}] Tile {1}x{2} ({3}) is out of map bounds. Removing.",
+                //                              mapID, tt.X, tr.Y, Enum.GetName(typeof(TileSpec), tt.Value));
+                //            mapFile.RemoveTileAt(tr.Y, tt.X);
+                //            changesMade = true;
+                //        }
+                //    }
+                //}
 
-                for (int i = mapFile.WarpRows.Count - 1; i >= 0; --i)
-                {
-                    var tr = mapFile.WarpRows[i];
-                    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
-                    {
-                        var tt = tr.EntityItems[j];
-                        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
-                        {
-                            Console.WriteLine("[MAP {0}] Warp {1}x{2} is out of map bounds. Removing.", mapID, tt.X, tr.Y);
-                            mapFile.RemoveWarpAt(tr.Y, tt.X);
-                            changesMade = true;
-                        }
-                    }
-                }
+                //for (int i = mapFile.WarpRows.Count - 1; i >= 0; --i)
+                //{
+                //    var tr = mapFile.WarpRows[i];
+                //    for (int j = tr.EntityItems.Count - 1; j >= 0; --j)
+                //    {
+                //        var tt = tr.EntityItems[j];
+                //        if (tt.X > mapFile.Properties.Width || tr.Y > mapFile.Properties.Height)
+                //        {
+                //            Console.WriteLine("[MAP {0}] Warp {1}x{2} is out of map bounds. Removing.", mapID, tt.X, tr.Y);
+                //            mapFile.RemoveWarpAt(tr.Y, tt.X);
+                //            changesMade = true;
+                //        }
+                //    }
+                //}
 
                 for(int ndx = mapFile.NPCSpawns.Count - 1; ndx >= 0; --ndx)
                 {

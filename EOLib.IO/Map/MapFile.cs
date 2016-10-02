@@ -36,17 +36,6 @@ namespace EOLib.IO.Map
         private List<ChestSpawnMapEntity> _mutableChestSpawns;
         private List<SignMapEntity> _mutableSigns;
 
-        public IReadOnlyList<MapEntityRow<TileSpec>> TileRows { get { return _mutableTileRows; } }
-        public IReadOnlyList<MapEntityRow<WarpMapEntity>> WarpRows { get { return _mutableWarpRows; } }
-        public IReadOnlyDictionary<MapLayer, IReadOnlyList<MapEntityRow<int>>> GFXRows
-        {
-            get { return _mutableGFXRows.ToDictionary(k => k.Key, v => (IReadOnlyList<MapEntityRow<int>>) v.Value); }
-        }
-
-        private List<MapEntityRow<TileSpec>> _mutableTileRows;
-        private List<MapEntityRow<WarpMapEntity>> _mutableWarpRows;
-        private Dictionary<MapLayer, List<MapEntityRow<int>>> _mutableGFXRows;
-
         public MapFile(int id)
         {
             Properties = new MapFileProperties();
@@ -70,9 +59,6 @@ namespace EOLib.IO.Map
         public void RemoveTileAt(int x, int y)
         {
             _mutableTiles[y, x] = TileSpec.None;
-
-            var tileRow = _mutableTileRows.Single(w => w.Y == y);
-            tileRow.EntityItems.Remove(tileRow.EntityItems.Single(w => w.X == x));
         }
 
         public void RemoveWarp(WarpMapEntity warp)
@@ -83,9 +69,6 @@ namespace EOLib.IO.Map
         public void RemoveWarpAt(int x, int y)
         {
             _mutableWarps[y, x] = null;
-
-            var warpRow = _mutableWarpRows.Single(w => w.Y == y);
-            warpRow.EntityItems.Remove(warpRow.EntityItems.Single(w => w.X == x));
         }
 
         #endregion
@@ -152,12 +135,6 @@ namespace EOLib.IO.Map
             _mutableUnknowns = new List<byte[]>();
             _mutableChestSpawns = new List<ChestSpawnMapEntity>();
             _mutableSigns = new List<SignMapEntity>();
-
-            _mutableTileRows = new List<MapEntityRow<TileSpec>>();
-            _mutableWarpRows = new List<MapEntityRow<WarpMapEntity>>();
-            _mutableGFXRows = new Dictionary<MapLayer, List<MapEntityRow<int>>>();
-            foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))
-                _mutableGFXRows.Add(layer, new List<MapEntityRow<int>>());
         }
 
         #region Helpers for Deserialization
@@ -209,7 +186,6 @@ namespace EOLib.IO.Map
                 var y = nes.DecodeNumber((byte)ms.ReadByte());
                 var numberOfTileColumns = nes.DecodeNumber((byte)ms.ReadByte());
 
-                _mutableTileRows.Add(new MapEntityRow<TileSpec> {Y = y});
                 for (int j = 0; j < numberOfTileColumns; ++j)
                 {
                     var x = nes.DecodeNumber((byte)ms.ReadByte());
@@ -219,7 +195,6 @@ namespace EOLib.IO.Map
 
                     if (x <= Properties.Width && y <= Properties.Height)
                         _mutableTiles[y, x] = spec;
-                    _mutableTileRows.Last().EntityItems.Add(new MapEntityCol<TileSpec> {X = x, Value = spec});
                 }
             }
         }
@@ -234,7 +209,6 @@ namespace EOLib.IO.Map
                 var y = nes.DecodeNumber((byte)ms.ReadByte());
                 var numberOfWarpColumns = nes.DecodeNumber((byte)ms.ReadByte());
 
-                _mutableWarpRows.Add(new MapEntityRow<WarpMapEntity> {Y = y});
                 for (int j = 0; j < numberOfWarpColumns; ++j)
                 {
                     var rawWarpData = new byte[serializer.DataSize];
@@ -245,7 +219,6 @@ namespace EOLib.IO.Map
 
                     if (warp.X <= Properties.Width && warp.Y <= Properties.Height)
                         _mutableWarps[warp.Y, warp.X] = warp;
-                    _mutableWarpRows.Last().EntityItems.Add(new MapEntityCol<WarpMapEntity> {X = warp.X, Value = warp});
                 }
             }
         }
@@ -265,7 +238,6 @@ namespace EOLib.IO.Map
                     var y = nes.DecodeNumber((byte) ms.ReadByte());
                     var numberOfColsThisLayer = nes.DecodeNumber((byte) ms.ReadByte());
 
-                    _mutableGFXRows[layer].Add(new MapEntityRow<int> {Y = y});
                     for (int j = 0; j < numberOfColsThisLayer; ++j)
                     {
                         var x = nes.DecodeNumber((byte) ms.ReadByte());
@@ -275,7 +247,6 @@ namespace EOLib.IO.Map
 
                         if (x <= Properties.Width && y <= Properties.Height)
                             _mutableGFX[layer][y, x] = gfxID;
-                        _mutableGFXRows[layer].Last().EntityItems.Add(new MapEntityCol<int> {X = x, Value = gfxID});
                     }
                 }
             }
@@ -337,12 +308,22 @@ namespace EOLib.IO.Map
 
         private void WriteTileSpecs(List<byte> ret, INumberEncoderService nes)
         {
-            ret.AddRange(nes.EncodeNumber(TileRows.Count, 1));
-            foreach (var row in TileRows)
+            var tileRows = _mutableTiles
+                .Select((row, i) => new {EntityItems = row, Y = i})
+                .Where(rowList => rowList.EntityItems.Any(item => item != TileSpec.None))
+                .ToList();
+
+            ret.AddRange(nes.EncodeNumber(tileRows.Count, 1));
+            foreach (var row in tileRows)
             {
+                var entityItems = row.EntityItems
+                    .Select((item, i) => new { Value = item, X = i })
+                    .Where(item => item.Value != TileSpec.None)
+                    .ToList();
+
                 ret.AddRange(nes.EncodeNumber(row.Y, 1));
-                ret.AddRange(nes.EncodeNumber(row.EntityItems.Count, 1));
-                foreach (var item in row.EntityItems)
+                ret.AddRange(nes.EncodeNumber(entityItems.Count, 1));
+                foreach (var item in entityItems)
                 {
                     ret.AddRange(nes.EncodeNumber(item.X, 1));
                     ret.AddRange(nes.EncodeNumber((byte)item.Value, 1));
@@ -353,12 +334,23 @@ namespace EOLib.IO.Map
         private void WriteWarpTiles(List<byte> ret, INumberEncoderService nes)
         {
             IMapEntitySerializer<WarpMapEntity> serializer = new WarpMapEntitySerializer(nes);
-            ret.AddRange(nes.EncodeNumber(WarpRows.Count, 1));
-            foreach (var row in WarpRows)
+
+            var warpRows = _mutableWarps
+                .Select((row, i) => new { EntityItems = row, Y = i })
+                .Where(rowList => rowList.EntityItems.Any(item => item != null)) //todo: use optional for default instead of null
+                .ToList();
+
+            ret.AddRange(nes.EncodeNumber(warpRows.Count, 1));
+            foreach (var row in warpRows)
             {
+                var entityItems = row.EntityItems
+                    .Select((item, i) => new { Value = item, X = i })
+                    .Where(item => item.Value != null)
+                    .ToList();
+
                 ret.AddRange(nes.EncodeNumber(row.Y, 1));
-                ret.AddRange(nes.EncodeNumber(row.EntityItems.Count, 1));
-                foreach (var item in row.EntityItems)
+                ret.AddRange(nes.EncodeNumber(entityItems.Count, 1));
+                foreach (var item in entityItems)
                     ret.AddRange(serializer.SerializeToByteArray(item.Value));
             }
         }
@@ -367,12 +359,22 @@ namespace EOLib.IO.Map
         {
             foreach (var layer in _mutableGFX.Keys)
             {
-                ret.AddRange(nes.EncodeNumber(GFXRows[layer].Count, 1));
-                foreach (var row in GFXRows[layer])
+                var gfxRowsForLayer = _mutableGFX[layer]
+                    .Select((row, i) => new { EntityItems = row, Y = i })
+                    .Where(rowList => rowList.EntityItems.Any(item => item != -1))
+                    .ToList();
+
+                ret.AddRange(nes.EncodeNumber(gfxRowsForLayer.Count, 1));
+                foreach (var row in gfxRowsForLayer)
                 {
+                    var entityItems = row.EntityItems
+                        .Select((item, i) => new { Value = item, X = i })
+                        .Where(item => item.Value != -1)
+                        .ToList();
+
                     ret.AddRange(nes.EncodeNumber(row.Y, 1));
-                    ret.AddRange(nes.EncodeNumber(row.EntityItems.Count, 1));
-                    foreach (var item in row.EntityItems)
+                    ret.AddRange(nes.EncodeNumber(entityItems.Count, 1));
+                    foreach (var item in entityItems)
                     {
                         ret.AddRange(nes.EncodeNumber(item.X, 1));
                         ret.AddRange(nes.EncodeNumber(item.Value, 2));
@@ -387,25 +389,6 @@ namespace EOLib.IO.Map
             ret.AddRange(nes.EncodeNumber(Signs.Count, 1));
             foreach (var sign in Signs)
                 ret.AddRange(serializer.SerializeToByteArray(sign));
-        }
-
-        public class MapEntityRow<T>
-        {
-            public int Y { get; set; }
-
-            public List<MapEntityCol<T>> EntityItems { get; private set; }
-
-            public MapEntityRow()
-            {
-                EntityItems = new List<MapEntityCol<T>>();
-            }
-        }
-
-        public class MapEntityCol<T>
-        {
-            public int X { get; set; }
-
-            public T Value { get; set; }
         }
 
         #endregion

@@ -19,10 +19,6 @@ namespace EOLib.IO.Map
         IReadOnlyList<ChestSpawnMapEntity> Chests { get; }
         IReadOnlyList<SignMapEntity> Signs { get; }
 
-        IReadOnlyList<MapFile.MapEntityRow<TileSpec>> TileRows { get; }
-        IReadOnlyList<MapFile.MapEntityRow<WarpMapEntity>> WarpRows { get; }
-        IReadOnlyDictionary<MapLayer, IReadOnlyList<MapFile.MapEntityRow<int>>> GFXRows { get; }
-
         byte[] SerializeToByteArray(INumberEncoderService numberEncoderService,
                                     IMapStringEncoderService mapStringEncoderService);
 
