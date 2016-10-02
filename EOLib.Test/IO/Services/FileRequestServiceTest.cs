@@ -5,8 +5,10 @@
 using System;
 using System.Linq;
 using EOLib.Domain.Protocol;
+using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
@@ -23,18 +25,18 @@ namespace EOLib.Test.IO.Services
         
         private IPacketSendService _packetSendService;
         private INumberEncoderService _numberEncoderService;
-        private IMapStringEncoderService _mapStringEncoderService;
+        private ISerializer<IMapFile> _mapFileSerializer;
 
         [TestInitialize]
         public void TestInitialize()
         {
             _packetSendService = Mock.Of<IPacketSendService>();
             _numberEncoderService = new NumberEncoderService();
-            _mapStringEncoderService = new MapStringEncoderService();
+            _mapFileSerializer = Mock.Of<ISerializer<IMapFile>>();
 
             _fileRequestService = new FileRequestService(_packetSendService,
                                                          _numberEncoderService,
-                                                         _mapStringEncoderService);
+                                                         _mapFileSerializer);
         }
 
         #region RequestFile Tests

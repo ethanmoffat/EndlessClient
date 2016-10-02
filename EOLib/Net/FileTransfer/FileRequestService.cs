@@ -8,6 +8,7 @@ using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
 using EOLib.Net.Communication;
 
 namespace EOLib.Net.FileTransfer
@@ -16,15 +17,15 @@ namespace EOLib.Net.FileTransfer
     {
         private readonly IPacketSendService _packetSendService;
         private readonly INumberEncoderService _numberEncoderService;
-        private readonly IMapStringEncoderService _mapStringEncoderService;
+        private readonly ISerializer<IMapFile> _mapFileSerializer;
 
         public FileRequestService(IPacketSendService packetSendService,
                                   INumberEncoderService numberEncoderService,
-                                  IMapStringEncoderService mapStringEncoderService)
+                                  ISerializer<IMapFile> mapFileSerializer)
         {
             _packetSendService = packetSendService;
             _numberEncoderService = numberEncoderService;
-            _mapStringEncoderService = mapStringEncoderService;
+            _mapFileSerializer = mapFileSerializer;
         }
 
         public async Task<IMapFile> RequestMapFile(short mapID)
@@ -42,9 +43,10 @@ namespace EOLib.Net.FileTransfer
                 throw new MalformedPacketException("Invalid file type " + fileType + " when requesting a map file", response);
 
             var fileData = response.ReadBytes(response.Length - response.ReadPosition);
-            
-            var mapFile = new MapFile().WithMapID(mapID);
-            mapFile.DeserializeFromByteArray(fileData.ToArray(), _numberEncoderService, _mapStringEncoderService);
+
+            var mapFile = _mapFileSerializer
+                .DeserializeFromByteArray(fileData.ToArray())
+                .WithMapID(mapID);
 
             return mapFile;
         }

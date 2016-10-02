@@ -6,6 +6,8 @@ namespace EOLib.IO.Map
 {
     public class WarpMapEntity : IMapEntity
     {
+        public const int DATA_SIZE = 8;
+
         public int X { get; set; }
 
         public int Y { get; set; }

@@ -5,19 +5,17 @@
 using System;
 using System.IO;
 using EOLib.IO.Map;
+using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Services
 {
     public class MapFileSaveService : IMapFileSaveService
     {
-        private readonly INumberEncoderService _numberEncoderService;
-        private readonly IMapStringEncoderService _mapStringEncoderService;
+        private readonly ISerializer<IMapFile> _mapFileSerializer;
 
-        public MapFileSaveService(INumberEncoderService numberEncoderService,
-            IMapStringEncoderService mapStringEncoderService)
+        public MapFileSaveService(ISerializer<IMapFile> mapFileSerializer)
         {
-            _numberEncoderService = numberEncoderService;
-            _mapStringEncoderService = mapStringEncoderService;
+            _mapFileSerializer = mapFileSerializer;
         }
 
         public void SaveFileToDefaultDirectory(IMapFile mapFile)
@@ -27,7 +25,7 @@ namespace EOLib.IO.Services
                 Directory.CreateDirectory(directoryName);
 
             File.WriteAllBytes(string.Format(MapFile.MapFileFormatString, mapFile.Properties.MapID),
-                               mapFile.SerializeToByteArray(_numberEncoderService, _mapStringEncoderService));
+                               _mapFileSerializer.SerializeToByteArray(mapFile));
         }
 
         public void SaveFile(string path, IMapFile mapFile)
@@ -35,7 +33,7 @@ namespace EOLib.IO.Services
             if (!path.ToLower().EndsWith(".emf"))
                 throw new ArgumentException("Must specify an emf file", "path");
 
-            File.WriteAllBytes(path, mapFile.SerializeToByteArray(_numberEncoderService, _mapStringEncoderService));
+            File.WriteAllBytes(path, _mapFileSerializer.SerializeToByteArray(mapFile));
         }
     }
 }

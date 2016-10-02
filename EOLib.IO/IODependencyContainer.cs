@@ -5,9 +5,11 @@
 using System.IO;
 using EOLib.DependencyInjection;
 using EOLib.IO.Actions;
+using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
+using EOLib.IO.Services.Serializers;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.IO
@@ -28,6 +30,14 @@ namespace EOLib.IO
                 .RegisterType<IPubLoadService<ECFRecord>, ClassFileLoadService>()
                 .RegisterType<IPubFileSaveService, PubFileSaveService>()
                 .RegisterType<IMapFileSaveService, MapFileSaveService>();
+
+            container
+                .RegisterType<ISerializer<IMapFile>, MapFileSerializer>()
+                .RegisterType<ISerializer<IMapFileProperties>, MapPropertiesSerializer>()
+                .RegisterType<ISerializer<ChestSpawnMapEntity>, ChestSpawnMapEntitySerializer>()
+                .RegisterType<ISerializer<NPCSpawnMapEntity>, NPCSpawnMapEntitySerializer>()
+                .RegisterType<ISerializer<WarpMapEntity>, WarpMapEntitySerializer>()
+                .RegisterType<ISerializer<SignMapEntity>, SignMapEntitySerializer>();
 
             container
                 .RegisterInstance<IPubFileRepository, PubFileRepository>()

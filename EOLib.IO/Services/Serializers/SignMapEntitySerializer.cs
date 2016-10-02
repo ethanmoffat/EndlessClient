@@ -9,17 +9,10 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    public class SignMapEntitySerializer : IMapEntitySerializer<SignMapEntity>
+    public class SignMapEntitySerializer : ISerializer<SignMapEntity>
     {
         private readonly INumberEncoderService numberEncoderService;
         private readonly IMapStringEncoderService mapStringEncoderService;
-
-        public int DataSize { get { return 5; } }
-
-        public MapEntitySerializeType MapEntitySerializeType
-        {
-            get { return MapEntitySerializeType.MapSignEntitySerializer; }
-        }
 
         public SignMapEntitySerializer(INumberEncoderService numberEncoderService,
                                        IMapStringEncoderService mapStringEncoderService)
@@ -30,7 +23,7 @@ namespace EOLib.IO.Services.Serializers
 
         public byte[] SerializeToByteArray(SignMapEntity mapEntity)
         {
-            var retBytes = new List<byte>(DataSize + mapEntity.Title.Length + mapEntity.Message.Length);
+            var retBytes = new List<byte>(SignMapEntity.DATA_SIZE + mapEntity.Title.Length + mapEntity.Message.Length);
 
             retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.X, 1));
             retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.Y, 1));
@@ -52,7 +45,7 @@ namespace EOLib.IO.Services.Serializers
 
         public SignMapEntity DeserializeFromByteArray(byte[] data)
         {
-            if (data.Length < DataSize) //using < for comparison because data will be an unknown length based on message
+            if (data.Length < SignMapEntity.DATA_SIZE) //using < for comparison because data will be an unknown length based on message
                 throw new ArgumentException("Data is improperly size for serialization", "data");
 
             var sign = new SignMapEntity
@@ -62,7 +55,7 @@ namespace EOLib.IO.Services.Serializers
             };
 
             var titleAndMessageLength = numberEncoderService.DecodeNumber(data[2], data[3]) - 1;
-            if (data.Length != DataSize + titleAndMessageLength)
+            if (data.Length != SignMapEntity.DATA_SIZE + titleAndMessageLength)
                 throw new ArgumentException("Data is improperly sized for deserialization", "data");
 
             var rawTitleAndMessage = data.Skip(4).Take(titleAndMessageLength).ToArray();

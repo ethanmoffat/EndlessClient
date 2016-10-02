@@ -16,14 +16,24 @@ namespace EOLib.IO.Test.Map
     public class MapFileTest
     {
         private IMapFile _mapFile;
-        private IMapStringEncoderService _stringEncoder;
-        private INumberEncoderService _numberEncoder;
+        private IMapStringEncoderService ses;
+        private INumberEncoderService nes;
+
+        private ISerializer<IMapFile> _serializer;
 
         [TestInitialize]
         public void TestInitialize()
         {
-            _stringEncoder = new MapStringEncoderService();
-            _numberEncoder = new NumberEncoderService();
+            ses = new MapStringEncoderService();
+            nes = new NumberEncoderService();
+
+            _serializer = new MapFileSerializer(
+                new MapPropertiesSerializer(nes, ses),
+                new NPCSpawnMapEntitySerializer(nes),
+                new ChestSpawnMapEntitySerializer(nes),
+                new WarpMapEntitySerializer(nes),
+                new SignMapEntitySerializer(nes, ses),
+                nes);
         }
 
         [TestMethod]
@@ -47,7 +57,7 @@ namespace EOLib.IO.Test.Map
             _mapFile = new MapFile().WithMapID(1);
 
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.None);
-            _mapFile.DeserializeFromByteArray(mapData, _numberEncoder, _stringEncoder);
+            _mapFile = _serializer.DeserializeFromByteArray(mapData);
 
             Assert.AreEqual(mapData.Length, _mapFile.Properties.FileSize);
         }
@@ -58,7 +68,7 @@ namespace EOLib.IO.Test.Map
             _mapFile = new MapFile().WithMapID(1);
 
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.AmbientSource);
-            _mapFile.DeserializeFromByteArray(mapData, _numberEncoder, _stringEncoder);
+            _mapFile = _serializer.DeserializeFromByteArray(mapData);
 
             Assert.IsFalse(_mapFile.Properties.HasTimedSpikes);
         }
@@ -69,7 +79,7 @@ namespace EOLib.IO.Test.Map
             _mapFile = new MapFile().WithMapID(1);
 
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.SpikesTimed);
-            _mapFile.DeserializeFromByteArray(mapData, _numberEncoder, _stringEncoder);
+            _mapFile = _serializer.DeserializeFromByteArray(mapData);
 
             Assert.IsTrue(_mapFile.Properties.HasTimedSpikes);
         }
@@ -80,9 +90,9 @@ namespace EOLib.IO.Test.Map
             _mapFile = new MapFile().WithMapID(1);
 
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(2).WithHeight(2), TileSpec.Arena, 432);
-            _mapFile.DeserializeFromByteArray(mapData, _numberEncoder, _stringEncoder);
+            _mapFile = _serializer.DeserializeFromByteArray(mapData);
 
-            var actualData = _mapFile.SerializeToByteArray(_numberEncoder, _stringEncoder);
+            var actualData = _serializer.SerializeToByteArray(_mapFile);
 
             CollectionAssert.AreEqual(mapData, actualData);
         }
@@ -93,7 +103,7 @@ namespace EOLib.IO.Test.Map
             _mapFile = new MapFile().WithMapID(1);
 
             var mapData = CreateDataForMap(new MapFileProperties().WithWidth(1).WithHeight(1), TileSpec.Board5, 999);
-            _mapFile.DeserializeFromByteArray(mapData, _numberEncoder, _stringEncoder);
+            _mapFile = _serializer.DeserializeFromByteArray(mapData);
 
             Assert.AreEqual(TileSpec.Board5, _mapFile.Tiles[1, 1]);
             foreach (var kvp in _mapFile.GFX)
@@ -104,34 +114,34 @@ namespace EOLib.IO.Test.Map
         {
             var ret = new List<byte>();
 
-            var serializer = new MapPropertiesSerializer(_numberEncoder, _stringEncoder);
+            var serializer = new MapPropertiesSerializer(nes, ses);
 
             ret.AddRange(serializer.SerializeToByteArray(mapFileProperties));
-            ret.AddRange(_numberEncoder.EncodeNumber(0, 1)); //npc spawns
-            ret.AddRange(_numberEncoder.EncodeNumber(0, 1)); //unknowns
-            ret.AddRange(_numberEncoder.EncodeNumber(0, 1)); //chest spawns
+            ret.AddRange(nes.EncodeNumber(0, 1)); //npc spawns
+            ret.AddRange(nes.EncodeNumber(0, 1)); //unknowns
+            ret.AddRange(nes.EncodeNumber(0, 1)); //chest spawns
 
             //tiles
-            ret.AddRange(_numberEncoder.EncodeNumber(1, 1)); //count
-            ret.AddRange(_numberEncoder.EncodeNumber(1, 1)); //y
-            ret.AddRange(_numberEncoder.EncodeNumber(1, 1)); //count
-            ret.AddRange(_numberEncoder.EncodeNumber(1, 1)); //x
-            ret.AddRange(_numberEncoder.EncodeNumber((byte)spec, 1)); //tilespec
+            ret.AddRange(nes.EncodeNumber(1, 1)); //count
+            ret.AddRange(nes.EncodeNumber(1, 1)); //y
+            ret.AddRange(nes.EncodeNumber(1, 1)); //count
+            ret.AddRange(nes.EncodeNumber(1, 1)); //x
+            ret.AddRange(nes.EncodeNumber((byte)spec, 1)); //tilespec
 
             //warps
-            ret.AddRange(_numberEncoder.EncodeNumber(0, 1));
+            ret.AddRange(nes.EncodeNumber(0, 1));
 
             //gfx
             foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))
             {
-                ret.AddRange(_numberEncoder.EncodeNumber(1, 1)); //count
-                ret.AddRange(_numberEncoder.EncodeNumber(1, 1)); //y
-                ret.AddRange(_numberEncoder.EncodeNumber(1, 1)); //count
-                ret.AddRange(_numberEncoder.EncodeNumber(1, 1)); //x
-                ret.AddRange(_numberEncoder.EncodeNumber(gfx, 2)); //gfx value
+                ret.AddRange(nes.EncodeNumber(1, 1)); //count
+                ret.AddRange(nes.EncodeNumber(1, 1)); //y
+                ret.AddRange(nes.EncodeNumber(1, 1)); //count
+                ret.AddRange(nes.EncodeNumber(1, 1)); //x
+                ret.AddRange(nes.EncodeNumber(gfx, 2)); //gfx value
             }
 
-            ret.AddRange(_numberEncoder.EncodeNumber(0, 1)); //signs
+            ret.AddRange(nes.EncodeNumber(0, 1)); //signs
 
             return ret.ToArray();
         }

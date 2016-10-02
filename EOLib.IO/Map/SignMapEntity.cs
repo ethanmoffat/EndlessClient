@@ -6,6 +6,8 @@ namespace EOLib.IO.Map
 {
     public class SignMapEntity : IMapEntity
     {
+        public const int DATA_SIZE = 5;
+
         public int X { get; set; }
 
         public int Y { get; set; }

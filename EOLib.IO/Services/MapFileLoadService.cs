@@ -4,27 +4,26 @@
 
 using System.IO;
 using EOLib.IO.Map;
+using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Services
 {
     public class MapFileLoadService : IMapFileLoadService
     {
-        private readonly INumberEncoderService _numberEncoderService;
-        private readonly IMapStringEncoderService _mapStringEncoderService;
+        private readonly ISerializer<IMapFile> _mapFileSerializer;
 
-        public MapFileLoadService(INumberEncoderService numberEncoderService,
-                                  IMapStringEncoderService mapStringEncoderService)
+        public MapFileLoadService(ISerializer<IMapFile> mapFileSerializer)
         {
-            _numberEncoderService = numberEncoderService;
-            _mapStringEncoderService = mapStringEncoderService;
+            _mapFileSerializer = mapFileSerializer;
         }
 
         public IMapFile LoadMapByID(int mapID)
         {
-            var mapFile = new MapFile().WithMapID(mapID);
-
             var mapFileBytes = File.ReadAllBytes(string.Format(MapFile.MapFileFormatString, mapID));
-            mapFile.DeserializeFromByteArray(mapFileBytes, _numberEncoderService, _mapStringEncoderService);
+
+            var mapFile = _mapFileSerializer
+                .DeserializeFromByteArray(mapFileBytes)
+                .WithMapID(mapID);
 
             return mapFile;
         }
@@ -32,10 +31,11 @@ namespace EOLib.IO.Services
         public IMapFile LoadMapByPath(string pathToMapFile)
         {
             var intID = new MapPathToIDConverter().ConvertFromPathToID(pathToMapFile);
-            var mapFile = new MapFile().WithMapID(intID);
-
             var mapFileBytes = File.ReadAllBytes(pathToMapFile);
-            mapFile.DeserializeFromByteArray(mapFileBytes, _numberEncoderService, _mapStringEncoderService);
+
+            var mapFile = _mapFileSerializer
+                .DeserializeFromByteArray(mapFileBytes)
+                .WithMapID(intID);
 
             return mapFile;
         }

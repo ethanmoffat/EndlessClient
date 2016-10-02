@@ -8,13 +8,9 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    public class NPCSpawnMapEntitySerializer : IMapEntitySerializer<NPCSpawnMapEntity>
+    public class NPCSpawnMapEntitySerializer : ISerializer<NPCSpawnMapEntity>
     {
         private readonly INumberEncoderService _numberEncoderService;
-
-        public int DataSize { get { return 8; } }
-
-        public MapEntitySerializeType MapEntitySerializeType { get{return MapEntitySerializeType.NPCEntitySerializer;} }
 
         public NPCSpawnMapEntitySerializer(INumberEncoderService numberEncoderService)
         {
@@ -23,7 +19,7 @@ namespace EOLib.IO.Services.Serializers
 
         public byte[] SerializeToByteArray(NPCSpawnMapEntity mapEntity)
         {
-            var retBytes = new List<byte>(DataSize);
+            var retBytes = new List<byte>(NPCSpawnMapEntity.DATA_SIZE);
 
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.X, 1));
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.Y, 1));
@@ -37,7 +33,7 @@ namespace EOLib.IO.Services.Serializers
 
         public NPCSpawnMapEntity DeserializeFromByteArray(byte[] data)
         {
-            if (data.Length != DataSize)
+            if (data.Length != NPCSpawnMapEntity.DATA_SIZE)
                 throw new ArgumentException("Data is improperly sized for deserialization", "data");
 
             return new NPCSpawnMapEntity

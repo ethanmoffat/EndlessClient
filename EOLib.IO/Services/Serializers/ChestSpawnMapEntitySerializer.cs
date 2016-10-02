@@ -8,19 +8,9 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    public class ChestSpawnMapEntitySerializer : IMapEntitySerializer<ChestSpawnMapEntity>
+    public class ChestSpawnMapEntitySerializer : ISerializer<ChestSpawnMapEntity>
     {
         private readonly INumberEncoderService _numberEncoderService;
-
-        public int DataSize
-        {
-            get { return 12; }
-        }
-
-        public MapEntitySerializeType MapEntitySerializeType
-        {
-            get { return MapEntitySerializeType.ChestEntitySerializer; }
-        }
 
         public ChestSpawnMapEntitySerializer(INumberEncoderService numberEncoderService)
         {
@@ -29,7 +19,7 @@ namespace EOLib.IO.Services.Serializers
 
         public byte[] SerializeToByteArray(ChestSpawnMapEntity mapEntity)
         {
-            var retBytes = new List<byte>(DataSize);
+            var retBytes = new List<byte>(ChestSpawnMapEntity.DATA_SIZE);
 
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.X, 1));
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.Y, 1));
@@ -44,7 +34,7 @@ namespace EOLib.IO.Services.Serializers
 
         public ChestSpawnMapEntity DeserializeFromByteArray(byte[] data)
         {
-            if (data.Length != DataSize)
+            if (data.Length != ChestSpawnMapEntity.DATA_SIZE)
                 throw new ArgumentException("Data is improperly sized for deserialization", "data");
 
             return new ChestSpawnMapEntity

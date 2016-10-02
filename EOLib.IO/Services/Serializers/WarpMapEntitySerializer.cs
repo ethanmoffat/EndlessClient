@@ -8,16 +8,9 @@ using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
-    public class WarpMapEntitySerializer : IMapEntitySerializer<WarpMapEntity>
+    public class WarpMapEntitySerializer : ISerializer<WarpMapEntity>
     {
         private readonly INumberEncoderService _numberEncoderService;
-
-        public int DataSize { get { return 8; } }
-
-        public MapEntitySerializeType MapEntitySerializeType
-        {
-            get { return MapEntitySerializeType.WarpEntitySerializer; }
-        }
 
         public WarpMapEntitySerializer(INumberEncoderService numberEncoderService)
         {
@@ -26,7 +19,7 @@ namespace EOLib.IO.Services.Serializers
 
         public byte[] SerializeToByteArray(WarpMapEntity mapEntity)
         {
-            var retBytes = new List<byte>(DataSize);
+            var retBytes = new List<byte>(WarpMapEntity.DATA_SIZE);
 
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.X, 1));
             retBytes.AddRange(_numberEncoderService.EncodeNumber(mapEntity.DestinationMapID, 2));
@@ -40,7 +33,7 @@ namespace EOLib.IO.Services.Serializers
 
         public WarpMapEntity DeserializeFromByteArray(byte[] data)
         {
-            if (data.Length != DataSize)
+            if (data.Length != WarpMapEntity.DATA_SIZE)
                 throw new ArgumentException("Data is improperly sized for deserialization", "data");
 
             return new WarpMapEntity
