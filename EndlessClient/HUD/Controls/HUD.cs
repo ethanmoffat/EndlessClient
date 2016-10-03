@@ -46,7 +46,7 @@ namespace EndlessClient.HUD.Controls
 
         public DateTime SessionStartTime { get; private set; }
 
-        private List<InputKeyListenerBase> m_inputListeners;
+        private List<OldInputKeyListenerBase> m_inputListeners;
         
         public HUD(Game g, PacketAPI api) : base(g)
         {
@@ -159,7 +159,7 @@ namespace EndlessClient.HUD.Controls
             
             SessionStartTime = DateTime.Now;
 
-            m_inputListeners = new List<InputKeyListenerBase>(4)
+            m_inputListeners = new List<OldInputKeyListenerBase>(4)
             {
                 new FunctionKeyListener(),
                 new OldArrowKeyListener(),

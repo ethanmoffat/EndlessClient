@@ -11,7 +11,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.Input
 {
-    public class FunctionKeyListener : InputKeyListenerBase
+    public class FunctionKeyListener : OldInputKeyListenerBase
     {
         public FunctionKeyListener()
         {

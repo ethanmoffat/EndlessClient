@@ -10,7 +10,7 @@ using XNAControls;
 
 namespace EndlessClient.Input
 {
-    public class InputKeyListenerBase : GameComponent
+    public class OldInputKeyListenerBase : GameComponent
     {
         //input will be rate-limited to once every {x} MS
         private const int INPUT_RATE_LIMIT_MS = 200;
@@ -38,7 +38,7 @@ namespace EndlessClient.Input
             }
         }
 
-        protected InputKeyListenerBase() : base(EOGame.Instance)
+        protected OldInputKeyListenerBase() : base(EOGame.Instance)
         {
             _prevKeyState = Keyboard.GetState();
         }

@@ -17,7 +17,7 @@ namespace EndlessClient.Input
 {
     //todo: track last player action time for the AFK emotes
 
-    public class OldArrowKeyListener : InputKeyListenerBase
+    public class OldArrowKeyListener : OldInputKeyListenerBase
     {
         private DateTime? _startWalkingThroughPlayerTime;
 

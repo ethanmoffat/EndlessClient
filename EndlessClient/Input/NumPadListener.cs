@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.Input
 {
-    public class NumPadListener : InputKeyListenerBase
+    public class NumPadListener : OldInputKeyListenerBase
     {
         public NumPadListener()
         {
