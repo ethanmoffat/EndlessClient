@@ -60,8 +60,9 @@
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
     <Compile Include="HUD\Chat\IPrivateMessageActions.cs" />
     <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
+    <Compile Include="Input\CurrentKeyStateTracker.cs" />
     <Compile Include="Input\IKeyStateRepository.cs" />
-    <Compile Include="Input\InGameKeyStateTrackerComponent.cs" />
+    <Compile Include="Input\PreviousKeyStateTracker.cs" />
     <Compile Include="OldCharacter.cs" />
     <Compile Include="CharacterStateTest.cs" />
     <Compile Include="Controllers\CharacterManagementController.cs" />

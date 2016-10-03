@@ -8,6 +8,8 @@ namespace EndlessClient.HUD.Controls
 {
     public enum HudControlIdentifier
     {
+        CurrentKeyStateTracker = int.MinValue, //this should always be first!
+
         MapRenderer,
 
         HudBackground,

@@ -84,6 +84,8 @@ namespace EndlessClient.HUD.Controls
         {
             var controls = new Dictionary<HudControlIdentifier, IGameComponent>
             {
+                {HudControlIdentifier.CurrentKeyStateTracker, CreateCurrentKeyStateTracker()},
+
                 {HudControlIdentifier.MapRenderer, CreateMapRenderer()},
 
                 {HudControlIdentifier.HudBackground, CreateHudBackground()},
@@ -117,7 +119,7 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.ClockLabel, CreateClockLabel()},
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
                 {HudControlIdentifier.StatusLabel, CreateStatusLabel()},
-                {HudControlIdentifier.KeyStateTracker, CreateKeyStateTracker()}
+                {HudControlIdentifier.KeyStateTracker, CreatePreviousKeyStateTracker()}
             };
 
             return controls;
@@ -266,9 +268,14 @@ namespace EndlessClient.HUD.Controls
             return new StatusBarLabel(_clientWindowSizeProvider, _statusLabelTextProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
-        private InGameKeyStateTrackerComponent CreateKeyStateTracker()
+        private CurrentKeyStateTracker CreateCurrentKeyStateTracker()
         {
-            return new InGameKeyStateTrackerComponent(_endlessGameProvider, _keyStateRepository);
+            return new CurrentKeyStateTracker(_endlessGameProvider, _keyStateRepository);
+        }
+
+        private PreviousKeyStateTracker CreatePreviousKeyStateTracker()
+        {
+            return new PreviousKeyStateTracker(_endlessGameProvider, _keyStateRepository);
         }
     }
 }

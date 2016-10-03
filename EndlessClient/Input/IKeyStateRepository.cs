@@ -9,15 +9,21 @@ namespace EndlessClient.Input
     public interface IKeyStateRepository
     {
         KeyboardState PreviousKeyState { get; set; }
+
+        KeyboardState CurrentKeyState { get; set; }
     }
 
     public interface IKeyStateProvider
     {
         KeyboardState PreviousKeyState { get; }
+
+        KeyboardState CurrentKeyState { get; }
     }
 
     public class KeyStateRepository : IKeyStateRepository, IKeyStateProvider
     {
         public KeyboardState PreviousKeyState { get; set; }
+
+        public KeyboardState CurrentKeyState { get; set; }
     }
 }

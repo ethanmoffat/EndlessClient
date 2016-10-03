@@ -4,15 +4,14 @@
 
 using EndlessClient.GameExecution;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.Input
 {
-    public class InGameKeyStateTrackerComponent : GameComponent
+    public class PreviousKeyStateTracker : GameComponent
     {
         private readonly IKeyStateRepository _keyStateRepository;
 
-        public InGameKeyStateTrackerComponent(
+        public PreviousKeyStateTracker(
             IEndlessGameProvider endlessGameProvider,
             IKeyStateRepository keyStateRepository)
             : base((Game)endlessGameProvider.Game)
@@ -24,7 +23,7 @@ namespace EndlessClient.Input
 
         public override void Update(GameTime gameTime)
         {
-            _keyStateRepository.PreviousKeyState = Keyboard.GetState();
+            _keyStateRepository.PreviousKeyState = _keyStateRepository.CurrentKeyState;
 
             base.Update(gameTime);
         }
