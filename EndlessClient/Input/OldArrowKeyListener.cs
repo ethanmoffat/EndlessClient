@@ -7,7 +7,6 @@ using System.Linq;
 using EndlessClient.Dialogs;
 using EOLib;
 using EOLib.Domain.Character;
-using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
@@ -18,13 +17,13 @@ namespace EndlessClient.Input
 {
     //todo: track last player action time for the AFK emotes
 
-    public class ArrowKeyListener : InputKeyListenerBase
+    public class OldArrowKeyListener : InputKeyListenerBase
     {
         private DateTime? _startWalkingThroughPlayerTime;
 
-        public ArrowKeyListener()
+        public OldArrowKeyListener()
         {
-            if (Game.Components.Any(x => x is ArrowKeyListener))
+            if (Game.Components.Any(x => x is OldArrowKeyListener))
                 throw new InvalidOperationException("The game already contains an arrow key listener");
             Game.Components.Add(this);
         }

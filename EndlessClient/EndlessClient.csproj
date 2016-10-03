@@ -47,7 +47,9 @@
     <Compile Include="Audio\SoundInfo.cs" />
     <Compile Include="Audio\SoundManager.cs" />
     <Compile Include="Audio\WAVFileValidator.cs" />
+    <Compile Include="Controllers\ArrowKeyController.cs" />
     <Compile Include="Controllers\ChatController.cs" />
+    <Compile Include="Controllers\IArrowKeyController.cs" />
     <Compile Include="Controllers\IChatController.cs" />
     <Compile Include="Dialogs\Actions\IFirstTimePlayerActions.cs" />
     <Compile Include="HUD\Chat\ChatModeCalculator.cs" />
@@ -252,7 +254,7 @@
     <Compile Include="HUD\StatusBars\TPStatusBar.cs" />
     <Compile Include="GameExecution\IEndlessGame.cs" />
     <Compile Include="GameExecution\IGameRunner.cs" />
-    <Compile Include="Input\ArrowKeyListener.cs" />
+    <Compile Include="Input\OldArrowKeyListener.cs" />
     <Compile Include="Input\ControlKeyListener.cs" />
     <Compile Include="Input\FunctionKeyListener.cs" />
     <Compile Include="Input\InputKeyListenerBase.cs" />

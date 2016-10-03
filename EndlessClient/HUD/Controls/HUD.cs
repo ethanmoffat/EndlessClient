@@ -162,7 +162,7 @@ namespace EndlessClient.HUD.Controls
             m_inputListeners = new List<InputKeyListenerBase>(4)
             {
                 new FunctionKeyListener(),
-                new ArrowKeyListener(),
+                new OldArrowKeyListener(),
                 new ControlKeyListener(),
                 new NumPadListener()
             };
