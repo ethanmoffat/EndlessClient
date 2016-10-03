@@ -72,7 +72,9 @@ namespace EndlessClient
                 .RegisterInstance<IStatusLabelTextRepository, StatusLabelTextRepository>()
                 .RegisterInstance<ICharacterRendererProvider, CharacterRendererRepository>()
                 .RegisterInstance<ICharacterRendererRepository, CharacterRendererRepository>()
-                .RegisterInstance<ICharacterRendererResetter, CharacterRendererRepository>();
+                .RegisterInstance<ICharacterRendererResetter, CharacterRendererRepository>()
+                .RegisterInstance<IKeyStateRepository, KeyStateRepository>()
+                .RegisterInstance<IKeyStateProvider, IKeyStateProvider>();
 
             //provider only
             container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>()

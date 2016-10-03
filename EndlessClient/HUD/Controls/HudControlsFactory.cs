@@ -9,6 +9,7 @@ using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Panels;
+using EndlessClient.Input;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.Sprites;
@@ -34,6 +35,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
+        private readonly IKeyStateRepository _keyStateRepository;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
         private readonly IContentManagerProvider _contentManagerProvider;
@@ -50,6 +52,7 @@ namespace EndlessClient.HUD.Controls
                                   IClientWindowSizeProvider clientWindowSizeProvider,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository,
+                                  IKeyStateRepository keyStateRepository,
                                   IStatusLabelSetter statusLabelSetter,
                                   IStatusLabelTextProvider statusLabelTextProvider,
                                   IContentManagerProvider contentManagerProvider,
@@ -64,6 +67,7 @@ namespace EndlessClient.HUD.Controls
             _clientWindowSizeProvider = clientWindowSizeProvider;
             _endlessGameProvider = endlessGameProvider;
             _characterRepository = characterRepository;
+            _keyStateRepository = keyStateRepository;
             _statusLabelSetter = statusLabelSetter;
             _statusLabelTextProvider = statusLabelTextProvider;
             _contentManagerProvider = contentManagerProvider;
@@ -112,7 +116,8 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.ChatTextBox, CreateChatTextBox()},
                 {HudControlIdentifier.ClockLabel, CreateClockLabel()},
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
-                {HudControlIdentifier.StatusLabel, CreateStatusLabel()}
+                {HudControlIdentifier.StatusLabel, CreateStatusLabel()},
+                {HudControlIdentifier.KeyStateTracker, CreateKeyStateTracker()}
             };
 
             return controls;
@@ -259,6 +264,11 @@ namespace EndlessClient.HUD.Controls
         private StatusBarLabel CreateStatusLabel()
         {
             return new StatusBarLabel(_clientWindowSizeProvider, _statusLabelTextProvider) { DrawOrder = HUD_CONTROL_LAYER };
+        }
+
+        private InGameKeyStateTrackerComponent CreateKeyStateTracker()
+        {
+            return new InGameKeyStateTrackerComponent(_endlessGameProvider, _keyStateRepository);
         }
     }
 }

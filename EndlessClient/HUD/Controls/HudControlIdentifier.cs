@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
+
 namespace EndlessClient.HUD.Controls
 {
     public enum HudControlIdentifier
@@ -63,6 +65,9 @@ namespace EndlessClient.HUD.Controls
         //lower stuff
         StatusLabel,
         ClockLabel,
-        UsageTracker
+
+        //not displayed
+        UsageTracker,
+        KeyStateTracker = Int32.MaxValue //this should always be last!
     }
 }

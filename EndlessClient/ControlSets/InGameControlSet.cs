@@ -9,7 +9,6 @@ using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
-using EOLib;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using XNAControls;
