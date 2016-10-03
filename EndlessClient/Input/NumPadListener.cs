@@ -28,7 +28,7 @@ namespace EndlessClient.Input
                 bool handledPress = false;
                 for (int key = (int) Keys.NumPad0; key <= (int) Keys.NumPad9; ++key)
                 {
-                    if (IsKeyPressed((Keys) key))
+                    if (Keyboard.GetState().IsKeyHeld(PreviousKeyState, (Keys) key))
                     {
                         var emote = key == (int)Keys.NumPad0 ? Emote.Playful : (Emote) (key - (int) Keys.NumPad0);
                         _doEmote(emote);
@@ -38,7 +38,7 @@ namespace EndlessClient.Input
                 }
 
                 //The Decimal enumeration is 110, which is the Virtual Key code (VK_XXXX) for the 'del'/'.' key on the numpad
-                if (!handledPress && IsKeyPressed(Keys.Decimal))
+                if (!handledPress && Keyboard.GetState().IsKeyHeld(PreviousKeyState, Keys.Decimal))
                 {
                     _doEmote(Emote.Embarassed);
                 }

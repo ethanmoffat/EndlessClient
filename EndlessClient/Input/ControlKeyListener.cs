@@ -30,7 +30,8 @@ namespace EndlessClient.Input
                 UpdateInputTime();
 
                 EODirection direction = EODirection.Invalid;
-                if (IsKeyPressed(Keys.LeftControl) || IsKeyPressed(Keys.RightControl))
+                if (Keyboard.GetState().IsKeyHeld(PreviousKeyState, Keys.LeftControl) ||
+                    Keyboard.GetState().IsKeyHeld(PreviousKeyState, Keys.RightControl))
                     direction = Character.RenderData.facing;
 
                 byte destX, destY;

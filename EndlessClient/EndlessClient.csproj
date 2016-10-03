@@ -62,6 +62,7 @@
     <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
     <Compile Include="Input\CurrentKeyStateTracker.cs" />
     <Compile Include="Input\IKeyStateRepository.cs" />
+    <Compile Include="Input\KeyboardStateExtensions.cs" />
     <Compile Include="Input\PreviousKeyStateTracker.cs" />
     <Compile Include="OldCharacter.cs" />
     <Compile Include="CharacterStateTest.cs" />

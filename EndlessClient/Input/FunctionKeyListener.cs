@@ -30,17 +30,18 @@ namespace EndlessClient.Input
                 //F1-F8 should be handled the same way: invoke the spell
                 for (int key = (int) Keys.F1; key <= (int) Keys.F8; ++key)
                 {
-                    if (IsKeyPressed((Keys) key, currState))
+                    if (currState.IsKeyHeld(PreviousKeyState, (Keys)key))
                     {
                         //hidden feature! holding shift calls spell in second row (just learned that, crazy!!!!)
-                        var shiftHeld = IsKeyPressed(Keys.LeftShift) || IsKeyPressed(Keys.RightShift) ? OldActiveSpells.SPELL_ROW_LENGTH : 0;
+                        var shiftHeld = currState.IsKeyHeld(PreviousKeyState, Keys.LeftShift) ||
+                                        currState.IsKeyHeld(PreviousKeyState, Keys.RightShift) ? OldActiveSpells.SPELL_ROW_LENGTH : 0;
                         _handleSpellFunc(key - (int) Keys.F1 + shiftHeld);
                         break;
                     }
                 }
             }
 
-            if (IsKeyPressedOnce(Keys.F12, currState))
+            if (currState.IsKeyPressedOnce(PreviousKeyState, Keys.F12))
                 _handleF12();
 
             base.Update(gameTime);

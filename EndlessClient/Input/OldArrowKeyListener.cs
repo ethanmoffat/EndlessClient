@@ -57,13 +57,13 @@ namespace EndlessClient.Input
         private EODirection _getDirectionFromKeyPress(KeyboardState currentKeyState)
         {
             EODirection direction;
-            if (IsKeyPressed(Keys.Up, currentKeyState))
+            if (currentKeyState.IsKeyHeld(PreviousKeyState, Keys.Up))
                 direction = EODirection.Up;
-            else if (IsKeyPressed(Keys.Down, currentKeyState))
+            else if (currentKeyState.IsKeyHeld(PreviousKeyState, Keys.Down))
                 direction = EODirection.Down;
-            else if (IsKeyPressed(Keys.Left, currentKeyState))
+            else if (currentKeyState.IsKeyHeld(PreviousKeyState, Keys.Left))
                 direction = EODirection.Left;
-            else if (IsKeyPressed(Keys.Right, currentKeyState))
+            else if (currentKeyState.IsKeyHeld(PreviousKeyState, Keys.Right))
                 direction = EODirection.Right;
             else
                 direction = EODirection.Invalid;

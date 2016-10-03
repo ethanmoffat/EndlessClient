@@ -15,7 +15,7 @@ namespace EndlessClient.Input
         //input will be rate-limited to once every {x} MS
         private const int INPUT_RATE_LIMIT_MS = 200;
 
-        private KeyboardState _prevKeyState;
+        protected KeyboardState PreviousKeyState { get; private set; }
         private DateTime? _lastInputTime;
 
         protected OldCharacter Character { get { return OldWorld.Instance.MainPlayer.ActiveCharacter; } }
@@ -40,23 +40,7 @@ namespace EndlessClient.Input
 
         protected OldInputKeyListenerBase() : base(EOGame.Instance)
         {
-            _prevKeyState = Keyboard.GetState();
-        }
-
-        protected bool IsKeyPressed(Keys key, KeyboardState? currentState = null)
-        {
-            if (!currentState.HasValue)
-                currentState = Keyboard.GetState();
-
-            return _prevKeyState.IsKeyDown(key) && currentState.Value.IsKeyDown(key);
-        }
-
-        protected bool IsKeyPressedOnce(Keys key, KeyboardState? currentState = null)
-        {
-            if (!currentState.HasValue)
-                currentState = Keyboard.GetState();
-
-            return _prevKeyState.IsKeyDown(key) && currentState.Value.IsKeyUp(key);
+            PreviousKeyState = Keyboard.GetState();
         }
 
         protected void UpdateInputTime()
@@ -68,7 +52,7 @@ namespace EndlessClient.Input
 
         public override void Update(GameTime gameTime)
         {
-            _prevKeyState = Keyboard.GetState();
+            PreviousKeyState = Keyboard.GetState();
             base.Update(gameTime);
         }
     }
