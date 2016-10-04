@@ -60,6 +60,7 @@
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
     <Compile Include="HUD\Chat\IPrivateMessageActions.cs" />
     <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
+    <Compile Include="Input\ArrowKeyHandler.cs" />
     <Compile Include="Input\CurrentKeyStateTracker.cs" />
     <Compile Include="Input\IKeyStateRepository.cs" />
     <Compile Include="Input\KeyboardStateExtensions.cs" />

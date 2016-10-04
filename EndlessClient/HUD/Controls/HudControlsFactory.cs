@@ -22,12 +22,14 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.HUD.Controls
 {
+    //todo: this class is doing a lot. Might be a good idea to split it into multiple factories.
     public class HudControlsFactory : IHudControlsFactory
     {
         private const int HUD_BASE_LAYER = 100;
         private const int HUD_CONTROL_LAYER = 130;
 
         private readonly IHudButtonController _hudButtonController;
+        private readonly IArrowKeyController _arrowKeyController;
         private readonly IHudPanelFactory _hudPanelFactory;
         private readonly IMapRendererFactory _mapRendererFactory;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
@@ -35,7 +37,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
-        private readonly IKeyStateRepository _keyStateRepository;
+        private readonly KeyStateRepository _keyStateRepository;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
         private readonly IContentManagerProvider _contentManagerProvider;
@@ -45,6 +47,7 @@ namespace EndlessClient.HUD.Controls
         private IChatController _chatController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
+                                  IArrowKeyController arrowKeyController,
                                   IHudPanelFactory hudPanelFactory,
                                   IMapRendererFactory mapRendererFactory,
                                   INativeGraphicsManager nativeGraphicsManager,
@@ -52,7 +55,7 @@ namespace EndlessClient.HUD.Controls
                                   IClientWindowSizeProvider clientWindowSizeProvider,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository,
-                                  IKeyStateRepository keyStateRepository,
+                                  KeyStateRepository keyStateRepository,
                                   IStatusLabelSetter statusLabelSetter,
                                   IStatusLabelTextProvider statusLabelTextProvider,
                                   IContentManagerProvider contentManagerProvider,
@@ -60,6 +63,7 @@ namespace EndlessClient.HUD.Controls
                                   IChatModeCalculator chatModeCalculator)
         {
             _hudButtonController = hudButtonController;
+            _arrowKeyController = arrowKeyController;
             _hudPanelFactory = hudPanelFactory;
             _mapRendererFactory = mapRendererFactory;
             _nativeGraphicsManager = nativeGraphicsManager;
@@ -117,8 +121,10 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.ChatModePictureBox, CreateChatModePictureBox()},
                 {HudControlIdentifier.ChatTextBox, CreateChatTextBox()},
                 {HudControlIdentifier.ClockLabel, CreateClockLabel()},
-                {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
                 {HudControlIdentifier.StatusLabel, CreateStatusLabel()},
+
+                {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
+                {HudControlIdentifier.ArrowKeyHandler, CreateArrowKeyHandler()},
                 {HudControlIdentifier.KeyStateTracker, CreatePreviousKeyStateTracker()}
             };
 
@@ -271,6 +277,11 @@ namespace EndlessClient.HUD.Controls
         private CurrentKeyStateTracker CreateCurrentKeyStateTracker()
         {
             return new CurrentKeyStateTracker(_endlessGameProvider, _keyStateRepository);
+        }
+
+        private IGameComponent CreateArrowKeyHandler()
+        {
+            return new ArrowKeyHandler(_endlessGameProvider, _keyStateRepository, _arrowKeyController);
         }
 
         private PreviousKeyStateTracker CreatePreviousKeyStateTracker()

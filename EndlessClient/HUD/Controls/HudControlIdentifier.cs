@@ -10,7 +10,7 @@ namespace EndlessClient.HUD.Controls
     {
         CurrentKeyStateTracker = int.MinValue, //this should always be first!
 
-        MapRenderer,
+        MapRenderer = 0,
 
         HudBackground,
 
@@ -70,6 +70,7 @@ namespace EndlessClient.HUD.Controls
 
         //not displayed
         UsageTracker,
+        ArrowKeyHandler,
         KeyStateTracker = Int32.MaxValue //this should always be last!
     }
 }
