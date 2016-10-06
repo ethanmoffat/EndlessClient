@@ -6,12 +6,12 @@ namespace EndlessClient.Controllers
 {
     public interface IArrowKeyController
     {
-        void MoveLeft();
+        bool MoveLeft();
 
-        void MoveRight();
+        bool MoveRight();
 
-        void MoveUp();
+        bool MoveUp();
 
-        void MoveDown();
+        bool MoveDown();
     }
 }

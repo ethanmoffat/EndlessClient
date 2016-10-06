@@ -6,20 +6,24 @@ namespace EndlessClient.Controllers
 {
     public class ArrowKeyController : IArrowKeyController
     {
-        public void MoveLeft()
+        public bool MoveLeft()
         {
+            return false;
         }
 
-        public void MoveRight()
+        public bool MoveRight()
         {
+            return false;
         }
 
-        public void MoveUp()
+        public bool MoveUp()
         {
+            return false;
         }
 
-        public void MoveDown()
+        public bool MoveDown()
         {
+            return false;
         }
     }
 }

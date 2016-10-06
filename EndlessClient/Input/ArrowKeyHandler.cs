@@ -4,44 +4,41 @@
 
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
+using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.Input
 {
-    public class ArrowKeyHandler : GameComponent
+    public class ArrowKeyHandler : InputHandlerBase
     {
-        private readonly IKeyStateProvider _keyStateProvider;
         private readonly IArrowKeyController _arrowKeyController;
 
         public ArrowKeyHandler(IEndlessGameProvider endlessGameProvider,
                                IKeyStateProvider keyStateProvider,
                                IArrowKeyController arrowKeyController)
-            : base(endlessGameProvider.Game as Game)
+            : base(endlessGameProvider.Game as Game, keyStateProvider)
         {
-            _keyStateProvider = keyStateProvider;
             _arrowKeyController = arrowKeyController;
         }
 
-        public override void Update(GameTime gameTime)
+        protected override Optional<Keys> HandleInput(GameTime gameTime)
         {
-            //todo: rate limit input; ignore input when dialogs are shown
+            if (IsKeyHeld(Keys.Left) && _arrowKeyController.MoveLeft())
+                return Keys.Left;
+            if (IsKeyHeld(Keys.Right) && _arrowKeyController.MoveRight())
+                return Keys.Right;
+            if (IsKeyHeld(Keys.Up) && _arrowKeyController.MoveUp())
+                return Keys.Up;
+            if (IsKeyHeld(Keys.Down) && _arrowKeyController.MoveDown())
+                return Keys.Down;
 
-            if (IsKeyHeld(Keys.Left))
-                _arrowKeyController.MoveLeft();
-            else if (IsKeyHeld(Keys.Right))
-                _arrowKeyController.MoveRight();
-            else if (IsKeyHeld(Keys.Up))
-                _arrowKeyController.MoveUp();
-            else if (IsKeyHeld(Keys.Down))
-                _arrowKeyController.MoveDown();
-
-            base.Update(gameTime);
+            return Optional<Keys>.Empty;
         }
 
         private bool IsKeyHeld(Keys key)
         {
-            return _keyStateProvider.CurrentKeyState.IsKeyHeld(_keyStateProvider.CurrentKeyState, key);
+            return CurrentState.IsKeyHeld(PreviousState, key);
         }
     }
 }
