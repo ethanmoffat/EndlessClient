@@ -38,6 +38,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
         private readonly KeyStateRepository _keyStateRepository;
+        private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
         private readonly IContentManagerProvider _contentManagerProvider;
@@ -55,7 +56,8 @@ namespace EndlessClient.HUD.Controls
                                   IClientWindowSizeProvider clientWindowSizeProvider,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository,
-                                  KeyStateRepository keyStateRepository,
+                                  KeyStateRepository keyStateRepository, //this is supposed to be the implementation
+                                  IUserInputTimeRepository userInputTimeRepository,
                                   IStatusLabelSetter statusLabelSetter,
                                   IStatusLabelTextProvider statusLabelTextProvider,
                                   IContentManagerProvider contentManagerProvider,
@@ -72,6 +74,7 @@ namespace EndlessClient.HUD.Controls
             _endlessGameProvider = endlessGameProvider;
             _characterRepository = characterRepository;
             _keyStateRepository = keyStateRepository;
+            _userInputTimeRepository = userInputTimeRepository;
             _statusLabelSetter = statusLabelSetter;
             _statusLabelTextProvider = statusLabelTextProvider;
             _contentManagerProvider = contentManagerProvider;
@@ -281,7 +284,7 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateArrowKeyHandler()
         {
-            return new ArrowKeyHandler(_endlessGameProvider, _keyStateRepository, _arrowKeyController);
+            return new ArrowKeyHandler(_endlessGameProvider, _keyStateRepository, _userInputTimeRepository, _arrowKeyController);
         }
 
         private PreviousKeyStateTracker CreatePreviousKeyStateTracker()

@@ -64,6 +64,7 @@
     <Compile Include="Input\CurrentKeyStateTracker.cs" />
     <Compile Include="Input\IKeyStateRepository.cs" />
     <Compile Include="Input\InputHandlerBase.cs" />
+    <Compile Include="Input\IUserInputTimeRepository.cs" />
     <Compile Include="Input\KeyboardStateExtensions.cs" />
     <Compile Include="Input\PreviousKeyStateTracker.cs" />
     <Compile Include="OldCharacter.cs" />

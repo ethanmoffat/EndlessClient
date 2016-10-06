@@ -13,22 +13,27 @@ namespace EndlessClient.Input
     public abstract class InputHandlerBase : GameComponent
     {
         private const int INPUT_RATE_LIMIT_MILLISECONDS = 200;
-        private static DateTime _lastInputTime = DateTime.Now; //todo: put this in a repo instead of making static
 
         private readonly IKeyStateProvider _keyStateProvider;
+        private readonly IUserInputTimeRepository _userInputTimeRepository;
+
         protected KeyboardState CurrentState { get { return _keyStateProvider.CurrentKeyState; } }
+
         protected KeyboardState PreviousState { get { return _keyStateProvider.PreviousKeyState; } }
 
-        protected InputHandlerBase(Game game, IKeyStateProvider keyStateProvider)
+        protected InputHandlerBase(Game game,
+            IKeyStateProvider keyStateProvider,
+            IUserInputTimeRepository userInputTimeRepository)
             : base(game)
         {
             _keyStateProvider = keyStateProvider;
+            _userInputTimeRepository = userInputTimeRepository;
         }
 
         public override void Update(GameTime gameTime)
         {
             var timeAtBeginningOfUpdate = DateTime.Now;
-            var millisecondsSinceLastUpdate = (timeAtBeginningOfUpdate - _lastInputTime).TotalMilliseconds;
+            var millisecondsSinceLastUpdate = GetMillisecondsSinceLastUpdate(timeAtBeginningOfUpdate);
             if (!Game.IsActive ||
                 millisecondsSinceLastUpdate < INPUT_RATE_LIMIT_MILLISECONDS ||
                 XNAControl.Dialogs.Count > 0)
@@ -36,9 +41,14 @@ namespace EndlessClient.Input
 
             var handledKey = HandleInput(gameTime);
             if (handledKey.HasValue)
-                _lastInputTime = timeAtBeginningOfUpdate;
+                _userInputTimeRepository.LastInputTime = timeAtBeginningOfUpdate;
 
             base.Update(gameTime);
+        }
+
+        private double GetMillisecondsSinceLastUpdate(DateTime timeAtBeginningOfUpdate)
+        {
+            return (timeAtBeginningOfUpdate - _userInputTimeRepository.LastInputTime).TotalMilliseconds;
         }
 
         protected abstract Optional<Keys> HandleInput(GameTime gameTime);

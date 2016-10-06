@@ -76,6 +76,8 @@ namespace EndlessClient
                 .RegisterInstance<IKeyStateRepository, KeyStateRepository>()
                 .RegisterInstance<IKeyStateProvider, IKeyStateProvider>();
 
+            container.RegisterInstance<IUserInputTimeRepository, UserInputTimeRepository>();
+
             //provider only
             container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>()
                 .RegisterInstance<IHudControlProvider, HudControlProvider>()

@@ -16,8 +16,11 @@ namespace EndlessClient.Input
 
         public ArrowKeyHandler(IEndlessGameProvider endlessGameProvider,
                                IKeyStateProvider keyStateProvider,
+                               IUserInputTimeRepository userInputTimeRepository,
                                IArrowKeyController arrowKeyController)
-            : base(endlessGameProvider.Game as Game, keyStateProvider)
+            : base(endlessGameProvider.Game as Game,
+                keyStateProvider,
+                userInputTimeRepository)
         {
             _arrowKeyController = arrowKeyController;
         }
