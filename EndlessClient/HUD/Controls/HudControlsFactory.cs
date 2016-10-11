@@ -128,7 +128,7 @@ namespace EndlessClient.HUD.Controls
 
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
                 {HudControlIdentifier.ArrowKeyHandler, CreateArrowKeyHandler()},
-                {HudControlIdentifier.KeyStateTracker, CreatePreviousKeyStateTracker()}
+                {HudControlIdentifier.PreviousKeyStateTracker, CreatePreviousKeyStateTracker()}
             };
 
             return controls;

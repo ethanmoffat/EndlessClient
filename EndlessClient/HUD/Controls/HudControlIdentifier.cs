@@ -71,6 +71,7 @@ namespace EndlessClient.HUD.Controls
         //not displayed
         UsageTracker,
         ArrowKeyHandler,
-        KeyStateTracker = Int32.MaxValue //this should always be last!
+
+        PreviousKeyStateTracker = Int32.MaxValue //this should always be last!
     }
 }
