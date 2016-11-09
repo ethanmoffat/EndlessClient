@@ -22,18 +22,12 @@ namespace EOLib.Domain.Extensions
 
         public static int GetDestinationX(this ICharacterRenderProperties renderProperties)
         {
-            if (renderProperties.CurrentAction != CharacterActionState.Walking)
-                throw new ArgumentException("The character is not currently in the walking state.", "renderProperties");
-
             var offset = GetXOffset(renderProperties.Direction);
             return renderProperties.MapX + offset;
         }
 
         public static int GetDestinationY(this ICharacterRenderProperties renderProperties)
         {
-            if (renderProperties.CurrentAction != CharacterActionState.Walking)
-                throw new ArgumentException("The character is not currently in the walking state.", "renderProperties");
-
             var offset = GetYOffset(renderProperties.Direction);
             return renderProperties.MapY + offset;
         }
