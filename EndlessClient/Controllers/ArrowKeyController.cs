@@ -5,6 +5,7 @@
 using EndlessClient.Rendering.Character;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 
 namespace EndlessClient.Controllers
 {
@@ -62,12 +63,12 @@ namespace EndlessClient.Controllers
 
         private bool CurrentActionIsStanding()
         {
-            return _characterProvider.MainCharacter.RenderProperties.CurrentAction == CharacterActionState.Standing;
+            return _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing);
         }
 
         private bool CurrentDirectionIs(EODirection direction)
         {
-            return _characterProvider.MainCharacter.RenderProperties.Direction == direction;
+            return _characterProvider.MainCharacter.RenderProperties.IsFacing(direction);
         }
 
         private void FaceOrStartWalking(EODirection direction)
