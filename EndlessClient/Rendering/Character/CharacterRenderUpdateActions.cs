@@ -80,9 +80,11 @@ namespace EndlessClient.Rendering.Character
 
                     var renderer = _characterRendererFactory.CreateCharacterRenderer(actualProperties);
 
-                    //todo: figure out how to clean up existing renderers
-                    //if (_characterRendererRepository.CharacterRenderers.ContainsKey(id))
-                    //    _characterRendererRepository.CharacterRenderers[id].Dispose();
+                    if (_characterRendererRepository.CharacterRenderers.ContainsKey(id))
+                    {
+                        _characterRendererRepository.CharacterRenderers[id].Dispose();
+                        _characterRendererRepository.CharacterRenderers.Remove(id);
+                    }
                     _characterRendererRepository.CharacterRenderers.Add(id, renderer);
                     _characterRendererRepository.CharacterRenderers[id].Initialize();
 
