@@ -459,16 +459,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void OtherPlayerFace(short ID, EODirection direction)
-        {
-            lock (_characterListLock)
-            {
-                int ndx;
-                if ((ndx = _characterRenderers.FindIndex(x => x.Character.ID == ID)) >= 0)
-                    _characterRenderers[ndx].Character.RenderData.SetDirection(direction);
-            }
-        }
-
         public void OtherPlayerWalk(short ID, EODirection direction, byte x, byte y)
         {
             lock (_characterListLock)

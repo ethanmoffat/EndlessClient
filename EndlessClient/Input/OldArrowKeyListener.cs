@@ -41,11 +41,11 @@ namespace EndlessClient.Input
                     byte destX, destY;
                     _getDestCoordinates(direction, out destX, out destY);
 
-                    if (Character.RenderData.facing != direction) //face correct direction if needed
-                    {
-                        Character.Face(direction);
-                    }
-                    else if(destX < 255 && destY < 255)
+                    //if (Character.RenderData.facing != direction) //face correct direction if needed
+                    //{
+                    //    Character.Face(direction);
+                    //}
+                    if(destX < 255 && destY < 255)
                     {
                         _checkSpecAndWalkIfValid(destX, destY, direction);
                     }

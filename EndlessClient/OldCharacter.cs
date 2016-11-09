@@ -542,15 +542,6 @@ namespace EndlessClient
             RenderData.SetEmoteFrame(-1);
         }
 
-        public void Face(EODirection direction)
-        {
-            //send packet to server: update client side if send was successful
-            if(m_packetAPI.FacePlayer(direction))
-                RenderData.SetDirection(direction); //updates the data in the character renderer as well
-            else
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-        }
-
         public void UpdateInventoryItem(short id, int characterAmount, bool add = false)
         {
             InventoryItem rec;

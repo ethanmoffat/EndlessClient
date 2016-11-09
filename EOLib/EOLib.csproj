@@ -181,7 +181,6 @@
     <Compile Include="Net\API\Door.cs" />
     <Compile Include="Net\API\Effect.cs" />
     <Compile Include="Net\API\Emote.cs" />
-    <Compile Include="Net\API\Face.cs" />
     <Compile Include="Net\API\Init.cs" />
     <Compile Include="Net\API\Item.cs" />
     <Compile Include="Net\API\Locker.cs" />

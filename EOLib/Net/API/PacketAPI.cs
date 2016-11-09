@@ -35,7 +35,6 @@ namespace EOLib.Net.API
             _createDoorMembers();
             _createEffectMembers();
             _createEmoteMembers();
-            _createFaceMembers();
             _createInitMembers();
             _createItemMembers();
             _createLockerMembers();

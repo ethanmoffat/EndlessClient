@@ -60,8 +60,6 @@ namespace EndlessClient
             m_packetAPI.OnChestAddItem += _chestAddItem;
             m_packetAPI.OnChestGetItem += _chestGetItem;
 
-            m_packetAPI.OnPlayerFace += _playerFace;
-
             //recovery related
             m_packetAPI.OnPlayerRecover += _playerRecover;
             m_packetAPI.OnRecoverReply += _recoverReply;
@@ -300,11 +298,6 @@ namespace EndlessClient
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amount, weight, maxWeight, true);
             ChestDialog.Instance.InitializeItems(data.Items);
             m_game.Hud.RefreshStats();
-        }
-
-        private void _playerFace(short playerId, EODirection dir)
-        {
-            OldWorld.Instance.ActiveMapRenderer.OtherPlayerFace(playerId, dir);
         }
 
         private void _playerRecover(short hp, short tp)
