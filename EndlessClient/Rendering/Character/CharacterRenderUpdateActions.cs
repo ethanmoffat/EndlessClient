@@ -33,12 +33,12 @@ namespace EndlessClient.Rendering.Character
 
         public void UpdateCharacters(GameTime gameTime)
         {
-            CacheMainCharacterRenderProperties();
-            CacheOtherCharacterRenderProperties();
+            CreateMainCharacterRendererAndCacheProperties();
+            CreateOtherCharacterRenderersAndCacheProperties();
             UpdateAllCharacters(gameTime);
         }
 
-        private void CacheMainCharacterRenderProperties()
+        private void CreateMainCharacterRendererAndCacheProperties()
         {
             var actualProperties = _characterProvider.MainCharacter.RenderProperties;
             var cachedProperties = _characterStateCache.MainCharacterRenderProperties;
@@ -47,23 +47,18 @@ namespace EndlessClient.Rendering.Character
             {
                 _characterStateCache.UpdateMainCharacterState(actualProperties);
 
-                var renderer = _characterRendererFactory.CreateCharacterRenderer(actualProperties);
+                var renderer = InitializeRendererForCharacter(actualProperties);
                 _characterRendererRepository.MainCharacterRenderer = renderer;
-                _characterRendererRepository.MainCharacterRenderer.Initialize();
                 _characterRendererRepository.MainCharacterRenderer.SetToCenterScreenPosition();
-
-                return;
             }
-
-            if (cachedProperties.Value == actualProperties)
-                return;
-
-            _characterRendererRepository.MainCharacterRenderer.RenderProperties = actualProperties;
-            _characterStateCache.UpdateMainCharacterState(actualProperties);
+            else if (cachedProperties.Value != actualProperties)
+            {
+                _characterRendererRepository.MainCharacterRenderer.RenderProperties = actualProperties;
+                _characterStateCache.UpdateMainCharacterState(actualProperties);
+            }
         }
 
-        //todo: refactor to make this more easily readable and less branch-y
-        private void CacheOtherCharacterRenderProperties()
+        private void CreateOtherCharacterRenderersAndCacheProperties()
         {
             foreach (var character in _currentMapStateProvider.Characters)
             {
@@ -78,7 +73,7 @@ namespace EndlessClient.Rendering.Character
                 {
                     _characterStateCache.UpdateCharacterState(id, actualProperties);
 
-                    var renderer = _characterRendererFactory.CreateCharacterRenderer(actualProperties);
+                    var renderer = InitializeRendererForCharacter(actualProperties);
 
                     if (_characterRendererRepository.CharacterRenderers.ContainsKey(id))
                     {
@@ -86,16 +81,12 @@ namespace EndlessClient.Rendering.Character
                         _characterRendererRepository.CharacterRenderers.Remove(id);
                     }
                     _characterRendererRepository.CharacterRenderers.Add(id, renderer);
-                    _characterRendererRepository.CharacterRenderers[id].Initialize();
-
-                    continue;
                 }
-
-                if (cachedProperties.Value == actualProperties)
-                    continue;
-
-                _characterRendererRepository.CharacterRenderers[id].RenderProperties = actualProperties;
-                _characterStateCache.UpdateCharacterState(id, actualProperties);
+                else if (cachedProperties.Value == actualProperties)
+                {
+                    _characterRendererRepository.CharacterRenderers[id].RenderProperties = actualProperties;
+                    _characterStateCache.UpdateCharacterState(id, actualProperties);
+                }
             }
         }
 
@@ -104,6 +95,13 @@ namespace EndlessClient.Rendering.Character
             _characterRendererRepository.MainCharacterRenderer.Update(gameTime);
             foreach (var renderer in _characterRendererRepository.CharacterRenderers.Values)
                 renderer.Update(gameTime);
+        }
+
+        private ICharacterRenderer InitializeRendererForCharacter(ICharacterRenderProperties renderProperties)
+        {
+            var renderer = _characterRendererFactory.CreateCharacterRenderer(renderProperties);
+            renderer.Initialize();
+            return renderer;
         }
     }
 }
