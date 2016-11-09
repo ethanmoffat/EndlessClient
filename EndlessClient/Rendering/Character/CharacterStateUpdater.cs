@@ -6,10 +6,12 @@ using System;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Character
 {
+    //todo: adapt this component to account for other characters as well
     public class CharacterStateUpdater : GameComponent
     {
         public const int WALK_FRAME_TIME_MS = 100;
@@ -34,13 +36,21 @@ namespace EndlessClient.Rendering.Character
                 (now - _startWalkingTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
             {
                 var nextFrameRenderProperties = RenderProperties.WithNextWalkFrame();
+
+                if (nextFrameRenderProperties.CurrentAction != CharacterActionState.Walking)
+                {
+                    _startWalkingTime = Optional<DateTime>.Empty;
+                    nextFrameRenderProperties = nextFrameRenderProperties
+                        .WithMapX(nextFrameRenderProperties.GetDestinationX())
+                        .WithMapY(nextFrameRenderProperties.GetDestinationY());
+                }
+                else
+                {
+                    _startWalkingTime = now;
+                }
+
                 var nextFrameCharacter = _characterRepository.MainCharacter.WithRenderProperties(nextFrameRenderProperties);
                 _characterRepository.MainCharacter = nextFrameCharacter;
-
-                if (nextFrameCharacter.RenderProperties.CurrentAction != CharacterActionState.Walking)
-                    _startWalkingTime = Optional<DateTime>.Empty;
-                else
-                    _startWalkingTime = now;
             }
 
             base.Update(gameTime);
