@@ -81,7 +81,7 @@ namespace EndlessClient.Rendering.Character
 
         public override void Update(GameTime gameTime)
         {
-            if (!Game.IsActive || !Visible)
+            if (!Visible)
                 return;
 
             if (_textureUpdateRequired)
