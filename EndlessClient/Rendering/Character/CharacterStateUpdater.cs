@@ -39,6 +39,8 @@ namespace EndlessClient.Rendering.Character
 
                 if (nextFrameCharacter.RenderProperties.CurrentAction != CharacterActionState.Walking)
                     _startWalkingTime = Optional<DateTime>.Empty;
+                else
+                    _startWalkingTime = now;
             }
 
             base.Update(gameTime);
