@@ -2,28 +2,80 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Rendering.Character;
+using EOLib;
+using EOLib.Domain.Character;
+
 namespace EndlessClient.Controllers
 {
     public class ArrowKeyController : IArrowKeyController
     {
+        private readonly ICharacterAnimationActions _characterAnimationActions;
+        private readonly ICharacterProvider _characterProvider;
+
+        public ArrowKeyController(ICharacterAnimationActions characterAnimationActions,
+                                  ICharacterProvider characterProvider)
+        {
+            _characterAnimationActions = characterAnimationActions;
+            _characterProvider = characterProvider;
+        }
+
         public bool MoveLeft()
         {
-            return false;
+            if (!CurrentActionIsStanding())
+                return false;
+
+            FaceOrStartWalking(EODirection.Left);
+
+            return true;
         }
 
         public bool MoveRight()
         {
-            return false;
+            if (!CurrentActionIsStanding())
+                return false;
+
+            FaceOrStartWalking(EODirection.Right);
+
+            return true;
         }
 
         public bool MoveUp()
         {
-            return false;
+            if (!CurrentActionIsStanding())
+                return false;
+
+            FaceOrStartWalking(EODirection.Up);
+
+            return true;
         }
 
         public bool MoveDown()
         {
-            return false;
+            if (!CurrentActionIsStanding())
+                return false;
+
+            FaceOrStartWalking(EODirection.Down);
+
+            return true;
+        }
+
+        private bool CurrentActionIsStanding()
+        {
+            return _characterProvider.MainCharacter.RenderProperties.CurrentAction == CharacterActionState.Standing;
+        }
+
+        private bool CurrentDirectionIs(EODirection direction)
+        {
+            return _characterProvider.MainCharacter.RenderProperties.Direction == direction;
+        }
+
+        private void FaceOrStartWalking(EODirection direction)
+        {
+            if (!CurrentDirectionIs(direction))
+                _characterAnimationActions.Face(direction);
+            else
+                _characterAnimationActions.StartWalking();
         }
     }
 }
