@@ -16,11 +16,7 @@ namespace EOLib.Net.API
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Face, PacketAction.Player), _handleFacePlayer, true);
         }
 
-        /// <summary>
-        /// Change the direction of the currently logged in player
-        /// </summary>
-        /// <param name="dir">Direction to face the currently logged in player</param>
-        /// <returns>True on successful send, false otherwise</returns>
+        //todo: this can be removed
         public bool FacePlayer(EODirection dir)
         {
             if (!m_client.ConnectedAndInitialized || !Initialized)

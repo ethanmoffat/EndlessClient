@@ -58,6 +58,7 @@
     <Compile Include="Domain\Account\IAccountActions.cs" />
     <Compile Include="Domain\Account\IChangePasswordParameters.cs" />
     <Compile Include="Domain\Character\Character.cs" />
+    <Compile Include="Domain\Character\CharacterActions.cs" />
     <Compile Include="Domain\Character\CharacterActionState.cs" />
     <Compile Include="Domain\Character\CharacterRenderProperties.cs" />
     <Compile Include="Domain\Character\CharacterStat.cs" />

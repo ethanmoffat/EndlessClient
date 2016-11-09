@@ -12,12 +12,15 @@ namespace EndlessClient.Controllers
     public class ArrowKeyController : IArrowKeyController
     {
         private readonly ICharacterAnimationActions _characterAnimationActions;
+        private readonly ICharacterActions _characterActions;
         private readonly ICharacterProvider _characterProvider;
 
         public ArrowKeyController(ICharacterAnimationActions characterAnimationActions,
+                                  ICharacterActions characterActions,
                                   ICharacterProvider characterProvider)
         {
             _characterAnimationActions = characterAnimationActions;
+            _characterActions = characterActions;
             _characterProvider = characterProvider;
         }
 
@@ -74,9 +77,21 @@ namespace EndlessClient.Controllers
         private void FaceOrStartWalking(EODirection direction)
         {
             if (!CurrentDirectionIs(direction))
-                _characterAnimationActions.Face(direction);
+                FaceDirection(direction);
             else
-                _characterAnimationActions.StartWalking();
+                StartWalking();
+        }
+
+        private void FaceDirection(EODirection direction)
+        {
+            _characterActions.Face(direction);
+            _characterAnimationActions.Face(direction);
+        }
+
+        private void StartWalking()
+        {
+            _characterActions.Walk();
+            _characterAnimationActions.StartWalking();
         }
     }
 }

@@ -23,6 +23,7 @@ namespace EOLib.Net.API
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Walk, PacketAction.Player), _handleOtherPlayerWalk, true);
         }
 
+        //todo: this can be removed
         public bool PlayerWalk(EODirection dir, byte destX, byte destY, bool admin = false)
         {
             if (!m_client.ConnectedAndInitialized || !Initialized)
