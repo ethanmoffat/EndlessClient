@@ -102,7 +102,8 @@ namespace EndlessClient
                 .RegisterType<IChatTextBoxActions, ChatTextBoxActions>()
                 .RegisterType<IFirstTimePlayerActions, FirstTimePlayerActions>()
                 .RegisterType<IPrivateMessageActions, PrivateMessageActions>()
-                .RegisterType<IChatSpeechBubbleActions, ChatSpeechBubbleActions>();
+                .RegisterType<IChatSpeechBubbleActions, ChatSpeechBubbleActions>()
+                .RegisterType<ICharacterAnimationActions, CharacterAnimationActions>();
 
             //hud
             container.RegisterType<IHudButtonController, HudButtonController>()

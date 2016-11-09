@@ -135,6 +135,7 @@
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
     <Compile Include="PointComparer.cs" />
     <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRendererBuilder.cs" />
+    <Compile Include="Rendering\Character\CharacterAnimationActions.cs" />
     <Compile Include="Rendering\Character\CharacterRenderer.cs" />
     <Compile Include="Rendering\Character\CharacterRenderOffsetCalculator.cs" />
     <Compile Include="Rendering\Character\CharacterRenderUpdateActions.cs" />
