@@ -17,6 +17,7 @@ using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
@@ -38,6 +39,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly KeyStateRepository _keyStateRepository;
         private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly IStatusLabelSetter _statusLabelSetter;
@@ -57,6 +59,7 @@ namespace EndlessClient.HUD.Controls
                                   IClientWindowSizeProvider clientWindowSizeProvider,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository,
+                                  ICurrentMapStateRepository currentMapStateRepository,
                                   KeyStateRepository keyStateRepository, //this is supposed to be the implementation
                                   IUserInputTimeRepository userInputTimeRepository,
                                   IStatusLabelSetter statusLabelSetter,
@@ -74,6 +77,7 @@ namespace EndlessClient.HUD.Controls
             _clientWindowSizeProvider = clientWindowSizeProvider;
             _endlessGameProvider = endlessGameProvider;
             _characterRepository = characterRepository;
+            _currentMapStateRepository = currentMapStateRepository;
             _keyStateRepository = keyStateRepository;
             _userInputTimeRepository = userInputTimeRepository;
             _statusLabelSetter = statusLabelSetter;
@@ -291,7 +295,7 @@ namespace EndlessClient.HUD.Controls
 
         private ICharacterAnimator CreateCharacterAnimator()
         {
-            return new CharacterAnimator(_endlessGameProvider, _characterRepository);
+            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository);
         }
 
         private PreviousKeyStateTracker CreatePreviousKeyStateTracker()

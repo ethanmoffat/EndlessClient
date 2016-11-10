@@ -33,7 +33,7 @@ namespace EndlessClient.Rendering.Character
         public void StartWalking()
         {
             var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
-            animator.StartWalkAnimation();
+            animator.StartMainCharacterWalkAnimation();
         }
     }
 
