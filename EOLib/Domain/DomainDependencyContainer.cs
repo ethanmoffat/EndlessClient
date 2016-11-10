@@ -46,7 +46,8 @@ namespace EOLib.Domain
 
             //resettable containers
             container.RegisterInstanceVaried<IResettable, PlayerInfoRepository>()
-                .RegisterInstanceVaried<IResettable, ChatRepository>();
+                .RegisterInstanceVaried<IResettable, ChatRepository>()
+                .RegisterInstanceVaried<IResettable, CurrentMapStateRepository>();
 
             RegisterTypesForChat(container);
         }

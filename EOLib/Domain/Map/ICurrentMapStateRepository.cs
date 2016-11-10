@@ -19,6 +19,8 @@ namespace EOLib.Domain.Map
         List<IMapNPC> NPCs { get; set; }
 
         List<IMapItem> MapItems { get; set; }
+
+        List<IMapWarp> OpenDoors { get; set;  }
     }
 
     public interface ICurrentMapStateProvider
@@ -32,9 +34,11 @@ namespace EOLib.Domain.Map
         IReadOnlyList<IMapNPC> NPCs { get; }
 
         IReadOnlyList<IMapItem> MapItems { get; }
+
+        IReadOnlyList<IMapWarp> OpenDoors { get; }
     }
 
-    public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider
+    public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider, IResettable
     {
         public short CurrentMapID { get; set; }
 
@@ -46,17 +50,30 @@ namespace EOLib.Domain.Map
 
         public List<IMapItem> MapItems { get; set; }
 
+        public List<IMapWarp> OpenDoors { get; set; }
+
         IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters { get { return Characters; } }
 
         IReadOnlyList<IMapNPC> ICurrentMapStateProvider.NPCs { get { return NPCs; } }
 
         IReadOnlyList<IMapItem> ICurrentMapStateProvider.MapItems { get { return MapItems; } }
 
+        IReadOnlyList<IMapWarp> ICurrentMapStateProvider.OpenDoors { get { return OpenDoors; } }
+
         public CurrentMapStateRepository()
         {
+            ResetState();
+        }
+
+        public void ResetState()
+        {
+            CurrentMapID = 0;
+            ShowMiniMap = false;
+
             Characters = new List<ICharacter>();
             NPCs = new List<IMapNPC>();
             MapItems = new List<IMapItem>();
+            OpenDoors = new List<IMapWarp>();
         }
     }
 }
