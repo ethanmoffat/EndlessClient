@@ -11,14 +11,17 @@ namespace EndlessClient.Controllers
 {
     public class ArrowKeyController : IArrowKeyController
     {
+        private readonly ICharacterWalkValidationActions _characterWalkValidationActions;
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ICharacterActions _characterActions;
         private readonly ICharacterProvider _characterProvider;
 
-        public ArrowKeyController(ICharacterAnimationActions characterAnimationActions,
+        public ArrowKeyController(ICharacterWalkValidationActions characterWalkValidationActions,
+                                  ICharacterAnimationActions characterAnimationActions,
                                   ICharacterActions characterActions,
                                   ICharacterProvider characterProvider)
         {
+            _characterWalkValidationActions = characterWalkValidationActions;
             _characterAnimationActions = characterAnimationActions;
             _characterActions = characterActions;
             _characterProvider = characterProvider;
@@ -29,7 +32,7 @@ namespace EndlessClient.Controllers
             if (!CurrentActionIsStanding())
                 return false;
 
-            FaceOrStartWalking(EODirection.Left);
+            FaceOrAttemptWalk(EODirection.Left);
 
             return true;
         }
@@ -39,7 +42,7 @@ namespace EndlessClient.Controllers
             if (!CurrentActionIsStanding())
                 return false;
 
-            FaceOrStartWalking(EODirection.Right);
+            FaceOrAttemptWalk(EODirection.Right);
 
             return true;
         }
@@ -49,7 +52,7 @@ namespace EndlessClient.Controllers
             if (!CurrentActionIsStanding())
                 return false;
 
-            FaceOrStartWalking(EODirection.Up);
+            FaceOrAttemptWalk(EODirection.Up);
 
             return true;
         }
@@ -59,7 +62,7 @@ namespace EndlessClient.Controllers
             if (!CurrentActionIsStanding())
                 return false;
 
-            FaceOrStartWalking(EODirection.Down);
+            FaceOrAttemptWalk(EODirection.Down);
 
             return true;
         }
@@ -74,12 +77,12 @@ namespace EndlessClient.Controllers
             return _characterProvider.MainCharacter.RenderProperties.IsFacing(direction);
         }
 
-        private void FaceOrStartWalking(EODirection direction)
+        private void FaceOrAttemptWalk(EODirection direction)
         {
             if (!CurrentDirectionIs(direction))
                 FaceDirection(direction);
             else
-                StartWalking();
+                AttemptToStartWalking();
         }
 
         private void FaceDirection(EODirection direction)
@@ -88,10 +91,17 @@ namespace EndlessClient.Controllers
             _characterAnimationActions.Face(direction);
         }
 
-        private void StartWalking()
+        private void AttemptToStartWalking()
         {
-            _characterActions.Walk();
-            _characterAnimationActions.StartWalking();
+            if (!_characterWalkValidationActions.CanMoveToDestinationCoordinates())
+            {
+                //todo: handle based on cell state
+            }
+            else
+            {
+                _characterActions.Walk();
+                _characterAnimationActions.StartWalking();
+            }
         }
     }
 }

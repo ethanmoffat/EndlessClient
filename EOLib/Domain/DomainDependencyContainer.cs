@@ -23,7 +23,8 @@ namespace EOLib.Domain
             container.RegisterType<IAccountActions, AccountActions>()
                 .RegisterType<ILoginActions, LoginActions>()
                 .RegisterType<ICharacterManagementActions, CharacterManagementActions>()
-                .RegisterType<ICharacterActions, CharacterActions>();
+                .RegisterType<ICharacterActions, CharacterActions>()
+                .RegisterType<ICharacterWalkValidationActions, CharacterWalkValidationActions>();
 
             container.RegisterInstance<ICharacterSelectorRepository, CharacterSelectorRepository>()
                 .RegisterInstance<ICharacterSelectorProvider, CharacterSelectorRepository>()
@@ -43,6 +44,8 @@ namespace EOLib.Domain
                 .RegisterInstance<IPingTimeRepository, PingTimeRepository>();
 
             container.RegisterType<IResetStateAction, ResetStateAction>();
+
+            container.RegisterType<IMapCellStateProvider, MapCellStateProvider>();
 
             //resettable containers
             container.RegisterInstanceVaried<IResettable, PlayerInfoRepository>()
