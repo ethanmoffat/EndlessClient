@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
+using EOLib.IO.Services;
 using EOLib.Net;
 using EOLib.Net.PacketProcessing;
 
@@ -42,7 +43,7 @@ namespace PacketDecoder
             _packetEncoderRepository = new PacketEncoderRepository();
             _packetProcessActions = new PacketProcessActions(new SequenceRepository(),
                                                                _packetEncoderRepository,
-                                                               new PacketEncoderService(),
+                                                               new PacketEncoderService(new NumberEncoderService()),
                                                                new PacketSequenceService());
         }
 

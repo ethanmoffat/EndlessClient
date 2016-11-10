@@ -68,44 +68,22 @@ namespace EndlessClient
 
         private OldWorld() //private: don't allow construction of the world using 'new'
         {
-            //initial capacity of 32: most players won't travel between too many maps in a gaming session
-            MapCache = new Dictionary<int, IMapFile>(32);
-            DataFiles = new Dictionary<DataFiles, EDFFile>(12); //12 files total
-            m_player = new Player();
-
-            //client construction: logging for when packets are sent/received
-            m_client = new EOClient(CreatePacketProcessorActions());
-            ((EOClient) m_client).EventSendData +=
-                dte => Logger.Log("SEND thread: Processing       {4} packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
-                    Enum.GetName(typeof (PacketFamily), dte.PacketFamily),
-                    Enum.GetName(typeof (PacketAction), dte.PacketAction),
-                    dte.RawByteData.Length,
-                    dte.ByteDataHexString,
-                    dte.Type == DataTransferEventArgs.TransferType.Send
-                        ? "ENC"
-                        : dte.Type == DataTransferEventArgs.TransferType.SendRaw ? "RAW" : "ERR");
-            ((EOClient) m_client).EventReceiveData +=
-                dte => Logger.Log("RECV thread: Processing {0} packet Family={1,-13} Action={2,-8} sz={3,-5} data={4}",
-                    dte.PacketHandled ? "  handled" : "UNHANDLED",
-                    Enum.GetName(typeof (PacketFamily), dte.PacketFamily),
-                    Enum.GetName(typeof (PacketAction), dte.PacketAction),
-                    dte.RawByteData.Length,
-                    dte.ByteDataHexString);
-
-            ((EOClient) m_client).EventDisconnect += () =>
-            {
-                EOGame.Instance.ShowLostConnectionDialog();
-                EOGame.Instance.ResetWorldElements();
-                EOGame.Instance.SetInitialGameState();
-            };
-        }
-
-        private static IPacketProcessActions CreatePacketProcessorActions()
-        {
-            return new PacketProcessActions(new SequenceRepository(),
-                                            new PacketEncoderRepository(),
-                                            new PacketEncoderService(),
-                                            new PacketSequenceService());
+            //((EOClient) m_client).EventSendData +=
+            //    dte => Logger.Log("SEND thread: Processing       {4} packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
+            //        Enum.GetName(typeof (PacketFamily), dte.PacketFamily),
+            //        Enum.GetName(typeof (PacketAction), dte.PacketAction),
+            //        dte.RawByteData.Length,
+            //        dte.ByteDataHexString,
+            //        dte.Type == DataTransferEventArgs.TransferType.Send
+            //            ? "ENC"
+            //            : dte.Type == DataTransferEventArgs.TransferType.SendRaw ? "RAW" : "ERR");
+            //((EOClient) m_client).EventReceiveData +=
+            //    dte => Logger.Log("RECV thread: Processing {0} packet Family={1,-13} Action={2,-8} sz={3,-5} data={4}",
+            //        dte.PacketHandled ? "  handled" : "UNHANDLED",
+            //        Enum.GetName(typeof (PacketFamily), dte.PacketFamily),
+            //        Enum.GetName(typeof (PacketAction), dte.PacketAction),
+            //        dte.RawByteData.Length,
+            //        dte.ByteDataHexString);
         }
 
         public void Init()

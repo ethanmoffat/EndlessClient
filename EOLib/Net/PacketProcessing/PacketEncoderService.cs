@@ -7,11 +7,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using EOLib.IO;
+using EOLib.IO.Services;
 
 namespace EOLib.Net.PacketProcessing
 {
     public sealed class PacketEncoderService : IPacketEncoderService
     {
+        private readonly INumberEncoderService _numberEncoderService;
+
+        public PacketEncoderService(INumberEncoderService numberEncoderService)
+        {
+            _numberEncoderService = numberEncoderService;
+        }
+
         public byte[] PrependLengthBytes(byte[] data)
         {
             var ret = PrependLength(data.ToList());
@@ -77,7 +85,7 @@ namespace EOLib.Net.PacketProcessing
         private List<byte> AddSequenceBytes(IReadOnlyList<byte> original, int seq)
         {
             var numberOfSequenceBytes = seq >= NumericConstants.ONE_BYTE_MAX ? 2 : 1;
-            var encodedSequenceBytes = PacketNumberEncoder.Encode(seq, numberOfSequenceBytes);
+            var encodedSequenceBytes = _numberEncoderService.EncodeNumber(seq, numberOfSequenceBytes);
 
             var combined = new List<byte>(original.Count + numberOfSequenceBytes);
             //family/action copied to [0][1]
@@ -96,7 +104,7 @@ namespace EOLib.Net.PacketProcessing
 
         private List<byte> PrependLength(IReadOnlyList<byte> data)
         {
-            var len = PacketNumberEncoder.Encode(data.Count, 2);
+            var len = _numberEncoderService.EncodeNumber(data.Count, 2);
             var combined = new List<byte>(data.Count + len.Length);
 
             combined.AddRange(len);

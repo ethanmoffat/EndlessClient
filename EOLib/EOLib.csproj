@@ -255,7 +255,6 @@
     <Compile Include="Net\Connection\NetworkConnectionActions.cs" />
     <Compile Include="Net\NetworkDependencyContainer.cs" />
     <Compile Include="Net\PacketProcessing\HashService.cs" />
-    <Compile Include="Net\PacketProcessing\PacketNumberEncoder.cs" />
     <Compile Include="Net\EmptyPacket.cs" />
     <Compile Include="Net\EOClient.cs" />
     <Compile Include="Net\Communication\IAsyncSocket.cs" />
