@@ -41,7 +41,6 @@ namespace EndlessClient
             m_packetAPI.OnNPCEnterMap += _npcEnterMap;
 
             m_packetAPI.OnMainPlayerWalk += _mainPlayerWalk;
-            m_packetAPI.OnOtherPlayerWalk += _otherPlayerWalk;
 
             m_packetAPI.OnAdminHiddenChange += _adminHiddenChange;
             m_packetAPI.OnOtherPlayerAttack += _otherPlayerAttack;
@@ -164,11 +163,6 @@ namespace EndlessClient
         private void _mainPlayerWalk(List<OldMapItem> _list)
         {
             foreach (var item in _list) OldWorld.Instance.ActiveMapRenderer.AddMapItem(item);
-        }
-
-        private void _otherPlayerWalk(short id, EODirection dir, byte x, byte y)
-        {
-            OldWorld.Instance.ActiveMapRenderer.OtherPlayerWalk(id, dir, x, y);
         }
 
         private void _adminHiddenChange(short id, bool hidden)

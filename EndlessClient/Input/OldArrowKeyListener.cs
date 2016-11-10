@@ -170,7 +170,7 @@ namespace EndlessClient.Input
 
             if (Character.State != CharacterActionState.Walking && walkValid)
             {
-                Character.Walk(dir, destX, destY, Renderer.NoWall);
+                //Character.Walk(dir, destX, destY, Renderer.NoWall);
                 Renderer.PlayerWalk(spec == TileSpec.Water, spec == TileSpec.SpikesTrap);
             }
         }

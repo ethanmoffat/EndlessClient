@@ -452,28 +452,6 @@ namespace EndlessClient
             //GuildRankNum = newGuy.GuildRankNum; //todo: ???
         }
 
-        /// <summary>
-        /// Called from CharacterRenderer.Update (in case of MainPlayer pressing an arrow key) or Handlers.Walk (in case of another character walking)
-        /// <para>The Character Renderer will automatically pick up that Walking == true and start a walk operation, limiting the character from walking again until it is complete</para>
-        /// </summary>
-        public void Walk(EODirection direction, byte destX, byte destY, bool admin)
-        {
-            if (State != CharacterActionState.Standing)
-                return;
-
-            if (this == OldWorld.Instance.MainPlayer.ActiveCharacter)
-            {
-                if(!m_packetAPI.PlayerWalk(direction, destX, destY, admin && AdminLevel != AdminLevel.Player))
-                    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-            }
-            else if (RenderData.facing != direction) //if a packet WALK_PLAYER was received: face them the right way first otherwise this will look weird
-                RenderData.SetDirection(direction);
-
-            DestX = destX;
-            DestY = destY;
-            State = CharacterActionState.Walking;
-        }
-
         public void DoneWalking()
         {
             ViewAdjustX = 0;

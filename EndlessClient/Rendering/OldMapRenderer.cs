@@ -460,23 +460,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void OtherPlayerWalk(short ID, EODirection direction, byte x, byte y)
-        {
-            lock (_characterListLock)
-            {
-                OldCharacterRenderer rend = _characterRenderers.Find(_rend => _rend.Character.ID == ID);
-                if (rend != null)
-                {
-                    rend.Character.Walk(direction, x, y, false);
-
-                    //var ti = GetTileInfo(rend.Character.DestX, rend.Character.DestY);
-                    //bool isWater = ti.ReturnType == TileInfoReturnType.IsTileSpec;// && ti.Spec == TileSpec.Water;
-                    //bool isSpike = ti.ReturnType == TileInfoReturnType.IsTileSpec;// && ti.Spec == TileSpec.SpikesTrap;
-                    //rend.PlayerWalk(isWater, isSpike);
-                }
-            }
-        }
-
         public void OtherPlayerAttack(short ID, EODirection direction)
         {
             lock (_characterListLock)
