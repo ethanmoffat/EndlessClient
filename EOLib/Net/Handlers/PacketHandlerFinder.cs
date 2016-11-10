@@ -27,4 +27,11 @@ namespace EOLib.Net.Handlers
             return _handlers[new FamilyActionPair(family, action)];
         }
     }
+
+    public interface IPacketHandlerFinder
+    {
+        bool HandlerExists(PacketFamily family, PacketAction action);
+
+        IPacketHandler FindHandler(PacketFamily family, PacketAction action);
+    }
 }

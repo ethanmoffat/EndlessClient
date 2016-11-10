@@ -42,4 +42,9 @@ namespace EOLib.Net.Handlers
             return PacketHandlingType.NotHandled;
         }
     }
+
+    public interface IPacketHandlingTypeFinder
+    {
+        PacketHandlingType FindHandlingType(PacketFamily family, PacketAction action);
+    }
 }

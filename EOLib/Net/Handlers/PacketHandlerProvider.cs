@@ -6,11 +6,6 @@ using System.Collections.Generic;
 
 namespace EOLib.Net.Handlers
 {
-    public interface IPacketHandlerProvider
-    {
-        IEnumerable<IPacketHandler> PacketHandlers { get; }
-    }
-
     public class PacketHandlerProvider : IPacketHandlerProvider
     {
         public PacketHandlerProvider(IEnumerable<IPacketHandler> packetHandlers)
@@ -19,5 +14,10 @@ namespace EOLib.Net.Handlers
         }
 
         public IEnumerable<IPacketHandler> PacketHandlers { get; private set; }
+    }
+
+    public interface IPacketHandlerProvider
+    {
+        IEnumerable<IPacketHandler> PacketHandlers { get; }
     }
 }

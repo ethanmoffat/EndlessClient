@@ -229,12 +229,8 @@
     <Compile Include="PacketHandlers\ConnectionPlayerHandler.cs" />
     <Compile Include="Net\Handlers\FamilyActionPair.cs" />
     <Compile Include="PacketHandlers\Commands\FindCommandHandlerBase.cs" />
-    <Compile Include="Net\Handlers\IOutOfBandPacketHandler.cs" />
     <Compile Include="Net\Handlers\IPacketHandler.cs" />
-    <Compile Include="Net\Handlers\IPacketHandlerFinder.cs" />
-    <Compile Include="Net\Handlers\IPacketHandlerProvider.cs" />
-    <Compile Include="Net\Handlers\IPacketHandlingActions.cs" />
-    <Compile Include="Net\Handlers\IPacketHandlingTypeFinder.cs" />
+    <Compile Include="Net\Handlers\PacketHandlerProvider.cs" />
     <Compile Include="Net\Handlers\OutOfBandPacketHandler.cs" />
     <Compile Include="Net\Handlers\PacketHandlerFinder.cs" />
     <Compile Include="Net\Handlers\PacketHandlingActions.cs" />

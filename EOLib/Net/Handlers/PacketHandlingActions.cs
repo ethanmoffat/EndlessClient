@@ -34,4 +34,9 @@ namespace EOLib.Net.Handlers
             }
         }
     }
+
+    public interface IPacketHandlingActions
+    {
+        void EnqueuePacketForHandling(IPacket packet);
+    }
 }
