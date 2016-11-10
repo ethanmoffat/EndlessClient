@@ -9,8 +9,6 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.IO.Map;
 using EOLib.Localization;
-using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient.Input
@@ -26,75 +24,6 @@ namespace EndlessClient.Input
             if (Game.Components.Any(x => x is OldArrowKeyListener))
                 throw new InvalidOperationException("The game already contains an arrow key listener");
             Game.Components.Add(this);
-        }
-
-        public override void Update(GameTime gameTime)
-        {
-            if (!IgnoreInput && Character.State != CharacterActionState.Walking)
-            {
-                UpdateInputTime();
-                KeyboardState currentKeyState = Keyboard.GetState();
-
-                EODirection direction = _getDirectionFromKeyPress(currentKeyState);
-                if (direction != EODirection.Invalid) //invalid direction: arrow key was not pressed
-                {
-                    byte destX, destY;
-                    _getDestCoordinates(direction, out destX, out destY);
-
-                    //if (Character.RenderData.facing != direction) //face correct direction if needed
-                    //{
-                    //    Character.Face(direction);
-                    //}
-                    if(destX < 255 && destY < 255)
-                    {
-                        _checkSpecAndWalkIfValid(destX, destY, direction);
-                    }
-                }
-            }
-            base.Update(gameTime);
-        }
-
-        private EODirection _getDirectionFromKeyPress(KeyboardState currentKeyState)
-        {
-            EODirection direction;
-            if (currentKeyState.IsKeyHeld(PreviousKeyState, Keys.Up))
-                direction = EODirection.Up;
-            else if (currentKeyState.IsKeyHeld(PreviousKeyState, Keys.Down))
-                direction = EODirection.Down;
-            else if (currentKeyState.IsKeyHeld(PreviousKeyState, Keys.Left))
-                direction = EODirection.Left;
-            else if (currentKeyState.IsKeyHeld(PreviousKeyState, Keys.Right))
-                direction = EODirection.Right;
-            else
-                direction = EODirection.Invalid;
-
-            return direction;
-        }
-
-        private void _getDestCoordinates(EODirection direction, out byte destX, out byte destY)
-        {
-            switch (direction)
-            {
-                case EODirection.Up:
-                    destX = (byte) Character.X;
-                    destY = (byte) (Character.Y - 1);
-                    break;
-                case EODirection.Down:
-                    destX = (byte) Character.X;
-                    destY = (byte) (Character.Y + 1);
-                    break;
-                case EODirection.Right:
-                    destX = (byte) (Character.X + 1);
-                    destY = (byte) Character.Y;
-                    break;
-                case EODirection.Left:
-                    destX = (byte) (Character.X - 1);
-                    destY = (byte) Character.Y;
-                    break;
-                default:
-                    destX = destY = 255;
-                    break;
-            }
         }
 
         private void _checkSpecAndWalkIfValid(byte destX, byte destY, EODirection direction)
