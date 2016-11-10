@@ -100,7 +100,7 @@ namespace EndlessClient
             };
         }
 
-        private static IPacketProcessorActions CreatePacketProcessorActions()
+        private static IPacketProcessActions CreatePacketProcessorActions()
         {
             return new PacketProcessActions(new SequenceRepository(),
                                             new PacketEncoderRepository(),

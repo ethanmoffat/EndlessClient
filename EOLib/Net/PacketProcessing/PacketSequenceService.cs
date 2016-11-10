@@ -26,4 +26,15 @@ namespace EOLib.Net.PacketProcessing
             return (increment + 1)%10;
         }
     }
+
+    public interface IPacketSequenceService
+    {
+        int CalculateInitialSequenceNumber(int seq1, int seq2);
+
+        int CalculateNextSequenceNumber(int sequence, int increment);
+
+        int CalculateNewInitialSequenceNumber(int seq1, int seq2);
+
+        int CalculateNextSequenceIncrement(int increment);
+    }
 }

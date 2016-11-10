@@ -10,11 +10,11 @@ namespace EOLib.Net.Communication
 {
     public class NetworkClientFactory : INetworkClientFactory
     {
-        private readonly IPacketProcessorActions _packetProcessActions;
+        private readonly IPacketProcessActions _packetProcessActions;
         private readonly IPacketHandlingActions _packetHandlingActions;
         private readonly INumberEncoderService _numberEncoderService;
 
-        public NetworkClientFactory(IPacketProcessorActions packetProcessActions,
+        public NetworkClientFactory(IPacketProcessActions packetProcessActions,
                                     IPacketHandlingActions packetHandlingActions,
                                     INumberEncoderService numberEncoderService)
         {

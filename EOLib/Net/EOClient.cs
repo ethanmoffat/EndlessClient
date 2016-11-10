@@ -106,7 +106,7 @@ namespace EOLib.Net
     {
         private readonly Dictionary<FamilyActionPair, PacketHandlerInvoker> _handlers;
 
-        private readonly IPacketProcessorActions _packetProcessActions;
+        private readonly IPacketProcessActions _packetProcessActions;
 
         public event Action<DataTransferEventArgs> EventSendData;
         public event Action<DataTransferEventArgs> EventReceiveData;
@@ -124,10 +124,10 @@ namespace EOLib.Net
         /// </summary>
         internal bool ExpectingPlayerList { get; set; }
 
-        public EOClient(IPacketProcessorActions packetProcessorActions)
+        public EOClient(IPacketProcessActions packetProcessActions)
         {
             _handlers = new Dictionary<FamilyActionPair, PacketHandlerInvoker>(128);
-            _packetProcessActions = packetProcessorActions;
+            _packetProcessActions = packetProcessActions;
         }
 
         public void SetInitData(InitData data)

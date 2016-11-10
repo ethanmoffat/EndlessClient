@@ -16,7 +16,7 @@ namespace EOLib.Net.Communication
 {
     public class NetworkClient : INetworkClient
     {
-        private readonly IPacketProcessorActions _packetProcessActions;
+        private readonly IPacketProcessActions _packetProcessActions;
         private readonly IPacketHandlingActions _packetHandlingActions;
         private readonly INumberEncoderService _numberEncoderService;
 
@@ -37,7 +37,7 @@ namespace EOLib.Net.Communication
             }
         }
 
-        public NetworkClient(IPacketProcessorActions packetProcessActions,
+        public NetworkClient(IPacketProcessActions packetProcessActions,
                              IPacketHandlingActions packetHandlingActions,
                              INumberEncoderService numberEncoderService)
         {

@@ -28,7 +28,7 @@ namespace PacketDecoder
         }
 
         private DataTypes m_type;
-        private readonly IPacketProcessorActions _packetProcessorActions;
+        private readonly IPacketProcessActions _packetProcessActions;
         private readonly IPacketEncoderRepository _packetEncoderRepository;
         private int m_packetOffset, m_dataLength;
         private bool m_suppressEvent;
@@ -40,7 +40,7 @@ namespace PacketDecoder
             cmbOutputFmt_SelectedIndexChanged(null, null);
 
             _packetEncoderRepository = new PacketEncoderRepository();
-            _packetProcessorActions = new PacketProcessActions(new SequenceRepository(),
+            _packetProcessActions = new PacketProcessActions(new SequenceRepository(),
                                                                _packetEncoderRepository,
                                                                new PacketEncoderService(),
                                                                new PacketSequenceService());
@@ -108,13 +108,13 @@ namespace PacketDecoder
 
             if (txt == txtDMulti)
             {
-                _packetProcessorActions.SetEncodeMultiples((byte)param, _packetEncoderRepository.SendMultiplier);
+                _packetProcessActions.SetEncodeMultiples((byte)param, _packetEncoderRepository.SendMultiplier);
                 if (param < 6 || param > 12)
                     MessageBox.Show("This should be between 6 and 12...", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             else if (txt == txtEMulti)
             {
-                _packetProcessorActions.SetEncodeMultiples(_packetEncoderRepository.ReceiveMultiplier, (byte)param);
+                _packetProcessActions.SetEncodeMultiples(_packetEncoderRepository.ReceiveMultiplier, (byte)param);
                 if (param < 6 || param > 12)
                     MessageBox.Show("This should be between 6 and 12...", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
@@ -162,7 +162,7 @@ namespace PacketDecoder
                 data[i/2] = Convert.ToByte(bytes.Substring(i, 2), 16);
             }
 
-            var pkt = _packetProcessorActions.DecodeData(data);
+            var pkt = _packetProcessActions.DecodeData(data);
             pkt.Seek(m_packetOffset, SeekOrigin.Begin);
 
             lblFamily.Text = pkt.Family.ToString();
@@ -261,7 +261,7 @@ namespace PacketDecoder
             pkt.Skip(3);
             txtDMulti.Text = pkt.GetByte().ToString();
             txtEMulti.Text = pkt.GetByte().ToString();
-            _packetProcessorActions.SetEncodeMultiples(pkt.Get()[5], pkt.Get()[6]);
+            _packetProcessActions.SetEncodeMultiples(pkt.Get()[5], pkt.Get()[6]);
         }
     }
 }

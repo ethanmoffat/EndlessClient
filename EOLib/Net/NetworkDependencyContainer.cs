@@ -40,7 +40,7 @@ namespace EOLib.Net
                 .RegisterInstance<ILoginFileChecksumRepository, LoginFileChecksumRepository>()
                 .RegisterInstance<ILoginFileChecksumProvider, LoginFileChecksumRepository>();
 
-            container.RegisterType<IPacketProcessorActions, PacketProcessActions>()
+            container.RegisterType<IPacketProcessActions, PacketProcessActions>()
                 .RegisterType<INetworkConnectionActions, NetworkConnectionActions>()
                 .RegisterType<IFileRequestActions, FileRequestActions>();
             

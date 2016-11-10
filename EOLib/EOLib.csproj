@@ -162,11 +162,9 @@
     <Compile Include="Net\Communication\SafeNetworkOperationBase.cs" />
     <Compile Include="Net\Connection\IBackgroundReceiveThreadRepository.cs" />
     <Compile Include="Net\FileTransfer\FileRequestActions.cs" />
-    <Compile Include="Net\FileTransfer\IFileRequestActions.cs" />
-    <Compile Include="Net\FileTransfer\ILoginFileChecksumRepository.cs" />
+    <Compile Include="Net\FileTransfer\LoginFileChecksumRepository.cs" />
     <Compile Include="Net\FileTransfer\FileRequestService.cs" />
     <Compile Include="HDSerialNumberService.cs" />
-    <Compile Include="Net\FileTransfer\IFileRequestService.cs" />
     <Compile Include="IHDSerialNumberService.cs" />
     <Compile Include="EOLibDependencyContainer.cs" />
     <Compile Include="misc.cs" />
@@ -257,7 +255,6 @@
     <Compile Include="Net\Connection\NetworkConnectionActions.cs" />
     <Compile Include="Net\NetworkDependencyContainer.cs" />
     <Compile Include="Net\PacketProcessing\HashService.cs" />
-    <Compile Include="Net\PacketProcessing\IHashService.cs" />
     <Compile Include="Net\PacketProcessing\PacketNumberEncoder.cs" />
     <Compile Include="Net\EmptyPacket.cs" />
     <Compile Include="Net\EOClient.cs" />
@@ -267,11 +264,6 @@
     <Compile Include="Net\IPacketBuilder.cs" />
     <Compile Include="Net\Packet.cs" />
     <Compile Include="Net\PacketBuilder.cs" />
-    <Compile Include="Net\PacketProcessing\IPacketEncoderRepository.cs" />
-    <Compile Include="Net\PacketProcessing\IPacketEncoderService.cs" />
-    <Compile Include="Net\PacketProcessing\IPacketProcessorActions.cs" />
-    <Compile Include="Net\PacketProcessing\IPacketSequenceService.cs" />
-    <Compile Include="Net\PacketProcessing\ISequenceRepository.cs" />
     <Compile Include="Net\Communication\IPacketQueue.cs" />
     <Compile Include="Net\PacketAction.cs" />
     <Compile Include="Net\PacketProcessing\PacketEncoderRepository.cs" />

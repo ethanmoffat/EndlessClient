@@ -18,7 +18,7 @@ namespace EndlessClient.Controllers
     {
         private readonly INetworkConnectionActions _networkConnectionActions;
         private readonly IErrorDialogDisplayAction _errorDialogDisplayAction;
-        private readonly IPacketProcessorActions _packetProcessorActions;
+        private readonly IPacketProcessActions _packetProcessActions;
         private readonly IBackgroundReceiveActions _backgroundReceiveActions;
         private readonly IGameStateActions _gameStateActions;
         private readonly IAccountDialogDisplayActions _accountDialogDisplayActions;
@@ -30,7 +30,7 @@ namespace EndlessClient.Controllers
 
         public MainButtonController(INetworkConnectionActions networkConnectionActions,
                                     IErrorDialogDisplayAction errorDialogDisplayAction,
-                                    IPacketProcessorActions packetProcessorActions,
+                                    IPacketProcessActions packetProcessActions,
                                     IBackgroundReceiveActions backgroundReceiveActions,
                                     IGameStateActions gameStateActions,
                                     IAccountDialogDisplayActions accountDialogDisplayActions,
@@ -40,7 +40,7 @@ namespace EndlessClient.Controllers
         {
             _networkConnectionActions = networkConnectionActions;
             _errorDialogDisplayAction = errorDialogDisplayAction;
-            _packetProcessorActions = packetProcessorActions;
+            _packetProcessActions = packetProcessActions;
             _backgroundReceiveActions = backgroundReceiveActions;
             _gameStateActions = gameStateActions;
             _accountDialogDisplayActions = accountDialogDisplayActions;
@@ -128,9 +128,9 @@ namespace EndlessClient.Controllers
                     return false;
                 }
 
-                _packetProcessorActions.SetInitialSequenceNumber(initData[InitializationDataKey.SequenceByte1],
+                _packetProcessActions.SetInitialSequenceNumber(initData[InitializationDataKey.SequenceByte1],
                     initData[InitializationDataKey.SequenceByte2]);
-                _packetProcessorActions.SetEncodeMultiples((byte) initData[InitializationDataKey.ReceiveMultiple],
+                _packetProcessActions.SetEncodeMultiples((byte) initData[InitializationDataKey.ReceiveMultiple],
                     (byte) initData[InitializationDataKey.SendMultiple]);
 
                 _networkConnectionActions.CompleteHandshake(initData);

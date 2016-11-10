@@ -196,4 +196,15 @@ namespace EOLib.Net.PacketProcessing
 
         #endregion
     }
+
+    public interface IPacketEncoderService
+    {
+        byte[] PrependLengthBytes(byte[] data);
+
+        IPacket AddSequenceNumber(IPacket pkt, int sequenceNumber);
+
+        byte[] Encode(IPacket original, byte encodeMultiplier);
+
+        IPacket Decode(IEnumerable<byte> original, byte decodeMultiplier);
+    }
 }

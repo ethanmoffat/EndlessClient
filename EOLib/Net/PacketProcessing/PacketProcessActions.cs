@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace EOLib.Net.PacketProcessing
 {
-    public class PacketProcessActions : IPacketProcessorActions
+    public class PacketProcessActions : IPacketProcessActions
     {
         private readonly IPacketEncoderService _encoderService;
         private readonly IPacketSequenceService _sequenceService;
@@ -73,5 +73,20 @@ namespace EOLib.Net.PacketProcessing
             _sequenceRepository.SequenceIncrement = _sequenceService.CalculateNextSequenceIncrement(oldSequenceIncrement);
             return _sequenceService.CalculateNextSequenceNumber(sequenceStart, _sequenceRepository.SequenceIncrement);
         }
+    }
+
+    public interface IPacketProcessActions
+    {
+        void SetInitialSequenceNumber(int seq1, int seq2);
+
+        void SetUpdatedBaseSequenceNumber(int seq1, int seq2);
+
+        void SetEncodeMultiples(byte emulti_d, byte emulti_e);
+
+        byte[] EncodePacket(IPacket pkt);
+
+        byte[] EncodeRawPacket(IPacket pkt);
+
+        IPacket DecodeData(IEnumerable<byte> rawData);
     }
 }

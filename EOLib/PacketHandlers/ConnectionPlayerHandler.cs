@@ -14,7 +14,7 @@ namespace EOLib.PacketHandlers
     /// </summary>
     public class ConnectionPlayerHandler : DefaultAsyncPacketHandler
     {
-        private readonly IPacketProcessorActions _packetProcessorActions;
+        private readonly IPacketProcessActions _packetProcessActions;
         private readonly IPacketSendService _packetSendService;
 
         public override PacketFamily Family { get { return PacketFamily.Connection; } }
@@ -23,10 +23,10 @@ namespace EOLib.PacketHandlers
 
         public override bool CanHandle { get { return true; } }
 
-        public ConnectionPlayerHandler(IPacketProcessorActions packetProcessorActions,
+        public ConnectionPlayerHandler(IPacketProcessActions packetProcessActions,
                                        IPacketSendService packetSendService)
         {
-            _packetProcessorActions = packetProcessorActions;
+            _packetProcessActions = packetProcessActions;
             _packetSendService = packetSendService;
         }
 
@@ -35,7 +35,7 @@ namespace EOLib.PacketHandlers
             var seq1 = packet.ReadShort();
             var seq2 = packet.ReadChar();
 
-            _packetProcessorActions.SetUpdatedBaseSequenceNumber(seq1, seq2);
+            _packetProcessActions.SetUpdatedBaseSequenceNumber(seq1, seq2);
 
             var response = new PacketBuilder(PacketFamily.Connection, PacketAction.Ping).Build();
             try
