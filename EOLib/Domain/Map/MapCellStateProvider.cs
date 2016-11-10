@@ -38,13 +38,13 @@ namespace EOLib.Domain.Map
 
             return new MapCellState
             {
-                Items = items.ToList(),
-                TileSpec = tileSpec,
-                Warp = new MapWarp(warp),
-                Chest = new MapChest(chest),
-                Sign = new MapSign(sign),
-                Character = new Optional<ICharacter>(character),
-                NPC = new Optional<IMapNPC>(npc)
+                Items     = items.ToList(),
+                TileSpec  = tileSpec,
+                Warp      = warp == null ? Optional<IMapWarp>.Empty : new MapWarp(warp),
+                Chest     = chest == null ? Optional<IMapChest>.Empty : new MapChest(chest),
+                Sign      = sign == null ? Optional<IMapSign>.Empty : new MapSign(sign),
+                Character = character == null ? Optional<ICharacter>.Empty : new Optional<ICharacter>(character),
+                NPC       = npc == null ? Optional<IMapNPC>.Empty : new Optional<IMapNPC>(npc)
             };
         }
 
