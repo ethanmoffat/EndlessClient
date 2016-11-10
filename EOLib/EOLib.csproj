@@ -200,7 +200,6 @@
     <Compile Include="Net\API\Spell.cs" />
     <Compile Include="Net\API\StatSkill.cs" />
     <Compile Include="Net\API\Trade.cs" />
-    <Compile Include="Net\API\Walk.cs" />
     <Compile Include="Net\API\Warp.cs" />
     <Compile Include="Net\API\Welcome.cs" />
     <Compile Include="Net\Communication\AsyncSocket.cs" />
@@ -246,6 +245,7 @@
     <Compile Include="PacketHandlers\Commands\FindCommandPlayerNotFoundHandler.cs" />
     <Compile Include="PacketHandlers\Commands\FindCommandPlayerSameMapHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GroupChatHandler.cs" />
+    <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\PacketHandlerDependencyContainer.cs" />
     <Compile Include="PacketHandlers\Commands\PingResponseHandler.cs" />
     <Compile Include="Net\MalformedPacketException.cs" />

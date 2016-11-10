@@ -52,7 +52,6 @@ namespace EOLib.Net.API
             _createSpellMembers();
             _createStatSkillMembers();
             _createTradeMembers();
-            _createWalkMembers();
             _createWarpMembers();
             _createWelcomeMembers();
         }
