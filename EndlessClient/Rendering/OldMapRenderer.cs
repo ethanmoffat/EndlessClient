@@ -237,6 +237,7 @@ namespace EndlessClient.Rendering
         {
             return null;
 
+            //todo: this can probably be removed
             //if (MapRef.Properties.Width < destX || MapRef.Properties.Height < destY)
             //    return new BasicTileInfoWithSpec(TileSpec.MapEdge);
 

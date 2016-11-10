@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using System.Linq;
 using EndlessClient.Dialogs;
 using EOLib;
@@ -13,25 +12,10 @@ using XNAControls;
 
 namespace EndlessClient.Input
 {
-    //todo: track last player action time for the AFK emotes
-
     public class OldArrowKeyListener : OldInputKeyListenerBase
     {
-        private DateTime? _startWalkingThroughPlayerTime;
-
-        public OldArrowKeyListener()
-        {
-            if (Game.Components.Any(x => x is OldArrowKeyListener))
-                throw new InvalidOperationException("The game already contains an arrow key listener");
-            Game.Components.Add(this);
-        }
-
         private void _checkSpecAndWalkIfValid(byte destX, byte destY, EODirection direction)
         {
-            //var mapRend = OldWorld.Instance.ActiveMapRenderer;
-            //var info = mapRend.GetTileInfo(destX, destY);
-            //var specAtDest = info.Spec;
-
             //switch (info.ReturnType)
             //{
             //    case TileInfoReturnType.IsOtherPlayer:
