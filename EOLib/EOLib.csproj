@@ -218,6 +218,8 @@
     <Compile Include="Net\Connection\IConnectionStateRepository.cs" />
     <Compile Include="Net\Connection\INetworkConnectionActions.cs" />
     <Compile Include="Net\EmptyPacketReceivedException.cs" />
+    <Compile Include="Net\Handlers\DefaultAsyncPacketHandler.cs" />
+    <Compile Include="Net\Handlers\InGameOnlyPacketHandler.cs" />
     <Compile Include="PacketHandlers\Chat\AnnounceMessageHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GlobalMessageHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GuildMessageHandler.cs" />

@@ -4,7 +4,6 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -13,25 +12,22 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
-    public class PlayerDirectionHandler : IPacketHandler
+    public class PlayerDirectionHandler : InGameOnlyPacketHandler
     {
-        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ICurrentMapStateRepository _mapStateRepository;
 
-        public PacketFamily Family { get { return PacketFamily.Face; } }
+        public override PacketFamily Family { get { return PacketFamily.Face; } }
 
-        public PacketAction Action { get { return PacketAction.Player; } }
-
-        public bool CanHandle { get { return _playerInfoProvider.PlayerIsInGame; } }
+        public override PacketAction Action { get { return PacketAction.Player; } }
 
         public PlayerDirectionHandler(IPlayerInfoProvider playerInfoProvider,
                                       ICurrentMapStateRepository mapStateRepository)
+            : base(playerInfoProvider)
         {
-            _playerInfoProvider = playerInfoProvider;
             _mapStateRepository = mapStateRepository;
         }
 
-        public bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(IPacket packet)
         {
             var id = packet.ReadShort();
             var direction = (EODirection) packet.ReadChar();
@@ -50,11 +46,6 @@ namespace EOLib.PacketHandlers
             _mapStateRepository.Characters.Add(newCharacter);
 
             return true;
-        }
-
-        public async Task<bool> HandlePacketAsync(IPacket packet)
-        {
-            return await Task.Run(() => HandlePacket(packet));
         }
     }
 }

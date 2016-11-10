@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Threading.Tasks;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Localization;
@@ -11,28 +10,25 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers.Chat
 {
-    public class ServerMessageHandler : IPacketHandler
+    public class ServerMessageHandler : InGameOnlyPacketHandler
     {
-        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringService _localizedStringService;
 
-        public PacketFamily Family { get { return PacketFamily.Talk; } }
+        public override PacketFamily Family { get { return PacketFamily.Talk; } }
 
-        public PacketAction Action { get { return PacketAction.Server; } }
-
-        public bool CanHandle { get { return _playerInfoProvider.PlayerIsInGame; } }
+        public override PacketAction Action { get { return PacketAction.Server; } }
 
         public ServerMessageHandler(IPlayerInfoProvider playerInfoProvider,
                                     IChatRepository chatRepository,
                                     ILocalizedStringService localizedStringService)
+            : base(playerInfoProvider)
         {
-            _playerInfoProvider = playerInfoProvider;
             _chatRepository = chatRepository;
             _localizedStringService = localizedStringService;
         }
 
-        public bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(IPacket packet)
         {
             var server = _localizedStringService.GetString(EOResourceID.STRING_SERVER);
             var serverMessage = packet.ReadEndString();
@@ -46,11 +42,6 @@ namespace EOLib.PacketHandlers.Chat
             _chatRepository.AllChat[ChatTab.System].Add(systemData);
 
             return true;
-        }
-
-        public async Task<bool> HandlePacketAsync(IPacket packet)
-        {
-            return await Task.Run(() => HandlePacket(packet));
         }
     }
 }

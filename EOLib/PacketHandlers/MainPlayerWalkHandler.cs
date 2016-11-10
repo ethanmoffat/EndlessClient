@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Threading.Tasks;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
@@ -10,24 +9,21 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
-    public class MainPlayerWalkHandler : IPacketHandler
+    public class MainPlayerWalkHandler : InGameOnlyPacketHandler
     {
-        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
-        public PacketFamily Family { get { return PacketFamily.Walk; } }
-        public PacketAction Action { get { return PacketAction.Reply; } }
-
-        public bool CanHandle { get { return _playerInfoProvider.PlayerIsInGame; } }
+        public override PacketFamily Family { get { return PacketFamily.Walk; } }
+        public override PacketAction Action { get { return PacketAction.Reply; } }
 
         public MainPlayerWalkHandler(IPlayerInfoProvider playerInfoProvider,
                                      ICurrentMapStateRepository currentMapStateRepository)
+            : base(playerInfoProvider)
         {
-            _playerInfoProvider = playerInfoProvider;
             _currentMapStateRepository = currentMapStateRepository;
         }
 
-        public bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(IPacket packet)
         {
             if (packet.ReadByte() != 255 || packet.ReadByte() != 255)
                 return false;
@@ -46,11 +42,6 @@ namespace EOLib.PacketHandlers
             }
 
             return true;
-        }
-
-        public async Task<bool> HandlePacketAsync(IPacket packet)
-        {
-            return await Task.Run(() => HandlePacket(packet));
         }
     }
 }

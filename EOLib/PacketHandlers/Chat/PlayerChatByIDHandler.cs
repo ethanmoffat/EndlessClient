@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
-using System.Threading.Tasks;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -12,25 +11,20 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers.Chat
 {
-    public abstract class PlayerChatByIDHandler : IPacketHandler
+    public abstract class PlayerChatByIDHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
-        private readonly IPlayerInfoProvider _playerInfoProvider;
 
-        public PacketFamily Family { get { return PacketFamily.Talk; } }
-
-        public abstract PacketAction Action { get; }
-
-        public bool CanHandle { get { return _playerInfoProvider.PlayerIsInGame; } }
+        public override PacketFamily Family { get { return PacketFamily.Talk; } }
 
         protected PlayerChatByIDHandler(ICurrentMapStateProvider currentMapStateProvider,
                                         IPlayerInfoProvider playerInfoProvider)
+            : base(playerInfoProvider)
         {
             _currentMapStateProvider = currentMapStateProvider;
-            _playerInfoProvider = playerInfoProvider;
         }
 
-        public bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(IPacket packet)
         {
             var fromPlayerID = packet.ReadShort();
             if (_currentMapStateProvider.Characters.All(x => x.ID != fromPlayerID))
@@ -39,11 +33,6 @@ namespace EOLib.PacketHandlers.Chat
             DoTalk(packet, _currentMapStateProvider.Characters.Single(x => x.ID == fromPlayerID));
 
             return true;
-        }
-
-        public async Task<bool> HandlePacketAsync(IPacket packet)
-        {
-            return await Task.Run(() => HandlePacket(packet));
         }
 
         protected abstract void DoTalk(IPacket packet, ICharacter character);

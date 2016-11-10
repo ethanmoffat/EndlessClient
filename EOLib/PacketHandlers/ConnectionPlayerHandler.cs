@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Threading.Tasks;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Handlers;
@@ -13,16 +12,16 @@ namespace EOLib.PacketHandlers
     /// <summary>
     /// Handles incoming CONNECTION_PLAYER packets which are used for updating sequence numbers in the EO protocol
     /// </summary>
-    public class ConnectionPlayerHandler : IPacketHandler
+    public class ConnectionPlayerHandler : DefaultAsyncPacketHandler
     {
         private readonly IPacketProcessorActions _packetProcessorActions;
         private readonly IPacketSendService _packetSendService;
 
-        public PacketFamily Family { get { return PacketFamily.Connection; } }
+        public override PacketFamily Family { get { return PacketFamily.Connection; } }
 
-        public PacketAction Action { get { return PacketAction.Player; } }
+        public override PacketAction Action { get { return PacketAction.Player; } }
 
-        public bool CanHandle { get { return true; } }
+        public override bool CanHandle { get { return true; } }
 
         public ConnectionPlayerHandler(IPacketProcessorActions packetProcessorActions,
                                        IPacketSendService packetSendService)
@@ -31,7 +30,7 @@ namespace EOLib.PacketHandlers
             _packetSendService = packetSendService;
         }
 
-        public bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(IPacket packet)
         {
             var seq1 = packet.ReadShort();
             var seq2 = packet.ReadChar();
@@ -50,11 +49,6 @@ namespace EOLib.PacketHandlers
             }
 
             return true;
-        }
-
-        public async Task<bool> HandlePacketAsync(IPacket packet)
-        {
-            return await Task.Run(() => HandlePacket(packet));
         }
     }
 }

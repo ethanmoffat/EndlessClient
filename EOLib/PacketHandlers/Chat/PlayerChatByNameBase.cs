@@ -2,29 +2,20 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Threading.Tasks;
 using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers.Chat
 {
-    public abstract class PlayerChatByNameBase : IPacketHandler
+    public abstract class PlayerChatByNameBase : InGameOnlyPacketHandler
     {
-        private readonly IPlayerInfoProvider _playerInfoProvider;
-
-        public PacketFamily Family { get { return PacketFamily.Talk; } }
-
-        public abstract PacketAction Action { get; }
-
-        public bool CanHandle { get { return _playerInfoProvider.PlayerIsInGame; } }
+        public override PacketFamily Family { get { return PacketFamily.Talk; } }
 
         protected PlayerChatByNameBase(IPlayerInfoProvider playerInfoProvider)
-        {
-            _playerInfoProvider = playerInfoProvider;
-        }
+            : base(playerInfoProvider) { }
 
-        public bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(IPacket packet)
         {
             var name = packet.ReadBreakString();
             var message = packet.ReadBreakString();
@@ -33,11 +24,6 @@ namespace EOLib.PacketHandlers.Chat
             PostChat(name, message);
 
             return true;
-        }
-
-        public async Task<bool> HandlePacketAsync(IPacket packet)
-        {
-            return await Task.Run(() => HandlePacket(packet));
         }
 
         protected abstract void PostChat(string name, string message);

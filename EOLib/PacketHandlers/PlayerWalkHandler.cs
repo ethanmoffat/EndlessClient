@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
@@ -15,28 +14,25 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
-    public class PlayerWalkHandler : IPacketHandler
+    public class PlayerWalkHandler : InGameOnlyPacketHandler
     {
-        private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IOtherCharacterAnimationNotifier> _otherCharacterAnimationNotifiers;
 
-        public PacketFamily Family { get { return PacketFamily.Walk; } }
+        public override PacketFamily Family { get { return PacketFamily.Walk; } }
 
-        public PacketAction Action { get { return PacketAction.Player; } }
-        
-        public bool CanHandle { get { return _playerInfoProvider.PlayerIsInGame; } }
+        public override PacketAction Action { get { return PacketAction.Player; } }
 
         public PlayerWalkHandler(IPlayerInfoProvider playerInfoProvider,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  IEnumerable<IOtherCharacterAnimationNotifier> otherCharacterAnimationNotifiers)
+            : base(playerInfoProvider)
         {
-            _playerInfoProvider = playerInfoProvider;
             _currentMapStateRepository = currentMapStateRepository;
             _otherCharacterAnimationNotifiers = otherCharacterAnimationNotifiers;
         }
 
-        public bool HandlePacket(IPacket packet)
+        public override bool HandlePacket(IPacket packet)
         {
             var characterID = packet.ReadShort();
             var dir = (EODirection)packet.ReadChar();
@@ -73,11 +69,6 @@ namespace EOLib.PacketHandlers
             return renderProperties
                 .WithMapX(tempRenderProperties.GetDestinationX())
                 .WithMapY(renderProperties.GetDestinationY());
-        }
-
-        public async Task<bool> HandlePacketAsync(IPacket packet)
-        {
-            return await Task.Run(() => HandlePacketAsync(packet));
         }
     }
 }
