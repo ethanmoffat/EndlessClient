@@ -66,6 +66,7 @@
     <Compile Include="Domain\Character\CharacterWalkValidationActions.cs" />
     <Compile Include="Domain\Character\EquippedItem.cs" />
     <Compile Include="Domain\Character\ICharacter.cs" />
+    <Compile Include="Domain\Character\IOtherCharacterAnimationNotifier.cs" />
     <Compile Include="Domain\Character\ICharacterInventoryRepository.cs" />
     <Compile Include="Domain\Character\ICharacterRenderProperties.cs" />
     <Compile Include="Domain\Character\ICharacterStats.cs" />

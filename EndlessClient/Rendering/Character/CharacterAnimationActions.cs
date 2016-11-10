@@ -9,7 +9,7 @@ using EOLib.Domain.Character;
 
 namespace EndlessClient.Rendering.Character
 {
-    public class CharacterAnimationActions : ICharacterAnimationActions
+    public class CharacterAnimationActions : ICharacterAnimationActions, IOtherCharacterAnimationNotifier
     {
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICharacterRepository _characterRepository;
@@ -34,6 +34,12 @@ namespace EndlessClient.Rendering.Character
         {
             var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
             animator.StartMainCharacterWalkAnimation();
+        }
+
+        public void StartOtherCharacterWalkAnimation(int characterID)
+        {
+            var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
+            animator.StartOtherCharacterWalkAnimation(characterID);
         }
     }
 
