@@ -31,7 +31,8 @@ namespace EOLib.PacketHandlers
                 .RegisterVaried<IPacketHandler, AnnounceMessageHandler>()
                 .RegisterVaried<IPacketHandler, MuteHandler>();
 
-            container.RegisterVaried<IPacketHandler, PlayerDirectionHandler>();
+            container.RegisterVaried<IPacketHandler, PlayerDirectionHandler>()
+                .RegisterVaried<IPacketHandler, PlayerWalkHandler>();
         }
     }
 }
