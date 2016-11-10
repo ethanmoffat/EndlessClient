@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework;
 namespace EndlessClient.Rendering.Character
 {
     //todo: adapt this component to account for other characters as well
-    public class CharacterAnimator : GameComponent
+    public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
         public const int WALK_FRAME_TIME_MS = 100;
 
@@ -65,5 +65,10 @@ namespace EndlessClient.Rendering.Character
         {
             get { return _characterRepository.MainCharacter.RenderProperties; }
         }
+    }
+
+    public interface ICharacterAnimator : IGameComponent
+    {
+        void StartWalkAnimation();
     }
 }

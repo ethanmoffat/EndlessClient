@@ -289,7 +289,7 @@ namespace EndlessClient.HUD.Controls
             return new ArrowKeyHandler(_endlessGameProvider, _keyStateRepository, _userInputTimeRepository, _arrowKeyController);
         }
 
-        private CharacterAnimator CreateCharacterAnimator()
+        private ICharacterAnimator CreateCharacterAnimator()
         {
             return new CharacterAnimator(_endlessGameProvider, _characterRepository);
         }
