@@ -104,7 +104,6 @@
     <Compile Include="Domain\Map\IMapChest.cs" />
     <Compile Include="Domain\Map\IMapItem.cs" />
     <Compile Include="Domain\Map\IMapSign.cs" />
-    <Compile Include="Domain\Map\IMapWarp.cs" />
     <Compile Include="Domain\Map\MapCellState.cs" />
     <Compile Include="Domain\Map\MapCellStateProvider.cs" />
     <Compile Include="Domain\Map\MapChest.cs" />

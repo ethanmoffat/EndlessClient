@@ -8,8 +8,30 @@ namespace EOLib.Domain.Map
 {
     public class MapWarp : IMapWarp
     {
+        private readonly WarpMapEntity _warpEntity;
+
+        public int X { get { return _warpEntity.X; } }
+
+        public int Y { get { return _warpEntity.Y; } }
+
+        public DoorSpec DoorType { get { return _warpEntity.DoorType; } }
+
+        public int LevelRequirement { get { return _warpEntity.LevelRequirement; } }
+
         public MapWarp(WarpMapEntity warpEntity)
         {
+            _warpEntity = warpEntity;
         }
+    }
+
+    public interface IMapWarp
+    {
+        int X { get; }
+
+        int Y { get; }
+
+        DoorSpec DoorType { get; }
+
+        int LevelRequirement { get; }
     }
 }
