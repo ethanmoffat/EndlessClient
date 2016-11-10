@@ -89,4 +89,11 @@ namespace EOLib.Net.FileTransfer
             return packet.Family == PacketFamily.Init && packet.Action == PacketAction.Init;
         }
     }
+
+    public interface IFileRequestService
+    {
+        Task<IMapFile> RequestMapFile(short mapID);
+
+        Task<IPubFile> RequestFile(InitFileType fileType);
+    }
 }

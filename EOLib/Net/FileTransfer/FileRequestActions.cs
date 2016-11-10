@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
 using EOLib.IO;
-using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
@@ -127,5 +126,20 @@ namespace EOLib.Net.FileTransfer
                     throw new ArgumentOutOfRangeException("fileType", fileType, null);
             }
         }
+    }
+
+    public interface IFileRequestActions
+    {
+        bool NeedsFile(InitFileType fileType, short optionalID = 0);
+
+        Task GetMapFromServer(short mapID);
+
+        Task GetItemFileFromServer();
+
+        Task GetNPCFileFromServer();
+
+        Task GetSpellFileFromServer();
+
+        Task GetClassFileFromServer();
     }
 }
