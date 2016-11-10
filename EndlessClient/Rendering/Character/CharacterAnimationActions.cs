@@ -33,8 +33,8 @@ namespace EndlessClient.Rendering.Character
         public void StartWalking()
         {
             //todo: make interface for CharacterStateUpdater that just has StartWalking()
-            var stateUpdater = _hudControlProvider.GetComponent<CharacterStateUpdater>(HudControlIdentifier.CharacterStateUpdater);
-            stateUpdater.StartWalking();
+            var animator = _hudControlProvider.GetComponent<CharacterAnimator>(HudControlIdentifier.CharacterAnimator);
+            animator.StartWalkAnimation();
         }
     }
 

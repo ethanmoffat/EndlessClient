@@ -129,7 +129,7 @@ namespace EndlessClient.HUD.Controls
 
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
                 {HudControlIdentifier.ArrowKeyHandler, CreateArrowKeyHandler()},
-                {HudControlIdentifier.CharacterStateUpdater, CreateCharacterStateUpdater()},
+                {HudControlIdentifier.CharacterAnimator, CreateCharacterAnimator()},
                 {HudControlIdentifier.PreviousKeyStateTracker, CreatePreviousKeyStateTracker()}
             };
 
@@ -289,9 +289,9 @@ namespace EndlessClient.HUD.Controls
             return new ArrowKeyHandler(_endlessGameProvider, _keyStateRepository, _userInputTimeRepository, _arrowKeyController);
         }
 
-        private CharacterStateUpdater CreateCharacterStateUpdater()
+        private CharacterAnimator CreateCharacterAnimator()
         {
-            return new CharacterStateUpdater(_endlessGameProvider, _characterRepository);
+            return new CharacterAnimator(_endlessGameProvider, _characterRepository);
         }
 
         private PreviousKeyStateTracker CreatePreviousKeyStateTracker()

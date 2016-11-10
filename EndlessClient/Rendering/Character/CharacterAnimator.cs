@@ -12,7 +12,7 @@ using Microsoft.Xna.Framework;
 namespace EndlessClient.Rendering.Character
 {
     //todo: adapt this component to account for other characters as well
-    public class CharacterStateUpdater : GameComponent
+    public class CharacterAnimator : GameComponent
     {
         public const int WALK_FRAME_TIME_MS = 100;
 
@@ -20,7 +20,7 @@ namespace EndlessClient.Rendering.Character
 
         private Optional<DateTime> _startWalkingTime;
 
-        public CharacterStateUpdater(IEndlessGameProvider gameProvider,
+        public CharacterAnimator(IEndlessGameProvider gameProvider,
                                      ICharacterRepository characterRepository)
             : base((Game) gameProvider.Game)
         {
@@ -56,7 +56,7 @@ namespace EndlessClient.Rendering.Character
             base.Update(gameTime);
         }
 
-        public void StartWalking()
+        public void StartWalkAnimation()
         {
             _startWalkingTime = DateTime.Now;
         }

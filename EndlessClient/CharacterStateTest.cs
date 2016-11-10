@@ -173,7 +173,7 @@ namespace EndlessClient
             _previousState = _currentState;
 
             var now = DateTime.Now;
-            if ((now - _lastWalk).TotalMilliseconds > CharacterStateUpdater.WALK_FRAME_TIME_MS)
+            if ((now - _lastWalk).TotalMilliseconds > CharacterAnimator.WALK_FRAME_TIME_MS)
             {
                 var rend = _renderersForDifferentStates[(int) DisplayState.WalkingAnimation];
                 rend.RenderProperties = rend.RenderProperties.WithNextWalkFrame();

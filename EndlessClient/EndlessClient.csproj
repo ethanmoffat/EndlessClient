@@ -140,7 +140,7 @@
     <Compile Include="Rendering\Character\CharacterRenderOffsetCalculator.cs" />
     <Compile Include="Rendering\Character\CharacterRenderUpdateActions.cs" />
     <Compile Include="Rendering\Character\CharacterStateCache.cs" />
-    <Compile Include="Rendering\Character\CharacterStateUpdater.cs" />
+    <Compile Include="Rendering\Character\CharacterAnimator.cs" />
     <Compile Include="Rendering\Character\CharacterTextures.cs" />
     <Compile Include="Rendering\Character\ICharacterRenderer.cs" />
     <Compile Include="Rendering\Character\ICharacterRendererResetter.cs" />
