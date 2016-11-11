@@ -32,7 +32,7 @@ namespace EOLib.IO.Services.Serializers
             var fileMsg = new byte[mapEntity.Message.Length + mapEntity.Title.Length];
 
             var rawTitle = mapStringEncoderService.EncodeMapString(mapEntity.Title);
-            Array.Copy(rawTitle, fileMsg, fileMsg.Length);
+            Array.Copy(rawTitle, fileMsg, rawTitle.Length);
 
             var rawMessage = mapStringEncoderService.EncodeMapString(mapEntity.Message);
             Array.Copy(rawMessage, 0, fileMsg, rawTitle.Length, rawMessage.Length);
