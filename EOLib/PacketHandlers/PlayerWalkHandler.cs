@@ -68,7 +68,7 @@ namespace EOLib.PacketHandlers
                 .WithMapY(y);
             return renderProperties
                 .WithMapX(tempRenderProperties.GetDestinationX())
-                .WithMapY(renderProperties.GetDestinationY());
+                .WithMapY(tempRenderProperties.GetDestinationY());
         }
     }
 }
