@@ -5,6 +5,7 @@
 using EOLib.DependencyInjection;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
 using EOLib.Domain.Protocol;
 using Microsoft.Practices.Unity;
 
@@ -14,11 +15,12 @@ namespace EOLib.Net.Translators
     {
         public void RegisterDependencies(IUnityContainer container)
         {
-            container.RegisterType<IPacketTranslator<IInitializationData>, InitDataTranslator>();
-            container.RegisterType<IPacketTranslator<IAccountLoginData>, AccountLoginPacketTranslator>();
-            container.RegisterType<IPacketTranslator<ICharacterCreateData>, CharacterReplyPacketTranslator>();
-            container.RegisterType<IPacketTranslator<ILoginRequestGrantedData>, LoginRequestGrantedPacketTranslator>();
-            container.RegisterType<IPacketTranslator<ILoginRequestCompletedData>, LoginRequestCompletedPacketTranslator>();
+            container.RegisterType<IPacketTranslator<IInitializationData>, InitDataTranslator>()
+                .RegisterType<IPacketTranslator<IAccountLoginData>, AccountLoginPacketTranslator>()
+                .RegisterType<IPacketTranslator<ICharacterCreateData>, CharacterReplyPacketTranslator>()
+                .RegisterType<IPacketTranslator<ILoginRequestGrantedData>, LoginRequestGrantedPacketTranslator>()
+                .RegisterType<IPacketTranslator<ILoginRequestCompletedData>, LoginRequestCompletedPacketTranslator>()
+                .RegisterType<IPacketTranslator<IWarpAgreePacketData>, WarpAgreePacketTranslator>();
         }
     }
 }
