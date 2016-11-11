@@ -4,7 +4,7 @@
 
 namespace EOLib
 {
-    public class Optional<T>
+    public struct Optional<T>
     {
         private static readonly Optional<T> _readOnlyEmpty = new Optional<T>();
         public static Optional<T> Empty { get { return _readOnlyEmpty; } }
@@ -13,13 +13,8 @@ namespace EOLib
 
         public bool HasValue { get; private set; }
 
-        public Optional()
-        {
-            Value = default(T);
-            HasValue = false;
-        }
-
         public Optional(T value)
+            : this()
         {
             Value = value;
             HasValue = true;

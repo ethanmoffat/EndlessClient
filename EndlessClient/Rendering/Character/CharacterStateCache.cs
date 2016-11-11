@@ -50,7 +50,7 @@ namespace EndlessClient.Rendering.Character
 
         public void ClearAll()
         {
-            MainCharacterRenderProperties = null;
+            MainCharacterRenderProperties = Optional<ICharacterRenderProperties>.Empty;
             _characterRenderProperties.Clear();
         }
     }

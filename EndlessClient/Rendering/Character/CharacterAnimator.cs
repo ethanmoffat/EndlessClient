@@ -77,7 +77,7 @@ namespace EndlessClient.Rendering.Character
 
         private void AnimateCharacterWalking(DateTime now)
         {
-            if (_startWalkingTime != null && _startWalkingTime.HasValue &&
+            if (_startWalkingTime.HasValue &&
                 (now - _startWalkingTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
             {
                 var renderProperties = _characterRepository.MainCharacter.RenderProperties;
