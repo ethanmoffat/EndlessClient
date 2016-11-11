@@ -4,6 +4,7 @@
 
 using System;
 using EndlessClient.HUD.Chat;
+using EOLib;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -30,6 +31,7 @@ namespace EndlessClient.UIControls
 
         private string _lastChat;
         private readonly bool _constructed;
+        private Optional<DateTime> _mutedStartTime;
 
         public ChatModePictureBox(IChatModeCalculator chatModeCalculator,
                                   IChatProvider chatProvider,
@@ -41,6 +43,14 @@ namespace EndlessClient.UIControls
 
             _lastChat = "";
             _constructed = true;
+            _mutedStartTime = Optional<DateTime>.Empty;
+        }
+
+        public void SetMuted()
+        {
+            _lastChat = "";
+            _mutedStartTime = DateTime.Now;
+            UpdateSourceRectangleForMode(ChatMode.Muted);
         }
 
         public override void Update(GameTime gameTime)
@@ -48,7 +58,15 @@ namespace EndlessClient.UIControls
             if (!_constructed || !ShouldUpdate())
                 return;
 
-            if (SingleCharTypedOrDeleted())
+            if (_mutedStartTime.HasValue)
+            {
+                if ((DateTime.Now - _mutedStartTime).TotalMinutes > Constants.MuteDefaultTimeMinutes)
+                {
+                    _mutedStartTime = Optional<DateTime>.Empty;
+                    UpdateSourceRectangleForMode(ChatMode.NoText);
+                }
+            }
+            else if (SingleCharTypedOrDeleted())
             {
                 UpdateSourceRectangleForMode(_chatModeCalculator.CalculateMode(_chatProvider.LocalTypedText));
                 _lastChat = _chatProvider.LocalTypedText;

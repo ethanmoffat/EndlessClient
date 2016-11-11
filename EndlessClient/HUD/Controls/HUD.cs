@@ -36,9 +36,7 @@ namespace EndlessClient.HUD.Controls
         private OldEOCharacterStats stats;
         private readonly OldEOOnlineList m_whoIsOnline;
         private readonly OldEOPartyPanel m_party;
-        private OldActiveSpells activeSpells; 
-
-        private Timer m_muteTimer;
+        private OldActiveSpells activeSpells;
 
         private ChatTextBox chatTextBox;
 
@@ -59,13 +57,6 @@ namespace EndlessClient.HUD.Controls
             chatRenderer = new OldChatRenderer();
 
             CreateChatTextbox();
-
-            m_muteTimer = new Timer(s =>
-            {
-                chatTextBox.ToggleTextInputIgnore();
-                //currentChatMode = ChatMode.NoText;
-                m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            }, null, Timeout.Infinite, Timeout.Infinite);
 
             //m_whoIsOnline = new OldEOOnlineList(pnlOnline);
             //m_party = new OldEOPartyPanel(pnlParty);
@@ -184,13 +175,6 @@ namespace EndlessClient.HUD.Controls
             chatRenderer.AddTextToTab(whichTab, who, message, chatIcon, chatColor);
         }
 
-        public void SetMuted()
-        {
-            //currentChatMode = ChatMode.Muted;
-            chatTextBox.ToggleTextInputIgnore();
-            m_muteTimer.Change(Constants.MuteDefaultTimeMinutes*60000, 0);
-        }
-
         public void SetChatText(string text)
         {
             chatTextBox.Text = text;
@@ -276,13 +260,6 @@ namespace EndlessClient.HUD.Controls
 
                 m_expInfo.Close();
                 m_questInfo.Close();
-
-                if (m_muteTimer != null)
-                {
-                    m_muteTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                    m_muteTimer.Dispose();
-                    m_muteTimer = null;
-                }
 
                 if (m_inputListeners.Count > 0)
                 {

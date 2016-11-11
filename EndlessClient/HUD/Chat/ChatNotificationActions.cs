@@ -2,11 +2,14 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Globalization;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Chat;
+using EOLib.Localization;
 
 namespace EndlessClient.HUD.Chat
 {
@@ -14,12 +17,18 @@ namespace EndlessClient.HUD.Chat
     {
         private readonly IChatRepository _chatRepository;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly ILocalizedStringService _localizedStringService;
+        private readonly IStatusLabelSetter _statusLabelSetter;
 
         public ChatNotificationActions(IChatRepository chatRepository,
-                                       IHudControlProvider hudControlProvider)
+                                       IHudControlProvider hudControlProvider,
+                                       ILocalizedStringService localizedStringService,
+                                       IStatusLabelSetter statusLabelSetter)
         {
             _chatRepository = chatRepository;
             _hudControlProvider = hudControlProvider;
+            _localizedStringService = localizedStringService;
+            _statusLabelSetter = statusLabelSetter;
         }
 
         public void NotifyPrivateMessageRecipientNotFound(string recipientName)
@@ -46,7 +55,24 @@ namespace EndlessClient.HUD.Chat
 
         public void NotifyPlayerMutedByAdmin(string adminName)
         {
-            //todo
+            var chatTextBox = _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
+            chatTextBox.Text = string.Empty;
+            chatTextBox.ToggleTextInputIgnore(); //todo: re-enable text box after mute penalty is completed
+
+            var chatMode = _hudControlProvider.GetComponent<ChatModePictureBox>(HudControlIdentifier.ChatModePictureBox);
+            chatMode.SetMuted();
+
+            _chatRepository.LocalTypedText = string.Empty;
+
+            var chatData = new ChatData(_localizedStringService.GetString(EOResourceID.STRING_SERVER),
+                _localizedStringService.GetString(EOResourceID.CHAT_MESSAGE_MUTED_BY) + " " + adminName,
+                ChatIcon.Exclamation,
+                ChatColor.Server);
+            _chatRepository.AllChat[ChatTab.Local].Add(chatData);
+
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION,
+                Constants.MuteDefaultTimeMinutes.ToString(CultureInfo.InvariantCulture),
+                EOResourceID.STATUS_LABEL_MINUTES_MUTED);
         }
     }
 }

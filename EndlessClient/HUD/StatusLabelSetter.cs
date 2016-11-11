@@ -3,8 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib;
-using EOLib.IO.Services;
 using EOLib.Localization;
 
 namespace EndlessClient.HUD
@@ -21,11 +19,20 @@ namespace EndlessClient.HUD
             _localizedStringService = localizedStringService;
         }
 
-        public void SetStatusLabel(EOResourceID type, EOResourceID text, string extra = "")
+        public void SetStatusLabel(EOResourceID type, EOResourceID text, string appended = "")
         {
             CheckStatusLabelType(type);
 
             SetStatusLabelText(_localizedStringService.GetString(type),
+                               _localizedStringService.GetString(text),
+                               appended);
+        }
+
+        public void SetStatusLabel(EOResourceID type, string prepended, EOResourceID text)
+        {
+            CheckStatusLabelType(type);
+            SetStatusLabelText(_localizedStringService.GetString(type),
+                               prepended,
                                _localizedStringService.GetString(text));
         }
 

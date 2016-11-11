@@ -563,15 +563,6 @@ namespace EndlessClient
             OldWorld.Instance.ActiveMapRenderer.RemoveNPCsWhere(x => x.NPC.Data.ID == childNPCID);
         }
 
-        //todo: implement client-side handling that does this in new code
-        private void _playerMuted(string adminName)
-        {
-            string message = OldWorld.GetString(EOResourceID.CHAT_MESSAGE_MUTED_BY) + " " + adminName;
-            m_game.Hud.AddChat(ChatTab.Local, OldWorld.GetString(EOResourceID.STRING_SERVER), message, ChatIcon.Exclamation, ChatColor.Server);
-            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, "" + Constants.MuteDefaultTimeMinutes, EOResourceID.STATUS_LABEL_MINUTES_MUTED);
-            m_game.Hud.SetMuted();
-        }
-
         private void _bankOpen(int gold, int upgrades)
         {
             if (BankAccountDialog.Instance == null) return;
