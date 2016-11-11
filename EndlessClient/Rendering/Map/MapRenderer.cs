@@ -88,7 +88,7 @@ namespace EndlessClient.Rendering.Map
             base.Draw(gameTime);
         }
 
-        public void DrawToSpriteBatch(SpriteBatch spriteBatch)
+        private void DrawToSpriteBatch(SpriteBatch spriteBatch)
         {
             spriteBatch.Begin();
 

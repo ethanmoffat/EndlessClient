@@ -98,7 +98,7 @@ namespace EndlessClient.HUD.Controls
             {
                 {HudControlIdentifier.CurrentKeyStateTracker, CreateCurrentKeyStateTracker()},
 
-                {HudControlIdentifier.MapRenderer, CreateMapRenderer()},
+                {HudControlIdentifier.MapRenderer, _mapRendererFactory.CreateMapRenderer()},
 
                 {HudControlIdentifier.HudBackground, CreateHudBackground()},
 
@@ -138,11 +138,6 @@ namespace EndlessClient.HUD.Controls
             };
 
             return controls;
-        }
-
-        private IMapRenderer CreateMapRenderer()
-        {
-            return _mapRendererFactory.CreateMapRenderer();
         }
 
         private HudBackgroundFrame CreateHudBackground()

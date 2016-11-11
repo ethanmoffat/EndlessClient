@@ -17,6 +17,6 @@ namespace EndlessClient.Rendering.Map
         Roof,
         Unknown,
         OnTop,
-        MainCharacter,
+        MainCharacter
     }
 }

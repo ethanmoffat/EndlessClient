@@ -4,12 +4,10 @@
 
 using System;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Map
 {
     public interface IMapRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable
     {
-        void DrawToSpriteBatch(SpriteBatch spriteBatch);
     }
 }
