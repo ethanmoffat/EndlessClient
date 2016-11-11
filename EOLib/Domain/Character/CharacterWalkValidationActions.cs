@@ -39,18 +39,18 @@ namespace EOLib.Domain.Character
             if (cellState.NPC.HasValue)
                 return mainCharacter.NoWall && IsTileSpecWalkable(cellState.TileSpec);
             if (cellState.Warp.HasValue)
-                return mainCharacter.NoWall && IsWarpWalkable(cellState.Warp.Value);
+                return mainCharacter.NoWall || IsWarpWalkable(cellState.Warp.Value, cellState.TileSpec);
 
             return mainCharacter.NoWall || IsTileSpecWalkable(cellState.TileSpec);
         }
 
-        private bool IsWarpWalkable(IMapWarp warp)
+        private bool IsWarpWalkable(IMapWarp warp, TileSpec tile)
         {
             if (warp.DoorType != DoorSpec.NoDoor)
                 return _currentMapStateProvider.OpenDoors.Any(w => w.X == warp.X && w.Y == warp.Y);
             if (warp.LevelRequirement != 0)
                 return warp.LevelRequirement <= _characterProvider.MainCharacter.Stats[CharacterStat.Level];
-            return true;
+            return IsTileSpecWalkable(tile);
         }
 
 
