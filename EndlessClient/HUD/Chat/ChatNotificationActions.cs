@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Globalization;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
@@ -56,12 +57,13 @@ namespace EndlessClient.HUD.Chat
         public void NotifyPlayerMutedByAdmin(string adminName)
         {
             var chatTextBox = _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
-            chatTextBox.Text = string.Empty;
-            chatTextBox.ToggleTextInputIgnore(); //todo: re-enable text box after mute penalty is completed
-
             var chatMode = _hudControlProvider.GetComponent<ChatModePictureBox>(HudControlIdentifier.ChatModePictureBox);
-            chatMode.SetMuted();
 
+            var endMuteTime = DateTime.Now.AddMinutes(Constants.MuteDefaultTimeMinutes);
+            chatTextBox.SetMuted(endMuteTime);
+            chatMode.SetMuted(endMuteTime);
+
+            chatTextBox.Text = string.Empty;
             _chatRepository.LocalTypedText = string.Empty;
 
             var chatData = new ChatData(_localizedStringService.GetString(EOResourceID.STRING_SERVER),

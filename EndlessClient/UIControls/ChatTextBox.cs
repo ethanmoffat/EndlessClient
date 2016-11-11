@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using EndlessClient.Content;
 using EOLib;
 using Microsoft.Xna.Framework;
@@ -17,6 +18,7 @@ namespace EndlessClient.UIControls
     public class ChatTextBox : XNATextBox
     {
         private bool _ignoreAllInput;
+        private Optional<DateTime> _endMuteTime;
 
         public ChatTextBox(IContentManagerProvider contentManagerProvider)
             : base(new Rectangle(124, 308, 440, 19),
@@ -24,11 +26,24 @@ namespace EndlessClient.UIControls
                 Constants.FontSize08)
         {
             MaxChars = 140;
+            _endMuteTime = Optional<DateTime>.Empty;
         }
 
-        public void ToggleTextInputIgnore()
+        public void SetMuted(DateTime endMuteTime)
         {
-            _ignoreAllInput = !_ignoreAllInput;
+            _ignoreAllInput = true;
+            _endMuteTime = endMuteTime;
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            if (_endMuteTime.HasValue && DateTime.Now > _endMuteTime)
+            {
+                _endMuteTime = Optional<DateTime>.Empty;
+                _ignoreAllInput = false;
+            }
+
+            base.Update(gameTime);
         }
 
         public override void ReceiveTextInput(char inp)

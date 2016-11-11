@@ -31,7 +31,7 @@ namespace EndlessClient.UIControls
 
         private string _lastChat;
         private readonly bool _constructed;
-        private Optional<DateTime> _mutedStartTime;
+        private Optional<DateTime> _endMuteTime;
 
         public ChatModePictureBox(IChatModeCalculator chatModeCalculator,
                                   IChatProvider chatProvider,
@@ -43,13 +43,13 @@ namespace EndlessClient.UIControls
 
             _lastChat = "";
             _constructed = true;
-            _mutedStartTime = Optional<DateTime>.Empty;
+            _endMuteTime = Optional<DateTime>.Empty;
         }
 
-        public void SetMuted()
+        public void SetMuted(DateTime endMuteTime)
         {
             _lastChat = "";
-            _mutedStartTime = DateTime.Now;
+            _endMuteTime = endMuteTime;
             UpdateSourceRectangleForMode(ChatMode.Muted);
         }
 
@@ -58,11 +58,11 @@ namespace EndlessClient.UIControls
             if (!_constructed || !ShouldUpdate())
                 return;
 
-            if (_mutedStartTime.HasValue)
+            if (_endMuteTime.HasValue)
             {
-                if ((DateTime.Now - _mutedStartTime).TotalMinutes > Constants.MuteDefaultTimeMinutes)
+                if (DateTime.Now > _endMuteTime)
                 {
-                    _mutedStartTime = Optional<DateTime>.Empty;
+                    _endMuteTime = Optional<DateTime>.Empty;
                     UpdateSourceRectangleForMode(ChatMode.NoText);
                 }
             }
