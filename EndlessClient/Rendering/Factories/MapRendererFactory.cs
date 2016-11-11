@@ -6,6 +6,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.MapEntityRenderers;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 
@@ -20,6 +21,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRenderUpdateActions _characterRenderUpdateActions;
+        private readonly IConfigurationProvider _configurationProvider;
 
         public MapRendererFactory(IEndlessGameProvider endlessGameProvider,
             IRenderTargetFactory renderTargetFactory,
@@ -27,7 +29,8 @@ namespace EndlessClient.Rendering.Factories
             ICharacterProvider characterProvider,
             ICurrentMapProvider currentMapProvider,
             IMapRenderDistanceCalculator mapRenderDistanceCalculator,
-            ICharacterRenderUpdateActions characterRenderUpdateActions)
+            ICharacterRenderUpdateActions characterRenderUpdateActions,
+            IConfigurationProvider configurationProvider)
         {
             _endlessGameProvider = endlessGameProvider;
             _renderTargetFactory = renderTargetFactory;
@@ -36,6 +39,7 @@ namespace EndlessClient.Rendering.Factories
             _currentMapProvider = currentMapProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRenderUpdateActions = characterRenderUpdateActions;
+            _configurationProvider = configurationProvider;
         }
 
         public IMapRenderer CreateMapRenderer()
@@ -46,7 +50,8 @@ namespace EndlessClient.Rendering.Factories
                                    _characterProvider,
                                    _currentMapProvider,
                                    _mapRenderDistanceCalculator,
-                                   _characterRenderUpdateActions);
+                                   _characterRenderUpdateActions,
+                                   _configurationProvider);
         }
     }
 }

@@ -12,7 +12,6 @@ using EndlessClient.HUD.Panels;
 using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
-using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib.Domain.Character;
