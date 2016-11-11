@@ -82,7 +82,7 @@ namespace EndlessClient.Rendering.Character
                     }
                     _characterRendererRepository.CharacterRenderers.Add(id, renderer);
                 }
-                else if (cachedProperties.Value == actualProperties)
+                else if (cachedProperties.Value != actualProperties)
                 {
                     _characterRendererRepository.CharacterRenderers[id].RenderProperties = actualProperties;
                     _characterStateCache.UpdateCharacterState(id, actualProperties);
