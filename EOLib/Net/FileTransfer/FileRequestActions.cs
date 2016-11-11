@@ -3,10 +3,10 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using EOLib.Domain.Protocol;
 using EOLib.IO;
+using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
@@ -42,21 +42,30 @@ namespace EOLib.Net.FileTransfer
 
         public bool NeedsFileForLogin(InitFileType fileType, short optionalID = 0)
         {
-            if (fileType == InitFileType.Map)
-                return NeedMap(optionalID);
-            
-            return NeedPub(fileType);
+            var expectedChecksum = _numberEncoderService.DecodeNumber(_loginFileChecksumProvider.MapChecksum);
+            var expectedLength = _loginFileChecksumProvider.MapLength;
+
+            return fileType == InitFileType.Map
+                ? NeedMap(optionalID, expectedChecksum, expectedLength)
+                : NeedPub(fileType);
+        }
+
+        public bool NeedsMapForWarp(short mapID, byte[] mapRid, int fileSize)
+        {
+            var expectedChecksum = _numberEncoderService.DecodeNumber(mapRid);
+            return NeedMap(mapID, expectedChecksum, fileSize);
         }
 
         public async Task GetMapFromServer(short mapID)
         {
             var mapFile = await _fileRequestService.RequestMapFile(mapID);
-            _mapFileSaveService.SaveFileToDefaultDirectory(mapFile);
+            SaveAndCacheMapFile(mapID, mapFile);
+        }
 
-            if (_mapFileRepository.MapFiles.ContainsKey(mapID))
-                _mapFileRepository.MapFiles[mapID] = mapFile;
-            else
-                _mapFileRepository.MapFiles.Add(mapID, mapFile);
+        public async Task GetMapForWarp(short mapID)
+        {
+            var mapFile = await _fileRequestService.RequestMapFileForWarp(mapID);
+            SaveAndCacheMapFile(mapID, mapFile);
         }
 
         public async Task GetItemFileFromServer()
@@ -87,19 +96,15 @@ namespace EOLib.Net.FileTransfer
             _pubFileRepository.ECFFile = (ECFFile)classFile;
         }
 
-        private bool NeedMap(short mapID)
+        private bool NeedMap(short mapID, int expectedChecksum, int expectedLength)
         {
-            try
-            {
-                var expectedChecksum = _numberEncoderService.DecodeNumber(_loginFileChecksumProvider.MapChecksum);
-                var expectedLength = _loginFileChecksumProvider.MapLength;
+            if (!_mapFileRepository.MapFiles.ContainsKey(mapID))
+                return true; //map with that ID is not in the cache, need to get it from the server
 
-                var actualChecksum = _numberEncoderService.DecodeNumber(_mapFileRepository.MapFiles[mapID].Properties.Checksum);
-                var actualLength = _mapFileRepository.MapFiles[mapID].Properties.FileSize;
+            var actualChecksum = _numberEncoderService.DecodeNumber(_mapFileRepository.MapFiles[mapID].Properties.Checksum);
+            var actualLength = _mapFileRepository.MapFiles[mapID].Properties.FileSize;
 
-                return expectedChecksum != actualChecksum || expectedLength != actualLength;
-            }
-            catch (KeyNotFoundException) { return true; } //map id is not in the map file repository
+            return expectedChecksum != actualChecksum || expectedLength != actualLength;
         }
 
         private bool NeedPub(InitFileType fileType)
@@ -126,13 +131,27 @@ namespace EOLib.Net.FileTransfer
                     throw new ArgumentOutOfRangeException("fileType", fileType, null);
             }
         }
+
+        private void SaveAndCacheMapFile(short mapID, IMapFile mapFile)
+        {
+            _mapFileSaveService.SaveFileToDefaultDirectory(mapFile);
+
+            if (_mapFileRepository.MapFiles.ContainsKey(mapID))
+                _mapFileRepository.MapFiles[mapID] = mapFile;
+            else
+                _mapFileRepository.MapFiles.Add(mapID, mapFile);
+        }
     }
 
     public interface IFileRequestActions
     {
         bool NeedsFileForLogin(InitFileType fileType, short optionalID = 0);
 
+        bool NeedsMapForWarp(short mapID, byte[] mapRid, int fileSize);
+
         Task GetMapFromServer(short mapID);
+
+        Task GetMapForWarp(short mapID);
 
         Task GetItemFileFromServer();
 

@@ -244,42 +244,6 @@ namespace EndlessClient
             return true;
         }
 
-        public bool CheckMap(short mapID, byte[] mapRid, int mapFileSize)
-        {
-            NeedMap = -1;
-
-            string mapFile = string.Format(EOLib.IO.Map.MapFile.MapFileFormatString, mapID);
-            if (!Directory.Exists("maps") || !File.Exists(mapFile))
-            {
-                Directory.CreateDirectory("maps");
-                NeedMap = mapID;
-                return false;
-            }
-
-            //try to load the map if it isn't cached. on failure, set needmap
-            if (!MapCache.ContainsKey(mapID))
-                NeedMap = _tryLoadMap(mapID, true) ? -1 : mapID;
-
-            //on success of file load, check the rid and the size of the file
-            if (MapCache.ContainsKey(mapID))
-            {
-                for (int i = 0; i < 4; ++i)
-                {
-                    if(MapCache[mapID].Properties.Checksum[i] != mapRid[i])
-                    {
-                        NeedMap = mapID;
-                        break;
-                    }
-                }
-
-                if (NeedMap == -1 && MapCache[mapID].Properties.FileSize != mapFileSize)
-                    NeedMap = mapID;
-            }
-
-            //return true if the map is not needed
-            return NeedMap == -1;
-        }
-
         public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<OldMapItem> items)
         {
             if (!_tryLoadMap(mapID, false))

@@ -285,6 +285,7 @@
     <Compile Include="PacketHandlers\Chat\PublicChatHandler.cs" />
     <Compile Include="PacketHandlers\PlayerDirectionHandler.cs" />
     <Compile Include="PacketHandlers\PlayerWalkHandler.cs" />
+    <Compile Include="PacketHandlers\StartPlayerWarpHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>

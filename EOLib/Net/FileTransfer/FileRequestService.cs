@@ -34,21 +34,13 @@ namespace EOLib.Net.FileTransfer
                 .AddChar((byte) InitFileType.Map)
                 .Build();
 
-            var response = await _packetSendService.SendEncodedPacketAndWaitAsync(request);
-            if (!PacketIsValid(response))
-                throw new EmptyPacketReceivedException();
+            return await GetMapFile(request, mapID);
+        }
 
-            var fileType = (InitReply)response.ReadChar();
-            if (fileType != InitReply.MapFile)
-                throw new MalformedPacketException("Invalid file type " + fileType + " when requesting a map file", response);
-
-            var fileData = response.ReadBytes(response.Length - response.ReadPosition);
-
-            var mapFile = _mapFileSerializer
-                .DeserializeFromByteArray(fileData.ToArray())
-                .WithMapID(mapID);
-
-            return mapFile;
+        public async Task<IMapFile> RequestMapFileForWarp(short mapID)
+        {
+            var request = new PacketBuilder(PacketFamily.Warp, PacketAction.Take).Build();
+            return await GetMapFile(request, mapID);
         }
 
         public async Task<IPubFile> RequestFile(InitFileType fileType)
@@ -84,7 +76,26 @@ namespace EOLib.Net.FileTransfer
             return retFile;
         }
 
-        private bool PacketIsValid(IPacket packet)
+        private async Task<IMapFile> GetMapFile(IPacket request, int mapID)
+        {
+            var response = await _packetSendService.SendEncodedPacketAndWaitAsync(request);
+            if (!PacketIsValid(response))
+                throw new EmptyPacketReceivedException();
+
+            var fileType = (InitReply)response.ReadChar();
+            if (fileType != InitReply.MapFile)
+                throw new MalformedPacketException("Invalid file type " + fileType + " when requesting a map file", response);
+
+            var fileData = response.ReadBytes(response.Length - response.ReadPosition);
+
+            var mapFile = _mapFileSerializer
+                .DeserializeFromByteArray(fileData.ToArray())
+                .WithMapID(mapID);
+
+            return mapFile;
+        }
+
+        private static bool PacketIsValid(IPacket packet)
         {
             return packet.Family == PacketFamily.Init && packet.Action == PacketAction.Init;
         }
@@ -93,6 +104,8 @@ namespace EOLib.Net.FileTransfer
     public interface IFileRequestService
     {
         Task<IMapFile> RequestMapFile(short mapID);
+
+        Task<IMapFile> RequestMapFileForWarp(short mapID);
 
         Task<IPubFile> RequestFile(InitFileType fileType);
     }

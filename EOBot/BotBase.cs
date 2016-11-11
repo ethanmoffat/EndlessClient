@@ -56,18 +56,19 @@ namespace EOBot
                 throw new ArgumentException(string.Format("Bot {0}: Unable to connect to server! Host={1} Port={2}", _index, _host, _port));
             _api = new PacketAPI(_client);
 
-            InitData data;
-            if (!_api.Initialize(0, 0, 28, new HDSerialNumberService().GetHDSerialNumber(), out data))
-                throw new TimeoutException(string.Format("Bot {0}: Failed initialization handshake with server!", _index));
-            _client.SetInitData(data);
+            //todo: adapt to new networking architecture
+            //InitData data;
+            //if (!_api.Initialize(0, 0, 28, new HDSerialNumberService().GetHDSerialNumber(), out data))
+            //    throw new TimeoutException(string.Format("Bot {0}: Failed initialization handshake with server!", _index));
+            //_client.SetInitData(data);
 
-            if (!_api.ConfirmInit(data.emulti_e, data.emulti_d, data.clientID))
-                throw new TimeoutException(string.Format("Bot {0}: Failed initialization handshake with server!", _index));
+            //if (!_api.ConfirmInit(data.emulti_e, data.emulti_d, data.clientID))
+            //    throw new TimeoutException(string.Format("Bot {0}: Failed initialization handshake with server!", _index));
 
-            if (!_api.Initialized || !_client.ConnectedAndInitialized || data.ServerResponse != InitReply.INIT_OK)
-                throw new InvalidOperationException(string.Format("Bot {0}: Invalid response from server or connection failed! Must receive an OK reply.", _index));
+            //if (!_api.Initialized || !_client.ConnectedAndInitialized || data.ServerResponse != InitReply.INIT_OK)
+            //    throw new InvalidOperationException(string.Format("Bot {0}: Invalid response from server or connection failed! Must receive an OK reply.", _index));
 
-            _initialized = true;
+            //_initialized = true;
         }
 
         /// <summary>

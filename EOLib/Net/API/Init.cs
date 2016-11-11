@@ -6,10 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using EOLib.Domain.Protocol;
-using EOLib.Localization;
 using EOLib.Net.Handlers;
-using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Net.API
 {
@@ -129,62 +126,6 @@ namespace EOLib.Net.API
                 m_init_responseEvent.Dispose();
                 m_init_responseEvent = null;
             }
-        }
-
-        public bool Initialize(byte versionMajor, byte versionMinor, byte versionBuild, string hdSerialNum, out InitData data)
-        {
-            return Initialize(new[] {versionMajor, versionMinor, versionBuild}, hdSerialNum, out data);
-        }
-
-        private bool Initialize(byte[] versionNumber, string hdSerialNum, out InitData data)
-        {
-            Initialized = false;
-            data = new InitData();
-            if (!m_client.ConnectedAndInitialized || versionNumber.Length != 3 || hdSerialNum.Length == 0)
-            {
-                return false;
-            }
-
-            OldPacket builder = new OldPacket(PacketFamily.Init, PacketAction.Init);
-
-            var hashService = new HashService();
-            builder.AddThree(hashService.StupidHash(new Random().Next(6, 12)));
-
-            builder.AddChar(versionNumber[0]);
-            builder.AddChar(versionNumber[1]);
-            builder.AddChar(versionNumber[2]); //client version
-            builder.AddChar(112); //unknown
-            builder.AddChar((byte)hdSerialNum.Length);
-            builder.AddString(hdSerialNum);
-
-            if (!m_client.SendRaw(builder))
-                return false;
-
-            if (!m_init_responseEvent.WaitOne(Constants.ResponseTimeout))
-                return false;
-
-            data = m_init_initData;
-
-            return true;
-        }
-
-        public bool RequestFile(InitFileType file, short mapID = -1)
-        {
-            if (!m_client.ConnectedAndInitialized || !Initialized)
-                return false;
-
-            if (file == InitFileType.Map && mapID <= 0)
-                return false;
-
-            OldPacket builder = new OldPacket(PacketFamily.Welcome, PacketAction.Agree);
-            builder.AddChar((byte)file);
-            m_client.ExpectingFile = true;
-            m_init_requestedMap = mapID;
-
-            if (!m_client.SendPacket(builder) || !m_init_responseEvent.WaitOne(Constants.ResponseFileTimeout))
-                return false;
-
-            return true;
         }
 
         private bool RequestWarpMap(int MapID)
@@ -384,38 +325,6 @@ namespace EOLib.Net.API
                     m_init_onlinePlayerList.Add(new OnlineEntry(name, "", "", 0, PaperdollIconType.Normal));
                 }
             }
-        }
-
-        public DialogResourceID GetInitResponseMessage(out string extra)
-        {
-            DialogResourceID msg;
-
-            switch (m_init_initData.ServerResponse)
-            {
-                case InitReply.INIT_BANNED:
-                    if (m_init_initData.BanType == InitBanType.INIT_BAN_TEMP)
-                    {
-                        msg = DialogResourceID.CONNECTION_IP_BAN_TEMP;
-                        extra = " " + m_init_initData.BanMinsLeft + " minutes.";
-                    }
-                    else
-                    {
-                        msg = DialogResourceID.CONNECTION_IP_BAN_PERM;
-                        extra = "";
-                    }
-
-                    break;
-                case InitReply.INIT_OUT_OF_DATE:
-                    msg = DialogResourceID.CONNECTION_CLIENT_OUT_OF_DATE;
-                    extra = " 0.000.0" + m_init_initData.RequiredVersionNumber;
-                    break;
-                default:
-                    msg = DialogResourceID.CONNECTION_SERVER_NOT_FOUND;
-                    extra = "";
-                    break;
-            }
-
-            return msg;
         }
     }
 }
