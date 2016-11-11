@@ -13,7 +13,7 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
-    public class StartPlayerWarpHandler : InGameOnlyPacketHandler
+    public class BeginPlayerWarpHandler : InGameOnlyPacketHandler
     {
         private const int WARP_SAME_MAP = 1, WARP_NEW_MAP = 2;
 
@@ -25,7 +25,7 @@ namespace EOLib.PacketHandlers
 
         public override PacketAction Action { get { return PacketAction.Request; } }
 
-        public StartPlayerWarpHandler(IPlayerInfoProvider playerInfoProvider,
+        public BeginPlayerWarpHandler(IPlayerInfoProvider playerInfoProvider,
                                       IPacketSendService packetSendService,
                                       IFileRequestActions fileRequestActions,
                                       IMapFileLoadActions mapFileLoadActions)
