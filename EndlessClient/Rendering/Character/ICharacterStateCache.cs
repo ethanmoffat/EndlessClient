@@ -22,6 +22,8 @@ namespace EndlessClient.Rendering.Character
 
         void RemoveCharacterState(int id);
 
-        void ClearAll();
+        void ClearAllOtherCharacterStates();
+
+        void Reset();
     }
 }

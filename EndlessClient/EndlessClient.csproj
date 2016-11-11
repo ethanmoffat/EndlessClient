@@ -178,6 +178,7 @@
     <Compile Include="Rendering\MapEntityRenderers\IMapEntityRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\IMapEntityRendererProvider.cs" />
     <Compile Include="Rendering\Map\IMapRenderer.cs" />
+    <Compile Include="Rendering\Map\MapChangedActions.cs" />
     <Compile Include="Rendering\Map\MapEntityRendererProvider.cs" />
     <Compile Include="Rendering\Map\MapItemGraphicProvider.cs" />
     <Compile Include="Rendering\MapEntityRenderers\MapObjectLayerRenderer.cs" />

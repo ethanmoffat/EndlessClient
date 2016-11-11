@@ -138,7 +138,7 @@ namespace EndlessClient.UIControls
             try
             {
                 _characterRendererResetter.ResetRenderers();
-                _characterStateCache.ClearAll();
+                _characterStateCache.Reset();
 
                 await _loginController.LoginToCharacter(_character);
             }

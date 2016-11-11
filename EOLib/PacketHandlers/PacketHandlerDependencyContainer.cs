@@ -14,12 +14,17 @@ namespace EOLib.PacketHandlers
     {
         public void RegisterDependencies(IUnityContainer container)
         {
-            container.RegisterVaried<IPacketHandler, ConnectionPlayerHandler>()
+            //connection ping - tells server to keep client alive, update network sequence numbers
+            container.RegisterVaried<IPacketHandler, ConnectionPlayerHandler>();
+
+            //commands
+            container
                 .RegisterVaried<IPacketHandler, PingResponseHandler>()
                 .RegisterVaried<IPacketHandler, FindCommandPlayerNotFoundHandler>()
                 .RegisterVaried<IPacketHandler, FindCommandPlayerSameMapHandler>()
                 .RegisterVaried<IPacketHandler, FindCommandPlayerDifferentMapHandler>();
 
+            //chat
             container.RegisterVaried<IPacketHandler, PublicChatHandler>()
                 .RegisterVaried<IPacketHandler, GroupChatHandler>()
                 .RegisterVaried<IPacketHandler, PrivateMessageTargetNotFound>()
@@ -31,11 +36,14 @@ namespace EOLib.PacketHandlers
                 .RegisterVaried<IPacketHandler, AnnounceMessageHandler>()
                 .RegisterVaried<IPacketHandler, MuteHandler>();
 
+            //player actions
             container.RegisterVaried<IPacketHandler, PlayerDirectionHandler>()
                 .RegisterVaried<IPacketHandler, PlayerWalkHandler>()
                 .RegisterVaried<IPacketHandler, MainPlayerWalkHandler>();
 
-            container.RegisterVaried<IPacketHandler, BeginPlayerWarpHandler>();
+            //warps
+            container.RegisterVaried<IPacketHandler, BeginPlayerWarpHandler>()
+                .RegisterVaried<IPacketHandler, EndPlayerWarpHandler>();
         }
     }
 }

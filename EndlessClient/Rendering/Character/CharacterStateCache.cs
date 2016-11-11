@@ -48,10 +48,15 @@ namespace EndlessClient.Rendering.Character
             _characterRenderProperties.Remove(id);
         }
 
-        public void ClearAll()
+        public void ClearAllOtherCharacterStates()
+        {
+            _characterRenderProperties.Clear();
+        }
+
+        public void Reset()
         {
             MainCharacterRenderProperties = Optional<ICharacterRenderProperties>.Empty;
-            _characterRenderProperties.Clear();
+            ClearAllOtherCharacterStates();
         }
     }
 }

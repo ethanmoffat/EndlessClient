@@ -34,8 +34,6 @@ namespace EndlessClient
 
         public void AssignCallbacks()
         {
-            m_packetAPI.OnWarpAgree += OldWorld.Instance.WarpAgreeAction;
-
             m_packetAPI.OnPlayerEnterMap += _playerEnterMap;
             m_packetAPI.OnNPCEnterMap += _npcEnterMap;
 

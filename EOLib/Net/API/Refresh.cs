@@ -2,10 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
-using System.Collections.Generic;
-using EOLib.Domain.Character;
-using EOLib.Domain.Map;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
@@ -30,48 +26,48 @@ namespace EOLib.Net.API
 
         private void _handleRefreshReply(OldPacket pkt)
         {
-            if (OnWarpAgree == null)
-                return;
+            //if (OnWarpAgree == null)
+            //    return;
 
-            byte numOtherChars = pkt.GetChar();
-            if (pkt.GetByte() != 255)
-                return;
+            //byte numOtherChars = pkt.GetChar();
+            //if (pkt.GetByte() != 255)
+            //    return;
 
-            List<CharacterData> otherChars = new List<CharacterData>(numOtherChars);
-            for (int i = 0; i < numOtherChars; ++i)
-            {
-                CharacterData data = new CharacterData(pkt);
-                otherChars.Add(data);
-                if (pkt.GetByte() != 255)
-                    return;
-            }
+            //List<CharacterData> otherChars = new List<CharacterData>(numOtherChars);
+            //for (int i = 0; i < numOtherChars; ++i)
+            //{
+            //    CharacterData data = new CharacterData(pkt);
+            //    otherChars.Add(data);
+            //    if (pkt.GetByte() != 255)
+            //        return;
+            //}
 
-            List<NPCData> otherNPCs = new List<NPCData>();
-            while (pkt.PeekByte() != 255)
-            {
-                NPCData newGuy = new NPCData(pkt);
-                otherNPCs.Add(newGuy);
-            }
-            pkt.GetByte();
+            //List<NPCData> otherNPCs = new List<NPCData>();
+            //while (pkt.PeekByte() != 255)
+            //{
+            //    NPCData newGuy = new NPCData(pkt);
+            //    otherNPCs.Add(newGuy);
+            //}
+            //pkt.GetByte();
 
-            List<OldMapItem> mapItems = new List<OldMapItem>();
-            while (pkt.ReadPos < pkt.Length)
-            {
-                mapItems.Add(new OldMapItem
-                {
-                    UniqueID = pkt.GetShort(),
-                    ItemID = pkt.GetShort(),
-                    X = pkt.GetChar(),
-                    Y = pkt.GetChar(),
-                    Amount = pkt.GetThree(),
-                    //turn off drop protection for items coming into view - server will validate
-                    DropTime = DateTime.Now.AddSeconds(-5),
-                    IsNPCDrop = false,
-                    OwningPlayerID = -1
-                });
-            }
+            //List<OldMapItem> mapItems = new List<OldMapItem>();
+            //while (pkt.ReadPos < pkt.Length)
+            //{
+            //    mapItems.Add(new OldMapItem
+            //    {
+            //        UniqueID = pkt.GetShort(),
+            //        ItemID = pkt.GetShort(),
+            //        X = pkt.GetChar(),
+            //        Y = pkt.GetChar(),
+            //        Amount = pkt.GetThree(),
+            //        //turn off drop protection for items coming into view - server will validate
+            //        DropTime = DateTime.Now.AddSeconds(-5),
+            //        IsNPCDrop = false,
+            //        OwningPlayerID = -1
+            //    });
+            //}
 
-            OnWarpAgree(-1, WarpAnimation.None, otherChars, otherNPCs, mapItems);
+            //OnWarpAgree(-1, WarpAnimation.None, otherChars, otherNPCs, mapItems);
         }
     }
 }

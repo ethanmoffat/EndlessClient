@@ -103,6 +103,7 @@
     <Compile Include="Domain\Map\ICurrentMapProvider.cs" />
     <Compile Include="Domain\Map\IMapCellState.cs" />
     <Compile Include="Domain\Map\IMapCellStateProvider.cs" />
+    <Compile Include="Domain\Map\IMapChangedNotifier.cs" />
     <Compile Include="Domain\Map\IMapChest.cs" />
     <Compile Include="Domain\Map\IMapItem.cs" />
     <Compile Include="Domain\Map\IMapSign.cs" />
@@ -200,7 +201,6 @@
     <Compile Include="Net\API\Spell.cs" />
     <Compile Include="Net\API\StatSkill.cs" />
     <Compile Include="Net\API\Trade.cs" />
-    <Compile Include="Net\API\Warp.cs" />
     <Compile Include="Net\API\Welcome.cs" />
     <Compile Include="Net\Communication\AsyncSocket.cs" />
     <Compile Include="Net\ClientBase.cs" />
@@ -244,6 +244,7 @@
     <Compile Include="PacketHandlers\Commands\FindCommandPlayerNotFoundHandler.cs" />
     <Compile Include="PacketHandlers\Commands\FindCommandPlayerSameMapHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GroupChatHandler.cs" />
+    <Compile Include="PacketHandlers\EndPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\PacketHandlerDependencyContainer.cs" />
     <Compile Include="PacketHandlers\Commands\PingResponseHandler.cs" />
