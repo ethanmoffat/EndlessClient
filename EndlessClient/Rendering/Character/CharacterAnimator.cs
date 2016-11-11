@@ -95,16 +95,18 @@ namespace EndlessClient.Rendering.Character
                 if (pair.StartWalkingTime.HasValue &&
                     (now - pair.StartWalkingTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
                 {
-                    var renderProperties = _currentMapStateRepository.Characters.Single(x => x.ID == pair.ID).RenderProperties;
+                    var currentCharacter = _currentMapStateRepository.Characters.Single(x => x.ID == pair.ID);
+
+                    var renderProperties = currentCharacter.RenderProperties;
                     var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties, now);
 
                     pair.UpdateStartWalkingTime(GetUpdatedStartWalkingTime(now, nextFrameRenderProperties));
                     if (!pair.StartWalkingTime.HasValue)
                         playersDoneWalking.Add(pair);
 
-                    var nextFrameCharacter = _currentMapStateRepository.Characters[pair.ID];
-                    nextFrameCharacter = nextFrameCharacter.WithRenderProperties(nextFrameRenderProperties);
-                    _currentMapStateRepository.Characters[pair.ID] = nextFrameCharacter;
+                    var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);
+                    _currentMapStateRepository.Characters.Remove(currentCharacter);
+                    _currentMapStateRepository.Characters.Add(nextFrameCharacter);
                 }
             }
 
