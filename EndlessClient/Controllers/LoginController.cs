@@ -108,7 +108,7 @@ namespace EndlessClient.Controllers
 
                 await InitialDelayInReleaseMode();
 
-                if (unableToLoadMap || _fileRequestActions.NeedsFile(InitFileType.Map, _currentMapStateProvider.CurrentMapID))
+                if (unableToLoadMap || _fileRequestActions.NeedsFileForLogin(InitFileType.Map, _currentMapStateProvider.CurrentMapID))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Map);
                     if (!await SafeGetFile(async () => await _fileRequestActions.GetMapFromServer(_currentMapStateProvider.CurrentMapID)))
@@ -116,7 +116,7 @@ namespace EndlessClient.Controllers
                     await Task.Delay(1000);
                 }
 
-                if (_fileRequestActions.NeedsFile(InitFileType.Item))
+                if (_fileRequestActions.NeedsFileForLogin(InitFileType.Item))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Item);
                     if (!await SafeGetFile(_fileRequestActions.GetItemFileFromServer))
@@ -124,7 +124,7 @@ namespace EndlessClient.Controllers
                     await Task.Delay(1000);
                 }
 
-                if (_fileRequestActions.NeedsFile(InitFileType.Npc))
+                if (_fileRequestActions.NeedsFileForLogin(InitFileType.Npc))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.NPC);
                     if (!await SafeGetFile(_fileRequestActions.GetNPCFileFromServer))
@@ -132,7 +132,7 @@ namespace EndlessClient.Controllers
                     await Task.Delay(1000);
                 }
 
-                if (_fileRequestActions.NeedsFile(InitFileType.Spell))
+                if (_fileRequestActions.NeedsFileForLogin(InitFileType.Spell))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Spell);
                     if (!await SafeGetFile(_fileRequestActions.GetSpellFileFromServer))
@@ -140,7 +140,7 @@ namespace EndlessClient.Controllers
                     await Task.Delay(1000);
                 }
 
-                if (_fileRequestActions.NeedsFile(InitFileType.Class))
+                if (_fileRequestActions.NeedsFileForLogin(InitFileType.Class))
                 {
                     gameLoadingDialog.SetState(GameLoadingDialogState.Class);
                     if (!await SafeGetFile(_fileRequestActions.GetClassFileFromServer))

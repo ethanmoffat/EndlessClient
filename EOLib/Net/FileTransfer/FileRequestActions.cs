@@ -40,7 +40,7 @@ namespace EOLib.Net.FileTransfer
             _mapFileRepository = mapFileRepository;
         }
 
-        public bool NeedsFile(InitFileType fileType, short optionalID = 0)
+        public bool NeedsFileForLogin(InitFileType fileType, short optionalID = 0)
         {
             if (fileType == InitFileType.Map)
                 return NeedMap(optionalID);
@@ -130,7 +130,7 @@ namespace EOLib.Net.FileTransfer
 
     public interface IFileRequestActions
     {
-        bool NeedsFile(InitFileType fileType, short optionalID = 0);
+        bool NeedsFileForLogin(InitFileType fileType, short optionalID = 0);
 
         Task GetMapFromServer(short mapID);
 
