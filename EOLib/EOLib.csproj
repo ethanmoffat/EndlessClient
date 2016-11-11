@@ -155,7 +155,7 @@
     <Compile Include="Domain\ResetStateAction.cs" />
     <Compile Include="EODirection.cs" />
     <Compile Include="IResettable.cs" />
-    <Compile Include="Domain\Character\WarpAnimation.cs" />
+    <Compile Include="Domain\Map\WarpAnimation.cs" />
     <Compile Include="Net\Builders\ChatPacketBuilder.cs" />
     <Compile Include="Net\Builders\IChatPacketBuilder.cs" />
     <Compile Include="Net\Communication\ISafeNetworkOperation.cs" />
