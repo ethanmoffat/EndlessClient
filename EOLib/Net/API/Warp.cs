@@ -4,19 +4,12 @@
 
 using System;
 using System.Collections.Generic;
+using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-    public enum WarpAnimation
-    {
-        None,
-        Scroll,
-        Admin,
-        Invalid = 255
-    }
-
     partial class PacketAPI
     {
         /// <summary>

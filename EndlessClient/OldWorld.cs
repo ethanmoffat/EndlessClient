@@ -10,6 +10,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering;
 using EOLib.Config;
+using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
