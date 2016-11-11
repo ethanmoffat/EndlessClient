@@ -23,17 +23,6 @@ namespace EndlessClient.Rendering.Map
     {
         private const double TRANSITION_TIME_MS = 125.0;
 
-        private static readonly List<MapRenderLayer> _possibleLayers;
-
-        static MapRenderer()
-        {
-            _possibleLayers = Enum.GetValues(typeof(MapRenderLayer))
-                                  .OfType<MapRenderLayer>()
-                                  .ToList();
-        }
-
-        private MapTransitionState _mapTransitionState = MapTransitionState.Default;
-
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly IMapEntityRendererProvider _mapEntityRendererProvider;
         private readonly ICharacterProvider _characterProvider;
@@ -44,6 +33,7 @@ namespace EndlessClient.Rendering.Map
 
         private RenderTarget2D _mapAbovePlayer, _mapBelowPlayer;
         private SpriteBatch _sb;
+        private MapTransitionState _mapTransitionState = MapTransitionState.Default;
 
         public MapRenderer(IEndlessGame endlessGame,
                            IRenderTargetFactory renderTargetFactory,
@@ -66,9 +56,6 @@ namespace EndlessClient.Rendering.Map
 
         public override void Initialize()
         {
-            if (_mapEntityRendererProvider.MapEntityRenderers.Count != _possibleLayers.Count)
-                throw new InvalidOperationException("A map entity renderer implementation is missing!");
-
             _mapAbovePlayer = _renderTargetFactory.CreateRenderTarget();
             _mapBelowPlayer = _renderTargetFactory.CreateRenderTarget();
             _sb = new SpriteBatch(Game.GraphicsDevice);
