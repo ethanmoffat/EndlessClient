@@ -114,6 +114,7 @@
     <Compile Include="Domain\Map\MapNPC.cs" />
     <Compile Include="Domain\Map\MapSign.cs" />
     <Compile Include="Domain\Map\MapWarp.cs" />
+    <Compile Include="Domain\Map\WarpAgreePacketData.cs" />
     <Compile Include="Domain\NPC\OldNPC.cs" />
     <Compile Include="Domain\Character\AdminLevel.cs" />
     <Compile Include="Domain\Character\CharacterCreateData.cs" />
@@ -219,6 +220,7 @@
     <Compile Include="Net\EmptyPacketReceivedException.cs" />
     <Compile Include="Net\Handlers\DefaultAsyncPacketHandler.cs" />
     <Compile Include="Net\Handlers\InGameOnlyPacketHandler.cs" />
+    <Compile Include="Net\Translators\WarpAgreePacketTranslator.cs" />
     <Compile Include="PacketHandlers\Chat\AnnounceMessageHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GlobalMessageHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GuildMessageHandler.cs" />
