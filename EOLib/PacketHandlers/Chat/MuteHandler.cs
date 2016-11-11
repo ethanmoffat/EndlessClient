@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Collections.Generic;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Net;
@@ -11,17 +12,17 @@ namespace EOLib.PacketHandlers.Chat
 {
     public class MuteHandler : InGameOnlyPacketHandler
     {
-        private readonly ChatEventManager _chatEventManager;
+        private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
 
         public override PacketFamily Family { get { return PacketFamily.Talk; } }
 
         public override PacketAction Action { get { return PacketAction.Spec; } }
 
         public MuteHandler(IPlayerInfoProvider playerInfoProvider,
-                           ChatEventManager chatEventManager)
+                           IEnumerable<IChatEventNotifier> chatEventNotifiers)
             : base(playerInfoProvider)
         {
-            _chatEventManager = chatEventManager;
+            _chatEventNotifiers = chatEventNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -29,7 +30,8 @@ namespace EOLib.PacketHandlers.Chat
             var adminName = packet.ReadEndString();
             adminName = char.ToUpper(adminName[0]) + adminName.Substring(1).ToLower();
 
-            _chatEventManager.FirePlayerMuted(adminName);
+            foreach (var notifier in _chatEventNotifiers)
+                notifier.NotifyPlayerMutedByAdmin(adminName);
 
             return true;
         }

@@ -23,6 +23,7 @@ using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib.DependencyInjection;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using Microsoft.Practices.Unity;
 using XNAControls;
@@ -61,7 +62,8 @@ namespace EndlessClient
 
             //notifiers
             container.RegisterVaried<IOtherCharacterAnimationNotifier, CharacterAnimationActions>()
-                .RegisterVaried<IMapChangedNotifier, MapChangedActions>();
+                .RegisterVaried<IMapChangedNotifier, MapChangedActions>()
+                .RegisterVaried<IChatEventNotifier, ChatNotificationActions>();
 
             //provider/repository
             container.RegisterInstance<IGameStateProvider, GameStateRepository>()

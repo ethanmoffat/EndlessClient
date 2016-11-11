@@ -61,8 +61,7 @@ namespace EOLib.Domain
                 .RegisterInstance<IChatProvider, ChatRepository>()
                 .RegisterType<IChatActions, ChatActions>()
                 .RegisterType<ILocalCommandHandler, LocalCommandHandler>()
-                .RegisterType<IChatTypeCalculator, ChatTypeCalculator>()
-                .RegisterInstance<ChatEventManager>();
+                .RegisterType<IChatTypeCalculator, ChatTypeCalculator>();
 
             container.RegisterVaried<IPlayerCommand, NoWallCommand>()
                 .RegisterVaried<IPlayerCommand, LocCommand>()

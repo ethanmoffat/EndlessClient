@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Collections.Generic;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Localization;
@@ -16,7 +17,7 @@ namespace EOLib.PacketHandlers.Chat
 
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringService _localizedStringService;
-        private readonly ChatEventManager _chatEventManager;
+        private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
 
         public override PacketFamily Family { get { return PacketFamily.Talk; } }
 
@@ -25,12 +26,12 @@ namespace EOLib.PacketHandlers.Chat
         public PrivateMessageTargetNotFound(IPlayerInfoProvider playerInfoProvider,
                                             IChatRepository chatRepository,
                                             ILocalizedStringService localizedStringService,
-                                            ChatEventManager chatEventManager)
+                                            IEnumerable<IChatEventNotifier> chatEventNotifiers)
             : base(playerInfoProvider)
         {
             _chatRepository = chatRepository;
             _localizedStringService = localizedStringService;
-            _chatEventManager = chatEventManager;
+            _chatEventNotifiers = chatEventNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -46,7 +47,9 @@ namespace EOLib.PacketHandlers.Chat
 
             var chatData = new ChatData(string.Empty, message, ChatIcon.Error, ChatColor.Error);
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
-            _chatEventManager.FireChatPMTargetNotFound(from);
+
+            foreach (var notifier in _chatEventNotifiers)
+                notifier.NotifyPrivateMessageRecipientNotFound(from);
 
             return true;
         }

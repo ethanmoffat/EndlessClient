@@ -23,9 +23,8 @@ namespace EndlessClient.HUD.Panels
     public class ChatPanel : XNAPanel, IHudPanel
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly ChatEventManager _chatEventManager;
         private readonly IChatRenderableGenerator _chatRenderableGenerator;
-        private readonly IChatRepository _chatRepository;
+        private readonly IChatProvider _chatProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly SpriteFont _chatFont;
 
@@ -51,21 +50,17 @@ namespace EndlessClient.HUD.Panels
         public ChatTab CurrentTab { get; private set; }
 
         public ChatPanel(INativeGraphicsManager nativeGraphicsManager,
-                         ChatEventManager chatEventManager,
                          IChatRenderableGenerator chatRenderableGenerator,
-                         IChatRepository chatRepository,
+                         IChatProvider chatProvider,
                          IHudControlProvider hudControlProvider,
                          SpriteFont chatFont)
             : base(new Rectangle(102, 330, 1, 1))
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatRenderableGenerator = chatRenderableGenerator;
-            _chatRepository = chatRepository;
+            _chatProvider = chatProvider;
             _hudControlProvider = hudControlProvider;
             _chatFont = chatFont;
-
-            _chatEventManager = chatEventManager;
-            _chatEventManager.ChatPMTargetNotFound += HandleChatTargetNotFound;
 
             //abs coordiantes: 568 309
             _scrollBar = new ScrollBar(this, new Vector2(467, 2), new Vector2(16, 97), ScrollBarColors.LightOnMed, _nativeGraphicsManager)
@@ -149,6 +144,19 @@ namespace EndlessClient.HUD.Panels
             }
         }
 
+        public void ClosePMTab(ChatTab whichTab)
+        {
+            if (whichTab == ChatTab.Private1)
+                _privateChat1Shown = false;
+            else if (whichTab == ChatTab.Private2)
+                _privateChat2Shown = false;
+            else
+                throw new ArgumentOutOfRangeException("whichTab", whichTab, "whichTab should be Private1 or Private2");
+
+            _tabLabels[whichTab].Text = "";
+            SelectTab(ChatTab.Local);
+        }
+
         public override void Update(GameTime gameTime)
         {
             if (!_constructed)
@@ -157,7 +165,7 @@ namespace EndlessClient.HUD.Panels
             HandleTextAddedToOtherTabs();
 
             var chatChanged = false;
-            if (!_cachedChatDataCurrentTab.SequenceEqual(_chatRepository.AllChat[CurrentTab]))
+            if (!_cachedChatDataCurrentTab.SequenceEqual(_chatProvider.AllChat[CurrentTab]))
             {
                 UpdateCachedChatData();
                 chatChanged = true;
@@ -214,7 +222,7 @@ namespace EndlessClient.HUD.Panels
                 if (CurrentTab == tab)
                     continue;
 
-                var lineCountForTab = _chatRepository.AllChat[tab].Count;
+                var lineCountForTab = _chatProvider.AllChat[tab].Count;
                 if (_cachedChatTabLineCounts[tab] != lineCountForTab)
                 {
                     _cachedChatTabLineCounts[tab] = lineCountForTab;
@@ -226,7 +234,7 @@ namespace EndlessClient.HUD.Panels
         private void UpdateCachedChatData()
         {
             _cachedChatDataCurrentTab.Clear();
-            _cachedChatDataCurrentTab.AddRange(_chatRepository.AllChat[CurrentTab]);
+            _cachedChatDataCurrentTab.AddRange(_chatProvider.AllChat[CurrentTab]);
         }
 
         private void UpdateCachedScrollProperties()
@@ -280,9 +288,9 @@ namespace EndlessClient.HUD.Panels
             var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
 
             if (clickedChatRow >= 0 &&
-                _scrollBar.ScrollOffset + clickedChatRow < _chatRepository.AllChat[CurrentTab].Count)
+                _scrollBar.ScrollOffset + clickedChatRow < _chatProvider.AllChat[CurrentTab].Count)
             {
-                var who = _chatRepository.AllChat[CurrentTab][_scrollBar.ScrollOffset + clickedChatRow].Who;
+                var who = _chatProvider.AllChat[CurrentTab][_scrollBar.ScrollOffset + clickedChatRow].Who;
                 _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text =
                     string.Format("!{0} ", who);
             }
@@ -361,40 +369,6 @@ namespace EndlessClient.HUD.Panels
             CurrentTab = clickedTab;
         }
 
-        //todo: some of this should be extracted into a separate in-game component that is designed just to handle these events
-        //todo: then the public interface of ChatPanel can do delegate internally and it can just take a ChatProvider again
-
-        private void HandleChatTargetNotFound(string targetCharacter)
-        {
-            var whichTab = _chatRepository.PMTarget1.ToLower() == targetCharacter.ToLower()
-                ? ChatTab.Private1
-                : _chatRepository.PMTarget2.ToLower() == targetCharacter.ToLower()
-                    ? ChatTab.Private2
-                    : ChatTab.Local;
-
-            ClosePMTab(whichTab);
-        }
-
-        private void ClosePMTab(ChatTab whichTab)
-        {
-            if (whichTab == ChatTab.Private1)
-            {
-                _privateChat1Shown = false;
-                _chatRepository.PMTarget1 = "";
-            }
-            else if (whichTab == ChatTab.Private2)
-            {
-                _privateChat2Shown = false;
-                _chatRepository.PMTarget2 = "";
-            }
-            else
-                return;
-
-            _tabLabels[whichTab].Text = "";
-            _chatRepository.AllChat[whichTab].Clear();
-            SelectTab(ChatTab.Local);
-        }
-
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -402,8 +376,6 @@ namespace EndlessClient.HUD.Panels
                 foreach (var tabLabel in _tabLabels.Values)
                     tabLabel.Dispose();
                 _tabLabels.Clear();
-
-                _chatEventManager.ChatPMTargetNotFound -= HandleChatTargetNotFound;
             }
             base.Dispose(disposing);
         }
