@@ -25,6 +25,7 @@ namespace EndlessClient.UIControls
         private readonly ILoginController _loginController;
         private readonly ICharacterManagementController _characterManagementController;
         private readonly ICharacterRendererResetter _characterRendererResetter;
+        private readonly ICharacterStateCache _characterStateCache;
         private readonly CharacterControl _characterControl;
         private readonly ISpriteSheet _adminGraphic;
 
@@ -63,13 +64,15 @@ namespace EndlessClient.UIControls
                                   ILoginController loginController,
                                   ICharacterManagementController characterManagementController,
                                   ICharacterRendererFactory rendererFactory,
-                                  ICharacterRendererResetter characterRendererResetter)
+                                  ICharacterRendererResetter characterRendererResetter,
+                                  ICharacterStateCache characterStateCache)
             : this(characterIndex, gfxManager)
         {
             _character = character;
             _loginController = loginController;
             _characterManagementController = characterManagementController;
             _characterRendererResetter = characterRendererResetter;
+            _characterStateCache = characterStateCache;
 
             _characterControl = new CharacterControl(character.RenderProperties, rendererFactory)
             {
@@ -135,6 +138,8 @@ namespace EndlessClient.UIControls
             try
             {
                 _characterRendererResetter.ResetRenderers();
+                _characterStateCache.ClearAll();
+
                 await _loginController.LoginToCharacter(_character);
             }
             finally
