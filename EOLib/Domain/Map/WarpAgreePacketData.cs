@@ -18,7 +18,14 @@ namespace EOLib.Domain.Map
 
         public IReadOnlyList<INPC> NPCs { get; private set; }
 
-        public IReadOnlyList<IItem> MapItems { get; private set; }
+        public IReadOnlyList<IItem> Items { get; private set; }
+
+        public WarpAgreePacketData()
+        {
+            Characters = new List<ICharacter>();
+            NPCs = new List<INPC>();
+            Items = new List<IItem>();
+        }
 
         public IWarpAgreePacketData WithMapID(short mapID)
         {
@@ -51,7 +58,7 @@ namespace EOLib.Domain.Map
         public IWarpAgreePacketData WithItems(IEnumerable<IItem> items)
         {
             var newData = MakeCopy(this);
-            newData.MapItems = new List<IItem>(items);
+            newData.Items = new List<IItem>(items);
             return newData;
         }
 
@@ -63,7 +70,7 @@ namespace EOLib.Domain.Map
                 WarpAnimation = source.WarpAnimation,
                 Characters = new List<ICharacter>(source.Characters),
                 NPCs = new List<INPC>(source.NPCs),
-                MapItems = new List<IItem>(source.MapItems)
+                Items = new List<IItem>(source.Items)
             };
         }
     }
@@ -78,7 +85,7 @@ namespace EOLib.Domain.Map
 
         IReadOnlyList<INPC> NPCs { get; }
 
-        IReadOnlyList<IItem> MapItems { get; }
+        IReadOnlyList<IItem> Items { get; }
 
         IWarpAgreePacketData WithMapID(short mapID);
 
