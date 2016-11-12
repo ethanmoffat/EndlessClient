@@ -57,5 +57,18 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return new Vector2(gridX * 32 - gridY * 32 + 288 - charOffX,
                                gridY * 16 + gridX * 16 + 144 - charOffY);
         }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~BaseMapEntityRenderer()
+        {
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing) { }
     }
 }

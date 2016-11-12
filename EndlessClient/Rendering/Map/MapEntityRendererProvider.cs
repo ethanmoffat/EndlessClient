@@ -83,5 +83,13 @@ namespace EndlessClient.Rendering.Map
                                                 characterRenderOffsetCalculator)
             };
         }
+
+        public void Dispose()
+        {
+            foreach (var renderer in MapBaseRenderers)
+                renderer.Dispose();
+            foreach (var renderer in MapEntityRenderers)
+                renderer.Dispose();
+        }
     }
 }
