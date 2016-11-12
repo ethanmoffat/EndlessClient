@@ -29,4 +29,14 @@ namespace EOLib.Domain.Account
             Email = email;
         }
     }
+
+    public interface ICreateAccountParameters
+    {
+        string AccountName { get; }
+        string Password { get; }
+        string ConfirmPassword { get; }
+        string RealName { get; }
+        string Location { get; }
+        string Email { get; }
+    }
 }

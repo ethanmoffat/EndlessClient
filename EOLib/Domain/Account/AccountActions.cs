@@ -119,4 +119,15 @@ namespace EOLib.Domain.Account
             return response.Family != PacketFamily.Account || response.Action != PacketAction.Reply;
         }
     }
+
+    public interface IAccountActions
+    {
+        CreateAccountParameterResult CheckAccountCreateParameters(ICreateAccountParameters createAccountCreateparameters);
+
+        Task<AccountReply> CheckAccountNameWithServer(string accountName);
+
+        Task<AccountReply> CreateAccount(ICreateAccountParameters parameters);
+
+        Task<AccountReply> ChangePassword(IChangePasswordParameters parameters);
+    }
 }

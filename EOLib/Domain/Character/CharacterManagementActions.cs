@@ -77,4 +77,15 @@ namespace EOLib.Domain.Character
             return translatedData.Response;
         }
     }
+
+    public interface ICharacterManagementActions
+    {
+        Task<short> RequestCharacterCreation();
+
+        Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters);
+
+        Task<int> RequestCharacterDelete();
+
+        Task<CharacterReply> DeleteCharacter();
+    }
 }

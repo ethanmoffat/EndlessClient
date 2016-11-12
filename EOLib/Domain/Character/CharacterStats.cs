@@ -42,4 +42,13 @@ namespace EOLib.Domain.Character
             return stats;
         }
     }
+
+    public interface ICharacterStats
+    {
+        IReadOnlyDictionary<CharacterStat, int> Stats { get; }
+
+        int this[CharacterStat stat] { get; }
+
+        ICharacterStats WithNewStat(CharacterStat whichStat, int statValue);
+    }
 }

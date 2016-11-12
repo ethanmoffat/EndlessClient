@@ -19,4 +19,11 @@ namespace EOLib.Domain.Account
             NewPassword = newPassword;
         }
     }
+
+    public interface IChangePasswordParameters
+    {
+        string AccountName { get; }
+        string OldPassword { get; }
+        string NewPassword { get; }
+    }
 }

@@ -40,4 +40,19 @@ namespace EOLib.Domain.Account
             return !System.Text.RegularExpressions.Regex.IsMatch(email, ValidEmailRegex);
         }
     }
+
+    public interface ICreateAccountParameterValidator
+    {
+        bool AccountNameIsNotLongEnough(string account);
+
+        bool AccountNameIsTooObvious(string account);
+
+        bool PasswordMismatch(string input, string confirm);
+
+        bool PasswordIsTooShort(string password);
+
+        bool PasswordIsTooObvious(string password);
+
+        bool EmailIsInvalid(string email);
+    }
 }

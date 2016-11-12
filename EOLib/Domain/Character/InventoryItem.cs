@@ -21,4 +21,13 @@ namespace EOLib.Domain.Character
             return new InventoryItem(ItemID, newAmount);
         }
     }
+
+    public interface IInventoryItem
+    {
+        short ItemID { get; }
+
+        int Amount { get; }
+
+        IInventoryItem WithAmount(int newAmount);
+    }
 }

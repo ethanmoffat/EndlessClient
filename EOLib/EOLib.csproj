@@ -55,8 +55,6 @@
     <Compile Include="Domain\Account\ChangePasswordParameters.cs" />
     <Compile Include="Domain\Account\CreateAccountParameterResult.cs" />
     <Compile Include="Domain\Account\CreateAccountParameters.cs" />
-    <Compile Include="Domain\Account\IAccountActions.cs" />
-    <Compile Include="Domain\Account\IChangePasswordParameters.cs" />
     <Compile Include="Domain\Character\Character.cs" />
     <Compile Include="Domain\Character\CharacterActions.cs" />
     <Compile Include="Domain\Character\CharacterActionState.cs" />
@@ -69,10 +67,6 @@
     <Compile Include="Domain\Character\IOtherCharacterAnimationNotifier.cs" />
     <Compile Include="Domain\Character\ICharacterInventoryRepository.cs" />
     <Compile Include="Domain\Character\ICharacterRenderProperties.cs" />
-    <Compile Include="Domain\Character\ICharacterStats.cs" />
-    <Compile Include="Domain\Character\IEquippedItem.cs" />
-    <Compile Include="Domain\Character\IInventoryItem.cs" />
-    <Compile Include="Domain\Character\IInventorySpell.cs" />
     <Compile Include="Domain\Character\InventoryItem.cs" />
     <Compile Include="Domain\Character\InventorySpell.cs" />
     <Compile Include="Domain\Character\IPaperdollRepository.cs" />
@@ -121,16 +115,12 @@
     <Compile Include="Domain\Character\CharacterCreateData.cs" />
     <Compile Include="Domain\Character\CharacterManagementActions.cs" />
     <Compile Include="Domain\Character\CharacterReply.cs" />
-    <Compile Include="Domain\Character\ICharacterCreateData.cs" />
-    <Compile Include="Domain\Character\ICharacterManagementActions.cs" />
     <Compile Include="Domain\Character\ICharacterRepository.cs" />
     <Compile Include="Domain\Character\SitState.cs" />
     <Compile Include="Domain\DomainDependencyContainer.cs" />
-    <Compile Include="Domain\Account\ICreateAccountParameters.cs" />
     <Compile Include="Domain\Login\AccountLoginData.cs" />
     <Compile Include="Domain\Character\CharacterCreateParameters.cs" />
     <Compile Include="Domain\Login\IAccountLoginData.cs" />
-    <Compile Include="Domain\Character\ICharacterCreateParameters.cs" />
     <Compile Include="Domain\Login\ICharacterSelectorRepository.cs" />
     <Compile Include="Domain\Login\IPlayerInfoRepository.cs" />
     <Compile Include="Domain\Login\ILoginActions.cs" />
@@ -152,7 +142,6 @@
     <Compile Include="Domain\Protocol\InitializationSuccessData.cs" />
     <Compile Include="Domain\Protocol\InitReply.cs" />
     <Compile Include="Domain\Account\CreateAccountParameterValidator.cs" />
-    <Compile Include="Domain\Account\ICreateAccountParameterValidator.cs" />
     <Compile Include="Domain\Protocol\IPingTimeRepository.cs" />
     <Compile Include="Domain\ResetStateAction.cs" />
     <Compile Include="EODirection.cs" />

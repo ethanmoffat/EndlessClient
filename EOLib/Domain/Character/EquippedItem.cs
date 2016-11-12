@@ -27,4 +27,13 @@ namespace EOLib.Domain.Character
             ItemData = record;
         }
     }
+
+    public interface IEquippedItem
+    {
+        EquipLocation EquipLocation { get; }
+
+        int ItemID { get; }
+
+        EIFRecord ItemData { get; }
+    }
 }

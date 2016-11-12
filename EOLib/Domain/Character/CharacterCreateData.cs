@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using EOLib.Net.Translators;
 
 namespace EOLib.Domain.Character
 {
@@ -18,5 +19,12 @@ namespace EOLib.Domain.Character
             Response = response;
             _characters = characters;
         }
+    }
+
+    public interface ICharacterCreateData : ITranslatedData
+    {
+        CharacterReply Response { get; }
+
+        IReadOnlyList<ICharacter> Characters { get; }
     }
 }

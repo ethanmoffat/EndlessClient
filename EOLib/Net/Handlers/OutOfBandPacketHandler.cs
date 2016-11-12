@@ -49,6 +49,8 @@ namespace EOLib.Net.Handlers
             if (!handler.CanHandle)
                 return false;
 
+            //todo: catch exceptions and log error details
+            //      should also exit out of game gracefully as state may be corrupted by not handling packet (i.e. for warp packets)
             return handler.HandlePacket(packet);
         }
 

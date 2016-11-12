@@ -21,4 +21,13 @@ namespace EOLib.Domain.Character
             return new InventorySpell(ID, newLevel);
         }
     }
+
+    public interface IInventorySpell
+    {
+        short ID { get; }
+
+        short Level { get; }
+
+        IInventorySpell WithLevel(short newLevel);
+    }
 }

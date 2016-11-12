@@ -25,4 +25,14 @@ namespace EOLib.Domain.Character
             Race = race;
         }
     }
+
+    public interface ICharacterCreateParameters
+    {
+        string Name { get; }
+
+        int Gender { get; }
+        int HairStyle { get; }
+        int HairColor { get; }
+        int Race { get; }
+    }
 }
