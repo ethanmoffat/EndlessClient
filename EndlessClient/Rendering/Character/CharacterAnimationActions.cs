@@ -32,12 +32,18 @@ namespace EndlessClient.Rendering.Character
 
         public void StartWalking()
         {
+            if (!_hudControlProvider.IsInGame)
+                return;
+
             var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
             animator.StartMainCharacterWalkAnimation();
         }
 
         public void StartOtherCharacterWalkAnimation(int characterID)
         {
+            if (!_hudControlProvider.IsInGame)
+                return;
+
             var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
             animator.StartOtherCharacterWalkAnimation(characterID);
         }
