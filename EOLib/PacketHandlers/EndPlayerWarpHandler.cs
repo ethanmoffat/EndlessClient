@@ -44,13 +44,22 @@ namespace EOLib.PacketHandlers
         {
             var warpAgreePacketData = _warpAgreePacketTranslator.TranslatePacket(packet);
 
+            var updatedMainCharacter = warpAgreePacketData.Characters.Single(NameMatches);
+            var updatedRenderProperties = _characterRepository.MainCharacter.RenderProperties
+                .WithMapX(updatedMainCharacter.RenderProperties.MapX)
+                .WithMapY(updatedMainCharacter.RenderProperties.MapY);
+
+            var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !NameMatches(x));
+            warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter);
+
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
-                .WithMapID(warpAgreePacketData.MapID);
+                .WithMapID(warpAgreePacketData.MapID)
+                .WithRenderProperties(updatedRenderProperties);
 
             _currentMapStateRepository.CurrentMapID = warpAgreePacketData.MapID;
             _currentMapStateRepository.Characters = warpAgreePacketData.Characters.ToList();
             _currentMapStateRepository.NPCs = warpAgreePacketData.NPCs.ToList();
-            _currentMapStateRepository.MapItems = warpAgreePacketData.MapItems.ToList();
+            _currentMapStateRepository.MapItems = warpAgreePacketData.Items.ToList();
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.ShowMiniMap = _currentMapStateRepository.ShowMiniMap &&
                                                      _currentMapProvider.CurrentMap.Properties.MapAvailable;
@@ -59,6 +68,11 @@ namespace EOLib.PacketHandlers
                 notifier.NotifyMapChanged(warpAgreePacketData.WarpAnimation);
 
             return true;
+        }
+
+        private bool NameMatches(ICharacter x)
+        {
+            return x.Name.ToLower() == _characterRepository.MainCharacter.Name.ToLower();
         }
     }
 }
