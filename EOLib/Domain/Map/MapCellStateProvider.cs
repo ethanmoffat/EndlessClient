@@ -40,11 +40,11 @@ namespace EOLib.Domain.Map
             {
                 Items     = items.ToList(),
                 TileSpec  = tileSpec,
-                Warp      = warp == null ? Optional<IMapWarp>.Empty : new MapWarp(warp),
-                Chest     = chest == null ? Optional<IMapChest>.Empty : new MapChest(chest),
-                Sign      = sign == null ? Optional<IMapSign>.Empty : new MapSign(sign),
+                Warp      = warp == null ? Optional<IWarp>.Empty : new Warp(warp),
+                Chest     = chest == null ? Optional<IChest>.Empty : new Chest(chest),
+                Sign      = sign == null ? Optional<ISign>.Empty : new Sign(sign),
                 Character = character == null ? Optional<ICharacter>.Empty : new Optional<ICharacter>(character),
-                NPC       = npc == null ? Optional<IMapNPC>.Empty : new Optional<IMapNPC>(npc)
+                NPC       = npc == null ? Optional<INPC>.Empty : new Optional<INPC>(npc)
             };
         }
 

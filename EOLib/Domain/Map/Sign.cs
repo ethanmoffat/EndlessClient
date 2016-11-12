@@ -6,14 +6,14 @@ using EOLib.IO.Map;
 
 namespace EOLib.Domain.Map
 {
-    public class MapSign : IMapSign
+    public class Sign : ISign
     {
-        public MapSign(SignMapEntity sign)
+        public Sign(SignMapEntity sign)
         {
         }
     }
 
-    public interface IMapSign
+    public interface ISign
     {
         //todo: figure out properties
     }

@@ -23,9 +23,9 @@ namespace EOLib.Domain.Login
 
         public IReadOnlyList<ICharacter> MapCharacters { get; private set; }
 
-        public IReadOnlyList<IMapNPC> MapNPCs { get; private set; }
+        public IReadOnlyList<INPC> MapNPCs { get; private set; }
 
-        public IReadOnlyList<IMapItem> MapItems { get; private set; }
+        public IReadOnlyList<IItem> MapItems { get; private set; }
 
         public ILoginRequestCompletedData WithNews(IEnumerable<string> newsStrings)
         {
@@ -69,14 +69,14 @@ namespace EOLib.Domain.Login
             return copy;
         }
 
-        public ILoginRequestCompletedData WithNPCs(IEnumerable<IMapNPC> npcs)
+        public ILoginRequestCompletedData WithNPCs(IEnumerable<INPC> npcs)
         {
             var copy = MakeCopy(this);
             copy.MapNPCs = npcs.ToList();
             return copy;
         }
 
-        public ILoginRequestCompletedData WithItems(IEnumerable<IMapItem> items)
+        public ILoginRequestCompletedData WithItems(IEnumerable<IItem> items)
         {
             var copy = MakeCopy(this);
             copy.MapItems = items.ToList();

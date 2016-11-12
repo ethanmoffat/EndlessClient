@@ -4,7 +4,7 @@
 
 namespace EOLib.Domain.Map
 {
-    public class MapNPC : IMapNPC
+    public class NPC : INPC
     {
         public short ID { get; private set; }
 
@@ -16,36 +16,36 @@ namespace EOLib.Domain.Map
 
         public EODirection Direction { get; private set; }
 
-        public MapNPC(short id, byte index)
+        public NPC(short id, byte index)
         {
             ID = id;
             Index = index;
         }
 
-        public IMapNPC WithX(byte x)
+        public INPC WithX(byte x)
         {
             var copy = MakeCopy(this);
             copy.X = x;
             return copy;
         }
 
-        public IMapNPC WithY(byte y)
+        public INPC WithY(byte y)
         {
             var copy = MakeCopy(this);
             copy.Y = y;
             return copy;
         }
 
-        public IMapNPC WithDirection(EODirection direction)
+        public INPC WithDirection(EODirection direction)
         {
             var copy = MakeCopy(this);
             copy.Direction = direction;
             return copy;
         }
 
-        private static MapNPC MakeCopy(IMapNPC input)
+        private static NPC MakeCopy(INPC input)
         {
-            return new MapNPC(input.ID, input.Index)
+            return new NPC(input.ID, input.Index)
             {
                 X = input.X,
                 Y = input.Y,
@@ -54,7 +54,7 @@ namespace EOLib.Domain.Map
         }
     }
 
-    public interface IMapNPC
+    public interface INPC
     {
         short ID { get; }
 
@@ -66,10 +66,10 @@ namespace EOLib.Domain.Map
 
         EODirection Direction { get; }
 
-        IMapNPC WithX(byte x);
+        INPC WithX(byte x);
 
-        IMapNPC WithY(byte y);
+        INPC WithY(byte y);
 
-        IMapNPC WithDirection(EODirection direction);
+        INPC WithDirection(EODirection direction);
     }
 }

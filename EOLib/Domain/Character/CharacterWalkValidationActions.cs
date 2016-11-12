@@ -44,7 +44,7 @@ namespace EOLib.Domain.Character
             return mainCharacter.NoWall || IsTileSpecWalkable(cellState.TileSpec);
         }
 
-        private bool IsWarpWalkable(IMapWarp warp, TileSpec tile)
+        private bool IsWarpWalkable(IWarp warp, TileSpec tile)
         {
             if (warp.DoorType != DoorSpec.NoDoor)
                 return _currentMapStateProvider.OpenDoors.Any(w => w.X == warp.X && w.Y == warp.Y);

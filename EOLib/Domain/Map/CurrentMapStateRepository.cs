@@ -1,4 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
+// Original Work Copyright (c) Ethan Moffat 2014-2016
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
@@ -15,11 +15,11 @@ namespace EOLib.Domain.Map
 
         List<ICharacter> Characters { get; set; }
 
-        List<IMapNPC> NPCs { get; set; }
+        List<INPC> NPCs { get; set; }
 
-        List<IMapItem> MapItems { get; set; }
+        List<IItem> MapItems { get; set; }
 
-        List<IMapWarp> OpenDoors { get; set;  }
+        List<IWarp> OpenDoors { get; set;  }
     }
 
     public interface ICurrentMapStateProvider
@@ -30,11 +30,11 @@ namespace EOLib.Domain.Map
 
         IReadOnlyList<ICharacter> Characters { get; }
 
-        IReadOnlyList<IMapNPC> NPCs { get; }
+        IReadOnlyList<INPC> NPCs { get; }
 
-        IReadOnlyList<IMapItem> MapItems { get; }
+        IReadOnlyList<IItem> MapItems { get; }
 
-        IReadOnlyList<IMapWarp> OpenDoors { get; }
+        IReadOnlyList<IWarp> OpenDoors { get; }
     }
 
     public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider, IResettable
@@ -45,19 +45,19 @@ namespace EOLib.Domain.Map
 
         public List<ICharacter> Characters { get; set; }
 
-        public List<IMapNPC> NPCs { get; set; }
+        public List<INPC> NPCs { get; set; }
 
-        public List<IMapItem> MapItems { get; set; }
+        public List<IItem> MapItems { get; set; }
 
-        public List<IMapWarp> OpenDoors { get; set; }
+        public List<IWarp> OpenDoors { get; set; }
 
         IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters { get { return Characters; } }
 
-        IReadOnlyList<IMapNPC> ICurrentMapStateProvider.NPCs { get { return NPCs; } }
+        IReadOnlyList<INPC> ICurrentMapStateProvider.NPCs { get { return NPCs; } }
 
-        IReadOnlyList<IMapItem> ICurrentMapStateProvider.MapItems { get { return MapItems; } }
+        IReadOnlyList<IItem> ICurrentMapStateProvider.MapItems { get { return MapItems; } }
 
-        IReadOnlyList<IMapWarp> ICurrentMapStateProvider.OpenDoors { get { return OpenDoors; } }
+        IReadOnlyList<IWarp> ICurrentMapStateProvider.OpenDoors { get { return OpenDoors; } }
 
         public CurrentMapStateRepository()
         {
@@ -70,9 +70,9 @@ namespace EOLib.Domain.Map
             ShowMiniMap = false;
 
             Characters = new List<ICharacter>();
-            NPCs = new List<IMapNPC>();
-            MapItems = new List<IMapItem>();
-            OpenDoors = new List<IMapWarp>();
+            NPCs = new List<INPC>();
+            MapItems = new List<IItem>();
+            OpenDoors = new List<IWarp>();
         }
     }
 }

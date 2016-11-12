@@ -10,18 +10,18 @@ namespace EOLib.Domain.Map
 {
     public interface IMapCellState
     {
-        IReadOnlyList<IMapItem> Items { get; }
+        IReadOnlyList<IItem> Items { get; }
 
         TileSpec TileSpec { get; }
 
-        Optional<IMapNPC> NPC { get; }
+        Optional<INPC> NPC { get; }
 
         Optional<ICharacter> Character { get; }
         
-        Optional<IMapChest> Chest { get; }
+        Optional<IChest> Chest { get; }
 
-        Optional<IMapWarp> Warp { get; }
+        Optional<IWarp> Warp { get; }
 
-        Optional<IMapSign> Sign { get; }
+        Optional<ISign> Sign { get; }
     }
 }

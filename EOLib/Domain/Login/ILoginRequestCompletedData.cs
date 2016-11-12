@@ -23,9 +23,9 @@ namespace EOLib.Domain.Login
 
         IReadOnlyList<ICharacter> MapCharacters { get; }
 
-        IReadOnlyList<IMapNPC> MapNPCs { get; }
+        IReadOnlyList<INPC> MapNPCs { get; }
 
-        IReadOnlyList<IMapItem> MapItems { get; }
+        IReadOnlyList<IItem> MapItems { get; }
 
         ILoginRequestCompletedData WithNews(IEnumerable<string> newsStrings);
 
@@ -39,8 +39,8 @@ namespace EOLib.Domain.Login
 
         ILoginRequestCompletedData WithCharacters(IEnumerable<ICharacter> characters);
 
-        ILoginRequestCompletedData WithNPCs(IEnumerable<IMapNPC> npcs);
+        ILoginRequestCompletedData WithNPCs(IEnumerable<INPC> npcs);
 
-        ILoginRequestCompletedData WithItems(IEnumerable<IMapItem> items);
+        ILoginRequestCompletedData WithItems(IEnumerable<IItem> items);
     }
 }

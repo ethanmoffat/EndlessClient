@@ -6,7 +6,7 @@ using EOLib.IO.Map;
 
 namespace EOLib.Domain.Map
 {
-    public class MapWarp : IMapWarp
+    public class Warp : IWarp
     {
         private readonly WarpMapEntity _warpEntity;
 
@@ -18,13 +18,13 @@ namespace EOLib.Domain.Map
 
         public int LevelRequirement { get { return _warpEntity.LevelRequirement; } }
 
-        public MapWarp(WarpMapEntity warpEntity)
+        public Warp(WarpMapEntity warpEntity)
         {
             _warpEntity = warpEntity;
         }
     }
 
-    public interface IMapWarp
+    public interface IWarp
     {
         int X { get; }
 

@@ -4,7 +4,7 @@
 
 namespace EOLib.Domain.Map
 {
-    public class MapItem : IMapItem
+    public class Item : IItem
     {
         public short UniqueID { get; private set; }
 
@@ -16,7 +16,7 @@ namespace EOLib.Domain.Map
 
         public int Amount { get; private set; }
 
-        public MapItem(short uid, short itemID, byte x, byte y)
+        public Item(short uid, short itemID, byte x, byte y)
         {
             UniqueID = uid;
             ItemID = itemID;
@@ -24,13 +24,13 @@ namespace EOLib.Domain.Map
             Y = y;
         }
 
-        public IMapItem WithAmount(int newAmount)
+        public IItem WithAmount(int newAmount)
         {
-            return new MapItem(UniqueID, ItemID, X, Y) { Amount = newAmount };
+            return new Item(UniqueID, ItemID, X, Y) { Amount = newAmount };
         }
     }
 
-    public interface IMapItem
+    public interface IItem
     {
         short UniqueID { get; }
 
@@ -42,6 +42,6 @@ namespace EOLib.Domain.Map
 
         int Amount { get; }
 
-        IMapItem WithAmount(int newAmount);
+        IItem WithAmount(int newAmount);
     }
 }

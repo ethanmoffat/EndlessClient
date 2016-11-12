@@ -6,14 +6,14 @@ using EOLib.IO.Map;
 
 namespace EOLib.Domain.Map
 {
-    public class MapChest : IMapChest
+    public class Chest : IChest
     {
-        public MapChest(ChestSpawnMapEntity chest)
+        public Chest(ChestSpawnMapEntity chest)
         {
         }
     }
 
-    public interface IMapChest
+    public interface IChest
     {
         //todo: figure out properties
     }

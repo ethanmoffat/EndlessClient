@@ -10,29 +10,29 @@ namespace EOLib.Domain.Map
 {
     public class MapCellState : IMapCellState
     {
-        public IReadOnlyList<IMapItem> Items { get; set; }
+        public IReadOnlyList<IItem> Items { get; set; }
 
         public TileSpec TileSpec { get; set; }
 
-        public Optional<IMapNPC> NPC { get; set; }
+        public Optional<INPC> NPC { get; set; }
 
         public Optional<ICharacter> Character { get; set; }
 
-        public Optional<IMapChest> Chest { get; set; }
+        public Optional<IChest> Chest { get; set; }
 
-        public Optional<IMapWarp> Warp { get; set; }
+        public Optional<IWarp> Warp { get; set; }
 
-        public Optional<IMapSign> Sign { get; set; }
+        public Optional<ISign> Sign { get; set; }
 
         public MapCellState()
         {
-            Items = new List<IMapItem>();
+            Items = new List<IItem>();
             TileSpec = TileSpec.None;
-            NPC = new Optional<IMapNPC>();
+            NPC = new Optional<INPC>();
             Character = new Optional<ICharacter>();
-            Chest = new Optional<IMapChest>();
-            Warp = new Optional<IMapWarp>();
-            Sign = new Optional<IMapSign>();
+            Chest = new Optional<IChest>();
+            Warp = new Optional<IWarp>();
+            Sign = new Optional<ISign>();
         }
     }
 }

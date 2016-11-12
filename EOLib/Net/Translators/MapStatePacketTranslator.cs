@@ -92,7 +92,7 @@ namespace EOLib.Net.Translators
             }
         }
 
-        protected IEnumerable<IMapNPC> GetNPCs(IPacket packet)
+        protected IEnumerable<INPC> GetNPCs(IPacket packet)
         {
             while (packet.PeekByte() != 255)
             {
@@ -102,7 +102,7 @@ namespace EOLib.Net.Translators
                 var y = packet.ReadChar();
                 var direction = (EODirection) packet.ReadChar();
                 
-                yield return new MapNPC(id, index)
+                yield return new NPC(id, index)
                     .WithX(x)
                     .WithY(y)
                     .WithDirection(direction);
@@ -111,7 +111,7 @@ namespace EOLib.Net.Translators
             packet.ReadByte(); //consume the tail 255 byte that broke loop iteration
         }
 
-        protected IEnumerable<IMapItem> GetMapItems(IPacket packet)
+        protected IEnumerable<IItem> GetMapItems(IPacket packet)
         {
             while (packet.ReadPosition < packet.Length)
             {
@@ -121,7 +121,7 @@ namespace EOLib.Net.Translators
                 var y = packet.ReadChar();
                 var amount = packet.ReadThree();
 
-                yield return new MapItem(uid, itemID, x, y).WithAmount(amount);
+                yield return new Item(uid, itemID, x, y).WithAmount(amount);
             }
         }
     }
