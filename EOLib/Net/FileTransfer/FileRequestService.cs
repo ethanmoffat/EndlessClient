@@ -34,13 +34,13 @@ namespace EOLib.Net.FileTransfer
                 .AddChar((byte) InitFileType.Map)
                 .Build();
 
-            return await GetMapFile(request, mapID);
+            return await GetMapFile(request, mapID, false);
         }
 
         public async Task<IMapFile> RequestMapFileForWarp(short mapID)
         {
             var request = new PacketBuilder(PacketFamily.Warp, PacketAction.Take).Build();
-            return await GetMapFile(request, mapID);
+            return await GetMapFile(request, mapID, true);
         }
 
         public async Task<IPubFile> RequestFile(InitFileType fileType)
@@ -76,13 +76,13 @@ namespace EOLib.Net.FileTransfer
             return retFile;
         }
 
-        private async Task<IMapFile> GetMapFile(IPacket request, int mapID)
+        private async Task<IMapFile> GetMapFile(IPacket request, int mapID, bool isWarp)
         {
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(request);
             if (!PacketIsValid(response))
                 throw new EmptyPacketReceivedException();
 
-            var fileType = (InitReply)response.ReadChar();
+            var fileType = (InitReply)(isWarp ? response.ReadByte() : response.ReadChar());
             if (fileType != InitReply.MapFile)
                 throw new MalformedPacketException("Invalid file type " + fileType + " when requesting a map file", response);
 
