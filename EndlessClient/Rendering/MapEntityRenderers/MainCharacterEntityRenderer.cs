@@ -6,6 +6,7 @@ using System;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
@@ -13,6 +14,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     public class MainCharacterEntityRenderer : BaseMapEntityRenderer
     {
         private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly BlendState _playerBlend;
 
         public MainCharacterEntityRenderer(ICharacterProvider characterProvider,
                                            ICharacterRendererProvider characterRendererProvider,
@@ -20,6 +22,18 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             : base(characterProvider, characterRenderOffsetCalculator)
         {
             _characterRendererProvider = characterRendererProvider;
+
+            _playerBlend = new BlendState
+            {
+                BlendFactor = new Color(255, 255, 255, 64),
+
+                AlphaSourceBlend = Blend.One,
+                AlphaDestinationBlend = Blend.One,
+                AlphaBlendFunction = BlendFunction.Add,
+
+                ColorSourceBlend = Blend.BlendFactor,
+                ColorDestinationBlend = Blend.One
+            };
         }
 
         public override MapRenderLayer RenderLayer
@@ -45,12 +59,21 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
             spriteBatch.End();
 
-            //todo: use different blend state if character is hidden
-            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
+            var blendState = _characterProvider.MainCharacter.RenderProperties.IsHidden
+                ? BlendState.NonPremultiplied
+                : _playerBlend;
+            spriteBatch.Begin(SpriteSortMode.Deferred, blendState);
             _characterRendererProvider.MainCharacterRenderer.DrawToSpriteBatch(spriteBatch);
             spriteBatch.End();
 
             spriteBatch.Begin();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+                _playerBlend.Dispose();
+            base.Dispose(disposing);
         }
     }
 }
