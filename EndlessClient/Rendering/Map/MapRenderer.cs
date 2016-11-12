@@ -160,8 +160,8 @@ namespace EndlessClient.Rendering.Map
                             else
                                 gfxToRenderLast.Add(renderLaterKey, new List<MapRenderLayer> { renderer.RenderLayer });
                         }
-
-                        renderer.RenderElementAt(_sb, row, col, alpha);
+                        else
+                            renderer.RenderElementAt(_sb, row, col, alpha);
                     }
                 }
 
