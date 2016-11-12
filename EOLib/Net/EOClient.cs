@@ -130,12 +130,6 @@ namespace EOLib.Net
             _packetProcessActions = packetProcessActions;
         }
 
-        public void SetInitData(InitData data)
-        {
-            _packetProcessActions.SetInitialSequenceNumber(data.seq_1, data.seq_2);
-            _packetProcessActions.SetEncodeMultiples(data.emulti_d, data.emulti_e);
-        }
-
         public void UpdateSequence(int seq1, int seq2)
         {
             _packetProcessActions.SetUpdatedBaseSequenceNumber(seq1, seq2);

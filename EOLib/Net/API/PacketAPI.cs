@@ -24,21 +24,17 @@ namespace EOLib.Net.API
             m_client = client;
 
             //each of these sets up members of the partial PacketAPI class relevant to a particular packet family
-            _createAccountMembers();
             _createAdminInteractMembers();
             _createAttackMembers();
             _createAvatarMembers();
             _createBankMembers();
-            _createCharacterMembers();
             _createChestMembers();
-            _createConnectionMembers();
             _createDoorMembers();
             _createEffectMembers();
             _createEmoteMembers();
             _createInitMembers();
             _createItemMembers();
             _createLockerMembers();
-            _createLoginMembers();
             _createMessageMembers();
             _createMusicMembers();
             _createPaperdollMembers();
@@ -51,7 +47,6 @@ namespace EOLib.Net.API
             _createSpellMembers();
             _createStatSkillMembers();
             _createTradeMembers();
-            _createWelcomeMembers();
         }
 
         public void Dispose()
@@ -62,13 +57,7 @@ namespace EOLib.Net.API
         private void Dispose(bool disposing)
         {
             if (disposing)
-            {
-                _disposeAccountMembers();
-                _disposeCharacterMembers();
                 _disposeInitMembers();
-                _disposeLoginMembers();
-                _disposeWelcomeMembers();
-            }
         }
     }
 }

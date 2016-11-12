@@ -32,8 +32,8 @@ namespace EOBot
         protected override void DoWork(CancellationToken ct)
         {
             CharacterLoginData[] loginData;
-            WelcomeRequestData welcomeReqData;
-            WelcomeMessageData welcomeMsgData;
+            //WelcomeRequestData welcomeReqData;
+            //WelcomeMessageData welcomeMsgData;
 
             var h = new BotHelper(_api, Console.WriteLine, _errorMessage);
 
@@ -45,16 +45,16 @@ namespace EOBot
 
             if (!h.CreateCharacterIfNeeded(_name, ref loginData) || ct.IsCancellationRequested) return;
 
-            if (!h.DoWelcomePacketsForFirstCharacter(loginData, out welcomeReqData, out welcomeMsgData) || ct.IsCancellationRequested) return;
+            //if (!h.DoWelcomePacketsForFirstCharacter(loginData, out welcomeReqData, out welcomeMsgData) || ct.IsCancellationRequested) return;
 
             Console.WriteLine("{0} logged in and executing.", _name);
 
-            var charlist = welcomeMsgData.CharacterData.ToList();
-            int testuserNdx = charlist.FindIndex(_data => _data.Name.ToLower() == "testuser");
-            if (testuserNdx >= 0)
-            {
-                PartyRequest(_api, charlist[testuserNdx].ID);
-            }
+            //var charlist = welcomeMsgData.CharacterData.ToList();
+            //int testuserNdx = charlist.FindIndex(_data => _data.Name.ToLower() == "testuser");
+            //if (testuserNdx >= 0)
+            //{
+            //    PartyRequest(_api, charlist[testuserNdx].ID);
+            //}
         }
 
         private void SpeakYourMind(object state)

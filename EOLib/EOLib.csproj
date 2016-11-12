@@ -150,7 +150,6 @@
     <Compile Include="IHDSerialNumberService.cs" />
     <Compile Include="EOLibDependencyContainer.cs" />
     <Compile Include="misc.cs" />
-    <Compile Include="Net\API\Account.cs" />
     <Compile Include="Domain\Account\AccountReply.cs" />
     <Compile Include="Net\API\AdminInteract.cs" />
     <Compile Include="Net\API\Attack.cs" />
@@ -158,14 +157,12 @@
     <Compile Include="Net\API\Bank.cs" />
     <Compile Include="Net\API\Character.cs" />
     <Compile Include="Net\API\Chest.cs" />
-    <Compile Include="Net\API\Connection.cs" />
     <Compile Include="Net\API\Door.cs" />
     <Compile Include="Net\API\Effect.cs" />
     <Compile Include="Net\API\Emote.cs" />
     <Compile Include="Net\API\Init.cs" />
     <Compile Include="Net\API\Item.cs" />
     <Compile Include="Net\API\Locker.cs" />
-    <Compile Include="Net\API\Login.cs" />
     <Compile Include="Net\API\Message.cs" />
     <Compile Include="Net\API\Music.cs" />
     <Compile Include="Net\API\NPC.cs" />
@@ -180,7 +177,6 @@
     <Compile Include="Net\API\Spell.cs" />
     <Compile Include="Net\API\StatSkill.cs" />
     <Compile Include="Net\API\Trade.cs" />
-    <Compile Include="Net\API\Welcome.cs" />
     <Compile Include="Net\Communication\AsyncSocket.cs" />
     <Compile Include="Net\ClientBase.cs" />
     <Compile Include="Net\Communication\INetworkClientDisposer.cs" />

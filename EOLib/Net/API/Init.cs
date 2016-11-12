@@ -26,25 +26,6 @@ namespace EOLib.Net.API
         THIS_IS_WRONG = 0
     }
 
-    public enum InitBanType : byte
-    {
-        INIT_BAN_TEMP = 0,
-        INIT_BAN_PERM = 2,
-        THIS_IS_WRONG = 255
-    }
-
-    public struct InitData
-    {
-        public byte seq_1, seq_2, emulti_e, emulti_d;
-        public short clientID;
-        public int response;
-
-        public InitReply ServerResponse;
-        public InitBanType BanType;
-        public byte BanMinsLeft;
-        public byte RequiredVersionNumber;
-    }
-
     public enum PaperdollIconType
     {
         Normal = 0,
@@ -102,7 +83,6 @@ namespace EOLib.Net.API
         private AutoResetEvent m_init_responseEvent;
 
         //shared between API calls and response handler
-        private InitData m_init_initData;
         private int m_init_requestedMap;
         private List<OnlineEntry> m_init_onlinePlayerList;
 
@@ -112,7 +92,6 @@ namespace EOLib.Net.API
         {
             m_init_responseEvent = new AutoResetEvent(false);
 
-            m_init_initData = new InitData();
             m_init_requestedMap = 0;
             m_init_onlinePlayerList = null;
 
@@ -126,33 +105,6 @@ namespace EOLib.Net.API
                 m_init_responseEvent.Dispose();
                 m_init_responseEvent = null;
             }
-        }
-
-        private bool RequestWarpMap(int MapID)
-        {
-            //arbitrary upper bound is 32768
-            if (MapID < 1 || MapID > short.MaxValue)
-                return false;
-
-            if (!m_client.ConnectedAndInitialized || !Initialized)
-                return false;
-
-            //if player list was requested, wait for it to finish
-            if (m_client.ExpectingPlayerList && !m_init_responseEvent.WaitOne(Constants.ResponseTimeout))
-                return false;
-
-            //send the file request
-            OldPacket builder = new OldPacket(PacketFamily.Warp, PacketAction.Take);
-            m_client.ExpectingFile = true;
-            m_init_requestedMap = MapID;
-
-            if (!m_client.SendPacket(builder))
-                return false;
-
-            if (!m_init_responseEvent.WaitOne(Constants.ResponseFileTimeout))
-                return false;
-
-            return true;
         }
 
         /// <summary>
@@ -195,56 +147,6 @@ namespace EOLib.Net.API
                         break;
                     _handlePlayerList(pkt, response == InitReply.INIT_FRIEND_LIST_PLAYERS);
                     break;
-                case InitReply.INIT_BANNED:
-                {
-                    //sends INIT_BANNED in response to WARP_TAKE packet
-                    if (m_client.ExpectingFile)
-                    {
-                        response = InitReply.INIT_FILE_MAP;
-                        goto case InitReply.INIT_FILE_MAP;
-                    }
-
-                    InitBanType BanType = (InitBanType) pkt.GetByte();
-                    byte BanMinsLeft = 0;
-                    if (BanType == InitBanType.INIT_BAN_TEMP)
-                        BanMinsLeft = pkt.GetByte();
-
-                    m_init_initData = new InitData {ServerResponse = response, BanType = BanType, BanMinsLeft = BanMinsLeft};
-                }
-                    break;
-                case InitReply.INIT_OUT_OF_DATE:
-                {
-                    pkt.GetChar(); //always 0
-                    pkt.GetChar(); //always 0
-                    m_init_initData = new InitData
-                    {
-                        ServerResponse = response,
-                        RequiredVersionNumber = pkt.GetChar() //actual version number required
-                    };
-                }
-                    break;
-                case InitReply.INIT_OK:
-                {
-                    m_init_initData = new InitData
-                    {
-                        ServerResponse = response,
-                        seq_1 = pkt.GetByte(),
-                        seq_2 = pkt.GetByte(),
-                        //These are switched around from the server: 
-                        //    the server's encode function is the client's decode function (and vice versa)
-                        emulti_d = pkt.GetByte(),
-                        emulti_e = pkt.GetByte(),
-                        clientID = pkt.GetShort(),
-                        response = pkt.GetThree()
-                    };
-                }
-                    break;
-                    //file transfer is all handled the same way
-                case InitReply.INIT_FILE_EIF:
-                case InitReply.INIT_FILE_ENF:
-                case InitReply.INIT_FILE_ESF:
-                case InitReply.INIT_FILE_ECF:
-                case InitReply.INIT_FILE_MAP:
                 case InitReply.INIT_MAP_MUTATION:
                 {
                     string localDir = response == InitReply.INIT_FILE_MAP || response == InitReply.INIT_MAP_MUTATION ? "maps" : "pub";
