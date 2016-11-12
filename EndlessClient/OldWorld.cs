@@ -247,38 +247,13 @@ namespace EndlessClient
 
         public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<OldMapItem> items)
         {
-            if (!_tryLoadMap(mapID, false))
-            {
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-                return;
-            }
-
-            if(mapID > 0)
-                MainPlayer.ActiveCharacter.CurrentMap = mapID;
-
-            if(ActiveMapRenderer.MapRef != MapCache[MainPlayer.ActiveCharacter.CurrentMap])
-                ActiveMapRenderer.SetActiveMap(MapCache[MainPlayer.ActiveCharacter.CurrentMap]);
-
-            ActiveMapRenderer.ClearOtherPlayers();
-            ActiveMapRenderer.ClearOtherNPCs();
-            ActiveMapRenderer.ClearMapItems();
-
-            foreach (var data in chars)
-            {
-                if (data.ID == MainPlayer.ActiveCharacter.ID)
-                    MainPlayer.ActiveCharacter.ApplyData(data);
-                else
-                    ActiveMapRenderer.AddOtherPlayer(data);
-            }
-
-            foreach (var data in npcs)
-                ActiveMapRenderer.AddOtherNPC(data);
-
-            foreach (OldMapItem mi in items)
-                ActiveMapRenderer.AddMapItem(mi);
-
-            if (anim == WarpAnimation.Admin)
-                ActiveCharacterRenderer.ShowWarpArrive();
+            //foreach (var data in chars)
+            //{
+            //    if (data.ID == MainPlayer.ActiveCharacter.ID)
+            //        MainPlayer.ActiveCharacter.ApplyData(data);
+            //    else
+            //        ActiveMapRenderer.AddOtherPlayer(data);
+            //}
         }
 
         public void ResetGameElements()

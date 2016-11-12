@@ -65,13 +65,15 @@ namespace EOLib.PacketHandlers
                                                      _currentMapProvider.CurrentMap.Properties.MapAvailable;
 
             foreach (var notifier in _mapChangedNotifiers)
-                notifier.NotifyMapChanged(warpAgreePacketData.WarpAnimation);
+                notifier.NotifyMapChanged(showMapTransition: true, //todo: only show transition if its a different map
+                                          warpAnimation: warpAgreePacketData.WarpAnimation);
 
             return true;
         }
 
         private bool NameMatches(ICharacter x)
         {
+            //todo: figure out why ID isn't matching
             return x.Name.ToLower() == _characterRepository.MainCharacter.Name.ToLower();
         }
     }

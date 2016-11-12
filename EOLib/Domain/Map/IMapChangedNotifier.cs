@@ -6,6 +6,6 @@ namespace EOLib.Domain.Map
 {
     public interface IMapChangedNotifier
     {
-        void NotifyMapChanged(WarpAnimation animation);
+        void NotifyMapChanged(WarpAnimation warpAnimation, bool showMapTransition);
     }
 }

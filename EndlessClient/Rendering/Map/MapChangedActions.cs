@@ -24,7 +24,7 @@ namespace EndlessClient.Rendering.Map
             _hudControlProvider = hudControlProvider;
         }
 
-        public void NotifyMapChanged(WarpAnimation animation)
+        public void NotifyMapChanged(WarpAnimation warpAnimation, bool showMapTransition)
         {
             _characterStateCache.ClearAllOtherCharacterStates();
 
@@ -32,8 +32,11 @@ namespace EndlessClient.Rendering.Map
                 characterRenderer.Value.Dispose();
             _characterRendererRepository.CharacterRenderers.Clear();
 
-            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
-            mapRenderer.StartMapTransition();
+            if (showMapTransition)
+            {
+                var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+                mapRenderer.StartMapTransition();
+            }
 
             //todo: render warp animation on main character renderer
         }

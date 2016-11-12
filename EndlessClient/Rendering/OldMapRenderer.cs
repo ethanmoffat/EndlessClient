@@ -189,18 +189,6 @@ namespace EndlessClient.Rendering
                 Game.Components.Add(iconRenderer);
             }
 
-            _mapItems.Clear();
-            lock (_characterListLock)
-            {
-                _characterRenderers.ForEach(_rend => _rend.Dispose());
-                _characterRenderers.Clear();
-            }
-
-            lock (_npcListLock)
-            {
-                _npcRenderers.ForEach(_npc => _npc.Dispose());
-                _npcRenderers.Clear();
-            }
             lock (_spikeTrapsLock)
                 _visibleSpikeTraps.Clear();
 
@@ -213,11 +201,6 @@ namespace EndlessClient.Rendering
                 _doorY = 0;
                 _doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
             }
-
-            _mapLoadTime = DateTime.Now;
-            _transitionMetric = 1;
-            if (!MapRef.Properties.MapAvailable)
-                _miniMapRenderer.Visible = false;
 
             if (MapRef.Properties.Name.Length > 0)
             {

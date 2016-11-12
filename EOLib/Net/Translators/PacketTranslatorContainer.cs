@@ -20,7 +20,8 @@ namespace EOLib.Net.Translators
                 .RegisterType<IPacketTranslator<ICharacterCreateData>, CharacterReplyPacketTranslator>()
                 .RegisterType<IPacketTranslator<ILoginRequestGrantedData>, LoginRequestGrantedPacketTranslator>()
                 .RegisterType<IPacketTranslator<ILoginRequestCompletedData>, LoginRequestCompletedPacketTranslator>()
-                .RegisterType<IPacketTranslator<IWarpAgreePacketData>, WarpAgreePacketTranslator>();
+                .RegisterType<IPacketTranslator<IWarpAgreePacketData>, WarpAgreePacketTranslator>()
+                .RegisterType<IPacketTranslator<IRefreshReplyData>, RefreshReplyPacketTranslator>();
         }
     }
 }
