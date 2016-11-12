@@ -14,6 +14,8 @@ namespace EndlessClient.Rendering.Map
 {
     public class MapEntityRendererProvider : IMapEntityRendererProvider
     {
+        public IReadOnlyList<IMapEntityRenderer> MapBaseRenderers { get; private set; }
+
         public IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; private set; }
 
         public MapEntityRendererProvider(INativeGraphicsManager nativeGraphicsManager,
@@ -26,7 +28,7 @@ namespace EndlessClient.Rendering.Map
                                          ICharacterRendererProvider characterRendererProvider,
                                          ICharacterStateCache characterStateCache)
         {
-            MapEntityRenderers = new List<IMapEntityRenderer>
+            MapBaseRenderers = new List<IMapEntityRenderer>
             {
                 new GroundLayerRenderer(nativeGraphicsManager,
                                         currentMapProvider,
@@ -35,7 +37,11 @@ namespace EndlessClient.Rendering.Map
                 new MapItemLayerRenderer(characterProvider,
                                          characterRenderOffsetCalculator,
                                          currentMapStateProvider,
-                                         mapItemGraphicProvider),
+                                         mapItemGraphicProvider)
+            };
+
+            MapEntityRenderers = new List<IMapEntityRenderer>
+            {
                 new OverlayLayerRenderer(nativeGraphicsManager,
                                          currentMapProvider,
                                          characterProvider,

@@ -8,6 +8,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 {
     public interface IMapEntityRendererProvider
     {
+        IReadOnlyList<IMapEntityRenderer> MapBaseRenderers { get; }
+
         IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; }
     }
 }

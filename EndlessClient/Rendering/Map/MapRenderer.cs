@@ -79,6 +79,7 @@ namespace EndlessClient.Rendering.Map
             if (!Visible)
                 return;
 
+            DrawMapBase(_sb);
             DrawToSpriteBatch(_sb);
 
             base.Draw(gameTime);
@@ -97,6 +98,32 @@ namespace EndlessClient.Rendering.Map
             spriteBatch.Draw(_mapBelowPlayer, Vector2.Zero, Color.White);
 
             spriteBatch.End();
+        }
+
+        private void DrawMapBase(SpriteBatch spriteBatch)
+        {
+            var immutableCharacter = _characterProvider.MainCharacter;
+            var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
+
+            for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
+            {
+                spriteBatch.Begin();
+
+                for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; ++col)
+                {
+                    var alpha = GetAlphaForCoordinates(col, row, immutableCharacter);
+
+                    foreach (var renderer in _mapEntityRendererProvider.MapBaseRenderers)
+                    {
+                        if (!renderer.CanRender(row, col))
+                            continue;
+
+                        renderer.RenderElementAt(spriteBatch, row, col, alpha);
+                    }
+                }
+
+                spriteBatch.End();
+            }
         }
 
         private void DrawMapToRenderTarget()
@@ -160,7 +187,7 @@ namespace EndlessClient.Rendering.Map
 
         private static bool CharacterIsAtPosition(ICharacterRenderProperties renderProperties, int row, int col)
         {
-            if (renderProperties.CurrentAction == CharacterActionState.Walking)
+            if (renderProperties.IsActing(CharacterActionState.Walking))
                 return row == renderProperties.GetDestinationY() && col == renderProperties.GetDestinationX();
 
             return row == renderProperties.MapY && col == renderProperties.MapX;
