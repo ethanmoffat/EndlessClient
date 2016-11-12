@@ -199,6 +199,16 @@ namespace EOLib.Domain.Login
             _chatRepository.AllChat[ChatTab.Global].Add(
                 new ChatData(server, serverMessage2, ChatIcon.Note, ChatColor.Server));
         }
+    }
 
+    public interface ILoginActions
+    {
+        bool LoginParametersAreValid(ILoginParameters parameters);
+
+        Task<LoginReply> LoginToServer(ILoginParameters parameters);
+
+        Task RequestCharacterLogin(ICharacter character);
+
+        Task CompleteCharacterLogin();
     }
 }

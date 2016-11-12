@@ -15,4 +15,10 @@ namespace EOLib.Domain.Login
             Password = password;
         }
     }
+
+    public interface ILoginParameters
+    {
+        string Username { get; }
+        string Password { get; }
+    }
 }

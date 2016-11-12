@@ -50,4 +50,9 @@ namespace EOLib.Domain.Map
 
         private IMapFile CurrentMap { get { return _mapFileProvider.MapFiles[_mapStateProvider.CurrentMapID]; } }
     }
+
+    public interface IMapCellStateProvider
+    {
+        IMapCellState GetCellStateAt(int x, int y);
+    }
 }

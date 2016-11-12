@@ -7,11 +7,6 @@ using EOLib.IO.Repositories;
 
 namespace EOLib.Domain.Map
 {
-    public interface ICurrentMapProvider
-    {
-        IMapFile CurrentMap { get; }
-    }
-
     public class CurrentMapProvider : ICurrentMapProvider
     {
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
@@ -29,5 +24,10 @@ namespace EOLib.Domain.Map
         {
             get { return _mapFileProvider.MapFiles[_currentMapStateProvider.CurrentMapID]; }
         }
+    }
+
+    public interface ICurrentMapProvider
+    {
+        IMapFile CurrentMap { get; }
     }
 }

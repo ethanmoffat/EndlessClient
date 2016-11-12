@@ -29,4 +29,19 @@ namespace EOLib.Domain.Map
             return new MapItem(UniqueID, ItemID, X, Y) { Amount = newAmount };
         }
     }
+
+    public interface IMapItem
+    {
+        short UniqueID { get; }
+
+        short ItemID { get; }
+
+        byte X { get; }
+
+        byte Y { get; }
+
+        int Amount { get; }
+
+        IMapItem WithAmount(int newAmount);
+    }
 }

@@ -12,4 +12,9 @@ namespace EOLib.Domain.Map
         {
         }
     }
+
+    public interface IMapSign
+    {
+        //todo: figure out properties
+    }
 }

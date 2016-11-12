@@ -29,4 +29,9 @@ namespace EOLib.Domain.Chat
             return string.Equals(playerCommand.CommandText, inputCommand, StringComparison.InvariantCultureIgnoreCase);
         }
     }
+
+    public interface ILocalCommandHandler
+    {
+        bool HandleCommand(string inputCommand, string arguments);
+    }
 }

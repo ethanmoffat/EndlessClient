@@ -53,4 +53,23 @@ namespace EOLib.Domain.Map
             };
         }
     }
+
+    public interface IMapNPC
+    {
+        short ID { get; }
+
+        byte Index { get; }
+
+        byte X { get; }
+
+        byte Y { get; }
+
+        EODirection Direction { get; }
+
+        IMapNPC WithX(byte x);
+
+        IMapNPC WithY(byte y);
+
+        IMapNPC WithDirection(EODirection direction);
+    }
 }

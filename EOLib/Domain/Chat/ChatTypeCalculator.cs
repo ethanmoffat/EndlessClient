@@ -42,4 +42,9 @@ namespace EOLib.Domain.Chat
             get { return _characterProvider.MainCharacter.AdminLevel != AdminLevel.Player; }
         }
     }
+
+    public interface IChatTypeCalculator
+    {
+        ChatType CalculateChatType(string input);
+    }
 }

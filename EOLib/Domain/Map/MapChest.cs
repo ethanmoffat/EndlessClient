@@ -12,4 +12,9 @@ namespace EOLib.Domain.Map
         {
         }
     }
+
+    public interface IMapChest
+    {
+        //todo: figure out properties
+    }
 }
