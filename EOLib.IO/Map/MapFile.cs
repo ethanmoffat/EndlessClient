@@ -16,10 +16,7 @@ namespace EOLib.IO.Map
 
         public IReadOnlyMatrix<TileSpec> Tiles { get { return _mutableTiles; } }
         public IReadOnlyMatrix<WarpMapEntity> Warps { get { return _mutableWarps; } }
-        public IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX
-        {
-            get { return _mutableGFX.ToDictionary(k => k.Key, v => (IReadOnlyMatrix<int>) v.Value); }
-        }
+        public IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX { get { return _readOnlyGFX; } }
         public IReadOnlyList<NPCSpawnMapEntity> NPCSpawns { get { return _mutableNPCSpawns; } }
         public IReadOnlyList<UnknownMapEntity> Unknowns { get { return _mutableUnknowns; } }
         public IReadOnlyList<ChestSpawnMapEntity> Chests { get { return _mutableChestSpawns; } }
@@ -28,6 +25,7 @@ namespace EOLib.IO.Map
         private Matrix<TileSpec> _mutableTiles;
         private Matrix<WarpMapEntity> _mutableWarps;
         private Dictionary<MapLayer, Matrix<int>> _mutableGFX;
+        private IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> _readOnlyGFX;
         private List<NPCSpawnMapEntity> _mutableNPCSpawns;
         private List<UnknownMapEntity> _mutableUnknowns;
         private List<ChestSpawnMapEntity> _mutableChestSpawns;
@@ -45,6 +43,7 @@ namespace EOLib.IO.Map
         {
             foreach (var layer in (MapLayer[]) Enum.GetValues(typeof(MapLayer)))
                 _mutableGFX.Add(layer, Matrix<int>.Empty);
+            SetReadOnlyGFX();
         }
 
         private MapFile(IMapFileProperties properties,
@@ -60,6 +59,7 @@ namespace EOLib.IO.Map
             _mutableTiles = tiles;
             _mutableWarps = warps;
             _mutableGFX = gfx;
+            SetReadOnlyGFX();
             _mutableNPCSpawns = npcSpawns;
             _mutableUnknowns = unknowns;
             _mutableChestSpawns = chests;
@@ -97,6 +97,7 @@ namespace EOLib.IO.Map
         {
             var newMap = MakeCopy(this);
             newMap._mutableGFX = gfx;
+            SetReadOnlyGFX();
             return newMap;
         }
 
@@ -184,6 +185,11 @@ namespace EOLib.IO.Map
                 source._mutableUnknowns,
                 source._mutableChestSpawns,
                 source._mutableSigns);
+        }
+
+        private void SetReadOnlyGFX()
+        {
+            _readOnlyGFX = _mutableGFX.ToDictionary(k => k.Key, v => (IReadOnlyMatrix<int>)v.Value);
         }
     }
 }
