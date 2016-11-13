@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering
     //Map NPCs are coupled with draw/update operations
     //Note: this is like character, in that it isn't actually drawn or updated by the framework
     //        Map Renderer handles all draw/update operations
-    public class NPCRenderer : DrawableGameComponent
+    public class OldNPCRenderer : DrawableGameComponent
     {
         /* Default NPC speed table for eoserv, corresponding to the speed stored in the NPCRenderer spawn */
         /* Not sure if this is ever transferred to the client at all, but it is a config value... */
@@ -74,7 +74,7 @@ namespace EndlessClient.Rendering
         private DateTime _lastAnimUpdateTime;
         private MouseState _prevMouseState, _currMouseState;
 
-        public NPCRenderer(OldNPC npc)
+        public OldNPCRenderer(OldNPC npc)
             : base(EOGame.Instance)
         {
             NPC = npc;

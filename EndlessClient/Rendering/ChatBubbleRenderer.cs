@@ -44,7 +44,7 @@ namespace EndlessClient.Rendering
             EOGame.Instance.Components.Add(this);
         }
 
-        public EOChatBubble(NPCRenderer following)
+        public EOChatBubble(OldNPCRenderer following)
             : base(EOGame.Instance)
         {
             m_ref = following;
@@ -95,7 +95,7 @@ namespace EndlessClient.Rendering
 
         private void _setLabelDrawLoc()
         {
-            Rectangle refArea = m_isChar ? ((OldCharacterRenderer)m_ref).DrawAreaWithOffset : ((NPCRenderer)m_ref).DrawArea;
+            Rectangle refArea = m_isChar ? ((OldCharacterRenderer)m_ref).DrawAreaWithOffset : ((OldNPCRenderer)m_ref).DrawArea;
             int extra = s_textsLoaded ? s_textures[ML].Width : 0;
             if(m_label != null) //really missing the ?. operator :-/
                 m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.ActualHeight - 5);

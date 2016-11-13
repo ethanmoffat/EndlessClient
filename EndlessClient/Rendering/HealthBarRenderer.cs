@@ -39,7 +39,7 @@ namespace EndlessClient.Rendering
         public DamageCounter(DrawableGameComponent actor)
         {
             m_ref = actor;
-            if (m_ref is NPCRenderer)
+            if (m_ref is OldNPCRenderer)
             {
                 m_isCharacter = false;
             }
@@ -131,8 +131,8 @@ namespace EndlessClient.Rendering
             }
             else
             {
-                Rectangle tmp = ((NPCRenderer)m_ref).DrawArea;
-                m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f, tmp.Y + ((NPCRenderer)m_ref).TopPixel - 10);
+                Rectangle tmp = ((OldNPCRenderer)m_ref).DrawArea;
+                m_healthBarPos = new Vector2(tmp.X + (tmp.Width - s_HealthBarSprites.Width) / 2f, tmp.Y + ((OldNPCRenderer)m_ref).TopPixel - 10);
             }
 
             base.Update(gameTime);
@@ -158,8 +158,8 @@ namespace EndlessClient.Rendering
                 }
                 else
                 {
-                    Rectangle tmp = ((NPCRenderer) m_ref).DrawArea;
-                    pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y + ((NPCRenderer) m_ref).TopPixel - m_additionalOffset - NPC_ADDITIONAL_OFFSET);
+                    Rectangle tmp = ((OldNPCRenderer) m_ref).DrawArea;
+                    pos = new Vector2(tmp.X + tmp.Width/2f - 15, tmp.Y + ((OldNPCRenderer) m_ref).TopPixel - m_additionalOffset - NPC_ADDITIONAL_OFFSET);
                 }
             }
             else
@@ -171,8 +171,8 @@ namespace EndlessClient.Rendering
                 }
                 else
                 {
-                    Rectangle tmp = ((NPCRenderer) m_ref).DrawArea;
-                    pos = new Vector2(tmp.X + tmp.Width / 2f - (nDigits * 9) / 2f, tmp.Y + ((NPCRenderer)m_ref).TopPixel - m_additionalOffset - NPC_ADDITIONAL_OFFSET);
+                    Rectangle tmp = ((OldNPCRenderer) m_ref).DrawArea;
+                    pos = new Vector2(tmp.X + tmp.Width / 2f - (nDigits * 9) / 2f, tmp.Y + ((OldNPCRenderer)m_ref).TopPixel - m_additionalOffset - NPC_ADDITIONAL_OFFSET);
                 }
             }
             

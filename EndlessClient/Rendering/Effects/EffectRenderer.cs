@@ -40,7 +40,7 @@ namespace EndlessClient.Rendering.Effects
         public EffectType EffectType { get { return _effectType; } }
 
         public EffectRenderer(INativeGraphicsManager gfxManager,
-                              NPCRenderer npc,
+                              OldNPCRenderer npc,
                               Action cleanupAction = null)
             : this(gfxManager, (DrawableGameComponent)npc, cleanupAction) { }
 
@@ -139,7 +139,7 @@ namespace EndlessClient.Rendering.Effects
                 sb.End();
         }
 
-        private Rectangle GetTargetRectangle(NPCRenderer npc)
+        private Rectangle GetTargetRectangle(OldNPCRenderer npc)
         {
             return npc.MapProjectedDrawArea;
         }

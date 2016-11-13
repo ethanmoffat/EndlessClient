@@ -30,7 +30,7 @@ namespace EndlessClient.Rendering
         //collections
         private readonly Dictionary<Point, List<OldMapItem>> _mapItems = new Dictionary<Point, List<OldMapItem>>();
         private readonly List<OldCharacterRenderer> _characterRenderers = new List<OldCharacterRenderer>();
-        private readonly List<NPCRenderer> _npcRenderers = new List<NPCRenderer>();
+        private readonly List<OldNPCRenderer> _npcRenderers = new List<OldNPCRenderer>();
         private readonly object _npcListLock = new object(), _characterListLock = new object();
 
         public IMapFile MapRef { get; private set; }
@@ -116,7 +116,7 @@ namespace EndlessClient.Rendering
                 lock(_npcListLock)
                     dgc = _npcRenderers.Find(_npc => _npc.NPC.Index == playerID);
                 if (dgc != null)
-                    playerName = ((NPCRenderer)dgc).NPC.Data.Name;
+                    playerName = ((OldNPCRenderer)dgc).NPC.Data.Name;
             }
             else
             {
@@ -163,8 +163,8 @@ namespace EndlessClient.Rendering
 // ReSharper disable CanBeReplacedWithTryCastAndCheckForNull
             if (follow is OldCharacterRenderer)
                 ((OldCharacterRenderer)follow).SetChatBubbleText(message, groupChat);
-            else if (follow is NPCRenderer)
-                ((NPCRenderer)follow).SetChatBubbleText(message, groupChat);
+            else if (follow is OldNPCRenderer)
+                ((OldNPCRenderer)follow).SetChatBubbleText(message, groupChat);
 // ReSharper restore CanBeReplacedWithTryCastAndCheckForNull
         }
 
@@ -678,7 +678,7 @@ namespace EndlessClient.Rendering
             lock (_npcListLock)
             {
                 var fileData = OldWorld.Instance.ENF[data.ID];
-                NPCRenderer newNpcRenderer = new NPCRenderer(new OldNPC(data, fileData));
+                OldNPCRenderer newNpcRenderer = new OldNPCRenderer(new OldNPC(data, fileData));
                 newNpcRenderer.Initialize();
                 newNpcRenderer.Visible = true;
                 _npcRenderers.Add(newNpcRenderer);
@@ -689,7 +689,7 @@ namespace EndlessClient.Rendering
         {
             lock (_npcListLock)
             {
-                NPCRenderer npcRenderer = _npcRenderers.Find(_npc => _npc.NPC.Index == index);
+                OldNPCRenderer npcRenderer = _npcRenderers.Find(_npc => _npc.NPC.Index == index);
                 if (npcRenderer != null)
                 {
                     if (damage > 0) //npc was killed - will do cleanup later
@@ -726,7 +726,7 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void RemoveNPCsWhere(Func<NPCRenderer, bool> predicate)
+        public void RemoveNPCsWhere(Func<OldNPCRenderer, bool> predicate)
         {
             List<byte> indexes;
             lock (_npcListLock)
@@ -738,7 +738,7 @@ namespace EndlessClient.Rendering
         {
             lock (_npcListLock)
             {
-                foreach (NPCRenderer n in _npcRenderers)
+                foreach (OldNPCRenderer n in _npcRenderers)
                 {
                     n.Visible = false;
                     n.Dispose();
@@ -751,7 +751,7 @@ namespace EndlessClient.Rendering
         {
             lock (_npcListLock)
             {
-                NPCRenderer toWalk = _npcRenderers.Find(_npc => _npc.NPC.Index == index);
+                OldNPCRenderer toWalk = _npcRenderers.Find(_npc => _npc.NPC.Index == index);
                 if (toWalk != null && !toWalk.NPC.Walking)
                 {
                     toWalk.Walk(x, y, dir);
@@ -763,7 +763,7 @@ namespace EndlessClient.Rendering
         {
             lock (_npcListLock)
             {
-                NPCRenderer toAttack = _npcRenderers.Find(_npc => _npc.NPC.Index == index);
+                OldNPCRenderer toAttack = _npcRenderers.Find(_npc => _npc.NPC.Index == index);
                 if (toAttack != null && !toAttack.NPC.Attacking)
                 {
                     toAttack.Attack(dir);
@@ -795,7 +795,7 @@ namespace EndlessClient.Rendering
         {
             lock (_npcListLock)
             {
-                NPCRenderer toDamage = _npcRenderers.Find(_npc => _npc.NPC.Index == npcIndex);
+                OldNPCRenderer toDamage = _npcRenderers.Find(_npc => _npc.NPC.Index == npcIndex);
                 if (toDamage == null) return;
 
                 _renderSpellOnNPC(spellID, toDamage);
@@ -1222,9 +1222,9 @@ namespace EndlessClient.Rendering
             lock (_characterListLock)
                 otherChars = new List<OldCharacterRenderer>(_characterRenderers); //copy of list (can remove items)
 
-            List<NPCRenderer> otherNpcs;
+            List<OldNPCRenderer> otherNpcs;
             lock(_npcListLock)
-                otherNpcs = new List<NPCRenderer>(_npcRenderers);
+                otherNpcs = new List<OldNPCRenderer>(_npcRenderers);
 
             Dictionary<Point, Texture2D> drawRoofLater = new Dictionary<Point, Texture2D>();
 
@@ -1399,7 +1399,7 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private void _drawCharactersAndNPCsAtLoc(int rowIndex, int colIndex, List<NPCRenderer> otherNpcs, List<OldCharacterRenderer> otherChars)
+        private void _drawCharactersAndNPCsAtLoc(int rowIndex, int colIndex, List<OldNPCRenderer> otherNpcs, List<OldCharacterRenderer> otherChars)
         {
             var thisLocNpcs = otherNpcs.Where(_npc => (_npc.NPC.Walking ? _npc.NPC.DestY == rowIndex : _npc.NPC.Y == rowIndex) &&
                                                       (_npc.NPC.Walking ? _npc.NPC.DestX == colIndex : _npc.NPC.X == colIndex)).ToList();
@@ -1477,7 +1477,7 @@ namespace EndlessClient.Rendering
             renderer.ShowSpellAnimation(spellInfo.Graphic);
         }
 
-        private void _renderSpellOnNPC(short spellID, NPCRenderer renderer)
+        private void _renderSpellOnNPC(short spellID, OldNPCRenderer renderer)
         {
             if (spellID < 1) return;
 
@@ -1562,7 +1562,7 @@ namespace EndlessClient.Rendering
 
                 lock (_npcListLock)
                 {
-                    foreach (NPCRenderer npc in _npcRenderers)
+                    foreach (OldNPCRenderer npc in _npcRenderers)
                         npc.Dispose();
                 }
 

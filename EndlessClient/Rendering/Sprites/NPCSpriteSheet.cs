@@ -11,9 +11,9 @@ namespace EndlessClient.Rendering.Sprites
     public class NPCSpriteSheet
     {
         private readonly INativeGraphicsManager _gfxManager;
-        private readonly NPCRenderer _npcRenderer;
+        private readonly OldNPCRenderer _npcRenderer;
 
-        public NPCSpriteSheet(INativeGraphicsManager gfxManager, NPCRenderer npcToWatch)
+        public NPCSpriteSheet(INativeGraphicsManager gfxManager, OldNPCRenderer npcToWatch)
         {
             _gfxManager = gfxManager;
             _npcRenderer = npcToWatch;

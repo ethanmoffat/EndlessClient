@@ -319,7 +319,7 @@
     <Compile Include="Rendering\OldMapRenderer.cs" />
     <Compile Include="Rendering\MiniMapRenderer.cs" />
     <Compile Include="Rendering\MouseCursorRenderer.cs" />
-    <Compile Include="Rendering\NPCRenderer.cs" />
+    <Compile Include="Rendering\OldNPCRenderer.cs" />
     <Compile Include="Rendering\PlayerStatusIconRenderer.cs" />
     <Compile Include="OldWorld.cs" />
     <Compile Include="Rendering\Sprites\SpriteSheet.cs" />
