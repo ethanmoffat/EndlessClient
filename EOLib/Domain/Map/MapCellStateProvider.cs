@@ -4,6 +4,7 @@
 
 using System.Linq;
 using EOLib.Domain.Character;
+using EOLib.Domain.NPC;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 

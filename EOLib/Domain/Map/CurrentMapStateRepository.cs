@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using EOLib.Domain.Character;
+using EOLib.Domain.NPC;
 
 namespace EOLib.Domain.Map
 {

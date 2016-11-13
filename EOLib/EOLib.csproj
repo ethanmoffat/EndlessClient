@@ -98,11 +98,12 @@
     <Compile Include="Domain\Map\MapCellStateProvider.cs" />
     <Compile Include="Domain\Map\Chest.cs" />
     <Compile Include="Domain\Map\Item.cs" />
-    <Compile Include="Domain\Map\NPC.cs" />
     <Compile Include="Domain\Map\RefreshReplyPacketData.cs" />
     <Compile Include="Domain\Map\Sign.cs" />
     <Compile Include="Domain\Map\Warp.cs" />
     <Compile Include="Domain\Map\WarpAgreePacketData.cs" />
+    <Compile Include="Domain\NPC\INPC.cs" />
+    <Compile Include="Domain\NPC\NPC.cs" />
     <Compile Include="Domain\NPC\OldNPC.cs" />
     <Compile Include="Domain\Character\AdminLevel.cs" />
     <Compile Include="Domain\Character\CharacterCreateData.cs" />

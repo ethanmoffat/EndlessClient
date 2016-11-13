@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
+using EOLib.Domain.NPC;
 
 namespace EOLib.Domain.Login
 {
