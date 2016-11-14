@@ -2,14 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-namespace EndlessClient
+namespace EndlessClient.Rendering
 {
-    public interface IClientWindowSizeProvider
-    {
-        int Width { get; }
-        int Height { get; }
-    }
-
     public class ClientWindowSizeProvider : IClientWindowSizeProvider
     {
         //This could be extended to support adjusting the window size
@@ -19,5 +13,11 @@ namespace EndlessClient
         //Supporting dynamic window sizing is NOT a trivial task
         public int Width { get { return 640; } }
         public int Height { get { return 480; } }
+    }
+
+    public interface IClientWindowSizeProvider
+    {
+        int Width { get; }
+        int Height { get; }
     }
 }

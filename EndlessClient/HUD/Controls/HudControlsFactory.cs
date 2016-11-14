@@ -10,6 +10,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Input;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;

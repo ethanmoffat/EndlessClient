@@ -133,7 +133,7 @@
     <Compile Include="HUD\Panels\SettingsPanel.cs" />
     <Compile Include="HUD\Panels\StatsPanel.cs" />
     <Compile Include="HUD\StatusLabelSetter.cs" />
-    <Compile Include="IClientWindowSizeProvider.cs" />
+    <Compile Include="Rendering\IClientWindowSizeProvider.cs" />
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
     <Compile Include="Rendering\PointComparer.cs" />
     <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRendererBuilder.cs" />

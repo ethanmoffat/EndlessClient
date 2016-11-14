@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.ControlSets;
+using EndlessClient.Rendering;
 using EndlessClient.Test;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
