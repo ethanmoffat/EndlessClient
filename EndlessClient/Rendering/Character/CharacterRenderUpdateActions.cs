@@ -104,4 +104,9 @@ namespace EndlessClient.Rendering.Character
             return renderer;
         }
     }
+
+    public interface ICharacterRenderUpdateActions
+    {
+        void UpdateCharacters(GameTime gameTime);
+    }
 }

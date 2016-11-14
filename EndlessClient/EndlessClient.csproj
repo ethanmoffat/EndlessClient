@@ -153,7 +153,6 @@
     <Compile Include="Rendering\Character\ICharacterRenderer.cs" />
     <Compile Include="Rendering\RendererRepositoryResetter.cs" />
     <Compile Include="Rendering\Character\ICharacterRendererRepository.cs" />
-    <Compile Include="Rendering\Character\ICharacterRenderUpdateActions.cs" />
     <Compile Include="Rendering\Character\ICharacterStateCache.cs" />
     <Compile Include="Rendering\Character\ICharacterTextures.cs" />
     <Compile Include="Rendering\Chat\ChatColorExtensions.cs" />
