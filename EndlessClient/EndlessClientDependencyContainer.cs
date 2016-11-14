@@ -14,19 +14,9 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Input;
 using EndlessClient.Network;
-using EndlessClient.Rendering;
-using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.CharacterProperties;
-using EndlessClient.Rendering.Factories;
-using EndlessClient.Rendering.Map;
-using EndlessClient.Rendering.MapEntityRenderers;
-using EndlessClient.Rendering.NPC;
-using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib.DependencyInjection;
-using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
-using EOLib.Domain.Map;
 using Microsoft.Practices.Unity;
 using XNAControls;
 
@@ -42,13 +32,8 @@ namespace EndlessClient
             //factories
             container.RegisterInstance<IControlSetFactory, ControlSetFactory>()
                 .RegisterInstance<IHudControlsFactory, HudControlsFactory>()
-                .RegisterType<ICharacterRendererFactory, CharacterRendererFactory>()
-                .RegisterType<INPCRendererFactory, NPCRendererFactory>()
                 .RegisterInstance<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>()
-                .RegisterType<IHudPanelFactory, HudPanelFactory>()
-                .RegisterType<IRenderTargetFactory, RenderTargetFactory>()
-                .RegisterType<ICharacterPropertyRendererBuilder, CharacterPropertyRendererBuilder>()
-                .RegisterType<IMapRendererFactory, MapRendererFactory>();
+                .RegisterType<IHudPanelFactory, HudPanelFactory>();
 
             container.RegisterType<IEOMessageBoxFactory, EOMessageBoxFactory>()
                 .RegisterType<ICreateAccountWarningDialogFactory, CreateAccountWarningDialogFactory>()
@@ -57,16 +42,8 @@ namespace EndlessClient
                 .RegisterType<IChangePasswordDialogFactory, ChangePasswordDialogFactory>()
                 .RegisterType<IGameLoadingDialogFactory, GameLoadingDialogFactory>();
 
-            //services
-            container.RegisterType<IMapRenderDistanceCalculator, MapRenderDistanceCalculator>()
-                .RegisterType<IRenderOffsetCalculator, RenderOffsetCalculator>()
-                .RegisterType<ICharacterTextures, CharacterTextures>()
-                .RegisterType<ICharacterSpriteCalculator, CharacterSpriteCalculator>()
-                .RegisterType<INPCSpriteSheet, NPCSpriteSheet>();
-
             //notifiers
-            container.RegisterVaried<IOtherCharacterAnimationNotifier, CharacterAnimationActions>()
-                .RegisterVaried<IMapChangedNotifier, MapChangedActions>()
+            container
                 .RegisterVaried<IChatEventNotifier, ChatNotificationActions>();
 
             //provider/repository
@@ -82,24 +59,14 @@ namespace EndlessClient
                 .RegisterInstance<IEndlessGameRepository, EndlessGameRepository>()
                 .RegisterInstance<IStatusLabelTextProvider, StatusLabelTextRepository>()
                 .RegisterInstance<IStatusLabelTextRepository, StatusLabelTextRepository>()
-                .RegisterInstance<ICharacterRendererProvider, CharacterRendererRepository>()
-                .RegisterInstance<ICharacterRendererRepository, CharacterRendererRepository>()
-                .RegisterInstance<INPCRendererProvider, NPCRendererRepository>()
-                .RegisterInstance<INPCRendererRepository, NPCRendererRepository>()
                 .RegisterInstance<IKeyStateRepository, KeyStateRepository>()
                 .RegisterInstance<IKeyStateProvider, IKeyStateProvider>();
 
             container.RegisterInstance<IUserInputTimeRepository, UserInputTimeRepository>();
 
-            container.RegisterType<IRendererRepositoryResetter, RendererRepositoryResetter>();
-
             //provider only
             container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>()
-                .RegisterInstance<IHudControlProvider, HudControlProvider>()
-                .RegisterInstance<IMapEntityRendererProvider, MapEntityRendererProvider>()
-                .RegisterInstance<IMapItemGraphicProvider, MapItemGraphicProvider>()
-                .RegisterInstance<ICharacterStateCache, CharacterStateCache>()
-                .RegisterInstance<INPCStateCache, NPCStateCache>();
+                .RegisterInstance<IHudControlProvider, HudControlProvider>();
 
             //controllers
             container.RegisterType<IMainButtonController, MainButtonController>()
@@ -114,13 +81,10 @@ namespace EndlessClient
                 .RegisterType<IErrorDialogDisplayAction, ErrorDialogDisplayAction>()
                 .RegisterType<IAccountDialogDisplayActions, AccountDialogDisplayActions>()
                 .RegisterType<ICharacterDialogActions, CharacterDialogActions>()
-                .RegisterType<ICharacterRendererUpdater, CharacterRendererUpdater>()
-                .RegisterType<INPCRendererUpdater, NPCRendererUpdater>()
                 .RegisterType<IChatTextBoxActions, ChatTextBoxActions>()
                 .RegisterType<IFirstTimePlayerActions, FirstTimePlayerActions>()
                 .RegisterType<IPrivateMessageActions, PrivateMessageActions>()
-                .RegisterType<IChatSpeechBubbleActions, ChatSpeechBubbleActions>()
-                .RegisterType<ICharacterAnimationActions, CharacterAnimationActions>();
+                .RegisterType<IChatSpeechBubbleActions, ChatSpeechBubbleActions>();
 
             //hud
             container.RegisterType<IHudButtonController, HudButtonController>()
