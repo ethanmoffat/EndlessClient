@@ -4,9 +4,9 @@
 
 using System;
 
-namespace EndlessClient.Rendering.Character
+namespace EndlessClient.Rendering
 {
-    public interface ICharacterRendererResetter : IDisposable
+    public interface IRendererRepositoryResetter : IDisposable
     {
         void ResetRenderers();
     }

@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EndlessClient.Controllers;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
@@ -24,7 +25,7 @@ namespace EndlessClient.UIControls
         private readonly ICharacter _character;
         private readonly ILoginController _loginController;
         private readonly ICharacterManagementController _characterManagementController;
-        private readonly ICharacterRendererResetter _characterRendererResetter;
+        private readonly IRendererRepositoryResetter _rendererRepositoryResetter;
         private readonly ICharacterStateCache _characterStateCache;
         private readonly CharacterControl _characterControl;
         private readonly ISpriteSheet _adminGraphic;
@@ -64,14 +65,14 @@ namespace EndlessClient.UIControls
                                   ILoginController loginController,
                                   ICharacterManagementController characterManagementController,
                                   ICharacterRendererFactory rendererFactory,
-                                  ICharacterRendererResetter characterRendererResetter,
+                                  IRendererRepositoryResetter rendererRepositoryResetter,
                                   ICharacterStateCache characterStateCache)
             : this(characterIndex, gfxManager)
         {
             _character = character;
             _loginController = loginController;
             _characterManagementController = characterManagementController;
-            _characterRendererResetter = characterRendererResetter;
+            _rendererRepositoryResetter = rendererRepositoryResetter;
             _characterStateCache = characterStateCache;
 
             _characterControl = new CharacterControl(character.RenderProperties, rendererFactory)
@@ -137,7 +138,7 @@ namespace EndlessClient.UIControls
 
             try
             {
-                _characterRendererResetter.ResetRenderers();
+                _rendererRepositoryResetter.ResetRenderers();
                 _characterStateCache.Reset();
 
                 await _loginController.LoginToCharacter(_character);

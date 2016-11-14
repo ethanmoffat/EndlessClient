@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using EndlessClient.Controllers;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Login;
@@ -17,7 +18,7 @@ namespace EndlessClient.UIControls
         private readonly ICharacterSelectorProvider _characterProvider;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICharacterRendererFactory _characterRendererFactory;
-        private readonly ICharacterRendererResetter _characterRendererResetter;
+        private readonly IRendererRepositoryResetter _rendererRepositoryResetter;
         private readonly ICharacterStateCache _characterStateCache;
 
         private ILoginController _loginController;
@@ -26,13 +27,13 @@ namespace EndlessClient.UIControls
         public CharacterInfoPanelFactory(ICharacterSelectorProvider characterProvider,
                                          INativeGraphicsManager nativeGraphicsManager,
                                          ICharacterRendererFactory characterRendererFactory,
-                                         ICharacterRendererResetter characterRendererResetter,
+                                         IRendererRepositoryResetter rendererRepositoryResetter,
                                          ICharacterStateCache characterStateCache)
         {
             _characterProvider = characterProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterRendererFactory = characterRendererFactory;
-            _characterRendererResetter = characterRendererResetter;
+            _rendererRepositoryResetter = rendererRepositoryResetter;
             _characterStateCache = characterStateCache;
         }
 
@@ -61,7 +62,7 @@ namespace EndlessClient.UIControls
                                                     _loginController,
                                                     _characterManagementController,
                                                     _characterRendererFactory,
-                                                    _characterRendererResetter,
+                                                    _rendererRepositoryResetter,
                                                     _characterStateCache);
             }
 
