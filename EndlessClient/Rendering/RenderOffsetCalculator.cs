@@ -5,6 +5,7 @@
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.NPC;
 
 namespace EndlessClient.Rendering
 {
@@ -27,6 +28,24 @@ namespace EndlessClient.Rendering
             //walkAdjust * multiplier is the old ViewAdjustY
             return properties.MapX*16 + properties.MapY*16 + walkAdjust*multiplier;
         }
+
+        public int CalculateOffsetX(INPC npc)
+        {
+            var multiplier = npc.IsFacing(EODirection.Left, EODirection.Down) ? -1 : 1;
+            var walkAdjust = npc.IsActing(NPCActionState.Walking) ? 8 * npc.GetWalkFrame() : 0;
+
+            //walkAdjust * multiplier is the old ViewAdjustX
+            return npc.X*32 - npc.Y*32 + walkAdjust*multiplier;
+        }
+
+        public int CalculateOffsetY(INPC npc)
+        {
+            var multiplier = npc.IsFacing(EODirection.Left, EODirection.Down) ? -1 : 1;
+            var walkAdjust = npc.IsActing(NPCActionState.Walking) ? 4 * npc.GetWalkFrame() : 0;
+
+            //walkAdjust * multiplier is the old ViewAdjustY
+            return npc.X*16 - npc.Y*16 + walkAdjust*multiplier;
+        }
     }
 
     public interface IRenderOffsetCalculator
@@ -34,5 +53,9 @@ namespace EndlessClient.Rendering
         int CalculateOffsetX(ICharacterRenderProperties properties);
 
         int CalculateOffsetY(ICharacterRenderProperties properties);
+
+        int CalculateOffsetX(INPC npc);
+
+        int CalculateOffsetY(INPC npc);
     }
 }

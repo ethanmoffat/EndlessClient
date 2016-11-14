@@ -87,6 +87,7 @@
     <Compile Include="Domain\Chat\ChatType.cs" />
     <Compile Include="Domain\Chat\LocalCommandHandler.cs" />
     <Compile Include="Domain\Extensions\CharacterRenderPropertiesExtensions.cs" />
+    <Compile Include="Domain\Extensions\NPCExtensions.cs" />
     <Compile Include="Domain\Extensions\PaperdollRepositoryExtensions.cs" />
     <Compile Include="Domain\IResetStateAction.cs" />
     <Compile Include="Domain\Login\NewsRepository.cs" />
@@ -104,6 +105,7 @@
     <Compile Include="Domain\Map\WarpAgreePacketData.cs" />
     <Compile Include="Domain\NPC\INPC.cs" />
     <Compile Include="Domain\NPC\NPC.cs" />
+    <Compile Include="Domain\NPC\NPCActionState.cs" />
     <Compile Include="Domain\NPC\NPCFrame.cs" />
     <Compile Include="Domain\NPC\OldNPC.cs" />
     <Compile Include="Domain\Character\AdminLevel.cs" />
