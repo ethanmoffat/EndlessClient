@@ -29,7 +29,7 @@ namespace EndlessClient.Rendering.Map
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
-        private readonly ICharacterRenderUpdateActions _characterRenderUpdateActions;
+        private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly INPCRendererUpdater _npcRendererUpdater;
         private readonly IConfigurationProvider _configurationProvider;
 
@@ -43,7 +43,7 @@ namespace EndlessClient.Rendering.Map
                            ICharacterProvider characterProvider,
                            ICurrentMapProvider currentMapProvider,
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator,
-                           ICharacterRenderUpdateActions characterRenderUpdateActions,
+                           ICharacterRendererUpdater characterRendererUpdater,
                            INPCRendererUpdater npcRendererUpdater,
                            IConfigurationProvider configurationProvider)
             : base((Game)endlessGame)
@@ -53,7 +53,7 @@ namespace EndlessClient.Rendering.Map
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
-            _characterRenderUpdateActions = characterRenderUpdateActions;
+            _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
             _configurationProvider = configurationProvider;
         }
@@ -71,7 +71,7 @@ namespace EndlessClient.Rendering.Map
         {
             if (Visible)
             {
-                _characterRenderUpdateActions.UpdateCharacters(gameTime);
+                _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
                 DrawMapToRenderTarget();
             }

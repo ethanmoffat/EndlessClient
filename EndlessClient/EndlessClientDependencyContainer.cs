@@ -114,7 +114,7 @@ namespace EndlessClient
                 .RegisterType<IErrorDialogDisplayAction, ErrorDialogDisplayAction>()
                 .RegisterType<IAccountDialogDisplayActions, AccountDialogDisplayActions>()
                 .RegisterType<ICharacterDialogActions, CharacterDialogActions>()
-                .RegisterType<ICharacterRenderUpdateActions, CharacterRenderUpdateActions>()
+                .RegisterType<ICharacterRendererUpdater, CharacterRendererUpdater>()
                 .RegisterType<INPCRendererUpdater, NPCRendererUpdater>()
                 .RegisterType<IChatTextBoxActions, ChatTextBoxActions>()
                 .RegisterType<IFirstTimePlayerActions, FirstTimePlayerActions>()

@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
-        private readonly ICharacterRenderUpdateActions _characterRenderUpdateActions;
+        private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly INPCRendererUpdater _npcRendererUpdater;
 
@@ -31,7 +31,7 @@ namespace EndlessClient.Rendering.Factories
             ICharacterProvider characterProvider,
             ICurrentMapProvider currentMapProvider,
             IMapRenderDistanceCalculator mapRenderDistanceCalculator,
-            ICharacterRenderUpdateActions characterRenderUpdateActions,
+            ICharacterRendererUpdater characterRendererUpdater,
             INPCRendererUpdater npcRendererUpdater,
             IConfigurationProvider configurationProvider)
         {
@@ -41,7 +41,7 @@ namespace EndlessClient.Rendering.Factories
             _characterProvider = characterProvider;
             _currentMapProvider = currentMapProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
-            _characterRenderUpdateActions = characterRenderUpdateActions;
+            _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
             _configurationProvider = configurationProvider;
         }
@@ -54,7 +54,7 @@ namespace EndlessClient.Rendering.Factories
                                    _characterProvider,
                                    _currentMapProvider,
                                    _mapRenderDistanceCalculator,
-                                   _characterRenderUpdateActions,
+                                   _characterRendererUpdater,
                                    _npcRendererUpdater,
                                    _configurationProvider);
         }

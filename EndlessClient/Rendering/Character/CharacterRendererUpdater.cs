@@ -10,7 +10,7 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Character
 {
-    public class CharacterRenderUpdateActions : ICharacterRenderUpdateActions
+    public class CharacterRendererUpdater : ICharacterRendererUpdater
     {
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
@@ -18,7 +18,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly ICharacterStateCache _characterStateCache;
 
-        public CharacterRenderUpdateActions(ICharacterProvider characterProvider,
+        public CharacterRendererUpdater(ICharacterProvider characterProvider,
                                             ICurrentMapStateProvider currentMapStateProvider,
                                             ICharacterRendererFactory characterRendererFactory,
                                             ICharacterRendererRepository characterRendererRepository,
@@ -105,7 +105,7 @@ namespace EndlessClient.Rendering.Character
         }
     }
 
-    public interface ICharacterRenderUpdateActions
+    public interface ICharacterRendererUpdater
     {
         void UpdateCharacters(GameTime gameTime);
     }
