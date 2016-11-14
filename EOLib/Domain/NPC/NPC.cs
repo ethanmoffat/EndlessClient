@@ -16,6 +16,10 @@ namespace EOLib.Domain.NPC
 
         public EODirection Direction { get; private set; }
 
+        public NPCFrame Frame { get; private set; }
+
+        public Optional<short> OpponentID { get; private set; }
+
         public NPC(short id, byte index)
         {
             ID = id;
@@ -43,13 +47,29 @@ namespace EOLib.Domain.NPC
             return copy;
         }
 
+        public INPC WithFrame(NPCFrame frame)
+        {
+            var copy = MakeCopy(this);
+            copy.Frame = frame;
+            return copy;
+        }
+
+        public INPC WithOpponentID(Optional<short> opponentID)
+        {
+            var copy = MakeCopy(this);
+            copy.OpponentID = opponentID;
+            return copy;
+        }
+
         private static NPC MakeCopy(INPC input)
         {
             return new NPC(input.ID, input.Index)
             {
                 X = input.X,
                 Y = input.Y,
-                Direction = input.Direction
+                Direction = input.Direction,
+                Frame = input.Frame,
+                OpponentID = input.OpponentID
             };
         }
     }
