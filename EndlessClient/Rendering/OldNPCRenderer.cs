@@ -82,7 +82,7 @@ namespace EndlessClient.Rendering
             _actionStartTime = DateTime.Now;
             _lastAnimUpdateTime = DateTime.Now;
 
-            _npcSheet = new NPCSpriteSheet(((EOGame)Game).GFXManager, this);
+            _npcSheet = new NPCSpriteSheet(((EOGame)Game).GFXManager);
 
             _chatBubble = new EOChatBubble(this);
             m_damageCounter = new DamageCounter(this);
@@ -102,7 +102,7 @@ namespace EndlessClient.Rendering
 
             Frame = NPCFrame.Standing;
 
-            var baseFrame = _npcSheet.GetNPCTexture();
+            var baseFrame = _npcSheet.GetNPCTexture(NPC.Data.Graphic, Frame, NPC.Direction);
             _npcTextureFrameRectangle = new Rectangle(0, 0, baseFrame.Width, baseFrame.Height);
             UpdateDrawArea();
 
@@ -154,7 +154,7 @@ namespace EndlessClient.Rendering
 
             Color col = NPC.Dying ? Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha -= 3) : Color.White;
 
-            batch.Draw(_npcSheet.GetNPCTexture(),
+            batch.Draw(_npcSheet.GetNPCTexture(NPC.Data.Graphic, Frame, NPC.Direction),
                 DrawArea,
                 null,
                 col,
@@ -252,9 +252,7 @@ namespace EndlessClient.Rendering
                 try
                 {
                     //get the first non-transparent pixel to determine offsets for name labels and damage counters
-                    Frame = NPCFrame.Standing;
-
-                    var frameTexture = _npcSheet.GetNPCTexture();
+                    var frameTexture = _npcSheet.GetNPCTexture(NPC.Data.Graphic, NPCFrame.Standing, NPC.Direction);
                     var frameTextureData = new Color[frameTexture.Width * frameTexture.Height];
                     frameTexture.GetData(frameTextureData);
 
@@ -281,9 +279,7 @@ namespace EndlessClient.Rendering
         private void InitializeStandingFrame1()
         {
             //attempt to get standing frame 1. It will have non-black pixels if it exists.
-            Frame = NPCFrame.StandingFrame1;
-
-            Texture2D frameTexture = _npcSheet.GetNPCTexture();
+            Texture2D frameTexture = _npcSheet.GetNPCTexture(NPC.Data.Graphic, NPCFrame.StandingFrame1, NPC.Direction);
             Color[] textureData = new Color[frameTexture.Width * frameTexture.Height];
             frameTexture.GetData(textureData);
 

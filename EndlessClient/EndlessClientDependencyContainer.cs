@@ -58,7 +58,8 @@ namespace EndlessClient
             container.RegisterType<IMapRenderDistanceCalculator, MapRenderDistanceCalculator>()
                 .RegisterType<ICharacterRenderOffsetCalculator, CharacterRenderOffsetCalculator>()
                 .RegisterType<ICharacterTextures, CharacterTextures>()
-                .RegisterType<ICharacterSpriteCalculator, CharacterSpriteCalculator>();
+                .RegisterType<ICharacterSpriteCalculator, CharacterSpriteCalculator>()
+                .RegisterType<INPCSpriteSheet, NPCSpriteSheet>();
 
             //notifiers
             container.RegisterVaried<IOtherCharacterAnimationNotifier, CharacterAnimationActions>()
