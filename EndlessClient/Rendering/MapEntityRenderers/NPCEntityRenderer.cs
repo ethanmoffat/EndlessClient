@@ -2,9 +2,10 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Linq;
-using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
+using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,13 +15,16 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     public class NPCEntityRenderer : BaseMapEntityRenderer
     {
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly INPCRendererProvider _npcRendererProvider;
 
         public NPCEntityRenderer(ICharacterProvider characterProvider,
                                  ICurrentMapStateProvider currentMapStateProvider,
-                                 IRenderOffsetCalculator renderOffsetCalculator)
+                                 IRenderOffsetCalculator renderOffsetCalculator,
+                                 INPCRendererProvider npcRendererProvider)
             : base(characterProvider, renderOffsetCalculator)
         {
             _currentMapStateProvider = currentMapStateProvider;
+            _npcRendererProvider = npcRendererProvider;
         }
 
         public override MapRenderLayer RenderLayer
@@ -40,7 +44,22 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
-            //todo: render NPCs when NPCs are supported
+            var indicesToRender = _currentMapStateProvider.NPCs
+                .Where(npc => npc.X == col && npc.Y == row)
+                .Select(npc => npc.Index);
+
+            foreach (var index in indicesToRender)
+            {
+                if (!_npcRendererProvider.NPCRenderers.ContainsKey(index) ||
+                    _npcRendererProvider.NPCRenderers[index] == null)
+                    throw new InvalidOperationException(
+                        string.Format(
+                            "Character renderer for ID {0} is null or missing! Did you call MapRenderer.Update() before calling MapRenderer.Draw()?",
+                            index));
+
+                var renderer = _npcRendererProvider.NPCRenderers[index];
+                renderer.DrawToSpriteBatch(spriteBatch);
+            }
         }
     }
 }

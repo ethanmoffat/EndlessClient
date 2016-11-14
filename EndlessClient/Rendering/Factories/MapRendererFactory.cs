@@ -6,6 +6,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.MapEntityRenderers;
+using EndlessClient.Rendering.NPC;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
@@ -22,6 +23,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRenderUpdateActions _characterRenderUpdateActions;
         private readonly IConfigurationProvider _configurationProvider;
+        private readonly INPCRendererUpdater _npcRendererUpdater;
 
         public MapRendererFactory(IEndlessGameProvider endlessGameProvider,
             IRenderTargetFactory renderTargetFactory,
@@ -30,6 +32,7 @@ namespace EndlessClient.Rendering.Factories
             ICurrentMapProvider currentMapProvider,
             IMapRenderDistanceCalculator mapRenderDistanceCalculator,
             ICharacterRenderUpdateActions characterRenderUpdateActions,
+            INPCRendererUpdater npcRendererUpdater,
             IConfigurationProvider configurationProvider)
         {
             _endlessGameProvider = endlessGameProvider;
@@ -39,6 +42,7 @@ namespace EndlessClient.Rendering.Factories
             _currentMapProvider = currentMapProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRenderUpdateActions = characterRenderUpdateActions;
+            _npcRendererUpdater = npcRendererUpdater;
             _configurationProvider = configurationProvider;
         }
 
@@ -51,6 +55,7 @@ namespace EndlessClient.Rendering.Factories
                                    _currentMapProvider,
                                    _mapRenderDistanceCalculator,
                                    _characterRenderUpdateActions,
+                                   _npcRendererUpdater,
                                    _configurationProvider);
         }
     }

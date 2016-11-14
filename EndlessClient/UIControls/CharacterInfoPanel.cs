@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using EndlessClient.Controllers;
 using EndlessClient.Rendering;
-using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
@@ -26,7 +25,6 @@ namespace EndlessClient.UIControls
         private readonly ILoginController _loginController;
         private readonly ICharacterManagementController _characterManagementController;
         private readonly IRendererRepositoryResetter _rendererRepositoryResetter;
-        private readonly ICharacterStateCache _characterStateCache;
         private readonly CharacterControl _characterControl;
         private readonly ISpriteSheet _adminGraphic;
 
@@ -65,15 +63,13 @@ namespace EndlessClient.UIControls
                                   ILoginController loginController,
                                   ICharacterManagementController characterManagementController,
                                   ICharacterRendererFactory rendererFactory,
-                                  IRendererRepositoryResetter rendererRepositoryResetter,
-                                  ICharacterStateCache characterStateCache)
+                                  IRendererRepositoryResetter rendererRepositoryResetter)
             : this(characterIndex, gfxManager)
         {
             _character = character;
             _loginController = loginController;
             _characterManagementController = characterManagementController;
             _rendererRepositoryResetter = rendererRepositoryResetter;
-            _characterStateCache = characterStateCache;
 
             _characterControl = new CharacterControl(character.RenderProperties, rendererFactory)
             {
@@ -139,7 +135,6 @@ namespace EndlessClient.UIControls
             try
             {
                 _rendererRepositoryResetter.ResetRenderers();
-                _characterStateCache.Reset();
 
                 await _loginController.LoginToCharacter(_character);
             }

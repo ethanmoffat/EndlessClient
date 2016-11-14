@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.MapEntityRenderers;
+using EndlessClient.Rendering.NPC;
 using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
@@ -26,6 +27,7 @@ namespace EndlessClient.Rendering.Map
                                          IRenderOffsetCalculator renderOffsetCalculator,
                                          IConfigurationProvider configurationProvider,
                                          ICharacterRendererProvider characterRendererProvider,
+                                         INPCRendererProvider npcRendererProvider,
                                          ICharacterStateCache characterStateCache)
         {
             MapBaseRenderers = new List<IMapEntityRenderer>
@@ -65,7 +67,8 @@ namespace EndlessClient.Rendering.Map
                                                  renderOffsetCalculator),
                 new NPCEntityRenderer(characterProvider,
                                       currentMapStateProvider,
-                                      renderOffsetCalculator),
+                                      renderOffsetCalculator,
+                                      npcRendererProvider),
                 new RoofLayerRenderer(nativeGraphicsManager,
                                       currentMapProvider,
                                       characterProvider,

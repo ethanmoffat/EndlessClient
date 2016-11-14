@@ -43,6 +43,7 @@ namespace EndlessClient
             container.RegisterInstance<IControlSetFactory, ControlSetFactory>()
                 .RegisterInstance<IHudControlsFactory, HudControlsFactory>()
                 .RegisterType<ICharacterRendererFactory, CharacterRendererFactory>()
+                .RegisterType<INPCRendererFactory, NPCRendererFactory>()
                 .RegisterInstance<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>()
                 .RegisterType<IHudPanelFactory, HudPanelFactory>()
                 .RegisterType<IRenderTargetFactory, RenderTargetFactory>()
@@ -97,7 +98,8 @@ namespace EndlessClient
                 .RegisterInstance<IHudControlProvider, HudControlProvider>()
                 .RegisterInstance<IMapEntityRendererProvider, MapEntityRendererProvider>()
                 .RegisterInstance<IMapItemGraphicProvider, MapItemGraphicProvider>()
-                .RegisterInstance<ICharacterStateCache, CharacterStateCache>();
+                .RegisterInstance<ICharacterStateCache, CharacterStateCache>()
+                .RegisterInstance<INPCStateCache, NPCStateCache>();
 
             //controllers
             container.RegisterType<IMainButtonController, MainButtonController>()
@@ -113,6 +115,7 @@ namespace EndlessClient
                 .RegisterType<IAccountDialogDisplayActions, AccountDialogDisplayActions>()
                 .RegisterType<ICharacterDialogActions, CharacterDialogActions>()
                 .RegisterType<ICharacterRenderUpdateActions, CharacterRenderUpdateActions>()
+                .RegisterType<INPCRendererUpdater, NPCRendererUpdater>()
                 .RegisterType<IChatTextBoxActions, ChatTextBoxActions>()
                 .RegisterType<IFirstTimePlayerActions, FirstTimePlayerActions>()
                 .RegisterType<IPrivateMessageActions, PrivateMessageActions>()

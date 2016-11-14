@@ -9,6 +9,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.MapEntityRenderers;
+using EndlessClient.Rendering.NPC;
 using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Character;
@@ -29,6 +30,7 @@ namespace EndlessClient.Rendering.Map
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRenderUpdateActions _characterRenderUpdateActions;
+        private readonly INPCRendererUpdater _npcRendererUpdater;
         private readonly IConfigurationProvider _configurationProvider;
 
         private RenderTarget2D _mapAbovePlayer, _mapBelowPlayer;
@@ -42,6 +44,7 @@ namespace EndlessClient.Rendering.Map
                            ICurrentMapProvider currentMapProvider,
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator,
                            ICharacterRenderUpdateActions characterRenderUpdateActions,
+                           INPCRendererUpdater npcRendererUpdater,
                            IConfigurationProvider configurationProvider)
             : base((Game)endlessGame)
         {
@@ -51,6 +54,7 @@ namespace EndlessClient.Rendering.Map
             _currentMapProvider = currentMapProvider;
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRenderUpdateActions = characterRenderUpdateActions;
+            _npcRendererUpdater = npcRendererUpdater;
             _configurationProvider = configurationProvider;
         }
 
@@ -68,6 +72,7 @@ namespace EndlessClient.Rendering.Map
             if (Visible)
             {
                 _characterRenderUpdateActions.UpdateCharacters(gameTime);
+                _npcRendererUpdater.UpdateNPCs(gameTime);
                 DrawMapToRenderTarget();
             }
 

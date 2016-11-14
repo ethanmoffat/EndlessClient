@@ -19,7 +19,6 @@ namespace EndlessClient.UIControls
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly IRendererRepositoryResetter _rendererRepositoryResetter;
-        private readonly ICharacterStateCache _characterStateCache;
 
         private ILoginController _loginController;
         private ICharacterManagementController _characterManagementController;
@@ -27,14 +26,12 @@ namespace EndlessClient.UIControls
         public CharacterInfoPanelFactory(ICharacterSelectorProvider characterProvider,
                                          INativeGraphicsManager nativeGraphicsManager,
                                          ICharacterRendererFactory characterRendererFactory,
-                                         IRendererRepositoryResetter rendererRepositoryResetter,
-                                         ICharacterStateCache characterStateCache)
+                                         IRendererRepositoryResetter rendererRepositoryResetter)
         {
             _characterProvider = characterProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterRendererFactory = characterRendererFactory;
             _rendererRepositoryResetter = rendererRepositoryResetter;
-            _characterStateCache = characterStateCache;
         }
 
         public void InjectLoginController(ILoginController loginController)
@@ -62,8 +59,7 @@ namespace EndlessClient.UIControls
                                                     _loginController,
                                                     _characterManagementController,
                                                     _characterRendererFactory,
-                                                    _rendererRepositoryResetter,
-                                                    _characterStateCache);
+                                                    _rendererRepositoryResetter);
             }
 
             for (; i < 3; ++i)

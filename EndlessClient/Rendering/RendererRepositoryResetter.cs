@@ -11,18 +11,27 @@ namespace EndlessClient.Rendering
     {
         private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly INPCRendererRepository _npcRendererRepository;
+        private readonly ICharacterStateCache _characterStateCache;
+        private readonly INPCStateCache _npcStateCache;
 
         public RendererRepositoryResetter(ICharacterRendererRepository characterRendererRepository,
-                                          INPCRendererRepository npcRendererRepository)
+                                          INPCRendererRepository npcRendererRepository,
+                                          ICharacterStateCache characterStateCache,
+                                          INPCStateCache npcStateCache)
         {
             _characterRendererRepository = characterRendererRepository;
             _npcRendererRepository = npcRendererRepository;
+            _characterStateCache = characterStateCache;
+            _npcStateCache = npcStateCache;
         }
 
         public void ResetRenderers()
         {
             _characterRendererRepository.Dispose();
             _npcRendererRepository.Dispose();
+
+            _characterStateCache.Reset();
+            _npcStateCache.Reset();
         }
     }
 
