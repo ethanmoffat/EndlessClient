@@ -20,6 +20,7 @@ using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.MapEntityRenderers;
+using EndlessClient.Rendering.NPC;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib.DependencyInjection;
@@ -83,6 +84,8 @@ namespace EndlessClient
                 .RegisterInstance<ICharacterRendererProvider, CharacterRendererRepository>()
                 .RegisterInstance<ICharacterRendererRepository, CharacterRendererRepository>()
                 .RegisterInstance<ICharacterRendererResetter, CharacterRendererRepository>()
+                .RegisterInstance<INPCRendererProvider, NPCRendererRepository>()
+                .RegisterInstance<INPCRendererRepository, NPCRendererRepository>()
                 .RegisterInstance<IKeyStateRepository, KeyStateRepository>()
                 .RegisterInstance<IKeyStateProvider, IKeyStateProvider>();
 

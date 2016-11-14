@@ -141,6 +141,7 @@
     <Compile Include="Rendering\Character\CharacterRenderer.cs" />
     <Compile Include="Rendering\NPC\INPCRenderer.cs" />
     <Compile Include="Rendering\NPC\NPCRenderer.cs" />
+    <Compile Include="Rendering\NPC\NPCRendererRepository.cs" />
     <Compile Include="Rendering\RenderOffsetCalculator.cs" />
     <Compile Include="Rendering\Character\CharacterRenderUpdateActions.cs" />
     <Compile Include="Rendering\Character\CharacterStateCache.cs" />
