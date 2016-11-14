@@ -34,9 +34,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public ShadowLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICurrentMapProvider currentMapProvider,
                                    ICharacterProvider characterProvider,
-                                   ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
+                                   IRenderOffsetCalculator renderOffsetCalculator,
                                    IConfigurationProvider configurationProvider)
-            : base(characterProvider, characterRenderOffsetCalculator)
+            : base(characterProvider, renderOffsetCalculator)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;

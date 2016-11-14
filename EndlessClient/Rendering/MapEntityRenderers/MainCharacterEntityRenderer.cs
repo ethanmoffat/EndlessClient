@@ -18,8 +18,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public MainCharacterEntityRenderer(ICharacterProvider characterProvider,
                                            ICharacterRendererProvider characterRendererProvider,
-                                           ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
-            : base(characterProvider, characterRenderOffsetCalculator)
+                                           IRenderOffsetCalculator renderOffsetCalculator)
+            : base(characterProvider, renderOffsetCalculator)
         {
             _characterRendererProvider = characterRendererProvider;
 

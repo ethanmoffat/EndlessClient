@@ -16,7 +16,7 @@ namespace EndlessClient.Rendering.Character
     {
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly ICharacterProvider _characterProvider;
-        private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
+        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
         private readonly ICharacterTextures _characterTextures;
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
@@ -45,7 +45,7 @@ namespace EndlessClient.Rendering.Character
         public CharacterRenderer(Game game,
                                  IRenderTargetFactory renderTargetFactory,
                                  ICharacterProvider characterProvider,
-                                 ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
+                                 IRenderOffsetCalculator renderOffsetCalculator,
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                  ICharacterTextures characterTextures,
                                  ICharacterSpriteCalculator characterSpriteCalculator,
@@ -54,7 +54,7 @@ namespace EndlessClient.Rendering.Character
         {
             _renderTargetFactory = renderTargetFactory;
             _characterProvider = characterProvider;
-            _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
+            _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
             _characterTextures = characterTextures;
             _characterSpriteCalculator = characterSpriteCalculator;
@@ -189,8 +189,8 @@ namespace EndlessClient.Rendering.Character
         private void SetGridCoordinatePosition()
         {
             //todo: the constants here should be dynamically configurable to support window resizing
-            var screenX = _characterRenderOffsetCalculator.CalculateOffsetX(RenderProperties) + 304 - GetMainCharacterOffsetX();
-            var screenY = _characterRenderOffsetCalculator.CalculateOffsetY(RenderProperties) + 91 - GetMainCharacterOffsetY();
+            var screenX = _renderOffsetCalculator.CalculateOffsetX(RenderProperties) + 304 - GetMainCharacterOffsetX();
+            var screenY = _renderOffsetCalculator.CalculateOffsetY(RenderProperties) + 91 - GetMainCharacterOffsetY();
 
             SetScreenCoordinates(screenX, screenY);
         }
@@ -204,12 +204,12 @@ namespace EndlessClient.Rendering.Character
 
         private int GetMainCharacterOffsetX()
         {
-            return _characterRenderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
+            return _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
         }
 
         private int GetMainCharacterOffsetY()
         {
-            return _characterRenderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
+            return _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
         }
 
         #endregion

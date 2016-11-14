@@ -8,7 +8,7 @@ using EOLib.Domain.Extensions;
 
 namespace EndlessClient.Rendering.Character
 {
-    public class CharacterRenderOffsetCalculator : ICharacterRenderOffsetCalculator
+    public class RenderOffsetCalculator : IRenderOffsetCalculator
     {
         public int CalculateOffsetX(ICharacterRenderProperties properties)
         {

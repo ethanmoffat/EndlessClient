@@ -16,7 +16,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IEndlessGameProvider _gameProvider;
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly ICharacterProvider _characterProvider;
-        private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
+        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
         private readonly ICharacterTextures _characterTextures;
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
@@ -24,7 +24,7 @@ namespace EndlessClient.Rendering.Factories
         public CharacterRendererFactory(IEndlessGameProvider gameProvider,
                                         IRenderTargetFactory renderTargetFactory,
                                         ICharacterProvider characterProvider,
-                                        ICharacterRenderOffsetCalculator characterRenderOffsetCalculator,
+                                        IRenderOffsetCalculator renderOffsetCalculator,
                                         ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                         ICharacterTextures characterTextures,
                                         ICharacterSpriteCalculator characterSpriteCalculator)
@@ -32,7 +32,7 @@ namespace EndlessClient.Rendering.Factories
             _gameProvider = gameProvider;
             _renderTargetFactory = renderTargetFactory;
             _characterProvider = characterProvider;
-            _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
+            _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
             _characterTextures = characterTextures;
             _characterSpriteCalculator = characterSpriteCalculator;
@@ -43,7 +43,7 @@ namespace EndlessClient.Rendering.Factories
             return new CharacterRenderer((Game) _gameProvider.Game,
                 _renderTargetFactory,
                 _characterProvider,
-                _characterRenderOffsetCalculator,
+                _renderOffsetCalculator,
                 _characterPropertyRendererBuilder,
                 _characterTextures,
                 _characterSpriteCalculator,

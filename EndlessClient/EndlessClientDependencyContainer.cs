@@ -56,7 +56,7 @@ namespace EndlessClient
 
             //services
             container.RegisterType<IMapRenderDistanceCalculator, MapRenderDistanceCalculator>()
-                .RegisterType<ICharacterRenderOffsetCalculator, CharacterRenderOffsetCalculator>()
+                .RegisterType<IRenderOffsetCalculator, RenderOffsetCalculator>()
                 .RegisterType<ICharacterTextures, CharacterTextures>()
                 .RegisterType<ICharacterSpriteCalculator, CharacterSpriteCalculator>()
                 .RegisterType<INPCSpriteSheet, NPCSpriteSheet>();

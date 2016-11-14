@@ -32,8 +32,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public UnknownLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                     ICurrentMapProvider currentMapProvider,
                                     ICharacterProvider characterProvider,
-                                    ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
-            : base(characterProvider, characterRenderOffsetCalculator)
+                                    IRenderOffsetCalculator renderOffsetCalculator)
+            : base(characterProvider, renderOffsetCalculator)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;

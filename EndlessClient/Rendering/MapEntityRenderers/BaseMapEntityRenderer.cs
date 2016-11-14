@@ -14,7 +14,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     public abstract class BaseMapEntityRenderer : IMapEntityRenderer
     {
         protected readonly ICharacterProvider _characterProvider;
-        private readonly ICharacterRenderOffsetCalculator _characterRenderOffsetCalculator;
+        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
 
         public abstract MapRenderLayer RenderLayer { get; }
 
@@ -26,10 +26,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         protected abstract int RenderDistance { get; }
 
         protected BaseMapEntityRenderer(ICharacterProvider characterProvider,
-                                        ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
+                                        IRenderOffsetCalculator renderOffsetCalculator)
         {
             _characterProvider = characterProvider;
-            _characterRenderOffsetCalculator = characterRenderOffsetCalculator;
+            _renderOffsetCalculator = renderOffsetCalculator;
         }
 
         public virtual bool CanRender(int row, int col)
@@ -51,8 +51,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
-            var charOffX = _characterRenderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
-            var charOffY = _characterRenderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
+            var charOffX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
+            var charOffY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
 
             return new Vector2(gridX * 32 - gridY * 32 + 288 - charOffX,
                                gridY * 16 + gridX * 16 + 144 - charOffY);

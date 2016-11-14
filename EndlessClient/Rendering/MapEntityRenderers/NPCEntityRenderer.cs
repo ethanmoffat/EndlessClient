@@ -17,8 +17,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public NPCEntityRenderer(ICharacterProvider characterProvider,
                                  ICurrentMapStateProvider currentMapStateProvider,
-                                 ICharacterRenderOffsetCalculator characterRenderOffsetCalculator)
-            : base(characterProvider, characterRenderOffsetCalculator)
+                                 IRenderOffsetCalculator renderOffsetCalculator)
+            : base(characterProvider, renderOffsetCalculator)
         {
             _currentMapStateProvider = currentMapStateProvider;
         }
