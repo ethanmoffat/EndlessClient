@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.NPC
 {
-    public interface INPCRendererRepository
+    public interface INPCRendererRepository : IDisposable
     {
         Dictionary<int, INPCRenderer> NPCRenderers { get; set; }
     }
@@ -17,7 +17,7 @@ namespace EndlessClient.Rendering.NPC
         IReadOnlyDictionary<int, INPCRenderer> NPCRenderers { get; }
     }
 
-    public class NPCRendererRepository : INPCRendererRepository, INPCRendererProvider, IDisposable
+    public class NPCRendererRepository : INPCRendererRepository, INPCRendererProvider
     {
         public Dictionary<int, INPCRenderer> NPCRenderers { get; set; }
 

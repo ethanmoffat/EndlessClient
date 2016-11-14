@@ -83,13 +83,14 @@ namespace EndlessClient
                 .RegisterInstance<IStatusLabelTextRepository, StatusLabelTextRepository>()
                 .RegisterInstance<ICharacterRendererProvider, CharacterRendererRepository>()
                 .RegisterInstance<ICharacterRendererRepository, CharacterRendererRepository>()
-                .RegisterInstance<IRendererRepositoryResetter, CharacterRendererRepository>()
                 .RegisterInstance<INPCRendererProvider, NPCRendererRepository>()
                 .RegisterInstance<INPCRendererRepository, NPCRendererRepository>()
                 .RegisterInstance<IKeyStateRepository, KeyStateRepository>()
                 .RegisterInstance<IKeyStateProvider, IKeyStateProvider>();
 
             container.RegisterInstance<IUserInputTimeRepository, UserInputTimeRepository>();
+
+            container.RegisterType<IRendererRepositoryResetter, RendererRepositoryResetter>();
 
             //provider only
             container.RegisterInstance<IClientWindowSizeProvider, ClientWindowSizeProvider>()

@@ -2,11 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.Character
 {
-    public interface ICharacterRendererRepository
+    public interface ICharacterRendererRepository : IDisposable
     {
         ICharacterRenderer MainCharacterRenderer { get; set; }
 
@@ -20,7 +21,7 @@ namespace EndlessClient.Rendering.Character
         IReadOnlyDictionary<int, ICharacterRenderer> CharacterRenderers { get; }
     }
 
-    public class CharacterRendererRepository : ICharacterRendererRepository, ICharacterRendererProvider, IRendererRepositoryResetter
+    public class CharacterRendererRepository : ICharacterRendererRepository, ICharacterRendererProvider
     {
         public ICharacterRenderer MainCharacterRenderer { get; set; }
 
@@ -36,7 +37,7 @@ namespace EndlessClient.Rendering.Character
             CharacterRenderers = new Dictionary<int, ICharacterRenderer>(64);
         }
 
-        public void ResetRenderers()
+        public void Dispose()
         {
             if (MainCharacterRenderer != null)
                 MainCharacterRenderer.Dispose();
@@ -45,11 +46,6 @@ namespace EndlessClient.Rendering.Character
             foreach (var renderer in CharacterRenderers.Values)
                 renderer.Dispose();
             CharacterRenderers.Clear();
-        }
-
-        public void Dispose()
-        {
-            ResetRenderers();
         }
     }
 }
