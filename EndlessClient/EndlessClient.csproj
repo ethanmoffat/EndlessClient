@@ -69,8 +69,8 @@
     <Compile Include="Input\IUserInputTimeRepository.cs" />
     <Compile Include="Input\KeyboardStateExtensions.cs" />
     <Compile Include="Input\PreviousKeyStateTracker.cs" />
-    <Compile Include="OldCharacter.cs" />
-    <Compile Include="CharacterStateTest.cs" />
+    <Compile Include="Old\OldCharacter.cs" />
+    <Compile Include="Test\CharacterStateTest.cs" />
     <Compile Include="Controllers\CharacterManagementController.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\ICharacterManagementController.cs" />
@@ -245,10 +245,10 @@
     <Compile Include="Dialogs\TradeDialog.cs" />
     <Compile Include="EndlessClientDependencyContainer.cs" />
     <Compile Include="GameExecution\EndlessGame.cs" />
-    <Compile Include="Game.cs" />
+    <Compile Include="Old\Game.cs" />
     <Compile Include="GameExecution\GameRunnerBase.cs" />
     <Compile Include="GameExecution\GameStates.cs" />
-    <Compile Include="GameUI.cs" />
+    <Compile Include="Old\GameUI.cs" />
     <Compile Include="Content\IContentManagerRepository.cs" />
     <Compile Include="GameExecution\IGameStateRepository.cs" />
     <Compile Include="Input\IKeyboardDispatcherRepository.cs" />
@@ -276,10 +276,10 @@
     <Compile Include="Input\FunctionKeyListener.cs" />
     <Compile Include="Input\OldInputKeyListenerBase.cs" />
     <Compile Include="Input\NumPadListener.cs" />
-    <Compile Include="InteractList.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="PacketAPICallbackManager.cs" />
-    <Compile Include="Player.cs" />
+    <Compile Include="Old\InteractList.cs" />
+    <Compile Include="Old\Logger.cs" />
+    <Compile Include="Old\PacketAPICallbackManager.cs" />
+    <Compile Include="Old\Player.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GameExecution\ReleaseGameRunner.cs" />
@@ -325,7 +325,7 @@
     <Compile Include="Rendering\MouseCursorRenderer.cs" />
     <Compile Include="Rendering\OldNPCRenderer.cs" />
     <Compile Include="Rendering\PlayerStatusIconRenderer.cs" />
-    <Compile Include="OldWorld.cs" />
+    <Compile Include="Old\OldWorld.cs" />
     <Compile Include="Rendering\Sprites\SpriteSheet.cs" />
     <Compile Include="Rendering\Sprites\WeaponSpriteType.cs" />
     <Compile Include="UIControls\StatusBarLabel.cs" />
