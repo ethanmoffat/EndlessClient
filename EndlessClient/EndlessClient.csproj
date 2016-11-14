@@ -139,7 +139,7 @@
     <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRendererBuilder.cs" />
     <Compile Include="Rendering\Character\CharacterAnimationActions.cs" />
     <Compile Include="Rendering\Character\CharacterRenderer.cs" />
-    <Compile Include="Rendering\Character\RenderOffsetCalculator.cs" />
+    <Compile Include="Rendering\RenderOffsetCalculator.cs" />
     <Compile Include="Rendering\Character\CharacterRenderUpdateActions.cs" />
     <Compile Include="Rendering\Character\CharacterStateCache.cs" />
     <Compile Include="Rendering\Character\CharacterAnimator.cs" />
@@ -147,7 +147,6 @@
     <Compile Include="Rendering\Character\ICharacterRenderer.cs" />
     <Compile Include="Rendering\Character\ICharacterRendererResetter.cs" />
     <Compile Include="Rendering\Character\ICharacterRendererRepository.cs" />
-    <Compile Include="Rendering\Character\IRenderOffsetCalculator.cs" />
     <Compile Include="Rendering\Character\ICharacterRenderUpdateActions.cs" />
     <Compile Include="Rendering\Character\ICharacterStateCache.cs" />
     <Compile Include="Rendering\Character\ICharacterTextures.cs" />

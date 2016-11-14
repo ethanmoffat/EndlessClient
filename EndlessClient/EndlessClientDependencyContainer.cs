@@ -14,6 +14,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Input;
 using EndlessClient.Network;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Factories;

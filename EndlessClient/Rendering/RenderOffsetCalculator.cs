@@ -6,7 +6,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 
-namespace EndlessClient.Rendering.Character
+namespace EndlessClient.Rendering
 {
     public class RenderOffsetCalculator : IRenderOffsetCalculator
     {
@@ -27,5 +27,12 @@ namespace EndlessClient.Rendering.Character
             //walkAdjust * multiplier is the old ViewAdjustY
             return properties.MapX*16 + properties.MapY*16 + walkAdjust*multiplier;
         }
+    }
+
+    public interface IRenderOffsetCalculator
+    {
+        int CalculateOffsetX(ICharacterRenderProperties properties);
+
+        int CalculateOffsetY(ICharacterRenderProperties properties);
     }
 }
