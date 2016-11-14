@@ -5,6 +5,7 @@
 using System;
 using System.Threading.Tasks;
 using EndlessClient.GameExecution;
+using EndlessClient.Old;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.Localization;

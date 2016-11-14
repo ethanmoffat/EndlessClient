@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using EndlessClient.Old;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Chat;

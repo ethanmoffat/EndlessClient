@@ -4,6 +4,7 @@
 
 using System;
 using EndlessClient.HUD.Panels.Old;
+using EndlessClient.Old;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;

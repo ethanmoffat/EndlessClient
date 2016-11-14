@@ -4,6 +4,7 @@
 
 using System;
 using EndlessClient.HUD.Panels.Old;
+using EndlessClient.Old;
 using EOLib.IO.Pub;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;

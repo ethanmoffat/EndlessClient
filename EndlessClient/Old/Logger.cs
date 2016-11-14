@@ -8,17 +8,8 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using EOLib;
 
-namespace EndlessClient
+namespace EndlessClient.Old
 {
-    public class ConfigStringLoadException : Exception
-    {
-        public string WhichString { get; private set; }
-        public ConfigStringLoadException(string whichConfigString)
-        {
-            WhichString = whichConfigString;
-        }
-    }
-
     public class Logger : IDisposable
     {
         private const int FLUSH_TIME_MS = 30000;

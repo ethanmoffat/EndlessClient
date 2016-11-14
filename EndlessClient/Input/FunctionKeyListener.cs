@@ -5,6 +5,7 @@
 using System;
 using System.Linq;
 using EndlessClient.HUD.Panels.Old;
+using EndlessClient.Old;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;

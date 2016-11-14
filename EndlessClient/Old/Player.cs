@@ -5,7 +5,7 @@
 using System.Linq;
 using EOLib.Net.API;
 
-namespace EndlessClient
+namespace EndlessClient.Old
 {
     public class Player
     {

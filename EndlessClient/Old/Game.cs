@@ -16,11 +16,9 @@ using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using XNAControls;
-using Keys = Microsoft.Xna.Framework.Input.Keys;
 
-namespace EndlessClient
+namespace EndlessClient.Old
 {
     public partial class EOGame : Game
     {

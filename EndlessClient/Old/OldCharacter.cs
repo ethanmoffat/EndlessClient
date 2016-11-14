@@ -17,7 +17,7 @@ using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.Old
 {
     /// <summary>
     /// This is data used to render the character in CharacterRenderer.cs

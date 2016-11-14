@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using EndlessClient.Audio;
 using EndlessClient.GameExecution;
+using EndlessClient.Old;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.UIControls;
 using EOLib;

@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using EndlessClient.Old;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;

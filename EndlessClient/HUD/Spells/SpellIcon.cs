@@ -4,6 +4,7 @@
 
 using System;
 using EndlessClient.HUD.Panels.Old;
+using EndlessClient.Old;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Pub;

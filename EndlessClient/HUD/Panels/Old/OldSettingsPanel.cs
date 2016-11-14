@@ -4,6 +4,7 @@
 
 using System;
 using EndlessClient.Dialogs;
+using EndlessClient.Old;
 using EOLib;
 using EOLib.Config;
 using EOLib.Graphics;

@@ -9,6 +9,7 @@ using System.Threading;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Panels.Old;
+using EndlessClient.Old;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;

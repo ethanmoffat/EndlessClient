@@ -19,7 +19,7 @@ using EOLib.Net.API;
 using XNAControls;
 using ChatType = EOLib.Domain.Chat.ChatType;
 
-namespace EndlessClient
+namespace EndlessClient.Old
 {
     public sealed class PacketAPICallbackManager
     {

@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EndlessClient.Old;
 using EndlessClient.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.HUD.Chat;
+using EndlessClient.Old;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Chat;

@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using EndlessClient.Old;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;

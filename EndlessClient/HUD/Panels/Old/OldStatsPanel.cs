@@ -5,6 +5,7 @@
 using System.Globalization;
 using System.Linq;
 using EndlessClient.Dialogs;
+using EndlessClient.Old;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;

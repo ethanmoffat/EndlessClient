@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EndlessClient.Old;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.HUD.StatusBars

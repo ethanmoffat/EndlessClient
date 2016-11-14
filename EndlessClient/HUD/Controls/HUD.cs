@@ -9,6 +9,7 @@ using EndlessClient.Dialogs;
 using EndlessClient.HUD.Panels.Old;
 using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
+using EndlessClient.Old;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;

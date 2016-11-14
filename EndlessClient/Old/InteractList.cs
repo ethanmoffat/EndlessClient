@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace EndlessClient
+namespace EndlessClient.Old
 {
     /// <summary>
     /// Helper static class that provides an interface for dealing with the friend/ignore INI files

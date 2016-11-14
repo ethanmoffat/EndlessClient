@@ -4,28 +4,23 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
-using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering;
 using EOLib.Config;
-using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
-using EOLib.IO.Services;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.API;
-using EOLib.Net.PacketProcessing;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
-namespace EndlessClient
+namespace EndlessClient.Old
 {
     [Serializable]
     public class WorldLoadException : Exception

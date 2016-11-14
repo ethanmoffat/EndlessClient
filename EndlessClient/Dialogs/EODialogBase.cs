@@ -4,6 +4,7 @@
 
 using System;
 using EndlessClient.GameExecution;
+using EndlessClient.Old;
 using EOLib.Graphics;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
