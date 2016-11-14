@@ -14,6 +14,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
 using EndlessClient.Input;
 using EndlessClient.Network;
+using EndlessClient.Test;
 using EndlessClient.UIControls;
 using EOLib.DependencyInjection;
 using EOLib.Domain.Chat;

@@ -16,7 +16,7 @@ using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace EndlessClient
+namespace EndlessClient.Test
 {
     public class CharacterStateTest : DrawableGameComponent
     {

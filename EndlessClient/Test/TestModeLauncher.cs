@@ -6,9 +6,8 @@ using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Factories;
 using EOLib.IO.Repositories;
 
-namespace EndlessClient
+namespace EndlessClient.Test
 {
-    //todo: move this to a different namespace
     public class TestModeLauncher : ITestModeLauncher
     {
         private readonly IEndlessGameProvider _endlessGameProvider;
