@@ -5,7 +5,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
-namespace EndlessClient
+namespace EndlessClient.Rendering
 {
     public class PointComparer : IComparer<Point>
     {

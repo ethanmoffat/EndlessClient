@@ -135,7 +135,7 @@
     <Compile Include="HUD\StatusLabelSetter.cs" />
     <Compile Include="IClientWindowSizeProvider.cs" />
     <Compile Include="Network\PacketHandlerGameComponent.cs" />
-    <Compile Include="PointComparer.cs" />
+    <Compile Include="Rendering\PointComparer.cs" />
     <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRendererBuilder.cs" />
     <Compile Include="Rendering\Character\CharacterAnimationActions.cs" />
     <Compile Include="Rendering\Character\CharacterRenderer.cs" />
