@@ -49,7 +49,7 @@ namespace EndlessClient.Rendering
             var walkAdjust = npc.IsActing(NPCActionState.Walking) ? WalkHeightFactor * npc.GetWalkFrame() : 0;
 
             //walkAdjust * multiplier is the old ViewAdjustY
-            return npc.X*HeightFactor - npc.Y*HeightFactor + walkAdjust*multiplier;
+            return npc.X*HeightFactor + npc.Y*HeightFactor + walkAdjust*multiplier;
         }
     }
 
