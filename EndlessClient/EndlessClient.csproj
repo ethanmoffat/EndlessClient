@@ -297,7 +297,6 @@
     <Compile Include="Rendering\Sprites\ICharacterSpriteCalculator.cs" />
     <Compile Include="Rendering\Sprites\ISpriteSheet.cs" />
     <Compile Include="Rendering\Sprites\NPCSpriteSheet.cs" />
-    <Compile Include="Rendering\Sprites\NPCFrame.cs" />
     <Compile Include="Rendering\Sprites\BootsSpriteType.cs" />
     <Compile Include="Rendering\Sprites\ArmorShieldSpriteType.cs" />
     <Compile Include="Rendering\OldCharacterRenderer.cs" />

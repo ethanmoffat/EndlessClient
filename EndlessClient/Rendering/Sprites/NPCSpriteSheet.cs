@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib;
+using EOLib.Domain.NPC;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 
