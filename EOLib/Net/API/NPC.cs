@@ -30,8 +30,6 @@ namespace EOLib.Net.API
         }
     }
 
-    public delegate void NPCAttackEvent(byte index, bool targetPlayerIsDead, EODirection dir, short targetPlayerID, int damage, int percentHealth);
-    public delegate void NPCChatEvent(byte index, string message);
     public delegate void NPCLeaveMapEvent(byte index, int damageToNPC, short playerID, EODirection playerDirection, short tpRemaining = -1, short spellID = -1);
     public delegate void NPCKilledEvent(int exp);
     public delegate void NPCTakeDamageEvent(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID = -1, short fromTP = -1);
