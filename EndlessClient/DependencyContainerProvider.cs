@@ -10,6 +10,7 @@ using EOLib.Domain;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Localization;
+using EOLib.Logger;
 using EOLib.Net;
 using EOLib.Net.Translators;
 using EOLib.PacketHandlers;
@@ -27,6 +28,7 @@ namespace EndlessClient
             new GraphicsDependencyContainer(),
             new IODependencyContainer(),
             new LocalizationDependencyContainer(),
+            new LoggerDependencyContainer(),
             new NetworkDependencyContainer(),
             new PacketTranslatorContainer(),
             new PacketHandlerDependencyContainer(),

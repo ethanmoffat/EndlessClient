@@ -407,6 +407,10 @@
       <Project>{9F543E30-1320-43E2-8691-080E089154A0}</Project>
       <Name>EOLib.Localization</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj">
+      <Project>{22820580-B33F-4AA9-8044-A6EC4797AE21}</Project>
+      <Name>EOLib.Logger</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EOLib\EOLib.csproj">
       <Project>{edb5ad93-303d-4b07-9fad-f6a8295d2390}</Project>
       <Name>EOLib</Name>
