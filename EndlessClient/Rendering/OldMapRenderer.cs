@@ -713,31 +713,6 @@ namespace EndlessClient.Rendering
             indexes.ForEach(x => RemoveOtherNPC(x));
         }
 
-        public void ClearOtherNPCs()
-        {
-            lock (_npcListLock)
-            {
-                foreach (OldNPCRenderer n in _npcRenderers)
-                {
-                    n.Visible = false;
-                    n.Dispose();
-                }
-                _npcRenderers.Clear();
-            }
-        }
-
-        public void NPCWalk(byte index, byte x, byte y, EODirection dir)
-        {
-            lock (_npcListLock)
-            {
-                OldNPCRenderer toWalk = _npcRenderers.Find(_npc => _npc.NPC.Index == index);
-                if (toWalk != null && !toWalk.NPC.Walking)
-                {
-                    toWalk.Walk(x, y, dir);
-                }
-            }
-        }
-
         public void NPCAttack(byte index, bool isTargetPlayerDead, EODirection dir, short targetPlayerId, int damageToPlayer, int playerPctHealth)
         {
             lock (_npcListLock)
