@@ -37,7 +37,8 @@ namespace EndlessClient.Rendering.NPC
                                    _characterRendererProvider,
                                    _enfFileProvider,
                                    _npcSpriteSheet,
-                                   _renderOffsetCalculator) { NPC = npc };
+                                   _renderOffsetCalculator,
+                                   npc);
         }
     }
 

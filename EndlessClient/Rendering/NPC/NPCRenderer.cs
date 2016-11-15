@@ -38,9 +38,12 @@ namespace EndlessClient.Rendering.NPC
                            ICharacterRendererProvider characterRendererProvider,
                            IENFFileProvider enfFileProvider,
                            INPCSpriteSheet npcSpriteSheet,
-                           IRenderOffsetCalculator renderOffsetCalculator)
+                           IRenderOffsetCalculator renderOffsetCalculator,
+                           INPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
+            NPC = initialNPC;
+
             _characterRendererProvider = characterRendererProvider;
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
@@ -62,6 +65,8 @@ namespace EndlessClient.Rendering.NPC
         {
             if (!Visible) return;
 
+            UpdateDrawAreas();
+
             base.Update(gameTime);
         }
 
@@ -75,10 +80,8 @@ namespace EndlessClient.Rendering.NPC
             var color = /*NPC.Dying ? Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha -= 3) :*/ Color.White;
             var effects = NPC.IsFacing(EODirection.Left, EODirection.Down) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
-            spriteBatch.Begin();
             spriteBatch.Draw(_npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction),
                 DrawArea, null, color, 0f, Vector2.Zero, effects, 1f);
-            spriteBatch.End();
         }
 
         private Rectangle GetStandingFrameRectangle()
