@@ -227,7 +227,7 @@
     <Compile Include="PacketHandlers\Chat\GroupChatHandler.cs" />
     <Compile Include="PacketHandlers\EndPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
-    <Compile Include="PacketHandlers\NPCWalkHandler.cs" />
+    <Compile Include="PacketHandlers\NPCActionHandler.cs" />
     <Compile Include="PacketHandlers\PacketHandlerDependencyContainer.cs" />
     <Compile Include="PacketHandlers\Commands\PingResponseHandler.cs" />
     <Compile Include="Net\MalformedPacketException.cs" />
