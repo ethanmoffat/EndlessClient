@@ -30,7 +30,6 @@ namespace EOLib.Net.API
         }
     }
 
-    public delegate void NPCWalkEvent(byte index, byte x, byte y, EODirection dir);
     public delegate void NPCAttackEvent(byte index, bool targetPlayerIsDead, EODirection dir, short targetPlayerID, int damage, int percentHealth);
     public delegate void NPCChatEvent(byte index, string message);
     public delegate void NPCLeaveMapEvent(byte index, int damageToNPC, short playerID, EODirection playerDirection, short tpRemaining = -1, short spellID = -1);
@@ -40,9 +39,6 @@ namespace EOLib.Net.API
     partial class PacketAPI
     {
         public event Action<NPCData> OnNPCEnterMap;
-        public event NPCWalkEvent OnNPCWalk;
-        public event NPCAttackEvent OnNPCAttack;
-        public event NPCChatEvent OnNPCChat;
         public event NPCLeaveMapEvent OnNPCLeaveMap;
         public event NPCKilledEvent OnNPCKilled; //int is the experience gained
         public event NPCTakeDamageEvent OnNPCTakeDamage;
@@ -55,8 +51,6 @@ namespace EOLib.Net.API
 
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.NPC, PacketAction.Accept), _handleNPCAccept, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Cast, PacketAction.Accept), _handleNPCAccept, true);
-
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.NPC, PacketAction.Player), _handleNPCPlayer, true);
 
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.NPC, PacketAction.Reply), _handleNPCReply, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Cast, PacketAction.Reply), _handleNPCReply, true);
@@ -75,56 +69,6 @@ namespace EOLib.Net.API
                 return; //malformed packet
 
             OnNPCEnterMap(new NPCData(pkt));
-        }
-
-        /// <summary>
-        /// Handler for NPC_PLAYER packet, when NPC walks or talks
-        /// </summary>
-        private void _handleNPCPlayer(OldPacket pkt)
-        {
-            int num255s = 0;
-            while (pkt.PeekByte() == 255)
-            {
-                num255s++;
-                pkt.GetByte();
-            }
-
-            switch (num255s)
-            {
-                case 0: /*npc walk!*/
-                    {
-                        //npc remove from view sets x/y to either 0,0 or 252,252 based on target coords
-                        byte index = pkt.GetChar();
-                        byte x = pkt.GetChar(), y = pkt.GetChar();
-                        EODirection dir = (EODirection)pkt.GetChar();
-                        if (pkt.GetByte() != 255 || pkt.GetByte() != 255 || pkt.GetByte() != 255 || OnNPCWalk == null)
-                            return;
-                        OnNPCWalk(index, x, y, dir);
-                    }
-                    break;
-                case 1: /*npc attack!*/
-                    {
-                        byte index = pkt.GetChar();
-                        bool isDead = pkt.GetChar() == 2; //2 if target player is dead, 1 if alive
-                        EODirection dir = (EODirection)pkt.GetChar(); //NPC direction
-                        short targetPlayerID = pkt.GetShort();
-                        int damage = pkt.GetThree(); //damage done to player
-                        int pctHealth = pkt.GetThree(); //percentage of health remaining of target player
-                        if (pkt.GetByte() != 255 || pkt.GetByte() != 255 || OnNPCAttack == null)
-                            return;
-                        OnNPCAttack(index, isDead, dir, targetPlayerID, damage, pctHealth);
-                    }
-                    break;
-                case 2: /*npc talk!*/
-                    {
-                        byte index = pkt.GetChar();
-                        byte msgLength = pkt.GetChar();
-                        string msg = pkt.GetFixedString(msgLength);
-                        if (OnNPCChat == null) return;
-                        OnNPCChat(index, msg);
-                    }
-                    break;
-            }
         }
 
         /// <summary>

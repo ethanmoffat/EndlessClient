@@ -71,9 +71,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnMapMutation += _mapMutate;
 
             //npc related
-            m_packetAPI.OnNPCWalk += _npcWalk;
-            m_packetAPI.OnNPCAttack += _npcAttack;
-            m_packetAPI.OnNPCChat += _npcChat;
             m_packetAPI.OnNPCLeaveMap += _npcLeaveView;
             m_packetAPI.OnNPCKilled += _npcKilled;
             m_packetAPI.OnNPCTakeDamage += _npcTakeDamage;
@@ -490,11 +487,6 @@ namespace EndlessClient.Old
             }
             else
                 throw new FileNotFoundException("Unable to remap the file, something broke");
-        }
-
-        private void _npcWalk(byte index, byte x, byte y, EODirection dir)
-        {
-            OldWorld.Instance.ActiveMapRenderer.NPCWalk(index, x, y, dir);
         }
 
         private void _npcAttack(byte index, bool dead, EODirection dir, short id, int damage, int health)
