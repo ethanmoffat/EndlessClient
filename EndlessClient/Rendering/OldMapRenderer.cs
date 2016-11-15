@@ -14,7 +14,6 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
-using EOLib.Domain.NPC;
 using EOLib.Graphics;
 using EOLib.IO.Map;
 using EOLib.Localization;
@@ -35,7 +34,6 @@ namespace EndlessClient.Rendering
         private readonly object _npcListLock = new object(), _characterListLock = new object();
 
         public IMapFile MapRef { get; private set; }
-        private bool _needDispMapName;
         
         //public cursor members
         public bool MouseOver
@@ -201,14 +199,6 @@ namespace EndlessClient.Rendering
                 _door = null;
                 _doorY = 0;
                 _doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            }
-
-            if (MapRef.Properties.Name.Length > 0)
-            {
-                if (EOGame.Instance.Hud != null)
-                    EOGame.Instance.Hud.AddChat(ChatTab.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, ChatIcon.NoteLeftArrow);
-                else
-                    _needDispMapName = true;
             }
 
             PlayOrStopBackgroundMusic();
@@ -1012,12 +1002,6 @@ namespace EndlessClient.Rendering
             if (MouseOver)
                 _mouseCursorRenderer.Update();
 
-            if (_needDispMapName && EOGame.Instance.Hud != null)
-            {
-                _needDispMapName = false;
-                EOGame.Instance.Hud.AddChat(ChatTab.System, "", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED) + " " + MapRef.Properties.Name, ChatIcon.NoteLeftArrow);
-            }
-
             if (_drawingEvent == null) return;
 
             //draw stuff to the render target
@@ -1025,7 +1009,7 @@ namespace EndlessClient.Rendering
             _drawingEvent.Wait(); //need to make sure that the map isn't being changed during a draw!
             _drawingEvent.Reset();
             _drawMapObjectsAndActors();
-            _drawingEvent.Set(); //todo: there is a deadlock when switching maps
+            _drawingEvent.Set();
 
             base.Update(gameTime);
         }

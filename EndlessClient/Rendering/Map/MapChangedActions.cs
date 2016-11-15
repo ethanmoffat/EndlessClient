@@ -6,7 +6,9 @@ using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.NPC;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
+using EOLib.Localization;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -17,18 +19,27 @@ namespace EndlessClient.Rendering.Map
         private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly INPCRendererRepository _npcRendererRepository;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly IChatRepository _chatRepository;
+        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ICurrentMapProvider _currentMapProvider;
 
         public MapChangedActions(ICharacterStateCache characterStateCache,
                                  INPCStateCache npcStateCache,
                                  ICharacterRendererRepository characterRendererRepository,
                                  INPCRendererRepository npcRendererRepository,
-                                 IHudControlProvider hudControlProvider)
+                                 IHudControlProvider hudControlProvider,
+                                 IChatRepository chatRepository,
+                                 ILocalizedStringService localizedStringService,
+                                 ICurrentMapProvider currentMapProvider)
         {
             _characterStateCache = characterStateCache;
             _npcStateCache = npcStateCache;
             _characterRendererRepository = characterRendererRepository;
             _npcRendererRepository = npcRendererRepository;
             _hudControlProvider = hudControlProvider;
+            _chatRepository = chatRepository;
+            _localizedStringService = localizedStringService;
+            _currentMapProvider = currentMapProvider;
         }
 
         public void NotifyMapChanged(WarpAnimation warpAnimation, bool showMapTransition)
@@ -36,6 +47,7 @@ namespace EndlessClient.Rendering.Map
             StopAllAnimations();
             ClearCharacterRenderersAndCache();
             ClearNPCRenderersAndCache();
+            ShowMapNameIfAvailable();
             ShowMapTransition(showMapTransition);
 
             //todo: render warp animation on main character renderer
@@ -64,6 +76,18 @@ namespace EndlessClient.Rendering.Map
                 npcRenderer.Value.Dispose();
             _npcRendererRepository.NPCRenderers.Clear();
             _npcStateCache.Reset();
+        }
+
+        private void ShowMapNameIfAvailable()
+        {
+            if (string.IsNullOrWhiteSpace(_currentMapProvider.CurrentMap.Properties.Name))
+                return;
+
+            var message = _localizedStringService.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED);
+            message = string.Format(message + " {0}", _currentMapProvider.CurrentMap.Properties.Name);
+
+            var chatData = new ChatData(string.Empty, message, ChatIcon.NoteLeftArrow);
+            _chatRepository.AllChat[ChatTab.System].Add(chatData);
         }
 
         private void ShowMapTransition(bool showMapTransition)
