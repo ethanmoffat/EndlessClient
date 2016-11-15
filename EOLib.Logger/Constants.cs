@@ -10,5 +10,8 @@ namespace EOLib.Logger
         internal const int DEFAULT_FLUSH_LINES_WRITTEN = 50;
         internal const int DEFAULT_SPLIT_FILE_BYTE_LENGTH = 100000;
         internal const string DEFAULT_LOG_DIRECTORY = "Log";
+
+        internal const string LogFilePath = "log/debug.log";
+        internal const string LogFileFmt = "log/{0}-debug.log";
     }
 }

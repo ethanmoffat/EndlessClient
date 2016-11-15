@@ -4,18 +4,18 @@
 
 namespace EOLib.Logger
 {
-    public class LoggerRepository : ILoggerRepository, ILoggerProvider
+    public class LoggerProvider : ILoggerProvider
     {
-        public ILogger Logger { get; set; }
+        public ILogger Logger { get; private set; }
+
+        internal LoggerProvider(ILoggerFactory loggerFactory)
+        {
+            Logger = loggerFactory.CreateLogger();
+        }
     }
 
     public interface ILoggerProvider
     {
         ILogger Logger { get; }
-    }
-
-    public interface ILoggerRepository
-    {
-        ILogger Logger { get; set; }
     }
 }

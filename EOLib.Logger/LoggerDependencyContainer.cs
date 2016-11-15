@@ -11,8 +11,8 @@ namespace EOLib.Logger
     {
         public void RegisterDependencies(IUnityContainer container)
         {
-            container.RegisterInstance<ILoggerProvider, LoggerRepository>()
-                .RegisterInstance<ILoggerRepository, LoggerRepository>();
+            container.RegisterInstance<ILoggerProvider, LoggerProvider>();
+            container.RegisterType<ILoggerFactory, LoggerFactory>();
         }
     }
 }
