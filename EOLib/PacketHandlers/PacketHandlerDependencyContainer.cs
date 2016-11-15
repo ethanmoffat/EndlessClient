@@ -41,6 +41,9 @@ namespace EOLib.PacketHandlers
                 .RegisterVaried<IPacketHandler, PlayerWalkHandler>()
                 .RegisterVaried<IPacketHandler, MainPlayerWalkHandler>();
 
+            //npcs
+            container.RegisterVaried<IPacketHandler, NPCActionHandler>();
+
             //warps
             container.RegisterVaried<IPacketHandler, BeginPlayerWarpHandler>()
                 .RegisterVaried<IPacketHandler, EndPlayerWarpHandler>()

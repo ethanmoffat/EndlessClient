@@ -45,7 +45,7 @@ namespace EndlessClient.Rendering
 
         public int CalculateOffsetY(INPC npc)
         {
-            var multiplier = npc.IsFacing(EODirection.Left, EODirection.Down) ? -1 : 1;
+            var multiplier = npc.IsFacing(EODirection.Left, EODirection.Up) ? -1 : 1;
             var walkAdjust = npc.IsActing(NPCActionState.Walking) ? WalkHeightFactor * npc.GetWalkFrame() : 0;
 
             //walkAdjust * multiplier is the old ViewAdjustY

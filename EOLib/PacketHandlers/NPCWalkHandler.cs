@@ -1,0 +1,117 @@
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
+// This file is subject to the GPL v2 License
+// For additional details, see the LICENSE file
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using EOLib.Domain.Extensions;
+using EOLib.Domain.Login;
+using EOLib.Domain.Map;
+using EOLib.Domain.NPC;
+using EOLib.Net;
+using EOLib.Net.Handlers;
+
+namespace EOLib.PacketHandlers
+{
+    public class NPCActionHandler : InGameOnlyPacketHandler
+    {
+        private const int NPC_WALK_ACTION = 0;
+        private const int NPC_ATTK_ACTION = 1;
+        private const int NPC_TALK_ACTION = 2;
+
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
+        private readonly IEnumerable<INPCAnimationNotifier> _npcAnimationNotifiers;
+
+        public override PacketFamily Family { get { return PacketFamily.NPC; } }
+
+        public override PacketAction Action { get { return PacketAction.Player; } }
+
+        public NPCActionHandler(IPlayerInfoProvider playerInfoProvider,
+                                ICurrentMapStateRepository currentMapStateRepository,
+                                IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers)
+            : base(playerInfoProvider)
+        {
+            _currentMapStateRepository = currentMapStateRepository;
+            _npcAnimationNotifiers = npcAnimationNotifiers;
+        }
+
+        public override bool HandlePacket(IPacket packet)
+        {
+            var num255s = 0;
+            while (packet.PeekByte() == byte.MaxValue)
+            {
+                num255s++;
+                packet.ReadByte();
+            }
+
+            var index = packet.ReadChar();
+            INPC npc;
+            try
+            {
+                npc = _currentMapStateRepository.NPCs.Single(n => n.Index == index);
+            }
+            catch (InvalidOperationException) { return false; }
+
+            switch (num255s)
+            {
+                case NPC_WALK_ACTION: HandleNPCWalk(packet, npc); break;
+                case NPC_ATTK_ACTION: HandleNPCAttack(packet, npc); break;
+                case NPC_TALK_ACTION: HandleNPCTalk(packet, npc); break;
+                default: throw new MalformedPacketException("Unknown NPC action " + num255s + " specified in packet from server!", packet);
+            }
+
+            return true;
+        }
+
+        private void HandleNPCWalk(IPacket packet, INPC npc)
+        {
+            //npc remove from view sets x/y to either 0,0 or 252,252 based on target coords
+            var x = packet.ReadChar();
+            var y = packet.ReadChar();
+            var npcDirection = (EODirection) packet.ReadChar();
+            if (packet.ReadBytes(3).Any(b => b != 255))
+                throw new MalformedPacketException("Expected 3 bytes of value 0xFF in NPC_PLAYER packet for Walk action", packet);
+
+            var updatedNPC = npc.WithDirection(npcDirection);
+            updatedNPC = EnsureCorrectXAndY(updatedNPC, x, y);
+
+            _currentMapStateRepository.NPCs.Remove(npc);
+            _currentMapStateRepository.NPCs.Add(updatedNPC);
+
+            foreach (var notifier in _npcAnimationNotifiers)
+                notifier.StartNPCWalkAnimation(npc.Index);
+        }
+
+        private void HandleNPCAttack(IPacket packet, INPC npc)
+        {
+            //todo
+            //var isDead = packet.ReadChar() == 2; //2 if target player is dead, 1 if alive
+            //var npcDirection = (EODirection) packet.ReadChar();
+            //var targetPlayerID = packet.ReadShort();
+            //var damageDoneToPlayer = packet.ReadThree();
+            //var targetPlayerPercentHealth = packet.ReadThree();
+            //if (packet.ReadBytes(2).Any(b => b != 255))
+            //    throw new MalformedPacketException("Expected 2 bytes of value 0xFF in NPC_PLAYER packet for Attack action", packet);
+        }
+
+        private void HandleNPCTalk(IPacket packet, INPC npc)
+        {
+            //todo
+            //var messageLength = packet.ReadChar();
+            //var message = packet.ReadString(messageLength);
+        }
+
+        private static INPC EnsureCorrectXAndY(INPC npc, byte destinationX, byte destinationY)
+        {
+            var opposite = npc.Direction.Opposite();
+            var tempNPC = npc
+                .WithDirection(opposite)
+                .WithX(destinationX)
+                .WithY(destinationY);
+            return npc
+                .WithX((byte)tempNPC.GetDestinationX())
+                .WithY((byte)tempNPC.GetDestinationY());
+        }
+    }
+}

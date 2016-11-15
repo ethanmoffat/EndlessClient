@@ -13,6 +13,7 @@ using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
+using EndlessClient.Rendering.NPC;
 using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib.Domain.Character;
@@ -134,6 +135,7 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
                 {HudControlIdentifier.ArrowKeyHandler, CreateArrowKeyHandler()},
                 {HudControlIdentifier.CharacterAnimator, CreateCharacterAnimator()},
+                {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
                 {HudControlIdentifier.PreviousKeyStateTracker, CreatePreviousKeyStateTracker()}
             };
 
@@ -291,6 +293,11 @@ namespace EndlessClient.HUD.Controls
         private ICharacterAnimator CreateCharacterAnimator()
         {
             return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository);
+        }
+
+        private INPCAnimator CreateNPCAnimator()
+        {
+            return new NPCAnimator(_endlessGameProvider, _currentMapStateRepository);
         }
 
         private PreviousKeyStateTracker CreatePreviousKeyStateTracker()

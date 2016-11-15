@@ -12,6 +12,7 @@ using EndlessClient.Rendering.Sprites;
 using EOLib.DependencyInjection;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
+using EOLib.Domain.NPC;
 using Microsoft.Practices.Unity;
 
 namespace EndlessClient.Rendering
@@ -53,7 +54,8 @@ namespace EndlessClient.Rendering
                 .RegisterInstance<INPCRendererRepository, NPCRendererRepository>()
                 .RegisterType<INPCSpriteSheet, NPCSpriteSheet>()
                 .RegisterInstance<INPCStateCache, NPCStateCache>()
-                .RegisterType<INPCRendererUpdater, NPCRendererUpdater>();
+                .RegisterType<INPCRendererUpdater, NPCRendererUpdater>()
+                .RegisterVaried<INPCAnimationNotifier, NPCAnimationActions>();
 
             container.RegisterType<IRendererRepositoryResetter, RendererRepositoryResetter>();
         }

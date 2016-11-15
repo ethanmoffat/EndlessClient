@@ -70,6 +70,9 @@
     <Compile Include="Input\KeyboardStateExtensions.cs" />
     <Compile Include="Input\PreviousKeyStateTracker.cs" />
     <Compile Include="Old\OldCharacter.cs" />
+    <Compile Include="Rendering\NPC\NPCAnimationActions.cs" />
+    <Compile Include="Rendering\NPC\NPCAnimator.cs" />
+    <Compile Include="Rendering\RenderFrameActionTime.cs" />
     <Compile Include="Test\CharacterStateTest.cs" />
     <Compile Include="Controllers\CharacterManagementController.cs" />
     <Compile Include="Controllers\AccountController.cs" />

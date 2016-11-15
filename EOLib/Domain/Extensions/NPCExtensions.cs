@@ -40,6 +40,16 @@ namespace EOLib.Domain.Extensions
             return npc.Frame - NPCFrame.WalkFrame1 + 1;
         }
 
+        public static INPC WithNextWalkFrame(this INPC npc)
+        {
+            if (npc.Frame == NPCFrame.WalkFrame4)
+                return npc.WithFrame(NPCFrame.Standing);
+            if (npc.Frame == NPCFrame.Standing)
+                return npc.WithFrame(NPCFrame.WalkFrame1);
+
+            return npc.WithFrame(npc.Frame + 1);
+        }
+
         public static int GetAttackFrame(this INPC npc)
         {
             if (!npc.IsActing(NPCActionState.Attacking))

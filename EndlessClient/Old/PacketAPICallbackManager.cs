@@ -494,7 +494,6 @@ namespace EndlessClient.Old
 
         private void _npcWalk(byte index, byte x, byte y, EODirection dir)
         {
-            if (OldWorld.Instance.ActiveMapRenderer == null) return;
             OldWorld.Instance.ActiveMapRenderer.NPCWalk(index, x, y, dir);
         }
 
@@ -505,8 +504,6 @@ namespace EndlessClient.Old
 
         private void _npcChat(byte index, string message)
         {
-            if (OldWorld.Instance.ActiveMapRenderer == null) return;
-
             OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(ChatType.NPC, index, message, ChatIcon.Note);
         }
 

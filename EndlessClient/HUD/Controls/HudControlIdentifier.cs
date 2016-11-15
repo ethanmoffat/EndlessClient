@@ -72,6 +72,7 @@ namespace EndlessClient.HUD.Controls
         UsageTracker,
         ArrowKeyHandler,
         CharacterAnimator,
+        NPCAnimator,
 
         PreviousKeyStateTracker = Int32.MaxValue //this should always be last!
     }

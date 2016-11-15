@@ -104,6 +104,7 @@
     <Compile Include="Domain\Map\Warp.cs" />
     <Compile Include="Domain\Map\WarpAgreePacketData.cs" />
     <Compile Include="Domain\NPC\INPC.cs" />
+    <Compile Include="Domain\NPC\INPCAnimationNotifier.cs" />
     <Compile Include="Domain\NPC\NPC.cs" />
     <Compile Include="Domain\NPC\NPCActionState.cs" />
     <Compile Include="Domain\NPC\NPCFrame.cs" />
@@ -226,6 +227,7 @@
     <Compile Include="PacketHandlers\Chat\GroupChatHandler.cs" />
     <Compile Include="PacketHandlers\EndPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
+    <Compile Include="PacketHandlers\NPCWalkHandler.cs" />
     <Compile Include="PacketHandlers\PacketHandlerDependencyContainer.cs" />
     <Compile Include="PacketHandlers\Commands\PingResponseHandler.cs" />
     <Compile Include="Net\MalformedPacketException.cs" />

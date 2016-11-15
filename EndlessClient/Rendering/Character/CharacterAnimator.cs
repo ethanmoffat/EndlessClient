@@ -18,28 +18,11 @@ namespace EndlessClient.Rendering.Character
     {
         public const int WALK_FRAME_TIME_MS = 100;
 
-        private class WalkTimeAndId
-        {
-            public int ID { get; private set; }
-            public Optional<DateTime> StartWalkingTime { get; private set; }
-
-            public WalkTimeAndId(int id, Optional<DateTime> startWalkingTime)
-            {
-                ID = id;
-                StartWalkingTime = startWalkingTime;
-            }
-
-            public void UpdateStartWalkingTime(Optional<DateTime> now)
-            {
-                StartWalkingTime = now;
-            }
-        }
-
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         private Optional<DateTime> _startWalkingTime;
-        private readonly List<WalkTimeAndId> _otherPlayerStartWalkingTimes;
+        private readonly List<RenderFrameActionTime> _otherPlayerStartWalkingTimes;
 
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
@@ -49,7 +32,7 @@ namespace EndlessClient.Rendering.Character
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _startWalkingTime = Optional<DateTime>.Empty;
-            _otherPlayerStartWalkingTimes = new List<WalkTimeAndId>();
+            _otherPlayerStartWalkingTimes = new List<RenderFrameActionTime>();
         }
 
         public override void Update(GameTime gameTime)
@@ -68,11 +51,11 @@ namespace EndlessClient.Rendering.Character
 
         public void StartOtherCharacterWalkAnimation(int characterID)
         {
-            var startWalkingTimeAndID = new WalkTimeAndId(characterID, DateTime.Now);
+            var startWalkingTimeAndID = new RenderFrameActionTime(characterID, DateTime.Now);
 
-            //todo: this may cause a crash if the ID is already present in the dictionary
-            //todo: need to handle case where server tells another player to walk while the animation is still happening
             _otherPlayerStartWalkingTimes.Add(startWalkingTimeAndID);
+            if (_otherPlayerStartWalkingTimes.Select(x => x.UniqueID).Distinct().Count() != _otherPlayerStartWalkingTimes.Count)
+                throw new InvalidOperationException("NPC is trying to walk twice! figure something out for this case");
         }
 
         private void AnimateCharacterWalking(DateTime now)
@@ -81,7 +64,7 @@ namespace EndlessClient.Rendering.Character
                 (now - _startWalkingTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
             {
                 var renderProperties = _characterRepository.MainCharacter.RenderProperties;
-                var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties, now);
+                var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties);
 
                 _startWalkingTime = GetUpdatedStartWalkingTime(now, nextFrameRenderProperties);
 
@@ -89,19 +72,19 @@ namespace EndlessClient.Rendering.Character
                 _characterRepository.MainCharacter = nextFrameCharacter;
             }
 
-            var playersDoneWalking = new List<WalkTimeAndId>();
+            var playersDoneWalking = new List<RenderFrameActionTime>();
             foreach (var pair in _otherPlayerStartWalkingTimes)
             {
-                if (pair.StartWalkingTime.HasValue &&
-                    (now - pair.StartWalkingTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
+                if (pair.ActionStartTime.HasValue &&
+                    (now - pair.ActionStartTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
                 {
-                    var currentCharacter = _currentMapStateRepository.Characters.Single(x => x.ID == pair.ID);
+                    var currentCharacter = _currentMapStateRepository.Characters.Single(x => x.ID == pair.UniqueID);
 
                     var renderProperties = currentCharacter.RenderProperties;
-                    var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties, now);
+                    var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties);
 
-                    pair.UpdateStartWalkingTime(GetUpdatedStartWalkingTime(now, nextFrameRenderProperties));
-                    if (!pair.StartWalkingTime.HasValue)
+                    pair.UpdateActionStartTime(GetUpdatedStartWalkingTime(now, nextFrameRenderProperties));
+                    if (!pair.ActionStartTime.HasValue)
                         playersDoneWalking.Add(pair);
 
                     var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);
@@ -113,7 +96,7 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartWalkingTimes.RemoveAll(playersDoneWalking.Contains);
         }
 
-        private static ICharacterRenderProperties AnimateOneWalkFrame(ICharacterRenderProperties renderProperties, DateTime now)
+        private static ICharacterRenderProperties AnimateOneWalkFrame(ICharacterRenderProperties renderProperties)
         {
             var nextFrameRenderProperties = renderProperties.WithNextWalkFrame();
 
