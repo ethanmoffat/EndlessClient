@@ -240,8 +240,8 @@ namespace EndlessClient.Old
             return true;
         }
 
-        public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<OldMapItem> items)
-        {
+        //public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<OldMapItem> items)
+        //{
             //foreach (var data in chars)
             //{
             //    if (data.ID == MainPlayer.ActiveCharacter.ID)
@@ -249,7 +249,7 @@ namespace EndlessClient.Old
             //    else
             //        ActiveMapRenderer.AddOtherPlayer(data);
             //}
-        }
+        //}
 
         public void ResetGameElements()
         {

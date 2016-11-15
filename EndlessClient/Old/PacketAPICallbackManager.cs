@@ -35,7 +35,6 @@ namespace EndlessClient.Old
         public void AssignCallbacks()
         {
             m_packetAPI.OnPlayerEnterMap += _playerEnterMap;
-            m_packetAPI.OnNPCEnterMap += _npcEnterMap;
 
             m_packetAPI.OnAdminHiddenChange += _adminHiddenChange;
             m_packetAPI.OnOtherPlayerAttack += _otherPlayerAttack;
@@ -144,12 +143,6 @@ namespace EndlessClient.Old
         private void _playerEnterMap(CharacterData data, WarpAnimation anim)
         {
             OldWorld.Instance.ActiveMapRenderer.AddOtherPlayer(data, anim);
-        }
-
-        private void _npcEnterMap(NPCData obj)
-        {
-            if (OldWorld.Instance.ActiveMapRenderer == null) return;
-            OldWorld.Instance.ActiveMapRenderer.AddOtherNPC(obj);
         }
 
         private void _adminHiddenChange(short id, bool hidden)

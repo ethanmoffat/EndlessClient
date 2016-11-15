@@ -31,14 +31,14 @@ namespace EOLib.Domain.NPC
             get { return (Data.Type == NPCType.Passive || Data.Type == NPCType.Aggressive) && Data.VendorID == 1; }
         }
 
-        public OldNPC(NPCData serverNPCData, ENFRecord localNPCData)
-        {
-            Index = serverNPCData.Index;
-            X = serverNPCData.X;
-            Y = serverNPCData.Y;
-            Direction = serverNPCData.Direction;
-            Data = localNPCData;
-        }
+        //public OldNPC(NPCData serverNPCData, ENFRecord localNPCData)
+        //{
+        //    Index = serverNPCData.Index;
+        //    X = serverNPCData.X;
+        //    Y = serverNPCData.Y;
+        //    Direction = serverNPCData.Direction;
+        //    Data = localNPCData;
+        //}
 
         public void BeginWalking(EODirection direction, byte destX, byte destY)
         {

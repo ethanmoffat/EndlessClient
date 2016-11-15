@@ -674,18 +674,6 @@ namespace EndlessClient.Rendering
 
         #region/* PUBLIC INTERFACE -- OTHER NPCS */
 
-        public void AddOtherNPC(NPCData data)
-        {
-            lock (_npcListLock)
-            {
-                var fileData = OldWorld.Instance.ENF[data.ID];
-                OldNPCRenderer newNpcRenderer = new OldNPCRenderer(new OldNPC(data, fileData));
-                newNpcRenderer.Initialize();
-                newNpcRenderer.Visible = true;
-                _npcRenderers.Add(newNpcRenderer);
-            }
-        }
-
         public void RemoveOtherNPC(byte index, int damage = 0, short playerID = 0, EODirection playerDirection = (EODirection)0, short spellID = -1)
         {
             lock (_npcListLock)
