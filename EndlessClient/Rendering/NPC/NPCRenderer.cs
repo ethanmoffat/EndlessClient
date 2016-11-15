@@ -26,6 +26,8 @@ namespace EndlessClient.Rendering.NPC
         private readonly int _readonlyTopPixel;
         private readonly bool _hasStandingAnimation;
 
+        private DateTime _lastStandingAnimation;
+
         public int TopPixel { get { return _readonlyTopPixel; } }
 
         public Rectangle DrawArea { get; private set; }
@@ -51,7 +53,9 @@ namespace EndlessClient.Rendering.NPC
 
             _baseTextureFrameRectangle = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
+
             _hasStandingAnimation = GetHasStandingAnimation();
+            _lastStandingAnimation = DateTime.Now;
         }
 
         public override void Initialize()
@@ -66,6 +70,7 @@ namespace EndlessClient.Rendering.NPC
             if (!Visible) return;
 
             UpdateDrawAreas();
+            UpdateStandingFrameAnimation();
 
             base.Update(gameTime);
         }
@@ -141,6 +146,19 @@ namespace EndlessClient.Rendering.NPC
                 DrawArea.Bottom - (int)oneGridSize.Y,
                 (int)oneGridSize.X,
                 (int)oneGridSize.Y);
+        }
+
+        private void UpdateStandingFrameAnimation()
+        {
+            var now = DateTime.Now;
+
+            if (!_hasStandingAnimation
+                || !NPC.IsActing(NPCActionState.Standing)
+                || (now - _lastStandingAnimation).TotalMilliseconds < 250)
+                return;
+
+            _lastStandingAnimation = now;
+            NPC = NPC.WithFrame(NPC.Frame == NPCFrame.Standing ? NPCFrame.StandingFrame1 : NPCFrame.Standing);
         }
     }
 }
