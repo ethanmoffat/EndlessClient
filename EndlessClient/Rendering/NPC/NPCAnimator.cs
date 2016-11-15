@@ -40,11 +40,17 @@ namespace EndlessClient.Rendering.NPC
 
         public void StartWalkAnimation(int npcIndex)
         {
+            if (_npcStartWalkingTimes.Any(x => x.UniqueID == npcIndex))
+                return;
+
             var startWalkingTimeAndID = new RenderFrameActionTime(npcIndex, DateTime.Now);
 
             _npcStartWalkingTimes.Add(startWalkingTimeAndID);
-            if (_npcStartWalkingTimes.Select(x => x.UniqueID).Distinct().Count() != _npcStartWalkingTimes.Count)
-                throw new InvalidOperationException("NPC is trying to walk twice! figure something out for this case");
+        }
+
+        public void StopAllAnimations()
+        {
+            _npcStartWalkingTimes.Clear();
         }
 
         private void AnimateNPCWalking(DateTime now)
@@ -95,5 +101,7 @@ namespace EndlessClient.Rendering.NPC
     public interface INPCAnimator : IGameComponent
     {
         void StartWalkAnimation(int npcIndex);
+
+        void StopAllAnimations();
     }
 }

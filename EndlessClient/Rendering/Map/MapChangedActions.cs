@@ -33,23 +33,46 @@ namespace EndlessClient.Rendering.Map
 
         public void NotifyMapChanged(WarpAnimation warpAnimation, bool showMapTransition)
         {
+            StopAllAnimations();
+            ClearCharacterRenderersAndCache();
+            ClearNPCRenderersAndCache();
+            ShowMapTransition(showMapTransition);
+
+            //todo: render warp animation on main character renderer
+        }
+
+        private void StopAllAnimations()
+        {
+            var characterAnimator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
+            characterAnimator.StopAllOtherCharacterAnimations();
+
+            var npcAnimator = _hudControlProvider.GetComponent<INPCAnimator>(HudControlIdentifier.NPCAnimator);
+            npcAnimator.StopAllAnimations();
+        }
+
+        private void ClearCharacterRenderersAndCache()
+        {
             foreach (var characterRenderer in _characterRendererRepository.CharacterRenderers)
                 characterRenderer.Value.Dispose();
             _characterRendererRepository.CharacterRenderers.Clear();
             _characterStateCache.ClearAllOtherCharacterStates();
+        }
 
+        private void ClearNPCRenderersAndCache()
+        {
             foreach (var npcRenderer in _npcRendererRepository.NPCRenderers)
                 npcRenderer.Value.Dispose();
             _npcRendererRepository.NPCRenderers.Clear();
             _npcStateCache.Reset();
+        }
 
+        private void ShowMapTransition(bool showMapTransition)
+        {
             if (showMapTransition)
             {
                 var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
                 mapRenderer.StartMapTransition();
             }
-
-            //todo: render warp animation on main character renderer
         }
     }
 }

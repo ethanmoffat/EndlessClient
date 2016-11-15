@@ -51,11 +51,17 @@ namespace EndlessClient.Rendering.Character
 
         public void StartOtherCharacterWalkAnimation(int characterID)
         {
+            if (_otherPlayerStartWalkingTimes.Any(x => x.UniqueID == characterID))
+                return;
+
             var startWalkingTimeAndID = new RenderFrameActionTime(characterID, DateTime.Now);
 
             _otherPlayerStartWalkingTimes.Add(startWalkingTimeAndID);
-            if (_otherPlayerStartWalkingTimes.Select(x => x.UniqueID).Distinct().Count() != _otherPlayerStartWalkingTimes.Count)
-                throw new InvalidOperationException("NPC is trying to walk twice! figure something out for this case");
+        }
+
+        public void StopAllOtherCharacterAnimations()
+        {
+            _otherPlayerStartWalkingTimes.Clear();
         }
 
         private void AnimateCharacterWalking(DateTime now)
@@ -123,5 +129,7 @@ namespace EndlessClient.Rendering.Character
         void StartMainCharacterWalkAnimation();
 
         void StartOtherCharacterWalkAnimation(int characterID);
+
+        void StopAllOtherCharacterAnimations();
     }
 }
