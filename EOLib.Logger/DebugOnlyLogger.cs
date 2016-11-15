@@ -28,7 +28,7 @@ namespace EOLib.Logger
             _enabled = true;
 
             Directory.CreateDirectory(Constants.LOG_DIRECTORY);
-            _fileStream = new StreamWriter(Constants.LOG_DIRECTORY, true);
+            _fileStream = new StreamWriter(Constants.LOG_FILE_PATH, true);
 
             _logTimer = new Timer(FlushLogToNewFileIfNeeded,
                 null,
@@ -118,6 +118,7 @@ namespace EOLib.Logger
             if (disposing)
             {
                 _logTimer.Dispose();
+                _fileStream.Dispose();
             }
         }
     }

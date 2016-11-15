@@ -10,7 +10,7 @@ namespace EOLib.Logger
     {
         public ILogger Logger { get; private set; }
 
-        internal LoggerProvider(ILoggerFactory loggerFactory)
+        public LoggerProvider(ILoggerFactory loggerFactory)
         {
             Logger = CreateLogger(loggerFactory);
         }

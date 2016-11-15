@@ -3,12 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using EOLib.IO.Services;
+using EOLib.Logger;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
 
@@ -19,6 +21,7 @@ namespace EOLib.Net.Communication
         private readonly IPacketProcessActions _packetProcessActions;
         private readonly IPacketHandlingActions _packetHandlingActions;
         private readonly INumberEncoderService _numberEncoderService;
+        private readonly ILoggerProvider _loggerProvider;
 
         private readonly IAsyncSocket _socket;
 
@@ -39,11 +42,13 @@ namespace EOLib.Net.Communication
 
         public NetworkClient(IPacketProcessActions packetProcessActions,
                              IPacketHandlingActions packetHandlingActions,
-                             INumberEncoderService numberEncoderService)
+                             INumberEncoderService numberEncoderService,
+                             ILoggerProvider loggerProvider)
         {
             _packetProcessActions = packetProcessActions;
             _packetHandlingActions = packetHandlingActions;
             _numberEncoderService = numberEncoderService;
+            _loggerProvider = loggerProvider;
 
             _socket = new AsyncSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             
@@ -93,7 +98,9 @@ namespace EOLib.Net.Communication
                 if (_backgroundReceiveCTS.IsCancellationRequested || packetData.Length != length)
                     break;
 
-                var packet = _packetProcessActions.DecodeData((IEnumerable<byte>) packetData);
+                var packet = _packetProcessActions.DecodeData(packetData);
+                LogReceivedPacket(packet);
+
                 _packetHandlingActions.EnqueuePacketForHandling(packet);
             }
         }
@@ -111,6 +118,7 @@ namespace EOLib.Net.Communication
 
         public async Task<int> SendAsync(IPacket packet, int timeout = 1500)
         {
+            LogSentPacket(packet, true);
             var bytesToSend = _packetProcessActions.EncodePacket(packet);
             using (var cts = new CancellationTokenSource(timeout))
                 return await _socket.SendAsync(bytesToSend, cts.Token);
@@ -118,9 +126,31 @@ namespace EOLib.Net.Communication
 
         public async Task<int> SendRawPacketAsync(IPacket packet, int timeout = 1500)
         {
+            LogSentPacket(packet, false);
             var bytesToSend = _packetProcessActions.EncodeRawPacket(packet);
             using (var cts = new CancellationTokenSource(timeout))
                 return await _socket.SendAsync(bytesToSend, cts.Token);
+        }
+
+        [Conditional("DEBUG")]
+        private void LogReceivedPacket(IPacket packet)
+        {
+            _loggerProvider.Logger.Log("RECV thread: Received             packet Family={0,-13} Action={1,-8} sz={2,-5} data={3}",
+                Enum.GetName(typeof(PacketFamily), packet.Family),
+                Enum.GetName(typeof(PacketAction), packet.Action),
+                packet.Length,
+                string.Join(":", packet.RawData.Select(b => string.Format("{0:x2}", b))));
+        }
+
+        [Conditional("DEBUG")]
+        private void LogSentPacket(IPacket packet, bool encoded)
+        {
+            _loggerProvider.Logger.Log("SEND thread: Processing       {0,-3} packet Family={1,-13} Action={2,-8} sz={3,-5} data={4}",
+                    encoded ? "ENC" : "RAW",
+                    Enum.GetName(typeof(PacketFamily), packet.Family),
+                    Enum.GetName(typeof(PacketAction), packet.Action),
+                    packet.Length,
+                    string.Join(":", packet.RawData.Select(b => string.Format("{0:x2}", b))));
         }
 
         public void Dispose()

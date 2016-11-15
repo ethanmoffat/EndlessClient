@@ -294,6 +294,10 @@
       <Project>{9F543E30-1320-43E2-8691-080E089154A0}</Project>
       <Name>EOLib.Localization</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj">
+      <Project>{22820580-B33F-4AA9-8044-A6EC4797AE21}</Project>
+      <Name>EOLib.Logger</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

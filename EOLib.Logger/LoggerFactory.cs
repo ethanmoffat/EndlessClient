@@ -6,7 +6,7 @@ using EOLib.Config;
 
 namespace EOLib.Logger
 {
-    internal class LoggerFactory : ILoggerFactory
+    public class LoggerFactory : ILoggerFactory
     {
         private readonly IConfigurationProvider _configurationProvider;
 
@@ -21,7 +21,7 @@ namespace EOLib.Logger
         }
     }
 
-    internal interface ILoggerFactory
+    public interface ILoggerFactory
     {
         ILogger CreateLogger();
     }
