@@ -5,7 +5,9 @@
 using System;
 using System.Threading;
 using EOLib;
+using EOLib.Config;
 using EOLib.IO.Services;
+using EOLib.Logger;
 using EOLib.Net;
 using EOLib.Net.API;
 using EOLib.Net.PacketProcessing;
@@ -172,7 +174,8 @@ namespace EOBot
             return new PacketProcessActions(new SequenceRepository(),
                                             new PacketEncoderRepository(),
                                             new PacketEncoderService(new NumberEncoderService()),
-                                            new PacketSequenceService());
+                                            new PacketSequenceService(),
+                                            new LoggerProvider(new LoggerFactory(new ConfigurationRepository())));
         }
     }
 }

@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EOLib.Logger;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Handlers;
@@ -16,6 +17,7 @@ namespace EOLib.PacketHandlers
     {
         private readonly IPacketProcessActions _packetProcessActions;
         private readonly IPacketSendService _packetSendService;
+        private readonly ILoggerProvider _loggerProvider;
 
         public override PacketFamily Family { get { return PacketFamily.Connection; } }
 
@@ -24,10 +26,12 @@ namespace EOLib.PacketHandlers
         public override bool CanHandle { get { return true; } }
 
         public ConnectionPlayerHandler(IPacketProcessActions packetProcessActions,
-                                       IPacketSendService packetSendService)
+                                       IPacketSendService packetSendService,
+                                       ILoggerProvider loggerProvider)
         {
             _packetProcessActions = packetProcessActions;
             _packetSendService = packetSendService;
+            _loggerProvider = loggerProvider;
         }
 
         public override bool HandlePacket(IPacket packet)

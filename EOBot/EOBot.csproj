@@ -58,9 +58,17 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj">
+      <Project>{2FEC86D4-EA73-472F-9983-B06AF7981F5C}</Project>
+      <Name>EOLib.Config</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
       <Project>{AA07776B-3F05-404A-BA8A-24970A91C024}</Project>
       <Name>EOLib.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj">
+      <Project>{22820580-B33F-4AA9-8044-A6EC4797AE21}</Project>
+      <Name>EOLib.Logger</Name>
     </ProjectReference>
     <ProjectReference Include="..\EOLib\EOLib.csproj">
       <Project>{edb5ad93-303d-4b07-9fad-f6a8295d2390}</Project>

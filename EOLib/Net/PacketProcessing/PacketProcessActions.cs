@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using EOLib.Logger;
 
 namespace EOLib.Net.PacketProcessing
 {
@@ -11,19 +12,22 @@ namespace EOLib.Net.PacketProcessing
     {
         private readonly IPacketEncoderService _encoderService;
         private readonly IPacketSequenceService _sequenceService;
+        private readonly ILoggerProvider _loggerProvider;
         private readonly IPacketEncoderRepository _encoderRepository;
         private readonly ISequenceRepository _sequenceRepository;
 
         public PacketProcessActions(ISequenceRepository sequenceNumberRepository,
                                     IPacketEncoderRepository encoderRepository,
                                     IPacketEncoderService encoderService,
-                                    IPacketSequenceService sequenceService)
+                                    IPacketSequenceService sequenceService,
+                                    ILoggerProvider loggerProvider)
         {
             _sequenceRepository = sequenceNumberRepository;
             _encoderRepository = encoderRepository;
 
             _encoderService = encoderService;
             _sequenceService = sequenceService;
+            _loggerProvider = loggerProvider;
         }
 
         public void SetInitialSequenceNumber(int seq1, int seq2)
@@ -42,6 +46,9 @@ namespace EOLib.Net.PacketProcessing
         {
             _encoderRepository.ReceiveMultiplier = emulti_d;
             _encoderRepository.SendMultiplier = emulti_e;
+
+            _loggerProvider.Logger.Log("**** PACKET ENCODING MULTIPLES FOR THIS SESSION ARE: RECV={0} SEND={1}",
+                                       _encoderRepository.ReceiveMultiplier, _encoderRepository.SendMultiplier);
         }
 
         public byte[] EncodePacket(IPacket pkt)

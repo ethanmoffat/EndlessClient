@@ -5,7 +5,9 @@
 using System;
 using System.IO;
 using System.Windows.Forms;
+using EOLib.Config;
 using EOLib.IO.Services;
+using EOLib.Logger;
 using EOLib.Net;
 using EOLib.Net.PacketProcessing;
 
@@ -42,9 +44,10 @@ namespace PacketDecoder
 
             _packetEncoderRepository = new PacketEncoderRepository();
             _packetProcessActions = new PacketProcessActions(new SequenceRepository(),
-                                                               _packetEncoderRepository,
-                                                               new PacketEncoderService(new NumberEncoderService()),
-                                                               new PacketSequenceService());
+                                                             _packetEncoderRepository,
+                                                             new PacketEncoderService(new NumberEncoderService()),
+                                                             new PacketSequenceService(),
+                                                             new LoggerProvider(new LoggerFactory(new ConfigurationRepository())));
         }
 
         private void cmbOutputFmt_SelectedIndexChanged(object sender, EventArgs e)
