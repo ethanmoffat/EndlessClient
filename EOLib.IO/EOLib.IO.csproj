@@ -131,6 +131,10 @@
       <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
       <Name>EOLib.DependencyInjection</Name>
     </ProjectReference>
+    <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj">
+      <Project>{22820580-B33F-4AA9-8044-A6EC4797AE21}</Project>
+      <Name>EOLib.Logger</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

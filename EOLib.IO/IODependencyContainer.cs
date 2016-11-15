@@ -10,6 +10,7 @@ using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
+using EOLib.Logger;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.IO
@@ -62,33 +63,45 @@ namespace EOLib.IO
         public void InitializeDependencies(IUnityContainer container)
         {
             var pubFileLoadActions = container.Resolve<IPubFileLoadActions>();
+            var logger = container.Resolve<ILoggerProvider>().Logger;
 
             try
             {
                 pubFileLoadActions.LoadItemFile();
             }
-            catch (IOException)
+            catch (IOException ioe)
             {
-                //todo: log message?
+                logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToEIFFile, ioe.Message);
             }
 
             try
             {
                 pubFileLoadActions.LoadNPCFile();
             }
-            catch (IOException) { }
+            catch (IOException ioe)
+            {
+                logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToENFFile, ioe.Message);
+            }
 
             try
             {
                 pubFileLoadActions.LoadSpellFile();
             }
-            catch (IOException) { }
+            catch (IOException ioe)
+            {
+                logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToESFFile, ioe.Message);
+            }
 
             try
             {
                 pubFileLoadActions.LoadClassFile();
             }
-            catch (IOException) { }
+            catch (IOException ioe)
+            {
+                logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToECFFile, ioe.Message);
+            }
         }
+
+        private const string PUB_LOG_MSG = "**** Unable to load default PUB file: {0}. Exception message: {1}";
     }
 }
