@@ -277,7 +277,6 @@
     <Compile Include="Input\OldInputKeyListenerBase.cs" />
     <Compile Include="Input\NumPadListener.cs" />
     <Compile Include="Old\InteractList.cs" />
-    <Compile Include="Old\Logger.cs" />
     <Compile Include="Old\PacketAPICallbackManager.cs" />
     <Compile Include="Old\Player.cs" />
     <Compile Include="Program.cs" />

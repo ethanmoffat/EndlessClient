@@ -52,13 +52,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
-    <Compile Include="Logger.cs" />
+    <Compile Include="ILogger.cs" />
+    <Compile Include="DebugOnlyLogger.cs" />
     <Compile Include="LoggerDependencyContainer.cs" />
     <Compile Include="LoggerFactory.cs" />
     <Compile Include="LoggerProvider.cs" />
+    <Compile Include="NullLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj">
+      <Project>{2fec86d4-ea73-472f-9983-b06af7981f5c}</Project>
+      <Name>EOLib.Config</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
       <Project>{f461418a-4a7a-4694-b35c-94ff0420414e}</Project>
       <Name>EOLib.DependencyInjection</Name>
