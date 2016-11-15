@@ -51,6 +51,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="LoggerDependencyContainer.cs" />
     <Compile Include="LoggerRepository.cs" />
