@@ -4,7 +4,7 @@
 
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
-using EOLib.Domain.NPC;
+using EOLib.Domain.Notifiers;
 
 namespace EndlessClient.Rendering.NPC
 {

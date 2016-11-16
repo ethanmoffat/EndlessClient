@@ -6,6 +6,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Notifiers;
 
 namespace EndlessClient.Rendering.Character
 {

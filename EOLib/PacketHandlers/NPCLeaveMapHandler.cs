@@ -8,6 +8,7 @@ using System.Linq;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.Domain.Notifiers;
 using EOLib.Domain.NPC;
 using EOLib.Net;
 using EOLib.Net.Handlers;

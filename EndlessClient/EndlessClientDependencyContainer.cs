@@ -18,7 +18,7 @@ using EndlessClient.Rendering;
 using EndlessClient.Test;
 using EndlessClient.UIControls;
 using EOLib.DependencyInjection;
-using EOLib.Domain.Chat;
+using EOLib.Domain.Notifiers;
 using Microsoft.Practices.Unity;
 using XNAControls;
 

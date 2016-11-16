@@ -64,7 +64,7 @@
     <Compile Include="Domain\Character\CharacterWalkValidationActions.cs" />
     <Compile Include="Domain\Character\EquippedItem.cs" />
     <Compile Include="Domain\Character\ICharacter.cs" />
-    <Compile Include="Domain\Character\IOtherCharacterAnimationNotifier.cs" />
+    <Compile Include="Domain\Notifiers\IOtherCharacterAnimationNotifier.cs" />
     <Compile Include="Domain\Character\CharacterInventoryRepository.cs" />
     <Compile Include="Domain\Character\ICharacterRenderProperties.cs" />
     <Compile Include="Domain\Character\InventoryItem.cs" />
@@ -82,7 +82,7 @@
     <Compile Include="Domain\Chat\Commands\NoWallCommand.cs" />
     <Compile Include="Domain\Chat\Commands\PingCommand.cs" />
     <Compile Include="Domain\Chat\Commands\UsageCommand.cs" />
-    <Compile Include="Domain\Chat\IChatEventNotifier.cs" />
+    <Compile Include="Domain\Notifiers\IChatEventNotifier.cs" />
     <Compile Include="Domain\Chat\ChatRepository.cs" />
     <Compile Include="Domain\Chat\ChatType.cs" />
     <Compile Include="Domain\Chat\LocalCommandHandler.cs" />
@@ -94,7 +94,7 @@
     <Compile Include="Domain\Login\LoginRequestCompletedData.cs" />
     <Compile Include="Domain\Map\CurrentMapProvider.cs" />
     <Compile Include="Domain\Map\IMapCellState.cs" />
-    <Compile Include="Domain\Map\IMapChangedNotifier.cs" />
+    <Compile Include="Domain\Notifiers\IMapChangedNotifier.cs" />
     <Compile Include="Domain\Map\MapCellState.cs" />
     <Compile Include="Domain\Map\MapCellStateProvider.cs" />
     <Compile Include="Domain\Map\Chest.cs" />
@@ -103,8 +103,9 @@
     <Compile Include="Domain\Map\Sign.cs" />
     <Compile Include="Domain\Map\Warp.cs" />
     <Compile Include="Domain\Map\WarpAgreePacketData.cs" />
+    <Compile Include="Domain\Notifiers\NotifierDependencyContainer.cs" />
     <Compile Include="Domain\NPC\INPC.cs" />
-    <Compile Include="Domain\NPC\INPCAnimationNotifier.cs" />
+    <Compile Include="Domain\Notifiers\INPCAnimationNotifier.cs" />
     <Compile Include="Domain\NPC\NPC.cs" />
     <Compile Include="Domain\NPC\NPCActionState.cs" />
     <Compile Include="Domain\NPC\NPCFrame.cs" />

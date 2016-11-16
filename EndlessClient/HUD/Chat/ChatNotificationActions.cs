@@ -10,6 +10,7 @@ using EndlessClient.HUD.Panels;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Chat;
+using EOLib.Domain.Notifiers;
 using EOLib.Localization;
 
 namespace EndlessClient.HUD.Chat

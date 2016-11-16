@@ -8,6 +8,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
+using EOLib.Domain.Notifiers;
 using EOLib.Localization;
 
 namespace EndlessClient.Rendering.Map
