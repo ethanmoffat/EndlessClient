@@ -229,6 +229,7 @@
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\NPCActionHandler.cs" />
     <Compile Include="PacketHandlers\NPCEnterMapHandler.cs" />
+    <Compile Include="PacketHandlers\NPCLeaveMapHandler.cs" />
     <Compile Include="PacketHandlers\PacketHandlerDependencyContainer.cs" />
     <Compile Include="PacketHandlers\Commands\PingResponseHandler.cs" />
     <Compile Include="Net\MalformedPacketException.cs" />
@@ -271,6 +272,7 @@
     <Compile Include="PacketHandlers\Chat\PrivateMessageTargetNotFound.cs" />
     <Compile Include="PacketHandlers\Chat\PublicChatHandler.cs" />
     <Compile Include="PacketHandlers\PlayerDirectionHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerLevelUpHandler.cs" />
     <Compile Include="PacketHandlers\PlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\BeginPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\RefreshMapStateHandler.cs" />

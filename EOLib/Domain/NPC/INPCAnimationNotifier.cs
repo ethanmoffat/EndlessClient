@@ -7,5 +7,7 @@ namespace EOLib.Domain.NPC
     public interface INPCAnimationNotifier
     {
         void StartNPCWalkAnimation(int npcIndex);
+
+        void RemoveNPCFromView(int npcIndex, bool showDeathAnimation);
     }
 }
