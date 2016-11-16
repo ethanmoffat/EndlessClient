@@ -10,4 +10,9 @@ namespace EOLib.Domain.Notifiers
     {
         void NotifyMapChanged(WarpAnimation warpAnimation, bool showMapTransition);
     }
+
+    public class NoOpMapChangedNotifier : IMapChangedNotifier
+    {
+        public void NotifyMapChanged(WarpAnimation warpAnimation, bool showMapTransition) { }
+    }
 }

@@ -10,4 +10,11 @@ namespace EOLib.Domain.Notifiers
 
         void RemoveNPCFromView(int npcIndex, bool showDeathAnimation);
     }
+
+    public class NoOpNpcAnimationNotifier : INPCAnimationNotifier
+    {
+        public void StartNPCWalkAnimation(int npcIndex) { }
+
+        public void RemoveNPCFromView(int npcIndex, bool showDeathAnimation) { }
+    }
 }

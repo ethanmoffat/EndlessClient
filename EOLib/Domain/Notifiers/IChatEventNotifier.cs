@@ -10,4 +10,11 @@ namespace EOLib.Domain.Notifiers
 
         void NotifyPlayerMutedByAdmin(string adminName);
     }
+
+    public class NoOpChatEventNotifier : IChatEventNotifier
+    {
+        public void NotifyPrivateMessageRecipientNotFound(string recipientName) { }
+
+        public void NotifyPlayerMutedByAdmin(string adminName) { }
+    }
 }

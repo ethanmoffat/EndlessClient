@@ -8,4 +8,9 @@ namespace EOLib.Domain.Notifiers
     {
         void StartOtherCharacterWalkAnimation(int characterID);
     }
+
+    public class NoOpOtherCharacterAnimationNotifier : IOtherCharacterAnimationNotifier
+    {
+        public void StartOtherCharacterWalkAnimation(int characterID) { }
+    }
 }
