@@ -606,15 +606,6 @@ namespace EndlessClient.Old
             EquipItem(ItemType.Weapon, (short)(OldWorld.Instance.EIF.Data.SingleOrDefault(x => x.Type == ItemType.Weapon && x.DollGraphic == newRenderData.weapon) ?? new EIFRecord()).ID, newRenderData.weapon, true);
         }
 
-        public void GainExp(int amount)
-        {
-            TodayLastKill = amount;
-            if (amount > TodayBestKill)
-                TodayBestKill = amount;
-            TodayExp += amount;
-            Stats.Experience += amount;
-        }
-
         public void UpdateStatsAfterEquip(PaperdollEquipData data)
         {
             Stats.MaxHP = data.MaxHP;

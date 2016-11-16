@@ -70,10 +70,7 @@ namespace EndlessClient.Old
             m_packetAPI.OnMapMutation += _mapMutate;
 
             //npc related
-            m_packetAPI.OnNPCLeaveMap += _npcLeaveView;
-            m_packetAPI.OnNPCKilled += _npcKilled;
             m_packetAPI.OnNPCTakeDamage += _npcTakeDamage;
-            m_packetAPI.OnPlayerLevelUp += _playerLevelUp;
             m_packetAPI.OnRemoveChildNPCs += _removeChildNPCs;
 
             //bank related
@@ -482,37 +479,22 @@ namespace EndlessClient.Old
                 throw new FileNotFoundException("Unable to remap the file, something broke");
         }
 
-        private void _npcAttack(byte index, bool dead, EODirection dir, short id, int damage, int health)
-        {
-            OldWorld.Instance.ActiveMapRenderer.NPCAttack(index, dead, dir, id, damage, health);
-        }
+        //private void _npcAttack(byte index, bool dead, EODirection dir, short id, int damage, int health)
+        //{
+        //    OldWorld.Instance.ActiveMapRenderer.NPCAttack(index, dead, dir, id, damage, health);
+        //}
 
-        private void _npcChat(byte index, string message)
-        {
-            OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(ChatType.NPC, index, message, ChatIcon.Note);
-        }
+        //private void _npcChat(byte index, string message)
+        //{
+        //    OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(ChatType.NPC, index, message, ChatIcon.Note);
+        //}
 
-        private void _npcLeaveView(byte index, int damageToNPC, short playerID, EODirection playerDirection, short playerTP = -1, short spellID = -1)
-        {
-            if (OldWorld.Instance.ActiveMapRenderer == null) return;
-
-            OldWorld.Instance.ActiveMapRenderer.RemoveOtherNPC(index, damageToNPC, playerID, playerDirection, spellID);
-
-            if (playerTP >= 0)
-            {
-                OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = playerTP;
-                m_game.Hud.RefreshStats();
-            }
-        }
-
-        private void _npcKilled(int newExp)
-        {
-            int expDif = newExp - OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.Experience;
-            OldWorld.Instance.MainPlayer.ActiveCharacter.GainExp(expDif);
-
-            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_YOU_GAINED_EXP, string.Format(" {0} EXP", expDif));
-            m_game.Hud.AddChat(ChatTab.System, "", string.Format("{0} {1} EXP", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_GAINED_EXP), expDif), ChatIcon.Star);
-        }
+        //private void _npcKilled(int newExp)
+        //{
+        //    todo: port to new code
+        //    m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_YOU_GAINED_EXP, string.Format(" {0} EXP", expDif));
+        //    m_game.Hud.AddChat(ChatTab.System, "", string.Format("{0} {1} EXP", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_GAINED_EXP), expDif), ChatIcon.Star);
+        //}
 
         private void _npcTakeDamage(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID, short fromTP)
         {
@@ -525,20 +507,12 @@ namespace EndlessClient.Old
             }
         }
 
-        private void _playerLevelUp(LevelUpStats _stats)
-        {
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
-            OldWorld.Instance.ActiveCharacterRenderer.PlayerEmote();
-
-            CharStatData stats = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats;
-            stats.Level = _stats.Level;
-            stats.StatPoints = _stats.StatPoints;
-            stats.SkillPoints = _stats.SkillPoints;
-            stats.MaxHP = _stats.MaxHP;
-            stats.MaxTP = _stats.MaxTP;
-            stats.MaxSP = _stats.MaxSP;
-            m_game.Hud.RefreshStats();
-        }
+        //private void _playerLevelUp(LevelUpStats _stats)
+        //{
+        //    todo: emote in new code
+        //    OldWorld.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
+        //    OldWorld.Instance.ActiveCharacterRenderer.PlayerEmote();
+        //}
 
         private void _removeChildNPCs(short childNPCID)
         {
