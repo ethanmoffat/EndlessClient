@@ -19,6 +19,10 @@ namespace EndlessClient.Rendering.NPC
 
         INPC NPC { get; set; }
 
+        bool IsDead { get; }
+
         void DrawToSpriteBatch(SpriteBatch spriteBatch);
+
+        void StartDying();
     }
 }

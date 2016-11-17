@@ -27,6 +27,8 @@ namespace EndlessClient.Rendering.NPC
         private readonly bool _hasStandingAnimation;
 
         private DateTime _lastStandingAnimation;
+        private int _fadeAwayAlpha;
+        private bool _isDying;
 
         public int TopPixel { get { return _readonlyTopPixel; } }
 
@@ -35,6 +37,8 @@ namespace EndlessClient.Rendering.NPC
         public Rectangle MapProjectedDrawArea { get; private set; }
 
         public INPC NPC { get; set; }
+
+        public bool IsDead { get; private set; }
 
         public NPCRenderer(IEndlessGameProvider endlessGameProvider,
                            ICharacterRendererProvider characterRendererProvider,
@@ -56,6 +60,7 @@ namespace EndlessClient.Rendering.NPC
 
             _hasStandingAnimation = GetHasStandingAnimation();
             _lastStandingAnimation = DateTime.Now;
+            _fadeAwayAlpha = 255;
         }
 
         public override void Initialize()
@@ -71,6 +76,7 @@ namespace EndlessClient.Rendering.NPC
 
             UpdateDrawAreas();
             UpdateStandingFrameAnimation();
+            UpdateDeadState();
 
             base.Update(gameTime);
         }
@@ -81,12 +87,16 @@ namespace EndlessClient.Rendering.NPC
 
             var data = _enfFileProvider.ENFFile[NPC.ID];
 
-            //todo: fade out when dying
-            var color = /*NPC.Dying ? Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha -= 3) :*/ Color.White;
+            var color = Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha);
             var effects = NPC.IsFacing(EODirection.Left, EODirection.Down) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
             spriteBatch.Draw(_npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction),
-                DrawArea, null, color, 0f, Vector2.Zero, effects, 1f);
+                             DrawArea, null, color, 0f, Vector2.Zero, effects, 1f);
+        }
+
+        public void StartDying()
+        {
+            _isDying = true;
         }
 
         private Rectangle GetStandingFrameRectangle()
@@ -159,6 +169,15 @@ namespace EndlessClient.Rendering.NPC
 
             _lastStandingAnimation = now;
             NPC = NPC.WithFrame(NPC.Frame == NPCFrame.Standing ? NPCFrame.StandingFrame1 : NPCFrame.Standing);
+        }
+
+        private void UpdateDeadState()
+        {
+            if (!_isDying) return;
+
+            if (_fadeAwayAlpha >= 3)
+                _fadeAwayAlpha -= 3;
+            IsDead = _fadeAwayAlpha <= 0;
         }
     }
 }
