@@ -17,9 +17,9 @@ namespace EndlessClient.Input
         private readonly IKeyStateProvider _keyStateProvider;
         private readonly IUserInputTimeRepository _userInputTimeRepository;
 
-        protected KeyboardState CurrentState { get { return _keyStateProvider.CurrentKeyState; } }
+        private KeyboardState CurrentState { get { return _keyStateProvider.CurrentKeyState; } }
 
-        protected KeyboardState PreviousState { get { return _keyStateProvider.PreviousKeyState; } }
+        private KeyboardState PreviousState { get { return _keyStateProvider.PreviousKeyState; } }
 
         protected InputHandlerBase(Game game,
             IKeyStateProvider keyStateProvider,
@@ -52,5 +52,10 @@ namespace EndlessClient.Input
         }
 
         protected abstract Optional<Keys> HandleInput(GameTime gameTime);
+
+        protected bool IsKeyHeld(Keys key)
+        {
+            return CurrentState.IsKeyHeld(PreviousState, key);
+        }
     }
 }

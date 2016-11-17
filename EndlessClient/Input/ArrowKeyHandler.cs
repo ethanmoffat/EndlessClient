@@ -18,7 +18,7 @@ namespace EndlessClient.Input
                                IKeyStateProvider keyStateProvider,
                                IUserInputTimeRepository userInputTimeRepository,
                                IArrowKeyController arrowKeyController)
-            : base(endlessGameProvider.Game as Game,
+            : base((Game)endlessGameProvider.Game,
                 keyStateProvider,
                 userInputTimeRepository)
         {
@@ -37,11 +37,6 @@ namespace EndlessClient.Input
                 return Keys.Down;
 
             return Optional<Keys>.Empty;
-        }
-
-        private bool IsKeyHeld(Keys key)
-        {
-            return CurrentState.IsKeyHeld(PreviousState, key);
         }
     }
 }
