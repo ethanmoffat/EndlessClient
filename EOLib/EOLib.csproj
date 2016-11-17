@@ -161,7 +161,6 @@
     <Compile Include="misc.cs" />
     <Compile Include="Domain\Account\AccountReply.cs" />
     <Compile Include="Net\API\AdminInteract.cs" />
-    <Compile Include="Net\API\Attack.cs" />
     <Compile Include="Net\API\Avatar.cs" />
     <Compile Include="Net\API\Bank.cs" />
     <Compile Include="Net\API\Character.cs" />
@@ -275,6 +274,7 @@
     <Compile Include="PacketHandlers\Chat\PlayerChatByIDHandler.cs" />
     <Compile Include="PacketHandlers\Chat\PrivateMessageTargetNotFound.cs" />
     <Compile Include="PacketHandlers\Chat\PublicChatHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerAttackHandler.cs" />
     <Compile Include="PacketHandlers\PlayerDirectionHandler.cs" />
     <Compile Include="PacketHandlers\PlayerLevelUpHandler.cs" />
     <Compile Include="PacketHandlers\PlayerWalkHandler.cs" />

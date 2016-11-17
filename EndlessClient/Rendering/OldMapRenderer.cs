@@ -421,21 +421,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void OtherPlayerAttack(short ID, EODirection direction)
-        {
-            lock (_characterListLock)
-            {
-                OldCharacterRenderer rend = _characterRenderers.Find(_rend => _rend.Character.ID == ID);
-                if (rend != null)
-                {
-                    //rend.Character.Attack(direction);
-
-                    //var info = GetTileInfo((byte) rend.Character.X, (byte) rend.Character.Y);
-                    //rend.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec);// && info.Spec == TileSpec.Water);
-                }
-            }
-        }
-
         public void OtherPlayerEmote(short playerID, Emote emote)
         {
             lock (_characterListLock)
