@@ -142,6 +142,7 @@
     <Compile Include="Domain\Protocol\PingTimeRepository.cs" />
     <Compile Include="Domain\ResetStateAction.cs" />
     <Compile Include="EODirection.cs" />
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="IResettable.cs" />
     <Compile Include="Domain\Map\WarpAnimation.cs" />
     <Compile Include="Net\Builders\ChatPacketBuilder.cs" />
