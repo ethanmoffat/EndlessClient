@@ -85,7 +85,7 @@ namespace EndlessClient.Rendering
 
         private EIFRecord shieldInfo, weaponInfo/*, bootsInfo, armorInfo*/, hatInfo;
 
-        private Timer _walkTimer, _attackTimer, _emoteTimer, _spTimer, _spellCastTimer;
+        private Timer _attackTimer, _emoteTimer, _spTimer, _spellCastTimer;
         private readonly bool noLocUpdate;
 
         private readonly EOChatBubble m_chatBubble;
@@ -231,7 +231,6 @@ namespace EndlessClient.Rendering
                 SurfaceFormat.Color,
                 DepthFormat.None);
 
-            _walkTimer = new Timer(_walkTimerCallback); //wait a minute. I'm the leader. I'll say when it's time to start.
             _attackTimer = new Timer(_attackTimerCallback);
             _emoteTimer = new Timer(_emoteTimerCallback);
             if (Character == OldWorld.Instance.MainPlayer.ActiveCharacter)
@@ -531,7 +530,6 @@ namespace EndlessClient.Rendering
             if (!string.IsNullOrEmpty(_shoutName))
                 _cancelSpell(false);
 
-            const int walkTimer = 100;
             Data.SetUpdate(true);
 
             if (_playerIsOnSpikeTrap)
@@ -553,12 +551,6 @@ namespace EndlessClient.Rendering
             _playerIsOnSpikeTrap = isSpikeTrap;
             if (_playerIsOnSpikeTrap)
                 OldWorld.Instance.ActiveMapRenderer.AddVisibleSpikeTrap(Character.DestX, Character.DestY);
-
-            try
-            {
-                _walkTimer.Change(0, walkTimer); //ok, it's time to start
-            }
-            catch(ObjectDisposedException) { Visible = false; }
         }
 
         public void PlayerAttack(bool isWaterTile)
@@ -673,38 +665,6 @@ namespace EndlessClient.Rendering
 
             if (_effectRenderer != null)
                 _effectRenderer.DrawInFrontOfTarget(sb, started);
-        }
-
-        //changes the frame for walking - used by the walk timer
-        private void _walkTimerCallback(object state)
-        {
-            if (_char == null || State != CharacterActionState.Walking) return;
-
-            if (Data.walkFrame == 4)
-            {
-                _char.DoneWalking();
-                _walkTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            }
-            //change character frame
-            else
-            {
-                Data.SetWalkFrame((byte)(Data.walkFrame + 1));
-                int xAdjust, yAdjust;
-                switch (Data.facing)
-                {
-                    case EODirection.Down: xAdjust = -8; yAdjust = 4; break;
-                    case EODirection.Left: xAdjust = -8; yAdjust = -4; break;
-                    case EODirection.Up: xAdjust = 8; yAdjust = -4; break;
-                    case EODirection.Right: xAdjust = 8; yAdjust = 4; break;
-                    default:
-                        return;
-                }
-                _char.ViewAdjustX += xAdjust;
-                _char.ViewAdjustY += yAdjust;
-            }
-            
-            OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayers(); //SetUpdate(true) for all other character's renderdata
-            Data.SetUpdate(true); //not concerned about multithreaded implications of this member
         }
 
         private void _attackTimerCallback(object state)
@@ -1446,8 +1406,6 @@ namespace EndlessClient.Rendering
                     levelLabel.Dispose();
                 if (nameLabel != null)
                     nameLabel.Dispose();
-                if (_walkTimer != null)
-                    _walkTimer.Dispose();
                 if (_attackTimer != null)
                     _attackTimer.Dispose();
                 if (_emoteTimer != null)

@@ -333,11 +333,6 @@ namespace EndlessClient.Rendering
             return null;
         }
 
-        public void ClearMapItems()
-        {
-            _mapItems.Clear();
-        }
-
         public void PlayOrStopBackgroundMusic()
         {
             if (!OldWorld.Instance.MusicEnabled)
@@ -374,6 +369,7 @@ namespace EndlessClient.Rendering
         #endregion
 
         #region /* PUBLIC INTERFACE -- OTHER PLAYERS */
+
         public void AddOtherPlayer(CharacterData c, WarpAnimation anim = WarpAnimation.None)
         {
             OldCharacterRenderer otherRend = null;
@@ -425,15 +421,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void ClearOtherPlayers()
-        {
-            lock (_characterListLock)
-            {
-                _characterRenderers.ForEach(_rend => _rend.HideChatBubble());
-                _characterRenderers.Clear();
-            }
-        }
-
         public void OtherPlayerAttack(short ID, EODirection direction)
         {
             lock (_characterListLock)
@@ -441,7 +428,7 @@ namespace EndlessClient.Rendering
                 OldCharacterRenderer rend = _characterRenderers.Find(_rend => _rend.Character.ID == ID);
                 if (rend != null)
                 {
-                    rend.Character.Attack(direction);
+                    //rend.Character.Attack(direction);
 
                     //var info = GetTileInfo((byte) rend.Character.X, (byte) rend.Character.Y);
                     //rend.PlayerAttack(info.ReturnType == TileInfoReturnType.IsTileSpec);// && info.Spec == TileSpec.Water);

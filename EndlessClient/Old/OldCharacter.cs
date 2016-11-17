@@ -452,47 +452,6 @@ namespace EndlessClient.Old
             //GuildRankNum = newGuy.GuildRankNum; //todo: ???
         }
 
-        public void DoneWalking()
-        {
-            ViewAdjustX = 0;
-            ViewAdjustY = 0;
-            State = CharacterActionState.Standing;
-            X = DestX;
-            Y = DestY;
-            RenderData.SetWalkFrame(0);
-        }
-
-        public void Attack(EODirection direction, byte x = 255, byte y = 255)
-        {
-            if (State != CharacterActionState.Standing) return;
-
-            if (this == OldWorld.Instance.MainPlayer.ActiveCharacter)
-            {
-                //KS protection - vanilla eoserv does not support this!
-                //Enabled client-side only, the official client does not support this
-                var shouldSend = true;
-                if (!(x == 255 && y == 255))
-                {
-                    //var ti = OldWorld.Instance.ActiveMapRenderer.GetTileInfo(x, y);
-                    //if (ti.ReturnType == TileInfoReturnType.IsOtherNPC) && 
-                        //((OldNPC)ti.MapElement).Opponent != null &&
-                        //((OldNPC)ti.MapElement).Opponent != this)
-                    {
-                        EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_UNABLE_TO_ATTACK);
-                        shouldSend = false;
-                    }
-                }
-
-                if(shouldSend && !m_packetAPI.AttackUse(direction))
-                    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-            }
-            else if(RenderData.facing != direction)
-                RenderData.SetDirection(direction);
-
-            State = CharacterActionState.Attacking;
-            Stats.SP--;
-        }
-
         public void DoneAttacking()
         {
             State = CharacterActionState.Standing;

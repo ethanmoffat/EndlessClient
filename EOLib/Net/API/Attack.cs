@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
@@ -15,17 +14,6 @@ namespace EOLib.Net.API
         private void _createAttackMembers()
         {
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Attack, PacketAction.Player), _handleAttackPlayer, true);
-        }
-
-        public bool AttackUse(EODirection direction)
-        {
-            if (!m_client.ConnectedAndInitialized || !Initialized) return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.Attack, PacketAction.Use);
-            pkt.AddChar((byte)direction);
-            pkt.AddThree(DateTime.Now.ToEOTimeStamp());
-
-            return m_client.SendPacket(pkt);
         }
 
         /// <summary>
