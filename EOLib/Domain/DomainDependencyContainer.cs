@@ -24,7 +24,7 @@ namespace EOLib.Domain
                 .RegisterType<ILoginActions, LoginActions>()
                 .RegisterType<ICharacterManagementActions, CharacterManagementActions>()
                 .RegisterType<ICharacterActions, CharacterActions>()
-                .RegisterType<ICharacterWalkValidationActions, CharacterWalkValidationActions>();
+                .RegisterType<IWalkValidationActions, WalkValidationActions>();
 
             container.RegisterInstance<ICharacterSelectorRepository, CharacterSelectorRepository>()
                 .RegisterInstance<ICharacterSelectorProvider, CharacterSelectorRepository>()

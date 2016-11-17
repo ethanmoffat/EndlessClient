@@ -10,13 +10,13 @@ using EOLib.IO.Map;
 
 namespace EOLib.Domain.Character
 {
-    public class CharacterWalkValidationActions : ICharacterWalkValidationActions
+    public class WalkValidationActions : IWalkValidationActions
     {
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
-        public CharacterWalkValidationActions(IMapCellStateProvider mapCellStateProvider,
+        public WalkValidationActions(IMapCellStateProvider mapCellStateProvider,
                                               ICharacterProvider characterProvider,
                                               ICurrentMapStateProvider currentMapStateProvider)
         {
@@ -97,7 +97,7 @@ namespace EOLib.Domain.Character
         }
     }
 
-    public interface ICharacterWalkValidationActions
+    public interface IWalkValidationActions
     {
         bool CanMoveToDestinationCoordinates();
     }

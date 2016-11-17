@@ -11,17 +11,17 @@ namespace EndlessClient.Controllers
 {
     public class ArrowKeyController : IArrowKeyController
     {
-        private readonly ICharacterWalkValidationActions _characterWalkValidationActions;
+        private readonly IWalkValidationActions _walkValidationActions;
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ICharacterActions _characterActions;
         private readonly ICharacterProvider _characterProvider;
 
-        public ArrowKeyController(ICharacterWalkValidationActions characterWalkValidationActions,
+        public ArrowKeyController(IWalkValidationActions walkValidationActions,
                                   ICharacterAnimationActions characterAnimationActions,
                                   ICharacterActions characterActions,
                                   ICharacterProvider characterProvider)
         {
-            _characterWalkValidationActions = characterWalkValidationActions;
+            _walkValidationActions = walkValidationActions;
             _characterAnimationActions = characterAnimationActions;
             _characterActions = characterActions;
             _characterProvider = characterProvider;
@@ -93,7 +93,7 @@ namespace EndlessClient.Controllers
 
         private void AttemptToStartWalking()
         {
-            if (!_characterWalkValidationActions.CanMoveToDestinationCoordinates())
+            if (!_walkValidationActions.CanMoveToDestinationCoordinates())
             {
                 //todo: handle based on cell state
             }
