@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Collections.Generic;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
@@ -11,7 +12,7 @@ namespace EndlessClient.Input
 {
     public class UserInputHandler : GameComponent, IUserInputHandler
     {
-        private readonly List<InputHandlerBase> _handlers;
+        private readonly List<IInputHandler> _handlers;
 
         public UserInputHandler(IEndlessGameProvider endlessGameProvider,
                                 IKeyStateProvider keyStateProvider,
@@ -20,7 +21,7 @@ namespace EndlessClient.Input
                                 IControlKeyController controlKeyController)
             : base((Game)endlessGameProvider.Game)
         {
-            _handlers = new List<InputHandlerBase>
+            _handlers = new List<IInputHandler>
             {
                 new ArrowKeyHandler(endlessGameProvider,
                     keyStateProvider,
@@ -35,8 +36,10 @@ namespace EndlessClient.Input
 
         public override void Update(GameTime gameTime)
         {
+            var timeAtBeginningOfUpdate = DateTime.Now;
+
             foreach (var handler in _handlers)
-                handler.Update(gameTime);
+                handler.HandleKeyboardInput(timeAtBeginningOfUpdate);
 
             base.Update(gameTime);
         }

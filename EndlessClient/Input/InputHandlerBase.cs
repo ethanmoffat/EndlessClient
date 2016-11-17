@@ -3,17 +3,18 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EndlessClient.GameExecution;
 using EOLib;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient.Input
 {
-    public abstract class InputHandlerBase : GameComponent
+    public abstract class InputHandlerBase : IInputHandler
     {
         private const int INPUT_RATE_LIMIT_MILLISECONDS = 200;
 
+        private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly IKeyStateProvider _keyStateProvider;
         private readonly IUserInputTimeRepository _userInputTimeRepository;
 
@@ -21,29 +22,26 @@ namespace EndlessClient.Input
 
         private KeyboardState PreviousState { get { return _keyStateProvider.PreviousKeyState; } }
 
-        protected InputHandlerBase(Game game,
-            IKeyStateProvider keyStateProvider,
-            IUserInputTimeRepository userInputTimeRepository)
-            : base(game)
+        protected InputHandlerBase(IEndlessGameProvider endlessGameProvider,
+                                   IKeyStateProvider keyStateProvider,
+                                   IUserInputTimeRepository userInputTimeRepository)
         {
+            _endlessGameProvider = endlessGameProvider;
             _keyStateProvider = keyStateProvider;
             _userInputTimeRepository = userInputTimeRepository;
         }
 
-        public override void Update(GameTime gameTime)
+        public void HandleKeyboardInput(DateTime timeAtBeginningOfUpdate)
         {
-            var timeAtBeginningOfUpdate = DateTime.Now;
             var millisecondsSinceLastUpdate = GetMillisecondsSinceLastUpdate(timeAtBeginningOfUpdate);
-            if (!Game.IsActive ||
+            if (!_endlessGameProvider.Game.IsActive ||
                 millisecondsSinceLastUpdate < INPUT_RATE_LIMIT_MILLISECONDS ||
                 XNAControl.Dialogs.Count > 0)
                 return;
 
-            var handledKey = HandleInput(gameTime);
+            var handledKey = HandleInput();
             if (handledKey.HasValue)
                 _userInputTimeRepository.LastInputTime = timeAtBeginningOfUpdate;
-
-            base.Update(gameTime);
         }
 
         private double GetMillisecondsSinceLastUpdate(DateTime timeAtBeginningOfUpdate)
@@ -51,11 +49,16 @@ namespace EndlessClient.Input
             return (timeAtBeginningOfUpdate - _userInputTimeRepository.LastInputTime).TotalMilliseconds;
         }
 
-        protected abstract Optional<Keys> HandleInput(GameTime gameTime);
+        protected abstract Optional<Keys> HandleInput();
 
         protected bool IsKeyHeld(Keys key)
         {
             return CurrentState.IsKeyHeld(PreviousState, key);
         }
+    }
+
+    public interface IInputHandler
+    {
+        void HandleKeyboardInput(DateTime timeAtStart);
     }
 }

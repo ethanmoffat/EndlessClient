@@ -13,8 +13,10 @@ namespace EndlessClient.GameExecution
         GameComponentCollection Components { get; }
 
         ContentManager Content { get; }
-        
+
         GameWindow Window { get; }
+
+        bool IsActive { get; }
 
         void Run();
 

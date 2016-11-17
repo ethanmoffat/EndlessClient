@@ -5,7 +5,6 @@
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EOLib;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.Input
@@ -18,14 +17,12 @@ namespace EndlessClient.Input
                                IKeyStateProvider keyStateProvider,
                                IUserInputTimeRepository userInputTimeRepository,
                                IArrowKeyController arrowKeyController)
-            : base((Game)endlessGameProvider.Game,
-                keyStateProvider,
-                userInputTimeRepository)
+            : base(endlessGameProvider, keyStateProvider, userInputTimeRepository)
         {
             _arrowKeyController = arrowKeyController;
         }
 
-        protected override Optional<Keys> HandleInput(GameTime gameTime)
+        protected override Optional<Keys> HandleInput()
         {
             if (IsKeyHeld(Keys.Left) && _arrowKeyController.MoveLeft())
                 return Keys.Left;
