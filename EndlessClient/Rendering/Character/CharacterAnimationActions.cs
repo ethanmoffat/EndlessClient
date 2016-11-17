@@ -40,6 +40,15 @@ namespace EndlessClient.Rendering.Character
             animator.StartMainCharacterWalkAnimation();
         }
 
+        public void StartAttacking()
+        {
+            if (!_hudControlProvider.IsInGame)
+                return;
+
+            var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
+            animator.StartMainCharacterAttackAnimation();
+        }
+
         public void StartOtherCharacterWalkAnimation(int characterID)
         {
             if (!_hudControlProvider.IsInGame)
@@ -49,13 +58,13 @@ namespace EndlessClient.Rendering.Character
             animator.StartOtherCharacterWalkAnimation(characterID);
         }
 
-        public void StartAttacking()
+        public void StartOtherCharacterAttackAnimation(int characterID)
         {
             if (!_hudControlProvider.IsInGame)
                 return;
 
             var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
-            animator.StartMainCharacterAttackAnimation();
+            animator.StartOtherCharacterAttackAnimation(characterID);
         }
     }
 
