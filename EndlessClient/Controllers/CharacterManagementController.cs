@@ -177,4 +177,11 @@ namespace EndlessClient.Controllers
             _networkConnectionActions.DisconnectFromServer();
         }
     }
+
+    public interface ICharacterManagementController
+    {
+        Task CreateCharacter();
+
+        Task DeleteCharacter(ICharacter characterToDelete);
+    }
 }

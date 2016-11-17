@@ -148,4 +148,19 @@ namespace EndlessClient.Controllers
             _networkConnectionActions.DisconnectFromServer();
         }
     }
+
+    public interface IMainButtonController
+    {
+        void GoToInitialState();
+
+        void GoToInitialStateAndDisconnect();
+
+        Task ClickCreateAccount();
+
+        Task ClickLogin();
+
+        void ClickViewCredits();
+
+        void ClickExit();
+    }
 }

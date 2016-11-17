@@ -71,4 +71,13 @@ namespace EndlessClient.Controllers
             _errorDisplayAction.ShowException(ex);
         }
     }
+
+    public interface IChatController
+    {
+        Task SendChatAndClearTextBox();
+
+        void SelectChatTextBox();
+
+        void ChatTextChanged();
+    }
 }

@@ -202,4 +202,11 @@ namespace EndlessClient.Controllers
             return await op.Invoke();
         }
     }
+
+    public interface ILoginController
+    {
+        Task LoginToAccount(ILoginParameters loginParameters);
+
+        Task LoginToCharacter(ICharacter character);
+    }
 }

@@ -104,4 +104,15 @@ namespace EndlessClient.Controllers
             }
         }
     }
+
+    public interface IArrowKeyController
+    {
+        bool MoveLeft();
+
+        bool MoveRight();
+
+        bool MoveUp();
+
+        bool MoveDown();
+    }
 }

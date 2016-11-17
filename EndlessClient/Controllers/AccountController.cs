@@ -119,4 +119,11 @@ namespace EndlessClient.Controllers
             _errorDisplayAction.ShowException(ex);
         }
     }
+
+    public interface IAccountController
+    {
+        Task CreateAccount(ICreateAccountParameters createAccountParameters);
+
+        Task ChangePassword();
+    }
 }
