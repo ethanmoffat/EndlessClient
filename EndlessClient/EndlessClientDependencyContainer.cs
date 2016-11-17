@@ -15,6 +15,7 @@ using EndlessClient.HUD.Panels;
 using EndlessClient.Input;
 using EndlessClient.Network;
 using EndlessClient.Rendering;
+using EndlessClient.Subscribers;
 using EndlessClient.Test;
 using EndlessClient.UIControls;
 using EOLib.DependencyInjection;
@@ -93,12 +94,19 @@ namespace EndlessClient
                 .RegisterType<IHudStateActions, HudStateActions>()
                 .RegisterType<IStatusLabelSetter, StatusLabelSetter>()
                 .RegisterType<IChatModeCalculator, ChatModeCalculator>();
+
+            RegisterSubscribers(container);
         }
 
         public void InitializeDependencies(IUnityContainer container)
         {
             SetUpRepositoriesForGameDependencies(container);
             MethodInjectControllers(container);
+        }
+
+        private void RegisterSubscribers(IUnityContainer container)
+        {
+            container.RegisterVaried<IMainCharacterEventNotifier, MainCharacterEventSubscriber>();
         }
 
         private static void SetUpRepositoriesForGameDependencies(IUnityContainer container)

@@ -17,7 +17,6 @@ using EOLib.IO.Extensions;
 using EOLib.Localization;
 using EOLib.Net.API;
 using XNAControls;
-using ChatType = EOLib.Domain.Chat.ChatType;
 
 namespace EndlessClient.Old
 {
@@ -479,6 +478,7 @@ namespace EndlessClient.Old
                 throw new FileNotFoundException("Unable to remap the file, something broke");
         }
 
+        //    todo: port to new code
         //private void _npcAttack(byte index, bool dead, EODirection dir, short id, int damage, int health)
         //{
         //    OldWorld.Instance.ActiveMapRenderer.NPCAttack(index, dead, dir, id, damage, health);
@@ -487,13 +487,6 @@ namespace EndlessClient.Old
         //private void _npcChat(byte index, string message)
         //{
         //    OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(ChatType.NPC, index, message, ChatIcon.Note);
-        //}
-
-        //private void _npcKilled(int newExp)
-        //{
-        //    todo: port to new code
-        //    m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_YOU_GAINED_EXP, string.Format(" {0} EXP", expDif));
-        //    m_game.Hud.AddChat(ChatTab.System, "", string.Format("{0} {1} EXP", OldWorld.GetString(EOResourceID.STATUS_LABEL_YOU_GAINED_EXP), expDif), ChatIcon.Star);
         //}
 
         private void _npcTakeDamage(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID, short fromTP)
@@ -506,13 +499,6 @@ namespace EndlessClient.Old
                 m_game.Hud.RefreshStats();
             }
         }
-
-        //private void _playerLevelUp(LevelUpStats _stats)
-        //{
-        //    todo: emote in new code
-        //    OldWorld.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
-        //    OldWorld.Instance.ActiveCharacterRenderer.PlayerEmote();
-        //}
 
         private void _removeChildNPCs(short childNPCID)
         {

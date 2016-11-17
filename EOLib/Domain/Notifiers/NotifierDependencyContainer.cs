@@ -16,7 +16,8 @@ namespace EOLib.Domain.Notifiers
             container.RegisterVaried<IChatEventNotifier, NoOpChatEventNotifier>()
                 .RegisterVaried<IMapChangedNotifier, NoOpMapChangedNotifier>()
                 .RegisterVaried<INPCAnimationNotifier, NoOpNpcAnimationNotifier>()
-                .RegisterVaried<IOtherCharacterAnimationNotifier, NoOpOtherCharacterAnimationNotifier>();
+                .RegisterVaried<IOtherCharacterAnimationNotifier, NoOpOtherCharacterAnimationNotifier>()
+                .RegisterVaried<IMainCharacterEventNotifier, NoOpMainCharacterEventNotifier>();
         }
     }
 }

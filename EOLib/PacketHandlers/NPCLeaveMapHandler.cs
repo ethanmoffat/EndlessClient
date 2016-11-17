@@ -9,7 +9,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Domain.NPC;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
@@ -20,6 +19,7 @@ namespace EOLib.PacketHandlers
         protected readonly ICurrentMapStateRepository _currentMapStateRepository;
         protected readonly ICharacterRepository _characterRepository;
         private readonly IEnumerable<INPCAnimationNotifier> _npcAnimationNotifiers;
+        private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
 
         public override PacketFamily Family { get { return PacketFamily.NPC; } }
 
@@ -28,12 +28,14 @@ namespace EOLib.PacketHandlers
         public NPCLeaveMapHandler(IPlayerInfoProvider playerInfoProvider,
                                   ICurrentMapStateRepository currentMapStateRepository,
                                   ICharacterRepository characterRepository,
-                                  IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers)
+                                  IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers,
+                                  IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
             _characterRepository = characterRepository;
             _npcAnimationNotifiers = npcAnimationNotifiers;
+            _mainCharacterEventNotifiers = mainCharacterEventNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -80,6 +82,10 @@ namespace EOLib.PacketHandlers
             if (packet.ReadPosition != packet.Length)
             {
                 var playerExp = packet.ReadInt();
+                var expDifference = playerExp - _characterRepository.MainCharacter.Stats[CharacterStat.Experience];
+                foreach (var notifier in _mainCharacterEventNotifiers)
+                    notifier.NotifyGainedExp(expDifference);
+
                 UpdateCharacterStat(CharacterStat.Experience, playerExp);
                 //todo: update last kill, best kill, and today exp
             }
@@ -155,7 +161,9 @@ namespace EOLib.PacketHandlers
         public NPCDieFromSpellCastHandler(IPlayerInfoProvider playerInfoProvider,
                                           ICurrentMapStateRepository currentMapStateRepository,
                                           ICharacterRepository characterRepository,
-                                          IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers)
-            : base(playerInfoProvider, currentMapStateRepository, characterRepository, npcAnimationNotifiers) { }
+                                          IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers,
+                                          IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
+            : base(playerInfoProvider, currentMapStateRepository, characterRepository,
+                   npcAnimationNotifiers, mainCharacterEventNotifiers) { }
     }
 }

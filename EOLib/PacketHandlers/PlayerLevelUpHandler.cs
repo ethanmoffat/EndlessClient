@@ -7,7 +7,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
-using EOLib.Domain.NPC;
 using EOLib.Net;
 
 namespace EOLib.PacketHandlers
@@ -21,8 +20,10 @@ namespace EOLib.PacketHandlers
         public PlayerLevelUpHandler(IPlayerInfoProvider playerInfoProvider,
                                     ICurrentMapStateRepository currentMapStateRepository,
                                     ICharacterRepository characterRepository,
-                                    IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers)
-            : base(playerInfoProvider, currentMapStateRepository, characterRepository, npcAnimationNotifiers) { }
+                                    IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers,
+                                    IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
+            : base(playerInfoProvider, currentMapStateRepository, characterRepository,
+                   npcAnimationNotifiers, mainCharacterEventNotifiers) { }
 
         public override bool HandlePacket(IPacket packet)
         {
@@ -35,6 +36,19 @@ namespace EOLib.PacketHandlers
             var maxhp = packet.ReadShort();
             var maxtp = packet.ReadShort();
             var maxsp = packet.ReadShort();
+
+            var stats = _characterRepository.MainCharacter.Stats;
+            stats = stats.WithNewStat(CharacterStat.Level, level)
+                .WithNewStat(CharacterStat.StatPoints, stat)
+                .WithNewStat(CharacterStat.SkillPoints, skill)
+                .WithNewStat(CharacterStat.MaxHP, maxhp)
+                .WithNewStat(CharacterStat.MaxTP, maxtp)
+                .WithNewStat(CharacterStat.MaxSP, maxsp);
+            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
+
+            //todo: show emote once emotes are supported
+            //    OldWorld.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
+            //    OldWorld.Instance.ActiveCharacterRenderer.PlayerEmote();
 
             return true;
         }
@@ -49,7 +63,9 @@ namespace EOLib.PacketHandlers
         public PlayerLevelUpFromSpellCastHandler(IPlayerInfoProvider playerInfoProvider,
                                                  ICurrentMapStateRepository currentMapStateRepository,
                                                  ICharacterRepository characterRepository,
-                                                 IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers)
-            : base(playerInfoProvider, currentMapStateRepository, characterRepository, npcAnimationNotifiers) { }
+                                                 IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers,
+                                                 IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
+            : base(playerInfoProvider, currentMapStateRepository, characterRepository,
+                   npcAnimationNotifiers, mainCharacterEventNotifiers) { }
     }
 }
