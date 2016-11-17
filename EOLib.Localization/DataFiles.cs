@@ -4,6 +4,7 @@
 
 namespace EOLib.Localization
 {
+    //todo: make this internal once old code in EndlessClient is migrated
     public enum DataFiles
     {
         Credits = 1,
