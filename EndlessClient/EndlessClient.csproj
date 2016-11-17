@@ -274,7 +274,6 @@
     <Compile Include="GameExecution\IEndlessGame.cs" />
     <Compile Include="GameExecution\IGameRunner.cs" />
     <Compile Include="Input\OldArrowKeyListener.cs" />
-    <Compile Include="Input\ControlKeyListener.cs" />
     <Compile Include="Input\FunctionKeyListener.cs" />
     <Compile Include="Input\OldInputKeyListenerBase.cs" />
     <Compile Include="Input\NumPadListener.cs" />
