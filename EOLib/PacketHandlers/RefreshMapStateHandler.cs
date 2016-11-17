@@ -43,12 +43,12 @@ namespace EOLib.PacketHandlers
         {
             var data = _refreshReplyTranslator.TranslatePacket(packet);
 
-            var updatedMainCharacter = data.Characters.Single(NameMatches);
+            var updatedMainCharacter = data.Characters.Single(IDMatches);
             var updatedRenderProperties = _characterRepository.MainCharacter.RenderProperties
                 .WithMapX(updatedMainCharacter.RenderProperties.MapX)
                 .WithMapY(updatedMainCharacter.RenderProperties.MapY);
 
-            var withoutMainCharacter = data.Characters.Where(x => !NameMatches(x));
+            var withoutMainCharacter = data.Characters.Where(x => !IDMatches(x));
             data = data.WithCharacters(withoutMainCharacter);
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
@@ -64,10 +64,9 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private bool NameMatches(ICharacter x)
+        private bool IDMatches(ICharacter x)
         {
-            //todo: figure out why ID isn't matching
-            return x.Name.ToLower() == _characterRepository.MainCharacter.Name.ToLower();
+            return x.ID == _characterRepository.MainCharacter.ID;
         }
     }
 }

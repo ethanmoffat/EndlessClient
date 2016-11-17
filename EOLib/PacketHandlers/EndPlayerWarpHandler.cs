@@ -45,12 +45,12 @@ namespace EOLib.PacketHandlers
         {
             var warpAgreePacketData = _warpAgreePacketTranslator.TranslatePacket(packet);
 
-            var updatedMainCharacter = warpAgreePacketData.Characters.Single(NameMatches);
+            var updatedMainCharacter = warpAgreePacketData.Characters.Single(IDMatches);
             var updatedRenderProperties = _characterRepository.MainCharacter.RenderProperties
                 .WithMapX(updatedMainCharacter.RenderProperties.MapX)
                 .WithMapY(updatedMainCharacter.RenderProperties.MapY);
 
-            var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !NameMatches(x));
+            var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !IDMatches(x));
             warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter);
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
@@ -72,10 +72,9 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private bool NameMatches(ICharacter x)
+        private bool IDMatches(ICharacter x)
         {
-            //todo: figure out why ID isn't matching
-            return x.Name.ToLower() == _characterRepository.MainCharacter.Name.ToLower();
+            return x.ID == _characterRepository.MainCharacter.ID;
         }
     }
 }
