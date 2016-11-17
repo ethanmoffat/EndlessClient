@@ -10,6 +10,7 @@ using EOLib;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
+using EOLib.Extensions;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.NPC
@@ -55,25 +56,31 @@ namespace EndlessClient.Rendering.NPC
 
         private void AnimateNPCWalking(DateTime now)
         {
-            var playersDoneWalking = new List<RenderFrameActionTime>();
+            var npcsDoneWalking = new List<RenderFrameActionTime>();
             foreach (var pair in _npcStartWalkingTimes)
             {
                 if (pair.ActionStartTime.HasValue &&
                     (now - pair.ActionStartTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
                 {
-                    var npc = _currentMapStateRepository.NPCs.Single(x => x.Index == pair.UniqueID);
-                    var nextFrameNPC = AnimateOneWalkFrame(npc);
+                    var npc = _currentMapStateRepository.NPCs.OptionalSingle(x => x.Index == pair.UniqueID);
+                    if (!npc.HasValue)
+                    {
+                        npcsDoneWalking.Add(pair);
+                        continue;
+                    }
+
+                    var nextFrameNPC = AnimateOneWalkFrame(npc.Value);
 
                     pair.UpdateActionStartTime(GetUpdatedStartWalkingTime(now, nextFrameNPC));
                     if (!pair.ActionStartTime.HasValue)
-                        playersDoneWalking.Add(pair);
+                        npcsDoneWalking.Add(pair);
 
-                    _currentMapStateRepository.NPCs.Remove(npc);
+                    _currentMapStateRepository.NPCs.Remove(npc.Value);
                     _currentMapStateRepository.NPCs.Add(nextFrameNPC);
                 }
             }
 
-            _npcStartWalkingTimes.RemoveAll(playersDoneWalking.Contains);
+            _npcStartWalkingTimes.RemoveAll(npcsDoneWalking.Contains);
         }
 
         private static INPC AnimateOneWalkFrame(INPC npc)
