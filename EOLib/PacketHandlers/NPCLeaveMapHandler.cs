@@ -46,12 +46,13 @@ namespace EOLib.PacketHandlers
 
             var playerID = packet.ReadShort(); //player that is protecting the item
             var playerDirection = (EODirection)packet.ReadChar();
-            var deadNPCIndex = packet.ReadShort();
+            if (playerID > 0)
+                UpdatePlayerDirection(playerID, playerDirection);
 
-            UpdatePlayerDirection(playerID, playerDirection);
+            var deadNPCIndex = packet.ReadShort();
             if (spellID.HasValue)
             {
-                //todo: render spell ID on NPC (when spells are supported)
+                //todo: render spell ID on deadNPCIndex (when spells are supported)
             }
 
             //packet is removing the NPC from view due to out of range of character
