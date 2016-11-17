@@ -43,10 +43,7 @@ namespace EndlessClient.Rendering.NPC
             }
             else
             {
-                //todo: how is animation going to work for this?
-                //ideally: animate externally (INPCAnimator), clean up renderer when done animating
-                //var npcAnimator = _hudControlProvider.GetComponent<INPCAnimator>(HudControlIdentifier.NPCAnimator);
-                //npcAnimator.StartDeathAnimation(npcIndex);
+                _npcRendererRepository.NPCRenderers[npcIndex].StartDying();
             }
         }
     }

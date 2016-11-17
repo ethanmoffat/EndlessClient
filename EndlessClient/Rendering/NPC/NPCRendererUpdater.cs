@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Linq;
 using EOLib;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
@@ -29,8 +30,23 @@ namespace EndlessClient.Rendering.NPC
 
         public void UpdateNPCs(GameTime gameTime)
         {
+            CleanUpDeadNPCs();
             CreateAndCacheNPCRenderers();
             UpdateNPCRenderers(gameTime);
+        }
+
+        private void CleanUpDeadNPCs()
+        {
+            var deadNPCs = _npcRendererRepository.NPCRenderers.Values.Where(x => x.IsDead).ToList();
+            if (!deadNPCs.Any())
+                return;
+
+            foreach (var npc in deadNPCs)
+            {
+                npc.Dispose();
+                _npcRendererRepository.NPCRenderers.Remove(npc.NPC.Index);
+                _npcStateCache.RemoveStateByIndex(npc.NPC.Index);
+            }
         }
 
         private void CreateAndCacheNPCRenderers()
