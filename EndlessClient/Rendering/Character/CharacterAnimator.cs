@@ -17,12 +17,16 @@ namespace EndlessClient.Rendering.Character
     public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
         public const int WALK_FRAME_TIME_MS = 100;
+        public const int ATTACK_FRAME_TIME_MS = 285;
 
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         private Optional<DateTime> _startWalkingTime;
         private readonly List<RenderFrameActionTime> _otherPlayerStartWalkingTimes;
+
+        //todo: consolidate walk/attack separate stuff since no character should be doing both simultaneously
+        private Optional<DateTime> _startAttackingTime;
 
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
@@ -31,8 +35,11 @@ namespace EndlessClient.Rendering.Character
         {
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
+
             _startWalkingTime = Optional<DateTime>.Empty;
             _otherPlayerStartWalkingTimes = new List<RenderFrameActionTime>();
+
+            _startAttackingTime = Optional<DateTime>.Empty;
         }
 
         public override void Update(GameTime gameTime)
@@ -40,6 +47,7 @@ namespace EndlessClient.Rendering.Character
             var now = DateTime.Now;
 
             AnimateCharacterWalking(now);
+            AnimateCharacterAttacking(now);
 
             base.Update(gameTime);
         }
@@ -59,10 +67,17 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartWalkingTimes.Add(startWalkingTimeAndID);
         }
 
+        public void StartMainCharacterAttackAnimation()
+        {
+            _startAttackingTime = DateTime.Now;
+        }
+
         public void StopAllOtherCharacterAnimations()
         {
             _otherPlayerStartWalkingTimes.Clear();
         }
+
+        #region Walk Animation
 
         private void AnimateCharacterWalking(DateTime now)
         {
@@ -72,7 +87,7 @@ namespace EndlessClient.Rendering.Character
                 var renderProperties = _characterRepository.MainCharacter.RenderProperties;
                 var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties);
 
-                _startWalkingTime = GetUpdatedStartWalkingTime(now, nextFrameRenderProperties);
+                _startWalkingTime = GetUpdatedActionTime(now, nextFrameRenderProperties);
 
                 var nextFrameCharacter = _characterRepository.MainCharacter.WithRenderProperties(nextFrameRenderProperties);
                 _characterRepository.MainCharacter = nextFrameCharacter;
@@ -89,7 +104,7 @@ namespace EndlessClient.Rendering.Character
                     var renderProperties = currentCharacter.RenderProperties;
                     var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties);
 
-                    pair.UpdateActionStartTime(GetUpdatedStartWalkingTime(now, nextFrameRenderProperties));
+                    pair.UpdateActionStartTime(GetUpdatedActionTime(now, nextFrameRenderProperties));
                     if (!pair.ActionStartTime.HasValue)
                         playersDoneWalking.Add(pair);
 
@@ -98,7 +113,6 @@ namespace EndlessClient.Rendering.Character
                     _currentMapStateRepository.Characters.Add(nextFrameCharacter);
                 }
             }
-
             _otherPlayerStartWalkingTimes.RemoveAll(playersDoneWalking.Contains);
         }
 
@@ -116,7 +130,28 @@ namespace EndlessClient.Rendering.Character
             return nextFrameRenderProperties;
         }
 
-        private static Optional<DateTime> GetUpdatedStartWalkingTime(DateTime now, ICharacterRenderProperties nextFrameRenderProperties)
+        #endregion
+
+        #region Attack Animation
+
+        private void AnimateCharacterAttacking(DateTime now)
+        {
+            if (_startAttackingTime.HasValue &&
+                (now - _startAttackingTime).TotalMilliseconds > ATTACK_FRAME_TIME_MS)
+            {
+                var renderProperties = _characterRepository.MainCharacter.RenderProperties;
+                var nextFrameRenderProperties = renderProperties.WithNextAttackFrame();
+
+                _startAttackingTime = GetUpdatedActionTime(now, nextFrameRenderProperties);
+
+                var nextFrameCharacter = _characterRepository.MainCharacter.WithRenderProperties(nextFrameRenderProperties);
+                _characterRepository.MainCharacter = nextFrameCharacter;
+            }
+        }
+
+        #endregion
+
+        private static Optional<DateTime> GetUpdatedActionTime(DateTime now, ICharacterRenderProperties nextFrameRenderProperties)
         {
             return nextFrameRenderProperties.IsActing(CharacterActionState.Standing)
                 ? Optional<DateTime>.Empty
@@ -127,6 +162,8 @@ namespace EndlessClient.Rendering.Character
     public interface ICharacterAnimator : IGameComponent
     {
         void StartMainCharacterWalkAnimation();
+
+        void StartMainCharacterAttackAnimation();
 
         void StartOtherCharacterWalkAnimation(int characterID);
 

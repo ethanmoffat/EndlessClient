@@ -180,7 +180,7 @@ namespace EndlessClient.Test
                 _lastWalk = now;
             }
 
-            if ((now - _lastAttack).TotalMilliseconds > 285)
+            if ((now - _lastAttack).TotalMilliseconds > CharacterAnimator.ATTACK_FRAME_TIME_MS)
             {
                 var rend = _renderersForDifferentStates[(int)DisplayState.AttackingAnimation];
                 rend.RenderProperties = rend.RenderProperties.WithNextAttackFrame();

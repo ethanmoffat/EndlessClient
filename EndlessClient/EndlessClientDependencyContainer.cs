@@ -36,7 +36,8 @@ namespace EndlessClient
             container.RegisterInstance<IControlSetFactory, ControlSetFactory>()
                 .RegisterInstance<IHudControlsFactory, HudControlsFactory>()
                 .RegisterInstance<ICharacterInfoPanelFactory, CharacterInfoPanelFactory>()
-                .RegisterType<IHudPanelFactory, HudPanelFactory>();
+                .RegisterType<IHudPanelFactory, HudPanelFactory>()
+                .RegisterType<IUserInputHandlerFactory, UserInputHandlerFactory>();
 
             container.RegisterType<IEOMessageBoxFactory, EOMessageBoxFactory>()
                 .RegisterType<ICreateAccountWarningDialogFactory, CreateAccountWarningDialogFactory>()
@@ -63,7 +64,7 @@ namespace EndlessClient
                 .RegisterInstance<IStatusLabelTextProvider, StatusLabelTextRepository>()
                 .RegisterInstance<IStatusLabelTextRepository, StatusLabelTextRepository>()
                 .RegisterInstance<IKeyStateRepository, KeyStateRepository>()
-                .RegisterInstance<IKeyStateProvider, IKeyStateProvider>();
+                .RegisterInstance<IKeyStateProvider, KeyStateRepository>();
 
             container.RegisterInstance<IUserInputTimeRepository, UserInputTimeRepository>();
 

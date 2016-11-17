@@ -70,7 +70,7 @@ namespace EndlessClient.HUD.Controls
 
         //not displayed
         UsageTracker,
-        ArrowKeyHandler,
+        UserInputHandler,
         CharacterAnimator,
         NPCAnimator,
 

@@ -69,6 +69,8 @@
     <Compile Include="Input\IUserInputTimeRepository.cs" />
     <Compile Include="Input\KeyboardStateExtensions.cs" />
     <Compile Include="Input\PreviousKeyStateTracker.cs" />
+    <Compile Include="Input\UserInputHandler.cs" />
+    <Compile Include="Input\UserInputHandlerFactory.cs" />
     <Compile Include="Old\OldCharacter.cs" />
     <Compile Include="Rendering\NPC\NPCAnimationActions.cs" />
     <Compile Include="Rendering\NPC\NPCAnimator.cs" />

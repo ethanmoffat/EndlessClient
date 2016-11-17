@@ -32,17 +32,16 @@ namespace EndlessClient.HUD.Controls
         private const int HUD_CONTROL_LAYER = 130;
 
         private readonly IHudButtonController _hudButtonController;
-        private readonly IArrowKeyController _arrowKeyController;
         private readonly IHudPanelFactory _hudPanelFactory;
         private readonly IMapRendererFactory _mapRendererFactory;
+        private readonly IUserInputHandlerFactory _userInputHandlerFactory;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly KeyStateRepository _keyStateRepository;
-        private readonly IUserInputTimeRepository _userInputTimeRepository;
+        private readonly IKeyStateRepository _keyStateRepository;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
         private readonly IContentManagerProvider _contentManagerProvider;
@@ -52,17 +51,16 @@ namespace EndlessClient.HUD.Controls
         private IChatController _chatController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
-                                  IArrowKeyController arrowKeyController,
                                   IHudPanelFactory hudPanelFactory,
                                   IMapRendererFactory mapRendererFactory,
+                                  IUserInputHandlerFactory userInputHandlerFactory,
                                   INativeGraphicsManager nativeGraphicsManager,
                                   IGraphicsDeviceProvider graphicsDeviceProvider,
                                   IClientWindowSizeProvider clientWindowSizeProvider,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository,
                                   ICurrentMapStateRepository currentMapStateRepository,
-                                  KeyStateRepository keyStateRepository, //this is supposed to be the implementation
-                                  IUserInputTimeRepository userInputTimeRepository,
+                                  IKeyStateRepository keyStateRepository,
                                   IStatusLabelSetter statusLabelSetter,
                                   IStatusLabelTextProvider statusLabelTextProvider,
                                   IContentManagerProvider contentManagerProvider,
@@ -70,9 +68,9 @@ namespace EndlessClient.HUD.Controls
                                   IChatModeCalculator chatModeCalculator)
         {
             _hudButtonController = hudButtonController;
-            _arrowKeyController = arrowKeyController;
             _hudPanelFactory = hudPanelFactory;
             _mapRendererFactory = mapRendererFactory;
+            _userInputHandlerFactory = userInputHandlerFactory;
             _nativeGraphicsManager = nativeGraphicsManager;
             _graphicsDeviceProvider = graphicsDeviceProvider;
             _clientWindowSizeProvider = clientWindowSizeProvider;
@@ -80,7 +78,6 @@ namespace EndlessClient.HUD.Controls
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _keyStateRepository = keyStateRepository;
-            _userInputTimeRepository = userInputTimeRepository;
             _statusLabelSetter = statusLabelSetter;
             _statusLabelTextProvider = statusLabelTextProvider;
             _contentManagerProvider = contentManagerProvider;
@@ -133,7 +130,7 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.StatusLabel, CreateStatusLabel()},
 
                 {HudControlIdentifier.UsageTracker, CreateUsageTracker()},
-                {HudControlIdentifier.ArrowKeyHandler, CreateArrowKeyHandler()},
+                {HudControlIdentifier.UserInputHandler, CreateUserInputHandler()},
                 {HudControlIdentifier.CharacterAnimator, CreateCharacterAnimator()},
                 {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
                 {HudControlIdentifier.PreviousKeyStateTracker, CreatePreviousKeyStateTracker()}
@@ -285,9 +282,9 @@ namespace EndlessClient.HUD.Controls
             return new CurrentKeyStateTracker(_endlessGameProvider, _keyStateRepository);
         }
 
-        private ArrowKeyHandler CreateArrowKeyHandler()
+        private IUserInputHandler CreateUserInputHandler()
         {
-            return new ArrowKeyHandler(_endlessGameProvider, _keyStateRepository, _userInputTimeRepository, _arrowKeyController);
+            return _userInputHandlerFactory.CreateUserInputHandler();
         }
 
         private ICharacterAnimator CreateCharacterAnimator()

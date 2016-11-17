@@ -48,6 +48,15 @@ namespace EndlessClient.Rendering.Character
             var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
             animator.StartOtherCharacterWalkAnimation(characterID);
         }
+
+        public void StartAttacking()
+        {
+            if (!_hudControlProvider.IsInGame)
+                return;
+
+            var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
+            animator.StartMainCharacterAttackAnimation();
+        }
     }
 
     public interface ICharacterAnimationActions
@@ -55,5 +64,7 @@ namespace EndlessClient.Rendering.Character
         void Face(EODirection direction);
 
         void StartWalking();
+
+        void StartAttacking();
     }
 }

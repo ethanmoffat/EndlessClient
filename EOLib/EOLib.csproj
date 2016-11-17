@@ -55,6 +55,7 @@
     <Compile Include="Domain\Account\ChangePasswordParameters.cs" />
     <Compile Include="Domain\Account\CreateAccountParameterResult.cs" />
     <Compile Include="Domain\Account\CreateAccountParameters.cs" />
+    <Compile Include="Domain\Character\AttackValidationActions.cs" />
     <Compile Include="Domain\Character\Character.cs" />
     <Compile Include="Domain\Character\CharacterActions.cs" />
     <Compile Include="Domain\Character\CharacterActionState.cs" />

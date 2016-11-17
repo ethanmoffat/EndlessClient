@@ -17,8 +17,8 @@ namespace EOLib.Domain.Character
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
         public WalkValidationActions(IMapCellStateProvider mapCellStateProvider,
-                                              ICharacterProvider characterProvider,
-                                              ICurrentMapStateProvider currentMapStateProvider)
+                                     ICharacterProvider characterProvider,
+                                     ICurrentMapStateProvider currentMapStateProvider)
         {
             _mapCellStateProvider = mapCellStateProvider;
             _characterProvider = characterProvider;

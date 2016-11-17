@@ -45,6 +45,16 @@ namespace EOLib.Domain.Character
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void Attack()
+        {
+            var packet = new PacketBuilder(PacketFamily.Attack, PacketAction.Use)
+                .AddChar((byte) _characterProvider.MainCharacter.RenderProperties.Direction)
+                .AddThree(DateTime.Now.ToEOTimeStamp())
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface ICharacterActions
@@ -52,5 +62,7 @@ namespace EOLib.Domain.Character
         void Face(EODirection direction);
 
         void Walk();
+
+        void Attack();
     }
 }
