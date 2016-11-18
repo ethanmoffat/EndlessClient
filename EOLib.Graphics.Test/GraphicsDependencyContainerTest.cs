@@ -33,7 +33,7 @@ namespace EOLib.Graphics.Test
         public void InitializeDependencies_PEFileError_ExpectIOExceptionIsThrownAsLibraryLoadException()
         {
             var unityContainer = new UnityContainer();
-            unityContainer.RegisterType<IPEFileCollection>(new InjectionFactory(CreatePEFileCollection));
+            unityContainer.RegisterType<IPEFileCollection>(new InjectionFactory(c => CreatePEFileCollection()));
             var container = new GraphicsDependencyContainer();
 
             var file1Mock = new Mock<IPEFile>();
@@ -47,7 +47,7 @@ namespace EOLib.Graphics.Test
         public void InitializeDependencies_PEFileInitializeIsFalse_ExpectLibraryLoadException()
         {
             var unityContainer = new UnityContainer();
-            unityContainer.RegisterType<IPEFileCollection>(new InjectionFactory(CreatePEFileCollection));
+            unityContainer.RegisterType<IPEFileCollection>(new InjectionFactory(c => CreatePEFileCollection()));
             var container = new GraphicsDependencyContainer();
 
             var file1Mock = new Mock<IPEFile>();
@@ -61,7 +61,8 @@ namespace EOLib.Graphics.Test
         public void InitializeDependencies_InitializesGFXFiles()
         {
             var unityContainer = new UnityContainer();
-            unityContainer.RegisterType<IPEFileCollection>(new InjectionFactory(CreatePEFileCollection));
+            unityContainer.RegisterType<IPEFileCollection>(new ContainerControlledLifetimeManager(),
+                                                           new InjectionFactory(c => CreatePEFileCollection()));
             var container = new GraphicsDependencyContainer();
 
             var file1Mock = new Mock<IPEFile>();
@@ -77,12 +78,14 @@ namespace EOLib.Graphics.Test
 
             container.InitializeDependencies(unityContainer);
 
+            Mock.Get(unityContainer.Resolve<IPEFileCollection>())
+                .Verify(x => x.PopulateCollectionWithStandardGFX(), Times.Once);
             file1Mock.Verify(x => x.Initialize(), Times.Once);
             file2Mock.Verify(x => x.Initialize(), Times.Once);
             file3Mock.Verify(x => x.Initialize(), Times.Once);
         }
 
-        private IPEFileCollection CreatePEFileCollection(IUnityContainer container)
+        private IPEFileCollection CreatePEFileCollection()
         {
             var collection = new Mock<IPEFileCollection>();
             collection.Setup(x => x.GetEnumerator()).Returns(_gfxFiles.GetEnumerator());

@@ -25,6 +25,7 @@ namespace EOLib.Graphics
         public void InitializeDependencies(IUnityContainer container)
         {
             var files = container.Resolve<IPEFileCollection>();
+            files.PopulateCollectionWithStandardGFX();
 
             foreach (var filePair in files)
                 TryInitializePEFiles(filePair.Key, filePair.Value);

@@ -12,7 +12,7 @@ namespace EOLib.Graphics
 {
     public sealed class PEFileCollection : Dictionary<GFXTypes, IPEFile>, IPEFileCollection
     {
-        public PEFileCollection()
+        public void PopulateCollectionWithStandardGFX()
         {
             var gfxTypes = Enum.GetValues(typeof(GFXTypes)).OfType<GFXTypes>();
             var modules = gfxTypes.ToDictionary(type => type, CreateGFXFile);
@@ -49,5 +49,6 @@ namespace EOLib.Graphics
 
     public interface IPEFileCollection : IDictionary<GFXTypes, IPEFile>, IDisposable
     {
+        void PopulateCollectionWithStandardGFX();
     }
 }
