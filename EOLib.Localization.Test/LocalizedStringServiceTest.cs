@@ -14,9 +14,8 @@ namespace EOLib.Localization.Test
     [TestClass, ExcludeFromCodeCoverage]
     public class LocalizedStringFinderTest
     {
-        private readonly Dictionary<DataFiles, IEDFFile> _files = new Dictionary<DataFiles, IEDFFile>();
         private IConfigurationProvider _configurationProvider;
-        private IDataFileProvider _dataFileProvider;
+        private DataFileRepository _dataFileProvider;
 
         private ILocalizedStringFinder _localizedStringFinder;
 
@@ -24,7 +23,7 @@ namespace EOLib.Localization.Test
         public void TestInitialize()
         {
             _configurationProvider = Mock.Of<IConfigurationProvider>();
-            _dataFileProvider = Mock.Of<IDataFileProvider>(x => x.DataFiles == _files);
+            _dataFileProvider = new DataFileRepository();
 
             _localizedStringFinder = new LocalizedStringFinder(
                 _configurationProvider,
@@ -115,16 +114,16 @@ namespace EOLib.Localization.Test
 
         private void GivenFileHasStringForResourceID(DataFiles file, DialogResourceID id, string str)
         {
-            if (!_files.ContainsKey(file))
-                _files.Add(file, Mock.Of<IEDFFile>(x => x.Data == new Dictionary<int, string>()));
+            if (!_dataFileProvider.DataFiles.ContainsKey(file))
+                _dataFileProvider.DataFiles.Add(file, Mock.Of<IEDFFile>(x => x.Data == new Dictionary<int, string>()));
 
-            _files[file].Data[(int) id] = str;
+            _dataFileProvider.DataFiles[file].Data[(int)id] = str;
         }
 
         private void GivenFileHasStringForResourceID(DataFiles file, EOResourceID id, string str)
         {
-            if (!_files.ContainsKey(file))
-                _files.Add(file, Mock.Of<IEDFFile>(x => x.Data == new Dictionary<int, string>()));
+            if (!_dataFileProvider.DataFiles.ContainsKey(file))
+                _dataFileProvider.DataFiles.Add(file, Mock.Of<IEDFFile>(x => x.Data == new Dictionary<int, string>()));
 
             _dataFileProvider.DataFiles[file].Data[(int)id] = str;
         }
