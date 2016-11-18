@@ -16,7 +16,7 @@ using EOLib.Test.TestHelpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace EOLib.Test.IO.Services
+namespace EOLib.Test.Net.FileTransfer
 {
     [TestClass]
     public class FileRequestServiceTest
