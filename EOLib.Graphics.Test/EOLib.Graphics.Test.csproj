@@ -87,6 +87,7 @@
     <Compile Include="LibraryGraphicPairTest.cs" />
     <Compile Include="NativeGraphicsLoaderTest.cs" />
     <Compile Include="NativeGraphicsManagerTest.cs" />
+    <Compile Include="PEFileCollectionTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RectangleExtensionTest.cs" />
   </ItemGroup>

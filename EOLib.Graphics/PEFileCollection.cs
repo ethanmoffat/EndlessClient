@@ -32,16 +32,13 @@ namespace EOLib.Graphics
             GC.SuppressFinalize(this);
         }
 
-        ~PEFileCollection()
-        {
-            Dispose(false);
-        }
-
         private void Dispose(bool disposing)
         {
-            if (disposing)
-                foreach (var pair in this)
-                    pair.Value.Dispose();
+            if (!disposing)
+                return;
+
+            foreach (var pair in this)
+                pair.Value.Dispose();
         }
     }
 
