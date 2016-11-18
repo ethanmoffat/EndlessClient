@@ -43,4 +43,9 @@ namespace EOLib.Localization
             return expectedFormat == fileName;
         }
     }
+
+    public interface IDataFileLoadActions
+    {
+        void LoadDataFiles();
+    }
 }

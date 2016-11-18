@@ -6,16 +6,6 @@ using System.Collections.Generic;
 
 namespace EOLib.Localization
 {
-    public interface IDataFileRepository
-    {
-        Dictionary<DataFiles, IEDFFile> DataFiles { get; }
-    }
-
-    public interface IDataFileProvider
-    {
-        IReadOnlyDictionary<DataFiles, IEDFFile> DataFiles { get; }
-    }
-
     public class DataFileRepository : IDataFileRepository, IDataFileProvider
     {
         private readonly Dictionary<DataFiles, IEDFFile> _dataFiles;
@@ -27,5 +17,15 @@ namespace EOLib.Localization
         {
             _dataFiles = new Dictionary<DataFiles, IEDFFile>(DataFileConstants.ExpectedNumberOfDataFiles);
         }
+    }
+
+    public interface IDataFileRepository
+    {
+        Dictionary<DataFiles, IEDFFile> DataFiles { get; }
+    }
+
+    public interface IDataFileProvider
+    {
+        IReadOnlyDictionary<DataFiles, IEDFFile> DataFiles { get; }
     }
 }

@@ -67,4 +67,13 @@ namespace EOLib.Localization
             }
         }
     }
+
+    public interface ILocalizedStringService
+    {
+        string GetString(EOLanguage language, DialogResourceID dataConstant);
+        string GetString(EOLanguage langauge, EOResourceID dataConstant);
+
+        string GetString(DialogResourceID dataConstant);
+        string GetString(EOResourceID dataConstant);
+    }
 }

@@ -58,9 +58,7 @@
     <Compile Include="DataFiles.cs" />
     <Compile Include="DialogResourceID.cs" />
     <Compile Include="EDFFile.cs" />
-    <Compile Include="IDataFileLoadActions.cs" />
-    <Compile Include="IDataFileRepository.cs" />
-    <Compile Include="ILocalizedStringService.cs" />
+    <Compile Include="DataFileRepository.cs" />
     <Compile Include="LocalizationDependencyContainer.cs" />
     <Compile Include="LocalizedStringService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
