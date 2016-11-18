@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -11,7 +12,7 @@ using Moq;
 
 namespace EOLib.Graphics.Test
 {
-    [TestClass]
+    [TestClass, ExcludeFromCodeCoverage]
     public class NativeGraphicsManagerTest
     {
         private GraphicsDeviceTestHelper _graphicsDeviceTestHelper;

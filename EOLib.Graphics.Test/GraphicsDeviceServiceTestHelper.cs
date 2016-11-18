@@ -12,6 +12,7 @@
 #region Using Statements
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -21,6 +22,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EOLib.Graphics.Test
 {
+    [ExcludeFromCodeCoverage]
     class GraphicsDeviceServiceTestHelper : IGraphicsDeviceService
     {
         #region Fields

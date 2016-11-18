@@ -4,12 +4,14 @@
 
 using System;
 using System.ComponentModel.Design;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows.Forms;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EOLib.Graphics.Test
 {
+    [ExcludeFromCodeCoverage]
     internal sealed class GraphicsDeviceTestHelper : IDisposable
     {
         private readonly Form _form;
