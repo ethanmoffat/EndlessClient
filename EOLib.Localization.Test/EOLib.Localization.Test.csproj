@@ -36,6 +36,10 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Moq, Version=4.2.1510.2205, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.2.1510.2205\lib\net40\Moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
   </ItemGroup>
   <Choose>
@@ -53,13 +57,21 @@
   <ItemGroup>
     <Compile Include="DataFileLoadActionsTest.cs" />
     <Compile Include="EDFFileTest.cs" />
+    <Compile Include="LocalizedStringServiceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj">
+      <Project>{2FEC86D4-EA73-472F-9983-B06AF7981F5C}</Project>
+      <Name>EOLib.Config</Name>
+    </ProjectReference>
     <ProjectReference Include="..\EOLib.Localization\EOLib.Localization.csproj">
       <Project>{9f543e30-1320-43e2-8691-080e089154a0}</Project>
       <Name>EOLib.Localization</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
