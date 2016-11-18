@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -19,6 +20,8 @@ namespace EOLib.Graphics.Test
 
         private INativeGraphicsLoader _graphicsLoader;
         private IGraphicsDeviceProvider _graphicsDeviceProvider;
+
+        private bool _keepFromInfiniteLoop = false;
 
         private INativeGraphicsManager _nativeGraphicsManager;
 
@@ -190,13 +193,26 @@ namespace EOLib.Graphics.Test
             Assert.IsTrue(data.All(x => x.A == 0));
         }
 
-        private Bitmap LoadGFXReturnsBitmap(GFXTypes whichFile, int requestedResource)
+        [TestMethod]
+        public void WhenLoadTexture_RaceCondition_DisposesExistingCachedTextureAndReturnsSecondOne()
+        {
+            const int requestedResource = 1;
+
+            Texture2D resultTexture;
+            using (LoadGFXReturnsBitmap(GFXTypes.PreLoginUI, requestedResource, () => GetTextureAgain(GFXTypes.PreLoginUI, requestedResource)))
+                resultTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, requestedResource);
+
+            Assert.IsFalse(resultTexture.IsDisposed);
+        }
+
+        private Bitmap LoadGFXReturnsBitmap(GFXTypes whichFile, int requestedResource, Action loadCallback = null)
         {
             var bitmapToReturn = new Bitmap(10, 10, PixelFormat.Format24bppRgb);
 
             var graphicsLoaderMock = Mock.Get(_graphicsLoader);
             graphicsLoaderMock.Setup(x => x.LoadGFX(whichFile, requestedResource))
-                .Returns(bitmapToReturn);
+                .Returns(bitmapToReturn)
+                .Callback(loadCallback ?? (() => { }));
 
             return bitmapToReturn;
         }
@@ -206,6 +222,15 @@ namespace EOLib.Graphics.Test
             for(int row = 0; row < bitmap.Height; ++row)
                 for (int col = 0; col < bitmap.Width; ++col)
                     bitmap.SetPixel(col, row, color);
+        }
+
+        private void GetTextureAgain(GFXTypes whichFile, int requestedResource)
+        {
+            if (_keepFromInfiniteLoop) return;
+            _keepFromInfiniteLoop = true;
+
+            using (LoadGFXReturnsBitmap(whichFile, requestedResource))
+                _nativeGraphicsManager.TextureFromResource(whichFile, requestedResource);
         }
     }
 }
