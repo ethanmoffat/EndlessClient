@@ -10,13 +10,13 @@ using Moq;
 namespace EOLib.Localization.Test
 {
     [TestClass]
-    public class LocalizedStringServiceTest
+    public class LocalizedStringFinderTest
     {
         private readonly Dictionary<DataFiles, IEDFFile> _files = new Dictionary<DataFiles, IEDFFile>();
         private IConfigurationProvider _configurationProvider;
         private IDataFileProvider _dataFileProvider;
 
-        private ILocalizedStringService _localizedStringService;
+        private ILocalizedStringFinder _localizedStringFinder;
 
         [TestInitialize]
         public void TestInitialize()
@@ -24,7 +24,7 @@ namespace EOLib.Localization.Test
             _configurationProvider = Mock.Of<IConfigurationProvider>();
             _dataFileProvider = Mock.Of<IDataFileProvider>(x => x.DataFiles == _files);
 
-            _localizedStringService = new LocalizedStringService(
+            _localizedStringFinder = new LocalizedStringFinder(
                 _configurationProvider,
                 _dataFileProvider);
         }
@@ -39,10 +39,10 @@ namespace EOLib.Localization.Test
             GivenFileHasStringForResourceID(DataFiles.PortugueseStatus1, testID, "portuguese");
             GivenFileHasStringForResourceID(DataFiles.SwedishStatus1, testID, "swedish");
 
-            var dutchActual = _localizedStringService.GetString(EOLanguage.Dutch, testID);
-            var englishActual = _localizedStringService.GetString(EOLanguage.English, testID);
-            var portugueseActual = _localizedStringService.GetString(EOLanguage.Portuguese, testID);
-            var swedishActual = _localizedStringService.GetString(EOLanguage.Swedish, testID);
+            var dutchActual = _localizedStringFinder.GetString(EOLanguage.Dutch, testID);
+            var englishActual = _localizedStringFinder.GetString(EOLanguage.English, testID);
+            var portugueseActual = _localizedStringFinder.GetString(EOLanguage.Portuguese, testID);
+            var swedishActual = _localizedStringFinder.GetString(EOLanguage.Swedish, testID);
 
             Assert.AreEqual("dutch", dutchActual);
             Assert.AreEqual("english", englishActual);
@@ -60,10 +60,10 @@ namespace EOLib.Localization.Test
             GivenFileHasStringForResourceID(DataFiles.PortugueseStatus2, testID, "portuguese");
             GivenFileHasStringForResourceID(DataFiles.SwedishStatus2, testID, "swedish");
 
-            var dutchActual = _localizedStringService.GetString(EOLanguage.Dutch, testID);
-            var englishActual = _localizedStringService.GetString(EOLanguage.English, testID);
-            var portugueseActual = _localizedStringService.GetString(EOLanguage.Portuguese, testID);
-            var swedishActual = _localizedStringService.GetString(EOLanguage.Swedish, testID);
+            var dutchActual = _localizedStringFinder.GetString(EOLanguage.Dutch, testID);
+            var englishActual = _localizedStringFinder.GetString(EOLanguage.English, testID);
+            var portugueseActual = _localizedStringFinder.GetString(EOLanguage.Portuguese, testID);
+            var swedishActual = _localizedStringFinder.GetString(EOLanguage.Swedish, testID);
 
             Assert.AreEqual("dutch", dutchActual);
             Assert.AreEqual("english", englishActual);
@@ -80,7 +80,7 @@ namespace EOLib.Localization.Test
             GivenLanguageSetInConfig(EOLanguage.Dutch);
             GivenFileHasStringForResourceID(DataFiles.DutchStatus2, testID, expectedResourceString);
 
-            var actualString = _localizedStringService.GetString(testID);
+            var actualString = _localizedStringFinder.GetString(testID);
 
             Assert.AreEqual(expectedResourceString, actualString);
         }

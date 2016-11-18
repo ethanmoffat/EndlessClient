@@ -16,19 +16,19 @@ namespace EndlessClient.Dialogs.Factories
         private readonly IGameStateProvider _gameStateProvider;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
         private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public GameLoadingDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                         IGameStateProvider gameStateProvider,
                                         IGraphicsDeviceProvider graphicsDeviceProvider,
                                         IClientWindowSizeProvider clientWindowSizeProvider,
-                                        ILocalizedStringService localizedStringService)
+                                        ILocalizedStringFinder localizedStringFinder)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameStateProvider = gameStateProvider;
             _graphicsDeviceProvider = graphicsDeviceProvider;
             _clientWindowSizeProvider = clientWindowSizeProvider;
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public GameLoadingDialog CreateGameLoadingDialog()
@@ -37,7 +37,7 @@ namespace EndlessClient.Dialogs.Factories
                 _gameStateProvider,
                 _graphicsDeviceProvider,
                 _clientWindowSizeProvider,
-                _localizedStringService);
+                _localizedStringFinder);
         }
     }
 }

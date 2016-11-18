@@ -19,17 +19,17 @@ namespace EndlessClient.HUD.Chat
     {
         private readonly IChatRepository _chatRepository;
         private readonly IHudControlProvider _hudControlProvider;
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IStatusLabelSetter _statusLabelSetter;
 
         public ChatNotificationActions(IChatRepository chatRepository,
                                        IHudControlProvider hudControlProvider,
-                                       ILocalizedStringService localizedStringService,
+                                       ILocalizedStringFinder localizedStringFinder,
                                        IStatusLabelSetter statusLabelSetter)
         {
             _chatRepository = chatRepository;
             _hudControlProvider = hudControlProvider;
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
             _statusLabelSetter = statusLabelSetter;
         }
 
@@ -67,8 +67,8 @@ namespace EndlessClient.HUD.Chat
             chatTextBox.Text = string.Empty;
             _chatRepository.LocalTypedText = string.Empty;
 
-            var chatData = new ChatData(_localizedStringService.GetString(EOResourceID.STRING_SERVER),
-                _localizedStringService.GetString(EOResourceID.CHAT_MESSAGE_MUTED_BY) + " " + adminName,
+            var chatData = new ChatData(_localizedStringFinder.GetString(EOResourceID.STRING_SERVER),
+                _localizedStringFinder.GetString(EOResourceID.CHAT_MESSAGE_MUTED_BY) + " " + adminName,
                 ChatIcon.Exclamation,
                 ChatColor.Server);
             _chatRepository.AllChat[ChatTab.Local].Add(chatData);

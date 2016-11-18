@@ -7,12 +7,12 @@ using EOLib.Config;
 
 namespace EOLib.Localization
 {
-    public class LocalizedStringService : ILocalizedStringService
+    public class LocalizedStringFinder : ILocalizedStringFinder
     {
         private readonly IConfigurationProvider _configProvider;
         private readonly IDataFileProvider _dataFileProvider;
 
-        public LocalizedStringService(IConfigurationProvider configProvider,
+        public LocalizedStringFinder(IConfigurationProvider configProvider,
                                       IDataFileProvider dataFileProvider)
         {
             _configProvider = configProvider;
@@ -68,7 +68,7 @@ namespace EOLib.Localization
         }
     }
 
-    public interface ILocalizedStringService
+    public interface ILocalizedStringFinder
     {
         string GetString(EOLanguage language, DialogResourceID dataConstant);
         string GetString(EOLanguage langauge, EOResourceID dataConstant);

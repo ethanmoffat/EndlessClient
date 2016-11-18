@@ -15,19 +15,19 @@ namespace EndlessClient.Dialogs.Actions
 {
     public class AccountDialogDisplayActions : IAccountDialogDisplayActions
     {
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICreateAccountWarningDialogFactory _createAccountWarningDialogFactory;
         private readonly ICreateAccountProgressDialogFactory _createAccountProgressDialogFactory;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IChangePasswordDialogFactory _changePasswordDialogFactory;
 
-        public AccountDialogDisplayActions(ILocalizedStringService localizedStringService,
+        public AccountDialogDisplayActions(ILocalizedStringFinder localizedStringFinder,
                                            ICreateAccountWarningDialogFactory createAccountWarningDialogFactory,
                                            ICreateAccountProgressDialogFactory createAccountProgressDialogFactory,
                                            IEOMessageBoxFactory eoMessageBoxFactory,
                                            IChangePasswordDialogFactory changePasswordDialogFactory)
         {
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
             _createAccountWarningDialogFactory = createAccountWarningDialogFactory;
             _createAccountProgressDialogFactory = createAccountProgressDialogFactory;
             _eoMessageBoxFactory = eoMessageBoxFactory;
@@ -37,9 +37,9 @@ namespace EndlessClient.Dialogs.Actions
         public void ShowInitialCreateWarningDialog()
         {
             var message = string.Format("{0}\n\n{1}\n\n{2}",
-                _localizedStringService.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_1),
-                _localizedStringService.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_2),
-                _localizedStringService.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_3));
+                _localizedStringFinder.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_1),
+                _localizedStringFinder.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_2),
+                _localizedStringFinder.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_3));
 
             _createAccountWarningDialogFactory.ShowCreateAccountWarningDialog(message);
         }

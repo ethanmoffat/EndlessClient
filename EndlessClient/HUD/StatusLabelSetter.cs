@@ -10,30 +10,30 @@ namespace EndlessClient.HUD
     public class StatusLabelSetter : IStatusLabelSetter
     {
         private readonly IStatusLabelTextRepository _statusLabelTextRepository;
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public StatusLabelSetter(IStatusLabelTextRepository statusLabelTextRepository,
-            ILocalizedStringService localizedStringService)
+            ILocalizedStringFinder localizedStringFinder)
         {
             _statusLabelTextRepository = statusLabelTextRepository;
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public void SetStatusLabel(EOResourceID type, EOResourceID text, string appended = "")
         {
             CheckStatusLabelType(type);
 
-            SetStatusLabelText(_localizedStringService.GetString(type),
-                               _localizedStringService.GetString(text),
+            SetStatusLabelText(_localizedStringFinder.GetString(type),
+                               _localizedStringFinder.GetString(text),
                                appended);
         }
 
         public void SetStatusLabel(EOResourceID type, string prepended, EOResourceID text)
         {
             CheckStatusLabelType(type);
-            SetStatusLabelText(_localizedStringService.GetString(type),
+            SetStatusLabelText(_localizedStringFinder.GetString(type),
                                prepended,
-                               _localizedStringService.GetString(text));
+                               _localizedStringFinder.GetString(text));
         }
 
         private void SetStatusLabelText(string type, string text, string extra = "")

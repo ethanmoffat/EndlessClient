@@ -17,7 +17,7 @@ namespace EOLib.PacketHandlers.Chat
         private const int TALK_NOTFOUND = 1;
 
         private readonly IChatRepository _chatRepository;
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
 
         public override PacketFamily Family { get { return PacketFamily.Talk; } }
@@ -26,12 +26,12 @@ namespace EOLib.PacketHandlers.Chat
 
         public PrivateMessageTargetNotFound(IPlayerInfoProvider playerInfoProvider,
                                             IChatRepository chatRepository,
-                                            ILocalizedStringService localizedStringService,
+                                            ILocalizedStringFinder localizedStringFinder,
                                             IEnumerable<IChatEventNotifier> chatEventNotifiers)
             : base(playerInfoProvider)
         {
             _chatRepository = chatRepository;
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
             _chatEventNotifiers = chatEventNotifiers;
         }
 
@@ -43,7 +43,7 @@ namespace EOLib.PacketHandlers.Chat
 
             var from = packet.ReadEndString();
             from = char.ToUpper(from[0]) + from.Substring(1).ToLower();
-            var sysMessage = _localizedStringService.GetString(EOResourceID.SYS_CHAT_PM_PLAYER_COULD_NOT_BE_FOUND);
+            var sysMessage = _localizedStringFinder.GetString(EOResourceID.SYS_CHAT_PM_PLAYER_COULD_NOT_BE_FOUND);
             var message = string.Format("{0} {1}", from, sysMessage);
 
             var chatData = new ChatData(string.Empty, message, ChatIcon.Error, ChatColor.Error);

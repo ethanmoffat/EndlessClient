@@ -21,7 +21,7 @@ namespace EOLib.Domain.Login
         private readonly IPacketTranslator<IAccountLoginData> _loginPacketTranslator;
         private readonly IPacketTranslator<ILoginRequestGrantedData> _loginRequestGrantedPacketTranslator;
         private readonly IPacketTranslator<ILoginRequestCompletedData> _loginRequestCompletedPacketTranslator;
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICharacterSelectorRepository _characterSelectorRepository;
         private readonly IPlayerInfoRepository _playerInfoRepository;
         private readonly ICharacterRepository _characterRepository;
@@ -36,7 +36,7 @@ namespace EOLib.Domain.Login
                             IPacketTranslator<IAccountLoginData> loginPacketTranslator,
                             IPacketTranslator<ILoginRequestGrantedData> loginRequestGrantedPacketTranslator,
                             IPacketTranslator<ILoginRequestCompletedData> loginRequestCompletedPacketTranslator,
-                            ILocalizedStringService localizedStringService,
+                            ILocalizedStringFinder localizedStringFinder,
                             ICharacterSelectorRepository characterSelectorRepository,
                             IPlayerInfoRepository playerInfoRepository,
                             ICharacterRepository characterRepository,
@@ -51,7 +51,7 @@ namespace EOLib.Domain.Login
             _loginPacketTranslator = loginPacketTranslator;
             _loginRequestGrantedPacketTranslator = loginRequestGrantedPacketTranslator;
             _loginRequestCompletedPacketTranslator = loginRequestCompletedPacketTranslator;
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
             _characterSelectorRepository = characterSelectorRepository;
             _playerInfoRepository = playerInfoRepository;
             _characterRepository = characterRepository;
@@ -189,9 +189,9 @@ namespace EOLib.Domain.Login
 
         private void AddDefaultTextToChat()
         {
-            var server = _localizedStringService.GetString(EOResourceID.STRING_SERVER);
-            var serverMessage1 = _localizedStringService.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_1);
-            var serverMessage2 = _localizedStringService.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_2);
+            var server = _localizedStringFinder.GetString(EOResourceID.STRING_SERVER);
+            var serverMessage1 = _localizedStringFinder.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_1);
+            var serverMessage2 = _localizedStringFinder.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_2);
 
             _chatRepository.AllChat[ChatTab.Local].Add(
                 new ChatData(server, _newsRepository.NewsHeader, ChatIcon.Note, ChatColor.Server));

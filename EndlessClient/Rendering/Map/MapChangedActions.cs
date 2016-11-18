@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.Map
         private readonly INPCRendererRepository _npcRendererRepository;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IChatRepository _chatRepository;
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICurrentMapProvider _currentMapProvider;
 
         public MapChangedActions(ICharacterStateCache characterStateCache,
@@ -30,7 +30,7 @@ namespace EndlessClient.Rendering.Map
                                  INPCRendererRepository npcRendererRepository,
                                  IHudControlProvider hudControlProvider,
                                  IChatRepository chatRepository,
-                                 ILocalizedStringService localizedStringService,
+                                 ILocalizedStringFinder localizedStringFinder,
                                  ICurrentMapProvider currentMapProvider)
         {
             _characterStateCache = characterStateCache;
@@ -39,7 +39,7 @@ namespace EndlessClient.Rendering.Map
             _npcRendererRepository = npcRendererRepository;
             _hudControlProvider = hudControlProvider;
             _chatRepository = chatRepository;
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
             _currentMapProvider = currentMapProvider;
         }
 
@@ -84,7 +84,7 @@ namespace EndlessClient.Rendering.Map
             if (string.IsNullOrWhiteSpace(_currentMapProvider.CurrentMap.Properties.Name))
                 return;
 
-            var message = _localizedStringService.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED);
+            var message = _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED);
             message = string.Format(message + " {0}", _currentMapProvider.CurrentMap.Properties.Name);
 
             var chatData = new ChatData(string.Empty, message, ChatIcon.NoteLeftArrow);

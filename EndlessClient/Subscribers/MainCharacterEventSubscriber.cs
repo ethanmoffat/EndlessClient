@@ -13,15 +13,15 @@ namespace EndlessClient.Subscribers
     {
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IChatRepository _chatRepository;
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public MainCharacterEventSubscriber(IStatusLabelSetter statusLabelSetter,
                                             IChatRepository chatRepository,
-                                            ILocalizedStringService localizedStringService)
+                                            ILocalizedStringFinder localizedStringFinder)
         {
             _statusLabelSetter = statusLabelSetter;
             _chatRepository = chatRepository;
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public void NotifyGainedExp(int expDifference)
@@ -30,7 +30,7 @@ namespace EndlessClient.Subscribers
                                               EOResourceID.STATUS_LABEL_YOU_GAINED_EXP,
                                               string.Format("{0} EXP", expDifference));
 
-            var youGained = _localizedStringService.GetString(EOResourceID.STATUS_LABEL_YOU_GAINED_EXP);
+            var youGained = _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_YOU_GAINED_EXP);
             var message = string.Format("{0} {1} EXP", youGained, expDifference);
 
             var chatData = new ChatData(string.Empty, message, ChatIcon.Star);

@@ -15,23 +15,23 @@ namespace EndlessClient.Dialogs.Factories
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IGameStateProvider _gameStateProvider;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public CreateAccountProgressDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                                   IGameStateProvider gameStateProvider,
                                                   IGraphicsDeviceProvider graphicsDeviceProvider,
-                                                  ILocalizedStringService localizedStringService)
+                                                  ILocalizedStringFinder localizedStringFinder)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameStateProvider = gameStateProvider;
             _graphicsDeviceProvider = graphicsDeviceProvider;
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public ProgressDialog BuildCreateAccountProgressDialog()
         {
-            var message = _localizedStringService.GetString(DialogResourceID.ACCOUNT_CREATE_ACCEPTED + 1);
-            var caption = _localizedStringService.GetString(DialogResourceID.ACCOUNT_CREATE_ACCEPTED);
+            var message = _localizedStringFinder.GetString(DialogResourceID.ACCOUNT_CREATE_ACCEPTED + 1);
+            var caption = _localizedStringFinder.GetString(DialogResourceID.ACCOUNT_CREATE_ACCEPTED);
             
             return new ProgressDialog(_nativeGraphicsManager,
                                       _gameStateProvider,

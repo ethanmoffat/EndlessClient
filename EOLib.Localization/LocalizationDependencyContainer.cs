@@ -12,7 +12,7 @@ namespace EOLib.Localization
         public void RegisterDependencies(IUnityContainer container)
         {
             container
-                .RegisterType<ILocalizedStringService, LocalizedStringService>()
+                .RegisterType<ILocalizedStringFinder, LocalizedStringFinder>()
                 .RegisterInstance<IDataFileRepository, DataFileRepository>()
                 .RegisterInstance<IDataFileProvider, DataFileRepository>()
                 .RegisterType<IDataFileLoadActions, DataFileLoadActions>();

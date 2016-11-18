@@ -13,7 +13,7 @@ namespace EOLib.PacketHandlers.Chat
     public class ServerMessageHandler : InGameOnlyPacketHandler
     {
         private readonly IChatRepository _chatRepository;
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public override PacketFamily Family { get { return PacketFamily.Talk; } }
 
@@ -21,16 +21,16 @@ namespace EOLib.PacketHandlers.Chat
 
         public ServerMessageHandler(IPlayerInfoProvider playerInfoProvider,
                                     IChatRepository chatRepository,
-                                    ILocalizedStringService localizedStringService)
+                                    ILocalizedStringFinder localizedStringFinder)
             : base(playerInfoProvider)
         {
             _chatRepository = chatRepository;
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public override bool HandlePacket(IPacket packet)
         {
-            var server = _localizedStringService.GetString(EOResourceID.STRING_SERVER);
+            var server = _localizedStringFinder.GetString(EOResourceID.STRING_SERVER);
             var serverMessage = packet.ReadEndString();
 
             var localData = new ChatData(server, serverMessage, ChatIcon.Exclamation, ChatColor.Server);

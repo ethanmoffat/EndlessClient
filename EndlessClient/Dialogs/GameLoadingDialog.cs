@@ -18,7 +18,7 @@ namespace EndlessClient.Dialogs
 {
     public class GameLoadingDialog : EODialogBase
     {
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly Texture2D _backgroundSprite;
         private DateTime _lastBackgroundUpdate;
         private int _bgSrcIndex;
@@ -27,10 +27,10 @@ namespace EndlessClient.Dialogs
                                  IGameStateProvider gameStateProvider,
                                  IGraphicsDeviceProvider graphicsDeviceProvider,
                                  IClientWindowSizeProvider clientWindowSizeProvider,
-                                 ILocalizedStringService localizedStringService)
+                                 ILocalizedStringFinder localizedStringFinder)
             : base(nativeGraphicsManager)
         {
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
             _backgroundSprite = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 33);
 
             DrawLocation = new Vector2(clientWindowSizeProvider.Width - _backgroundSprite.Width / 4 - 10,
@@ -43,14 +43,14 @@ namespace EndlessClient.Dialogs
 
             caption = new XNALabel(new Rectangle(12, 9, 1, 1), Constants.FontSize10)
             {
-                Text = _localizedStringService.GetString(EOResourceID.LOADING_GAME_PLEASE_WAIT),
+                Text = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_PLEASE_WAIT),
                 ForeColor = ColorConstants.LightYellowText
             };
             caption.SetParent(this);
 
             var gen = new Random();
             var messageTextID = (EOResourceID)gen.Next((int)EOResourceID.LOADING_GAME_HINT_FIRST, (int)EOResourceID.LOADING_GAME_HINT_LAST);
-            var localizedMessage = _localizedStringService.GetString(messageTextID);
+            var localizedMessage = _localizedStringFinder.GetString(messageTextID);
 
             message = new XNALabel(new Rectangle(18, 61, 1, 1), Constants.FontSize08)
             {
@@ -94,22 +94,22 @@ namespace EndlessClient.Dialogs
             switch (whichState)
             {
                 case GameLoadingDialogState.Map:
-                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_UPDATING_MAP);
+                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_MAP);
                     break;
                 case GameLoadingDialogState.Item:
-                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_UPDATING_ITEMS);
+                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_ITEMS);
                     break;
                 case GameLoadingDialogState.NPC:
-                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_UPDATING_NPCS);
+                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_NPCS);
                     break;
                 case GameLoadingDialogState.Spell:
-                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_UPDATING_SKILLS);
+                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_SKILLS);
                     break;
                 case GameLoadingDialogState.Class:
-                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_UPDATING_CLASSES);
+                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_CLASSES);
                     break;
                 case GameLoadingDialogState.LoadingGame:
-                    CaptionText = _localizedStringService.GetString(EOResourceID.LOADING_GAME_LOADING_GAME);
+                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_LOADING_GAME);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("whichState", whichState, null);

@@ -13,19 +13,19 @@ namespace EOLib.PacketHandlers.Commands
     public abstract class FindCommandHandlerBase : InGameOnlyPacketHandler
     {
         private readonly IChatRepository _chatRespository;
-        private readonly ILocalizedStringService _localizedStringService;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public override PacketFamily Family { get { return PacketFamily.Players; } }
 
         protected abstract EOResourceID ResourceIDForResponse { get; }
 
         protected FindCommandHandlerBase(IChatRepository chatRespository,
-                                         ILocalizedStringService localizedStringService,
+                                         ILocalizedStringFinder localizedStringFinder,
                                          IPlayerInfoProvider playerInfoProvider)
             : base(playerInfoProvider)
         {
             _chatRespository = chatRespository;
-            _localizedStringService = localizedStringService;
+            _localizedStringFinder = localizedStringFinder;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -33,7 +33,7 @@ namespace EOLib.PacketHandlers.Commands
             var playerName = packet.ReadEndString();
             var message = string.Format("{0} {1}",
                 char.ToUpper(playerName[0]) + playerName.Substring(1),
-                _localizedStringService.GetString(ResourceIDForResponse));
+                _localizedStringFinder.GetString(ResourceIDForResponse));
 
             var chatData = new ChatData("System", message, ChatIcon.LookingDude);
             _chatRespository.AllChat[ChatTab.Local].Add(chatData);

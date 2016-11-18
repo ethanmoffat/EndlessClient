@@ -22,9 +22,9 @@ namespace EOLib.PacketHandlers.Commands
         }
 
         public FindCommandPlayerNotFoundHandler(IChatRepository chatRespository,
-                                                ILocalizedStringService localizedStringService,
+                                                ILocalizedStringFinder localizedStringFinder,
                                                 IPlayerInfoProvider playerInfoProvider)
-            : base(chatRespository, localizedStringService, playerInfoProvider)
+            : base(chatRespository, localizedStringFinder, playerInfoProvider)
         {
         }
     }
