@@ -8,24 +8,24 @@ namespace EOLib.Localization
 {
     public interface IDataFileRepository
     {
-        Dictionary<DataFiles, EDFFile> DataFiles { get; }
+        Dictionary<DataFiles, IEDFFile> DataFiles { get; }
     }
 
     public interface IDataFileProvider
     {
-        IReadOnlyDictionary<DataFiles, EDFFile> DataFiles { get; }
+        IReadOnlyDictionary<DataFiles, IEDFFile> DataFiles { get; }
     }
 
     public class DataFileRepository : IDataFileRepository, IDataFileProvider
     {
-        private readonly Dictionary<DataFiles, EDFFile> _dataFiles;
+        private readonly Dictionary<DataFiles, IEDFFile> _dataFiles;
 
-        public Dictionary<DataFiles, EDFFile> DataFiles { get { return _dataFiles; } }
-        IReadOnlyDictionary<DataFiles, EDFFile> IDataFileProvider.DataFiles { get { return _dataFiles; } }
+        public Dictionary<DataFiles, IEDFFile> DataFiles { get { return _dataFiles; } }
+        IReadOnlyDictionary<DataFiles, IEDFFile> IDataFileProvider.DataFiles { get { return _dataFiles; } }
 
         public DataFileRepository()
         {
-            _dataFiles = new Dictionary<DataFiles, EDFFile>(DataFileConstants.ExpectedNumberOfDataFiles);
+            _dataFiles = new Dictionary<DataFiles, IEDFFile>(DataFileConstants.ExpectedNumberOfDataFiles);
         }
     }
 }

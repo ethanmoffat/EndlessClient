@@ -9,7 +9,7 @@ using System.Text;
 
 namespace EOLib.Localization
 {
-    public class EDFFile
+    public class EDFFile : IEDFFile
     {
         public Dictionary<int, string> Data { get; private set; }
 
@@ -83,5 +83,10 @@ namespace EOLib.Localization
 
             return sb.ToString();
         }
+    }
+
+    public interface IEDFFile
+    {
+        Dictionary<int, string> Data { get; }
     }
 }
