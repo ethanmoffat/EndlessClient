@@ -4,9 +4,9 @@
 
 namespace EOLib.Localization
 {
-    internal static class DataFileConstants
+    public static class DataFileConstants
     {
-        internal const string DataFilePath = "data/";
-        internal const int ExpectedNumberOfDataFiles = 12;
+        public const string DataFilePath = "data/";
+        public const int ExpectedNumberOfDataFiles = 12;
     }
 }
