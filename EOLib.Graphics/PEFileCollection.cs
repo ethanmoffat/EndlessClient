@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using PELoaderLib;
 
 namespace EOLib.Graphics
@@ -14,10 +13,9 @@ namespace EOLib.Graphics
     {
         public void PopulateCollectionWithStandardGFX()
         {
-            var gfxTypes = Enum.GetValues(typeof(GFXTypes)).OfType<GFXTypes>();
-            var modules = gfxTypes.ToDictionary(type => type, CreateGFXFile);
-            foreach(var modulePair in modules)
-                Add(modulePair.Key, modulePair.Value);
+            var gfxTypes = (GFXTypes[])Enum.GetValues(typeof(GFXTypes));
+            foreach (var type in gfxTypes)
+                Add(type, CreateGFXFile(type));
         }
 
         private IPEFile CreateGFXFile(GFXTypes file)
