@@ -28,15 +28,6 @@ namespace EOLib.Graphics
 
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
-        {
-            if (!disposing)
-                return;
-
             foreach (var pair in this)
                 pair.Value.Dispose();
         }
