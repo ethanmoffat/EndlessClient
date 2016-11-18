@@ -2,12 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EOLib.Localization.Test
 {
-    [TestClass]
+    [TestClass, ExcludeFromCodeCoverage]
     public class DataFileLoadActionsTest
     {
         private IDataFileLoadActions _actions;

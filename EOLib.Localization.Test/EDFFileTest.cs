@@ -3,13 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EOLib.Localization.Test
 {
-    [TestClass]
+    [TestClass, ExcludeFromCodeCoverage]
     public class EDFFileTest
     {
         private const string FILE_NAME = "test.edf";

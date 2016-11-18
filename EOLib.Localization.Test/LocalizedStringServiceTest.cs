@@ -2,14 +2,16 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using EOLib.Config;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace EOLib.Localization.Test
 {
-    [TestClass]
+    [TestClass, ExcludeFromCodeCoverage]
     public class LocalizedStringFinderTest
     {
         private readonly Dictionary<DataFiles, IEDFFile> _files = new Dictionary<DataFiles, IEDFFile>();
@@ -27,6 +29,18 @@ namespace EOLib.Localization.Test
             _localizedStringFinder = new LocalizedStringFinder(
                 _configurationProvider,
                 _dataFileProvider);
+        }
+
+        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void GetString_Dialog_InvalidLanguage_ThrowsArgumentOutOfRangeException()
+        {
+            _localizedStringFinder.GetString((EOLanguage) 50, DialogResourceID.ACCOUNT_CREATE_ACCEPTED);
+        }
+
+        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void GetString_Resource_InvalidLanguage_ThrowsArgumentOutOfRangeException()
+        {
+            _localizedStringFinder.GetString((EOLanguage)50, EOResourceID.STRING_SERVER);
         }
 
         [TestMethod]
@@ -72,7 +86,21 @@ namespace EOLib.Localization.Test
         }
 
         [TestMethod]
-        public void GetString_UsesLanguageSetInConfig()
+        public void GetString_DialogID_UsesLanguageSetInConfig()
+        {
+            const DialogResourceID testID = DialogResourceID.ACCOUNT_CREATE_ACCEPTED;
+            const string expectedResourceString = "language test";
+
+            GivenLanguageSetInConfig(EOLanguage.Dutch);
+            GivenFileHasStringForResourceID(DataFiles.DutchStatus1, testID, expectedResourceString);
+
+            var actualString = _localizedStringFinder.GetString(testID);
+
+            Assert.AreEqual(expectedResourceString, actualString);
+        }
+
+        [TestMethod]
+        public void GetString_ResourceID_UsesLanguageSetInConfig()
         {
             const EOResourceID testID = EOResourceID.STRING_SERVER;
             const string expectedResourceString = "language test";
