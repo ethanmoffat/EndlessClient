@@ -46,4 +46,8 @@ namespace EOLib.Graphics
                     pair.Value.Dispose();
         }
     }
+
+    public interface IPEFileCollection : IDictionary<GFXTypes, IPEFile>, IDisposable
+    {
+    }
 }

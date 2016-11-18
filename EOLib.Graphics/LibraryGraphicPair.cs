@@ -6,7 +6,7 @@ using System;
 
 namespace EOLib.Graphics
 {
-    internal struct LibraryGraphicPair : IComparable
+    public struct LibraryGraphicPair : IComparable
     {
         private readonly int LibraryNumber;
         private readonly int GraphicNumber;

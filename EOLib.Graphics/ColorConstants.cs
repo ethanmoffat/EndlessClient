@@ -2,10 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Xna.Framework;
 
 namespace EOLib.Graphics
 {
+    [ExcludeFromCodeCoverage]
     public static class ColorConstants
     {
         public static readonly Color LightGrayText = Color.FromNonPremultiplied(0xc8, 0xc8, 0xc8, 0xff);

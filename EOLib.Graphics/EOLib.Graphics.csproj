@@ -72,7 +72,6 @@
   </Choose>
   <ItemGroup>
     <Compile Include="ColorConstants.cs" />
-    <Compile Include="IPEFileCollection.cs" />
     <Compile Include="NativeGraphicsLoader.cs" />
     <Compile Include="NativeGraphicsManager.cs" />
     <Compile Include="GFXTypes.cs" />
