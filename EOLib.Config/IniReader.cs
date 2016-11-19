@@ -11,13 +11,13 @@ namespace EOLib.Config
 {
     public class IniReader
     {
-        private readonly SortedList<string, SortedList<string, object>> _sections;
+        private readonly SortedList<string, SortedList<string, string>> _sections;
         private readonly string _filename;
 
         public IniReader(string filename)
         {
             _filename = filename;
-            _sections = new SortedList<string, SortedList<string, object>>();
+            _sections = new SortedList<string, SortedList<string, string>>();
         }
 
         #region Public Interface
@@ -76,18 +76,7 @@ namespace EOLib.Config
             if (!_sections[section].ContainsKey(key))
                 return false;
 
-            try
-            {
-                value = (string)_sections[section][key];
-            }
-            catch (FormatException)
-            {
-                return false;
-            }
-            catch (InvalidCastException)
-            {
-                return false;
-            }
+            value = _sections[section][key];
             return true;
         }
 
@@ -107,10 +96,6 @@ namespace EOLib.Config
             {
                 return false;
             }
-            catch (InvalidCastException)
-            {
-                return false;
-            }
 
             return true;
         }
@@ -125,22 +110,18 @@ namespace EOLib.Config
 
             //convert possible strings into true/false values that can be parsed
             var toConvert = _sections[section][key];
-            if (toConvert is string)
+            switch (toConvert.ToLower())
             {
-                var s = toConvert as string;
-                switch (s.ToLower())
-                {
-                    case "yes":
-                    case "1":
-                    case "on":
-                        toConvert = "true";
-                        break;
-                    case "no":
-                    case "0":
-                    case "off":
-                        toConvert = "false";
-                        break;
-                }
+                case "yes":
+                case "1":
+                case "on":
+                    toConvert = "true";
+                    break;
+                case "no":
+                case "0":
+                case "off":
+                    toConvert = "false";
+                    break;
             }
 
             try
@@ -148,10 +129,6 @@ namespace EOLib.Config
                 value = Convert.ToBoolean(toConvert);
             }
             catch (FormatException)
-            {
-                return false;
-            }
-            catch (InvalidCastException)
             {
                 return false;
             }
@@ -185,7 +162,7 @@ namespace EOLib.Config
         {
             var header = nextLine.Remove(0, 1);
             header = header.Remove(header.Length - 1);
-            _sections.Add(header, new SortedList<string, object>());
+            _sections.Add(header, new SortedList<string, string>());
             return header;
         }
 
