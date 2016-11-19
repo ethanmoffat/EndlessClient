@@ -2,9 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace EOLib.Config
 {
-    internal static class ConfigStrings
+    [ExcludeFromCodeCoverage]
+    public static class ConfigStrings
     {
         public const string Default_Config_File = "config/settings.ini";
 

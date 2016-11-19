@@ -4,7 +4,7 @@
 
 namespace EOLib.Config
 {
-    internal static class ConfigDefaults
+    public static class ConfigDefaults
     {
         public const byte MajorVersion = 0;
         public const byte MinorVersion = 0;
