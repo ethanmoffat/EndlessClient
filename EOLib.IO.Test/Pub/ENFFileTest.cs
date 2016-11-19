@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Text;
 using EOLib.IO.Pub;
@@ -24,13 +25,13 @@ namespace EOLib.IO.Test.Pub
         }
 
         [TestMethod]
-        public void ENFFile_HasCorrectFileType()
+        public void HasCorrectFileType()
         {
             Assert.AreEqual("ENF", _npcFile.FileType);
         }
 
         [TestMethod]
-        public void ENFFile_SerializeToByteArray_ReturnsExpectedBytes()
+        public void SerializeToByteArray_ReturnsExpectedBytes()
         {
             var expectedBytes = MakeENFFile(55565554,
                 new ENFRecord { ID = 1, Name = "TestNPC" },
@@ -51,7 +52,7 @@ namespace EOLib.IO.Test.Pub
         }
 
         [TestMethod]
-        public void ENFFile_HeaderFormat_IsCorrect()
+        public void HeaderFormat_IsCorrect()
         {
             var nes = new NumberEncoderService();
 
@@ -63,6 +64,40 @@ namespace EOLib.IO.Test.Pub
             CollectionAssert.AreEqual(nes.EncodeNumber(1, 1), actualBytes.Skip(9).Take(1).ToArray());
         }
 
+        [TestMethod, ExpectedException(typeof(IOException))]
+        public void LengthMismatch_ThrowsIOException()
+        {
+            var bytes = MakeENFFileWithWrongLength(12345678, 5,
+                new ENFRecord { ID = 1, Name = "NPC1" },
+                new ENFRecord { ID = 2, Name = "NPC2" },
+                new ENFRecord { ID = 3, Name = "NPC3" });
+
+            _npcFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
+        }
+
+        [TestMethod]
+        public void DeserializeFromByteArray_HasExpectedIDAndNames()
+        {
+            var records = new[]
+            {
+                new ENFRecord {ID = 1, Name = "Test"},
+                new ENFRecord {ID = 2, Name = "Test2"},
+                new ENFRecord {ID = 3, Name = "Test3"},
+                new ENFRecord {ID = 4, Name = "Test4"},
+                new ENFRecord {ID = 5, Name = "Test5"},
+                new ENFRecord {ID = 6, Name = "Test6"},
+                new ENFRecord {ID = 7, Name = "Test7"},
+                new ENFRecord {ID = 8, Name = "Test8"},
+                new ENFRecord {ID = 9, Name = "eof"}
+            };
+            var bytes = MakeENFFile(55565554, records);
+
+            _npcFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
+
+            CollectionAssert.AreEqual(records.Select(x => new { x.ID, x.Name }).ToList(),
+                                      _npcFile.Data.Select(x => new { x.ID, x.Name }).ToList());
+        }
+
         private byte[] MakeENFFile(int checksum, params ENFRecord[] records)
         {
             var numberEncoderService = new NumberEncoderService();
@@ -71,6 +106,21 @@ namespace EOLib.IO.Test.Pub
             bytes.AddRange(Encoding.ASCII.GetBytes("ENF"));
             bytes.AddRange(numberEncoderService.EncodeNumber(checksum, 4));
             bytes.AddRange(numberEncoderService.EncodeNumber(records.Length, 2));
+            bytes.Add(numberEncoderService.EncodeNumber(1, 1)[0]);
+            foreach (var record in records)
+                bytes.AddRange(record.SerializeToByteArray(numberEncoderService));
+
+            return bytes.ToArray();
+        }
+
+        private byte[] MakeENFFileWithWrongLength(int checksum, int length, params ENFRecord[] records)
+        {
+            var numberEncoderService = new NumberEncoderService();
+
+            var bytes = new List<byte>();
+            bytes.AddRange(Encoding.ASCII.GetBytes("ENF"));
+            bytes.AddRange(numberEncoderService.EncodeNumber(checksum, 4));
+            bytes.AddRange(numberEncoderService.EncodeNumber(length, 2));
             bytes.Add(numberEncoderService.EncodeNumber(1, 1)[0]);
             foreach (var record in records)
                 bytes.AddRange(record.SerializeToByteArray(numberEncoderService));
