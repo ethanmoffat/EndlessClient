@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace EOLib.Config
 {
-    internal class IniReader
+    public class IniReader
     {
         private readonly SortedList<string, SortedList<string, object>> _sections;
         private readonly string _filename;
