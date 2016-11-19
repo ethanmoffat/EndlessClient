@@ -51,6 +51,22 @@ namespace EOLib.Config.Test
 
             Assert.AreEqual(ConfigDefaults.NPCDropProtectionSeconds, _configurationRepository.NPCDropProtectTime);
             Assert.AreEqual(ConfigDefaults.PlayerDropProtectionSeconds, _configurationRepository.PlayerDropProtectTime);
+
+            Assert.AreEqual(EOLanguage.English, _configurationRepository.Language);
+            Assert.IsFalse(_configurationRepository.CurseFilterEnabled);
+            Assert.IsFalse(_configurationRepository.StrictFilterEnabled);
+
+            Assert.IsTrue(_configurationRepository.ShowShadows);
+            Assert.IsTrue(_configurationRepository.ShowChatBubbles);
+            Assert.IsFalse(_configurationRepository.ShowTransition);
+
+            Assert.IsFalse(_configurationRepository.MusicEnabled);
+            Assert.IsFalse(_configurationRepository.SoundEnabled);
+            
+            Assert.IsTrue(_configurationRepository.HearWhispers);
+            Assert.IsTrue(_configurationRepository.Interaction);
+            Assert.IsFalse(_configurationRepository.LogChatToFile);
+            Assert.IsFalse(_configurationRepository.EnableLog);
         }
 
         private static void CreateTestConfigurationInDirectory(string contents)
