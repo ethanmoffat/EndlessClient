@@ -2,8 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace EOLib.IO
 {
+    [ExcludeFromCodeCoverage]
     public static class NumericConstants
     {
         public const int ONE_BYTE_MAX = 253;
