@@ -69,6 +69,66 @@ namespace EOLib.Config.Test
             Assert.IsFalse(_configurationRepository.EnableLog);
         }
 
+        [TestMethod]
+        public void ValidConfigFile_LoadsSpecifiedSettings()
+        {
+            const string contents = @"[CONNECTION]
+Host=ewmoffat.ddns.net
+Port=12345
+[VERSION]
+Major=10
+Minor=20
+Client=30
+[SETTINGS]
+Music=on
+Sound=on
+ShowBaloons=off
+ShowShadows=no
+ShowTransition=true
+EnableLogging=true
+[CUSTOM]
+NPCDropProtectTime=5000
+PlayerDropProtectTime=10000
+[LANGUAGE]
+Language=2
+[CHAT]
+Filter=on
+FilterAll=on
+LogChat=on
+LogFile=CHATLOG.TXT
+HearWhisper=off
+Interaction=false";
+            CreateTestConfigurationInDirectory(contents);
+
+            _configFileLoadActions.LoadConfigFile();
+
+            Assert.AreEqual(10, _configurationRepository.VersionMajor);
+            Assert.AreEqual(20, _configurationRepository.VersionMinor);
+            Assert.AreEqual(30, _configurationRepository.VersionBuild);
+
+            Assert.AreEqual("ewmoffat.ddns.net", _configurationRepository.Host);
+            Assert.AreEqual(12345, _configurationRepository.Port);
+
+            Assert.AreEqual(5000, _configurationRepository.NPCDropProtectTime);
+            Assert.AreEqual(10000, _configurationRepository.PlayerDropProtectTime);
+
+            Assert.AreEqual(EOLanguage.Swedish, _configurationRepository.Language);
+            Assert.IsTrue(_configurationRepository.CurseFilterEnabled);
+            Assert.IsTrue(_configurationRepository.StrictFilterEnabled);
+
+            Assert.IsFalse(_configurationRepository.ShowShadows);
+            Assert.IsFalse(_configurationRepository.ShowChatBubbles);
+            Assert.IsTrue(_configurationRepository.ShowTransition);
+
+            Assert.IsTrue(_configurationRepository.MusicEnabled);
+            Assert.IsTrue(_configurationRepository.SoundEnabled);
+
+            Assert.IsFalse(_configurationRepository.HearWhispers);
+            Assert.IsFalse(_configurationRepository.Interaction);
+            Assert.IsTrue(_configurationRepository.LogChatToFile);
+            Assert.IsTrue(_configurationRepository.EnableLog);
+        }
+
         private static void CreateTestConfigurationInDirectory(string contents)
         {
             if (!Directory.Exists(ConfigDirectory))
