@@ -10,28 +10,29 @@ namespace EOLib.IO.Services
     {
         public byte[] EncodeNumber(int number, int size)
         {
-            var numArray = Enumerable.Repeat(254, 4).ToArray();
-            var original = number;
+            var unsigned = (uint) number;
+            var numArray = Enumerable.Repeat((uint)254, 4).ToArray();
+            var original = unsigned;
 
             if (original >= NumericConstants.THREE_BYTE_MAX)
             {
-                numArray[3] = number/NumericConstants.THREE_BYTE_MAX + 1;
-                number = number%NumericConstants.THREE_BYTE_MAX;
+                numArray[3] = unsigned / NumericConstants.THREE_BYTE_MAX + 1;
+                unsigned = unsigned % NumericConstants.THREE_BYTE_MAX;
             }
 
             if (original >= NumericConstants.TWO_BYTE_MAX)
             {
-                numArray[2] = number/NumericConstants.TWO_BYTE_MAX + 1;
-                number = number%NumericConstants.TWO_BYTE_MAX;
+                numArray[2] = unsigned / NumericConstants.TWO_BYTE_MAX + 1;
+                unsigned = unsigned % NumericConstants.TWO_BYTE_MAX;
             }
 
             if (original >= NumericConstants.ONE_BYTE_MAX)
             {
-                numArray[1] = number/NumericConstants.ONE_BYTE_MAX + 1;
-                number = number%NumericConstants.ONE_BYTE_MAX;
+                numArray[1] = unsigned / NumericConstants.ONE_BYTE_MAX + 1;
+                unsigned = unsigned % NumericConstants.ONE_BYTE_MAX;
             }
 
-            numArray[0] = number + 1;
+            numArray[0] = unsigned + 1;
 
             return numArray.Select(x => (byte)x)
                            .Take(size)
