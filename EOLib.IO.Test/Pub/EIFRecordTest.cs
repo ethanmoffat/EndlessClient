@@ -140,6 +140,76 @@ namespace EOLib.IO.Test.Pub
             record.DeserializeFromByteArray(new byte[] { 1, 2, 3 }, new NumberEncoderService());
         }
 
+        [TestMethod]
+        public void EIFRecord_GunOverride_ConvertsItemSubTypeToRanged()
+        {
+            var record = new EIFRecord {ID = 365, Name = "Gun", SubType = ItemSubType.Arrows};
+            record.DeserializeFromByteArray(Enumerable.Repeat((byte)128, EIFRecord.DATA_SIZE).ToArray(), new NumberEncoderService());
+
+            Assert.AreEqual(ItemSubType.Ranged, record.SubType);
+        }
+
+        [TestMethod]
+        public void EIFRecord_SharedValueSet1_HaveSameValue()
+        {
+            var properties = new[] { "ScrollMap", "DollGraphic", "ExpReward", "HairColor", "Effect", "Key" };
+            var record = new EIFRecord();
+
+            var value = new Random().Next(100);
+            foreach (var prop in properties)
+            {
+                record.GetType().GetProperty(prop, BindingFlags.Instance | BindingFlags.Public)
+                                .SetValue(record, value);
+
+                Assert.AreEqual(value, record.ScrollMap);
+                Assert.AreEqual(value, record.DollGraphic);
+                Assert.AreEqual(value, record.ExpReward);
+                Assert.AreEqual(value, record.HairColor);
+                Assert.AreEqual(value, record.Effect);
+                Assert.AreEqual(value, record.Key);
+
+                value++;
+            }
+        }
+
+        [TestMethod]
+        public void EIFRecord_SharedValueSet2_HaveSameValue()
+        {
+            var properties = new[] { "Gender", "ScrollX" };
+            var record = new EIFRecord();
+
+            var value = new Random().Next(100);
+            foreach (var prop in properties)
+            {
+                record.GetType().GetProperty(prop, BindingFlags.Instance | BindingFlags.Public)
+                                .SetValue(record, (byte)value);
+
+                Assert.AreEqual(value, record.Gender);
+                Assert.AreEqual(value, record.ScrollX);
+
+                value++;
+            }
+        }
+
+        [TestMethod]
+        public void EIFRecord_SharedValueSet3_HaveSameValue()
+        {
+            var properties = new[] { "ScrollY", "DualWieldDollGraphic" };
+            var record = new EIFRecord();
+
+            var value = new Random().Next(100);
+            foreach (var prop in properties)
+            {
+                record.GetType().GetProperty(prop, BindingFlags.Instance | BindingFlags.Public)
+                                .SetValue(record, (byte)value);
+
+                Assert.AreEqual(value, record.ScrollY);
+                Assert.AreEqual(value, record.DualWieldDollGraphic);
+
+                value++;
+            }
+        }
+
         private static EIFRecord CreateRecordWithSomeGoodTestData()
         {
             return new EIFRecord
