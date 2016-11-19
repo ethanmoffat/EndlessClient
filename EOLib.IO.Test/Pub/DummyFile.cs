@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Text;
 using EOLib.IO.Pub;
@@ -9,6 +10,7 @@ using EOLib.IO.Services;
 
 namespace EOLib.IO.Test.Pub
 {
+    [ExcludeFromCodeCoverage]
     internal class DummyFile : BasePubFile<DummyRecord>
     {
         public override string FileType

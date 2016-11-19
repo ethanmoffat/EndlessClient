@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
@@ -18,7 +19,7 @@ using Moq;
 
 namespace EOLib.Test.Net.FileTransfer
 {
-    [TestClass]
+    [TestClass, ExcludeFromCodeCoverage]
     public class FileRequestServiceTest
     {
         private IFileRequestService _fileRequestService;

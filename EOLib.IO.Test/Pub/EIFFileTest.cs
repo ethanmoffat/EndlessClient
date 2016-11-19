@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using EOLib.IO.Pub;
@@ -11,7 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EOLib.IO.Test.Pub
 {
-    [TestClass]
+    [TestClass, ExcludeFromCodeCoverage]
     public class EIFFileTest
     {
         private IPubFile<EIFRecord> _itemFile;

@@ -3,13 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EOLib.IO.Test.Pub
 {
-    [TestClass]
+    [TestClass, ExcludeFromCodeCoverage]
     public class BasePubFileTest
     {
         //This covers the BasePubFile abstract class.

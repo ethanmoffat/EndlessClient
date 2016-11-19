@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -15,7 +16,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace EOLib.IO.Test.Map
 {
-    [TestClass]
+    [TestClass, ExcludeFromCodeCoverage]
     public class MapFilePropertiesTest
     {
         private ISerializer<IMapFileProperties> _mapPropertiesSerializer;

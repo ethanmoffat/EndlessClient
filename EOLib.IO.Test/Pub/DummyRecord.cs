@@ -3,12 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
 
 namespace EOLib.IO.Test.Pub
 {
+    [ExcludeFromCodeCoverage]
     internal class DummyRecord : IPubRecord
     {
         public int RecordSize { get { return 0; } }

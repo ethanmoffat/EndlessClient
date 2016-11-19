@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using EOLib.Net;
 using EOLib.Net.Communication;
@@ -9,6 +10,7 @@ using Moq;
 
 namespace EOLib.Test.TestHelpers
 {
+    [ExcludeFromCodeCoverage]
     internal static class PacketSendServiceHelpers
     {
         /// <summary>
