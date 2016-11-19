@@ -36,7 +36,7 @@ namespace EOLib.IO.Pub
             mem.Seek(1, SeekOrigin.Current);
 
             var rawData = new byte[ESFRecord.DATA_SIZE];
-            for (int i = 0; i < recordsInFile && mem.Position < mem.Length; ++i)
+            for (int i = 1; i <= recordsInFile && mem.Position < mem.Length; ++i)
             {
                 var nameLength = numberEncoderService.DecodeNumber((byte)mem.ReadByte());
                 var shoutLength = numberEncoderService.DecodeNumber((byte)mem.ReadByte());
