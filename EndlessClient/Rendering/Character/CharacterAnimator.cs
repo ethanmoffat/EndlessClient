@@ -22,13 +22,16 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
-        private Optional<DateTime> _startWalkingTime;
         private readonly List<RenderFrameActionTime> _otherPlayerStartWalkingTimes;
-
-        private Optional<DateTime> _startAttackingTime;
         private readonly List<RenderFrameActionTime> _otherPlayerStartAttackingTimes;
 
-        public bool MainCharacterIsAttacking { get { return _startAttackingTime.HasValue; } }
+        public bool MainCharacterIsAttacking
+        {
+            get
+            {
+                return _otherPlayerStartAttackingTimes.Any(HasActionForMainCharacter);
+            }
+        }
 
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
@@ -38,10 +41,8 @@ namespace EndlessClient.Rendering.Character
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
 
-            _startWalkingTime = Optional<DateTime>.Empty;
             _otherPlayerStartWalkingTimes = new List<RenderFrameActionTime>();
 
-            _startAttackingTime = Optional<DateTime>.Empty;
             _otherPlayerStartAttackingTimes = new List<RenderFrameActionTime>();
         }
 
@@ -57,15 +58,21 @@ namespace EndlessClient.Rendering.Character
 
         public void StartMainCharacterWalkAnimation()
         {
-            if (_startWalkingTime.HasValue) return;
-            _startWalkingTime = DateTime.Now;
+            if (_otherPlayerStartWalkingTimes.Any(HasActionForMainCharacter))
+                return;
+
+            var startWalkingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, DateTime.Now);
+            _otherPlayerStartWalkingTimes.Add(startWalkingTime);
         }
 
         public void StartMainCharacterAttackAnimation()
         {
             //todo: animation is currently really choppy, make it smoother
-            if (_startAttackingTime.HasValue) return;
-            _startAttackingTime = DateTime.Now;
+            if (_otherPlayerStartAttackingTimes.Any(HasActionForMainCharacter))
+                return;
+
+            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, DateTime.Now);
+            _otherPlayerStartAttackingTimes.Add(startAttackingTime);
         }
 
         public void StartOtherCharacterWalkAnimation(int characterID)
@@ -100,25 +107,13 @@ namespace EndlessClient.Rendering.Character
 
         private void AnimateCharacterWalking(DateTime now)
         {
-            if (_startWalkingTime.HasValue &&
-                (now - _startWalkingTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
-            {
-                var renderProperties = _characterRepository.MainCharacter.RenderProperties;
-                var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties);
-
-                _startWalkingTime = GetUpdatedActionTime(now, nextFrameRenderProperties);
-
-                var nextFrameCharacter = _characterRepository.MainCharacter.WithRenderProperties(nextFrameRenderProperties);
-                _characterRepository.MainCharacter = nextFrameCharacter;
-            }
-
             var playersDoneWalking = new List<RenderFrameActionTime>();
             foreach (var pair in _otherPlayerStartWalkingTimes)
             {
                 if (pair.ActionStartTime.HasValue &&
                     (now - pair.ActionStartTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
                 {
-                    var currentCharacter = _currentMapStateRepository.Characters.Single(x => x.ID == pair.UniqueID);
+                    var currentCharacter = GetCurrentCharacterFromRepository(pair);
 
                     var renderProperties = currentCharacter.RenderProperties;
                     var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties);
@@ -128,8 +123,7 @@ namespace EndlessClient.Rendering.Character
                         playersDoneWalking.Add(pair);
 
                     var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);
-                    _currentMapStateRepository.Characters.Remove(currentCharacter);
-                    _currentMapStateRepository.Characters.Add(nextFrameCharacter);
+                    UpdateCharacterInRepository(currentCharacter, nextFrameCharacter);
                 }
             }
             _otherPlayerStartWalkingTimes.RemoveAll(playersDoneWalking.Contains);
@@ -155,25 +149,13 @@ namespace EndlessClient.Rendering.Character
 
         private void AnimateCharacterAttacking(DateTime now)
         {
-            if (_startAttackingTime.HasValue &&
-                (now - _startAttackingTime).TotalMilliseconds > ATTACK_FRAME_TIME_MS)
-            {
-                var renderProperties = _characterRepository.MainCharacter.RenderProperties;
-                var nextFrameRenderProperties = renderProperties.WithNextAttackFrame();
-
-                _startAttackingTime = GetUpdatedActionTime(now, nextFrameRenderProperties);
-
-                var nextFrameCharacter = _characterRepository.MainCharacter.WithRenderProperties(nextFrameRenderProperties);
-                _characterRepository.MainCharacter = nextFrameCharacter;
-            }
-
             var playersDoneAttacking = new List<RenderFrameActionTime>();
             foreach (var pair in _otherPlayerStartAttackingTimes)
             {
                 if (pair.ActionStartTime.HasValue &&
                     (now - pair.ActionStartTime).TotalMilliseconds > ATTACK_FRAME_TIME_MS)
                 {
-                    var currentCharacter = _currentMapStateRepository.Characters.Single(x => x.ID == pair.UniqueID);
+                    var currentCharacter = GetCurrentCharacterFromRepository(pair);
 
                     var renderProperties = currentCharacter.RenderProperties;
                     var nextFrameRenderProperties = renderProperties.WithNextAttackFrame();
@@ -183,8 +165,7 @@ namespace EndlessClient.Rendering.Character
                         playersDoneAttacking.Add(pair);
 
                     var nextFrameCharacter = currentCharacter.WithRenderProperties(nextFrameRenderProperties);
-                    _currentMapStateRepository.Characters.Remove(currentCharacter);
-                    _currentMapStateRepository.Characters.Add(nextFrameCharacter);
+                    UpdateCharacterInRepository(currentCharacter, nextFrameCharacter);
                 }
             }
             _otherPlayerStartAttackingTimes.RemoveAll(playersDoneAttacking.Contains);
@@ -197,6 +178,31 @@ namespace EndlessClient.Rendering.Character
             return nextFrameRenderProperties.IsActing(CharacterActionState.Standing)
                 ? Optional<DateTime>.Empty
                 : new Optional<DateTime>(now);
+        }
+
+        private ICharacter GetCurrentCharacterFromRepository(RenderFrameActionTime pair)
+        {
+            return pair.UniqueID == _characterRepository.MainCharacter.ID
+                ? _characterRepository.MainCharacter
+                : _currentMapStateRepository.Characters.Single(x => x.ID == pair.UniqueID);
+        }
+
+        private void UpdateCharacterInRepository(ICharacter currentCharacter, ICharacter nextFrameCharacter)
+        {
+            if (currentCharacter == _characterRepository.MainCharacter)
+            {
+                _characterRepository.MainCharacter = nextFrameCharacter;
+            }
+            else
+            {
+                _currentMapStateRepository.Characters.Remove(currentCharacter);
+                _currentMapStateRepository.Characters.Add(nextFrameCharacter);
+            }
+        }
+
+        private bool HasActionForMainCharacter(RenderFrameActionTime x)
+        {
+            return x.UniqueID == _characterRepository.MainCharacter.ID && x.ActionStartTime.HasValue;
         }
     }
 
