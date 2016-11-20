@@ -64,11 +64,7 @@ namespace EndlessClient.Rendering.Character
         public void StartMainCharacterAttackAnimation()
         {
             //todo: animation is currently really choppy, make it smoother
-            var renderProperties = _characterRepository.MainCharacter.RenderProperties;
-            if (_startAttackingTime.HasValue &&
-                renderProperties.AttackFrame != CharacterRenderProperties.MAX_NUMBER_OF_ATTACK_FRAMES)
-                return;
-
+            if (_startAttackingTime.HasValue) return;
             _startAttackingTime = DateTime.Now;
         }
 
