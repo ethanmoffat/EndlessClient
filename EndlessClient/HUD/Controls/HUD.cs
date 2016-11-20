@@ -154,7 +154,6 @@ namespace EndlessClient.HUD.Controls
             m_inputListeners = new List<OldInputKeyListenerBase>(4)
             {
                 new FunctionKeyListener(),
-                new OldArrowKeyListener(),
                 new NumPadListener()
             };
             m_inputListeners.ForEach(x => x.InputTimeUpdated += OldWorld.Instance.ActiveCharacterRenderer.UpdateInputTime);
