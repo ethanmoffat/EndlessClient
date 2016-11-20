@@ -28,6 +28,8 @@ namespace EndlessClient.Rendering.Character
         private Optional<DateTime> _startAttackingTime;
         private readonly List<RenderFrameActionTime> _otherPlayerStartAttackingTimes;
 
+        public bool MainCharacterIsAttacking { get { return _startAttackingTime.HasValue; } }
+
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
                                  ICurrentMapStateRepository currentMapStateRepository)
@@ -204,6 +206,8 @@ namespace EndlessClient.Rendering.Character
 
     public interface ICharacterAnimator : IGameComponent
     {
+        bool MainCharacterIsAttacking { get; }
+
         void StartMainCharacterWalkAnimation();
 
         void StartMainCharacterAttackAnimation();

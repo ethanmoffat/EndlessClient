@@ -62,10 +62,10 @@ namespace EndlessClient.Controllers
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
                                                       EOResourceID.STATUS_LABEL_UNABLE_TO_ATTACK);
             }
-            else
+            else if(!_characterAnimationActions.IsMainCharacterAttacking())
             {
                 //todo: lower SP for character when attacking
-                _characterActions.Attack(); //todo: it looks like because of the timing issues it is sending two packets in succession. Make this better.
+                _characterActions.Attack();
                 _characterAnimationActions.StartAttacking();
             }
         }

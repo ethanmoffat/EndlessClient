@@ -36,8 +36,15 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
-            animator.StartMainCharacterWalkAnimation();
+            Animator.StartMainCharacterWalkAnimation();
+        }
+
+        public bool IsMainCharacterAttacking()
+        {
+            if (!_hudControlProvider.IsInGame)
+                return true; //pretend character is already attacking if not in game
+
+            return Animator.MainCharacterIsAttacking;
         }
 
         public void StartAttacking()
@@ -45,8 +52,7 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
-            animator.StartMainCharacterAttackAnimation();
+            Animator.StartMainCharacterAttackAnimation();
         }
 
         public void StartOtherCharacterWalkAnimation(int characterID)
@@ -54,8 +60,7 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
-            animator.StartOtherCharacterWalkAnimation(characterID);
+            Animator.StartOtherCharacterWalkAnimation(characterID);
         }
 
         public void StartOtherCharacterAttackAnimation(int characterID)
@@ -63,8 +68,12 @@ namespace EndlessClient.Rendering.Character
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            var animator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
-            animator.StartOtherCharacterAttackAnimation(characterID);
+            Animator.StartOtherCharacterAttackAnimation(characterID);
+        }
+
+        private ICharacterAnimator Animator
+        {
+            get { return _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator); }
         }
     }
 
@@ -73,6 +82,8 @@ namespace EndlessClient.Rendering.Character
         void Face(EODirection direction);
 
         void StartWalking();
+
+        bool IsMainCharacterAttacking();
 
         void StartAttacking();
     }
