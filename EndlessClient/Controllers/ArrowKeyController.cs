@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Input;
 using EndlessClient.Rendering.Character;
 using EOLib;
 using EOLib.Domain.Character;
@@ -15,16 +16,19 @@ namespace EndlessClient.Controllers
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ICharacterActions _characterActions;
         private readonly ICharacterProvider _characterProvider;
+        private IWalkErrorHandler _walkErrorHandler;
 
         public ArrowKeyController(IWalkValidationActions walkValidationActions,
                                   ICharacterAnimationActions characterAnimationActions,
                                   ICharacterActions characterActions,
-                                  ICharacterProvider characterProvider)
+                                  ICharacterProvider characterProvider,
+                                  IWalkErrorHandler walkErrorHandler)
         {
             _walkValidationActions = walkValidationActions;
             _characterAnimationActions = characterAnimationActions;
             _characterActions = characterActions;
             _characterProvider = characterProvider;
+            _walkErrorHandler = walkErrorHandler;
         }
 
         public bool MoveLeft()
@@ -95,7 +99,7 @@ namespace EndlessClient.Controllers
         {
             if (!_walkValidationActions.CanMoveToDestinationCoordinates())
             {
-                //todo: handle based on cell state
+                _walkErrorHandler.HandleWalkError();
             }
             else
             {

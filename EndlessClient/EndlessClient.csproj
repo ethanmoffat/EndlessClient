@@ -71,6 +71,7 @@
     <Compile Include="Input\PreviousKeyStateTracker.cs" />
     <Compile Include="Input\UserInputHandler.cs" />
     <Compile Include="Input\UserInputHandlerFactory.cs" />
+    <Compile Include="Input\WalkErrorHandler.cs" />
     <Compile Include="Old\OldCharacter.cs" />
     <Compile Include="Rendering\NPC\NPCAnimationActions.cs" />
     <Compile Include="Rendering\NPC\NPCAnimator.cs" />
