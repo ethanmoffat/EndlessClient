@@ -33,7 +33,7 @@ namespace EndlessClient.Controllers
 
         public bool Attack()
         {
-            if (!CurrentActionIsStanding())
+            if (!CanAttackAgain())
                 return false;
 
             AttemptAttack();
@@ -41,9 +41,10 @@ namespace EndlessClient.Controllers
             return true;
         }
 
-        private bool CurrentActionIsStanding()
+        private bool CanAttackAgain()
         {
-            return _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing);
+            return _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing) ||
+                   _characterProvider.MainCharacter.RenderProperties.AttackFrame == CharacterRenderProperties.MAX_NUMBER_OF_ATTACK_FRAMES;
         }
 
         private void AttemptAttack()
@@ -64,7 +65,7 @@ namespace EndlessClient.Controllers
             else
             {
                 //todo: lower SP for character when attacking
-                _characterActions.Attack();
+                _characterActions.Attack(); //todo: it looks like because of the timing issues it is sending two packets in succession. Make this better.
                 _characterAnimationActions.StartAttacking();
             }
         }

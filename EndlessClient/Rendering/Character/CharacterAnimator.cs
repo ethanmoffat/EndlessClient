@@ -55,13 +55,18 @@ namespace EndlessClient.Rendering.Character
 
         public void StartMainCharacterWalkAnimation()
         {
-            if (_startAttackingTime.HasValue) return;
+            if (_startWalkingTime.HasValue) return;
             _startWalkingTime = DateTime.Now;
         }
 
         public void StartMainCharacterAttackAnimation()
         {
-            if (_startWalkingTime.HasValue) return;
+            //todo: animation is currently really choppy, make it smoother
+            var renderProperties = _characterRepository.MainCharacter.RenderProperties;
+            if (_startAttackingTime.HasValue &&
+                renderProperties.AttackFrame != CharacterRenderProperties.MAX_NUMBER_OF_ATTACK_FRAMES)
+                return;
+
             _startAttackingTime = DateTime.Now;
         }
 
