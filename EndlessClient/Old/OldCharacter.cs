@@ -584,40 +584,6 @@ namespace EndlessClient.Old
             Stats.Armor = data.Armor;
         }
 
-        /// <summary>
-        /// Gets the permission of the current character to open the specified door
-        /// </summary>
-        /// <returns>Returns DoorSpec.Door if this character may open the door. Otherwise, returns the type of door restricting access</returns>
-        public DoorSpec CanOpenDoor(DoorSpec door)
-        {
-            DoorSpec permission = door;
-
-            EIFRecord rec;
-            switch (door) //note - it would be nice to be able to send the Item IDs of the keys in the welcome packet or something
-            {
-                case DoorSpec.LockedCrystal:
-                    rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "crystal key");
-                    break;
-                case DoorSpec.LockedSilver:
-                    rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "silver key");
-                    break;
-                case DoorSpec.LockedWraith:
-                    rec = OldWorld.Instance.EIF.Data.Single(_rec => _rec.Name != null && _rec.Name.ToLower() == "wraith key");
-                    break;
-                default:
-                    return permission;
-            }
-
-            if(rec != null && Inventory.FindIndex(_ii => _ii.ItemID == rec.ID) >= 0)
-                permission = DoorSpec.Door;
-            else if (rec == null) //show a warning saying that this door is perma-locked. Non-standard pub files will cause this.
-                EOMessageBox.Show(
-                    string.Format("Unable to find key for {0} in EIF. This door will never be opened!",
-                        Enum.GetName(typeof (DoorSpec), permission)), "Warning", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-
-            return permission;
-        }
-
         public ChestKey CanOpenChest(ChestSpawnMapEntity chest)
         {
             ChestKey permission = chest.Key;

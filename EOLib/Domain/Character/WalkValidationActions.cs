@@ -15,14 +15,17 @@ namespace EOLib.Domain.Character
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly IUnlockDoorValidator _unlockDoorValidator;
 
         public WalkValidationActions(IMapCellStateProvider mapCellStateProvider,
                                      ICharacterProvider characterProvider,
-                                     ICurrentMapStateProvider currentMapStateProvider)
+                                     ICurrentMapStateProvider currentMapStateProvider,
+                                     IUnlockDoorValidator unlockDoorValidator)
         {
             _mapCellStateProvider = mapCellStateProvider;
             _characterProvider = characterProvider;
             _currentMapStateProvider = currentMapStateProvider;
+            _unlockDoorValidator = unlockDoorValidator;
         }
 
         public bool CanMoveToDestinationCoordinates()
@@ -47,7 +50,8 @@ namespace EOLib.Domain.Character
         private bool IsWarpWalkable(IWarp warp, TileSpec tile)
         {
             if (warp.DoorType != DoorSpec.NoDoor)
-                return _currentMapStateProvider.OpenDoors.Any(w => w.X == warp.X && w.Y == warp.Y);
+                return _currentMapStateProvider.OpenDoors.Any(w => w.X == warp.X && w.Y == warp.Y) &&
+                       _unlockDoorValidator.CanMainCharacterOpenDoor(warp);
             if (warp.LevelRequirement != 0)
                 return warp.LevelRequirement <= _characterProvider.MainCharacter.Stats[CharacterStat.Level];
             return IsTileSpecWalkable(tile);

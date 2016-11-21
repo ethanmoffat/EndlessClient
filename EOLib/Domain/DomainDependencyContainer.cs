@@ -46,7 +46,8 @@ namespace EOLib.Domain
 
             container.RegisterType<IResetStateAction, ResetStateAction>();
 
-            container.RegisterType<IMapCellStateProvider, MapCellStateProvider>();
+            container.RegisterType<IMapCellStateProvider, MapCellStateProvider>()
+                .RegisterType<IUnlockDoorValidator, UnlockDoorValidator>();
 
             //resettable containers
             container.RegisterInstanceVaried<IResettable, PlayerInfoRepository>()

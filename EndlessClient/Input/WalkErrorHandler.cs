@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -16,14 +17,23 @@ namespace EndlessClient.Input
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly ICharacterProvider _characterProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
+        private readonly IUnlockDoorValidator _unlockDoorValidator;
+        private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
 
         public WalkErrorHandler(IMapCellStateProvider mapCellStateProvider,
                                 ICharacterProvider characterProvider,
-                                IStatusLabelSetter statusLabelSetter)
+                                IStatusLabelSetter statusLabelSetter,
+                                ICurrentMapStateRepository currentMapStateRepository,
+                                IUnlockDoorValidator unlockDoorValidator,
+                                IEOMessageBoxFactory eoMessageBoxFactory)
         {
             _mapCellStateProvider = mapCellStateProvider;
             _characterProvider = characterProvider;
             _statusLabelSetter = statusLabelSetter;
+            _currentMapStateRepository = currentMapStateRepository;
+            _unlockDoorValidator = unlockDoorValidator;
+            _eoMessageBoxFactory = eoMessageBoxFactory;
         }
 
         public void HandleWalkError()
@@ -57,41 +67,19 @@ namespace EndlessClient.Input
         {
             if (warp.DoorType != DoorSpec.Door)
             {
-                //todo: handle doors
-                //    DoorSpec doorOpened;
-                //    if (!warpInfo.IsDoorOpened && !warpInfo.DoorPacketSent)
-                //    {
-                //        if ((doorOpened = Character.CanOpenDoor(warpInfo.DoorType)) == DoorSpec.Door)
-                //            mapRend.StartOpenDoor(warpInfo, destX, destY);
-                //    }
-                //    else
-                //    {
-                //        //normal walking
-                //        if ((doorOpened = Character.CanOpenDoor(warpInfo.DoorType)) == DoorSpec.Door)
-                //            _walkIfValid(TileSpec.None, direction, destX, destY);
-                //    }
+                if (!_unlockDoorValidator.CanMainCharacterOpenDoor(warp))
+                {
+                    var requiredKey = _unlockDoorValidator.GetRequiredKey(warp);
 
-                //    if (doorOpened != DoorSpec.Door)
-                //    {
-                //        string strWhichKey = "[error key?]";
-                //        switch (doorOpened)
-                //        {
-                //            case DoorSpec.LockedCrystal:
-                //                strWhichKey = "Crystal Key";
-                //                break;
-                //            case DoorSpec.LockedSilver:
-                //                strWhichKey = "Silver Key";
-                //                break;
-                //            case DoorSpec.LockedWraith:
-                //                strWhichKey = "Wraith Key";
-                //                break;
-                //        }
-
-                //        EOMessageBox.Show(DialogResourceID.DOOR_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                //        ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
-                //            EOResourceID.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
-                //            " - " + strWhichKey);
-                //    }
+                    _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DOOR_LOCKED);
+                    _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
+                        EOResourceID.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
+                        " - " + requiredKey);
+                }
+                else if(!_currentMapStateRepository.OpenDoors.Contains(warp))
+                {
+                    //open the door (i.e. send door packet)
+                }
             }
             else if (warp.LevelRequirement > 0 && MainCharacter.Stats[CharacterStat.Level] < warp.LevelRequirement)
             {
