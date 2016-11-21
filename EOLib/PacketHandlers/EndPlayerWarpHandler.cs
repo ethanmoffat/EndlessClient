@@ -57,6 +57,8 @@ namespace EOLib.PacketHandlers
                 .WithMapID(warpAgreePacketData.MapID)
                 .WithRenderProperties(updatedRenderProperties);
 
+            var differentMapID = _currentMapStateRepository.CurrentMapID != warpAgreePacketData.MapID;
+
             _currentMapStateRepository.CurrentMapID = warpAgreePacketData.MapID;
             _currentMapStateRepository.Characters = warpAgreePacketData.Characters.ToList();
             _currentMapStateRepository.NPCs = warpAgreePacketData.NPCs.ToList();
@@ -66,7 +68,7 @@ namespace EOLib.PacketHandlers
                                                      _currentMapProvider.CurrentMap.Properties.MapAvailable;
 
             foreach (var notifier in _mapChangedNotifiers)
-                notifier.NotifyMapChanged(showMapTransition: true, //todo: only show transition if its a different map
+                notifier.NotifyMapChanged(showMapTransition: differentMapID,
                                           warpAnimation: warpAgreePacketData.WarpAnimation);
 
             return true;
