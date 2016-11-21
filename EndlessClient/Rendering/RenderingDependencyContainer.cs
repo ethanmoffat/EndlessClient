@@ -44,7 +44,8 @@ namespace EndlessClient.Rendering
                 .RegisterType<IRenderOffsetCalculator, RenderOffsetCalculator>()
                 .RegisterVaried<IMapChangedNotifier, MapChangedActions>()
                 .RegisterInstance<IMapEntityRendererProvider, MapEntityRendererProvider>()
-                .RegisterInstance<IMapItemGraphicProvider, MapItemGraphicProvider>();
+                .RegisterInstance<IMapItemGraphicProvider, MapItemGraphicProvider>()
+                .RegisterInstance<IDoorStateUpdater, DoorStateUpdater>();
 
             //npc
             container

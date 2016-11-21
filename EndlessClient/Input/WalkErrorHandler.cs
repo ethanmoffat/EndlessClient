@@ -9,6 +9,8 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using EOLib.Localization;
+using EOLib.Net;
+using EOLib.Net.Communication;
 
 namespace EndlessClient.Input
 {
@@ -20,13 +22,15 @@ namespace EndlessClient.Input
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IUnlockDoorValidator _unlockDoorValidator;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
+        private readonly IPacketSendService _packetSendService;
 
         public WalkErrorHandler(IMapCellStateProvider mapCellStateProvider,
                                 ICharacterProvider characterProvider,
                                 IStatusLabelSetter statusLabelSetter,
                                 ICurrentMapStateRepository currentMapStateRepository,
                                 IUnlockDoorValidator unlockDoorValidator,
-                                IEOMessageBoxFactory eoMessageBoxFactory)
+                                IEOMessageBoxFactory eoMessageBoxFactory,
+                                IPacketSendService packetSendService)
         {
             _mapCellStateProvider = mapCellStateProvider;
             _characterProvider = characterProvider;
@@ -34,6 +38,7 @@ namespace EndlessClient.Input
             _currentMapStateRepository = currentMapStateRepository;
             _unlockDoorValidator = unlockDoorValidator;
             _eoMessageBoxFactory = eoMessageBoxFactory;
+            _packetSendService = packetSendService;
         }
 
         public void HandleWalkError()
@@ -65,7 +70,7 @@ namespace EndlessClient.Input
 
         private void HandleWalkToWarpTile(IWarp warp)
         {
-            if (warp.DoorType != DoorSpec.Door)
+            if (warp.DoorType != DoorSpec.NoDoor)
             {
                 if (!_unlockDoorValidator.CanMainCharacterOpenDoor(warp))
                 {
@@ -76,9 +81,16 @@ namespace EndlessClient.Input
                         EOResourceID.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
                         " - " + requiredKey);
                 }
-                else if(!_currentMapStateRepository.OpenDoors.Contains(warp))
+                else if (!_currentMapStateRepository.OpenDoors.Contains(warp) &&
+                         !_currentMapStateRepository.PendingDoors.Contains(warp))
                 {
-                    //open the door (i.e. send door packet)
+                    var packet = new PacketBuilder(PacketFamily.Door, PacketAction.Open)
+                        .AddChar((byte) warp.X)
+                        .AddChar((byte) warp.Y)
+                        .Build();
+
+                    _packetSendService.SendPacket(packet);
+                    _currentMapStateRepository.PendingDoors.Add(warp);
                 }
             }
             else if (warp.LevelRequirement > 0 && MainCharacter.Stats[CharacterStat.Level] < warp.LevelRequirement)

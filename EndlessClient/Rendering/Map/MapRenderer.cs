@@ -31,6 +31,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly INPCRendererUpdater _npcRendererUpdater;
+        private readonly IDoorStateUpdater _doorStateUpdater;
         private readonly IConfigurationProvider _configurationProvider;
 
         private RenderTarget2D _mapAbovePlayer, _mapBelowPlayer;
@@ -45,6 +46,7 @@ namespace EndlessClient.Rendering.Map
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator,
                            ICharacterRendererUpdater characterRendererUpdater,
                            INPCRendererUpdater npcRendererUpdater,
+                           IDoorStateUpdater doorStateUpdater,
                            IConfigurationProvider configurationProvider)
             : base((Game)endlessGame)
         {
@@ -55,6 +57,7 @@ namespace EndlessClient.Rendering.Map
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
+            _doorStateUpdater = doorStateUpdater;
             _configurationProvider = configurationProvider;
         }
 
@@ -73,6 +76,8 @@ namespace EndlessClient.Rendering.Map
             {
                 _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
+                _doorStateUpdater.UpdateDoorState(gameTime);
+
                 DrawMapToRenderTarget();
             }
 

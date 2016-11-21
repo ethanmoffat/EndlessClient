@@ -43,8 +43,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnPlayerPaperdollChange += _playerPaperdollChange;
             m_packetAPI.OnViewPaperdoll += _playerViewPaperdoll;
 
-            m_packetAPI.OnDoorOpen += _doorOpen;
-
             //chest related
             m_packetAPI.OnChestOpened += _chestOpen;
             m_packetAPI.OnChestAgree += _chestAgree;
@@ -228,11 +226,6 @@ namespace EndlessClient.Old
             {
                 EOPaperdollDialog.Show(m_packetAPI, c, _data);
             }
-        }
-
-        private void _doorOpen(byte x, byte y)
-        {
-            OldWorld.Instance.ActiveMapRenderer.OnDoorOpened(x, y);
         }
 
         private void _chestOpen(ChestData data)

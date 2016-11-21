@@ -50,7 +50,8 @@ namespace EOLib.PacketHandlers
             //warps
             container.RegisterVaried<IPacketHandler, BeginPlayerWarpHandler>()
                 .RegisterVaried<IPacketHandler, EndPlayerWarpHandler>()
-                .RegisterVaried<IPacketHandler, RefreshMapStateHandler>();
+                .RegisterVaried<IPacketHandler, RefreshMapStateHandler>()
+                .RegisterVaried<IPacketHandler, DoorOpenHandler>();
         }
     }
 }

@@ -61,11 +61,6 @@ namespace EndlessClient.Rendering
         private readonly List<Point> _visibleSpikeTraps = new List<Point>();
         private readonly object _spikeTrapsLock = new object();
 
-        //door members
-        private readonly Timer _doorTimer;
-        private WarpMapEntity _door;
-        private byte _doorY; //since y-coord not stored in Warp object...
-
         private ManualResetEventSlim _drawingEvent;
 
         private readonly PacketAPI _api;
@@ -91,8 +86,6 @@ namespace EndlessClient.Rendering
 
             _drawingEvent = new ManualResetEventSlim(true);
             Visible = false;
-
-            _doorTimer = new Timer(_doorTimerCallback);
         }
 
         #region /* PUBLIC INTERFACE -- CHAT + MAP RELATED */
@@ -190,16 +183,6 @@ namespace EndlessClient.Rendering
 
             lock (_spikeTrapsLock)
                 _visibleSpikeTraps.Clear();
-
-            //need to reset door-related members when changing maps.
-            if (_door != null)
-            {
-                //_door.IsDoorOpened = false;
-                //_door.DoorPacketSent = false;
-                _door = null;
-                _doorY = 0;
-                _doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            }
 
             PlayOrStopBackgroundMusic();
             PlayOrStopAmbientNoise();
@@ -746,53 +729,6 @@ namespace EndlessClient.Rendering
         }
 
         #endregion
-
-        #region /* PUBLIC INTERFACE -- DOORS */
-
-        //public void StartOpenDoor(Warp warpRef, byte x, byte y)
-        //{
-        //    warpRef.DoorPacketSent = true; //set flag to prevent hella door packets from the client
-        //    if(!_api.DoorOpen(x, y))
-        //        ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-        //}
-
-        public void OnDoorOpened(byte x, byte y)
-        {
-            //if (_door != null && _door.IsDoorOpened)
-            //{
-            //    _door.IsDoorOpened = false;
-            //    _door.DoorPacketSent = false;
-            //    _doorY = 0;
-            //}
-
-            if ((_door = MapRef.Warps[y, x]) != null)
-            {
-                if(OldWorld.Instance.SoundEnabled)
-                    ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorOpen).Play();
-                //_door.IsDoorOpened = true;
-                _doorY = y;
-                _doorTimer.Change(3000, 0);
-            }
-        }
-
-        private void _doorTimerCallback(object state)
-        {
-            if (_door == null)
-            {
-                _doorY = 0;
-                return;
-            }
-
-            //if (_door.IsDoorOpened && OldWorld.Instance.SoundEnabled)
-            //    ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.DoorClose).Play();
-
-            //_door.IsDoorOpened = false;
-            //_door.DoorPacketSent = false; //back-off from sending a door packet.
-            _doorY = 0;
-            _doorTimer.Change(Timeout.Infinite, Timeout.Infinite);
-        }
-
-#endregion
 
         #region /* PUBLIC INTERFACE -- MAP EFFECTS */
 
@@ -1493,7 +1429,6 @@ namespace EndlessClient.Rendering
                 if (_playerBlend != null)
                     _playerBlend.Dispose();
                 _sb.Dispose();
-                _doorTimer.Dispose();
 
                 if(_miniMapRenderer != null)
                     _miniMapRenderer.Dispose();

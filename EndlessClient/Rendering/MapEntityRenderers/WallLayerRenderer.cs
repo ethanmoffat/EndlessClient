@@ -3,8 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.CharacterProperties;
+using System.Linq;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
@@ -21,6 +20,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
         public override MapRenderLayer RenderLayer
         {
@@ -35,11 +35,13 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public WallLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                  ICurrentMapProvider currentMapProvider,
                                  ICharacterProvider characterProvider,
-                                 IRenderOffsetCalculator renderOffsetCalculator)
+                                 IRenderOffsetCalculator renderOffsetCalculator,
+                                 ICurrentMapStateProvider currentMapStateProvider)
             : base(characterProvider, renderOffsetCalculator)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;
+            _currentMapStateProvider = currentMapStateProvider;
         }
 
         protected override bool ElementExistsAt(int row, int col)
@@ -62,6 +64,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         {
             if (renderLayer != MapLayer.WallRowsDown && renderLayer != MapLayer.WallRowsRight)
                 throw new ArgumentOutOfRangeException("renderLayer", "renderLayer must be WallRowsDown or WallRowsRight");
+
+            if (_currentMapStateProvider.OpenDoors.Any(openDoor => openDoor.X == col && openDoor.Y == row))
+                gfxNum++;
 
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapWalls, gfxNum, true);
             var pos = GetDrawCoordinatesFromGridUnits(col, row);

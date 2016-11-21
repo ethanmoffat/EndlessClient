@@ -24,6 +24,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly INPCRendererUpdater _npcRendererUpdater;
+        private readonly IDoorStateUpdater _doorStateUpdater;
 
         public MapRendererFactory(IEndlessGameProvider endlessGameProvider,
             IRenderTargetFactory renderTargetFactory,
@@ -33,6 +34,7 @@ namespace EndlessClient.Rendering.Factories
             IMapRenderDistanceCalculator mapRenderDistanceCalculator,
             ICharacterRendererUpdater characterRendererUpdater,
             INPCRendererUpdater npcRendererUpdater,
+            IDoorStateUpdater doorStateUpdater,
             IConfigurationProvider configurationProvider)
         {
             _endlessGameProvider = endlessGameProvider;
@@ -43,6 +45,7 @@ namespace EndlessClient.Rendering.Factories
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
+            _doorStateUpdater = doorStateUpdater;
             _configurationProvider = configurationProvider;
         }
 
@@ -56,6 +59,7 @@ namespace EndlessClient.Rendering.Factories
                                    _mapRenderDistanceCalculator,
                                    _characterRendererUpdater,
                                    _npcRendererUpdater,
+                                   _doorStateUpdater,
                                    _configurationProvider);
         }
     }

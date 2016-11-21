@@ -21,6 +21,8 @@ namespace EOLib.Domain.Map
         List<IItem> MapItems { get; set; }
 
         List<IWarp> OpenDoors { get; set;  }
+        
+        List<IWarp> PendingDoors { get; set; }
     }
 
     public interface ICurrentMapStateProvider
@@ -36,6 +38,8 @@ namespace EOLib.Domain.Map
         IReadOnlyList<IItem> MapItems { get; }
 
         IReadOnlyList<IWarp> OpenDoors { get; }
+
+        IReadOnlyList<IWarp> PendingDoors { get; }
     }
 
     public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider, IResettable
@@ -52,6 +56,8 @@ namespace EOLib.Domain.Map
 
         public List<IWarp> OpenDoors { get; set; }
 
+        public List<IWarp> PendingDoors { get; set; }
+
         IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters { get { return Characters; } }
 
         IReadOnlyList<INPC> ICurrentMapStateProvider.NPCs { get { return NPCs; } }
@@ -59,6 +65,8 @@ namespace EOLib.Domain.Map
         IReadOnlyList<IItem> ICurrentMapStateProvider.MapItems { get { return MapItems; } }
 
         IReadOnlyList<IWarp> ICurrentMapStateProvider.OpenDoors { get { return OpenDoors; } }
+
+        IReadOnlyList<IWarp> ICurrentMapStateProvider.PendingDoors { get { return PendingDoors; } }
 
         public CurrentMapStateRepository()
         {
@@ -74,6 +82,7 @@ namespace EOLib.Domain.Map
             NPCs = new List<INPC>();
             MapItems = new List<IItem>();
             OpenDoors = new List<IWarp>();
+            PendingDoors = new List<IWarp>();
         }
     }
 }
