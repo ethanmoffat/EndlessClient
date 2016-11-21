@@ -34,7 +34,8 @@ namespace EndlessClient.Rendering.NPC
 
         public void RemoveNPCFromView(int npcIndex, bool showDeathAnimation)
         {
-            if (!_hudControlProvider.IsInGame)
+            //possible that the server might send a packet for the npc to be removed by the map switch is completed
+            if (!_hudControlProvider.IsInGame || !_npcRendererRepository.NPCRenderers.ContainsKey(npcIndex))
                 return;
 
             _npcStateCache.RemoveStateByIndex(npcIndex);
