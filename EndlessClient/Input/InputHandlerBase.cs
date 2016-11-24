@@ -5,6 +5,7 @@
 using System;
 using EndlessClient.GameExecution;
 using EOLib;
+using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
@@ -17,6 +18,7 @@ namespace EndlessClient.Input
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly IKeyStateProvider _keyStateProvider;
         private readonly IUserInputTimeRepository _userInputTimeRepository;
+        private readonly ICurrentMapStateProvider _mapStateProvider;
 
         private KeyboardState CurrentState { get { return _keyStateProvider.CurrentKeyState; } }
 
@@ -24,11 +26,13 @@ namespace EndlessClient.Input
 
         protected InputHandlerBase(IEndlessGameProvider endlessGameProvider,
                                    IKeyStateProvider keyStateProvider,
-                                   IUserInputTimeRepository userInputTimeRepository)
+                                   IUserInputTimeRepository userInputTimeRepository,
+                                   ICurrentMapStateProvider mapStateProvider)
         {
             _endlessGameProvider = endlessGameProvider;
             _keyStateProvider = keyStateProvider;
             _userInputTimeRepository = userInputTimeRepository;
+            _mapStateProvider = mapStateProvider;
         }
 
         public void HandleKeyboardInput(DateTime timeAtBeginningOfUpdate)
@@ -36,7 +40,8 @@ namespace EndlessClient.Input
             var millisecondsSinceLastUpdate = GetMillisecondsSinceLastUpdate(timeAtBeginningOfUpdate);
             if (!_endlessGameProvider.Game.IsActive ||
                 millisecondsSinceLastUpdate < INPUT_RATE_LIMIT_MILLISECONDS ||
-                XNAControl.Dialogs.Count > 0)
+                XNAControl.Dialogs.Count > 0 ||
+                _mapStateProvider.MapWarpState != WarpState.None)
                 return;
 
             var handledKey = HandleInput();

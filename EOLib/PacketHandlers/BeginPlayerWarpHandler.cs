@@ -2,9 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.IO;
 using System.Linq;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
 using EOLib.IO.Actions;
 using EOLib.Net;
 using EOLib.Net.Communication;
@@ -20,6 +22,7 @@ namespace EOLib.PacketHandlers
         private readonly IPacketSendService _packetSendService;
         private readonly IFileRequestActions _fileRequestActions;
         private readonly IMapFileLoadActions _mapFileLoadActions;
+        private readonly ICurrentMapStateRepository _mapStateRepository;
 
         public override PacketFamily Family { get { return PacketFamily.Warp; } }
 
@@ -28,16 +31,22 @@ namespace EOLib.PacketHandlers
         public BeginPlayerWarpHandler(IPlayerInfoProvider playerInfoProvider,
                                       IPacketSendService packetSendService,
                                       IFileRequestActions fileRequestActions,
-                                      IMapFileLoadActions mapFileLoadActions)
+                                      IMapFileLoadActions mapFileLoadActions,
+                                      ICurrentMapStateRepository mapStateRepository)
             : base(playerInfoProvider)
         {
             _packetSendService = packetSendService;
             _fileRequestActions = fileRequestActions;
             _mapFileLoadActions = mapFileLoadActions;
+            _mapStateRepository = mapStateRepository;
         }
 
         public override bool HandlePacket(IPacket packet)
         {
+            if (_mapStateRepository.MapWarpState != WarpState.None)
+                throw new InvalidOperationException("Attempted to warp while another warp was in progress");
+            _mapStateRepository.MapWarpState = WarpState.WarpStarted;
+
             var warpType = packet.ReadChar();
             switch (warpType)
             {
@@ -61,7 +70,9 @@ namespace EOLib.PacketHandlers
 
                     SendWarpAcceptToServer(packet);
                     break;
-                default: return false;
+                default:
+                    _mapStateRepository.MapWarpState = WarpState.None;
+                    return false;
             }
 
             return true;

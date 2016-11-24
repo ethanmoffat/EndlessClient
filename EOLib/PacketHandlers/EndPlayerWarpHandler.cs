@@ -43,6 +43,8 @@ namespace EOLib.PacketHandlers
 
         public override bool HandlePacket(IPacket packet)
         {
+            _currentMapStateRepository.MapWarpState = WarpState.WarpCompleting;
+
             var warpAgreePacketData = _warpAgreePacketTranslator.TranslatePacket(packet);
 
             var updatedMainCharacter = warpAgreePacketData.Characters.Single(IDMatches);
@@ -70,6 +72,8 @@ namespace EOLib.PacketHandlers
             foreach (var notifier in _mapChangedNotifiers)
                 notifier.NotifyMapChanged(showMapTransition: differentMapID,
                                           warpAnimation: warpAgreePacketData.WarpAnimation);
+
+            _currentMapStateRepository.MapWarpState = WarpState.None;
 
             return true;
         }

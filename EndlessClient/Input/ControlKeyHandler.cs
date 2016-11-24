@@ -5,6 +5,7 @@
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EOLib;
+using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.Input
@@ -16,8 +17,9 @@ namespace EndlessClient.Input
         public ControlKeyHandler(IEndlessGameProvider endlessGameProvider,
                                  IKeyStateProvider keyStateProvider,
                                  IUserInputTimeRepository userInputTimeRepository,
-                                 IControlKeyController controlKeyController)
-            : base(endlessGameProvider, keyStateProvider, userInputTimeRepository)
+                                 IControlKeyController controlKeyController,
+                                 ICurrentMapStateProvider currentMapStateProvider)
+            : base(endlessGameProvider, keyStateProvider, userInputTimeRepository, currentMapStateProvider)
         {
             _controlKeyController = controlKeyController;
         }
