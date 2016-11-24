@@ -99,8 +99,8 @@ namespace EndlessClient.Rendering.Character
 
         public void StopAllOtherCharacterAnimations()
         {
-            _otherPlayerStartWalkingTimes.Clear();
-            _otherPlayerStartAttackingTimes.Clear();
+            _otherPlayerStartWalkingTimes.RemoveAll(x => x.UniqueID != _characterRepository.MainCharacter.ID);
+            _otherPlayerStartAttackingTimes.RemoveAll(x => x.UniqueID != _characterRepository.MainCharacter.ID);
         }
 
         #region Walk Animation
