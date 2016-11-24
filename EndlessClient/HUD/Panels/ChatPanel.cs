@@ -178,7 +178,7 @@ namespace EndlessClient.HUD.Panels
                 var renderables = _chatRenderableGenerator.GenerateChatRenderables(_cachedChatDataCurrentTab);
 
                 UpdateCachedScrollProperties();
-                SetupRenderablesFromCachedValues(renderables);
+                SetupRenderablesFromCachedValues(renderables, chatChanged);
             }
 
             var mouseState = Mouse.GetState();
@@ -243,7 +243,7 @@ namespace EndlessClient.HUD.Panels
             _cachedLinesToRender = _scrollBar.LinesToRender;
         }
 
-        private void SetupRenderablesFromCachedValues(IReadOnlyList<IChatRenderable> renderables)
+        private void SetupRenderablesFromCachedValues(IReadOnlyList<IChatRenderable> renderables, bool newText)
         {
             _chatRenderables.Clear();
 
@@ -255,7 +255,7 @@ namespace EndlessClient.HUD.Panels
             //update scrollbar with total number of renderables
             _scrollBar.UpdateDimensions(renderables.Count);
 
-            if (renderables.Count > _scrollBar.LinesToRender)
+            if (newText && renderables.Count > _scrollBar.LinesToRender)
                 _scrollBar.ScrollToEnd();
         }
 
