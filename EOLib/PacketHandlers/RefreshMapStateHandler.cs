@@ -59,7 +59,7 @@ namespace EOLib.PacketHandlers
             _currentMapStateRepository.MapItems = data.Items.ToList();
 
             foreach (var notifier in _mapChangedNotifiers)
-                notifier.NotifyMapChanged(showMapTransition: false, warpAnimation: WarpAnimation.None);
+                notifier.NotifyMapChanged(differentMapID: false, warpAnimation: WarpAnimation.None);
 
             return true;
         }

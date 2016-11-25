@@ -70,7 +70,7 @@ namespace EOLib.PacketHandlers
                                                      _currentMapProvider.CurrentMap.Properties.MapAvailable;
 
             foreach (var notifier in _mapChangedNotifiers)
-                notifier.NotifyMapChanged(showMapTransition: differentMapID,
+                notifier.NotifyMapChanged(differentMapID: differentMapID,
                                           warpAnimation: warpAgreePacketData.WarpAnimation);
 
             _currentMapStateRepository.MapWarpState = WarpState.None;

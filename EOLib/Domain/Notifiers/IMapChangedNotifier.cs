@@ -8,11 +8,11 @@ namespace EOLib.Domain.Notifiers
 {
     public interface IMapChangedNotifier
     {
-        void NotifyMapChanged(WarpAnimation warpAnimation, bool showMapTransition);
+        void NotifyMapChanged(WarpAnimation warpAnimation, bool differentMapID);
     }
 
     public class NoOpMapChangedNotifier : IMapChangedNotifier
     {
-        public void NotifyMapChanged(WarpAnimation warpAnimation, bool showMapTransition) { }
+        public void NotifyMapChanged(WarpAnimation warpAnimation, bool differentMapID) { }
     }
 }

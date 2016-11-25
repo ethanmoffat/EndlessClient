@@ -43,13 +43,13 @@ namespace EndlessClient.Rendering.Map
             _currentMapProvider = currentMapProvider;
         }
 
-        public void NotifyMapChanged(WarpAnimation warpAnimation, bool showMapTransition)
+        public void NotifyMapChanged(WarpAnimation warpAnimation, bool differentMapID)
         {
             StopAllAnimations();
             ClearCharacterRenderersAndCache();
             ClearNPCRenderersAndCache();
-            ShowMapNameIfAvailable();
-            ShowMapTransition(showMapTransition);
+            ShowMapNameIfAvailable(differentMapID);
+            ShowMapTransition(differentMapID);
 
             //todo: render warp animation on main character renderer
         }
@@ -79,9 +79,9 @@ namespace EndlessClient.Rendering.Map
             _npcStateCache.Reset();
         }
 
-        private void ShowMapNameIfAvailable()
+        private void ShowMapNameIfAvailable(bool differentMapID)
         {
-            if (string.IsNullOrWhiteSpace(_currentMapProvider.CurrentMap.Properties.Name))
+            if (!differentMapID || string.IsNullOrWhiteSpace(_currentMapProvider.CurrentMap.Properties.Name))
                 return;
 
             var message = _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_YOU_ENTERED);
