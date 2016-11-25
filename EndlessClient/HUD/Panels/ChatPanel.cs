@@ -145,6 +145,7 @@ namespace EndlessClient.HUD.Panels
             else
                 throw new ArgumentOutOfRangeException("whichTab", whichTab, "whichTab should be Private1 or Private2");
 
+            _state.CachedScrollOffsets[whichTab] = 0;
             _tabLabels[whichTab].Text = "";
             SelectTab(ChatTab.Local);
         }
@@ -176,11 +177,11 @@ namespace EndlessClient.HUD.Panels
                 chatChanged = true;
             }
 
-            if (chatChanged || _state.CachedScrollOffset != _scrollBar.ScrollOffset)
+            if (chatChanged || _state.CachedScrollOffsets[CurrentTab] != _scrollBar.ScrollOffset)
             {
                 var renderables = _chatRenderableGenerator.GenerateChatRenderables(_state.CachedChatDataCurrentTab);
 
-                UpdateCachedScrollProperties();
+                _state.CachedScrollOffsets[CurrentTab] = _scrollBar.ScrollOffset;
                 SetupRenderablesFromCachedValues(renderables, chatChanged);
             }
 
@@ -225,11 +226,6 @@ namespace EndlessClient.HUD.Panels
         {
             _state.CachedChatDataCurrentTab.Clear();
             _state.CachedChatDataCurrentTab.AddRange(_chatProvider.AllChat[CurrentTab]);
-        }
-
-        private void UpdateCachedScrollProperties()
-        {
-            _state.CachedScrollOffset = _scrollBar.ScrollOffset;
         }
 
         private void SetupRenderablesFromCachedValues(IReadOnlyList<IChatRenderable> renderables, bool newText)
@@ -356,6 +352,8 @@ namespace EndlessClient.HUD.Panels
             _tabLabels[CurrentTab].ForeColor = Color.Black;
             _tabLabels[clickedTab].ForeColor = Color.White;
             CurrentTab = clickedTab;
+
+            _scrollBar.SetScrollOffset(_state.CachedScrollOffsets[CurrentTab]);
         }
 
         protected override void Dispose(bool disposing)
@@ -373,22 +371,26 @@ namespace EndlessClient.HUD.Panels
         {
             private readonly List<ChatData> _cachedChatDataCurrentTab;
             private readonly Dictionary<ChatTab, int> _cachedChatTabLineCounts;
+            private readonly Dictionary<ChatTab, int> _cachedScrollOffsets;
 
             public List<ChatData> CachedChatDataCurrentTab { get { return _cachedChatDataCurrentTab; } }
             public Dictionary<ChatTab, int> cachedChatTabLineCounts { get { return _cachedChatTabLineCounts; } }
 
-            public int CachedScrollOffset { get; set; }
+            public Dictionary<ChatTab, int> CachedScrollOffsets { get { return _cachedScrollOffsets; } }
 
             public bool PrivateChat1Shown { get; set; }
             public bool PrivateChat2Shown { get; set; }
 
             internal ChatPanelStateCache()
             {
+                var chatTabs = (ChatTab[])Enum.GetValues(typeof(ChatTab));
+
                 _cachedChatDataCurrentTab = new List<ChatData>();
-                _cachedChatTabLineCounts = ((ChatTab[])Enum.GetValues(typeof(ChatTab))).ToDictionary(k => k, v => 0);
+                _cachedChatTabLineCounts = chatTabs.ToDictionary(k => k, v => 0);
                 _cachedChatTabLineCounts[ChatTab.Local] = 1; //1 line of default news text
                 _cachedChatTabLineCounts[ChatTab.Global] = 2; //2 lines default text
-                CachedScrollOffset = -1;
+
+                _cachedScrollOffsets = chatTabs.ToDictionary(k => k, v => 0);
             }
         }
     }
