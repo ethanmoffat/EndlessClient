@@ -137,6 +137,11 @@ namespace EndlessClient.UIControls
                 arrowClicked(down, new EventArgs());
         }
 
+        public void SetScrollOffset(int offset)
+        {
+            ScrollOffset = offset;
+        }
+
         public void SetDownArrowFlashSpeed(int milliseconds)
         {
             down.FlashSpeed = milliseconds;
