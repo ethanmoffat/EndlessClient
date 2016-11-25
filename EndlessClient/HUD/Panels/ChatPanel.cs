@@ -163,9 +163,7 @@ namespace EndlessClient.HUD.Panels
                 chatChanged = true;
             }
 
-            if (chatChanged ||
-                _state.CachedScrollOffset != _scrollBar.ScrollOffset ||
-                _state.CachedLinesToRender != _scrollBar.LinesToRender)
+            if (chatChanged || _state.CachedScrollOffset != _scrollBar.ScrollOffset)
             {
                 var renderables = _chatRenderableGenerator.GenerateChatRenderables(_state.CachedChatDataCurrentTab);
 
@@ -232,7 +230,6 @@ namespace EndlessClient.HUD.Panels
         private void UpdateCachedScrollProperties()
         {
             _state.CachedScrollOffset = _scrollBar.ScrollOffset;
-            _state.CachedLinesToRender = _scrollBar.LinesToRender;
         }
 
         private void SetupRenderablesFromCachedValues(IReadOnlyList<IChatRenderable> renderables, bool newText)
@@ -240,7 +237,7 @@ namespace EndlessClient.HUD.Panels
             _chatRenderables.Clear();
 
             //only render based on what the scroll bar's position is
-            _chatRenderables.AddRange(renderables.Skip(_state.CachedScrollOffset).Take(_state.CachedLinesToRender));
+            _chatRenderables.AddRange(renderables.Skip(_state.CachedScrollOffset).Take(_scrollBar.LinesToRender));
             for (int i = 0; i < _chatRenderables.Count; ++i)
                 _chatRenderables[i].SetDisplayIndex(i);
 
@@ -379,9 +376,8 @@ namespace EndlessClient.HUD.Panels
 
             public List<ChatData> CachedChatDataCurrentTab { get { return _cachedChatDataCurrentTab; } }
             public Dictionary<ChatTab, int> cachedChatTabLineCounts { get { return _cachedChatTabLineCounts; } }
-            
+
             public int CachedScrollOffset { get; set; }
-            public int CachedLinesToRender { get; set; }
 
             public bool PrivateChat1Shown { get; set; }
             public bool PrivateChat2Shown { get; set; }
@@ -393,7 +389,6 @@ namespace EndlessClient.HUD.Panels
                 _cachedChatTabLineCounts[ChatTab.Local] = 1; //1 line of default news text
                 _cachedChatTabLineCounts[ChatTab.Global] = 2; //2 lines default text
                 CachedScrollOffset = -1;
-                CachedLinesToRender = -1;
             }
         }
     }
