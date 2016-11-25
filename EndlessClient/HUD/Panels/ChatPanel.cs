@@ -154,6 +154,19 @@ namespace EndlessClient.HUD.Panels
             if (!_constructed)
                 return;
 
+            var mouseState = Mouse.GetState();
+            if (MouseOver && mouseState.LeftButton == ButtonState.Released &&
+                PreviousMouseState.LeftButton == ButtonState.Pressed &&
+                _tabLabelClickableAreas.Any(x => x.Value.Contains(mouseState.Position)))
+            {
+                HandleLeftClickOnTabs(mouseState);
+            }
+            else if (MouseOver && mouseState.RightButton == ButtonState.Released &&
+                     PreviousMouseState.RightButton == ButtonState.Pressed)
+            {
+                HandleRightClickOnChatText(mouseState);
+            }
+
             HandleTextAddedToOtherTabs();
 
             var chatChanged = false;
@@ -169,19 +182,6 @@ namespace EndlessClient.HUD.Panels
 
                 UpdateCachedScrollProperties();
                 SetupRenderablesFromCachedValues(renderables, chatChanged);
-            }
-
-            var mouseState = Mouse.GetState();
-            if (MouseOver && mouseState.LeftButton == ButtonState.Released &&
-                PreviousMouseState.LeftButton == ButtonState.Pressed &&
-                _tabLabelClickableAreas.Any(x => x.Value.Contains(mouseState.Position)))
-            {
-                HandleLeftClickOnTabs(mouseState);
-            }
-            else if (MouseOver && mouseState.RightButton == ButtonState.Released &&
-                     PreviousMouseState.RightButton == ButtonState.Pressed)
-            {
-                HandleRightClickOnChatText(mouseState);
             }
 
             base.Update(gameTime);
@@ -237,7 +237,7 @@ namespace EndlessClient.HUD.Panels
             _chatRenderables.Clear();
 
             //only render based on what the scroll bar's position is
-            _chatRenderables.AddRange(renderables.Skip(_state.CachedScrollOffset).Take(_scrollBar.LinesToRender));
+            _chatRenderables.AddRange(renderables.Skip(_scrollBar.ScrollOffset).Take(_scrollBar.LinesToRender));
             for (int i = 0; i < _chatRenderables.Count; ++i)
                 _chatRenderables[i].SetDisplayIndex(i);
 
