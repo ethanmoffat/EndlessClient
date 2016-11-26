@@ -11,6 +11,7 @@ using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Chat;
+using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -36,6 +37,7 @@ namespace EndlessClient.Controllers
         private readonly IGameLoadingDialogFactory _gameLoadingDialogFactory;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IFirstTimePlayerActions _firstTimePlayerActions;
+        private readonly IMapChangedActions _mapChangedActions;
 
         public LoginController(ILoginActions loginActions,
                                IMapFileLoadActions mapFileLoadActions,
@@ -44,6 +46,7 @@ namespace EndlessClient.Controllers
                                IChatTextBoxActions chatTextBoxActions,
                                IErrorDialogDisplayAction errorDisplayAction,
                                IFirstTimePlayerActions firstTimePlayerActions,
+                               IMapChangedActions mapChangedActions,
                                ISafeNetworkOperationFactory networkOperationFactory,
                                IGameLoadingDialogFactory gameLoadingDialogFactory,
                                ICurrentMapStateProvider currentMapStateProvider,
@@ -56,6 +59,7 @@ namespace EndlessClient.Controllers
             _chatTextBoxActions = chatTextBoxActions;
             _errorDisplayAction = errorDisplayAction;
             _firstTimePlayerActions = firstTimePlayerActions;
+            _mapChangedActions = mapChangedActions;
             _networkOperationFactory = networkOperationFactory;
             _gameLoadingDialogFactory = gameLoadingDialogFactory;
             _currentMapStateProvider = currentMapStateProvider;
@@ -170,6 +174,7 @@ namespace EndlessClient.Controllers
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
                                               EOResourceID.LOADING_GAME_HINT_FIRST);
             _firstTimePlayerActions.WarnFirstTimePlayers();
+            _mapChangedActions.ActiveCharacterEnterMapForLogin();
         }
 
         private void SetInitialStateAndShowError(NoDataSentException ex)

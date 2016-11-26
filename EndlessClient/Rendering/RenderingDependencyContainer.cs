@@ -43,6 +43,7 @@ namespace EndlessClient.Rendering
                 .RegisterType<IMapRenderDistanceCalculator, MapRenderDistanceCalculator>()
                 .RegisterType<IRenderOffsetCalculator, RenderOffsetCalculator>()
                 .RegisterVaried<IMapChangedNotifier, MapChangedActions>()
+                .RegisterType<IMapChangedActions, MapChangedActions>()
                 .RegisterInstance<IMapEntityRendererProvider, MapEntityRendererProvider>()
                 .RegisterInstance<IMapItemGraphicProvider, MapItemGraphicProvider>()
                 .RegisterInstance<IDoorStateUpdater, DoorStateUpdater>();

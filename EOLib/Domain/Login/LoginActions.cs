@@ -177,6 +177,7 @@ namespace EOLib.Domain.Login
 
             _playerInfoRepository.PlayerIsInGame = true;
         }
+
         private bool IsInvalidResponse(IPacket response)
         {
             return response.Family != PacketFamily.Login || response.Action != PacketAction.Reply;

@@ -13,7 +13,7 @@ using EOLib.Localization;
 
 namespace EndlessClient.Rendering.Map
 {
-    public class MapChangedActions : IMapChangedNotifier
+    public class MapChangedActions : IMapChangedNotifier, IMapChangedActions
     {
         private readonly ICharacterStateCache _characterStateCache;
         private readonly INPCStateCache _npcStateCache;
@@ -43,12 +43,20 @@ namespace EndlessClient.Rendering.Map
             _currentMapProvider = currentMapProvider;
         }
 
+        public void ActiveCharacterEnterMapForLogin()
+        {
+            ShowMapNameIfAvailable(true);
+            ShowMapTransition(true);
+            //todo: show message if map is a PK map
+        }
+
         public void NotifyMapChanged(WarpAnimation warpAnimation, bool differentMapID)
         {
             StopAllAnimations();
             ClearCharacterRenderersAndCache();
             ClearNPCRenderersAndCache();
             ShowMapNameIfAvailable(differentMapID);
+            //todo: show message if map is a PK map
             ShowMapTransition(differentMapID);
 
             //todo: render warp animation on main character renderer
@@ -99,5 +107,10 @@ namespace EndlessClient.Rendering.Map
                 mapRenderer.StartMapTransition();
             }
         }
+    }
+
+    public interface IMapChangedActions
+    {
+        void ActiveCharacterEnterMapForLogin();
     }
 }
