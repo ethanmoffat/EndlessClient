@@ -29,10 +29,8 @@ namespace EOLib.IO.Services.Serializers
             ret.AddRange(Encoding.ASCII.GetBytes(mapEntity.FileType));
             ret.AddRange(mapEntity.Checksum);
 
-            var fullName = Enumerable.Repeat((byte)0xFF, 24).ToArray();
-            var encodedName = _mapStringEncoderService.EncodeMapString(mapEntity.Name);
-            Array.Copy(encodedName, 0, fullName, fullName.Length - encodedName.Length, encodedName.Length);
-            ret.AddRange(fullName);
+            var mapNameBytes = EncodeMapName(mapEntity);
+            ret.AddRange(mapNameBytes);
 
             ret.AddRange(_numberEncoderService.EncodeNumber(mapEntity.PKAvailable ? 3 : 0, 1));
             ret.AddRange(_numberEncoderService.EncodeNumber((byte)mapEntity.Effect, 1));
@@ -61,12 +59,14 @@ namespace EOLib.IO.Services.Serializers
             if (typeString != properties.FileType)
                 throw new FormatException("Data is not correctly formatted! Must be an EMF file header");
 
-            var checksumArray = data.Skip(7).Take(24).ToArray();
+            var checksumArray = data.Skip(3).Take(4).ToArray();
+            var mapNameArray = data.Skip(7).Take(24).ToArray();
+            var mapName = _mapStringEncoderService.DecodeMapString(mapNameArray);
 
-            properties = properties.WithChecksum(data.Skip(3).Take(4).ToArray())
-                .WithName(_mapStringEncoderService.DecodeMapString(checksumArray))
+            properties = properties.WithChecksum(checksumArray)
+                .WithName(mapName)
                 .WithPKAvailable(_numberEncoderService.DecodeNumber(data[31]) == 3 ||
-                                 (checksumArray[0] == 0xFF && checksumArray[1] == 0x01))
+                                 (mapNameArray[0] == 0xFF && mapNameArray[1] == 0x01))
                 .WithEffect((MapEffect) _numberEncoderService.DecodeNumber(data[32]))
                 .WithMusic((byte) _numberEncoderService.DecodeNumber(data[33]))
                 .WithMusicExtra((byte) _numberEncoderService.DecodeNumber(data[34]))
@@ -81,6 +81,19 @@ namespace EOLib.IO.Services.Serializers
                 .WithUnknown2((byte) _numberEncoderService.DecodeNumber(data[45]));
 
             return properties;
+        }
+
+        private byte[] EncodeMapName(IMapFileProperties mapEntity)
+        {
+            //need to pad the map name with 0 bytes so that the 'flippy' is the correct state based on the length
+            //0 bytes are converted to 255 bytes before being written to the file
+
+            var padding = Enumerable.Repeat((byte)0, 24 - mapEntity.Name.Length).ToArray();
+            var nameToEncode = string.Format("{0}{1}", mapEntity.Name, Encoding.ASCII.GetString(padding));
+
+            var encodedName = _mapStringEncoderService.EncodeMapString(nameToEncode);
+            var formattedName = encodedName.Select(x => x == 0 ? (byte)255 : x).ToArray();
+            return formattedName;
         }
     }
 }
