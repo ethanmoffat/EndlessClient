@@ -10,7 +10,7 @@ using EOLib;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.Dialogs
 {

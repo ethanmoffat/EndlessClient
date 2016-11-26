@@ -2,12 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.UIControls
 {

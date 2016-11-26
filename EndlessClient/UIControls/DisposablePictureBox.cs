@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.UIControls
 {

@@ -8,7 +8,7 @@ using System.Linq;
 using EndlessClient.ControlSets;
 using EndlessClient.Network;
 using Microsoft.Xna.Framework;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.GameExecution
 {

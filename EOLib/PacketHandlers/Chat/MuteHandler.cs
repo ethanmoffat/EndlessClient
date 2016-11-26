@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;

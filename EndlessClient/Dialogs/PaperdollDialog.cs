@@ -4,7 +4,6 @@
 
 using System;
 using System.Linq;
-using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Panels.Old;
 using EndlessClient.Old;
 using EOLib;
@@ -15,7 +14,7 @@ using EOLib.IO.Pub;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.Dialogs
 {

@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.Input
 {

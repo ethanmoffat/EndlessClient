@@ -3,11 +3,9 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.GameExecution;
-using EOLib;
 using EOLib.Graphics;
-using EOLib.IO.Services;
 using EOLib.Localization;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.Dialogs.Factories
 {

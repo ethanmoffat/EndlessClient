@@ -9,16 +9,14 @@ using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EOLib.Config;
 using EOLib.Domain.Chat;
-using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net;
-using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.Old
 {

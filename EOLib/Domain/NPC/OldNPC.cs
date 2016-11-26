@@ -4,7 +4,6 @@
 
 using EOLib.IO;
 using EOLib.IO.Pub;
-using EOLib.Net.API;
 
 namespace EOLib.Domain.NPC
 {

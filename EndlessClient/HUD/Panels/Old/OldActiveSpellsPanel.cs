@@ -17,7 +17,7 @@ using Microsoft.Win32;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.HUD.Panels.Old
 {

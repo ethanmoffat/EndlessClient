@@ -7,7 +7,7 @@ using EndlessClient.Old;
 using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls;
+using XNAControls.Old;
 using Color = Microsoft.Xna.Framework.Color;
 using Rectangle = Microsoft.Xna.Framework.Rectangle;
 

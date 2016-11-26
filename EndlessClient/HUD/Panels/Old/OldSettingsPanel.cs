@@ -11,7 +11,7 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using EOLib.Net;
 using Microsoft.Xna.Framework;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.HUD.Panels.Old
 {

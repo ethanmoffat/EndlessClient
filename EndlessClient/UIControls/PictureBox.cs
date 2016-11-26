@@ -2,10 +2,9 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.UIControls
 {

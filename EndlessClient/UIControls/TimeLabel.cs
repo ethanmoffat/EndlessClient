@@ -6,7 +6,7 @@ using System;
 using EndlessClient.Rendering;
 using EOLib;
 using Microsoft.Xna.Framework;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.UIControls
 {

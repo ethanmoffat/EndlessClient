@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Panels;
-using EOLib;
 using EOLib.Domain.Map;
 using EOLib.IO.Repositories;
 using EOLib.Localization;

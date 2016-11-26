@@ -4,14 +4,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Panels.Old;
 using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
 using EndlessClient.Old;
 using EndlessClient.UIControls;
-using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Graphics;
@@ -19,7 +17,7 @@ using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.HUD.Controls
 {

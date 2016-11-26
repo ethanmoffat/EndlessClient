@@ -9,7 +9,7 @@ using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
 using Microsoft.Xna.Framework;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.ControlSets
 {

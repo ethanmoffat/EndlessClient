@@ -8,11 +8,10 @@ using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EOLib;
 using EOLib.Graphics;
-using EOLib.IO.Services;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.Dialogs
 {

@@ -2,12 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
-using System.Threading;
-using EOLib;
-using EOLib.Domain.Account;
-using EOLib.Domain.Character;
-using EOLib.Domain.Login;
 using EOLib.Net.API;
 
 namespace EOBot

@@ -7,7 +7,7 @@ using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.Input
 {

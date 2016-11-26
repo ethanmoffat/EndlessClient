@@ -16,7 +16,7 @@ using EOLib.IO;
 using EOLib.IO.Extensions;
 using EOLib.Localization;
 using EOLib.Net.API;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.Old
 {

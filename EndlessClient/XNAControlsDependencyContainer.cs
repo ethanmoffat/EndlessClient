@@ -20,10 +20,10 @@ namespace EndlessClient
             //todo: investigate adding support for Unity container to XNAControls 
             //    or some other way to replace this grossness
             var game = container.Resolve<IEndlessGame>();
-            XNAControls.XNAControls.Initialize((Game)game);
+            XNAControls.Old.XNAControls.Initialize((Game)game);
 
-            XNAControls.XNAControls.IgnoreEnterForDialogs = true;
-            XNAControls.XNAControls.IgnoreEscForDialogs = true;
+            XNAControls.Old.XNAControls.IgnoreEnterForDialogs = true;
+            XNAControls.Old.XNAControls.IgnoreEscForDialogs = true;
         }
     }
 }

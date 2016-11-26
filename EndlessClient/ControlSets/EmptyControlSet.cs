@@ -8,7 +8,7 @@ using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.ControlSets
 {

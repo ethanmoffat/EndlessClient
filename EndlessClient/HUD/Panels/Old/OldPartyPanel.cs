@@ -5,7 +5,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EndlessClient.HUD.Chat;
 using EndlessClient.Old;
 using EndlessClient.UIControls;
 using EOLib;
@@ -15,7 +14,7 @@ using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.HUD.Panels.Old
 {

@@ -5,7 +5,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using EOLib.DependencyInjection;
 using EOLib.IO.Actions;
 using EOLib.Logger;
 using Microsoft.Practices.Unity;

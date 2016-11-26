@@ -4,7 +4,7 @@
 
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.HUD.Panels
 {

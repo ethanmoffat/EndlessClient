@@ -11,7 +11,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using XNAControls;
+using XNAControls.Old;
 
 namespace EndlessClient.ControlSets
 {

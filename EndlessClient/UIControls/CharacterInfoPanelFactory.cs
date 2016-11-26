@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using EndlessClient.Controllers;
 using EndlessClient.Rendering;
-using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Login;
 using EOLib.Graphics;

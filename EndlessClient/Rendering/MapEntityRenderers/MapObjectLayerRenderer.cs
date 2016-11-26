@@ -3,8 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EndlessClient.Rendering.Character;
-using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;

@@ -4,7 +4,6 @@
 
 using System;
 using System.Threading;
-using EOLib;
 using EOLib.Config;
 using EOLib.IO.Services;
 using EOLib.Logger;

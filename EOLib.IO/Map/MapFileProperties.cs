@@ -3,10 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using EOLib.IO.Services;
 
 namespace EOLib.IO.Map
 {
