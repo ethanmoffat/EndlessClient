@@ -8,6 +8,7 @@ using System.Linq;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO.Actions;
+using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
@@ -23,6 +24,7 @@ namespace EOLib.PacketHandlers
         private readonly IFileRequestActions _fileRequestActions;
         private readonly IMapFileLoadActions _mapFileLoadActions;
         private readonly ICurrentMapStateRepository _mapStateRepository;
+        private readonly IMapFileProvider _mapFileProvider;
 
         public override PacketFamily Family { get { return PacketFamily.Warp; } }
 
@@ -32,13 +34,15 @@ namespace EOLib.PacketHandlers
                                       IPacketSendService packetSendService,
                                       IFileRequestActions fileRequestActions,
                                       IMapFileLoadActions mapFileLoadActions,
-                                      ICurrentMapStateRepository mapStateRepository)
+                                      ICurrentMapStateRepository mapStateRepository,
+                                      IMapFileProvider mapFileProvider)
             : base(playerInfoProvider)
         {
             _packetSendService = packetSendService;
             _fileRequestActions = fileRequestActions;
             _mapFileLoadActions = mapFileLoadActions;
             _mapStateRepository = mapStateRepository;
+            _mapFileProvider = mapFileProvider;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -61,7 +65,8 @@ namespace EOLib.PacketHandlers
                     var mapIsDownloaded = true;
                     try
                     {
-                        _mapFileLoadActions.LoadMapFileByID(mapID);
+                        if (!_mapFileProvider.MapFiles.ContainsKey(mapID))
+                            _mapFileLoadActions.LoadMapFileByID(mapID);
                     }
                     catch (IOException) { mapIsDownloaded = false; }
 
