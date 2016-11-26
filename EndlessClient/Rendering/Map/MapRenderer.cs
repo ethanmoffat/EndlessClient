@@ -179,11 +179,12 @@ namespace EndlessClient.Rendering.Map
             }
 
             _sb.Begin();
-            foreach (var pointKey in gfxToRenderLast.Keys)
+            foreach (var kvp in gfxToRenderLast)
             {
+                var pointKey = kvp.Key;
                 var alpha = GetAlphaForCoordinates(pointKey.X, pointKey.Y, immutableCharacter);
 
-                foreach (var layer in gfxToRenderLast[pointKey])
+                foreach (var layer in kvp.Value)
                 {
                     _mapEntityRendererProvider.MapEntityRenderers
                                               .Single(x => x.RenderLayer == layer)
