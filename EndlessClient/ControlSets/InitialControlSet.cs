@@ -12,7 +12,7 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
@@ -132,7 +132,7 @@ namespace EndlessClient.ControlSets
 
         private XNALabel GetVersionInfoLabel()
         {
-            return new XNALabel(new Rectangle(25, 453, 1, 1), Constants.FontSize07)
+            return new XNALabel(Constants.FontSize07)
             {
                 Text = string.Format(Constants.VersionInfoFormat,
                                      _configProvider.VersionMajor,
@@ -140,7 +140,8 @@ namespace EndlessClient.ControlSets
                                      _configProvider.VersionBuild,
                                      _configProvider.Host,
                                      _configProvider.Port),
-                ForeColor = ColorConstants.BeigeText
+                ForeColor = ColorConstants.BeigeText,
+                DrawArea = new Rectangle(25, 453, 1, 1)
             };
         }
 

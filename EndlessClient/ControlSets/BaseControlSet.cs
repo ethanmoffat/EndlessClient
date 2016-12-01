@@ -11,7 +11,7 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
@@ -26,9 +26,9 @@ namespace EndlessClient.ControlSets
             get { return _allComponents; }
         }
 
-        public IReadOnlyList<XNAControl> XNAControlComponents
+        public IReadOnlyList<IXNAControl> XNAControlComponents
         {
-            get { return _allComponents.OfType<XNAControl>().ToList(); }
+            get { return _allComponents.OfType<IXNAControl>().ToList(); }
         }
 
         public abstract GameStates GameState { get; }
@@ -89,6 +89,12 @@ namespace EndlessClient.ControlSets
             }
 
             InitializeControlsHelper(currentControlSet);
+
+            foreach (var control in XNAControlComponents)
+            {
+                control.Initialize();
+                control.AddControlToDefaultGame();
+            }
 
             _controlsInitialized = true;
         }

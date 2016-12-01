@@ -8,7 +8,6 @@ using System.Linq;
 using EndlessClient.ControlSets;
 using EndlessClient.Network;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
 
 namespace EndlessClient.GameExecution
 {
@@ -37,7 +36,7 @@ namespace EndlessClient.GameExecution
 
             var currentSet = _controlSetRepository.CurrentControlSet;
             var nextSet = _controlSetFactory.CreateControlsForState(newState, currentSet);
-            
+
             RemoveOldComponents(currentSet, nextSet);
             AddNewComponents(nextSet);
 
@@ -63,7 +62,7 @@ namespace EndlessClient.GameExecution
 
         private void AddNewComponents(IControlSet nextSet)
         {
-            foreach (var component in nextSet.AllComponents)
+            foreach (var component in nextSet.AllComponents.Except(nextSet.XNAControlComponents))
                 if (!Game.Components.Contains(component))
                     Game.Components.Add(component);
         }
@@ -71,16 +70,12 @@ namespace EndlessClient.GameExecution
         private void RemoveOldComponents(IControlSet currentSet, IControlSet nextSet)
         {
             var componentsToRemove = FindUnusedComponents(currentSet, nextSet);
-            var xnaControlComponents = componentsToRemove.OfType<XNAControl>().ToList();
-            var otherDisposableComponents = componentsToRemove
-                .Except(xnaControlComponents)
+            var disposableComponents = componentsToRemove
                 .Where(x => !(x is PacketHandlerGameComponent))
                 .OfType<IDisposable>()
                 .ToList();
 
-            foreach (var component in xnaControlComponents)
-                component.Close();
-            foreach (var component in otherDisposableComponents)
+            foreach (var component in disposableComponents)
                 component.Dispose();
             foreach (var component in componentsToRemove.Where(Game.Components.Contains))
                 Game.Components.Remove(component);

@@ -8,7 +8,7 @@ using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
@@ -27,7 +27,7 @@ namespace EndlessClient.ControlSets
         /// <summary>
         /// Components in this control set that are XNAControls
         /// </summary>
-        IReadOnlyList<XNAControl> XNAControlComponents { get; }
+        IReadOnlyList<IXNAControl> XNAControlComponents { get; }
 
         /// <summary>
         /// Initialize the required resources for the control set from the resource dependencies. Should be called before InitializeControls()

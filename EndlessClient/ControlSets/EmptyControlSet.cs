@@ -8,7 +8,7 @@ using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
@@ -21,7 +21,7 @@ namespace EndlessClient.ControlSets
 
         public IReadOnlyList<IGameComponent> AllComponents { get { return Enumerable.Empty<IGameComponent>().ToList(); } }
 
-        public IReadOnlyList<XNAControl> XNAControlComponents { get { return AllComponents.OfType<XNAControl>().ToList(); } }
+        public IReadOnlyList<IXNAControl> XNAControlComponents { get { return AllComponents.OfType<IXNAControl>().ToList(); } }
 
         public void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
         {
