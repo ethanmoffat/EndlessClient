@@ -17,11 +17,11 @@ namespace EndlessClient
 
         public void InitializeDependencies(IUnityContainer container)
         {
-            //todo: investigate adding support for Unity container to XNAControls 
-            //    or some other way to replace this grossness
-            var game = container.Resolve<IEndlessGame>();
-            XNAControls.Old.XNAControls.Initialize((Game)game);
+            var game = (Game)container.Resolve<IEndlessGame>();
+            XNAControls.GameRepository.SetGame(game);
 
+            //todo: remove this once converted to new XNAControls code
+            XNAControls.Old.XNAControls.Initialize(game);
             XNAControls.Old.XNAControls.IgnoreEnterForDialogs = true;
             XNAControls.Old.XNAControls.IgnoreEscForDialogs = true;
         }

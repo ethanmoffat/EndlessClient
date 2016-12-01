@@ -7,6 +7,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
 using EndlessClient.UIControls;
 using EOLib.Domain.Chat;
+using XNAControls;
 using XNAControls.Old;
 
 namespace EndlessClient.HUD.Chat

@@ -15,8 +15,11 @@ using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using XNAControls.Old;
-using Rectangle = Microsoft.Xna.Framework.Rectangle;
+using XNAControls;
+using LabelAlignment = XNAControls.Old.LabelAlignment;
+using XNAControl = XNAControls.Old.XNAControl;
+using XNALabel = XNAControls.Old.XNALabel;
+using XNAPanel = XNAControls.Old.XNAPanel;
 
 namespace EndlessClient.HUD.Panels.Old
 {

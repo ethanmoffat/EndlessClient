@@ -15,7 +15,10 @@ using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using XNAControls;
 using XNAControls.Old;
+using XNAButton = XNAControls.Old.XNAButton;
+using XNATextBox = XNAControls.Old.XNATextBox;
 
 namespace EndlessClient.Dialogs
 {

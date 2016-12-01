@@ -4,7 +4,8 @@
 
 using System;
 using System.Linq;
-using XNAControls.Old;
+using XNAControls;
+using XNATextBox = XNAControls.Old.XNATextBox;
 
 namespace EndlessClient.Input
 {

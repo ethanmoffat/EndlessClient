@@ -11,7 +11,10 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAControls;
 using XNAControls.Old;
+using XNAButton = XNAControls.Old.XNAButton;
+using XNAControl = XNAControls.Old.XNAControl;
 
 namespace EndlessClient.Old
 {

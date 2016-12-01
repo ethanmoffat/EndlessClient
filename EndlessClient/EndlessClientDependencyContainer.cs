@@ -21,7 +21,7 @@ using EndlessClient.UIControls;
 using EOLib.DependencyInjection;
 using EOLib.Domain.Notifiers;
 using Microsoft.Practices.Unity;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient
 {

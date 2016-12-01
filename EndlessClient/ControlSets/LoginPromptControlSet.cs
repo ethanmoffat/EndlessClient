@@ -16,7 +16,9 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
+using XNAButton = XNAControls.Old.XNAButton;
+using XNATextBox = XNAControls.Old.XNATextBox;
 
 namespace EndlessClient.ControlSets
 {

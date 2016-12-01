@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EOLib.Domain.Chat;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Rendering.Chat
 {

@@ -16,7 +16,9 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using XNAControls.Old;
+using XNAControls;
+using XNALabel = XNAControls.Old.XNALabel;
+using XNAPanel = XNAControls.Old.XNAPanel;
 
 namespace EndlessClient.HUD.Panels
 {

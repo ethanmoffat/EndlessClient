@@ -3,7 +3,8 @@
 // For additional details, see the LICENSE file
 
 using System;
-using XNAControls.Old;
+using XNAControls;
+using XNATextBox = XNAControls.Old.XNATextBox;
 
 namespace EndlessClient.Input
 {

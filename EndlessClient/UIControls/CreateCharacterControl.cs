@@ -7,7 +7,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.UIControls
 {

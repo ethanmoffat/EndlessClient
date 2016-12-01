@@ -11,7 +11,9 @@ using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAControls;
 using XNAControls.Old;
+using XNAButton = XNAControls.Old.XNAButton;
 
 namespace EndlessClient.Dialogs
 {
