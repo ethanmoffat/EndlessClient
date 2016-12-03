@@ -23,6 +23,7 @@ namespace EndlessClient.Dialogs
     public class EOMessageBox : BaseEODialog
     {
         private readonly IXNALabel _messageLabel, _captionLabel;
+        private readonly IXNAButton _ok, _cancel;
 
         public EOMessageBox(INativeGraphicsManager graphicsManager,
                             IGameStateProvider gameStateProvider,
@@ -72,43 +73,42 @@ namespace EndlessClient.Dialogs
             var cancelOut = eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel);
             var cancelOver = eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel);
 
-            XNAButton ok = null, cancel = null;
             switch (whichButtons)
             {
                 case EODialogButtons.Ok:
-                    ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), okOut, okOver);
-                    ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
-                    ok.SetParentControl(this);
+                    _ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), okOut, okOver);
+                    _ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
+                    _ok.SetParentControl(this);
                     break;
                 case EODialogButtons.Cancel:
-                    cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), cancelOut, cancelOver);
-                    cancel.OnClick += (sender, e) => Close(XNADialogResult.Cancel);
-                    cancel.SetParentControl(this);
+                    _cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), cancelOut, cancelOver);
+                    _cancel.OnClick += (sender, e) => Close(XNADialogResult.Cancel);
+                    _cancel.SetParentControl(this);
                     break;
                 case EODialogButtons.OkCancel:
                     //implement this more fully when it is needed
                     //update draw location of ok button to be on left?
-                    ok = new XNAButton(smallButtonSheet, new Vector2(89, 113), okOut, okOver);
-                    ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
-                    ok.SetParentControl(this);
+                    _ok = new XNAButton(smallButtonSheet, new Vector2(89, 113), okOut, okOver);
+                    _ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
+                    _ok.SetParentControl(this);
 
-                    cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), cancelOut, cancelOver);
-                    cancel.OnClick += (s, e) => Close(XNADialogResult.Cancel);
-                    cancel.SetParentControl(this);
+                    _cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), cancelOut, cancelOver);
+                    _cancel.OnClick += (s, e) => Close(XNADialogResult.Cancel);
+                    _cancel.SetParentControl(this);
                     break;
             }
 
             if (useSmallHeader)
             {
-                if (ok != null)
+                if (_ok != null)
                 {
-                    ok.DrawPosition = new Vector2(ok.DrawPosition.X,
+                    _ok.DrawPosition = new Vector2(_ok.DrawPosition.X,
                         style == EOMessageBoxStyle.SmallDialogSmallHeader ? 82 : 148);
                 }
 
-                if (cancel != null)
+                if (_cancel != null)
                 {
-                    cancel.DrawPosition = new Vector2(cancel.DrawPosition.X,
+                    _cancel.DrawPosition = new Vector2(_cancel.DrawPosition.X,
                         style == EOMessageBoxStyle.SmallDialogSmallHeader ? 82 : 148);
                 }
             }
@@ -120,6 +120,11 @@ namespace EndlessClient.Dialogs
         {
             _messageLabel.Initialize();
             _captionLabel.Initialize();
+
+            if (_ok != null)
+                _ok.Initialize();
+            if (_cancel != null)
+                _cancel.Initialize();
 
             base.Initialize();
         }
