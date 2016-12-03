@@ -13,14 +13,6 @@ using XNAControls.Old;
 
 namespace EndlessClient.UIControls
 {
-    public enum ScrollBarColors
-    {
-        LightOnDark, //bottom set of light
-        LightOnLight, //top set of light
-        LightOnMed, //middle set of light
-        DarkOnDark //very bottom set
-    }
-
     public class OldScrollBar : XNAControl
     {
         private Rectangle scrollArea; //area valid for scrolling: always 16 from top and 16 from bottom

@@ -332,6 +332,7 @@
     <Compile Include="Old\OldWorld.cs" />
     <Compile Include="Rendering\Sprites\SpriteSheet.cs" />
     <Compile Include="Rendering\Sprites\WeaponSpriteType.cs" />
+    <Compile Include="UIControls\ScrollBar.cs" />
     <Compile Include="UIControls\StatusBarLabel.cs" />
     <Compile Include="UIControls\TimeLabel.cs" />
     <Compile Include="XNAControlsDependencyContainer.cs" />
