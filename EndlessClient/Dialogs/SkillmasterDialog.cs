@@ -11,7 +11,6 @@ using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using XNAControls.Old;
 using XNADialogResult = XNAControls.Old.XNADialogResult;
 
 namespace EndlessClient.Dialogs
@@ -114,7 +113,7 @@ namespace EndlessClient.Dialogs
 
             if (newState == SkillState.Learn && numToLearn == 0)
             {
-                EOMessageBox.Show(DialogResourceID.SKILL_NOTHING_MORE_TO_LEARN, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.SKILL_NOTHING_MORE_TO_LEARN, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
@@ -210,7 +209,7 @@ namespace EndlessClient.Dialogs
                         if (!found)
                         {
                             args.CancelClose = true;
-                            EOMessageBox.Show(DialogResourceID.SKILL_FORGET_ERROR_NOT_LEARNED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                            EOMessageBox.Show(DialogResourceID.SKILL_FORGET_ERROR_NOT_LEARNED, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                             input.SetAsKeyboardSubscriber();
                         }
 
@@ -253,17 +252,17 @@ namespace EndlessClient.Dialogs
                 c.Stats.Agi < skill.AgiReq || c.Stats.Con < skill.ConReq || c.Stats.Cha < skill.ChaReq ||
                 c.Stats.Level < skill.LevelReq || c.Inventory.Find(_ii => _ii.ItemID == 1).Amount < skill.GoldReq || !skillReqsMet)
             {
-                EOMessageBox.Show(DialogResourceID.SKILL_LEARN_REQS_NOT_MET, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.SKILL_LEARN_REQS_NOT_MET, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
             if (skill.ClassReq > 0 && c.Class != skill.ClassReq)
             {
-                EOMessageBox.Show(DialogResourceID.SKILL_LEARN_WRONG_CLASS, " " + OldWorld.Instance.ECF.Data[skill.ClassReq].Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.SKILL_LEARN_WRONG_CLASS, " " + OldWorld.Instance.ECF.Data[skill.ClassReq].Name + "!", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
-            EOMessageBox.Show(DialogResourceID.SKILL_LEARN_CONFIRMATION, " " + OldWorld.Instance.ESF.Data[skill.ID].Name + "?", XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+            EOMessageBox.Show(DialogResourceID.SKILL_LEARN_CONFIRMATION, " " + OldWorld.Instance.ESF.Data[skill.ID].Name + "?", EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                 (o, e) =>
                 {
                     if (e.Result != XNADialogResult.OK)
@@ -279,7 +278,7 @@ namespace EndlessClient.Dialogs
 
         private void _forgetAllAction()
         {
-            EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_CONFIRMATION, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+            EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_CONFIRMATION, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                 (sender, args) =>
                 {
                     if (args.Result == XNADialogResult.Cancel) return;

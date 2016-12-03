@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.Old;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
@@ -101,7 +102,7 @@ namespace EndlessClient.Dialogs
                         {
                             string _message = OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                             string _caption = OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING);
-                            EOMessageBox.Show(_message, _caption, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                            EOMessageBox.Show(_message, _caption, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                             ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                         }
                         else if (rec.Weight * item.Amount + OldWorld.Instance.MainPlayer.ActiveCharacter.Weight >
@@ -109,7 +110,7 @@ namespace EndlessClient.Dialogs
                         {
                             EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_ITS_TOO_HEAVY_WEIGHT),
                                 OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                                XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                                EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         }
                         else
                         {

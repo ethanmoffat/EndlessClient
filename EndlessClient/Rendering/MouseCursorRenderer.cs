@@ -252,7 +252,7 @@ namespace EndlessClient.Rendering
                 //{
                 //    case TileInfoReturnType.IsMapSign:
                 //        var signInfo = (MapSign)ti.MapElement;
-                //        EOMessageBox.Show(signInfo.Message, signInfo.Title, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                //        EOMessageBox.Show(signInfo.Message, signInfo.Title, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 //        break;
                 //    case TileInfoReturnType.IsOtherPlayer:
                 //        break;
@@ -329,7 +329,7 @@ namespace EndlessClient.Rendering
                     default: ChestDialog.Show(_game.API, (byte)chest.X, (byte)chest.Y); return;
                 }
                 
-                EOMessageBox.Show(DialogResourceID.CHEST_LOCKED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.CHEST_LOCKED, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 _game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
                     EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
                     " - " + requiredKey);

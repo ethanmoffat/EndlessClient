@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Dialogs.Services;
 using EndlessClient.Old;
 using EOLib;
 using EOLib.Domain.Character;
@@ -109,7 +110,7 @@ namespace EndlessClient.Dialogs
             InventoryItem item = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.ItemID == 1);
             if (item.Amount == 0)
             {
-                EOMessageBox.Show(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
             if (item.Amount == 1)
@@ -142,7 +143,7 @@ namespace EndlessClient.Dialogs
             int balance = int.Parse(AccountBalance);
             if (balance == 0)
             {
-                EOMessageBox.Show(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_WITHDRAW, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_WITHDRAW, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
             if (balance == 1)
@@ -174,7 +175,7 @@ namespace EndlessClient.Dialogs
         {
             if (LockerUpgrades == 7)
             {
-                EOMessageBox.Show(DialogResourceID.LOCKER_UPGRADE_IMPOSSIBLE, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.LOCKER_UPGRADE_IMPOSSIBLE, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
@@ -182,11 +183,11 @@ namespace EndlessClient.Dialogs
             InventoryItem item = OldWorld.Instance.MainPlayer.ActiveCharacter.Inventory.Find(i => i.ItemID == 1);
             if (item.Amount < requiredGold)
             {
-                EOMessageBox.Show(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, "gold", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, "gold", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
-            EOMessageBox.Show(DialogResourceID.LOCKER_UPGRADE_UNIT, string.Format("{0} gold?", requiredGold), XNADialogButtons.OkCancel,
+            EOMessageBox.Show(DialogResourceID.LOCKER_UPGRADE_UNIT, string.Format("{0} gold?", requiredGold), EODialogButtons.OkCancel,
                 EOMessageBoxStyle.SmallDialogSmallHeader,
                 (o, e) =>
                 {

@@ -93,7 +93,7 @@ namespace EndlessClient.HUD.Panels.Old
             {
                 if (!m_soundChanged && !w.SoundEnabled)
                 {
-                    EOMessageBox.Show(DialogResourceID.SETTINGS_SOUND_DISABLED, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+                    EOMessageBox.Show(DialogResourceID.SETTINGS_SOUND_DISABLED, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                         (o, args) =>
                         {
                             if (args.Result == XNADialogResult.OK)
@@ -119,7 +119,7 @@ namespace EndlessClient.HUD.Panels.Old
             {
                 if (!m_musicChanged && !w.MusicEnabled)
                 {
-                    EOMessageBox.Show(DialogResourceID.SETTINGS_MUSIC_DISABLED, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+                    EOMessageBox.Show(DialogResourceID.SETTINGS_MUSIC_DISABLED, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                         (o, args) =>
                         {
                             if (args.Result == XNADialogResult.OK)

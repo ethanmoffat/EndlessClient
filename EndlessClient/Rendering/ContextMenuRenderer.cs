@@ -209,7 +209,7 @@ namespace EndlessClient.Rendering
         }
         private void _eventShowBook(object arg1, EventArgs arg2)
         {
-            EOMessageBox.Show("TODO: Show quest info", "TODO ITEM", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            EOMessageBox.Show("TODO: Show quest info", "TODO ITEM", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
         }
         private void _eventJoinParty(object arg1, EventArgs arg2)
         {
@@ -254,7 +254,7 @@ namespace EndlessClient.Rendering
             if (OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap == OldWorld.Instance.JailMap)
                 EOMessageBox.Show(OldWorld.GetString(EOResourceID.JAIL_WARNING_CANNOT_TRADE),
                     OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                    XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
             else
             {
                 if(m_lastTradeRequestedTime != null && (DateTime.Now - m_lastTradeRequestedTime.Value).TotalSeconds < Constants.TradeRequestTimeoutSeconds)

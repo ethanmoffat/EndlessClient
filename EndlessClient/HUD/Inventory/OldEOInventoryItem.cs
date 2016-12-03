@@ -138,13 +138,13 @@ namespace EndlessClient.HUD.Inventory
 
                     if (m_itemData.Special == ItemSpecial.Lore)
                     {
-                        EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (OldWorld.Instance.JailMap == OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap)
                     {
                         EOMessageBox.Show(OldWorld.GetString(EOResourceID.JAIL_WARNING_CANNOT_DROP_ITEMS),
                             OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                            XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                            EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (m_inventory.Amount > 1 && inRange)
                     {
@@ -156,7 +156,7 @@ namespace EndlessClient.HUD.Inventory
                             {
                                 //note: not sure of the actual limit. 10000 is arbitrary here
                                 if (dlg.SelectedAmount > 10000 && m_inventory.ItemID == 1 && !safetyCommentHasBeenShown)
-                                    EOMessageBox.Show(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader,
+                                    EOMessageBox.Show(DialogResourceID.DROP_MANY_GOLD_ON_GROUND, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader,
                                         (o, e) => { safetyCommentHasBeenShown = true; });
                                 else if (!m_api.DropItem(m_inventory.ItemID, dlg.SelectedAmount, (byte)loc.X, (byte)loc.Y))
                                     ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
@@ -192,7 +192,7 @@ namespace EndlessClient.HUD.Inventory
                 {
                     if (m_itemData.Special == ItemSpecial.Lore)
                     {
-                        EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EOMessageBox.Show(DialogResourceID.ITEM_IS_LORE_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (m_inventory.Amount > 1)
                     {
@@ -239,7 +239,7 @@ namespace EndlessClient.HUD.Inventory
                     byte y = LockerDialog.Instance.Y;
                     if (m_inventory.ItemID == 1)
                     {
-                        EOMessageBox.Show(DialogResourceID.LOCKER_DEPOSIT_GOLD_ERROR, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EOMessageBox.Show(DialogResourceID.LOCKER_DEPOSIT_GOLD_ERROR, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (m_inventory.Amount > 1)
                     {
@@ -249,7 +249,7 @@ namespace EndlessClient.HUD.Inventory
                             if (args.Result == XNADialogResult.OK)
                             {
                                 if (LockerDialog.Instance.GetNewItemAmount(m_inventory.ItemID, dlg.SelectedAmount) > Constants.LockerMaxSingleItemAmount)
-                                    EOMessageBox.Show(DialogResourceID.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                                    EOMessageBox.Show(DialogResourceID.LOCKER_FULL_SINGLE_ITEM_MAX, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                                 else if (!m_api.LockerAddItem(x, y, m_inventory.ItemID, dlg.SelectedAmount))
                                     EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                             }
@@ -258,7 +258,7 @@ namespace EndlessClient.HUD.Inventory
                     else
                     {
                         if (LockerDialog.Instance.GetNewItemAmount(m_inventory.ItemID, 1) > Constants.LockerMaxSingleItemAmount)
-                            EOMessageBox.Show(DialogResourceID.LOCKER_FULL_SINGLE_ITEM_MAX, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                            EOMessageBox.Show(DialogResourceID.LOCKER_FULL_SINGLE_ITEM_MAX, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         else if (!m_api.LockerAddItem(x, y, m_inventory.ItemID, 1))
                             EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
                     }
@@ -267,7 +267,7 @@ namespace EndlessClient.HUD.Inventory
                 {
                     if (m_inventory.Amount == 0)
                     {
-                        EOMessageBox.Show(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EOMessageBox.Show(DialogResourceID.BANK_ACCOUNT_UNABLE_TO_DEPOSIT, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (m_inventory.Amount > 1)
                     {
@@ -536,7 +536,7 @@ namespace EndlessClient.HUD.Inventory
                     if (c.PaperDoll.Select(id => OldWorld.Instance.EIF[id])
                                    .Any(rec => rec.Special == ItemSpecial.Cursed))
                     {
-                        EOMessageBox.Show(DialogResourceID.ITEM_CURSE_REMOVE_PROMPT, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+                        EOMessageBox.Show(DialogResourceID.ITEM_CURSE_REMOVE_PROMPT, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                             (o, e) =>
                             {
                                 if (e.Result == XNADialogResult.OK && !m_api.UseItem((short)m_itemData.ID))

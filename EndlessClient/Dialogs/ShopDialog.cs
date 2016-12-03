@@ -114,13 +114,13 @@ namespace EndlessClient.Dialogs
 
             if (newState == ShopState.Buying && buyNumInt <= 0)
             {
-                EOMessageBox.Show(DialogResourceID.SHOP_NOTHING_IS_FOR_SALE, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.SHOP_NOTHING_IS_FOR_SALE, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
             if (newState == ShopState.Selling && sellNumInt <= 0)
             {
-                EOMessageBox.Show(DialogResourceID.SHOP_NOT_BUYING_YOUR_ITEMS, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.SHOP_NOT_BUYING_YOUR_ITEMS, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
@@ -255,7 +255,7 @@ namespace EndlessClient.Dialogs
                 {
                     EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
                         OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                        XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     return;
                 }
 
@@ -264,13 +264,13 @@ namespace EndlessClient.Dialogs
                 {
                     EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT),
                         OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                        XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     return;
                 }
 
                 if (ii.Amount < item.Buy)
                 {
-                    EOMessageBox.Show(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, " gold.", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EOMessageBox.Show(DialogResourceID.WARNING_YOU_HAVE_NOT_ENOUGH, " gold.", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     return;
                 }
             }
@@ -285,7 +285,7 @@ namespace EndlessClient.Dialogs
                     rec.Name,
                     OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR),
                     item.Sell);
-                EOMessageBox.Show(_message, OldWorld.GetString(EOResourceID.DIALOG_SHOP_SELL_ITEMS), XNADialogButtons.OkCancel,
+                EOMessageBox.Show(_message, OldWorld.GetString(EOResourceID.DIALOG_SHOP_SELL_ITEMS), EODialogButtons.OkCancel,
                     EOMessageBoxStyle.SmallDialogSmallHeader, (oo, ee) =>
                     {
                         if (ee.Result == XNADialogResult.OK && !m_api.SellItem((short)item.ID, 1))
@@ -310,7 +310,7 @@ namespace EndlessClient.Dialogs
 
                         EOMessageBox.Show(_message,
                             OldWorld.GetString(isBuying ? EOResourceID.DIALOG_SHOP_BUY_ITEMS : EOResourceID.DIALOG_SHOP_SELL_ITEMS),
-                            XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader, (oo, ee) =>
+                            EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader, (oo, ee) =>
                             {
                                 if (ee.Result == XNADialogResult.OK)
                                 {
@@ -347,7 +347,7 @@ namespace EndlessClient.Dialogs
                     string _caption = string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS),
                         OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR),
                         craftItemRec.Name);
-                    EOMessageBox.Show(_message, _caption, XNADialogButtons.Cancel, EOMessageBoxStyle.LargeDialogSmallHeader);
+                    EOMessageBox.Show(_message, _caption, EODialogButtons.Cancel, EOMessageBoxStyle.LargeDialogSmallHeader);
                     return;
                 }
             }
@@ -356,7 +356,7 @@ namespace EndlessClient.Dialogs
             {
                 EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
                     OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                    XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
@@ -369,7 +369,7 @@ namespace EndlessClient.Dialogs
             string _caption2 = string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS),
                 OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR),
                 craftItemRec.Name);
-            EOMessageBox.Show(_message2, _caption2, XNADialogButtons.OkCancel, EOMessageBoxStyle.LargeDialogSmallHeader, (o, e) =>
+            EOMessageBox.Show(_message2, _caption2, EODialogButtons.OkCancel, EOMessageBoxStyle.LargeDialogSmallHeader, (o, e) =>
             {
                 if (e.Result == XNADialogResult.OK && !m_api.CraftItem((short)item.ID))
                 {

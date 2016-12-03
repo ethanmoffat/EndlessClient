@@ -5,6 +5,7 @@
 using System;
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Factories;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.UIControls;
@@ -26,7 +27,7 @@ namespace EndlessClient.Dialogs
     public class CreateCharacterDialog : EODialogBase
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
-        private readonly TaskCompletionSource<XNAControls.Old.XNADialogResult> _dialogResultCompletionSource;
+        private readonly TaskCompletionSource<XNADialogResult> _dialogResultCompletionSource;
 
         private readonly XNATextBox _inputBox;
         private readonly XNAButton[] _arrowButtons = new XNAButton[4];
@@ -181,7 +182,7 @@ namespace EndlessClient.Dialogs
             if (args.Result == XNADialogResult.OK && _inputBox.Text.Length < 4)
             {
                 _messageBoxFactory.CreateMessageBox(DialogResourceID.CHARACTER_CREATE_NAME_TOO_SHORT,
-                                                    XNADialogButtons.Ok,
+                                                    EODialogButtons.Ok,
                                                     EOMessageBoxStyle.SmallDialogLargeHeader);
                 args.CancelClose = true;
                 return;

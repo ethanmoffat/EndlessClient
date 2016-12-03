@@ -3,14 +3,13 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Threading.Tasks;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
-using EndlessClient.Old;
 using EOLib;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
@@ -21,155 +20,136 @@ namespace EndlessClient.Dialogs
         LargeDialogSmallHeader
     }
 
-    public class EOMessageBox : EODialogBase
+    public class EOMessageBox : BaseEODialog
     {
-        private readonly TaskCompletionSource<XNADialogResult> _dialogClosedTask;
+        private readonly IXNALabel _messageLabel, _captionLabel;
 
         public EOMessageBox(INativeGraphicsManager graphicsManager,
                             IGameStateProvider gameStateProvider,
-                            IGraphicsDeviceProvider graphicsDeviceProvider,
+                            IEODialogButtonService eoDialogButtonService,
                             string message,
                             string caption = "",
                             EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader,
-                            XNADialogButtons whichButtons = XNADialogButtons.Ok)
-            : base(graphicsManager)
+                            EODialogButtons whichButtons = EODialogButtons.Ok)
+            : base(gameStateProvider)
         {
-            this.whichButtons = whichButtons;
+            var useSmallHeader = style != EOMessageBoxStyle.SmallDialogLargeHeader;
 
-            var useSmallHeader = true;
+            int graphic;
             switch (style)
             {
-                case EOMessageBoxStyle.SmallDialogLargeHeader:
-                    bgTexture = graphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 18);
-                    useSmallHeader = false;
-                    break;
-                case EOMessageBoxStyle.SmallDialogSmallHeader:
-                    bgTexture = graphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 23);
-                    break;
-                case EOMessageBoxStyle.LargeDialogSmallHeader:
-                    bgTexture = graphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 25);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException("style", "Unrecognized dialog style!");
+                case EOMessageBoxStyle.SmallDialogLargeHeader: graphic = 18; break;
+                case EOMessageBoxStyle.SmallDialogSmallHeader: graphic = 23; break;
+                case EOMessageBoxStyle.LargeDialogSmallHeader: graphic = 25; break;
+                default: throw new ArgumentOutOfRangeException("style", "Unrecognized dialog style!");
             }
-            _setSize(bgTexture.Width, bgTexture.Height);
 
-            this.message = new XNALabel(new Rectangle(18, 57, 1, 1), Constants.FontSize10);
-            if (useSmallHeader)
+            BackgroundTexture = graphicsManager.TextureFromResource(GFXTypes.PreLoginUI, graphic);
+
+            _messageLabel = new XNALabel(Constants.FontSize10)
             {
-                //179, 119
-                //caption 197, 128
-                //message 197, 156
-                //ok: 270, 201
-                //cancel: 363, 201
-                this.message.DrawLocation = new Vector2(18, 40);
-            }
-            this.message.ForeColor = ColorConstants.LightYellowText;
-            this.message.Text = message;
-            this.message.TextWidth = 254;
-            this.message.SetParent(this);
+                AutoSize = true,
+                ForeColor = ColorConstants.LightYellowText,
+                Text = message,
+                TextWidth = 254,
+                DrawPosition = new Vector2(18, useSmallHeader ? 40 : 57)
+            };
+            _messageLabel.SetParentControl(this);
 
-            this.caption = new XNALabel(new Rectangle(59, 23, 1, 1), Constants.FontSize10);
-            if (useSmallHeader)
+            _captionLabel = new XNALabel(Constants.FontSize10)
             {
-                this.caption.DrawLocation = new Vector2(18, 12);
-            }
-            this.caption.ForeColor = ColorConstants.LightYellowText;
-            this.caption.Text = caption;
-            this.caption.SetParent(this);
+                AutoSize = true,
+                ForeColor = ColorConstants.LightYellowText,
+                Text = caption,
+                TextWidth = 254,
+                DrawPosition = useSmallHeader ? new Vector2(18, 12) : new Vector2(59, 23)
+            };
+            _captionLabel.SetParentControl(this);
 
-            XNAButton ok, cancel;
+            var smallButtonSheet = eoDialogButtonService.SmallButtonSheet;
+            var okOut = eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok);
+            var okOver = eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok);
+            var cancelOut = eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel);
+            var cancelOver = eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel);
+
+            XNAButton ok = null, cancel = null;
             switch (whichButtons)
             {
-                case XNADialogButtons.Ok:
-                    ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
-                    ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
-                    ok.SetParent(this);
-                    dlgButtons.Add(ok);
+                case EODialogButtons.Ok:
+                    ok = new XNAButton(smallButtonSheet, new Vector2(181, 113), okOut, okOver);
+                    ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
+                    ok.SetParentControl(this);
                     break;
-                case XNADialogButtons.Cancel:
-                    cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
-                    cancel.OnClick += (sender, e) => Close(cancel, XNADialogResult.Cancel);
-                    cancel.SetParent(this);
-                    dlgButtons.Add(cancel);
+                case EODialogButtons.Cancel:
+                    cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), cancelOut, cancelOver);
+                    cancel.OnClick += (sender, e) => Close(XNADialogResult.Cancel);
+                    cancel.SetParentControl(this);
                     break;
-                case XNADialogButtons.OkCancel:
+                case EODialogButtons.OkCancel:
                     //implement this more fully when it is needed
                     //update draw location of ok button to be on left?
-                    ok = new XNAButton(smallButtonSheet, new Vector2(89, 113), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
-                    ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
-                    ok.SetParent(this);
+                    ok = new XNAButton(smallButtonSheet, new Vector2(89, 113), okOut, okOver);
+                    ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
+                    ok.SetParentControl(this);
 
-                    cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
-                    cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
-                    cancel.SetParent(this);
-
-                    dlgButtons.Add(ok);
-                    dlgButtons.Add(cancel);
+                    cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113), cancelOut, cancelOver);
+                    cancel.OnClick += (s, e) => Close(XNADialogResult.Cancel);
+                    cancel.SetParentControl(this);
                     break;
             }
 
             if (useSmallHeader)
             {
-                if (style == EOMessageBoxStyle.SmallDialogSmallHeader)
-                    foreach (XNAButton btn in dlgButtons)
-                        btn.DrawLocation = new Vector2(btn.DrawLocation.X, 82);
-                else
-                    foreach (XNAButton btn in dlgButtons)
-                        btn.DrawLocation = new Vector2(btn.DrawLocation.X, 148);
+                if (ok != null)
+                {
+                    ok.DrawPosition = new Vector2(ok.DrawPosition.X,
+                        style == EOMessageBoxStyle.SmallDialogSmallHeader ? 82 : 148);
+                }
+
+                if (cancel != null)
+                {
+                    cancel.DrawPosition = new Vector2(cancel.DrawPosition.X,
+                        style == EOMessageBoxStyle.SmallDialogSmallHeader ? 82 : 148);
+                }
             }
 
-            _dialogClosedTask = new TaskCompletionSource<XNADialogResult>();
-            DialogClosing += DialogClosingHandler;
-
-            CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
+            CenterInGameView();
         }
 
-        private void DialogClosingHandler(object sender, CloseDialogEventArgs e)
+        public override void Initialize()
         {
-            _dialogClosedTask.SetResult(e.Result);
+            _messageLabel.Initialize();
+            _captionLabel.Initialize();
+
+            base.Initialize();
         }
 
-        public new async Task<XNADialogResult> Show()
-        {
-            return await _dialogClosedTask.Task;
-        }
+        #region Deprecated
 
-        public static void Show(string message, string caption = "", XNADialogButtons buttons = XNADialogButtons.Ok, EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
+        public static void Show(string message, string caption = "", EODialogButtons buttons = EODialogButtons.Ok,
+            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, XNAControls.Old.XNADialog.OnDialogClose closingEvent = null)
         {
             throw new NotImplementedException("Static message box display is deprecated and will be removed in the future");
         }
 
-        public static void Show(DialogResourceID resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
-            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
+        public static void Show(DialogResourceID resource, EODialogButtons whichButtons = EODialogButtons.Ok,
+            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, XNAControls.Old.XNADialog.OnDialogClose closingEvent = null)
         {
-            if (!OldWorld.Initialized)
-                throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
-
-            var file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
-            Show(file.Data[(int)resource + 1], file.Data[(int)resource], whichButtons, style, closingEvent);
+            throw new NotImplementedException("Static message box display is deprecated and will be removed in the future");
         }
 
-        public static void Show(string prependData, DialogResourceID resource, XNADialogButtons whichButtons = XNADialogButtons.Ok,
-            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
+        public static void Show(string prependData, DialogResourceID resource, EODialogButtons whichButtons = EODialogButtons.Ok,
+            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, XNAControls.Old.XNADialog.OnDialogClose closingEvent = null)
         {
-            if (!OldWorld.Initialized)
-                throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
-
-            var file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
-            var message = prependData + file.Data[(int)resource + 1];
-            Show(message, file.Data[(int)resource], whichButtons, style, closingEvent);
+            throw new NotImplementedException("Static message box display is deprecated and will be removed in the future");
         }
 
-        public static void Show(DialogResourceID resource, string extraData, XNADialogButtons whichButtons = XNADialogButtons.Ok,
-            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, OnDialogClose closingEvent = null)
+        public static void Show(DialogResourceID resource, string extraData, EODialogButtons whichButtons = EODialogButtons.Ok,
+            EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogLargeHeader, XNAControls.Old.XNADialog.OnDialogClose closingEvent = null)
         {
-            if (!OldWorld.Initialized)
-                throw new WorldLoadException("Unable to create dialog! World must be loaded and initialized.");
-
-            var file = OldWorld.Instance.DataFiles[OldWorld.Instance.Localized1];
-            var message = file.Data[(int)resource + 1] + extraData;
-            Show(message, file.Data[(int)resource], whichButtons, style, closingEvent);
+            throw new NotImplementedException("Static message box display is deprecated and will be removed in the future");
         }
+
+        #endregion
     }
 }

@@ -58,7 +58,7 @@ namespace EndlessClient.Dialogs.Actions
         {
             _eoMessageBoxFactory.CreateMessageBox(
                 validationResult.ErrorString,
-                XNADialogButtons.Ok,
+                EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
         }
 
@@ -77,7 +77,7 @@ namespace EndlessClient.Dialogs.Actions
 
             _eoMessageBoxFactory.CreateMessageBox(
                 message,
-                XNADialogButtons.Ok,
+                EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
         }
 

@@ -11,7 +11,6 @@ using EOLib.IO.Pub;
 using EOLib.Localization;
 using EOLib.Net.API;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
 
 namespace EndlessClient.Dialogs
 {
@@ -91,7 +90,7 @@ namespace EndlessClient.Dialogs
             {
                 EOMessageBox.Show(OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
                     OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                    XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
@@ -99,7 +98,7 @@ namespace EndlessClient.Dialogs
             {
                 EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_ITS_TOO_HEAVY_WEIGHT),
                     OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                    XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 

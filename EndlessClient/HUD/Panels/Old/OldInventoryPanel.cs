@@ -86,7 +86,7 @@ namespace EndlessClient.HUD.Panels.Old
                 if (!_addItemToSlot(slot, rec, item.Amount) && !dialogShown)
                 {
                     dialogShown = true;
-                    EOMessageBox.Show("Something doesn't fit in the inventory. Rearrange items or get rid of them.", "Warning", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EOMessageBox.Show("Something doesn't fit in the inventory. Rearrange items or get rid of them.", "Warning", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 }
             }
 

@@ -516,7 +516,7 @@ namespace EndlessClient.Old
                     {
                         EOMessageBox.Show(OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
                             OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                            XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                            EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         return;
                     }
                 }
@@ -546,7 +546,7 @@ namespace EndlessClient.Old
                     {
                         EOMessageBox.Show(OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT),
                             OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING),
-                            XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                            EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                         return;
                     }
                 }
@@ -612,7 +612,7 @@ namespace EndlessClient.Old
             else if (rec == null) //show a warning saying that this chest is perma-locked. Non-standard pub files will cause this.
                 EOMessageBox.Show(
                     string.Format("Unable to find key for {0} in EIF. This chest will never be opened!",
-                        Enum.GetName(typeof(ChestKey), permission)), "Warning", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        Enum.GetName(typeof(ChestKey), permission)), "Warning", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 
             return permission;
         }

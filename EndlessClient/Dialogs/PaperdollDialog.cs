@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.HUD.Panels.Old;
 using EndlessClient.Old;
 using EOLib;

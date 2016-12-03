@@ -10,7 +10,7 @@ using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Controllers
 {

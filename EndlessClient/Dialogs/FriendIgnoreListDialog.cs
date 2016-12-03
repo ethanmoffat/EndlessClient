@@ -77,7 +77,7 @@ namespace EndlessClient.Dialogs
                         if (dlg.NamesList.FindIndex(name => name.ToLower() == dlgInput.ResponseText.ToLower()) >= 0)
                         {
                             _e.CancelClose = true;
-                            EOMessageBox.Show("You are already friends with that person!", "Invalid entry!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                            EOMessageBox.Show("You are already friends with that person!", "Invalid entry!", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                             dlgInput.SetAsKeyboardSubscriber();
                             return;
                         }

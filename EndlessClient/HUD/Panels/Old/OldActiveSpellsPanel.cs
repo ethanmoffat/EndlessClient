@@ -81,7 +81,7 @@ namespace EndlessClient.HUD.Panels.Old
 
                 if (slot < 0 || !_addNewSpellToSlot(slot, rec, spell.Level))
                 {
-                    EOMessageBox.Show("You have too many spells! They don't all fit.", "Warning", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EOMessageBox.Show("You have too many spells! They don't all fit.", "Warning", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     break;
                 }
 
@@ -363,7 +363,7 @@ namespace EndlessClient.HUD.Panels.Old
             {
                 //apparently this is NOT stored in the edf files...
                 //NOTE: copy-pasted from EOCharacterStats button event handler. Should probably be in some shared function somewhere.
-                EOMessageBox.Show("Do you want to train?", "Skill training", XNADialogButtons.OkCancel,
+                EOMessageBox.Show("Do you want to train?", "Skill training", EODialogButtons.OkCancel,
                     EOMessageBoxStyle.SmallDialogSmallHeader,
                     (s, e) =>
                     {

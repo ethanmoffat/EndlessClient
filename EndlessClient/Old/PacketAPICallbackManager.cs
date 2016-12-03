@@ -572,7 +572,7 @@ namespace EndlessClient.Old
 
             EOMessageBox.Show(name + " ",
                    type == PartyRequestType.Join ? DialogResourceID.PARTY_GROUP_REQUEST_TO_JOIN : DialogResourceID.PARTY_GROUP_SEND_INVITATION,
-                   XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+                   EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                    (o, e) =>
                    {
                        if (e.Result == XNADialogResult.OK)
@@ -598,7 +598,7 @@ namespace EndlessClient.Old
             if (!OldWorld.Instance.Interaction)
                 return;
 
-            EOMessageBox.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DialogResourceID.TRADE_REQUEST, XNADialogButtons.OkCancel,
+            EOMessageBox.Show(char.ToUpper(name[0]) + name.Substring(1) + " ", DialogResourceID.TRADE_REQUEST, EODialogButtons.OkCancel,
                     EOMessageBoxStyle.SmallDialogSmallHeader, (o, e) =>
                     {
                         if (e.Result == XNADialogResult.OK && !m_packetAPI.TradeAcceptRequest(playerID))
@@ -667,10 +667,10 @@ namespace EndlessClient.Old
             {
                 //not sure if this will ever actually be sent because client validates data before trying to learn a skill
                 case SkillMasterReply.ErrorWrongClass:
-                    EOMessageBox.Show(DialogResourceID.SKILL_LEARN_WRONG_CLASS, " " + OldWorld.Instance.ECF.Data[id].Name + "!", XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EOMessageBox.Show(DialogResourceID.SKILL_LEARN_WRONG_CLASS, " " + OldWorld.Instance.ECF.Data[id].Name + "!", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     break;
                 case SkillMasterReply.ErrorRemoveItems:
-                    EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_CLEAR_PAPERDOLL, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_CLEAR_PAPERDOLL, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     break;
             }
         }
@@ -687,7 +687,7 @@ namespace EndlessClient.Old
         private void _statskillForgetSpell(short id)
         {
             OldWorld.Instance.MainPlayer.ActiveCharacter.Spells.RemoveAll(_spell => _spell.ID == id);
-            EOMessageBox.Show(DialogResourceID.SKILL_FORGET_SUCCESS, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            EOMessageBox.Show(DialogResourceID.SKILL_FORGET_SUCCESS, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 
             m_game.Hud.RemoveSpellFromActiveSpellsByID(id);
         }
@@ -708,7 +708,7 @@ namespace EndlessClient.Old
         {
             OldCharacter c;
             (c = OldWorld.Instance.MainPlayer.ActiveCharacter).Spells.Clear();
-            EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_COMPLETE, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            EOMessageBox.Show(DialogResourceID.SKILL_RESET_CHARACTER_COMPLETE, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
             c.Stats.StatPoints = data.StatPoints;
             c.Stats.SkillPoints = data.SkillPoints;
             c.Stats.HP = data.HP;

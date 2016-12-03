@@ -7,6 +7,7 @@ using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Chat;
@@ -45,6 +46,8 @@ namespace EndlessClient
                 .RegisterType<ICreateCharacterDialogFactory, CreateCharacterDialogFactory>()
                 .RegisterType<IChangePasswordDialogFactory, ChangePasswordDialogFactory>()
                 .RegisterType<IGameLoadingDialogFactory, GameLoadingDialogFactory>();
+
+            container.RegisterType<IEODialogButtonService, EODialogButtonService>();
 
             //notifiers
             container

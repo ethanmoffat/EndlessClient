@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.Old;
 using EOLib.Graphics;
@@ -72,26 +73,13 @@ namespace EndlessClient.Dialogs
             Game.Components.Add(this);
         }
 
-        protected enum SmallButton
-        {
-            Connect = 0,
-            Cancel,
-            Login,
-            Delete,
-            Ok,
-            Back,
-            Add,
-            Next,
-            History,
-            Progress,
-            NUM_BUTTONS
-        }
         protected Rectangle _getSmallButtonOut(SmallButton whichOne)
         {
             int widthDelta = smallButtonSheet.Width / 2;
             int heightDelta = smallButtonSheet.Height / (int)SmallButton.NUM_BUTTONS;
             return new Rectangle(0, heightDelta * (int)whichOne, widthDelta, heightDelta);
         }
+
         protected Rectangle _getSmallButtonOver(SmallButton whichOne)
         {
             int widthDelta = smallButtonSheet.Width / 2;

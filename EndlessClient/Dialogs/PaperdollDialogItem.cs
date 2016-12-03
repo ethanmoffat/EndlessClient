@@ -78,7 +78,7 @@ namespace EndlessClient.Dialogs
                 { //the parent dialog must show equipment for mainplayer
                     if (m_info.Special == ItemSpecial.Cursed)
                     {
-                        EOMessageBox.Show(DialogResourceID.ITEM_IS_CURSED_ITEM, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                        EOMessageBox.Show(DialogResourceID.ITEM_IS_CURSED_ITEM, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     }
                     else if (!((EOGame)Game).Hud.InventoryFits((short)m_info.ID))
                     {

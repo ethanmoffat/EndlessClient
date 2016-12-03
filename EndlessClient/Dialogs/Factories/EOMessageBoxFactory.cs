@@ -2,10 +2,10 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using EOLib.Localization;
-using XNAControls.Old;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -13,36 +13,38 @@ namespace EndlessClient.Dialogs.Factories
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IGameStateProvider _gameStateProvider;
-        private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
+        private readonly IEODialogButtonService _eoDialogButtonService;
         private readonly ILocalizedStringFinder _localizedStringFinder;
 
         public EOMessageBoxFactory(INativeGraphicsManager nativeGraphicsManager,
                                    IGameStateProvider gameStateProvider,
-                                   IGraphicsDeviceProvider graphicsDeviceProvider,
+                                   IEODialogButtonService eoDialogButtonService,
                                    ILocalizedStringFinder localizedStringFinder)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameStateProvider = gameStateProvider;
-            _graphicsDeviceProvider = graphicsDeviceProvider;
+            _eoDialogButtonService = eoDialogButtonService;
             _localizedStringFinder = localizedStringFinder;
         }
 
         public EOMessageBox CreateMessageBox(string message,
                                              string caption = "",
-                                             XNADialogButtons whichButtons = XNADialogButtons.Ok,
+                                             EODialogButtons whichButtons = EODialogButtons.Ok,
                                              EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
         {
-            return new EOMessageBox(_nativeGraphicsManager,
-                _gameStateProvider,
-                _graphicsDeviceProvider,
-                message,
-                caption,
-                style,
-                whichButtons);
+            var messageBox = new EOMessageBox(_nativeGraphicsManager,
+                                              _gameStateProvider,
+                                              _eoDialogButtonService,
+                                              message,
+                                              caption,
+                                              style,
+                                              whichButtons);
+
+            return messageBox;
         }
 
         public EOMessageBox CreateMessageBox(DialogResourceID resource,
-                                             XNADialogButtons whichButtons = XNADialogButtons.Ok,
+                                             EODialogButtons whichButtons = EODialogButtons.Ok,
                                              EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
         {
             return CreateMessageBox(_localizedStringFinder.GetString(resource + 1),
@@ -53,7 +55,7 @@ namespace EndlessClient.Dialogs.Factories
 
         public EOMessageBox CreateMessageBox(string prependData,
                                              DialogResourceID resource,
-                                             XNADialogButtons whichButtons = XNADialogButtons.Ok,
+                                             EODialogButtons whichButtons = EODialogButtons.Ok,
                                              EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
         {
             var message = prependData + _localizedStringFinder.GetString(resource + 1);
@@ -65,7 +67,7 @@ namespace EndlessClient.Dialogs.Factories
 
         public EOMessageBox CreateMessageBox(DialogResourceID resource,
                                              string extraData,
-                                             XNADialogButtons whichButtons = XNADialogButtons.Ok,
+                                             EODialogButtons whichButtons = EODialogButtons.Ok,
                                              EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
         {
             var message = _localizedStringFinder.GetString(resource + 1) + extraData;

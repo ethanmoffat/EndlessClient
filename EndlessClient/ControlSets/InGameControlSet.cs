@@ -6,12 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Controllers;
+using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
@@ -55,9 +56,9 @@ namespace EndlessClient.ControlSets
         {
             var messageBox = _messageBoxFactory.CreateMessageBox(
                 DialogResourceID.EXIT_GAME_ARE_YOU_SURE,
-                XNADialogButtons.OkCancel);
+                EODialogButtons.OkCancel);
 
-            var result = await messageBox.Show();
+            var result = await messageBox.ShowDialogAsync();
             if (result == XNADialogResult.OK)
                 _mainButtonController.GoToInitialStateAndDisconnect();
         }

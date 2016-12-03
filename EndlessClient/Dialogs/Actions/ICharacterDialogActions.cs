@@ -4,7 +4,7 @@
 
 using System.Threading.Tasks;
 using EOLib.Domain.Character;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {

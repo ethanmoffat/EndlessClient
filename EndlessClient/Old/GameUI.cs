@@ -12,7 +12,6 @@ using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using XNAControls.Old;
 using XNAButton = XNAControls.Old.XNAButton;
 using XNAControl = XNAControls.Old.XNAControl;
 using XNADialogResult = XNAControls.Old.XNADialogResult;
@@ -62,7 +61,7 @@ namespace EndlessClient.Old
             
             if (sender == _backButton && State == GameStates.PlayingTheGame)
             {
-                EOMessageBox.Show(DialogResourceID.EXIT_GAME_ARE_YOU_SURE, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader, 
+                EOMessageBox.Show(DialogResourceID.EXIT_GAME_ARE_YOU_SURE, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader, 
                     (ss, ee) =>
                     {
                         if(ee.Result == XNADialogResult.OK)

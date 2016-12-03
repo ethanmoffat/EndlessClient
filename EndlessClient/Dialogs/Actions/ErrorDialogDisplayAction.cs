@@ -10,7 +10,6 @@ using EOLib.Domain.Protocol;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
-using XNAControls.Old;
 
 namespace EndlessClient.Dialogs.Actions
 {
@@ -32,17 +31,22 @@ namespace EndlessClient.Dialogs.Actions
                 case ConnectResult.InvalidEndpoint:
                 case ConnectResult.InvalidSocket:
                 case ConnectResult.SocketError:
-                    _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
-                        XNADialogButtons.Ok,
+                {
+                    var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
+                        EODialogButtons.Ok,
                         EOMessageBoxStyle.SmallDialogLargeHeader);
+                    messageBox.ShowDialog();
+                }
                     break;
                 default:
                 {
                     var errorCode = (int) connectResult;
                     var ex = new SocketException(errorCode);
-                    _messageBoxFactory.CreateMessageBox(
+
+                    var messageBox = _messageBoxFactory.CreateMessageBox(
                         string.Format("Error code from socket: {0}", ex.SocketErrorCode),
                         "Internal Error");
+                    messageBox.ShowDialog();
                 }
                     break;
             }
@@ -58,7 +62,7 @@ namespace EndlessClient.Dialogs.Actions
                     var extra = string.Format(" 0.000.0{0}", versionNumber);
                     _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_CLIENT_OUT_OF_DATE,
                         extra,
-                        XNADialogButtons.Ok,
+                        EODialogButtons.Ok,
                         EOMessageBoxStyle.SmallDialogLargeHeader);
                 }
                     break;
@@ -67,7 +71,7 @@ namespace EndlessClient.Dialogs.Actions
                     var banType = (BanType) initializationData[InitializationDataKey.BanType];
                     if (banType == BanType.PermanentBan)
                         _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_PERM,
-                            XNADialogButtons.Ok,
+                            EODialogButtons.Ok,
                             EOMessageBoxStyle.SmallDialogLargeHeader);
                     else if (banType == BanType.TemporaryBan)
                     {
@@ -75,7 +79,7 @@ namespace EndlessClient.Dialogs.Actions
                         var extra = string.Format(" {0} minutes.", banMinutesRemaining);
                         _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_TEMP,
                             extra,
-                            XNADialogButtons.Ok,
+                            EODialogButtons.Ok,
                             EOMessageBoxStyle.SmallDialogLargeHeader);
                     }
                 }
@@ -91,7 +95,7 @@ namespace EndlessClient.Dialogs.Actions
         {
             _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
                 "\n\"" + ex.Message + "\"",
-                XNADialogButtons.Ok,
+                EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
         }
 
@@ -99,7 +103,7 @@ namespace EndlessClient.Dialogs.Actions
         {
             _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
                 "\n\"" + ex.Message + "\"",
-                XNADialogButtons.Ok,
+                EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
         }
 
@@ -116,7 +120,7 @@ namespace EndlessClient.Dialogs.Actions
             }
 
             _messageBoxFactory.CreateMessageBox(message,
-                XNADialogButtons.Ok,
+                EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
         }
     }

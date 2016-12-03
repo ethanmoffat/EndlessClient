@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
 using EOLib;

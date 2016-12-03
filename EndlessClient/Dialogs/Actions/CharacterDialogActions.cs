@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Character;
 using EOLib.Localization;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
@@ -46,7 +46,7 @@ namespace EndlessClient.Dialogs.Actions
             }
 
             _messageBoxFactory.CreateMessageBox(message,
-                XNADialogButtons.Ok,
+                EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
         }
 
@@ -62,10 +62,10 @@ namespace EndlessClient.Dialogs.Actions
             var messageBox = _messageBoxFactory.CreateMessageBox(
                 string.Format("Character \'{0}\' ", characterName),
                 DialogResourceID.CHARACTER_DELETE_CONFIRM,
-                XNADialogButtons.OkCancel,
+                EODialogButtons.OkCancel,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
 
-            return await messageBox.Show();
+            return await messageBox.ShowDialogAsync();
         }
 
         public void ShowCharacterDeleteError()
@@ -73,7 +73,7 @@ namespace EndlessClient.Dialogs.Actions
             _messageBoxFactory.CreateMessageBox(
                 "The server did not respond properly for deleting the character. Try again.",
                 "Server error",
-                XNADialogButtons.Ok,
+                EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
         }
     }

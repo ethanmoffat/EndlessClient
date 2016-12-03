@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.Old;
 using EndlessClient.UIControls;
 using EOLib;
@@ -169,7 +170,7 @@ namespace EndlessClient.Dialogs
                 {
                     m_rightAgrees = false;
                     m_rightPlayerStatus.Text = OldWorld.GetString(EOResourceID.DIALOG_TRADE_WORD_TRADING);
-                    EOMessageBox.Show(DialogResourceID.TRADE_ABORTED_OFFER_CHANGED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EOMessageBox.Show(DialogResourceID.TRADE_ABORTED_OFFER_CHANGED, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_TRADE_OTHER_PLAYER_CHANGED_OFFER);
                 }
             }
@@ -192,7 +193,7 @@ namespace EndlessClient.Dialogs
                 {
                     m_leftAgrees = false;
                     m_leftPlayerStatus.Text = OldWorld.GetString(EOResourceID.DIALOG_TRADE_WORD_TRADING);
-                    EOMessageBox.Show(DialogResourceID.TRADE_ABORTED_OFFER_CHANGED, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    EOMessageBox.Show(DialogResourceID.TRADE_ABORTED_OFFER_CHANGED, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                     ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_TRADE_OTHER_PLAYER_CHANGED_OFFER);
                 }
             }
@@ -203,7 +204,7 @@ namespace EndlessClient.Dialogs
                 m_recentPartnerRemoves++;
             if (m_recentPartnerRemoves == 3)
             {
-                EOMessageBox.Show(DialogResourceID.TRADE_OTHER_PLAYER_TRICK_YOU, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                EOMessageBox.Show(DialogResourceID.TRADE_OTHER_PLAYER_TRICK_YOU, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 m_recentPartnerRemoves = -1000; //this will prevent the message from showing more than once (I'm too lazy to find something more elegant)
             }
 
@@ -306,7 +307,7 @@ namespace EndlessClient.Dialogs
             ((EOGame)Game).Hud.RefreshStats();
 
             Close(null, XNADialogResult.NO_BUTTON_PRESSED);
-            EOMessageBox.Show(DialogResourceID.TRADE_SUCCESS, XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+            EOMessageBox.Show(DialogResourceID.TRADE_SUCCESS, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
         }
 
         private void _buttonOkClicked(object sender, EventArgs e)
@@ -325,7 +326,7 @@ namespace EndlessClient.Dialogs
             if (m_leftItems.Count == 0 || m_rightItems.Count == 0)
             {
                 EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRADE_BOTH_PLAYERS_OFFER_ONE_ITEM),
-                    OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok,
+                    OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING), EODialogButtons.Ok,
                     EOMessageBoxStyle.SmallDialogSmallHeader);
                 ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.DIALOG_TRADE_BOTH_PLAYERS_OFFER_ONE_ITEM);
                 return;
@@ -340,7 +341,7 @@ namespace EndlessClient.Dialogs
                     mainCollection.Select(_item => new InventoryItem(_item.ID, _item.Amount)).ToList()))
             {
                 EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_SPACE),
-                    OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING), EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
@@ -350,11 +351,11 @@ namespace EndlessClient.Dialogs
             if (weightDelta + m_main.Weight > m_main.MaxWeight)
             {
                 EOMessageBox.Show(OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_NOT_ENOUGH_WEIGHT),
-                    OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING), XNADialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    OldWorld.GetString(EOResourceID.STATUS_LABEL_TYPE_WARNING), EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
                 return;
             }
 
-            EOMessageBox.Show(DialogResourceID.TRADE_DO_YOU_AGREE, XNADialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
+            EOMessageBox.Show(DialogResourceID.TRADE_DO_YOU_AGREE, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                 (o, dlgArgs) =>
                 {
                     if (dlgArgs.Result == XNADialogResult.OK && !m_api.TradeAgree(true))

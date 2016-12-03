@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EndlessClient.Old;
 using EndlessClient.UIControls;
@@ -12,7 +13,6 @@ using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using XNAControls.Old;
 using XNAButton = XNAControls.Old.XNAButton;
 using XNADialogResult = XNAControls.Old.XNADialogResult;
 
