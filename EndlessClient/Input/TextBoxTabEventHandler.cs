@@ -4,16 +4,15 @@
 
 using System;
 using XNAControls;
-using XNATextBox = XNAControls.Old.XNATextBox;
 
 namespace EndlessClient.Input
 {
     public sealed class TextBoxTabEventHandler : IDisposable
     {
         private readonly KeyboardDispatcher _dispatcher;
-        private readonly XNATextBox[] _subscribers;
+        private readonly IXNATextBox[] _subscribers;
 
-        public TextBoxTabEventHandler(KeyboardDispatcher dispatcher, params XNATextBox[] subscribers)
+        public TextBoxTabEventHandler(KeyboardDispatcher dispatcher, params IXNATextBox[] subscribers)
         {
             _dispatcher = dispatcher;
             _subscribers = subscribers;
@@ -31,10 +30,7 @@ namespace EndlessClient.Input
 
                 var next = (i+1)%_subscribers.Length;
 
-                _subscribers[i].Selected = false;
-
                 _dispatcher.Subscriber = _subscribers[next];
-                _subscribers[next].Selected = true;
 
                 break;
             }

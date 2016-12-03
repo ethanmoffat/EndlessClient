@@ -18,6 +18,7 @@ using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 using XNAControls.Old;
 using XNAButton = XNAControls.Old.XNAButton;
+using XNADialogResult = XNAControls.Old.XNADialogResult;
 using XNATextBox = XNAControls.Old.XNATextBox;
 
 namespace EndlessClient.Dialogs
@@ -25,7 +26,7 @@ namespace EndlessClient.Dialogs
     public class CreateCharacterDialog : EODialogBase
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
-        private readonly TaskCompletionSource<XNADialogResult> _dialogResultCompletionSource;
+        private readonly TaskCompletionSource<XNAControls.Old.XNADialogResult> _dialogResultCompletionSource;
 
         private readonly XNATextBox _inputBox;
         private readonly XNAButton[] _arrowButtons = new XNAButton[4];

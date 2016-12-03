@@ -10,7 +10,6 @@ using EndlessClient.GameExecution;
 using EndlessClient.UIControls;
 using Microsoft.Xna.Framework;
 using XNAControls;
-using XNAButton = XNAControls.Old.XNAButton;
 
 namespace EndlessClient.ControlSets
 {

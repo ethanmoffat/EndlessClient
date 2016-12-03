@@ -17,8 +17,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using XNAButton = XNAControls.Old.XNAButton;
-using XNATextBox = XNAControls.Old.XNATextBox;
 
 namespace EndlessClient.ControlSets
 {
@@ -28,7 +26,7 @@ namespace EndlessClient.ControlSets
         private readonly IMainButtonController _mainButtonController;
         private readonly ILoginController _loginController;
 
-        private XNATextBox _tbUsername, _tbPassword;
+        private IXNATextBox _tbUsername, _tbPassword;
         private XNAButton _btnLogin, _btnCancel;
         private PictureBox _loginPanelBackground;
 
@@ -74,8 +72,8 @@ namespace EndlessClient.ControlSets
             _allComponents.Add(_btnLogin);
             _allComponents.Add(_btnCancel);
 
-            _clickHandler = new TextBoxClickEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
-            _tabHandler = new TextBoxTabEventHandler(_dispatcher, _allComponents.OfType<XNATextBox>().ToArray());
+            _clickHandler = new TextBoxClickEventHandler(_dispatcher, _allComponents.OfType<IXNATextBox>().ToArray());
+            _tabHandler = new TextBoxTabEventHandler(_dispatcher, _allComponents.OfType<IXNATextBox>().ToArray());
 
             if (_dispatcher.Subscriber != null)
                 _dispatcher.Subscriber.Selected = false;
@@ -105,28 +103,44 @@ namespace EndlessClient.ControlSets
             };
         }
 
-        private XNATextBox GetLoginUserNameTextBox()
+        private IXNATextBox GetLoginUserNameTextBox()
         {
-            var textBox = new XNATextBox(new Rectangle(402, 322, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
+            var textBox = new XNATextBox(
+                new Rectangle(402, 322, 140, _textBoxBackground.Height),
+                Constants.FontSize08,
+                _textBoxBackground,
+                _textBoxLeft,
+                _textBoxRight,
+                _textBoxCursor)
             {
                 MaxChars = 16,
                 DefaultText = "Username",
                 LeftPadding = 4,
-                DrawOrder = _personPicture.DrawOrder + 2
+                DrawOrder = _personPicture.DrawOrder + 2,
+                DefaultTextColor = Color.FromNonPremultiplied(0x80, 0x80, 0x80, 0xff),
+                TextColor = Color.Black
             };
             textBox.OnEnterPressed += DoLogin;
             return textBox;
         }
 
-        private XNATextBox GetLoginPasswordTextBox()
+        private IXNATextBox GetLoginPasswordTextBox()
         {
-            var textBox = new XNATextBox(new Rectangle(402, 358, 140, _textBoxTextures[0].Height), _textBoxTextures, Constants.FontSize08)
+            var textBox = new XNATextBox(
+                new Rectangle(402, 358, 140, _textBoxBackground.Height),
+                Constants.FontSize08,
+                _textBoxBackground,
+                _textBoxLeft,
+                _textBoxRight,
+                _textBoxCursor)
             {
                 MaxChars = 12,
                 PasswordBox = true,
                 LeftPadding = 4,
                 DefaultText = "Password",
-                DrawOrder = _personPicture.DrawOrder + 2
+                DrawOrder = _personPicture.DrawOrder + 2,
+                DefaultTextColor = Color.FromNonPremultiplied(0x80, 0x80, 0x80, 0xff),
+                TextColor = Color.Black
             };
             textBox.OnEnterPressed += DoLogin;
             return textBox;

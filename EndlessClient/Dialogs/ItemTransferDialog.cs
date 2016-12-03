@@ -14,6 +14,7 @@ using Microsoft.Xna.Framework.Input;
 using XNAControls;
 using XNAControls.Old;
 using XNAButton = XNAControls.Old.XNAButton;
+using XNADialogResult = XNAControls.Old.XNADialogResult;
 using XNALabel = XNAControls.Old.XNALabel;
 using XNATextBox = XNAControls.Old.XNATextBox;
 

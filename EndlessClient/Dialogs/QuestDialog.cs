@@ -13,9 +13,9 @@ using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using XNAControls.Old;
 using LabelAlignment = XNAControls.Old.LabelAlignment;
 using XNAButton = XNAControls.Old.XNAButton;
+using XNADialogResult = XNAControls.Old.XNADialogResult;
 using XNALabel = XNAControls.Old.XNALabel;
 
 namespace EndlessClient.Dialogs

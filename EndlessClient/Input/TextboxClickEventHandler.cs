@@ -5,16 +5,15 @@
 using System;
 using System.Linq;
 using XNAControls;
-using XNATextBox = XNAControls.Old.XNATextBox;
 
 namespace EndlessClient.Input
 {
     public sealed class TextBoxClickEventHandler : IDisposable
     {
         private readonly KeyboardDispatcher _dispatcher;
-        private readonly XNATextBox[] _subscribers;
+        private readonly IXNATextBox[] _subscribers;
 
-        public TextBoxClickEventHandler(KeyboardDispatcher dispatcher, params XNATextBox[] subscribers)
+        public TextBoxClickEventHandler(KeyboardDispatcher dispatcher, params IXNATextBox[] subscribers)
         {
             _dispatcher = dispatcher;
             _subscribers = subscribers;
@@ -26,12 +25,8 @@ namespace EndlessClient.Input
         private void OnClicked(object sender, EventArgs e)
         {
             var ndx = _subscribers.ToList().FindIndex(x => x == sender);
-            var previous = ndx - 1 < 0 ? _subscribers.Length - 1 : ndx - 1;
-
-            _subscribers[previous].Selected = false;
 
             _dispatcher.Subscriber = _subscribers[ndx];
-            _subscribers[ndx].Selected = true;
         }
 
         public void Dispose()

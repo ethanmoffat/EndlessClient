@@ -15,6 +15,7 @@ using XNAControls;
 using XNAControls.Old;
 using XNAButton = XNAControls.Old.XNAButton;
 using XNAControl = XNAControls.Old.XNAControl;
+using XNADialogResult = XNAControls.Old.XNADialogResult;
 
 namespace EndlessClient.Old
 {

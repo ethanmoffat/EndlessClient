@@ -16,9 +16,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using XNAButton = XNAControls.Old.XNAButton;
-using XNAPanel = XNAControls.Old.XNAPanel;
-using XNATextBox = XNAControls.Old.XNATextBox;
 
 namespace EndlessClient.ControlSets
 {
@@ -28,12 +25,12 @@ namespace EndlessClient.ControlSets
 
         private Texture2D _labelsTexture;
 
-        private XNATextBox _tbAccountName,
-                           _tbPassword,
-                           _tbConfirm,
-                           _tbRealName,
-                           _tbLocation,
-                           _tbEmail;
+        private IXNATextBox _tbAccountName,
+                            _tbPassword,
+                            _tbConfirm,
+                            _tbRealName,
+                            _tbLocation,
+                            _tbEmail;
 
         private XNAButton _btnCancel;
 
@@ -80,7 +77,7 @@ namespace EndlessClient.ControlSets
             _allComponents.Add(_btnCancel);
             _allComponents.Add(_labels);
 
-            var textBoxes = _allComponents.OfType<XNATextBox>().ToArray();
+            var textBoxes = _allComponents.OfType<IXNATextBox>().ToArray();
             _clickHandler = new TextBoxClickEventHandler(_dispatcher, textBoxes);
             _tabHandler = new TextBoxTabEventHandler(_dispatcher, textBoxes);
 
@@ -108,14 +105,14 @@ namespace EndlessClient.ControlSets
             }
         }
 
-        private XNATextBox GetCreateAccountNameTextBox()
+        private IXNATextBox GetCreateAccountNameTextBox()
         {
             var tb = AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountName);
             tb.MaxChars = 16;
             return tb;
         }
 
-        private XNATextBox GetCreateAccountPasswordTextBox()
+        private IXNATextBox GetCreateAccountPasswordTextBox()
         {
             var tb = AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountPassword);
             tb.PasswordBox = true;
@@ -123,7 +120,7 @@ namespace EndlessClient.ControlSets
             return tb;
         }
 
-        private XNATextBox GetCreateAccountConfirmTextBox()
+        private IXNATextBox GetCreateAccountConfirmTextBox()
         {
             var tb = AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountPasswordConfirm);
             tb.PasswordBox = true;
@@ -131,22 +128,22 @@ namespace EndlessClient.ControlSets
             return tb;
         }
 
-        private XNATextBox GetCreateAccountRealNameTextBox()
+        private IXNATextBox GetCreateAccountRealNameTextBox()
         {
             return AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountRealName);
         }
 
-        private XNATextBox GetCreateAccountLocationTextBox()
+        private IXNATextBox GetCreateAccountLocationTextBox()
         {
             return AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountLocation);
         }
 
-        private XNATextBox GetCreateAccountEmailTextBox()
+        private IXNATextBox GetCreateAccountEmailTextBox()
         {
             return AccountInputTextBoxCreationHelper(GameControlIdentifier.CreateAccountEmail);
         }
 
-        private XNATextBox AccountInputTextBoxCreationHelper(GameControlIdentifier whichControl)
+        private IXNATextBox AccountInputTextBoxCreationHelper(GameControlIdentifier whichControl)
         {
             int i;
             switch (whichControl)
@@ -163,8 +160,13 @@ namespace EndlessClient.ControlSets
             //set the first  3 Y coord to start at 69  and move up by 51 each time
             //set the second 3 Y coord to start at 260 and move up by 51 each time
             var txtYCoord = (i < 3 ? 69 : 260) + i % 3 * 51;
-            var drawArea = new Rectangle(358, txtYCoord, 240, _textBoxTextures[0].Height);
-            return new XNATextBox(drawArea, _textBoxTextures, Constants.FontSize08)
+            var drawArea = new Rectangle(358, txtYCoord, 240, _textBoxBackground.Height);
+            return new XNATextBox(drawArea,
+                Constants.FontSize08,
+                _textBoxBackground,
+                _textBoxLeft,
+                _textBoxRight,
+                _textBoxCursor)
             {
                 LeftPadding = 4,
                 MaxChars = 35,
@@ -191,7 +193,7 @@ namespace EndlessClient.ControlSets
                 var lblpos = new Vector2(358, (srcYIndex < 3 ? 50 : 241) + srcYIndex % 3 * 51);
                 var labelTexture = new SpriteSheet(_labelsTexture, new Rectangle(0, srcYIndex * (srcYIndex < 2 ? 14 : 15), 149, 15));
                 var texturePictureBox = new DisposablePictureBox(labelTexture.GetSourceTexture()) { DrawLocation = lblpos };
-                labelsPanel.AddControl(texturePictureBox);
+                texturePictureBox.SetParent(texturePictureBox);
             }
             return labelsPanel;
         }

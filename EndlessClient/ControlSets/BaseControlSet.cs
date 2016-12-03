@@ -38,7 +38,10 @@ namespace EndlessClient.ControlSets
         protected Texture2D _mainButtonTexture;
         protected Texture2D _secondaryButtonTexture;
         protected Texture2D _smallButtonSheet;
-        protected Texture2D[] _textBoxTextures;
+        protected Texture2D _textBoxCursor;
+        protected Texture2D _textBoxRight;
+        protected Texture2D _textBoxLeft;
+        protected Texture2D _textBoxBackground;
 
         private Texture2D[] _backgroundImages;
         private PictureBox _backgroundImage;
@@ -60,13 +63,10 @@ namespace EndlessClient.ControlSets
             _secondaryButtonTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 14, true);
             _smallButtonSheet = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
 
-            _textBoxTextures = new[]
-            {
-                xnaContentManager.Load<Texture2D>("tbBack"),
-                xnaContentManager.Load<Texture2D>("tbLeft"),
-                xnaContentManager.Load<Texture2D>("tbRight"),
-                xnaContentManager.Load<Texture2D>("cursor")
-            };
+            _textBoxBackground = xnaContentManager.Load<Texture2D>("tbBack");
+            _textBoxLeft = xnaContentManager.Load<Texture2D>("tbLeft");
+            _textBoxRight = xnaContentManager.Load<Texture2D>("tbRight");
+            _textBoxCursor = xnaContentManager.Load<Texture2D>("cursor");
 
             _backgroundImages = new Texture2D[7];
             for (int i = 0; i < _backgroundImages.Length; ++i)

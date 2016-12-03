@@ -26,8 +26,8 @@ namespace EndlessClient.Dialogs
         private readonly IPlayerInfoProvider _playerInfoProvider;
         private readonly XNATextBox[] _inputBoxes;
 
-        private readonly TextBoxClickEventHandler _clickEventHandler;
-        private readonly TextBoxTabEventHandler _tabEventHandler;
+        //private readonly TextBoxClickEventHandler _clickEventHandler;
+        //private readonly TextBoxTabEventHandler _tabEventHandler;
 
         private readonly TaskCompletionSource<XNADialogResult> _dialogResultCompletionSource;
 
@@ -71,8 +71,9 @@ namespace EndlessClient.Dialogs
                 _inputBoxes[i] = tb;
             }
 
-            _clickEventHandler = new TextBoxClickEventHandler(dispatcher, _inputBoxes);
-            _tabEventHandler = new TextBoxTabEventHandler(dispatcher, _inputBoxes);
+            //todo: re-enable once converted to new XNAControls
+            //_clickEventHandler = new TextBoxClickEventHandler(dispatcher, _inputBoxes);
+            //_tabEventHandler = new TextBoxTabEventHandler(dispatcher, _inputBoxes);
 
             dispatcher.Subscriber.Selected = false;
             dispatcher.Subscriber = _inputBoxes[0];
@@ -142,8 +143,8 @@ namespace EndlessClient.Dialogs
         {
             if (disposing)
             {
-                _clickEventHandler.Dispose();
-                _tabEventHandler.Dispose();
+                //_clickEventHandler.Dispose();
+                //_tabEventHandler.Dispose();
             }
 
             base.Dispose(disposing);
