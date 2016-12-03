@@ -6,26 +6,24 @@ using System;
 using System.Collections.Generic;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
-using EndlessClient.Old;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using XNAButton = XNAControls.Old.XNAButton;
-using XNADialogResult = XNAControls.Old.XNADialogResult;
 
 namespace EndlessClient.Dialogs
 {
-    public class ScrollingMessageDialog : EODialogBase
+    public class ScrollingMessageDialog : BaseEODialog
     {
-        private readonly OldScrollBar _scrollBar;
+        private readonly XNAButton _ok;
+        private readonly ScrollBar _scrollBar;
         private readonly List<string> _chatStrings = new List<string>();
         private readonly TextSplitter _textSplitter;
         private readonly SpriteFont _font;
 
-        public new string MessageText
+        public string MessageText
         {
             set
             {
@@ -57,42 +55,48 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        public ScrollingMessageDialog(INativeGraphicsManager gfxManager,
-                                      IGraphicsDeviceProvider graphicsDeviceProvider,
-                                      IGameStateProvider gameStateProvider)
-            : base(gfxManager)
+        public ScrollingMessageDialog(INativeGraphicsManager nativeGraphicsManager,
+                                      IGameStateProvider gameStateProvider,
+                                      IEODialogButtonService eoDialogButtonService)
+            : base(gameStateProvider)
         {
             _font = Game.Content.Load<SpriteFont>(Constants.FontSize08);
             _textSplitter = new TextSplitter("", _font) { LineLength = 275 };
 
-            bgTexture = gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 40);
-            _setSize(bgTexture.Width, bgTexture.Height);
+            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 40);
 
-            var ok = new XNAButton(smallButtonSheet, new Vector2(138, 197), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
-            ok.OnClick += (sender, e) => Close(ok, XNADialogResult.OK);
-            ok.SetParent(this);
-            dlgButtons.Add(ok);
+            var smallButtonSheet = eoDialogButtonService.SmallButtonSheet;
 
-            _scrollBar = new OldScrollBar(this,
-                new Vector2(320, 66),
-                new Vector2(16, 119),
-                ScrollBarColors.LightOnMed,
-                gfxManager);
+            _ok = new XNAButton(smallButtonSheet,
+                new Vector2(138, 197),
+                eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
+                eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
+            _ok.OnClick += (sender, e) => Close(XNADialogResult.OK);
+            _ok.SetParentControl(this);
+
+            _scrollBar = new ScrollBar(new Vector2(320, 66), new Vector2(16, 119),
+                ScrollBarColors.LightOnMed, nativeGraphicsManager);
+            _scrollBar.SetParentControl(this);
+
             MessageText = "";
 
-            CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
+            CenterInGameView();
         }
 
-        public override void Draw(GameTime gt)
+        public override void Initialize()
         {
-            if ((parent != null && !parent.Visible) || !Visible)
-                return;
+            _ok.Initialize();
+            _scrollBar.Initialize();
 
-            base.Draw(gt);
-            if (_scrollBar == null) return; //prevent nullreferenceexceptions
+            base.Initialize();
+        }
 
-            SpriteBatch.Begin();
-            var pos = new Vector2(27 + (int)DrawLocation.X, 69 + (int)DrawLocation.Y);
+        protected override void OnDrawControl(GameTime gt)
+        {
+            base.OnDrawControl(gt);
+
+            _spriteBatch.Begin();
+            var pos = new Vector2(27 + (int)DrawPosition.X, 69 + (int)DrawPosition.Y);
 
             for (int i = _scrollBar.ScrollOffset; i < _scrollBar.ScrollOffset + _scrollBar.LinesToRender; ++i)
             {
@@ -101,10 +105,10 @@ namespace EndlessClient.Dialogs
 
                 var strToDraw = _chatStrings[i];
 
-                SpriteBatch.DrawString(_font ?? EOGame.Instance.DBGFont, strToDraw, new Vector2(pos.X, pos.Y + (i - _scrollBar.ScrollOffset) * 13), ColorConstants.LightGrayText);
+                _spriteBatch.DrawString(_font, strToDraw, new Vector2(pos.X, pos.Y + (i - _scrollBar.ScrollOffset) * 13), ColorConstants.LightGrayText);
             }
 
-            SpriteBatch.End();
+            _spriteBatch.End();
         }
     }
 }

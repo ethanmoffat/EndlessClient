@@ -5,7 +5,6 @@
 using System;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
-using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Config;
 using EOLib.Graphics;
@@ -26,8 +25,8 @@ namespace EndlessClient.ControlSets
                           _viewCredits,
                           _exitGame;
         private XNALabel _versionInfo;
-        
-        protected PictureBox _personPicture;
+
+        protected IXNAPictureBox _personPicture;
 
         private readonly Texture2D[] _personSet1;
         private readonly Random _randomGen;
@@ -145,15 +144,19 @@ namespace EndlessClient.ControlSets
             };
         }
 
-        private PictureBox GetPersonPicture1()
+        private IXNAPictureBox GetPersonPicture1()
         {
             var texture = _personSet1[_randomGen.Next(4)];
-            return new PictureBox(texture) { DrawLocation = new Vector2(229, 70) };
+            return new XNAPictureBox
+            {
+                Texture = texture,
+                DrawArea = new Rectangle(229, 70, texture.Width, texture.Height)
+            };
         }
 
         protected void ExcludePersonPicture1()
         {
-            _personPicture.Close();
+            _personPicture.Dispose();
             _allComponents.Remove(_personPicture);
         }
     }

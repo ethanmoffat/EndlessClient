@@ -3,12 +3,8 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EndlessClient.HUD.Panels.Old;
-using EndlessClient.Old;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient.UIControls
@@ -76,6 +72,15 @@ namespace EndlessClient.UIControls
             _scrollButton.SetParentControl(this);
 
             _totalHeight = DrawAreaWithParentOffset.Height;
+        }
+
+        public override void Initialize()
+        {
+            _upButton.Initialize();
+            _downButton.Initialize();
+            _scrollButton.Initialize();
+
+            base.Initialize();
         }
 
         public void UpdateDimensions(int numberOfLines)

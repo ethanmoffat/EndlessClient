@@ -3,19 +3,23 @@
 // For additional details, see the LICENSE file
 
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.UIControls
 {
-    public class DisposablePictureBox : PictureBox
+    public class DisposablePictureBox : XNAPictureBox
     {
-        public DisposablePictureBox(Texture2D displayPicture, XNAControl parent = null)
-            : base(displayPicture, parent) { }
+        public DisposablePictureBox(Texture2D displayPicture)
+        {
+            Texture = displayPicture;
+            SetSize(Texture.Width, Texture.Height);
+            StretchMode = StretchMode.Stretch;
+        }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-                _displayPicture.Dispose();
+                Texture.Dispose();
             base.Dispose(disposing);
         }
     }

@@ -20,7 +20,7 @@ namespace EndlessClient.ControlSets
         private readonly IAccountController _accountController;
         private readonly List<CharacterInfoPanel> _characterInfoPanels;
 
-        private XNAButton _changePasswordButton;
+        private IXNAButton _changePasswordButton;
 
         private int _createRequests, _changePasswordRequests;
 
@@ -65,7 +65,7 @@ namespace EndlessClient.ControlSets
             }
         }
 
-        private XNAButton GetPasswordButton()
+        private IXNAButton GetPasswordButton()
         {
             var button = new XNAButton(_secondaryButtonTexture,
                 new Vector2(454, 417),
@@ -75,7 +75,7 @@ namespace EndlessClient.ControlSets
             return button;
         }
 
-        protected override XNAButton GetCreateButton()
+        protected override IXNAButton GetCreateButton()
         {
             var button = base.GetCreateButton();
             button.OnClick += DoCreateCharacter;

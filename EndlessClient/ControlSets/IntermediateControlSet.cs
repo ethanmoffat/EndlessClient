@@ -5,7 +5,6 @@
 using System;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
-using EndlessClient.UIControls;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -20,9 +19,8 @@ namespace EndlessClient.ControlSets
         private readonly Texture2D[] _personSet2;
         private readonly Random _randomGen;
 
-        private XNAButton _btnCreate;
-
-        private PictureBox _person2Picture;
+        private IXNAButton _btnCreate;
+        private IXNAPictureBox _person2Picture;
 
         protected IntermediateControlSet(KeyboardDispatcher dispatcher,
                                          IMainButtonController mainButtonController)
@@ -67,7 +65,7 @@ namespace EndlessClient.ControlSets
             }
         }
 
-        protected virtual XNAButton GetCreateButton()
+        protected virtual IXNAButton GetCreateButton()
         {
             var isCreateCharacterButton = GameState == GameStates.LoggedIn;
             var button = new XNAButton(_secondaryButtonTexture,
@@ -77,10 +75,14 @@ namespace EndlessClient.ControlSets
             return button;
         }
 
-        private PictureBox GetPerson2Picture()
+        private IXNAPictureBox GetPerson2Picture()
         {
             var texture = _personSet2[_randomGen.Next(8)];
-            return new PictureBox(texture) { DrawLocation = new Vector2(43, 140) };
+            return new XNAPictureBox
+            {
+                Texture = texture,
+                DrawArea = new Rectangle(43, 140, texture.Width, texture.Height)
+            };
         }
     }
 }

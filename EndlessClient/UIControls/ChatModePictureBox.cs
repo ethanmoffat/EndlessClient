@@ -9,10 +9,11 @@ using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAControls;
 
 namespace EndlessClient.UIControls
 {
-    public class ChatModePictureBox : PictureBox
+    public class ChatModePictureBox : XNAPictureBox
     {
         private readonly IChatModeCalculator _chatModeCalculator;
         private readonly IChatProvider _chatProvider;
@@ -36,8 +37,9 @@ namespace EndlessClient.UIControls
         public ChatModePictureBox(IChatModeCalculator chatModeCalculator,
                                   IChatProvider chatProvider,
                                   Texture2D displayPicture)
-            : base(displayPicture)
         {
+            Texture = displayPicture;
+
             _chatModeCalculator = chatModeCalculator;
             _chatProvider = chatProvider;
 
@@ -86,7 +88,7 @@ namespace EndlessClient.UIControls
             if (!SourceRectangle.HasValue)
                 throw new InvalidOperationException("SourceRectangle is expected to have a value.");
 
-            var source = (Rectangle)SourceRectangle;
+            var source = SourceRectangle.Value;
             SourceRectangle = source.WithPosition(new Vector2(0, (float)mode * source.Height));
         }
     }

@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
 
@@ -10,30 +11,30 @@ namespace EndlessClient.Dialogs.Factories
     public class CreateAccountWarningDialogFactory : ICreateAccountWarningDialogFactory
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
-        private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
         private readonly IGameStateProvider _gameStateProvider;
+        private readonly IEODialogButtonService _eoDialogButtonService;
 
         public CreateAccountWarningDialogFactory(
             INativeGraphicsManager nativeGraphicsManager,
-            IGraphicsDeviceProvider graphicsDeviceProvider,
-            IGameStateProvider gameStateProvider)
+            IGameStateProvider gameStateProvider,
+            IEODialogButtonService eoDialogButtonService)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
-            _graphicsDeviceProvider = graphicsDeviceProvider;
             _gameStateProvider = gameStateProvider;
+            _eoDialogButtonService = eoDialogButtonService;
         }
 
         public void ShowCreateAccountWarningDialog(string warningMessage)
         {
             var warningDialog = new ScrollingMessageDialog(
                 _nativeGraphicsManager,
-                _graphicsDeviceProvider,
-                _gameStateProvider)
+                _gameStateProvider,
+                _eoDialogButtonService)
             {
                 MessageText = warningMessage
             };
 
-            warningDialog.Show();
+            warningDialog.ShowDialog();
         }
     }
 }

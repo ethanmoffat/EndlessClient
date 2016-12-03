@@ -31,13 +31,10 @@ namespace EndlessClient.ControlSets
                             _tbRealName,
                             _tbLocation,
                             _tbEmail;
-
-        private XNAButton _btnCancel;
-
-        private XNAPanel _labels;
+        private IXNAButton _btnCancel;
+        private IXNAPanel _labels;
 
         private TextBoxClickEventHandler _clickHandler;
-
         private TextBoxTabEventHandler _tabHandler;
 
         public override GameStates GameState { get { return GameStates.CreateAccount; } }
@@ -175,7 +172,7 @@ namespace EndlessClient.ControlSets
             };
         }
 
-        private XNAButton GetCreateAccountCancelButton()
+        private IXNAButton GetCreateAccountCancelButton()
         {
             var button = new XNAButton(_secondaryButtonTexture,
                                        new Vector2(481, 417),
@@ -185,20 +182,20 @@ namespace EndlessClient.ControlSets
             return button;
         }
 
-        private XNAPanel GetCreateAccountLabels()
+        private IXNAPanel GetCreateAccountLabels()
         {
             var labelsPanel = new XNAPanel();
             for (int srcYIndex = 0; srcYIndex < 6; ++srcYIndex)
             {
                 var lblpos = new Vector2(358, (srcYIndex < 3 ? 50 : 241) + srcYIndex % 3 * 51);
                 var labelTexture = new SpriteSheet(_labelsTexture, new Rectangle(0, srcYIndex * (srcYIndex < 2 ? 14 : 15), 149, 15));
-                var texturePictureBox = new DisposablePictureBox(labelTexture.GetSourceTexture()) { DrawLocation = lblpos };
-                texturePictureBox.SetParent(texturePictureBox);
+                var texturePictureBox = new DisposablePictureBox(labelTexture.GetSourceTexture()) { DrawPosition = lblpos };
+                texturePictureBox.SetParentControl(labelsPanel);
             }
             return labelsPanel;
         }
 
-        protected override XNAButton GetCreateButton()
+        protected override IXNAButton GetCreateButton()
         {
             var button = base.GetCreateButton();
             button.OnClick += DoCreateAccount;

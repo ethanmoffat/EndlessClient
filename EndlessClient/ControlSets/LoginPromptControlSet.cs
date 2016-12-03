@@ -8,7 +8,6 @@ using System.Threading;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
-using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Config;
 using EOLib.Domain.Login;
@@ -28,7 +27,7 @@ namespace EndlessClient.ControlSets
 
         private IXNATextBox _tbUsername, _tbPassword;
         private XNAButton _btnLogin, _btnCancel;
-        private PictureBox _loginPanelBackground;
+        private IXNAPictureBox _loginPanelBackground;
 
         private TextBoxClickEventHandler _clickHandler;
         private TextBoxTabEventHandler _tabHandler;
@@ -94,11 +93,12 @@ namespace EndlessClient.ControlSets
             }
         }
 
-        private PictureBox GetLoginPanelBackground()
+        private IXNAPictureBox GetLoginPanelBackground()
         {
-            return new PictureBox(_loginBackgroundTexture)
+            return new XNAPictureBox
             {
-                DrawLocation = new Vector2(266, 291),
+                Texture = _loginBackgroundTexture,
+                DrawArea = new Rectangle(266, 291, _loginBackgroundTexture.Width, _loginBackgroundTexture.Height),
                 DrawOrder = _personPicture.DrawOrder + 1
             };
         }

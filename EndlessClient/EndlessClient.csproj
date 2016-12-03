@@ -220,7 +220,6 @@
     <Compile Include="UIControls\DisposableButton.cs" />
     <Compile Include="UIControls\DisposablePictureBox.cs" />
     <Compile Include="UIControls\ICharacterInfoPanelFactory.cs" />
-    <Compile Include="UIControls\PictureBox.cs" />
     <Compile Include="UIControls\OldScrollBar.cs" />
     <Compile Include="Input\TextBoxTabEventHandler.cs" />
     <Compile Include="DependencyContainerProvider.cs" />

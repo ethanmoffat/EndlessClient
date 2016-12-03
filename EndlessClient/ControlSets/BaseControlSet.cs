@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.GameExecution;
-using EndlessClient.UIControls;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -44,7 +43,7 @@ namespace EndlessClient.ControlSets
         protected Texture2D _textBoxBackground;
 
         private Texture2D[] _backgroundImages;
-        private PictureBox _backgroundImage;
+        private IXNAPictureBox _backgroundImage;
 
         private bool _resourcesInitialized, _controlsInitialized;
 
@@ -114,11 +113,16 @@ namespace EndlessClient.ControlSets
             return control == GameControlIdentifier.BackgroundImage ? _backgroundImage : null;
         }
 
-        private PictureBox GetBackgroundImage()
+        private IXNAPictureBox GetBackgroundImage()
         {
             var rnd = new Random();
             var texture = _backgroundImages[rnd.Next(7)];
-            return new PictureBox(texture) { DrawOrder = 0 };
+            return new XNAPictureBox
+            {
+                Texture = texture,
+                DrawArea = new Rectangle(0, 0, texture.Width, texture.Height),
+                DrawOrder = 0
+            };
         }
 
         public void Dispose()
