@@ -20,7 +20,7 @@ namespace EndlessClient.HUD.Panels.Old
 {
     public class OldEOPartyPanel : XNAControl
     {
-        private readonly ScrollBar m_scrollBar;
+        private readonly OldScrollBar m_scrollBar;
         private readonly XNALabel m_numMembers;
         private List<PartyMember> m_members;
         private readonly List<XNAButton> m_buttons; 
@@ -61,7 +61,7 @@ namespace EndlessClient.HUD.Panels.Old
             };
             m_numMembers.SetParent(this);
 
-            m_scrollBar = new ScrollBar(this, new Vector2(467, 20), new Vector2(16, 97), ScrollBarColors.LightOnMed)
+            m_scrollBar = new OldScrollBar(this, new Vector2(467, 20), new Vector2(16, 97), ScrollBarColors.LightOnMed)
             {
                 LinesToRender = 7,
                 Visible = true

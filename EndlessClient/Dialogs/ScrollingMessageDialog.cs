@@ -20,7 +20,7 @@ namespace EndlessClient.Dialogs
 {
     public class ScrollingMessageDialog : EODialogBase
     {
-        private readonly ScrollBar _scrollBar;
+        private readonly OldScrollBar _scrollBar;
         private readonly List<string> _chatStrings = new List<string>();
         private readonly TextSplitter _textSplitter;
         private readonly SpriteFont _font;
@@ -73,7 +73,7 @@ namespace EndlessClient.Dialogs
             ok.SetParent(this);
             dlgButtons.Add(ok);
 
-            _scrollBar = new ScrollBar(this,
+            _scrollBar = new OldScrollBar(this,
                 new Vector2(320, 66),
                 new Vector2(16, 119),
                 ScrollBarColors.LightOnMed,

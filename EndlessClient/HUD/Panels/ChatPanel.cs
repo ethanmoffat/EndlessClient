@@ -30,7 +30,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IHudControlProvider _hudControlProvider;
         private readonly SpriteFont _chatFont;
 
-        private readonly ScrollBar _scrollBar;
+        private readonly OldScrollBar _scrollBar;
         private readonly List<IChatRenderable> _chatRenderables;
 
         private readonly ChatPanelStateCache _state;
@@ -61,7 +61,7 @@ namespace EndlessClient.HUD.Panels
             _chatFont = chatFont;
 
             //abs coordiantes: 568 309
-            _scrollBar = new ScrollBar(this, new Vector2(467, 2), new Vector2(16, 97), ScrollBarColors.LightOnMed, _nativeGraphicsManager)
+            _scrollBar = new OldScrollBar(this, new Vector2(467, 2), new Vector2(16, 97), ScrollBarColors.LightOnMed, _nativeGraphicsManager)
             {
                 LinesToRender = 7,
                 Visible = true

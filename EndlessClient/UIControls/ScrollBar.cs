@@ -21,7 +21,7 @@ namespace EndlessClient.UIControls
         DarkOnDark //very bottom set
     }
 
-    public class ScrollBar : XNAControl
+    public class OldScrollBar : XNAControl
     {
         private Rectangle scrollArea; //area valid for scrolling: always 16 from top and 16 from bottom
         public int ScrollOffset { get; private set; }
@@ -31,13 +31,13 @@ namespace EndlessClient.UIControls
 
         private int _totalHeight;
 
-        public ScrollBar(XNAControl parent,
+        public OldScrollBar(XNAControl parent,
             Vector2 locationRelativeToParent,
             Vector2 size,
             ScrollBarColors palette)
             : this(parent, locationRelativeToParent, size, palette, EOGame.Instance.GFXManager) { }
 
-        public ScrollBar(XNAControl parent,
+        public OldScrollBar(XNAControl parent,
             Vector2 locationRelaiveToParent,
             Vector2 size,
             ScrollBarColors palette,

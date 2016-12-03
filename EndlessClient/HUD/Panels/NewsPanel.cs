@@ -19,7 +19,7 @@ namespace EndlessClient.HUD.Panels
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IChatRenderableGenerator _chatRenderableGenerator;
         private readonly INewsProvider _newsProvider;
-        private readonly ScrollBar _scrollBar;
+        private readonly OldScrollBar _scrollBar;
         private readonly List<IChatRenderable> _chatRenderables;
         private readonly SpriteFont _chatFont;
 
@@ -41,7 +41,7 @@ namespace EndlessClient.HUD.Panels
             _newsProvider = newsProvider;
 
             //abs coordiantes: 568 331
-            _scrollBar = new ScrollBar(this, new Vector2(467, 20), new Vector2(16, 97), ScrollBarColors.LightOnMed, _nativeGraphicsManager)
+            _scrollBar = new OldScrollBar(this, new Vector2(467, 20), new Vector2(16, 97), ScrollBarColors.LightOnMed, _nativeGraphicsManager)
             {
                 LinesToRender = 7,
                 Visible = true

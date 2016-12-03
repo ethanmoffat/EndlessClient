@@ -33,7 +33,7 @@ namespace EndlessClient.Dialogs
         private string m_leftNameStr, m_rightNameStr;
         private readonly XNALabel m_leftPlayerName, m_rightPlayerName;
         private readonly XNALabel m_leftPlayerStatus, m_rightPlayerStatus;
-        private readonly ScrollBar m_leftScroll, m_rightScroll;
+        private readonly OldScrollBar m_leftScroll, m_rightScroll;
         private bool m_leftAgrees, m_rightAgrees;
         private readonly List<ListDialogItem> m_leftItems, m_rightItems;
 
@@ -99,8 +99,8 @@ namespace EndlessClient.Dialogs
             };
             m_rightPlayerStatus.SetParent(this);
 
-            m_leftScroll = new ScrollBar(this, new Vector2(252, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed) { LinesToRender = 5 };
-            m_rightScroll = new ScrollBar(this, new Vector2(518, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed) { LinesToRender = 5 };
+            m_leftScroll = new OldScrollBar(this, new Vector2(252, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed) { LinesToRender = 5 };
+            m_rightScroll = new OldScrollBar(this, new Vector2(518, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed) { LinesToRender = 5 };
 
             //BUTTONSSSS
             XNAButton ok = new XNAButton(smallButtonSheet, new Vector2(356, 252), _getSmallButtonOut(SmallButton.Ok),
@@ -149,7 +149,7 @@ namespace EndlessClient.Dialogs
         {
             int xOffset;
             List<ListDialogItem> collectionRef;
-            ScrollBar scrollRef;
+            OldScrollBar scrollRef;
 
             if (playerID == m_leftPlayerID)
             {
@@ -410,7 +410,7 @@ namespace EndlessClient.Dialogs
             }
 
             //do the hiding logic for both sides
-            List<ScrollBar> scrollBars = new List<ScrollBar> { m_leftScroll, m_rightScroll };
+            List<OldScrollBar> scrollBars = new List<OldScrollBar> { m_leftScroll, m_rightScroll };
             List<List<ListDialogItem>> lists = new List<List<ListDialogItem>> { m_leftItems, m_rightItems };
             for (int ndx = 0; ndx < 2; ++ndx)
             {

@@ -41,7 +41,7 @@ namespace EndlessClient.HUD.Panels.Old
         private readonly XNAButton _levelUpButton1, _levelUpButton2;
 
         private int _lastScrollOffset;
-        private readonly ScrollBar _scroll;
+        private readonly OldScrollBar _scroll;
 
         private bool _trainWarningShown;
 
@@ -143,7 +143,7 @@ namespace EndlessClient.HUD.Panels.Old
             _levelUpButton2.OnClick += LevelUp_Click;
             _levelUpButton2.SetParent(this);
 
-            _scroll = new ScrollBar(this, new Vector2(467, 2), new Vector2(16, 115), ScrollBarColors.LightOnMed) { LinesToRender = 2 };
+            _scroll = new OldScrollBar(this, new Vector2(467, 2), new Vector2(16, 115), ScrollBarColors.LightOnMed) { LinesToRender = 2 };
             _scroll.UpdateDimensions(4);
 
             foreach (var child in children.Where(x => !(x is EmptySpellIcon)))

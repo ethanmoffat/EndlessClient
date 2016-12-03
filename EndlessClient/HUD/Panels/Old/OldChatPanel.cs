@@ -24,7 +24,7 @@ namespace EndlessClient.HUD.Panels.Old
     {
         private bool Selected { get; set; }
         private ChatTab WhichTab { get; set; }
-        private readonly ScrollBar scrollBar;
+        private readonly OldScrollBar scrollBar;
 
         private struct ChatIndex : IComparable
         {
@@ -113,7 +113,7 @@ namespace EndlessClient.HUD.Panels.Old
             relativeTextPos = new Vector2(20, 3);
             
             //568 331
-            scrollBar = new ScrollBar(parent, new Vector2(467, 2), new Vector2(16, 97), ScrollBarColors.LightOnMed)
+            scrollBar = new OldScrollBar(parent, new Vector2(467, 2), new Vector2(16, 97), ScrollBarColors.LightOnMed)
             {
                 Visible = selected,
                 LinesToRender = 7

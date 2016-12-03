@@ -80,7 +80,7 @@ namespace EndlessClient.Dialogs
             m_scrollBar.SetParent(null);
             m_scrollBar.Close();
 
-            m_scrollBar = new ScrollBar(this, new Vector2(252, 44), new Vector2(16, 99), ScrollBarColors.LightOnMed);
+            m_scrollBar = new OldScrollBar(this, new Vector2(252, 44), new Vector2(16, 99), ScrollBarColors.LightOnMed);
             m_scrollBar.SetParent(this);
             SmallItemStyleMaxItemDisplay = 6;
         }

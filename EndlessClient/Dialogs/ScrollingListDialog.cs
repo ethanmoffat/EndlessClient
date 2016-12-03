@@ -33,7 +33,7 @@ namespace EndlessClient.Dialogs
 
         private readonly List<ListDialogItem> m_listItems = new List<ListDialogItem>();
         private readonly object m_listItemLock = new object();
-        protected ScrollBar m_scrollBar;
+        protected OldScrollBar m_scrollBar;
 
         /// <summary>
         /// List of strings containing the primary text field of each child item
@@ -106,7 +106,7 @@ namespace EndlessClient.Dialogs
             };
             m_titleText.SetParent(this);
 
-            m_scrollBar = new ScrollBar(this, new Vector2(252, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed);
+            m_scrollBar = new OldScrollBar(this, new Vector2(252, 44), new Vector2(16, 199), ScrollBarColors.LightOnMed);
 
             Center(Game.GraphicsDevice);
             DrawLocation = new Vector2(DrawLocation.X, 15);
