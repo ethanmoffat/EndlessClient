@@ -139,7 +139,7 @@ namespace EndlessClient.ControlSets
                 LeftPadding = 4,
                 DefaultText = "Password",
                 DrawOrder = _personPicture.DrawOrder + 2,
-                DefaultTextColor = Color.FromNonPremultiplied(0x80, 0x80, 0x80, 0xff),
+                DefaultTextColor = Color.FromNonPremultiplied(80, 80, 80, 0xff),
                 TextColor = Color.Black
             };
             textBox.OnEnterPressed += DoLogin;
