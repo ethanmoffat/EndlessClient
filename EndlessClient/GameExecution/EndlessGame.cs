@@ -43,10 +43,20 @@ namespace EndlessClient.GameExecution
 
         protected override void Initialize()
         {
+            base.Initialize();
+
             IsMouseVisible = true;
             _previousKeyState = Keyboard.GetState();
 
-            base.Initialize();
+            var controls = _controlSetFactory.CreateControlsForState(
+                GameStates.Initial,
+                _controlSetRepository.CurrentControlSet);
+            _controlSetRepository.CurrentControlSet = controls;
+
+            //since the controls are being created in Initialize(), adding them to the default game
+            //  doesn't call the Initialize() method on any controls, so it must be done here
+            foreach (var xnaControl in _controlSetRepository.CurrentControlSet.AllComponents)
+                xnaControl.Initialize();
         }
 
         protected override void LoadContent()
@@ -54,13 +64,6 @@ namespace EndlessClient.GameExecution
             //the GraphicsDevice doesn't exist until Initialize() is called by the framework
             //Ideally, this would be set in a DependencyContainer, but I'm not sure of a way to do that now
             _graphicsDeviceRepository.GraphicsDevice = GraphicsDevice;
-
-            var controls = _controlSetFactory.CreateControlsForState(
-                GameStates.Initial,
-                _controlSetRepository.CurrentControlSet);
-
-            _controlSetRepository.CurrentControlSet = controls;
-
             base.LoadContent();
         }
 

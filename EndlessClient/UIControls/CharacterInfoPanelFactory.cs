@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using EndlessClient.Controllers;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Login;
@@ -18,6 +19,7 @@ namespace EndlessClient.UIControls
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly IRendererRepositoryResetter _rendererRepositoryResetter;
+        private readonly IEODialogButtonService _eoDialogButtonService;
 
         private ILoginController _loginController;
         private ICharacterManagementController _characterManagementController;
@@ -25,12 +27,14 @@ namespace EndlessClient.UIControls
         public CharacterInfoPanelFactory(ICharacterSelectorProvider characterProvider,
                                          INativeGraphicsManager nativeGraphicsManager,
                                          ICharacterRendererFactory characterRendererFactory,
-                                         IRendererRepositoryResetter rendererRepositoryResetter)
+                                         IRendererRepositoryResetter rendererRepositoryResetter,
+                                         IEODialogButtonService eoDialogButtonService)
         {
             _characterProvider = characterProvider;
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterRendererFactory = characterRendererFactory;
             _rendererRepositoryResetter = rendererRepositoryResetter;
+            _eoDialogButtonService = eoDialogButtonService;
         }
 
         public void InjectLoginController(ILoginController loginController)
@@ -55,6 +59,7 @@ namespace EndlessClient.UIControls
                 yield return new CharacterInfoPanel(i,
                                                     character,
                                                     _nativeGraphicsManager,
+                                                    _eoDialogButtonService,
                                                     _loginController,
                                                     _characterManagementController,
                                                     _characterRendererFactory,
@@ -62,7 +67,7 @@ namespace EndlessClient.UIControls
             }
 
             for (; i < 3; ++i)
-                yield return new EmptyCharacterInfoPanel(i, _nativeGraphicsManager);
+                yield return new EmptyCharacterInfoPanel(i, _nativeGraphicsManager, _eoDialogButtonService);
         }
     }
 }

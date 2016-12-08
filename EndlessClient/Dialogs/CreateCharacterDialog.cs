@@ -17,48 +17,47 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
-using XNAControls.Old;
-using XNAButton = XNAControls.Old.XNAButton;
-using XNADialogResult = XNAControls.Old.XNADialogResult;
-using XNATextBox = XNAControls.Old.XNATextBox;
 
 namespace EndlessClient.Dialogs
 {
-    public class CreateCharacterDialog : EODialogBase
+    public class CreateCharacterDialog : BaseEODialog
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
         private readonly TaskCompletionSource<XNADialogResult> _dialogResultCompletionSource;
 
-        private readonly XNATextBox _inputBox;
-        private readonly XNAButton[] _arrowButtons = new XNAButton[4];
+        private readonly IXNATextBox _inputBox;
+        private readonly IXNAButton[] _arrowButtons = new IXNAButton[4];
 
         private readonly CreateCharacterControl _characterControl;
 
         private readonly Rectangle[] _srcRectangles = new Rectangle[4];
         private readonly Texture2D _charCreateSheet;
 
+        public string Name { get { return _inputBox.Text.Trim(); } }
+
         private ICharacterRenderProperties RenderProperties { get { return _characterControl.RenderProperties; } }
-        private string Name { get { return _inputBox.Text; } }
+        public byte Gender { get { return RenderProperties.Gender; } }
+        public byte HairStyle { get { return RenderProperties.HairStyle; } }
+        public byte HairColor { get { return RenderProperties.HairColor; } }
+        public byte Race { get { return RenderProperties.Race; } }
 
         public CreateCharacterDialog(
             INativeGraphicsManager nativeGraphicsManager,
-            IGraphicsDeviceProvider graphicsDeviceProvider,
             IGameStateProvider gameStateProvider,
             ICharacterRendererFactory rendererFactory,
             ContentManager contentManager,
             KeyboardDispatcher dispatcher,
-            IEOMessageBoxFactory messageBoxFactory)
-            : base(nativeGraphicsManager)
+            IEOMessageBoxFactory messageBoxFactory,
+            IEODialogButtonService eoDialogButtonService)
+            : base(gameStateProvider)
         {
             _messageBoxFactory = messageBoxFactory;
-            bgTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 20);
-            _setSize(bgTexture.Width, bgTexture.Height);
+            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 20);
 
             _charCreateSheet = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 22);
 
-            dispatcher.Subscriber.Selected = false;
             var cursorTexture = contentManager.Load<Texture2D>("cursor");
-            _inputBox = new XNATextBox(new Rectangle(80, 57, 138, 19), cursorTexture, Constants.FontSize08)
+            _inputBox = new XNATextBox(new Rectangle(80, 57, 138, 19), Constants.FontSize08, caretTexture: cursorTexture)
             {
                 LeftPadding = 5,
                 DefaultText = " ",
@@ -68,7 +67,7 @@ namespace EndlessClient.Dialogs
                 TextColor = ColorConstants.LightBeigeText,
                 Visible = true
             };
-            _inputBox.SetParent(this);
+            _inputBox.SetParentControl(this);
             dispatcher.Subscriber = _inputBox;
 
             for (int i = 0; i < _arrowButtons.Length; ++i)
@@ -78,39 +77,38 @@ namespace EndlessClient.Dialogs
                     new Rectangle(185, 38, 19, 19),
                     new Rectangle(206, 38, 19, 19));
                 btn.OnClick += ArrowButtonClick;
-                btn.SetParent(this);
+                btn.SetParentControl(this);
                 _arrowButtons[i] = btn;
             }
 
-            _characterControl = new CreateCharacterControl(rendererFactory);
-            _characterControl.SetParent(this);
-            _characterControl.DrawLocation = new Vector2(235, 58);
+            _characterControl = new CreateCharacterControl(rendererFactory)
+            {
+                DrawPosition = new Vector2(235, 58)
+            };
+            _characterControl.SetParentControl(this);
 
             _srcRectangles[0] = new Rectangle(0, 38, 23, 19);
             _srcRectangles[1] = new Rectangle(0, 19, 23, 19);
             _srcRectangles[2] = new Rectangle(0, 0, 23, 19);
             _srcRectangles[3] = new Rectangle(46, 38, 23, 19);
 
-            var okButton = new XNAButton(smallButtonSheet,
+            var okButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(157, 195),
-                _getSmallButtonOut(SmallButton.Ok),
-                _getSmallButtonOver(SmallButton.Ok));
-            okButton.OnClick += (s, e) => Close(okButton, XNADialogResult.OK);
-            okButton.SetParent(this);
-            dlgButtons.Add(okButton);
+                eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
+                eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
+            okButton.OnClick += (s, e) => ClickOk();
+            okButton.SetParentControl(this);
 
-            var cancelButton = new XNAButton(smallButtonSheet,
+            var cancelButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(250, 195),
-                _getSmallButtonOut(SmallButton.Cancel),
-                _getSmallButtonOver(SmallButton.Cancel));
-            cancelButton.OnClick += (s, e) => Close(cancelButton, XNADialogResult.Cancel);
-            cancelButton.SetParent(this);
-            dlgButtons.Add(cancelButton);
+                eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
+                eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
+            cancelButton.OnClick += (s, e) => Close(XNADialogResult.Cancel);
+            cancelButton.SetParentControl(this);
 
             _dialogResultCompletionSource = new TaskCompletionSource<XNADialogResult>();
-            DialogClosing += DialogClosingHandler;
 
-            CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
+            CenterInGameView();
         }
 
         public override void Initialize()
@@ -119,35 +117,21 @@ namespace EndlessClient.Dialogs
             base.Initialize();
         }
 
-        public override void Draw(GameTime gt)
+        protected override void OnDrawControl(GameTime gt)
         {
-            if ((parent != null && !parent.Visible) || !Visible)
-                return;
+            base.OnDrawControl(gt);
 
-            base.Draw(gt);
+            _spriteBatch.Begin();
 
-            SpriteBatch.Begin();
+            for (int i = 0; i < 4; ++i)
+            {
+                _spriteBatch.Draw(_charCreateSheet,
+                    new Vector2(170 + DrawPositionWithParentOffset.X,
+                                84 + i*37 + DrawPositionWithParentOffset.Y),
+                    _srcRectangles[i], Color.White);
+            }
 
-            SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 84 + DrawAreaWithOffset.Y), _srcRectangles[0], Color.White);
-            SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 111 + DrawAreaWithOffset.Y), _srcRectangles[1], Color.White);
-            SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 138 + DrawAreaWithOffset.Y), _srcRectangles[2], Color.White);
-            SpriteBatch.Draw(_charCreateSheet, new Vector2(170 + DrawAreaWithOffset.X, 165 + DrawAreaWithOffset.Y), _srcRectangles[3], Color.White);
-
-            SpriteBatch.End();
-        }
-
-        public new async Task<ICharacterCreateParameters> Show()
-        {
-            var result = await _dialogResultCompletionSource.Task;
-
-            if (result == XNADialogResult.Cancel)
-                throw new OperationCanceledException();
-
-            return new CharacterCreateParameters(Name.Trim(),
-                RenderProperties.Gender,
-                RenderProperties.HairStyle,
-                RenderProperties.HairColor,
-                RenderProperties.Race);
+            _spriteBatch.End();
         }
 
         private void ArrowButtonClick(object sender, EventArgs e)
@@ -177,18 +161,18 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        private void DialogClosingHandler(object sender, CloseDialogEventArgs args)
+        private void ClickOk()
         {
-            if (args.Result == XNADialogResult.OK && _inputBox.Text.Length < 4)
+            if (_inputBox.Text.Length < 4)
             {
                 _messageBoxFactory.CreateMessageBox(DialogResourceID.CHARACTER_CREATE_NAME_TOO_SHORT,
                                                     EODialogButtons.Ok,
                                                     EOMessageBoxStyle.SmallDialogLargeHeader);
-                args.CancelClose = true;
-                return;
             }
-
-            _dialogResultCompletionSource.SetResult(args.Result);
+            else
+            {
+                _dialogResultCompletionSource.SetResult(XNADialogResult.OK);
+            }
         }
     }
 }

@@ -18,30 +18,31 @@ namespace EndlessClient.UIControls
         public CreateCharacterControl(ICharacterRendererFactory characterRendererFactory)
             : base(GetDefaultProperties(), characterRendererFactory)
         {
-            _setSize(99, 123);
+            SetSize(99, 123);
             _lastPosition = Vector2.Zero;
         }
 
-        public override void Update(GameTime gameTime)
+        protected override void OnUpdateControl(GameTime gameTime)
         {
             if (!ShouldUpdate())
                 return;
 
-            var actualDrawPosition = new Vector2(DrawAreaWithOffset.X + 34, DrawAreaWithOffset.Y + 25);
+            var actualDrawPosition = new Vector2(DrawPositionWithParentOffset.X + 34,
+                                                 DrawPositionWithParentOffset.Y + 25);
+
             if (_lastPosition != actualDrawPosition)
                 _characterRenderer.SetAbsoluteScreenPosition((int)actualDrawPosition.X, (int)actualDrawPosition.Y);
 
-            var currentState = Mouse.GetState();
-            if (((currentState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed) ||
-                (currentState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)) &&
-                DrawAreaWithOffset.ContainsPoint(currentState.X, currentState.Y))
+            if (((CurrentMouseState.LeftButton == ButtonState.Released && PreviousMouseState.LeftButton == ButtonState.Pressed) ||
+                (CurrentMouseState.RightButton == ButtonState.Released && PreviousMouseState.RightButton == ButtonState.Pressed)) &&
+                DrawAreaWithParentOffset.ContainsPoint(CurrentMouseState.X, CurrentMouseState.Y))
             {
                 var nextDirectionInt = (int)RenderProperties.Direction + 1;
                 var nextDirection = (EODirection)(nextDirectionInt % 4);
                 RenderProperties = RenderProperties.WithDirection(nextDirection);
             }
 
-            base.Update(gameTime);
+            base.OnUpdateControl(gameTime);
 
             _lastPosition = actualDrawPosition;
         }

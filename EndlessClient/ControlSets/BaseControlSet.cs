@@ -90,10 +90,7 @@ namespace EndlessClient.ControlSets
             InitializeControlsHelper(currentControlSet);
 
             foreach (var control in XNAControlComponents)
-            {
-                control.Initialize();
                 control.AddControlToDefaultGame();
-            }
 
             _controlsInitialized = true;
         }

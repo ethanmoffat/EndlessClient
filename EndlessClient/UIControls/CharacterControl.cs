@@ -6,7 +6,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.UIControls
 {
@@ -20,7 +20,8 @@ namespace EndlessClient.UIControls
 
         protected readonly ICharacterRenderer _characterRenderer;
 
-        public CharacterControl(ICharacterRenderProperties initialProperties, ICharacterRendererFactory characterRendererFactory)
+        public CharacterControl(ICharacterRenderProperties initialProperties,
+                                ICharacterRendererFactory characterRendererFactory)
         {
             _characterRenderer = characterRendererFactory.CreateCharacterRenderer(initialProperties);
         }
@@ -28,34 +29,27 @@ namespace EndlessClient.UIControls
         public override void Initialize()
         {
             _characterRenderer.Initialize();
-            _characterRenderer.SetAbsoluteScreenPosition(DrawAreaWithOffset.X, DrawAreaWithOffset.Y);
+            _characterRenderer.SetAbsoluteScreenPosition(DrawAreaWithParentOffset.X, DrawAreaWithParentOffset.Y);
 
             base.Initialize();
         }
 
-        public override void Update(GameTime gameTime)
+        protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (!ShouldUpdate())
-                return;
-            
             _characterRenderer.Update(gameTime);
-
-            base.Update(gameTime);
+            base.OnUpdateControl(gameTime);
         }
 
-        public override void Draw(GameTime gameTime)
+        protected override void OnDrawControl(GameTime gameTime)
         {
             _characterRenderer.Draw(gameTime);
-
-            base.Draw(gameTime);
+            base.OnDrawControl(gameTime);
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
-            {
                 _characterRenderer.Dispose();
-            }
 
             base.Dispose(disposing);
         }

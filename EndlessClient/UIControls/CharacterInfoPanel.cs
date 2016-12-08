@@ -6,6 +6,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using EndlessClient.Controllers;
+using EndlessClient.Dialogs.Services;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
@@ -14,7 +15,7 @@ using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.UIControls
 {
@@ -30,29 +31,32 @@ namespace EndlessClient.UIControls
 
         private readonly Texture2D _backgroundImage;
 
+        private readonly IXNAButton _loginButton, _deleteButton;
+        private readonly IXNALabel _nameLabel, _levelLabel;
+
         private int _clickRequests;
 
         //top left - 334, 36 + ndx*124
-        protected CharacterInfoPanel(int characterIndex, INativeGraphicsManager gfxManager)
+        protected CharacterInfoPanel(int characterIndex,
+                                     INativeGraphicsManager gfxManager,
+                                     IEODialogButtonService dialogButtonService)
         {
             _gfxManager = gfxManager;
-            DrawLocation = new Vector2(334, 36 + characterIndex*124);
+            DrawPosition = new Vector2(334, 36 + characterIndex*124);
 
-            var smallButtonTextures = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
-
-            var loginButton = new XNAButton(smallButtonTextures,
+            _loginButton = new XNAButton(dialogButtonService.SmallButtonSheet,
                 new Vector2(161, 57),
-                new Rectangle(0, 58, 91, 29),
-                new Rectangle(91, 58, 91, 29));
-            loginButton.OnClick += async (o, e) => await LoginButtonClick();
-            loginButton.SetParent(this);
+                dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Login),
+                dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Login));
+            _loginButton.OnClick += async (o, e) => await LoginButtonClick();
+            _loginButton.SetParentControl(this);
 
-            var deleteButton = new XNAButton(smallButtonTextures,
+            _deleteButton = new XNAButton(dialogButtonService.SmallButtonSheet,
                 new Vector2(161, 85),
-                new Rectangle(0, 87, 91, 29),
-                new Rectangle(91, 87, 91, 29));
-            deleteButton.OnClick += async (o, e) => await DeleteButtonClick();
-            deleteButton.SetParent(this);
+                dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Delete),
+                dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Delete));
+            _deleteButton.OnClick += async (o, e) => await DeleteButtonClick();
+            _deleteButton.SetParentControl(this);
 
             _backgroundImage = _gfxManager.TextureFromResource(GFXTypes.PreLoginUI, 11);
         }
@@ -60,11 +64,12 @@ namespace EndlessClient.UIControls
         public CharacterInfoPanel(int characterIndex,
                                   ICharacter character,
                                   INativeGraphicsManager gfxManager,
+                                  IEODialogButtonService dialogButtonService,
                                   ILoginController loginController,
                                   ICharacterManagementController characterManagementController,
                                   ICharacterRendererFactory rendererFactory,
                                   IRendererRepositoryResetter rendererRepositoryResetter)
-            : this(characterIndex, gfxManager)
+            : this(characterIndex, gfxManager, dialogButtonService)
         {
             _character = character;
             _loginController = loginController;
@@ -73,25 +78,27 @@ namespace EndlessClient.UIControls
 
             _characterControl = new CharacterControl(character.RenderProperties, rendererFactory)
             {
-                DrawLocation = new Vector2(61, 24)
+                DrawPosition = new Vector2(61, 24)
             };
-            _characterControl.SetParent(this);
+            _characterControl.SetParentControl(this);
 
-            var nameLabel = new XNALabel(GetNameLabelLocation(), Constants.FontSize08pt5)
+            _nameLabel = new XNALabel(Constants.FontSize08pt5)
             {
+                DrawArea = GetNameLabelLocation(),
                 ForeColor = ColorConstants.BeigeText,
                 Text = CapitalizeName(character.Name),
                 TextAlign = LabelAlignment.MiddleCenter,
                 AutoSize = false
             };
-            nameLabel.SetParent(this);
+            _nameLabel.SetParentControl(this);
 
-            var levelLabel = new XNALabel(GetLevelLabelLocation(), Constants.FontSize08pt75)
+            _levelLabel = new XNALabel(Constants.FontSize08pt75)
             {
+                DrawArea = GetLevelLabelLocation(),
                 ForeColor = ColorConstants.BeigeText,
                 Text = character.Stats.Stats[CharacterStat.Level].ToString()
             };
-            levelLabel.SetParent(this);
+            _levelLabel.SetParentControl(this);
 
             _adminGraphic = CreateAdminGraphic(character.AdminLevel);
         }
@@ -100,31 +107,29 @@ namespace EndlessClient.UIControls
         {
             _characterControl.Initialize();
 
+            _loginButton.Initialize();
+            _deleteButton.Initialize();
+            _nameLabel.Initialize();
+            _levelLabel.Initialize();
+
             base.Initialize();
         }
 
-        public override void Update(GameTime gameTime)
+        protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (!ShouldUpdate())
-                return;
-
             DoUpdateLogic(gameTime);
-
-            base.Update(gameTime);
+            base.OnUpdateControl(gameTime);
         }
 
-        public override void Draw(GameTime gameTime)
+        protected override void OnDrawControl(GameTime gameTime)
         {
-            if (!Visible)
-                return;
-
-            SpriteBatch.Begin();
-            SpriteBatch.Draw(_backgroundImage, DrawLocation, Color.White);
-            SpriteBatch.End();
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(_backgroundImage, DrawPositionWithParentOffset, Color.White);
+            _spriteBatch.End();
 
             DoDrawLogic(gameTime);
 
-            base.Draw(gameTime);
+            base.OnDrawControl(gameTime);
         }
 
         protected virtual async Task LoginButtonClick()
@@ -170,9 +175,9 @@ namespace EndlessClient.UIControls
 
             if (_adminGraphic.HasTexture)
             {
-                SpriteBatch.Begin();
-                SpriteBatch.Draw(_adminGraphic.SheetTexture, GetAdminGraphicLocation(), _adminGraphic.SourceRectangle, Color.White);
-                SpriteBatch.End();
+                _spriteBatch.Begin();
+                _spriteBatch.Draw(_adminGraphic.SheetTexture, GetAdminGraphicLocation(), _adminGraphic.SourceRectangle, Color.White);
+                _spriteBatch.End();
             }
         }
 
@@ -188,7 +193,7 @@ namespace EndlessClient.UIControls
 
         private Vector2 GetAdminGraphicLocation()
         {
-            return new Vector2(DrawAreaWithOffset.X + 109, DrawAreaWithOffset.Y + 97);
+            return new Vector2(DrawAreaWithParentOffset.X + 109, DrawAreaWithParentOffset.Y + 97);
         }
 
         private static string CapitalizeName(string name)
@@ -221,8 +226,10 @@ namespace EndlessClient.UIControls
     /// </summary>
     public class EmptyCharacterInfoPanel : CharacterInfoPanel
     {
-        public EmptyCharacterInfoPanel(int characterIndex, INativeGraphicsManager gfxManager)
-            : base(characterIndex, gfxManager)
+        public EmptyCharacterInfoPanel(int characterIndex,
+            INativeGraphicsManager gfxManager,
+            IEODialogButtonService dialogButtonService)
+            : base(characterIndex, gfxManager, dialogButtonService)
         {
         }
 

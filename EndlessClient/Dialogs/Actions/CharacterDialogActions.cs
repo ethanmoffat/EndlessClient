@@ -25,12 +25,11 @@ namespace EndlessClient.Dialogs.Actions
 
         public async Task<ICharacterCreateParameters> ShowCreateCharacterDialog()
         {
-            try
-            {
-                var dialog = _createCharacterDialogFactory.BuildCreateCharacterDialog();
-                return await dialog.Show();
-            }
-            catch (OperationCanceledException) { return null; }
+            var dialog = _createCharacterDialogFactory.BuildCreateCharacterDialog();
+            var result = await dialog.ShowDialogAsync();
+            return result == XNADialogResult.OK
+                ? new CharacterCreateParameters(dialog.Name, dialog.Gender, dialog.HairStyle, dialog.HairColor, dialog.Race)
+                : null;
         }
 
         public void ShowCharacterReplyDialog(CharacterReply response)
