@@ -39,7 +39,8 @@ namespace EndlessClient.Dialogs.Actions
                 _localizedStringFinder.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_2),
                 _localizedStringFinder.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_3));
 
-            _createAccountWarningDialogFactory.ShowCreateAccountWarningDialog(message);
+            var dialog = _createAccountWarningDialogFactory.ShowCreateAccountWarningDialog(message);
+            dialog.ShowDialog();
         }
 
         public async Task ShowCreatePendingDialog()

@@ -5,6 +5,7 @@
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -24,17 +25,20 @@ namespace EndlessClient.Dialogs.Factories
             _eoDialogButtonService = eoDialogButtonService;
         }
 
-        public void ShowCreateAccountWarningDialog(string warningMessage)
+        public IXNADialog ShowCreateAccountWarningDialog(string warningMessage)
         {
-            var warningDialog = new ScrollingMessageDialog(
+            return new ScrollingMessageDialog(
                 _nativeGraphicsManager,
                 _gameStateProvider,
                 _eoDialogButtonService)
             {
                 MessageText = warningMessage
             };
-
-            warningDialog.ShowDialog();
         }
+    }
+
+    public interface ICreateAccountWarningDialogFactory
+    {
+        IXNADialog ShowCreateAccountWarningDialog(string warningMessage);
     }
 }
