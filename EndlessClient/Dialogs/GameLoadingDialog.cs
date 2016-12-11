@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Collections.Generic;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EOLib;
@@ -11,58 +10,71 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
-    public class GameLoadingDialog : EODialogBase
+    public class GameLoadingDialog : BaseEODialog
     {
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly Texture2D _backgroundSprite;
+        private readonly IXNALabel _message, _caption;
+
         private DateTime _lastBackgroundUpdate;
         private int _bgSrcIndex;
 
         public GameLoadingDialog(INativeGraphicsManager nativeGraphicsManager,
                                  IGameStateProvider gameStateProvider,
-                                 IGraphicsDeviceProvider graphicsDeviceProvider,
                                  IClientWindowSizeProvider clientWindowSizeProvider,
                                  ILocalizedStringFinder localizedStringFinder)
-            : base(nativeGraphicsManager)
+            : base(gameStateProvider)
         {
             _localizedStringFinder = localizedStringFinder;
             _backgroundSprite = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 33);
 
-            DrawLocation = new Vector2(clientWindowSizeProvider.Width - _backgroundSprite.Width / 4 - 10,
+            DrawPosition = new Vector2(clientWindowSizeProvider.Width - _backgroundSprite.Width / 4 - 10,
                                        clientWindowSizeProvider.Height - _backgroundSprite.Height - 10);
 
-            _setSize(_backgroundSprite.Width / 4, _backgroundSprite.Height);
+            SetSize(_backgroundSprite.Width / 4, _backgroundSprite.Height);
 
             _bgSrcIndex = 0;
             _lastBackgroundUpdate = DateTime.Now;
 
-            caption = new XNALabel(new Rectangle(12, 9, 1, 1), Constants.FontSize10)
+            _caption = new XNALabel(Constants.FontSize10)
             {
+                AutoSize = true,
                 Text = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_PLEASE_WAIT),
-                ForeColor = ColorConstants.LightYellowText
+                ForeColor = ColorConstants.LightYellowText,
+                DrawPosition = new Vector2(12, 9)
             };
-            caption.SetParent(this);
+            _caption.SetParentControl(this);
 
             var gen = new Random();
             var messageTextID = (EOResourceID)gen.Next((int)EOResourceID.LOADING_GAME_HINT_FIRST, (int)EOResourceID.LOADING_GAME_HINT_LAST);
             var localizedMessage = _localizedStringFinder.GetString(messageTextID);
 
-            message = new XNALabel(new Rectangle(18, 61, 1, 1), Constants.FontSize08)
+            _message = new XNALabel(Constants.FontSize08)
             {
+                AutoSize = true,
                 TextWidth = 175,
                 ForeColor = ColorConstants.MediumGrayText,
-                Text = localizedMessage
+                Text = localizedMessage,
+                DrawPosition = new Vector2(18, 61)
             };
-            message.SetParent(this);
+            _message.SetParentControl(this);
 
-            CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider, false);
+            CenterInGameView();
         }
 
-        public override void Update(GameTime gt)
+        public override void Initialize()
+        {
+            _caption.Initialize();
+            _message.Initialize();
+
+            base.Initialize();
+        }
+
+        protected override void OnUpdateControl(GameTime gt)
         {
             if ((int) (DateTime.Now - _lastBackgroundUpdate).TotalMilliseconds > 500)
             {
@@ -70,22 +82,19 @@ namespace EndlessClient.Dialogs
                 _lastBackgroundUpdate = DateTime.Now;
             }
 
-            base.Update(gt);
+            base.OnUpdateControl(gt);
         }
 
-        public override void Draw(GameTime gt)
+        protected override void OnDrawControl(GameTime gt)
         {
-            if ((parent != null && !parent.Visible) || !Visible)
-                return;
-
-            SpriteBatch.Begin();
-            SpriteBatch.Draw(_backgroundSprite,
-                DrawAreaWithOffset,
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(_backgroundSprite,
+                DrawAreaWithParentOffset,
                 new Rectangle(_bgSrcIndex * (_backgroundSprite.Width / 4), 0, _backgroundSprite.Width / 4, _backgroundSprite.Height),
                 Color.White);
-            SpriteBatch.End();
+            _spriteBatch.End();
 
-            base.Draw(gt);
+            base.OnDrawControl(gt);
         }
 
         public void SetState(GameLoadingDialogState whichState)
@@ -93,22 +102,22 @@ namespace EndlessClient.Dialogs
             switch (whichState)
             {
                 case GameLoadingDialogState.Map:
-                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_MAP);
+                    _caption.Text = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_MAP);
                     break;
                 case GameLoadingDialogState.Item:
-                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_ITEMS);
+                    _caption.Text = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_ITEMS);
                     break;
                 case GameLoadingDialogState.NPC:
-                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_NPCS);
+                    _caption.Text = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_NPCS);
                     break;
                 case GameLoadingDialogState.Spell:
-                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_SKILLS);
+                    _caption.Text = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_SKILLS);
                     break;
                 case GameLoadingDialogState.Class:
-                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_CLASSES);
+                    _caption.Text = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_UPDATING_CLASSES);
                     break;
                 case GameLoadingDialogState.LoadingGame:
-                    CaptionText = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_LOADING_GAME);
+                    _caption.Text = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_LOADING_GAME);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException("whichState", whichState, null);
@@ -117,17 +126,7 @@ namespace EndlessClient.Dialogs
 
         public void CloseDialog()
         {
-            Close();
-
-            //workaround because XNAControls is poorly written
-            XNADialog dlg;
-            var tmpDialogs = new Stack<XNADialog>();
-            do tmpDialogs.Push(dlg = Dialogs.Pop()); while (dlg != this);
-
-            tmpDialogs.Pop(); //remove this dialog from Dialogs
-            
-            while (tmpDialogs.Count > 0) //push other dialogs back on stack
-                Dialogs.Push(tmpDialogs.Pop());
+            Close(XNADialogResult.NO_BUTTON_PRESSED);
         }
     }
 

@@ -109,6 +109,7 @@ namespace EndlessClient.Controllers
             try
             {
                 gameLoadingDialog = _gameLoadingDialogFactory.CreateGameLoadingDialog();
+                gameLoadingDialog.ShowDialog();
 
                 await InitialDelayInReleaseMode();
 
