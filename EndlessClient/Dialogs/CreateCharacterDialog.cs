@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using System.Threading.Tasks;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
@@ -23,10 +22,11 @@ namespace EndlessClient.Dialogs
     public class CreateCharacterDialog : BaseEODialog
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;
-        private readonly TaskCompletionSource<XNADialogResult> _dialogResultCompletionSource;
 
         private readonly IXNATextBox _inputBox;
         private readonly IXNAButton[] _arrowButtons = new IXNAButton[4];
+
+        private readonly IXNAButton _ok, _cancel;
 
         private readonly CreateCharacterControl _characterControl;
 
@@ -92,21 +92,19 @@ namespace EndlessClient.Dialogs
             _srcRectangles[2] = new Rectangle(0, 0, 23, 19);
             _srcRectangles[3] = new Rectangle(46, 38, 23, 19);
 
-            var okButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
+            _ok = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(157, 195),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
-            okButton.OnClick += (s, e) => ClickOk();
-            okButton.SetParentControl(this);
+            _ok.OnClick += (s, e) => ClickOk();
+            _ok.SetParentControl(this);
 
-            var cancelButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
+            _cancel = new XNAButton(eoDialogButtonService.SmallButtonSheet,
                 new Vector2(250, 195),
                 eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
                 eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
-            cancelButton.OnClick += (s, e) => Close(XNADialogResult.Cancel);
-            cancelButton.SetParentControl(this);
-
-            _dialogResultCompletionSource = new TaskCompletionSource<XNADialogResult>();
+            _cancel.OnClick += (s, e) => Close(XNADialogResult.Cancel);
+            _cancel.SetParentControl(this);
 
             CenterInGameView();
         }
@@ -114,6 +112,14 @@ namespace EndlessClient.Dialogs
         public override void Initialize()
         {
             _characterControl.Initialize();
+
+            _inputBox.Initialize();
+            foreach (var button in _arrowButtons)
+                button.Initialize();
+
+            _ok.Initialize();
+            _cancel.Initialize();
+
             base.Initialize();
         }
 
@@ -172,7 +178,7 @@ namespace EndlessClient.Dialogs
             }
             else
             {
-                _dialogResultCompletionSource.SetResult(XNADialogResult.OK);
+                Close(XNADialogResult.OK);
             }
         }
     }
