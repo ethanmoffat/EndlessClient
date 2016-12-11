@@ -7,13 +7,13 @@ using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Config;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.ControlSets
 {
     public class ViewCreditsControlSet : InitialControlSet
     {
-        private XNALabel _creditsLabel;
+        private IXNALabel _creditsLabel;
 
         public override GameStates GameState { get { return GameStates.ViewCredits; } }
 
@@ -41,7 +41,12 @@ namespace EndlessClient.ControlSets
 
         private XNALabel GetCreditsLabel()
         {
-            return new XNALabel(new Rectangle(300, 260, 1, 1), Constants.FontSize10) { Text = Constants.CreditsText };
+            return new XNALabel(Constants.FontSize10)
+            {
+                AutoSize = true,
+                Text = Constants.CreditsText,
+                DrawPosition = new Vector2(300, 260)
+            };
         }
     }
 }

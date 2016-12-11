@@ -20,11 +20,11 @@ namespace EndlessClient.ControlSets
         private readonly IConfigurationProvider _configProvider;
         private readonly IMainButtonController _mainButtonController;
 
-        private XNAButton _createAccount,
+        private IXNAButton _createAccount,
                           _login,
                           _viewCredits,
                           _exitGame;
-        private XNALabel _versionInfo;
+        private IXNALabel _versionInfo;
 
         protected IXNAPictureBox _personPicture;
 
@@ -81,35 +81,35 @@ namespace EndlessClient.ControlSets
             }
         }
 
-        private XNAButton GetMainCreateAccountButton()
+        private IXNAButton GetMainCreateAccountButton()
         {
             var button = MainButtonCreationHelper(GameControlIdentifier.InitialCreateAccount);
             button.OnClick += async (o, e) => await _mainButtonController.ClickCreateAccount();
             return button;
         }
 
-        private XNAButton GetMainLoginButton()
+        private IXNAButton GetMainLoginButton()
         {
             var button = MainButtonCreationHelper(GameControlIdentifier.InitialLogin);
             button.OnClick += async (o, e) => await _mainButtonController.ClickLogin();
             return button;
         }
 
-        private XNAButton GetViewCreditsButton()
+        private IXNAButton GetViewCreditsButton()
         {
             var button = MainButtonCreationHelper(GameControlIdentifier.InitialViewCredits);
             button.OnClick += (o, e) => _mainButtonController.ClickViewCredits();
             return button;
         }
 
-        private XNAButton GetExitButton()
+        private IXNAButton GetExitButton()
         {
             var button = MainButtonCreationHelper(GameControlIdentifier.InitialExitGame);
             button.OnClick += (o, e) => _mainButtonController.ClickExit();
             return button;
         }
 
-        private XNAButton MainButtonCreationHelper(GameControlIdentifier whichControl)
+        private IXNAButton MainButtonCreationHelper(GameControlIdentifier whichControl)
         {
             int i;
             switch (whichControl)
@@ -129,17 +129,18 @@ namespace EndlessClient.ControlSets
             return new XNAButton(_mainButtonTexture, new Vector2(26, 278 + i * 40), outSource, overSource);
         }
 
-        private XNALabel GetVersionInfoLabel()
+        private IXNALabel GetVersionInfoLabel()
         {
             return new XNALabel(Constants.FontSize07)
             {
+                AutoSize = true,
                 Text = string.Format(Constants.VersionInfoFormat,
                                      _configProvider.VersionMajor,
                                      _configProvider.VersionMinor,
                                      _configProvider.VersionBuild,
                                      _configProvider.Host,
                                      _configProvider.Port),
-                ForeColor = ColorConstants.BeigeText,
+                ForeColor = Color.Black,
                 DrawArea = new Rectangle(25, 453, 1, 1)
             };
         }
