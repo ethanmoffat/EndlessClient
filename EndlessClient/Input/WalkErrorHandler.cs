@@ -76,7 +76,8 @@ namespace EndlessClient.Input
                 {
                     var requiredKey = _unlockDoorValidator.GetRequiredKey(warp);
 
-                    _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DOOR_LOCKED);
+                    var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.DOOR_LOCKED);
+                    messageBox.ShowDialog();
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
                         EOResourceID.STATUS_LABEL_THE_DOOR_IS_LOCKED_EXCLAMATION,
                         " - " + requiredKey);

@@ -165,9 +165,10 @@ namespace EndlessClient.Dialogs
         {
             if (_inputBox.Text.Length < 4)
             {
-                _messageBoxFactory.CreateMessageBox(DialogResourceID.CHARACTER_CREATE_NAME_TOO_SHORT,
-                                                    EODialogButtons.Ok,
-                                                    EOMessageBoxStyle.SmallDialogLargeHeader);
+                var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CHARACTER_CREATE_NAME_TOO_SHORT,
+                                                                     EODialogButtons.Ok,
+                                                                     EOMessageBoxStyle.SmallDialogLargeHeader);
+                messageBox.ShowDialog();
             }
             else
             {

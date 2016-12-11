@@ -8,11 +8,6 @@ using EOLib.Localization;
 
 namespace EndlessClient.Dialogs.Actions
 {
-    public interface IFirstTimePlayerActions
-    {
-        void WarnFirstTimePlayers();
-    }
-
     public class FirstTimePlayerActions : IFirstTimePlayerActions
     {
         private readonly IPlayerInfoProvider _playerInfoProvider;
@@ -28,7 +23,15 @@ namespace EndlessClient.Dialogs.Actions
         public void WarnFirstTimePlayers()
         {
             if (_playerInfoProvider.IsFirstTimePlayer)
-                _messageBoxFactory.CreateMessageBox(DialogResourceID.WARNING_FIRST_TIME_PLAYERS);
+            {
+                var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.WARNING_FIRST_TIME_PLAYERS);
+                messageBox.ShowDialog();
+            }
         }
+    }
+
+    public interface IFirstTimePlayerActions
+    {
+        void WarnFirstTimePlayers();
     }
 }

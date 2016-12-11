@@ -60,27 +60,32 @@ namespace EndlessClient.Dialogs.Actions
                 {
                     var versionNumber = initializationData[InitializationDataKey.RequiredVersionNumber];
                     var extra = string.Format(" 0.000.0{0}", versionNumber);
-                    _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_CLIENT_OUT_OF_DATE,
+                    var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_CLIENT_OUT_OF_DATE,
                         extra,
                         EODialogButtons.Ok,
                         EOMessageBoxStyle.SmallDialogLargeHeader);
+                    messageBox.ShowDialog();
                 }
                     break;
                 case InitReply.BannedFromServer:
                 {
                     var banType = (BanType) initializationData[InitializationDataKey.BanType];
                     if (banType == BanType.PermanentBan)
-                        _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_PERM,
+                    {
+                        var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_PERM,
                             EODialogButtons.Ok,
                             EOMessageBoxStyle.SmallDialogLargeHeader);
+                        messageBox.ShowDialog();
+                    }
                     else if (banType == BanType.TemporaryBan)
                     {
                         var banMinutesRemaining = initializationData[InitializationDataKey.BanTimeRemaining];
                         var extra = string.Format(" {0} minutes.", banMinutesRemaining);
-                        _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_TEMP,
+                        var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_TEMP,
                             extra,
                             EODialogButtons.Ok,
                             EOMessageBoxStyle.SmallDialogLargeHeader);
+                        messageBox.ShowDialog();
                     }
                 }
                     break;
@@ -93,18 +98,20 @@ namespace EndlessClient.Dialogs.Actions
 
         public void ShowException(NoDataSentException ex)
         {
-            _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
+            var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
                 "\n\"" + ex.Message + "\"",
                 EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
+            messageBox.ShowDialog();
         }
 
         public void ShowException(EmptyPacketReceivedException ex)
         {
-            _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
+            var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_SERVER_NOT_FOUND,
                 "\n\"" + ex.Message + "\"",
                 EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
+            messageBox.ShowDialog();
         }
 
         public void ShowLoginError(LoginReply loginError)
@@ -119,9 +126,10 @@ namespace EndlessClient.Dialogs.Actions
                 default: throw new ArgumentOutOfRangeException("loginError", loginError, null);
             }
 
-            _messageBoxFactory.CreateMessageBox(message,
+            var messageBox = _messageBoxFactory.CreateMessageBox(message,
                 EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
+            messageBox.ShowDialog();
         }
     }
 }

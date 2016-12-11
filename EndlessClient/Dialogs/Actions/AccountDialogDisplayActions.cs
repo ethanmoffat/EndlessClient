@@ -57,10 +57,11 @@ namespace EndlessClient.Dialogs.Actions
 
         public void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult)
         {
-            _eoMessageBoxFactory.CreateMessageBox(
+            var messageBox = _eoMessageBoxFactory.CreateMessageBox(
                 validationResult.ErrorString,
                 EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
+            messageBox.ShowDialog();
         }
 
         public void ShowCreateAccountServerError(AccountReply serverError)
@@ -76,10 +77,11 @@ namespace EndlessClient.Dialogs.Actions
                 default: throw new ArgumentOutOfRangeException("serverError", serverError, null);
             }
 
-            _eoMessageBoxFactory.CreateMessageBox(
+            var messageBox = _eoMessageBoxFactory.CreateMessageBox(
                 message,
                 EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
+            messageBox.ShowDialog();
         }
 
         public void ShowSuccessMessage()

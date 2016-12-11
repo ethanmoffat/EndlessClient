@@ -44,16 +44,18 @@ namespace EndlessClient.Dialogs.Actions
                 default: throw new ArgumentOutOfRangeException("response", response, null);
             }
 
-            _messageBoxFactory.CreateMessageBox(message,
+            var messageBox = _messageBoxFactory.CreateMessageBox(message,
                 EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
+            messageBox.ShowDialog();
         }
 
         public void ShowCharacterDeleteWarning(string characterName)
         {
-            _messageBoxFactory.CreateMessageBox(
+            var messageBox = _messageBoxFactory.CreateMessageBox(
                 string.Format("Character \'{0}\' ", characterName),
                 DialogResourceID.CHARACTER_DELETE_FIRST_CHECK);
+            messageBox.ShowDialog();
         }
 
         public async Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName)
@@ -69,11 +71,12 @@ namespace EndlessClient.Dialogs.Actions
 
         public void ShowCharacterDeleteError()
         {
-            _messageBoxFactory.CreateMessageBox(
+            var messageBox = _messageBoxFactory.CreateMessageBox(
                 "The server did not respond properly for deleting the character. Try again.",
                 "Server error",
                 EODialogButtons.Ok,
                 EOMessageBoxStyle.SmallDialogLargeHeader);
+            messageBox.ShowDialog();
         }
     }
 }
