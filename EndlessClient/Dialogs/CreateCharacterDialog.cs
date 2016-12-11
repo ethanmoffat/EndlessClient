@@ -133,7 +133,7 @@ namespace EndlessClient.Dialogs
             {
                 _spriteBatch.Draw(_charCreateSheet,
                     new Vector2(170 + DrawPositionWithParentOffset.X,
-                                84 + i*37 + DrawPositionWithParentOffset.Y),
+                                84 + i*27 + DrawPositionWithParentOffset.Y),
                     _srcRectangles[i], Color.White);
             }
 
