@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Account;
 using EOLib.Localization;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
@@ -43,10 +43,10 @@ namespace EndlessClient.Dialogs.Actions
             dialog.ShowDialog();
         }
 
-        public async Task ShowCreatePendingDialog()
+        public async Task<XNADialogResult> ShowCreatePendingDialog()
         {
             var progress = _createAccountProgressDialogFactory.BuildCreateAccountProgressDialog();
-            await progress.WaitForCompletion();
+            return await progress.ShowDialogAsync();
         }
 
         public async Task<IChangePasswordParameters> ShowChangePasswordDialog()

@@ -4,20 +4,20 @@
 
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
-    public class ProgressDialog : EODialogBase
+    public class ProgressDialog : BaseEODialog
     {
-        private readonly TaskCompletionSource<XNADialogResult> _dialogResultCompletionSource;
+        private readonly IXNALabel _messageLabel, _captionLabel;
+        private readonly IXNAButton _cancelButton;
 
         private TimeSpan? timeOpened;
         private readonly Texture2D _pbBackgroundTexture, _pbForegroundTexture;
@@ -25,35 +25,38 @@ namespace EndlessClient.Dialogs
 
         public ProgressDialog(INativeGraphicsManager nativeGraphicsManager,
                               IGameStateProvider gameStateProvider,
-                              IGraphicsDeviceProvider graphicsDeviceProvider,
+                              IEODialogButtonService eoDialogButtonService,
                               string messageText,
                               string captionText)
-            : base(nativeGraphicsManager)
+            : base(gameStateProvider)
         {
-            bgTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 18);
-            _setSize(bgTexture.Width, bgTexture.Height);
+            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 18);
 
-            message = new XNALabel(new Rectangle(18, 57, 1, 1), Constants.FontSize10)
+            _messageLabel = new XNALabel(Constants.FontSize10)
             {
+                AutoSize = true,
                 ForeColor = ColorConstants.LightYellowText,
                 Text = messageText,
-                TextWidth = 254
+                TextWidth = 254,
+                DrawPosition = new Vector2(18, 57)
             };
-            message.SetParent(this);
+            _messageLabel.SetParentControl(this);
 
-            caption = new XNALabel(new Rectangle(59, 23, 1, 1), Constants.FontSize10)
+            _captionLabel = new XNALabel(Constants.FontSize10)
             {
+                AutoSize = true,
                 ForeColor = ColorConstants.LightYellowText,
-                Text = captionText
+                Text = captionText,
+                DrawPosition = new Vector2(59, 23)
             };
-            caption.SetParent(this);
+            _captionLabel.SetParentControl(this);
 
-            var cancel = new XNAButton(smallButtonSheet, new Vector2(181, 113),
-                _getSmallButtonOut(SmallButton.Cancel),
-                _getSmallButtonOver(SmallButton.Cancel));
-            cancel.OnClick += DoCancel;
-            cancel.SetParent(this);
-            dlgButtons.Add(cancel);
+            _cancelButton = new XNAButton(eoDialogButtonService.SmallButtonSheet,
+                new Vector2(181, 113),
+                eoDialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
+                eoDialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
+            _cancelButton.OnClick += DoCancel;
+            _cancelButton.SetParentControl(this);
 
             _pbBackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 19);
 
@@ -63,45 +66,43 @@ namespace EndlessClient.Dialogs
                 pbForeFill[i] = Color.FromNonPremultiplied(0xb4, 0xdc, 0xe6, 0xff);
             _pbForegroundTexture.SetData(pbForeFill);
 
-            _dialogResultCompletionSource = new TaskCompletionSource<XNADialogResult>();
-
-            CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
+            CenterInGameView();
         }
 
-        public override void Update(GameTime gt)
+        public override void Initialize()
+        {
+            _messageLabel.Initialize();
+            _captionLabel.Initialize();
+            _cancelButton.Initialize();
+
+            base.Initialize();
+        }
+
+        protected override void OnUpdateControl(GameTime gt)
         {
             if (timeOpened == null)
                 timeOpened = gt.TotalGameTime;
 
-            int pbPercent = (int)((gt.TotalGameTime.TotalSeconds - timeOpened.Value.TotalSeconds) / 10.0f * 100);
+            var pbPercent = (int)((gt.TotalGameTime.TotalSeconds - timeOpened.Value.TotalSeconds) / 2.0f * 100);
             _pbWidth = (int)Math.Round(pbPercent / 100.0f * _pbBackgroundTexture.Width);
-            
+
             if (pbPercent >= 100)
-                _dialogResultCompletionSource.SetResult(XNADialogResult.NO_BUTTON_PRESSED);
+                Close(XNADialogResult.NO_BUTTON_PRESSED);
 
-            base.Update(gt);
+            base.OnUpdateControl(gt);
         }
 
-        public override void Draw(GameTime gt)
+        protected override void OnDrawControl(GameTime gt)
         {
-            if ((parent != null && !parent.Visible) || !Visible)
-                return;
+            base.OnDrawControl(gt);
 
-            base.Draw(gt);
+            var pbBackgroundPosition = new Vector2(15 + DrawPositionWithParentOffset.X, 95 + DrawPositionWithParentOffset.Y);
+            var pbForgroundArea = new Rectangle(18 + DrawAreaWithParentOffset.X, 98 + DrawAreaWithParentOffset.Y, _pbWidth - 6, _pbForegroundTexture.Height - 4);
 
-            SpriteBatch.Begin();
-            SpriteBatch.Draw(_pbBackgroundTexture, new Vector2(15 + DrawAreaWithOffset.X, 95 + DrawAreaWithOffset.Y), Color.White);
-            SpriteBatch.Draw(_pbForegroundTexture, new Rectangle(18 + DrawAreaWithOffset.X, 98 + DrawAreaWithOffset.Y, _pbWidth - 6, _pbForegroundTexture.Height - 4), Color.White);
-            SpriteBatch.End();
-        }
-
-        public async Task WaitForCompletion()
-        {
-            var result = await _dialogResultCompletionSource.Task;
-            Close(null, result);
-
-            if (result == XNADialogResult.Cancel)
-                throw new OperationCanceledException();
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(_pbBackgroundTexture, pbBackgroundPosition, Color.White);
+            _spriteBatch.Draw(_pbForegroundTexture, pbForgroundArea, Color.White);
+            _spriteBatch.End();
         }
 
         private void DoCancel(object sender, EventArgs e)
@@ -111,7 +112,7 @@ namespace EndlessClient.Dialogs
 
             try
             {
-                _dialogResultCompletionSource.SetResult(XNADialogResult.Cancel);
+                Close(XNADialogResult.Cancel);
             }
             finally
             {

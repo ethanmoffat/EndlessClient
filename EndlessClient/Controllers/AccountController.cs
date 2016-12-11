@@ -9,6 +9,7 @@ using EndlessClient.GameExecution;
 using EOLib.Domain.Account;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using XNAControls;
 
 namespace EndlessClient.Controllers
 {
@@ -56,7 +57,9 @@ namespace EndlessClient.Controllers
                 return;
             }
 
-            if (!await ShowAccountCreationPendingDialog()) return;
+            var result = await _accountDialogDisplayActions.ShowCreatePendingDialog();
+            if (result == XNADialogResult.Cancel)
+                return;
 
             var createAccountOperation = _networkOperationFactory.CreateSafeBlockingOperation(
                 async () => await _accountActions.CreateAccount(createAccountParameters),
@@ -94,17 +97,6 @@ namespace EndlessClient.Controllers
 
             var result = changePasswordOperation.Result;
             _accountDialogDisplayActions.ShowCreateAccountServerError(result);
-        }
-
-        private async Task<bool> ShowAccountCreationPendingDialog()
-        {
-            try
-            {
-                await _accountDialogDisplayActions.ShowCreatePendingDialog();
-            }
-            catch (OperationCanceledException) { return false; }
-
-            return true;
         }
 
         private void SetInitialStateAndShowError(NoDataSentException ex)

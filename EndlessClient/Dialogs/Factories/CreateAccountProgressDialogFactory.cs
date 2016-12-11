@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using EOLib.Localization;
@@ -12,18 +13,18 @@ namespace EndlessClient.Dialogs.Factories
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IGameStateProvider _gameStateProvider;
-        private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
         private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly IEODialogButtonService _eoDialogButtonService;
 
         public CreateAccountProgressDialogFactory(INativeGraphicsManager nativeGraphicsManager,
                                                   IGameStateProvider gameStateProvider,
-                                                  IGraphicsDeviceProvider graphicsDeviceProvider,
-                                                  ILocalizedStringFinder localizedStringFinder)
+                                                  ILocalizedStringFinder localizedStringFinder,
+                                                  IEODialogButtonService eoDialogButtonService)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameStateProvider = gameStateProvider;
-            _graphicsDeviceProvider = graphicsDeviceProvider;
             _localizedStringFinder = localizedStringFinder;
+            _eoDialogButtonService = eoDialogButtonService;
         }
 
         public ProgressDialog BuildCreateAccountProgressDialog()
@@ -33,7 +34,7 @@ namespace EndlessClient.Dialogs.Factories
             
             return new ProgressDialog(_nativeGraphicsManager,
                                       _gameStateProvider,
-                                      _graphicsDeviceProvider,
+                                      _eoDialogButtonService,
                                       message, caption);
         }
     }

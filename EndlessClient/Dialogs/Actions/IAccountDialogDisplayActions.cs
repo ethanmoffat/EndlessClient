@@ -4,6 +4,7 @@
 
 using System.Threading.Tasks;
 using EOLib.Domain.Account;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
@@ -11,7 +12,7 @@ namespace EndlessClient.Dialogs.Actions
     {
         void ShowInitialCreateWarningDialog();
 
-        Task ShowCreatePendingDialog();
+        Task<XNADialogResult> ShowCreatePendingDialog();
 
         Task<IChangePasswordParameters> ShowChangePasswordDialog();
 
