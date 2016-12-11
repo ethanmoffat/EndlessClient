@@ -6,6 +6,7 @@ using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
 using EOLib.Localization;
+using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories
 {
@@ -27,10 +28,10 @@ namespace EndlessClient.Dialogs.Factories
             _localizedStringFinder = localizedStringFinder;
         }
 
-        public EOMessageBox CreateMessageBox(string message,
-                                             string caption = "",
-                                             EODialogButtons whichButtons = EODialogButtons.Ok,
-                                             EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
+        public IXNADialog CreateMessageBox(string message,
+                                           string caption = "",
+                                           EODialogButtons whichButtons = EODialogButtons.Ok,
+                                           EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
         {
             var messageBox = new EOMessageBox(_nativeGraphicsManager,
                                               _gameStateProvider,
@@ -43,9 +44,9 @@ namespace EndlessClient.Dialogs.Factories
             return messageBox;
         }
 
-        public EOMessageBox CreateMessageBox(DialogResourceID resource,
-                                             EODialogButtons whichButtons = EODialogButtons.Ok,
-                                             EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
+        public IXNADialog CreateMessageBox(DialogResourceID resource,
+                                           EODialogButtons whichButtons = EODialogButtons.Ok,
+                                           EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
         {
             return CreateMessageBox(_localizedStringFinder.GetString(resource + 1),
                 _localizedStringFinder.GetString(resource),
@@ -53,10 +54,10 @@ namespace EndlessClient.Dialogs.Factories
                 style);
         }
 
-        public EOMessageBox CreateMessageBox(string prependData,
-                                             DialogResourceID resource,
-                                             EODialogButtons whichButtons = EODialogButtons.Ok,
-                                             EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
+        public IXNADialog CreateMessageBox(string prependData,
+                                           DialogResourceID resource,
+                                           EODialogButtons whichButtons = EODialogButtons.Ok,
+                                           EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
         {
             var message = prependData + _localizedStringFinder.GetString(resource + 1);
             return CreateMessageBox(message,
@@ -65,10 +66,10 @@ namespace EndlessClient.Dialogs.Factories
                 style);
         }
 
-        public EOMessageBox CreateMessageBox(DialogResourceID resource,
-                                             string extraData,
-                                             EODialogButtons whichButtons = EODialogButtons.Ok,
-                                             EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
+        public IXNADialog CreateMessageBox(DialogResourceID resource,
+                                           string extraData,
+                                           EODialogButtons whichButtons = EODialogButtons.Ok,
+                                           EOMessageBoxStyle style = EOMessageBoxStyle.SmallDialogSmallHeader)
         {
             var message = _localizedStringFinder.GetString(resource + 1) + extraData;
             return CreateMessageBox(message,

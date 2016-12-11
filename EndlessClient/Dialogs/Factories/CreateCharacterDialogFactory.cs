@@ -49,4 +49,9 @@ namespace EndlessClient.Dialogs.Factories
                 _dialogButtonService);
         }
     }
+
+    public interface ICreateCharacterDialogFactory
+    {
+        CreateCharacterDialog BuildCreateCharacterDialog();
+    }
 }

@@ -39,4 +39,9 @@ namespace EndlessClient.Dialogs.Factories
                 _localizedStringFinder);
         }
     }
+
+    public interface IGameLoadingDialogFactory
+    {
+        GameLoadingDialog CreateGameLoadingDialog();
+    }
 }
