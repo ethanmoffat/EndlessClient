@@ -6,7 +6,7 @@ using System;
 using EndlessClient.Rendering;
 using EOLib;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.UIControls
 {
@@ -15,12 +15,13 @@ namespace EndlessClient.UIControls
         private DateTime _lastUpdateTime;
 
         public TimeLabel(IClientWindowSizeProvider windowSizeProvider)
-            : base(GetPositionBasedOnWindowSize(windowSizeProvider), Constants.FontSize07)
+            : base(Constants.FontSize07)
         {
             _lastUpdateTime = DateTime.Now;
+            DrawArea = GetPositionBasedOnWindowSize(windowSizeProvider);
         }
 
-        public override void Update(GameTime gameTime)
+        protected override void OnUpdateControl(GameTime gameTime)
         {
             if (DateTime.Now.Second != _lastUpdateTime.Second)
             {
@@ -32,7 +33,7 @@ namespace EndlessClient.UIControls
                 _lastUpdateTime = DateTime.Now;
             }
 
-            base.Update(gameTime);
+            base.OnUpdateControl(gameTime);
         }
 
         private static Rectangle GetPositionBasedOnWindowSize(IClientWindowSizeProvider windowSizeProvider)

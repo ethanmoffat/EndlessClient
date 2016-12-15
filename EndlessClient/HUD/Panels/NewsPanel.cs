@@ -10,7 +10,7 @@ using EOLib.Domain.Login;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
@@ -19,7 +19,7 @@ namespace EndlessClient.HUD.Panels
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IChatRenderableGenerator _chatRenderableGenerator;
         private readonly INewsProvider _newsProvider;
-        private readonly OldScrollBar _scrollBar;
+        private readonly ScrollBar _scrollBar;
         private readonly List<IChatRenderable> _chatRenderables;
         private readonly SpriteFont _chatFont;
 
@@ -34,18 +34,18 @@ namespace EndlessClient.HUD.Panels
                          IChatRenderableGenerator chatRenderableGenerator,
                          INewsProvider newsProvider,
                          SpriteFont chatFont)
-            : base(new Rectangle(102, 330, 1, 1))
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatRenderableGenerator = chatRenderableGenerator;
             _newsProvider = newsProvider;
 
             //abs coordiantes: 568 331
-            _scrollBar = new OldScrollBar(this, new Vector2(467, 20), new Vector2(16, 97), ScrollBarColors.LightOnMed, _nativeGraphicsManager)
+            _scrollBar = new ScrollBar(new Vector2(467, 20), new Vector2(16, 97), ScrollBarColors.LightOnMed, _nativeGraphicsManager)
             {
                 LinesToRender = 7,
                 Visible = true
             };
+            _scrollBar.SetParentControl(this);
 
             _chatRenderables = new List<IChatRenderable>();
             _chatFont = chatFont;
@@ -55,14 +55,17 @@ namespace EndlessClient.HUD.Panels
             _cachedLinesToRender = -1;
 
             BackgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 48);
-            _setSize(BackgroundImage.Width, BackgroundImage.Height);
+            DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
         }
 
-        public override void Update(GameTime gameTime)
+        public override void Initialize()
         {
-            if (_scrollBar == null)
-                return;
+            _scrollBar.Initialize();
+            base.Initialize();
+        }
 
+        protected override void OnUpdateControl(GameTime gameTime)
+        {
             var newsChanged = false;
             if (!_cachedNewsStrings.SequenceEqual(_newsProvider.NewsText))
             {
@@ -86,20 +89,18 @@ namespace EndlessClient.HUD.Panels
                 }
             }
 
-            base.Update(gameTime);
+            base.OnUpdateControl(gameTime);
         }
 
-        public override void Draw(GameTime gameTime)
+        protected override void OnDrawControl(GameTime gameTime)
         {
-            if (!Visible) return;
-
-            base.Draw(gameTime);
+            base.OnDrawControl(gameTime);
 
             if (_chatRenderables == null)
                 return;
 
             foreach (var renderable in _chatRenderables)
-                renderable.Render(SpriteBatch, _chatFont, _nativeGraphicsManager);
+                renderable.Render(_spriteBatch, _chatFont, _nativeGraphicsManager);
         }
 
         private void UpdateCachedNewsStrings()

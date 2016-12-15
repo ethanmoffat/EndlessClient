@@ -62,8 +62,6 @@ namespace EndlessClient.Dialogs
                 DrawPosition = new Vector2(18, 61)
             };
             _message.SetParentControl(this);
-
-            CenterInGameView();
         }
 
         public override void Initialize()

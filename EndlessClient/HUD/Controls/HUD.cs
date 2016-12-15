@@ -250,8 +250,6 @@ namespace EndlessClient.HUD.Controls
                 chatRenderer.Dispose();
                 stats.Dispose();
 
-                chatTextBox.Close();
-
                 m_friendList.Close();
                 m_ignoreList.Close();
 

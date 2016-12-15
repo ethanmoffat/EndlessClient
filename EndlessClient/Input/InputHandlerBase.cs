@@ -7,7 +7,6 @@ using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Input;
-using XNAControls.Old;
 
 namespace EndlessClient.Input
 {
@@ -40,7 +39,6 @@ namespace EndlessClient.Input
             var millisecondsSinceLastUpdate = GetMillisecondsSinceLastUpdate(timeAtBeginningOfUpdate);
             if (!_endlessGameProvider.Game.IsActive ||
                 millisecondsSinceLastUpdate < INPUT_RATE_LIMIT_MILLISECONDS ||
-                XNAControl.Dialogs.Count > 0 ||
                 _mapStateProvider.MapWarpState != WarpState.None)
                 return;
 

@@ -17,8 +17,6 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using XNAControls;
-using XNALabel = XNAControls.Old.XNALabel;
-using XNAPanel = XNAControls.Old.XNAPanel;
 
 namespace EndlessClient.HUD.Panels
 {
@@ -30,7 +28,7 @@ namespace EndlessClient.HUD.Panels
         private readonly IHudControlProvider _hudControlProvider;
         private readonly SpriteFont _chatFont;
 
-        private readonly OldScrollBar _scrollBar;
+        private readonly ScrollBar _scrollBar;
         private readonly List<IChatRenderable> _chatRenderables;
 
         private readonly ChatPanelStateCache _state;
@@ -38,12 +36,10 @@ namespace EndlessClient.HUD.Panels
         private readonly ISpriteSheet _smallSelected, _smallUnselected;
         private readonly ISpriteSheet _largeSelected, _largeUnselected;
 
-        private readonly Dictionary<ChatTab, XNALabel> _tabLabels;
+        private readonly Dictionary<ChatTab, IXNALabel> _tabLabels;
         private readonly IReadOnlyDictionary<ChatTab, Rectangle> _tabLabelClickableAreas;
 
         private readonly Rectangle _closeButtonAreaForTab1, _closeButtonAreaForTab2;
-
-        private readonly bool _constructed;
 
         public ChatTab CurrentTab { get; private set; }
 
@@ -52,7 +48,6 @@ namespace EndlessClient.HUD.Panels
                          IChatProvider chatProvider,
                          IHudControlProvider hudControlProvider,
                          SpriteFont chatFont)
-            : base(new Rectangle(102, 330, 1, 1))
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _chatRenderableGenerator = chatRenderableGenerator;
@@ -61,11 +56,12 @@ namespace EndlessClient.HUD.Panels
             _chatFont = chatFont;
 
             //abs coordiantes: 568 309
-            _scrollBar = new OldScrollBar(this, new Vector2(467, 2), new Vector2(16, 97), ScrollBarColors.LightOnMed, _nativeGraphicsManager)
+            _scrollBar = new ScrollBar(new Vector2(467, 2), new Vector2(16, 97), ScrollBarColors.LightOnMed, _nativeGraphicsManager)
             {
                 LinesToRender = 7,
                 Visible = true
             };
+            _scrollBar.SetParentControl(this);
             _chatRenderables = new List<IChatRenderable>();
 
             _state = new ChatPanelStateCache();
@@ -78,14 +74,14 @@ namespace EndlessClient.HUD.Panels
             _largeSelected = new SpriteSheet(tabTexture, new Rectangle(132, 16, 132, 16));
             _largeUnselected = new SpriteSheet(tabTexture, new Rectangle(0, 16, 132, 16));
 
-            _tabLabels = new Dictionary<ChatTab, XNALabel>
+            _tabLabels = new Dictionary<ChatTab, IXNALabel>
             {
-                {ChatTab.Local, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "scr", ForeColor = Color.White}},
-                {ChatTab.Global, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "glb"}},
-                {ChatTab.Group, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "grp"}},
-                {ChatTab.System, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "sys"}},
-                {ChatTab.Private1, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "[priv 1]", Visible = false}},
-                {ChatTab.Private2, new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08) {Text = "[priv 2]", Visible = false}}
+                {ChatTab.Local, new XNALabel(Constants.FontSize08) {Text = "scr", ForeColor = Color.White}},
+                {ChatTab.Global, new XNALabel(Constants.FontSize08) {Text = "glb"}},
+                {ChatTab.Group, new XNALabel(Constants.FontSize08) {Text = "grp"}},
+                {ChatTab.System, new XNALabel(Constants.FontSize08) {Text = "sys"}},
+                {ChatTab.Private1, new XNALabel(Constants.FontSize08) {Text = "[priv 1]", Visible = false}},
+                {ChatTab.Private2, new XNALabel(Constants.FontSize08) {Text = "[priv 2]", Visible = false}}
             };
 
             _tabLabelClickableAreas = new Dictionary<ChatTab, Rectangle>
@@ -101,20 +97,28 @@ namespace EndlessClient.HUD.Panels
             foreach (var kvp in _tabLabels)
             {
                 var startPos = GetDestinationVectorForTab(kvp.Key);
-                kvp.Value.DrawLocation = startPos + new Vector2(14, 2);
+                kvp.Value.DrawPosition = startPos + new Vector2(14, 2);
 
+                //todo: see if these need to be manually drawn or not
                 //note: these must be manually drawn so they appear on top of the tab graphics
-                if (Game.Components.Contains(kvp.Value))
-                    Game.Components.Remove(kvp.Value);
+                //if (Game.Components.Contains(kvp.Value))
+                //    Game.Components.Remove(kvp.Value);
             }
 
             _closeButtonAreaForTab1 = new Rectangle(3, 3, 11, 11).WithPosition(GetDestinationVectorForTab(ChatTab.Private1));
             _closeButtonAreaForTab2 = new Rectangle(3, 3, 11, 11).WithPosition(GetDestinationVectorForTab(ChatTab.Private2));
 
             BackgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 28);
-            _setSize(BackgroundImage.Width, BackgroundImage.Height);
+            DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
+        }
 
-            _constructed = true;
+        public override void Initialize()
+        {
+            _scrollBar.Initialize();
+            foreach (var label in _tabLabels.Values)
+                label.Initialize();
+
+            base.Initialize();
         }
 
         public void TryStartNewPrivateChat(string targetCharacter)
@@ -127,14 +131,14 @@ namespace EndlessClient.HUD.Panels
                 _state.PrivateChat2Shown = true;
                 SelectTab(ChatTab.Private2);
                 _tabLabels[ChatTab.Private2].Text = char.ToUpper(targetCharacter[0]) + targetCharacter.Substring(1);
-                _tabLabels[ChatTab.Private2].Visible = true;
+                ((XNALabel)_tabLabels[ChatTab.Private2]).Visible = true;
             }
             else //no private chats are in use
             {
                 _state.PrivateChat1Shown = true;
                 SelectTab(ChatTab.Private1);
                 _tabLabels[ChatTab.Private1].Text = char.ToUpper(targetCharacter[0]) + targetCharacter.Substring(1);
-                _tabLabels[ChatTab.Private1].Visible = true;
+                ((XNALabel)_tabLabels[ChatTab.Private1]).Visible = true;
             }
         }
 
@@ -152,11 +156,8 @@ namespace EndlessClient.HUD.Panels
             SelectTab(ChatTab.Local);
         }
 
-        public override void Update(GameTime gameTime)
+        protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (!_constructed)
-                return;
-
             var mouseState = Mouse.GetState();
             if (MouseOver && mouseState.LeftButton == ButtonState.Released &&
                 PreviousMouseState.LeftButton == ButtonState.Pressed &&
@@ -187,21 +188,20 @@ namespace EndlessClient.HUD.Panels
                 SetupRenderablesFromCachedValues(renderables, chatChanged);
             }
 
-            base.Update(gameTime);
+            base.OnUpdateControl(gameTime);
         }
 
-        public override void Draw(GameTime gameTime)
+        protected override void OnDrawControl(GameTime gameTime)
         {
-            if (!Visible || !_constructed) return;
-
-            base.Draw(gameTime);
+            base.OnDrawControl(gameTime);
 
             foreach (var renderable in _chatRenderables)
-                renderable.Render(SpriteBatch, _chatFont, _nativeGraphicsManager);
+                renderable.Render(_spriteBatch, _chatFont, _nativeGraphicsManager);
 
             DrawTabsAtBottom();
-            foreach (var tabLabel in _tabLabels.Values)
-                tabLabel.Draw(gameTime);
+            //todo
+            //foreach (var tabLabel in _tabLabels.Values)
+            //    tabLabel.Draw(gameTime);
         }
 
         #region Update Helpers
@@ -271,7 +271,7 @@ namespace EndlessClient.HUD.Panels
 
         private void HandleRightClickOnChatText(MouseState mouseState)
         {
-            var clickedYRelativeToTopOfPanel = mouseState.Y - DrawAreaWithOffset.Y;
+            var clickedYRelativeToTopOfPanel = mouseState.Y - DrawAreaWithParentOffset.Y;
             var clickedChatRow = (int)Math.Round(clickedYRelativeToTopOfPanel / 13.0) - 1;
 
             if (clickedChatRow >= 0 &&
@@ -289,7 +289,7 @@ namespace EndlessClient.HUD.Panels
 
         private void DrawTabsAtBottom()
         {
-            SpriteBatch.Begin();
+            _spriteBatch.Begin();
 
             var chatTabs = (ChatTab[])Enum.GetValues(typeof(ChatTab));
             foreach (var tab in chatTabs)
@@ -299,18 +299,18 @@ namespace EndlessClient.HUD.Panels
                 if (!spriteSheet.HasTexture)
                     continue;
 
-                SpriteBatch.Draw(spriteSheet.SheetTexture,
-                                 destVector,
-                                 spriteSheet.SourceRectangle,
-                                 Color.White);
+                _spriteBatch.Draw(spriteSheet.SheetTexture,
+                                  destVector,
+                                  spriteSheet.SourceRectangle,
+                                  Color.White);
             }
 
-            SpriteBatch.End();
+            _spriteBatch.End();
         }
 
         private Vector2 GetDestinationVectorForTab(ChatTab tab)
         {
-            var topLeft = new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y);
+            var topLeft = new Vector2(DrawAreaWithParentOffset.X, DrawAreaWithParentOffset.Y);
             switch (tab)
             {
                 case ChatTab.Private1:

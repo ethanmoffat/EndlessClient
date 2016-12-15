@@ -7,7 +7,7 @@ using EndlessClient.HUD;
 using EndlessClient.Rendering;
 using EOLib;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.UIControls
 {
@@ -17,21 +17,16 @@ namespace EndlessClient.UIControls
 
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
 
-        private readonly bool _constructed;
-
         public StatusBarLabel(IClientWindowSizeProvider clientWindowSizeProvider,
                               IStatusLabelTextProvider statusLabelTextProvider)
-            : base(GetPositionBasedOnWindowSize(clientWindowSizeProvider), Constants.FontSize07)
+            : base(Constants.FontSize07)
         {
             _statusLabelTextProvider = statusLabelTextProvider;
-            _constructed = true;
+            DrawArea = new Rectangle(97, clientWindowSizeProvider.Height - 24, 1, 1);
         }
 
-        public override void Update(GameTime gameTime)
+        protected override void OnUpdateControl(GameTime gameTime)
         {
-            if (!_constructed)
-                return;
-
             if (Text != _statusLabelTextProvider.StatusText)
             {
                 Text = _statusLabelTextProvider.StatusText;
@@ -41,12 +36,7 @@ namespace EndlessClient.UIControls
             if ((DateTime.Now - _statusLabelTextProvider.SetTime).TotalMilliseconds > STATUS_LABEL_DISPLAY_TIME_MS)
                 Visible = false;
 
-            base.Update(gameTime);
-        }
-
-        private static Rectangle GetPositionBasedOnWindowSize(IClientWindowSizeProvider clientWindowSizeProvider)
-        {
-            return new Rectangle(97, clientWindowSizeProvider.Height - 24, 1, 1);
+            base.OnUpdateControl(gameTime);
         }
     }
 }

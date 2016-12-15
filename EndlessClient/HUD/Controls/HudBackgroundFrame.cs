@@ -5,7 +5,7 @@
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.HUD.Controls
 {
@@ -40,24 +40,24 @@ namespace EndlessClient.HUD.Controls
             base.LoadContent();
         }
 
-        public override void Draw(GameTime gameTime)
+        protected override void OnDrawControl(GameTime gameTime)
         {
-            SpriteBatch.Begin();
-            
-            SpriteBatch.Draw(_topBar, new Vector2(49, 7), Color.White);
-            SpriteBatch.Draw(_mainFrame, Vector2.Zero, Color.White);
-            SpriteBatch.Draw(_topLeft, Vector2.Zero, Color.White);
-            SpriteBatch.Draw(_sidebar, new Vector2(7, 53), Color.White);
-            SpriteBatch.Draw(_sidebar, new Vector2(629, 53), new Rectangle(3, 0, 1, _sidebar.Height), Color.White);
-            
+            _spriteBatch.Begin();
+
+            _spriteBatch.Draw(_topBar, new Vector2(49, 7), Color.White);
+            _spriteBatch.Draw(_mainFrame, Vector2.Zero, Color.White);
+            _spriteBatch.Draw(_topLeft, Vector2.Zero, Color.White);
+            _spriteBatch.Draw(_sidebar, new Vector2(7, 53), Color.White);
+            _spriteBatch.Draw(_sidebar, new Vector2(629, 53), new Rectangle(3, 0, 1, _sidebar.Height), Color.White);
+
             //fill in some extra holes with black lines
-            SpriteBatch.Draw(_filler, new Rectangle(542, 0, 1, 8), Color.White);
-            SpriteBatch.Draw(_filler, new Rectangle(14, 329, 1, 142), Color.White);
-            SpriteBatch.Draw(_filler, new Rectangle(98, 479, 445, 1), Color.White);
-            
-            SpriteBatch.End();
-            
-            base.Draw(gameTime);
+            _spriteBatch.Draw(_filler, new Rectangle(542, 0, 1, 8), Color.White);
+            _spriteBatch.Draw(_filler, new Rectangle(14, 329, 1, 142), Color.White);
+            _spriteBatch.Draw(_filler, new Rectangle(98, 479, 445, 1), Color.White);
+
+            _spriteBatch.End();
+
+            base.OnDrawControl(gameTime);
         }
 
         protected override void Dispose(bool disposing)

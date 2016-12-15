@@ -14,7 +14,6 @@ using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.NPC;
-using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
@@ -22,6 +21,7 @@ using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
+using XNAControls;
 
 namespace EndlessClient.HUD.Controls
 {
@@ -147,7 +147,7 @@ namespace EndlessClient.HUD.Controls
             };
         }
 
-        private DisposableButton CreateStateChangeButton(InGameStates whichState)
+        private IXNAButton CreateStateChangeButton(InGameStates whichState)
         {
             if (whichState == InGameStates.News)
                 throw new ArgumentOutOfRangeException("whichState", "News state does not have a button associated with it");
@@ -160,13 +160,11 @@ namespace EndlessClient.HUD.Controls
             var xPosition = buttonIndex < 6 ? 62 : 590;
             var yPosition = (buttonIndex < 6 ? 330 : 350) + (buttonIndex < 6 ? buttonIndex : buttonIndex - 6)*20;
 
-            var outSprite = new SpriteSheet(mainButtonTexture, new Rectangle(0, heightDelta * buttonIndex, widthDelta, heightDelta));
-            var overSprite = new SpriteSheet(mainButtonTexture, new Rectangle(widthDelta, heightDelta * buttonIndex, widthDelta, heightDelta));
-
-            var retButton = new DisposableButton(
+            var retButton = new XNAButton(
+                mainButtonTexture,
                 new Vector2(xPosition, yPosition),
-                outSprite.GetSourceTexture(),
-                overSprite.GetSourceTexture())
+                new Rectangle(0, heightDelta * buttonIndex, widthDelta, heightDelta),
+                new Rectangle(widthDelta, heightDelta * buttonIndex, widthDelta, heightDelta))
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };

@@ -4,7 +4,7 @@
 
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.HUD.Panels
 {
@@ -13,12 +13,11 @@ namespace EndlessClient.HUD.Panels
         private readonly INativeGraphicsManager _nativeGraphicsManager;
 
         public InventoryPanel(INativeGraphicsManager nativeGraphicsManager)
-            : base(new Rectangle(102, 330, 1, 1))
         {
             _nativeGraphicsManager = nativeGraphicsManager;
 
             BackgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 44);
-            _setSize(BackgroundImage.Width, BackgroundImage.Height);
+            DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
         }
     }
 }

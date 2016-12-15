@@ -8,7 +8,7 @@ using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.UIControls
 {
@@ -22,8 +22,8 @@ namespace EndlessClient.UIControls
 
         public ChatTextBox(IContentManagerProvider contentManagerProvider)
             : base(new Rectangle(124, 308, 440, 19),
-                contentManagerProvider.Content.Load<Texture2D>("cursor"),
-                Constants.FontSize08)
+                Constants.FontSize08,
+                caretTexture: contentManagerProvider.Content.Load<Texture2D>("cursor"))
         {
             MaxChars = 140;
             _endMuteTime = Optional<DateTime>.Empty;
@@ -35,7 +35,7 @@ namespace EndlessClient.UIControls
             _endMuteTime = endMuteTime;
         }
 
-        public override void Update(GameTime gameTime)
+        protected override void OnUpdateControl(GameTime gameTime)
         {
             if (_endMuteTime.HasValue && DateTime.Now > _endMuteTime)
             {
@@ -43,7 +43,7 @@ namespace EndlessClient.UIControls
                 _ignoreAllInput = false;
             }
 
-            base.Update(gameTime);
+            base.OnUpdateControl(gameTime);
         }
 
         public override void ReceiveTextInput(char inp)
