@@ -99,10 +99,9 @@ namespace EndlessClient.HUD.Panels
                 var startPos = GetDestinationVectorForTab(kvp.Key);
                 kvp.Value.DrawPosition = startPos + new Vector2(14, 2);
 
-                //todo: see if these need to be manually drawn or not
                 //note: these must be manually drawn so they appear on top of the tab graphics
-                //if (Game.Components.Contains(kvp.Value))
-                //    Game.Components.Remove(kvp.Value);
+                if (Game.Components.Contains(kvp.Value))
+                    Game.Components.Remove(kvp.Value);
             }
 
             _closeButtonAreaForTab1 = new Rectangle(3, 3, 11, 11).WithPosition(GetDestinationVectorForTab(ChatTab.Private1));
@@ -199,9 +198,9 @@ namespace EndlessClient.HUD.Panels
                 renderable.Render(_spriteBatch, _chatFont, _nativeGraphicsManager);
 
             DrawTabsAtBottom();
-            //todo
-            //foreach (var tabLabel in _tabLabels.Values)
-            //    tabLabel.Draw(gameTime);
+
+            foreach (var tabLabel in _tabLabels.Values)
+                tabLabel.Draw(gameTime);
         }
 
         #region Update Helpers
