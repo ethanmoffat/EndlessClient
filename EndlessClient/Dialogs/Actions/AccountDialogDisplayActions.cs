@@ -51,8 +51,14 @@ namespace EndlessClient.Dialogs.Actions
 
         public async Task<IChangePasswordParameters> ShowChangePasswordDialog()
         {
-            var changePassword = _changePasswordDialogFactory.BuildChangePasswordDialog();
-            return await changePassword.Show();
+            using (var changePassword = _changePasswordDialogFactory.BuildChangePasswordDialog())
+            {
+                var result = await changePassword.ShowDialogAsync();
+                if(result != XNADialogResult.OK)
+                    throw new OperationCanceledException();
+
+                return changePassword.Result;
+            }
         }
 
         public void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult)

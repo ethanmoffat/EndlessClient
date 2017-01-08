@@ -4,7 +4,6 @@
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.Dialogs.Services;
@@ -17,138 +16,138 @@ using EOLib.Graphics;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Dialogs
 {
-    public class ChangePasswordDialog : EODialogBase
+    public class ChangePasswordDialog : BaseEODialog
     {
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IPlayerInfoProvider _playerInfoProvider;
-        private readonly XNATextBox[] _inputBoxes;
+        private readonly IXNATextBox[] _inputBoxes;
+        private readonly IXNAButton _ok, _cancel;
 
-        //private readonly TextBoxClickEventHandler _clickEventHandler;
-        //private readonly TextBoxTabEventHandler _tabEventHandler;
-
-        private readonly TaskCompletionSource<XNADialogResult> _dialogResultCompletionSource;
+        private readonly TextBoxClickEventHandler _clickEventHandler;
+        private readonly TextBoxTabEventHandler _tabEventHandler;
 
         private string Username { get { return _inputBoxes[0].Text; } }
         private string OldPassword { get { return _inputBoxes[1].Text; } }
         private string NewPassword { get { return _inputBoxes[2].Text; } }
         private string ConfirmPassword { get { return _inputBoxes[3].Text; } }
 
+        public IChangePasswordParameters Result
+        {
+            get
+            {
+                return new ChangePasswordParameters(Username, OldPassword, NewPassword);
+            }
+        }
+
         public ChangePasswordDialog(INativeGraphicsManager nativeGraphicsManager,
-                                    IGraphicsDeviceProvider graphicsDeviceProvider,
                                     IGameStateProvider gameStateProvider,
                                     IContentManagerProvider contentManagerProvider,
                                     IEOMessageBoxFactory eoMessageBoxFactory,
                                     IKeyboardDispatcherProvider keyboardDispatcherProvider,
-                                    IPlayerInfoProvider playerInfoProvider)
-            : base(nativeGraphicsManager)
+                                    IPlayerInfoProvider playerInfoProvider,
+                                    IEODialogButtonService dialogButtonService)
+            : base(gameStateProvider)
         {
             _eoMessageBoxFactory = eoMessageBoxFactory;
             _playerInfoProvider = playerInfoProvider;
             var dispatcher = keyboardDispatcherProvider.Dispatcher;
 
-            bgTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
-            _setSize(bgTexture.Width, bgTexture.Height);
+            BackgroundTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 21);
 
             var cursorTexture = contentManagerProvider.Content.Load<Texture2D>("Cursor");
 
-            _inputBoxes = new XNATextBox[4];
+            _inputBoxes = new IXNATextBox[4];
             for (int i = 0; i < _inputBoxes.Length; ++i)
             {
-                var tb = new XNATextBox(new Rectangle(198, 60 + i * 30, 137, 19), cursorTexture, Constants.FontSize08)
+                var tb = new XNATextBox(new Rectangle(198, 60 + i * 30, 137, 19), Constants.FontSize08, caretTexture: cursorTexture)
                 {
                     LeftPadding = 5,
                     DefaultText = " ",
                     MaxChars = i == 0 ? 16 : 12,
                     PasswordBox = i > 1,
-                    Selected = i == 0,
-                    TextColor = ColorConstants.LightBeigeText,
-                    Visible = true
+                    TextColor = ColorConstants.LightBeigeText
                 };
-                tb.SetParent(this);
                 _inputBoxes[i] = tb;
             }
 
-            //todo: re-enable once converted to new XNAControls
-            //_clickEventHandler = new TextBoxClickEventHandler(dispatcher, _inputBoxes);
-            //_tabEventHandler = new TextBoxTabEventHandler(dispatcher, _inputBoxes);
+            _clickEventHandler = new TextBoxClickEventHandler(dispatcher, _inputBoxes);
+            _tabEventHandler = new TextBoxTabEventHandler(dispatcher, _inputBoxes);
 
-            dispatcher.Subscriber.Selected = false;
             dispatcher.Subscriber = _inputBoxes[0];
-            dispatcher.Subscriber.Selected = true;
 
-            var ok = new XNAButton(smallButtonSheet, new Vector2(157, 195), _getSmallButtonOut(SmallButton.Ok), _getSmallButtonOver(SmallButton.Ok));
-            ok.OnClick += (s, e) => Close(ok, XNADialogResult.OK);
-            ok.SetParent(this);
-            dlgButtons.Add(ok);
+            _ok = new XNAButton(
+                dialogButtonService.SmallButtonSheet,
+                new Vector2(157, 195),
+                dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Ok),
+                dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Ok));
+            _ok.OnClick += OnButtonPressed;
 
-            var cancel = new XNAButton(smallButtonSheet, new Vector2(250, 195), _getSmallButtonOut(SmallButton.Cancel), _getSmallButtonOver(SmallButton.Cancel));
-            cancel.OnClick += (s, e) => Close(cancel, XNADialogResult.Cancel);
-            cancel.SetParent(this);
-            dlgButtons.Add(cancel);
+            _cancel = new XNAButton(
+                dialogButtonService.SmallButtonSheet,
+                new Vector2(250, 195),
+                dialogButtonService.GetSmallDialogButtonOutSource(SmallButton.Cancel),
+                dialogButtonService.GetSmallDialogButtonOverSource(SmallButton.Cancel));
+            _cancel.OnClick += (s, e) => Close(XNADialogResult.Cancel);
 
-            DialogClosing += OnDialogClosing;
-            _dialogResultCompletionSource = new TaskCompletionSource<XNADialogResult>();
-
-            CenterAndFixDrawOrder(graphicsDeviceProvider, gameStateProvider);
+            CenterInGameView();
         }
 
-        private void OnDialogClosing(object sender, CloseDialogEventArgs e)
+        public override void Initialize()
         {
-            if (e.Result == XNADialogResult.OK)
+            foreach (var tb in _inputBoxes)
             {
-                if (_inputBoxes.Any(tb => string.IsNullOrWhiteSpace(tb.Text)))
-                {
-                    e.CancelClose = true;
-                    return;
-                }
+                tb.Initialize();
+                tb.SetParentControl(this);
+            }
+            _ok.Initialize();
+            _ok.SetParentControl(this);
+            _cancel.Initialize();
+            _cancel.SetParentControl(this);
 
-                if (Username != _playerInfoProvider.LoggedInAccountName)
-                {
-                    e.CancelClose = true;
-                    var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.CHANGE_PASSWORD_MISMATCH);
-                    messageBox.ShowDialog();
-                    return;
-                }
+            base.Initialize();
+        }
 
-                if (NewPassword.Length != ConfirmPassword.Length || NewPassword != ConfirmPassword)
-                {
-                    e.CancelClose = true;
-                    var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_PASSWORD_MISMATCH);
-                    messageBox.ShowDialog();
-                    return;
-                }
-
-                if (NewPassword.Length < 6)
-                {
-                    e.CancelClose = true;
-                    var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
-                    messageBox.ShowDialog();
-                    return;
-                }
+        private void OnButtonPressed(object sender, EventArgs e)
+        {
+            if (_inputBoxes.Any(tb => string.IsNullOrWhiteSpace(tb.Text)))
+            {
+                return;
             }
 
-            _dialogResultCompletionSource.SetResult(e.Result);
-        }
+            if (Username != _playerInfoProvider.LoggedInAccountName)
+            {
+                var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.CHANGE_PASSWORD_MISMATCH);
+                messageBox.ShowDialog();
+                return;
+            }
 
-        public new async Task<IChangePasswordParameters> Show()
-        {
-            var result = await _dialogResultCompletionSource.Task;
-            if (result != XNADialogResult.OK)
-                throw new OperationCanceledException();
+            if (NewPassword != ConfirmPassword)
+            {
+                var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_PASSWORD_MISMATCH);
+                messageBox.ShowDialog();
+                return;
+            }
 
-            return new ChangePasswordParameters(Username, OldPassword, NewPassword);
+            if (NewPassword.Length < 6)
+            {
+                var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_PASSWORD_TOO_SHORT);
+                messageBox.ShowDialog();
+                return;
+            }
+
+            Close(XNADialogResult.OK);
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                //_clickEventHandler.Dispose();
-                //_tabEventHandler.Dispose();
+                _clickEventHandler.Dispose();
+                _tabEventHandler.Dispose();
             }
 
             base.Dispose(disposing);
