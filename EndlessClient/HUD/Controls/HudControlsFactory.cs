@@ -237,7 +237,7 @@ namespace EndlessClient.HUD.Controls
             var chatModesTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 31);
             var pictureBox = new ChatModePictureBox(_chatModeCalculator, _chatProvider, chatModesTexture)
             {
-                DrawPosition = new Vector2(16, 309),
+                DrawArea = new Rectangle(16, 309, chatModesTexture.Width, chatModesTexture.Height / 8),
                 SourceRectangle = new Rectangle(0, 0, chatModesTexture.Width, chatModesTexture.Height / 8),
                 DrawOrder = HUD_CONTROL_LAYER
             };
