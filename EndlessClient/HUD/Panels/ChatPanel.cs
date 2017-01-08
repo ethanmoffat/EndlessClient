@@ -187,6 +187,9 @@ namespace EndlessClient.HUD.Panels
                 SetupRenderablesFromCachedValues(renderables, chatChanged);
             }
 
+            foreach (var tabLabel in _tabLabels.Values)
+                tabLabel.Update(gameTime);
+
             base.OnUpdateControl(gameTime);
         }
 
