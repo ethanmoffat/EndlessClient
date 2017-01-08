@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
@@ -81,15 +80,12 @@ namespace EndlessClient.Controllers
 
         public async Task ChangePassword()
         {
-            IChangePasswordParameters changePasswordParameters;
-            try
-            {
-                changePasswordParameters = await _accountDialogDisplayActions.ShowChangePasswordDialog();
-            }
-            catch (OperationCanceledException) { return; }
+            var changePasswordParameters = await _accountDialogDisplayActions.ShowChangePasswordDialog();
+            if (!changePasswordParameters.HasValue)
+                return;
 
             var changePasswordOperation = _networkOperationFactory.CreateSafeBlockingOperation(
-                async () => await _accountActions.ChangePassword(changePasswordParameters),
+                async () => await _accountActions.ChangePassword(changePasswordParameters.Value),
                 SetInitialStateAndShowError,
                 SetInitialStateAndShowError);
             if (!await changePasswordOperation.Invoke())

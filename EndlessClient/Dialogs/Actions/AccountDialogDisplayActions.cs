@@ -5,6 +5,7 @@
 using System;
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Factories;
+using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Localization;
 using XNAControls;
@@ -49,15 +50,14 @@ namespace EndlessClient.Dialogs.Actions
             return await progress.ShowDialogAsync();
         }
 
-        public async Task<IChangePasswordParameters> ShowChangePasswordDialog()
+        public async Task<Optional<IChangePasswordParameters>> ShowChangePasswordDialog()
         {
             using (var changePassword = _changePasswordDialogFactory.BuildChangePasswordDialog())
             {
                 var result = await changePassword.ShowDialogAsync();
-                if(result != XNADialogResult.OK)
-                    throw new OperationCanceledException();
-
-                return changePassword.Result;
+                return result != XNADialogResult.OK
+                    ? Optional<IChangePasswordParameters>.Empty
+                    : new Optional<IChangePasswordParameters>(changePassword.Result);
             }
         }
 

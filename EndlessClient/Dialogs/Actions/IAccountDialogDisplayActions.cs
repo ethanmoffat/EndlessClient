@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
+using EOLib;
 using EOLib.Domain.Account;
 using XNAControls;
 
@@ -14,7 +15,7 @@ namespace EndlessClient.Dialogs.Actions
 
         Task<XNADialogResult> ShowCreatePendingDialog();
 
-        Task<IChangePasswordParameters> ShowChangePasswordDialog();
+        Task<Optional<IChangePasswordParameters>> ShowChangePasswordDialog();
 
         void ShowCreateParameterValidationError(CreateAccountParameterResult validationResult);
         
