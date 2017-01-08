@@ -61,11 +61,9 @@ namespace EndlessClient.HUD.Panels
                 LinesToRender = 7,
                 Visible = true
             };
-            _scrollBar.SetParentControl(this);
+
             _chatRenderables = new List<IChatRenderable>();
-
             _state = new ChatPanelStateCache();
-
             CurrentTab = ChatTab.Local;
 
             var tabTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 35);
@@ -73,6 +71,9 @@ namespace EndlessClient.HUD.Panels
             _smallUnselected = new SpriteSheet(tabTexture, new Rectangle(264, 16, 43, 16));
             _largeSelected = new SpriteSheet(tabTexture, new Rectangle(132, 16, 132, 16));
             _largeUnselected = new SpriteSheet(tabTexture, new Rectangle(0, 16, 132, 16));
+
+            BackgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 28);
+            DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
 
             _tabLabels = new Dictionary<ChatTab, IXNALabel>
             {
@@ -106,14 +107,13 @@ namespace EndlessClient.HUD.Panels
 
             _closeButtonAreaForTab1 = new Rectangle(3, 3, 11, 11).WithPosition(GetDestinationVectorForTab(ChatTab.Private1));
             _closeButtonAreaForTab2 = new Rectangle(3, 3, 11, 11).WithPosition(GetDestinationVectorForTab(ChatTab.Private2));
-
-            BackgroundImage = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 28);
-            DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
         }
 
         public override void Initialize()
         {
             _scrollBar.Initialize();
+            _scrollBar.SetParentControl(this);
+
             foreach (var label in _tabLabels.Values)
                 label.Initialize();
 
