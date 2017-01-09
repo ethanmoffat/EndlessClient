@@ -5,6 +5,7 @@
 using System;
 using System.Threading.Tasks;
 using EndlessClient.Dialogs.Factories;
+using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Localization;
 using XNAControls;
@@ -23,13 +24,13 @@ namespace EndlessClient.Dialogs.Actions
             _createCharacterDialogFactory = createCharacterDialogFactory;
         }
 
-        public async Task<ICharacterCreateParameters> ShowCreateCharacterDialog()
+        public async Task<Optional<ICharacterCreateParameters>> ShowCreateCharacterDialog()
         {
             var dialog = _createCharacterDialogFactory.BuildCreateCharacterDialog();
             var result = await dialog.ShowDialogAsync();
             return result == XNADialogResult.OK
                 ? new CharacterCreateParameters(dialog.Name, dialog.Gender, dialog.HairStyle, dialog.HairColor, dialog.Race)
-                : null;
+                : Optional<ICharacterCreateParameters>.Empty;
         }
 
         public void ShowCharacterReplyDialog(CharacterReply response)

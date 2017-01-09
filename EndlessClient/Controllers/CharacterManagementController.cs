@@ -72,13 +72,13 @@ namespace EndlessClient.Controllers
 
             //todo: make not approved character names cancel the dialog close
             var parameters = await _characterDialogActions.ShowCreateCharacterDialog();
-            if (parameters == null)
+            if (!parameters.HasValue)
                 return;
 
             CharacterReply response;
             try
             {
-                response = await _characterManagementActions.CreateCharacter(parameters);
+                response = await _characterManagementActions.CreateCharacter(parameters.Value);
             }
             catch (NoDataSentException)
             {
