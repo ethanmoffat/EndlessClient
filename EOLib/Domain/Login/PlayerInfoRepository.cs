@@ -8,6 +8,8 @@ namespace EOLib.Domain.Login
     {
         string LoggedInAccountName { get; set; }
 
+        string PlayerPassword { get; set; }
+
         int PlayerID { get; set; }
 
         bool IsFirstTimePlayer { get; set; }
@@ -19,6 +21,8 @@ namespace EOLib.Domain.Login
     {
         string LoggedInAccountName { get; }
 
+        string PlayerPassword { get; }
+
         int PlayerID { get; }
 
         bool IsFirstTimePlayer { get; }
@@ -26,9 +30,11 @@ namespace EOLib.Domain.Login
         bool PlayerIsInGame { get; }
     }
 
-    public class PlayerInfoRepository : IPlayerInfoRepository, IPlayerInfoProvider, IResettable
+    public sealed class PlayerInfoRepository : IPlayerInfoRepository, IPlayerInfoProvider, IResettable
     {
         public string LoggedInAccountName { get; set; }
+
+        public string PlayerPassword { get; set; }
 
         public int PlayerID { get; set; }
 
@@ -39,7 +45,9 @@ namespace EOLib.Domain.Login
         public void ResetState()
         {
             LoggedInAccountName = "";
+            PlayerPassword = "";
             PlayerID = 0;
+            IsFirstTimePlayer = false;
             PlayerIsInGame = false;
         }
     }

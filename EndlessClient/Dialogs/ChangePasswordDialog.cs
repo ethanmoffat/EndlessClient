@@ -125,6 +125,13 @@ namespace EndlessClient.Dialogs
                 return;
             }
 
+            if (OldPassword != _playerInfoProvider.PlayerPassword)
+            {
+                var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.CHANGE_PASSWORD_MISMATCH);
+                messageBox.ShowDialog();
+                return;
+            }
+
             if (NewPassword != ConfirmPassword)
             {
                 var messageBox = _eoMessageBoxFactory.CreateMessageBox(DialogResourceID.ACCOUNT_CREATE_PASSWORD_MISMATCH);

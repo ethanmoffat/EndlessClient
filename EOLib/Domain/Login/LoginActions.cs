@@ -84,7 +84,10 @@ namespace EOLib.Domain.Login
             _characterSelectorRepository.Characters = data.Characters;
 
             if (data.Response == LoginReply.Ok)
+            {
                 _playerInfoRepository.LoggedInAccountName = parameters.Username;
+                _playerInfoRepository.PlayerPassword = parameters.Password;
+            }
 
             return data.Response;
         }
