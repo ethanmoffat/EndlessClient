@@ -19,11 +19,6 @@ namespace EndlessClient
         {
             var game = (Game)container.Resolve<IEndlessGame>();
             XNAControls.GameRepository.SetGame(game);
-
-            //todo: remove this once converted to new XNAControls code
-            XNAControls.Old.XNAControls.Initialize(game);
-            XNAControls.Old.XNAControls.IgnoreEnterForDialogs = true;
-            XNAControls.Old.XNAControls.IgnoreEscForDialogs = true;
         }
     }
 }
