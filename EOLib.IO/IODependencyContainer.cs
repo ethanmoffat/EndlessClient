@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.IO;
 using EOLib.DependencyInjection;
 using EOLib.IO.Actions;
 using EOLib.IO.Map;
@@ -10,12 +9,11 @@ using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
-using EOLib.Logger;
 using Microsoft.Practices.Unity;
 
 namespace EOLib.IO
 {
-    public class IODependencyContainer : IInitializableContainer
+    public class IODependencyContainer : IDependencyContainer
     {
         public void RegisterDependencies(IUnityContainer container)
         {
@@ -59,49 +57,5 @@ namespace EOLib.IO
                 .RegisterType<IPubFileLoadActions, PubFileLoadActions>()
                 .RegisterType<IMapFileLoadActions, MapFileLoadActions>();
         }
-
-        public void InitializeDependencies(IUnityContainer container)
-        {
-            var pubFileLoadActions = container.Resolve<IPubFileLoadActions>();
-            var logger = container.Resolve<ILoggerProvider>().Logger;
-
-            try
-            {
-                pubFileLoadActions.LoadItemFile();
-            }
-            catch (IOException ioe)
-            {
-                logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToEIFFile, ioe.Message);
-            }
-
-            try
-            {
-                pubFileLoadActions.LoadNPCFile();
-            }
-            catch (IOException ioe)
-            {
-                logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToENFFile, ioe.Message);
-            }
-
-            try
-            {
-                pubFileLoadActions.LoadSpellFile();
-            }
-            catch (IOException ioe)
-            {
-                logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToESFFile, ioe.Message);
-            }
-
-            try
-            {
-                pubFileLoadActions.LoadClassFile();
-            }
-            catch (IOException ioe)
-            {
-                logger.Log(PUB_LOG_MSG, PubFileNameConstants.PathToECFFile, ioe.Message);
-            }
-        }
-
-        private const string PUB_LOG_MSG = "**** Unable to load default PUB file: {0}. Exception message: {1}";
     }
 }
