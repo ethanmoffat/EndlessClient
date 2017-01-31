@@ -115,6 +115,11 @@ namespace EndlessClient.Rendering.Character
                     (now - pair.ActionStartTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
                 {
                     var currentCharacter = GetCurrentCharacterFromRepository(pair);
+                    if (currentCharacter == null)
+                    {
+                        playersDoneWalking.Add(pair);
+                        continue;
+                    }
 
                     var renderProperties = currentCharacter.RenderProperties;
                     var nextFrameRenderProperties = AnimateOneWalkFrame(renderProperties);
@@ -157,6 +162,11 @@ namespace EndlessClient.Rendering.Character
                     (now - pair.ActionStartTime).TotalMilliseconds > ATTACK_FRAME_TIME_MS)
                 {
                     var currentCharacter = GetCurrentCharacterFromRepository(pair);
+                    if (currentCharacter == null)
+                    {
+                        playersDoneAttacking.Add(pair);
+                        continue;
+                    }
 
                     var renderProperties = currentCharacter.RenderProperties;
                     var nextFrameRenderProperties = renderProperties.WithNextAttackFrame();
@@ -185,7 +195,7 @@ namespace EndlessClient.Rendering.Character
         {
             return pair.UniqueID == _characterRepository.MainCharacter.ID
                 ? _characterRepository.MainCharacter
-                : _currentMapStateRepository.Characters.Single(x => x.ID == pair.UniqueID);
+                : _currentMapStateRepository.Characters.SingleOrDefault(x => x.ID == pair.UniqueID);
         }
 
         private void UpdateCharacterInRepository(ICharacter currentCharacter, ICharacter nextFrameCharacter)

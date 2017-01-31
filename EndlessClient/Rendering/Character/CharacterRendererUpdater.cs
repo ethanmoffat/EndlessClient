@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System.Collections.Generic;
+using System.Linq;
 using EndlessClient.Rendering.Factories;
 using EOLib;
 using EOLib.Domain.Character;
@@ -36,6 +38,7 @@ namespace EndlessClient.Rendering.Character
             CreateMainCharacterRendererAndCacheProperties();
             CreateOtherCharacterRenderersAndCacheProperties();
             UpdateAllCharacters(gameTime);
+            RemoveStaleCharacters();
         }
 
         private void CreateMainCharacterRendererAndCacheProperties()
@@ -95,6 +98,24 @@ namespace EndlessClient.Rendering.Character
             _characterRendererRepository.MainCharacterRenderer.Update(gameTime);
             foreach (var renderer in _characterRendererRepository.CharacterRenderers.Values)
                 renderer.Update(gameTime);
+        }
+
+        private void RemoveStaleCharacters()
+        {
+            var staleIDs = new List<int>();
+            foreach (var kvp in _characterStateCache.CharacterRenderProperties)
+            {
+                if (_currentMapStateProvider.Characters.Any(x => x.ID == kvp.Key))
+                    continue;
+                staleIDs.Add(kvp.Key);
+            }
+
+            foreach (var id in staleIDs)
+            {
+                _characterStateCache.RemoveCharacterState(id);
+                _characterRendererRepository.CharacterRenderers[id].Dispose();
+                _characterRendererRepository.CharacterRenderers.Remove(id);
+            }
         }
 
         private ICharacterRenderer InitializeRendererForCharacter(ICharacterRenderProperties renderProperties)
