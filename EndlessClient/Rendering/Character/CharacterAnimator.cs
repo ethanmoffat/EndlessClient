@@ -68,23 +68,33 @@ namespace EndlessClient.Rendering.Character
 
         public void StartOtherCharacterWalkAnimation(int characterID)
         {
-            if (_otherPlayerStartWalkingTimes.Any(x => x.UniqueID == characterID) ||
-                _otherPlayerStartAttackingTimes.Any(x => x.UniqueID == characterID))
+            if (_otherPlayerStartAttackingTimes.Any(x => x.UniqueID == characterID))
                 return;
 
-            var startWalkingTimeAndID = new RenderFrameActionTime(characterID, DateTime.Now);
+            var existingStartTime = _otherPlayerStartWalkingTimes.SingleOrDefault(x => x.UniqueID == characterID);
+            if (existingStartTime != null)
+            {
+                ResetCharacterAnimationFrames(characterID);
+                _otherPlayerStartWalkingTimes.Remove(existingStartTime);
+            }
 
+            var startWalkingTimeAndID = new RenderFrameActionTime(characterID, DateTime.Now);
             _otherPlayerStartWalkingTimes.Add(startWalkingTimeAndID);
         }
 
         public void StartOtherCharacterAttackAnimation(int characterID)
         {
-            if (_otherPlayerStartWalkingTimes.Any(x => x.UniqueID == characterID) ||
-                _otherPlayerStartAttackingTimes.Any(x => x.UniqueID == characterID))
+            if (_otherPlayerStartWalkingTimes.Any(x => x.UniqueID == characterID))
                 return;
 
-            var startAttackingTimeAndID = new RenderFrameActionTime(characterID, GetStartingAttackTime());
+            var existingStartTime = _otherPlayerStartAttackingTimes.SingleOrDefault(x => x.UniqueID == characterID);
+            if (existingStartTime != null)
+            {
+                ResetCharacterAnimationFrames(characterID);
+                _otherPlayerStartAttackingTimes.Remove(existingStartTime);
+            }
 
+            var startAttackingTimeAndID = new RenderFrameActionTime(characterID, GetStartingAttackTime());
             _otherPlayerStartAttackingTimes.Add(startAttackingTimeAndID);
         }
 
@@ -194,6 +204,15 @@ namespace EndlessClient.Rendering.Character
         private bool HasActionForMainCharacter(RenderFrameActionTime x)
         {
             return x.UniqueID == _characterRepository.MainCharacter.ID && x.ActionStartTime.HasValue;
+        }
+
+        private void ResetCharacterAnimationFrames(int characterID)
+        {
+            var character = _currentMapStateRepository.Characters.Single(x => x.ID == characterID);
+            var renderProps = character.RenderProperties.ResetAnimationFrames();
+            var newCharacter = character.WithRenderProperties(renderProps);
+            _currentMapStateRepository.Characters.Remove(character);
+            _currentMapStateRepository.Characters.Add(newCharacter);
         }
 
         private static DateTime GetStartingAttackTime()
