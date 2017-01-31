@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
@@ -47,17 +48,11 @@ namespace EOLib.PacketHandlers
 
             var warpAgreePacketData = _warpAgreePacketTranslator.TranslatePacket(packet);
 
-            var updatedMainCharacter = warpAgreePacketData.Characters.Single(IDMatches);
-            var updatedRenderProperties = _characterRepository.MainCharacter.RenderProperties
-                .WithMapX(updatedMainCharacter.RenderProperties.MapX)
-                .WithMapY(updatedMainCharacter.RenderProperties.MapY);
+            var updatedMainCharacter = warpAgreePacketData.Characters.Single(MainCharacterIDMatches);
+            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithAppliedData(updatedMainCharacter);
 
-            var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !IDMatches(x));
+            var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !MainCharacterIDMatches(x));
             warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter);
-
-            _characterRepository.MainCharacter = _characterRepository.MainCharacter
-                .WithMapID(warpAgreePacketData.MapID)
-                .WithRenderProperties(updatedRenderProperties);
 
             var differentMapID = _currentMapStateRepository.CurrentMapID != warpAgreePacketData.MapID;
 
@@ -78,7 +73,7 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private bool IDMatches(ICharacter x)
+        private bool MainCharacterIDMatches(ICharacter x)
         {
             return x.ID == _characterRepository.MainCharacter.ID;
         }
