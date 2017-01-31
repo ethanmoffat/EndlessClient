@@ -238,17 +238,6 @@ namespace EndlessClient.Old
             return true;
         }
 
-        //public void WarpAgreeAction(short mapID, WarpAnimation anim, List<CharacterData> chars, List<NPCData> npcs, List<OldMapItem> items)
-        //{
-            //foreach (var data in chars)
-            //{
-            //    if (data.ID == MainPlayer.ActiveCharacter.ID)
-            //        MainPlayer.ActiveCharacter.ApplyData(data);
-            //    else
-            //        ActiveMapRenderer.AddOtherPlayer(data);
-            //}
-        //}
-
         public void ResetGameElements()
         {
             if (m_mapRender != null)

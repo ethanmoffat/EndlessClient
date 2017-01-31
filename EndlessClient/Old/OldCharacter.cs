@@ -413,15 +413,6 @@ namespace EndlessClient.Old
             return true;
         }
 
-        /// <summary>
-        /// Used to apply changes from Welcome packet to existing character.
-        /// </summary>
-        /// <param name="newGuy">Changes to MainPlayer.ActiveCharacter, contained in a CharacterData object</param>
-        /// <param name="copyPaperdoll">Set to true if paperdoll data from newGuy should be applied to this character</param>
-        public void ApplyData(CharacterData newGuy, bool copyPaperdoll = true)
-        {
-        }
-
         public void DoneAttacking()
         {
             State = CharacterActionState.Standing;
