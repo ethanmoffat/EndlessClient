@@ -178,7 +178,6 @@
     <Compile Include="Net\API\PacketAPI.cs" />
     <Compile Include="Net\API\Paperdoll.cs" />
     <Compile Include="Net\API\Party.cs" />
-    <Compile Include="Net\API\Players.cs" />
     <Compile Include="Net\API\Quest.cs" />
     <Compile Include="Net\API\Recover.cs" />
     <Compile Include="Net\API\Refresh.cs" />
@@ -279,6 +278,7 @@
     <Compile Include="PacketHandlers\Chat\PublicChatHandler.cs" />
     <Compile Include="PacketHandlers\PlayerAttackHandler.cs" />
     <Compile Include="PacketHandlers\PlayerDirectionHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerEnterMapHandler.cs" />
     <Compile Include="PacketHandlers\PlayerLevelUpHandler.cs" />
     <Compile Include="PacketHandlers\PlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\BeginPlayerWarpHandler.cs" />
