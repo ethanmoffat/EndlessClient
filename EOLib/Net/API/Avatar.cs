@@ -3,17 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Domain.Character;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-    public enum AvatarSlot : byte
-    {
-        Clothes = 1,
-        Hair = 2,
-        HairColor = 3
-    };
-
     public struct AvatarData
     {
         private readonly short boots, armor, hat, shield, weapon;
