@@ -278,6 +278,7 @@
     <Compile Include="PacketHandlers\Chat\PrivateMessageTargetNotFound.cs" />
     <Compile Include="PacketHandlers\Chat\PublicChatHandler.cs" />
     <Compile Include="PacketHandlers\PlayerAttackHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerAvatarChangeHandler.cs" />
     <Compile Include="PacketHandlers\PlayerDirectionHandler.cs" />
     <Compile Include="PacketHandlers\PlayerEnterMapHandler.cs" />
     <Compile Include="PacketHandlers\PlayerLeaveMapHandler.cs" />

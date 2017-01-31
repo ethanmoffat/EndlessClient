@@ -42,7 +42,8 @@ namespace EOLib.PacketHandlers
                 .RegisterVaried<IPacketHandler, MainPlayerWalkHandler>()
                 .RegisterVaried<IPacketHandler, PlayerAttackHandler>()
                 .RegisterVaried<IPacketHandler, PlayerEnterMapHandler>()
-                .RegisterVaried<IPacketHandler, PlayerLeaveMapHandler>();
+                .RegisterVaried<IPacketHandler, PlayerLeaveMapHandler>()
+                .RegisterVaried<IPacketHandler, PlayerAvatarChangeHandler>();
 
             //npcs
             container.RegisterVaried<IPacketHandler, NPCActionHandler>()
