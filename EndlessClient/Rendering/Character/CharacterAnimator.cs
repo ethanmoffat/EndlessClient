@@ -59,11 +59,10 @@ namespace EndlessClient.Rendering.Character
 
         public void StartMainCharacterAttackAnimation()
         {
-            //todo: animation is currently really choppy, make it smoother
             if (_otherPlayerStartAttackingTimes.Any(HasActionForMainCharacter))
                 return;
 
-            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, DateTime.Now);
+            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, GetStartingAttackTime());
             _otherPlayerStartAttackingTimes.Add(startAttackingTime);
         }
 
@@ -84,7 +83,7 @@ namespace EndlessClient.Rendering.Character
                 _otherPlayerStartAttackingTimes.Any(x => x.UniqueID == characterID))
                 return;
 
-            var startAttackingTimeAndID = new RenderFrameActionTime(characterID, DateTime.Now);
+            var startAttackingTimeAndID = new RenderFrameActionTime(characterID, GetStartingAttackTime());
 
             _otherPlayerStartAttackingTimes.Add(startAttackingTimeAndID);
         }
@@ -195,6 +194,14 @@ namespace EndlessClient.Rendering.Character
         private bool HasActionForMainCharacter(RenderFrameActionTime x)
         {
             return x.UniqueID == _characterRepository.MainCharacter.ID && x.ActionStartTime.HasValue;
+        }
+
+        private static DateTime GetStartingAttackTime()
+        {
+            //make the first frame very short for attacking
+            //this works around a bug where the first attack frame was being delayed for no good reason
+            //maybe I will eventually figure out why that was happening but this seems to work just fine for now
+            return DateTime.Now.AddMilliseconds(-ATTACK_FRAME_TIME_MS);
         }
     }
 
