@@ -27,15 +27,17 @@ The game is able to run independently of a MonoGame installation. The only requi
 <a name="Source" />Building the Source
 ---------------------
 
-There are a few prerequisites that need to be installed before the source can be built. The primary development environment is Visual Studio 2013 (with Update 5) on Windows 10 Professional x64. The solution should be compatible with other IDEs that support MonoGame.
+**Note:** The solution was recently updated to support .Net 4.6.2. This means that Visual Studio 2013 will no longer be able to compile the code. Visual Studio 2015 is now the minimum supported version.
+
+There are a few prerequisites that need to be installed before the source can be built. The primary development environment is Visual Studio 2015 (with Update 3) on Windows 10 Professional x64. The solution should be compatible with other IDEs that support MonoGame.
 
 1. Install Windows
 
   a. Run Windows Update and reboot cyclically until Windows is up to date
   
-2. Install Visual Studio ([2013 Community](https://www.visualstudio.com/en-us/news/vs2013-community-vs.aspx)) ([2015 Community](https://www.visualstudio.com/en-us/products/visual-studio-community-vs.aspx))
+2. Install Visual Studio ([2015 Community](https://go.microsoft.com/fwlink/?LinkId=691978&clcid=0x409)
 
-  a. Optional, but recommended: For Visual Studio 2013, install [Visual Studio 2013 Update 5](https://www.microsoft.com/en-us/download/details.aspx?id=48129)
+  a. Optional, but recommended: For Visual Studio 2015, install [Visual Studio 2015 Update 3](https://go.microsoft.com/fwlink/?LinkId=691129)
   
   b. Optional, but *highly* recommended: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/download/) (student licenses are free with a .edu address!)
   
