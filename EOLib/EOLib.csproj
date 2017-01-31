@@ -279,6 +279,7 @@
     <Compile Include="PacketHandlers\PlayerAttackHandler.cs" />
     <Compile Include="PacketHandlers\PlayerDirectionHandler.cs" />
     <Compile Include="PacketHandlers\PlayerEnterMapHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerLeaveMapHandler.cs" />
     <Compile Include="PacketHandlers\PlayerLevelUpHandler.cs" />
     <Compile Include="PacketHandlers\PlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\BeginPlayerWarpHandler.cs" />
