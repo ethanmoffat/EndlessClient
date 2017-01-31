@@ -173,7 +173,8 @@ namespace EOLib.Net.API
         {
             if (OnPlayerPaperdollChange == null) return;
 
-            _handleAvatarAgree(pkt); //same logic in the beginning of the packet
+            //see PlayerAvatarChangeHandler
+            //_handleAvatarAgree(pkt); //same logic in the beginning of the packet
 
             PaperdollEquipData data = new PaperdollEquipData(pkt, false);
             OnPlayerPaperdollChange(data);
@@ -208,8 +209,8 @@ namespace EOLib.Net.API
             }
 
             AvatarData renderData = new AvatarData(playerID, slot, sound, boots, armor, hat, weapon, shield);
-            if (OnPlayerAvatarChange != null)
-                OnPlayerAvatarChange(renderData);
+            //if (OnPlayerAvatarChange != null) //see PlayerAvatarChangeHandler
+            //    OnPlayerAvatarChange(renderData);
 
             PaperdollEquipData data = new PaperdollEquipData(pkt, true);
             OnPlayerPaperdollChange(data);

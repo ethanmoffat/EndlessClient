@@ -35,8 +35,6 @@ namespace EndlessClient.Old
         {
             m_packetAPI.OnAdminHiddenChange += _adminHiddenChange;
 
-            m_packetAPI.OnPlayerAvatarChange += _playerAvatarChange;
-
             m_packetAPI.OnPlayerPaperdollChange += _playerPaperdollChange;
             m_packetAPI.OnViewPaperdoll += _playerViewPaperdoll;
 
@@ -136,29 +134,6 @@ namespace EndlessClient.Old
                 OldWorld.Instance.MainPlayer.ActiveCharacter.RenderData.SetHidden(hidden);
             else
                 OldWorld.Instance.ActiveMapRenderer.OtherPlayerHide(id, hidden);
-        }
-
-        private void _playerAvatarChange(AvatarData _data)
-        {
-            switch (_data.Slot)
-            {
-                case AvatarSlot.Clothes:
-                    OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerRenderData(_data.ID, _data.Sound, new CharRenderData
-                    {
-                        boots = _data.Boots,
-                        armor = _data.Armor,
-                        hat = _data.Hat,
-                        shield = _data.Shield,
-                        weapon = _data.Weapon
-                    });
-                    break;
-                case AvatarSlot.Hair:
-                    OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(_data.ID, _data.HairColor, _data.HairStyle);
-                    break;
-                case AvatarSlot.HairColor:
-                    OldWorld.Instance.ActiveMapRenderer.UpdateOtherPlayerHairData(_data.ID, _data.HairColor);
-                    break;
-            }
         }
 
         private void _playerPaperdollChange(PaperdollEquipData _data)

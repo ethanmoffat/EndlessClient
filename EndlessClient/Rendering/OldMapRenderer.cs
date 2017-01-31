@@ -540,32 +540,6 @@ namespace EndlessClient.Rendering
                 _characterRenderers.Select(x => x.Character).ToList().ForEach(x => x.RenderData.SetUpdate(true));
         }
 
-        public void UpdateOtherPlayerRenderData(short playerId, bool sound, CharRenderData newRenderData)
-        {
-            OldCharacter c = playerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
-                ? OldWorld.Instance.MainPlayer.ActiveCharacter
-                : GetOtherPlayerByID(playerId);
-
-            if (c != null)
-            {
-                c.SetDisplayItemsFromRenderData(newRenderData);
-                //todo: play sound?
-            }
-        }
-
-        public void UpdateOtherPlayerHairData(short playerId, byte hairColor, byte hairStyle = 255)
-        {
-            OldCharacter c = playerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
-                ? OldWorld.Instance.MainPlayer.ActiveCharacter
-                : GetOtherPlayerByID(playerId);
-
-            if (c != null)
-            {
-                c.RenderData.SetHairColor(hairColor);
-                if (hairStyle != 255) c.RenderData.SetHairStyle(hairStyle);
-            }
-        }
-
         public OldCharacter GetOtherPlayerByID(short playerId)
         {
             OldCharacter retChar;

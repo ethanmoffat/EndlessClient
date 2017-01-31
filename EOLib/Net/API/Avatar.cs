@@ -2,9 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using EOLib.Domain.Character;
-using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
@@ -55,58 +53,6 @@ namespace EOLib.Net.API
 
             sound = false;
             boots = armor = hat = shield = weapon = 0;
-        }
-    }
-
-    partial class PacketAPI
-    {
-        public event Action<AvatarData> OnPlayerAvatarChange;
-
-        private void _createAvatarMembers()
-        {
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Avatar, PacketAction.Agree), _handleAvatarAgree, true);
-        }
-
-        // Player changes appearance (clothes, hair, etc)
-        private void _handleAvatarAgree(OldPacket pkt)
-        {
-            short playerID = pkt.GetShort();
-            AvatarSlot slot = (AvatarSlot)pkt.GetChar();
-            switch (slot)
-            {
-                case AvatarSlot.Clothes:
-                    {
-                        AvatarData newRenderData = new AvatarData(
-                            playerID,
-                            slot,
-                            pkt.GetChar() == 0,  //sound
-                            pkt.GetShort(),      //boots
-                            pkt.GetShort(),      //armor
-                            pkt.GetShort(),      //hat
-                            pkt.GetShort(),      //weapon
-                            pkt.GetShort()       //shield
-                        );
-                        if (OnPlayerAvatarChange != null)
-                            OnPlayerAvatarChange(newRenderData);
-                    }
-                    break;
-                case AvatarSlot.Hair:
-                    {
-                        if (pkt.GetChar() != 0) return; //subloc -- not sure what this does
-                        AvatarData data = new AvatarData(playerID, slot, pkt.GetChar(), pkt.GetChar());
-                        if (OnPlayerAvatarChange != null)
-                            OnPlayerAvatarChange(data);
-                    }
-                    break;
-                case AvatarSlot.HairColor:
-                    {
-                        if (pkt.GetChar() != 0) return; //subloc -- not sure what this does
-                        AvatarData data = new AvatarData(playerID, slot, 0, pkt.GetChar());
-                        if (OnPlayerAvatarChange != null)
-                            OnPlayerAvatarChange(data);
-                    }
-                    break;
-            }
         }
     }
 }

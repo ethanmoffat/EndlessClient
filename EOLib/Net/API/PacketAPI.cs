@@ -25,7 +25,6 @@ namespace EOLib.Net.API
 
             //each of these sets up members of the partial PacketAPI class relevant to a particular packet family
             _createAdminInteractMembers();
-            _createAvatarMembers();
             _createBankMembers();
             _createChestMembers();
             _createEffectMembers();
