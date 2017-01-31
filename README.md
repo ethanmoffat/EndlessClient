@@ -35,13 +35,13 @@ There are a few prerequisites that need to be installed before the source can be
 
   a. Run Windows Update and reboot cyclically until Windows is up to date
   
-2. Install Visual Studio ([2015 Community](https://go.microsoft.com/fwlink/?LinkId=691978&clcid=0x409)
+2. Install Visual Studio ([2015 Community](https://go.microsoft.com/fwlink/?LinkId=691978&clcid=0x409))
 
   a. Optional, but recommended: For Visual Studio 2015, install [Visual Studio 2015 Update 3](https://go.microsoft.com/fwlink/?LinkId=691129)
   
   b. Optional, but *highly* recommended: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/download/) (student licenses are free with a .edu address!)
   
-  c. Optional, but recommended: Install Productivity Power Tools ([2013](https://visualstudiogallery.msdn.microsoft.com/dbcb8670-889e-4a54-a226-a48a15e4cace)) ([2015](https://visualstudiogallery.msdn.microsoft.com/34ebc6a2-2777-421d-8914-e29c1dfa7f5d))
+  c. Optional, but recommended: Install Productivity Power Tools ([2015](https://visualstudiogallery.msdn.microsoft.com/34ebc6a2-2777-421d-8914-e29c1dfa7f5d))
 
 3. Install [MonoGame 3.5](http://www.monogame.net/2016/03/17/monogame-3-5/)
 
