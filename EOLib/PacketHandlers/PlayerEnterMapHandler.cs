@@ -4,6 +4,7 @@
 
 using System.Linq;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
@@ -59,39 +60,7 @@ namespace EOLib.PacketHandlers
             var existingCharacter = _mapStateRepository.Characters.SingleOrDefault(x => x.ID == character.ID);
             if (existingCharacter != null)
             {
-                //note: this was taken from OldCharacter.ApplyData (before function was removed)
-                var existingRenderProps = existingCharacter.RenderProperties;
-                var newRenderProps = existingRenderProps
-                    .WithBootsGraphic(character.RenderProperties.BootsGraphic)
-                    .WithArmorGraphic(character.RenderProperties.ArmorGraphic)
-                    .WithHatGraphic(character.RenderProperties.HatGraphic)
-                    .WithShieldGraphic(character.RenderProperties.ShieldGraphic)
-                    .WithWeaponGraphic(character.RenderProperties.WeaponGraphic)
-                    .WithDirection(character.RenderProperties.Direction)
-                    .WithHairStyle(character.RenderProperties.HairStyle)
-                    .WithHairColor(character.RenderProperties.HairColor)
-                    .WithGender(character.RenderProperties.Gender)
-                    .WithRace(character.RenderProperties.Race)
-                    .WithSitState(character.RenderProperties.SitState)
-                    .WithMapX(character.RenderProperties.MapX)
-                    .WithMapY(character.RenderProperties.MapY)
-                    .ResetAnimationFrames();
-
-                var existingStats = existingCharacter.Stats;
-                var newStats = existingStats
-                    .WithNewStat(CharacterStat.Level, existingStats[CharacterStat.Level])
-                    .WithNewStat(CharacterStat.HP, existingStats[CharacterStat.HP])
-                    .WithNewStat(CharacterStat.MaxHP, existingStats[CharacterStat.MaxHP])
-                    .WithNewStat(CharacterStat.TP, existingStats[CharacterStat.TP])
-                    .WithNewStat(CharacterStat.MaxTP, existingStats[CharacterStat.MaxTP]);
-
-                character = existingCharacter
-                    .WithName(character.Name)
-                    .WithGuildTag(character.GuildTag)
-                    .WithMapID(character.MapID)
-                    .WithRenderProperties(newRenderProps)
-                    .WithStats(newStats);
-
+                character = existingCharacter.WithAppliedData(character);
                 _mapStateRepository.Characters.Remove(existingCharacter);
             }
             _mapStateRepository.Characters.Add(character);
