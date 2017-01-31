@@ -353,7 +353,7 @@ namespace EndlessClient.Rendering
 
         #region /* PUBLIC INTERFACE -- OTHER PLAYERS */
 
-        public void RemoveOtherPlayer(short id, WarpAnimation anim = WarpAnimation.None)
+        private void RemoveOtherPlayer(short id, WarpAnimation anim = WarpAnimation.None)
         {
             lock (_characterListLock)
             {

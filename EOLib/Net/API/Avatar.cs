@@ -3,7 +3,6 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EOLib.Domain.Map;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
@@ -67,23 +66,11 @@ namespace EOLib.Net.API
 
     partial class PacketAPI
     {
-        public event Action<short, WarpAnimation> OnPlayerAvatarRemove;
         public event Action<AvatarData> OnPlayerAvatarChange;
 
         private void _createAvatarMembers()
         {
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Avatar, PacketAction.Remove), _handleAvatarRemove, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Avatar, PacketAction.Agree), _handleAvatarAgree, true);
-        }
-
-        // Remove a player from view (sent by server when someone is out of range)
-        private void _handleAvatarRemove(OldPacket pkt)
-        {
-            if (OnPlayerAvatarRemove == null) return;
-
-            short id = pkt.GetShort();
-            WarpAnimation anim = (WarpAnimation)(pkt.Length > pkt.ReadPos ? pkt.GetChar() : 0);
-            OnPlayerAvatarRemove(id, anim);
         }
 
         // Player changes appearance (clothes, hair, etc)

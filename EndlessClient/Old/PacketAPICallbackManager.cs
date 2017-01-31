@@ -35,7 +35,6 @@ namespace EndlessClient.Old
         {
             m_packetAPI.OnAdminHiddenChange += _adminHiddenChange;
 
-            m_packetAPI.OnPlayerAvatarRemove += _playerAvatarRemove;
             m_packetAPI.OnPlayerAvatarChange += _playerAvatarChange;
 
             m_packetAPI.OnPlayerPaperdollChange += _playerPaperdollChange;
@@ -137,11 +136,6 @@ namespace EndlessClient.Old
                 OldWorld.Instance.MainPlayer.ActiveCharacter.RenderData.SetHidden(hidden);
             else
                 OldWorld.Instance.ActiveMapRenderer.OtherPlayerHide(id, hidden);
-        }
-
-        private void _playerAvatarRemove(short id, WarpAnimation anim)
-        {
-            OldWorld.Instance.ActiveMapRenderer.RemoveOtherPlayer(id, anim);
         }
 
         private void _playerAvatarChange(AvatarData _data)
