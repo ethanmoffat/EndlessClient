@@ -8,6 +8,9 @@ namespace EOLib.Net.Translators
 {
     public class WarpAgreePacketTranslator : MapStatePacketTranslator<IWarpAgreePacketData>
     {
+        public WarpAgreePacketTranslator(ICharacterFromPacketFactory characterFromPacketFactory)
+            : base(characterFromPacketFactory) { }
+
         public override IWarpAgreePacketData TranslatePacket(IPacket packet)
         {
             IWarpAgreePacketData retData = new WarpAgreePacketData();

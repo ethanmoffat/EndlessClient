@@ -15,6 +15,8 @@ namespace EOLib.Net.Translators
     {
         public void RegisterDependencies(IUnityContainer container)
         {
+            container.RegisterType<ICharacterFromPacketFactory, CharacterFromPacketFactory>();
+
             container.RegisterType<IPacketTranslator<IInitializationData>, InitDataTranslator>()
                 .RegisterType<IPacketTranslator<IAccountLoginData>, AccountLoginPacketTranslator>()
                 .RegisterType<IPacketTranslator<ICharacterCreateData>, CharacterReplyPacketTranslator>()

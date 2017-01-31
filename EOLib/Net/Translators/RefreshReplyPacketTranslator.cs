@@ -8,6 +8,9 @@ namespace EOLib.Net.Translators
 {
     public class RefreshReplyPacketTranslator : MapStatePacketTranslator<IRefreshReplyData>
     {
+        public RefreshReplyPacketTranslator(ICharacterFromPacketFactory characterFromPacketFactory)
+            : base(characterFromPacketFactory) { }
+
         public override IRefreshReplyData TranslatePacket(IPacket packet)
         {
             var characters = GetCharacters(packet);

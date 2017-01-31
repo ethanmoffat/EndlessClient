@@ -204,6 +204,7 @@
     <Compile Include="Net\EmptyPacketReceivedException.cs" />
     <Compile Include="Net\Handlers\DefaultAsyncPacketHandler.cs" />
     <Compile Include="Net\Handlers\InGameOnlyPacketHandler.cs" />
+    <Compile Include="Net\Translators\CharacterFromPacketFactory.cs" />
     <Compile Include="Net\Translators\RefreshReplyPacketTranslator.cs" />
     <Compile Include="Net\Translators\WarpAgreePacketTranslator.cs" />
     <Compile Include="PacketHandlers\Chat\AnnounceMessageHandler.cs" />

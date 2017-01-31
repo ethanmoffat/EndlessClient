@@ -13,6 +13,9 @@ namespace EOLib.Net.Translators
     {
         private const int MAX_NEWS_LINES = 9;
 
+        public LoginRequestCompletedPacketTranslator(ICharacterFromPacketFactory characterFromPacketFactory)
+            : base(characterFromPacketFactory) { }
+
         public override ILoginRequestCompletedData TranslatePacket(IPacket packet)
         {
             var reply = (CharacterLoginReply)packet.ReadShort();
