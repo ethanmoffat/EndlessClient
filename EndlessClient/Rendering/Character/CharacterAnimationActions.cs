@@ -39,14 +39,6 @@ namespace EndlessClient.Rendering.Character
             Animator.StartMainCharacterWalkAnimation();
         }
 
-        public bool IsMainCharacterAttacking()
-        {
-            if (!_hudControlProvider.IsInGame)
-                return true; //pretend character is already attacking if not in game
-
-            return Animator.MainCharacterIsAttacking;
-        }
-
         public void StartAttacking()
         {
             if (!_hudControlProvider.IsInGame)
@@ -82,8 +74,6 @@ namespace EndlessClient.Rendering.Character
         void Face(EODirection direction);
 
         void StartWalking();
-
-        bool IsMainCharacterAttacking();
 
         void StartAttacking();
     }

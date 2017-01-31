@@ -62,7 +62,7 @@ namespace EndlessClient.Controllers
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
                                                       EOResourceID.STATUS_LABEL_UNABLE_TO_ATTACK);
             }
-            else if(!_characterAnimationActions.IsMainCharacterAttacking())
+            else
             {
                 //todo: lower SP for character when attacking
                 _characterActions.Attack();
