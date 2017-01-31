@@ -37,7 +37,6 @@ namespace EOLib.Net.API
             _createMusicMembers();
             _createPaperdollMembers();
             _createPartyMembers();
-            _createPlayersMembers();
             _createNPCMembers();
             _createQuestMembers();
             _createRecoverMembers();

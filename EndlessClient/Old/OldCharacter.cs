@@ -420,36 +420,6 @@ namespace EndlessClient.Old
         /// <param name="copyPaperdoll">Set to true if paperdoll data from newGuy should be applied to this character</param>
         public void ApplyData(CharacterData newGuy, bool copyPaperdoll = true)
         {
-            ID = newGuy.ID;
-            Name = newGuy.Name;
-            PaddedGuildTag = newGuy.GuildTag;
-            if (copyPaperdoll)
-            {
-                //only set the doll graphic info in render data - don't change the paperdoll info!
-                RenderData.SetBoots(newGuy.Boots);
-                RenderData.SetArmor(newGuy.Armor);
-                RenderData.SetHat(newGuy.Hat);
-                RenderData.SetShield(newGuy.Shield);
-                RenderData.SetWeapon(newGuy.Weapon);
-            }
-            Stats.HP = newGuy.HP;
-            Stats.MaxHP = newGuy.MaxHP;
-            Stats.TP = newGuy.TP;
-            Stats.MaxTP = newGuy.MaxTP;
-
-            RenderData.SetDirection(newGuy.Direction);
-            RenderData.SetHairStyle(newGuy.HairStyle);
-            RenderData.SetHairColor(newGuy.HairColor);
-            RenderData.SetGender(newGuy.Gender);
-            RenderData.SetRace(newGuy.Race);
-            RenderData.SetSitting(newGuy.Sitting);
-            RenderData.level = newGuy.Level;
-            RenderData.SetWalkFrame(0);
-            State = RenderData.sitting == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
-            CurrentMap = newGuy.Map;
-            X = newGuy.X;
-            Y = newGuy.Y;
-            //GuildRankNum = newGuy.GuildRankNum; //todo: ???
         }
 
         public void DoneAttacking()

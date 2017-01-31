@@ -33,8 +33,6 @@ namespace EndlessClient.Old
 
         public void AssignCallbacks()
         {
-            m_packetAPI.OnPlayerEnterMap += _playerEnterMap;
-
             m_packetAPI.OnAdminHiddenChange += _adminHiddenChange;
 
             m_packetAPI.OnPlayerAvatarRemove += _playerAvatarRemove;
@@ -131,11 +129,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnCastSpellSelf += _mainPlayerCastSpellSelf;
             m_packetAPI.OnCastSpellTargetOther += _playerCastTargetSpell;
             m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
-        }
-
-        private void _playerEnterMap(CharacterData data, WarpAnimation anim)
-        {
-            OldWorld.Instance.ActiveMapRenderer.AddOtherPlayer(data, anim);
         }
 
         private void _adminHiddenChange(short id, bool hidden)

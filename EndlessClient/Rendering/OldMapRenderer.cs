@@ -353,33 +353,6 @@ namespace EndlessClient.Rendering
 
         #region /* PUBLIC INTERFACE -- OTHER PLAYERS */
 
-        public void AddOtherPlayer(CharacterData c, WarpAnimation anim = WarpAnimation.None)
-        {
-            OldCharacterRenderer otherRend = null;
-            lock (_characterListLock)
-            {
-                OldCharacter other = _characterRenderers.Select(x => x.Character).FirstOrDefault(x => x.Name == c.Name && x.ID == c.ID);
-                if (other == null)
-                {
-                    other = new OldCharacter(_api, c);
-                    lock (_characterListLock)
-                    {
-                        _characterRenderers.Add(otherRend = new OldCharacterRenderer(other));
-                        _characterRenderers[_characterRenderers.Count - 1].Visible = true;
-                        _characterRenderers[_characterRenderers.Count - 1].Initialize();
-                    }
-                    other.RenderData.SetUpdate(true);
-                }
-                else
-                {
-                    other.ApplyData(c);
-                }
-            }
-
-            if (anim == WarpAnimation.Admin && otherRend != null)
-                otherRend.ShowWarpArrive();
-        }
-
         public void RemoveOtherPlayer(short id, WarpAnimation anim = WarpAnimation.None)
         {
             lock (_characterListLock)
