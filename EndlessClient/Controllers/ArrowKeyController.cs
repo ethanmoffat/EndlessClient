@@ -103,8 +103,8 @@ namespace EndlessClient.Controllers
             }
             else
             {
-                _characterActions.Walk();
                 _characterAnimationActions.StartWalking();
+                _characterActions.Walk();
             }
         }
     }
