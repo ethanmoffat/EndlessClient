@@ -481,6 +481,6 @@ namespace EndlessClient.Rendering.Sprites
                     shieldInfo.SubType == ItemSubType.Wings);
         }
 
-        private IPubFile<EIFRecord> EIFFile { get { return _eifFileProvider.EIFFile; } }
+        private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile;
     }
 }

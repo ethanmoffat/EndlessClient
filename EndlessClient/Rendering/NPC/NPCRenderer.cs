@@ -30,7 +30,7 @@ namespace EndlessClient.Rendering.NPC
         private int _fadeAwayAlpha;
         private bool _isDying;
 
-        public int TopPixel { get { return _readonlyTopPixel; } }
+        public int TopPixel => _readonlyTopPixel;
 
         public Rectangle DrawArea { get; private set; }
 

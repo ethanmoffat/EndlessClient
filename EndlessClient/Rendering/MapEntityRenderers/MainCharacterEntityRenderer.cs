@@ -36,15 +36,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             };
         }
 
-        public override MapRenderLayer RenderLayer
-        {
-            get { return MapRenderLayer.MainCharacter; }
-        }
+        public override MapRenderLayer RenderLayer => MapRenderLayer.MainCharacter;
 
-        protected override int RenderDistance
-        {
-            get { return 1; }
-        }
+        protected override int RenderDistance => 1;
 
         protected override bool ElementExistsAt(int row, int col)
         {

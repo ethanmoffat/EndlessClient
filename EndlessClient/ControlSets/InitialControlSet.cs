@@ -31,7 +31,7 @@ namespace EndlessClient.ControlSets
         private readonly Texture2D[] _personSet1;
         private readonly Random _randomGen;
 
-        public override GameStates GameState { get { return GameStates.Initial; } }
+        public override GameStates GameState => GameStates.Initial;
 
         public InitialControlSet(IConfigurationProvider configProvider,
                                  IMainButtonController mainButtonController)

@@ -15,7 +15,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly ICharacterRenderProperties _renderProperties;
         private readonly Texture2D _shieldTexture;
 
-        public bool CanRender { get { return _shieldTexture != null && _renderProperties.ShieldGraphic != 0; } }
+        public bool CanRender => _shieldTexture != null && _renderProperties.ShieldGraphic != 0;
 
         public ShieldRenderer(ICharacterRenderProperties renderProperties,
                               Texture2D shieldTexture)

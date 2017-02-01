@@ -18,7 +18,7 @@ namespace EOLib.IO.Pub
 
         public int CheckSum { get; set; }
 
-        public int Length { get { return _data.Count; } }
+        public int Length => _data.Count;
 
         public T this[int id]
         {
@@ -31,7 +31,7 @@ namespace EOLib.IO.Pub
             }
         }
 
-        public IReadOnlyList<T> Data { get { return _data; } }
+        public IReadOnlyList<T> Data => _data;
 
         protected BasePubFile()
         {

@@ -11,7 +11,7 @@ namespace EOLib.IO.Map
     public class Matrix<T> : IReadOnlyMatrix<T>
     {
         private static readonly Matrix<T> _empty = new Matrix<T>(0, 0);
-        public static Matrix<T> Empty { get { return _empty; } }
+        public static Matrix<T> Empty => _empty;
 
         private readonly T[,] _arr;
 
@@ -119,9 +119,9 @@ namespace EOLib.IO.Map
                 _row = 0;
             }
 
-            public IList<T> Current { get { return _matrix.GetRow(_row); } }
+            public IList<T> Current => _matrix.GetRow(_row);
 
-            object IEnumerator.Current { get { return Current; } }
+            object IEnumerator.Current => Current;
         }
     }
 }

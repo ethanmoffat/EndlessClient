@@ -15,7 +15,7 @@ namespace EOLib.IO.Pub
     {
         public const int DATA_SIZE = 58;
 
-        public int RecordSize { get { return DATA_SIZE; } }
+        public int RecordSize => DATA_SIZE;
 
         public int ID { get; set; }
 

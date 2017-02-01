@@ -19,7 +19,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly Texture2D _bootsTexture;
         private readonly IPubFile<EIFRecord> _itemFile;
 
-        public bool CanRender { get { return _bootsTexture != null && _renderProperties.BootsGraphic != 0; } }
+        public bool CanRender => _bootsTexture != null && _renderProperties.BootsGraphic != 0;
 
         public BootsRenderer(ICharacterRenderProperties renderProperties,
                              Texture2D bootsTexture,

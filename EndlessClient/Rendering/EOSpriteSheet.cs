@@ -32,10 +32,7 @@ namespace EndlessClient.Rendering
             _charRef = charToWatch;
         }
 
-        private CharRenderData _data
-        {
-            get { return _charRef.RenderData; }
-        }
+        private CharRenderData _data => _charRef.RenderData;
 
         public Texture2D GetArmor(bool isBow = false)
         {

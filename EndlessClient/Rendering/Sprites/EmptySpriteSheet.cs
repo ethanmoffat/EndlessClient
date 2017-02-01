@@ -10,9 +10,9 @@ namespace EndlessClient.Rendering.Sprites
 {
     public class EmptySpriteSheet : ISpriteSheet
     {
-        public bool HasTexture { get { return false; } }
-        public Texture2D SheetTexture { get { return null; } }
-        public Rectangle SourceRectangle { get { return Rectangle.Empty; } }
+        public bool HasTexture => false;
+        public Texture2D SheetTexture => null;
+        public Rectangle SourceRectangle => Rectangle.Empty;
 
         public T[] GetSourceTextureData<T>() where T : struct
         {

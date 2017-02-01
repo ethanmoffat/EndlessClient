@@ -27,15 +27,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _npcRendererProvider = npcRendererProvider;
         }
 
-        public override MapRenderLayer RenderLayer
-        {
-            get { return MapRenderLayer.Npc; }
-        }
+        public override MapRenderLayer RenderLayer => MapRenderLayer.Npc;
 
-        protected override int RenderDistance
-        {
-            get { return 16; }
-        }
+        protected override int RenderDistance => 16;
 
         protected override bool ElementExistsAt(int row, int col)
         {

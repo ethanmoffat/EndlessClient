@@ -27,10 +27,7 @@ namespace EndlessClient.Dialogs.Services
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
 
-        public Texture2D SmallButtonSheet
-        {
-            get { return _nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true); }
-        }
+        public Texture2D SmallButtonSheet => _nativeGraphicsManager.TextureFromResource(GFXTypes.PreLoginUI, 15, true);
 
         public EODialogButtonService(INativeGraphicsManager nativeGraphicsManager)
         {

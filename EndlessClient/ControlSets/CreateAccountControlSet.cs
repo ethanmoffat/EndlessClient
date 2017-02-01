@@ -37,7 +37,7 @@ namespace EndlessClient.ControlSets
         private TextBoxClickEventHandler _clickHandler;
         private TextBoxTabEventHandler _tabHandler;
 
-        public override GameStates GameState { get { return GameStates.CreateAccount; } }
+        public override GameStates GameState => GameStates.CreateAccount;
 
         public CreateAccountControlSet(KeyboardDispatcher dispatcher,
                                        IMainButtonController mainButtonController,

@@ -377,10 +377,10 @@ namespace EndlessClient.HUD.Panels
             private readonly Dictionary<ChatTab, int> _cachedChatTabLineCounts;
             private readonly Dictionary<ChatTab, int> _cachedScrollOffsets;
 
-            public List<ChatData> CachedChatDataCurrentTab { get { return _cachedChatDataCurrentTab; } }
-            public Dictionary<ChatTab, int> cachedChatTabLineCounts { get { return _cachedChatTabLineCounts; } }
+            public List<ChatData> CachedChatDataCurrentTab => _cachedChatDataCurrentTab;
+            public Dictionary<ChatTab, int> cachedChatTabLineCounts => _cachedChatTabLineCounts;
 
-            public Dictionary<ChatTab, int> CachedScrollOffsets { get { return _cachedScrollOffsets; } }
+            public Dictionary<ChatTab, int> CachedScrollOffsets => _cachedScrollOffsets;
 
             public bool PrivateChat1Shown { get; set; }
             public bool PrivateChat2Shown { get; set; }

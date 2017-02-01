@@ -24,10 +24,7 @@ namespace EndlessClient.ControlSets
 
         private int _createRequests, _changePasswordRequests;
 
-        public override GameStates GameState
-        {
-            get { return GameStates.LoggedIn; }
-        }
+        public override GameStates GameState => GameStates.LoggedIn;
 
         public LoggedInControlSet(KeyboardDispatcher dispatcher,
                                   IMainButtonController mainButtonController,

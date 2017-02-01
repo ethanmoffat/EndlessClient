@@ -14,10 +14,7 @@ namespace EndlessClient.Rendering.Character
 
         private readonly Dictionary<int, ICharacterRenderProperties> _characterRenderProperties;
 
-        public IReadOnlyDictionary<int, ICharacterRenderProperties> CharacterRenderProperties
-        {
-            get { return _characterRenderProperties; }
-        }
+        public IReadOnlyDictionary<int, ICharacterRenderProperties> CharacterRenderProperties => _characterRenderProperties;
 
         public CharacterStateCache()
         {

@@ -22,7 +22,7 @@ namespace EndlessClient.Dialogs
         private readonly XNATextBox m_inputBox;
         private readonly IKeyboardSubscriber previousSubscriber;
 
-        public string ResponseText { get { return m_inputBox.Text; } }
+        public string ResponseText => m_inputBox.Text;
 
         public TextInputDialog(string prompt, int maxInputChars = 12)
             : base((PacketAPI)null)

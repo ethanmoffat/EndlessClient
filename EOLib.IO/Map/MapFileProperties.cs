@@ -10,7 +10,7 @@ namespace EOLib.IO.Map
     {
         public const int DATA_SIZE = 46;
 
-        public string FileType { get { return "EMF"; } }
+        public string FileType => "EMF";
         public int MapID { get; private set; }
         public int FileSize { get; private set; }
 

@@ -36,10 +36,7 @@ namespace EndlessClient.Dialogs
         private readonly int m_totalAmount;
 
         private readonly XNATextBox m_amount;
-        public int SelectedAmount
-        {
-            get { return int.Parse(m_amount.Text); }
-        }
+        public int SelectedAmount => int.Parse(m_amount.Text);
 
         private readonly IKeyboardSubscriber m_prevSubscriber;
 

@@ -11,8 +11,8 @@ namespace EndlessClient.Rendering
         //They would also need to support updating layout when the window is resized
 
         //Supporting dynamic window sizing is NOT a trivial task
-        public int Width { get { return 640; } }
-        public int Height { get { return 480; } }
+        public int Width => 640;
+        public int Height => 480;
     }
 
     public interface IClientWindowSizeProvider

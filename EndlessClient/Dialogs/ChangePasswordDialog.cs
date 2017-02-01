@@ -30,18 +30,12 @@ namespace EndlessClient.Dialogs
         private readonly TextBoxClickEventHandler _clickEventHandler;
         private readonly TextBoxTabEventHandler _tabEventHandler;
 
-        private string Username { get { return _inputBoxes[0].Text; } }
-        private string OldPassword { get { return _inputBoxes[1].Text; } }
-        private string NewPassword { get { return _inputBoxes[2].Text; } }
-        private string ConfirmPassword { get { return _inputBoxes[3].Text; } }
+        private string Username => _inputBoxes[0].Text;
+        private string OldPassword => _inputBoxes[1].Text;
+        private string NewPassword => _inputBoxes[2].Text;
+        private string ConfirmPassword => _inputBoxes[3].Text;
 
-        public IChangePasswordParameters Result
-        {
-            get
-            {
-                return new ChangePasswordParameters(Username, OldPassword, NewPassword);
-            }
-        }
+        public IChangePasswordParameters Result => new ChangePasswordParameters(Username, OldPassword, NewPassword);
 
         public ChangePasswordDialog(INativeGraphicsManager nativeGraphicsManager,
                                     IGameStateProvider gameStateProvider,

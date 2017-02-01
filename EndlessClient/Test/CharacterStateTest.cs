@@ -264,7 +264,7 @@ namespace EndlessClient.Test
             return (short) matchingItems[ndx].DollGraphic;
         }
 
-        private IPubFile<EIFRecord> EIFFile { get { return _eifFileProvider.EIFFile; } }
+        private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile;
 
         protected override void Dispose(bool disposing)
         {

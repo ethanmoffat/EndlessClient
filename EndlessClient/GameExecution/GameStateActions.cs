@@ -88,6 +88,6 @@ namespace EndlessClient.GameExecution
                 .ToList();
         }
 
-        private IEndlessGame Game { get { return _endlessGameProvider.Game; } }
+        private IEndlessGame Game => _endlessGameProvider.Game;
     }
 }

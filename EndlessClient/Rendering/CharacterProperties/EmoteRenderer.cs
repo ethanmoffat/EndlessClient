@@ -17,14 +17,8 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly ISpriteSheet _emoteSheet;
         private readonly SkinRenderLocationCalculator _skinRenderLocationCalculator;
 
-        public bool CanRender
-        {
-            get
-            {
-                return _renderProperties.IsActing(CharacterActionState.Emote) &&
-                       _renderProperties.EmoteFrame > 0;
-            }
-        }
+        public bool CanRender => _renderProperties.IsActing(CharacterActionState.Emote) &&
+                                 _renderProperties.EmoteFrame > 0;
 
         public EmoteRenderer(ICharacterRenderProperties renderProperties,
                              ISpriteSheet emoteSheet,

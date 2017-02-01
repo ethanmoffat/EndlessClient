@@ -33,13 +33,13 @@ namespace EndlessClient.Dialogs
         private readonly Rectangle[] _srcRectangles = new Rectangle[4];
         private readonly Texture2D _charCreateSheet;
 
-        public string Name { get { return _inputBox.Text.Trim(); } }
+        public string Name => _inputBox.Text.Trim();
 
-        private ICharacterRenderProperties RenderProperties { get { return _characterControl.RenderProperties; } }
-        public byte Gender { get { return RenderProperties.Gender; } }
-        public byte HairStyle { get { return RenderProperties.HairStyle; } }
-        public byte HairColor { get { return RenderProperties.HairColor; } }
-        public byte Race { get { return RenderProperties.Race; } }
+        private ICharacterRenderProperties RenderProperties => _characterControl.RenderProperties;
+        public byte Gender => RenderProperties.Gender;
+        public byte HairStyle => RenderProperties.HairStyle;
+        public byte HairColor => RenderProperties.HairColor;
+        public byte Race => RenderProperties.Race;
 
         public CreateCharacterDialog(
             INativeGraphicsManager nativeGraphicsManager,

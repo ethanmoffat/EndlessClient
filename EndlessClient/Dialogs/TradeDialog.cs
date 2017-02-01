@@ -43,14 +43,8 @@ namespace EndlessClient.Dialogs
 
         public static TradeDialog Instance { get; private set; }
 
-        public bool MainPlayerAgrees
-        {
-            get
-            {
-                return (m_main.ID == m_leftPlayerID && m_leftAgrees) ||
-                       (m_main.ID == m_rightPlayerID && m_rightAgrees);
-            }
-        }
+        public bool MainPlayerAgrees => (m_main.ID == m_leftPlayerID && m_leftAgrees) ||
+                                        (m_main.ID == m_rightPlayerID && m_rightAgrees);
 
         public TradeDialog(PacketAPI apiHandle)
             : base(apiHandle)

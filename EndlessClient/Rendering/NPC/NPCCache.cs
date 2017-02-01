@@ -11,10 +11,7 @@ namespace EndlessClient.Rendering.NPC
     {
         private readonly Dictionary<int, INPC> _npcStates;
 
-        public IReadOnlyDictionary<int, INPC> NPCStates
-        {
-            get { return _npcStates; }
-        }
+        public IReadOnlyDictionary<int, INPC> NPCStates => _npcStates;
 
         public NPCStateCache()
         {

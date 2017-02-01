@@ -17,10 +17,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public abstract MapRenderLayer RenderLayer { get; }
 
-        public bool ShouldRenderLast
-        {
-            get { return RenderLayer == MapRenderLayer.Roof || RenderLayer == MapRenderLayer.MainCharacter; }
-        }
+        public bool ShouldRenderLast => RenderLayer == MapRenderLayer.Roof || RenderLayer == MapRenderLayer.MainCharacter;
 
         protected abstract int RenderDistance { get; }
 

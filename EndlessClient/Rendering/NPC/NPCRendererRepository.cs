@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.NPC
     {
         public Dictionary<int, INPCRenderer> NPCRenderers { get; set; }
 
-        IReadOnlyDictionary<int, INPCRenderer> INPCRendererProvider.NPCRenderers { get { return NPCRenderers; } }
+        IReadOnlyDictionary<int, INPCRenderer> INPCRendererProvider.NPCRenderers => NPCRenderers;
 
         public NPCRendererRepository()
         {

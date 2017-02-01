@@ -22,15 +22,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
-        public override MapRenderLayer RenderLayer
-        {
-            get { return MapRenderLayer.Walls; }
-        }
+        public override MapRenderLayer RenderLayer => MapRenderLayer.Walls;
 
-        protected override int RenderDistance
-        {
-            get { return 20; }
-        }
+        protected override int RenderDistance => 20;
 
         public WallLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                  ICurrentMapProvider currentMapProvider,
@@ -84,6 +78,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             spriteBatch.Draw(gfx, pos, src, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 
-        private IMapFile CurrentMap { get { return _currentMapProvider.CurrentMap; } }
+        private IMapFile CurrentMap => _currentMapProvider.CurrentMap;
     }
 }

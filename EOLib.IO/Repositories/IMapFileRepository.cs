@@ -21,12 +21,9 @@ namespace EOLib.IO.Repositories
     {
         private readonly Dictionary<int, IMapFile> _mapCache;
 
-        public Dictionary<int, IMapFile> MapFiles { get { return _mapCache; } }
+        public Dictionary<int, IMapFile> MapFiles => _mapCache;
 
-        IReadOnlyDictionary<int, IMapFile> IMapFileProvider.MapFiles
-        {
-            get { return _mapCache; }
-        }
+        IReadOnlyDictionary<int, IMapFile> IMapFileProvider.MapFiles => _mapCache;
 
         public MapFileRepository()
         {

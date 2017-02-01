@@ -47,12 +47,12 @@ namespace EndlessClient.HUD.Spells
             set { throw new InvalidOperationException("Unable to set Level on an EmptySpellIcon"); }
         }
 
-        public virtual bool IsDragging { get { return false; } }
+        public virtual bool IsDragging => false;
 
-        public virtual ESFRecord SpellData { get { return null; } }
+        public virtual ESFRecord SpellData => null;
 
         private bool _doUpdateLogic = true;
-        protected virtual bool DoEmptySpellIconUpdateLogic { get { return _doUpdateLogic; } }
+        protected virtual bool DoEmptySpellIconUpdateLogic => _doUpdateLogic;
 
         protected readonly OldActiveSpells _parentSpellContainer;
         private readonly Texture2D _highlightColor;

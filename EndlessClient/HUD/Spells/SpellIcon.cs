@@ -43,12 +43,12 @@ namespace EndlessClient.HUD.Spells
             }
         }
 
-        public override bool IsDragging { get { return _dragging; } }
+        public override bool IsDragging => _dragging;
 
-        public override ESFRecord SpellData { get { return _spellData; } }
+        public override ESFRecord SpellData => _spellData;
 
         //stops the base class update logic from being called
-        protected override bool DoEmptySpellIconUpdateLogic { get { return false; } }
+        protected override bool DoEmptySpellIconUpdateLogic => false;
         private readonly Texture2D _spellGraphic, _spellLevelColor;
         private readonly ESFRecord _spellData;
 

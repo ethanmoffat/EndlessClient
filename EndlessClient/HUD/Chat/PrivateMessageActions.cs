@@ -48,14 +48,8 @@ namespace EndlessClient.HUD.Chat
             return characterName;
         }
 
-        private ChatPanel ChatPanel
-        {
-            get { return _hudControlProvider.GetComponent<ChatPanel>(HudControlIdentifier.ChatPanel); }
-        }
+        private ChatPanel ChatPanel => _hudControlProvider.GetComponent<ChatPanel>(HudControlIdentifier.ChatPanel);
 
-        private ChatTab CurrentTab
-        {
-            get { return ChatPanel.CurrentTab; }
-        }
+        private ChatTab CurrentTab => ChatPanel.CurrentTab;
     }
 }

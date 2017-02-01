@@ -442,7 +442,7 @@ namespace BatchPub
     public class PropInfo
     {
         public System.Reflection.PropertyInfo PropertyInfo { get; set; }
-        public string DisplayName { get { return PropertyInfo.Name; } }
+        public string DisplayName => PropertyInfo.Name;
 
         public PropInfo(System.Reflection.PropertyInfo info)
         {

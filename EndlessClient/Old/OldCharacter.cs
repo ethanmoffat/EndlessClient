@@ -124,24 +124,18 @@ namespace EndlessClient.Old
         /// <summary>
         /// x*32 - y*32 + ViewAdjustX
         /// </summary>
-        public int OffsetX
-        {
-            get { return X*32 - Y*32 + ViewAdjustX; }
-        }
+        public int OffsetX => X*32 - Y*32 + ViewAdjustX;
 
         /// <summary>
         /// x*16 + y*16 + ViewAdjustY
         /// </summary>
-        public int OffsetY
-        {
-            get { return X*16 + Y*16 + ViewAdjustY; }
-        }
+        public int OffsetY => X*16 + Y*16 + ViewAdjustY;
 
         public byte DestX { get; private set; }
         public byte DestY { get; private set; }
         public int ViewAdjustX { get; set; }
         public int ViewAdjustY { get; set; }
-        public bool CanAttack { get { return Weight <= MaxWeight && Stats.SP > 0; } }
+        public bool CanAttack => Weight <= MaxWeight && Stats.SP > 0;
 
         public CharacterActionState State { get; private set; }
 

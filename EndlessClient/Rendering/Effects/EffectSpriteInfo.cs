@@ -18,7 +18,7 @@ namespace EndlessClient.Rendering.Effects
         protected int _iterations;
 
         public bool OnTopOfCharacter { get; private set; }
-        public bool Done { get { return _iterations == _repeats; } }
+        public bool Done => _iterations == _repeats;
 
         public EffectSpriteInfo(int numberOfFrames,
                                 int repeats,

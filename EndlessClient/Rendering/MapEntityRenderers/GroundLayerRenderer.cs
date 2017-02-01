@@ -17,12 +17,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly ICurrentMapProvider _currentMapProvider;
 
-        public override MapRenderLayer RenderLayer
-        {
-            get { return MapRenderLayer.Ground; }
-        }
+        public override MapRenderLayer RenderLayer => MapRenderLayer.Ground;
 
-        protected override int RenderDistance { get { return 10; } }
+        protected override int RenderDistance => 10;
 
         public GroundLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICurrentMapProvider currentMapProvider,
@@ -62,6 +59,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             }
         }
 
-        private IMapFile CurrentMap { get { return _currentMapProvider.CurrentMap; } }
+        private IMapFile CurrentMap => _currentMapProvider.CurrentMap;
     }
 }

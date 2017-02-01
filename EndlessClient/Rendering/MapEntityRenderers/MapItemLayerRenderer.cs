@@ -17,15 +17,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IMapItemGraphicProvider _mapItemGraphicProvider;
 
-        public override MapRenderLayer RenderLayer
-        {
-            get { return MapRenderLayer.Item; }
-        }
+        public override MapRenderLayer RenderLayer => MapRenderLayer.Item;
 
-        protected override int RenderDistance
-        {
-            get { return 16; }
-        }
+        protected override int RenderDistance => 16;
 
         public MapItemLayerRenderer(ICharacterProvider characterProvider,
                                     IRenderOffsetCalculator renderOffsetCalculator,

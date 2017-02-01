@@ -13,7 +13,7 @@ namespace EOLib.IO.Test.Pub
     [ExcludeFromCodeCoverage]
     internal class DummyRecord : IPubRecord
     {
-        public int RecordSize { get { return 0; } }
+        public int RecordSize => 0;
 
         public int ID { get; set; }
 

@@ -15,7 +15,7 @@ namespace EndlessClient.ControlSets
     {
         private IXNALabel _creditsLabel;
 
-        public override GameStates GameState { get { return GameStates.ViewCredits; } }
+        public override GameStates GameState => GameStates.ViewCredits;
 
         public ViewCreditsControlSet(IConfigurationProvider configProvider,
                                      IMainButtonController mainButtonController)

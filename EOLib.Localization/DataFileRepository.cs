@@ -10,8 +10,8 @@ namespace EOLib.Localization
     {
         private readonly Dictionary<DataFiles, IEDFFile> _dataFiles;
 
-        public Dictionary<DataFiles, IEDFFile> DataFiles { get { return _dataFiles; } }
-        IReadOnlyDictionary<DataFiles, IEDFFile> IDataFileProvider.DataFiles { get { return _dataFiles; } }
+        public Dictionary<DataFiles, IEDFFile> DataFiles => _dataFiles;
+        IReadOnlyDictionary<DataFiles, IEDFFile> IDataFileProvider.DataFiles => _dataFiles;
 
         public DataFileRepository()
         {

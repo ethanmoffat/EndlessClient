@@ -10,10 +10,7 @@ namespace EOLib.IO.Pub
 {
     public class EIFFile : BasePubFile<EIFRecord>
     {
-        public override string FileType
-        {
-            get { return "EIF"; }
-        }
+        public override string FileType => "EIF";
 
         public override void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService)
         {

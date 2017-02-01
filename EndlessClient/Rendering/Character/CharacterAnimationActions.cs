@@ -63,10 +63,7 @@ namespace EndlessClient.Rendering.Character
             Animator.StartOtherCharacterAttackAnimation(characterID);
         }
 
-        private ICharacterAnimator Animator
-        {
-            get { return _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator); }
-        }
+        private ICharacterAnimator Animator => _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
     }
 
     public interface ICharacterAnimationActions

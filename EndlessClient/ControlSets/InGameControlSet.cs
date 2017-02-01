@@ -23,10 +23,7 @@ namespace EndlessClient.ControlSets
 
         private IReadOnlyDictionary<HudControlIdentifier, IGameComponent> _controls;
 
-        public override GameStates GameState
-        {
-            get { return GameStates.PlayingTheGame; }
-        }
+        public override GameStates GameState => GameStates.PlayingTheGame;
 
         public InGameControlSet(IMainButtonController mainButtonController,
                                 IEOMessageBoxFactory messageBoxFactory,

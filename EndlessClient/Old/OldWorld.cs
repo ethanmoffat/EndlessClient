@@ -219,16 +219,10 @@ namespace EndlessClient.Old
         /*** Other things that should be singleton ***/
 
         private readonly Player m_player;
-        public Player MainPlayer
-        {
-            get { return m_player; }
-        }
-        
+        public Player MainPlayer => m_player;
+
         private readonly ClientBase m_client;
-        public ClientBase Client
-        {
-            get { return m_client; }
-        }
+        public ClientBase Client => m_client;
 
         /*** Functions for loading/checking the different pub/map files ***/
 

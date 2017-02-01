@@ -37,7 +37,7 @@ namespace EndlessClient.Rendering.Effects
 
         private bool _disposed;
 
-        public EffectType EffectType { get { return _effectType; } }
+        public EffectType EffectType => _effectType;
 
         public EffectRenderer(INativeGraphicsManager gfxManager,
                               OldNPCRenderer npc,

@@ -19,9 +19,9 @@ namespace EndlessClient.Input
         private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly ICurrentMapStateProvider _mapStateProvider;
 
-        private KeyboardState CurrentState { get { return _keyStateProvider.CurrentKeyState; } }
+        private KeyboardState CurrentState => _keyStateProvider.CurrentKeyState;
 
-        private KeyboardState PreviousState { get { return _keyStateProvider.PreviousKeyState; } }
+        private KeyboardState PreviousState => _keyStateProvider.PreviousKeyState;
 
         protected InputHandlerBase(IEndlessGameProvider endlessGameProvider,
                                    IKeyStateProvider keyStateProvider,

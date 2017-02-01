@@ -10,10 +10,7 @@ namespace EOLib.IO.Pub
 {
     public class ECFFile : BasePubFile<ECFRecord>
     {
-        public override string FileType
-        {
-            get { return "ECF"; }
-        }
+        public override string FileType => "ECF";
 
         public override void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService)
         {

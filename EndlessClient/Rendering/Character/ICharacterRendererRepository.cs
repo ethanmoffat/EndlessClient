@@ -27,10 +27,7 @@ namespace EndlessClient.Rendering.Character
 
         public Dictionary<int, ICharacterRenderer> CharacterRenderers { get; set; }
 
-        IReadOnlyDictionary<int, ICharacterRenderer> ICharacterRendererProvider.CharacterRenderers
-        {
-            get { return CharacterRenderers; }
-        }
+        IReadOnlyDictionary<int, ICharacterRenderer> ICharacterRendererProvider.CharacterRenderers => CharacterRenderers;
 
         public CharacterRendererRepository()
         {

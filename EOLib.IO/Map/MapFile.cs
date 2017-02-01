@@ -14,13 +14,13 @@ namespace EOLib.IO.Map
 
         public IMapFileProperties Properties { get; private set; }
 
-        public IReadOnlyMatrix<TileSpec> Tiles { get { return _mutableTiles; } }
-        public IReadOnlyMatrix<WarpMapEntity> Warps { get { return _mutableWarps; } }
-        public IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX { get { return _readOnlyGFX; } }
-        public IReadOnlyList<NPCSpawnMapEntity> NPCSpawns { get { return _mutableNPCSpawns; } }
-        public IReadOnlyList<UnknownMapEntity> Unknowns { get { return _mutableUnknowns; } }
-        public IReadOnlyList<ChestSpawnMapEntity> Chests { get { return _mutableChestSpawns; } }
-        public IReadOnlyList<SignMapEntity> Signs { get { return _mutableSigns; } }
+        public IReadOnlyMatrix<TileSpec> Tiles => _mutableTiles;
+        public IReadOnlyMatrix<WarpMapEntity> Warps => _mutableWarps;
+        public IReadOnlyDictionary<MapLayer, IReadOnlyMatrix<int>> GFX => _readOnlyGFX;
+        public IReadOnlyList<NPCSpawnMapEntity> NPCSpawns => _mutableNPCSpawns;
+        public IReadOnlyList<UnknownMapEntity> Unknowns => _mutableUnknowns;
+        public IReadOnlyList<ChestSpawnMapEntity> Chests => _mutableChestSpawns;
+        public IReadOnlyList<SignMapEntity> Signs => _mutableSigns;
 
         private Matrix<TileSpec> _mutableTiles;
         private Matrix<WarpMapEntity> _mutableWarps;

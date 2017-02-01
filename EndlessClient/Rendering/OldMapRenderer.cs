@@ -44,7 +44,7 @@ namespace EndlessClient.Rendering
                 return EOGame.Instance.IsActive && ms.X > 0 && ms.Y > 0 && ms.X < 640 && ms.Y < 320;
             }
         }
-        public Point GridCoords { get { return _mouseCursorRenderer.GridCoords; } }
+        public Point GridCoords => _mouseCursorRenderer.GridCoords;
 
         //rendering members
         private RenderTarget2D _rtMapObjAbovePlayer, _rtMapObjBelowPlayer;

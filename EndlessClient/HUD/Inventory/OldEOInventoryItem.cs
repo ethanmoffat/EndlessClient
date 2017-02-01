@@ -28,10 +28,7 @@ namespace EndlessClient.HUD.Inventory
     public class OldEOInventoryItem : XNAControl
     {
         private readonly EIFRecord m_itemData;
-        public EIFRecord ItemData
-        {
-            get { return m_itemData; }
-        }
+        public EIFRecord ItemData => m_itemData;
 
         private InventoryItem m_inventory;
         public InventoryItem Inventory { get { return m_inventory; } set { m_inventory = value; } }
@@ -46,10 +43,7 @@ namespace EndlessClient.HUD.Inventory
         private int m_preDragDrawOrder;
         private XNAControl m_preDragParent;
         private int m_oldOffX, m_oldOffY;
-        public bool Dragging
-        {
-            get { return m_beingDragged; }
-        }
+        public bool Dragging => m_beingDragged;
 
         private int m_recentClickCount;
         private readonly Timer m_recentClickTimer;

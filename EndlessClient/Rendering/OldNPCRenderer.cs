@@ -63,8 +63,8 @@ namespace EndlessClient.Rendering
         
         private EffectRenderer _effectRenderer;
 
-        private int DrawOffsetX { get { return NPC.X * 32 - NPC.Y * 32 + walkingAdjustedX; } }
-        private int DrawOffsetY { get { return NPC.X * 16 + NPC.Y * 16 + walkingAdjustedY; } }
+        private int DrawOffsetX => NPC.X * 32 - NPC.Y * 32 + walkingAdjustedX;
+        private int DrawOffsetY => NPC.X * 16 + NPC.Y * 16 + walkingAdjustedY;
 
         //"child" controls added to this NPC
         private readonly EOChatBubble _chatBubble;

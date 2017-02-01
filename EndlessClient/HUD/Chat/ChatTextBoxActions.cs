@@ -47,10 +47,7 @@ namespace EndlessClient.HUD.Chat
             _chatRepository.LocalTypedText = chatTextBox.Text;
         }
 
-        private KeyboardDispatcher KeyboardDispatcher
-        {
-            get { return _keyboardDispatcherProvider.Dispatcher; }
-        }
+        private KeyboardDispatcher KeyboardDispatcher => _keyboardDispatcherProvider.Dispatcher;
 
         private ChatTextBox GetChatTextBox()
         {

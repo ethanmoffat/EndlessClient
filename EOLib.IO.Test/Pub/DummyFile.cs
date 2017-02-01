@@ -13,10 +13,7 @@ namespace EOLib.IO.Test.Pub
     [ExcludeFromCodeCoverage]
     internal class DummyFile : BasePubFile<DummyRecord>
     {
-        public override string FileType
-        {
-            get { return "   "; }
-        }
+        public override string FileType => "   ";
 
         public override void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService)
         {

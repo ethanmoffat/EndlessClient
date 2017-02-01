@@ -35,12 +35,9 @@ namespace EndlessClient.Rendering
         private MouseState _prevState;
         private bool _hideCursor;
 
-        private IMapFile MapRef { get { return _parentMapRenderer.MapRef; } }
+        private IMapFile MapRef => _parentMapRenderer.MapRef;
 
-        public Point GridCoords
-        {
-            get { return new Point(_gridX, _gridY); }
-        }
+        public Point GridCoords => new Point(_gridX, _gridY);
 
         public MouseCursorRenderer(EOGame game, OldMapRenderer parentMapRenderer)
         {

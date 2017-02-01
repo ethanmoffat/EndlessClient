@@ -18,7 +18,7 @@ namespace EndlessClient.Rendering.Chat
         private readonly ChatData _data;
         private readonly string _partialMessage;
 
-        protected virtual int HeaderYOffset { get { return 3; } }
+        protected virtual int HeaderYOffset => 3;
 
         public int DisplayIndex { get; private set; }
 
@@ -95,7 +95,7 @@ namespace EndlessClient.Rendering.Chat
 
     public class NewsChatRenderable : ChatRenderable
     {
-        protected override int HeaderYOffset { get { return 23; } }
+        protected override int HeaderYOffset => 23;
 
         public NewsChatRenderable(int displayIndex, ChatData data, string partialMessage)
             : base(displayIndex, data, partialMessage)

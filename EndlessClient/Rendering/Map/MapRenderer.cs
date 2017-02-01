@@ -259,7 +259,7 @@ namespace EndlessClient.Rendering.Map
 
     internal struct MapTransitionState
     {
-        public static MapTransitionState Default { get { return new MapTransitionState(Optional<DateTime>.Empty, 0); } }
+        public static MapTransitionState Default => new MapTransitionState(Optional<DateTime>.Empty, 0);
 
         public Optional<DateTime> StartTime { get; private set; }
 

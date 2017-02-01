@@ -166,7 +166,7 @@ namespace EndlessClient.Input
             }
         }
 
-        private ICharacter MainCharacter { get { return _characterProvider.MainCharacter; } }
+        private ICharacter MainCharacter => _characterProvider.MainCharacter;
     }
 
     public interface IWalkErrorHandler

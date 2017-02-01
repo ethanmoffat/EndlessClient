@@ -17,11 +17,11 @@ namespace EndlessClient.ControlSets
     /// </summary>
     public class EmptyControlSet : IControlSet
     {
-        public GameStates GameState { get { return GameStates.None; } }
+        public GameStates GameState => GameStates.None;
 
-        public IReadOnlyList<IGameComponent> AllComponents { get { return Enumerable.Empty<IGameComponent>().ToList(); } }
+        public IReadOnlyList<IGameComponent> AllComponents => Enumerable.Empty<IGameComponent>().ToList();
 
-        public IReadOnlyList<IXNAControl> XNAControlComponents { get { return AllComponents.OfType<IXNAControl>().ToList(); } }
+        public IReadOnlyList<IXNAControl> XNAControlComponents => AllComponents.OfType<IXNAControl>().ToList();
 
         public void InitializeResources(INativeGraphicsManager gfxManager, ContentManager xnaContentManager)
         {

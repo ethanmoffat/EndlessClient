@@ -27,15 +27,9 @@ namespace EndlessClient.ControlSets
         private readonly IGameStateProvider _gameStateProvider;
         private readonly IControlSetProvider _controlSetProvider;
 
-        public bool IsInGame
-        {
-            get
-            {
-                return _gameStateProvider.CurrentState == GameStates.PlayingTheGame &&
-                       _controlSetProvider.CurrentControlSet.GameState == GameStates.PlayingTheGame &&
-                       _controlSetProvider.CurrentControlSet is InGameControlSet;
-            }
-        }
+        public bool IsInGame => _gameStateProvider.CurrentState == GameStates.PlayingTheGame &&
+                                _controlSetProvider.CurrentControlSet.GameState == GameStates.PlayingTheGame &&
+                                _controlSetProvider.CurrentControlSet is InGameControlSet;
 
         public InGameControlSet ControlSet
         {
@@ -48,26 +42,20 @@ namespace EndlessClient.ControlSets
             }
         }
 
-        public IReadOnlyList<IHudPanel> HudPanels
+        public IReadOnlyList<IHudPanel> HudPanels => new[]
         {
-            get
-            {
-                return new[]
-                {
-                    GetComponent<IHudPanel>(HudControlIdentifier.NewsPanel),
-                    GetComponent<IHudPanel>(HudControlIdentifier.InventoryPanel),
-                    GetComponent<IHudPanel>(HudControlIdentifier.ActiveSpellsPanel),
-                    GetComponent<IHudPanel>(HudControlIdentifier.PassiveSpellsPanel),
-                    GetComponent<IHudPanel>(HudControlIdentifier.ChatPanel),
-                    GetComponent<IHudPanel>(HudControlIdentifier.StatsPanel),
-                    GetComponent<IHudPanel>(HudControlIdentifier.OnlineListPanel),
-                    GetComponent<IHudPanel>(HudControlIdentifier.PartyPanel),
-                    //macro panel
-                    GetComponent<IHudPanel>(HudControlIdentifier.SettingsPanel),
-                    GetComponent<IHudPanel>(HudControlIdentifier.HelpPanel)
-                };
-            }
-        }
+            GetComponent<IHudPanel>(HudControlIdentifier.NewsPanel),
+            GetComponent<IHudPanel>(HudControlIdentifier.InventoryPanel),
+            GetComponent<IHudPanel>(HudControlIdentifier.ActiveSpellsPanel),
+            GetComponent<IHudPanel>(HudControlIdentifier.PassiveSpellsPanel),
+            GetComponent<IHudPanel>(HudControlIdentifier.ChatPanel),
+            GetComponent<IHudPanel>(HudControlIdentifier.StatsPanel),
+            GetComponent<IHudPanel>(HudControlIdentifier.OnlineListPanel),
+            GetComponent<IHudPanel>(HudControlIdentifier.PartyPanel),
+            //macro panel
+            GetComponent<IHudPanel>(HudControlIdentifier.SettingsPanel),
+            GetComponent<IHudPanel>(HudControlIdentifier.HelpPanel)
+        };
 
         public HudControlProvider(IGameStateProvider gameStateProvider,
                                         IControlSetProvider controlSetProvider)

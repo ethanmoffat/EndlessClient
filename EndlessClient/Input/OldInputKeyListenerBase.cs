@@ -19,25 +19,18 @@ namespace EndlessClient.Input
         protected KeyboardState PreviousKeyState { get; private set; }
         private DateTime? _lastInputTime;
 
-        protected OldCharacter Character { get { return OldWorld.Instance.MainPlayer.ActiveCharacter; } }
-        protected OldCharacterRenderer Renderer { get { return OldWorld.Instance.ActiveCharacterRenderer; } }
+        protected OldCharacter Character => OldWorld.Instance.MainPlayer.ActiveCharacter;
+        protected OldCharacterRenderer Renderer => OldWorld.Instance.ActiveCharacterRenderer;
 
         public event Action<DateTime> InputTimeUpdated;
 
         /// <summary>
         /// Returns true if input handling for a key listener should be ignored
         /// </summary>
-        protected bool IgnoreInput
-        {
-            get
-            {
-                return
-                    !Game.IsActive ||
-                    (_lastInputTime != null && (DateTime.Now - _lastInputTime.Value).TotalMilliseconds < INPUT_RATE_LIMIT_MS) ||
-                    XNAControl.Dialogs.Count > 0 ||
-                    Character == null || Renderer == null;
-            }
-        }
+        protected bool IgnoreInput => !Game.IsActive ||
+                                      (_lastInputTime != null && (DateTime.Now - _lastInputTime.Value).TotalMilliseconds < INPUT_RATE_LIMIT_MS) ||
+                                      XNAControl.Dialogs.Count > 0 ||
+                                      Character == null || Renderer == null;
 
         protected OldInputKeyListenerBase() : base(EOGame.Instance)
         {

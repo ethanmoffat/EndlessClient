@@ -26,10 +26,7 @@ namespace EndlessClient.Old
         /// <summary>
         /// Singleton Instance: used/disposed from main in Program.cs
         /// </summary>
-        public static EOGame Instance
-        {
-            get { return inst ?? (inst = new EOGame()); }
-        }
+        public static EOGame Instance => inst ?? (inst = new EOGame());
 
         public SpriteFont DBGFont { get; private set; }
 
@@ -38,7 +35,7 @@ namespace EndlessClient.Old
 
         public GameStates State { get; private set; }
 
-        public PacketAPI API { get { return null; } }
+        public PacketAPI API => null;
 
         public INativeGraphicsManager GFXManager { get; private set; }
 

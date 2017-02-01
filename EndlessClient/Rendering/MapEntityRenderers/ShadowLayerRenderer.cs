@@ -19,15 +19,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IConfigurationProvider _configurationProvider;
 
-        public override MapRenderLayer RenderLayer
-        {
-            get { return MapRenderLayer.Shadows; }
-        }
+        public override MapRenderLayer RenderLayer => MapRenderLayer.Shadows;
 
-        protected override int RenderDistance
-        {
-            get { return 10; }
-        }
+        protected override int RenderDistance => 10;
 
         public ShadowLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICurrentMapProvider currentMapProvider,
@@ -62,6 +56,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, 60));
         }
 
-        private IMapFile CurrentMap { get { return _currentMapProvider.CurrentMap; } }
+        private IMapFile CurrentMap => _currentMapProvider.CurrentMap;
     }
 }

@@ -18,7 +18,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly ISpriteSheet _skinSheet;
         private readonly SkinRenderLocationCalculator _skinRenderLocationCalculator;
 
-        public bool CanRender { get { return true; } }
+        public bool CanRender => true;
 
         public SkinRenderer(ICharacterRenderProperties renderProperties,
                             ISpriteSheet skinSheet,

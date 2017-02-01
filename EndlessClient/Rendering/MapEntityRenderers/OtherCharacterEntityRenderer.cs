@@ -26,15 +26,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _characterStateCache = characterStateCache;
         }
 
-        public override MapRenderLayer RenderLayer
-        {
-            get { return MapRenderLayer.OtherCharacters; }
-        }
+        public override MapRenderLayer RenderLayer => MapRenderLayer.OtherCharacters;
 
-        protected override int RenderDistance
-        {
-            get { return 16; }
-        }
+        protected override int RenderDistance => 16;
 
         protected override bool ElementExistsAt(int row, int col)
         {

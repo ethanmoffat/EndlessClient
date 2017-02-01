@@ -19,7 +19,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly Texture2D _armorTexture;
         private readonly IPubFile<EIFRecord> _itemFile;
 
-        public bool CanRender { get { return _armorTexture != null && _renderProperties.ArmorGraphic != 0; } }
+        public bool CanRender => _armorTexture != null && _renderProperties.ArmorGraphic != 0;
 
         public ArmorRenderer(ICharacterRenderProperties renderProperties,
                              Texture2D armorTexture,

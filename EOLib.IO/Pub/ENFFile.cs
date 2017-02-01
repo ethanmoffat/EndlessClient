@@ -10,10 +10,7 @@ namespace EOLib.IO.Pub
 {
     public class ENFFile : BasePubFile<ENFRecord>
     {
-        public override string FileType
-        {
-            get { return "ENF"; }
-        }
+        public override string FileType => "ENF";
 
         public override void DeserializeFromByteArray(byte[] bytes, INumberEncoderService numberEncoderService)
         {

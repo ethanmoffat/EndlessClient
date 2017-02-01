@@ -40,7 +40,7 @@ namespace EndlessClient.Rendering
     public class OldCharacterRenderer : XNAControl
     {
         private readonly OldCharacter _char;
-        public OldCharacter Character { get { return _char; } }
+        public OldCharacter Character => _char;
 
         private readonly CharRenderData _data;
         private CharRenderData Data
@@ -109,10 +109,7 @@ namespace EndlessClient.Rendering
 
         private EffectRenderer _effectRenderer;
 
-        private CharacterActionState State
-        {
-            get { return Character.State; }
-        }
+        private CharacterActionState State => Character.State;
 
         public int TopPixel { get; private set; }
 
