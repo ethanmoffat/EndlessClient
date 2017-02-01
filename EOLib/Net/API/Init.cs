@@ -152,7 +152,7 @@ namespace EOLib.Net.API
                     else if (response == InitReply.INIT_FILE_ECF)
                         filename = "dat001.ecf";
                     else
-                        filename = string.Format("{0,5:D5}.emf", m_init_requestedMap);
+                        filename = $"{m_init_requestedMap,5:D5}.emf";
 
                     using (FileStream fs = File.Create(Path.Combine(localDir, filename)))
                     {

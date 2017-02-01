@@ -6,9 +6,9 @@ namespace EOLib.Domain.NPC
 {
     public class NPC : INPC
     {
-        public short ID { get; private set; }
+        public short ID { get; }
 
-        public byte Index { get; private set; }
+        public byte Index { get; }
 
         public byte X { get; private set; }
 

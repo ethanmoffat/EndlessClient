@@ -116,12 +116,14 @@ namespace EndlessClient.Dialogs
 
         private void _setTitleProgress()
         {
-            m_titleText.Text = string.Format("{0}'s {1}", OldWorld.Instance.MainPlayer.ActiveCharacter.Name, OldWorld.GetString(EOResourceID.QUEST_PROGRESS));
+            m_titleText.Text =
+                $"{OldWorld.Instance.MainPlayer.ActiveCharacter.Name}'s {OldWorld.GetString(EOResourceID.QUEST_PROGRESS)}";
         }
 
         private void _setTitleHistory()
         {
-            m_titleText.Text = string.Format("{0}'s {1}", OldWorld.Instance.MainPlayer.ActiveCharacter.Name, OldWorld.GetString(EOResourceID.QUEST_HISTORY));
+            m_titleText.Text =
+                $"{OldWorld.Instance.MainPlayer.ActiveCharacter.Name}'s {OldWorld.GetString(EOResourceID.QUEST_HISTORY)}";
         }
 
         private void _setMessageProgress()
@@ -147,7 +149,7 @@ namespace EndlessClient.Dialogs
                     QuestName = quest.Name,
                     QuestStep = quest.Description,
                     QuestContextIcon = quest.IconIndex,
-                    QuestProgress = quest.Target > 0 ? string.Format("{0} / {1}", quest.Progress, quest.Target) : "n / a"
+                    QuestProgress = quest.Target > 0 ? $"{quest.Progress} / {quest.Target}" : "n / a"
                 };
                 AddItemToList(nextItem, false);
             }

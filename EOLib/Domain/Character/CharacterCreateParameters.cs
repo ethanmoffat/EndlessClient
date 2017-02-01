@@ -6,15 +6,15 @@ namespace EOLib.Domain.Character
 {
     public class CharacterCreateParameters : ICharacterCreateParameters
     {
-        public string Name { get; private set; }
+        public string Name { get; }
 
-        public int Gender { get; private set; }
+        public int Gender { get; }
 
-        public int HairStyle { get; private set; }
+        public int HairStyle { get; }
 
-        public int HairColor { get; private set; }
+        public int HairColor { get; }
 
-        public int Race { get; private set; }
+        public int Race { get; }
 
         public CharacterCreateParameters(string name, int gender, int hairStyle, int hairColor, int race)
         {

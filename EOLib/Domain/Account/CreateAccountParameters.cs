@@ -6,12 +6,12 @@ namespace EOLib.Domain.Account
 {
     public class CreateAccountParameters : ICreateAccountParameters
     {
-        public string AccountName { get; private set; }
-        public string Password { get; private set; }
-        public string ConfirmPassword { get; private set; }
-        public string RealName { get; private set; }
-        public string Location { get; private set; }
-        public string Email { get; private set; }
+        public string AccountName { get; }
+        public string Password { get; }
+        public string ConfirmPassword { get; }
+        public string RealName { get; }
+        public string Location { get; }
+        public string Email { get; }
 
         public CreateAccountParameters(
             string accountName,

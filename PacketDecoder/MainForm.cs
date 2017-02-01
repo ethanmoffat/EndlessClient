@@ -175,7 +175,7 @@ namespace PacketDecoder
             string decoded = "";
             for (int i = 0; i < data.Length; i++)
             {
-                decoded += string.Format("{0} ", data[i].ToString("D3"));
+                decoded += $"{data[i].ToString("D3")} ";
             }
             txtDecoded.Text = decoded;
 

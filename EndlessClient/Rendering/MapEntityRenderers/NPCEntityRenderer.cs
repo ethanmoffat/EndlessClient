@@ -53,9 +53,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 if (!_npcRendererProvider.NPCRenderers.ContainsKey(index) ||
                     _npcRendererProvider.NPCRenderers[index] == null)
                     throw new InvalidOperationException(
-                        string.Format(
-                            "Character renderer for ID {0} is null or missing! Did you call MapRenderer.Update() before calling MapRenderer.Draw()?",
-                            index));
+                        $"Character renderer for ID {index} is null or missing! Did you call MapRenderer.Update() before calling MapRenderer.Draw()?");
 
                 var renderer = _npcRendererProvider.NPCRenderers[index];
                 renderer.DrawToSpriteBatch(spriteBatch);

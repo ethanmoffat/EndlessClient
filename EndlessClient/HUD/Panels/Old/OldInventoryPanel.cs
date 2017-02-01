@@ -169,7 +169,7 @@ namespace EndlessClient.HUD.Panels.Old
             if (!_fitsInSlot(filledSlots, slot, item.Size, out points)) return false;
             points.ForEach(point => filledSlots[point.Item1, point.Item2] = true); //flag that the spaces are taken
 
-            m_inventoryKey.SetValue(string.Format("item{0}", slot), item.ID, RegistryValueKind.String); //update the registry
+            m_inventoryKey.SetValue($"item{slot}", item.ID, RegistryValueKind.String); //update the registry
             m_childItems.Add(new OldEOInventoryItem(m_api, slot, item, new InventoryItem(amount: count, itemID: (short)item.ID), this)); //add the control wrapper for the item
             m_childItems[m_childItems.Count - 1].DrawOrder = (int) ControlDrawLayer.DialogLayer - (2 + slot%INVENTORY_ROW_LENGTH);
             return true;
@@ -250,7 +250,7 @@ namespace EndlessClient.HUD.Panels.Old
                 ItemSize sz = control.ItemData.Size;
                 _unmarkItemSlots(m_filledSlots, _getTakenSlots(control.Slot, sz));
 
-                m_inventoryKey.SetValue(string.Format("item{0}", slot), 0, RegistryValueKind.String);
+                m_inventoryKey.SetValue($"item{slot}", 0, RegistryValueKind.String);
                 m_childItems.Remove(control);
                 control.Visible = false;
                 control.Close();
@@ -273,8 +273,8 @@ namespace EndlessClient.HUD.Panels.Old
             oldPoints.ForEach(_p => m_filledSlots[_p.Item1, _p.Item2] = false);
             points.ForEach(_p => m_filledSlots[_p.Item1, _p.Item2] = true);
 
-            m_inventoryKey.SetValue(string.Format("item{0}", childItem.Slot), 0, RegistryValueKind.String);
-            m_inventoryKey.SetValue(string.Format("item{0}", newSlot), childItem.ItemData.ID, RegistryValueKind.String);
+            m_inventoryKey.SetValue($"item{childItem.Slot}", 0, RegistryValueKind.String);
+            m_inventoryKey.SetValue($"item{newSlot}", childItem.ItemData.ID, RegistryValueKind.String);
 
             childItem.DrawOrder = (int)ControlDrawLayer.DialogLayer - (2 + childItem.Slot % INVENTORY_ROW_LENGTH);
 
@@ -324,8 +324,8 @@ namespace EndlessClient.HUD.Panels.Old
         public void UpdateWeightLabel(string text = "")
         {
             if (string.IsNullOrEmpty(text))
-                m_lblWeight.Text = string.Format("{0} / {1}", OldWorld.Instance.MainPlayer.ActiveCharacter.Weight,
-                    OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight);
+                m_lblWeight.Text =
+                    $"{OldWorld.Instance.MainPlayer.ActiveCharacter.Weight} / {OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight}";
             else
                 m_lblWeight.Text = text;
         }
@@ -380,7 +380,8 @@ namespace EndlessClient.HUD.Panels.Old
             {
                 using (RegistryKey currentUser = Registry.CurrentUser)
                 {
-                    return currentUser.CreateSubKey(string.Format("Software\\EndlessClient\\{0}\\{1}\\inventory", OldWorld.Instance.MainPlayer.AccountName, OldWorld.Instance.MainPlayer.ActiveCharacter.Name),
+                    return currentUser.CreateSubKey(
+                        $"Software\\EndlessClient\\{OldWorld.Instance.MainPlayer.AccountName}\\{OldWorld.Instance.MainPlayer.ActiveCharacter.Name}\\inventory",
                         RegistryKeyPermissionCheck.ReadWriteSubTree);
                 }
             }

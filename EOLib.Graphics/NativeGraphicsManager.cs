@@ -99,6 +99,6 @@ namespace EOLib.Graphics
     public class GFXLoadException : Exception
     {
         public GFXLoadException(int resource, GFXTypes gfx)
-            : base(string.Format("Unable to load graphic {0} from file gfx{1:000}.egf", resource + 100, (int)gfx)) { }
+            : base($"Unable to load graphic {resource + 100} from file gfx{(int) gfx:000}.egf") { }
     }
 }

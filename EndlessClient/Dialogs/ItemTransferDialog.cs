@@ -99,7 +99,8 @@ namespace EndlessClient.Dialogs
             {
                 ForeColor = ColorConstants.LightGrayDialogMessage,
                 TextWidth = 200,
-                Text = string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_HOW_MUCH), itemName, OldWorld.GetString(message))
+                Text =
+                    $"{OldWorld.GetString(EOResourceID.DIALOG_TRANSFER_HOW_MUCH)} {itemName} {OldWorld.GetString(message)}"
             };
             descLabel.SetParent(this);
 
@@ -158,12 +159,12 @@ namespace EndlessClient.Dialogs
                 if (m_amount.Text != "" && (!int.TryParse(m_amount.Text, out amt) || amt > m_totalAmount))
                 {
                     amt = m_totalAmount;
-                    m_amount.Text = string.Format("{0}", m_totalAmount);
+                    m_amount.Text = $"{m_totalAmount}";
                 }
                 else if (m_amount.Text != "" && amt < 0)
                 {
                     amt = 1;
-                    m_amount.Text = string.Format("{0}", amt);
+                    m_amount.Text = $"{amt}";
                 }
 
                 if (s_sliderDragging) return; //slider is being dragged - don't move its position

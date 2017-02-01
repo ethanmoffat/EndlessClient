@@ -19,7 +19,7 @@ namespace EndlessClient.HUD.StatusBars
 
         protected override void UpdateLabelText()
         {
-            m_label.Text = string.Format("{0}", OldWorld.Instance.exp_table[m_stats.Level + 1] - m_stats.Experience);
+            m_label.Text = $"{OldWorld.Instance.exp_table[m_stats.Level + 1] - m_stats.Experience}";
         }
 
         protected override void DrawStatusBar()

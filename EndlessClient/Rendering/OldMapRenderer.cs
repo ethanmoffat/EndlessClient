@@ -243,7 +243,7 @@ namespace EndlessClient.Rendering
             {
                 var rec = OldWorld.Instance.EIF[newItem.ItemID];
                 EOGame.Instance.Hud.AddChat(ChatTab.System, "",
-                    string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_THE_NPC_DROPPED), newItem.Amount, rec.Name),
+                    $"{OldWorld.GetString(EOResourceID.STATUS_LABEL_THE_NPC_DROPPED)} {newItem.Amount} {rec.Name}",
                     ChatIcon.DownArrow);
             }
 
@@ -924,7 +924,7 @@ namespace EndlessClient.Rendering
                 _sb.Draw(_rtMapObjAbovePlayer, Vector2.Zero, Color.White);
                 _sb.Draw(_rtMapObjBelowPlayer, Vector2.Zero, Color.White);
 #if DEBUG
-                _sb.DrawString(EOGame.Instance.DBGFont, string.Format("FPS: {0}", OldWorld.FPS), new Vector2(30, 30), Color.White);
+                _sb.DrawString(EOGame.Instance.DBGFont, $"FPS: {OldWorld.FPS}", new Vector2(30, 30), Color.White);
 #endif
                 _sb.End();
 

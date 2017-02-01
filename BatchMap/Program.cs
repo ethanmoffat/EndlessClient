@@ -282,7 +282,7 @@ namespace BatchMap
                 }
 
                 mapFileSaveService.SaveFile(
-                    Path.Combine(dst, string.Format("{0,5:D5}.emf", mapID)),
+                    Path.Combine(dst, $"{mapID,5:D5}.emf"),
                     mapFile);
             }
         }

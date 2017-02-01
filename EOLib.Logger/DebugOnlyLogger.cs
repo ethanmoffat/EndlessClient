@@ -44,7 +44,7 @@ namespace EOLib.Logger
 
             var threadID = Thread.CurrentThread.ManagedThreadId;
             var processID = Process.GetCurrentProcess().Id;
-            var front = string.Format("{0,-5} {1,5} {2,-25} {3}", processID, threadID, GetDateTimeString(), format);
+            var front = $"{processID,-5} {threadID,5} {GetDateTimeString(),-25} {format}";
 
             WriteToFile(string.Format(front, parameters));
         }

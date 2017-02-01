@@ -129,9 +129,11 @@ namespace EndlessClient.Dialogs
             {
                 case ShopState.Initial:
                     {
-                        string buyNum = string.Format("{0} {1}", m_tradeItems.FindAll(x => x.Buy > 0).Count, OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_IN_STORE));
-                        string sellNum = string.Format("{0} {1}", sellNumInt, OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_ACCEPTED));
-                        string craftNum = string.Format("{0} {1}", m_craftItems.Count, OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_ACCEPTED));
+                        string buyNum =
+                            $"{m_tradeItems.FindAll(x => x.Buy > 0).Count} {OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_IN_STORE)}";
+                        string sellNum = $"{sellNumInt} {OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_ACCEPTED)}";
+                        string craftNum =
+                            $"{m_craftItems.Count} {OldWorld.GetString(EOResourceID.DIALOG_SHOP_ITEMS_ACCEPTED)}";
 
                         ListDialogItem buy = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
                         {
@@ -280,11 +282,8 @@ namespace EndlessClient.Dialogs
             //special case: no need for prompting if selling an item with count == 1 in inventory
             if (!isBuying && ii.Amount == 1)
             {
-                string _message = string.Format("{0} 1 {1} {2} {3} gold?",
-                    OldWorld.GetString(EOResourceID.DIALOG_WORD_SELL),
-                    rec.Name,
-                    OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR),
-                    item.Sell);
+                string _message =
+                    $"{OldWorld.GetString(EOResourceID.DIALOG_WORD_SELL)} 1 {rec.Name} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {item.Sell} gold?";
                 EOMessageBox.Show(_message, OldWorld.GetString(EOResourceID.DIALOG_SHOP_SELL_ITEMS), EODialogButtons.OkCancel,
                     EOMessageBoxStyle.SmallDialogSmallHeader, (oo, ee) =>
                     {
@@ -302,11 +301,8 @@ namespace EndlessClient.Dialogs
                 {
                     if (e.Result == XNADialogResult.OK)
                     {
-                        string _message = string.Format("{0} {1} {2} {3} {4} gold?",
-                            OldWorld.GetString(isBuying ? EOResourceID.DIALOG_WORD_BUY : EOResourceID.DIALOG_WORD_SELL),
-                            dlg.SelectedAmount, rec.Name,
-                            OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR),
-                            (isBuying ? item.Buy : item.Sell) * dlg.SelectedAmount);
+                        string _message =
+                            $"{OldWorld.GetString(isBuying ? EOResourceID.DIALOG_WORD_BUY : EOResourceID.DIALOG_WORD_SELL)} {dlg.SelectedAmount} {rec.Name} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {(isBuying ? item.Buy : item.Sell)*dlg.SelectedAmount} gold?";
 
                         EOMessageBox.Show(_message,
                             OldWorld.GetString(isBuying ? EOResourceID.DIALOG_SHOP_BUY_ITEMS : EOResourceID.DIALOG_SHOP_SELL_ITEMS),
@@ -342,11 +338,10 @@ namespace EndlessClient.Dialogs
                     foreach (var ingred in item.Ingredients)
                     {
                         var localRec = OldWorld.Instance.EIF[ingred.Item1];
-                        _message += string.Format("+  {0}  {1}\n", ingred.Item2, localRec.Name);
+                        _message += $"+  {ingred.Item2}  {localRec.Name}\n";
                     }
-                    string _caption = string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS),
-                        OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR),
-                        craftItemRec.Name);
+                    string _caption =
+                        $"{OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS)} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {craftItemRec.Name}";
                     EOMessageBox.Show(_message, _caption, EODialogButtons.Cancel, EOMessageBoxStyle.LargeDialogSmallHeader);
                     return;
                 }
@@ -364,11 +359,10 @@ namespace EndlessClient.Dialogs
             foreach (var ingred in item.Ingredients)
             {
                 var localRec = OldWorld.Instance.EIF[ingred.Item1];
-                _message2 += string.Format("+  {0}  {1}\n", ingred.Item2, localRec.Name);
+                _message2 += $"+  {ingred.Item2}  {localRec.Name}\n";
             }
-            string _caption2 = string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS),
-                OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR),
-                craftItemRec.Name);
+            string _caption2 =
+                $"{OldWorld.GetString(EOResourceID.DIALOG_SHOP_CRAFT_INGREDIENTS)} {OldWorld.GetString(EOResourceID.DIALOG_WORD_FOR)} {craftItemRec.Name}";
             EOMessageBox.Show(_message2, _caption2, EODialogButtons.OkCancel, EOMessageBoxStyle.LargeDialogSmallHeader, (o, e) =>
             {
                 if (e.Result == XNADialogResult.OK && !m_api.CraftItem((short)item.ID))

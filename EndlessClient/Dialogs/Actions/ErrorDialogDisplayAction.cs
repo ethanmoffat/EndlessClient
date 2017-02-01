@@ -44,7 +44,7 @@ namespace EndlessClient.Dialogs.Actions
                     var ex = new SocketException(errorCode);
 
                     var messageBox = _messageBoxFactory.CreateMessageBox(
-                        string.Format("Error code from socket: {0}", ex.SocketErrorCode),
+                        $"Error code from socket: {ex.SocketErrorCode}",
                         "Internal Error");
                     messageBox.ShowDialog();
                 }
@@ -59,7 +59,7 @@ namespace EndlessClient.Dialogs.Actions
                 case InitReply.ClientOutOfDate:
                 {
                     var versionNumber = initializationData[InitializationDataKey.RequiredVersionNumber];
-                    var extra = string.Format(" 0.000.0{0}", versionNumber);
+                    var extra = $" 0.000.0{versionNumber}";
                     var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_CLIENT_OUT_OF_DATE,
                         extra,
                         EODialogButtons.Ok,
@@ -80,7 +80,7 @@ namespace EndlessClient.Dialogs.Actions
                     else if (banType == BanType.TemporaryBan)
                     {
                         var banMinutesRemaining = initializationData[InitializationDataKey.BanTimeRemaining];
-                        var extra = string.Format(" {0} minutes.", banMinutesRemaining);
+                        var extra = $" {banMinutesRemaining} minutes.";
                         var messageBox = _messageBoxFactory.CreateMessageBox(DialogResourceID.CONNECTION_IP_BAN_TEMP,
                             extra,
                             EODialogButtons.Ok,

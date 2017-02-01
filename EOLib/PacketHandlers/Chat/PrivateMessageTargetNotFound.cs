@@ -44,7 +44,7 @@ namespace EOLib.PacketHandlers.Chat
             var from = packet.ReadEndString();
             from = char.ToUpper(from[0]) + from.Substring(1).ToLower();
             var sysMessage = _localizedStringFinder.GetString(EOResourceID.SYS_CHAT_PM_PLAYER_COULD_NOT_BE_FOUND);
-            var message = string.Format("{0} {1}", from, sysMessage);
+            var message = $"{@from} {sysMessage}";
 
             var chatData = new ChatData(string.Empty, message, ChatIcon.Error, ChatColor.Error);
             _chatRepository.AllChat[ChatTab.System].Add(chatData);

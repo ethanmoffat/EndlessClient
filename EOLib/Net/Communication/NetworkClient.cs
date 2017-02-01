@@ -139,7 +139,7 @@ namespace EOLib.Net.Communication
                 Enum.GetName(typeof(PacketFamily), packet.Family),
                 Enum.GetName(typeof(PacketAction), packet.Action),
                 packet.Length,
-                string.Join(":", packet.RawData.Select(b => string.Format("{0:x2}", b))));
+                string.Join(":", packet.RawData.Select(b => $"{b:x2}")));
         }
 
         [Conditional("DEBUG")]
@@ -150,7 +150,7 @@ namespace EOLib.Net.Communication
                     Enum.GetName(typeof(PacketFamily), packet.Family),
                     Enum.GetName(typeof(PacketAction), packet.Action),
                     packet.Length,
-                    string.Join(":", packet.RawData.Select(b => string.Format("{0:x2}", b))));
+                    string.Join(":", packet.RawData.Select(b => $"{b:x2}")));
         }
 
         public void Dispose()

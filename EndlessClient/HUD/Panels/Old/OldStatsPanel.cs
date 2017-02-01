@@ -174,7 +174,7 @@ namespace EndlessClient.HUD.Panels.Old
                         m_characterStats[i].Text = c.Stats.TP.ToString(CultureInfo.InvariantCulture);
                         break;
                     case DAM:
-                        m_characterStats[i].Text = string.Format("{0} - {1}", c.Stats.MinDam, c.Stats.MaxDam);
+                        m_characterStats[i].Text = $"{c.Stats.MinDam} - {c.Stats.MaxDam}";
                         break;
                     case ACC:
                         m_characterStats[i].Text = c.Stats.Accuracy.ToString(CultureInfo.InvariantCulture);
@@ -193,7 +193,7 @@ namespace EndlessClient.HUD.Panels.Old
                 switch (i)
                 {
                     case WEIGHT:
-                        m_otherInfo[i].Text = string.Format("{0} / {1}", c.Weight, c.MaxWeight);
+                        m_otherInfo[i].Text = $"{c.Weight} / {c.MaxWeight}";
                         break;
                     case STATPTS:
                         m_otherInfo[i].Text = c.Stats.StatPoints.ToString(CultureInfo.InvariantCulture);

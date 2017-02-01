@@ -122,8 +122,8 @@ namespace EndlessClient.Dialogs
             {
                 case SkillState.Initial:
                 {
-                    string learnNum = string.Format("{0}{1}", numToLearn, OldWorld.GetString(EOResourceID.SKILLMASTER_ITEMS_TO_LEARN));
-                    string forgetNum = string.Format("{0}{1}", numToForget, OldWorld.GetString(EOResourceID.SKILLMASTER_ITEMS_LEARNED));
+                    string learnNum = $"{numToLearn}{OldWorld.GetString(EOResourceID.SKILLMASTER_ITEMS_TO_LEARN)}";
+                    string forgetNum = $"{numToForget}{OldWorld.GetString(EOResourceID.SKILLMASTER_ITEMS_LEARNED)}";
 
                     ListDialogItem learn = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
                     {
@@ -333,23 +333,23 @@ namespace EndlessClient.Dialogs
 
         private void _showRequirementsLabel(Skill skill)
         {
-            string full = string.Format("{0} {1} LVL, ", OldWorld.Instance.ESF.Data[skill.ID].Name, skill.LevelReq);
+            string full = $"{OldWorld.Instance.ESF.Data[skill.ID].Name} {skill.LevelReq} LVL, ";
             if (skill.StrReq > 0)
-                full += string.Format("{0} STR, ", skill.StrReq);
+                full += $"{skill.StrReq} STR, ";
             if (skill.IntReq > 0)
-                full += string.Format("{0} INT, ", skill.IntReq);
+                full += $"{skill.IntReq} INT, ";
             if (skill.WisReq > 0)
-                full += string.Format("{0} WIS, ", skill.WisReq);
+                full += $"{skill.WisReq} WIS, ";
             if (skill.AgiReq > 0)
-                full += string.Format("{0} AGI, ", skill.AgiReq);
+                full += $"{skill.AgiReq} AGI, ";
             if (skill.ConReq > 0)
-                full += string.Format("{0} CON, ", skill.ConReq);
+                full += $"{skill.ConReq} CON, ";
             if (skill.ChaReq > 0)
-                full += string.Format("{0} CHA, ", skill.ChaReq);
+                full += $"{skill.ChaReq} CHA, ";
             if (skill.GoldReq > 0)
-                full += string.Format("{0} Gold", skill.GoldReq);
+                full += $"{skill.GoldReq} Gold";
             if (skill.ClassReq > 0)
-                full += string.Format(", {0}", OldWorld.Instance.ECF.Data[skill.ClassReq].Name);
+                full += $", {OldWorld.Instance.ECF.Data[skill.ClassReq].Name}";
 
             ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, full);
         }

@@ -78,15 +78,15 @@ namespace EndlessClient.Dialogs
             leftSide[6].Text = OldWorld.GetString(EOResourceID.DIALOG_PERFORMANCE_BEST_KILL);
             leftSide[7].Text = OldWorld.GetString(EOResourceID.DIALOG_PERFORMANCE_LAST_KILL);
             OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
-            rightSide[0].Text = string.Format("{0}", c.Stats.Experience);
-            rightSide[1].Text = string.Format("{0}", OldWorld.Instance.exp_table[c.Stats.Level + 1]);
-            rightSide[2].Text = string.Format("{0}", OldWorld.Instance.exp_table[c.Stats.Level + 1] - c.Stats.Experience);
-            rightSide[3].Text = string.Format("{0}", c.TodayExp);
-            rightSide[4].Text = string.Format("{0}", (int)(c.Stats.Experience / (c.Stats.Usage / 60.0)));
+            rightSide[0].Text = $"{c.Stats.Experience}";
+            rightSide[1].Text = $"{OldWorld.Instance.exp_table[c.Stats.Level + 1]}";
+            rightSide[2].Text = $"{OldWorld.Instance.exp_table[c.Stats.Level + 1] - c.Stats.Experience}";
+            rightSide[3].Text = $"{c.TodayExp}";
+            rightSide[4].Text = $"{(int) (c.Stats.Experience/(c.Stats.Usage/60.0))}";
             int sessionTime = (int)(DateTime.Now - EOGame.Instance.Hud.SessionStartTime).TotalMinutes;
-            rightSide[5].Text = string.Format("{0}", sessionTime > 0 ? (c.TodayExp / sessionTime) : 0);
-            rightSide[6].Text = string.Format("{0}", c.TodayBestKill);
-            rightSide[7].Text = string.Format("{0}", c.TodayLastKill);
+            rightSide[5].Text = $"{(sessionTime > 0 ? (c.TodayExp/sessionTime) : 0)}";
+            rightSide[6].Text = $"{c.TodayBestKill}";
+            rightSide[7].Text = $"{c.TodayLastKill}";
 
             Array.ForEach(leftSide, lbl => lbl.ResizeBasedOnText());
             Array.ForEach(rightSide, lbl => lbl.ResizeBasedOnText());

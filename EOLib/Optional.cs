@@ -9,7 +9,7 @@ namespace EOLib
         private static readonly Optional<T> _readOnlyEmpty = new Optional<T>();
         public static Optional<T> Empty => _readOnlyEmpty;
 
-        public T Value { get; private set; }
+        public T Value { get; }
 
         public bool HasValue { get; private set; }
 

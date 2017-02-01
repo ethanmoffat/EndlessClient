@@ -385,7 +385,8 @@ namespace EndlessClient.HUD.Panels.Old
             {
                 using (RegistryKey currentUser = Registry.CurrentUser)
                 {
-                    return currentUser.CreateSubKey(string.Format("Software\\EndlessClient\\{0}\\{1}\\spells", OldWorld.Instance.MainPlayer.AccountName, OldWorld.Instance.MainPlayer.ActiveCharacter.Name),
+                    return currentUser.CreateSubKey(
+                        $"Software\\EndlessClient\\{OldWorld.Instance.MainPlayer.AccountName}\\{OldWorld.Instance.MainPlayer.ActiveCharacter.Name}\\spells",
                         RegistryKeyPermissionCheck.ReadWriteSubTree);
                 }
             }
@@ -428,7 +429,7 @@ namespace EndlessClient.HUD.Panels.Old
 
         private void _setSpellSlotInRegistry(int slot, int id)
         {
-            _spellsKey.SetValue(string.Format("item{0}", slot), id, RegistryValueKind.String);
+            _spellsKey.SetValue($"item{slot}", id, RegistryValueKind.String);
         }
 
         private void _clearSlotInRegistry(int slot)

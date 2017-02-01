@@ -54,7 +54,7 @@ namespace EndlessClient.Dialogs.Actions
         public void ShowCharacterDeleteWarning(string characterName)
         {
             var messageBox = _messageBoxFactory.CreateMessageBox(
-                string.Format("Character \'{0}\' ", characterName),
+                $"Character \'{characterName}\' ",
                 DialogResourceID.CHARACTER_DELETE_FIRST_CHECK);
             messageBox.ShowDialog();
         }
@@ -62,7 +62,7 @@ namespace EndlessClient.Dialogs.Actions
         public async Task<XNADialogResult> ShowConfirmDeleteWarning(string characterName)
         {
             var messageBox = _messageBoxFactory.CreateMessageBox(
-                string.Format("Character \'{0}\' ", characterName),
+                $"Character \'{characterName}\' ",
                 DialogResourceID.CHARACTER_DELETE_CONFIRM,
                 EODialogButtons.OkCancel,
                 EOMessageBoxStyle.SmallDialogLargeHeader);

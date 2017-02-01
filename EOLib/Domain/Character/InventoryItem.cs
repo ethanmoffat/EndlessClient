@@ -6,9 +6,9 @@ namespace EOLib.Domain.Character
 {
     public class InventoryItem : IInventoryItem
     {
-        public short ItemID { get; private set; }
+        public short ItemID { get; }
         
-        public int Amount { get; private set; }
+        public int Amount { get; }
 
         public InventoryItem(short itemID, int amount)
         {

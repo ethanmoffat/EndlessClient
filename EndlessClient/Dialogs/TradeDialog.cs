@@ -156,7 +156,7 @@ namespace EndlessClient.Dialogs
                 collectionRef = m_leftItems;
                 scrollRef = m_leftScroll;
                 xOffset = -3;
-                m_leftPlayerName.Text = string.Format("{0} {1}", m_leftNameStr, items.Count > 0 ? "[" + items.Count + "]" : "");
+                m_leftPlayerName.Text = $"{m_leftNameStr} {(items.Count > 0 ? "[" + items.Count + "]" : "")}";
 
                 if (m_leftAgrees)
                 {
@@ -179,7 +179,7 @@ namespace EndlessClient.Dialogs
                 collectionRef = m_rightItems;
                 scrollRef = m_rightScroll;
                 xOffset = 263;
-                m_rightPlayerName.Text = string.Format("{0} {1}", m_rightNameStr, items.Count > 0 ? "[" + items.Count + "]" : "");
+                m_rightPlayerName.Text = $"{m_rightNameStr} {(items.Count > 0 ? "[" + items.Count + "]" : "")}";
 
                 if (m_rightAgrees)
                 {
@@ -217,9 +217,8 @@ namespace EndlessClient.Dialogs
                 int localID = item.ItemID;
 
                 var rec = OldWorld.Instance.EIF[item.ItemID];
-                string secondary = string.Format("x {0}  {1}", item.Amount, rec.Type == ItemType.Armor
-                    ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")"
-                    : "");
+                string secondary =
+                    $"x {item.Amount}  {(rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")" : "")}";
 
                 int gfxNum = item.ItemID == 1
                     ? 269 + 2 * (item.Amount >= 100000 ? 4 : (item.Amount >= 10000 ? 3 : (item.Amount >= 100 ? 2 : (item.Amount >= 2 ? 1 : 0))))

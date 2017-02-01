@@ -11,11 +11,11 @@ namespace EOLib.Domain.Character
 {
     public class EquippedItem : IEquippedItem
     {
-        public EquipLocation EquipLocation { get; private set; }
+        public EquipLocation EquipLocation { get; }
 
-        public int ItemID { get; private set; }
+        public int ItemID { get; }
 
-        public EIFRecord ItemData { get; private set; }
+        public EIFRecord ItemData { get; }
 
         public EquippedItem(EIFRecord record)
         {

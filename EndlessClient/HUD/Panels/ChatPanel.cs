@@ -281,7 +281,7 @@ namespace EndlessClient.HUD.Panels
             {
                 var who = _chatProvider.AllChat[CurrentTab][_scrollBar.ScrollOffset + clickedChatRow].Who;
                 _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox).Text =
-                    string.Format("!{0} ", who);
+                    $"!{who} ";
             }
         }
 

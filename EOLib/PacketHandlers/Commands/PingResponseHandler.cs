@@ -42,7 +42,7 @@ namespace EOLib.PacketHandlers.Commands
             var timeInMS = (int) Math.Round((now - _pingTimeRepository.PingRequests[requestID]).TotalMilliseconds);
             _pingTimeRepository.PingRequests.Remove(requestID);
 
-            var message = string.Format("[x] Current ping to the server is: {0} ms.", timeInMS);
+            var message = $"[x] Current ping to the server is: {timeInMS} ms.";
             var chatData = new ChatData("System", message, ChatIcon.LookingDude);
             _chatRepository.AllChat[ChatTab.Local].Add(chatData);
 

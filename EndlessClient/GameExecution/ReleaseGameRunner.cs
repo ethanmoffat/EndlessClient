@@ -25,7 +25,7 @@ namespace EndlessClient.GameExecution
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    string.Format("Error setting up dependencies for the game! Error message is:\n\n{0}", ex.Message),
+                    $"Error setting up dependencies for the game! Error message is:\n\n{ex.Message}",
                     "Dependency setup error!",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);

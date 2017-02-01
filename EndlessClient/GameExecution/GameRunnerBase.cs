@@ -64,11 +64,8 @@ namespace EndlessClient.GameExecution
             }
             catch (LibraryLoadException lle)
             {
-                var message = string.Format(
-                    "There was an error loading GFX{0:000}.EGF : {1}. Place all .GFX files in .\\gfx\\. The error message is:\n\n\"{2}\"",
-                    (int) lle.WhichGFX,
-                    lle.WhichGFX,
-                    lle.Message);
+                var message =
+                    $"There was an error loading GFX{(int) lle.WhichGFX:000}.EGF : {lle.WhichGFX}. Place all .GFX files in .\\gfx\\. The error message is:\n\n\"{lle.Message}\"";
                 ShowErrorMessage(message, "GFX Load Error");
                 return false;
             }

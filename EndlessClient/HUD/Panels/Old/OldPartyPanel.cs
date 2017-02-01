@@ -81,7 +81,7 @@ namespace EndlessClient.HUD.Panels.Old
                 }
 
                 Visible = true;
-                m_numMembers.Text = string.Format("{0}", memberList.Count);
+                m_numMembers.Text = $"{memberList.Count}";
                 m_members = memberList;
 
                 m_mainIsLeader = m_members.FindIndex(_member => _member.IsLeader && _member.ID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID) >= 0;
@@ -129,7 +129,7 @@ namespace EndlessClient.HUD.Panels.Old
         {
             m_members.Add(member);
 
-            m_numMembers.Text = string.Format("{0}", m_members.Count);
+            m_numMembers.Text = $"{m_members.Count}";
             m_scrollBar.UpdateDimensions(m_members.Count);
 
             _addRemoveButtonForMember(member);

@@ -25,10 +25,7 @@ namespace EndlessClient.UIControls
         {
             if (DateTime.Now.Second != _lastUpdateTime.Second)
             {
-                Text = string.Format("{0,2:D2}:{1,2:D2}:{2,2:D2}",
-                    DateTime.Now.Hour,
-                    DateTime.Now.Minute,
-                    DateTime.Now.Second);
+                Text = $"{DateTime.Now.Hour,2:D2}:{DateTime.Now.Minute,2:D2}:{DateTime.Now.Second,2:D2}";
 
                 _lastUpdateTime = DateTime.Now;
             }

@@ -10,7 +10,7 @@ namespace EOLib.Domain.Login
 {
     public class AccountLoginData : IAccountLoginData
     {
-        public LoginReply Response { get; private set; }
+        public LoginReply Response { get; }
 
         private readonly List<ICharacter> _characters;
         public IReadOnlyList<ICharacter> Characters => _characters;

@@ -17,7 +17,7 @@ namespace EndlessClient.HUD.StatusBars
 
         protected override void UpdateLabelText()
         {
-            m_label.Text = string.Format("{0}/{1}", m_stats.HP, m_stats.MaxHP);
+            m_label.Text = $"{m_stats.HP}/{m_stats.MaxHP}";
         }
 
         protected override void DrawStatusBar()

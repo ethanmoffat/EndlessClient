@@ -68,8 +68,8 @@ namespace EndlessClient.Dialogs
             ListDialogItem deposit = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 0)
             {
                 Text = OldWorld.GetString(EOResourceID.DIALOG_BANK_DEPOSIT),
-                SubText = string.Format("{0} gold {1}", OldWorld.GetString(EOResourceID.DIALOG_BANK_TRANSFER),
-                    OldWorld.GetString(EOResourceID.DIALOG_BANK_TO_ACCOUNT)),
+                SubText =
+                    $"{OldWorld.GetString(EOResourceID.DIALOG_BANK_TRANSFER)} gold {OldWorld.GetString(EOResourceID.DIALOG_BANK_TO_ACCOUNT)}",
                 IconGraphic = _getDlgIcon(ListIcon.BankDeposit),
                 OffsetY = 55,
                 ShowItemBackGround = false
@@ -79,8 +79,8 @@ namespace EndlessClient.Dialogs
             ListDialogItem withdraw = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, 1)
             {
                 Text = OldWorld.GetString(EOResourceID.DIALOG_BANK_WITHDRAW),
-                SubText = string.Format("{0} gold {1}", OldWorld.GetString(EOResourceID.DIALOG_BANK_TAKE),
-                    OldWorld.GetString(EOResourceID.DIALOG_BANK_FROM_ACCOUNT)),
+                SubText =
+                    $"{OldWorld.GetString(EOResourceID.DIALOG_BANK_TAKE)} gold {OldWorld.GetString(EOResourceID.DIALOG_BANK_FROM_ACCOUNT)}",
                 IconGraphic = _getDlgIcon(ListIcon.BankWithdraw),
                 OffsetY = 55,
                 ShowItemBackGround = false
@@ -187,7 +187,7 @@ namespace EndlessClient.Dialogs
                 return;
             }
 
-            EOMessageBox.Show(DialogResourceID.LOCKER_UPGRADE_UNIT, string.Format("{0} gold?", requiredGold), EODialogButtons.OkCancel,
+            EOMessageBox.Show(DialogResourceID.LOCKER_UPGRADE_UNIT, $"{requiredGold} gold?", EODialogButtons.OkCancel,
                 EOMessageBoxStyle.SmallDialogSmallHeader,
                 (o, e) =>
                 {

@@ -6,13 +6,13 @@ namespace EOLib.Domain.Chat
 {
     public class ChatData
     {
-        public ChatIcon Icon { get; private set; }
+        public ChatIcon Icon { get; }
 
-        public string Who { get; private set; }
+        public string Who { get; }
 
-        public string Message { get; private set; }
+        public string Message { get; }
 
-        public ChatColor ChatColor { get; private set; }
+        public ChatColor ChatColor { get; }
 
         public ChatData(string who,
             string message,

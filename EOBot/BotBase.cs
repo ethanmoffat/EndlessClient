@@ -54,7 +54,7 @@ namespace EOBot
         {
             _client = new EOClient(CreatePacketProcessorActions());
             if (!_client.ConnectToServer(_host, _port))
-                throw new ArgumentException(string.Format("Bot {0}: Unable to connect to server! Host={1} Port={2}", _index, _host, _port));
+                throw new ArgumentException($"Bot {_index}: Unable to connect to server! Host={_host} Port={_port}");
             _api = new PacketAPI(_client);
 
             //todo: adapt to new networking architecture

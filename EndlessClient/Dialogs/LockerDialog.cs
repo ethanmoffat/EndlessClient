@@ -62,10 +62,8 @@ namespace EndlessClient.Dialogs
                 ListDialogItem newItem = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large)
                 {
                     Text = rec.Name,
-                    SubText = string.Format("x{0}  {1}", item.Amount,
-                        rec.Type == ItemType.Armor
-                            ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")"
-                            : ""),
+                    SubText =
+                        $"x{item.Amount}  {(rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")" : "")}",
                     IconGraphic = ((EOGame)Game).GFXManager.TextureFromResource(GFXTypes.Items, 2 * rec.Graphic - 1, true),
                     OffsetY = 45
                 };

@@ -19,11 +19,11 @@ namespace EOLib.Net
 
         public int ReadPosition { get; private set; }
 
-        public PacketFamily Family { get; private set; }
+        public PacketFamily Family { get; }
 
-        public PacketAction Action { get; private set; }
+        public PacketAction Action { get; }
 
-        public IReadOnlyList<byte> RawData { get; private set; }
+        public IReadOnlyList<byte> RawData { get; }
 
         public Packet(IList<byte> data)
             : this(data.ToArray()) { }

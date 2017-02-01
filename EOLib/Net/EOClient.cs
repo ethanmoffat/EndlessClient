@@ -29,7 +29,7 @@ namespace EOLib.Net
         public const int BUFFER_SIZE = 1;
 
         public DataReceiveState State;
-        public byte[] RawLength { get; private set; }
+        public byte[] RawLength { get; }
 
         public EODataChunk()
             : base(BUFFER_SIZE)
@@ -52,7 +52,7 @@ namespace EOLib.Net
         public PacketAction PacketAction { get; private set; }
 
         public TransferType Type { get; private set; }
-        public byte[] RawByteData { get; private set; }
+        public byte[] RawByteData { get; }
 
         public bool PacketHandled { get; set; }
 
@@ -64,7 +64,7 @@ namespace EOLib.Net
                 // ReSharper disable once LoopCanBeConvertedToQuery
                 // ReSharper disable once ForCanBeConvertedToForeach
                 for (int i = 0; i < RawByteData.Length; ++i)
-                    result += string.Format("{0}:", RawByteData[i].ToString("x2"));
+                    result += $"{RawByteData[i].ToString("x2")}:";
                 if (result.Length > 1)
                     result = result.Substring(0, result.Length - 1);
                 return result;

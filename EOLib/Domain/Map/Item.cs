@@ -8,13 +8,13 @@ namespace EOLib.Domain.Map
 {
     public class Item : IItem
     {
-        public short UniqueID { get; private set; }
+        public short UniqueID { get; }
 
-        public short ItemID { get; private set; }
+        public short ItemID { get; }
 
-        public byte X { get; private set; }
+        public byte X { get; }
 
-        public byte Y { get; private set; }
+        public byte Y { get; }
 
         public int Amount { get; private set; }
 

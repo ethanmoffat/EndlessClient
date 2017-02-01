@@ -490,7 +490,7 @@ namespace EndlessClient.HUD.Inventory
 
                         ((EOGame)Game).Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
                             EOResourceID.STATUS_LABEL_ITEM_EQUIP_THIS_ITEM_REQUIRES,
-                            string.Format(" {0} {1}", reqs[reqIndex], reqNames[reqIndex]));
+                            $" {reqs[reqIndex]} {reqNames[reqIndex]}");
                         break;
                     }
                     //check class requirement
@@ -586,12 +586,12 @@ namespace EndlessClient.HUD.Inventory
             switch (data.ID)
             {
                 case 1:
-                    return string.Format("{0} {1}", amount, data.Name);
+                    return $"{amount} {data.Name}";
                 default:
                     if (amount == 1)
                         return data.Name;
                     if (amount > 1)
-                        return string.Format("{0} x{1}", data.Name, amount);
+                        return $"{data.Name} x{amount}";
                     throw new Exception("There shouldn't be an item in the inventory with amount zero");
             }
         }

@@ -10,7 +10,7 @@ namespace EOLib.Domain.Character
 {
     public class CharacterStats : ICharacterStats
     {
-        public IReadOnlyDictionary<CharacterStat, int> Stats { get; private set; }
+        public IReadOnlyDictionary<CharacterStat, int> Stats { get; }
 
         public int this[CharacterStat stat] => Stats[stat];
 

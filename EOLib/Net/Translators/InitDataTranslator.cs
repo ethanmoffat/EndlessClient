@@ -53,6 +53,6 @@ namespace EOLib.Net.Translators
     public class InvalidInitResponseException : Exception
     {
         public InvalidInitResponseException(InitReply reply)
-            : base(string.Format("Invalid InitReply from server: {0}", reply)) { }
+            : base($"Invalid InitReply from server: {reply}") { }
     }
 }

@@ -6,9 +6,9 @@ namespace EOLib.Domain.Character
 {
     public class InventorySpell : IInventorySpell
     {
-        public short ID { get; private set; }
+        public short ID { get; }
 
-        public short Level { get; private set; }
+        public short Level { get; }
 
         public InventorySpell(short id, short level)
         {

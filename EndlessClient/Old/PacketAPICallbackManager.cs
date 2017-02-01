@@ -283,8 +283,10 @@ namespace EndlessClient.Old
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);
 
             var rec = OldWorld.Instance.EIF[id];
-            m_game.Hud.AddChat(ChatTab.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP), amountTaken, rec.Name), ChatIcon.UpArrow);
-            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP, string.Format(" {0} {1}", amountTaken, rec.Name));
+            m_game.Hud.AddChat(ChatTab.System, "",
+                $"{OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP)} {amountTaken} {rec.Name}", ChatIcon.UpArrow);
+            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP,
+                $" {amountTaken} {rec.Name}");
         }
 
         private void _junkItem(short id, int amountRemoved, int amountRemaining, byte weight, byte maxWeight)
@@ -292,8 +294,10 @@ namespace EndlessClient.Old
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
 
             var rec = OldWorld.Instance.EIF[id];
-            m_game.Hud.AddChat(ChatTab.System, "", string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED), amountRemoved, rec.Name), ChatIcon.DownArrow);
-            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED, string.Format(" {0} {1}", amountRemoved, rec.Name));
+            m_game.Hud.AddChat(ChatTab.System, "",
+                $"{OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED)} {amountRemoved} {rec.Name}", ChatIcon.DownArrow);
+            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED,
+                $" {amountRemoved} {rec.Name}");
         }
 
         private void _dropItem(int characterAmount, byte weight, byte maxWeight, OldMapItem item)
@@ -305,10 +309,10 @@ namespace EndlessClient.Old
 
                 var rec = OldWorld.Instance.EIF[item.ItemID];
                 m_game.Hud.AddChat(ChatTab.System, "",
-                        string.Format("{0} {1} {2}", OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED), item.Amount, rec.Name),
+                    $"{OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED)} {item.Amount} {rec.Name}",
                         ChatIcon.DownArrow);
                 m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED,
-                        string.Format(" {0} {1}", item.Amount, rec.Name));
+                    $" {item.Amount} {rec.Name}");
             }
         }
 
@@ -417,7 +421,7 @@ namespace EndlessClient.Old
         {
             if (File.Exists("maps\\00000.emf"))
             {
-                string fmt = string.Format("maps\\{0,5:D5}.emf", OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap);
+                string fmt = $"maps\\{OldWorld.Instance.MainPlayer.ActiveCharacter.CurrentMap,5:D5}.emf";
                 if (File.Exists(fmt))
                     File.Delete(fmt);
                 File.Move("maps\\00000.emf", fmt);
@@ -457,7 +461,7 @@ namespace EndlessClient.Old
         private void _bankOpen(int gold, int upgrades)
         {
             if (BankAccountDialog.Instance == null) return;
-            BankAccountDialog.Instance.AccountBalance = string.Format("{0}", gold);
+            BankAccountDialog.Instance.AccountBalance = $"{gold}";
             BankAccountDialog.Instance.LockerUpgrades = upgrades;
         }
 
@@ -466,7 +470,7 @@ namespace EndlessClient.Old
             if (BankAccountDialog.Instance == null) return;
 
             OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(1, gold);
-            BankAccountDialog.Instance.AccountBalance = string.Format("{0}", bankGold);
+            BankAccountDialog.Instance.AccountBalance = $"{bankGold}";
         }
 
         private void _shopOpen(int shopid, string name, List<ShopItem> tradeitems, List<CraftItem> craftitems)

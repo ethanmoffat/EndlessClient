@@ -31,9 +31,8 @@ namespace EOLib.PacketHandlers.Commands
         public override bool HandlePacket(IPacket packet)
         {
             var playerName = packet.ReadEndString();
-            var message = string.Format("{0} {1}",
-                char.ToUpper(playerName[0]) + playerName.Substring(1),
-                _localizedStringFinder.GetString(ResourceIDForResponse));
+            var message =
+                $"{char.ToUpper(playerName[0]) + playerName.Substring(1)} {_localizedStringFinder.GetString(ResourceIDForResponse)}";
 
             var chatData = new ChatData("System", message, ChatIcon.LookingDude);
             _chatRespository.AllChat[ChatTab.Local].Add(chatData);

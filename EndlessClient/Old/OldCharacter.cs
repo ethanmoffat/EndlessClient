@@ -572,8 +572,7 @@ namespace EndlessClient.Old
                 permission = ChestKey.None;
             else if (rec == null) //show a warning saying that this chest is perma-locked. Non-standard pub files will cause this.
                 EOMessageBox.Show(
-                    string.Format("Unable to find key for {0} in EIF. This chest will never be opened!",
-                        Enum.GetName(typeof(ChestKey), permission)), "Warning", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
+                    $"Unable to find key for {Enum.GetName(typeof(ChestKey), permission)} in EIF. This chest will never be opened!", "Warning", EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
 
             return permission;
         }

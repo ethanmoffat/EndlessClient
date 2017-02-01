@@ -6,9 +6,9 @@ namespace EOLib.Domain.Account
 {
     public class ChangePasswordParameters : IChangePasswordParameters
     {
-        public string AccountName { get; private set; }
-        public string OldPassword { get; private set; }
-        public string NewPassword { get; private set; }
+        public string AccountName { get; }
+        public string OldPassword { get; }
+        public string NewPassword { get; }
 
         public ChangePasswordParameters(string accountName,
             string oldPassword,

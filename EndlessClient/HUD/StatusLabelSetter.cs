@@ -38,7 +38,7 @@ namespace EndlessClient.HUD
 
         private void SetStatusLabelText(string type, string text, string extra = "")
         {
-            _statusLabelTextRepository.StatusText = string.Format("[ {0} ] {1} {2}", type, text, extra);
+            _statusLabelTextRepository.StatusText = $"[ {type} ] {text} {extra}";
             _statusLabelTextRepository.SetTime = DateTime.Now;
         }
 

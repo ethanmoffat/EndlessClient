@@ -39,7 +39,7 @@ namespace EOLib.Localization
 
         private bool DataFileNameIsValid(int fileNumber, string fileName)
         {
-            var expectedFormat = string.Format("data/dat0{0:00}.edf", fileNumber);
+            var expectedFormat = $"data/dat0{fileNumber:00}.edf";
             return expectedFormat == fileName;
         }
     }

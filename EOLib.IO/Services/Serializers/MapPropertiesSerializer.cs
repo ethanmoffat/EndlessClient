@@ -89,7 +89,7 @@ namespace EOLib.IO.Services.Serializers
             //0 bytes are converted to 255 bytes before being written to the file
 
             var padding = Enumerable.Repeat((byte)0, 24 - mapEntity.Name.Length).ToArray();
-            var nameToEncode = string.Format("{0}{1}", mapEntity.Name, Encoding.ASCII.GetString(padding));
+            var nameToEncode = $"{mapEntity.Name}{Encoding.ASCII.GetString(padding)}";
 
             var encodedName = _mapStringEncoderService.EncodeMapString(nameToEncode);
             var formattedName = encodedName.Select(x => x == 0 ? (byte)255 : x).ToArray();

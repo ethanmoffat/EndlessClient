@@ -35,10 +35,8 @@ namespace EndlessClient.Dialogs.Actions
 
         public void ShowInitialCreateWarningDialog()
         {
-            var message = string.Format("{0}\n\n{1}\n\n{2}",
-                _localizedStringFinder.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_1),
-                _localizedStringFinder.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_2),
-                _localizedStringFinder.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_3));
+            var message =
+                $"{_localizedStringFinder.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_1)}\n\n{_localizedStringFinder.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_2)}\n\n{_localizedStringFinder.GetString(EOResourceID.ACCOUNT_CREATE_WARNING_DIALOG_3)}";
 
             var dialog = _createAccountWarningDialogFactory.ShowCreateAccountWarningDialog(message);
             dialog.ShowDialog();

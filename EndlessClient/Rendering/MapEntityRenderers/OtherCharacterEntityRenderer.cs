@@ -52,9 +52,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 if (!_characterRendererProvider.CharacterRenderers.ContainsKey(id) ||
                     _characterRendererProvider.CharacterRenderers[id] == null)
                     throw new InvalidOperationException(
-                        string.Format(
-                            "Character renderer for ID {0} is null or missing! Did you call MapRenderer.Update() before calling MapRenderer.Draw()?",
-                            id));
+                        $"Character renderer for ID {id} is null or missing! Did you call MapRenderer.Update() before calling MapRenderer.Draw()?");
 
                 var renderer = _characterRendererProvider.CharacterRenderers[id];
                 renderer.DrawToSpriteBatch(spriteBatch);

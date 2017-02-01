@@ -28,10 +28,10 @@ namespace EndlessClient.Subscribers
         {
             _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
                                               EOResourceID.STATUS_LABEL_YOU_GAINED_EXP,
-                                              string.Format("{0} EXP", expDifference));
+                $"{expDifference} EXP");
 
             var youGained = _localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_YOU_GAINED_EXP);
-            var message = string.Format("{0} {1} EXP", youGained, expDifference);
+            var message = $"{youGained} {expDifference} EXP";
 
             var chatData = new ChatData(string.Empty, message, ChatIcon.Star);
             _chatRepository.AllChat[ChatTab.System].Add(chatData);

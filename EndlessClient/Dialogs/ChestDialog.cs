@@ -82,9 +82,8 @@ namespace EndlessClient.Dialogs
                     }
 
                     var rec = OldWorld.Instance.EIF[item.ItemID];
-                    string secondary = string.Format("x {0}  {1}", item.Amount, rec.Type == ItemType.Armor
-                        ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")"
-                        : "");
+                    string secondary =
+                        $"x {item.Amount}  {(rec.Type == ItemType.Armor ? "(" + (rec.Gender == 0 ? OldWorld.GetString(EOResourceID.FEMALE) : OldWorld.GetString(EOResourceID.MALE)) + ")" : "")}";
 
                     m_items[i] = new ListDialogItem(this, ListDialogItem.ListItemStyle.Large, i)
                     {

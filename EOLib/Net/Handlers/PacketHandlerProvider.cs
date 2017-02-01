@@ -13,7 +13,7 @@ namespace EOLib.Net.Handlers
             PacketHandlers = packetHandlers;
         }
 
-        public IEnumerable<IPacketHandler> PacketHandlers { get; private set; }
+        public IEnumerable<IPacketHandler> PacketHandlers { get; }
     }
 
     public interface IPacketHandlerProvider
