@@ -15,8 +15,8 @@ namespace EOLib.Config.Test
         private const string TestFile = "SomeFile.ini";
         private static readonly string FullPath = Path.Combine(TestDirectory, TestFile);
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [TestCleanup]
+        public void TestCleanup()
         {
             if (Directory.Exists(TestDirectory))
                 Directory.Delete(TestDirectory, true);
