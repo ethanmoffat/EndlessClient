@@ -7,14 +7,10 @@ namespace EOLib.Domain.Notifiers
     public interface IOtherCharacterEventNotifier
     {
         void OtherCharacterTakeDamage(int characterID, int playerPercentHealth, int damageTaken);
-
-        void OtherCharacterDie(int characterID);
     }
 
     public class NoOpOtherCharacterEventNotifier : IOtherCharacterEventNotifier
     {
         public void OtherCharacterTakeDamage(int characterID, int playerPercentHealth, int damageTaken) { }
-
-        public void OtherCharacterDie(int characterID) { }
     }
 }

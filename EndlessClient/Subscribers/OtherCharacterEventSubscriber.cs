@@ -14,10 +14,5 @@ namespace EndlessClient.Subscribers
         {
             //todo: show health bar
         }
-
-        public void OtherCharacterDie(int characterID)
-        {
-            //todo: show death animation
-        }
     }
 }

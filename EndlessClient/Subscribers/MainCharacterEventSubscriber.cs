@@ -37,11 +37,6 @@ namespace EndlessClient.Subscribers
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
         }
 
-        public void NotifyDead()
-        {
-            //todo: show death animation
-        }
-
         public void NotifyTakeDamage(int damageTaken, int playerPercentHealth)
         {
             //todo: show health bar

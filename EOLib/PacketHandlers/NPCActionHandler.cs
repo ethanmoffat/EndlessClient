@@ -114,17 +114,18 @@ namespace EOLib.PacketHandlers
             if (characterID == _characterRepository.MainCharacter.ID)
             {
                 var characterToUpdate = _characterRepository.MainCharacter;
+
                 var stats = characterToUpdate.Stats;
                 stats = stats.WithNewStat(CharacterStat.HP, (short)Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
-                _characterRepository.MainCharacter = characterToUpdate.WithStats(stats);
+
+                var props = characterToUpdate.RenderProperties;
+                if (isDead)
+                    props = props.WithDead();
+
+                _characterRepository.MainCharacter = characterToUpdate.WithStats(stats).WithRenderProperties(props);
 
                 foreach (var notifier in _mainCharacterNotifiers)
-                {
-                    if (isDead)
-                        notifier.NotifyDead();
-
                     notifier.NotifyTakeDamage(damageTaken, playerPercentHealth);
-                }
             }
             else
             {
@@ -133,17 +134,16 @@ namespace EOLib.PacketHandlers
                 var stats = characterToUpdate.Stats;
                 stats = stats.WithNewStat(CharacterStat.HP, (short) Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
 
-                var updatedCharacter = characterToUpdate.WithStats(stats);
+                var props = characterToUpdate.RenderProperties;
+                if (isDead)
+                    props = props.WithDead();
+
+                var updatedCharacter = characterToUpdate.WithStats(stats).WithRenderProperties(props);
                 _currentMapStateRepository.Characters.Remove(characterToUpdate);
                 _currentMapStateRepository.Characters.Add(updatedCharacter);
 
                 foreach (var notifier in _otherCharacterNotifiers)
-                {
-                    if (isDead)
-                        notifier.OtherCharacterDie(characterID);
-
                     notifier.OtherCharacterTakeDamage(characterID, playerPercentHealth, damageTaken);
-                }
             }
 
             foreach (var notifier in _npcAnimationNotifiers)
