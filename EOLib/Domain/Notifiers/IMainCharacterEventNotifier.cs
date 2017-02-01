@@ -8,10 +8,18 @@ namespace EOLib.Domain.Notifiers
     public interface IMainCharacterEventNotifier
     {
         void NotifyGainedExp(int expDifference);
+
+        void NotifyDead();
+
+        void NotifyTakeDamage(int damageTaken, int playerPercentHealth);
     }
 
     public class NoOpMainCharacterEventNotifier : IMainCharacterEventNotifier
     {
         public void NotifyGainedExp(int expDifference) { }
+
+        public void NotifyDead() { }
+
+        public void NotifyTakeDamage(int damageTaken, int playerPercentHealth) { }
     }
 }

@@ -36,5 +36,15 @@ namespace EndlessClient.Subscribers
             var chatData = new ChatData(string.Empty, message, ChatIcon.Star);
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
         }
+
+        public void NotifyDead()
+        {
+            //todo: show death animation
+        }
+
+        public void NotifyTakeDamage(int damageTaken, int playerPercentHealth)
+        {
+            //todo: show health bar
+        }
     }
 }
