@@ -112,7 +112,8 @@ namespace EndlessClient
 
         private void RegisterSubscribers(IUnityContainer container)
         {
-            container.RegisterVaried<IMainCharacterEventNotifier, MainCharacterEventSubscriber>();
+            container.RegisterVaried<IMainCharacterEventNotifier, MainCharacterEventSubscriber>()
+                .RegisterVaried<IOtherCharacterEventNotifier, OtherCharacterEventSubscriber>();
         }
 
         private static void SetUpRepositoriesForGameDependencies(IUnityContainer container)

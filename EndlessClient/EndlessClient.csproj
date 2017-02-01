@@ -81,6 +81,7 @@
     <Compile Include="Rendering\NPC\NPCAnimator.cs" />
     <Compile Include="Rendering\RenderFrameActionTime.cs" />
     <Compile Include="Subscribers\MainCharacterEventSubscriber.cs" />
+    <Compile Include="Subscribers\OtherCharacterEventSubscriber.cs" />
     <Compile Include="Test\CharacterStateTest.cs" />
     <Compile Include="Controllers\CharacterManagementController.cs" />
     <Compile Include="Controllers\AccountController.cs" />

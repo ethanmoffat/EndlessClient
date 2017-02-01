@@ -137,8 +137,13 @@ namespace EOLib.PacketHandlers
                 _currentMapStateRepository.Characters.Remove(characterToUpdate);
                 _currentMapStateRepository.Characters.Add(updatedCharacter);
 
-                foreach(var notifier in _otherCharacterNotifiers)
-                    notifier.OtherCharacterTakeDamage(characterID, isDead, playerPercentHealth, damageTaken);
+                foreach (var notifier in _otherCharacterNotifiers)
+                {
+                    if (isDead)
+                        notifier.OtherCharacterDie(characterID);
+
+                    notifier.OtherCharacterTakeDamage(characterID, playerPercentHealth, damageTaken);
+                }
             }
 
             foreach (var notifier in _npcAnimationNotifiers)
