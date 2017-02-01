@@ -91,7 +91,7 @@ namespace EOLib.Domain.Chat
                 case ChatType.Command:
                 case ChatType.NPC:
                 case ChatType.Server:
-                    throw new ArgumentOutOfRangeException("chatType");
+                    throw new ArgumentOutOfRangeException(nameof(chatType));
                 case ChatType.Admin:
                 case ChatType.Global:
                 case ChatType.Guild:
@@ -108,7 +108,7 @@ namespace EOLib.Domain.Chat
                 case ChatType.Local:
                     return chat;
                 default:
-                    throw new ArgumentOutOfRangeException("chatType");
+                    throw new ArgumentOutOfRangeException(nameof(chatType));
             }
         }
 
@@ -128,7 +128,7 @@ namespace EOLib.Domain.Chat
                     else if (targetCharacter == _chatRepository.PMTarget2)
                         _chatRepository.AllChat[ChatTab.Private2].Add(chatData);
                     else
-                        throw new ArgumentException("Unexpected target character!", "targetCharacter");
+                        throw new ArgumentException("Unexpected target character!", nameof(targetCharacter));
 
                     break;
                 case ChatType.Local:
@@ -151,7 +151,7 @@ namespace EOLib.Domain.Chat
                     _chatRepository.AllChat[ChatTab.Group].Add(new ChatData(who, chat, ChatIcon.GlobalAnnounce, ChatColor.ServerGlobal));
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("chatType", chatType, "Unexpected ChatType encountered");
+                    throw new ArgumentOutOfRangeException(nameof(chatType), chatType, "Unexpected ChatType encountered");
             }
         }
     }

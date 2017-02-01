@@ -148,7 +148,7 @@ namespace EndlessClient.HUD.Panels
             else if (whichTab == ChatTab.Private2)
                 _state.PrivateChat2Shown = false;
             else
-                throw new ArgumentOutOfRangeException("whichTab", whichTab, "whichTab should be Private1 or Private2");
+                throw new ArgumentOutOfRangeException(nameof(whichTab), whichTab, "whichTab should be Private1 or Private2");
 
             _state.CachedScrollOffsets[whichTab] = 0;
             _tabLabels[whichTab].Text = "";
@@ -324,7 +324,7 @@ namespace EndlessClient.HUD.Panels
                 case ChatTab.Group:
                 case ChatTab.System:
                     return topLeft + new Vector2(289 + 44 * ((int)tab - 2), 102);
-                default: throw new ArgumentOutOfRangeException("tab", tab, null);
+                default: throw new ArgumentOutOfRangeException(nameof(tab), tab, null);
             }
         }
 

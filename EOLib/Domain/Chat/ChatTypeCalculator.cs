@@ -19,7 +19,7 @@ namespace EOLib.Domain.Chat
         public ChatType CalculateChatType(string input)
         {
             if(string.IsNullOrEmpty(input))
-                throw new ArgumentException("Input string must have a value and be non-empty", "input");
+                throw new ArgumentException("Input string must have a value and be non-empty", nameof(input));
 
             if(!CharacterIsAdmin && (input[0] == '+' || input[0] == '@'))
                 return ChatType.Local;

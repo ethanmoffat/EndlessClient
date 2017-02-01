@@ -27,7 +27,7 @@ namespace EndlessClient.Rendering.Effects
                 case EffectType.WarpOriginal:
                 case EffectType.WarpDestination: return GetWarpSoundEffect(type);
                 case EffectType.WaterSplashies: return GetWaterSoundEffect();
-                default: throw new ArgumentOutOfRangeException("type", type, null);
+                default: throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
 

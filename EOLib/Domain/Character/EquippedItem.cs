@@ -20,7 +20,7 @@ namespace EOLib.Domain.Character
         public EquippedItem(EIFRecord record)
         {
             if (record == null)
-                throw new ArgumentNullException("record", "Item was not found in pub file (null record)");
+                throw new ArgumentNullException(nameof(record), "Item was not found in pub file (null record)");
 
             EquipLocation = record.GetEquipLocation();
             ItemID = record.ID;

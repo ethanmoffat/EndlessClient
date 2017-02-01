@@ -78,7 +78,7 @@ namespace EndlessClient.Dialogs.Actions
                 case AccountReply.Created: message = DialogResourceID.ACCOUNT_CREATE_SUCCESS_WELCOME; break;
                 case AccountReply.ChangeFailed: message = DialogResourceID.CHANGE_PASSWORD_MISMATCH; break;
                 case AccountReply.ChangeSuccess: message = DialogResourceID.CHANGE_PASSWORD_SUCCESS; break;
-                default: throw new ArgumentOutOfRangeException("serverError", serverError, null);
+                default: throw new ArgumentOutOfRangeException(nameof(serverError), serverError, null);
             }
 
             var messageBox = _eoMessageBoxFactory.CreateMessageBox(

@@ -583,7 +583,7 @@ namespace EndlessClient.Old
             else if (p2 == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
                 otherName = p1name;
             else
-                throw new ArgumentException("Invalid player ID for this trade session!", "p1");
+                throw new ArgumentException("Invalid player ID for this trade session!", nameof(p1));
 
             m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_TRADE_YOU_ARE_TRADING_WITH,
                     otherName + " " + OldWorld.GetString(EOResourceID.STATUS_LABEL_DRAG_AND_DROP_ITEMS));

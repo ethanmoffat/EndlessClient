@@ -72,7 +72,7 @@ namespace EndlessClient.Rendering.Effects
                 case EffectType.WarpOriginal:
                 case EffectType.WarpDestination: return GetWarpEffect(effectType);
                 case EffectType.WaterSplashies: return GetWaterEffect();
-                default: throw new ArgumentOutOfRangeException("effectType", effectType, null);
+                default: throw new ArgumentOutOfRangeException(nameof(effectType), effectType, null);
             }
         }
 
@@ -105,7 +105,7 @@ namespace EndlessClient.Rendering.Effects
             {
                 case EffectType.WarpOriginal: gfxIDs = new[] {108, 109}; break;
                 case EffectType.WarpDestination: gfxIDs = new[] {112}; break;
-                default: throw new ArgumentOutOfRangeException("warpEffect", warpEffect, null);
+                default: throw new ArgumentOutOfRangeException(nameof(warpEffect), warpEffect, null);
             }
 
             return gfxIDs.Select(id => new EffectSpriteInfo(8, 1, true, 255, GetGraphic(id)))

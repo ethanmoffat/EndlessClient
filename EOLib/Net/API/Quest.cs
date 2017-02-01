@@ -108,7 +108,7 @@ namespace EOLib.Net.API
             _progress = pkt.GetShort();
             _target = pkt.GetShort();
             if (pkt.GetByte() != 255)
-                throw new ArgumentException("Malformed quest packet", "pkt");
+                throw new ArgumentException("Malformed quest packet", nameof(pkt));
         }
     }
 

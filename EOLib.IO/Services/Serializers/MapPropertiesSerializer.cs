@@ -53,7 +53,7 @@ namespace EOLib.IO.Services.Serializers
         {
             IMapFileProperties properties = new MapFileProperties();
             if (data.Length != MapFileProperties.DATA_SIZE)
-                throw new ArgumentException("Data is not sized correctly for proper deserialization", "data");
+                throw new ArgumentException("Data is not sized correctly for proper deserialization", nameof(data));
 
             var typeString = Encoding.ASCII.GetString(data.Take(3).ToArray());
             if (typeString != properties.FileType)

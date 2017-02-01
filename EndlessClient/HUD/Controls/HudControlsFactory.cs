@@ -150,7 +150,7 @@ namespace EndlessClient.HUD.Controls
         private IXNAButton CreateStateChangeButton(InGameStates whichState)
         {
             if (whichState == InGameStates.News)
-                throw new ArgumentOutOfRangeException("whichState", "News state does not have a button associated with it");
+                throw new ArgumentOutOfRangeException(nameof(whichState), "News state does not have a button associated with it");
             var buttonIndex = (int) whichState;
 
             var mainButtonTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 25);
@@ -202,7 +202,7 @@ namespace EndlessClient.HUD.Controls
                     _hudButtonController.ClickHelp();
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_ACTION, EOResourceID.STATUS_LABEL_HUD_BUTTON_HOVER_LAST);
                     break;
-                default: throw new ArgumentOutOfRangeException("whichState", whichState, null);
+                default: throw new ArgumentOutOfRangeException(nameof(whichState), whichState, null);
             }
         }
 
@@ -222,7 +222,7 @@ namespace EndlessClient.HUD.Controls
                 case InGameStates.Settings: retPanel = _hudPanelFactory.CreateSettingsPanel(); break;
                 case InGameStates.Help: retPanel = _hudPanelFactory.CreateHelpPanel(); break;
                 case InGameStates.News: retPanel = _hudPanelFactory.CreateNewsPanel(); break;
-                default: throw new ArgumentOutOfRangeException("whichState", whichState, "Panel specification is out of range.");
+                default: throw new ArgumentOutOfRangeException(nameof(whichState), whichState, "Panel specification is out of range.");
             }
 
             //news is visible by default when loading the game

@@ -42,7 +42,7 @@ namespace EndlessClient.Dialogs
                 case EOMessageBoxStyle.SmallDialogLargeHeader: graphic = 18; break;
                 case EOMessageBoxStyle.SmallDialogSmallHeader: graphic = 23; break;
                 case EOMessageBoxStyle.LargeDialogSmallHeader: graphic = 25; break;
-                default: throw new ArgumentOutOfRangeException("style", "Unrecognized dialog style!");
+                default: throw new ArgumentOutOfRangeException(nameof(style), "Unrecognized dialog style!");
             }
 
             BackgroundTexture = graphicsManager.TextureFromResource(GFXTypes.PreLoginUI, graphic);

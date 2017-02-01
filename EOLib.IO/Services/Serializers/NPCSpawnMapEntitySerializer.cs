@@ -34,7 +34,7 @@ namespace EOLib.IO.Services.Serializers
         public NPCSpawnMapEntity DeserializeFromByteArray(byte[] data)
         {
             if (data.Length != NPCSpawnMapEntity.DATA_SIZE)
-                throw new ArgumentException("Data is improperly sized for deserialization", "data");
+                throw new ArgumentException("Data is improperly sized for deserialization", nameof(data));
 
             return new NPCSpawnMapEntity()
                 .WithX(_numberEncoderService.DecodeNumber(data[0]))

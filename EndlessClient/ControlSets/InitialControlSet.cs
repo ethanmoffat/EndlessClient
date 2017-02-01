@@ -118,7 +118,7 @@ namespace EndlessClient.ControlSets
                 case GameControlIdentifier.InitialLogin: i = 1; break;
                 case GameControlIdentifier.InitialViewCredits: i = 2; break;
                 case GameControlIdentifier.InitialExitGame: i = 3; break;
-                default: throw new ArgumentException("Invalid control specified for helper", "whichControl");
+                default: throw new ArgumentException("Invalid control specified for helper", nameof(whichControl));
             }
 
             var widthFactor = _mainButtonTexture.Width / 2;

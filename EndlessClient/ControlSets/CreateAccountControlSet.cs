@@ -151,7 +151,7 @@ namespace EndlessClient.ControlSets
                 case GameControlIdentifier.CreateAccountRealName: i = 3; break;
                 case GameControlIdentifier.CreateAccountLocation: i = 4; break;
                 case GameControlIdentifier.CreateAccountEmail: i = 5; break;
-                default: throw new ArgumentException("Invalid control specified for helper", "whichControl");
+                default: throw new ArgumentException("Invalid control specified for helper", nameof(whichControl));
             }
 
             //set the first  3 Y coord to start at 69  and move up by 51 each time

@@ -221,7 +221,7 @@ namespace EndlessClient.Dialogs
                     itemArea = new Rectangle(185, 250, 23, 23);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("loc", "That is not a valid equipment location");
+                    throw new ArgumentOutOfRangeException(nameof(loc), "That is not a valid equipment location");
             }
             return itemArea;
         }

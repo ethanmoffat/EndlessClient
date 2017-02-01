@@ -64,7 +64,7 @@ namespace EndlessClient.HUD
                 case InGameStates.Party: return hudPanel is PartyPanel;
                 case InGameStates.Settings: return hudPanel is SettingsPanel;
                 case InGameStates.Help: return hudPanel is HelpPanel;
-                default: throw new ArgumentOutOfRangeException("newState", newState, null);
+                default: throw new ArgumentOutOfRangeException(nameof(newState), newState, null);
             }
         }
     }

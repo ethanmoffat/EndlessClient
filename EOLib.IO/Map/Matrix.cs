@@ -49,7 +49,7 @@ namespace EOLib.IO.Map
         public T[] GetRow(int rowIndex)
         {
             if (rowIndex < 0 || rowIndex >= Rows)
-                throw new ArgumentOutOfRangeException("rowIndex", "Row index is out of bounds of the number of matrix rows");
+                throw new ArgumentOutOfRangeException(nameof(rowIndex), "Row index is out of bounds of the number of matrix rows");
 
             var retArray = new T[Cols];
             for (int i = 0; i < Cols; ++i)

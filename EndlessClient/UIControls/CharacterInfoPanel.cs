@@ -216,7 +216,7 @@ namespace EndlessClient.UIControls
                 case AdminLevel.HGM:
                     return new SpriteSheet(adminGraphic, new Rectangle(233, 39, 17, 17));
                 default:
-                    throw new ArgumentOutOfRangeException("adminLevel", adminLevel, null);
+                    throw new ArgumentOutOfRangeException(nameof(adminLevel), adminLevel, null);
             }
         }
     }

@@ -47,11 +47,11 @@ namespace EOLib.Net
                 case SeekOrigin.Begin: newPosition = position; break;
                 case SeekOrigin.Current: newPosition = ReadPosition + position; break;
                 case SeekOrigin.End: newPosition = Length - 1 + position; break;
-                default: throw new ArgumentOutOfRangeException("origin", origin, null);
+                default: throw new ArgumentOutOfRangeException(nameof(origin), origin, null);
             }
 
             if (newPosition > Length)
-                throw new ArgumentOutOfRangeException("position", "Position is out of bounds of the packet!");
+                throw new ArgumentOutOfRangeException(nameof(position), "Position is out of bounds of the packet!");
 
             ReadPosition = newPosition;
         }

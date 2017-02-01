@@ -34,7 +34,7 @@ namespace EOLib.IO.Services.Serializers
         public WarpMapEntity DeserializeFromByteArray(byte[] data)
         {
             if (data.Length != WarpMapEntity.DATA_SIZE)
-                throw new ArgumentException("Data is improperly sized for deserialization", "data");
+                throw new ArgumentException("Data is improperly sized for deserialization", nameof(data));
 
             return new WarpMapEntity()
                 .WithX(_numberEncoderService.DecodeNumber(data[0]))

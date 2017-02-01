@@ -98,7 +98,7 @@ namespace EndlessClient.Rendering
                 case ChatType.NPC:
                 case ChatType.Local: tab = ChatTab.Local; break;
                 case ChatType.Party: tab = ChatTab.Group; break;
-                default: throw new ArgumentOutOfRangeException("messageType", "Unsupported message type for chat rendering");
+                default: throw new ArgumentOutOfRangeException(nameof(messageType), "Unsupported message type for chat rendering");
             }
 
             DrawableGameComponent dgc;

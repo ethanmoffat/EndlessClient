@@ -219,7 +219,7 @@ namespace EndlessClient.Old
                     return "Pure";
             }
 
-            throw new ArgumentOutOfRangeException("num", num, "Karma values must be between 0-2000");
+            throw new ArgumentOutOfRangeException(nameof(num), num, "Karma values must be between 0-2000");
         }
 
         private readonly PacketAPI m_packetAPI;
@@ -401,7 +401,7 @@ namespace EndlessClient.Old
                     }
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("type", "Invalid item type for equip!");
+                    throw new ArgumentOutOfRangeException(nameof(type), "Invalid item type for equip!");
             }
 
             return true;

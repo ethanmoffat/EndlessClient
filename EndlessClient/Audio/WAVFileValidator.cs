@@ -16,7 +16,7 @@ namespace EndlessClient.Audio
 
             var riff = Encoding.ASCII.GetString(wavBuffer.SubArray(0, 4));
             if (riff != "RIFF" || wavBuffer.Length < 8) //check for RIFF tag and length
-                throw new ArgumentException("Invalid WAV file", "filename");
+                throw new ArgumentException("Invalid WAV file", nameof(filename));
 
             var reportedLength = wavBuffer[4] + wavBuffer[5] * 256 + wavBuffer[6] * 65536 + wavBuffer[7] * 16777216;
             var actualLength = wavBuffer.Length - 8;

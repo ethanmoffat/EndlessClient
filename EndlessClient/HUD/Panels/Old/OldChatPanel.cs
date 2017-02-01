@@ -290,7 +290,7 @@ namespace EndlessClient.HUD.Panels.Old
                     icon = ChatIcon.PlayerPartyDark;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("whichIcon", "Invalid Icon type specified.");
+                    throw new ArgumentOutOfRangeException(nameof(whichIcon), "Invalid Icon type specified.");
             }
             return icon;
         }

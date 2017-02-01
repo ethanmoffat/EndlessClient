@@ -27,7 +27,7 @@ namespace EOLib.Domain.Protocol
             {
                 case InitializationDataKey.BanType: return (int)_banType;
                 case InitializationDataKey.BanTimeRemaining: return _banTimeRemaining;
-                default: throw new ArgumentOutOfRangeException("key", key, null);
+                default: throw new ArgumentOutOfRangeException(nameof(key), key, null);
             }
         }
     }

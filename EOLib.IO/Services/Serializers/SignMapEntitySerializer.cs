@@ -46,7 +46,7 @@ namespace EOLib.IO.Services.Serializers
         public SignMapEntity DeserializeFromByteArray(byte[] data)
         {
             if (data.Length < SignMapEntity.DATA_SIZE) //using < for comparison because data will be an unknown length based on message
-                throw new ArgumentException("Data is improperly size for serialization", "data");
+                throw new ArgumentException("Data is improperly size for serialization", nameof(data));
 
             var sign = new SignMapEntity()
                 .WithX(numberEncoderService.DecodeNumber(data[0]))
@@ -54,7 +54,7 @@ namespace EOLib.IO.Services.Serializers
 
             var titleAndMessageLength = numberEncoderService.DecodeNumber(data[2], data[3]) - 1;
             if (data.Length != SignMapEntity.DATA_SIZE + titleAndMessageLength)
-                throw new ArgumentException("Data is improperly sized for deserialization", "data");
+                throw new ArgumentException("Data is improperly sized for deserialization", nameof(data));
 
             var rawTitleAndMessage = data.Skip(4).Take(titleAndMessageLength).ToArray();
             var titleLength = numberEncoderService.DecodeNumber(data[4 + titleAndMessageLength]);

@@ -42,7 +42,7 @@ namespace EOLib.IO.Pub
         {
             var name = Enum.GetName(type.GetType(), type) ?? "";
             if (!name.StartsWith("Global") && !name.StartsWith("NPC"))
-                throw new ArgumentOutOfRangeException("type", "Unsupported property requested for ENFRecord");
+                throw new ArgumentOutOfRangeException(nameof(type), "Unsupported property requested for ENFRecord");
 
             if (name.StartsWith("Global"))
                 name = name.Substring(6);
@@ -91,7 +91,7 @@ namespace EOLib.IO.Pub
         public void DeserializeFromByteArray(byte[] recordBytes, INumberEncoderService numberEncoderService)
         {
             if (recordBytes.Length != DATA_SIZE)
-                throw new ArgumentOutOfRangeException("recordBytes", "Data is not properly sized for correct deserialization");
+                throw new ArgumentOutOfRangeException(nameof(recordBytes), "Data is not properly sized for correct deserialization");
 
             Graphic = numberEncoderService.DecodeNumber(recordBytes[0], recordBytes[1]);
 

@@ -41,7 +41,7 @@ namespace EOLib.Domain.Protocol
                 case InitializationDataKey.ReceiveMultiple: return _recvMulti;
                 case InitializationDataKey.ClientID: return _clientID;
                 case InitializationDataKey.HashResponse: return _hashResponse;
-                default: throw new ArgumentOutOfRangeException("key", key, null);
+                default: throw new ArgumentOutOfRangeException(nameof(key), key, null);
             }
         }
     }

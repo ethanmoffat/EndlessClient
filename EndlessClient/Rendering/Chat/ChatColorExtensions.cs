@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.Chat
                 case ChatColor.Server: return Color.FromNonPremultiplied(0xe6, 0xd2, 0xc8, 0xff);
                 case ChatColor.ServerGlobal: return ColorConstants.LightYellowText;
                 case ChatColor.Admin: return Color.FromNonPremultiplied(0xc8, 0xaa, 0x96, 0xff);
-                default: throw new ArgumentOutOfRangeException("chatColor", chatColor, "Unrecognized chat color");
+                default: throw new ArgumentOutOfRangeException(nameof(chatColor), chatColor, "Unrecognized chat color");
             }
         }
     }

@@ -209,7 +209,7 @@ namespace EndlessClient.Dialogs
                 case EOResourceID.DIALOG_TRANSFER_WITHDRAW:
                 case EOResourceID.DIALOG_TRANSFER_OFFER:
                     break;
-                default: throw new ArgumentOutOfRangeException("msg", "Use one of the approved messages.");
+                default: throw new ArgumentOutOfRangeException(nameof(msg), "Use one of the approved messages.");
             }
         }
     }

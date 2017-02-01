@@ -118,7 +118,7 @@ namespace EndlessClient.Dialogs
                     _caption.Text = _localizedStringFinder.GetString(EOResourceID.LOADING_GAME_LOADING_GAME);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("whichState", whichState, null);
+                    throw new ArgumentOutOfRangeException(nameof(whichState), whichState, null);
             }
         }
 

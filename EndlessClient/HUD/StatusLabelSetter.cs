@@ -53,7 +53,7 @@ namespace EndlessClient.HUD
                 case EOResourceID.STATUS_LABEL_TYPE_ITEM:
                 case EOResourceID.SKILLMASTER_WORD_SPELL:
                     break;
-                default: throw new ArgumentOutOfRangeException("type", "Use either ACTION, BUTTION, INFORMATION, WARNING, ITEM, or SPELL for this.");
+                default: throw new ArgumentOutOfRangeException(nameof(type), "Use either ACTION, BUTTION, INFORMATION, WARNING, ITEM, or SPELL for this.");
             }
         }
     }

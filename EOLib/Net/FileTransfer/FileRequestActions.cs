@@ -128,7 +128,7 @@ namespace EOLib.Net.FileTransfer
                            _loginFileChecksumProvider.ECFChecksum != _pubFileRepository.ECFFile.CheckSum ||
                            _loginFileChecksumProvider.ECFLength != _pubFileRepository.ECFFile.Length;
                 default:
-                    throw new ArgumentOutOfRangeException("fileType", fileType, null);
+                    throw new ArgumentOutOfRangeException(nameof(fileType), fileType, null);
             }
         }
 

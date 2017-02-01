@@ -57,7 +57,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         private void DrawWall(SpriteBatch spriteBatch, int row, int col, int alpha, int gfxNum, MapLayer renderLayer)
         {
             if (renderLayer != MapLayer.WallRowsDown && renderLayer != MapLayer.WallRowsRight)
-                throw new ArgumentOutOfRangeException("renderLayer", "renderLayer must be WallRowsDown or WallRowsRight");
+                throw new ArgumentOutOfRangeException(nameof(renderLayer), "renderLayer must be WallRowsDown or WallRowsRight");
 
             if (_currentMapStateProvider.OpenDoors.Any(openDoor => openDoor.X == col && openDoor.Y == row))
                 gfxNum++;

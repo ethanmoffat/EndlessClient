@@ -18,7 +18,7 @@ namespace EOLib.Net.Builders
             if (chatType == ChatType.PM)
             {
                 if(string.IsNullOrEmpty(targetCharacter))
-                    throw new ArgumentException("Target character for PM must not be null or empty", "targetCharacter");
+                    throw new ArgumentException("Target character for PM must not be null or empty", nameof(targetCharacter));
                 packetBuilder = packetBuilder.AddBreakString(targetCharacter);
             }
 
@@ -37,7 +37,7 @@ namespace EOLib.Net.Builders
                 case ChatType.Party: return PacketAction.Open;
                 case ChatType.Admin: return PacketAction.Admin;
                 case ChatType.Announce: return PacketAction.Announce;
-                default: throw new ArgumentOutOfRangeException("chatType");
+                default: throw new ArgumentOutOfRangeException(nameof(chatType));
             }
         }
     }

@@ -196,7 +196,7 @@ namespace EndlessClient.Rendering
                 case MenuAction.Whisper: return _eventPrivateMessage;
                 case MenuAction.Friend: return _eventAddFriend;
                 case MenuAction.Ignore: return _eventAddIgnore;
-                default: throw new ArgumentOutOfRangeException("menuAction");
+                default: throw new ArgumentOutOfRangeException(nameof(menuAction));
             }
         }
 

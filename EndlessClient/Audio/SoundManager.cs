@@ -119,7 +119,7 @@ namespace EndlessClient.Audio
         public void PlayLoopingSoundEffect(int sfxID)
         {
             if (sfxID < 1 || sfxID > _soundEffects.Count)
-                throw new ArgumentOutOfRangeException("sfxID", "Out of range -- use a 1-based index for sfx id");
+                throw new ArgumentOutOfRangeException(nameof(sfxID), "Out of range -- use a 1-based index for sfx id");
 
             _soundEffects[sfxID - 1].PlayLoopingInstance();
         }
@@ -127,7 +127,7 @@ namespace EndlessClient.Audio
         public void StopLoopingSoundEffect(int sfxID)
         {
             if (sfxID < 1 || sfxID > _soundEffects.Count)
-                throw new ArgumentOutOfRangeException("sfxID", "Out of range -- use a 1-based index for sfx id");
+                throw new ArgumentOutOfRangeException(nameof(sfxID), "Out of range -- use a 1-based index for sfx id");
 
             _soundEffects[sfxID - 1].StopLoopingInstance();
         }
@@ -136,7 +136,7 @@ namespace EndlessClient.Audio
         {
 #if !LINUX
             if(mfxID < 1 || mfxID >= _musicFiles.Count)
-                throw new ArgumentOutOfRangeException("mfxID", "The MFX id is out of range. Use the 1-based index that matches the number in the file name.");
+                throw new ArgumentOutOfRangeException(nameof(mfxID), "The MFX id is out of range. Use the 1-based index that matches the number in the file name.");
 
             InvokeIfNeeded(() =>
                 {

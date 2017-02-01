@@ -26,7 +26,7 @@ namespace EOLib
                 case EODirection.Up: return EODirection.Down;
                 case EODirection.Right: return EODirection.Left;
                 case EODirection.Invalid: return EODirection.Invalid;
-                default: throw new ArgumentOutOfRangeException("direction", direction, null);
+                default: throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
             }
         }
     }

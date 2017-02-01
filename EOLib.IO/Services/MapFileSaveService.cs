@@ -31,7 +31,7 @@ namespace EOLib.IO.Services
         public void SaveFile(string path, IMapFile mapFile)
         {
             if (!path.ToLower().EndsWith(".emf"))
-                throw new ArgumentException("Must specify an emf file", "path");
+                throw new ArgumentException("Must specify an emf file", nameof(path));
 
             File.WriteAllBytes(path, _mapFileSerializer.SerializeToByteArray(mapFile));
         }

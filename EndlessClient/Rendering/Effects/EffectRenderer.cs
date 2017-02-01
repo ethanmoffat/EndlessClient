@@ -155,7 +155,7 @@ namespace EndlessClient.Rendering.Effects
         private Rectangle GetTargetRectangle(object fail)
         {
             //Seriously, the Skywalker family has a great history of being able to say NOOO in a dramatic way
-            throw new ArgumentException("No. Nooo. NOOOOO! THAT'S NOT TRUE! THAT'S IMPOSSIBLE! " + fail, "fail");
+            throw new ArgumentException("No. Nooo. NOOOOO! THAT'S NOT TRUE! THAT'S IMPOSSIBLE! " + fail, nameof(fail));
         }
 
         #endregion

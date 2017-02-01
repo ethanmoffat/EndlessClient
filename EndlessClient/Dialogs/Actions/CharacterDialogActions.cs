@@ -42,7 +42,7 @@ namespace EndlessClient.Dialogs.Actions
                 case CharacterReply.Full: message = DialogResourceID.CHARACTER_CREATE_TOO_MANY_CHARS; break;
                 case CharacterReply.NotApproved: message = DialogResourceID.CHARACTER_CREATE_NAME_NOT_APPROVED; break;
                 case CharacterReply.Ok: message = DialogResourceID.CHARACTER_CREATE_SUCCESS; break;
-                default: throw new ArgumentOutOfRangeException("response", response, null);
+                default: throw new ArgumentOutOfRangeException(nameof(response), response, null);
             }
 
             var messageBox = _messageBoxFactory.CreateMessageBox(message,

@@ -16,7 +16,7 @@ namespace EOLib.Domain.Protocol
             get
             {
                 if(key != InitializationDataKey.RequiredVersionNumber)
-                    throw new ArgumentOutOfRangeException("key", key, null);
+                    throw new ArgumentOutOfRangeException(nameof(key), key, null);
                 return _requiredVersionNumber;
             }
         }

@@ -96,7 +96,7 @@ namespace EOLib.Domain.Character
                 case TileSpec.None:
                     return true;
                 default:
-                    throw new ArgumentOutOfRangeException("tileSpec", tileSpec, null);
+                    throw new ArgumentOutOfRangeException(nameof(tileSpec), tileSpec, null);
             }
         }
     }

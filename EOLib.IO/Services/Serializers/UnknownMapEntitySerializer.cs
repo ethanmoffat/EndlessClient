@@ -19,7 +19,7 @@ namespace EOLib.IO.Services.Serializers
         public byte[] SerializeToByteArray(UnknownMapEntity mapEntity)
         {
             if(mapEntity.RawData.Length != UnknownMapEntity.DATA_SIZE)
-                throw new ArgumentException("Data is improperly sized for serialization", "mapEntity");
+                throw new ArgumentException("Data is improperly sized for serialization", nameof(mapEntity));
 
             return mapEntity.RawData;
         }
@@ -27,7 +27,7 @@ namespace EOLib.IO.Services.Serializers
         public UnknownMapEntity DeserializeFromByteArray(byte[] data)
         {
             if (data.Length != UnknownMapEntity.DATA_SIZE)
-                throw new ArgumentException("Data is improperly sized for deserialization", "data");
+                throw new ArgumentException("Data is improperly sized for deserialization", nameof(data));
 
             return new UnknownMapEntity()
                 .WithX(_numberEncoderService.DecodeNumber(data[0]))

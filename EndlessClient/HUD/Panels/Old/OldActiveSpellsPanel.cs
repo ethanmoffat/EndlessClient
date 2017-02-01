@@ -250,7 +250,7 @@ namespace EndlessClient.HUD.Panels.Old
                 return;
 
             if (!_childItems.Contains(spellIcon))
-                throw new ArgumentException("The spell was not found!", "spellIcon");
+                throw new ArgumentException("The spell was not found!", nameof(spellIcon));
 
             //update the registry
             var spellInDestinationSlot = _childItems.Find(x => x.Slot == newSlot);

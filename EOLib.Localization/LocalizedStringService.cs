@@ -51,7 +51,7 @@ namespace EOLib.Localization
                 case EOLanguage.Dutch: return DataFiles.DutchStatus1;
                 case EOLanguage.Swedish: return DataFiles.SwedishStatus1;
                 case EOLanguage.Portuguese: return DataFiles.PortugueseStatus1;
-                default: throw new ArgumentOutOfRangeException("language", language, null);
+                default: throw new ArgumentOutOfRangeException(nameof(language), language, null);
             }
         }
 
@@ -63,7 +63,7 @@ namespace EOLib.Localization
                 case EOLanguage.Dutch: return DataFiles.DutchStatus2;
                 case EOLanguage.Swedish: return DataFiles.SwedishStatus2;
                 case EOLanguage.Portuguese: return DataFiles.PortugueseStatus2;
-                default: throw new ArgumentOutOfRangeException("language", language, null);
+                default: throw new ArgumentOutOfRangeException(nameof(language), language, null);
             }
         }
     }

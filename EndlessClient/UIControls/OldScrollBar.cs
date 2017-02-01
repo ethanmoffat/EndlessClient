@@ -56,7 +56,7 @@ namespace EndlessClient.UIControls
                 case ScrollBarColors.LightOnDark: vertOff = 180; break;
                 case ScrollBarColors.DarkOnDark: vertOff = 255; break;
                 default:
-                    throw new ArgumentOutOfRangeException("palette");
+                    throw new ArgumentOutOfRangeException(nameof(palette));
             }
 
             //regions based on verticle offset (which is based on the chosen palette)

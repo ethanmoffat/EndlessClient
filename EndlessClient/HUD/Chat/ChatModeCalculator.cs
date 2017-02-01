@@ -20,7 +20,7 @@ namespace EndlessClient.HUD.Chat
         public ChatModePictureBox.ChatMode CalculateMode(string fullTextString)
         {
             if(fullTextString == null)
-                throw new ArgumentException("Input string is null!", "fullTextString");
+                throw new ArgumentException("Input string is null!", nameof(fullTextString));
             if (fullTextString.Length == 0)
                 return ChatModePictureBox.ChatMode.NoText;
 

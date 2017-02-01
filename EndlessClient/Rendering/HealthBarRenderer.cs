@@ -50,7 +50,7 @@ namespace EndlessClient.Rendering
             }
             else
             {
-                throw new ArgumentException("Invalid actor type. Use Character or NPCRenderer", "actor");
+                throw new ArgumentException("Invalid actor type. Use Character or NPCRenderer", nameof(actor));
             }
 
             lock (gfx_init_lock)

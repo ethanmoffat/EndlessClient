@@ -35,7 +35,7 @@ namespace EOLib.IO.Services.Serializers
         public ChestSpawnMapEntity DeserializeFromByteArray(byte[] data)
         {
             if (data.Length != ChestSpawnMapEntity.DATA_SIZE)
-                throw new ArgumentException("Data is improperly sized for deserialization", "data");
+                throw new ArgumentException("Data is improperly sized for deserialization", nameof(data));
 
             return new ChestSpawnMapEntity()
                 .WithX(_numberEncoderService.DecodeNumber(data[0]))

@@ -106,7 +106,7 @@ namespace EndlessClient.Dialogs
         public void SetDisplayData(QuestState stateinfo, Dictionary<short, string> dialognames, List<string> pages, Dictionary<short, string> links)
         {
             if(dialognames.Count == 0)
-                throw new ArgumentException("Invalid quest dialog data received from server", "dialognames");
+                throw new ArgumentException("Invalid quest dialog data received from server", nameof(dialognames));
 
             _stateInfo = stateinfo;
             _dialogNames = dialognames;

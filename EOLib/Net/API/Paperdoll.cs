@@ -112,7 +112,7 @@ namespace EOLib.Net.API
             gender = pkt.GetChar();
 
             if (pkt.GetChar() != 0)
-                throw new ArgumentException("Invalid/malformed packet", "pkt");
+                throw new ArgumentException("Invalid/malformed packet", nameof(pkt));
 
             paperdoll = new short[(int)EquipLocation.PAPERDOLL_MAX];
             for (int i = 0; i < (int)EquipLocation.PAPERDOLL_MAX; ++i)

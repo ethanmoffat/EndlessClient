@@ -192,7 +192,7 @@ namespace EndlessClient.Dialogs
                 }
             }
             else
-                throw new ArgumentException("Invalid Player ID for trade session!", "playerID");
+                throw new ArgumentException("Invalid Player ID for trade session!", nameof(playerID));
 
             if (m_main.ID != playerID && collectionRef.Count > items.Count)
                 m_recentPartnerRemoves++;
