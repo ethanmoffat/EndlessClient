@@ -10,7 +10,7 @@ namespace EOLib.PacketHandlers.Chat
 {
     public abstract class PlayerChatByNameBase : InGameOnlyPacketHandler
     {
-        public override PacketFamily Family { get { return PacketFamily.Talk; } }
+        public override PacketFamily Family => PacketFamily.Talk;
 
         protected PlayerChatByNameBase(IPlayerInfoProvider playerInfoProvider)
             : base(playerInfoProvider) { }

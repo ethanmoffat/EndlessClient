@@ -15,9 +15,9 @@ namespace EOLib.PacketHandlers.Chat
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
 
-        public override PacketFamily Family { get { return PacketFamily.Talk; } }
+        public override PacketFamily Family => PacketFamily.Talk;
 
-        public override PacketAction Action { get { return PacketAction.Server; } }
+        public override PacketAction Action => PacketAction.Server;
 
         public ServerMessageHandler(IPlayerInfoProvider playerInfoProvider,
                                     IChatRepository chatRepository,

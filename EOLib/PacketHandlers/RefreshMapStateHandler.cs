@@ -21,9 +21,9 @@ namespace EOLib.PacketHandlers
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IMapChangedNotifier> _mapChangedNotifiers;
 
-        public override PacketFamily Family { get { return PacketFamily.Refresh; } }
+        public override PacketFamily Family => PacketFamily.Refresh;
 
-        public override PacketAction Action { get { return PacketAction.Reply; } }
+        public override PacketAction Action => PacketAction.Reply;
 
         public RefreshMapStateHandler(IPlayerInfoProvider playerInfoProvider,
                                       IPacketTranslator<IRefreshReplyData> refreshReplyTranslator,

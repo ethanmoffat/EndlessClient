@@ -12,7 +12,7 @@ namespace EOLib.Domain.Character
     {
         public IReadOnlyDictionary<CharacterStat, int> Stats { get; private set; }
 
-        public int this[CharacterStat stat] { get { return Stats[stat]; } }
+        public int this[CharacterStat stat] => Stats[stat];
 
         public CharacterStats()
         {

@@ -26,6 +26,6 @@ namespace EOLib.Domain.Login
 
         public List<string> NewsText { get; set; }
 
-        IReadOnlyList<string> INewsProvider.NewsText { get { return NewsText; } }
+        IReadOnlyList<string> INewsProvider.NewsText => NewsText;
     }
 }

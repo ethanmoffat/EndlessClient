@@ -64,15 +64,15 @@ namespace EOLib.Domain.Map
 
         public WarpState MapWarpState { get; set; }
 
-        IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters { get { return Characters; } }
+        IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters => Characters;
 
-        IReadOnlyList<INPC> ICurrentMapStateProvider.NPCs { get { return NPCs; } }
+        IReadOnlyList<INPC> ICurrentMapStateProvider.NPCs => NPCs;
 
-        IReadOnlyList<IItem> ICurrentMapStateProvider.MapItems { get { return MapItems; } }
+        IReadOnlyList<IItem> ICurrentMapStateProvider.MapItems => MapItems;
 
-        IReadOnlyList<IWarp> ICurrentMapStateProvider.OpenDoors { get { return OpenDoors; } }
+        IReadOnlyList<IWarp> ICurrentMapStateProvider.OpenDoors => OpenDoors;
 
-        IReadOnlyList<IWarp> ICurrentMapStateProvider.PendingDoors { get { return PendingDoors; } }
+        IReadOnlyList<IWarp> ICurrentMapStateProvider.PendingDoors => PendingDoors;
 
         public CurrentMapStateRepository()
         {

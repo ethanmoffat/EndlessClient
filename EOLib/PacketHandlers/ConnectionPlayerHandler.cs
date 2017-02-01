@@ -19,11 +19,11 @@ namespace EOLib.PacketHandlers
         private readonly IPacketSendService _packetSendService;
         private readonly ILoggerProvider _loggerProvider;
 
-        public override PacketFamily Family { get { return PacketFamily.Connection; } }
+        public override PacketFamily Family => PacketFamily.Connection;
 
-        public override PacketAction Action { get { return PacketAction.Player; } }
+        public override PacketAction Action => PacketAction.Player;
 
-        public override bool CanHandle { get { return true; } }
+        public override bool CanHandle => true;
 
         public ConnectionPlayerHandler(IPacketProcessActions packetProcessActions,
                                        IPacketSendService packetSendService,

@@ -15,7 +15,7 @@ namespace EOLib.PacketHandlers.Chat
     {
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
 
-        public override PacketFamily Family { get { return PacketFamily.Talk; } }
+        public override PacketFamily Family => PacketFamily.Talk;
 
         protected PlayerChatByIDHandler(ICurrentMapStateProvider currentMapStateProvider,
                                         IPlayerInfoProvider playerInfoProvider)

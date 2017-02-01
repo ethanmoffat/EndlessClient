@@ -35,17 +35,17 @@ namespace EOLib.Net.API
         private readonly short m_conReq;
         private readonly short m_chaReq;
 
-        public short ID { get { return m_id; } }
-        public byte LevelReq { get { return m_levelReq; } }
-        public byte ClassReq { get { return m_classReq; } }
-        public int GoldReq { get { return m_goldCost; } }
-        public short[] SkillReq { get { return m_skillReq; } }
-        public short StrReq { get { return m_strReq; } }
-        public short IntReq { get { return m_intReq; } }
-        public short WisReq { get { return m_wisReq; } }
-        public short AgiReq { get { return m_agiReq; } }
-        public short ConReq { get { return m_conReq; } }
-        public short ChaReq { get { return m_chaReq; } }
+        public short ID => m_id;
+        public byte LevelReq => m_levelReq;
+        public byte ClassReq => m_classReq;
+        public int GoldReq => m_goldCost;
+        public short[] SkillReq => m_skillReq;
+        public short StrReq => m_strReq;
+        public short IntReq => m_intReq;
+        public short WisReq => m_wisReq;
+        public short AgiReq => m_agiReq;
+        public short ConReq => m_conReq;
+        public short ChaReq => m_chaReq;
 
         internal Skill(OldPacket pkt)
         {
@@ -76,9 +76,9 @@ namespace EOLib.Net.API
 
         private readonly List<Skill> m_skills;
 
-        public short ID { get { return m_id; } }
-        public string Title { get { return m_title; } }
-        public IList<Skill> Skills { get { return m_skills.AsReadOnly(); } }
+        public short ID => m_id;
+        public string Title => m_title;
+        public IList<Skill> Skills => m_skills.AsReadOnly();
 
         internal SkillmasterData(OldPacket pkt)
         {
@@ -96,26 +96,26 @@ namespace EOLib.Net.API
         private readonly short m_str, m_int, m_wis, m_agi, m_con, m_cha;
         private readonly short m_mindam, m_maxdam, m_acc, m_evade, m_armor;
 
-        public short StatPoints { get { return m_statpts; } }
-        public short SkillPoints { get { return m_skillpts; } }
-        public short HP { get { return m_hp; } }
-        public short MaxHP { get { return m_maxhp; } }
-        public short TP { get { return m_tp; } }
-        public short MaxTP { get { return m_maxtp; } }
-        public short MaxSP { get { return m_maxsp; } }
+        public short StatPoints => m_statpts;
+        public short SkillPoints => m_skillpts;
+        public short HP => m_hp;
+        public short MaxHP => m_maxhp;
+        public short TP => m_tp;
+        public short MaxTP => m_maxtp;
+        public short MaxSP => m_maxsp;
 
-        public short Str { get { return m_str; } }
-        public short Int { get { return m_int; } }
-        public short Wis { get { return m_wis; } }
-        public short Agi { get { return m_agi; } }
-        public short Con { get { return m_con; } }
-        public short Cha { get { return m_cha; } }
+        public short Str => m_str;
+        public short Int => m_int;
+        public short Wis => m_wis;
+        public short Agi => m_agi;
+        public short Con => m_con;
+        public short Cha => m_cha;
 
-        public short MinDam { get { return m_mindam; } }
-        public short MaxDam { get { return m_maxdam; } }
-        public short Accuracy { get { return m_acc; } }
-        public short Evade { get { return m_evade; } }
-        public short Armor { get { return m_armor; } }
+        public short MinDam => m_mindam;
+        public short MaxDam => m_maxdam;
+        public short Accuracy => m_acc;
+        public short Evade => m_evade;
+        public short Armor => m_armor;
 
         internal StatResetData(OldPacket pkt)
         {

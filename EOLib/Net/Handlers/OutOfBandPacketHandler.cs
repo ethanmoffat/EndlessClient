@@ -54,7 +54,7 @@ namespace EOLib.Net.Handlers
             return handler.HandlePacket(packet);
         }
 
-        private IPacketQueue OutOfBandPacketQueue { get { return _packetQueueProvider.HandleOutOfBandPacketQueue; } }
+        private IPacketQueue OutOfBandPacketQueue => _packetQueueProvider.HandleOutOfBandPacketQueue;
     }
 
     public interface IOutOfBandPacketHandler

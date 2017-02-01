@@ -24,9 +24,9 @@ namespace EOLib.PacketHandlers
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<INPCAnimationNotifier> _npcAnimationNotifiers;
 
-        public override PacketFamily Family { get { return PacketFamily.NPC; } }
+        public override PacketFamily Family => PacketFamily.NPC;
 
-        public override PacketAction Action { get { return PacketAction.Player; } }
+        public override PacketAction Action => PacketAction.Player;
 
         public NPCActionHandler(IPlayerInfoProvider playerInfoProvider,
                                 ICurrentMapStateRepository currentMapStateRepository,

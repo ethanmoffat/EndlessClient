@@ -12,44 +12,44 @@ namespace EOLib.Net.API
     public struct CharacterData
     {
         private readonly string m_name;
-        public string Name { get { return m_name; } }
+        public string Name => m_name;
 
         private readonly short m_id, m_map, m_x, m_y;
-        public short ID { get { return m_id; } }
-        public short Map { get { return m_map; } }
-        public short X { get { return m_x; } }
-        public short Y { get { return m_y; } }
+        public short ID => m_id;
+        public short Map => m_map;
+        public short X => m_x;
+        public short Y => m_y;
 
         private readonly string m_guildTag;
-        public string GuildTag { get { return m_guildTag; } }
+        public string GuildTag => m_guildTag;
 
         private readonly EODirection m_facing;
-        public EODirection Direction { get { return m_facing; } }
+        public EODirection Direction => m_facing;
 
         private readonly byte m_level, m_gender, m_hairstyle, m_haircolor, m_race;
-        public byte Level { get { return m_level; } }
-        public byte Gender { get { return m_gender; } }
-        public byte HairStyle { get { return m_hairstyle; } }
-        public byte HairColor { get { return m_haircolor; } }
-        public byte Race { get { return m_race; } }
+        public byte Level => m_level;
+        public byte Gender => m_gender;
+        public byte HairStyle => m_hairstyle;
+        public byte HairColor => m_haircolor;
+        public byte Race => m_race;
 
         private readonly short m_hp, m_maxhp, m_tp, m_maxtp;
-        public short MaxHP { get { return m_maxhp; } }
-        public short HP { get { return m_hp; } }
-        public short MaxTP { get { return m_maxtp; } }
-        public short TP { get { return m_tp; } }
+        public short MaxHP => m_maxhp;
+        public short HP => m_hp;
+        public short MaxTP => m_maxtp;
+        public short TP => m_tp;
 
         private readonly short m_boots, m_armor, m_hat, m_shield, m_weapon;
-        public short Boots { get { return m_boots; } }
-        public short Armor { get { return m_armor; } }
-        public short Hat { get { return m_hat; } }
-        public short Shield { get { return m_shield; } }
-        public short Weapon { get { return m_weapon; } }
+        public short Boots => m_boots;
+        public short Armor => m_armor;
+        public short Hat => m_hat;
+        public short Shield => m_shield;
+        public short Weapon => m_weapon;
 
         private readonly SitState m_sit;
         private readonly bool m_hidden;
-        public SitState Sitting { get { return m_sit; } }
-        public bool Hidden { get { return m_hidden; } }
+        public SitState Sitting => m_sit;
+        public bool Hidden => m_hidden;
 
         internal CharacterData(OldPacket pkt)
         {
@@ -101,19 +101,19 @@ namespace EOLib.Net.API
         private readonly AdminLevel admin;
         private readonly short boots, armor, hat, shield, weapon;
 
-        public string Name { get { return name; } }
-        public int ID { get { return id; } }
-        public byte Level { get { return level; } }
-        public byte Gender { get { return gender; } }
-        public byte HairStyle { get { return hairstyle; } }
-        public byte HairColor { get { return haircolor; }}
-        public byte Race { get { return race; } }
-        public AdminLevel AdminLevel { get { return admin; } }
-        public short Boots { get { return boots; } }
-        public short Armor { get { return armor; } }
-        public short Hat { get { return hat; } }
-        public short Shield { get { return shield; } }
-        public short Weapon { get { return weapon; } }
+        public string Name => name;
+        public int ID => id;
+        public byte Level => level;
+        public byte Gender => gender;
+        public byte HairStyle => hairstyle;
+        public byte HairColor => haircolor;
+        public byte Race => race;
+        public AdminLevel AdminLevel => admin;
+        public short Boots => boots;
+        public short Armor => armor;
+        public short Hat => hat;
+        public short Shield => shield;
+        public short Weapon => weapon;
 
         internal CharacterLoginData(OldPacket pkt)
         {

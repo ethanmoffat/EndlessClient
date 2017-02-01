@@ -20,9 +20,9 @@ namespace EOLib.PacketHandlers
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<IOtherCharacterAnimationNotifier> _otherCharacterAnimationNotifiers;
 
-        public override PacketFamily Family { get { return PacketFamily.Walk; } }
+        public override PacketFamily Family => PacketFamily.Walk;
 
-        public override PacketAction Action { get { return PacketAction.Player; } }
+        public override PacketAction Action => PacketAction.Player;
 
         public PlayerWalkHandler(IPlayerInfoProvider playerInfoProvider,
                                  ICurrentMapStateRepository currentMapStateRepository,

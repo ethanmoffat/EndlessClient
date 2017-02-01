@@ -16,11 +16,11 @@ namespace EOLib.Net
         private readonly IReadOnlyList<byte> _data;
         private readonly INumberEncoderService _encoderService;
 
-        public int Length { get { return _data.Count; } }
+        public int Length => _data.Count;
 
-        public PacketFamily Family { get { return (PacketFamily)_data[1]; } }
+        public PacketFamily Family => (PacketFamily)_data[1];
 
-        public PacketAction Action { get { return (PacketAction) _data[0]; } }
+        public PacketAction Action => (PacketAction) _data[0];
 
         public PacketBuilder()
         {

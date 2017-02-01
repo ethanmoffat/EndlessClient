@@ -10,7 +10,7 @@ namespace EOLib.Domain.Chat.Commands
     public class FindCommand : IPlayerCommand
     {
         private readonly IPacketSendService _packetSendService;
-        public string CommandText { get { return "find"; } }
+        public string CommandText => "find";
 
         public FindCommand(IPacketSendService packetSendService)
         {

@@ -14,9 +14,9 @@ namespace EOLib.PacketHandlers
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
-        public override PacketFamily Family { get { return PacketFamily.Door; } }
+        public override PacketFamily Family => PacketFamily.Door;
 
-        public override PacketAction Action { get { return PacketAction.Open; } }
+        public override PacketAction Action => PacketAction.Open;
 
         public DoorOpenHandler(IPlayerInfoProvider playerInfoProvider,
                                ICurrentMapStateRepository currentMapStateRepository)

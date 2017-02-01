@@ -11,7 +11,7 @@ namespace EOLib.Domain.Chat.Commands
         private readonly ICharacterProvider _characterProvider;
         private readonly IChatRepository _chatRepository;
 
-        public string CommandText { get { return "usage"; } }
+        public string CommandText => "usage";
 
         public UsageCommand(ICharacterProvider characterProvider,
                             IChatRepository chatRepository)

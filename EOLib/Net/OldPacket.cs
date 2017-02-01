@@ -16,15 +16,9 @@ namespace EOLib.Net
         
         private List<byte> data;
 
-        public PacketFamily Family
-        {
-            get { return (PacketFamily) data[1]; }
-        }
+        public PacketFamily Family => (PacketFamily) data[1];
 
-        public PacketAction Action
-        {
-            get { return (PacketAction) data[0]; }
-        }
+        public PacketAction Action => (PacketAction) data[0];
 
         public int ReadPos
         {
@@ -51,15 +45,9 @@ namespace EOLib.Net
             }
         }
 
-        public int Length
-        {
-            get
-            {
-                return data.Count;
-            }
-        }
+        public int Length => data.Count;
 
-        public byte[] Data { get { return data.ToArray(); } }
+        public byte[] Data => data.ToArray();
 
         public OldPacket(PacketFamily family, PacketAction action)
         {

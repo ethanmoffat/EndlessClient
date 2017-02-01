@@ -35,10 +35,7 @@ namespace EOLib.Net
         /// <summary>
         /// Returns a flag that is set when the Connect() method returns successfully.
         /// </summary>
-        public bool ConnectedAndInitialized
-        {
-            get { return m_connectedAndInitialized && Connected; }
-        }
+        public bool ConnectedAndInitialized => m_connectedAndInitialized && Connected;
 
         /// <summary>
         /// Polls the socket for the connection status. Retrieves connection status based on underlying socket.

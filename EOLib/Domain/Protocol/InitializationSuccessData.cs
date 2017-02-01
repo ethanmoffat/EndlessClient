@@ -8,12 +8,9 @@ namespace EOLib.Domain.Protocol
 {
     public class InitializationSuccessData : IInitializationData
     {
-        public InitReply Response { get { return InitReply.Success; } }
+        public InitReply Response => InitReply.Success;
 
-        public int this[InitializationDataKey key]
-        {
-            get { return GetValueHelper(key); }
-        }
+        public int this[InitializationDataKey key] => GetValueHelper(key);
 
         private readonly byte _seq1, _seq2, _sendMulti, _recvMulti;
         private readonly short _clientID;

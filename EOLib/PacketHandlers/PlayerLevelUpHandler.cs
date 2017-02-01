@@ -13,9 +13,9 @@ namespace EOLib.PacketHandlers
 {
     public class PlayerLevelUpHandler : NPCLeaveMapHandler
     {
-        public override PacketFamily Family { get { return PacketFamily.NPC; } }
+        public override PacketFamily Family => PacketFamily.NPC;
 
-        public override PacketAction Action { get { return PacketAction.Accept; } }
+        public override PacketAction Action => PacketAction.Accept;
 
         public PlayerLevelUpHandler(IPlayerInfoProvider playerInfoProvider,
                                     ICurrentMapStateRepository currentMapStateRepository,
@@ -56,9 +56,9 @@ namespace EOLib.PacketHandlers
 
     public class PlayerLevelUpFromSpellCastHandler : PlayerLevelUpHandler
     {
-        public override PacketFamily Family { get { return PacketFamily.Cast; } }
+        public override PacketFamily Family => PacketFamily.Cast;
 
-        public override PacketAction Action { get { return PacketAction.Accept; } }
+        public override PacketAction Action => PacketAction.Accept;
 
         public PlayerLevelUpFromSpellCastHandler(IPlayerInfoProvider playerInfoProvider,
                                                  ICurrentMapStateRepository currentMapStateRepository,

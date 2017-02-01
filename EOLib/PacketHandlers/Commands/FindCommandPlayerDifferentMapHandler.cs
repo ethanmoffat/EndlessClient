@@ -11,15 +11,9 @@ namespace EOLib.PacketHandlers.Commands
 {
     public class FindCommandPlayerDifferentMapHandler : FindCommandHandlerBase
     {
-        public override PacketAction Action
-        {
-            get { return PacketAction.Net3; }
-        }
+        public override PacketAction Action => PacketAction.Net3;
 
-        protected override EOResourceID ResourceIDForResponse
-        {
-            get { return EOResourceID.STATUS_LABEL_IS_ONLINE_IN_THIS_WORLD; }
-        }
+        protected override EOResourceID ResourceIDForResponse => EOResourceID.STATUS_LABEL_IS_ONLINE_IN_THIS_WORLD;
 
         public FindCommandPlayerDifferentMapHandler(IChatRepository chatRespository,
                                                     ILocalizedStringFinder localizedStringFinder,

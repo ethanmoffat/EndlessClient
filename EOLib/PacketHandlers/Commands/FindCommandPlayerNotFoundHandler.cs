@@ -11,15 +11,9 @@ namespace EOLib.PacketHandlers.Commands
 {
     public class FindCommandPlayerNotFoundHandler : FindCommandHandlerBase
     {
-        public override PacketAction Action
-        {
-            get { return PacketAction.Ping; }
-        }
+        public override PacketAction Action => PacketAction.Ping;
 
-        protected override EOResourceID ResourceIDForResponse
-        {
-            get { return EOResourceID.STATUS_LABEL_IS_ONLINE_NOT_FOUND; }
-        }
+        protected override EOResourceID ResourceIDForResponse => EOResourceID.STATUS_LABEL_IS_ONLINE_NOT_FOUND;
 
         public FindCommandPlayerNotFoundHandler(IChatRepository chatRespository,
                                                 ILocalizedStringFinder localizedStringFinder,

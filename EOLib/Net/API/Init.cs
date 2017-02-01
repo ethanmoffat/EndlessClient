@@ -43,30 +43,15 @@ namespace EOLib.Net.API
         private readonly int m_class;
         private readonly PaperdollIconType m_iconType;
 
-        public string Name
-        {
-            get { return m_name; }
-        }
+        public string Name => m_name;
 
-        public string Title
-        {
-            get { return m_title; }
-        }
+        public string Title => m_title;
 
-        public string Guild
-        {
-            get { return m_guild; }
-        }
+        public string Guild => m_guild;
 
-        public int ClassID
-        {
-            get { return m_class; }
-        }
+        public int ClassID => m_class;
 
-        public PaperdollIconType Icon
-        {
-            get { return m_iconType; }
-        }
+        public PaperdollIconType Icon => m_iconType;
 
         public OnlineEntry(string name, string title, string guild, int clss, PaperdollIconType icon)
         {

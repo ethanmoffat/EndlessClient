@@ -25,10 +25,7 @@ namespace EOLib.Domain.NPC
         public bool Dying { get; private set; }
         public bool DeathCompleted { get; private set; }
 
-        private bool AllowMultipleOpponents
-        {
-            get { return (Data.Type == NPCType.Passive || Data.Type == NPCType.Aggressive) && Data.VendorID == 1; }
-        }
+        private bool AllowMultipleOpponents => (Data.Type == NPCType.Passive || Data.Type == NPCType.Aggressive) && Data.VendorID == 1;
 
         //public OldNPC(NPCData serverNPCData, ENFRecord localNPCData)
         //{

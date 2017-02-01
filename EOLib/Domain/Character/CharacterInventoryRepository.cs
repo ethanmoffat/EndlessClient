@@ -25,8 +25,8 @@ namespace EOLib.Domain.Character
         public List<IInventoryItem> ItemInventory { get; set; }
         public List<IInventorySpell> SpellInventory { get; set; }
 
-        IReadOnlyList<IInventoryItem> ICharacterInventoryProvider.ItemInventory { get { return ItemInventory; } }
-        IReadOnlyList<IInventorySpell> ICharacterInventoryProvider.SpellInventory { get { return SpellInventory; } }
+        IReadOnlyList<IInventoryItem> ICharacterInventoryProvider.ItemInventory => ItemInventory;
+        IReadOnlyList<IInventorySpell> ICharacterInventoryProvider.SpellInventory => SpellInventory;
 
         public CharacterInventoryRepository()
         {

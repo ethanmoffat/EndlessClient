@@ -15,7 +15,7 @@ namespace EOLib.PacketHandlers.Commands
         private readonly IChatRepository _chatRespository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
 
-        public override PacketFamily Family { get { return PacketFamily.Players; } }
+        public override PacketFamily Family => PacketFamily.Players;
 
         protected abstract EOResourceID ResourceIDForResponse { get; }
 

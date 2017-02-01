@@ -23,34 +23,34 @@ namespace EOLib.Net.API
         /// <summary>
         /// This structure contains data about an item that was unequipped
         /// </summary>
-        public bool ItemWasUnequipped { get { return itemRemoved; } }
+        public bool ItemWasUnequipped => itemRemoved;
 
         /// <summary>
         /// Item ID of Item that was equipped
         /// </summary>
-        public short ItemID { get { return itemID; } }
+        public short ItemID => itemID;
 
         /// <summary>
         /// Amount of item remaining in inventory
         /// </summary>
-        public int ItemAmount { get { return characterAmount; } }
+        public int ItemAmount => characterAmount;
 
-        public byte SubLoc { get { return subLoc; } }
+        public byte SubLoc => subLoc;
 
-        public short MaxHP { get { return maxhp; } }
-        public short MaxTP { get { return maxtp; } }
-        public short Str { get { return disp_str; } }
-        public short Int { get { return disp_int; } }
-        public short Wis { get { return disp_wis; } }
-        public short Agi { get { return disp_agi; } }
-        public short Con { get { return disp_con; } }
-        public short Cha { get { return disp_cha; } }
+        public short MaxHP => maxhp;
+        public short MaxTP => maxtp;
+        public short Str => disp_str;
+        public short Int => disp_int;
+        public short Wis => disp_wis;
+        public short Agi => disp_agi;
+        public short Con => disp_con;
+        public short Cha => disp_cha;
 
-        public short MinDam { get { return mindam; } }
-        public short MaxDam { get { return maxdam; } }
-        public short Accuracy { get { return accuracy; } }
-        public short Evade { get { return evade; } }
-        public short Armor { get { return armor; } }
+        public short MinDam => mindam;
+        public short MaxDam => maxdam;
+        public short Accuracy => accuracy;
+        public short Evade => evade;
+        public short Armor => armor;
 
         internal PaperdollEquipData(OldPacket pkt, bool itemUnequipped)
         {
@@ -84,18 +84,18 @@ namespace EOLib.Net.API
         private readonly short[] paperdoll;
         private readonly PaperdollIconType iconType;
 
-        public string Name { get { return name; } }
-        public string Home { get { return home; } }
-        public string Partner { get { return partner; } }
-        public string Title { get { return title; } }
-        public string Guild { get { return guild; } }
-        public string Rank { get { return rank; } }
+        public string Name => name;
+        public string Home => home;
+        public string Partner => partner;
+        public string Title => title;
+        public string Guild => guild;
+        public string Rank => rank;
 
-        public short PlayerID { get { return playerID; } }
-        public byte Class { get { return clas; } }
-        public byte Gender { get { return gender; } }
-        public ReadOnlyCollection<short> Paperdoll { get { return paperdoll.AsEnumerable().ToList().AsReadOnly(); } }
-        public PaperdollIconType Icon { get { return iconType; } }
+        public short PlayerID => playerID;
+        public byte Class => clas;
+        public byte Gender => gender;
+        public ReadOnlyCollection<short> Paperdoll => paperdoll.AsEnumerable().ToList().AsReadOnly();
+        public PaperdollIconType Icon => iconType;
 
         internal PaperdollDisplayData(OldPacket pkt)
         {

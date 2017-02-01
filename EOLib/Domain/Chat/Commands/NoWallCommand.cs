@@ -10,10 +10,7 @@ namespace EOLib.Domain.Chat.Commands
     {
         private readonly ICharacterRepository _characterRepository;
 
-        public string CommandText
-        {
-            get { return "nowall"; }
-        }
+        public string CommandText => "nowall";
 
         public NoWallCommand(ICharacterRepository characterRepository)
         {

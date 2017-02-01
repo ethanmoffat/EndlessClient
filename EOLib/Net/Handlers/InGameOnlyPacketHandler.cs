@@ -10,7 +10,7 @@ namespace EOLib.Net.Handlers
     {
         private readonly IPlayerInfoProvider _playerInfoProvider;
 
-        public override bool CanHandle { get { return _playerInfoProvider.PlayerIsInGame; } }
+        public override bool CanHandle => _playerInfoProvider.PlayerIsInGame;
 
         protected InGameOnlyPacketHandler(IPlayerInfoProvider playerInfoProvider)
         {

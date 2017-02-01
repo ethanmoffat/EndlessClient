@@ -16,9 +16,9 @@ namespace EOLib.PacketHandlers
     {
         private readonly ICurrentMapStateRepository _mapStateRepository;
 
-        public override PacketFamily Family { get { return PacketFamily.Face; } }
+        public override PacketFamily Family => PacketFamily.Face;
 
-        public override PacketAction Action { get { return PacketAction.Player; } }
+        public override PacketAction Action => PacketAction.Player;
 
         public PlayerDirectionHandler(IPlayerInfoProvider playerInfoProvider,
                                       ICurrentMapStateRepository mapStateRepository)

@@ -26,9 +26,9 @@ namespace EOLib.PacketHandlers
         private readonly ICurrentMapStateRepository _mapStateRepository;
         private readonly IMapFileProvider _mapFileProvider;
 
-        public override PacketFamily Family { get { return PacketFamily.Warp; } }
+        public override PacketFamily Family => PacketFamily.Warp;
 
-        public override PacketAction Action { get { return PacketAction.Request; } }
+        public override PacketAction Action => PacketAction.Request;
 
         public BeginPlayerWarpHandler(IPlayerInfoProvider playerInfoProvider,
                                       IPacketSendService packetSendService,

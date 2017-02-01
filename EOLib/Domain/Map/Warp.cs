@@ -10,13 +10,13 @@ namespace EOLib.Domain.Map
     {
         private readonly WarpMapEntity _warpEntity;
 
-        public int X { get { return _warpEntity.X; } }
+        public int X => _warpEntity.X;
 
-        public int Y { get { return _warpEntity.Y; } }
+        public int Y => _warpEntity.Y;
 
-        public DoorSpec DoorType { get { return _warpEntity.DoorType; } }
+        public DoorSpec DoorType => _warpEntity.DoorType;
 
-        public int LevelRequirement { get { return _warpEntity.LevelRequirement; } }
+        public int LevelRequirement => _warpEntity.LevelRequirement;
 
         public Warp(WarpMapEntity warpEntity)
         {

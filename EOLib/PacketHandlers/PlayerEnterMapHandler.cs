@@ -18,9 +18,9 @@ namespace EOLib.PacketHandlers
         private readonly ICurrentMapStateRepository _mapStateRepository;
         private readonly ICharacterFromPacketFactory _characterFromPacketFactory;
 
-        public override PacketFamily Family { get { return PacketFamily.Players; } }
+        public override PacketFamily Family => PacketFamily.Players;
 
-        public override PacketAction Action { get { return PacketAction.Agree; } }
+        public override PacketAction Action => PacketAction.Agree;
 
         public PlayerEnterMapHandler(IPlayerInfoProvider playerInfoProvider,
                                      ICurrentMapStateRepository mapStateRepository,

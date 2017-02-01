@@ -27,10 +27,7 @@ namespace EOLib.Domain.Character
 
         public Dictionary<int, List<short>> VisibleCharacterPaperdolls { get; set; }
 
-        IReadOnlyList<short> IPaperdollProvider.MainCharacterPaperdoll
-        {
-            get { return MainCharacterPaperdoll; }
-        }
+        IReadOnlyList<short> IPaperdollProvider.MainCharacterPaperdoll => MainCharacterPaperdoll;
 
         IReadOnlyDictionary<int, IReadOnlyList<short>> IPaperdollProvider.VisibleCharacterPaperdolls
         {

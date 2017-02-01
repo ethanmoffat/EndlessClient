@@ -11,12 +11,9 @@ namespace EOLib.Domain.Protocol
         private readonly BanType _banType;
         private readonly byte _banTimeRemaining;
 
-        public InitReply Response { get { return InitReply.BannedFromServer; } }
+        public InitReply Response => InitReply.BannedFromServer;
 
-        public int this[InitializationDataKey key]
-        {
-            get { return GetValueHelper(key); }
-        }
+        public int this[InitializationDataKey key] => GetValueHelper(key);
 
         public InitializationBannedData(BanType banType, byte banTimeRemaining)
         {

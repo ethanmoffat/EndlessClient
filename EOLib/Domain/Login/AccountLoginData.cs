@@ -13,7 +13,7 @@ namespace EOLib.Domain.Login
         public LoginReply Response { get; private set; }
 
         private readonly List<ICharacter> _characters;
-        public IReadOnlyList<ICharacter> Characters { get { return _characters; } }
+        public IReadOnlyList<ICharacter> Characters => _characters;
 
         public AccountLoginData(LoginReply reply, List<ICharacter> characters)
         {

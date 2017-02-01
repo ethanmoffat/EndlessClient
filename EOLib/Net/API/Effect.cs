@@ -26,9 +26,9 @@ namespace EOLib.Net.API
         private readonly byte _playerPercentHealth;
         private readonly short _damageDealt;
 
-        public short PlayerID { get { return _playerID; } }
-        public byte PlayerPercentHealth { get { return _playerPercentHealth; } }
-        public short DamageDealt { get { return _damageDealt; } }
+        public short PlayerID => _playerID;
+        public byte PlayerPercentHealth => _playerPercentHealth;
+        public short DamageDealt => _damageDealt;
 
         internal TimedMapHPDrainData(short playerID, byte percentHealth, short damageDealt)
         {

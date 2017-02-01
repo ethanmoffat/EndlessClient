@@ -46,6 +46,6 @@ namespace EOLib.Net.Connection
             await Client.RunReceiveLoopAsync();
         }
 
-        private INetworkClient Client { get { return _clientProvider.NetworkClient; } }
+        private INetworkClient Client => _clientProvider.NetworkClient;
     }
 }

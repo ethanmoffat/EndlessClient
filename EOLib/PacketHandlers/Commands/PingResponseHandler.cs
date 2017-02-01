@@ -19,9 +19,9 @@ namespace EOLib.PacketHandlers.Commands
         private readonly IPingTimeRepository _pingTimeRepository;
         private readonly IChatRepository _chatRepository;
 
-        public override PacketFamily Family { get { return PacketFamily.Message; } }
+        public override PacketFamily Family => PacketFamily.Message;
 
-        public override PacketAction Action { get { return PacketAction.Pong; } }
+        public override PacketAction Action => PacketAction.Pong;
 
         public PingResponseHandler(IPingTimeRepository pingTimeRepository,
                                    IChatRepository chatRepository,

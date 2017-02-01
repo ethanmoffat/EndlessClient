@@ -13,9 +13,9 @@ namespace EOLib.Net.API
     {
         private readonly short _partyMemberID, _partyMemberPercentHealth, _partyMemberHP;
 
-        public short MemberID { get { return _partyMemberID; } }
-        public short MemberPercentHealth { get { return _partyMemberPercentHealth; } }
-        public short MemberHP { get { return _partyMemberHP; } }
+        public short MemberID => _partyMemberID;
+        public short MemberPercentHealth => _partyMemberPercentHealth;
+        public short MemberHP => _partyMemberHP;
 
         internal GroupSpellTarget(OldPacket pkt)
         {

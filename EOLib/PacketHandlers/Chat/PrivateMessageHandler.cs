@@ -13,7 +13,7 @@ namespace EOLib.PacketHandlers.Chat
     {
         private readonly IChatRepository _chatRepository;
 
-        public override PacketAction Action { get { return PacketAction.Tell; } }
+        public override PacketAction Action => PacketAction.Tell;
 
         public PrivateMessageHandler(IPlayerInfoProvider playerInfoProvider,
                                      IChatRepository chatRepository)

@@ -20,10 +20,7 @@ namespace EOLib.Domain.Map
         }
 
 
-        public IMapFile CurrentMap
-        {
-            get { return _mapFileProvider.MapFiles[_currentMapStateProvider.CurrentMapID]; }
-        }
+        public IMapFile CurrentMap => _mapFileProvider.MapFiles[_currentMapStateProvider.CurrentMapID];
     }
 
     public interface ICurrentMapProvider

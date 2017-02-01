@@ -20,7 +20,7 @@ namespace EOLib.Net.API
         /// <summary>
         /// Determines if full data is present. When false, only ID and PercentHealth are valid.
         /// </summary>
-        public bool IsFullData { get { return m_isFullData; } }
+        public bool IsFullData => m_isFullData;
 
         private readonly short m_id;
         private readonly bool m_isLeader;
@@ -28,11 +28,11 @@ namespace EOLib.Net.API
         private byte m_pctHealth;
         private readonly string m_name;
 
-        public short ID { get { return m_id; } }
-        public bool IsLeader { get { return m_isLeader; } }
-        public byte Level { get { return m_level; } }
-        public byte PercentHealth { get { return m_pctHealth; } }
-        public string Name { get { return m_name; } }
+        public short ID => m_id;
+        public bool IsLeader => m_isLeader;
+        public byte Level => m_level;
+        public byte PercentHealth => m_pctHealth;
+        public string Name => m_name;
 
         internal PartyMember(OldPacket pkt, bool isFullData)
         {

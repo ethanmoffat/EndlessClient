@@ -14,9 +14,9 @@ namespace EOLib.PacketHandlers.Chat
     {
         private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
 
-        public override PacketFamily Family { get { return PacketFamily.Talk; } }
+        public override PacketFamily Family => PacketFamily.Talk;
 
-        public override PacketAction Action { get { return PacketAction.Spec; } }
+        public override PacketAction Action => PacketAction.Spec;
 
         public MuteHandler(IPlayerInfoProvider playerInfoProvider,
                            IEnumerable<IChatEventNotifier> chatEventNotifiers)

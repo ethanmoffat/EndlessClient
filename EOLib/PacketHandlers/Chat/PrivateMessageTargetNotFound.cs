@@ -20,9 +20,9 @@ namespace EOLib.PacketHandlers.Chat
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;
 
-        public override PacketFamily Family { get { return PacketFamily.Talk; } }
+        public override PacketFamily Family => PacketFamily.Talk;
 
-        public override PacketAction Action { get { return PacketAction.Reply; } }
+        public override PacketAction Action => PacketAction.Reply;
 
         public PrivateMessageTargetNotFound(IPlayerInfoProvider playerInfoProvider,
                                             IChatRepository chatRepository,

@@ -13,7 +13,7 @@ namespace EOLib.Domain.Chat.Commands
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
 
-        public string CommandText { get { return "loc"; } }
+        public string CommandText => "loc";
 
         public LocCommand(ICharacterProvider characterProvider,
             IChatRepository chatRepository,

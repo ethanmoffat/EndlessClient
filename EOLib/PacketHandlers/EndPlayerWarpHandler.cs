@@ -23,9 +23,9 @@ namespace EOLib.PacketHandlers
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IEnumerable<IMapChangedNotifier> _mapChangedNotifiers;
 
-        public override PacketFamily Family { get { return PacketFamily.Warp; } }
+        public override PacketFamily Family => PacketFamily.Warp;
 
-        public override PacketAction Action { get { return PacketAction.Agree; } }
+        public override PacketAction Action => PacketAction.Agree;
 
         public EndPlayerWarpHandler(IPlayerInfoProvider playerInfoProvider,
                                     IPacketTranslator<IWarpAgreePacketData> warpAgreePacketTranslator,

@@ -44,11 +44,12 @@ namespace EOLib.Net.API
         private readonly short _dialogID;
         private readonly short _sessionID;
 
-        public short SessionID { get { return _sessionID; } }
-        public short DialogID { get { return _dialogID; } }
-        public short QuestID { get { return _questID; } }
-        public short NPCIndex { get { return _npcIndex; } }
-        public short VendorID { get { return _npcIndex; } } //re-used
+        public short SessionID => _sessionID;
+        public short DialogID => _dialogID;
+        public short QuestID => _questID;
+        public short NPCIndex => _npcIndex;
+        public short VendorID => _npcIndex;
+//re-used
 
         public QuestState(short session, short dialogID, short questID, short npcIndex)
         {
@@ -70,9 +71,9 @@ namespace EOLib.Net.API
         private readonly short _progress;
         private readonly short _target;
 
-        public string Name { get { return _name; } }
-        public string Description { get { return _description; } }
-        public BookIcon Icon { get { return _icon; } }
+        public string Name => _name;
+        public string Description => _description;
+        public BookIcon Icon => _icon;
 
         public int IconIndex
         {
@@ -95,15 +96,9 @@ namespace EOLib.Net.API
             }
         }
 
-        public short Progress
-        {
-            get { return _progress; }
-        }
+        public short Progress => _progress;
 
-        public short Target
-        {
-            get { return _target; }
-        }
+        public short Target => _target;
 
         internal InProgressQuestData(OldPacket pkt)
         {

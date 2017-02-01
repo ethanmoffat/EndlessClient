@@ -21,9 +21,9 @@ namespace EOLib.PacketHandlers
         private readonly IEnumerable<INPCAnimationNotifier> _npcAnimationNotifiers;
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
 
-        public override PacketFamily Family { get { return PacketFamily.NPC; } }
+        public override PacketFamily Family => PacketFamily.NPC;
 
-        public override PacketAction Action { get { return PacketAction.Spec; } }
+        public override PacketAction Action => PacketAction.Spec;
 
         public NPCLeaveMapHandler(IPlayerInfoProvider playerInfoProvider,
                                   ICurrentMapStateRepository currentMapStateRepository,
@@ -155,9 +155,9 @@ namespace EOLib.PacketHandlers
     /// </summary>
     public class NPCDieFromSpellCastHandler : NPCLeaveMapHandler
     {
-        public override PacketFamily Family { get { return PacketFamily.Cast; } }
+        public override PacketFamily Family => PacketFamily.Cast;
 
-        public override PacketAction Action { get { return PacketAction.Spec; } }
+        public override PacketAction Action => PacketAction.Spec;
 
         public NPCDieFromSpellCastHandler(IPlayerInfoProvider playerInfoProvider,
                                           ICurrentMapStateRepository currentMapStateRepository,

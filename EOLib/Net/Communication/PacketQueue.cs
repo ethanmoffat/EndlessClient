@@ -16,7 +16,7 @@ namespace EOLib.Net.Communication
 
         private TaskCompletionSource<bool> _enqueuedTaskCompletionSource;
 
-        public int QueuedPacketCount { get { return _internalQueue.Count; } }
+        public int QueuedPacketCount => _internalQueue.Count;
 
         public PacketQueue()
         {

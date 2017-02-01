@@ -63,7 +63,7 @@ namespace EOLib.Domain.Map
                 : npc.X == x && npc.Y == y;
         }
 
-        private IMapFile CurrentMap { get { return _mapFileProvider.MapFiles[_mapStateProvider.CurrentMapID]; } }
+        private IMapFile CurrentMap => _mapFileProvider.MapFiles[_mapStateProvider.CurrentMapID];
     }
 
     public interface IMapCellStateProvider

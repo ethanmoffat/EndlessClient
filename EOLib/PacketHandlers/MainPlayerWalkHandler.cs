@@ -13,8 +13,8 @@ namespace EOLib.PacketHandlers
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
-        public override PacketFamily Family { get { return PacketFamily.Walk; } }
-        public override PacketAction Action { get { return PacketAction.Reply; } }
+        public override PacketFamily Family => PacketFamily.Walk;
+        public override PacketAction Action => PacketAction.Reply;
 
         public MainPlayerWalkHandler(IPlayerInfoProvider playerInfoProvider,
                                      ICurrentMapStateRepository currentMapStateRepository)

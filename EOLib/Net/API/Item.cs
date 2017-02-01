@@ -15,13 +15,13 @@ namespace EOLib.Net.API
         private readonly byte level;
         private readonly short stat, skill, maxhp, maxtp, maxsp;
 
-        public int Exp { get { return exp; } }
-        public byte Level { get { return level; } }
-        public short StatPoints { get { return stat; } }
-        public short SkillPoints { get { return skill; } }
-        public short MaxHP { get { return maxhp; } }
-        public short MaxTP { get { return maxtp; } }
-        public short MaxSP { get { return maxsp; } }
+        public int Exp => exp;
+        public byte Level => level;
+        public short StatPoints => stat;
+        public short SkillPoints => skill;
+        public short MaxHP => maxhp;
+        public short MaxTP => maxtp;
+        public short MaxSP => maxsp;
 
         internal LevelUpStats(OldPacket pkt, bool includeExp)
         {
@@ -45,19 +45,19 @@ namespace EOLib.Net.API
             private readonly short m_str, m_int, m_wis, m_agi, m_con, m_cha;
             private readonly short m_mindam, m_maxdam, m_acc, m_evade, m_armor;
 
-            public short MaxHP { get { return m_maxhp; } }
-            public short MaxTP { get { return m_maxtp; } }
-            public short Str { get { return m_str; } }
-            public short Int { get { return m_int; } }
-            public short Wis { get { return m_wis; } }
-            public short Agi { get { return m_agi; } }
-            public short Con { get { return m_con; } }
-            public short Cha { get { return m_cha; } }
-            public short MinDam { get { return m_mindam; } }
-            public short MaxDam { get { return m_maxdam; } }
-            public short Accuracy { get { return m_acc; } }
-            public short Evade { get { return m_evade; } }
-            public short Armor { get { return m_armor; } }
+            public short MaxHP => m_maxhp;
+            public short MaxTP => m_maxtp;
+            public short Str => m_str;
+            public short Int => m_int;
+            public short Wis => m_wis;
+            public short Agi => m_agi;
+            public short Con => m_con;
+            public short Cha => m_cha;
+            public short MinDam => m_mindam;
+            public short MaxDam => m_maxdam;
+            public short Accuracy => m_acc;
+            public short Evade => m_evade;
+            public short Armor => m_armor;
 
             internal CureCurseStats(OldPacket pkt)
             {
@@ -82,34 +82,34 @@ namespace EOLib.Net.API
         private readonly short itemID;
         private readonly int characterAmount;
         private readonly byte weight, maxWeight;
-        public ItemType Type { get { return type; } }
-        public short ItemID { get { return itemID; } }
-        public int CharacterAmount { get { return characterAmount; } }
-        public byte Weight { get { return weight; } }
-        public byte MaxWeight { get { return maxWeight; } }
+        public ItemType Type => type;
+        public short ItemID => itemID;
+        public int CharacterAmount => characterAmount;
+        public byte Weight => weight;
+        public byte MaxWeight => maxWeight;
 
         //heal type
         private readonly int hpGain;
         private readonly short hp, tp;
-        public int HPGain { get { return hpGain; } }
-        public short HP { get { return hp; } }
-        public short TP { get { return tp; } }
+        public int HPGain => hpGain;
+        public short HP => hp;
+        public short TP => tp;
 
         //hairdye type
         private readonly byte hairColor;
-        public byte HairColor { get { return hairColor; } }
+        public byte HairColor => hairColor;
 
         //effect potion type
         private readonly short effect;
-        public short EffectID { get { return effect; } }
+        public short EffectID => effect;
 
         //curecurse type
         private readonly CureCurseStats? curecurse_stats;
-        public CureCurseStats CureStats { get { return curecurse_stats ?? new CureCurseStats(); } }
+        public CureCurseStats CureStats => curecurse_stats ?? new CureCurseStats();
 
         //expreward type
         private readonly LevelUpStats? expreward_stats;
-        public LevelUpStats RewardStats { get { return expreward_stats ?? new LevelUpStats(); } }
+        public LevelUpStats RewardStats => expreward_stats ?? new LevelUpStats();
 
         internal ItemUseData(OldPacket pkt)
         {

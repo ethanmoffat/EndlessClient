@@ -16,9 +16,9 @@ namespace EOLib.PacketHandlers
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
-        public override PacketFamily Family { get { return PacketFamily.Avatar; } }
+        public override PacketFamily Family => PacketFamily.Avatar;
 
-        public override PacketAction Action { get { return PacketAction.Agree; } }
+        public override PacketAction Action => PacketAction.Agree;
 
         public PlayerAvatarChangeHandler(IPlayerInfoProvider playerInfoProvider,
                                          ICurrentMapStateRepository currentMapStateRepository)

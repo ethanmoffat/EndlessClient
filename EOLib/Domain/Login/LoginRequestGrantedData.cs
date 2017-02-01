@@ -38,7 +38,7 @@ namespace EOLib.Domain.Login
         public ICharacterStats CharacterStats { get; private set; }
 
         private List<short> _paperdoll = new List<short>((int)EquipLocation.PAPERDOLL_MAX);
-        public IReadOnlyList<short> Paperdoll { get { return _paperdoll; } }
+        public IReadOnlyList<short> Paperdoll => _paperdoll;
 
         public byte GuildRankNum { get; private set; }
         public short JailMap { get; private set; }

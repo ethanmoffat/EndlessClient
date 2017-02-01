@@ -121,6 +121,6 @@ namespace EOLib.Net.Connection
             return responsePacket.Family != PacketFamily.Init || responsePacket.Action != PacketAction.Init;
         }
 
-        private INetworkClient Client { get { return _networkClientRepository.NetworkClient; } }
+        private INetworkClient Client => _networkClientRepository.NetworkClient;
     }
 }

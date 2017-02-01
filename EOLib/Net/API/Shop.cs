@@ -15,10 +15,10 @@ namespace EOLib.Net.API
     {
         private readonly int m_id, m_buy, m_sell, m_maxBuy;
 
-        public int ID { get { return m_id; } }
-        public int Buy { get { return m_buy; } }
-        public int Sell { get { return m_sell; } }
-        public int MaxBuy { get { return m_maxBuy; } }
+        public int ID => m_id;
+        public int Buy => m_buy;
+        public int Sell => m_sell;
+        public int MaxBuy => m_maxBuy;
 
         public ShopItem(int ID, int BuyPrice, int SellPrice, int MaxBuy)
         {
@@ -32,10 +32,10 @@ namespace EOLib.Net.API
     public struct CraftItem
     {
         private readonly int m_id;
-        public int ID { get { return m_id; } }
+        public int ID => m_id;
 
         private readonly List<Tuple<int, int>> m_ingreds;
-        public ReadOnlyCollection<Tuple<int, int>> Ingredients { get { return m_ingreds.AsReadOnly(); } }
+        public ReadOnlyCollection<Tuple<int, int>> Ingredients => m_ingreds.AsReadOnly();
 
         public CraftItem(int ID, IEnumerable<Tuple<int, int>> Ingredients)
         {

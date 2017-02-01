@@ -58,8 +58,8 @@ namespace EOLib.Net.Communication
             return responsePacket;
         }
 
-        private INetworkClient Client { get { return _networkClientProvider.NetworkClient; } }
+        private INetworkClient Client => _networkClientProvider.NetworkClient;
 
-        private IWaitablePacketQueue InBandQueue { get { return _packetQueueProvider.HandleInBandPacketQueue; } }
+        private IWaitablePacketQueue InBandQueue => _packetQueueProvider.HandleInBandPacketQueue;
     }
 }

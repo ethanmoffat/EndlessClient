@@ -14,7 +14,7 @@ namespace EOLib.PacketHandlers.Chat
     {
         private readonly IChatRepository _chatRepository;
 
-        public override PacketAction Action { get { return PacketAction.Player; } }
+        public override PacketAction Action => PacketAction.Player;
 
         public PublicChatHandler(ICurrentMapStateProvider currentMapStateProvider,
                                  IPlayerInfoProvider playerInfoProvider,

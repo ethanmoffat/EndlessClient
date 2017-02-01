@@ -11,15 +11,9 @@ namespace EOLib.PacketHandlers.Commands
 {
     public class FindCommandPlayerSameMapHandler : FindCommandHandlerBase
     {
-        public override PacketAction Action
-        {
-            get { return PacketAction.Pong; }
-        }
+        public override PacketAction Action => PacketAction.Pong;
 
-        protected override EOResourceID ResourceIDForResponse
-        {
-            get { return EOResourceID.STATUS_LABEL_IS_ONLINE_SAME_MAP; }
-        }
+        protected override EOResourceID ResourceIDForResponse => EOResourceID.STATUS_LABEL_IS_ONLINE_SAME_MAP;
 
         public FindCommandPlayerSameMapHandler(IChatRepository chatRespository,
                                                ILocalizedStringFinder localizedStringFinder,

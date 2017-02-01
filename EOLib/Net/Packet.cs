@@ -15,7 +15,7 @@ namespace EOLib.Net
     {
         private readonly INumberEncoderService _encoderService;
 
-        public int Length { get { return RawData.Count; } }
+        public int Length => RawData.Count;
 
         public int ReadPosition { get; private set; }
 

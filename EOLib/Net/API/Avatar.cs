@@ -14,19 +14,19 @@ namespace EOLib.Net.API
         private readonly AvatarSlot slot;
         private readonly short pid;
 
-        public short ID { get { return pid; } }
-        public AvatarSlot Slot { get { return slot; } }
+        public short ID => pid;
+        public AvatarSlot Slot => slot;
 
-        public bool Sound { get { return sound; } }
+        public bool Sound => sound;
 
-        public short Boots { get { return boots; } }
-        public short Armor { get { return armor; } }
-        public short Hat { get { return hat; } }
-        public short Shield { get { return shield; } }
-        public short Weapon { get { return weapon; } }
+        public short Boots => boots;
+        public short Armor => armor;
+        public short Hat => hat;
+        public short Shield => shield;
+        public short Weapon => weapon;
 
-        public byte HairStyle { get { return hairstyle; } }
-        public byte HairColor { get { return haircolor; } }
+        public byte HairStyle => hairstyle;
+        public byte HairColor => haircolor;
 
         internal AvatarData(short id, AvatarSlot slot, bool sound, short boots, short armor, short hat, short weapon, short shield)
         {

@@ -7,7 +7,7 @@ namespace EOLib
     public struct Optional<T>
     {
         private static readonly Optional<T> _readOnlyEmpty = new Optional<T>();
-        public static Optional<T> Empty { get { return _readOnlyEmpty; } }
+        public static Optional<T> Empty => _readOnlyEmpty;
 
         public T Value { get; private set; }
 

@@ -21,29 +21,29 @@ namespace EOLib.Net.API
         //m_class is either a 'Class' id (for Recover_List) or the number
         //    of statpoints remaining (for StatSkill_Player). Check IsStatsData
         //    before using these objects.
-        public byte Class { get { return (byte)m_class; } }
-        public short StatPoints { get { return m_class; } }
-        public bool IsStatsData { get { return m_statsData; } }
+        public byte Class => (byte)m_class;
+        public short StatPoints => m_class;
+        public bool IsStatsData => m_statsData;
 
-        public byte MaxWeight { get { return m_maxWeight; } }
+        public byte MaxWeight => m_maxWeight;
 
-        public short Str { get { return m_str; } }
-        public short Int { get { return m_int; } }
-        public short Wis { get { return m_wis; } }
-        public short Agi { get { return m_agi; } }
-        public short Con { get { return m_con; } }
-        public short Cha { get { return m_cha; } }
+        public short Str => m_str;
+        public short Int => m_int;
+        public short Wis => m_wis;
+        public short Agi => m_agi;
+        public short Con => m_con;
+        public short Cha => m_cha;
 
-        public short MaxHP { get { return m_hp; } }
-        public short MaxTP { get { return m_tp; } }
-        public short MaxSP { get { return m_sp; } }
+        public short MaxHP => m_hp;
+        public short MaxTP => m_tp;
+        public short MaxSP => m_sp;
 
-        public short MinDam { get { return m_mindam; } }
-        public short MaxDam { get { return m_maxdam; } }
+        public short MinDam => m_mindam;
+        public short MaxDam => m_maxdam;
 
-        public short Accuracy { get { return m_accuracy; } }
-        public short Evade { get { return m_evade; } }
-        public short Armor { get { return m_armor; } }
+        public short Accuracy => m_accuracy;
+        public short Evade => m_evade;
+        public short Armor => m_armor;
 
         internal DisplayStats(OldPacket pkt, bool isStatsData)
         {

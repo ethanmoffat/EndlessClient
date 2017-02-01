@@ -37,10 +37,7 @@ namespace EOLib.Domain.Chat
             }
         }
 
-        private bool CharacterIsAdmin
-        {
-            get { return _characterProvider.MainCharacter.AdminLevel != AdminLevel.Player; }
-        }
+        private bool CharacterIsAdmin => _characterProvider.MainCharacter.AdminLevel != AdminLevel.Player;
     }
 
     public interface IChatTypeCalculator
