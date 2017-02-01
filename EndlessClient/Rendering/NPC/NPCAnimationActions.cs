@@ -36,7 +36,7 @@ namespace EndlessClient.Rendering.NPC
             if (_hudControlProvider.IsInGame)
                 return;
 
-            //Animator.StartAttackAnimation(); //todo
+            Animator.StartAttackAnimation(npcIndex);
         }
 
         public void RemoveNPCFromView(int npcIndex, bool showDeathAnimation)

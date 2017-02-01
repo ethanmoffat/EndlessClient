@@ -17,9 +17,10 @@ namespace EndlessClient.Rendering.NPC
 {
     public class NPCAnimator : GameComponent, INPCAnimator
     {
-        private const int WALK_FRAME_TIME_MS = 100;
+        private const int ACTION_FRAME_TIME_MS = 100;
 
         private readonly List<RenderFrameActionTime> _npcStartWalkingTimes;
+        private readonly List<RenderFrameActionTime> _npcStartAttackingTimes;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         public NPCAnimator(IEndlessGameProvider gameProvider,
@@ -28,6 +29,7 @@ namespace EndlessClient.Rendering.NPC
         {
             _currentMapStateRepository = currentMapStateRepository;
             _npcStartWalkingTimes = new List<RenderFrameActionTime>();
+            _npcStartAttackingTimes = new List<RenderFrameActionTime>();
         }
 
         public override void Update(GameTime gameTime)
@@ -35,6 +37,7 @@ namespace EndlessClient.Rendering.NPC
             var now = DateTime.Now;
 
             AnimateNPCWalking(now);
+            AnimateNPCAttacking(now);
 
             base.Update(gameTime);
         }
@@ -49,6 +52,16 @@ namespace EndlessClient.Rendering.NPC
             _npcStartWalkingTimes.Add(startWalkingTimeAndID);
         }
 
+        public void StartAttackAnimation(int npcIndex)
+        {
+            if (_npcStartAttackingTimes.Any(x => x.UniqueID == npcIndex))
+                return;
+
+            var startAttackingTimeAndID = new RenderFrameActionTime(npcIndex, DateTime.Now);
+
+            _npcStartAttackingTimes.Add(startAttackingTimeAndID);
+        }
+
         public void StopAllAnimations()
         {
             _npcStartWalkingTimes.Clear();
@@ -60,7 +73,7 @@ namespace EndlessClient.Rendering.NPC
             foreach (var pair in _npcStartWalkingTimes)
             {
                 if (pair.ActionStartTime.HasValue &&
-                    (now - pair.ActionStartTime).TotalMilliseconds > WALK_FRAME_TIME_MS)
+                    (now - pair.ActionStartTime).TotalMilliseconds > ACTION_FRAME_TIME_MS)
                 {
                     var npc = _currentMapStateRepository.NPCs.OptionalSingle(x => x.Index == pair.UniqueID);
                     if (!npc.HasValue)
@@ -71,7 +84,7 @@ namespace EndlessClient.Rendering.NPC
 
                     var nextFrameNPC = AnimateOneWalkFrame(npc.Value);
 
-                    pair.UpdateActionStartTime(GetUpdatedStartWalkingTime(now, nextFrameNPC));
+                    pair.UpdateActionStartTime(GetUpdatedActionStartTime(now, nextFrameNPC));
                     if (!pair.ActionStartTime.HasValue)
                         npcsDoneWalking.Add(pair);
 
@@ -81,6 +94,35 @@ namespace EndlessClient.Rendering.NPC
             }
 
             _npcStartWalkingTimes.RemoveAll(npcsDoneWalking.Contains);
+        }
+
+        private void AnimateNPCAttacking(DateTime now)
+        {
+            var npcsDoneAttacking = new List<RenderFrameActionTime>();
+            foreach (var pair in _npcStartAttackingTimes)
+            {
+                if (pair.ActionStartTime.HasValue &&
+                    (now - pair.ActionStartTime).TotalMilliseconds > ACTION_FRAME_TIME_MS)
+                {
+                    var npc = _currentMapStateRepository.NPCs.OptionalSingle(x => x.Index == pair.UniqueID);
+                    if (!npc.HasValue)
+                    {
+                        npcsDoneAttacking.Add(pair);
+                        continue;
+                    }
+
+                    var nextFrameNPC = npc.Value.WithNextAttackFrame();
+
+                    pair.UpdateActionStartTime(GetUpdatedActionStartTime(now, nextFrameNPC));
+                    if (!pair.ActionStartTime.HasValue)
+                        npcsDoneAttacking.Add(pair);
+
+                    _currentMapStateRepository.NPCs.Remove(npc.Value);
+                    _currentMapStateRepository.NPCs.Add(nextFrameNPC);
+                }
+            }
+
+            _npcStartWalkingTimes.RemoveAll(npcsDoneAttacking.Contains);
         }
 
         private static INPC AnimateOneWalkFrame(INPC npc)
@@ -97,7 +139,7 @@ namespace EndlessClient.Rendering.NPC
             return nextFrameNPC;
         }
 
-        private static Optional<DateTime> GetUpdatedStartWalkingTime(DateTime now, INPC nextFrameNPC)
+        private static Optional<DateTime> GetUpdatedActionStartTime(DateTime now, INPC nextFrameNPC)
         {
             return nextFrameNPC.IsActing(NPCActionState.Standing)
                 ? Optional<DateTime>.Empty
@@ -108,6 +150,8 @@ namespace EndlessClient.Rendering.NPC
     public interface INPCAnimator : IGameComponent
     {
         void StartWalkAnimation(int npcIndex);
+
+        void StartAttackAnimation(int npcIndex);
 
         void StopAllAnimations();
     }

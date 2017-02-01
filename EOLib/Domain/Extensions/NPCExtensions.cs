@@ -57,6 +57,16 @@ namespace EOLib.Domain.Extensions
             return npc.Frame - NPCFrame.Attack1 + 1;
         }
 
+        public static INPC WithNextAttackFrame(this INPC npc)
+        {
+            if (npc.Frame == NPCFrame.Attack2)
+                return npc.WithFrame(NPCFrame.Standing);
+            if (npc.Frame == NPCFrame.Standing)
+                return npc.WithFrame(NPCFrame.Attack1);
+
+            return npc.WithFrame(npc.Frame + 1);
+        }
+
         public static int GetDestinationX(this INPC npc)
         {
             var offset = GetXOffset(npc.Direction);
