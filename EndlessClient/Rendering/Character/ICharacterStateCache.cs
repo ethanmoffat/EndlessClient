@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Collections.Generic;
 using EOLib;
 using EOLib.Domain.Character;
@@ -14,6 +15,8 @@ namespace EndlessClient.Rendering.Character
 
         IReadOnlyDictionary<int, ICharacterRenderProperties> CharacterRenderProperties { get; }
 
+        IReadOnlyList<RenderFrameActionTime> DeathStartTimes { get; }
+
         bool HasCharacterWithID(int id);
 
         void UpdateMainCharacterState(ICharacterRenderProperties newMainCharacterState);
@@ -21,6 +24,10 @@ namespace EndlessClient.Rendering.Character
         void UpdateCharacterState(int id, ICharacterRenderProperties newCharacterState);
 
         void RemoveCharacterState(int id);
+
+        void AddDeathStartTime(int id, DateTime startTime);
+
+        void RemoveDeathStartTime(int id);
 
         void ClearAllOtherCharacterStates();
 
