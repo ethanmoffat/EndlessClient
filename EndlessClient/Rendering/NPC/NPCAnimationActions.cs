@@ -28,8 +28,15 @@ namespace EndlessClient.Rendering.NPC
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            var npcAnimator = _hudControlProvider.GetComponent<INPCAnimator>(HudControlIdentifier.NPCAnimator);
-            npcAnimator.StartWalkAnimation(npcIndex);
+            Animator.StartWalkAnimation(npcIndex);
+        }
+
+        public void StartNPCAttackAnimation(int npcIndex)
+        {
+            if (_hudControlProvider.IsInGame)
+                return;
+
+            //Animator.StartAttackAnimation(); //todo
         }
 
         public void RemoveNPCFromView(int npcIndex, bool showDeathAnimation)
@@ -50,5 +57,7 @@ namespace EndlessClient.Rendering.NPC
                 _npcRendererRepository.NPCRenderers[npcIndex].StartDying();
             }
         }
+
+        private INPCAnimator Animator => _hudControlProvider.GetComponent<INPCAnimator>(HudControlIdentifier.NPCAnimator);
     }
 }
