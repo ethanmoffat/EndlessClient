@@ -37,8 +37,8 @@ namespace EndlessClient.Dialogs
             }
         }
 
-        public byte CurrentChestX { get; private set; }
-        public byte CurrentChestY { get; private set; }
+        public byte CurrentChestX { get; }
+        public byte CurrentChestY { get; }
 
         private ListDialogItem[] m_items;
 

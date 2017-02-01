@@ -18,7 +18,7 @@ namespace EOLib.Graphics.Test
         private readonly Game _game;
         private readonly ServiceContainer _serviceContainer;
 
-        public GraphicsDeviceManager GraphicsDeviceManager { get; private set; }
+        public GraphicsDeviceManager GraphicsDeviceManager { get; }
 
         public GraphicsDeviceTestHelper()
         {

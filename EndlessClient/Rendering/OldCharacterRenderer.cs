@@ -111,7 +111,7 @@ namespace EndlessClient.Rendering
 
         private CharacterActionState State => Character.State;
 
-        public int TopPixel { get; private set; }
+        public int TopPixel { get; }
 
         /// <summary>
         /// Construct a character renderer in-game

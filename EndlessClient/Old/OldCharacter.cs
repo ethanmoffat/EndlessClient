@@ -119,7 +119,7 @@ namespace EndlessClient.Old
     /// </summary>
     public class OldCharacter
     {
-        public int ID { get; private set; }
+        public int ID { get; }
 
         /// <summary>
         /// x*32 - y*32 + ViewAdjustX
@@ -152,16 +152,16 @@ namespace EndlessClient.Old
 
         public byte Weight { get; set; }
         public byte MaxWeight { get; set; }
-        public short[] PaperDoll { get; private set; }
-        public List<InventoryItem> Inventory { get; private set; }
+        public short[] PaperDoll { get; }
+        public List<InventoryItem> Inventory { get; }
         public List<InventorySpell> Spells { get; private set; }
 
         public CharStatData Stats { get; set; }
-        public CharRenderData RenderData { get; private set; }
+        public CharRenderData RenderData { get; }
 
         public short CurrentMap { get; set; }
-        public int X { get; private set; }
-        public int Y { get; private set; }
+        public int X { get; }
+        public int Y { get; }
 
         public int SelectedSpell { get; private set; }
         public bool PreparingSpell { get; private set; }

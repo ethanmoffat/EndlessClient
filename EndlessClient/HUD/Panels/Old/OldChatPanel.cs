@@ -22,8 +22,8 @@ namespace EndlessClient.HUD.Panels.Old
 {
     public class OldChatTab : XNAControl
     {
-        private bool Selected { get; set; }
-        private ChatTab WhichTab { get; set; }
+        private bool Selected { get; }
+        private ChatTab WhichTab { get; }
         private readonly OldScrollBar scrollBar;
 
         private struct ChatIndex : IComparable

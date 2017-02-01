@@ -22,7 +22,7 @@ namespace EndlessClient.Dialogs
         private Texture2D m_gfx;
         private Rectangle m_area;
 
-        public EquipLocation EquipLoc { get; private set; }
+        public EquipLocation EquipLoc { get; }
         //public short ItemID { get { return (short)(m_info ?? new ItemRecord()).ID; } }
 
         private readonly PacketAPI m_api;

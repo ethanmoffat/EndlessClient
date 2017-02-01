@@ -261,9 +261,9 @@ namespace EndlessClient.Rendering.Map
     {
         public static MapTransitionState Default => new MapTransitionState(Optional<DateTime>.Empty, 0);
 
-        public Optional<DateTime> StartTime { get; private set; }
+        public Optional<DateTime> StartTime { get; }
 
-        public int TransitionMetric { get; private set; }
+        public int TransitionMetric { get; }
 
         public MapTransitionState(Optional<DateTime> startTime, int transitionMetric)
             : this()

@@ -11,9 +11,9 @@ namespace EndlessClient.Rendering.Sprites
     {
         public bool HasTexture => true;
 
-        public Texture2D SheetTexture { get; private set; }
+        public Texture2D SheetTexture { get; }
 
-        public Rectangle SourceRectangle { get; private set; }
+        public Rectangle SourceRectangle { get; }
 
         public SpriteSheet(Texture2D texture)
         {

@@ -11,7 +11,7 @@ namespace EOLib.Localization
 {
     public class EDFFile : IEDFFile
     {
-        public Dictionary<int, string> Data { get; private set; }
+        public Dictionary<int, string> Data { get; }
 
         public EDFFile(string fileName, DataFiles whichFile)
         {

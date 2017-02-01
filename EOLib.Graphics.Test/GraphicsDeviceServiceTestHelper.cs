@@ -56,7 +56,7 @@ namespace EOLib.Graphics.Test
             return _singletonInstance;
         }
 
-        public GraphicsDevice GraphicsDevice { get; private set; }
+        public GraphicsDevice GraphicsDevice { get; }
 
         public event EventHandler<EventArgs> DeviceCreated;
         public event EventHandler<EventArgs> DeviceDisposing;

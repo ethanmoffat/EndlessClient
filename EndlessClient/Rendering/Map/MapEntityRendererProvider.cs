@@ -15,9 +15,9 @@ namespace EndlessClient.Rendering.Map
 {
     public class MapEntityRendererProvider : IMapEntityRendererProvider
     {
-        public IReadOnlyList<IMapEntityRenderer> MapBaseRenderers { get; private set; }
+        public IReadOnlyList<IMapEntityRenderer> MapBaseRenderers { get; }
 
-        public IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; private set; }
+        public IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; }
 
         public MapEntityRendererProvider(INativeGraphicsManager nativeGraphicsManager,
                                          ICurrentMapProvider currentMapProvider,

@@ -8,7 +8,7 @@ namespace EOLib.Logger
 {
     public class LoggerProvider : ILoggerProvider
     {
-        public ILogger Logger { get; private set; }
+        public ILogger Logger { get; }
 
         public LoggerProvider(ILoggerFactory loggerFactory)
         {

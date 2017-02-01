@@ -32,7 +32,7 @@ namespace EndlessClient.HUD.Panels.Old
             ClassString = record.ID == 0 ? "-" : record.Name;
         }
 
-        public string ClassString { get; private set; }
+        public string ClassString { get; }
     }
 
     public class OldEOOnlineList : XNAControl

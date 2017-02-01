@@ -30,7 +30,7 @@ namespace EndlessClient.Rendering
         /* Not sure if this is ever transferred to the client at all, but it is a config value... */
         //private static readonly  int[] SPEED_TABLE = {900, 600, 1300, 1900, 3700, 7500, 15000, 0};
 
-        public OldNPC NPC { get; private set; }
+        public OldNPC NPC { get; }
 
         /// <summary>
         /// The actual target draw rectangle of the NPC

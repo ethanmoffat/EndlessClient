@@ -31,7 +31,7 @@ namespace EndlessClient.Dialogs
             Instance.DialogClosing += (o, e) => Instance = null;
         }
 
-        public OldCharacter CharRef { get; private set; }
+        public OldCharacter CharRef { get; }
 
         private readonly Texture2D m_characterIcon;
 

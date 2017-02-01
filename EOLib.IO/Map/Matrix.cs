@@ -15,8 +15,8 @@ namespace EOLib.IO.Map
 
         private readonly T[,] _arr;
 
-        public int Rows { get; private set; }
-        public int Cols { get; private set; }
+        public int Rows { get; }
+        public int Cols { get; }
 
         private Matrix(int rows, int cols)
         {
