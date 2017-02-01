@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -21,8 +22,11 @@ namespace EOLib.PacketHandlers
         private const int NPC_ATTK_ACTION = 1;
         private const int NPC_TALK_ACTION = 2;
 
+        private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<INPCAnimationNotifier> _npcAnimationNotifiers;
+        private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterNotifiers;
+        private readonly IEnumerable<IOtherCharacterEventNotifier> _otherCharacterNotifiers;
 
         public override PacketFamily Family => PacketFamily.NPC;
 
@@ -30,11 +34,17 @@ namespace EOLib.PacketHandlers
 
         public NPCActionHandler(IPlayerInfoProvider playerInfoProvider,
                                 ICurrentMapStateRepository currentMapStateRepository,
-                                IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers)
+                                ICharacterRepository characterRepository,
+                                IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers,
+                                IEnumerable<IMainCharacterEventNotifier> mainCharacterNotifiers,
+                                IEnumerable<IOtherCharacterEventNotifier> otherCharacterNotifiers)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
+            _characterRepository = characterRepository;
             _npcAnimationNotifiers = npcAnimationNotifiers;
+            _mainCharacterNotifiers = mainCharacterNotifiers;
+            _otherCharacterNotifiers = otherCharacterNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -54,12 +64,19 @@ namespace EOLib.PacketHandlers
             }
             catch (InvalidOperationException) { return false; }
 
+            var updatedNpc = Optional<INPC>.Empty;
             switch (num255s)
             {
                 case NPC_WALK_ACTION: HandleNPCWalk(packet, npc); break;
-                case NPC_ATTK_ACTION: HandleNPCAttack(packet, npc); break;
+                case NPC_ATTK_ACTION: updatedNpc = HandleNPCAttack(packet, npc); break;
                 case NPC_TALK_ACTION: HandleNPCTalk(packet, npc); break;
                 default: throw new MalformedPacketException("Unknown NPC action " + num255s + " specified in packet from server!", packet);
+            }
+
+            if (updatedNpc.HasValue)
+            {
+                _currentMapStateRepository.NPCs.Remove(npc);
+                _currentMapStateRepository.NPCs.Add(updatedNpc.Value);
             }
 
             return true;
@@ -84,16 +101,50 @@ namespace EOLib.PacketHandlers
                 notifier.StartNPCWalkAnimation(npc.Index);
         }
 
-        private void HandleNPCAttack(IPacket packet, INPC npc)
+        private Optional<INPC> HandleNPCAttack(IPacket packet, INPC npc)
         {
-            //todo
-            //var isDead = packet.ReadChar() == 2; //2 if target player is dead, 1 if alive
-            //var npcDirection = (EODirection) packet.ReadChar();
-            //var targetPlayerID = packet.ReadShort();
-            //var damageDoneToPlayer = packet.ReadThree();
-            //var targetPlayerPercentHealth = packet.ReadThree();
-            //if (packet.ReadBytes(2).Any(b => b != 255))
-            //    throw new MalformedPacketException("Expected 2 bytes of value 0xFF in NPC_PLAYER packet for Attack action", packet);
+            var isDead = packet.ReadChar() == 2; //2 if target player is dead, 1 if alive
+            var npcDirection = (EODirection)packet.ReadChar();
+            var characterID = packet.ReadShort();
+            var damageTaken = packet.ReadThree();
+            var playerPercentHealth = packet.ReadThree();
+            if (packet.ReadBytes(2).Any(b => b != 255))
+                throw new MalformedPacketException("Expected 2 bytes of value 0xFF in NPC_PLAYER packet for Attack action", packet);
+
+            if (characterID == _characterRepository.MainCharacter.ID)
+            {
+                var characterToUpdate = _characterRepository.MainCharacter;
+                var stats = characterToUpdate.Stats;
+                stats = stats.WithNewStat(CharacterStat.HP, (short)Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
+                _characterRepository.MainCharacter = characterToUpdate.WithStats(stats);
+
+                foreach (var notifier in _mainCharacterNotifiers)
+                {
+                    if (isDead)
+                        notifier.NotifyDead();
+
+                    notifier.NotifyTakeDamage(damageTaken, playerPercentHealth);
+                }
+            }
+            else
+            {
+                var characterToUpdate = _currentMapStateRepository.Characters.Single(x => x.ID == characterID);
+
+                var stats = characterToUpdate.Stats;
+                stats = stats.WithNewStat(CharacterStat.HP, (short) Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
+
+                var updatedCharacter = characterToUpdate.WithStats(stats);
+                _currentMapStateRepository.Characters.Remove(characterToUpdate);
+                _currentMapStateRepository.Characters.Add(updatedCharacter);
+
+                foreach(var notifier in _otherCharacterNotifiers)
+                    notifier.OtherCharacterTakeDamage(characterID, isDead, playerPercentHealth, damageTaken);
+            }
+
+            foreach (var notifier in _npcAnimationNotifiers)
+                notifier.StartNPCAttackAnimation(npc.Index);
+
+            return new Optional<INPC>(npc.WithDirection(npcDirection));
         }
 
         private void HandleNPCTalk(IPacket packet, INPC npc)
