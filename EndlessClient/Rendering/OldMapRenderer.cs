@@ -615,38 +615,6 @@ namespace EndlessClient.Rendering
             indexes.ForEach(x => RemoveOtherNPC(x));
         }
 
-        public void NPCAttack(byte index, bool isTargetPlayerDead, EODirection dir, short targetPlayerId, int damageToPlayer, int playerPctHealth)
-        {
-            lock (_npcListLock)
-            {
-                OldNPCRenderer toAttack = _npcRenderers.Find(_npc => _npc.NPC.Index == index);
-                if (toAttack != null && !toAttack.NPC.Attacking)
-                {
-                    toAttack.Attack(dir);
-                }
-            }
-
-            lock (_characterListLock)
-            {
-                OldCharacterRenderer rend = targetPlayerId == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
-                    ? OldWorld.Instance.ActiveCharacterRenderer
-                    : _characterRenderers.Find(_rend => _rend.Character.ID == targetPlayerId);
-
-                if (rend == null) return; //couldn't find other player :(
-
-                rend.Character.Stats.HP = (short) Math.Max(rend.Character.Stats.HP - damageToPlayer, 0);
-                if (rend.Character == OldWorld.Instance.MainPlayer.ActiveCharacter && ((EOGame) Game).Hud != null)
-                {
-                    //update health in UI
-                    ((EOGame) Game).Hud.RefreshStats();
-                }
-                rend.SetDamageCounterValue(damageToPlayer, playerPctHealth);
-
-                if (isTargetPlayerDead)
-                    rend.Die();
-            }
-        }
-
         public void NPCTakeDamage(short npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID = -1)
         {
             lock (_npcListLock)
