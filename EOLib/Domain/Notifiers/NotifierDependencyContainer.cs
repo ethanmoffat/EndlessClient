@@ -17,7 +17,8 @@ namespace EOLib.Domain.Notifiers
                 .RegisterVaried<IMapChangedNotifier, NoOpMapChangedNotifier>()
                 .RegisterVaried<INPCAnimationNotifier, NoOpNpcAnimationNotifier>()
                 .RegisterVaried<IOtherCharacterAnimationNotifier, NoOpOtherCharacterAnimationNotifier>()
-                .RegisterVaried<IMainCharacterEventNotifier, NoOpMainCharacterEventNotifier>();
+                .RegisterVaried<IMainCharacterEventNotifier, NoOpMainCharacterEventNotifier>()
+                .RegisterVaried<IOtherCharacterEventNotifier, NoOpOtherCharacterEventNotifier>();
         }
     }
 }

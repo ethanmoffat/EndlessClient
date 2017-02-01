@@ -110,6 +110,7 @@
     <Compile Include="Domain\Map\Sign.cs" />
     <Compile Include="Domain\Map\Warp.cs" />
     <Compile Include="Domain\Map\WarpAgreePacketData.cs" />
+    <Compile Include="Domain\Notifiers\IOtherCharacterEventNotifier.cs" />
     <Compile Include="Domain\Notifiers\NotifierDependencyContainer.cs" />
     <Compile Include="Domain\NPC\INPC.cs" />
     <Compile Include="Domain\Notifiers\INPCAnimationNotifier.cs" />
