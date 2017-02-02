@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.Rendering.Factories;
@@ -15,19 +16,19 @@ namespace EndlessClient.Rendering.Character
     public class CharacterRendererUpdater : ICharacterRendererUpdater
     {
         private readonly ICharacterProvider _characterProvider;
-        private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly ICharacterRendererRepository _characterRendererRepository;
         private readonly ICharacterStateCache _characterStateCache;
 
         public CharacterRendererUpdater(ICharacterProvider characterProvider,
-                                            ICurrentMapStateProvider currentMapStateProvider,
-                                            ICharacterRendererFactory characterRendererFactory,
-                                            ICharacterRendererRepository characterRendererRepository,
-                                            ICharacterStateCache characterStateCache)
+                                        ICurrentMapStateRepository currentMapStateRepository,
+                                        ICharacterRendererFactory characterRendererFactory,
+                                        ICharacterRendererRepository characterRendererRepository,
+                                        ICharacterStateCache characterStateCache)
         {
             _characterProvider = characterProvider;
-            _currentMapStateProvider = currentMapStateProvider;
+            _currentMapStateRepository = currentMapStateRepository;
             _characterRendererFactory = characterRendererFactory;
             _characterRendererRepository = characterRendererRepository;
             _characterStateCache = characterStateCache;
@@ -38,7 +39,9 @@ namespace EndlessClient.Rendering.Character
             CreateMainCharacterRendererAndCacheProperties();
             CreateOtherCharacterRenderersAndCacheProperties();
             UpdateAllCharacters(gameTime);
+
             RemoveStaleCharacters();
+            UpdateDeadCharacters();
         }
 
         private void CreateMainCharacterRendererAndCacheProperties()
@@ -63,7 +66,7 @@ namespace EndlessClient.Rendering.Character
 
         private void CreateOtherCharacterRenderersAndCacheProperties()
         {
-            foreach (var character in _currentMapStateProvider.Characters)
+            foreach (var character in _currentMapStateRepository.Characters)
             {
                 var id = character.ID;
 
@@ -105,7 +108,7 @@ namespace EndlessClient.Rendering.Character
             var staleIDs = new List<int>();
             foreach (var kvp in _characterStateCache.CharacterRenderProperties)
             {
-                if (_currentMapStateProvider.Characters.Any(x => x.ID == kvp.Key))
+                if (_currentMapStateRepository.Characters.Any(x => x.ID == kvp.Key))
                     continue;
                 staleIDs.Add(kvp.Key);
             }
@@ -116,6 +119,32 @@ namespace EndlessClient.Rendering.Character
                 _characterRendererRepository.CharacterRenderers[id].Dispose();
                 _characterRendererRepository.CharacterRenderers.Remove(id);
             }
+        }
+
+        private void UpdateDeadCharacters()
+        {
+            var now = DateTime.Now;
+            var deadCharacters = new List<ICharacter>();
+
+            foreach (var character in _currentMapStateRepository.Characters.Where(x => x.RenderProperties.IsDead))
+            {
+                var actionTime = _characterStateCache.DeathStartTimes.SingleOrDefault(x => x.UniqueID == character.ID);
+                if (actionTime == null)
+                {
+                    _characterStateCache.AddDeathStartTime(character.ID, DateTime.Now);
+                }
+                else if ((now - actionTime.ActionStartTime).TotalSeconds > 2)
+                {
+                    _characterStateCache.RemoveDeathStartTime(character.ID);
+                    _characterStateCache.RemoveCharacterState(character.ID);
+
+                    _characterRendererRepository.CharacterRenderers[character.ID].Dispose();
+                    _characterRendererRepository.CharacterRenderers.Remove(character.ID);
+                    deadCharacters.Add(character);
+                }
+            }
+
+            _currentMapStateRepository.Characters.RemoveAll(deadCharacters.Contains);
         }
 
         private ICharacterRenderer InitializeRendererForCharacter(ICharacterRenderProperties renderProperties)
