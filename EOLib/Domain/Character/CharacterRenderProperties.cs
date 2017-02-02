@@ -195,6 +195,13 @@ namespace EOLib.Domain.Character
             return props;
         }
 
+        public ICharacterRenderProperties WithAlive()
+        {
+            var props = MakeCopy(this);
+            props.IsDead = false;
+            return props;
+        }
+
         public object Clone()
         {
             return MakeCopy(this);

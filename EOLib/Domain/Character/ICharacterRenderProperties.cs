@@ -62,5 +62,6 @@ namespace EOLib.Domain.Character
 
         ICharacterRenderProperties WithIsHidden(bool hidden);
         ICharacterRenderProperties WithDead();
+        ICharacterRenderProperties WithAlive();
     }
 }
