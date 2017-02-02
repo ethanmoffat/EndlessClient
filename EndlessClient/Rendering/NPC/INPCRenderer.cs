@@ -3,13 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EndlessClient.Rendering.Chat;
 using EOLib.Domain.NPC;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.NPC
 {
-    public interface INPCRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable
+    public interface INPCRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable, IHaveChatBubble
     {
         int TopPixel { get; }
 
