@@ -6,11 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.NPC;
+using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
@@ -23,6 +25,8 @@ namespace EOLib.PacketHandlers
         private const int NPC_TALK_ACTION = 2;
 
         private readonly ICharacterRepository _characterRepository;
+        private readonly IChatRepository _chatRepository;
+        private readonly IENFFileProvider _enfFileProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly IEnumerable<INPCAnimationNotifier> _npcAnimationNotifiers;
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterNotifiers;
@@ -35,6 +39,8 @@ namespace EOLib.PacketHandlers
         public NPCActionHandler(IPlayerInfoProvider playerInfoProvider,
                                 ICurrentMapStateRepository currentMapStateRepository,
                                 ICharacterRepository characterRepository,
+                                IChatRepository chatRepository,
+                                IENFFileProvider enfFileProvider,
                                 IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers,
                                 IEnumerable<IMainCharacterEventNotifier> mainCharacterNotifiers,
                                 IEnumerable<IOtherCharacterEventNotifier> otherCharacterNotifiers)
@@ -42,6 +48,8 @@ namespace EOLib.PacketHandlers
         {
             _currentMapStateRepository = currentMapStateRepository;
             _characterRepository = characterRepository;
+            _chatRepository = chatRepository;
+            _enfFileProvider = enfFileProvider;
             _npcAnimationNotifiers = npcAnimationNotifiers;
             _mainCharacterNotifiers = mainCharacterNotifiers;
             _otherCharacterNotifiers = otherCharacterNotifiers;
@@ -154,9 +162,13 @@ namespace EOLib.PacketHandlers
 
         private void HandleNPCTalk(IPacket packet, INPC npc)
         {
-            //todo
-            //var messageLength = packet.ReadChar();
-            //var message = packet.ReadString(messageLength);
+            var messageLength = packet.ReadChar();
+            var message = packet.ReadString(messageLength);
+
+            var npcData = _enfFileProvider.ENFFile[npc.ID];
+
+            var chatData = new ChatData(npcData.Name, message, ChatIcon.Note);
+            _chatRepository.AllChat[ChatTab.Local].Add(chatData);
         }
 
         private static INPC EnsureCorrectXAndY(INPC npc, byte destinationX, byte destinationY)
