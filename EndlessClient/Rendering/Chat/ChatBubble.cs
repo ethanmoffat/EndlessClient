@@ -19,7 +19,6 @@ namespace EndlessClient.Rendering
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
 
         private readonly XNALabel _textLabel;
-        private readonly SpriteBatch _spriteBatch;
 
         private Vector2 _drawLocation;
         private Optional<DateTime> _startTime;
@@ -27,12 +26,10 @@ namespace EndlessClient.Rendering
         private bool ShowBubble { get; set; }
 
         public ChatBubble(IHaveChatBubble referenceRenderer,
-                          IChatBubbleTextureProvider chatBubbleTextureProvider,
-                          IGraphicsDeviceProvider graphicsDeviceProvider)
+                          IChatBubbleTextureProvider chatBubbleTextureProvider)
         {
             _referenceRenderer = referenceRenderer;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
-            _spriteBatch = new SpriteBatch(graphicsDeviceProvider.GraphicsDevice);
 
             _textLabel = new XNALabel(Constants.FontSize08pt5)
             {
@@ -116,38 +113,38 @@ namespace EndlessClient.Rendering
             var color = /*m_useGroupChatColor ? Color.Tan : */ Color.FromNonPremultiplied(255, 255, 255, 232);
 
             //top row
-            _spriteBatch.Draw(TL, _drawLocation, color);
+            spriteBatch.Draw(TL, _drawLocation, color);
             int xCur;
             for (xCur = xCov; xCur < _textLabel.ActualWidth + 6; xCur += TM.Width)
             {
-                _spriteBatch.Draw(TM, _drawLocation + new Vector2(xCur, 0), color);
+                spriteBatch.Draw(TM, _drawLocation + new Vector2(xCur, 0), color);
             }
-            _spriteBatch.Draw(TR, _drawLocation + new Vector2(xCur, 0), color);
+            spriteBatch.Draw(TR, _drawLocation + new Vector2(xCur, 0), color);
 
             //middle area
             int y;
             for (y = yCov; y < _textLabel.ActualHeight; y += ML.Height)
             {
-                _spriteBatch.Draw(ML, _drawLocation + new Vector2(0, y), color);
+                spriteBatch.Draw(ML, _drawLocation + new Vector2(0, y), color);
                 int x;
                 for (x = xCov; x < xCur; x += MM.Width)
                 {
-                    _spriteBatch.Draw(MM, _drawLocation + new Vector2(x, y), color);
+                    spriteBatch.Draw(MM, _drawLocation + new Vector2(x, y), color);
                 }
-                _spriteBatch.Draw(MR, _drawLocation + new Vector2(xCur, y), color);
+                spriteBatch.Draw(MR, _drawLocation + new Vector2(xCur, y), color);
             }
 
             //bottom row
-            _spriteBatch.Draw(BL, _drawLocation + new Vector2(0, y), color);
+            spriteBatch.Draw(BL, _drawLocation + new Vector2(0, y), color);
             int x2;
             for (x2 = xCov; x2 < xCur; x2 += BM.Width)
             {
-                _spriteBatch.Draw(BM, _drawLocation + new Vector2(x2, y), color);
+                spriteBatch.Draw(BM, _drawLocation + new Vector2(x2, y), color);
             }
-            _spriteBatch.Draw(BR, _drawLocation + new Vector2(x2, y), color);
+            spriteBatch.Draw(BR, _drawLocation + new Vector2(x2, y), color);
 
             y += BM.Height;
-            _spriteBatch.Draw(NUB, _drawLocation + new Vector2((x2 + BR.Width - NUB.Width)/2f, y - 1), color);
+            spriteBatch.Draw(NUB, _drawLocation + new Vector2((x2 + BR.Width - NUB.Width)/2f, y - 1), color);
         }
 
         ~ChatBubble()
@@ -165,7 +162,6 @@ namespace EndlessClient.Rendering
         {
             if (disposing)
             {
-                _spriteBatch.Dispose();
                 _textLabel.Dispose();
             }
         }
