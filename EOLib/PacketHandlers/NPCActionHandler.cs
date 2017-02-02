@@ -169,6 +169,9 @@ namespace EOLib.PacketHandlers
 
             var chatData = new ChatData(npcData.Name, message, ChatIcon.Note);
             _chatRepository.AllChat[ChatTab.Local].Add(chatData);
+
+            foreach (var notifier in _npcAnimationNotifiers)
+                notifier.ShowNPCSpeechBubble(npc.Index, message);
         }
 
         private static INPC EnsureCorrectXAndY(INPC npc, byte destinationX, byte destinationY)

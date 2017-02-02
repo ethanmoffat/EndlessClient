@@ -11,6 +11,8 @@ namespace EOLib.Domain.Notifiers
         void StartNPCAttackAnimation(int npcIndex);
 
         void RemoveNPCFromView(int npcIndex, bool showDeathAnimation);
+
+        void ShowNPCSpeechBubble(int npcIndex, string message);
     }
 
     public class NoOpNpcAnimationNotifier : INPCAnimationNotifier
@@ -20,5 +22,7 @@ namespace EOLib.Domain.Notifiers
         public void StartNPCAttackAnimation(int npcIndex) { }
 
         public void RemoveNPCFromView(int npcIndex, bool showDeathAnimation) { }
+
+        public void ShowNPCSpeechBubble(int npcIndex, string message) { }
     }
 }

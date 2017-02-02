@@ -58,6 +58,11 @@ namespace EndlessClient.Rendering.NPC
             }
         }
 
+        public void ShowNPCSpeechBubble(int npcIndex, string message)
+        {
+            //todo: show NPC speech bubble
+        }
+
         private INPCAnimator Animator => _hudControlProvider.GetComponent<INPCAnimator>(HudControlIdentifier.NPCAnimator);
     }
 }
