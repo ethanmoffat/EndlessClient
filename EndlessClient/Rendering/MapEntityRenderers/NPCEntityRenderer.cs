@@ -7,23 +7,19 @@ using System.Linq;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Character;
-using EOLib.Domain.Map;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
 {
     public class NPCEntityRenderer : BaseMapEntityRenderer
     {
-        private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly INPCRendererProvider _npcRendererProvider;
 
         public NPCEntityRenderer(ICharacterProvider characterProvider,
-                                 ICurrentMapStateProvider currentMapStateProvider,
                                  IRenderOffsetCalculator renderOffsetCalculator,
                                  INPCRendererProvider npcRendererProvider)
             : base(characterProvider, renderOffsetCalculator)
         {
-            _currentMapStateProvider = currentMapStateProvider;
             _npcRendererProvider = npcRendererProvider;
         }
 
@@ -33,12 +29,13 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return _currentMapStateProvider.NPCs.Any(n => n.X == col && n.Y == row);
+            return _npcRendererProvider.NPCRenderers.Select(x => x.Value.NPC).Any(n => n.X == col && n.Y == row);
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
-            var indicesToRender = _currentMapStateProvider.NPCs
+            var indicesToRender = _npcRendererProvider.NPCRenderers
+                .Select(x => x.Value.NPC)
                 .Where(npc => npc.X == col && npc.Y == row)
                 .Select(npc => npc.Index);
 

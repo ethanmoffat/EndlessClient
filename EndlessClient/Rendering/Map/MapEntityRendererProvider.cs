@@ -67,7 +67,6 @@ namespace EndlessClient.Rendering.Map
                                                  characterStateCache,
                                                  renderOffsetCalculator),
                 new NPCEntityRenderer(characterProvider,
-                                      currentMapStateProvider,
                                       renderOffsetCalculator,
                                       npcRendererProvider),
                 new RoofLayerRenderer(nativeGraphicsManager,
