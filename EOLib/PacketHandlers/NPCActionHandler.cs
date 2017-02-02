@@ -28,7 +28,7 @@ namespace EOLib.PacketHandlers
         private readonly IChatRepository _chatRepository;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly IEnumerable<INPCAnimationNotifier> _npcAnimationNotifiers;
+        private readonly IEnumerable<INPCActionNotifier> _npcAnimationNotifiers;
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterNotifiers;
         private readonly IEnumerable<IOtherCharacterEventNotifier> _otherCharacterNotifiers;
 
@@ -41,7 +41,7 @@ namespace EOLib.PacketHandlers
                                 ICharacterRepository characterRepository,
                                 IChatRepository chatRepository,
                                 IENFFileProvider enfFileProvider,
-                                IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers,
+                                IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                 IEnumerable<IMainCharacterEventNotifier> mainCharacterNotifiers,
                                 IEnumerable<IOtherCharacterEventNotifier> otherCharacterNotifiers)
             : base(playerInfoProvider)

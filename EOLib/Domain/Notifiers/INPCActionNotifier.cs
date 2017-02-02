@@ -4,7 +4,7 @@
 
 namespace EOLib.Domain.Notifiers
 {
-    public interface INPCAnimationNotifier
+    public interface INPCActionNotifier
     {
         void StartNPCWalkAnimation(int npcIndex);
 
@@ -15,7 +15,7 @@ namespace EOLib.Domain.Notifiers
         void ShowNPCSpeechBubble(int npcIndex, string message);
     }
 
-    public class NoOpNpcAnimationNotifier : INPCAnimationNotifier
+    public class NoOpNPCActionNotifier : INPCActionNotifier
     {
         public void StartNPCWalkAnimation(int npcIndex) { }
 

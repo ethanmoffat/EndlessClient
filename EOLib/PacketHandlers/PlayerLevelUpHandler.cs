@@ -20,7 +20,7 @@ namespace EOLib.PacketHandlers
         public PlayerLevelUpHandler(IPlayerInfoProvider playerInfoProvider,
                                     ICurrentMapStateRepository currentMapStateRepository,
                                     ICharacterRepository characterRepository,
-                                    IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers,
+                                    IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                     IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
             : base(playerInfoProvider, currentMapStateRepository, characterRepository,
                    npcAnimationNotifiers, mainCharacterEventNotifiers) { }
@@ -63,7 +63,7 @@ namespace EOLib.PacketHandlers
         public PlayerLevelUpFromSpellCastHandler(IPlayerInfoProvider playerInfoProvider,
                                                  ICurrentMapStateRepository currentMapStateRepository,
                                                  ICharacterRepository characterRepository,
-                                                 IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers,
+                                                 IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                                  IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
             : base(playerInfoProvider, currentMapStateRepository, characterRepository,
                    npcAnimationNotifiers, mainCharacterEventNotifiers) { }

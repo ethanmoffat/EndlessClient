@@ -55,7 +55,7 @@ namespace EndlessClient.Rendering
                 .RegisterType<INPCSpriteSheet, NPCSpriteSheet>()
                 .RegisterInstance<INPCStateCache, NPCStateCache>()
                 .RegisterType<INPCRendererUpdater, NPCRendererUpdater>()
-                .RegisterVaried<INPCAnimationNotifier, NPCAnimationActions>();
+                .RegisterVaried<INPCActionNotifier, NPCActions>();
 
             container.RegisterType<IRendererRepositoryResetter, RendererRepositoryResetter>();
         }

@@ -77,7 +77,7 @@
     <Compile Include="Input\WalkErrorHandler.cs" />
     <Compile Include="Old\OldCharacter.cs" />
     <Compile Include="Rendering\Map\DoorStateUpdater.cs" />
-    <Compile Include="Rendering\NPC\NPCAnimationActions.cs" />
+    <Compile Include="Rendering\NPC\NPCActions.cs" />
     <Compile Include="Rendering\NPC\NPCAnimator.cs" />
     <Compile Include="Rendering\RenderFrameActionTime.cs" />
     <Compile Include="Subscribers\MainCharacterEventSubscriber.cs" />

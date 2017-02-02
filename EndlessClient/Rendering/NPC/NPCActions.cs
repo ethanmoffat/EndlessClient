@@ -8,13 +8,13 @@ using EOLib.Domain.Notifiers;
 
 namespace EndlessClient.Rendering.NPC
 {
-    public class NPCAnimationActions : INPCAnimationNotifier
+    public class NPCActions : INPCActionNotifier
     {
         private readonly IHudControlProvider _hudControlProvider;
         private readonly INPCStateCache _npcStateCache;
         private readonly INPCRendererRepository _npcRendererRepository;
 
-        public NPCAnimationActions(IHudControlProvider hudControlProvider,
+        public NPCActions(IHudControlProvider hudControlProvider,
                                    INPCStateCache npcStateCache,
                                    INPCRendererRepository npcRendererRepository)
         {

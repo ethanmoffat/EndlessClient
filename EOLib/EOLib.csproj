@@ -113,7 +113,7 @@
     <Compile Include="Domain\Notifiers\IOtherCharacterEventNotifier.cs" />
     <Compile Include="Domain\Notifiers\NotifierDependencyContainer.cs" />
     <Compile Include="Domain\NPC\INPC.cs" />
-    <Compile Include="Domain\Notifiers\INPCAnimationNotifier.cs" />
+    <Compile Include="Domain\Notifiers\INPCActionNotifier.cs" />
     <Compile Include="Domain\NPC\NPC.cs" />
     <Compile Include="Domain\NPC\NPCActionState.cs" />
     <Compile Include="Domain\NPC\NPCFrame.cs" />

@@ -18,7 +18,7 @@ namespace EOLib.PacketHandlers
     {
         protected readonly ICurrentMapStateRepository _currentMapStateRepository;
         protected readonly ICharacterRepository _characterRepository;
-        private readonly IEnumerable<INPCAnimationNotifier> _npcAnimationNotifiers;
+        private readonly IEnumerable<INPCActionNotifier> _npcAnimationNotifiers;
         private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
 
         public override PacketFamily Family => PacketFamily.NPC;
@@ -28,7 +28,7 @@ namespace EOLib.PacketHandlers
         public NPCLeaveMapHandler(IPlayerInfoProvider playerInfoProvider,
                                   ICurrentMapStateRepository currentMapStateRepository,
                                   ICharacterRepository characterRepository,
-                                  IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers,
+                                  IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                   IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
             : base(playerInfoProvider)
         {
@@ -162,7 +162,7 @@ namespace EOLib.PacketHandlers
         public NPCDieFromSpellCastHandler(IPlayerInfoProvider playerInfoProvider,
                                           ICurrentMapStateRepository currentMapStateRepository,
                                           ICharacterRepository characterRepository,
-                                          IEnumerable<INPCAnimationNotifier> npcAnimationNotifiers,
+                                          IEnumerable<INPCActionNotifier> npcAnimationNotifiers,
                                           IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
             : base(playerInfoProvider, currentMapStateRepository, characterRepository,
                    npcAnimationNotifiers, mainCharacterEventNotifiers) { }
