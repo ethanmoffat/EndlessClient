@@ -24,6 +24,8 @@ namespace EndlessClient.Rendering
         private Vector2 _drawLocation;
         private Optional<DateTime> _startTime;
 
+        private bool ShowBubble { get; set; }
+
         public ChatBubble(IHaveChatBubble referenceRenderer,
                           IChatBubbleTextureProvider chatBubbleTextureProvider,
                           IGraphicsDeviceProvider graphicsDeviceProvider)
@@ -53,12 +55,14 @@ namespace EndlessClient.Rendering
         {
             _textLabel.Text = "";
             _textLabel.Visible = false;
+            ShowBubble = false;
         }
 
         public void SetMessage(string message)
         {
             _textLabel.Text = message;
             _textLabel.Visible = true;
+            ShowBubble = true;
 
             _startTime = DateTime.Now;
         }
@@ -71,76 +75,80 @@ namespace EndlessClient.Rendering
                 _referenceRenderer.DrawArea.Y - _textLabel.ActualHeight - 5);
         }
 
-        //public override void Update(GameTime gameTime)
-        //{
-        //    if (!Visible || m_ref == null || !s_textsLoaded || m_label == null)
-        //        return;
+        public void Update()
+        {
+            if (!ShowBubble)
+                return;
 
-        //    _setLabelDrawLoc();
-        //    m_drawLoc = m_label.DrawLocation - new Vector2(s_textures[TL].Width, s_textures[TL].Height);
+            _setLabelDrawLoc();
+            _drawLocation = _textLabel.DrawPosition - new Vector2(
+                _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Width,
+                _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Height);
 
-        //    //This replaces the goAway timer.
-        //    if (m_startTime.HasValue && (DateTime.Now - m_startTime.Value).TotalMilliseconds > Constants.ChatBubbleTimeout)
-        //    {
-        //        Visible = false;
-        //        m_label.Visible = false;
-        //        m_startTime = null;
-        //    }
+            if (_startTime.HasValue && (DateTime.Now - _startTime).TotalMilliseconds > Constants.ChatBubbleTimeout)
+            {
+                ShowBubble = false;
+                _textLabel.Visible = false;
+                _startTime = Optional<DateTime>.Empty;
+            }
+        }
 
-        //    base.Update(gameTime);
-        //}
+        public void DrawToSpriteBatch(SpriteBatch spriteBatch)
+        {
+            if (!ShowBubble)
+                return;
 
-        //public override void Draw(GameTime gameTime)
-        //{
-        //    if (!s_textsLoaded || !Visible) return;
-        //    int xCov = s_textures[TL].Width;
-        //    int yCov = s_textures[TL].Height;
-        //    if (m_sb == null) return;
+            var TL = GetTexture(ChatBubbleTexture.TopLeft);
+            var TM = GetTexture(ChatBubbleTexture.TopMiddle);
+            var TR = GetTexture(ChatBubbleTexture.TopRight);
+            var ML = GetTexture(ChatBubbleTexture.MiddleLeft);
+            var MM = GetTexture(ChatBubbleTexture.MiddleMiddle);
+            var MR = GetTexture(ChatBubbleTexture.MiddleRight);
+            var BL = GetTexture(ChatBubbleTexture.BottomLeft);
+            var BM = GetTexture(ChatBubbleTexture.BottomMiddle);
+            var BR = GetTexture(ChatBubbleTexture.BottomRight);
+            var NUB = GetTexture(ChatBubbleTexture.Nubbin);
 
-        //    Color col = m_useGroupChatColor ? Color.Tan : Color.FromNonPremultiplied(255, 255, 255, 232);
+            var xCov = TL.Width;
+            var yCov = TL.Height;
 
-        //    m_sb.Begin();
+            //todo: use group chat color for group chats
+            var color = /*m_useGroupChatColor ? Color.Tan : */ Color.FromNonPremultiplied(255, 255, 255, 232);
 
-        //    //top row
-        //    m_sb.Draw(s_textures[TL], m_drawLoc, col);
-        //    int xCur;
-        //    for (xCur = xCov; xCur < m_label.ActualWidth + 6; xCur += s_textures[TM].Width)
-        //    {
-        //        m_sb.Draw(s_textures[TM], m_drawLoc + new Vector2(xCur, 0), col);
-        //    }
-        //    m_sb.Draw(s_textures[TR], m_drawLoc + new Vector2(xCur, 0), col);
+            //top row
+            _spriteBatch.Draw(TL, _drawLocation, color);
+            int xCur;
+            for (xCur = xCov; xCur < _textLabel.ActualWidth + 6; xCur += TM.Width)
+            {
+                _spriteBatch.Draw(TM, _drawLocation + new Vector2(xCur, 0), color);
+            }
+            _spriteBatch.Draw(TR, _drawLocation + new Vector2(xCur, 0), color);
 
-        //    //middle area
-        //    int y;
-        //    for (y = yCov; y < m_label.ActualHeight; y += s_textures[ML].Height)
-        //    {
-        //        m_sb.Draw(s_textures[ML], m_drawLoc + new Vector2(0, y), col);
-        //        int x;
-        //        for (x = xCov; x < xCur; x += s_textures[MM].Width)
-        //        {
-        //            m_sb.Draw(s_textures[MM], m_drawLoc + new Vector2(x, y), col);
-        //        }
-        //        m_sb.Draw(s_textures[MR], m_drawLoc + new Vector2(xCur, y), col);
-        //    }
+            //middle area
+            int y;
+            for (y = yCov; y < _textLabel.ActualHeight; y += ML.Height)
+            {
+                _spriteBatch.Draw(ML, _drawLocation + new Vector2(0, y), color);
+                int x;
+                for (x = xCov; x < xCur; x += MM.Width)
+                {
+                    _spriteBatch.Draw(MM, _drawLocation + new Vector2(x, y), color);
+                }
+                _spriteBatch.Draw(MR, _drawLocation + new Vector2(xCur, y), color);
+            }
 
-        //    //bottom row
-        //    m_sb.Draw(s_textures[RL], m_drawLoc + new Vector2(0, y), col);
-        //    int x2;
-        //    for (x2 = xCov; x2 < xCur; x2 += s_textures[RM].Width)
-        //    {
-        //        m_sb.Draw(s_textures[RM], m_drawLoc + new Vector2(x2, y), col);
-        //    }
-        //    m_sb.Draw(s_textures[RR], m_drawLoc + new Vector2(x2, y), col);
-        //    y += s_textures[RM].Height;
-        //    m_sb.Draw(s_textures[NUB], m_drawLoc + new Vector2((x2 + s_textures[RR].Width - s_textures[NUB].Width) / 2f, y - 1), col);
+            //bottom row
+            _spriteBatch.Draw(BL, _drawLocation + new Vector2(0, y), color);
+            int x2;
+            for (x2 = xCov; x2 < xCur; x2 += BM.Width)
+            {
+                _spriteBatch.Draw(BM, _drawLocation + new Vector2(x2, y), color);
+            }
+            _spriteBatch.Draw(BR, _drawLocation + new Vector2(x2, y), color);
 
-        //    try
-        //    {
-        //        m_sb.End();
-        //    }
-        //    catch (ObjectDisposedException) { }
-        //    base.Draw(gameTime);
-        //}
+            y += BM.Height;
+            _spriteBatch.Draw(NUB, _drawLocation + new Vector2((x2 + BR.Width - NUB.Width)/2f, y - 1), color);
+        }
 
         ~ChatBubble()
         {
@@ -161,6 +169,9 @@ namespace EndlessClient.Rendering
                 _textLabel.Dispose();
             }
         }
+
+        private Texture2D GetTexture(ChatBubbleTexture whichTexture) =>
+            _chatBubbleTextureProvider.ChatBubbleTextures[whichTexture];
     }
 
     public interface IChatBubble : IDisposable
@@ -168,5 +179,9 @@ namespace EndlessClient.Rendering
         void SetMessage(string message);
 
         void HideBubble();
+
+        void Update();
+
+        void DrawToSpriteBatch(SpriteBatch spriteBatch);
     }
 }
