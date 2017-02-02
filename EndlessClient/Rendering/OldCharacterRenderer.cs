@@ -92,7 +92,6 @@ namespace EndlessClient.Rendering
         private Timer _attackTimer, _emoteTimer, _spTimer, _spellCastTimer;
         private readonly bool noLocUpdate;
 
-        private readonly EOChatBubble m_chatBubble;
         private readonly DamageCounter m_damageCounter;
 
         private DateTime? m_deadTime, m_lastEmoteTime;
@@ -152,7 +151,6 @@ namespace EndlessClient.Rendering
             //account for adjustment in drawing the skin in the draw method
             TopPixel = (Data.gender == 0 ? 12 : 13) + (i == skinData.Length - 1 ? 0 : i / m_skinSourceRect.Height);
 
-            m_chatBubble = new EOChatBubble(this);
             m_damageCounter = new DamageCounter(this);
 
             _mouseoverName = new BlinkingLabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
@@ -249,12 +247,6 @@ namespace EndlessClient.Rendering
                 }, null, 0, 1000);
                 
                 _spellCastTimer = new Timer(_endSpellCast, null, Timeout.Infinite, Timeout.Infinite);
-            }
-
-            if (m_chatBubble != null) //this will be null when constructed during menu time
-            {
-                m_chatBubble.Initialize();
-                m_chatBubble.LoadContent();
             }
 
             m_lastActTime = DateTime.Now;
@@ -1197,14 +1189,8 @@ namespace EndlessClient.Rendering
             catch (InvalidOperationException) { }
         }
 
-        public void SetChatBubbleText(string msg, bool isGroupChat)
-        {
-            m_chatBubble.SetMessage(msg, isGroupChat);
-        }
-
         public void HideChatBubble()
         {
-            m_chatBubble.HideBubble();
         }
 
         public void SetDamageCounterValue(int value, int pctHealth, bool isHeal = false)
@@ -1415,8 +1401,6 @@ namespace EndlessClient.Rendering
                     _spTimer.Dispose();
                 if (_charRenderTarget != null)
                     _charRenderTarget.Dispose();
-                if (m_chatBubble != null)
-                    m_chatBubble.Dispose();
                 if (_mouseoverName != null)
                     _mouseoverName.Close();
             }

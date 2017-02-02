@@ -67,7 +67,6 @@ namespace EndlessClient.Rendering
         private int DrawOffsetY => NPC.X * 16 + NPC.Y * 16 + walkingAdjustedY;
 
         //"child" controls added to this NPC
-        private readonly EOChatBubble _chatBubble;
         private readonly DamageCounter m_damageCounter;
         private XNALabel _mouseoverName;
 
@@ -87,7 +86,6 @@ namespace EndlessClient.Rendering
 
             _npcSheet = new NPCSpriteSheet(((EOGame)Game).GFXManager);
 
-            _chatBubble = new EOChatBubble(this);
             m_damageCounter = new DamageCounter(this);
             CreateMouseoverName();
         }
@@ -108,9 +106,6 @@ namespace EndlessClient.Rendering
             var baseFrame = _npcSheet.GetNPCTexture(NPC.Data.Graphic, Frame, NPC.Direction);
             _npcTextureFrameRectangle = new Rectangle(0, 0, baseFrame.Width, baseFrame.Height);
             UpdateDrawArea();
-
-            _chatBubble.Initialize();
-            _chatBubble.LoadContent();
         }
 
         public override void Update(GameTime gameTime)
@@ -196,14 +191,8 @@ namespace EndlessClient.Rendering
             NPC.BeginAttacking(dir);
         }
 
-        public void SetChatBubbleText(string message, bool isGroupChat)
-        {
-            _chatBubble.SetMessage(message, isGroupChat);
-        }
-
         public void HideChatBubble()
         {
-            _chatBubble.HideBubble();
         }
 
         public void TakeDamageFrom(OldCharacter opponent, int damage, int pctHealth)
@@ -463,9 +452,6 @@ namespace EndlessClient.Rendering
             {
                 if (_sb != null)
                     _sb.Dispose();
-
-                if (_chatBubble != null)
-                    _chatBubble.Dispose();
 
                 if (_mouseoverName != null)
                     _mouseoverName.Close();
