@@ -7,7 +7,7 @@ using EndlessClient.Rendering.Chat;
 using EOLib;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Rendering
 {
@@ -16,46 +16,21 @@ namespace EndlessClient.Rendering
     public class ChatBubble
     {
         private readonly IHaveChatBubble _referenceRenderer;
-        private const int TL = 0, TM = 1, TR = 2;
-        private const int ML = 3, MM = 4, MR = 5;
-        private const int RL = 6, RM = 7, RR = 8, NUB = 9;
+        private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
 
-        private XNALabel m_label;
-
-        private SpriteBatch m_sb;
-
-        private Vector2 m_drawLoc;
+        private readonly XNALabel _textLabel;
+        private readonly SpriteBatch _spriteBatch;
+        private Vector2 _drawLoc;
 
         private DateTime? m_startTime;
 
-        //texture stuff
-        private static bool s_textsLoaded;
-        private static readonly object s_textlocker = new object();
-        private static Texture2D[] s_textures;
-
-        public ChatBubble(IHaveChatBubble referenceRenderer)
+        public ChatBubble(IHaveChatBubble referenceRenderer,
+                          IChatBubbleTextureProvider chatBubbleTextureProvider)
         {
             _referenceRenderer = referenceRenderer;
-            _initLabel();
-        }
+            _chatBubbleTextureProvider = chatBubbleTextureProvider;
 
-        public void HideBubble()
-        {
-            m_label.Text = "";
-            m_label.Visible = false;
-        }
-
-        public void SetMessage(string message)
-        {
-            m_label.Text = message;
-            m_label.Visible = true;
-
-            m_startTime = DateTime.Now;
-        }
-
-        private void _initLabel()
-        {
-            m_label = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt5)
+            _textLabel = new XNALabel(Constants.FontSize08pt5)
             {
                 Visible = true,
                 TextWidth = 165,
@@ -68,42 +43,27 @@ namespace EndlessClient.Rendering
             _setLabelDrawLoc();
         }
 
+        public void HideBubble()
+        {
+            //m_label.Text = "";
+            //m_label.Visible = false;
+        }
+
+        public void SetMessage(string message)
+        {
+            //m_label.Text = message;
+            //m_label.Visible = true;
+
+            m_startTime = DateTime.Now;
+        }
+
         private void _setLabelDrawLoc()
         {
             //Rectangle refArea = m_isChar ? ((OldCharacterRenderer)m_ref).DrawAreaWithOffset : ((OldNPCRenderer)m_ref).DrawArea;
-            int extra = s_textsLoaded ? s_textures[ML].Width : 0;
+            //int extra = s_textsLoaded ? s_textures[ML].Width : 0;
             //if(m_label != null) //really missing the ?. operator :-/
             //    m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.ActualHeight - 5);
         }
-
-        //public new void LoadContent()
-        //{
-        //    if (m_sb == null)
-        //        m_sb = new SpriteBatch(GraphicsDevice);
-
-        //    //race condition: if 2 speech bubbles are created simultaneously it may try to load textures twice
-        //    lock (s_textlocker)
-        //    {
-        //        if (!s_textsLoaded)
-        //        {
-        //            s_textures = new Texture2D[10];
-        //            s_textures[TL] = Game.Content.Load<Texture2D>("ChatBubble\\TL");
-        //            s_textures[TM] = Game.Content.Load<Texture2D>("ChatBubble\\TM");
-        //            s_textures[TR] = Game.Content.Load<Texture2D>("ChatBubble\\TR");
-        //            s_textures[ML] = Game.Content.Load<Texture2D>("ChatBubble\\ML");
-        //            s_textures[MM] = Game.Content.Load<Texture2D>("ChatBubble\\MM");
-        //            s_textures[MR] = Game.Content.Load<Texture2D>("ChatBubble\\MR");
-        //            //typed an R instead of a B. I'm tired; somehow bot=R made more sense than bot=B
-        //            s_textures[RL] = Game.Content.Load<Texture2D>("ChatBubble\\RL");
-        //            s_textures[RM] = Game.Content.Load<Texture2D>("ChatBubble\\RM");
-        //            s_textures[RR] = Game.Content.Load<Texture2D>("ChatBubble\\RR");
-        //            s_textures[NUB] = Game.Content.Load<Texture2D>("ChatBubble\\NUB");
-        //            s_textsLoaded = true;
-        //        }
-        //    }
-
-        //    base.LoadContent();
-        //}
 
         //public override void Update(GameTime gameTime)
         //{

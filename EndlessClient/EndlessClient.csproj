@@ -76,6 +76,8 @@
     <Compile Include="Input\UserInputHandlerFactory.cs" />
     <Compile Include="Input\WalkErrorHandler.cs" />
     <Compile Include="Old\OldCharacter.cs" />
+    <Compile Include="Rendering\Chat\ChatBubbleTexture.cs" />
+    <Compile Include="Rendering\Chat\ChatBubbleTextureProvider.cs" />
     <Compile Include="Rendering\Chat\IHaveChatBubble.cs" />
     <Compile Include="Rendering\Map\DoorStateUpdater.cs" />
     <Compile Include="Rendering\NPC\NPCActions.cs" />

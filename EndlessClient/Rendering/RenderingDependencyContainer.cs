@@ -4,6 +4,7 @@
 
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.MapEntityRenderers;
@@ -56,6 +57,10 @@ namespace EndlessClient.Rendering
                 .RegisterInstance<INPCStateCache, NPCStateCache>()
                 .RegisterType<INPCRendererUpdater, NPCRendererUpdater>()
                 .RegisterVaried<INPCActionNotifier, NPCActions>();
+
+            //chat
+            container
+                .RegisterInstance<IChatBubbleTextureProvider, ChatBubbleTextureProvider>();
 
             container.RegisterType<IRendererRepositoryResetter, RendererRepositoryResetter>();
         }
