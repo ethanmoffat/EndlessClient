@@ -431,11 +431,6 @@ namespace EndlessClient.Old
                 throw new FileNotFoundException("Unable to remap the file, something broke");
         }
 
-        //private void _npcChat(byte index, string message)
-        //{
-        //    OldWorld.Instance.ActiveMapRenderer.RenderChatMessage(ChatType.NPC, index, message, ChatIcon.Note);
-        //}
-
         private void _npcTakeDamage(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID, short fromTP)
         {
             OldWorld.Instance.ActiveMapRenderer.NPCTakeDamage(npcIndex, fromPlayerID, fromDirection, damageToNPC, npcPctHealth, spellID);

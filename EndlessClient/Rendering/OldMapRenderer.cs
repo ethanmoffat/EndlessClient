@@ -8,7 +8,6 @@ using System.Linq;
 using System.Threading;
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
-using EndlessClient.HUD.Panels.Old;
 using EndlessClient.Old;
 using EOLib;
 using EOLib.Domain.Character;
@@ -21,7 +20,6 @@ using EOLib.Net.API;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using ChatType = EOLib.Domain.Chat.ChatType;
 
 namespace EndlessClient.Rendering
 {
@@ -89,76 +87,6 @@ namespace EndlessClient.Rendering
         }
 
         #region /* PUBLIC INTERFACE -- CHAT + MAP RELATED */
-        public void RenderChatMessage(ChatType messageType, int playerID, string message, ChatIcon chatIcon = ChatIcon.None)
-        {
-            //convert the messageType into a valid ChatTab to pass everything on to
-            ChatTab tab;
-            switch (messageType)
-            {
-                case ChatType.NPC:
-                case ChatType.Local: tab = ChatTab.Local; break;
-                case ChatType.Party: tab = ChatTab.Group; break;
-                default: throw new ArgumentOutOfRangeException(nameof(messageType), "Unsupported message type for chat rendering");
-            }
-
-            DrawableGameComponent dgc;
-            string playerName = null;
-            if (messageType == ChatType.NPC)
-            {
-                lock(_npcListLock)
-                    dgc = _npcRenderers.Find(_npc => _npc.NPC.Index == playerID);
-                if (dgc != null)
-                    playerName = ((OldNPCRenderer)dgc).NPC.Data.Name;
-            }
-            else
-            {
-                lock (_characterListLock)
-                {
-                    dgc = _characterRenderers.Find(_rend => _rend.Character.ID == playerID);
-                    if (dgc != null)
-                        playerName = ((OldCharacterRenderer) dgc).Character.Name;
-                }
-            }
-
-            if (playerName == null) return;
-
-            if(playerName.Length > 1)
-                playerName = char.ToUpper(playerName[0]) + playerName.Substring(1);
-
-            if (EOGame.Instance.Hud == null)
-                return;
-
-            message = OldChatRenderer.Filter(message, false);
-
-            if (message != null)
-            {
-                EOGame.Instance.Hud.AddChat(tab, playerName, message, chatIcon);
-                if (messageType == ChatType.Party)
-                {
-                    //party chat also adds to local with the PM color
-                    EOGame.Instance.Hud.AddChat(ChatTab.Local, playerName, message, chatIcon, ChatColor.PM);
-                }
-                MakeSpeechBubble(dgc, message, messageType == ChatType.Party);
-            }
-        }
-
-        public void MakeSpeechBubble(DrawableGameComponent follow, string message, bool groupChat)
-        {
-            if (!OldWorld.Instance.ShowChatBubbles)
-                return;
-
-            if (follow == null)
-                follow = OldWorld.Instance.ActiveCharacterRenderer; /* Calling with null assumes Active Character */
-
-            //show just the speech bubble, since this should be called from the HUD and rendered there already
-
-// ReSharper disable CanBeReplacedWithTryCastAndCheckForNull
-            if (follow is OldCharacterRenderer)
-                ((OldCharacterRenderer)follow).SetChatBubbleText(message, groupChat);
-            else if (follow is OldNPCRenderer)
-                ((OldNPCRenderer)follow).SetChatBubbleText(message, groupChat);
-// ReSharper restore CanBeReplacedWithTryCastAndCheckForNull
-        }
 
         public void SetActiveMap(IMapFile newActiveMap)
         {
