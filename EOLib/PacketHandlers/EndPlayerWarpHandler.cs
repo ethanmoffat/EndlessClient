@@ -49,7 +49,13 @@ namespace EOLib.PacketHandlers
             var warpAgreePacketData = _warpAgreePacketTranslator.TranslatePacket(packet);
 
             var updatedMainCharacter = warpAgreePacketData.Characters.Single(MainCharacterIDMatches);
-            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithAppliedData(updatedMainCharacter);
+
+            //character.renderproperties.isdead is set True by the attack handler
+            //the character needs to be brought back to life when the are taken to the home map
+            var bringBackToLife = _characterRepository.MainCharacter.RenderProperties.WithAlive();
+            _characterRepository.MainCharacter = _characterRepository.MainCharacter
+                .WithRenderProperties(bringBackToLife)
+                .WithAppliedData(updatedMainCharacter);
 
             var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !MainCharacterIDMatches(x));
             warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter);
