@@ -307,7 +307,7 @@
     <Compile Include="Rendering\Sprites\BootsSpriteType.cs" />
     <Compile Include="Rendering\Sprites\ArmorShieldSpriteType.cs" />
     <Compile Include="Rendering\OldCharacterRenderer.cs" />
-    <Compile Include="Rendering\ChatBubbleRenderer.cs" />
+    <Compile Include="Rendering\ChatBubble.cs" />
     <Compile Include="Rendering\ContextMenuRenderer.cs" />
     <Compile Include="Rendering\Effects\AuraEffectSpriteInfo.cs" />
     <Compile Include="Rendering\Effects\BottomAlignedEffectSpriteInfo.cs" />
