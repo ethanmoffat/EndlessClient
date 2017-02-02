@@ -5,30 +5,32 @@
 using System;
 using EndlessClient.Rendering.Chat;
 using EOLib;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
 namespace EndlessClient.Rendering
 {
-    //todo: add interface
     //todo: handle group chat color
-    public class ChatBubble
+    public class ChatBubble : IChatBubble
     {
         private readonly IHaveChatBubble _referenceRenderer;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
 
         private readonly XNALabel _textLabel;
         private readonly SpriteBatch _spriteBatch;
-        private Vector2 _drawLoc;
 
-        private DateTime? m_startTime;
+        private Vector2 _drawLocation;
+        private Optional<DateTime> _startTime;
 
         public ChatBubble(IHaveChatBubble referenceRenderer,
-                          IChatBubbleTextureProvider chatBubbleTextureProvider)
+                          IChatBubbleTextureProvider chatBubbleTextureProvider,
+                          IGraphicsDeviceProvider graphicsDeviceProvider)
         {
             _referenceRenderer = referenceRenderer;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
+            _spriteBatch = new SpriteBatch(graphicsDeviceProvider.GraphicsDevice);
 
             _textLabel = new XNALabel(Constants.FontSize08pt5)
             {
@@ -39,30 +41,34 @@ namespace EndlessClient.Rendering
                 AutoSize = true,
                 Text = ""
             };
+            _textLabel.Initialize(); //todo: figure out if this needs to be removed from game components
+
+            _drawLocation = Vector2.Zero;
+            _startTime = Optional<DateTime>.Empty;
 
             _setLabelDrawLoc();
         }
 
         public void HideBubble()
         {
-            //m_label.Text = "";
-            //m_label.Visible = false;
+            _textLabel.Text = "";
+            _textLabel.Visible = false;
         }
 
         public void SetMessage(string message)
         {
-            //m_label.Text = message;
-            //m_label.Visible = true;
+            _textLabel.Text = message;
+            _textLabel.Visible = true;
 
-            m_startTime = DateTime.Now;
+            _startTime = DateTime.Now;
         }
 
         private void _setLabelDrawLoc()
         {
-            //Rectangle refArea = m_isChar ? ((OldCharacterRenderer)m_ref).DrawAreaWithOffset : ((OldNPCRenderer)m_ref).DrawArea;
-            //int extra = s_textsLoaded ? s_textures[ML].Width : 0;
-            //if(m_label != null) //really missing the ?. operator :-/
-            //    m_label.DrawLocation = new Vector2(refArea.X + (refArea.Width / 2.0f) - (m_label.ActualWidth / 2.0f) + extra, refArea.Y - m_label.ActualHeight - 5);
+            var extra = _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.MiddleLeft].Width;
+            _textLabel.DrawPosition = new Vector2(
+                _referenceRenderer.DrawArea.X + _referenceRenderer.DrawArea.Width/2.0f - _textLabel.ActualWidth/2.0f + extra,
+                _referenceRenderer.DrawArea.Y - _textLabel.ActualHeight - 5);
         }
 
         //public override void Update(GameTime gameTime)
@@ -136,28 +142,31 @@ namespace EndlessClient.Rendering
         //    base.Draw(gameTime);
         //}
 
-        //public new void Dispose()
-        //{
-        //    Dispose(true);
-        //}
+        ~ChatBubble()
+        {
+            Dispose(false);
+        }
 
-        //protected override void Dispose(bool disposing)
-        //{
-        //    if (disposing)
-        //    {
-        //        if (m_sb != null)
-        //        {
-        //            m_sb.Dispose();
-        //            m_sb = null;
-        //        }
-        //        if (m_label != null)
-        //        {
-        //            m_label.Close();
-        //            m_label = null;
-        //        }
-        //    }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-        //    base.Dispose(disposing);
-        //}
+        private void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _spriteBatch.Dispose();
+                _textLabel.Dispose();
+            }
+        }
+    }
+
+    public interface IChatBubble : IDisposable
+    {
+        void SetMessage(string message);
+
+        void HideBubble();
     }
 }
