@@ -3,9 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
+using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Chat;
+using EndlessClient.HUD.Controls;
+using EndlessClient.UIControls;
 using EOLib.Domain.Chat;
 using EOLib.Net;
 using EOLib.Net.Communication;
@@ -21,6 +24,7 @@ namespace EndlessClient.Controllers
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
         private readonly IChatSpeechBubbleActions _chatSpeechBubbleActions;
         private readonly ISafeNetworkOperationFactory _safeNetworkOperationFactory;
+        private readonly IHudControlProvider _hudControlProvider;
 
         public ChatController(IChatTextBoxActions chatTextBoxActions,
                               IChatActions chatActions,
@@ -28,7 +32,8 @@ namespace EndlessClient.Controllers
                               IGameStateActions gameStateActions,
                               IErrorDialogDisplayAction errorDisplayAction,
                               IChatSpeechBubbleActions chatSpeechBubbleActions,
-                              ISafeNetworkOperationFactory safeNetworkOperationFactory)
+                              ISafeNetworkOperationFactory safeNetworkOperationFactory,
+                              IHudControlProvider hudControlProvider)
         {
             _chatTextBoxActions = chatTextBoxActions;
             _chatActions = chatActions;
@@ -37,20 +42,20 @@ namespace EndlessClient.Controllers
             _errorDisplayAction = errorDisplayAction;
             _chatSpeechBubbleActions = chatSpeechBubbleActions;
             _safeNetworkOperationFactory = safeNetworkOperationFactory;
+            _hudControlProvider = hudControlProvider;
         }
 
         public async Task SendChatAndClearTextBox()
         {
-            var targetCharacter = _privateMessageActions.GetTargetCharacter();
+            var targetCharacter = _privateMessageActions.GetTargetCharacter(ChatTextBox.Text);
             var sendChatOperation = _safeNetworkOperationFactory.CreateSafeAsyncOperation(
-                async () => await _chatActions.SendChatToServer(targetCharacter),
+                async () => await _chatActions.SendChatToServer(ChatTextBox.Text, targetCharacter),
                 SetInitialStateAndShowError);
 
             if (!await sendChatOperation.Invoke())
                 return;
 
             _chatTextBoxActions.ClearChatText();
-            _chatTextBoxActions.UpdateChatTextRepository();
 
             _chatSpeechBubbleActions.ShowSpeechBubbleForMainCharacter();
         }
@@ -60,16 +65,13 @@ namespace EndlessClient.Controllers
             _chatTextBoxActions.FocusChatTextBox();
         }
 
-        public void ChatTextChanged()
-        {
-            _chatTextBoxActions.UpdateChatTextRepository();
-        }
-
         private void SetInitialStateAndShowError(NoDataSentException ex)
         {
             _gameStateActions.ChangeToState(GameStates.Initial);
             _errorDisplayAction.ShowException(ex);
         }
+
+        private ChatTextBox ChatTextBox => _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
     }
 
     public interface IChatController
@@ -77,7 +79,5 @@ namespace EndlessClient.Controllers
         Task SendChatAndClearTextBox();
 
         void SelectChatTextBox();
-
-        void ChatTextChanged();
     }
 }

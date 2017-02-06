@@ -10,8 +10,6 @@ namespace EOLib.Domain.Chat
 {
     public interface IChatRepository
     {
-        string LocalTypedText { get; set; }
-
         Dictionary<ChatTab, List<ChatData>> AllChat { get; set; }
 
         string PMTarget1 { get; set; }
@@ -21,8 +19,6 @@ namespace EOLib.Domain.Chat
 
     public interface IChatProvider
     {
-        string LocalTypedText { get; }
-
         IReadOnlyDictionary<ChatTab, IReadOnlyList<ChatData>> AllChat { get; }
 
         string PMTarget1 { get; }
@@ -32,8 +28,6 @@ namespace EOLib.Domain.Chat
 
     public class ChatRepository : IChatRepository, IChatProvider, IResettable
     {
-        public string LocalTypedText { get; set; }
-
         public Dictionary<ChatTab, List<ChatData>> AllChat { get; set; }
 
         IReadOnlyDictionary<ChatTab, IReadOnlyList<ChatData>> IChatProvider.AllChat
@@ -57,8 +51,6 @@ namespace EOLib.Domain.Chat
 
         public void ResetState()
         {
-            LocalTypedText = "";
-
             AllChat = new Dictionary<ChatTab, List<ChatData>>();
             foreach (var tab in (ChatTab[]) Enum.GetValues(typeof(ChatTab)))
                 AllChat.Add(tab, new List<ChatData>());

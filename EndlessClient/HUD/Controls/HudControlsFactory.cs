@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
+using EndlessClient.ControlSets;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Panels;
@@ -16,7 +17,6 @@ using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.NPC;
 using EndlessClient.UIControls;
 using EOLib.Domain.Character;
-using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
 using EOLib.Localization;
@@ -45,7 +45,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
         private readonly IContentManagerProvider _contentManagerProvider;
-        private readonly IChatProvider _chatProvider;
+        private readonly IHudControlProvider _hudControlProvider;
         private readonly IChatModeCalculator _chatModeCalculator;
 
         private IChatController _chatController;
@@ -64,7 +64,7 @@ namespace EndlessClient.HUD.Controls
                                   IStatusLabelSetter statusLabelSetter,
                                   IStatusLabelTextProvider statusLabelTextProvider,
                                   IContentManagerProvider contentManagerProvider,
-                                  IChatProvider chatProvider,
+                                  IHudControlProvider hudControlProvider,
                                   IChatModeCalculator chatModeCalculator)
         {
             _hudButtonController = hudButtonController;
@@ -81,7 +81,7 @@ namespace EndlessClient.HUD.Controls
             _statusLabelSetter = statusLabelSetter;
             _statusLabelTextProvider = statusLabelTextProvider;
             _contentManagerProvider = contentManagerProvider;
-            _chatProvider = chatProvider;
+            _hudControlProvider = hudControlProvider;
             _chatModeCalculator = chatModeCalculator;
         }
 
@@ -235,7 +235,7 @@ namespace EndlessClient.HUD.Controls
         private ChatModePictureBox CreateChatModePictureBox()
         {
             var chatModesTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 31);
-            var pictureBox = new ChatModePictureBox(_chatModeCalculator, _chatProvider, chatModesTexture)
+            var pictureBox = new ChatModePictureBox(_chatModeCalculator, _hudControlProvider, chatModesTexture)
             {
                 DrawArea = new Rectangle(16, 309, chatModesTexture.Width, chatModesTexture.Height / 8),
                 SourceRectangle = new Rectangle(0, 0, chatModesTexture.Width, chatModesTexture.Height / 8),
@@ -249,13 +249,13 @@ namespace EndlessClient.HUD.Controls
         {
             var chatTextBox = new ChatTextBox(_contentManagerProvider)
             {
+                Text = "",
                 Selected = true,
                 Visible = true,
                 DrawOrder = HUD_CONTROL_LAYER
             };
             chatTextBox.OnEnterPressed += async (o, e) => await _chatController.SendChatAndClearTextBox();
             chatTextBox.OnClicked += (o, e) => _chatController.SelectChatTextBox();
-            chatTextBox.OnTextChanged += (o, e) => _chatController.ChatTextChanged();
 
             return chatTextBox;
         }

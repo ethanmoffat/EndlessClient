@@ -9,7 +9,5 @@ namespace EndlessClient.HUD.Chat
         void ClearChatText();
 
         void FocusChatTextBox();
-
-        void UpdateChatTextRepository();
     }
 }
