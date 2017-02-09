@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Character;
@@ -14,13 +15,16 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     public class NPCEntityRenderer : BaseMapEntityRenderer
     {
         private readonly INPCRendererProvider _npcRendererProvider;
+        private readonly IChatBubbleProvider _chatBubbleProvider;
 
         public NPCEntityRenderer(ICharacterProvider characterProvider,
                                  IRenderOffsetCalculator renderOffsetCalculator,
-                                 INPCRendererProvider npcRendererProvider)
+                                 INPCRendererProvider npcRendererProvider,
+                                 IChatBubbleProvider chatBubbleProvider)
             : base(characterProvider, renderOffsetCalculator)
         {
             _npcRendererProvider = npcRendererProvider;
+            _chatBubbleProvider = chatBubbleProvider;
         }
 
         public override MapRenderLayer RenderLayer => MapRenderLayer.Npc;
@@ -48,6 +52,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
                 var renderer = _npcRendererProvider.NPCRenderers[index];
                 renderer.DrawToSpriteBatch(spriteBatch);
+
+                IChatBubble chatBubble;
+                if (_chatBubbleProvider.NPCChatBubbles.TryGetValue(index, out chatBubble))
+                    chatBubble.DrawToSpriteBatch(spriteBatch);
             }
         }
     }

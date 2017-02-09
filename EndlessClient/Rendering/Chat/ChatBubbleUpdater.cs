@@ -22,6 +22,9 @@ namespace EndlessClient.Rendering.Chat
 
             foreach (var chatBubble in _chatBubbleProvider.OtherCharacterChatBubbles.Values)
                 chatBubble.Update();
+
+            foreach (var chatBubble in _chatBubbleProvider.NPCChatBubbles.Values)
+                chatBubble.Update();
         }
     }
 

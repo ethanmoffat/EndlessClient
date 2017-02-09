@@ -13,6 +13,8 @@ namespace EndlessClient.Rendering.Chat
         Optional<IChatBubble> MainCharacterChatBubble { get; set; }
 
         Dictionary<int, IChatBubble> OtherCharacterChatBubbles { get; set; }
+
+        Dictionary<int, IChatBubble> NPCChatBubbles { get; set; }
     }
 
     public interface IChatBubbleProvider
@@ -20,6 +22,8 @@ namespace EndlessClient.Rendering.Chat
         Optional<IChatBubble> MainCharacterChatBubble { get; }
 
         IReadOnlyDictionary<int, IChatBubble> OtherCharacterChatBubbles { get; }
+
+        IReadOnlyDictionary<int, IChatBubble> NPCChatBubbles { get; }
     }
 
     public class ChatBubbleRepository : IChatBubbleRepository, IChatBubbleProvider
@@ -27,13 +31,16 @@ namespace EndlessClient.Rendering.Chat
         public Optional<IChatBubble> MainCharacterChatBubble { get; set; }
 
         public Dictionary<int, IChatBubble> OtherCharacterChatBubbles { get; set; }
+        public Dictionary<int, IChatBubble> NPCChatBubbles { get; set; }
 
         IReadOnlyDictionary<int, IChatBubble> IChatBubbleProvider.OtherCharacterChatBubbles => OtherCharacterChatBubbles;
+        IReadOnlyDictionary<int, IChatBubble> IChatBubbleProvider.NPCChatBubbles => NPCChatBubbles;
 
         public ChatBubbleRepository()
         {
             MainCharacterChatBubble = Optional<IChatBubble>.Empty;
             OtherCharacterChatBubbles = new Dictionary<int, IChatBubble>();
+            NPCChatBubbles = new Dictionary<int, IChatBubble>();
         }
 
         public void Dispose()
@@ -45,6 +52,9 @@ namespace EndlessClient.Rendering.Chat
                 bubble.Dispose();
             OtherCharacterChatBubbles.Clear();
 
+            foreach (var bubble in NPCChatBubbles.Values)
+                bubble.Dispose();
+            NPCChatBubbles.Clear();
         }
     }
 }
