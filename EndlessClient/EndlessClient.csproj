@@ -57,10 +57,10 @@
     <Compile Include="Dialogs\Services\EODialogButtonService.cs" />
     <Compile Include="HUD\Chat\ChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\ChatNotificationActions.cs" />
-    <Compile Include="HUD\Chat\ChatSpeechBubbleActions.cs" />
+    <Compile Include="HUD\Chat\ChatBubbleActions.cs" />
     <Compile Include="HUD\Chat\ChatTextBoxActions.cs" />
     <Compile Include="HUD\Chat\IChatModeCalculator.cs" />
-    <Compile Include="HUD\Chat\IChatSpeechBubbleActions.cs" />
+    <Compile Include="HUD\Chat\IChatBubbleActions.cs" />
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
     <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
     <Compile Include="Input\ArrowKeyHandler.cs" />

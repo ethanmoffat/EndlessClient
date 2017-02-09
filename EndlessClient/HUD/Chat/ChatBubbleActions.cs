@@ -4,9 +4,9 @@
 
 namespace EndlessClient.HUD.Chat
 {
-    public class ChatSpeechBubbleActions : IChatSpeechBubbleActions
+    public class ChatBubbleActions : IChatBubbleActions
     {
-        public void ShowSpeechBubbleForMainCharacter()
+        public void ShowChatBubbleForMainCharacter()
         {
             //todo: show speech bubble
         }

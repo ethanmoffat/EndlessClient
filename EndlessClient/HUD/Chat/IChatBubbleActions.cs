@@ -4,8 +4,8 @@
 
 namespace EndlessClient.HUD.Chat
 {
-    public interface IChatSpeechBubbleActions
+    public interface IChatBubbleActions
     {
-        void ShowSpeechBubbleForMainCharacter();
+        void ShowChatBubbleForMainCharacter();
     }
 }

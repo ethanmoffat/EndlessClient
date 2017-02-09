@@ -92,7 +92,7 @@ namespace EndlessClient
                 .RegisterType<IChatTextBoxActions, ChatTextBoxActions>()
                 .RegisterType<IFirstTimePlayerActions, FirstTimePlayerActions>()
                 .RegisterType<IPrivateMessageActions, PrivateMessageActions>()
-                .RegisterType<IChatSpeechBubbleActions, ChatSpeechBubbleActions>()
+                .RegisterType<IChatBubbleActions, ChatBubbleActions>()
                 .RegisterType<IWalkErrorHandler, WalkErrorHandler>();
 
             //hud
