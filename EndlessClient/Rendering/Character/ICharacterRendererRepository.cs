@@ -36,8 +36,7 @@ namespace EndlessClient.Rendering.Character
 
         public void Dispose()
         {
-            if (MainCharacterRenderer != null)
-                MainCharacterRenderer.Dispose();
+            MainCharacterRenderer?.Dispose();
             MainCharacterRenderer = null;
 
             foreach (var renderer in CharacterRenderers.Values)

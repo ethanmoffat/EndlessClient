@@ -60,7 +60,10 @@ namespace EndlessClient.Rendering
 
             //chat
             container
-                .RegisterInstance<IChatBubbleTextureProvider, ChatBubbleTextureProvider>();
+                .RegisterInstance<IChatBubbleTextureProvider, ChatBubbleTextureProvider>()
+                .RegisterInstance<IChatBubbleRepository, ChatBubbleRepository>()
+                .RegisterInstance<IChatBubbleProvider, ChatBubbleRepository>()
+                .RegisterType<IChatBubbleUpdater, ChatBubbleUpdater>();
 
             container.RegisterType<IRendererRepositoryResetter, RendererRepositoryResetter>();
         }
