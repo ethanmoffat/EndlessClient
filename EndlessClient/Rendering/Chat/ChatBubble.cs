@@ -3,14 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System;
-using EndlessClient.Rendering.Chat;
 using EOLib;
-using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using XNAControls;
 
-namespace EndlessClient.Rendering
+namespace EndlessClient.Rendering.Chat
 {
     //todo: handle group chat color
     public class ChatBubble : IChatBubble
