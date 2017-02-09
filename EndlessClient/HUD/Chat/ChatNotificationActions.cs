@@ -65,7 +65,6 @@ namespace EndlessClient.HUD.Chat
             chatMode.SetMuted(endMuteTime);
 
             chatTextBox.Text = string.Empty;
-            _chatRepository.LocalTypedText = string.Empty;
 
             var chatData = new ChatData(_localizedStringFinder.GetString(EOResourceID.STRING_SERVER),
                 _localizedStringFinder.GetString(EOResourceID.CHAT_MESSAGE_MUTED_BY) + " " + adminName,

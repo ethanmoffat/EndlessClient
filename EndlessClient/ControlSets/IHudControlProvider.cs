@@ -58,7 +58,7 @@ namespace EndlessClient.ControlSets
         };
 
         public HudControlProvider(IGameStateProvider gameStateProvider,
-                                        IControlSetProvider controlSetProvider)
+                                  IControlSetProvider controlSetProvider)
         {
             _gameStateProvider = gameStateProvider;
             _controlSetProvider = controlSetProvider;

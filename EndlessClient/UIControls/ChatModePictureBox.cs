@@ -3,9 +3,10 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EndlessClient.ControlSets;
 using EndlessClient.HUD.Chat;
+using EndlessClient.HUD.Controls;
 using EOLib;
-using EOLib.Domain.Chat;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -16,7 +17,7 @@ namespace EndlessClient.UIControls
     public class ChatModePictureBox : XNAPictureBox
     {
         private readonly IChatModeCalculator _chatModeCalculator;
-        private readonly IChatProvider _chatProvider;
+        private readonly IHudControlProvider _hudControlProvider;
 
         public enum ChatMode
         {
@@ -34,13 +35,13 @@ namespace EndlessClient.UIControls
         private Optional<DateTime> _endMuteTime;
 
         public ChatModePictureBox(IChatModeCalculator chatModeCalculator,
-                                  IChatProvider chatProvider,
+                                  IHudControlProvider hudControlProvider,
                                   Texture2D displayPicture)
         {
             Texture = displayPicture;
 
             _chatModeCalculator = chatModeCalculator;
-            _chatProvider = chatProvider;
+            _hudControlProvider = hudControlProvider;
 
             _lastChat = "";
             _endMuteTime = Optional<DateTime>.Empty;
@@ -65,8 +66,8 @@ namespace EndlessClient.UIControls
             }
             else if (SingleCharTypedOrDeleted())
             {
-                UpdateSourceRectangleForMode(_chatModeCalculator.CalculateMode(_chatProvider.LocalTypedText));
-                _lastChat = _chatProvider.LocalTypedText;
+                UpdateSourceRectangleForMode(_chatModeCalculator.CalculateMode(ChatTextBox.Text));
+                _lastChat = ChatTextBox.Text;
             }
 
             base.OnUpdateControl(gameTime);
@@ -74,8 +75,9 @@ namespace EndlessClient.UIControls
 
         private bool SingleCharTypedOrDeleted()
         {
-            return (_lastChat.Length == 0 && _chatProvider.LocalTypedText.Length == 1) ||
-                   (_lastChat.Length == 1 && _chatProvider.LocalTypedText.Length == 0);
+            return _hudControlProvider.IsInGame &&
+                   ((_lastChat.Length == 0 && ChatTextBox.Text.Length == 1) ||
+                    (_lastChat.Length == 1 && ChatTextBox.Text.Length == 0));
         }
 
         private void UpdateSourceRectangleForMode(ChatMode mode)
@@ -86,5 +88,7 @@ namespace EndlessClient.UIControls
             var source = SourceRectangle.Value;
             SourceRectangle = source.WithPosition(new Vector2(0, (float)mode * source.Height));
         }
+
+        private ChatTextBox ChatTextBox => _hudControlProvider.GetComponent<ChatTextBox>(HudControlIdentifier.ChatTextBox);
     }
 }

@@ -62,7 +62,6 @@
     <Compile Include="HUD\Chat\IChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\IChatSpeechBubbleActions.cs" />
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
-    <Compile Include="HUD\Chat\IPrivateMessageActions.cs" />
     <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
     <Compile Include="Input\ArrowKeyHandler.cs" />
     <Compile Include="Input\ControlKeyHandler.cs" />

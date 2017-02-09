@@ -35,11 +35,6 @@ namespace EOLib.Domain.Chat
             _localCommandHandler = localCommandHandler;
         }
 
-        public async Task SendChatToServer(string targetCharacter)
-        {
-            await SendChatToServer(_chatRepository.LocalTypedText, targetCharacter);
-        }
-
         public async Task SendChatToServer(string chat, string targetCharacter)
         {
             var chatType = _chatTypeCalculator.CalculateChatType(chat);
@@ -158,8 +153,6 @@ namespace EOLib.Domain.Chat
 
     public interface IChatActions
     {
-        Task SendChatToServer(string targetCharacter);
-
         Task SendChatToServer(string chat, string targetCharacter);
     }
 }
