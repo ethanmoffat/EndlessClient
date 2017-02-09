@@ -5,6 +5,7 @@
 using System.IO;
 using EndlessClient.ControlSets;
 using EndlessClient.Rendering;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Test;
 using EOLib.Graphics;
 using EOLib.IO;
@@ -23,6 +24,7 @@ namespace EndlessClient.GameExecution
         private readonly ITestModeLauncher _testModeLauncher;
         private readonly IPubFileLoadActions _pubFileLoadActions;
         private readonly ILoggerProvider _loggerProvider;
+        private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
 
         private readonly IGraphicsDeviceManager _graphicsDeviceManager;
 
@@ -34,7 +36,8 @@ namespace EndlessClient.GameExecution
                            IControlSetFactory controlSetFactory,
                            ITestModeLauncher testModeLauncher,
                            IPubFileLoadActions pubFileLoadActions,
-                           ILoggerProvider loggerProvider)
+                           ILoggerProvider loggerProvider,
+                           IChatBubbleTextureProvider chatBubbleTextureProvider)
         {
             _graphicsDeviceRepository = graphicsDeviceRepository;
             _controlSetRepository = controlSetRepository;
@@ -42,6 +45,7 @@ namespace EndlessClient.GameExecution
             _testModeLauncher = testModeLauncher;
             _pubFileLoadActions = pubFileLoadActions;
             _loggerProvider = loggerProvider;
+            _chatBubbleTextureProvider = chatBubbleTextureProvider;
 
             _graphicsDeviceManager = new GraphicsDeviceManager(this)
             {
@@ -66,9 +70,13 @@ namespace EndlessClient.GameExecution
 
         protected override void LoadContent()
         {
+            //todo: all the things that should load stuff as part of game's load/initialize should be broken into a pattern
+            _chatBubbleTextureProvider.LoadContent();
+
             //the GraphicsDevice doesn't exist until Initialize() is called by the framework
             //Ideally, this would be set in a DependencyContainer, but I'm not sure of a way to do that now
             _graphicsDeviceRepository.GraphicsDevice = GraphicsDevice;
+
             base.LoadContent();
         }
 

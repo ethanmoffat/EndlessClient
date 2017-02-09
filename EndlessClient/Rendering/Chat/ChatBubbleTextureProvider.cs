@@ -19,20 +19,21 @@ namespace EndlessClient.Rendering.Chat
         public ChatBubbleTextureProvider(IContentManagerProvider contentManagerProvider)
         {
             _contentManagerProvider = contentManagerProvider;
+            _chatBubbleTextures = new Dictionary<ChatBubbleTexture, Texture2D>();
+        }
 
-            _chatBubbleTextures = new Dictionary<ChatBubbleTexture, Texture2D>
-            {
-                {ChatBubbleTexture.TopLeft, Content.Load<Texture2D>("ChatBubble\\TL")},
-                {ChatBubbleTexture.TopMiddle, Content.Load<Texture2D>("ChatBubble\\TM")},
-                {ChatBubbleTexture.TopRight, Content.Load<Texture2D>("ChatBubble\\TR")},
-                {ChatBubbleTexture.MiddleLeft, Content.Load<Texture2D>("ChatBubble\\ML")},
-                {ChatBubbleTexture.MiddleMiddle, Content.Load<Texture2D>("ChatBubble\\MM")},
-                {ChatBubbleTexture.MiddleRight, Content.Load<Texture2D>("ChatBubble\\MR")},
-                //todo: change the first 'R' to a 'B' (for bottom)
-                {ChatBubbleTexture.BottomLeft, Content.Load<Texture2D>("ChatBubble\\RL")},
-                {ChatBubbleTexture.BottomMiddle, Content.Load<Texture2D>("ChatBubble\\RM")},
-                {ChatBubbleTexture.BottomRight, Content.Load<Texture2D>("ChatBubble\\RR")}
-            };
+        public void LoadContent()
+        {
+            _chatBubbleTextures.Add(ChatBubbleTexture.TopLeft, Content.Load<Texture2D>("ChatBubble\\TL"));
+            _chatBubbleTextures.Add(ChatBubbleTexture.TopMiddle, Content.Load<Texture2D>("ChatBubble\\TM"));
+            _chatBubbleTextures.Add(ChatBubbleTexture.TopRight, Content.Load<Texture2D>("ChatBubble\\TR"));
+            _chatBubbleTextures.Add(ChatBubbleTexture.MiddleLeft, Content.Load<Texture2D>("ChatBubble\\ML"));
+            _chatBubbleTextures.Add(ChatBubbleTexture.MiddleMiddle, Content.Load<Texture2D>("ChatBubble\\MM"));
+            _chatBubbleTextures.Add(ChatBubbleTexture.MiddleRight, Content.Load<Texture2D>("ChatBubble\\MR"));
+            //todo: change the first 'R' to a 'B' (for bottom)
+            _chatBubbleTextures.Add(ChatBubbleTexture.BottomLeft, Content.Load<Texture2D>("ChatBubble\\RL"));
+            _chatBubbleTextures.Add(ChatBubbleTexture.BottomMiddle, Content.Load<Texture2D>("ChatBubble\\RM"));
+            _chatBubbleTextures.Add(ChatBubbleTexture.BottomRight, Content.Load<Texture2D>("ChatBubble\\RR"));
         }
 
         private ContentManager Content => _contentManagerProvider.Content;
@@ -41,5 +42,7 @@ namespace EndlessClient.Rendering.Chat
     public interface IChatBubbleTextureProvider
     {
         IReadOnlyDictionary<ChatBubbleTexture, Texture2D> ChatBubbleTextures { get; }
+
+        void LoadContent();
     }
 }
