@@ -2,12 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using System;
 using System.Collections.Generic;
 using EOLib;
 
 namespace EndlessClient.Rendering.Chat
 {
-    public interface IChatBubbleRepository
+    public interface IChatBubbleRepository : IDisposable
     {
         Optional<IChatBubble> MainCharacterChatBubble { get; set; }
 
@@ -33,6 +34,17 @@ namespace EndlessClient.Rendering.Chat
         {
             MainCharacterChatBubble = Optional<IChatBubble>.Empty;
             OtherCharacterChatBubbles = new Dictionary<int, IChatBubble>();
+        }
+
+        public void Dispose()
+        {
+            if (MainCharacterChatBubble.HasValue)
+                MainCharacterChatBubble.Value.Dispose();
+
+            foreach (var bubble in OtherCharacterChatBubbles.Values)
+                bubble.Dispose();
+            OtherCharacterChatBubbles.Clear();
+
         }
     }
 }
