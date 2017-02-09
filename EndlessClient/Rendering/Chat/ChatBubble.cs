@@ -21,7 +21,7 @@ namespace EndlessClient.Rendering.Chat
         private Vector2 _drawLocation;
         private Optional<DateTime> _startTime;
 
-        private bool ShowBubble { get; set; }
+        public bool ShowBubble { get; private set; }
 
         public ChatBubble(IHaveChatBubble referenceRenderer,
                           IChatBubbleTextureProvider chatBubbleTextureProvider)
@@ -44,13 +44,6 @@ namespace EndlessClient.Rendering.Chat
             _startTime = Optional<DateTime>.Empty;
 
             _setLabelDrawLoc();
-        }
-
-        public void HideBubble()
-        {
-            _textLabel.Text = "";
-            _textLabel.Visible = false;
-            ShowBubble = false;
         }
 
         public void SetMessage(string message)
@@ -86,6 +79,8 @@ namespace EndlessClient.Rendering.Chat
                 _textLabel.Visible = false;
                 _startTime = Optional<DateTime>.Empty;
             }
+
+            _textLabel.Update(new GameTime());
         }
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
@@ -143,6 +138,8 @@ namespace EndlessClient.Rendering.Chat
 
             y += BM.Height;
             spriteBatch.Draw(NUB, _drawLocation + new Vector2((x2 + BR.Width - NUB.Width)/2f, y - 1), color);
+
+            _textLabel.Draw(new GameTime());
         }
 
         ~ChatBubble()
@@ -170,9 +167,9 @@ namespace EndlessClient.Rendering.Chat
 
     public interface IChatBubble : IDisposable
     {
-        void SetMessage(string message);
+        bool ShowBubble { get; }
 
-        void HideBubble();
+        void SetMessage(string message);
 
         void Update();
 
