@@ -58,8 +58,9 @@ namespace EndlessClient.Rendering.Chat
             spriteBatch.Begin();
 
             var pos = TOP_LEFT + new Vector2(0, DisplayIndex*13);
-            spriteBatch.Draw(GetChatIconGraphic(_data.Icon, nativeGraphicsManager, spriteBatch.GraphicsDevice),
+            spriteBatch.Draw(nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true),
                              new Vector2(pos.X + ICON_GRAPHIC_X_OFF, pos.Y + HeaderYOffset),
+                             GetChatIconRectangle(_data.Icon),
                              Color.White);
 
             string strToDraw;
@@ -76,20 +77,9 @@ namespace EndlessClient.Rendering.Chat
             spriteBatch.End();
         }
 
-        private Texture2D GetChatIconGraphic(ChatIcon icon, INativeGraphicsManager graphicsManager, GraphicsDevice graphicsDevice)
+        private static Rectangle? GetChatIconRectangle(ChatIcon icon)
         {
-            var ret = new Texture2D(graphicsDevice, 13, 13);
-            if (icon == ChatIcon.None)
-                return ret;
-
-            var data = new Color[ret.Width * ret.Height];
-
-            var texture = graphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 32, true);
-            texture.GetData(0, new Rectangle(0, (int)icon * 13, 13, 13), data, 0, data.Length);
-
-            ret.SetData(data);
-
-            return ret;
+            return icon == ChatIcon.None ? Rectangle.Empty : new Rectangle(0, (int)icon * 13, 13, 13);
         }
     }
 
