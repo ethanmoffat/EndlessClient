@@ -11,4 +11,9 @@ namespace EndlessClient.HUD.Chat
             //todo: show speech bubble
         }
     }
+
+    public interface IChatBubbleActions
+    {
+        void ShowChatBubbleForMainCharacter();
+    }
 }
