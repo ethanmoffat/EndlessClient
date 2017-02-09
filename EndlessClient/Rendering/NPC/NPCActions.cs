@@ -72,8 +72,10 @@ namespace EndlessClient.Rendering.NPC
                 chatBubble.SetMessage(message);
             else
             {
-                chatBubble = new ChatBubble(_npcRendererRepository.NPCRenderers[npcIndex],
+                chatBubble = new ChatBubble(message,
+                                            _npcRendererRepository.NPCRenderers[npcIndex],
                                             _chatBubbleTextureProvider);
+
                 _chatBubbleRepository.NPCChatBubbles.Add(npcIndex, chatBubble);
             }
         }

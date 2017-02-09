@@ -20,11 +20,12 @@ namespace EndlessClient.Rendering.Chat
         private readonly XNALabel _textLabel;
 
         private Vector2 _drawLocation;
-        private Optional<DateTime> _startTime;
+        private DateTime _startTime;
 
-        public bool ShowBubble { get; private set; }
+        public bool ShowBubble { get; private set; } = true;
 
-        public ChatBubble(IHaveChatBubble referenceRenderer,
+        public ChatBubble(string message,
+                          IHaveChatBubble referenceRenderer,
                           IChatBubbleTextureProvider chatBubbleTextureProvider)
         {
             _referenceRenderer = referenceRenderer;
@@ -37,12 +38,12 @@ namespace EndlessClient.Rendering.Chat
                 TextAlign = LabelAlignment.MiddleCenter,
                 ForeColor = Color.Black,
                 AutoSize = true,
-                Text = ""
+                Text = message
             };
             _textLabel.Initialize(); //todo: figure out if this needs to be removed from game components
 
             _drawLocation = Vector2.Zero;
-            _startTime = Optional<DateTime>.Empty;
+            _startTime = DateTime.Now;
 
             _setLabelDrawLoc();
         }
@@ -50,7 +51,6 @@ namespace EndlessClient.Rendering.Chat
         public void SetMessage(string message)
         {
             _textLabel.Text = message;
-            _textLabel.Visible = true;
             ShowBubble = true;
 
             _startTime = DateTime.Now;
@@ -74,7 +74,7 @@ namespace EndlessClient.Rendering.Chat
                 _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Width,
                 _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Height);
 
-            if (_startTime.HasValue && (DateTime.Now - _startTime).TotalMilliseconds > Constants.ChatBubbleTimeout)
+            if ((DateTime.Now - _startTime).TotalMilliseconds > Constants.ChatBubbleTimeout)
             {
                 ShowBubble = false;
                 _textLabel.Visible = false;
