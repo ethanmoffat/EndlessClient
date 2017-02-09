@@ -34,6 +34,7 @@ namespace EndlessClient.Rendering.Chat
             _chatBubbleTextures.Add(ChatBubbleTexture.BottomLeft, Content.Load<Texture2D>("ChatBubble\\RL"));
             _chatBubbleTextures.Add(ChatBubbleTexture.BottomMiddle, Content.Load<Texture2D>("ChatBubble\\RM"));
             _chatBubbleTextures.Add(ChatBubbleTexture.BottomRight, Content.Load<Texture2D>("ChatBubble\\RR"));
+            _chatBubbleTextures.Add(ChatBubbleTexture.Nubbin, Content.Load<Texture2D>("ChatBubble\\NUB"));
         }
 
         private ContentManager Content => _contentManagerProvider.Content;
