@@ -4,6 +4,7 @@
 
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
+using EndlessClient.Rendering.Chat;
 using EOLib.Domain.Notifiers;
 
 namespace EndlessClient.Rendering.NPC
@@ -13,14 +14,20 @@ namespace EndlessClient.Rendering.NPC
         private readonly IHudControlProvider _hudControlProvider;
         private readonly INPCStateCache _npcStateCache;
         private readonly INPCRendererRepository _npcRendererRepository;
+        private readonly IChatBubbleRepository _chatBubbleRepository;
+        private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
 
         public NPCActions(IHudControlProvider hudControlProvider,
-                                   INPCStateCache npcStateCache,
-                                   INPCRendererRepository npcRendererRepository)
+                          INPCStateCache npcStateCache,
+                          INPCRendererRepository npcRendererRepository,
+                          IChatBubbleRepository chatBubbleRepository,
+                          IChatBubbleTextureProvider chatBubbleTextureProvider)
         {
             _hudControlProvider = hudControlProvider;
             _npcStateCache = npcStateCache;
             _npcRendererRepository = npcRendererRepository;
+            _chatBubbleRepository = chatBubbleRepository;
+            _chatBubbleTextureProvider = chatBubbleTextureProvider;
         }
 
         public void StartNPCWalkAnimation(int npcIndex)
@@ -60,7 +67,15 @@ namespace EndlessClient.Rendering.NPC
 
         public void ShowNPCSpeechBubble(int npcIndex, string message)
         {
-            //todo: show NPC speech bubble
+            IChatBubble chatBubble;
+            if (_chatBubbleRepository.NPCChatBubbles.TryGetValue(npcIndex, out chatBubble))
+                chatBubble.SetMessage(message);
+            else
+            {
+                chatBubble = new ChatBubble(_npcRendererRepository.NPCRenderers[npcIndex],
+                                            _chatBubbleTextureProvider);
+                _chatBubbleRepository.NPCChatBubbles.Add(npcIndex, chatBubble);
+            }
         }
 
         private INPCAnimator Animator => _hudControlProvider.GetComponent<INPCAnimator>(HudControlIdentifier.NPCAnimator);

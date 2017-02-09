@@ -11,6 +11,7 @@ using XNAControls;
 namespace EndlessClient.Rendering.Chat
 {
     //todo: handle group chat color
+    //todo: clear message when IHaveChatBubble dies
     public class ChatBubble : IChatBubble
     {
         private readonly IHaveChatBubble _referenceRenderer;
