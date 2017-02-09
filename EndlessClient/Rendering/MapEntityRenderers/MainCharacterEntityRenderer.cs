@@ -4,6 +4,7 @@
 
 using System;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework;
@@ -14,14 +15,17 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     public class MainCharacterEntityRenderer : BaseMapEntityRenderer
     {
         private readonly ICharacterRendererProvider _characterRendererProvider;
+        private readonly IChatBubbleProvider _chatBubbleProvider;
         private readonly BlendState _playerBlend;
 
         public MainCharacterEntityRenderer(ICharacterProvider characterProvider,
                                            ICharacterRendererProvider characterRendererProvider,
+                                           IChatBubbleProvider chatBubbleProvider,
                                            IRenderOffsetCalculator renderOffsetCalculator)
             : base(characterProvider, renderOffsetCalculator)
         {
             _characterRendererProvider = characterRendererProvider;
+            _chatBubbleProvider = chatBubbleProvider;
 
             _playerBlend = new BlendState
             {
@@ -57,7 +61,11 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 ? BlendState.NonPremultiplied
                 : _playerBlend;
             spriteBatch.Begin(SpriteSortMode.Deferred, blendState);
+
             _characterRendererProvider.MainCharacterRenderer.DrawToSpriteBatch(spriteBatch);
+            if (_chatBubbleProvider.MainCharacterChatBubble.HasValue)
+                _chatBubbleProvider.MainCharacterChatBubble.Value.DrawToSpriteBatch(spriteBatch);
+
             spriteBatch.End();
 
             spriteBatch.Begin();

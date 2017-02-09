@@ -4,6 +4,7 @@
 
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
@@ -25,6 +26,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IConfigurationProvider _configurationProvider;
         private readonly INPCRendererUpdater _npcRendererUpdater;
         private readonly IDoorStateUpdater _doorStateUpdater;
+        private readonly IChatBubbleUpdater _chatBubbleUpdater;
 
         public MapRendererFactory(IEndlessGameProvider endlessGameProvider,
             IRenderTargetFactory renderTargetFactory,
@@ -35,6 +37,7 @@ namespace EndlessClient.Rendering.Factories
             ICharacterRendererUpdater characterRendererUpdater,
             INPCRendererUpdater npcRendererUpdater,
             IDoorStateUpdater doorStateUpdater,
+            IChatBubbleUpdater chatBubbleUpdater,
             IConfigurationProvider configurationProvider)
         {
             _endlessGameProvider = endlessGameProvider;
@@ -46,6 +49,7 @@ namespace EndlessClient.Rendering.Factories
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
             _doorStateUpdater = doorStateUpdater;
+            _chatBubbleUpdater = chatBubbleUpdater;
             _configurationProvider = configurationProvider;
         }
 
@@ -60,6 +64,7 @@ namespace EndlessClient.Rendering.Factories
                                    _characterRendererUpdater,
                                    _npcRendererUpdater,
                                    _doorStateUpdater,
+                                   _chatBubbleUpdater,
                                    _configurationProvider);
         }
     }

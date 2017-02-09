@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
 using EOLib.Config;
@@ -28,6 +29,7 @@ namespace EndlessClient.Rendering.Map
                                          IConfigurationProvider configurationProvider,
                                          ICharacterRendererProvider characterRendererProvider,
                                          INPCRendererProvider npcRendererProvider,
+                                         IChatBubbleProvider chatBubbleProvider,
                                          ICharacterStateCache characterStateCache)
         {
             MapBaseRenderers = new List<IMapEntityRenderer>
@@ -64,6 +66,7 @@ namespace EndlessClient.Rendering.Map
                                            renderOffsetCalculator),
                 new OtherCharacterEntityRenderer(characterProvider,
                                                  characterRendererProvider,
+                                                 chatBubbleProvider,
                                                  characterStateCache,
                                                  renderOffsetCalculator),
                 new NPCEntityRenderer(characterProvider,
@@ -83,6 +86,7 @@ namespace EndlessClient.Rendering.Map
                                        renderOffsetCalculator),
                 new MainCharacterEntityRenderer(characterProvider,
                                                 characterRendererProvider,
+                                                chatBubbleProvider,
                                                 renderOffsetCalculator)
             };
         }

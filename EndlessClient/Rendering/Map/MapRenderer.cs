@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.MapEntityRenderers;
 using EndlessClient.Rendering.NPC;
@@ -32,6 +33,7 @@ namespace EndlessClient.Rendering.Map
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly INPCRendererUpdater _npcRendererUpdater;
         private readonly IDoorStateUpdater _doorStateUpdater;
+        private readonly IChatBubbleUpdater _chatBubbleUpdater;
         private readonly IConfigurationProvider _configurationProvider;
 
         private RenderTarget2D _mapAbovePlayer, _mapBelowPlayer;
@@ -47,6 +49,7 @@ namespace EndlessClient.Rendering.Map
                            ICharacterRendererUpdater characterRendererUpdater,
                            INPCRendererUpdater npcRendererUpdater,
                            IDoorStateUpdater doorStateUpdater,
+                           IChatBubbleUpdater chatBubbleUpdater,
                            IConfigurationProvider configurationProvider)
             : base((Game)endlessGame)
         {
@@ -58,6 +61,7 @@ namespace EndlessClient.Rendering.Map
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
             _doorStateUpdater = doorStateUpdater;
+            _chatBubbleUpdater = chatBubbleUpdater;
             _configurationProvider = configurationProvider;
         }
 
@@ -77,6 +81,7 @@ namespace EndlessClient.Rendering.Map
                 _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
                 _doorStateUpdater.UpdateDoorState(gameTime);
+                _chatBubbleUpdater.UpdateChatBubbles(gameTime);
 
                 DrawMapToRenderTarget();
             }
