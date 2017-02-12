@@ -19,13 +19,15 @@ namespace EOLib.Domain.Chat
         private readonly IChatPacketBuilder _chatPacketBuilder;
         private readonly IPacketSendService _packetSendService;
         private readonly ILocalCommandHandler _localCommandHandler;
+        private readonly IChatProcessor _chatProcessor;
 
         public ChatActions(IChatRepository chatRepository,
                            ICharacterProvider characterProvider,
                            IChatTypeCalculator chatTypeCalculator,
                            IChatPacketBuilder chatPacketBuilder,
                            IPacketSendService packetSendService,
-                           ILocalCommandHandler localCommandHandler)
+                           ILocalCommandHandler localCommandHandler,
+                           IChatProcessor chatProcessor)
         {
             _chatRepository = chatRepository;
             _characterProvider = characterProvider;
@@ -33,6 +35,7 @@ namespace EOLib.Domain.Chat
             _chatPacketBuilder = chatPacketBuilder;
             _packetSendService = packetSendService;
             _localCommandHandler = localCommandHandler;
+            _chatProcessor = chatProcessor;
         }
 
         public async Task SendChatToServer(string chat, string targetCharacter)
@@ -56,7 +59,7 @@ namespace EOLib.Domain.Chat
                     _chatRepository.PMTarget2 = targetCharacter;
             }
 
-            chat = RemoveFirstCharacterIfNeeded(chat, chatType, targetCharacter);
+            chat = _chatProcessor.RemoveFirstCharacterIfNeeded(chat, chatType, targetCharacter);
 
             var chatPacket = _chatPacketBuilder.BuildChatPacket(chatType, chat, targetCharacter);
             await _packetSendService.SendPacketAsync(chatPacket);
@@ -77,34 +80,6 @@ namespace EOLib.Domain.Chat
                 .ToArray())
                 .Trim();
             return _localCommandHandler.HandleCommand(command, parameters);
-        }
-
-        private static string RemoveFirstCharacterIfNeeded(string chat, ChatType chatType, string targetCharacter)
-        {
-            switch (chatType)
-            {
-                case ChatType.Command:
-                case ChatType.NPC:
-                case ChatType.Server:
-                    throw new ArgumentOutOfRangeException(nameof(chatType));
-                case ChatType.Admin:
-                case ChatType.Global:
-                case ChatType.Guild:
-                case ChatType.Party:
-                case ChatType.Announce:
-                    return chat.Substring(1);
-                case ChatType.PM:
-                    chat = chat.Substring(1);
-                    //todo: need to just send the whole string if the selected tab is the target character
-                    //currently this is incorrect since it will remove the name
-                    if (chat.ToLower().StartsWith(targetCharacter.ToLower()))
-                        chat = chat.Substring(targetCharacter.Length);
-                    return chat;
-                case ChatType.Local:
-                    return chat;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(chatType));
-            }
         }
 
         private void AddChatForLocalDisplay(ChatType chatType, string chat, string targetCharacter)
