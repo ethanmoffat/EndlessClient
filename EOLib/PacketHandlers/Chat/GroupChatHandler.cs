@@ -37,7 +37,7 @@ namespace EOLib.PacketHandlers.Chat
             _chatRepository.AllChat[ChatTab.Group].Add(chatData);
 
             foreach (var notifier in _notifiers)
-                notifier.OtherCharacterSaySomething(character.ID, message);
+                notifier.OtherCharacterSaySomethingToGroup(character.ID, message);
         }
     }
 }

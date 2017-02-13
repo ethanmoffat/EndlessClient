@@ -10,6 +10,8 @@ namespace EOLib.Domain.Notifiers
 
         void OtherCharacterSaySomething(int characterID, string message);
 
+        void OtherCharacterSaySomethingToGroup(int characterID, string message);
+
         void AdminAnnounce(string message);
     }
 
@@ -18,6 +20,8 @@ namespace EOLib.Domain.Notifiers
         public void OtherCharacterTakeDamage(int characterID, int playerPercentHealth, int damageTaken) { }
 
         public void OtherCharacterSaySomething(int characterID, string message) { }
+
+        public void OtherCharacterSaySomethingToGroup(int characterID, string message) { }
 
         public void AdminAnnounce(string message) { }
     }
