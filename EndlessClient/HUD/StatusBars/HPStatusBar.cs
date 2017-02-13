@@ -3,32 +3,36 @@
 // For additional details, see the LICENSE file
 
 using System;
+using EOLib.Domain.Character;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.HUD.StatusBars
 {
-    public class HPStatusBar : BaseStatusBar
+    public class HPStatusBar : StatusBarBase
     {
-        public HPStatusBar()
+        public HPStatusBar(INativeGraphicsManager nativeGraphicsManager,
+                           ICharacterProvider characterProvider)
+            : base(nativeGraphicsManager, characterProvider)
         {
-            DrawLocation = new Vector2(100, 0);
-            drawArea = new Rectangle((int)DrawLocation.X, (int)DrawLocation.Y, m_elemSourceRect.Width, m_elemSourceRect.Height);
+            DrawArea = new Rectangle(100, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
         }
 
         protected override void UpdateLabelText()
         {
-            m_label.Text = $"{m_stats.HP}/{m_stats.MaxHP}";
+            _label.Text = $"{Stats[CharacterStat.HP]}/{Stats[CharacterStat.MaxHP]}";
         }
 
         protected override void DrawStatusBar()
         {
-            int srcWidth = 25 + (int)Math.Round((m_stats.HP / (double)m_stats.MaxHP) * 79);
-            Rectangle maskSrc = new Rectangle(m_elemSourceRect.X, m_elemSourceRect.Height, srcWidth, m_elemSourceRect.Height);
+            //todo: figure out these magic numbers
+            var srcWidth = 25 + (int)Math.Round(Stats[CharacterStat.HP] / (double)Stats[CharacterStat.MaxHP] * 79);
+            var maskSrc = new Rectangle(_sourceRectangleArea.X, _sourceRectangleArea.Height, srcWidth, _sourceRectangleArea.Height);
 
-            SpriteBatch.Begin();
-            SpriteBatch.Draw(m_textSheet, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y), m_elemSourceRect, Color.White);
-            SpriteBatch.Draw(m_textSheet, new Vector2(DrawAreaWithOffset.X, DrawAreaWithOffset.Y), maskSrc, Color.White);
-            SpriteBatch.End();
+            _spriteBatch.Begin();
+            _spriteBatch.Draw(_texture, DrawPositionWithParentOffset, _sourceRectangleArea, Color.White);
+            _spriteBatch.Draw(_texture, DrawPositionWithParentOffset, maskSrc, Color.White);
+            _spriteBatch.End();
         }
     }
 }
