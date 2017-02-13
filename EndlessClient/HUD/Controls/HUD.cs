@@ -116,18 +116,6 @@ namespace EndlessClient.HUD.Controls
             };
         }
 
-        private void CreateStatusBars()
-        {
-            var hp = new HPStatusBar { DrawOrder = HUD_CONTROL_DRAW_ORDER };
-            var tp = new TPStatusBar { DrawOrder = HUD_CONTROL_DRAW_ORDER };
-            var sp = new SPStatusBar { DrawOrder = HUD_CONTROL_DRAW_ORDER };
-            var tnl = new TNLStatusBar { DrawOrder = HUD_CONTROL_DRAW_ORDER };
-
-            if (!Game.Components.Contains(hp) || !Game.Components.Contains(tp) ||
-                !Game.Components.Contains(sp) || !Game.Components.Contains(tnl))
-                throw new InvalidOperationException("One of the status bars (HP, SP, TP, or TNL) is not in the game components list.");
-        }
-
         #endregion
 
         public override void Initialize()
@@ -155,8 +143,6 @@ namespace EndlessClient.HUD.Controls
                 new NumPadListener()
             };
             m_inputListeners.ForEach(x => x.InputTimeUpdated += OldWorld.Instance.ActiveCharacterRenderer.UpdateInputTime);
-
-            CreateStatusBars();
 
             base.Initialize();
         }

@@ -270,7 +270,6 @@
     <Compile Include="HUD\Spells\ISpellIcon.cs" />
     <Compile Include="HUD\Spells\SpellIcon.cs" />
     <Compile Include="HUD\Panels\Old\OldStatsPanel.cs" />
-    <Compile Include="HUD\StatusBars\BaseStatusBar.cs" />
     <Compile Include="HUD\StatusBars\HPStatusBar.cs" />
     <Compile Include="HUD\StatusBars\SPStatusBar.cs" />
     <Compile Include="HUD\StatusBars\TNLStatusBar.cs" />
