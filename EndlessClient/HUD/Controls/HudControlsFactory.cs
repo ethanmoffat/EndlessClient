@@ -10,6 +10,7 @@ using EndlessClient.ControlSets;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Chat;
 using EndlessClient.HUD.Panels;
+using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Character;
@@ -47,6 +48,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IContentManagerProvider _contentManagerProvider;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IChatModeCalculator _chatModeCalculator;
+        private readonly IExperienceTableProvider _experienceTableProvider;
 
         private IChatController _chatController;
 
@@ -65,7 +67,8 @@ namespace EndlessClient.HUD.Controls
                                   IStatusLabelTextProvider statusLabelTextProvider,
                                   IContentManagerProvider contentManagerProvider,
                                   IHudControlProvider hudControlProvider,
-                                  IChatModeCalculator chatModeCalculator)
+                                  IChatModeCalculator chatModeCalculator,
+                                  IExperienceTableProvider experienceTableProvider)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -83,6 +86,7 @@ namespace EndlessClient.HUD.Controls
             _contentManagerProvider = contentManagerProvider;
             _hudControlProvider = hudControlProvider;
             _chatModeCalculator = chatModeCalculator;
+            _experienceTableProvider = experienceTableProvider;
         }
 
         public void InjectChatController(IChatController chatController)
@@ -123,7 +127,12 @@ namespace EndlessClient.HUD.Controls
                 //macro panel
                 {HudControlIdentifier.SettingsPanel, CreateStatePanel(InGameStates.Settings)},
                 {HudControlIdentifier.HelpPanel, CreateStatePanel(InGameStates.Help)},
-                
+
+                {HudControlIdentifier.HPStatusBar, CreateHPStatusBar()},
+                {HudControlIdentifier.TPStatusBar, CreateTPStatusBar()},
+                {HudControlIdentifier.SPStatusBar, CreateSPStatusBar()},
+                {HudControlIdentifier.TNLStatusBar, CreateTNLStatusBar()},
+
                 {HudControlIdentifier.ChatModePictureBox, CreateChatModePictureBox()},
                 {HudControlIdentifier.ChatTextBox, CreateChatTextBox()},
                 {HudControlIdentifier.ClockLabel, CreateClockLabel()},
@@ -230,6 +239,38 @@ namespace EndlessClient.HUD.Controls
                 retPanel.Visible = false;
 
             return retPanel;
+        }
+
+        private IGameComponent CreateHPStatusBar()
+        {
+            return new HPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository)
+            {
+                DrawOrder = HUD_CONTROL_LAYER
+            };
+        }
+
+        private IGameComponent CreateTPStatusBar()
+        {
+            return new TPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository)
+            {
+                DrawOrder = HUD_CONTROL_LAYER
+            };
+        }
+
+        private IGameComponent CreateSPStatusBar()
+        {
+            return new SPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository)
+            {
+                DrawOrder = HUD_CONTROL_LAYER
+            };
+        }
+
+        private IGameComponent CreateTNLStatusBar()
+        {
+            return new TNLStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _experienceTableProvider)
+            {
+                DrawOrder = HUD_CONTROL_LAYER
+            };
         }
 
         private ChatModePictureBox CreateChatModePictureBox()
