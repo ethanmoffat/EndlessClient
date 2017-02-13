@@ -47,9 +47,10 @@ namespace EndlessClient.Controllers
 
         public async Task SendChatAndClearTextBox()
         {
-            var targetCharacter = _privateMessageActions.GetTargetCharacter(ChatTextBox.Text);
+            var localTypedText = ChatTextBox.Text;
+            var targetCharacter = _privateMessageActions.GetTargetCharacter(localTypedText);
             var sendChatOperation = _safeNetworkOperationFactory.CreateSafeAsyncOperation(
-                async () => await _chatActions.SendChatToServer(ChatTextBox.Text, targetCharacter),
+                async () => await _chatActions.SendChatToServer(localTypedText, targetCharacter),
                 SetInitialStateAndShowError);
 
             if (!await sendChatOperation.Invoke())
@@ -57,7 +58,7 @@ namespace EndlessClient.Controllers
 
             _chatTextBoxActions.ClearChatText();
 
-            _chatBubbleActions.ShowChatBubbleForMainCharacter();
+            _chatBubbleActions.ShowChatBubbleForMainCharacter(localTypedText);
         }
 
         public void SelectChatTextBox()
