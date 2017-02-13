@@ -62,6 +62,7 @@
     <Compile Include="HUD\Chat\IChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
     <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
+    <Compile Include="HUD\StatusBars\StatusBarBase.cs" />
     <Compile Include="Input\ArrowKeyHandler.cs" />
     <Compile Include="Input\ControlKeyHandler.cs" />
     <Compile Include="Input\CurrentKeyStateTracker.cs" />
