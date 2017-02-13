@@ -42,7 +42,8 @@ namespace EOLib.Domain
                 .RegisterInstance<IPaperdollProvider, PaperdollRepository>()
                 .RegisterInstance<INewsRepository, NewsRepository>()
                 .RegisterInstance<INewsProvider, NewsRepository>()
-                .RegisterInstance<IPingTimeRepository, PingTimeRepository>();
+                .RegisterInstance<IPingTimeRepository, PingTimeRepository>()
+                .RegisterInstance<IExperienceTableProvider, ExperienceTableProvider>();
 
             container.RegisterType<IResetStateAction, ResetStateAction>();
 
