@@ -14,5 +14,15 @@ namespace EndlessClient.Subscribers
         {
             //todo: show health bar
         }
+
+        public void OtherCharacterSaySomething(int characterID, string message)
+        {
+            //todo: chat bubble
+        }
+
+        public void AdminAnnounce(string message)
+        {
+            //todo: chat bubbles for all visible characters
+        }
     }
 }
