@@ -31,6 +31,8 @@ namespace EndlessClient.HUD.Chat
 
         public void ShowChatBubbleForMainCharacter(string input)
         {
+            //todo: don't show chat bubble if group chat and character is not in a group (party)
+
             var chatType = _chatTypeCalculator.CalculateChatType(input);
             if (chatType != ChatType.Local &&
                 chatType != ChatType.Party &&
@@ -40,7 +42,7 @@ namespace EndlessClient.HUD.Chat
             var text = _chatProcessor.RemoveFirstCharacterIfNeeded(input, chatType, string.Empty);
 
             if (_chatBubbleRepository.MainCharacterChatBubble.HasValue)
-                _chatBubbleRepository.MainCharacterChatBubble.Value.SetMessage(text);
+                _chatBubbleRepository.MainCharacterChatBubble.Value.SetMessage(text, chatType == ChatType.Party);
             else
             {
                 var chatBubble = new ChatBubble(text,

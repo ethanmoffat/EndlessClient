@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Linq;
 using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
@@ -52,14 +51,13 @@ namespace EndlessClient.Subscribers
 
         private void SaySomethingShared(int characterID, string message, bool isGroupChat)
         {
-            //todo: use group chat color
-
             IChatBubble chatBubble;
             if (_chatBubbleRepository.OtherCharacterChatBubbles.TryGetValue(characterID, out chatBubble))
-                chatBubble.SetMessage(message);
+                chatBubble.SetMessage(message, isGroupChat);
             else
             {
                 chatBubble = new ChatBubble(message,
+                                            isGroupChat,
                                             _characterRendererProvider.CharacterRenderers[characterID],
                                             _chatBubbleTextureProvider);
 

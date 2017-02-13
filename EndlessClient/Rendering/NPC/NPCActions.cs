@@ -69,7 +69,7 @@ namespace EndlessClient.Rendering.NPC
         {
             IChatBubble chatBubble;
             if (_chatBubbleRepository.NPCChatBubbles.TryGetValue(npcIndex, out chatBubble))
-                chatBubble.SetMessage(message);
+                chatBubble.SetMessage(isGroupChat: false, message: message);
             else
             {
                 chatBubble = new ChatBubble(message,

@@ -10,7 +10,6 @@ using XNAControls;
 
 namespace EndlessClient.Rendering.Chat
 {
-    //todo: handle group chat color
     //todo: clear message when IHaveChatBubble dies
     public class ChatBubble : IChatBubble
     {
@@ -19,6 +18,7 @@ namespace EndlessClient.Rendering.Chat
 
         private readonly XNALabel _textLabel;
 
+        private bool _isGroupChat;
         private Vector2 _drawLocation;
         private DateTime _startTime;
 
@@ -27,7 +27,14 @@ namespace EndlessClient.Rendering.Chat
         public ChatBubble(string message,
                           IHaveChatBubble referenceRenderer,
                           IChatBubbleTextureProvider chatBubbleTextureProvider)
+            : this(message, false, referenceRenderer, chatBubbleTextureProvider) { }
+
+        public ChatBubble(string message,
+                          bool isGroupChat,
+                          IHaveChatBubble referenceRenderer,
+                          IChatBubbleTextureProvider chatBubbleTextureProvider)
         {
+            _isGroupChat = isGroupChat;
             _referenceRenderer = referenceRenderer;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
 
@@ -48,8 +55,9 @@ namespace EndlessClient.Rendering.Chat
             _setLabelDrawLoc();
         }
 
-        public void SetMessage(string message)
+        public void SetMessage(string message, bool isGroupChat)
         {
+            _isGroupChat = isGroupChat;
             _textLabel.Text = message;
             ShowBubble = true;
 
@@ -102,9 +110,8 @@ namespace EndlessClient.Rendering.Chat
 
             var xCov = TL.Width;
             var yCov = TL.Height;
-
-            //todo: use group chat color for group chats
-            var color = /*m_useGroupChatColor ? Color.Tan : */ Color.FromNonPremultiplied(255, 255, 255, 232);
+            
+            var color = _isGroupChat ? Color.Tan : Color.FromNonPremultiplied(255, 255, 255, 232);
 
             //top row
             spriteBatch.Draw(TL, _drawLocation, color);
@@ -170,7 +177,7 @@ namespace EndlessClient.Rendering.Chat
     {
         bool ShowBubble { get; }
 
-        void SetMessage(string message);
+        void SetMessage(string message, bool isGroupChat);
 
         void Update();
 
