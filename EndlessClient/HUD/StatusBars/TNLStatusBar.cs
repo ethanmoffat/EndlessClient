@@ -23,7 +23,7 @@ namespace EndlessClient.HUD.StatusBars
             DrawArea = new Rectangle(430, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
 
             _sourceRectangleArea = new Rectangle(_sourceRectangleArea.Width*3 - 1,
-                                                 _sourceRectangleArea.Height,
+                                                 0,
                                                  _sourceRectangleArea.Width + 1,
                                                  _sourceRectangleArea.Height);
         }
@@ -39,7 +39,7 @@ namespace EndlessClient.HUD.StatusBars
             var thisLevelExp = ExpTable[Stats[CharacterStat.Level]];
             var nextLevelExp = ExpTable[Stats[CharacterStat.Level] + 1];
             var srcWidth = 25 + (int)Math.Round((Stats[CharacterStat.Experience] - thisLevelExp) / (double)(nextLevelExp - thisLevelExp) * 79);
-            var maskSrc = new Rectangle(_sourceRectangleArea.X, _sourceRectangleArea.Y, srcWidth, _sourceRectangleArea.Height);
+            var maskSrc = new Rectangle(_sourceRectangleArea.X, _sourceRectangleArea.Height, srcWidth, _sourceRectangleArea.Height);
 
             _spriteBatch.Begin();
             _spriteBatch.Draw(_texture, DrawPositionWithParentOffset, _sourceRectangleArea, Color.White);
