@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using EndlessClient.Dialogs;
 using EndlessClient.HUD.Panels.Old;
-using EndlessClient.HUD.StatusBars;
 using EndlessClient.Input;
 using EndlessClient.Old;
 using EndlessClient.UIControls;
@@ -32,7 +31,6 @@ namespace EndlessClient.HUD.Controls
 
         private readonly OldChatRenderer chatRenderer;
         private OldEOInventory inventory;
-        private OldEOCharacterStats stats;
         private readonly OldEOOnlineList m_whoIsOnline;
         private readonly OldEOPartyPanel m_party;
         private OldActiveSpells activeSpells;
@@ -129,9 +127,6 @@ namespace EndlessClient.HUD.Controls
             //calling SetParent will break this.
             //inventory = new OldEOInventory(pnlInventory, m_packetAPI);
 
-            //stats = new OldEOCharacterStats(pnlStats);
-            stats.Initialize();
-
             //activeSpells = new OldActiveSpells(pnlActiveSpells, m_packetAPI);
             activeSpells.Initialize();
             
@@ -204,8 +199,6 @@ namespace EndlessClient.HUD.Controls
         {
             if(inventory != null)
                 inventory.UpdateWeightLabel();
-            if(stats != null)
-                stats.Refresh();
             if (activeSpells != null)
                 activeSpells.RefreshTotalSkillPoints();
         }
@@ -234,7 +227,6 @@ namespace EndlessClient.HUD.Controls
 
                 inventory.Dispose();
                 chatRenderer.Dispose();
-                stats.Dispose();
 
                 m_friendList.Close();
                 m_ignoreList.Close();

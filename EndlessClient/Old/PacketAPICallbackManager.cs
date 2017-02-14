@@ -47,7 +47,6 @@ namespace EndlessClient.Old
             //recovery related
             m_packetAPI.OnPlayerRecover += _playerRecover;
             m_packetAPI.OnRecoverReply += _recoverReply;
-            m_packetAPI.OnStatsList += _statsList;
             m_packetAPI.OnPlayerHeal += _playerHeal;
 
             //item related
@@ -237,33 +236,6 @@ namespace EndlessClient.Old
             OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.StatPoints = statpoints;
             OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.SkillPoints = skillpoints;
 
-            m_game.Hud.RefreshStats();
-        }
-
-        private void _statsList(DisplayStats _data)
-        {
-
-            CharStatData localStats = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats;
-            if (_data.IsStatsData)
-                localStats.StatPoints = _data.StatPoints;
-            else
-                OldWorld.Instance.MainPlayer.ActiveCharacter.Class = _data.Class;
-            localStats.Str = _data.Str;
-            localStats.Int = _data.Int;
-            localStats.Wis = _data.Wis;
-            localStats.Agi = _data.Agi;
-            localStats.Con = _data.Con;
-            localStats.Cha = _data.Cha;
-            localStats.MaxHP = _data.MaxHP;
-            localStats.MaxTP = _data.MaxTP;
-            localStats.SP = _data.MaxSP;
-            localStats.MaxSP = _data.MaxSP;
-            OldWorld.Instance.MainPlayer.ActiveCharacter.MaxWeight = _data.MaxWeight;
-            localStats.MinDam = _data.MinDam;
-            localStats.MaxDam = _data.MaxDam;
-            localStats.Accuracy = _data.Accuracy;
-            localStats.Evade = _data.Evade;
-            localStats.Armor = _data.Armor;
             m_game.Hud.RefreshStats();
         }
 

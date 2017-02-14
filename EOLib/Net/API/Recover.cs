@@ -76,7 +76,6 @@ namespace EOLib.Net.API
         public event PlayerRecoverEvent OnPlayerRecover;
         public event RecoverReplyEvent OnRecoverReply;
         public event PlayerHealEvent OnPlayerHeal;
-        public event Action<DisplayStats> OnStatsList;
 
         private void _createRecoverMembers()
         {
@@ -114,8 +113,6 @@ namespace EOLib.Net.API
         private void _handleRecoverList(OldPacket pkt)
         {
             //almost identical to STATSKILL_PLAYER packet
-            if (OnStatsList != null)
-                OnStatsList(new DisplayStats(pkt, false));
         }
 
         private void _handleRecoverAgree(OldPacket pkt)

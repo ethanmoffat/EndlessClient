@@ -157,7 +157,6 @@ namespace EOLib.Net.API
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Reply), _handleStatSkillReply, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Take), _handleStatSkillTake, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Remove), _handleStatSkillRemove, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Player), _handleStatSkillPlayer, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Accept), _handleStatSkillAccept, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.StatSkill, PacketAction.Junk), _handleStatSkillJunk, true);
         }
@@ -258,13 +257,6 @@ namespace EOLib.Net.API
             //short - spell id
             if (OnSpellForget != null)
                 OnSpellForget(pkt.GetShort());
-        }
-
-        //stat point added
-        private void _handleStatSkillPlayer(OldPacket pkt)
-        {
-            if (OnStatsList != null)
-                OnStatsList(new DisplayStats(pkt, true));
         }
 
         //skill point added to spell
