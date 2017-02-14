@@ -82,7 +82,8 @@ namespace EndlessClient
                 .RegisterType<ICharacterManagementController, CharacterManagementController>()
                 .RegisterType<IChatController, ChatController>()
                 .RegisterType<IArrowKeyController, ArrowKeyController>()
-                .RegisterType<IControlKeyController, ControlKeyController>();
+                .RegisterType<IControlKeyController, ControlKeyController>()
+                .RegisterType<ITrainingController, TrainingController>();
 
             //actions
             container.RegisterType<IGameStateActions, GameStateActions>()
