@@ -3,7 +3,9 @@
 // For additional details, see the LICENSE file
 
 using EndlessClient.Content;
+using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.Rendering.Chat;
 using EOLib;
 using EOLib.Domain.Character;
@@ -26,6 +28,8 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IExperienceTableProvider _experienceTableProvider;
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ITrainingController _trainingController;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IContentManagerProvider contentManagerProvider,
@@ -34,7 +38,9 @@ namespace EndlessClient.HUD.Panels
                                IChatProvider chatProvider,
                                ICharacterProvider characterProvider,
                                ICharacterInventoryProvider characterInventoryProvider,
-                               IExperienceTableProvider experienceTableProvider)
+                               IExperienceTableProvider experienceTableProvider,
+                               IEOMessageBoxFactory messageBoxFactory,
+                               ITrainingController trainingController)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _contentManagerProvider = contentManagerProvider;
@@ -44,6 +50,8 @@ namespace EndlessClient.HUD.Panels
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _experienceTableProvider = experienceTableProvider;
+            _messageBoxFactory = messageBoxFactory;
+            _trainingController = trainingController;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -87,7 +95,9 @@ namespace EndlessClient.HUD.Panels
             return new StatsPanel(_nativeGraphicsManager,
                                   _characterProvider,
                                   _characterInventoryProvider,
-                                  _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
+                                  _experienceTableProvider,
+                                  _messageBoxFactory,
+                                  _trainingController) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public OnlineListPanel CreateOnlineListPanel()

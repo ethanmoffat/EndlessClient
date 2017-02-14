@@ -4,6 +4,9 @@
 
 using System;
 using System.Linq;
+using EndlessClient.Controllers;
+using EndlessClient.Dialogs;
+using EndlessClient.Dialogs.Factories;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
@@ -17,6 +20,8 @@ namespace EndlessClient.HUD.Panels
         private readonly ICharacterProvider _characterProvider;
         private readonly ICharacterInventoryProvider _characterInventoryProvider;
         private readonly IExperienceTableProvider _experienceTableProvider;
+        private readonly IEOMessageBoxFactory _messageBoxFactory;
+        private readonly ITrainingController _trainingController;
         private const int STR = 0, INT = 1, WIS = 2, AGI = 3, CON = 4, CHA = 5;
         private readonly IXNALabel[] _basicStats;
         private readonly IXNAButton[] _arrowButtons;
@@ -33,15 +38,20 @@ namespace EndlessClient.HUD.Panels
 
         private ICharacterStats _lastCharacterStats;
         private IInventoryItem _lastCharacterGold;
+        private bool _confirmedTraining;
 
         public StatsPanel(INativeGraphicsManager nativeGraphicsManager,
                           ICharacterProvider characterProvider,
                           ICharacterInventoryProvider characterInventoryProvider,
-                          IExperienceTableProvider experienceTableProvider)
+                          IExperienceTableProvider experienceTableProvider,
+                          IEOMessageBoxFactory messageBoxFactory,
+                          ITrainingController trainingController)
         {
             _characterProvider = characterProvider;
             _characterInventoryProvider = characterInventoryProvider;
             _experienceTableProvider = experienceTableProvider;
+            _messageBoxFactory = messageBoxFactory;
+            _trainingController = trainingController;
 
             BackgroundImage = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 34);
             DrawArea = new Rectangle(102, 330, BackgroundImage.Width, BackgroundImage.Height);
@@ -177,14 +187,42 @@ namespace EndlessClient.HUD.Panels
                 _characterInfo[NAME].Text = $"{_characterProvider.MainCharacter.Name}";
                 _characterInfo[GUILD].Text = $"{_characterProvider.MainCharacter.GuildName}";
                 _characterInfo[LEVEL].Text = $"{_lastCharacterStats[CharacterStat.Level]}";
+
+                if (_lastCharacterStats.Stats[CharacterStat.StatPoints] > 0)
+                {
+                    foreach (var button in _arrowButtons.OfType<XNAButton>())
+                        button.Visible = true;
+                }
+                else
+                {
+                    foreach (var button in _arrowButtons.OfType<XNAButton>())
+                        button.Visible = false;
+                    _confirmedTraining = false;
+                }
             }
 
             base.OnUpdateControl(gameTime);
         }
 
-        private void HandleArrowButtonClick(object sender, EventArgs e)
+        private async void HandleArrowButtonClick(object sender, EventArgs e)
         {
-            //todo: send/handle packets for leveling up
+            if (!_confirmedTraining)
+            {
+                var dialog = _messageBoxFactory.CreateMessageBox("Do you want to train?",
+                    "Character training",
+                    EODialogButtons.OkCancel);
+
+                var result = await dialog.ShowDialogAsync();
+                if (result == XNADialogResult.OK)
+                    _confirmedTraining = true;
+            }
+            else
+            {
+                var index = _arrowButtons.Select((btn, ndx) => new {btn, ndx})
+                                         .Single(x => x.btn == sender).ndx;
+                var characterStat = CharacterStat.Strength + index;
+                _trainingController.AddStatPoint(characterStat);
+            }
         }
 
         private IInventoryItem CurrentCharacterGold
