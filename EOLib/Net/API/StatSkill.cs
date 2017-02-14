@@ -4,16 +4,11 @@
 
 using System;
 using System.Collections.Generic;
+using EOLib.Domain.Character;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-    internal enum TrainType
-    {
-        Stat = 1,
-        Skill = 2
-    }
-
     public enum SkillMasterReply
     {
 // ReSharper disable once UnusedMember.Global

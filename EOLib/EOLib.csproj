@@ -65,6 +65,7 @@
     <Compile Include="Domain\Character\CharacterStat.cs" />
     <Compile Include="Domain\Character\CharacterStats.cs" />
     <Compile Include="Domain\Character\ExperienceTableProvider.cs" />
+    <Compile Include="Domain\Character\TrainType.cs" />
     <Compile Include="Domain\Character\WalkValidationActions.cs" />
     <Compile Include="Domain\Character\EquippedItem.cs" />
     <Compile Include="Domain\Character\ICharacter.cs" />
