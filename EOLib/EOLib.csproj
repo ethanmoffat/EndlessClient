@@ -293,6 +293,7 @@
     <Compile Include="PacketHandlers\PlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\BeginPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\RefreshMapStateHandler.cs" />
+    <Compile Include="PacketHandlers\StatTrainingHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>
