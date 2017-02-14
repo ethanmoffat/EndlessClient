@@ -147,7 +147,9 @@ namespace EndlessClient.Rendering.Chat
             y += BM.Height;
             spriteBatch.Draw(NUB, _drawLocation + new Vector2((x2 + BR.Width - NUB.Width)/2f, y - 1), color);
 
+            spriteBatch.End();
             _textLabel.Draw(new GameTime());
+            spriteBatch.Begin();
         }
 
         ~ChatBubble()
