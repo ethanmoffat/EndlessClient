@@ -52,7 +52,7 @@ namespace EndlessClient.Rendering.Chat
             _drawLocation = Vector2.Zero;
             _startTime = DateTime.Now;
 
-            _setLabelDrawLoc();
+            SetLabelDrawPosition();
         }
 
         public void SetMessage(string message, bool isGroupChat)
@@ -64,20 +64,12 @@ namespace EndlessClient.Rendering.Chat
             _startTime = DateTime.Now;
         }
 
-        private void _setLabelDrawLoc()
-        {
-            var extra = _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.MiddleLeft].Width;
-            _textLabel.DrawPosition = new Vector2(
-                _referenceRenderer.DrawArea.X + _referenceRenderer.DrawArea.Width/2.0f - _textLabel.ActualWidth/2.0f + extra,
-                _referenceRenderer.DrawArea.Y - _textLabel.ActualHeight - 5);
-        }
-
         public void Update()
         {
             if (!ShowBubble)
                 return;
 
-            _setLabelDrawLoc();
+            SetLabelDrawPosition();
             _drawLocation = _textLabel.DrawPosition - new Vector2(
                 _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Width,
                 _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.TopLeft].Height);
@@ -150,6 +142,14 @@ namespace EndlessClient.Rendering.Chat
             spriteBatch.End();
             _textLabel.Draw(new GameTime());
             spriteBatch.Begin();
+        }
+
+        private void SetLabelDrawPosition()
+        {
+            var extra = _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.MiddleLeft].Width;
+            _textLabel.DrawPosition = new Vector2(
+                _referenceRenderer.DrawArea.X + _referenceRenderer.DrawArea.Width / 2.0f - _textLabel.ActualWidth / 2.0f + extra,
+                _referenceRenderer.DrawArea.Y - _textLabel.ActualHeight - 5);
         }
 
         ~ChatBubble()
