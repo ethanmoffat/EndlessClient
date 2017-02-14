@@ -2,71 +2,10 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System;
 using EOLib.Net.Handlers;
 
 namespace EOLib.Net.API
 {
-    public struct DisplayStats
-    {
-        private readonly bool m_statsData;
-        private readonly short m_class;
-
-        private readonly byte m_maxWeight;
-        private readonly short m_str, m_int, m_wis, m_agi, m_con, m_cha;
-        private readonly short m_hp, m_tp, m_sp;
-        private readonly short m_mindam, m_maxdam;
-        private readonly short m_accuracy, m_evade, m_armor;
-
-        //m_class is either a 'Class' id (for Recover_List) or the number
-        //    of statpoints remaining (for StatSkill_Player). Check IsStatsData
-        //    before using these objects.
-        public byte Class => (byte)m_class;
-        public short StatPoints => m_class;
-        public bool IsStatsData => m_statsData;
-
-        public byte MaxWeight => m_maxWeight;
-
-        public short Str => m_str;
-        public short Int => m_int;
-        public short Wis => m_wis;
-        public short Agi => m_agi;
-        public short Con => m_con;
-        public short Cha => m_cha;
-
-        public short MaxHP => m_hp;
-        public short MaxTP => m_tp;
-        public short MaxSP => m_sp;
-
-        public short MinDam => m_mindam;
-        public short MaxDam => m_maxdam;
-
-        public short Accuracy => m_accuracy;
-        public short Evade => m_evade;
-        public short Armor => m_armor;
-
-        internal DisplayStats(OldPacket pkt, bool isStatsData)
-        {
-            m_statsData = isStatsData;
-            m_class = pkt.GetShort();
-            m_str = pkt.GetShort();
-            m_int = pkt.GetShort();
-            m_wis = pkt.GetShort();
-            m_agi = pkt.GetShort();
-            m_con = pkt.GetShort();
-            m_cha = pkt.GetShort();
-            m_hp = pkt.GetShort();
-            m_tp = pkt.GetShort();
-            m_sp = pkt.GetShort();
-            m_maxWeight = (byte)pkt.GetShort();
-            m_mindam = pkt.GetShort();
-            m_maxdam = pkt.GetShort();
-            m_accuracy = pkt.GetShort();
-            m_evade = pkt.GetShort();
-            m_armor = pkt.GetShort();
-        }
-    }
-
     public delegate void PlayerRecoverEvent(short HP, short TP);
     public delegate void RecoverReplyEvent(int exp, short karma, byte level, short statpoints = 0, short skillpoints = 0);
     public delegate void PlayerHealEvent(short playerID, int healAmount, byte percentHealth);
@@ -81,7 +20,6 @@ namespace EOLib.Net.API
         {
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Recover, PacketAction.Player), _handleRecoverPlayer, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Recover, PacketAction.Reply), _handleRecoverReply, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Recover, PacketAction.List), _handleRecoverList, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Recover, PacketAction.Agree), _handleRecoverAgree, true);
         }
 
@@ -108,11 +46,6 @@ namespace EOLib.Net.API
 
                 OnRecoverReply(exp, karma, level, statpoints, skillpoints);
             }
-        }
-
-        private void _handleRecoverList(OldPacket pkt)
-        {
-            //almost identical to STATSKILL_PLAYER packet
         }
 
         private void _handleRecoverAgree(OldPacket pkt)

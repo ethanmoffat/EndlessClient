@@ -9,15 +9,15 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
-    public class StatTrainingHandler : InGameOnlyPacketHandler
+    public class RecoverStatListHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;
 
-        public override PacketFamily Family => PacketFamily.StatSkill;
-        public override PacketAction Action => PacketAction.Player;
+        public override PacketFamily Family => PacketFamily.Recover;
+        public override PacketAction Action => PacketAction.List;
 
-        public StatTrainingHandler(IPlayerInfoProvider playerInfoProvider,
-                                   ICharacterRepository characterRepository)
+        public RecoverStatListHandler(IPlayerInfoProvider playerInfoProvider,
+                                      ICharacterRepository characterRepository)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
@@ -25,9 +25,9 @@ namespace EOLib.PacketHandlers
 
         public override bool HandlePacket(IPacket packet)
         {
-            //note: nearly identical code exists in RecoverStatListHandler.HandlePacket
+            //note: nearly identical code exists in StatTrainingHandler.HandlePacket
             //todo: consolidate
-            var statPoints = packet.ReadShort();
+            var @class = packet.ReadShort();
             var str = packet.ReadShort();
             var intl = packet.ReadShort();
             var wis = packet.ReadShort();
@@ -45,7 +45,6 @@ namespace EOLib.PacketHandlers
             var armor = packet.ReadShort();
 
             var stats = _characterRepository.MainCharacter.Stats
-                .WithNewStat(CharacterStat.StatPoints, statPoints)
                 .WithNewStat(CharacterStat.Strength, str)
                 .WithNewStat(CharacterStat.Intelligence, intl)
                 .WithNewStat(CharacterStat.Wisdom, wis)
@@ -62,7 +61,9 @@ namespace EOLib.PacketHandlers
                 .WithNewStat(CharacterStat.Evade, evade)
                 .WithNewStat(CharacterStat.Armor, armor);
 
-            _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
+            _characterRepository.MainCharacter = _characterRepository.MainCharacter
+                .WithClassID((byte)@class)
+                .WithStats(stats);
 
             return true;
         }

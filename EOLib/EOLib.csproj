@@ -292,6 +292,7 @@
     <Compile Include="PacketHandlers\PlayerLevelUpHandler.cs" />
     <Compile Include="PacketHandlers\PlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\BeginPlayerWarpHandler.cs" />
+    <Compile Include="PacketHandlers\RecoverStatListHandler.cs" />
     <Compile Include="PacketHandlers\RefreshMapStateHandler.cs" />
     <Compile Include="PacketHandlers\StatTrainingHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
