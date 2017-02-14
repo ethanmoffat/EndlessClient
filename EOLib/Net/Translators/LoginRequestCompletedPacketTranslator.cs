@@ -33,6 +33,9 @@ namespace EOLib.Net.Translators
             var inventoryItems = GetInventoryItems(packet).ToList();
             var inventorySpells = GetInventorySpells(packet).ToList();
 
+            if (inventoryItems.All(x => x.ItemID != 1))
+                inventoryItems.Add(new InventoryItem(1, 0));
+
             var characters = GetCharacters(packet).ToList();
             var npcs = GetNPCs(packet).ToList();
             var items = GetMapItems(packet).ToList();

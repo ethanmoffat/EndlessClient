@@ -6,6 +6,7 @@ using EndlessClient.Content;
 using EndlessClient.ControlSets;
 using EndlessClient.Rendering.Chat;
 using EOLib;
+using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Graphics;
@@ -22,18 +23,27 @@ namespace EndlessClient.HUD.Panels
         private readonly IHudControlProvider _hudControlProvider;
         private readonly INewsProvider _newsProvider;
         private readonly IChatProvider _chatProvider;
+        private readonly ICharacterProvider _characterProvider;
+        private readonly ICharacterInventoryProvider _characterInventoryProvider;
+        private readonly IExperienceTableProvider _experienceTableProvider;
 
         public HudPanelFactory(INativeGraphicsManager nativeGraphicsManager,
                                IContentManagerProvider contentManagerProvider,
                                IHudControlProvider hudControlProvider,
                                INewsProvider newsProvider,
-                               IChatProvider chatProvider)
+                               IChatProvider chatProvider,
+                               ICharacterProvider characterProvider,
+                               ICharacterInventoryProvider characterInventoryProvider,
+                               IExperienceTableProvider experienceTableProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _contentManagerProvider = contentManagerProvider;
             _hudControlProvider = hudControlProvider;
             _newsProvider = newsProvider;
             _chatProvider = chatProvider;
+            _characterProvider = characterProvider;
+            _characterInventoryProvider = characterInventoryProvider;
+            _experienceTableProvider = experienceTableProvider;
         }
 
         public NewsPanel CreateNewsPanel()
@@ -74,7 +84,10 @@ namespace EndlessClient.HUD.Panels
 
         public StatsPanel CreateStatsPanel()
         {
-            return new StatsPanel(_nativeGraphicsManager) { DrawOrder = HUD_CONTROL_LAYER };
+            return new StatsPanel(_nativeGraphicsManager,
+                                  _characterProvider,
+                                  _characterInventoryProvider,
+                                  _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         public OnlineListPanel CreateOnlineListPanel()
