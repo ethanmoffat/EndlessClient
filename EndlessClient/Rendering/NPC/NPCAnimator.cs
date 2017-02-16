@@ -122,7 +122,7 @@ namespace EndlessClient.Rendering.NPC
                 }
             }
 
-            _npcStartWalkingTimes.RemoveAll(npcsDoneAttacking.Contains);
+            _npcStartAttackingTimes.RemoveAll(npcsDoneAttacking.Contains);
         }
 
         private static INPC AnimateOneWalkFrame(INPC npc)

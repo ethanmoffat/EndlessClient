@@ -40,7 +40,7 @@ namespace EndlessClient.Rendering.NPC
 
         public void StartNPCAttackAnimation(int npcIndex)
         {
-            if (_hudControlProvider.IsInGame)
+            if (!_hudControlProvider.IsInGame)
                 return;
 
             Animator.StartAttackAnimation(npcIndex);
