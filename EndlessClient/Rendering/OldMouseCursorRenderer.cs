@@ -19,7 +19,7 @@ using XNAControls.Old;
 
 namespace EndlessClient.Rendering
 {
-    public sealed class MouseCursorRenderer : IDisposable
+    public sealed class OldMouseCursorRenderer : IDisposable
     {
         private readonly EOGame _game;
         private readonly OldMapRenderer _parentMapRenderer;
@@ -39,7 +39,7 @@ namespace EndlessClient.Rendering
 
         public Point GridCoords => new Point(_gridX, _gridY);
 
-        public MouseCursorRenderer(EOGame game, OldMapRenderer parentMapRenderer)
+        public OldMouseCursorRenderer(EOGame game, OldMapRenderer parentMapRenderer)
         {
             _game = game;
             _parentMapRenderer = parentMapRenderer;
@@ -344,7 +344,7 @@ namespace EndlessClient.Rendering
 
         #region IDisposable
 
-        ~MouseCursorRenderer()
+        ~OldMouseCursorRenderer()
         {
             Dispose(false);
         }

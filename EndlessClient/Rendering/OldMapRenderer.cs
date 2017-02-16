@@ -64,7 +64,7 @@ namespace EndlessClient.Rendering
         private readonly PacketAPI _api;
 
         private MiniMapRenderer _miniMapRenderer;
-        private MouseCursorRenderer _mouseCursorRenderer;
+        private OldMouseCursorRenderer _mouseCursorRenderer;
         
         private bool _disposed;
         private readonly object _disposingLockObject = new object();
@@ -698,7 +698,7 @@ namespace EndlessClient.Rendering
                 ColorDestinationBlend = Blend.One
             };
 
-            _mouseCursorRenderer = new MouseCursorRenderer((EOGame)Game, this);
+            _mouseCursorRenderer = new OldMouseCursorRenderer((EOGame)Game, this);
 
             base.Initialize();
         }

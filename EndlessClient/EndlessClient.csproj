@@ -349,7 +349,7 @@
     <Compile Include="Rendering\HealthBarRenderer.cs" />
     <Compile Include="Rendering\OldMapRenderer.cs" />
     <Compile Include="Rendering\MiniMapRenderer.cs" />
-    <Compile Include="Rendering\MouseCursorRenderer.cs" />
+    <Compile Include="Rendering\OldMouseCursorRenderer.cs" />
     <Compile Include="Rendering\OldNPCRenderer.cs" />
     <Compile Include="Rendering\PlayerStatusIconRenderer.cs" />
     <Compile Include="Old\OldWorld.cs" />
