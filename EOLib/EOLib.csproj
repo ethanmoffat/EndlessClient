@@ -170,7 +170,6 @@
     <Compile Include="EOLibDependencyContainer.cs" />
     <Compile Include="misc.cs" />
     <Compile Include="Domain\Account\AccountReply.cs" />
-    <Compile Include="Net\API\AdminInteract.cs" />
     <Compile Include="Net\API\Avatar.cs" />
     <Compile Include="Net\API\Bank.cs" />
     <Compile Include="Net\API\Character.cs" />
@@ -214,6 +213,8 @@
     <Compile Include="Net\Translators\CharacterFromPacketFactory.cs" />
     <Compile Include="Net\Translators\RefreshReplyPacketTranslator.cs" />
     <Compile Include="Net\Translators\WarpAgreePacketTranslator.cs" />
+    <Compile Include="PacketHandlers\AdminHideHandler.cs" />
+    <Compile Include="PacketHandlers\AdminShowHandler.cs" />
     <Compile Include="PacketHandlers\Chat\AnnounceMessageHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GlobalMessageHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GuildMessageHandler.cs" />

@@ -318,18 +318,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void OtherPlayerHide(short ID, bool hidden)
-        {
-            lock (_characterListLock)
-            {
-                int ndx;
-                if ((ndx = _characterRenderers.FindIndex(x => x.Character.ID == ID)) >= 0)
-                {
-                    _characterRenderers[ndx].Character.RenderData.SetHidden(hidden);
-                }
-            }
-        }
-
         public void OtherPlayerHeal(short ID, int healAmount, int pctHealth)
         {
             lock (_characterListLock)

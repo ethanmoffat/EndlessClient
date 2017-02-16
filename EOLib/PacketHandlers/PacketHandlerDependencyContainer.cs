@@ -60,6 +60,10 @@ namespace EOLib.PacketHandlers
                 .RegisterVaried<IPacketHandler, EndPlayerWarpHandler>()
                 .RegisterVaried<IPacketHandler, RefreshMapStateHandler>()
                 .RegisterVaried<IPacketHandler, DoorOpenHandler>();
+
+            //admin
+            container.RegisterVaried<IPacketHandler, AdminHideHandler>()
+                .RegisterVaried<IPacketHandler, AdminShowHandler>();
         }
     }
 }

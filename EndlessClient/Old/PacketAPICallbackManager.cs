@@ -33,8 +33,6 @@ namespace EndlessClient.Old
 
         public void AssignCallbacks()
         {
-            m_packetAPI.OnAdminHiddenChange += _adminHiddenChange;
-
             m_packetAPI.OnPlayerPaperdollChange += _playerPaperdollChange;
             m_packetAPI.OnViewPaperdoll += _playerViewPaperdoll;
 
@@ -125,14 +123,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnCastSpellSelf += _mainPlayerCastSpellSelf;
             m_packetAPI.OnCastSpellTargetOther += _playerCastTargetSpell;
             m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
-        }
-
-        private void _adminHiddenChange(short id, bool hidden)
-        {
-            if (OldWorld.Instance.MainPlayer.ActiveCharacter.ID == id)
-                OldWorld.Instance.MainPlayer.ActiveCharacter.RenderData.SetHidden(hidden);
-            else
-                OldWorld.Instance.ActiveMapRenderer.OtherPlayerHide(id, hidden);
         }
 
         private void _playerPaperdollChange(PaperdollEquipData _data)
