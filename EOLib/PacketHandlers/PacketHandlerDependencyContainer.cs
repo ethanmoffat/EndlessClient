@@ -47,7 +47,8 @@ namespace EOLib.PacketHandlers
                 .RegisterVaried<IPacketHandler, PlayerLevelUpHandler>()
                 .RegisterVaried<IPacketHandler, PlayerLevelUpFromSpellCastHandler>()
                 .RegisterVaried<IPacketHandler, StatTrainingHandler>()
-                .RegisterVaried<IPacketHandler, RecoverStatListHandler>();
+                .RegisterVaried<IPacketHandler, RecoverStatListHandler>()
+                .RegisterVaried<IPacketHandler, PlayerRecoverHandler>();
 
             //npcs
             container.RegisterVaried<IPacketHandler, NPCActionHandler>()

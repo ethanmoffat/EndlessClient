@@ -291,6 +291,7 @@
     <Compile Include="PacketHandlers\PlayerEnterMapHandler.cs" />
     <Compile Include="PacketHandlers\PlayerLeaveMapHandler.cs" />
     <Compile Include="PacketHandlers\PlayerLevelUpHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerRecoverHandler.cs" />
     <Compile Include="PacketHandlers\PlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\BeginPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\RecoverStatListHandler.cs" />
