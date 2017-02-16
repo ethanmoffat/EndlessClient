@@ -30,17 +30,10 @@ namespace EndlessClient.GameExecution
 
             try
             {
-                try
-                {
-                    registrar.InitializeDependencies(
-                        DependencyContainerProvider.DependencyContainers
-                            .OfType<IInitializableContainer>()
-                            .ToArray());
-                }
-                catch (ResolutionFailedException rfe)
-                {
-                    throw rfe.InnerException ?? rfe;
-                }
+                registrar.InitializeDependencies(
+                    DependencyContainerProvider.DependencyContainers
+                        .OfType<IInitializableContainer>()
+                        .ToArray());
             }
             catch (ConfigLoadException cle)
             {
