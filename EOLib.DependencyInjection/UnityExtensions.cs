@@ -30,7 +30,7 @@ namespace EOLib.DependencyInjection
         {
             RegisterEnumerableIfNeeded<T, U>(container);
 
-            return container.RegisterType<T, U>(typeof(U).Name, new ContainerControlledLifetimeManager());
+            return container.RegisterType<T, U>(typeof(U).Name, new ContainerControlledLifetimeManager(), new InjectionFactory(x => x.Resolve<U>()));
         }
 
         private static void RegisterEnumerableIfNeeded<T, U>(IUnityContainer container) where U : T
