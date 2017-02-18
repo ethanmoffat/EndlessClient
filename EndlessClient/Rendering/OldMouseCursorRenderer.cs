@@ -70,180 +70,28 @@ namespace EndlessClient.Rendering
         {
             var ms = Mouse.GetState();
 
-            UpdateCursorInfo(ms);
-            UpdateDisplayedMapItemName();
             HandleMouseClick(ms);
 
             _prevState = ms;
         }
 
-        public void Draw(SpriteBatch sb, bool beginHasBeenCalled = true)
-        {
-            if (_hideCursor)
-                return;
-
-            if (_gridX >= 0 && _gridY >= 0 && _gridX <= MapRef.Properties.Width && _gridY <= MapRef.Properties.Height)
-            {
-                //don't draw cursor if context menu is visible and the context menu has the mouse over it
-                if (!(_contextMenu.Visible && _contextMenu.MouseOver))
-                {
-                    if (!beginHasBeenCalled)
-                        sb.Begin();
-
-                    sb.Draw(_mouseCursor, _cursorPos, _cursorSourceRect, Color.White);
-
-                    if (!beginHasBeenCalled)
-                        sb.End();
-                }
-            }
-        }
-
-        private void UpdateCursorInfo(MouseState ms)
-        {
-            //don't do the cursor if there is a dialog open or the mouse is over the context menu
-            if (XNAControl.Dialogs.Count > 0 || (_contextMenu.Visible && _contextMenu.MouseOver))
-                return;
-
-            SetGridCoordsBasedOnMousePosition(ms);
-            _cursorPos = OldMapRenderer.GetDrawCoordinatesFromGridUnits(_gridX, _gridY, _mainCharacter);
-
-            var ti = GetTileInfoAtGridCoordinates();
-            if (ti == null) return;
-
-            _hideCursor = false;
-            //switch (ti.ReturnType)
-            //{
-            //    case TileInfoReturnType.IsOtherPlayer:
-            //    case TileInfoReturnType.IsOtherNPC:
-            //        _cursorSourceRect.Location = new Point(_mouseCursor.Width / 5, 0);
-            //        break;
-            //    case TileInfoReturnType.IsTileSpec:
-            //        UpdateCursorForTileSpec(ti.Spec);
-            //        break;
-            //    case TileInfoReturnType.IsMapSign:
-            //        _hideCursor = true;
-            //        break;
-            //    case TileInfoReturnType.IsWarpSpec:
-            //        _cursorSourceRect.Location = new Point(0, 0);
-            //        break;
-            //}
-        }
-
-        private void UpdateDisplayedMapItemName()
-        {
-            var mi = _parentMapRenderer.GetMapItemAt(_gridX, _gridY);
-
-            if (mi != null)
-            {
-                _cursorSourceRect.Location = new Point(2 * (_mouseCursor.Width / 5), 0);
-
-                string itemName = OldEOInventoryItem.GetNameString(mi.ItemID, mi.Amount);
-                if (_itemHoverName.Text != itemName)
-                {
-                    _itemHoverName.Visible = true;
-                    _itemHoverName.Text = OldEOInventoryItem.GetNameString(mi.ItemID, mi.Amount);
-                    _itemHoverName.ResizeBasedOnText();
-                    _itemHoverName.ForeColor = OldEOInventoryItem.GetItemTextColor(mi.ItemID);
-                }
-                _itemHoverName.DrawLocation = new Vector2(
-                    _cursorPos.X + 32 - _itemHoverName.ActualWidth / 2f,
-                    _cursorPos.Y - _itemHoverName.ActualHeight - 4);
-            }
-            else if (_itemHoverName.Visible)
-            {
-                _itemHoverName.Visible = false;
-                _itemHoverName.Text = " ";
-            }
-
-            if (_itemHoverName.Text.Length > 0 && !_game.Components.Contains(_itemHoverName))
-                _game.Components.Add(_itemHoverName);
-        }
-
-        private void UpdateCursorForTileSpec(TileSpec spec)
-        {
-            switch (spec)
-            {
-                case TileSpec.Wall:
-                case TileSpec.JammedDoor:
-                case TileSpec.MapEdge:
-                case TileSpec.FakeWall:
-                    _hideCursor = true;
-                    break;
-                case TileSpec.Chest:
-                case TileSpec.BankVault:
-                case TileSpec.ChairDown:
-                case TileSpec.ChairLeft:
-                case TileSpec.ChairRight:
-                case TileSpec.ChairUp:
-                case TileSpec.ChairDownRight:
-                case TileSpec.ChairUpLeft:
-                case TileSpec.ChairAll:
-                case TileSpec.Board1:
-                case TileSpec.Board2:
-                case TileSpec.Board3:
-                case TileSpec.Board4:
-                case TileSpec.Board5:
-                case TileSpec.Board6:
-                case TileSpec.Board7:
-                case TileSpec.Board8:
-                case TileSpec.Jukebox:
-                    _cursorSourceRect.Location = new Point(_mouseCursor.Width / 5, 0);
-                    break;
-                case TileSpec.Jump:
-                case TileSpec.Water:
-                case TileSpec.Arena:
-                case TileSpec.AmbientSource:
-                case TileSpec.SpikesStatic:
-                case TileSpec.SpikesTrap:
-                case TileSpec.SpikesTimed:
-                case TileSpec.None:
-                    _cursorSourceRect.Location = new Point(0, 0);
-                    break;
-            }
-        }
-
-        private void SetGridCoordsBasedOnMousePosition(MouseState ms)
-        {
-            //need to solve this system of equations to get x, y on the grid
-            //(x * 32) - (y * 32) + 288 - c.OffsetX, => pixX = 32x - 32y + 288 - c.OffsetX
-            //(y * 16) + (x * 16) + 144 - c.OffsetY  => 2pixY = 32y + 32x + 288 - 2c.OffsetY
-            //                                         => 2pixY + pixX = 64x + 576 - c.OffsetX - 2c.OffsetY
-            //                                         => 2pixY + pixX - 576 + c.OffsetX + 2c.OffsetY = 64x
-            //                                         => _gridX = (pixX + 2pixY - 576 + c.OffsetX + 2c.OffsetY) / 64; <=
-            //pixY = (_gridX * 16) + (_gridY * 16) + 144 - c.OffsetY =>
-            //(pixY - (_gridX * 16) - 144 + c.OffsetY) / 16 = _gridY
-
-            //center the cursor on the mouse pointer
-            var msX = ms.X - _cursorSourceRect.Width/2;
-            var msY = ms.Y - _cursorSourceRect.Height/2;
-            //align cursor to grid based on mouse position
-            _gridX = (int) Math.Round((msX + 2*msY - 576 + _mainCharacter.OffsetX + 2*_mainCharacter.OffsetY)/64.0);
-            _gridY = (int) Math.Round((msY - _gridX*16 - 144 + _mainCharacter.OffsetY)/16.0);
-        }
-
-        private IMapCellState GetTileInfoAtGridCoordinates()
-        {
-            if (_gridX >= 0 && _gridX <= MapRef.Properties.Width && _gridY >= 0 && _gridY <= MapRef.Properties.Height)
-                return _parentMapRenderer.GetTileInfo((byte)_gridX, (byte)_gridY);
-
-            return null;
-        }
+        public void Draw(SpriteBatch sb, bool beginHasBeenCalled = true) { }
 
         private void HandleMouseClick(MouseState ms)
         {
-            bool mouseClicked = ms.LeftButton == ButtonState.Released && _prevState.LeftButton == ButtonState.Pressed;
+            //bool mouseClicked = ms.LeftButton == ButtonState.Released && _prevState.LeftButton == ButtonState.Pressed;
             //bool rightClicked = ms.RightButton == ButtonState.Released && _prevState.RightButton == ButtonState.Pressed;
 
             //don't handle mouse clicks for map if there is a dialog being shown
-            mouseClicked &= XNAControl.Dialogs.Count == 0;
+            //mouseClicked &= XNAControl.Dialogs.Count == 0;
             //rightClicked &= XNAControl.Dialogs.Count == 0;
 
-            var ti = GetTileInfoAtGridCoordinates();
-            if (mouseClicked && ti != null)
-            {
-                var topMapItem = _parentMapRenderer.GetMapItemAt(_gridX, _gridY);
-                if (topMapItem != null)
-                    HandleMapItemClick(topMapItem);
+            //var ti = GetTileInfoAtGridCoordinates();
+            //if (mouseClicked && ti != null)
+            //{
+            //    var topMapItem = _parentMapRenderer.GetMapItemAt(_gridX, _gridY);
+            //    if (topMapItem != null)
+            //        HandleMapItemClick(topMapItem);
 
                 //switch (ti.ReturnType)
                 //{
@@ -266,7 +114,7 @@ namespace EndlessClient.Rendering
                 //        }
                 //        break;
                 //}
-            }
+            //}
         }
 
         private void HandleMapItemClick(OldMapItem mi)
