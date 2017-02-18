@@ -87,6 +87,7 @@
     <Compile Include="Domain\Chat\ChatProcessor.cs" />
     <Compile Include="Domain\Extensions\CharacterExtensions.cs" />
     <Compile Include="Domain\Map\MapCoordinate.cs" />
+    <Compile Include="Domain\Item\ItemStringService.cs" />
     <Compile Include="Domain\Map\UnlockDoorValidator.cs" />
     <Compile Include="Domain\Map\WarpState.cs" />
     <Compile Include="Domain\Notifiers\IMainCharacterEventNotifier.cs" />
