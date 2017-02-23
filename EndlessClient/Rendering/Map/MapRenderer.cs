@@ -18,6 +18,7 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.Rendering.Map
 {
@@ -35,10 +36,21 @@ namespace EndlessClient.Rendering.Map
         private readonly IDoorStateUpdater _doorStateUpdater;
         private readonly IChatBubbleUpdater _chatBubbleUpdater;
         private readonly IConfigurationProvider _configurationProvider;
+        private readonly IMouseCursorRenderer _mouseCursorRenderer;
 
         private RenderTarget2D _mapAbovePlayer, _mapBelowPlayer;
         private SpriteBatch _sb;
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
+
+        private bool MouseOver
+        {
+            get
+            {
+                var ms = Mouse.GetState();
+                //todo: turn magic numbers into meaningful values
+                return Game.IsActive && ms.X > 0 && ms.Y > 0 && ms.X < 640 && ms.Y < 320;
+            }
+        }
 
         public MapRenderer(IEndlessGame endlessGame,
                            IRenderTargetFactory renderTargetFactory,
@@ -50,7 +62,8 @@ namespace EndlessClient.Rendering.Map
                            INPCRendererUpdater npcRendererUpdater,
                            IDoorStateUpdater doorStateUpdater,
                            IChatBubbleUpdater chatBubbleUpdater,
-                           IConfigurationProvider configurationProvider)
+                           IConfigurationProvider configurationProvider,
+                           IMouseCursorRenderer mouseCursorRenderer)
             : base((Game)endlessGame)
         {
             _renderTargetFactory = renderTargetFactory;
@@ -63,6 +76,7 @@ namespace EndlessClient.Rendering.Map
             _doorStateUpdater = doorStateUpdater;
             _chatBubbleUpdater = chatBubbleUpdater;
             _configurationProvider = configurationProvider;
+            _mouseCursorRenderer = mouseCursorRenderer;
         }
 
         public override void Initialize()
@@ -70,6 +84,8 @@ namespace EndlessClient.Rendering.Map
             _mapAbovePlayer = _renderTargetFactory.CreateRenderTarget();
             _mapBelowPlayer = _renderTargetFactory.CreateRenderTarget();
             _sb = new SpriteBatch(Game.GraphicsDevice);
+
+            _mouseCursorRenderer.Initialize();
 
             base.Initialize();
         }
@@ -83,6 +99,9 @@ namespace EndlessClient.Rendering.Map
                 _doorStateUpdater.UpdateDoorState(gameTime);
                 _chatBubbleUpdater.UpdateChatBubbles(gameTime);
 
+                if (MouseOver)
+                    _mouseCursorRenderer.Update(gameTime);
+
                 DrawMapToRenderTarget();
             }
 
@@ -95,6 +114,7 @@ namespace EndlessClient.Rendering.Map
                 return;
 
             DrawMapBase(_sb);
+            _mouseCursorRenderer.Draw(gameTime);
             DrawToSpriteBatch(_sb);
 
             base.Draw(gameTime);
@@ -256,6 +276,7 @@ namespace EndlessClient.Rendering.Map
                 _mapAbovePlayer.Dispose();
                 _mapBelowPlayer.Dispose();
                 _sb.Dispose();
+                _mouseCursorRenderer.Dispose();
             }
 
             base.Dispose(disposing);

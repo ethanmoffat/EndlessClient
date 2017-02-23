@@ -187,8 +187,8 @@ namespace EndlessClient.Rendering
                 _mapItemText.ForeColor = GetColorForMapDisplay(_eifFileProvider.EIFFile[item.Value.ItemID]);
 
                 //relative to cursor DrawPosition, since this control is a parent of MapItemText
-                _mapItemText.DrawPosition = new Vector2(32 - _mapItemText.ActualWidth/2f,
-                                                        -_mapItemText.ActualHeight - 4);
+                _mapItemText.DrawPosition = new Vector2(_drawArea.X + 32 - _mapItemText.ActualWidth/2f,
+                                                        _drawArea.Y + -_mapItemText.ActualHeight - 4);
             }
         }
 
