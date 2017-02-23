@@ -23,17 +23,12 @@ namespace EndlessClient.Rendering
     {
         private readonly EOGame _game;
         private readonly OldMapRenderer _parentMapRenderer;
-
-        private readonly Texture2D _mouseCursor;
-        private readonly XNALabel _itemHoverName;
+        
         private readonly EOMapContextMenu _contextMenu;
         private readonly OldCharacter _mainCharacter;
 
-        private Vector2 _cursorPos;
         private int _gridX, _gridY;
         private Rectangle _cursorSourceRect;
-        private MouseState _prevState;
-        private bool _hideCursor;
 
         private IMapFile MapRef => _parentMapRenderer.MapRef;
 
@@ -43,18 +38,6 @@ namespace EndlessClient.Rendering
         {
             _game = game;
             _parentMapRenderer = parentMapRenderer;
-
-            _mouseCursor = game.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
-            _itemHoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
-            {
-                Visible = true,
-                Text = "",
-                ForeColor = Color.White,
-                DrawOrder = (int)ControlDrawLayer.BaseLayer + 3,
-                AutoSize = false
-            };
-
-            _cursorSourceRect = new Rectangle(0, 0, _mouseCursor.Width / 5, _mouseCursor.Height);
 
             _contextMenu = new EOMapContextMenu(_game.API);
 
@@ -68,11 +51,7 @@ namespace EndlessClient.Rendering
 
         public void Update()
         {
-            var ms = Mouse.GetState();
-
-            HandleMouseClick(ms);
-
-            _prevState = ms;
+            HandleMouseClick(Mouse.GetState());
         }
 
         public void Draw(SpriteBatch sb, bool beginHasBeenCalled = true) { }
@@ -207,7 +186,6 @@ namespace EndlessClient.Rendering
         {
             if (disposing)
             {
-                _itemHoverName.Close();
                 _contextMenu.Close();
             }
         }
