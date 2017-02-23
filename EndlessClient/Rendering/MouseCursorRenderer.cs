@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using EndlessClient.HUD.Controls;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
@@ -78,6 +79,7 @@ namespace EndlessClient.Rendering
                 Text = string.Empty,
                 ForeColor = Color.White,
                 AutoSize = false,
+                DrawOrder = 10 //todo: make a better provider for draw orders (see also HudControlsFactory)
             };
 
             _spriteBatch = new SpriteBatch(graphicsDeviceProvider.GraphicsDevice);
@@ -85,7 +87,7 @@ namespace EndlessClient.Rendering
 
         public void Initialize()
         {
-            _mapItemText.Initialize();
+            _mapItemText.AddControlToDefaultGame();
         }
 
         #region Update and Helpers
@@ -102,8 +104,6 @@ namespace EndlessClient.Rendering
 
             var cellState = _mapCellStateProvider.GetCellStateAt(_gridX, _gridY);
             UpdateCursorSourceRectangle(cellState);
-
-            _mapItemText.Update(gameTime);
         }
 
         private void SetGridCoordsBasedOnMousePosition(int offsetX, int offsetY)
@@ -273,8 +273,6 @@ namespace EndlessClient.Rendering
                                   Color.White);
                 _spriteBatch.End();
             }
-
-            _mapItemText.Draw(gameTime);
         }
 
         ~MouseCursorRenderer()
