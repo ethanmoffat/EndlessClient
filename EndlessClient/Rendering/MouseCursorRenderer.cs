@@ -277,7 +277,18 @@ namespace EndlessClient.Rendering
             _mapItemText.Draw(gameTime);
         }
 
+        ~MouseCursorRenderer()
+        {
+            Dispose(false);
+        }
+
         public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             _spriteBatch.Dispose();
             _mapItemText.Dispose();
