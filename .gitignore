@@ -267,3 +267,4 @@ bin/
 bin-peloader/
 bin-xnacontrols/
 .idea.EndlessClient/
+.vs/
