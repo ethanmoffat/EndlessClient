@@ -52,25 +52,12 @@
       <HintPath>..\packages\MonoGame.Framework.WindowsDX.3.5.1.1679\lib\net40\MonoGame.Framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="PELoaderLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\packages\PELoaderLib.1.0.1\lib\net462\PELoaderLib.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
   </ItemGroup>
-  <Choose>
-    <When Condition="$(DefineConstants.Contains('DEBUG'))">
-      <ItemGroup>
-        <Reference Include="PELoaderLib">
-          <HintPath>..\bin-peloader\Debug\PELoaderLib.dll</HintPath>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="PELoaderLib">
-          <HintPath>..\bin-peloader\Release\PELoaderLib.dll</HintPath>
-        </Reference>
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
   <ItemGroup>
     <Compile Include="ColorConstants.cs" />
     <Compile Include="NativeGraphicsLoader.cs" />
