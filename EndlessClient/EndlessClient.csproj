@@ -363,25 +363,10 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="WindowsBase" />
+    <Reference Include="XNAControls, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\packages\XNAControls.1.0.0\lib\net462\XNAControls.dll</HintPath>
+    </Reference>
   </ItemGroup>
-  <!-- From SO answer: http://stackoverflow.com/a/16557059/2562283 -->
-  <!-- Conditionally reference correct version of XNAControls based on project configuration -->
-  <Choose>
-    <When Condition="$(DefineConstants.Contains('DEBUG'))">
-      <ItemGroup>
-        <Reference Include="XNAControls">
-          <HintPath>..\bin-xnacontrols\Debug\XNAControls.dll</HintPath>
-        </Reference>
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="XNAControls">
-          <HintPath>..\bin-xnacontrols\Release\XNAControls.dll</HintPath>
-        </Reference>
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
   <ItemGroup>
     <MonoGameContentReference Include="ContentPipeline\Content.mgcb" />
   </ItemGroup>
