@@ -6,12 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using EOLib.Config;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Moq;
 
 namespace EOLib.Localization.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class LocalizedStringFinderTest
     {
         private IConfigurationProvider _configurationProvider;
@@ -19,8 +19,8 @@ namespace EOLib.Localization.Test
 
         private ILocalizedStringFinder _localizedStringFinder;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _configurationProvider = Mock.Of<IConfigurationProvider>();
             _dataFileProvider = new DataFileRepository();
@@ -30,19 +30,19 @@ namespace EOLib.Localization.Test
                 _dataFileProvider);
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Test]
         public void GetString_Dialog_InvalidLanguage_ThrowsArgumentOutOfRangeException()
         {
-            _localizedStringFinder.GetString((EOLanguage) 50, DialogResourceID.ACCOUNT_CREATE_ACCEPTED);
+            Assert.Throws<ArgumentOutOfRangeException>(() => _localizedStringFinder.GetString((EOLanguage) 50, DialogResourceID.ACCOUNT_CREATE_ACCEPTED));
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Test]
         public void GetString_Resource_InvalidLanguage_ThrowsArgumentOutOfRangeException()
         {
-            _localizedStringFinder.GetString((EOLanguage)50, EOResourceID.STRING_SERVER);
+            Assert.Throws<ArgumentOutOfRangeException>(() => _localizedStringFinder.GetString((EOLanguage)50, EOResourceID.STRING_SERVER));
         }
 
-        [TestMethod]
+        [Test]
         public void GetString_DialogID_ByLanguage_MapsToCorrectFile()
         {
             const DialogResourceID testID = DialogResourceID.ACCOUNT_CREATE_ACCEPTED;
@@ -63,7 +63,7 @@ namespace EOLib.Localization.Test
             Assert.AreEqual("swedish", swedishActual);
         }
 
-        [TestMethod]
+        [Test]
         public void GetString_ResourceID_ByLanguage_MapsToCorrectFile()
         {
             const EOResourceID testID = EOResourceID.STATUS_LABEL_YOU_GAINED_EXP;
@@ -84,7 +84,7 @@ namespace EOLib.Localization.Test
             Assert.AreEqual("swedish", swedishActual);
         }
 
-        [TestMethod]
+        [Test]
         public void GetString_DialogID_UsesLanguageSetInConfig()
         {
             const DialogResourceID testID = DialogResourceID.ACCOUNT_CREATE_ACCEPTED;
@@ -98,7 +98,7 @@ namespace EOLib.Localization.Test
             Assert.AreEqual(expectedResourceString, actualString);
         }
 
-        [TestMethod]
+        [Test]
         public void GetString_ResourceID_UsesLanguageSetInConfig()
         {
             const EOResourceID testID = EOResourceID.STRING_SERVER;

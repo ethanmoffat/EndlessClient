@@ -7,18 +7,24 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Microsoft.Practices.Unity;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Moq;
 using PELoaderLib;
 
 namespace EOLib.Graphics.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class GraphicsDependencyContainerTest
     {
-        private readonly Dictionary<GFXTypes, IPEFile> _gfxFiles = new Dictionary<GFXTypes, IPEFile>();
+        private Dictionary<GFXTypes, IPEFile> _gfxFiles;
 
-        [TestMethod]
+        [SetUp]
+        public void SetUp()
+        {
+            _gfxFiles = new Dictionary<GFXTypes, IPEFile>();
+        }
+
+        [Test]
         public void RegistersDependencies_DoesRegistrations()
         {
             var unityContainer = new UnityContainer();
@@ -29,7 +35,7 @@ namespace EOLib.Graphics.Test
             Assert.AreNotEqual(0, unityContainer.Registrations.Count());
         }
 
-        [TestMethod, ExpectedException(typeof(LibraryLoadException))]
+        [Test]
         public void InitializeDependencies_PEFileError_ExpectIOExceptionIsThrownAsLibraryLoadException()
         {
             var unityContainer = new UnityContainer();
@@ -40,10 +46,10 @@ namespace EOLib.Graphics.Test
             file1Mock.Setup(x => x.Initialize()).Throws<IOException>();
             _gfxFiles.Add(GFXTypes.PreLoginUI, file1Mock.Object);
 
-            container.InitializeDependencies(unityContainer);
+            Assert.Throws<LibraryLoadException>(() => container.InitializeDependencies(unityContainer));
         }
 
-        [TestMethod, ExpectedException(typeof(LibraryLoadException))]
+        [Test]
         public void InitializeDependencies_PEFileInitializeIsFalse_ExpectLibraryLoadException()
         {
             var unityContainer = new UnityContainer();
@@ -54,10 +60,10 @@ namespace EOLib.Graphics.Test
             file1Mock.Setup(x => x.Initialized).Returns(false);
             _gfxFiles.Add(GFXTypes.PreLoginUI, file1Mock.Object);
 
-            container.InitializeDependencies(unityContainer);
+            Assert.Throws<LibraryLoadException>(() => container.InitializeDependencies(unityContainer));
         }
 
-        [TestMethod]
+        [Test]
         public void InitializeDependencies_InitializesGFXFiles()
         {
             var unityContainer = new UnityContainer();

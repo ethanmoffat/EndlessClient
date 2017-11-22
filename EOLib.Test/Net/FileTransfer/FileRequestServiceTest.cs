@@ -14,12 +14,12 @@ using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.FileTransfer;
 using EOLib.Test.TestHelpers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Moq;
 
 namespace EOLib.Test.Net.FileTransfer
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class FileRequestServiceTest
     {
         private IFileRequestService _fileRequestService;
@@ -28,8 +28,8 @@ namespace EOLib.Test.Net.FileTransfer
         private INumberEncoderService _numberEncoderService;
         private ISerializer<IMapFile> _mapFileSerializer;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _packetSendService = Mock.Of<IPacketSendService>();
             _numberEncoderService = new NumberEncoderService();
@@ -42,31 +42,22 @@ namespace EOLib.Test.Net.FileTransfer
 
         #region RequestFile Tests
 
-        [TestMethod]
+        [Test]
         public void RequestFile_ResponsePacketHasInvalidHeader_ThrowsEmptyPacketReceivedException()
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Account, PacketAction.Accept);
-
-            var task = _fileRequestService.RequestFile(InitFileType.Item);
-
-            Assert.IsTrue(task.IsFaulted);
-            Assert.IsInstanceOfType((task.Exception ?? new AggregateException()).InnerExceptions.Single(),
-                                    typeof(EmptyPacketReceivedException));
+            Assert.ThrowsAsync<EmptyPacketReceivedException>(async () => await _fileRequestService.RequestFile(InitFileType.Item));
         }
 
-        [TestMethod]
+        [Test]
         public void RequestFile_ResponsePacketInvalidExtraByte_ThrowsMalformedPacketException()
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, (byte)InitReply.ItemFile, 33);
 
-            var task = _fileRequestService.RequestFile(InitFileType.Item);
-
-            Assert.IsTrue(task.IsFaulted);
-            Assert.IsInstanceOfType((task.Exception ?? new AggregateException()).InnerExceptions.Single(),
-                                    typeof(MalformedPacketException));
+            Assert.ThrowsAsync<MalformedPacketException>(async () => await _fileRequestService.RequestFile(InitFileType.Item));
         }
 
-        [TestMethod]
+        [Test]
         public void RequestFile_SendsPacket_BasedOnSpecifiedType()
         {
             var types = new[] { InitFileType.Item, InitFileType.Npc, InitFileType.Spell, InitFileType.Class };
@@ -83,7 +74,7 @@ namespace EOLib.Test.Net.FileTransfer
             }
         }
 
-        [TestMethod]
+        [Test]
         public void RequestFile_CorrectResponse_ExecutesWithoutFault()
         {
             var types = new[] { InitFileType.Item, InitFileType.Npc, InitFileType.Spell, InitFileType.Class };
@@ -109,29 +100,21 @@ namespace EOLib.Test.Net.FileTransfer
 
         #region RequestMapFile Tests
 
-        [TestMethod]
+        [Test]
         public void RequestMapFile_ResponsePacketHasInvalidHeader_ThrowsEmptyPacketReceivedException()
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Account, PacketAction.Accept);
-
-            var task = _fileRequestService.RequestMapFile(1);
-
-            Assert.IsTrue(task.IsFaulted);
-            Assert.IsInstanceOfType((task.Exception ?? new AggregateException()).InnerExceptions.Single(), typeof (EmptyPacketReceivedException));
+            Assert.ThrowsAsync<EmptyPacketReceivedException>(async () => await _fileRequestService.RequestMapFile(1));
         }
 
-        [TestMethod]
+        [Test]
         public void RequestMapFile_ResponsePacketHasIncorrectFileType_ThrowsMalformedPacketException()
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, (byte) InitReply.SpellFile, 33);
-
-            var task = _fileRequestService.RequestMapFile(1);
-
-            Assert.IsTrue(task.IsFaulted);
-            Assert.IsInstanceOfType((task.Exception ?? new AggregateException()).InnerExceptions.Single(), typeof (MalformedPacketException));
+            Assert.ThrowsAsync<MalformedPacketException>(async () => await _fileRequestService.RequestMapFile(1));
         }
 
-        [TestMethod]
+        [Test]
         public void RequestMapFile_SendsPacket_BasedOnSpecifiedMap()
         {
             var packetIsCorrect = false;

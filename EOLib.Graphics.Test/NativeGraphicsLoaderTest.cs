@@ -6,27 +6,27 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Moq;
 using PELoaderLib;
 
 namespace EOLib.Graphics.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class NativeGraphicsLoaderTest
     {
         private IPEFileCollection _modules;
         private INativeGraphicsLoader _nativeGraphicsLoader;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _modules = Mock.Of<IPEFileCollection>();
 
             _nativeGraphicsLoader = new NativeGraphicsLoader(_modules);
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadGFX_CallsPEFile_GetEmbeddedBitmapResourceByID()
         {
             var peFileMock = SetupPEFileForGFXType(GFXTypes.PreLoginUI, CreateDataArrayForBitmap());
@@ -37,7 +37,7 @@ namespace EOLib.Graphics.Test
             peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(It.IsAny<int>(), It.IsAny<int>()), Times.Once());
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadGFX_CallsPEFile_WithResourceValueIncreasedBy100()
         {
             const int requestedResourceID = 1;
@@ -51,14 +51,14 @@ namespace EOLib.Graphics.Test
             peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(expectedResourceID, It.IsAny<int>()));
         }
 
-        [TestMethod, ExpectedException(typeof (GFXLoadException))]
+        [Test]
         public void WhenLoadGFX_EmptyDataArray_ThrowsException()
         {
             const int requestedResourceID = 1;
 
             SetupPEFileForGFXType(GFXTypes.PreLoginUI, new byte[] { });
 
-            _nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, requestedResourceID);
+            Assert.Throws<GFXLoadException>(() => _nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, requestedResourceID));
         }
 
         private byte[] CreateDataArrayForBitmap()

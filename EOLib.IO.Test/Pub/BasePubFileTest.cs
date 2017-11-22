@@ -6,30 +6,30 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class BasePubFileTest
     {
         //This covers the BasePubFile abstract class.
         private BasePubFile<DummyRecord> _baseFile;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _baseFile = new DummyFile();
         }
 
-        [TestMethod]
+        [Test]
         public void PubFile_HasExpectedChecksumAndLength()
         {
             Assert.AreEqual(0, _baseFile.CheckSum);
             Assert.AreEqual(0, _baseFile.Length);
         }
 
-        [TestMethod]
+        [Test]
         public void PubFile_WithOneItemRecord_HasExpectedLength()
         {
             var bytes = MakeDummyFile(new DummyRecord { ID = 1, Name = "TestItem" });
@@ -39,7 +39,7 @@ namespace EOLib.IO.Test.Pub
             Assert.AreEqual(1, _baseFile.Length);
         }
 
-        [TestMethod]
+        [Test]
         public void PubFile_Indexing_ReturnsNullWhenLessThan1()
         {
             var bytes = MakeDummyFile(new DummyRecord { ID = 1, Name = "TestItem" },
@@ -53,7 +53,7 @@ namespace EOLib.IO.Test.Pub
             Assert.IsNull(_baseFile[0]);
         }
 
-        [TestMethod]
+        [Test]
         public void PubFile_Indexing_ReturnsNullWhenGreaterThanCount()
         {
             var bytes = MakeDummyFile(new DummyRecord { ID = 1, Name = "TestItem" },
@@ -65,7 +65,7 @@ namespace EOLib.IO.Test.Pub
             Assert.IsNull(_baseFile[3]);
         }
 
-        [TestMethod]
+        [Test]
         public void PubFile_Indexing_ReturnsExpectedItemWhenRequestedByID()
         {
             var records = new[]

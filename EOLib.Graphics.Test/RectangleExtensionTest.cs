@@ -3,15 +3,15 @@
 // For additional details, see the LICENSE file
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Microsoft.Xna.Framework;
 
 namespace EOLib.Graphics.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class RectangleExtensionTest
     {
-        [TestMethod]
+        [Test]
         public void WithPosition_ReturnsNewRectangle_WithExpectedSizeAndOffset()
         {
             var rectangle = new Rectangle(5, 10, 15, 20);
@@ -27,7 +27,7 @@ namespace EOLib.Graphics.Test
             Assert.AreNotEqual(newRectangle, rectangle);
         }
 
-        [TestMethod]
+        [Test]
         public void WithPosition_DoesNotModify_OriginalRectangle()
         {
             var rectangle = new Rectangle(5, 10, 15, 20);

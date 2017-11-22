@@ -4,25 +4,25 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.Config.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class IniReaderTest
     {
         private const string TestDirectory = "IniReaderTest";
         private const string TestFile = "SomeFile.ini";
         private static readonly string FullPath = Path.Combine(TestDirectory, TestFile);
 
-        [TestCleanup]
-        public void TestCleanup()
+        [TearDown]
+        public void TearDown()
         {
             if (Directory.Exists(TestDirectory))
                 Directory.Delete(TestDirectory, true);
         }
 
-        [TestMethod]
+        [Test]
         public void Load_CreatesDirectoryAndFile_IfTheyDoNotExist_AndReturnsFalse()
         {
             var reader = new IniReader(FullPath);
@@ -37,7 +37,7 @@ namespace EOLib.Config.Test
             Assert.IsTrue(File.Exists(FullPath));
         }
 
-        [TestMethod]
+        [Test]
         public void Load_HandlesEmptyLines()
         {
             var contents = "[Header]\nTestdata=aaaa\n\nTest2=bbbb";
@@ -49,7 +49,7 @@ namespace EOLib.Config.Test
             Assert.IsTrue(result);
         }
 
-        [TestMethod]
+        [Test]
         public void Load_HandlesCommentLines()
         {
             var contents = "[Header]\nTestdata=aaaa\n#this is a comment line\nTest2=bbbb";
@@ -61,7 +61,7 @@ namespace EOLib.Config.Test
             Assert.IsTrue(result);
         }
 
-        [TestMethod]
+        [Test]
         public void Load_HandlesCommentsOnHeaderLines()
         {
             var contents = "[Header]#some header comment\nTestdata=aaaa\n\n#this is a comment line\nTest2=bbbb";
@@ -73,7 +73,7 @@ namespace EOLib.Config.Test
             Assert.IsTrue(result);
         }
 
-        [TestMethod]
+        [Test]
         public void Load_HandlesCommentsOnDataLines()
         {
             var contents = "[Header]\nTestdata=aaaa #some other comment\n\n#this is a comment line\nTest2=bbbb";
@@ -85,7 +85,7 @@ namespace EOLib.Config.Test
             Assert.IsTrue(result);
         }
 
-        [TestMethod]
+        [Test]
         public void Load_HandlesMultipleEqualsOnDataLines()
         {
             var contents = "[Header]\nTestdata=aaaa=something #some other comment\n\n#this is a comment line\nTest2=bbbb";
@@ -97,7 +97,7 @@ namespace EOLib.Config.Test
             Assert.IsTrue(result);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_String_FalseIfNonExistentSection()
         {
             var contents = "[Header]\nTestdata=aaaa";
@@ -112,7 +112,7 @@ namespace EOLib.Config.Test
             Assert.IsFalse(result);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_String_FalseIfNonExistentKey()
         {
             var contents = "[Header]\nTestdata=aaaa";
@@ -127,7 +127,7 @@ namespace EOLib.Config.Test
             Assert.IsFalse(result);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_Int_FalseIfNonExistentSection()
         {
             var contents = "[Header]\nTestdata=aaaa";
@@ -142,7 +142,7 @@ namespace EOLib.Config.Test
             Assert.IsFalse(result);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_Int_FalseIfNonExistentKey()
         {
             var contents = "[Header]\nTestdata=aaaa";
@@ -157,7 +157,7 @@ namespace EOLib.Config.Test
             Assert.IsFalse(result);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_Int_FalseIfNotAnInteger()
         {
             var contents = "[Header]\nTestdata=aaaa";
@@ -172,7 +172,7 @@ namespace EOLib.Config.Test
             Assert.IsFalse(result);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_Bool_FalseIfNonExistentSection()
         {
             var contents = "[Header]\nTestdata=aaaa";
@@ -187,7 +187,7 @@ namespace EOLib.Config.Test
             Assert.IsFalse(result);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_Bool_FalseIfNonExistentKey()
         {
             var contents = "[Header]\nTestdata=aaaa";
@@ -202,7 +202,7 @@ namespace EOLib.Config.Test
             Assert.IsFalse(result);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_Bool_FalseIfNotBoolean()
         {
             var contents = "[Header]\nTestdata=aaaa";
@@ -217,7 +217,7 @@ namespace EOLib.Config.Test
             Assert.IsFalse(result);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_String_ReturnsValueAsString()
         {
             var contents = "[Header]\nTestdata=123";
@@ -233,7 +233,7 @@ namespace EOLib.Config.Test
             Assert.AreEqual("123", value);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_Int_ReturnsValueAsInteger()
         {
             var contents = "[Header]\nTestdata=123";
@@ -249,7 +249,7 @@ namespace EOLib.Config.Test
             Assert.AreEqual(123, value);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_Bool_ReturnsValueAsBoolean()
         {
             var contents = "[Header]\nTestdata=true";
@@ -265,7 +265,7 @@ namespace EOLib.Config.Test
             Assert.IsTrue(value);
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_Bool_ConvertsBoolEquivalentsToTrue()
         {
             var contents = "[Header]\nItem1=yes\nItem2=1\nItem3=on";
@@ -284,7 +284,7 @@ namespace EOLib.Config.Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void GetValue_Bool_ConvertsBoolEquivalentsToFalse()
         {
             var contents = "[Header]\nItem1=no\nItem2=0\nItem3=off";

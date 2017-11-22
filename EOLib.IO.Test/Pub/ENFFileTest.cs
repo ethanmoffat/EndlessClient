@@ -9,28 +9,28 @@ using System.Linq;
 using System.Text;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class ENFFileTest
     {
         private IPubFile<ENFRecord> _npcFile;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _npcFile = new ENFFile();
         }
 
-        [TestMethod]
+        [Test]
         public void HasCorrectFileType()
         {
             Assert.AreEqual("ENF", _npcFile.FileType);
         }
 
-        [TestMethod]
+        [Test]
         public void SerializeToByteArray_ReturnsExpectedBytes()
         {
             var expectedBytes = MakeENFFile(55565554,
@@ -51,7 +51,7 @@ namespace EOLib.IO.Test.Pub
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
 
-        [TestMethod]
+        [Test]
         public void HeaderFormat_IsCorrect()
         {
             var nes = new NumberEncoderService();
@@ -64,7 +64,7 @@ namespace EOLib.IO.Test.Pub
             CollectionAssert.AreEqual(nes.EncodeNumber(1, 1), actualBytes.Skip(9).Take(1).ToArray());
         }
 
-        [TestMethod, ExpectedException(typeof(IOException))]
+        [Test]
         public void LengthMismatch_ThrowsIOException()
         {
             var bytes = MakeENFFileWithWrongLength(12345678, 5,
@@ -72,10 +72,10 @@ namespace EOLib.IO.Test.Pub
                 new ENFRecord { ID = 2, Name = "NPC2" },
                 new ENFRecord { ID = 3, Name = "NPC3" });
 
-            _npcFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
+            Assert.Throws<IOException>(() => _npcFile.DeserializeFromByteArray(bytes, new NumberEncoderService()));
         }
 
-        [TestMethod]
+        [Test]
         public void DeserializeFromByteArray_HasExpectedIDAndNames()
         {
             var records = new[]

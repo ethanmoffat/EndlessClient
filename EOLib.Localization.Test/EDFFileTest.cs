@@ -6,30 +6,29 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.Localization.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class EDFFileTest
     {
         private const string FILE_NAME = "test.edf";
 
-        [TestCleanup]
-        public void TestCleanup()
+        [TearDown]
+        public void TearDown()
         {
             if (File.Exists(FILE_NAME))
                 File.Delete(FILE_NAME);
         }
 
-        [TestMethod, ExpectedException(typeof(FileNotFoundException))]
+        [Test]
         public void GivenNonExistingFile_ExpectFileNotFoundException()
         {
-            var file = new EDFFile("fileThatDoesNotExist", DataFiles.Checksum);
-            Assert.AreEqual(null, file);
+            Assert.Throws<FileNotFoundException>(() => new EDFFile("fileThatDoesNotExist", DataFiles.Checksum));
         }
 
-        [TestMethod]
+        [Test]
         public void GivenCurseFile_DecodeStringDelimitedByColons()
         {
             const string curseString = "CsusrAs:e5:4C3uErSsReU2C:";
@@ -45,7 +44,7 @@ namespace EOLib.Localization.Test
             CollectionAssert.AreEqual(expectedCurses, file.Data.Values);
         }
 
-        [TestMethod]
+        [Test]
         public void GivenCurseFile_DecodeStringDelimitedByColons_HandlesMultipleLines()
         {
             const string curseString = "CsusrAs:e5:4C3uErSsReU2C:\nARBQCPDOEN:MF:GLHKIJ:";
@@ -62,7 +61,7 @@ namespace EOLib.Localization.Test
             CollectionAssert.AreEqual(expectedCurses, file.Data.Values);
         }
 
-        [TestMethod]
+        [Test]
         public void GivenCreditsFile_DoesNotDecodeFileContents_SplitsByLines()
         {
             const string credits = "Created By\nMe :)\nMe again!";
@@ -74,7 +73,7 @@ namespace EOLib.Localization.Test
             CollectionAssert.AreEqual(expectedCredits, file.Data.Values);
         }
 
-        [TestMethod]
+        [Test]
         public void GivenChecksumFile_DoesNotDecodeFileContents()
         {
             const string checksum = "218:13:2:176";
@@ -86,7 +85,7 @@ namespace EOLib.Localization.Test
             Assert.AreEqual(checksum, file.Data.Values.Single());
         }
 
-        [TestMethod]
+        [Test]
         public void NonSpecialDataFiles_AreDecodedCorrectly()
         {
             const string fileData = "a7b6cg1f2e3d4 5";
@@ -102,7 +101,7 @@ namespace EOLib.Localization.Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void NonSpecialDataFiles_AreDecodedCorrectly_MultipleLines()
         {
             const string fileData = "a7b6cg1f2e3d4 5\na7b6cg1f2e3d4 5";
@@ -118,7 +117,7 @@ namespace EOLib.Localization.Test
             }
         }
 
-        [TestMethod]
+        [Test]
         public void NonSpecialDataFiles_SwapAdjacentCharacterValues_MultiplesOfSeven()
         {
             //p, p, and i are adjacent multiples of 7 in this example

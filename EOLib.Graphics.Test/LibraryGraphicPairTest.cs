@@ -3,28 +3,28 @@
 // For additional details, see the LICENSE file
 
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.Graphics.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class LibraryGraphicPairTest
     {
-        [TestMethod]
+        [Test]
         public void Equals_ReturnsFalse_WhenOtherObjectIsNotLibraryGraphicPair()
         {
             var pair = new LibraryGraphicPair(1, 1);
             Assert.IsFalse(pair.Equals(new object()));
         }
 
-        [TestMethod]
+        [Test]
         public void CompareTo_ReturnsNeg1_WhenOtherObjectIsNotLibraryGraphicPair()
         {
             var pair = new LibraryGraphicPair(1, 1);
             Assert.AreEqual(-1, pair.CompareTo(new object()));
         }
 
-        [TestMethod]
+        [Test]
         public void CompareTo_ReturnsNeg1_WhenOtherObjectHasDifferentLibraryNumber()
         {
             var pair = new LibraryGraphicPair(1, 1);
@@ -33,7 +33,7 @@ namespace EOLib.Graphics.Test
             Assert.AreEqual(-1, pair.CompareTo(other));
         }
 
-        [TestMethod]
+        [Test]
         public void CompareTo_ReturnsNeg1_WhenOtherObjectHasDifferentGFXNumber()
         {
             var pair = new LibraryGraphicPair(1, 1);
@@ -42,7 +42,7 @@ namespace EOLib.Graphics.Test
             Assert.AreEqual(-1, pair.CompareTo(other));
         }
 
-        [TestMethod]
+        [Test]
         public void CompareTo_Returns0_WhenOtherObjectHasSameValues()
         {
             var pair = new LibraryGraphicPair(1, 1);

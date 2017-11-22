@@ -9,28 +9,28 @@ using System.Linq;
 using System.Text;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class EIFFileTest
     {
         private IPubFile<EIFRecord> _itemFile;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _itemFile = new EIFFile();
         }
 
-        [TestMethod]
+        [Test]
         public void HasCorrectFileType()
         {
             Assert.AreEqual("EIF", _itemFile.FileType);
         }
 
-        [TestMethod]
+        [Test]
         public void SerializeToByteArray_ReturnsExpectedBytes()
         {
             var expectedBytes = MakeEIFFile(55565554,
@@ -51,7 +51,7 @@ namespace EOLib.IO.Test.Pub
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
 
-        [TestMethod]
+        [Test]
         public void DeserializeFromByteArray_HasExpectedIDAndNames()
         {
             var records = new[]
@@ -74,7 +74,7 @@ namespace EOLib.IO.Test.Pub
                                       _itemFile.Data.Select(x => new {x.ID, x.Name}).ToList());
         }
 
-        [TestMethod]
+        [Test]
         public void HeaderFormat_IsCorrect()
         {
             var nes = new NumberEncoderService();
@@ -87,7 +87,7 @@ namespace EOLib.IO.Test.Pub
             CollectionAssert.AreEqual(nes.EncodeNumber(1, 1), actualBytes.Skip(9).Take(1).ToArray());
         }
 
-        [TestMethod, ExpectedException(typeof(IOException))]
+        [Test]
         public void LengthMismatch_ThrowsIOException()
         {
             var bytes = MakeEIFFileWithWrongLength(12345678, 5,
@@ -95,7 +95,7 @@ namespace EOLib.IO.Test.Pub
                 new EIFRecord {ID = 2, Name = "Item2"},
                 new EIFRecord {ID = 3, Name = "Item3"});
 
-            _itemFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
+            Assert.Throws<IOException>(() => _itemFile.DeserializeFromByteArray(bytes, new NumberEncoderService()));
         }
 
         private byte[] MakeEIFFile(int checksum, params EIFRecord[] records)

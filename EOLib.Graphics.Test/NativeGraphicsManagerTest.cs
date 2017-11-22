@@ -7,13 +7,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Moq;
 
 namespace EOLib.Graphics.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class NativeGraphicsManagerTest
     {
         private GraphicsDeviceTestHelper _graphicsDeviceTestHelper;
@@ -25,8 +25,8 @@ namespace EOLib.Graphics.Test
 
         private INativeGraphicsManager _nativeGraphicsManager;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _graphicsDeviceTestHelper = new GraphicsDeviceTestHelper();
 
@@ -41,14 +41,14 @@ namespace EOLib.Graphics.Test
             _nativeGraphicsManager = new NativeGraphicsManager(_graphicsLoader, _graphicsDeviceProvider);
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        [TearDown]
+        public void TearDown()
         {
             _nativeGraphicsManager.Dispose();
             _graphicsDeviceTestHelper.Dispose();
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadTexture_CallGraphicsLoader()
         {
             const int requestedResource = 1;
@@ -60,7 +60,7 @@ namespace EOLib.Graphics.Test
             graphicsLoaderMock.Verify(x => x.LoadGFX(GFXTypes.PreLoginUI, requestedResource), Times.Once());
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadCachedTexture_DoNotCallGraphicsLoader()
         {
             const int requestedResource = 1;
@@ -75,7 +75,7 @@ namespace EOLib.Graphics.Test
             graphicsLoaderMock.Verify(x => x.LoadGFX(GFXTypes.PreLoginUI, requestedResource), Times.Once());
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadCachedTexture_WhenReloadFromFile_CallGraphicsLoader()
         {
             const int requestedResource = 1;
@@ -89,7 +89,7 @@ namespace EOLib.Graphics.Test
             graphicsLoaderMock.Verify(x => x.LoadGFX(GFXTypes.PreLoginUI, requestedResource), Times.Exactly(2));
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadCachedTexture_WhenReloadFromFile_DisposesOriginalTextue()
         {
             const int requestedResource = 1;
@@ -108,7 +108,7 @@ namespace EOLib.Graphics.Test
             Assert.IsTrue(textureHasBeenDisposed);
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadManyTextures_CallsGraphicsLoaderSameNumberOfTimes()
         {
             var graphicsLoaderMock = Mock.Get(_graphicsLoader);
@@ -126,7 +126,7 @@ namespace EOLib.Graphics.Test
             graphicsLoaderMock.Verify(x => x.LoadGFX(GFXTypes.PreLoginUI, It.IsAny<int>()), Times.Exactly(totalRequestedResources));
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadCachedTexture_ManyTimes_CallsGraphicsLoaderOnce()
         {
             var graphicsLoaderMock = Mock.Get(_graphicsLoader);
@@ -139,7 +139,7 @@ namespace EOLib.Graphics.Test
             graphicsLoaderMock.Verify(x => x.LoadGFX(GFXTypes.PreLoginUI, It.IsAny<int>()), Times.Once());
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadTexture_Transparent_SetsBlackToTransparent()
         {
             const int requestedResource = 1;
@@ -157,7 +157,7 @@ namespace EOLib.Graphics.Test
             Assert.IsTrue(data.All(x => x.A == 0));
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadTexture_MaleHat_Transparent_SetsSpecialColorToTransparent()
         {
             const int requestedResource = 1;
@@ -175,7 +175,7 @@ namespace EOLib.Graphics.Test
             Assert.IsTrue(data.All(x => x.A == 0));
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadTexture_FemaleHat_Transparent_SetsSpecialColorToTransparent()
         {
             const int requestedResource = 1;
@@ -193,7 +193,7 @@ namespace EOLib.Graphics.Test
             Assert.IsTrue(data.All(x => x.A == 0));
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadTexture_RaceCondition_DisposesExistingCachedTextureAndReturnsSecondOne()
         {
             const int requestedResource = 1;

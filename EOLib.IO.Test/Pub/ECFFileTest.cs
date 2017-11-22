@@ -9,32 +9,32 @@ using System.Linq;
 using System.Text;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class ECFFileTest
     {
         private IPubFile<ECFRecord> _classFile;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _classFile = new ECFFile();
         }
 
-        [TestMethod]
+        [Test]
         public void HasCorrectFileType()
         {
             Assert.AreEqual("ECF", _classFile.FileType);
         }
 
-        [TestMethod]
+        [Test]
         public void SerializeToByteArray_ReturnsExpectedBytes()
         {
             var expectedBytes = MakeECFFile(55565554,
-                new ECFRecord { ID = 1, Name = "TestClass" },
+                new ECFRecord { ID = 1, Name = "TestFixture" },
                 new ECFRecord { ID = 2, Name = "Test2" },
                 new ECFRecord { ID = 3, Name = "Test3" },
                 new ECFRecord { ID = 4, Name = "Test4" },
@@ -51,7 +51,7 @@ namespace EOLib.IO.Test.Pub
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
 
-        [TestMethod]
+        [Test]
         public void HeaderFormat_IsCorrect()
         {
             var nes = new NumberEncoderService();
@@ -64,7 +64,7 @@ namespace EOLib.IO.Test.Pub
             CollectionAssert.AreEqual(nes.EncodeNumber(1, 1), actualBytes.Skip(9).Take(1).ToArray());
         }
 
-        [TestMethod, ExpectedException(typeof(IOException))]
+        [Test]
         public void LengthMismatch_ThrowsIOException()
         {
             var bytes = MakeECFFileWithWrongLength(12345678, 5,
@@ -72,15 +72,15 @@ namespace EOLib.IO.Test.Pub
                 new ECFRecord { ID = 2, Name = "Class2" },
                 new ECFRecord { ID = 3, Name = "Class3" });
 
-            _classFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
+            Assert.Throws<IOException>(() => _classFile.DeserializeFromByteArray(bytes, new NumberEncoderService()));
         }
 
-        [TestMethod]
+        [Test]
         public void DeserializeFromByteArray_HasExpectedIDAndNames()
         {
             var records = new[]
             {
-                new ECFRecord {ID = 1, Name = "TestClass"},
+                new ECFRecord {ID = 1, Name = "TestFixture"},
                 new ECFRecord {ID = 2, Name = "Test2"},
                 new ECFRecord {ID = 3, Name = "Test3"},
                 new ECFRecord {ID = 4, Name = "Test4"},

@@ -8,11 +8,11 @@ using System.Diagnostics.CodeAnalysis;
 using EOLib.IO.Map;
 using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Map
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class MapFileTest
     {
         private IMapFile _mapFile;
@@ -21,8 +21,8 @@ namespace EOLib.IO.Test.Map
 
         private ISerializer<IMapFile> _serializer;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             ses = new MapStringEncoderService();
             nes = new NumberEncoderService();
@@ -37,7 +37,7 @@ namespace EOLib.IO.Test.Map
                 nes);
         }
 
-        [TestMethod]
+        [Test]
         public void MapFile_Properties_HasExpectedInitialParameters()
         {
             _mapFile = new MapFile().WithMapID(123);
@@ -52,7 +52,7 @@ namespace EOLib.IO.Test.Map
             Assert.IsNotNull(_mapFile.Signs);
         }
 
-        [TestMethod]
+        [Test]
         public void MapFile_DeserializeFromByteArray_HasCorrectFileSizeInMapProperties()
         {
             _mapFile = new MapFile().WithMapID(1);
@@ -63,7 +63,7 @@ namespace EOLib.IO.Test.Map
             Assert.AreEqual(mapData.Length, _mapFile.Properties.FileSize);
         }
 
-        [TestMethod]
+        [Test]
         public void MapFile_DeserializeFromByteArray_NoTileSpecIsTimedSpikes_FlagIsNotSetInProperties()
         {
             _mapFile = new MapFile().WithMapID(1);
@@ -74,7 +74,7 @@ namespace EOLib.IO.Test.Map
             Assert.IsFalse(_mapFile.Properties.HasTimedSpikes);
         }
 
-        [TestMethod]
+        [Test]
         public void MapFile_DeserializeFromByteArray_AnyTileSpecIsTimedSpikes_FlagIsSetInProperties()
         {
             _mapFile = new MapFile().WithMapID(1);
@@ -85,7 +85,7 @@ namespace EOLib.IO.Test.Map
             Assert.IsTrue(_mapFile.Properties.HasTimedSpikes);
         }
 
-        [TestMethod]
+        [Test]
         public void MapFile_SerializeToByteArray_HasCorrectFormat()
         {
             _mapFile = new MapFile().WithMapID(1);
@@ -98,7 +98,7 @@ namespace EOLib.IO.Test.Map
             CollectionAssert.AreEqual(mapData, actualData);
         }
 
-        [TestMethod]
+        [Test]
         public void MapFile_Width1Height1_HasExpectedGFXAndTiles()
         {
             _mapFile = new MapFile().WithMapID(1);

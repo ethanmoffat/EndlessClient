@@ -5,15 +5,15 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Practices.Unity;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Moq;
 
 namespace EOLib.Config.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class ConfigDependencyContainerTest
     {
-        [TestMethod]
+        [Test]
         public void RegisterDependencies_RegistersTypes()
         {
             var container = new ConfigDependencyContainer();
@@ -24,7 +24,7 @@ namespace EOLib.Config.Test
             Assert.AreNotEqual(0, unityContainer.Registrations.Count());
         }
 
-        [TestMethod]
+        [Test]
         public void InitializeDependencies_LoadsConfigFile()
         {
             var container = new ConfigDependencyContainer();

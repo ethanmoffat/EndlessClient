@@ -6,27 +6,27 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Moq;
 using PELoaderLib;
 
 namespace EOLib.Graphics.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class PEFileCollectionTest
     {
         private const string ExpectedDirectory = "GFX";
 
         private IPEFileCollection _collection;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _collection = new PEFileCollection();
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        [TearDown]
+        public void TearDown()
         {
             _collection.Dispose();
 
@@ -34,20 +34,20 @@ namespace EOLib.Graphics.Test
                 Directory.Delete(ExpectedDirectory, true);
         }
 
-        [TestMethod, ExpectedException(typeof(DirectoryNotFoundException))]
+        [Test]
         public void PopulateCollection_ThrowsDirectoryNotFound_ForMissingDirectory()
         {
-            _collection.PopulateCollectionWithStandardGFX();
+            Assert.Throws<DirectoryNotFoundException>(() => _collection.PopulateCollectionWithStandardGFX());
         }
 
-        [TestMethod, ExpectedException(typeof(FileNotFoundException))]
+        [Test]
         public void PopulateCollection_ThrowsFileNotFound_ForMissingFilesInDirectory()
         {
             CreateExpectedDirectoryWithFiles(5);
-            _collection.PopulateCollectionWithStandardGFX();
+            Assert.Throws<FileNotFoundException>(() => _collection.PopulateCollectionWithStandardGFX());
         }
 
-        [TestMethod]
+        [Test]
         public void Constructor_FillsCollection_WithExpectedPEFiles()
         {
             var expectedKeys = Enum.GetValues(typeof(GFXTypes));
@@ -59,7 +59,7 @@ namespace EOLib.Graphics.Test
             CollectionAssert.AreEqual(expectedKeys, _collection.Keys.ToList());
         }
 
-        [TestMethod]
+        [Test]
         public void Dispose_DisposesAllFiles()
         {
             _collection.Add(GFXTypes.PreLoginUI, Mock.Of<IPEFile>());

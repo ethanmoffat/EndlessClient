@@ -4,11 +4,11 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.Config.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class ConfigFileLoadActionsTest
     {
         private const string ConfigDirectory = "config";
@@ -16,27 +16,27 @@ namespace EOLib.Config.Test
         private IConfigFileLoadActions _configFileLoadActions;
         private IConfigurationRepository _configurationRepository;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _configurationRepository = new ConfigurationRepository();
             _configFileLoadActions = new ConfigFileLoadActions(_configurationRepository);
         }
 
-        [ClassCleanup]
-        public static void ClassCleanup()
+        [TearDown]
+        public static void TearDown()
         {
             if (Directory.Exists(ConfigDirectory))
                 Directory.Delete(ConfigDirectory, true);
         }
 
-        [TestMethod, ExpectedException(typeof(ConfigLoadException))]
+        [Test]
         public void MissingConfigurationFile_ThrowsConfigLoadException()
         {
-            _configFileLoadActions.LoadConfigFile();
+            Assert.Throws<ConfigLoadException>(() => _configFileLoadActions.LoadConfigFile());
         }
 
-        [TestMethod]
+        [Test]
         public void InvalidConfigFileThatExists_UsesConfigurationValueDefaults()
         {
             CreateTestConfigurationInDirectory("[Invalid]\nContents=heyayayayay");
@@ -69,7 +69,7 @@ namespace EOLib.Config.Test
             Assert.IsFalse(_configurationRepository.EnableLog);
         }
 
-        [TestMethod]
+        [Test]
         public void ValidConfigFile_LoadsSpecifiedSettings()
         {
             const string contents = @"[CONNECTION]

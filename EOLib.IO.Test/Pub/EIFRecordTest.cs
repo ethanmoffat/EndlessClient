@@ -10,14 +10,14 @@ using System.Reflection;
 using System.Text;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class EIFRecordTest
     {
-        [TestMethod]
+        [Test]
         public void EIFRecord_GetGlobalPropertyID_GetsRecordID()
         {
             const int expected = 44;
@@ -28,7 +28,7 @@ namespace EOLib.IO.Test.Pub
             Assert.AreEqual(expected, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void EIFRecord_GetGlobalPropertyName_GetsRecordName()
         {
             const string expected = "some name";
@@ -39,7 +39,7 @@ namespace EOLib.IO.Test.Pub
             Assert.AreEqual(expected, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void EIFRecord_GetItemPropertiesComprehensive_NoException()
         {
             var itemProperties = Enum.GetNames(typeof (PubRecordProperty))
@@ -58,45 +58,45 @@ namespace EOLib.IO.Test.Pub
             }
         }
 
-        [TestMethod, ExpectedException(typeof (ArgumentOutOfRangeException))]
+        [Test]
         public void EIFRecord_GetNPCProperty_ThrowsArgumentOutOfRangeException()
         {
             const PubRecordProperty invalidProperty = PubRecordProperty.NPCAccuracy;
 
             var record = new EIFRecord();
 
-            record.Get<object>(invalidProperty);
+            Assert.Throws<ArgumentOutOfRangeException>(() => record.Get<object>(invalidProperty));
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Test]
         public void EIFRecord_GetSpellProperty_ThrowsArgumentOutOfRangeException()
         {
             const PubRecordProperty invalidProperty = PubRecordProperty.SpellAccuracy;
 
             var record = new EIFRecord();
 
-            record.Get<object>(invalidProperty);
+            Assert.Throws<ArgumentOutOfRangeException>(() => record.Get<object>(invalidProperty));
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Test]
         public void EIFRecord_GetClassProperty_ThrowsArgumentOutOfRangeException()
         {
             const PubRecordProperty invalidProperty = PubRecordProperty.ClassAgi;
 
             var record = new EIFRecord();
 
-            record.Get<object>(invalidProperty);
+            Assert.Throws<ArgumentOutOfRangeException>(() => record.Get<object>(invalidProperty));
         }
 
-        [TestMethod, ExpectedException(typeof (InvalidCastException))]
+        [Test]
         public void EIFRecord_InvalidPropertyReturnType_ThrowsInvalidCastException()
         {
             var rec = new EIFRecord {Name = ""};
 
-            rec.Get<int>(PubRecordProperty.GlobalName);
+            Assert.Throws<InvalidCastException>(() => rec.Get<int>(PubRecordProperty.GlobalName));
         }
 
-        [TestMethod]
+        [Test]
         public void EIFRecord_SerializeToByteArray_WritesExpectedFormat()
         {
             var numberEncoderService = new NumberEncoderService();
@@ -109,7 +109,7 @@ namespace EOLib.IO.Test.Pub
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
 
-        [TestMethod]
+        [Test]
         public void EIFRecord_DeserializeFromByteArray_HasCorrectData()
         {
             var numberEncoderService = new NumberEncoderService();
@@ -132,15 +132,15 @@ namespace EOLib.IO.Test.Pub
             }
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Test]
         public void EIFRecord_DeserializeFromByteArray_InvalidArrayLength_ThrowsException()
         {
             var record = new EIFRecord();
 
-            record.DeserializeFromByteArray(new byte[] { 1, 2, 3 }, new NumberEncoderService());
+            Assert.Throws<ArgumentOutOfRangeException>(() => record.DeserializeFromByteArray(new byte[] { 1, 2, 3 }, new NumberEncoderService()));
         }
 
-        [TestMethod]
+        [Test]
         public void EIFRecord_GunOverride_ConvertsItemSubTypeToRanged()
         {
             var record = new EIFRecord {ID = 365, Name = "Gun", SubType = ItemSubType.Arrows};
@@ -149,7 +149,7 @@ namespace EOLib.IO.Test.Pub
             Assert.AreEqual(ItemSubType.Ranged, record.SubType);
         }
 
-        [TestMethod]
+        [Test]
         public void EIFRecord_SharedValueSet1_HaveSameValue()
         {
             var properties = new[] { "ScrollMap", "DollGraphic", "ExpReward", "HairColor", "Effect", "Key" };
@@ -172,7 +172,7 @@ namespace EOLib.IO.Test.Pub
             }
         }
 
-        [TestMethod]
+        [Test]
         public void EIFRecord_SharedValueSet2_HaveSameValue()
         {
             var properties = new[] { "Gender", "ScrollX" };
@@ -191,7 +191,7 @@ namespace EOLib.IO.Test.Pub
             }
         }
 
-        [TestMethod]
+        [Test]
         public void EIFRecord_SharedValueSet3_HaveSameValue()
         {
             var properties = new[] { "ScrollY", "DualWieldDollGraphic" };

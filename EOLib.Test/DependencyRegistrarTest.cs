@@ -6,15 +6,15 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EOLib.DependencyInjection;
 using Microsoft.Practices.Unity;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Moq;
 
 namespace EOLib.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class DependencyRegistrarTest
     {
-        [TestMethod]
+        [Test]
         public void WhenInitializeDependencies_InitializableContainers_CallsInitializeOnAll()
         {
             var containers = new[]
@@ -33,7 +33,7 @@ namespace EOLib.Test
                 container.Verify(x => x.InitializeDependencies(unityContainer), Times.Once());
         }
 
-        [TestMethod]
+        [Test]
         public void WhenRegisterDependencies_DependencyContainers_CallsRegisterOnAll()
         {
             var containers = new[]
@@ -52,7 +52,7 @@ namespace EOLib.Test
                 container.Verify(x => x.RegisterDependencies(unityContainer), Times.Once());
         }
 
-        [TestMethod]
+        [Test]
         public void WhenRegisterDependencies_MixedTypes_CallsRegisterOnAll()
         {
             var containers = new[]

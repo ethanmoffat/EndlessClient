@@ -4,58 +4,55 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.Localization.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class DataFileLoadActionsTest
     {
         private IDataFileLoadActions _actions;
         private IDataFileRepository _dataFileRepository;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _dataFileRepository = new DataFileRepository();
             _actions = new DataFileLoadActions(_dataFileRepository);
         }
 
-        [TestCleanup]
-        public void TestCleanup()
+        [TearDown]
+        public void TearDown()
         {
             if (Directory.Exists(DataFileConstants.DataFilePath))
                 Directory.Delete(DataFileConstants.DataFilePath, true);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(DataFileLoadException), DataFileLoadException.ExceptionMessage)]
+        [Test]
         public void GivenMissingDataDirectory_WhenLoadDataFiles_ExpectDataFileLoadException()
         {
-            _actions.LoadDataFiles();
+            Assert.Throws<DataFileLoadException>(() => _actions.LoadDataFiles());
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(DataFileLoadException), DataFileLoadException.ExceptionMessage)]
+        [Test]
         public void GivenIncorrectNumberOfDataFiles_WhenLoadDataFiles_ExpectDataFileLoadException()
         {
             CreateRequiredDirectory();
             GivenEDFFilesInRequiredDirectory(5, "{0}.edf");
 
-            _actions.LoadDataFiles();
+            Assert.Throws<DataFileLoadException>(() => _actions.LoadDataFiles());
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(DataFileLoadException), DataFileLoadException.ExceptionMessage)]
+        [Test]
         public void WhenLoadDataFiles_DataFilesHaveIncorrectNameFormat_ExpectDataFileLoadException()
         {
             CreateRequiredDirectory();
             GivenEDFFilesInRequiredDirectory(nameFormat: "{0}.edf");
 
-            _actions.LoadDataFiles();
+            Assert.Throws<DataFileLoadException>(() => _actions.LoadDataFiles());
         }
 
-        [TestMethod]
+        [Test]
         public void WhenLoadDataFiles_RepositoryHasExpectedNumberOfFiles()
         {
             CreateRequiredDirectory();

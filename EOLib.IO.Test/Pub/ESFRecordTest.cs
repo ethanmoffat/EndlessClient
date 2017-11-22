@@ -10,14 +10,14 @@ using System.Reflection;
 using System.Text;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class ESFRecordTest
     {
-        [TestMethod]
+        [Test]
         public void ESFRecord_GetGlobalPropertyID_GetsRecordID()
         {
             const int expected = 44;
@@ -28,7 +28,7 @@ namespace EOLib.IO.Test.Pub
             Assert.AreEqual(expected, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void ESFRecord_GetGlobalPropertyName_GetsRecordName()
         {
             const string expected = "some name";
@@ -39,7 +39,7 @@ namespace EOLib.IO.Test.Pub
             Assert.AreEqual(expected, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void ESFRecord_GetSpellPropertiesComprehensive_NoException()
         {
             var spellProperties = Enum.GetNames(typeof(PubRecordProperty))
@@ -58,45 +58,45 @@ namespace EOLib.IO.Test.Pub
             }
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Test]
         public void ESFRecord_GetItemProperty_ThrowsArgumentOutOfRangeException()
         {
             const PubRecordProperty invalidProperty = PubRecordProperty.ItemSubType;
 
             var record = new ESFRecord();
 
-            record.Get<object>(invalidProperty);
+            Assert.Throws<ArgumentOutOfRangeException>(() => record.Get<object>(invalidProperty));
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Test]
         public void ESFRecord_GetNPCProperty_ThrowsArgumentOutOfRangeException()
         {
             const PubRecordProperty invalidProperty = PubRecordProperty.NPCAccuracy;
 
             var record = new ESFRecord();
 
-            record.Get<object>(invalidProperty);
+            Assert.Throws<ArgumentOutOfRangeException>(() => record.Get<object>(invalidProperty));
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Test]
         public void ESFRecord_GetClassProperty_ThrowsArgumentOutOfRangeException()
         {
             const PubRecordProperty invalidProperty = PubRecordProperty.ClassAgi;
 
             var record = new ESFRecord();
 
-            record.Get<object>(invalidProperty);
+            Assert.Throws<ArgumentOutOfRangeException>(() => record.Get<object>(invalidProperty));
         }
 
-        [TestMethod, ExpectedException(typeof(InvalidCastException))]
+        [Test]
         public void ESFRecord_InvalidPropertyReturnType_ThrowsInvalidCastException()
         {
             var rec = new ESFRecord { Name = "" };
 
-            rec.Get<int>(PubRecordProperty.GlobalName);
+            Assert.Throws<InvalidCastException>(() => rec.Get<int>(PubRecordProperty.GlobalName));
         }
 
-        [TestMethod]
+        [Test]
         public void ESFRecord_SerializeToByteArray_WritesExpectedFormat()
         {
             var numberEncoderService = new NumberEncoderService();
@@ -109,7 +109,7 @@ namespace EOLib.IO.Test.Pub
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
 
-        [TestMethod]
+        [Test]
         public void ESFRecord_DeserializeFromByteArray_HasCorrectData()
         {
             var numberEncoderService = new NumberEncoderService();
@@ -132,12 +132,12 @@ namespace EOLib.IO.Test.Pub
             }
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+        [Test]
         public void ESFRecord_DeserializeFromByteArray_InvalidArrayLength_ThrowsException()
         {
             var record = new ESFRecord();
 
-            record.DeserializeFromByteArray(new byte[] { 1, 2, 3 }, new NumberEncoderService());
+            Assert.Throws<ArgumentOutOfRangeException>(() => record.DeserializeFromByteArray(new byte[] { 1, 2, 3 }, new NumberEncoderService()));
         }
 
         private static ESFRecord CreateRecordWithSomeGoodTestData()

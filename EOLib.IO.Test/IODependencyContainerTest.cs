@@ -5,14 +5,14 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Practices.Unity;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class IODependencyContainerTest
     {
-        [TestMethod]
+        [Test]
         public void RegisterDependencies_RegistersTypes()
         {
             var container = new IODependencyContainer();

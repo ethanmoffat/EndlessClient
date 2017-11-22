@@ -12,18 +12,18 @@ using System.Text;
 using EOLib.IO.Map;
 using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Map
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class MapFilePropertiesTest
     {
         private ISerializer<IMapFileProperties> _mapPropertiesSerializer;
         private IMapFileProperties _props;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _props = new MapFileProperties();
 
@@ -31,13 +31,13 @@ namespace EOLib.IO.Test.Map
                 new NumberEncoderService(), new MapStringEncoderService());
         }
 
-        [TestMethod]
+        [Test]
         public void MapFileProperties_HasExpectedFileHeader()
         {
             Assert.AreEqual("EMF", _props.FileType);
         }
 
-        [TestMethod]
+        [Test]
         public void MapFileProperties_SerializeToByteArray_HasExpectedFormat()
         {
             _props = CreateMapPropertiesWithSomeTestData(_props);
@@ -48,7 +48,7 @@ namespace EOLib.IO.Test.Map
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
 
-        [TestMethod]
+        [Test]
         public void MapFileProperties_DeserializeFromByteArray_HasExpectedValues()
         {
             var expected = CreateMapPropertiesWithSomeTestData(_props);
@@ -68,7 +68,7 @@ namespace EOLib.IO.Test.Map
             }
         }
 
-        [TestMethod]
+        [Test]
         public void MapFileProperties_CustomProperties_NotChangedWhenDeserialized()
         {
             var expected = CreateMapPropertiesWithSomeTestData(_props);
@@ -81,20 +81,18 @@ namespace EOLib.IO.Test.Map
             Assert.AreEqual(new MapFileProperties().HasTimedSpikes, _props.HasTimedSpikes);
         }
 
-        [TestMethod, ExpectedException(typeof(ArgumentException))]
+        [Test]
         public void MapFileProperties_DeserializeFromByteArray_ThrowsExceptionWhenIncorrectSize()
         {
             var bytes = new byte[] {1, 2};
-
-            _mapPropertiesSerializer.DeserializeFromByteArray(bytes);
+            Assert.Throws<ArgumentException>(() => _mapPropertiesSerializer.DeserializeFromByteArray(bytes));
         }
 
-        [TestMethod, ExpectedException(typeof(FormatException))]
+        [Test]
         public void MapFileProperties_DeserializeFromByteArray_ThrowsExceptionWhenNotEMF()
         {
             var bytes = Enumerable.Repeat((byte) 254, MapFileProperties.DATA_SIZE).ToArray();
-
-            _mapPropertiesSerializer.DeserializeFromByteArray(bytes);
+            Assert.Throws<FormatException>(() => _mapPropertiesSerializer.DeserializeFromByteArray(bytes));
         }
 
         private static IMapFileProperties CreateMapPropertiesWithSomeTestData(IMapFileProperties props)

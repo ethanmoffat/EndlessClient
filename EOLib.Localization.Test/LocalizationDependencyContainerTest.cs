@@ -5,15 +5,15 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Practices.Unity;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using Moq;
 
 namespace EOLib.Localization.Test
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class LocalizationDependencyContainerTest
     {
-        [TestMethod]
+        [Test]
         public void LocalizationDependencyContainer_Register_DoesRegistration()
         {
             var container = new LocalizationDependencyContainer();
@@ -23,7 +23,7 @@ namespace EOLib.Localization.Test
             Assert.AreNotEqual(0, unityContainer.Registrations.Count());
         }
 
-        [TestMethod]
+        [Test]
         public void LocalizationDependencyContainer_Initialize_LoadsEDFFiles()
         {
             var dataFileLoadActions = new Mock<IDataFileLoadActions>();

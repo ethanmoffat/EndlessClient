@@ -7,22 +7,22 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using EOLib.IO.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Map
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class MapStringEncoderServiceTest
     {
         private IMapStringEncoderService _service;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _service = new MapStringEncoderService();
         }
 
-        [TestMethod]
+        [Test]
         public void EncodeThenDecode_ReturnsOriginalString()
         {
             const string expected = "Test map string to encode";
@@ -33,7 +33,7 @@ namespace EOLib.IO.Test.Map
             Assert.AreEqual(expected, actual);
         }
 
-        [TestMethod]
+        [Test]
         public void EncodeString_ReturnsExpectedBytes_FromKnownString()
         {
             var name = "Aeven" + Encoding.ASCII.GetString(Enumerable.Repeat((byte)0, 19).ToArray());
@@ -47,7 +47,7 @@ namespace EOLib.IO.Test.Map
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
 
-        [TestMethod]
+        [Test]
         public void DecodeString_ReturnsExpectedString_FromKnownBytes()
         {
             const string expected = "Aeven";

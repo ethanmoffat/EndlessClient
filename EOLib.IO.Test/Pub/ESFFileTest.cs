@@ -9,28 +9,28 @@ using System.Linq;
 using System.Text;
 using EOLib.IO.Pub;
 using EOLib.IO.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 
 namespace EOLib.IO.Test.Pub
 {
-    [TestClass, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage]
     public class ESFFileTest
     {
         private IPubFile<ESFRecord> _spellFile;
 
-        [TestInitialize]
-        public void TestInitialize()
+        [SetUp]
+        public void SetUp()
         {
             _spellFile = new ESFFile();
         }
 
-        [TestMethod]
+        [Test]
         public void HasCorrectFileType()
         {
             Assert.AreEqual("ESF", _spellFile.FileType);
         }
 
-        [TestMethod]
+        [Test]
         public void SerializeToByteArray_ReturnsExpectedBytes()
         {
             var expectedBytes = MakeESFFile(55565554,
@@ -51,7 +51,7 @@ namespace EOLib.IO.Test.Pub
             CollectionAssert.AreEqual(expectedBytes, actualBytes);
         }
 
-        [TestMethod]
+        [Test]
         public void HeaderFormat_IsCorrect()
         {
             var nes = new NumberEncoderService();
@@ -64,7 +64,7 @@ namespace EOLib.IO.Test.Pub
             CollectionAssert.AreEqual(nes.EncodeNumber(1, 1), actualBytes.Skip(9).Take(1).ToArray());
         }
 
-        [TestMethod, ExpectedException(typeof(IOException))]
+        [Test]
         public void LengthMismatch_ThrowsIOException()
         {
             var bytes = MakeESFFileWithWrongLength(12345678, 5,
@@ -72,10 +72,10 @@ namespace EOLib.IO.Test.Pub
                 new ESFRecord { ID = 2, Name = "Spell2", Shout = "Spell2" },
                 new ESFRecord { ID = 3, Name = "Spell3", Shout = "Spell3" });
 
-            _spellFile.DeserializeFromByteArray(bytes, new NumberEncoderService());
+            Assert.Throws<IOException>(() => _spellFile.DeserializeFromByteArray(bytes, new NumberEncoderService()));
         }
 
-        [TestMethod]
+        [Test]
         public void DeserializeFromByteArray_HasExpectedIDAndNames()
         {
             var records = new[]
