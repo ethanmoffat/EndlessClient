@@ -31,7 +31,7 @@ namespace EOLib.Graphics.Test
             _serviceContainer = new ServiceContainer();
             _serviceContainer.AddService(typeof(IGraphicsDeviceService), gds);
 
-            GraphicsDeviceManager.CreateDevice();
+            GraphicsDeviceManager.ApplyChanges();
         }
 
         public void Dispose()
