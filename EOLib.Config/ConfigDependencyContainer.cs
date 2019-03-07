@@ -5,14 +5,7 @@ namespace EOLib.Config
 {
     public class ConfigDependencyContainer : IInitializableContainer
     {
-        public void RegisterDependencies(IUnityContainer container)
-        {
-            container.RegisterInstance<IConfigurationRepository, ConfigurationRepository>()
-                .RegisterInstance<IConfigurationProvider, ConfigurationRepository>();
-
-            container
-                .RegisterType<IConfigFileLoadActions, ConfigFileLoadActions>();
-        }
+        public void RegisterDependencies(IUnityContainer container) {}
 
         public void InitializeDependencies(IUnityContainer container)
         {
