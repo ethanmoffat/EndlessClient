@@ -7,7 +7,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Protocol;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace EOLib.Net.Translators
 {

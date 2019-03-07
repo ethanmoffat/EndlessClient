@@ -3,7 +3,9 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
-using Microsoft.Practices.Unity;
+using Unity;
+using Unity.Injection;
+using Unity.Lifetime;
 
 namespace EOLib.DependencyInjection
 {
@@ -16,7 +18,10 @@ namespace EOLib.DependencyInjection
 
         public static IUnityContainer RegisterInstance<T, U>(this IUnityContainer container) where U : T
         {
-            return container.RegisterType<T, U>(new ContainerControlledLifetimeManager());
+            if (!container.IsRegistered<U>())
+                container.RegisterType<U>(new ContainerControlledLifetimeManager());
+
+            return container.RegisterType<T, U>();
         }
 
         public static IUnityContainer RegisterVaried<T, U>(this IUnityContainer container) where U : T
@@ -30,7 +35,10 @@ namespace EOLib.DependencyInjection
         {
             RegisterEnumerableIfNeeded<T, U>(container);
 
-            return container.RegisterType<T, U>(typeof(U).Name, new ContainerControlledLifetimeManager(), new InjectionFactory(x => x.Resolve<U>()));
+            if (!container.IsRegistered<U>())
+                container.RegisterType<U>(typeof(U).Name, new ContainerControlledLifetimeManager());
+
+            return container.RegisterType<T, U>(typeof(U).Name, new ContainerControlledLifetimeManager());
         }
 
         private static void RegisterEnumerableIfNeeded<T, U>(IUnityContainer container) where U : T

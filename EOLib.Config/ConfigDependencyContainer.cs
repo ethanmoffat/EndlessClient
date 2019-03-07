@@ -1,5 +1,5 @@
 ﻿using EOLib.DependencyInjection;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace EOLib.Config
 {

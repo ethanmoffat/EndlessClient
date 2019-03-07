@@ -9,7 +9,7 @@ using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 using EOLib.IO.Services.Serializers;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace EOLib.IO
 {

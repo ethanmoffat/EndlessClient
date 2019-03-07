@@ -21,7 +21,7 @@ using EndlessClient.Test;
 using EndlessClient.UIControls;
 using EOLib.DependencyInjection;
 using EOLib.Domain.Notifiers;
-using Microsoft.Practices.Unity;
+using Unity;
 using XNAControls;
 
 namespace EndlessClient
@@ -126,6 +126,7 @@ namespace EndlessClient
 
             var contentRepo = container.Resolve<IContentManagerRepository>();
             contentRepo.Content = game.Content;
+            contentRepo.Content.RootDirectory = "ContentPipeline";
 
             var keyboardDispatcherRepo = container.Resolve<IKeyboardDispatcherRepository>();
             keyboardDispatcherRepo.Dispatcher = new KeyboardDispatcher(game.Window);

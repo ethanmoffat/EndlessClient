@@ -4,7 +4,7 @@
 
 using EndlessClient.GameExecution;
 using EOLib.DependencyInjection;
-using Microsoft.Practices.Unity;
+using Unity;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient

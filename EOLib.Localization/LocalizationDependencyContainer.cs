@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using EOLib.DependencyInjection;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace EOLib.Localization
 {

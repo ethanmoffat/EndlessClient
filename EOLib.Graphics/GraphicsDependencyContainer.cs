@@ -4,7 +4,7 @@
 
 using System.IO;
 using EOLib.DependencyInjection;
-using Microsoft.Practices.Unity;
+using Unity;
 using PELoaderLib;
 
 namespace EOLib.Graphics

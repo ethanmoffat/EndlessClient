@@ -12,7 +12,7 @@ using EndlessClient.Rendering.NPC;
 using EndlessClient.Rendering.Sprites;
 using EOLib.DependencyInjection;
 using EOLib.Domain.Notifiers;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace EndlessClient.Rendering
 {
