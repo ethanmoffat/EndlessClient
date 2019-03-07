@@ -4,9 +4,9 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Microsoft.Practices.Unity;
 using NUnit.Framework;
 using Moq;
+using Unity;
 
 namespace EOLib.Localization.Test
 {
@@ -17,7 +17,7 @@ namespace EOLib.Localization.Test
         public void LocalizationDependencyContainer_Register_DoesRegistration()
         {
             var container = new LocalizationDependencyContainer();
-            var unityContainer = new UnityContainer();
+            IUnityContainer unityContainer = new UnityContainer();
             container.RegisterDependencies(unityContainer);
 
             Assert.AreNotEqual(0, unityContainer.Registrations.Count());

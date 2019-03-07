@@ -5,9 +5,9 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using EOLib.DependencyInjection;
-using Microsoft.Practices.Unity;
 using NUnit.Framework;
 using Moq;
+using Unity;
 
 namespace EOLib.Test
 {

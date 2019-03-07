@@ -11,7 +11,7 @@ using EOLib.IO.Actions;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace BatchMap
 {

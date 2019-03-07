@@ -4,8 +4,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Microsoft.Practices.Unity;
 using NUnit.Framework;
+using Unity;
 
 namespace EOLib.IO.Test
 {
@@ -16,7 +16,7 @@ namespace EOLib.IO.Test
         public void RegisterDependencies_RegistersTypes()
         {
             var container = new IODependencyContainer();
-            var unityContainer = new UnityContainer();
+            IUnityContainer unityContainer = new UnityContainer();
 
             container.RegisterDependencies(unityContainer);
 

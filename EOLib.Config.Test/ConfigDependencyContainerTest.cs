@@ -4,9 +4,10 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Microsoft.Practices.Unity;
 using NUnit.Framework;
 using Moq;
+using Unity;
+using Unity.Lifetime;
 
 namespace EOLib.Config.Test
 {
@@ -17,7 +18,7 @@ namespace EOLib.Config.Test
         public void RegisterDependencies_RegistersTypes()
         {
             var container = new ConfigDependencyContainer();
-            var unityContainer = new UnityContainer();
+            IUnityContainer unityContainer = new UnityContainer();
 
             container.RegisterDependencies(unityContainer);
 
@@ -29,9 +30,7 @@ namespace EOLib.Config.Test
         {
             var container = new ConfigDependencyContainer();
             var unityContainer = new UnityContainer();
-            unityContainer.RegisterType<IConfigFileLoadActions>(
-                new ContainerControlledLifetimeManager(),
-                new InjectionFactory(CreateConfigLoadActions));
+            unityContainer.RegisterFactory<IConfigFileLoadActions>(CreateConfigLoadActions, new ContainerControlledLifetimeManager());
 
             container.InitializeDependencies(unityContainer);
 

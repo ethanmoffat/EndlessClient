@@ -6,10 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using Microsoft.Practices.Unity;
 using NUnit.Framework;
 using Moq;
 using PELoaderLib;
+using Unity;
+using Unity.Lifetime;
 
 namespace EOLib.Graphics.Test
 {
@@ -27,7 +28,7 @@ namespace EOLib.Graphics.Test
         [Test]
         public void RegistersDependencies_DoesRegistrations()
         {
-            var unityContainer = new UnityContainer();
+            IUnityContainer unityContainer = new UnityContainer();
             var container = new GraphicsDependencyContainer();
 
             container.RegisterDependencies(unityContainer);
@@ -39,7 +40,7 @@ namespace EOLib.Graphics.Test
         public void InitializeDependencies_PEFileError_ExpectIOExceptionIsThrownAsLibraryLoadException()
         {
             var unityContainer = new UnityContainer();
-            unityContainer.RegisterType<IPEFileCollection>(new InjectionFactory(c => CreatePEFileCollection()));
+            unityContainer.RegisterFactory<IPEFileCollection>(c => CreatePEFileCollection());
             var container = new GraphicsDependencyContainer();
 
             var file1Mock = new Mock<IPEFile>();
@@ -53,7 +54,7 @@ namespace EOLib.Graphics.Test
         public void InitializeDependencies_PEFileInitializeIsFalse_ExpectLibraryLoadException()
         {
             var unityContainer = new UnityContainer();
-            unityContainer.RegisterType<IPEFileCollection>(new InjectionFactory(c => CreatePEFileCollection()));
+            unityContainer.RegisterFactory<IPEFileCollection>(c => CreatePEFileCollection());
             var container = new GraphicsDependencyContainer();
 
             var file1Mock = new Mock<IPEFile>();
@@ -67,8 +68,7 @@ namespace EOLib.Graphics.Test
         public void InitializeDependencies_InitializesGFXFiles()
         {
             var unityContainer = new UnityContainer();
-            unityContainer.RegisterType<IPEFileCollection>(new ContainerControlledLifetimeManager(),
-                                                           new InjectionFactory(c => CreatePEFileCollection()));
+            unityContainer.RegisterFactory<IPEFileCollection>(c => CreatePEFileCollection(), new ContainerControlledLifetimeManager());
             var container = new GraphicsDependencyContainer();
 
             var file1Mock = new Mock<IPEFile>();
