@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using AutomaticTypeMapper;
+using EndlessClient.Initialization;
 using EOLib.Config;
 using EOLib.DependencyInjection;
 using EOLib.Graphics;
@@ -29,12 +30,18 @@ namespace EndlessClient.GameExecution
             var registrar = new DependencyRegistrar(((UnityRegistry)_registry).UnityContainer);
             registrar.RegisterDependencies(DependencyContainerProvider.DependencyContainers);
 
+            var initializers = _registry.ResolveAll<IGameInitializer>();
             try
             {
                 registrar.InitializeDependencies(
                     DependencyContainerProvider.DependencyContainers
                         .OfType<IInitializableContainer>()
                         .ToArray());
+
+                foreach (var initializer in initializers)
+                {
+                    initializer.Initialize();
+                }
             }
             catch (ConfigLoadException cle)
             {

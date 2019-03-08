@@ -92,7 +92,6 @@
   </Choose>
   <ItemGroup>
     <Compile Include="AssemblyInitializer.cs" />
-    <Compile Include="ConfigDependencyContainerTest.cs" />
     <Compile Include="ConfigFileLoadActionsTest.cs" />
     <Compile Include="IniReaderTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

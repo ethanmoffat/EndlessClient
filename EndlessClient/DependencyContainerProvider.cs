@@ -23,7 +23,6 @@ namespace EndlessClient
         public static readonly IDependencyContainer[] DependencyContainers =
         {
             //EOLib containers
-            new ConfigDependencyContainer(),
             new DomainDependencyContainer(),
             new EOLibDependencyContainer(),
             new GraphicsDependencyContainer(),

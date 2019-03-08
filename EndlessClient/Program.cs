@@ -5,6 +5,7 @@
 using AutomaticTypeMapper;
 using System;
 using EndlessClient.GameExecution;
+using System.Reflection;
 
 namespace EndlessClient
 {
@@ -17,6 +18,7 @@ namespace EndlessClient
         {
             var assemblyNames = new []
             {
+                Assembly.GetExecutingAssembly().FullName,
                 "EOLib.Config"
             };
 
