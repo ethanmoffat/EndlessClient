@@ -52,6 +52,9 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutomaticTypeMapper, Version=1.1.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\packages\AutomaticTypeMapper.1.1.0.2\lib\net462\AutomaticTypeMapper.dll</HintPath>
+    </Reference>
     <Reference Include="MonoGame.Framework, Version=3.7.1.189, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Framework.DesktopGL.3.7.1.189\lib\net45\MonoGame.Framework.dll</HintPath>
     </Reference>
@@ -75,7 +78,6 @@
     <Compile Include="NativeGraphicsLoader.cs" />
     <Compile Include="NativeGraphicsManager.cs" />
     <Compile Include="GFXTypes.cs" />
-    <Compile Include="GraphicsDependencyContainer.cs" />
     <Compile Include="IGraphicsDeviceRepository.cs" />
     <Compile Include="INativeGraphicsLoader.cs" />
     <Compile Include="INativeGraphicsManager.cs" />

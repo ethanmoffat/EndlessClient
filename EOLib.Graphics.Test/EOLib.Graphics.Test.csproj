@@ -126,7 +126,6 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="GraphicsDependencyContainerTest.cs" />
     <Compile Include="GraphicsDeviceServiceTestHelper.cs" />
     <Compile Include="GraphicsDeviceTestHelper.cs" />
     <Compile Include="LibraryGraphicPairTest.cs" />
@@ -147,6 +146,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>

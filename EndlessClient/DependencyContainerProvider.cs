@@ -4,11 +4,9 @@
 
 using EndlessClient.Rendering;
 using EOLib;
-using EOLib.Config;
 using EOLib.DependencyInjection;
 using EOLib.Domain;
 using EOLib.Domain.Notifiers;
-using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.Localization;
 using EOLib.Logger;
@@ -25,7 +23,6 @@ namespace EndlessClient
             //EOLib containers
             new DomainDependencyContainer(),
             new EOLibDependencyContainer(),
-            new GraphicsDependencyContainer(),
             new IODependencyContainer(),
             new LocalizationDependencyContainer(),
             new LoggerDependencyContainer(),

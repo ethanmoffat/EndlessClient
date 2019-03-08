@@ -88,6 +88,7 @@
     <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
     <Compile Include="HUD\StatusBars\StatusBarBase.cs" />
     <Compile Include="Initialization\ConfigInitializer.cs" />
+    <Compile Include="Initialization\GraphicsInitializer.cs" />
     <Compile Include="Initialization\IGameInitializer.cs" />
     <Compile Include="Input\ArrowKeyHandler.cs" />
     <Compile Include="Input\ControlKeyHandler.cs" />
@@ -367,6 +368,9 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="MonoGame.Framework, Version=3.7.1.189, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MonoGame.Framework.DesktopGL.3.7.1.189\lib\net45\MonoGame.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="PELoaderLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\packages\PELoaderLib.1.1.0.3\lib\net462\PELoaderLib.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />

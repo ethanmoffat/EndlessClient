@@ -19,7 +19,8 @@ namespace EndlessClient
             var assemblyNames = new []
             {
                 Assembly.GetExecutingAssembly().FullName,
-                "EOLib.Config"
+                "EOLib.Config",
+                "EOLib.Graphics"
             };
 
             using (ITypeRegistry registry = new UnityRegistry(assemblyNames))
