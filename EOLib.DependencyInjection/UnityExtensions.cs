@@ -45,9 +45,9 @@ namespace EOLib.DependencyInjection
         {
             if (!container.IsRegistered(typeof(IEnumerable<T>)))
             {
-                container.RegisterType<IEnumerable<T>>(
-                    new ContainerControlledLifetimeManager(),
-                    new InjectionFactory(c => c.ResolveAll<T>()));
+                container.RegisterFactory<IEnumerable<T>>(
+                    c => c.ResolveAll<T>(),
+                    new ContainerControlledLifetimeManager());
             }
         }
     }
