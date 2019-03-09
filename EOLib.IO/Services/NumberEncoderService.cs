@@ -2,10 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using System.Linq;
 
 namespace EOLib.IO.Services
 {
+    [MappedType(BaseType = typeof(INumberEncoderService))]
     public class NumberEncoderService : INumberEncoderService
     {
         public byte[] EncodeNumber(int number, int size)

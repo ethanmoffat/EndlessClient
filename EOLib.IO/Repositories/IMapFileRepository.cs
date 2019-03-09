@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 
 namespace EOLib.IO.Repositories
@@ -17,6 +18,8 @@ namespace EOLib.IO.Repositories
         IReadOnlyDictionary<int, IMapFile> MapFiles { get; }
     }
 
+    [MappedType(BaseType = typeof(IMapFileRepository), IsSingleton = true)]
+    [MappedType(BaseType = typeof(IMapFileProvider), IsSingleton = true)]
     public class MapFileRepository : IMapFileRepository, IMapFileProvider
     {
         private readonly Dictionary<int, IMapFile> _mapCache;

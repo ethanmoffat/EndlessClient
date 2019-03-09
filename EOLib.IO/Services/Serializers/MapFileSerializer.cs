@@ -6,10 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
+    [MappedType(BaseType = typeof(ISerializer<IMapFile>))]
     public class MapFileSerializer : ISerializer<IMapFile>
     {
         private const TileSpec DEFAULT_TILE = TileSpec.None;

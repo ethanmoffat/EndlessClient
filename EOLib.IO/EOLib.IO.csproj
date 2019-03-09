@@ -50,6 +50,9 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AutomaticTypeMapper, Version=1.1.0.0, Culture=neutral, processorArchitecture=x86">
+      <HintPath>..\packages\AutomaticTypeMapper.1.1.0.2\lib\net462\AutomaticTypeMapper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
@@ -86,7 +89,6 @@
     <Compile Include="Map\SignMapEntity.cs" />
     <Compile Include="Map\TileSpec.cs" />
     <Compile Include="Map\WarpMapEntity.cs" />
-    <Compile Include="IODependencyContainer.cs" />
     <Compile Include="NumericConstants.cs" />
     <Compile Include="PubFileNameConstants.cs" />
     <Compile Include="Pub\ECFFile.cs" />

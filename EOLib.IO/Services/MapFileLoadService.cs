@@ -3,11 +3,13 @@
 // For additional details, see the LICENSE file
 
 using System.IO;
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Services
 {
+    [MappedType(BaseType = typeof(IMapFileLoadService))]
     public class MapFileLoadService : IMapFileLoadService
     {
         private readonly ISerializer<IMapFile> _mapFileSerializer;

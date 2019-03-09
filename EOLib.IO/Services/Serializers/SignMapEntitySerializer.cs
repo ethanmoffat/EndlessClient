@@ -5,10 +5,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
+    [MappedType(BaseType = typeof(ISerializer<SignMapEntity>))]
     public class SignMapEntitySerializer : ISerializer<SignMapEntity>
     {
         private readonly INumberEncoderService numberEncoderService;

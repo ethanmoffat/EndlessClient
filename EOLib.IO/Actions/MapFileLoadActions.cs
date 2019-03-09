@@ -2,12 +2,14 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
 
 namespace EOLib.IO.Actions
 {
+    [MappedType(BaseType = typeof(IMapFileLoadActions))]
     public class MapFileLoadActions : IMapFileLoadActions
     {
         private readonly IMapFileRepository _mapFileRepository;

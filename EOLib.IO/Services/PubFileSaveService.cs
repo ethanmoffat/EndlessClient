@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System.IO;
+using AutomaticTypeMapper;
 using EOLib.IO.Pub;
 
 namespace EOLib.IO.Services
 {
+    [MappedType(BaseType = typeof(IPubFileSaveService))]
     public class PubFileSaveService : IPubFileSaveService
     {
         private readonly INumberEncoderService _numberEncoderService;

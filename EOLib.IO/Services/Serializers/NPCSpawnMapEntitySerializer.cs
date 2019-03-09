@@ -4,10 +4,12 @@
 
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
+    [MappedType(BaseType = typeof(ISerializer<NPCSpawnMapEntity>))]
     public class NPCSpawnMapEntitySerializer : ISerializer<NPCSpawnMapEntity>
     {
         private readonly INumberEncoderService _numberEncoderService;

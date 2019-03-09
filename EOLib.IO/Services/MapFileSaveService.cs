@@ -4,11 +4,13 @@
 
 using System;
 using System.IO;
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 using EOLib.IO.Services.Serializers;
 
 namespace EOLib.IO.Services
 {
+    [MappedType(BaseType = typeof(IMapFileSaveService))]
     public class MapFileSaveService : IMapFileSaveService
     {
         private readonly ISerializer<IMapFile> _mapFileSerializer;
