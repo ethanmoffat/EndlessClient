@@ -22,7 +22,8 @@ namespace EndlessClient
                 "EOLib.Config",
                 "EOLib.Graphics",
                 "EOLib.IO",
-                "EOLib.Localization"
+                "EOLib.Localization",
+                "EOLib.Logger"
             };
 
             using (ITypeRegistry registry = new UnityRegistry(assemblyNames))
