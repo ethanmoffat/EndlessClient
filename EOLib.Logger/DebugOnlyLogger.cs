@@ -115,7 +115,7 @@ namespace EOLib.Logger
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && _enabled)
             {
                 _logTimer.Dispose();
                 _fileStream.Dispose();
