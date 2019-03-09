@@ -88,6 +88,7 @@
     <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
     <Compile Include="HUD\StatusBars\StatusBarBase.cs" />
     <Compile Include="Initialization\ConfigInitializer.cs" />
+    <Compile Include="Initialization\EndlessClientInitializer.cs" />
     <Compile Include="Initialization\GraphicsInitializer.cs" />
     <Compile Include="Initialization\IGameInitializer.cs" />
     <Compile Include="Initialization\LocalizationInitializer.cs" />
@@ -181,7 +182,6 @@
     <Compile Include="Rendering\NPC\NPCRendererFactory.cs" />
     <Compile Include="Rendering\NPC\NPCRendererRepository.cs" />
     <Compile Include="Rendering\NPC\NPCRendererUpdater.cs" />
-    <Compile Include="Rendering\RenderingDependencyContainer.cs" />
     <Compile Include="Rendering\RenderOffsetCalculator.cs" />
     <Compile Include="Rendering\Character\CharacterRendererUpdater.cs" />
     <Compile Include="Rendering\Character\CharacterStateCache.cs" />
@@ -277,7 +277,6 @@
     <Compile Include="Dialogs\SkillmasterDialog.cs" />
     <Compile Include="Dialogs\TextInputDialog.cs" />
     <Compile Include="Dialogs\TradeDialog.cs" />
-    <Compile Include="EndlessClientDependencyContainer.cs" />
     <Compile Include="GameExecution\EndlessGame.cs" />
     <Compile Include="Old\Game.cs" />
     <Compile Include="GameExecution\GameRunnerBase.cs" />
@@ -360,7 +359,6 @@
     <Compile Include="UIControls\ScrollBar.cs" />
     <Compile Include="UIControls\StatusBarLabel.cs" />
     <Compile Include="UIControls\TimeLabel.cs" />
-    <Compile Include="XNAControlsDependencyContainer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AutomaticTypeMapper, Version=1.1.0.0, Culture=neutral, processorArchitecture=x86">

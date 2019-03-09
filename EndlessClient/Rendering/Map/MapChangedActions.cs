@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Character;
@@ -13,6 +14,8 @@ using EOLib.Localization;
 
 namespace EndlessClient.Rendering.Map
 {
+    [MappedType(BaseType = typeof(IMapChangedActions))]
+    [MappedType(BaseType = typeof(IMapChangedNotifier))]
     public class MapChangedActions : IMapChangedNotifier, IMapChangedActions
     {
         private readonly ICharacterStateCache _characterStateCache;

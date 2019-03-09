@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.IO;
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
@@ -16,6 +17,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.GameExecution
 {
+    [MappedType(BaseType = typeof(IEndlessGame), IsSingleton = true)]
     public class EndlessGame : Game, IEndlessGame
     {
         private readonly IGraphicsDeviceRepository _graphicsDeviceRepository;

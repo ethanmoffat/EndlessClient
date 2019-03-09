@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
@@ -16,6 +17,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.HUD.Panels
 {
+    [MappedType(BaseType = typeof(IHudPanelFactory))]
     public class HudPanelFactory : IHudPanelFactory
     {
         private const int HUD_CONTROL_LAYER = 130;

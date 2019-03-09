@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Character;
@@ -14,6 +15,7 @@ using XNAControls;
 
 namespace EndlessClient.Controllers
 {
+    [MappedType(BaseType = typeof(ICharacterManagementController))]
     public class CharacterManagementController : ICharacterManagementController
     {
         private readonly ICharacterManagementActions _characterManagementActions;

@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib;
 
 namespace EndlessClient.Rendering.Chat
@@ -26,6 +27,8 @@ namespace EndlessClient.Rendering.Chat
         IReadOnlyDictionary<int, IChatBubble> NPCChatBubbles { get; }
     }
 
+    [MappedType(BaseType = typeof(IChatBubbleRepository), IsSingleton = true)]
+    [MappedType(BaseType = typeof(IChatBubbleProvider), IsSingleton = true)]
     public class ChatBubbleRepository : IChatBubbleRepository, IChatBubbleProvider
     {
         public Optional<IChatBubble> MainCharacterChatBubble { get; set; }

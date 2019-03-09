@@ -3,11 +3,13 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.IO.Map;
 
 namespace EndlessClient.Rendering.Map
 {
+    [MappedType(BaseType = typeof(IMapRenderDistanceCalculator))]
     public class MapRenderDistanceCalculator : IMapRenderDistanceCalculator
     {
         private const int DEFAULT_BOUNDS_DISTANCE = 22;

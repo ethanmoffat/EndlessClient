@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
@@ -22,6 +23,7 @@ namespace EndlessClient.ControlSets
         T GetComponent<T>(HudControlIdentifier identifier) where T : IGameComponent;
     }
 
+    [MappedType(BaseType = typeof(IHudControlProvider), IsSingleton = true)]
     public class HudControlProvider : IHudControlProvider
     {
         private readonly IGameStateProvider _gameStateProvider;

@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering;
 using EOLib.Graphics;
@@ -9,6 +10,7 @@ using EOLib.Localization;
 
 namespace EndlessClient.Dialogs.Factories
 {
+    [MappedType(BaseType = typeof(IGameLoadingDialogFactory))]
     public class GameLoadingDialogFactory : IGameLoadingDialogFactory
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;

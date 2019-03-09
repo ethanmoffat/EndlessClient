@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 
 namespace EndlessClient.Rendering.NPC
 {
@@ -17,6 +18,8 @@ namespace EndlessClient.Rendering.NPC
         IReadOnlyDictionary<int, INPCRenderer> NPCRenderers { get; }
     }
 
+    [MappedType(BaseType = typeof(INPCRendererRepository), IsSingleton = true)]
+    [MappedType(BaseType = typeof(INPCRendererProvider), IsSingleton = true)]
     public class NPCRendererRepository : INPCRendererRepository, INPCRendererProvider
     {
         public Dictionary<int, INPCRenderer> NPCRenderers { get; set; }

@@ -5,12 +5,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.Network;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.GameExecution
 {
+    [MappedType(BaseType = typeof(IGameStateActions))]
     public class GameStateActions : IGameStateActions
     {
         private readonly IGameStateRepository _gameStateRepository;

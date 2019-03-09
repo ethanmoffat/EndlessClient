@@ -2,11 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Factories
 {
+    [MappedType(BaseType = typeof(IRenderTargetFactory))]
     public class RenderTargetFactory : IRenderTargetFactory
     {
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;

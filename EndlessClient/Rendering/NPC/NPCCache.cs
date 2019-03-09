@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.NPC;
 
 namespace EndlessClient.Rendering.NPC
 {
+    [MappedType(BaseType = typeof(INPCStateCache), IsSingleton = true)]
     public class NPCStateCache : INPCStateCache
     {
         private readonly Dictionary<int, INPC> _npcStates;

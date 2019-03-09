@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Rendering.Factories;
 using EOLib;
 using EOLib.Domain.Character;
@@ -13,6 +14,7 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Character
 {
+    [MappedType(BaseType = typeof(ICharacterRendererUpdater))]
     public class CharacterRendererUpdater : ICharacterRendererUpdater
     {
         private readonly ICharacterProvider _characterProvider;

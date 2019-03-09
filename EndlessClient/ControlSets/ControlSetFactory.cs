@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Factories;
@@ -15,6 +16,7 @@ using EOLib.Graphics;
 
 namespace EndlessClient.ControlSets
 {
+    [MappedType(BaseType = typeof(IControlSetFactory), IsSingleton = true)]
     public class ControlSetFactory : IControlSetFactory
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;

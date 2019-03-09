@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.Rendering.Character;
 using EOLib;
 using EOLib.Domain.Character;
@@ -14,6 +15,7 @@ using EOLib.IO.Repositories;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
+    [MappedType(BaseType = typeof(ICharacterPropertyRendererBuilder))]
     public class CharacterPropertyRendererBuilder : ICharacterPropertyRendererBuilder
     {
         private readonly IEIFFileProvider _eifFileProvider;

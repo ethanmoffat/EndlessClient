@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -23,6 +24,7 @@ namespace EndlessClient.Dialogs.Services
         NUM_BUTTONS
     }
 
+    [MappedType(BaseType = typeof(IEODialogButtonService))]
     public class EODialogButtonService : IEODialogButtonService
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;

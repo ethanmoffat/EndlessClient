@@ -2,7 +2,6 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using EndlessClient.Rendering;
 using EOLib;
 using EOLib.DependencyInjection;
 using EOLib.Domain;
@@ -23,12 +22,7 @@ namespace EndlessClient
             new NetworkDependencyContainer(),
             new NotifierDependencyContainer(),
             new PacketTranslatorContainer(),
-            new PacketHandlerDependencyContainer(),
-
-            //EndlessClient containers
-            new EndlessClientDependencyContainer(),
-            new RenderingDependencyContainer(),
-            new XNAControlsDependencyContainer()
+            new PacketHandlerDependencyContainer()
         };
     }
 }

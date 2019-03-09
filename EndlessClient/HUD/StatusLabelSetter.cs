@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EOLib.Localization;
 
 namespace EndlessClient.HUD
 {
+    [MappedType(BaseType = typeof(IStatusLabelSetter))]
     public class StatusLabelSetter : IStatusLabelSetter
     {
         private readonly IStatusLabelTextRepository _statusLabelTextRepository;

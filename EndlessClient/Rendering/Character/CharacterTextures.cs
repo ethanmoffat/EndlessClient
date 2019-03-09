@@ -2,12 +2,14 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Character
 {
+    [MappedType(BaseType = typeof(ICharacterTextures))]
     public class CharacterTextures : ICharacterTextures
     {
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;

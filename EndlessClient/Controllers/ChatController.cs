@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.GameExecution;
@@ -15,6 +16,7 @@ using EOLib.Net.Communication;
 
 namespace EndlessClient.Controllers
 {
+    [MappedType(BaseType = typeof(IChatController))]
     public class ChatController : IChatController
     {
         private readonly IChatTextBoxActions _chatTextBoxActions;

@@ -2,8 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
+
 namespace EndlessClient.Rendering
 {
+    [MappedType(BaseType = typeof(IClientWindowSizeProvider), IsSingleton = true)]
     public class ClientWindowSizeProvider : IClientWindowSizeProvider
     {
         //This could be extended to support adjusting the window size

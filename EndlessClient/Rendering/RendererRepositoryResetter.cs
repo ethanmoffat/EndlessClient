@@ -2,12 +2,14 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.NPC;
 
 namespace EndlessClient.Rendering
 {
+    [MappedType(BaseType = typeof(IRendererRepositoryResetter))]
     public class RendererRepositoryResetter : IRendererRepositoryResetter
     {
         private readonly ICharacterRendererRepository _characterRendererRepository;

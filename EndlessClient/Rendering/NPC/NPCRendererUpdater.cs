@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
@@ -10,6 +11,7 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.NPC
 {
+    [MappedType(BaseType = typeof(INPCRendererUpdater))]
     public class NPCRendererUpdater : INPCRendererUpdater
     {
         private readonly ICurrentMapStateProvider _currentMapStateProvider;

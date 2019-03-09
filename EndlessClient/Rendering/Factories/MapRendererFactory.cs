@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
@@ -14,6 +15,7 @@ using EOLib.Domain.Map;
 
 namespace EndlessClient.Rendering.Factories
 {
+    [MappedType(BaseType = typeof(IMapRendererFactory))]
     public class MapRendererFactory : IMapRendererFactory
     {
         private readonly IEndlessGameProvider _endlessGameProvider;

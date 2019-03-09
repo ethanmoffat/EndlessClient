@@ -5,11 +5,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib;
 using EOLib.Domain.Character;
 
 namespace EndlessClient.Rendering.Character
 {
+    [MappedType(BaseType = typeof(ICharacterStateCache), IsSingleton = true)]
     public class CharacterStateCache : ICharacterStateCache
     {
         public Optional<ICharacterRenderProperties> MainCharacterRenderProperties { get; private set; }

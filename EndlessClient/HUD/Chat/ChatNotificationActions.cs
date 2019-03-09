@@ -4,6 +4,7 @@
 
 using System;
 using System.Globalization;
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
@@ -15,6 +16,7 @@ using EOLib.Localization;
 
 namespace EndlessClient.HUD.Chat
 {
+    [MappedType(BaseType = typeof(IChatEventNotifier))]
     public class ChatNotificationActions : IChatEventNotifier
     {
         private readonly IChatRepository _chatRepository;

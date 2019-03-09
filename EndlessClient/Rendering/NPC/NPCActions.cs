@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Rendering.Chat;
@@ -9,6 +10,7 @@ using EOLib.Domain.Notifiers;
 
 namespace EndlessClient.Rendering.NPC
 {
+    [MappedType(BaseType = typeof(INPCActionNotifier))]
     public class NPCActions : INPCActionNotifier
     {
         private readonly IHudControlProvider _hudControlProvider;

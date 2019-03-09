@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EOLib.Domain.Character;
@@ -14,6 +15,7 @@ using EOLib.Net.Communication;
 
 namespace EndlessClient.Input
 {
+    [MappedType(BaseType = typeof(IWalkErrorHandler))]
     public class WalkErrorHandler : IWalkErrorHandler
     {
         private readonly IMapCellStateProvider _mapCellStateProvider;

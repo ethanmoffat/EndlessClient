@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 
 namespace EndlessClient.Input
 {
@@ -11,6 +12,7 @@ namespace EndlessClient.Input
         DateTime LastInputTime { get; set; }
     }
 
+    [MappedType(BaseType = typeof(IUserInputTimeRepository), IsSingleton = true)]
     public class UserInputTimeRepository : IUserInputTimeRepository
     {
         public DateTime LastInputTime { get; set; }

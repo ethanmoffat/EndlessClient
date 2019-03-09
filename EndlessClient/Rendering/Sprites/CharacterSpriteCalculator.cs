@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
@@ -15,6 +16,7 @@ using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Sprites
 {
+    [MappedType(BaseType = typeof(ICharacterSpriteCalculator))]
     public class CharacterSpriteCalculator : ICharacterSpriteCalculator
     {
         private readonly INativeGraphicsManager _gfxManager;

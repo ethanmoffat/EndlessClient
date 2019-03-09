@@ -2,10 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 
 namespace EndlessClient.Controllers
 {
+    [MappedType(BaseType = typeof(ITrainingController))]
     public class TrainingController : ITrainingController
     {
         private readonly IStatTrainingActions _statTrainingActions;

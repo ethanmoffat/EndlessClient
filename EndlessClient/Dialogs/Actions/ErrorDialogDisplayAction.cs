@@ -4,6 +4,7 @@
 
 using System;
 using System.Net.Sockets;
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
 using EOLib.Domain.Login;
 using EOLib.Domain.Protocol;
@@ -14,6 +15,7 @@ using EOLib.Net.Communication;
 namespace EndlessClient.Dialogs.Actions
 {
     //todo: some of this should be split into services for getting display strings
+    [MappedType(BaseType = typeof(IErrorDialogDisplayAction))]
     public class ErrorDialogDisplayAction : IErrorDialogDisplayAction
     {
         private readonly IEOMessageBoxFactory _messageBoxFactory;

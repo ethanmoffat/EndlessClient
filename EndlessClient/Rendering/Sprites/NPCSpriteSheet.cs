@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib;
 using EOLib.Domain.NPC;
 using EOLib.Graphics;
@@ -9,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Sprites
 {
+    [MappedType(BaseType = typeof(INPCSpriteSheet))]
     public class NPCSpriteSheet : INPCSpriteSheet
     {
         private readonly INativeGraphicsManager _gfxManager;

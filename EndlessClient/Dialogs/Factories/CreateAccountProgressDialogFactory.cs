@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
 using EOLib.Graphics;
@@ -10,6 +11,7 @@ using XNAControls;
 
 namespace EndlessClient.Dialogs.Factories
 {
+    [MappedType(BaseType = typeof(ICreateAccountProgressDialogFactory))]
     public class CreateAccountProgressDialogFactory : ICreateAccountProgressDialogFactory
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;
