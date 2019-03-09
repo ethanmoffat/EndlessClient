@@ -90,6 +90,7 @@
     <Compile Include="Initialization\ConfigInitializer.cs" />
     <Compile Include="Initialization\GraphicsInitializer.cs" />
     <Compile Include="Initialization\IGameInitializer.cs" />
+    <Compile Include="Initialization\LocalizationInitializer.cs" />
     <Compile Include="Input\ArrowKeyHandler.cs" />
     <Compile Include="Input\ControlKeyHandler.cs" />
     <Compile Include="Input\CurrentKeyStateTracker.cs" />

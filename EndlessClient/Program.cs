@@ -21,7 +21,8 @@ namespace EndlessClient
                 Assembly.GetExecutingAssembly().FullName,
                 "EOLib.Config",
                 "EOLib.Graphics",
-                "EOLib.IO"
+                "EOLib.IO",
+                "EOLib.Localization"
             };
 
             using (ITypeRegistry registry = new UnityRegistry(assemblyNames))

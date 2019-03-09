@@ -7,7 +7,6 @@ using EOLib;
 using EOLib.DependencyInjection;
 using EOLib.Domain;
 using EOLib.Domain.Notifiers;
-using EOLib.Localization;
 using EOLib.Logger;
 using EOLib.Net;
 using EOLib.Net.Translators;
@@ -22,7 +21,6 @@ namespace EndlessClient
             //EOLib containers
             new DomainDependencyContainer(),
             new EOLibDependencyContainer(),
-            new LocalizationDependencyContainer(),
             new LoggerDependencyContainer(),
             new NetworkDependencyContainer(),
             new NotifierDependencyContainer(),

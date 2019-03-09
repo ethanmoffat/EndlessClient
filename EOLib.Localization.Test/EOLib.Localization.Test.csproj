@@ -93,7 +93,6 @@
   <ItemGroup>
     <Compile Include="DataFileLoadActionsTest.cs" />
     <Compile Include="EDFFileTest.cs" />
-    <Compile Include="LocalizationDependencyContainerTest.cs" />
     <Compile Include="LocalizedStringServiceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -112,6 +111,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <Choose>
