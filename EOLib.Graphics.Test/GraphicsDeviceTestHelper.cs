@@ -16,7 +16,7 @@ namespace EOLib.Graphics.Test
     {
         private readonly Form _form;
         private readonly Game _game;
-        private readonly ServiceContainer _serviceContainer;
+        //private readonly ServiceContainer _serviceContainer;
 
         public GraphicsDeviceManager GraphicsDeviceManager { get; }
 
@@ -25,13 +25,14 @@ namespace EOLib.Graphics.Test
             _form = new Form();
             _game = new Game();
             GraphicsDeviceManager = new GraphicsDeviceManager(_game);
+            _game.RunOneFrame();
 
-            var gds = GraphicsDeviceServiceTestHelper.AddRef(_form.Handle, _form.ClientSize.Width, _form.ClientSize.Height);
-            
-            _serviceContainer = new ServiceContainer();
-            _serviceContainer.AddService(typeof(IGraphicsDeviceService), gds);
+            //var gds = GraphicsDeviceServiceTestHelper.AddRef(_form.Handle, _form.ClientSize.Width, _form.ClientSize.Height);
 
-            GraphicsDeviceManager.ApplyChanges();
+            //_serviceContainer = new ServiceContainer();
+            //_serviceContainer.AddService(typeof(IGraphicsDeviceService), gds);
+
+            //GraphicsDeviceManager.ApplyChanges();
         }
 
         public void Dispose()
@@ -49,7 +50,6 @@ namespace EOLib.Graphics.Test
         {
             if (disposing)
             {
-                _serviceContainer.Dispose();
                 GraphicsDeviceManager.Dispose();
                 _game.Dispose();
                 _form.Dispose();

@@ -394,9 +394,6 @@
     <MonoGameContentReference Include="ContentPipeline\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="MonoGame.Framework.dll.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
