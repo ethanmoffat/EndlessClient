@@ -7,8 +7,6 @@ using System.Linq;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EndlessClient.Input;
-using EndlessClient.Rendering.Sprites;
-using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Account;
 using EOLib.Graphics;
@@ -187,9 +185,12 @@ namespace EndlessClient.ControlSets
             var labelsPanel = new XNAPanel();
             for (int srcYIndex = 0; srcYIndex < 6; ++srcYIndex)
             {
-                var lblpos = new Vector2(358, (srcYIndex < 3 ? 50 : 241) + srcYIndex % 3 * 51);
-                var labelTexture = new SpriteSheet(_labelsTexture, new Rectangle(0, srcYIndex * (srcYIndex < 2 ? 14 : 15), 149, 15));
-                var texturePictureBox = new DisposablePictureBox(labelTexture.GetSourceTexture()) { DrawPosition = lblpos };
+                var texturePictureBox = new XNAPictureBox
+                {
+                    Texture = _labelsTexture,
+                    SourceRectangle = new Rectangle(0, srcYIndex * (srcYIndex < 2 ? 14 : 15), 149, 15),
+                    DrawPosition = new Vector2(358, (srcYIndex < 3 ? 50 : 241) + srcYIndex % 3 * 51)
+                };
                 texturePictureBox.SetParentControl(labelsPanel);
             }
             return labelsPanel;
