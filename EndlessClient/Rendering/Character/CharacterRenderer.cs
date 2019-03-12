@@ -40,7 +40,7 @@ namespace EndlessClient.Rendering.Character
 
         public Rectangle DrawArea { get; private set; }
 
-        public int TopPixel { get; private set; }
+        public int? TopPixel { get; private set; }
 
         public CharacterRenderer(Game game,
                                  IRenderTargetFactory renderTargetFactory,
@@ -74,13 +74,16 @@ namespace EndlessClient.Rendering.Character
         protected override void LoadContent()
         {
             _characterTextures.Refresh(_renderProperties);
-            FigureOutTopPixel();
-
             base.LoadContent();
         }
 
         public override void Update(GameTime gameTime)
         {
+            if (TopPixel == null)
+            {
+                TopPixel = FigureOutTopPixel(_characterSpriteCalculator, _renderProperties);
+            }
+
             if (!Visible)
                 return;
 
@@ -145,18 +148,18 @@ namespace EndlessClient.Rendering.Character
 
         #region Texture Loading Helpers
 
-        private void FigureOutTopPixel()
+        private static int FigureOutTopPixel(ICharacterSpriteCalculator spriteCalculator, ICharacterRenderProperties renderProperties)
         {
-            var spriteForSkin = _characterSpriteCalculator.GetSkinTexture(_renderProperties);
+            var spriteForSkin = spriteCalculator.GetSkinTexture(renderProperties);
             var skinData = spriteForSkin.GetSourceTextureData<Color>();
 
             int i = 0;
             while (i < skinData.Length && skinData[i].A == 0) i++;
 
             var firstPixelHeight = i == skinData.Length - 1 ? 0 : i/spriteForSkin.SourceRectangle.Height;
-            var genderOffset = RenderProperties.Gender == 0 ? 12 : 13;
+            var genderOffset = renderProperties.Gender == 0 ? 12 : 13;
 
-            TopPixel = genderOffset + firstPixelHeight;
+            return genderOffset + firstPixelHeight;
         }
 
         #endregion
