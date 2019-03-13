@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -12,6 +13,7 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class PlayerAvatarChangeHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;

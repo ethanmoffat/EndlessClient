@@ -5,12 +5,14 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 
 namespace EOLib.Domain.Account
 {
+    [AutoMappedType]
     public class AccountActions : IAccountActions
     {
         private readonly ICreateAccountParameterValidator _createAccountParameterValidator;

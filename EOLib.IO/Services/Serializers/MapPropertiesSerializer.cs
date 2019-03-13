@@ -6,10 +6,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
+    [MappedType(BaseType = typeof(ISerializer<IMapFileProperties>))]
     public class MapPropertiesSerializer : ISerializer<IMapFileProperties>
     {
         private readonly INumberEncoderService _numberEncoderService;

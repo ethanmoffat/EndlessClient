@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -14,6 +15,7 @@ using EOLib.Net.Translators;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class RefreshMapStateHandler : InGameOnlyPacketHandler
     {
         private readonly IPacketTranslator<IRefreshReplyData> _refreshReplyTranslator;

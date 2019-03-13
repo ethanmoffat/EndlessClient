@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 
 namespace EndlessClient.Rendering.Character
 {
@@ -21,6 +22,8 @@ namespace EndlessClient.Rendering.Character
         IReadOnlyDictionary<int, ICharacterRenderer> CharacterRenderers { get; }
     }
 
+    [MappedType(BaseType = typeof(ICharacterRendererProvider), IsSingleton = true)]
+    [MappedType(BaseType = typeof(ICharacterRendererRepository), IsSingleton = true)]
     public class CharacterRendererRepository : ICharacterRendererRepository, ICharacterRendererProvider
     {
         public ICharacterRenderer MainCharacterRenderer { get; set; }

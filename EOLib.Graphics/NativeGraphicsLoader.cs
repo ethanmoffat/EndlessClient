@@ -4,9 +4,11 @@
 
 using System.Drawing;
 using System.IO;
+using AutomaticTypeMapper;
 
 namespace EOLib.Graphics
 {
+    [MappedType(BaseType = typeof(INativeGraphicsLoader), IsSingleton = true)]
     public class NativeGraphicsLoader : INativeGraphicsLoader
     {
         private readonly IPEFileCollection _modules;

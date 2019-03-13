@@ -4,10 +4,12 @@
 
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
+    [MappedType(BaseType = typeof(ISerializer<ChestSpawnMapEntity>))]
     public class ChestSpawnMapEntitySerializer : ISerializer<ChestSpawnMapEntity>
     {
         private readonly INumberEncoderService _numberEncoderService;

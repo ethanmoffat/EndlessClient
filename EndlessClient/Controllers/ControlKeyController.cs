@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.HUD;
 using EndlessClient.Rendering.Character;
 using EOLib.Domain.Character;
@@ -10,6 +11,7 @@ using EOLib.Localization;
 
 namespace EndlessClient.Controllers
 {
+    [MappedType(BaseType = typeof(IControlKeyController))]
     public class ControlKeyController : IControlKeyController
     {
         private readonly ICharacterProvider _characterProvider;

@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
+
 namespace EOLib.Domain.Login
 {
     public interface IPlayerInfoRepository
@@ -30,6 +32,7 @@ namespace EOLib.Domain.Login
         bool PlayerIsInGame { get; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public sealed class PlayerInfoRepository : IPlayerInfoRepository, IPlayerInfoProvider, IResettable
     {
         public string LoggedInAccountName { get; set; }

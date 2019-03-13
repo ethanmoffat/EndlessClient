@@ -2,7 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using Microsoft.Practices.Unity;
+using AutomaticTypeMapper;
 
 namespace EndlessClient.GameExecution
 {
@@ -11,7 +11,7 @@ namespace EndlessClient.GameExecution
     /// </summary>
     public class DebugGameRunner : GameRunnerBase
     {
-        public DebugGameRunner(IUnityContainer unityContainer)
-            : base(unityContainer) { }
+        public DebugGameRunner(ITypeRegistry registry)
+            : base(registry) { }
     }
 }

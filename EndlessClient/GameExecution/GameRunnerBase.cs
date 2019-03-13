@@ -3,37 +3,35 @@
 // For additional details, see the LICENSE file
 
 using System.IO;
-using System.Linq;
 using System.Windows.Forms;
+using AutomaticTypeMapper;
+using EndlessClient.Initialization;
 using EOLib.Config;
-using EOLib.DependencyInjection;
 using EOLib.Graphics;
 using EOLib.Localization;
-using Microsoft.Practices.Unity;
 
 namespace EndlessClient.GameExecution
 {
     public abstract class GameRunnerBase : IGameRunner
     {
-        private readonly IUnityContainer _unityContainer;
+        private readonly ITypeRegistry _registry;
 
-        protected GameRunnerBase(IUnityContainer unityContainer)
+        protected GameRunnerBase(ITypeRegistry registry)
         {
-            _unityContainer = unityContainer;
+            _registry = registry;
         }
 
         public virtual bool SetupDependencies()
         {
-            var registrar = new DependencyRegistrar(_unityContainer);
+            _registry.RegisterDiscoveredTypes();
 
-            registrar.RegisterDependencies(DependencyContainerProvider.DependencyContainers);
-
+            var initializers = _registry.ResolveAll<IGameInitializer>();
             try
             {
-                registrar.InitializeDependencies(
-                    DependencyContainerProvider.DependencyContainers
-                        .OfType<IInitializableContainer>()
-                        .ToArray());
+                foreach (var initializer in initializers)
+                {
+                    initializer.Initialize();
+                }
             }
             catch (ConfigLoadException cle)
             {
@@ -73,7 +71,7 @@ namespace EndlessClient.GameExecution
 
         public virtual void RunGame()
         {
-            var game = _unityContainer.Resolve<IEndlessGame>();
+            var game = _registry.Resolve<IEndlessGame>();
             game.Run();
         }
     }

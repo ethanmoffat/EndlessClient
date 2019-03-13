@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System.IO;
+using AutomaticTypeMapper;
 using EOLib.IO.Pub;
 
 namespace EOLib.IO.Services
 {
+    [MappedType(BaseType = typeof(IPubLoadService<ESFRecord>))]
     public class SpellFileLoadService : IPubLoadService<ESFRecord>
     {
         private readonly INumberEncoderService _numberEncoderService;

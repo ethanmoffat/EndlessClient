@@ -3,12 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EOLib.Domain.Protocol;
 using EOLib.Net;
 using EOLib.Net.Communication;
 
 namespace EOLib.Domain.Chat.Commands
 {
+    [AutoMappedType]
     public class PingCommand : IPlayerCommand
     {
         private readonly IPacketSendService _packetSendService;

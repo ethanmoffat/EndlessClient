@@ -3,12 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Content;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Chat
 {
+    [MappedType(BaseType = typeof(IChatBubbleTextureProvider), IsSingleton = true)]
     public class ChatBubbleTextureProvider : IChatBubbleTextureProvider
     {
         private readonly IContentManagerProvider _contentManagerProvider;

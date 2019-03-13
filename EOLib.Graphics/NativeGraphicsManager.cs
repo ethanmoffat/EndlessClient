@@ -6,11 +6,13 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using AutomaticTypeMapper;
 using Microsoft.Xna.Framework.Graphics;
 using Color = System.Drawing.Color;
 
 namespace EOLib.Graphics
 {
+    [MappedType(BaseType = typeof(INativeGraphicsManager), IsSingleton = true)]
     public sealed class NativeGraphicsManager : INativeGraphicsManager
     {
         private readonly Dictionary<LibraryGraphicPair, Texture2D> _cache;

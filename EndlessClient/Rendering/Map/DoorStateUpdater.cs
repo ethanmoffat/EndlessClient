@@ -5,11 +5,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Map
 {
+    [MappedType(BaseType = typeof(IDoorStateUpdater), IsSingleton = true)]
     public class DoorStateUpdater : IDoorStateUpdater
     {
         private const int DOOR_CLOSE_TIME_MS = 3000;

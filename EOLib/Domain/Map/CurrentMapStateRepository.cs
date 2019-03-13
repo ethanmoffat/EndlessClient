@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.NPC;
 
@@ -46,6 +47,7 @@ namespace EOLib.Domain.Map
         WarpState MapWarpState { get; set; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public class CurrentMapStateRepository : ICurrentMapStateRepository, ICurrentMapStateProvider, IResettable
     {
         public short CurrentMapID { get; set; }

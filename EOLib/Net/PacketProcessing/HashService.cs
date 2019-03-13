@@ -2,8 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
+
 namespace EOLib.Net.PacketProcessing
 {
+    [AutoMappedType]
     public class HashService : IHashService
     {
         public int StupidHash(int seed)

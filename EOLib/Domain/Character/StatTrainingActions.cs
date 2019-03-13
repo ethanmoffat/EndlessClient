@@ -3,12 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EOLib.Net;
 using EOLib.Net.Communication;
 
 namespace EOLib.Domain.Character
 {
     //todo: maybe this should go into its own namespace? Domain.Character is pretty monolithic
+    [AutoMappedType]
     public class StatTrainingActions : IStatTrainingActions
     {
         private readonly IPacketSendService _packetSendService;

@@ -5,10 +5,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using AutomaticTypeMapper;
 using PELoaderLib;
 
 namespace EOLib.Graphics
 {
+    [MappedType(BaseType = typeof(IPEFileCollection), IsSingleton = true)]
     public sealed class PEFileCollection : Dictionary<GFXTypes, IPEFile>, IPEFileCollection
     {
         public void PopulateCollectionWithStandardGFX()

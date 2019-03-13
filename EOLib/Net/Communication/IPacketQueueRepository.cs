@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
+
 namespace EOLib.Net.Communication
 {
     public interface IPacketQueueRepository
@@ -22,6 +24,7 @@ namespace EOLib.Net.Communication
         IPacketQueue HandleOutOfBandPacketQueue { get; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public class PacketQueueRepository : IPacketQueueRepository, IPacketQueueProvider
     {
         public IPacketQueue IncomingPacketQueue { get; set; }

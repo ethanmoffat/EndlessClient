@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
@@ -9,6 +10,7 @@ using EOLib.Domain.Notifiers;
 
 namespace EndlessClient.Subscribers
 {
+    [MappedType(BaseType = typeof(IOtherCharacterEventNotifier))]
     public class OtherCharacterEventSubscriber : IOtherCharacterEventNotifier
     {
         private readonly IChatBubbleActions _chatBubbleActions;

@@ -2,10 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using System.Collections.Generic;
 
 namespace EOLib.Localization
 {
+    [MappedType(BaseType = typeof(IDataFileRepository), IsSingleton = true)]
+    [MappedType(BaseType = typeof(IDataFileProvider), IsSingleton = true)]
     public class DataFileRepository : IDataFileRepository, IDataFileProvider
     {
         private readonly Dictionary<DataFiles, IEDFFile> _dataFiles;

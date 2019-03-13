@@ -4,9 +4,11 @@
 
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Character
 {
+    [AutoMappedType(IsSingleton = true)]
     public class ExperienceTableProvider : IExperienceTableProvider
     {
         public IReadOnlyList<int> ExperienceByLevel { get; }

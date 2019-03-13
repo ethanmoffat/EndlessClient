@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Character
 {
@@ -21,6 +22,7 @@ namespace EOLib.Domain.Character
         IReadOnlyDictionary<int, IReadOnlyList<short>> VisibleCharacterPaperdolls { get; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public class PaperdollRepository : IPaperdollRepository, IPaperdollProvider
     {
         public List<short> MainCharacterPaperdoll { get; set; }

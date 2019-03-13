@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EOLib.Config;
 
 namespace EOLib.Localization
 {
+    [MappedType(BaseType = typeof(ILocalizedStringFinder))]
     public class LocalizedStringFinder : ILocalizedStringFinder
     {
         private readonly IConfigurationProvider _configProvider;

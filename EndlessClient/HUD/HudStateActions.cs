@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Panels;
 using EOLib.Domain.Map;
@@ -12,6 +13,7 @@ using EOLib.Localization;
 
 namespace EndlessClient.HUD
 {
+    [MappedType(BaseType = typeof(IHudStateActions))]
     public class HudStateActions : IHudStateActions
     {
         private readonly IStatusLabelSetter _statusLabelSetter;

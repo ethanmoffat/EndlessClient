@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.MapEntityRenderers;
@@ -14,6 +15,7 @@ using EOLib.Graphics;
 
 namespace EndlessClient.Rendering.Map
 {
+    [MappedType(BaseType = typeof(IMapEntityRendererProvider), IsSingleton = true)]
     public class MapEntityRendererProvider : IMapEntityRendererProvider
     {
         public IReadOnlyList<IMapEntityRenderer> MapBaseRenderers { get; }

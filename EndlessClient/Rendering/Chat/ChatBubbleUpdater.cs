@@ -4,11 +4,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Chat
 {
+    [MappedType(BaseType = typeof(IChatBubbleUpdater))]
     public class ChatBubbleUpdater : IChatBubbleUpdater
     {
         private readonly IChatBubbleRepository _chatBubbleRepository;

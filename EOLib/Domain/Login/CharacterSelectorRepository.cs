@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 
 namespace EOLib.Domain.Login
@@ -21,6 +22,7 @@ namespace EOLib.Domain.Login
         ICharacter CharacterForDelete { get; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public class CharacterSelectorRepository : ICharacterSelectorRepository, ICharacterSelectorProvider
     {
         public IReadOnlyList<ICharacter> Characters { get; set; }

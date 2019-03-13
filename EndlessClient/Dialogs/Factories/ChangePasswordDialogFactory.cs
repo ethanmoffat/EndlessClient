@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.GameExecution;
@@ -11,6 +12,7 @@ using EOLib.Graphics;
 
 namespace EndlessClient.Dialogs.Factories
 {
+    [MappedType(BaseType = typeof(IChangePasswordDialogFactory))]
     public class ChangePasswordDialogFactory : IChangePasswordDialogFactory
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;

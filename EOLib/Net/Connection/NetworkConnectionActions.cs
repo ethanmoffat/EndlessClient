@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Config;
 using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
@@ -12,6 +13,7 @@ using EOLib.Net.Translators;
 
 namespace EOLib.Net.Connection
 {
+    [AutoMappedType]
     public class NetworkConnectionActions : INetworkConnectionActions
     {
         private readonly INetworkClientRepository _networkClientRepository;

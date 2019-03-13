@@ -2,11 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 
 namespace EOLib.Domain.Map
 {
+    [AutoMappedType(IsSingleton = true)]
     public class CurrentMapProvider : ICurrentMapProvider
     {
         private readonly ICurrentMapStateProvider _currentMapStateProvider;

@@ -4,7 +4,7 @@
 
 using System;
 using System.Windows.Forms;
-using Microsoft.Practices.Unity;
+using AutomaticTypeMapper;
 
 namespace EndlessClient.GameExecution
 {
@@ -13,8 +13,8 @@ namespace EndlessClient.GameExecution
     /// </summary>
     public class ReleaseGameRunner : GameRunnerBase
     {
-        public ReleaseGameRunner(IUnityContainer unityContainer)
-            : base(unityContainer) { }
+        public ReleaseGameRunner(ITypeRegistry registry)
+            : base(registry) { }
 
         public override bool SetupDependencies()
         {

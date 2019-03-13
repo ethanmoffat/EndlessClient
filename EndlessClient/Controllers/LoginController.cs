@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs;
 using EndlessClient.Dialogs.Actions;
 using EndlessClient.Dialogs.Factories;
@@ -24,6 +25,7 @@ using EOLib.Net.FileTransfer;
 
 namespace EndlessClient.Controllers
 {
+    [MappedType(BaseType = typeof(ILoginController))]
     public class LoginController : ILoginController
     {
         private readonly ILoginActions _loginActions;

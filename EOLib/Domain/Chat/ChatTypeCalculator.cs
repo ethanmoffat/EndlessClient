@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 
 namespace EOLib.Domain.Chat
 {
+    [AutoMappedType]
     public class ChatTypeCalculator : IChatTypeCalculator
     {
         private readonly ICharacterProvider _characterProvider;

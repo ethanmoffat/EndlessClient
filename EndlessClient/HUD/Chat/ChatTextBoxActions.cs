@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
@@ -10,6 +11,7 @@ using XNAControls;
 
 namespace EndlessClient.HUD.Chat
 {
+    [MappedType(BaseType = typeof(IChatTextBoxActions))]
     public class ChatTextBoxActions : IChatTextBoxActions
     {
         private readonly IKeyboardDispatcherProvider _keyboardDispatcherProvider;

@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System.IO;
+using AutomaticTypeMapper;
 using EOLib.IO.Pub;
 
 namespace EOLib.IO.Services
 {
+    [MappedType(BaseType = typeof(IPubLoadService<ECFRecord>))]
     public class ClassFileLoadService : IPubLoadService<ECFRecord>
     {
         private readonly INumberEncoderService _numberEncoderService;

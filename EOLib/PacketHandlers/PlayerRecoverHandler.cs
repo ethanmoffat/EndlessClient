@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Net;
@@ -9,6 +10,7 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class PlayerRecoverHandler : InGameOnlyPacketHandler
     {
         private readonly ICharacterRepository _characterRepository;

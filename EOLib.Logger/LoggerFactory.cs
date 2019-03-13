@@ -2,10 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.Config;
 
 namespace EOLib.Logger
 {
+    [MappedType(BaseType = typeof(ILoggerFactory))]
     public class LoggerFactory : ILoggerFactory
     {
         private readonly IConfigurationProvider _configurationProvider;

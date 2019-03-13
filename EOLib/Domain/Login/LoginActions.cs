@@ -4,6 +4,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
@@ -15,6 +16,7 @@ using EOLib.Net.Translators;
 
 namespace EOLib.Domain.Login
 {
+    [AutoMappedType]
     public class LoginActions : ILoginActions
     {
         private readonly IPacketSendService _packetSendService;

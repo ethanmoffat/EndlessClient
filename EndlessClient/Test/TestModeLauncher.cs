@@ -2,12 +2,14 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Factories;
 using EOLib.IO.Repositories;
 
 namespace EndlessClient.Test
 {
+    [MappedType(BaseType = typeof(ITestModeLauncher))]
     public class TestModeLauncher : ITestModeLauncher
     {
         private readonly IEndlessGameProvider _endlessGameProvider;

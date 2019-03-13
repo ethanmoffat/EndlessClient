@@ -2,10 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using System;
 
 namespace EOLib.Logger
 {
+    [MappedType(BaseType = typeof(ILoggerProvider), IsSingleton = true)]
     public class LoggerProvider : ILoggerProvider
     {
         public ILogger Logger { get; }

@@ -2,11 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using System;
 using System.Text;
 
 namespace EOLib.IO.Services
 {
+    [MappedType(BaseType = typeof(IMapStringEncoderService))]
     public class MapStringEncoderService : IMapStringEncoderService
     {
         public string DecodeMapString(byte[] chars)

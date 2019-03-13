@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
@@ -15,6 +16,7 @@ using EOLib.Net.Translators;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class EndPlayerWarpHandler : InGameOnlyPacketHandler
     {
         private readonly IPacketTranslator<IWarpAgreePacketData> _warpAgreePacketTranslator;

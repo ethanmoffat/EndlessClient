@@ -2,8 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
+
 namespace EOLib.Net.PacketProcessing
 {
+    [AutoMappedType(IsSingleton = true)]
     public class SequenceRepository : ISequenceRepository
     {
         public int SequenceStart { get; set; }

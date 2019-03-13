@@ -3,11 +3,13 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EndlessClient.UIControls;
 using EOLib.Domain.Character;
 
 namespace EndlessClient.HUD.Chat
 {
+    [MappedType(BaseType = typeof(IChatModeCalculator))]
     public class ChatModeCalculator : IChatModeCalculator
     {
         private readonly ICharacterProvider _characterProvider;

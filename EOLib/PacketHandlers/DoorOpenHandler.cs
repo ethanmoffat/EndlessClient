@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
@@ -10,6 +11,7 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class DoorOpenHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;

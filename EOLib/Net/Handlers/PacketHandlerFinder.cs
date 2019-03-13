@@ -4,9 +4,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 
 namespace EOLib.Net.Handlers
 {
+    [AutoMappedType]
     public class PacketHandlerFinder : IPacketHandlerFinder
     {
         private readonly Dictionary<FamilyActionPair, IPacketHandler> _handlers;

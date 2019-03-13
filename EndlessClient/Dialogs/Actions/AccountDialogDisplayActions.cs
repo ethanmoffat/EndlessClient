@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EndlessClient.Dialogs.Factories;
 using EOLib;
 using EOLib.Domain.Account;
@@ -12,6 +13,7 @@ using XNAControls;
 
 namespace EndlessClient.Dialogs.Actions
 {
+    [MappedType(BaseType = typeof(IAccountDialogDisplayActions))]
     public class AccountDialogDisplayActions : IAccountDialogDisplayActions
     {
         private readonly ILocalizedStringFinder _localizedStringFinder;

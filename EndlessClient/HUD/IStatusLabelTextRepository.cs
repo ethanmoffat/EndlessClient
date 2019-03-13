@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 
 namespace EndlessClient.HUD
 {
@@ -20,6 +21,8 @@ namespace EndlessClient.HUD
         DateTime SetTime { get; }
     }
 
+    [MappedType(BaseType = typeof(IStatusLabelTextRepository), IsSingleton = true)]
+    [MappedType(BaseType = typeof(IStatusLabelTextProvider), IsSingleton = true)]
     public class StatusLabelTextRepository : IStatusLabelTextRepository, IStatusLabelTextProvider
     {
         public string StatusText { get; set; }

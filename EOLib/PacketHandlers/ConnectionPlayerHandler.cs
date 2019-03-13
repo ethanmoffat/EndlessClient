@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.Logger;
 using EOLib.Net;
 using EOLib.Net.Communication;
@@ -13,6 +14,7 @@ namespace EOLib.PacketHandlers
     /// <summary>
     /// Handles incoming CONNECTION_PLAYER packets which are used for updating sequence numbers in the EO protocol
     /// </summary>
+    [AutoMappedType]
     public class ConnectionPlayerHandler : DefaultAsyncPacketHandler
     {
         private readonly IPacketProcessActions _packetProcessActions;

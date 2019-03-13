@@ -4,6 +4,7 @@
 
 using System.Linq;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Map;
 using EOLib.IO.Pub;
@@ -13,6 +14,7 @@ using EOLib.Net.Communication;
 
 namespace EOLib.Net.FileTransfer
 {
+    [AutoMappedType]
     public class FileRequestService : IFileRequestService
     {
         private readonly IPacketSendService _packetSendService;

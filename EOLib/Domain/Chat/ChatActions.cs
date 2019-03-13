@@ -5,12 +5,14 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Net.Builders;
 using EOLib.Net.Communication;
 
 namespace EOLib.Domain.Chat
 {
+    [AutoMappedType]
     public class ChatActions : IChatActions
     {
         private readonly IChatRepository _chatRepository;

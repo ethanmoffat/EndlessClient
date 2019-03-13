@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -11,6 +12,7 @@ using EOLib.Net;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class PlayerLevelUpHandler : NPCLeaveMapHandler
     {
         public override PacketFamily Family => PacketFamily.NPC;
@@ -54,6 +56,7 @@ namespace EOLib.PacketHandlers
         }
     }
 
+    [AutoMappedType]
     public class PlayerLevelUpFromSpellCastHandler : PlayerLevelUpHandler
     {
         public override PacketFamily Family => PacketFamily.Cast;

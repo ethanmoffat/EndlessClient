@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.IO.Services;
 using EOLib.Logger;
 using EOLib.Net.Handlers;
@@ -9,6 +10,7 @@ using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Net.Communication
 {
+    [AutoMappedType]
     public class NetworkClientFactory : INetworkClientFactory
     {
         private readonly IPacketProcessActions _packetProcessActions;

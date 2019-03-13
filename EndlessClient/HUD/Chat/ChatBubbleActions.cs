@@ -2,12 +2,14 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EOLib.Domain.Chat;
 
 namespace EndlessClient.HUD.Chat
 {
+    [MappedType(BaseType = typeof(IChatBubbleActions))]
     public class ChatBubbleActions : IChatBubbleActions
     {
         private readonly IChatBubbleRepository _chatBubbleRepository;

@@ -4,10 +4,12 @@
 
 using System;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Net.Connection;
 
 namespace EOLib.Net.Communication
 {
+    [AutoMappedType]
     public class SafeNetworkOperationFactory : ISafeNetworkOperationFactory
     {
         private readonly IBackgroundReceiveActions _backgroundReceiveActions;

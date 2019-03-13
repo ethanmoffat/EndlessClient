@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.NPC;
@@ -11,6 +12,7 @@ using EOLib.IO.Repositories;
 
 namespace EOLib.Domain.Map
 {
+    [AutoMappedType]
     public class MapCellStateProvider : IMapCellStateProvider
     {
         private readonly ICurrentMapStateProvider _mapStateProvider;

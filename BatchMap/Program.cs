@@ -4,20 +4,17 @@
 
 using System;
 using System.IO;
-using System.Linq;
-using EOLib.DependencyInjection;
-using EOLib.IO;
+using AutomaticTypeMapper;
 using EOLib.IO.Actions;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 using EOLib.IO.Services;
-using Microsoft.Practices.Unity;
 
 namespace BatchMap
 {
     public static class Program
     {
-        private static IUnityContainer _unityContainer;
+        private static ITypeRegistry _typeRegistry;
         private static IPubFileProvider _pubProvider;
         private static IMapFileProvider _mapFileProvider;
 
@@ -106,7 +103,7 @@ namespace BatchMap
 
             try
             {
-                var actions = _unityContainer.Resolve<IPubFileLoadActions>();
+                var actions = _typeRegistry.Resolve<IPubFileLoadActions>();
 
                 actions.LoadItemFileByName(Path.Combine(pubFilePath, "dat001.eif"));
                 actions.LoadNPCFileByName(Path.Combine(pubFilePath, "dtn001.enf"));
@@ -114,7 +111,7 @@ namespace BatchMap
             catch
             {
                 Console.WriteLine("Error loading pub files!");
-                _unityContainer.Dispose();
+                _typeRegistry.Dispose();
                 return;
             }
 
@@ -137,25 +134,21 @@ namespace BatchMap
                 Console.WriteLine(ex.StackTrace);
             }
 
-            _unityContainer.Dispose();
+            _typeRegistry.Dispose();
         }
 
         private static void SetupDependencies()
         {
-            var dependencyRegistrar = new DependencyRegistrar(_unityContainer = new UnityContainer());
-            var containers = new IDependencyContainer[] {new IODependencyContainer()};
+            _typeRegistry = new UnityRegistry("EOLib.IO");
 
-            dependencyRegistrar.RegisterDependencies(containers);
-            dependencyRegistrar.InitializeDependencies(containers.OfType<IInitializableContainer>().ToArray());
-
-            _pubProvider = _unityContainer.Resolve<IPubFileProvider>();
-            _mapFileProvider = _unityContainer.Resolve<IMapFileProvider>();
+            _pubProvider = _typeRegistry.Resolve<IPubFileProvider>();
+            _mapFileProvider = _typeRegistry.Resolve<IMapFileProvider>();
         }
 
         private static void ProcessFiles(string src, string dst, bool singleFile)
         {
-            var mapFileLoadActions = _unityContainer.Resolve<IMapFileLoadActions>();
-            var mapFileSaveService = _unityContainer.Resolve<IMapFileSaveService>();
+            var mapFileLoadActions = _typeRegistry.Resolve<IMapFileLoadActions>();
+            var mapFileSaveService = _typeRegistry.Resolve<IMapFileSaveService>();
 
             var inFiles = singleFile ? new[] {src} : Directory.GetFiles(src, "*.emf");
 

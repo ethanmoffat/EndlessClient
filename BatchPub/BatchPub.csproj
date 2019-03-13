@@ -93,9 +93,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
       <Project>{aa07776b-3f05-404a-ba8a-24970a91c024}</Project>
       <Name>EOLib.IO</Name>

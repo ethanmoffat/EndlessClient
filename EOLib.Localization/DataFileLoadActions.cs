@@ -2,10 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using System.IO;
 
 namespace EOLib.Localization
 {
+    [MappedType(BaseType = typeof(IDataFileLoadActions))]
     public class DataFileLoadActions : IDataFileLoadActions
     {
         private readonly IDataFileRepository _dataFileRepository;

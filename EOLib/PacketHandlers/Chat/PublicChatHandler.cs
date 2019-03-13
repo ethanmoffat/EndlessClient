@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
@@ -12,6 +13,7 @@ using EOLib.Net;
 
 namespace EOLib.PacketHandlers.Chat
 {
+    [AutoMappedType]
     public class PublicChatHandler : PlayerChatByIDHandler
     {
         private readonly IChatRepository _chatRepository;

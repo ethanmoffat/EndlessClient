@@ -2,12 +2,14 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.Controllers;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Map;
 
 namespace EndlessClient.Input
 {
+    [MappedType(BaseType = typeof(IUserInputHandlerFactory))]
     public class UserInputHandlerFactory : IUserInputHandlerFactory
     {
         private readonly IEndlessGameProvider _endlessGameProvider;

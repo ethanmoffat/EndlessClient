@@ -12,7 +12,7 @@ namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable, IHaveChatBubble
     {
-        int TopPixel { get; }
+        int? TopPixel { get; }
 
         ICharacterRenderProperties RenderProperties { get; set; }
 

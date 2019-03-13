@@ -2,8 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
+
 namespace EOLib.Net.PacketProcessing
 {
+    [AutoMappedType]
     public class PacketSequenceService : IPacketSequenceService
     {
         public int CalculateInitialSequenceNumber(int seq1, int seq2)

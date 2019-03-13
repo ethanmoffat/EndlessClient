@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Extensions;
@@ -18,6 +19,7 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class NPCActionHandler : InGameOnlyPacketHandler
     {
         private const int NPC_WALK_ACTION = 0;

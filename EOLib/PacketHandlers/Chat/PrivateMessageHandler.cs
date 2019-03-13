@@ -3,12 +3,14 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Net;
 
 namespace EOLib.PacketHandlers.Chat
 {
+    [AutoMappedType]
     public class PrivateMessageHandler : PlayerChatByNameBase
     {
         private readonly IChatRepository _chatRepository;

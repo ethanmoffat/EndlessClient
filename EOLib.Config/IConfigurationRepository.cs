@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
+
 namespace EOLib.Config
 {
     public interface IConfigurationRepository
@@ -64,6 +66,8 @@ namespace EOLib.Config
         bool EnableLog { get; }
     }
 
+    [MappedType(BaseType = typeof(IConfigurationRepository), IsSingleton = true)]
+    [MappedType(BaseType = typeof(IConfigurationProvider), IsSingleton = true)]
     public class ConfigurationRepository : IConfigurationRepository, IConfigurationProvider
     {
         public string Host { get; set; }

@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Controllers;
 using EndlessClient.Dialogs.Services;
 using EndlessClient.Rendering;
@@ -13,6 +14,7 @@ using EOLib.Graphics;
 
 namespace EndlessClient.UIControls
 {
+    [MappedType(BaseType = typeof(ICharacterInfoPanelFactory), IsSingleton = true)]
     public class CharacterInfoPanelFactory : ICharacterInfoPanelFactory
     {
         private readonly ICharacterSelectorProvider _characterProvider;

@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.Graphics;
 using EOLib.IO;
 using EOLib.IO.Repositories;
@@ -9,6 +10,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Map
 {
+    [MappedType(BaseType = typeof(IMapItemGraphicProvider), IsSingleton = true)]
     public class MapItemGraphicProvider : IMapItemGraphicProvider
     {
         private readonly INativeGraphicsManager _nativeGraphicsManager;

@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -9,6 +10,7 @@ using EOLib.Domain.NPC;
 
 namespace EndlessClient.Rendering
 {
+    [MappedType(BaseType = typeof(IRenderOffsetCalculator))]
     public class RenderOffsetCalculator : IRenderOffsetCalculator
     {
         private const int WidthFactor = 32;

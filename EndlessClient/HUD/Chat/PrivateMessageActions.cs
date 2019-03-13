@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Panels;
@@ -10,6 +11,7 @@ using EOLib.Domain.Chat;
 
 namespace EndlessClient.HUD.Chat
 {
+    [MappedType(BaseType = typeof(IPrivateMessageActions))]
     public class PrivateMessageActions : IPrivateMessageActions
     {
         private readonly IHudControlProvider _hudControlProvider;

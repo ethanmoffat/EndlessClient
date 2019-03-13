@@ -2,9 +2,10 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using System;
 using EndlessClient.GameExecution;
-using Microsoft.Practices.Unity;
+using System.Reflection;
 
 namespace EndlessClient
 {
@@ -15,12 +16,23 @@ namespace EndlessClient
         [STAThread]
         public static void Main()
         {
-            using (var unityContainer = new UnityContainer())
+            var assemblyNames = new []
+            {
+                Assembly.GetExecutingAssembly().FullName,
+                "EOLib",
+                "EOLib.Config",
+                "EOLib.Graphics",
+                "EOLib.IO",
+                "EOLib.Localization",
+                "EOLib.Logger"
+            };
+
+            using (ITypeRegistry registry = new UnityRegistry(assemblyNames))
             {
 #if DEBUG
-                _gameRunner = new DebugGameRunner(unityContainer);
+                _gameRunner = new DebugGameRunner(registry);
 #else
-                _gameRunner = new ReleaseGameRunner(unityContainer);
+                _gameRunner = new ReleaseGameRunner(registry);
 #endif
                 if (_gameRunner.SetupDependencies())
                     _gameRunner.RunGame();

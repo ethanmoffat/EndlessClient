@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
 using EOLib;
@@ -10,6 +11,8 @@ using EOLib.Domain.Notifiers;
 
 namespace EndlessClient.Rendering.Character
 {
+    [MappedType(BaseType = typeof(ICharacterAnimationActions))]
+    [MappedType(BaseType = typeof(IOtherCharacterAnimationNotifier))]
     public class CharacterAnimationActions : ICharacterAnimationActions, IOtherCharacterAnimationNotifier
     {
         private readonly IHudControlProvider _hudControlProvider;

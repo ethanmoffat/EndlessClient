@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.NPC;
@@ -11,6 +12,7 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class NPCEnterMapHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;

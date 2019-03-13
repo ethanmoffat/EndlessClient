@@ -2,11 +2,13 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Localization;
 
 namespace EOLib.Domain.Chat.Commands
 {
+    [AutoMappedType]
     public class LocCommand : IPlayerCommand
     {
         private readonly ICharacterProvider _characterProvider;

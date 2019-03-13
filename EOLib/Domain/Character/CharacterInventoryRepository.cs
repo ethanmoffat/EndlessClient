@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Character
 {
@@ -20,6 +21,7 @@ namespace EOLib.Domain.Character
         IReadOnlyList<IInventorySpell> SpellInventory { get; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public class CharacterInventoryRepository : ICharacterInventoryRepository, ICharacterInventoryProvider
     {
         public List<IInventoryItem> ItemInventory { get; set; }

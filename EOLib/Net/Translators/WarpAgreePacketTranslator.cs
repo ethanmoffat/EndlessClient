@@ -2,10 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.Domain.Map;
 
 namespace EOLib.Net.Translators
 {
+    [AutoMappedType]
     public class WarpAgreePacketTranslator : MapStatePacketTranslator<IWarpAgreePacketData>
     {
         public WarpAgreePacketTranslator(ICharacterFromPacketFactory characterFromPacketFactory)

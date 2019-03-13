@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EOLib.IO.Map;
 
 namespace EOLib.IO.Services.Serializers
 {
+    [MappedType(BaseType = typeof(ISerializer<UnknownMapEntity>))]
     public class UnknownMapEntitySerializer : ISerializer<UnknownMapEntity>
     {
         private readonly INumberEncoderService _numberEncoderService;

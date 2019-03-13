@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Login
 {
@@ -20,6 +21,7 @@ namespace EOLib.Domain.Login
         IReadOnlyList<string> NewsText { get; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public class NewsRepository : INewsRepository, INewsProvider
     {
         public string NewsHeader { get; set; }

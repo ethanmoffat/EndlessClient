@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.Controllers;
 using EndlessClient.ControlSets;
@@ -27,6 +28,7 @@ using XNAControls;
 namespace EndlessClient.HUD.Controls
 {
     //todo: this class is doing a lot. Might be a good idea to split it into multiple factories.
+    [MappedType(BaseType = typeof(IHudControlsFactory), IsSingleton = true)]
     public class HudControlsFactory : IHudControlsFactory
     {
         private const int HUD_BASE_LAYER = 100;
