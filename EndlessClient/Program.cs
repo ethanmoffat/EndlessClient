@@ -19,6 +19,7 @@ namespace EndlessClient
             var assemblyNames = new []
             {
                 Assembly.GetExecutingAssembly().FullName,
+                "EOLib",
                 "EOLib.Config",
                 "EOLib.Graphics",
                 "EOLib.IO",

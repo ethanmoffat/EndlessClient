@@ -5,6 +5,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO.Actions;
@@ -16,6 +17,7 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class BeginPlayerWarpHandler : InGameOnlyPacketHandler
     {
         private const int WARP_SAME_MAP = 1, WARP_NEW_MAP = 2;

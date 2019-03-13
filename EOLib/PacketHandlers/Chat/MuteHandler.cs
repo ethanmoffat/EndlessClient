@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
@@ -10,6 +11,7 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers.Chat
 {
+    [AutoMappedType]
     public class MuteHandler : InGameOnlyPacketHandler
     {
         private readonly IEnumerable<IChatEventNotifier> _chatEventNotifiers;

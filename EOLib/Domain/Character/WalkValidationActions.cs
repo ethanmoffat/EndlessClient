@@ -4,12 +4,14 @@
 
 using System;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 
 namespace EOLib.Domain.Character
 {
+    [AutoMappedType]
     public class WalkValidationActions : IWalkValidationActions
     {
         private readonly IMapCellStateProvider _mapCellStateProvider;

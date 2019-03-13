@@ -4,11 +4,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 
 namespace EOLib.Net.Translators
 {
+    [AutoMappedType]
     public class LoginRequestCompletedPacketTranslator : MapStatePacketTranslator<ILoginRequestCompletedData>
     {
         private const int MAX_NEWS_LINES = 9;

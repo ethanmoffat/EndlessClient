@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Protocol
 {
@@ -12,6 +13,7 @@ namespace EOLib.Domain.Protocol
         Dictionary<ushort, DateTime> PingRequests { get; set; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public class PingTimeRepository : IPingTimeRepository
     {
         public Dictionary<ushort, DateTime> PingRequests { get; set; }

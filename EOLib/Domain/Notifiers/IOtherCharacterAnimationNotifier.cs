@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
+
 namespace EOLib.Domain.Notifiers
 {
     public interface IOtherCharacterAnimationNotifier
@@ -11,6 +13,7 @@ namespace EOLib.Domain.Notifiers
         void StartOtherCharacterAttackAnimation(int characterID);
     }
 
+    [AutoMappedType]
     public class NoOpOtherCharacterAnimationNotifier : IOtherCharacterAnimationNotifier
     {
         public void StartOtherCharacterWalkAnimation(int characterID) { }

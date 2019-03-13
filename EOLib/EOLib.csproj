@@ -129,7 +129,6 @@
     <Compile Include="Domain\Map\Warp.cs" />
     <Compile Include="Domain\Map\WarpAgreePacketData.cs" />
     <Compile Include="Domain\Notifiers\IOtherCharacterEventNotifier.cs" />
-    <Compile Include="Domain\Notifiers\NotifierDependencyContainer.cs" />
     <Compile Include="Domain\NPC\INPC.cs" />
     <Compile Include="Domain\Notifiers\INPCActionNotifier.cs" />
     <Compile Include="Domain\NPC\NPC.cs" />
@@ -142,7 +141,6 @@
     <Compile Include="Domain\Character\CharacterReply.cs" />
     <Compile Include="Domain\Character\CharacterRepository.cs" />
     <Compile Include="Domain\Character\SitState.cs" />
-    <Compile Include="Domain\DomainDependencyContainer.cs" />
     <Compile Include="Domain\Login\AccountLoginData.cs" />
     <Compile Include="Domain\Character\CharacterCreateParameters.cs" />
     <Compile Include="Domain\Login\CharacterSelectorRepository.cs" />
@@ -181,7 +179,6 @@
     <Compile Include="Net\FileTransfer\FileRequestService.cs" />
     <Compile Include="HDSerialNumberService.cs" />
     <Compile Include="IHDSerialNumberService.cs" />
-    <Compile Include="EOLibDependencyContainer.cs" />
     <Compile Include="misc.cs" />
     <Compile Include="Domain\Account\AccountReply.cs" />
     <Compile Include="Net\API\Avatar.cs" />
@@ -258,7 +255,6 @@
     <Compile Include="PacketHandlers\NPCActionHandler.cs" />
     <Compile Include="PacketHandlers\NPCEnterMapHandler.cs" />
     <Compile Include="PacketHandlers\NPCLeaveMapHandler.cs" />
-    <Compile Include="PacketHandlers\PacketHandlerDependencyContainer.cs" />
     <Compile Include="PacketHandlers\Commands\PingResponseHandler.cs" />
     <Compile Include="Net\MalformedPacketException.cs" />
     <Compile Include="Net\NoDataSentException.cs" />
@@ -269,7 +265,6 @@
     <Compile Include="Net\Translators\CharacterReplyPacketTranslator.cs" />
     <Compile Include="Net\Translators\InitDataTranslator.cs" />
     <Compile Include="Net\Connection\NetworkConnectionActions.cs" />
-    <Compile Include="Net\NetworkDependencyContainer.cs" />
     <Compile Include="Net\PacketProcessing\HashService.cs" />
     <Compile Include="Net\EmptyPacket.cs" />
     <Compile Include="Net\EOClient.cs" />
@@ -294,7 +289,6 @@
     <Compile Include="Net\Translators\LoginRequestCompletedPacketTranslator.cs" />
     <Compile Include="Net\Translators\LoginRequestGrantedPacketTranslator.cs" />
     <Compile Include="Net\Translators\MapStatePacketTranslator.cs" />
-    <Compile Include="Net\Translators\PacketTranslatorContainer.cs" />
     <Compile Include="Optional.cs" />
     <Compile Include="PacketHandlers\Chat\PlayerChatByIDHandler.cs" />
     <Compile Include="PacketHandlers\Chat\PrivateMessageTargetNotFound.cs" />
@@ -323,10 +317,6 @@
     <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj">
       <Project>{2FEC86D4-EA73-472F-9983-B06AF7981F5C}</Project>
       <Name>EOLib.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
-      <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
-      <Name>EOLib.DependencyInjection</Name>
     </ProjectReference>
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
       <Project>{aa07776b-3f05-404a-ba8a-24970a91c024}</Project>

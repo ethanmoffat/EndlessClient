@@ -5,9 +5,11 @@
 using System;
 using System.IO;
 using System.Text;
+using AutomaticTypeMapper;
 
 namespace EOLib
 {
+    [AutoMappedType]
     public class HDSerialNumberService : IHDSerialNumberService
     {
         public string GetHDSerialNumber()

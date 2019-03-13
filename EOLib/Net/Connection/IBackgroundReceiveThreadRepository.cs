@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Threading;
+using AutomaticTypeMapper;
 
 namespace EOLib.Net.Connection
 {
@@ -13,6 +14,7 @@ namespace EOLib.Net.Connection
         bool BackgroundThreadRunning { get; set; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public class BackgroundReceiveThreadRepository : IBackgroundReceiveThreadRepository
     {
         public Thread BackgroundThreadObject { get; set; }

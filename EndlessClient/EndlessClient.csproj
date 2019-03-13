@@ -92,6 +92,7 @@
     <Compile Include="Initialization\GraphicsInitializer.cs" />
     <Compile Include="Initialization\IGameInitializer.cs" />
     <Compile Include="Initialization\LocalizationInitializer.cs" />
+    <Compile Include="Initialization\NetworkInitializer.cs" />
     <Compile Include="Input\ArrowKeyHandler.cs" />
     <Compile Include="Input\ControlKeyHandler.cs" />
     <Compile Include="Input\CurrentKeyStateTracker.cs" />
@@ -249,7 +250,6 @@
     <Compile Include="UIControls\ICharacterInfoPanelFactory.cs" />
     <Compile Include="UIControls\OldScrollBar.cs" />
     <Compile Include="Input\TextBoxTabEventHandler.cs" />
-    <Compile Include="DependencyContainerProvider.cs" />
     <Compile Include="GameExecution\DebugGameRunner.cs" />
     <Compile Include="Dialogs\BankAccountDialog.cs" />
     <Compile Include="Dialogs\ChangePasswordDialog.cs" />
@@ -399,10 +399,6 @@
     <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj">
       <Project>{2FEC86D4-EA73-472F-9983-B06AF7981F5C}</Project>
       <Name>EOLib.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
-      <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
-      <Name>EOLib.DependencyInjection</Name>
     </ProjectReference>
     <ProjectReference Include="..\EOLib.Graphics\EOLib.Graphics.csproj">
       <Project>{8c4bc247-89ed-4629-b34b-15a5aee88e2d}</Project>

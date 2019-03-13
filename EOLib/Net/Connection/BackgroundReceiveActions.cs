@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System.Threading;
+using AutomaticTypeMapper;
 using EOLib.Net.Communication;
 
 namespace EOLib.Net.Connection
 {
+    [AutoMappedType]
     public class BackgroundReceiveActions : IBackgroundReceiveActions
     {
         private readonly INetworkClientProvider _clientProvider;

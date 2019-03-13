@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
+
 namespace EOLib.Net.Communication
 {
     public interface INetworkClientRepository
@@ -14,6 +16,7 @@ namespace EOLib.Net.Communication
         INetworkClient NetworkClient { get; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public sealed class NetworkClientRepository : INetworkClientProvider, INetworkClientRepository, INetworkClientDisposer
     {
         public INetworkClient NetworkClient { get; set; }

@@ -3,9 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Account
 {
+    [AutoMappedType]
     public class CreateAccountParameterValidator : ICreateAccountParameterValidator
     {
         private const string ValidEmailRegex = @"[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+(?:[A-Z]{2}|com|org|net|edu|gov|mil|biz|info|mobi|name|aero|asia|jobs|museum)\b";

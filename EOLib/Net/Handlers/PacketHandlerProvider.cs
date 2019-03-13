@@ -3,9 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 
 namespace EOLib.Net.Handlers
 {
+    [AutoMappedType(IsSingleton = true)]
     public class PacketHandlerProvider : IPacketHandlerProvider
     {
         public PacketHandlerProvider(IEnumerable<IPacketHandler> packetHandlers)

@@ -102,10 +102,6 @@
       <Project>{2FEC86D4-EA73-472F-9983-B06AF7981F5C}</Project>
       <Name>EOLib.Config</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
-      <Project>{f461418a-4a7a-4694-b35c-94ff0420414e}</Project>
-      <Name>EOLib.DependencyInjection</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EOLib.Localization\EOLib.Localization.csproj">
       <Project>{9f543e30-1320-43e2-8691-080e089154a0}</Project>
       <Name>EOLib.Localization</Name>

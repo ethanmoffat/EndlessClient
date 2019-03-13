@@ -74,13 +74,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
-      <Project>{f461418a-4a7a-4694-b35c-94ff0420414e}</Project>
-      <Name>EOLib.DependencyInjection</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
       <Project>{AA07776B-3F05-404A-BA8A-24970A91C024}</Project>
       <Name>EOLib.IO</Name>

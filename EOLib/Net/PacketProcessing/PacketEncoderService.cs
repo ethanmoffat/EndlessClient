@@ -6,11 +6,13 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.IO;
 using EOLib.IO.Services;
 
 namespace EOLib.Net.PacketProcessing
 {
+    [AutoMappedType]
     public sealed class PacketEncoderService : IPacketEncoderService
     {
         private readonly INumberEncoderService _numberEncoderService;

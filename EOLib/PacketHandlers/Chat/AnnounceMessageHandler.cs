@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Notifiers;
@@ -10,6 +11,7 @@ using EOLib.Net;
 
 namespace EOLib.PacketHandlers.Chat
 {
+    [AutoMappedType]
     public class AnnounceMessageHandler : PlayerChatByNameBase
     {
         private readonly IChatRepository _chatRepository;

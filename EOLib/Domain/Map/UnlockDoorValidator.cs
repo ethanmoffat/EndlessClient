@@ -4,12 +4,14 @@
 
 using System;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 
 namespace EOLib.Domain.Map
 {
+    [AutoMappedType]
     public class UnlockDoorValidator : IUnlockDoorValidator
     {
         private readonly ICharacterInventoryProvider _characterInventoryProvider;

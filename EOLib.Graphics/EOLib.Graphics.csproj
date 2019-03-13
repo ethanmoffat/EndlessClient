@@ -88,13 +88,9 @@
     <Compile Include="RectangleExtension.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
-      <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
-      <Name>EOLib.DependencyInjection</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\MonoGame.Framework.DesktopGL.3.7.1.189\build\MonoGame.Framework.DesktopGL.targets" Condition="Exists('..\packages\MonoGame.Framework.DesktopGL.3.7.1.189\build\MonoGame.Framework.DesktopGL.targets')" />

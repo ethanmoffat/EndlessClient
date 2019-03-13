@@ -5,10 +5,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Chat.Commands;
 
 namespace EOLib.Domain.Chat
 {
+    [AutoMappedType]
     public class LocalCommandHandler : ILocalCommandHandler
     {
         private readonly IEnumerable<IPlayerCommand> _playerCommands;

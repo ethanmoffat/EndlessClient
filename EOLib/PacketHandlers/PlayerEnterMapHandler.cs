@@ -3,7 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
-using EOLib.Domain.Character;
+using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -13,6 +13,7 @@ using EOLib.Net.Translators;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class PlayerEnterMapHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _mapStateRepository;

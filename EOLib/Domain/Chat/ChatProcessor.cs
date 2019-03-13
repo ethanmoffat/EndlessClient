@@ -3,9 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Chat
 {
+    [AutoMappedType]
     public class ChatProcessor : IChatProcessor
     {
         public string RemoveFirstCharacterIfNeeded(string chat, ChatType chatType, string targetCharacter)

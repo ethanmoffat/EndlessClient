@@ -5,6 +5,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Communication;
@@ -12,6 +13,7 @@ using EOLib.Net.Translators;
 
 namespace EOLib.Domain.Character
 {
+    [AutoMappedType]
     public class CharacterManagementActions : ICharacterManagementActions
     {
         private readonly IPacketSendService _packetSendService;

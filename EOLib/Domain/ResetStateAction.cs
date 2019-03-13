@@ -3,9 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain
 {
+    [AutoMappedType]
     public class ResetStateAction : IResetStateAction
     {
         private readonly IEnumerable<IResettable> _resettables;

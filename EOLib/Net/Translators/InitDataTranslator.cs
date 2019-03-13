@@ -4,10 +4,12 @@
 
 using System;
 using System.IO;
+using AutomaticTypeMapper;
 using EOLib.Domain.Protocol;
 
 namespace EOLib.Net.Translators
 {
+    [AutoMappedType]
     public class InitDataTranslator : IPacketTranslator<IInitializationData>
     {
         public IInitializationData TranslatePacket(IPacket packet)

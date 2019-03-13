@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System.Collections.Generic;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 
 namespace EOLib.Net.Translators
 {
+    [AutoMappedType]
     public class CharacterReplyPacketTranslator : CharacterDisplayPacketTranslator<ICharacterCreateData>
     {
         public override ICharacterCreateData TranslatePacket(IPacket packet)

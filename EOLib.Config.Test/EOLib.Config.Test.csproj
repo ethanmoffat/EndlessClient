@@ -102,13 +102,11 @@
       <Project>{2fec86d4-ea73-472f-9983-b06af7981f5c}</Project>
       <Name>EOLib.Config</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
-      <Project>{f461418a-4a7a-4694-b35c-94ff0420414e}</Project>
-      <Name>EOLib.DependencyInjection</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

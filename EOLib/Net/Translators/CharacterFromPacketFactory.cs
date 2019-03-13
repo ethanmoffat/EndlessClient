@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System.IO;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 
 namespace EOLib.Net.Translators
 {
+    [AutoMappedType]
     public class CharacterFromPacketFactory : ICharacterFromPacketFactory
     {
         public ICharacter CreateCharacter(IPacket packet)

@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Protocol;
@@ -14,6 +15,7 @@ namespace EOLib.PacketHandlers.Commands
     /// <summary>
     /// Handles MESSAGE_PONG packets which are in response to a #ping command request
     /// </summary>
+    [AutoMappedType]
     public class PingResponseHandler : InGameOnlyPacketHandler
     {
         private readonly IPingTimeRepository _pingTimeRepository;

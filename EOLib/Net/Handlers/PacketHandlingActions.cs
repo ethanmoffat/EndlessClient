@@ -2,10 +2,12 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.Net.Communication;
 
 namespace EOLib.Net.Handlers
 {
+    [AutoMappedType]
     public class PacketHandlingActions : IPacketHandlingActions
     {
         private readonly IPacketQueueProvider _packetQueueProvider;

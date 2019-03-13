@@ -3,9 +3,11 @@
 // For additional details, see the LICENSE file
 
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 
 namespace EOLib.Net.Communication
 {
+    [AutoMappedType]
     public class PacketSendService : IPacketSendService
     {
         private readonly INetworkClientProvider _networkClientProvider;

@@ -2,6 +2,7 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Localization;
@@ -9,6 +10,7 @@ using EOLib.Net;
 
 namespace EOLib.PacketHandlers.Commands
 {
+    [AutoMappedType]
     public class FindCommandPlayerDifferentMapHandler : FindCommandHandlerBase
     {
         public override PacketAction Action => PacketAction.Net3;

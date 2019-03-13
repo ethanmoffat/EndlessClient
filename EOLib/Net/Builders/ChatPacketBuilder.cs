@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System;
+using AutomaticTypeMapper;
 using EOLib.Domain.Chat;
 
 namespace EOLib.Net.Builders
 {
+    [AutoMappedType]
     public class ChatPacketBuilder : IChatPacketBuilder
     {
         public IPacket BuildChatPacket(ChatType chatType,

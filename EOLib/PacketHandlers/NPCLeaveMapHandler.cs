@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -14,6 +15,7 @@ using EOLib.Net.Handlers;
 
 namespace EOLib.PacketHandlers
 {
+    [AutoMappedType]
     public class NPCLeaveMapHandler : InGameOnlyPacketHandler
     {
         protected readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -153,6 +155,7 @@ namespace EOLib.PacketHandlers
     /// This is handled the same way as the NPC_SPEC packet. There is some additional special handling 
     /// that is done from NPCLeaveMapHandler.HandlePlacket (see if packet.Family == PacketFamily.Cast) blocks
     /// </summary>
+    [AutoMappedType]
     public class NPCDieFromSpellCastHandler : NPCLeaveMapHandler
     {
         public override PacketFamily Family => PacketFamily.Cast;

@@ -2,6 +2,8 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using AutomaticTypeMapper;
+
 namespace EOLib.Domain.Notifiers
 {
     public interface INPCActionNotifier
@@ -15,6 +17,7 @@ namespace EOLib.Domain.Notifiers
         void ShowNPCSpeechBubble(int npcIndex, string message);
     }
 
+    [AutoMappedType]
     public class NoOpNPCActionNotifier : INPCActionNotifier
     {
         public void StartNPCWalkAnimation(int npcIndex) { }

@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutomaticTypeMapper;
 
 namespace EOLib.Domain.Chat
 {
@@ -26,6 +27,7 @@ namespace EOLib.Domain.Chat
         string PMTarget2 { get; }
     }
 
+    [AutoMappedType(IsSingleton = true)]
     public class ChatRepository : IChatRepository, IChatProvider, IResettable
     {
         public Dictionary<ChatTab, List<ChatData>> AllChat { get; set; }

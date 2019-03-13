@@ -4,6 +4,7 @@
 
 using System;
 using System.Threading.Tasks;
+using AutomaticTypeMapper;
 using EOLib.Domain.Protocol;
 using EOLib.IO;
 using EOLib.IO.Map;
@@ -13,6 +14,7 @@ using EOLib.IO.Services;
 
 namespace EOLib.Net.FileTransfer
 {
+    [AutoMappedType]
     public class FileRequestActions : IFileRequestActions
     {
         private readonly INumberEncoderService _numberEncoderService;

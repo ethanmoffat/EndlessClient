@@ -109,10 +109,6 @@
     <Compile Include="RectangleExtensionTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
-      <Project>{f461418a-4a7a-4694-b35c-94ff0420414e}</Project>
-      <Name>EOLib.DependencyInjection</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EOLib.Graphics\EOLib.Graphics.csproj">
       <Project>{8c4bc247-89ed-4629-b34b-15a5aee88e2d}</Project>
       <Name>EOLib.Graphics</Name>

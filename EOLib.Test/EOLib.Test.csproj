@@ -92,7 +92,6 @@
     <Otherwise />
   </Choose>
   <ItemGroup>
-    <Compile Include="DependencyRegistrarTest.cs" />
     <Compile Include="Net\FileTransfer\FileRequestServiceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestHelpers\PacketSendServiceHelpers.cs" />
@@ -101,10 +100,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
-      <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
-      <Name>EOLib.DependencyInjection</Name>
-    </ProjectReference>
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
       <Project>{AA07776B-3F05-404A-BA8A-24970A91C024}</Project>
       <Name>EOLib.IO</Name>

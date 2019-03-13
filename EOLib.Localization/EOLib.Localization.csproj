@@ -82,10 +82,6 @@
       <Project>{2fec86d4-ea73-472f-9983-b06af7981f5c}</Project>
       <Name>EOLib.Config</Name>
     </ProjectReference>
-    <ProjectReference Include="..\EOLib.DependencyInjection\EOLib.DependencyInjection.csproj">
-      <Project>{F461418A-4A7A-4694-B35C-94FF0420414E}</Project>
-      <Name>EOLib.DependencyInjection</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
