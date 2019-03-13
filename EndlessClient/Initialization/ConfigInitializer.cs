@@ -22,13 +22,4 @@ namespace EndlessClient.Initialization
             _configFileLoadActions.LoadConfigFile();
         }
     }
-
-    //required for the varied type registration to work until more initializers are added
-    [MappedType(BaseType = typeof(IGameInitializer))]
-    public class NoopInitializer : IGameInitializer
-    {
-        public void Initialize()
-        {
-        }
-    }
 }
