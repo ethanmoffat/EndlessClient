@@ -28,8 +28,22 @@ namespace EOLib.Graphics
             var ms = new MemoryStream(fileBytes);
 
             var bm = (Bitmap)Image.FromStream(ms);
+
 #if !LINUX
             var temp = new Bitmap(bm);
+
+            var offSet = (int)(bm.Width * 0.02);
+            for (int y = 0; y < bm.Height; y++)
+            {
+                for (int x = 0; x < offSet; x++)
+                {
+                    temp.SetPixel(x, y, bm.GetPixel(x + bm.Width - offSet, y));
+                }
+                for (int x = offSet; x < bm.Width; x++)
+                {
+                    temp.SetPixel(x, y, bm.GetPixel(x - offSet, y));
+                }
+            }
             for (int y = 0; y < bm.Height; y++)
             {
                 for (int x = 0; x < bm.Width; x++)
