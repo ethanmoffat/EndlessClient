@@ -44,6 +44,8 @@ namespace EOLib.Graphics
                     temp.SetPixel(x, y, bm.GetPixel(x - offSet, y));
                 }
             }
+
+            // flipping
             for (int y = 0; y < bm.Height; y++)
             {
                 for (int x = 0; x < bm.Width; x++)
