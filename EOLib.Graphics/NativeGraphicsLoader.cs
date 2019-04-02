@@ -26,7 +26,19 @@ namespace EOLib.Graphics
                 throw new GFXLoadException(resourceValue, file);
 
             var ms = new MemoryStream(fileBytes);
-            return (Bitmap)Image.FromStream(ms);
+
+            var bm = (Bitmap)Image.FromStream(ms);
+#if !LINUX
+            var temp = new Bitmap(bm);
+            for (int y = 0; y < bm.Height; y++)
+            {
+                for (int x = 0; x < bm.Width; x++)
+                {
+                    bm.SetPixel(x, y, temp.GetPixel(x, temp.Height - 1 - y));
+                }
+            }
+#endif
+            return bm;
         }
     }
 }
