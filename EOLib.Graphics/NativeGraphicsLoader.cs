@@ -35,24 +35,17 @@ namespace EOLib.Graphics
             var offSet = (int)(bm.Width * 0.02);
             for (int y = 0; y < bm.Height; y++)
             {
+                var flippedY = bm.Height - 1 - y;
                 for (int x = 0; x < offSet; x++)
                 {
-                    temp.SetPixel(x, y, bm.GetPixel(x + bm.Width - offSet, y));
+                    temp.SetPixel(x, y, bm.GetPixel(x + bm.Width - offSet, flippedY));
                 }
                 for (int x = offSet; x < bm.Width; x++)
                 {
-                    temp.SetPixel(x, y, bm.GetPixel(x - offSet, y));
+                    temp.SetPixel(x, y, bm.GetPixel(x - offSet, flippedY));
                 }
             }
-
-            // flipping
-            for (int y = 0; y < bm.Height; y++)
-            {
-                for (int x = 0; x < bm.Width; x++)
-                {
-                    bm.SetPixel(x, y, temp.GetPixel(x, temp.Height - 1 - y));
-                }
-            }
+            bm = temp;
 #endif
             return bm;
         }
