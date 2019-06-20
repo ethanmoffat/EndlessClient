@@ -24,18 +24,18 @@ namespace EOLib.Net.Translators
         protected IEnumerable<ICharacter> GetCharacters(IPacket packet)
         {
             var numCharacters = packet.ReadChar();
-            if (packet.ReadByte() != 255)
-                throw new MalformedPacketException("Missing 255 byte after number of characters", packet);
 
             for (int i = 0; i < numCharacters; ++i)
             {
-                var character = _characterFromPacketFactory.CreateCharacter(packet);
-
                 if (packet.ReadByte() != 255)
-                    throw new MalformedPacketException("Missing 255 byte after character", packet);
+                    throw new MalformedPacketException("Missing 255 byte character delimiter", packet);
 
+                var character = _characterFromPacketFactory.CreateCharacter(packet);
                 yield return character;
             }
+
+            if (packet.ReadByte() != 255)
+                throw new MalformedPacketException("Missing final 255 byte after characters loop", packet);
         }
 
         protected IEnumerable<INPC> GetNPCs(IPacket packet)
@@ -47,13 +47,13 @@ namespace EOLib.Net.Translators
                 var x = packet.ReadChar();
                 var y = packet.ReadChar();
                 var direction = (EODirection) packet.ReadChar();
-                
+
                 yield return new NPC(id, index)
                     .WithX(x)
                     .WithY(y)
                     .WithDirection(direction);
             }
-            
+
             packet.ReadByte(); //consume the tail 255 byte that broke loop iteration
         }
 

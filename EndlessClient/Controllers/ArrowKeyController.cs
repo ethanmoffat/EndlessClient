@@ -18,7 +18,7 @@ namespace EndlessClient.Controllers
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ICharacterActions _characterActions;
         private readonly ICharacterProvider _characterProvider;
-        private IWalkErrorHandler _walkErrorHandler;
+        private readonly IWalkErrorHandler _walkErrorHandler;
 
         public ArrowKeyController(IWalkValidationActions walkValidationActions,
                                   ICharacterAnimationActions characterAnimationActions,
