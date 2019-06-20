@@ -18,14 +18,17 @@ namespace EOLib.Net.Translators
             var characters = new List<ICharacter>();
 
             var numberOfCharacters = (int)packet.ReadChar();
-            packet.Seek(2, SeekOrigin.Current);
+            packet.Seek(1, SeekOrigin.Current);
 
             for (int i = 0; i < numberOfCharacters; ++i)
             {
-                characters.Add(GetNextCharacter(packet));
                 if (packet.ReadByte() != 255)
                     throw new MalformedPacketException("Login packet missing character separator byte", packet);
+                characters.Add(GetNextCharacter(packet));
             }
+
+            if (packet.ReadByte() != 255)
+                throw new MalformedPacketException("Login packet missing character separator byte", packet);
 
             return characters;
         }

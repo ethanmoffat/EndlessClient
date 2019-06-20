@@ -51,7 +51,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AutomaticTypeMapper, Version=1.2.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\packages\AutomaticTypeMapper.1.2.0.1\lib\net462\AutomaticTypeMapper.dll</HintPath>
+      <HintPath>..\packages\AutomaticTypeMapper.1.2.0.5\lib\net462\AutomaticTypeMapper.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
