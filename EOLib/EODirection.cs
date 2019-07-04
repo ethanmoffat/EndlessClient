@@ -21,12 +21,8 @@ namespace EOLib
         {
             switch (direction)
             {
-                case EODirection.Down: return EODirection.Up;
-                case EODirection.Left: return EODirection.Right;
-                case EODirection.Up: return EODirection.Down;
-                case EODirection.Right: return EODirection.Left;
                 case EODirection.Invalid: return EODirection.Invalid;
-                default: throw new ArgumentOutOfRangeException(nameof(direction), direction, null);
+                default: return (EODirection) ((int) (direction + 2) % 4);
             }
         }
     }

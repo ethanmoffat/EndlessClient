@@ -33,15 +33,15 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return _npcRendererProvider.NPCRenderers.Select(x => x.Value.NPC).Any(n => n.X == col && n.Y == row);
+            return _npcRendererProvider.NPCRenderers.Values
+                .Count(n => n.NPC.X == col && n.NPC.Y == row) > 0;
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
-            var indicesToRender = _npcRendererProvider.NPCRenderers
-                .Select(x => x.Value.NPC)
-                .Where(npc => npc.X == col && npc.Y == row)
-                .Select(npc => npc.Index);
+            var indicesToRender = _npcRendererProvider.NPCRenderers.Values
+                .Where(n => n.NPC.X == col && n.NPC.Y == row)
+                .Select(n => n.NPC.Index);
 
             foreach (var index in indicesToRender)
             {
@@ -53,8 +53,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 var renderer = _npcRendererProvider.NPCRenderers[index];
                 renderer.DrawToSpriteBatch(spriteBatch);
 
-                IChatBubble chatBubble;
-                if (_chatBubbleProvider.NPCChatBubbles.TryGetValue(index, out chatBubble))
+                if (_chatBubbleProvider.NPCChatBubbles.TryGetValue(index, out var chatBubble))
                     chatBubble.DrawToSpriteBatch(spriteBatch);
             }
         }
