@@ -87,6 +87,7 @@
     <Compile Include="HUD\Chat\IChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
     <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
+    <Compile Include="HUD\Inventory\InventorySpaceValidator.cs" />
     <Compile Include="HUD\StatusBars\StatusBarBase.cs" />
     <Compile Include="Initialization\ConfigInitializer.cs" />
     <Compile Include="Initialization\EndlessClientInitializer.cs" />

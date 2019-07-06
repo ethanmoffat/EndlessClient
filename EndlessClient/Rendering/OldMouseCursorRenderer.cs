@@ -96,33 +96,6 @@ namespace EndlessClient.Rendering
             //}
         }
 
-        private void HandleMapItemClick(OldMapItem mi)
-        {
-            if ((_mainCharacter.ID != mi.OwningPlayerID && mi.OwningPlayerID != 0) &&
-                (mi.IsNPCDrop && (DateTime.Now - mi.DropTime).TotalSeconds <= OldWorld.Instance.NPCDropProtectTime) ||
-                (!mi.IsNPCDrop && (DateTime.Now - mi.DropTime).TotalSeconds <= OldWorld.Instance.PlayerDropProtectTime))
-            {
-                OldCharacter charRef = _parentMapRenderer.GetOtherPlayerByID((short) mi.OwningPlayerID);
-                EOResourceID msg = charRef == null ? EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED : EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
-                string extra = charRef == null ? "" : charRef.Name;
-                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
-            }
-            else
-            {
-                var item = OldWorld.Instance.EIF[mi.ItemID];
-                if (!EOGame.Instance.Hud.InventoryFits(mi.ItemID))
-                {
-                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
-                }
-                else if (_mainCharacter.Weight + item.Weight * mi.Amount > _mainCharacter.MaxWeight)
-                {
-                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.DIALOG_ITS_TOO_HEAVY_WEIGHT);
-                }
-                else if (!_game.API.GetItem(mi.UniqueID)) //server validates drop protection anyway
-                    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
-            }
-        }
-
         private void HandleTileSpecClick(TileSpec spec)
         {
             switch (spec)

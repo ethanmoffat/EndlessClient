@@ -6,7 +6,7 @@ namespace EOLib.Domain.Item
     {
         Ok,
         TooFar,
-        DropProtectionPlayer,
-        DropProtectionNpc
+        DropProtection,
+        TooHeavy
     }
 }
