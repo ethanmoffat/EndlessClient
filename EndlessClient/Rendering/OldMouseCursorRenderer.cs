@@ -5,17 +5,12 @@
 using System;
 using System.Linq;
 using EndlessClient.Dialogs;
-using EndlessClient.HUD.Inventory;
 using EndlessClient.Old;
-using EOLib;
-using EOLib.Domain.Map;
-using EOLib.Graphics;
 using EOLib.IO.Map;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using XNAControls.Old;
 
 namespace EndlessClient.Rendering
 {
