@@ -3,6 +3,7 @@
 // For additional details, see the LICENSE file
 
 using AutomaticTypeMapper;
+using EndlessClient.Controllers;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
@@ -22,6 +23,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
+        private readonly IMapInteractionController _mapInteractionController;
 
         public MouseCursorRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                           ICharacterProvider characterProvider,
@@ -30,7 +32,8 @@ namespace EndlessClient.Rendering.Factories
                                           IItemStringService itemStringService,
                                           IEIFFileProvider eifFileProvider,
                                           ICurrentMapProvider currentMapProvider,
-                                          IGraphicsDeviceProvider graphicsDeviceProvider)
+                                          IGraphicsDeviceProvider graphicsDeviceProvider,
+                                          IMapInteractionController mapInteractionController)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterProvider = characterProvider;
@@ -40,6 +43,7 @@ namespace EndlessClient.Rendering.Factories
             _eifFileProvider = eifFileProvider;
             _currentMapProvider = currentMapProvider;
             _graphicsDeviceProvider = graphicsDeviceProvider;
+            _mapInteractionController = mapInteractionController;
         }
 
         public IMouseCursorRenderer Create()
@@ -51,7 +55,8 @@ namespace EndlessClient.Rendering.Factories
                                            _itemStringService,
                                            _eifFileProvider,
                                            _currentMapProvider,
-                                           _graphicsDeviceProvider);
+                                           _graphicsDeviceProvider,
+                                           _mapInteractionController);
         }
     }
 

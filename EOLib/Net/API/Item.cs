@@ -168,7 +168,6 @@ namespace EOLib.Net.API
     public delegate void PlayerItemDropEvent(int characterAmount, byte weight, byte maxWeight, OldMapItem item);
     public delegate void RemoveMapItemEvent(short itemUID);
     public delegate void JunkItemEvent(short itemID, int numJunked, int numRemaining, byte weight, byte maxWeight);
-    public delegate void GetItemEvent(short itemUID, short itemID, int amountTaken, byte weight, byte maxWeight);
     public delegate void UseItemEvent(ItemUseData data);
     public delegate void ItemChangeEvent(bool newItemObtained, short id, int amount, byte weight);
 
@@ -180,7 +179,6 @@ namespace EOLib.Net.API
         public event PlayerItemDropEvent OnDropItem;
         public event RemoveMapItemEvent OnRemoveItemFromMap;
         public event JunkItemEvent OnJunkItem;
-        public event GetItemEvent OnGetItemFromMap;
         public event UseItemEvent OnUseItem;
         public event ItemChangeEvent OnItemChange;
 
@@ -190,7 +188,6 @@ namespace EOLib.Net.API
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Add), _handleItemAdd, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Remove), _handleItemRemove, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Junk), _handleItemJunk, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Get), _handleItemGet, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Reply), _handleItemReply, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Obtain), _handleItemObtain, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Kick), _handleItemKick, true);
@@ -312,17 +309,6 @@ namespace EOLib.Net.API
 
             if (OnJunkItem != null)
                 OnJunkItem(id, amountRemoved, amountRemaining, weight, maxWeight);
-        }
-
-        private void _handleItemGet(OldPacket pkt)
-        {
-            if (OnGetItemFromMap == null) return;
-            short uid = pkt.GetShort();
-            short id = pkt.GetShort();
-            int amountTaken = pkt.GetThree();
-            byte weight = pkt.GetChar();
-            byte maxWeight = pkt.GetChar();
-            OnGetItemFromMap(uid, id, amountTaken, weight, maxWeight);
         }
 
         private void _handleItemReply(OldPacket pkt)

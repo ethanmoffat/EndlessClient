@@ -74,6 +74,7 @@
     <Compile Include="Controllers\ArrowKeyController.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\ControlKeyController.cs" />
+    <Compile Include="Controllers\MapInteractionController.cs" />
     <Compile Include="Controllers\TrainingController.cs" />
     <Compile Include="Dialogs\Actions\FirstTimePlayerActions.cs" />
     <Compile Include="Dialogs\BaseEODialog.cs" />

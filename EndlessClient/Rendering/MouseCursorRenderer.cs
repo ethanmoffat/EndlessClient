@@ -4,7 +4,7 @@
 
 using System;
 using System.Linq;
-using EndlessClient.HUD.Controls;
+using EndlessClient.Controllers;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
@@ -42,6 +42,7 @@ namespace EndlessClient.Rendering
         private readonly IItemStringService _itemStringService;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IMapInteractionController _mapInteractionController;
         private readonly XNALabel _mapItemText;
 
         private readonly SpriteBatch _spriteBatch;
@@ -51,6 +52,8 @@ namespace EndlessClient.Rendering
         private CursorIndex _cursorIndex;
         private bool _shouldDrawCursor;
 
+        private MouseState _previousMouseState;
+
         public MouseCursorRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICharacterProvider characterProvider,
                                    IRenderOffsetCalculator renderOffsetCalculator,
@@ -58,7 +61,8 @@ namespace EndlessClient.Rendering
                                    IItemStringService itemStringService,
                                    IEIFFileProvider eifFileProvider,
                                    ICurrentMapProvider currentMapProvider,
-                                   IGraphicsDeviceProvider graphicsDeviceProvider)
+                                   IGraphicsDeviceProvider graphicsDeviceProvider,
+                                   IMapInteractionController mapInteractionController)
         {
             _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
             _characterProvider = characterProvider;
@@ -67,6 +71,7 @@ namespace EndlessClient.Rendering
             _itemStringService = itemStringService;
             _eifFileProvider = eifFileProvider;
             _currentMapProvider = currentMapProvider;
+            _mapInteractionController = mapInteractionController;
 
             SingleCursorFrameArea = new Rectangle(0, 0,
                                                   _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,
@@ -88,6 +93,7 @@ namespace EndlessClient.Rendering
         public void Initialize()
         {
             _mapItemText.AddControlToDefaultGame();
+            _previousMouseState = Mouse.GetState();
         }
 
         #region Update and Helpers
@@ -104,6 +110,10 @@ namespace EndlessClient.Rendering
 
             var cellState = _mapCellStateProvider.GetCellStateAt(_gridX, _gridY);
             UpdateCursorSourceRectangle(cellState);
+
+            var currentMouseState = Mouse.GetState();
+            CheckForClicks(currentMouseState, cellState);
+            _previousMouseState = currentMouseState;
         }
 
         private void SetGridCoordsBasedOnMousePosition(int offsetX, int offsetY)
@@ -251,6 +261,20 @@ namespace EndlessClient.Rendering
             }
 
             return Color.White;
+        }
+
+        private void CheckForClicks(MouseState currentMouseState, IMapCellState cellState)
+        {
+            if (currentMouseState.LeftButton == ButtonState.Released &&
+                _previousMouseState.LeftButton == ButtonState.Pressed)
+            {
+                _mapInteractionController.LeftClick(cellState);
+            }
+            else if (currentMouseState.RightButton == ButtonState.Released &&
+                     _previousMouseState.RightButton == ButtonState.Pressed)
+            {
+                _mapInteractionController.RightClick(cellState);
+            }
         }
 
         #endregion
