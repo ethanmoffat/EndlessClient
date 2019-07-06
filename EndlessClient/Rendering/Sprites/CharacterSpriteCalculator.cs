@@ -319,7 +319,7 @@ namespace EndlessClient.Rendering.Sprites
             var offset = 2 * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
             var gfxNumber = GetBaseHairGraphic(characterRenderProperties.HairStyle, characterRenderProperties.HairColor) + 2 + offset;
 
-            var hairTexture = _gfxManager.TextureFromResource(gfxFile, gfxNumber, true, true);
+            var hairTexture = _gfxManager.TextureFromResource(gfxFile, gfxNumber, true);
             return new SpriteSheet(hairTexture);
         }
 

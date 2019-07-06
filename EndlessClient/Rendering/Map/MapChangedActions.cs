@@ -68,7 +68,7 @@ namespace EndlessClient.Rendering.Map
         private void StopAllAnimations()
         {
             var characterAnimator = _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator);
-            characterAnimator.StopAllOtherCharacterAnimations();
+            characterAnimator.StopAllCharacterAnimations();
 
             var npcAnimator = _hudControlProvider.GetComponent<INPCAnimator>(HudControlIdentifier.NPCAnimator);
             npcAnimator.StopAllAnimations();
