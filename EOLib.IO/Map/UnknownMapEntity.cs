@@ -17,7 +17,7 @@ namespace EOLib.IO.Map
         public byte[] RawData { get; private set; }
 
         public UnknownMapEntity()
-            : this(-1, -1, null)
+            : this(-1, -1, new byte[0])
         { }
 
         private UnknownMapEntity(int x, int y, byte[] rawData)
