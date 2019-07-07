@@ -98,10 +98,18 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartAttackingTimes.Add(startAttackingTimeAndID);
         }
 
-        public void StopAllOtherCharacterAnimations()
+        public void StopAllCharacterAnimations()
         {
-            _otherPlayerStartWalkingTimes.RemoveAll(x => x.UniqueID != _characterRepository.MainCharacter.ID);
-            _otherPlayerStartAttackingTimes.RemoveAll(x => x.UniqueID != _characterRepository.MainCharacter.ID);
+            _otherPlayerStartWalkingTimes.Clear();
+            _otherPlayerStartAttackingTimes.Clear();
+
+            _characterRepository.MainCharacter =
+                _characterRepository.MainCharacter.WithRenderProperties(
+                    _characterRepository.MainCharacter.RenderProperties.ResetAnimationFrames());
+
+            _currentMapStateRepository.Characters =
+                _currentMapStateRepository.Characters.Select(x => x.WithRenderProperties(x.RenderProperties.ResetAnimationFrames()))
+                    .ToList();
         }
 
         #region Walk Animation
@@ -244,6 +252,6 @@ namespace EndlessClient.Rendering.Character
 
         void StartOtherCharacterAttackAnimation(int characterID);
 
-        void StopAllOtherCharacterAnimations();
+        void StopAllCharacterAnimations();
     }
 }

@@ -47,7 +47,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnPlayerHeal += _playerHeal;
 
             //item related
-            m_packetAPI.OnGetItemFromMap += _getItemFromMap;
             m_packetAPI.OnRemoveItemFromMap += _removeItemFromMap;
             m_packetAPI.OnJunkItem += _junkItem;
             m_packetAPI.OnDropItem += _dropItem;
@@ -223,23 +222,6 @@ namespace EndlessClient.Old
         private void _playerHeal(short playerid, int healamount, byte percenthealth)
         {
             OldWorld.Instance.ActiveMapRenderer.OtherPlayerHeal(playerid, healamount, percenthealth);
-        }
-
-        private void _getItemFromMap(short uid, short id, int amountTaken, byte weight, byte maxWeight)
-        {
-
-            if (uid != 0) //$si command has UniqueID of 0 since we're creating a new item from nothing
-            {
-                OldWorld.Instance.ActiveMapRenderer.UpdateMapItemAmount(uid, amountTaken);
-            }
-
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountTaken, weight, maxWeight, true);
-
-            var rec = OldWorld.Instance.EIF[id];
-            m_game.Hud.AddChat(ChatTab.System, "",
-                $"{OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP)} {amountTaken} {rec.Name}", ChatIcon.UpArrow);
-            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP,
-                $" {amountTaken} {rec.Name}");
         }
 
         private void _junkItem(short id, int amountRemoved, int amountRemaining, byte weight, byte maxWeight)

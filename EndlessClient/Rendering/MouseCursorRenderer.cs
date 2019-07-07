@@ -1,173 +1,217 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
+﻿// Original Work Copyright (c) Ethan Moffat 2014-2017
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
 using System;
 using System.Linq;
-using EndlessClient.Dialogs;
-using EndlessClient.HUD.Inventory;
-using EndlessClient.Old;
+using EndlessClient.Controllers;
 using EOLib;
+using EOLib.Domain.Character;
+using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Graphics;
+using EOLib.IO;
 using EOLib.IO.Map;
-using EOLib.Localization;
+using EOLib.IO.Pub;
+using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.Rendering
 {
-    public sealed class MouseCursorRenderer : IDisposable
+    public class MouseCursorRenderer : IMouseCursorRenderer
     {
-        private readonly EOGame _game;
-        private readonly OldMapRenderer _parentMapRenderer;
-
-        private readonly Texture2D _mouseCursor;
-        private readonly XNALabel _itemHoverName;
-        private readonly EOMapContextMenu _contextMenu;
-        private readonly OldCharacter _mainCharacter;
-
-        private Vector2 _cursorPos;
-        private int _gridX, _gridY;
-        private Rectangle _cursorSourceRect;
-        private MouseState _prevState;
-        private bool _hideCursor;
-
-        private IMapFile MapRef => _parentMapRenderer.MapRef;
-
-        public Point GridCoords => new Point(_gridX, _gridY);
-
-        public MouseCursorRenderer(EOGame game, OldMapRenderer parentMapRenderer)
+        private enum CursorIndex
         {
-            _game = game;
-            _parentMapRenderer = parentMapRenderer;
+            Standard = 0,
+            HoverNormal = 1,
+            HoverItem = 2,
+            ClickFirstFrame = 3,
+            ClickSecondFrame = 4,
+            NumberOfFramesInSheet = 5
+        }
 
-            _mouseCursor = game.GFXManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
-            _itemHoverName = new XNALabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
+        private readonly Rectangle SingleCursorFrameArea;
+
+        private readonly Texture2D _mouseCursorTexture;
+        private readonly ICharacterProvider _characterProvider;
+        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IMapCellStateProvider _mapCellStateProvider;
+        private readonly IItemStringService _itemStringService;
+        private readonly IEIFFileProvider _eifFileProvider;
+        private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IMapInteractionController _mapInteractionController;
+        private readonly XNALabel _mapItemText;
+
+        private readonly SpriteBatch _spriteBatch;
+
+        private Rectangle _drawArea;
+        private int _gridX, _gridY;
+        private CursorIndex _cursorIndex;
+        private bool _shouldDrawCursor;
+
+        private MouseState _previousMouseState;
+
+        public MouseCursorRenderer(INativeGraphicsManager nativeGraphicsManager,
+                                   ICharacterProvider characterProvider,
+                                   IRenderOffsetCalculator renderOffsetCalculator,
+                                   IMapCellStateProvider mapCellStateProvider,
+                                   IItemStringService itemStringService,
+                                   IEIFFileProvider eifFileProvider,
+                                   ICurrentMapProvider currentMapProvider,
+                                   IGraphicsDeviceProvider graphicsDeviceProvider,
+                                   IMapInteractionController mapInteractionController)
+        {
+            _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
+            _characterProvider = characterProvider;
+            _renderOffsetCalculator = renderOffsetCalculator;
+            _mapCellStateProvider = mapCellStateProvider;
+            _itemStringService = itemStringService;
+            _eifFileProvider = eifFileProvider;
+            _currentMapProvider = currentMapProvider;
+            _mapInteractionController = mapInteractionController;
+
+            SingleCursorFrameArea = new Rectangle(0, 0,
+                                                  _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,
+                                                  _mouseCursorTexture.Height);
+            _drawArea = SingleCursorFrameArea;
+
+            _mapItemText = new XNALabel(Constants.FontSize08pt75)
             {
-                Visible = true,
-                Text = "",
+                Visible = false,
+                Text = string.Empty,
                 ForeColor = Color.White,
-                DrawOrder = (int)ControlDrawLayer.BaseLayer + 3,
-                AutoSize = false
+                AutoSize = false,
+                DrawOrder = 10 //todo: make a better provider for draw orders (see also HudControlsFactory)
             };
 
-            _cursorSourceRect = new Rectangle(0, 0, _mouseCursor.Width / 5, _mouseCursor.Height);
-
-            _contextMenu = new EOMapContextMenu(_game.API);
-
-            _mainCharacter = OldWorld.Instance.MainPlayer.ActiveCharacter;
+            _spriteBatch = new SpriteBatch(graphicsDeviceProvider.GraphicsDevice);
         }
 
-        public void ShowContextMenu(OldCharacterRenderer player)
+        public void Initialize()
         {
-            _contextMenu.SetCharacterRenderer(player);
+            _mapItemText.AddControlToDefaultGame();
+            _previousMouseState = Mouse.GetState();
         }
 
-        public void Update()
+        #region Update and Helpers
+
+        public void Update(GameTime gameTime)
         {
-            var ms = Mouse.GetState();
+            //todo: don't do anything if there are dialogs or a context menu and mouse is over context menu
 
-            UpdateCursorInfo(ms);
-            UpdateDisplayedMapItemName();
-            HandleMouseClick(ms);
+            var offsetX = MainCharacterOffsetX();
+            var offsetY = MainCharacterOffsetY();
 
-            _prevState = ms;
+            SetGridCoordsBasedOnMousePosition(offsetX, offsetY);
+            UpdateDrawPostionBasedOnGridPosition(offsetX, offsetY);
+
+            var cellState = _mapCellStateProvider.GetCellStateAt(_gridX, _gridY);
+            UpdateCursorSourceRectangle(cellState);
+
+            var currentMouseState = Mouse.GetState();
+            CheckForClicks(currentMouseState, cellState);
+            _previousMouseState = currentMouseState;
         }
 
-        public void Draw(SpriteBatch sb, bool beginHasBeenCalled = true)
+        private void SetGridCoordsBasedOnMousePosition(int offsetX, int offsetY)
         {
-            if (_hideCursor)
-                return;
+            //need to solve this system of equations to get x, y on the grid
+            //(x * 32) - (y * 32) + 288 - c.OffsetX, => pixX = 32x - 32y + 288 - c.OffsetX
+            //(y * 16) + (x * 16) + 144 - c.OffsetY  => 2pixY = 32y + 32x + 288 - 2c.OffsetY
+            //                                         => 2pixY + pixX = 64x + 576 - c.OffsetX - 2c.OffsetY
+            //                                         => 2pixY + pixX - 576 + c.OffsetX + 2c.OffsetY = 64x
+            //                                         => _gridX = (pixX + 2pixY - 576 + c.OffsetX + 2c.OffsetY) / 64; <=
+            //pixY = (_gridX * 16) + (_gridY * 16) + 144 - c.OffsetY =>
+            //(pixY - (_gridX * 16) - 144 + c.OffsetY) / 16 = _gridY
 
-            if (_gridX >= 0 && _gridY >= 0 && _gridX <= MapRef.Properties.Width && _gridY <= MapRef.Properties.Height)
+            var mouseState = Mouse.GetState();
+
+            var msX = mouseState.X - SingleCursorFrameArea.Width / 2;
+            var msY = mouseState.Y - SingleCursorFrameArea.Height / 2;
+
+            _gridX = (int)Math.Round((msX + 2 * msY - 576 + offsetX + 2 * offsetY) / 64.0);
+            _gridY = (int)Math.Round((msY - _gridX * 16 - 144 + offsetY) / 16.0);
+        }
+
+        private void UpdateDrawPostionBasedOnGridPosition(int offsetX, int offsetY)
+        {
+            var drawPosition = GetDrawCoordinatesFromGridUnits(_gridX, _gridY, offsetX, offsetY);
+            _drawArea = new Rectangle((int)drawPosition.X,
+                                      (int)drawPosition.Y,
+                                      _drawArea.Width,
+                                      _drawArea.Height);
+        }
+
+        private void UpdateCursorSourceRectangle(IMapCellState cellState)
+        {
+            _shouldDrawCursor = true;
+            _cursorIndex = CursorIndex.Standard;
+            if (cellState.Character.HasValue || cellState.NPC.HasValue)
+                _cursorIndex = CursorIndex.HoverNormal;
+            else if (cellState.Sign.HasValue)
+                _shouldDrawCursor = false;
+            else if (cellState.Items.Any())
             {
-                //don't draw cursor if context menu is visible and the context menu has the mouse over it
-                if (!(_contextMenu.Visible && _contextMenu.MouseOver))
-                {
-                    if (!beginHasBeenCalled)
-                        sb.Begin();
+                _cursorIndex = CursorIndex.HoverItem;
+                UpdateMapItemLabel(new Optional<IItem>(cellState.Items.Last()));
+            }
+            else if (cellState.TileSpec != TileSpec.None)
+                UpdateCursorIndexForTileSpec(cellState.TileSpec);
 
-                    sb.Draw(_mouseCursor, _cursorPos, _cursorSourceRect, Color.White);
+            if (!cellState.Items.Any())
+                UpdateMapItemLabel(Optional<IItem>.Empty);
+        }
 
-                    if (!beginHasBeenCalled)
-                        sb.End();
-                }
+        private int MainCharacterOffsetX()
+        {
+            return _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
+        }
+
+        private int MainCharacterOffsetY()
+        {
+            return _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
+        }
+
+        //todo: this same logic is in a base map entity renderer. Maybe extract a service out.
+        private static Vector2 GetDrawCoordinatesFromGridUnits(int x, int y, int cOffX, int cOffY)
+        {
+            return new Vector2(x*32 - y*32 + 288 - cOffX, y*16 + x*16 + 144 - cOffY);
+        }
+
+        private void UpdateMapItemLabel(Optional<IItem> item)
+        {
+            if (!item.HasValue)
+            {
+                _mapItemText.Visible = false;
+                _mapItemText.Text = string.Empty;
+            }
+            else if (!_mapItemText.Visible)
+            {
+                _mapItemText.Visible = true;
+                _mapItemText.Text = _itemStringService.GetStringForMapDisplay(
+                    _eifFileProvider.EIFFile[item.Value.ItemID], item.Value.Amount);
+                _mapItemText.ResizeBasedOnText();
+                _mapItemText.ForeColor = GetColorForMapDisplay(_eifFileProvider.EIFFile[item.Value.ItemID]);
+
+                //relative to cursor DrawPosition, since this control is a parent of MapItemText
+                _mapItemText.DrawPosition = new Vector2(_drawArea.X + 32 - _mapItemText.ActualWidth/2f,
+                                                        _drawArea.Y + -_mapItemText.ActualHeight - 4);
             }
         }
 
-        private void UpdateCursorInfo(MouseState ms)
+        private void UpdateCursorIndexForTileSpec(TileSpec tileSpec)
         {
-            //don't do the cursor if there is a dialog open or the mouse is over the context menu
-            if (XNAControl.Dialogs.Count > 0 || (_contextMenu.Visible && _contextMenu.MouseOver))
-                return;
-
-            SetGridCoordsBasedOnMousePosition(ms);
-            _cursorPos = OldMapRenderer.GetDrawCoordinatesFromGridUnits(_gridX, _gridY, _mainCharacter);
-
-            var ti = GetTileInfoAtGridCoordinates();
-            if (ti == null) return;
-
-            _hideCursor = false;
-            //switch (ti.ReturnType)
-            //{
-            //    case TileInfoReturnType.IsOtherPlayer:
-            //    case TileInfoReturnType.IsOtherNPC:
-            //        _cursorSourceRect.Location = new Point(_mouseCursor.Width / 5, 0);
-            //        break;
-            //    case TileInfoReturnType.IsTileSpec:
-            //        UpdateCursorForTileSpec(ti.Spec);
-            //        break;
-            //    case TileInfoReturnType.IsMapSign:
-            //        _hideCursor = true;
-            //        break;
-            //    case TileInfoReturnType.IsWarpSpec:
-            //        _cursorSourceRect.Location = new Point(0, 0);
-            //        break;
-            //}
-        }
-
-        private void UpdateDisplayedMapItemName()
-        {
-            var mi = _parentMapRenderer.GetMapItemAt(_gridX, _gridY);
-
-            if (mi != null)
-            {
-                _cursorSourceRect.Location = new Point(2 * (_mouseCursor.Width / 5), 0);
-
-                string itemName = OldEOInventoryItem.GetNameString(mi.ItemID, mi.Amount);
-                if (_itemHoverName.Text != itemName)
-                {
-                    _itemHoverName.Visible = true;
-                    _itemHoverName.Text = OldEOInventoryItem.GetNameString(mi.ItemID, mi.Amount);
-                    _itemHoverName.ResizeBasedOnText();
-                    _itemHoverName.ForeColor = OldEOInventoryItem.GetItemTextColor(mi.ItemID);
-                }
-                _itemHoverName.DrawLocation = new Vector2(
-                    _cursorPos.X + 32 - _itemHoverName.ActualWidth / 2f,
-                    _cursorPos.Y - _itemHoverName.ActualHeight - 4);
-            }
-            else if (_itemHoverName.Visible)
-            {
-                _itemHoverName.Visible = false;
-                _itemHoverName.Text = " ";
-            }
-
-            if (_itemHoverName.Text.Length > 0 && !_game.Components.Contains(_itemHoverName))
-                _game.Components.Add(_itemHoverName);
-        }
-
-        private void UpdateCursorForTileSpec(TileSpec spec)
-        {
-            switch (spec)
+            switch (tileSpec)
             {
                 case TileSpec.Wall:
                 case TileSpec.JammedDoor:
                 case TileSpec.MapEdge:
                 case TileSpec.FakeWall:
-                    _hideCursor = true;
+                case TileSpec.NPCBoundary:
+                    _shouldDrawCursor = false;
                     break;
                 case TileSpec.Chest:
                 case TileSpec.BankVault:
@@ -187,7 +231,7 @@ namespace EndlessClient.Rendering
                 case TileSpec.Board7:
                 case TileSpec.Board8:
                 case TileSpec.Jukebox:
-                    _cursorSourceRect.Location = new Point(_mouseCursor.Width / 5, 0);
+                    _cursorIndex = CursorIndex.HoverNormal;
                     break;
                 case TileSpec.Jump:
                 case TileSpec.Water:
@@ -197,152 +241,63 @@ namespace EndlessClient.Rendering
                 case TileSpec.SpikesTrap:
                 case TileSpec.SpikesTimed:
                 case TileSpec.None:
-                    _cursorSourceRect.Location = new Point(0, 0);
+                    _cursorIndex = CursorIndex.Standard;
                     break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(tileSpec), tileSpec, null);
             }
         }
 
-        private void SetGridCoordsBasedOnMousePosition(MouseState ms)
+        //todo: extract this into a service (also used by inventory)
+        private static Color GetColorForMapDisplay(EIFRecord record)
         {
-            //need to solve this system of equations to get x, y on the grid
-            //(x * 32) - (y * 32) + 288 - c.OffsetX, => pixX = 32x - 32y + 288 - c.OffsetX
-            //(y * 16) + (x * 16) + 144 - c.OffsetY  => 2pixY = 32y + 32x + 288 - 2c.OffsetY
-            //                                         => 2pixY + pixX = 64x + 576 - c.OffsetX - 2c.OffsetY
-            //                                         => 2pixY + pixX - 576 + c.OffsetX + 2c.OffsetY = 64x
-            //                                         => _gridX = (pixX + 2pixY - 576 + c.OffsetX + 2c.OffsetY) / 64; <=
-            //pixY = (_gridX * 16) + (_gridY * 16) + 144 - c.OffsetY =>
-            //(pixY - (_gridX * 16) - 144 + c.OffsetY) / 16 = _gridY
-
-            //center the cursor on the mouse pointer
-            var msX = ms.X - _cursorSourceRect.Width/2;
-            var msY = ms.Y - _cursorSourceRect.Height/2;
-            //align cursor to grid based on mouse position
-            _gridX = (int) Math.Round((msX + 2*msY - 576 + _mainCharacter.OffsetX + 2*_mainCharacter.OffsetY)/64.0);
-            _gridY = (int) Math.Round((msY - _gridX*16 - 144 + _mainCharacter.OffsetY)/16.0);
-        }
-
-        private IMapCellState GetTileInfoAtGridCoordinates()
-        {
-            if (_gridX >= 0 && _gridX <= MapRef.Properties.Width && _gridY >= 0 && _gridY <= MapRef.Properties.Height)
-                return _parentMapRenderer.GetTileInfo((byte)_gridX, (byte)_gridY);
-
-            return null;
-        }
-
-        private void HandleMouseClick(MouseState ms)
-        {
-            bool mouseClicked = ms.LeftButton == ButtonState.Released && _prevState.LeftButton == ButtonState.Pressed;
-            //bool rightClicked = ms.RightButton == ButtonState.Released && _prevState.RightButton == ButtonState.Pressed;
-
-            //don't handle mouse clicks for map if there is a dialog being shown
-            mouseClicked &= XNAControl.Dialogs.Count == 0;
-            //rightClicked &= XNAControl.Dialogs.Count == 0;
-
-            var ti = GetTileInfoAtGridCoordinates();
-            if (mouseClicked && ti != null)
+            switch (record.Special)
             {
-                var topMapItem = _parentMapRenderer.GetMapItemAt(_gridX, _gridY);
-                if (topMapItem != null)
-                    HandleMapItemClick(topMapItem);
-
-                //switch (ti.ReturnType)
-                //{
-                //    case TileInfoReturnType.IsMapSign:
-                //        var signInfo = (MapSign)ti.MapElement;
-                //        EOMessageBox.Show(signInfo.Message, signInfo.Title, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                //        break;
-                //    case TileInfoReturnType.IsOtherPlayer:
-                //        break;
-                //    case TileInfoReturnType.IsOtherNPC:
-                //        break;
-                //    case TileInfoReturnType.IsTileSpec:
-                //        HandleTileSpecClick(ti.Spec);
-                //        break;
-                //    default:
-                //        if (_mainCharacter.NeedsSpellTarget)
-                //        {
-                //            //cancel spell targeting if an invalid target was selected
-                //            _mainCharacter.SelectSpell(-1);
-                //        }
-                //        break;
-                //}
+                case ItemSpecial.Lore:
+                case ItemSpecial.Unique:
+                    return Color.FromNonPremultiplied(0xff, 0xf0, 0xa5, 0xff);
+                case ItemSpecial.Rare:
+                    return Color.FromNonPremultiplied(0xf5, 0xc8, 0x9c, 0xff);
             }
+
+            return Color.White;
         }
 
-        private void HandleMapItemClick(OldMapItem mi)
+        private void CheckForClicks(MouseState currentMouseState, IMapCellState cellState)
         {
-            if ((_mainCharacter.ID != mi.OwningPlayerID && mi.OwningPlayerID != 0) &&
-                (mi.IsNPCDrop && (DateTime.Now - mi.DropTime).TotalSeconds <= OldWorld.Instance.NPCDropProtectTime) ||
-                (!mi.IsNPCDrop && (DateTime.Now - mi.DropTime).TotalSeconds <= OldWorld.Instance.PlayerDropProtectTime))
+            if (currentMouseState.LeftButton == ButtonState.Released &&
+                _previousMouseState.LeftButton == ButtonState.Pressed)
             {
-                OldCharacter charRef = _parentMapRenderer.GetOtherPlayerByID((short) mi.OwningPlayerID);
-                EOResourceID msg = charRef == null ? EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED : EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
-                string extra = charRef == null ? "" : charRef.Name;
-                EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, msg, extra);
+                _mapInteractionController.LeftClick(cellState);
             }
-            else
+            else if (currentMouseState.RightButton == ButtonState.Released &&
+                     _previousMouseState.RightButton == ButtonState.Pressed)
             {
-                var item = OldWorld.Instance.EIF[mi.ItemID];
-                if (!EOGame.Instance.Hud.InventoryFits(mi.ItemID))
-                {
-                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
-                }
-                else if (_mainCharacter.Weight + item.Weight * mi.Amount > _mainCharacter.MaxWeight)
-                {
-                    EOGame.Instance.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.DIALOG_ITS_TOO_HEAVY_WEIGHT);
-                }
-                else if (!_game.API.GetItem(mi.UniqueID)) //server validates drop protection anyway
-                    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+                _mapInteractionController.RightClick(cellState);
             }
         }
 
-        private void HandleTileSpecClick(TileSpec spec)
+        #endregion
+
+        public void Draw(GameTime gameTime)
         {
-            switch (spec)
+            //todo: don't draw if context menu is visible and mouse is over the context menu
+
+            if (_shouldDrawCursor && _gridX >= 0 && _gridY >= 0 &&
+                _gridX <= _currentMapProvider.CurrentMap.Properties.Width &&
+                _gridY <= _currentMapProvider.CurrentMap.Properties.Height)
             {
-                case TileSpec.Chest: HandleChestClick(); break;
-                case TileSpec.BankVault: HandleBankVaultClick(); break;
-                //todo: boards, chairs
+                _spriteBatch.Begin();
+                _spriteBatch.Draw(_mouseCursorTexture,
+                                  _drawArea,
+                                  new Rectangle(SingleCursorFrameArea.Width*(int) _cursorIndex,
+                                                0,
+                                                SingleCursorFrameArea.Width,
+                                                SingleCursorFrameArea.Height),
+                                  Color.White);
+                _spriteBatch.End();
             }
         }
-
-        private void HandleChestClick()
-        {
-            var characterWithinOneUnitOfChest = Math.Max(_mainCharacter.X - _gridX, _mainCharacter.Y - _gridY) <= 1;
-            var characterInSameRowOrColAsChest = _gridX == _mainCharacter.X || _gridY == _mainCharacter.Y;
-
-            if (characterWithinOneUnitOfChest && characterInSameRowOrColAsChest)
-            {
-                var chest = MapRef.Chests.Single(_mc => _mc.X == _gridX && _mc.Y == _gridY);
-                if (chest == null) return;
-
-                string requiredKey;
-                switch (_mainCharacter.CanOpenChest(chest))
-                {
-                    case ChestKey.Normal: requiredKey = "Normal Key"; break;
-                    case ChestKey.Silver: requiredKey = "Silver Key"; break;
-                    case ChestKey.Crystal: requiredKey = "Crystal Key"; break;
-                    case ChestKey.Wraith: requiredKey = "Wraith Key"; break;
-                    default: ChestDialog.Show(_game.API, (byte)chest.X, (byte)chest.Y); return;
-                }
-                
-                EOMessageBox.Show(DialogResourceID.CHEST_LOCKED, EODialogButtons.Ok, EOMessageBoxStyle.SmallDialogSmallHeader);
-                _game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
-                    EOResourceID.STATUS_LABEL_THE_CHEST_IS_LOCKED_EXCLAMATION,
-                    " - " + requiredKey);
-            }
-        }
-
-        private void HandleBankVaultClick()
-        {
-            var characterWithinOneUnitOfLocker = Math.Max(_mainCharacter.X - _gridX, _mainCharacter.Y - _gridY) <= 1;
-            var characterInSameRowOrColAsLocker = _gridX == _mainCharacter.X || _gridY == _mainCharacter.Y;
-
-            if (characterWithinOneUnitOfLocker && characterInSameRowOrColAsLocker)
-                LockerDialog.Show(_game.API, (byte) _gridX, (byte) _gridY);
-        }
-
-        #region IDisposable
 
         ~MouseCursorRenderer()
         {
@@ -355,15 +310,19 @@ namespace EndlessClient.Rendering
             GC.SuppressFinalize(this);
         }
 
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
-            {
-                _itemHoverName.Close();
-                _contextMenu.Close();
-            }
+            _spriteBatch.Dispose();
+            _mapItemText.Dispose();
         }
+    }
 
-        #endregion
+    public interface IMouseCursorRenderer : IDisposable
+    {
+        void Initialize();
+
+        void Update(GameTime gameTime);
+
+        void Draw(GameTime gameTime);
     }
 }

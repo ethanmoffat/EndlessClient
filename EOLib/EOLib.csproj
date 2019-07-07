@@ -86,7 +86,11 @@
     <Compile Include="Domain\Character\ICharacter.cs" />
     <Compile Include="Domain\Chat\ChatProcessor.cs" />
     <Compile Include="Domain\Extensions\CharacterExtensions.cs" />
+    <Compile Include="Domain\Item\ItemPickupResult.cs" />
+    <Compile Include="Domain\Item\ItemPickupValidator.cs" />
+    <Compile Include="Domain\Map\MapActions.cs" />
     <Compile Include="Domain\Map\MapCoordinate.cs" />
+    <Compile Include="Domain\Item\ItemStringService.cs" />
     <Compile Include="Domain\Map\UnlockDoorValidator.cs" />
     <Compile Include="Domain\Map\WarpState.cs" />
     <Compile Include="Domain\Notifiers\IMainCharacterEventNotifier.cs" />
@@ -252,6 +256,7 @@
     <Compile Include="PacketHandlers\Chat\GroupChatHandler.cs" />
     <Compile Include="PacketHandlers\DoorOpenHandler.cs" />
     <Compile Include="PacketHandlers\EndPlayerWarpHandler.cs" />
+    <Compile Include="PacketHandlers\ItemPickupHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\NPCActionHandler.cs" />
     <Compile Include="PacketHandlers\NPCEnterMapHandler.cs" />

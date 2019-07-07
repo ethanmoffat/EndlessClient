@@ -14,10 +14,13 @@ namespace EOLib.Extensions
             where T : class
         {
             var single = enumerable.SingleOrDefault(predicate);
-            if (single == null)
-                return Optional<T>.Empty;
+            return single == null ? Optional<T>.Empty : new Optional<T>(single);
+        }
 
-            return new Optional<T>(single);
+        public static Optional<T> OptionalFirst<T>(this IEnumerable<T> enumerable, Func<T, bool> predicate = null)
+        {
+            var first = predicate == null ? enumerable.FirstOrDefault() : enumerable.FirstOrDefault(predicate);
+            return first == null ? Optional<T>.Empty : new Optional<T>(first);
         }
     }
 }

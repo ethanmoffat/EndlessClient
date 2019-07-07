@@ -74,6 +74,7 @@
     <Compile Include="Controllers\ArrowKeyController.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\ControlKeyController.cs" />
+    <Compile Include="Controllers\MapInteractionController.cs" />
     <Compile Include="Controllers\TrainingController.cs" />
     <Compile Include="Dialogs\Actions\FirstTimePlayerActions.cs" />
     <Compile Include="Dialogs\BaseEODialog.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="HUD\Chat\IChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
     <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
+    <Compile Include="HUD\Inventory\InventorySpaceValidator.cs" />
     <Compile Include="HUD\StatusBars\StatusBarBase.cs" />
     <Compile Include="Initialization\ConfigInitializer.cs" />
     <Compile Include="Initialization\EndlessClientInitializer.cs" />
@@ -110,7 +112,9 @@
     <Compile Include="Rendering\Chat\ChatBubbleTextureProvider.cs" />
     <Compile Include="Rendering\Chat\ChatBubbleUpdater.cs" />
     <Compile Include="Rendering\Chat\IHaveChatBubble.cs" />
+    <Compile Include="Rendering\Factories\MouseCursorRendererFactory.cs" />
     <Compile Include="Rendering\Map\DoorStateUpdater.cs" />
+    <Compile Include="Rendering\MouseCursorRenderer.cs" />
     <Compile Include="Rendering\NPC\NPCActions.cs" />
     <Compile Include="Rendering\NPC\NPCAnimator.cs" />
     <Compile Include="Rendering\RenderFrameActionTime.cs" />
@@ -349,7 +353,7 @@
     <Compile Include="Rendering\HealthBarRenderer.cs" />
     <Compile Include="Rendering\OldMapRenderer.cs" />
     <Compile Include="Rendering\MiniMapRenderer.cs" />
-    <Compile Include="Rendering\MouseCursorRenderer.cs" />
+    <Compile Include="Rendering\OldMouseCursorRenderer.cs" />
     <Compile Include="Rendering\OldNPCRenderer.cs" />
     <Compile Include="Rendering\PlayerStatusIconRenderer.cs" />
     <Compile Include="Old\OldWorld.cs" />

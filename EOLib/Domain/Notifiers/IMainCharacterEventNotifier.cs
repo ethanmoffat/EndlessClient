@@ -12,6 +12,8 @@ namespace EOLib.Domain.Notifiers
         void NotifyGainedExp(int expDifference);
 
         void NotifyTakeDamage(int damageTaken, int playerPercentHealth);
+
+        void TakeItemFromMap(short id, int amountTaken);
     }
 
     [AutoMappedType]
@@ -20,5 +22,7 @@ namespace EOLib.Domain.Notifiers
         public void NotifyGainedExp(int expDifference) { }
 
         public void NotifyTakeDamage(int damageTaken, int playerPercentHealth) { }
+
+        public void TakeItemFromMap(short id, int amountTaken) { }
     }
 }

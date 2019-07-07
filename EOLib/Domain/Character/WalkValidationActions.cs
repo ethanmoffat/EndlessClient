@@ -32,6 +32,9 @@ namespace EOLib.Domain.Character
 
         public bool CanMoveToDestinationCoordinates()
         {
+            if (_currentMapStateProvider.MapWarpState == WarpState.WarpStarted)
+                return false;
+
             var mainCharacter = _characterProvider.MainCharacter;
             var renderProperties = mainCharacter.RenderProperties;
             var destX = renderProperties.GetDestinationX();

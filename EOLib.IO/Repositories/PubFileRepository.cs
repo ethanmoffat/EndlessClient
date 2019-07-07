@@ -8,6 +8,7 @@ using EOLib.IO.Pub;
 namespace EOLib.IO.Repositories
 {
     [MappedType(BaseType = typeof(IPubFileRepository), IsSingleton = true)]
+    [MappedType(BaseType = typeof(IPubFileProvider), IsSingleton = true)]
     [MappedType(BaseType = typeof(IEIFFileRepository), IsSingleton = true)]
     [MappedType(BaseType = typeof(IEIFFileProvider), IsSingleton = true)]
     [MappedType(BaseType = typeof(IENFFileRepository), IsSingleton = true)]

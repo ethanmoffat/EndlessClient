@@ -25,7 +25,7 @@ namespace EndlessClient.UIControls
             DrawArea = new Rectangle(97, clientWindowSizeProvider.Height - 24, 1, 1);
         }
 
-        protected override void OnUpdateControl(GameTime gameTime)
+        protected override bool ShouldUpdate()
         {
             if (Text != _statusLabelTextProvider.StatusText)
             {
@@ -36,7 +36,7 @@ namespace EndlessClient.UIControls
             if ((DateTime.Now - _statusLabelTextProvider.SetTime).TotalMilliseconds > STATUS_LABEL_DISPLAY_TIME_MS)
                 Visible = false;
 
-            base.OnUpdateControl(gameTime);
+            return base.ShouldUpdate();
         }
     }
 }
