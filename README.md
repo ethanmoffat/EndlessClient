@@ -10,81 +10,62 @@ NOTE: This project has been on GitHub since the end of July, 2014. If you're loo
 [![Build status](https://ethanmoffat.visualstudio.com/EndlessClient/_apis/build/status/EndlessClient%20Gated%20Build)](https://ethanmoffat.visualstudio.com/EndlessClient/_build/latest?definitionId=7)
 
 #### Jump to:
- - [Download and Play](#Download)
- - [Building the Source](#Source)
- - [Obtaining Copyrighted Files](#CopyrightedFiles)
- - [What is there so far?](#SoFar)
- - [What is left to do?](#ToDo)
- - [Running the game - Additional Info](#AdditionalGameInfo)
+ - [Download and Play](#GettingStarted)
+ - [Contributing](contributing.md)
+ - [Current feature list](#SoFar)
+ - [(rough) Todo list](#ToDo)
+ - [New features (also todo)](#NewFeatures)
+ - [Sample configuration file](#SampleConfigFile)
  - [Changes from the Original Client](#Changes)
  - [Included Utility Projects](#Utility)
 
-<a name="Download" />Download+Play
+<a name="GettingStarted" />Getting started
 -------------
 
-ZIP file of the [Release Binary](https://github.com/ethanmoffat/EndlessClient/blob/master/Release.zip?raw=true) is available for download for those not interested in building the source. It is up to date as of 11 May 2016.
+### Pre-built binary
 
-The game is able to run independently of a MonoGame installation. The only requirement is .Net 4.5, which is available with installations of Windows 8 and later. Windows Vista and Windows 7 users will [need to install .Net 4.5](https://www.microsoft.com/en-us/download/details.aspx?id=30653) if it (or a later version) is not already installed.
+Binary releases are not currently available, but may be in the future (due to the recent addition of a CI pipeline).
 
-**Special Note**: Copyrighted sound, graphics, and other data files are not included in the release zip. See [how to obtain the original copyrighted files](#CopyrightedFiles) from the original client for more information.
+### Building from source
 
-<a name="Source" />Building the Source
+The only required external dependency is [MonoGame 3.7.1](http://community.monogame.net/t/monogame-3-7-1-release/11173). On Windows, Visual Studio (2015u3+) is used for development. Project Rider is supported on Linux, and Visual Studio 2017 for Mac will work on macOS.
+
+After installing, clone (or fork+clone) this repository locally and open the solution in your IDE of choice for your platform. All additional dependencies should be restored from Nuget and allow the game to launch after building.
+
+<a name="SoFar" />Current feature list
 ---------------------
 
-**Note:** The solution was recently updated to support .Net 4.6.2. This means that Visual Studio 2013 will no longer be able to compile the code. Visual Studio 2015 is now the minimum supported version.
+- Pre-game menus and dialogs
+    - Debug mode for character offset calculation (press F5 from the initial game screen in a debug build)
+- Map rendering
+- Characters
+    - This is a WIP - not all offsets are properly set
+- NPCs
+- HUD status bars
+- Chat and speech bubbles
+- Character stats and training
+- Mouse cursor rendering
 
-There are a few prerequisites that need to be installed before the source can be built. The primary development environment is Visual Studio 2015 (with Update 3) on Windows 10 Professional x64. The solution should be compatible with other IDEs that support MonoGame.
-
-1. Install Windows
-
-  a. Run Windows Update and reboot cyclically until Windows is up to date
-  
-2. Install Visual Studio ([2015 Community](https://go.microsoft.com/fwlink/?LinkId=691978&clcid=0x409))
-
-  a. Optional, but recommended: For Visual Studio 2015, install [Visual Studio 2015 Update 3](https://go.microsoft.com/fwlink/?LinkId=691129)
-  
-  b. Optional, but *highly* recommended: Install [JetBrains ReSharper](https://www.jetbrains.com/resharper/download/) (student licenses are free with a .edu address!)
-  
-  c. Optional, but recommended: Install Productivity Power Tools ([2015](https://visualstudiogallery.msdn.microsoft.com/34ebc6a2-2777-421d-8914-e29c1dfa7f5d))
-
-3. Install [MonoGame 3.5](http://www.monogame.net/2016/03/17/monogame-3-5/)
-
-4. Install a git client (I use and recommend [Atlassian SourceTree](https://www.sourcetreeapp.com/))
-
-5. Clone the repo to your computer
-
-6. Build the source in Visual Studio
-
-7. Copy the required files from the original game client to the bin/Debug or bin/Release directory
-
-<a name="CopyrightedFiles" />Obtaining additional copyrighted files
+<a name="Todo" />(rough) Todo list
 ---------------------
 
-Note that the game client requires some additional files to be copied to the *bin* directory before the game will successfully launch:
+GitHub issues are being used to track progress. See issues for a more complete/up-to-date list. General overview:
+- Finish mouse cursor rendering
+- Finish character equipment rendering
+- Finish NPC alignment
+- Map item interaction
+- Paperdoll
+- NPC interaction (quests, shops)
+- HUD panels (inventory, online list, party, settings)
+- Friend/ignore list
+- Quest progress/daily exp
+- Sit/stand
+- Map refresh
+- Sounds/music
+    - Need to track down a cross-platform midi player for background music
 
-1. Download the [Endless Online client](http://cache.tehsausage.com/EOzipped028.zip). This link points at a ZIP file hosted by Sausage (author of EOSERV). EIRC.exe may be a false-positive flag by some antivirus scanners.
-2. Copy the data, gfx, help, jbox, mfx, and sfx folders from the linked ZIP archive to the output bin directory before running the game.
-3. Create an additional folder in the bin directory called Config. Copy the [sample configuration from below](#SampleConfigFile) into a file named settings.ini within this directory. Note that the original client had a setup.ini; this has been renamed to settings.ini.
-4. Any other files will be downloaded or created as needed (pub, maps, and friend.ini/ignore.ini)
-
-<a name="SoFar" />What is there so far?
----------------------
-
-*For the list of features in the legacy code base, see the README.md file in the old_code branch*
-
-- Connecting to the server (INIT Packet family)
-- Support for sequence numbers in the EO protocol (CONNECTION Packet family)
-- Logging in with a username/password (LOGIN Packet family)
-- Creating an account and changing a password (ACCOUNT Packet family)
-- Creating and deleting a character (CHARACTER Packet family)
-- Logging in as a character (WELCOME Packet family)
-
-<a name="ToDo" />What's Left to do?
+<a name="NewFeatures" />New features (also todo)
 ------------------
-
-*For the TODO list based on the original code base, see the README.md file in the old_code branch*
-
-Any features related to packet families not mentioned above still need to be re-implemented. The next step in the rewrite process is to re-write all of the in-game logic, which is a majority of the game. More updates on this as work is completed.
  
 Here's a working list of things I want to add that would be additional features on top of the original client specs:
  - Use built-in patching system prior to log-in to transfer files: help, gfx, pubs, maps, data, sounds, etc.
@@ -95,29 +76,15 @@ Here's a working list of things I want to add that would be additional features 
  - Passive skills (planned for in original but never done)
  - In-game macros (planned for in original but never done)
  
-Most things on the above list would require changes to the server software which would significantly distance it from compatibility with eoserv and the original EO client, so they aren't top priority, but would still be pretty cool to have.
+Most things on the above list would require changes to the server software which would significantly distance it from compatibility with eoserv and the original EO client, so they aren't top priority, but would still be pretty cool to have. I will most likely fork the project for these additional changes.
 
-<a name="AdditionalGameInfo" />Running the game - additional info
-----------------
 
-You will need a copy of eoserv set up and running, or another Endless Online server to connect to. I am self-hosting a test instance of EOSERV at ewmoffat.ddns.net:8078. You can also go to eoserv.net and build/configure eoserv to run locally, or change the config file to point to a different server such as [game.eoserv.net](https://game.eoserv.net/).
+<a name="SampleConfigFile" />Sample configuration file
+------------------
 
-*Note: the auto-login button mentioned below is not in the new code base yet. Since the in-game state isn't built up yet, it hasn't been added back in. I will most likely re-enable it once the in-game logic comes together a little more.*
+Here is a sample configuration file with the available configuration settings that are currently being parsed by the client. 
 
-The auto-login button in debug builds has been disabled unless you specify a username/password in a separate config file. Create a file name "local.config" and add the following to it:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<appSettings>
-	<add key="auto_login_user" value="USERNAME_HERE" />
-	<add key="auto_login_pass" value="PASSWORD_HERE" />
-</appSettings>
-```
-
-<a name="SampleConfigFile" />
-##### Config File
-
-Here is a sample configuration file with the available configuration settings that are currently being parsed by the client:
+A config file is automatically downloaded as part of the EndlessClient.Binaries nuget package and should have all these settings configured. If you would like to change any of these settings while debugging, edit the file in the packages/EndlessClient.Binaries directory as it will be copied over the file in bin/debug or bin/release.
 
 ```ini
 #Destination host/ip and port to connect to
