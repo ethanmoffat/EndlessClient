@@ -10,7 +10,7 @@ NOTE: This project has been on GitHub since the end of July, 2014. If you're loo
 [![Build status](https://ethanmoffat.visualstudio.com/EndlessClient/_apis/build/status/EndlessClient%20Gated%20Build)](https://ethanmoffat.visualstudio.com/EndlessClient/_build/latest?definitionId=7)
 
 #### Jump to:
- - [Download and Play](#GettingStarted)
+ - [Getting started](#GettingStarted)
  - [Contributing](contributing.md)
  - [Current feature list](#SoFar)
  - [(rough) Todo list](#ToDo)
