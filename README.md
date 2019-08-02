@@ -13,7 +13,7 @@ NOTE: This project has been on GitHub since the end of July, 2014. If you're loo
  - [Getting started](#GettingStarted)
  - [Contributing](contributing.md)
  - [Current feature list](#SoFar)
- - [(rough) Todo list](#ToDo)
+ - [Todo list](#ToDo)
  - [New features (also todo)](#NewFeatures)
  - [Sample configuration file](#SampleConfigFile)
  - [Changes from the Original Client](#Changes)
@@ -37,36 +37,57 @@ After installing, clone (or fork+clone) this repository locally and open the sol
 
 - Pre-game menus and dialogs
     - Debug mode for character offset calculation (press F5 from the initial game screen in a debug build)
-- Map rendering
+- Map rendering and warping
 - Characters
-    - This is a WIP - not all offsets are properly set
+    - Walk animations
+    - Attack animations
+    - Equipment display (work in progress)
 - NPCs
-- HUD status bars
-- Chat and speech bubbles
+    - Walk animations
+    - Attack animations
+    - Speech
+- HUD status bars (HP, TP, SP, TNL)
+- Chat
+    - All chat types properly handled
+    - Speech bubbles rendered
 - Character stats and training
 - Mouse cursor rendering
+    - Display of the cursor on the current grid space
 
-<a name="Todo" />(rough) Todo list
+<a name="Todo" />Todo list
 ---------------------
 
-GitHub issues are being used to track progress. See issues for a more complete/up-to-date list. General overview:
+GitHub issues should be used to track progress. See issues list for more detail.
+- Finish map rendering
+    - Animated walls/tiles
 - Finish mouse cursor rendering
+    - Character/NPC name rendering
+- Mouse interactions
+    - Context menu (right-click)
+    - Map sign interaction
+    - Board interaction
+    - NPC interaction (quests, shops)
 - Finish character equipment rendering
-- Finish NPC alignment
+    - Fix offsets for all equipment types
+- Finish NPC alignment to grid
 - Map item interaction
+    - Item pickup/drop
 - Paperdoll
-- NPC interaction (quests, shops)
-- HUD panels (inventory, online list, party, settings)
+- HUD panels
+    - Inventory
+    - Online list
+    - Party
+    - Settings
 - Friend/ignore list
 - Quest progress/daily exp
 - Sit/stand
-- Map refresh
+- Map refresh (F12)
 - Sounds/music
     - Need to track down a cross-platform midi player for background music
 
 <a name="NewFeatures" />New features (also todo)
 ------------------
- 
+
 Here's a working list of things I want to add that would be additional features on top of the original client specs:
  - Use built-in patching system prior to log-in to transfer files: help, gfx, pubs, maps, data, sounds, etc.
  - More than 3 characters per account
@@ -75,14 +96,14 @@ Here's a working list of things I want to add that would be additional features 
  - Timed map weather systems
  - Passive skills (planned for in original but never done)
  - In-game macros (planned for in original but never done)
- 
+
 Most things on the above list would require changes to the server software which would significantly distance it from compatibility with eoserv and the original EO client, so they aren't top priority, but would still be pretty cool to have. I will most likely fork the project for these additional changes.
 
 
 <a name="SampleConfigFile" />Sample configuration file
 ------------------
 
-Here is a sample configuration file with the available configuration settings that are currently being parsed by the client. 
+Here is a sample configuration file with the available configuration settings that are currently being parsed by the client.
 
 A config file is automatically downloaded as part of the EndlessClient.Binaries nuget package and should have all these settings configured. If you would like to change any of these settings while debugging, edit the file in the packages/EndlessClient.Binaries directory as it will be copied over the file in bin/debug or bin/release.
 
@@ -186,7 +207,7 @@ BatchMap corrects for a number of errors, including:
  - NPC spawn is invalid (ie NPC may not be able to spawn in area)
  - Chest spawn using non-existent item
  - Chest spawn pointing to non-chest
- 
+
 #### BatchPub
 
 BatchPub is designed to do batch processing of items within the EIF file. The goal behind this was to change all items matching a certain criteria to have the same updated property (for instance, when rendering hair, see above).
