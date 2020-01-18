@@ -42,9 +42,9 @@ namespace EndlessClient.Rendering.CharacterProperties
                 yield return new WeaponRenderer(renderProperties, textures.Weapon, EIFFile);
             }
 
-            yield return new SkinRenderer(renderProperties, textures.Skin, EIFFile);
-            yield return new FaceRenderer(renderProperties, textures.Face, EIFFile);
-            yield return new EmoteRenderer(renderProperties, textures.Emote, EIFFile);
+            yield return new SkinRenderer(renderProperties, textures.Skin);
+            yield return new FaceRenderer(renderProperties, textures.Face, textures.Skin);
+            yield return new EmoteRenderer(renderProperties, textures.Emote, textures.Skin);
 
             yield return new BootsRenderer(renderProperties, textures.Boots, EIFFile);
             yield return new ArmorRenderer(renderProperties, textures.Armor, EIFFile);

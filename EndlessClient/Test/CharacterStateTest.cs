@@ -173,21 +173,21 @@ namespace EndlessClient.Test
             _previousState = _currentState;
 
             var now = DateTime.Now;
-            if ((now - _lastWalk).TotalMilliseconds > CharacterAnimator.WALK_FRAME_TIME_MS)
+            if ((now - _lastWalk).TotalMilliseconds > 500)
             {
                 var rend = _renderersForDifferentStates[(int) DisplayState.WalkingAnimation];
                 rend.RenderProperties = rend.RenderProperties.WithNextWalkFrame();
                 _lastWalk = now;
             }
 
-            if ((now - _lastAttack).TotalMilliseconds > CharacterAnimator.ATTACK_FRAME_TIME_MS)
+            if ((now - _lastAttack).TotalMilliseconds > 500)
             {
                 var rend = _renderersForDifferentStates[(int)DisplayState.AttackingAnimation];
                 rend.RenderProperties = rend.RenderProperties.WithNextAttackFrame();
                 _lastAttack = now;
             }
 
-            if ((now - _lastSpell).TotalMilliseconds > 280)
+            if ((now - _lastSpell).TotalMilliseconds > 500)
             {
                 var rend = _renderersForDifferentStates[(int)DisplayState.SpellCastAnimation];
                 rend.RenderProperties = rend.RenderProperties.WithNextSpellCastFrame();

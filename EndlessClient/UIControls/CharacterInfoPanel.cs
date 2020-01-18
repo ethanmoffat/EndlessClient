@@ -78,7 +78,7 @@ namespace EndlessClient.UIControls
 
             _characterControl = new CharacterControl(character.RenderProperties, rendererFactory)
             {
-                DrawPosition = new Vector2(61, 24)
+                DrawPosition = new Vector2(68, 28)
             };
             _characterControl.SetParentControl(this);
 

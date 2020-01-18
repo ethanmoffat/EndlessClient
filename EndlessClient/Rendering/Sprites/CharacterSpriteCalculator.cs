@@ -258,7 +258,7 @@ namespace EndlessClient.Rendering.Sprites
 
         public ISpriteSheet GetSkinTexture(ICharacterRenderProperties characterRenderProperties)
         {
-            var sheetRows = 7;
+            const int SheetRows = 7;
             var sheetColumns = 4;
             var gfxNum = 1;
 
@@ -294,12 +294,33 @@ namespace EndlessClient.Rendering.Sprites
             var rotated = characterRenderProperties.Direction == EODirection.Left ||
                           characterRenderProperties.Direction == EODirection.Up;
 
-            var heightDelta  = texture.Height / sheetRows;
+            var heightDelta  = texture.Height / SheetRows;
             var widthDelta   = texture.Width / sheetColumns;
             var sectionDelta = texture.Width / 4;
 
             var walkExtra = characterRenderProperties.WalkFrame > 0 ? widthDelta * (characterRenderProperties.WalkFrame - 1) : 0;
             walkExtra = !BowIsEquipped(characterRenderProperties) && characterRenderProperties.AttackFrame > 0 ? widthDelta * (characterRenderProperties.AttackFrame - 1) : walkExtra;
+
+            // Fix offsets for skins - the source rectangles are not at an evenly spaced interval
+            if (characterRenderProperties.Gender == 1)
+            {
+                if (characterRenderProperties.CurrentAction == CharacterActionState.Walking && !rotated)
+                {
+                    walkExtra += 1;
+                }
+                else if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking &&
+                         characterRenderProperties.AttackFrame == 1)
+                {
+                    // This condition needs some shifting, but this must be done in SkinRenderLocationCalculator since it is a shift of the loaded sprite
+                }
+            }
+            else if (characterRenderProperties.Gender == 0)
+            {
+                if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking)
+                {
+                    walkExtra += 1;
+                }
+            }
 
             var sourceArea = new Rectangle(
                 characterRenderProperties.Gender * widthDelta * (sheetColumns / 2) + (rotated ? sectionDelta : 0) + walkExtra,
