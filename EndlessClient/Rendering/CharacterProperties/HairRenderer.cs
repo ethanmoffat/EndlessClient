@@ -2,10 +2,10 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
+using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
-using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -14,26 +14,25 @@ namespace EndlessClient.Rendering.CharacterProperties
     public class HairRenderer : ICharacterPropertyRenderer
     {
         private readonly ICharacterRenderProperties _renderProperties;
-        private readonly Texture2D _hairTexture;
+        private readonly ISpriteSheet _hairSheet;
         private readonly HairRenderLocationCalculator _hairRenderLocationCalculator;
 
-        public bool CanRender => _hairTexture != null && _renderProperties.HairStyle != 0;
+        public bool CanRender => _hairSheet.HasTexture && _renderProperties.HairStyle != 0;
 
         public HairRenderer(ICharacterRenderProperties renderProperties,
-                            Texture2D hairTexture,
-                            IPubFile<EIFRecord> itemFile)
+                            ISpriteSheet hairSheet)
         {
             _renderProperties = renderProperties;
-            _hairTexture = hairTexture;
+            _hairSheet = hairSheet;
 
-            _hairRenderLocationCalculator = new HairRenderLocationCalculator(itemFile, _renderProperties);
+            _hairRenderLocationCalculator = new HairRenderLocationCalculator(_renderProperties);
         }
 
         public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
-            var drawLoc = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(parentCharacterDrawArea);
+            var drawLoc = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea);
 
-            spriteBatch.Draw(_hairTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
+            spriteBatch.Draw(_hairSheet.SheetTexture, drawLoc, _hairSheet.SourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f,
                              _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                              0.0f);
         }

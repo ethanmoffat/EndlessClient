@@ -12,11 +12,11 @@ namespace EndlessClient.Rendering.Character
     {
         Texture2D Boots { get; }
         Texture2D Armor { get; }
-        Texture2D Hat { get; }
+        ISpriteSheet Hat { get; }
         Texture2D Shield { get; }
         Texture2D Weapon { get; }
 
-        Texture2D Hair { get; }
+        ISpriteSheet Hair { get; }
         ISpriteSheet Skin { get; }
 
         ISpriteSheet Emote { get; }

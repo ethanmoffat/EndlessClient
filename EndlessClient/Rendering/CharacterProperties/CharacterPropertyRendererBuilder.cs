@@ -53,13 +53,13 @@ namespace EndlessClient.Rendering.CharacterProperties
 
             if (IsHairOnTopOfHat(renderProperties))
             {
-                yield return new HatRenderer(renderProperties, textures.Hat, EIFFile);
-                yield return new HairRenderer(renderProperties, textures.Hair, EIFFile);
+                yield return new HatRenderer(renderProperties, textures.Hat, textures.Hair);
+                yield return new HairRenderer(renderProperties, textures.Hair);
             }
             else
             {
-                yield return new HairRenderer(renderProperties, textures.Hair, EIFFile);
-                yield return new HatRenderer(renderProperties, textures.Hat, EIFFile);
+                yield return new HairRenderer(renderProperties, textures.Hair);
+                yield return new HatRenderer(renderProperties, textures.Hat, textures.Hair);
             }
 
             if (!shieldAdded)
