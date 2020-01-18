@@ -213,8 +213,8 @@ namespace EndlessClient.Rendering.Character
         private void SetGridCoordinatePosition()
         {
             //todo: the constants here should be dynamically configurable to support window resizing
-            var screenX = _renderOffsetCalculator.CalculateOffsetX(RenderProperties) + 304 - GetMainCharacterOffsetX();
-            var screenY = _renderOffsetCalculator.CalculateOffsetY(RenderProperties) + 91 - GetMainCharacterOffsetY();
+            var screenX = _renderOffsetCalculator.CalculateOffsetX(RenderProperties) + 312 - GetMainCharacterOffsetX();
+            var screenY = _renderOffsetCalculator.CalculateOffsetY(RenderProperties) + 106 - GetMainCharacterOffsetY();
 
             SetScreenCoordinates(screenX, screenY);
         }
