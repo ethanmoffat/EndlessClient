@@ -390,7 +390,7 @@
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="XNAControls, Version=1.2.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\packages\XNAControls.1.2.0\lib\net462\XNAControls.dll</HintPath>
+      <HintPath>..\packages\XNAControls.1.2.1\lib\net462\XNAControls.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
