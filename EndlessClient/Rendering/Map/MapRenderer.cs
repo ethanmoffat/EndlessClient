@@ -24,6 +24,27 @@ namespace EndlessClient.Rendering.Map
 {
     public class MapRenderer : DrawableGameComponent, IMapRenderer
     {
+        /* TODO: Validate map rendering offsets based on this (code courtesy of github.com/cirras)
+const TDG = 0.00000001; // gap between depth of each tile on a layer
+const RDG = 0.001; // gap between depth of each row of tiles
+
+const layerInfo = [
+    { file: 'tile',    xoff: 0,  yoff: 0,  alpha: 1.0, centered: false, depth:-2.0 + TDG * 1 }, // Ground
+    { file: 'object',  xoff:-2,  yoff:-2,  alpha: 1.0, centered: true,  depth: 0.0 + TDG * 4 }, // Objects
+    { file: 'overlay', xoff:-2,  yoff:-2,  alpha: 1.0, centered: true,  depth: 0.0 + TDG * 6 }, // Overlay
+    { file: 'wall',    xoff: 0,  yoff:-1,  alpha: 1.0, centered: false, depth: 0.0 + TDG * 5 }, // Down Wall
+    { file: 'wall',    xoff: 32, yoff:-1,  alpha: 1.0, centered: false, depth:-RDG + TDG * 9 }, // Right Wall
+    { file: 'roof',    xoff: 0,  yoff:-64, alpha: 1.0, centered: false, depth: 0.0 + TDG * 7 }, // Roof
+    { file: 'tile',    xoff: 0,  yoff:-32, alpha: 1.0, centered: false, depth: 0.0 + TDG * 2 }, // Top
+    { file: 'shadow',  xoff:-24, yoff:-12, alpha: 0.2, centered: false, depth:-1.0 + TDG * 2 }, // Shadow
+    { file: 'overlay', xoff:-2,  yoff:-2,  alpha: 1.0, centered: true,  depth: 1.0 + TDG * 8 }  // Overlay 2
+];
+
+const calcDepth = (x, y, layer) =>
+{
+    return layerInfo[layer].depth + y * RDG + x * layerInfo.length * TDG;
+};
+         */
         private const double TRANSITION_TIME_MS = 125.0;
 
         private readonly IRenderTargetFactory _renderTargetFactory;
