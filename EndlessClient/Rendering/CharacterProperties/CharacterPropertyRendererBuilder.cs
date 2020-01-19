@@ -47,7 +47,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             yield return new EmoteRenderer(renderProperties, textures.Emote, textures.Skin);
 
             yield return new BootsRenderer(renderProperties, textures.Boots, EIFFile);
-            yield return new ArmorRenderer(renderProperties, textures.Armor, EIFFile);
+            yield return new ArmorRenderer(renderProperties, textures.Armor);
             if (!weaponAdded)
                 yield return new WeaponRenderer(renderProperties, textures.Weapon, EIFFile);
 
