@@ -118,7 +118,7 @@ namespace EndlessClient.Test
             var update = false;
             if (KeyPressed(Keys.D1))
             {
-                _baseProperties = _baseProperties.WithGender((byte)((_baseProperties.Gender) % 2));
+                _baseProperties = _baseProperties.WithGender((byte)((_baseProperties.Gender + increment) % 2));
                 update = true;
             }
             else if (KeyPressed(Keys.D2))
