@@ -40,13 +40,14 @@ namespace EndlessClient.Test
 
         static CharacterStateTest()
         {
-            _allDisplayStates = ((DisplayState[]) Enum.GetValues(typeof (DisplayState))).ToList();
+            _allDisplayStates = ((DisplayState[])Enum.GetValues(typeof(DisplayState))).ToList();
         }
 
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly IEIFFileProvider _eifFileProvider;
 
         private ICharacterRenderProperties _baseProperties;
+        private readonly Dictionary<ItemType, int> _itemIndices;
         private readonly List<ICharacterRenderer> _renderersForDifferentStates;
 
         private KeyboardState _previousState, _currentState;
@@ -64,6 +65,7 @@ namespace EndlessClient.Test
             _characterRendererFactory = characterRendererFactory;
             _eifFileProvider = eifFileProvider;
 
+            _itemIndices = ((ItemType[])Enum.GetValues(typeof(ItemType))).ToDictionary(k => k, v => 0);
             _renderersForDifferentStates = new List<ICharacterRenderer>(12);
         }
 
@@ -114,12 +116,12 @@ namespace EndlessClient.Test
             var update = false;
             if (KeyPressed(Keys.D1))
             {
-                _baseProperties = _baseProperties.WithGender((byte) ((_baseProperties.Gender + 1)%2));
+                _baseProperties = _baseProperties.WithGender((byte)((_baseProperties.Gender + 1) % 2));
                 update = true;
             }
             else if (KeyPressed(Keys.D2))
             {
-                _baseProperties = _baseProperties.WithHairStyle((byte) ((_baseProperties.HairStyle + 1)%21));
+                _baseProperties = _baseProperties.WithHairStyle((byte)((_baseProperties.HairStyle + 1) % 21));
                 update = true;
             }
             else if (KeyPressed(Keys.D3))
@@ -250,18 +252,21 @@ namespace EndlessClient.Test
             return _previousState.IsKeyDown(key) && _currentState.IsKeyUp(key);
         }
 
+        private bool ShiftPressed => _previousState.IsKeyDown(Keys.LeftShift) || _previousState.IsKeyDown(Keys.RightShift);
+
         private short GetNextItemGraphicMatching(ItemType type, short currentGraphic)
         {
-            var shiftPressed = _previousState.IsKeyDown(Keys.LeftShift) ||
-                               _previousState.IsKeyDown(Keys.RightShift);
-            var increment = shiftPressed ? -1 : 1;
-
+            var increment = ShiftPressed ? -1 : 1;
             var matchingItems = EIFFile.Data.Where(x => x.Type == type).OrderBy(x => x.ID).ToList();
-            var matchingIndex = matchingItems.FindIndex(x => x.DollGraphic == currentGraphic);
-            var ndx = (matchingIndex + increment) % matchingItems.Count;
-            if (ndx < 0)
+            _itemIndices[type] = (_itemIndices[type] + increment) % matchingItems.Count;
+
+            if (_itemIndices[type] + increment < 0)
+            {
+                _itemIndices[type] = 0;
                 return 0;
-            return (short) matchingItems[ndx].DollGraphic;
+            }
+
+            return (short)matchingItems[_itemIndices[type]].DollGraphic;
         }
 
         private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile;
