@@ -10,7 +10,7 @@ namespace EndlessClient.Rendering.Character
 {
     public interface ICharacterTextures
     {
-        Texture2D Boots { get; }
+        ISpriteSheet Boots { get; }
         ISpriteSheet Armor { get; }
         ISpriteSheet Hat { get; }
         Texture2D Shield { get; }

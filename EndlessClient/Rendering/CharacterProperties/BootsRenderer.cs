@@ -2,79 +2,62 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Linq;
+using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
-using EOLib.IO;
-using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
     public class BootsRenderer : ICharacterPropertyRenderer
     {
         private readonly ICharacterRenderProperties _renderProperties;
-        private readonly Texture2D _bootsTexture;
-        private readonly IPubFile<EIFRecord> _itemFile;
+        private readonly ISpriteSheet _bootsSheet;
 
-        public bool CanRender => _bootsTexture != null && _renderProperties.BootsGraphic != 0;
+        public bool CanRender => _bootsSheet.HasTexture && _renderProperties.BootsGraphic != 0;
 
         public BootsRenderer(ICharacterRenderProperties renderProperties,
-                             Texture2D bootsTexture,
-                             IPubFile<EIFRecord> itemFile)
+                             ISpriteSheet bootsSheet)
         {
             _renderProperties = renderProperties;
-            _bootsTexture = bootsTexture;
-            _itemFile = itemFile;
+            _bootsSheet = bootsSheet;
         }
 
         public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
-            var offsets = GetOffsets();
-            var drawLoc = new Vector2(parentCharacterDrawArea.X - 2 + offsets.X, parentCharacterDrawArea.Y + 49 + offsets.Y);
+            var offsets = GetOffsets(parentCharacterDrawArea);
+            var drawLoc = new Vector2(parentCharacterDrawArea.X + offsets.X,
+                                      // Center the Y coordinate over the bottom half of the character sprite
+                                      parentCharacterDrawArea.Y + offsets.Y);
 
-            spriteBatch.Draw(_bootsTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
+            spriteBatch.Draw(_bootsSheet.SheetTexture, drawLoc, _bootsSheet.SourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f,
                              _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                              0.0f);
         }
 
-        private bool IsWeaponAMeleeWeapon()
+        private Vector2 GetOffsets(Rectangle parentCharacterDrawArea)
         {
-            var weaponInfo = _itemFile.Data.SingleOrDefault(
-                x => x.Type == ItemType.Weapon &&
-                     x.DollGraphic == _renderProperties.WeaponGraphic);
+            var resX = -(float)Math.Floor(Math.Abs((float)_bootsSheet.SourceRectangle.Width - parentCharacterDrawArea.Width) / 2);
+            var resY = (int)Math.Floor(parentCharacterDrawArea.Height / 3f) * 2 - 1;
 
-            return weaponInfo == null || weaponInfo.SubType != ItemSubType.Ranged;
-        }
-
-        private Vector2 GetOffsets()
-        {
-            var weaponIsMelee = IsWeaponAMeleeWeapon();
-            int bootsOffX = 0, bootsOffY = 0;
-
-            if (weaponIsMelee && _renderProperties.AttackFrame == 2)
+            if (_renderProperties.IsActing(CharacterActionState.Walking))
             {
-                bootsOffX = _renderProperties.IsFacing(EODirection.Down, EODirection.Left) ? -6 : 6;
-                if (_renderProperties.Gender == 1 && _renderProperties.IsFacing(EODirection.Up, EODirection.Left))
-                    bootsOffY = -1;
+                resY -= 2;// * factor;
             }
-            else if (!weaponIsMelee && _renderProperties.AttackFrame == 1)
+            else if (_renderProperties.AttackFrame == 2)
             {
-                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Right))
-                {
-                    bootsOffX = 6;
-                    bootsOffY = 1;
-                }
-                else
-                    bootsOffX = _renderProperties.Gender == 1 ? 7 : 3;
+                var isDownOrLeft = _renderProperties.IsFacing(EODirection.Down, EODirection.Left);
+                var factor = isDownOrLeft ? -1 : 1;
+                var extra = !isDownOrLeft ? 2*_renderProperties.Gender : 0;
 
-                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
-                    bootsOffX *= -1;
+                resX += 2 * factor;
+                resY += 1 * factor - extra;
             }
 
-            return new Vector2(bootsOffX, bootsOffY);
+            return new Vector2(resX, resY);
         }
     }
 }
