@@ -147,8 +147,7 @@ namespace EndlessClient.Rendering.NPC
             //y: std::max(0, (std::min(41, npc->Width() - 23)) / 4) + yLocation + npcYOffset + 23 - npc->Height()
 
             DrawArea = new Rectangle(
-                //not sure where magic numbers 6.4 and 3.2 come from. They seem important.
-                offsetX + 320 - mainOffsetX - (int)(_baseTextureFrameRectangle.Width / 6.4 * 3.2),
+                offsetX + 320 - mainOffsetX - (_baseTextureFrameRectangle.Width / 2),
                 offsetY + 168 - mainOffsetY - _baseTextureFrameRectangle.Height,
                 _baseTextureFrameRectangle.Width, _baseTextureFrameRectangle.Height);
 
