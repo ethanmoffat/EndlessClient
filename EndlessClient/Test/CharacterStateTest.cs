@@ -113,15 +113,28 @@ namespace EndlessClient.Test
         {
             _currentState = Keyboard.GetState();
 
+            var increment = ShiftPressed ? -1 : 1;
+
             var update = false;
             if (KeyPressed(Keys.D1))
             {
-                _baseProperties = _baseProperties.WithGender((byte)((_baseProperties.Gender + 1) % 2));
+                _baseProperties = _baseProperties.WithGender((byte)((_baseProperties.Gender) % 2));
                 update = true;
             }
             else if (KeyPressed(Keys.D2))
             {
-                _baseProperties = _baseProperties.WithHairStyle((byte)((_baseProperties.HairStyle + 1) % 21));
+                if (CtrlPressed)
+                {
+                    const int NUM_HAIR_COLORS = 10;
+                    if (_baseProperties.HairColor + increment < 0) _baseProperties = _baseProperties.WithHairColor(NUM_HAIR_COLORS);
+                    _baseProperties = _baseProperties.WithHairColor((byte)((_baseProperties.HairColor + increment) % NUM_HAIR_COLORS));
+                }
+                else
+                {
+                    const int NUM_HAIR_STYLES = 21;
+                    if (_baseProperties.HairStyle + increment < 0) _baseProperties = _baseProperties.WithHairColor(NUM_HAIR_STYLES);
+                    _baseProperties = _baseProperties.WithHairStyle((byte)((_baseProperties.HairStyle + increment) % NUM_HAIR_STYLES));
+                }
                 update = true;
             }
             else if (KeyPressed(Keys.D3))
@@ -151,7 +164,8 @@ namespace EndlessClient.Test
             }
             else if (KeyPressed(Keys.D8))
             {
-                _baseProperties = _baseProperties.WithDirection((EODirection)(((int)_baseProperties.Direction + 1) % 4));
+                if ((int)_baseProperties.Direction + increment < 0) _baseProperties = _baseProperties.WithDirection((EODirection)4);
+                _baseProperties = _baseProperties.WithDirection((EODirection)(((int)_baseProperties.Direction + increment) % 4));
                 update = true;
             }
             else if (KeyPressed(Keys.Space))
@@ -253,6 +267,8 @@ namespace EndlessClient.Test
         }
 
         private bool ShiftPressed => _previousState.IsKeyDown(Keys.LeftShift) || _previousState.IsKeyDown(Keys.RightShift);
+
+        private bool CtrlPressed => _previousState.IsKeyDown(Keys.LeftControl) || _previousState.IsKeyDown(Keys.RightControl);
 
         private short GetNextItemGraphicMatching(ItemType type, short currentGraphic)
         {
