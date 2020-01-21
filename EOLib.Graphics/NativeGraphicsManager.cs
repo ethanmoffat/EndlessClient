@@ -73,13 +73,14 @@ namespace EOLib.Graphics
 
             if (transparent)
             {
-                if (file != GFXTypes.FemaleHat && file != GFXTypes.MaleHat)
-                    ret.MakeTransparent(Color.Black);
+                // TODO: 0x000000 is supposed to clip hair below it
+                //       need to figure out how to clip this
+                // if (file != GFXTypes.FemaleHat && file != GFXTypes.MaleHat)
+                ret.MakeTransparent(Color.Black);
 
-                // for hats: 0x080000 is transparent, 0x000000 is supposed to clip hair below it
+                // for hats: 0x080000 is transparent
                 if (file == GFXTypes.FemaleHat || file == GFXTypes.MaleHat)
                 {
-                    //ret.MakeTransparent(Color.Black);
                     ret.MakeTransparent(Color.FromArgb(0xFF, 0x08, 0x00, 0x00));
                 }
             }
