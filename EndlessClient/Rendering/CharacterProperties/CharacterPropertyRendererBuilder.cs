@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutomaticTypeMapper;
+using EndlessClient.Content;
 using EndlessClient.Rendering.Character;
 using EOLib;
 using EOLib.Domain.Character;
@@ -19,10 +20,13 @@ namespace EndlessClient.Rendering.CharacterProperties
     public class CharacterPropertyRendererBuilder : ICharacterPropertyRendererBuilder
     {
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly IHatConfigurationProvider _hatConfigurationProvider;
 
-        public CharacterPropertyRendererBuilder(IEIFFileProvider eifFileProvider)
+        public CharacterPropertyRendererBuilder(IEIFFileProvider eifFileProvider,
+                                                IHatConfigurationProvider hatConfigurationProvider)
         {
             _eifFileProvider = eifFileProvider;
+            _hatConfigurationProvider = hatConfigurationProvider;
         }
 
         public IEnumerable<ICharacterPropertyRenderer> BuildList(ICharacterTextures textures,
@@ -51,14 +55,18 @@ namespace EndlessClient.Rendering.CharacterProperties
             if (!weaponAdded)
                 yield return new WeaponRenderer(renderProperties, textures.Weapon, EIFFile);
 
-            if (IsHairOnTopOfHat(renderProperties))
+            var hatMaskType = GetHatMaskType(renderProperties);
+
+            if (hatMaskType == HatMaskType.FaceMask)
             {
                 yield return new HatRenderer(renderProperties, textures.Hat, textures.Hair);
                 yield return new HairRenderer(renderProperties, textures.Hair);
             }
             else
             {
-                yield return new HairRenderer(renderProperties, textures.Hair);
+                if (hatMaskType == HatMaskType.Standard)
+                    yield return new HairRenderer(renderProperties, textures.Hair);
+
                 yield return new HatRenderer(renderProperties, textures.Hat, textures.Hair);
             }
 
@@ -84,7 +92,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             return pass1 || pass2 || pass3;
         }
 
-        private bool IsHairOnTopOfHat(ICharacterRenderProperties renderProperties)
+        private HatMaskType GetHatMaskType(ICharacterRenderProperties renderProperties)
         {
             //todo: i might have this backwards...
 
@@ -92,7 +100,8 @@ namespace EndlessClient.Rendering.CharacterProperties
                 x => x.Type == ItemType.Hat &&
                      x.DollGraphic == renderProperties.HatGraphic);
 
-            return hatInfo != null && hatInfo.SubType == ItemSubType.FaceMask;
+            _hatConfigurationProvider.HatMasks.TryGetValue(hatInfo?.ID ?? 0, out var hatMaskType);
+            return hatMaskType;
         }
 
         private bool IsShieldOnBack(ICharacterRenderProperties renderProperties)

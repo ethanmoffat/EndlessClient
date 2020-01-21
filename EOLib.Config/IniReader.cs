@@ -22,6 +22,10 @@ namespace EOLib.Config
 
         #region Public Interface
 
+        public int SectionCount { get; private set; }
+
+        public SortedList<string, SortedList<string, string>> Sections => _sections;
+
         public bool Load()
         {
             try
@@ -42,7 +46,7 @@ namespace EOLib.Config
                             currentHeader = AddNewHeader(nextLine);
                             continue;
                         }
-                        
+
                         //get the pair of key/value
                         string[] pair = nextLine.Split('=');
                         if (pair.Length != 2)

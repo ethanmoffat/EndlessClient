@@ -71,6 +71,7 @@
     <Compile Include="Audio\SoundInfo.cs" />
     <Compile Include="Audio\SoundManager.cs" />
     <Compile Include="Audio\WAVFileValidator.cs" />
+    <Compile Include="Content\IHatConfigurationRepository.cs" />
     <Compile Include="Controllers\ArrowKeyController.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\ControlKeyController.cs" />
@@ -427,9 +428,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Game.ico" />
-    <Content Include="ContentPipeline\HairClipTypes.txt">
+    <None Include="ContentPipeline\HairClipTypes.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

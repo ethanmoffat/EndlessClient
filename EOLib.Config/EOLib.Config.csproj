@@ -74,6 +74,7 @@
     <Compile Include="IConfigFileLoadActions.cs" />
     <Compile Include="IConfigurationRepository.cs" />
     <Compile Include="IniReader.cs" />
+    <Compile Include="MalformedConfigException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
