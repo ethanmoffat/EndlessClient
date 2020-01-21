@@ -37,7 +37,7 @@ namespace EndlessClient.Content
             {
                 if (!int.TryParse(pair.Key, out var id))
                     throw new MalformedConfigException($"Error parsing {pair.Key} in HairClipTypes configuration file");
-                if (!Enum.TryParse(pair.Value, ignoreCase: true, out HatMaskType maskType))
+                if (!Enum.TryParse(pair.Value, ignoreCase: true, result: out HatMaskType maskType))
                     throw new MalformedConfigException($"Error parsing {id}={pair.Value} in HairClipTypes configuration file");
 
                 HatMasks.Add(id, maskType);
