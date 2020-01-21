@@ -2,12 +2,11 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Linq;
+using System;
+using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
-using EOLib.IO;
-using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -16,70 +15,36 @@ namespace EndlessClient.Rendering.CharacterProperties
     public class ArmorRenderer : ICharacterPropertyRenderer
     {
         private readonly ICharacterRenderProperties _renderProperties;
-        private readonly Texture2D _armorTexture;
-        private readonly IPubFile<EIFRecord> _itemFile;
+        private readonly ISpriteSheet _armorSheet;
 
-        public bool CanRender => _armorTexture != null && _renderProperties.ArmorGraphic != 0;
+        public bool CanRender => _armorSheet.HasTexture && _renderProperties.ArmorGraphic != 0;
 
         public ArmorRenderer(ICharacterRenderProperties renderProperties,
-                             Texture2D armorTexture,
-                             IPubFile<EIFRecord> itemFile)
+                             ISpriteSheet armorSheet)
         {
             _renderProperties = renderProperties;
-            _armorTexture = armorTexture;
-            _itemFile = itemFile;
+            _armorSheet = armorSheet;
         }
 
         public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
-            var offsets = GetOffsets();
+            var offsets = GetOffsets(parentCharacterDrawArea.Size.ToVector2());
             var drawLoc = new Vector2(parentCharacterDrawArea.X - 2 + offsets.X, parentCharacterDrawArea.Y + offsets.Y);
 
-            spriteBatch.Draw(_armorTexture, drawLoc, null, Color.White, 0.0f, Vector2.Zero, 1.0f,
+            spriteBatch.Draw(_armorSheet.SheetTexture, drawLoc, _armorSheet.SourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f,
                              _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                              0.0f);
         }
 
-        private bool IsWeaponAMeleeWeapon()
+        private Vector2 GetOffsets(Vector2 parentCharacterSize)
         {
-            var weaponInfo = _itemFile.Data.SingleOrDefault(
-                x => x.Type == ItemType.Weapon &&
-                     x.DollGraphic == _renderProperties.WeaponGraphic);
+            var resX = -(float)Math.Floor(Math.Abs(_armorSheet.SourceRectangle.Width - parentCharacterSize.X) / 2);
+            var resY = -(float)Math.Floor(Math.Abs(_armorSheet.SourceRectangle.Height - parentCharacterSize.Y) / 2);
 
-            return weaponInfo == null || weaponInfo.SubType != ItemSubType.Ranged;
-        }
+            resX += _renderProperties.AttackFrame == 2 ? _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 4 : 0 : 2;
+            resY -= _renderProperties.IsActing(CharacterActionState.Walking) ? 4 : 3;
 
-        private Vector2 GetOffsets()
-        {
-            var weaponIsMelee = IsWeaponAMeleeWeapon();
-            var armorOffX = 0;
-            var armorOffY = _renderProperties.CurrentAction == CharacterActionState.Walking ? -1 : 0;
-
-            if (weaponIsMelee && _renderProperties.AttackFrame == 2)
-            {
-                armorOffX = _renderProperties.Gender == 1 ? 6 : 7;
-                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
-                    armorOffX *= -1;
-
-                armorOffY += _renderProperties.IsFacing(EODirection.Down, EODirection.Right) ? 1 : -1;
-            }
-            else if (!weaponIsMelee && _renderProperties.AttackFrame == 1)
-            {
-                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Right))
-                {
-                    armorOffX = 6;
-                    armorOffY += 1;
-                }
-                else
-                {
-                    armorOffX = 4;
-                }
-
-                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
-                    armorOffX *= -1;
-            }
-
-            return new Vector2(armorOffX, armorOffY);
+            return new Vector2(resX, resY);
         }
     }
 }

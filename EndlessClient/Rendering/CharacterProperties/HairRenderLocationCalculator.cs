@@ -2,71 +2,43 @@
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file
 
-using System.Linq;
+using System;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
-using EOLib.IO;
-using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
     public class HairRenderLocationCalculator
     {
-        private readonly IPubFile<EIFRecord> _itemFile;
         private readonly ICharacterRenderProperties _renderProperties;
 
-        public HairRenderLocationCalculator(IPubFile<EIFRecord> itemFile,
-                                            ICharacterRenderProperties renderProperties)
+        public HairRenderLocationCalculator(ICharacterRenderProperties renderProperties)
         {
-            _itemFile = itemFile;
             _renderProperties = renderProperties;
         }
 
-        public Vector2 CalculateDrawLocationOfCharacterHair(Rectangle parentCharacterDrawArea)
+        public Vector2 CalculateDrawLocationOfCharacterHair(Rectangle hairRectangle, Rectangle parentCharacterDrawArea)
         {
-            var offsets = GetOffsets();
+            var resX = -(float)Math.Floor(Math.Abs((float)hairRectangle.Width - parentCharacterDrawArea.Width) / 2) - 1;
+            var resY = -(float)Math.Floor(Math.Abs(hairRectangle.Height - (parentCharacterDrawArea.Height / 2f)) / 2) - _renderProperties.Gender;
+
+            if (_renderProperties.AttackFrame == 2)
+            {
+                resX += _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 4 : -4;
+                resX += _renderProperties.IsFacing(EODirection.Up)
+                    ? _renderProperties.Gender * -2
+                    : _renderProperties.IsFacing(EODirection.Left)
+                        ? _renderProperties.Gender * 2
+                        : 0;
+
+                resY += _renderProperties.IsFacing(EODirection.Up, EODirection.Left) ? 1 : 5;
+                resY -= _renderProperties.IsFacing(EODirection.Right, EODirection.Down) ? _renderProperties.Gender : 0;
+            }
+
             var flippedOffset = _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 2 : 0;
-
-            return new Vector2(parentCharacterDrawArea.X + offsets.X + flippedOffset,
-                               parentCharacterDrawArea.Y + offsets.Y);
-        }
-
-        private bool IsWeaponAMeleeWeapon()
-        {
-            var weaponInfo = _itemFile.Data.SingleOrDefault(
-                x => x.Type == ItemType.Weapon &&
-                     x.DollGraphic == _renderProperties.WeaponGraphic);
-
-            return weaponInfo == null || weaponInfo.SubType != ItemSubType.Ranged;
-        }
-
-        private Vector2 GetOffsets()
-        {
-            var weaponIsMelee = IsWeaponAMeleeWeapon();
-            int hatOffX = 0, hatOffY = 0;
-
-            if (weaponIsMelee && _renderProperties.AttackFrame == 2)
-            {
-                hatOffX = _renderProperties.Gender == 1 ? 6 : 8;
-                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
-                    hatOffX *= -1;
-
-                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Right))
-                    hatOffY = _renderProperties.Gender == 1 ? 5 : 6;
-            }
-            else if (!weaponIsMelee && _renderProperties.AttackFrame == 1)
-            {
-                hatOffX = _renderProperties.Gender == 1 ? 3 : 1;
-                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
-                    hatOffX *= -1;
-
-                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Right))
-                    hatOffY = _renderProperties.Gender == 1 ? 1 : 0;
-            }
-
-            return new Vector2(hatOffX, hatOffY);
+            return parentCharacterDrawArea.Location.ToVector2() + new Vector2(resX + flippedOffset, resY);
         }
     }
 }

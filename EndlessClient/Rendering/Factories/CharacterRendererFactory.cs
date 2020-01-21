@@ -22,6 +22,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
         private readonly ICharacterTextures _characterTextures;
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
+        private readonly IGameStateProvider _gameStateProvider;
 
         public CharacterRendererFactory(IEndlessGameProvider gameProvider,
                                         IRenderTargetFactory renderTargetFactory,
@@ -29,7 +30,8 @@ namespace EndlessClient.Rendering.Factories
                                         IRenderOffsetCalculator renderOffsetCalculator,
                                         ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                         ICharacterTextures characterTextures,
-                                        ICharacterSpriteCalculator characterSpriteCalculator)
+                                        ICharacterSpriteCalculator characterSpriteCalculator,
+                                        IGameStateProvider gameStateProvider)
         {
             _gameProvider = gameProvider;
             _renderTargetFactory = renderTargetFactory;
@@ -38,6 +40,7 @@ namespace EndlessClient.Rendering.Factories
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
             _characterTextures = characterTextures;
             _characterSpriteCalculator = characterSpriteCalculator;
+            _gameStateProvider = gameStateProvider;
         }
 
         public ICharacterRenderer CreateCharacterRenderer(ICharacterRenderProperties initialRenderProperties)
@@ -49,7 +52,8 @@ namespace EndlessClient.Rendering.Factories
                 _characterPropertyRendererBuilder,
                 _characterTextures,
                 _characterSpriteCalculator,
-                initialRenderProperties);
+                initialRenderProperties,
+                _gameStateProvider);
         }
     }
 }

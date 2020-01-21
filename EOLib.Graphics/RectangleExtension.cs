@@ -18,5 +18,17 @@ namespace EOLib.Graphics
         {
             return new Rectangle((int)loc.X, (int)loc.Y, orig.Width, orig.Height);
         }
+
+        /// <summary>
+        /// Returns a new rectangle with the size set to the specified dimensions
+        /// </summary>
+        /// <param name="orig"></param>
+        /// <param name="width">Width of the new rectangle</param>
+        /// <param name="height">Height of the new rectangle</param>
+        /// <returns></returns>
+        public static Rectangle WithSize(this Rectangle orig, int width, int height)
+        {
+            return new Rectangle(orig.X, orig.Y, width, height);
+        }
     }
 }

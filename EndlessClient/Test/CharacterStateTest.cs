@@ -40,13 +40,14 @@ namespace EndlessClient.Test
 
         static CharacterStateTest()
         {
-            _allDisplayStates = ((DisplayState[]) Enum.GetValues(typeof (DisplayState))).ToList();
+            _allDisplayStates = ((DisplayState[])Enum.GetValues(typeof(DisplayState))).ToList();
         }
 
         private readonly ICharacterRendererFactory _characterRendererFactory;
         private readonly IEIFFileProvider _eifFileProvider;
 
         private ICharacterRenderProperties _baseProperties;
+        private readonly Dictionary<ItemType, int> _itemIndices;
         private readonly List<ICharacterRenderer> _renderersForDifferentStates;
 
         private KeyboardState _previousState, _currentState;
@@ -64,6 +65,7 @@ namespace EndlessClient.Test
             _characterRendererFactory = characterRendererFactory;
             _eifFileProvider = eifFileProvider;
 
+            _itemIndices = ((ItemType[])Enum.GetValues(typeof(ItemType))).ToDictionary(k => k, v => 0);
             _renderersForDifferentStates = new List<ICharacterRenderer>(12);
         }
 
@@ -111,15 +113,28 @@ namespace EndlessClient.Test
         {
             _currentState = Keyboard.GetState();
 
+            var increment = ShiftPressed ? -1 : 1;
+
             var update = false;
             if (KeyPressed(Keys.D1))
             {
-                _baseProperties = _baseProperties.WithGender((byte) ((_baseProperties.Gender + 1)%2));
+                _baseProperties = _baseProperties.WithGender((byte)((_baseProperties.Gender + increment) % 2));
                 update = true;
             }
             else if (KeyPressed(Keys.D2))
             {
-                _baseProperties = _baseProperties.WithHairStyle((byte) ((_baseProperties.HairStyle + 1)%21));
+                if (CtrlPressed)
+                {
+                    const int NUM_HAIR_COLORS = 10;
+                    if (_baseProperties.HairColor + increment < 0) _baseProperties = _baseProperties.WithHairColor(NUM_HAIR_COLORS);
+                    _baseProperties = _baseProperties.WithHairColor((byte)((_baseProperties.HairColor + increment) % NUM_HAIR_COLORS));
+                }
+                else
+                {
+                    const int NUM_HAIR_STYLES = 21;
+                    if (_baseProperties.HairStyle + increment < 0) _baseProperties = _baseProperties.WithHairColor(NUM_HAIR_STYLES);
+                    _baseProperties = _baseProperties.WithHairStyle((byte)((_baseProperties.HairStyle + increment) % NUM_HAIR_STYLES));
+                }
                 update = true;
             }
             else if (KeyPressed(Keys.D3))
@@ -149,7 +164,8 @@ namespace EndlessClient.Test
             }
             else if (KeyPressed(Keys.D8))
             {
-                _baseProperties = _baseProperties.WithDirection((EODirection)(((int)_baseProperties.Direction + 1) % 4));
+                if ((int)_baseProperties.Direction + increment < 0) _baseProperties = _baseProperties.WithDirection((EODirection)4);
+                _baseProperties = _baseProperties.WithDirection((EODirection)(((int)_baseProperties.Direction + increment) % 4));
                 update = true;
             }
             else if (KeyPressed(Keys.Space))
@@ -173,21 +189,21 @@ namespace EndlessClient.Test
             _previousState = _currentState;
 
             var now = DateTime.Now;
-            if ((now - _lastWalk).TotalMilliseconds > CharacterAnimator.WALK_FRAME_TIME_MS)
+            if ((now - _lastWalk).TotalMilliseconds > 500)
             {
                 var rend = _renderersForDifferentStates[(int) DisplayState.WalkingAnimation];
                 rend.RenderProperties = rend.RenderProperties.WithNextWalkFrame();
                 _lastWalk = now;
             }
 
-            if ((now - _lastAttack).TotalMilliseconds > CharacterAnimator.ATTACK_FRAME_TIME_MS)
+            if ((now - _lastAttack).TotalMilliseconds > 500)
             {
                 var rend = _renderersForDifferentStates[(int)DisplayState.AttackingAnimation];
                 rend.RenderProperties = rend.RenderProperties.WithNextAttackFrame();
                 _lastAttack = now;
             }
 
-            if ((now - _lastSpell).TotalMilliseconds > 280)
+            if ((now - _lastSpell).TotalMilliseconds > 500)
             {
                 var rend = _renderersForDifferentStates[(int)DisplayState.SpellCastAnimation];
                 rend.RenderProperties = rend.RenderProperties.WithNextSpellCastFrame();
@@ -250,18 +266,23 @@ namespace EndlessClient.Test
             return _previousState.IsKeyDown(key) && _currentState.IsKeyUp(key);
         }
 
+        private bool ShiftPressed => _previousState.IsKeyDown(Keys.LeftShift) || _previousState.IsKeyDown(Keys.RightShift);
+
+        private bool CtrlPressed => _previousState.IsKeyDown(Keys.LeftControl) || _previousState.IsKeyDown(Keys.RightControl);
+
         private short GetNextItemGraphicMatching(ItemType type, short currentGraphic)
         {
-            var shiftPressed = _previousState.IsKeyDown(Keys.LeftShift) ||
-                               _previousState.IsKeyDown(Keys.RightShift);
-            var increment = shiftPressed ? -1 : 1;
-
+            var increment = ShiftPressed ? -1 : 1;
             var matchingItems = EIFFile.Data.Where(x => x.Type == type).OrderBy(x => x.ID).ToList();
-            var matchingIndex = matchingItems.FindIndex(x => x.DollGraphic == currentGraphic);
-            var ndx = (matchingIndex + increment) % matchingItems.Count;
-            if (ndx < 0)
+            _itemIndices[type] = (_itemIndices[type] + increment) % matchingItems.Count;
+
+            if (_itemIndices[type] + increment < 0)
+            {
+                _itemIndices[type] = 0;
                 return 0;
-            return (short) matchingItems[ndx].DollGraphic;
+            }
+
+            return (short)matchingItems[_itemIndices[type]].DollGraphic;
         }
 
         private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile;

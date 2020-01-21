@@ -178,12 +178,19 @@ namespace EOLib.Net.Communication
 
         private void BlockingDisconnect()
         {
-            _socket.Shutdown(SocketShutdown.Both);
+            try
+            {
+                _socket.Shutdown(SocketShutdown.Both);
 
-            if (_socket.Connected)
-                _socket.Disconnect(false);
+                if (_socket.Connected)
+                    _socket.Disconnect(false);
 
-            _socket.Close();
+                _socket.Close();
+            }
+            catch (ObjectDisposedException)
+            {
+                _connected = false;
+            }
         }
 
         #region IDisposable

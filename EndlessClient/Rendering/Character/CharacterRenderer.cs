@@ -3,10 +3,12 @@
 // For additional details, see the LICENSE file
 
 using System.Linq;
+using EndlessClient.GameExecution;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -20,12 +22,13 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
         private readonly ICharacterTextures _characterTextures;
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
-
+        private readonly IGameStateProvider _gameStateProvider;
         private ICharacterRenderProperties _renderProperties;
         private bool _textureUpdateRequired, _positionIsRelative = true;
 
         private SpriteBatch _sb;
         private RenderTarget2D _charRenderTarget;
+        private Texture2D _outline;
 
         public ICharacterRenderProperties RenderProperties
         {
@@ -49,7 +52,8 @@ namespace EndlessClient.Rendering.Character
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                  ICharacterTextures characterTextures,
                                  ICharacterSpriteCalculator characterSpriteCalculator,
-                                 ICharacterRenderProperties renderProperties)
+                                 ICharacterRenderProperties renderProperties,
+                                 IGameStateProvider gameStateProvider)
             : base(game)
         {
             _renderTargetFactory = renderTargetFactory;
@@ -59,6 +63,7 @@ namespace EndlessClient.Rendering.Character
             _characterTextures = characterTextures;
             _characterSpriteCalculator = characterSpriteCalculator;
             RenderProperties = renderProperties;
+            _gameStateProvider = gameStateProvider;
         }
 
         #region Game Component
@@ -74,6 +79,13 @@ namespace EndlessClient.Rendering.Character
         protected override void LoadContent()
         {
             _characterTextures.Refresh(_renderProperties);
+
+            if (_gameStateProvider.CurrentState == GameStates.None)
+            {
+                _outline = new Texture2D(GraphicsDevice, 1, 1);
+                _outline.SetData(new[] { Color.Black });
+            }
+
             base.LoadContent();
         }
 
@@ -133,9 +145,10 @@ namespace EndlessClient.Rendering.Character
 
         public void SetToCenterScreenPosition()
         {
+            const int x = 314; // 618 / 2.0
+
             var skinRect = _characterTextures.Skin.SourceRectangle;
-            var x = (618 - skinRect.Width)/2 + 4;
-            var y = (298 - skinRect.Height)/2 - 29;
+            var y = (298 - skinRect.Height)/2 - skinRect.Height/4;
             SetAbsoluteScreenPosition(x, y);
         }
 
@@ -178,6 +191,14 @@ namespace EndlessClient.Rendering.Character
             foreach (var renderer in characterPropertyRenderers)
                 renderer.Render(_sb, DrawArea);
 
+            if (_gameStateProvider.CurrentState == GameStates.None)
+            {
+                _sb.Draw(_outline, DrawArea.WithSize(DrawArea.Width, 1), Color.Black);
+                _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X + DrawArea.Width, DrawArea.Y)).WithSize(1, DrawArea.Height), Color.Black);
+                _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
+                _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
+            }
+
             _sb.End();
             GraphicsDevice.SetRenderTarget(null);
         }
@@ -192,16 +213,16 @@ namespace EndlessClient.Rendering.Character
         private void SetGridCoordinatePosition()
         {
             //todo: the constants here should be dynamically configurable to support window resizing
-            var screenX = _renderOffsetCalculator.CalculateOffsetX(RenderProperties) + 304 - GetMainCharacterOffsetX();
-            var screenY = _renderOffsetCalculator.CalculateOffsetY(RenderProperties) + 91 - GetMainCharacterOffsetY();
+            var screenX = _renderOffsetCalculator.CalculateOffsetX(RenderProperties) + 312 - GetMainCharacterOffsetX();
+            var screenY = _renderOffsetCalculator.CalculateOffsetY(RenderProperties) + 106 - GetMainCharacterOffsetY();
 
             SetScreenCoordinates(screenX, screenY);
         }
 
         private void SetScreenCoordinates(int xPosition, int yPosition)
         {
-            var skinRect = _characterTextures.Skin.SourceRectangle;
-            DrawArea = new Rectangle(xPosition, yPosition, skinRect.Width, skinRect.Height);
+            // size of standing still skin texture
+            DrawArea = new Rectangle(xPosition, yPosition, 18, 58);
             _textureUpdateRequired = true;
         }
 
@@ -221,6 +242,8 @@ namespace EndlessClient.Rendering.Character
         {
             if (disposing)
             {
+                _outline?.Dispose();
+
                 _sb.Dispose();
                 _charRenderTarget.Dispose();
             }

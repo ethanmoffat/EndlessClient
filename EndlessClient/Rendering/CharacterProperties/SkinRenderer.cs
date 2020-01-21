@@ -21,20 +21,17 @@ namespace EndlessClient.Rendering.CharacterProperties
         public bool CanRender => true;
 
         public SkinRenderer(ICharacterRenderProperties renderProperties,
-                            ISpriteSheet skinSheet,
-                            IPubFile<EIFRecord> itemFile)
+                            ISpriteSheet skinSheet)
         {
             _renderProperties = renderProperties;
             _skinSheet = skinSheet;
             
-            _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties, itemFile);
+            _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties);
         }
 
         public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
-            //todo: I most likely screwed something up when re-implementing this so it needs to be verified for all states!
-
-            var drawLoc = _skinRenderLocationCalculator.CalculateDrawLocationOfCharacterSkin(parentCharacterDrawArea);
+            var drawLoc = _skinRenderLocationCalculator.CalculateDrawLocationOfCharacterSkin(_skinSheet.SourceRectangle, parentCharacterDrawArea);
             spriteBatch.Draw(_skinSheet.SheetTexture, drawLoc, _skinSheet.SourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f,
                              _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                              0.0f);

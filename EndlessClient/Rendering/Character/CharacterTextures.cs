@@ -13,13 +13,13 @@ namespace EndlessClient.Rendering.Character
     public class CharacterTextures : ICharacterTextures
     {
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
-        public Texture2D Boots { get; private set; }
-        public Texture2D Armor { get; private set; }
-        public Texture2D Hat { get; private set; }
+        public ISpriteSheet Boots { get; private set; }
+        public ISpriteSheet Armor { get; private set; }
+        public ISpriteSheet Hat { get; private set; }
         public Texture2D Shield { get; private set; }
         public Texture2D Weapon { get; private set; }
 
-        public Texture2D Hair { get; private set; }
+        public ISpriteSheet Hair { get; private set; }
         public ISpriteSheet Skin { get; private set; }
 
         public ISpriteSheet Emote { get; private set; }
@@ -32,13 +32,13 @@ namespace EndlessClient.Rendering.Character
 
         public void Refresh(ICharacterRenderProperties characterRenderProperties)
         {
-            Boots = _characterSpriteCalculator.GetBootsTexture(characterRenderProperties).SheetTexture;
-            Armor = _characterSpriteCalculator.GetArmorTexture(characterRenderProperties).SheetTexture;
-            Hat = _characterSpriteCalculator.GetHatTexture(characterRenderProperties).SheetTexture;
+            Boots = _characterSpriteCalculator.GetBootsTexture(characterRenderProperties);
+            Armor = _characterSpriteCalculator.GetArmorTexture(characterRenderProperties);
+            Hat = _characterSpriteCalculator.GetHatTexture(characterRenderProperties);
             Shield = _characterSpriteCalculator.GetShieldTexture(characterRenderProperties).SheetTexture;
             Weapon = _characterSpriteCalculator.GetWeaponTexture(characterRenderProperties).SheetTexture;
 
-            Hair = _characterSpriteCalculator.GetHairTexture(characterRenderProperties).SheetTexture;
+            Hair = _characterSpriteCalculator.GetHairTexture(characterRenderProperties);
             Skin = _characterSpriteCalculator.GetSkinTexture(characterRenderProperties);
             Emote = _characterSpriteCalculator.GetEmoteTexture(characterRenderProperties);
             Face = _characterSpriteCalculator.GetFaceTexture(characterRenderProperties);
