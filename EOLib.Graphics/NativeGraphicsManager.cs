@@ -93,7 +93,8 @@ namespace EOLib.Graphics
             bmp.MakeTransparent(transparentColor);
 
 #if LINUX
-            var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, bmp.PixelFormat);
+            // PixelFormat.32bppArgb is assumed due to the call to bmp.MakeTransparent
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
 
             var bmpBytes = new byte[bmp.Height * bmpData.Stride];
             Marshal.Copy(bmpData.Scan0, bmpBytes, 0, bmpBytes.Length);
