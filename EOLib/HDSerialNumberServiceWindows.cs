@@ -9,8 +9,9 @@ using AutomaticTypeMapper;
 
 namespace EOLib
 {
+#if !LINUX
     [AutoMappedType]
-    public class HDSerialNumberService : IHDSerialNumberService
+    public class HDSerialNumberServiceWindows : IHDSerialNumberService
     {
         public string GetHDSerialNumber()
         {
@@ -34,4 +35,5 @@ namespace EOLib
                 Convert.ToString(serNum) : "";
         }
     }
+#endif
 }

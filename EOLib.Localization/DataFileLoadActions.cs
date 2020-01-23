@@ -4,6 +4,7 @@
 
 using AutomaticTypeMapper;
 using System.IO;
+using System.Linq;
 
 namespace EOLib.Localization
 {
@@ -22,7 +23,9 @@ namespace EOLib.Localization
             if (!Directory.Exists(DataFileConstants.DataFilePath))
                 throw new DataFileLoadException();
 
-            var files = Directory.GetFiles(DataFileConstants.DataFilePath, "*.edf");
+            var files = Directory.GetFiles(DataFileConstants.DataFilePath, "*.edf")
+                                 .OrderBy(x => x)
+                                 .ToArray();
             if (files.Length != DataFileConstants.ExpectedNumberOfDataFiles)
                 throw new DataFileLoadException();
 

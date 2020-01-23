@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 using Microsoft.Xna.Framework.Graphics;
 using Color = System.Drawing.Color;
@@ -16,6 +17,7 @@ namespace EOLib.Graphics
     public sealed class NativeGraphicsManager : INativeGraphicsManager
     {
         private readonly Dictionary<LibraryGraphicPair, Texture2D> _cache;
+        private readonly object __cachelock__ = new object();
 
         private readonly INativeGraphicsLoader _gfxLoader;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
@@ -32,15 +34,19 @@ namespace EOLib.Graphics
             Texture2D ret;
 
             var key = new LibraryGraphicPair((int)file, 100 + resourceVal);
-            if (!reloadFromFile && _cache.ContainsKey(key))
-            {
-                return _cache[key];
-            }
 
-            if (_cache.ContainsKey(key) && reloadFromFile)
+            lock (__cachelock__)
             {
-                if (_cache[key] != null) _cache[key].Dispose();
-                _cache.Remove(key);
+                if (!reloadFromFile && _cache.ContainsKey(key))
+                {
+                    return _cache[key];
+                }
+
+                if (_cache.ContainsKey(key) && reloadFromFile)
+                {
+                    if (_cache[key] != null) _cache[key].Dispose();
+                    _cache.Remove(key);
+                }
             }
 
             using (var mem = new System.IO.MemoryStream())
@@ -51,17 +57,9 @@ namespace EOLib.Graphics
                 ret = Texture2D.FromStream(_graphicsDeviceProvider.GraphicsDevice, mem);
             }
 
-            //need to double-check that the key isn't already in the cache:
-            //      multiple threads can enter this method simultaneously
-            //avoiding a lock because this method is used for every graphic
-            if (!_cache.ContainsKey(key))
+            lock (__cachelock__)
             {
                 _cache.Add(key, ret);
-            }
-            else
-            {
-                ret.Dispose();
-                ret = _cache[key];
             }
 
             return ret;
@@ -76,25 +74,50 @@ namespace EOLib.Graphics
                 // TODO: 0x000000 is supposed to clip hair below it
                 //       need to figure out how to clip this
                 // if (file != GFXTypes.FemaleHat && file != GFXTypes.MaleHat)
-                ret.MakeTransparent(Color.Black);
+                CrossPlatformMakeTransparent(ret, Color.Black);
 
                 // for hats: 0x080000 is transparent
                 if (file == GFXTypes.FemaleHat || file == GFXTypes.MaleHat)
                 {
-                    ret.MakeTransparent(Color.FromArgb(0xFF, 0x08, 0x00, 0x00));
+                    CrossPlatformMakeTransparent(ret, Color.FromArgb(0xFF, 0x08, 0x00, 0x00));
                 }
             }
 
             return ret;
         }
 
+        private static void CrossPlatformMakeTransparent(Bitmap bmp, Color transparentColor)
+        {
+            bmp.MakeTransparent(transparentColor);
+
+#if LINUX
+            var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, bmp.PixelFormat);
+
+            var bmpBytes = new byte[bmp.Height * bmpData.Stride];
+            Marshal.Copy(bmpData.Scan0, bmpBytes, 0, bmpBytes.Length);
+
+            for (int i = 0; i < bmpBytes.Length; i += 4)
+            {
+                if (bmpBytes[i] == 0 && bmpBytes[i + 1] == 0 && bmpBytes[i + 2] == 0)
+                    bmpBytes[i + 3] = 0;
+            }
+
+            Marshal.Copy(bmpBytes, 0, bmpData.Scan0, bmpBytes.Length);
+
+            bmp.UnlockBits(bmpData);
+#endif
+        }
+
         public void Dispose()
         {
-            foreach (var text in _cache.Values)
+            lock (__cachelock__)
             {
-                text.Dispose();
+                foreach (var text in _cache.Values)
+                {
+                    text.Dispose();
+                }
+                _cache.Clear();
             }
-            _cache.Clear();
         }
     }
 
