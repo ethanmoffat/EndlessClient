@@ -80,6 +80,8 @@ namespace EOLib.Graphics
                 if (file == GFXTypes.FemaleHat || file == GFXTypes.MaleHat)
                 {
                     CrossPlatformMakeTransparent(ret, Color.FromArgb(0xFF, 0x08, 0x00, 0x00));
+                    CrossPlatformMakeTransparent(ret, Color.FromArgb(0xFF, 0x00, 0x08, 0x00));
+                    CrossPlatformMakeTransparent(ret, Color.FromArgb(0xFF, 0x00, 0x00, 0x08));
                 }
             }
 
@@ -98,7 +100,7 @@ namespace EOLib.Graphics
 
             for (int i = 0; i < bmpBytes.Length; i += 4)
             {
-                if (bmpBytes[i] == 0 && bmpBytes[i + 1] == 0 && bmpBytes[i + 2] == 0)
+                if (bmpBytes[i] == transparentColor.R && bmpBytes[i + 1] == transparentColor.G && bmpBytes[i + 2] == transparentColor.B)
                     bmpBytes[i + 3] = 0;
             }
 

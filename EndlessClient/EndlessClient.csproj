@@ -363,6 +363,7 @@
     <Compile Include="UIControls\ScrollBar.cs" />
     <Compile Include="UIControls\StatusBarLabel.cs" />
     <Compile Include="UIControls\TimeLabel.cs" />
+    <Compile Include="Content\IShaderRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AutomaticTypeMapper, Version=1.2.0.0, Culture=neutral, processorArchitecture=x86">
@@ -431,6 +432,9 @@
     <None Include="ContentPipeline\HairClipTypes.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="ContentPipeline\HairClip.xnb">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
