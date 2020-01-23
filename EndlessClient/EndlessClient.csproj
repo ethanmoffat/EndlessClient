@@ -427,14 +427,16 @@
       <Name>EOLib</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Linux - Debug' Or '$(Configuration)' == 'Linux - Release'">
+    <Content Include="ContentPipeline\HairClip.xnb">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Game.ico" />
     <None Include="ContentPipeline\HairClipTypes.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="ContentPipeline\HairClip.xnb">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
