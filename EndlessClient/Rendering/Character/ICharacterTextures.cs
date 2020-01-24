@@ -13,7 +13,7 @@ namespace EndlessClient.Rendering.Character
         ISpriteSheet Boots { get; }
         ISpriteSheet Armor { get; }
         ISpriteSheet Hat { get; }
-        Texture2D Shield { get; }
+        ISpriteSheet Shield { get; }
         Texture2D Weapon { get; }
 
         ISpriteSheet Hair { get; }

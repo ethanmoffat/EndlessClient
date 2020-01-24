@@ -16,7 +16,7 @@ namespace EndlessClient.Rendering.Character
         public ISpriteSheet Boots { get; private set; }
         public ISpriteSheet Armor { get; private set; }
         public ISpriteSheet Hat { get; private set; }
-        public Texture2D Shield { get; private set; }
+        public ISpriteSheet Shield { get; private set; }
         public Texture2D Weapon { get; private set; }
 
         public ISpriteSheet Hair { get; private set; }
@@ -35,7 +35,7 @@ namespace EndlessClient.Rendering.Character
             Boots = _characterSpriteCalculator.GetBootsTexture(characterRenderProperties);
             Armor = _characterSpriteCalculator.GetArmorTexture(characterRenderProperties);
             Hat = _characterSpriteCalculator.GetHatTexture(characterRenderProperties);
-            Shield = _characterSpriteCalculator.GetShieldTexture(characterRenderProperties).SheetTexture;
+            Shield = _characterSpriteCalculator.GetShieldTexture(characterRenderProperties);
             Weapon = _characterSpriteCalculator.GetWeaponTexture(characterRenderProperties).SheetTexture;
 
             Hair = _characterSpriteCalculator.GetHairTexture(characterRenderProperties);
