@@ -11,6 +11,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.IO;
+using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 
@@ -37,7 +38,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             if (IsShieldBehindCharacter(renderProperties))
             {
                 shieldAdded = true;
-                yield return new ShieldRenderer(renderProperties, textures.Shield, IsShieldOnBack(renderProperties));
+                yield return new ShieldRenderer(renderProperties, textures.Shield, EIFFile.IsShieldOnBack(renderProperties.ShieldGraphic));
             }
 
             if (IsWeaponBehindCharacter(renderProperties))
@@ -71,12 +72,12 @@ namespace EndlessClient.Rendering.CharacterProperties
             }
 
             if (!shieldAdded)
-                yield return new ShieldRenderer(renderProperties, textures.Shield, IsShieldOnBack(renderProperties));
+                yield return new ShieldRenderer(renderProperties, textures.Shield, EIFFile.IsShieldOnBack(renderProperties.ShieldGraphic));
         }
 
         private bool IsShieldBehindCharacter(ICharacterRenderProperties renderProperties)
         {
-            return renderProperties.IsFacing(EODirection.Right, EODirection.Down) && IsShieldOnBack(renderProperties);
+            return renderProperties.IsFacing(EODirection.Right, EODirection.Down) && EIFFile.IsShieldOnBack(renderProperties.ShieldGraphic);
         }
 
         private bool IsWeaponBehindCharacter(ICharacterRenderProperties renderProperties)
@@ -102,21 +103,6 @@ namespace EndlessClient.Rendering.CharacterProperties
 
             _hatConfigurationProvider.HatMasks.TryGetValue(hatInfo?.ID ?? 0, out var hatMaskType);
             return hatMaskType;
-        }
-
-        private bool IsShieldOnBack(ICharacterRenderProperties renderProperties)
-        {
-            if (EIFFile == null || !EIFFile.Data.Any())
-                return false;
-
-            var itemData = EIFFile.Data;
-            var shieldInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Shield &&
-                                                           x.DollGraphic == renderProperties.ShieldGraphic);
-
-            return shieldInfo != null &&
-                   (shieldInfo.Name == "Bag" ||
-                    shieldInfo.SubType == ItemSubType.Arrows ||
-                    shieldInfo.SubType == ItemSubType.Wings);
         }
 
         private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile ?? new EIFFile();

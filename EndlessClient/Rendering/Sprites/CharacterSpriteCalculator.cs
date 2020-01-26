@@ -9,6 +9,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.Net.API;
@@ -152,7 +153,7 @@ namespace EndlessClient.Rendering.Sprites
             var offset = GetBaseOffsetFromDirection(characterRenderProperties.Direction);
 
             //front shields have one size gfx, back arrows/wings have another size.
-            if (!ShieldIsOnBack(characterRenderProperties))
+            if (!EIFFile.IsShieldOnBack(characterRenderProperties.ShieldGraphic))
             {
                 if (characterRenderProperties.CurrentAction == CharacterActionState.Walking)
                 {
@@ -486,22 +487,6 @@ namespace EndlessClient.Rendering.Sprites
                                                             x.DollGraphic == characterRenderProperties.WeaponGraphic);
 
             return weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
-        }
-
-        // TODO: This is the same code in CharacterPropertyRendererBuilder
-        private bool ShieldIsOnBack(ICharacterRenderProperties characterRenderProperties)
-        {
-            if (EIFFile == null || EIFFile.Data == null)
-                return false;
-
-            var itemData = EIFFile.Data;
-            var shieldInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Shield &&
-                                                            x.DollGraphic == characterRenderProperties.ShieldGraphic);
-
-            return shieldInfo != null &&
-                    (shieldInfo.Name == "Bag" ||
-                    shieldInfo.SubType == ItemSubType.Arrows ||
-                    shieldInfo.SubType == ItemSubType.Wings);
         }
 
         private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile;
