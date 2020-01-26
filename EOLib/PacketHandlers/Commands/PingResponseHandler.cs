@@ -37,7 +37,7 @@ namespace EOLib.PacketHandlers.Commands
         public override bool HandlePacket(IPacket packet)
         {
             var now = DateTime.Now;
-            ushort requestID = (ushort)packet.ReadShort();
+            short requestID = packet.ReadShort();
             if (!_pingTimeRepository.PingRequests.ContainsKey(requestID))
                 return true;
 

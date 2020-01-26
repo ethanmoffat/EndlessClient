@@ -4,6 +4,7 @@
 
 using System.IO;
 using AutomaticTypeMapper;
+using EndlessClient.Content;
 using EndlessClient.ControlSets;
 using EndlessClient.Rendering;
 using EndlessClient.Rendering.Chat;
@@ -13,6 +14,7 @@ using EOLib.IO;
 using EOLib.IO.Actions;
 using EOLib.Logger;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.GameExecution
@@ -27,7 +29,7 @@ namespace EndlessClient.GameExecution
         private readonly IPubFileLoadActions _pubFileLoadActions;
         private readonly ILoggerProvider _loggerProvider;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
-
+        private readonly IShaderRepository _shaderRepository;
         private readonly IGraphicsDeviceManager _graphicsDeviceManager;
 
         private KeyboardState _previousKeyState;
@@ -39,7 +41,8 @@ namespace EndlessClient.GameExecution
                            ITestModeLauncher testModeLauncher,
                            IPubFileLoadActions pubFileLoadActions,
                            ILoggerProvider loggerProvider,
-                           IChatBubbleTextureProvider chatBubbleTextureProvider)
+                           IChatBubbleTextureProvider chatBubbleTextureProvider,
+                           IShaderRepository shaderRepository)
         {
             _graphicsDeviceRepository = graphicsDeviceRepository;
             _controlSetRepository = controlSetRepository;
@@ -48,7 +51,7 @@ namespace EndlessClient.GameExecution
             _pubFileLoadActions = pubFileLoadActions;
             _loggerProvider = loggerProvider;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
-
+            _shaderRepository = shaderRepository;
             _graphicsDeviceManager = new GraphicsDeviceManager(this)
             {
                 PreferredBackBufferWidth = windowSizeProvider.Width,
@@ -78,6 +81,10 @@ namespace EndlessClient.GameExecution
             //the GraphicsDevice doesn't exist until Initialize() is called by the framework
             //Ideally, this would be set in a DependencyContainer, but I'm not sure of a way to do that now
             _graphicsDeviceRepository.GraphicsDevice = GraphicsDevice;
+
+#if LINUX
+            _shaderRepository.Shaders[ShaderRepository.HairClip] = Content.Load<Effect>(ShaderRepository.HairClip);
+#endif
 
             base.LoadContent();
         }

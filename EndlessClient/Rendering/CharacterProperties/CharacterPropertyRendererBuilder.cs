@@ -22,12 +22,15 @@ namespace EndlessClient.Rendering.CharacterProperties
     {
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly IHatConfigurationProvider _hatConfigurationProvider;
+        private readonly IShaderProvider _shaderProvider;
 
         public CharacterPropertyRendererBuilder(IEIFFileProvider eifFileProvider,
-                                                IHatConfigurationProvider hatConfigurationProvider)
+                                                IHatConfigurationProvider hatConfigurationProvider,
+                                                IShaderProvider shaderProvider)
         {
             _eifFileProvider = eifFileProvider;
             _hatConfigurationProvider = hatConfigurationProvider;
+            _shaderProvider = shaderProvider;
         }
 
         public IEnumerable<ICharacterPropertyRenderer> BuildList(ICharacterTextures textures,
@@ -63,7 +66,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
             if (hatMaskType == HatMaskType.FaceMask)
             {
-                yield return new HatRenderer(renderProperties, textures.Hat, textures.Hair);
+                yield return new HatRenderer(_shaderProvider, renderProperties, textures.Hat, textures.Hair);
                 yield return new HairRenderer(renderProperties, textures.Hair);
             }
             else
@@ -71,7 +74,7 @@ namespace EndlessClient.Rendering.CharacterProperties
                 if (hatMaskType == HatMaskType.Standard)
                     yield return new HairRenderer(renderProperties, textures.Hair);
 
-                yield return new HatRenderer(renderProperties, textures.Hat, textures.Hair);
+                yield return new HatRenderer(_shaderProvider, renderProperties, textures.Hat, textures.Hair);
             }
 
             if (!shieldAdded)
@@ -98,8 +101,6 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         private HatMaskType GetHatMaskType(ICharacterRenderProperties renderProperties)
         {
-            //todo: i might have this backwards...
-
             var hatInfo = EIFFile.Data.FirstOrDefault(
                 x => x.Type == ItemType.Hat &&
                      x.DollGraphic == renderProperties.HatGraphic);

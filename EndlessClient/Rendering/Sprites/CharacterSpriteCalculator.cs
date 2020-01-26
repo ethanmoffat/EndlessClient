@@ -353,15 +353,18 @@ namespace EndlessClient.Rendering.Sprites
 
         public ISpriteSheet GetHairTexture(ICharacterRenderProperties characterRenderProperties)
         {
-            if(characterRenderProperties.HairStyle == 0)
-                return new EmptySpriteSheet();
+            // Use dummy rectangle for no hair so hats are still correctly aligned
+            var hairStyle = characterRenderProperties.HairStyle == 0 ? 1 : characterRenderProperties.HairStyle;
 
             var gfxFile = characterRenderProperties.Gender == 0 ? GFXTypes.FemaleHair : GFXTypes.MaleHair;
             var offset = 2 * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
-            var gfxNumber = GetBaseHairGraphic(characterRenderProperties.HairStyle, characterRenderProperties.HairColor) + 2 + offset;
+            var gfxNumber = GetBaseHairGraphic(hairStyle, characterRenderProperties.HairColor) + 2 + offset;
 
             var hairTexture = _gfxManager.TextureFromResource(gfxFile, gfxNumber, true);
-            return new SpriteSheet(hairTexture);
+
+            return characterRenderProperties.HairStyle == 0
+                ? (ISpriteSheet)new EmptySpriteSheet(new Rectangle(0, 0, hairTexture.Width, hairTexture.Height))
+                : new SpriteSheet(hairTexture);
         }
 
         public ISpriteSheet GetFaceTexture(ICharacterRenderProperties characterRenderProperties)

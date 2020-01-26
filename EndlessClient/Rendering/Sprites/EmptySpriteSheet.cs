@@ -12,7 +12,15 @@ namespace EndlessClient.Rendering.Sprites
     {
         public bool HasTexture => false;
         public Texture2D SheetTexture => null;
-        public Rectangle SourceRectangle => Rectangle.Empty;
+        public Rectangle SourceRectangle { get; }
+
+        public EmptySpriteSheet()
+            : this(Rectangle.Empty) { }
+
+        public EmptySpriteSheet(Rectangle sourceRectangle)
+        {
+            SourceRectangle = sourceRectangle;
+        }
 
         public T[] GetSourceTextureData<T>() where T : struct
         {

@@ -29,10 +29,10 @@ namespace EOLib.Domain.Chat.Commands
 
         public bool Execute(string parameter)
         {
-            ushort requestID;
+            short requestID;
             do
             {
-                requestID = (ushort) _random.Next(ushort.MinValue, ushort.MaxValue - 1);
+                requestID = (short) _random.Next(0, short.MaxValue - 1);
             } while (_pingTimeRepository.PingRequests.ContainsKey(requestID));
 
             _pingTimeRepository.PingRequests.Add(requestID, DateTime.Now);
