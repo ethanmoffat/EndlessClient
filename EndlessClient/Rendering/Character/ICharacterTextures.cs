@@ -13,8 +13,9 @@ namespace EndlessClient.Rendering.Character
         ISpriteSheet Boots { get; }
         ISpriteSheet Armor { get; }
         ISpriteSheet Hat { get; }
-        Texture2D Shield { get; }
-        Texture2D Weapon { get; }
+        ISpriteSheet Shield { get; }
+        ISpriteSheet Weapon { get; }
+        ISpriteSheet WeaponExtra { get; }
 
         ISpriteSheet Hair { get; }
         ISpriteSheet Skin { get; }

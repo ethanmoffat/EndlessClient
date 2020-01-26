@@ -9,6 +9,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using EOLib.IO;
+using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using EOLib.Net.API;
@@ -152,7 +153,7 @@ namespace EndlessClient.Rendering.Sprites
             var offset = GetBaseOffsetFromDirection(characterRenderProperties.Direction);
 
             //front shields have one size gfx, back arrows/wings have another size.
-            if (!ShieldIsOnBack(characterRenderProperties))
+            if (!EIFFile.IsShieldOnBack(characterRenderProperties.ShieldGraphic))
             {
                 if (characterRenderProperties.CurrentAction == CharacterActionState.Walking)
                 {
@@ -189,8 +190,7 @@ namespace EndlessClient.Rendering.Sprites
                 //    Standing = 1/2
                 //    Attacking = 3/4
                 //    Extra = 5 (unused?)
-                if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking &&
-                    characterRenderProperties.AttackFrame == 1)
+                if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking)
                     type = ArmorShieldSpriteType.ShieldItemOnBack_AttackingWithBow;
             }
 
@@ -201,10 +201,11 @@ namespace EndlessClient.Rendering.Sprites
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
         }
 
-        public ISpriteSheet GetWeaponTexture(ICharacterRenderProperties characterRenderProperties)
+        public ISpriteSheet[] GetWeaponTextures(ICharacterRenderProperties characterRenderProperties)
         {
-            if(characterRenderProperties.WeaponGraphic == 0)
-                return new EmptySpriteSheet();
+            var retTextures = new ISpriteSheet[] { new EmptySpriteSheet(), new EmptySpriteSheet() };
+            if (characterRenderProperties.WeaponGraphic == 0)
+                return retTextures;
 
             var type = WeaponSpriteType.Standing;
             switch (characterRenderProperties.CurrentAction)
@@ -244,16 +245,35 @@ namespace EndlessClient.Rendering.Sprites
                     type = WeaponSpriteType.SpellCast;
                     break;
                 case CharacterActionState.Sitting:
-                    return new EmptySpriteSheet(); //no weapon when sitting
+                    return retTextures; //no weapon when sitting
             }
 
             var gfxFile = characterRenderProperties.Gender == 0 ? GFXTypes.FemaleWeapons : GFXTypes.MaleWeapons;
 
-            var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
             var baseWeaponValue = GetBaseWeaponGraphic(characterRenderProperties.WeaponGraphic);
-            var gfxNumber = baseWeaponValue + (int)type + offset;
 
-            return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
+            if (type == WeaponSpriteType.SwingFrame2Spec)
+            {
+                // SwingFrame2Spec is rendered in front of the character
+                var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+                var gfxNumber = baseWeaponValue + (int)type + offset;
+                retTextures[0] = new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
+
+                // SwingFrame2 is rendered behind the character
+                type = WeaponSpriteType.SwingFrame2;
+                offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+                gfxNumber = baseWeaponValue + (int)type + offset;
+                retTextures[1] = new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
+            }
+            else
+            {
+                var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+                var gfxNumber = baseWeaponValue + (int)type + offset;
+
+                retTextures[0] = new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
+            }
+
+            return retTextures;
         }
 
         public ISpriteSheet GetSkinTexture(ICharacterRenderProperties characterRenderProperties)
@@ -486,25 +506,10 @@ namespace EndlessClient.Rendering.Sprites
                 return false;
 
             var itemData = EIFFile.Data;
-            var weaponInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Weapon &&
+            var weaponInfo = itemData.FirstOrDefault(x => x.Type == ItemType.Weapon &&
                                                             x.DollGraphic == characterRenderProperties.WeaponGraphic);
 
             return weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
-        }
-
-        private bool ShieldIsOnBack(ICharacterRenderProperties characterRenderProperties)
-        {
-            if (EIFFile == null || EIFFile.Data == null)
-                return false;
-
-            var itemData = EIFFile.Data;
-            var shieldInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Shield &&
-                                                            x.DollGraphic == characterRenderProperties.ShieldGraphic);
-
-            return shieldInfo != null &&
-                    (shieldInfo.Name == "Bag" ||
-                    shieldInfo.SubType == ItemSubType.Arrows ||
-                    shieldInfo.SubType == ItemSubType.Wings);
         }
 
         private IPubFile<EIFRecord> EIFFile => _eifFileProvider.EIFFile;

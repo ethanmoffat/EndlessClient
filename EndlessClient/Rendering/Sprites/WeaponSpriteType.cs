@@ -14,7 +14,7 @@ namespace EndlessClient.Rendering.Sprites
         SpellCast = 11, //11/12
         SwingFrame1 = 13, //13/15
         SwingFrame2 = 14, //14/16
-        SwingFrame2Spec = 17, //17 - special frame so that it shows well in the hand
+        SwingFrame2Spec = 17, //17 - special frame rendered on top of the character in certain directions
         //invalid for non-ranged weapons:
         Shooting = 18, //18/19 AND 21/22 have same gfx
     }
