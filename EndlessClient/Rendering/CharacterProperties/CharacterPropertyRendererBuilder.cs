@@ -35,6 +35,9 @@ namespace EndlessClient.Rendering.CharacterProperties
         {
             bool shieldAdded = false, weaponAdded = false;
 
+            // Melee weapons render extra behind the character
+            yield return new WeaponRenderer(renderProperties, textures.WeaponExtra, EIFFile.IsRangedWeapon(renderProperties.WeaponGraphic));
+
             if (IsShieldBehindCharacter(renderProperties))
             {
                 shieldAdded = true;
@@ -44,7 +47,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             if (IsWeaponBehindCharacter(renderProperties))
             {
                 weaponAdded = true;
-                yield return new WeaponRenderer(renderProperties, textures.Weapon, EIFFile);
+                yield return new WeaponRenderer(renderProperties, textures.Weapon, EIFFile.IsRangedWeapon(renderProperties.WeaponGraphic));
             }
 
             yield return new SkinRenderer(renderProperties, textures.Skin);
@@ -54,7 +57,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             yield return new BootsRenderer(renderProperties, textures.Boots);
             yield return new ArmorRenderer(renderProperties, textures.Armor);
             if (!weaponAdded)
-                yield return new WeaponRenderer(renderProperties, textures.Weapon, EIFFile);
+                yield return new WeaponRenderer(renderProperties, textures.Weapon, EIFFile.IsRangedWeapon(renderProperties.WeaponGraphic));
 
             var hatMaskType = GetHatMaskType(renderProperties);
 

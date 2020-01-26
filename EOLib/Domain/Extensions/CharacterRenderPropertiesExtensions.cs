@@ -14,9 +14,9 @@ namespace EOLib.Domain.Extensions
             return directions.Contains(renderProperties.Direction);
         }
 
-        public static bool IsActing(this ICharacterRenderProperties renderProperties, CharacterActionState action)
+        public static bool IsActing(this ICharacterRenderProperties renderProperties, params CharacterActionState[] actions)
         {
-            return renderProperties.CurrentAction == action;
+            return actions.Contains(renderProperties.CurrentAction);
         }
 
         public static int GetDestinationX(this ICharacterRenderProperties renderProperties)
