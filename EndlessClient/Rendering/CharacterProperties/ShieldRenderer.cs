@@ -16,14 +16,17 @@ namespace EndlessClient.Rendering.CharacterProperties
     {
         private readonly ICharacterRenderProperties _renderProperties;
         private readonly ISpriteSheet _shieldSheet;
+        private readonly bool _isShieldOnBack;
 
         public bool CanRender => _shieldSheet.HasTexture && _renderProperties.ShieldGraphic != 0;
 
         public ShieldRenderer(ICharacterRenderProperties renderProperties,
-                              ISpriteSheet shieldSheet)
+                              ISpriteSheet shieldSheet,
+                              bool isShieldOnBack)
         {
             _renderProperties = renderProperties;
             _shieldSheet = shieldSheet;
+            _isShieldOnBack = isShieldOnBack;
         }
 
         public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
@@ -38,32 +41,45 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         private Vector2 GetOffsets(Rectangle parentCharacterDrawArea)
         {
-            var resX = (float)Math.Floor(Math.Abs((float)_shieldSheet.SourceRectangle.Width - parentCharacterDrawArea.Width) / 2);
-            var resY = (float)Math.Floor(Math.Abs((float)_shieldSheet.SourceRectangle.Height - parentCharacterDrawArea.Height) / 2) + 5;
+            var resX = 0f;
+            var resY = 0f;
 
-            // TODO: these offsets only apply for front shields (not arrows or wings)
-            if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
+            if (_isShieldOnBack)
             {
-                resX -= parentCharacterDrawArea.Width * 1.5f;
+                resX = -(float)Math.Floor(Math.Abs((float)_shieldSheet.SourceRectangle.Width - parentCharacterDrawArea.Width) / 2);
+                resY = -(float)Math.Floor(parentCharacterDrawArea.Height / 3f) - 1;
 
                 if (_renderProperties.AttackFrame == 2)
                     resX -= 2;
-
-                resX += 2;
             }
             else
             {
-                resX -= parentCharacterDrawArea.Width / 1.5f;
+                resX = (float)Math.Floor(Math.Abs((float)_shieldSheet.SourceRectangle.Width - parentCharacterDrawArea.Width) / 2);
+                resY = (float)Math.Floor(Math.Abs((float)_shieldSheet.SourceRectangle.Height - parentCharacterDrawArea.Height) / 2) + 5;
 
-                if (_renderProperties.AttackFrame == 2)
+                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
+                {
+                    resX -= parentCharacterDrawArea.Width * 1.5f;
+
+                    if (_renderProperties.AttackFrame == 2)
+                        resX -= 2;
+
                     resX += 2;
+                }
+                else
+                {
+                    resX -= parentCharacterDrawArea.Width / 1.5f;
 
-                resX -= 3;
+                    if (_renderProperties.AttackFrame == 2)
+                        resX += 2;
+
+                    resX -= 3;
+                }
+
+                resY -= _renderProperties.Gender;
+                if (_renderProperties.IsActing(CharacterActionState.Walking))
+                    resY -= 1;
             }
-
-            resY -= _renderProperties.Gender;
-            if (_renderProperties.IsActing(CharacterActionState.Walking))
-                resY -= 1;
 
             return new Vector2(resX, resY);
         }

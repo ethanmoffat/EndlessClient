@@ -37,7 +37,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             if (IsShieldBehindCharacter(renderProperties))
             {
                 shieldAdded = true;
-                yield return new ShieldRenderer(renderProperties, textures.Shield);
+                yield return new ShieldRenderer(renderProperties, textures.Shield, IsShieldOnBack(renderProperties));
             }
 
             if (IsWeaponBehindCharacter(renderProperties))
@@ -71,7 +71,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             }
 
             if (!shieldAdded)
-                yield return new ShieldRenderer(renderProperties, textures.Shield);
+                yield return new ShieldRenderer(renderProperties, textures.Shield, IsShieldOnBack(renderProperties));
         }
 
         private bool IsShieldBehindCharacter(ICharacterRenderProperties renderProperties)

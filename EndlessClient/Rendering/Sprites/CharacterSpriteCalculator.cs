@@ -189,8 +189,7 @@ namespace EndlessClient.Rendering.Sprites
                 //    Standing = 1/2
                 //    Attacking = 3/4
                 //    Extra = 5 (unused?)
-                if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking &&
-                    characterRenderProperties.AttackFrame == 1)
+                if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking)
                     type = ArmorShieldSpriteType.ShieldItemOnBack_AttackingWithBow;
             }
 
@@ -489,6 +488,7 @@ namespace EndlessClient.Rendering.Sprites
             return weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;
         }
 
+        // TODO: This is the same code in CharacterPropertyRendererBuilder
         private bool ShieldIsOnBack(ICharacterRenderProperties characterRenderProperties)
         {
             if (EIFFile == null || EIFFile.Data == null)
