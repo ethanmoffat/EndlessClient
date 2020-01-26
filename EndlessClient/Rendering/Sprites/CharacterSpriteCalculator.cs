@@ -201,10 +201,11 @@ namespace EndlessClient.Rendering.Sprites
             return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
         }
 
-        public ISpriteSheet GetWeaponTexture(ICharacterRenderProperties characterRenderProperties)
+        public ISpriteSheet[] GetWeaponTextures(ICharacterRenderProperties characterRenderProperties)
         {
-            if(characterRenderProperties.WeaponGraphic == 0)
-                return new EmptySpriteSheet();
+            var retTextures = new ISpriteSheet[] { new EmptySpriteSheet(), new EmptySpriteSheet() };
+            if (characterRenderProperties.WeaponGraphic == 0)
+                return retTextures;
 
             var type = WeaponSpriteType.Standing;
             switch (characterRenderProperties.CurrentAction)
@@ -244,16 +245,35 @@ namespace EndlessClient.Rendering.Sprites
                     type = WeaponSpriteType.SpellCast;
                     break;
                 case CharacterActionState.Sitting:
-                    return new EmptySpriteSheet(); //no weapon when sitting
+                    return retTextures; //no weapon when sitting
             }
 
             var gfxFile = characterRenderProperties.Gender == 0 ? GFXTypes.FemaleWeapons : GFXTypes.MaleWeapons;
 
-            var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
             var baseWeaponValue = GetBaseWeaponGraphic(characterRenderProperties.WeaponGraphic);
-            var gfxNumber = baseWeaponValue + (int)type + offset;
 
-            return new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
+            if (type == WeaponSpriteType.SwingFrame2Spec)
+            {
+                // SwingFrame2Spec is rendered in front of the character
+                var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+                var gfxNumber = baseWeaponValue + (int)type + offset;
+                retTextures[0] = new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
+
+                // SwingFrame2 is rendered behind the character
+                type = WeaponSpriteType.SwingFrame2;
+                offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+                gfxNumber = baseWeaponValue + (int)type + offset;
+                retTextures[1] = new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
+            }
+            else
+            {
+                var offset = GetOffsetBasedOnState(type) * GetBaseOffsetFromDirection(characterRenderProperties.Direction);
+                var gfxNumber = baseWeaponValue + (int)type + offset;
+
+                retTextures[0] = new SpriteSheet(_gfxManager.TextureFromResource(gfxFile, gfxNumber, true));
+            }
+
+            return retTextures;
         }
 
         public ISpriteSheet GetSkinTexture(ICharacterRenderProperties characterRenderProperties)

@@ -12,7 +12,7 @@ namespace EndlessClient.Rendering.Sprites
         ISpriteSheet GetArmorTexture(ICharacterRenderProperties _characterRenderProperties);
         ISpriteSheet GetHatTexture(ICharacterRenderProperties _characterRenderProperties);
         ISpriteSheet GetShieldTexture(ICharacterRenderProperties _characterRenderProperties);
-        ISpriteSheet GetWeaponTexture(ICharacterRenderProperties _characterRenderProperties);
+        ISpriteSheet[] GetWeaponTextures(ICharacterRenderProperties _characterRenderProperties);
 
         ISpriteSheet GetSkinTexture(ICharacterRenderProperties _characterRenderProperties);
         ISpriteSheet GetHairTexture(ICharacterRenderProperties _characterRenderProperties);
