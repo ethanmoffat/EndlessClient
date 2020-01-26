@@ -503,7 +503,7 @@ namespace EndlessClient.Rendering.Sprites
                 return false;
 
             var itemData = EIFFile.Data;
-            var weaponInfo = itemData.SingleOrDefault(x => x.Type == ItemType.Weapon &&
+            var weaponInfo = itemData.FirstOrDefault(x => x.Type == ItemType.Weapon &&
                                                             x.DollGraphic == characterRenderProperties.WeaponGraphic);
 
             return weaponInfo != null && weaponInfo.SubType == ItemSubType.Ranged;

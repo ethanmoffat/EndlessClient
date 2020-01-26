@@ -85,7 +85,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         private bool IsWeaponBehindCharacter(ICharacterRenderProperties renderProperties)
         {
-             var weaponInfo = EIFFile.Data.SingleOrDefault(
+             var weaponInfo = EIFFile.Data.FirstOrDefault(
                 x => x.Type == ItemType.Weapon &&
                      x.DollGraphic == renderProperties.WeaponGraphic);
 
@@ -100,7 +100,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         {
             //todo: i might have this backwards...
 
-            var hatInfo = EIFFile.Data.SingleOrDefault(
+            var hatInfo = EIFFile.Data.FirstOrDefault(
                 x => x.Type == ItemType.Hat &&
                      x.DollGraphic == renderProperties.HatGraphic);
 
