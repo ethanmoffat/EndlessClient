@@ -41,16 +41,15 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         private Vector2 GetOffsets(Rectangle parentCharacterDrawArea)
         {
-            var resX = 0f;
-            var resY = 0f;
+            float resX, resY;
 
             if (_isShieldOnBack)
             {
                 resX = -(float)Math.Floor(Math.Abs((float)_shieldSheet.SourceRectangle.Width - parentCharacterDrawArea.Width) / 2);
-                resY = -(float)Math.Floor(parentCharacterDrawArea.Height / 3f) - 1;
+                resY = -(float)Math.Floor(parentCharacterDrawArea.Height / 3f) - _renderProperties.Gender;
 
                 if (_renderProperties.AttackFrame == 2)
-                    resX -= 2;
+                    resX += _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 2 : -2;
             }
             else
             {
