@@ -49,7 +49,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
 #if LINUX
             spriteBatch.End();
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
 #endif
         }
     }
