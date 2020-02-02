@@ -12,31 +12,27 @@ using System;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-    public class ShieldRenderer : ICharacterPropertyRenderer
+    public class ShieldRenderer : BaseCharacterPropertyRenderer
     {
-        private readonly ICharacterRenderProperties _renderProperties;
         private readonly ISpriteSheet _shieldSheet;
         private readonly bool _isShieldOnBack;
 
-        public bool CanRender => _shieldSheet.HasTexture && _renderProperties.ShieldGraphic != 0;
+        public override bool CanRender => _shieldSheet.HasTexture && _renderProperties.ShieldGraphic != 0;
 
         public ShieldRenderer(ICharacterRenderProperties renderProperties,
                               ISpriteSheet shieldSheet,
                               bool isShieldOnBack)
+            : base(renderProperties)
         {
-            _renderProperties = renderProperties;
             _shieldSheet = shieldSheet;
             _isShieldOnBack = isShieldOnBack;
         }
 
-        public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
             var offsets = GetOffsets(parentCharacterDrawArea);
             var drawLoc = new Vector2(parentCharacterDrawArea.X + offsets.X, parentCharacterDrawArea.Y + offsets.Y);
-
-            spriteBatch.Draw(_shieldSheet.SheetTexture, drawLoc, _shieldSheet.SourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f,
-                             _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                             0.0f);
+            Render(spriteBatch, _shieldSheet, drawLoc);
         }
 
         private Vector2 GetOffsets(Rectangle parentCharacterDrawArea)

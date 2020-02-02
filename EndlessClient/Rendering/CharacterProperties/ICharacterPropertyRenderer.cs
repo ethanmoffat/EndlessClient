@@ -11,6 +11,8 @@ namespace EndlessClient.Rendering.CharacterProperties
     {
         bool CanRender { get; }
 
+        float LayerDepth { get; set; }
+
         void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea);
     }
 }

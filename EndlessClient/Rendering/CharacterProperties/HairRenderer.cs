@@ -11,30 +11,25 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-    public class HairRenderer : ICharacterPropertyRenderer
+    public class HairRenderer : BaseCharacterPropertyRenderer
     {
-        private readonly ICharacterRenderProperties _renderProperties;
         private readonly ISpriteSheet _hairSheet;
         private readonly HairRenderLocationCalculator _hairRenderLocationCalculator;
 
-        public bool CanRender => _hairSheet.HasTexture && _renderProperties.HairStyle != 0;
+        public override bool CanRender => _hairSheet.HasTexture && _renderProperties.HairStyle != 0;
 
         public HairRenderer(ICharacterRenderProperties renderProperties,
                             ISpriteSheet hairSheet)
+            : base(renderProperties)
         {
-            _renderProperties = renderProperties;
             _hairSheet = hairSheet;
-
             _hairRenderLocationCalculator = new HairRenderLocationCalculator(_renderProperties);
         }
 
-        public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
             var drawLoc = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea);
-
-            spriteBatch.Draw(_hairSheet.SheetTexture, drawLoc, _hairSheet.SourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f,
-                             _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                             0.0f);
+            Render(spriteBatch, _hairSheet, drawLoc);
         }
     }
 }

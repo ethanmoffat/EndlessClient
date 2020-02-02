@@ -12,28 +12,24 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-    public class ArmorRenderer : ICharacterPropertyRenderer
+    public class ArmorRenderer : BaseCharacterPropertyRenderer
     {
-        private readonly ICharacterRenderProperties _renderProperties;
         private readonly ISpriteSheet _armorSheet;
 
-        public bool CanRender => _armorSheet.HasTexture && _renderProperties.ArmorGraphic != 0;
+        public override bool CanRender => _armorSheet.HasTexture && _renderProperties.ArmorGraphic != 0;
 
         public ArmorRenderer(ICharacterRenderProperties renderProperties,
                              ISpriteSheet armorSheet)
+            : base(renderProperties)
         {
-            _renderProperties = renderProperties;
             _armorSheet = armorSheet;
         }
 
-        public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
             var offsets = GetOffsets(parentCharacterDrawArea.Size.ToVector2());
             var drawLoc = new Vector2(parentCharacterDrawArea.X - 2 + offsets.X, parentCharacterDrawArea.Y + offsets.Y);
-
-            spriteBatch.Draw(_armorSheet.SheetTexture, drawLoc, _armorSheet.SourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f,
-                             _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                             0.0f);
+            Render(spriteBatch, _armorSheet, drawLoc);
         }
 
         private Vector2 GetOffsets(Vector2 parentCharacterSize)
