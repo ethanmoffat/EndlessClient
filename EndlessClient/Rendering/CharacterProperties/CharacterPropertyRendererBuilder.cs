@@ -49,9 +49,11 @@ namespace EndlessClient.Rendering.CharacterProperties
                 LayerDepth = BaseLayer * (IsWeaponBehindCharacter(renderProperties) ? 3 : 12)
             };
 
-            yield return new SkinRenderer(renderProperties, textures.Skin) { LayerDepth = BaseLayer * 4 };
-            yield return new FaceRenderer(renderProperties, textures.Face, textures.Skin) { LayerDepth = BaseLayer * 5 };
-            yield return new EmoteRenderer(renderProperties, textures.Emote, textures.Skin) { LayerDepth = BaseLayer * 6 };
+            var isRanged = EIFFile.IsRangedWeapon(renderProperties.WeaponGraphic);
+
+            yield return new SkinRenderer(renderProperties, textures.Skin, isRanged) { LayerDepth = BaseLayer * 4 };
+            yield return new FaceRenderer(renderProperties, textures.Face, textures.Skin, isRanged) { LayerDepth = BaseLayer * 5 };
+            yield return new EmoteRenderer(renderProperties, textures.Emote, textures.Skin, isRanged) { LayerDepth = BaseLayer * 6 };
 
             yield return new BootsRenderer(renderProperties, textures.Boots) { LayerDepth = BaseLayer * 7 };
             yield return new ArmorRenderer(renderProperties, textures.Armor) { LayerDepth = BaseLayer * 8 };
