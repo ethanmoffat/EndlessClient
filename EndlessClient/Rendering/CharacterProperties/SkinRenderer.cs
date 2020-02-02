@@ -6,35 +6,31 @@ using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
-using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-    public class SkinRenderer : ICharacterPropertyRenderer
+    public class SkinRenderer : BaseCharacterPropertyRenderer
     {
-        private readonly ICharacterRenderProperties _renderProperties;
         private readonly ISpriteSheet _skinSheet;
         private readonly SkinRenderLocationCalculator _skinRenderLocationCalculator;
 
-        public bool CanRender => true;
+        public override bool CanRender => true;
 
         public SkinRenderer(ICharacterRenderProperties renderProperties,
                             ISpriteSheet skinSheet)
+            : base(renderProperties)
         {
-            _renderProperties = renderProperties;
             _skinSheet = skinSheet;
             
             _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties);
         }
 
-        public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
             var drawLoc = _skinRenderLocationCalculator.CalculateDrawLocationOfCharacterSkin(_skinSheet.SourceRectangle, parentCharacterDrawArea);
-            spriteBatch.Draw(_skinSheet.SheetTexture, drawLoc, _skinSheet.SourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f,
-                             _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                             0.0f);
+            Render(spriteBatch, _skinSheet, drawLoc);
         }
     }
 }

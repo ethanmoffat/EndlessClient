@@ -5,41 +5,35 @@
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
-using EOLib.IO.Pub;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-    public class EmoteRenderer : ICharacterPropertyRenderer
+    public class EmoteRenderer : BaseCharacterPropertyRenderer
     {
-        private readonly ICharacterRenderProperties _renderProperties;
         private readonly ISpriteSheet _emoteSheet;
         private readonly ISpriteSheet _skinSheet;
         private readonly SkinRenderLocationCalculator _skinRenderLocationCalculator;
 
-        public bool CanRender => _renderProperties.IsActing(CharacterActionState.Emote) &&
+        public override bool CanRender => _renderProperties.IsActing(CharacterActionState.Emote) &&
                                  _renderProperties.EmoteFrame > 0;
 
         public EmoteRenderer(ICharacterRenderProperties renderProperties,
                              ISpriteSheet emoteSheet,
                              ISpriteSheet skinSheet)
+            : base(renderProperties)
         {
-            _renderProperties = renderProperties;
             _emoteSheet = emoteSheet;
             _skinSheet = skinSheet;
             _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties);
         }
 
-        public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
             var skinLoc = _skinRenderLocationCalculator.CalculateDrawLocationOfCharacterSkin(_skinSheet.SourceRectangle, parentCharacterDrawArea);
             var emotePos = new Vector2(skinLoc.X - 15, parentCharacterDrawArea.Y - _emoteSheet.SheetTexture.Height + 10);
-
-            spriteBatch.Draw(_emoteSheet.SheetTexture,
-                             emotePos,
-                             _emoteSheet.SourceRectangle,
-                             Color.FromNonPremultiplied(0xff, 0xff, 0xff, 128));
+            Render(spriteBatch, _emoteSheet, emotePos, 128);
         }
     }
 }

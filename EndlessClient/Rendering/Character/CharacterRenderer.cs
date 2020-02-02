@@ -183,7 +183,7 @@ namespace EndlessClient.Rendering.Character
         {
             GraphicsDevice.SetRenderTarget(_charRenderTarget);
             GraphicsDevice.Clear(Color.Transparent);
-            _sb.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
+            _sb.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
 
             var characterPropertyRenderers = _characterPropertyRendererBuilder
                 .BuildList(_characterTextures, RenderProperties)

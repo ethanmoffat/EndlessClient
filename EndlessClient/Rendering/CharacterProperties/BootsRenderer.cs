@@ -12,30 +12,26 @@ using System;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
-    public class BootsRenderer : ICharacterPropertyRenderer
+    public class BootsRenderer : BaseCharacterPropertyRenderer
     {
-        private readonly ICharacterRenderProperties _renderProperties;
         private readonly ISpriteSheet _bootsSheet;
 
-        public bool CanRender => _bootsSheet.HasTexture && _renderProperties.BootsGraphic != 0;
+        public override bool CanRender => _bootsSheet.HasTexture && _renderProperties.BootsGraphic != 0;
 
         public BootsRenderer(ICharacterRenderProperties renderProperties,
                              ISpriteSheet bootsSheet)
+            : base(renderProperties)
         {
-            _renderProperties = renderProperties;
             _bootsSheet = bootsSheet;
         }
 
-        public void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
+        public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
             var offsets = GetOffsets(parentCharacterDrawArea);
             var drawLoc = new Vector2(parentCharacterDrawArea.X + offsets.X,
                                       // Center the Y coordinate over the bottom half of the character sprite
                                       parentCharacterDrawArea.Y + offsets.Y);
-
-            spriteBatch.Draw(_bootsSheet.SheetTexture, drawLoc, _bootsSheet.SourceRectangle, Color.White, 0.0f, Vector2.Zero, 1.0f,
-                             _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
-                             0.0f);
+            Render(spriteBatch, _bootsSheet, drawLoc);
         }
 
         private Vector2 GetOffsets(Rectangle parentCharacterDrawArea)
