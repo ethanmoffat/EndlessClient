@@ -15,7 +15,6 @@ namespace EndlessClient.Rendering.CharacterProperties
     {
         private readonly ISpriteSheet _faceSheet;
         private readonly ISpriteSheet _skinSheet;
-        private readonly bool _weaponIsRanged;
         private readonly SkinRenderLocationCalculator _skinRenderLocationCalculator;
 
         public override bool CanRender => _renderProperties.IsActing(CharacterActionState.Emote) &&
@@ -23,14 +22,12 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public FaceRenderer(ICharacterRenderProperties renderProperties,
                             ISpriteSheet faceSheet,
-                            ISpriteSheet skinSheet,
-                            bool weaponIsRanged)
+                            ISpriteSheet skinSheet)
             : base(renderProperties)
         {
             _faceSheet = faceSheet;
             _skinSheet = skinSheet;
-            _weaponIsRanged = weaponIsRanged;
-            _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties, _weaponIsRanged);
+            _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties);
         }
 
         public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)

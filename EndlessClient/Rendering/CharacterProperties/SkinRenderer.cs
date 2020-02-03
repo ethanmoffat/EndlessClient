@@ -14,20 +14,17 @@ namespace EndlessClient.Rendering.CharacterProperties
     public class SkinRenderer : BaseCharacterPropertyRenderer
     {
         private readonly ISpriteSheet _skinSheet;
-        private readonly bool _weaponIsRanged;
         private readonly SkinRenderLocationCalculator _skinRenderLocationCalculator;
 
         public override bool CanRender => true;
 
         public SkinRenderer(ICharacterRenderProperties renderProperties,
-                            ISpriteSheet skinSheet,
-                            bool weaponIsRanged)
+                            ISpriteSheet skinSheet)
             : base(renderProperties)
         {
             _skinSheet = skinSheet;
-            _weaponIsRanged = weaponIsRanged;
 
-            _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties, _weaponIsRanged);
+            _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties);
         }
 
         public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)

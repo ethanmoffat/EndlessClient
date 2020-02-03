@@ -15,17 +15,14 @@ namespace EndlessClient.Rendering.CharacterProperties
     public class WeaponRenderer : BaseCharacterPropertyRenderer
     {
         private readonly ISpriteSheet _weaponSheet;
-        private readonly bool _isRangedWeapon;
 
         public override bool CanRender => _weaponSheet.HasTexture && _renderProperties.WeaponGraphic != 0;
 
         public WeaponRenderer(ICharacterRenderProperties renderProperties,
-                              ISpriteSheet weaponSheet,
-                              bool isRangedWeapon)
+                              ISpriteSheet weaponSheet)
             : base(renderProperties)
         {
             _weaponSheet = weaponSheet;
-            _isRangedWeapon = isRangedWeapon;
         }
 
         public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
@@ -42,7 +39,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         {
             float resX, resY;
 
-            if (_isRangedWeapon)
+            if (_renderProperties.IsRangedWeapon)
             {
                 resX = 0;
                 resY = 0;

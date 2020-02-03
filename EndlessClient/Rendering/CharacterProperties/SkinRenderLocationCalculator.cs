@@ -13,13 +13,10 @@ namespace EndlessClient.Rendering.CharacterProperties
     public class SkinRenderLocationCalculator
     {
         private readonly ICharacterRenderProperties _renderProperties;
-        private readonly bool _weaponIsRanged;
 
-        public SkinRenderLocationCalculator(ICharacterRenderProperties renderProperties,
-                                            bool weaponIsRanged)
+        public SkinRenderLocationCalculator(ICharacterRenderProperties renderProperties)
         {
             _renderProperties = renderProperties;
-            _weaponIsRanged = weaponIsRanged;
         }
 
         public Vector2 CalculateDrawLocationOfCharacterSkin(Rectangle skinRectangle, Rectangle parentCharacterDrawArea)
