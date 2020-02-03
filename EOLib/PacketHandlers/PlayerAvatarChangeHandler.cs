@@ -8,6 +8,8 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.IO.Extensions;
+using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
@@ -17,16 +19,19 @@ namespace EOLib.PacketHandlers
     public class PlayerAvatarChangeHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
+        private readonly IEIFFileProvider _eifFileProvider;
 
         public override PacketFamily Family => PacketFamily.Avatar;
 
         public override PacketAction Action => PacketAction.Agree;
 
         public PlayerAvatarChangeHandler(IPlayerInfoProvider playerInfoProvider,
-                                         ICurrentMapStateRepository currentMapStateRepository)
+                                         ICurrentMapStateRepository currentMapStateRepository,
+                                         IEIFFileProvider eifFileProvider)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
+            _eifFileProvider = eifFileProvider;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -51,8 +56,11 @@ namespace EOLib.PacketHandlers
                     currentRenderProps = currentRenderProps
                         .WithBootsGraphic(packet.ReadShort())
                         .WithArmorGraphic(packet.ReadShort())
-                        .WithHatGraphic(packet.ReadShort())
-                        .WithWeaponGraphic(packet.ReadShort())
+                        .WithHatGraphic(packet.ReadShort());
+
+                    var weaponGraphic = packet.ReadShort();
+                    currentRenderProps = currentRenderProps
+                        .WithWeaponGraphic(weaponGraphic, _eifFileProvider.EIFFile.IsRangedWeapon(weaponGraphic))
                         .WithShieldGraphic(packet.ReadShort());
 
                     break;

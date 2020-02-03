@@ -11,6 +11,7 @@ using EndlessClient.Rendering.Factories;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.IO;
+using EOLib.IO.Extensions;
 using EOLib.IO.Pub;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
@@ -154,7 +155,8 @@ namespace EndlessClient.Test
             }
             else if (KeyPressed(Keys.D6) && !_isBowEquipped)
             {
-                _baseProperties = _baseProperties.WithWeaponGraphic(GetNextItemGraphicMatching(ItemType.Weapon, _baseProperties.WeaponGraphic));
+                var nextGraphic = GetNextItemGraphicMatching(ItemType.Weapon, _baseProperties.WeaponGraphic);
+                _baseProperties = _baseProperties.WithWeaponGraphic(nextGraphic, EIFFile.IsRangedWeapon(nextGraphic));
                 update = true;
             }
             else if (KeyPressed(Keys.D7))
@@ -174,10 +176,12 @@ namespace EndlessClient.Test
                 {
                     _lastGraphic = _baseProperties.WeaponGraphic;
                     var firstBowWeapon = EIFFile.Data.First(x => x.Type == ItemType.Weapon && x.SubType == ItemSubType.Ranged);
-                    _baseProperties = _baseProperties.WithWeaponGraphic((short)firstBowWeapon.DollGraphic);
+                    _baseProperties = _baseProperties.WithWeaponGraphic((short)firstBowWeapon.DollGraphic, isRanged: true);
                 }
                 else
-                    _baseProperties = _baseProperties.WithWeaponGraphic(_lastGraphic);
+                {
+                    _baseProperties = _baseProperties.WithWeaponGraphic(_lastGraphic, EIFFile.IsRangedWeapon(_lastGraphic));
+                }
                 
                 _isBowEquipped = !_isBowEquipped;
                 update = true;

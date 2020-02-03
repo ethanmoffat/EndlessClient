@@ -7,6 +7,8 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.IO.Extensions;
+using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using EOLib.Net.Translators;
@@ -18,6 +20,7 @@ namespace EOLib.PacketHandlers
     {
         private readonly ICurrentMapStateRepository _mapStateRepository;
         private readonly ICharacterFromPacketFactory _characterFromPacketFactory;
+        private readonly IEIFFileProvider _eifFileProvider;
 
         public override PacketFamily Family => PacketFamily.Players;
 
@@ -25,11 +28,13 @@ namespace EOLib.PacketHandlers
 
         public PlayerEnterMapHandler(IPlayerInfoProvider playerInfoProvider,
                                      ICurrentMapStateRepository mapStateRepository,
-                                     ICharacterFromPacketFactory characterFromPacketFactory)
+                                     ICharacterFromPacketFactory characterFromPacketFactory,
+                                     IEIFFileProvider eifFileProvider)
             : base(playerInfoProvider)
         {
             _mapStateRepository = mapStateRepository;
             _characterFromPacketFactory = characterFromPacketFactory;
+            _eifFileProvider = eifFileProvider;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -61,7 +66,8 @@ namespace EOLib.PacketHandlers
             var existingCharacter = _mapStateRepository.Characters.SingleOrDefault(x => x.ID == character.ID);
             if (existingCharacter != null)
             {
-                character = existingCharacter.WithAppliedData(character);
+                var isRangedWeapon = _eifFileProvider.EIFFile.IsRangedWeapon(character.RenderProperties.WeaponGraphic);
+                character = existingCharacter.WithAppliedData(character, isRangedWeapon);
                 _mapStateRepository.Characters.Remove(existingCharacter);
             }
             _mapStateRepository.Characters.Add(character);

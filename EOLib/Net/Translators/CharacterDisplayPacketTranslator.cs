@@ -5,12 +5,21 @@
 using System.Collections.Generic;
 using System.IO;
 using EOLib.Domain.Character;
+using EOLib.IO.Extensions;
+using EOLib.IO.Repositories;
 
 namespace EOLib.Net.Translators
 {
     public abstract class CharacterDisplayPacketTranslator<T> : IPacketTranslator<T>
         where T : ITranslatedData
     {
+        private readonly IEIFFileProvider _eifFileProvider;
+
+        protected CharacterDisplayPacketTranslator(IEIFFileProvider eifFileProvider)
+        {
+            _eifFileProvider = eifFileProvider;
+        }
+
         public abstract T TranslatePacket(IPacket packet);
 
         protected IEnumerable<ICharacter> GetCharacters(IPacket packet)
@@ -54,8 +63,10 @@ namespace EOLib.Net.Translators
                 .WithBootsGraphic(packet.ReadShort())
                 .WithArmorGraphic(packet.ReadShort())
                 .WithHatGraphic(packet.ReadShort())
-                .WithShieldGraphic(packet.ReadShort())
-                .WithWeaponGraphic(packet.ReadShort());
+                .WithShieldGraphic(packet.ReadShort());
+
+            var weaponGraphic = packet.ReadShort();
+            renderProperties = renderProperties.WithWeaponGraphic(weaponGraphic, _eifFileProvider.EIFFile.IsRangedWeapon(weaponGraphic));
 
             return character
                 .WithRenderProperties(renderProperties)

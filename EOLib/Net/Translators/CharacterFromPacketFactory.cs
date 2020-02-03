@@ -5,12 +5,21 @@
 using System.IO;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
+using EOLib.IO.Extensions;
+using EOLib.IO.Repositories;
 
 namespace EOLib.Net.Translators
 {
     [AutoMappedType]
     public class CharacterFromPacketFactory : ICharacterFromPacketFactory
     {
+        private readonly IEIFFileProvider _eifFileProvider;
+
+        public CharacterFromPacketFactory(IEIFFileProvider eifFileProvider)
+        {
+            _eifFileProvider = eifFileProvider;
+        }
+
         public ICharacter CreateCharacter(IPacket packet)
         {
             var name = packet.ReadBreakString();
@@ -64,7 +73,7 @@ namespace EOLib.Net.Translators
                 .WithArmorGraphic(armor)
                 .WithHatGraphic(hat)
                 .WithShieldGraphic(shield)
-                .WithWeaponGraphic(weapon)
+                .WithWeaponGraphic(weapon, _eifFileProvider.EIFFile.IsRangedWeapon(weapon))
                 .WithSitState(sitState)
                 .WithIsHidden(hidden)
                 .WithMapX(xLoc)
