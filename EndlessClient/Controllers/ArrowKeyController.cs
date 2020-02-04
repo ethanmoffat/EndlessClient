@@ -35,7 +35,7 @@ namespace EndlessClient.Controllers
 
         public bool MoveLeft()
         {
-            if (!CurrentActionIsStanding())
+            if (!CanWalkAgain())
                 return false;
 
             FaceOrAttemptWalk(EODirection.Left);
@@ -45,7 +45,7 @@ namespace EndlessClient.Controllers
 
         public bool MoveRight()
         {
-            if (!CurrentActionIsStanding())
+            if (!CanWalkAgain())
                 return false;
 
             FaceOrAttemptWalk(EODirection.Right);
@@ -55,7 +55,7 @@ namespace EndlessClient.Controllers
 
         public bool MoveUp()
         {
-            if (!CurrentActionIsStanding())
+            if (!CanWalkAgain())
                 return false;
 
             FaceOrAttemptWalk(EODirection.Up);
@@ -65,7 +65,7 @@ namespace EndlessClient.Controllers
 
         public bool MoveDown()
         {
-            if (!CurrentActionIsStanding())
+            if (!CanWalkAgain())
                 return false;
 
             FaceOrAttemptWalk(EODirection.Down);
@@ -73,9 +73,10 @@ namespace EndlessClient.Controllers
             return true;
         }
 
-        private bool CurrentActionIsStanding()
+        private bool CanWalkAgain()
         {
-            return _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing);
+            return _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing) ||
+                   _characterProvider.MainCharacter.RenderProperties.WalkFrame == CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES;
         }
 
         private bool CurrentDirectionIs(EODirection direction)

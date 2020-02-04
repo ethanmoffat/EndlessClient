@@ -8,7 +8,7 @@ namespace EOLib.Domain.Character
 {
     public class CharacterRenderProperties : ICharacterRenderProperties
     {
-        private const int MAX_NUMBER_OF_WALK_FRAMES   = 5;
+        public const int MAX_NUMBER_OF_WALK_FRAMES   = 5;
         public const int MAX_NUMBER_OF_ATTACK_FRAMES  = 3;
         public const int MAX_NUMBER_OF_RANGED_ATTACK_FRAMES = 2;
         private const int MAX_NUMBER_OF_EMOTE_FRAMES  = 3;
