@@ -19,7 +19,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly ISpriteSheet _hairSheet;
         private readonly HairRenderLocationCalculator _hairRenderLocationCalculator;
 
-        public override  bool CanRender => _hatSheet.HasTexture && _renderProperties.HatGraphic != 0;
+        public override bool CanRender => _hatSheet.HasTexture && _renderProperties.HatGraphic != 0;
 
         public HatRenderer(IShaderProvider shaderProvider,
                            ICharacterRenderProperties renderProperties,
@@ -36,12 +36,28 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
-            var offsets = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea);
-            var flippedOffset = _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? -2 : 0;
-            var drawLoc = new Vector2(offsets.X + flippedOffset, offsets.Y - 3);
+            var hairDrawLoc = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea);
+            var offsets = GetOffsets();
 
             _shaderProvider.Shaders[ShaderRepository.HairClip].CurrentTechnique.Passes[0].Apply();
-            Render(spriteBatch, _hatSheet, drawLoc);
+            Render(spriteBatch, _hatSheet, hairDrawLoc + offsets);
+        }
+
+        private Vector2 GetOffsets()
+        {
+            var xOff = 0f;
+            var yOff = -3f;
+
+            if (_renderProperties.IsRangedWeapon && _renderProperties.AttackFrame == 1)
+            {
+                yOff -= _renderProperties.IsFacing(EODirection.Down, EODirection.Right)
+                    ? 1 - _renderProperties.Gender // female needs an additional y adjustment for these specific directions
+                    : 0;
+            }
+
+            var flippedOffset = _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? -2 : 0;
+
+            return new Vector2(xOff + flippedOffset, yOff);
         }
     }
 }
