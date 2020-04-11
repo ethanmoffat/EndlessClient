@@ -9,6 +9,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System.Diagnostics;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
@@ -39,7 +40,8 @@ namespace EndlessClient.Rendering.CharacterProperties
             var hairDrawLoc = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea);
             var offsets = GetOffsets();
 
-            _shaderProvider.Shaders[ShaderRepository.HairClip].CurrentTechnique.Passes[0].Apply();
+            ApplyHairClipShader();
+
             Render(spriteBatch, _hatSheet, hairDrawLoc + offsets);
         }
 
@@ -58,6 +60,12 @@ namespace EndlessClient.Rendering.CharacterProperties
             var flippedOffset = _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? -2 : 0;
 
             return new Vector2(xOff + flippedOffset, yOff);
+        }
+
+        [Conditional("LINUX")]
+        private void ApplyHairClipShader()
+        {
+            _shaderProvider.Shaders[ShaderRepository.HairClip].CurrentTechnique.Passes[0].Apply();
         }
     }
 }

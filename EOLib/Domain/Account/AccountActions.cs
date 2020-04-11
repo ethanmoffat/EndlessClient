@@ -9,6 +9,7 @@ using AutomaticTypeMapper;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
+using EOLib.Net.PacketProcessing;
 
 namespace EOLib.Domain.Account
 {
@@ -18,14 +19,17 @@ namespace EOLib.Domain.Account
         private readonly ICreateAccountParameterValidator _createAccountParameterValidator;
         private readonly IPacketSendService _packetSendService;
         private readonly IHDSerialNumberService _hdSerialNumberService;
+        private readonly ISequenceRepository _sequenceRepository;
 
         public AccountActions(ICreateAccountParameterValidator createAccountParameterValidator,
-                                    IPacketSendService packetSendService,
-                                    IHDSerialNumberService hdSerialNumberService)
+                              IPacketSendService packetSendService,
+                              IHDSerialNumberService hdSerialNumberService,
+                              ISequenceRepository sequenceRepository)
         {
             _createAccountParameterValidator = createAccountParameterValidator;
             _packetSendService = packetSendService;
             _hdSerialNumberService = hdSerialNumberService;
+            _sequenceRepository = sequenceRepository;
         }
 
         public CreateAccountParameterResult CheckAccountCreateParameters(ICreateAccountParameters parameters)
@@ -63,8 +67,24 @@ namespace EOLib.Domain.Account
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(nameCheckPacket);
             if (IsInvalidResponse(response))
                 throw new EmptyPacketReceivedException();
+            
+            var reply = (AccountReply)response.ReadShort();
+            if (reply == AccountReply.Continue)
+            {
+                // Based on patch: https://github.com/eoserv/eoserv/commit/80dde6d4e7f440a93503aeec79f4a2f5931dc13d
+                // Account may change sequence start depending on the eoserv build being used
+                var hasNewSequence = response.Length == 7;
+                if (hasNewSequence)
+                {
+                    var newSequenceStart = response.ReadChar();
+                    _sequenceRepository.SequenceStart = newSequenceStart;
+                }
 
-            return (AccountReply)response.ReadShort();
+                if (response.ReadEndString() != "OK")
+                    reply = AccountReply.NotApproved;
+            }
+
+            return reply;
         }
 
         public async Task<AccountReply> CreateAccount(ICreateAccountParameters parameters)
