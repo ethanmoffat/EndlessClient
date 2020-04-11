@@ -40,7 +40,10 @@ namespace EndlessClient.Rendering.CharacterProperties
             var flippedOffset = _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? -2 : 0;
             var drawLoc = new Vector2(offsets.X + flippedOffset, offsets.Y - 3);
 
+#if LINUX
             _shaderProvider.Shaders[ShaderRepository.HairClip].CurrentTechnique.Passes[0].Apply();
+#endif
+
             Render(spriteBatch, _hatSheet, drawLoc);
         }
     }
