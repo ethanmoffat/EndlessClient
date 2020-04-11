@@ -11,7 +11,7 @@ namespace EndlessClient.GameExecution
     /// </summary>
     public class DebugGameRunner : GameRunnerBase
     {
-        public DebugGameRunner(ITypeRegistry registry)
-            : base(registry) { }
+        public DebugGameRunner(ITypeRegistry registry, string[] args)
+            : base(registry, args) { }
     }
 }

@@ -13,8 +13,8 @@ namespace EndlessClient.GameExecution
     /// </summary>
     public class ReleaseGameRunner : GameRunnerBase
     {
-        public ReleaseGameRunner(ITypeRegistry registry)
-            : base(registry) { }
+        public ReleaseGameRunner(ITypeRegistry registry, string[] args)
+            : base(registry, args) { }
 
         public override bool SetupDependencies()
         {

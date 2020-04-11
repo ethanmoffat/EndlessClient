@@ -14,7 +14,7 @@ namespace EndlessClient
         private static IGameRunner _gameRunner;
 
         [STAThread]
-        public static void Main()
+        public static void Main(string[] args)
         {
             var assemblyNames = new []
             {
@@ -30,9 +30,9 @@ namespace EndlessClient
             using (ITypeRegistry registry = new UnityRegistry(assemblyNames))
             {
 #if DEBUG
-                _gameRunner = new DebugGameRunner(registry);
+                _gameRunner = new DebugGameRunner(registry, args);
 #else
-                _gameRunner = new ReleaseGameRunner(registry);
+                _gameRunner = new ReleaseGameRunner(registry, args);
 #endif
                 if (_gameRunner.SetupDependencies())
                     _gameRunner.RunGame();
