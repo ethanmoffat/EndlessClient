@@ -50,13 +50,6 @@ namespace EndlessClient.Rendering.CharacterProperties
             var xOff = 0f;
             var yOff = -3f;
 
-            if (_renderProperties.IsRangedWeapon && _renderProperties.AttackFrame == 1)
-            {
-                yOff -= _renderProperties.IsFacing(EODirection.Down, EODirection.Right)
-                    ? 1 - _renderProperties.Gender // female needs an additional y adjustment for these specific directions
-                    : 0;
-            }
-
             var flippedOffset = _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? -2 : 0;
 
             return new Vector2(xOff + flippedOffset, yOff);

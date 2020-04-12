@@ -30,7 +30,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             {
                 var rangedXOff = _renderProperties.Gender == 0 ? 1 : 3;
                 resX += rangedXOff * (isFlipped ? 1 : -1);
-                resY += _renderProperties.IsFacing(EODirection.Down, EODirection.Right) ? 1 : 0;
+                resY += _renderProperties.IsFacing(EODirection.Down, EODirection.Right) ? _renderProperties.Gender : 0;
             }
             else if (_renderProperties.AttackFrame == 2)
             {
