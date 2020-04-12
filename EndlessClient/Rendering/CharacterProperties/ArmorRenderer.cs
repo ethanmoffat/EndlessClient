@@ -37,7 +37,26 @@ namespace EndlessClient.Rendering.CharacterProperties
             var resX = -(float)Math.Floor(Math.Abs(_armorSheet.SourceRectangle.Width - parentCharacterSize.X) / 2);
             var resY = -(float)Math.Floor(Math.Abs(_armorSheet.SourceRectangle.Height - parentCharacterSize.Y) / 2);
 
-            resX += _renderProperties.AttackFrame == 2 ? _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 4 : 0 : 2;
+            if ((_renderProperties.AttackFrame == 2 && !_renderProperties.IsRangedWeapon) ||
+                (_renderProperties.AttackFrame == 1 && _renderProperties.IsRangedWeapon))
+            {
+                resX += _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 4 : 0;
+
+                if (_renderProperties.IsRangedWeapon)
+                {
+                    var factor = _renderProperties.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1;
+                    resX += _renderProperties.IsFacing(EODirection.Left, EODirection.Up)
+                        ? 2 * factor
+                        : 4 * factor;
+
+                    resY += _renderProperties.IsFacing(EODirection.Down, EODirection.Right) ? 1 : 0;
+                }
+            }
+            else
+            {
+                resX += 2;
+            }
+
             resY -= _renderProperties.IsActing(CharacterActionState.Walking) ? 4 : 3;
 
             return new Vector2(resX, resY);
