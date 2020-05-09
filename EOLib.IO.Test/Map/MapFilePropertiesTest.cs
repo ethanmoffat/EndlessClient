@@ -101,9 +101,9 @@ namespace EOLib.IO.Test.Map
                 .WithName("Some test name")
                 .WithWidth(200)
                 .WithHeight(100)
-                .WithEffect(MapEffect.Quake)
+                .WithEffect(MapEffect.Quake1)
                 .WithMusic(123)
-                .WithMusicExtra(98)
+                .WithControl(98)
                 .WithAmbientNoise(4567)
                 .WithFillTile(6969)
                 .WithRelogX(33)
@@ -131,7 +131,7 @@ namespace EOLib.IO.Test.Map
             ret.AddRange(numberEncoderService.EncodeNumber(props.PKAvailable ? 3 : 0, 1));
             ret.AddRange(numberEncoderService.EncodeNumber((byte)props.Effect, 1));
             ret.AddRange(numberEncoderService.EncodeNumber(props.Music, 1));
-            ret.AddRange(numberEncoderService.EncodeNumber(props.MusicExtra, 1));
+            ret.AddRange(numberEncoderService.EncodeNumber(props.Control, 1));
             ret.AddRange(numberEncoderService.EncodeNumber(props.AmbientNoise, 2));
             ret.AddRange(numberEncoderService.EncodeNumber(props.Width, 1));
             ret.AddRange(numberEncoderService.EncodeNumber(props.Height, 1));

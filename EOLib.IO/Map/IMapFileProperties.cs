@@ -16,7 +16,7 @@ namespace EOLib.IO.Map
         byte Height { get; }
         MapEffect Effect { get; }
         byte Music { get; }
-        byte MusicExtra { get; }
+        byte Control { get; }
         short AmbientNoise { get; }
         short FillTile { get; }
         byte RelogX { get; }
@@ -36,7 +36,7 @@ namespace EOLib.IO.Map
         IMapFileProperties WithHeight(byte height);
         IMapFileProperties WithEffect(MapEffect effect);
         IMapFileProperties WithMusic(byte music);
-        IMapFileProperties WithMusicExtra(byte musicExtra);
+        IMapFileProperties WithControl(byte control);
         IMapFileProperties WithAmbientNoise(short ambientNoise);
         IMapFileProperties WithFillTile(short fillTile);
         IMapFileProperties WithRelogX(byte relogX);
