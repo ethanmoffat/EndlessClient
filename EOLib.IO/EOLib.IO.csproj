@@ -71,6 +71,7 @@
     <Compile Include="Actions\PubFileLoadActions.cs" />
     <Compile Include="EquipLocation.cs" />
     <Compile Include="Extensions\EIFFileExtensions.cs" />
+    <Compile Include="Map\MusicControl.cs" />
     <Compile Include="Map\UnknownMapEntity.cs" />
     <Compile Include="Services\Serializers\ChestSpawnMapEntitySerializer.cs" />
     <Compile Include="Map\IMapFileProperties.cs" />

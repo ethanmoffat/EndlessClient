@@ -9,6 +9,9 @@ namespace EOLib.IO.Map
         None = 0,
         HPDrain = 1,
         TPDrain = 2,
-        Quake = 3
+        Quake1 = 3,
+        Quake2 = 4,
+        Quake3 = 5,
+        Quake4 = 6
     }
 }
