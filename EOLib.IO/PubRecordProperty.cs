@@ -1,8 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
-// This file is subject to the GPL v2 License
-// For additional details, see the LICENSE file
-
-namespace EOLib.IO
+﻿namespace EOLib.IO
 {
     /// <summary>
     /// Enum representing the different properties that exist within the pub records

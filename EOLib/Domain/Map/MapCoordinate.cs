@@ -1,6 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2019
-
-namespace EOLib.Domain.Map
+﻿namespace EOLib.Domain.Map
 {
     public struct MapCoordinate
     {

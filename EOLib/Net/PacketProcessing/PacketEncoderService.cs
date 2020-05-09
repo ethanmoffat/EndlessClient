@@ -1,5 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
-// Some of this work is reverse-engineered from 
+﻿// Some of this work is reverse-engineered from 
 //     EOHAX C# DLLs written by Sausage (www.tehsausage.com)
 // This file is subject to the GPL v2 License
 // For additional details, see the LICENSE file

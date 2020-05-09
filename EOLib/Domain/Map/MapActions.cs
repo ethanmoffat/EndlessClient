@@ -1,6 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2019
-
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Net;
