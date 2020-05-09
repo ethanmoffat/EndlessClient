@@ -23,7 +23,7 @@ namespace EOLib.IO.Map
         public MapEffect Effect { get; private set; }
 
         public byte Music { get; private set; }
-        public byte Control { get; private set; }
+        public MusicControl Control { get; private set; }
         public short AmbientNoise { get; private set; }
 
         public short FillTile { get; private set; }
@@ -99,7 +99,7 @@ namespace EOLib.IO.Map
             return clone;
         }
 
-        public IMapFileProperties WithControl(byte control)
+        public IMapFileProperties WithControl(MusicControl control)
         {
             var clone = Clone();
             clone.Control = control;
