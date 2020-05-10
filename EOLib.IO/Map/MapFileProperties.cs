@@ -1,8 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
-// This file is subject to the GPL v2 License
-// For additional details, see the LICENSE file
-
-using System;
+﻿using System;
 
 namespace EOLib.IO.Map
 {
@@ -23,7 +19,7 @@ namespace EOLib.IO.Map
         public MapEffect Effect { get; private set; }
 
         public byte Music { get; private set; }
-        public byte MusicExtra { get; private set; }
+        public MusicControl Control { get; private set; }
         public short AmbientNoise { get; private set; }
 
         public short FillTile { get; private set; }
@@ -99,10 +95,10 @@ namespace EOLib.IO.Map
             return clone;
         }
 
-        public IMapFileProperties WithMusicExtra(byte musicExtra)
+        public IMapFileProperties WithControl(MusicControl control)
         {
             var clone = Clone();
-            clone.MusicExtra = musicExtra;
+            clone.Control = control;
             return clone;
         }
 
@@ -181,7 +177,7 @@ namespace EOLib.IO.Map
                 Height = Height,
                 Effect = Effect,
                 Music = Music,
-                MusicExtra = MusicExtra,
+                Control = Control,
                 AmbientNoise = AmbientNoise,
                 FillTile = FillTile,
                 RelogX = RelogX,

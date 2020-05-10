@@ -1,13 +1,16 @@
 EndlessClient
 =============
 
+[![Build status](https://ethanmoffat.visualstudio.com/EndlessClient/_apis/build/status/EndlessClient%20Gated%20Build)](https://ethanmoffat.visualstudio.com/EndlessClient/_build/latest?definitionId=7)
+
 An open source client for Endless Online written in C#
 
-NOTE: This project has been on GitHub since the end of July, 2014. If you're looking for the more feature-complete version of the code base, see the old_code branch (now protected)
+#### Want more features?
+This project has been on GitHub since the end of July, 2014. It is currently suffering through a rewrite of the code. If you're looking for the more feature-complete version of the code base, see the old_code branch (now protected)
 
-## Build Status
+#### License Update
 
-[![Build status](https://ethanmoffat.visualstudio.com/EndlessClient/_apis/build/status/EndlessClient%20Gated%20Build)](https://ethanmoffat.visualstudio.com/EndlessClient/_build/latest?definitionId=7)
+As of 2020-05-09, this project is relicensed under the MIT license. Older versions of the code are still licensed under the GNU GPLv2 license. The tag `gplv2` has been added to the final commit for which this project is licensed under the GPLv2.
 
 #### Jump to:
  - [Getting started](#GettingStarted)

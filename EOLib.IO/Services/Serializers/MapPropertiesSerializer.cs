@@ -1,8 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
-// This file is subject to the GPL v2 License
-// For additional details, see the LICENSE file
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -37,7 +33,7 @@ namespace EOLib.IO.Services.Serializers
             ret.AddRange(_numberEncoderService.EncodeNumber(mapEntity.PKAvailable ? 3 : 0, 1));
             ret.AddRange(_numberEncoderService.EncodeNumber((byte)mapEntity.Effect, 1));
             ret.AddRange(_numberEncoderService.EncodeNumber(mapEntity.Music, 1));
-            ret.AddRange(_numberEncoderService.EncodeNumber(mapEntity.MusicExtra, 1));
+            ret.AddRange(_numberEncoderService.EncodeNumber((byte)mapEntity.Control, 1));
             ret.AddRange(_numberEncoderService.EncodeNumber(mapEntity.AmbientNoise, 2));
             ret.AddRange(_numberEncoderService.EncodeNumber(mapEntity.Width, 1));
             ret.AddRange(_numberEncoderService.EncodeNumber(mapEntity.Height, 1));
@@ -71,7 +67,7 @@ namespace EOLib.IO.Services.Serializers
                                  (mapNameArray[0] == 0xFF && mapNameArray[1] == 0x01))
                 .WithEffect((MapEffect) _numberEncoderService.DecodeNumber(data[32]))
                 .WithMusic((byte) _numberEncoderService.DecodeNumber(data[33]))
-                .WithMusicExtra((byte) _numberEncoderService.DecodeNumber(data[34]))
+                .WithControl((MusicControl)_numberEncoderService.DecodeNumber(data[34]))
                 .WithAmbientNoise((short) _numberEncoderService.DecodeNumber(data[35], data[36]))
                 .WithWidth((byte) _numberEncoderService.DecodeNumber(data[37]))
                 .WithHeight((byte) _numberEncoderService.DecodeNumber(data[38]))

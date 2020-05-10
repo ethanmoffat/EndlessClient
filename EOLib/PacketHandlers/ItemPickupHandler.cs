@@ -1,6 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2019
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
