@@ -1,8 +1,4 @@
-﻿// Original Work Copyright (c) Ethan Moffat 2014-2016
-// This file is subject to the GPL v2 License
-// For additional details, see the LICENSE file
-
-namespace EOLib.Localization
+﻿namespace EOLib.Localization
 {
     /// <summary>
     /// Constants for resource string status messages in the first data file for the language
