@@ -9,6 +9,10 @@ NOTE: This project has been on GitHub since the end of July, 2014. If you're loo
 
 [![Build status](https://ethanmoffat.visualstudio.com/EndlessClient/_apis/build/status/EndlessClient%20Gated%20Build)](https://ethanmoffat.visualstudio.com/EndlessClient/_build/latest?definitionId=7)
 
+## License Update
+
+As of 2020-05-09, this project is relicensed under the MIT license. Older versions of the code are still licensed under the GNU GPLv2 license. The tag `gplv2` has been added to the final commit for which this project is licensed under the GPLv2.
+
 #### Jump to:
  - [Getting started](#GettingStarted)
  - [Contributing](contributing.md)
