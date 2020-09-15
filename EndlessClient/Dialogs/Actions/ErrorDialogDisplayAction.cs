@@ -119,6 +119,7 @@ namespace EndlessClient.Dialogs.Actions
             {
                 case LoginReply.WrongUser: message = DialogResourceID.LOGIN_ACCOUNT_NAME_NOT_FOUND; break;
                 case LoginReply.WrongUserPass: message = DialogResourceID.LOGIN_ACCOUNT_NAME_OR_PASSWORD_NOT_FOUND; break;
+                case LoginReply.AccountBanned: message = DialogResourceID.LOGIN_BANNED_FROM_SERVER; break;
                 case LoginReply.LoggedIn: message = DialogResourceID.LOGIN_ACCOUNT_ALREADY_LOGGED_ON; break;
                 case LoginReply.Busy: message = DialogResourceID.CONNECTION_SERVER_IS_FULL;  break;
                 default: throw new ArgumentOutOfRangeException(nameof(loginError), loginError, null);
