@@ -17,8 +17,8 @@ namespace EOLib.Net.Communication
 
         int Send(IPacket packet);
 
-        Task<int> SendAsync(IPacket packet, int timeout = 1500);
-        
-        Task<int> SendRawPacketAsync(IPacket packet, int timeout = 1500);
+        Task<int> SendAsync(IPacket packet, int timeout = Constants.SendTimeout);
+
+        Task<int> SendRawPacketAsync(IPacket packet, int timeout = Constants.SendTimeout);
     }
 }

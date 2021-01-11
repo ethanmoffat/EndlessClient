@@ -192,7 +192,7 @@ namespace EOLib.Net
 
         public bool SendPacket(OldPacket pkt)
         {
-            if (!m_sendLock.WaitOne(Constants.ResponseTimeout)) //do one send at a time
+            if (!m_sendLock.WaitOne(5000)) //do one send at a time
                 return false;
 
             byte[] toSend;

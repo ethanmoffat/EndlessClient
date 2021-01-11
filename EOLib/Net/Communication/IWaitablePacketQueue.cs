@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace EOLib.Net.Communication
 {
@@ -6,6 +7,6 @@ namespace EOLib.Net.Communication
     {
         void EnqueuePacketAndSignalConsumer(IPacket packet);
 
-        Task<IPacket> WaitForPacketAndDequeue(int timeOut = Constants.ResponseTimeout);
+        Task<IPacket> WaitForPacketAndDequeue(TimeSpan timeOut);
     }
 }

@@ -50,7 +50,7 @@ namespace EOLib.Net.Communication
                 return _internalQueue.Dequeue();
         }
 
-        public async Task<IPacket> WaitForPacketAndDequeue(int timeOut = Constants.ResponseTimeout)
+        public async Task<IPacket> WaitForPacketAndDequeue(TimeSpan timeOut)
         {
             if (QueuedPacketCount > 0)
                 return DequeueFirstPacket();

@@ -101,7 +101,7 @@ namespace EOLib.Net.API
                 return false;
 
             //wait for file if it is in process
-            if (m_client.ExpectingFile && !m_init_responseEvent.WaitOne(Constants.ResponseFileTimeout))
+            if (m_client.ExpectingFile && !m_init_responseEvent.WaitOne(10000))
                 return false;
 
             m_client.ExpectingPlayerList = true;
@@ -109,7 +109,7 @@ namespace EOLib.Net.API
             if (!m_client.SendPacket(pkt))
                 return false;
 
-            if (!m_init_responseEvent.WaitOne(Constants.ResponseTimeout))
+            if (!m_init_responseEvent.WaitOne(5000))
                 return false;
 
             list = m_init_onlinePlayerList;

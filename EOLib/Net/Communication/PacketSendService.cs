@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using AutomaticTypeMapper;
 
 namespace EOLib.Net.Communication
@@ -36,7 +37,7 @@ namespace EOLib.Net.Communication
             if (bytes == 0)
                 throw new NoDataSentException();
 
-            var responsePacket = await InBandQueue.WaitForPacketAndDequeue();
+            var responsePacket = await InBandQueue.WaitForPacketAndDequeue(Timeout.InfiniteTimeSpan);
             if (responsePacket is EmptyPacket)
                 throw new EmptyPacketReceivedException();
 
@@ -49,7 +50,7 @@ namespace EOLib.Net.Communication
             if (bytes == 0)
                 throw new NoDataSentException();
 
-            var responsePacket = await InBandQueue.WaitForPacketAndDequeue();
+            var responsePacket = await InBandQueue.WaitForPacketAndDequeue(Timeout.InfiniteTimeSpan);
             if (responsePacket is EmptyPacket)
                 throw new EmptyPacketReceivedException();
 
