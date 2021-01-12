@@ -42,6 +42,12 @@ namespace EndlessClient.Rendering.CharacterProperties
 
                 if (_renderProperties.AttackFrame == 2)
                     resX += _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 2 : -2;
+                else if (_renderProperties.IsRangedWeapon && _renderProperties.AttackFrame == 1)
+                {
+                    var factor = _renderProperties.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1;
+                    var extra = _renderProperties.Gender * 2;
+                    resX += factor * (1 + extra);
+                }
             }
             else
             {
