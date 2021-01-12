@@ -38,7 +38,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             yield return new WeaponRenderer(renderProperties, textures.WeaponExtra) { LayerDepth = BaseLayer };
             yield return new ShieldRenderer(renderProperties, textures.Shield, EIFFile.IsShieldOnBack(renderProperties.ShieldGraphic))
             {
-                LayerDepth = BaseLayer * (IsShieldBehindCharacter(renderProperties) ? 2 : 9)
+                LayerDepth = BaseLayer * (IsShieldBehindCharacter(renderProperties) ? 2 : 13)
             };
             yield return new WeaponRenderer(renderProperties, textures.Weapon)
             {
