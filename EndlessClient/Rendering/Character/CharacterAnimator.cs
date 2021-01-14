@@ -58,7 +58,9 @@ namespace EndlessClient.Rendering.Character
             if (_otherPlayerStartAttackingTimes.Any(HasActionForMainCharacter))
                 return;
 
-            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, GetStartingAnimationTime(ATTACK_FRAME_TIME_MS));
+            var isRangedWeapon = GetCurrentCharacterFromRepository(new RenderFrameActionTime(_characterRepository.MainCharacter.ID, Optional<DateTime>.Empty))
+                .RenderProperties.IsRangedWeapon;
+            var startAttackingTime = new RenderFrameActionTime(_characterRepository.MainCharacter.ID, GetStartingAnimationTime(ATTACK_FRAME_TIME_MS, isRangedWeapon));
             _otherPlayerStartAttackingTimes.Add(startAttackingTime);
         }
 
@@ -90,7 +92,9 @@ namespace EndlessClient.Rendering.Character
                 _otherPlayerStartAttackingTimes.Remove(existingStartTime);
             }
 
-            var startAttackingTimeAndID = new RenderFrameActionTime(characterID, GetStartingAnimationTime(ATTACK_FRAME_TIME_MS));
+            var isRangedWeapon = GetCurrentCharacterFromRepository(new RenderFrameActionTime(characterID, Optional<DateTime>.Empty))
+                .RenderProperties.IsRangedWeapon;
+            var startAttackingTimeAndID = new RenderFrameActionTime(characterID, GetStartingAnimationTime(ATTACK_FRAME_TIME_MS, isRangedWeapon));
             _otherPlayerStartAttackingTimes.Add(startAttackingTimeAndID);
         }
 
@@ -229,12 +233,12 @@ namespace EndlessClient.Rendering.Character
             _currentMapStateRepository.Characters.Add(newCharacter);
         }
 
-        private static DateTime GetStartingAnimationTime(int frameTimer)
+        private static DateTime GetStartingAnimationTime(int frameTimer, bool isRangedWeapon = false)
         {
             // make the first frame very short for animation
             // this works around a bug where the first frame is delayed for (seemingly) no good reason
             // maybe I will eventually figure out why that was happening but this seems to work just fine for now
-            return DateTime.Now.AddMilliseconds(-frameTimer);
+            return DateTime.Now.AddMilliseconds(isRangedWeapon ? 0 : -frameTimer);
         }
     }
 
