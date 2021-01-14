@@ -4,6 +4,7 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
+using EOLib.Domain.Protocol;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
@@ -181,7 +182,8 @@ namespace EOLib.Domain.Login
 
         private bool IsInvalidResponse(IPacket response)
         {
-            return response.Family != PacketFamily.Login || response.Action != PacketAction.Reply;
+            return !(response.Family == PacketFamily.Login && response.Action == PacketAction.Reply)
+                && !(response.Family == PacketFamily.Init && response.Action == PacketAction.Init && response.PeekByte() == (byte)InitReply.BannedFromServer);
         }
 
         private bool IsInvalidWelcome(IPacket response)

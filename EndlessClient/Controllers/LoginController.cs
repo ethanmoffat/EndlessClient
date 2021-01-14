@@ -80,7 +80,10 @@ namespace EndlessClient.Controllers
             if (reply == LoginReply.Ok)
                 _gameStateActions.ChangeToState(GameStates.LoggedIn);
             else
+            {
                 _errorDisplayAction.ShowLoginError(reply);
+                _gameStateActions.ChangeToState(GameStates.Initial);
+            }
         }
 
         public async Task LoginToCharacter(ICharacter character)
