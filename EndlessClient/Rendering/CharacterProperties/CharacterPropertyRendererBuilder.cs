@@ -35,12 +35,12 @@ namespace EndlessClient.Rendering.CharacterProperties
             const float BaseLayer = 0.00001f;
 
             // Melee weapons render extra behind the character
-            yield return new WeaponRenderer(renderProperties, textures.WeaponExtra, EIFFile.IsRangedWeapon(renderProperties.WeaponGraphic)) { LayerDepth = BaseLayer };
+            yield return new WeaponRenderer(renderProperties, textures.WeaponExtra) { LayerDepth = BaseLayer };
             yield return new ShieldRenderer(renderProperties, textures.Shield, EIFFile.IsShieldOnBack(renderProperties.ShieldGraphic))
             {
-                LayerDepth = BaseLayer * (IsShieldBehindCharacter(renderProperties) ? 2 : 9)
+                LayerDepth = BaseLayer * (IsShieldBehindCharacter(renderProperties) ? 2 : 13)
             };
-            yield return new WeaponRenderer(renderProperties, textures.Weapon, EIFFile.IsRangedWeapon(renderProperties.WeaponGraphic))
+            yield return new WeaponRenderer(renderProperties, textures.Weapon)
             {
                 LayerDepth = BaseLayer * (IsWeaponBehindCharacter(renderProperties) ? 3 : 12)
             };

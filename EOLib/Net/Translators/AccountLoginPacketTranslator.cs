@@ -2,6 +2,7 @@
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.IO.Repositories;
 using EOLib.Domain.Protocol;
 
 namespace EOLib.Net.Translators
@@ -9,6 +10,9 @@ namespace EOLib.Net.Translators
     [AutoMappedType]
     public class AccountLoginPacketTranslator : CharacterDisplayPacketTranslator<IAccountLoginData>
     {
+        public AccountLoginPacketTranslator(IEIFFileProvider eifFileProvider)
+            : base(eifFileProvider) { }
+
         public override IAccountLoginData TranslatePacket(IPacket packet)
         {
             LoginReply reply;

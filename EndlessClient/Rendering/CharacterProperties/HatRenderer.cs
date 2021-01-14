@@ -16,7 +16,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         private readonly ISpriteSheet _hairSheet;
         private readonly HairRenderLocationCalculator _hairRenderLocationCalculator;
 
-        public override  bool CanRender => _hatSheet.HasTexture && _renderProperties.HatGraphic != 0;
+        public override bool CanRender => _hatSheet.HasTexture && _renderProperties.HatGraphic != 0;
 
         public HatRenderer(IShaderProvider shaderProvider,
                            ICharacterRenderProperties renderProperties,
@@ -33,13 +33,22 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
         {
-            var offsets = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea);
-            var flippedOffset = _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? -2 : 0;
-            var drawLoc = new Vector2(offsets.X + flippedOffset, offsets.Y - 3);
-            
+            var hairDrawLoc = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea);
+            var offsets = GetOffsets();
+
             ApplyHairClipShader();
 
-            Render(spriteBatch, _hatSheet, drawLoc);
+            Render(spriteBatch, _hatSheet, hairDrawLoc + offsets);
+        }
+
+        private Vector2 GetOffsets()
+        {
+            var xOff = 0f;
+            var yOff = -3f;
+
+            var flippedOffset = _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? -2 : 0;
+
+            return new Vector2(xOff + flippedOffset, yOff);
         }
 
         [Conditional("LINUX")]

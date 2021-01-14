@@ -19,7 +19,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             : base(renderProperties)
         {
             _skinSheet = skinSheet;
-            
+
             _skinRenderLocationCalculator = new SkinRenderLocationCalculator(_renderProperties);
         }
 

@@ -4,8 +4,9 @@ namespace EOLib.Domain.Character
 {
     public class CharacterRenderProperties : ICharacterRenderProperties
     {
-        private const int MAX_NUMBER_OF_WALK_FRAMES   = 5;
+        public const int MAX_NUMBER_OF_WALK_FRAMES   = 5;
         public const int MAX_NUMBER_OF_ATTACK_FRAMES  = 3;
+        public const int MAX_NUMBER_OF_RANGED_ATTACK_FRAMES = 2;
         private const int MAX_NUMBER_OF_EMOTE_FRAMES  = 3;
 
         public CharacterActionState CurrentAction { get; private set; }
@@ -34,6 +35,8 @@ namespace EOLib.Domain.Character
 
         public bool IsHidden { get; private set; }
         public bool IsDead { get; private set; }
+
+        public bool IsRangedWeapon { get; private set; }
 
         public ICharacterRenderProperties WithHairStyle(byte newHairStyle)
         {
@@ -91,10 +94,11 @@ namespace EOLib.Domain.Character
             return props;
         }
 
-        public ICharacterRenderProperties WithWeaponGraphic(short weaponGraphic)
+        public ICharacterRenderProperties WithWeaponGraphic(short weaponGraphic, bool isRangedWeapon)
         {
             var props = MakeCopy(this);
             props.WeaponGraphic = weaponGraphic;
+            props.IsRangedWeapon = isRangedWeapon;
             return props;
         }
 
@@ -130,7 +134,7 @@ namespace EOLib.Domain.Character
         public ICharacterRenderProperties WithNextAttackFrame()
         {
             var props = MakeCopy(this);
-            props.AttackFrame = (props.AttackFrame + 1) % MAX_NUMBER_OF_ATTACK_FRAMES;
+            props.AttackFrame = (props.AttackFrame + 1) % (IsRangedWeapon ? MAX_NUMBER_OF_RANGED_ATTACK_FRAMES : MAX_NUMBER_OF_ATTACK_FRAMES);
             props.CurrentAction = props.AttackFrame == 0 ? CharacterActionState.Standing : CharacterActionState.Attacking;
             return props;
         }
@@ -232,7 +236,8 @@ namespace EOLib.Domain.Character
                 Emote = other.Emote,
 
                 IsHidden = other.IsHidden,
-                IsDead = other.IsDead
+                IsDead = other.IsDead,
+                IsRangedWeapon = other.IsRangedWeapon
             };
         }
     }

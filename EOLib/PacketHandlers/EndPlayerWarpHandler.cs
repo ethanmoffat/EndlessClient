@@ -6,6 +6,8 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
+using EOLib.IO.Extensions;
+using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using EOLib.Net.Translators;
@@ -19,6 +21,7 @@ namespace EOLib.PacketHandlers
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IEIFFileProvider _eifFileProvider;
         private readonly IEnumerable<IMapChangedNotifier> _mapChangedNotifiers;
 
         public override PacketFamily Family => PacketFamily.Warp;
@@ -30,6 +33,7 @@ namespace EOLib.PacketHandlers
                                     ICharacterRepository characterRepository,
                                     ICurrentMapStateRepository currentMapStateRepository,
                                     ICurrentMapProvider currentMapProvider,
+                                    IEIFFileProvider eifFileProvider,
                                     IEnumerable<IMapChangedNotifier> mapChangedNotifiers)
             : base(playerInfoProvider)
         {
@@ -37,6 +41,7 @@ namespace EOLib.PacketHandlers
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
+            _eifFileProvider = eifFileProvider;
             _mapChangedNotifiers = mapChangedNotifiers;
         }
 
@@ -53,7 +58,7 @@ namespace EOLib.PacketHandlers
             var bringBackToLife = _characterRepository.MainCharacter.RenderProperties.WithAlive();
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(bringBackToLife)
-                .WithAppliedData(updatedMainCharacter);
+                .WithAppliedData(updatedMainCharacter, _eifFileProvider.EIFFile.IsRangedWeapon(updatedMainCharacter.RenderProperties.WeaponGraphic));
 
             var withoutMainCharacter = warpAgreePacketData.Characters.Where(x => !MainCharacterIDMatches(x));
             warpAgreePacketData = warpAgreePacketData.WithCharacters(withoutMainCharacter);

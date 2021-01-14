@@ -11,17 +11,14 @@ namespace EndlessClient.Rendering.CharacterProperties
     public class WeaponRenderer : BaseCharacterPropertyRenderer
     {
         private readonly ISpriteSheet _weaponSheet;
-        private readonly bool _isRangedWeapon;
 
         public override bool CanRender => _weaponSheet.HasTexture && _renderProperties.WeaponGraphic != 0;
 
         public WeaponRenderer(ICharacterRenderProperties renderProperties,
-                              ISpriteSheet weaponSheet,
-                              bool isRangedWeapon)
+                              ISpriteSheet weaponSheet)
             : base(renderProperties)
         {
             _weaponSheet = weaponSheet;
-            _isRangedWeapon = isRangedWeapon;
         }
 
         public override void Render(SpriteBatch spriteBatch, Rectangle parentCharacterDrawArea)
@@ -38,44 +35,23 @@ namespace EndlessClient.Rendering.CharacterProperties
         {
             float resX, resY;
 
-            if (_isRangedWeapon)
-            {
-                resX = 0;
-                resY = 0;
-                //resX = -(float)Math.Floor(Math.Abs((float)_shieldSheet.SourceRectangle.Width - parentCharacterDrawArea.Width) / 2);
-                //resY = -(float)Math.Floor(parentCharacterDrawArea.Height / 3f) - _renderProperties.Gender;
+            resX = -(float)Math.Floor(Math.Abs((float)_weaponSheet.SourceRectangle.Width - parentCharacterDrawArea.Width) / 2);
+            resY = -(float)Math.Floor(Math.Abs((float)_weaponSheet.SourceRectangle.Height - parentCharacterDrawArea.Height) / 2) - 5;
 
-                //if (_renderProperties.AttackFrame == 2)
-                //    resX += _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? 2 : -2;
-            }
-            else
-            {
-                resX = -(float)Math.Floor(Math.Abs((float)_weaponSheet.SourceRectangle.Width - parentCharacterDrawArea.Width) / 2);
-                resY = -(float)Math.Floor(Math.Abs((float)_weaponSheet.SourceRectangle.Height - parentCharacterDrawArea.Height) / 2) - 5;
+            var factor = _renderProperties.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1;
+            var isDownOrRight = _renderProperties.IsFacing(EODirection.Down, EODirection.Right);
 
-                if (_renderProperties.IsFacing(EODirection.Down, EODirection.Left))
-                {
-                    resX -= parentCharacterDrawArea.Width / 1.5f;
+            resX += (parentCharacterDrawArea.Width / 1.5f - 3) * factor;
+            if (_renderProperties.AttackFrame == 2)
+                resX += 2 * factor;
+            else if (_renderProperties.AttackFrame == 1 && _renderProperties.IsRangedWeapon)
+                resX += (isDownOrRight ? 6 : 4) * factor;
 
-                    if (_renderProperties.AttackFrame == 2)
-                        resX -= 2;
-
-                    resX += 3;
-                }
-                else
-                {
-                    resX += parentCharacterDrawArea.Width / 1.5f;
-
-                    if (_renderProperties.AttackFrame == 2)
-                        resX += 2;
-
-                    resX -= 3;
-                }
-
-                resY -= 1 + _renderProperties.Gender;
-                if (_renderProperties.IsActing(CharacterActionState.Walking))
-                    resY -= 1;
-            }
+            resY -= 1 + _renderProperties.Gender;
+            if (_renderProperties.IsActing(CharacterActionState.Walking))
+                resY -= 1;
+            else if (_renderProperties.AttackFrame == 1 && _renderProperties.IsRangedWeapon)
+                resY += isDownOrRight ? 1 : 0;
 
             return new Vector2(resX, resY);
         }

@@ -32,6 +32,8 @@ namespace EOLib.Domain.Character
         bool IsHidden { get; }
         bool IsDead { get; }
 
+        bool IsRangedWeapon { get; }
+
         ICharacterRenderProperties WithHairStyle(byte newHairStyle);
         ICharacterRenderProperties WithHairColor(byte newHairColor);
         ICharacterRenderProperties WithRace(byte newRace);
@@ -41,7 +43,7 @@ namespace EOLib.Domain.Character
         ICharacterRenderProperties WithArmorGraphic(short armorGraphic);
         ICharacterRenderProperties WithHatGraphic(short hatGraphic);
         ICharacterRenderProperties WithShieldGraphic(short shieldGraphic);
-        ICharacterRenderProperties WithWeaponGraphic(short weaponGraphic);
+        ICharacterRenderProperties WithWeaponGraphic(short weaponGraphic, bool isRanged);
 
         ICharacterRenderProperties WithDirection(EODirection newDirection);
         ICharacterRenderProperties WithMapX(int mapX);

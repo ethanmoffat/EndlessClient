@@ -4,8 +4,7 @@ namespace EOLib.Domain.Extensions
 {
     public static class CharacterExtensions
     {
-        //This was taken from OldCharacter.ApplyData (before function was removed)
-        public static ICharacter WithAppliedData(this ICharacter original, ICharacter updatedData)
+        public static ICharacter WithAppliedData(this ICharacter original, ICharacter updatedData, bool isRangedWeapon)
         {
             var existingRenderProps = original.RenderProperties;
             var newRenderProps = existingRenderProps
@@ -13,7 +12,7 @@ namespace EOLib.Domain.Extensions
                 .WithArmorGraphic(updatedData.RenderProperties.ArmorGraphic)
                 .WithHatGraphic(updatedData.RenderProperties.HatGraphic)
                 .WithShieldGraphic(updatedData.RenderProperties.ShieldGraphic)
-                .WithWeaponGraphic(updatedData.RenderProperties.WeaponGraphic)
+                .WithWeaponGraphic(updatedData.RenderProperties.WeaponGraphic, isRangedWeapon)
                 .WithDirection(updatedData.RenderProperties.Direction)
                 .WithHairStyle(updatedData.RenderProperties.HairStyle)
                 .WithHairColor(updatedData.RenderProperties.HairColor)
