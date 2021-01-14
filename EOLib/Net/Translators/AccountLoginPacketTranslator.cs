@@ -2,11 +2,8 @@
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
-<<<<<<< HEAD
 using EOLib.IO.Repositories;
-=======
 using EOLib.Domain.Protocol;
->>>>>>> master
 
 namespace EOLib.Net.Translators
 {
