@@ -11,6 +11,7 @@ namespace EOLib.IO.Map
         public int FileSize { get; private set; }
 
         public byte[] Checksum { get; private set; }
+        public int ChecksumInt { get; private set; }
         public string Name { get; private set; }
 
         public byte Width { get; private set; }
@@ -57,6 +58,7 @@ namespace EOLib.IO.Map
         {
             var clone = Clone();
             clone.Checksum = checksum;
+            clone.ChecksumInt = BitConverter.ToInt32(checksum, 0);
             return clone;
         }
 
@@ -172,6 +174,7 @@ namespace EOLib.IO.Map
                 MapID = MapID,
                 FileSize = FileSize,
                 Checksum = new byte[Checksum.Length],
+                ChecksumInt = ChecksumInt,
                 Name = Name,
                 Width = Width,
                 Height = Height,

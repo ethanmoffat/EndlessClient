@@ -7,6 +7,7 @@ namespace EOLib.IO.Map
         int FileSize { get; }
 
         byte[] Checksum { get; }
+        int ChecksumInt { get; }
         string Name { get; }
         byte Width { get; }
         byte Height { get; }
