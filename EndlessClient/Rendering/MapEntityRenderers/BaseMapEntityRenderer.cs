@@ -41,7 +41,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public abstract void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha);
 
-        protected Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
+        protected virtual Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
             var charOffX = _renderOffsetCalculator.CalculateOffsetX(_characterProvider.MainCharacter.RenderProperties);
             var charOffY = _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
