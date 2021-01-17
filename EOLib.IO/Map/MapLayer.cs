@@ -7,9 +7,9 @@ namespace EOLib.IO.Map
         OverlayObjects = 2,
         WallRowsDown = 3,
         WallRowsRight = 4,
-        Unknown = 5,
+        Roof = 5,
         OverlayTile = 6,
         Shadow = 7,
-        Roof = 8
+        Overlay2 = 8
     }
 }

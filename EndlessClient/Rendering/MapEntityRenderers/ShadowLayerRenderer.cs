@@ -47,9 +47,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.Shadows, gfxNum, true);
 
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
-            pos = new Vector2(pos.X - 24, pos.Y - 12);
+            pos = new Vector2(pos.X - 32, pos.Y);
 
-            spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, 60));
+            spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, 255 / 5));
         }
 
         private IMapFile CurrentMap => _currentMapProvider.CurrentMap;

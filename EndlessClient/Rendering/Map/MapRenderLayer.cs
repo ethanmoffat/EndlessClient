@@ -6,12 +6,13 @@ namespace EndlessClient.Rendering.Map
         Item,
         Overlay,
         Shadows,
-        Walls,
+        DownWall,
+        RightWall,
         Objects,
         OtherCharacters,
         Npc,
+        Overlay2,
         Roof,
-        Unknown,
         OnTop,
         MainCharacter
     }
