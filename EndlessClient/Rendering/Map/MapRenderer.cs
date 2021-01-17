@@ -306,14 +306,15 @@ const calcDepth = (x, y, layer) =>
             const int ViewportHeightFactor = 144; // 480 * (3/10)
 
             var props = _characterProvider.MainCharacter.RenderProperties;
-
             var charOffX = _renderOffsetCalculator.CalculateWalkAdjustX(props);
             var charOffY = _renderOffsetCalculator.CalculateWalkAdjustY(props);
+
+            var mapHeightPlusOne = _currentMapProvider.CurrentMap.Properties.Height + 1;
 
             // X coordinate: +32 per Y, -32 per X
             // Y coordinate: -16 per Y, -16 per X
             // basically the opposite of the algorithm for rendering the ground tiles
-            return new Vector2(ViewportWidthFactor - (_mapBaseTarget.Width / 2) + (props.MapY * 32) - (props.MapX * 32) - charOffX,
+            return new Vector2(ViewportWidthFactor - (mapHeightPlusOne * 32) + (props.MapY * 32) - (props.MapX * 32) - charOffX,
                                ViewportHeightFactor - (props.MapY * 16) - (props.MapX * 16) - charOffY);
         }
 
