@@ -54,10 +54,12 @@ const calcDepth = (x, y, layer) =>
         private readonly IChatBubbleUpdater _chatBubbleUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
+        private readonly IRenderOffsetCalculator _renderOffsetCalculator;
 
-        private RenderTarget2D _mapAbovePlayer, _mapBelowPlayer;
+        private RenderTarget2D _mapBaseTarget, _mapAbovePlayer, _mapBelowPlayer;
         private SpriteBatch _sb;
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
+        private int? _lastMapChecksum;
 
         private bool MouseOver
         {
@@ -80,7 +82,8 @@ const calcDepth = (x, y, layer) =>
                            IDoorStateUpdater doorStateUpdater,
                            IChatBubbleUpdater chatBubbleUpdater,
                            IConfigurationProvider configurationProvider,
-                           IMouseCursorRenderer mouseCursorRenderer)
+                           IMouseCursorRenderer mouseCursorRenderer,
+                           IRenderOffsetCalculator renderOffsetCalculator)
             : base((Game)endlessGame)
         {
             _renderTargetFactory = renderTargetFactory;
@@ -94,10 +97,12 @@ const calcDepth = (x, y, layer) =>
             _chatBubbleUpdater = chatBubbleUpdater;
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
+            _renderOffsetCalculator = renderOffsetCalculator;
         }
 
         public override void Initialize()
         {
+            _mapBaseTarget = _renderTargetFactory.CreateRenderTarget();
             _mapAbovePlayer = _renderTargetFactory.CreateRenderTarget();
             _mapBelowPlayer = _renderTargetFactory.CreateRenderTarget();
             _sb = new SpriteBatch(Game.GraphicsDevice);
@@ -109,6 +114,18 @@ const calcDepth = (x, y, layer) =>
 
         public override void Update(GameTime gameTime)
         {
+            if (!_lastMapChecksum.HasValue || _lastMapChecksum != _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+            {
+                // The dimensions of the map are 0-based in the properties. Adjust to 1-based for RT creation
+                var widthPlus1 = _currentMapProvider.CurrentMap.Properties.Width + 1;
+                var heightPlus1 = _currentMapProvider.CurrentMap.Properties.Height + 1;
+
+                _mapBaseTarget.Dispose();
+                _mapBaseTarget = _renderTargetFactory.CreateRenderTarget(
+                    (widthPlus1 + heightPlus1) * 32,
+                    (widthPlus1 + heightPlus1) * 16);
+            }
+
             if (Visible)
             {
                 _characterRendererUpdater.UpdateCharacters(gameTime);
@@ -119,8 +136,11 @@ const calcDepth = (x, y, layer) =>
                 if (MouseOver)
                     _mouseCursorRenderer.Update(gameTime);
 
+                DrawMapBase();
                 DrawMapToRenderTarget();
             }
+
+            _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.ChecksumInt;
 
             base.Update(gameTime);
         }
@@ -130,9 +150,7 @@ const calcDepth = (x, y, layer) =>
             if (!Visible)
                 return;
 
-            DrawMapBase(_sb);
-            _mouseCursorRenderer.Draw(gameTime);
-            DrawToSpriteBatch(_sb);
+            DrawToSpriteBatch(_sb, gameTime);
 
             base.Draw(gameTime);
         }
@@ -142,40 +160,55 @@ const calcDepth = (x, y, layer) =>
             _mapTransitionState = new MapTransitionState(DateTime.Now, 1);
         }
 
-        private void DrawToSpriteBatch(SpriteBatch spriteBatch)
+        private void DrawToSpriteBatch(SpriteBatch spriteBatch, GameTime gameTime)
         {
             spriteBatch.Begin();
 
+            spriteBatch.Draw(_mapBaseTarget, GetMapBaseRenderTargetDrawPosition(), Color.White);
+            _mouseCursorRenderer.Draw(spriteBatch, gameTime);
             spriteBatch.Draw(_mapAbovePlayer, Vector2.Zero, Color.White);
             spriteBatch.Draw(_mapBelowPlayer, Vector2.Zero, Color.White);
 
             spriteBatch.End();
         }
 
-        private void DrawMapBase(SpriteBatch spriteBatch)
+        private void DrawMapBase()
         {
-            var immutableCharacter = _characterProvider.MainCharacter;
-            var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
+            // todo: redraw when map items change
+            if (!_mapTransitionState.StartTime.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.ChecksumInt)
+                return;
 
+            GraphicsDevice.SetRenderTarget(_mapBaseTarget);
+
+            var renderBounds = new MapRenderBounds(0, _currentMapProvider.CurrentMap.Properties.Height,
+                                                   0, _currentMapProvider.CurrentMap.Properties.Width);
+
+            var transitionComplete = true;
             for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
             {
-                spriteBatch.Begin();
+                _sb.Begin();
 
                 for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; ++col)
                 {
-                    var alpha = GetAlphaForCoordinates(col, row, immutableCharacter);
+                    var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
+                    transitionComplete &= alpha == 255;
 
                     foreach (var renderer in _mapEntityRendererProvider.MapBaseRenderers)
                     {
                         if (!renderer.CanRender(row, col))
                             continue;
 
-                        renderer.RenderElementAt(spriteBatch, row, col, alpha);
+                        renderer.RenderElementAt(_sb, row, col, alpha);
                     }
                 }
 
-                spriteBatch.End();
+                _sb.End();
             }
+
+            if (transitionComplete)
+                _mapTransitionState = new MapTransitionState(Optional<DateTime>.Empty, 0);
+
+            GraphicsDevice.SetRenderTarget(null);
         }
 
         private void DrawMapToRenderTarget()
@@ -246,6 +279,24 @@ const calcDepth = (x, y, layer) =>
             return row == renderProperties.MapY && col == renderProperties.MapX;
         }
 
+        private Vector2 GetMapBaseRenderTargetDrawPosition()
+        {
+            // TODO: update for dynamic viewport sizing
+            const int ViewportWidthFactor = 320; // 640 * (1/2)
+            const int ViewportHeightFactor = 144; // 480 * (3/10)
+
+            var props = _characterProvider.MainCharacter.RenderProperties;
+
+            var charOffX = _renderOffsetCalculator.CalculateWalkAdjustX(props);
+            var charOffY = _renderOffsetCalculator.CalculateWalkAdjustY(props);
+
+            // X coordinate: +32 per Y, -32 per X
+            // Y coordiante: -16 per Y, -16 per X
+            // basically the opposite of the algorithm for rendering the ground tiles
+            return new Vector2(ViewportWidthFactor - (_mapBaseTarget.Width / 2) + (props.MapY * 32) - (props.MapX * 32) - charOffX,
+                               ViewportHeightFactor - (props.MapY * 16) - (props.MapX * 16) - charOffY);
+        }
+
         private void SwitchRenderTargets()
         {
             _sb.End();
@@ -259,7 +310,10 @@ const calcDepth = (x, y, layer) =>
         private int GetAlphaForCoordinates(int objX, int objY, ICharacter character)
         {
             if (!_configurationProvider.ShowTransition)
+            {
+                _mapTransitionState = new MapTransitionState(Optional<DateTime>.Empty, 0);
                 return 255;
+            }
 
             //get the farther away of X or Y coordinate for the map object
             var metric = Math.Max(Math.Abs(objX - character.RenderProperties.MapX),
@@ -275,9 +329,9 @@ const calcDepth = (x, y, layer) =>
             else if (metric == _mapTransitionState.TransitionMetric)
             {
                 var ms = (DateTime.Now - _mapTransitionState.StartTime).TotalMilliseconds;
-                alpha = (int) Math.Round(ms/TRANSITION_TIME_MS*255);
-                
-                if (ms/TRANSITION_TIME_MS >= 1)
+                alpha = (int)Math.Round(ms / TRANSITION_TIME_MS * 255);
+
+                if (ms / TRANSITION_TIME_MS >= 1)
                     _mapTransitionState = new MapTransitionState(DateTime.Now, _mapTransitionState.TransitionMetric + 1);
             }
             else
@@ -290,6 +344,7 @@ const calcDepth = (x, y, layer) =>
         {
             if (disposing)
             {
+                _mapBaseTarget.Dispose();
                 _mapAbovePlayer.Dispose();
                 _mapBelowPlayer.Dispose();
                 _sb.Dispose();
