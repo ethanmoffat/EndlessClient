@@ -136,7 +136,7 @@ const calcDepth = (x, y, layer) =>
                 if (MouseOver)
                     _mouseCursorRenderer.Update(gameTime);
 
-                DrawMapBase();
+                DrawGroundLayerToRenderTarget();
                 DrawMapToRenderTarget();
             }
 
@@ -164,17 +164,19 @@ const calcDepth = (x, y, layer) =>
         {
             spriteBatch.Begin();
 
-            spriteBatch.Draw(_mapBaseTarget, GetMapBaseRenderTargetDrawPosition(), Color.White);
+            spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition(), Color.White);
+            DrawItemLayer(spriteBatch);
+
             _mouseCursorRenderer.Draw(spriteBatch, gameTime);
+
             spriteBatch.Draw(_mapAbovePlayer, Vector2.Zero, Color.White);
             spriteBatch.Draw(_mapBelowPlayer, Vector2.Zero, Color.White);
 
             spriteBatch.End();
         }
 
-        private void DrawMapBase()
+        private void DrawGroundLayerToRenderTarget()
         {
-            // todo: redraw when map items change
             if (!_mapTransitionState.StartTime.HasValue && _lastMapChecksum == _currentMapProvider.CurrentMap.Properties.ChecksumInt)
                 return;
 
@@ -193,13 +195,8 @@ const calcDepth = (x, y, layer) =>
                     var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
                     transitionComplete &= alpha == 255;
 
-                    foreach (var renderer in _mapEntityRendererProvider.MapBaseRenderers)
-                    {
-                        if (!renderer.CanRender(row, col))
-                            continue;
-
-                        renderer.RenderElementAt(_sb, row, col, alpha);
-                    }
+                    if (_mapEntityRendererProvider.GroundRenderer.CanRender(row, col))
+                        _mapEntityRendererProvider.GroundRenderer.RenderElementAt(_sb, row, col, alpha);
                 }
 
                 _sb.End();
@@ -209,6 +206,22 @@ const calcDepth = (x, y, layer) =>
                 _mapTransitionState = new MapTransitionState(Optional<DateTime>.Empty, 0);
 
             GraphicsDevice.SetRenderTarget(null);
+        }
+
+        private void DrawItemLayer(SpriteBatch spriteBatch)
+        {
+            var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
+
+            for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
+            {
+                for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; ++col)
+                {
+                    var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
+
+                    if (_mapEntityRendererProvider.ItemRenderer.CanRender(row, col))
+                        _mapEntityRendererProvider.ItemRenderer.RenderElementAt(spriteBatch, row, col, alpha);
+                }
+            }
         }
 
         private void DrawMapToRenderTarget()
@@ -228,7 +241,14 @@ const calcDepth = (x, y, layer) =>
                 for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; col++)
                 {
                     if (CharacterIsAtPosition(immutableCharacter.RenderProperties, row, col))
-                        SwitchRenderTargets();
+                    {
+                        _sb.End();
+
+                        GraphicsDevice.SetRenderTarget(_mapBelowPlayer);
+                        GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
+
+                        _sb.Begin();
+                    }
 
                     var alpha = GetAlphaForCoordinates(col, row, immutableCharacter);
 
@@ -279,7 +299,7 @@ const calcDepth = (x, y, layer) =>
             return row == renderProperties.MapY && col == renderProperties.MapX;
         }
 
-        private Vector2 GetMapBaseRenderTargetDrawPosition()
+        private Vector2 GetGroundLayerDrawPosition()
         {
             // TODO: update for dynamic viewport sizing
             const int ViewportWidthFactor = 320; // 640 * (1/2)
@@ -291,20 +311,10 @@ const calcDepth = (x, y, layer) =>
             var charOffY = _renderOffsetCalculator.CalculateWalkAdjustY(props);
 
             // X coordinate: +32 per Y, -32 per X
-            // Y coordiante: -16 per Y, -16 per X
+            // Y coordinate: -16 per Y, -16 per X
             // basically the opposite of the algorithm for rendering the ground tiles
             return new Vector2(ViewportWidthFactor - (_mapBaseTarget.Width / 2) + (props.MapY * 32) - (props.MapX * 32) - charOffX,
                                ViewportHeightFactor - (props.MapY * 16) - (props.MapX * 16) - charOffY);
-        }
-
-        private void SwitchRenderTargets()
-        {
-            _sb.End();
-
-            GraphicsDevice.SetRenderTarget(_mapBelowPlayer);
-            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-
-            _sb.Begin();
         }
 
         private int GetAlphaForCoordinates(int objX, int objY, ICharacter character)
