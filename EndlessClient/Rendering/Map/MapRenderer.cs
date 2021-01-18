@@ -114,9 +114,6 @@ namespace EndlessClient.Rendering.Map
 
                 if (MouseOver)
                     _mouseCursorRenderer.Update(gameTime);
-
-                DrawGroundLayerToRenderTarget();
-                DrawMapToRenderTarget();
             }
 
             _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.ChecksumInt;
@@ -129,6 +126,8 @@ namespace EndlessClient.Rendering.Map
             if (!Visible)
                 return;
 
+            DrawGroundLayerToRenderTarget();
+            DrawMapToRenderTarget();
             DrawToSpriteBatch(_sb, gameTime);
 
             base.Draw(gameTime);
