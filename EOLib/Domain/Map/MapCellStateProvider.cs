@@ -3,6 +3,7 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.NPC;
+using EOLib.Extensions;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
 
@@ -12,12 +13,15 @@ namespace EOLib.Domain.Map
     public class MapCellStateProvider : IMapCellStateProvider
     {
         private readonly ICurrentMapStateProvider _mapStateProvider;
+        private readonly ICharacterProvider _characterProvider;
         private readonly IMapFileProvider _mapFileProvider;
 
         public MapCellStateProvider(ICurrentMapStateProvider mapStateProvider,
+                                    ICharacterProvider characterProvider,
                                     IMapFileProvider mapFileProvider)
         {
             _mapStateProvider = mapStateProvider;
+            _characterProvider = characterProvider;
             _mapFileProvider = mapFileProvider;
         }
 
@@ -31,8 +35,9 @@ namespace EOLib.Domain.Map
             var chest = CurrentMap.Chests.FirstOrDefault(c => c.X == x && c.Y == y);
             var sign = CurrentMap.Signs.FirstOrDefault(s => s.X == x && s.Y == y);
 
-            var character = _mapStateProvider.Characters.FirstOrDefault(c => CharacterAtCoordinates(c, x, y));
-            var npc = _mapStateProvider.NPCs.FirstOrDefault(n => NPCAtCoordinates(n, x, y));
+            var character = _mapStateProvider.Characters.Concat(new[] { _characterProvider.MainCharacter })
+                .OptionalFirst(c => CharacterAtCoordinates(c, x, y));
+            var npc = _mapStateProvider.NPCs.OptionalFirst(n => NPCAtCoordinates(n, x, y));
             var items = _mapStateProvider.MapItems.Where(i => i.X == x && i.Y == y);
 
             return new MapCellState
@@ -42,8 +47,8 @@ namespace EOLib.Domain.Map
                 Warp      = warp == null ? Optional<IWarp>.Empty : new Warp(warp),
                 Chest     = chest == null ? Optional<IChest>.Empty : new Chest(chest),
                 Sign      = sign == null ? Optional<ISign>.Empty : new Sign(sign),
-                Character = character == null ? Optional<ICharacter>.Empty : new Optional<ICharacter>(character),
-                NPC       = npc == null ? Optional<INPC>.Empty : new Optional<INPC>(npc)
+                Character = character,
+                NPC       = npc
             };
         }
 
