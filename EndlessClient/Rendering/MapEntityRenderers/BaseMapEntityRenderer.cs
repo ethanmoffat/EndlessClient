@@ -11,6 +11,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     {
         private static readonly Dictionary<MapRenderLayer, Point> _layerOffsets;
 
+        private static DateTime _lastFrameTime = DateTime.Now;
+        protected static int _frameIndex = 0;
+
         static BaseMapEntityRenderer()
         {
             _layerOffsets = new Dictionary<MapRenderLayer, Point>
@@ -60,7 +63,14 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected abstract bool ElementExistsAt(int row, int col);
 
-        public abstract void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha);
+        public virtual void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        {
+            if ((DateTime.Now - _lastFrameTime).TotalMilliseconds > 500)
+            {
+                _lastFrameTime = DateTime.Now;
+                _frameIndex = (_frameIndex + 1) % 4;
+            }
+        }
 
         protected virtual Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {

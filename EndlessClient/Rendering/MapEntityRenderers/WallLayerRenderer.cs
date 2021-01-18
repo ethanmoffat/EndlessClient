@@ -32,11 +32,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _currentMapStateProvider = currentMapStateProvider;
         }
 
-        public override bool CanRender(int row, int col)
-        {
-            return base.CanRender(row, col);
-        }
-
         protected void DrawWall(SpriteBatch spriteBatch, int row, int col, int alpha, int gfxNum)
         {
             if (_currentMapStateProvider.OpenDoors.Any(openDoor => openDoor.X == col && openDoor.Y == row))
@@ -46,10 +41,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
             var gfxWidthDelta = gfx.Width/4;
             var src = gfx.Width > WALL_FRAME_WIDTH
-                ? new Rectangle?(new Rectangle(gfxWidthDelta*0, 0, gfxWidthDelta, gfx.Height)) //todo: animated walls using source index offset!
+                ? new Rectangle?(new Rectangle(gfxWidthDelta * _frameIndex, 0, gfxWidthDelta, gfx.Height))
                 : null;
 
-            var wallAnimationAdjust = (int) Math.Round((gfx.Width > WALL_FRAME_WIDTH ? gfxWidthDelta : gfx.Width)/2.0);
+            var wallAnimationAdjust = gfx.Width > WALL_FRAME_WIDTH ? -gfxWidthDelta : gfx.Width / 2;
 
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
             pos -= new Vector2((gfx.Width / 2) + wallAnimationAdjust, gfx.Height - 32);
@@ -80,6 +75,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
+            base.RenderElementAt(spriteBatch, row, col, alpha);
+
             var gfxNum = CurrentMap.GFX[MapLayer.WallRowsDown][row, col];
             DrawWall(spriteBatch, row, col, alpha, gfxNum);
         }
@@ -105,6 +102,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
+            base.RenderElementAt(spriteBatch, row, col, alpha);
+
             var gfxNum = CurrentMap.GFX[MapLayer.WallRowsRight][row, col];
             DrawWall(spriteBatch, row, col, alpha, gfxNum);
         }

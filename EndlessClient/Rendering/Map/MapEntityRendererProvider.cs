@@ -45,6 +45,10 @@ namespace EndlessClient.Rendering.Map
 
             MapEntityRenderers = new List<IMapEntityRenderer>
             {
+                new AnimatedGroundLayerRenderer(nativeGraphicsManager,
+                                                currentMapProvider,
+                                                characterProvider,
+                                                renderOffsetCalculator),
                 new ShadowLayerRenderer(nativeGraphicsManager,
                                         currentMapProvider,
                                         characterProvider,
