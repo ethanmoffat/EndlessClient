@@ -6,6 +6,7 @@ using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.NPC;
+using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -127,7 +128,7 @@ namespace EndlessClient.Rendering.NPC
             var textureData = new Color[frameTexture.Width * frameTexture.Height];
             frameTexture.GetData(textureData);
 
-            return textureData.Any(color => (color.R > 0 || color.G > 0 || color.B > 0) && color.A > 0);
+            return textureData.Any(color => ((color.R > 0 && color.R != 8) || (color.G > 0 && color.G != 8) || (color.B > 0 && color.B != 8)) && color.A > 0);
         }
 
         private void UpdateDrawAreas()
@@ -139,13 +140,20 @@ namespace EndlessClient.Rendering.NPC
             var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(mainRenderer.RenderProperties);
             var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(mainRenderer.RenderProperties);
 
-            //x: xLocation + npcXOffset + 32 - npc->Width() / 2
-            //y: std::max(0, (std::min(41, npc->Width() - 23)) / 4) + yLocation + npcYOffset + 23 - npc->Height()
+            // Apozen is a wider sprite that needs to be divided by 3 (normal sprites are centered properly)
+            // If Apozen is facing Down or Left it needs to be offset by 2/3 the sprite width instead of 1/3 the sprite width
+            // I'm guessing the presence of the RGB (8,8,8) pixels in StandingFrame1 is used as a mask to determine
+            //    the proper width for the offset but this garbage is fine for now
+            var widthFactor = _baseTextureFrameRectangle.Width > 120
+                ? NPC.IsFacing(EODirection.Down, EODirection.Left)
+                    ? (_baseTextureFrameRectangle.Width * 2) / 3
+                    : _baseTextureFrameRectangle.Width / 3
+                : _baseTextureFrameRectangle.Width / 2;
 
-            DrawArea = new Rectangle(
-                offsetX + 320 - mainOffsetX - (_baseTextureFrameRectangle.Width / 2),
-                offsetY + 168 - mainOffsetY - _baseTextureFrameRectangle.Height,
-                _baseTextureFrameRectangle.Width, _baseTextureFrameRectangle.Height);
+            // y coordinate Formula courtesy of Apollo
+            var xCoord = offsetX + 320 - mainOffsetX - widthFactor;
+            var yCoord = (Math.Min(41, _baseTextureFrameRectangle.Width - 23) / 4) + offsetY + 168 - mainOffsetY - _baseTextureFrameRectangle.Height;
+            DrawArea = _baseTextureFrameRectangle.WithPosition(new Vector2(xCoord, yCoord));
 
             var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,
                                           mainRenderer.DrawArea.Height);
