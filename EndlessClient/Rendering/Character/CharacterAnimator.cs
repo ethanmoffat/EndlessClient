@@ -108,8 +108,8 @@ namespace EndlessClient.Rendering.Character
                     _characterRepository.MainCharacter.RenderProperties.ResetAnimationFrames());
 
             _currentMapStateRepository.Characters =
-                _currentMapStateRepository.Characters.Select(x => x.WithRenderProperties(x.RenderProperties.ResetAnimationFrames()))
-                    .ToList();
+                new HashSet<ICharacter>(
+                    _currentMapStateRepository.Characters.Select(x => x.WithRenderProperties(x.RenderProperties.ResetAnimationFrames())));
         }
 
         #region Walk Animation

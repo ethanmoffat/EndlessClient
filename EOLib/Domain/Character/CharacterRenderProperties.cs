@@ -240,5 +240,58 @@ namespace EOLib.Domain.Character
                 IsRangedWeapon = other.IsRangedWeapon
             };
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is CharacterRenderProperties properties &&
+                   CurrentAction == properties.CurrentAction &&
+                   HairStyle == properties.HairStyle &&
+                   HairColor == properties.HairColor &&
+                   Race == properties.Race &&
+                   Gender == properties.Gender &&
+                   BootsGraphic == properties.BootsGraphic &&
+                   ArmorGraphic == properties.ArmorGraphic &&
+                   HatGraphic == properties.HatGraphic &&
+                   ShieldGraphic == properties.ShieldGraphic &&
+                   WeaponGraphic == properties.WeaponGraphic &&
+                   Direction == properties.Direction &&
+                   MapX == properties.MapX &&
+                   MapY == properties.MapY &&
+                   WalkFrame == properties.WalkFrame &&
+                   AttackFrame == properties.AttackFrame &&
+                   EmoteFrame == properties.EmoteFrame &&
+                   SitState == properties.SitState &&
+                   Emote == properties.Emote &&
+                   IsHidden == properties.IsHidden &&
+                   IsDead == properties.IsDead &&
+                   IsRangedWeapon == properties.IsRangedWeapon;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 1754760722;
+            hashCode = hashCode * -1521134295 + CurrentAction.GetHashCode();
+            hashCode = hashCode * -1521134295 + HairStyle.GetHashCode();
+            hashCode = hashCode * -1521134295 + HairColor.GetHashCode();
+            hashCode = hashCode * -1521134295 + Race.GetHashCode();
+            hashCode = hashCode * -1521134295 + Gender.GetHashCode();
+            hashCode = hashCode * -1521134295 + BootsGraphic.GetHashCode();
+            hashCode = hashCode * -1521134295 + ArmorGraphic.GetHashCode();
+            hashCode = hashCode * -1521134295 + HatGraphic.GetHashCode();
+            hashCode = hashCode * -1521134295 + ShieldGraphic.GetHashCode();
+            hashCode = hashCode * -1521134295 + WeaponGraphic.GetHashCode();
+            hashCode = hashCode * -1521134295 + Direction.GetHashCode();
+            hashCode = hashCode * -1521134295 + MapX.GetHashCode();
+            hashCode = hashCode * -1521134295 + MapY.GetHashCode();
+            hashCode = hashCode * -1521134295 + WalkFrame.GetHashCode();
+            hashCode = hashCode * -1521134295 + AttackFrame.GetHashCode();
+            hashCode = hashCode * -1521134295 + EmoteFrame.GetHashCode();
+            hashCode = hashCode * -1521134295 + SitState.GetHashCode();
+            hashCode = hashCode * -1521134295 + Emote.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsHidden.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsDead.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsRangedWeapon.GetHashCode();
+            return hashCode;
+        }
     }
 }
