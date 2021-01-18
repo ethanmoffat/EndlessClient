@@ -6,6 +6,7 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
+using EOLib.Domain.NPC;
 using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
@@ -66,9 +67,9 @@ namespace EOLib.PacketHandlers
             var differentMapID = _currentMapStateRepository.CurrentMapID != warpAgreePacketData.MapID;
 
             _currentMapStateRepository.CurrentMapID = warpAgreePacketData.MapID;
-            _currentMapStateRepository.Characters = warpAgreePacketData.Characters.ToList();
-            _currentMapStateRepository.NPCs = warpAgreePacketData.NPCs.ToList();
-            _currentMapStateRepository.MapItems = warpAgreePacketData.Items.ToList();
+            _currentMapStateRepository.Characters = new HashSet<ICharacter>(warpAgreePacketData.Characters);
+            _currentMapStateRepository.NPCs = new HashSet<INPC>(warpAgreePacketData.NPCs);
+            _currentMapStateRepository.MapItems = new HashSet<IItem>(warpAgreePacketData.Items);
             _currentMapStateRepository.OpenDoors.Clear();
             _currentMapStateRepository.ShowMiniMap = _currentMapStateRepository.ShowMiniMap &&
                                                      _currentMapProvider.CurrentMap.Properties.MapAvailable;

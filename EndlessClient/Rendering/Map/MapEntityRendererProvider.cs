@@ -14,7 +14,9 @@ namespace EndlessClient.Rendering.Map
     [MappedType(BaseType = typeof(IMapEntityRendererProvider), IsSingleton = true)]
     public class MapEntityRendererProvider : IMapEntityRendererProvider
     {
-        public IReadOnlyList<IMapEntityRenderer> MapBaseRenderers { get; }
+        public IMapEntityRenderer GroundRenderer { get; }
+
+        public IMapEntityRenderer ItemRenderer { get; }
 
         public IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; }
 
@@ -30,38 +32,42 @@ namespace EndlessClient.Rendering.Map
                                          IChatBubbleProvider chatBubbleProvider,
                                          ICharacterStateCache characterStateCache)
         {
-            MapBaseRenderers = new List<IMapEntityRenderer>
-            {
+            GroundRenderer =
                 new GroundLayerRenderer(nativeGraphicsManager,
                                         currentMapProvider,
                                         characterProvider,
-                                        renderOffsetCalculator),
+                                        renderOffsetCalculator);
+            ItemRenderer =
                 new MapItemLayerRenderer(characterProvider,
                                          renderOffsetCalculator,
                                          currentMapStateProvider,
-                                         mapItemGraphicProvider)
-            };
+                                         mapItemGraphicProvider);
 
             MapEntityRenderers = new List<IMapEntityRenderer>
             {
-                new OverlayLayerRenderer(nativeGraphicsManager,
-                                         currentMapProvider,
-                                         characterProvider,
-                                         renderOffsetCalculator),
                 new ShadowLayerRenderer(nativeGraphicsManager,
                                         currentMapProvider,
                                         characterProvider,
                                         renderOffsetCalculator,
                                         configurationProvider),
-                new WallLayerRenderer(nativeGraphicsManager,
-                                      currentMapProvider,
-                                      characterProvider,
-                                      renderOffsetCalculator,
-                                      currentMapStateProvider),
+                new OverlayLayerRenderer(nativeGraphicsManager,
+                                         currentMapProvider,
+                                         characterProvider,
+                                         renderOffsetCalculator),
                 new MapObjectLayerRenderer(nativeGraphicsManager,
                                            currentMapProvider,
                                            characterProvider,
                                            renderOffsetCalculator),
+                new DownWallLayerRenderer(nativeGraphicsManager,
+                                          currentMapProvider,
+                                          characterProvider,
+                                          renderOffsetCalculator,
+                                          currentMapStateProvider),
+                new RightWallLayerRenderer(nativeGraphicsManager,
+                                           currentMapProvider,
+                                           characterProvider,
+                                           renderOffsetCalculator,
+                                           currentMapStateProvider),
                 new OtherCharacterEntityRenderer(characterProvider,
                                                  characterRendererProvider,
                                                  chatBubbleProvider,
@@ -71,11 +77,11 @@ namespace EndlessClient.Rendering.Map
                                       renderOffsetCalculator,
                                       npcRendererProvider,
                                       chatBubbleProvider),
-                new RoofLayerRenderer(nativeGraphicsManager,
+                new Overlay2LayerRenderer(nativeGraphicsManager,
                                       currentMapProvider,
                                       characterProvider,
                                       renderOffsetCalculator),
-                new UnknownLayerRenderer(nativeGraphicsManager,
+                new RoofLayerRenderer(nativeGraphicsManager,
                                          currentMapProvider,
                                          characterProvider,
                                          renderOffsetCalculator),
@@ -92,8 +98,9 @@ namespace EndlessClient.Rendering.Map
 
         public void Dispose()
         {
-            foreach (var renderer in MapBaseRenderers)
-                renderer.Dispose();
+            GroundRenderer.Dispose();
+            ItemRenderer.Dispose();
+
             foreach (var renderer in MapEntityRenderers)
                 renderer.Dispose();
         }

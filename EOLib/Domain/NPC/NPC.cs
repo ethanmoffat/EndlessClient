@@ -1,4 +1,6 @@
-﻿namespace EOLib.Domain.NPC
+﻿using System.Collections.Generic;
+
+namespace EOLib.Domain.NPC
 {
     public class NPC : INPC
     {
@@ -67,6 +69,31 @@
                 Frame = input.Frame,
                 OpponentID = input.OpponentID
             };
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is NPC npc &&
+                   ID == npc.ID &&
+                   Index == npc.Index &&
+                   X == npc.X &&
+                   Y == npc.Y &&
+                   Direction == npc.Direction &&
+                   Frame == npc.Frame &&
+                   EqualityComparer<Optional<short>>.Default.Equals(OpponentID, npc.OpponentID);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 137608487;
+            hashCode = hashCode * -1521134295 + ID.GetHashCode();
+            hashCode = hashCode * -1521134295 + Index.GetHashCode();
+            hashCode = hashCode * -1521134295 + X.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y.GetHashCode();
+            hashCode = hashCode * -1521134295 + Direction.GetHashCode();
+            hashCode = hashCode * -1521134295 + Frame.GetHashCode();
+            hashCode = hashCode * -1521134295 + OpponentID.GetHashCode();
+            return hashCode;
         }
     }
 }

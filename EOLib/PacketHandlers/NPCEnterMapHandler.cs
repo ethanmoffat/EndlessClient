@@ -40,7 +40,7 @@ namespace EOLib.PacketHandlers
             INPC npc = new NPC(id, index);
             npc = npc.WithX(x).WithY(y).WithDirection(direction).WithFrame(NPCFrame.Standing);
 
-            _currentMapStateRepository.NPCs.RemoveAll(n => n.Index == index);
+            _currentMapStateRepository.NPCs.RemoveWhere(n => n.Index == index);
             _currentMapStateRepository.NPCs.Add(npc);
 
             return true;

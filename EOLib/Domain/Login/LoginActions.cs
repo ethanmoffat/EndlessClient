@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
+using EOLib.Domain.NPC;
 using EOLib.Domain.Protocol;
 using EOLib.Localization;
 using EOLib.Net;
@@ -173,9 +175,9 @@ namespace EOLib.Domain.Login
             _characterInventoryRepository.ItemInventory = data.CharacterItemInventory.ToList();
             _characterInventoryRepository.SpellInventory = data.CharacterSpellInventory.ToList();
 
-            _currentMapStateRepository.Characters = data.MapCharacters.Except(new[] {mainCharacter}).ToList();
-            _currentMapStateRepository.NPCs = data.MapNPCs.ToList();
-            _currentMapStateRepository.MapItems = data.MapItems.ToList();
+            _currentMapStateRepository.Characters = new HashSet<ICharacter>(data.MapCharacters.Except(new[] { mainCharacter }));
+            _currentMapStateRepository.NPCs = new HashSet<INPC>(_currentMapStateRepository.NPCs);
+            _currentMapStateRepository.MapItems = new HashSet<IItem>(data.MapItems);
 
             _playerInfoRepository.PlayerIsInGame = true;
         }

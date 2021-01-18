@@ -5,6 +5,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
+using EOLib.Domain.NPC;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using EOLib.Net.Translators;
@@ -52,9 +53,9 @@ namespace EOLib.PacketHandlers
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(updatedRenderProperties);
 
-            _currentMapStateRepository.Characters = data.Characters.ToList();
-            _currentMapStateRepository.NPCs = data.NPCs.ToList();
-            _currentMapStateRepository.MapItems = data.Items.ToList();
+            _currentMapStateRepository.Characters = new HashSet<ICharacter>(data.Characters);
+            _currentMapStateRepository.NPCs = new HashSet<INPC>(data.NPCs);
+            _currentMapStateRepository.MapItems = new HashSet<IItem>(data.Items);
 
             foreach (var notifier in _mapChangedNotifiers)
                 notifier.NotifyMapChanged(differentMapID: false, warpAnimation: WarpAnimation.None);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace EOLib.Domain.Map
 {
@@ -65,6 +66,33 @@ namespace EOLib.Domain.Map
                 OwningPlayerID = input.OwningPlayerID,
                 DropTime = input.DropTime
             };
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Item item &&
+                   UniqueID == item.UniqueID &&
+                   ItemID == item.ItemID &&
+                   X == item.X &&
+                   Y == item.Y &&
+                   Amount == item.Amount &&
+                   IsNPCDrop == item.IsNPCDrop &&
+                   EqualityComparer<Optional<int>>.Default.Equals(OwningPlayerID, item.OwningPlayerID) &&
+                   EqualityComparer<Optional<DateTime>>.Default.Equals(DropTime, item.DropTime);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -885092675;
+            hashCode = hashCode * -1521134295 + UniqueID.GetHashCode();
+            hashCode = hashCode * -1521134295 + ItemID.GetHashCode();
+            hashCode = hashCode * -1521134295 + X.GetHashCode();
+            hashCode = hashCode * -1521134295 + Y.GetHashCode();
+            hashCode = hashCode * -1521134295 + Amount.GetHashCode();
+            hashCode = hashCode * -1521134295 + IsNPCDrop.GetHashCode();
+            hashCode = hashCode * -1521134295 + OwningPlayerID.GetHashCode();
+            hashCode = hashCode * -1521134295 + DropTime.GetHashCode();
+            return hashCode;
         }
     }
 

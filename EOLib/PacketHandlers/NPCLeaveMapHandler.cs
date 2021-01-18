@@ -100,9 +100,7 @@ namespace EOLib.PacketHandlers
             foreach (var notifier in _npcAnimationNotifiers)
                 notifier.RemoveNPCFromView(deadNPCIndex, showDeathAnimation);
 
-            _currentMapStateRepository.NPCs = _currentMapStateRepository.NPCs
-                .Where(npc => npc.Index != deadNPCIndex)
-                .ToList();
+            _currentMapStateRepository.NPCs.RemoveWhere(npc => npc.Index == deadNPCIndex);
         }
 
         private void UpdatePlayerDirection(short playerID, EODirection playerDirection)
@@ -142,7 +140,7 @@ namespace EOLib.PacketHandlers
                 .WithDropTime(DateTime.Now)
                 .WithOwningPlayerID(playerID);
 
-            _currentMapStateRepository.MapItems.RemoveAll(item => item.UniqueID == droppedItemUID);
+            _currentMapStateRepository.MapItems.RemoveWhere(item => item.UniqueID == droppedItemUID);
             _currentMapStateRepository.MapItems.Add(mapItem);
         }
     }

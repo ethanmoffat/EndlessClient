@@ -114,7 +114,7 @@ Interaction=false";
 
             Assert.IsFalse(_configurationRepository.ShowShadows);
             Assert.IsFalse(_configurationRepository.ShowChatBubbles);
-            Assert.IsTrue(_configurationRepository.ShowTransition);
+            Assert.IsFalse(_configurationRepository.ShowTransition); //TODO: re-enable map transition (forced off for perf issues)
 
             Assert.IsTrue(_configurationRepository.MusicEnabled);
             Assert.IsTrue(_configurationRepository.SoundEnabled);

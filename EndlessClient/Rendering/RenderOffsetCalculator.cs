@@ -16,20 +16,26 @@ namespace EndlessClient.Rendering
 
         public int CalculateOffsetX(ICharacterRenderProperties properties)
         {
+            return properties.MapX*WidthFactor - properties.MapY*WidthFactor + CalculateWalkAdjustX(properties);
+        }
+
+        public int CalculateWalkAdjustX(ICharacterRenderProperties properties)
+        {
             var multiplier = properties.IsFacing(EODirection.Left, EODirection.Down) ? -1 : 1;
             var walkAdjust = properties.IsActing(CharacterActionState.Walking) ? WalkWidthFactor * properties.WalkFrame : 0;
-
-            //walkAdjust * multiplier is the old ViewAdjustX
-            return properties.MapX*WidthFactor - properties.MapY*WidthFactor + walkAdjust*multiplier;
+            return walkAdjust * multiplier;
         }
 
         public int CalculateOffsetY(ICharacterRenderProperties properties)
         {
+            return properties.MapX*HeightFactor + properties.MapY*HeightFactor + CalculateWalkAdjustY(properties);
+        }
+
+        public int CalculateWalkAdjustY(ICharacterRenderProperties properties)
+        {
             var multiplier = properties.IsFacing(EODirection.Left, EODirection.Up) ? -1 : 1;
             var walkAdjust = properties.IsActing(CharacterActionState.Walking) ? WalkHeightFactor * properties.WalkFrame : 0;
-
-            //walkAdjust * multiplier is the old ViewAdjustY
-            return properties.MapX*HeightFactor + properties.MapY*HeightFactor + walkAdjust*multiplier;
+            return walkAdjust * multiplier;
         }
 
         public int CalculateOffsetX(INPC npc)
@@ -54,8 +60,10 @@ namespace EndlessClient.Rendering
     public interface IRenderOffsetCalculator
     {
         int CalculateOffsetX(ICharacterRenderProperties properties);
+        int CalculateWalkAdjustX(ICharacterRenderProperties properties);
 
         int CalculateOffsetY(ICharacterRenderProperties properties);
+        int CalculateWalkAdjustY(ICharacterRenderProperties properties);
 
         int CalculateOffsetX(INPC npc);
 

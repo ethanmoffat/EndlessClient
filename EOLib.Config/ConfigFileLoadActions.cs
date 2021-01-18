@@ -50,7 +50,8 @@ namespace EOLib.Config
             _configRepository.StrictFilterEnabled = configFile.GetValue(ConfigStrings.Chat, ConfigStrings.FilterAll, out tempBool) && tempBool;
 
             _configRepository.ShowShadows = !configFile.GetValue(ConfigStrings.Settings, ConfigStrings.ShowShadows, out tempBool) || tempBool;
-            _configRepository.ShowTransition = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.ShowTransition, out tempBool) && tempBool;
+            // TODO: figure out performance issues when doing map transition
+            _configRepository.ShowTransition = false; // = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.ShowTransition, out tempBool) && tempBool;
             _configRepository.MusicEnabled = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.Music, out tempBool) && tempBool;
             _configRepository.SoundEnabled = configFile.GetValue(ConfigStrings.Settings, ConfigStrings.Sound, out tempBool) && tempBool;
             _configRepository.ShowChatBubbles = !configFile.GetValue(ConfigStrings.Settings, ConfigStrings.ShowBaloons, out tempBool) || tempBool;

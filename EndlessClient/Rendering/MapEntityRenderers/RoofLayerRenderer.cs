@@ -35,11 +35,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
             int gfxNum = CurrentMap.GFX[MapLayer.Roof][row, col];
-            var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
+            var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
 
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
-            pos = new Vector2(pos.X - gfx.Width / 2f + 30, pos.Y - gfx.Height + 28);
-
             spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 

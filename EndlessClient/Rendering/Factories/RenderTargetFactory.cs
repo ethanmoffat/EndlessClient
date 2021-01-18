@@ -19,10 +19,15 @@ namespace EndlessClient.Rendering.Factories
 
         public RenderTarget2D CreateRenderTarget()
         {
+            return CreateRenderTarget(_clientWindowSizeProvider.Width, _clientWindowSizeProvider.Height);
+        }
+
+        public RenderTarget2D CreateRenderTarget(int width, int height)
+        {
             return new RenderTarget2D(
                 _graphicsDeviceProvider.GraphicsDevice,
-                _clientWindowSizeProvider.Width,
-                _clientWindowSizeProvider.Height,
+                width,
+                height,
                 false,
                 SurfaceFormat.Color,
                 DepthFormat.None);

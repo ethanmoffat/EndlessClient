@@ -1098,7 +1098,7 @@ namespace EndlessClient.Rendering
         {
             int gfxNum;
             //roofs (after objects - for outdoor maps, which actually have roofs, this makes more sense)
-            if ((gfxNum = MapRef.GFX[MapLayer.Roof][rowIndex, colIndex]) > 0)
+            if ((gfxNum = MapRef.GFX[MapLayer.Overlay2][rowIndex, colIndex]) > 0)
             {
                 var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
                 drawRoofLater.Add(new Point(colIndex, rowIndex), gfx);
@@ -1108,7 +1108,7 @@ namespace EndlessClient.Rendering
         private void _drawUnknownLayerAtLoc(int rowIndex, int colIndex, OldCharacter c)
         {
             int gfxNum;
-            if ((gfxNum = MapRef.GFX[MapLayer.Unknown][rowIndex, colIndex]) > 0)
+            if ((gfxNum = MapRef.GFX[MapLayer.Roof][rowIndex, colIndex]) > 0)
             {
                 var gfx = EOGame.Instance.GFXManager.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
                 Vector2 loc = GetDrawCoordinatesFromGridUnits(colIndex, rowIndex, c);

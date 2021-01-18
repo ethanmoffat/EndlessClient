@@ -11,15 +11,15 @@ namespace EOLib.Domain.Map
 
         bool ShowMiniMap { get; set; }
 
-        List<ICharacter> Characters { get; set; }
+        HashSet<ICharacter> Characters { get; set; }
 
-        List<INPC> NPCs { get; set; }
+        HashSet<INPC> NPCs { get; set; }
 
-        List<IItem> MapItems { get; set; }
+        HashSet<IItem> MapItems { get; set; }
 
-        List<IWarp> OpenDoors { get; set;  }
+        HashSet<IWarp> OpenDoors { get; set;  }
 
-        List<IWarp> PendingDoors { get; set; }
+        HashSet<IWarp> PendingDoors { get; set; }
 
         WarpState MapWarpState { get; set; }
     }
@@ -30,15 +30,15 @@ namespace EOLib.Domain.Map
 
         bool ShowMiniMap { get; }
 
-        IReadOnlyList<ICharacter> Characters { get; }
+        IReadOnlyCollection<ICharacter> Characters { get; }
 
-        IReadOnlyList<INPC> NPCs { get; }
+        IReadOnlyCollection<INPC> NPCs { get; }
 
-        IReadOnlyList<IItem> MapItems { get; }
+        IReadOnlyCollection<IItem> MapItems { get; }
 
-        IReadOnlyList<IWarp> OpenDoors { get; }
+        IReadOnlyCollection<IWarp> OpenDoors { get; }
 
-        IReadOnlyList<IWarp> PendingDoors { get; }
+        IReadOnlyCollection<IWarp> PendingDoors { get; }
 
         WarpState MapWarpState { get; set; }
     }
@@ -50,27 +50,27 @@ namespace EOLib.Domain.Map
 
         public bool ShowMiniMap { get; set; }
 
-        public List<ICharacter> Characters { get; set; }
+        public HashSet<ICharacter> Characters { get; set; }
 
-        public List<INPC> NPCs { get; set; }
+        public HashSet<INPC> NPCs { get; set; }
 
-        public List<IItem> MapItems { get; set; }
+        public HashSet<IItem> MapItems { get; set; }
 
-        public List<IWarp> OpenDoors { get; set; }
+        public HashSet<IWarp> OpenDoors { get; set; }
 
-        public List<IWarp> PendingDoors { get; set; }
+        public HashSet<IWarp> PendingDoors { get; set; }
 
         public WarpState MapWarpState { get; set; }
 
-        IReadOnlyList<ICharacter> ICurrentMapStateProvider.Characters => Characters;
+        IReadOnlyCollection<ICharacter> ICurrentMapStateProvider.Characters => Characters;
 
-        IReadOnlyList<INPC> ICurrentMapStateProvider.NPCs => NPCs;
+        IReadOnlyCollection<INPC> ICurrentMapStateProvider.NPCs => NPCs;
 
-        IReadOnlyList<IItem> ICurrentMapStateProvider.MapItems => MapItems;
+        IReadOnlyCollection<IItem> ICurrentMapStateProvider.MapItems => MapItems;
 
-        IReadOnlyList<IWarp> ICurrentMapStateProvider.OpenDoors => OpenDoors;
+        IReadOnlyCollection<IWarp> ICurrentMapStateProvider.OpenDoors => OpenDoors;
 
-        IReadOnlyList<IWarp> ICurrentMapStateProvider.PendingDoors => PendingDoors;
+        IReadOnlyCollection<IWarp> ICurrentMapStateProvider.PendingDoors => PendingDoors;
 
         public CurrentMapStateRepository()
         {
@@ -82,11 +82,11 @@ namespace EOLib.Domain.Map
             CurrentMapID = 0;
             ShowMiniMap = false;
 
-            Characters = new List<ICharacter>();
-            NPCs = new List<INPC>();
-            MapItems = new List<IItem>();
-            OpenDoors = new List<IWarp>();
-            PendingDoors = new List<IWarp>();
+            Characters = new HashSet<ICharacter>();
+            NPCs = new HashSet<INPC>();
+            MapItems = new HashSet<IItem>();
+            OpenDoors = new HashSet<IWarp>();
+            PendingDoors = new HashSet<IWarp>();
 
             MapWarpState = WarpState.None;
         }

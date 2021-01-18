@@ -142,7 +142,7 @@ namespace EndlessClient.Rendering.Character
                 }
             }
 
-            _currentMapStateRepository.Characters.RemoveAll(deadCharacters.Contains);
+            _currentMapStateRepository.Characters.RemoveWhere(deadCharacters.Contains);
         }
 
         private ICharacterRenderer InitializeRendererForCharacter(ICharacterRenderProperties renderProperties)

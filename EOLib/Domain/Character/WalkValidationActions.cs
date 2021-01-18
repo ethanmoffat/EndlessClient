@@ -84,6 +84,7 @@ namespace EOLib.Domain.Character
                 case TileSpec.Board7:
                 case TileSpec.Board8:
                 case TileSpec.Jukebox:
+                case TileSpec.VultTypo:
                     return false;
                 case TileSpec.NPCBoundary:
                 case TileSpec.FakeWall:

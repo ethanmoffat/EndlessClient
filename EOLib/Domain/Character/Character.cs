@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace EOLib.Domain.Character
 {
     public class Character : ICharacter
@@ -127,6 +129,41 @@ namespace EOLib.Domain.Character
                 MapID = source.MapID,
                 NoWall = source.NoWall
             };
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is Character character &&
+                   ID == character.ID &&
+                   Name == character.Name &&
+                   Title == character.Title &&
+                   GuildName == character.GuildName &&
+                   GuildRank == character.GuildRank &&
+                   GuildTag == character.GuildTag &&
+                   ClassID == character.ClassID &&
+                   AdminLevel == character.AdminLevel &&
+                   RenderProperties.Equals(character.RenderProperties) &&
+                   Stats.Equals(character.Stats) &&
+                   MapID == character.MapID &&
+                   NoWall == character.NoWall;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 170256730;
+            hashCode = hashCode * -1521134295 + ID.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Name);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Title);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(GuildName);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(GuildRank);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(GuildTag);
+            hashCode = hashCode * -1521134295 + ClassID.GetHashCode();
+            hashCode = hashCode * -1521134295 + AdminLevel.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<ICharacterRenderProperties>.Default.GetHashCode(RenderProperties);
+            hashCode = hashCode * -1521134295 + EqualityComparer<ICharacterStats>.Default.GetHashCode(Stats);
+            hashCode = hashCode * -1521134295 + MapID.GetHashCode();
+            hashCode = hashCode * -1521134295 + NoWall.GetHashCode();
+            return hashCode;
         }
     }
 }

@@ -27,6 +27,16 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _currentMapProvider = currentMapProvider;
         }
 
+        protected override Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
+        {
+            // the height is used to offset the 0 point of the grid, which is 32 units per tile in the height of the map
+            var height = _currentMapProvider.CurrentMap.Properties.Height;
+            return new Vector2((gridX * 32) - (gridY * 32) + (32*height),
+                               (gridY * 16) + (gridX * 16));
+        }
+
+        public override bool CanRender(int row, int col) => true;
+
         protected override bool ElementExistsAt(int row, int col)
         {
             return (CurrentMap.Properties.FillTile > 0 && CurrentMap.GFX[MapLayer.GroundTile][row, col] < 0) ||
@@ -42,7 +52,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             {
                 //todo: source rectangle for fill tile
                 var fillTile = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapTiles, tileGFX, true);
-                spriteBatch.Draw(fillTile, new Vector2(pos.X - 1, pos.Y - 2), Color.FromNonPremultiplied(255, 255, 255, alpha));
+                spriteBatch.Draw(fillTile, pos, Color.FromNonPremultiplied(255, 255, 255, alpha));
             }
             else if ((tileGFX = CurrentMap.GFX[MapLayer.GroundTile][row, col]) > 0)
             {
@@ -51,7 +61,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 //todo: animate ground tiles by adjusting the source rectangle offset
                 var src = tile.Width > 64 ? new Rectangle?(new Rectangle(0, 0, tile.Width / 4, tile.Height)) : null;
 
-                spriteBatch.Draw(tile, new Vector2(pos.X - 1, pos.Y - 2), src, Color.FromNonPremultiplied(255, 255, 255, alpha));
+                spriteBatch.Draw(tile, pos, src, Color.FromNonPremultiplied(255, 255, 255, alpha));
             }
         }
 

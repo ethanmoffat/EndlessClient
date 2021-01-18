@@ -218,9 +218,9 @@
     <Compile Include="Rendering\MapEntityRenderers\OnTopLayerRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\OtherCharacterEntityRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\OverlayLayerRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\RoofLayerRenderer.cs" />
+    <Compile Include="Rendering\MapEntityRenderers\Overlay2LayerRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\ShadowLayerRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\UnknownLayerRenderer.cs" />
+    <Compile Include="Rendering\MapEntityRenderers\RoofLayerRenderer.cs" />
     <Compile Include="Rendering\MapEntityRenderers\WallLayerRenderer.cs" />
     <Compile Include="Rendering\Map\IMapItemGraphicProvider.cs" />
     <Compile Include="Rendering\Map\IMapRenderDistanceCalculator.cs" />

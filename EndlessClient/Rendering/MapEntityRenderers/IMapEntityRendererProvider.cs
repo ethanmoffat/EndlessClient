@@ -5,7 +5,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 {
     public interface IMapEntityRendererProvider : IDisposable
     {
-        IReadOnlyList<IMapEntityRenderer> MapBaseRenderers { get; }
+        IMapEntityRenderer GroundRenderer { get; }
+
+        IMapEntityRenderer ItemRenderer { get; }
 
         IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; }
     }
