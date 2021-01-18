@@ -33,6 +33,11 @@ namespace EOLib.IO.Map
         SpikesStatic = 35,
         SpikesTrap = 36,
 
+        /// <summary>
+        /// This should be treated as a Wall spec
+        /// </summary>
+        VultTypo = 173,
+
         None = 255
     }
 }

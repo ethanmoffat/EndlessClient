@@ -207,6 +207,7 @@ namespace EndlessClient.Rendering
                 case TileSpec.MapEdge:
                 case TileSpec.FakeWall:
                 case TileSpec.NPCBoundary:
+                case TileSpec.VultTypo:
                     _shouldDrawCursor = false;
                     break;
                 case TileSpec.Chest:
