@@ -160,6 +160,7 @@ namespace EndlessClient.Rendering.Map
                 return;
 
             GraphicsDevice.SetRenderTarget(_mapBaseTarget);
+            _sb.Begin();
 
             var renderBounds = new MapRenderBounds(0, _currentMapProvider.CurrentMap.Properties.Height,
                                                    0, _currentMapProvider.CurrentMap.Properties.Width);
@@ -167,8 +168,6 @@ namespace EndlessClient.Rendering.Map
             var transitionComplete = true;
             for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
             {
-                _sb.Begin();
-
                 for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; ++col)
                 {
                     var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
@@ -177,13 +176,12 @@ namespace EndlessClient.Rendering.Map
                     if (_mapEntityRendererProvider.GroundRenderer.CanRender(row, col))
                         _mapEntityRendererProvider.GroundRenderer.RenderElementAt(_sb, row, col, alpha);
                 }
-
-                _sb.End();
             }
 
             if (transitionComplete)
                 _mapTransitionState = new MapTransitionState(Optional<DateTime>.Empty, 0);
 
+            _sb.End();
             GraphicsDevice.SetRenderTarget(null);
         }
 
@@ -212,11 +210,11 @@ namespace EndlessClient.Rendering.Map
 
             var gfxToRenderLast = new SortedList<Point, List<MapRenderLayer>>(new PointComparer());
 
+            _sb.Begin();
+
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(immutableCharacter, _currentMapProvider.CurrentMap);
             for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
             {
-                _sb.Begin();
-
                 for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; col++)
                 {
                     if (CharacterIsAtPosition(immutableCharacter.RenderProperties, row, col))
@@ -248,11 +246,8 @@ namespace EndlessClient.Rendering.Map
                             renderer.RenderElementAt(_sb, row, col, alpha);
                     }
                 }
-
-                _sb.End();
             }
 
-            _sb.Begin();
             foreach (var kvp in gfxToRenderLast)
             {
                 var pointKey = kvp.Key;
@@ -265,8 +260,8 @@ namespace EndlessClient.Rendering.Map
                                               .RenderElementAt(_sb, pointKey.Y, pointKey.X, alpha);
                 }
             }
-            _sb.End();
 
+            _sb.End();
             GraphicsDevice.SetRenderTarget(null);
         }
 
