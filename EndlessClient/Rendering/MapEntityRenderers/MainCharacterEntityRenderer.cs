@@ -48,8 +48,8 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
-            if(_characterRendererProvider.MainCharacterRenderer == null)
-                throw new InvalidOperationException("Main character renderer is null! Did you call MapRenderer.Update() before calling MapRenderer.Draw()?");
+            if (_characterRendererProvider.MainCharacterRenderer == null)
+                return;
 
             spriteBatch.End();
 
