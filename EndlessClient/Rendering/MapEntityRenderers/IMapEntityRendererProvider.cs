@@ -7,7 +7,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     {
         IMapEntityRenderer GroundRenderer { get; }
 
-        IMapEntityRenderer ItemRenderer { get; }
+        IReadOnlyList<IMapEntityRenderer> BaseRenderers { get; }
 
         IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; }
     }

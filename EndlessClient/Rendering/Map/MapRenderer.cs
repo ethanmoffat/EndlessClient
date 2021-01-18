@@ -143,7 +143,7 @@ namespace EndlessClient.Rendering.Map
             spriteBatch.Begin();
 
             spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition(), Color.White);
-            DrawItemLayer(spriteBatch);
+            DrawBaseLayers(spriteBatch);
 
             _mouseCursorRenderer.Draw(spriteBatch, gameTime);
 
@@ -184,7 +184,7 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.SetRenderTarget(null);
         }
 
-        private void DrawItemLayer(SpriteBatch spriteBatch)
+        private void DrawBaseLayers(SpriteBatch spriteBatch)
         {
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
 
@@ -194,8 +194,11 @@ namespace EndlessClient.Rendering.Map
                 {
                     var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
 
-                    if (_mapEntityRendererProvider.ItemRenderer.CanRender(row, col))
-                        _mapEntityRendererProvider.ItemRenderer.RenderElementAt(spriteBatch, row, col, alpha);
+                    foreach (var renderer in _mapEntityRendererProvider.BaseRenderers)
+                    {
+                        if (renderer.CanRender(row, col))
+                            renderer.RenderElementAt(spriteBatch, row, col, alpha);
+                    }
                 }
             }
         }

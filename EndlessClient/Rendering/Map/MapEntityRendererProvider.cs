@@ -16,7 +16,7 @@ namespace EndlessClient.Rendering.Map
     {
         public IMapEntityRenderer GroundRenderer { get; }
 
-        public IMapEntityRenderer ItemRenderer { get; }
+        public IReadOnlyList<IMapEntityRenderer> BaseRenderers { get; }
 
         public IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; }
 
@@ -37,18 +37,21 @@ namespace EndlessClient.Rendering.Map
                                         currentMapProvider,
                                         characterProvider,
                                         renderOffsetCalculator);
-            ItemRenderer =
-                new MapItemLayerRenderer(characterProvider,
-                                         renderOffsetCalculator,
-                                         currentMapStateProvider,
-                                         mapItemGraphicProvider);
 
-            MapEntityRenderers = new List<IMapEntityRenderer>
+            BaseRenderers = new List<IMapEntityRenderer>
             {
                 new AnimatedGroundLayerRenderer(nativeGraphicsManager,
                                                 currentMapProvider,
                                                 characterProvider,
                                                 renderOffsetCalculator),
+                new MapItemLayerRenderer(characterProvider,
+                                         renderOffsetCalculator,
+                                         currentMapStateProvider,
+                                         mapItemGraphicProvider)
+            };
+
+            MapEntityRenderers = new List<IMapEntityRenderer>
+            {
                 new ShadowLayerRenderer(nativeGraphicsManager,
                                         currentMapProvider,
                                         characterProvider,
@@ -103,7 +106,9 @@ namespace EndlessClient.Rendering.Map
         public void Dispose()
         {
             GroundRenderer.Dispose();
-            ItemRenderer.Dispose();
+
+            foreach (var renderer in BaseRenderers)
+                renderer.Dispose();
 
             foreach (var renderer in MapEntityRenderers)
                 renderer.Dispose();
