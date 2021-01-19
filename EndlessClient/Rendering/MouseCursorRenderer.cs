@@ -42,8 +42,6 @@ namespace EndlessClient.Rendering
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapInteractionController _mapInteractionController;
-        private readonly IArrowKeyController _arrowKeyController;
-        private readonly IPathFinder _pathFinder;
         private readonly XNALabel _mapItemText;
 
         private readonly SpriteBatch _spriteBatch;
@@ -58,9 +56,6 @@ namespace EndlessClient.Rendering
         private int _clickAlpha;
         private Rectangle _clickPositionArea;
 
-        private MapCoordinate _walkTarget;
-        private List<MapCoordinate> _walkPath;
-
         private MouseState _previousMouseState;
 
         public MouseCursorRenderer(INativeGraphicsManager nativeGraphicsManager,
@@ -71,9 +66,7 @@ namespace EndlessClient.Rendering
                                    IEIFFileProvider eifFileProvider,
                                    ICurrentMapProvider currentMapProvider,
                                    IGraphicsDeviceProvider graphicsDeviceProvider,
-                                   IMapInteractionController mapInteractionController,
-                                   IArrowKeyController arrowKeyController,
-                                   IPathFinder pathFinder)
+                                   IMapInteractionController mapInteractionController)
         {
             _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
             _characterProvider = characterProvider;
@@ -83,8 +76,6 @@ namespace EndlessClient.Rendering
             _eifFileProvider = eifFileProvider;
             _currentMapProvider = currentMapProvider;
             _mapInteractionController = mapInteractionController;
-            _arrowKeyController = arrowKeyController;
-            _pathFinder = pathFinder;
 
             SingleCursorFrameArea = new Rectangle(0, 0,
                                                   _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,
@@ -101,7 +92,6 @@ namespace EndlessClient.Rendering
             };
 
             _spriteBatch = new SpriteBatch(graphicsDeviceProvider.GraphicsDevice);
-            _walkPath = new List<MapCoordinate>();
         }
 
         public void Initialize()
@@ -127,44 +117,6 @@ namespace EndlessClient.Rendering
 
             var currentMouseState = Mouse.GetState();
             CheckForClicks(currentMouseState, cellState);
-
-            if (_walkPath.Any())
-            {
-                if (!_characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Walking))
-                {
-                    var characterCoord = new MapCoordinate(_characterProvider.MainCharacter.RenderProperties.MapX,
-                                                           _characterProvider.MainCharacter.RenderProperties.MapY);
-                    var next = _walkPath.First();
-                    _walkPath.RemoveAt(0);
-
-                    var diff = next - characterCoord;
-                    if ((diff.X != 0 && diff.Y != 0) || Math.Abs(diff.X) > 1 || Math.Abs(diff.Y) > 1)
-                        throw new Exception("wut");
-
-                    if (diff.X < 0)
-                    {
-                        _arrowKeyController.MoveLeft(faceAndMove: true);
-                    }
-                    else if (diff.X > 0)
-                    {
-                        _arrowKeyController.MoveRight(faceAndMove: true);
-                    }
-                    else if (diff.Y < 0)
-                    {
-                        _arrowKeyController.MoveUp(faceAndMove: true);
-                    }
-                    else if (diff.Y > 0)
-                    {
-                        _arrowKeyController.MoveDown(faceAndMove: true);
-                    }
-                }
-                else
-                {
-                    var characterCoord = new MapCoordinate(_characterProvider.MainCharacter.RenderProperties.GetDestinationX(),
-                                                           _characterProvider.MainCharacter.RenderProperties.GetDestinationY());
-                    _walkPath = _pathFinder.FindPath(characterCoord, _walkTarget);
-                }
-            }
 
             _previousMouseState = currentMouseState;
         }
@@ -380,15 +332,6 @@ namespace EndlessClient.Rendering
             _clickFrame = CursorIndex.ClickFirstFrame;
             _clickAlpha = 200;
             _clickPositionArea = _drawArea;
-
-            _walkPath = _pathFinder.FindPath(
-                new MapCoordinate(_characterProvider.MainCharacter.RenderProperties.MapX, _characterProvider.MainCharacter.RenderProperties.MapY),
-                _walkTarget = new MapCoordinate(_gridX, _gridY));
-        }
-
-        public void CancelWalk()
-        {
-            _walkPath = new List<MapCoordinate>();
         }
 
         ~MouseCursorRenderer()

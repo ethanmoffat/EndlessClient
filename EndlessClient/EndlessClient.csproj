@@ -98,6 +98,7 @@
     <Compile Include="Initialization\LocalizationInitializer.cs" />
     <Compile Include="Initialization\NetworkInitializer.cs" />
     <Compile Include="Input\ArrowKeyHandler.cs" />
+    <Compile Include="Input\ClickWalkPathHandler.cs" />
     <Compile Include="Input\ControlKeyHandler.cs" />
     <Compile Include="Input\CurrentKeyStateTracker.cs" />
     <Compile Include="Input\IKeyStateRepository.cs" />

@@ -69,7 +69,8 @@ namespace EndlessClient.HUD.Controls
         UserInputHandler,
         CharacterAnimator,
         NPCAnimator,
+        ClickWalkPathHandler,
 
-        PreviousKeyStateTracker = Int32.MaxValue //this should always be last!
+        PreviousKeyStateTracker = Int32.MaxValue, //this should always be last!
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System;
 using AutomaticTypeMapper;
+using EndlessClient.ControlSets;
 using EndlessClient.HUD;
+using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
+using EndlessClient.Input;
 using EndlessClient.Rendering;
-using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Extensions;
@@ -18,16 +20,19 @@ namespace EndlessClient.Controllers
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
+        private readonly IHudControlProvider _hudControlProvider;
 
         public MapInteractionController(IMapActions mapActions,
                                         ICurrentMapStateProvider currentMapStateProvider,
                                         IStatusLabelSetter statusLabelSetter,
-                                        IInventorySpaceValidator inventorySpaceValidator)
+                                        IInventorySpaceValidator inventorySpaceValidator,
+                                        IHudControlProvider hudControlProvider)
         {
             _mapActions = mapActions;
             _currentMapStateProvider = currentMapStateProvider;
             _statusLabelSetter = statusLabelSetter;
             _inventorySpaceValidator = inventorySpaceValidator;
+            _hudControlProvider = hudControlProvider;
         }
 
         public void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
@@ -47,6 +52,8 @@ namespace EndlessClient.Controllers
             else
             {
                 mouseRenderer.AnimateClick();
+                _hudControlProvider.GetComponent<IClickWalkPathHandler>(HudControlIdentifier.ClickWalkPathHandler)
+                    .StartWalking(cellState.Coordinate);
             }
         }
 

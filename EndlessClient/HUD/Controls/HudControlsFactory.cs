@@ -47,6 +47,8 @@ namespace EndlessClient.HUD.Controls
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IChatModeCalculator _chatModeCalculator;
         private readonly IExperienceTableProvider _experienceTableProvider;
+        private readonly IArrowKeyController _arrowKeyController;
+        private readonly IPathFinder _pathFinder;
 
         private IChatController _chatController;
 
@@ -66,7 +68,9 @@ namespace EndlessClient.HUD.Controls
                                   IContentManagerProvider contentManagerProvider,
                                   IHudControlProvider hudControlProvider,
                                   IChatModeCalculator chatModeCalculator,
-                                  IExperienceTableProvider experienceTableProvider)
+                                  IExperienceTableProvider experienceTableProvider,
+                                  IArrowKeyController arrowKeyController,
+                                  IPathFinder pathFinder)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -85,6 +89,8 @@ namespace EndlessClient.HUD.Controls
             _hudControlProvider = hudControlProvider;
             _chatModeCalculator = chatModeCalculator;
             _experienceTableProvider = experienceTableProvider;
+            _arrowKeyController = arrowKeyController;
+            _pathFinder = pathFinder;
         }
 
         public void InjectChatController(IChatController chatController)
@@ -140,6 +146,7 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.UserInputHandler, CreateUserInputHandler()},
                 {HudControlIdentifier.CharacterAnimator, CreateCharacterAnimator()},
                 {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
+                {HudControlIdentifier.ClickWalkPathHandler, CreateClickWalkPathHandler()},
                 {HudControlIdentifier.PreviousKeyStateTracker, CreatePreviousKeyStateTracker()}
             };
 
@@ -332,6 +339,11 @@ namespace EndlessClient.HUD.Controls
         private INPCAnimator CreateNPCAnimator()
         {
             return new NPCAnimator(_endlessGameProvider, _currentMapStateRepository);
+        }
+
+        private IClickWalkPathHandler CreateClickWalkPathHandler()
+        {
+            return new ClickWalkPathHandler(_endlessGameProvider, _arrowKeyController, (ICharacterProvider)_characterRepository, _pathFinder);
         }
 
         private PreviousKeyStateTracker CreatePreviousKeyStateTracker()
