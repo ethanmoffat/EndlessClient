@@ -61,6 +61,11 @@ namespace EndlessClient.Rendering.Map
                                          currentMapProvider,
                                          characterProvider,
                                          renderOffsetCalculator),
+                new MainCharacterEntityRenderer(characterProvider,
+                                                characterRendererProvider,
+                                                chatBubbleProvider,
+                                                renderOffsetCalculator,
+                                                transparent: false),
                 new MapObjectLayerRenderer(nativeGraphicsManager,
                                            currentMapProvider,
                                            characterProvider,
@@ -99,19 +104,9 @@ namespace EndlessClient.Rendering.Map
                 new MainCharacterEntityRenderer(characterProvider,
                                                 characterRendererProvider,
                                                 chatBubbleProvider,
-                                                renderOffsetCalculator)
+                                                renderOffsetCalculator,
+                                                transparent: true)
             };
-        }
-
-        public void Dispose()
-        {
-            GroundRenderer.Dispose();
-
-            foreach (var renderer in BaseRenderers)
-                renderer.Dispose();
-
-            foreach (var renderer in MapEntityRenderers)
-                renderer.Dispose();
         }
     }
 }

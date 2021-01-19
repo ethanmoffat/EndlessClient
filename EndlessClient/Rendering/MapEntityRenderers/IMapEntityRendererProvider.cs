@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
 {
-    public interface IMapEntityRendererProvider : IDisposable
+    public interface IMapEntityRendererProvider
     {
         IMapEntityRenderer GroundRenderer { get; }
 

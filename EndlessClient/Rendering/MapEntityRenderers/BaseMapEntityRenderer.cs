@@ -37,7 +37,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public abstract MapRenderLayer RenderLayer { get; }
 
-        public bool ShouldRenderLast => RenderLayer == MapRenderLayer.Overlay2 || RenderLayer == MapRenderLayer.MainCharacter;
+        public bool ShouldRenderLast => RenderLayer == MapRenderLayer.Overlay2 || RenderLayer == MapRenderLayer.MainCharacterTransparent;
 
         protected abstract int RenderDistance { get; }
 
@@ -83,18 +83,5 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32) - charOffX + _layerOffsets[RenderLayer].X,
                                ViewportHeightFactor + (gridY * 16) + (gridX * 16) - charOffY + _layerOffsets[RenderLayer].Y);
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~BaseMapEntityRenderer()
-        {
-            Dispose(false);
-        }
-
-        protected virtual void Dispose(bool disposing) { }
     }
 }

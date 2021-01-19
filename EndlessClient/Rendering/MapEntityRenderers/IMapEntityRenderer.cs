@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
 {
-    public interface IMapEntityRenderer : IDisposable
+    public interface IMapEntityRenderer
     {
         MapRenderLayer RenderLayer { get; }
 

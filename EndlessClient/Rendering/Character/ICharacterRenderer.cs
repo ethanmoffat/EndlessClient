@@ -10,9 +10,9 @@ namespace EndlessClient.Rendering.Character
     {
         int? TopPixel { get; }
 
-        ICharacter Character{ get; set; }
+        ICharacter Character { get; set; }
 
-        Rectangle DrawArea { get; }
+        bool Transparent { get; set; }
 
         void SetAbsoluteScreenPosition(int xPosition, int yPosition);
 

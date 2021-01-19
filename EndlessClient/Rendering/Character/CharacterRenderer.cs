@@ -46,6 +46,8 @@ namespace EndlessClient.Rendering.Character
             }
         }
 
+        public bool Transparent { get; set; }
+
         public Rectangle DrawArea { get; private set; }
 
         public int? TopPixel { get; private set; }
@@ -234,7 +236,7 @@ namespace EndlessClient.Rendering.Character
 
         private Color GetAlphaColor()
         {
-            return _character.RenderProperties.IsHidden || _character.RenderProperties.IsDead
+            return _character.RenderProperties.IsHidden || _character.RenderProperties.IsDead || Transparent
                 ? Color.FromNonPremultiplied(255, 255, 255, 128)
                 : Color.White;
         }

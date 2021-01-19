@@ -6,6 +6,7 @@ namespace EndlessClient.Rendering.Map
         Item,
         Overlay,
         Shadows,
+        MainCharacter,
         DownWall,
         RightWall,
         Objects,
@@ -14,6 +15,6 @@ namespace EndlessClient.Rendering.Map
         Overlay2,
         Roof,
         OnTop,
-        MainCharacter
+        MainCharacterTransparent
     }
 }
