@@ -17,6 +17,7 @@ namespace EndlessClient.Input
                                 IUserInputTimeRepository userInputTimeRepository,
                                 IArrowKeyController arrowKeyController,
                                 IControlKeyController controlKeyController,
+                                IFunctionKeyController functionKeyController,
                                 ICurrentMapStateProvider currentMapStateProvider,
                                 IHudControlProvider hudControlProvider)
             : base((Game)endlessGameProvider.Game)
@@ -33,7 +34,12 @@ namespace EndlessClient.Input
                     keyStateProvider,
                     userInputTimeRepository,
                     controlKeyController,
-                    currentMapStateProvider)
+                    currentMapStateProvider),
+                new FunctionKeyHandler(endlessGameProvider,
+                    keyStateProvider,
+                    userInputTimeRepository,
+                    functionKeyController,
+                    currentMapStateProvider),
             };
         }
 

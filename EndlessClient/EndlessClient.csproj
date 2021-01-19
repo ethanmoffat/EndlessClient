@@ -75,6 +75,7 @@
     <Compile Include="Controllers\ArrowKeyController.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\ControlKeyController.cs" />
+    <Compile Include="Controllers\FunctionKeyController.cs" />
     <Compile Include="Controllers\MapInteractionController.cs" />
     <Compile Include="Controllers\TrainingController.cs" />
     <Compile Include="Dialogs\Actions\FirstTimePlayerActions.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="Input\ClickWalkPathHandler.cs" />
     <Compile Include="Input\ControlKeyHandler.cs" />
     <Compile Include="Input\CurrentKeyStateTracker.cs" />
+    <Compile Include="Input\FunctionKeyHandler.cs" />
     <Compile Include="Input\IKeyStateRepository.cs" />
     <Compile Include="Input\InputHandlerBase.cs" />
     <Compile Include="Input\IUserInputTimeRepository.cs" />
@@ -309,7 +311,6 @@
     <Compile Include="HUD\StatusBars\TPStatusBar.cs" />
     <Compile Include="GameExecution\IEndlessGame.cs" />
     <Compile Include="GameExecution\IGameRunner.cs" />
-    <Compile Include="Input\FunctionKeyListener.cs" />
     <Compile Include="Input\OldInputKeyListenerBase.cs" />
     <Compile Include="Input\NumPadListener.cs" />
     <Compile Include="Old\InteractList.cs" />

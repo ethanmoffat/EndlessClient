@@ -14,6 +14,7 @@ namespace EndlessClient.Input
         private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly IArrowKeyController _arrowKeyController;
         private readonly IControlKeyController _controlKeyController;
+        private readonly IFunctionKeyController _functionKeyController;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IHudControlProvider _hudControlProvider;
 
@@ -22,6 +23,7 @@ namespace EndlessClient.Input
                                        IUserInputTimeRepository userInputTimeRepository,
                                        IArrowKeyController arrowKeyController,
                                        IControlKeyController controlKeyController,
+                                       IFunctionKeyController functionKeyController,
                                        ICurrentMapStateProvider  currentMapStateProvider,
                                        IHudControlProvider hudControlProvider)
         {
@@ -30,6 +32,7 @@ namespace EndlessClient.Input
             _userInputTimeRepository = userInputTimeRepository;
             _arrowKeyController = arrowKeyController;
             _controlKeyController = controlKeyController;
+            _functionKeyController = functionKeyController;
             _currentMapStateProvider = currentMapStateProvider;
             _hudControlProvider = hudControlProvider;
         }
@@ -41,6 +44,7 @@ namespace EndlessClient.Input
                                         _userInputTimeRepository,
                                         _arrowKeyController,
                                         _controlKeyController,
+                                        _functionKeyController,
                                         _currentMapStateProvider,
                                         _hudControlProvider);
         }

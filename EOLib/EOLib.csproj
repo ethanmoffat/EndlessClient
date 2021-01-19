@@ -202,7 +202,6 @@
     <Compile Include="Net\API\Party.cs" />
     <Compile Include="Net\API\Quest.cs" />
     <Compile Include="Net\API\Recover.cs" />
-    <Compile Include="Net\API\Refresh.cs" />
     <Compile Include="Net\API\Shop.cs" />
     <Compile Include="Net\API\Spell.cs" />
     <Compile Include="Net\API\StatSkill.cs" />

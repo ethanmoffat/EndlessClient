@@ -128,9 +128,8 @@ namespace EndlessClient.HUD.Controls
             
             SessionStartTime = DateTime.Now;
 
-            m_inputListeners = new List<OldInputKeyListenerBase>(4)
+            m_inputListeners = new List<OldInputKeyListenerBase>
             {
-                new FunctionKeyListener(),
                 new NumPadListener()
             };
             m_inputListeners.ForEach(x => x.InputTimeUpdated += OldWorld.Instance.ActiveCharacterRenderer.UpdateInputTime);
