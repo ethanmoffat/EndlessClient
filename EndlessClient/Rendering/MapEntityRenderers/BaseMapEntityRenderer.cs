@@ -19,7 +19,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _layerOffsets = new Dictionary<MapRenderLayer, Point>
             {
                 { MapRenderLayer.Ground, Point.Zero },
-                { MapRenderLayer.Item, Point.Zero },
+                { MapRenderLayer.Item, new Point(0, 16) },
                 { MapRenderLayer.Objects, new Point(-2, -2) },
                 { MapRenderLayer.Overlay, new Point(-2, -2) },
                 { MapRenderLayer.DownWall, new Point(0, -1) },
