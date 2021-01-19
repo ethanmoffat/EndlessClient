@@ -48,6 +48,11 @@ namespace EndlessClient.Rendering
         private CursorIndex _cursorIndex;
         private bool _shouldDrawCursor;
 
+        private DateTime? _startClickTime;
+        private CursorIndex _clickFrame;
+        private int _clickAlpha;
+        private Rectangle _clickPositionArea;
+
         private MouseState _previousMouseState;
 
         public MouseCursorRenderer(INativeGraphicsManager nativeGraphicsManager,
@@ -159,6 +164,18 @@ namespace EndlessClient.Rendering
 
             if (!cellState.Items.Any())
                 UpdateMapItemLabel(Optional<IItem>.Empty);
+
+            if (_startClickTime.HasValue && (DateTime.Now - _startClickTime.Value).TotalMilliseconds > 350)
+            {
+                _startClickTime = DateTime.Now;
+                _clickFrame = _clickFrame + 1;
+
+                if (_clickFrame != CursorIndex.ClickFirstFrame && _clickFrame != CursorIndex.ClickSecondFrame)
+                {
+                    _clickFrame = CursorIndex.Standard;
+                    _startClickTime = null;
+                }
+            }
         }
 
         private int MainCharacterOffsetX()
@@ -265,7 +282,7 @@ namespace EndlessClient.Rendering
             if (currentMouseState.LeftButton == ButtonState.Released &&
                 _previousMouseState.LeftButton == ButtonState.Pressed)
             {
-                _mapInteractionController.LeftClick(cellState);
+                _mapInteractionController.LeftClick(cellState, this);
             }
             else if (currentMouseState.RightButton == ButtonState.Released &&
                      _previousMouseState.RightButton == ButtonState.Pressed)
@@ -291,7 +308,26 @@ namespace EndlessClient.Rendering
                                                SingleCursorFrameArea.Width,
                                                SingleCursorFrameArea.Height),
                                  Color.White);
+
+                if (_startClickTime.HasValue)
+                {
+                    spriteBatch.Draw(_mouseCursorTexture,
+                                     _clickPositionArea,
+                                     SingleCursorFrameArea.WithPosition(new Vector2(SingleCursorFrameArea.Width * (int)_clickFrame, 0)),
+                                     Color.FromNonPremultiplied(255, 255, 255, _clickAlpha-=5));
+                }
             }
+        }
+
+        public void AnimateClick()
+        {
+            if (_startClickTime.HasValue)
+                return;
+
+            _startClickTime = DateTime.Now;
+            _clickFrame = CursorIndex.ClickFirstFrame;
+            _clickAlpha = 200;
+            _clickPositionArea = _drawArea;
         }
 
         ~MouseCursorRenderer()
@@ -319,5 +355,7 @@ namespace EndlessClient.Rendering
         void Update(GameTime gameTime);
 
         void Draw(SpriteBatch spriteBatch, GameTime gameTime);
+
+        void AnimateClick();
     }
 }

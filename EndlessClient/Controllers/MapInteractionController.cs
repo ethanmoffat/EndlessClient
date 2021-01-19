@@ -2,6 +2,7 @@
 using AutomaticTypeMapper;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Inventory;
+using EndlessClient.Rendering;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Extensions;
@@ -28,7 +29,7 @@ namespace EndlessClient.Controllers
             _inventorySpaceValidator = inventorySpaceValidator;
         }
 
-        public void LeftClick(IMapCellState cellState)
+        public void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
         {
             var item = cellState.Items.OptionalFirst();
             if (item.HasValue)
@@ -37,6 +38,10 @@ namespace EndlessClient.Controllers
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_NO_SPACE_LEFT);
                 else
                     HandlePickupResult(_mapActions.PickUpItem(item.Value), item.Value);
+            }
+            else
+            {
+                mouseRenderer.AnimateClick();
             }
         }
 
@@ -78,7 +83,7 @@ namespace EndlessClient.Controllers
 
     public interface IMapInteractionController
     {
-        void LeftClick(IMapCellState cellState);
+        void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer);
 
         void RightClick(IMapCellState cellState);
     }
