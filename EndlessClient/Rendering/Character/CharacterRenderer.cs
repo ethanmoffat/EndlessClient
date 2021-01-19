@@ -3,10 +3,12 @@ using EndlessClient.GameExecution;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
+using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using XNAControls;
 
 namespace EndlessClient.Rendering.Character
 {
@@ -19,21 +21,22 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterTextures _characterTextures;
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
         private readonly IGameStateProvider _gameStateProvider;
-        private ICharacterRenderProperties _renderProperties;
+
+        private ICharacter _character;
         private bool _textureUpdateRequired, _positionIsRelative = true;
 
         private SpriteBatch _sb;
         private RenderTarget2D _charRenderTarget;
         private Texture2D _outline;
 
-        public ICharacterRenderProperties RenderProperties
+        public ICharacter Character
         {
-            get { return _renderProperties; }
+            get { return _character; }
             set
             {
-                if (_renderProperties == value) return;
-                _renderProperties = value;
-                _textureUpdateRequired = true;
+                if (_character == value) return;
+                _textureUpdateRequired = _character.RenderProperties.GetHashCode() != value.RenderProperties.GetHashCode();
+                _character = value;
             }
         }
 
@@ -48,7 +51,7 @@ namespace EndlessClient.Rendering.Character
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                  ICharacterTextures characterTextures,
                                  ICharacterSpriteCalculator characterSpriteCalculator,
-                                 ICharacterRenderProperties renderProperties,
+                                 ICharacter character,
                                  IGameStateProvider gameStateProvider)
             : base(game)
         {
@@ -58,7 +61,7 @@ namespace EndlessClient.Rendering.Character
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
             _characterTextures = characterTextures;
             _characterSpriteCalculator = characterSpriteCalculator;
-            RenderProperties = renderProperties;
+            _character = character;
             _gameStateProvider = gameStateProvider;
         }
 
@@ -74,7 +77,7 @@ namespace EndlessClient.Rendering.Character
 
         protected override void LoadContent()
         {
-            _characterTextures.Refresh(_renderProperties);
+            _characterTextures.Refresh(_character.RenderProperties);
 
             if (_gameStateProvider.CurrentState == GameStates.None)
             {
@@ -89,7 +92,7 @@ namespace EndlessClient.Rendering.Character
         {
             if (TopPixel == null)
             {
-                TopPixel = FigureOutTopPixel(_characterSpriteCalculator, _renderProperties);
+                TopPixel = FigureOutTopPixel(_characterSpriteCalculator, _character.RenderProperties);
             }
 
             if (!Visible)
@@ -97,7 +100,7 @@ namespace EndlessClient.Rendering.Character
 
             if (_textureUpdateRequired)
             {
-                _characterTextures.Refresh(_renderProperties);
+                _characterTextures.Refresh(_character.RenderProperties);
                 DrawToRenderTarget();
 
                 _textureUpdateRequired = false;
@@ -182,7 +185,7 @@ namespace EndlessClient.Rendering.Character
             _sb.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
 
             var characterPropertyRenderers = _characterPropertyRendererBuilder
-                .BuildList(_characterTextures, RenderProperties)
+                .BuildList(_characterTextures, _character.RenderProperties)
                 .Where(x => x.CanRender);
             foreach (var renderer in characterPropertyRenderers)
                 renderer.Render(_sb, DrawArea);
@@ -201,7 +204,7 @@ namespace EndlessClient.Rendering.Character
 
         private Color GetAlphaColor()
         {
-            return RenderProperties.IsHidden || RenderProperties.IsDead
+            return _character.RenderProperties.IsHidden || _character.RenderProperties.IsDead
                 ? Color.FromNonPremultiplied(255, 255, 255, 128)
                 : Color.White;
         }
@@ -209,8 +212,8 @@ namespace EndlessClient.Rendering.Character
         private void SetGridCoordinatePosition()
         {
             //todo: the constants here should be dynamically configurable to support window resizing
-            var screenX = _renderOffsetCalculator.CalculateOffsetX(RenderProperties) + 312 - GetMainCharacterOffsetX();
-            var screenY = _renderOffsetCalculator.CalculateOffsetY(RenderProperties) + 106 - GetMainCharacterOffsetY();
+            var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + 312 - GetMainCharacterOffsetX();
+            var screenY = _renderOffsetCalculator.CalculateOffsetY(_character.RenderProperties) + 106 - GetMainCharacterOffsetY();
 
             SetScreenCoordinates(screenX, screenY);
         }

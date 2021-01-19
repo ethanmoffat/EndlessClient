@@ -10,7 +10,7 @@ namespace EndlessClient.Rendering.Character
     {
         int? TopPixel { get; }
 
-        ICharacterRenderProperties RenderProperties { get; set; }
+        ICharacter Character{ get; set; }
 
         Rectangle DrawArea { get; }
 

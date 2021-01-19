@@ -72,7 +72,7 @@ namespace EndlessClient.UIControls
             _characterManagementController = characterManagementController;
             _rendererRepositoryResetter = rendererRepositoryResetter;
 
-            _characterControl = new CharacterControl(character.RenderProperties, rendererFactory)
+            _characterControl = new CharacterControl(character, rendererFactory)
             {
                 DrawPosition = new Vector2(68, 28)
             };

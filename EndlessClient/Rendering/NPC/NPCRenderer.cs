@@ -137,8 +137,8 @@ namespace EndlessClient.Rendering.NPC
             var offsetY = _renderOffsetCalculator.CalculateOffsetY(NPC);
 
             var mainRenderer = _characterRendererProvider.MainCharacterRenderer;
-            var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(mainRenderer.RenderProperties);
-            var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(mainRenderer.RenderProperties);
+            var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(mainRenderer.Character.RenderProperties);
+            var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(mainRenderer.Character.RenderProperties);
 
             // Apozen is a wider sprite that needs to be divided by 3 (normal sprites are centered properly)
             // If Apozen is facing Down or Left it needs to be offset by 2/3 the sprite width instead of 1/3 the sprite width
