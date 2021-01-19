@@ -42,6 +42,7 @@ namespace EOLib.PacketHandlers
             catch (InvalidOperationException) { return false; }
 
             _currentMapStateRepository.Characters.Remove(character);
+            _currentMapStateRepository.VisibleSpikeTraps.Remove(new MapCoordinate(character.RenderProperties.MapX, character.RenderProperties.MapY));
 
             return true;
         }

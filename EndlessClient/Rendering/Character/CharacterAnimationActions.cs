@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.HUD.Controls;
+using EndlessClient.Rendering.Map;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Notifiers;
@@ -13,12 +14,15 @@ namespace EndlessClient.Rendering.Character
     {
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICharacterRepository _characterRepository;
+        private readonly ISpikeTrapActions _spikeTrapActions;
 
         public CharacterAnimationActions(IHudControlProvider hudControlProvider,
-                                         ICharacterRepository characterRepository)
+                                         ICharacterRepository characterRepository,
+                                         ISpikeTrapActions spikeTrapActions)
         {
             _hudControlProvider = hudControlProvider;
             _characterRepository = characterRepository;
+            _spikeTrapActions = spikeTrapActions;
         }
 
         public void Face(EODirection direction)
@@ -52,6 +56,9 @@ namespace EndlessClient.Rendering.Character
                 return;
 
             Animator.StartOtherCharacterWalkAnimation(characterID);
+
+            _spikeTrapActions.HideSpikeTrap(characterID);
+            _spikeTrapActions.ShowSpikeTrap(characterID);
         }
 
         public void StartOtherCharacterAttackAnimation(int characterID)

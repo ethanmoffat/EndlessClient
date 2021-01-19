@@ -71,6 +71,7 @@ namespace EOLib.PacketHandlers
             _currentMapStateRepository.NPCs = new HashSet<INPC>(warpAgreePacketData.NPCs);
             _currentMapStateRepository.MapItems = new HashSet<IItem>(warpAgreePacketData.Items);
             _currentMapStateRepository.OpenDoors.Clear();
+            _currentMapStateRepository.VisibleSpikeTraps.Clear();
             _currentMapStateRepository.ShowMiniMap = _currentMapStateRepository.ShowMiniMap &&
                                                      _currentMapProvider.CurrentMap.Properties.MapAvailable;
 

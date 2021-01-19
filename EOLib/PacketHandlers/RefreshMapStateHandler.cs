@@ -57,6 +57,10 @@ namespace EOLib.PacketHandlers
             _currentMapStateRepository.NPCs = new HashSet<INPC>(data.NPCs);
             _currentMapStateRepository.MapItems = new HashSet<IItem>(data.Items);
 
+            _currentMapStateRepository.OpenDoors.Clear();
+            _currentMapStateRepository.PendingDoors.Clear();
+            _currentMapStateRepository.VisibleSpikeTraps.Clear();
+
             foreach (var notifier in _mapChangedNotifiers)
                 notifier.NotifyMapChanged(differentMapID: false, warpAnimation: WarpAnimation.None);
 

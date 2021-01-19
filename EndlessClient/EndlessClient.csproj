@@ -120,6 +120,7 @@
     <Compile Include="Rendering\Chat\IHaveChatBubble.cs" />
     <Compile Include="Rendering\Factories\MouseCursorRendererFactory.cs" />
     <Compile Include="Rendering\Map\DoorStateUpdater.cs" />
+    <Compile Include="Rendering\Map\SpikeTrapActions.cs" />
     <Compile Include="Rendering\MouseCursorRenderer.cs" />
     <Compile Include="Rendering\NPC\NPCActions.cs" />
     <Compile Include="Rendering\NPC\NPCAnimator.cs" />
