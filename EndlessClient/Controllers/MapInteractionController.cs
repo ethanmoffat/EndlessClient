@@ -3,6 +3,7 @@ using AutomaticTypeMapper;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Inventory;
 using EndlessClient.Rendering;
+using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Extensions;
@@ -14,19 +15,25 @@ namespace EndlessClient.Controllers
     public class MapInteractionController : IMapInteractionController
     {
         private readonly IMapActions _mapActions;
+        private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
+        private readonly IPathFinder _pathFinder;
 
         public MapInteractionController(IMapActions mapActions,
+                                        ICharacterProvider characterProvider,
                                         ICurrentMapStateProvider currentMapStateProvider,
                                         IStatusLabelSetter statusLabelSetter,
-                                        IInventorySpaceValidator inventorySpaceValidator)
+                                        IInventorySpaceValidator inventorySpaceValidator,
+                                        IPathFinder pathFinder)
         {
             _mapActions = mapActions;
+            _characterProvider = characterProvider;
             _currentMapStateProvider = currentMapStateProvider;
             _statusLabelSetter = statusLabelSetter;
             _inventorySpaceValidator = inventorySpaceValidator;
+            _pathFinder = pathFinder;
         }
 
         public void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
@@ -46,6 +53,9 @@ namespace EndlessClient.Controllers
             else
             {
                 mouseRenderer.AnimateClick();
+                var pathToDest = _pathFinder.FindPath(
+                    new MapCoordinate(_characterProvider.MainCharacter.RenderProperties.MapX, _characterProvider.MainCharacter.RenderProperties.MapY),
+                    cellState.Coordinate);
             }
         }
 

@@ -42,13 +42,14 @@ namespace EOLib.Domain.Map
 
             return new MapCellState
             {
-                Items     = items.ToList(),
-                TileSpec  = tileSpec,
-                Warp      = warp == null ? Optional<IWarp>.Empty : new Warp(warp),
-                Chest     = chest == null ? Optional<IChest>.Empty : new Chest(chest),
-                Sign      = sign == null ? Optional<ISign>.Empty : new Sign(sign),
-                Character = character,
-                NPC       = npc
+                Coordinate = new MapCoordinate(x, y),
+                Items      = items.ToList(),
+                TileSpec   = tileSpec,
+                Warp       = warp == null ? Optional<IWarp>.Empty : new Warp(warp),
+                Chest      = chest == null ? Optional<IChest>.Empty : new Chest(chest),
+                Sign       = sign == null ? Optional<ISign>.Empty : new Sign(sign),
+                Character  = character,
+                NPC        = npc
             };
         }
 
