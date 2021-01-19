@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Factories;
@@ -8,6 +9,7 @@ using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using XNAControls;
 
 namespace EndlessClient.Rendering.Character
@@ -24,10 +26,14 @@ namespace EndlessClient.Rendering.Character
 
         private ICharacter _character;
         private bool _textureUpdateRequired, _positionIsRelative = true;
+        private MouseState _previousMouseState;
+        private MouseState _currentMouseState;
 
         private SpriteBatch _sb;
         private RenderTarget2D _charRenderTarget;
         private Texture2D _outline;
+
+        private XNALabel _nameLabel;
 
         public ICharacter Character
         {
@@ -72,6 +78,20 @@ namespace EndlessClient.Rendering.Character
             _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
+            _nameLabel = new XNALabel(Constants.FontSize08pt5)
+            {
+                Visible = true,
+                TextWidth = 89,
+                TextAlign = LabelAlignment.MiddleCenter,
+                ForeColor = Color.White,
+                AutoSize = true,
+                Text = _character?.Name ?? string.Empty
+            };
+            _nameLabel.Initialize();
+
+            _nameLabel.DrawPosition = GetNameLabelPosition();
+            _previousMouseState = _currentMouseState = Mouse.GetState();
+
             base.Initialize();
         }
 
@@ -90,13 +110,12 @@ namespace EndlessClient.Rendering.Character
 
         public override void Update(GameTime gameTime)
         {
-            if (TopPixel == null)
-            {
-                TopPixel = FigureOutTopPixel(_characterSpriteCalculator, _character.RenderProperties);
-            }
+            TopPixel = TopPixel ?? FigureOutTopPixel(_characterSpriteCalculator, _character.RenderProperties);
 
             if (!Visible)
                 return;
+
+            _currentMouseState = Mouse.GetState();
 
             if (_textureUpdateRequired)
             {
@@ -108,6 +127,12 @@ namespace EndlessClient.Rendering.Character
 
             if (_positionIsRelative)
                 SetGridCoordinatePosition();
+
+            _nameLabel.Visible = _gameStateProvider.CurrentState == GameStates.PlayingTheGame && DrawArea.Contains(_currentMouseState.Position);
+            _nameLabel.DrawPosition = GetNameLabelPosition();
+            _nameLabel.Update(gameTime);
+
+            _previousMouseState = _currentMouseState;
 
             base.Update(gameTime);
         }
@@ -154,6 +179,11 @@ namespace EndlessClient.Rendering.Character
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(_charRenderTarget, Vector2.Zero, GetAlphaColor());
+            spriteBatch.End();
+
+            _nameLabel.Draw(new GameTime());
+
+            spriteBatch.Begin();
         }
 
         #endregion
@@ -235,6 +265,12 @@ namespace EndlessClient.Rendering.Character
             return _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
         }
 
+        private Vector2 GetNameLabelPosition()
+        {
+            return new Vector2(DrawArea.X - Math.Abs(DrawArea.Width - _nameLabel.ActualWidth) / 2,
+                               DrawArea.Y - 4 - _nameLabel.ActualHeight);
+        }
+
         #endregion
 
         protected override void Dispose(bool disposing)
@@ -242,6 +278,7 @@ namespace EndlessClient.Rendering.Character
             if (disposing)
             {
                 _outline?.Dispose();
+                _nameLabel.Dispose();
 
                 _sb.Dispose();
                 _charRenderTarget.Dispose();
