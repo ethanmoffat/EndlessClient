@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
+using EndlessClient.HUD;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
@@ -20,6 +21,8 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
         private readonly IMapInteractionController _mapInteractionController;
+        private readonly IArrowKeyController _arrowKeyController;
+        private readonly IPathFinder _pathFinder;
 
         public MouseCursorRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                           ICharacterProvider characterProvider,
@@ -29,7 +32,9 @@ namespace EndlessClient.Rendering.Factories
                                           IEIFFileProvider eifFileProvider,
                                           ICurrentMapProvider currentMapProvider,
                                           IGraphicsDeviceProvider graphicsDeviceProvider,
-                                          IMapInteractionController mapInteractionController)
+                                          IMapInteractionController mapInteractionController,
+                                          IArrowKeyController arrowKeyController,
+                                          IPathFinder pathFinder)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterProvider = characterProvider;
@@ -40,6 +45,8 @@ namespace EndlessClient.Rendering.Factories
             _currentMapProvider = currentMapProvider;
             _graphicsDeviceProvider = graphicsDeviceProvider;
             _mapInteractionController = mapInteractionController;
+            _arrowKeyController = arrowKeyController;
+            _pathFinder = pathFinder;
         }
 
         public IMouseCursorRenderer Create()
@@ -52,7 +59,9 @@ namespace EndlessClient.Rendering.Factories
                                            _eifFileProvider,
                                            _currentMapProvider,
                                            _graphicsDeviceProvider,
-                                           _mapInteractionController);
+                                           _mapInteractionController,
+                                           _arrowKeyController,
+                                           _pathFinder);
         }
     }
 
