@@ -12,6 +12,21 @@
             Y = y;
         }
 
+        public static MapCoordinate operator -(MapCoordinate lhs, MapCoordinate rhs)
+        {
+            return new MapCoordinate(lhs.X - rhs.X, lhs.Y - rhs.Y);
+        }
+
+        public static bool operator ==(MapCoordinate left, MapCoordinate right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(MapCoordinate left, MapCoordinate right)
+        {
+            return !(left == right);
+        }
+
         public override string ToString() => $"{X}, {Y}";
 
         public override bool Equals(object obj)

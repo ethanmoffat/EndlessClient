@@ -7,6 +7,8 @@ namespace EOLib.Domain.Map
 {
     public class MapCellState : IMapCellState
     {
+        public MapCoordinate Coordinate { get; set; }
+
         public IReadOnlyList<IItem> Items { get; set; }
 
         public TileSpec TileSpec { get; set; }
@@ -23,6 +25,7 @@ namespace EOLib.Domain.Map
 
         public MapCellState()
         {
+            Coordinate = new MapCoordinate(0, 0);
             Items = new List<IItem>();
             TileSpec = TileSpec.None;
             NPC = new Optional<INPC>();

@@ -11,12 +11,15 @@ namespace EndlessClient.Rendering.MapEntityRenderers
     {
         private static readonly Dictionary<MapRenderLayer, Point> _layerOffsets;
 
+        private static DateTime _lastFrameTime = DateTime.Now;
+        protected static int _frameIndex = 0;
+
         static BaseMapEntityRenderer()
         {
             _layerOffsets = new Dictionary<MapRenderLayer, Point>
             {
                 { MapRenderLayer.Ground, Point.Zero },
-                { MapRenderLayer.Item, Point.Zero },
+                { MapRenderLayer.Item, new Point(0, 16) },
                 { MapRenderLayer.Objects, new Point(-2, -2) },
                 { MapRenderLayer.Overlay, new Point(-2, -2) },
                 { MapRenderLayer.DownWall, new Point(0, -1) },
@@ -34,7 +37,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public abstract MapRenderLayer RenderLayer { get; }
 
-        public bool ShouldRenderLast => RenderLayer == MapRenderLayer.Overlay2 || RenderLayer == MapRenderLayer.MainCharacter;
+        public bool ShouldRenderLast => RenderLayer == MapRenderLayer.Overlay2 || RenderLayer == MapRenderLayer.MainCharacterTransparent;
 
         protected abstract int RenderDistance { get; }
 
@@ -60,7 +63,14 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected abstract bool ElementExistsAt(int row, int col);
 
-        public abstract void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha);
+        public virtual void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        {
+            if ((DateTime.Now - _lastFrameTime).TotalMilliseconds > 500)
+            {
+                _lastFrameTime = DateTime.Now;
+                _frameIndex = (_frameIndex + 1) % 4;
+            }
+        }
 
         protected virtual Vector2 GetDrawCoordinatesFromGridUnits(int gridX, int gridY)
         {
@@ -73,18 +83,5 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return new Vector2(ViewportWidthFactor + (gridX * 32) - (gridY * 32) - charOffX + _layerOffsets[RenderLayer].X,
                                ViewportHeightFactor + (gridY * 16) + (gridX * 16) - charOffY + _layerOffsets[RenderLayer].Y);
         }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        ~BaseMapEntityRenderer()
-        {
-            Dispose(false);
-        }
-
-        protected virtual void Dispose(bool disposing) { }
     }
 }

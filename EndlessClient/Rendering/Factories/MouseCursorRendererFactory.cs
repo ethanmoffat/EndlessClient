@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
+using EndlessClient.HUD;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;

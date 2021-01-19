@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
+using EndlessClient.ControlSets;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Map;
 
@@ -14,13 +15,15 @@ namespace EndlessClient.Input
         private readonly IArrowKeyController _arrowKeyController;
         private readonly IControlKeyController _controlKeyController;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly IHudControlProvider _hudControlProvider;
 
         public UserInputHandlerFactory(IEndlessGameProvider endlessGameProvider,
                                        IKeyStateProvider keyStateProvider,
                                        IUserInputTimeRepository userInputTimeRepository,
                                        IArrowKeyController arrowKeyController,
                                        IControlKeyController controlKeyController,
-                                       ICurrentMapStateProvider  currentMapStateProvider)
+                                       ICurrentMapStateProvider  currentMapStateProvider,
+                                       IHudControlProvider hudControlProvider)
         {
             _endlessGameProvider = endlessGameProvider;
             _keyStateProvider = keyStateProvider;
@@ -28,6 +31,7 @@ namespace EndlessClient.Input
             _arrowKeyController = arrowKeyController;
             _controlKeyController = controlKeyController;
             _currentMapStateProvider = currentMapStateProvider;
+            _hudControlProvider = hudControlProvider;
         }
 
         public IUserInputHandler CreateUserInputHandler()
@@ -37,7 +41,8 @@ namespace EndlessClient.Input
                                         _userInputTimeRepository,
                                         _arrowKeyController,
                                         _controlKeyController,
-                                        _currentMapStateProvider);
+                                        _currentMapStateProvider,
+                                        _hudControlProvider);
         }
     }
 

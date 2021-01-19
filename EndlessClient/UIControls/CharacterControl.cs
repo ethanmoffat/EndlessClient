@@ -10,16 +10,20 @@ namespace EndlessClient.UIControls
     {
         public ICharacterRenderProperties RenderProperties
         {
-            get { return _characterRenderer.RenderProperties; }
-            protected set { _characterRenderer.RenderProperties = value; }
+            get { return _characterRenderer.Character.RenderProperties; }
+
+            protected set
+            {
+                _characterRenderer.Character = _characterRenderer.Character.WithRenderProperties(value);
+            }
         }
 
         protected readonly ICharacterRenderer _characterRenderer;
 
-        public CharacterControl(ICharacterRenderProperties initialProperties,
+        public CharacterControl(ICharacter character,
                                 ICharacterRendererFactory characterRendererFactory)
         {
-            _characterRenderer = characterRendererFactory.CreateCharacterRenderer(initialProperties);
+            _characterRenderer = characterRendererFactory.CreateCharacterRenderer(character);
         }
 
         public override void Initialize()

@@ -10,6 +10,8 @@ using EOLib.Graphics;
 using EOLib.IO.Repositories;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using XNAControls;
 
 namespace EndlessClient.Rendering.NPC
 {
@@ -26,6 +28,10 @@ namespace EndlessClient.Rendering.NPC
         private DateTime _lastStandingAnimation;
         private int _fadeAwayAlpha;
         private bool _isDying;
+        private MouseState _previousMouseState;
+        private MouseState _currentMouseState;
+
+        private XNALabel _nameLabel;
 
         public int TopPixel => _readonlyTopPixel;
 
@@ -64,6 +70,20 @@ namespace EndlessClient.Rendering.NPC
         {
             UpdateDrawAreas();
 
+            _nameLabel = new XNALabel(Constants.FontSize08pt5)
+            {
+                Visible = true,
+                TextWidth = 89,
+                TextAlign = LabelAlignment.MiddleCenter,
+                ForeColor = Color.White,
+                AutoSize = true,
+                Text = _enfFileProvider.ENFFile[NPC.ID].Name
+            };
+            _nameLabel.Initialize();
+
+            _nameLabel.DrawPosition = GetNameLabelPosition();
+            _previousMouseState = _currentMouseState = Mouse.GetState();
+
             base.Initialize();
         }
 
@@ -71,9 +91,17 @@ namespace EndlessClient.Rendering.NPC
         {
             if (!Visible) return;
 
+            _currentMouseState = Mouse.GetState();
+
             UpdateDrawAreas();
             UpdateStandingFrameAnimation();
             UpdateDeadState();
+
+            _nameLabel.Visible = DrawArea.Contains(_currentMouseState.Position);
+            _nameLabel.DrawPosition = GetNameLabelPosition();
+            _nameLabel.Update(gameTime);
+
+            _previousMouseState = _currentMouseState;
 
             base.Update(gameTime);
         }
@@ -89,6 +117,8 @@ namespace EndlessClient.Rendering.NPC
 
             spriteBatch.Draw(_npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction),
                              DrawArea, null, color, 0f, Vector2.Zero, effects, 1f);
+
+            _nameLabel.Draw(new GameTime());
         }
 
         public void StartDying()
@@ -137,8 +167,8 @@ namespace EndlessClient.Rendering.NPC
             var offsetY = _renderOffsetCalculator.CalculateOffsetY(NPC);
 
             var mainRenderer = _characterRendererProvider.MainCharacterRenderer;
-            var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(mainRenderer.RenderProperties);
-            var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(mainRenderer.RenderProperties);
+            var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(mainRenderer.Character.RenderProperties);
+            var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(mainRenderer.Character.RenderProperties);
 
             // Apozen is a wider sprite that needs to be divided by 3 (normal sprites are centered properly)
             // If Apozen is facing Down or Left it needs to be offset by 2/3 the sprite width instead of 1/3 the sprite width
@@ -184,6 +214,23 @@ namespace EndlessClient.Rendering.NPC
             if (_fadeAwayAlpha >= 3)
                 _fadeAwayAlpha -= 3;
             IsDead = _fadeAwayAlpha <= 0;
+        }
+
+        private Vector2 GetNameLabelPosition()
+        {
+            return new Vector2(DrawArea.X + (DrawArea.Width - _nameLabel.ActualWidth) / 2,
+                               DrawArea.Y + TopPixel - _nameLabel.ActualHeight - 4);
+
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _nameLabel.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

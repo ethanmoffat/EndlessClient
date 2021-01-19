@@ -74,7 +74,7 @@ namespace EndlessClient.Test
             foreach (var displayState in _allDisplayStates)
             {
                 var props = GetRenderPropertiesForState(displayState);
-                _renderersForDifferentStates.Add(_characterRendererFactory.CreateCharacterRenderer(props));
+                _renderersForDifferentStates.Add(_characterRendererFactory.CreateCharacterRenderer(new Character().WithRenderProperties(props)));
                 _renderersForDifferentStates.OfType<DrawableGameComponent>().Last().DrawOrder = 10;
             }
 
@@ -192,21 +192,21 @@ namespace EndlessClient.Test
             if ((now - _lastWalk).TotalMilliseconds > 500)
             {
                 var rend = _renderersForDifferentStates[(int) DisplayState.WalkingAnimation];
-                rend.RenderProperties = rend.RenderProperties.WithNextWalkFrame();
+                rend.Character = rend.Character.WithRenderProperties(rend.Character.RenderProperties.WithNextWalkFrame());
                 _lastWalk = now;
             }
 
             if ((now - _lastAttack).TotalMilliseconds > 500)
             {
                 var rend = _renderersForDifferentStates[(int)DisplayState.AttackingAnimation];
-                rend.RenderProperties = rend.RenderProperties.WithNextAttackFrame();
+                rend.Character = rend.Character.WithRenderProperties(rend.Character.RenderProperties.WithNextAttackFrame());
                 _lastAttack = now;
             }
 
             if ((now - _lastSpell).TotalMilliseconds > 500)
             {
                 var rend = _renderersForDifferentStates[(int)DisplayState.SpellCastAnimation];
-                rend.RenderProperties = rend.RenderProperties.WithNextSpellCastFrame();
+                rend.Character = rend.Character.WithRenderProperties(rend.Character.RenderProperties.WithNextSpellCastFrame());
                 _lastSpell = now;
             }
 
@@ -257,7 +257,7 @@ namespace EndlessClient.Test
             foreach (var displayState in _allDisplayStates)
             {
                 var props = GetRenderPropertiesForState(displayState);
-                _renderersForDifferentStates[(int) displayState].RenderProperties = props;
+                _renderersForDifferentStates[(int) displayState].Character = new Character().WithRenderProperties(props);
             }
         }
 

@@ -44,21 +44,21 @@ namespace EndlessClient.Rendering.Character
 
         private void CreateMainCharacterRendererAndCacheProperties()
         {
-            var actualProperties = _characterProvider.MainCharacter.RenderProperties;
-            var cachedProperties = _characterStateCache.MainCharacterRenderProperties;
+            var actual = _characterProvider.MainCharacter;
+            var cached = _characterStateCache.MainCharacter;
 
-            if (!cachedProperties.HasValue)
+            if (!cached.HasValue)
             {
-                _characterStateCache.UpdateMainCharacterState(actualProperties);
+                _characterStateCache.UpdateMainCharacterState(actual);
 
-                var renderer = InitializeRendererForCharacter(actualProperties);
+                var renderer = InitializeRendererForCharacter(_characterProvider.MainCharacter);
                 _characterRendererRepository.MainCharacterRenderer = renderer;
                 _characterRendererRepository.MainCharacterRenderer.SetToCenterScreenPosition();
             }
-            else if (cachedProperties.Value != actualProperties)
+            else if (cached.Value != actual)
             {
-                _characterRendererRepository.MainCharacterRenderer.RenderProperties = actualProperties;
-                _characterStateCache.UpdateMainCharacterState(actualProperties);
+                _characterRendererRepository.MainCharacterRenderer.Character = _characterProvider.MainCharacter;
+                _characterStateCache.UpdateMainCharacterState(actual);
             }
         }
 
@@ -67,17 +67,15 @@ namespace EndlessClient.Rendering.Character
             foreach (var character in _currentMapStateRepository.Characters)
             {
                 var id = character.ID;
+                var cached = _characterStateCache.HasCharacterWithID(id)
+                    ? new Optional<ICharacter>(_characterStateCache.OtherCharacters[id])
+                    : Optional<ICharacter>.Empty;
 
-                var actualProperties = character.RenderProperties;
-                var cachedProperties = _characterStateCache.HasCharacterWithID(id)
-                    ? new Optional<ICharacterRenderProperties>(_characterStateCache.CharacterRenderProperties[id])
-                    : Optional<ICharacterRenderProperties>.Empty;
-
-                if (!cachedProperties.HasValue)
+                if (!cached.HasValue)
                 {
-                    _characterStateCache.UpdateCharacterState(id, actualProperties);
+                    _characterStateCache.UpdateCharacterState(id, character);
 
-                    var renderer = InitializeRendererForCharacter(actualProperties);
+                    var renderer = InitializeRendererForCharacter(character);
 
                     if (_characterRendererRepository.CharacterRenderers.ContainsKey(id))
                     {
@@ -86,10 +84,10 @@ namespace EndlessClient.Rendering.Character
                     }
                     _characterRendererRepository.CharacterRenderers.Add(id, renderer);
                 }
-                else if (cachedProperties.Value != actualProperties)
+                else if (cached.Value != character)
                 {
-                    _characterRendererRepository.CharacterRenderers[id].RenderProperties = actualProperties;
-                    _characterStateCache.UpdateCharacterState(id, actualProperties);
+                    _characterRendererRepository.CharacterRenderers[id].Character = character;
+                    _characterStateCache.UpdateCharacterState(id, character);
                 }
             }
         }
@@ -104,7 +102,7 @@ namespace EndlessClient.Rendering.Character
         private void RemoveStaleCharacters()
         {
             var staleIDs = new List<int>();
-            foreach (var kvp in _characterStateCache.CharacterRenderProperties)
+            foreach (var kvp in _characterStateCache.OtherCharacters)
             {
                 if (_currentMapStateRepository.Characters.Any(x => x.ID == kvp.Key))
                     continue;
@@ -145,9 +143,9 @@ namespace EndlessClient.Rendering.Character
             _currentMapStateRepository.Characters.RemoveWhere(deadCharacters.Contains);
         }
 
-        private ICharacterRenderer InitializeRendererForCharacter(ICharacterRenderProperties renderProperties)
+        private ICharacterRenderer InitializeRendererForCharacter(ICharacter character)
         {
-            var renderer = _characterRendererFactory.CreateCharacterRenderer(renderProperties);
+            var renderer = _characterRendererFactory.CreateCharacterRenderer(character);
             renderer.Initialize();
             return renderer;
         }

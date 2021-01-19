@@ -81,6 +81,7 @@
     <Compile Include="Dialogs\BaseEODialog.cs" />
     <Compile Include="Dialogs\EODialogButton.cs" />
     <Compile Include="Dialogs\Services\EODialogButtonService.cs" />
+    <Compile Include="HUD\AStarPathFinder.cs" />
     <Compile Include="HUD\Chat\ChatModeCalculator.cs" />
     <Compile Include="HUD\Chat\ChatNotificationActions.cs" />
     <Compile Include="HUD\Chat\ChatBubbleActions.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="Initialization\LocalizationInitializer.cs" />
     <Compile Include="Initialization\NetworkInitializer.cs" />
     <Compile Include="Input\ArrowKeyHandler.cs" />
+    <Compile Include="Input\ClickWalkPathHandler.cs" />
     <Compile Include="Input\ControlKeyHandler.cs" />
     <Compile Include="Input\CurrentKeyStateTracker.cs" />
     <Compile Include="Input\IKeyStateRepository.cs" />

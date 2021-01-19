@@ -29,42 +29,42 @@ namespace EndlessClient.Controllers
             _walkErrorHandler = walkErrorHandler;
         }
 
-        public bool MoveLeft()
+        public bool MoveLeft(bool faceAndMove = false)
         {
             if (!CanWalkAgain())
                 return false;
 
-            FaceOrAttemptWalk(EODirection.Left);
+            FaceOrAttemptWalk(EODirection.Left, faceAndMove);
 
             return true;
         }
 
-        public bool MoveRight()
+        public bool MoveRight(bool faceAndMove = false)
         {
             if (!CanWalkAgain())
                 return false;
 
-            FaceOrAttemptWalk(EODirection.Right);
+            FaceOrAttemptWalk(EODirection.Right, faceAndMove);
 
             return true;
         }
 
-        public bool MoveUp()
+        public bool MoveUp(bool faceAndMove = false)
         {
             if (!CanWalkAgain())
                 return false;
 
-            FaceOrAttemptWalk(EODirection.Up);
+            FaceOrAttemptWalk(EODirection.Up, faceAndMove);
 
             return true;
         }
 
-        public bool MoveDown()
+        public bool MoveDown(bool faceAndMove = false)
         {
             if (!CanWalkAgain())
                 return false;
 
-            FaceOrAttemptWalk(EODirection.Down);
+            FaceOrAttemptWalk(EODirection.Down, faceAndMove);
 
             return true;
         }
@@ -80,10 +80,14 @@ namespace EndlessClient.Controllers
             return _characterProvider.MainCharacter.RenderProperties.IsFacing(direction);
         }
 
-        private void FaceOrAttemptWalk(EODirection direction)
+        private void FaceOrAttemptWalk(EODirection direction, bool faceAndMove)
         {
             if (!CurrentDirectionIs(direction))
+            {
                 FaceDirection(direction);
+                if (faceAndMove)
+                    AttemptToStartWalking();
+            }
             else
                 AttemptToStartWalking();
         }
@@ -110,12 +114,12 @@ namespace EndlessClient.Controllers
 
     public interface IArrowKeyController
     {
-        bool MoveLeft();
+        bool MoveLeft(bool faceAndMove = false);
 
-        bool MoveRight();
+        bool MoveRight(bool faceAndMove = false);
 
-        bool MoveUp();
+        bool MoveUp(bool faceAndMove = false);
 
-        bool MoveDown();
+        bool MoveDown(bool faceAndMove = false);
     }
 }

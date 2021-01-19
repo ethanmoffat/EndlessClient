@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using EndlessClient.Controllers;
+using EndlessClient.ControlSets;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
@@ -16,7 +17,8 @@ namespace EndlessClient.Input
                                 IUserInputTimeRepository userInputTimeRepository,
                                 IArrowKeyController arrowKeyController,
                                 IControlKeyController controlKeyController,
-                                ICurrentMapStateProvider currentMapStateProvider)
+                                ICurrentMapStateProvider currentMapStateProvider,
+                                IHudControlProvider hudControlProvider)
             : base((Game)endlessGameProvider.Game)
         {
             _handlers = new List<IInputHandler>
@@ -25,7 +27,8 @@ namespace EndlessClient.Input
                     keyStateProvider,
                     userInputTimeRepository,
                     arrowKeyController,
-                    currentMapStateProvider),
+                    currentMapStateProvider,
+                    hudControlProvider),
                 new ControlKeyHandler(endlessGameProvider,
                     keyStateProvider,
                     userInputTimeRepository,

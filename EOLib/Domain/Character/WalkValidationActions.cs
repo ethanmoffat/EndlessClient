@@ -36,7 +36,14 @@ namespace EOLib.Domain.Character
             var destX = renderProperties.GetDestinationX();
             var destY = renderProperties.GetDestinationY();
 
-            var cellState = _mapCellStateProvider.GetCellStateAt(destX, destY);
+            return CanMoveToCoordinates(destX, destY);
+        }
+
+        public bool CanMoveToCoordinates(int gridX, int gridY)
+        {
+            var mainCharacter = _characterProvider.MainCharacter;
+
+            var cellState = _mapCellStateProvider.GetCellStateAt(gridX, gridY);
 
             if (cellState.Character.HasValue) //todo: walk through players after certain elapsed time
                 return mainCharacter.NoWall && IsTileSpecWalkable(cellState.TileSpec);
@@ -57,7 +64,6 @@ namespace EOLib.Domain.Character
                 return warp.LevelRequirement <= _characterProvider.MainCharacter.Stats[CharacterStat.Level];
             return IsTileSpecWalkable(tile);
         }
-
 
         private static bool IsTileSpecWalkable(TileSpec tileSpec)
         {
@@ -106,5 +112,7 @@ namespace EOLib.Domain.Character
     public interface IWalkValidationActions
     {
         bool CanMoveToDestinationCoordinates();
+
+        bool CanMoveToCoordinates(int gridX, int gridY);
     }
 }

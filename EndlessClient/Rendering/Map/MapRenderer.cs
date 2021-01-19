@@ -35,7 +35,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
 
-        private RenderTarget2D _mapBaseTarget, _mapAbovePlayer, _mapBelowPlayer;
+        private RenderTarget2D _mapBaseTarget, _mapObjectTarget;
         private SpriteBatch _sb;
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
         private int? _lastMapChecksum;
@@ -82,8 +82,7 @@ namespace EndlessClient.Rendering.Map
         public override void Initialize()
         {
             _mapBaseTarget = _renderTargetFactory.CreateRenderTarget();
-            _mapAbovePlayer = _renderTargetFactory.CreateRenderTarget();
-            _mapBelowPlayer = _renderTargetFactory.CreateRenderTarget();
+            _mapObjectTarget = _renderTargetFactory.CreateRenderTarget();
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
             _mouseCursorRenderer.Initialize();
@@ -143,12 +142,11 @@ namespace EndlessClient.Rendering.Map
             spriteBatch.Begin();
 
             spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition(), Color.White);
-            DrawItemLayer(spriteBatch);
+            DrawBaseLayers(spriteBatch);
 
             _mouseCursorRenderer.Draw(spriteBatch, gameTime);
 
-            spriteBatch.Draw(_mapAbovePlayer, Vector2.Zero, Color.White);
-            spriteBatch.Draw(_mapBelowPlayer, Vector2.Zero, Color.White);
+            spriteBatch.Draw(_mapObjectTarget, Vector2.Zero, Color.White);
 
             spriteBatch.End();
         }
@@ -184,7 +182,7 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.SetRenderTarget(null);
         }
 
-        private void DrawItemLayer(SpriteBatch spriteBatch)
+        private void DrawBaseLayers(SpriteBatch spriteBatch)
         {
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
 
@@ -194,8 +192,11 @@ namespace EndlessClient.Rendering.Map
                 {
                     var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
 
-                    if (_mapEntityRendererProvider.ItemRenderer.CanRender(row, col))
-                        _mapEntityRendererProvider.ItemRenderer.RenderElementAt(spriteBatch, row, col, alpha);
+                    foreach (var renderer in _mapEntityRendererProvider.BaseRenderers)
+                    {
+                        if (renderer.CanRender(row, col))
+                            renderer.RenderElementAt(spriteBatch, row, col, alpha);
+                    }
                 }
             }
         }
@@ -204,7 +205,7 @@ namespace EndlessClient.Rendering.Map
         {
             var immutableCharacter = _characterProvider.MainCharacter;
 
-            GraphicsDevice.SetRenderTarget(_mapAbovePlayer);
+            GraphicsDevice.SetRenderTarget(_mapObjectTarget);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
             var gfxToRenderLast = new SortedList<Point, List<MapRenderLayer>>(new PointComparer());
@@ -216,16 +217,6 @@ namespace EndlessClient.Rendering.Map
             {
                 for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; col++)
                 {
-                    if (CharacterIsAtPosition(immutableCharacter.RenderProperties, row, col))
-                    {
-                        _sb.End();
-
-                        GraphicsDevice.SetRenderTarget(_mapBelowPlayer);
-                        GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
-
-                        _sb.Begin();
-                    }
-
                     var alpha = GetAlphaForCoordinates(col, row, immutableCharacter);
 
                     foreach (var renderer in _mapEntityRendererProvider.MapEntityRenderers)
@@ -329,8 +320,7 @@ namespace EndlessClient.Rendering.Map
             if (disposing)
             {
                 _mapBaseTarget.Dispose();
-                _mapAbovePlayer.Dispose();
-                _mapBelowPlayer.Dispose();
+                _mapObjectTarget.Dispose();
                 _sb.Dispose();
                 _mouseCursorRenderer.Dispose();
             }

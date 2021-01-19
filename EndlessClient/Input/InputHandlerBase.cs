@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Domain.Map;
@@ -50,9 +51,9 @@ namespace EndlessClient.Input
 
         protected abstract Optional<Keys> HandleInput();
 
-        protected bool IsKeyHeld(Keys key)
+        protected bool IsKeyHeld(params Keys[] keys)
         {
-            return CurrentState.IsKeyHeld(PreviousState, key);
+            return keys.Any(key => CurrentState.IsKeyHeld(PreviousState, key));
         }
     }
 

@@ -10,43 +10,40 @@ namespace EndlessClient.Rendering.Character
     [MappedType(BaseType = typeof(ICharacterStateCache), IsSingleton = true)]
     public class CharacterStateCache : ICharacterStateCache
     {
-        public Optional<ICharacterRenderProperties> MainCharacterRenderProperties { get; private set; }
+        public Optional<ICharacter> MainCharacter { get; private set; }
 
-        private readonly Dictionary<int, ICharacterRenderProperties> _characterRenderProperties;
+        private readonly Dictionary<int, ICharacter> _otherCharacters;
         private readonly List<RenderFrameActionTime> _deathStartTimes;
 
-        public IReadOnlyDictionary<int, ICharacterRenderProperties> CharacterRenderProperties => _characterRenderProperties;
+        public IReadOnlyDictionary<int, ICharacter> OtherCharacters => _otherCharacters;
 
         public IReadOnlyList<RenderFrameActionTime> DeathStartTimes => _deathStartTimes;
 
         public CharacterStateCache()
         {
-            MainCharacterRenderProperties = new Optional<ICharacterRenderProperties>();
-            _characterRenderProperties = new Dictionary<int, ICharacterRenderProperties>();
+            MainCharacter = new Optional<ICharacter>();
+            _otherCharacters = new Dictionary<int, ICharacter>();
             _deathStartTimes = new List<RenderFrameActionTime>();
         }
 
         public bool HasCharacterWithID(int id)
         {
-            return _characterRenderProperties.ContainsKey(id);
+            return _otherCharacters.ContainsKey(id);
         }
 
-        public void UpdateMainCharacterState(ICharacterRenderProperties newMainCharacterState)
+        public void UpdateMainCharacterState(ICharacter updatedCharacter)
         {
-            MainCharacterRenderProperties = new Optional<ICharacterRenderProperties>(newMainCharacterState);
+            MainCharacter = new Optional<ICharacter>(updatedCharacter);
         }
 
-        public void UpdateCharacterState(int id, ICharacterRenderProperties newCharacterState)
+        public void UpdateCharacterState(int id, ICharacter updatedCharacter)
         {
-            if (!HasCharacterWithID(id))
-                _characterRenderProperties.Add(id, null);
-
-            _characterRenderProperties[id] = newCharacterState;
+            _otherCharacters[id] = updatedCharacter;
         }
 
         public void RemoveCharacterState(int id)
         {
-            _characterRenderProperties.Remove(id);
+            _otherCharacters.Remove(id);
         }
 
         public void AddDeathStartTime(int id, DateTime startTime)
@@ -67,12 +64,12 @@ namespace EndlessClient.Rendering.Character
 
         public void ClearAllOtherCharacterStates()
         {
-            _characterRenderProperties.Clear();
+            _otherCharacters.Clear();
         }
 
         public void Reset()
         {
-            MainCharacterRenderProperties = Optional<ICharacterRenderProperties>.Empty;
+            MainCharacter = Optional<ICharacter>.Empty;
             ClearAllOtherCharacterStates();
         }
     }

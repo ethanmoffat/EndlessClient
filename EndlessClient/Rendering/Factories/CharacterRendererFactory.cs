@@ -39,7 +39,7 @@ namespace EndlessClient.Rendering.Factories
             _gameStateProvider = gameStateProvider;
         }
 
-        public ICharacterRenderer CreateCharacterRenderer(ICharacterRenderProperties initialRenderProperties)
+        public ICharacterRenderer CreateCharacterRenderer(ICharacter character)
         {
             return new CharacterRenderer((Game) _gameProvider.Game,
                 _renderTargetFactory,
@@ -48,7 +48,7 @@ namespace EndlessClient.Rendering.Factories
                 _characterPropertyRendererBuilder,
                 _characterTextures,
                 _characterSpriteCalculator,
-                initialRenderProperties,
+                character,
                 _gameStateProvider);
         }
     }

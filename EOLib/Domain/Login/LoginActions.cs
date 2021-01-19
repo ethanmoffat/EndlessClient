@@ -176,7 +176,7 @@ namespace EOLib.Domain.Login
             _characterInventoryRepository.SpellInventory = data.CharacterSpellInventory.ToList();
 
             _currentMapStateRepository.Characters = new HashSet<ICharacter>(data.MapCharacters.Except(new[] { mainCharacter }));
-            _currentMapStateRepository.NPCs = new HashSet<INPC>(_currentMapStateRepository.NPCs);
+            _currentMapStateRepository.NPCs = new HashSet<INPC>(data.MapNPCs);
             _currentMapStateRepository.MapItems = new HashSet<IItem>(data.MapItems);
 
             _playerInfoRepository.PlayerIsInGame = true;

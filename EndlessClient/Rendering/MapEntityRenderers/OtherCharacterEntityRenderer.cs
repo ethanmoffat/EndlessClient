@@ -32,21 +32,22 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return _characterStateCache.CharacterRenderProperties.Values.Any(c => c.MapY == row && c.MapX == col);
+            return _characterStateCache.OtherCharacters.Values
+                .Select(x => x.RenderProperties)
+                .Any(c => c.MapY == row && c.MapX == col);
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
-            var idsToRender = _characterStateCache.CharacterRenderProperties.Keys.Where(
-                key => _characterStateCache.CharacterRenderProperties[key].MapX == col &&
-                       _characterStateCache.CharacterRenderProperties[key].MapY == row);
+            var idsToRender = _characterStateCache.OtherCharacters.Keys.Where(
+                key => _characterStateCache.OtherCharacters[key].RenderProperties.MapX == col &&
+                       _characterStateCache.OtherCharacters[key].RenderProperties.MapY == row);
 
             foreach (var id in idsToRender)
             {
                 if (!_characterRendererProvider.CharacterRenderers.ContainsKey(id) ||
                     _characterRendererProvider.CharacterRenderers[id] == null)
-                    throw new InvalidOperationException(
-                        $"Character renderer for ID {id} is null or missing! Did you call MapRenderer.Update() before calling MapRenderer.Draw()?");
+                    return;
 
                 var renderer = _characterRendererProvider.CharacterRenderers[id];
                 renderer.DrawToSpriteBatch(spriteBatch);

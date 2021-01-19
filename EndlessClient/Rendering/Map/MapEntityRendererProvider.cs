@@ -16,7 +16,7 @@ namespace EndlessClient.Rendering.Map
     {
         public IMapEntityRenderer GroundRenderer { get; }
 
-        public IMapEntityRenderer ItemRenderer { get; }
+        public IReadOnlyList<IMapEntityRenderer> BaseRenderers { get; }
 
         public IReadOnlyList<IMapEntityRenderer> MapEntityRenderers { get; }
 
@@ -37,11 +37,18 @@ namespace EndlessClient.Rendering.Map
                                         currentMapProvider,
                                         characterProvider,
                                         renderOffsetCalculator);
-            ItemRenderer =
+
+            BaseRenderers = new List<IMapEntityRenderer>
+            {
+                new AnimatedGroundLayerRenderer(nativeGraphicsManager,
+                                                currentMapProvider,
+                                                characterProvider,
+                                                renderOffsetCalculator),
                 new MapItemLayerRenderer(characterProvider,
                                          renderOffsetCalculator,
                                          currentMapStateProvider,
-                                         mapItemGraphicProvider);
+                                         mapItemGraphicProvider)
+            };
 
             MapEntityRenderers = new List<IMapEntityRenderer>
             {
@@ -54,6 +61,11 @@ namespace EndlessClient.Rendering.Map
                                          currentMapProvider,
                                          characterProvider,
                                          renderOffsetCalculator),
+                new MainCharacterEntityRenderer(characterProvider,
+                                                characterRendererProvider,
+                                                chatBubbleProvider,
+                                                renderOffsetCalculator,
+                                                transparent: false),
                 new MapObjectLayerRenderer(nativeGraphicsManager,
                                            currentMapProvider,
                                            characterProvider,
@@ -92,17 +104,9 @@ namespace EndlessClient.Rendering.Map
                 new MainCharacterEntityRenderer(characterProvider,
                                                 characterRendererProvider,
                                                 chatBubbleProvider,
-                                                renderOffsetCalculator)
+                                                renderOffsetCalculator,
+                                                transparent: true)
             };
-        }
-
-        public void Dispose()
-        {
-            GroundRenderer.Dispose();
-            ItemRenderer.Dispose();
-
-            foreach (var renderer in MapEntityRenderers)
-                renderer.Dispose();
         }
     }
 }
