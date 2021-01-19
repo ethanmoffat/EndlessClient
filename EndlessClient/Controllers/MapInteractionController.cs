@@ -39,6 +39,10 @@ namespace EndlessClient.Controllers
                 else
                     HandlePickupResult(_mapActions.PickUpItem(item.Value), item.Value);
             }
+            else if (cellState.NPC.HasValue) { /* TODO: spell cast */ }
+            else if (cellState.Sign.HasValue) { /* TODO: sign interaction */ }
+            else if (cellState.Chest.HasValue) { /* TODO: chest interaction */ }
+            else if (cellState.Character.HasValue) { /* TODO: character spell cast */ }
             else
             {
                 mouseRenderer.AnimateClick();
