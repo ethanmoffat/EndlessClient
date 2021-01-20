@@ -97,7 +97,6 @@ namespace EndlessClient.Old
 
             //map effects
             m_packetAPI.OnTimedSpike += _timedSpike;
-            m_packetAPI.OnOtherPlayerTakeSpikeDamage += _otherPlayerSpikeDamage;
             m_packetAPI.OnTimedMapDrainHP += _mapDrainHP;
             m_packetAPI.OnEffectPotion += _otherPlayerEffectPotion;
 
@@ -619,11 +618,6 @@ namespace EndlessClient.Old
         private void _timedSpike()
         {
             OldWorld.Instance.ActiveMapRenderer.PlayTimedSpikeSoundEffect();
-        }
-
-        private void _otherPlayerSpikeDamage(short playerid, byte playerPercentHealth, bool isPlayerDead, int damageAmount)
-        {
-            OldWorld.Instance.ActiveMapRenderer.SpikeDamage(playerid, playerPercentHealth, isPlayerDead, damageAmount);
         }
 
         private void _mapDrainHP(short damage, short hp, short maxhp, List<TimedMapHPDrainData> othercharacterdata)

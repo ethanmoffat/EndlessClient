@@ -136,15 +136,8 @@ namespace EOLib.PacketHandlers
             else
             {
                 var characterToUpdate = _currentMapStateRepository.Characters.Single(x => x.ID == characterID);
+                var updatedCharacter = characterToUpdate.WithDamage(damageTaken, isDead);
 
-                var stats = characterToUpdate.Stats;
-                stats = stats.WithNewStat(CharacterStat.HP, (short) Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
-
-                var props = characterToUpdate.RenderProperties;
-                if (isDead)
-                    props = props.WithDead();
-
-                var updatedCharacter = characterToUpdate.WithStats(stats).WithRenderProperties(props);
                 _currentMapStateRepository.Characters.Remove(characterToUpdate);
                 _currentMapStateRepository.Characters.Add(updatedCharacter);
 

@@ -29,7 +29,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly INPCRendererUpdater _npcRendererUpdater;
-        private readonly IDoorStateUpdater _doorStateUpdater;
+        private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
         private readonly IChatBubbleUpdater _chatBubbleUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
@@ -58,7 +58,7 @@ namespace EndlessClient.Rendering.Map
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator,
                            ICharacterRendererUpdater characterRendererUpdater,
                            INPCRendererUpdater npcRendererUpdater,
-                           IDoorStateUpdater doorStateUpdater,
+                           IDynamicMapObjectUpdater dynamicMapObjectUpdater,
                            IChatBubbleUpdater chatBubbleUpdater,
                            IConfigurationProvider configurationProvider,
                            IMouseCursorRenderer mouseCursorRenderer,
@@ -72,7 +72,7 @@ namespace EndlessClient.Rendering.Map
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
-            _doorStateUpdater = doorStateUpdater;
+            _dynamicMapObjectUpdater = dynamicMapObjectUpdater;
             _chatBubbleUpdater = chatBubbleUpdater;
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
@@ -108,7 +108,7 @@ namespace EndlessClient.Rendering.Map
             {
                 _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
-                _doorStateUpdater.UpdateDoorState(gameTime);
+                _dynamicMapObjectUpdater.UpdateMapObjects(gameTime);
                 _chatBubbleUpdater.UpdateChatBubbles(gameTime);
 
                 if (MouseOver)

@@ -567,48 +567,6 @@ namespace EndlessClient.Rendering
                 ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
         }
 
-        public void SpikeDamage(short playerID, int percentHealth, bool isPlayerDead, int damageAmount)
-        {
-            lock (_characterListLock)
-            {
-                int ndx = _characterRenderers.FindIndex(_rend => _rend.Character.ID == playerID);
-                if (ndx < 0) return;
-
-                var rend = _characterRenderers[ndx];
-                _spikeDamageShared(rend, damageAmount, percentHealth, isPlayerDead);
-            }
-        }
-
-        private void _spikeDamageShared(OldCharacterRenderer rend, int damageAmount, int percentHealth, bool isPlayerDead)
-        {
-            rend.SetDamageCounterValue(damageAmount, percentHealth);
-            if (isPlayerDead)
-                rend.Die();
-        }
-
-        public void AddVisibleSpikeTrap(int x, int y)
-        {
-            lock (_spikeTrapsLock)
-            {
-                if (MapRef.Tiles[y, x] != TileSpec.SpikesTrap)
-                    throw new ArgumentException("The specified tile location is not a trap spike");
-
-                if (_visibleSpikeTraps.Contains(new Point(x, y)))
-                    return;
-                _visibleSpikeTraps.Add(new Point(x, y));
-            }
-        }
-
-        public void RemoveVisibleSpikeTrap(int x, int y)
-        {
-            lock (_spikeTrapsLock)
-            {
-                int ndx = _visibleSpikeTraps.FindIndex(pt => pt.X == x && pt.Y == y);
-                if (ndx < 0) return;
-                _visibleSpikeTraps.RemoveAt(ndx);
-            }
-        }
-
         public void DrainHPFromPlayers(short damage, short hp, short maxhp, IEnumerable<TimedMapHPDrainData> otherCharacterData)
         {
             if (MapRef.Properties.Effect != MapEffect.HPDrain) return;
@@ -712,13 +670,6 @@ namespace EndlessClient.Rendering
                 foreach (var rend in deadRenderers)
                 {
                     RemoveOtherPlayer((short) rend.Character.ID);
-
-                    if (_visibleSpikeTraps.Contains(new Point(rend.Character.X, rend.Character.Y)) &&
-                        !_characterRenderers.Select(x => x.Character)
-                            .Any(player => player.X == rend.Character.X && player.Y == rend.Character.Y))
-                    {
-                        RemoveVisibleSpikeTrap(rend.Character.X, rend.Character.Y);
-                    }
                 }
             }
         }

@@ -41,8 +41,6 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
         {
-            //todo: handling for spike traps when players walk over them: see OldMapRenderer._drawMapObjectsAtLoc
-
             int gfxNum = MapFile.GFX[MapLayer.Objects][row, col];
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapObjects, gfxNum, true);
 

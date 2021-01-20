@@ -96,8 +96,6 @@ namespace EndlessClient.Rendering
         private DateTime? m_drunkTime;
         private int m_drunkOffset;
 
-        private bool _playerIsOnSpikeTrap;
-
         private readonly BlinkingLabel _mouseoverName;
         private string _shoutName;
         private DateTime? _spellInvocationStartTime;
@@ -521,11 +519,6 @@ namespace EndlessClient.Rendering
 
             Data.SetUpdate(true);
 
-            if (_playerIsOnSpikeTrap)
-            {
-                OldWorld.Instance.ActiveMapRenderer.RemoveVisibleSpikeTrap(Character.X, Character.Y);
-            }
-
             if (OldWorld.Instance.SoundEnabled)
             {
                 if (NoWall)
@@ -536,10 +529,6 @@ namespace EndlessClient.Rendering
 
             if (isWaterTile)
                 ShowWaterSplashieAnimation();
-
-            _playerIsOnSpikeTrap = isSpikeTrap;
-            if (_playerIsOnSpikeTrap)
-                OldWorld.Instance.ActiveMapRenderer.AddVisibleSpikeTrap(Character.DestX, Character.DestY);
         }
 
         public void PlayerAttack(bool isWaterTile)

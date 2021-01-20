@@ -31,29 +31,14 @@ namespace EOLib.Net.API
     partial class PacketAPI
     {
         public event Action OnTimedSpike;
-        public event OtherPlayerTakeSpikeDamageEvent OnOtherPlayerTakeSpikeDamage;
         public event TimedMapDrainHPEvent OnTimedMapDrainHP;
         public event EffectPotionUseEvent OnEffectPotion;
 
         private void _createEffectMembers()
         {
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.Admin), _handleEffectAdmin, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.Report), _handleEffectReport, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.TargetOther), _handleEffectTargetOther, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.Player), _handleEffectPlayer, true);
-        }
-
-        //sent to players around a player taking spike damage
-        private void _handleEffectAdmin(OldPacket pkt)
-        {
-            if (OnOtherPlayerTakeSpikeDamage == null) return;
-
-            short playerID = pkt.GetShort();
-            byte playerPercentHealth = pkt.GetChar();
-            bool playerIsDead = pkt.GetChar() != 0;
-            int damageAmount = pkt.GetThree();
-
-            OnOtherPlayerTakeSpikeDamage(playerID, playerPercentHealth, playerIsDead, damageAmount);
         }
 
         //timed spikes

@@ -25,7 +25,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IMouseCursorRendererFactory _mouseCursorRendererFactory;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly INPCRendererUpdater _npcRendererUpdater;
-        private readonly IDoorStateUpdater _doorStateUpdater;
+        private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
         private readonly IChatBubbleUpdater _chatBubbleUpdater;
 
         public MapRendererFactory(IEndlessGameProvider endlessGameProvider,
@@ -36,7 +36,7 @@ namespace EndlessClient.Rendering.Factories
             IMapRenderDistanceCalculator mapRenderDistanceCalculator,
             ICharacterRendererUpdater characterRendererUpdater,
             INPCRendererUpdater npcRendererUpdater,
-            IDoorStateUpdater doorStateUpdater,
+            IDynamicMapObjectUpdater dynamicMapObjectUpdater,
             IChatBubbleUpdater chatBubbleUpdater,
             IConfigurationProvider configurationProvider,
             IMouseCursorRendererFactory mouseCursorRendererFactory,
@@ -50,7 +50,7 @@ namespace EndlessClient.Rendering.Factories
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
-            _doorStateUpdater = doorStateUpdater;
+            _dynamicMapObjectUpdater = dynamicMapObjectUpdater;
             _chatBubbleUpdater = chatBubbleUpdater;
             _configurationProvider = configurationProvider;
             _mouseCursorRendererFactory = mouseCursorRendererFactory;
@@ -67,7 +67,7 @@ namespace EndlessClient.Rendering.Factories
                                    _mapRenderDistanceCalculator,
                                    _characterRendererUpdater,
                                    _npcRendererUpdater,
-                                   _doorStateUpdater,
+                                   _dynamicMapObjectUpdater,
                                    _chatBubbleUpdater,
                                    _configurationProvider,
                                    _mouseCursorRendererFactory.Create(),

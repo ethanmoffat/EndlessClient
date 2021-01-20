@@ -1,4 +1,5 @@
 ﻿using EOLib.Domain.Character;
+using System;
 
 namespace EOLib.Domain.Extensions
 {
@@ -37,6 +38,18 @@ namespace EOLib.Domain.Extensions
                 .WithMapID(updatedData.MapID)
                 .WithRenderProperties(newRenderProps)
                 .WithStats(newStats);
+        }
+
+        public static ICharacter WithDamage(this ICharacter original, int damageTaken, bool isDead)
+        {
+            var stats = original.Stats;
+            stats = stats.WithNewStat(CharacterStat.HP, (short)Math.Max(stats[CharacterStat.HP] - damageTaken, 0));
+
+            var props = original.RenderProperties;
+            if (isDead)
+                props = props.WithDead();
+
+            return original.WithStats(stats).WithRenderProperties(props);
         }
     }
 }
