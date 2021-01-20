@@ -103,12 +103,12 @@ namespace EOLib.Net.Communication
 
             do
             {
-                var localBytes = new byte[bytes];
+                var localBytes = new byte[bytes - numBytes];
                 var startIndex = numBytes;
 
                 try
                 {
-                    numBytes += _socket.Receive(localBytes, bytes, SocketFlags.None);
+                    numBytes += _socket.Receive(localBytes, bytes - numBytes, SocketFlags.None);
                 }
                 catch (SocketException)
                 {
