@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.Domain.Notifiers;
 using EOLib.IO.Extensions;
 using EOLib.IO.Repositories;
 using EOLib.Net;
@@ -17,6 +19,7 @@ namespace EOLib.PacketHandlers
         private readonly ICurrentMapStateRepository _mapStateRepository;
         private readonly ICharacterFromPacketFactory _characterFromPacketFactory;
         private readonly IEIFFileProvider _eifFileProvider;
+        private readonly IEnumerable<IEffectNotifier> _effectNotifiers;
 
         public override PacketFamily Family => PacketFamily.Players;
 
@@ -25,12 +28,14 @@ namespace EOLib.PacketHandlers
         public PlayerEnterMapHandler(IPlayerInfoProvider playerInfoProvider,
                                      ICurrentMapStateRepository mapStateRepository,
                                      ICharacterFromPacketFactory characterFromPacketFactory,
-                                     IEIFFileProvider eifFileProvider)
+                                     IEIFFileProvider eifFileProvider,
+                                     IEnumerable<IEffectNotifier> effectNotifiers)
             : base(playerInfoProvider)
         {
             _mapStateRepository = mapStateRepository;
             _characterFromPacketFactory = characterFromPacketFactory;
             _eifFileProvider = eifFileProvider;
+            _effectNotifiers = effectNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -43,10 +48,12 @@ namespace EOLib.PacketHandlers
             var anim = WarpAnimation.None;
             if (packet.PeekByte() != 255) //next byte was the warp animation: sent on Map::Enter in eoserv
             {
-                //todo: need to signal client that animation should be performed
                 anim = (WarpAnimation) packet.ReadChar();
                 if (packet.ReadByte() != 255) //the 255 still needs to be read...
                     throw new MalformedPacketException("Missing 255 byte after the warp animation for player enter map handler", packet);
+
+                foreach (var notifier in _effectNotifiers)
+                    notifier.NotifyWarpEnterEffect((short)character.ID, anim);
             }
             else //next byte was a 255. Read it and proceed normally.
             {

@@ -78,7 +78,10 @@ namespace EndlessClient.Rendering.Effects
         public void Update()
         {
             if (!_effectInfo.Any())
+            {
+                State = EffectState.Stopped;
                 return;
+            }
 
             var nowTime = DateTime.Now;
             if ((nowTime - _lastFrameChange).TotalMilliseconds > 100)
@@ -89,9 +92,6 @@ namespace EndlessClient.Rendering.Effects
                 var doneEffects = _effectInfo.Where(ei => ei.Done);
                 doneEffects.ToList().ForEach(ei => _effectInfo.Remove(ei));
             }
-
-            if (!_effectInfo.Any())
-                State = EffectState.Stopped;
         }
 
         public void DrawBehindTarget(SpriteBatch sb, bool beginHasBeenCalled = true)

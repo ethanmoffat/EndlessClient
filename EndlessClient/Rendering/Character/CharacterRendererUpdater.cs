@@ -89,6 +89,12 @@ namespace EndlessClient.Rendering.Character
                     _characterRendererRepository.CharacterRenderers[id].Character = character;
                     _characterStateCache.UpdateCharacterState(id, character);
                 }
+
+                if (_characterRendererRepository.NeedsWarpArriveAnimation.Contains(id))
+                {
+                    _characterRendererRepository.CharacterRenderers[id].ShowWarpArrive();
+                    _characterRendererRepository.NeedsWarpArriveAnimation.Remove(id);
+                }
             }
         }
 
@@ -111,6 +117,12 @@ namespace EndlessClient.Rendering.Character
 
             foreach (var id in staleIDs)
             {
+                if (_characterRendererRepository.CharacterRenderers[id].EffectIsPlaying())
+                {
+                    _characterRendererRepository.CharacterRenderers[id].Visible = false;
+                    continue;
+                }
+
                 _characterStateCache.RemoveCharacterState(id);
                 _characterRendererRepository.CharacterRenderers[id].Dispose();
                 _characterRendererRepository.CharacterRenderers.Remove(id);

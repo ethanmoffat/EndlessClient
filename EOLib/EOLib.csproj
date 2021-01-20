@@ -92,6 +92,7 @@
     <Compile Include="Domain\Item\ItemStringService.cs" />
     <Compile Include="Domain\Map\UnlockDoorValidator.cs" />
     <Compile Include="Domain\Map\WarpState.cs" />
+    <Compile Include="Domain\Notifiers\IEffectNotifier.cs" />
     <Compile Include="Domain\Notifiers\IMainCharacterEventNotifier.cs" />
     <Compile Include="Domain\Notifiers\IOtherCharacterAnimationNotifier.cs" />
     <Compile Include="Domain\Character\CharacterInventoryRepository.cs" />

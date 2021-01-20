@@ -14,7 +14,8 @@ namespace EndlessClient.Rendering.Character
 {
     [MappedType(BaseType = typeof(ICharacterAnimationActions))]
     [MappedType(BaseType = typeof(IOtherCharacterAnimationNotifier))]
-    public class CharacterAnimationActions : ICharacterAnimationActions, IOtherCharacterAnimationNotifier
+    [MappedType(BaseType = typeof(IEffectNotifier))]
+    public class CharacterAnimationActions : ICharacterAnimationActions, IOtherCharacterAnimationNotifier, IEffectNotifier
     {
         private readonly IHudControlProvider _hudControlProvider;
         private readonly ICharacterRepository _characterRepository;
@@ -92,6 +93,23 @@ namespace EndlessClient.Rendering.Character
             ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking,
                                        _currentMapStateProvider.Characters.Single(x => x.ID == characterID),
                                        _characterRendererProvider.CharacterRenderers[characterID]);
+        }
+
+        public void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim)
+        {
+            if (anim == WarpAnimation.Admin)
+                _characterRendererProvider.CharacterRenderers[characterId].ShowWarpLeave();
+        }
+
+        public void NotifyWarpEnterEffect(short characterId, WarpAnimation anim)
+        {
+            if (anim == WarpAnimation.Admin)
+            {
+                if (!_characterRendererProvider.CharacterRenderers.ContainsKey(characterId))
+                    _characterRendererProvider.NeedsWarpArriveAnimation.Add(characterId);
+                else
+                    _characterRendererProvider.CharacterRenderers[characterId].ShowWarpArrive();
+            }
         }
 
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, ICharacter character, ICharacterRenderer characterRenderer)

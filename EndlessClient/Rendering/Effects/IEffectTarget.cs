@@ -6,6 +6,8 @@ namespace EndlessClient.Rendering.Effects
     {
         Rectangle EffectTargetArea { get; }
 
+        bool EffectIsPlaying();
+
         void ShowWaterSplashies();
 
         void ShowWarpArrive();

@@ -13,6 +13,8 @@ namespace EndlessClient.Rendering.Character
 
         ICharacter Character { get; set; }
 
+        bool Visible { get; set; }
+
         bool Transparent { get; set; }
 
         void SetAbsoluteScreenPosition(int xPosition, int yPosition);

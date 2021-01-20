@@ -122,6 +122,9 @@ namespace EndlessClient.Rendering.Character
         {
             TopPixel = TopPixel ?? FigureOutTopPixel(_characterSpriteCalculator, _character.RenderProperties);
 
+            // Effects can be rendered when character is not visible (leaving map)
+            _effectRenderer.Update();
+
             if (!Visible)
                 return;
 
@@ -137,8 +140,6 @@ namespace EndlessClient.Rendering.Character
 
             if (_positionIsRelative)
                 SetGridCoordinatePosition();
-
-            _effectRenderer.Update();
 
             _nameLabel.Visible = _gameStateProvider.CurrentState == GameStates.PlayingTheGame && DrawArea.Contains(_currentMouseState.Position);
             _nameLabel.DrawPosition = GetNameLabelPosition();
@@ -191,12 +192,16 @@ namespace EndlessClient.Rendering.Character
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
         {
             _effectRenderer.DrawBehindTarget(spriteBatch);
-            spriteBatch.Draw(_charRenderTarget, Vector2.Zero, GetAlphaColor());
+            if (Visible)
+                spriteBatch.Draw(_charRenderTarget, Vector2.Zero, GetAlphaColor());
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
-            spriteBatch.End();
-            _nameLabel.Draw(new GameTime());
-            spriteBatch.Begin();
+            if (Visible)
+            {
+                spriteBatch.End();
+                _nameLabel.Draw(new GameTime());
+                spriteBatch.Begin();
+            }
         }
 
         #endregion
@@ -292,6 +297,11 @@ namespace EndlessClient.Rendering.Character
         #endregion
 
         #region Effects
+
+        public bool EffectIsPlaying()
+        {
+            return _effectRenderer.State == EffectState.Playing;
+        }
 
         public void ShowWaterSplashies()
         {

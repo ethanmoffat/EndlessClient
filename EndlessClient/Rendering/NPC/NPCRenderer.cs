@@ -139,6 +139,11 @@ namespace EndlessClient.Rendering.NPC
 
         #region Effects
 
+        public bool EffectIsPlaying()
+        {
+            return _effectRenderer.State == EffectState.Playing;
+        }
+
         public void ShowWaterSplashies() { }
 
         public void ShowWarpArrive() { }
@@ -241,7 +246,7 @@ namespace EndlessClient.Rendering.NPC
 
             if (_fadeAwayAlpha >= 3)
                 _fadeAwayAlpha -= 3;
-            IsDead = _fadeAwayAlpha <= 0;
+            IsDead = _fadeAwayAlpha <= 0 && !EffectIsPlaying();
         }
 
         private Vector2 GetNameLabelPosition()

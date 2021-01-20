@@ -63,8 +63,7 @@ namespace EndlessClient.Rendering.Map
             //todo: show message if map is a PK map
             ShowMapTransition(differentMapID);
             AddSpikeTraps();
-
-            //todo: render warp animation on main character renderer
+            ShowWarpBubbles(warpAnimation);
         }
 
         private void StopAllAnimations()
@@ -122,6 +121,14 @@ namespace EndlessClient.Rendering.Map
             {
                 if (_currentMapProvider.CurrentMap.Tiles[character.RenderProperties.MapY, character.RenderProperties.MapX] == TileSpec.SpikesTrap)
                     _currentMapStateRepository.VisibleSpikeTraps.Add(new MapCoordinate(character.RenderProperties.MapX, character.RenderProperties.MapY));
+            }
+        }
+
+        private void ShowWarpBubbles(WarpAnimation animation)
+        {
+            if (animation == WarpAnimation.Admin)
+            {
+                _characterRendererRepository.MainCharacterRenderer.ShowWarpArrive();
             }
         }
     }
