@@ -567,18 +567,6 @@ namespace EndlessClient.Rendering
                 ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
         }
 
-        public void SpikeDamage(short damage, short hp, short maxhp)
-        {
-            var rend = OldWorld.Instance.ActiveCharacterRenderer;
-            rend.Character.Stats.HP = hp;
-            rend.Character.Stats.MaxHP = maxhp;
-            ((EOGame)Game).Hud.RefreshStats();
-
-            int percentHealth = (int)Math.Round(((double)hp / maxhp) * 100.0);
-
-            _spikeDamageShared(rend, damage, percentHealth, hp == 0);
-        }
-
         public void SpikeDamage(short playerID, int percentHealth, bool isPlayerDead, int damageAmount)
         {
             lock (_characterListLock)
@@ -648,18 +636,6 @@ namespace EndlessClient.Rendering
 
             if (OldWorld.Instance.SoundEnabled)
                 ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.MapEffectHPDrain).Play();
-        }
-
-        public void DrainTPFromMainPlayer(short amount, short tp, short maxtp)
-        {
-            if (MapRef.Properties.Effect != MapEffect.TPDrain || amount == 0) return;
-
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.MaxTP = maxtp;
-            ((EOGame)Game).Hud.RefreshStats();
-
-            if (OldWorld.Instance.SoundEnabled)
-                ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.MapEffectTPDrain).Play();
         }
 
         #endregion

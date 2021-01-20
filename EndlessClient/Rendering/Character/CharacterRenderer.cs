@@ -236,7 +236,12 @@ namespace EndlessClient.Rendering.Character
 
         private Color GetAlphaColor()
         {
-            return _character.RenderProperties.IsHidden || _character.RenderProperties.IsDead || Transparent
+            // don't render the transparent character layer if hidden/dead, otherwise the additive blending 
+            //      will render it with full alpha
+            if (_character.RenderProperties.IsHidden || _character.RenderProperties.IsDead)
+                return Transparent ? Color.Transparent : Color.FromNonPremultiplied(255, 255, 255, 128);
+
+            return Transparent
                 ? Color.FromNonPremultiplied(255, 255, 255, 128)
                 : Color.White;
         }

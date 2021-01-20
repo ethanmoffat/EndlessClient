@@ -256,6 +256,7 @@
     <Compile Include="PacketHandlers\EndPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\ItemPickupHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
+    <Compile Include="PacketHandlers\MapDebuffHandler.cs" />
     <Compile Include="PacketHandlers\NPCActionHandler.cs" />
     <Compile Include="PacketHandlers\NPCEnterMapHandler.cs" />
     <Compile Include="PacketHandlers\NPCLeaveMapHandler.cs" />

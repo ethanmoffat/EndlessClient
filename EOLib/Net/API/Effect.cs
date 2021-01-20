@@ -10,12 +10,6 @@ namespace EOLib.Net.API
     public delegate void TimedMapDrainTPEvent(short amount, short tp, short maxtp);
     public delegate void EffectPotionUseEvent(short playerID, int effectID);
 
-    public enum EffectDamageType : byte
-    {
-        TimedDrainTP = 1,
-        SpikeDamage = 2
-    }
-
     public struct TimedMapHPDrainData
     {
         private readonly short _playerID;
@@ -37,52 +31,16 @@ namespace EOLib.Net.API
     partial class PacketAPI
     {
         public event Action OnTimedSpike;
-        public event PlayerTakeSpikeDamageEvent OnPlayerTakeSpikeDamage;
         public event OtherPlayerTakeSpikeDamageEvent OnOtherPlayerTakeSpikeDamage;
         public event TimedMapDrainHPEvent OnTimedMapDrainHP;
-        public event TimedMapDrainTPEvent OnTimedMapDrainTP;
         public event EffectPotionUseEvent OnEffectPotion;
 
         private void _createEffectMembers()
         {
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.Spec), _handleEffectSpec, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.Admin), _handleEffectAdmin, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.Report), _handleEffectReport, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.TargetOther), _handleEffectTargetOther, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Effect, PacketAction.Player), _handleEffectPlayer, true);
-        }
-
-        //sent to the player taking spike damage and map TP drains
-        private void _handleEffectSpec(OldPacket pkt)
-        {
-            //1 in eoserv Map::TimedDrains - tp
-            //2 in eoserv Character::SpikeDamage
-            EffectDamageType damageType = (EffectDamageType) pkt.GetChar();
-            switch (damageType)
-            {
-                case EffectDamageType.TimedDrainTP:
-                {
-                    short amount = pkt.GetShort();
-                    short tp = pkt.GetShort();
-                    short maxtp = pkt.GetShort();
-
-                    if (OnTimedMapDrainTP != null)
-                        OnTimedMapDrainTP(amount, tp, maxtp);
-                }
-                    break;
-                case EffectDamageType.SpikeDamage:
-                {
-                    short damage = pkt.GetShort();
-                    short hp = pkt.GetShort();
-                    short maxhp = pkt.GetShort();
-
-                    if (OnPlayerTakeSpikeDamage != null)
-                        OnPlayerTakeSpikeDamage(damage, hp, maxhp);
-                }
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
         }
 
         //sent to players around a player taking spike damage
