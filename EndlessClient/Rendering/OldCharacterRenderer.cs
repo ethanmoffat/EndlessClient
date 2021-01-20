@@ -100,8 +100,6 @@ namespace EndlessClient.Rendering
         private string _shoutName;
         private DateTime? _spellInvocationStartTime;
 
-        private EffectRenderer _effectRenderer;
-
         private CharacterActionState State => Character.State;
 
         public int TopPixel { get; }
@@ -266,8 +264,6 @@ namespace EndlessClient.Rendering
                 _updateDisplayDataSprites();
             _checkBringBackFromDead();
             _checkResetCharacterStateAfterSpell();
-
-            UpdateEffectRenderer();
 
             if (EOGame.Instance.State == GameStates.PlayingTheGame && this == OldWorld.Instance.ActiveCharacterRenderer)
             {
@@ -506,12 +502,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private void UpdateEffectRenderer()
-        {
-            if (_effectRenderer != null)
-                _effectRenderer.Update();
-        }
-
         public void PlayerWalk(bool isWaterTile, bool isSpikeTrap)
         {
             if (!string.IsNullOrEmpty(_shoutName))
@@ -633,16 +623,10 @@ namespace EndlessClient.Rendering
                 OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
                 return;
 
-            if (_effectRenderer != null)
-                _effectRenderer.DrawBehindTarget(sb, started);
-
             if(!started) sb.Begin();
             sb.Draw(_charRenderTarget, new Vector2(0, 0),
                 _char.RenderData.hidden || _char.RenderData.dead ? Color.FromNonPremultiplied(255, 255, 255, 128) : Color.White);
             if(!started) sb.End();
-
-            if (_effectRenderer != null)
-                _effectRenderer.DrawInFrontOfTarget(sb, started);
         }
 
         private void _attackTimerCallback(object state)
@@ -1301,71 +1285,42 @@ namespace EndlessClient.Rendering
 
         public void ShowWarpArrive()
         {
-            ResetEffectRenderer();
-            RenderEffect(EffectType.WarpDestination);
+            //ResetEffectRenderer();
+            //RenderEffect(EffectType.WarpDestination);
         }
 
         public void ShowWarpLeave()
         {
-            ResetEffectRenderer();
-            RenderEffect(EffectType.WarpOriginal, 0, Close);
+            //ResetEffectRenderer();
+            //RenderEffect(EffectType.WarpOriginal, 0, Close);
         }
 
         public void ShowPotionAnimation(int potionID)
         {
-            var hud = ((EOGame)Game).Hud;
-            hud.DisableEffectPotionUse();
+            //var hud = ((EOGame)Game).Hud;
+            //hud.DisableEffectPotionUse();
 
-            ResetEffectRenderer();
-            RenderEffect(EffectType.Potion, potionID, hud.EnableEffectPotionUse);
+            //ResetEffectRenderer();
+            //RenderEffect(EffectType.Potion, potionID, hud.EnableEffectPotionUse);
         }
 
         public void ShowSpellAnimation(int spellGraphicID)
         {
-            ResetEffectRenderer();
-            RenderEffect(EffectType.Spell, spellGraphicID);
+            //ResetEffectRenderer();
+            //RenderEffect(EffectType.Spell, spellGraphicID);
         }
 
         //only used in CharacterRenderer
         private void ShowWaterSplashieAnimation()
         {
-            if (HasExistingWaterEffect())
-            {
-                _effectRenderer.Restart();
-                return;
-            }
+            //if (HasExistingWaterEffect())
+            //{
+            //    _effectRenderer.Restart();
+            //    return;
+            //}
 
-            ResetEffectRenderer();
-            RenderEffect(EffectType.WaterSplashies);
-        }
-
-        private bool HasExistingWaterEffect()
-        {
-            return _effectRenderer != null && _effectRenderer.EffectType == EffectType.WaterSplashies;
-        }
-
-        private void RenderEffect(EffectType effectType, int effectID = 0, Action cleanupAction = null)
-        {
-            cleanupAction = cleanupAction ?? delegate { };
-            Action fullCleanup = () =>
-            {
-                _effectRenderer = null;
-                cleanupAction();
-            };
-
-            var gfxManager = ((EOGame)Game).GFXManager;
-            _effectRenderer = new EffectRenderer(gfxManager, this, fullCleanup);
-            _effectRenderer.SetEffectInfoTypeAndID(effectType, effectID);
-            _effectRenderer.ShowEffect();
-        }
-
-        private void ResetEffectRenderer()
-        {
-            if (_effectRenderer != null)
-            {
-                _effectRenderer.Dispose();
-                _effectRenderer = null;
-            }
+            //ResetEffectRenderer();
+            //RenderEffect(EffectType.WaterSplashies);
         }
 
         #endregion

@@ -1050,8 +1050,8 @@ namespace EndlessClient.Rendering
         {
             if (spellID < 1) return;
 
-            var spellInfo = OldWorld.Instance.ESF[spellID];
-            renderer.ShowSpellAnimation(spellInfo.Graphic);
+            //var spellInfo = OldWorld.Instance.ESF[spellID];
+            //renderer.ShowSpellAnimation(spellInfo.Graphic);
         }
 
         /// <summary>

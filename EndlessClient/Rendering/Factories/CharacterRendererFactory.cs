@@ -4,6 +4,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
+using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Factories
@@ -11,6 +12,7 @@ namespace EndlessClient.Rendering.Factories
     [MappedType(BaseType = typeof(ICharacterRendererFactory))]
     public class CharacterRendererFactory : ICharacterRendererFactory
     {
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEndlessGameProvider _gameProvider;
         private readonly IRenderTargetFactory _renderTargetFactory;
         private readonly ICharacterProvider _characterProvider;
@@ -20,7 +22,8 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
         private readonly IGameStateProvider _gameStateProvider;
 
-        public CharacterRendererFactory(IEndlessGameProvider gameProvider,
+        public CharacterRendererFactory(INativeGraphicsManager nativeGraphicsManager,
+                                        IEndlessGameProvider gameProvider,
                                         IRenderTargetFactory renderTargetFactory,
                                         ICharacterProvider characterProvider,
                                         IRenderOffsetCalculator renderOffsetCalculator,
@@ -29,6 +32,7 @@ namespace EndlessClient.Rendering.Factories
                                         ICharacterSpriteCalculator characterSpriteCalculator,
                                         IGameStateProvider gameStateProvider)
         {
+            _nativeGraphicsManager = nativeGraphicsManager;
             _gameProvider = gameProvider;
             _renderTargetFactory = renderTargetFactory;
             _characterProvider = characterProvider;
@@ -41,7 +45,9 @@ namespace EndlessClient.Rendering.Factories
 
         public ICharacterRenderer CreateCharacterRenderer(ICharacter character)
         {
-            return new CharacterRenderer((Game) _gameProvider.Game,
+            return new CharacterRenderer(
+                _nativeGraphicsManager,
+                (Game) _gameProvider.Game,
                 _renderTargetFactory,
                 _characterProvider,
                 _renderOffsetCalculator,

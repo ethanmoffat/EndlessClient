@@ -2,6 +2,7 @@
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Extensions;
@@ -24,6 +25,7 @@ namespace EndlessClient.Rendering.NPC
         private readonly Rectangle _baseTextureFrameRectangle;
         private readonly int _readonlyTopPixel;
         private readonly bool _hasStandingAnimation;
+        private readonly IEffectRenderer _effectRenderer;
 
         private DateTime _lastStandingAnimation;
         private int _fadeAwayAlpha;
@@ -43,7 +45,10 @@ namespace EndlessClient.Rendering.NPC
 
         public bool IsDead { get; private set; }
 
-        public NPCRenderer(IEndlessGameProvider endlessGameProvider,
+        public Rectangle EffectTargetArea => DrawArea;
+
+        public NPCRenderer(INativeGraphicsManager nativeGraphicsManager,
+                           IEndlessGameProvider endlessGameProvider,
                            ICharacterRendererProvider characterRendererProvider,
                            IENFFileProvider enfFileProvider,
                            INPCSpriteSheet npcSpriteSheet,
@@ -64,6 +69,8 @@ namespace EndlessClient.Rendering.NPC
             _hasStandingAnimation = GetHasStandingAnimation();
             _lastStandingAnimation = DateTime.Now;
             _fadeAwayAlpha = 255;
+
+            _effectRenderer = new EffectRenderer(nativeGraphicsManager, this);
         }
 
         public override void Initialize()
@@ -101,6 +108,8 @@ namespace EndlessClient.Rendering.NPC
             _nameLabel.DrawPosition = GetNameLabelPosition();
             _nameLabel.Update(gameTime);
 
+            _effectRenderer.Update();
+
             _previousMouseState = _currentMouseState;
 
             base.Update(gameTime);
@@ -115,8 +124,10 @@ namespace EndlessClient.Rendering.NPC
             var color = Color.FromNonPremultiplied(255, 255, 255, _fadeAwayAlpha);
             var effects = NPC.IsFacing(EODirection.Left, EODirection.Down) ? SpriteEffects.None : SpriteEffects.FlipHorizontally;
 
+            _effectRenderer.DrawBehindTarget(spriteBatch);
             spriteBatch.Draw(_npcSpriteSheet.GetNPCTexture(data.Graphic, NPC.Frame, NPC.Direction),
                              DrawArea, null, color, 0f, Vector2.Zero, effects, 1f);
+            _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             _nameLabel.Draw(new GameTime());
         }
@@ -125,6 +136,23 @@ namespace EndlessClient.Rendering.NPC
         {
             _isDying = true;
         }
+
+        #region Effects
+
+        public void ShowWaterSplashies() { }
+
+        public void ShowWarpArrive() { }
+
+        public void ShowWarpLeave() { }
+
+        public void ShowPotionAnimation(int potionId) { }
+
+        public void ShowSpellAnimation(int spellId)
+        {
+            _effectRenderer.PlayEffect(EffectType.Spell, spellId);
+        }
+
+        #endregion
 
         private Rectangle GetStandingFrameRectangle()
         {

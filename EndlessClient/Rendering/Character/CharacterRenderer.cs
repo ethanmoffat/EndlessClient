@@ -2,6 +2,7 @@
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.CharacterProperties;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
@@ -23,6 +24,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterTextures _characterTextures;
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
         private readonly IGameStateProvider _gameStateProvider;
+        private readonly IEffectRenderer _effectRenderer;
 
         private ICharacter _character;
         private bool _textureUpdateRequired, _positionIsRelative = true;
@@ -52,7 +54,11 @@ namespace EndlessClient.Rendering.Character
 
         public int? TopPixel { get; private set; }
 
-        public CharacterRenderer(Game game,
+        public Rectangle EffectTargetArea
+            => DrawArea.WithPosition(new Vector2(DrawArea.X + 6, DrawArea.Y + 11));
+
+        public CharacterRenderer(INativeGraphicsManager nativeGraphicsmanager,
+                                 Game game,
                                  IRenderTargetFactory renderTargetFactory,
                                  ICharacterProvider characterProvider,
                                  IRenderOffsetCalculator renderOffsetCalculator,
@@ -71,6 +77,8 @@ namespace EndlessClient.Rendering.Character
             _characterSpriteCalculator = characterSpriteCalculator;
             _character = character;
             _gameStateProvider = gameStateProvider;
+
+            _effectRenderer = new EffectRenderer(nativeGraphicsmanager, this);
         }
 
         #region Game Component
@@ -130,6 +138,8 @@ namespace EndlessClient.Rendering.Character
             if (_positionIsRelative)
                 SetGridCoordinatePosition();
 
+            _effectRenderer.Update();
+
             _nameLabel.Visible = _gameStateProvider.CurrentState == GameStates.PlayingTheGame && DrawArea.Contains(_currentMouseState.Position);
             _nameLabel.DrawPosition = GetNameLabelPosition();
             _nameLabel.Update(gameTime);
@@ -180,11 +190,12 @@ namespace EndlessClient.Rendering.Character
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
         {
+            _effectRenderer.DrawBehindTarget(spriteBatch);
             spriteBatch.Draw(_charRenderTarget, Vector2.Zero, GetAlphaColor());
+            _effectRenderer.DrawInFrontOfTarget(spriteBatch);
+
             spriteBatch.End();
-
             _nameLabel.Draw(new GameTime());
-
             spriteBatch.Begin();
         }
 
@@ -276,6 +287,39 @@ namespace EndlessClient.Rendering.Character
         {
             return new Vector2(DrawArea.X - Math.Abs(DrawArea.Width - _nameLabel.ActualWidth) / 2,
                                DrawArea.Y - 4 - _nameLabel.ActualHeight);
+        }
+
+        #endregion
+
+        #region Effects
+
+        public void ShowWaterSplashies()
+        {
+            if (_effectRenderer.EffectType == EffectType.WaterSplashies &&
+                _effectRenderer.State == EffectState.Playing)
+                _effectRenderer.Restart();
+
+            _effectRenderer.PlayEffect(EffectType.WaterSplashies, 0);
+        }
+
+        public void ShowWarpArrive()
+        {
+            _effectRenderer.PlayEffect(EffectType.WarpDestination, 0);
+        }
+
+        public void ShowWarpLeave()
+        {
+            _effectRenderer.PlayEffect(EffectType.WarpOriginal, 0);
+        }
+
+        public void ShowPotionAnimation(int potionId)
+        {
+            _effectRenderer.PlayEffect(EffectType.Potion, potionId);
+        }
+
+        public void ShowSpellAnimation(int spellId)
+        {
+            _effectRenderer.PlayEffect(EffectType.Spell, spellId);
         }
 
         #endregion

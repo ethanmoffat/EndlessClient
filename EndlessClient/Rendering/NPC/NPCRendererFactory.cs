@@ -3,6 +3,7 @@ using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.NPC;
+using EOLib.Graphics;
 using EOLib.IO.Repositories;
 
 namespace EndlessClient.Rendering.NPC
@@ -10,18 +11,21 @@ namespace EndlessClient.Rendering.NPC
     [MappedType(BaseType = typeof(INPCRendererFactory))]
     public class NPCRendererFactory : INPCRendererFactory
     {
+        private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
 
-        public NPCRendererFactory(IEndlessGameProvider endlessGameProvider,
+        public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
+                                  IEndlessGameProvider endlessGameProvider,
                                   ICharacterRendererProvider characterRendererProvider,
                                   IENFFileProvider enfFileProvider,
                                   INPCSpriteSheet npcSpriteSheet,
                                   IRenderOffsetCalculator renderOffsetCalculator)
         {
+            _nativeGraphicsManager = nativeGraphicsManager;
             _endlessGameProvider = endlessGameProvider;
             _characterRendererProvider = characterRendererProvider;
             _enfFileProvider = enfFileProvider;
@@ -31,7 +35,8 @@ namespace EndlessClient.Rendering.NPC
 
         public INPCRenderer CreateRendererFor(INPC npc)
         {
-            return new NPCRenderer(_endlessGameProvider,
+            return new NPCRenderer(_nativeGraphicsManager,
+                                   _endlessGameProvider,
                                    _characterRendererProvider,
                                    _enfFileProvider,
                                    _npcSpriteSheet,

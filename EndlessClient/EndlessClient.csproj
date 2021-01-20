@@ -118,6 +118,7 @@
     <Compile Include="Rendering\Chat\ChatBubbleTextureProvider.cs" />
     <Compile Include="Rendering\Chat\ChatBubbleUpdater.cs" />
     <Compile Include="Rendering\Chat\IHaveChatBubble.cs" />
+    <Compile Include="Rendering\Effects\IEffectTarget.cs" />
     <Compile Include="Rendering\Factories\MouseCursorRendererFactory.cs" />
     <Compile Include="Rendering\Map\DynamicMapObjectUpdater.cs" />
     <Compile Include="Rendering\Map\SpikeTrapActions.cs" />
