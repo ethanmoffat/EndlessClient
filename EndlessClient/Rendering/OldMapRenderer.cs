@@ -557,47 +557,6 @@ namespace EndlessClient.Rendering
 
         #endregion
 
-        #region /* PUBLIC INTERFACE -- MAP EFFECTS */
-
-        public void PlayTimedSpikeSoundEffect()
-        {
-            if (!MapRef.Properties.HasTimedSpikes) return;
-
-            if (OldWorld.Instance.SoundEnabled)
-                ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
-        }
-
-        public void DrainHPFromPlayers(short damage, short hp, short maxhp, IEnumerable<TimedMapHPDrainData> otherCharacterData)
-        {
-            if (MapRef.Properties.Effect != MapEffect.HPDrain) return;
-
-            int percentHealth = (int)Math.Round(((double)hp / maxhp) * 100.0);
-
-            var mainRend = OldWorld.Instance.ActiveCharacterRenderer;
-            mainRend.Character.Stats.HP = hp;
-            mainRend.Character.Stats.MaxHP = maxhp;
-            mainRend.SetDamageCounterValue(damage, percentHealth);
-            
-            ((EOGame)Game).Hud.RefreshStats();
-
-            lock (_characterListLock)
-            {
-                foreach (var other in otherCharacterData)
-                {
-                    int ndx = _characterRenderers.FindIndex(_rend => _rend.Character.ID == other.PlayerID);
-                    if (ndx < 0) continue;
-
-                    var rend = _characterRenderers[ndx];
-                    rend.SetDamageCounterValue(other.DamageDealt, other.PlayerPercentHealth);
-                }
-            }
-
-            if (OldWorld.Instance.SoundEnabled)
-                ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.MapEffectHPDrain).Play();
-        }
-
-        #endregion
-
         #region /* GAME COMPONENT DERIVED METHODS */
 
         public override void Initialize()

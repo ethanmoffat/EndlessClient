@@ -96,8 +96,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnCharacterStatsReset += _statskillReset;
 
             //map effects
-            m_packetAPI.OnTimedSpike += _timedSpike;
-            m_packetAPI.OnTimedMapDrainHP += _mapDrainHP;
             m_packetAPI.OnEffectPotion += _otherPlayerEffectPotion;
 
             //quests
@@ -613,16 +611,6 @@ namespace EndlessClient.Old
             c.Stats.Armor = data.Armor;
             m_game.Hud.RefreshStats();
             m_game.Hud.RemoveAllSpells();
-        }
-
-        private void _timedSpike()
-        {
-            OldWorld.Instance.ActiveMapRenderer.PlayTimedSpikeSoundEffect();
-        }
-
-        private void _mapDrainHP(short damage, short hp, short maxhp, List<TimedMapHPDrainData> othercharacterdata)
-        {
-            OldWorld.Instance.ActiveMapRenderer.DrainHPFromPlayers(damage, hp, maxhp, othercharacterdata);
         }
 
         private void _otherPlayerEffectPotion(short playerID, int effectID)
