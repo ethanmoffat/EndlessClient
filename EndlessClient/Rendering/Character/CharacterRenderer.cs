@@ -55,7 +55,7 @@ namespace EndlessClient.Rendering.Character
         public int? TopPixel { get; private set; }
 
         public Rectangle EffectTargetArea
-            => DrawArea.WithPosition(new Vector2(DrawArea.X + 6, DrawArea.Y + 11));
+            => DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y - 8));
 
         public CharacterRenderer(INativeGraphicsManager nativeGraphicsmanager,
                                  Game game,
