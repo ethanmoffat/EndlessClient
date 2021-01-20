@@ -95,9 +95,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnSpellTrain += _statskillTrainSpell;
             m_packetAPI.OnCharacterStatsReset += _statskillReset;
 
-            //map effects
-            m_packetAPI.OnEffectPotion += _otherPlayerEffectPotion;
-
             //quests
             m_packetAPI.OnQuestDialog += _questDialog;
             m_packetAPI.OnViewQuestProgress += _questProgress;
@@ -269,7 +266,7 @@ namespace EndlessClient.Old
                     OldWorld.Instance.ActiveCharacterRenderer.MakeDrunk();
                     m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_USE_DRUNK);
                     break;
-                case ItemType.EffectPotion: //todo: effect potions for other players
+                case ItemType.EffectPotion:
                     OldWorld.Instance.ActiveCharacterRenderer.ShowPotionAnimation(data.EffectID);
                     break;
                 case ItemType.CureCurse:
@@ -611,11 +608,6 @@ namespace EndlessClient.Old
             c.Stats.Armor = data.Armor;
             m_game.Hud.RefreshStats();
             m_game.Hud.RemoveAllSpells();
-        }
-
-        private void _otherPlayerEffectPotion(short playerID, int effectID)
-        {
-            OldWorld.Instance.ActiveMapRenderer.ShowPotionEffect(playerID, effectID);
         }
 
         private void _questDialog(QuestState stateinfo, Dictionary<short, string> dialognames, List<string> pages, Dictionary<short, string> links)

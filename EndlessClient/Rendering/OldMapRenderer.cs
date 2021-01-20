@@ -465,15 +465,6 @@ namespace EndlessClient.Rendering
             _mouseCursorRenderer.ShowContextMenu(player);
         }
 
-        public void ShowPotionEffect(short playerID, int effectID)
-        {
-            OldCharacterRenderer renderer;
-            lock (_characterListLock)
-                renderer = _characterRenderers.SingleOrDefault(x => x.Character.ID == playerID);
-            if (renderer != null)
-                renderer.ShowPotionAnimation(effectID);
-        }
-
         #endregion
 
         #region/* PUBLIC INTERFACE -- OTHER NPCS */

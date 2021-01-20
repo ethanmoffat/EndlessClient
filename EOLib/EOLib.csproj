@@ -190,7 +190,6 @@
     <Compile Include="Net\API\Bank.cs" />
     <Compile Include="Net\API\Character.cs" />
     <Compile Include="Net\API\Chest.cs" />
-    <Compile Include="Net\API\Effect.cs" />
     <Compile Include="Net\API\Emote.cs" />
     <Compile Include="Net\API\Init.cs" />
     <Compile Include="Net\API\Item.cs" />
@@ -254,6 +253,7 @@
     <Compile Include="PacketHandlers\Commands\FindCommandPlayerSameMapHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GroupChatHandler.cs" />
     <Compile Include="PacketHandlers\DoorOpenHandler.cs" />
+    <Compile Include="PacketHandlers\EffectPotionHandler.cs" />
     <Compile Include="PacketHandlers\EndPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\ItemPickupHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />

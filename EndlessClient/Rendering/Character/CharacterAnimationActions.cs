@@ -112,6 +112,11 @@ namespace EndlessClient.Rendering.Character
             }
         }
 
+        public void NotifyPotionEffect(short playerId, int effectId)
+        {
+            _characterRendererProvider.CharacterRenderers[playerId].ShowPotionAnimation(effectId);
+        }
+
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, ICharacter character, ICharacterRenderer characterRenderer)
         {
             var rp = character.RenderProperties;
