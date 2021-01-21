@@ -8,6 +8,7 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
+using EOLib.IO.Repositories;
 using System.Linq;
 
 namespace EndlessClient.Rendering.Character
@@ -23,13 +24,15 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ISpikeTrapActions _spikeTrapActions;
+        private readonly IESFFileProvider _esfFileProvider;
 
         public CharacterAnimationActions(IHudControlProvider hudControlProvider,
                                          ICharacterRepository characterRepository,
                                          ICurrentMapStateProvider currentMapStateProvider,
                                          ICharacterRendererProvider characterRendererProvider,
                                          ICurrentMapProvider currentMapProvider,
-                                         ISpikeTrapActions spikeTrapActions)
+                                         ISpikeTrapActions spikeTrapActions,
+                                         IESFFileProvider esfFileProvider)
         {
             _hudControlProvider = hudControlProvider;
             _characterRepository = characterRepository;
@@ -37,6 +40,7 @@ namespace EndlessClient.Rendering.Character
             _characterRendererProvider = characterRendererProvider;
             _currentMapProvider = currentMapProvider;
             _spikeTrapActions = spikeTrapActions;
+            _esfFileProvider = esfFileProvider;
         }
 
         public void Face(EODirection direction)
@@ -115,6 +119,29 @@ namespace EndlessClient.Rendering.Character
         public void NotifyPotionEffect(short playerId, int effectId)
         {
             _characterRendererProvider.CharacterRenderers[playerId].ShowPotionAnimation(effectId);
+        }
+
+        public void NotifyStartSpellCast(short playerId, short spellId)
+        {
+            var shoutName = _esfFileProvider.ESFFile[spellId].Shout;
+            _characterRendererProvider.CharacterRenderers[playerId].ShoutSpellPrep(shoutName.ToLower());
+        }
+
+        public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth)
+        {
+            var spellGraphic = _esfFileProvider.ESFFile[spellId].Graphic;
+
+            if (playerId == _characterRepository.MainCharacter.ID)
+            {
+                _characterRendererProvider.MainCharacterRenderer.ShoutSpellCast();
+                _characterRendererProvider.MainCharacterRenderer.ShowSpellAnimation(spellGraphic);
+            }
+            else
+            {
+                Animator.StartOtherCharacterSpellCast(playerId);
+                _characterRendererProvider.CharacterRenderers[playerId].ShoutSpellCast();
+                _characterRendererProvider.CharacterRenderers[playerId].ShowSpellAnimation(spellGraphic);
+            }
         }
 
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, ICharacter character, ICharacterRenderer characterRenderer)

@@ -258,6 +258,7 @@
     <Compile Include="PacketHandlers\ItemPickupHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\MapHpDrainHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerSelfTargetSpellHandler.cs" />
     <Compile Include="PacketHandlers\PlayerSpikeDamageHandler.cs" />
     <Compile Include="PacketHandlers\MapDebuffHandler.cs" />
     <Compile Include="PacketHandlers\NPCActionHandler.cs" />
@@ -308,6 +309,7 @@
     <Compile Include="PacketHandlers\PlayerLeaveMapHandler.cs" />
     <Compile Include="PacketHandlers\PlayerLevelUpHandler.cs" />
     <Compile Include="PacketHandlers\PlayerRecoverHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerStartSpellCastHandler.cs" />
     <Compile Include="PacketHandlers\PlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\BeginPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\RecoverStatListHandler.cs" />

@@ -7,13 +7,13 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Character
 {
-    public interface ICharacterRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable, IHaveChatBubble, IEffectTarget
+    public interface ICharacterRenderer : IDrawable, IUpdateable, IGameComponent, IDisposable, IHaveChatBubble, IEffectTarget, ISpellCaster
     {
         int? TopPixel { get; }
 
         ICharacter Character { get; set; }
 
-        bool Visible { get; set; }
+        new bool Visible { get; set; }
 
         bool Transparent { get; set; }
 

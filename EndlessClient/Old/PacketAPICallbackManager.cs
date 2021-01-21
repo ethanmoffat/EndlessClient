@@ -104,9 +104,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnPlaySoundEffect += _playSoundEffect;
 
             //spell casting
-            m_packetAPI.OnOtherPlayerStartCastSpell += _playerStartCastSpell;
-            m_packetAPI.OnOtherPlayerCastSpellSelf += _otherPlayerCastSpellSelf;
-            m_packetAPI.OnCastSpellSelf += _mainPlayerCastSpellSelf;
             m_packetAPI.OnCastSpellTargetOther += _playerCastTargetSpell;
             m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
         }
@@ -649,24 +646,6 @@ namespace EndlessClient.Old
                     m_game.SoundManager.GetSoundEffectRef((SoundEffectID) effectID).Play();
             }
             catch { /* Ignore errors when the sound effect ID from the server is invalid */ }
-        }
-
-        private void _playerStartCastSpell(short fromplayerid, short spellid)
-        {
-            OldWorld.Instance.ActiveMapRenderer.OtherPlayerShoutSpell(fromplayerid, spellid);
-        }
-
-        private void _otherPlayerCastSpellSelf(short fromplayerid, short spellid, int spellhp, byte percenthealth)
-        {
-            OldWorld.Instance.ActiveMapRenderer.PlayerCastSpellSelf(fromplayerid, spellid, spellhp, percenthealth);
-        }
-
-        private void _mainPlayerCastSpellSelf(short fromplayerid, short spellid, int spellhp, byte percenthealth, short hp, short tp)
-        {
-            OldWorld.Instance.ActiveMapRenderer.PlayerCastSpellSelf(fromplayerid, spellid, spellhp, percenthealth);
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.HP = hp;
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
-            m_game.Hud.RefreshStats();
         }
 
         private void _playerCastTargetSpell(short targetPlayerID, short fromPlayerID, EODirection sourcePlayerDirection, short spellID, int recoveredHP, byte targetPercentHealth, short targetPlayerCurrentHP)

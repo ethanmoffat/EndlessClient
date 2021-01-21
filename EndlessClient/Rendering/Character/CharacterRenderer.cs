@@ -5,6 +5,7 @@ using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
@@ -35,7 +36,9 @@ namespace EndlessClient.Rendering.Character
         private RenderTarget2D _charRenderTarget;
         private Texture2D _outline;
 
-        private XNALabel _nameLabel;
+        private BlinkingLabel _nameLabel;
+        private string _shoutName = string.Empty;
+        private DateTime? _spellCastTime;
 
         public ICharacter Character
         {
@@ -88,7 +91,7 @@ namespace EndlessClient.Rendering.Character
             _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
-            _nameLabel = new XNALabel(Constants.FontSize08pt5)
+            _nameLabel = new BlinkingLabel(Constants.FontSize08pt5)
             {
                 Visible = true,
                 TextWidth = 89,
@@ -141,9 +144,8 @@ namespace EndlessClient.Rendering.Character
             if (_positionIsRelative)
                 SetGridCoordinatePosition();
 
-            _nameLabel.Visible = _gameStateProvider.CurrentState == GameStates.PlayingTheGame && DrawArea.Contains(_currentMouseState.Position);
-            _nameLabel.DrawPosition = GetNameLabelPosition();
-            _nameLabel.Update(gameTime);
+            if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
+                UpdateNameLabel(gameTime);
 
             _previousMouseState = _currentMouseState;
 
@@ -224,7 +226,7 @@ namespace EndlessClient.Rendering.Character
 
         #endregion
 
-        #region Drawing Helpers
+        #region Update/Drawing Helpers
 
         private void DrawToRenderTarget()
         {
@@ -288,6 +290,39 @@ namespace EndlessClient.Rendering.Character
             return _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
         }
 
+        private void UpdateNameLabel(GameTime gameTime)
+        {
+            if (DrawArea.Contains(_currentMouseState.Position))
+            {
+                _nameLabel.Visible = true;
+                _nameLabel.BlinkRate = null;
+                _nameLabel.Text = _character.Name;
+            }
+            else if (_shoutName != string.Empty && _nameLabel.Text != _shoutName)
+            {
+                _nameLabel.Visible = true;
+                _nameLabel.BlinkRate = 250;
+                _nameLabel.Text = _shoutName;
+            }
+            else if (_shoutName == string.Empty)
+            {
+                _nameLabel.Visible = false;
+            }
+
+            if (_spellCastTime.HasValue && (DateTime.Now - _spellCastTime.Value).TotalMilliseconds >= 600)
+            {
+                _nameLabel.Visible = false;
+                _nameLabel.Text = _character.Name;
+                _nameLabel.ForeColor = Color.White;
+                _nameLabel.BlinkRate = null;
+                _shoutName = string.Empty;
+                _spellCastTime = null;
+            }
+
+            _nameLabel.DrawPosition = GetNameLabelPosition();
+            _nameLabel.Update(gameTime);
+        }
+
         private Vector2 GetNameLabelPosition()
         {
             return new Vector2(DrawArea.X - Math.Abs(DrawArea.Width - _nameLabel.ActualWidth) / 2,
@@ -333,6 +368,25 @@ namespace EndlessClient.Rendering.Character
         }
 
         #endregion
+
+        // Called when the spell cast begins
+        public void ShoutSpellPrep(string spellName)
+        {
+            _shoutName = spellName;
+        }
+
+        // Called when the spell prep time ends and the player actually casts the spell
+        public void ShoutSpellCast()
+        {
+            _nameLabel.ForeColor = Color.FromNonPremultiplied(0xf5, 0xc8, 0x9c, 0xff); // todo: make constant for this
+            _spellCastTime = DateTime.Now;
+        }
+
+        // Called when the shout (spell prep time) should be cancelled without casting
+        public void StopShoutingSpell()
+        {
+            _shoutName = string.Empty;
+        }
 
         protected override void Dispose(bool disposing)
         {

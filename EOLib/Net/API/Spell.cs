@@ -39,9 +39,6 @@ namespace EOLib.Net.API
     {
         #region public events
 
-        public event OtherPlayerStartCastSpellEvent OnOtherPlayerStartCastSpell;
-        public event OtherPlayerCastSpellSelfEvent OnOtherPlayerCastSpellSelf;
-        public event CastSpellSelfEvent OnCastSpellSelf;
         public event CastSpellOtherEvent OnCastSpellTargetOther;
         public event CastSpellGroupEvent OnCastSpellTargetGroup;
 
@@ -55,8 +52,6 @@ namespace EOLib.Net.API
             //        see CAST_ACCPT handler for leveling up off NPC kill via spell
             //        see CAST_SPEC  handler for regular NPC death via spell
             //other note: Spell attacks for PK are not supported yet
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Spell, PacketAction.Request), _handleSpellRequest, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Spell, PacketAction.TargetSelf), _handleSpellTargetSelf, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Spell, PacketAction.TargetOther), _handleSpellTargetOther, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Spell, PacketAction.TargetGroup), _handleSpellTargetGroup, true);
         }
@@ -125,42 +120,6 @@ namespace EOLib.Net.API
         #endregion
 
         #region handler methods
-
-        private void _handleSpellRequest(OldPacket pkt)
-        {
-            short fromPlayerID = pkt.GetShort();
-            short spellID = pkt.GetShort();
-
-            if (OnOtherPlayerStartCastSpell != null)
-                OnOtherPlayerStartCastSpell(fromPlayerID, spellID);
-        }
-
-        private void _handleSpellTargetSelf(OldPacket pkt)
-        {
-            short fromPlayerID = pkt.GetShort();
-            short spellID = pkt.GetShort();
-            int spellHP = pkt.GetInt();
-            byte percentHealth = pkt.GetChar();
-
-            if (pkt.ReadPos == pkt.Length)
-            {
-                //another player was the source of this packet
-
-                if (OnOtherPlayerCastSpellSelf != null)
-                    OnOtherPlayerCastSpellSelf(fromPlayerID, spellID, spellHP, percentHealth);
-
-                return;
-            }
-
-            short characterHP = pkt.GetShort();
-            short characterTP = pkt.GetShort();
-            if (pkt.GetShort() != 1) //malformed packet! eoserv sends '1' here
-                return;
-
-            //main player was source of this packet
-            if (OnCastSpellSelf != null)
-                OnCastSpellSelf(fromPlayerID, spellID, spellHP, percentHealth, characterHP, characterTP);
-        }
 
         private void _handleSpellTargetOther(OldPacket pkt)
         {

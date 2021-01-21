@@ -337,39 +337,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void OtherPlayerShoutSpell(short playerID, short spellID)
-        {
-            string shoutName = OldWorld.Instance.ESF[spellID].Shout;
-
-            lock (_characterListLock)
-            {
-                var renderer = _characterRenderers.Find(x => x.Character.ID == playerID);
-                if (renderer != null)
-                    renderer.SetSpellShout(shoutName);
-            }
-        }
-
-        public void PlayerCastSpellSelf(short fromPlayerID, short spellID, int spellHP, byte percentHealth)
-        {
-            lock (_characterListLock)
-            {
-                var renderer = _characterRenderers.Find(x => x.Character.ID == fromPlayerID);
-                if (renderer != null)
-                {
-                    renderer.StopShouting(false);
-                    renderer.StartCastingSpell();
-                    renderer.SetDamageCounterValue(spellHP, percentHealth, true);
-                }
-                else if (fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-                {
-                    renderer = OldWorld.Instance.ActiveCharacterRenderer;
-                    renderer.SetDamageCounterValue(spellHP, percentHealth, true);
-                }
-
-                _renderSpellOnPlayer(spellID, renderer);
-            }
-        }
-
         public void PlayerCastSpellTarget(short fromPlayerID, short targetPlayerID, EODirection fromPlayerDirection, short spellID, int recoveredHP, byte targetPercentHealth)
         {
             lock (_characterListLock)
