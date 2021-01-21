@@ -449,34 +449,6 @@ namespace EndlessClient.Rendering
             indexes.ForEach(x => RemoveOtherNPC(x));
         }
 
-        public void NPCTakeDamage(short npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID = -1)
-        {
-            lock (_npcListLock)
-            {
-                OldNPCRenderer toDamage = _npcRenderers.Find(_npc => _npc.NPC.Index == npcIndex);
-                if (toDamage == null) return;
-
-                _renderSpellOnNPC(spellID, toDamage);
-                
-                OldCharacter opponent = null;
-                lock (_characterRenderers)
-                {
-                    var rend = fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
-                        ? OldWorld.Instance.ActiveCharacterRenderer
-                        : _characterRenderers.Find(_rend => _rend.Character.ID == fromPlayerID);
-
-                    if (rend != null)
-                    {
-                        if (rend.Character.RenderData.facing != fromDirection)
-                            rend.Character.RenderData.SetDirection(fromDirection);
-                        opponent = rend.Character;
-                    }
-                }
-
-                toDamage.TakeDamageFrom(opponent, damageToNPC, npcPctHealth);
-            }
-        }
-
         #endregion
 
         #region /* GAME COMPONENT DERIVED METHODS */

@@ -52,7 +52,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnMapMutation += _mapMutate;
 
             //npc related
-            m_packetAPI.OnNPCTakeDamage += _npcTakeDamage;
             m_packetAPI.OnRemoveChildNPCs += _removeChildNPCs;
 
             //bank related
@@ -348,17 +347,6 @@ namespace EndlessClient.Old
             }
             else
                 throw new FileNotFoundException("Unable to remap the file, something broke");
-        }
-
-        private void _npcTakeDamage(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID, short fromTP)
-        {
-            OldWorld.Instance.ActiveMapRenderer.NPCTakeDamage(npcIndex, fromPlayerID, fromDirection, damageToNPC, npcPctHealth, spellID);
-
-            if (fromTP >= 0)
-            {
-                OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromTP;
-                m_game.Hud.RefreshStats();
-            }
         }
 
         private void _removeChildNPCs(short childNPCID)

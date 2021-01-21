@@ -48,20 +48,13 @@ namespace EOLib.PacketHandlers
                 UpdatePlayerDirection(playerID, playerDirection);
 
             var deadNPCIndex = packet.ReadShort();
-            if (spellID.HasValue)
-            {
-                //todo: render spell ID on deadNPCIndex (when spells are supported)
-            }
 
             //packet is removing the NPC from view due to out of range of character
             if (packet.ReadPosition == packet.Length)
             {
-                RemoveNPCFromView(deadNPCIndex, false);
+                RemoveNPCFromView(deadNPCIndex, playerID, spellID, damage: Optional<int>.Empty, showDeathAnimation: false);
                 return true;
             }
-
-            //packet is removing NPC from view due to dying
-            RemoveNPCFromView(deadNPCIndex, true);
 
             var droppedItemUID = packet.ReadShort();
             var droppedItemID = packet.ReadShort();
@@ -70,7 +63,7 @@ namespace EOLib.PacketHandlers
             var droppedAmount = packet.ReadInt();
 
             var damageDoneToNPC = packet.ReadThree();
-            //todo: show damage done to NPC (when damage counters are supported)
+            RemoveNPCFromView(deadNPCIndex, playerID, spellID, damageDoneToNPC, showDeathAnimation: true);
 
             if (packet.Family == PacketFamily.Cast)
             {
@@ -95,10 +88,10 @@ namespace EOLib.PacketHandlers
             return true;
         }
 
-        private void RemoveNPCFromView(short deadNPCIndex, bool showDeathAnimation)
+        private void RemoveNPCFromView(short deadNPCIndex, int playerId, Optional<short> spellId, Optional<int> damage, bool showDeathAnimation)
         {
             foreach (var notifier in _npcAnimationNotifiers)
-                notifier.RemoveNPCFromView(deadNPCIndex, showDeathAnimation);
+                notifier.RemoveNPCFromView(deadNPCIndex, playerId, spellId, damage, showDeathAnimation);
 
             _currentMapStateRepository.NPCs.RemoveWhere(npc => npc.Index == deadNPCIndex);
         }
