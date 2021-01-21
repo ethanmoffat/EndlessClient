@@ -129,6 +129,8 @@ namespace EndlessClient.Rendering.Character
 
         public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth)
         {
+            // todo : show damage counter
+
             var spellGraphic = _esfFileProvider.ESFFile[spellId].Graphic;
 
             if (playerId == _characterRepository.MainCharacter.ID)
@@ -142,6 +144,28 @@ namespace EndlessClient.Rendering.Character
                 _characterRendererProvider.CharacterRenderers[playerId].ShoutSpellCast();
                 _characterRendererProvider.CharacterRenderers[playerId].ShowSpellAnimation(spellGraphic);
             }
+        }
+
+        public void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth)
+        {
+            // todo : show damage counter
+
+            var spellGraphic = _esfFileProvider.ESFFile[spellId].Graphic;
+
+            if (sourcePlayerID == _characterRepository.MainCharacter.ID)
+            {
+                _characterRendererProvider.MainCharacterRenderer.ShoutSpellCast();
+            }
+            else
+            {
+                Animator.StartOtherCharacterSpellCast(sourcePlayerID);
+                _characterRendererProvider.CharacterRenderers[sourcePlayerID].ShoutSpellCast();
+            }
+
+            if (targetPlayerID == _characterRepository.MainCharacter.ID)
+                _characterRendererProvider.MainCharacterRenderer.ShowSpellAnimation(spellGraphic);
+            else
+                _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowSpellAnimation(spellGraphic);
         }
 
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, ICharacter character, ICharacterRenderer characterRenderer)

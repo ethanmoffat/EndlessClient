@@ -378,6 +378,7 @@ namespace EndlessClient.Rendering.Character
         // Called when the spell prep time ends and the player actually casts the spell
         public void ShoutSpellCast()
         {
+            _nameLabel.BlinkRate = null;
             _nameLabel.ForeColor = Color.FromNonPremultiplied(0xf5, 0xc8, 0x9c, 0xff); // todo: make constant for this
             _spellCastTime = DateTime.Now;
         }

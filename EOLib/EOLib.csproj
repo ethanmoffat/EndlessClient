@@ -258,6 +258,7 @@
     <Compile Include="PacketHandlers\ItemPickupHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\MapHpDrainHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerTargetOtherSpellHandler.cs" />
     <Compile Include="PacketHandlers\PlayerSelfTargetSpellHandler.cs" />
     <Compile Include="PacketHandlers\PlayerSpikeDamageHandler.cs" />
     <Compile Include="PacketHandlers\MapDebuffHandler.cs" />

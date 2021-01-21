@@ -337,42 +337,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void PlayerCastSpellTarget(short fromPlayerID, short targetPlayerID, EODirection fromPlayerDirection, short spellID, int recoveredHP, byte targetPercentHealth)
-        {
-            lock (_characterListLock)
-            {
-                bool fromIsMain = false;
-                var fromRenderer = _characterRenderers.Find(x => x.Character.ID == fromPlayerID);
-                var toRenderer = _characterRenderers.Find(x => x.Character.ID == targetPlayerID);
-
-                if (fromRenderer == null && fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-                {
-                    fromIsMain = true;
-                    fromRenderer = OldWorld.Instance.ActiveCharacterRenderer;
-                }
-
-                if (toRenderer == null && targetPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-                    toRenderer = OldWorld.Instance.ActiveCharacterRenderer;
-
-                if (fromRenderer != null) //do source renderer stuff
-                {
-                    if (!fromIsMain)
-                    {
-                        bool showShoutName = fromRenderer != toRenderer;
-                        fromRenderer.StopShouting(showShoutName);
-                        fromRenderer.StartCastingSpell();
-                    }
-                    fromRenderer.Character.RenderData.SetDirection(fromPlayerDirection);
-                }
-
-                if (toRenderer != null) //do target renderer stuff
-                {
-                    toRenderer.SetDamageCounterValue(recoveredHP, targetPercentHealth, true);
-                    _renderSpellOnPlayer(spellID, toRenderer);
-                }
-            }
-        }
-
         public void PlayerCastSpellGroup(short fromPlayerID, short spellID, short spellHPgain, List<GroupSpellTarget> spellTargets)
         {
             lock (_characterListLock)
