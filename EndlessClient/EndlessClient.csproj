@@ -358,7 +358,7 @@
     <Compile Include="Rendering\Effects\HeavenEffectSpriteInfo.cs" />
     <Compile Include="Rendering\Effects\IEffectSpriteInfo.cs" />
     <Compile Include="Rendering\EOSpriteSheet.cs" />
-    <Compile Include="Rendering\HealthBarRenderer.cs" />
+    <Compile Include="Rendering\OldDamageCounter.cs" />
     <Compile Include="Rendering\OldMapRenderer.cs" />
     <Compile Include="Rendering\MiniMapRenderer.cs" />
     <Compile Include="Rendering\OldMouseCursorRenderer.cs" />
