@@ -29,6 +29,9 @@ namespace EndlessClient.Subscribers
                                              int playerPercentHealth,
                                              int damageTaken)
         {
+            if (!_characterRendererProvider.CharacterRenderers.ContainsKey(characterID))
+                return;
+
             _characterRendererProvider.CharacterRenderers[characterID].ShowDamageCounter(damageTaken, playerPercentHealth, isHeal: false);
         }
 

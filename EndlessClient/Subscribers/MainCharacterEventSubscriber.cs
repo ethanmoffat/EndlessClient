@@ -45,6 +45,9 @@ namespace EndlessClient.Subscribers
 
         public void NotifyTakeDamage(int damageTaken, int playerPercentHealth)
         {
+            if (_characterRendererProvider.MainCharacterRenderer == null)
+                return;
+
             _characterRendererProvider.MainCharacterRenderer.ShowDamageCounter(damageTaken, playerPercentHealth, isHeal: false);
         }
 
