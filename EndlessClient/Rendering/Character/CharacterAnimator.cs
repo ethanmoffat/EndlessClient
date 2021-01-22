@@ -46,6 +46,11 @@ namespace EndlessClient.Rendering.Character
             base.Update(gameTime);
         }
 
+        public bool IsAttacking(int characterId)
+        {
+            return _otherPlayerStartAttackingTimes.ContainsKey(characterId);
+        }
+
         public void StartMainCharacterWalkAnimation()
         {
             if (_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
@@ -299,6 +304,8 @@ namespace EndlessClient.Rendering.Character
 
     public interface ICharacterAnimator : IGameComponent
     {
+        bool IsAttacking(int characterId);
+
         void StartMainCharacterWalkAnimation();
 
         void StartMainCharacterAttackAnimation();

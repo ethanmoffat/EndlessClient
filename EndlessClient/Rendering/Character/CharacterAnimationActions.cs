@@ -63,6 +63,14 @@ namespace EndlessClient.Rendering.Character
                                        _characterRendererProvider.MainCharacterRenderer);
         }
 
+        public bool IsAttacking(int characterId)
+        {
+            if (!_hudControlProvider.IsInGame)
+                return false;
+
+            return Animator.IsAttacking(characterId);
+        }
+
         public void StartAttacking()
         {
             if (!_hudControlProvider.IsInGame)
@@ -195,6 +203,8 @@ namespace EndlessClient.Rendering.Character
         void Face(EODirection direction);
 
         void StartWalking();
+
+        bool IsAttacking(int characterId);
 
         void StartAttacking();
     }
