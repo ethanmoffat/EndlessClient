@@ -19,13 +19,17 @@ namespace EndlessClient.Rendering.NPC
 {
     public class NPCRenderer : DrawableGameComponent, INPCRenderer
     {
+        // todo: load this from a config or find a better way
+        // list: Reaper, Royal Guard, Elite Captain, Horse, Unicorn, Anundo Leader, Apozen
+        private static readonly int[] _npcsThatAreNotCentered = new[] { 9, 57, 58, 66, 67, 120, 142 };
+
         private readonly ICharacterRendererProvider _characterRendererProvider;
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly Rectangle _baseTextureFrameRectangle;
-        private readonly int _readonlyTopPixel;
+        private readonly int _readonlyTopPixel, _readonlyBottomPixel;
         private readonly bool _hasStandingAnimation;
         private readonly IEffectRenderer _effectRenderer;
         private readonly IHealthBarRenderer _healthBarRenderer;
@@ -40,7 +44,11 @@ namespace EndlessClient.Rendering.NPC
 
         public int TopPixel => _readonlyTopPixel;
 
+        public int BottomPixel => _readonlyBottomPixel;
+
         public int TopPixelWithOffset => _readonlyTopPixel + DrawArea.Y;
+
+        public int BottomPixelWithOffset => _readonlyBottomPixel + DrawArea.Y;
 
         public Rectangle DrawArea { get; private set; }
 
@@ -71,6 +79,7 @@ namespace EndlessClient.Rendering.NPC
             _healthBarRendererFactory = healthBarRendererFactory;
             _baseTextureFrameRectangle = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
+            _readonlyBottomPixel = GetBottomPixel();
 
             _hasStandingAnimation = GetHasStandingAnimation();
             _lastStandingAnimation = DateTime.Now;
@@ -199,6 +208,23 @@ namespace EndlessClient.Rendering.NPC
             return firstVisiblePixelIndex/frameTexture.Height;
         }
 
+        private int GetBottomPixel()
+        {
+            var data = _enfFileProvider.ENFFile[NPC.ID];
+            var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPCFrame.Standing, EODirection.Down);
+            var frameTextureData = new Color[frameTexture.Width * frameTexture.Height];
+            frameTexture.GetData(frameTextureData);
+
+            if (frameTextureData.All(x => x.A == 0))
+                return frameTexture.Height;
+
+            var lastVisiblePixelIndex = frameTextureData.Select((color, index) => new { color, index })
+                                                            .Where(x => x.color.A != 0)
+                                                            .Select(x => x.index)
+                                                            .Last();
+            return lastVisiblePixelIndex / frameTexture.Height;
+        }
+
         private bool GetHasStandingAnimation()
         {
             var data = _enfFileProvider.ENFFile[NPC.ID];
@@ -219,11 +245,9 @@ namespace EndlessClient.Rendering.NPC
             var mainOffsetX = _renderOffsetCalculator.CalculateOffsetX(mainRenderer.Character.RenderProperties);
             var mainOffsetY = _renderOffsetCalculator.CalculateOffsetY(mainRenderer.Character.RenderProperties);
 
-            // Apozen is a wider sprite that needs to be divided by 3 (normal sprites are centered properly)
-            // If Apozen is facing Down or Left it needs to be offset by 2/3 the sprite width instead of 1/3 the sprite width
-            // I'm guessing the presence of the RGB (8,8,8) pixels in StandingFrame1 is used as a mask to determine
-            //    the proper width for the offset but this garbage is fine for now
-            var widthFactor = _baseTextureFrameRectangle.Width > 120
+            // Some NPCs have an off-center sprite that needs to be divided by 3 (normal sprites are centered properly)
+            // If e.g. Apozen is facing Down or Left it needs to be offset by 2/3 the sprite width instead of 1/3 the sprite width
+            var widthFactor = _npcsThatAreNotCentered.Contains(NPC.ID)
                 ? NPC.IsFacing(EODirection.Down, EODirection.Left)
                     ? (_baseTextureFrameRectangle.Width * 2) / 3
                     : _baseTextureFrameRectangle.Width / 3
@@ -237,8 +261,8 @@ namespace EndlessClient.Rendering.NPC
             var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,
                                           mainRenderer.DrawArea.Height);
             MapProjectedDrawArea = new Rectangle(
-                DrawArea.X + (int)(Math.Abs(oneGridSize.X - DrawArea.Width) / 2),
-                DrawArea.Bottom - (int)oneGridSize.Y,
+                xCoord + widthFactor - 8,
+                BottomPixelWithOffset - (int)oneGridSize.Y,
                 (int)oneGridSize.X,
                 (int)oneGridSize.Y);
         }
@@ -267,8 +291,8 @@ namespace EndlessClient.Rendering.NPC
 
         private Vector2 GetNameLabelPosition()
         {
-            return new Vector2(DrawArea.X + (DrawArea.Width - _nameLabel.ActualWidth) / 2,
-                               DrawArea.Y + TopPixel - _nameLabel.ActualHeight - 4);
+            return new Vector2(MapProjectedDrawArea.X + (MapProjectedDrawArea.Width - _nameLabel.ActualWidth) / 2f,
+                               TopPixelWithOffset - _nameLabel.ActualHeight - 4);
 
         }
 
