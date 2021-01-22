@@ -15,6 +15,7 @@ namespace EOLib.PacketHandlers
     public class PlayerAvatarChangeHandler : InGameOnlyPacketHandler
     {
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
+        private readonly ICharacterRepository _characterRepository;
         private readonly IEIFFileProvider _eifFileProvider;
 
         public override PacketFamily Family => PacketFamily.Avatar;
@@ -23,10 +24,12 @@ namespace EOLib.PacketHandlers
 
         public PlayerAvatarChangeHandler(IPlayerInfoProvider playerInfoProvider,
                                          ICurrentMapStateRepository currentMapStateRepository,
+                                         ICharacterRepository characterRepository,
                                          IEIFFileProvider eifFileProvider)
             : base(playerInfoProvider)
         {
             _currentMapStateRepository = currentMapStateRepository;
+            _characterRepository = characterRepository;
             _eifFileProvider = eifFileProvider;
         }
 
@@ -34,11 +37,19 @@ namespace EOLib.PacketHandlers
         {
             var playerID = packet.ReadShort();
             ICharacter currentCharacter;
-            try
+
+            if (_characterRepository.MainCharacter.ID == playerID)
             {
-                currentCharacter = _currentMapStateRepository.Characters.Single(x => x.ID == playerID);
+                currentCharacter = _characterRepository.MainCharacter;
             }
-            catch (InvalidOperationException) { return false; }
+            else
+            {
+                try
+                {
+                    currentCharacter = _currentMapStateRepository.Characters.Single(x => x.ID == playerID);
+                }
+                catch (InvalidOperationException) { return false; }
+            }
 
             var currentRenderProps = currentCharacter.RenderProperties;
 
@@ -85,8 +96,16 @@ namespace EOLib.PacketHandlers
             }
 
             var updatedCharacter = currentCharacter.WithRenderProperties(currentRenderProps);
-            _currentMapStateRepository.Characters.Remove(currentCharacter);
-            _currentMapStateRepository.Characters.Add(updatedCharacter);
+
+            if (_characterRepository.MainCharacter.ID == playerID)
+            {
+                _characterRepository.MainCharacter = updatedCharacter;
+            }
+            else
+            {
+                _currentMapStateRepository.Characters.Remove(currentCharacter);
+                _currentMapStateRepository.Characters.Add(updatedCharacter);
+            }
 
             return true;
         }
