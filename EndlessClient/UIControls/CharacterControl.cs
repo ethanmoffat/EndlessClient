@@ -34,6 +34,11 @@ namespace EndlessClient.UIControls
             base.Initialize();
         }
 
+        protected override bool ShouldUpdate()
+        {
+            return Visible;
+        }
+
         protected override void OnUpdateControl(GameTime gameTime)
         {
             _characterRenderer.Update(gameTime);
