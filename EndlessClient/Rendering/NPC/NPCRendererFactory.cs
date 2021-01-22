@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
+using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.NPC;
 using EOLib.Graphics;
@@ -17,13 +18,15 @@ namespace EndlessClient.Rendering.NPC
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IHealthBarRendererFactory _healthBarRendererFactory;
 
         public NPCRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRendererProvider characterRendererProvider,
                                   IENFFileProvider enfFileProvider,
                                   INPCSpriteSheet npcSpriteSheet,
-                                  IRenderOffsetCalculator renderOffsetCalculator)
+                                  IRenderOffsetCalculator renderOffsetCalculator,
+                                  IHealthBarRendererFactory healthBarRendererFactory)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _endlessGameProvider = endlessGameProvider;
@@ -31,6 +34,7 @@ namespace EndlessClient.Rendering.NPC
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
             _renderOffsetCalculator = renderOffsetCalculator;
+            _healthBarRendererFactory = healthBarRendererFactory;
         }
 
         public INPCRenderer CreateRendererFor(INPC npc)
@@ -41,6 +45,7 @@ namespace EndlessClient.Rendering.NPC
                                    _enfFileProvider,
                                    _npcSpriteSheet,
                                    _renderOffsetCalculator,
+                                   _healthBarRendererFactory,
                                    npc);
         }
     }

@@ -61,8 +61,6 @@ namespace EndlessClient.Rendering.NPC
 
             _npcStateCache.RemoveStateByIndex(npcIndex);
 
-            // todo: show damage counter
-
             if (!showDeathAnimation)
             {
                 _npcRendererRepository.NPCRenderers[npcIndex].Dispose();
@@ -77,6 +75,11 @@ namespace EndlessClient.Rendering.NPC
                     var graphic = _esfFileProvider.ESFFile[spellId.Value].Graphic;
                     _npcRendererRepository.NPCRenderers[npcIndex].ShowSpellAnimation(graphic);
                     ShoutSpellCast(playerId);
+                }
+
+                if (damage.HasValue)
+                {
+                    _npcRendererRepository.NPCRenderers[npcIndex].ShowDamageCounter(damage.Value, 0, isHeal: false);
                 }
             }
         }
@@ -98,7 +101,7 @@ namespace EndlessClient.Rendering.NPC
 
         public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, Optional<int> spellId)
         {
-            // todo: show damage counter
+            _npcRendererRepository.NPCRenderers[npcIndex].ShowDamageCounter(damageToNpc, npcPctHealth, isHeal: false);
 
             if (spellId.HasValue)
             {

@@ -19,6 +19,7 @@ namespace EndlessClient.Rendering.Character
     public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
     {
         private readonly IRenderTargetFactory _renderTargetFactory;
+        private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly ICharacterProvider _characterProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
@@ -40,6 +41,8 @@ namespace EndlessClient.Rendering.Character
         private string _shoutName = string.Empty;
         private DateTime? _spellCastTime;
 
+        private IHealthBarRenderer _healthBarRenderer;
+
         public ICharacter Character
         {
             get { return _character; }
@@ -55,7 +58,12 @@ namespace EndlessClient.Rendering.Character
 
         public Rectangle DrawArea { get; private set; }
 
-        public int? TopPixel { get; private set; }
+        public Rectangle MapProjectedDrawArea => DrawArea;
+
+        private int? _topPixel;
+        public int TopPixel => _topPixel.HasValue ? _topPixel.Value : 0;
+
+        public int TopPixelWithOffset => TopPixel + DrawArea.Y;
 
         public Rectangle EffectTargetArea
             => DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y - 8));
@@ -63,6 +71,7 @@ namespace EndlessClient.Rendering.Character
         public CharacterRenderer(INativeGraphicsManager nativeGraphicsmanager,
                                  Game game,
                                  IRenderTargetFactory renderTargetFactory,
+                                 IHealthBarRendererFactory healthBarRendererFactory,
                                  ICharacterProvider characterProvider,
                                  IRenderOffsetCalculator renderOffsetCalculator,
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
@@ -73,6 +82,7 @@ namespace EndlessClient.Rendering.Character
             : base(game)
         {
             _renderTargetFactory = renderTargetFactory;
+            _healthBarRendererFactory = healthBarRendererFactory;
             _characterProvider = characterProvider;
             _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
@@ -105,6 +115,8 @@ namespace EndlessClient.Rendering.Character
             _nameLabel.DrawPosition = GetNameLabelPosition();
             _previousMouseState = _currentMouseState = Mouse.GetState();
 
+            _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
+
             base.Initialize();
         }
 
@@ -123,7 +135,7 @@ namespace EndlessClient.Rendering.Character
 
         public override void Update(GameTime gameTime)
         {
-            TopPixel = TopPixel ?? FigureOutTopPixel(_characterSpriteCalculator, _character.RenderProperties);
+            _topPixel = _topPixel ?? FigureOutTopPixel(_characterSpriteCalculator, _character.RenderProperties);
 
             // Effects can be rendered when character is not visible (leaving map)
             _effectRenderer.Update();
@@ -146,6 +158,8 @@ namespace EndlessClient.Rendering.Character
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
                 UpdateNameLabel(gameTime);
+
+            _healthBarRenderer.Update(gameTime);
 
             _previousMouseState = _currentMouseState;
 
@@ -197,6 +211,8 @@ namespace EndlessClient.Rendering.Character
             if (Visible)
                 spriteBatch.Draw(_charRenderTarget, Vector2.Zero, GetAlphaColor());
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
+
+            _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
 
             if (Visible)
             {
@@ -292,7 +308,11 @@ namespace EndlessClient.Rendering.Character
 
         private void UpdateNameLabel(GameTime gameTime)
         {
-            if (DrawArea.Contains(_currentMouseState.Position))
+            if (_healthBarRenderer.Visible)
+            {
+                _nameLabel.Visible = false;
+            }
+            else if (DrawArea.Contains(_currentMouseState.Position))
             {
                 _nameLabel.Visible = true;
                 _nameLabel.BlinkRate = null;
@@ -387,6 +407,14 @@ namespace EndlessClient.Rendering.Character
         public void StopShoutingSpell()
         {
             _shoutName = string.Empty;
+        }
+
+        public void ShowDamageCounter(int damage, int percentHealth, bool isHeal)
+        {
+            if (isHeal)
+                _healthBarRenderer.SetHealth(damage, percentHealth);
+            else
+                _healthBarRenderer.SetDamage(damage == 0 ? Optional<int>.Empty : new Optional<int>(damage), percentHealth);
         }
 
         protected override void Dispose(bool disposing)

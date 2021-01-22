@@ -15,6 +15,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IEndlessGameProvider _gameProvider;
         private readonly IRenderTargetFactory _renderTargetFactory;
+        private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly ICharacterProvider _characterProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
@@ -25,6 +26,7 @@ namespace EndlessClient.Rendering.Factories
         public CharacterRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                         IEndlessGameProvider gameProvider,
                                         IRenderTargetFactory renderTargetFactory,
+                                        IHealthBarRendererFactory healthBarRendererFactory,
                                         ICharacterProvider characterProvider,
                                         IRenderOffsetCalculator renderOffsetCalculator,
                                         ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
@@ -35,6 +37,7 @@ namespace EndlessClient.Rendering.Factories
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameProvider = gameProvider;
             _renderTargetFactory = renderTargetFactory;
+            _healthBarRendererFactory = healthBarRendererFactory;
             _characterProvider = characterProvider;
             _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
@@ -49,6 +52,7 @@ namespace EndlessClient.Rendering.Factories
                 _nativeGraphicsManager,
                 (Game) _gameProvider.Game,
                 _renderTargetFactory,
+                _healthBarRendererFactory,
                 _characterProvider,
                 _renderOffsetCalculator,
                 _characterPropertyRendererBuilder,

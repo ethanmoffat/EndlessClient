@@ -9,7 +9,7 @@ namespace EndlessClient.Rendering.Chat
     //todo: clear message when IHaveChatBubble dies
     public class ChatBubble : IChatBubble
     {
-        private readonly IHaveChatBubble _referenceRenderer;
+        private readonly IMapActor _parent;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
 
         private readonly XNALabel _textLabel;
@@ -21,17 +21,17 @@ namespace EndlessClient.Rendering.Chat
         public bool ShowBubble { get; private set; } = true;
 
         public ChatBubble(string message,
-                          IHaveChatBubble referenceRenderer,
+                          IMapActor parent,
                           IChatBubbleTextureProvider chatBubbleTextureProvider)
-            : this(message, false, referenceRenderer, chatBubbleTextureProvider) { }
+            : this(message, false, parent, chatBubbleTextureProvider) { }
 
         public ChatBubble(string message,
                           bool isGroupChat,
-                          IHaveChatBubble referenceRenderer,
+                          IMapActor referenceRenderer,
                           IChatBubbleTextureProvider chatBubbleTextureProvider)
         {
             _isGroupChat = isGroupChat;
-            _referenceRenderer = referenceRenderer;
+            _parent = referenceRenderer;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
 
             _textLabel = new XNALabel(Constants.FontSize08pt5)
@@ -144,8 +144,8 @@ namespace EndlessClient.Rendering.Chat
         {
             var extra = _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.MiddleLeft].Width;
             _textLabel.DrawPosition = new Vector2(
-                _referenceRenderer.DrawArea.X + _referenceRenderer.DrawArea.Width / 2.0f - _textLabel.ActualWidth / 2.0f + extra,
-                _referenceRenderer.DrawArea.Y - _textLabel.ActualHeight - 5);
+                _parent.DrawArea.X + _parent.DrawArea.Width / 2.0f - _textLabel.ActualWidth / 2.0f + extra,
+                _parent.DrawArea.Y - _textLabel.ActualHeight - 5);
         }
 
         ~ChatBubble()

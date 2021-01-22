@@ -29,7 +29,7 @@ namespace EndlessClient.Subscribers
                                              int playerPercentHealth,
                                              int damageTaken)
         {
-            //todo: show health bar
+            _characterRendererProvider.CharacterRenderers[characterID].ShowDamageCounter(damageTaken, playerPercentHealth, isHeal: false);
         }
 
         public void OtherCharacterSaySomething(int characterID, string message)

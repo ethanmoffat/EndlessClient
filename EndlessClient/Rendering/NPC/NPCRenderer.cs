@@ -3,6 +3,7 @@ using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Effects;
+using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
 using EOLib;
 using EOLib.Domain.Extensions;
@@ -22,10 +23,12 @@ namespace EndlessClient.Rendering.NPC
         private readonly IENFFileProvider _enfFileProvider;
         private readonly INPCSpriteSheet _npcSpriteSheet;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly Rectangle _baseTextureFrameRectangle;
         private readonly int _readonlyTopPixel;
         private readonly bool _hasStandingAnimation;
         private readonly IEffectRenderer _effectRenderer;
+        private readonly IHealthBarRenderer _healthBarRenderer;
 
         private DateTime _lastStandingAnimation;
         private int _fadeAwayAlpha;
@@ -36,6 +39,8 @@ namespace EndlessClient.Rendering.NPC
         private XNALabel _nameLabel;
 
         public int TopPixel => _readonlyTopPixel;
+
+        public int TopPixelWithOffset => _readonlyTopPixel + DrawArea.Y;
 
         public Rectangle DrawArea { get; private set; }
 
@@ -53,6 +58,7 @@ namespace EndlessClient.Rendering.NPC
                            IENFFileProvider enfFileProvider,
                            INPCSpriteSheet npcSpriteSheet,
                            IRenderOffsetCalculator renderOffsetCalculator,
+                           IHealthBarRendererFactory healthBarRendererFactory,
                            INPC initialNPC)
             : base((Game)endlessGameProvider.Game)
         {
@@ -62,7 +68,7 @@ namespace EndlessClient.Rendering.NPC
             _enfFileProvider = enfFileProvider;
             _npcSpriteSheet = npcSpriteSheet;
             _renderOffsetCalculator = renderOffsetCalculator;
-
+            _healthBarRendererFactory = healthBarRendererFactory;
             _baseTextureFrameRectangle = GetStandingFrameRectangle();
             _readonlyTopPixel = GetTopPixel();
 
@@ -71,6 +77,7 @@ namespace EndlessClient.Rendering.NPC
             _fadeAwayAlpha = 255;
 
             _effectRenderer = new EffectRenderer(nativeGraphicsManager, this);
+            _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
         }
 
         public override void Initialize()
@@ -104,11 +111,12 @@ namespace EndlessClient.Rendering.NPC
             UpdateStandingFrameAnimation();
             UpdateDeadState();
 
-            _nameLabel.Visible = DrawArea.Contains(_currentMouseState.Position);
+            _nameLabel.Visible = DrawArea.Contains(_currentMouseState.Position) && !_healthBarRenderer.Visible;
             _nameLabel.DrawPosition = GetNameLabelPosition();
             _nameLabel.Update(gameTime);
 
             _effectRenderer.Update();
+            _healthBarRenderer.Update(gameTime);
 
             _previousMouseState = _currentMouseState;
 
@@ -129,12 +137,20 @@ namespace EndlessClient.Rendering.NPC
                              DrawArea, null, color, 0f, Vector2.Zero, effects, 1f);
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
+            _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
+
             _nameLabel.Draw(new GameTime());
         }
 
         public void StartDying()
         {
             _isDying = true;
+        }
+
+        public void ShowDamageCounter(int damage, int percentHealth, bool isHeal)
+        {
+            var optionalDamage = damage == 0 ? Optional<int>.Empty : new Optional<int>(damage);
+            _healthBarRenderer.SetDamage(optionalDamage, percentHealth);
         }
 
         #region Effects

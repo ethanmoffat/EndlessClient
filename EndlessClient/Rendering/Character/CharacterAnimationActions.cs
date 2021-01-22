@@ -129,27 +129,25 @@ namespace EndlessClient.Rendering.Character
 
         public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth)
         {
-            // todo : show damage counter
-
             var spellGraphic = _esfFileProvider.ESFFile[spellId].Graphic;
 
             if (playerId == _characterRepository.MainCharacter.ID)
             {
                 _characterRendererProvider.MainCharacterRenderer.ShoutSpellCast();
                 _characterRendererProvider.MainCharacterRenderer.ShowSpellAnimation(spellGraphic);
+                _characterRendererProvider.MainCharacterRenderer.ShowDamageCounter(spellHp, percentHealth, isHeal: true);
             }
             else
             {
                 Animator.StartOtherCharacterSpellCast(playerId);
                 _characterRendererProvider.CharacterRenderers[playerId].ShoutSpellCast();
                 _characterRendererProvider.CharacterRenderers[playerId].ShowSpellAnimation(spellGraphic);
+                _characterRendererProvider.CharacterRenderers[playerId].ShowDamageCounter(spellHp, percentHealth, isHeal: true);
             }
         }
 
         public void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth)
         {
-            // todo : show damage counter
-
             var spellGraphic = _esfFileProvider.ESFFile[spellId].Graphic;
 
             if (sourcePlayerID == _characterRepository.MainCharacter.ID)
@@ -163,9 +161,15 @@ namespace EndlessClient.Rendering.Character
             }
 
             if (targetPlayerID == _characterRepository.MainCharacter.ID)
+            {
                 _characterRendererProvider.MainCharacterRenderer.ShowSpellAnimation(spellGraphic);
+                _characterRendererProvider.MainCharacterRenderer.ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: true);
+            }
             else
+            {
                 _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowSpellAnimation(spellGraphic);
+                _characterRendererProvider.CharacterRenderers[targetPlayerID].ShowDamageCounter(recoveredHP, targetPercentHealth, isHeal: true);
+            }
         }
 
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, ICharacter character, ICharacterRenderer characterRenderer)
