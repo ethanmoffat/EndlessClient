@@ -42,25 +42,33 @@ namespace EndlessClient.Controllers
         private bool CanAttackAgain()
         {
             return _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing) ||
-                   _characterProvider.MainCharacter.RenderProperties.AttackFrame == CharacterRenderProperties.MAX_NUMBER_OF_ATTACK_FRAMES;
+                   _characterProvider.MainCharacter.RenderProperties.AttackFrame == CharacterRenderProperties.MAX_NUMBER_OF_ATTACK_FRAMES ||
+                   _characterProvider.MainCharacter.RenderProperties.IsRangedWeapon && _characterProvider.MainCharacter.RenderProperties.AttackFrame == CharacterRenderProperties.MAX_NUMBER_OF_RANGED_ATTACK_FRAMES;
         }
 
         private void AttemptAttack()
         {
+            var showAnimationAnyway = false;
             var validationResult = _attackValidationActions.ValidateCharacterStateBeforeAttacking();
             if (validationResult != AttackValidationError.OK)
             {
                 if (validationResult == AttackValidationError.Overweight)
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
                                                       EOResourceID.STATUS_LABEL_CANNOT_ATTACK_OVERWEIGHT);
-                else if(validationResult == AttackValidationError.Exhausted)
+                else if (validationResult == AttackValidationError.Exhausted)
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING,
                                                       EOResourceID.ATTACK_YOU_ARE_EXHAUSTED_SP);
-                else if(validationResult == AttackValidationError.NotYourBattle)
+                else if (validationResult == AttackValidationError.NotYourBattle)
+                {
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION,
                                                       EOResourceID.STATUS_LABEL_UNABLE_TO_ATTACK);
+                    showAnimationAnyway = true;
+                }
             }
             else
+                showAnimationAnyway = true;
+
+            if (showAnimationAnyway)
             {
                 //todo: lower SP for character when attacking
                 _characterActions.Attack();
