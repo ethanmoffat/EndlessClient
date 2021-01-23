@@ -49,7 +49,7 @@ namespace EndlessClient.Controllers
             else if (cellState.Sign.HasValue) { /* TODO: sign interaction */ }
             else if (cellState.Chest.HasValue) { /* TODO: chest interaction */ }
             else if (cellState.Character.HasValue) { /* TODO: character spell cast */ }
-            else
+            else if (cellState.InBounds)
             {
                 mouseRenderer.AnimateClick();
                 _hudControlProvider.GetComponent<IClickWalkPathHandler>(HudControlIdentifier.ClickWalkPathHandler)
