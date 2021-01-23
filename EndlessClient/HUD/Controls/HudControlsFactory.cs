@@ -40,7 +40,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-        private readonly IKeyStateRepository _keyStateRepository;
+        private readonly IUserInputRepository _userInputRepository;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
         private readonly IContentManagerProvider _contentManagerProvider;
@@ -62,7 +62,7 @@ namespace EndlessClient.HUD.Controls
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository,
                                   ICurrentMapStateRepository currentMapStateRepository,
-                                  IKeyStateRepository keyStateRepository,
+                                  IUserInputRepository userInputRepository,
                                   IStatusLabelSetter statusLabelSetter,
                                   IStatusLabelTextProvider statusLabelTextProvider,
                                   IContentManagerProvider contentManagerProvider,
@@ -82,7 +82,7 @@ namespace EndlessClient.HUD.Controls
             _endlessGameProvider = endlessGameProvider;
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
-            _keyStateRepository = keyStateRepository;
+            _userInputRepository = userInputRepository;
             _statusLabelSetter = statusLabelSetter;
             _statusLabelTextProvider = statusLabelTextProvider;
             _contentManagerProvider = contentManagerProvider;
@@ -102,7 +102,7 @@ namespace EndlessClient.HUD.Controls
         {
             var controls = new Dictionary<HudControlIdentifier, IGameComponent>
             {
-                {HudControlIdentifier.CurrentKeyStateTracker, CreateCurrentKeyStateTracker()},
+                {HudControlIdentifier.CurrentUserInputTracker, CreateCurrentUserInputTracker()},
 
                 {HudControlIdentifier.MapRenderer, _mapRendererFactory.CreateMapRenderer()},
 
@@ -147,7 +147,7 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.CharacterAnimator, CreateCharacterAnimator()},
                 {HudControlIdentifier.NPCAnimator, CreateNPCAnimator()},
                 {HudControlIdentifier.ClickWalkPathHandler, CreateClickWalkPathHandler()},
-                {HudControlIdentifier.PreviousKeyStateTracker, CreatePreviousKeyStateTracker()}
+                {HudControlIdentifier.PreviousUserInputTracker, CreatePreviousUserInputTracker()}
             };
 
             return controls;
@@ -248,7 +248,7 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateHPStatusBar()
         {
-            return new HPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository)
+            return new HPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository)
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
@@ -256,7 +256,7 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateTPStatusBar()
         {
-            return new TPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository)
+            return new TPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository)
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
@@ -264,7 +264,7 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateSPStatusBar()
         {
-            return new SPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository)
+            return new SPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository)
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
@@ -272,7 +272,7 @@ namespace EndlessClient.HUD.Controls
 
         private IGameComponent CreateTNLStatusBar()
         {
-            return new TNLStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _experienceTableProvider)
+            return new TNLStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository, _experienceTableProvider)
             {
                 DrawOrder = HUD_CONTROL_LAYER
             };
@@ -321,9 +321,9 @@ namespace EndlessClient.HUD.Controls
             return new StatusBarLabel(_clientWindowSizeProvider, _statusLabelTextProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
-        private CurrentKeyStateTracker CreateCurrentKeyStateTracker()
+        private CurrentUserInputTracker CreateCurrentUserInputTracker()
         {
-            return new CurrentKeyStateTracker(_endlessGameProvider, _keyStateRepository);
+            return new CurrentUserInputTracker(_endlessGameProvider, _userInputRepository);
         }
 
         private IUserInputHandler CreateUserInputHandler()
@@ -346,9 +346,9 @@ namespace EndlessClient.HUD.Controls
             return new ClickWalkPathHandler(_endlessGameProvider, _arrowKeyController, (ICharacterProvider)_characterRepository, _pathFinder);
         }
 
-        private PreviousKeyStateTracker CreatePreviousKeyStateTracker()
+        private PreviousUserInputTracker CreatePreviousUserInputTracker()
         {
-            return new PreviousKeyStateTracker(_endlessGameProvider, _keyStateRepository);
+            return new PreviousUserInputTracker(_endlessGameProvider, _userInputRepository);
         }
     }
 }

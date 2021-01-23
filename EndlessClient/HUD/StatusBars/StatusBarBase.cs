@@ -1,4 +1,5 @@
 ﻿using System;
+using EndlessClient.Input;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
@@ -12,7 +13,7 @@ namespace EndlessClient.HUD.StatusBars
     public abstract class StatusBarBase : XNAControl
     {
         private readonly ICharacterProvider _characterProvider;
-
+        private readonly IUserInputRepository _userInputRepository;
         protected readonly XNALabel _label;
         protected readonly Texture2D _texture;
 
@@ -22,16 +23,18 @@ namespace EndlessClient.HUD.StatusBars
         private Optional<DateTime> _labelShowTime;
 
         protected StatusBarBase(INativeGraphicsManager nativeGraphicsManager,
-                                ICharacterProvider characterProvider)
+                                ICharacterProvider characterProvider,
+                                IUserInputRepository userInputRepository)
         {
             _characterProvider = characterProvider;
+            _userInputRepository = userInputRepository;
             _texture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 58, true);
 
             _label = new XNALabel(Constants.FontSize08)
             {
                 AutoSize = false,
                 BackColor = Color.Transparent,
-                DrawPosition = new Vector2(3, 15),
+                DrawPosition = new Vector2(6, 15),
                 ForeColor = ColorConstants.LightGrayText,
                 Visible = false
             };
@@ -52,9 +55,18 @@ namespace EndlessClient.HUD.StatusBars
         protected override void OnUpdateControl(GameTime gameTime)
         {
             if (MouseOver &&
+                CurrentMouseState.LeftButton == ButtonState.Pressed &&
+                PreviousMouseState.LeftButton == ButtonState.Released)
+            {
+            }
+
+            if (MouseOver &&
                 CurrentMouseState.LeftButton == ButtonState.Released &&
                 PreviousMouseState.LeftButton == ButtonState.Pressed)
             {
+                // eat this mouse click so that other game elements don't attempt to use it
+                _userInputRepository.PreviousMouseState = _userInputRepository.CurrentMouseState;
+
                 _label.Visible = !_label.Visible;
                 _labelShowTime = _label.Visible
                     ? new Optional<DateTime>(DateTime.Now)

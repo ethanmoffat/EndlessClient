@@ -13,7 +13,7 @@ namespace EndlessClient.Input
         private readonly List<IInputHandler> _handlers;
 
         public UserInputHandler(IEndlessGameProvider endlessGameProvider,
-                                IKeyStateProvider keyStateProvider,
+                                IUserInputProvider userInputProvider,
                                 IUserInputTimeRepository userInputTimeRepository,
                                 IArrowKeyController arrowKeyController,
                                 IControlKeyController controlKeyController,
@@ -25,18 +25,18 @@ namespace EndlessClient.Input
             _handlers = new List<IInputHandler>
             {
                 new ArrowKeyHandler(endlessGameProvider,
-                    keyStateProvider,
+                    userInputProvider,
                     userInputTimeRepository,
                     arrowKeyController,
                     currentMapStateProvider,
                     hudControlProvider),
                 new ControlKeyHandler(endlessGameProvider,
-                    keyStateProvider,
+                    userInputProvider,
                     userInputTimeRepository,
                     controlKeyController,
                     currentMapStateProvider),
                 new FunctionKeyHandler(endlessGameProvider,
-                    keyStateProvider,
+                    userInputProvider,
                     userInputTimeRepository,
                     functionKeyController,
                     currentMapStateProvider),

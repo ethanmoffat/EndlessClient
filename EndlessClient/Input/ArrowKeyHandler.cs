@@ -14,12 +14,12 @@ namespace EndlessClient.Input
         private readonly IHudControlProvider _hudControlProvider;
 
         public ArrowKeyHandler(IEndlessGameProvider endlessGameProvider,
-                               IKeyStateProvider keyStateProvider,
+                               IUserInputProvider userInputProvider,
                                IUserInputTimeRepository userInputTimeRepository,
                                IArrowKeyController arrowKeyController,
                                ICurrentMapStateProvider currentMapStateProvider,
                                IHudControlProvider hudControlProvider)
-            : base(endlessGameProvider, keyStateProvider, userInputTimeRepository, currentMapStateProvider)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateProvider)
         {
             _arrowKeyController = arrowKeyController;
             _hudControlProvider = hudControlProvider;

@@ -10,7 +10,7 @@ namespace EndlessClient.Input
     public class UserInputHandlerFactory : IUserInputHandlerFactory
     {
         private readonly IEndlessGameProvider _endlessGameProvider;
-        private readonly IKeyStateProvider _keyStateProvider;
+        private readonly IUserInputProvider _userInputProvider;
         private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly IArrowKeyController _arrowKeyController;
         private readonly IControlKeyController _controlKeyController;
@@ -19,7 +19,7 @@ namespace EndlessClient.Input
         private readonly IHudControlProvider _hudControlProvider;
 
         public UserInputHandlerFactory(IEndlessGameProvider endlessGameProvider,
-                                       IKeyStateProvider keyStateProvider,
+                                       IUserInputProvider userInputProvider,
                                        IUserInputTimeRepository userInputTimeRepository,
                                        IArrowKeyController arrowKeyController,
                                        IControlKeyController controlKeyController,
@@ -28,7 +28,7 @@ namespace EndlessClient.Input
                                        IHudControlProvider hudControlProvider)
         {
             _endlessGameProvider = endlessGameProvider;
-            _keyStateProvider = keyStateProvider;
+            _userInputProvider = userInputProvider;
             _userInputTimeRepository = userInputTimeRepository;
             _arrowKeyController = arrowKeyController;
             _controlKeyController = controlKeyController;
@@ -40,7 +40,7 @@ namespace EndlessClient.Input
         public IUserInputHandler CreateUserInputHandler()
         {
             return new UserInputHandler(_endlessGameProvider,
-                                        _keyStateProvider,
+                                        _userInputProvider,
                                         _userInputTimeRepository,
                                         _arrowKeyController,
                                         _controlKeyController,

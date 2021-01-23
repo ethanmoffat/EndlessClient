@@ -101,13 +101,13 @@
     <Compile Include="Input\ArrowKeyHandler.cs" />
     <Compile Include="Input\ClickWalkPathHandler.cs" />
     <Compile Include="Input\ControlKeyHandler.cs" />
-    <Compile Include="Input\CurrentKeyStateTracker.cs" />
+    <Compile Include="Input\CurrentUserInputTracker.cs" />
     <Compile Include="Input\FunctionKeyHandler.cs" />
-    <Compile Include="Input\IKeyStateRepository.cs" />
+    <Compile Include="Input\IUserInputRepository.cs" />
     <Compile Include="Input\InputHandlerBase.cs" />
     <Compile Include="Input\IUserInputTimeRepository.cs" />
     <Compile Include="Input\KeyboardStateExtensions.cs" />
-    <Compile Include="Input\PreviousKeyStateTracker.cs" />
+    <Compile Include="Input\PreviousUserInputTracker.cs" />
     <Compile Include="Input\UserInputHandler.cs" />
     <Compile Include="Input\UserInputHandlerFactory.cs" />
     <Compile Include="Input\WalkErrorHandler.cs" />

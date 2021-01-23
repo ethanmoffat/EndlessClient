@@ -11,11 +11,11 @@ namespace EndlessClient.Input
         private readonly IFunctionKeyController _functionKeyController;
 
         public FunctionKeyHandler(IEndlessGameProvider endlessGameProvider,
-                                  IKeyStateProvider keyStateProvider,
+                                  IUserInputProvider userInputProvider,
                                   IUserInputTimeRepository userInputTimeRepository,
                                   IFunctionKeyController functionKeyController,
                                   ICurrentMapStateProvider currentMapStateProvider)
-            : base(endlessGameProvider, keyStateProvider, userInputTimeRepository, currentMapStateProvider)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateProvider)
         {
             _functionKeyController = functionKeyController;
         }

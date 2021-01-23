@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using EndlessClient.Input;
 using EOLib.Domain.Character;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
@@ -12,8 +13,9 @@ namespace EndlessClient.HUD.StatusBars
 
         public TNLStatusBar(INativeGraphicsManager nativeGraphicsManager,
                             ICharacterProvider characterProvider,
+                            IUserInputRepository userInputRepository,
                             IExperienceTableProvider experienceTableProvider)
-            : base(nativeGraphicsManager, characterProvider)
+            : base(nativeGraphicsManager, characterProvider, userInputRepository)
         {
             _experienceTableProvider = experienceTableProvider;
             DrawArea = new Rectangle(430, 0, _sourceRectangleArea.Width, _sourceRectangleArea.Height);
