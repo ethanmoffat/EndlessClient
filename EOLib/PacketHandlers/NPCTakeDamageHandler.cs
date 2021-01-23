@@ -5,6 +5,7 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -69,13 +70,16 @@ namespace EOLib.PacketHandlers
             }
 
             // todo: this has the potential to bug out if the opponent ID is never reset and the player dies/leaves
-            var npc = _currentMapStateRepository.NPCs.Single(x => x.Index == npcIndex);
-            var newNpc = npc.WithOpponentID(fromPlayerId);
-            _currentMapStateRepository.NPCs.Remove(npc);
-            _currentMapStateRepository.NPCs.Add(newNpc);
-
-            foreach (var notifier in _npcNotifiers)
-                notifier.NPCTakeDamage(npcIndex, fromPlayerId, damageToNpc, npcPctHealth, spellId);
+            try
+            {
+                var npc = _currentMapStateRepository.NPCs.Single(x => x.Index == npcIndex);
+                var newNpc = npc.WithOpponentID(fromPlayerId);
+                _currentMapStateRepository.NPCs.Remove(npc);
+                _currentMapStateRepository.NPCs.Add(newNpc);
+                foreach (var notifier in _npcNotifiers)
+                    notifier.NPCTakeDamage(npcIndex, fromPlayerId, damageToNpc, npcPctHealth, spellId);
+            }
+            catch (InvalidOperationException) { return false; }
 
             return true;
         }
