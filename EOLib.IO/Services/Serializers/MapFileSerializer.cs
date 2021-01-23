@@ -250,7 +250,7 @@ namespace EOLib.IO.Services.Serializers
             ms.Read(messageLengthRaw, 0, 2); //read two-byte length
             ms.Seek(-4, SeekOrigin.Current); //skip back to beginning
 
-            return _numberEncoderService.DecodeNumber(messageLengthRaw) - 1;
+            return _numberEncoderService.DecodeNumber(messageLengthRaw);
         }
 
         #endregion
