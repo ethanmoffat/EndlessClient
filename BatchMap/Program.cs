@@ -136,6 +136,7 @@ namespace BatchMap
         private static void SetupDependencies()
         {
             _typeRegistry = new UnityRegistry("EOLib.IO");
+            _typeRegistry.RegisterDiscoveredTypes();
 
             _pubProvider = _typeRegistry.Resolve<IPubFileProvider>();
             _mapFileProvider = _typeRegistry.Resolve<IMapFileProvider>();
