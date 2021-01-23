@@ -45,6 +45,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IStatusLabelTextProvider _statusLabelTextProvider;
         private readonly IContentManagerProvider _contentManagerProvider;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IChatModeCalculator _chatModeCalculator;
         private readonly IExperienceTableProvider _experienceTableProvider;
         private readonly IArrowKeyController _arrowKeyController;
@@ -67,6 +68,7 @@ namespace EndlessClient.HUD.Controls
                                   IStatusLabelTextProvider statusLabelTextProvider,
                                   IContentManagerProvider contentManagerProvider,
                                   IHudControlProvider hudControlProvider,
+                                  ICurrentMapProvider currentMapProvider,
                                   IChatModeCalculator chatModeCalculator,
                                   IExperienceTableProvider experienceTableProvider,
                                   IArrowKeyController arrowKeyController,
@@ -87,6 +89,7 @@ namespace EndlessClient.HUD.Controls
             _statusLabelTextProvider = statusLabelTextProvider;
             _contentManagerProvider = contentManagerProvider;
             _hudControlProvider = hudControlProvider;
+            _currentMapProvider = currentMapProvider;
             _chatModeCalculator = chatModeCalculator;
             _experienceTableProvider = experienceTableProvider;
             _arrowKeyController = arrowKeyController;
@@ -333,7 +336,7 @@ namespace EndlessClient.HUD.Controls
 
         private ICharacterAnimator CreateCharacterAnimator()
         {
-            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository);
+            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider);
         }
 
         private INPCAnimator CreateNPCAnimator()

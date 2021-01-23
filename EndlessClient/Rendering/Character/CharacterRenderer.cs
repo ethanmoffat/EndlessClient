@@ -8,7 +8,10 @@ using EndlessClient.Rendering.Sprites;
 using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
+using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -26,6 +29,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterTextures _characterTextures;
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
         private readonly IGameStateProvider _gameStateProvider;
+        private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IEffectRenderer _effectRenderer;
 
         private ICharacter _character;
@@ -78,7 +82,8 @@ namespace EndlessClient.Rendering.Character
                                  ICharacterTextures characterTextures,
                                  ICharacterSpriteCalculator characterSpriteCalculator,
                                  ICharacter character,
-                                 IGameStateProvider gameStateProvider)
+                                 IGameStateProvider gameStateProvider,
+                                 ICurrentMapProvider currentMapProvider)
             : base(game)
         {
             _renderTargetFactory = renderTargetFactory;
@@ -90,7 +95,7 @@ namespace EndlessClient.Rendering.Character
             _characterSpriteCalculator = characterSpriteCalculator;
             _character = character;
             _gameStateProvider = gameStateProvider;
-
+            _currentMapProvider = currentMapProvider;
             _effectRenderer = new EffectRenderer(nativeGraphicsmanager, this);
         }
 
@@ -209,7 +214,7 @@ namespace EndlessClient.Rendering.Character
         {
             _effectRenderer.DrawBehindTarget(spriteBatch);
             if (Visible)
-                spriteBatch.Draw(_charRenderTarget, Vector2.Zero, GetAlphaColor());
+                spriteBatch.Draw(_charRenderTarget, new Vector2(0, GetSteppingStoneOffset(Character.RenderProperties)), GetAlphaColor());
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
@@ -247,7 +252,7 @@ namespace EndlessClient.Rendering.Character
         private void DrawToRenderTarget()
         {
             GraphicsDevice.SetRenderTarget(_charRenderTarget);
-            GraphicsDevice.Clear(Color.Transparent);
+            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
             _sb.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
 
             var characterPropertyRenderers = _characterPropertyRendererBuilder
@@ -347,6 +352,33 @@ namespace EndlessClient.Rendering.Character
         {
             return new Vector2(DrawArea.X - Math.Abs(DrawArea.Width - _nameLabel.ActualWidth) / 2,
                                DrawArea.Y - 4 - _nameLabel.ActualHeight);
+        }
+
+        private bool GetIsSteppingStone(ICharacterRenderProperties renderProps)
+        {
+            if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame)
+                return false;
+
+            return _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump ||
+                (renderProps.IsActing(CharacterActionState.Walking) && _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump);
+        }
+
+        private int GetSteppingStoneOffset(ICharacterRenderProperties renderProps)
+        {
+            var isSteppingStone = GetIsSteppingStone(renderProps);
+
+            if (isSteppingStone && renderProps.IsActing(CharacterActionState.Walking))
+            {
+                switch(renderProps.ActualWalkFrame)
+                {
+                    case 1: return -8;
+                    case 2: return -16;
+                    case 3: return -16;
+                    case 4: return -8;
+                }
+            }
+
+            return 0;
         }
 
         #endregion

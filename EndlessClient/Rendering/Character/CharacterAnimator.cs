@@ -6,6 +6,7 @@ using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
+using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Character
@@ -17,19 +18,20 @@ namespace EndlessClient.Rendering.Character
 
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
-
+        private readonly ICurrentMapProvider _currentMapProvider;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartWalkingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartAttackingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartSpellCastTimes;
 
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
-                                 ICurrentMapStateRepository currentMapStateRepository)
+                                 ICurrentMapStateRepository currentMapStateRepository,
+                                 ICurrentMapProvider currentMapProvider)
             : base((Game) gameProvider.Game)
         {
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
-
+            _currentMapProvider = currentMapProvider;
             _otherPlayerStartWalkingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartAttackingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartSpellCastTimes = new Dictionary<int, RenderFrameActionTime>();
@@ -171,10 +173,12 @@ namespace EndlessClient.Rendering.Character
                 _otherPlayerStartWalkingTimes.Remove(key);
         }
 
-        private static ICharacterRenderProperties AnimateOneWalkFrame(ICharacterRenderProperties renderProperties)
+        private ICharacterRenderProperties AnimateOneWalkFrame(ICharacterRenderProperties renderProperties)
         {
-            var nextFrameRenderProperties = renderProperties.WithNextWalkFrame();
+            var isSteppingStone = _currentMapProvider.CurrentMap.Tiles[renderProperties.MapY, renderProperties.MapX] == TileSpec.Jump ||
+                _currentMapProvider.CurrentMap.Tiles[renderProperties.GetDestinationY(), renderProperties.GetDestinationX()] == TileSpec.Jump;
 
+            var nextFrameRenderProperties = renderProperties.WithNextWalkFrame(isSteppingStone);
             if (nextFrameRenderProperties.CurrentAction != CharacterActionState.Walking)
             {
                 nextFrameRenderProperties = nextFrameRenderProperties

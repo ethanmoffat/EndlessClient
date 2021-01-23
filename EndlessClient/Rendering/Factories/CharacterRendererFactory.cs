@@ -4,6 +4,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.CharacterProperties;
 using EndlessClient.Rendering.Sprites;
 using EOLib.Domain.Character;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
 using Microsoft.Xna.Framework;
 
@@ -22,6 +23,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly ICharacterTextures _characterTextures;
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
         private readonly IGameStateProvider _gameStateProvider;
+        private readonly ICurrentMapProvider _currentMapProvider;
 
         public CharacterRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                         IEndlessGameProvider gameProvider,
@@ -32,7 +34,8 @@ namespace EndlessClient.Rendering.Factories
                                         ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                         ICharacterTextures characterTextures,
                                         ICharacterSpriteCalculator characterSpriteCalculator,
-                                        IGameStateProvider gameStateProvider)
+                                        IGameStateProvider gameStateProvider,
+                                        ICurrentMapProvider currentMapProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _gameProvider = gameProvider;
@@ -44,6 +47,7 @@ namespace EndlessClient.Rendering.Factories
             _characterTextures = characterTextures;
             _characterSpriteCalculator = characterSpriteCalculator;
             _gameStateProvider = gameStateProvider;
+            _currentMapProvider = currentMapProvider;
         }
 
         public ICharacterRenderer CreateCharacterRenderer(ICharacter character)
@@ -59,7 +63,8 @@ namespace EndlessClient.Rendering.Factories
                 _characterTextures,
                 _characterSpriteCalculator,
                 character,
-                _gameStateProvider);
+                _gameStateProvider,
+                _currentMapProvider);
         }
     }
 }
