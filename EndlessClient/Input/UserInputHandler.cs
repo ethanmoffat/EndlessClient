@@ -5,10 +5,11 @@ using EndlessClient.ControlSets;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
+using XNAControls;
 
 namespace EndlessClient.Input
 {
-    public class UserInputHandler : GameComponent, IUserInputHandler
+    public class UserInputHandler : XNAControl, IUserInputHandler
     {
         private readonly List<IInputHandler> _handlers;
 
@@ -20,7 +21,6 @@ namespace EndlessClient.Input
                                 IFunctionKeyController functionKeyController,
                                 ICurrentMapStateProvider currentMapStateProvider,
                                 IHudControlProvider hudControlProvider)
-            : base((Game)endlessGameProvider.Game)
         {
             _handlers = new List<IInputHandler>
             {
@@ -43,14 +43,14 @@ namespace EndlessClient.Input
             };
         }
 
-        public override void Update(GameTime gameTime)
+        protected override void OnUpdateControl(GameTime gameTime)
         {
             var timeAtBeginningOfUpdate = DateTime.Now;
 
             foreach (var handler in _handlers)
                 handler.HandleKeyboardInput(timeAtBeginningOfUpdate);
 
-            base.Update(gameTime);
+            base.OnUpdateControl(gameTime);
         }
     }
 

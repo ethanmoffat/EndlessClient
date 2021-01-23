@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using EndlessClient.Controllers;
 using EndlessClient.HUD;
 using EndlessClient.Input;
@@ -21,7 +22,7 @@ using XNAControls;
 
 namespace EndlessClient.Rendering
 {
-    public class MouseCursorRenderer : IMouseCursorRenderer
+    public class MouseCursorRenderer : XNAControl, IMouseCursorRenderer
     {
         private enum CursorIndex
         {
@@ -46,8 +47,6 @@ namespace EndlessClient.Rendering
         private readonly IUserInputProvider _userInputProvider;
         private readonly XNALabel _mapItemText;
 
-        private readonly SpriteBatch _spriteBatch;
-
         private Rectangle _drawArea;
         private int _gridX, _gridY;
         private CursorIndex _cursorIndex;
@@ -65,7 +64,6 @@ namespace EndlessClient.Rendering
                                    IItemStringService itemStringService,
                                    IEIFFileProvider eifFileProvider,
                                    ICurrentMapProvider currentMapProvider,
-                                   IGraphicsDeviceProvider graphicsDeviceProvider,
                                    IMapInteractionController mapInteractionController,
                                    IUserInputProvider userInputProvider)
         {
@@ -92,20 +90,21 @@ namespace EndlessClient.Rendering
                 AutoSize = false,
                 DrawOrder = 10 //todo: make a better provider for draw orders (see also HudControlsFactory)
             };
-
-            _spriteBatch = new SpriteBatch(graphicsDeviceProvider.GraphicsDevice);
         }
 
-        public void Initialize()
+        public override void Initialize()
         {
             _mapItemText.AddControlToDefaultGame();
         }
 
         #region Update and Helpers
 
-        public void Update(GameTime gameTime)
+        public override async void Update(GameTime gameTime)
         {
-            //todo: don't do anything if there are dialogs or a context menu and mouse is over context menu
+            // prevents updates if there is a dialog
+            if (!ShouldUpdate()) return;
+
+            // todo: don't do anything if there is a context menu and mouse is over context menu
 
             var offsetX = MainCharacterOffsetX();
             var offsetY = MainCharacterOffsetY();
@@ -116,7 +115,7 @@ namespace EndlessClient.Rendering
             var cellState = _mapCellStateProvider.GetCellStateAt(_gridX, _gridY);
             UpdateCursorSourceRectangle(cellState);
 
-            CheckForClicks(cellState);
+            await CheckForClicks(cellState);
         }
 
         private void SetGridCoordsBasedOnMousePosition(int offsetX, int offsetY)
@@ -279,7 +278,7 @@ namespace EndlessClient.Rendering
             return Color.White;
         }
 
-        private void CheckForClicks(IMapCellState cellState)
+        private async Task CheckForClicks(IMapCellState cellState)
         {
             var currentMouseState = _userInputProvider.CurrentMouseState;
             var previousMouseState = _userInputProvider.PreviousMouseState;
@@ -287,7 +286,7 @@ namespace EndlessClient.Rendering
             if (currentMouseState.LeftButton == ButtonState.Released &&
                 previousMouseState.LeftButton == ButtonState.Pressed)
             {
-                _mapInteractionController.LeftClick(cellState, this);
+                await _mapInteractionController.LeftClickAsync(cellState, this);
             }
             else if (currentMouseState.RightButton == ButtonState.Released &&
                      previousMouseState.RightButton == ButtonState.Pressed)
@@ -335,21 +334,13 @@ namespace EndlessClient.Rendering
             _clickPositionArea = _drawArea;
         }
 
-        ~MouseCursorRenderer()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            _spriteBatch.Dispose();
-            _mapItemText.Dispose();
+            if (disposing)
+            {
+                _spriteBatch.Dispose();
+                _mapItemText.Dispose();
+            }
         }
     }
 

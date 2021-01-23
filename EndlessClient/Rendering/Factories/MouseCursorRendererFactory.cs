@@ -20,7 +20,6 @@ namespace EndlessClient.Rendering.Factories
         private readonly IItemStringService _itemStringService;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
-        private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
         private readonly IMapInteractionController _mapInteractionController;
         private readonly IUserInputProvider _userInputProvider;
 
@@ -31,7 +30,6 @@ namespace EndlessClient.Rendering.Factories
                                           IItemStringService itemStringService,
                                           IEIFFileProvider eifFileProvider,
                                           ICurrentMapProvider currentMapProvider,
-                                          IGraphicsDeviceProvider graphicsDeviceProvider,
                                           IMapInteractionController mapInteractionController,
                                           IUserInputProvider userInputProvider)
         {
@@ -42,7 +40,6 @@ namespace EndlessClient.Rendering.Factories
             _itemStringService = itemStringService;
             _eifFileProvider = eifFileProvider;
             _currentMapProvider = currentMapProvider;
-            _graphicsDeviceProvider = graphicsDeviceProvider;
             _mapInteractionController = mapInteractionController;
             _userInputProvider = userInputProvider;
         }
@@ -56,7 +53,6 @@ namespace EndlessClient.Rendering.Factories
                                            _itemStringService,
                                            _eifFileProvider,
                                            _currentMapProvider,
-                                           _graphicsDeviceProvider,
                                            _mapInteractionController,
                                            _userInputProvider);
         }
