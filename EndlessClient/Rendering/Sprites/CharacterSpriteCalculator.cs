@@ -35,7 +35,7 @@ namespace EndlessClient.Rendering.Sprites
             switch (characterRenderProperties.CurrentAction)
             {
                 case CharacterActionState.Walking:
-                    switch (characterRenderProperties.WalkFrame)
+                    switch (characterRenderProperties.RenderWalkFrame)
                     {
                         case 1: type = BootsSpriteType.WalkFrame1; break;
                         case 2: type = BootsSpriteType.WalkFrame2; break;
@@ -75,7 +75,7 @@ namespace EndlessClient.Rendering.Sprites
             switch (characterRenderProperties.CurrentAction)
             {
                 case CharacterActionState.Walking:
-                    switch (characterRenderProperties.WalkFrame)
+                    switch (characterRenderProperties.RenderWalkFrame)
                     {
                         case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
                         case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
@@ -153,7 +153,7 @@ namespace EndlessClient.Rendering.Sprites
             {
                 if (characterRenderProperties.CurrentAction == CharacterActionState.Walking)
                 {
-                    switch (characterRenderProperties.WalkFrame)
+                    switch (characterRenderProperties.RenderWalkFrame)
                     {
                         case 1: type = ArmorShieldSpriteType.WalkFrame1; break;
                         case 2: type = ArmorShieldSpriteType.WalkFrame2; break;
@@ -207,7 +207,7 @@ namespace EndlessClient.Rendering.Sprites
             switch (characterRenderProperties.CurrentAction)
             {
                 case CharacterActionState.Walking:
-                    switch (characterRenderProperties.WalkFrame)
+                    switch (characterRenderProperties.RenderWalkFrame)
                     {
                         case 1: type = WeaponSpriteType.WalkFrame1; break;
                         case 2: type = WeaponSpriteType.WalkFrame2; break;
@@ -278,7 +278,7 @@ namespace EndlessClient.Rendering.Sprites
             var sheetColumns = 4;
             var gfxNum = 1;
 
-            if (characterRenderProperties.CurrentAction == CharacterActionState.Walking && characterRenderProperties.WalkFrame > 0)
+            if (characterRenderProperties.CurrentAction == CharacterActionState.Walking && characterRenderProperties.RenderWalkFrame > 0)
             {
                 gfxNum = 2;
                 sheetColumns = 16;
@@ -314,7 +314,7 @@ namespace EndlessClient.Rendering.Sprites
             var widthDelta   = texture.Width / sheetColumns;
             var sectionDelta = texture.Width / 4;
 
-            var walkExtra = characterRenderProperties.WalkFrame > 0 ? widthDelta * (characterRenderProperties.WalkFrame - 1) : 0;
+            var walkExtra = characterRenderProperties.RenderWalkFrame > 0 ? widthDelta * (characterRenderProperties.RenderWalkFrame - 1) : 0;
             walkExtra = !BowIsEquipped(characterRenderProperties) && characterRenderProperties.AttackFrame > 0 ? widthDelta * (characterRenderProperties.AttackFrame - 1) : walkExtra;
 
             // Fix offsets for skins - the source rectangles are not at an evenly spaced interval

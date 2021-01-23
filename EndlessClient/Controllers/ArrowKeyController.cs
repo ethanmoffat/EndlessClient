@@ -77,7 +77,7 @@ namespace EndlessClient.Controllers
         private bool CanWalkAgain()
         {
             return _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing) ||
-                   _characterProvider.MainCharacter.RenderProperties.WalkFrame == CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES;
+                   _characterProvider.MainCharacter.RenderProperties.RenderWalkFrame == CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES;
         }
 
         private bool CurrentDirectionIs(EODirection direction)

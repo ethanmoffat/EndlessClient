@@ -22,7 +22,7 @@ namespace EOLib.Domain.Character
         int MapX { get; }
         int MapY { get; }
 
-        int WalkFrame { get; }
+        int RenderWalkFrame { get; }
         int AttackFrame { get; }
         int EmoteFrame { get; }
         
