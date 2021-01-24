@@ -9,7 +9,7 @@ using EOLib.Net.Handlers;
 using System;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
     public class MapHpDrainHandler : InGameOnlyPacketHandler
@@ -35,9 +35,9 @@ namespace EOLib.PacketHandlers
 
         public override bool HandlePacket(IPacket packet)
         {
-            short damage = packet.ReadShort();
-            short hp = packet.ReadShort();
-            short maxhp = packet.ReadShort();
+            var damage = packet.ReadShort();
+            var hp = packet.ReadShort();
+            var maxhp = packet.ReadShort();
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithDamage(damage, hp == 0);
 

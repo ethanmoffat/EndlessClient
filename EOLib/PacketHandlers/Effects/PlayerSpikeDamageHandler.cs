@@ -8,7 +8,7 @@ using EOLib.Net.Handlers;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
     public class PlayerSpikeDamageHandler : InGameOnlyPacketHandler
@@ -31,10 +31,10 @@ namespace EOLib.PacketHandlers
 
         public override bool HandlePacket(IPacket packet)
         {
-            short characterId = packet.ReadShort();
-            byte playerPercentHealth = packet.ReadChar();
-            bool isDead = packet.ReadChar() != 0;
-            int damageTaken = packet.ReadThree();
+            var characterId = packet.ReadShort();
+            var playerPercentHealth = packet.ReadChar();
+            var isDead = packet.ReadChar() != 0;
+            var damageTaken = packet.ReadThree();
 
             var characterToUpdate = _currentMapStateRepository.Characters.Single(x => x.ID == characterId);
             var updatedCharacter = characterToUpdate.WithDamage(damageTaken, isDead);

@@ -3,7 +3,7 @@ using EOLib.Domain.Login;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
     public class TimedSpikeEffectHandler : InGameOnlyPacketHandler

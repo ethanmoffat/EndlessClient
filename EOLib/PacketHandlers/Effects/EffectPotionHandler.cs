@@ -5,7 +5,7 @@ using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
 
-namespace EOLib.PacketHandlers
+namespace EOLib.PacketHandlers.Effects
 {
     [AutoMappedType]
     public class EffectPotionHandler : InGameOnlyPacketHandler
