@@ -55,6 +55,11 @@ namespace EndlessClient.Input
         {
             return keys.Any(key => CurrentState.IsKeyHeld(PreviousState, key));
         }
+
+        protected bool IsKeyPressedOnce(params Keys[] keys)
+        {
+            return keys.Any(key => CurrentState.IsKeyPressedOnce(PreviousState, key));
+        }
     }
 
     public interface IInputHandler

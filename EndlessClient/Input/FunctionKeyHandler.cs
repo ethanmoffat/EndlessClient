@@ -22,7 +22,10 @@ namespace EndlessClient.Input
 
         protected override Optional<Keys> HandleInput()
         {
-            if (IsKeyHeld(Keys.F12) && _functionKeyController.RefreshMapState())
+            if (IsKeyPressedOnce(Keys.F11) && _functionKeyController.Sit())
+                return Keys.F11;
+
+            if (IsKeyPressedOnce(Keys.F12) && _functionKeyController.RefreshMapState())
                 return Keys.F12;
 
             // todo: spell selection

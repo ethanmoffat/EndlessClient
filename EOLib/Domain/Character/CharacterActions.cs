@@ -53,6 +53,19 @@ namespace EOLib.Domain.Character
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void Sit()
+        {
+            var sitAction = _characterProvider.MainCharacter.RenderProperties.SitState == SitState.Standing
+                ? SitAction.Sit
+                : SitAction.Stand;
+
+            var packet = new PacketBuilder(PacketFamily.Sit, PacketAction.Request)
+                .AddChar((byte)sitAction)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface ICharacterActions
@@ -62,5 +75,7 @@ namespace EOLib.Domain.Character
         void Walk();
 
         void Attack();
+
+        void Sit();
     }
 }
