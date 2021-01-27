@@ -92,6 +92,7 @@
     <Compile Include="Domain\Item\ItemStringService.cs" />
     <Compile Include="Domain\Map\UnlockDoorValidator.cs" />
     <Compile Include="Domain\Map\WarpState.cs" />
+    <Compile Include="Domain\Notifiers\IEffectNotifier.cs" />
     <Compile Include="Domain\Notifiers\IMainCharacterEventNotifier.cs" />
     <Compile Include="Domain\Notifiers\IOtherCharacterAnimationNotifier.cs" />
     <Compile Include="Domain\Character\CharacterInventoryRepository.cs" />
@@ -189,7 +190,6 @@
     <Compile Include="Net\API\Bank.cs" />
     <Compile Include="Net\API\Character.cs" />
     <Compile Include="Net\API\Chest.cs" />
-    <Compile Include="Net\API\Effect.cs" />
     <Compile Include="Net\API\Emote.cs" />
     <Compile Include="Net\API\Init.cs" />
     <Compile Include="Net\API\Item.cs" />
@@ -202,7 +202,6 @@
     <Compile Include="Net\API\Party.cs" />
     <Compile Include="Net\API\Quest.cs" />
     <Compile Include="Net\API\Recover.cs" />
-    <Compile Include="Net\API\Refresh.cs" />
     <Compile Include="Net\API\Shop.cs" />
     <Compile Include="Net\API\Spell.cs" />
     <Compile Include="Net\API\StatSkill.cs" />
@@ -254,9 +253,17 @@
     <Compile Include="PacketHandlers\Commands\FindCommandPlayerSameMapHandler.cs" />
     <Compile Include="PacketHandlers\Chat\GroupChatHandler.cs" />
     <Compile Include="PacketHandlers\DoorOpenHandler.cs" />
+    <Compile Include="PacketHandlers\Effects\EffectPotionHandler.cs" />
+    <Compile Include="PacketHandlers\Effects\MapQuakeHandler.cs" />
     <Compile Include="PacketHandlers\EndPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\ItemPickupHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
+    <Compile Include="PacketHandlers\Effects\MapHpDrainHandler.cs" />
+    <Compile Include="PacketHandlers\NPCTakeDamageHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerTargetOtherSpellHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerSelfTargetSpellHandler.cs" />
+    <Compile Include="PacketHandlers\Effects\PlayerSpikeDamageHandler.cs" />
+    <Compile Include="PacketHandlers\Effects\MapDebuffHandler.cs" />
     <Compile Include="PacketHandlers\NPCActionHandler.cs" />
     <Compile Include="PacketHandlers\NPCEnterMapHandler.cs" />
     <Compile Include="PacketHandlers\NPCLeaveMapHandler.cs" />
@@ -305,11 +312,13 @@
     <Compile Include="PacketHandlers\PlayerLeaveMapHandler.cs" />
     <Compile Include="PacketHandlers\PlayerLevelUpHandler.cs" />
     <Compile Include="PacketHandlers\PlayerRecoverHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerStartSpellCastHandler.cs" />
     <Compile Include="PacketHandlers\PlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\BeginPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\RecoverStatListHandler.cs" />
     <Compile Include="PacketHandlers\RefreshMapStateHandler.cs" />
     <Compile Include="PacketHandlers\StatTrainingHandler.cs" />
+    <Compile Include="PacketHandlers\Effects\TimedSpikeEffectHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Win32.cs" />
     <Compile Include="HDSerialNumberServiceLinux.cs" />

@@ -22,6 +22,12 @@ namespace EOLib.Domain.Map
             _characterProvider = characterProvider;
         }
 
+        public void RequestRefresh()
+        {
+            var packet = new PacketBuilder(PacketFamily.Refresh, PacketAction.Request).Build();
+            _packetSendService.SendPacket(packet);
+        }
+
         public ItemPickupResult PickUpItem(IItem item)
         {
             var pickupResult = _itemPickupValidator.ValidateItemPickup(_characterProvider.MainCharacter, item);
@@ -40,6 +46,8 @@ namespace EOLib.Domain.Map
 
     public interface IMapActions
     {
+        void RequestRefresh();
+
         ItemPickupResult PickUpItem(IItem item);
     }
 }

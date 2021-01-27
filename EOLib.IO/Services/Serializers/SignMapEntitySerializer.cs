@@ -25,18 +25,12 @@ namespace EOLib.IO.Services.Serializers
 
             retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.X, 1));
             retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.Y, 1));
-            retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.Title.Length + mapEntity.Message.Length + 1, 2));
 
-            var fileMsg = new byte[mapEntity.Message.Length + mapEntity.Title.Length];
-
-            var rawTitle = mapStringEncoderService.EncodeMapString(mapEntity.Title);
-            Array.Copy(rawTitle, fileMsg, rawTitle.Length);
-
-            var rawMessage = mapStringEncoderService.EncodeMapString(mapEntity.Message);
-            Array.Copy(rawMessage, 0, fileMsg, rawTitle.Length, rawMessage.Length);
+            var fileMsg = mapStringEncoderService.EncodeMapString(mapEntity.Title + mapEntity.Message);
+            retBytes.AddRange(numberEncoderService.EncodeNumber(fileMsg.Length + 1, 2));
 
             retBytes.AddRange(fileMsg);
-            retBytes.AddRange(numberEncoderService.EncodeNumber(rawTitle.Length, 1));
+            retBytes.AddRange(numberEncoderService.EncodeNumber(mapEntity.Title.Length, 1));
 
             return retBytes.ToArray();
         }
@@ -50,12 +44,12 @@ namespace EOLib.IO.Services.Serializers
                 .WithX(numberEncoderService.DecodeNumber(data[0]))
                 .WithY(numberEncoderService.DecodeNumber(data[1]));
 
-            var titleAndMessageLength = numberEncoderService.DecodeNumber(data[2], data[3]) - 1;
+            var titleAndMessageLength = numberEncoderService.DecodeNumber(data[2], data[3]);
             if (data.Length != SignMapEntity.DATA_SIZE + titleAndMessageLength)
                 throw new ArgumentException("Data is improperly sized for deserialization", nameof(data));
 
-            var rawTitleAndMessage = data.Skip(4).Take(titleAndMessageLength).ToArray();
-            var titleLength = numberEncoderService.DecodeNumber(data[4 + titleAndMessageLength]);
+            var rawTitleAndMessage = data.Skip(SignMapEntity.DATA_SIZE).Take(titleAndMessageLength - 1).ToArray();
+            var titleLength = numberEncoderService.DecodeNumber(data[SignMapEntity.DATA_SIZE + titleAndMessageLength - 1]);
 
             var titleAndMessage = mapStringEncoderService.DecodeMapString(rawTitleAndMessage);
             sign = sign.WithTitle(titleAndMessage.Substring(0, titleLength))

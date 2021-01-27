@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using XNAControls.Old;
+using XNAControls;
 
 namespace EndlessClient.UIControls
 {
@@ -16,8 +16,8 @@ namespace EndlessClient.UIControls
         private DateTime _lastToggleTime;
         private Action _callback;
 
-        public BlinkingLabel(Rectangle location, string spriteFontContentName)
-            : base(location, spriteFontContentName)
+        public BlinkingLabel(string spriteFontContentName)
+            : base(spriteFontContentName)
         {
             _lastToggleTime = DateTime.Now;
         }

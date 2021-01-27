@@ -1,5 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.HUD;
+using EndlessClient.Rendering.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Repositories;
@@ -14,16 +15,19 @@ namespace EndlessClient.Subscribers
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly IPubFileProvider _pubFileProvider;
+        private readonly ICharacterRendererProvider _characterRendererProvider;
 
         public MainCharacterEventSubscriber(IStatusLabelSetter statusLabelSetter,
                                             IChatRepository chatRepository,
                                             ILocalizedStringFinder localizedStringFinder,
-                                            IPubFileProvider pubFileProvider)
+                                            IPubFileProvider pubFileProvider,
+                                            ICharacterRendererProvider characterRendererProvider)
         {
             _statusLabelSetter = statusLabelSetter;
             _chatRepository = chatRepository;
             _localizedStringFinder = localizedStringFinder;
             _pubFileProvider = pubFileProvider;
+            _characterRendererProvider = characterRendererProvider;
         }
 
         public void NotifyGainedExp(int expDifference)
@@ -41,7 +45,10 @@ namespace EndlessClient.Subscribers
 
         public void NotifyTakeDamage(int damageTaken, int playerPercentHealth)
         {
-            //todo: show health bar
+            if (_characterRendererProvider.MainCharacterRenderer == null)
+                return;
+
+            _characterRendererProvider.MainCharacterRenderer.ShowDamageCounter(damageTaken, playerPercentHealth, isHeal: false);
         }
 
         public void TakeItemFromMap(short id, int amountTaken)

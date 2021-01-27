@@ -1,6 +1,7 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
 using EndlessClient.HUD;
+using EndlessClient.Input;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
@@ -19,8 +20,8 @@ namespace EndlessClient.Rendering.Factories
         private readonly IItemStringService _itemStringService;
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
-        private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
         private readonly IMapInteractionController _mapInteractionController;
+        private readonly IUserInputProvider _userInputProvider;
 
         public MouseCursorRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                           ICharacterProvider characterProvider,
@@ -29,8 +30,8 @@ namespace EndlessClient.Rendering.Factories
                                           IItemStringService itemStringService,
                                           IEIFFileProvider eifFileProvider,
                                           ICurrentMapProvider currentMapProvider,
-                                          IGraphicsDeviceProvider graphicsDeviceProvider,
-                                          IMapInteractionController mapInteractionController)
+                                          IMapInteractionController mapInteractionController,
+                                          IUserInputProvider userInputProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterProvider = characterProvider;
@@ -39,8 +40,8 @@ namespace EndlessClient.Rendering.Factories
             _itemStringService = itemStringService;
             _eifFileProvider = eifFileProvider;
             _currentMapProvider = currentMapProvider;
-            _graphicsDeviceProvider = graphicsDeviceProvider;
             _mapInteractionController = mapInteractionController;
+            _userInputProvider = userInputProvider;
         }
 
         public IMouseCursorRenderer Create()
@@ -52,8 +53,8 @@ namespace EndlessClient.Rendering.Factories
                                            _itemStringService,
                                            _eifFileProvider,
                                            _currentMapProvider,
-                                           _graphicsDeviceProvider,
-                                           _mapInteractionController);
+                                           _mapInteractionController,
+                                           _userInputProvider);
         }
     }
 

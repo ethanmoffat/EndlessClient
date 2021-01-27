@@ -75,6 +75,7 @@
     <Compile Include="Controllers\ArrowKeyController.cs" />
     <Compile Include="Controllers\ChatController.cs" />
     <Compile Include="Controllers\ControlKeyController.cs" />
+    <Compile Include="Controllers\FunctionKeyController.cs" />
     <Compile Include="Controllers\MapInteractionController.cs" />
     <Compile Include="Controllers\TrainingController.cs" />
     <Compile Include="Dialogs\Actions\FirstTimePlayerActions.cs" />
@@ -100,24 +101,30 @@
     <Compile Include="Input\ArrowKeyHandler.cs" />
     <Compile Include="Input\ClickWalkPathHandler.cs" />
     <Compile Include="Input\ControlKeyHandler.cs" />
-    <Compile Include="Input\CurrentKeyStateTracker.cs" />
-    <Compile Include="Input\IKeyStateRepository.cs" />
+    <Compile Include="Input\CurrentUserInputTracker.cs" />
+    <Compile Include="Input\FunctionKeyHandler.cs" />
+    <Compile Include="Input\IUserInputRepository.cs" />
     <Compile Include="Input\InputHandlerBase.cs" />
     <Compile Include="Input\IUserInputTimeRepository.cs" />
     <Compile Include="Input\KeyboardStateExtensions.cs" />
-    <Compile Include="Input\PreviousKeyStateTracker.cs" />
+    <Compile Include="Input\PreviousUserInputTracker.cs" />
     <Compile Include="Input\UserInputHandler.cs" />
     <Compile Include="Input\UserInputHandlerFactory.cs" />
     <Compile Include="Input\WalkErrorHandler.cs" />
     <Compile Include="Old\OldCharacter.cs" />
     <Compile Include="Rendering\CharacterProperties\BaseCharacterPropertyRenderer.cs" />
+    <Compile Include="Rendering\Character\ISpellCaster.cs" />
     <Compile Include="Rendering\Chat\ChatBubbleRepository.cs" />
     <Compile Include="Rendering\Chat\ChatBubbleTexture.cs" />
     <Compile Include="Rendering\Chat\ChatBubbleTextureProvider.cs" />
     <Compile Include="Rendering\Chat\ChatBubbleUpdater.cs" />
-    <Compile Include="Rendering\Chat\IHaveChatBubble.cs" />
+    <Compile Include="Rendering\Factories\HealthBarRendererFactory.cs" />
+    <Compile Include="Rendering\IMapActor.cs" />
+    <Compile Include="Rendering\Effects\IEffectTarget.cs" />
     <Compile Include="Rendering\Factories\MouseCursorRendererFactory.cs" />
-    <Compile Include="Rendering\Map\DoorStateUpdater.cs" />
+    <Compile Include="Rendering\HealthBarRenderer.cs" />
+    <Compile Include="Rendering\Map\DynamicMapObjectUpdater.cs" />
+    <Compile Include="Rendering\Map\SpikeTrapActions.cs" />
     <Compile Include="Rendering\MouseCursorRenderer.cs" />
     <Compile Include="Rendering\NPC\NPCActions.cs" />
     <Compile Include="Rendering\NPC\NPCAnimator.cs" />
@@ -309,7 +316,6 @@
     <Compile Include="HUD\StatusBars\TPStatusBar.cs" />
     <Compile Include="GameExecution\IEndlessGame.cs" />
     <Compile Include="GameExecution\IGameRunner.cs" />
-    <Compile Include="Input\FunctionKeyListener.cs" />
     <Compile Include="Input\OldInputKeyListenerBase.cs" />
     <Compile Include="Input\NumPadListener.cs" />
     <Compile Include="Old\InteractList.cs" />
@@ -354,7 +360,7 @@
     <Compile Include="Rendering\Effects\HeavenEffectSpriteInfo.cs" />
     <Compile Include="Rendering\Effects\IEffectSpriteInfo.cs" />
     <Compile Include="Rendering\EOSpriteSheet.cs" />
-    <Compile Include="Rendering\HealthBarRenderer.cs" />
+    <Compile Include="Rendering\OldDamageCounter.cs" />
     <Compile Include="Rendering\OldMapRenderer.cs" />
     <Compile Include="Rendering\MiniMapRenderer.cs" />
     <Compile Include="Rendering\OldMouseCursorRenderer.cs" />
@@ -395,7 +401,7 @@
     </Reference>
     <Reference Include="WindowsBase" />
     <Reference Include="XNAControls, Version=1.2.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\packages\XNAControls.1.2.1\lib\net462\XNAControls.dll</HintPath>
+      <HintPath>..\packages\XNAControls.1.2.2\lib\net462\XNAControls.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

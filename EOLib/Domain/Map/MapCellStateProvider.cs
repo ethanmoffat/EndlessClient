@@ -28,7 +28,7 @@ namespace EOLib.Domain.Map
         public IMapCellState GetCellStateAt(int x, int y)
         {
             if (x < 0 || y < 0 || x > CurrentMap.Properties.Width || y > CurrentMap.Properties.Height)
-                return new MapCellState {TileSpec = TileSpec.MapEdge};
+                return new MapCellState { InBounds = false, TileSpec = TileSpec.MapEdge };
 
             var tileSpec = CurrentMap.Tiles[y, x];
             var warp = CurrentMap.Warps[y, x];
@@ -42,6 +42,7 @@ namespace EOLib.Domain.Map
 
             return new MapCellState
             {
+                InBounds   = true,
                 Coordinate = new MapCoordinate(x, y),
                 Items      = items.ToList(),
                 TileSpec   = tileSpec,

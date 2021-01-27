@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using EndlessClient.Controllers;
 using EndlessClient.HUD;
+using EndlessClient.Input;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
@@ -20,7 +22,7 @@ using XNAControls;
 
 namespace EndlessClient.Rendering
 {
-    public class MouseCursorRenderer : IMouseCursorRenderer
+    public class MouseCursorRenderer : XNAControl, IMouseCursorRenderer
     {
         private enum CursorIndex
         {
@@ -42,9 +44,8 @@ namespace EndlessClient.Rendering
         private readonly IEIFFileProvider _eifFileProvider;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IMapInteractionController _mapInteractionController;
+        private readonly IUserInputProvider _userInputProvider;
         private readonly XNALabel _mapItemText;
-
-        private readonly SpriteBatch _spriteBatch;
 
         private Rectangle _drawArea;
         private int _gridX, _gridY;
@@ -56,8 +57,6 @@ namespace EndlessClient.Rendering
         private int _clickAlpha;
         private Rectangle _clickPositionArea;
 
-        private MouseState _previousMouseState;
-
         public MouseCursorRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICharacterProvider characterProvider,
                                    IRenderOffsetCalculator renderOffsetCalculator,
@@ -65,8 +64,8 @@ namespace EndlessClient.Rendering
                                    IItemStringService itemStringService,
                                    IEIFFileProvider eifFileProvider,
                                    ICurrentMapProvider currentMapProvider,
-                                   IGraphicsDeviceProvider graphicsDeviceProvider,
-                                   IMapInteractionController mapInteractionController)
+                                   IMapInteractionController mapInteractionController,
+                                   IUserInputProvider userInputProvider)
         {
             _mouseCursorTexture = nativeGraphicsManager.TextureFromResource(GFXTypes.PostLoginUI, 24, true);
             _characterProvider = characterProvider;
@@ -76,6 +75,7 @@ namespace EndlessClient.Rendering
             _eifFileProvider = eifFileProvider;
             _currentMapProvider = currentMapProvider;
             _mapInteractionController = mapInteractionController;
+            _userInputProvider = userInputProvider;
 
             SingleCursorFrameArea = new Rectangle(0, 0,
                                                   _mouseCursorTexture.Width/(int) CursorIndex.NumberOfFramesInSheet,
@@ -90,21 +90,21 @@ namespace EndlessClient.Rendering
                 AutoSize = false,
                 DrawOrder = 10 //todo: make a better provider for draw orders (see also HudControlsFactory)
             };
-
-            _spriteBatch = new SpriteBatch(graphicsDeviceProvider.GraphicsDevice);
         }
 
-        public void Initialize()
+        public override void Initialize()
         {
             _mapItemText.AddControlToDefaultGame();
-            _previousMouseState = Mouse.GetState();
         }
 
         #region Update and Helpers
 
-        public void Update(GameTime gameTime)
+        public override async void Update(GameTime gameTime)
         {
-            //todo: don't do anything if there are dialogs or a context menu and mouse is over context menu
+            // prevents updates if there is a dialog
+            if (!ShouldUpdate()) return;
+
+            // todo: don't do anything if there is a context menu and mouse is over context menu
 
             var offsetX = MainCharacterOffsetX();
             var offsetY = MainCharacterOffsetY();
@@ -115,10 +115,7 @@ namespace EndlessClient.Rendering
             var cellState = _mapCellStateProvider.GetCellStateAt(_gridX, _gridY);
             UpdateCursorSourceRectangle(cellState);
 
-            var currentMouseState = Mouse.GetState();
-            CheckForClicks(currentMouseState, cellState);
-
-            _previousMouseState = currentMouseState;
+            await CheckForClicks(cellState);
         }
 
         private void SetGridCoordsBasedOnMousePosition(int offsetX, int offsetY)
@@ -132,7 +129,7 @@ namespace EndlessClient.Rendering
             //pixY = (_gridX * 16) + (_gridY * 16) + 144 - c.OffsetY =>
             //(pixY - (_gridX * 16) - 144 + c.OffsetY) / 16 = _gridY
 
-            var mouseState = Mouse.GetState();
+            var mouseState = _userInputProvider.CurrentMouseState;
 
             var msX = mouseState.X - SingleCursorFrameArea.Width / 2;
             var msY = mouseState.Y - SingleCursorFrameArea.Height / 2;
@@ -281,15 +278,18 @@ namespace EndlessClient.Rendering
             return Color.White;
         }
 
-        private void CheckForClicks(MouseState currentMouseState, IMapCellState cellState)
+        private async Task CheckForClicks(IMapCellState cellState)
         {
+            var currentMouseState = _userInputProvider.CurrentMouseState;
+            var previousMouseState = _userInputProvider.PreviousMouseState;
+
             if (currentMouseState.LeftButton == ButtonState.Released &&
-                _previousMouseState.LeftButton == ButtonState.Pressed)
+                previousMouseState.LeftButton == ButtonState.Pressed)
             {
-                _mapInteractionController.LeftClick(cellState, this);
+                await _mapInteractionController.LeftClickAsync(cellState, this);
             }
             else if (currentMouseState.RightButton == ButtonState.Released &&
-                     _previousMouseState.RightButton == ButtonState.Pressed)
+                     previousMouseState.RightButton == ButtonState.Pressed)
             {
                 _mapInteractionController.RightClick(cellState);
             }
@@ -297,7 +297,7 @@ namespace EndlessClient.Rendering
 
         #endregion
 
-        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        public void Draw(SpriteBatch spriteBatch, Vector2 additionalOffset)
         {
             //todo: don't draw if context menu is visible and mouse is over the context menu
 
@@ -306,7 +306,7 @@ namespace EndlessClient.Rendering
                 _gridY <= _currentMapProvider.CurrentMap.Properties.Height)
             {
                 spriteBatch.Draw(_mouseCursorTexture,
-                                 _drawArea,
+                                 _drawArea.Location.ToVector2() + additionalOffset,
                                  new Rectangle(SingleCursorFrameArea.Width*(int) _cursorIndex,
                                                0,
                                                SingleCursorFrameArea.Width,
@@ -316,7 +316,7 @@ namespace EndlessClient.Rendering
                 if (_startClickTime.HasValue)
                 {
                     spriteBatch.Draw(_mouseCursorTexture,
-                                     _clickPositionArea,
+                                     _clickPositionArea.Location.ToVector2() + additionalOffset,
                                      SingleCursorFrameArea.WithPosition(new Vector2(SingleCursorFrameArea.Width * (int)_clickFrame, 0)),
                                      Color.FromNonPremultiplied(255, 255, 255, _clickAlpha-=5));
                 }
@@ -334,21 +334,13 @@ namespace EndlessClient.Rendering
             _clickPositionArea = _drawArea;
         }
 
-        ~MouseCursorRenderer()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(false);
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            _spriteBatch.Dispose();
-            _mapItemText.Dispose();
+            if (disposing)
+            {
+                _spriteBatch.Dispose();
+                _mapItemText.Dispose();
+            }
         }
     }
 
@@ -358,7 +350,7 @@ namespace EndlessClient.Rendering
 
         void Update(GameTime gameTime);
 
-        void Draw(SpriteBatch spriteBatch, GameTime gameTime);
+        void Draw(SpriteBatch spriteBatch, Vector2 additionalOffset);
 
         void AnimateClick();
     }

@@ -29,7 +29,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IMapRenderDistanceCalculator _mapRenderDistanceCalculator;
         private readonly ICharacterRendererUpdater _characterRendererUpdater;
         private readonly INPCRendererUpdater _npcRendererUpdater;
-        private readonly IDoorStateUpdater _doorStateUpdater;
+        private readonly IDynamicMapObjectUpdater _dynamicMapObjectUpdater;
         private readonly IChatBubbleUpdater _chatBubbleUpdater;
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
@@ -39,6 +39,8 @@ namespace EndlessClient.Rendering.Map
         private SpriteBatch _sb;
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
         private int? _lastMapChecksum;
+
+        private Optional<MapQuakeState> _quakeState;
 
         private bool MouseOver
         {
@@ -58,7 +60,7 @@ namespace EndlessClient.Rendering.Map
                            IMapRenderDistanceCalculator mapRenderDistanceCalculator,
                            ICharacterRendererUpdater characterRendererUpdater,
                            INPCRendererUpdater npcRendererUpdater,
-                           IDoorStateUpdater doorStateUpdater,
+                           IDynamicMapObjectUpdater dynamicMapObjectUpdater,
                            IChatBubbleUpdater chatBubbleUpdater,
                            IConfigurationProvider configurationProvider,
                            IMouseCursorRenderer mouseCursorRenderer,
@@ -72,7 +74,7 @@ namespace EndlessClient.Rendering.Map
             _mapRenderDistanceCalculator = mapRenderDistanceCalculator;
             _characterRendererUpdater = characterRendererUpdater;
             _npcRendererUpdater = npcRendererUpdater;
-            _doorStateUpdater = doorStateUpdater;
+            _dynamicMapObjectUpdater = dynamicMapObjectUpdater;
             _chatBubbleUpdater = chatBubbleUpdater;
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
@@ -108,11 +110,13 @@ namespace EndlessClient.Rendering.Map
             {
                 _characterRendererUpdater.UpdateCharacters(gameTime);
                 _npcRendererUpdater.UpdateNPCs(gameTime);
-                _doorStateUpdater.UpdateDoorState(gameTime);
+                _dynamicMapObjectUpdater.UpdateMapObjects(gameTime);
                 _chatBubbleUpdater.UpdateChatBubbles(gameTime);
 
                 if (MouseOver)
                     _mouseCursorRenderer.Update(gameTime);
+
+                UpdateQuakeState();
             }
 
             _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.ChecksumInt;
@@ -137,18 +141,35 @@ namespace EndlessClient.Rendering.Map
             _mapTransitionState = new MapTransitionState(DateTime.Now, 1);
         }
 
-        private void DrawToSpriteBatch(SpriteBatch spriteBatch, GameTime gameTime)
+        public void StartEarthquake(byte strength)
         {
-            spriteBatch.Begin();
+            _quakeState = new MapQuakeState(strength);
+        }
 
-            spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition(), Color.White);
-            DrawBaseLayers(spriteBatch);
+        private void UpdateQuakeState()
+        {
+            // when quake:
+            // 1. determine offset target
+            // 2. incrementally make offset approach closer to the target offset
+            // 3. when offset target reached, determine new target (random based on magnitude)
+            // 4. flip direction
+            // 5. keep going until specific number of "direction flips" has elapsed
 
-            _mouseCursorRenderer.Draw(spriteBatch, gameTime);
+            if (!_quakeState.HasValue)
+                return;
 
-            spriteBatch.Draw(_mapObjectTarget, Vector2.Zero, Color.White);
+            _quakeState = _quakeState.Value.NextOffset();
 
-            spriteBatch.End();
+            var quakeState = _quakeState.Value;
+            if (quakeState.OffsetReached)
+            {
+                _quakeState = quakeState.NextState();
+            }
+
+            if (quakeState.Done)
+            {
+                _quakeState = Optional<MapQuakeState>.Empty;
+            }
         }
 
         private void DrawGroundLayerToRenderTarget()
@@ -180,25 +201,6 @@ namespace EndlessClient.Rendering.Map
 
             _sb.End();
             GraphicsDevice.SetRenderTarget(null);
-        }
-
-        private void DrawBaseLayers(SpriteBatch spriteBatch)
-        {
-            var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
-
-            for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
-            {
-                for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; ++col)
-                {
-                    var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
-
-                    foreach (var renderer in _mapEntityRendererProvider.BaseRenderers)
-                    {
-                        if (renderer.CanRender(row, col))
-                            renderer.RenderElementAt(spriteBatch, row, col, alpha);
-                    }
-                }
-            }
         }
 
         private void DrawMapToRenderTarget()
@@ -255,12 +257,40 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.SetRenderTarget(null);
         }
 
-        private static bool CharacterIsAtPosition(ICharacterRenderProperties renderProperties, int row, int col)
+        private void DrawToSpriteBatch(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            if (renderProperties.IsActing(CharacterActionState.Walking))
-                return row == renderProperties.GetDestinationY() && col == renderProperties.GetDestinationX();
+            spriteBatch.Begin();
 
-            return row == renderProperties.MapY && col == renderProperties.MapX;
+            var offset = _quakeState.HasValue ? _quakeState.Value.Offset : 0;
+
+            spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition() + new Vector2(offset, 0), Color.White);
+            DrawBaseLayers(spriteBatch);
+
+            _mouseCursorRenderer.Draw(spriteBatch, new Vector2(offset, 0));
+
+            spriteBatch.Draw(_mapObjectTarget, new Vector2(offset, 0), Color.White);
+
+            spriteBatch.End();
+        }
+
+        private void DrawBaseLayers(SpriteBatch spriteBatch)
+        {
+            var offset = _quakeState.HasValue ? _quakeState.Value.Offset : 0;
+            var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
+
+            for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
+            {
+                for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; ++col)
+                {
+                    var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
+
+                    foreach (var renderer in _mapEntityRendererProvider.BaseRenderers)
+                    {
+                        if (renderer.CanRender(row, col))
+                            renderer.RenderElementAt(spriteBatch, row, col, alpha, new Vector2(offset, 0));
+                    }
+                }
+            }
         }
 
         private Vector2 GetGroundLayerDrawPosition()
@@ -331,17 +361,69 @@ namespace EndlessClient.Rendering.Map
 
     internal struct MapTransitionState
     {
-        public static MapTransitionState Default => new MapTransitionState(Optional<DateTime>.Empty, 0);
+        internal static MapTransitionState Default => new MapTransitionState(Optional<DateTime>.Empty, 0);
 
-        public Optional<DateTime> StartTime { get; }
+        internal Optional<DateTime> StartTime { get; }
 
-        public int TransitionMetric { get; }
+        internal int TransitionMetric { get; }
 
-        public MapTransitionState(Optional<DateTime> startTime, int transitionMetric)
+        internal MapTransitionState(Optional<DateTime> startTime, int transitionMetric)
             : this()
         {
             StartTime = startTime;
             TransitionMetric = transitionMetric;
         }
+    }
+
+    internal struct MapQuakeState
+    {
+        private static readonly Random _random = new Random();
+
+        internal static MapQuakeState Default => new MapQuakeState();
+
+        internal int Magnitude { get; }
+
+        internal float Offset { get; }
+
+        internal float OffsetTarget { get; }
+
+        internal bool OffsetReached => Math.Abs(Offset) >= Math.Abs(OffsetTarget);
+
+        internal int Flips { get; }
+
+        internal int FlipsMax => Magnitude == 0 ? 0 : 10 + Magnitude * 2;
+
+        internal bool Done => Flips >= FlipsMax;
+
+        internal MapQuakeState(int magnitude)
+            : this(magnitude, 0, 0) { }
+
+        private MapQuakeState(int magnitude, float offset, int flips)
+            : this(magnitude, offset, NewOffsetTarget(magnitude), flips) { }
+
+        private MapQuakeState(int magnitude, float offset, float offsetTarget, int flips)
+        {
+            Magnitude = magnitude;
+            Offset = offset;
+            OffsetTarget = offsetTarget;
+            Flips = flips;
+        }
+
+        internal MapQuakeState NextOffset()
+        {
+            var nextOffset = Offset + OffsetTarget / 4f;
+            return new MapQuakeState(Magnitude, nextOffset, OffsetTarget, Flips);
+        }
+
+        internal MapQuakeState NextState()
+        {
+            var flip = -OffsetTarget / Math.Abs(OffsetTarget);
+            var offset = OffsetTarget + 1*flip;
+            var nextOffsetTarget = NewOffsetTarget(Magnitude) * flip;
+
+            return new MapQuakeState(Magnitude, offset, nextOffsetTarget, Flips + 1);
+        }
+
+        private static float NewOffsetTarget(int magnitude) => 16 + 3 * _random.Next(0, (int)(magnitude * 1.5));
     }
 }

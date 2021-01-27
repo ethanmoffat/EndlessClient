@@ -12,7 +12,7 @@ namespace EndlessClient.Input
         private const int INPUT_RATE_LIMIT_MILLISECONDS = 200;
 
         private readonly IEndlessGameProvider _endlessGameProvider;
-        private readonly IKeyStateProvider _keyStateProvider;
+        private readonly IUserInputProvider _keyStateProvider;
         private readonly IUserInputTimeRepository _userInputTimeRepository;
         private readonly ICurrentMapStateProvider _mapStateProvider;
 
@@ -21,12 +21,12 @@ namespace EndlessClient.Input
         private KeyboardState PreviousState => _keyStateProvider.PreviousKeyState;
 
         protected InputHandlerBase(IEndlessGameProvider endlessGameProvider,
-                                   IKeyStateProvider keyStateProvider,
+                                   IUserInputProvider userInputProvider,
                                    IUserInputTimeRepository userInputTimeRepository,
                                    ICurrentMapStateProvider mapStateProvider)
         {
             _endlessGameProvider = endlessGameProvider;
-            _keyStateProvider = keyStateProvider;
+            _keyStateProvider = userInputProvider;
             _userInputTimeRepository = userInputTimeRepository;
             _mapStateProvider = mapStateProvider;
         }

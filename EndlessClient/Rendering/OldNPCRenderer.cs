@@ -56,8 +56,6 @@ namespace EndlessClient.Rendering
         private Rectangle _npcTextureFrameRectangle;
         private bool hasStandFrame1;
         private int _fadeAwayAlpha;
-        
-        private EffectRenderer _effectRenderer;
 
         private int DrawOffsetX => NPC.X * 32 - NPC.Y * 32 + walkingAdjustedX;
         private int DrawOffsetY => NPC.X * 16 + NPC.Y * 16 + walkingAdjustedY;
@@ -113,7 +111,6 @@ namespace EndlessClient.Rendering
             UpdateStandingFrameIfNeeded();
             UpdateWalkFrameIfNeeded();
             UpdateAttackFrameIfNeeded();
-            UpdateEffectAnimation();
 
             if (Game.IsActive)
             {
@@ -136,9 +133,6 @@ namespace EndlessClient.Rendering
 
         public void DrawToSpriteBatch(SpriteBatch batch, bool started = false)
         {
-            if (_effectRenderer != null)
-                _effectRenderer.DrawBehindTarget(batch, started);
-
             if (!started)
                 batch.Begin();
 
@@ -162,9 +156,6 @@ namespace EndlessClient.Rendering
 
             if (!started)
                 batch.End();
-
-            if (_effectRenderer != null)
-                _effectRenderer.DrawInFrontOfTarget(batch, started);
         }
 
         #endregion
@@ -206,26 +197,6 @@ namespace EndlessClient.Rendering
                 _mouseoverName.Close();
                 _mouseoverName = null;
             }
-        }
-
-        public void ShowSpellAnimation(int spellGraphicID)
-        {
-            ResetEffectRenderer();
-            RenderEffect(EffectType.Spell, spellGraphicID);
-        }
-
-        private void RenderEffect(EffectType effectType, int effectID)
-        {
-            var gfxManager = ((EOGame)Game).GFXManager;
-            _effectRenderer = new EffectRenderer(gfxManager, this, () => _effectRenderer = null);
-            _effectRenderer.SetEffectInfoTypeAndID(effectType, effectID);
-            _effectRenderer.ShowEffect();
-        }
-
-        private void ResetEffectRenderer()
-        {
-            if (_effectRenderer != null)
-                _effectRenderer.Dispose();
         }
 
         #endregion
@@ -432,12 +403,6 @@ namespace EndlessClient.Rendering
                     NPC.EndAttacking();
                     break;
             }
-        }
-
-        private void UpdateEffectAnimation()
-        {
-            if (_effectRenderer != null)
-                _effectRenderer.Update();
         }
 
         #endregion

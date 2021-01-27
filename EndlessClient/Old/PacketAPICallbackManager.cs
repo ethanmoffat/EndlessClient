@@ -52,7 +52,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnMapMutation += _mapMutate;
 
             //npc related
-            m_packetAPI.OnNPCTakeDamage += _npcTakeDamage;
             m_packetAPI.OnRemoveChildNPCs += _removeChildNPCs;
 
             //bank related
@@ -95,14 +94,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnSpellTrain += _statskillTrainSpell;
             m_packetAPI.OnCharacterStatsReset += _statskillReset;
 
-            //map effects
-            m_packetAPI.OnTimedSpike += _timedSpike;
-            m_packetAPI.OnPlayerTakeSpikeDamage += _mainPlayerSpikeDamage;
-            m_packetAPI.OnOtherPlayerTakeSpikeDamage += _otherPlayerSpikeDamage;
-            m_packetAPI.OnTimedMapDrainHP += _mapDrainHP;
-            m_packetAPI.OnTimedMapDrainTP += _mapDrainTP;
-            m_packetAPI.OnEffectPotion += _otherPlayerEffectPotion;
-
             //quests
             m_packetAPI.OnQuestDialog += _questDialog;
             m_packetAPI.OnViewQuestProgress += _questProgress;
@@ -112,10 +103,6 @@ namespace EndlessClient.Old
             m_packetAPI.OnPlaySoundEffect += _playSoundEffect;
 
             //spell casting
-            m_packetAPI.OnOtherPlayerStartCastSpell += _playerStartCastSpell;
-            m_packetAPI.OnOtherPlayerCastSpellSelf += _otherPlayerCastSpellSelf;
-            m_packetAPI.OnCastSpellSelf += _mainPlayerCastSpellSelf;
-            m_packetAPI.OnCastSpellTargetOther += _playerCastTargetSpell;
             m_packetAPI.OnCastSpellTargetGroup += _playerCastGroupSpell;
         }
 
@@ -274,7 +261,7 @@ namespace EndlessClient.Old
                     OldWorld.Instance.ActiveCharacterRenderer.MakeDrunk();
                     m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_USE_DRUNK);
                     break;
-                case ItemType.EffectPotion: //todo: effect potions for other players
+                case ItemType.EffectPotion:
                     OldWorld.Instance.ActiveCharacterRenderer.ShowPotionAnimation(data.EffectID);
                     break;
                 case ItemType.CureCurse:
@@ -360,17 +347,6 @@ namespace EndlessClient.Old
             }
             else
                 throw new FileNotFoundException("Unable to remap the file, something broke");
-        }
-
-        private void _npcTakeDamage(byte npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID, short fromTP)
-        {
-            OldWorld.Instance.ActiveMapRenderer.NPCTakeDamage(npcIndex, fromPlayerID, fromDirection, damageToNPC, npcPctHealth, spellID);
-
-            if (fromTP >= 0)
-            {
-                OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = fromTP;
-                m_game.Hud.RefreshStats();
-            }
         }
 
         private void _removeChildNPCs(short childNPCID)
@@ -618,36 +594,6 @@ namespace EndlessClient.Old
             m_game.Hud.RemoveAllSpells();
         }
 
-        private void _timedSpike()
-        {
-            OldWorld.Instance.ActiveMapRenderer.PlayTimedSpikeSoundEffect();
-        }
-
-        private void _mainPlayerSpikeDamage(short damage, short hp, short maxhp)
-        {
-            OldWorld.Instance.ActiveMapRenderer.SpikeDamage(damage, hp, maxhp);
-        }
-
-        private void _otherPlayerSpikeDamage(short playerid, byte playerPercentHealth, bool isPlayerDead, int damageAmount)
-        {
-            OldWorld.Instance.ActiveMapRenderer.SpikeDamage(playerid, playerPercentHealth, isPlayerDead, damageAmount);
-        }
-
-        private void _mapDrainHP(short damage, short hp, short maxhp, List<TimedMapHPDrainData> othercharacterdata)
-        {
-            OldWorld.Instance.ActiveMapRenderer.DrainHPFromPlayers(damage, hp, maxhp, othercharacterdata);
-        }
-
-        private void _mapDrainTP(short amount, short tp, short maxtp)
-        {
-            OldWorld.Instance.ActiveMapRenderer.DrainTPFromMainPlayer(amount, tp, maxtp);
-        }
-
-        private void _otherPlayerEffectPotion(short playerID, int effectID)
-        {
-            OldWorld.Instance.ActiveMapRenderer.ShowPotionEffect(playerID, effectID);
-        }
-
         private void _questDialog(QuestState stateinfo, Dictionary<short, string> dialognames, List<string> pages, Dictionary<short, string> links)
         {
             if (QuestDialog.Instance == null)
@@ -687,35 +633,6 @@ namespace EndlessClient.Old
                     m_game.SoundManager.GetSoundEffectRef((SoundEffectID) effectID).Play();
             }
             catch { /* Ignore errors when the sound effect ID from the server is invalid */ }
-        }
-
-        private void _playerStartCastSpell(short fromplayerid, short spellid)
-        {
-            OldWorld.Instance.ActiveMapRenderer.OtherPlayerShoutSpell(fromplayerid, spellid);
-        }
-
-        private void _otherPlayerCastSpellSelf(short fromplayerid, short spellid, int spellhp, byte percenthealth)
-        {
-            OldWorld.Instance.ActiveMapRenderer.PlayerCastSpellSelf(fromplayerid, spellid, spellhp, percenthealth);
-        }
-
-        private void _mainPlayerCastSpellSelf(short fromplayerid, short spellid, int spellhp, byte percenthealth, short hp, short tp)
-        {
-            OldWorld.Instance.ActiveMapRenderer.PlayerCastSpellSelf(fromplayerid, spellid, spellhp, percenthealth);
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.HP = hp;
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
-            m_game.Hud.RefreshStats();
-        }
-
-        private void _playerCastTargetSpell(short targetPlayerID, short fromPlayerID, EODirection sourcePlayerDirection, short spellID, int recoveredHP, byte targetPercentHealth, short targetPlayerCurrentHP)
-        {
-            OldWorld.Instance.ActiveMapRenderer.PlayerCastSpellTarget(fromPlayerID, targetPlayerID, sourcePlayerDirection, spellID, recoveredHP, targetPercentHealth);
-
-            if (targetPlayerCurrentHP > 0)
-            {
-                OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.HP = targetPlayerCurrentHP;
-                m_game.Hud.RefreshStats();
-            }
         }
 
         private void _playerCastGroupSpell(short spellID, short fromPlayerID, short fromPlayerTP, short spellHPgain, List<GroupSpellTarget> spellTargets)

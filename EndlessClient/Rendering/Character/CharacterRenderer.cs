@@ -2,11 +2,16 @@
 using System.Linq;
 using EndlessClient.GameExecution;
 using EndlessClient.Rendering.CharacterProperties;
+using EndlessClient.Rendering.Effects;
 using EndlessClient.Rendering.Factories;
 using EndlessClient.Rendering.Sprites;
+using EndlessClient.UIControls;
 using EOLib;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
+using EOLib.Domain.Map;
 using EOLib.Graphics;
+using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -17,12 +22,15 @@ namespace EndlessClient.Rendering.Character
     public class CharacterRenderer : DrawableGameComponent, ICharacterRenderer
     {
         private readonly IRenderTargetFactory _renderTargetFactory;
+        private readonly IHealthBarRendererFactory _healthBarRendererFactory;
         private readonly ICharacterProvider _characterProvider;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
         private readonly ICharacterPropertyRendererBuilder _characterPropertyRendererBuilder;
         private readonly ICharacterTextures _characterTextures;
         private readonly ICharacterSpriteCalculator _characterSpriteCalculator;
         private readonly IGameStateProvider _gameStateProvider;
+        private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly IEffectRenderer _effectRenderer;
 
         private ICharacter _character;
         private bool _textureUpdateRequired, _positionIsRelative = true;
@@ -33,7 +41,11 @@ namespace EndlessClient.Rendering.Character
         private RenderTarget2D _charRenderTarget;
         private Texture2D _outline;
 
-        private XNALabel _nameLabel;
+        private BlinkingLabel _nameLabel;
+        private string _shoutName = string.Empty;
+        private DateTime? _spellCastTime;
+
+        private IHealthBarRenderer _healthBarRenderer;
 
         public ICharacter Character
         {
@@ -50,20 +62,32 @@ namespace EndlessClient.Rendering.Character
 
         public Rectangle DrawArea { get; private set; }
 
-        public int? TopPixel { get; private set; }
+        public Rectangle MapProjectedDrawArea => DrawArea;
 
-        public CharacterRenderer(Game game,
+        private int? _topPixel;
+        public int TopPixel => _topPixel.HasValue ? _topPixel.Value : 0;
+
+        public int TopPixelWithOffset => TopPixel + DrawArea.Y;
+
+        public Rectangle EffectTargetArea
+            => DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y - 8));
+
+        public CharacterRenderer(INativeGraphicsManager nativeGraphicsmanager,
+                                 Game game,
                                  IRenderTargetFactory renderTargetFactory,
+                                 IHealthBarRendererFactory healthBarRendererFactory,
                                  ICharacterProvider characterProvider,
                                  IRenderOffsetCalculator renderOffsetCalculator,
                                  ICharacterPropertyRendererBuilder characterPropertyRendererBuilder,
                                  ICharacterTextures characterTextures,
                                  ICharacterSpriteCalculator characterSpriteCalculator,
                                  ICharacter character,
-                                 IGameStateProvider gameStateProvider)
+                                 IGameStateProvider gameStateProvider,
+                                 ICurrentMapProvider currentMapProvider)
             : base(game)
         {
             _renderTargetFactory = renderTargetFactory;
+            _healthBarRendererFactory = healthBarRendererFactory;
             _characterProvider = characterProvider;
             _renderOffsetCalculator = renderOffsetCalculator;
             _characterPropertyRendererBuilder = characterPropertyRendererBuilder;
@@ -71,6 +95,8 @@ namespace EndlessClient.Rendering.Character
             _characterSpriteCalculator = characterSpriteCalculator;
             _character = character;
             _gameStateProvider = gameStateProvider;
+            _currentMapProvider = currentMapProvider;
+            _effectRenderer = new EffectRenderer(nativeGraphicsmanager, this);
         }
 
         #region Game Component
@@ -80,7 +106,7 @@ namespace EndlessClient.Rendering.Character
             _charRenderTarget = _renderTargetFactory.CreateRenderTarget();
             _sb = new SpriteBatch(Game.GraphicsDevice);
 
-            _nameLabel = new XNALabel(Constants.FontSize08pt5)
+            _nameLabel = new BlinkingLabel(Constants.FontSize08pt5)
             {
                 Visible = true,
                 TextWidth = 89,
@@ -93,6 +119,8 @@ namespace EndlessClient.Rendering.Character
 
             _nameLabel.DrawPosition = GetNameLabelPosition();
             _previousMouseState = _currentMouseState = Mouse.GetState();
+
+            _healthBarRenderer = _healthBarRendererFactory.CreateHealthBarRenderer(this);
 
             base.Initialize();
         }
@@ -112,7 +140,10 @@ namespace EndlessClient.Rendering.Character
 
         public override void Update(GameTime gameTime)
         {
-            TopPixel = TopPixel ?? FigureOutTopPixel(_characterSpriteCalculator, _character.RenderProperties);
+            _topPixel = _topPixel ?? FigureOutTopPixel(_characterSpriteCalculator, _character.RenderProperties);
+
+            // Effects can be rendered when character is not visible (leaving map)
+            _effectRenderer.Update();
 
             if (!Visible)
                 return;
@@ -130,9 +161,10 @@ namespace EndlessClient.Rendering.Character
             if (_positionIsRelative)
                 SetGridCoordinatePosition();
 
-            _nameLabel.Visible = _gameStateProvider.CurrentState == GameStates.PlayingTheGame && DrawArea.Contains(_currentMouseState.Position);
-            _nameLabel.DrawPosition = GetNameLabelPosition();
-            _nameLabel.Update(gameTime);
+            if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
+                UpdateNameLabel(gameTime);
+
+            _healthBarRenderer.Update(gameTime);
 
             _previousMouseState = _currentMouseState;
 
@@ -180,12 +212,19 @@ namespace EndlessClient.Rendering.Character
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(_charRenderTarget, Vector2.Zero, GetAlphaColor());
-            spriteBatch.End();
+            _effectRenderer.DrawBehindTarget(spriteBatch);
+            if (Visible)
+                spriteBatch.Draw(_charRenderTarget, new Vector2(0, GetSteppingStoneOffset(Character.RenderProperties)), GetAlphaColor());
+            _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
-            _nameLabel.Draw(new GameTime());
+            _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
 
-            spriteBatch.Begin();
+            if (Visible)
+            {
+                spriteBatch.End();
+                _nameLabel.Draw(new GameTime());
+                spriteBatch.Begin();
+            }
         }
 
         #endregion
@@ -208,12 +247,12 @@ namespace EndlessClient.Rendering.Character
 
         #endregion
 
-        #region Drawing Helpers
+        #region Update/Drawing Helpers
 
         private void DrawToRenderTarget()
         {
             GraphicsDevice.SetRenderTarget(_charRenderTarget);
-            GraphicsDevice.Clear(Color.Transparent);
+            GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
             _sb.Begin(SpriteSortMode.FrontToBack, BlendState.AlphaBlend);
 
             var characterPropertyRenderers = _characterPropertyRendererBuilder
@@ -236,7 +275,12 @@ namespace EndlessClient.Rendering.Character
 
         private Color GetAlphaColor()
         {
-            return _character.RenderProperties.IsHidden || _character.RenderProperties.IsDead || Transparent
+            // don't render the transparent character layer if hidden/dead, otherwise the additive blending 
+            //      will render it with full alpha
+            if (_character.RenderProperties.IsHidden || _character.RenderProperties.IsDead)
+                return Transparent ? Color.Transparent : Color.FromNonPremultiplied(255, 255, 255, 128);
+
+            return Transparent
                 ? Color.FromNonPremultiplied(255, 255, 255, 128)
                 : Color.White;
         }
@@ -267,13 +311,143 @@ namespace EndlessClient.Rendering.Character
             return _renderOffsetCalculator.CalculateOffsetY(_characterProvider.MainCharacter.RenderProperties);
         }
 
+        private void UpdateNameLabel(GameTime gameTime)
+        {
+            if (_healthBarRenderer.Visible)
+            {
+                _nameLabel.Visible = false;
+            }
+            else if (DrawArea.Contains(_currentMouseState.Position))
+            {
+                _nameLabel.Visible = true;
+                _nameLabel.BlinkRate = null;
+                _nameLabel.Text = _character.Name;
+            }
+            else if (_shoutName != string.Empty && _nameLabel.Text != _shoutName)
+            {
+                _nameLabel.Visible = true;
+                _nameLabel.BlinkRate = 250;
+                _nameLabel.Text = _shoutName;
+            }
+            else if (_shoutName == string.Empty)
+            {
+                _nameLabel.Visible = false;
+            }
+
+            if (_spellCastTime.HasValue && (DateTime.Now - _spellCastTime.Value).TotalMilliseconds >= 600)
+            {
+                _nameLabel.Visible = false;
+                _nameLabel.Text = _character.Name;
+                _nameLabel.ForeColor = Color.White;
+                _nameLabel.BlinkRate = null;
+                _shoutName = string.Empty;
+                _spellCastTime = null;
+            }
+
+            _nameLabel.DrawPosition = GetNameLabelPosition();
+            _nameLabel.Update(gameTime);
+        }
+
         private Vector2 GetNameLabelPosition()
         {
             return new Vector2(DrawArea.X - Math.Abs(DrawArea.Width - _nameLabel.ActualWidth) / 2,
                                DrawArea.Y - 4 - _nameLabel.ActualHeight);
         }
 
+        private bool GetIsSteppingStone(ICharacterRenderProperties renderProps)
+        {
+            if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame)
+                return false;
+
+            return _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump ||
+                (renderProps.IsActing(CharacterActionState.Walking) && _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump);
+        }
+
+        private int GetSteppingStoneOffset(ICharacterRenderProperties renderProps)
+        {
+            var isSteppingStone = GetIsSteppingStone(renderProps);
+
+            if (isSteppingStone && renderProps.IsActing(CharacterActionState.Walking))
+            {
+                switch(renderProps.ActualWalkFrame)
+                {
+                    case 1: return -8;
+                    case 2: return -16;
+                    case 3: return -16;
+                    case 4: return -8;
+                }
+            }
+
+            return 0;
+        }
+
         #endregion
+
+        #region Effects
+
+        public bool EffectIsPlaying()
+        {
+            return _effectRenderer.State == EffectState.Playing;
+        }
+
+        public void ShowWaterSplashies()
+        {
+            if (_effectRenderer.EffectType == EffectType.WaterSplashies &&
+                _effectRenderer.State == EffectState.Playing)
+                _effectRenderer.Restart();
+
+            _effectRenderer.PlayEffect(EffectType.WaterSplashies, 0);
+        }
+
+        public void ShowWarpArrive()
+        {
+            _effectRenderer.PlayEffect(EffectType.WarpDestination, 0);
+        }
+
+        public void ShowWarpLeave()
+        {
+            _effectRenderer.PlayEffect(EffectType.WarpOriginal, 0);
+        }
+
+        public void ShowPotionAnimation(int potionId)
+        {
+            _effectRenderer.PlayEffect(EffectType.Potion, potionId);
+        }
+
+        public void ShowSpellAnimation(int spellId)
+        {
+            _effectRenderer.PlayEffect(EffectType.Spell, spellId);
+        }
+
+        #endregion
+
+        // Called when the spell cast begins
+        public void ShoutSpellPrep(string spellName)
+        {
+            _shoutName = spellName;
+        }
+
+        // Called when the spell prep time ends and the player actually casts the spell
+        public void ShoutSpellCast()
+        {
+            _nameLabel.BlinkRate = null;
+            _nameLabel.ForeColor = Color.FromNonPremultiplied(0xf5, 0xc8, 0x9c, 0xff); // todo: make constant for this
+            _spellCastTime = DateTime.Now;
+        }
+
+        // Called when the shout (spell prep time) should be cancelled without casting
+        public void StopShoutingSpell()
+        {
+            _shoutName = string.Empty;
+        }
+
+        public void ShowDamageCounter(int damage, int percentHealth, bool isHeal)
+        {
+            if (isHeal)
+                _healthBarRenderer.SetHealth(damage, percentHealth);
+            else
+                _healthBarRenderer.SetDamage(damage == 0 ? Optional<int>.Empty : new Optional<int>(damage), percentHealth);
+        }
 
         protected override void Dispose(bool disposing)
         {

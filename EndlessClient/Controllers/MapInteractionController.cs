@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
+using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
@@ -21,21 +23,24 @@ namespace EndlessClient.Controllers
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IHudControlProvider _hudControlProvider;
+        private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
 
         public MapInteractionController(IMapActions mapActions,
                                         ICurrentMapStateProvider currentMapStateProvider,
                                         IStatusLabelSetter statusLabelSetter,
                                         IInventorySpaceValidator inventorySpaceValidator,
-                                        IHudControlProvider hudControlProvider)
+                                        IHudControlProvider hudControlProvider,
+                                        IEOMessageBoxFactory eoMessageBoxFactory)
         {
             _mapActions = mapActions;
             _currentMapStateProvider = currentMapStateProvider;
             _statusLabelSetter = statusLabelSetter;
             _inventorySpaceValidator = inventorySpaceValidator;
             _hudControlProvider = hudControlProvider;
+            _eoMessageBoxFactory = eoMessageBoxFactory;
         }
 
-        public void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
+        public async Task LeftClickAsync(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
         {
             var item = cellState.Items.OptionalFirst();
             if (item.HasValue)
@@ -46,10 +51,14 @@ namespace EndlessClient.Controllers
                     HandlePickupResult(_mapActions.PickUpItem(item.Value), item.Value);
             }
             else if (cellState.NPC.HasValue) { /* TODO: spell cast */ }
-            else if (cellState.Sign.HasValue) { /* TODO: sign interaction */ }
+            else if (cellState.Sign.HasValue)
+            {
+                var messageBox = _eoMessageBoxFactory.CreateMessageBox(cellState.Sign.Value.Message, cellState.Sign.Value.Title);
+                await messageBox.ShowDialogAsync();
+            }
             else if (cellState.Chest.HasValue) { /* TODO: chest interaction */ }
             else if (cellState.Character.HasValue) { /* TODO: character spell cast */ }
-            else
+            else if (cellState.InBounds)
             {
                 mouseRenderer.AnimateClick();
                 _hudControlProvider.GetComponent<IClickWalkPathHandler>(HudControlIdentifier.ClickWalkPathHandler)
@@ -95,7 +104,7 @@ namespace EndlessClient.Controllers
 
     public interface IMapInteractionController
     {
-        void LeftClick(IMapCellState cellState, IMouseCursorRenderer mouseRenderer);
+        Task LeftClickAsync(IMapCellState cellState, IMouseCursorRenderer mouseRenderer);
 
         void RightClick(IMapCellState cellState);
     }

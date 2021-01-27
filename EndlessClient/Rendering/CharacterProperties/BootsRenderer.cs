@@ -39,7 +39,7 @@ namespace EndlessClient.Rendering.CharacterProperties
             {
                 resY -= 1;// * factor;
 
-                if (_renderProperties.WalkFrame == 2)
+                if (_renderProperties.RenderWalkFrame == 2)
                     resY -= 1;
             }
             else if (_renderProperties.AttackFrame == 2)

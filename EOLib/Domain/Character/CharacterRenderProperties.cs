@@ -26,7 +26,8 @@ namespace EOLib.Domain.Character
         public int MapX { get; private set; }
         public int MapY { get; private set; }
 
-        public int WalkFrame { get; private set; }
+        public int ActualWalkFrame { get; private set; }
+        public int RenderWalkFrame { get; private set; }
         public int AttackFrame { get; private set; }
         public int EmoteFrame { get; private set; }
 
@@ -123,11 +124,23 @@ namespace EOLib.Domain.Character
             return props;
         }
 
-        public ICharacterRenderProperties WithNextWalkFrame()
+        public ICharacterRenderProperties WithNextWalkFrame(bool isSteppingStone = false)
         {
             var props = MakeCopy(this);
-            props.WalkFrame = (props.WalkFrame + 1) % MAX_NUMBER_OF_WALK_FRAMES;
-            props.CurrentAction = props.WalkFrame == 0 ? CharacterActionState.Standing : CharacterActionState.Walking;
+            props.ActualWalkFrame = (props.ActualWalkFrame + 1) % MAX_NUMBER_OF_WALK_FRAMES;
+
+            if (isSteppingStone && props.ActualWalkFrame > 1)
+            {
+                // force first walk frame when on a stepping stone (this is the graphic used for jump, Y adjusted)
+                props.RenderWalkFrame = 1;
+            }
+            else
+            {
+                props.RenderWalkFrame = props.ActualWalkFrame;
+            }
+
+            props.CurrentAction = props.RenderWalkFrame == 0 ? CharacterActionState.Standing : CharacterActionState.Walking;
+
             return props;
         }
 
@@ -159,7 +172,7 @@ namespace EOLib.Domain.Character
         public ICharacterRenderProperties ResetAnimationFrames()
         {
             var props = MakeCopy(this);
-            props.WalkFrame = 0;
+            props.RenderWalkFrame = 0;
             props.AttackFrame = 0;
             props.EmoteFrame = 0;
             props.CurrentAction = CharacterActionState.Standing;
@@ -228,7 +241,8 @@ namespace EOLib.Domain.Character
                 MapX = other.MapX,
                 MapY = other.MapY,
 
-                WalkFrame = other.WalkFrame,
+                ActualWalkFrame = other.ActualWalkFrame,
+                RenderWalkFrame = other.RenderWalkFrame,
                 AttackFrame = other.AttackFrame,
                 EmoteFrame = other.EmoteFrame,
 
@@ -257,7 +271,8 @@ namespace EOLib.Domain.Character
                    Direction == properties.Direction &&
                    MapX == properties.MapX &&
                    MapY == properties.MapY &&
-                   WalkFrame == properties.WalkFrame &&
+                   ActualWalkFrame == properties.ActualWalkFrame &&
+                   RenderWalkFrame == properties.RenderWalkFrame &&
                    AttackFrame == properties.AttackFrame &&
                    EmoteFrame == properties.EmoteFrame &&
                    SitState == properties.SitState &&
@@ -283,7 +298,8 @@ namespace EOLib.Domain.Character
             hashCode = hashCode * -1521134295 + Direction.GetHashCode();
             hashCode = hashCode * -1521134295 + MapX.GetHashCode();
             hashCode = hashCode * -1521134295 + MapY.GetHashCode();
-            hashCode = hashCode * -1521134295 + WalkFrame.GetHashCode();
+            hashCode = hashCode * -1521134295 + ActualWalkFrame.GetHashCode();
+            hashCode = hashCode * -1521134295 + RenderWalkFrame.GetHashCode();
             hashCode = hashCode * -1521134295 + AttackFrame.GetHashCode();
             hashCode = hashCode * -1521134295 + EmoteFrame.GetHashCode();
             hashCode = hashCode * -1521134295 + SitState.GetHashCode();

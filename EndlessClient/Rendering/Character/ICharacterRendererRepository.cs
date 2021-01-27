@@ -9,6 +9,8 @@ namespace EndlessClient.Rendering.Character
         ICharacterRenderer MainCharacterRenderer { get; set; }
 
         Dictionary<int, ICharacterRenderer> CharacterRenderers { get; set; }
+
+        HashSet<int> NeedsWarpArriveAnimation { get; }
     }
 
     public interface ICharacterRendererProvider
@@ -16,6 +18,8 @@ namespace EndlessClient.Rendering.Character
         ICharacterRenderer MainCharacterRenderer { get; }
 
         IReadOnlyDictionary<int, ICharacterRenderer> CharacterRenderers { get; }
+
+        HashSet<int> NeedsWarpArriveAnimation { get; }
     }
 
     [MappedType(BaseType = typeof(ICharacterRendererProvider), IsSingleton = true)]
@@ -28,9 +32,12 @@ namespace EndlessClient.Rendering.Character
 
         IReadOnlyDictionary<int, ICharacterRenderer> ICharacterRendererProvider.CharacterRenderers => CharacterRenderers;
 
+        public HashSet<int> NeedsWarpArriveAnimation { get; set; }
+
         public CharacterRendererRepository()
         {
             CharacterRenderers = new Dictionary<int, ICharacterRenderer>(64);
+            NeedsWarpArriveAnimation = new HashSet<int>();
         }
 
         public void Dispose()

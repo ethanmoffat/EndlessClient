@@ -96,13 +96,7 @@ namespace EndlessClient.Rendering
         private DateTime? m_drunkTime;
         private int m_drunkOffset;
 
-        private bool _playerIsOnSpikeTrap;
-
-        private readonly BlinkingLabel _mouseoverName;
-        private string _shoutName;
         private DateTime? _spellInvocationStartTime;
-
-        private EffectRenderer _effectRenderer;
 
         private CharacterActionState State => Character.State;
 
@@ -148,19 +142,6 @@ namespace EndlessClient.Rendering
             TopPixel = (Data.gender == 0 ? 12 : 13) + (i == skinData.Length - 1 ? 0 : i / m_skinSourceRect.Height);
 
             m_damageCounter = new DamageCounter(this);
-
-            _mouseoverName = new BlinkingLabel(new Rectangle(1, 1, 1, 1), Constants.FontSize08pt75)
-            {
-                Visible = false,
-                Text = Character.Name,
-                ForeColor = Color.White,
-                DrawOrder = (int)ControlDrawLayer.BaseLayer + 3,
-                AutoSize = false
-            };
-            _mouseoverName.DrawLocation = new Vector2(
-                DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
-                DrawAreaWithOffset.Y + TopPixel - _mouseoverName.ActualHeight - 7);
-            _mouseoverName.ResizeBasedOnText();
         }
 
         /// <summary>
@@ -257,7 +238,6 @@ namespace EndlessClient.Rendering
 
         public override void Update(GameTime gameTime)
         {
-            _checkMouseoverState();
             _checkMouseClickState();
 
             base.Update(gameTime);
@@ -268,8 +248,6 @@ namespace EndlessClient.Rendering
                 _updateDisplayDataSprites();
             _checkBringBackFromDead();
             _checkResetCharacterStateAfterSpell();
-
-            UpdateEffectRenderer();
 
             if (EOGame.Instance.State == GameStates.PlayingTheGame && this == OldWorld.Instance.ActiveCharacterRenderer)
             {
@@ -431,44 +409,6 @@ namespace EndlessClient.Rendering
             return mouseOverActual;
         }
 
-        private void _checkMouseoverState()
-        {
-            if (_mouseoverName == null) return;
-
-            bool shouting = !string.IsNullOrEmpty(_shoutName);
-
-            if (_getMouseOverActual())
-            {
-                if (_mouseoverName.Text != Character.Name)
-                {
-                    _mouseoverName.BlinkRate = null;
-                    _mouseoverName.Text = Character.Name;
-                    _mouseoverName.ResizeBasedOnText();
-                }
-                _mouseoverName.Visible = true;
-            }
-            else if (shouting && _mouseoverName.Text != _shoutName)
-            {
-                _mouseoverName.BlinkRate = 250; //one cycle is 500ms
-                _mouseoverName.Text = _shoutName;
-                _mouseoverName.ResizeBasedOnText();
-            }
-            else if(!shouting)
-            {
-                _mouseoverName.Visible = false;
-                if (_mouseoverName.Text != Character.Name)
-                {
-                    _mouseoverName.BlinkRate = null;
-                    _mouseoverName.Text = Character.Name;
-                    _mouseoverName.ResizeBasedOnText();
-                }
-            }
-
-            _mouseoverName.DrawLocation = new Vector2(
-                DrawAreaWithOffset.X + (32 - _mouseoverName.ActualWidth)/2f,
-                DrawAreaWithOffset.Y + TopPixel - _mouseoverName.ActualHeight - 7);
-        }
-
         private void _checkMouseClickState()
         {
             if (!_getMouseOverActual()) return; //ignore clicks when mouse isn't over
@@ -508,23 +448,12 @@ namespace EndlessClient.Rendering
             }
         }
 
-        private void UpdateEffectRenderer()
-        {
-            if (_effectRenderer != null)
-                _effectRenderer.Update();
-        }
-
         public void PlayerWalk(bool isWaterTile, bool isSpikeTrap)
         {
-            if (!string.IsNullOrEmpty(_shoutName))
-                _cancelSpell(false);
+            //if (!string.IsNullOrEmpty(_shoutName))
+            //    _cancelSpell(false);
 
             Data.SetUpdate(true);
-
-            if (_playerIsOnSpikeTrap)
-            {
-                OldWorld.Instance.ActiveMapRenderer.RemoveVisibleSpikeTrap(Character.X, Character.Y);
-            }
 
             if (OldWorld.Instance.SoundEnabled)
             {
@@ -536,16 +465,12 @@ namespace EndlessClient.Rendering
 
             if (isWaterTile)
                 ShowWaterSplashieAnimation();
-
-            _playerIsOnSpikeTrap = isSpikeTrap;
-            if (_playerIsOnSpikeTrap)
-                OldWorld.Instance.ActiveMapRenderer.AddVisibleSpikeTrap(Character.DestX, Character.DestY);
         }
 
         public void PlayerAttack(bool isWaterTile)
         {
-            if (!string.IsNullOrEmpty(_shoutName))
-                _cancelSpell(false);
+            //if (!string.IsNullOrEmpty(_shoutName))
+            //    _cancelSpell(false);
 
             const int attackTimer = 285;
             Data.SetUpdate(true);
@@ -590,8 +515,8 @@ namespace EndlessClient.Rendering
         {
             if (OldWorld.Instance.SoundEnabled && Character.RenderData.emote == Emote.LevelUp)
                 EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.LevelUp).Play();
-            else if (!string.IsNullOrEmpty(_shoutName))
-                _cancelSpell(false);
+            //else if (!string.IsNullOrEmpty(_shoutName))
+            //    _cancelSpell(false);
 
             const int EmoteTimeBetweenFrames = 250;
             Data.SetUpdate(true);
@@ -609,8 +534,8 @@ namespace EndlessClient.Rendering
 
         public void Die()
         {
-            if (!string.IsNullOrEmpty(_shoutName))
-                _cancelSpell(false);
+            //if (!string.IsNullOrEmpty(_shoutName))
+            //    _cancelSpell(false);
 
             if(OldWorld.Instance.SoundEnabled)
                 EOGame.Instance.SoundManager.GetSoundEffectRef(SoundEffectID.Dead).Play();
@@ -644,16 +569,10 @@ namespace EndlessClient.Rendering
                 OldWorld.Instance.MainPlayer.ActiveCharacter.AdminLevel == AdminLevel.Player)
                 return;
 
-            if (_effectRenderer != null)
-                _effectRenderer.DrawBehindTarget(sb, started);
-
             if(!started) sb.Begin();
             sb.Draw(_charRenderTarget, new Vector2(0, 0),
                 _char.RenderData.hidden || _char.RenderData.dead ? Color.FromNonPremultiplied(255, 255, 255, 128) : Color.White);
             if(!started) sb.End();
-
-            if (_effectRenderer != null)
-                _effectRenderer.DrawInFrontOfTarget(sb, started);
         }
 
         private void _attackTimerCallback(object state)
@@ -1253,7 +1172,7 @@ namespace EndlessClient.Rendering
             Character.PrepareSpell(toCast.ID);
             _beginSpellCast(toCast);
 
-            SetSpellShout(toCast.Shout);
+            //SetSpellShout(toCast.Shout);
         }
 
         private void _beginSpellCast(ESFRecord spell)
@@ -1275,29 +1194,22 @@ namespace EndlessClient.Rendering
             _spellInvocationStartTime = DateTime.Now;
         }
 
-        public void SetSpellShout(string shoutName)
-        {
-            //starts shouting (see checkMouseoverState method)
-            _mouseoverName.ForeColor = Color.White;
-            _shoutName = shoutName.ToLower();
-        }
-
         public void StopShouting(bool isSpellBeingCast)
         {
-            if (!isSpellBeingCast || OldWorld.Instance.ESF[Character.SelectedSpell].Target == SpellTarget.Self || Character.SpellTarget == this)
-            {
-                _mouseoverName.BlinkRate = null;
-                _mouseoverName.Text = Character.Name;
-                _mouseoverName.ForeColor = Color.White;
-                _mouseoverName.Visible = false;
-                _shoutName = null;
-                return;
-            }
+            //if (!isSpellBeingCast || OldWorld.Instance.ESF[Character.SelectedSpell].Target == SpellTarget.Self || Character.SpellTarget == this)
+            //{
+            //    _mouseoverName.BlinkRate = null;
+            //    _mouseoverName.Text = Character.Name;
+            //    _mouseoverName.ForeColor = Color.White;
+            //    _mouseoverName.Visible = false;
+            //    _shoutName = null;
+            //    return;
+            //}
 
-            _mouseoverName.Visible = true;
-            _mouseoverName.BlinkRate = null;
-            _mouseoverName.ForeColor = Color.FromNonPremultiplied(0xf5, 0xc8, 0x9c, 0xff);
-            _mouseoverName.SetCallback(600, () => StopShouting(false));
+            //_mouseoverName.Visible = true;
+            //_mouseoverName.BlinkRate = null;
+            //_mouseoverName.ForeColor = Color.FromNonPremultiplied(0xf5, 0xc8, 0x9c, 0xff);
+            //_mouseoverName.SetCallback(600, () => StopShouting(false));
         }
 
         public void StartCastingSpell()
@@ -1312,71 +1224,42 @@ namespace EndlessClient.Rendering
 
         public void ShowWarpArrive()
         {
-            ResetEffectRenderer();
-            RenderEffect(EffectType.WarpDestination);
+            //ResetEffectRenderer();
+            //RenderEffect(EffectType.WarpDestination);
         }
 
         public void ShowWarpLeave()
         {
-            ResetEffectRenderer();
-            RenderEffect(EffectType.WarpOriginal, 0, Close);
+            //ResetEffectRenderer();
+            //RenderEffect(EffectType.WarpOriginal, 0, Close);
         }
 
         public void ShowPotionAnimation(int potionID)
         {
-            var hud = ((EOGame)Game).Hud;
-            hud.DisableEffectPotionUse();
+            //var hud = ((EOGame)Game).Hud;
+            //hud.DisableEffectPotionUse();
 
-            ResetEffectRenderer();
-            RenderEffect(EffectType.Potion, potionID, hud.EnableEffectPotionUse);
+            //ResetEffectRenderer();
+            //RenderEffect(EffectType.Potion, potionID, hud.EnableEffectPotionUse);
         }
 
         public void ShowSpellAnimation(int spellGraphicID)
         {
-            ResetEffectRenderer();
-            RenderEffect(EffectType.Spell, spellGraphicID);
+            //ResetEffectRenderer();
+            //RenderEffect(EffectType.Spell, spellGraphicID);
         }
 
         //only used in CharacterRenderer
         private void ShowWaterSplashieAnimation()
         {
-            if (HasExistingWaterEffect())
-            {
-                _effectRenderer.Restart();
-                return;
-            }
+            //if (HasExistingWaterEffect())
+            //{
+            //    _effectRenderer.Restart();
+            //    return;
+            //}
 
-            ResetEffectRenderer();
-            RenderEffect(EffectType.WaterSplashies);
-        }
-
-        private bool HasExistingWaterEffect()
-        {
-            return _effectRenderer != null && _effectRenderer.EffectType == EffectType.WaterSplashies;
-        }
-
-        private void RenderEffect(EffectType effectType, int effectID = 0, Action cleanupAction = null)
-        {
-            cleanupAction = cleanupAction ?? delegate { };
-            Action fullCleanup = () =>
-            {
-                _effectRenderer = null;
-                cleanupAction();
-            };
-
-            var gfxManager = ((EOGame)Game).GFXManager;
-            _effectRenderer = new EffectRenderer(gfxManager, this, fullCleanup);
-            _effectRenderer.SetEffectInfoTypeAndID(effectType, effectID);
-            _effectRenderer.ShowEffect();
-        }
-
-        private void ResetEffectRenderer()
-        {
-            if (_effectRenderer != null)
-            {
-                _effectRenderer.Dispose();
-                _effectRenderer = null;
-            }
+            //ResetEffectRenderer();
+            //RenderEffect(EffectType.WaterSplashies);
         }
 
         #endregion
@@ -1397,8 +1280,6 @@ namespace EndlessClient.Rendering
                     _spTimer.Dispose();
                 if (_charRenderTarget != null)
                     _charRenderTarget.Dispose();
-                if (_mouseoverName != null)
-                    _mouseoverName.Close();
             }
 
             base.Dispose(disposing);

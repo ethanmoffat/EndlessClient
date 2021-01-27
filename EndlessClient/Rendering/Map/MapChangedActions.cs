@@ -7,6 +7,7 @@ using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
+using EOLib.IO.Map;
 using EOLib.Localization;
 
 namespace EndlessClient.Rendering.Map
@@ -23,6 +24,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IChatRepository _chatRepository;
         private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICurrentMapProvider _currentMapProvider;
+        private readonly ICurrentMapStateRepository _currentMapStateRepository;
 
         public MapChangedActions(ICharacterStateCache characterStateCache,
                                  INPCStateCache npcStateCache,
@@ -31,7 +33,8 @@ namespace EndlessClient.Rendering.Map
                                  IHudControlProvider hudControlProvider,
                                  IChatRepository chatRepository,
                                  ILocalizedStringFinder localizedStringFinder,
-                                 ICurrentMapProvider currentMapProvider)
+                                 ICurrentMapProvider currentMapProvider,
+                                 ICurrentMapStateRepository currentMapStateRepository)
         {
             _characterStateCache = characterStateCache;
             _npcStateCache = npcStateCache;
@@ -41,6 +44,7 @@ namespace EndlessClient.Rendering.Map
             _chatRepository = chatRepository;
             _localizedStringFinder = localizedStringFinder;
             _currentMapProvider = currentMapProvider;
+            _currentMapStateRepository = currentMapStateRepository;
         }
 
         public void ActiveCharacterEnterMapForLogin()
@@ -58,8 +62,8 @@ namespace EndlessClient.Rendering.Map
             ShowMapNameIfAvailable(differentMapID);
             //todo: show message if map is a PK map
             ShowMapTransition(differentMapID);
-
-            //todo: render warp animation on main character renderer
+            AddSpikeTraps();
+            ShowWarpBubbles(warpAnimation);
         }
 
         private void StopAllAnimations()
@@ -108,6 +112,23 @@ namespace EndlessClient.Rendering.Map
             {
                 var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
                 mapRenderer.StartMapTransition();
+            }
+        }
+
+        private void AddSpikeTraps()
+        {
+            foreach (var character in _currentMapStateRepository.Characters)
+            {
+                if (_currentMapProvider.CurrentMap.Tiles[character.RenderProperties.MapY, character.RenderProperties.MapX] == TileSpec.SpikesTrap)
+                    _currentMapStateRepository.VisibleSpikeTraps.Add(new MapCoordinate(character.RenderProperties.MapX, character.RenderProperties.MapY));
+            }
+        }
+
+        private void ShowWarpBubbles(WarpAnimation animation)
+        {
+            if (animation == WarpAnimation.Admin)
+            {
+                _characterRendererRepository.MainCharacterRenderer.ShowWarpArrive();
             }
         }
     }

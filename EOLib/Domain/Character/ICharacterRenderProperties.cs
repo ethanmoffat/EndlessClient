@@ -22,7 +22,8 @@ namespace EOLib.Domain.Character
         int MapX { get; }
         int MapY { get; }
 
-        int WalkFrame { get; }
+        int ActualWalkFrame { get; }
+        int RenderWalkFrame { get; }
         int AttackFrame { get; }
         int EmoteFrame { get; }
         
@@ -49,7 +50,7 @@ namespace EOLib.Domain.Character
         ICharacterRenderProperties WithMapX(int mapX);
         ICharacterRenderProperties WithMapY(int mapY);
 
-        ICharacterRenderProperties WithNextWalkFrame();
+        ICharacterRenderProperties WithNextWalkFrame(bool isSteppingStone = false);
         ICharacterRenderProperties WithNextAttackFrame();
         ICharacterRenderProperties WithNextEmoteFrame();
         ICharacterRenderProperties WithNextSpellCastFrame();

@@ -4,6 +4,7 @@ using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Map;
 using EndlessClient.Rendering.NPC;
 using EOLib.Domain.Character;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
@@ -33,7 +34,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 .Count(n => n.NPC.X == col && n.NPC.Y == row) > 0;
         }
 
-        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             var indicesToRender = _npcRendererProvider.NPCRenderers.Values
                 .Where(n => n.NPC.X == col && n.NPC.Y == row)

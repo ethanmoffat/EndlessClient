@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using AutomaticTypeMapper;
+using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.Rendering.Map
 {
-    [MappedType(BaseType = typeof(IDoorStateUpdater), IsSingleton = true)]
-    public class DoorStateUpdater : IDoorStateUpdater
+    [AutoMappedType(IsSingleton = true)]
+    public class DynamicMapObjectUpdater : IDynamicMapObjectUpdater
     {
         private const int DOOR_CLOSE_TIME_MS = 3000;
 
@@ -18,21 +19,26 @@ namespace EndlessClient.Rendering.Map
             public DateTime OpenTime { get; set; }
         }
 
+        private readonly ICharacterProvider _characterProvider;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly List<DoorTimePair> _cachedDoorState;
 
-        public DoorStateUpdater(ICurrentMapStateRepository currentMapStateRepository)
+        public DynamicMapObjectUpdater(ICharacterProvider characterProvider,
+                                       ICurrentMapStateRepository currentMapStateRepository)
         {
+            _characterProvider = characterProvider;
             _currentMapStateRepository = currentMapStateRepository;
 
             _cachedDoorState = new List<DoorTimePair>();
         }
 
-        public void UpdateDoorState(GameTime gameTime)
+        public void UpdateMapObjects(GameTime gameTime)
         {
             var now = DateTime.Now;
             OpenNewDoors(now);
             CloseExpiredDoors(now);
+
+            RemoveStaleSpikeTraps();
         }
 
         private void OpenNewDoors(DateTime now)
@@ -51,10 +57,20 @@ namespace EndlessClient.Rendering.Map
                 _currentMapStateRepository.OpenDoors.Remove(door.Door);
             }
         }
+
+        private void RemoveStaleSpikeTraps()
+        {
+            _currentMapStateRepository.VisibleSpikeTraps.RemoveWhere(
+                spike => _currentMapStateRepository.Characters
+                                                   .Concat(new[] { _characterProvider.MainCharacter })
+                                                   .Select(x => x.RenderProperties)
+                                                   .All(x => x.MapX != spike.X && x.MapY != spike.Y));
+
+        }
     }
 
-    public interface IDoorStateUpdater
+    public interface IDynamicMapObjectUpdater
     {
-        void UpdateDoorState(GameTime gameTime);
+        void UpdateMapObjects(GameTime gameTime);
     }
 }

@@ -7,6 +7,8 @@ namespace EOLib.Domain.Map
 {
     public interface IMapCellState
     {
+        bool InBounds { get; }
+
         MapCoordinate Coordinate { get;  }
 
         IReadOnlyList<IItem> Items { get; }

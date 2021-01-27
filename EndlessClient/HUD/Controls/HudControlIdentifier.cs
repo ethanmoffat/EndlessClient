@@ -4,7 +4,7 @@ namespace EndlessClient.HUD.Controls
 {
     public enum HudControlIdentifier
     {
-        CurrentKeyStateTracker = int.MinValue, //this should always be first!
+        CurrentUserInputTracker = int.MinValue, //this should always be first!
 
         MapRenderer = 0,
 
@@ -71,6 +71,6 @@ namespace EndlessClient.HUD.Controls
         NPCAnimator,
         ClickWalkPathHandler,
 
-        PreviousKeyStateTracker = Int32.MaxValue, //this should always be last!
+        PreviousUserInputTracker = Int32.MaxValue, //this should always be last!
     }
 }

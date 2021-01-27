@@ -6,11 +6,11 @@ namespace EOLib.IO.Map
     {
         public int ConvertFromPathToID(string pathToMapFile)
         {
-            var lastSlash = pathToMapFile.LastIndexOf('\\') < 0 ? pathToMapFile.LastIndexOf('/') : -1;
-            if (lastSlash < 0)
+            var lastDot = pathToMapFile.LastIndexOf('.');
+            if (lastDot < 5)
                 throw new IOException();
 
-            var strID = pathToMapFile.Substring(lastSlash + 1, 5);
+            var strID = pathToMapFile.Substring(lastDot - 5, 5);
             return int.Parse(strID);
         }
     }

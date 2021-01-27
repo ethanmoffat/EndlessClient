@@ -11,11 +11,11 @@ namespace EndlessClient.Input
         private readonly IControlKeyController _controlKeyController;
 
         public ControlKeyHandler(IEndlessGameProvider endlessGameProvider,
-                                 IKeyStateProvider keyStateProvider,
+                                 IUserInputProvider userInputProvider,
                                  IUserInputTimeRepository userInputTimeRepository,
                                  IControlKeyController controlKeyController,
                                  ICurrentMapStateProvider currentMapStateProvider)
-            : base(endlessGameProvider, keyStateProvider, userInputTimeRepository, currentMapStateProvider)
+            : base(endlessGameProvider, userInputProvider, userInputTimeRepository, currentMapStateProvider)
         {
             _controlKeyController = controlKeyController;
         }

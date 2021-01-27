@@ -5,46 +5,52 @@ using EndlessClient.ControlSets;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
+using XNAControls;
 
 namespace EndlessClient.Input
 {
-    public class UserInputHandler : GameComponent, IUserInputHandler
+    public class UserInputHandler : XNAControl, IUserInputHandler
     {
         private readonly List<IInputHandler> _handlers;
 
         public UserInputHandler(IEndlessGameProvider endlessGameProvider,
-                                IKeyStateProvider keyStateProvider,
+                                IUserInputProvider userInputProvider,
                                 IUserInputTimeRepository userInputTimeRepository,
                                 IArrowKeyController arrowKeyController,
                                 IControlKeyController controlKeyController,
+                                IFunctionKeyController functionKeyController,
                                 ICurrentMapStateProvider currentMapStateProvider,
                                 IHudControlProvider hudControlProvider)
-            : base((Game)endlessGameProvider.Game)
         {
             _handlers = new List<IInputHandler>
             {
                 new ArrowKeyHandler(endlessGameProvider,
-                    keyStateProvider,
+                    userInputProvider,
                     userInputTimeRepository,
                     arrowKeyController,
                     currentMapStateProvider,
                     hudControlProvider),
                 new ControlKeyHandler(endlessGameProvider,
-                    keyStateProvider,
+                    userInputProvider,
                     userInputTimeRepository,
                     controlKeyController,
-                    currentMapStateProvider)
+                    currentMapStateProvider),
+                new FunctionKeyHandler(endlessGameProvider,
+                    userInputProvider,
+                    userInputTimeRepository,
+                    functionKeyController,
+                    currentMapStateProvider),
             };
         }
 
-        public override void Update(GameTime gameTime)
+        protected override void OnUpdateControl(GameTime gameTime)
         {
             var timeAtBeginningOfUpdate = DateTime.Now;
 
             foreach (var handler in _handlers)
                 handler.HandleKeyboardInput(timeAtBeginningOfUpdate);
 
-            base.Update(gameTime);
+            base.OnUpdateControl(gameTime);
         }
     }
 

@@ -4,23 +4,24 @@ using Microsoft.Xna.Framework.Input;
 
 namespace EndlessClient.Input
 {
-    public class CurrentKeyStateTracker : GameComponent
+    public class CurrentUserInputTracker : GameComponent
     {
-        private readonly IKeyStateRepository _keyStateRepository;
+        private readonly IUserInputRepository _userInputRepository;
 
-        public CurrentKeyStateTracker(
+        public CurrentUserInputTracker(
             IEndlessGameProvider endlessGameProvider,
-            IKeyStateRepository keyStateRepository)
+            IUserInputRepository userInputRepository)
             : base((Game)endlessGameProvider.Game)
         {
-            _keyStateRepository = keyStateRepository;
+            _userInputRepository = userInputRepository;
 
             UpdateOrder = int.MinValue;
         }
 
         public override void Update(GameTime gameTime)
         {
-            _keyStateRepository.CurrentKeyState = Keyboard.GetState();
+            _userInputRepository.CurrentKeyState = Keyboard.GetState();
+            _userInputRepository.CurrentMouseState = Mouse.GetState();
 
             base.Update(gameTime);
         }

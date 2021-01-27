@@ -32,7 +32,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return CurrentMap.GFX[MapLayer.Overlay2][row, col] > 0;
         }
 
-        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             int gfxNum = CurrentMap.GFX[MapLayer.Overlay2][row, col];
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapOverlay, gfxNum, true);
@@ -40,7 +40,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
             pos -= new Vector2(gfx.Width / 2f, gfx.Height);
 
-            spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, alpha));
+            spriteBatch.Draw(gfx, pos + additionalOffset, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 
         private IMapFile CurrentMap => _currentMapProvider.CurrentMap;

@@ -22,7 +22,7 @@ namespace EndlessClient.Rendering
         public int CalculateWalkAdjustX(ICharacterRenderProperties properties)
         {
             var multiplier = properties.IsFacing(EODirection.Left, EODirection.Down) ? -1 : 1;
-            var walkAdjust = properties.IsActing(CharacterActionState.Walking) ? WalkWidthFactor * properties.WalkFrame : 0;
+            var walkAdjust = properties.IsActing(CharacterActionState.Walking) ? WalkWidthFactor * properties.ActualWalkFrame : 0;
             return walkAdjust * multiplier;
         }
 
@@ -34,7 +34,7 @@ namespace EndlessClient.Rendering
         public int CalculateWalkAdjustY(ICharacterRenderProperties properties)
         {
             var multiplier = properties.IsFacing(EODirection.Left, EODirection.Up) ? -1 : 1;
-            var walkAdjust = properties.IsActing(CharacterActionState.Walking) ? WalkHeightFactor * properties.WalkFrame : 0;
+            var walkAdjust = properties.IsActing(CharacterActionState.Walking) ? WalkHeightFactor * properties.ActualWalkFrame : 0;
             return walkAdjust * multiplier;
         }
 

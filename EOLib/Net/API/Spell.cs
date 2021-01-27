@@ -23,14 +23,6 @@ namespace EOLib.Net.API
 
     #region event delegates
 
-    public delegate void OtherPlayerStartCastSpellEvent(short fromPlayerID, short spellID);
-    public delegate void OtherPlayerCastSpellSelfEvent(short fromPlayerID, short spellID, int spellHP, byte percentHealth);
-    public delegate void CastSpellSelfEvent(short fromPlayerID, short spellID, int spellHP, byte percentHealth, short hp, short tp);
-
-    public delegate void CastSpellOtherEvent(
-        short targetPlayerId, short sourcePlayerId, EODirection sourcePlayerDirection, 
-        short spellId, int recoveredHp, byte targetPercentHealth, short targetPlayerCurrentHP = -1);
-
     public delegate void CastSpellGroupEvent(short spellID, short fromPlayerID, short fromPlayerTP, short spellHPGain, List<GroupSpellTarget> spellTargets);
 
     #endregion
@@ -39,10 +31,6 @@ namespace EOLib.Net.API
     {
         #region public events
 
-        public event OtherPlayerStartCastSpellEvent OnOtherPlayerStartCastSpell;
-        public event OtherPlayerCastSpellSelfEvent OnOtherPlayerCastSpellSelf;
-        public event CastSpellSelfEvent OnCastSpellSelf;
-        public event CastSpellOtherEvent OnCastSpellTargetOther;
         public event CastSpellGroupEvent OnCastSpellTargetGroup;
 
         #endregion
@@ -55,9 +43,6 @@ namespace EOLib.Net.API
             //        see CAST_ACCPT handler for leveling up off NPC kill via spell
             //        see CAST_SPEC  handler for regular NPC death via spell
             //other note: Spell attacks for PK are not supported yet
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Spell, PacketAction.Request), _handleSpellRequest, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Spell, PacketAction.TargetSelf), _handleSpellTargetSelf, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Spell, PacketAction.TargetOther), _handleSpellTargetOther, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Spell, PacketAction.TargetGroup), _handleSpellTargetGroup, true);
         }
 
@@ -125,67 +110,6 @@ namespace EOLib.Net.API
         #endregion
 
         #region handler methods
-
-        private void _handleSpellRequest(OldPacket pkt)
-        {
-            short fromPlayerID = pkt.GetShort();
-            short spellID = pkt.GetShort();
-
-            if (OnOtherPlayerStartCastSpell != null)
-                OnOtherPlayerStartCastSpell(fromPlayerID, spellID);
-        }
-
-        private void _handleSpellTargetSelf(OldPacket pkt)
-        {
-            short fromPlayerID = pkt.GetShort();
-            short spellID = pkt.GetShort();
-            int spellHP = pkt.GetInt();
-            byte percentHealth = pkt.GetChar();
-
-            if (pkt.ReadPos == pkt.Length)
-            {
-                //another player was the source of this packet
-
-                if (OnOtherPlayerCastSpellSelf != null)
-                    OnOtherPlayerCastSpellSelf(fromPlayerID, spellID, spellHP, percentHealth);
-
-                return;
-            }
-
-            short characterHP = pkt.GetShort();
-            short characterTP = pkt.GetShort();
-            if (pkt.GetShort() != 1) //malformed packet! eoserv sends '1' here
-                return;
-
-            //main player was source of this packet
-            if (OnCastSpellSelf != null)
-                OnCastSpellSelf(fromPlayerID, spellID, spellHP, percentHealth, characterHP, characterTP);
-        }
-
-        private void _handleSpellTargetOther(OldPacket pkt)
-        {
-            if (OnCastSpellTargetOther == null) return;
-
-            short targetPlayerID = pkt.GetShort();
-            short sourcePlayerID = pkt.GetShort();
-            EODirection sourcePlayerDirection = (EODirection) pkt.GetChar();
-            short spellID = pkt.GetShort();
-            int recoveredHP = pkt.GetInt();
-            byte targetPercentHealth = pkt.GetChar();
-
-            short targetPlayerCurrentHP = -1;
-            if (pkt.ReadPos != pkt.Length) //include current hp for player if main player is the target
-                targetPlayerCurrentHP = pkt.GetShort();
-
-            OnCastSpellTargetOther(
-                targetPlayerID,
-                sourcePlayerID,
-                sourcePlayerDirection,
-                spellID,
-                recoveredHP,
-                targetPercentHealth,
-                targetPlayerCurrentHP);
-        }
 
         private void _handleSpellTargetGroup(OldPacket pkt)
         {

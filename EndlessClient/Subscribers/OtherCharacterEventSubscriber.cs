@@ -29,7 +29,10 @@ namespace EndlessClient.Subscribers
                                              int playerPercentHealth,
                                              int damageTaken)
         {
-            //todo: show health bar
+            if (!_characterRendererProvider.CharacterRenderers.ContainsKey(characterID))
+                return;
+
+            _characterRendererProvider.CharacterRenderers[characterID].ShowDamageCounter(damageTaken, playerPercentHealth, isHeal: false);
         }
 
         public void OtherCharacterSaySomething(int characterID, string message)

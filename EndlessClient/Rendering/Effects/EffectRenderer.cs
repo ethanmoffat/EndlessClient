@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EndlessClient.Audio;
 using EOLib.Graphics;
-using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.Effects
@@ -18,60 +16,52 @@ namespace EndlessClient.Rendering.Effects
         WaterSplashies
     }
 
-    public sealed class EffectRenderer : IDisposable
+    public enum EffectState
     {
-        private readonly DrawableGameComponent _target;
-        private readonly Action _cleanupAction;
+        Playing,
+        Stopped
+    }
+
+    public sealed class EffectRenderer : IEffectRenderer
+    {
+        private readonly IEffectTarget _target;
         private readonly EffectSpriteManager _effectSpriteManager;
-        private readonly EffectSoundManager _effectSoundManager;
+        // todo: effect sounds
+        //private readonly EffectSoundManager _effectSoundManager;
 
         private IList<IEffectSpriteInfo> _effectInfo;
         private DateTime _lastFrameChange;
 
         private int _effectID;
-        private EffectType _effectType;
 
-        private bool _disposed;
+        public EffectType EffectType { get; private set; }
 
-        public EffectType EffectType => _effectType;
+        public EffectState State { get; private set; }
 
-        public EffectRenderer(INativeGraphicsManager gfxManager,
-                              OldNPCRenderer npc,
-                              Action cleanupAction = null)
-            : this(gfxManager, (DrawableGameComponent)npc, cleanupAction) { }
-
-        public EffectRenderer(INativeGraphicsManager gfxManager,
-                              OldCharacterRenderer character,
-                              Action cleanupAction = null)
-            : this(gfxManager, (DrawableGameComponent)character, cleanupAction) { }
-
-        private EffectRenderer(INativeGraphicsManager gfxManager,
-                               DrawableGameComponent target,
-                               Action cleanupAction)
+        public EffectRenderer(INativeGraphicsManager nativeGraphicsManager, IEffectTarget target)
         {
             _target = target;
-            _cleanupAction = cleanupAction;
-            _effectSpriteManager = new EffectSpriteManager(gfxManager);
-            _effectSoundManager = new EffectSoundManager(new SoundManager());
-
-            SetEffectInfoTypeAndID(EffectType.Invalid, -1);
-        }
-
-        public void SetEffectInfoTypeAndID(EffectType effectType, int effectID)
-        {
-            _effectID = effectID;
-            _effectType = effectType;
-        }
-
-        public void ShowEffect()
-        {
-            if (_effectID < 0 || _effectType == EffectType.Invalid)
-                throw new InvalidOperationException("Call SetEffectInfoTypeAndID before initializing");
+            _effectSpriteManager = new EffectSpriteManager(nativeGraphicsManager);
 
             _lastFrameChange = DateTime.Now;
-            _effectInfo = _effectSpriteManager.GetEffectInfo(_effectType, _effectID);
+            _effectInfo = new List<IEffectSpriteInfo>();
 
-            PlaySoundsFromBeginning();
+            // todo: effect sounds
+            //_effectSoundManager = new EffectSoundManager()
+        }
+
+        public void PlayEffect(EffectType effectType, int effectID)
+        {
+            _effectID = effectID;
+            EffectType = effectType;
+
+            _lastFrameChange = DateTime.Now;
+            _effectInfo = _effectSpriteManager.GetEffectInfo(EffectType, _effectID);
+
+            State = EffectState.Playing;
+
+            // todo: effect sounds
+            //PlaySoundsFromBeginning();
         }
 
         public void Restart()
@@ -79,12 +69,19 @@ namespace EndlessClient.Rendering.Effects
             foreach (var effect in _effectInfo)
                 effect.Restart();
 
-            PlaySoundsFromBeginning();
+            State = EffectState.Playing;
+
+            // todo: effect sounds
+            //PlaySoundsFromBeginning();
         }
 
         public void Update()
         {
-            if (_disposed) return;
+            if (!_effectInfo.Any())
+            {
+                State = EffectState.Stopped;
+                return;
+            }
 
             var nowTime = DateTime.Now;
             if ((nowTime - _lastFrameChange).TotalMilliseconds > 100)
@@ -94,91 +91,60 @@ namespace EndlessClient.Rendering.Effects
 
                 var doneEffects = _effectInfo.Where(ei => ei.Done);
                 doneEffects.ToList().ForEach(ei => _effectInfo.Remove(ei));
-
-                if (_effectInfo.Count == 0)
-                    Dispose();
             }
         }
 
         public void DrawBehindTarget(SpriteBatch sb, bool beginHasBeenCalled = true)
         {
-            if (_effectInfo != null)
-                DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => !x.OnTopOfCharacter));
+            if (!_effectInfo.Any())
+                return;
+
+            DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => !x.OnTopOfCharacter));
         }
 
         public void DrawInFrontOfTarget(SpriteBatch sb, bool beginHasBeenCalled = true)
         {
-            if (_effectInfo != null)
-                DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => x.OnTopOfCharacter));
+            if (!_effectInfo.Any())
+                return;
+
+            DrawEffects(sb, beginHasBeenCalled, _effectInfo.Where(x => x.OnTopOfCharacter));
         }
 
-        private void PlaySoundsFromBeginning()
+        private void DrawEffects(SpriteBatch sb, bool beginHasBeenCalled, IEnumerable<IEffectSpriteInfo> effectSprites)
         {
-            var soundInfo = _effectSoundManager.GetSoundEffectsForEffect(_effectType, _effectID);
-            foreach (var sound in soundInfo)
-                sound.Play();
-        }
-
-        #region Drawing Helpers
-
-        private void DrawEffects(SpriteBatch sb, bool beginHasBeenCalled, IEnumerable<IEffectSpriteInfo> effectInfo)
-        {
-            if (_disposed) return;
-
             if (!beginHasBeenCalled)
                 sb.Begin();
 
-            foreach (var ei in effectInfo)
-                ei.DrawToSpriteBatch(sb, GetTargetRectangle((dynamic) _target));
+            foreach (var effectInfo in effectSprites)
+                effectInfo.DrawToSpriteBatch(sb, _target.EffectTargetArea);
 
             if (!beginHasBeenCalled)
                 sb.End();
         }
 
-        private Rectangle GetTargetRectangle(OldNPCRenderer npc)
-        {
-            return npc.MapProjectedDrawArea;
-        }
+        // todo: effect sounds
+        //private void PlaySoundsFromBeginning()
+        //{
+        //    var soundInfo = _effectSoundManager.GetSoundEffectsForEffect(_effectType, _effectID);
+        //    foreach (var sound in soundInfo)
+        //        sound.Play();
+        //}
+    }
 
-        private Rectangle GetTargetRectangle(OldCharacterRenderer character)
-        {
-            //Because the rendering code is terrible, the character rectangle needs an additional offset
-            var rect = character.DrawAreaWithOffset;
-            rect.Offset(6, 11);
-            return rect;
-        }
+    public interface IEffectRenderer
+    {
+        EffectType EffectType { get; }
 
-        private Rectangle GetTargetRectangle(object fail)
-        {
-            //Seriously, the Skywalker family has a great history of being able to say NOOO in a dramatic way
-            throw new ArgumentException("No. Nooo. NOOOOO! THAT'S NOT TRUE! THAT'S IMPOSSIBLE! " + fail, nameof(fail));
-        }
+        EffectState State { get; }
 
-        #endregion
+        void PlayEffect(EffectType effectType, int effectID);
 
-        #region IDisposable
+        void Restart();
 
-        ~EffectRenderer()
-        {
-            Dispose(false);
-        }
+        void Update();
 
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+        void DrawBehindTarget(SpriteBatch sb, bool beginHasBeenCalled = true);
 
-        private void Dispose(bool disposing)
-        {
-            _disposed = true;
-
-            if (disposing)
-            {
-                _cleanupAction();
-            }
-        }
-
-        #endregion
+        void DrawInFrontOfTarget(SpriteBatch sb, bool beginHasBeenCalled = true);
     }
 }

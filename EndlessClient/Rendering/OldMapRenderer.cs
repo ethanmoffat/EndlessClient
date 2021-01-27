@@ -337,75 +337,6 @@ namespace EndlessClient.Rendering
             }
         }
 
-        public void OtherPlayerShoutSpell(short playerID, short spellID)
-        {
-            string shoutName = OldWorld.Instance.ESF[spellID].Shout;
-
-            lock (_characterListLock)
-            {
-                var renderer = _characterRenderers.Find(x => x.Character.ID == playerID);
-                if (renderer != null)
-                    renderer.SetSpellShout(shoutName);
-            }
-        }
-
-        public void PlayerCastSpellSelf(short fromPlayerID, short spellID, int spellHP, byte percentHealth)
-        {
-            lock (_characterListLock)
-            {
-                var renderer = _characterRenderers.Find(x => x.Character.ID == fromPlayerID);
-                if (renderer != null)
-                {
-                    renderer.StopShouting(false);
-                    renderer.StartCastingSpell();
-                    renderer.SetDamageCounterValue(spellHP, percentHealth, true);
-                }
-                else if (fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-                {
-                    renderer = OldWorld.Instance.ActiveCharacterRenderer;
-                    renderer.SetDamageCounterValue(spellHP, percentHealth, true);
-                }
-
-                _renderSpellOnPlayer(spellID, renderer);
-            }
-        }
-
-        public void PlayerCastSpellTarget(short fromPlayerID, short targetPlayerID, EODirection fromPlayerDirection, short spellID, int recoveredHP, byte targetPercentHealth)
-        {
-            lock (_characterListLock)
-            {
-                bool fromIsMain = false;
-                var fromRenderer = _characterRenderers.Find(x => x.Character.ID == fromPlayerID);
-                var toRenderer = _characterRenderers.Find(x => x.Character.ID == targetPlayerID);
-
-                if (fromRenderer == null && fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-                {
-                    fromIsMain = true;
-                    fromRenderer = OldWorld.Instance.ActiveCharacterRenderer;
-                }
-
-                if (toRenderer == null && targetPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID)
-                    toRenderer = OldWorld.Instance.ActiveCharacterRenderer;
-
-                if (fromRenderer != null) //do source renderer stuff
-                {
-                    if (!fromIsMain)
-                    {
-                        bool showShoutName = fromRenderer != toRenderer;
-                        fromRenderer.StopShouting(showShoutName);
-                        fromRenderer.StartCastingSpell();
-                    }
-                    fromRenderer.Character.RenderData.SetDirection(fromPlayerDirection);
-                }
-
-                if (toRenderer != null) //do target renderer stuff
-                {
-                    toRenderer.SetDamageCounterValue(recoveredHP, targetPercentHealth, true);
-                    _renderSpellOnPlayer(spellID, toRenderer);
-                }
-            }
-        }
-
         public void PlayerCastSpellGroup(short fromPlayerID, short spellID, short spellHPgain, List<GroupSpellTarget> spellTargets)
         {
             lock (_characterListLock)
@@ -465,15 +396,6 @@ namespace EndlessClient.Rendering
             _mouseCursorRenderer.ShowContextMenu(player);
         }
 
-        public void ShowPotionEffect(short playerID, int effectID)
-        {
-            OldCharacterRenderer renderer;
-            lock (_characterListLock)
-                renderer = _characterRenderers.SingleOrDefault(x => x.Character.ID == playerID);
-            if (renderer != null)
-                renderer.ShowPotionAnimation(effectID);
-        }
-
         #endregion
 
         #region/* PUBLIC INTERFACE -- OTHER NPCS */
@@ -525,141 +447,6 @@ namespace EndlessClient.Rendering
             lock (_npcListLock)
                 indexes = _npcRenderers.Where(predicate).Select(x => x.NPC.Index).ToList();
             indexes.ForEach(x => RemoveOtherNPC(x));
-        }
-
-        public void NPCTakeDamage(short npcIndex, short fromPlayerID, EODirection fromDirection, int damageToNPC, int npcPctHealth, short spellID = -1)
-        {
-            lock (_npcListLock)
-            {
-                OldNPCRenderer toDamage = _npcRenderers.Find(_npc => _npc.NPC.Index == npcIndex);
-                if (toDamage == null) return;
-
-                _renderSpellOnNPC(spellID, toDamage);
-                
-                OldCharacter opponent = null;
-                lock (_characterRenderers)
-                {
-                    var rend = fromPlayerID == OldWorld.Instance.MainPlayer.ActiveCharacter.ID
-                        ? OldWorld.Instance.ActiveCharacterRenderer
-                        : _characterRenderers.Find(_rend => _rend.Character.ID == fromPlayerID);
-
-                    if (rend != null)
-                    {
-                        if (rend.Character.RenderData.facing != fromDirection)
-                            rend.Character.RenderData.SetDirection(fromDirection);
-                        opponent = rend.Character;
-                    }
-                }
-
-                toDamage.TakeDamageFrom(opponent, damageToNPC, npcPctHealth);
-            }
-        }
-
-        #endregion
-
-        #region /* PUBLIC INTERFACE -- MAP EFFECTS */
-
-        public void PlayTimedSpikeSoundEffect()
-        {
-            if (!MapRef.Properties.HasTimedSpikes) return;
-
-            if (OldWorld.Instance.SoundEnabled)
-                ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.Spikes).Play();
-        }
-
-        public void SpikeDamage(short damage, short hp, short maxhp)
-        {
-            var rend = OldWorld.Instance.ActiveCharacterRenderer;
-            rend.Character.Stats.HP = hp;
-            rend.Character.Stats.MaxHP = maxhp;
-            ((EOGame)Game).Hud.RefreshStats();
-
-            int percentHealth = (int)Math.Round(((double)hp / maxhp) * 100.0);
-
-            _spikeDamageShared(rend, damage, percentHealth, hp == 0);
-        }
-
-        public void SpikeDamage(short playerID, int percentHealth, bool isPlayerDead, int damageAmount)
-        {
-            lock (_characterListLock)
-            {
-                int ndx = _characterRenderers.FindIndex(_rend => _rend.Character.ID == playerID);
-                if (ndx < 0) return;
-
-                var rend = _characterRenderers[ndx];
-                _spikeDamageShared(rend, damageAmount, percentHealth, isPlayerDead);
-            }
-        }
-
-        private void _spikeDamageShared(OldCharacterRenderer rend, int damageAmount, int percentHealth, bool isPlayerDead)
-        {
-            rend.SetDamageCounterValue(damageAmount, percentHealth);
-            if (isPlayerDead)
-                rend.Die();
-        }
-
-        public void AddVisibleSpikeTrap(int x, int y)
-        {
-            lock (_spikeTrapsLock)
-            {
-                if (MapRef.Tiles[y, x] != TileSpec.SpikesTrap)
-                    throw new ArgumentException("The specified tile location is not a trap spike");
-
-                if (_visibleSpikeTraps.Contains(new Point(x, y)))
-                    return;
-                _visibleSpikeTraps.Add(new Point(x, y));
-            }
-        }
-
-        public void RemoveVisibleSpikeTrap(int x, int y)
-        {
-            lock (_spikeTrapsLock)
-            {
-                int ndx = _visibleSpikeTraps.FindIndex(pt => pt.X == x && pt.Y == y);
-                if (ndx < 0) return;
-                _visibleSpikeTraps.RemoveAt(ndx);
-            }
-        }
-
-        public void DrainHPFromPlayers(short damage, short hp, short maxhp, IEnumerable<TimedMapHPDrainData> otherCharacterData)
-        {
-            if (MapRef.Properties.Effect != MapEffect.HPDrain) return;
-
-            int percentHealth = (int)Math.Round(((double)hp / maxhp) * 100.0);
-
-            var mainRend = OldWorld.Instance.ActiveCharacterRenderer;
-            mainRend.Character.Stats.HP = hp;
-            mainRend.Character.Stats.MaxHP = maxhp;
-            mainRend.SetDamageCounterValue(damage, percentHealth);
-            
-            ((EOGame)Game).Hud.RefreshStats();
-
-            lock (_characterListLock)
-            {
-                foreach (var other in otherCharacterData)
-                {
-                    int ndx = _characterRenderers.FindIndex(_rend => _rend.Character.ID == other.PlayerID);
-                    if (ndx < 0) continue;
-
-                    var rend = _characterRenderers[ndx];
-                    rend.SetDamageCounterValue(other.DamageDealt, other.PlayerPercentHealth);
-                }
-            }
-
-            if (OldWorld.Instance.SoundEnabled)
-                ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.MapEffectHPDrain).Play();
-        }
-
-        public void DrainTPFromMainPlayer(short amount, short tp, short maxtp)
-        {
-            if (MapRef.Properties.Effect != MapEffect.TPDrain || amount == 0) return;
-
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = tp;
-            OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.MaxTP = maxtp;
-            ((EOGame)Game).Hud.RefreshStats();
-
-            if (OldWorld.Instance.SoundEnabled)
-                ((EOGame) Game).SoundManager.GetSoundEffectRef(SoundEffectID.MapEffectTPDrain).Play();
         }
 
         #endregion
@@ -736,13 +523,6 @@ namespace EndlessClient.Rendering
                 foreach (var rend in deadRenderers)
                 {
                     RemoveOtherPlayer((short) rend.Character.ID);
-
-                    if (_visibleSpikeTraps.Contains(new Point(rend.Character.X, rend.Character.Y)) &&
-                        !_characterRenderers.Select(x => x.Character)
-                            .Any(player => player.X == rend.Character.X && player.Y == rend.Character.Y))
-                    {
-                        RemoveVisibleSpikeTrap(rend.Character.X, rend.Character.Y);
-                    }
                 }
             }
         }
@@ -1164,8 +944,8 @@ namespace EndlessClient.Rendering
         {
             if (spellID < 1) return;
 
-            var spellInfo = OldWorld.Instance.ESF[spellID];
-            renderer.ShowSpellAnimation(spellInfo.Graphic);
+            //var spellInfo = OldWorld.Instance.ESF[spellID];
+            //renderer.ShowSpellAnimation(spellInfo.Graphic);
         }
 
         /// <summary>

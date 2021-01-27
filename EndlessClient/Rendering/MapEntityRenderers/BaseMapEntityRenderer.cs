@@ -63,7 +63,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected abstract bool ElementExistsAt(int row, int col);
 
-        public virtual void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        public virtual void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             if ((DateTime.Now - _lastFrameTime).TotalMilliseconds > 500)
             {

@@ -32,13 +32,13 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return CurrentMap.GFX[MapLayer.Roof][row, col] > 0;
         }
 
-        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             int gfxNum = CurrentMap.GFX[MapLayer.Roof][row, col];
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapWallTop, gfxNum, true);
 
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
-            spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, alpha));
+            spriteBatch.Draw(gfx, pos + additionalOffset, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 
         private IMapFile CurrentMap => _currentMapProvider.CurrentMap;
