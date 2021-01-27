@@ -3,6 +3,7 @@ using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace EndlessClient.Rendering.MapEntityRenderers
@@ -36,7 +37,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                    col == _characterProvider.MainCharacter.RenderProperties.MapX;
         }
 
-        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             if (_characterRendererProvider.MainCharacterRenderer == null)
                 return;

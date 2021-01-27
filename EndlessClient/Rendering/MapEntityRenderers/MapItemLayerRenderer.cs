@@ -32,7 +32,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return _currentMapStateProvider.MapItems.Any(item => item.X == col && item.Y == row);
         }
 
-        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             var items = _currentMapStateProvider.MapItems.Where(item => item.X == col && item.Y == row);
 
@@ -44,7 +44,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
                 spriteBatch.Draw(itemTexture,
                                  new Vector2(itemPos.X - (int) Math.Round(itemTexture.Width/2.0),
-                                             itemPos.Y - (int) Math.Round(itemTexture.Height/2.0)),
+                                             itemPos.Y - (int) Math.Round(itemTexture.Height/2.0)) + additionalOffset,
                                  Color.FromNonPremultiplied(255, 255, 255, alpha));
             }
         }

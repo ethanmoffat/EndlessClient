@@ -39,7 +39,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 _currentMapStateProvider.VisibleSpikeTraps.Contains(new MapCoordinate(col, row)));
         }
 
-        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             int gfxNum = MapFile.GFX[MapLayer.Objects][row, col];
             var gfx = _nativeGraphicsManager.TextureFromResource(GFXTypes.MapObjects, gfxNum, true);
@@ -47,7 +47,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
             pos -= new Vector2(gfx.Width / 2, gfx.Height - 32);
 
-            spriteBatch.Draw(gfx, pos, Color.FromNonPremultiplied(255, 255, 255, alpha));
+            spriteBatch.Draw(gfx, pos + additionalOffset, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 
         private IMapFile MapFile => _currentMapProvider.CurrentMap;

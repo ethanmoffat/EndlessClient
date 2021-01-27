@@ -297,7 +297,7 @@ namespace EndlessClient.Rendering
 
         #endregion
 
-        public void Draw(SpriteBatch spriteBatch, GameTime gameTime)
+        public void Draw(SpriteBatch spriteBatch, Vector2 additionalOffset)
         {
             //todo: don't draw if context menu is visible and mouse is over the context menu
 
@@ -306,7 +306,7 @@ namespace EndlessClient.Rendering
                 _gridY <= _currentMapProvider.CurrentMap.Properties.Height)
             {
                 spriteBatch.Draw(_mouseCursorTexture,
-                                 _drawArea,
+                                 _drawArea.Location.ToVector2() + additionalOffset,
                                  new Rectangle(SingleCursorFrameArea.Width*(int) _cursorIndex,
                                                0,
                                                SingleCursorFrameArea.Width,
@@ -316,7 +316,7 @@ namespace EndlessClient.Rendering
                 if (_startClickTime.HasValue)
                 {
                     spriteBatch.Draw(_mouseCursorTexture,
-                                     _clickPositionArea,
+                                     _clickPositionArea.Location.ToVector2() + additionalOffset,
                                      SingleCursorFrameArea.WithPosition(new Vector2(SingleCursorFrameArea.Width * (int)_clickFrame, 0)),
                                      Color.FromNonPremultiplied(255, 255, 255, _clickAlpha-=5));
                 }
@@ -350,7 +350,7 @@ namespace EndlessClient.Rendering
 
         void Update(GameTime gameTime);
 
-        void Draw(SpriteBatch spriteBatch, GameTime gameTime);
+        void Draw(SpriteBatch spriteBatch, Vector2 additionalOffset);
 
         void AnimateClick();
     }

@@ -8,6 +8,7 @@ namespace EOLib.Domain.Notifiers
         void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim);
         void NotifyWarpEnterEffect(short characterId, WarpAnimation anim);
         void NotifyPotionEffect(short playerId, int effectId);
+        void NotifyEarthquake(byte strength);
     }
 
     [AutoMappedType]
@@ -16,5 +17,6 @@ namespace EOLib.Domain.Notifiers
         public void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim) { }
         public void NotifyWarpEnterEffect(short characterId, WarpAnimation anim) { }
         public void NotifyPotionEffect(short playerId, int effectId) { }
+        public void NotifyEarthquake(byte strength) { }
     }
 }

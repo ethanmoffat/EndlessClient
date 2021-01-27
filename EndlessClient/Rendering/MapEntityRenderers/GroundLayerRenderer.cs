@@ -45,7 +45,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                 CurrentMap.GFX[MapLayer.GroundTile][row, col] > 0;
         }
 
-        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
             base.RenderElementAt(spriteBatch, row, col, alpha);
 
@@ -69,7 +69,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             var src = tileTexture.Width > TILE_FRAME_WIDTH
                 ? new Rectangle?(new Rectangle((tileTexture.Width / 4) * _frameIndex, 0, tileTexture.Width / 4, tileTexture.Height))
                 : null;
-            spriteBatch.Draw(tileTexture, pos, src, Color.FromNonPremultiplied(255, 255, 255, alpha));
+            spriteBatch.Draw(tileTexture, pos + additionalOffset, src, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 
         protected IMapFile CurrentMap => _currentMapProvider.CurrentMap;

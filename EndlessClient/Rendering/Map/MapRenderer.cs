@@ -34,6 +34,7 @@ namespace EndlessClient.Rendering.Map
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
+        private readonly Random _random;
 
         private RenderTarget2D _mapBaseTarget, _mapObjectTarget;
         private SpriteBatch _sb;
@@ -77,6 +78,7 @@ namespace EndlessClient.Rendering.Map
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
             _renderOffsetCalculator = renderOffsetCalculator;
+            _random = new Random();
         }
 
         public override void Initialize()
@@ -113,6 +115,8 @@ namespace EndlessClient.Rendering.Map
 
                 if (MouseOver)
                     _mouseCursorRenderer.Update(gameTime);
+
+                UpdateQuakeState();
             }
 
             _lastMapChecksum = _currentMapProvider.CurrentMap.Properties.ChecksumInt;
@@ -137,18 +141,57 @@ namespace EndlessClient.Rendering.Map
             _mapTransitionState = new MapTransitionState(DateTime.Now, 1);
         }
 
-        private void DrawToSpriteBatch(SpriteBatch spriteBatch, GameTime gameTime)
+        public void StartEarthquake(byte strength)
         {
-            spriteBatch.Begin();
+            _hasQuake = true;
+            _quakeMagnitude = strength;
+            _quakeState = _quakeTick = 0;
+            _quakeOffset = 0;
+            _quakeOffsetTarget = 16 + 3 * _random.Next(2, _quakeMagnitude * 2);
+        }
 
-            spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition(), Color.White);
-            DrawBaseLayers(spriteBatch);
+        // when quake:
+        // 1. determine offset target (random from on magnitude/2 -> magnitude)
+        // 2. update every 8 ticks toward target
+        // 3. when target reached, determine new target (random based on magnitude)
+        // 4. flip direction
+        // 5. keep going until specific number of frames has elapsed
 
-            _mouseCursorRenderer.Draw(spriteBatch, gameTime);
+        private bool _hasQuake;
+        private int _quakeMagnitude;
 
-            spriteBatch.Draw(_mapObjectTarget, Vector2.Zero, Color.White);
+        private int _quakeState;
+        private int _quakeTick;
 
-            spriteBatch.End();
+        private float _quakeOffset;
+        private float _quakeOffsetTarget;
+
+        private void UpdateQuakeState()
+        {
+            if (!_hasQuake)
+                return;
+
+            _quakeOffset += _quakeOffsetTarget / 4f;
+            _quakeTick++;
+
+            if (Math.Abs(_quakeOffset) > Math.Abs(_quakeOffsetTarget))
+            {
+                _quakeState++;
+                _quakeTick = 0;
+
+                var flip = -_quakeOffsetTarget / Math.Abs(_quakeOffsetTarget);
+                _quakeOffset = _quakeOffsetTarget - 1;
+                _quakeOffsetTarget = 16 + 3 * _random.Next(0, (int)(_quakeMagnitude * 1.5));
+                _quakeOffsetTarget *= flip;
+            }
+
+            if (_quakeState > 10 + _quakeMagnitude*2)
+            {
+                _hasQuake = false;
+                _quakeState = _quakeTick = 0;
+                _quakeOffset = 0;
+                _quakeOffsetTarget = 0;
+            }
         }
 
         private void DrawGroundLayerToRenderTarget()
@@ -180,25 +223,6 @@ namespace EndlessClient.Rendering.Map
 
             _sb.End();
             GraphicsDevice.SetRenderTarget(null);
-        }
-
-        private void DrawBaseLayers(SpriteBatch spriteBatch)
-        {
-            var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
-
-            for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
-            {
-                for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; ++col)
-                {
-                    var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
-
-                    foreach (var renderer in _mapEntityRendererProvider.BaseRenderers)
-                    {
-                        if (renderer.CanRender(row, col))
-                            renderer.RenderElementAt(spriteBatch, row, col, alpha);
-                    }
-                }
-            }
         }
 
         private void DrawMapToRenderTarget()
@@ -255,12 +279,37 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.SetRenderTarget(null);
         }
 
-        private static bool CharacterIsAtPosition(ICharacterRenderProperties renderProperties, int row, int col)
+        private void DrawToSpriteBatch(SpriteBatch spriteBatch, GameTime gameTime)
         {
-            if (renderProperties.IsActing(CharacterActionState.Walking))
-                return row == renderProperties.GetDestinationY() && col == renderProperties.GetDestinationX();
+            spriteBatch.Begin();
 
-            return row == renderProperties.MapY && col == renderProperties.MapX;
+            spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition() + new Vector2(_quakeOffset, 0), Color.White);
+            DrawBaseLayers(spriteBatch);
+
+            _mouseCursorRenderer.Draw(spriteBatch, new Vector2(_quakeOffset, 0));
+
+            spriteBatch.Draw(_mapObjectTarget, new Vector2(_quakeOffset, 0), Color.White);
+
+            spriteBatch.End();
+        }
+
+        private void DrawBaseLayers(SpriteBatch spriteBatch)
+        {
+            var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
+
+            for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
+            {
+                for (var col = renderBounds.FirstCol; col <= renderBounds.LastCol; ++col)
+                {
+                    var alpha = GetAlphaForCoordinates(col, row, _characterProvider.MainCharacter);
+
+                    foreach (var renderer in _mapEntityRendererProvider.BaseRenderers)
+                    {
+                        if (renderer.CanRender(row, col))
+                            renderer.RenderElementAt(spriteBatch, row, col, alpha, new Vector2(_quakeOffset, 0));
+                    }
+                }
+            }
         }
 
         private Vector2 GetGroundLayerDrawPosition()

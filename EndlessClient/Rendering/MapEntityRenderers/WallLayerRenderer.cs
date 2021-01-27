@@ -32,7 +32,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             _currentMapStateProvider = currentMapStateProvider;
         }
 
-        protected void DrawWall(SpriteBatch spriteBatch, int row, int col, int alpha, int gfxNum)
+        protected void DrawWall(SpriteBatch spriteBatch, int row, int col, int alpha, int gfxNum, Vector2 additionalOffset = default)
         {
             if (_currentMapStateProvider.OpenDoors.Any(openDoor => openDoor.X == col && openDoor.Y == row))
                 gfxNum++;
@@ -49,7 +49,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             var pos = GetDrawCoordinatesFromGridUnits(col, row);
             pos -= new Vector2((gfx.Width / 2) + wallAnimationAdjust, gfx.Height - 32);
 
-            spriteBatch.Draw(gfx, pos, src, Color.FromNonPremultiplied(255, 255, 255, alpha));
+            spriteBatch.Draw(gfx, pos + additionalOffset, src, Color.FromNonPremultiplied(255, 255, 255, alpha));
         }
 
         protected IMapFile CurrentMap => _currentMapProvider.CurrentMap;
@@ -73,12 +73,12 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return CurrentMap.GFX[MapLayer.WallRowsDown][row, col] > 0;
         }
 
-        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            base.RenderElementAt(spriteBatch, row, col, alpha);
+            base.RenderElementAt(spriteBatch, row, col, alpha, additionalOffset);
 
             var gfxNum = CurrentMap.GFX[MapLayer.WallRowsDown][row, col];
-            DrawWall(spriteBatch, row, col, alpha, gfxNum);
+            DrawWall(spriteBatch, row, col, alpha, gfxNum, additionalOffset);
         }
     }
 
@@ -100,12 +100,12 @@ namespace EndlessClient.Rendering.MapEntityRenderers
             return CurrentMap.GFX[MapLayer.WallRowsRight][row, col] > 0;
         }
 
-        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha)
+        public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
         {
-            base.RenderElementAt(spriteBatch, row, col, alpha);
+            base.RenderElementAt(spriteBatch, row, col, alpha, additionalOffset);
 
             var gfxNum = CurrentMap.GFX[MapLayer.WallRowsRight][row, col];
-            DrawWall(spriteBatch, row, col, alpha, gfxNum);
+            DrawWall(spriteBatch, row, col, alpha, gfxNum, additionalOffset);
         }
     }
 }

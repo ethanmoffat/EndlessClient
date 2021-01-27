@@ -254,6 +254,7 @@
     <Compile Include="PacketHandlers\Chat\GroupChatHandler.cs" />
     <Compile Include="PacketHandlers\DoorOpenHandler.cs" />
     <Compile Include="PacketHandlers\Effects\EffectPotionHandler.cs" />
+    <Compile Include="PacketHandlers\Effects\MapQuakeHandler.cs" />
     <Compile Include="PacketHandlers\EndPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\ItemPickupHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />

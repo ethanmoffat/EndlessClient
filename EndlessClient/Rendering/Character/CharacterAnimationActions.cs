@@ -180,6 +180,12 @@ namespace EndlessClient.Rendering.Character
             }
         }
 
+        public void NotifyEarthquake(byte strength)
+        {
+            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+            mapRenderer.StartEarthquake(strength);
+        }
+
         private void ShowWaterSplashiesIfNeeded(CharacterActionState action, ICharacter character, ICharacterRenderer characterRenderer)
         {
             var rp = character.RenderProperties;
