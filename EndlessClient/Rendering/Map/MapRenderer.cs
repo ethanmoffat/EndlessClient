@@ -34,12 +34,13 @@ namespace EndlessClient.Rendering.Map
         private readonly IConfigurationProvider _configurationProvider;
         private readonly IMouseCursorRenderer _mouseCursorRenderer;
         private readonly IRenderOffsetCalculator _renderOffsetCalculator;
-        private readonly Random _random;
 
         private RenderTarget2D _mapBaseTarget, _mapObjectTarget;
         private SpriteBatch _sb;
         private MapTransitionState _mapTransitionState = MapTransitionState.Default;
         private int? _lastMapChecksum;
+
+        private Optional<MapQuakeState> _quakeState;
 
         private bool MouseOver
         {
@@ -78,7 +79,6 @@ namespace EndlessClient.Rendering.Map
             _configurationProvider = configurationProvider;
             _mouseCursorRenderer = mouseCursorRenderer;
             _renderOffsetCalculator = renderOffsetCalculator;
-            _random = new Random();
         }
 
         public override void Initialize()
@@ -143,54 +143,32 @@ namespace EndlessClient.Rendering.Map
 
         public void StartEarthquake(byte strength)
         {
-            _hasQuake = true;
-            _quakeMagnitude = strength;
-            _quakeState = _quakeTick = 0;
-            _quakeOffset = 0;
-            _quakeOffsetTarget = 16 + 3 * _random.Next(2, _quakeMagnitude * 2);
+            _quakeState = new MapQuakeState(strength);
         }
-
-        // when quake:
-        // 1. determine offset target (random from on magnitude/2 -> magnitude)
-        // 2. update every 8 ticks toward target
-        // 3. when target reached, determine new target (random based on magnitude)
-        // 4. flip direction
-        // 5. keep going until specific number of frames has elapsed
-
-        private bool _hasQuake;
-        private int _quakeMagnitude;
-
-        private int _quakeState;
-        private int _quakeTick;
-
-        private float _quakeOffset;
-        private float _quakeOffsetTarget;
 
         private void UpdateQuakeState()
         {
-            if (!_hasQuake)
+            // when quake:
+            // 1. determine offset target
+            // 2. incrementally make offset approach closer to the target offset
+            // 3. when offset target reached, determine new target (random based on magnitude)
+            // 4. flip direction
+            // 5. keep going until specific number of "direction flips" has elapsed
+
+            if (!_quakeState.HasValue)
                 return;
 
-            _quakeOffset += _quakeOffsetTarget / 4f;
-            _quakeTick++;
+            _quakeState = _quakeState.Value.NextOffset();
 
-            if (Math.Abs(_quakeOffset) > Math.Abs(_quakeOffsetTarget))
+            var quakeState = _quakeState.Value;
+            if (quakeState.OffsetReached)
             {
-                _quakeState++;
-                _quakeTick = 0;
-
-                var flip = -_quakeOffsetTarget / Math.Abs(_quakeOffsetTarget);
-                _quakeOffset = _quakeOffsetTarget - 1;
-                _quakeOffsetTarget = 16 + 3 * _random.Next(0, (int)(_quakeMagnitude * 1.5));
-                _quakeOffsetTarget *= flip;
+                _quakeState = quakeState.NextState();
             }
 
-            if (_quakeState > 10 + _quakeMagnitude*2)
+            if (quakeState.Done)
             {
-                _hasQuake = false;
-                _quakeState = _quakeTick = 0;
-                _quakeOffset = 0;
-                _quakeOffsetTarget = 0;
+                _quakeState = Optional<MapQuakeState>.Empty;
             }
         }
 
@@ -283,18 +261,21 @@ namespace EndlessClient.Rendering.Map
         {
             spriteBatch.Begin();
 
-            spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition() + new Vector2(_quakeOffset, 0), Color.White);
+            var offset = _quakeState.HasValue ? _quakeState.Value.Offset : 0;
+
+            spriteBatch.Draw(_mapBaseTarget, GetGroundLayerDrawPosition() + new Vector2(offset, 0), Color.White);
             DrawBaseLayers(spriteBatch);
 
-            _mouseCursorRenderer.Draw(spriteBatch, new Vector2(_quakeOffset, 0));
+            _mouseCursorRenderer.Draw(spriteBatch, new Vector2(offset, 0));
 
-            spriteBatch.Draw(_mapObjectTarget, new Vector2(_quakeOffset, 0), Color.White);
+            spriteBatch.Draw(_mapObjectTarget, new Vector2(offset, 0), Color.White);
 
             spriteBatch.End();
         }
 
         private void DrawBaseLayers(SpriteBatch spriteBatch)
         {
+            var offset = _quakeState.HasValue ? _quakeState.Value.Offset : 0;
             var renderBounds = _mapRenderDistanceCalculator.CalculateRenderBounds(_characterProvider.MainCharacter, _currentMapProvider.CurrentMap);
 
             for (var row = renderBounds.FirstRow; row <= renderBounds.LastRow; row++)
@@ -306,7 +287,7 @@ namespace EndlessClient.Rendering.Map
                     foreach (var renderer in _mapEntityRendererProvider.BaseRenderers)
                     {
                         if (renderer.CanRender(row, col))
-                            renderer.RenderElementAt(spriteBatch, row, col, alpha, new Vector2(_quakeOffset, 0));
+                            renderer.RenderElementAt(spriteBatch, row, col, alpha, new Vector2(offset, 0));
                     }
                 }
             }
@@ -380,17 +361,69 @@ namespace EndlessClient.Rendering.Map
 
     internal struct MapTransitionState
     {
-        public static MapTransitionState Default => new MapTransitionState(Optional<DateTime>.Empty, 0);
+        internal static MapTransitionState Default => new MapTransitionState(Optional<DateTime>.Empty, 0);
 
-        public Optional<DateTime> StartTime { get; }
+        internal Optional<DateTime> StartTime { get; }
 
-        public int TransitionMetric { get; }
+        internal int TransitionMetric { get; }
 
-        public MapTransitionState(Optional<DateTime> startTime, int transitionMetric)
+        internal MapTransitionState(Optional<DateTime> startTime, int transitionMetric)
             : this()
         {
             StartTime = startTime;
             TransitionMetric = transitionMetric;
         }
+    }
+
+    internal struct MapQuakeState
+    {
+        private static readonly Random _random = new Random();
+
+        internal static MapQuakeState Default => new MapQuakeState();
+
+        internal int Magnitude { get; }
+
+        internal float Offset { get; }
+
+        internal float OffsetTarget { get; }
+
+        internal bool OffsetReached => Math.Abs(Offset) >= Math.Abs(OffsetTarget);
+
+        internal int Flips { get; }
+
+        internal int FlipsMax => Magnitude == 0 ? 0 : 10 + Magnitude * 2;
+
+        internal bool Done => Flips >= FlipsMax;
+
+        internal MapQuakeState(int magnitude)
+            : this(magnitude, 0, 0) { }
+
+        private MapQuakeState(int magnitude, float offset, int flips)
+            : this(magnitude, offset, NewOffsetTarget(magnitude), flips) { }
+
+        private MapQuakeState(int magnitude, float offset, float offsetTarget, int flips)
+        {
+            Magnitude = magnitude;
+            Offset = offset;
+            OffsetTarget = offsetTarget;
+            Flips = flips;
+        }
+
+        internal MapQuakeState NextOffset()
+        {
+            var nextOffset = Offset + OffsetTarget / 4f;
+            return new MapQuakeState(Magnitude, nextOffset, OffsetTarget, Flips);
+        }
+
+        internal MapQuakeState NextState()
+        {
+            var flip = -OffsetTarget / Math.Abs(OffsetTarget);
+            var offset = OffsetTarget + 1*flip;
+            var nextOffsetTarget = NewOffsetTarget(Magnitude) * flip;
+
+            return new MapQuakeState(Magnitude, offset, nextOffsetTarget, Flips + 1);
+        }
+
+        private static float NewOffsetTarget(int magnitude) => 16 + 3 * _random.Next(0, (int)(magnitude * 1.5));
     }
 }
