@@ -31,8 +31,7 @@ namespace EOLib.Domain.Character
             if (_currentMapStateProvider.MapWarpState == WarpState.WarpStarted)
                 return false;
 
-            var mainCharacter = _characterProvider.MainCharacter;
-            var renderProperties = mainCharacter.RenderProperties;
+            var renderProperties = _characterProvider.MainCharacter.RenderProperties;
             var destX = renderProperties.GetDestinationX();
             var destY = renderProperties.GetDestinationY();
 
@@ -42,6 +41,9 @@ namespace EOLib.Domain.Character
         public bool CanMoveToCoordinates(int gridX, int gridY)
         {
             var mainCharacter = _characterProvider.MainCharacter;
+
+            if (mainCharacter.RenderProperties.SitState != SitState.Standing)
+                return false;
 
             var cellState = _mapCellStateProvider.GetCellStateAt(gridX, gridY);
 

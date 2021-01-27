@@ -19,7 +19,7 @@ namespace EndlessClient.Controllers
 
         public bool Sit()
         {
-            _characterActions.Sit();
+            _characterActions.ToggleSit();
             return true;
         }
 

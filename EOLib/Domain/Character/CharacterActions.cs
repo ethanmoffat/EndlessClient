@@ -54,13 +54,18 @@ namespace EOLib.Domain.Character
             _packetSendService.SendPacket(packet);
         }
 
-        public void Sit()
+        public void ToggleSit()
         {
-            var sitAction = _characterProvider.MainCharacter.RenderProperties.SitState == SitState.Standing
+            var renderProperties = _characterProvider.MainCharacter.RenderProperties;
+            var sitAction = renderProperties.SitState == SitState.Standing
                 ? SitAction.Sit
                 : SitAction.Stand;
 
-            var packet = new PacketBuilder(PacketFamily.Sit, PacketAction.Request)
+            var packetFamily = renderProperties.SitState == SitState.Chair
+                ? PacketFamily.Chair
+                : PacketFamily.Sit;
+
+            var packet = new PacketBuilder(packetFamily, PacketAction.Request)
                 .AddChar((byte)sitAction)
                 .Build();
 
@@ -76,6 +81,6 @@ namespace EOLib.Domain.Character
 
         void Attack();
 
-        void Sit();
+        void ToggleSit();
     }
 }

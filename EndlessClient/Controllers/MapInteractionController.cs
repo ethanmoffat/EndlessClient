@@ -8,6 +8,7 @@ using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
 using EndlessClient.Input;
 using EndlessClient.Rendering;
+using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Extensions;
@@ -19,21 +20,27 @@ namespace EndlessClient.Controllers
     public class MapInteractionController : IMapInteractionController
     {
         private readonly IMapActions _mapActions;
+        private readonly ICharacterActions _characterActions;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
+        private readonly ICharacterProvider _characterProvider;
         private readonly IStatusLabelSetter _statusLabelSetter;
         private readonly IInventorySpaceValidator _inventorySpaceValidator;
         private readonly IHudControlProvider _hudControlProvider;
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
 
         public MapInteractionController(IMapActions mapActions,
+                                        ICharacterActions characterActions,
                                         ICurrentMapStateProvider currentMapStateProvider,
+                                        ICharacterProvider characterProvider,
                                         IStatusLabelSetter statusLabelSetter,
                                         IInventorySpaceValidator inventorySpaceValidator,
                                         IHudControlProvider hudControlProvider,
                                         IEOMessageBoxFactory eoMessageBoxFactory)
         {
             _mapActions = mapActions;
+            _characterActions = characterActions;
             _currentMapStateProvider = currentMapStateProvider;
+            _characterProvider = characterProvider;
             _statusLabelSetter = statusLabelSetter;
             _inventorySpaceValidator = inventorySpaceValidator;
             _hudControlProvider = hudControlProvider;
@@ -42,6 +49,12 @@ namespace EndlessClient.Controllers
 
         public async Task LeftClickAsync(IMapCellState cellState, IMouseCursorRenderer mouseRenderer)
         {
+            if (_characterProvider.MainCharacter.RenderProperties.SitState != SitState.Standing)
+            {
+                _characterActions.ToggleSit();
+                return;
+            }
+
             var item = cellState.Items.OptionalFirst();
             if (item.HasValue)
             {

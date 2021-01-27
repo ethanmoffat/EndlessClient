@@ -75,4 +75,15 @@ namespace EOLib.PacketHandlers
                                       ICurrentMapStateRepository currentMapStateRepository)
             : base(playerInfoProvider, characterRepository, currentMapStateRepository) { }
     }
+
+    [AutoMappedType]
+    public class MainPlayerStandFromChairHandler : MainPlayerStandHandler
+    {
+        public override PacketFamily Family => PacketFamily.Chair;
+
+        public MainPlayerStandFromChairHandler(IPlayerInfoProvider playerInfoProvider,
+                                               ICharacterRepository characterRepository,
+                                               ICurrentMapStateRepository currentMapStateRepository)
+            : base(playerInfoProvider, characterRepository, currentMapStateRepository) { }
+    }
 }
