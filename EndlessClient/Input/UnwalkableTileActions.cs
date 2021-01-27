@@ -11,8 +11,8 @@ using EOLib.Net.Communication;
 
 namespace EndlessClient.Input
 {
-    [MappedType(BaseType = typeof(IWalkErrorHandler))]
-    public class WalkErrorHandler : IWalkErrorHandler
+    [AutoMappedType]
+    public class UnwalkableTileActions : IUnwalkableTileActions
     {
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly ICharacterProvider _characterProvider;
@@ -22,7 +22,7 @@ namespace EndlessClient.Input
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IPacketSendService _packetSendService;
 
-        public WalkErrorHandler(IMapCellStateProvider mapCellStateProvider,
+        public UnwalkableTileActions(IMapCellStateProvider mapCellStateProvider,
                                 ICharacterProvider characterProvider,
                                 IStatusLabelSetter statusLabelSetter,
                                 ICurrentMapStateRepository currentMapStateRepository,
@@ -39,7 +39,7 @@ namespace EndlessClient.Input
             _packetSendService = packetSendService;
         }
 
-        public void HandleWalkError()
+        public void HandleUnwalkableTile()
         {
             var destX = MainCharacter.RenderProperties.GetDestinationX();
             var destY = MainCharacter.RenderProperties.GetDestinationY();
@@ -167,8 +167,8 @@ namespace EndlessClient.Input
         private ICharacter MainCharacter => _characterProvider.MainCharacter;
     }
 
-    public interface IWalkErrorHandler
+    public interface IUnwalkableTileActions
     {
-        void HandleWalkError();
+        void HandleUnwalkableTile();
     }
 }
