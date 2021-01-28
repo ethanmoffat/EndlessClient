@@ -33,11 +33,11 @@ namespace EndlessClient.Rendering.CharacterProperties
         private Vector2 GetOffsets(Rectangle parentCharacterDrawArea)
         {
             var resX = -(float)Math.Floor(Math.Abs((float)_bootsSheet.SourceRectangle.Width - parentCharacterDrawArea.Width) / 2);
-            var resY = (int)Math.Floor(parentCharacterDrawArea.Height / 3f) * 2 - 1;
+            var resY = (int)Math.Floor(parentCharacterDrawArea.Height / 3f) * 2 - 1 - _renderProperties.Gender;
 
             if (_renderProperties.IsActing(CharacterActionState.Walking))
             {
-                resY -= 1;// * factor;
+                resY -= 1;
 
                 if (_renderProperties.RenderWalkFrame == 2)
                     resY -= 1;

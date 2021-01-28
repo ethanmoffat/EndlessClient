@@ -60,7 +60,7 @@ namespace EndlessClient.Rendering.CharacterProperties
 
             // todo: floor sitting offsets
             if (_renderProperties.SitState == SitState.Standing)
-                resY -= _renderProperties.IsActing(CharacterActionState.Walking) ? 4 : 3;
+                resY -= (_renderProperties.IsActing(CharacterActionState.Walking) ? 4 : 3) + _renderProperties.Gender;
             else
                 resY += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 2 : 0;
 
