@@ -48,12 +48,21 @@ namespace EndlessClient.Rendering.CharacterProperties
                     resY += _renderProperties.IsFacing(EODirection.Down, EODirection.Right) ? 1 : 0;
                 }
             }
+            else if (_renderProperties.SitState != SitState.Standing)
+            {
+                // todo: floor sitting offsets
+                resX -= 1;
+            }
             else
             {
                 resX += 2;
             }
 
-            resY -= _renderProperties.IsActing(CharacterActionState.Walking) ? 4 : 3;
+            // todo: floor sitting offsets
+            if (_renderProperties.SitState == SitState.Standing)
+                resY -= _renderProperties.IsActing(CharacterActionState.Walking) ? 4 : 3;
+            else
+                resY += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 2 : 0;
 
             return new Vector2(resX, resY);
         }

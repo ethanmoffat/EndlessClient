@@ -61,6 +61,12 @@ namespace EndlessClient.Rendering.CharacterProperties
 
                 resX += factor * (offset + extra);
             }
+            else if (_renderProperties.SitState != SitState.Standing)
+            {
+                // todo: floor sitting offsets
+                resX -= 3;
+                resY += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? -3 : 2;
+            }
 
             return new Vector2(resX, resY);
         }

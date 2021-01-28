@@ -40,6 +40,12 @@ namespace EndlessClient.Rendering.CharacterProperties
                 resY += _renderProperties.IsFacing(EODirection.Up, EODirection.Left) ? 1 : 5;
                 resY -= _renderProperties.IsFacing(EODirection.Right, EODirection.Down) ? _renderProperties.Gender : 0;
             }
+            else if (_renderProperties.SitState != SitState.Standing)
+            {
+                // todo: floor sitting offsets
+                resX -= 3;
+                resY += (_renderProperties.IsFacing(EODirection.Right, EODirection.Down) ? 9 : 11) + _renderProperties.Gender;
+            }
 
             var flippedOffset = isFlipped ? 2 : 0;
             return parentCharacterDrawArea.Location.ToVector2() + new Vector2(resX + flippedOffset, resY);

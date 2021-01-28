@@ -51,6 +51,13 @@ namespace EndlessClient.Rendering.CharacterProperties
                     var extra = _renderProperties.Gender * 2;
                     resX += factor * (1 + extra);
                 }
+                else if (_renderProperties.SitState != SitState.Standing)
+                {
+                    // todo: floor sitting offsets
+                    // todo: this looks like the same offset as for hair?
+                    resX -= 3;
+                    resY += (_renderProperties.IsFacing(EODirection.Up, EODirection.Left) ? 11 : 9) + _renderProperties.Gender;
+                }
             }
             else
             {
