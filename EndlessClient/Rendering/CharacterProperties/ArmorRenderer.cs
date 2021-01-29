@@ -50,19 +50,25 @@ namespace EndlessClient.Rendering.CharacterProperties
             }
             else if (_renderProperties.SitState != SitState.Standing)
             {
-                // todo: floor sitting offsets
-                resX -= 1;
+                if (_renderProperties.SitState == SitState.Chair)
+                {
+                    resX -= 1;
+                    resY += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 2 : 0;
+                }
+                else
+                {
+                    resX += _renderProperties.IsFacing(EODirection.Left) ? _renderProperties.Gender : _renderProperties.IsFacing(EODirection.Up) ? -_renderProperties.Gender : 0;
+                    resX -= _renderProperties.IsFacing(EODirection.Down, EODirection.Up) ? (2 - _renderProperties.Gender) : _renderProperties.Gender;
+                    resY += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 12 : 9;
+                }
             }
             else
             {
                 resX += 2;
             }
 
-            // todo: floor sitting offsets
             if (_renderProperties.SitState == SitState.Standing)
                 resY -= (_renderProperties.IsActing(CharacterActionState.Walking) ? 4 : 3) + _renderProperties.Gender;
-            else
-                resY += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 2 : 0;
 
             return new Vector2(resX, resY);
         }

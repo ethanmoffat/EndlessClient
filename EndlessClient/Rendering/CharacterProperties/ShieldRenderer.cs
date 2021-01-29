@@ -15,6 +15,12 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public override bool CanRender => _shieldSheet.HasTexture && _renderProperties.ShieldGraphic != 0;
 
+        // NOTE: The original client flips the arrows when facing left or up from the standing frame.
+        //       I'm guessing this is a Vult bug. The offsets are wonky if this is enabled and I don't feel like figuring them out.
+        //protected override bool ShouldFlip => _renderProperties.SitState == SitState.Floor
+        //? _isShieldOnBack && _renderProperties.IsFacing(EODirection.Left, EODirection.Right)
+        //: base.ShouldFlip;
+
         public ShieldRenderer(ICharacterRenderProperties renderProperties,
                               ISpriteSheet shieldSheet,
                               bool isShieldOnBack)
@@ -53,10 +59,25 @@ namespace EndlessClient.Rendering.CharacterProperties
                 }
                 else if (_renderProperties.SitState != SitState.Standing)
                 {
-                    // todo: floor sitting offsets
-                    // todo: this looks like the same offset as for hair?
+                    // These are the same offsets as hair
+
                     resX -= 3;
-                    resY += (_renderProperties.IsFacing(EODirection.Up, EODirection.Left) ? 11 : 9) + _renderProperties.Gender;
+
+                    var flootSitFactor = _renderProperties.SitState == SitState.Floor ? 2 : 1;
+                    if (_renderProperties.IsFacing(EODirection.Right, EODirection.Down))
+                    {
+                        resY += (9 + _renderProperties.Gender) * flootSitFactor;
+                    }
+                    else
+                    {
+                        if (_renderProperties.SitState == SitState.Floor)
+                        {
+                            resX += _renderProperties.IsFacing(EODirection.Left) ? 2 : -2;
+                            resY -= 1;
+                        }
+
+                        resY += (11 + _renderProperties.Gender) * flootSitFactor;
+                    }
                 }
             }
             else

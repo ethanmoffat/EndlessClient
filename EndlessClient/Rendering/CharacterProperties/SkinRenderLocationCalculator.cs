@@ -43,7 +43,6 @@ namespace EndlessClient.Rendering.CharacterProperties
             }
             else if (_renderProperties.SitState != SitState.Standing)
             {
-                // todo: floor sitting offsets
                 var factor = _renderProperties.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1;
 
                 resX = -(int)Math.Floor((float)(skinRectangle.Width - parentCharacterDrawArea.Width));
@@ -55,6 +54,12 @@ namespace EndlessClient.Rendering.CharacterProperties
                 resX += parentCharacterDrawArea.X + (genderAdjustFactor * factor);
 
                 resY += (_renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 7 : 5) - _renderProperties.Gender;
+
+                if (_renderProperties.SitState == SitState.Floor)
+                {
+                    resX += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? -factor : 0;
+                    resY += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 1 : 0;
+                }
             }
             else
             {
