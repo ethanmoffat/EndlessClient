@@ -16,21 +16,21 @@ namespace EndlessClient.Controllers
         private readonly ICharacterAnimationActions _characterAnimationActions;
         private readonly ICharacterActions _characterActions;
         private readonly ICharacterProvider _characterProvider;
-        private readonly IWalkErrorHandler _walkErrorHandler;
+        private readonly IUnwalkableTileActions _unwalkableTileActions;
         private readonly ISpikeTrapActions _spikeTrapActions;
 
         public ArrowKeyController(IWalkValidationActions walkValidationActions,
                                   ICharacterAnimationActions characterAnimationActions,
                                   ICharacterActions characterActions,
                                   ICharacterProvider characterProvider,
-                                  IWalkErrorHandler walkErrorHandler,
+                                  IUnwalkableTileActions walkErrorHandler,
                                   ISpikeTrapActions spikeTrapActions)
         {
             _walkValidationActions = walkValidationActions;
             _characterAnimationActions = characterAnimationActions;
             _characterActions = characterActions;
             _characterProvider = characterProvider;
-            _walkErrorHandler = walkErrorHandler;
+            _unwalkableTileActions = walkErrorHandler;
             _spikeTrapActions = spikeTrapActions;
         }
 
@@ -107,7 +107,7 @@ namespace EndlessClient.Controllers
         {
             if (!_walkValidationActions.CanMoveToDestinationCoordinates())
             {
-                _walkErrorHandler.HandleWalkError();
+                _unwalkableTileActions.HandleUnwalkableTile();
             }
             else
             {

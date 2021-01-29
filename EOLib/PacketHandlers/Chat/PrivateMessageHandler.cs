@@ -25,15 +25,20 @@ namespace EOLib.PacketHandlers.Chat
             var localData = new ChatData(name, message, ChatIcon.Note, ChatColor.PM);
             var pmData = new ChatData(name, message, ChatIcon.Note);
 
-            var whichPMTab = _chatRepository.PMTarget1.Equals(name, StringComparison.InvariantCultureIgnoreCase)
-                ? ChatTab.Private1
-                : _chatRepository.PMTarget2.Equals(name, StringComparison.InvariantCultureIgnoreCase)
-                    ? ChatTab.Private2
-                    : ChatTab.Local;
+            ChatTab whichPmTab;
+
+            if (_chatRepository.PMTarget1 == null && _chatRepository.PMTarget2 == null)
+                whichPmTab = ChatTab.Local;
+            else
+                whichPmTab = _chatRepository.PMTarget1.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+                    ? ChatTab.Private1
+                    : _chatRepository.PMTarget2.Equals(name, StringComparison.InvariantCultureIgnoreCase)
+                        ? ChatTab.Private2
+                        : ChatTab.Local;
 
             _chatRepository.AllChat[ChatTab.Local].Add(localData);
-            if (whichPMTab != ChatTab.Local)
-                _chatRepository.AllChat[whichPMTab].Add(pmData);
+            if (whichPmTab != ChatTab.Local)
+                _chatRepository.AllChat[whichPmTab].Add(pmData);
         }
     }
 }

@@ -15,6 +15,8 @@ namespace EndlessClient.Rendering.CharacterProperties
 
         public float LayerDepth { get; set; }
 
+        protected virtual bool ShouldFlip => _renderProperties.IsFacing(EODirection.Up, EODirection.Right);
+
         protected BaseCharacterPropertyRenderer(ICharacterRenderProperties renderProperties)
         {
             _renderProperties = renderProperties;
@@ -26,7 +28,7 @@ namespace EndlessClient.Rendering.CharacterProperties
         protected virtual void Render(SpriteBatch spriteBatch, ISpriteSheet sheet, Vector2 drawLoc, int alpha = 255)
         {
             spriteBatch.Draw(sheet.SheetTexture, drawLoc, sheet.SourceRectangle, Color.FromNonPremultiplied(255, 255, 255, alpha), 0.0f, Vector2.Zero, 1.0f,
-                             _renderProperties.IsFacing(EODirection.Up, EODirection.Right) ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
+                             ShouldFlip ? SpriteEffects.FlipHorizontally : SpriteEffects.None,
                              LayerDepth);
         }
     }

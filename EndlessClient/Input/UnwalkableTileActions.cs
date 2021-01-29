@@ -11,8 +11,8 @@ using EOLib.Net.Communication;
 
 namespace EndlessClient.Input
 {
-    [MappedType(BaseType = typeof(IWalkErrorHandler))]
-    public class WalkErrorHandler : IWalkErrorHandler
+    [AutoMappedType]
+    public class UnwalkableTileActions : IUnwalkableTileActions
     {
         private readonly IMapCellStateProvider _mapCellStateProvider;
         private readonly ICharacterProvider _characterProvider;
@@ -22,7 +22,7 @@ namespace EndlessClient.Input
         private readonly IEOMessageBoxFactory _eoMessageBoxFactory;
         private readonly IPacketSendService _packetSendService;
 
-        public WalkErrorHandler(IMapCellStateProvider mapCellStateProvider,
+        public UnwalkableTileActions(IMapCellStateProvider mapCellStateProvider,
                                 ICharacterProvider characterProvider,
                                 IStatusLabelSetter statusLabelSetter,
                                 ICurrentMapStateRepository currentMapStateRepository,
@@ -39,8 +39,11 @@ namespace EndlessClient.Input
             _packetSendService = packetSendService;
         }
 
-        public void HandleWalkError()
+        public void HandleUnwalkableTile()
         {
+            if (MainCharacter.RenderProperties.SitState != SitState.Standing)
+                return;
+
             var destX = MainCharacter.RenderProperties.GetDestinationX();
             var destY = MainCharacter.RenderProperties.GetDestinationY();
 
@@ -104,13 +107,14 @@ namespace EndlessClient.Input
         {
             switch (cellState.TileSpec)
             {
-                case TileSpec.ChairDown: //todo: chairs
+                case TileSpec.ChairDown:
                 case TileSpec.ChairLeft:
                 case TileSpec.ChairRight:
                 case TileSpec.ChairUp:
                 case TileSpec.ChairDownRight:
                 case TileSpec.ChairUpLeft:
                 case TileSpec.ChairAll:
+                    HandleWalkToChair();
                     break;
                 case TileSpec.Chest: //todo: chests
                     //if (!walkValid)
@@ -164,11 +168,25 @@ namespace EndlessClient.Input
             }
         }
 
+        private void HandleWalkToChair()
+        {
+            // server validates that chair direction is OK and that no one is already sitting there
+            var rp = _characterProvider.MainCharacter.RenderProperties;
+            var action = rp.SitState == SitState.Chair ? SitAction.Stand : SitAction.Sit;
+            var packet = new PacketBuilder(PacketFamily.Chair, PacketAction.Request)
+                .AddChar((byte)action)
+                .AddChar((byte)rp.GetDestinationX())
+                .AddChar((byte)rp.GetDestinationY())
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
         private ICharacter MainCharacter => _characterProvider.MainCharacter;
     }
 
-    public interface IWalkErrorHandler
+    public interface IUnwalkableTileActions
     {
-        void HandleWalkError();
+        void HandleUnwalkableTile();
     }
 }

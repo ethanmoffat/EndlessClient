@@ -78,6 +78,7 @@
     <Compile Include="Domain\Character\CharacterStat.cs" />
     <Compile Include="Domain\Character\CharacterStats.cs" />
     <Compile Include="Domain\Character\ExperienceTableProvider.cs" />
+    <Compile Include="Domain\Character\SitAction.cs" />
     <Compile Include="Domain\Character\StatTrainingActions.cs" />
     <Compile Include="Domain\Character\TrainType.cs" />
     <Compile Include="Domain\Character\WalkValidationActions.cs" />
@@ -257,9 +258,11 @@
     <Compile Include="PacketHandlers\Effects\MapQuakeHandler.cs" />
     <Compile Include="PacketHandlers\EndPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\ItemPickupHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerSitHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\Effects\MapHpDrainHandler.cs" />
     <Compile Include="PacketHandlers\NPCTakeDamageHandler.cs" />
+    <Compile Include="PacketHandlers\PlayerStandHandler.cs" />
     <Compile Include="PacketHandlers\PlayerTargetOtherSpellHandler.cs" />
     <Compile Include="PacketHandlers\PlayerSelfTargetSpellHandler.cs" />
     <Compile Include="PacketHandlers\Effects\PlayerSpikeDamageHandler.cs" />

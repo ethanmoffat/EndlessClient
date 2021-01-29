@@ -132,7 +132,7 @@ namespace EndlessClient.Rendering.Character
             if (_gameStateProvider.CurrentState == GameStates.None)
             {
                 _outline = new Texture2D(GraphicsDevice, 1, 1);
-                _outline.SetData(new[] { Color.Black });
+                _outline.SetData(new[] { Color.White });
             }
 
             base.LoadContent();
@@ -267,6 +267,9 @@ namespace EndlessClient.Rendering.Character
                 _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X + DrawArea.Width, DrawArea.Y)).WithSize(1, DrawArea.Height), Color.Black);
                 _sb.Draw(_outline, DrawArea.WithPosition(new Vector2(DrawArea.X, DrawArea.Y + DrawArea.Height)).WithSize(DrawArea.Width, 1), Color.Black);
                 _sb.Draw(_outline, DrawArea.WithSize(1, DrawArea.Height), Color.Black);
+
+                _sb.Draw(_outline, DrawArea, Color.FromNonPremultiplied(255, 0, 0, 64));
+                _sb.Draw(_outline, MapProjectedDrawArea, Color.FromNonPremultiplied(0, 255, 0, 64));
             }
 
             _sb.End();

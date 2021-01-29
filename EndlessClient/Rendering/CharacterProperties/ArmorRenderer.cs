@@ -48,12 +48,27 @@ namespace EndlessClient.Rendering.CharacterProperties
                     resY += _renderProperties.IsFacing(EODirection.Down, EODirection.Right) ? 1 : 0;
                 }
             }
+            else if (_renderProperties.SitState != SitState.Standing)
+            {
+                if (_renderProperties.SitState == SitState.Chair)
+                {
+                    resX -= 1;
+                    resY += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 2 : 0;
+                }
+                else
+                {
+                    resX += _renderProperties.IsFacing(EODirection.Left) ? _renderProperties.Gender : _renderProperties.IsFacing(EODirection.Up) ? -_renderProperties.Gender : 0;
+                    resX -= _renderProperties.IsFacing(EODirection.Down, EODirection.Up) ? (2 - _renderProperties.Gender) : _renderProperties.Gender;
+                    resY += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 12 : 9;
+                }
+            }
             else
             {
                 resX += 2;
             }
 
-            resY -= _renderProperties.IsActing(CharacterActionState.Walking) ? 4 : 3;
+            if (_renderProperties.SitState == SitState.Standing)
+                resY -= (_renderProperties.IsActing(CharacterActionState.Walking) ? 4 : 3) + _renderProperties.Gender;
 
             return new Vector2(resX, resY);
         }

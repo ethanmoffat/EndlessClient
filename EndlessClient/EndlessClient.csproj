@@ -110,7 +110,7 @@
     <Compile Include="Input\PreviousUserInputTracker.cs" />
     <Compile Include="Input\UserInputHandler.cs" />
     <Compile Include="Input\UserInputHandlerFactory.cs" />
-    <Compile Include="Input\WalkErrorHandler.cs" />
+    <Compile Include="Input\UnwalkableTileActions.cs" />
     <Compile Include="Old\OldCharacter.cs" />
     <Compile Include="Rendering\CharacterProperties\BaseCharacterPropertyRenderer.cs" />
     <Compile Include="Rendering\Character\ISpellCaster.cs" />

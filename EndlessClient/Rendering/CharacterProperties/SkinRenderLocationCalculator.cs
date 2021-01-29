@@ -41,6 +41,26 @@ namespace EndlessClient.Rendering.CharacterProperties
 
                 resY = parentCharacterDrawArea.Y + (needsExtraOffset ? 1 : 0);
             }
+            else if (_renderProperties.SitState != SitState.Standing)
+            {
+                var factor = _renderProperties.IsFacing(EODirection.Down, EODirection.Left) ? -1 : 1;
+
+                resX = -(int)Math.Floor((float)(skinRectangle.Width - parentCharacterDrawArea.Width));
+                resY = parentCharacterDrawArea.Bottom - skinRectangle.Height;
+
+                resX += _renderProperties.IsFacing(EODirection.Down, EODirection.Right) ? 2 * factor : 3 * factor;
+
+                var genderAdjustFactor = (_renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 0 : 1) * _renderProperties.Gender;
+                resX += parentCharacterDrawArea.X + (genderAdjustFactor * factor);
+
+                resY += (_renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 7 : 5) - _renderProperties.Gender;
+
+                if (_renderProperties.SitState == SitState.Floor)
+                {
+                    resX += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? -factor : 0;
+                    resY += _renderProperties.IsFacing(EODirection.Left, EODirection.Up) ? 1 : 0;
+                }
+            }
             else
             {
                 resX = -(float)Math.Floor(Math.Abs((float)skinRectangle.Width - parentCharacterDrawArea.Width) / 2);
