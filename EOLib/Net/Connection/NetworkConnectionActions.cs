@@ -73,8 +73,7 @@ namespace EOLib.Net.Connection
 
         public void DisconnectFromServer()
         {
-            if (Client.Connected)
-                Client.Disconnect();
+            Client.Disconnect();
 
             _sequenceRepository.SequenceIncrement = 0;
             _sequenceRepository.SequenceStart = 0;

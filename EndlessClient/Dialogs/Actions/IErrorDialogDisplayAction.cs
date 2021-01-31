@@ -16,5 +16,7 @@ namespace EndlessClient.Dialogs.Actions
         void ShowException(EmptyPacketReceivedException ex);
 
         void ShowLoginError(LoginReply loginError);
+
+        void ShowConnectionLost(bool isIngame);
     }
 }

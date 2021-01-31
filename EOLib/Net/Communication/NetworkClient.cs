@@ -23,18 +23,9 @@ namespace EOLib.Net.Communication
 
         private readonly CancellationTokenSource _backgroundReceiveCTS;
         
-        public bool Connected
-        {
-            get
-            {
-                using (var cts = new CancellationTokenSource())
-                {
-                    cts.CancelAfter(5000);
-                    var t = _socket.CheckIsConnectedAsync(cts.Token);
-                    return !t.IsCanceled && t.Result;
-                }
-            }
-        }
+        public bool Connected => _socket.Connected;
+
+        public bool Started { get; private set; }
 
         public NetworkClient(IPacketProcessActions packetProcessActions,
                              IPacketHandlingActions packetHandlingActions,
@@ -69,28 +60,34 @@ namespace EOLib.Net.Communication
             using (var cts = new CancellationTokenSource(5000))
             {
                 var task = _socket.ConnectAsync(endPoint, cts.Token);
-                await task;
+                await task.ConfigureAwait(false);
 
-                return task.IsCanceled ? ConnectResult.Timeout : task.Result;
+                if (task.IsCanceled)
+                    return ConnectResult.Timeout;
+
+                Started = task.Result == ConnectResult.Success;
+
+                return task.Result;
             }
         }
 
         public void Disconnect()
         {
-            _socket.DisconnectAsync(CancellationToken.None);
+            _socket.DisconnectAsync(CancellationToken.None).ConfigureAwait(false);
+            Started = false;
         }
 
         public async Task RunReceiveLoopAsync()
         {
             while (!_backgroundReceiveCTS.IsCancellationRequested)
             {
-                var lengthData = await _socket.ReceiveAsync(2, _backgroundReceiveCTS.Token);
+                var lengthData = await _socket.ReceiveAsync(2, _backgroundReceiveCTS.Token).ConfigureAwait(false);
                 if (_backgroundReceiveCTS.IsCancellationRequested || lengthData.Length != 2)
                     break;
 
                 var length = _numberEncoderService.DecodeNumber(lengthData);
 
-                var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
+                var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token).ConfigureAwait(false);
                 if (_backgroundReceiveCTS.IsCancellationRequested || packetData.Length != length)
                     break;
 
@@ -117,7 +114,7 @@ namespace EOLib.Net.Communication
             LogSentPacket(packet, true);
             var bytesToSend = _packetProcessActions.EncodePacket(packet);
             using (var cts = new CancellationTokenSource(timeout))
-                return await _socket.SendAsync(bytesToSend, cts.Token);
+                return await _socket.SendAsync(bytesToSend, cts.Token).ConfigureAwait(false);
         }
 
         public async Task<int> SendRawPacketAsync(IPacket packet, int timeout = 1500)
@@ -125,7 +122,7 @@ namespace EOLib.Net.Communication
             LogSentPacket(packet, false);
             var bytesToSend = _packetProcessActions.EncodeRawPacket(packet);
             using (var cts = new CancellationTokenSource(timeout))
-                return await _socket.SendAsync(bytesToSend, cts.Token);
+                return await _socket.SendAsync(bytesToSend, cts.Token).ConfigureAwait(false);
         }
 
         [Conditional("DEBUG")]

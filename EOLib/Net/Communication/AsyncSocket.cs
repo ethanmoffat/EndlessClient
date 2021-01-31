@@ -40,48 +40,36 @@ namespace EOLib.Net.Communication
         private readonly Socket _socket;
         private bool _connected;
 
+        public bool Connected => BlockingIsConnected();
+
         public AsyncSocket(AddressFamily family, SocketType type, ProtocolType protocol)
         {
             _socket = new Socket(family, type, protocol);
         }
 
-        public async Task<int> SendAsync(byte[] data, CancellationToken ct)
+        public Task<int> SendAsync(byte[] data, CancellationToken ct)
         {
-            var task = Task.Run(() => BlockingSend(data), ct);
-            
-            await task;
-            return task.Result;
+            return Task.Run(() => BlockingSend(data), ct);
         }
 
-        public async Task<byte[]> ReceiveAsync(int bytes, CancellationToken ct)
+        public Task<byte[]> ReceiveAsync(int bytes, CancellationToken ct)
         {
-            var task = Task.Run(() => BlockingReceive(bytes), ct);
-
-            await task;
-            return task.Result;
+            return Task.Run(() => BlockingReceive(bytes), ct);
         }
 
-        public async Task<bool> CheckIsConnectedAsync(CancellationToken ct)
+        public Task<bool> CheckIsConnectedAsync(CancellationToken ct)
         {
-            var task = Task.Run(() => BlockingIsConnected(), ct);
-
-            await task;
-            return task.Result;
+            return Task.Run(() => BlockingIsConnected(), ct);
         }
 
-        public async Task<ConnectResult> ConnectAsync(EndPoint endPoint, CancellationToken ct)
+        public Task<ConnectResult> ConnectAsync(EndPoint endPoint, CancellationToken ct)
         {
-            var task = Task.Run(() => BlockingConnect(endPoint), ct);
-
-            await task;
-            return task.Result;
+            return Task.Run(() => BlockingConnect(endPoint), ct);
         }
 
-        public async Task DisconnectAsync(CancellationToken ct)
+        public Task DisconnectAsync(CancellationToken ct)
         {
-            var task = Task.Run(() => BlockingDisconnect(), ct);
-            
-            await task;
+            return Task.Run(() => BlockingDisconnect(), ct);
         }
 
         private int BlockingSend(byte[] data)
@@ -133,7 +121,7 @@ namespace EOLib.Net.Communication
                 var dataAvailable = _socket.Available != 0;
                 return _connected && (pollResult || dataAvailable);
             }
-            catch(ObjectDisposedException)
+            catch (ObjectDisposedException)
             {
                 _connected = false;
                 return false;
@@ -199,6 +187,7 @@ namespace EOLib.Net.Communication
         public void Dispose()
         {
             Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
