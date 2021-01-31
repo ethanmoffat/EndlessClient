@@ -131,5 +131,14 @@ namespace EndlessClient.Dialogs.Actions
                 EOMessageBoxStyle.SmallDialogLargeHeader);
             messageBox.ShowDialog();
         }
+
+        public void ShowConnectionLost(bool isInGame)
+        {
+            var resource = isInGame ? DialogResourceID.CONNECTION_LOST_IN_GAME : DialogResourceID.CONNECTION_LOST_CONNECTION;
+            var style = isInGame ? EOMessageBoxStyle.SmallDialogSmallHeader : EOMessageBoxStyle.SmallDialogLargeHeader;
+
+            var messageBox = _messageBoxFactory.CreateMessageBox(resource, style: style);
+            messageBox.ShowDialog();
+        }
     }
 }

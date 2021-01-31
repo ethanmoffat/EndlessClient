@@ -7,6 +7,8 @@ namespace EOLib.Net.Communication
     {
         bool Connected { get; }
 
+        bool Started { get; }
+
         Task<ConnectResult> ConnectToServer(string host, int port);
 
         void Disconnect();

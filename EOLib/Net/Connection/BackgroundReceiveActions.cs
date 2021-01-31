@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using AutomaticTypeMapper;
 using EOLib.Net.Communication;
@@ -41,7 +42,7 @@ namespace EOLib.Net.Connection
 
         private async void BackgroundLoop()
         {
-            await Client.RunReceiveLoopAsync();
+            await Client.RunReceiveLoopAsync().ConfigureAwait(false);
         }
 
         private INetworkClient Client => _clientProvider.NetworkClient;

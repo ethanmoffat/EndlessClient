@@ -7,6 +7,8 @@ namespace EOLib.Net.Communication
 {
     public interface IAsyncSocket : IDisposable
     {
+        bool Connected { get; }
+
         Task<int> SendAsync(byte[] data, CancellationToken ct);
 
         Task<byte[]> ReceiveAsync(int bytes, CancellationToken ct);
