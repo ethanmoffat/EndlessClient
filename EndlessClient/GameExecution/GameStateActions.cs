@@ -5,7 +5,7 @@ using AutomaticTypeMapper;
 using EndlessClient.Audio;
 using EndlessClient.ControlSets;
 using EndlessClient.Network;
-using EOLib.Domain.Character;
+using EndlessClient.Rendering;
 using Microsoft.Xna.Framework;
 
 namespace EndlessClient.GameExecution
@@ -91,8 +91,9 @@ namespace EndlessClient.GameExecution
         {
             var componentsToRemove = FindUnusedComponents(currentSet, nextSet);
             var disposableComponents = componentsToRemove
-                .Where(x => !(x is PacketHandlerGameComponent))
-                .OfType<IDisposable>();
+                .Where(x => !(x is PacketHandlerGameComponent) && !(x is DispatcherGameComponent))
+                .OfType<IDisposable>()
+                .ToList();
 
             foreach (var component in disposableComponents)
                 component.Dispose();

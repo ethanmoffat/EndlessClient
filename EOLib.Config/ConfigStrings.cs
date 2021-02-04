@@ -24,6 +24,9 @@ namespace EOLib.Config
         public const string Sound = "Sound";
         public const string ShowBaloons = "ShowBaloons";
 
+        public const string InGameWidth = nameof(InGameWidth);
+        public static string InGameHeight = nameof(InGameHeight);
+
         public const string Custom = "CUSTOM";
         public const string NPCDropProtectTime = "NPCDropProtectTime";
         public const string PlayerDropProtectTime = "PlayerDropProtectTime";

@@ -6,7 +6,9 @@ using EndlessClient.GameExecution;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Chat;
 using EndlessClient.Input;
+using EndlessClient.Rendering;
 using EndlessClient.Rendering.Map;
+using EOLib.Config;
 using EOLib.Domain.Character;
 using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
@@ -36,6 +38,8 @@ namespace EndlessClient.Controllers
         private readonly IChatRepository _chatRepository;
         private readonly INewsProvider _newsProvider;
         private readonly IUserInputTimeRepository _userInputTimeRepository;
+        private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
+        private readonly IConfigurationProvider _configurationProvider;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
         private readonly ISafeNetworkOperationFactory _networkOperationFactory;
         private readonly IGameLoadingDialogFactory _gameLoadingDialogFactory;
@@ -58,7 +62,9 @@ namespace EndlessClient.Controllers
                                ILocalizedStringFinder localizedStringFinder,
                                IChatRepository chatRepository,
                                INewsProvider newsProvider,
-                               IUserInputTimeRepository userInputTimeRepository)
+                               IUserInputTimeRepository userInputTimeRepository,
+                               IClientWindowSizeRepository clientWindowSizeRepository,
+                               IConfigurationProvider configurationProvider)
         {
             _loginActions = loginActions;
             _mapFileLoadActions = mapFileLoadActions;
@@ -76,6 +82,8 @@ namespace EndlessClient.Controllers
             _chatRepository = chatRepository;
             _newsProvider = newsProvider;
             _userInputTimeRepository = userInputTimeRepository;
+            _clientWindowSizeRepository = clientWindowSizeRepository;
+            _configurationProvider = configurationProvider;
         }
 
         public async Task LoginToAccount(ILoginParameters loginParameters)
@@ -208,6 +216,14 @@ namespace EndlessClient.Controllers
                                               EOResourceID.LOADING_GAME_HINT_FIRST);
             _firstTimePlayerActions.WarnFirstTimePlayers();
             _mapChangedActions.ActiveCharacterEnterMapForLogin();
+
+            _clientWindowSizeRepository.Resizable = true;
+
+            await DispatcherGameComponent.Invoke(() =>
+            {
+                _clientWindowSizeRepository.Width = _configurationProvider.InGameWidth;
+                _clientWindowSizeRepository.Height = _configurationProvider.InGameHeight;
+            });
         }
 
         private void SetInitialStateAndShowError(NoDataSentException ex)

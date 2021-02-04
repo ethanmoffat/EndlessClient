@@ -13,5 +13,8 @@
         public const int PlayerDropProtectionSeconds = 5;
 
         public const int AccountCreateTimeout = 2000;
+
+        public const int InGameWidth = 1280;
+        public const int InGameHeight = 720;
     }
 }
