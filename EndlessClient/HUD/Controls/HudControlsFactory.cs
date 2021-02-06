@@ -44,7 +44,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IUserInputHandlerFactory _userInputHandlerFactory;
         private readonly INativeGraphicsManager _nativeGraphicsManager;
         private readonly IGraphicsDeviceProvider _graphicsDeviceProvider;
-        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
+        private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IEndlessGameProvider _endlessGameProvider;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -73,7 +73,7 @@ namespace EndlessClient.HUD.Controls
                                   IUserInputHandlerFactory userInputHandlerFactory,
                                   INativeGraphicsManager nativeGraphicsManager,
                                   IGraphicsDeviceProvider graphicsDeviceProvider,
-                                  IClientWindowSizeProvider clientWindowSizeProvider,
+                                  IClientWindowSizeRepository clientWindowSizeRepository,
                                   IEndlessGameProvider endlessGameProvider,
                                   ICharacterRepository characterRepository,
                                   ICurrentMapStateRepository currentMapStateRepository,
@@ -101,7 +101,7 @@ namespace EndlessClient.HUD.Controls
             _userInputHandlerFactory = userInputHandlerFactory;
             _nativeGraphicsManager = nativeGraphicsManager;
             _graphicsDeviceProvider = graphicsDeviceProvider;
-            _clientWindowSizeProvider = clientWindowSizeProvider;
+            _clientWindowSizeRepository = clientWindowSizeRepository;
             _endlessGameProvider = endlessGameProvider;
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
@@ -178,10 +178,10 @@ namespace EndlessClient.HUD.Controls
                 {HudControlIdentifier.SPStatusBar, CreateSPStatusBar()},
                 {HudControlIdentifier.TNLStatusBar, CreateTNLStatusBar()},
 
-                {HudControlIdentifier.ChatModePictureBox, CreateChatModePictureBox()},
-                {HudControlIdentifier.ChatTextBox, CreateChatTextBox()},
-                {HudControlIdentifier.ClockLabel, CreateClockLabel()},
-                {HudControlIdentifier.StatusLabel, CreateStatusLabel()},
+                //{HudControlIdentifier.ChatModePictureBox, CreateChatModePictureBox()},
+                //{HudControlIdentifier.ChatTextBox, CreateChatTextBox()},
+                //{HudControlIdentifier.ClockLabel, CreateClockLabel()},
+                //{HudControlIdentifier.StatusLabel, CreateStatusLabel()},
 
                 {HudControlIdentifier.PeriodicStatUpdater, CreatePeriodicStatUpdater()},
                 {HudControlIdentifier.UserInputHandler, CreateUserInputHandler()},
@@ -343,7 +343,6 @@ namespace EndlessClient.HUD.Controls
             btn.OnClick += (_, _) => _hudButtonController.ClickSessionExp();
             btn.OnClick += (_, _) => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
             return btn;
-
         }
 
         private IGameComponent CreateQuestButton()
@@ -365,6 +364,7 @@ namespace EndlessClient.HUD.Controls
         {
             var statusBar = new HPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
+            _clientWindowSizeRepository.GameWindowSizeChanged += (o, e) => ChangeStatusBarPosition(statusBar, -2);
             return statusBar;
         }
 
@@ -372,6 +372,7 @@ namespace EndlessClient.HUD.Controls
         {
             var statusBar = new TPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
+            _clientWindowSizeRepository.GameWindowSizeChanged += (o, e) => ChangeStatusBarPosition(statusBar, -1);
             return statusBar;
         }
 
@@ -379,6 +380,7 @@ namespace EndlessClient.HUD.Controls
         {
             var statusBar = new SPStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
+            _clientWindowSizeRepository.GameWindowSizeChanged += (o, e) => ChangeStatusBarPosition(statusBar, 0);
             return statusBar;
         }
 
@@ -386,7 +388,14 @@ namespace EndlessClient.HUD.Controls
         {
             var statusBar = new TNLStatusBar(_nativeGraphicsManager, (ICharacterProvider)_characterRepository, _userInputRepository, _experienceTableProvider) { DrawOrder = HUD_CONTROL_LAYER };
             statusBar.StatusBarClicked += () => _sfxPlayer.PlaySfx(SoundEffectID.HudStatusBarClick);
+            _clientWindowSizeRepository.GameWindowSizeChanged += (o, e) => ChangeStatusBarPosition(statusBar, 1);
             return statusBar;
+        }
+
+        private void ChangeStatusBarPosition(StatusBarBase statusBar, int statusBarIndex)
+        {
+            var xCoord = (_clientWindowSizeRepository.Width / 2) + statusBarIndex * statusBar.DrawArea.Width;
+            statusBar.DrawPosition = new Vector2(xCoord, 0);
         }
 
         private ChatModePictureBox CreateChatModePictureBox()
@@ -419,7 +428,7 @@ namespace EndlessClient.HUD.Controls
 
         private TimeLabel CreateClockLabel()
         {
-            return new TimeLabel(_clientWindowSizeProvider) { DrawOrder = HUD_CONTROL_LAYER };
+            return new TimeLabel((IClientWindowSizeProvider)_clientWindowSizeRepository) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         private PeriodicStatUpdaterComponent CreatePeriodicStatUpdater()
@@ -434,7 +443,7 @@ namespace EndlessClient.HUD.Controls
 
         private StatusBarLabel CreateStatusLabel()
         {
-            return new StatusBarLabel(_clientWindowSizeProvider, _statusLabelTextProvider) { DrawOrder = HUD_CONTROL_LAYER };
+            return new StatusBarLabel((IClientWindowSizeProvider)_clientWindowSizeRepository, _statusLabelTextProvider) { DrawOrder = HUD_CONTROL_LAYER };
         }
 
         private CurrentUserInputTracker CreateCurrentUserInputTracker()

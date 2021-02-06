@@ -22,17 +22,19 @@ namespace EndlessClient.HUD.Chat
 
         public void ClearChatText()
         {
-            var chatTextBox = GetChatTextBox();
-            chatTextBox.Text = "";
+            // TODO: re-enable with UI rework
+            //var chatTextBox = GetChatTextBox();
+            //chatTextBox.Text = "";
         }
 
         public void FocusChatTextBox()
         {
-            if (KeyboardDispatcher.Subscriber != null)
-                KeyboardDispatcher.Subscriber.Selected = false;
+            // TODO: re-enable with UI rework
+            //if (KeyboardDispatcher.Subscriber != null)
+            //    KeyboardDispatcher.Subscriber.Selected = false;
 
-            KeyboardDispatcher.Subscriber = GetChatTextBox();
-            KeyboardDispatcher.Subscriber.Selected = true;
+            //KeyboardDispatcher.Subscriber = GetChatTextBox();
+            //KeyboardDispatcher.Subscriber.Selected = true;
         }
 
         private KeyboardDispatcher KeyboardDispatcher => _keyboardDispatcherProvider.Dispatcher;

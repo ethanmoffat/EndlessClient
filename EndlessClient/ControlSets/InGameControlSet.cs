@@ -7,9 +7,9 @@ using EndlessClient.Dialogs.Factories;
 using EndlessClient.GameExecution;
 using EndlessClient.HUD.Controls;
 using EndlessClient.Input;
+using EndlessClient.Rendering;
 using EOLib.Localization;
 using Microsoft.Xna.Framework;
-using Optional;
 using XNAControls;
 
 namespace EndlessClient.ControlSets
@@ -25,11 +25,12 @@ namespace EndlessClient.ControlSets
         public override GameStates GameState => GameStates.PlayingTheGame;
 
         public InGameControlSet(IMainButtonController mainButtonController,
+                                IClientWindowSizeRepository clientWindowSizeRepository,
                                 IEOMessageBoxFactory messageBoxFactory,
                                 IHudControlsFactory hudControlsFactory,
                                 IActiveDialogRepository activeDialogRepository,
                                 IUserInputRepository userInputRepository)
-            : base(mainButtonController)
+            : base(mainButtonController, clientWindowSizeRepository)
         {
             _messageBoxFactory = messageBoxFactory;
             _hudControlsFactory = hudControlsFactory;

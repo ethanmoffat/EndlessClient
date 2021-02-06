@@ -42,6 +42,9 @@ namespace EndlessClient.Rendering
             {
                 _graphicsDeviceRepository.GraphicsDeviceManager.PreferredBackBufferWidth = value;
                 _graphicsDeviceRepository.GraphicsDeviceManager.ApplyChanges();
+
+                foreach (var evnt in _resizeEvents)
+                    evnt(this, EventArgs.Empty);
             }
         }
 
@@ -52,6 +55,9 @@ namespace EndlessClient.Rendering
             {
                 _graphicsDeviceRepository.GraphicsDeviceManager.PreferredBackBufferHeight = value;
                 _graphicsDeviceRepository.GraphicsDeviceManager.ApplyChanges();
+
+                foreach (var evnt in _resizeEvents)
+                    evnt(this, EventArgs.Empty);
             }
         }
 
@@ -63,8 +69,16 @@ namespace EndlessClient.Rendering
 
         public event EventHandler<EventArgs> GameWindowSizeChanged
         {
-            add => _gameWindowRepository.Window.ClientSizeChanged += value;
-            remove => _gameWindowRepository.Window.ClientSizeChanged -= value;
+            add
+            {
+                _gameWindowRepository.Window.ClientSizeChanged += value;
+                _resizeEvents.Add(value);
+            }
+            remove
+            {
+                _gameWindowRepository.Window.ClientSizeChanged -= value;
+                _resizeEvents.Remove(value);
+            }
         }
 
         public ClientWindowSizeRepository(IGameWindowRepository gameWindowRepository,
