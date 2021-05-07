@@ -40,7 +40,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly IUserInputProvider _userInputProvider;
         private readonly ISfxPlayer _sfxPlayer;
-
+        private readonly IClientWindowSizeRepository _clientWindowSizeRepository;
         private readonly IEffectRenderer _effectRenderer;
 
         private EOLib.Domain.Character.Character _character;
@@ -104,7 +104,8 @@ namespace EndlessClient.Rendering.Character
                                  IGameStateProvider gameStateProvider,
                                  ICurrentMapProvider currentMapProvider,
                                  IUserInputProvider userInputProvider,
-                                 ISfxPlayer sfxPlayer)
+                                 ISfxPlayer sfxPlayer,
+                                 IClientWindowSizeRepository clientWindowSizeRepository)
             : base(game)
         {
             _mapInteractionController = mapInteractionController;
@@ -122,6 +123,7 @@ namespace EndlessClient.Rendering.Character
             _userInputProvider = userInputProvider;
             _sfxPlayer = sfxPlayer;
 
+            _clientWindowSizeRepository = clientWindowSizeRepository;
             _effectRenderer = new EffectRenderer(nativeGraphicsmanager, _sfxPlayer, this);
             _chatBubble = new Lazy<IChatBubble>(() => _chatBubbleFactory.CreateChatBubble(this));
         }
@@ -247,18 +249,21 @@ namespace EndlessClient.Rendering.Character
 
         public void SetToCenterScreenPosition()
         {
-            const int x = 314; // 618 / 2.0
+            var skinRect = _characterTextures.Skin.SourceRectangle;
 
-            var skinRect = new Rectangle(0, 0, 18, 58);
-            var y = (298 - skinRect.Height)/2 - skinRect.Height/4;
-            SetAbsoluteScreenPosition(x, y);
+            var xCoord = (_clientWindowSizeRepository.Width - skinRect.Width) / 2;
+            var yCoord = (_clientWindowSizeRepository.Height * 3 / 10) - (skinRect.Height / 2) - (skinRect.Height / 4);
+
+            SetAbsoluteScreenPosition(xCoord, yCoord);
         }
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
         {
             _effectRenderer.DrawBehindTarget(spriteBatch);
+
             if (Visible)
                 spriteBatch.Draw(_charRenderTarget, new Vector2(0, GetSteppingStoneOffset(Character.RenderProperties)), GetAlphaColor());
+
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             if (_gameStateProvider.CurrentState == GameStates.PlayingTheGame)
@@ -329,9 +334,11 @@ namespace EndlessClient.Rendering.Character
 
         private void SetGridCoordinatePosition()
         {
-            //todo: the constants here should be dynamically configurable to support window resizing
-            var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + 312 - GetMainCharacterOffsetX();
-            var screenY = _renderOffsetCalculator.CalculateOffsetY(_character.RenderProperties) + 106 - GetMainCharacterOffsetY();
+            var centerX = _clientWindowSizeRepository.Width / 2;
+            var centerY = _clientWindowSizeRepository.Height * 3 / 10;
+
+            var screenX = _renderOffsetCalculator.CalculateOffsetX(_character.RenderProperties) + centerX - GetMainCharacterOffsetX();
+            var screenY = _renderOffsetCalculator.CalculateOffsetY(_character.RenderProperties) + centerY - GetMainCharacterOffsetY();
 
             SetScreenCoordinates(screenX, screenY);
         }

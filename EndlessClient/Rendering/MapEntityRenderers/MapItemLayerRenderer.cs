@@ -19,9 +19,10 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public MapItemLayerRenderer(ICharacterProvider characterProvider,
                                     IRenderOffsetCalculator renderOffsetCalculator,
+                                    IClientWindowSizeProvider clientWindowSizeProvider,
                                     ICurrentMapStateProvider currentMapStateProvider,
                                     IMapItemGraphicProvider mapItemGraphicProvider)
-            : base(characterProvider, renderOffsetCalculator)
+            : base(characterProvider, renderOffsetCalculator, clientWindowSizeProvider)
         {
             _currentMapStateProvider = currentMapStateProvider;
             _mapItemGraphicProvider = mapItemGraphicProvider;

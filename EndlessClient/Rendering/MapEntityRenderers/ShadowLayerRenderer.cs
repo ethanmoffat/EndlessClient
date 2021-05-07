@@ -23,8 +23,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
                                    ICurrentMapProvider currentMapProvider,
                                    ICharacterProvider characterProvider,
                                    IRenderOffsetCalculator renderOffsetCalculator,
-                                   IConfigurationProvider configurationProvider)
-            : base(characterProvider, renderOffsetCalculator)
+                                   IConfigurationProvider configurationProvider,
+                                   IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(characterProvider, renderOffsetCalculator, clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;

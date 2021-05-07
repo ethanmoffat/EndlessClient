@@ -28,6 +28,7 @@ namespace EndlessClient.Rendering.Factories
         private readonly IUserInputProvider _userInputProvider;
         private readonly IActiveDialogProvider _activeDialogProvider;
         private readonly IContextMenuProvider _contextMenuProvider;
+        private readonly IClientWindowSizeProvider _clientWindowSizeProvider;
 
         public MouseCursorRendererFactory(INativeGraphicsManager nativeGraphicsManager,
                                           ICharacterProvider characterProvider,
@@ -41,7 +42,8 @@ namespace EndlessClient.Rendering.Factories
                                           IMapInteractionController mapInteractionController,
                                           IUserInputProvider userInputProvider,
                                           IActiveDialogProvider activeDialogProvider,
-                                          IContextMenuProvider contextMenuProvider)
+                                          IContextMenuProvider contextMenuProvider,
+                                          IClientWindowSizeProvider clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _characterProvider = characterProvider;
@@ -56,6 +58,7 @@ namespace EndlessClient.Rendering.Factories
             _userInputProvider = userInputProvider;
             _activeDialogProvider = activeDialogProvider;
             _contextMenuProvider = contextMenuProvider;
+            _clientWindowSizeProvider = clientWindowSizeProvider;
         }
 
         public IMouseCursorRenderer Create()
@@ -72,7 +75,8 @@ namespace EndlessClient.Rendering.Factories
                                            _mapInteractionController,
                                            _userInputProvider,
                                            _activeDialogProvider,
-                                           _contextMenuProvider);
+                                           _contextMenuProvider,
+                                           _clientWindowSizeProvider);
         }
     }
 

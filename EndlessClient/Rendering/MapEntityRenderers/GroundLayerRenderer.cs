@@ -22,8 +22,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public GroundLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                    ICurrentMapProvider currentMapProvider,
                                    ICharacterProvider characterProvider,
-                                   IRenderOffsetCalculator renderOffsetCalculator)
-            : base(characterProvider, renderOffsetCalculator)
+                                   IRenderOffsetCalculator renderOffsetCalculator,
+                                   IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(characterProvider, renderOffsetCalculator, clientWindowSizeProvider)
         {
             _nativeGraphicsManager = nativeGraphicsManager;
             _currentMapProvider = currentMapProvider;
@@ -82,8 +83,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         public AnimatedGroundLayerRenderer(INativeGraphicsManager nativeGraphicsManager,
                                            ICurrentMapProvider currentMapProvider,
                                            ICharacterProvider characterProvider,
-                                           IRenderOffsetCalculator renderOffsetCalculator)
-            : base(nativeGraphicsManager, currentMapProvider, characterProvider, renderOffsetCalculator)
+                                           IRenderOffsetCalculator renderOffsetCalculator,
+                                           IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(nativeGraphicsManager, currentMapProvider, characterProvider, renderOffsetCalculator, clientWindowSizeProvider)
         {
             _renderOffsetCalculator = renderOffsetCalculator;
         }

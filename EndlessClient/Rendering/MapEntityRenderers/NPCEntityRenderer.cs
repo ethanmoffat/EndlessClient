@@ -16,8 +16,9 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         public NPCEntityRenderer(ICharacterProvider characterProvider,
                                  IRenderOffsetCalculator renderOffsetCalculator,
-                                 INPCRendererProvider npcRendererProvider)
-            : base(characterProvider, renderOffsetCalculator)
+                                 INPCRendererProvider npcRendererProvider,
+                                 IClientWindowSizeProvider clientWindowSizeProvider)
+            : base(characterProvider, renderOffsetCalculator, clientWindowSizeProvider)
         {
             _npcRendererProvider = npcRendererProvider;
         }

@@ -119,7 +119,7 @@ namespace EndlessClient.Rendering.Character
                 return;
 
             Animator.StartOtherCharacterWalkAnimation(characterID, destinationX, destinationY, direction);
-            
+
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, characterID);
             _spikeTrapActions.HideSpikeTrap(characterID);
             _spikeTrapActions.ShowSpikeTrap(characterID);
