@@ -48,67 +48,6 @@ namespace EOLib.Net.API
 
         #endregion
 
-        #region public API
-
-        public bool PrepareCastSpell(short spellID)
-        {
-            if (spellID < 0) return false; //integer overflow resulted in negative number - server expects ushort
-
-            if (!Initialized || !m_client.ConnectedAndInitialized) return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.Spell, PacketAction.Request);
-            pkt.AddShort(spellID);
-            pkt.AddThree(DateTime.Now.ToEOTimeStamp());
-
-            return m_client.SendPacket(pkt);
-        }
-
-        public bool DoCastSelfSpell(short spellID)
-        {
-            if (spellID < 0) return false;
-
-            if (!Initialized || !m_client.ConnectedAndInitialized) return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.Spell, PacketAction.TargetSelf);
-            pkt.AddChar(1); //target type
-            pkt.AddShort(spellID);
-            pkt.AddInt(DateTime.Now.ToEOTimeStamp());
-
-            return m_client.SendPacket(pkt);
-        }
-
-        public bool DoCastTargetSpell(short spellID, bool targetIsNPC, short targetID)
-        {
-            if (spellID < 0 || targetID < 0) return false;
-
-            if (!Initialized || !m_client.ConnectedAndInitialized) return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.Spell, PacketAction.TargetOther);
-            pkt.AddChar((byte)(targetIsNPC ? 2 : 1));
-            pkt.AddChar(1); //unknown value
-            pkt.AddShort(1); //unknown value
-            pkt.AddShort(spellID);
-            pkt.AddShort(targetID);
-            pkt.AddThree(DateTime.Now.ToEOTimeStamp());
-
-            return m_client.SendPacket(pkt);
-        }
-
-        public bool DoCastGroupSpell(short spellID)
-        {
-            if (spellID < 0) return false;
-
-            if (!Initialized || !m_client.ConnectedAndInitialized) return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.Spell, PacketAction.TargetGroup);
-            pkt.AddShort(spellID);
-            pkt.AddThree(DateTime.Now.ToEOTimeStamp());
-
-            return m_client.SendPacket(pkt);
-        }
-
-        #endregion
-
         #region handler methods
 
         private void _handleSpellTargetGroup(OldPacket pkt)

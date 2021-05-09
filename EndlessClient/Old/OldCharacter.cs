@@ -578,48 +578,48 @@ namespace EndlessClient.Old
 
         public void PrepareSpell(int id)
         {
-            if (SelectedSpell <= 0)
-                return;
+            //if (SelectedSpell <= 0)
+            //    return;
 
-            if (!m_packetAPI.PrepareCastSpell((short) id))
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+            //if (!m_packetAPI.PrepareCastSpell((short) id))
+            //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
 
-            PreparingSpell = true;
+            //PreparingSpell = true;
         }
 
         public void CastSpell(int id)
         {
-            if (SelectedSpell <= 0)
-                return;
+            //if (SelectedSpell <= 0)
+            //    return;
 
-            var data = OldWorld.Instance.ESF[id];
-            bool result = false;
-            switch (data.Target)
-            {
-                case EOLib.IO.SpellTarget.Normal:
-                    var targetAsNPC = SpellTarget as OldNPCRenderer;
-                    var targetAsChar = SpellTarget as OldCharacterRenderer;
-                    if (targetAsNPC != null)
-                        result = m_packetAPI.DoCastTargetSpell((short) id, true, targetAsNPC.NPC.Index);
-                    else if (targetAsChar != null)
-                        result = m_packetAPI.DoCastTargetSpell((short) id, false, (short) targetAsChar.Character.ID);
-                    break;
-                case EOLib.IO.SpellTarget.Self:
-                    result = m_packetAPI.DoCastSelfSpell((short) id);
-                    break;
-                case EOLib.IO.SpellTarget.Unknown1:
-                    throw new Exception("What even is this");
-                case EOLib.IO.SpellTarget.Group:
-                    result = m_packetAPI.DoCastGroupSpell((short) id);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+            //var data = OldWorld.Instance.ESF[id];
+            //bool result = false;
+            //switch (data.Target)
+            //{
+            //    case EOLib.IO.SpellTarget.Normal:
+            //        var targetAsNPC = SpellTarget as OldNPCRenderer;
+            //        var targetAsChar = SpellTarget as OldCharacterRenderer;
+            //        if (targetAsNPC != null)
+            //            result = m_packetAPI.DoCastTargetSpell((short) id, true, targetAsNPC.NPC.Index);
+            //        else if (targetAsChar != null)
+            //            result = m_packetAPI.DoCastTargetSpell((short) id, false, (short) targetAsChar.Character.ID);
+            //        break;
+            //    case EOLib.IO.SpellTarget.Self:
+            //        result = m_packetAPI.DoCastSelfSpell((short) id);
+            //        break;
+            //    case EOLib.IO.SpellTarget.Unknown1:
+            //        throw new Exception("What even is this");
+            //    case EOLib.IO.SpellTarget.Group:
+            //        result = m_packetAPI.DoCastGroupSpell((short) id);
+            //        break;
+            //    default:
+            //        throw new ArgumentOutOfRangeException();
+            //}
 
-            SetSpellCastStart();
+            //SetSpellCastStart();
 
-            if (!result)
-                EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
+            //if (!result)
+            //    EOGame.Instance.DoShowLostConnectionDialogAndReturnToMainMenu();
         }
 
         public void SetSpellTarget(DrawableGameComponent target)
@@ -637,9 +637,9 @@ namespace EndlessClient.Old
 
         public void SetSpellCastStart()
         {
-            PreparingSpell = false;
-            State = CharacterActionState.SpellCast;
-            RenderData.SetUpdate(true);
+            //PreparingSpell = false;
+            //State = CharacterActionState.SpellCast;
+            //RenderData.SetUpdate(true);
         }
 
         public void SetSpellCastComplete()

@@ -1,12 +1,10 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
-using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.PacketHandlers
 {

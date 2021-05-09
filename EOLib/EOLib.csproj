@@ -78,6 +78,7 @@
     <Compile Include="Domain\Character\CharacterStat.cs" />
     <Compile Include="Domain\Character\CharacterStats.cs" />
     <Compile Include="Domain\Character\ExperienceTableProvider.cs" />
+    <Compile Include="Domain\Spells\ISpellTargetable.cs" />
     <Compile Include="Domain\Character\SitAction.cs" />
     <Compile Include="Domain\Character\StatTrainingActions.cs" />
     <Compile Include="Domain\Character\TrainType.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="Domain\Account\CreateAccountParameterValidator.cs" />
     <Compile Include="Domain\Protocol\PingTimeRepository.cs" />
     <Compile Include="Domain\ResetStateAction.cs" />
+    <Compile Include="Domain\Spells\SpellTargetType.cs" />
     <Compile Include="EODirection.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="IResettable.cs" />

@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Linq;
 using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.NPC;
+using EOLib.Domain.Spells;
+using EOLib.IO.Repositories;
 using EOLib.Net;
 using EOLib.Net.Communication;
 
@@ -11,12 +15,15 @@ namespace EOLib.Domain.Character
     {
         private readonly IPacketSendService _packetSendService;
         private readonly ICharacterProvider _characterProvider;
+        private readonly IESFFileProvider _spellFileProvider;
 
         public CharacterActions(IPacketSendService packetSendService,
-                                ICharacterProvider characterProvider)
+                                ICharacterProvider characterProvider,
+                                IESFFileProvider spellFileProvider)
         {
             _packetSendService = packetSendService;
             _characterProvider = characterProvider;
+            _spellFileProvider = spellFileProvider;
         }
 
         public void Face(EODirection direction)
@@ -80,6 +87,66 @@ namespace EOLib.Domain.Character
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void PrepareCastSpell(int spellId)
+        {
+            var packet = new PacketBuilder(PacketFamily.Spell, PacketAction.Request)
+                .AddShort((short)spellId)
+                .AddThree(DateTime.Now.ToEOTimeStamp())
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
+
+        public void CastSpell(int spellId, ISpellTargetable target)
+        {
+            var data = _spellFileProvider.ESFFile.Data.Single(x => x.ID == spellId);
+
+            var action = data.Target == IO.SpellTarget.Self
+                ? PacketAction.TargetSelf
+                : data.Target == IO.SpellTarget.Normal
+                    ? PacketAction.TargetOther
+                    : data.Target == IO.SpellTarget.Group
+                        ? PacketAction.TargetGroup
+                        : throw new InvalidOperationException("Spell ID has unknown spell target");
+
+            IPacketBuilder builder = new PacketBuilder(PacketFamily.Spell, action);
+
+            if (data.Target == IO.SpellTarget.Group)
+            {
+                // todo: implement packet handling for group target spells
+                builder = builder
+                    .AddShort((short)spellId)
+                    .AddThree(DateTime.Now.ToEOTimeStamp());
+            }
+            else
+            {
+                var spellTargetType = target is INPC
+                    ? SpellTargetType.NPC
+                    : target is ICharacter
+                        ? SpellTargetType.Player
+                        : throw new InvalidOperationException("Invalid spell target specified, must be player or character");
+                builder = builder.AddChar((byte)spellTargetType);
+
+                if (data.Target == IO.SpellTarget.Normal)
+                {
+                    builder = builder
+                        .AddChar(1) // unknown
+                        .AddShort(1) // unknown
+                        .AddShort((short)spellId)
+                        .AddShort((short)target.ID)
+                        .AddThree(DateTime.Now.ToEOTimeStamp());
+                }
+                else
+                {
+                    builder = builder
+                        .AddShort((short)spellId)
+                        .AddInt(DateTime.Now.ToEOTimeStamp());
+                }
+            }
+
+            _packetSendService.SendPacket(builder.Build());
+        }
     }
 
     public interface ICharacterActions
@@ -93,5 +160,9 @@ namespace EOLib.Domain.Character
         void ToggleSit();
 
         void UseItem(int itemId);
+
+        void PrepareCastSpell(int spellId);
+
+        void CastSpell(int spellId, ISpellTargetable target);
     }
 }
