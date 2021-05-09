@@ -88,7 +88,7 @@ namespace EOBot
             {
                 var weight = _characterProvider.MainCharacter.Stats[CharacterStat.Weight];
                 var maxWeight = _characterProvider.MainCharacter.Stats[CharacterStat.MaxWeight];
-                Console.WriteLine($"[ITEM] {weight,3}/{maxWeight,3} weight");
+                Console.WriteLine($"[ITEM] {weight,3}/{maxWeight,3} - weight");
             }
         }
 

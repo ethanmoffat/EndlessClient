@@ -72,6 +72,7 @@ namespace EOBot
                 .ToList();
 
             int attackCount = 0;
+            bool time_to_die = false;
 
             while (!TerminationRequested)
             {
@@ -82,6 +83,12 @@ namespace EOBot
                 var nextY = charRenderProps.GetDestinationY();
                 var currentCellState = mapCellStateProvider.GetCellStateAt(charRenderProps.MapX, charRenderProps.MapY);
                 var cellState = mapCellStateProvider.GetCellStateAt(nextX, nextY);
+
+                if (time_to_die)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1.0 / 30.0));
+                    continue;
+                }
 
                 if ((attackCount < CONSECUTIVE_ATTACK_COUNT && !currentCellState.NPC.HasValue) || cellState.NPC.HasValue)
                 {
@@ -95,7 +102,7 @@ namespace EOBot
                     {
                         foreach (var item in cellState.Items)
                         {
-                            Console.WriteLine($"[TAKE] {item.Amount,7} {itemData.Data.Single(x => x.ID == item.ItemID).Name}");
+                            Console.WriteLine($"[TAKE] {item.Amount,7} - {itemData.Data.Single(x => x.ID == item.ItemID).Name}");
                             mapActions.PickUpItem(item);
                         }
                     }
@@ -130,6 +137,13 @@ namespace EOBot
                             charActions.UseItem(itemToUse.ID);
                             await Task.Delay(ATTACK_BACKOFF_MS);
                         }
+                    }
+                    else if (charRepo.MainCharacter.Stats[CharacterStat.Weight] >= charRepo.MainCharacter.Stats[CharacterStat.MaxWeight])
+                    {
+                        Console.WriteLine($"[SIT ] OVER WEIGHT LIMIT - TIME TO DIE");
+
+                        charActions.ToggleSit();
+                        time_to_die = true;
                     }
 
                     await Task.Delay(ATTACK_BACKOFF_MS);
@@ -166,6 +180,8 @@ namespace EOBot
                         Console.WriteLine($"[ATTK] {currentCellState.NPC.Value.Index,7} : {npcData.Data.Single(x => x.ID == currentCellState.NPC.Value.ID).Name}");
                         charActions.Attack();
                         await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
+
+                        handler.PollForPacketsAndHandle();
                         currentCellState = mapCellStateProvider.GetCellStateAt(charRenderProps.MapX, charRenderProps.MapY);
                     }
 
@@ -173,7 +189,7 @@ namespace EOBot
                     {
                         foreach (var item in currentCellState.Items)
                         {
-                            Console.WriteLine($"[TAKE] {item.Amount,7} {itemData.Data.Single(x => x.ID == item.ItemID).Name}");
+                            Console.WriteLine($"[TAKE] {item.Amount,7} - {itemData.Data.Single(x => x.ID == item.ItemID).Name}");
                             mapActions.PickUpItem(item);
                         }
                     }
