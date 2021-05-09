@@ -22,14 +22,12 @@ namespace EOLib.Domain.Login
         private readonly IPacketTranslator<IAccountLoginData> _loginPacketTranslator;
         private readonly IPacketTranslator<ILoginRequestGrantedData> _loginRequestGrantedPacketTranslator;
         private readonly IPacketTranslator<ILoginRequestCompletedData> _loginRequestCompletedPacketTranslator;
-        private readonly ILocalizedStringFinder _localizedStringFinder;
         private readonly ICharacterSelectorRepository _characterSelectorRepository;
         private readonly IPlayerInfoRepository _playerInfoRepository;
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ILoginFileChecksumRepository _loginFileChecksumRepository;
         private readonly INewsRepository _newsRepository;
-        private readonly IChatRepository _chatRepository;
         private readonly ICharacterInventoryRepository _characterInventoryRepository;
         private readonly IPaperdollRepository _paperdollRepository;
 
@@ -52,14 +50,12 @@ namespace EOLib.Domain.Login
             _loginPacketTranslator = loginPacketTranslator;
             _loginRequestGrantedPacketTranslator = loginRequestGrantedPacketTranslator;
             _loginRequestCompletedPacketTranslator = loginRequestCompletedPacketTranslator;
-            _localizedStringFinder = localizedStringFinder;
             _characterSelectorRepository = characterSelectorRepository;
             _playerInfoRepository = playerInfoRepository;
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _loginFileChecksumRepository = loginFileChecksumRepository;
             _newsRepository = newsRepository;
-            _chatRepository = chatRepository;
             _characterInventoryRepository = characterInventoryRepository;
             _paperdollRepository = paperdollRepository;
         }
@@ -150,7 +146,6 @@ namespace EOLib.Domain.Login
 
             _newsRepository.NewsHeader = data.News.First();
             _newsRepository.NewsText = data.News.Except(new[] { data.News.First() }).ToList();
-            AddDefaultTextToChat();
 
             var mainCharacter = data.MapCharacters.Single(
                 x => x.Name.ToLower() == _characterRepository.MainCharacter.Name.ToLower());
@@ -191,20 +186,6 @@ namespace EOLib.Domain.Login
         private bool IsInvalidWelcome(IPacket response)
         {
             return response.Family != PacketFamily.Welcome || response.Action != PacketAction.Reply;
-        }
-
-        private void AddDefaultTextToChat()
-        {
-            var server = _localizedStringFinder.GetString(EOResourceID.STRING_SERVER);
-            var serverMessage1 = _localizedStringFinder.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_1);
-            var serverMessage2 = _localizedStringFinder.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_2);
-
-            _chatRepository.AllChat[ChatTab.Local].Add(
-                new ChatData(server, _newsRepository.NewsHeader, ChatIcon.Note, ChatColor.Server));
-            _chatRepository.AllChat[ChatTab.Global].Add(
-                new ChatData(server, serverMessage1, ChatIcon.Note, ChatColor.Server));
-            _chatRepository.AllChat[ChatTab.Global].Add(
-                new ChatData(server, serverMessage2, ChatIcon.Note, ChatColor.Server));
         }
     }
 
