@@ -42,7 +42,7 @@ namespace EOLib.PacketHandlers.Effects
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithDamage(damage, hp == 0);
 
             foreach (var notifier in _mainCharacterEventNotifiers)
-                notifier.NotifyTakeDamage(damage, (int)Math.Round((double)hp / maxhp));
+                notifier.NotifyTakeDamage(damage, (int)Math.Round((double)hp / maxhp), isHeal: false);
 
             while (packet.ReadPosition != packet.Length)
             {

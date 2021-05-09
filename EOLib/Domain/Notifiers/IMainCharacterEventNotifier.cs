@@ -7,7 +7,7 @@ namespace EOLib.Domain.Notifiers
     {
         void NotifyGainedExp(int expDifference);
 
-        void NotifyTakeDamage(int damageTaken, int playerPercentHealth);
+        void NotifyTakeDamage(int damageTaken, int playerPercentHealth, bool isHeal);
 
         void TakeItemFromMap(short id, int amountTaken);
     }
@@ -17,7 +17,7 @@ namespace EOLib.Domain.Notifiers
     {
         public void NotifyGainedExp(int expDifference) { }
 
-        public void NotifyTakeDamage(int damageTaken, int playerPercentHealth) { }
+        public void NotifyTakeDamage(int damageTaken, int playerPercentHealth, bool isHeal) { }
 
         public void TakeItemFromMap(short id, int amountTaken) { }
     }

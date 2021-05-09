@@ -43,12 +43,12 @@ namespace EndlessClient.Subscribers
             _chatRepository.AllChat[ChatTab.System].Add(chatData);
         }
 
-        public void NotifyTakeDamage(int damageTaken, int playerPercentHealth)
+        public void NotifyTakeDamage(int damageTaken, int playerPercentHealth, bool isHeal)
         {
             if (_characterRendererProvider.MainCharacterRenderer == null)
                 return;
 
-            _characterRendererProvider.MainCharacterRenderer.ShowDamageCounter(damageTaken, playerPercentHealth, isHeal: false);
+            _characterRendererProvider.MainCharacterRenderer.ShowDamageCounter(damageTaken, playerPercentHealth, isHeal);
         }
 
         public void TakeItemFromMap(short id, int amountTaken)
