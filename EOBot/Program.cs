@@ -1,4 +1,13 @@
-﻿using System;
+﻿using AutomaticTypeMapper;
+using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
+using EOLib.Domain.Map;
+using EOLib.Domain.Notifiers;
+using EOLib.Domain.NPC;
+using EOLib.Net.Communication;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOBot
 {
@@ -6,8 +15,84 @@ namespace EOBot
     {
         private static BotFramework f;
 
-        static void Main(string[] args)
+        [AutoMappedType]
+        class NpcWalkNotifier : INPCActionNotifier
         {
+            private readonly ICurrentMapStateRepository _currentMapStateRepository;
+
+            public NpcWalkNotifier(ICurrentMapStateRepository currentMapStateRepository)
+            {
+                _currentMapStateRepository = currentMapStateRepository;
+            }
+
+            public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, EOLib.Optional<int> spellId)
+            {
+            }
+
+            public void RemoveNPCFromView(int npcIndex, int playerId, EOLib.Optional<short> spellId, EOLib.Optional<int> damage, bool showDeathAnimation)
+            {
+            }
+
+            public void ShowNPCSpeechBubble(int npcIndex, string message)
+            {
+            }
+
+            public void StartNPCAttackAnimation(int npcIndex)
+            {
+            }
+
+            public void StartNPCWalkAnimation(int npcIndex)
+            {
+                // immediately walk the NPC to the destination index
+                var npc = _currentMapStateRepository.NPCs.SingleOrDefault(x => x.Index == npcIndex);
+                if (npc == null) return;
+
+                var newNpc = npc.WithX((byte)npc.GetDestinationX()).WithY((byte)npc.GetDestinationY()).WithFrame(NPCFrame.Standing);
+                _currentMapStateRepository.NPCs.Remove(npc);
+                _currentMapStateRepository.NPCs.Add(newNpc);
+            }
+        }
+
+        [AutoMappedType]
+        class CharacterTakeDamageNotifier : IMainCharacterEventNotifier
+        {
+            private readonly ICharacterProvider _characterProvider;
+
+            public CharacterTakeDamageNotifier(ICharacterProvider characterProvider)
+            {
+                _characterProvider = characterProvider;
+            }
+
+            public void NotifyGainedExp(int expDifference)
+            {
+            }
+
+            public void NotifyTakeDamage(int damageTaken, int playerPercentHealth, bool isHeal)
+            {
+                var hp = _characterProvider.MainCharacter.Stats[CharacterStat.HP];
+                if (!isHeal && hp - damageTaken <= 0)
+                {
+                    Console.WriteLine("**** YOU DIED ****");
+                }
+            }
+
+            public void TakeItemFromMap(short id, int amountTaken)
+            {
+            }
+        }
+
+        static async Task Main(string[] args)
+        {
+            var assemblyNames = new[]
+            {
+                "EOBot",
+                "EOLib",
+                "EOLib.Config",
+                "EOLib.IO",
+                "EOLib.Localization",
+                "EOLib.Logger"
+            };
+
             Win32.SetConsoleCtrlHandler(HandleCtrl, true);
 
             ArgumentsParser parsedArgs = new ArgumentsParser(args);
@@ -18,13 +103,20 @@ namespace EOBot
                 return;
             }
 
+            DependencyMaster.TypeRegistry = new ITypeRegistry[parsedArgs.NumBots];
+            for (int i = 0; i < parsedArgs.NumBots; ++i)
+            {
+                DependencyMaster.TypeRegistry[i] = new UnityRegistry(assemblyNames);
+                DependencyMaster.TypeRegistry[i].RegisterDiscoveredTypes();
+            }
+
             Console.WriteLine("Starting bots...");
 
             try
             {
                 using (f = new BotFramework(new BotConsoleOutputHandler(), parsedArgs))
                 {
-                    f.Initialize(new PartyBotFactory(), parsedArgs.InitDelay);
+                    await f.InitializeAsync(new TrainerBotFactory(parsedArgs), parsedArgs.InitDelay);
                     f.Run(parsedArgs.WaitForTermination);
                     f.WaitForBotsToComplete();
                 }

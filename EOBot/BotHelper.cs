@@ -1,117 +1,92 @@
-﻿using EOLib.Net.API;
+﻿using EOLib;
+using EOLib.Domain.Account;
+using EOLib.Domain.Character;
+using EOLib.Domain.Login;
+using EOLib.Domain.Map;
+using EOLib.Domain.Protocol;
+using EOLib.IO.Actions;
+using EOLib.Net.API;
+using EOLib.Net.FileTransfer;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOBot
 {
     delegate void DisplayMessageFunc(string message = "");
 
-    class BotHelper
+    public class BotHelper
     {
-        private readonly PacketAPI _api;
-        private readonly DisplayMessageFunc _outputFunc;
-        private readonly DisplayMessageFunc _errorMessage;
+        private readonly int _botIndex;
 
-        public BotHelper(PacketAPI api, DisplayMessageFunc outputFunc, DisplayMessageFunc errorMessageFunc)
+        public BotHelper(int botIndex)
         {
-            _api = api;
-            _outputFunc = outputFunc;
-            _errorMessage = errorMessageFunc;
+            _botIndex = botIndex;
         }
 
-        public bool CreateAccountIfNeeded(string name, string password)
+        public async Task<AccountReply> CreateAccountAsync(string name, string password)
         {
-            //AccountReply accReply;
-            //bool res = _api.AccountCheckName(name, out accReply);
-            //if (res && accReply != AccountReply.Exists)
-            //{
-            //    if (_api.AccountCreate(name, password, name + " " + name, "COMPY-" + name, name + "@BOT.COM",
-            //        new HDSerialNumberService().GetHDSerialNumber(), out accReply))
-            //    {
-            //        _outputFunc(string.Format("Created account {0}", name));
-            //    }
-            //    else
-            //    {
-            //        _errorMessage();
-            //        return false;
-            //    }
-            //}
-            //else if (!res)
-            //{
-            //    _errorMessage();
-            //    return false;
-            //}
-
-            return true;
+            var accountActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IAccountActions>();
+            var accParams = new CreateAccountParameters(name, password, password, name, name, name + "@test.com");
+            return await accountActions.CreateAccount(accParams);
         }
 
-        public bool LoginToAccount(string name, string password, out CharacterLoginData[] loginData)
+        public async Task<LoginReply> LoginToAccountAsync(string name, string password)
         {
-            //LoginReply loginReply;
-            //var res = _api.LoginRequest(name, password, out loginReply, out loginData);
-            //if (!res)
-            //{
-            //    _errorMessage();
-            //    return false;
-            //}
-            //if (loginReply != LoginReply.Ok)
-            //{
-            //    _errorMessage("Login reply was invalid");
-            //    return false;
-            //}
-            loginData = new CharacterLoginData[0];
-            return true;
+            var loginActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<ILoginActions>();
+            var loginParameters = new LoginParameters(name, password);
+            return await loginActions.LoginToServer(loginParameters);
         }
 
-        public bool CreateCharacterIfNeeded(string name, ref CharacterLoginData[] loginData)
+        public async Task<CharacterReply> CreateCharacterAsync(string name)
         {
-            //if (loginData == null || loginData.Length == 0)
-            //{
-            //    CharacterReply charReply;
-            //    var res = _api.CharacterRequest(out charReply);
-
-            //    if (!res || charReply != CharacterReply.Ok)
-            //    {
-            //        _errorMessage("Character create request failed");
-            //        return false;
-            //    }
-
-            //    var rand = new Random();
-
-            //    res = _api.CharacterCreate((byte)rand.Next(1), (byte)rand.Next(0, 20), (byte)rand.Next(0, 9), (byte)rand.Next(0, 5),
-            //        name, out charReply, out loginData);
-            //    if (!res || charReply != CharacterReply.Ok || loginData == null || loginData.Length == 0)
-            //    {
-            //        _errorMessage("Character create failed");
-            //        return false;
-            //    }
-
-            //    _outputFunc(string.Format("Created character {0}", name));
-
-            //    Thread.Sleep(500);
-            //}
-            return true;
+            var characterActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterManagementActions>();
+            await characterActions.RequestCharacterCreation();
+            var charParams = new CharacterCreateParameters(name, 0, 1, 0, 0);
+            return await characterActions.CreateCharacter(charParams);
         }
 
-        //public bool DoWelcomePacketsForFirstCharacter(CharacterLoginData[] loginData, out WelcomeRequestData welcomeReqData, out WelcomeMessageData welcomeMsgData)
-        //{
-        //    welcomeMsgData = null;
-        //    welcomeReqData = null;
+        public async Task LoginToCharacterAsync(string name)
+        {
+            var loginActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<ILoginActions>();
+            var characters = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterSelectorProvider>();
+            var mapStateProvider = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>();
 
-        //    var res = _api.SelectCharacter(loginData[0].ID, out welcomeReqData);
-        //    if (!res)
-        //    {
-        //        _errorMessage();
-        //        return false;
-        //    }
+            if (characters.Characters == null || !characters.Characters.Any())
+                await CreateCharacterAsync(name);
 
-        //    Thread.Sleep(500);
+            var character = characters.Characters.Single(x => string.Equals(x.Name, name, StringComparison.OrdinalIgnoreCase));
+            await loginActions.RequestCharacterLogin(character);
 
-        //    res = _api.WelcomeMessage(welcomeReqData.ActiveCharacterID, out welcomeMsgData);
-        //    if (!res)
-        //    {
-        //        _errorMessage();
-        //        return false;
-        //    }
-        //    return true;
-        //}
+            var unableToLoadMap = false;
+            try
+            {
+                var mapLoadActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IMapFileLoadActions>();
+                mapLoadActions.LoadMapFileByID(mapStateProvider.CurrentMapID);
+            }
+            catch (IOException)
+            {
+                unableToLoadMap = true;
+            }
+
+            var fileRequestActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IFileRequestActions>();
+            if (unableToLoadMap || fileRequestActions.NeedsFileForLogin(InitFileType.Map, mapStateProvider.CurrentMapID))
+                await fileRequestActions.GetMapFromServer(mapStateProvider.CurrentMapID);
+
+            if (fileRequestActions.NeedsFileForLogin(InitFileType.Item))
+                await fileRequestActions.GetItemFileFromServer();
+
+            if (fileRequestActions.NeedsFileForLogin(InitFileType.Npc))
+                await fileRequestActions.GetNPCFileFromServer();
+
+            if (fileRequestActions.NeedsFileForLogin(InitFileType.Spell))
+                await fileRequestActions.GetSpellFileFromServer();
+
+            if (fileRequestActions.NeedsFileForLogin(InitFileType.Class))
+                await fileRequestActions.GetClassFileFromServer();
+
+            await loginActions.CompleteCharacterLogin();
+        }
     }
 }

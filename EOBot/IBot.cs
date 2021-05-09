@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace EOBot
 {
-    interface IBot : IDisposable
+    public interface IBot : IDisposable
     {
         /// <summary>
         /// Event that is called when work for the Bot has been completed
@@ -12,7 +13,7 @@ namespace EOBot
         /// <summary>
         /// Initialization logic for the bot instance. Called automatically by the framework.
         /// </summary>
-        void Initialize();
+        Task InitializeAsync(string host, int port);
 
         /// <summary>
         /// Run logic for the bot instance. Called automatically by the framework.

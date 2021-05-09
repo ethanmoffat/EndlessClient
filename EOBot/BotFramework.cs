@@ -1,6 +1,8 @@
-﻿using System;
+﻿using EOLib.Net.Handlers;
+using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace EOBot
 {
@@ -44,7 +46,7 @@ namespace EOBot
             _doneSignal = new Semaphore(simultaneousBots, simultaneousBots);
         }
 
-        public void Initialize(IBotFactory botFactory, int delayBetweenInitsMS = 1100)
+        public async Task InitializeAsync(IBotFactory botFactory, int delayBetweenInitsMS = 1100)
         {
             if (_initialized)
                 throw new InvalidOperationException("Unable to initialize bot framework a second time.");
@@ -57,9 +59,9 @@ namespace EOBot
 
                 try
                 {
-                    var bot = botFactory.CreateBot(i, _host, _port);
+                    var bot = botFactory.CreateBot(i);
                     bot.WorkCompleted += () => _doneSignal.Release();
-                    bot.Initialize();
+                    await bot.InitializeAsync(_host, _port);
                     _botsList.Add(bot);
                 }
                 catch(Exception ex)
@@ -90,7 +92,6 @@ namespace EOBot
         {
             if(!_initialized)
                 throw new InvalidOperationException("Must call Initialize() before running!");
-
 
             _outputHandler.OutputAllBotsAreRunning(waitForTermination);
             for (int i = 0; i < _numBots; ++i)

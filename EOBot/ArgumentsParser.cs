@@ -2,7 +2,7 @@
 
 namespace EOBot
 {
-    enum ArgsError
+    public enum ArgsError
     {
         NoError,
         BadFormat,
@@ -15,12 +15,12 @@ namespace EOBot
         InvalidWaitFlag,
         InvalidInitDelay
     }
-    class ArgumentsParser
+
+    public class ArgumentsParser
     {
         public ArgsError Error { get; private set; }
 
         public string Host { get; private set; }
-
         public ushort Port { get; private set; }
 
         public int NumBots { get; private set; }
@@ -29,13 +29,17 @@ namespace EOBot
         public bool WaitForTermination { get; private set; }
         public int InitDelay { get; private set; }
 
+        public string Account { get; private set; }
+        public string Password { get; private set; }
+        public string Character { get; private set; }
+
         public ArgumentsParser(string[] args)
         {
             InitDelay = 1100;
 
             Error = ArgsError.NoError;
 
-            if (args.Length != 5)
+            if (args.Length < 5)
             {
                 Error = ArgsError.WrongNumberOfArgs;
                 return;
@@ -71,6 +75,15 @@ namespace EOBot
                     case "initdelay":
                         if (!ParseInitDelay(pair[1]))
                             return;
+                        break;
+                    case "account":
+                        Account = pair[1];
+                        break;
+                    case "password":
+                        Password = pair[1];
+                        break;
+                    case "character":
+                        Character = pair[1];
                         break;
                     default:
                         Error = ArgsError.BadFormat;

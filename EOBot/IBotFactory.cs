@@ -2,6 +2,6 @@
 {
     interface IBotFactory
     {
-        IBot CreateBot(int index, string host, ushort port);
+        IBot CreateBot(int index);
     }
 }
