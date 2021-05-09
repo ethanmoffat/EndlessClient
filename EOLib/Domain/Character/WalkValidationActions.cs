@@ -46,6 +46,12 @@ namespace EOLib.Domain.Character
                 return false;
 
             var cellState = _mapCellStateProvider.GetCellStateAt(gridX, gridY);
+            return IsCellStateWalkable(cellState);
+        }
+
+        public bool IsCellStateWalkable(IMapCellState cellState)
+        {
+            var mainCharacter = _characterProvider.MainCharacter;
 
             if (cellState.Character.HasValue) //todo: walk through players after certain elapsed time
                 return mainCharacter.NoWall && IsTileSpecWalkable(cellState.TileSpec);
@@ -116,5 +122,7 @@ namespace EOLib.Domain.Character
         bool CanMoveToDestinationCoordinates();
 
         bool CanMoveToCoordinates(int gridX, int gridY);
+
+        bool IsCellStateWalkable(IMapCellState cellState);
     }
 }

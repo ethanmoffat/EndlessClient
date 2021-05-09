@@ -70,18 +70,21 @@ namespace EOBot
             _characterRepository = c.Resolve<ICharacterRepository>();
             _characterActions = c.Resolve<ICharacterActions>();
             var mapCellStateProvider = c.Resolve<IMapCellStateProvider>();
+            var mapStateProvider = c.Resolve<ICurrentMapStateProvider>();
             var handler = c.Resolve<IOutOfBandPacketHandler>();
             _itemData = c.Resolve<IEIFFileProvider>().EIFFile;
             _npcData = c.Resolve<IENFFileProvider>().ENFFile;
             _spellData = c.Resolve<IESFFileProvider>().ESFFile;
             var charInventoryRepo = c.Resolve<ICharacterInventoryRepository>();
+            var walkValidator = c.Resolve<IWalkValidationActions>();
 
             var healItems = new List<IInventoryItem>();
             var healSpells = new List<IInventorySpell>();
 
-            int attackCount = 0;
+            int attackCount = 0, cachedPlayerCount = 0;
             bool time_to_die = false;
 
+            MapCoordinate? priorityCoord = null;
             while (!TerminationRequested)
             {
                 handler.PollForPacketsAndHandle();
@@ -89,73 +92,125 @@ namespace EOBot
                 var character = _characterRepository.MainCharacter;
                 var charRenderProps = character.RenderProperties;
 
-                var nextX = charRenderProps.GetDestinationX();
-                var nextY = charRenderProps.GetDestinationY();
-                var currentCellState = mapCellStateProvider.GetCellStateAt(charRenderProps.MapX, charRenderProps.MapY);
-                var cellState = mapCellStateProvider.GetCellStateAt(nextX, nextY);
+                var currentPositionCellState = mapCellStateProvider.GetCellStateAt(charRenderProps.MapX, charRenderProps.MapY);
 
-                if (!time_to_die)
+                if (cachedPlayerCount != mapStateProvider.Characters.Count)
                 {
-                    if ((attackCount < CONSECUTIVE_ATTACK_COUNT && !currentCellState.NPC.HasValue) || cellState.NPC.HasValue)
+                    cachedPlayerCount = mapStateProvider.Characters.Count;
+                    if (cachedPlayerCount > 0)
                     {
-                        if (cellState.NPC.HasValue && character.Stats[CharacterStat.HP] > character.Stats[CharacterStat.MaxHP] * .1)
-                        {
-                            await Attack(cellState);
-                            attackCount++;
-                        }
-                        else if (cellState.Items.Any())
-                        {
-                            await PickUpItems(cellState);
-                        }
-                        else if (healSpells.Any() && character.Stats[CharacterStat.HP] < character.Stats[CharacterStat.MaxHP]
-                            && character.Stats[CharacterStat.TP] > character.Stats[CharacterStat.MaxTP] * .5)
-                        {
-                            await CastHealSpell(healSpells);
-                        }
-                        else if (healItems.Any() && character.Stats[CharacterStat.HP] < character.Stats[CharacterStat.MaxHP] * .3)
-                        {
-                            await UseHealItem(healItems, targetHealthPercent: .6);
-                        }
-                        else if (character.Stats[CharacterStat.Weight] >= character.Stats[CharacterStat.MaxWeight])
-                        {
-                            await SitDown();
-                            time_to_die = true;
-                        }
-
-                        healItems = charInventoryRepo.ItemInventory
-                            .Where(x => _itemData.Data.Any(y => y.ID == x.ItemID && y.Type == ItemType.Heal))
-                            .ToList();
-
-                        healSpells = charInventoryRepo.SpellInventory
-                            .Where(x => _spellData.Data.Any(y => y.ID == x.ID && y.Type == SpellType.Heal))
-                            .ToList();
+                        Console.WriteLine($"[WRN ] {cachedPlayerCount,7}  - Players on map - You may not be able to train here");
                     }
-                    else
+                }
+
+                var coords = new MapCoordinate[]
+                {
+                    new MapCoordinate(charRenderProps.MapX + 1, charRenderProps.MapY),
+                    new MapCoordinate(charRenderProps.MapX - 1, charRenderProps.MapY),
+                    new MapCoordinate(charRenderProps.MapX, charRenderProps.MapY + 1),
+                    new MapCoordinate(charRenderProps.MapX, charRenderProps.MapY - 1)
+                };
+
+                if (priorityCoord != null)
+                {
+                    // ensure if there's an attack in progress that we finish killing that NPC before moving around
+                    var tmp = new[] { priorityCoord.Value };
+                    coords = tmp.Concat(coords.Except(tmp)).ToArray();
+                }
+
+                var action_taken = false;
+                foreach (var coord in coords)
+                {
+                    if (action_taken)
+                        break;
+
+                    if (!time_to_die)
                     {
-                        if (!currentCellState.NPC.HasValue)
-                            Console.WriteLine($"[MOVE] Walking due to consecutive attacks: {attackCount}");
-                        else
-                            Console.WriteLine($"[ATTK] Killing NPC at player location");
+                        var cellState = mapCellStateProvider.GetCellStateAt(coord.X, coord.Y);
 
-                        var originalDirection = charRenderProps.Direction;
-                        await Walk();
-                        await Face(originalDirection.Opposite());
+                        if (priorityCoord.HasValue && !cellState.NPC.HasValue)
+                            priorityCoord = null;
 
-                        // kill NPC if it was in our starting point
-                        while (currentCellState.NPC.HasValue && !TerminationRequested)
+                        if ((attackCount < CONSECUTIVE_ATTACK_COUNT && !currentPositionCellState.NPC.HasValue) || cellState.NPC.HasValue)
                         {
-                            await Attack(currentCellState);
+                            if (cellState.NPC.HasValue && character.Stats[CharacterStat.HP] > character.Stats[CharacterStat.MaxHP] * .1)
+                            {
+                                await FaceCoordinateIfNeeded(new MapCoordinate(charRenderProps.MapX, charRenderProps.MapY), coord);
+                                await Attack(cellState);
+                                attackCount++;
+                                action_taken = true;
+                                priorityCoord = coord;
+                            }
+                            else if (cellState.Items.Any())
+                            {
+                                await PickUpItems(cellState);
+                                action_taken = true;
+                            }
+                            else if (healItems.Any() && character.Stats[CharacterStat.HP] < character.Stats[CharacterStat.MaxHP] * .3)
+                            {
+                                await UseHealItem(healItems, targetHealthPercent: .6);
+                                action_taken = true;
+                            }
+                            else if (healSpells.Any() && character.Stats[CharacterStat.HP] < character.Stats[CharacterStat.MaxHP]
+                                && character.Stats[CharacterStat.TP] > character.Stats[CharacterStat.MaxTP] * .5)
+                            {
+                                await CastHealSpell(healSpells);
+                                action_taken = true;
+                            }
+                            else if (character.Stats[CharacterStat.Weight] >= character.Stats[CharacterStat.MaxWeight])
+                            {
+                                await SitDown();
+                                action_taken = true;
+                                time_to_die = true;
+                            }
 
-                            handler.PollForPacketsAndHandle();
-                            currentCellState = mapCellStateProvider.GetCellStateAt(charRenderProps.MapX, charRenderProps.MapY);
+                            healItems = charInventoryRepo.ItemInventory
+                                .Where(x => _itemData.Data.Any(y => y.ID == x.ItemID && y.Type == ItemType.Heal))
+                                .ToList();
+
+                            healSpells = charInventoryRepo.SpellInventory
+                                .Where(x => _spellData.Data.Any(y => y.ID == x.ID && y.Type == SpellType.Heal))
+                                .ToList();
                         }
+                        else
+                        {
+                            if (!currentPositionCellState.NPC.HasValue)
+                                Console.WriteLine($"[MOVE] Walking due to consecutive attacks: {attackCount}");
+                            else
+                                Console.WriteLine($"[ATTK] Killing NPC at player location");
 
-                        await PickUpItems(currentCellState);
+                            // find a direction that's open to walk to
+                            var targetWalkCell = coords.Select(z => mapCellStateProvider.GetCellStateAt(z.X, z.Y))
+                                .FirstOrDefault(z => walkValidator.IsCellStateWalkable(z));
+                            if (targetWalkCell == null)
+                            {
+                                Console.WriteLine($"[WRN ] Couldn't find open space to walk!");
+                                break;
+                            }
 
-                        await Walk();
-                        await Face(originalDirection);
+                            await FaceCoordinateIfNeeded(new MapCoordinate(charRenderProps.MapX, charRenderProps.MapY), targetWalkCell.Coordinate);
 
-                        attackCount = 0;
+                            var originalDirection = charRenderProps.Direction;
+                            await Walk();
+                            await Face(originalDirection.Opposite());
+
+                            // kill NPC if it was in our starting point
+                            while (currentPositionCellState.NPC.HasValue && !TerminationRequested)
+                            {
+                                await Attack(currentPositionCellState);
+
+                                handler.PollForPacketsAndHandle();
+                                currentPositionCellState = mapCellStateProvider.GetCellStateAt(charRenderProps.MapX, charRenderProps.MapY);
+                            }
+
+                            await PickUpItems(currentPositionCellState);
+
+                            await Walk();
+                            await Face(originalDirection);
+
+                            attackCount = 0;
+                            action_taken = true;
+                        }
                     }
                 }
 
@@ -181,13 +236,30 @@ namespace EOBot
         private async Task Face(EODirection direction)
         {
             Console.WriteLine($"[FACE] {Enum.GetName(typeof(EODirection), direction),7}");
-            await TrySend(() => _characterActions.Face(direction.Opposite()));
+            await TrySend(() => _characterActions.Face(direction));
 
             // todo: character actions Face() should also change the character's direction instead of relying on client to update it separately
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
-                .WithRenderProperties(_characterRepository.MainCharacter.RenderProperties.WithDirection(direction.Opposite()));
+                .WithRenderProperties(_characterRepository.MainCharacter.RenderProperties.WithDirection(direction));
 
             await Task.Delay(TimeSpan.FromMilliseconds(FACE_BACKOFF_MS));
+        }
+
+        private async Task FaceCoordinateIfNeeded(MapCoordinate originalCoord, MapCoordinate targetCoord)
+        {
+            var charRenderProps = _characterRepository.MainCharacter.RenderProperties;
+            var nextCoord = new MapCoordinate(charRenderProps.GetDestinationX(), charRenderProps.GetDestinationY());
+            if (nextCoord != targetCoord)
+            {
+                var diff = targetCoord - originalCoord;
+                var direction = diff.X > 0 ? EODirection.Right
+                    : diff.X < 0 ? EODirection.Left
+                        : diff.Y > 0 ? EODirection.Down
+                            : diff.Y < 0 ? EODirection.Up : charRenderProps.Direction;
+
+                if (direction != charRenderProps.Direction)
+                    await Face(direction);
+            }
         }
 
         private async Task PickUpItems(IMapCellState cellState)
