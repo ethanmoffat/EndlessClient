@@ -71,6 +71,15 @@ namespace EOLib.Domain.Character
 
             _packetSendService.SendPacket(packet);
         }
+
+        public void UseItem(int itemId)
+        {
+            var packet = new PacketBuilder(PacketFamily.Item, PacketAction.Use)
+                .AddShort((short)itemId)
+                .Build();
+
+            _packetSendService.SendPacket(packet);
+        }
     }
 
     public interface ICharacterActions
@@ -82,5 +91,7 @@ namespace EOLib.Domain.Character
         void Attack();
 
         void ToggleSit();
+
+        void UseItem(int itemId);
     }
 }

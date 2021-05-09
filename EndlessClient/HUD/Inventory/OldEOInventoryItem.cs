@@ -529,10 +529,10 @@ namespace EndlessClient.HUD.Inventory
                         EOMessageBox.Show(DialogResourceID.ITEM_CURSE_REMOVE_PROMPT, EODialogButtons.OkCancel, EOMessageBoxStyle.SmallDialogSmallHeader,
                             (o, e) =>
                             {
-                                if (e.Result == XNADialogResult.OK && !m_api.UseItem((short)m_itemData.ID))
-                                {
-                                    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                                }
+                                //if (e.Result == XNADialogResult.OK && !m_api.UseItem((short)m_itemData.ID))
+                                //{
+                                //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                                //}
                             });
                     }
                     break;
@@ -549,8 +549,8 @@ namespace EndlessClient.HUD.Inventory
                 //    break;
             }
 
-            if (useItem && !m_api.UseItem((short)m_itemData.ID))
-                ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+            //if (useItem && !m_api.UseItem((short)m_itemData.ID))
+            //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
 
             m_recentClickCount = 0;
         }
