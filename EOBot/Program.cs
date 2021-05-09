@@ -4,7 +4,6 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.NPC;
-using EOLib.Net.Communication;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +13,7 @@ namespace EOBot
     static class Program
     {
         private static BotFramework f;
+        private static Win32.ConsoleCtrlDelegate consoleControlHandler;
 
         [AutoMappedType]
         class NpcWalkNotifier : INPCActionNotifier
@@ -57,28 +57,61 @@ namespace EOBot
         class CharacterTakeDamageNotifier : IMainCharacterEventNotifier
         {
             private readonly ICharacterProvider _characterProvider;
+            private readonly IExperienceTableProvider _experienceTableProvider;
 
-            public CharacterTakeDamageNotifier(ICharacterProvider characterProvider)
+            public CharacterTakeDamageNotifier(ICharacterProvider characterProvider,
+                                               IExperienceTableProvider experienceTableProvider)
             {
                 _characterProvider = characterProvider;
+                _experienceTableProvider = experienceTableProvider;
             }
 
             public void NotifyGainedExp(int expDifference)
             {
+                var nextLevelExp = _experienceTableProvider.ExperienceByLevel[_characterProvider.MainCharacter.Stats[CharacterStat.Level] + 1];
+                var tnl = nextLevelExp - _characterProvider.MainCharacter.Stats[CharacterStat.Experience] - expDifference;
+                Console.WriteLine($"[EXP ] {expDifference,7} - {tnl} TNL");
             }
 
             public void NotifyTakeDamage(int damageTaken, int playerPercentHealth, bool isHeal)
             {
+                Console.WriteLine($"[{(isHeal ? "HEAL" : "DMG ")}] {damageTaken,7} - {playerPercentHealth}% HP");
+
                 var hp = _characterProvider.MainCharacter.Stats[CharacterStat.HP];
                 if (!isHeal && hp - damageTaken <= 0)
                 {
-                    Console.WriteLine("**** YOU DIED ****");
+                    Console.WriteLine("[DEAD] **** YOU DIED ****");
                 }
             }
 
             public void TakeItemFromMap(short id, int amountTaken)
             {
+                var weight = _characterProvider.MainCharacter.Stats[CharacterStat.Weight];
+                var maxWeight = _characterProvider.MainCharacter.Stats[CharacterStat.MaxWeight];
+                Console.WriteLine($"[ITEM] {weight,3}/{maxWeight,3} weight");
             }
+        }
+
+        [AutoMappedType]
+        class CharacterAnimationNotifier : IOtherCharacterAnimationNotifier
+        {
+            private readonly ICharacterProvider _characterProvider;
+
+            public CharacterAnimationNotifier(ICharacterProvider characterProvider)
+            {
+                _characterProvider = characterProvider;
+            }
+
+            public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth)
+            {
+                if (playerId == _characterProvider.MainCharacter.ID && spellHp > 0)
+                    Console.WriteLine($"[HEAL] {spellHp,7} - {percentHealth}% HP");
+            }
+
+            public void NotifyStartSpellCast(short playerId, short spellId) { }
+            public void NotifyTargetOtherSpellCast(short sourcePlayerID, short targetPlayerID, short spellId, int recoveredHP, byte targetPercentHealth) { }
+            public void StartOtherCharacterAttackAnimation(int characterID) { }
+            public void StartOtherCharacterWalkAnimation(int characterID) { }
         }
 
         static async Task Main(string[] args)
@@ -93,7 +126,12 @@ namespace EOBot
                 "EOLib.Logger"
             };
 
-            Win32.SetConsoleCtrlHandler(HandleCtrl, true);
+            // this needs to be a delegate because it is getting garbage collected
+            consoleControlHandler = new Win32.ConsoleCtrlDelegate(HandleCtrl);
+            if (!Win32.SetConsoleCtrlHandler(consoleControlHandler, true))
+            {
+                Console.WriteLine("WARNING: Unable to set console control handler! CTRL+C will not terminate cleanly.");
+            }
 
             ArgumentsParser parsedArgs = new ArgumentsParser(args);
 
