@@ -23,7 +23,7 @@ namespace EOLib.PacketHandlers.Items
 
         public override PacketFamily Family => PacketFamily.Item;
 
-        public override PacketAction Action => PacketAction.Use;
+        public override PacketAction Action => PacketAction.Reply;
 
         public UseItemHandler(IPlayerInfoProvider playerInfoProvider,
                               ICharacterInventoryRepository characterInventoryRepository,
@@ -48,7 +48,11 @@ namespace EOLib.PacketHandlers.Items
             var weight = packet.ReadChar();
             var maxWeight = packet.ReadChar();
 
-            _characterInventoryRepository.ItemInventory.RemoveAll(x => x.ItemID == itemId);
+            var oldItem = _characterInventoryRepository.ItemInventory.SingleOrDefault(x => x.ItemID == itemId);
+            if (oldItem == null)
+                return false;
+
+            _characterInventoryRepository.ItemInventory.Remove(oldItem);
             _characterInventoryRepository.ItemInventory.Add(new InventoryItem(itemId, amount));
 
             var character = _characterRepository.MainCharacter;
