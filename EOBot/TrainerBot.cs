@@ -4,6 +4,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
+using EOLib.IO;
 using EOLib.IO.Repositories;
 using EOLib.Net.Handlers;
 using System;
@@ -62,7 +63,7 @@ namespace EOBot
             var charInventoryRepo = c.Resolve<ICharacterInventoryRepository>();
 
             var healItems = charInventoryRepo.ItemInventory
-                .Where(x => itemData.Data.Any(y => y.ID == x.ItemID && y.Name.IndexOf("health potion", StringComparison.OrdinalIgnoreCase) >= 0))
+                .Where(x => itemData.Data.Any(y => y.ID == x.ItemID && y.Type == ItemType.Heal))
                 .ToList();
 
             int attackCount = 0;
@@ -92,19 +93,25 @@ namespace EOBot
                             mapActions.PickUpItem(item);
                         }
                     }
-                    else if (healItems.Any() && charRepo.MainCharacter.Stats[CharacterStat.HP] < charRepo.MainCharacter.Stats[CharacterStat.MaxHP])
+                    else if (healItems.Any() && charRepo.MainCharacter.Stats[CharacterStat.HP] < charRepo.MainCharacter.Stats[CharacterStat.MaxHP] * .3)
                     {
-                        var first = healItems.First();
-                        Console.WriteLine($"Using heal item {itemData.Data.Single(x => x.ID == first.ItemID).Name} (remaining: {first.Amount - 1}) (other heal item types: {healItems.Count - 1})");
+                        var itemToUse = itemData.Data
+                            .Where(x => healItems.Any(y => y.ItemID == x.ID))
+                            .OrderBy(x => x.HP)
+                            .First();
+                        var amount = healItems.Single(x => x.ItemID == itemToUse.ID).Amount;
 
-                        charActions.UseItem(first.ItemID);
+                        Console.WriteLine($"Using heal item {itemToUse.Name} (heal: {itemToUse.HP}) (remaining: {amount - 1}) (other heal item types: {healItems.Count - 1})");
 
-                        healItems = charInventoryRepo.ItemInventory
-                            .Where(x => itemData.Data.Any(y => y.ID == x.ItemID && y.Name.IndexOf("health potion", StringComparison.OrdinalIgnoreCase) >= 0))
-                            .ToList();
+                        charActions.UseItem(itemToUse.ID);
+                        await Task.Delay(ATTACK_BACKOFF_MS);
                     }
 
                     await Task.Delay(ATTACK_BACKOFF_MS);
+
+                    healItems = charInventoryRepo.ItemInventory
+                        .Where(x => itemData.Data.Any(y => y.ID == x.ItemID && y.Type == ItemType.Heal))
+                        .ToList();
                 }
                 else
                 {
