@@ -148,7 +148,14 @@ namespace EOBot
                             }
                             else if (healItems.Any() && character.Stats[CharacterStat.HP] < character.Stats[CharacterStat.MaxHP] * .3)
                             {
-                                await UseHealItem(healItems, targetHealthPercent: .6);
+                                var stats = _characterRepository.MainCharacter.Stats;
+                                while (!TerminationRequested && stats[CharacterStat.HP] < stats[CharacterStat.MaxHP] * .6)
+                                {
+                                    await UseHealItem(healItems);
+                                    handler.PollForPacketsAndHandle();
+                                    stats = _characterRepository.MainCharacter.Stats;
+                                }
+
                                 action_taken = true;
                             }
                             else if (healSpells.Any() && character.Stats[CharacterStat.HP] < character.Stats[CharacterStat.MaxHP]
@@ -235,7 +242,8 @@ namespace EOBot
 
         private async Task Face(EODirection direction)
         {
-            Console.WriteLine($"[FACE] {Enum.GetName(typeof(EODirection), direction),7}");
+            var rp = _characterRepository.MainCharacter.RenderProperties;
+            Console.WriteLine($"[FACE] {Enum.GetName(typeof(EODirection), direction),7} - at {rp.MapX},{rp.MapY}");
             await TrySend(() => _characterActions.Face(direction));
 
             // todo: character actions Face() should also change the character's direction instead of relying on client to update it separately
@@ -280,7 +288,8 @@ namespace EOBot
                 .OrderByDescending(x => x.HP)
                 .First();
 
-            Console.WriteLine($"[CAST] {spellToUse.HP,4} HP - {spellToUse.Name}");
+            var stats = _characterRepository.MainCharacter.Stats.Stats;
+            Console.WriteLine($"[CAST] {spellToUse.HP,4} HP - {spellToUse.Name} - TP {stats[CharacterStat.TP]}/{stats[CharacterStat.MaxTP]}");
 
             await TrySend(() => _characterActions.PrepareCastSpell(spellToUse.ID));
             await Task.Delay((int)Math.Round(spellToUse.CastTime / 2.0 * 950)); // ?
@@ -289,22 +298,19 @@ namespace EOBot
             await Task.Delay((int)Math.Round(spellToUse.CastTime / 2.0 * 950)); // ?
         }
 
-        private async Task UseHealItem(IEnumerable<IInventoryItem> healItems, double targetHealthPercent)
+        private async Task UseHealItem(IEnumerable<IInventoryItem> healItems)
         {
-            while (_characterRepository.MainCharacter.Stats[CharacterStat.HP] < _characterRepository.MainCharacter.Stats[CharacterStat.MaxHP] * targetHealthPercent)
-            {
-                var itemToUse = _itemData.Data
-                    .Where(x => healItems.Any(y => y.ItemID == x.ID))
-                    .OrderBy(x => x.HP)
-                    .First();
-                var amount = healItems.Single(x => x.ItemID == itemToUse.ID).Amount;
+            var itemToUse = _itemData.Data
+                .Where(x => healItems.Any(y => y.ItemID == x.ID))
+                .OrderBy(x => x.HP)
+                .First();
+            var amount = healItems.Single(x => x.ItemID == itemToUse.ID).Amount;
 
-                Console.WriteLine($"[USE ] {itemToUse.Name} - {itemToUse.HP} HP - inventory: {amount - 1} - (other heal item types: {healItems.Count() - 1})");
+            Console.WriteLine($"[USE ] {itemToUse.Name} - {itemToUse.HP} HP - inventory: {amount - 1} - (other heal item types: {healItems.Count() - 1})");
 
-                await TrySend(() => _characterActions.UseItem(itemToUse.ID));
+            await TrySend(() => _characterActions.UseItem(itemToUse.ID));
 
-                await Task.Delay(ATTACK_BACKOFF_MS);
-            }
+            await Task.Delay(ATTACK_BACKOFF_MS);
         }
 
         private async Task SitDown()

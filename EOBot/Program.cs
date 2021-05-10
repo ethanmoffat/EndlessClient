@@ -4,6 +4,7 @@ using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.Domain.NPC;
+using EOLib.IO.Repositories;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,14 +20,26 @@ namespace EOBot
         class NpcWalkNotifier : INPCActionNotifier
         {
             private readonly ICurrentMapStateRepository _currentMapStateRepository;
+            private readonly ICharacterProvider _characterProvider;
+            private readonly IENFFileProvider _enfFileProvider;
 
-            public NpcWalkNotifier(ICurrentMapStateRepository currentMapStateRepository)
+            public NpcWalkNotifier(ICurrentMapStateRepository currentMapStateRepository,
+                                   ICharacterProvider characterProvider,
+                                   IENFFileProvider enfFileProvider)
             {
                 _currentMapStateRepository = currentMapStateRepository;
+                _characterProvider = characterProvider;
+                _enfFileProvider = enfFileProvider;
             }
 
             public void NPCTakeDamage(short npcIndex, int fromPlayerId, int damageToNpc, short npcPctHealth, EOLib.Optional<int> spellId)
             {
+                if (fromPlayerId != _characterProvider.MainCharacter.ID)
+                    return;
+
+                var npc = _currentMapStateRepository.NPCs.SingleOrDefault(x => x.Index == npcIndex);
+                var npcName = _enfFileProvider.ENFFile.Data.SingleOrDefault(x => npc != null && npc.ID == x.ID)?.Name;
+                Console.WriteLine($"[DMG ] {damageToNpc,7} - {npcPctHealth}% {npcIndex} - {npcName ?? string.Empty}");
             }
 
             public void RemoveNPCFromView(int npcIndex, int playerId, EOLib.Optional<short> spellId, EOLib.Optional<int> damage, bool showDeathAnimation)
