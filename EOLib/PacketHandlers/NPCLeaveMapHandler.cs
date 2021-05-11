@@ -6,6 +6,7 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
+using EOLib.Extensions;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 
@@ -109,12 +110,16 @@ namespace EOLib.PacketHandlers
             }
             else
             {
-                var character = _currentMapStateRepository.Characters.Single(x => x.ID == playerID);
-                var updatedRenderProps = character.RenderProperties.WithDirection(playerDirection);
-                var updatedCharacter = character.WithRenderProperties(updatedRenderProps);
+                var character = _currentMapStateRepository.Characters.OptionalSingle(x => x.ID == playerID);
 
-                _currentMapStateRepository.Characters.Remove(character);
-                _currentMapStateRepository.Characters.Add(updatedCharacter);
+                if (character.HasValue)
+                {
+                    var updatedRenderProps = character.Value.RenderProperties.WithDirection(playerDirection);
+                    var updatedCharacter = character.Value.WithRenderProperties(updatedRenderProps);
+
+                    _currentMapStateRepository.Characters.Remove(character.Value);
+                    _currentMapStateRepository.Characters.Add(updatedCharacter);
+                }
             }
         }
 
