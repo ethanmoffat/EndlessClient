@@ -131,7 +131,14 @@ namespace EOBot
                         if (priorityCoord.HasValue && !cellState.NPC.HasValue)
                             priorityCoord = null;
 
-                        if ((attackCount < CONSECUTIVE_ATTACK_COUNT && !currentPositionCellState.NPC.HasValue) || cellState.NPC.HasValue)
+                        if (character.Stats[CharacterStat.Weight] >= character.Stats[CharacterStat.MaxWeight])
+                        {
+                            Console.WriteLine($"[    ] OVER WEIGHT LIMIT - TIME TO DIE");
+                            await ToggleSit();
+                            action_taken = true;
+                            time_to_die = true;
+                        }
+                        else if ((attackCount < CONSECUTIVE_ATTACK_COUNT && !currentPositionCellState.NPC.HasValue) || cellState.NPC.HasValue)
                         {
                             if (cellState.NPC.HasValue && character.Stats[CharacterStat.HP] > character.Stats[CharacterStat.MaxHP] * .1)
                             {
@@ -158,17 +165,11 @@ namespace EOBot
 
                                 action_taken = true;
                             }
-                            else if (healSpells.Any() && character.Stats[CharacterStat.HP] < character.Stats[CharacterStat.MaxHP]
+                            else if (healSpells.Any() && character.Stats[CharacterStat.HP] < character.Stats[CharacterStat.MaxHP] * .9
                                 && character.Stats[CharacterStat.TP] > character.Stats[CharacterStat.MaxTP] * .5)
                             {
                                 await CastHealSpell(healSpells);
                                 action_taken = true;
-                            }
-                            else if (character.Stats[CharacterStat.Weight] >= character.Stats[CharacterStat.MaxWeight])
-                            {
-                                await SitDown();
-                                action_taken = true;
-                                time_to_die = true;
                             }
 
                             healItems = charInventoryRepo.ItemInventory
@@ -313,9 +314,10 @@ namespace EOBot
             await Task.Delay(ATTACK_BACKOFF_MS);
         }
 
-        private async Task SitDown()
+        private async Task ToggleSit()
         {
-            Console.WriteLine($"[SIT ] OVER WEIGHT LIMIT - TIME TO DIE");
+            var renderProps = _characterRepository.MainCharacter.RenderProperties;
+            Console.WriteLine($"[SIT ]         - Toggling from: {Enum.GetName(typeof(SitState), renderProps.SitState)}");
             await TrySend(_characterActions.ToggleSit);
         }
 
