@@ -39,7 +39,7 @@ namespace EOBot
 
                 var npc = _currentMapStateRepository.NPCs.SingleOrDefault(x => x.Index == npcIndex);
                 var npcName = _enfFileProvider.ENFFile.Data.SingleOrDefault(x => npc != null && npc.ID == x.ID)?.Name;
-                Console.WriteLine($"[DMG ] {damageToNpc,7} - {npcPctHealth}% {npcIndex} - {npcName ?? string.Empty}");
+                Console.WriteLine($"[HIT ] {damageToNpc,7} - {npcPctHealth,3}% HP - {npcIndex,2} - {npcName ?? string.Empty}");
             }
 
             public void RemoveNPCFromView(int npcIndex, int playerId, EOLib.Optional<short> spellId, EOLib.Optional<int> damage, bool showDeathAnimation)
@@ -71,12 +71,15 @@ namespace EOBot
         {
             private readonly ICharacterProvider _characterProvider;
             private readonly IExperienceTableProvider _experienceTableProvider;
+            private readonly ICharacterInventoryProvider _characterInventoryProvider;
 
             public CharacterTakeDamageNotifier(ICharacterProvider characterProvider,
-                                               IExperienceTableProvider experienceTableProvider)
+                                               IExperienceTableProvider experienceTableProvider,
+                                               ICharacterInventoryProvider characterInventoryProvider)
             {
                 _characterProvider = characterProvider;
                 _experienceTableProvider = experienceTableProvider;
+                _characterInventoryProvider = characterInventoryProvider;
             }
 
             public void NotifyGainedExp(int expDifference)
@@ -88,7 +91,7 @@ namespace EOBot
 
             public void NotifyTakeDamage(int damageTaken, int playerPercentHealth, bool isHeal)
             {
-                Console.WriteLine($"[{(isHeal ? "HEAL" : "DMG ")}] {damageTaken,7} - {playerPercentHealth}% HP");
+                Console.WriteLine($"[{(isHeal ? "HEAL" : "DMG ")}] {damageTaken,7} - {playerPercentHealth,3}% HP");
 
                 var hp = _characterProvider.MainCharacter.Stats[CharacterStat.HP];
                 if (!isHeal && hp - damageTaken <= 0)
@@ -99,9 +102,10 @@ namespace EOBot
 
             public void TakeItemFromMap(short id, int amountTaken)
             {
+                var inventoryCount = _characterInventoryProvider.ItemInventory.SingleOrDefault(x => x.ItemID == id);
                 var weight = _characterProvider.MainCharacter.Stats[CharacterStat.Weight];
                 var maxWeight = _characterProvider.MainCharacter.Stats[CharacterStat.MaxWeight];
-                Console.WriteLine($"[ITEM] {weight,3}/{maxWeight,3} - weight");
+                Console.WriteLine($"[ITEM] {weight,3}/{maxWeight,3} - weight - {inventoryCount.Amount} in inventory");
             }
         }
 
