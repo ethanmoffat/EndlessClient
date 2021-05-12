@@ -16,7 +16,6 @@ namespace EOLib.Net.API
         /// </summary>
         public event PlayerItemDropEvent OnDropItem;
         public event RemoveMapItemEvent OnRemoveItemFromMap;
-        public event JunkItemEvent OnJunkItem;
         public event ItemChangeEvent OnItemChange;
 
         private void _createItemMembers()
@@ -24,24 +23,9 @@ namespace EOLib.Net.API
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Drop), _handleItemDrop, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Add), _handleItemAdd, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Remove), _handleItemRemove, true);
-            m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Junk), _handleItemJunk, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Obtain), _handleItemObtain, true);
             m_client.AddPacketHandler(new FamilyActionPair(PacketFamily.Item, PacketAction.Kick), _handleItemKick, true);
             //todo: handle ITEM_ACCEPT (ExpReward item type) (I think it shows the level up animation?)
-        }
-
-        /// <summary>
-        /// Pick up the item with the specified UID
-        /// </summary>
-        public bool GetItem(short uid)
-        {
-            if (!m_client.ConnectedAndInitialized || !Initialized)
-                return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.Item, PacketAction.Get);
-            pkt.AddShort(uid);
-
-            return m_client.SendPacket(pkt);
         }
 
         public bool DropItem(short id, int amount, byte x = 255, byte y = 255) //255 means use character's current location
@@ -62,18 +46,6 @@ namespace EOLib.Net.API
                 pkt.AddChar(x);
                 pkt.AddChar(y);
             }
-
-            return m_client.SendPacket(pkt);
-        }
-
-        public bool JunkItem(short id, int amount)
-        {
-            if (!m_client.ConnectedAndInitialized || !Initialized)
-                return false;
-
-            OldPacket pkt = new OldPacket(PacketFamily.Item, PacketAction.Junk);
-            pkt.AddShort(id);
-            pkt.AddInt(amount);
 
             return m_client.SendPacket(pkt);
         }
@@ -122,18 +94,6 @@ namespace EOLib.Net.API
         {
             if (OnRemoveItemFromMap != null)
                 OnRemoveItemFromMap(pkt.GetShort());
-        }
-
-        private void _handleItemJunk(OldPacket pkt)
-        {
-            short id = pkt.GetShort();
-            int amountRemoved = pkt.GetThree();//don't really care - just math it
-            int amountRemaining = pkt.GetInt();
-            byte weight = pkt.GetChar();
-            byte maxWeight = pkt.GetChar();
-
-            if (OnJunkItem != null)
-                OnJunkItem(id, amountRemoved, amountRemaining, weight, maxWeight);
         }
 
         private void _handleItemObtain(OldPacket pkt)

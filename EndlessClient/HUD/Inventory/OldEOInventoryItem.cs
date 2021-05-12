@@ -165,18 +165,18 @@ namespace EndlessClient.HUD.Inventory
                 }
                 else if (((OldEOInventory)parent).IsOverJunk())
                 {
-                    if (m_inventory.Amount > 1)
-                    {
-                        ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.JunkItems,
-                            m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_JUNK);
-                        dlg.DialogClosing += (sender, args) =>
-                        {
-                            if (args.Result == XNADialogResult.OK && !m_api.JunkItem(m_inventory.ItemID, dlg.SelectedAmount))
-                                ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
-                        };
-                    }
-                    else if (!m_api.JunkItem(m_inventory.ItemID, 1))
-                        ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                    //if (m_inventory.Amount > 1)
+                    //{
+                    //    ItemTransferDialog dlg = new ItemTransferDialog(m_itemData.Name, ItemTransferDialog.TransferType.JunkItems,
+                    //        m_inventory.Amount, EOResourceID.DIALOG_TRANSFER_JUNK);
+                    //    dlg.DialogClosing += (sender, args) =>
+                    //    {
+                    //        if (args.Result == XNADialogResult.OK && !m_api.JunkItem(m_inventory.ItemID, dlg.SelectedAmount))
+                    //            ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
+                    //    };
+                    //}
+                    //else if (!m_api.JunkItem(m_inventory.ItemID, 1))
+                    //    ((EOGame)Game).DoShowLostConnectionDialogAndReturnToMainMenu();
                 }
                 else if (ChestDialog.Instance != null && ChestDialog.Instance.MouseOver && ChestDialog.Instance.MouseOverPreviously)
                 {

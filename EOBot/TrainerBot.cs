@@ -24,6 +24,12 @@ namespace EOBot
         private const int WALK_BACKOFF_MS = 400;
         private const int FACE_BACKOFF_MS = 120;
 
+        private static readonly int[] JunkItemIds = new[]
+        {
+            // Dragon Blade, enchanted boots (red/green/blue)
+            37, 124, 125, 126
+        };
+
         private readonly string _account;
         private readonly string _password;
         private readonly string _character;
@@ -275,11 +281,28 @@ namespace EOBot
         {
             foreach (var item in cellState.Items)
             {
-                Console.WriteLine($"[TAKE] {item.Amount,7} - {_itemData.Data.Single(x => x.ID == item.ItemID).Name}");
-                await TrySend(() => _mapActions.PickUpItem(item));
+                await PickUpItem(item);
 
-                await Task.Delay(TimeSpan.FromMilliseconds(100));
+                if (JunkItemIds.Contains(item.ItemID))
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    await JunkItem(item);
+                }
             }
+        }
+
+        private async Task PickUpItem(IItem item)
+        {
+            Console.WriteLine($"[TAKE] {item.Amount,7} - {_itemData.Data.Single(x => x.ID == item.ItemID).Name}");
+            await TrySend(() => _mapActions.PickUpItem(item));
+            await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
+        }
+
+        private async Task JunkItem(IItem item)
+        {
+            Console.WriteLine($"[JUNK] {item.Amount,7} - {_itemData.Data.Single(x => x.ID == item.ItemID).Name}");
+            await TrySend(() => _mapActions.JunkItem(item));
+            await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }
 
         private async Task CastHealSpell(IEnumerable<IInventorySpell> healSpells)

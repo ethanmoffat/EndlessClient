@@ -44,7 +44,6 @@ namespace EndlessClient.Old
 
             //item related
             m_packetAPI.OnRemoveItemFromMap += _removeItemFromMap;
-            m_packetAPI.OnJunkItem += _junkItem;
             m_packetAPI.OnDropItem += _dropItem;
             m_packetAPI.OnItemChange += _itemChange;
 
@@ -206,16 +205,16 @@ namespace EndlessClient.Old
             OldWorld.Instance.ActiveMapRenderer.OtherPlayerHeal(playerid, healamount, percenthealth);
         }
 
-        private void _junkItem(short id, int amountRemoved, int amountRemaining, byte weight, byte maxWeight)
-        {
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
+        //private void _junkItem(short id, int amountRemoved, int amountRemaining, byte weight, byte maxWeight)
+        //{
+        //    OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
 
-            var rec = OldWorld.Instance.EIF[id];
-            m_game.Hud.AddChat(ChatTab.System, "",
-                $"{OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED)} {amountRemoved} {rec.Name}", ChatIcon.DownArrow);
-            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED,
-                $" {amountRemoved} {rec.Name}");
-        }
+        //    var rec = OldWorld.Instance.EIF[id];
+        //    m_game.Hud.AddChat(ChatTab.System, "",
+        //        $"{OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED)} {amountRemoved} {rec.Name}", ChatIcon.DownArrow);
+        //    m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED,
+        //        $" {amountRemoved} {rec.Name}");
+        //}
 
         private void _dropItem(int characterAmount, byte weight, byte maxWeight, OldMapItem item)
         {

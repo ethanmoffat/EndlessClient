@@ -260,6 +260,7 @@
     <Compile Include="PacketHandlers\Effects\MapQuakeHandler.cs" />
     <Compile Include="PacketHandlers\EndPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\ItemPickupHandler.cs" />
+    <Compile Include="PacketHandlers\Items\JunkItemHandler.cs" />
     <Compile Include="PacketHandlers\Items\UseItemHandler.cs" />
     <Compile Include="PacketHandlers\PlayerSitHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
