@@ -10,8 +10,8 @@ namespace EOBot
     {
         public const int NUM_BOTS_MAX = 25;
 
+        private readonly CancellationTokenSource _cancellationTokenSource;
         private readonly List<IBot> _botsList;
-        private readonly IBotFrameworkOutputHandler _outputHandler;
         private readonly string _host;
         private readonly ushort _port;
 
@@ -20,11 +20,12 @@ namespace EOBot
         private int _numBots;
         private bool _terminating;
 
-        public BotFramework(IBotFrameworkOutputHandler outputHandler, ArgumentsParser parsedArgs)
+        public BotFramework(ArgumentsParser parsedArgs)
         {
-            _outputHandler = outputHandler;
-            if(outputHandler == null || parsedArgs == null)
-                throw new ArgumentNullException("One or more arguments to framework is null", new Exception());
+            if (parsedArgs == null)
+                throw new ArgumentNullException(nameof(parsedArgs));
+
+            _cancellationTokenSource = new CancellationTokenSource();
 
             var numberOfBots = parsedArgs.NumBots;
             var simultaneousBots = parsedArgs.SimultaneousBots;
@@ -66,18 +67,18 @@ namespace EOBot
                 }
                 catch(Exception ex)
                 {
-                    _outputHandler.OutputBotInitializationFailed(ex.Message);
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, ex.Message, ConsoleColor.DarkRed);
                     numFailed++;
                     continue;
                 }
 
-                _outputHandler.OutputBotInitializationSucceeded(i);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Bot {i} initialized.");
                 Thread.Sleep(delayBetweenInitsMS); //minimum for this is 1sec server-side
             }
 
             if (numFailed > 0)
             {
-                _outputHandler.OutputWarnSomeBotsFailed();
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, "Some bot instances failed to initialize. These bot instances will not be run.", ConsoleColor.DarkYellow);
                 _numBots -= numFailed;
             }
             else if (numFailed == _numBots)
@@ -88,19 +89,23 @@ namespace EOBot
             _initialized = true;
         }
 
-        public void Run(bool waitForTermination)
+        public async Task RunAsync()
         {
             if(!_initialized)
                 throw new InvalidOperationException("Must call Initialize() before running!");
 
-            _outputHandler.OutputAllBotsAreRunning(waitForTermination);
+            var botTasks = new List<Task>();
+
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Bot framework run has started.\n");
             for (int i = 0; i < _numBots; ++i)
             {
                 _doneSignal.WaitOne();
                 //acquire mutex for bot
                 //semaphore limits number of concurrently running bots based on cmd-line param
-                _botsList[i].Run(waitForTermination);
+                botTasks.Add(_botsList[i].RunAsync(_cancellationTokenSource.Token));
             }
+
+            await Task.WhenAll(botTasks).ConfigureAwait(false);
         }
 
         public void TerminateBots()
@@ -108,18 +113,7 @@ namespace EOBot
             _terminating = true;
             if (!_initialized) return;
 
-            _botsList.ForEach(_bot => _bot.Terminate());
-            _botsList.Clear();
-        }
-
-        public void WaitForBotsToComplete()
-        {
-            if (!_initialized) return;
-
-            for (int i = 0; i < _numBots; ++i)
-            {
-                _doneSignal.WaitOne();
-            }
+            _cancellationTokenSource.Cancel();
         }
 
         ~BotFramework()
@@ -137,12 +131,8 @@ namespace EOBot
         {
             if (disposing)
             {
-                _botsList.ForEach(bot => bot.Dispose());
-                if (_doneSignal != null)
-                {
-                    _doneSignal.Dispose();
-                    _doneSignal = null;
-                }
+                _doneSignal?.Dispose();
+                _cancellationTokenSource?.Dispose();
             }
         }
     }

@@ -162,7 +162,7 @@ namespace EOBot
             consoleControlHandler = new Win32.ConsoleCtrlDelegate(HandleCtrl);
             if (!Win32.SetConsoleCtrlHandler(consoleControlHandler, true))
             {
-                Console.WriteLine("WARNING: Unable to set console control handler! CTRL+C will not terminate cleanly.");
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, "Unable to set console control handler! CTRL+C will not terminate cleanly.", ConsoleColor.DarkYellow);
             }
 
             ArgumentsParser parsedArgs = new ArgumentsParser(args);
@@ -180,33 +180,32 @@ namespace EOBot
                 DependencyMaster.TypeRegistry[i].RegisterDiscoveredTypes();
             }
 
-            Console.WriteLine("Starting bots...");
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Starting bots...");
 
             try
             {
-                using (f = new BotFramework(new BotConsoleOutputHandler(), parsedArgs))
+                using (f = new BotFramework(parsedArgs))
                 {
                     await f.InitializeAsync(new TrainerBotFactory(parsedArgs), parsedArgs.InitDelay);
-                    f.Run(parsedArgs.WaitForTermination);
-                    f.WaitForBotsToComplete();
+                    await f.RunAsync();
                 }
 
-                Console.WriteLine("All bots completed.");
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "All bots completed.");
             }
             catch (BotException bex)
             {
-                Console.WriteLine(bex.Message);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, bex.Message);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("\nUnhandled error: {0}", ex.Message);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}", ConsoleColor.DarkRed);
             }
         }
 
         static bool HandleCtrl(Win32.CtrlTypes type)
         {
             var name = Enum.GetName(type.GetType(), type);
-            Console.WriteLine("\nExiting due to {0} event from system!\n", name);
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Exiting due to {name} event from system");
 
             if (f != null)
                 f.TerminateBots();
@@ -250,13 +249,17 @@ namespace EOBot
             Console.WriteLine("EOBot.exe host=<host>\n" +
                               "          port=<port>\n" +
                               "          bots=<numBots>[,<simultaneousBots>]\n" +
-                              "          wait=<true/false>\n" +
-                              "          initDelay=<timeInMS>\n");
+                              "          initDelay=<timeInMS>\n" +
+                              "          account=<account>\n" +
+                              "          password=<password>\n" +
+                              "          character=<character>\n");
             Console.WriteLine("\t host: hostname or IP address");
             Console.WriteLine("\t port: port to connect on (probably 8078)");
             Console.WriteLine("\t bots: number of bots to execute.    \n\t       numBots is the total number, simultaneousBots is how many will run at once");
-            Console.WriteLine("\t wait: flag to wait for termination. \n\t       Set to true to wait for bots to be explicitly terminated via CTRL+C, false otherwise");
             Console.WriteLine("\t initDelay: Time in milliseconds to delay between doing the INIT handshake with the server");
+            Console.WriteLine("\t account: Account to connect with (created if it does not exist)");
+            Console.WriteLine("\t password: Password");
+            Console.WriteLine("\t character: Character to use (created if it does not exist)");
         }
     }
 }

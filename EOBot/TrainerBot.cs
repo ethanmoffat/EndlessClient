@@ -91,7 +91,7 @@ namespace EOBot
             bool time_to_die = false;
 
             MapCoordinate? priorityCoord = null;
-            while (!TerminationRequested)
+            while (!ct.IsCancellationRequested)
             {
                 handler.PollForPacketsAndHandle();
 
@@ -162,7 +162,7 @@ namespace EOBot
                             else if (healItems.Any() && character.Stats[CharacterStat.HP] < character.Stats[CharacterStat.MaxHP] * .3)
                             {
                                 var stats = _characterRepository.MainCharacter.Stats;
-                                while (!TerminationRequested && stats[CharacterStat.HP] < stats[CharacterStat.MaxHP] * .6)
+                                while (!ct.IsCancellationRequested && stats[CharacterStat.HP] < stats[CharacterStat.MaxHP] * .6)
                                 {
                                     await UseHealItem(healItems);
                                     handler.PollForPacketsAndHandle();
@@ -209,7 +209,7 @@ namespace EOBot
                             await Face(originalDirection.Opposite());
 
                             // kill NPC if it was in our starting point
-                            while (currentPositionCellState.NPC.HasValue && !TerminationRequested)
+                            while (currentPositionCellState.NPC.HasValue && !ct.IsCancellationRequested)
                             {
                                 await Attack(currentPositionCellState);
 

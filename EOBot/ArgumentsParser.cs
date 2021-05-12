@@ -26,7 +26,6 @@ namespace EOBot
         public int NumBots { get; private set; }
         public int SimultaneousBots { get; private set; }
 
-        public bool WaitForTermination { get; private set; }
         public int InitDelay { get; private set; }
 
         public string Account { get; private set; }
@@ -66,10 +65,6 @@ namespace EOBot
                         break;
                     case "bots":
                         if (!ParseNumBots(pair))
-                            return;
-                        break;
-                    case "wait":
-                        if (!ParseWaitFlag(pair[1]))
                             return;
                         break;
                     case "initdelay":
@@ -145,20 +140,6 @@ namespace EOBot
 
             NumBots = numBots;
             SimultaneousBots = needSimul ? simul : numBots;
-            return true;
-        }
-
-        private bool ParseWaitFlag(string waitFlag)
-        {
-            var validFlags = new[] {"0", "no", "false", "1", "yes", "true"};
-            if (!validFlags.Contains(waitFlag))
-            {
-                Error = ArgsError.InvalidWaitFlag;
-                return false;
-            }
-
-            WaitForTermination = validFlags.ToList().FindIndex(x => x == waitFlag) > 2;
-
             return true;
         }
 
