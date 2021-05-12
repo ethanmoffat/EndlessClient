@@ -105,7 +105,7 @@ namespace EOBot
                     cachedPlayerCount = mapStateProvider.Characters.Count;
                     if (cachedPlayerCount > 0)
                     {
-                        Console.WriteLine($"[WRN ] {cachedPlayerCount,7}  - Players on map - You may not be able to train here");
+                        ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"{cachedPlayerCount,7} - Players on map - You may not be able to train here", ConsoleColor.DarkYellow);
                     }
                 }
 
@@ -139,7 +139,7 @@ namespace EOBot
 
                         if (character.Stats[CharacterStat.Weight] >= character.Stats[CharacterStat.MaxWeight])
                         {
-                            Console.WriteLine($"[    ] OVER WEIGHT LIMIT - TIME TO DIE");
+                            ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"OVER WEIGHT LIMIT - TIME TO DIE", ConsoleColor.DarkYellow);
                             await ToggleSit();
                             action_taken = true;
                             time_to_die = true;
@@ -189,16 +189,16 @@ namespace EOBot
                         else
                         {
                             if (!currentPositionCellState.NPC.HasValue)
-                                Console.WriteLine($"[MOVE] Walking due to consecutive attacks: {attackCount}");
+                                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Move, $"Walking due to consecutive attacks: {attackCount}");
                             else
-                                Console.WriteLine($"[ATTK] Killing NPC at player location");
+                                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Move, $"Killing NPC at player location");
 
                             // find a direction that's open to walk to
                             var targetWalkCell = coords.Select(z => mapCellStateProvider.GetCellStateAt(z.X, z.Y))
                                 .FirstOrDefault(z => walkValidator.IsCellStateWalkable(z));
                             if (targetWalkCell == null)
                             {
-                                Console.WriteLine($"[WRN ] Couldn't find open space to walk!");
+                                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Couldn't find open space to walk!", ConsoleColor.DarkYellow);
                                 break;
                             }
 
@@ -234,7 +234,7 @@ namespace EOBot
 
         private async Task Attack(IMapCellState cellState)
         {
-            Console.WriteLine($"[ATTK] {cellState.NPC.Value.Index,7} - {_npcData.Data.Single(x => x.ID == cellState.NPC.Value.ID).Name}");
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Attack, $"{cellState.NPC.Value.Index,7} - {_npcData.Data.Single(x => x.ID == cellState.NPC.Value.ID).Name}");
             await TrySend(_characterActions.Attack);
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }
@@ -242,7 +242,7 @@ namespace EOBot
         private async Task Walk()
         {
             var renderProps = _characterRepository.MainCharacter.RenderProperties;
-            Console.WriteLine($"[WALK] {renderProps.GetDestinationX(),3},{renderProps.GetDestinationY(),3}");
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Walk, $"{renderProps.GetDestinationX(),3},{renderProps.GetDestinationY(),3}");
             await TrySend(_characterActions.Walk);
             await Task.Delay(TimeSpan.FromMilliseconds(WALK_BACKOFF_MS));
         }
@@ -250,7 +250,7 @@ namespace EOBot
         private async Task Face(EODirection direction)
         {
             var rp = _characterRepository.MainCharacter.RenderProperties;
-            Console.WriteLine($"[FACE] {Enum.GetName(typeof(EODirection), direction),7} - at {rp.MapX},{rp.MapY}");
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Face, $"{Enum.GetName(typeof(EODirection), direction),7} - at {rp.MapX},{rp.MapY}");
             await TrySend(() => _characterActions.Face(direction));
 
             // todo: character actions Face() should also change the character's direction instead of relying on client to update it separately
@@ -293,14 +293,14 @@ namespace EOBot
 
         private async Task PickUpItem(IItem item)
         {
-            Console.WriteLine($"[TAKE] {item.Amount,7} - {_itemData.Data.Single(x => x.ID == item.ItemID).Name}");
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.TakeItem, $"{item.Amount,7} - {_itemData.Data.Single(x => x.ID == item.ItemID).Name}");
             await TrySend(() => _mapActions.PickUpItem(item));
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }
 
         private async Task JunkItem(IItem item)
         {
-            Console.WriteLine($"[JUNK] {item.Amount,7} - {_itemData.Data.Single(x => x.ID == item.ItemID).Name}");
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.JunkItem, $"{item.Amount,7} - {_itemData.Data.Single(x => x.ID == item.ItemID).Name}");
             await TrySend(() => _mapActions.JunkItem(item));
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }
@@ -313,7 +313,7 @@ namespace EOBot
                 .First();
 
             var stats = _characterRepository.MainCharacter.Stats.Stats;
-            Console.WriteLine($"[CAST] {spellToUse.HP,4} HP - {spellToUse.Name} - TP {stats[CharacterStat.TP]}/{stats[CharacterStat.MaxTP]}");
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Cast, $"{spellToUse.HP,4} HP - {spellToUse.Name} - TP {stats[CharacterStat.TP]}/{stats[CharacterStat.MaxTP]}");
 
             await TrySend(() => _characterActions.PrepareCastSpell(spellToUse.ID));
             await Task.Delay((int)Math.Round(spellToUse.CastTime / 2.0 * 950)); // ?
@@ -330,7 +330,7 @@ namespace EOBot
                 .First();
             var amount = healItems.Single(x => x.ItemID == itemToUse.ID).Amount;
 
-            Console.WriteLine($"[USE ] {itemToUse.Name} - {itemToUse.HP} HP - inventory: {amount - 1} - (other heal item types: {healItems.Count() - 1})");
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.UseItem, $"{itemToUse.Name} - {itemToUse.HP} HP - inventory: {amount - 1} - (other heal item types: {healItems.Count() - 1})");
 
             await TrySend(() => _characterActions.UseItem(itemToUse.ID));
 
@@ -340,7 +340,8 @@ namespace EOBot
         private async Task ToggleSit()
         {
             var renderProps = _characterRepository.MainCharacter.RenderProperties;
-            Console.WriteLine($"[SIT ]         - Toggling from: {Enum.GetName(typeof(SitState), renderProps.SitState)}");
+            var nextState = renderProps.SitState == SitState.Standing ? "Floor" : "Stand";
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.Sit, $"{nextState,7} - Toggling from: {Enum.GetName(typeof(SitState), renderProps.SitState)}");
             await TrySend(_characterActions.ToggleSit);
         }
 
@@ -355,7 +356,7 @@ namespace EOBot
                 }
                 catch (NoDataSentException)
                 {
-                    Console.WriteLine($"[EX  ] {i} / {attempts}   - No data sent");
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"{i} / {attempts}   - No data sent", ConsoleColor.DarkRed);
                     if (i == attempts)
                         throw;
 

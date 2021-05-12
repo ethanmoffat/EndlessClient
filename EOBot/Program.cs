@@ -39,7 +39,14 @@ namespace EOBot
 
                 var npc = _currentMapStateRepository.NPCs.SingleOrDefault(x => x.Index == npcIndex);
                 var npcName = _enfFileProvider.ENFFile.Data.SingleOrDefault(x => npc != null && npc.ID == x.ID)?.Name;
-                Console.WriteLine($"[HIT ] {damageToNpc,7} - {npcPctHealth,3}% HP - {npcIndex,2} - {npcName ?? string.Empty}");
+
+                var color = npcPctHealth < 25
+                    ? ConsoleColor.Red
+                    : npcPctHealth < 50
+                        ? ConsoleColor.Yellow
+                        : ConsoleColor.Green;
+
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Hit, $"{damageToNpc,7} - {npcPctHealth,3}% HP - {npcIndex,2} - {npcName ?? string.Empty}", color);
             }
 
             public void RemoveNPCFromView(int npcIndex, int playerId, EOLib.Optional<short> spellId, EOLib.Optional<int> damage, bool showDeathAnimation)
@@ -86,17 +93,25 @@ namespace EOBot
             {
                 var nextLevelExp = _experienceTableProvider.ExperienceByLevel[_characterProvider.MainCharacter.Stats[CharacterStat.Level] + 1];
                 var tnl = nextLevelExp - _characterProvider.MainCharacter.Stats[CharacterStat.Experience] - expDifference;
-                Console.WriteLine($"[EXP ] {expDifference,7} - {tnl} TNL");
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Experience, $"{expDifference,7} - {tnl} TNL", ConsoleColor.DarkCyan);
             }
 
             public void NotifyTakeDamage(int damageTaken, int playerPercentHealth, bool isHeal)
             {
-                Console.WriteLine($"[{(isHeal ? "HEAL" : "DMG ")}] {damageTaken,7} - {playerPercentHealth,3}% HP");
+                var type = isHeal ? ConsoleHelper.Type.Heal : ConsoleHelper.Type.Damage;
+                var color = isHeal ? ConsoleColor.DarkGreen
+                    : playerPercentHealth < 25
+                        ? ConsoleColor.Red
+                        : playerPercentHealth < 50
+                            ? ConsoleColor.Yellow
+                            : ConsoleColor.Green;
+
+                ConsoleHelper.WriteMessage(type, $"{damageTaken,7} - {playerPercentHealth,3}% HP", color);
 
                 var hp = _characterProvider.MainCharacter.Stats[CharacterStat.HP];
                 if (!isHeal && hp - damageTaken <= 0)
                 {
-                    Console.WriteLine("[DEAD] **** YOU DIED ****");
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Dead, "**** YOU DIED ****", ConsoleColor.DarkRed);
                 }
             }
 
@@ -105,7 +120,7 @@ namespace EOBot
                 var inventoryCount = _characterInventoryProvider.ItemInventory.SingleOrDefault(x => x.ItemID == id);
                 var weight = _characterProvider.MainCharacter.Stats[CharacterStat.Weight];
                 var maxWeight = _characterProvider.MainCharacter.Stats[CharacterStat.MaxWeight];
-                Console.WriteLine($"[ITEM] {weight,3}/{maxWeight,3} - weight - {inventoryCount.Amount} in inventory");
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Item, $"{weight,3}/{maxWeight,3} - weight - {inventoryCount.Amount} in inventory");
             }
         }
 
@@ -122,7 +137,7 @@ namespace EOBot
             public void NotifySelfSpellCast(short playerId, short spellId, int spellHp, byte percentHealth)
             {
                 if (playerId == _characterProvider.MainCharacter.ID && spellHp > 0)
-                    Console.WriteLine($"[HEAL] {spellHp,7} - {percentHealth}% HP");
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Heal, $"{spellHp,7} - {percentHealth}% HP", ConsoleColor.DarkGreen);
             }
 
             public void NotifyStartSpellCast(short playerId, short spellId) { }
