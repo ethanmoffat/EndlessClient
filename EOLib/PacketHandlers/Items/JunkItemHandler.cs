@@ -1,9 +1,11 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.Domain.Notifiers;
 using EOLib.Extensions;
 using EOLib.Net;
 using EOLib.Net.Handlers;
+using System.Collections.Generic;
 
 namespace EOLib.PacketHandlers.Items
 {
@@ -12,6 +14,7 @@ namespace EOLib.PacketHandlers.Items
     {
         private readonly ICharacterRepository _characterRepository;
         private readonly ICharacterInventoryRepository _inventoryRepository;
+        private readonly IEnumerable<IMainCharacterEventNotifier> _mainCharacterEventNotifiers;
 
         public override PacketFamily Family => PacketFamily.Item;
 
@@ -19,11 +22,13 @@ namespace EOLib.PacketHandlers.Items
 
         public JunkItemHandler(IPlayerInfoProvider playerInfoProvider,
                                ICharacterRepository characterRepository,
-                               ICharacterInventoryRepository inventoryRepository)
+                               ICharacterInventoryRepository inventoryRepository,
+                               IEnumerable<IMainCharacterEventNotifier> mainCharacterEventNotifiers)
             : base(playerInfoProvider)
         {
             _characterRepository = characterRepository;
             _inventoryRepository = inventoryRepository;
+            _mainCharacterEventNotifiers = mainCharacterEventNotifiers;
         }
 
         public override bool HandlePacket(IPacket packet)
@@ -52,7 +57,8 @@ namespace EOLib.PacketHandlers.Items
 
             _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithStats(stats);
 
-            // todo: notify client for status message (see commented out _junkItem() in PacketApiCallbackManager)
+            foreach (var notifier in _mainCharacterEventNotifiers)
+                notifier.JunkItem(id, amountRemoved);
 
             return true;
         }

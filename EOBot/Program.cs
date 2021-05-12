@@ -122,6 +122,14 @@ namespace EOBot
                 var maxWeight = _characterProvider.MainCharacter.Stats[CharacterStat.MaxWeight];
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Item, $"{weight,3}/{maxWeight,3} - weight - {inventoryCount.Amount} in inventory");
             }
+
+            public void JunkItem(short id, int amountRemoved)
+            {
+                var inventoryCount = _characterInventoryProvider.ItemInventory.SingleOrDefault(x => x.ItemID == id);
+                var weight = _characterProvider.MainCharacter.Stats[CharacterStat.Weight];
+                var maxWeight = _characterProvider.MainCharacter.Stats[CharacterStat.MaxWeight];
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.JunkItem, $"{weight,3}/{maxWeight,3} - weight - {inventoryCount?.Amount ?? 0} in inventory");
+            }
         }
 
         [AutoMappedType]

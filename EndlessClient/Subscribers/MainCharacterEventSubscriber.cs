@@ -58,10 +58,19 @@ namespace EndlessClient.Subscribers
             var chatMessage = $"{_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP)} {amountTaken} {rec.Name}";
             _chatRepository.AllChat[ChatTab.System].Add(new ChatData(string.Empty, chatMessage, ChatIcon.UpArrow));
 
-            _statusLabelSetter.SetStatusLabel(
-                EOResourceID.STATUS_LABEL_TYPE_INFORMATION, 
-                EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP,
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_PICKUP_YOU_PICKED_UP,
                 $" {amountTaken} {rec.Name}");
+        }
+
+        public void JunkItem(short id, int amountRemoved)
+        {
+            var rec = _pubFileProvider.EIFFile[id];
+            
+            var chatMessage = $"{_localizedStringFinder.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED)} {amountRemoved} {rec.Name}";
+            _chatRepository.AllChat[ChatTab.System].Add(new ChatData(string.Empty, chatMessage, ChatIcon.DownArrow));
+
+            _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED,
+                $" {amountRemoved} {rec.Name}");
         }
     }
 }
