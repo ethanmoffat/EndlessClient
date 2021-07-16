@@ -2,6 +2,7 @@
 using EOLib.Domain.Account;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
+using EOLib.Domain.Item;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.IO;
@@ -27,7 +28,9 @@ namespace EOBot
         private static readonly int[] JunkItemIds = new[]
         {
             // Dragon Blade, enchanted boots (red/green/blue)
-            37, 124, 125, 126
+            //37, 124, 125, 126
+            // cava staff
+            329 
         };
 
         private readonly string _account;
@@ -293,8 +296,15 @@ namespace EOBot
 
         private async Task PickUpItem(IItem item)
         {
-            ConsoleHelper.WriteMessage(ConsoleHelper.Type.TakeItem, $"{item.Amount,7} - {_itemData.Data.Single(x => x.ID == item.ItemID).Name}");
-            await TrySend(() => _mapActions.PickUpItem(item));
+            await TrySend(() =>
+            {
+                var itemName = _itemData.Data.Single(x => x.ID == item.ItemID).Name;
+                var pickupResult = _mapActions.PickUpItem(item);
+                if (pickupResult == ItemPickupResult.Ok)
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.TakeItem, $"{item.Amount,7} - {itemName}");
+                else
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Ignoring item {itemName} x{item.Amount} due to pickup error {pickupResult}", ConsoleColor.DarkYellow);
+            });
             await Task.Delay(TimeSpan.FromMilliseconds(ATTACK_BACKOFF_MS));
         }
 
