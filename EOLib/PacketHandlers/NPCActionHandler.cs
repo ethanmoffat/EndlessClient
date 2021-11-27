@@ -131,7 +131,7 @@ namespace EOLib.PacketHandlers
                 _characterRepository.MainCharacter = characterToUpdate.WithStats(stats).WithRenderProperties(props);
 
                 foreach (var notifier in _mainCharacterNotifiers)
-                    notifier.NotifyTakeDamage(damageTaken, playerPercentHealth);
+                    notifier.NotifyTakeDamage(damageTaken, playerPercentHealth, isHeal: false);
             }
             else
             {

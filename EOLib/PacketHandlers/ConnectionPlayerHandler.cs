@@ -42,8 +42,7 @@ namespace EOLib.PacketHandlers
             var response = new PacketBuilder(PacketFamily.Connection, PacketAction.Ping).Build();
             try
             {
-                _packetSendService.SendPacketAsync(response)
-                                  .Wait();
+                _packetSendService.SendPacket(response);
             }
             catch (NoDataSentException)
             {

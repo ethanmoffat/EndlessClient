@@ -78,6 +78,7 @@
     <Compile Include="Domain\Character\CharacterStat.cs" />
     <Compile Include="Domain\Character\CharacterStats.cs" />
     <Compile Include="Domain\Character\ExperienceTableProvider.cs" />
+    <Compile Include="Domain\Spells\ISpellTargetable.cs" />
     <Compile Include="Domain\Character\SitAction.cs" />
     <Compile Include="Domain\Character\StatTrainingActions.cs" />
     <Compile Include="Domain\Character\TrainType.cs" />
@@ -170,6 +171,7 @@
     <Compile Include="Domain\Account\CreateAccountParameterValidator.cs" />
     <Compile Include="Domain\Protocol\PingTimeRepository.cs" />
     <Compile Include="Domain\ResetStateAction.cs" />
+    <Compile Include="Domain\Spells\SpellTargetType.cs" />
     <Compile Include="EODirection.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="IResettable.cs" />
@@ -258,6 +260,8 @@
     <Compile Include="PacketHandlers\Effects\MapQuakeHandler.cs" />
     <Compile Include="PacketHandlers\EndPlayerWarpHandler.cs" />
     <Compile Include="PacketHandlers\ItemPickupHandler.cs" />
+    <Compile Include="PacketHandlers\Items\JunkItemHandler.cs" />
+    <Compile Include="PacketHandlers\Items\UseItemHandler.cs" />
     <Compile Include="PacketHandlers\PlayerSitHandler.cs" />
     <Compile Include="PacketHandlers\MainPlayerWalkHandler.cs" />
     <Compile Include="PacketHandlers\Effects\MapHpDrainHandler.cs" />

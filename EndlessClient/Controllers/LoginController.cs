@@ -10,6 +10,7 @@ using EndlessClient.HUD;
 using EndlessClient.HUD.Chat;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
+using EOLib.Domain.Chat;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Protocol;
@@ -30,6 +31,9 @@ namespace EndlessClient.Controllers
         private readonly IGameStateActions _gameStateActions;
         private readonly IChatTextBoxActions _chatTextBoxActions;
         private readonly IStatusLabelSetter _statusLabelSetter;
+        private readonly ILocalizedStringFinder _localizedStringFinder;
+        private readonly IChatRepository _chatRepository;
+        private readonly INewsProvider _newsProvider;
         private readonly IErrorDialogDisplayAction _errorDisplayAction;
         private readonly ISafeNetworkOperationFactory _networkOperationFactory;
         private readonly IGameLoadingDialogFactory _gameLoadingDialogFactory;
@@ -48,7 +52,10 @@ namespace EndlessClient.Controllers
                                ISafeNetworkOperationFactory networkOperationFactory,
                                IGameLoadingDialogFactory gameLoadingDialogFactory,
                                ICurrentMapStateProvider currentMapStateProvider,
-                               IStatusLabelSetter statusLabelSetter)
+                               IStatusLabelSetter statusLabelSetter,
+                               ILocalizedStringFinder localizedStringFinder,
+                               IChatRepository chatRepository,
+                               INewsProvider newsProvider)
         {
             _loginActions = loginActions;
             _mapFileLoadActions = mapFileLoadActions;
@@ -62,6 +69,9 @@ namespace EndlessClient.Controllers
             _gameLoadingDialogFactory = gameLoadingDialogFactory;
             _currentMapStateProvider = currentMapStateProvider;
             _statusLabelSetter = statusLabelSetter;
+            _localizedStringFinder = localizedStringFinder;
+            _chatRepository = chatRepository;
+            _newsProvider = newsProvider;
         }
 
         public async Task LoginToAccount(ILoginParameters loginParameters)
@@ -163,6 +173,8 @@ namespace EndlessClient.Controllers
                 if (!await completeCharacterLoginOperation.Invoke())
                     return;
 
+                AddDefaultTextToChat();
+
                 await Task.Delay(1000); //always wait 1 second
             }
             finally
@@ -207,6 +219,20 @@ namespace EndlessClient.Controllers
                         SetInitialStateAndShowError,
                         SetInitialStateAndShowError);
             return await op.Invoke();
+        }
+
+        private void AddDefaultTextToChat()
+        {
+            var server = _localizedStringFinder.GetString(EOResourceID.STRING_SERVER);
+            var serverMessage1 = _localizedStringFinder.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_1);
+            var serverMessage2 = _localizedStringFinder.GetString(EOResourceID.GLOBAL_CHAT_SERVER_MESSAGE_2);
+
+            _chatRepository.AllChat[ChatTab.Local].Add(
+                new ChatData(server, _newsProvider.NewsHeader, ChatIcon.Note, ChatColor.Server));
+            _chatRepository.AllChat[ChatTab.Global].Add(
+                new ChatData(server, serverMessage1, ChatIcon.Note, ChatColor.Server));
+            _chatRepository.AllChat[ChatTab.Global].Add(
+                new ChatData(server, serverMessage2, ChatIcon.Note, ChatColor.Server));
         }
     }
 

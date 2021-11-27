@@ -1,9 +1,9 @@
-﻿namespace EOLib.Domain.NPC
-{
-    public interface INPC
-    {
-        short ID { get; }
+﻿using EOLib.Domain.Spells;
 
+namespace EOLib.Domain.NPC
+{
+    public interface INPC : ISpellTargetable
+    {
         byte Index { get; }
 
         byte X { get; }

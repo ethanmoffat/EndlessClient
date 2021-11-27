@@ -87,7 +87,7 @@ namespace EOLib.Net.Communication
         private void SetSignalResult(bool result)
         {
             if (!_enqueuedTaskCompletionSource.Task.IsCompleted)
-                _enqueuedTaskCompletionSource.SetResult(result);
+                Task.Run(() => _enqueuedTaskCompletionSource.SetResult(result));
         }
     }
 }

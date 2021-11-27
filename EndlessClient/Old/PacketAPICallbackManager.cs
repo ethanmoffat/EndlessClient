@@ -44,9 +44,7 @@ namespace EndlessClient.Old
 
             //item related
             m_packetAPI.OnRemoveItemFromMap += _removeItemFromMap;
-            m_packetAPI.OnJunkItem += _junkItem;
             m_packetAPI.OnDropItem += _dropItem;
-            m_packetAPI.OnUseItem += _useItem;
             m_packetAPI.OnItemChange += _itemChange;
 
             m_packetAPI.OnMapMutation += _mapMutate;
@@ -207,16 +205,16 @@ namespace EndlessClient.Old
             OldWorld.Instance.ActiveMapRenderer.OtherPlayerHeal(playerid, healamount, percenthealth);
         }
 
-        private void _junkItem(short id, int amountRemoved, int amountRemaining, byte weight, byte maxWeight)
-        {
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
+        //private void _junkItem(short id, int amountRemoved, int amountRemaining, byte weight, byte maxWeight)
+        //{
+        //    OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(id, amountRemaining, weight, maxWeight);
 
-            var rec = OldWorld.Instance.EIF[id];
-            m_game.Hud.AddChat(ChatTab.System, "",
-                $"{OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED)} {amountRemoved} {rec.Name}", ChatIcon.DownArrow);
-            m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED,
-                $" {amountRemoved} {rec.Name}");
-        }
+        //    var rec = OldWorld.Instance.EIF[id];
+        //    m_game.Hud.AddChat(ChatTab.System, "",
+        //        $"{OldWorld.GetString(EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED)} {amountRemoved} {rec.Name}", ChatIcon.DownArrow);
+        //    m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_JUNK_YOU_JUNKED,
+        //        $" {amountRemoved} {rec.Name}");
+        //}
 
         private void _dropItem(int characterAmount, byte weight, byte maxWeight, OldMapItem item)
         {
@@ -231,96 +229,6 @@ namespace EndlessClient.Old
                         ChatIcon.DownArrow);
                 m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, EOResourceID.STATUS_LABEL_ITEM_DROP_YOU_DROPPED,
                     $" {item.Amount} {rec.Name}");
-            }
-        }
-
-        private void _useItem(ItemUseData data)
-        {
-            OldWorld.Instance.MainPlayer.ActiveCharacter.UpdateInventoryItem(data.ItemID, data.CharacterAmount, data.Weight, data.MaxWeight);
-            switch (data.Type)
-            {
-                case ItemType.Teleport: /*Warp packet handles the rest!*/ break;
-                case ItemType.Heal:
-                    {
-                        OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.HP = data.HP;
-                        OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.TP = data.TP;
-
-                        int percent = (int)Math.Round(100.0 * ((double)data.HP / OldWorld.Instance.MainPlayer.ActiveCharacter.Stats.MaxHP));
-
-                        if (data.HPGain > 0)
-                            OldWorld.Instance.ActiveCharacterRenderer.SetDamageCounterValue(data.HPGain, percent, true);
-                        m_game.Hud.RefreshStats();
-                    }
-                    break;
-                case ItemType.HairDye:
-                    {
-                        OldWorld.Instance.MainPlayer.ActiveCharacter.RenderData.SetHairColor(data.HairColor);
-                    }
-                    break;
-                case ItemType.Beer:
-                    OldWorld.Instance.ActiveCharacterRenderer.MakeDrunk();
-                    m_game.Hud.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_WARNING, EOResourceID.STATUS_LABEL_ITEM_USE_DRUNK);
-                    break;
-                case ItemType.EffectPotion:
-                    OldWorld.Instance.ActiveCharacterRenderer.ShowPotionAnimation(data.EffectID);
-                    break;
-                case ItemType.CureCurse:
-                    {
-                        //actually remove the item(s) from the main character
-                        OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
-                        for (int i = 0; i < (int)EquipLocation.PAPERDOLL_MAX; ++i)
-                        {
-                            int nextID = c.PaperDoll[i];
-                            if (nextID > 0 && OldWorld.Instance.EIF[nextID].Special == ItemSpecial.Cursed)
-                            {
-                                c.PaperDoll[i] = 0;
-                                switch ((EquipLocation)i)
-                                {
-                                    case EquipLocation.Boots: c.RenderData.SetBoots(0); break;
-                                    case EquipLocation.Armor: c.RenderData.SetArmor(0); break;
-                                    case EquipLocation.Hat: c.RenderData.SetHat(0); break;
-                                    case EquipLocation.Shield: c.RenderData.SetShield(0); break;
-                                    case EquipLocation.Weapon: c.RenderData.SetWeapon(0); break;
-                                }
-                            }
-                        }
-
-                        //update main character's stats
-                        CharStatData s = c.Stats;
-                        s.MaxHP = data.CureStats.MaxHP;
-                        s.MaxTP = data.CureStats.MaxTP;
-                        s.Str = data.CureStats.Str;
-                        s.Int = data.CureStats.Int;
-                        s.Wis = data.CureStats.Wis;
-                        s.Agi = data.CureStats.Agi;
-                        s.Con = data.CureStats.Con;
-                        s.Cha = data.CureStats.Cha;
-                        s.MinDam = data.CureStats.MinDam;
-                        s.MaxDam = data.CureStats.MaxDam;
-                        s.Accuracy = data.CureStats.Accuracy;
-                        s.Evade = data.CureStats.Evade;
-                        s.Armor = data.CureStats.Armor;
-                        m_game.Hud.RefreshStats();
-                    }
-                    break;
-                case ItemType.EXPReward:
-                    {
-                        CharStatData s = OldWorld.Instance.MainPlayer.ActiveCharacter.Stats;
-                        if (s.Level < data.RewardStats.Level)
-                        {
-                            //level up!
-                            OldWorld.Instance.MainPlayer.ActiveCharacter.Emote(Emote.LevelUp);
-                            OldWorld.Instance.ActiveCharacterRenderer.PlayerEmote();
-                            s.Level = data.RewardStats.Level;
-                        }
-                        s.Experience = data.RewardStats.Exp;
-                        s.StatPoints = data.RewardStats.StatPoints;
-                        s.SkillPoints = data.RewardStats.SkillPoints;
-                        s.MaxHP = data.RewardStats.MaxHP;
-                        s.MaxTP = data.RewardStats.MaxTP;
-                        s.MaxSP = data.RewardStats.MaxSP;
-                    }
-                    break;
             }
         }
 

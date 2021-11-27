@@ -1,9 +1,9 @@
-﻿namespace EOLib.Domain.Character
-{
-    public interface ICharacter
-    {
-        int ID { get; }
+﻿using EOLib.Domain.Spells;
 
+namespace EOLib.Domain.Character
+{
+    public interface ICharacter : ISpellTargetable
+    {
         string Name { get; }
 
         string Title { get; }
