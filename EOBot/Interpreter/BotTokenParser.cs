@@ -96,11 +96,6 @@ namespace EOBot.Interpreter
                         ? BotTokenType.Keyword
                         : BotTokenType.Label;
 
-                if (type == BotTokenType.Label && (char)_inputStream.Peek() == ':')
-                {
-                    Read();
-                }
-
                 return new BotToken(type, identifier);
             }
             else if (char.IsDigit(inputChar))
@@ -120,6 +115,7 @@ namespace EOBot.Interpreter
                     case '}': return new BotToken(BotTokenType.RBrace, inputChar.ToString());
                     case '[': return new BotToken(BotTokenType.LBracket, inputChar.ToString());
                     case ']': return new BotToken(BotTokenType.RBracket, inputChar.ToString());
+                    case ':': return new BotToken(BotTokenType.Colon, inputChar.ToString());
                     case '"':
                         {
                             var stringLiteral = string.Empty;

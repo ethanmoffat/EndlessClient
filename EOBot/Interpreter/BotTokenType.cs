@@ -9,6 +9,7 @@
         RBrace,
         LBracket,
         RBracket,
+        Colon,
         Keyword,
         Identifier,
         Label,
