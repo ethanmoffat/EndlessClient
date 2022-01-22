@@ -97,6 +97,14 @@
     <Compile Include="Interpreter\BotToken.cs" />
     <Compile Include="Interpreter\BotTokenParser.cs" />
     <Compile Include="Interpreter\BotTokenType.cs" />
+    <Compile Include="Interpreter\Variables\VoidFunction.cs" />
+    <Compile Include="Interpreter\Variables\Function.cs" />
+    <Compile Include="Interpreter\Variables\ICallable.cs" />
+    <Compile Include="Interpreter\Variables\IIdentifiable.cs" />
+    <Compile Include="Interpreter\Variables\IntVariable.cs" />
+    <Compile Include="Interpreter\Variables\IVariable.cs" />
+    <Compile Include="Interpreter\Variables\LabelIdentifier.cs" />
+    <Compile Include="Interpreter\Variables\StringVariable.cs" />
     <Compile Include="NamesList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -126,9 +134,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Interpreter\States\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
