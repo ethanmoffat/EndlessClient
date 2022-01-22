@@ -93,6 +93,10 @@
     <Compile Include="DependencyMaster.cs" />
     <Compile Include="IBot.cs" />
     <Compile Include="IBotFactory.cs" />
+    <Compile Include="Interpreter\BotInterpreter.cs" />
+    <Compile Include="Interpreter\BotToken.cs" />
+    <Compile Include="Interpreter\BotTokenParser.cs" />
+    <Compile Include="Interpreter\BotTokenType.cs" />
     <Compile Include="NamesList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -121,6 +125,9 @@
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Interpreter\States\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
