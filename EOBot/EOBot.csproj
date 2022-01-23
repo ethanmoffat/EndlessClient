@@ -97,6 +97,15 @@
     <Compile Include="Interpreter\BotToken.cs" />
     <Compile Include="Interpreter\BotTokenParser.cs" />
     <Compile Include="Interpreter\BotTokenType.cs" />
+    <Compile Include="Interpreter\States\AssignmentEvaluator.cs" />
+    <Compile Include="Interpreter\States\FunctionEvaluator.cs" />
+    <Compile Include="Interpreter\States\IScriptEvaluator.cs" />
+    <Compile Include="Interpreter\States\KeywordEvaluator.cs" />
+    <Compile Include="Interpreter\States\LabelEvaluator.cs" />
+    <Compile Include="Interpreter\States\ProgramState.cs" />
+    <Compile Include="Interpreter\States\ScriptEvaluator.cs" />
+    <Compile Include="Interpreter\States\StatementEvaluator.cs" />
+    <Compile Include="Interpreter\States\StatementListEvaluator.cs" />
     <Compile Include="Interpreter\Variables\VoidFunction.cs" />
     <Compile Include="Interpreter\Variables\Function.cs" />
     <Compile Include="Interpreter\Variables\ICallable.cs" />
