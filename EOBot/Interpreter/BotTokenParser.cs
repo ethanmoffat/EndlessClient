@@ -183,6 +183,10 @@ namespace EOBot.Interpreter
 
                             return new BotToken(BotTokenType.Identifier, identifier);
                         }
+                    case '+': return new BotToken(BotTokenType.PlusOperator, inputChar.ToString());
+                    case '-': return new BotToken(BotTokenType.MinusOperator, inputChar.ToString());
+                    case '*': return new BotToken(BotTokenType.MultiplyOperator, inputChar.ToString());
+                    case '/': return new BotToken(BotTokenType.DivideOperator, inputChar.ToString());
                     default: return new BotToken(BotTokenType.Error, inputChar.ToString());
                 }
             }

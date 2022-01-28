@@ -1,6 +1,13 @@
-﻿namespace EOBot.Interpreter.Variables
+﻿using System;
+
+namespace EOBot.Interpreter.Variables
 {
-    public interface IVariable<T> : IIdentifiable
+    // marker interface so we don't have to implement CompareTo for a million different function/action interfaces
+    public interface IVariable : IIdentifiable, IComparable
+    {
+    }
+
+    public interface IVariable<T> : IVariable
     {
         T Value { get; }
 

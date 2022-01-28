@@ -10,9 +10,9 @@
 
         public IVariable<int> WithNewValue(int value) => new IntVariable(value);
 
-        public static explicit operator int(IntVariable input)
-        {
-            return input.Value;
-        }
+        public int CompareTo(object obj) => Value.CompareTo(obj);
+
+        public static explicit operator int(IntVariable input) => input.Value;
+        
     }
 }

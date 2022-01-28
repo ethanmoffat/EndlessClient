@@ -24,14 +24,26 @@ namespace EOBot.Interpreter.States
             ExecutionIndex = 0;
         }
 
+        /// <summary>
+        /// Check for a token at the program's execution index. If it is the expected type, increment execution index.
+        /// </summary>
         public bool Expect(BotTokenType tokenType)
         {
             if (ExecutionIndex >= Program.Count)
                 return false;
 
-            return Program[ExecutionIndex].TokenType == tokenType;
+            if (Program[ExecutionIndex].TokenType == tokenType)
+            {
+                ExecutionIndex++;
+                return true;
+            }
+            
+            return false;
         }
 
+        /// <summary>
+        /// Check for a token at the programs execution index. If it is the expected type, push it onto the operation stack and increment execution index.
+        /// </summary>
         public bool Match(BotTokenType tokenType)
         {
             if (ExecutionIndex >= Program.Count)

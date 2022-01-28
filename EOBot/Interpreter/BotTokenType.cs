@@ -21,6 +21,10 @@
         GreaterThanOperator,
         GreaterThanEqOperator,
         NotEqualOperator,
+        PlusOperator,
+        MinusOperator,
+        MultiplyOperator,
+        DivideOperator,
         NewLine,
         Error
     }

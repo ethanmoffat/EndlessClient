@@ -61,6 +61,7 @@
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Extensions.DependencyInjection, Version=3.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.3.1.3\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
     </Reference>
@@ -97,15 +98,24 @@
     <Compile Include="Interpreter\BotToken.cs" />
     <Compile Include="Interpreter\BotTokenParser.cs" />
     <Compile Include="Interpreter\BotTokenType.cs" />
+    <Compile Include="Interpreter\Extensions\ProgramStateExtensions.cs" />
+    <Compile Include="Interpreter\IdentifierBotToken.cs" />
     <Compile Include="Interpreter\States\AssignmentEvaluator.cs" />
+    <Compile Include="Interpreter\States\ExpressionEvaluator.cs" />
+    <Compile Include="Interpreter\States\ExpressionTailEvaluator.cs" />
     <Compile Include="Interpreter\States\FunctionEvaluator.cs" />
     <Compile Include="Interpreter\States\IScriptEvaluator.cs" />
     <Compile Include="Interpreter\States\KeywordEvaluator.cs" />
     <Compile Include="Interpreter\States\LabelEvaluator.cs" />
+    <Compile Include="Interpreter\States\OperandEvaluator.cs" />
     <Compile Include="Interpreter\States\ProgramState.cs" />
     <Compile Include="Interpreter\States\ScriptEvaluator.cs" />
     <Compile Include="Interpreter\States\StatementEvaluator.cs" />
     <Compile Include="Interpreter\States\StatementListEvaluator.cs" />
+    <Compile Include="Interpreter\States\VariableEvaluator.cs" />
+    <Compile Include="Interpreter\Variables\ArrayVariable.cs" />
+    <Compile Include="Interpreter\Variables\BoolVariable.cs" />
+    <Compile Include="Interpreter\VariableBotToken.cs" />
     <Compile Include="Interpreter\Variables\VoidFunction.cs" />
     <Compile Include="Interpreter\Variables\Function.cs" />
     <Compile Include="Interpreter\Variables\ICallable.cs" />
