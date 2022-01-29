@@ -22,7 +22,7 @@ namespace EOBot.Interpreter.States
                     || Evaluate<KeywordEvaluator>(input)
                     || Evaluate<LabelEvaluator>(input)
                     || Evaluate<FunctionEvaluator>(input))
-                    && input.Expect(BotTokenType.NewLine);
+                    && (input.Expect(BotTokenType.NewLine) || input.Expect(BotTokenType.EOF));
         }
 
         private bool Evaluate<T>(ProgramState input)
