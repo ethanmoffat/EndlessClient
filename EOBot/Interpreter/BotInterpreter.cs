@@ -42,9 +42,9 @@ namespace EOBot.Interpreter
             return retList;
         }
 
-        public void Run(IReadOnlyList<BotToken> tokens)
+        public void Run(ArgumentsParser parsedArgs, IReadOnlyList<BotToken> tokens)
         {
-            var setup = new BuiltInSetup();
+            var setup = new BuiltInIdentifierConfigurator();
 
             var evaluators = new List<IScriptEvaluator>();
             evaluators.Add(new StatementListEvaluator(evaluators));
@@ -57,11 +57,13 @@ namespace EOBot.Interpreter
             evaluators.Add(new ExpressionEvaluator(evaluators));
             evaluators.Add(new ExpressionTailEvaluator(evaluators));
             evaluators.Add(new OperandEvaluator(evaluators));
+            evaluators.Add(new IfEvaluator(evaluators));
 
             var scriptEvaluator = new ScriptEvaluator(evaluators);
 
             ProgramState input = new ProgramState(tokens);
             setup.SetupBuiltInFunctions(input);
+            setup.SetupBuiltInVariables(parsedArgs);
 
             if (!scriptEvaluator.Evaluate(input))
             {

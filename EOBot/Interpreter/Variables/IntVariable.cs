@@ -10,7 +10,9 @@
 
         public IVariable<int> WithNewValue(int value) => new IntVariable(value);
 
-        public int CompareTo(object obj) => Value.CompareTo(obj);
+        public override bool Equals(object obj) => CompareTo(obj) == 0;
+
+        public int CompareTo(object obj) => obj is IntVariable ? Value.CompareTo(((IntVariable)obj).Value) : -1;
 
         public static explicit operator int(IntVariable input) => input.Value;
 

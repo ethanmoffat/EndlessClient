@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 
 namespace EOBot
 {
@@ -13,12 +14,15 @@ namespace EOBot
         NotEnoughBots,
         InvalidSimultaneousNumberOfBots,
         InvalidWaitFlag,
-        InvalidInitDelay
+        InvalidInitDelay,
+        InvalidPath
     }
 
     public class ArgumentsParser
     {
         public ArgsError Error { get; private set; }
+
+        public string ScriptFile { get; private set; }
 
         public string Host { get; private set; }
         public ushort Port { get; private set; }
@@ -56,6 +60,14 @@ namespace EOBot
 
                 switch (pair[0])
                 {
+                    case "script":
+                        if (!File.Exists(pair[1]))
+                        {
+                            Error = ArgsError.InvalidPath;
+                            return;
+                        }
+                        ScriptFile = pair[1];
+                        break;
                     case "host":
                         ParseHost(pair[1]);
                         break;

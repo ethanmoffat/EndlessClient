@@ -10,11 +10,11 @@
 
         public IVariable<string> WithNewValue(string value) => new StringVariable(value);
 
-        public int CompareTo(object obj) => Value.CompareTo(obj);
+        public override bool Equals(object obj) => CompareTo(obj) == 0;
 
-        //public static explicit operator string(StringVariable variable) => variable.Value;
+        public int CompareTo(object obj) => obj is StringVariable ? Value.CompareTo(((StringVariable)obj).Value) : -1;
 
-        public static implicit operator string(StringVariable variable) => variable.Value;
+        public static explicit operator string(StringVariable variable) => variable.Value;
 
         public override string ToString() => StringValue;
     }

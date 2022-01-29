@@ -10,7 +10,9 @@
 
         public IVariable<bool> WithNewValue(bool value) => new BoolVariable(value);
 
-        public int CompareTo(object obj) => Value.CompareTo(obj);
+        public override bool Equals(object obj) => CompareTo(obj) == 0;
+
+        public int CompareTo(object obj) => obj is BoolVariable ? Value.CompareTo(((BoolVariable)obj).Value) : -1;
 
         public static explicit operator bool(BoolVariable input) => input.Value;
 

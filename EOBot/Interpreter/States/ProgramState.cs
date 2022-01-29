@@ -1,4 +1,5 @@
 ﻿using EOBot.Interpreter.Variables;
+using System;
 using System.Collections.Generic;
 
 namespace EOBot.Interpreter.States
@@ -39,6 +40,11 @@ namespace EOBot.Interpreter.States
             }
             
             return false;
+        }
+
+        internal void SkipToken()
+        {
+            ExecutionIndex++;
         }
 
         /// <summary>

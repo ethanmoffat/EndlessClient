@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOBot.Interpreter;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
@@ -6,7 +7,9 @@ using EOLib.Domain.Notifiers;
 using EOLib.Domain.NPC;
 using EOLib.IO.Repositories;
 using System;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace EOBot
@@ -188,25 +191,37 @@ namespace EOBot
                 DependencyMaster.TypeRegistry[i].RegisterDiscoveredTypes();
             }
 
-            ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Starting bots...");
-
-            try
+            if (parsedArgs.ScriptFile != null)
             {
-                using (f = new BotFramework(parsedArgs))
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Executing script {parsedArgs.ScriptFile}...");
+
+                var interpreter = new BotInterpreter(parsedArgs.ScriptFile);
+
+                var tokens = interpreter.Parse();
+                interpreter.Run(parsedArgs, tokens);
+            }
+            else
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Starting bots...");
+
+                try
                 {
-                    await f.InitializeAsync(new TrainerBotFactory(parsedArgs), parsedArgs.InitDelay);
-                    await f.RunAsync();
-                }
+                    using (f = new BotFramework(parsedArgs))
+                    {
+                        await f.InitializeAsync(new TrainerBotFactory(parsedArgs), parsedArgs.InitDelay);
+                        await f.RunAsync();
+                    }
 
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "All bots completed.");
-            }
-            catch (BotException bex)
-            {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, bex.Message);
-            }
-            catch (Exception ex)
-            {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}", ConsoleColor.DarkRed);
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "All bots completed.");
+                }
+                catch (BotException bex)
+                {
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, bex.Message);
+                }
+                catch (Exception ex)
+                {
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}", ConsoleColor.DarkRed);
+                }
             }
         }
 
@@ -251,6 +266,9 @@ namespace EOBot
                 case ArgsError.InvalidInitDelay:
                     Console.WriteLine("Invalid: specify an integer argument for delay between inits (> 1100ms).");
                     break;
+                case ArgsError.InvalidPath:
+                    Console.WriteLine("Invalid: Script file does not exist or is not a valid path.");
+                    break;
             }
 
             Console.WriteLine("\n\nUsage: (enter arguments in any order) (angle brackets is entry) (square brackets is optional)");
@@ -261,6 +279,7 @@ namespace EOBot
                               "          account=<account>\n" +
                               "          password=<password>\n" +
                               "          character=<character>\n");
+            Console.WriteLine("\t script: script file to execute");
             Console.WriteLine("\t host: hostname or IP address");
             Console.WriteLine("\t port: port to connect on (probably 8078)");
             Console.WriteLine("\t bots: number of bots to execute.    \n\t       numBots is the total number, simultaneousBots is how many will run at once");

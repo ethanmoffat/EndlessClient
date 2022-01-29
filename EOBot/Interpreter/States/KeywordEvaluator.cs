@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace EOBot.Interpreter.States
 {
@@ -13,10 +14,18 @@ namespace EOBot.Interpreter.States
 
         public bool Evaluate(ProgramState input)
         {
-            // evaluate if
-            // or evaluate while
-            // or evaluate goto
-            return false;
+            return Evaluate<IfEvaluator>(input);
+                    //|| Evaluate<WhileEvaluator>(input)
+                    //|| Evaluate<GotoEvaluator>(input);
+        }
+
+        private bool Evaluate<T>(ProgramState input)
+            where T : IScriptEvaluator
+        {
+            return _evaluators
+                .OfType<T>()
+                .Single()
+                .Evaluate(input);
         }
     }
 }

@@ -98,13 +98,14 @@
     <Compile Include="Interpreter\BotToken.cs" />
     <Compile Include="Interpreter\BotTokenParser.cs" />
     <Compile Include="Interpreter\BotTokenType.cs" />
-    <Compile Include="Interpreter\BuiltInSetup.cs" />
+    <Compile Include="Interpreter\BuiltInIdentifierConfigurator.cs" />
     <Compile Include="Interpreter\Extensions\ProgramStateExtensions.cs" />
     <Compile Include="Interpreter\IdentifierBotToken.cs" />
     <Compile Include="Interpreter\States\AssignmentEvaluator.cs" />
     <Compile Include="Interpreter\States\ExpressionEvaluator.cs" />
     <Compile Include="Interpreter\States\ExpressionTailEvaluator.cs" />
     <Compile Include="Interpreter\States\FunctionEvaluator.cs" />
+    <Compile Include="Interpreter\States\IfEvaluator.cs" />
     <Compile Include="Interpreter\States\IScriptEvaluator.cs" />
     <Compile Include="Interpreter\States\KeywordEvaluator.cs" />
     <Compile Include="Interpreter\States\LabelEvaluator.cs" />
