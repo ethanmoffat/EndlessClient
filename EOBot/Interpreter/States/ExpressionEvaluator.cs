@@ -15,29 +15,49 @@ namespace EOBot.Interpreter.States
 
         public bool Evaluate(ProgramState input)
         {
-            var rParenExpected = input.Match(BotTokenType.LParen);
-
-            if (!_evaluators.OfType<OperandEvaluator>().Single().Evaluate(input))
-                return false;
-
-            // expression may just be a single result (since expressions are recursive - doesn't have to be 'A op B')
-            if (!_evaluators.OfType<ExpressionTailEvaluator>().Single().Evaluate(input))
+            if (input.Expect(BotTokenType.LParen))
             {
-                if (rParenExpected && !input.Expect(BotTokenType.RParen))
+                if (!_evaluators.OfType<ExpressionEvaluator>().Single().Evaluate(input))
                     return false;
 
-                if (input.OperationStack.Count == 0)
+                // if we get an RParen just be done
+                if (input.Expect(BotTokenType.RParen))
+                    return true;
+
+                // expression_tail is optional
+                if (!_evaluators.OfType<ExpressionTailEvaluator>().Single().Evaluate(input))
+                {
+                    if (input.OperationStack.Count == 0)
+                        return false;
+
+                    // convert to variable token (resolve identifier) so consumer of expression result can use it
+                    var singleOperand = GetOperand(input);
+                    input.OperationStack.Push(singleOperand);
+
+                    return true;
+                }
+
+                if (!input.Expect(BotTokenType.RParen))
                     return false;
-
-                // convert to variable token (resolve identifier) so consumer of expression result can use it
-                var singleOperand = GetOperand(input);
-                input.OperationStack.Push(singleOperand);
-
-                return true;
             }
+            else
+            {
+                if (!_evaluators.OfType<OperandEvaluator>().Single().Evaluate(input))
+                    return false;
 
-            if (rParenExpected && !input.Expect(BotTokenType.RParen))
-                return false;
+                // expression_tail is optional
+                if (!_evaluators.OfType<ExpressionTailEvaluator>().Single().Evaluate(input))
+                {
+                    if (input.OperationStack.Count == 0)
+                        return false;
+
+                    // convert to variable token (resolve identifier) so consumer of expression result can use it
+                    var singleOperand = GetOperand(input);
+                    input.OperationStack.Push(singleOperand);
+
+                    return true;
+                }
+            }
 
             if (input.OperationStack.Count == 0)
                 return false;
@@ -67,15 +87,6 @@ namespace EOBot.Interpreter.States
                 default: return false;
             }
 
-            if (rParenExpected)
-            {
-                if (input.OperationStack.Count == 0)
-                    return false;
-
-                // todo: check that this is the LPAREN
-                input.OperationStack.Pop();
-            }
-
             // todo: indicate errors in the operation
             if (expressionResult == null)
                 return false;
@@ -87,19 +98,28 @@ namespace EOBot.Interpreter.States
 
         private static VariableBotToken GetOperand(ProgramState input)
         {
-            var operand = input.OperationStack.Peek() as VariableBotToken;
+            var nextToken = input.OperationStack.Pop();
+            if (nextToken.TokenType == BotTokenType.Literal)
+            {
+                if (int.TryParse(nextToken.TokenValue, out var intValue))
+                    return new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new IntVariable(intValue));
+                else if (bool.TryParse(nextToken.TokenValue, out var boolValue))
+                    return new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new BoolVariable(boolValue));
+                else
+                    return new VariableBotToken(BotTokenType.Literal, nextToken.TokenValue, new StringVariable(nextToken.TokenValue));
+            }
 
+            var operand = nextToken as VariableBotToken;
             if (operand == null)
             {
-                var identifier = (IdentifierBotToken)input.OperationStack.Pop();
+                var identifier = (IdentifierBotToken)nextToken;
+                if (!input.SymbolTable.ContainsKey(identifier.TokenValue))
+                    input.SymbolTable[identifier.TokenValue] = UndefinedVariable.Instance;
+
                 var variableValue = (IVariable)input.SymbolTable[identifier.TokenValue];
                 if (identifier.ArrayIndex != null)
                     variableValue = ((ArrayVariable)variableValue).Value[identifier.ArrayIndex.Value];
                 operand = new VariableBotToken(BotTokenType.Literal, variableValue.ToString(), variableValue);
-            }
-            else
-            {
-                input.OperationStack.Pop();
             }
 
             return operand;
