@@ -83,9 +83,6 @@ namespace EOBot.Interpreter
                 }
             } while (!_inputStream.EndOfStream && char.IsWhiteSpace(inputChar));
 
-            if (_inputStream.EndOfStream)
-                return new BotToken(BotTokenType.EOF, string.Empty);
-
             if (char.IsLetter(inputChar))
             {
                 var identifier = inputChar.ToString();
