@@ -22,18 +22,18 @@ namespace EOBot.Interpreter.States
                 return false;
             }
 
-            var expressionResult = (VariableBotToken)input.OperationStack.Pop();
             if (input.OperationStack.Count == 0)
                 return false;
+            var expressionResult = (VariableBotToken)input.OperationStack.Pop();
 
             // todo: check that assignOp is an assignment operator
+            if (input.OperationStack.Count == 0)
+                return false;
             var assignOp = input.OperationStack.Pop();
-            if (input.OperationStack.Count == 0)
-                return false;
 
-            var variable = (IdentifierBotToken)input.OperationStack.Pop();
             if (input.OperationStack.Count == 0)
                 return false;
+            var variable = (IdentifierBotToken)input.OperationStack.Pop();
 
             if (variable.ArrayIndex != null)
             {
