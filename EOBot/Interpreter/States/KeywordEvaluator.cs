@@ -16,7 +16,7 @@ namespace EOBot.Interpreter.States
             // evaluate if
             // or evaluate while
             // or evaluate goto
-            throw new System.NotImplementedException();
+            return false;
         }
     }
 }

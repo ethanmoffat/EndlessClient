@@ -13,5 +13,7 @@
         public int CompareTo(object obj) => Value.CompareTo(obj);
 
         public static explicit operator bool(BoolVariable input) => input.Value;
+
+        public override string ToString() => StringValue;
     }
 }

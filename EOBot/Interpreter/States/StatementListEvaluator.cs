@@ -14,11 +14,8 @@ namespace EOBot.Interpreter.States
 
         public bool Evaluate(ProgramState input)
         {
-            return _evaluators
-                .OfType<StatementEvaluator>()
-                .Single()
-                .Evaluate(input)
-                && this.Evaluate(input);
+            return _evaluators.OfType<StatementEvaluator>().Single().Evaluate(input)
+                && (input.Expect(BotTokenType.EOF) || this.Evaluate(input));
         }
     }
 }

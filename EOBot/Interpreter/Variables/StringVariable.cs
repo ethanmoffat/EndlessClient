@@ -12,6 +12,10 @@
 
         public int CompareTo(object obj) => Value.CompareTo(obj);
 
-        public static explicit operator string(StringVariable variable) => variable.Value;
+        //public static explicit operator string(StringVariable variable) => variable.Value;
+
+        public static implicit operator string(StringVariable variable) => variable.Value;
+
+        public override string ToString() => StringValue;
     }
 }

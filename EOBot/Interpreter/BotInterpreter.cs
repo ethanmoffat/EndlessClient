@@ -1,7 +1,8 @@
-﻿using System;
+﻿using EOBot.Interpreter.States;
+using EOBot.Interpreter.Variables;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace EOBot.Interpreter
 {
@@ -41,8 +42,31 @@ namespace EOBot.Interpreter
             return retList;
         }
 
-        public async Task Run(IReadOnlyList<BotToken> tokens)
+        public void Run(IReadOnlyList<BotToken> tokens)
         {
+            var setup = new BuiltInSetup();
+
+            var evaluators = new List<IScriptEvaluator>();
+            evaluators.Add(new StatementListEvaluator(evaluators));
+            evaluators.Add(new StatementEvaluator(evaluators));
+            evaluators.Add(new AssignmentEvaluator(evaluators));
+            evaluators.Add(new KeywordEvaluator(evaluators));
+            evaluators.Add(new LabelEvaluator());
+            evaluators.Add(new FunctionEvaluator(evaluators));
+            evaluators.Add(new VariableEvaluator(evaluators));
+            evaluators.Add(new ExpressionEvaluator(evaluators));
+            evaluators.Add(new ExpressionTailEvaluator(evaluators));
+            evaluators.Add(new OperandEvaluator(evaluators));
+
+            var scriptEvaluator = new ScriptEvaluator(evaluators);
+
+            ProgramState input = new ProgramState(tokens);
+            setup.SetupBuiltInFunctions(input);
+
+            if (!scriptEvaluator.Evaluate(input))
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, "Error during execution! //todo: better error handling", ConsoleColor.Red);
+            }
         }
     }
 }

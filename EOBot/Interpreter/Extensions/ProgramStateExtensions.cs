@@ -16,5 +16,10 @@ namespace EOBot.Interpreter.Extensions
 
             return false;
         }
+
+        public static BotToken Current(this ProgramState input)
+        {
+            return input.Program[input.ExecutionIndex];
+        }
     }
 }

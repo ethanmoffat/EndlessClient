@@ -13,6 +13,7 @@
         public int CompareTo(object obj) => Value.CompareTo(obj);
 
         public static explicit operator int(IntVariable input) => input.Value;
-        
+
+        public override string ToString() => StringValue;
     }
 }

@@ -10,5 +10,7 @@
             TokenType = tokenType;
             TokenValue = tokenValue;
         }
+
+        public override string ToString() => $"{TokenType}: {TokenValue}";
     }
 }

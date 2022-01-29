@@ -22,5 +22,7 @@ namespace EOBot.Interpreter.Variables
         {
             return new ArrayVariable(value);
         }
+
+        public override string ToString() => StringValue;
     }
 }

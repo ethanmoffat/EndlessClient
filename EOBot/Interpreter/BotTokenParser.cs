@@ -94,7 +94,7 @@ namespace EOBot.Interpreter
 
                 var type = Keywords.Contains(identifier)
                         ? BotTokenType.Keyword
-                        : BotTokenType.Label;
+                        : BotTokenType.Identifier;
 
                 return new BotToken(type, identifier);
             }
@@ -116,6 +116,7 @@ namespace EOBot.Interpreter
                     case '[': return new BotToken(BotTokenType.LBracket, inputChar.ToString());
                     case ']': return new BotToken(BotTokenType.RBracket, inputChar.ToString());
                     case ':': return new BotToken(BotTokenType.Colon, inputChar.ToString());
+                    case ',': return new BotToken(BotTokenType.Comma, inputChar.ToString());
                     case '"':
                         {
                             var stringLiteral = string.Empty;
@@ -169,19 +170,18 @@ namespace EOBot.Interpreter
                             if (_inputStream.EndOfStream)
                                 return new BotToken(BotTokenType.Error, inputChar.ToString());
 
-                            // ensure identifier starts with letter or underscore before getting identifier name
+                            // ensure variable starts with letter or underscore before getting variable name
                             inputChar = (char)_inputStream.Peek();
                             if (!char.IsLetter(inputChar) && inputChar != '_')
                                 return new BotToken(BotTokenType.Error, inputChar.ToString());
 
-                            var identifier = string.Empty;
-                            do
+                            var variable = string.Empty;
+                            for (inputChar = Peek(); !_inputStream.EndOfStream && (char.IsLetterOrDigit(inputChar) || inputChar == '_'); inputChar = Peek())
                             {
-                                inputChar = (char)Read();
-                                identifier += inputChar;
-                            } while (!_inputStream.EndOfStream && (char.IsLetterOrDigit(inputChar) || inputChar == '_'));
+                                variable += Read();
+                            }
 
-                            return new BotToken(BotTokenType.Identifier, identifier);
+                            return new BotToken(BotTokenType.Variable, variable);
                         }
                     case '+': return new BotToken(BotTokenType.PlusOperator, inputChar.ToString());
                     case '-': return new BotToken(BotTokenType.MinusOperator, inputChar.ToString());
@@ -198,6 +198,12 @@ namespace EOBot.Interpreter
                 _inputStream.Dispose();
 
             GC.SuppressFinalize(this);
+        }
+
+        private char Peek()
+        {
+            Column++;
+            return (char)_inputStream.Peek();
         }
 
         private char Read()

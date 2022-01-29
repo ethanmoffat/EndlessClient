@@ -15,7 +15,7 @@ namespace EOBot.Interpreter.States
 
         public bool Evaluate(ProgramState input)
         {
-            if (!input.Match(BotTokenType.Identifier))
+            if (!input.Match(BotTokenType.Variable))
                 return false;
 
             int? arrayIndex = null;
@@ -38,7 +38,7 @@ namespace EOBot.Interpreter.States
                 return false;
             var identifier = input.OperationStack.Pop();
 
-            input.OperationStack.Push(new IdentifierBotToken(BotTokenType.Identifier, identifier.TokenValue, arrayIndex));
+            input.OperationStack.Push(new IdentifierBotToken(BotTokenType.Variable, identifier.TokenValue, arrayIndex));
 
             return true;
         }

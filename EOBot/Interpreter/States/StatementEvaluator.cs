@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using EOBot.Interpreter.Extensions;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace EOBot.Interpreter.States
@@ -14,10 +15,14 @@ namespace EOBot.Interpreter.States
 
         public bool Evaluate(ProgramState input)
         {
-            return Evaluate<AssignmentEvaluator>(input)
-                || Evaluate<KeywordEvaluator>(input)
-                || Evaluate<LabelEvaluator>(input)
-                || Evaluate<FunctionEvaluator>(input);
+            while (input.Current().TokenType == BotTokenType.NewLine)
+                input.Expect(BotTokenType.NewLine);
+
+            return (Evaluate<AssignmentEvaluator>(input)
+                    || Evaluate<KeywordEvaluator>(input)
+                    || Evaluate<LabelEvaluator>(input)
+                    || Evaluate<FunctionEvaluator>(input))
+                    && input.Expect(BotTokenType.NewLine);
         }
 
         private bool Evaluate<T>(ProgramState input)

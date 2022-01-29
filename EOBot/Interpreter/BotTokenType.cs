@@ -10,9 +10,10 @@
         LBracket,
         RBracket,
         Colon,
+        Comma,
         Keyword,
+        Variable,
         Identifier,
-        Label,
         Literal,
         AssignOperator,
         EqualOperator,
@@ -26,6 +27,6 @@
         MultiplyOperator,
         DivideOperator,
         NewLine,
-        Error
+        Error,
     }
 }
