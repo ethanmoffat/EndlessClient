@@ -42,6 +42,10 @@ namespace EOBot.Interpreter.States
             }
             else
             {
+                // an expression can be a function call
+                if (_evaluators.OfType<FunctionEvaluator>().Single().Evaluate(input))
+                    return true;
+
                 if (!_evaluators.OfType<OperandEvaluator>().Single().Evaluate(input))
                     return false;
 

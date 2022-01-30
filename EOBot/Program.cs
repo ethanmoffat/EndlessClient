@@ -278,7 +278,8 @@ namespace EOBot
                               "          initDelay=<timeInMS>\n" +
                               "          account=<account>\n" +
                               "          password=<password>\n" +
-                              "          character=<character>\n");
+                              "          character=<character>\n" +
+                              "          [-- arg1, [arg2..argn]]");
             Console.WriteLine("\t script: script file to execute");
             Console.WriteLine("\t host: hostname or IP address");
             Console.WriteLine("\t port: port to connect on (probably 8078)");
@@ -287,6 +288,7 @@ namespace EOBot
             Console.WriteLine("\t account: Account to connect with (created if it does not exist)");
             Console.WriteLine("\t password: Password");
             Console.WriteLine("\t character: Character to use (created if it does not exist)");
+            Console.WriteLine("\t --: Any arguments passed after '--' will be available in a script under the '$args' array");
         }
     }
 }

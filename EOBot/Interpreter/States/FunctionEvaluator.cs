@@ -78,7 +78,7 @@ namespace EOBot.Interpreter.States
                 var result = function.Call(variables);
                 var varResult = new IntVariable(result);
                 input.SymbolTable[PredefinedIdentifiers.RESULT] = varResult;
-                input.OperationStack.Push(new VariableBotToken(BotTokenType.Variable, result.ToString(), varResult));
+                input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
             }
             catch (ArgumentException)
             {
@@ -93,7 +93,9 @@ namespace EOBot.Interpreter.States
             try
             {
                 var result = function.Call(variables);
+                var varResult = new StringVariable(result);
                 input.SymbolTable[PredefinedIdentifiers.RESULT] = new StringVariable(result);
+                input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
             }
             catch (ArgumentException)
             {
@@ -108,7 +110,9 @@ namespace EOBot.Interpreter.States
             try
             {
                 var result = function.Call(variables);
+                var varResult = new ArrayVariable(result);
                 input.SymbolTable[PredefinedIdentifiers.RESULT] = new ArrayVariable(result);
+                input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
             }
             catch (ArgumentException)
             {
@@ -123,7 +127,9 @@ namespace EOBot.Interpreter.States
             try
             {
                 var result = function.Call(variables);
+                var varResult = new BoolVariable(result);
                 input.SymbolTable[PredefinedIdentifiers.RESULT] = new BoolVariable(result);
+                input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
             }
             catch (ArgumentException)
             {

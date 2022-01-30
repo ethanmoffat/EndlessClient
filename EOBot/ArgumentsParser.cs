@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using EOBot.Interpreter.Variables;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace EOBot
@@ -36,6 +38,8 @@ namespace EOBot
         public string Password { get; private set; }
         public string Character { get; private set; }
 
+        public List<string> UserArgs { get; internal set; }
+
         public ArgumentsParser(string[] args)
         {
             InitDelay = 1100;
@@ -48,8 +52,20 @@ namespace EOBot
                 return;
             }
 
-            foreach (var arg in args)
+            for (int i = 0; i < args.Length; i++)
             {
+                var arg = args[i];
+
+                if (arg == "--")
+                {
+                    UserArgs = new List<string>();
+                    for (i = i + 1; i < args.Length; i++)
+                    {
+                        UserArgs.Add(args[i]);
+                    }
+                    break;
+                }
+
                 var pair = arg.ToLower().Split('=');
 
                 if (pair.Length != 2)

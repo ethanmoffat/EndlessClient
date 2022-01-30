@@ -63,7 +63,7 @@ namespace EOBot.Interpreter
 
             ProgramState input = new ProgramState(tokens);
             setup.SetupBuiltInFunctions(input);
-            setup.SetupBuiltInVariables(parsedArgs);
+            setup.SetupBuiltInVariables(input, parsedArgs);
 
             if (!scriptEvaluator.Evaluate(input))
             {
