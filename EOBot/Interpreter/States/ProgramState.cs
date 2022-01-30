@@ -1,5 +1,7 @@
 ﻿using EOBot.Interpreter.Variables;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EOBot.Interpreter.States
 {
@@ -11,7 +13,7 @@ namespace EOBot.Interpreter.States
 
         public Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> SymbolTable { get; }
 
-        public Dictionary<LabelIdentifier, int> Labels { get; }
+        public Dictionary<string, int> Labels { get; }
 
         public int ExecutionIndex { get; private set; }
 
@@ -20,8 +22,25 @@ namespace EOBot.Interpreter.States
             OperationStack = new Stack<BotToken>();
             Program = program;
             SymbolTable = new Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)>();
-            Labels = new Dictionary<LabelIdentifier, int>();
+            Labels = Program
+                .Select((token, ndx) => (token, ndx))
+                .Where(x => x.token.TokenType == BotTokenType.Identifier && Program[x.ndx + 1].TokenType == BotTokenType.Colon)
+                .ToDictionary(x => x.token.TokenValue, y => y.ndx + 2);
             ExecutionIndex = 0;
+        }
+
+        public void SkipToken()
+        {
+            ExecutionIndex++;
+        }
+
+        public bool Goto(int executionIndex)
+        {
+            if (executionIndex >= Program.Count)
+                return false;
+
+            ExecutionIndex = executionIndex;
+            return true;
         }
 
         /// <summary>
@@ -39,11 +58,6 @@ namespace EOBot.Interpreter.States
             }
             
             return false;
-        }
-
-        internal void SkipToken()
-        {
-            ExecutionIndex++;
         }
 
         /// <summary>
@@ -64,10 +78,25 @@ namespace EOBot.Interpreter.States
             return false;
         }
 
+        public bool ExpectPair(BotTokenType first, BotTokenType second)
+        {
+            if (ExecutionIndex >= Program.Count - 1)
+                return false;
+
+            if (Program[ExecutionIndex].TokenType == first &&
+                Program[ExecutionIndex + 1].TokenType == second)
+            {
+                ExecutionIndex += 2;
+                return true;
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Matches a pair of tokens in order at the program's execution index.
         /// </summary>
-        internal bool MatchPair(BotTokenType first, BotTokenType second)
+        public bool MatchPair(BotTokenType first, BotTokenType second)
         {
             if (ExecutionIndex >= Program.Count - 1)
                 return false;

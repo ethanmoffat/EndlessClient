@@ -37,6 +37,10 @@ namespace EOBot.Interpreter.States
                 if ((input.Expect(BotTokenType.LBrace) && !_evaluators.OfType<StatementListEvaluator>().Single().Evaluate(input)) ||
                     !_evaluators.OfType<StatementEvaluator>().Single().Evaluate(input))
                     return false;
+
+                // hack: put the \n token back since StatementList/Statement will have consumed it
+                if (input.Program[input.ExecutionIndex - 1].TokenType == BotTokenType.NewLine)
+                    input.Goto(input.ExecutionIndex - 1);
             }
             else if (input.Expect(BotTokenType.LBrace))
             {

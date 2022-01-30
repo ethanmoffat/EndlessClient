@@ -105,6 +105,7 @@
     <Compile Include="Interpreter\States\ExpressionEvaluator.cs" />
     <Compile Include="Interpreter\States\ExpressionTailEvaluator.cs" />
     <Compile Include="Interpreter\States\FunctionEvaluator.cs" />
+    <Compile Include="Interpreter\States\GotoEvaluator.cs" />
     <Compile Include="Interpreter\States\IfEvaluator.cs" />
     <Compile Include="Interpreter\States\IScriptEvaluator.cs" />
     <Compile Include="Interpreter\States\KeywordEvaluator.cs" />
@@ -126,7 +127,6 @@
     <Compile Include="Interpreter\Variables\IIdentifiable.cs" />
     <Compile Include="Interpreter\Variables\IntVariable.cs" />
     <Compile Include="Interpreter\Variables\IVariable.cs" />
-    <Compile Include="Interpreter\Variables\LabelIdentifier.cs" />
     <Compile Include="Interpreter\Variables\StringVariable.cs" />
     <Compile Include="NamesList.cs" />
     <Compile Include="Program.cs" />

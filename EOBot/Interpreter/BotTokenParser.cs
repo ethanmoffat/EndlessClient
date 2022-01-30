@@ -86,7 +86,7 @@ namespace EOBot.Interpreter
             if (char.IsLetter(inputChar))
             {
                 var identifier = inputChar.ToString();
-                while (char.IsLetterOrDigit((char)_inputStream.Peek()))
+                while (char.IsLetterOrDigit(Peek()) || Peek() == '_')
                     identifier += Read();
 
                 var type = Keywords.Contains(identifier)

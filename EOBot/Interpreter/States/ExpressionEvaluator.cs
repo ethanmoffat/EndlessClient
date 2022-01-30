@@ -44,22 +44,29 @@ namespace EOBot.Interpreter.States
             {
                 // an expression can be a function call
                 if (_evaluators.OfType<FunctionEvaluator>().Single().Evaluate(input))
-                    return true;
-
-                if (!_evaluators.OfType<OperandEvaluator>().Single().Evaluate(input))
-                    return false;
-
-                // expression_tail is optional
-                if (!_evaluators.OfType<ExpressionTailEvaluator>().Single().Evaluate(input))
                 {
-                    if (input.OperationStack.Count == 0)
+                    // there may or may not be an expression tail after a function call
+                    if (!_evaluators.OfType<ExpressionTailEvaluator>().Single().Evaluate(input))
+                        return true;
+                }
+                else
+                {
+
+                    if (!_evaluators.OfType<OperandEvaluator>().Single().Evaluate(input))
                         return false;
 
-                    // convert to variable token (resolve identifier) so consumer of expression result can use it
-                    var singleOperand = GetOperand(input);
-                    input.OperationStack.Push(singleOperand);
+                    // expression_tail is optional
+                    if (!_evaluators.OfType<ExpressionTailEvaluator>().Single().Evaluate(input))
+                    {
+                        if (input.OperationStack.Count == 0)
+                            return false;
 
-                    return true;
+                        // convert to variable token (resolve identifier) so consumer of expression result can use it
+                        var singleOperand = GetOperand(input);
+                        input.OperationStack.Push(singleOperand);
+
+                        return true;
+                    }
                 }
             }
 

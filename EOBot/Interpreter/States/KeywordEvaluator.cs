@@ -14,9 +14,9 @@ namespace EOBot.Interpreter.States
 
         public bool Evaluate(ProgramState input)
         {
-            return Evaluate<IfEvaluator>(input);
+            return Evaluate<IfEvaluator>(input)
                     //|| Evaluate<WhileEvaluator>(input)
-                    //|| Evaluate<GotoEvaluator>(input);
+                    || Evaluate<GotoEvaluator>(input);
         }
 
         private bool Evaluate<T>(ProgramState input)

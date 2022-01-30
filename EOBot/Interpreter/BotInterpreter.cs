@@ -58,6 +58,7 @@ namespace EOBot.Interpreter
             evaluators.Add(new ExpressionTailEvaluator(evaluators));
             evaluators.Add(new OperandEvaluator(evaluators));
             evaluators.Add(new IfEvaluator(evaluators));
+            evaluators.Add(new GotoEvaluator());
 
             var scriptEvaluator = new ScriptEvaluator(evaluators);
 
