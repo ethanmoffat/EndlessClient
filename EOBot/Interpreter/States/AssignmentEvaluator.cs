@@ -35,17 +35,21 @@ namespace EOBot.Interpreter.States
                 return false;
             var variable = (IdentifierBotToken)input.OperationStack.Pop();
 
+            if (input.SymbolTable.ContainsKey(variable.TokenValue) &&
+                input.SymbolTable[variable.TokenValue].ReadOnly)
+                return false;
+
             if (variable.ArrayIndex != null)
             {
                 if (!input.SymbolTable.ContainsKey(variable.TokenValue))
                     return false;
 
-                ((ArrayVariable)input.SymbolTable[variable.TokenValue]).Value[variable.ArrayIndex.Value] = expressionResult.VariableValue;
+                ((ArrayVariable)input.SymbolTable[variable.TokenValue].Identifiable).Value[variable.ArrayIndex.Value] = expressionResult.VariableValue;
             }
             else
             {
                 // todo: dynamic typing with no warning, or warn if changing typing of variable on assignment?
-                input.SymbolTable[variable.TokenValue] = expressionResult.VariableValue;
+                input.SymbolTable[variable.TokenValue] = (false, expressionResult.VariableValue);
             }
 
             return true;

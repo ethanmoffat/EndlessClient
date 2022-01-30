@@ -53,7 +53,7 @@ namespace EOBot.Interpreter.States
                 return false;
             var functionName = input.OperationStack.Pop();
 
-            var function = input.SymbolTable[functionName.TokenValue];
+            var function = input.SymbolTable[functionName.TokenValue].Identifiable;
             return Call(input, (dynamic)function, parameters.Select(x => x.VariableValue).ToArray());
         }
 
@@ -77,7 +77,7 @@ namespace EOBot.Interpreter.States
             {
                 var result = function.Call(variables);
                 var varResult = new IntVariable(result);
-                input.SymbolTable[PredefinedIdentifiers.RESULT] = varResult;
+                input.SymbolTable[PredefinedIdentifiers.RESULT] = (true, varResult);
                 input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
             }
             catch (ArgumentException)
@@ -94,7 +94,7 @@ namespace EOBot.Interpreter.States
             {
                 var result = function.Call(variables);
                 var varResult = new StringVariable(result);
-                input.SymbolTable[PredefinedIdentifiers.RESULT] = new StringVariable(result);
+                input.SymbolTable[PredefinedIdentifiers.RESULT] = (true, varResult);
                 input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
             }
             catch (ArgumentException)
@@ -111,7 +111,7 @@ namespace EOBot.Interpreter.States
             {
                 var result = function.Call(variables);
                 var varResult = new ArrayVariable(result);
-                input.SymbolTable[PredefinedIdentifiers.RESULT] = new ArrayVariable(result);
+                input.SymbolTable[PredefinedIdentifiers.RESULT] = (true, varResult);
                 input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
             }
             catch (ArgumentException)
@@ -128,7 +128,7 @@ namespace EOBot.Interpreter.States
             {
                 var result = function.Call(variables);
                 var varResult = new BoolVariable(result);
-                input.SymbolTable[PredefinedIdentifiers.RESULT] = new BoolVariable(result);
+                input.SymbolTable[PredefinedIdentifiers.RESULT] = (true, varResult);
                 input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
             }
             catch (ArgumentException)

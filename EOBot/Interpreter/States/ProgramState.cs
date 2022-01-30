@@ -1,5 +1,4 @@
 ﻿using EOBot.Interpreter.Variables;
-using System;
 using System.Collections.Generic;
 
 namespace EOBot.Interpreter.States
@@ -10,7 +9,7 @@ namespace EOBot.Interpreter.States
 
         public IReadOnlyList<BotToken> Program { get; }
 
-        public Dictionary<string, IIdentifiable> SymbolTable { get; }
+        public Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> SymbolTable { get; }
 
         public Dictionary<LabelIdentifier, int> Labels { get; }
 
@@ -20,7 +19,7 @@ namespace EOBot.Interpreter.States
         {
             OperationStack = new Stack<BotToken>();
             Program = program;
-            SymbolTable = new Dictionary<string, IIdentifiable>();
+            SymbolTable = new Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)>();
             Labels = new Dictionary<LabelIdentifier, int>();
             ExecutionIndex = 0;
         }

@@ -118,9 +118,9 @@ namespace EOBot.Interpreter.States
             {
                 var identifier = (IdentifierBotToken)nextToken;
                 if (!input.SymbolTable.ContainsKey(identifier.TokenValue))
-                    input.SymbolTable[identifier.TokenValue] = UndefinedVariable.Instance;
+                    input.SymbolTable[identifier.TokenValue] = (true, UndefinedVariable.Instance);
 
-                var variableValue = (IVariable)input.SymbolTable[identifier.TokenValue];
+                var variableValue = (IVariable)input.SymbolTable[identifier.TokenValue].Identifiable;
                 if (identifier.ArrayIndex != null)
                     variableValue = ((ArrayVariable)variableValue).Value[identifier.ArrayIndex.Value];
                 operand = new VariableBotToken(BotTokenType.Literal, variableValue.ToString(), variableValue);
