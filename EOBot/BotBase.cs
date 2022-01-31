@@ -9,10 +9,9 @@ using EOLib.Net.PacketProcessing;
 
 namespace EOBot
 {
-    internal abstract class BotBase : IBot
+    public abstract class BotBase : IBot
     {
-        //base class implementation - should not be modified in derived classes
-        private bool _initialized;
+        protected bool _initialized;
 
         protected readonly int _index;
 

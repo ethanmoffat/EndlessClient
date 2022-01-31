@@ -73,7 +73,7 @@ namespace EOBot
                 }
 
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Bot {i} initialized.");
-                Thread.Sleep(delayBetweenInitsMS); //minimum for this is 1sec server-side
+                await Task.Delay(delayBetweenInitsMS); //minimum for this is 1sec server-side
             }
 
             if (numFailed > 0)

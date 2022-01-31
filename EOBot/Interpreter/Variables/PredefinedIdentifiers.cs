@@ -10,6 +10,7 @@
         public const string PASS = "pass";
         public const string VERSION = "version";
         public const string ARGS = "args";
+        public const string BOTINDEX = "botindex";
 
         // state variables
         public const string ACCOUNT = "account";
@@ -26,7 +27,7 @@
         public const string DISCONNECT_FUNC = "Disconnect";
         public const string CREATE_ACCOUNT_FUNC = "CreateAccount";
         public const string LOGIN_FUNC = "Login";
-        public const string CREATE_AND_LOGIN_FUNC = "CreateAndLoginFunc";
+        public const string CREATE_AND_LOGIN_FUNC = "CreateAndLogin";
         public const string CHANGE_PASS_FUNC = "ChangePassword";
         public const string CREATE_CHARACTER_FUNC = "CreateCharacter";
         public const string LOGIN_CHARACTER_FUNC = "LoginCharacter";

@@ -133,7 +133,9 @@
     <Compile Include="NamesList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScriptedBot.cs" />
     <Compile Include="TrainerBot.cs" />
+    <Compile Include="ScriptedBotFactory.cs" />
     <Compile Include="TrainerBotFactory.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>

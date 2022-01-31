@@ -1,6 +1,7 @@
 ﻿using EOBot.Interpreter.States;
 using EOBot.Interpreter.Variables;
 using EOLib.Config;
+using EOLib.Domain.Account;
 using EOLib.Domain.Login;
 using EOLib.Domain.Protocol;
 using EOLib.Net.Communication;
@@ -16,12 +17,14 @@ namespace EOBot.Interpreter
     {
         private readonly ProgramState _state;
         private readonly int _botIndex;
+        private readonly ArgumentsParser _parsedArgs;
         private readonly BotHelper _botHelper;
 
-        public BuiltInIdentifierConfigurator(ProgramState state, int botIndex)
+        public BuiltInIdentifierConfigurator(ProgramState state, int botIndex, ArgumentsParser parsedArgs)
         {
             _state = state;
             _botIndex = botIndex;
+            _parsedArgs = parsedArgs;
             _botHelper = new BotHelper(_botIndex);
         }
 
@@ -49,14 +52,15 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.LOGIN_CHARACTER_FUNC] = (true, new VoidFunctionRef<string>(PredefinedIdentifiers.LOGIN_CHARACTER_FUNC, name => _botHelper.LoginToCharacterAsync(name).GetAwaiter().GetResult()));
         }
 
-        public void SetupBuiltInVariables(ArgumentsParser parsedArgs)
+        public void SetupBuiltInVariables()
         {
-            _state.SymbolTable[PredefinedIdentifiers.HOST] = (true, new StringVariable(parsedArgs.Host));
-            _state.SymbolTable[PredefinedIdentifiers.PORT] = (true, new IntVariable(parsedArgs.Port));
-            _state.SymbolTable[PredefinedIdentifiers.USER] = (true, new StringVariable(parsedArgs.Account));
-            _state.SymbolTable[PredefinedIdentifiers.PASS] = (true, new StringVariable(parsedArgs.Password));
+            _state.SymbolTable[PredefinedIdentifiers.HOST] = (true, new StringVariable(_parsedArgs.Host));
+            _state.SymbolTable[PredefinedIdentifiers.PORT] = (true, new IntVariable(_parsedArgs.Port));
+            _state.SymbolTable[PredefinedIdentifiers.USER] = (true, new StringVariable(_parsedArgs.Account));
+            _state.SymbolTable[PredefinedIdentifiers.PASS] = (true, new StringVariable(_parsedArgs.Password));
+            _state.SymbolTable[PredefinedIdentifiers.BOTINDEX] = (true, new IntVariable(_botIndex));
             _state.SymbolTable[PredefinedIdentifiers.ARGS] = (true, new ArrayVariable(
-                parsedArgs.UserArgs.Select(x => new StringVariable(x)).Cast<IVariable>().ToList()));
+                (_parsedArgs.UserArgs ?? new List<string>()).Select(x => new StringVariable(x)).Cast<IVariable>().ToList()));
 
             // default to version 0.0.28
             _state.SymbolTable[PredefinedIdentifiers.VERSION] = (false, new IntVariable(28));
@@ -120,7 +124,8 @@ namespace EOBot.Interpreter
 
         private int CreateAndLoginDefinition(string user, string pass)
         {
-            if (_botHelper.CreateAccountAsync(user, pass).GetAwaiter().GetResult() == EOLib.Domain.Account.AccountReply.Created)
+            var accountReply = _botHelper.CreateAccountAsync(user, pass).GetAwaiter().GetResult();
+            if (accountReply == AccountReply.Created || accountReply == AccountReply.Exists)
             {
                 return (int)_botHelper.LoginToAccountAsync(user, pass).GetAwaiter().GetResult();
             }

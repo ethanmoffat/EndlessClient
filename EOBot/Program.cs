@@ -191,37 +191,36 @@ namespace EOBot
                 DependencyMaster.TypeRegistry[i].RegisterDiscoveredTypes();
             }
 
+            IBotFactory botFactory;
             if (parsedArgs.ScriptFile != null)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Executing script {parsedArgs.ScriptFile}...");
-
-                var interpreter = new BotInterpreter(parsedArgs.ScriptFile);
-
-                var tokens = interpreter.Parse();
-                interpreter.Run(0, parsedArgs, tokens);
+                botFactory = new ScriptedBotFactory(parsedArgs);
             }
             else
             {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Starting bots...");
+                botFactory = new TrainerBotFactory(parsedArgs);
+            }
 
-                try
-                {
-                    using (f = new BotFramework(parsedArgs))
-                    {
-                        await f.InitializeAsync(new TrainerBotFactory(parsedArgs), parsedArgs.InitDelay);
-                        await f.RunAsync();
-                    }
+            ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Starting bots...");
 
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "All bots completed.");
-                }
-                catch (BotException bex)
+            try
+            {
+                using (f = new BotFramework(parsedArgs))
                 {
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, bex.Message);
+                    await f.InitializeAsync(botFactory, parsedArgs.InitDelay);
+                    await f.RunAsync();
                 }
-                catch (Exception ex)
-                {
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}", ConsoleColor.DarkRed);
-                }
+
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "All bots completed.");
+            }
+            catch (BotException bex)
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, bex.Message, ConsoleColor.DarkRed);
+            }
+            catch (Exception ex)
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}", ConsoleColor.DarkRed);
             }
         }
 
@@ -279,8 +278,8 @@ namespace EOBot
                               "          account=<account>\n" +
                               "          password=<password>\n" +
                               "          character=<character>\n" +
+                              "          script=<file>\n" +
                               "          [-- arg1, [arg2..argn]]");
-            Console.WriteLine("\t script: script file to execute");
             Console.WriteLine("\t host: hostname or IP address");
             Console.WriteLine("\t port: port to connect on (probably 8078)");
             Console.WriteLine("\t bots: number of bots to execute.    \n\t       numBots is the total number, simultaneousBots is how many will run at once");
@@ -288,6 +287,7 @@ namespace EOBot
             Console.WriteLine("\t account: Account to connect with (created if it does not exist)");
             Console.WriteLine("\t password: Password");
             Console.WriteLine("\t character: Character to use (created if it does not exist)");
+            Console.WriteLine("\t script: script file to execute\n\t         if script is not specified, default trainer bot will be used");
             Console.WriteLine("\t --: Any arguments passed after '--' will be available in a script under the '$args' array");
         }
     }
