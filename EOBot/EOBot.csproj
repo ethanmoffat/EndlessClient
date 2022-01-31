@@ -116,6 +116,7 @@
     <Compile Include="Interpreter\States\StatementEvaluator.cs" />
     <Compile Include="Interpreter\States\StatementListEvaluator.cs" />
     <Compile Include="Interpreter\States\VariableEvaluator.cs" />
+    <Compile Include="Interpreter\States\WhileEvaluator.cs" />
     <Compile Include="Interpreter\Variables\ArrayVariable.cs" />
     <Compile Include="Interpreter\Variables\BoolVariable.cs" />
     <Compile Include="Interpreter\VariableBotToken.cs" />

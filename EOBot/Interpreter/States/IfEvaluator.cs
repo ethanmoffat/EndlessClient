@@ -32,11 +32,22 @@ namespace EOBot.Interpreter.States
 
             if (bool.TryParse(condition.TokenValue, out var conditionValue) && conditionValue)
             {
+                // todo: this is the same evaluation code as while statement, see if there's a way to reuse it
+
+                input.Expect(BotTokenType.NewLine);
+
                 // either: multi-line statement / evaluate statement list (consumes RBrace as end condition)
                 // or:     single statement
-                if ((input.Expect(BotTokenType.LBrace) && !_evaluators.OfType<StatementListEvaluator>().Single().Evaluate(input)) ||
-                    !_evaluators.OfType<StatementEvaluator>().Single().Evaluate(input))
+                // evaluated in separate blocks because we want to check statement list OR statement, not both
+                if (input.Expect(BotTokenType.LBrace))
+                {
+                    if (!_evaluators.OfType<StatementListEvaluator>().Single().Evaluate(input))
+                        return false;
+                }
+                else if (!_evaluators.OfType<StatementEvaluator>().Single().Evaluate(input))
+                {
                     return false;
+                }
 
                 // hack: put the \n token back since StatementList/Statement will have consumed it
                 if (input.Program[input.ExecutionIndex - 1].TokenType == BotTokenType.NewLine)
