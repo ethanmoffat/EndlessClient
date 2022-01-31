@@ -42,10 +42,8 @@ namespace EOBot.Interpreter
             return retList;
         }
 
-        public void Run(ArgumentsParser parsedArgs, IReadOnlyList<BotToken> tokens)
+        public void Run(int botIndex, ArgumentsParser parsedArgs, IReadOnlyList<BotToken> tokens)
         {
-            var setup = new BuiltInIdentifierConfigurator();
-
             var evaluators = new List<IScriptEvaluator>();
             evaluators.Add(new StatementListEvaluator(evaluators));
             evaluators.Add(new StatementEvaluator(evaluators));
@@ -64,8 +62,10 @@ namespace EOBot.Interpreter
             var scriptEvaluator = new ScriptEvaluator(evaluators);
 
             ProgramState input = new ProgramState(tokens);
-            setup.SetupBuiltInFunctions(input);
-            setup.SetupBuiltInVariables(input, parsedArgs);
+            
+            var setup = new BuiltInIdentifierConfigurator(input, botIndex);
+            setup.SetupBuiltInFunctions();
+            setup.SetupBuiltInVariables(parsedArgs);
 
             if (!scriptEvaluator.Evaluate(input))
             {

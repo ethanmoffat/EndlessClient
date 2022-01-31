@@ -198,7 +198,7 @@ namespace EOBot
                 var interpreter = new BotInterpreter(parsedArgs.ScriptFile);
 
                 var tokens = interpreter.Parse();
-                interpreter.Run(parsedArgs, tokens);
+                interpreter.Run(0, parsedArgs, tokens);
             }
             else
             {

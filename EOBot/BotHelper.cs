@@ -1,11 +1,9 @@
-﻿using EOLib;
-using EOLib.Domain.Account;
+﻿using EOLib.Domain.Account;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Actions;
-using EOLib.Net.API;
 using EOLib.Net.FileTransfer;
 using System;
 using System.IO;
@@ -28,7 +26,7 @@ namespace EOBot
         public async Task<AccountReply> CreateAccountAsync(string name, string password)
         {
             var accountActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IAccountActions>();
-            var accParams = new CreateAccountParameters(name, password, password, name, name, name + "@test.com");
+            var accParams = new CreateAccountParameters(name, password, password, name, name, name + "@eobot.net");
             return await accountActions.CreateAccount(accParams);
         }
 
@@ -87,6 +85,37 @@ namespace EOBot
                 await fileRequestActions.GetClassFileFromServer();
 
             await loginActions.CompleteCharacterLogin();
+        }
+
+        public async Task<AccountReply> ChangePasswordAsync(string name, string oldPass, string newPass)
+        {
+            var accountActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<IAccountActions>();
+            var accParams = new ChangePasswordParameters(name, oldPass, newPass);
+            return await accountActions.ChangePassword(accParams);
+        }
+
+        public async Task<CharacterReply> DeleteCharacterAsync(string name, bool force)
+        {
+            var characterSelectorRepository = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterSelectorRepository>();
+            characterSelectorRepository.CharacterForDelete = characterSelectorRepository.Characters.SingleOrDefault(x => x.Name == name);
+
+            if (characterSelectorRepository.CharacterForDelete == null)
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Character {name} could not be deleted / does not exist");
+                return CharacterReply.THIS_IS_WRONG;
+            }
+
+            var characterActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterManagementActions>();
+            await characterActions.RequestCharacterDelete();
+
+            if (!force)
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, "DELETING CHARACTER - ARE YOU SURE [Y/N]?", ConsoleColor.Yellow);
+                if (Console.ReadLine().ToLower() != "y")
+                    return CharacterReply.NotApproved;
+            }
+
+            return await characterActions.DeleteCharacter();
         }
     }
 }
