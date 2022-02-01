@@ -23,13 +23,13 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class VoidFunctionRef<TParam1> : ICallable
+    public class VoidFunction<TParam1> : ICallable
     {
         private readonly Action<TParam1> _referenceFunc;
 
         public string StringValue { get; }
 
-        public VoidFunctionRef(string functionName, Action<TParam1> referenceFunc)
+        public VoidFunction(string functionName, Action<TParam1> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
@@ -45,13 +45,13 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class VoidFunctionRef<TParam1, TParam2> : ICallable
+    public class VoidFunction<TParam1, TParam2> : ICallable
     {
         private readonly Action<TParam1, TParam2> _referenceFunc;
 
         public string StringValue { get; }
 
-        public VoidFunctionRef(string functionName, Action<TParam1, TParam2> referenceFunc)
+        public VoidFunction(string functionName, Action<TParam1, TParam2> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
@@ -66,13 +66,13 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class VoidFunctionRef<TParam1, TParam2, TParam3> : ICallable
+    public class VoidFunction<TParam1, TParam2, TParam3> : ICallable
     {
         private readonly Action<TParam1, TParam2, TParam3> _referenceFunc;
 
         public string StringValue { get; }
 
-        public VoidFunctionRef(string functionName, Action<TParam1, TParam2, TParam3> referenceFunc)
+        public VoidFunction(string functionName, Action<TParam1, TParam2, TParam3> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
@@ -87,13 +87,13 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class VoidFunctionRef<TParam1, TParam2, TParam3, TParam4> : ICallable
+    public class VoidFunction<TParam1, TParam2, TParam3, TParam4> : ICallable
     {
         private readonly Action<TParam1, TParam2, TParam3, TParam4> _referenceFunc;
 
         public string StringValue { get; }
 
-        public VoidFunctionRef(string functionName, Action<TParam1, TParam2, TParam3, TParam4> referenceFunc)
+        public VoidFunction(string functionName, Action<TParam1, TParam2, TParam3, TParam4> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
@@ -108,13 +108,13 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class VoidFunctionRef<TParam1, TParam2, TParam3, TParam4, TParam5> : ICallable
+    public class VoidFunction<TParam1, TParam2, TParam3, TParam4, TParam5> : ICallable
     {
         private readonly Action<TParam1, TParam2, TParam3, TParam4, TParam5> _referenceFunc;
 
         public string StringValue { get; }
 
-        public VoidFunctionRef(string functionName, Action<TParam1, TParam2, TParam3, TParam4, TParam5> referenceFunc)
+        public VoidFunction(string functionName, Action<TParam1, TParam2, TParam3, TParam4, TParam5> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;

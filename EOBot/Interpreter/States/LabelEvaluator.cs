@@ -1,10 +1,12 @@
-﻿namespace EOBot.Interpreter.States
+﻿using System.Threading.Tasks;
+
+namespace EOBot.Interpreter.States
 {
     public class LabelEvaluator : IScriptEvaluator
     {
-        public bool Evaluate(ProgramState input)
+        public Task<bool> EvaluateAsync(ProgramState input)
         {
-            return input.ExpectPair(BotTokenType.Identifier, BotTokenType.Colon);
+            return Task.FromResult(input.ExpectPair(BotTokenType.Identifier, BotTokenType.Colon));
         }
     }
 }

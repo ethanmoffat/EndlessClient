@@ -1,5 +1,6 @@
 ﻿using EOBot.Interpreter.Extensions;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
@@ -8,7 +9,7 @@ namespace EOBot.Interpreter.States
         public WhileEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override bool Evaluate(ProgramState input)
+        public override async Task<bool> EvaluateAsync(ProgramState input)
         {
             // ensure we have the right keyword before advancing the program
             var current = input.Current();
@@ -19,11 +20,11 @@ namespace EOBot.Interpreter.States
 
             bool ok;
             VariableBotToken condition;
-            for ((ok, condition) = EvaluateCondition(whileLoopStartIndex, input);
+            for ((ok, condition) = await EvaluateConditionAsync(whileLoopStartIndex, input);
                  ok && bool.TryParse(condition.TokenValue, out var conditionValue) && conditionValue;
-                 (ok, condition) = EvaluateCondition(whileLoopStartIndex, input))
+                 (ok, condition) = await EvaluateConditionAsync(whileLoopStartIndex, input))
             {
-                if (!EvaluateBlock(input))
+                if (!await EvaluateBlockAsync(input))
                     return false;
             }
 

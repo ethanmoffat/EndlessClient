@@ -1,7 +1,9 @@
-﻿namespace EOBot.Interpreter.States
+﻿using System.Threading.Tasks;
+
+namespace EOBot.Interpreter.States
 {
     public interface IScriptEvaluator
     {
-        bool Evaluate(ProgramState input);
+        Task<bool> EvaluateAsync(ProgramState input);
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter
 {
@@ -52,7 +53,7 @@ namespace EOBot.Interpreter
             return input;
         }
 
-        public void Run(ProgramState programState)
+        public async Task Run(ProgramState programState)
         {
             var evaluators = new List<IScriptEvaluator>();
             evaluators.Add(new StatementListEvaluator(evaluators));
@@ -71,7 +72,7 @@ namespace EOBot.Interpreter
 
             var scriptEvaluator = new ScriptEvaluator(evaluators);
 
-            if (!scriptEvaluator.Evaluate(programState))
+            if (!await scriptEvaluator.EvaluateAsync(programState))
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, "Error during execution! //todo: better error handling", ConsoleColor.Red);
             }

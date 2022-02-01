@@ -1,6 +1,7 @@
 ﻿using EOBot.Interpreter.Variables;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
@@ -13,11 +14,11 @@ namespace EOBot.Interpreter.States
             _evaluators = evaluators;
         }
 
-        public bool Evaluate(ProgramState input)
+        public async Task<bool> EvaluateAsync(ProgramState input)
         {
             if (input.Expect(BotTokenType.LParen))
             {
-                if (!_evaluators.OfType<ExpressionEvaluator>().Single().Evaluate(input))
+                if (!await _evaluators.OfType<ExpressionEvaluator>().Single().EvaluateAsync(input))
                     return false;
 
                 // if we get an RParen just be done
@@ -25,7 +26,7 @@ namespace EOBot.Interpreter.States
                     return true;
 
                 // expression_tail is optional
-                if (!_evaluators.OfType<ExpressionTailEvaluator>().Single().Evaluate(input))
+                if (!await _evaluators.OfType<ExpressionTailEvaluator>().Single().EvaluateAsync(input))
                 {
                     if (input.OperationStack.Count == 0)
                         return false;
@@ -43,20 +44,20 @@ namespace EOBot.Interpreter.States
             else
             {
                 // an expression can be a function call
-                if (_evaluators.OfType<FunctionEvaluator>().Single().Evaluate(input))
+                if (await _evaluators.OfType<FunctionEvaluator>().Single().EvaluateAsync(input))
                 {
                     // there may or may not be an expression tail after a function call
-                    if (!_evaluators.OfType<ExpressionTailEvaluator>().Single().Evaluate(input))
+                    if (!await _evaluators.OfType<ExpressionTailEvaluator>().Single().EvaluateAsync(input))
                         return true;
                 }
                 else
                 {
 
-                    if (!_evaluators.OfType<OperandEvaluator>().Single().Evaluate(input))
+                    if (!await _evaluators.OfType<OperandEvaluator>().Single().EvaluateAsync(input))
                         return false;
 
                     // expression_tail is optional
-                    if (!_evaluators.OfType<ExpressionTailEvaluator>().Single().Evaluate(input))
+                    if (!await _evaluators.OfType<ExpressionTailEvaluator>().Single().EvaluateAsync(input))
                     {
                         if (input.OperationStack.Count == 0)
                             return false;

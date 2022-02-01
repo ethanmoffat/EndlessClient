@@ -121,8 +121,10 @@
     <Compile Include="Interpreter\Variables\ArrayVariable.cs" />
     <Compile Include="Interpreter\Variables\BoolVariable.cs" />
     <Compile Include="Interpreter\VariableBotToken.cs" />
+    <Compile Include="Interpreter\Variables\AsyncFunction.cs" />
     <Compile Include="Interpreter\Variables\PredefinedIdentifiers.cs" />
     <Compile Include="Interpreter\Variables\UndefinedVariable.cs" />
+    <Compile Include="Interpreter\Variables\AsyncVoidFunction.cs" />
     <Compile Include="Interpreter\Variables\VoidFunction.cs" />
     <Compile Include="Interpreter\Variables\Function.cs" />
     <Compile Include="Interpreter\Variables\ICallable.cs" />

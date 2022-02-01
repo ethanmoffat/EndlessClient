@@ -10,6 +10,8 @@ using EOLib.Net.PacketProcessing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter
 {
@@ -30,26 +32,26 @@ namespace EOBot.Interpreter
 
         public void SetupBuiltInFunctions()
         {
-            var printFunc = new VoidFunctionRef<object>(PredefinedIdentifiers.PRINT_FUNC, param1 => ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, param1.ToString()));
-            _state.SymbolTable[PredefinedIdentifiers.PRINT_FUNC] = (true, printFunc);
+            _state.SymbolTable[PredefinedIdentifiers.PRINT_FUNC] = Readonly(new VoidFunction<object>(PredefinedIdentifiers.PRINT_FUNC, param1 => ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, param1.ToString())));
+            _state.SymbolTable[PredefinedIdentifiers.LEN_FUNC] = Readonly(new Function<ArrayVariable, int>(PredefinedIdentifiers.LEN_FUNC, param1 => param1.Value.Count));
+            _state.SymbolTable[PredefinedIdentifiers.ARRAY_FUNC] = Readonly(new Function<int, List<IVariable>>(PredefinedIdentifiers.ARRAY_FUNC, param1 => Enumerable.Repeat(UndefinedVariable.Instance, param1).Cast<IVariable>().ToList()));
+            _state.SymbolTable[PredefinedIdentifiers.SLEEP] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.SLEEP, param1 => Thread.Sleep(param1)));
 
-            var lenFunc = new FunctionRef<ArrayVariable, int>(PredefinedIdentifiers.LEN_FUNC, param1 => param1.Value.Count);
-            _state.SymbolTable[PredefinedIdentifiers.LEN_FUNC] = (true, lenFunc);
+            BotDependencySetup();
+            _state.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC] = Readonly(new AsyncVoidFunction<string, int>(PredefinedIdentifiers.CONNECT_FUNC, ConnectAsync));
+            _state.SymbolTable[PredefinedIdentifiers.DISCONNECT_FUNC] = Readonly(new VoidFunction(PredefinedIdentifiers.DISCONNECT_FUNC, Disconnect));
+            _state.SymbolTable[PredefinedIdentifiers.CREATE_ACCOUNT_FUNC] = Readonly(new AsyncFunction<string, string, int>(PredefinedIdentifiers.CREATE_ACCOUNT_FUNC, CreateAccountAsync));
+            _state.SymbolTable[PredefinedIdentifiers.LOGIN_FUNC] = Readonly(new AsyncFunction<string, string, int>(PredefinedIdentifiers.LOGIN_FUNC, LoginAsync));
+            _state.SymbolTable[PredefinedIdentifiers.CREATE_AND_LOGIN_FUNC] = Readonly(new AsyncFunction<string, string, int>(PredefinedIdentifiers.CREATE_AND_LOGIN_FUNC, CreateAndLoginAsync));
+            _state.SymbolTable[PredefinedIdentifiers.CHANGE_PASS_FUNC] = Readonly(new AsyncFunction<string, string, string, int>(PredefinedIdentifiers.CHANGE_PASS_FUNC, ChangePasswordAsync));
+            _state.SymbolTable[PredefinedIdentifiers.CREATE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, int>(PredefinedIdentifiers.CREATE_CHARACTER_FUNC, CreateCharacterAsync));
+            _state.SymbolTable[PredefinedIdentifiers.DELETE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, bool, int>(PredefinedIdentifiers.DELETE_CHARACTER_FUNC, DeleteCharacterAsync));
+            _state.SymbolTable[PredefinedIdentifiers.LOGIN_CHARACTER_FUNC] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.LOGIN_CHARACTER_FUNC, LoginToCharacterAsync));
+        }
 
-            var arrayFunc = new FunctionRef<int, List<IVariable>>(PredefinedIdentifiers.ARRAY_FUNC,
-                param1 => Enumerable.Repeat(UndefinedVariable.Instance, param1).Cast<IVariable>().ToList());
-            _state.SymbolTable[PredefinedIdentifiers.ARRAY_FUNC] = (true, arrayFunc);
-
-            BotSetup();
-            _state.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC] = (true, new VoidFunctionRef<string, int>(PredefinedIdentifiers.CONNECT_FUNC, ConnectDefinition));
-            _state.SymbolTable[PredefinedIdentifiers.DISCONNECT_FUNC] = (true, new VoidFunction(PredefinedIdentifiers.DISCONNECT_FUNC, DisconnectDefinition));
-            _state.SymbolTable[PredefinedIdentifiers.CREATE_ACCOUNT_FUNC] = (true, new FunctionRef<string, string, int>(PredefinedIdentifiers.CREATE_ACCOUNT_FUNC, (user, pass) => (int)_botHelper.CreateAccountAsync(user, pass).GetAwaiter().GetResult()));
-            _state.SymbolTable[PredefinedIdentifiers.LOGIN_FUNC] = (true, new FunctionRef<string, string, int>(PredefinedIdentifiers.LOGIN_FUNC, (user, pass) => (int)_botHelper.LoginToAccountAsync(user, pass).GetAwaiter().GetResult()));
-            _state.SymbolTable[PredefinedIdentifiers.CREATE_AND_LOGIN_FUNC] = (true, new FunctionRef<string, string, int>(PredefinedIdentifiers.CREATE_AND_LOGIN_FUNC, CreateAndLoginDefinition));
-            _state.SymbolTable[PredefinedIdentifiers.CHANGE_PASS_FUNC] = (true, new FunctionRef<string, string, string, int>(PredefinedIdentifiers.CHANGE_PASS_FUNC, (user, oldPass, newPass) => (int)_botHelper.ChangePasswordAsync(user, oldPass, newPass).GetAwaiter().GetResult()));
-            _state.SymbolTable[PredefinedIdentifiers.CREATE_CHARACTER_FUNC] = (true, new FunctionRef<string, int>(PredefinedIdentifiers.CREATE_CHARACTER_FUNC, name => (int)_botHelper.CreateCharacterAsync(name).GetAwaiter().GetResult()));
-            _state.SymbolTable[PredefinedIdentifiers.DELETE_CHARACTER_FUNC] = (true, new FunctionRef<string, bool, int>(PredefinedIdentifiers.DELETE_CHARACTER_FUNC, (name, force) => (int)_botHelper.DeleteCharacterAsync(name, force).GetAwaiter().GetResult()));
-            _state.SymbolTable[PredefinedIdentifiers.LOGIN_CHARACTER_FUNC] = (true, new VoidFunctionRef<string>(PredefinedIdentifiers.LOGIN_CHARACTER_FUNC, name => _botHelper.LoginToCharacterAsync(name).GetAwaiter().GetResult()));
+        private static (bool, IIdentifiable) Readonly(IIdentifiable identifiable)
+        {
+            return (true, identifiable);
         }
 
         public void SetupBuiltInVariables()
@@ -71,7 +73,7 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.MAPSTATE] = (true, UndefinedVariable.Instance);
         }
 
-        private void BotSetup()
+        private void BotDependencySetup()
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
             var networkClientRepository = c.Resolve<INetworkClientRepository>();
@@ -79,7 +81,7 @@ namespace EOBot.Interpreter
             networkClientRepository.NetworkClient = networkClientFactory.CreateNetworkClient();
         }
 
-        private void ConnectDefinition(string host, int port)
+        private async Task ConnectAsync(string host, int port)
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
 
@@ -90,14 +92,14 @@ namespace EOBot.Interpreter
             configRepo.VersionBuild = (byte)((IntVariable)_state.SymbolTable[PredefinedIdentifiers.VERSION].Identifiable).Value;
 
             var connectionActions = c.Resolve<INetworkConnectionActions>();
-            var connectResult = connectionActions.ConnectToServer().GetAwaiter().GetResult();
+            var connectResult = await connectionActions.ConnectToServer();
             if (connectResult != ConnectResult.Success)
                 throw new ArgumentException($"Bot {_botIndex}: Unable to connect to server! Host={host} Port={port}");
 
             var backgroundReceiveActions = c.Resolve<IBackgroundReceiveActions>();
             backgroundReceiveActions.RunBackgroundReceiveLoop();
 
-            var handshakeResult = connectionActions.BeginHandshake().GetAwaiter().GetResult();
+            var handshakeResult = await connectionActions.BeginHandshake();
 
             if (handshakeResult.Response != InitReply.Success)
                 throw new InvalidOperationException($"Bot {_botIndex}: Invalid response from server or connection failed! Must receive an OK reply.");
@@ -112,7 +114,7 @@ namespace EOBot.Interpreter
             connectionActions.CompleteHandshake(handshakeResult);
         }
 
-        private void DisconnectDefinition()
+        private void Disconnect()
         {
             var c = DependencyMaster.TypeRegistry[_botIndex];
             var backgroundReceiveActions = c.Resolve<IBackgroundReceiveActions>();
@@ -122,15 +124,45 @@ namespace EOBot.Interpreter
             connectionActions.DisconnectFromServer();
         }
 
-        private int CreateAndLoginDefinition(string user, string pass)
+        private async Task<int> CreateAccountAsync(string user, string pass)
         {
-            var accountReply = _botHelper.CreateAccountAsync(user, pass).GetAwaiter().GetResult();
+            return (int)await _botHelper.CreateAccountAsync(user, pass);
+        }
+
+        private async Task<int> LoginAsync(string user, string pass)
+        {
+            return (int)await _botHelper.LoginToAccountAsync(user, pass);
+        }
+
+        private async Task<int> CreateAndLoginAsync(string user, string pass)
+        {
+            var accountReply = (AccountReply)await CreateAccountAsync(user, pass);
             if (accountReply == AccountReply.Created || accountReply == AccountReply.Exists)
             {
-                return (int)_botHelper.LoginToAccountAsync(user, pass).GetAwaiter().GetResult();
+                return await LoginAsync(user, pass);
             }
 
             return (int)LoginReply.WrongUser;
+        }
+
+        private async Task<int> ChangePasswordAsync(string user, string oldPass, string newPass)
+        {
+            return (int)await _botHelper.ChangePasswordAsync(user, oldPass, newPass);
+        }
+
+        private async Task<int> CreateCharacterAsync(string charName)
+        {
+            return (int)await _botHelper.CreateCharacterAsync(charName);
+        }
+
+        private async Task<int> DeleteCharacterAsync(string charName, bool force)
+        {
+            return (int)await _botHelper.DeleteCharacterAsync(charName, force);
+        }
+
+        private Task LoginToCharacterAsync(string charName)
+        {
+            return _botHelper.LoginToCharacterAsync(charName);
         }
     }
 }

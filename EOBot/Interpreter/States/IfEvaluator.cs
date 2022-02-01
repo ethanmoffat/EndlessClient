@@ -1,5 +1,6 @@
 ﻿using EOBot.Interpreter.Extensions;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
@@ -8,7 +9,7 @@ namespace EOBot.Interpreter.States
         public IfEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override bool Evaluate(ProgramState input)
+        public override async Task<bool> EvaluateAsync(ProgramState input)
         {
             // ensure we have the right keyword before advancing the program
             var current = input.Current();
@@ -17,21 +18,16 @@ namespace EOBot.Interpreter.States
 
             var ifStartIndex = input.ExecutionIndex;
 
-            var (ok, condition) = EvaluateCondition(ifStartIndex, input);
-            if (ok && bool.TryParse(condition.TokenValue, out var conditionValue) && conditionValue)
-            {
-                if (!EvaluateBlock(input))
-                    return false;
-
-                return true;
-            }
-
+            var (ok, condition) = await EvaluateConditionAsync(ifStartIndex, input);
             if (ok)
             {
+                if (bool.TryParse(condition.TokenValue, out var conditionValue) && conditionValue)
+                    return await EvaluateBlockAsync(input);
+
                 SkipBlock(input);
             }
 
-            return true;
+            return ok;
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using AutomaticTypeMapper;
-using EOBot.Interpreter;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
@@ -7,9 +6,7 @@ using EOLib.Domain.Notifiers;
 using EOLib.Domain.NPC;
 using EOLib.IO.Repositories;
 using System;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace EOBot

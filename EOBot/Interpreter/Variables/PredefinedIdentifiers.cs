@@ -21,6 +21,7 @@
         public const string PRINT_FUNC = "print";
         public const string LEN_FUNC = "len";
         public const string ARRAY_FUNC = "array";
+        public const string SLEEP = "sleep";
 
         // game functions
         public const string CONNECT_FUNC = "Connect";

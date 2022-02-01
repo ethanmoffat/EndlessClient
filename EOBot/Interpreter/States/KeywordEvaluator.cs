@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
@@ -12,20 +13,20 @@ namespace EOBot.Interpreter.States
             _evaluators = evaluators;
         }
 
-        public bool Evaluate(ProgramState input)
+        public async Task<bool> EvaluateAsync(ProgramState input)
         {
-            return Evaluate<IfEvaluator>(input)
-                    || Evaluate<WhileEvaluator>(input)
-                    || Evaluate<GotoEvaluator>(input);
+            return await Evaluate<IfEvaluator>(input)
+                    || await Evaluate<WhileEvaluator>(input)
+                    || await Evaluate<GotoEvaluator>(input);
         }
 
-        private bool Evaluate<T>(ProgramState input)
+        private Task<bool> Evaluate<T>(ProgramState input)
             where T : IScriptEvaluator
         {
             return _evaluators
                 .OfType<T>()
                 .Single()
-                .Evaluate(input);
+                .EvaluateAsync(input);
         }
     }
 }

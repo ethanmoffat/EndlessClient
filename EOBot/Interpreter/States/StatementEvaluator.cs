@@ -1,6 +1,7 @@
 ﻿using EOBot.Interpreter.Extensions;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
@@ -13,25 +14,25 @@ namespace EOBot.Interpreter.States
             _evaluators = evaluators;
         }
 
-        public bool Evaluate(ProgramState input)
+        public async Task<bool> EvaluateAsync(ProgramState input)
         {
             while (input.Current().TokenType == BotTokenType.NewLine)
                 input.Expect(BotTokenType.NewLine);
 
-            return (Evaluate<AssignmentEvaluator>(input)
-                    || Evaluate<KeywordEvaluator>(input)
-                    || Evaluate<LabelEvaluator>(input)
-                    || Evaluate<FunctionEvaluator>(input))
+            return (await Evaluate<AssignmentEvaluator>(input)
+                    || await Evaluate<KeywordEvaluator>(input)
+                    || await Evaluate<LabelEvaluator>(input)
+                    || await Evaluate<FunctionEvaluator>(input))
                     && (input.Expect(BotTokenType.NewLine) || input.Expect(BotTokenType.EOF));
         }
 
-        private bool Evaluate<T>(ProgramState input)
+        private Task<bool> Evaluate<T>(ProgramState input)
             where T : IScriptEvaluator
         {
             return _evaluators
                 .OfType<T>()
                 .Single()
-                .Evaluate(input);
+                .EvaluateAsync(input);
         }
     }
 }

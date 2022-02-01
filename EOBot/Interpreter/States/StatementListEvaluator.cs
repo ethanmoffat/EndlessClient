@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
@@ -12,10 +13,11 @@ namespace EOBot.Interpreter.States
             _evaluators = evaluators;
         }
 
-        public bool Evaluate(ProgramState input)
+        public async Task<bool> EvaluateAsync(ProgramState input)
         {
-            return _evaluators.OfType<StatementEvaluator>().Single().Evaluate(input)
-                && (input.Expect(BotTokenType.EOF) || input.Expect(BotTokenType.RBrace) || this.Evaluate(input));
+            // todo: iterative approach so call stack doesn't get huge
+            return await _evaluators.OfType<StatementEvaluator>().Single().EvaluateAsync(input)
+                && (input.Expect(BotTokenType.EOF) || input.Expect(BotTokenType.RBrace) || await this.EvaluateAsync(input));
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
@@ -12,9 +13,9 @@ namespace EOBot.Interpreter.States
             _evaluators = evaluators;
         }
 
-        public bool Evaluate(ProgramState input)
+        public async Task<bool> EvaluateAsync(ProgramState input)
         {
-            return _evaluators.OfType<VariableEvaluator>().Single().Evaluate(input) ||
+            return await _evaluators.OfType<VariableEvaluator>().Single().EvaluateAsync(input) ||
                 input.Match(BotTokenType.Literal);
         }
     }

@@ -2,6 +2,7 @@
 using EOBot.Interpreter.Variables;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
@@ -14,15 +15,15 @@ namespace EOBot.Interpreter.States
             _evaluators = evaluators;
         }
 
-        public abstract bool Evaluate(ProgramState input);
+        public abstract Task<bool> EvaluateAsync(ProgramState input);
 
-        protected (bool, VariableBotToken) EvaluateCondition(int whileLoopStartIndex, ProgramState input)
+        protected async Task<(bool, VariableBotToken)> EvaluateConditionAsync(int blockStartIndex, ProgramState input)
         {
-            input.Goto(whileLoopStartIndex);
+            input.Goto(blockStartIndex);
 
             if (!input.Expect(BotTokenType.Keyword) ||
                 !input.Expect(BotTokenType.LParen) ||
-                !_evaluators.OfType<ExpressionEvaluator>().Single().Evaluate(input) ||
+                !await _evaluators.OfType<ExpressionEvaluator>().Single().EvaluateAsync(input) ||
                 !input.Expect(BotTokenType.RParen))
                 return (false, new VariableBotToken(BotTokenType.Error, string.Empty, UndefinedVariable.Instance));
 
@@ -32,7 +33,7 @@ namespace EOBot.Interpreter.States
             return (true, (VariableBotToken)input.OperationStack.Pop());
         }
 
-        protected bool EvaluateBlock(ProgramState input)
+        protected async Task<bool> EvaluateBlockAsync(ProgramState input)
         {
             input.Expect(BotTokenType.NewLine);
 
@@ -41,10 +42,10 @@ namespace EOBot.Interpreter.States
             // evaluated in separate blocks because we want to check statement list OR statement, not both
             if (input.Expect(BotTokenType.LBrace))
             {
-                if (!_evaluators.OfType<StatementListEvaluator>().Single().Evaluate(input))
+                if (!await _evaluators.OfType<StatementListEvaluator>().Single().EvaluateAsync(input))
                     return false;
             }
-            else if (!_evaluators.OfType<StatementEvaluator>().Single().Evaluate(input))
+            else if (!await _evaluators.OfType<StatementEvaluator>().Single().EvaluateAsync(input))
             {
                 return false;
             }
@@ -61,7 +62,7 @@ namespace EOBot.Interpreter.States
             // potential newline character - skip so we can advance execution beyond the block
             input.Expect(BotTokenType.NewLine);
 
-            // skip the rest of the block (same as if statement)
+            // skip the rest of the block
             if (input.Expect(BotTokenType.LBrace))
             {
                 int rBraceCount = 1;
@@ -77,7 +78,7 @@ namespace EOBot.Interpreter.States
             }
             else
             {
-                // optional newline after if
+                // optional newline after block
                 input.Expect(BotTokenType.NewLine);
 
                 while (input.Current().TokenType != BotTokenType.NewLine && input.Current().TokenType != BotTokenType.EOF)

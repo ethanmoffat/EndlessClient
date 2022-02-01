@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.Variables
 {
-    public class Function<T> : ICallable<T>
+    public class AsyncFunction<T> : IAsyncCallable<T>
     {
-        private readonly Func<T> _referenceFunc;
+        private readonly Func<Task<T>> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<T> referenceFunc)
+        public AsyncFunction(string functionName, Func<Task<T>> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task<T> CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
                 throw new ArgumentException("Calling parameterless function with parameters", nameof(parameters));
@@ -23,19 +24,19 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class Function<TParam1, T> : ICallable<T>
+    public class AsyncFunction<TParam1, T> : IAsyncCallable<T>
     {
-        private readonly Func<TParam1, T> _referenceFunc;
+        private readonly Func<TParam1, Task<T>> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<TParam1, T> referenceFunc)
+        public AsyncFunction(string functionName, Func<TParam1, Task<T>> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task<T> CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 1)
                 throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
@@ -45,19 +46,19 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class Function<TParam1, TParam2, T> : ICallable<T>
+    public class AsyncFunction<TParam1, TParam2, T> : IAsyncCallable<T>
     {
-        private readonly Func<TParam1, TParam2, T> _referenceFunc;
+        private readonly Func<TParam1, TParam2, Task<T>> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<TParam1, TParam2, T> referenceFunc)
+        public AsyncFunction(string functionName, Func<TParam1, TParam2, Task<T>> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task<T> CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 2)
                 throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
@@ -66,19 +67,19 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class Function<TParam1, TParam2, TParam3, T> : ICallable<T>
+    public class AsyncFunction<TParam1, TParam2, TParam3, T> : IAsyncCallable<T>
     {
-        private readonly Func<TParam1, TParam2, TParam3, T> _referenceFunc;
+        private readonly Func<TParam1, TParam2, TParam3, Task<T>> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<TParam1, TParam2, TParam3, T> referenceFunc)
+        public AsyncFunction(string functionName, Func<TParam1, TParam2, TParam3, Task<T>> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task<T> CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
                 throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
@@ -87,19 +88,19 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class Function<TParam1, TParam2, TParam3, TParam4, T> : ICallable<T>
+    public class AsyncFunction<TParam1, TParam2, TParam3, TParam4, T> : IAsyncCallable<T>
     {
-        private readonly Func<TParam1, TParam2, TParam3, TParam4, T> _referenceFunc;
+        private readonly Func<TParam1, TParam2, TParam3, TParam4, Task<T>> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<TParam1, TParam2, TParam3, TParam4, T> referenceFunc)
+        public AsyncFunction(string functionName, Func<TParam1, TParam2, TParam3, TParam4, Task<T>> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task<T> CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
                 throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
@@ -108,19 +109,19 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class Function<TParam1, TParam2, TParam3, TParam4, TParam5, T> : ICallable<T>
+    public class AsyncFunction<TParam1, TParam2, TParam3, TParam4, TParam5, T> : IAsyncCallable<T>
     {
-        private readonly Func<TParam1, TParam2, TParam3, TParam4, TParam5, T> _referenceFunc;
+        private readonly Func<TParam1, TParam2, TParam3, TParam4, TParam5, Task<T>> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<TParam1, TParam2, TParam3, TParam4, TParam5, T> referenceFunc)
+        public AsyncFunction(string functionName, Func<TParam1, TParam2, TParam3, TParam4, TParam5, Task<T>> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task<T> CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
                 throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));

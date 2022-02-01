@@ -1,20 +1,21 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.Variables
 {
-    public class Function<T> : ICallable<T>
+    public class AsyncVoidFunction : IAsyncCallable
     {
-        private readonly Func<T> _referenceFunc;
+        private readonly Func<Task> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<T> referenceFunc)
+        public AsyncVoidFunction(string functionName, Func<Task> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
                 throw new ArgumentException("Calling parameterless function with parameters", nameof(parameters));
@@ -23,19 +24,19 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class Function<TParam1, T> : ICallable<T>
+    public class AsyncVoidFunction<TParam1> : IAsyncCallable
     {
-        private readonly Func<TParam1, T> _referenceFunc;
+        private readonly Func<TParam1, Task> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<TParam1, T> referenceFunc)
+        public AsyncVoidFunction(string functionName, Func<TParam1, Task> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 1)
                 throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
@@ -45,19 +46,19 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class Function<TParam1, TParam2, T> : ICallable<T>
+    public class AsyncVoidFunction<TParam1, TParam2> : IAsyncCallable
     {
-        private readonly Func<TParam1, TParam2, T> _referenceFunc;
+        private readonly Func<TParam1, TParam2, Task> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<TParam1, TParam2, T> referenceFunc)
+        public AsyncVoidFunction(string functionName, Func<TParam1, TParam2, Task> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 2)
                 throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
@@ -66,19 +67,19 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class Function<TParam1, TParam2, TParam3, T> : ICallable<T>
+    public class AsyncVoidFunction<TParam1, TParam2, TParam3> : IAsyncCallable
     {
-        private readonly Func<TParam1, TParam2, TParam3, T> _referenceFunc;
+        private readonly Func<TParam1, TParam2, TParam3, Task> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<TParam1, TParam2, TParam3, T> referenceFunc)
+        public AsyncVoidFunction(string functionName, Func<TParam1, TParam2, TParam3, Task> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
                 throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
@@ -87,19 +88,19 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class Function<TParam1, TParam2, TParam3, TParam4, T> : ICallable<T>
+    public class AsyncVoidFunction<TParam1, TParam2, TParam3, TParam4> : IAsyncCallable
     {
-        private readonly Func<TParam1, TParam2, TParam3, TParam4, T> _referenceFunc;
+        private readonly Func<TParam1, TParam2, TParam3, TParam4, Task> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<TParam1, TParam2, TParam3, TParam4, T> referenceFunc)
+        public AsyncVoidFunction(string functionName, Func<TParam1, TParam2, TParam3, TParam4, Task> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
                 throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
@@ -108,22 +109,22 @@ namespace EOBot.Interpreter.Variables
         }
     }
 
-    public class Function<TParam1, TParam2, TParam3, TParam4, TParam5, T> : ICallable<T>
+    public class AsyncVoidFunction<TParam1, TParam2, TParam3, TParam4, TParam5> : IAsyncCallable
     {
-        private readonly Func<TParam1, TParam2, TParam3, TParam4, TParam5, T> _referenceFunc;
+        private readonly Func<TParam1, TParam2, TParam3, TParam4, TParam5, Task> _referenceFunc;
 
         public string StringValue { get; }
 
-        public Function(string functionName, Func<TParam1, TParam2, TParam3, TParam4, TParam5, T> referenceFunc)
+        public AsyncVoidFunction(string functionName, Func<TParam1, TParam2, TParam3, TParam4, TParam5, Task> referenceFunc)
         {
             StringValue = functionName;
             _referenceFunc = referenceFunc;
         }
 
-        public T Call(params IIdentifiable[] parameters)
+        public Task CallAsync(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
-                throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
+                throw new ArgumentException("Calling VoidVoidFunction with wrong number of parameters", nameof(parameters));
 
             return _referenceFunc((TParam1)(dynamic)parameters[0], (TParam2)(dynamic)parameters[1], (TParam3)(dynamic)parameters[2], (TParam4)(dynamic)parameters[3], (TParam5)(dynamic)parameters[4]);
         }
