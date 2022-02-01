@@ -36,6 +36,7 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.LEN_FUNC] = Readonly(new Function<ArrayVariable, int>(PredefinedIdentifiers.LEN_FUNC, param1 => param1.Value.Count));
             _state.SymbolTable[PredefinedIdentifiers.ARRAY_FUNC] = Readonly(new Function<int, List<IVariable>>(PredefinedIdentifiers.ARRAY_FUNC, param1 => Enumerable.Repeat(UndefinedVariable.Instance, param1).Cast<IVariable>().ToList()));
             _state.SymbolTable[PredefinedIdentifiers.SLEEP] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.SLEEP, param1 => Thread.Sleep(param1)));
+            _state.SymbolTable[PredefinedIdentifiers.TIME] = Readonly(new Function<string>(PredefinedIdentifiers.TIME, () => DateTime.Now.ToLongTimeString()));
 
             BotDependencySetup();
             _state.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC] = Readonly(new AsyncVoidFunction<string, int>(PredefinedIdentifiers.CONNECT_FUNC, ConnectAsync));
@@ -78,7 +79,9 @@ namespace EOBot.Interpreter
             var c = DependencyMaster.TypeRegistry[_botIndex];
             var networkClientRepository = c.Resolve<INetworkClientRepository>();
             var networkClientFactory = c.Resolve<INetworkClientFactory>();
-            networkClientRepository.NetworkClient = networkClientFactory.CreateNetworkClient();
+
+            const int LongReceiveTimeout = 15000;
+            networkClientRepository.NetworkClient = networkClientFactory.CreateNetworkClient(LongReceiveTimeout);
         }
 
         private async Task ConnectAsync(string host, int port)

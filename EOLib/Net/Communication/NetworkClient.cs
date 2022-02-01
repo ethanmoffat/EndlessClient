@@ -27,18 +27,21 @@ namespace EOLib.Net.Communication
 
         public bool Started { get; private set; }
 
+        public TimeSpan ReceiveTimeout { get; }
+
         public NetworkClient(IPacketProcessActions packetProcessActions,
                              IPacketHandlingActions packetHandlingActions,
                              INumberEncoderService numberEncoderService,
-                             ILoggerProvider loggerProvider)
+                             ILoggerProvider loggerProvider,
+                             TimeSpan receiveTimeout)
         {
             _packetProcessActions = packetProcessActions;
             _packetHandlingActions = packetHandlingActions;
             _numberEncoderService = numberEncoderService;
             _loggerProvider = loggerProvider;
+            ReceiveTimeout = receiveTimeout;
 
             _socket = new AsyncSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            
             _backgroundReceiveCTS = new CancellationTokenSource();
         }
 

@@ -3,6 +3,7 @@ using EOLib.IO.Services;
 using EOLib.Logger;
 using EOLib.Net.Handlers;
 using EOLib.Net.PacketProcessing;
+using System;
 
 namespace EOLib.Net.Communication
 {
@@ -25,9 +26,9 @@ namespace EOLib.Net.Communication
             _loggerProvider = loggerProvider;
         }
 
-        public INetworkClient CreateNetworkClient()
+        public INetworkClient CreateNetworkClient(int timeout = Constants.ResponseTimeout)
         {
-            return new NetworkClient(_packetProcessActions, _packetHandlingActions, _numberEncoderService, _loggerProvider);
+            return new NetworkClient(_packetProcessActions, _packetHandlingActions, _numberEncoderService, _loggerProvider, TimeSpan.FromMilliseconds(timeout));
         }
     }
 }
