@@ -12,6 +12,8 @@
 
         public override bool Equals(object obj) => CompareTo(obj) == 0;
 
+        public override int GetHashCode() => Value.GetHashCode();
+
         public int CompareTo(object obj) => obj is IntVariable ? Value.CompareTo(((IntVariable)obj).Value) : -1;
 
         public static explicit operator int(IntVariable input) => input.Value;
