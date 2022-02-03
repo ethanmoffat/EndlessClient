@@ -2,12 +2,13 @@
 
 namespace EOBot.Interpreter.Variables
 {
-    public interface ICallable : IIdentifiable
+    public interface IFunction : IIdentifiable { }
+    public interface ICallable : IFunction
     {
         void Call(params IIdentifiable[] parameters);
     }
 
-    public interface ICallable<T> : IIdentifiable
+    public interface ICallable<T> : IFunction
     {
         T Call(params IIdentifiable[] parameters);
     }

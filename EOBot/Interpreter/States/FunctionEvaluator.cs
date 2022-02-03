@@ -35,9 +35,9 @@ namespace EOBot.Interpreter.States
 
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
-            var endParen = input.OperationStack.Pop();
-            if (endParen.TokenType != BotTokenType.RParen)
-                return StackTokenError(BotTokenType.RParen, endParen);
+            var rParen = input.OperationStack.Pop();
+            if (rParen.TokenType != BotTokenType.RParen)
+                return StackTokenError(BotTokenType.RParen, rParen);
 
             var parameters = new List<VariableBotToken>();
             while (input.OperationStack.Count > 0 && input.OperationStack.Peek().TokenType != BotTokenType.LParen)
@@ -46,20 +46,25 @@ namespace EOBot.Interpreter.States
                 parameters.Insert(0, parameter);
             }
 
-            // todo: check this result
-            input.OperationStack.Pop(); // LParen
+            var lParen = input.OperationStack.Pop();
+            if (lParen.TokenType != BotTokenType.LParen)
+                return StackTokenError(BotTokenType.LParen, lParen);
 
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
             var functionToken = input.OperationStack.Pop();
 
-            // todo: error when function not found
+            if (!input.SymbolTable.ContainsKey(functionToken.TokenValue))
+                return IdentifierNotFoundError(new IdentifierBotToken(BotTokenType.Identifier, functionToken.TokenValue, functionToken.LineNumber, functionToken.Column));
+
             var function = input.SymbolTable[functionToken.TokenValue].Identifiable;
 
             if (function is IAsyncFunction)
                 return await CallAsync(input, functionToken, (dynamic)function, parameters.Select(x => x.VariableValue).ToArray());
-
-            return Call(input, functionToken, (dynamic)function, parameters.Select(x => x.VariableValue).ToArray());
+            else if (function is IFunction)
+                return Call(input, functionToken, (dynamic)function, parameters.Select(x => x.VariableValue).ToArray());
+            else
+                return (EvalResult.Failed, $"Expected identifier {functionToken.TokenValue} to be a function, but it was {function.GetType().Name}", functionToken);
         }
 
         private (EvalResult, string, BotToken) Call(ProgramState input, BotToken functionToken, ICallable function, params IVariable[] variables)
