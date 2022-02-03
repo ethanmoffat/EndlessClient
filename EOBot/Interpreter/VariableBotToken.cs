@@ -7,7 +7,7 @@ namespace EOBot.Interpreter
         public IVariable VariableValue { get; }
 
         public VariableBotToken(BotTokenType tokenType, string tokenValue, IVariable variableValue)
-            : base(tokenType, tokenValue)
+            : base(tokenType, tokenValue, 0, 0)
         {
             VariableValue = variableValue;
         }

@@ -43,7 +43,7 @@ namespace EOBot.Interpreter
         public BotToken GetNextToken()
         {
             if (_inputStream.EndOfStream)
-                return new BotToken(BotTokenType.EOF, string.Empty);
+                return Token(BotTokenType.EOF, string.Empty);
 
             char inputChar;
             do
@@ -54,7 +54,7 @@ namespace EOBot.Interpreter
                 {
                     LineNumber++;
                     Column = 1;
-                    return new BotToken(BotTokenType.NewLine, inputChar.ToString());
+                    return Token(BotTokenType.NewLine, inputChar.ToString());
                 }
 
                 if (inputChar == '/' && !_inputStream.EndOfStream && (char)_inputStream.Peek() == '*')
@@ -79,7 +79,7 @@ namespace EOBot.Interpreter
 
                     LineNumber++;
                     Column = 1;
-                    return new BotToken(BotTokenType.NewLine, inputChar.ToString());
+                    return Token(BotTokenType.NewLine, inputChar.ToString());
                 }
             } while (!_inputStream.EndOfStream && char.IsWhiteSpace(inputChar));
 
@@ -93,34 +93,34 @@ namespace EOBot.Interpreter
                         ? BotTokenType.Keyword
                         : BotTokenType.Identifier;
 
-                return new BotToken(type, identifier);
+                return Token(type, identifier);
             }
             else if (char.IsDigit(inputChar))
             {
                 var number = inputChar.ToString();
                 while (char.IsDigit((char)_inputStream.Peek()))
                     number += Read();
-                return new BotToken(BotTokenType.Literal, number);
+                return Token(BotTokenType.Literal, number);
             }
             else
             {
                 switch(inputChar)
                 {
-                    case '(': return new BotToken(BotTokenType.LParen, inputChar.ToString());
-                    case ')': return new BotToken(BotTokenType.RParen, inputChar.ToString());
-                    case '{': return new BotToken(BotTokenType.LBrace, inputChar.ToString());
-                    case '}': return new BotToken(BotTokenType.RBrace, inputChar.ToString());
-                    case '[': return new BotToken(BotTokenType.LBracket, inputChar.ToString());
-                    case ']': return new BotToken(BotTokenType.RBracket, inputChar.ToString());
-                    case ':': return new BotToken(BotTokenType.Colon, inputChar.ToString());
-                    case ',': return new BotToken(BotTokenType.Comma, inputChar.ToString());
+                    case '(': return Token(BotTokenType.LParen, inputChar.ToString());
+                    case ')': return Token(BotTokenType.RParen, inputChar.ToString());
+                    case '{': return Token(BotTokenType.LBrace, inputChar.ToString());
+                    case '}': return Token(BotTokenType.RBrace, inputChar.ToString());
+                    case '[': return Token(BotTokenType.LBracket, inputChar.ToString());
+                    case ']': return Token(BotTokenType.RBracket, inputChar.ToString());
+                    case ':': return Token(BotTokenType.Colon, inputChar.ToString());
+                    case ',': return Token(BotTokenType.Comma, inputChar.ToString());
                     case '"':
                         {
                             var stringLiteral = string.Empty;
                             while ((char)_inputStream.Peek() != '"')
                                 stringLiteral += Read();
                             Read();
-                            return new BotToken(BotTokenType.Literal, stringLiteral);
+                            return Token(BotTokenType.Literal, stringLiteral);
                         }
                     case '=':
                         {
@@ -128,17 +128,17 @@ namespace EOBot.Interpreter
                             {
                                 case '=':
                                     var nextChar = Read();
-                                    return new BotToken(BotTokenType.EqualOperator, inputChar.ToString() + nextChar);
+                                    return Token(BotTokenType.EqualOperator, inputChar.ToString() + nextChar);
                                 default:
-                                    return new BotToken(BotTokenType.AssignOperator, inputChar.ToString());
+                                    return Token(BotTokenType.AssignOperator, inputChar.ToString());
                             }
                         }
                     case '!':
                         {
                             var nextChar = Read();
                             if (nextChar != '=')
-                                return new BotToken(BotTokenType.Error, inputChar.ToString() + nextChar);
-                            return new BotToken(BotTokenType.NotEqualOperator, inputChar.ToString() + nextChar);
+                                return Token(BotTokenType.Error, inputChar.ToString() + nextChar);
+                            return Token(BotTokenType.NotEqualOperator, inputChar.ToString() + nextChar);
                         }
                     case '>':
                         {
@@ -146,9 +146,9 @@ namespace EOBot.Interpreter
                             {
                                 case '=':
                                     var nextChar = Read();
-                                    return new BotToken(BotTokenType.GreaterThanEqOperator, inputChar.ToString() + nextChar);
+                                    return Token(BotTokenType.GreaterThanEqOperator, inputChar.ToString() + nextChar);
                                 default:
-                                    return new BotToken(BotTokenType.GreaterThanOperator, inputChar.ToString());
+                                    return Token(BotTokenType.GreaterThanOperator, inputChar.ToString());
                             }
                         }
                     case '<':
@@ -157,20 +157,20 @@ namespace EOBot.Interpreter
                             {
                                 case '=':
                                     var nextChar = Read();
-                                    return new BotToken(BotTokenType.LessThanEqOperator, inputChar.ToString() + nextChar);
+                                    return Token(BotTokenType.LessThanEqOperator, inputChar.ToString() + nextChar);
                                 default:
-                                    return new BotToken(BotTokenType.LessThanOperator, inputChar.ToString());
+                                    return Token(BotTokenType.LessThanOperator, inputChar.ToString());
                             }
                         }
                     case '$':
                         {
                             if (_inputStream.EndOfStream)
-                                return new BotToken(BotTokenType.Error, inputChar.ToString());
+                                return Token(BotTokenType.Error, inputChar.ToString());
 
                             // ensure variable starts with letter or underscore before getting variable name
                             inputChar = (char)_inputStream.Peek();
                             if (!char.IsLetter(inputChar) && inputChar != '_')
-                                return new BotToken(BotTokenType.Error, inputChar.ToString());
+                                return Token(BotTokenType.Error, inputChar.ToString());
 
                             var variable = string.Empty;
                             for (inputChar = Peek(); !_inputStream.EndOfStream && (char.IsLetterOrDigit(inputChar) || inputChar == '_'); inputChar = Peek())
@@ -178,15 +178,20 @@ namespace EOBot.Interpreter
                                 variable += Read();
                             }
 
-                            return new BotToken(BotTokenType.Variable, variable);
+                            return Token(BotTokenType.Variable, variable);
                         }
-                    case '+': return new BotToken(BotTokenType.PlusOperator, inputChar.ToString());
-                    case '-': return new BotToken(BotTokenType.MinusOperator, inputChar.ToString());
-                    case '*': return new BotToken(BotTokenType.MultiplyOperator, inputChar.ToString());
-                    case '/': return new BotToken(BotTokenType.DivideOperator, inputChar.ToString());
-                    default: return new BotToken(BotTokenType.Error, inputChar.ToString());
+                    case '+': return Token(BotTokenType.PlusOperator, inputChar.ToString());
+                    case '-': return Token(BotTokenType.MinusOperator, inputChar.ToString());
+                    case '*': return Token(BotTokenType.MultiplyOperator, inputChar.ToString());
+                    case '/': return Token(BotTokenType.DivideOperator, inputChar.ToString());
+                    default: return Token(BotTokenType.Error, inputChar.ToString());
                 }
             }
+        }
+
+        private BotToken Token(BotTokenType tokenType, string tokenValue)
+        {
+            return new BotToken(tokenType, tokenValue, LineNumber, Column);
         }
 
         public void Dispose()
@@ -199,7 +204,6 @@ namespace EOBot.Interpreter
 
         private char Peek()
         {
-            Column++;
             return (char)_inputStream.Peek();
         }
 
