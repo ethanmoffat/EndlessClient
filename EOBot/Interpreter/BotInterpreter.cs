@@ -73,10 +73,18 @@ namespace EOBot.Interpreter
             IScriptEvaluator scriptEvaluator = new ScriptEvaluator(evaluators);
 
             var result = await scriptEvaluator.EvaluateAsync(programState);
-            if (result.Result != EvalResult.Ok)
+            if (result.Result == EvalResult.Failed)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Error during execution at line {result.Token.LineNumber} column {result.Token.Column}", ConsoleColor.DarkRed);
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, result.Reason, ConsoleColor.DarkRed);
+            }
+            else if (result.Result == EvalResult.NotMatch)
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Error at line {result.Token.LineNumber} column {result.Token.Column}: {result.Token.TokenType} {result.Token.TokenValue} was unexpected", ConsoleColor.DarkRed);
+                if (!string.IsNullOrWhiteSpace(result.Reason))
+                {
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, result.Reason, ConsoleColor.DarkRed);
+                }
             }
         }
     }
