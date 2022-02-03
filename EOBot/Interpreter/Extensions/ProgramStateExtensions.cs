@@ -19,6 +19,9 @@ namespace EOBot.Interpreter.Extensions
 
         public static BotToken Current(this ProgramState input)
         {
+            if (input.ExecutionIndex >= input.Program.Count)
+                return input.Program[input.Program.Count - 1];
+
             return input.Program[input.ExecutionIndex];
         }
     }
