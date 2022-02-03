@@ -1,0 +1,87 @@
+name: 0.1.$(rev:rrr)
+
+variables:
+- name: BuildParameters.solution
+  value: EndlessClient.sln
+
+trigger:
+  branches:
+    include:
+    - master
+
+schedules:
+- cron: 0 5 * * 6
+  branches:
+    include:
+    - master
+  always: true
+
+jobs:
+- job: build_and_publish_artifacts
+  displayName: Build + Publish Artifacts
+  pool:
+    vmImage: windows-2019
+  steps:
+  - checkout: self
+    persistCredentials: true
+  - task: NuGetToolInstaller@0
+    displayName: Download nuget.exe
+    inputs:
+      versionSpec: 4.9.3
+      checkLatest: true
+  - task: NuGetCommand@2
+    displayName: NuGet restore
+    inputs:
+      solution: $(BuildParameters.solution)
+  - task: VSBuild@1
+    displayName: Build solution EndlessClient.sln
+    inputs:
+      solution: $(BuildParameters.solution)
+      vsVersion: 16.0
+      platform: $(BuildPlatform)
+      configuration: $(BuildConfiguration)
+      maximumCpuCount: true
+  - task: VSTest@2
+    displayName: Run NUnit unit tests - skipping EOLib.Graphics.Test (not supported on VSTS agent)
+    inputs:
+      testAssemblyVer2: >-
+        **\bin\**\*.Test.dll
+        !**\EOLib.Graphics.Test.dll
+      platform: $(BuildPlatform)
+      configuration: $(BuildConfiguration)
+      diagnosticsEnabled: True
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\EndlessClient'
+    condition: succeededOrFailed()
+    inputs:
+      SourceFolder: $(System.DefaultWorkingDirectory)
+      Contents: bin\$(BuildConfiguration)\**
+      TargetFolder: $(Build.ArtifactStagingDirectory)\EndlessClient
+  - task: CopyFiles@2
+    displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\EOBot'
+    condition: succeededOrFailed()
+    inputs:
+      SourceFolder: $(System.DefaultWorkingDirectory)
+      Contents: bin\utils\EOBot\$(BuildConfiguration)\**
+      TargetFolder: $(Build.ArtifactStagingDirectory)\EOBot
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: EndlessClient'
+    condition: succeededOrFailed()
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)\EndlessClient
+      ArtifactName: EndlessClient
+      TargetPath: '$(Build.DefinitionName)\$(Build.BuildNumber)'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: EOBot'
+    condition: succeededOrFailed()
+    inputs:
+      PathtoPublish: $(Build.ArtifactStagingDirectory)\EOBot
+      ArtifactName: EOBot
+      TargetPath: '$(Build.DefinitionName)\$(Build.BuildNumber)'
+  - task: CmdLine@2
+    displayName: Tag sources on CI/Manual builds
+    condition: or(eq(variables['build.reason'], 'IndividualCI'), eq(variables['build.reason'], 'Manual'))
+    inputs:
+      script: >-
+        git tag build/$(Build.BuildNumber)
+        git push origin build/$(Build.BuildNumber)
