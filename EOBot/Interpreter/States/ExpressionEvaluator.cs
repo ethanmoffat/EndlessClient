@@ -157,27 +157,11 @@ namespace EOBot.Interpreter.States
                 if (identifier == null)
                     return (EvalResult.Failed, $"Expected operand of type Variable or Identifier but got {nextToken.TokenType}", nextToken);
 
-                if (!input.SymbolTable.ContainsKey(identifier.TokenValue))
-                    input.SymbolTable[identifier.TokenValue] = (true, UndefinedVariable.Instance);
+                var getVariableRes = input.GetVariable(identifier.TokenValue, identifier.ArrayIndex);
+                if (getVariableRes.Result != EvalResult.Ok)
+                    return (getVariableRes.Result, getVariableRes.Reason, identifier);
 
-                var variableValue = (IVariable)input.SymbolTable[identifier.TokenValue].Identifiable;
-                if (identifier.ArrayIndex != null)
-                {
-                    var arrayVariable = variableValue as ArrayVariable;
-                    if (arrayVariable == null)
-                    {
-                        return (EvalResult.Failed, $"Identifier {identifier.TokenValue} is not an array", identifier);
-                    }
-
-                    if (arrayVariable.Value.Count <= identifier.ArrayIndex.Value)
-                    {
-                        return (EvalResult.Failed, $"Index {identifier.ArrayIndex} is out of range of the array {identifier.TokenValue} (size {arrayVariable.Value.Count})", identifier);
-                    }
-
-                    variableValue = arrayVariable.Value[identifier.ArrayIndex.Value];
-                }
-
-                operand = new VariableBotToken(BotTokenType.Literal, variableValue.ToString(), variableValue);
+                operand = new VariableBotToken(BotTokenType.Literal, getVariableRes.Variable.ToString(), getVariableRes.Variable);
             }
 
             return Success(operand);

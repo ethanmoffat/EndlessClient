@@ -46,13 +46,11 @@ namespace EOBot.Interpreter.States
                 if (!input.SymbolTable.ContainsKey(variable.TokenValue))
                     return IdentifierNotFoundError(variable);
 
-                var targetArray = input.SymbolTable[variable.TokenValue].Identifiable as ArrayVariable;
-                if (targetArray == null)
-                    return (EvalResult.Failed, $"Identifier {variable.TokenValue} is not an array", variable);
+                var getVariableResult = input.GetVariable<ArrayVariable>(variable.TokenValue, variable.ArrayIndex);
+                if (getVariableResult.Result != EvalResult.Ok)
+                    return (getVariableResult.Result, getVariableResult.Reason, variable);
 
-                if (targetArray.Value.Count <= variable.ArrayIndex.Value)
-                    return (EvalResult.Failed, $"Index {variable.ArrayIndex} is out of range of the array {variable.TokenValue} (size {targetArray.Value.Count})", variable);
-
+                var targetArray = getVariableResult.Variable;
                 targetArray.Value[variable.ArrayIndex.Value] = expressionResult.VariableValue;
             }
             else
