@@ -17,7 +17,7 @@ namespace EOBot.Interpreter.Variables
         public void Call(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
-                throw new ArgumentException("Calling parameterless function with parameters", nameof(parameters));
+                throw new ArgumentException($"Calling parameterless function '{StringValue}' with parameters");
 
             _referenceFunc();
         }
@@ -38,7 +38,7 @@ namespace EOBot.Interpreter.Variables
         public void Call(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 1)
-                throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
+                throw new ArgumentException($"Calling function '{StringValue}' with wrong number of parameters");
 
             // This has to be dynamic because otherwise there is an InvalidCastException trying to use a user-defined conversion operator when the source type is an interface
             _referenceFunc((TParam1)(dynamic)parameters[0]);
@@ -60,7 +60,7 @@ namespace EOBot.Interpreter.Variables
         public void Call(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 2)
-                throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
+                throw new ArgumentException($"Calling function '{StringValue}' with wrong number of parameters");
 
             _referenceFunc((TParam1)(dynamic)parameters[0], (TParam2)(dynamic)parameters[1]);
         }
@@ -81,7 +81,7 @@ namespace EOBot.Interpreter.Variables
         public void Call(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
-                throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
+                throw new ArgumentException($"Calling function '{StringValue}' with wrong number of parameters");
 
             _referenceFunc((TParam1)(dynamic)parameters[0], (TParam2)(dynamic)parameters[1], (TParam3)(dynamic)parameters[2]);
         }
@@ -102,7 +102,7 @@ namespace EOBot.Interpreter.Variables
         public void Call(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
-                throw new ArgumentException("Calling function with wrong number of parameters", nameof(parameters));
+                throw new ArgumentException($"Calling function '{StringValue}' with wrong number of parameters");
 
             _referenceFunc((TParam1)(dynamic)parameters[0], (TParam2)(dynamic)parameters[1], (TParam3)(dynamic)parameters[2], (TParam4)(dynamic)parameters[3]);
         }
@@ -123,7 +123,7 @@ namespace EOBot.Interpreter.Variables
         public void Call(params IIdentifiable[] parameters)
         {
             if (parameters.Length != 0)
-                throw new ArgumentException("Calling VoidVoidFunction with wrong number of parameters", nameof(parameters));
+                throw new ArgumentException($"Calling function '{StringValue}' with wrong number of parameters");
 
             _referenceFunc((TParam1)(dynamic)parameters[0], (TParam2)(dynamic)parameters[1], (TParam3)(dynamic)parameters[2], (TParam4)(dynamic)parameters[3], (TParam5)(dynamic)parameters[4]);
         }
