@@ -294,6 +294,86 @@ namespace EOBot
             Console.WriteLine("\t script:         script file to execute\n\t         if script is not specified, default trainer bot will be used");
             Console.WriteLine("\t autoconnect:    (default true) true to automatically connect/disconnect to server with initDelay timeout between connection attempts for bots, false otherwise");
             Console.WriteLine("\t --: Any arguments passed after '--' will be available in a script under the '$args' array");
+            Console.WriteLine(@"
+===============================================================
+                        Bot Script Info                        
+===============================================================
+GENERAL
+---------------------------------------------------------------
+Semicolons are not part of the script language grammar
+Do not end statements with semicolons
+
+---------------------------------------------------------------
+VARIBLES
+---------------------------------------------------------------
+variables are prefixed with a $
+ex: $var_1 = 1
+datatypes supported: bool, int, string, array
+variables are dynamically typed
+
+---------------------------------------------------------------
+KEYWORDS
+---------------------------------------------------------------
+if ($expression) $statement
+if ($expression) { $statement_list }
+while ($expression) $statement
+while ($expression) { $statement_list }
+goto LABEL
+LABEL:
+
+Labels are a separate set of identifiers from variables
+Labels do not use a $ prefix and do not need to be all caps
+
+---------------------------------------------------------------
+FUNCTIONS
+---------------------------------------------------------------
+Functions are called like normal programming languages
+ex: print(""my message"")
+Functions can be used in any expression, e.g. an array access
+    operation or a keyword evaluation (if/while)
+Parameters to functions can be expressions, variables,
+    or literals
+
+---------------------------------------------------------------
+BUILT-IN IDENTIFIERS AND FUNCTIONS
+---------------------------------------------------------------
+print($message) - returns nothing; writes $message to console
+len($array) - returns int; gets length of $array
+array($size) - returns array; creates a fixed-size array 
+    of $size with all contents set to 'Undefined'
+sleep($time_ms) - returns nothing; sleeps for $time_ms
+    milliseconds
+time() - returns string; gets the current system time in
+    HH:MM:SS format
+
+Connect($host, $port) - connect to a server
+Disconnect() - disconnect from a server
+CreateAccount($user, $pass) - returns AccountReply
+Login($user, $pass) - returns LoginReply
+CreateAndLogin($user, $pass) - returns LoginReply
+ChangePassword($user, $oldpass, $newpass) - returns AccountReply
+CreateCharacter($name) - returns CharacterReply
+DeleteCharacter($name, $force) - returns CharacterReply
+LoginToCharacter($name)
+
+NOTE: IT IS HIGHLY RECOMMENDED TO SLEEP IF USING MULTIPLE BOTS
+    AND CALLING ANY OF THE EO FUNCTIONS ABOVE, SINCE THEY
+    RUN ASYNCHRONOUSLY THEY ARE NOT GUARANTEED TO FINISH BY THE
+    TIME THE SCRIPT FINISHES EXECUTING
+
+$host -     string : host passed via command-line
+$port -     int    : port passed via command-line
+$user -     string : account passed via command-line
+$pass -     string : account password passed via command-line
+$botindex - int    : index of this bot (for when numBots > 1)
+$args -     array  : user-defined arguments passed after '--'
+
+$version -  int    : allows setting client version
+$result -   dynamic: get/set result of last function call
+$account -  object : reserved
+$character - object: reserved
+$mapstate - object : reserved
+");
         }
     }
 }
