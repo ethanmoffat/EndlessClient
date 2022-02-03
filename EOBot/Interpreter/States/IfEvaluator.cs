@@ -9,25 +9,25 @@ namespace EOBot.Interpreter.States
         public IfEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override async Task<bool> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
         {
             // ensure we have the right keyword before advancing the program
             var current = input.Current();
             if (current.TokenType != BotTokenType.Keyword || current.TokenValue != "if")
-                return false;
+                return Error(input.Current(), BotTokenType.Keyword);
 
             var ifStartIndex = input.ExecutionIndex;
 
-            var (ok, condition) = await EvaluateConditionAsync(ifStartIndex, input);
-            if (ok)
+            var (result, reason, token) = await EvaluateConditionAsync(ifStartIndex, input);
+            if (result == EvalResult.Ok)
             {
-                if (bool.TryParse(condition.TokenValue, out var conditionValue) && conditionValue)
+                if (bool.TryParse(token.TokenValue, out var conditionValue) && conditionValue)
                     return await EvaluateBlockAsync(input);
 
                 SkipBlock(input);
             }
 
-            return ok;
+            return (result, reason, token);
         }
     }
 }

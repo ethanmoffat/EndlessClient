@@ -70,11 +70,13 @@ namespace EOBot.Interpreter
             evaluators.Add(new WhileEvaluator(evaluators));
             evaluators.Add(new GotoEvaluator());
 
-            var scriptEvaluator = new ScriptEvaluator(evaluators);
+            IScriptEvaluator scriptEvaluator = new ScriptEvaluator(evaluators);
 
-            if (!await scriptEvaluator.EvaluateAsync(programState))
+            var result = await scriptEvaluator.EvaluateAsync(programState);
+            if (result.Result != EvalResult.Ok)
             {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, "Error during execution! //todo: better error handling", ConsoleColor.Red);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Error during execution at line {result.Token.LineNumber} column {result.Token.Column}", ConsoleColor.DarkRed);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, result.Reason, ConsoleColor.DarkRed);
             }
         }
     }

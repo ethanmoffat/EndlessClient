@@ -9,31 +9,33 @@ namespace EOBot.Interpreter.States
         public WhileEvaluator(IEnumerable<IScriptEvaluator> evaluators)
             : base(evaluators) { }
 
-        public override async Task<bool> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
         {
             // ensure we have the right keyword before advancing the program
             var current = input.Current();
             if (current.TokenType != BotTokenType.Keyword || current.TokenValue != "while")
-                return false;
+                return Error(input.Current(), BotTokenType.Keyword);
 
             var whileLoopStartIndex = input.ExecutionIndex;
 
-            bool ok;
-            VariableBotToken condition;
-            for ((ok, condition) = await EvaluateConditionAsync(whileLoopStartIndex, input);
-                 ok && bool.TryParse(condition.TokenValue, out var conditionValue) && conditionValue;
-                 (ok, condition) = await EvaluateConditionAsync(whileLoopStartIndex, input))
+            EvalResult result;
+            string reason;
+            BotToken token;
+            for ((result, reason, token) = await EvaluateConditionAsync(whileLoopStartIndex, input);
+                 result == EvalResult.Ok && bool.TryParse(token.TokenValue, out var conditionValue) && conditionValue;
+                 (result, reason, token) = await EvaluateConditionAsync(whileLoopStartIndex, input))
             {
-                if (!await EvaluateBlockAsync(input))
-                    return false;
+                var blockEval = await EvaluateBlockAsync(input);
+                if (blockEval.Item1 != EvalResult.Ok)
+                    return blockEval;
             }
 
-            if (ok)
+            if (result == EvalResult.Ok)
             {
                 SkipBlock(input);
             }
 
-            return ok;
+            return (result, reason, token);
         }
     }
 }

@@ -1,23 +1,23 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
-    public class StatementListEvaluator : IScriptEvaluator
+    public class StatementListEvaluator : BaseEvaluator
     {
-        private readonly IEnumerable<IScriptEvaluator> _evaluators;
-
         public StatementListEvaluator(IEnumerable<IScriptEvaluator> evaluators)
-        {
-            _evaluators = evaluators;
-        }
+            : base(evaluators) { }
 
-        public async Task<bool> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
         {
-            // todo: iterative approach so call stack doesn't get huge
-            return await _evaluators.OfType<StatementEvaluator>().Single().EvaluateAsync(input)
-                && (input.Expect(BotTokenType.EOF) || input.Expect(BotTokenType.RBrace) || await this.EvaluateAsync(input));
+            (EvalResult Result, string, BotToken) result;
+
+            do
+            {
+                result = await Evaluator<StatementEvaluator>().EvaluateAsync(input);
+            } while (result.Result == EvalResult.Ok && !input.Expect(BotTokenType.EOF) && !input.Expect(BotTokenType.RBrace));
+
+            return result;
         }
     }
 }

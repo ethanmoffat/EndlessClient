@@ -1,38 +1,40 @@
 ﻿using EOBot.Interpreter.Extensions;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
-    public class StatementEvaluator : IScriptEvaluator
+    public class StatementEvaluator : BaseEvaluator
     {
-        private readonly IEnumerable<IScriptEvaluator> _evaluators;
-
         public StatementEvaluator(IEnumerable<IScriptEvaluator> evaluators)
-        {
-            _evaluators = evaluators;
-        }
+            : base(evaluators) { }
 
-        public async Task<bool> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
         {
             while (input.Current().TokenType == BotTokenType.NewLine)
                 input.Expect(BotTokenType.NewLine);
 
-            return (await Evaluate<AssignmentEvaluator>(input)
-                    || await Evaluate<KeywordEvaluator>(input)
-                    || await Evaluate<LabelEvaluator>(input)
-                    || await Evaluate<FunctionEvaluator>(input))
-                    && (input.Expect(BotTokenType.NewLine) || input.Expect(BotTokenType.EOF));
-        }
+            var (result, reason, token) = await Evaluator<AssignmentEvaluator>().EvaluateAsync(input);
+            if (result == EvalResult.NotMatch)
+            {
+                (result, reason, token) = await Evaluator<KeywordEvaluator>().EvaluateAsync(input);
+                if (result == EvalResult.NotMatch)
+                {
+                    (result, reason, token) = await Evaluator<LabelEvaluator>().EvaluateAsync(input);
+                    if (result == EvalResult.NotMatch)
+                    {
+                        (result, reason, token) = await Evaluator<FunctionEvaluator>().EvaluateAsync(input);
+                    }
+                }
+            }
 
-        private Task<bool> Evaluate<T>(ProgramState input)
-            where T : IScriptEvaluator
-        {
-            return _evaluators
-                .OfType<T>()
-                .Single()
-                .EvaluateAsync(input);
+            if (result != EvalResult.Ok)
+                return (result, reason, token);
+
+            if (!input.Expect(BotTokenType.NewLine) && !input.Expect(BotTokenType.EOF))
+                return Error(input.Current(), BotTokenType.NewLine, BotTokenType.EOF);
+
+            return (result, reason, token);
         }
     }
 }

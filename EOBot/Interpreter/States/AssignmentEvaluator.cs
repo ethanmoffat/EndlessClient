@@ -1,59 +1,72 @@
-﻿using EOBot.Interpreter.Variables;
+﻿using EOBot.Interpreter.Extensions;
+using EOBot.Interpreter.Variables;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
-    public class AssignmentEvaluator : IScriptEvaluator
+    public class AssignmentEvaluator : BaseEvaluator
     {
-        private readonly IEnumerable<IScriptEvaluator> _evaluators;
-
         public AssignmentEvaluator(IEnumerable<IScriptEvaluator> evaluators)
-        {
-            _evaluators = evaluators;
-        }
+            : base(evaluators) { }
 
-        public async Task<bool> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
         {
-            if (!await _evaluators.OfType<VariableEvaluator>().Single().EvaluateAsync(input) ||
-                !input.Match(BotTokenType.AssignOperator) ||
-                !await _evaluators.OfType<ExpressionEvaluator>().Single().EvaluateAsync(input))
-            {
-                return false;
-            }
+            var eval = await Evaluator<VariableEvaluator>().EvaluateAsync(input);
+            if (eval.Result != EvalResult.Ok)
+                return eval;
+
+            if (!input.Match(BotTokenType.AssignOperator))
+                return Error(input.Current(), BotTokenType.AssignOperator);
+
+            eval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input);
+            if (eval.Result != EvalResult.Ok)
+                return eval;
 
             if (input.OperationStack.Count == 0)
-                return false;
+                return StackEmptyError(input.Current());
             var expressionResult = (VariableBotToken)input.OperationStack.Pop();
 
-            // todo: check that assignOp is an assignment operator
             if (input.OperationStack.Count == 0)
-                return false;
+                return StackEmptyError(input.Current());
             var assignOp = input.OperationStack.Pop();
+            if (assignOp.TokenType != BotTokenType.AssignOperator)
+                return StackTokenError(BotTokenType.AssignOperator, assignOp);
 
             if (input.OperationStack.Count == 0)
-                return false;
+                return StackEmptyError(input.Current());
             var variable = (IdentifierBotToken)input.OperationStack.Pop();
 
             if (input.SymbolTable.ContainsKey(variable.TokenValue) &&
                 input.SymbolTable[variable.TokenValue].ReadOnly)
-                return false;
+                return ReadOnlyVariableError(variable);
 
             if (variable.ArrayIndex != null)
             {
                 if (!input.SymbolTable.ContainsKey(variable.TokenValue))
-                    return false;
+                    return IdentifierNotFoundError(variable);
 
-                ((ArrayVariable)input.SymbolTable[variable.TokenValue].Identifiable).Value[variable.ArrayIndex.Value] = expressionResult.VariableValue;
+                var targetArray = input.SymbolTable[variable.TokenValue].Identifiable as ArrayVariable;
+                if (targetArray == null)
+                    return (EvalResult.Failed, $"Identifier {variable.TokenValue} is not an array", variable);
+
+                if (targetArray.Value.Count <= variable.ArrayIndex.Value)
+                    return (EvalResult.Failed, $"Index {variable.ArrayIndex} is out of range of the array {variable.TokenValue} (size {targetArray.Value.Count})", variable);
+
+                targetArray.Value[variable.ArrayIndex.Value] = expressionResult.VariableValue;
             }
             else
             {
-                // todo: dynamic typing with no warning, or warn if changing typing of variable on assignment?
+                if (input.SymbolTable.ContainsKey(variable.TokenValue) && input.SymbolTable[variable.TokenValue].Identifiable.GetType() != expressionResult.VariableValue.GetType())
+                {
+                    // todo: surface warnings to caller and let caller decide what to do with it instead of making the interpreter write to console directly
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Changing type of variable {variable.TokenValue} from {input.SymbolTable[variable.TokenValue].Identifiable.GetType()} to {expressionResult.VariableValue.GetType()}", System.ConsoleColor.DarkYellow);
+                }
+
                 input.SymbolTable[variable.TokenValue] = (false, expressionResult.VariableValue);
             }
 
-            return true;
+            return Success();
         }
     }
 }

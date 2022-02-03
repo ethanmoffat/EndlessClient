@@ -1,12 +1,16 @@
-﻿using System.Threading.Tasks;
+﻿using EOBot.Interpreter.Extensions;
+using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
-    public class LabelEvaluator : IScriptEvaluator
+    public class LabelEvaluator : BaseEvaluator
     {
-        public Task<bool> EvaluateAsync(ProgramState input)
+        public override Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
         {
-            return Task.FromResult(input.ExpectPair(BotTokenType.Identifier, BotTokenType.Colon));
+            var result = input.ExpectPair(BotTokenType.Identifier, BotTokenType.Colon)
+                ? EvalResult.Ok
+                : EvalResult.NotMatch;
+            return Task.FromResult((result, string.Empty, input.Current()));
         }
     }
 }

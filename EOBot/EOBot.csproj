@@ -102,7 +102,9 @@
     <Compile Include="Interpreter\Extensions\ProgramStateExtensions.cs" />
     <Compile Include="Interpreter\IdentifierBotToken.cs" />
     <Compile Include="Interpreter\States\AssignmentEvaluator.cs" />
+    <Compile Include="Interpreter\States\BaseEvaluator.cs" />
     <Compile Include="Interpreter\States\BlockEvaluator.cs" />
+    <Compile Include="Interpreter\States\EvalResult.cs" />
     <Compile Include="Interpreter\States\ExpressionEvaluator.cs" />
     <Compile Include="Interpreter\States\ExpressionTailEvaluator.cs" />
     <Compile Include="Interpreter\States\FunctionEvaluator.cs" />

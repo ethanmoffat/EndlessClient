@@ -1,47 +1,49 @@
-﻿using EOBot.Interpreter.Variables;
+﻿using EOBot.Interpreter.Extensions;
+using EOBot.Interpreter.Variables;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
-    public class VariableEvaluator : IScriptEvaluator
+    public class VariableEvaluator : BaseEvaluator
     {
-        private readonly IEnumerable<IScriptEvaluator> _evaluators;
-
         public VariableEvaluator(IEnumerable<IScriptEvaluator> evaluators)
-        {
-            _evaluators = evaluators;
-        }
+            : base(evaluators) { }
 
-        public async Task<bool> EvaluateAsync(ProgramState input)
+        public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
         {
             if (!input.Match(BotTokenType.Variable))
-                return false;
+                return (EvalResult.NotMatch, string.Empty, input.Current());
 
             int? arrayIndex = null;
 
             if (input.Expect(BotTokenType.LBracket))
             {
-                if (!await _evaluators.OfType<ExpressionEvaluator>().Single().EvaluateAsync(input))
-                    return false;
-                input.Expect(BotTokenType.RBracket);
+                var expressionEval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input);
+                if (expressionEval.Result != EvalResult.Ok)
+                    return expressionEval;
+
+                // todo: expression_tail might need to be checked here before the RBracket...
+                if (!input.Expect(BotTokenType.RBracket))
+                    return Error(input.Current(), BotTokenType.RBracket);
 
                 if (input.OperationStack.Count == 0)
-                    return false;
+                    return StackEmptyError(input.Current());
                 var expressionResult = (VariableBotToken)input.OperationStack.Pop();
 
-                // todo: error checking if expression doesn't evaluate down to int
+                if (!(expressionResult.VariableValue is IntVariable))
+                    return (EvalResult.Failed, $"Expected index to be int, but it was {expressionResult.VariableValue.GetType().Name}", expressionResult);
+
                 arrayIndex = ((IntVariable)expressionResult.VariableValue).Value;
             }
 
             if (input.OperationStack.Count == 0)
-                return false;
+                return StackEmptyError(input.Current());
             var identifier = input.OperationStack.Pop();
 
-            input.OperationStack.Push(new IdentifierBotToken(BotTokenType.Variable, identifier.TokenValue, arrayIndex));
+            input.OperationStack.Push(new IdentifierBotToken(BotTokenType.Variable, identifier.TokenValue, identifier.LineNumber, identifier.Column, arrayIndex));
 
-            return true;
+            return Success();
         }
     }
 }

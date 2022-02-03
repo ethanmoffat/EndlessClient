@@ -1,60 +1,61 @@
 ﻿using EOBot.Interpreter.Extensions;
-using EOBot.Interpreter.Variables;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
 {
-    public abstract class BlockEvaluator : IScriptEvaluator
+    public abstract class BlockEvaluator : BaseEvaluator
     {
-        protected readonly IEnumerable<IScriptEvaluator> _evaluators;
-
         protected BlockEvaluator(IEnumerable<IScriptEvaluator> evaluators)
-        {
-            _evaluators = evaluators;
-        }
+            : base(evaluators) { }
 
-        public abstract Task<bool> EvaluateAsync(ProgramState input);
-
-        protected async Task<(bool, VariableBotToken)> EvaluateConditionAsync(int blockStartIndex, ProgramState input)
+        protected async Task<(EvalResult, string, BotToken)> EvaluateConditionAsync(int blockStartIndex, ProgramState input)
         {
             input.Goto(blockStartIndex);
 
-            if (!input.Expect(BotTokenType.Keyword) ||
-                !input.Expect(BotTokenType.LParen) ||
-                !await _evaluators.OfType<ExpressionEvaluator>().Single().EvaluateAsync(input) ||
-                !input.Expect(BotTokenType.RParen))
-                return (false, new VariableBotToken(BotTokenType.Error, string.Empty, UndefinedVariable.Instance));
+            if (!input.ExpectPair(BotTokenType.Keyword, BotTokenType.LParen))
+                return (EvalResult.Failed, "Missing keyword and lparen to start condition evaluation", input.Current());
+
+            var evalResult = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input);
+            if (evalResult.Result != EvalResult.Ok)
+                return evalResult;
+
+            if (!input.Expect(BotTokenType.RParen))
+                return Error(input.Current(), BotTokenType.RParen);
 
             if (input.OperationStack.Count == 0)
-                return (false, new VariableBotToken(BotTokenType.Error, string.Empty, UndefinedVariable.Instance));
+                return StackEmptyError(input.Current());
 
-            return (true, (VariableBotToken)input.OperationStack.Pop());
+            return Success(input.OperationStack.Pop());
         }
 
-        protected async Task<bool> EvaluateBlockAsync(ProgramState input)
+        protected async Task<(EvalResult, string, BotToken)> EvaluateBlockAsync(ProgramState input)
         {
             input.Expect(BotTokenType.NewLine);
+
+            (EvalResult Result, string, BotToken) evalResult;
 
             // either: multi-line statement / evaluate statement list (consumes RBrace as end condition)
             // or:     single statement
             // evaluated in separate blocks because we want to check statement list OR statement, not both
             if (input.Expect(BotTokenType.LBrace))
             {
-                if (!await _evaluators.OfType<StatementListEvaluator>().Single().EvaluateAsync(input))
-                    return false;
+                evalResult = await Evaluator<StatementListEvaluator>().EvaluateAsync(input);
+                if (evalResult.Result != EvalResult.Ok)
+                    return evalResult;
             }
-            else if (!await _evaluators.OfType<StatementEvaluator>().Single().EvaluateAsync(input))
+            else
             {
-                return false;
+                evalResult = await Evaluator<StatementEvaluator>().EvaluateAsync(input);
+                if (evalResult.Result != EvalResult.Ok)
+                    return evalResult;
             }
 
             // hack: put the \n token back since StatementList/Statement will have consumed it
             if (input.Program[input.ExecutionIndex - 1].TokenType == BotTokenType.NewLine)
                 input.Goto(input.ExecutionIndex - 1);
 
-            return true;
+            return evalResult;
         }
 
         protected void SkipBlock(ProgramState input)
