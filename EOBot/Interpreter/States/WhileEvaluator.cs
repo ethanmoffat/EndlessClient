@@ -14,7 +14,7 @@ namespace EOBot.Interpreter.States
             // ensure we have the right keyword before advancing the program
             var current = input.Current();
             if (current.TokenType != BotTokenType.Keyword || current.TokenValue != "while")
-                return Error(input.Current(), BotTokenType.Keyword);
+                return (EvalResult.NotMatch, string.Empty, input.Current());
 
             var whileLoopStartIndex = input.ExecutionIndex;
 
