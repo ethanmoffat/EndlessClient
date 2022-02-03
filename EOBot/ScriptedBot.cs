@@ -25,20 +25,23 @@ namespace EOBot
             var tokens = _interpreter.Parse();
             _programState = _interpreter.Prepare(_index, _parsedArgs, tokens);
 
-            var connectFunction = _programState.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC].Identifiable as AsyncVoidFunction<string, int>;
-            if (connectFunction == null)
-                throw new InvalidOperationException("Something went wrong getting the connect function out of the symbol table");
-
-            // call connect function that uses user-defined $version variable instead of base logic that has it hard-coded
-            await connectFunction.CallAsync(new StringVariable(_parsedArgs.Host), new IntVariable(_parsedArgs.Port));
-
-            WorkCompleted += () =>
+            if (_parsedArgs.AutoConnect)
             {
-                Thread.Sleep(2000);
+                var connectFunction = _programState.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC].Identifiable as AsyncVoidFunction<string, int>;
+                if (connectFunction == null)
+                    throw new InvalidOperationException("Something went wrong getting the connect function out of the symbol table");
 
-                var disconnectionFunction = _programState.SymbolTable[PredefinedIdentifiers.DISCONNECT_FUNC].Identifiable as VoidFunction;
-                disconnectionFunction.Call();
-            };
+                // call connect function that uses user-defined $version variable instead of base logic that has it hard-coded
+                await connectFunction.CallAsync(new StringVariable(_parsedArgs.Host), new IntVariable(_parsedArgs.Port));
+
+                WorkCompleted += () =>
+                {
+                    Thread.Sleep(2000);
+
+                    var disconnectionFunction = _programState.SymbolTable[PredefinedIdentifiers.DISCONNECT_FUNC].Identifiable as VoidFunction;
+                    disconnectionFunction.Call();
+                };
+            }
 
             _initialized = true;
         }

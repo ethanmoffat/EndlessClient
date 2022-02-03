@@ -199,6 +199,12 @@ namespace EOBot
                 botFactory = new TrainerBotFactory(parsedArgs);
             }
 
+            if (parsedArgs.NumBots > 1 && parsedArgs.ScriptFile != null && !parsedArgs.AutoConnect )
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, "AutoConnect is required when using a script with more than 1 bot due to eoserv connection throttling");
+                return;
+            }
+
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Starting bots...");
 
             try
@@ -276,15 +282,17 @@ namespace EOBot
                               "          password=<password>\n" +
                               "          character=<character>\n" +
                               "          script=<file>\n" +
+                              "          autoconnect=<true|false>" +
                               "          [-- arg1, [arg2..argn]]");
-            Console.WriteLine("\t host: hostname or IP address");
-            Console.WriteLine("\t port: port to connect on (probably 8078)");
-            Console.WriteLine("\t bots: number of bots to execute.    \n\t       numBots is the total number, simultaneousBots is how many will run at once");
-            Console.WriteLine("\t initDelay: Time in milliseconds to delay between doing the INIT handshake with the server");
-            Console.WriteLine("\t account: Account to connect with (created if it does not exist)");
-            Console.WriteLine("\t password: Password");
-            Console.WriteLine("\t character: Character to use (created if it does not exist)");
-            Console.WriteLine("\t script: script file to execute\n\t         if script is not specified, default trainer bot will be used");
+            Console.WriteLine("\t host:           hostname or IP address");
+            Console.WriteLine("\t port:           port to connect on (probably 8078)");
+            Console.WriteLine("\t bots:           number of bots to execute.    \n\t       numBots is the total number, simultaneousBots is how many will run at once");
+            Console.WriteLine("\t initDelay:      time in milliseconds to delay between doing the INIT handshake with the server");
+            Console.WriteLine("\t account:        account to connect with (created if it does not exist)");
+            Console.WriteLine("\t password:       password for account");
+            Console.WriteLine("\t character:      character to use (created if it does not exist)");
+            Console.WriteLine("\t script:         script file to execute\n\t         if script is not specified, default trainer bot will be used");
+            Console.WriteLine("\t autoconnect:    (default true) true to automatically connect/disconnect to server with initDelay timeout between connection attempts for bots, false otherwise");
             Console.WriteLine("\t --: Any arguments passed after '--' will be available in a script under the '$args' array");
         }
     }

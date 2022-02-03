@@ -38,6 +38,8 @@ namespace EOBot
         public string Password { get; private set; }
         public string Character { get; private set; }
 
+        public bool AutoConnect { get; private set; } = true;
+
         public List<string> UserArgs { get; internal set; }
 
         public ArgumentsParser(string[] args)
@@ -83,6 +85,9 @@ namespace EOBot
                             return;
                         }
                         ScriptFile = pair[1];
+                        break;
+                    case "autoconnect":
+                        AutoConnect = bool.Parse(pair[1]);
                         break;
                     case "host":
                         ParseHost(pair[1]);
