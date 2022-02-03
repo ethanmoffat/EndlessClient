@@ -1,7 +1,7 @@
 EndlessClient
 =============
 
-[![Build status](https://ethanmoffat.visualstudio.com/EndlessClient/_apis/build/status/EndlessClient%20Gated%20Build)](https://ethanmoffat.visualstudio.com/EndlessClient/_build/latest?definitionId=7)
+[![Build Status](https://ethanmoffat.visualstudio.com/EndlessClient/_apis/build/status/EndlessClient%20Build?branchName=master)](https://ethanmoffat.visualstudio.com/EndlessClient/_build/latest?definitionId=14&branchName=master)
 
 An open source client for Endless Online written in C#
 
