@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using EOBot.Interpreter.Variables;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace EOBot
 {
@@ -13,12 +16,15 @@ namespace EOBot
         NotEnoughBots,
         InvalidSimultaneousNumberOfBots,
         InvalidWaitFlag,
-        InvalidInitDelay
+        InvalidInitDelay,
+        InvalidPath
     }
 
     public class ArgumentsParser
     {
         public ArgsError Error { get; private set; }
+
+        public string ScriptFile { get; private set; }
 
         public string Host { get; private set; }
         public ushort Port { get; private set; }
@@ -32,6 +38,10 @@ namespace EOBot
         public string Password { get; private set; }
         public string Character { get; private set; }
 
+        public bool AutoConnect { get; private set; } = true;
+
+        public List<string> UserArgs { get; internal set; }
+
         public ArgumentsParser(string[] args)
         {
             InitDelay = 1100;
@@ -44,8 +54,20 @@ namespace EOBot
                 return;
             }
 
-            foreach (var arg in args)
+            for (int i = 0; i < args.Length; i++)
             {
+                var arg = args[i];
+
+                if (arg == "--")
+                {
+                    UserArgs = new List<string>();
+                    for (i = i + 1; i < args.Length; i++)
+                    {
+                        UserArgs.Add(args[i]);
+                    }
+                    break;
+                }
+
                 var pair = arg.ToLower().Split('=');
 
                 if (pair.Length != 2)
@@ -56,6 +78,17 @@ namespace EOBot
 
                 switch (pair[0])
                 {
+                    case "script":
+                        if (!File.Exists(pair[1]))
+                        {
+                            Error = ArgsError.InvalidPath;
+                            return;
+                        }
+                        ScriptFile = pair[1];
+                        break;
+                    case "autoconnect":
+                        AutoConnect = bool.Parse(pair[1]);
+                        break;
                     case "host":
                         ParseHost(pair[1]);
                         break;

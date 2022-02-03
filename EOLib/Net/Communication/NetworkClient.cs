@@ -27,18 +27,21 @@ namespace EOLib.Net.Communication
 
         public bool Started { get; private set; }
 
+        public TimeSpan ReceiveTimeout { get; }
+
         public NetworkClient(IPacketProcessActions packetProcessActions,
                              IPacketHandlingActions packetHandlingActions,
                              INumberEncoderService numberEncoderService,
-                             ILoggerProvider loggerProvider)
+                             ILoggerProvider loggerProvider,
+                             TimeSpan receiveTimeout)
         {
             _packetProcessActions = packetProcessActions;
             _packetHandlingActions = packetHandlingActions;
             _numberEncoderService = numberEncoderService;
             _loggerProvider = loggerProvider;
+            ReceiveTimeout = receiveTimeout;
 
             _socket = new AsyncSocket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            
             _backgroundReceiveCTS = new CancellationTokenSource();
         }
 
@@ -73,7 +76,9 @@ namespace EOLib.Net.Communication
 
         public void Disconnect()
         {
-            _socket.DisconnectAsync(CancellationToken.None).ConfigureAwait(false);
+            if (Connected)
+                _socket.DisconnectAsync(CancellationToken.None).ConfigureAwait(false);
+
             Started = false;
         }
 
@@ -81,15 +86,33 @@ namespace EOLib.Net.Communication
         {
             while (!_backgroundReceiveCTS.IsCancellationRequested)
             {
-                var lengthData = await _socket.ReceiveAsync(2, _backgroundReceiveCTS.Token).ConfigureAwait(false);
-                if (_backgroundReceiveCTS.IsCancellationRequested || lengthData.Length != 2)
+                var lengthData = await _socket.ReceiveAsync(2, _backgroundReceiveCTS.Token);
+                if (_backgroundReceiveCTS.IsCancellationRequested)
+                {
+                    _loggerProvider.Logger.Log("RECV thread: Cancellation was requested when receiving length");
                     break;
+                }
+
+                if (lengthData.Length != 2)
+                {
+                    _loggerProvider.Logger.Log("RECV thread: Did not receive two bytes of data");
+                    break;
+                }
 
                 var length = _numberEncoderService.DecodeNumber(lengthData);
 
-                var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token).ConfigureAwait(false);
-                if (_backgroundReceiveCTS.IsCancellationRequested || packetData.Length != length)
+                var packetData = await _socket.ReceiveAsync(length, _backgroundReceiveCTS.Token);
+                if (_backgroundReceiveCTS.IsCancellationRequested)
+                {
+                    _loggerProvider.Logger.Log("RECV thread: Cancellation was requested when receiving data");
                     break;
+                }
+
+                if (packetData.Length != length)
+                {
+                    _loggerProvider.Logger.Log("RECV thread: Did not receive expected {0} bytes of data", length);
+                    break;
+                }
 
                 var packet = _packetProcessActions.DecodeData(packetData);
                 LogReceivedPacket(packet);

@@ -35,7 +35,8 @@ namespace EOLib.Net.Connection
 
             Client.CancelBackgroundReceiveLoop();
 
-            _backgroundReceiveThreadRepository.BackgroundThreadObject.Join();
+            if (_backgroundReceiveThreadRepository.BackgroundThreadObject.ThreadState == ThreadState.Running)
+                _backgroundReceiveThreadRepository.BackgroundThreadObject.Join();
             _backgroundReceiveThreadRepository.BackgroundThreadObject = new Thread(BackgroundLoop);
             _backgroundReceiveThreadRepository.BackgroundThreadRunning = false;
         }

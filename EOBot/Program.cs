@@ -188,13 +188,30 @@ namespace EOBot
                 DependencyMaster.TypeRegistry[i].RegisterDiscoveredTypes();
             }
 
+            IBotFactory botFactory;
+            if (parsedArgs.ScriptFile != null)
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Executing script {parsedArgs.ScriptFile}...");
+                botFactory = new ScriptedBotFactory(parsedArgs);
+            }
+            else
+            {
+                botFactory = new TrainerBotFactory(parsedArgs);
+            }
+
+            if (parsedArgs.NumBots > 1 && parsedArgs.ScriptFile != null && !parsedArgs.AutoConnect )
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, "AutoConnect is required when using a script with more than 1 bot due to eoserv connection throttling");
+                return;
+            }
+
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Starting bots...");
 
             try
             {
                 using (f = new BotFramework(parsedArgs))
                 {
-                    await f.InitializeAsync(new TrainerBotFactory(parsedArgs), parsedArgs.InitDelay);
+                    await f.InitializeAsync(botFactory, parsedArgs.InitDelay);
                     await f.RunAsync();
                 }
 
@@ -202,7 +219,7 @@ namespace EOBot
             }
             catch (BotException bex)
             {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, bex.Message);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, bex.Message, ConsoleColor.DarkRed);
             }
             catch (Exception ex)
             {
@@ -251,6 +268,9 @@ namespace EOBot
                 case ArgsError.InvalidInitDelay:
                     Console.WriteLine("Invalid: specify an integer argument for delay between inits (> 1100ms).");
                     break;
+                case ArgsError.InvalidPath:
+                    Console.WriteLine("Invalid: Script file does not exist or is not a valid path.");
+                    break;
             }
 
             Console.WriteLine("\n\nUsage: (enter arguments in any order) (angle brackets is entry) (square brackets is optional)");
@@ -260,14 +280,100 @@ namespace EOBot
                               "          initDelay=<timeInMS>\n" +
                               "          account=<account>\n" +
                               "          password=<password>\n" +
-                              "          character=<character>\n");
-            Console.WriteLine("\t host: hostname or IP address");
-            Console.WriteLine("\t port: port to connect on (probably 8078)");
-            Console.WriteLine("\t bots: number of bots to execute.    \n\t       numBots is the total number, simultaneousBots is how many will run at once");
-            Console.WriteLine("\t initDelay: Time in milliseconds to delay between doing the INIT handshake with the server");
-            Console.WriteLine("\t account: Account to connect with (created if it does not exist)");
-            Console.WriteLine("\t password: Password");
-            Console.WriteLine("\t character: Character to use (created if it does not exist)");
+                              "          character=<character>\n" +
+                              "          script=<file>\n" +
+                              "          autoconnect=<true|false>" +
+                              "          [-- arg1, [arg2..argn]]");
+            Console.WriteLine("\t host:           hostname or IP address");
+            Console.WriteLine("\t port:           port to connect on (probably 8078)");
+            Console.WriteLine("\t bots:           number of bots to execute.    \n\t       numBots is the total number, simultaneousBots is how many will run at once");
+            Console.WriteLine("\t initDelay:      time in milliseconds to delay between doing the INIT handshake with the server");
+            Console.WriteLine("\t account:        account to connect with (created if it does not exist)");
+            Console.WriteLine("\t password:       password for account");
+            Console.WriteLine("\t character:      character to use (created if it does not exist)");
+            Console.WriteLine("\t script:         script file to execute\n\t         if script is not specified, default trainer bot will be used");
+            Console.WriteLine("\t autoconnect:    (default true) true to automatically connect/disconnect to server with initDelay timeout between connection attempts for bots, false otherwise");
+            Console.WriteLine("\t --: Any arguments passed after '--' will be available in a script under the '$args' array");
+            Console.WriteLine(@"
+===============================================================
+                        Bot Script Info                        
+===============================================================
+GENERAL
+---------------------------------------------------------------
+Semicolons are not part of the script language grammar
+Do not end statements with semicolons
+
+---------------------------------------------------------------
+VARIBLES
+---------------------------------------------------------------
+variables are prefixed with a $
+ex: $var_1 = 1
+datatypes supported: bool, int, string, array
+variables are dynamically typed
+
+---------------------------------------------------------------
+KEYWORDS
+---------------------------------------------------------------
+if ($expression) $statement
+if ($expression) { $statement_list }
+while ($expression) $statement
+while ($expression) { $statement_list }
+goto LABEL
+LABEL:
+
+Labels are a separate set of identifiers from variables
+Labels do not use a $ prefix and do not need to be all caps
+
+---------------------------------------------------------------
+FUNCTIONS
+---------------------------------------------------------------
+Functions are called like normal programming languages
+ex: print(""my message"")
+Functions can be used in any expression, e.g. an array access
+    operation or a keyword evaluation (if/while)
+Parameters to functions can be expressions, variables,
+    or literals
+
+---------------------------------------------------------------
+BUILT-IN IDENTIFIERS AND FUNCTIONS
+---------------------------------------------------------------
+print($message) - returns nothing; writes $message to console
+len($array) - returns int; gets length of $array
+array($size) - returns array; creates a fixed-size array 
+    of $size with all contents set to 'Undefined'
+sleep($time_ms) - returns nothing; sleeps for $time_ms
+    milliseconds
+time() - returns string; gets the current system time in
+    HH:MM:SS format
+
+Connect($host, $port) - connect to a server
+Disconnect() - disconnect from a server
+CreateAccount($user, $pass) - returns AccountReply
+Login($user, $pass) - returns LoginReply
+CreateAndLogin($user, $pass) - returns LoginReply
+ChangePassword($user, $oldpass, $newpass) - returns AccountReply
+CreateCharacter($name) - returns CharacterReply
+DeleteCharacter($name, $force) - returns CharacterReply
+LoginToCharacter($name)
+
+NOTE: IT IS HIGHLY RECOMMENDED TO SLEEP IF USING MULTIPLE BOTS
+    AND CALLING ANY OF THE EO FUNCTIONS ABOVE, SINCE THEY
+    RUN ASYNCHRONOUSLY THEY ARE NOT GUARANTEED TO FINISH BY THE
+    TIME THE SCRIPT FINISHES EXECUTING
+
+$host -     string : host passed via command-line
+$port -     int    : port passed via command-line
+$user -     string : account passed via command-line
+$pass -     string : account password passed via command-line
+$botindex - int    : index of this bot (for when numBots > 1)
+$args -     array  : user-defined arguments passed after '--'
+
+$version -  int    : allows setting client version
+$result -   dynamic: get/set result of last function call
+$account -  object : reserved
+$character - object: reserved
+$mapstate - object : reserved
+");
         }
     }
 }

@@ -9,6 +9,8 @@ namespace EOLib.Net.Communication
 
         bool Started { get; }
 
+        TimeSpan ReceiveTimeout { get; }
+
         Task<ConnectResult> ConnectToServer(string host, int port);
 
         void Disconnect();

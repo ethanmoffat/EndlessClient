@@ -61,6 +61,7 @@
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Extensions.DependencyInjection, Version=3.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.3.1.3\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
     </Reference>
@@ -93,10 +94,52 @@
     <Compile Include="DependencyMaster.cs" />
     <Compile Include="IBot.cs" />
     <Compile Include="IBotFactory.cs" />
+    <Compile Include="Interpreter\BotInterpreter.cs" />
+    <Compile Include="Interpreter\BotToken.cs" />
+    <Compile Include="Interpreter\BotTokenParser.cs" />
+    <Compile Include="Interpreter\BotTokenType.cs" />
+    <Compile Include="Interpreter\BuiltInIdentifierConfigurator.cs" />
+    <Compile Include="Interpreter\Extensions\ProgramStateExtensions.cs" />
+    <Compile Include="Interpreter\IdentifierBotToken.cs" />
+    <Compile Include="Interpreter\States\AssignmentEvaluator.cs" />
+    <Compile Include="Interpreter\States\BaseEvaluator.cs" />
+    <Compile Include="Interpreter\States\BlockEvaluator.cs" />
+    <Compile Include="Interpreter\States\EvalResult.cs" />
+    <Compile Include="Interpreter\States\ExpressionEvaluator.cs" />
+    <Compile Include="Interpreter\States\ExpressionTailEvaluator.cs" />
+    <Compile Include="Interpreter\States\FunctionEvaluator.cs" />
+    <Compile Include="Interpreter\States\GotoEvaluator.cs" />
+    <Compile Include="Interpreter\States\IfEvaluator.cs" />
+    <Compile Include="Interpreter\States\IScriptEvaluator.cs" />
+    <Compile Include="Interpreter\States\KeywordEvaluator.cs" />
+    <Compile Include="Interpreter\States\LabelEvaluator.cs" />
+    <Compile Include="Interpreter\States\OperandEvaluator.cs" />
+    <Compile Include="Interpreter\States\ProgramState.cs" />
+    <Compile Include="Interpreter\States\ScriptEvaluator.cs" />
+    <Compile Include="Interpreter\States\StatementEvaluator.cs" />
+    <Compile Include="Interpreter\States\StatementListEvaluator.cs" />
+    <Compile Include="Interpreter\States\VariableEvaluator.cs" />
+    <Compile Include="Interpreter\States\WhileEvaluator.cs" />
+    <Compile Include="Interpreter\Variables\ArrayVariable.cs" />
+    <Compile Include="Interpreter\Variables\BoolVariable.cs" />
+    <Compile Include="Interpreter\VariableBotToken.cs" />
+    <Compile Include="Interpreter\Variables\AsyncFunction.cs" />
+    <Compile Include="Interpreter\Variables\PredefinedIdentifiers.cs" />
+    <Compile Include="Interpreter\Variables\UndefinedVariable.cs" />
+    <Compile Include="Interpreter\Variables\AsyncVoidFunction.cs" />
+    <Compile Include="Interpreter\Variables\VoidFunction.cs" />
+    <Compile Include="Interpreter\Variables\Function.cs" />
+    <Compile Include="Interpreter\Variables\ICallable.cs" />
+    <Compile Include="Interpreter\Variables\IIdentifiable.cs" />
+    <Compile Include="Interpreter\Variables\IntVariable.cs" />
+    <Compile Include="Interpreter\Variables\IVariable.cs" />
+    <Compile Include="Interpreter\Variables\StringVariable.cs" />
     <Compile Include="NamesList.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ScriptedBot.cs" />
     <Compile Include="TrainerBot.cs" />
+    <Compile Include="ScriptedBotFactory.cs" />
     <Compile Include="TrainerBotFactory.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>
@@ -122,6 +165,7 @@
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
