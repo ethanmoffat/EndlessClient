@@ -27,19 +27,7 @@ namespace EOBot.Interpreter.States
                 // expression_tail is optional
                 evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input);
                 if (evalRes.Result == EvalResult.NotMatch)
-                {
-                    if (input.OperationStack.Count == 0)
-                        return StackEmptyError(input.Current());
-
-                    // convert to variable token (resolve identifier) so consumer of expression result can use it
-                    var (localResult, localReason, singleOperand) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
-                    if (localResult != EvalResult.Ok)
-                        return (localResult, localReason, singleOperand);
-
-                    input.OperationStack.Push(singleOperand);
-
-                    return Success();
-                }
+                    return EvaluateSingleOperand(input);
                 else if (evalRes.Result == EvalResult.Failed)
                     return evalRes;
 
@@ -70,19 +58,7 @@ namespace EOBot.Interpreter.States
                     // expression_tail is optional, if not set no need to evaluate operation stack below / return early
                     evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input);
                     if (evalRes.Result == EvalResult.NotMatch)
-                    {
-                        if (input.OperationStack.Count == 0)
-                            return StackEmptyError(input.Current());
-
-                        // convert to variable token (resolve identifier) so consumer of expression result can use it
-                        var (localResult, localReason, singleOperand) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
-                        if (localResult != EvalResult.Ok)
-                            return (localResult, localReason, singleOperand);
-
-                        input.OperationStack.Push(singleOperand);
-
-                        return Success();
-                    }
+                        return EvaluateSingleOperand(input);
                     else if (evalRes.Result == EvalResult.Failed)
                         return evalRes;
                 }
@@ -134,6 +110,21 @@ namespace EOBot.Interpreter.States
                 return (EvalResult.Failed, $"Error evaluating expression: {res.Reason}", input.Current());
 
             input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, res.Result.StringValue, res.Result));
+
+            return Success();
+        }
+
+        private (EvalResult, string, BotToken) EvaluateSingleOperand(ProgramState input)
+        {
+            if (input.OperationStack.Count == 0)
+                return StackEmptyError(input.Current());
+
+            // convert to variable token (resolve identifier) so consumer of expression result can use it
+            var (localResult, localReason, singleOperand) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
+            if (localResult != EvalResult.Ok)
+                return (localResult, localReason, singleOperand);
+
+            input.OperationStack.Push(singleOperand);
 
             return Success();
         }
