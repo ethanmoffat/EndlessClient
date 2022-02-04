@@ -99,6 +99,7 @@
     <Compile Include="Interpreter\BotTokenParser.cs" />
     <Compile Include="Interpreter\BotTokenType.cs" />
     <Compile Include="Interpreter\BuiltInIdentifierConfigurator.cs" />
+    <Compile Include="Interpreter\Extensions\SymbolTableExtensions.cs" />
     <Compile Include="Interpreter\Extensions\ProgramStateExtensions.cs" />
     <Compile Include="Interpreter\IdentifierBotToken.cs" />
     <Compile Include="Interpreter\States\AssignmentEvaluator.cs" />
@@ -124,6 +125,7 @@
     <Compile Include="Interpreter\Variables\BoolVariable.cs" />
     <Compile Include="Interpreter\VariableBotToken.cs" />
     <Compile Include="Interpreter\Variables\AsyncFunction.cs" />
+    <Compile Include="Interpreter\Variables\ObjectVariable.cs" />
     <Compile Include="Interpreter\Variables\PredefinedIdentifiers.cs" />
     <Compile Include="Interpreter\Variables\UndefinedVariable.cs" />
     <Compile Include="Interpreter\Variables\AsyncVoidFunction.cs" />

@@ -8,8 +8,6 @@
 
         public string StringValue => Value.ToString();
 
-        public IVariable<int> WithNewValue(int value) => new IntVariable(value);
-
         public override bool Equals(object obj) => CompareTo(obj) == 0;
 
         public override int GetHashCode() => Value.GetHashCode();

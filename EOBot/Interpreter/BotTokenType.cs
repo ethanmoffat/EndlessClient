@@ -26,6 +26,7 @@
         MinusOperator,
         MultiplyOperator,
         DivideOperator,
+        Dot,
         NewLine,
         Error,
     }

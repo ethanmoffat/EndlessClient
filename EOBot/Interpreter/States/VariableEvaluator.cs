@@ -16,14 +16,12 @@ namespace EOBot.Interpreter.States
                 return (EvalResult.NotMatch, string.Empty, input.Current());
 
             int? arrayIndex = null;
-
             if (input.Expect(BotTokenType.LBracket))
             {
                 var expressionEval = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input);
                 if (expressionEval.Result != EvalResult.Ok)
                     return expressionEval;
 
-                // todo: expression_tail might need to be checked here before the RBracket...
                 if (!input.Expect(BotTokenType.RBracket))
                     return Error(input.Current(), BotTokenType.RBracket);
 
@@ -37,11 +35,31 @@ namespace EOBot.Interpreter.States
                 arrayIndex = ((IntVariable)expressionResult.VariableValue).Value;
             }
 
+            IdentifierBotToken nestedIdentifier = null;
+            if (input.Match(BotTokenType.Dot))
+            {
+                var evalRes = await Evaluator<VariableEvaluator>().EvaluateAsync(input);
+                if (evalRes.Result != EvalResult.Ok)
+                    return evalRes;
+
+                if (input.OperationStack.Count == 0)
+                    return StackEmptyError(input.Current());
+                nestedIdentifier = (IdentifierBotToken)input.OperationStack.Pop();
+                if (nestedIdentifier.TokenType != BotTokenType.Variable)
+                    return StackTokenError(BotTokenType.Variable, nestedIdentifier);
+
+                if (input.OperationStack.Count == 0)
+                    return StackEmptyError(input.Current());
+                var expectedDot = input.OperationStack.Pop();
+                if (expectedDot.TokenType != BotTokenType.Dot)
+                    return StackTokenError(BotTokenType.Dot, expectedDot);
+            }
+
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
             var identifier = input.OperationStack.Pop();
 
-            input.OperationStack.Push(new IdentifierBotToken(BotTokenType.Variable, identifier.TokenValue, identifier.LineNumber, identifier.Column, arrayIndex));
+            input.OperationStack.Push(new IdentifierBotToken(identifier, arrayIndex, nestedIdentifier));
 
             return Success();
         }

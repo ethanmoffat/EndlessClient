@@ -2,8 +2,12 @@
 using EOBot.Interpreter.Variables;
 using EOLib.Config;
 using EOLib.Domain.Account;
+using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
+using EOLib.Domain.NPC;
 using EOLib.Domain.Protocol;
+using EOLib.IO.Repositories;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.PacketProcessing;
@@ -35,8 +39,9 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.PRINT_FUNC] = Readonly(new VoidFunction<object>(PredefinedIdentifiers.PRINT_FUNC, param1 => ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, param1.ToString())));
             _state.SymbolTable[PredefinedIdentifiers.LEN_FUNC] = Readonly(new Function<ArrayVariable, int>(PredefinedIdentifiers.LEN_FUNC, param1 => param1.Value.Count));
             _state.SymbolTable[PredefinedIdentifiers.ARRAY_FUNC] = Readonly(new Function<int, List<IVariable>>(PredefinedIdentifiers.ARRAY_FUNC, param1 => Enumerable.Repeat(UndefinedVariable.Instance, param1).Cast<IVariable>().ToList()));
-            _state.SymbolTable[PredefinedIdentifiers.SLEEP] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.SLEEP, param1 => Thread.Sleep(param1)));
-            _state.SymbolTable[PredefinedIdentifiers.TIME] = Readonly(new Function<string>(PredefinedIdentifiers.TIME, () => DateTime.Now.ToLongTimeString()));
+            _state.SymbolTable[PredefinedIdentifiers.SLEEP_FUNC] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.SLEEP_FUNC, param1 => Thread.Sleep(param1)));
+            _state.SymbolTable[PredefinedIdentifiers.TIME_FUNC] = Readonly(new Function<string>(PredefinedIdentifiers.TIME_FUNC, () => DateTime.Now.ToLongTimeString()));
+            _state.SymbolTable[PredefinedIdentifiers.OBJECT_FUNC] = Readonly(new Function<ObjectVariable>(PredefinedIdentifiers.OBJECT_FUNC, () => new ObjectVariable()));
 
             BotDependencySetup();
             _state.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC] = Readonly(new AsyncVoidFunction<string, int>(PredefinedIdentifiers.CONNECT_FUNC, ConnectAsync));
@@ -49,12 +54,6 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.DELETE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, bool, int>(PredefinedIdentifiers.DELETE_CHARACTER_FUNC, DeleteCharacterAsync));
             _state.SymbolTable[PredefinedIdentifiers.LOGIN_CHARACTER_FUNC] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.LOGIN_CHARACTER_FUNC, LoginToCharacterAsync));
         }
-
-        private static (bool, IIdentifiable) Readonly(IIdentifiable identifiable)
-        {
-            return (true, identifiable);
-        }
-
         public void SetupBuiltInVariables()
         {
             _state.SymbolTable[PredefinedIdentifiers.HOST] = (true, new StringVariable(_parsedArgs.Host));
@@ -69,9 +68,14 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.VERSION] = (false, new IntVariable(28));
 
             _state.SymbolTable[PredefinedIdentifiers.RESULT] = (false, UndefinedVariable.Instance);
-            _state.SymbolTable[PredefinedIdentifiers.ACCOUNT] = (true, UndefinedVariable.Instance);
-            _state.SymbolTable[PredefinedIdentifiers.CHARACTER] = (true, UndefinedVariable.Instance);
-            _state.SymbolTable[PredefinedIdentifiers.MAPSTATE] = (true, UndefinedVariable.Instance);
+            _state.SymbolTable[PredefinedIdentifiers.ACCOUNT] = SetupAccountObject();
+            _state.SymbolTable[PredefinedIdentifiers.CHARACTER] = SetupCharacterObject();
+            _state.SymbolTable[PredefinedIdentifiers.MAPSTATE] = SetupMapStateObject();
+        }
+
+        private static (bool, IIdentifiable) Readonly(IIdentifiable identifiable)
+        {
+            return (true, identifiable);
         }
 
         private void BotDependencySetup()
@@ -166,6 +170,126 @@ namespace EOBot.Interpreter
         private Task LoginToCharacterAsync(string charName)
         {
             return _botHelper.LoginToCharacterAsync(charName);
+        }
+
+        private (bool, IIdentifiable) SetupAccountObject()
+        {
+            var playerInfoProv = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPlayerInfoProvider>();
+            var charSelectProv = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterSelectorProvider>();
+
+            var accountObj = new RuntimeEvaluatedMemberObjectVariable();
+            accountObj.SymbolTable[PredefinedIdentifiers.NAME] = (true, () => new StringVariable(playerInfoProv.LoggedInAccountName));
+            accountObj.SymbolTable[PredefinedIdentifiers.CHARACTERS] = (true,
+                () => new ArrayVariable(
+                    charSelectProv.Characters.Select(x =>
+                    {
+                        var retObj = new ObjectVariable();
+                        retObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(x.Name));
+                        return (IVariable)retObj;
+                    }).ToList()));
+
+            return Readonly(accountObj);
+        }
+
+        private (bool, IIdentifiable) SetupCharacterObject()
+        {
+            var cp = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterProvider>();
+            var inventoryProvider = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterInventoryProvider>();
+            var pubProvider = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>();
+
+            var charObj = new RuntimeEvaluatedMemberObjectVariable();
+            charObj.SymbolTable[PredefinedIdentifiers.NAME] = (true, () => new StringVariable(cp.MainCharacter.Name));
+            charObj.SymbolTable["map"] = (true, () => new IntVariable(cp.MainCharacter.MapID));
+            charObj.SymbolTable["x"] = (true, () => new IntVariable(cp.MainCharacter.RenderProperties.MapX));
+            charObj.SymbolTable["y"] = (true, () => new IntVariable(cp.MainCharacter.RenderProperties.MapY));
+            charObj.SymbolTable["direction"] = (true, () => new IntVariable((int)cp.MainCharacter.RenderProperties.Direction));
+            charObj.SymbolTable["inventory"] = (true,
+                () => new ArrayVariable(
+                    inventoryProvider.ItemInventory.Select(x =>
+                    {
+                        var itemName = pubProvider.EIFFile.Data.Single(d => d.ID == x.ItemID).Name;
+
+                        var retObj = new ObjectVariable();
+                        retObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(itemName));
+                        retObj.SymbolTable["id"] = Readonly(new IntVariable(x.ItemID));
+                        retObj.SymbolTable["amount"] = Readonly(new IntVariable(x.Amount));
+                        return (IVariable)retObj;
+                    }).ToList()));
+            charObj.SymbolTable["spells"] = (true,
+                () => new ArrayVariable(
+                    inventoryProvider.SpellInventory.Select(x =>
+                    {
+                        var spellName = pubProvider.ESFFile.Data.Single(d => d.ID == x.ID).Name;
+
+                        var retObj = new ObjectVariable();
+                        retObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(spellName));
+                        retObj.SymbolTable["id"] = Readonly(new IntVariable(x.ID));
+                        retObj.SymbolTable["amount"] = Readonly(new IntVariable(x.Level));
+                        return (IVariable)retObj;
+                    }).ToList()));
+            charObj.SymbolTable["stats"] = (true,
+                () =>
+                {
+                    var statsObj = new ObjectVariable();
+                    statsObj.SymbolTable["hp"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.HP]));
+                    statsObj.SymbolTable["maxhp"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.MaxHP]));
+                    statsObj.SymbolTable["weight"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.Weight]));
+                    statsObj.SymbolTable["maxweight"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.MaxWeight]));
+                    statsObj.SymbolTable["tp"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.TP]));
+                    statsObj.SymbolTable["maxtp"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.MaxTP]));
+                    return statsObj;
+                });
+
+            return Readonly(charObj);
+        }
+
+        private (bool, IIdentifiable) SetupMapStateObject()
+        {
+            var ms = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>();
+
+            var mapStateObj = new RuntimeEvaluatedMemberObjectVariable();
+            mapStateObj.SymbolTable["characters"] = (true, () => new ArrayVariable(ms.Characters.Select(GetMapStateCharacter).ToList()));
+            mapStateObj.SymbolTable["npcs"] = (true, () => new ArrayVariable(ms.NPCs.Select(GetMapStateNPC).ToList()));
+            mapStateObj.SymbolTable["items"] = (true, () => new ArrayVariable(ms.MapItems.Select(GetMapStateItem).ToList()));
+
+            return Readonly(mapStateObj);
+        }
+
+        private IVariable GetMapStateCharacter(ICharacter c)
+        {
+            var charObj = new ObjectVariable();
+            charObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(c.Name));
+            charObj.SymbolTable["map"] = Readonly(new IntVariable(c.MapID));
+            charObj.SymbolTable["x"] = Readonly(new IntVariable(c.RenderProperties.MapX));
+            charObj.SymbolTable["y"] = Readonly(new IntVariable(c.RenderProperties.MapY));
+            charObj.SymbolTable["direction"] = Readonly(new IntVariable((int)c.RenderProperties.Direction));
+            return charObj;
+        }
+
+        private IVariable GetMapStateNPC(INPC npc)
+        {
+            var npcFile = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>().ENFFile;
+
+            var npcObj = new ObjectVariable();
+            npcObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(npcFile.Data.Single(x => x.ID == npc.ID).Name));
+            npcObj.SymbolTable["x"] = Readonly(new IntVariable(npc.X));
+            npcObj.SymbolTable["y"] = Readonly(new IntVariable(npc.Y));
+            npcObj.SymbolTable["id"] = Readonly(new IntVariable(npc.ID));
+            npcObj.SymbolTable["direction"] = Readonly(new IntVariable((int)npc.Direction));
+            return npcObj;
+        }
+
+        private IVariable GetMapStateItem(IItem item)
+        {
+            var itemFile = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>().EIFFile;
+
+            var itemObj = new ObjectVariable();
+            itemObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(itemFile.Data.Single(x => x.ID == item.ItemID).Name));
+            itemObj.SymbolTable["x"] = Readonly(new IntVariable(item.X));
+            itemObj.SymbolTable["y"] = Readonly(new IntVariable(item.Y));
+            itemObj.SymbolTable["id"] = Readonly(new IntVariable(item.ItemID));
+            itemObj.SymbolTable["amount"] = Readonly(new IntVariable(item.Amount));
+            return itemObj;
         }
     }
 }

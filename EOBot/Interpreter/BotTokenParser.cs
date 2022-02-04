@@ -75,7 +75,7 @@ namespace EOBot.Interpreter
                     do
                     {
                         inputChar = Read();
-                    } while (inputChar != '\n');
+                    } while (inputChar != '\n' && !_inputStream.EndOfStream);
 
                     LineNumber++;
                     Column = 1;
@@ -86,7 +86,7 @@ namespace EOBot.Interpreter
             if (char.IsLetter(inputChar))
             {
                 var identifier = inputChar.ToString();
-                while (char.IsLetterOrDigit(Peek()) || Peek() == '_')
+                while ((char.IsLetterOrDigit(Peek()) || Peek() == '_') && !_inputStream.EndOfStream)
                     identifier += Read();
 
                 var type = Keywords.Contains(identifier)
@@ -98,7 +98,7 @@ namespace EOBot.Interpreter
             else if (char.IsDigit(inputChar))
             {
                 var number = inputChar.ToString();
-                while (char.IsDigit((char)_inputStream.Peek()))
+                while (char.IsDigit((char)_inputStream.Peek()) && !_inputStream.EndOfStream)
                     number += Read();
                 return Token(BotTokenType.Literal, number);
             }
@@ -117,8 +117,12 @@ namespace EOBot.Interpreter
                     case '"':
                         {
                             var stringLiteral = string.Empty;
-                            while ((char)_inputStream.Peek() != '"')
+                            while ((char)_inputStream.Peek() != '"' && !_inputStream.EndOfStream)
                                 stringLiteral += Read();
+
+                            if (_inputStream.EndOfStream)
+                                return Token(BotTokenType.Error, string.Empty);
+
                             Read();
                             return Token(BotTokenType.Literal, stringLiteral);
                         }
@@ -184,6 +188,7 @@ namespace EOBot.Interpreter
                     case '-': return Token(BotTokenType.MinusOperator, inputChar.ToString());
                     case '*': return Token(BotTokenType.MultiplyOperator, inputChar.ToString());
                     case '/': return Token(BotTokenType.DivideOperator, inputChar.ToString());
+                    case '.': return Token(BotTokenType.Dot, inputChar.ToString());
                     default: return Token(BotTokenType.Error, inputChar.ToString());
                 }
             }

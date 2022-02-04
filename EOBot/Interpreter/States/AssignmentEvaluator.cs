@@ -1,6 +1,7 @@
 ﻿using EOBot.Interpreter.Extensions;
 using EOBot.Interpreter.Variables;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
@@ -35,35 +36,61 @@ namespace EOBot.Interpreter.States
 
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
-            var variable = (IdentifierBotToken)input.OperationStack.Pop();
+            var assignmentTarget = (IdentifierBotToken)input.OperationStack.Pop();
 
-            if (input.SymbolTable.ContainsKey(variable.TokenValue) &&
-                input.SymbolTable[variable.TokenValue].ReadOnly)
-                return ReadOnlyVariableError(variable);
+            return Assign(input.SymbolTable, assignmentTarget, expressionResult);
+        }
 
-            if (variable.ArrayIndex != null)
+        private (EvalResult, string, BotToken) Assign(Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> symbols, IdentifierBotToken assignmentTarget, VariableBotToken expressionResult)
+        {
+            if (assignmentTarget.Member != null)
             {
-                if (!input.SymbolTable.ContainsKey(variable.TokenValue))
-                    return IdentifierNotFoundError(variable);
+                if (!symbols.ContainsKey(assignmentTarget.TokenValue))
+                    return IdentifierNotFoundError(assignmentTarget);
 
-                var targetArray = input.SymbolTable[variable.TokenValue].Identifiable as ArrayVariable;
-                if (targetArray == null)
-                    return (EvalResult.Failed, $"Identifier {variable.TokenValue} is not an array", variable);
+                var getVariableRes = symbols.GetVariable<ObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.ArrayIndex);
+                if (getVariableRes.Result != EvalResult.Ok)
+                {
+                    var getRuntimeEvaluatedVariableRes = symbols.GetVariable<RuntimeEvaluatedMemberObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.ArrayIndex);
+                    if (getRuntimeEvaluatedVariableRes.Result != EvalResult.Ok)
+                        return (EvalResult.Failed, $"Identifier '{assignmentTarget.TokenValue}' is not an object", assignmentTarget);
 
-                if (targetArray.Value.Count <= variable.ArrayIndex.Value)
-                    return (EvalResult.Failed, $"Index {variable.ArrayIndex} is out of range of the array {variable.TokenValue} (size {targetArray.Value.Count})", variable);
+                    getVariableRes.Result = getRuntimeEvaluatedVariableRes.Result;
+                    getVariableRes.Reason = getRuntimeEvaluatedVariableRes.Reason;
+                    getVariableRes.Variable = new ObjectVariable(
+                        getRuntimeEvaluatedVariableRes.Variable.SymbolTable
+                            .Select(x => (x.Key, (x.Value.ReadOnly, x.Value.Variable())))
+                            .ToDictionary(x => x.Key, x => x.Item2));
+                }
 
-                targetArray.Value[variable.ArrayIndex.Value] = expressionResult.VariableValue;
+                var targetObject = getVariableRes.Variable;
+                return Assign(targetObject.SymbolTable, assignmentTarget.Member, expressionResult);
+            }
+
+            if (assignmentTarget.ArrayIndex != null)
+            {
+                if (!symbols.ContainsKey(assignmentTarget.TokenValue))
+                    return IdentifierNotFoundError(assignmentTarget);
+
+                var getVariableResult = symbols.GetVariable<ArrayVariable>(assignmentTarget.TokenValue);
+                if (getVariableResult.Result != EvalResult.Ok)
+                    return (getVariableResult.Result, getVariableResult.Reason, assignmentTarget);
+
+                var targetArray = getVariableResult.Variable;
+                targetArray.Value[assignmentTarget.ArrayIndex.Value] = expressionResult.VariableValue;
             }
             else
             {
-                if (input.SymbolTable.ContainsKey(variable.TokenValue) && input.SymbolTable[variable.TokenValue].Identifiable.GetType() != expressionResult.VariableValue.GetType())
+                if (symbols.ContainsKey(assignmentTarget.TokenValue) && symbols[assignmentTarget.TokenValue].ReadOnly)
+                    return ReadOnlyVariableError(assignmentTarget);
+
+                if (symbols.ContainsKey(assignmentTarget.TokenValue) && symbols[assignmentTarget.TokenValue].Identifiable.GetType() != expressionResult.VariableValue.GetType())
                 {
                     // todo: surface warnings to caller and let caller decide what to do with it instead of making the interpreter write to console directly
-                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Changing type of variable {variable.TokenValue} from {input.SymbolTable[variable.TokenValue].Identifiable.GetType()} to {expressionResult.VariableValue.GetType()}", System.ConsoleColor.DarkYellow);
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, $"Changing type of variable {assignmentTarget.TokenValue} from {symbols[assignmentTarget.TokenValue].Identifiable.GetType()} to {expressionResult.VariableValue.GetType()}", System.ConsoleColor.DarkYellow);
                 }
 
-                input.SymbolTable[variable.TokenValue] = (false, expressionResult.VariableValue);
+                symbols[assignmentTarget.TokenValue] = (false, expressionResult.VariableValue);
             }
 
             return Success();

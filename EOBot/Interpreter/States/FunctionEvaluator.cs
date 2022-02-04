@@ -55,7 +55,7 @@ namespace EOBot.Interpreter.States
             var functionToken = input.OperationStack.Pop();
 
             if (!input.SymbolTable.ContainsKey(functionToken.TokenValue))
-                return IdentifierNotFoundError(new IdentifierBotToken(BotTokenType.Identifier, functionToken.TokenValue, functionToken.LineNumber, functionToken.Column));
+                return IdentifierNotFoundError(new IdentifierBotToken(functionToken));
 
             var function = input.SymbolTable[functionToken.TokenValue].Identifiable;
 
@@ -149,6 +149,22 @@ namespace EOBot.Interpreter.States
             return Success();
         }
 
+        private (EvalResult, string, BotToken) Call(ProgramState input, BotToken functionToken, ICallable<ObjectVariable> function, params IVariable[] variables)
+        {
+            try
+            {
+                var varResult = function.Call(variables);
+                input.SymbolTable[PredefinedIdentifiers.RESULT] = (true, varResult);
+                input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
+            }
+            catch (ArgumentException ae)
+            {
+                return (EvalResult.Failed, ae.Message, functionToken);
+            }
+
+            return Success();
+        }
+
         private async Task<(EvalResult, string, BotToken)> CallAsync(ProgramState input, BotToken functionToken, IAsyncCallable function, params IVariable[] variables)
         {
             try
@@ -220,6 +236,22 @@ namespace EOBot.Interpreter.States
             {
                 var result = await function.CallAsync(variables);
                 var varResult = new BoolVariable(result);
+                input.SymbolTable[PredefinedIdentifiers.RESULT] = (true, varResult);
+                input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
+            }
+            catch (ArgumentException ae)
+            {
+                return (EvalResult.Failed, ae.Message, functionToken);
+            }
+
+            return Success();
+        }
+
+        private async Task<(EvalResult, string, BotToken)> CallAsync(ProgramState input, BotToken functionToken, IAsyncCallable<ObjectVariable> function, params IVariable[] variables)
+        {
+            try
+            {
+                var varResult = await function.CallAsync(variables);
                 input.SymbolTable[PredefinedIdentifiers.RESULT] = (true, varResult);
                 input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, varResult.StringValue, varResult));
             }

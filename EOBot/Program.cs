@@ -215,6 +215,7 @@ namespace EOBot
                     await f.RunAsync();
                 }
 
+                Console.WriteLine();
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "All bots completed.");
             }
             catch (BotException bex)
