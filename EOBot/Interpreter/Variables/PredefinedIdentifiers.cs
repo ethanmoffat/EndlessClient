@@ -17,6 +17,9 @@
         public const string CHARACTER = "character";
         public const string MAPSTATE = "mapstate";
 
+        public const string NAME = "name";
+        public const string CHARACTERS = "characters";
+
         // interpreter functions
         public const string PRINT_FUNC = "print";
         public const string LEN_FUNC = "len";

@@ -50,12 +50,6 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.DELETE_CHARACTER_FUNC] = Readonly(new AsyncFunction<string, bool, int>(PredefinedIdentifiers.DELETE_CHARACTER_FUNC, DeleteCharacterAsync));
             _state.SymbolTable[PredefinedIdentifiers.LOGIN_CHARACTER_FUNC] = Readonly(new AsyncVoidFunction<string>(PredefinedIdentifiers.LOGIN_CHARACTER_FUNC, LoginToCharacterAsync));
         }
-
-        private static (bool, IIdentifiable) Readonly(IIdentifiable identifiable)
-        {
-            return (true, identifiable);
-        }
-
         public void SetupBuiltInVariables()
         {
             _state.SymbolTable[PredefinedIdentifiers.HOST] = (true, new StringVariable(_parsedArgs.Host));
@@ -70,9 +64,14 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.VERSION] = (false, new IntVariable(28));
 
             _state.SymbolTable[PredefinedIdentifiers.RESULT] = (false, UndefinedVariable.Instance);
-            _state.SymbolTable[PredefinedIdentifiers.ACCOUNT] = (true, UndefinedVariable.Instance);
+            _state.SymbolTable[PredefinedIdentifiers.ACCOUNT] = SetupAccountObject();
             _state.SymbolTable[PredefinedIdentifiers.CHARACTER] = (true, UndefinedVariable.Instance);
             _state.SymbolTable[PredefinedIdentifiers.MAPSTATE] = (true, UndefinedVariable.Instance);
+        }
+
+        private static (bool, IIdentifiable) Readonly(IIdentifiable identifiable)
+        {
+            return (true, identifiable);
         }
 
         private void BotDependencySetup()
@@ -167,6 +166,25 @@ namespace EOBot.Interpreter
         private Task LoginToCharacterAsync(string charName)
         {
             return _botHelper.LoginToCharacterAsync(charName);
+        }
+
+        private (bool, IIdentifiable) SetupAccountObject()
+        {
+            var playerInfoProv = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPlayerInfoProvider>();
+            var charSelectProv = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterSelectorProvider>();
+
+            var accountObj = new RuntimeEvaluatedMemberObjectVariable();
+            accountObj.SymbolTable[PredefinedIdentifiers.NAME] = (true, () => new StringVariable(playerInfoProv.LoggedInAccountName));
+            accountObj.SymbolTable[PredefinedIdentifiers.CHARACTERS] = (true,
+                () => new ArrayVariable(
+                    charSelectProv.Characters.Select(x =>
+                    {
+                        var retObj = new ObjectVariable();
+                        retObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(x.Name));
+                        return (IVariable)retObj;
+                    }).ToList()));
+
+            return Readonly(accountObj);
         }
     }
 }

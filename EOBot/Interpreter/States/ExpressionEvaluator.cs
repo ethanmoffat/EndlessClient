@@ -1,6 +1,7 @@
 ﻿using EOBot.Interpreter.Extensions;
 using EOBot.Interpreter.Variables;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
@@ -137,6 +138,7 @@ namespace EOBot.Interpreter.States
             return Success();
         }
 
+        // todo: a lot of this code is the same as what's in AssignmentEvaluator::Assign, see if it can be split out/shared
         private (EvalResult, string, BotToken) GetOperand(Dictionary<string, (bool, IIdentifiable)> symbols, BotToken nextToken)
         {
             if (nextToken.TokenType == BotTokenType.Literal)
@@ -168,7 +170,18 @@ namespace EOBot.Interpreter.States
                 {
                     var getVariableRes = symbols.GetVariable<ObjectVariable>(identifier.TokenValue, identifier.ArrayIndex);
                     if (getVariableRes.Result != EvalResult.Ok)
-                        return (EvalResult.Failed, $"Identifier '{identifier.TokenValue}' is not an object", identifier);
+                    {
+                        var getRuntimeEvaluatedVariableRes = symbols.GetVariable<RuntimeEvaluatedMemberObjectVariable>(identifier.TokenValue, identifier.ArrayIndex);
+                        if (getRuntimeEvaluatedVariableRes.Result != EvalResult.Ok)
+                            return (EvalResult.Failed, $"Identifier '{identifier.TokenValue}' is not an object", identifier);
+
+                        getVariableRes.Result = getRuntimeEvaluatedVariableRes.Result;
+                        getVariableRes.Reason = getRuntimeEvaluatedVariableRes.Reason;
+                        getVariableRes.Variable = new ObjectVariable(
+                            getRuntimeEvaluatedVariableRes.Variable.SymbolTable
+                                .Select(x => (x.Key, (x.Value.ReadOnly, x.Value.Variable())))
+                                .ToDictionary(x => x.Key, x => x.Item2));
+                    }
 
                     return GetOperand(getVariableRes.Variable.SymbolTable, identifier.Member);
                 }

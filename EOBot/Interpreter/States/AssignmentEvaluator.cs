@@ -1,6 +1,7 @@
 ﻿using EOBot.Interpreter.Extensions;
 using EOBot.Interpreter.Variables;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace EOBot.Interpreter.States
@@ -37,22 +38,33 @@ namespace EOBot.Interpreter.States
                 return StackEmptyError(input.Current());
             var assignmentTarget = (IdentifierBotToken)input.OperationStack.Pop();
 
-            return Assign2(input.SymbolTable, assignmentTarget, expressionResult);
+            return Assign(input.SymbolTable, assignmentTarget, expressionResult);
         }
 
-        private (EvalResult, string, BotToken) Assign2(Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> symbols, IdentifierBotToken assignmentTarget, VariableBotToken expressionResult)
+        private (EvalResult, string, BotToken) Assign(Dictionary<string, (bool ReadOnly, IIdentifiable Identifiable)> symbols, IdentifierBotToken assignmentTarget, VariableBotToken expressionResult)
         {
             if (assignmentTarget.Member != null)
             {
                 if (!symbols.ContainsKey(assignmentTarget.TokenValue))
                     return IdentifierNotFoundError(assignmentTarget);
 
-                var getVariableResult = symbols.GetVariable<ObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.ArrayIndex);
-                if (getVariableResult.Result != EvalResult.Ok)
-                    return (getVariableResult.Result, getVariableResult.Reason, assignmentTarget);
+                var getVariableRes = symbols.GetVariable<ObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.ArrayIndex);
+                if (getVariableRes.Result != EvalResult.Ok)
+                {
+                    var getRuntimeEvaluatedVariableRes = symbols.GetVariable<RuntimeEvaluatedMemberObjectVariable>(assignmentTarget.TokenValue, assignmentTarget.ArrayIndex);
+                    if (getRuntimeEvaluatedVariableRes.Result != EvalResult.Ok)
+                        return (EvalResult.Failed, $"Identifier '{assignmentTarget.TokenValue}' is not an object", assignmentTarget);
 
-                var targetObject = getVariableResult.Variable;
-                return Assign2(targetObject.SymbolTable, assignmentTarget.Member, expressionResult);
+                    getVariableRes.Result = getRuntimeEvaluatedVariableRes.Result;
+                    getVariableRes.Reason = getRuntimeEvaluatedVariableRes.Reason;
+                    getVariableRes.Variable = new ObjectVariable(
+                        getRuntimeEvaluatedVariableRes.Variable.SymbolTable
+                            .Select(x => (x.Key, (x.Value.ReadOnly, x.Value.Variable())))
+                            .ToDictionary(x => x.Key, x => x.Item2));
+                }
+
+                var targetObject = getVariableRes.Variable;
+                return Assign(targetObject.SymbolTable, assignmentTarget.Member, expressionResult);
             }
 
             if (assignmentTarget.ArrayIndex != null)
