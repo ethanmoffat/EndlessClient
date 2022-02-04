@@ -10,7 +10,14 @@ namespace EOBot.Interpreter
         {
             "if",
             "while",
-            "goto"
+            "goto",
+            "else",
+        };
+
+        private static readonly HashSet<string> Literals = new HashSet<string>
+        {
+            "true",
+            "false"
         };
 
         private readonly StreamReader _inputStream;
@@ -91,7 +98,9 @@ namespace EOBot.Interpreter
 
                 var type = Keywords.Contains(identifier)
                         ? BotTokenType.Keyword
-                        : BotTokenType.Identifier;
+                        : Literals.Contains(identifier)
+                            ? BotTokenType.Literal
+                            : BotTokenType.Identifier;
 
                 return Token(type, identifier);
             }
@@ -141,7 +150,7 @@ namespace EOBot.Interpreter
                         {
                             var nextChar = Read();
                             if (nextChar != '=')
-                                return Token(BotTokenType.Error, inputChar.ToString() + nextChar);
+                                return Token(BotTokenType.NotOperator, inputChar.ToString() + nextChar);
                             return Token(BotTokenType.NotEqualOperator, inputChar.ToString() + nextChar);
                         }
                     case '>':
