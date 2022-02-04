@@ -4,6 +4,8 @@ using EOLib.Config;
 using EOLib.Domain.Account;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
+using EOLib.Domain.Map;
+using EOLib.Domain.NPC;
 using EOLib.Domain.Protocol;
 using EOLib.IO.Repositories;
 using EOLib.Net.Communication;
@@ -68,7 +70,7 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.RESULT] = (false, UndefinedVariable.Instance);
             _state.SymbolTable[PredefinedIdentifiers.ACCOUNT] = SetupAccountObject();
             _state.SymbolTable[PredefinedIdentifiers.CHARACTER] = SetupCharacterObject();
-            _state.SymbolTable[PredefinedIdentifiers.MAPSTATE] = (true, UndefinedVariable.Instance);
+            _state.SymbolTable[PredefinedIdentifiers.MAPSTATE] = SetupMapStateObject();
         }
 
         private static (bool, IIdentifiable) Readonly(IIdentifiable identifiable)
@@ -239,6 +241,55 @@ namespace EOBot.Interpreter
                 });
 
             return Readonly(charObj);
+        }
+
+        private (bool, IIdentifiable) SetupMapStateObject()
+        {
+            var ms = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICurrentMapStateProvider>();
+
+            var mapStateObj = new RuntimeEvaluatedMemberObjectVariable();
+            mapStateObj.SymbolTable["characters"] = (true, () => new ArrayVariable(ms.Characters.Select(GetMapStateCharacter).ToList()));
+            mapStateObj.SymbolTable["npcs"] = (true, () => new ArrayVariable(ms.NPCs.Select(GetMapStateNPC).ToList()));
+            mapStateObj.SymbolTable["items"] = (true, () => new ArrayVariable(ms.MapItems.Select(GetMapStateItem).ToList()));
+
+            return Readonly(mapStateObj);
+        }
+
+        private IVariable GetMapStateCharacter(ICharacter c)
+        {
+            var charObj = new ObjectVariable();
+            charObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(c.Name));
+            charObj.SymbolTable["map"] = Readonly(new IntVariable(c.MapID));
+            charObj.SymbolTable["x"] = Readonly(new IntVariable(c.RenderProperties.MapX));
+            charObj.SymbolTable["y"] = Readonly(new IntVariable(c.RenderProperties.MapY));
+            charObj.SymbolTable["direction"] = Readonly(new IntVariable((int)c.RenderProperties.Direction));
+            return charObj;
+        }
+
+        private IVariable GetMapStateNPC(INPC npc)
+        {
+            var npcFile = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>().ENFFile;
+
+            var npcObj = new ObjectVariable();
+            npcObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(npcFile.Data.Single(x => x.ID == npc.ID).Name));
+            npcObj.SymbolTable["x"] = Readonly(new IntVariable(npc.X));
+            npcObj.SymbolTable["y"] = Readonly(new IntVariable(npc.Y));
+            npcObj.SymbolTable["id"] = Readonly(new IntVariable(npc.ID));
+            npcObj.SymbolTable["direction"] = Readonly(new IntVariable((int)npc.Direction));
+            return npcObj;
+        }
+
+        private IVariable GetMapStateItem(IItem item)
+        {
+            var itemFile = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>().EIFFile;
+
+            var itemObj = new ObjectVariable();
+            itemObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(itemFile.Data.Single(x => x.ID == item.ItemID).Name));
+            itemObj.SymbolTable["x"] = Readonly(new IntVariable(item.X));
+            itemObj.SymbolTable["y"] = Readonly(new IntVariable(item.Y));
+            itemObj.SymbolTable["id"] = Readonly(new IntVariable(item.ItemID));
+            itemObj.SymbolTable["amount"] = Readonly(new IntVariable(item.Amount));
+            return itemObj;
         }
     }
 }
