@@ -184,6 +184,7 @@ namespace EOBot.Interpreter
                     case '-': return Token(BotTokenType.MinusOperator, inputChar.ToString());
                     case '*': return Token(BotTokenType.MultiplyOperator, inputChar.ToString());
                     case '/': return Token(BotTokenType.DivideOperator, inputChar.ToString());
+                    case '.': return Token(BotTokenType.Dot, inputChar.ToString());
                     default: return Token(BotTokenType.Error, inputChar.ToString());
                 }
             }

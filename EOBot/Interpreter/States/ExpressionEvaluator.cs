@@ -31,7 +31,7 @@ namespace EOBot.Interpreter.States
                         return StackEmptyError(input.Current());
 
                     // convert to variable token (resolve identifier) so consumer of expression result can use it
-                    var (localResult, localReason, singleOperand) = GetOperand(input);
+                    var (localResult, localReason, singleOperand) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
                     if (localResult != EvalResult.Ok)
                         return (localResult, localReason, singleOperand);
 
@@ -74,7 +74,7 @@ namespace EOBot.Interpreter.States
                             return StackEmptyError(input.Current());
 
                         // convert to variable token (resolve identifier) so consumer of expression result can use it
-                        var (localResult, localReason, singleOperand) = GetOperand(input);
+                        var (localResult, localReason, singleOperand) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
                         if (localResult != EvalResult.Ok)
                             return (localResult, localReason, singleOperand);
 
@@ -94,7 +94,7 @@ namespace EOBot.Interpreter.States
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
 
-            var (result, reason, op2) = GetOperand(input);
+            var (result, reason, op2) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
             if (result == EvalResult.Failed)
                 return (result, reason, op2);
             var operand2 = op2 as VariableBotToken;
@@ -107,7 +107,7 @@ namespace EOBot.Interpreter.States
                 return StackEmptyError(input.Current());
 
             BotToken op1;
-            (result, reason, op1) = GetOperand(input);
+            (result, reason, op1) = GetOperand(input.SymbolTable, input.OperationStack.Pop());
             if (result == EvalResult.Failed)
                 return (result, reason, op1);
             var operand1 = op1 as VariableBotToken;
@@ -137,9 +137,8 @@ namespace EOBot.Interpreter.States
             return Success();
         }
 
-        private (EvalResult, string, BotToken) GetOperand(ProgramState input)
+        private (EvalResult, string, BotToken) GetOperand(Dictionary<string, (bool, IIdentifiable)> symbols, BotToken nextToken)
         {
-            var nextToken = input.OperationStack.Pop();
             if (nextToken.TokenType == BotTokenType.Literal)
             {
                 if (int.TryParse(nextToken.TokenValue, out var intValue))
@@ -157,11 +156,22 @@ namespace EOBot.Interpreter.States
                 if (identifier == null)
                     return (EvalResult.Failed, $"Expected operand of type Variable or Identifier but got {nextToken.TokenType}", nextToken);
 
-                var getVariableRes = input.GetVariable(identifier.TokenValue, identifier.ArrayIndex);
-                if (getVariableRes.Result != EvalResult.Ok)
-                    return (getVariableRes.Result, getVariableRes.Reason, identifier);
+                if (identifier.Member == null)
+                {
+                    var getVariableRes = symbols.GetVariable(identifier.TokenValue, identifier.ArrayIndex);
+                    if (getVariableRes.Result != EvalResult.Ok)
+                        return (getVariableRes.Result, getVariableRes.Reason, identifier);
 
-                operand = new VariableBotToken(BotTokenType.Literal, getVariableRes.Variable.ToString(), getVariableRes.Variable);
+                    operand = new VariableBotToken(BotTokenType.Literal, getVariableRes.Variable.ToString(), getVariableRes.Variable);
+                }
+                else
+                {
+                    var getVariableRes = symbols.GetVariable<ObjectVariable>(identifier.TokenValue, identifier.ArrayIndex);
+                    if (getVariableRes.Result != EvalResult.Ok)
+                        return (EvalResult.Failed, $"Identifier '{identifier.TokenValue}' is not an object", identifier);
+
+                    return GetOperand(getVariableRes.Variable.SymbolTable, identifier.Member);
+                }
             }
 
             return Success(operand);
