@@ -2,8 +2,10 @@
 using EOBot.Interpreter.Variables;
 using EOLib.Config;
 using EOLib.Domain.Account;
+using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Protocol;
+using EOLib.IO.Repositories;
 using EOLib.Net.Communication;
 using EOLib.Net.Connection;
 using EOLib.Net.PacketProcessing;
@@ -65,7 +67,7 @@ namespace EOBot.Interpreter
 
             _state.SymbolTable[PredefinedIdentifiers.RESULT] = (false, UndefinedVariable.Instance);
             _state.SymbolTable[PredefinedIdentifiers.ACCOUNT] = SetupAccountObject();
-            _state.SymbolTable[PredefinedIdentifiers.CHARACTER] = (true, UndefinedVariable.Instance);
+            _state.SymbolTable[PredefinedIdentifiers.CHARACTER] = SetupCharacterObject();
             _state.SymbolTable[PredefinedIdentifiers.MAPSTATE] = (true, UndefinedVariable.Instance);
         }
 
@@ -185,6 +187,58 @@ namespace EOBot.Interpreter
                     }).ToList()));
 
             return Readonly(accountObj);
+        }
+
+        private (bool, IIdentifiable) SetupCharacterObject()
+        {
+            var cp = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterProvider>();
+            var inventoryProvider = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterInventoryProvider>();
+            var pubProvider = DependencyMaster.TypeRegistry[_botIndex].Resolve<IPubFileProvider>();
+
+            var charObj = new RuntimeEvaluatedMemberObjectVariable();
+            charObj.SymbolTable[PredefinedIdentifiers.NAME] = (true, () => new StringVariable(cp.MainCharacter.Name));
+            charObj.SymbolTable["map"] = (true, () => new IntVariable(cp.MainCharacter.MapID));
+            charObj.SymbolTable["x"] = (true, () => new IntVariable(cp.MainCharacter.RenderProperties.MapX));
+            charObj.SymbolTable["y"] = (true, () => new IntVariable(cp.MainCharacter.RenderProperties.MapY));
+            charObj.SymbolTable["direction"] = (true, () => new IntVariable((int)cp.MainCharacter.RenderProperties.Direction));
+            charObj.SymbolTable["inventory"] = (true,
+                () => new ArrayVariable(
+                    inventoryProvider.ItemInventory.Select(x =>
+                    {
+                        var itemName = pubProvider.EIFFile.Data.Single(d => d.ID == x.ItemID).Name;
+
+                        var retObj = new ObjectVariable();
+                        retObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(itemName));
+                        retObj.SymbolTable["id"] = Readonly(new IntVariable(x.ItemID));
+                        retObj.SymbolTable["amount"] = Readonly(new IntVariable(x.Amount));
+                        return (IVariable)retObj;
+                    }).ToList()));
+            charObj.SymbolTable["spells"] = (true,
+                () => new ArrayVariable(
+                    inventoryProvider.SpellInventory.Select(x =>
+                    {
+                        var spellName = pubProvider.ESFFile.Data.Single(d => d.ID == x.ID).Name;
+
+                        var retObj = new ObjectVariable();
+                        retObj.SymbolTable[PredefinedIdentifiers.NAME] = Readonly(new StringVariable(spellName));
+                        retObj.SymbolTable["id"] = Readonly(new IntVariable(x.ID));
+                        retObj.SymbolTable["amount"] = Readonly(new IntVariable(x.Level));
+                        return (IVariable)retObj;
+                    }).ToList()));
+            charObj.SymbolTable["stats"] = (true,
+                () =>
+                {
+                    var statsObj = new ObjectVariable();
+                    statsObj.SymbolTable["hp"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.HP]));
+                    statsObj.SymbolTable["maxhp"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.MaxHP]));
+                    statsObj.SymbolTable["weight"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.Weight]));
+                    statsObj.SymbolTable["maxweight"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.MaxWeight]));
+                    statsObj.SymbolTable["tp"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.TP]));
+                    statsObj.SymbolTable["maxtp"] = Readonly(new IntVariable(cp.MainCharacter.Stats[CharacterStat.MaxTP]));
+                    return statsObj;
+                });
+
+            return Readonly(charObj);
         }
     }
 }
