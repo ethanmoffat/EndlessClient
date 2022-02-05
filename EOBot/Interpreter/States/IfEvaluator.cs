@@ -35,6 +35,8 @@ namespace EOBot.Interpreter.States
                         return elseIfRes;
                     else if (elseIfRes.Result == EvalResult.Ok)
                     {
+                        input.Expect(BotTokenType.NewLine);
+
                         // skip the rest of the following blocks if evaluated
                         while (IsElse(input))
                         {

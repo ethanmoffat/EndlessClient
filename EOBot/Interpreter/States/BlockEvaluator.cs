@@ -89,11 +89,14 @@ namespace EOBot.Interpreter.States
             }
             else
             {
-                // optional newline after block
+                // optional newline before statement
                 input.Expect(BotTokenType.NewLine);
 
                 while (input.Current().TokenType != BotTokenType.NewLine && input.Current().TokenType != BotTokenType.EOF)
                     input.SkipToken();
+
+                // optional newline after statement
+                input.Expect(BotTokenType.NewLine);
             }
         }
     }
