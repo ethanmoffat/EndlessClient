@@ -14,6 +14,8 @@ namespace EOBot.Interpreter.States
         // todo: this code is a mess and could use cleaning up (lots of copy/paste...)
         public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
         {
+            input.Match(BotTokenType.NotOperator);
+
             if (input.Expect(BotTokenType.LParen))
             {
                 var evalRes = await Evaluator<ExpressionEvaluator>().EvaluateAsync(input);
@@ -22,7 +24,7 @@ namespace EOBot.Interpreter.States
 
                 // if we get an RParen, the nested expression has been evaluated
                 if (input.Expect(BotTokenType.RParen))
-                    return evalRes;
+                    return NegateIfNeeded(input);
 
                 // expression_tail is optional
                 evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input);
@@ -44,7 +46,10 @@ namespace EOBot.Interpreter.States
                     // if there is an expression tail, evaluate the operands below, otherwise return early
                     evalRes = await Evaluator<ExpressionTailEvaluator>().EvaluateAsync(input);
                     if (evalRes.Result == EvalResult.NotMatch)
-                        return Success();
+                    {
+                        // function call as single operand expression - negate the result if needed
+                        return NegateIfNeeded(input);
+                    }
                     else if (evalRes.Result == EvalResult.Failed)
                         return evalRes;
                 }
@@ -110,8 +115,7 @@ namespace EOBot.Interpreter.States
                 return (EvalResult.Failed, $"Error evaluating expression: {res.Reason}", input.Current());
 
             input.OperationStack.Push(new VariableBotToken(BotTokenType.Literal, res.Result.StringValue, res.Result));
-
-            return Success();
+            return NegateIfNeeded(input);
         }
 
         private (EvalResult, string, BotToken) EvaluateSingleOperand(ProgramState input)
@@ -125,8 +129,7 @@ namespace EOBot.Interpreter.States
                 return (localResult, localReason, singleOperand);
 
             input.OperationStack.Push(singleOperand);
-
-            return Success();
+            return NegateIfNeeded(input);
         }
 
         // todo: a lot of this code is the same as what's in AssignmentEvaluator::Assign, see if it can be split out/shared
@@ -179,6 +182,32 @@ namespace EOBot.Interpreter.States
             }
 
             return Success(operand);
+        }
+
+        // negate the VariableBotToken on top of the stack if there as a 'not' operator immediately below it
+        private (EvalResult, string, BotToken) NegateIfNeeded(ProgramState input)
+        {
+            if (input.OperationStack.Count == 0)
+                return StackEmptyError(input.Current());
+
+            var varToken = input.OperationStack.Pop();
+
+            if (input.OperationStack.Count == 0 || input.OperationStack.Peek().TokenType != BotTokenType.NotOperator)
+            {
+                input.OperationStack.Push(varToken);
+                return Success();
+            }
+
+            var notOperator = input.OperationStack.Pop();
+
+            var boolOperand = ((VariableBotToken)varToken).VariableValue as BoolVariable;
+            if (boolOperand == null)
+                return UnsupportedOperatorError(notOperator);
+
+            var negatedToken = new VariableBotToken(varToken.TokenType, (!boolOperand.Value).ToString(), new BoolVariable(!boolOperand.Value));
+            input.OperationStack.Push(negatedToken);
+
+            return Success();
         }
 
         private (IVariable, string) Add(IntVariable a, IntVariable b) => (new IntVariable(a.Value + b.Value), string.Empty);

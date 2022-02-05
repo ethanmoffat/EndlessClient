@@ -148,9 +148,11 @@ namespace EOBot.Interpreter
                         }
                     case '!':
                         {
-                            var nextChar = Read();
+                            var nextChar = Peek();
                             if (nextChar != '=')
-                                return Token(BotTokenType.NotOperator, inputChar.ToString() + nextChar);
+                                return Token(BotTokenType.NotOperator, inputChar.ToString());
+                            
+                            Read();
                             return Token(BotTokenType.NotEqualOperator, inputChar.ToString() + nextChar);
                         }
                     case '>':
