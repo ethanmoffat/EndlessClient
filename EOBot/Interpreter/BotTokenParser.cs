@@ -10,7 +10,14 @@ namespace EOBot.Interpreter
         {
             "if",
             "while",
-            "goto"
+            "goto",
+            "else",
+        };
+
+        private static readonly HashSet<string> Literals = new HashSet<string>
+        {
+            "true",
+            "false"
         };
 
         private readonly StreamReader _inputStream;
@@ -57,19 +64,19 @@ namespace EOBot.Interpreter
                     return Token(BotTokenType.NewLine, inputChar.ToString());
                 }
 
-                if (inputChar == '/' && !_inputStream.EndOfStream && (char)_inputStream.Peek() == '*')
+                if (inputChar == '/' && !_inputStream.EndOfStream && Peek() == '*')
                 {
                     // skip the comment: block format
                     do
                     {
                         inputChar = Read();
-                    } while (!(inputChar == '*' && !_inputStream.EndOfStream && _inputStream.Peek() == '/'));
+                    } while (!(inputChar == '*' && !_inputStream.EndOfStream && Peek() == '/'));
 
                     // skip the slash ending the comment and set input char to the character after the comment
                     Read();
                     inputChar = Read();
                 }
-                else if (inputChar == '/' && !_inputStream.EndOfStream && (char)_inputStream.Peek() == '/')
+                else if (inputChar == '/' && !_inputStream.EndOfStream && Peek() == '/')
                 {
                     // skip the comment: line format
                     do
@@ -91,14 +98,16 @@ namespace EOBot.Interpreter
 
                 var type = Keywords.Contains(identifier)
                         ? BotTokenType.Keyword
-                        : BotTokenType.Identifier;
+                        : Literals.Contains(identifier)
+                            ? BotTokenType.Literal
+                            : BotTokenType.Identifier;
 
                 return Token(type, identifier);
             }
             else if (char.IsDigit(inputChar))
             {
                 var number = inputChar.ToString();
-                while (char.IsDigit((char)_inputStream.Peek()) && !_inputStream.EndOfStream)
+                while (char.IsDigit(Peek()) && !_inputStream.EndOfStream)
                     number += Read();
                 return Token(BotTokenType.Literal, number);
             }
@@ -117,7 +126,7 @@ namespace EOBot.Interpreter
                     case '"':
                         {
                             var stringLiteral = string.Empty;
-                            while ((char)_inputStream.Peek() != '"' && !_inputStream.EndOfStream)
+                            while (Peek() != '"' && !_inputStream.EndOfStream)
                                 stringLiteral += Read();
 
                             if (_inputStream.EndOfStream)
@@ -128,7 +137,7 @@ namespace EOBot.Interpreter
                         }
                     case '=':
                         {
-                            switch((char)_inputStream.Peek())
+                            switch(Peek())
                             {
                                 case '=':
                                     var nextChar = Read();
@@ -139,14 +148,18 @@ namespace EOBot.Interpreter
                         }
                     case '!':
                         {
-                            var nextChar = Read();
-                            if (nextChar != '=')
-                                return Token(BotTokenType.Error, inputChar.ToString() + nextChar);
-                            return Token(BotTokenType.NotEqualOperator, inputChar.ToString() + nextChar);
+                            switch(Peek())
+                            {
+                                case '=':
+                                    var nextChar = Read();
+                                    return Token(BotTokenType.NotEqualOperator, inputChar.ToString() + nextChar);
+                                default:
+                                    return Token(BotTokenType.NotOperator, inputChar.ToString());
+                            }
                         }
                     case '>':
                         {
-                            switch ((char)_inputStream.Peek())
+                            switch (Peek())
                             {
                                 case '=':
                                     var nextChar = Read();
@@ -157,7 +170,7 @@ namespace EOBot.Interpreter
                         }
                     case '<':
                         {
-                            switch ((char)_inputStream.Peek())
+                            switch (Peek())
                             {
                                 case '=':
                                     var nextChar = Read();
@@ -172,7 +185,7 @@ namespace EOBot.Interpreter
                                 return Token(BotTokenType.Error, inputChar.ToString());
 
                             // ensure variable starts with letter or underscore before getting variable name
-                            inputChar = (char)_inputStream.Peek();
+                            inputChar = Peek();
                             if (!char.IsLetter(inputChar) && inputChar != '_')
                                 return Token(BotTokenType.Error, inputChar.ToString());
 

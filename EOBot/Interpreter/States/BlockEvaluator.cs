@@ -51,15 +51,23 @@ namespace EOBot.Interpreter.States
                     return evalResult;
             }
 
-            // hack: put the \n token back since StatementList/Statement will have consumed it
-            if (input.Program[input.ExecutionIndex - 1].TokenType == BotTokenType.NewLine)
-                input.Goto(input.ExecutionIndex - 1);
 
+            RestoreLastNewline(input);
             return evalResult;
         }
 
         protected void SkipBlock(ProgramState input)
         {
+            // ensure that for 'else if' the if condition is skipped as well
+            var current = input.Current();
+            if (current.TokenType == BotTokenType.Keyword && current.TokenValue == "if")
+            {
+                input.Expect(BotTokenType.Keyword);
+                input.Expect(BotTokenType.LParen);
+                while (!input.Expect(BotTokenType.RParen))
+                    input.SkipToken();
+            }
+
             // potential newline character - skip so we can advance execution beyond the block
             input.Expect(BotTokenType.NewLine);
 
@@ -79,12 +87,22 @@ namespace EOBot.Interpreter.States
             }
             else
             {
-                // optional newline after block
+                // optional newline before statement
                 input.Expect(BotTokenType.NewLine);
 
                 while (input.Current().TokenType != BotTokenType.NewLine && input.Current().TokenType != BotTokenType.EOF)
                     input.SkipToken();
+
+                // optional newline after statement
+                input.Expect(BotTokenType.NewLine);
             }
+        }
+
+        protected static void RestoreLastNewline(ProgramState input)
+        {
+            // hack: put the \n token back since StatementList/Statement will have consumed it
+            if (input.Program[input.ExecutionIndex - 1].TokenType == BotTokenType.NewLine)
+                input.Goto(input.ExecutionIndex - 1);
         }
     }
 }

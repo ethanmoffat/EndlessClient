@@ -11,6 +11,11 @@ namespace EOBot.Interpreter.States
 
         public override async Task<(EvalResult, string, BotToken)> EvaluateAsync(ProgramState input)
         {
+            if (input.Match(BotTokenType.NotOperator))
+            {
+
+            }
+
             var evalRes = await Evaluator<VariableEvaluator>().EvaluateAsync(input);
             if (evalRes.Result == EvalResult.Ok)
                 return evalRes;
