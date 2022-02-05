@@ -25,9 +25,38 @@ namespace EOBot.Interpreter.States
                     return await EvaluateBlockAsync(input);
 
                 SkipBlock(input);
+
+                if (IsElse(input))
+                {
+                    input.Expect(BotTokenType.Keyword);
+
+                    var elseIfRes = await Evaluator<IfEvaluator>().EvaluateAsync(input);
+                    if (elseIfRes.Result == EvalResult.Failed)
+                        return elseIfRes;
+                    else if (elseIfRes.Result == EvalResult.Ok)
+                    {
+                        // skip the rest of the following blocks if evaluated
+                        while (IsElse(input))
+                        {
+                            input.Expect(BotTokenType.Keyword);
+                            SkipBlock(input);
+                        }
+
+                        return elseIfRes;
+                    }
+
+                    // if not a match for else if, it is an else block
+                    return await EvaluateBlockAsync(input);
+                }
             }
 
             return (result, reason, token);
+        }
+
+        private bool IsElse(ProgramState input)
+        {
+            var current = input.Current();
+            return current.TokenType == BotTokenType.Keyword && current.TokenValue == "else";
         }
     }
 }

@@ -60,6 +60,16 @@ namespace EOBot.Interpreter.States
 
         protected void SkipBlock(ProgramState input)
         {
+            // ensure that for 'else if' the if condition is skipped as well
+            var current = input.Current();
+            if (current.TokenType == BotTokenType.Keyword && current.TokenValue == "if")
+            {
+                input.Expect(BotTokenType.Keyword);
+                input.Expect(BotTokenType.LParen);
+                while (!input.Expect(BotTokenType.RParen))
+                    input.SkipToken();
+            }
+
             // potential newline character - skip so we can advance execution beyond the block
             input.Expect(BotTokenType.NewLine);
 
