@@ -190,23 +190,24 @@ namespace EOBot.Interpreter.States
             if (input.OperationStack.Count == 0)
                 return StackEmptyError(input.Current());
 
-            var varToken = input.OperationStack.Pop();
+            var operand = input.OperationStack.Pop();
 
-            if (input.OperationStack.Count == 0 || input.OperationStack.Peek().TokenType != BotTokenType.NotOperator)
+            var varToken = operand as VariableBotToken;
+            if (varToken == null)
+                return StackTokenError(BotTokenType.Literal, operand);
+
+            while (input.OperationStack.Count > 0 && input.OperationStack.Peek().TokenType == BotTokenType.NotOperator)
             {
-                input.OperationStack.Push(varToken);
-                return Success();
+                var notOperator = input.OperationStack.Pop();
+
+                var boolOperand = varToken.VariableValue as BoolVariable;
+                if (boolOperand == null)
+                    return UnsupportedOperatorError(notOperator);
+
+                varToken = new VariableBotToken(varToken.TokenType, (!boolOperand.Value).ToString(), new BoolVariable(!boolOperand.Value));
             }
 
-            var notOperator = input.OperationStack.Pop();
-
-            var boolOperand = ((VariableBotToken)varToken).VariableValue as BoolVariable;
-            if (boolOperand == null)
-                return UnsupportedOperatorError(notOperator);
-
-            var negatedToken = new VariableBotToken(varToken.TokenType, (!boolOperand.Value).ToString(), new BoolVariable(!boolOperand.Value));
-            input.OperationStack.Push(negatedToken);
-
+            input.OperationStack.Push(varToken);
             return Success();
         }
 
