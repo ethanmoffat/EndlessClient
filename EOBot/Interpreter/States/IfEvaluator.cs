@@ -26,6 +26,8 @@ namespace EOBot.Interpreter.States
 
                 SkipBlock(input);
 
+                while (input.Expect(BotTokenType.NewLine)) ;
+
                 if (IsElse(input))
                 {
                     input.Expect(BotTokenType.Keyword);
@@ -35,7 +37,7 @@ namespace EOBot.Interpreter.States
                         return elseIfRes;
                     else if (elseIfRes.Result == EvalResult.Ok)
                     {
-                        input.Expect(BotTokenType.NewLine);
+                        while (input.Expect(BotTokenType.NewLine)) ;
 
                         // skip the rest of the following blocks if evaluated
                         while (IsElse(input))
@@ -44,10 +46,7 @@ namespace EOBot.Interpreter.States
                             SkipBlock(input);
                         }
 
-                        // hack: put the \n token back since StatementList/Statement will have consumed it
-                        if (input.Program[input.ExecutionIndex - 1].TokenType == BotTokenType.NewLine)
-                            input.Goto(input.ExecutionIndex - 1);
-
+                        RestoreLastNewline(input);
                         return elseIfRes;
                     }
 
@@ -56,6 +55,7 @@ namespace EOBot.Interpreter.States
                 }
             }
 
+            RestoreLastNewline(input);
             return (result, reason, token);
         }
 

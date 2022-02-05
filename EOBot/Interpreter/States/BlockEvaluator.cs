@@ -51,10 +51,8 @@ namespace EOBot.Interpreter.States
                     return evalResult;
             }
 
-            // hack: put the \n token back since StatementList/Statement will have consumed it
-            if (input.Program[input.ExecutionIndex - 1].TokenType == BotTokenType.NewLine)
-                input.Goto(input.ExecutionIndex - 1);
 
+            RestoreLastNewline(input);
             return evalResult;
         }
 
@@ -98,6 +96,14 @@ namespace EOBot.Interpreter.States
                 // optional newline after statement
                 input.Expect(BotTokenType.NewLine);
             }
+        }
+
+        protected static void RestoreLastNewline(ProgramState input)
+        {
+
+            // hack: put the \n token back since StatementList/Statement will have consumed it
+            if (input.Program[input.ExecutionIndex - 1].TokenType == BotTokenType.NewLine)
+                input.Goto(input.ExecutionIndex - 1);
         }
     }
 }
