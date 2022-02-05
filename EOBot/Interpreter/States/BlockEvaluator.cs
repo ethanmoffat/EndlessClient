@@ -100,7 +100,6 @@ namespace EOBot.Interpreter.States
 
         protected static void RestoreLastNewline(ProgramState input)
         {
-
             // hack: put the \n token back since StatementList/Statement will have consumed it
             if (input.Program[input.ExecutionIndex - 1].TokenType == BotTokenType.NewLine)
                 input.Goto(input.ExecutionIndex - 1);
