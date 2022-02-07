@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOBot.Interpreter;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
@@ -154,7 +155,7 @@ namespace EOBot
             public void StartOtherCharacterWalkAnimation(int characterID) { }
         }
 
-        static async Task Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             var assemblyNames = new[]
             {
@@ -178,7 +179,7 @@ namespace EOBot
             if (parsedArgs.Error != ArgsError.NoError)
             {
                 ShowError(parsedArgs);
-                return;
+                return 1;
             }
 
             DependencyMaster.TypeRegistry = new ITypeRegistry[parsedArgs.NumBots];
@@ -202,7 +203,7 @@ namespace EOBot
             if (parsedArgs.NumBots > 1 && parsedArgs.ScriptFile != null && !parsedArgs.AutoConnect )
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, "AutoConnect is required when using a script with more than 1 bot due to eoserv connection throttling");
-                return;
+                return 1;
             }
 
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Starting bots...");
@@ -222,10 +223,17 @@ namespace EOBot
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, bex.Message, ConsoleColor.DarkRed);
             }
+            catch (BotScriptErrorException bse)
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, bse.Message, ConsoleColor.DarkRed);
+                return 1;
+            }
             catch (Exception ex)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}", ConsoleColor.DarkRed);
             }
+
+            return 0;
         }
 
         static bool HandleCtrl(Win32.CtrlTypes type)
