@@ -42,6 +42,9 @@ namespace EOBot.Interpreter
             _state.SymbolTable[PredefinedIdentifiers.SLEEP_FUNC] = Readonly(new VoidFunction<int>(PredefinedIdentifiers.SLEEP_FUNC, param1 => Thread.Sleep(param1)));
             _state.SymbolTable[PredefinedIdentifiers.TIME_FUNC] = Readonly(new Function<string>(PredefinedIdentifiers.TIME_FUNC, () => DateTime.Now.ToLongTimeString()));
             _state.SymbolTable[PredefinedIdentifiers.OBJECT_FUNC] = Readonly(new Function<ObjectVariable>(PredefinedIdentifiers.OBJECT_FUNC, () => new ObjectVariable()));
+            _state.SymbolTable[PredefinedIdentifiers.SETENV_FUNC] = Readonly(new VoidFunction<string, string>(PredefinedIdentifiers.SETENV_FUNC, (varName, varValue) => Environment.SetEnvironmentVariable(varName, varValue, EnvironmentVariableTarget.User)));
+            _state.SymbolTable[PredefinedIdentifiers.GETENV_FUNC] = Readonly(new Function<string, string>(PredefinedIdentifiers.GETENV_FUNC, varName => Environment.GetEnvironmentVariable(varName, EnvironmentVariableTarget.User)));
+            _state.SymbolTable[PredefinedIdentifiers.ERROR_FUNC] = Readonly(new VoidFunction<string>(PredefinedIdentifiers.ERROR_FUNC, message => throw new BotScriptErrorException(message)));
 
             BotDependencySetup();
             _state.SymbolTable[PredefinedIdentifiers.CONNECT_FUNC] = Readonly(new AsyncVoidFunction<string, int>(PredefinedIdentifiers.CONNECT_FUNC, ConnectAsync));
@@ -56,12 +59,12 @@ namespace EOBot.Interpreter
         }
         public void SetupBuiltInVariables()
         {
-            _state.SymbolTable[PredefinedIdentifiers.HOST] = (true, new StringVariable(_parsedArgs.Host));
-            _state.SymbolTable[PredefinedIdentifiers.PORT] = (true, new IntVariable(_parsedArgs.Port));
-            _state.SymbolTable[PredefinedIdentifiers.USER] = (true, new StringVariable(_parsedArgs.Account));
-            _state.SymbolTable[PredefinedIdentifiers.PASS] = (true, new StringVariable(_parsedArgs.Password));
-            _state.SymbolTable[PredefinedIdentifiers.BOTINDEX] = (true, new IntVariable(_botIndex));
-            _state.SymbolTable[PredefinedIdentifiers.ARGS] = (true, new ArrayVariable(
+            _state.SymbolTable[PredefinedIdentifiers.HOST] = Readonly(new StringVariable(_parsedArgs.Host));
+            _state.SymbolTable[PredefinedIdentifiers.PORT] = Readonly(new IntVariable(_parsedArgs.Port));
+            _state.SymbolTable[PredefinedIdentifiers.USER] = Readonly(new StringVariable(_parsedArgs.Account));
+            _state.SymbolTable[PredefinedIdentifiers.PASS] = Readonly(new StringVariable(_parsedArgs.Password));
+            _state.SymbolTable[PredefinedIdentifiers.BOTINDEX] = Readonly(new IntVariable(_botIndex));
+            _state.SymbolTable[PredefinedIdentifiers.ARGS] = Readonly(new ArrayVariable(
                 (_parsedArgs.UserArgs ?? new List<string>()).Select(x => new StringVariable(x)).Cast<IVariable>().ToList()));
 
             // default to version 0.0.28

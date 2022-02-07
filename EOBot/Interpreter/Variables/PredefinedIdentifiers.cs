@@ -11,6 +11,7 @@
         public const string VERSION = "version";
         public const string ARGS = "args";
         public const string BOTINDEX = "botindex";
+        public const string RETCODE = "retcode";
 
         // state variables
         public const string ACCOUNT = "account";
@@ -27,6 +28,9 @@
         public const string OBJECT_FUNC = "object";
         public const string SLEEP_FUNC = "sleep";
         public const string TIME_FUNC = "time";
+        public const string SETENV_FUNC = "setenv";
+        public const string GETENV_FUNC = "getenv";
+        public const string ERROR_FUNC = "error";
 
         // game functions
         public const string CONNECT_FUNC = "Connect";

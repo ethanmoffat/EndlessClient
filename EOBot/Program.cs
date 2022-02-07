@@ -1,4 +1,5 @@
 ﻿using AutomaticTypeMapper;
+using EOBot.Interpreter;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
@@ -154,7 +155,7 @@ namespace EOBot
             public void StartOtherCharacterWalkAnimation(int characterID) { }
         }
 
-        static async Task Main(string[] args)
+        static async Task<int> Main(string[] args)
         {
             var assemblyNames = new[]
             {
@@ -175,10 +176,10 @@ namespace EOBot
 
             ArgumentsParser parsedArgs = new ArgumentsParser(args);
 
-            if (parsedArgs.Error != ArgsError.NoError)
+            if (parsedArgs.Error != ArgsError.NoError || parsedArgs.ExtendedHelp)
             {
                 ShowError(parsedArgs);
-                return;
+                return 1;
             }
 
             DependencyMaster.TypeRegistry = new ITypeRegistry[parsedArgs.NumBots];
@@ -199,12 +200,6 @@ namespace EOBot
                 botFactory = new TrainerBotFactory(parsedArgs);
             }
 
-            if (parsedArgs.NumBots > 1 && parsedArgs.ScriptFile != null && !parsedArgs.AutoConnect )
-            {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, "AutoConnect is required when using a script with more than 1 bot due to eoserv connection throttling");
-                return;
-            }
-
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Starting bots...");
 
             try
@@ -222,10 +217,17 @@ namespace EOBot
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, bex.Message, ConsoleColor.DarkRed);
             }
+            catch (BotScriptErrorException bse)
+            {
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, bse.Message, ConsoleColor.DarkRed);
+                return 1;
+            }
             catch (Exception ex)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}", ConsoleColor.DarkRed);
             }
+
+            return 0;
         }
 
         static bool HandleCtrl(Win32.CtrlTypes type)
@@ -272,6 +274,12 @@ namespace EOBot
                 case ArgsError.InvalidPath:
                     Console.WriteLine("Invalid: Script file does not exist or is not a valid path.");
                     break;
+                case ArgsError.InvalidScriptArgs:
+                    Console.WriteLine("Invalid: User-defined arguments and disabling autoconnect require a script.");
+                    break;
+                case ArgsError.AutoConnectRequired:
+                    Console.WriteLine("Invalid: AutoConnect is required when using a script with more than 1 bot due to eoserv connection throttling.");
+                    break;
             }
 
             Console.WriteLine("\n\nUsage: (enter arguments in any order) (angle brackets is entry) (square brackets is optional)");
@@ -295,6 +303,10 @@ namespace EOBot
             Console.WriteLine("\t script:         script file to execute\n\t         if script is not specified, default trainer bot will be used");
             Console.WriteLine("\t autoconnect:    (default true) true to automatically connect/disconnect to server with initDelay timeout between connection attempts for bots, false otherwise");
             Console.WriteLine("\t --: Any arguments passed after '--' will be available in a script under the '$args' array");
+
+            if (!args.ExtendedHelp)
+                return;
+
             Console.WriteLine(@"
 ===============================================================
                         Bot Script Info                        
