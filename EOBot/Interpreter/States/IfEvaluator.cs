@@ -22,7 +22,13 @@ namespace EOBot.Interpreter.States
             if (result == EvalResult.Ok)
             {
                 if (bool.TryParse(token.TokenValue, out var conditionValue) && conditionValue)
-                    return await EvaluateBlockAsync(input);
+                {
+                    var ifRes = await EvaluateBlockAsync(input);
+                    if (ifRes.Item1 == EvalResult.Ok)
+                        SkipElseBlocks(input);
+
+                    return ifRes;
+                }
 
                 SkipBlock(input);
 
@@ -37,17 +43,7 @@ namespace EOBot.Interpreter.States
                         return elseIfRes;
                     else if (elseIfRes.Result == EvalResult.Ok)
                     {
-                        while (input.Expect(BotTokenType.NewLine)) ;
-
-                        // skip the rest of the following blocks if evaluated
-                        while (IsElse(input))
-                        {
-                            input.Expect(BotTokenType.Keyword);
-                            SkipBlock(input);
-                            while (input.Expect(BotTokenType.NewLine)) ;
-                        }
-
-                        RestoreLastNewline(input);
+                        SkipElseBlocks(input);
                         return elseIfRes;
                     }
 
@@ -64,6 +60,21 @@ namespace EOBot.Interpreter.States
         {
             var current = input.Current();
             return current.TokenType == BotTokenType.Keyword && current.TokenValue == "else";
+        }
+
+        private void SkipElseBlocks(ProgramState input)
+        {
+            while (input.Expect(BotTokenType.NewLine)) ;
+
+            // skip the rest of the following blocks if evaluated
+            while (IsElse(input))
+            {
+                input.Expect(BotTokenType.Keyword);
+                SkipBlock(input);
+                while (input.Expect(BotTokenType.NewLine)) ;
+            }
+
+            RestoreLastNewline(input);
         }
     }
 }
