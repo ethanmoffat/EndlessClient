@@ -53,7 +53,8 @@ namespace EOBot
 
             Error = ArgsError.NoError;
 
-            if (args.Select(x => x.ToLower()).Any(x => x == "help"))
+            if ((!args.Contains("--") && args.Select(x => x.ToLower()).Contains("help")) ||
+                (args.Contains("--") && args.TakeWhile(x => x != "--").Select(x => x.ToLower()).Contains("help")))
             {
                 ExtendedHelp = true;
             }
