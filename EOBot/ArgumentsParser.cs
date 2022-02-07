@@ -17,7 +17,9 @@ namespace EOBot
         InvalidSimultaneousNumberOfBots,
         InvalidWaitFlag,
         InvalidInitDelay,
-        InvalidPath
+        InvalidPath,
+        InvalidScriptArgs,
+        AutoConnectRequired
     }
 
     public class ArgumentsParser
@@ -42,80 +44,100 @@ namespace EOBot
 
         public List<string> UserArgs { get; internal set; }
 
+        public bool ExtendedHelp { get; private set; }
+
+
         public ArgumentsParser(string[] args)
         {
             InitDelay = 1100;
 
             Error = ArgsError.NoError;
 
-            if (args.Length < 5)
+            if (args.Select(x => x.ToLower()).Any(x => x == "help"))
             {
-                Error = ArgsError.WrongNumberOfArgs;
-                return;
+                ExtendedHelp = true;
             }
-
-            for (int i = 0; i < args.Length; i++)
+            else
             {
-                var arg = args[i];
-
-                if (arg == "--")
+                for (int i = 0; i < args.Length; i++)
                 {
-                    UserArgs = new List<string>();
-                    for (i = i + 1; i < args.Length; i++)
+                    var arg = args[i];
+
+                    if (arg == "--")
                     {
-                        UserArgs.Add(args[i]);
-                    }
-                    break;
-                }
-
-                var pair = arg.ToLower().Split('=');
-
-                if (pair.Length != 2)
-                {
-                    Error = ArgsError.BadFormat;
-                    return;
-                }
-
-                switch (pair[0])
-                {
-                    case "script":
-                        if (!File.Exists(pair[1]))
+                        UserArgs = new List<string>();
+                        for (i = i + 1; i < args.Length; i++)
                         {
-                            Error = ArgsError.InvalidPath;
-                            return;
+                            UserArgs.Add(args[i]);
                         }
-                        ScriptFile = pair[1];
                         break;
-                    case "autoconnect":
-                        AutoConnect = bool.Parse(pair[1]);
-                        break;
-                    case "host":
-                        ParseHost(pair[1]);
-                        break;
-                    case "port":
-                        if (!ParsePort(pair[1]))
-                            return;
-                        break;
-                    case "bots":
-                        if (!ParseNumBots(pair))
-                            return;
-                        break;
-                    case "initdelay":
-                        if (!ParseInitDelay(pair[1]))
-                            return;
-                        break;
-                    case "account":
-                        Account = pair[1];
-                        break;
-                    case "password":
-                        Password = pair[1];
-                        break;
-                    case "character":
-                        Character = pair[1];
-                        break;
-                    default:
+                    }
+
+                    var pair = arg.ToLower().Split('=');
+
+                    if (pair.Length != 2)
+                    {
                         Error = ArgsError.BadFormat;
                         return;
+                    }
+
+                    switch (pair[0])
+                    {
+                        case "script":
+                            if (!File.Exists(pair[1]))
+                            {
+                                Error = ArgsError.InvalidPath;
+                                return;
+                            }
+                            ScriptFile = pair[1];
+                            break;
+                        case "autoconnect":
+                            AutoConnect = bool.Parse(pair[1]);
+                            break;
+                        case "host":
+                            ParseHost(pair[1]);
+                            break;
+                        case "port":
+                            if (!ParsePort(pair[1]))
+                                return;
+                            break;
+                        case "bots":
+                            if (!ParseNumBots(pair))
+                                return;
+                            break;
+                        case "initdelay":
+                            if (!ParseInitDelay(pair[1]))
+                                return;
+                            break;
+                        case "account":
+                            Account = pair[1];
+                            break;
+                        case "password":
+                            Password = pair[1];
+                            break;
+                        case "character":
+                            Character = pair[1];
+                            break;
+                        default:
+                            Error = ArgsError.BadFormat;
+                            return;
+                    }
+                }
+
+                if (ScriptFile == null)
+                {
+                    if (Host == null || Port == 0 || NumBots == 0 || Account == null || Password == null || Character == null)
+                    {
+                        Error = ArgsError.WrongNumberOfArgs;
+                    }
+                    else if (UserArgs != null || !AutoConnect)
+                    {
+                        Error = ArgsError.InvalidScriptArgs;
+                    }
+                }
+                else if (NumBots > 1 && ScriptFile != null && !AutoConnect)
+                {
+                    Error = ArgsError.AutoConnectRequired;
                 }
             }
         }

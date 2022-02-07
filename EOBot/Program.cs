@@ -176,7 +176,7 @@ namespace EOBot
 
             ArgumentsParser parsedArgs = new ArgumentsParser(args);
 
-            if (parsedArgs.Error != ArgsError.NoError)
+            if (parsedArgs.Error != ArgsError.NoError || parsedArgs.ExtendedHelp)
             {
                 ShowError(parsedArgs);
                 return 1;
@@ -198,12 +198,6 @@ namespace EOBot
             else
             {
                 botFactory = new TrainerBotFactory(parsedArgs);
-            }
-
-            if (parsedArgs.NumBots > 1 && parsedArgs.ScriptFile != null && !parsedArgs.AutoConnect )
-            {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, "AutoConnect is required when using a script with more than 1 bot due to eoserv connection throttling");
-                return 1;
             }
 
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, "Starting bots...");
@@ -280,6 +274,12 @@ namespace EOBot
                 case ArgsError.InvalidPath:
                     Console.WriteLine("Invalid: Script file does not exist or is not a valid path.");
                     break;
+                case ArgsError.InvalidScriptArgs:
+                    Console.WriteLine("Invalid: User-defined arguments and disabling autoconnect require a script.");
+                    break;
+                case ArgsError.AutoConnectRequired:
+                    Console.WriteLine("Invalid: AutoConnect is required when using a script with more than 1 bot due to eoserv connection throttling.");
+                    break;
             }
 
             Console.WriteLine("\n\nUsage: (enter arguments in any order) (angle brackets is entry) (square brackets is optional)");
@@ -303,6 +303,10 @@ namespace EOBot
             Console.WriteLine("\t script:         script file to execute\n\t         if script is not specified, default trainer bot will be used");
             Console.WriteLine("\t autoconnect:    (default true) true to automatically connect/disconnect to server with initDelay timeout between connection attempts for bots, false otherwise");
             Console.WriteLine("\t --: Any arguments passed after '--' will be available in a script under the '$args' array");
+
+            if (!args.ExtendedHelp)
+                return;
+
             Console.WriteLine(@"
 ===============================================================
                         Bot Script Info                        
