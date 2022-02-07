@@ -44,6 +44,7 @@ namespace EOBot.Interpreter.States
                         {
                             input.Expect(BotTokenType.Keyword);
                             SkipBlock(input);
+                            while (input.Expect(BotTokenType.NewLine)) ;
                         }
 
                         RestoreLastNewline(input);
