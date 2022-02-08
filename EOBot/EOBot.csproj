@@ -1,27 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <OutputType>Exe</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>..\bin\$(Configuration)\Utils\EOBot\</OutputPath>
+    <Configurations>Debug;Release;Linux - Debug;Linux - Release</Configurations>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <OutputPath>..\bin\Utils\EOBot\Debug\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>..\bin\Utils\EOBot\Release\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Linux - Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>../bin/Linux/Debug/</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Linux - Release|x86'">
-    <Optimize>true</Optimize>
-    <OutputPath>../bin/Linux/Release/</OutputPath>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System.Net" />
-  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj" />
     <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj" />
