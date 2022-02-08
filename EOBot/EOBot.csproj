@@ -1,180 +1,34 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <TargetFramework>net6.0</TargetFramework>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{2B7C000B-FA6D-441F-85E9-A8A05ADED423}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EOBot</RootNamespace>
-    <AssemblyName>EOBot</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\bin\Utils\EOBot\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>..\bin\Utils\EOBot\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Linux - Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
     <OutputPath>../bin/Linux/Debug/</OutputPath>
-    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Linux - Release|x86'">
-    <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>true</Prefer32Bit>
     <OutputPath>../bin/Linux/Release/</OutputPath>
-    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutomaticTypeMapper, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\AutomaticTypeMapper.1.4.0\lib\net462\AutomaticTypeMapper.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.1.1.0\lib\net461\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Microsoft.Extensions.DependencyInjection, Version=3.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.3.1.3\lib\net461\Microsoft.Extensions.DependencyInjection.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.DependencyInjection.Abstractions, Version=3.1.3.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.Abstractions.3.1.3\lib\netstandard2.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
     <Reference Include="System.Net" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading.Tasks.Extensions, Version=4.2.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Threading.Tasks.Extensions.4.5.2\lib\netstandard2.0\System.Threading.Tasks.Extensions.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Abstractions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
-      <HintPath>..\packages\Unity.5.9.7\lib\net46\Unity.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Container, Version=5.9.7.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
-      <HintPath>..\packages\Unity.5.9.7\lib\net46\Unity.Container.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ArgumentsParser.cs" />
-    <Compile Include="BotHelper.cs" />
-    <Compile Include="BotBase.cs" />
-    <Compile Include="BotException.cs" />
-    <Compile Include="BotFramework.cs" />
-    <Compile Include="ConsoleHelper.cs" />
-    <Compile Include="DependencyMaster.cs" />
-    <Compile Include="IBot.cs" />
-    <Compile Include="IBotFactory.cs" />
-    <Compile Include="Interpreter\BotInterpreter.cs" />
-    <Compile Include="Interpreter\BotScriptErrorException.cs" />
-    <Compile Include="Interpreter\BotToken.cs" />
-    <Compile Include="Interpreter\BotTokenParser.cs" />
-    <Compile Include="Interpreter\BotTokenType.cs" />
-    <Compile Include="Interpreter\BuiltInIdentifierConfigurator.cs" />
-    <Compile Include="Interpreter\Extensions\SymbolTableExtensions.cs" />
-    <Compile Include="Interpreter\Extensions\ProgramStateExtensions.cs" />
-    <Compile Include="Interpreter\IdentifierBotToken.cs" />
-    <Compile Include="Interpreter\States\AssignmentEvaluator.cs" />
-    <Compile Include="Interpreter\States\BaseEvaluator.cs" />
-    <Compile Include="Interpreter\States\BlockEvaluator.cs" />
-    <Compile Include="Interpreter\States\EvalResult.cs" />
-    <Compile Include="Interpreter\States\ExpressionEvaluator.cs" />
-    <Compile Include="Interpreter\States\ExpressionTailEvaluator.cs" />
-    <Compile Include="Interpreter\States\FunctionEvaluator.cs" />
-    <Compile Include="Interpreter\States\GotoEvaluator.cs" />
-    <Compile Include="Interpreter\States\IfEvaluator.cs" />
-    <Compile Include="Interpreter\States\IScriptEvaluator.cs" />
-    <Compile Include="Interpreter\States\KeywordEvaluator.cs" />
-    <Compile Include="Interpreter\States\LabelEvaluator.cs" />
-    <Compile Include="Interpreter\States\OperandEvaluator.cs" />
-    <Compile Include="Interpreter\States\ProgramState.cs" />
-    <Compile Include="Interpreter\States\ScriptEvaluator.cs" />
-    <Compile Include="Interpreter\States\StatementEvaluator.cs" />
-    <Compile Include="Interpreter\States\StatementListEvaluator.cs" />
-    <Compile Include="Interpreter\States\VariableEvaluator.cs" />
-    <Compile Include="Interpreter\States\WhileEvaluator.cs" />
-    <Compile Include="Interpreter\Variables\ArrayVariable.cs" />
-    <Compile Include="Interpreter\Variables\BoolVariable.cs" />
-    <Compile Include="Interpreter\VariableBotToken.cs" />
-    <Compile Include="Interpreter\Variables\AsyncFunction.cs" />
-    <Compile Include="Interpreter\Variables\ObjectVariable.cs" />
-    <Compile Include="Interpreter\Variables\PredefinedIdentifiers.cs" />
-    <Compile Include="Interpreter\Variables\UndefinedVariable.cs" />
-    <Compile Include="Interpreter\Variables\AsyncVoidFunction.cs" />
-    <Compile Include="Interpreter\Variables\VoidFunction.cs" />
-    <Compile Include="Interpreter\Variables\Function.cs" />
-    <Compile Include="Interpreter\Variables\ICallable.cs" />
-    <Compile Include="Interpreter\Variables\IIdentifiable.cs" />
-    <Compile Include="Interpreter\Variables\IntVariable.cs" />
-    <Compile Include="Interpreter\Variables\IVariable.cs" />
-    <Compile Include="Interpreter\Variables\StringVariable.cs" />
-    <Compile Include="NamesList.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ScriptedBot.cs" />
-    <Compile Include="TrainerBot.cs" />
-    <Compile Include="ScriptedBotFactory.cs" />
-    <Compile Include="TrainerBotFactory.cs" />
-    <Compile Include="Win32.cs" />
+    <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj" />
+    <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj" />
+    <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj" />
+    <ProjectReference Include="..\EOLib\EOLib.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj">
-      <Project>{2FEC86D4-EA73-472F-9983-B06AF7981F5C}</Project>
-      <Name>EOLib.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
-      <Project>{AA07776B-3F05-404A-BA8A-24970A91C024}</Project>
-      <Name>EOLib.IO</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj">
-      <Project>{22820580-B33F-4AA9-8044-A6EC4797AE21}</Project>
-      <Name>EOLib.Logger</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EOLib\EOLib.csproj">
-      <Project>{edb5ad93-303d-4b07-9fad-f6a8295d2390}</Project>
-      <Name>EOLib</Name>
-    </ProjectReference>
+    <PackageReference Include="AutomaticTypeMapper" Version="1.4.1" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

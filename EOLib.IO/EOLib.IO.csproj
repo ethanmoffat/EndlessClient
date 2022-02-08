@@ -1,157 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{AA07776B-3F05-404A-BA8A-24970A91C024}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EOLib.IO</RootNamespace>
-    <AssemblyName>EOLib.IO</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>..\bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>..\bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Linux - Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <OutputPath>../bin/Linux/Debug/</OutputPath>
-    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Linux - Release|x86'">
-    <DefineConstants>TRACE</DefineConstants>
     <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <OutputPath>../bin/Linux/Release/</OutputPath>
-    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AutomaticTypeMapper, Version=1.2.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\packages\AutomaticTypeMapper.1.2.0.5\lib\net462\AutomaticTypeMapper.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Abstractions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
-      <HintPath>..\packages\Unity.5.9.7\lib\net46\Unity.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Container, Version=5.9.7.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
-      <HintPath>..\packages\Unity.5.9.7\lib\net46\Unity.Container.dll</HintPath>
-    </Reference>
+    <PackageReference Include="AutomaticTypeMapper" Version="1.4.1" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Actions\IMapFileLoadActions.cs" />
-    <Compile Include="Actions\IPubFileLoadActions.cs" />
-    <Compile Include="Actions\MapFileLoadActions.cs" />
-    <Compile Include="Actions\PubFileLoadActions.cs" />
-    <Compile Include="EquipLocation.cs" />
-    <Compile Include="Extensions\EIFFileExtensions.cs" />
-    <Compile Include="Map\MusicControl.cs" />
-    <Compile Include="Map\UnknownMapEntity.cs" />
-    <Compile Include="Services\Serializers\ChestSpawnMapEntitySerializer.cs" />
-    <Compile Include="Map\IMapFileProperties.cs" />
-    <Compile Include="Map\IReadOnlyMatrix.cs" />
-    <Compile Include="Map\MapFile.cs" />
-    <Compile Include="Map\MapPathToIDConverter.cs" />
-    <Compile Include="Map\Matrix.cs" />
-    <Compile Include="Map\ChestKey.cs" />
-    <Compile Include="Map\ChestSpawnMapEntity.cs" />
-    <Compile Include="Map\DoorSpec.cs" />
-    <Compile Include="Map\IMapEntity.cs" />
-    <Compile Include="Map\IMapFile.cs" />
-    <Compile Include="Map\MapEffect.cs" />
-    <Compile Include="Map\MapFileProperties.cs" />
-    <Compile Include="Map\MapLayer.cs" />
-    <Compile Include="Map\NPCSpawnMapEntity.cs" />
-    <Compile Include="Map\SignMapEntity.cs" />
-    <Compile Include="Map\TileSpec.cs" />
-    <Compile Include="Map\WarpMapEntity.cs" />
-    <Compile Include="NumericConstants.cs" />
-    <Compile Include="PubFileNameConstants.cs" />
-    <Compile Include="Pub\ECFFile.cs" />
-    <Compile Include="Pub\ECFRecord.cs" />
-    <Compile Include="Pub\EIFFile.cs" />
-    <Compile Include="Extensions\EIFRecordExtensions.cs" />
-    <Compile Include="Pub\ENFFile.cs" />
-    <Compile Include="Pub\ENFRecord.cs" />
-    <Compile Include="Pub\ESFFile.cs" />
-    <Compile Include="Pub\ESFRecord.cs" />
-    <Compile Include="Pub\BasePubFile.cs" />
-    <Compile Include="Repositories\IMapFileRepository.cs" />
-    <Compile Include="Repositories\IPubFileProvider.cs" />
-    <Compile Include="Repositories\IPubFileRepository.cs" />
-    <Compile Include="Repositories\PubFileRepository.cs" />
-    <Compile Include="Services\ClassFileLoadService.cs" />
-    <Compile Include="Services\IMapFileLoadService.cs" />
-    <Compile Include="Services\IMapFileSaveService.cs" />
-    <Compile Include="Services\IMapStringEncoderService.cs" />
-    <Compile Include="Services\INumberEncoderService.cs" />
-    <Compile Include="ItemSize.cs" />
-    <Compile Include="ItemSpecial.cs" />
-    <Compile Include="ItemSubType.cs" />
-    <Compile Include="ItemType.cs" />
-    <Compile Include="NPCType.cs" />
-    <Compile Include="Services\IPubFileSaveService.cs" />
-    <Compile Include="Services\IPubLoadService.cs" />
-    <Compile Include="Services\ItemFileLoadService.cs" />
-    <Compile Include="Services\Serializers\ISerializer.cs" />
-    <Compile Include="Services\MapFileLoadService.cs" />
-    <Compile Include="Services\MapFileSaveService.cs" />
-    <Compile Include="Services\MapStringEncoderService.cs" />
-    <Compile Include="Services\NPCFileLoadService.cs" />
-    <Compile Include="Services\NumberEncoderService.cs" />
-    <Compile Include="PubRecordProperty.cs" />
-    <Compile Include="Pub\EIFRecord.cs" />
-    <Compile Include="Pub\IPubFile.cs" />
-    <Compile Include="Pub\IPubRecord.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\PubFileSaveService.cs" />
-    <Compile Include="Services\Serializers\MapFileSerializer.cs" />
-    <Compile Include="Services\Serializers\MapPropertiesSerializer.cs" />
-    <Compile Include="Services\Serializers\NPCSpawnMapEntitySerializer.cs" />
-    <Compile Include="Services\Serializers\SignMapEntitySerializer.cs" />
-    <Compile Include="Services\Serializers\UnknownMapEntitySerializer.cs" />
-    <Compile Include="Services\Serializers\WarpMapEntitySerializer.cs" />
-    <Compile Include="Services\SpellFileLoadService.cs" />
-    <Compile Include="SpellTarget.cs" />
-    <Compile Include="SpellTargetRestrict.cs" />
-    <Compile Include="SpellType.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>
