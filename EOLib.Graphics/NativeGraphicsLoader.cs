@@ -1,5 +1,7 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using System.IO;
+using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 
 namespace EOLib.Graphics
@@ -22,6 +24,10 @@ namespace EOLib.Graphics
                 throw new GFXLoadException(resourceValue, file);
 
             var ms = new MemoryStream(fileBytes);
+
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                throw new NotImplementedException("TODO: use cross-platform image library instead of System.Drawing");
+
             return (Bitmap)Image.FromStream(ms);
         }
     }

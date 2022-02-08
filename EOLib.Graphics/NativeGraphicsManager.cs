@@ -27,6 +27,9 @@ namespace EOLib.Graphics
 
         public Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false, bool reloadFromFile = false)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                throw new NotImplementedException("TODO: use cross-platform image library instead of System.Drawing");
+
             Texture2D ret;
 
             var key = new LibraryGraphicPair((int)file, 100 + resourceVal);
@@ -86,6 +89,9 @@ namespace EOLib.Graphics
 
         private static void CrossPlatformMakeTransparent(Bitmap bmp, Color transparentColor)
         {
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                throw new NotImplementedException("TODO: use cross-platform image library instead of System.Drawing");
+
             bmp.MakeTransparent(transparentColor);
 
 #if LINUX
