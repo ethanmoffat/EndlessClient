@@ -8,6 +8,7 @@
     <_ResolveReferenceDependencies>true</_ResolveReferenceDependencies>
     <NoWarn>CS0649;NU1701</NoWarn>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>..\bin\$(Configuration)\</OutputPath>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
@@ -16,7 +17,7 @@
     <ApplicationIcon>Resources\Game.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-    <DefineConstants>LINUX</DefineConstants>
+    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <MonoGameContentReference Include="ContentPipeline\Content.mgcb" />

@@ -3,9 +3,9 @@
     <TargetFramework>net6.0</TargetFramework>
     <OutputType>Exe</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <Configurations>Debug;Release;Linux - Debug;Linux - Release</Configurations>
+    <OutputPath>..\bin\$(Configuration)\utils\BatchMap</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration.Contains(`Linux`))'">
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration.Contains(`Debug`))'">

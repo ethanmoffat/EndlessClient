@@ -4,9 +4,8 @@
     <OutputType>Library</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>..\bin\$(Configuration)\</OutputPath>
-    <Configurations>Debug;Release;Linux - Debug;Linux - Release</Configurations>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration.Contains(`Linux`))'">
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration.Contains(`Debug`))'">

@@ -4,7 +4,6 @@
     <OutputType>Exe</OutputType>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <OutputPath>..\bin\$(Configuration)\Utils\EOBot\</OutputPath>
-    <Configurations>Debug;Release;Linux - Debug;Linux - Release</Configurations>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj" />
