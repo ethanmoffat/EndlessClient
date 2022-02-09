@@ -1,4 +1,4 @@
-name: 0.2.$(rev:rrr)
+name: 0.3.$(rev:rrr)
 
 trigger:
 - master
