@@ -56,31 +56,22 @@ steps:
     projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
     arguments: '--filter "TestCategory!=GraphicsDevice" --configuration $(buildConfiguration)'
 
-- task: CopyFiles@2
-  displayName: 'Copy Files to EndlessClient drop upload directory'
+- task: ArchiveFiles@2
+  displayName: 'ZIP EndlessClient'
   inputs:
-    SourceFolder: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\net6.0-windows\
-    Contents: '**'
-    TargetFolder: $(Build.ArtifactStagingDirectory)\EndlessClient
-- task: CopyFiles@2
-  displayName: 'Copy Files to EOBot drop upload directory'
+    rootFolderOrFile: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\client\net6.0-windows\
+    archiveFile: $(Build.ArtifactStagingDirectory)\EndlessClient.zip
+- task: ArchiveFiles@2
+  displayName: 'ZIP EOBot'
   inputs:
-    SourceFolder: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\utils\EOBot\net6.0\
-    Contents: '**'
-    TargetFolder: $(Build.ArtifactStagingDirectory)\EOBot
+    rootFolderOrFile: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\utils\EOBot\net6.0\
+    archiveFile: $(Build.ArtifactStagingDirectory)\EOBot.zip
 
 - task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: EndlessClient'
+  displayName: 'Publish Artifacts'
   inputs:
-    PathtoPublish: $(Build.ArtifactStagingDirectory)\EndlessClient
+    PathtoPublish: $(Build.ArtifactStagingDirectory)
     ArtifactName: EndlessClient
-    TargetPath: '$(Build.DefinitionName)\$(Build.BuildNumber)'
-- task: PublishBuildArtifacts@1
-  displayName: 'Publish Artifact: EOBot'
-  inputs:
-    PathtoPublish: $(Build.ArtifactStagingDirectory)\EOBot
-    ArtifactName: EOBot
-    TargetPath: '$(Build.DefinitionName)\$(Build.BuildNumber)'
 
 - script: |
     git tag build/$(Build.BuildNumber)

@@ -6,7 +6,7 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <UseWindowsForms>true</UseWindowsForms>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
-    <OutputPath>..\bin\$(Configuration)\</OutputPath>
+    <OutputPath>..\bin\$(Configuration)\test\</OutputPath>
     <NoWarn>CA1416</NoWarn> <!-- TODO: Remove when using cross-platform graphics library instead of System.Drawing -->
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration.Contains(`Debug`))'">
