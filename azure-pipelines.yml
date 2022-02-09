@@ -42,17 +42,20 @@ steps:
     command: 'restore'
     verbosityRestore: 'minimal'
     projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
+    configuration: '$(buildConfiguration)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
     command: 'build'
     projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
+    configuration: '$(buildConfiguration)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test - skipping EOLib.Graphics.Test (not supported on VSTS agent)'
   inputs:
     command: 'test'
     projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
     arguments: '--filter="TestCategory!=GraphicsDevice'
+    configuration: '$(buildConfiguration)'
 - task: CopyFiles@2
   displayName: 'Copy Files to EndlessClient drop upload directory'
   inputs:
