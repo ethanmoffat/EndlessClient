@@ -20,6 +20,16 @@
     <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="ContentPipeline\bin\**" />
+    <Compile Remove="ContentPipeline\obj\**" />
+    <EmbeddedResource Remove="ContentPipeline\bin\**" />
+    <EmbeddedResource Remove="ContentPipeline\obj\**" />
+    <None Remove="ContentPipeline\bin\**" />
+    <None Remove="ContentPipeline\obj\**" />
+    <Page Remove="ContentPipeline\bin\**" />
+    <Page Remove="ContentPipeline\obj\**" />
+  </ItemGroup>
+  <ItemGroup>
     <MonoGameContentReference Include="ContentPipeline\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
@@ -29,7 +39,6 @@
     <ProjectReference Include="..\EOLib.Localization\EOLib.Localization.csproj" />
     <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj" />
     <ProjectReference Include="..\EOLib\EOLib.csproj" />
-    <ProjectReference Include="..\..\XNAControls\XNAControls\XNAControls.csproj" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <Content Include="ContentPipeline\HairClip.xnb">
@@ -45,7 +54,9 @@
   <PropertyGroup />
   <ItemGroup>
     <PackageReference Include="EndlessClient.Binaries" Version="1.2.0.2" />
+    <PackageReference Include="Monogame.Content.Builder.Task" Version="3.8.0.1641" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+    <PackageReference Include="XNAControls" Version="1.2.3" />
   </ItemGroup>
 </Project>
