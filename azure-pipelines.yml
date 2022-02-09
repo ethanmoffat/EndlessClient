@@ -56,13 +56,13 @@ steps:
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\EndlessClient'
   inputs:
-    SourceFolder: $(System.DefaultWorkingDirectory)
+    SourceFolder: $(Build.SourcesDirectory)
     Contents: bin\$(buildConfiguration)\net6.0-windows\**
     TargetFolder: $(Build.ArtifactStagingDirectory)\EndlessClient
 - task: CopyFiles@2
   displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\EOBot'
   inputs:
-    SourceFolder: $(System.DefaultWorkingDirectory)
+    SourceFolder: $(Build.SourcesDirectory)
     Contents: bin\$(buildConfiguration)\utils\EOBot\net6.0\**
     TargetFolder: $(Build.ArtifactStagingDirectory)\EOBot
 - task: PublishBuildArtifacts@1
