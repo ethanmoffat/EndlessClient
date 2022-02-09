@@ -40,7 +40,7 @@ steps:
   displayName: 'dotnet restore'
   inputs:
     command: 'restore'
-    verbosityRestore: 'normal'
+    verbosityRestore: 'minimal'
     projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
@@ -52,18 +52,18 @@ steps:
   inputs:
     command: 'test'
     projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
-    arguments: '--filter="FullyQualifiedName!~EOLib.Graphics.Test'
+    arguments: '--filter="TestCategory!=GraphicsDevice'
 - task: CopyFiles@2
-  displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\EndlessClient'
+  displayName: 'Copy Files to EndlessClient drop upload directory'
   inputs:
-    SourceFolder: $(Build.SourcesDirectory)
-    Contents: bin\$(buildConfiguration)\net6.0-windows\**
+    SourceFolder: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\net6.0-windows\
+    Contents: '**'
     TargetFolder: $(Build.ArtifactStagingDirectory)\EndlessClient
 - task: CopyFiles@2
-  displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)\EOBot'
+  displayName: 'Copy Files to EOBot drop upload directory'
   inputs:
-    SourceFolder: $(Build.SourcesDirectory)
-    Contents: bin\$(buildConfiguration)\utils\EOBot\net6.0\**
+    SourceFolder: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\utils\EOBot\net6.0\
+    Contents: '**'
     TargetFolder: $(Build.ArtifactStagingDirectory)\EOBot
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: EndlessClient'
