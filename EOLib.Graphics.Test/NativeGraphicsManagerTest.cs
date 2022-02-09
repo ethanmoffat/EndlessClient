@@ -9,7 +9,7 @@ using Moq;
 
 namespace EOLib.Graphics.Test
 {
-    [TestFixture, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage, Category("GraphicsDevice")]
     public class NativeGraphicsManagerTest
     {
         private GraphicsDeviceTestHelper _graphicsDeviceTestHelper;
