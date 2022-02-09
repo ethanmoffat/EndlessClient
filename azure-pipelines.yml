@@ -21,9 +21,6 @@ strategy:
 pool:
   vmImage: $(imageName)
 
-variables:
-  buildConfiguration: 'Release'
-
 steps:
 - checkout: self
   persistCredentials: true
@@ -36,26 +33,26 @@ steps:
   displayName: 'Install .Net 6 runtime/sdk'
   inputs:
     version: 6.0.x
+
 - task: DotNetCoreCLI@2
   displayName: 'dotnet restore'
   inputs:
     command: 'restore'
     verbosityRestore: 'minimal'
     projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
-    configuration: '$(buildConfiguration)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
     command: 'build'
     projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
-    configuration: '$(buildConfiguration)'
+    arguments: '--configuration $(buildConfiguration)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test - skipping EOLib.Graphics.Test (not supported on VSTS agent)'
   inputs:
     command: 'test'
     projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
-    arguments: '--filter="TestCategory!=GraphicsDevice'
-    configuration: '$(buildConfiguration)'
+    arguments: '--filter "TestCategory!=GraphicsDevice --configuration $(buildConfiguration)'
+
 - task: CopyFiles@2
   displayName: 'Copy Files to EndlessClient drop upload directory'
   inputs:
@@ -68,6 +65,7 @@ steps:
     SourceFolder: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\utils\EOBot\net6.0\
     Contents: '**'
     TargetFolder: $(Build.ArtifactStagingDirectory)\EOBot
+
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: EndlessClient'
   inputs:
@@ -80,9 +78,10 @@ steps:
     PathtoPublish: $(Build.ArtifactStagingDirectory)\EOBot
     ArtifactName: EOBot
     TargetPath: '$(Build.DefinitionName)\$(Build.BuildNumber)'
+
 - script: |
     git tag build/$(Build.BuildNumber)
     git push origin build/$(Build.BuildNumber)
   workingDirectory:  $(Build.SourcesDirectory)
   displayName: Tag sources on CI/Manual builds
-  condition: or(eq(variables['build.reason'], 'IndividualCI'), eq(variables['build.reason'], 'Manual'))
+  condition: and(succeeded(), or(eq(variables['build.reason'], 'IndividualCI'), eq(variables['build.reason'], 'Manual')))
