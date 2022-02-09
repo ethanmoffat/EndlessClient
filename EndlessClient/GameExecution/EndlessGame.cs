@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.ControlSets;
@@ -78,9 +79,8 @@ namespace EndlessClient.GameExecution
             //Ideally, this would be set in a DependencyContainer, but I'm not sure of a way to do that now
             _graphicsDeviceRepository.GraphicsDevice = GraphicsDevice;
 
-#if LINUX
-            _shaderRepository.Shaders[ShaderRepository.HairClip] = Content.Load<Effect>(ShaderRepository.HairClip);
-#endif
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                _shaderRepository.Shaders[ShaderRepository.HairClip] = Content.Load<Effect>(ShaderRepository.HairClip);
 
             base.LoadContent();
         }

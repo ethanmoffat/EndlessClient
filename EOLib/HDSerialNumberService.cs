@@ -1,15 +1,50 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using AutomaticTypeMapper;
 
 namespace EOLib
 {
-#if LINUX
     [AutoMappedType]
-    public class HDSerialNumberServiceLinux : IHDSerialNumberService
+    public class HDSerialNumberServiceWindows : IHDSerialNumberService
     {
         public string GetHDSerialNumber()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return GetHDSerialNumberLinux();
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return GetHDSerialNumberWindows();
+
+            throw new NotImplementedException("HD serial number is not implemented on your platform");
+        }
+
+        private static string GetHDSerialNumberWindows()
+        {
+            var strDriveLetter = DriveInfo.GetDrives()[0].Name;
+            var volumeLabel = new StringBuilder(256);
+            uint serNum = 0;
+            uint maxCompLen = 0;
+            uint VolFlags = 0;
+            var fileSystemName = new StringBuilder(256);
+
+            return Win32.GetVolumeInformation(
+                strDriveLetter,
+                volumeLabel,
+                (uint) volumeLabel.Capacity,
+                ref serNum,
+                ref maxCompLen,
+                ref VolFlags,
+                fileSystemName,
+                (uint) fileSystemName.Capacity) != 0
+                    ? Convert.ToString(serNum)
+                    : string.Empty;
+        }
+
+        private static string GetHDSerialNumberLinux()
         {
             // use lsblk --nodeps -o serial to get serial number
             try
@@ -53,5 +88,4 @@ namespace EOLib
             }
         }
     }
-#endif
 }

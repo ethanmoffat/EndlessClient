@@ -94,23 +94,24 @@ namespace EOLib.Graphics
 
             bmp.MakeTransparent(transparentColor);
 
-#if LINUX
-            // PixelFormat.32bppArgb is assumed due to the call to bmp.MakeTransparent
-            var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
-
-            var bmpBytes = new byte[bmp.Height * bmpData.Stride];
-            Marshal.Copy(bmpData.Scan0, bmpBytes, 0, bmpBytes.Length);
-
-            for (int i = 0; i < bmpBytes.Length; i += 4)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                if (bmpBytes[i] == transparentColor.R && bmpBytes[i + 1] == transparentColor.G && bmpBytes[i + 2] == transparentColor.B)
-                    bmpBytes[i + 3] = 0;
+                // PixelFormat.32bppArgb is assumed due to the call to bmp.MakeTransparent
+                var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
+
+                var bmpBytes = new byte[bmp.Height * bmpData.Stride];
+                Marshal.Copy(bmpData.Scan0, bmpBytes, 0, bmpBytes.Length);
+
+                for (int i = 0; i < bmpBytes.Length; i += 4)
+                {
+                    if (bmpBytes[i] == transparentColor.R && bmpBytes[i + 1] == transparentColor.G && bmpBytes[i + 2] == transparentColor.B)
+                        bmpBytes[i + 3] = 0;
+                }
+
+                Marshal.Copy(bmpBytes, 0, bmpData.Scan0, bmpBytes.Length);
+
+                bmp.UnlockBits(bmpData);
             }
-
-            Marshal.Copy(bmpBytes, 0, bmpData.Scan0, bmpBytes.Length);
-
-            bmp.UnlockBits(bmpData);
-#endif
         }
 
         public void Dispose()
