@@ -1,473 +1,62 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{0EC2FDA3-00E9-4DF4-8743-85E2C911E6E8}</ProjectGuid>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EndlessClient</RootNamespace>
-    <AssemblyName>EndlessClient</AssemblyName>
-    <FileAlignment>512</FileAlignment>
     <MonoGamePlatform>Windows</MonoGamePlatform>
     <MonoGameContentBuilderExe>
     </MonoGameContentBuilderExe>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
     <_ResolveReferenceDependencies>true</_ResolveReferenceDependencies>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>..\bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>..\bin\Release\</OutputPath>
-    <DefineConstants>
-    </DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Linux - Debug|x86'">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>../bin/Linux/Debug</OutputPath>
-    <DefineConstants>TRACE;DEBUG;LINUX</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Linux - Release|x86'">
-    <PlatformTarget>x86</PlatformTarget>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>../bin/Linux/Release</OutputPath>
-    <DefineConstants>LINUX</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <NoWarn>CS0649;NU1701</NoWarn>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>..\bin\$(Configuration)\client</OutputPath>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\Game.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
+  </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Audio\SoundEffectID.cs" />
-    <Compile Include="Audio\SoundInfo.cs" />
-    <Compile Include="Audio\SoundManager.cs" />
-    <Compile Include="Audio\WAVFileValidator.cs" />
-    <Compile Include="Content\IHatConfigurationRepository.cs" />
-    <Compile Include="Controllers\ArrowKeyController.cs" />
-    <Compile Include="Controllers\ChatController.cs" />
-    <Compile Include="Controllers\ControlKeyController.cs" />
-    <Compile Include="Controllers\FunctionKeyController.cs" />
-    <Compile Include="Controllers\MapInteractionController.cs" />
-    <Compile Include="Controllers\TrainingController.cs" />
-    <Compile Include="Dialogs\Actions\FirstTimePlayerActions.cs" />
-    <Compile Include="Dialogs\BaseEODialog.cs" />
-    <Compile Include="Dialogs\EODialogButton.cs" />
-    <Compile Include="Dialogs\Services\EODialogButtonService.cs" />
-    <Compile Include="HUD\AStarPathFinder.cs" />
-    <Compile Include="HUD\Chat\ChatModeCalculator.cs" />
-    <Compile Include="HUD\Chat\ChatNotificationActions.cs" />
-    <Compile Include="HUD\Chat\ChatBubbleActions.cs" />
-    <Compile Include="HUD\Chat\ChatTextBoxActions.cs" />
-    <Compile Include="HUD\Chat\IChatModeCalculator.cs" />
-    <Compile Include="HUD\Chat\IChatTextBoxActions.cs" />
-    <Compile Include="HUD\Chat\PrivateMessageActions.cs" />
-    <Compile Include="HUD\Inventory\InventorySpaceValidator.cs" />
-    <Compile Include="HUD\StatusBars\StatusBarBase.cs" />
-    <Compile Include="Initialization\ConfigInitializer.cs" />
-    <Compile Include="Initialization\EndlessClientInitializer.cs" />
-    <Compile Include="Initialization\GraphicsInitializer.cs" />
-    <Compile Include="Initialization\IGameInitializer.cs" />
-    <Compile Include="Initialization\LocalizationInitializer.cs" />
-    <Compile Include="Initialization\NetworkInitializer.cs" />
-    <Compile Include="Input\ArrowKeyHandler.cs" />
-    <Compile Include="Input\ClickWalkPathHandler.cs" />
-    <Compile Include="Input\ControlKeyHandler.cs" />
-    <Compile Include="Input\CurrentUserInputTracker.cs" />
-    <Compile Include="Input\FunctionKeyHandler.cs" />
-    <Compile Include="Input\IUserInputRepository.cs" />
-    <Compile Include="Input\InputHandlerBase.cs" />
-    <Compile Include="Input\IUserInputTimeRepository.cs" />
-    <Compile Include="Input\KeyboardStateExtensions.cs" />
-    <Compile Include="Input\PreviousUserInputTracker.cs" />
-    <Compile Include="Input\UserInputHandler.cs" />
-    <Compile Include="Input\UserInputHandlerFactory.cs" />
-    <Compile Include="Input\UnwalkableTileActions.cs" />
-    <Compile Include="Old\OldCharacter.cs" />
-    <Compile Include="Rendering\CharacterProperties\BaseCharacterPropertyRenderer.cs" />
-    <Compile Include="Rendering\Character\ISpellCaster.cs" />
-    <Compile Include="Rendering\Chat\ChatBubbleRepository.cs" />
-    <Compile Include="Rendering\Chat\ChatBubbleTexture.cs" />
-    <Compile Include="Rendering\Chat\ChatBubbleTextureProvider.cs" />
-    <Compile Include="Rendering\Chat\ChatBubbleUpdater.cs" />
-    <Compile Include="Rendering\Factories\HealthBarRendererFactory.cs" />
-    <Compile Include="Rendering\IMapActor.cs" />
-    <Compile Include="Rendering\Effects\IEffectTarget.cs" />
-    <Compile Include="Rendering\Factories\MouseCursorRendererFactory.cs" />
-    <Compile Include="Rendering\HealthBarRenderer.cs" />
-    <Compile Include="Rendering\Map\DynamicMapObjectUpdater.cs" />
-    <Compile Include="Rendering\Map\SpikeTrapActions.cs" />
-    <Compile Include="Rendering\MouseCursorRenderer.cs" />
-    <Compile Include="Rendering\NPC\NPCActions.cs" />
-    <Compile Include="Rendering\NPC\NPCAnimator.cs" />
-    <Compile Include="Rendering\RenderFrameActionTime.cs" />
-    <Compile Include="Subscribers\MainCharacterEventSubscriber.cs" />
-    <Compile Include="Subscribers\OtherCharacterEventSubscriber.cs" />
-    <Compile Include="Test\CharacterStateTest.cs" />
-    <Compile Include="Controllers\CharacterManagementController.cs" />
-    <Compile Include="Controllers\AccountController.cs" />
-    <Compile Include="Controllers\LoginController.cs" />
-    <Compile Include="ControlSets\BackButtonControlSet.cs" />
-    <Compile Include="ControlSets\EmptyControlSet.cs" />
-    <Compile Include="ControlSets\IControlSetRepository.cs" />
-    <Compile Include="Controllers\MainButtonController.cs" />
-    <Compile Include="ControlSets\IHudControlProvider.cs" />
-    <Compile Include="ControlSets\InGameControlSet.cs" />
-    <Compile Include="ControlSets\IntermediateControlSet.cs" />
-    <Compile Include="ControlSets\LoggedInControlSet.cs" />
-    <Compile Include="Dialogs\Actions\CharacterDialogActions.cs" />
-    <Compile Include="Dialogs\Actions\ErrorDialogDisplayAction.cs" />
-    <Compile Include="Dialogs\Actions\ICharacterDialogActions.cs" />
-    <Compile Include="Dialogs\Actions\IErrorDialogDisplayAction.cs" />
-    <Compile Include="Dialogs\Actions\AccountDialogDisplayActions.cs" />
-    <Compile Include="Dialogs\Factories\ChangePasswordDialogFactory.cs" />
-    <Compile Include="Dialogs\Factories\CreateAccountProgressDialogFactory.cs" />
-    <Compile Include="Dialogs\Factories\CreateAccountWarningDialogFactory.cs" />
-    <Compile Include="Dialogs\Factories\CreateCharacterDialogFactory.cs" />
-    <Compile Include="Dialogs\Factories\EOMessageBoxFactory.cs" />
-    <Compile Include="Dialogs\Actions\IAccountDialogDisplayActions.cs" />
-    <Compile Include="Dialogs\Factories\GameLoadingDialogFactory.cs" />
-    <Compile Include="Dialogs\Factories\IChangePasswordDialogFactory.cs" />
-    <Compile Include="Dialogs\Factories\IEOMessageBoxFactory.cs" />
-    <Compile Include="GameExecution\GameStateActions.cs" />
-    <Compile Include="GameExecution\IEndlessGameProvider.cs" />
-    <Compile Include="GameExecution\IGameStateActions.cs" />
-    <Compile Include="HUD\Controls\HudBackgroundFrame.cs" />
-    <Compile Include="HUD\HudButtonController.cs" />
-    <Compile Include="HUD\Controls\HudControlIdentifier.cs" />
-    <Compile Include="HUD\Controls\HudControlsFactory.cs" />
-    <Compile Include="HUD\HudStateActions.cs" />
-    <Compile Include="HUD\IHudButtonController.cs" />
-    <Compile Include="HUD\Controls\IHudControlsFactory.cs" />
-    <Compile Include="HUD\IHudStateActions.cs" />
-    <Compile Include="HUD\InGameStates.cs" />
-    <Compile Include="HUD\Controls\UsageTrackerComponent.cs" />
-    <Compile Include="HUD\IStatusLabelTextRepository.cs" />
-    <Compile Include="HUD\IStatusLabelSetter.cs" />
-    <Compile Include="HUD\Panels\ActiveSpellsPanel.cs" />
-    <Compile Include="HUD\Panels\ChatPanel.cs" />
-    <Compile Include="HUD\Panels\HelpPanel.cs" />
-    <Compile Include="HUD\Panels\IHudPanel.cs" />
-    <Compile Include="HUD\Panels\IHudPanelFactory.cs" />
-    <Compile Include="HUD\Panels\HudPanelFactory.cs" />
-    <Compile Include="HUD\Panels\InventoryPanel.cs" />
-    <Compile Include="HUD\Panels\NewsPanel.cs" />
-    <Compile Include="HUD\Panels\OnlineListPanel.cs" />
-    <Compile Include="HUD\Panels\PartyPanel.cs" />
-    <Compile Include="HUD\Panels\PassiveSpellsPanel.cs" />
-    <Compile Include="HUD\Panels\SettingsPanel.cs" />
-    <Compile Include="HUD\Panels\StatsPanel.cs" />
-    <Compile Include="HUD\StatusLabelSetter.cs" />
-    <Compile Include="Rendering\ClientWindowSizeProvider.cs" />
-    <Compile Include="Network\PacketHandlerGameComponent.cs" />
-    <Compile Include="Rendering\PointComparer.cs" />
-    <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRendererBuilder.cs" />
-    <Compile Include="Rendering\Character\CharacterAnimationActions.cs" />
-    <Compile Include="Rendering\Character\CharacterRenderer.cs" />
-    <Compile Include="Rendering\NPC\INPCRenderer.cs" />
-    <Compile Include="Rendering\NPC\NPCCache.cs" />
-    <Compile Include="Rendering\NPC\NPCRenderer.cs" />
-    <Compile Include="Rendering\NPC\NPCRendererFactory.cs" />
-    <Compile Include="Rendering\NPC\NPCRendererRepository.cs" />
-    <Compile Include="Rendering\NPC\NPCRendererUpdater.cs" />
-    <Compile Include="Rendering\RenderOffsetCalculator.cs" />
-    <Compile Include="Rendering\Character\CharacterRendererUpdater.cs" />
-    <Compile Include="Rendering\Character\CharacterStateCache.cs" />
-    <Compile Include="Rendering\Character\CharacterAnimator.cs" />
-    <Compile Include="Rendering\Character\CharacterTextures.cs" />
-    <Compile Include="Rendering\Character\ICharacterRenderer.cs" />
-    <Compile Include="Rendering\RendererRepositoryResetter.cs" />
-    <Compile Include="Rendering\Character\ICharacterRendererRepository.cs" />
-    <Compile Include="Rendering\Character\ICharacterStateCache.cs" />
-    <Compile Include="Rendering\Character\ICharacterTextures.cs" />
-    <Compile Include="Rendering\Chat\ChatColorExtensions.cs" />
-    <Compile Include="Rendering\Chat\ChatRenderable.cs" />
-    <Compile Include="Rendering\Chat\ChatRenderableGenerator.cs" />
-    <Compile Include="Rendering\Factories\CharacterRendererFactory.cs" />
-    <Compile Include="Rendering\Factories\ICharacterRendererFactory.cs" />
-    <Compile Include="Rendering\Chat\IChatRenderable.cs" />
-    <Compile Include="Rendering\Chat\IChatRenderableGenerator.cs" />
-    <Compile Include="Rendering\Factories\IMapRendererFactory.cs" />
-    <Compile Include="Rendering\Factories\IRenderTargetFactory.cs" />
-    <Compile Include="Rendering\Factories\MapRendererFactory.cs" />
-    <Compile Include="Rendering\Factories\RenderTargetFactory.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\BaseMapEntityRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\MainCharacterEntityRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\GroundLayerRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\MapItemLayerRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\NPCEntityRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\OnTopLayerRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\OtherCharacterEntityRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\OverlayLayerRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\Overlay2LayerRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\ShadowLayerRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\RoofLayerRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\WallLayerRenderer.cs" />
-    <Compile Include="Rendering\Map\IMapItemGraphicProvider.cs" />
-    <Compile Include="Rendering\Map\IMapRenderDistanceCalculator.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\IMapEntityRenderer.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\IMapEntityRendererProvider.cs" />
-    <Compile Include="Rendering\Map\IMapRenderer.cs" />
-    <Compile Include="Rendering\Map\MapChangedActions.cs" />
-    <Compile Include="Rendering\Map\MapEntityRendererProvider.cs" />
-    <Compile Include="Rendering\Map\MapItemGraphicProvider.cs" />
-    <Compile Include="Rendering\MapEntityRenderers\MapObjectLayerRenderer.cs" />
-    <Compile Include="Rendering\Map\MapRenderBounds.cs" />
-    <Compile Include="Rendering\Map\MapRenderDistanceCalculator.cs" />
-    <Compile Include="Rendering\Map\MapRenderer.cs" />
-    <Compile Include="Rendering\Map\MapRenderLayer.cs" />
-    <Compile Include="Test\TestModeLauncher.cs" />
-    <Compile Include="UIControls\BlinkingLabel.cs" />
-    <Compile Include="UIControls\CharacterControl.cs" />
-    <Compile Include="UIControls\CharacterInfoPanel.cs" />
-    <Compile Include="UIControls\CharacterInfoPanelFactory.cs" />
-    <Compile Include="UIControls\ChatModePictureBox.cs" />
-    <Compile Include="UIControls\ChatTextBox.cs" />
-    <Compile Include="ControlSets\CreateAccountControlSet.cs" />
-    <Compile Include="ControlSets\GameControlIdentifier.cs" />
-    <Compile Include="ControlSets\ControlSetFactory.cs" />
-    <Compile Include="ControlSets\IControlSet.cs" />
-    <Compile Include="ControlSets\InitialControlSet.cs" />
-    <Compile Include="ControlSets\BaseControlSet.cs" />
-    <Compile Include="ControlSets\LoginPromptControlSet.cs" />
-    <Compile Include="ControlSets\ViewCreditsControlSet.cs" />
-    <Compile Include="UIControls\CreateCharacterControl.cs" />
-    <Compile Include="ControlSets\IControlSetFactory.cs" />
-    <Compile Include="Input\TextboxClickEventHandler.cs" />
-    <Compile Include="UIControls\ICharacterInfoPanelFactory.cs" />
-    <Compile Include="UIControls\OldScrollBar.cs" />
-    <Compile Include="Input\TextBoxTabEventHandler.cs" />
-    <Compile Include="GameExecution\DebugGameRunner.cs" />
-    <Compile Include="Dialogs\BankAccountDialog.cs" />
-    <Compile Include="Dialogs\ChangePasswordDialog.cs" />
-    <Compile Include="Dialogs\ChestDialog.cs" />
-    <Compile Include="Dialogs\CreateCharacterDialog.cs" />
-    <Compile Include="Dialogs\EODialogBase.cs" />
-    <Compile Include="Dialogs\EOMessageBox.cs" />
-    <Compile Include="Dialogs\FriendIgnoreListDialog.cs" />
-    <Compile Include="Dialogs\GameLoadingDialog.cs" />
-    <Compile Include="Dialogs\ItemTransferDialog.cs" />
-    <Compile Include="Dialogs\ListDialogItem.cs" />
-    <Compile Include="Dialogs\LockerDialog.cs" />
-    <Compile Include="Dialogs\PaperdollDialog.cs" />
-    <Compile Include="Dialogs\PaperdollDialogItem.cs" />
-    <Compile Include="Dialogs\ProgressDialog.cs" />
-    <Compile Include="Dialogs\QuestDialog.cs" />
-    <Compile Include="Dialogs\QuestHistoryDialogListItem.cs" />
-    <Compile Include="Dialogs\QuestProgressDialog.cs" />
-    <Compile Include="Dialogs\QuestProgressDialogListItem.cs" />
-    <Compile Include="Dialogs\ScrollingListDialog.cs" />
-    <Compile Include="Dialogs\ScrollingMessageDialog.cs" />
-    <Compile Include="Dialogs\SessionExpDialog.cs" />
-    <Compile Include="Dialogs\ShopDialog.cs" />
-    <Compile Include="Dialogs\SkillmasterDialog.cs" />
-    <Compile Include="Dialogs\TextInputDialog.cs" />
-    <Compile Include="Dialogs\TradeDialog.cs" />
-    <Compile Include="GameExecution\EndlessGame.cs" />
-    <Compile Include="Old\Game.cs" />
-    <Compile Include="GameExecution\GameRunnerBase.cs" />
-    <Compile Include="GameExecution\GameStates.cs" />
-    <Compile Include="Old\GameUI.cs" />
-    <Compile Include="Content\IContentManagerRepository.cs" />
-    <Compile Include="GameExecution\IGameStateRepository.cs" />
-    <Compile Include="Input\IKeyboardDispatcherRepository.cs" />
-    <Compile Include="HUD\Panels\Old\OldActiveSpellsPanel.cs" />
-    <Compile Include="HUD\Panels\Old\OldChatPanel.cs" />
-    <Compile Include="HUD\Controls\HUD.cs" />
-    <Compile Include="HUD\Panels\Old\OldInventoryPanel.cs" />
-    <Compile Include="HUD\Inventory\OldEOInventoryItem.cs" />
-    <Compile Include="HUD\Panels\Old\OldOnlineListPanel.cs" />
-    <Compile Include="HUD\Panels\Old\OldPartyPanel.cs" />
-    <Compile Include="HUD\Panels\Old\OldSettingsPanel.cs" />
-    <Compile Include="HUD\Spells\EmptySpellIcon.cs" />
-    <Compile Include="HUD\Spells\ISpellIcon.cs" />
-    <Compile Include="HUD\Spells\SpellIcon.cs" />
-    <Compile Include="HUD\StatusBars\HPStatusBar.cs" />
-    <Compile Include="HUD\StatusBars\SPStatusBar.cs" />
-    <Compile Include="HUD\StatusBars\TNLStatusBar.cs" />
-    <Compile Include="HUD\StatusBars\TPStatusBar.cs" />
-    <Compile Include="GameExecution\IEndlessGame.cs" />
-    <Compile Include="GameExecution\IGameRunner.cs" />
-    <Compile Include="Input\OldInputKeyListenerBase.cs" />
-    <Compile Include="Input\NumPadListener.cs" />
-    <Compile Include="Old\InteractList.cs" />
-    <Compile Include="Old\PacketAPICallbackManager.cs" />
-    <Compile Include="Old\Player.cs" />
-    <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GameExecution\ReleaseGameRunner.cs" />
-    <Compile Include="Rendering\CharacterProperties\ArmorRenderer.cs" />
-    <Compile Include="Rendering\CharacterProperties\BootsRenderer.cs" />
-    <Compile Include="Rendering\CharacterProperties\CharacterPropertyRendererBuilder.cs" />
-    <Compile Include="Rendering\CharacterProperties\EmoteRenderer.cs" />
-    <Compile Include="Rendering\CharacterProperties\FaceRenderer.cs" />
-    <Compile Include="Rendering\CharacterProperties\HairRenderer.cs" />
-    <Compile Include="Rendering\CharacterProperties\HairRenderLocationCalculator.cs" />
-    <Compile Include="Rendering\CharacterProperties\HatRenderer.cs" />
-    <Compile Include="Rendering\CharacterProperties\ICharacterPropertyRenderer.cs" />
-    <Compile Include="Rendering\CharacterProperties\ShieldRenderer.cs" />
-    <Compile Include="Rendering\CharacterProperties\SkinRenderer.cs" />
-    <Compile Include="Rendering\CharacterProperties\SkinRenderLocationCalculator.cs" />
-    <Compile Include="Rendering\CharacterProperties\WeaponRenderer.cs" />
-    <Compile Include="Rendering\Sprites\CharacterSpriteCalculator.cs" />
-    <Compile Include="Rendering\Sprites\EmoteSpriteType.cs" />
-    <Compile Include="Rendering\Sprites\EmptySpriteSheet.cs" />
-    <Compile Include="Rendering\Sprites\ICharacterSpriteCalculator.cs" />
-    <Compile Include="Rendering\Sprites\ISpriteSheet.cs" />
-    <Compile Include="Rendering\Sprites\NPCSpriteSheet.cs" />
-    <Compile Include="Rendering\Sprites\BootsSpriteType.cs" />
-    <Compile Include="Rendering\Sprites\ArmorShieldSpriteType.cs" />
-    <Compile Include="Rendering\OldCharacterRenderer.cs" />
-    <Compile Include="Rendering\Chat\ChatBubble.cs" />
-    <Compile Include="Rendering\ContextMenuRenderer.cs" />
-    <Compile Include="Rendering\Effects\AuraEffectSpriteInfo.cs" />
-    <Compile Include="Rendering\Effects\BottomAlignedEffectSpriteInfo.cs" />
-    <Compile Include="Rendering\Effects\EffectRenderer.cs" />
-    <Compile Include="Rendering\Effects\EffectSoundManager.cs" />
-    <Compile Include="Rendering\Effects\EffectSpriteInfo.cs" />
-    <Compile Include="Rendering\Effects\EffectSpriteManager.cs" />
-    <Compile Include="Rendering\Effects\EnergyBallEffectSpriteInfo.cs" />
-    <Compile Include="Rendering\Effects\FallingEffectSpriteInfo.cs" />
-    <Compile Include="Rendering\Effects\FlickeringEffectSpriteInfo.cs" />
-    <Compile Include="Rendering\Effects\HeavenEffectSpriteInfo.cs" />
-    <Compile Include="Rendering\Effects\IEffectSpriteInfo.cs" />
-    <Compile Include="Rendering\EOSpriteSheet.cs" />
-    <Compile Include="Rendering\OldDamageCounter.cs" />
-    <Compile Include="Rendering\OldMapRenderer.cs" />
-    <Compile Include="Rendering\MiniMapRenderer.cs" />
-    <Compile Include="Rendering\OldMouseCursorRenderer.cs" />
-    <Compile Include="Rendering\OldNPCRenderer.cs" />
-    <Compile Include="Rendering\PlayerStatusIconRenderer.cs" />
-    <Compile Include="Old\OldWorld.cs" />
-    <Compile Include="Rendering\Sprites\SpriteSheet.cs" />
-    <Compile Include="Rendering\Sprites\WeaponSpriteType.cs" />
-    <Compile Include="UIControls\ScrollBar.cs" />
-    <Compile Include="UIControls\StatusBarLabel.cs" />
-    <Compile Include="UIControls\TimeLabel.cs" />
-    <Compile Include="Content\IShaderRepository.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="AutomaticTypeMapper, Version=1.2.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\packages\AutomaticTypeMapper.1.2.0.5\lib\net462\AutomaticTypeMapper.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="MonoGame.Framework, Version=3.7.1.189, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MonoGame.Framework.DesktopGL.3.7.1.189\lib\net45\MonoGame.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="PELoaderLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\packages\PELoaderLib.1.1.0.3\lib\net462\PELoaderLib.dll</HintPath>
-    </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=4.0.4.1, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.4.5.2\lib\netstandard2.0\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="Unity.Abstractions, Version=4.1.0.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
-      <HintPath>..\packages\Unity.5.9.7\lib\net46\Unity.Abstractions.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Container, Version=5.9.7.0, Culture=neutral, PublicKeyToken=489b6accfaf20ef0, processorArchitecture=MSIL">
-      <HintPath>..\packages\Unity.5.9.7\lib\net46\Unity.Container.dll</HintPath>
-    </Reference>
-    <Reference Include="WindowsBase" />
-    <Reference Include="XNAControls, Version=1.2.0.0, Culture=neutral, processorArchitecture=x86">
-      <HintPath>..\packages\XNAControls.1.2.2\lib\net462\XNAControls.dll</HintPath>
-    </Reference>
+    <Compile Remove="ContentPipeline\bin\**" />
+    <Compile Remove="ContentPipeline\obj\**" />
+    <EmbeddedResource Remove="ContentPipeline\bin\**" />
+    <EmbeddedResource Remove="ContentPipeline\obj\**" />
+    <None Remove="ContentPipeline\bin\**" />
+    <None Remove="ContentPipeline\obj\**" />
+    <Page Remove="ContentPipeline\bin\**" />
+    <Page Remove="ContentPipeline\obj\**" />
   </ItemGroup>
   <ItemGroup>
     <MonoGameContentReference Include="ContentPipeline\Content.mgcb" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj" />
+    <ProjectReference Include="..\EOLib.Graphics\EOLib.Graphics.csproj" />
+    <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj" />
+    <ProjectReference Include="..\EOLib.Localization\EOLib.Localization.csproj" />
+    <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj" />
+    <ProjectReference Include="..\EOLib\EOLib.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\EOLib.Config\EOLib.Config.csproj">
-      <Project>{2FEC86D4-EA73-472F-9983-B06AF7981F5C}</Project>
-      <Name>EOLib.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EOLib.Graphics\EOLib.Graphics.csproj">
-      <Project>{8c4bc247-89ed-4629-b34b-15a5aee88e2d}</Project>
-      <Name>EOLib.Graphics</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EOLib.IO\EOLib.IO.csproj">
-      <Project>{aa07776b-3f05-404a-ba8a-24970a91c024}</Project>
-      <Name>EOLib.IO</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EOLib.Localization\EOLib.Localization.csproj">
-      <Project>{9F543E30-1320-43E2-8691-080E089154A0}</Project>
-      <Name>EOLib.Localization</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EOLib.Logger\EOLib.Logger.csproj">
-      <Project>{22820580-b33f-4aa9-8044-a6ec4797ae21}</Project>
-      <Name>EOLib.Logger</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\EOLib\EOLib.csproj">
-      <Project>{edb5ad93-303d-4b07-9fad-f6a8295d2390}</Project>
-      <Name>EOLib</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' == 'Linux - Debug' Or '$(Configuration)' == 'Linux - Release'">
+  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
     <Content Include="ContentPipeline\HairClip.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Game.ico" />
-    <None Include="ContentPipeline\HairClipTypes.ini">
+    <None Update="ContentPipeline\HairClipTypes.ini">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\packages\MonoGame.Framework.DesktopGL.3.7.1.189\build\MonoGame.Framework.DesktopGL.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MonoGame.Framework.DesktopGL.3.7.1.189\build\MonoGame.Framework.DesktopGL.targets'))" />
-    <Error Condition="!Exists('..\packages\MonoGame.Content.Builder.3.7.0.9\build\MonoGame.Content.Builder.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\MonoGame.Content.Builder.3.7.0.9\build\MonoGame.Content.Builder.targets'))" />
-    <Error Condition="!Exists('..\packages\EndlessClient.Binaries.1.1.0.6\build\net462\EndlessClient.Binaries.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\EndlessClient.Binaries.1.1.0.6\build\net462\EndlessClient.Binaries.targets'))" />
-  </Target>
-  <Import Project="..\packages\MonoGame.Framework.DesktopGL.3.7.1.189\build\MonoGame.Framework.DesktopGL.targets" Condition="Exists('..\packages\MonoGame.Framework.DesktopGL.3.7.1.189\build\MonoGame.Framework.DesktopGL.targets')" />
-  <Import Project="..\packages\MonoGame.Content.Builder.3.7.0.9\build\MonoGame.Content.Builder.targets" Condition="Exists('..\packages\MonoGame.Content.Builder.3.7.0.9\build\MonoGame.Content.Builder.targets')" />
-  <Import Project="..\packages\EndlessClient.Binaries.1.1.0.6\build\net462\EndlessClient.Binaries.targets" Condition="Exists('..\packages\EndlessClient.Binaries.1.1.0.6\build\net462\EndlessClient.Binaries.targets')" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+  <PropertyGroup />
+  <ItemGroup>
+    <PackageReference Include="EndlessClient.Binaries" Version="1.2.0.2" />
+    <PackageReference Include="Monogame.Content.Builder.Task" Version="3.8.0.1641" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="6.0.0" />
+    <PackageReference Include="XNAControls" Version="1.2.3" />
+  </ItemGroup>
 </Project>

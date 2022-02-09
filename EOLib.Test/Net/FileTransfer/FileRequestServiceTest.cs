@@ -19,7 +19,7 @@ namespace EOLib.Test.Net.FileTransfer
     public class FileRequestServiceTest
     {
         private IFileRequestService _fileRequestService;
-        
+
         private IPacketSendService _packetSendService;
         private INumberEncoderService _numberEncoderService;
         private ISerializer<IMapFile> _mapFileSerializer;

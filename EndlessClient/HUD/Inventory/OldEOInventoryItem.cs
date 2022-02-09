@@ -431,7 +431,7 @@ namespace EndlessClient.HUD.Inventory
         {
             OldCharacter c = OldWorld.Instance.MainPlayer.ActiveCharacter;
 
-            bool useItem = false;
+            //bool useItem = false;
             switch (m_itemData.Type)
             {
                 //equippable items
@@ -514,12 +514,12 @@ namespace EndlessClient.HUD.Inventory
                         m_itemData.ScrollX == OldWorld.Instance.MainPlayer.ActiveCharacter.X &&
                         m_itemData.ScrollY == OldWorld.Instance.MainPlayer.ActiveCharacter.Y)
                         break; //already there - no need to scroll!
-                    useItem = true;
+                    //useItem = true;
                     break;
                 case ItemType.Heal:
                 case ItemType.HairDye:
                 case ItemType.Beer:
-                    useItem = true;
+                    //useItem = true;
                     break;
                 case ItemType.CureCurse:
                     //note: don't actually set the useItem bool here. Call API.UseItem if the dialog result is OK.
@@ -537,10 +537,10 @@ namespace EndlessClient.HUD.Inventory
                     }
                     break;
                 case ItemType.EXPReward:
-                    useItem = true;
+                    //useItem = true;
                     break;
                 case ItemType.EffectPotion:
-                    useItem = true;
+                    //useItem = true;
                     break;
                 //Not implemented server-side
                 //case ItemType.SkillReward:

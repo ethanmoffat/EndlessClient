@@ -1,4 +1,4 @@
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using System;
 using EndlessClient.GameExecution;
 using System.Reflection;

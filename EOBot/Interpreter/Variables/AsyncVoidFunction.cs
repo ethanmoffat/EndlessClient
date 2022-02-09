@@ -81,7 +81,7 @@ namespace EOBot.Interpreter.Variables
 
         public Task CallAsync(params IIdentifiable[] parameters)
         {
-            if (parameters.Length != 0)
+            if (parameters.Length != 3)
                 throw new ArgumentException($"Calling function '{StringValue}' with wrong number of parameters");
 
             return _referenceFunc((TParam1)(dynamic)parameters[0], (TParam2)(dynamic)parameters[1], (TParam3)(dynamic)parameters[2]);
@@ -102,7 +102,7 @@ namespace EOBot.Interpreter.Variables
 
         public Task CallAsync(params IIdentifiable[] parameters)
         {
-            if (parameters.Length != 0)
+            if (parameters.Length != 4)
                 throw new ArgumentException($"Calling function '{StringValue}' with wrong number of parameters");
 
             return _referenceFunc((TParam1)(dynamic)parameters[0], (TParam2)(dynamic)parameters[1], (TParam3)(dynamic)parameters[2], (TParam4)(dynamic)parameters[3]);
@@ -123,7 +123,7 @@ namespace EOBot.Interpreter.Variables
 
         public Task CallAsync(params IIdentifiable[] parameters)
         {
-            if (parameters.Length != 0)
+            if (parameters.Length != 5)
                 throw new ArgumentException($"Calling function '{StringValue}' with wrong number of parameters");
 
             return _referenceFunc((TParam1)(dynamic)parameters[0], (TParam2)(dynamic)parameters[1], (TParam3)(dynamic)parameters[2], (TParam4)(dynamic)parameters[3], (TParam5)(dynamic)parameters[4]);

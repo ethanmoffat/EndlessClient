@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 using EndlessClient.Content;
 using EndlessClient.ControlSets;
@@ -18,6 +19,7 @@ namespace EndlessClient.GameExecution
     [MappedType(BaseType = typeof(IEndlessGame), IsSingleton = true)]
     public class EndlessGame : Game, IEndlessGame
     {
+        private readonly IClientWindowSizeProvider _windowSizeProvider;
         private readonly IGraphicsDeviceRepository _graphicsDeviceRepository;
         private readonly IControlSetRepository _controlSetRepository;
         private readonly IControlSetFactory _controlSetFactory;
@@ -26,7 +28,7 @@ namespace EndlessClient.GameExecution
         private readonly ILoggerProvider _loggerProvider;
         private readonly IChatBubbleTextureProvider _chatBubbleTextureProvider;
         private readonly IShaderRepository _shaderRepository;
-        private readonly IGraphicsDeviceManager _graphicsDeviceManager;
+        private GraphicsDeviceManager _graphicsDeviceManager;
 
         private KeyboardState _previousKeyState;
 
@@ -40,6 +42,7 @@ namespace EndlessClient.GameExecution
                            IChatBubbleTextureProvider chatBubbleTextureProvider,
                            IShaderRepository shaderRepository)
         {
+            _windowSizeProvider = windowSizeProvider;
             _graphicsDeviceRepository = graphicsDeviceRepository;
             _controlSetRepository = controlSetRepository;
             _controlSetFactory = controlSetFactory;
@@ -48,11 +51,8 @@ namespace EndlessClient.GameExecution
             _loggerProvider = loggerProvider;
             _chatBubbleTextureProvider = chatBubbleTextureProvider;
             _shaderRepository = shaderRepository;
-            _graphicsDeviceManager = new GraphicsDeviceManager(this)
-            {
-                PreferredBackBufferWidth = windowSizeProvider.Width,
-                PreferredBackBufferHeight = windowSizeProvider.Height
-            };
+
+            _graphicsDeviceManager = new GraphicsDeviceManager(this);
 
             Content.RootDirectory = "Content";
         }
@@ -66,6 +66,11 @@ namespace EndlessClient.GameExecution
             IsMouseVisible = true;
             _previousKeyState = Keyboard.GetState();
 
+            _graphicsDeviceManager.IsFullScreen = false;
+            _graphicsDeviceManager.PreferredBackBufferWidth = _windowSizeProvider.Width;
+            _graphicsDeviceManager.PreferredBackBufferHeight = _windowSizeProvider.Height;
+            _graphicsDeviceManager.ApplyChanges();
+
             SetUpInitialControlSet();
         }
 
@@ -78,9 +83,8 @@ namespace EndlessClient.GameExecution
             //Ideally, this would be set in a DependencyContainer, but I'm not sure of a way to do that now
             _graphicsDeviceRepository.GraphicsDevice = GraphicsDevice;
 
-#if LINUX
-            _shaderRepository.Shaders[ShaderRepository.HairClip] = Content.Load<Effect>(ShaderRepository.HairClip);
-#endif
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                _shaderRepository.Shaders[ShaderRepository.HairClip] = Content.Load<Effect>(ShaderRepository.HairClip);
 
             base.LoadContent();
         }

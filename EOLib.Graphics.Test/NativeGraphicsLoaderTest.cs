@@ -8,7 +8,7 @@ using PELoaderLib;
 
 namespace EOLib.Graphics.Test
 {
-    [TestFixture, ExcludeFromCodeCoverage]
+    [TestFixture, ExcludeFromCodeCoverage, Category("GraphicsDevice")]
     public class NativeGraphicsLoaderTest
     {
         private IPEFileCollection _modules;

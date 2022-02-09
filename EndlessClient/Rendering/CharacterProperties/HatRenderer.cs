@@ -6,6 +6,7 @@ using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace EndlessClient.Rendering.CharacterProperties
 {
@@ -36,7 +37,8 @@ namespace EndlessClient.Rendering.CharacterProperties
             var hairDrawLoc = _hairRenderLocationCalculator.CalculateDrawLocationOfCharacterHair(_hairSheet.SourceRectangle, parentCharacterDrawArea);
             var offsets = GetOffsets();
 
-            ApplyHairClipShader();
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                ApplyHairClipShader();
 
             Render(spriteBatch, _hatSheet, hairDrawLoc + offsets);
         }
@@ -51,7 +53,6 @@ namespace EndlessClient.Rendering.CharacterProperties
             return new Vector2(xOff + flippedOffset, yOff);
         }
 
-        [Conditional("LINUX")]
         private void ApplyHairClipShader()
         {
             _shaderProvider.Shaders[ShaderRepository.HairClip].CurrentTechnique.Passes[0].Apply();
