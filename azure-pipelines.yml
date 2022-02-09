@@ -54,7 +54,7 @@ steps:
   inputs:
     command: 'test'
     projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
-    arguments: '--filter "TestCategory!=GraphicsDevice --configuration $(buildConfiguration)'
+    arguments: '--filter "TestCategory!=GraphicsDevice" --configuration $(buildConfiguration)'
 
 - task: CopyFiles@2
   displayName: 'Copy Files to EndlessClient drop upload directory'
