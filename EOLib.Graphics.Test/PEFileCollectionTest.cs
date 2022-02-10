@@ -11,7 +11,7 @@ namespace EOLib.Graphics.Test
     [TestFixture, ExcludeFromCodeCoverage]
     public class PEFileCollectionTest
     {
-        private const string ExpectedDirectory = "GFX";
+        private const string ExpectedDirectory = "gfx";
 
         private IPEFileCollection _collection;
 
