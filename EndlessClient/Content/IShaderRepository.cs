@@ -18,6 +18,7 @@ namespace EndlessClient.Content
     public class ShaderRepository : IShaderProvider, IShaderRepository
     {
         public const string HairClip = "HairClip";
+        public const string HairClipFile = "ContentPipeline/HairClip.mgfx";
 
         IReadOnlyDictionary<string, Effect> IShaderProvider.Shaders => (IReadOnlyDictionary<string, Effect>)Shaders;
 

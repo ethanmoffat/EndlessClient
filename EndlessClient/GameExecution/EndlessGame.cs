@@ -84,13 +84,20 @@ namespace EndlessClient.GameExecution
             _graphicsDeviceRepository.GraphicsDevice = GraphicsDevice;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                _shaderRepository.Shaders[ShaderRepository.HairClip] = Content.Load<Effect>(ShaderRepository.HairClip);
+            {
+                if (!File.Exists(ShaderRepository.HairClipFile))
+                {
+                    throw new FileNotFoundException("Missing HairClip shader");
+                }
+
+                var shaderBytes = File.ReadAllBytes(ShaderRepository.HairClipFile);
+                _shaderRepository.Shaders[ShaderRepository.HairClip] = new Effect(GraphicsDevice, shaderBytes);
+            }
 
             base.LoadContent();
         }
 
 #if DEBUG
-
         protected override void Update(GameTime gameTime)
         {
             //todo: this is a debug-only mode launched with the F5 key.

@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+#if !LINUX
 using System.Windows.Media;
 using System.Windows.Threading;
+#endif
 using Microsoft.Xna.Framework.Audio;
 
 namespace EndlessClient.Audio
 {
     public enum Note
     {
-        
     }
 
     public class SoundManager : IDisposable

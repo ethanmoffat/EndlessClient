@@ -1,5 +1,7 @@
 ﻿using System;
+#if !LINUX
 using System.Windows.Forms;
+#endif
 using AutomaticTypeMapper;
 
 namespace EndlessClient.GameExecution
@@ -20,11 +22,13 @@ namespace EndlessClient.GameExecution
             }
             catch (Exception ex)
             {
+#if !LINUX
                 MessageBox.Show(
                     $"Error setting up dependencies for the game! Error message is:\n\n{ex.Message}",
                     "Dependency setup error!",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
+#endif
                 return false;
             }
         }
@@ -37,10 +41,13 @@ namespace EndlessClient.GameExecution
             }
             catch (Exception ex)
             {
+#if !LINUX
                 ShowExceptionDialog(ex);
+#endif
             }
         }
 
+#if !LINUX
         private static void ShowExceptionDialog(Exception ex)
         {
             Application.EnableVisualStyles();
@@ -99,5 +106,6 @@ namespace EndlessClient.GameExecution
             exForm.Controls.Add(exLabel1);
             exForm.ShowDialog();
         }
+#endif
     }
 }

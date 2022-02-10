@@ -1,23 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
+  <PropertyGroup Condition="!$([MSBuild]::IsOSPlatform('Linux'))">
     <TargetFramework>net6.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
     <MonoGamePlatform>Windows</MonoGamePlatform>
-    <MonoGameContentBuilderExe>
-    </MonoGameContentBuilderExe>
-    <_ResolveReferenceDependencies>true</_ResolveReferenceDependencies>
-    <NoWarn>CS0649;NU1701</NoWarn>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <OutputPath>..\bin\$(Configuration)\client</OutputPath>
     <UseWindowsForms>true</UseWindowsForms>
     <UseWPF>true</UseWPF>
     <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
   </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+    <TargetFramework>net6.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
+    <MonoGamePlatform>Linux</MonoGamePlatform>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ResolveReferenceDependencies>true</_ResolveReferenceDependencies>
+    <NoWarn>CS0649;NU1701</NoWarn>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>..\bin\$(Configuration)\client</OutputPath>
+  </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Resources\Game.ico</ApplicationIcon>
-  </PropertyGroup>
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-    <DefineConstants>$(DefineConstants);LINUX</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="ContentPipeline\bin\**" />
@@ -41,8 +44,8 @@
     <ProjectReference Include="..\EOLib\EOLib.csproj" />
   </ItemGroup>
   <ItemGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-    <Content Include="ContentPipeline\HairClip.xnb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="ContentPipeline\HairClip.mgfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
