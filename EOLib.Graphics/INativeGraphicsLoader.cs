@@ -1,9 +1,9 @@
-﻿using System.Drawing;
+﻿using SixLabors.ImageSharp;
 
 namespace EOLib.Graphics
 {
     public interface INativeGraphicsLoader
     {
-        Bitmap LoadGFX(GFXTypes file, int resourceValue);
+        IImage LoadGFX(GFXTypes file, int resourceValue);
     }
 }
