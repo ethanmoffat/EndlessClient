@@ -15,7 +15,6 @@ namespace EOBot
     static class Program
     {
         private static BotFramework f;
-        private static Win32.ConsoleCtrlDelegate consoleControlHandler;
 
         [AutoMappedType]
         class NpcWalkNotifier : INPCActionNotifier
@@ -167,12 +166,7 @@ namespace EOBot
                 "EOLib.Logger"
             };
 
-            // this needs to be a delegate because it is getting garbage collected
-            consoleControlHandler = new Win32.ConsoleCtrlDelegate(HandleCtrl);
-            if (!Win32.SetConsoleCtrlHandler(consoleControlHandler, true))
-            {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Warning, "Unable to set console control handler! CTRL+C will not terminate cleanly.", ConsoleColor.DarkYellow);
-            }
+            Console.CancelKeyPress += HandleCtrlC;
 
             ArgumentsParser parsedArgs = new ArgumentsParser(args);
 
@@ -230,14 +224,12 @@ namespace EOBot
             return 0;
         }
 
-        static bool HandleCtrl(Win32.CtrlTypes type)
+        static void HandleCtrlC(object sender, ConsoleCancelEventArgs e)
         {
-            var name = Enum.GetName(type.GetType(), type);
+            var name = Enum.GetName(e.SpecialKey.GetType(), e.SpecialKey);
             ConsoleHelper.WriteMessage(ConsoleHelper.Type.None, $"Exiting due to {name} event from system");
 
-            if (f != null)
-                f.TerminateBots();
-            return true;
+            f?.TerminateBots();
         }
 
         static void ShowError(ArgumentsParser args)
