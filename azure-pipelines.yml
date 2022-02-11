@@ -48,6 +48,11 @@ steps:
     command: 'restore'
     verbosityRestore: 'minimal'
     projects: '$(Build.SourcesDirectory)/$(solutionName)'
+- script: |
+    echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
+    sudo apt-get install -y ttf-mscorefonts-installer && sudo fc-cache -f
+  displayName: 'Linux - install windows fonts'
+  condition: eq(variables['friendlyPlatform'], 'Linux')
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
@@ -60,6 +65,7 @@ steps:
     command: 'test'
     projects: '$(Build.SourcesDirectory)/$(solutionName)'
     arguments: '--filter "TestCategory!=GraphicsDevice" --configuration $(buildConfiguration)'
+    testRunTitle: $(friendlyPlatform)
 
 - task: ArchiveFiles@2
   displayName: 'ZIP EndlessClient'
