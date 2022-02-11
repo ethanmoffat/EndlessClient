@@ -16,10 +16,12 @@ strategy:
       imageName: "ubuntu-latest"
       solutionName: "EndlessClient.Linux.sln"
       platform: "Linux"
+      dropDir: net6.0
     windows:
       imageName: "windows-latest"
       solutionName: "EndlessClient.sln"
       platform: "Windows"
+      dropDir: net6.0-windows
 
 pool:
   vmImage: $(imageName)
@@ -62,20 +64,19 @@ steps:
 - task: ArchiveFiles@2
   displayName: 'ZIP EndlessClient'
   inputs:
-    # todo: need to change project to not target the -windows version of net6.0
-    rootFolderOrFile: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\client\net6.0-windows\
+    rootFolderOrFile: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\client\$(dropDir)\
     archiveFile: $(Build.ArtifactStagingDirectory)\EndlessClient.$(platform).zip
 - task: ArchiveFiles@2
   displayName: 'ZIP EOBot'
   inputs:
     rootFolderOrFile: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\utils\EOBot\net6.0\
-    archiveFile: $(Build.ArtifactStagingDirectory)\EOBot.zip
+    archiveFile: $(Build.ArtifactStagingDirectory)\EOBot.$(platform).zip
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
   inputs:
     PathtoPublish: $(Build.ArtifactStagingDirectory)
-    ArtifactName: EndlessClient.$(platform)
+    ArtifactName: EndlessClient
 
 - script: |
     git tag build/$(Build.BuildNumber)
