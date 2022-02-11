@@ -15,12 +15,12 @@ strategy:
     linux:
       imageName: "ubuntu-latest"
       solutionName: "EndlessClient.Linux.sln"
-      platform: "Linux"
+      friendlyPlatform: "Linux"
       dropDir: net6.0
     windows:
       imageName: "windows-latest"
       solutionName: "EndlessClient.sln"
-      platform: "Windows"
+      friendlyPlatform: "Windows"
       dropDir: net6.0-windows
 
 pool:
@@ -47,30 +47,30 @@ steps:
   inputs:
     command: 'restore'
     verbosityRestore: 'minimal'
-    projects: '$(Build.SourcesDirectory)\$(solutionName)'
+    projects: '$(Build.SourcesDirectory)/$(solutionName)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
     command: 'build'
-    projects: '$(Build.SourcesDirectory)\$(solutionName)'
+    projects: '$(Build.SourcesDirectory)/$(solutionName)'
     arguments: '--configuration $(buildConfiguration)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test - skipping EOLib.Graphics.Test (not supported on VSTS agent)'
   inputs:
     command: 'test'
-    projects: '$(Build.SourcesDirectory)\$(solutionName)'
+    projects: '$(Build.SourcesDirectory)/$(solutionName)'
     arguments: '--filter "TestCategory!=GraphicsDevice" --configuration $(buildConfiguration)'
 
 - task: ArchiveFiles@2
   displayName: 'ZIP EndlessClient'
   inputs:
-    rootFolderOrFile: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\client\$(dropDir)\
-    archiveFile: $(Build.ArtifactStagingDirectory)\EndlessClient.$(platform).zip
+    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/
+    archiveFile: $(Build.ArtifactStagingDirectory)/EndlessClient.$(friendlyPlatform).zip
 - task: ArchiveFiles@2
   displayName: 'ZIP EOBot'
   inputs:
-    rootFolderOrFile: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\utils\EOBot\net6.0\
-    archiveFile: $(Build.ArtifactStagingDirectory)\EOBot.$(platform).zip
+    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/utils/EOBot/net6.0/
+    archiveFile: $(Build.ArtifactStagingDirectory)/EOBot.$(friendlyPlatform).zip
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
