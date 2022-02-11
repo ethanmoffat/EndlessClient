@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
 using AutomaticTypeMapper;
 using Microsoft.Xna.Framework.Graphics;
-using Color = System.Drawing.Color;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Drawing.Processing;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Processing;
 
 namespace EOLib.Graphics
 {
@@ -27,9 +27,6 @@ namespace EOLib.Graphics
 
         public Texture2D TextureFromResource(GFXTypes file, int resourceVal, bool transparent = false, bool reloadFromFile = false)
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                throw new NotImplementedException("TODO: use cross-platform image library instead of System.Drawing");
-
             Texture2D ret;
 
             var key = new LibraryGraphicPair((int)file, 100 + resourceVal);
@@ -51,7 +48,7 @@ namespace EOLib.Graphics
             using (var mem = new System.IO.MemoryStream())
             {
                 using (var i = BitmapFromResource(file, resourceVal, transparent))
-                    i.Save(mem, ImageFormat.Png);
+                    ((Image)i).Save(mem, new PngEncoder());
 
                 ret = Texture2D.FromStream(_graphicsDeviceProvider.GraphicsDevice, mem);
             }
@@ -64,9 +61,9 @@ namespace EOLib.Graphics
             return ret;
         }
 
-        private Bitmap BitmapFromResource(GFXTypes file, int resourceVal, bool transparent)
+        private IImage BitmapFromResource(GFXTypes file, int resourceVal, bool transparent)
         {
-            var ret = _gfxLoader.LoadGFX(file, resourceVal);
+            var ret = (Image)_gfxLoader.LoadGFX(file, resourceVal);
 
             if (transparent)
             {
@@ -78,40 +75,19 @@ namespace EOLib.Graphics
                 // for hats: 0x080000 is transparent
                 if (file == GFXTypes.FemaleHat || file == GFXTypes.MaleHat)
                 {
-                    CrossPlatformMakeTransparent(ret, Color.FromArgb(0xFF, 0x08, 0x00, 0x00));
-                    CrossPlatformMakeTransparent(ret, Color.FromArgb(0xFF, 0x00, 0x08, 0x00));
-                    CrossPlatformMakeTransparent(ret, Color.FromArgb(0xFF, 0x00, 0x00, 0x08));
+                    CrossPlatformMakeTransparent(ret, Color.FromRgba(0x08, 0x00, 0x00, 0xFF));
+                    CrossPlatformMakeTransparent(ret, Color.FromRgba(0x00, 0x08, 0x00, 0xFF));
+                    CrossPlatformMakeTransparent(ret, Color.FromRgba(0x00, 0x00, 0x08, 0xFF));
                 }
             }
 
             return ret;
         }
 
-        private static void CrossPlatformMakeTransparent(Bitmap bmp, Color transparentColor)
+        private static void CrossPlatformMakeTransparent(Image bmp, Color transparentColor)
         {
-            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                throw new NotImplementedException("TODO: use cross-platform image library instead of System.Drawing");
-
-            bmp.MakeTransparent(transparentColor);
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                // PixelFormat.32bppArgb is assumed due to the call to bmp.MakeTransparent
-                var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb);
-
-                var bmpBytes = new byte[bmp.Height * bmpData.Stride];
-                Marshal.Copy(bmpData.Scan0, bmpBytes, 0, bmpBytes.Length);
-
-                for (int i = 0; i < bmpBytes.Length; i += 4)
-                {
-                    if (bmpBytes[i] == transparentColor.R && bmpBytes[i + 1] == transparentColor.G && bmpBytes[i + 2] == transparentColor.B)
-                        bmpBytes[i + 3] = 0;
-                }
-
-                Marshal.Copy(bmpBytes, 0, bmpData.Scan0, bmpBytes.Length);
-
-                bmp.UnlockBits(bmpData);
-            }
+            var brush = new RecolorBrush(transparentColor, Color.Transparent, 0.0001f);
+            bmp.Mutate(x => x.Clear(brush));
         }
 
         public void Dispose()

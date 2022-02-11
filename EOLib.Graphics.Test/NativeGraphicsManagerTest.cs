@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.Linq;
 using NUnit.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Moq;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.Drawing.Processing;
 
 namespace EOLib.Graphics.Test
 {
@@ -161,7 +163,7 @@ namespace EOLib.Graphics.Test
             Texture2D resultTexture;
             using (var bmp = LoadGFXReturnsBitmap(GFXTypes.MaleHat, requestedResource))
             {
-                FillBitmapWithColor(bmp, Color.FromArgb(0xff, 0x08, 0x00, 0x00));
+                FillBitmapWithColor(bmp, Color.FromRgba(0x08, 0x00, 0x00, 0xff));
                 resultTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.MaleHat, requestedResource, true);
             }
 
@@ -179,7 +181,7 @@ namespace EOLib.Graphics.Test
             Texture2D resultTexture;
             using (var bmp = LoadGFXReturnsBitmap(GFXTypes.FemaleHat, requestedResource))
             {
-                FillBitmapWithColor(bmp, Color.FromArgb(0xff, 0x08, 0x00, 0x00));
+                FillBitmapWithColor(bmp, Color.FromRgba(0x08, 0x00, 0x00, 0xff));
                 resultTexture = _nativeGraphicsManager.TextureFromResource(GFXTypes.FemaleHat, requestedResource, true);
             }
 
@@ -201,9 +203,9 @@ namespace EOLib.Graphics.Test
             Assert.IsFalse(resultTexture.IsDisposed);
         }
 
-        private Bitmap LoadGFXReturnsBitmap(GFXTypes whichFile, int requestedResource, Action loadCallback = null)
+        private IImage LoadGFXReturnsBitmap(GFXTypes whichFile, int requestedResource, Action loadCallback = null)
         {
-            var bitmapToReturn = new Bitmap(10, 10, PixelFormat.Format24bppRgb);
+            var bitmapToReturn = new Image<Rgba32>(10, 10);
 
             var graphicsLoaderMock = Mock.Get(_graphicsLoader);
             graphicsLoaderMock.Setup(x => x.LoadGFX(whichFile, requestedResource))
@@ -213,11 +215,10 @@ namespace EOLib.Graphics.Test
             return bitmapToReturn;
         }
 
-        private static void FillBitmapWithColor(Bitmap bitmap, Color color)
+        private static void FillBitmapWithColor(IImage image, Color color)
         {
-            for(int row = 0; row < bitmap.Height; ++row)
-                for (int col = 0; col < bitmap.Width; ++col)
-                    bitmap.SetPixel(col, row, color);
+            var colorBrush = new SolidBrush(color);
+            ((Image)image).Mutate(x => x.Clear(colorBrush));
         }
 
         private void GetTextureAgain(GFXTypes whichFile, int requestedResource)

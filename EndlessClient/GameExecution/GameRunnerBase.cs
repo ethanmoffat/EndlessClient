@@ -1,11 +1,14 @@
 ﻿using System.Diagnostics;
 using System.IO;
-using System.Windows.Forms;
 using AutomaticTypeMapper;
 using EndlessClient.Initialization;
 using EOLib.Config;
 using EOLib.Graphics;
 using EOLib.Localization;
+
+#if !LINUX
+using System.Windows.Forms;
+#endif
 
 namespace EndlessClient.GameExecution
 {
@@ -83,7 +86,9 @@ namespace EndlessClient.GameExecution
 
         private void ShowErrorMessage(string message, string caption)
         {
+#if !LINUX
             MessageBox.Show(message, caption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+#endif
         }
 
         public virtual void RunGame()

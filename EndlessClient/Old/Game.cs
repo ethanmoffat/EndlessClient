@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+#if !LINUX
 using System.Windows.Forms;
+#endif
 using EndlessClient.Audio;
 using EndlessClient.Dialogs;
 using EndlessClient.GameExecution;
@@ -45,7 +47,7 @@ namespace EndlessClient.Old
             if (_backButtonPressed) return;
             EOMessageBox.Show(State == GameStates.PlayingTheGame
                 ? DialogResourceID.CONNECTION_LOST_IN_GAME
-                : DialogResourceID.CONNECTION_LOST_CONNECTION);    
+                : DialogResourceID.CONNECTION_LOST_CONNECTION);
         }
 
         public void ResetWorldElements()
@@ -212,9 +214,11 @@ namespace EndlessClient.Old
             }
             catch (Exception ex)
             {
+#if !LINUX
                 MessageBox.Show(
                     string.Format("There was an error (type: {2}) initializing the sound manager: {0}\n\nCall Stack:\n {1}", ex.Message,
                         ex.StackTrace, ex.GetType()), "Sound Manager Error");
+#endif
                 Exit();
                 return false;
             }

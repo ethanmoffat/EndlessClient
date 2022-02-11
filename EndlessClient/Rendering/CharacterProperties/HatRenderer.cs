@@ -5,7 +5,6 @@ using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace EndlessClient.Rendering.CharacterProperties

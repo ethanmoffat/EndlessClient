@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using NUnit.Framework;
 using Moq;
 using PELoaderLib;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Formats.Bmp;
 
 namespace EOLib.Graphics.Test
 {
@@ -60,11 +61,11 @@ namespace EOLib.Graphics.Test
         private byte[] CreateDataArrayForBitmap()
         {
             byte[] array;
-            using (var retBmp = new Bitmap(10, 10))
+            using (var retBmp = new Image<Rgb24>(10, 10))
             {
                 using (var ms = new MemoryStream())
                 {
-                    retBmp.Save(ms, ImageFormat.Bmp);
+                    retBmp.Save(ms, new BmpEncoder());
                     array = ms.ToArray();
                 }
             }

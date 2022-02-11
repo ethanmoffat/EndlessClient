@@ -1,4 +1,4 @@
-name: 0.3.$(rev:rrr)
+name: 0.4.$(rev:rrr)
 
 trigger:
 - master
@@ -12,11 +12,16 @@ schedules:
 
 strategy:
   matrix:
-    # TODO: enable build for linux
-    # linux:
-    #   imageName: "ubuntu-latest"
+    linux:
+      imageName: "ubuntu-latest"
+      solutionName: "EndlessClient.Linux.sln"
+      friendlyPlatform: "Linux"
+      dropDir: net6.0
     windows:
       imageName: "windows-latest"
+      solutionName: "EndlessClient.sln"
+      friendlyPlatform: "Windows"
+      dropDir: net6.0-windows
 
 pool:
   vmImage: $(imageName)
@@ -42,30 +47,36 @@ steps:
   inputs:
     command: 'restore'
     verbosityRestore: 'minimal'
-    projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
+    projects: '$(Build.SourcesDirectory)/$(solutionName)'
+- script: |
+    echo ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true | sudo debconf-set-selections
+    sudo apt-get install -y ttf-mscorefonts-installer && sudo fc-cache -f
+  displayName: 'Linux - install windows fonts'
+  condition: eq(variables['friendlyPlatform'], 'Linux')
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
     command: 'build'
-    projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
+    projects: '$(Build.SourcesDirectory)/$(solutionName)'
     arguments: '--configuration $(buildConfiguration)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test - skipping EOLib.Graphics.Test (not supported on VSTS agent)'
   inputs:
     command: 'test'
-    projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
+    projects: '$(Build.SourcesDirectory)/$(solutionName)'
     arguments: '--filter "TestCategory!=GraphicsDevice" --configuration $(buildConfiguration)'
+    testRunTitle: $(friendlyPlatform)
 
 - task: ArchiveFiles@2
   displayName: 'ZIP EndlessClient'
   inputs:
-    rootFolderOrFile: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\client\net6.0-windows\
-    archiveFile: $(Build.ArtifactStagingDirectory)\EndlessClient.zip
+    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/client/$(dropDir)/
+    archiveFile: $(Build.ArtifactStagingDirectory)/EndlessClient.$(friendlyPlatform).zip
 - task: ArchiveFiles@2
   displayName: 'ZIP EOBot'
   inputs:
-    rootFolderOrFile: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\utils\EOBot\net6.0\
-    archiveFile: $(Build.ArtifactStagingDirectory)\EOBot.zip
+    rootFolderOrFile: $(Build.SourcesDirectory)/bin/$(buildConfiguration)/utils/EOBot/net6.0/
+    archiveFile: $(Build.ArtifactStagingDirectory)/EOBot.$(friendlyPlatform).zip
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifacts'
