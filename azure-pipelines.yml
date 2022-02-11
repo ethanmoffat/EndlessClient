@@ -12,11 +12,14 @@ schedules:
 
 strategy:
   matrix:
-    # TODO: enable build for linux
-    # linux:
-    #   imageName: "ubuntu-latest"
+    linux:
+      imageName: "ubuntu-latest"
+      solutionName: "EndlessClient.Linux.sln"
+      platform: "Linux"
     windows:
       imageName: "windows-latest"
+      solutionName: "EndlessClient.sln"
+      platform: "Windows"
 
 pool:
   vmImage: $(imageName)
@@ -42,25 +45,26 @@ steps:
   inputs:
     command: 'restore'
     verbosityRestore: 'minimal'
-    projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
+    projects: '$(Build.SourcesDirectory)\$(solutionName)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet build'
   inputs:
     command: 'build'
-    projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
+    projects: '$(Build.SourcesDirectory)\$(solutionName)'
     arguments: '--configuration $(buildConfiguration)'
 - task: DotNetCoreCLI@2
   displayName: 'dotnet test - skipping EOLib.Graphics.Test (not supported on VSTS agent)'
   inputs:
     command: 'test'
-    projects: '$(Build.SourcesDirectory)\EndlessClient.sln'
+    projects: '$(Build.SourcesDirectory)\$(solutionName)'
     arguments: '--filter "TestCategory!=GraphicsDevice" --configuration $(buildConfiguration)'
 
 - task: ArchiveFiles@2
   displayName: 'ZIP EndlessClient'
   inputs:
+    # todo: need to change project to not target the -windows version of net6.0
     rootFolderOrFile: $(Build.SourcesDirectory)\bin\$(buildConfiguration)\client\net6.0-windows\
-    archiveFile: $(Build.ArtifactStagingDirectory)\EndlessClient.zip
+    archiveFile: $(Build.ArtifactStagingDirectory)\EndlessClient.$(platform).zip
 - task: ArchiveFiles@2
   displayName: 'ZIP EOBot'
   inputs:
@@ -71,7 +75,7 @@ steps:
   displayName: 'Publish Artifacts'
   inputs:
     PathtoPublish: $(Build.ArtifactStagingDirectory)
-    ArtifactName: EndlessClient
+    ArtifactName: EndlessClient.$(platform)
 
 - script: |
     git tag build/$(Build.BuildNumber)
