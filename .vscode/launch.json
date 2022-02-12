@@ -27,7 +27,7 @@
             "stopAtEntry": false
         },
         {
-            "name": ".NET Core Launch - Windows",
+            "name": "EndlessClient - Windows",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build-client-windows",
