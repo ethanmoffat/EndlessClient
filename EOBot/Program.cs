@@ -210,15 +210,29 @@ namespace EOBot
             catch (BotException bex)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, bex.Message, ConsoleColor.DarkRed);
+                return 1;
             }
             catch (BotScriptErrorException bse)
             {
                 ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, bse.Message, ConsoleColor.DarkRed);
                 return 1;
             }
+            catch (AggregateException ae)
+            {
+                var botExceptions = ae.InnerExceptions.OfType<BotScriptErrorException>().ToList();
+                foreach (var ie in botExceptions)
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, ie.Message, ConsoleColor.DarkRed);
+
+                var otherExceptions = ae.InnerExceptions.Except(botExceptions);
+                foreach (var ie in otherExceptions)
+                    ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ie.Message}\nStack Trace:\n{ie.StackTrace}", ConsoleColor.DarkRed);
+
+                return 1;
+            }
             catch (Exception ex)
             {
-                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}", ConsoleColor.DarkRed);
+                ConsoleHelper.WriteMessage(ConsoleHelper.Type.Error, $"Unhandled error: {ex.Message}\nStack Trace:\n{ex.StackTrace}", ConsoleColor.DarkRed);
+                return 1;
             }
 
             return 0;

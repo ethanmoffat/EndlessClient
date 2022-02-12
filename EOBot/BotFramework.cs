@@ -1,6 +1,7 @@
 ﻿using EOLib.Net.Handlers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -105,7 +106,19 @@ namespace EOBot
                 botTasks.Add(_botsList[i].RunAsync(_cancellationTokenSource.Token));
             }
 
-            await Task.WhenAll(botTasks).ConfigureAwait(false);
+            // this is done to force handling of exceptions as an Aggregate exception so errors from multiple bots are shown properly
+            // otherwise, only the first exception from the first faulting task will be thrown
+            var continuation = Task.WhenAll(botTasks);
+            try
+            {
+                await continuation;
+            }
+            catch { }
+
+            if (continuation.Status != TaskStatus.RanToCompletion && continuation.Exception != null)
+            {
+                throw continuation.Exception;
+            }
         }
 
         public void TerminateBots()
