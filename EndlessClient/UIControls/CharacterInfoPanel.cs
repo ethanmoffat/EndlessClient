@@ -174,7 +174,7 @@ namespace EndlessClient.UIControls
         {
             _characterControl.Draw(gameTime);
 
-            if (_adminGraphic.HasTexture)
+            if (_adminGraphic.HasTexture && !_spriteBatch.IsDisposed)
             {
                 _spriteBatch.Begin();
                 _spriteBatch.Draw(_adminGraphic.SheetTexture, GetAdminGraphicLocation(), _adminGraphic.SourceRectangle, Color.White);

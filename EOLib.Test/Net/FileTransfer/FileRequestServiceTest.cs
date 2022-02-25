@@ -42,7 +42,7 @@ namespace EOLib.Test.Net.FileTransfer
         public void RequestFile_ResponsePacketHasInvalidHeader_ThrowsEmptyPacketReceivedException()
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Account, PacketAction.Accept);
-            Assert.ThrowsAsync<EmptyPacketReceivedException>(async () => await _fileRequestService.RequestFile(InitFileType.Item));
+            Assert.ThrowsAsync<EmptyPacketReceivedException>(async () => await _fileRequestService.RequestFile(InitFileType.Item, 1));
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace EOLib.Test.Net.FileTransfer
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, (byte)InitReply.ItemFile, 33);
 
-            Assert.ThrowsAsync<MalformedPacketException>(async () => await _fileRequestService.RequestFile(InitFileType.Item));
+            Assert.ThrowsAsync<MalformedPacketException>(async () => await _fileRequestService.RequestFile(InitFileType.Item, 1));
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace EOLib.Test.Net.FileTransfer
                 Mock.Get(_packetSendService).Setup(x => x.SendEncodedPacketAndWaitAsync(It.IsAny<IPacket>()))
                     .Callback((IPacket packet) => packetIsCorrect = IsCorrectFileRequestPacket(packet, localType));
 
-                _fileRequestService.RequestFile(type);
+                _fileRequestService.RequestFile(type, 1);
 
                 Assert.IsTrue(packetIsCorrect, "Incorrect packet for {0}", type);
             }
@@ -81,10 +81,10 @@ namespace EOLib.Test.Net.FileTransfer
                 AggregateException aggEx = null;
                 switch (type)
                 {
-                    case InitFileType.Item: aggEx = _fileRequestService.RequestFile(type).Exception; break;
-                    case InitFileType.Npc: aggEx = _fileRequestService.RequestFile(type).Exception; break;
-                    case InitFileType.Spell: aggEx = _fileRequestService.RequestFile(type).Exception; break;
-                    case InitFileType.Class: aggEx = _fileRequestService.RequestFile(type).Exception; break;
+                    case InitFileType.Item: aggEx = _fileRequestService.RequestFile(type, 1).Exception; break;
+                    case InitFileType.Npc: aggEx = _fileRequestService.RequestFile(type, 1).Exception; break;
+                    case InitFileType.Spell: aggEx = _fileRequestService.RequestFile(type, 1).Exception; break;
+                    case InitFileType.Class: aggEx = _fileRequestService.RequestFile(type, 1).Exception; break;
                 }
 
                 if (aggEx != null)
@@ -100,14 +100,14 @@ namespace EOLib.Test.Net.FileTransfer
         public void RequestMapFile_ResponsePacketHasInvalidHeader_ThrowsEmptyPacketReceivedException()
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Account, PacketAction.Accept);
-            Assert.ThrowsAsync<EmptyPacketReceivedException>(async () => await _fileRequestService.RequestMapFile(1));
+            Assert.ThrowsAsync<EmptyPacketReceivedException>(async () => await _fileRequestService.RequestMapFile(1, 1));
         }
 
         [Test]
         public void RequestMapFile_ResponsePacketHasIncorrectFileType_ThrowsMalformedPacketException()
         {
             Mock.Get(_packetSendService).SetupReceivedPacketHasHeader(PacketFamily.Init, PacketAction.Init, (byte) InitReply.SpellFile, 33);
-            Assert.ThrowsAsync<MalformedPacketException>(async () => await _fileRequestService.RequestMapFile(1));
+            Assert.ThrowsAsync<MalformedPacketException>(async () => await _fileRequestService.RequestMapFile(1, 1));
         }
 
         [Test]
@@ -116,18 +116,42 @@ namespace EOLib.Test.Net.FileTransfer
             var packetIsCorrect = false;
             Mock.Get(_packetSendService).Setup(x => x.SendEncodedPacketAndWaitAsync(It.IsAny<IPacket>())).Callback((IPacket packet) => packetIsCorrect = IsCorrectFileRequestPacket(packet, InitFileType.Map));
 
-            _fileRequestService.RequestMapFile(1);
+            _fileRequestService.RequestMapFile(1, 1);
 
-            Assert.IsTrue(packetIsCorrect, "Incorrect packet for Map");
+            Assert.That(packetIsCorrect, Is.True);
+        }
+
+        [Test]
+        public void RequestMapFile_HasPlayerAndMapID()
+        {
+            const short PlayerID = 1234;
+            const short MapID = 333;
+
+            var packetIsCorrect = false;
+            Mock.Get(_packetSendService)
+                .Setup(x => x.SendEncodedPacketAndWaitAsync(It.IsAny<IPacket>()))
+                .Callback((IPacket p) => packetIsCorrect = IsCorrectFileRequestPacket(p, InitFileType.Map, PlayerID, MapID));
+
+            _fileRequestService.RequestMapFile(MapID, PlayerID);
+
+            Assert.That(packetIsCorrect, Is.True);
         }
 
         #endregion
 
         #region Helper Methods
 
-        private static bool IsCorrectFileRequestPacket(IPacket packet, InitFileType type)
+        private static bool IsCorrectFileRequestPacket(IPacket packet, InitFileType type, short playerId = 0, short mapId = 0)
         {
-            return packet.Family == PacketFamily.Welcome && packet.Action == PacketAction.Agree && packet.ReadChar() == (byte) type;
+            var correctTyping = packet.Family == PacketFamily.Welcome && packet.Action == PacketAction.Agree && packet.ReadChar() == (byte) type;
+            
+            var correctData = true;
+            if (mapId > 0 && playerId > 0)
+            {
+                correctData = packet.ReadShort() == playerId && packet.ReadShort() == mapId;
+            }
+
+            return correctTyping && correctData;
         }
 
         private static byte[] CreateFilePacket(InitFileType type)

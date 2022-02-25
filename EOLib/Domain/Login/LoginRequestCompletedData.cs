@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
@@ -23,6 +24,8 @@ namespace EOLib.Domain.Login
         public IReadOnlyList<INPC> MapNPCs { get; private set; }
 
         public IReadOnlyList<IItem> MapItems { get; private set; }
+
+        public CharacterLoginReply Error { get; private set; }
 
         public ILoginRequestCompletedData WithNews(IEnumerable<string> newsStrings)
         {
@@ -80,6 +83,13 @@ namespace EOLib.Domain.Login
             return copy;
         }
 
+        public ILoginRequestCompletedData WithError(CharacterLoginReply error)
+        {
+            var copy = MakeCopy(this);
+            copy.Error = error;
+            return copy;
+        }
+
         private static LoginRequestCompletedData MakeCopy(ILoginRequestCompletedData source)
         {
             return new LoginRequestCompletedData
@@ -91,7 +101,8 @@ namespace EOLib.Domain.Login
                 CharacterSpellInventory = source.CharacterSpellInventory,
                 MapCharacters = source.MapCharacters,
                 MapNPCs = source.MapNPCs,
-                MapItems = source.MapItems
+                MapItems = source.MapItems,
+                Error = source.Error,
             };
         }
     }

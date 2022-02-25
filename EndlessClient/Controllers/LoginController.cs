@@ -173,14 +173,22 @@ namespace EndlessClient.Controllers
                 if (!await completeCharacterLoginOperation.Invoke())
                     return;
 
+                if (completeCharacterLoginOperation.Result == CharacterLoginReply.RequestDenied)
+                {
+                    // https://discord.com/channels/723989119503696013/787685796055482368/946634672295784509
+                    // Sausage: 'I have WELCOME_REPLY 3 as returning a "server is busy" message if you send it and then disconnect the client'
+                    _errorDisplayAction.ShowLoginError(LoginReply.Busy);
+                    _gameStateActions.ChangeToState(GameStates.Initial);
+                    return;
+                }
+
                 AddDefaultTextToChat();
 
                 await Task.Delay(1000); //always wait 1 second
             }
             finally
             {
-                if (gameLoadingDialog != null)
-                    gameLoadingDialog.CloseDialog();
+                gameLoadingDialog?.CloseDialog();
             }
 
             _gameStateActions.ChangeToState(GameStates.PlayingTheGame);
@@ -203,12 +211,12 @@ namespace EndlessClient.Controllers
             _errorDisplayAction.ShowException(ex);
         }
 
-        private async Task InitialDelayInReleaseMode()
+        private Task InitialDelayInReleaseMode()
         {
 #if DEBUG
-            await Task.FromResult(false); //no-op in debug
+            return Task.Delay(2000);
 #else
-            await Task.Delay(5000);
+            return Task.Delay(5000);
 #endif
         }
 

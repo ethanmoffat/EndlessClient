@@ -26,10 +26,12 @@ namespace EOLib.Net.FileTransfer
             _mapFileSerializer = mapFileSerializer;
         }
 
-        public async Task<IMapFile> RequestMapFile(short mapID)
+        public async Task<IMapFile> RequestMapFile(short mapID, short playerID)
         {
             var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
-                .AddChar((byte) InitFileType.Map)
+                .AddChar((byte)InitFileType.Map)
+                .AddShort(playerID)
+                .AddShort(mapID)
                 .Build();
 
             return await GetMapFile(request, mapID, false);
@@ -41,10 +43,12 @@ namespace EOLib.Net.FileTransfer
             return await GetMapFile(request, mapID, true);
         }
 
-        public async Task<IPubFile> RequestFile(InitFileType fileType)
+        public async Task<IPubFile> RequestFile(InitFileType fileType, short playerID)
         {
             var request = new PacketBuilder(PacketFamily.Welcome, PacketAction.Agree)
-                .AddChar((byte) fileType)
+                .AddChar((byte)fileType)
+                .AddShort(playerID)
+                .AddChar(1) // file id (for chunking oversize pub files)
                 .Build();
 
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(request);
@@ -101,10 +105,10 @@ namespace EOLib.Net.FileTransfer
 
     public interface IFileRequestService
     {
-        Task<IMapFile> RequestMapFile(short mapID);
+        Task<IMapFile> RequestMapFile(short mapID, short playerID);
 
         Task<IMapFile> RequestMapFileForWarp(short mapID);
 
-        Task<IPubFile> RequestFile(InitFileType fileType);
+        Task<IPubFile> RequestFile(InitFileType fileType, short playerID);
     }
 }

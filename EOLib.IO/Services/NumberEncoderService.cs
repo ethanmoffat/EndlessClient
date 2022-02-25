@@ -32,7 +32,7 @@ namespace EOLib.IO.Services
 
             numArray[0] = unsigned + 1;
 
-            return numArray.Select(x => (byte)x)
+            return numArray.Cast<byte>()
                            .Take(size)
                            .ToArray();
         }

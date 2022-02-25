@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using AutomaticTypeMapper;
+using EOLib.Domain.Login;
 using EOLib.Domain.Protocol;
 using EOLib.IO;
 using EOLib.IO.Map;
@@ -20,6 +21,7 @@ namespace EOLib.Net.FileTransfer
         private readonly ILoginFileChecksumProvider _loginFileChecksumProvider;
         private readonly IPubFileRepository _pubFileRepository;
         private readonly IMapFileRepository _mapFileRepository;
+        private readonly IPlayerInfoProvider _playerInfoProvider;
 
         public FileRequestActions(INumberEncoderService numberEncoderService,
                                   IFileRequestService fileRequestService,
@@ -27,7 +29,8 @@ namespace EOLib.Net.FileTransfer
                                   IMapFileSaveService mapFileSaveService,
                                   ILoginFileChecksumProvider loginFileChecksumProvider,
                                   IPubFileRepository pubFileRepository,
-                                  IMapFileRepository mapFileRepository)
+                                  IMapFileRepository mapFileRepository,
+                                  IPlayerInfoProvider playerInfoProvider)
         {
             _numberEncoderService = numberEncoderService;
             _fileRequestService = fileRequestService;
@@ -36,6 +39,7 @@ namespace EOLib.Net.FileTransfer
             _loginFileChecksumProvider = loginFileChecksumProvider;
             _pubFileRepository = pubFileRepository;
             _mapFileRepository = mapFileRepository;
+            _playerInfoProvider = playerInfoProvider;
         }
 
         public bool NeedsFileForLogin(InitFileType fileType, short optionalID = 0)
@@ -56,7 +60,7 @@ namespace EOLib.Net.FileTransfer
 
         public async Task GetMapFromServer(short mapID)
         {
-            var mapFile = await _fileRequestService.RequestMapFile(mapID);
+            var mapFile = await _fileRequestService.RequestMapFile(mapID, _playerInfoProvider.PlayerID);
             SaveAndCacheMapFile(mapID, mapFile);
         }
 
@@ -68,28 +72,28 @@ namespace EOLib.Net.FileTransfer
 
         public async Task GetItemFileFromServer()
         {
-            var itemFile = await _fileRequestService.RequestFile(InitFileType.Item);
+            var itemFile = await _fileRequestService.RequestFile(InitFileType.Item, _playerInfoProvider.PlayerID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToEIFFile, itemFile);
             _pubFileRepository.EIFFile = (EIFFile)itemFile;
         }
 
         public async Task GetNPCFileFromServer()
         {
-            var npcFile = await _fileRequestService.RequestFile(InitFileType.Npc);
+            var npcFile = await _fileRequestService.RequestFile(InitFileType.Npc, _playerInfoProvider.PlayerID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToENFFile, npcFile);
             _pubFileRepository.ENFFile = (ENFFile)npcFile;
         }
 
         public async Task GetSpellFileFromServer()
         {
-            var spellFile = await _fileRequestService.RequestFile(InitFileType.Spell);
+            var spellFile = await _fileRequestService.RequestFile(InitFileType.Spell, _playerInfoProvider.PlayerID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToESFFile, spellFile);
             _pubFileRepository.ESFFile = (ESFFile)spellFile;
         }
 
         public async Task GetClassFileFromServer()
         {
-            var classFile = await _fileRequestService.RequestFile(InitFileType.Class);
+            var classFile = await _fileRequestService.RequestFile(InitFileType.Class, _playerInfoProvider.PlayerID);
             _pubFileSaveService.SaveFile(PubFileNameConstants.PathToECFFile, classFile);
             _pubFileRepository.ECFFile = (ECFFile)classFile;
         }

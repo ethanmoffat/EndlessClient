@@ -131,10 +131,10 @@ namespace EOLib.Domain.Login
             _loginFileChecksumRepository.ECFLength = data.EcfLen;
         }
 
-        public async Task CompleteCharacterLogin()
+        public async Task<CharacterLoginReply> CompleteCharacterLogin()
         {
             var packet = new PacketBuilder(PacketFamily.Welcome, PacketAction.Message)
-                .AddThree(0x00123456) //?
+                .AddThree(_playerInfoRepository.PlayerID)
                 .AddInt(_characterRepository.MainCharacter.ID)
                 .Build();
 
@@ -143,6 +143,11 @@ namespace EOLib.Domain.Login
                 throw new EmptyPacketReceivedException();
 
             var data = _loginRequestCompletedPacketTranslator.TranslatePacket(response);
+
+            if (data.Error == CharacterLoginReply.RequestDenied)
+            {
+                return data.Error;
+            }
 
             _newsRepository.NewsHeader = data.News.First();
             _newsRepository.NewsText = data.News.Except(new[] { data.News.First() }).ToList();
@@ -175,6 +180,8 @@ namespace EOLib.Domain.Login
             _currentMapStateRepository.MapItems = new HashSet<IItem>(data.MapItems);
 
             _playerInfoRepository.PlayerIsInGame = true;
+
+            return CharacterLoginReply.RequestCompleted;
         }
 
         private bool IsInvalidResponse(IPacket response)
@@ -197,6 +204,6 @@ namespace EOLib.Domain.Login
 
         Task RequestCharacterLogin(ICharacter character);
 
-        Task CompleteCharacterLogin();
+        Task<CharacterLoginReply> CompleteCharacterLogin();
     }
 }

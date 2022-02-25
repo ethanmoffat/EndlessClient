@@ -117,9 +117,7 @@ namespace EOLib.Net.Communication
         {
             try
             {
-                var pollResult = !_socket.Poll(1000, SelectMode.SelectRead);
-                var dataAvailable = _socket.Available != 0;
-                return _connected && (pollResult || dataAvailable);
+                return _connected && _socket.Connected;
             }
             catch (ObjectDisposedException)
             {

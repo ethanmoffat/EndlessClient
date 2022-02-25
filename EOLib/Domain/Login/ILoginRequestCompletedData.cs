@@ -24,6 +24,8 @@ namespace EOLib.Domain.Login
 
         IReadOnlyList<IItem> MapItems { get; }
 
+        CharacterLoginReply Error { get; }
+
         ILoginRequestCompletedData WithNews(IEnumerable<string> newsStrings);
 
         ILoginRequestCompletedData WithWeight(byte weight);
@@ -39,5 +41,7 @@ namespace EOLib.Domain.Login
         ILoginRequestCompletedData WithNPCs(IEnumerable<INPC> npcs);
 
         ILoginRequestCompletedData WithItems(IEnumerable<IItem> items);
+
+        ILoginRequestCompletedData WithError(CharacterLoginReply error);
     }
 }
