@@ -17,8 +17,18 @@ namespace EOLib.Net.Translators
         public override ILoginRequestCompletedData TranslatePacket(IPacket packet)
         {
             var reply = (CharacterLoginReply)packet.ReadShort();
-            if (reply != CharacterLoginReply.RequestCompleted)
+
+            if (reply == CharacterLoginReply.RequestDenied)
+            {
+                if (packet.ReadEndString() != "NO")
+                    throw new MalformedPacketException("Expected NO bytes in CharacterLoginReply login", packet);
+
+                return new LoginRequestCompletedData().WithError(reply);
+            }
+            else if (reply != CharacterLoginReply.RequestCompleted)
+            {
                 throw new MalformedPacketException("Unexpected welcome response in packet: " + reply, packet);
+            }
 
             if (packet.ReadByte() != 255)
                 throw new MalformedPacketException("Missing 255 byte separator after CharacterLoginReply type", packet);

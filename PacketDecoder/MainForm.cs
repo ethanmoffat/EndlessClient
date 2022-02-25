@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 using EOLib.Config;
@@ -110,13 +111,25 @@ namespace PacketDecoder
             {
                 _packetProcessActions.SetEncodeMultiples((byte)param, _packetEncoderRepository.SendMultiplier);
                 if (param < 6 || param > 12)
-                    MessageBox.Show("This should be between 6 and 12...", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                {
+                    txtDMulti.BackColor = Color.FromArgb(255, 255, 128, 128);
+                }
+                else
+                {
+                    txtDMulti.BackColor = Color.White;
+                }
             }
             else if (txt == txtEMulti)
             {
                 _packetProcessActions.SetEncodeMultiples(_packetEncoderRepository.ReceiveMultiplier, (byte)param);
                 if (param < 6 || param > 12)
-                    MessageBox.Show("This should be between 6 and 12...", "Warning!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                {
+                    txtEMulti.BackColor = Color.FromArgb(255, 255, 128, 128);
+                }
+                else
+                {
+                    txtEMulti.BackColor = Color.White;
+                }
             }
             else if (txt == txtOffset)
             {
@@ -169,9 +182,9 @@ namespace PacketDecoder
             lblAction.Text = pkt.Action.ToString();
 
             string decoded = "";
-            for (int i = 0; i < data.Length; i++)
+            for (int i = 0; i < pkt.Length; i++)
             {
-                decoded += $"{data[i].ToString("D3")} ";
+                decoded += $"{pkt.RawData[i].ToString("D3")} ";
             }
             txtDecoded.Text = decoded;
 
