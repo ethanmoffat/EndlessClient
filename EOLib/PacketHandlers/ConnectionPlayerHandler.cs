@@ -39,7 +39,10 @@ namespace EOLib.PacketHandlers
 
             _packetProcessActions.SetUpdatedBaseSequenceNumber(seq1, seq2);
 
-            var response = new PacketBuilder(PacketFamily.Connection, PacketAction.Ping).Build();
+            var response = new PacketBuilder(PacketFamily.Connection, PacketAction.Ping)
+                .AddString("k")
+                .Build();
+
             try
             {
                 _packetSendService.SendPacket(response);
