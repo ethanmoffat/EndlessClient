@@ -79,7 +79,8 @@ namespace EndlessClient.Dialogs
             if (timeOpened == null)
                 timeOpened = gt.TotalGameTime;
 
-            var pbPercent = (int)((gt.TotalGameTime.TotalSeconds - timeOpened.Value.TotalSeconds) / 2.0f * 100);
+            const double SECONDS_FOR_CREATE = 2.0;
+            var pbPercent = (int)((gt.TotalGameTime.TotalSeconds - timeOpened.Value.TotalSeconds) / SECONDS_FOR_CREATE * 100);
             _pbWidth = (int)Math.Round(pbPercent / 100.0f * _pbBackgroundTexture.Width);
 
             if (pbPercent >= 100)
