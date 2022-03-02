@@ -40,9 +40,9 @@ namespace EOBot
         public async Task<CharacterReply> CreateCharacterAsync(string name)
         {
             var characterActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterManagementActions>();
-            await characterActions.RequestCharacterCreation();
+            var createId = await characterActions.RequestCharacterCreation();
             var charParams = new CharacterCreateParameters(name, 0, 1, 0, 0);
-            return await characterActions.CreateCharacter(charParams);
+            return await characterActions.CreateCharacter(charParams, createId);
         }
 
         public async Task LoginToCharacterAsync(string name)
@@ -106,7 +106,7 @@ namespace EOBot
             }
 
             var characterActions = DependencyMaster.TypeRegistry[_botIndex].Resolve<ICharacterManagementActions>();
-            await characterActions.RequestCharacterDelete();
+            var deleteId = await characterActions.RequestCharacterDelete();
 
             if (!force)
             {
@@ -115,7 +115,7 @@ namespace EOBot
                     return CharacterReply.NotApproved;
             }
 
-            return await characterActions.DeleteCharacter();
+            return await characterActions.DeleteCharacter(deleteId);
         }
     }
 }
