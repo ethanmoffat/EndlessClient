@@ -58,15 +58,6 @@ namespace EndlessClient.Controllers
                 DisconnectAndStopReceiving();
                 return;
             }
-            
-            //todo: other server implementations might have a different value than 1000
-            //        it is set to a constant 1000 in eoserv
-            if (createID != 1000)
-            {
-                SetInitialStateAndShowError();
-                DisconnectAndStopReceiving();
-                return;
-            }
 
             //todo: make not approved character names cancel the dialog close
             var parameters = await _characterDialogActions.ShowCreateCharacterDialog();
@@ -76,7 +67,7 @@ namespace EndlessClient.Controllers
             CharacterReply response;
             try
             {
-                response = await _characterManagementActions.CreateCharacter(parameters.Value);
+                response = await _characterManagementActions.CreateCharacter(parameters.Value, createID);
             }
             catch (NoDataSentException)
             {
@@ -106,7 +97,7 @@ namespace EndlessClient.Controllers
                 return;
             }
 
-            int takeID;
+            short takeID;
             try
             {
                 takeID = await _characterManagementActions.RequestCharacterDelete();
@@ -124,12 +115,6 @@ namespace EndlessClient.Controllers
                 return;
             }
 
-            if (takeID != characterToDelete.ID)
-            {
-                _characterDialogActions.ShowCharacterDeleteError();
-                return;
-            }
-
             var dialogResult = await _characterDialogActions.ShowConfirmDeleteWarning(characterToDelete.Name);
             if (dialogResult != XNADialogResult.OK)
                 return;
@@ -137,7 +122,7 @@ namespace EndlessClient.Controllers
             CharacterReply response;
             try
             {
-                response = await _characterManagementActions.DeleteCharacter();
+                response = await _characterManagementActions.DeleteCharacter(takeID);
             }
             catch (NoDataSentException)
             {

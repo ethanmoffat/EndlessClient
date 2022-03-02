@@ -27,15 +27,17 @@ namespace EOLib.Domain.Character
 
         public async Task<short> RequestCharacterCreation()
         {
-            var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Request).Build();
+            var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Request)
+                .AddBreakString("NEW")
+                .Build();
             var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
             return responsePacket.ReadShort();
         }
 
-        public async Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters)
+        public async Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters, short createID)
         {
             var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Create)
-                .AddShort(255)
+                .AddShort(createID)
                 .AddShort((short)parameters.Gender)
                 .AddShort((short)parameters.HairStyle)
                 .AddShort((short)parameters.HairColor)
@@ -51,21 +53,22 @@ namespace EOLib.Domain.Character
             return translatedData.Response;
         }
 
-        public async Task<int> RequestCharacterDelete()
+        public async Task<short> RequestCharacterDelete()
         {
             var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Take)
                 .AddInt(_characterSelectorRepository.CharacterForDelete.ID)
                 .Build();
             
             var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
-            responsePacket.Seek(2, SeekOrigin.Current);
-            return responsePacket.ReadInt();
+            var deleteRequestId = responsePacket.ReadShort();
+
+            return deleteRequestId;
         }
 
-        public async Task<CharacterReply> DeleteCharacter()
+        public async Task<CharacterReply> DeleteCharacter(short deleteRequestID)
         {
             var packet = new PacketBuilder(PacketFamily.Character, PacketAction.Remove)
-                .AddShort(255)
+                .AddShort(deleteRequestID)
                 .AddInt(_characterSelectorRepository.CharacterForDelete.ID)
                 .Build();
             var responsePacket = await _packetSendService.SendEncodedPacketAndWaitAsync(packet);
@@ -80,10 +83,10 @@ namespace EOLib.Domain.Character
     {
         Task<short> RequestCharacterCreation();
 
-        Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters);
+        Task<CharacterReply> CreateCharacter(ICharacterCreateParameters parameters, short createID);
 
-        Task<int> RequestCharacterDelete();
+        Task<short> RequestCharacterDelete();
 
-        Task<CharacterReply> DeleteCharacter();
+        Task<CharacterReply> DeleteCharacter(short deleteRequestID);
     }
 }

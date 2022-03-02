@@ -23,17 +23,21 @@ namespace EOLib.Net.Translators
             var characters = new List<ICharacter>();
 
             var numberOfCharacters = (int)packet.ReadChar();
-            packet.Seek(1, SeekOrigin.Current);
+
+            // EOSERV sends this byte unconditionally for CHARACTER_REPLY, but GameServer appears
+            //   to not send it on delete packets
+            if (packet.PeekByte() == 1)
+                packet.ReadByte();
 
             for (int i = 0; i < numberOfCharacters; ++i)
             {
                 if (packet.ReadByte() != 255)
-                    throw new MalformedPacketException("Login packet missing character separator byte", packet);
+                    throw new MalformedPacketException($"{packet.Family}_{packet.Action} packet missing character separator byte", packet);
                 characters.Add(GetNextCharacter(packet));
             }
 
             if (packet.ReadByte() != 255)
-                throw new MalformedPacketException("Login packet missing character separator byte", packet);
+                throw new MalformedPacketException($"{packet.Family}_{packet.Action} packet missing character separator byte", packet);
 
             return characters;
         }
