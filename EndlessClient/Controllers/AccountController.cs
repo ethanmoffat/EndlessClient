@@ -48,7 +48,7 @@ namespace EndlessClient.Controllers
                 return;
 
             var nameResult = checkNameOperation.Result;
-            if (nameResult != AccountReply.Continue)
+            if (nameResult < AccountReply.OK_CodeRange)
             {
                 _accountDialogDisplayActions.ShowCreateAccountServerError(nameResult);
                 return;

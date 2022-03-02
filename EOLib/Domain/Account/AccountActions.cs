@@ -1,11 +1,12 @@
-﻿using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
+using EOLib.Domain.Login;
 using EOLib.Localization;
 using EOLib.Net;
 using EOLib.Net.Communication;
 using EOLib.Net.PacketProcessing;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
 
 namespace EOLib.Domain.Account
 {
@@ -16,16 +17,19 @@ namespace EOLib.Domain.Account
         private readonly IPacketSendService _packetSendService;
         private readonly IHDSerialNumberService _hdSerialNumberService;
         private readonly ISequenceRepository _sequenceRepository;
+        private readonly IPlayerInfoRepository _playerInfoRepository;
 
         public AccountActions(ICreateAccountParameterValidator createAccountParameterValidator,
                               IPacketSendService packetSendService,
                               IHDSerialNumberService hdSerialNumberService,
-                              ISequenceRepository sequenceRepository)
+                              ISequenceRepository sequenceRepository,
+                              IPlayerInfoRepository playerInfoRepository)
         {
             _createAccountParameterValidator = createAccountParameterValidator;
             _packetSendService = packetSendService;
             _hdSerialNumberService = hdSerialNumberService;
             _sequenceRepository = sequenceRepository;
+            _playerInfoRepository = playerInfoRepository;
         }
 
         public CreateAccountParameterResult CheckAccountCreateParameters(ICreateAccountParameters parameters)
@@ -63,12 +67,15 @@ namespace EOLib.Domain.Account
             var response = await _packetSendService.SendEncodedPacketAndWaitAsync(nameCheckPacket);
             if (IsInvalidResponse(response))
                 throw new EmptyPacketReceivedException();
-            
+
             var reply = (AccountReply)response.ReadShort();
-            if (reply == AccountReply.Continue)
+            if (reply >= AccountReply.OK_CodeRange)
             {
+                _playerInfoRepository.AccountCreateID = (ushort)reply;
+
                 // Based on patch: https://github.com/eoserv/eoserv/commit/80dde6d4e7f440a93503aeec79f4a2f5931dc13d
                 // Account may change sequence start depending on the eoserv build being used
+                // Official software always updates sequence number
                 var hasNewSequence = response.Length == 7;
                 if (hasNewSequence)
                 {
@@ -86,11 +93,11 @@ namespace EOLib.Domain.Account
         public async Task<AccountReply> CreateAccount(ICreateAccountParameters parameters)
         {
             var createAccountPacket = new PacketBuilder(PacketFamily.Account, PacketAction.Create)
-                .AddShort(1337) //eoserv doesn't
-                .AddByte(42)    //validate these values
+                .AddShort((short)_playerInfoRepository.AccountCreateID)
+                .AddByte(255)
                 .AddBreakString(parameters.AccountName)
                 .AddBreakString(parameters.Password)
-                .AddBreakString(parameters.Location)
+                .AddBreakString(parameters.RealName)
                 .AddBreakString(parameters.Location)
                 .AddBreakString(parameters.Email)
                 .AddBreakString(Dns.GetHostName())
