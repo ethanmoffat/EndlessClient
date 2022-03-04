@@ -177,8 +177,8 @@ namespace EndlessClient.Controllers
                 {
                     // https://discord.com/channels/723989119503696013/787685796055482368/946634672295784509
                     // Sausage: 'I have WELCOME_REPLY 3 as returning a "server is busy" message if you send it and then disconnect the client'
-                    _errorDisplayAction.ShowLoginError(LoginReply.Busy);
                     _gameStateActions.ChangeToState(GameStates.Initial);
+                    _errorDisplayAction.ShowLoginError(LoginReply.Busy);
                     return;
                 }
 

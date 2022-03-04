@@ -4,20 +4,12 @@ using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.IO;
-using EOLib.IO.Services;
 
 namespace EOLib.Net.Translators
 {
     [AutoMappedType]
     public class LoginRequestGrantedPacketTranslator : IPacketTranslator<ILoginRequestGrantedData>
     {
-        private readonly INumberEncoderService _numberEncoderService;
-
-        public LoginRequestGrantedPacketTranslator(INumberEncoderService numberEncoderService)
-        {
-            _numberEncoderService = numberEncoderService;
-        }
-
         public ILoginRequestGrantedData TranslatePacket(IPacket packet)
         {
             var reply = (CharacterLoginReply)packet.ReadShort();
