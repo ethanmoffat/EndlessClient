@@ -24,20 +24,16 @@ namespace EOLib.Net.Translators
 
             var numberOfCharacters = (int)packet.ReadChar();
 
-            // EOSERV sends this byte unconditionally for CHARACTER_REPLY, but GameServer appears
-            //   to not send it on delete packets
-            if (packet.PeekByte() == 1)
-                packet.ReadByte();
+            // Optional AddByte call. EOSERV sends either 1 or 2, but GameServer appears
+            //   to not send it on character delete
+            packet.ReadBreakString();
 
             for (int i = 0; i < numberOfCharacters; ++i)
             {
+                characters.Add(GetNextCharacter(packet));
                 if (packet.ReadByte() != 255)
                     throw new MalformedPacketException($"{packet.Family}_{packet.Action} packet missing character separator byte", packet);
-                characters.Add(GetNextCharacter(packet));
             }
-
-            if (packet.ReadByte() != 255)
-                throw new MalformedPacketException($"{packet.Family}_{packet.Action} packet missing character separator byte", packet);
 
             return characters;
         }
