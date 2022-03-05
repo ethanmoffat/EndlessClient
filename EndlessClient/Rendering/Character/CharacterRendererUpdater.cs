@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.Rendering.Factories;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Map;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Character
 {
@@ -131,7 +130,6 @@ namespace EndlessClient.Rendering.Character
 
         private void UpdateDeadCharacters()
         {
-            var now = DateTime.Now;
             var deadCharacters = new List<ICharacter>();
 
             foreach (var character in _currentMapStateRepository.Characters.Where(x => x.RenderProperties.IsDead))
@@ -139,9 +137,9 @@ namespace EndlessClient.Rendering.Character
                 var actionTime = _characterStateCache.DeathStartTimes.SingleOrDefault(x => x.UniqueID == character.ID);
                 if (actionTime == null)
                 {
-                    _characterStateCache.AddDeathStartTime(character.ID, DateTime.Now);
+                    _characterStateCache.AddDeathStartTime(character.ID);
                 }
-                else if ((now - actionTime.ActionStartTime).TotalSeconds > 2)
+                else if (actionTime.ActionTimer.ElapsedMilliseconds >= 2)
                 {
                     _characterStateCache.RemoveDeathStartTime(character.ID);
                     _characterStateCache.RemoveCharacterState(character.ID);

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using EOLib;
 using EOLib.Domain.Character;
 
@@ -21,7 +20,7 @@ namespace EndlessClient.Rendering.Character
 
         void RemoveCharacterState(int id);
 
-        void AddDeathStartTime(int id, DateTime startTime);
+        void AddDeathStartTime(int id);
 
         void RemoveDeathStartTime(int id);
 

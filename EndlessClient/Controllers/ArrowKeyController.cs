@@ -77,7 +77,7 @@ namespace EndlessClient.Controllers
         private bool CanWalkAgain()
         {
             return _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing) ||
-                   _characterProvider.MainCharacter.RenderProperties.RenderWalkFrame == CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES;
+                   _characterProvider.MainCharacter.RenderProperties.ActualWalkFrame == CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES - 1;
         }
 
         private bool CurrentDirectionIs(EODirection direction)
@@ -87,14 +87,17 @@ namespace EndlessClient.Controllers
 
         private void FaceOrAttemptWalk(EODirection direction, bool faceAndMove)
         {
-            if (!CurrentDirectionIs(direction))
+            if (!CurrentDirectionIs(direction) && _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing))
             {
                 FaceDirection(direction);
                 if (faceAndMove)
                     AttemptToStartWalking();
             }
             else
+            {
+                _characterAnimationActions.Face(direction);
                 AttemptToStartWalking();
+            }
         }
 
         private void FaceDirection(EODirection direction)
@@ -112,7 +115,6 @@ namespace EndlessClient.Controllers
             else
             {
                 _characterAnimationActions.StartWalking();
-                _characterActions.Walk();
 
                 var coordinate = new MapCoordinate(
                     _characterProvider.MainCharacter.RenderProperties.MapX,

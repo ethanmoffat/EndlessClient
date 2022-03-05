@@ -45,11 +45,10 @@ namespace EndlessClient.Rendering.Character
 
         public void Face(EODirection direction)
         {
-            var renderProperties = _characterRepository.MainCharacter.RenderProperties;
-            renderProperties = renderProperties.WithDirection(direction);
+            if (!_hudControlProvider.IsInGame)
+                return;
 
-            var newMainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProperties);
-            _characterRepository.MainCharacter = newMainCharacter;
+            Animator.MainCharacterFace(direction);
         }
 
         public void StartWalking()

@@ -173,6 +173,7 @@ namespace EOLib.Domain.Character
         {
             var props = MakeCopy(this);
             props.RenderWalkFrame = 0;
+            props.ActualWalkFrame = 0;
             props.AttackFrame = 0;
             props.EmoteFrame = 0;
             props.CurrentAction = CharacterActionState.Standing;

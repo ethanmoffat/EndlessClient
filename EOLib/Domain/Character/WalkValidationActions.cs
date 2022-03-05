@@ -53,7 +53,7 @@ namespace EOLib.Domain.Character
         {
             var mainCharacter = _characterProvider.MainCharacter;
 
-            if (cellState.Character.HasValue) //todo: walk through players after certain elapsed time
+            if (cellState.Character.HasValue && cellState.Character.Value != mainCharacter) //todo: walk through players after certain elapsed time
                 return mainCharacter.NoWall && IsTileSpecWalkable(cellState.TileSpec);
             if (cellState.NPC.HasValue)
                 return mainCharacter.NoWall && IsTileSpecWalkable(cellState.TileSpec);
