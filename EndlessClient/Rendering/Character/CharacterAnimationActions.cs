@@ -81,12 +81,13 @@ namespace EndlessClient.Rendering.Character
                                        _characterRendererProvider.MainCharacterRenderer);
         }
 
-        public void StartOtherCharacterWalkAnimation(int characterID)
+        public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
         {
             if (!_hudControlProvider.IsInGame)
                 return;
 
-            Animator.StartOtherCharacterWalkAnimation(characterID);
+            Animator.StartOtherCharacterWalkAnimation(characterID, destinationX, destinationY, direction);
+
             ShowWaterSplashiesIfNeeded(CharacterActionState.Walking,
                                        _currentMapStateProvider.Characters.Single(x => x.ID == characterID),
                                        _characterRendererProvider.CharacterRenderers[characterID]);

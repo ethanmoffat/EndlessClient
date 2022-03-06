@@ -23,6 +23,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICharacterActions _characterActions;
 
         private readonly Dictionary<int, EODirection> _queuedDirections;
+        private readonly Dictionary<int, MapCoordinate> _queuedPositions;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartWalkingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartAttackingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartSpellCastTimes;
@@ -40,6 +41,7 @@ namespace EndlessClient.Rendering.Character
             _characterActions = characterActions;
 
             _queuedDirections = new Dictionary<int, EODirection>();
+            _queuedPositions = new Dictionary<int, MapCoordinate>();
             _otherPlayerStartWalkingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartAttackingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartSpellCastTimes = new Dictionary<int, RenderFrameActionTime>();
@@ -100,16 +102,14 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartAttackingTimes.Add(_characterRepository.MainCharacter.ID, startAttackingTime);
         }
 
-        public void StartOtherCharacterWalkAnimation(int characterID)
+        public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
         {
-            if (_otherPlayerStartWalkingTimes.ContainsKey(characterID) ||
-                _otherPlayerStartSpellCastTimes.ContainsKey(characterID))
-                return;
-
             if (_otherPlayerStartWalkingTimes.TryGetValue(characterID, out var _))
             {
-                ResetCharacterAnimationFrames(characterID);
-                _otherPlayerStartWalkingTimes.Remove(characterID);
+                _otherPlayerStartWalkingTimes[characterID].Replay = true;
+                _queuedDirections[characterID] = direction;
+                _queuedPositions[characterID] = new MapCoordinate(destinationX, destinationY);
+                return;
             }
 
             var startWalkingTimeAndID = new RenderFrameActionTime(characterID);
@@ -202,6 +202,14 @@ namespace EndlessClient.Rendering.Character
                         }
                         else
                         {
+                            if (_queuedPositions.ContainsKey(pair.UniqueID))
+                            {
+                                nextFrameRenderProperties = nextFrameRenderProperties
+                                    .WithMapX(_queuedPositions[pair.UniqueID].X)
+                                    .WithMapY(_queuedPositions[pair.UniqueID].Y);
+                                _queuedPositions.Remove(pair.UniqueID);
+                            }
+
                             playersDoneWalking.Add(pair.UniqueID);
                         }
                     }
@@ -365,7 +373,7 @@ namespace EndlessClient.Rendering.Character
 
         void StartMainCharacterAttackAnimation();
 
-        void StartOtherCharacterWalkAnimation(int characterID);
+        void StartOtherCharacterWalkAnimation(int characterID, byte targetX, byte targetY, EODirection direction);
 
         void StartOtherCharacterAttackAnimation(int characterID);
 

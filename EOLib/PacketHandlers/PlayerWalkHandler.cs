@@ -38,36 +38,10 @@ namespace EOLib.PacketHandlers
             var x = packet.ReadChar();
             var y = packet.ReadChar();
 
-            ICharacter character;
-            try
-            {
-                character = _currentMapStateRepository.Characters.Single(cc => cc.ID == characterID);
-            }
-            catch (InvalidOperationException) { return false; }
-
-            var renderProperties = character.RenderProperties.WithDirection(dir);
-            renderProperties = EnsureCorrectXAndY(renderProperties, x, y);
-            var newCharacter = character.WithRenderProperties(renderProperties);
-
-            _currentMapStateRepository.Characters.Remove(character);
-            _currentMapStateRepository.Characters.Add(newCharacter);
-
             foreach (var notifier in _otherCharacterAnimationNotifiers)
-                notifier.StartOtherCharacterWalkAnimation(characterID);
+                notifier.StartOtherCharacterWalkAnimation(characterID, x, y, dir);
 
             return true;
-        }
-
-        private static ICharacterRenderProperties EnsureCorrectXAndY(ICharacterRenderProperties renderProperties, byte x, byte y)
-        {
-            var opposite = renderProperties.Direction.Opposite();
-            var tempRenderProperties = renderProperties
-                .WithDirection(opposite)
-                .WithMapX(x)
-                .WithMapY(y);
-            return renderProperties
-                .WithMapX(tempRenderProperties.GetDestinationX())
-                .WithMapY(tempRenderProperties.GetDestinationY());
         }
     }
 }
