@@ -12,8 +12,8 @@ namespace EndlessClient.Rendering.Character
 {
     public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
-        public const int WALK_FRAME_TIME_MS = 480 / (CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES - 1);
-        public const int ATTACK_FRAME_TIME_MS = 600 / CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES;
+        public const int WALK_FRAME_TIME_MS = 120;
+        public const int ATTACK_FRAME_TIME_MS = 100;
 
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
@@ -116,14 +116,10 @@ namespace EndlessClient.Rendering.Character
 
         public void StartOtherCharacterAttackAnimation(int characterID)
         {
-            if (_otherPlayerStartWalkingTimes.ContainsKey(characterID) ||
-                _otherPlayerStartSpellCastTimes.ContainsKey(characterID))
-                return;
-
             if (_otherPlayerStartAttackingTimes.TryGetValue(characterID, out var _))
             {
-                ResetCharacterAnimationFrames(characterID);
-                _otherPlayerStartAttackingTimes.Remove(characterID);
+                _otherPlayerStartAttackingTimes[characterID].Replay = true;
+                return;
             }
 
             var startAttackingTimeAndID = new RenderFrameActionTime(characterID);

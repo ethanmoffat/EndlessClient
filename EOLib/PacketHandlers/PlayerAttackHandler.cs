@@ -42,11 +42,14 @@ namespace EOLib.PacketHandlers
             }
             catch (InvalidOperationException) { return false; }
 
-            var renderProperties = character.RenderProperties.WithDirection(direction);
-            var newCharacter = character.WithRenderProperties(renderProperties);
+            if (character.RenderProperties.Direction != direction)
+            {
+                var renderProperties = character.RenderProperties.WithDirection(direction);
+                var newCharacter = character.WithRenderProperties(renderProperties);
 
-            _currentMapStateRepository.Characters.Remove(character);
-            _currentMapStateRepository.Characters.Add(newCharacter);
+                _currentMapStateRepository.Characters.Remove(character);
+                _currentMapStateRepository.Characters.Add(newCharacter);
+            }
 
             foreach (var notifier in _otherCharacterAnimationNotifiers)
                 notifier.StartOtherCharacterAttackAnimation(playerID);
