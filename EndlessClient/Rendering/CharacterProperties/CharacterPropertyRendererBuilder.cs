@@ -76,7 +76,7 @@ namespace EndlessClient.Rendering.CharacterProperties
                 x => x.Type == ItemType.Weapon &&
                      x.DollGraphic == renderProperties.WeaponGraphic);
 
-            var pass1 = renderProperties.AttackFrame < 2;
+            var pass1 = renderProperties.RenderAttackFrame < 2;
             var pass2 = renderProperties.IsFacing(EODirection.Up, EODirection.Left);
             var pass3 = weaponInfo == null || weaponInfo.SubType == ItemSubType.Ranged;
 

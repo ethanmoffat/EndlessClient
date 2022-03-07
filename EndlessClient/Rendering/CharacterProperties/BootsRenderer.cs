@@ -42,7 +42,7 @@ namespace EndlessClient.Rendering.CharacterProperties
                 if (_renderProperties.RenderWalkFrame == 2)
                     resY -= 1;
             }
-            else if (_renderProperties.AttackFrame == 2)
+            else if (_renderProperties.RenderAttackFrame == 2)
             {
                 var isDownOrLeft = _renderProperties.IsFacing(EODirection.Down, EODirection.Left);
                 var factor = isDownOrLeft ? -1 : 1;
@@ -51,7 +51,7 @@ namespace EndlessClient.Rendering.CharacterProperties
                 resX += 2 * factor;
                 resY += 1 * factor - extra;
             }
-            else if (_renderProperties.AttackFrame == 1 && _renderProperties.IsRangedWeapon)
+            else if (_renderProperties.RenderAttackFrame == 1 && _renderProperties.IsRangedWeapon)
             {
                 var isDownOrLeft = _renderProperties.IsFacing(EODirection.Down, EODirection.Left);
                 var isDownOrRight = _renderProperties.IsFacing(EODirection.Down, EODirection.Right);

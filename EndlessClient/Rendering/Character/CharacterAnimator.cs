@@ -1,21 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using EndlessClient.GameExecution;
+﻿using EndlessClient.GameExecution;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EndlessClient.Rendering.Character
 {
     public class CharacterAnimator : GameComponent, ICharacterAnimator
     {
-        public const int WALK_FRAME_TIME_MS = 100;
-        public const int ATTACK_FRAME_TIME_MS = 285;
+        public const int WALK_FRAME_TIME_MS = 480 / (CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES - 1);
+        public const int ATTACK_FRAME_TIME_MS = 600 / CharacterRenderProperties.MAX_NUMBER_OF_WALK_FRAMES;
 
         private readonly ICharacterRepository _characterRepository;
         private readonly ICurrentMapStateRepository _currentMapStateRepository;

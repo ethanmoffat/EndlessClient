@@ -43,8 +43,7 @@ namespace EndlessClient.Controllers
         {
             var rp = _characterProvider.MainCharacter.RenderProperties;
             return !_characterAnimationActions.IsAttacking(_characterProvider.MainCharacter.ID) ||
-                   (!rp.IsRangedWeapon && rp.AttackFrame == CharacterRenderProperties.MAX_NUMBER_OF_ATTACK_FRAMES - 1) ||
-                   (rp.IsRangedWeapon && rp.AttackFrame == CharacterRenderProperties.MAX_NUMBER_OF_RANGED_ATTACK_FRAMES - 1);
+                   rp.RenderAttackFrame == CharacterRenderProperties.MAX_NUMBER_OF_ATTACK_FRAMES;
         }
 
         private void AttemptAttack()

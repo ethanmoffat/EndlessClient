@@ -44,8 +44,8 @@ namespace EndlessClient.Rendering.Sprites
                     }
                     break;
                 case CharacterActionState.Attacking:
-                    if (!BowIsEquipped(characterRenderProperties) && characterRenderProperties.AttackFrame == 2 ||
-                        BowIsEquipped(characterRenderProperties) && characterRenderProperties.AttackFrame == 1)
+                    if (!BowIsEquipped(characterRenderProperties) && characterRenderProperties.RenderAttackFrame == 2 ||
+                        BowIsEquipped(characterRenderProperties) && characterRenderProperties.RenderAttackFrame == 1)
                         type = BootsSpriteType.Attack;
                     break;
                 case CharacterActionState.Sitting:
@@ -86,7 +86,7 @@ namespace EndlessClient.Rendering.Sprites
                 case CharacterActionState.Attacking:
                     if (BowIsEquipped(characterRenderProperties))
                     {
-                        switch (characterRenderProperties.AttackFrame)
+                        switch (characterRenderProperties.RenderAttackFrame)
                         {
                             case 1: type = ArmorShieldSpriteType.Bow; break;
                             case 2: type = ArmorShieldSpriteType.Standing; break;
@@ -94,7 +94,7 @@ namespace EndlessClient.Rendering.Sprites
                     }
                     else
                     {
-                        switch (characterRenderProperties.AttackFrame)
+                        switch (characterRenderProperties.RenderAttackFrame)
                         {
                             case 1: type = ArmorShieldSpriteType.PunchFrame1; break;
                             case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
@@ -163,7 +163,7 @@ namespace EndlessClient.Rendering.Sprites
                 }
                 else if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking)
                 {
-                    switch (characterRenderProperties.AttackFrame)
+                    switch (characterRenderProperties.RenderAttackFrame)
                     {
                         case 1: type = ArmorShieldSpriteType.PunchFrame1; break;
                         case 2: type = ArmorShieldSpriteType.PunchFrame2; break;
@@ -218,7 +218,7 @@ namespace EndlessClient.Rendering.Sprites
                 case CharacterActionState.Attacking:
                     if (BowIsEquipped(characterRenderProperties))
                     {
-                        switch (characterRenderProperties.AttackFrame)
+                        switch (characterRenderProperties.RenderAttackFrame)
                         {
                             case 1: type = WeaponSpriteType.Shooting; break;
                             case 2: type = WeaponSpriteType.Standing; break;
@@ -226,7 +226,7 @@ namespace EndlessClient.Rendering.Sprites
                     }
                     else
                     {
-                        switch (characterRenderProperties.AttackFrame)
+                        switch (characterRenderProperties.RenderAttackFrame)
                         {
                             case 1: type = WeaponSpriteType.SwingFrame1; break;
                             case 2:
@@ -283,14 +283,14 @@ namespace EndlessClient.Rendering.Sprites
                 gfxNum = 2;
                 sheetColumns = 16;
             }
-            else if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking && characterRenderProperties.AttackFrame > 0)
+            else if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking && characterRenderProperties.RenderAttackFrame > 0)
             {
                 if (!BowIsEquipped(characterRenderProperties))
                 {
                     gfxNum = 3;
                     sheetColumns = 8;
                 }
-                else if (characterRenderProperties.AttackFrame == 1) //only 1 frame of bow/gun animation
+                else if (characterRenderProperties.RenderAttackFrame == 1) //only 1 frame of bow/gun animation
                 {
                     gfxNum = 7; //4 columns in this one too
                 }
@@ -315,7 +315,7 @@ namespace EndlessClient.Rendering.Sprites
             var sectionDelta = texture.Width / 4;
 
             var walkExtra = characterRenderProperties.RenderWalkFrame > 0 ? widthDelta * (characterRenderProperties.RenderWalkFrame - 1) : 0;
-            walkExtra = !BowIsEquipped(characterRenderProperties) && characterRenderProperties.AttackFrame > 0 ? widthDelta * (characterRenderProperties.AttackFrame - 1) : walkExtra;
+            walkExtra = !BowIsEquipped(characterRenderProperties) && characterRenderProperties.RenderAttackFrame > 0 ? widthDelta * (characterRenderProperties.RenderAttackFrame - 1) : walkExtra;
 
             // Fix offsets for skins - the source rectangles are not at an evenly spaced interval
             if (characterRenderProperties.Gender == 1)
@@ -325,7 +325,7 @@ namespace EndlessClient.Rendering.Sprites
                     walkExtra += 1;
                 }
                 else if (characterRenderProperties.CurrentAction == CharacterActionState.Attacking &&
-                         characterRenderProperties.AttackFrame == 1)
+                         characterRenderProperties.RenderAttackFrame == 1)
                 {
                     // This condition needs some shifting, but this must be done in SkinRenderLocationCalculator since it is a shift of the loaded sprite
                 }

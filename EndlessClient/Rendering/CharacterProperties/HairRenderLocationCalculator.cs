@@ -22,13 +22,13 @@ namespace EndlessClient.Rendering.CharacterProperties
 
             var isFlipped = _renderProperties.IsFacing(EODirection.Up, EODirection.Right);
 
-            if (_renderProperties.IsRangedWeapon && _renderProperties.AttackFrame == 1)
+            if (_renderProperties.IsRangedWeapon && _renderProperties.RenderAttackFrame == 1)
             {
                 var rangedXOff = _renderProperties.Gender == 0 ? 1 : 3;
                 resX += rangedXOff * (isFlipped ? 1 : -1);
                 resY += _renderProperties.IsFacing(EODirection.Down, EODirection.Right) ? _renderProperties.Gender : 0;
             }
-            else if (_renderProperties.AttackFrame == 2)
+            else if (_renderProperties.RenderAttackFrame == 2)
             {
                 resX += isFlipped ? 4 : -4;
                 resX += _renderProperties.IsFacing(EODirection.Up)
