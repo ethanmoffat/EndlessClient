@@ -362,8 +362,8 @@ namespace EndlessClient.Rendering.Character
             if (_gameStateProvider.CurrentState != GameStates.PlayingTheGame)
                 return false;
 
-            return (IsInBounds(renderProps, false) && _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump)
-                || (IsInBounds(renderProps, true) && renderProps.IsActing(CharacterActionState.Walking) && _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump);
+            return _currentMapProvider.CurrentMap.Tiles[renderProps.MapY, renderProps.MapX] == TileSpec.Jump
+                || (renderProps.IsActing(CharacterActionState.Walking) && _currentMapProvider.CurrentMap.Tiles[renderProps.GetDestinationY(), renderProps.GetDestinationX()] == TileSpec.Jump);
         }
 
         private int GetSteppingStoneOffset(ICharacterRenderProperties renderProps)
@@ -382,14 +382,6 @@ namespace EndlessClient.Rendering.Character
             }
 
             return 0;
-        }
-
-        private bool IsInBounds(ICharacterRenderProperties renderProperties, bool dest)
-        {
-            var mapProps = _currentMapProvider.CurrentMap.Properties;
-            var x = dest ? renderProperties.GetDestinationX() : renderProperties.MapX;
-            var y = dest ? renderProperties.GetDestinationY() : renderProperties.MapY;
-            return x < mapProps.Width && x >= 0 && y < mapProps.Height && y >= 0;
         }
 
         #endregion

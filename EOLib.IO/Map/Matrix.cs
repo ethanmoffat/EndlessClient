@@ -11,6 +11,8 @@ namespace EOLib.IO.Map
 
         private readonly T[,] _arr;
 
+        private readonly T _default;
+
         public int Rows { get; }
         public int Cols { get; }
 
@@ -24,6 +26,7 @@ namespace EOLib.IO.Map
         public Matrix(int rows, int cols, T defaultValue)
             : this(rows, cols)
         {
+            _default = defaultValue;
             Fill(defaultValue);
         } 
 
@@ -56,7 +59,12 @@ namespace EOLib.IO.Map
 
         public T this[int row, int col]
         {
-            get { return _arr[row, col]; }
+            get
+            {
+                if (row < 0 || row >= Rows || col < 0 || col >= Cols)
+                    return _default;
+                return _arr[row, col];
+            }
             set { _arr[row, col] = value; }
         }
 

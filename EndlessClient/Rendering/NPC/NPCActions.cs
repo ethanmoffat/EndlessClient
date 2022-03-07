@@ -117,7 +117,7 @@ namespace EndlessClient.Rendering.NPC
         {
             if (_characterRendererRepository.MainCharacterRenderer.Character.ID == playerId)
                 _characterRendererRepository.MainCharacterRenderer.ShoutSpellCast();
-            else
+            else if (_characterRendererRepository.CharacterRenderers.ContainsKey(playerId))
                 _characterRendererRepository.CharacterRenderers[playerId].ShoutSpellCast();
         }
 

@@ -85,11 +85,13 @@ namespace EndlessClient.Rendering.Character
                 }
                 else if (cached.Value != character)
                 {
-                    _characterRendererRepository.CharacterRenderers[id].Character = character;
+                    if (_characterRendererRepository.CharacterRenderers.ContainsKey(id))
+                        _characterRendererRepository.CharacterRenderers[id].Character = character;
                     _characterStateCache.UpdateCharacterState(id, character);
                 }
 
-                if (_characterRendererRepository.NeedsWarpArriveAnimation.Contains(id))
+                if (_characterRendererRepository.NeedsWarpArriveAnimation.Contains(id) &&
+                    _characterRendererRepository.CharacterRenderers.ContainsKey(id))
                 {
                     _characterRendererRepository.CharacterRenderers[id].ShowWarpArrive();
                     _characterRendererRepository.NeedsWarpArriveAnimation.Remove(id);
@@ -116,15 +118,19 @@ namespace EndlessClient.Rendering.Character
 
             foreach (var id in staleIDs)
             {
-                if (_characterRendererRepository.CharacterRenderers[id].EffectIsPlaying())
-                {
-                    _characterRendererRepository.CharacterRenderers[id].Visible = false;
-                    continue;
-                }
-
                 _characterStateCache.RemoveCharacterState(id);
-                _characterRendererRepository.CharacterRenderers[id].Dispose();
-                _characterRendererRepository.CharacterRenderers.Remove(id);
+
+                if (_characterRendererRepository.CharacterRenderers.ContainsKey(id))
+                {
+                    if (_characterRendererRepository.CharacterRenderers[id].EffectIsPlaying())
+                    {
+                        _characterRendererRepository.CharacterRenderers[id].Visible = false;
+                        continue;
+                    }
+
+                    _characterRendererRepository.CharacterRenderers[id].Dispose();
+                    _characterRendererRepository.CharacterRenderers.Remove(id);
+                }
             }
         }
 
@@ -144,8 +150,12 @@ namespace EndlessClient.Rendering.Character
                     _characterStateCache.RemoveDeathStartTime(character.ID);
                     _characterStateCache.RemoveCharacterState(character.ID);
 
-                    _characterRendererRepository.CharacterRenderers[character.ID].Dispose();
-                    _characterRendererRepository.CharacterRenderers.Remove(character.ID);
+                    if (_characterRendererRepository.CharacterRenderers.ContainsKey(character.ID))
+                    {
+                        _characterRendererRepository.CharacterRenderers[character.ID].Dispose();
+                        _characterRendererRepository.CharacterRenderers.Remove(character.ID);
+                    }
+
                     deadCharacters.Add(character);
                 }
             }

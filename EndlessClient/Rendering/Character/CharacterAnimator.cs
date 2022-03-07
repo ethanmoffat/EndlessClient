@@ -230,8 +230,8 @@ namespace EndlessClient.Rendering.Character
 
         private ICharacterRenderProperties AnimateOneWalkFrame(ICharacterRenderProperties renderProperties)
         {
-            var isSteppingStone = (IsInBounds(renderProperties, false) && _currentMapProvider.CurrentMap.Tiles[renderProperties.MapY, renderProperties.MapX] == TileSpec.Jump)
-                || (IsInBounds(renderProperties, true) && _currentMapProvider.CurrentMap.Tiles[renderProperties.GetDestinationY(), renderProperties.GetDestinationX()] == TileSpec.Jump);
+            var isSteppingStone = _currentMapProvider.CurrentMap.Tiles[renderProperties.MapY, renderProperties.MapX] == TileSpec.Jump
+                || _currentMapProvider.CurrentMap.Tiles[renderProperties.GetDestinationY(), renderProperties.GetDestinationX()] == TileSpec.Jump;
 
             var nextFrameRenderProperties = renderProperties.WithNextWalkFrame(isSteppingStone);
             if (nextFrameRenderProperties.CurrentAction != CharacterActionState.Walking)
@@ -242,14 +242,6 @@ namespace EndlessClient.Rendering.Character
             }
 
             return nextFrameRenderProperties;
-        }
-
-        private bool IsInBounds(ICharacterRenderProperties renderProperties, bool dest)
-        {
-            var mapProps = _currentMapProvider.CurrentMap.Properties;
-            var x = dest ? renderProperties.GetDestinationX() : renderProperties.MapX;
-            var y = dest ? renderProperties.GetDestinationY() : renderProperties.MapY;
-            return x < mapProps.Width && x >= 0 && y < mapProps.Height && y >= 0;
         }
 
         #endregion

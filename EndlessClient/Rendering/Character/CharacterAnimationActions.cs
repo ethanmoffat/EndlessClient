@@ -57,9 +57,7 @@ namespace EndlessClient.Rendering.Character
                 return;
 
             Animator.StartMainCharacterWalkAnimation();
-            ShowWaterSplashiesIfNeeded(CharacterActionState.Walking,
-                                       _characterRepository.MainCharacter,
-                                       _characterRendererProvider.MainCharacterRenderer);
+            ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, _characterRepository.MainCharacter.ID);
         }
 
         public void StartAttacking()
@@ -68,9 +66,7 @@ namespace EndlessClient.Rendering.Character
                 return;
 
             Animator.StartMainCharacterAttackAnimation();
-            ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking,
-                                       _characterRepository.MainCharacter,
-                                       _characterRendererProvider.MainCharacterRenderer);
+            ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, _characterRepository.MainCharacter.ID);
         }
 
         public void StartOtherCharacterWalkAnimation(int characterID, byte destinationX, byte destinationY, EODirection direction)
@@ -79,11 +75,8 @@ namespace EndlessClient.Rendering.Character
                 return;
 
             Animator.StartOtherCharacterWalkAnimation(characterID, destinationX, destinationY, direction);
-
-            ShowWaterSplashiesIfNeeded(CharacterActionState.Walking,
-                                       _currentMapStateProvider.Characters.Single(x => x.ID == characterID),
-                                       _characterRendererProvider.CharacterRenderers[characterID]);
-
+            
+            ShowWaterSplashiesIfNeeded(CharacterActionState.Walking, characterID);
             _spikeTrapActions.HideSpikeTrap(characterID);
             _spikeTrapActions.ShowSpikeTrap(characterID);
         }
@@ -94,9 +87,7 @@ namespace EndlessClient.Rendering.Character
                 return;
 
             Animator.StartOtherCharacterAttackAnimation(characterID);
-            ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking,
-                                       _currentMapStateProvider.Characters.Single(x => x.ID == characterID),
-                                       _characterRendererProvider.CharacterRenderers[characterID]);
+            ShowWaterSplashiesIfNeeded(CharacterActionState.Attacking, characterID);
         }
 
         public void NotifyWarpLeaveEffect(short characterId, WarpAnimation anim)
@@ -178,8 +169,21 @@ namespace EndlessClient.Rendering.Character
             mapRenderer.StartEarthquake(strength);
         }
 
-        private void ShowWaterSplashiesIfNeeded(CharacterActionState action, ICharacter character, ICharacterRenderer characterRenderer)
+        private void ShowWaterSplashiesIfNeeded(CharacterActionState action, int characterID)
         {
+            var character = characterID == _characterRepository.MainCharacter.ID
+                ? _characterRepository.MainCharacter
+                : _currentMapStateProvider.Characters.SingleOrDefault(x => x.ID == characterID);
+
+            var characterRenderer = characterID == _characterRepository.MainCharacter.ID
+                ? _characterRendererProvider.MainCharacterRenderer
+                : _characterRendererProvider.CharacterRenderers.ContainsKey(characterID)
+                    ? _characterRendererProvider.CharacterRenderers[characterID]
+                    : null;
+
+            if (character == null || characterRenderer == null)
+                return;
+
             var rp = character.RenderProperties;
             if (action == CharacterActionState.Attacking)
             {
