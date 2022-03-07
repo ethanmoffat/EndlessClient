@@ -19,7 +19,7 @@ namespace EndlessClient.Rendering.Character
         private readonly ICurrentMapStateRepository _currentMapStateRepository;
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICharacterActions _characterActions;
-
+        private readonly IWalkValidationActions _walkValidationActions;
         private readonly Dictionary<int, EODirection> _queuedDirections;
         private readonly Dictionary<int, MapCoordinate> _queuedPositions;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartWalkingTimes;
@@ -30,14 +30,15 @@ namespace EndlessClient.Rendering.Character
                                  ICharacterRepository characterRepository,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  ICurrentMapProvider currentMapProvider,
-                                 ICharacterActions characterActions)
+                                 ICharacterActions characterActions,
+                                 IWalkValidationActions walkValidationActions)
             : base((Game) gameProvider.Game)
         {
             _characterRepository = characterRepository;
             _currentMapStateRepository = currentMapStateRepository;
             _currentMapProvider = currentMapProvider;
             _characterActions = characterActions;
-
+            _walkValidationActions = walkValidationActions;
             _queuedDirections = new Dictionary<int, EODirection>();
             _queuedPositions = new Dictionary<int, MapCoordinate>();
             _otherPlayerStartWalkingTimes = new Dictionary<int, RenderFrameActionTime>();
@@ -85,7 +86,6 @@ namespace EndlessClient.Rendering.Character
 
         public void StartMainCharacterAttackAnimation()
         {
-            // todo: queue attack if walking
             if (_otherPlayerStartAttackingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
             {
                 _otherPlayerStartAttackingTimes[_characterRepository.MainCharacter.ID].Replay = true;
@@ -179,15 +179,25 @@ namespace EndlessClient.Rendering.Character
                     {
                         if (pair.Replay)
                         {
-                            // send the walk packet after the game state has been updated so the correct coordinates are sent
-                            sendWalk = currentCharacter == _characterRepository.MainCharacter;
-                            nextFrameRenderProperties = AnimateOneWalkFrame(nextFrameRenderProperties.ResetAnimationFrames());
-                            pair.Replay = false;
+                            var isMainCharacter = currentCharacter == _characterRepository.MainCharacter;
 
-                            if (_queuedDirections.ContainsKey(pair.UniqueID))
+                            if (isMainCharacter && _walkValidationActions.CanMoveToCoordinates(nextFrameRenderProperties.GetDestinationX(), nextFrameRenderProperties.GetDestinationY()))
                             {
-                                nextFrameRenderProperties = nextFrameRenderProperties.WithDirection(_queuedDirections[pair.UniqueID]);
-                                _queuedDirections.Remove(pair.UniqueID);
+                                // send the walk packet after the game state has been updated so the correct coordinates are sent
+                                sendWalk = currentCharacter == _characterRepository.MainCharacter;
+                                nextFrameRenderProperties = AnimateOneWalkFrame(nextFrameRenderProperties.ResetAnimationFrames());
+                                pair.Replay = false;
+
+                                if (_queuedDirections.ContainsKey(pair.UniqueID))
+                                {
+                                    nextFrameRenderProperties = nextFrameRenderProperties.WithDirection(_queuedDirections[pair.UniqueID]);
+                                    _queuedDirections.Remove(pair.UniqueID);
+                                }
+                            }
+                            else
+                            {
+                                // tried to replay but the new destination position is not walkable
+                                playersDoneWalking.Add(pair.UniqueID);
                             }
                         }
                         else

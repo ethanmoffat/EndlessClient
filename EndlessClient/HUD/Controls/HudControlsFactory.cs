@@ -51,6 +51,7 @@ namespace EndlessClient.HUD.Controls
         private readonly IArrowKeyController _arrowKeyController;
         private readonly IPathFinder _pathFinder;
         private readonly ICharacterActions _characterActions;
+        private readonly IWalkValidationActions _walkValidationActions;
         private IChatController _chatController;
 
         public HudControlsFactory(IHudButtonController hudButtonController,
@@ -73,7 +74,8 @@ namespace EndlessClient.HUD.Controls
                                   IExperienceTableProvider experienceTableProvider,
                                   IArrowKeyController arrowKeyController,
                                   IPathFinder pathFinder,
-                                  ICharacterActions characterActions)
+                                  ICharacterActions characterActions,
+                                  IWalkValidationActions walkValidationActions)
         {
             _hudButtonController = hudButtonController;
             _hudPanelFactory = hudPanelFactory;
@@ -96,6 +98,7 @@ namespace EndlessClient.HUD.Controls
             _arrowKeyController = arrowKeyController;
             _pathFinder = pathFinder;
             _characterActions = characterActions;
+            _walkValidationActions = walkValidationActions;
         }
 
         public void InjectChatController(IChatController chatController)
@@ -338,7 +341,7 @@ namespace EndlessClient.HUD.Controls
 
         private ICharacterAnimator CreateCharacterAnimator()
         {
-            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _characterActions);
+            return new CharacterAnimator(_endlessGameProvider, _characterRepository, _currentMapStateRepository, _currentMapProvider, _characterActions, _walkValidationActions);
         }
 
         private INPCAnimator CreateNPCAnimator()
