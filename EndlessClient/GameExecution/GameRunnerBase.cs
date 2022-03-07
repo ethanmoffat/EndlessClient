@@ -75,6 +75,11 @@ namespace EndlessClient.GameExecution
 
                     i++;
                 }
+                else if(string.Equals(arg, "--clonecompat"))
+                {
+                    _registry.Resolve<IConfigurationRepository>()
+                        .MainCloneCompat = true;
+                }
                 else
                 {
                     Debug.WriteLine($"Unrecognized argument: {arg}. Will be ignored.");

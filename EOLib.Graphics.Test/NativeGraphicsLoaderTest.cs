@@ -6,6 +6,7 @@ using PELoaderLib;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using SixLabors.ImageSharp.Formats.Bmp;
+using EOLib.Config;
 
 namespace EOLib.Graphics.Test
 {
@@ -15,12 +16,14 @@ namespace EOLib.Graphics.Test
         private IPEFileCollection _modules;
         private INativeGraphicsLoader _nativeGraphicsLoader;
 
+        private const int ExpectedCulture = 0;
+        private const BitmapVersion ExpectedBitmapVersion = BitmapVersion.BitmapInfoHeader;
+
         [SetUp]
         public void SetUp()
         {
             _modules = Mock.Of<IPEFileCollection>();
-
-            _nativeGraphicsLoader = new NativeGraphicsLoader(_modules);
+            _nativeGraphicsLoader = new NativeGraphicsLoader(_modules, Mock.Of<IConfigurationProvider>(x => x.MainCloneCompat == false));
         }
 
         [Test]
@@ -31,7 +34,7 @@ namespace EOLib.Graphics.Test
             using (var bmp = _nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, 1))
                 bmp.Dispose(); //hide warning for empty using statement
 
-            peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(It.IsAny<int>(), It.IsAny<int>()), Times.Once());
+            peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(It.IsAny<int>(), ExpectedBitmapVersion, ExpectedCulture), Times.Once());
         }
 
         [Test]
@@ -45,7 +48,7 @@ namespace EOLib.Graphics.Test
             using (var bmp = _nativeGraphicsLoader.LoadGFX(GFXTypes.PreLoginUI, requestedResourceID))
                 bmp.Dispose(); //hide warning for empty using statement
 
-            peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(expectedResourceID, It.IsAny<int>()));
+            peFileMock.Verify(x => x.GetEmbeddedBitmapResourceByID(expectedResourceID, ExpectedBitmapVersion, ExpectedCulture));
         }
 
         [Test]
@@ -78,7 +81,7 @@ namespace EOLib.Graphics.Test
             var peFile = new Mock<IPEFile>();
             collectionMock.Setup(x => x[type]).Returns(peFile.Object);
 
-            peFile.Setup(x => x.GetEmbeddedBitmapResourceByID(It.IsAny<int>(), It.IsAny<int>()))
+            peFile.Setup(x => x.GetEmbeddedBitmapResourceByID(It.IsAny<int>(), ExpectedBitmapVersion, ExpectedCulture))
                   .Returns(array);
 
             return peFile;

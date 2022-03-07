@@ -29,6 +29,8 @@ namespace EOLib.Config
         bool Interaction { get; set; }
         bool LogChatToFile { get; set; }
 
+        bool MainCloneCompat { get; set; }
+
         bool EnableLog { get; set; }
     }
 
@@ -58,6 +60,8 @@ namespace EOLib.Config
         bool HearWhispers { get; }
         bool Interaction { get; }
         bool LogChatToFile { get; }
+
+        bool MainCloneCompat { get; }
 
         bool EnableLog { get; }
     }
@@ -90,6 +94,8 @@ namespace EOLib.Config
         public bool HearWhispers { get; set; }
         public bool Interaction { get; set; }
         public bool LogChatToFile { get; set; }
+
+        public bool MainCloneCompat { get; set; }
 
         public bool EnableLog { get; set; }
     }
