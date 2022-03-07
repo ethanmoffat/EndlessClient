@@ -54,11 +54,6 @@ namespace EndlessClient.Rendering.Character
             base.Update(gameTime);
         }
 
-        public bool IsAttacking(int characterId)
-        {
-            return _otherPlayerStartAttackingTimes.ContainsKey(characterId);
-        }
-
         public void MainCharacterFace(EODirection direction)
         {
             if (_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
@@ -90,6 +85,7 @@ namespace EndlessClient.Rendering.Character
 
         public void StartMainCharacterAttackAnimation()
         {
+            // todo: queue attack if walking
             if (_otherPlayerStartAttackingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
             {
                 _otherPlayerStartAttackingTimes[_characterRepository.MainCharacter.ID].Replay = true;
@@ -359,8 +355,6 @@ namespace EndlessClient.Rendering.Character
 
     public interface ICharacterAnimator : IGameComponent
     {
-        bool IsAttacking(int characterId);
-
         void MainCharacterFace(EODirection direction);
 
         void StartMainCharacterWalkAnimation();

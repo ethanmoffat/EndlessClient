@@ -42,7 +42,7 @@ namespace EndlessClient.Controllers
         private bool CanAttackAgain()
         {
             var rp = _characterProvider.MainCharacter.RenderProperties;
-            return !_characterAnimationActions.IsAttacking(_characterProvider.MainCharacter.ID) ||
+            return rp.IsActing(CharacterActionState.Standing) ||
                    rp.RenderAttackFrame == CharacterRenderProperties.MAX_NUMBER_OF_ATTACK_FRAMES;
         }
 
