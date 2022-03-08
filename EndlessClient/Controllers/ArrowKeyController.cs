@@ -14,62 +14,59 @@ namespace EndlessClient.Controllers
     {
         private readonly IWalkValidationActions _walkValidationActions;
         private readonly ICharacterAnimationActions _characterAnimationActions;
-        private readonly ICharacterActions _characterActions;
         private readonly ICharacterProvider _characterProvider;
         private readonly IUnwalkableTileActions _unwalkableTileActions;
         private readonly ISpikeTrapActions _spikeTrapActions;
 
         public ArrowKeyController(IWalkValidationActions walkValidationActions,
                                   ICharacterAnimationActions characterAnimationActions,
-                                  ICharacterActions characterActions,
                                   ICharacterProvider characterProvider,
                                   IUnwalkableTileActions walkErrorHandler,
                                   ISpikeTrapActions spikeTrapActions)
         {
             _walkValidationActions = walkValidationActions;
             _characterAnimationActions = characterAnimationActions;
-            _characterActions = characterActions;
             _characterProvider = characterProvider;
             _unwalkableTileActions = walkErrorHandler;
             _spikeTrapActions = spikeTrapActions;
         }
 
-        public bool MoveLeft(bool faceAndMove = false)
+        public bool MoveLeft()
         {
             if (!CanWalkAgain())
                 return false;
 
-            FaceOrAttemptWalk(EODirection.Left, faceAndMove);
+            FaceOrAttemptWalk(EODirection.Left);
 
             return true;
         }
 
-        public bool MoveRight(bool faceAndMove = false)
+        public bool MoveRight()
         {
             if (!CanWalkAgain())
                 return false;
 
-            FaceOrAttemptWalk(EODirection.Right, faceAndMove);
+            FaceOrAttemptWalk(EODirection.Right);
 
             return true;
         }
 
-        public bool MoveUp(bool faceAndMove = false)
+        public bool MoveUp()
         {
             if (!CanWalkAgain())
                 return false;
 
-            FaceOrAttemptWalk(EODirection.Up, faceAndMove);
+            FaceOrAttemptWalk(EODirection.Up);
 
             return true;
         }
 
-        public bool MoveDown(bool faceAndMove = false)
+        public bool MoveDown()
         {
             if (!CanWalkAgain())
                 return false;
 
-            FaceOrAttemptWalk(EODirection.Down, faceAndMove);
+            FaceOrAttemptWalk(EODirection.Down);
 
             return true;
         }
@@ -85,25 +82,17 @@ namespace EndlessClient.Controllers
             return _characterProvider.MainCharacter.RenderProperties.IsFacing(direction);
         }
 
-        private void FaceOrAttemptWalk(EODirection direction, bool faceAndMove)
+        private void FaceOrAttemptWalk(EODirection direction)
         {
             if (!CurrentDirectionIs(direction) && _characterProvider.MainCharacter.RenderProperties.IsActing(CharacterActionState.Standing))
             {
-                FaceDirection(direction);
-                if (faceAndMove)
-                    AttemptToStartWalking();
+                _characterAnimationActions.Face(direction);
             }
             else
             {
                 _characterAnimationActions.Face(direction);
                 AttemptToStartWalking();
             }
-        }
-
-        private void FaceDirection(EODirection direction)
-        {
-            _characterActions.Face(direction);
-            _characterAnimationActions.Face(direction);
         }
 
         private void AttemptToStartWalking()
@@ -131,12 +120,12 @@ namespace EndlessClient.Controllers
 
     public interface IArrowKeyController
     {
-        bool MoveLeft(bool faceAndMove = false);
+        bool MoveLeft();
 
-        bool MoveRight(bool faceAndMove = false);
+        bool MoveRight();
 
-        bool MoveUp(bool faceAndMove = false);
+        bool MoveUp();
 
-        bool MoveDown(bool faceAndMove = false);
+        bool MoveDown();
     }
 }

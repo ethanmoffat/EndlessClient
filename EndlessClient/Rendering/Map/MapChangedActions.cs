@@ -76,9 +76,6 @@ namespace EndlessClient.Rendering.Map
 
             var npcAnimator = _hudControlProvider.GetComponent<INPCAnimator>(HudControlIdentifier.NPCAnimator);
             npcAnimator.StopAllAnimations();
-
-            var clickWalkPathHandler = _hudControlProvider.GetComponent<IClickWalkPathHandler>(HudControlIdentifier.ClickWalkPathHandler);
-            clickWalkPathHandler.CancelWalking();
         }
 
         private void ClearCharacterRenderersAndCache()

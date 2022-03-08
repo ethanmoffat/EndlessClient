@@ -1,6 +1,5 @@
 ﻿using AutomaticTypeMapper;
 using EndlessClient.Controllers;
-using EndlessClient.ControlSets;
 using EndlessClient.GameExecution;
 using EOLib.Domain.Map;
 
@@ -16,7 +15,6 @@ namespace EndlessClient.Input
         private readonly IControlKeyController _controlKeyController;
         private readonly IFunctionKeyController _functionKeyController;
         private readonly ICurrentMapStateProvider _currentMapStateProvider;
-        private readonly IHudControlProvider _hudControlProvider;
 
         public UserInputHandlerFactory(IEndlessGameProvider endlessGameProvider,
                                        IUserInputProvider userInputProvider,
@@ -24,8 +22,7 @@ namespace EndlessClient.Input
                                        IArrowKeyController arrowKeyController,
                                        IControlKeyController controlKeyController,
                                        IFunctionKeyController functionKeyController,
-                                       ICurrentMapStateProvider  currentMapStateProvider,
-                                       IHudControlProvider hudControlProvider)
+                                       ICurrentMapStateProvider  currentMapStateProvider)
         {
             _endlessGameProvider = endlessGameProvider;
             _userInputProvider = userInputProvider;
@@ -34,7 +31,6 @@ namespace EndlessClient.Input
             _controlKeyController = controlKeyController;
             _functionKeyController = functionKeyController;
             _currentMapStateProvider = currentMapStateProvider;
-            _hudControlProvider = hudControlProvider;
         }
 
         public IUserInputHandler CreateUserInputHandler()
@@ -45,8 +41,7 @@ namespace EndlessClient.Input
                                         _arrowKeyController,
                                         _controlKeyController,
                                         _functionKeyController,
-                                        _currentMapStateProvider,
-                                        _hudControlProvider);
+                                        _currentMapStateProvider);
         }
     }
 

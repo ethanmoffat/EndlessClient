@@ -18,7 +18,7 @@ namespace EndlessClient.HUD
             _walkValidationActions = walkValidationActions;
         }
 
-        public List<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish)
+        public Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish)
         {
             var openSet = new HashSet<MapCoordinate>(new[] { start });
             var cameFrom = new Dictionary<MapCoordinate, MapCoordinate>();
@@ -47,7 +47,7 @@ namespace EndlessClient.HUD
                 }
 
                 if (current.Equals(finish))
-                    return reconstructPath(cameFrom, current);
+                    return reconstructPath(start, cameFrom, current);
 
                 openSet.Remove(current);
                 foreach (var neighbor in getNeighbors(current))
@@ -68,21 +68,22 @@ namespace EndlessClient.HUD
                 }
             }
 
-            return new List<MapCoordinate>();
+            return new Queue<MapCoordinate>();
         }
 
         private static int heuristic(MapCoordinate current, MapCoordinate goal)
             => Math.Abs(current.X - goal.X) + Math.Abs(current.Y - goal.Y);
 
-        private List<MapCoordinate> reconstructPath(Dictionary<MapCoordinate, MapCoordinate> cameFrom, MapCoordinate current)
+        private Queue<MapCoordinate> reconstructPath(MapCoordinate start, Dictionary<MapCoordinate, MapCoordinate> cameFrom, MapCoordinate current)
         {
             var retList = new List<MapCoordinate> { current };
             while (cameFrom.ContainsKey(current))
             {
                 current = cameFrom[current];
-                retList.Insert(0, current);
+                if (current != start)
+                    retList.Insert(0, current);
             }
-            return retList;
+            return new Queue<MapCoordinate>(retList);
         }
 
         private IEnumerable<MapCoordinate> getNeighbors(MapCoordinate current)
@@ -105,6 +106,6 @@ namespace EndlessClient.HUD
 
     public interface IPathFinder
     {
-        List<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish);
+        Queue<MapCoordinate> FindPath(MapCoordinate start, MapCoordinate finish);
     }
 }

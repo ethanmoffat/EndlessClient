@@ -1,10 +1,12 @@
 ﻿using EndlessClient.GameExecution;
+using EndlessClient.HUD;
 using EOLib;
 using EOLib.Domain.Character;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
 using EOLib.IO.Map;
 using Microsoft.Xna.Framework;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,18 +22,24 @@ namespace EndlessClient.Rendering.Character
         private readonly ICurrentMapProvider _currentMapProvider;
         private readonly ICharacterActions _characterActions;
         private readonly IWalkValidationActions _walkValidationActions;
+        private readonly IPathFinder _pathFinder;
+
         private readonly Dictionary<int, EODirection> _queuedDirections;
         private readonly Dictionary<int, MapCoordinate> _queuedPositions;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartWalkingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartAttackingTimes;
         private readonly Dictionary<int, RenderFrameActionTime> _otherPlayerStartSpellCastTimes;
 
+        private Queue<MapCoordinate> _walkPath;
+        private MapCoordinate? _targetCoordinate;
+
         public CharacterAnimator(IEndlessGameProvider gameProvider,
                                  ICharacterRepository characterRepository,
                                  ICurrentMapStateRepository currentMapStateRepository,
                                  ICurrentMapProvider currentMapProvider,
                                  ICharacterActions characterActions,
-                                 IWalkValidationActions walkValidationActions)
+                                 IWalkValidationActions walkValidationActions,
+                                 IPathFinder pathFinder)
             : base((Game) gameProvider.Game)
         {
             _characterRepository = characterRepository;
@@ -39,11 +47,13 @@ namespace EndlessClient.Rendering.Character
             _currentMapProvider = currentMapProvider;
             _characterActions = characterActions;
             _walkValidationActions = walkValidationActions;
+            _pathFinder = pathFinder;
             _queuedDirections = new Dictionary<int, EODirection>();
             _queuedPositions = new Dictionary<int, MapCoordinate>();
             _otherPlayerStartWalkingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartAttackingTimes = new Dictionary<int, RenderFrameActionTime>();
             _otherPlayerStartSpellCastTimes = new Dictionary<int, RenderFrameActionTime>();
+            _walkPath = new Queue<MapCoordinate>();
         }
 
         public override void Update(GameTime gameTime)
@@ -63,15 +73,32 @@ namespace EndlessClient.Rendering.Character
                 return;
             }
 
-            var renderProperties = _characterRepository.MainCharacter.RenderProperties;
-            renderProperties = renderProperties.WithDirection(direction);
-
+            var renderProperties = _characterRepository.MainCharacter.RenderProperties.WithDirection(direction);
             var newMainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProperties);
             _characterRepository.MainCharacter = newMainCharacter;
+
+            _characterActions.Face(direction);
         }
 
-        public void StartMainCharacterWalkAnimation()
+        public void StartMainCharacterWalkAnimation(MapCoordinate? targetCoordinate = null)
         {
+            _walkPath.Clear();
+            if (targetCoordinate.HasValue)
+            {
+                _targetCoordinate = targetCoordinate;
+
+                var rp = _characterRepository.MainCharacter.RenderProperties;
+                var characterCoord = new MapCoordinate(rp.MapX, rp.MapY);
+
+                _walkPath = _pathFinder.FindPath(characterCoord, _targetCoordinate.Value);
+
+                if (!_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
+                {
+                    rp = FaceTarget(characterCoord, _walkPath.Peek(), rp);
+                    _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(rp);
+                }
+            }
+
             if (_otherPlayerStartWalkingTimes.ContainsKey(_characterRepository.MainCharacter.ID))
             {
                 _otherPlayerStartWalkingTimes[_characterRepository.MainCharacter.ID].Replay = true;
@@ -143,6 +170,7 @@ namespace EndlessClient.Rendering.Character
             _otherPlayerStartWalkingTimes.Clear();
             _otherPlayerStartAttackingTimes.Clear();
             _otherPlayerStartSpellCastTimes.Clear();
+            _walkPath.Clear();
 
             _characterRepository.MainCharacter =
                 _characterRepository.MainCharacter.WithRenderProperties(
@@ -177,14 +205,14 @@ namespace EndlessClient.Rendering.Character
                     pair.UpdateActionStartTime();
                     if (nextFrameRenderProperties.IsActing(CharacterActionState.Standing))
                     {
+                        var isMainCharacter = currentCharacter == _characterRepository.MainCharacter;
+
                         if (pair.Replay)
                         {
-                            var isMainCharacter = currentCharacter == _characterRepository.MainCharacter;
-
                             if (!isMainCharacter || (isMainCharacter && _walkValidationActions.CanMoveToCoordinates(nextFrameRenderProperties.GetDestinationX(), nextFrameRenderProperties.GetDestinationY())))
                             {
                                 // send the walk packet after the game state has been updated so the correct coordinates are sent
-                                sendWalk = currentCharacter == _characterRepository.MainCharacter;
+                                sendWalk = isMainCharacter;
                                 nextFrameRenderProperties = AnimateOneWalkFrame(nextFrameRenderProperties.ResetAnimationFrames());
                                 pair.Replay = false;
 
@@ -197,6 +225,25 @@ namespace EndlessClient.Rendering.Character
                             else
                             {
                                 // tried to replay but the new destination position is not walkable
+                                playersDoneWalking.Add(pair.UniqueID);
+                            }
+                        }
+                        else if (isMainCharacter && _walkPath.Any())
+                        {
+                            var characterCoord = new MapCoordinate(nextFrameRenderProperties.MapX, nextFrameRenderProperties.MapY);
+
+                            _walkPath = _pathFinder.FindPath(characterCoord, _targetCoordinate.Value);
+
+                            if (_walkPath.Any())
+                            {
+                                var next = _walkPath.Dequeue();
+                                nextFrameRenderProperties = FaceTarget(characterCoord, next, nextFrameRenderProperties);
+
+                                sendWalk = true;
+                                nextFrameRenderProperties = AnimateOneWalkFrame(nextFrameRenderProperties.ResetAnimationFrames());
+                            }
+                            else
+                            {
                                 playersDoneWalking.Add(pair.UniqueID);
                             }
                         }
@@ -242,6 +289,33 @@ namespace EndlessClient.Rendering.Character
             }
 
             return nextFrameRenderProperties;
+        }
+
+        private ICharacterRenderProperties FaceTarget(MapCoordinate characterCoord, MapCoordinate next, ICharacterRenderProperties rp)
+        {
+            var diff = next - characterCoord;
+
+            if (diff.X != 0 && diff.Y != 0)
+                throw new InvalidOperationException("Trying to move in a diagonal.");
+
+            if (diff.X < 0)
+            {
+                return rp.WithDirection(EODirection.Left);
+            }
+            else if (diff.X > 0)
+            {
+                return rp.WithDirection(EODirection.Right);
+            }
+            else if (diff.Y < 0)
+            {
+                return rp.WithDirection(EODirection.Up);
+            }
+            else if (diff.Y > 0)
+            {
+                return rp.WithDirection(EODirection.Down);
+            }
+
+            return rp;
         }
 
         #endregion
@@ -359,7 +433,7 @@ namespace EndlessClient.Rendering.Character
     {
         void MainCharacterFace(EODirection direction);
 
-        void StartMainCharacterWalkAnimation();
+        void StartMainCharacterWalkAnimation(MapCoordinate? targetCoordinate = null);
 
         void StartMainCharacterAttackAnimation();
 

@@ -4,8 +4,8 @@ using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
 using EndlessClient.HUD.Controls;
 using EndlessClient.HUD.Inventory;
-using EndlessClient.Input;
 using EndlessClient.Rendering;
+using EndlessClient.Rendering.Character;
 using EOLib.Domain.Character;
 using EOLib.Domain.Item;
 using EOLib.Domain.Map;
@@ -74,8 +74,8 @@ namespace EndlessClient.Controllers
             else if (cellState.InBounds)
             {
                 mouseRenderer.AnimateClick();
-                _hudControlProvider.GetComponent<IClickWalkPathHandler>(HudControlIdentifier.ClickWalkPathHandler)
-                    .StartWalking(cellState.Coordinate);
+                _hudControlProvider.GetComponent<ICharacterAnimator>(HudControlIdentifier.CharacterAnimator)
+                    .StartMainCharacterWalkAnimation(cellState.Coordinate);
             }
         }
 
