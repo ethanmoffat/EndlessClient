@@ -59,14 +59,7 @@ namespace EndlessClient.Rendering.MapEntityRenderers
         private bool IsAtPosition(int characterId, int row, int col)
         {
             var rp = _characterStateCache.OtherCharacters[characterId].RenderProperties;
-            if (!rp.IsActing(CharacterActionState.Walking))
-            {
-                return row == rp.MapY && col == rp.MapX;
-            }
-            else
-            {
-                return row == rp.GetDestinationY() && col == rp.GetDestinationX();
-            }
+            return row == rp.MapY && col == rp.MapX;
         }
     }
 }

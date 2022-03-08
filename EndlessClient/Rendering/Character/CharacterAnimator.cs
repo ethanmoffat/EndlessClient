@@ -181,7 +181,7 @@ namespace EndlessClient.Rendering.Character
                         {
                             var isMainCharacter = currentCharacter == _characterRepository.MainCharacter;
 
-                            if (isMainCharacter && _walkValidationActions.CanMoveToCoordinates(nextFrameRenderProperties.GetDestinationX(), nextFrameRenderProperties.GetDestinationY()))
+                            if (!isMainCharacter || (isMainCharacter && _walkValidationActions.CanMoveToCoordinates(nextFrameRenderProperties.GetDestinationX(), nextFrameRenderProperties.GetDestinationY())))
                             {
                                 // send the walk packet after the game state has been updated so the correct coordinates are sent
                                 sendWalk = currentCharacter == _characterRepository.MainCharacter;
