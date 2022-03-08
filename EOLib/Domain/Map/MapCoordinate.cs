@@ -1,6 +1,8 @@
-﻿namespace EOLib.Domain.Map
+﻿using System;
+
+namespace EOLib.Domain.Map
 {
-    public struct MapCoordinate
+    public struct MapCoordinate : IComparable<MapCoordinate>
     {
         public int X { get; }
 
@@ -43,6 +45,20 @@
             var hash = 397 ^ X.GetHashCode();
             hash = (hash * 397) ^ Y.GetHashCode();
             return hash;
+        }
+
+        public int CompareTo(MapCoordinate other)
+        {
+            if (other == null)
+                return -1;
+
+            if (other.X < X || other.Y < Y)
+                return -1;
+
+            if (other.X > X || other.Y > Y)
+                return 1;
+
+            return 0;
         }
     }
 }

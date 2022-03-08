@@ -210,7 +210,7 @@ namespace EndlessClient.Rendering.Map
             GraphicsDevice.SetRenderTarget(_mapObjectTarget);
             GraphicsDevice.Clear(ClearOptions.Target, Color.Transparent, 0, 0);
 
-            var gfxToRenderLast = new SortedList<Point, List<MapRenderLayer>>(new PointComparer());
+            var gfxToRenderLast = new SortedList<MapCoordinate, List<IMapEntityRenderer>>();
 
             _sb.Begin();
 
@@ -228,11 +228,11 @@ namespace EndlessClient.Rendering.Map
 
                         if (renderer.ShouldRenderLast)
                         {
-                            var renderLaterKey = new Point(col, row);
+                            var renderLaterKey = new MapCoordinate(col, row);
                             if (gfxToRenderLast.ContainsKey(renderLaterKey))
-                                gfxToRenderLast[renderLaterKey].Add(renderer.RenderLayer);
+                                gfxToRenderLast[renderLaterKey].Add(renderer);
                             else
-                                gfxToRenderLast.Add(renderLaterKey, new List<MapRenderLayer> { renderer.RenderLayer });
+                                gfxToRenderLast.Add(renderLaterKey, new List<IMapEntityRenderer> { renderer });
                         }
                         else
                             renderer.RenderElementAt(_sb, row, col, alpha);
@@ -245,11 +245,9 @@ namespace EndlessClient.Rendering.Map
                 var pointKey = kvp.Key;
                 var alpha = GetAlphaForCoordinates(pointKey.X, pointKey.Y, immutableCharacter);
 
-                foreach (var layer in kvp.Value)
+                foreach (var renderer in kvp.Value)
                 {
-                    _mapEntityRendererProvider.MapEntityRenderers
-                                              .Single(x => x.RenderLayer == layer)
-                                              .RenderElementAt(_sb, pointKey.Y, pointKey.X, alpha);
+                    renderer.RenderElementAt(_sb, pointKey.Y, pointKey.X, alpha);
                 }
             }
 

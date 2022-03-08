@@ -1,8 +1,8 @@
-﻿using System;
-using EndlessClient.Rendering.Character;
+﻿using EndlessClient.Rendering.Character;
 using EndlessClient.Rendering.Chat;
 using EndlessClient.Rendering.Map;
 using EOLib.Domain.Character;
+using EOLib.Domain.Extensions;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -33,8 +33,15 @@ namespace EndlessClient.Rendering.MapEntityRenderers
 
         protected override bool ElementExistsAt(int row, int col)
         {
-            return row == _characterProvider.MainCharacter.RenderProperties.MapY &&
-                   col == _characterProvider.MainCharacter.RenderProperties.MapX;
+            var rp = _characterProvider.MainCharacter.RenderProperties;
+            if (!rp.IsActing(CharacterActionState.Walking))
+            {
+                return row == rp.MapY && col == rp.MapX;
+            }
+            else
+            {
+                return row == rp.GetDestinationY() && col == rp.GetDestinationX();
+            }
         }
 
         public override void RenderElementAt(SpriteBatch spriteBatch, int row, int col, int alpha, Vector2 additionalOffset = default)
