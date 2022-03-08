@@ -37,13 +37,16 @@ namespace EndlessClient.Rendering.Chat
             _textLabel = new XNALabel(Constants.FontSize08pt5)
             {
                 Visible = true,
-                TextWidth = 165,
-                TextAlign = LabelAlignment.MiddleCenter,
+                TextWidth = 150,
                 ForeColor = Color.Black,
                 AutoSize = true,
-                Text = message
+                Text = message,
+                DrawOrder = 100,
             };
-            _textLabel.Initialize(); //todo: figure out if this needs to be removed from game components
+            _textLabel.Initialize();
+
+            if (!_textLabel.Game.Components.Contains(_textLabel))
+                _textLabel.Game.Components.Add(_textLabel);
 
             _drawLocation = Vector2.Zero;
             _startTime = DateTime.Now;
@@ -76,8 +79,6 @@ namespace EndlessClient.Rendering.Chat
                 _textLabel.Visible = false;
                 _startTime = Optional<DateTime>.Empty;
             }
-
-            _textLabel.Update(new GameTime());
         }
 
         public void DrawToSpriteBatch(SpriteBatch spriteBatch)
@@ -134,18 +135,13 @@ namespace EndlessClient.Rendering.Chat
 
             y += BM.Height;
             spriteBatch.Draw(NUB, _drawLocation + new Vector2((x2 + BR.Width - NUB.Width)/2f, y - 1), color);
-
-            spriteBatch.End();
-            _textLabel.Draw(new GameTime());
-            spriteBatch.Begin();
         }
 
         private void SetLabelDrawPosition()
         {
-            var extra = _chatBubbleTextureProvider.ChatBubbleTextures[ChatBubbleTexture.MiddleLeft].Width;
             _textLabel.DrawPosition = new Vector2(
-                _parent.DrawArea.X + _parent.DrawArea.Width / 2.0f - _textLabel.ActualWidth / 2.0f + extra,
-                _parent.DrawArea.Y - _textLabel.ActualHeight - 5);
+                _parent.DrawArea.X + _parent.DrawArea.Width / 2.0f - _textLabel.ActualWidth / 2.0f,
+                _parent.TopPixelWithOffset - _textLabel.ActualHeight - (GetTexture(ChatBubbleTexture.TopMiddle).Height * 5));
         }
 
         ~ChatBubble()

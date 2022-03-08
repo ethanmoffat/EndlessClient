@@ -117,6 +117,9 @@ namespace EndlessClient.Rendering.Character
             };
             _nameLabel.Initialize();
 
+            if (!_nameLabel.Game.Components.Contains(_nameLabel))
+                _nameLabel.Game.Components.Add(_nameLabel);
+
             _nameLabel.DrawPosition = GetNameLabelPosition();
             _previousMouseState = _currentMouseState = Mouse.GetState();
 
@@ -129,11 +132,8 @@ namespace EndlessClient.Rendering.Character
         {
             _characterTextures.Refresh(_character.RenderProperties);
 
-            if (_gameStateProvider.CurrentState == GameStates.None)
-            {
-                _outline = new Texture2D(GraphicsDevice, 1, 1);
-                _outline.SetData(new[] { Color.White });
-            }
+            _outline = new Texture2D(GraphicsDevice, 1, 1);
+            _outline.SetData(new[] { Color.White });
 
             base.LoadContent();
         }
@@ -218,13 +218,6 @@ namespace EndlessClient.Rendering.Character
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
-
-            if (Visible)
-            {
-                spriteBatch.End();
-                _nameLabel.Draw(new GameTime());
-                spriteBatch.Begin();
-            }
         }
 
         #endregion
@@ -239,10 +232,7 @@ namespace EndlessClient.Rendering.Character
             int i = 0;
             while (i < skinData.Length && skinData[i].A == 0) i++;
 
-            var firstPixelHeight = i == skinData.Length - 1 ? 0 : i/spriteForSkin.SourceRectangle.Height;
-            var genderOffset = renderProperties.Gender == 0 ? 12 : 13;
-
-            return genderOffset + firstPixelHeight;
+            return i == skinData.Length - 1 ? 0 : i/spriteForSkin.SourceRectangle.Height;
         }
 
         #endregion
@@ -348,13 +338,12 @@ namespace EndlessClient.Rendering.Character
             }
 
             _nameLabel.DrawPosition = GetNameLabelPosition();
-            _nameLabel.Update(gameTime);
         }
 
         private Vector2 GetNameLabelPosition()
         {
             return new Vector2(DrawArea.X - Math.Abs(DrawArea.Width - _nameLabel.ActualWidth) / 2,
-                               DrawArea.Y - 4 - _nameLabel.ActualHeight);
+                               TopPixelWithOffset - 8 - _nameLabel.ActualHeight);
         }
 
         private bool GetIsSteppingStone(ICharacterRenderProperties renderProps)

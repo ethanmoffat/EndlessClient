@@ -100,9 +100,13 @@ namespace EndlessClient.Rendering.NPC
                 TextAlign = LabelAlignment.MiddleCenter,
                 ForeColor = Color.White,
                 AutoSize = true,
-                Text = _enfFileProvider.ENFFile[NPC.ID].Name
+                Text = _enfFileProvider.ENFFile[NPC.ID].Name,
+                DrawOrder = 100,
             };
             _nameLabel.Initialize();
+
+            if (!_nameLabel.Game.Components.Contains(_nameLabel))
+                _nameLabel.Game.Components.Add(_nameLabel);
 
             _nameLabel.DrawPosition = GetNameLabelPosition();
             _previousMouseState = _currentMouseState = Mouse.GetState();
@@ -122,7 +126,6 @@ namespace EndlessClient.Rendering.NPC
 
             _nameLabel.Visible = DrawArea.Contains(_currentMouseState.Position) && !_healthBarRenderer.Visible;
             _nameLabel.DrawPosition = GetNameLabelPosition();
-            _nameLabel.Update(gameTime);
 
             _effectRenderer.Update();
             _healthBarRenderer.Update(gameTime);
@@ -147,8 +150,6 @@ namespace EndlessClient.Rendering.NPC
             _effectRenderer.DrawInFrontOfTarget(spriteBatch);
 
             _healthBarRenderer.DrawToSpriteBatch(spriteBatch);
-
-            _nameLabel.Draw(new GameTime());
         }
 
         public void StartDying()
@@ -195,34 +196,27 @@ namespace EndlessClient.Rendering.NPC
         {
             var data = _enfFileProvider.ENFFile[NPC.ID];
             var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPCFrame.Standing, EODirection.Down);
-            var frameTextureData = new Color[frameTexture.Width * frameTexture.Height];
-            frameTexture.GetData(frameTextureData);
+            var frameData = new Color[frameTexture.Width * frameTexture.Height];
+            frameTexture.GetData(frameData);
 
-            if (frameTextureData.All(x => x.A == 0))
-                return 0;
+            int i = 0;
+            while (i < frameData.Length && frameData[i].A == 0) i++;
 
-            var firstVisiblePixelIndex = frameTextureData.Select((color, index) => new { color, index })
-                                                            .Where(x => x.color.A != 0)
-                                                            .Select(x => x.index)
-                                                            .First();
-            return firstVisiblePixelIndex/frameTexture.Height;
+            return i == frameData.Length - 1 ? 0 : i / frameTexture.Height;
         }
 
         private int GetBottomPixel()
         {
             var data = _enfFileProvider.ENFFile[NPC.ID];
             var frameTexture = _npcSpriteSheet.GetNPCTexture(data.Graphic, NPCFrame.Standing, EODirection.Down);
-            var frameTextureData = new Color[frameTexture.Width * frameTexture.Height];
-            frameTexture.GetData(frameTextureData);
+            var frameData = new Color[frameTexture.Width * frameTexture.Height];
+            frameTexture.GetData(frameData);
 
-            if (frameTextureData.All(x => x.A == 0))
-                return frameTexture.Height;
 
-            var lastVisiblePixelIndex = frameTextureData.Select((color, index) => new { color, index })
-                                                            .Where(x => x.color.A != 0)
-                                                            .Select(x => x.index)
-                                                            .Last();
-            return lastVisiblePixelIndex / frameTexture.Height;
+            int i = frameData.Length - 1;
+            while (i >= 0 && frameData[i].A != 0) i--;
+
+            return i == frameData.Length - 1 ? frameTexture.Height : i / frameTexture.Height;
         }
 
         private bool GetHasStandingAnimation()
@@ -256,7 +250,7 @@ namespace EndlessClient.Rendering.NPC
             // y coordinate Formula courtesy of Apollo
             var xCoord = offsetX + 320 - mainOffsetX - widthFactor;
             var yCoord = (Math.Min(41, _baseTextureFrameRectangle.Width - 23) / 4) + offsetY + 168 - mainOffsetY - _baseTextureFrameRectangle.Height;
-            DrawArea = _baseTextureFrameRectangle.WithPosition(new Vector2(xCoord, yCoord));
+            DrawArea = _baseTextureFrameRectangle.WithPosition(new Vector2(xCoord, yCoord - 8));
 
             var oneGridSize = new Vector2(mainRenderer.DrawArea.Width,
                                           mainRenderer.DrawArea.Height);
@@ -292,7 +286,7 @@ namespace EndlessClient.Rendering.NPC
         private Vector2 GetNameLabelPosition()
         {
             return new Vector2(MapProjectedDrawArea.X + (MapProjectedDrawArea.Width - _nameLabel.ActualWidth) / 2f,
-                               TopPixelWithOffset - _nameLabel.ActualHeight - 4);
+                               TopPixelWithOffset - _nameLabel.ActualHeight - 8);
 
         }
 
