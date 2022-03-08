@@ -39,9 +39,7 @@ namespace EOLib.PacketHandlers
             if (character.RenderProperties.Direction != direction)
             {
                 var renderProperties = character.RenderProperties.WithDirection(direction);
-                var newCharacter = character.WithRenderProperties(renderProperties);
-
-                _currentMapStateRepository.Characters[playerID] = newCharacter;
+                _currentMapStateRepository.Characters[playerID] = character.WithRenderProperties(renderProperties);
             }
 
             foreach (var notifier in _otherCharacterAnimationNotifiers)

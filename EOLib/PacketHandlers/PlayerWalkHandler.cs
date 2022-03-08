@@ -34,14 +34,40 @@ namespace EOLib.PacketHandlers
         public override bool HandlePacket(IPacket packet)
         {
             var characterID = packet.ReadShort();
+
+            if (!_currentMapStateRepository.Characters.ContainsKey(characterID))
+                return false;
+
             var dir = (EODirection)packet.ReadChar();
             var x = packet.ReadChar();
             var y = packet.ReadChar();
+
+            var character = _currentMapStateRepository.Characters[characterID];
+
+            // if character is walking, that means animator is handling position of character
+            // if character is not walking (this is true in EOBot), update the domain model here
+            if (!character.RenderProperties.IsActing(CharacterActionState.Walking))
+            {
+                var renderProperties = EnsureCorrectXAndY(character.RenderProperties.WithDirection(dir), x, y);
+                _currentMapStateRepository.Characters[characterID] = character.WithRenderProperties(renderProperties);
+            }
 
             foreach (var notifier in _otherCharacterAnimationNotifiers)
                 notifier.StartOtherCharacterWalkAnimation(characterID, x, y, dir);
 
             return true;
+        }
+
+        private static ICharacterRenderProperties EnsureCorrectXAndY(ICharacterRenderProperties renderProperties, byte x, byte y)
+        {
+            var opposite = renderProperties.Direction.Opposite();
+            var tempRenderProperties = renderProperties
+                .WithDirection(opposite)
+                .WithMapX(x)
+                .WithMapY(y);
+            return renderProperties
+                .WithMapX(tempRenderProperties.GetDestinationX())
+                .WithMapY(tempRenderProperties.GetDestinationY());
         }
     }
 }
