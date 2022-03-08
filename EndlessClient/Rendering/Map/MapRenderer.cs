@@ -146,6 +146,12 @@ namespace EndlessClient.Rendering.Map
             _quakeState = new MapQuakeState(strength);
         }
 
+        public void RedrawGroundLayer()
+        {
+            _lastMapChecksum = null;
+            _mapTransitionState = new MapTransitionState(DateTime.Now - new TimeSpan(0, 5, 0), 255);
+        }
+
         private void UpdateQuakeState()
         {
             // when quake:

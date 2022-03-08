@@ -64,6 +64,9 @@ namespace EndlessClient.Rendering.Map
             ShowMapTransition(differentMapID);
             AddSpikeTraps();
             ShowWarpBubbles(warpAnimation);
+
+            if (!differentMapID)
+                RedrawGroundLayer();
         }
 
         private void StopAllAnimations()
@@ -130,6 +133,12 @@ namespace EndlessClient.Rendering.Map
             {
                 _characterRendererRepository.MainCharacterRenderer.ShowWarpArrive();
             }
+        }
+
+        private void RedrawGroundLayer()
+        {
+            var mapRenderer = _hudControlProvider.GetComponent<IMapRenderer>(HudControlIdentifier.MapRenderer);
+            mapRenderer.RedrawGroundLayer();
         }
     }
 
