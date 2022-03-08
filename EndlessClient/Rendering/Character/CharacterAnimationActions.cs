@@ -9,7 +9,6 @@ using EOLib.Domain.Map;
 using EOLib.Domain.Notifiers;
 using EOLib.IO.Map;
 using EOLib.IO.Repositories;
-using System.Linq;
 
 namespace EndlessClient.Rendering.Character
 {
@@ -173,7 +172,9 @@ namespace EndlessClient.Rendering.Character
         {
             var character = characterID == _characterRepository.MainCharacter.ID
                 ? _characterRepository.MainCharacter
-                : _currentMapStateProvider.Characters.SingleOrDefault(x => x.ID == characterID);
+                : _currentMapStateProvider.Characters.ContainsKey(characterID)
+                    ? _currentMapStateProvider.Characters[characterID]
+                    : null;
 
             var characterRenderer = characterID == _characterRepository.MainCharacter.ID
                 ? _characterRendererProvider.MainCharacterRenderer

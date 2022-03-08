@@ -1,7 +1,6 @@
 ﻿using AutomaticTypeMapper;
 using EOLib.Domain.Extensions;
 using EOLib.Domain.Map;
-using EOLib.Extensions;
 using EOLib.IO.Map;
 
 namespace EndlessClient.Rendering.Map
@@ -30,13 +29,13 @@ namespace EndlessClient.Rendering.Map
 
         public void ShowSpikeTrap(int characterId)
         {
-            var character = _currentMapStateRepository.Characters
-                .OptionalSingle(x => x.ID == characterId);
+            if (!_currentMapStateRepository.Characters.ContainsKey(characterId))
+                return;
 
-            if (character.HasValue)
-                ShowSpikeTrap(new MapCoordinate(
-                    character.Value.RenderProperties.GetDestinationX(),
-                    character.Value.RenderProperties.GetDestinationY()));
+            var character = _currentMapStateRepository.Characters[characterId];
+            ShowSpikeTrap(new MapCoordinate(
+                character.RenderProperties.GetDestinationX(),
+                character.RenderProperties.GetDestinationY()));
         }
 
         public void HideSpikeTrap(MapCoordinate coordinate)
@@ -46,13 +45,13 @@ namespace EndlessClient.Rendering.Map
 
         public void HideSpikeTrap(int characterId)
         {
-            var character = _currentMapStateRepository.Characters
-                .OptionalSingle(x => x.ID == characterId);
+            if (!_currentMapStateRepository.Characters.ContainsKey(characterId))
+                return;
 
-            if (character.HasValue)
-                HideSpikeTrap(new MapCoordinate(
-                    character.Value.RenderProperties.MapX,
-                    character.Value.RenderProperties.MapY));
+            var character = _currentMapStateRepository.Characters[characterId];
+            HideSpikeTrap(new MapCoordinate(
+                character.RenderProperties.MapX,
+                character.RenderProperties.MapY));
         }
     }
 

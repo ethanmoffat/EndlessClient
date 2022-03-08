@@ -192,7 +192,7 @@ namespace EOLib.Domain.Character
             props.ActualWalkFrame = 0;
             props.RenderAttackFrame = 0;
             props.EmoteFrame = 0;
-            props.CurrentAction = CharacterActionState.Standing;
+            props.CurrentAction = props.SitState == SitState.Standing ? CharacterActionState.Standing : CharacterActionState.Sitting;
             return props;
         }
 

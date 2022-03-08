@@ -4,7 +4,6 @@ using EOLib.Domain.Login;
 using EOLib.Domain.Map;
 using EOLib.Net;
 using EOLib.Net.Handlers;
-using System.Linq;
 
 namespace EOLib.PacketHandlers
 {
@@ -38,16 +37,18 @@ namespace EOLib.PacketHandlers
                     .WithMapY(y);
                 _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(updatedRenderProperties);
             }
-            else
+            else if (_currentMapStateRepository.Characters.ContainsKey(playerId))
             {
-                var oldCharacter = _currentMapStateRepository.Characters.Single(c => c.ID == playerId);
+                var oldCharacter = _currentMapStateRepository.Characters[playerId];
                 var renderProperties = oldCharacter.RenderProperties.WithSitState(SitState.Standing)
                     .WithMapX(x)
                     .WithMapY(y);
-                var newCharacter = oldCharacter.WithRenderProperties(renderProperties);
 
-                _currentMapStateRepository.Characters.Remove(oldCharacter);
-                _currentMapStateRepository.Characters.Add(newCharacter);
+                _currentMapStateRepository.Characters[playerId] = oldCharacter.WithRenderProperties(renderProperties);
+            }
+            else
+            {
+                return false;
             }
 
             return true;

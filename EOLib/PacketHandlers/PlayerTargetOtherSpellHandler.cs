@@ -6,7 +6,6 @@ using EOLib.Domain.Notifiers;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace EOLib.PacketHandlers
 {
@@ -45,12 +44,15 @@ namespace EOLib.PacketHandlers
                 var renderProps = _characterRepository.MainCharacter.RenderProperties.WithDirection(sourcePlayerDirection);
                 _characterRepository.MainCharacter = _characterRepository.MainCharacter.WithRenderProperties(renderProps);
             }
+            else if (_currentMapStateRepository.Characters.ContainsKey(sourcePlayerId))
+            {
+                var character = _currentMapStateRepository.Characters[sourcePlayerId];
+                var updatedCharacter = character.WithRenderProperties(character.RenderProperties.WithDirection(sourcePlayerDirection));
+                _currentMapStateRepository.Characters[sourcePlayerId] = updatedCharacter;
+            }
             else
             {
-                var character = _currentMapStateRepository.Characters.Single(x => x.ID == sourcePlayerId);
-                var updatedCharacter = character.WithRenderProperties(character.RenderProperties.WithDirection(sourcePlayerDirection));
-                _currentMapStateRepository.Characters.Remove(character);
-                _currentMapStateRepository.Characters.Add(updatedCharacter);
+                return false;
             }
 
             if (packet.ReadPosition != packet.Length)

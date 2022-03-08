@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -9,6 +7,8 @@ using EOLib.Domain.NPC;
 using EOLib.Net;
 using EOLib.Net.Handlers;
 using EOLib.Net.Translators;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace EOLib.PacketHandlers
 {
@@ -53,7 +53,7 @@ namespace EOLib.PacketHandlers
             _characterRepository.MainCharacter = _characterRepository.MainCharacter
                 .WithRenderProperties(updatedRenderProperties);
 
-            _currentMapStateRepository.Characters = new HashSet<ICharacter>(data.Characters);
+            _currentMapStateRepository.Characters = data.Characters.ToDictionary(k => k.ID, v => v);
             _currentMapStateRepository.NPCs = new HashSet<INPC>(data.NPCs);
             _currentMapStateRepository.MapItems = new HashSet<IItem>(data.Items);
 

@@ -61,12 +61,11 @@ namespace EOLib.PacketHandlers
 
                 _characterRepository.MainCharacter = character;
             }
-            else
+            else if(_currentMapStateRepository.Characters.ContainsKey(fromPlayerId))
             {
-                var character = _currentMapStateRepository.Characters.Single(x => x.ID == fromPlayerId);
-                var renderProps = character.RenderProperties.WithDirection(fromDirection);
-                _currentMapStateRepository.Characters.Remove(character);
-                _currentMapStateRepository.Characters.Add(character.WithRenderProperties(renderProps));
+                var renderProps = _currentMapStateRepository.Characters[fromPlayerId].RenderProperties.WithDirection(fromDirection);
+                var updatedCharacter = _currentMapStateRepository.Characters[fromPlayerId].WithRenderProperties(renderProps);
+                _currentMapStateRepository.Characters[fromPlayerId] = updatedCharacter;
             }
 
             // todo: this has the potential to bug out if the opponent ID is never reset and the player dies/leaves

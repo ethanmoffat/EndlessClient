@@ -63,13 +63,13 @@ namespace EndlessClient.Rendering.Character
 
         private void CreateOtherCharacterRenderersAndCacheProperties()
         {
-            foreach (var character in _currentMapStateRepository.Characters)
+            foreach (var id in _currentMapStateRepository.Characters.Keys)
             {
-                var id = character.ID;
                 var cached = _characterStateCache.HasCharacterWithID(id)
                     ? new Optional<ICharacter>(_characterStateCache.OtherCharacters[id])
                     : Optional<ICharacter>.Empty;
 
+                var character = _currentMapStateRepository.Characters[id];
                 if (!cached.HasValue)
                 {
                     _characterStateCache.UpdateCharacterState(id, character);
@@ -108,13 +108,8 @@ namespace EndlessClient.Rendering.Character
 
         private void RemoveStaleCharacters()
         {
-            var staleIDs = new List<int>();
-            foreach (var kvp in _characterStateCache.OtherCharacters)
-            {
-                if (_currentMapStateRepository.Characters.Any(x => x.ID == kvp.Key))
-                    continue;
-                staleIDs.Add(kvp.Key);
-            }
+            var staleIDs = _characterStateCache.OtherCharacters.Keys
+                .Where(x => !_currentMapStateRepository.Characters.ContainsKey(x));
 
             foreach (var id in staleIDs)
             {
@@ -136,9 +131,9 @@ namespace EndlessClient.Rendering.Character
 
         private void UpdateDeadCharacters()
         {
-            var deadCharacters = new List<ICharacter>();
+            var deadCharacters = new List<int>();
 
-            foreach (var character in _currentMapStateRepository.Characters.Where(x => x.RenderProperties.IsDead))
+            foreach (var character in _currentMapStateRepository.Characters.Values.Where(x => x.RenderProperties.IsDead))
             {
                 var actionTime = _characterStateCache.DeathStartTimes.SingleOrDefault(x => x.UniqueID == character.ID);
                 if (actionTime == null)
@@ -156,11 +151,12 @@ namespace EndlessClient.Rendering.Character
                         _characterRendererRepository.CharacterRenderers.Remove(character.ID);
                     }
 
-                    deadCharacters.Add(character);
+                    deadCharacters.Add(character.ID);
                 }
             }
 
-            _currentMapStateRepository.Characters.RemoveWhere(deadCharacters.Contains);
+            foreach (var id in deadCharacters)
+                _currentMapStateRepository.Characters.Remove(id);
         }
 
         private ICharacterRenderer InitializeRendererForCharacter(ICharacter character)

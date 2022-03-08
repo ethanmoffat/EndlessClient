@@ -80,6 +80,21 @@ namespace EndlessClient.GameExecution
                     _registry.Resolve<IConfigurationRepository>()
                         .MainCloneCompat = true;
                 }
+                else if (string.Equals(arg, "--version") && i < _args.Length - 1)
+                {
+                    var versionStr = _args[i + 1];
+                    if (!byte.TryParse(versionStr, out var version))
+                    {
+                        Debug.WriteLine($"Version must be a byte (0-255).");
+                    }
+                    else
+                    {
+                        _registry.Resolve<IConfigurationRepository>()
+                            .VersionBuild = version;
+                    }
+                    
+                    i++;
+                }
                 else
                 {
                     Debug.WriteLine($"Unrecognized argument: {arg}. Will be ignored.");

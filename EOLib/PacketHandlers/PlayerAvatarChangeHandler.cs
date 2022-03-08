@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EOLib.Domain.Character;
 using EOLib.Domain.Login;
 using EOLib.Domain.Map;
@@ -42,13 +40,13 @@ namespace EOLib.PacketHandlers
             {
                 currentCharacter = _characterRepository.MainCharacter;
             }
+            else if (_currentMapStateRepository.Characters.ContainsKey(playerID))
+            {
+                currentCharacter = _currentMapStateRepository.Characters[playerID];
+            }
             else
             {
-                try
-                {
-                    currentCharacter = _currentMapStateRepository.Characters.Single(x => x.ID == playerID);
-                }
-                catch (InvalidOperationException) { return false; }
+                return false;
             }
 
             var currentRenderProps = currentCharacter.RenderProperties;
@@ -103,8 +101,7 @@ namespace EOLib.PacketHandlers
             }
             else
             {
-                _currentMapStateRepository.Characters.Remove(currentCharacter);
-                _currentMapStateRepository.Characters.Add(updatedCharacter);
+                _currentMapStateRepository.Characters[playerID] = updatedCharacter;
             }
 
             return true;

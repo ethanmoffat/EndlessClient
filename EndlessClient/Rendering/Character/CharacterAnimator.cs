@@ -148,9 +148,9 @@ namespace EndlessClient.Rendering.Character
                 _characterRepository.MainCharacter.WithRenderProperties(
                     _characterRepository.MainCharacter.RenderProperties.ResetAnimationFrames());
 
-            _currentMapStateRepository.Characters =
-                new HashSet<ICharacter>(
-                    _currentMapStateRepository.Characters.Select(x => x.WithRenderProperties(x.RenderProperties.ResetAnimationFrames())));
+            _currentMapStateRepository.Characters = _currentMapStateRepository.Characters.Values
+                .Select(c => c.WithRenderProperties(c.RenderProperties.ResetAnimationFrames()))
+                .ToDictionary(k => k.ID, v => v);
         }
 
         #region Walk Animation
@@ -329,7 +329,9 @@ namespace EndlessClient.Rendering.Character
         {
             return pair.UniqueID == _characterRepository.MainCharacter.ID
                 ? _characterRepository.MainCharacter
-                : _currentMapStateRepository.Characters.SingleOrDefault(x => x.ID == pair.UniqueID);
+                : _currentMapStateRepository.Characters.ContainsKey(pair.UniqueID)
+                    ? _currentMapStateRepository.Characters[pair.UniqueID]
+                    : null;
         }
 
         private void UpdateCharacterInRepository(ICharacter currentCharacter, ICharacter nextFrameCharacter)
@@ -340,18 +342,16 @@ namespace EndlessClient.Rendering.Character
             }
             else
             {
-                _currentMapStateRepository.Characters.Remove(currentCharacter);
-                _currentMapStateRepository.Characters.Add(nextFrameCharacter);
+                _currentMapStateRepository.Characters[nextFrameCharacter.ID] = nextFrameCharacter;
             }
         }
 
         private void ResetCharacterAnimationFrames(int characterID)
         {
-            var character = _currentMapStateRepository.Characters.Single(x => x.ID == characterID);
+            var character = _currentMapStateRepository.Characters[characterID];
             var renderProps = character.RenderProperties.ResetAnimationFrames();
             var newCharacter = character.WithRenderProperties(renderProps);
-            _currentMapStateRepository.Characters.Remove(character);
-            _currentMapStateRepository.Characters.Add(newCharacter);
+            _currentMapStateRepository.Characters[characterID] = newCharacter;
         }
     }
 

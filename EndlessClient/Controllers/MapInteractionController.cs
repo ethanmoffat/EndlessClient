@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using AutomaticTypeMapper;
+﻿using AutomaticTypeMapper;
 using EndlessClient.ControlSets;
 using EndlessClient.Dialogs.Factories;
 using EndlessClient.HUD;
@@ -13,6 +11,8 @@ using EOLib.Domain.Item;
 using EOLib.Domain.Map;
 using EOLib.Extensions;
 using EOLib.Localization;
+using System;
+using System.Threading.Tasks;
 
 namespace EndlessClient.Controllers
 {
@@ -98,8 +98,10 @@ namespace EndlessClient.Controllers
                     {
                         var playerId = item.OwningPlayerID.Value;
                         message = EOResourceID.STATUS_LABEL_ITEM_PICKUP_PROTECTED_BY;
-                        var characterRef = _currentMapStateProvider.Characters.OptionalSingle(x => x.ID == playerId);
-                        extra = characterRef.HasValue ? characterRef.Value.Name : string.Empty;
+                        if (_currentMapStateProvider.Characters.ContainsKey(playerId))
+                        {
+                            extra = _currentMapStateProvider.Characters[playerId].Name;
+                        }
                     }
 
                     _statusLabelSetter.SetStatusLabel(EOResourceID.STATUS_LABEL_TYPE_INFORMATION, message, extra);
